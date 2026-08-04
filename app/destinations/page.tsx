@@ -1,0 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+import Link from "next/link";
+import { PageShell } from "../components/page-shell";
+import { destinations } from "../data/site-data";
+export default function DestinationsPage(){return <PageShell><main id="main-content"><section className="inner-hero shell"><span className="eyebrow">ישראל מחכה לכם</span><h1>מוצאים את האזור שמתאים לחופשה</h1><p>מהצפון הירוק ועד אילת, הכירו את האופי של כל אזור והמשיכו לחיפוש ממוקד.</p></section><section className="section shell destination-directory">{destinations.map((item,index)=><article key={item.name}><img src={item.image} alt={item.name}/><div><span>0{index+1}</span><h2>{item.name}</h2><p>{item.subtitle}</p><Link className="button secondary" href={`/search/?location=${encodeURIComponent(item.name)}`}>למקומות באזור</Link></div></article>)}</section><section className="section section-tint"><div className="shell region-links"><h2>עוד אזורים לחיפוש</h2><div>{["רמת הגולן","גליל עליון","עמקים","מישור החוף","השרון","הרי ירושלים","נגב","ערבה"].map(x=><Link key={x} href={`/search/?location=${encodeURIComponent(x)}`}>{x}</Link>)}</div></div></section></main></PageShell>}

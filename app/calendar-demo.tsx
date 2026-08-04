@@ -374,13 +374,6 @@ export function CalendarDemo({
           </div>
         )}
 
-        {mode === "business" && (
-          <div className="business-demo-note">
-            <strong>המחשת תפקוד</strong>
-            <span>פרטי העסק והתמונות מאומתים. התפוסה ומינימום הלילות במסך זה הם נתוני הדגמה עד לחיבור למערכת ההזמנות.</span>
-          </div>
-        )}
-
         {flexible ? (
           <div className="flexible-content">
             <div>
