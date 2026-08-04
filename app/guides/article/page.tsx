@@ -1,0 +1,6 @@
+"use client";
+/* eslint-disable @next/next/no-img-element */
+import { useEffect,useState } from "react";
+import { PageShell } from "../../components/page-shell";
+import { guides } from "../../data/site-data";
+export default function ArticlePage(){const [id,setId]=useState(0);useEffect(()=>{const timer=window.setTimeout(()=>setId(Math.abs(Number(new URLSearchParams(location.search).get("id")||0))%guides.length),0);return()=>window.clearTimeout(timer)},[]);const item=guides[id];return <PageShell><main id="main-content"><article className="article-page shell"><header><span className="eyebrow">{item.category}</span><h1>{item.title}</h1><p>{item.excerpt}</p><img src={item.image} alt=""/></header><div className="article-body"><p>בחירה טובה מתחילה בהגדרה ברורה של ההרכב, האזור והדברים שבאמת חשובים לכם. כך אפשר לצמצם את החיפוש בלי לוותר על האפשרויות הנכונות.</p><h2>מתחילים מההרכב</h2><p>זוג, משפחה או קבוצה צריכים מרחב שונה. בודקים את מספר חדרי השינה, אזורי הישיבה והפרטיות שכל אחד מקבל.</p><h2>בוחרים אזור לפי אופי החופשה</h2><p>נוף פתוח ושקט, קרבה למסעדות, ים או מסלולים. האזור משפיע על כל החוויה ולא רק על זמן הנסיעה.</p><h2>בודקים את הפרטים לפני ההזמנה</h2><p>תאריכי כניסה ויציאה, מדיניות ביטול, מתקנים, נגישות והתאמה לילדים. המידע צריך להיות ברור לפני שממשיכים.</p></div></article></main></PageShell>}
