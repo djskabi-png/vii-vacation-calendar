@@ -3,11 +3,11 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://djskabi-png.github.io/vii-vacation-calendar/"),
-  title: "חיפוש חופשה ויומן זמינות | VII",
-  description: "המחשה אינטראקטיבית לחיפוש חופשה כללי וליומן זמינות בדף עסק, עם תאריכים, אורחים ומגבלות מתאימות לכל מצב.",
+  title: "המחשת יומן חדש בדף הבית ובדף עסק | VII",
+  description: "המחשה אינטראקטיבית של מנוע החיפוש בדף הבית ושל יומן הזמינות בדף העסק, בתוך העיצוב הקיים של וי פור ויקיישן.",
   openGraph: {
-    title: "חיפוש חופשה ויומן זמינות | VII",
-    description: "שני תרחישים בממשק אחד: חיפוש כללי בכל האתר ויומן זמינות מלא בדף עסק.",
+    title: "המחשת יומן חדש בדף הבית ובדף עסק | VII",
+    description: "כך מנוע החיפוש והיומן החדש משתלבים בעיצוב הקיים של האתר.",
     images: [
       {
         url: "https://djskabi-png.github.io/vii-vacation-calendar/og-v2.png",
@@ -19,8 +19,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "חיפוש חופשה ויומן זמינות | VII",
-    description: "חיפוש כללי בכל האתר ויומן זמינות מלא בדף עסק.",
+    title: "המחשת יומן חדש בדף הבית ובדף עסק | VII",
+    description: "מנוע חיפוש כללי ויומן זמינות לעסק, מותאמים לאתר הקיים.",
     images: ["https://djskabi-png.github.io/vii-vacation-calendar/og-v2.png"],
   },
 };
