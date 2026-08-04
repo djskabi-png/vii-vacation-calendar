@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 export type CalendarMode = "home" | "business";
+export type BusinessKind = "multi" | "single";
 
 type Availability = {
   kind: "past" | "busy" | "limited" | "open";
@@ -118,36 +119,37 @@ function minimumNights(date: Date) {
   return date.getDay() === 4 || date.getDay() === 5 ? 2 : 1;
 }
 
-function availabilityFor(date: Date, mode: CalendarMode): Availability {
+function availabilityFor(date: Date, mode: CalendarMode, businessKind: BusinessKind = "multi"): Availability {
   const key = keyOf(date);
   if (date < DEMO_TODAY) return { kind: "past", units: 0, label: "תאריך שעבר" };
   if (mode === "home") return { kind: "open", units: 0, label: "זמין לחיפוש" };
   if (BUSINESS_BUSY_DATES.has(key)) return { kind: "busy", units: 0, label: "תפוס" };
+  if (businessKind === "single") return { kind: "open", units: 1, label: "פנוי" };
   if (BUSINESS_LIMITED_DATES.has(key)) return { kind: "limited", units: 1, label: "יחידה אחת פנויה" };
   if (BUSINESS_THREE_UNITS.has(key)) return { kind: "open", units: 3, label: "3 יחידות פנויות" };
   return { kind: "open", units: 4, label: "4 יחידות פנויות" };
 }
 
-function rangeHasBusyDate(start: string, end: string) {
+function rangeHasBusyDate(start: string, end: string, businessKind: BusinessKind = "multi") {
   const cursor = addDays(dateFromKey(start), 1);
   const finish = dateFromKey(end);
   while (cursor < finish) {
-    if (availabilityFor(cursor, "business").kind === "busy") return true;
+    if (availabilityFor(cursor, "business", businessKind).kind === "busy") return true;
     cursor.setDate(cursor.getDate() + 1);
   }
   return false;
 }
 
-function findQuickRange(mode: CalendarMode, nights: number, preferredDay: number) {
+function findQuickRange(mode: CalendarMode, nights: number, preferredDay: number, businessKind: BusinessKind = "multi") {
   let candidate = addDays(DEMO_TODAY, 1);
   for (let attempt = 0; attempt < 220; attempt += 1) {
     const stayLength = mode === "business" ? Math.max(nights, minimumNights(candidate)) : nights;
     const end = addDays(candidate, stayLength);
-    const startState = availabilityFor(candidate, mode);
+    const startState = availabilityFor(candidate, mode, businessKind);
     if (
       candidate.getDay() === preferredDay &&
       startState.kind !== "busy" &&
-      (mode === "home" || !rangeHasBusyDate(keyOf(candidate), keyOf(end)))
+      (mode === "home" || !rangeHasBusyDate(keyOf(candidate), keyOf(end), businessKind))
     ) {
       return { start: keyOf(candidate), end: keyOf(end) };
     }
@@ -162,6 +164,7 @@ function CalendarMonth({
   checkIn,
   checkOut,
   onChoose,
+  businessKind,
   secondary,
 }: {
   month: Date;
@@ -169,6 +172,7 @@ function CalendarMonth({
   checkIn: string | null;
   checkOut: string | null;
   onChoose: (date: Date) => void;
+  businessKind: BusinessKind;
   secondary?: boolean;
 }) {
   const cells = useMemo(() => {
@@ -191,7 +195,7 @@ function CalendarMonth({
         {cells.map((date, index) => {
           if (!date) return <span className="demo-day-empty" key={`empty-${index}`} />;
           const key = keyOf(date);
-          const state = availabilityFor(date, mode);
+          const state = availabilityFor(date, mode, businessKind);
           const min = mode === "business" ? minimumNights(date) : 1;
           const disabled = state.kind === "past" || state.kind === "busy";
           const isStart = key === checkIn;
@@ -217,7 +221,7 @@ function CalendarMonth({
               <span className="demo-day-number">{date.getDate()}</span>
               {mode === "business" && state.kind !== "past" && (
                 <span className="demo-availability">
-                  {state.kind === "busy" ? "תפוס" : state.units === 1 ? "1 פנויה" : `${state.units} פנויות`}
+                  {state.kind === "busy" ? "תפוס" : businessKind === "single" ? "פנוי" : state.units === 1 ? "1 פנויה" : `${state.units} פנויות`}
                 </span>
               )}
               {mode === "business" && min > 1 && !disabled && <span className="demo-minimum">מינ׳ {min}</span>}
@@ -231,11 +235,15 @@ function CalendarMonth({
 
 export function CalendarDemo({
   mode,
+  businessKind = "multi",
+  businessName = "קסם הרימון",
   open,
   onClose,
   onConfirm,
 }: {
   mode: CalendarMode;
+  businessKind?: BusinessKind;
+  businessName?: string;
   open: boolean;
   onClose: () => void;
   onConfirm: (result: CalendarResult) => void;
@@ -286,7 +294,7 @@ export function CalendarDemo({
       setNotice("תאריך ההגעה עודכן, עכשיו בחרו עזיבה");
       return;
     }
-    if (mode === "business" && rangeHasBusyDate(checkIn, key)) {
+    if (mode === "business" && rangeHasBusyDate(checkIn, key, businessKind)) {
       setNotice("יש יום תפוס בתוך הטווח, בחרו טווח אחר");
       return;
     }
@@ -299,7 +307,7 @@ export function CalendarDemo({
   function applyQuickStay(id: (typeof QUICK_STAYS)[number]["id"]) {
     const quick = QUICK_STAYS.find((item) => item.id === id);
     if (!quick) return;
-    const range = findQuickRange(mode, quick.nights, quick.preferredDay);
+    const range = findQuickRange(mode, quick.nights, quick.preferredDay, businessKind);
     if (!range) return;
     setCheckIn(range.start);
     setCheckOut(range.end);
@@ -329,12 +337,14 @@ export function CalendarDemo({
           <div>
             <span className="dialog-kicker">{mode === "home" ? "חיפוש בכל האתר" : "זמינות במקום אחד"}</span>
             <h2 id="calendar-dialog-title">
-              {mode === "home" ? "מתי תרצו לצאת לחופשה?" : "בדיקת זמינות בקסם הרימון"}
+              {mode === "home" ? "מתי תרצו לצאת לחופשה?" : `בדיקת זמינות ב${businessName}`}
             </h2>
             <p>
               {mode === "home"
                 ? "כל תאריך עתידי ניתן לחיפוש. הזמינות תיבדק מול כל המקומות בתוצאות."
-                : "ימים תפוסים, מספר היחידות ומינימום הלילות משפיעים על הטווח שניתן לבחור."}
+                : businessKind === "single"
+                  ? "ימים תפוסים ומינימום הלילות משפיעים על הטווח שניתן לבחור. במקום יחיד אין צורך להציג כמות יחידות."
+                  : "ימים תפוסים, מספר היחידות ומינימום הלילות משפיעים על הטווח שניתן לבחור."}
             </p>
           </div>
           <button type="button" className="dialog-close" onClick={onClose} aria-label="סגירת חלון התאריכים">×</button>
@@ -421,8 +431,8 @@ export function CalendarDemo({
             </div>
 
             <div className="dialog-months">
-              <CalendarMonth month={firstMonth} mode={mode} checkIn={checkIn} checkOut={checkOut} onChoose={chooseDate} />
-              <CalendarMonth month={secondMonth} mode={mode} checkIn={checkIn} checkOut={checkOut} onChoose={chooseDate} secondary />
+              <CalendarMonth month={firstMonth} mode={mode} businessKind={businessKind} checkIn={checkIn} checkOut={checkOut} onChoose={chooseDate} />
+              <CalendarMonth month={secondMonth} mode={mode} businessKind={businessKind} checkIn={checkIn} checkOut={checkOut} onChoose={chooseDate} secondary />
             </div>
 
             <div className="dialog-legend">
@@ -431,7 +441,7 @@ export function CalendarDemo({
               ) : (
                 <>
                   <span><i className="legend-dot open" /> פנוי</span>
-                  <span><i className="legend-dot limited" /> יחידה אחרונה</span>
+                  {businessKind === "multi" && <span><i className="legend-dot limited" /> יחידה אחרונה</span>}
                   <span><i className="legend-dot busy" /> תפוס</span>
                   <span><b>מינ׳ 2</b> מינימום לילות</span>
                 </>
@@ -445,13 +455,13 @@ export function CalendarDemo({
             <span className={ready ? "status-ready" : ""}>{ready ? "✓" : "i"}</span>
             <div>
               <strong>{flexible ? "החיפוש הגמיש מוכן" : notice}</strong>
-              <small>{mode === "home" ? "הבחירה תחול על כל תוצאות האתר" : "הבחירה תחול רק על יחידות קסם הרימון"}</small>
+              <small>{mode === "home" ? "הבחירה תחול על כל תוצאות האתר" : businessKind === "single" ? `הבחירה תחול על כל המקום ב${businessName}` : `הבחירה תחול רק על יחידות ${businessName}`}</small>
             </div>
           </div>
           <div className="dialog-actions">
             {!flexible && <button type="button" className="clear-dates" onClick={reset} disabled={!checkIn && !checkOut}>ניקוי</button>}
             <button type="button" className="confirm-dates" onClick={confirm} disabled={!ready}>
-              {mode === "home" ? "הצגת תוצאות" : "בדיקת יחידות ומחירים"}
+              {mode === "home" ? "הצגת תוצאות" : businessKind === "single" ? "בדיקת מחיר וזמינות" : "בדיקת יחידות ומחירים"}
             </button>
           </div>
         </footer>

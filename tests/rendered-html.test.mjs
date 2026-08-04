@@ -22,6 +22,8 @@ test("server-renders the integrated homepage", async () => {
   assert.match(html, /מוצאים מקום, בוחרים תאריך ויוצאים לחופשה/);
   assert.match(html, /יעדים מומלצים/);
   assert.match(html, /תאריך מבוקש/);
+  assert.match(html, /business\/?\?scenario=multi/);
+  assert.match(html, /business\/?\?scenario=single/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/i);
 });
 
@@ -45,4 +47,8 @@ test("keeps the two calendar contexts explicit in source", async () => {
   assert.match(calendar, /המחשת תפקוד/);
   assert.match(homepage, /mode="home"/);
   assert.match(business, /mode="business"/);
+  assert.match(business, /businessKind=\{scenario\}/);
+  assert.match(business, /מקום אירוח יחיד/);
+  assert.match(calendar, /businessKind === "single"/);
+  assert.match(calendar, /אין צורך להציג כמות יחידות/);
 });
