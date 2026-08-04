@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://djskabi-png.github.io/vii-vacation-calendar/"),
   title: "בחירת תאריכים לחופשה | VII",
   description: "יומן זמינות נוח ומהיר לבחירת תאריכי החופשה שלכם.",
   openGraph: {
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
     description: "יומן זמינות נוח ומהיר לבחירת תאריכי החופשה שלכם.",
     images: [
       {
-        url: "/vii-calendar-social.png",
+        url: "https://djskabi-png.github.io/vii-vacation-calendar/vii-calendar-social.png",
         width: 1732,
         height: 909,
         alt: "יומן בחירת תאריכים של VII",
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "בחירת תאריכים לחופשה | VII",
     description: "יומן זמינות נוח ומהיר לבחירת תאריכי החופשה שלכם.",
-    images: ["/vii-calendar-social.png"],
+    images: ["https://djskabi-png.github.io/vii-vacation-calendar/vii-calendar-social.png"],
   },
 };
 
