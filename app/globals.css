@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap");
 
 :root {
   --orange: #fc6d00;
@@ -29,7 +29,7 @@ body {
   margin: 0;
   color: var(--ink);
   background: var(--page);
-  font-family: "Heebo", Arial, sans-serif;
+  font-family: "Rubik", Arial, sans-serif;
   text-rendering: optimizeLegibility;
 }
 
