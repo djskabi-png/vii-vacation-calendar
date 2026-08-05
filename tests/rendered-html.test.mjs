@@ -61,6 +61,24 @@ test("query-driven detail pages render the requested content on the server", asy
   }
 });
 
+test("removed places stay out of the public catalog and magazine", async () => {
+  const [searchResponse, guidesResponse, sitemapResponse, removedResponse] = await Promise.all([
+    render("/search"),
+    render("/guides"),
+    render("/sitemap.xml", { headers: { accept: "application/xml" } }),
+    render("/business?id=infinity-suites"),
+  ]);
+  const [searchHtml, guidesHtml, sitemapXml] = await Promise.all([
+    searchResponse.text(),
+    guidesResponse.text(),
+    sitemapResponse.text(),
+  ]);
+  assert.doesNotMatch(searchHtml, /infinity-suites|e65d757e686fda64/i);
+  assert.doesNotMatch(guidesHtml, /e65d757e686fda64/i);
+  assert.doesNotMatch(sitemapXml, /infinity-suites/i);
+  assert.equal(removedResponse.status, 404);
+});
+
 test("lead proxy handles bot submissions locally without contacting the lead system", async () => {
   const response = await render("/api/leads", {
     method: "POST",
@@ -269,7 +287,7 @@ test("includes the accessibility system and honest place disclosures", async () 
   assert.match(statement, /WCAG 2\.0/);
   assert.match(statement, /פרטי רכז הנגישות טרם נמסרו/);
   assert.match(statement, /נמצאת בתהליך השלמה/);
-  assert.equal((data.match(/"(?:aqua-resort|kesem-harimon|ahuzat-or|ar-suites|sol-gilgal|infinity-suites|magic-garden-gefen|anael-estate|perfumes-villa|rose-estate|party-time|black-loft|sani-loft|360-events|loft-117|fiesta|details-events|star-loft|puzzle-club|paphos-events)"/g) || []).length, 20);
+  assert.equal((data.match(/"(?:aqua-resort|kesem-harimon|ahuzat-or|ar-suites|sol-gilgal|magic-garden-gefen|anael-estate|perfumes-villa|rose-estate|party-time|black-loft|sani-loft|360-events|loft-117|fiesta|details-events|star-loft|puzzle-club|paphos-events)"/g) || []).length, 19);
   assert.match(data, /status: "unknown"/);
   assert.match(listing, /האם המקום נגיש/);
   assert.doesNotMatch(header, /<AccessibilityWidget/);
@@ -391,7 +409,7 @@ test("every canonical URL in the sitemap has complete crawlable HTML", async () 
   const sitemapXml = await sitemapResponse.text();
   assert.equal(sitemapResponse.status, 200);
   const urls = [...sitemapXml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1].replaceAll("&amp;", "&"));
-  assert.equal(urls.length, 80);
+  assert.equal(urls.length, 79);
   assert.equal(new Set(urls).size, urls.length);
 
   for (const absolute of urls) {

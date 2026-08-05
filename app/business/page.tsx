@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import BusinessPage from "./client-page";
 import { properties, propertyFaq } from "../data/site-data";
 import { StructuredData } from "../components/structured-data";
@@ -7,11 +8,13 @@ import { breadcrumbSchema, faqSchema, lodgingSchema } from "../lib/seo";
 type Props = { searchParams: Promise<{ id?: string }> };
 
 function resolveProperty(id?: string) {
-  return properties.find((item) => item.slug === id) || properties[0];
+  if (!id) return properties[0];
+  return properties.find((item) => item.slug === id);
 }
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const property = resolveProperty((await searchParams).id);
+  if (!property) return { title: "המקום אינו זמין", robots: { index: false, follow: false } };
   return {
     title: property.name,
     description: property.description,
@@ -23,6 +26,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 
 export default async function Page({ searchParams }: Props) {
   const property = resolveProperty((await searchParams).id);
+  if (!property) notFound();
   return <>
     <StructuredData data={lodgingSchema(property)} />
     <StructuredData data={breadcrumbSchema([

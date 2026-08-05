@@ -16,7 +16,7 @@ const informationNotProvided: PlaceAccessibility = {
 };
 
 export const listingAccessibility: Record<string, PlaceAccessibility> = Object.fromEntries([
-  "aqua-resort", "kesem-harimon", "ahuzat-or", "ar-suites", "sol-gilgal", "infinity-suites", "magic-garden-gefen", "anael-estate", "perfumes-villa", "rose-estate",
+  "aqua-resort", "kesem-harimon", "ahuzat-or", "ar-suites", "sol-gilgal", "magic-garden-gefen", "anael-estate", "perfumes-villa", "rose-estate",
   "party-time", "black-loft", "sani-loft", "360-events", "loft-117", "fiesta", "details-events", "star-loft", "puzzle-club", "paphos-events",
 ].map((slug) => [slug, informationNotProvided]));
 

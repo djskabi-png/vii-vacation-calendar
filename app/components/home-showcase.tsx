@@ -12,6 +12,12 @@ import { trails } from "../data/trail-data";
 import { TrailCard } from "./trail-card";
 import { CalendarIcon, PinIcon } from "../site-header";
 
+function pickProperties(...slugs: string[]) {
+  return slugs
+    .map((slug) => properties.find((property) => property.slug === slug))
+    .filter((property): property is (typeof properties)[number] => Boolean(property));
+}
+
 function SliderControls({ onPrevious, onNext, label }: { onPrevious: () => void; onNext: () => void; label: string }) {
   return <div className="home-slider__controls" aria-label={`דפדוף ${label}`}><button type="button" onClick={onPrevious} aria-label={`הקודם, ${label}`}>הקודם</button><button type="button" onClick={onNext} aria-label={`הבא, ${label}`}>הבא</button></div>;
 }
@@ -20,12 +26,12 @@ export function HomeShowcase() {
   const tracks = useRef<Record<string, HTMLDivElement | null>>({});
   const [lastMinuteTab, setLastMinuteTab] = useState("all");
   const worldCards = worlds.filter((world) => !["vacation", "events"].includes(world.id));
-  const recommendedPlaces = [properties[0],properties[1],properties[2],properties[5],properties[6],properties[7],properties[8],properties[9]];
+  const recommendedPlaces = pickProperties("aqua-resort", "kesem-harimon", "ahuzat-or", "anael-estate", "magic-garden-gefen", "perfumes-villa", "rose-estate");
   const lastMinuteGroups = {
-    all: [properties[0], properties[8], properties[7], properties[2], properties[9]],
-    south: [properties[0], properties[3], properties[8]],
-    north: [properties[2], properties[5], properties[7], properties[9]],
-    groups: [properties[8], properties[7], properties[4], properties[6]],
+    all: pickProperties("aqua-resort", "perfumes-villa", "anael-estate", "ahuzat-or", "rose-estate"),
+    south: pickProperties("aqua-resort", "ar-suites", "perfumes-villa"),
+    north: pickProperties("ahuzat-or", "anael-estate", "rose-estate"),
+    groups: pickProperties("perfumes-villa", "anael-estate", "sol-gilgal", "magic-garden-gefen"),
   };
   const spontaneousPlaces = lastMinuteGroups[lastMinuteTab as keyof typeof lastMinuteGroups];
 

@@ -1,5 +1,6 @@
 export type Listing = {
   slug: string;
+  active?: boolean;
   name: string;
   location: string;
   area: string;
@@ -65,7 +66,7 @@ const commonVacationFaq = [
 
 export const propertyFaq = commonVacationFaq;
 
-export const properties: Property[] = [
+const propertyCatalog: Property[] = [
   {
     slug: "aqua-resort",
     name: "אקווה ריזורט, וילת החוף",
@@ -196,6 +197,7 @@ export const properties: Property[] = [
   },
   {
     slug: "infinity-suites",
+    active: false,
     name: "סוויטות אינסוף",
     location: "אביבים",
     area: "גליל עליון",
@@ -327,6 +329,22 @@ export const properties: Property[] = [
     ],
   },
 ];
+
+const activePropertyOrder = [
+  "aqua-resort",
+  "kesem-harimon",
+  "ahuzat-or",
+  "ar-suites",
+  "sol-gilgal",
+  "anael-estate",
+  "magic-garden-gefen",
+  "perfumes-villa",
+  "rose-estate",
+];
+
+export const properties = propertyCatalog
+  .filter((property) => property.active !== false)
+  .sort((first, second) => activePropertyOrder.indexOf(first.slug) - activePropertyOrder.indexOf(second.slug));
 
 export type EventPlace = Listing & { eventTypes: string[] };
 

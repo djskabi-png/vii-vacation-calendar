@@ -1,5 +1,9 @@
 import { eventPlaces, properties } from "./site-data";
 
+function propertyImage(slug: string) {
+  return properties.find((property) => property.slug === slug)?.image || properties[0].image;
+}
+
 export type MagazineSection = {
   id: string;
   title: string;
@@ -30,7 +34,7 @@ export const magazineArticles: MagazineArticle[] = [
     title: "איך בוחרים מקום שבאמת מתאים להרכב שלכם",
     category: "תכנון חופשה",
     excerpt: "מספר מיטות הוא רק ההתחלה. כך בודקים פרטיות, מרחב משותף, קצב וצרכים אמיתיים לפני שמזמינים.",
-    image: properties[0].image,
+    image: propertyImage("aqua-resort"),
     imageAlt: "מתחם נופש עם בריכה באילת",
     readTime: 7,
     dateLabel: "5 באוגוסט 2026",
@@ -50,7 +54,7 @@ export const magazineArticles: MagazineArticle[] = [
     title: "הצפון הוא לא יעד אחד: כך בוחרים את האזור הנכון",
     category: "יעדים",
     excerpt: "כנרת, גליל עליון או גליל מערבי? מדריך פשוט לבחירת האזור לפי הנוף, הקצב ומה שרוצים לעשות.",
-    image: properties[5].image,
+    image: propertyImage("anael-estate"),
     imageAlt: "נוף גלילי ירוק ממתחם אירוח בצפון",
     readTime: 8,
     dateLabel: "4 באוגוסט 2026",
@@ -70,7 +74,7 @@ export const magazineArticles: MagazineArticle[] = [
     title: "וילה אחת או מתחם עם כמה יחידות: מה נכון לכם",
     category: "מדריך הזמנה",
     excerpt: "הבחירה שמשפיעה על כל החופשה הקבוצתית, מהבוקר הראשון ועד השיחה האחרונה ליד הבריכה.",
-    image: properties[1].image,
+    image: propertyImage("kesem-harimon"),
     imageAlt: "מתחם אירוח הכולל כמה יחידות וחצר משותפת",
     readTime: 6,
     dateLabel: "3 באוגוסט 2026",
@@ -90,7 +94,7 @@ export const magazineArticles: MagazineArticle[] = [
     title: "סוף שבוע באילת בלי לרוץ לשום מקום",
     category: "סופי שבוע",
     excerpt: "תוכנית רגועה שמחברת ים, אוכל, שקיעה וזמן אמיתי במתחם, בלי להפוך את החופשה לרשימת משימות.",
-    image: properties[3].image,
+    image: propertyImage("ar-suites"),
     imageAlt: "וילת נופש באילת באור מדברי",
     readTime: 7,
     dateLabel: "2 באוגוסט 2026",
@@ -110,7 +114,7 @@ export const magazineArticles: MagazineArticle[] = [
     title: "הסוד לחופשה משפחתית רגועה מתחיל לפני היציאה",
     category: "משפחות",
     excerpt: "פחות ציוד מיותר, יותר תיאום וציפיות ברורות. המדריך למשפחה שרוצה לחזור עם אנרגיה.",
-    image: properties[2].image,
+    image: propertyImage("ahuzat-or"),
     imageAlt: "מתחם נופש משפחתי ליד הכנרת",
     readTime: 7,
     dateLabel: "1 באוגוסט 2026",
@@ -130,7 +134,7 @@ export const magazineArticles: MagazineArticle[] = [
     title: "חופשה זוגית שמרגישה כמו הפסקה אמיתית",
     category: "זוגות",
     excerpt: "לא צריך לטוס רחוק. צריך לבחור נכון את הקצב, המקום ושלושת הרגעים שיעשו את החופשה.",
-    image: properties[4].image,
+    image: propertyImage("sol-gilgal"),
     imageAlt: "סוויטה זוגית שקטה מול נוף פתוח",
     readTime: 6,
     dateLabel: "31 ביולי 2026",
@@ -170,7 +174,7 @@ export const magazineArticles: MagazineArticle[] = [
     title: "איך משלבים יום ספא בחופשה בלי להעמיס",
     category: "ספא ורוגע",
     excerpt: "מתי לקבוע את הטיפול, מה לשאול ומה להשאיר פנוי כדי שהרוגע יישאר גם אחרי שיוצאים מהספא.",
-    image: properties[6].image,
+    image: propertyImage("magic-garden-gefen"),
     imageAlt: "אזור מנוחה במתחם נופש שקט",
     readTime: 6,
     dateLabel: "29 ביולי 2026",
@@ -190,7 +194,7 @@ export const magazineArticles: MagazineArticle[] = [
     title: "כך בונים יום טיול סביב מקום האירוח",
     category: "מה עושים בסביבה",
     excerpt: "מסלול אחד טוב, ארוחה במקום הנכון וחזרה בזמן. שיטה פשוטה ליום שמרגיש מלא ולא מעייף.",
-    image: properties[8].image,
+    image: propertyImage("perfumes-villa"),
     imageAlt: "נוף פתוח בגליל המערבי ליד מקום אירוח",
     readTime: 8,
     dateLabel: "28 ביולי 2026",
@@ -210,7 +214,7 @@ export const magazineArticles: MagazineArticle[] = [
     title: "חדר לכמה שעות: למי זה מתאים ומה בודקים",
     category: "שהייה קצרה",
     excerpt: "כניסה עצמאית, משך השהייה, פרטיות ומחיר. מדריך ברור לפני שבוחרים חדר לשהייה קצרה.",
-    image: properties[9].image,
+    image: propertyImage("rose-estate"),
     imageAlt: "חדר אירוח מעוצב לשהייה קצרה",
     readTime: 6,
     dateLabel: "27 ביולי 2026",
