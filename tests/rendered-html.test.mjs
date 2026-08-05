@@ -35,7 +35,7 @@ for (const [pathname, expected] of [
 }
 
 test("keeps calendar contexts, real listing ids and maps", async () => {
-  const [calendar, searchBox, business, search, eventSearch, eventPlace, data, worldData, worldSwitcher, map, contactActions, magazineData, magazinePage, articlePage, styles] = await Promise.all([
+  const [calendar, searchBox, business, search, eventSearch, eventPlace, data, worldData, worldSwitcher, map, contactActions, homeShowcase, magazineData, magazinePage, articlePage, styles] = await Promise.all([
     readFile(new URL("../app/calendar-demo.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/business/page.tsx", import.meta.url), "utf8"),
@@ -47,6 +47,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
     readFile(new URL("../app/components/world-switcher.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/contact-actions.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/data/magazine-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/guides/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/guides/article/page.tsx", import.meta.url), "utf8"),
@@ -89,4 +90,10 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(magazinePage, /quizOptions/);
   assert.match(articlePage, /reading-progress/);
   assert.match(articlePage, /vii-magazine-checklist/);
+  assert.match(homeShowcase, /מומלצים שכדאי להכיר/);
+  assert.match(homeShowcase, /ספונטניים לרגע האחרון/);
+  assert.match(homeShowcase, /כל סיבה טובה הופכת כאן לאירוע/);
+  assert.match(homeShowcase, /spaPlaces\.slice/);
+  assert.match(homeShowcase, /hourlyPlaces\.slice/);
+  assert.match(homeShowcase, /המחיר והזמינות הסופיים יאומתו/);
 });

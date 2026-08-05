@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { PageShell } from "./components/page-shell";
-import { PropertyCard } from "./components/property-card";
+import { HomeShowcase } from "./components/home-showcase";
 import { SearchBox } from "./components/search-box";
 import { magazineArticles } from "./data/magazine-data";
-import { destinations, properties } from "./data/site-data";
+import { destinations } from "./data/site-data";
 
 export default function HomePage() {
   return (
@@ -22,13 +22,11 @@ export default function HomePage() {
           <div className="hero-orb hero-orb--one" /><div className="hero-orb hero-orb--two" />
         </section>
 
+        <HomeShowcase />
+
         <section className="section shell" aria-labelledby="destination-title">
           <div className="section-head"><div><span className="eyebrow">בחרו כיוון</span><h2 id="destination-title">יעדים שכיף לברוח אליהם</h2></div><Link href="/destinations/">לכל היעדים</Link></div>
           <div className="destination-grid">{destinations.map((destination, index) => <Link key={destination.name} className={`destination-tile destination-tile--${index + 1}`} href={`/search/?location=${encodeURIComponent(destination.name)}`}><img src={destination.image} alt={destination.name} /><span><strong>{destination.name}</strong><small>{destination.subtitle}</small></span></Link>)}</div>
-        </section>
-
-        <section className="section section-tint" aria-labelledby="recommended-title">
-          <div className="shell"><div className="section-head"><div><span className="eyebrow">שווה להכיר</span><h2 id="recommended-title">מקומות מומלצים לחופשה</h2></div><Link href="/search/">לכל המקומות</Link></div><div className="card-grid">{properties.slice(0, 3).map((property) => <PropertyCard key={property.slug} property={property} />)}</div></div>
         </section>
 
         <section className="section shell why-section" aria-labelledby="why-title">
@@ -40,7 +38,6 @@ export default function HomePage() {
           <div className="shell"><div className="section-head"><div><span className="eyebrow">מגזין וי</span><h2 id="home-magazine-title">רעיונות שממשיכים את החופשה</h2></div><Link href="/guides/">לכל הכתבות</Link></div><div className="home-magazine__grid">{magazineArticles.slice(0,3).map((article,index) => <article key={article.slug} className={index === 0 ? "featured" : ""}><Link href={`/guides/${article.slug}/`}><img src={article.image} alt={article.imageAlt} /><span>{article.category}</span><div><small>{article.readTime} דקות קריאה</small><h3>{article.title}</h3><p>{article.excerpt}</p></div></Link></article>)}</div></div>
         </section>
 
-        <section className="section shell event-promo"><div><span className="eyebrow">מתכננים אירוע?</span><h2>יש לנו עולם שלם גם לזה</h2><p>לופטים, מתחמים ומקומות לאירועים, עם חיפוש שמותאם לכמות המשתתפים ולסוג האירוע.</p><Link className="button light" href="/events/">לעולם האירועים</Link></div><img src="https://www.vii.co.il/gallery/thumb/600/5962a5b1c42c285.jpeg" alt="סטאר לופט" /></section>
       </main>
     </PageShell>
   );
