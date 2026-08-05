@@ -23,7 +23,9 @@ for (const [pathname, expected] of [
   ["/spas", /מוצאים את הספא שמתאים/],
   ["/hourly", /חדר לכמה שעות/],
   ["/providers", /האנשים שהופכים אירוח לחוויה/],
-  ["/activities", /רעיונות טובים ממש ליד החופשה/],
+  ["/activities", /בוחרים איך לבלות את היום/],
+  ["/trails", /יוצאים מהצימר. נכנסים לישראל היפה/],
+  ["/trails/snir-hatzbani", /נחל שניר, חצבאני/],
   ["/discover/place", /ספא בוטיק תל אביב/],
   ["/join", /מביאים את העסק שלכם/],
   ["/contact", /יצירת קשר/],
@@ -146,7 +148,7 @@ test("footer destinations and lead forms have real destinations", async () => {
     readFile(new URL("../app/join/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/cookie-consent.tsx", import.meta.url), "utf8"),
   ]);
-  for (const href of ["/search/", "/events/", "/spas/", "/hourly/", "/providers/", "/activities/", "/join/", "/contact/", "/guides/", "/accessibility/", "/legal/terms/", "/legal/privacy/", "/legal/cancellation/"]) {
+  for (const href of ["/search/", "/events/", "/spas/", "/hourly/", "/providers/", "/activities/", "/trails/", "/join/", "/contact/", "/guides/", "/accessibility/", "/legal/terms/", "/legal/privacy/", "/legal/cancellation/"]) {
     assert.match(footer, new RegExp(`href=["']${href.replaceAll("/", "\\/")}`));
   }
   assert.match(form, /https:\/\/app\.spaplus\.co\/api\/integrations\/vii-leads/);
@@ -158,6 +160,51 @@ test("footer destinations and lead forms have real destinations", async () => {
   assert.match(cookieConsent, /SETTINGS_HASH = "#privacy-settings"/);
   assert.match(cookieConsent, /window\.addEventListener\("hashchange", openFromHash\)/);
   assert.match(cookieConsent, /href=\{SETTINGS_HASH\}/);
+});
+
+test("independent trails are sourced, filterable and connected to stays", async () => {
+  const [data, listing, detail, activities, home, business, header, footer, styles] = await Promise.all([
+    readFile(new URL("../app/data/trail-data.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/trails/trails-explorer.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/trails/[slug]/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/activities/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/business/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/site-header.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/site-footer.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+  assert.equal((data.match(/officialSource: "https:\/\/www\.parks\.org\.il\//g) || []).length, 13);
+  assert.equal((data.match(/sourceName: "רשות הטבע והגנים"/g) || []).length, 13);
+  assert.equal((data.match(/difficulty: "/g) || []).length, 13);
+  assert.equal((data.match(/duration: "/g) || []).length, 13);
+  assert.equal((data.match(/safety: \[/g) || []).length, 13);
+  assert.match(listing, /סינון מסלולי טיול/);
+  assert.match(listing, /setDifficulty/);
+  assert.match(listing, /setNature/);
+  assert.match(detail, /המידע אינו אישור שהמסלול פתוח כרגע/);
+  assert.match(detail, /officialSource/);
+  assert.match(detail, /פתיחת נקודת ההתחלה במפה/);
+  assert.match(activities, /מסלולי טיול עצמאיים/);
+  assert.match(activities, /אטרקציות בתשלום/);
+  assert.match(home, /מסלולים ליד החופשה/);
+  assert.match(business, /nearbyTrails/);
+  assert.match(business, /מסלולים באזור/);
+  assert.match(header, /href="\/trails\/"/);
+  assert.match(footer, /href="\/trails\/"/);
+  assert.match(styles, /\.trail-filters/);
+  assert.match(styles, /\.trail-detail__layout/);
+});
+
+test("all trail guides render as public pages", async () => {
+  const slugs = ["snir-hatzbani", "banias-middle", "el-al-waterfalls", "tel-dan-short", "ein-afek-wetland", "dor-habonim-coast", "jordan-river-bridges", "har-kfir", "tzur-natan", "ein-prat", "nahal-masor", "mamshit-stream", "nahal-sfunim"];
+  for (const slug of slugs) {
+    const response = await render(`/trails/${slug}`);
+    assert.equal(response.status, 200, slug);
+    const html = await response.text();
+    assert.match(html, /מקור רשמי ומבזקים/, slug);
+    assert.match(html, /application\/ld\+json/, slug);
+  }
 });
 
 test("includes the accessibility system and honest place disclosures", async () => {

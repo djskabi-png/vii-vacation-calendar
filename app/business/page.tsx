@@ -15,6 +15,8 @@ import { SearchBox } from "../components/search-box";
 import { SleepingArrangements } from "../components/sleeping-arrangements";
 import { properties, propertyFaq } from "../data/site-data";
 import { activityIdeas, providerProfiles, spaPlaces, type DiscoveryItem } from "../data/world-data";
+import { nearbyTrails } from "../data/trail-data";
+import { TrailCard } from "../components/trail-card";
 import { CalendarIcon, HeartIcon, PinIcon } from "../site-header";
 
 function complementaryItems(area: string, location: string): DiscoveryItem[] {
@@ -51,6 +53,7 @@ export default function BusinessPage() {
   const property = useMemo(() => properties.find((item) => item.slug === slug) || properties[0], [slug]);
   const roomQuantity = property.roomOptions?.reduce((total, room) => total + room.quantity, 0) || 0;
   const complements = useMemo(() => complementaryItems(property.area, property.location), [property.area, property.location]);
+  const localTrails = useMemo(() => nearbyTrails(property.area, property.location), [property.area, property.location]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -163,6 +166,7 @@ export default function BusinessPage() {
             </div>
             <p className="property-complements__note">ההצעות מוצגות לפי האזור כשיש התאמה מאומתת. פרופילי ספקים שטרם חוברו לעסק פעיל מסומנים כהדגמה.</p>
             <div className="discovery-grid discovery-grid--compact">{complements.map((item) => <DiscoveryCard key={`${item.world}-${item.id}`} item={item} />)}</div>
+            <div className="property-nearby-trails"><div className="section-head"><div><span className="eyebrow">טיול עצמאי ליד מקום האירוח</span><h2>מסלולים באזור</h2><p>ההתאמה נעשית לפי אזור כללי. המרחק המדויק והמצב בשטח נבדקים לפני היציאה.</p></div><Link href="/trails/">לכל המסלולים</Link></div><div className="trail-grid trail-grid--business">{localTrails.map((trail) => <TrailCard key={trail.slug} trail={trail} compact />)}</div></div>
           </div>
         </section>
 
