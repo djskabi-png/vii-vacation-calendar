@@ -73,7 +73,7 @@ export default function SearchPage() {
         <div className="shell breadcrumbs"><Link href="/">ראשי</Link><span>/</span><span>תוצאות חיפוש</span></div>
         <section className="shell results-heading">
           <div><span className="eyebrow">מקומות שמתאימים לחיפוש</span><h1>{area === "הכל" ? "נופש ברחבי הארץ" : `נופש ב${area}`}</h1><p>{filtered.length} מתוך {properties.length} מקומות מאומתים מוצגים</p></div>
-          <button className={`button map-button ${mapOpen ? "active" : ""}`} type="button" aria-pressed={mapOpen} onClick={() => setMapOpen((value) => !value)}><PinIcon />{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</button>
+          <button className={`button map-button ${mapOpen ? "active" : ""}`} type="button" aria-pressed={mapOpen} onClick={(event) => { event.preventDefault(); event.stopPropagation(); setMapOpen((value) => !value); }}><PinIcon />{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</button>
         </section>
 
         {activeFilters.length > 0 && <div className="shell active-filter-row"><span>סינונים פעילים:</span>{activeFilters.map((filter) => <button key={filter} type="button" onClick={resetFilters}>{filter} ×</button>)}<button type="button" className="clear-all" onClick={resetFilters}>ניקוי הכל</button></div>}
@@ -91,12 +91,12 @@ export default function SearchPage() {
               <label><input type="checkbox" checked={whole} onChange={(event) => setWhole(event.target.checked)} /> מקום אירוח שלם</label>
               <label><input type="checkbox" checked={accessibleOnly} onChange={(event) => setAccessibleOnly(event.target.checked)} /> נגישות מלאה ומאומתת</label>
             </fieldset>
-            <button type="button" className="button primary filter-apply" onClick={() => setFiltersOpen(false)}>הצגת {filtered.length} מקומות</button>
+            <button type="button" className="button primary filter-apply" onClick={() => setFiltersOpen(false)}>{`הצגת ${filtered.length} מקומות`}</button>
             <button type="button" className="button subtle wide" onClick={resetFilters}>ניקוי סינונים</button>
           </aside>
 
           <section className="results-list" aria-label="תוצאות">
-            <div className="results-toolbar"><button type="button" className="button mobile-filter" onClick={() => setFiltersOpen(true)}>סינון</button><label>מיון לפי <select value={sort} onChange={(event) => setSort(event.target.value)}><option value="recommended">מומלצים</option><option value="capacity">קיבולת גבוהה</option><option value="units">מספר יחידות</option><option value="name">שם המקום</option></select></label></div>
+            <div className="results-toolbar"><button type="button" className="button mobile-filter" onClick={(event) => { event.preventDefault(); event.stopPropagation(); setFiltersOpen(true); }}>סינון</button><label>מיון לפי <select value={sort} onChange={(event) => setSort(event.target.value)}><option value="recommended">מומלצים</option><option value="capacity">קיבולת גבוהה</option><option value="units">מספר יחידות</option><option value="name">שם המקום</option></select></label></div>
             {!mapOpen && <div className="result-cards">{filtered.map((property) => <PropertyCard key={property.slug} property={property} />)}</div>}
             {mapOpen && <ListingMap listings={filtered} autoLoad />}
             {filtered.length === 0 && <div className="empty-state"><h2>לא נמצאה התאמה מדויקת</h2><p>אפשר לשנות אזור, להפחית את כמות האורחים או להסיר מאפיין.</p><button className="button primary" type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}

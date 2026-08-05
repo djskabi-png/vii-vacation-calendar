@@ -5,7 +5,7 @@
 import Link from "next/link";
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
-import { AccessibilityWidget } from "./components/accessibility-widget";
+import { LanguageSwitcher } from "./i18n/locale-provider";
 import { worlds, type WorldId } from "./data/world-data";
 
 const nav = worlds.map((world) => ({ id: world.id, href: world.href, label: world.shortLabel, description: world.description }));
@@ -60,7 +60,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
       <nav className="menu-panel" aria-label="ניווט מלא">
         <div className="menu-panel__head">
           <Link href="/" onClick={closeMenu} aria-label="וי פור ויקיישן, דף הבית">
-            <img src="https://www.vii.co.il/assets/img/logo_new.png" alt="וי פור ויקיישן" />
+            <img src="/vii-logo.png" alt="וי פור ויקיישן" />
           </Link>
           <button ref={closeButtonRef} type="button" onClick={closeMenu} aria-label="סגירת תפריט"><CloseIcon /></button>
         </div>
@@ -93,6 +93,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
         <div className="menu-panel__footer">
           <span>VII</span>
           <p>כל מה שכיף לעשות, בדיוק בדרך שלכם.</p>
+          <LanguageSwitcher compact />
         </div>
       </nav>
     </div>,
@@ -104,7 +105,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
       <header className="site-header">
         <div className="site-header__inner shell">
           <Link className="brand" href="/" aria-label="וי פור ויקיישן, דף הבית">
-            <img src="https://www.vii.co.il/assets/img/logo_new.png" alt="וי פור ויקיישן" />
+            <img src="/vii-logo.png" alt="וי פור ויקיישן" />
           </Link>
 
           <nav className="desktop-nav" aria-label="ניווט ראשי">
@@ -118,7 +119,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
           <div className="header-actions">
             <Link className="magazine-header-link" href="/guides/"><span>חדש</span>מגזין</Link>
             <Link className="icon-button" href="/favorites/" aria-label="מקומות שאהבתי"><HeartIcon /></Link>
-            <AccessibilityWidget />
+            <LanguageSwitcher compact />
             <button ref={menuButtonRef} className="menu-button" type="button" aria-expanded={menuOpen} aria-haspopup="dialog" aria-label="פתיחת תפריט" onClick={() => setMenuOpen(true)}><MenuIcon /><span>תפריט</span></button>
           </div>
         </div>

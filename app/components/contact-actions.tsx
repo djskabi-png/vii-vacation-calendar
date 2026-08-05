@@ -22,15 +22,15 @@ export function ContactActions({ contact, placeName }: { contact?: ListingContac
   return (
     <div className="listing-contact-actions" aria-label={`יצירת קשר עם ${placeName}`}>
       {contact.phone && !phoneVisible ? <button className="contact-phone" type="button" aria-expanded="false" onClick={() => setPhoneVisible(true)}>
-        <i><img src="https://www.vii.co.il/assets/img/room-box-phone.svg" alt="" aria-hidden="true" /></i>
+        <i><img src="/media/3624d1f1144b0a1a.svg" alt="" aria-hidden="true" /></i>
         <span>הצג מספר</span>
       </button> : null}
       {contact.phone && phoneVisible ? <a className="contact-phone contact-phone--visible" href={phoneHref} aria-label={`חיוג אל ${placeName}, ${contact.phone}`}>
-        <i><img src="https://www.vii.co.il/assets/img/room-box-phone.svg" alt="" aria-hidden="true" /></i>
+        <i><img src="/media/3624d1f1144b0a1a.svg" alt="" aria-hidden="true" /></i>
         <bdi dir="ltr">{contact.phone}</bdi>
       </a> : null}
       {contact.whatsapp ? <a className="contact-whatsapp" href={whatsappHref} target="_blank" rel="noreferrer" aria-label={`שליחת הודעת וואטסאפ אל ${placeName}`}>
-        <img src="https://www.vii.co.il/assets/img/whatsapp-ic.svg" alt="" aria-hidden="true" />
+        <img src="/media/a37d0f6e3cbddbff.svg" alt="" aria-hidden="true" />
         <span>וואטסאפ</span>
       </a> : null}
     </div>

@@ -101,7 +101,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.doesNotMatch(business, /URLSearchParams\(location\.search\)/);
   assert.match(search, /setPool/);
   assert.match(eventSearch, /setEventType/);
-  assert.equal((data.match(/liveUrl: "https:\/\/www\.vii\.co\.il\//g) || []).length, 20);
+  assert.doesNotMatch(data, /liveUrl|https:\/\/www\.vii\.co\.il\//);
   assert.equal((data.match(/roomOptions:/g) || []).length, 10);
   assert.equal((data.match(/name: "(?:אקווה ריזורט, וילת החוף|יחידת סטודיו שני|יחידת סטודיו העמק|סוויטה משפחתית וואנדרפול|יחידת עכו|סוויטות 1\+2|סוויטה משפחתית"|א\.ר סוויטות|סוויטה [1-4]"|חדר שינה"|סוויטת (?:מירון|גאיה|אליה|נועה|יובל|חרמון)|וילת הבשמים|אחוזת השושנים בוטיק)/g) || []).length >= 20, true);
   assert.match(business, /property\.roomOptions\.map/);
@@ -111,8 +111,8 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(business, /room-card__sleeping/);
   assert.match(business, /חדרי השינה בתוך היחידה/);
   assert.match(business, /לצפייה בפירוט החדרים, המיטות והתמונות/);
-  assert.doesNotMatch(business, /href=\{property\.liveUrl\}/);
-  assert.doesNotMatch(eventPlace, /href=\{place\.liveUrl\}/);
+  assert.doesNotMatch(business, /www\.vii\.co\.il/);
+  assert.doesNotMatch(eventPlace, /www\.vii\.co\.il/);
   assert.doesNotMatch(business, /לכל פרטי המקום|לצפייה בעמוד המקור/);
   assert.doesNotMatch(eventPlace, /מעבר לעמוד המקור|צפייה בפרטים באתר הקיים/);
   const legalPages = (await Promise.all([
@@ -125,7 +125,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(sleeping, /כל כרטיס מייצג חדר שינה ולא יחידת אירוח/);
   assert.match(sleeping, /alt=\{`\$\{arrangement\.name\} ב\$\{placeName\}`\}/);
   assert.equal((data.match(/name: "חדר שינה [1-9]"/g) || []).length, 9);
-  assert.equal((data.match(/galleryImage: "https:\/\/www\.vii\.co\.il\/gallery\/thumb\/600\//g) || []).length, 9);
+  assert.equal((data.match(/galleryImage: "\/media\/[a-f0-9]{16}\.(?:jpe?g|png)"/g) || []).length, 9);
   assert.match(business, /מה אפשר לעשות מסביב/);
   assert.match(business, /complementaryItems/);
   assert.match(eventPlace, /ספקים שיכולים להשלים את החגיגה/);
@@ -272,7 +272,8 @@ test("includes the accessibility system and honest place disclosures", async () 
   assert.equal((data.match(/"(?:aqua-resort|kesem-harimon|ahuzat-or|ar-suites|sol-gilgal|infinity-suites|magic-garden-gefen|anael-estate|perfumes-villa|rose-estate|party-time|black-loft|sani-loft|360-events|loft-117|fiesta|details-events|star-loft|puzzle-club|paphos-events)"/g) || []).length, 20);
   assert.match(data, /status: "unknown"/);
   assert.match(listing, /האם המקום נגיש/);
-  assert.match(header, /<AccessibilityWidget/);
+  assert.doesNotMatch(header, /<AccessibilityWidget/);
+  assert.match(header, /<LanguageSwitcher compact/);
   assert.match(footer, /href="\/accessibility\/"/);
   assert.doesNotMatch(propertyCard, /ListingAccessibility/);
   assert.match(searchPage, /נגישות מלאה ומאומתת/);
@@ -284,4 +285,31 @@ test("includes the accessibility system and honest place disclosures", async () 
   assert.match(discoveryPlace, /ListingAccessibility slug=\{item\.id\}/);
   assert.match(styles, /prefers-reduced-motion/);
   assert.match(styles, /accessibility-status-explainer/);
+});
+
+test("ships a favicon, three languages and no dependency on the retired site", async () => {
+  const [layout, locale, translations, header, footer, contactActions, data, worldData] = await Promise.all([
+    readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/i18n/locale-provider.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/i18n/translations.generated.json", import.meta.url), "utf8"),
+    readFile(new URL("../app/site-header.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/site-footer.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/contact-actions.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/data/site-data.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8"),
+  ]);
+  const dictionaries = JSON.parse(translations);
+  assert.match(layout, /icons: \{ icon:/);
+  assert.match(layout, /<LocaleProvider>/);
+  assert.match(locale, /"he" \| "en" \| "ru"/);
+  assert.match(locale, /document\.documentElement\.dir/);
+  assert.equal(Object.keys(dictionaries.en).length >= 2000, true);
+  assert.equal(Object.keys(dictionaries.ru).length >= 2000, true);
+  assert.match(header, /<LanguageSwitcher compact/);
+  assert.doesNotMatch(header, /<AccessibilityWidget/);
+  assert.match(footer, /<LanguageSwitcher compact/);
+  assert.doesNotMatch([header, footer, contactActions, data, worldData].join("\n"), /https:\/\/www\.vii\.co\.il/);
+  const response = await render("/");
+  const html = await response.text();
+  assert.match(html, /vii-logo\.png/);
 });

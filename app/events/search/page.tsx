@@ -56,7 +56,7 @@ export default function EventSearchPage() {
             <fieldset><legend>כמות משתתפים</legend><input type="range" min="0" max="300" step="10" value={guests} onChange={(event) => setGuests(Number(event.target.value))} /><div className="range-value">{guests ? `לפחות ${guests} משתתפים` : "ללא סינון לפי כמות"}</div></fieldset>
             <label><input type="checkbox" checked={noNoiseLimit} onChange={(event) => setNoNoiseLimit(event.target.checked)} /> ללא הגבלת רעש</label>
             <label><input type="checkbox" checked={accessibleOnly} onChange={(event) => setAccessibleOnly(event.target.checked)} /> נגישות מלאה ומאומתת</label>
-            <button className="button primary filter-apply" type="button" onClick={() => setFiltersOpen(false)}>הצגת {filtered.length} מקומות</button>
+            <button className="button primary filter-apply" type="button" onClick={() => setFiltersOpen(false)}>{`הצגת ${filtered.length} מקומות`}</button>
             <button className="button subtle wide" type="button" onClick={reset}>ניקוי סינונים</button>
           </aside>
           <section className="event-list">
