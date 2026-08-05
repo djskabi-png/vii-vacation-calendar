@@ -1,15 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarDemo } from "../calendar-demo";
+import { eventPlaces, properties } from "../data/site-data";
 import { CalendarIcon, PeopleIcon, PinIcon, SearchIcon } from "../site-header";
-
-const places = ["כל הארץ", "צפון", "כנרת", "גליל מערבי", "מרכז", "ירושלים", "ים המלח", "אילת"];
 
 export function SearchBox({ mode = "vacation", compact = false }: { mode?: "vacation" | "events"; compact?: boolean }) {
   const router = useRouter();
-  const [location, setLocation] = useState("כל הארץ");
+  const places = useMemo(() => {
+    const source = mode === "events" ? eventPlaces : properties;
+    return ["כל הארץ", ...Array.from(new Set(source.flatMap((item) => [item.area, item.location])))];
+  }, [mode]);
+  const [locationValue, setLocationValue] = useState("כל הארץ");
   const [dates, setDates] = useState("בחרו תאריכים");
   const [guests, setGuests] = useState(mode === "events" ? 40 : 2);
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -18,15 +21,15 @@ export function SearchBox({ mode = "vacation", compact = false }: { mode?: "vaca
 
   function search() {
     const route = mode === "events" ? "/events/search/" : "/search/";
-    router.push(`${route}?location=${encodeURIComponent(location)}&dates=${encodeURIComponent(dates)}&guests=${guests}`);
+    router.push(`${route}?location=${encodeURIComponent(locationValue)}&dates=${encodeURIComponent(dates)}&guests=${guests}`);
   }
 
   return (
     <>
       <div className={`search-box ${compact ? "compact" : ""}`} role="search" aria-label={mode === "events" ? "חיפוש מקום לאירוע" : "חיפוש חופשה"}>
         <div className="search-field-wrap">
-          <button type="button" className="search-field" aria-expanded={locationOpen} onClick={() => { setLocationOpen((value) => !value); setGuestOpen(false); }}><PinIcon /><span><small>{mode === "events" ? "אזור או מקום" : "לאן נוסעים"}</small><strong>{location}</strong></span></button>
-          {locationOpen && <div className="search-popover location-list">{places.map((place) => <button type="button" key={place} className={place === location ? "selected" : ""} onClick={() => { setLocation(place); setLocationOpen(false); }}>{place}</button>)}</div>}
+          <button type="button" className="search-field" aria-expanded={locationOpen} onClick={() => { setLocationOpen((value) => !value); setGuestOpen(false); }}><PinIcon /><span><small>{mode === "events" ? "אזור או מקום" : "לאן נוסעים"}</small><strong>{locationValue}</strong></span></button>
+          {locationOpen && <div className="search-popover location-list">{places.map((place) => <button type="button" key={place} className={place === locationValue ? "selected" : ""} onClick={() => { setLocationValue(place); setLocationOpen(false); }}>{place}</button>)}</div>}
         </div>
         <button type="button" className="search-field" onClick={() => { setCalendarOpen(true); setLocationOpen(false); setGuestOpen(false); }}><CalendarIcon /><span><small>{mode === "events" ? "מתי חוגגים" : "מתי יוצאים"}</small><strong>{dates}</strong></span></button>
         <div className="search-field-wrap">
