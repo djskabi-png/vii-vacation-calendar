@@ -106,6 +106,8 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.equal((worldData.match(/sourceName: "חדרים וי־איי־פי"/g) || []).length, 10);
   assert.match(worldSwitcher, /עוברים עולם/);
   assert.match(searchBox, /SearchWorldTabs/);
+  assert.match(searchBox, /בחרו כמות משתתפים/);
+  assert.doesNotMatch(searchBox, /mode === "events" \? 40/);
   assert.match(eventsPage, /<SearchBox mode="events" showWorlds \/>/);
   assert.match(map, /basemaps\.cartocdn\.com/);
   assert.match(map, /World_Imagery/);
@@ -115,6 +117,8 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(search, /<ListingMap listings=\{filtered\} autoLoad \/>/);
   assert.match(search, /האזור שמוצג במפה/);
   assert.match(eventSearch, /mode="events" autoLoad/);
+  assert.match(eventSearch, /const \[guests, setGuests\] = useState\(0\)/);
+  assert.match(eventSearch, /ללא סינון לפי כמות/);
   assert.equal((magazineData.match(/slug: "/g) || []).length, 10);
   assert.equal((magazineData.match(/checklist: \[/g) || []).length, 10);
   assert.match(magazinePage, /vii-magazine-saved/);
@@ -130,11 +134,12 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
 });
 
 test("footer destinations and lead forms have real destinations", async () => {
-  const [footer, form, contact, join] = await Promise.all([
+  const [footer, form, contact, join, cookieConsent] = await Promise.all([
     readFile(new URL("../app/components/site-footer.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/lead-intake-form.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/contact/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/join/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/cookie-consent.tsx", import.meta.url), "utf8"),
   ]);
   for (const href of ["/search/", "/events/", "/spas/", "/hourly/", "/providers/", "/activities/", "/join/", "/contact/", "/guides/", "/accessibility/", "/legal/terms/", "/legal/privacy/", "/legal/cancellation/"]) {
     assert.match(footer, new RegExp(`href=["']${href.replaceAll("/", "\\/")}`));
@@ -145,6 +150,9 @@ test("footer destinations and lead forms have real destinations", async () => {
   assert.match(form, /state === "success"/);
   assert.match(contact, /LeadIntakeForm purpose="contact"/);
   assert.match(join, /LeadIntakeForm purpose="join"/);
+  assert.match(cookieConsent, /SETTINGS_HASH = "#privacy-settings"/);
+  assert.match(cookieConsent, /window\.addEventListener\("hashchange", openFromHash\)/);
+  assert.match(cookieConsent, /href=\{SETTINGS_HASH\}/);
 });
 
 test("includes the accessibility system and honest place disclosures", async () => {

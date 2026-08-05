@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 const STORAGE_KEY = "vii-cookie-choice";
 const OPEN_EVENT = "vii-open-cookie-settings";
+const SETTINGS_HASH = "#privacy-settings";
 
 export function CookieConsent() {
   const [visible, setVisible] = useState(false);
@@ -23,10 +24,17 @@ export function CookieConsent() {
       setVisible(true);
     };
 
+    const openFromHash = () => {
+      if (window.location.hash === SETTINGS_HASH) openSettings();
+    };
+
     window.addEventListener(OPEN_EVENT, openSettings);
+    window.addEventListener("hashchange", openFromHash);
+    openFromHash();
     return () => {
       window.clearTimeout(timer);
       window.removeEventListener(OPEN_EVENT, openSettings);
+      window.removeEventListener("hashchange", openFromHash);
     };
   }, []);
 
@@ -34,12 +42,15 @@ export function CookieConsent() {
     localStorage.setItem(STORAGE_KEY, value);
     setAnalytics(value === "all");
     setVisible(false);
+    if (window.location.hash === SETTINGS_HASH) {
+      window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+    }
   }
 
   if (!visible) return null;
 
   return (
-    <aside className="cookie-card" aria-label="העדפות פרטיות">
+    <aside id="privacy-settings" className="cookie-card" aria-label="העדפות פרטיות">
       <div><strong>הפרטיות שלכם חשובה</strong><p>קבצים חיוניים שומרים על תפקוד האתר. כלים נוספים יופעלו רק לפי הבחירה שלכם.</p></div>
       {settings && (
         <div className="cookie-settings">
@@ -61,5 +72,5 @@ export function CookieConsent() {
 }
 
 export function CookiePreferencesButton() {
-  return <button type="button" className="footer-privacy-button" onClick={() => window.dispatchEvent(new Event(OPEN_EVENT))}>העדפות פרטיות</button>;
+  return <a className="footer-privacy-button" href={SETTINGS_HASH}>העדפות פרטיות</a>;
 }

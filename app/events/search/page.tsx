@@ -15,7 +15,7 @@ export default function EventSearchPage() {
   const [area, setArea] = useState("הכל");
   const [type, setType] = useState("הכל");
   const [eventType, setEventType] = useState("הכל");
-  const [guests, setGuests] = useState(20);
+  const [guests, setGuests] = useState(0);
   const [noNoiseLimit, setNoNoiseLimit] = useState(false);
   const [mapOpen, setMapOpen] = useState(false);
   const [sort, setSort] = useState("recommended");
@@ -25,9 +25,9 @@ export default function EventSearchPage() {
     const timer = window.setTimeout(() => {
       const params = new URLSearchParams(location.search);
       const requestedArea = params.get("location");
-      const requestedGuests = Number(params.get("guests") || 20);
+      const requestedGuests = Number(params.get("guests") || 0);
       if (requestedArea && requestedArea !== "כל הארץ") setArea(requestedArea);
-      if (Number.isFinite(requestedGuests)) setGuests(Math.max(10, requestedGuests));
+      if (Number.isFinite(requestedGuests) && requestedGuests > 0) setGuests(Math.max(10, requestedGuests));
     }, 0);
     return () => window.clearTimeout(timer);
   }, []);
@@ -36,11 +36,11 @@ export default function EventSearchPage() {
   const types = useMemo(() => ["הכל", ...Array.from(new Set(eventPlaces.map((place) => place.type)))], []);
   const eventTypes = useMemo(() => ["הכל", ...Array.from(new Set(eventPlaces.flatMap((place) => place.eventTypes)))], []);
   const filtered = useMemo(() => {
-    const result = eventPlaces.filter((place) => (area === "הכל" || place.area === area || place.location === area) && (type === "הכל" || place.type === type) && (eventType === "הכל" || place.eventTypes.includes(eventType)) && place.guests >= guests && (!noNoiseLimit || place.features.some((feature) => feature.includes("ללא הגבלת רעש"))));
+    const result = eventPlaces.filter((place) => (area === "הכל" || place.area === area || place.location === area) && (type === "הכל" || place.type === type) && (eventType === "הכל" || place.eventTypes.includes(eventType)) && (!guests || place.guests >= guests) && (!noNoiseLimit || place.features.some((feature) => feature.includes("ללא הגבלת רעש"))));
     return [...result].sort((a, b) => sort === "capacity" ? b.guests - a.guests : sort === "name" ? a.name.localeCompare(b.name, "he") : eventPlaces.indexOf(a) - eventPlaces.indexOf(b));
   }, [area, eventType, guests, noNoiseLimit, sort, type]);
 
-  function reset() { setArea("הכל"); setType("הכל"); setEventType("הכל"); setGuests(20); setNoNoiseLimit(false); }
+  function reset() { setArea("הכל"); setType("הכל"); setEventType("הכל"); setGuests(0); setNoNoiseLimit(false); }
 
   return (
     <PageShell variant="events">
@@ -52,7 +52,7 @@ export default function EventSearchPage() {
             <label className="filter-select">אזור<select value={area} onChange={(event) => setArea(event.target.value)}>{areas.map((item) => <option key={item}>{item}</option>)}</select></label>
             <label className="filter-select">סוג מקום<select value={type} onChange={(event) => setType(event.target.value)}>{types.map((item) => <option key={item}>{item}</option>)}</select></label>
             <label className="filter-select">סוג אירוע<select value={eventType} onChange={(event) => setEventType(event.target.value)}>{eventTypes.map((item) => <option key={item}>{item}</option>)}</select></label>
-            <fieldset><legend>כמות משתתפים</legend><input type="range" min="10" max="300" step="10" value={guests} onChange={(event) => setGuests(Number(event.target.value))} /><div className="range-value">לפחות {guests} משתתפים</div></fieldset>
+            <fieldset><legend>כמות משתתפים</legend><input type="range" min="0" max="300" step="10" value={guests} onChange={(event) => setGuests(Number(event.target.value))} /><div className="range-value">{guests ? `לפחות ${guests} משתתפים` : "ללא סינון לפי כמות"}</div></fieldset>
             <label><input type="checkbox" checked={noNoiseLimit} onChange={(event) => setNoNoiseLimit(event.target.checked)} /> ללא הגבלת רעש</label>
             <button className="button primary filter-apply" type="button" onClick={() => setFiltersOpen(false)}>הצגת {filtered.length} מקומות</button>
             <button className="button subtle wide" type="button" onClick={reset}>ניקוי סינונים</button>

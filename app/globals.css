@@ -3199,7 +3199,7 @@ body:has(.cookie-card) .world-dock { bottom: 118px; }
 .footer-grid nav a { color: #b9cdd1; }
 .footer-grid nav a:hover { color: white; }
 .footer-grid nav .footer-join-link { width: max-content; margin-bottom: 4px; padding: 8px 12px; border: 1px solid rgba(255,255,255,.35); border-radius: 999px; color: white; font-weight: 700; }
-.footer-bottom { margin-top: 45px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,.12); display: flex; justify-content: space-between; color: #8da8ae; font-size: .8rem; }
+.footer-bottom { margin-top: 45px; padding: 18px 0 82px; border-top: 1px solid rgba(255,255,255,.12); display: flex; justify-content: space-between; color: #8da8ae; font-size: .8rem; }
 .footer-bottom > div { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; }
 .footer-privacy-button { border: 0; padding: 0; background: none; color: #b9cdd1; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .footer-privacy-button:hover { color: white; }
