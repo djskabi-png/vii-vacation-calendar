@@ -5,7 +5,7 @@ import { magazineArticles } from "./data/magazine-data";
 import { trails } from "./data/trail-data";
 import { absoluteUrl } from "./lib/seo";
 
-const updated = new Date("2026-08-05T00:00:00+03:00");
+const updated = new Date("2026-08-06T00:00:00+03:00");
 
 function item(path: string, priority: number, changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"] = "weekly", images?: string[]): MetadataRoute.Sitemap[number] {
   return {
@@ -42,7 +42,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...staticPages,
     ...properties.map((place) => item(`/business?id=${place.slug}`, 0.9, "weekly", [place.image, ...place.images])),
     ...eventPlaces.map((place) => item(`/events/place?id=${place.slug}`, 0.85, "weekly", [place.image, ...place.images])),
-    ...discoveryItems.filter((place) => !place.demo && (place.world === "spa" || place.world === "hourly")).map((place) => item(`/discover/place?id=${place.id}`, 0.7, "weekly", place.image ? [place.image] : undefined)),
+    ...discoveryItems.filter((place) => place.indexable !== false && (place.world === "spa" || place.world === "hourly" || place.world === "activities")).map((place) => item(`/discover/place?id=${place.id}`, 0.7, "weekly", place.image ? [place.image] : undefined)),
     ...magazineArticles.map((article) => item(`/guides/${article.slug}/`, 0.75, "monthly", [article.image])),
     ...trails.map((trail) => item(`/trails/${trail.slug}/`, 0.75, "monthly")),
   ];

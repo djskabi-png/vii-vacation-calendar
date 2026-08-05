@@ -16,6 +16,7 @@ export type SpaTreatment = {
 export type SpaDetails = {
   about: string[];
   packages?: SpaPackage[];
+  packagesAreRequests?: boolean;
   treatments?: SpaTreatment[];
   facilities: string[];
   suitableFor?: string[];
@@ -134,5 +135,20 @@ export const spaDetailsById: Record<string, SpaDetails> = {
 };
 
 export function getSpaDetails(id: string) {
-  return spaDetailsById[id];
+  const details = spaDetailsById[id];
+  if (!details) return undefined;
+  const packagesAreRequests = !details.packages?.length;
+  const packages = details.packages?.length ? details.packages : [
+    { id: "custom-treatment", title: "התאמת טיפול אישית", audience: "יחיד" as const, price: "מחיר בבדיקת זמינות", includes: ["בדיקת סוג טיפול", "התאמת משך", "אישור שעה ומחיר"] },
+    { id: "custom-couple", title: "בקשה לחוויה זוגית", audience: "זוג" as const, price: "מחיר בבדיקת זמינות", includes: ["בדיקת טיפול זוגי", "בדיקת מתקנים כלולים", "אישור חבילה לפני תשלום"] },
+  ];
+  const faq = details.faq?.length ? [...details.faq] : [];
+  const defaults = [
+    { question: "איך יודעים מה כלול בחבילה?", answer: "כל רכיב בחבילה מאושר בזמן בדיקת הזמינות. לא סוגרים הזמנה לפני שמקבלים פירוט של הטיפול, משך השהייה והמתקנים הכלולים." },
+    { question: "אפשר להזמין ליחיד או לזוג?", answer: "אפשר לשלוח בקשה לפי ההרכב הרצוי. סוג הטיפול, החדר והמתקנים תלויים בזמינות של המקום בתאריך שנבחר." },
+    { question: "המחיר שמופיע הוא סופי?", answer: "מחיר התחלה אינו מחיר סופי. המחיר המדויק נקבע לפי התאריך, משך הטיפול, מספר האורחים והחבילה המאושרת." },
+  ];
+  for (const entry of defaults) if (faq.length < 3 && !faq.some((item) => item.question === entry.question)) faq.push(entry);
+  const about = details.about.length > 1 ? details.about : [...details.about, "העמוד מרכז את המתקנים, קהלי היעד ודרך ההזמנה. חבילה, מחיר וזמינות מאושרים לפני התשלום כדי להציג רק מידע עדכני."];
+  return { ...details, about, packages, packagesAreRequests, faq };
 }

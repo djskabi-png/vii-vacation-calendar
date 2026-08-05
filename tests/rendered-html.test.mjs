@@ -434,7 +434,7 @@ test("publishes crawler guidance, answer-engine guidance and an RSS feed", async
   assert.match(seo, /"@type": "EventVenue"/);
   assert.match(seo, /"@type": "TouristTrip"/);
   assert.doesNotMatch(seo, /numberOfAccommodationUnits/);
-  assert.match(sitemapSource, /!place\.demo/);
+  assert.match(sitemapSource, /place\.indexable !== false/);
   assert.match(questions, /faqSchema\(allQuestions\)/);
   assert.equal(key.trim(), "e7daf03f62b014067d8e10bb84098faa444d71d61f0d851d32013a07fe2502d3");
 });
@@ -444,7 +444,7 @@ test("every canonical URL in the sitemap has complete crawlable HTML", async () 
   const sitemapXml = await sitemapResponse.text();
   assert.equal(sitemapResponse.status, 200);
   const urls = [...sitemapXml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1].replaceAll("&amp;", "&"));
-  assert.equal(urls.length, 78);
+  assert.equal(urls.length, 84);
   assert.equal(urls.some((url) => url.includes("party-time")), false);
   assert.equal(new Set(urls).size, urls.length);
 
@@ -482,5 +482,29 @@ test("key page types emit matching structured data and private pages stay out of
   for (const pathname of ["/favorites", "/providers", "/handoff", "/discover/place?id=maor-natan"]) {
     const response = await render(pathname);
     assert.match(await response.text(), /<meta name="robots" content="noindex/);
+  }
+});
+
+test("every discovery card has stable media and every new world has a full detail page", async () => {
+  const worldData = await readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8");
+  const itemLines = worldData.split("\n").filter((line) => line.includes("world:") && line.includes(" id: "));
+  assert.equal(itemLines.length, 38);
+  for (const line of itemLines) {
+    assert.match(line, /image: "\/media\//);
+    assert.doesNotMatch(line, /demo: true/);
+  }
+
+  for (const [pathname, expected] of [
+    ["/discover/place?id=gentleman-haifa", /אפשרויות שהייה/],
+    ["/discover/place?id=eilat-sunset", /תוכנית מוצעת/],
+    ["/discover/place?id=horseback-idea", /כך מתאימים את החוויה/],
+    ["/discover/place?id=assemblage-spa", /מסלולי בקשה/],
+  ]) {
+    const response = await render(pathname);
+    const html = await response.text();
+    assert.equal(response.status, 200);
+    assert.match(html, expected);
+    assert.match(html, /שאלות נפוצות/);
+    assert.doesNotMatch(html, /פרופיל הדגמה/);
   }
 });

@@ -12,7 +12,7 @@ function resolveItem(id?: string) {
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const item = resolveItem((await searchParams).id);
-  const indexable = !item.demo && (item.world === "spa" || item.world === "hourly");
+  const indexable = item.indexable !== false && (item.world === "spa" || item.world === "hourly" || item.world === "activities");
   return {
     title: item.name,
     description: item.description,
@@ -25,7 +25,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 export default async function Page({ searchParams }: Props) {
   const item = resolveItem((await searchParams).id);
   const world = worlds.find((entry) => entry.id === item.world)!;
-  const indexable = !item.demo && (item.world === "spa" || item.world === "hourly");
+  const indexable = item.indexable !== false && (item.world === "spa" || item.world === "hourly" || item.world === "activities");
   return <>
     {indexable ? <StructuredData data={discoverySchema(item)} /> : null}
     <StructuredData data={breadcrumbSchema([
