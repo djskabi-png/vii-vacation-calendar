@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 
 export type CalendarMode = "home" | "business";
 export type BusinessKind = "multi" | "single";
@@ -330,7 +331,7 @@ export function CalendarDemo({
     onClose();
   }
 
-  return (
+  return createPortal(
     <div className="calendar-overlay" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
       <section className={`calendar-dialog mode-${mode}`} role="dialog" aria-modal="true" aria-labelledby="calendar-dialog-title">
         <header className="calendar-dialog-header">
@@ -459,6 +460,7 @@ export function CalendarDemo({
           </div>
         </footer>
       </section>
-    </div>
+    </div>,
+    document.body,
   );
 }

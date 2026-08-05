@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 
 export type SpaDateResult = {
   date: string | null;
@@ -97,7 +98,7 @@ export function SpaDatePicker({
     onClose();
   }
 
-  return (
+  return createPortal(
     <div className="calendar-overlay spa-date-overlay" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
       <section className="spa-date-dialog" role="dialog" aria-modal="true" aria-labelledby="spa-date-title">
         <header className="spa-date-dialog__header">
@@ -140,6 +141,7 @@ export function SpaDatePicker({
           <button type="button" className="spa-date-confirm" disabled={!ready} onClick={confirm}>המשך לחיפוש</button>
         </footer>
       </section>
-    </div>
+    </div>,
+    document.body,
   );
 }
