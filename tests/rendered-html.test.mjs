@@ -38,12 +38,13 @@ for (const [pathname, expected] of [
 }
 
 test("keeps calendar contexts, real listing ids and maps", async () => {
-  const [calendar, searchBox, business, sleeping, search, eventSearch, eventPlace, data, worldData, worldSwitcher, map, contactActions, homeShowcase, magazineData, magazinePage, articlePage, styles] = await Promise.all([
+  const [calendar, searchBox, business, sleeping, search, eventsPage, eventSearch, eventPlace, data, worldData, worldSwitcher, map, contactActions, homeShowcase, magazineData, magazinePage, articlePage, styles] = await Promise.all([
     readFile(new URL("../app/calendar-demo.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/business/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/sleeping-arrangements.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/search/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/events/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/events/search/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/events/place/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/data/site-data.ts", import.meta.url), "utf8"),
@@ -100,6 +101,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.equal((worldData.match(/sourceName: "חדרים וי־איי־פי"/g) || []).length, 10);
   assert.match(worldSwitcher, /עוברים עולם/);
   assert.match(searchBox, /SearchWorldTabs/);
+  assert.match(eventsPage, /<SearchBox mode="events" showWorlds \/>/);
   assert.match(map, /basemaps\.cartocdn\.com/);
   assert.match(map, /World_Imagery/);
   assert.match(map, /map-preview-image/);
