@@ -27,7 +27,7 @@ for (const [pathname, expected] of [
 }
 
 test("keeps calendar contexts, real listing ids and maps", async () => {
-  const [calendar, searchBox, business, search, eventSearch, data, map] = await Promise.all([
+  const [calendar, searchBox, business, search, eventSearch, data, map, contactActions] = await Promise.all([
     readFile(new URL("../app/calendar-demo.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/business/page.tsx", import.meta.url), "utf8"),
@@ -35,6 +35,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
     readFile(new URL("../app/events/search/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/data/site-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/contact-actions.tsx", import.meta.url), "utf8"),
   ]);
   assert.match(calendar, /mode === "home"/);
   assert.match(calendar, /mode === "business"/);
@@ -48,6 +49,10 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.equal((data.match(/name: "(?:אקווה ריזורט, וילת החוף|יחידת סטודיו שני|יחידת סטודיו העמק|סוויטה משפחתית וואנדרפול|יחידת עכו|סוויטות 1\+2|סוויטה משפחתית"|א\.ר סוויטות|סוויטה [1-4]"|חדר שינה"|סוויטת (?:מירון|גאיה|אליה|נועה|יובל|חרמון)|וילת הבשמים|אחוזת השושנים בוטיק)/g) || []).length >= 20, true);
   assert.match(business, /property\.roomOptions\.map/);
   assert.match(business, /חדרים ויחידות/);
+  assert.equal((data.match(/contact: \{ phone:/g) || []).length, 17);
+  assert.equal((data.match(/whatsapp:/g) || []).length, 8);
+  assert.match(contactActions, /הצג מספר/);
+  assert.match(contactActions, /https:\/\/wa\.me\//);
   assert.match(map, /basemaps\.cartocdn\.com/);
   assert.match(map, /World_Imagery/);
   assert.match(map, /map-preview-image/);

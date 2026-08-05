@@ -6,6 +6,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ListingMap } from "../../components/listing-map";
 import { PageShell } from "../../components/page-shell";
+import { ContactActions } from "../../components/contact-actions";
 import { eventPlaces } from "../../data/site-data";
 import { CalendarIcon, HeartIcon, PinIcon } from "../../site-header";
 
@@ -53,7 +54,7 @@ export default function EventPlacePage() {
     <PageShell variant="events">
       <main id="main-content" className="event-place-page">
         <div className="shell breadcrumbs"><Link href="/events/">אירועים</Link><span>/</span><Link href="/events/search/">מקומות</Link><span>/</span><span>{place.name}</span></div>
-        <section className="shell property-title event-title"><div><span className="eyebrow">{place.type}</span><h1>{place.name}</h1><p><PinIcon />{place.location}, {place.area}</p></div><div className="property-title__actions"><button type="button" onClick={toggleSaved}><HeartIcon filled={saved} />{saved ? "נשמר" : "שמירה"}</button><button type="button" onClick={() => void share()}>שיתוף</button></div></section>
+        <section className="shell property-title event-title"><div><span className="eyebrow">{place.type}</span><h1>{place.name}</h1><p><PinIcon />{place.location}, {place.area}</p></div><div className="property-title__side"><div className="property-title__actions"><button type="button" onClick={toggleSaved}><HeartIcon filled={saved} />{saved ? "נשמר" : "שמירה"}</button><button type="button" onClick={() => void share()}>שיתוף</button></div><ContactActions key={place.slug} contact={place.contact} placeName={place.name} /></div></section>
         <section className="shell property-gallery">{place.images.map((image, index) => <button key={image} type="button" onClick={() => setGalleryOpen(true)} aria-label={`פתיחת תמונה ${index + 1} של ${place.name}`}><img src={image} alt={`${place.name}, תמונה ${index + 1}`} />{index === 4 && <span>לכל התמונות</span>}</button>)}</section>
 
         <nav className="shell property-anchor-nav"><a href="#event-about">על המקום</a><a href="#event-features">מתקנים</a><a href="#event-map">מיקום</a><a href="#event-contact">בדיקת התאמה</a></nav>

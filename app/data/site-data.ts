@@ -21,6 +21,12 @@ export type Listing = {
   reviews?: number;
   price?: number;
   roomOptions?: StayOption[];
+  contact?: ListingContact;
+};
+
+export type ListingContact = {
+  phone?: string;
+  whatsapp?: string;
 };
 
 export type StayOption = {
@@ -62,6 +68,7 @@ export const properties: Property[] = [
     lng: 34.9440222,
     scenario: "single",
     liveUrl: "https://www.vii.co.il/Aqua_Resort_-_Beachfront_Villa_Eilat",
+    contact: { phone: "055-4500077", whatsapp: "054-4285059" },
     roomOptions: [
       {
         name: "אקווה ריזורט, וילת החוף",
@@ -92,6 +99,7 @@ export const properties: Property[] = [
     lng: 34.7048635,
     scenario: "multi",
     liveUrl: "https://www.vii.co.il/villa_esem_harimon",
+    contact: { phone: "055-4538035", whatsapp: "058-4205153" },
     roomOptions: [
       { name: "יחידת סטודיו שני", quantity: 1, guests: 4, bedrooms: 1, area: 40, image: "https://www.vii.co.il/gallery/thumb/600/336032b1123593a.jpeg", features: ["מיטה זוגית", "ג'קוזי זוגי", "מטבחון מאובזר", "מרפסת", "מיזוג אוויר"] },
       { name: "יחידת סטודיו העמק", quantity: 1, guests: 2, bedrooms: 1, area: 20, image: "https://www.vii.co.il/gallery/thumb/600/156032b112398d1.jpeg", features: ["מיטה זוגית", "מטבחון מאובזר", "מרפסת", "מסך טלוויזיה", "חדר רחצה פרטי"] },
@@ -118,6 +126,7 @@ export const properties: Property[] = [
     lng: 35.4536474,
     scenario: "multi",
     liveUrl: "https://www.vii.co.il/Ahuzat_Or",
+    contact: { phone: "052-9170990", whatsapp: "050-7780463" },
     roomOptions: [
       { name: "סוויטות 1+2", quantity: 2, guests: 3, bedrooms: 1, image: "https://www.vii.co.il/gallery/thumb/600/75645b976e1e630.JPG", features: ["מיטה זוגית", "ג'קוזי זוגי", "מטבחון מאובזר", "מרפסת", "חדר רחצה פרטי"] },
       { name: "סוויטה משפחתית", quantity: 1, guests: 6, bedrooms: 1, image: "https://www.vii.co.il/gallery/thumb/600/42645b976e06d9c.JPG", features: ["מיטה זוגית", "ג'קוזי זוגי", "מטבחון מאובזר", "פינת אוכל", "חדר רחצה פרטי"] },
@@ -165,6 +174,7 @@ export const properties: Property[] = [
     lng: 35.8009862,
     scenario: "multi",
     liveUrl: "https://www.vii.co.il/Sol-_Events_And_Parties",
+    contact: { phone: "055-4538181", whatsapp: "052-4477779" },
     roomOptions: [
       { name: "סוויטה 1", quantity: 1, guests: 8, bedrooms: 2, image: "https://www.vii.co.il/gallery/thumb/600/7636b81690993d.jpeg", features: ["בריכת שחייה", "גינה פרטית", "מטבחון מאובזר", "פינת ישיבה", "מיזוג אוויר"] },
       { name: "סוויטה 2", quantity: 1, guests: 6, bedrooms: 2, image: "https://www.vii.co.il/gallery/thumb/600/19636b8169059aa.jpeg", features: ["ג'קוזי", "מרפסת", "מטבחון מאובזר", "מסכי טלוויזיה", "מיזוג אוויר"] },
@@ -216,6 +226,7 @@ export const properties: Property[] = [
     lng: 34.8796582,
     scenario: "multi",
     liveUrl: "https://www.vii.co.il/HaGan_HaKasum_Gefen_Suites",
+    contact: { phone: "055-4500620", whatsapp: "050-8534766" },
     roomOptions: [
       { name: "סוויטות הגן הקסום גפן", quantity: 4, guests: 5, bedrooms: 1, image: "https://www.vii.co.il/gallery/thumb/600/956a68539e055b5.JPG", features: ["בריכה מחוממת ומגודרת", "מטבח מאובזר", "מיזוג אוויר", "חדר אוכל", "חדר רחצה"] },
     ],
@@ -239,6 +250,7 @@ export const properties: Property[] = [
     lng: 35.4428227,
     scenario: "multi",
     liveUrl: "https://www.vii.co.il/Ahozat_Anael_Bgalil",
+    contact: { phone: "055-4500075", whatsapp: "050-4240966" },
     roomOptions: [
       { name: "סוויטת מירון", quantity: 1, guests: 4, bedrooms: 1, image: "https://www.vii.co.il/gallery/thumb/600/906a587a6b4f48b.jpeg", features: ["מיטה זוגית", "ג'קוזי ספא", "מטבחון מאובזר", "מסך טלוויזיה", "חדר רחצה פרטי"] },
       { name: "סוויטת גאיה", quantity: 1, guests: 4, bedrooms: 1, image: "https://www.vii.co.il/gallery/thumb/600/666a587a0ba70f5.jpeg", features: ["מיטה זוגית", "ג'קוזי ספא", "מטבחון מאובזר", "פינת ישיבה", "חדר רחצה פרטי"] },
@@ -266,6 +278,7 @@ export const properties: Property[] = [
     lng: 34.933483,
     scenario: "single",
     liveUrl: "https://www.vii.co.il/Parfumes_Villa",
+    contact: { phone: "055-4538221", whatsapp: "054-4233163" },
     roomOptions: [
       { name: "וילת הבשמים", quantity: 1, guests: 30, bedrooms: 9, image: "https://www.vii.co.il/gallery/thumb/600/776a4e0f15551ad.jpeg", features: ["בריכת שחייה", "מטבח מאובזר", "שני סלונים", "חניה פרטית", "תשעה חדרי שינה"] },
     ],
@@ -288,6 +301,7 @@ export const properties: Property[] = [
     lng: 35.288424,
     scenario: "single",
     liveUrl: "https://www.vii.co.il/ahuzat_hashoshanim",
+    contact: { phone: "055-4538029", whatsapp: "050-3734051" },
     roomOptions: [
       { name: "אחוזת השושנים בוטיק", quantity: 1, guests: 17, bedrooms: 5, area: 200, image: "https://www.vii.co.il/gallery/thumb/600/3683fd1032e080.jpg", features: ["בריכה מחוממת ומקורה", "ג'קוזי ספא", "מטבח מאובזר", "סלון משותף", "חמישה חדרי שינה"] },
     ],
@@ -310,6 +324,7 @@ export const eventPlaces: EventPlace[] = [
     images: ["https://www.vii.co.il/gallery/196a6071f6c6fb5.jpg", "https://www.vii.co.il/gallery/746a6071f6ee76e.jpg", "https://www.vii.co.il/gallery/946a6071f6cb170.jpg", "https://www.vii.co.il/gallery/766a6071f709f64.jpg", "https://www.vii.co.il/gallery/296a6071f704b9d.jpg"],
     description: "מתחם אירועים אורבני בנשר בשטח של כ־180 מ״ר, עם סנוקר, קריוקי, אפשרות לברביקיו וללא הגבלת רעש.",
     features: ["קריוקי", "סנוקר", "ברביקיו", "ללא הגבלת רעש", "חלל ממוזג"], audiences: ["מסיבות", "ימי הולדת", "אירועים פרטיים"], eventTypes: ["מסיבה", "יום הולדת", "אירוע פרטי"], badges: ["ללא הגבלת רעש", "עד 80 אורחים"], lat: 32.7729976, lng: 35.0464748, scenario: "single", liveUrl: "https://www.vii.co.il/events/Black_Loft",
+    contact: { phone: "055-4538062" },
   },
   {
     slug: "sani-loft", name: "סאני לופט", location: "פתח תקווה", area: "מישור החוף והשפלה", type: "מתחם אירועים", units: 1, guests: 300,
@@ -317,6 +332,7 @@ export const eventPlaces: EventPlace[] = [
     images: ["https://www.vii.co.il/gallery/9567ac62d7d9ce8.JPG", "https://www.vii.co.il/gallery/24691997fc4e823.jpeg", "https://www.vii.co.il/gallery/6167ac62e735773.JPG", "https://www.vii.co.il/gallery/79691997fc44484.jpeg", "https://www.vii.co.il/gallery/69691997fc51900.jpeg"],
     description: "מתחם אירועים בפתח תקווה לעד 300 אורחים עם חללים גמישים, בר מעוצב ומערכות סאונד ותאורה.",
     features: ["בר מעוצב", "מערכת סאונד", "תאורה", "חללים גמישים", "רחבת אירוח"], audiences: ["אירועים עסקיים", "אירועים משפחתיים", "מסיבות"], eventTypes: ["אירוע עסקי", "אירוע משפחתי", "מסיבה"], badges: ["עד 300 אורחים"], lat: 32.1074967, lng: 34.8938899, scenario: "single", liveUrl: "https://www.vii.co.il/events/sani_loft",
+    contact: { phone: "055-4311082" },
   },
   {
     slug: "360-events", name: "360 איוונטס", location: "ראשון לציון", area: "מישור החוף והשפלה", type: "לופט ומתחם אירועים", units: 2, guests: 200,
@@ -324,6 +340,7 @@ export const eventPlaces: EventPlace[] = [
     images: ["https://www.vii.co.il/gallery/21650be045b2902.jpeg", "https://www.vii.co.il/gallery/5650be0455ccef.jpeg", "https://www.vii.co.il/gallery/18650be04572298.jpeg", "https://www.vii.co.il/gallery/97650be0456a70e.jpeg", "https://www.vii.co.il/gallery/45650be0454c05c.jpeg"],
     description: "שני מתחמי אירועים בראשון לציון, לופט מעוצב ואולם מאובזר, עם בריכה ומשחקי שולחן.",
     features: ["בריכה", "משחקי שולחן", "אולם מאובזר", "לופט", "מערכת הגברה"], audiences: ["אירועים פרטיים", "אירועים משפחתיים", "מסיבות"], eventTypes: ["אירוע פרטי", "אירוע משפחתי", "מסיבה"], badges: ["שני מתחמים", "עד 200 אורחים"], lat: 31.9949496, lng: 34.7670958, scenario: "multi", liveUrl: "https://www.vii.co.il/events/360_Events",
+    contact: { phone: "055-4317903" },
   },
   {
     slug: "loft-117", name: "לופט 117", location: "תל אביב", area: "מישור החוף והשפלה", type: "לופט", units: 1, guests: 25, bedrooms: 2,
@@ -331,6 +348,7 @@ export const eventPlaces: EventPlace[] = [
     images: ["https://www.vii.co.il/gallery/3465c34aea44623.jpeg", "https://www.vii.co.il/gallery/6265c34aea3dbca.jpeg", "https://www.vii.co.il/gallery/2863da30589103b.jpeg", "https://www.vii.co.il/gallery/2763da30588d207.jpeg", "https://www.vii.co.il/gallery/665c34aea6791b.jpeg"],
     description: "מתחם אירועים בתל אביב המתפרס על שלוש קומות, עם בריכה, ג'קוזי, סנוקר ומערכות הגברה, ללא הגבלת רעש.",
     features: ["בריכה", "ג'קוזי", "סנוקר", "מערכת הגברה", "ללא הגבלת רעש"], audiences: ["מסיבות", "ימי הולדת", "אירועים פרטיים"], eventTypes: ["מסיבה", "יום הולדת", "אירוע פרטי"], badges: ["שלוש קומות", "ללא הגבלת רעש"], lat: 32.0526142, lng: 34.770393, scenario: "single", liveUrl: "https://www.vii.co.il/events/Villa_117",
+    contact: { phone: "055-4538052" },
   },
   {
     slug: "fiesta", name: "פיאסטה", location: "ראשון לציון", area: "מישור החוף והשפלה", type: "מתחם אירועים", units: 1, guests: 150,
@@ -338,6 +356,7 @@ export const eventPlaces: EventPlace[] = [
     images: ["https://www.vii.co.il/gallery/8667a9f6b88f322.jpeg", "https://www.vii.co.il/gallery/8567a9f6b860688.jpeg", "https://www.vii.co.il/gallery/7667a9f6b868f76.jpeg", "https://www.vii.co.il/gallery/5067a9f6b85bcae.jpeg", "https://www.vii.co.il/gallery/4667a9f6b86df0b.jpeg"],
     description: "מתחם לאירועים ומסיבות בראשון לציון עם גג מעוצב, תאורה צבעונית, מערכת הגברה ומקרן.",
     features: ["גג מעוצב", "תאורה", "מערכת הגברה", "מקרן", "רחבת אירוח"], audiences: ["מסיבות", "אירועים פרטיים", "אירועים משפחתיים"], eventTypes: ["מסיבה", "אירוע פרטי", "אירוע משפחתי"], badges: ["עד 150 אורחים"], lat: 31.9899591, lng: 34.7696283, scenario: "single", liveUrl: "https://www.vii.co.il/events/FIESTA_-_Event_and_Party_Venue",
+    contact: { phone: "055-4311895" },
   },
   {
     slug: "details-events", name: "דיטלס איוונטס", location: "אשקלון", area: "מישור החוף הדרומי", type: "לופט", units: 1, guests: 100,
@@ -345,6 +364,7 @@ export const eventPlaces: EventPlace[] = [
     images: ["https://www.vii.co.il/gallery/2769cbb1392a225.jpg", "https://www.vii.co.il/gallery/3569cbb1393e401.jpg", "https://www.vii.co.il/gallery/3569cbb139451cb.jpg", "https://www.vii.co.il/gallery/6269cbb1394be81.jpg", "https://www.vii.co.il/gallery/9969cbb13952381.jpg"],
     description: "לופט באשקלון עם מתחם בריכה, אולם פנימי, מערכות שמע ושולחן סנוקר.",
     features: ["בריכה", "אולם פנימי", "מערכת שמע", "סנוקר", "פינת מנגל"], audiences: ["מסיבות", "ימי הולדת", "אירועים פרטיים"], eventTypes: ["מסיבה", "יום הולדת", "אירוע פרטי"], badges: ["עד 100 אורחים"], lat: 31.6677184, lng: 34.6058536, scenario: "single", liveUrl: "https://www.vii.co.il/events/Details_Events",
+    contact: { phone: "055-4538170" },
   },
   {
     slug: "star-loft", name: "סטאר לופט", location: "נשר", area: "חיפה וחוף הכרמל", type: "לופט", units: 1, guests: 40,
@@ -352,6 +372,7 @@ export const eventPlaces: EventPlace[] = [
     images: ["https://www.vii.co.il/gallery/5962a5b1c42c285.jpeg", "https://www.vii.co.il/gallery/5162a5b1c43cb12.jpeg", "https://www.vii.co.il/gallery/062a5b1c438706.jpeg", "https://www.vii.co.il/gallery/9862a5b1c432aaf.jpeg", "https://www.vii.co.il/gallery/4162a5b1c440ec3.jpeg"],
     description: "מתחם אירועי בוטיק בנשר בעיצוב אורבני, עם מערכות טכנולוגיות ואווירה אינטימית.",
     features: ["עיצוב אורבני", "מערכת הגברה", "תאורה", "חלל ממוזג", "אזור ישיבה"], audiences: ["מסיבות", "אירועים פרטיים", "ימי הולדת"], eventTypes: ["מסיבה", "אירוע פרטי", "יום הולדת"], badges: ["בוטיק", "עד 40 אורחים"], lat: 32.7748383, lng: 35.0417679, scenario: "single", liveUrl: "https://www.vii.co.il/events/Star_Loft",
+    contact: { phone: "055-4538033" },
   },
   {
     slug: "puzzle-club", name: "לופט מועדון הפאזל", location: "ראשון לציון", area: "מישור החוף והשפלה", type: "לופט", units: 1, guests: 100,
@@ -359,6 +380,7 @@ export const eventPlaces: EventPlace[] = [
     images: ["https://www.vii.co.il/gallery/1693031bab4525.jpeg", "https://www.vii.co.il/gallery/61693031bb22b92.jpeg", "https://www.vii.co.il/gallery/25693031ba340af.jpeg", "https://www.vii.co.il/gallery/72693031bb950fb.jpeg", "https://www.vii.co.il/gallery/2362a0809cab687.jpeg"],
     description: "לופט בראשון לציון לאירועים של עד 100 אורחים, עם קריוקי, תאורה, הגברה ומשחקי שולחן, ללא הגבלת רעש.",
     features: ["קריוקי", "תאורה", "מערכת הגברה", "משחקי שולחן", "ללא הגבלת רעש"], audiences: ["מסיבות", "ימי הולדת", "אירועים פרטיים"], eventTypes: ["מסיבה", "יום הולדת", "אירוע פרטי"], badges: ["ללא הגבלת רעש", "עד 100 אורחים"], lat: 32.0507881, lng: 34.7698469, scenario: "single", liveUrl: "https://www.vii.co.il/events/Puzzle_Club_Loft",
+    contact: { phone: "055-4538006" },
   },
   {
     slug: "paphos-events", name: "פאפוס איוונטס", location: "רחובות", area: "מישור החוף והשפלה", type: "מתחם אירועים", units: 2, guests: 160,
@@ -366,6 +388,7 @@ export const eventPlaces: EventPlace[] = [
     images: ["https://www.vii.co.il/gallery/7366a2314f6443a.jpeg", "https://www.vii.co.il/gallery/5566a7397ab89f5.jpg", "https://www.vii.co.il/gallery/736811d99f268be.jpg", "https://www.vii.co.il/gallery/9166a2314f3ea49.jpeg", "https://www.vii.co.il/gallery/736811d99fd026b.jpg"],
     description: "שני מתחמי אירועים ברחובות עם חבילות אירוח מגוונות ואפשרות לאוכל, אלכוהול ובידור, ללא הגבלת רעש.",
     features: ["שני מתחמים", "ללא הגבלת רעש", "חבילות אירוח", "מערכת הגברה", "רחבת אירוח"], audiences: ["מסיבות", "אירועים פרטיים", "אירועים עסקיים"], eventTypes: ["מסיבה", "אירוע פרטי", "אירוע עסקי"], badges: ["שני מתחמים", "עד 160 אורחים"], lat: 31.8900148, lng: 34.780923, scenario: "multi", liveUrl: "https://www.vii.co.il/events/Paphos_Events",
+    contact: { phone: "055-4538198" },
   },
 ];
 
