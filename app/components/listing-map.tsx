@@ -10,12 +10,13 @@ type ListingMapProps = {
   listings: Listing[];
   mode?: "vacation" | "events";
   single?: boolean;
+  autoLoad?: boolean;
 };
 
-export function ListingMap({ listings, mode = "vacation", single = false }: ListingMapProps) {
+export function ListingMap({ listings, mode = "vacation", single = false, autoLoad = false }: ListingMapProps) {
   const mapElement = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<import("leaflet").Map | null>(null);
-  const [enabled, setEnabled] = useState(false);
+  const [enabled, setEnabled] = useState(autoLoad);
   const [mapReady, setMapReady] = useState(false);
   const [selectedSlug, setSelectedSlug] = useState(listings[0]?.slug ?? "");
   const preview = listings[0] ?? null;
@@ -133,8 +134,10 @@ export function ListingMap({ listings, mode = "vacation", single = false }: List
 
   return (
     <div className={`listing-map-shell ${single ? "single-map" : ""}`}>
-      <div ref={mapElement} className={`listing-map ${mapReady ? "is-ready" : ""}`} aria-label="מפה אינטראקטיבית של המקומות" />
-      {!mapReady && <div className="map-preview-card map-loading-preview">{previewContent}</div>}
+      <div ref={mapElement} className={`listing-map ${mapReady || autoLoad ? "is-ready" : ""}`} aria-label="מפה אינטראקטיבית של המקומות" />
+      {!mapReady && (autoLoad
+        ? <span className="map-live-loading" role="status">טוענים את המפה ואת הסמנים...</span>
+        : <div className="map-preview-card map-loading-preview">{previewContent}</div>)}
       {mapReady && !single && selected && (
         <article className="map-selection-card">
           {/* eslint-disable-next-line @next/next/no-img-element */}

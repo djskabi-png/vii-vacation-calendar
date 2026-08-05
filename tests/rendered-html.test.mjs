@@ -92,6 +92,10 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(map, /World_Imagery/);
   assert.match(map, /map-preview-image/);
   assert.match(map, /if \(!enabled\)/);
+  assert.match(map, /autoLoad/);
+  assert.match(search, /<ListingMap listings=\{filtered\} autoLoad \/>/);
+  assert.match(search, /האזור שמוצג במפה/);
+  assert.match(eventSearch, /mode="events" autoLoad/);
   assert.equal((magazineData.match(/slug: "/g) || []).length, 10);
   assert.equal((magazineData.match(/checklist: \[/g) || []).length, 10);
   assert.match(magazinePage, /vii-magazine-saved/);

@@ -68,16 +68,17 @@ export default function SearchPage() {
         <div className="results-search shell"><SearchBox compact /></div>
         <div className="shell breadcrumbs"><Link href="/">ראשי</Link><span>/</span><span>תוצאות חיפוש</span></div>
         <section className="shell results-heading">
-          <div><span className="eyebrow">מקומות שמתאימים לחיפוש</span><h1>נופש ברחבי הארץ</h1><p>{filtered.length} מתוך {properties.length} מקומות מאומתים מוצגים</p></div>
-          <button className={`button map-button ${mapOpen ? "active" : ""}`} type="button" onClick={() => setMapOpen((value) => !value)}><PinIcon />{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</button>
+          <div><span className="eyebrow">מקומות שמתאימים לחיפוש</span><h1>{area === "הכל" ? "נופש ברחבי הארץ" : `נופש ב${area}`}</h1><p>{filtered.length} מתוך {properties.length} מקומות מאומתים מוצגים</p></div>
+          <button className={`button map-button ${mapOpen ? "active" : ""}`} type="button" aria-pressed={mapOpen} onClick={() => setMapOpen((value) => !value)}><PinIcon />{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</button>
         </section>
 
         {activeFilters.length > 0 && <div className="shell active-filter-row"><span>סינונים פעילים:</span>{activeFilters.map((filter) => <button key={filter} type="button" onClick={resetFilters}>{filter} ×</button>)}<button type="button" className="clear-all" onClick={resetFilters}>ניקוי הכל</button></div>}
 
         <div className={`shell results-layout ${mapOpen ? "with-map" : ""}`}>
-          <aside className={`filter-panel ${filtersOpen ? "open" : ""}`} aria-label="סינון תוצאות">
+          <aside className={`filter-panel ${filtersOpen ? "open" : ""} ${mapOpen ? "map-mode" : ""}`} aria-label="סינון תוצאות">
             <div className="filter-head"><h2>סינון תוצאות</h2><button type="button" onClick={() => setFiltersOpen(false)} aria-label="סגירה"><CloseIcon /></button></div>
-            <label className="filter-select">אזור<select value={area} onChange={(event) => setArea(event.target.value)}>{areas.map((item) => <option key={item}>{item}</option>)}</select></label>
+            {mapOpen && <div className="map-filter-status" aria-live="polite"><PinIcon /><span>האזור שמוצג במפה</span><strong>{area === "הכל" ? "כל הארץ" : area}</strong></div>}
+            <label className={`filter-select map-area-select ${mapOpen ? "active" : ""}`}>אזור<select value={area} onChange={(event) => setArea(event.target.value)}>{areas.map((item) => <option value={item} key={item}>{item === "הכל" ? "כל הארץ" : item}</option>)}</select></label>
             <label className="filter-select">סוג מקום<select value={type} onChange={(event) => setType(event.target.value)}>{types.map((item) => <option key={item}>{item}</option>)}</select></label>
             <fieldset><legend>כמות אורחים מינימלית</legend><input type="range" min="1" max="30" value={guests} onChange={(event) => setGuests(Number(event.target.value))} /><div className="range-value">לפחות {guests} אורחים</div></fieldset>
             <fieldset><legend>מאפיינים</legend>
@@ -92,7 +93,7 @@ export default function SearchPage() {
           <section className="results-list" aria-label="תוצאות">
             <div className="results-toolbar"><button type="button" className="button mobile-filter" onClick={() => setFiltersOpen(true)}>סינון</button><label>מיון לפי <select value={sort} onChange={(event) => setSort(event.target.value)}><option value="recommended">מומלצים</option><option value="capacity">קיבולת גבוהה</option><option value="units">מספר יחידות</option><option value="name">שם המקום</option></select></label></div>
             {!mapOpen && <div className="result-cards">{filtered.map((property) => <PropertyCard key={property.slug} property={property} />)}</div>}
-            {mapOpen && <ListingMap listings={filtered} />}
+            {mapOpen && <ListingMap listings={filtered} autoLoad />}
             {filtered.length === 0 && <div className="empty-state"><h2>לא נמצאה התאמה מדויקת</h2><p>אפשר לשנות אזור, להפחית את כמות האורחים או להסיר מאפיין.</p><button className="button primary" type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
           </section>
         </div>
