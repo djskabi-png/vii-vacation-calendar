@@ -7,6 +7,7 @@ import { PageShell } from "../components/page-shell";
 import { PropertyCard } from "../components/property-card";
 import { SearchBox } from "../components/search-box";
 import { properties } from "../data/site-data";
+import { getPlaceAccessibility } from "../data/accessibility-data";
 import { CloseIcon, PinIcon } from "../site-header";
 
 export default function SearchPage() {
@@ -19,6 +20,7 @@ export default function SearchPage() {
   const [pool, setPool] = useState(false);
   const [spa, setSpa] = useState(false);
   const [whole, setWhole] = useState(false);
+  const [accessibleOnly, setAccessibleOnly] = useState(false);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -41,7 +43,8 @@ export default function SearchPage() {
       const matchesPool = !pool || property.features.some((feature) => feature.includes("בריכ"));
       const matchesSpa = !spa || property.features.some((feature) => feature.includes("ג'קוזי") || feature.includes("ספא") || feature.includes("סאונה"));
       const matchesWhole = !whole || property.scenario === "single";
-      return matchesArea && matchesType && matchesGuests && matchesPool && matchesSpa && matchesWhole;
+      const matchesAccessibility = !accessibleOnly || getPlaceAccessibility(property.slug).status === "accessible";
+      return matchesArea && matchesType && matchesGuests && matchesPool && matchesSpa && matchesWhole && matchesAccessibility;
     });
     return [...matches].sort((a, b) => {
       if (sort === "capacity") return b.guests - a.guests;
@@ -49,9 +52,9 @@ export default function SearchPage() {
       if (sort === "name") return a.name.localeCompare(b.name, "he");
       return properties.indexOf(a) - properties.indexOf(b);
     });
-  }, [area, guests, pool, sort, spa, type, whole]);
+  }, [accessibleOnly, area, guests, pool, sort, spa, type, whole]);
 
-  const activeFilters = [area !== "הכל" ? area : "", type !== "הכל" ? type : "", guests > 2 ? `${guests} אורחים ומעלה` : "", pool ? "בריכה" : "", spa ? "ספא וג'קוזי" : "", whole ? "מקום שלם" : ""].filter(Boolean);
+  const activeFilters = [area !== "הכל" ? area : "", type !== "הכל" ? type : "", guests > 2 ? `${guests} אורחים ומעלה` : "", pool ? "בריכה" : "", spa ? "ספא וג'קוזי" : "", whole ? "מקום שלם" : "", accessibleOnly ? "נגישות מלאה ומאומתת" : ""].filter(Boolean);
 
   function resetFilters() {
     setArea("הכל");
@@ -60,6 +63,7 @@ export default function SearchPage() {
     setPool(false);
     setSpa(false);
     setWhole(false);
+    setAccessibleOnly(false);
   }
 
   return (
@@ -85,6 +89,7 @@ export default function SearchPage() {
               <label><input type="checkbox" checked={pool} onChange={(event) => setPool(event.target.checked)} /> בריכה</label>
               <label><input type="checkbox" checked={spa} onChange={(event) => setSpa(event.target.checked)} /> ספא, ג׳קוזי או סאונה</label>
               <label><input type="checkbox" checked={whole} onChange={(event) => setWhole(event.target.checked)} /> מקום אירוח שלם</label>
+              <label><input type="checkbox" checked={accessibleOnly} onChange={(event) => setAccessibleOnly(event.target.checked)} /> נגישות מלאה ומאומתת</label>
             </fieldset>
             <button type="button" className="button primary filter-apply" onClick={() => setFiltersOpen(false)}>הצגת {filtered.length} מקומות</button>
             <button type="button" className="button subtle wide" onClick={resetFilters}>ניקוי סינונים</button>

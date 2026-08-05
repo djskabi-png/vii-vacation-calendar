@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { Property } from "../data/site-data";
 import { HeartIcon, PinIcon } from "../site-header";
-import { ListingAccessibility } from "./listing-accessibility";
 
 export function PropertyCard({ property }: { property: Property }) {
   const [saved, setSaved] = useState(false);
@@ -47,7 +46,6 @@ export function PropertyCard({ property }: { property: Property }) {
           {property.score && <span className="score"><b>{property.score}</b><small>{property.reviews} חוות דעת</small></span>}
         </div>
         <p className="stay-card__meta">{property.type}{property.units && property.units > 1 ? `, ${property.units} יחידות` : ", מקום אירוח שלם"} · עד {property.guests} אורחים</p>
-        <ListingAccessibility slug={property.slug} compact />
         <div className="feature-chips">{property.features.slice(0, 3).map((feature) => <span key={feature}>{feature}</span>)}</div>
         <div className="stay-card__footer">
           <span>{property.price ? <><small>החל מ־</small><b>₪{property.price}</b><small> ללילה</small></> : "מחיר לפי תאריך"}</span>

@@ -242,7 +242,7 @@ test("all trail guides render as public pages", async () => {
 });
 
 test("includes the accessibility system and honest place disclosures", async () => {
-  const [widget, statement, data, listing, header, footer, propertyCard, business, eventSearch, eventPlace, discoveryCard, discoveryPlace, styles] = await Promise.all([
+  const [widget, statement, data, listing, header, footer, propertyCard, searchPage, business, eventSearch, eventPlace, discoveryCard, discoveryPlace, styles] = await Promise.all([
     readFile(new URL("../app/components/accessibility-widget.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/accessibility/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/data/accessibility-data.ts", import.meta.url), "utf8"),
@@ -250,6 +250,7 @@ test("includes the accessibility system and honest place disclosures", async () 
     readFile(new URL("../app/site-header.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/site-footer.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/property-card.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/search/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/events/search/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/events/place/client-page.tsx", import.meta.url), "utf8"),
@@ -273,11 +274,13 @@ test("includes the accessibility system and honest place disclosures", async () 
   assert.match(listing, /האם המקום נגיש/);
   assert.match(header, /<AccessibilityWidget/);
   assert.match(footer, /href="\/accessibility\/"/);
-  assert.match(propertyCard, /ListingAccessibility slug=\{property\.slug\} compact/);
+  assert.doesNotMatch(propertyCard, /ListingAccessibility/);
+  assert.match(searchPage, /נגישות מלאה ומאומתת/);
   assert.match(business, /ListingAccessibility slug=\{property\.slug\}/);
-  assert.match(eventSearch, /ListingAccessibility slug=\{place\.slug\} compact/);
+  assert.doesNotMatch(eventSearch, /ListingAccessibility/);
+  assert.match(eventSearch, /נגישות מלאה ומאומתת/);
   assert.match(eventPlace, /ListingAccessibility slug=\{place\.slug\}/);
-  assert.match(discoveryCard, /item\.world === "spa" \|\| item\.world === "hourly"/);
+  assert.doesNotMatch(discoveryCard, /ListingAccessibility/);
   assert.match(discoveryPlace, /ListingAccessibility slug=\{item\.id\}/);
   assert.match(styles, /prefers-reduced-motion/);
   assert.match(styles, /accessibility-status-explainer/);
