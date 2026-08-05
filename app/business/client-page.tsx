@@ -17,6 +17,8 @@ import { properties, propertyFaq } from "../data/site-data";
 import { activityIdeas, providerProfiles, spaPlaces, type DiscoveryItem } from "../data/world-data";
 import { nearbyTrails } from "../data/trail-data";
 import { TrailCard } from "../components/trail-card";
+import { GalleryExperience } from "../components/gallery-experience";
+import { GuestReviewStudio } from "../components/guest-review-studio";
 import { CalendarIcon, HeartIcon, PinIcon } from "../site-header";
 
 function complementaryItems(area: string, location: string): DiscoveryItem[] {
@@ -45,6 +47,7 @@ export default function BusinessPage({ initialSlug }: { initialSlug: string }) {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [dates, setDates] = useState("בחרו תאריכים");
   const [galleryOpen, setGalleryOpen] = useState(false);
+  const [galleryStart, setGalleryStart] = useState(0);
   const [allFeaturesOpen, setAllFeaturesOpen] = useState(false);
   const [saved, setSaved] = useState(false);
   const [shareStatus, setShareStatus] = useState("");
@@ -98,7 +101,7 @@ export default function BusinessPage({ initialSlug }: { initialSlug: string }) {
           </div>
         </section>
 
-        <section className="shell property-gallery">{property.images.slice(0, 5).map((image, index) => <button key={image} type="button" aria-label={`פתיחת גלריית ${property.name}, תמונה ${index + 1}`} onClick={() => setGalleryOpen(true)}><img src={image} alt={`${property.name}, תמונה ${index + 1}`} />{index === 4 && <span>לכל התמונות</span>}</button>)}</section>
+        <section className="shell property-gallery">{property.images.slice(0, 5).map((image, index) => <button key={image} type="button" aria-label={`פתיחת גלריית ${property.name}, תמונה ${index + 1}`} onClick={() => { setGalleryStart(index); setGalleryOpen(true); }}><img src={image} alt={`${property.name}, תמונה ${index + 1}`} />{index === 4 && <span>לגלריה המלאה</span>}</button>)}</section>
 
         <nav className="shell property-anchor-nav" aria-label="ניווט בעמוד"><a href="#about">על המקום</a>{property.roomOptions?.length ? <a href="#rooms">{property.scenario === "multi" ? "סוויטות ויחידות" : "מבנה המקום"}</a> : null}{property.bedrooms ? <a href="#sleeping">איפה ישנים</a> : null}<a href="#features">מאפיינים</a><a href="#accessibility">נגישות במקום</a><a href="#location">מיקום</a><a href="#faq">שאלות ותשובות</a><a href="#policies">חשוב לדעת</a></nav>
 
@@ -143,6 +146,8 @@ export default function BusinessPage({ initialSlug }: { initialSlug: string }) {
 
             <section id="faq" className="faq-section"><span className="eyebrow">כל מה שחשוב לפני שמזמינים</span><h2>שאלות ותשובות</h2>{propertyFaq.map((item, index) => <article key={item.question} className={openFaq === index ? "open" : ""}><button type="button" aria-expanded={openFaq === index} onClick={() => setOpenFaq(openFaq === index ? null : index)}><span>{item.question}</span><b>{openFaq === index ? "−" : "+"}</b></button>{openFaq === index && <p>{item.answer}</p>}</article>)}</section>
 
+            <GuestReviewStudio placeName={property.name} />
+
             <section id="policies" className="policies-section"><span className="eyebrow">חשוב לדעת</span><h2>כללים ותנאי הזמנה</h2><div><article><b>כניסה ויציאה</b><p>שעות הכניסה והיציאה יוצגו לפי המקום והתאריך במנוע ההזמנות.</p></article><article><b>מחיר ותשלום</b><p>המחיר הסופי תלוי בתאריכים, בהרכב וביחידה שנבחרה.</p></article><article><b>ביטול ושינויים</b><p>התנאים המחייבים יוצגו לפני השלמת ההזמנה.</p></article><article><b>מידע על המקום</b><p>פרטי המקום והתמונות נבדקו כחלק מהכנת העמוד.</p></article></div></section>
           </div>
 
@@ -166,7 +171,7 @@ export default function BusinessPage({ initialSlug }: { initialSlug: string }) {
 
       <CalendarDemo mode="business" businessKind={property.scenario} businessName={property.name} open={calendarOpen} onClose={() => setCalendarOpen(false)} onConfirm={(result) => setDates(result.summary)} />
 
-      {galleryOpen && <div className="gallery-overlay" onMouseDown={(event) => event.target === event.currentTarget && setGalleryOpen(false)}><section role="dialog" aria-modal="true" aria-label={`תמונות ${property.name}`}><header><h2>{property.name}</h2><button type="button" onClick={() => setGalleryOpen(false)}>סגירה</button></header><div>{property.images.map((image, index) => <img key={image} src={image} alt={`${property.name}, תמונה ${index + 1}`} />)}</div></section></div>}
+      <GalleryExperience key={`${property.slug}-${galleryOpen ? galleryStart : "closed"}`} property={property} open={galleryOpen} initialIndex={galleryStart} onClose={() => setGalleryOpen(false)} />
 
       {allFeaturesOpen && <div className="simple-modal" onMouseDown={(event) => event.target === event.currentTarget && setAllFeaturesOpen(false)}><section role="dialog" aria-modal="true" aria-labelledby="features-title"><header><h2 id="features-title">המתקנים של {property.name}</h2><button type="button" onClick={() => setAllFeaturesOpen(false)}>סגירה</button></header><div className="feature-list modal-features">{property.features.map((feature) => <span key={feature}>✓ {feature}</span>)}</div><p>המידע המוצג נבדק כחלק מהכנת עמוד המקום.</p></section></div>}
     </PageShell>

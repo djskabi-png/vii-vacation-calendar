@@ -12,10 +12,13 @@ import { ListingAccessibility } from "../../components/listing-accessibility";
 import { eventPlaces } from "../../data/site-data";
 import { providerProfiles } from "../../data/world-data";
 import { CalendarIcon, HeartIcon, PinIcon } from "../../site-header";
+import { GalleryExperience } from "../../components/gallery-experience";
+import { GuestReviewStudio } from "../../components/guest-review-studio";
 
 export default function EventPlacePage({ initialSlug }: { initialSlug: string }) {
   const [saved, setSaved] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState(false);
+  const [galleryStart, setGalleryStart] = useState(0);
   const [submitState, setSubmitState] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [reference, setReference] = useState("");
   const [submissionId, setSubmissionId] = useState("");
@@ -85,7 +88,7 @@ export default function EventPlacePage({ initialSlug }: { initialSlug: string })
       <main id="main-content" className="event-place-page">
         <div className="shell breadcrumbs"><Link href="/events/">אירועים</Link><span>/</span><Link href="/events/search/">מקומות</Link><span>/</span><span>{place.name}</span></div>
         <section className="shell property-title event-title"><div><span className="eyebrow">{place.type}</span><h1>{place.name}</h1><p><PinIcon />{place.location}, {place.area}</p></div><div className="property-title__side"><div className="property-title__actions"><button type="button" aria-pressed={saved} onClick={toggleSaved}><HeartIcon filled={saved} />{saved ? "נשמר" : "שמירה"}</button><button type="button" onClick={() => void share()}>שיתוף</button></div><ContactActions key={place.slug} contact={place.contact} placeName={place.name} /></div></section>
-        <section className="shell property-gallery">{place.images.map((image, index) => <button key={image} type="button" onClick={() => setGalleryOpen(true)} aria-label={`פתיחת תמונה ${index + 1} של ${place.name}`}><img src={image} alt={`${place.name}, תמונה ${index + 1}`} />{index === 4 && <span>לכל התמונות</span>}</button>)}</section>
+        <section className="shell property-gallery">{place.images.map((image, index) => <button key={image} type="button" onClick={() => { setGalleryStart(index); setGalleryOpen(true); }} aria-label={`פתיחת תמונה ${index + 1} של ${place.name}`}><img src={image} alt={`${place.name}, תמונה ${index + 1}`} />{index === 4 && <span>לגלריה המלאה</span>}</button>)}</section>
 
         <nav className="shell property-anchor-nav"><a href="#event-about">על המקום</a><a href="#event-features">מתקנים</a><a href="#accessibility">נגישות במקום</a><a href="#event-map">מיקום</a><a href="#event-contact">בדיקת התאמה</a></nav>
 
@@ -98,6 +101,7 @@ export default function EventPlacePage({ initialSlug }: { initialSlug: string })
             <ListingAccessibility slug={place.slug} />
             <section id="event-map" className="location-card"><div><span className="eyebrow">המיקום</span><h2>{place.location}</h2><p>{place.area}</p><a href={`https://www.openstreetmap.org/?mlat=${place.lat}&mlon=${place.lng}#map=15/${place.lat}/${place.lng}`} target="_blank" rel="noreferrer">פתיחה במפה מלאה</a></div><ListingMap listings={[place]} mode="events" single /></section>
             <section className="policies-section"><h2>חשוב לדעת</h2><div><article><b>קיבולת</b><p>עד {place.guests} אורחים לפי פרטי המקום.</p></article><article><b>זמינות</b><p>הזמינות הסופית נבדקת מול צוות המקום לאחר שליחת הבקשה.</p></article><article><b>מחיר</b><p>המחיר תלוי בתאריך, במספר המשתתפים ובאופי האירוע.</p></article><article><b>בקשת התאמה</b><p>הטופס מועבר למערכת הלידים עם פרטי המקום והאירוע שבחרתם.</p></article></div></section>
+            <GuestReviewStudio placeName={place.name} />
           </div>
 
           <aside id="event-contact" className="booking-card event-inquiry"><CalendarIcon /><span className="eyebrow">בדיקת התאמה</span><h2>ספרו לנו על האירוע</h2>{submitState === "success" ? <div className="inquiry-success" role="status"><b>הבקשה התקבלה</b><p>הפרטים נשמרו במערכת והצוות יוכל לחזור אליכם.</p>{reference ? <strong dir="ltr">{reference}</strong> : null}</div> : <form onSubmit={submitInquiry}><label>תאריך מבוקש<input name="date" type="date" required /></label><label>כמות משתתפים<input name="guests" type="number" min="1" max={place.guests} placeholder="הקלידו כמות" required /></label><label>סוג האירוע<select name="eventType" required defaultValue=""><option value="" disabled>בחרו סוג אירוע</option>{place.eventTypes.map((item) => <option key={item}>{item}</option>)}</select></label><label>שם מלא<input name="name" type="text" autoComplete="name" minLength={2} required /></label><label>טלפון<input name="phone" type="tel" inputMode="tel" autoComplete="tel" minLength={7} required /></label><label className="form-honey" aria-hidden="true">אתר החברה<input name="company_site" tabIndex={-1} autoComplete="off" /></label><label className="consent"><input name="privacy" type="checkbox" required /><span>קראתי את <Link href="/legal/privacy/">מדיניות הפרטיות</Link> ואני מאשר או מאשרת טיפול בפרטים לצורך הבקשה.</span></label><button className="button primary wide" type="submit" disabled={submitState === "submitting"}>{submitState === "submitting" ? "שולחים..." : "שליחת בקשת התאמה"}</button>{submitState === "error" ? <p className="form-error" role="alert">השליחה לא הושלמה. הפרטים נשארו בטופס ואפשר לנסות שוב.</p> : null}<small>הבקשה תישמר במערכת עם שם המקום ופרטי האירוע.</small></form>}</aside>
@@ -114,7 +118,7 @@ export default function EventPlacePage({ initialSlug }: { initialSlug: string })
         <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים לאירוע</h2></div><div className="event-more-grid">{eventPlaces.filter((item) => item.slug !== place.slug).slice(0, 3).map((item) => <Link key={item.slug} href={`/events/place/?id=${item.slug}`}><img src={item.image} alt={item.name} /><div><b>{item.name}</b><span>{item.location} · עד {item.guests} אורחים</span></div></Link>)}</div></div></section>
       </main>
 
-      {galleryOpen && <div className="gallery-overlay" onMouseDown={(event) => event.target === event.currentTarget && setGalleryOpen(false)}><section role="dialog" aria-modal="true" aria-label={`תמונות ${place.name}`}><header><h2>{place.name}</h2><button type="button" onClick={() => setGalleryOpen(false)}>סגירה</button></header><div>{place.images.map((image, index) => <img key={image} src={image} alt={`${place.name}, תמונה ${index + 1}`} />)}</div></section></div>}
+      <GalleryExperience key={`${place.slug}-${galleryOpen ? galleryStart : "closed"}`} property={place} open={galleryOpen} initialIndex={galleryStart} onClose={() => setGalleryOpen(false)} />
     </PageShell>
   );
 }

@@ -42,6 +42,10 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "סוויטות הגן הקסום גפן": "HaGan HaKasum Gefen Suites", "אחוזת אנאאל בגליל": "Anael Estate in the Galilee",
     "וילת הבשמים": "Perfumes Villa", "אחוזת השושנים בוטיק": "Ahuzat HaShoshanim Boutique",
     "נגישות מלאה ומאומתת": "Verified full accessibility", "הצהרת נגישות": "Accessibility statement",
+    "הגלריה של": "Gallery of", "כל הסיפור": "All photos", "המקום והמתקנים": "Property and amenities", "יחידות האירוח": "Accommodation units", "חדרי השינה": "Bedrooms", "סרטונים": "Videos", "סגירת הגלריה": "Close gallery", "לגלריה המלאה": "View full gallery",
+    "גלריית אורחים": "Guest gallery", "הוספת תמונות וחוות דעת": "Add photos and a review", "תמונות אורחים מאומתות": "Verified guest photos", "חוות דעת מאומתת": "Verified review", "צירוף אסמכתה לביקור": "Attach proof of visit", "בחירת תמונות": "Choose photos",
+    "עוזר חכם": "Smart assistant", "שאלו אותי": "Ask me", "העוזר של וי": "VII assistant", "המחשה פעילה באתר": "Interactive preview", "מה תרצו למצוא?": "What would you like to find?", "שליחה": "Send", "סגירת העוזר": "Close assistant",
+    "כל הכיוונים": "All regions", "דרום ואילת": "South and Eilat", "צפון וכנרת": "North and Galilee", "לקבוצות": "For groups",
   },
   ru: {
     "וי פור ויקיישן": "VII Vacation",
@@ -66,6 +70,10 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "סוויטות הגן הקסום גפן": "HaGan HaKasum Gefen Suites", "אחוזת אנאאל בגליל": "Anael Estate в Галилее",
     "וילת הבשמים": "Perfumes Villa", "אחוזת השושנים בוטיק": "Ahuzat HaShoshanim Boutique",
     "נגישות מלאה ומאומתת": "Подтверждённая полная доступность", "הצהרת נגישות": "Заявление о доступности",
+    "הגלריה של": "Галерея", "כל הסיפור": "Все фотографии", "המקום והמתקנים": "Объект и удобства", "יחידות האירוח": "Варианты размещения", "חדרי השינה": "Спальни", "סרטונים": "Видео", "סגירת הגלריה": "Закрыть галерею", "לגלריה המלאה": "Открыть всю галерею",
+    "גלריית אורחים": "Галерея гостей", "הוספת תמונות וחוות דעת": "Добавить фото и отзыв", "תמונות אורחים מאומתות": "Проверенные фото гостей", "חוות דעת מאומתת": "Проверенный отзыв", "צירוף אסמכתה לביקור": "Подтвердить посещение", "בחירת תמונות": "Выбрать фотографии",
+    "עוזר חכם": "Умный помощник", "שאלו אותי": "Спросите меня", "העוזר של וי": "Помощник VII", "המחשה פעילה באתר": "Интерактивная версия", "מה תרצו למצוא?": "Что вы хотите найти?", "שליחה": "Отправить", "סגירת העוזר": "Закрыть помощника",
+    "כל הכיוונים": "Все регионы", "דרום ואילת": "Юг и Эйлат", "צפון וכנרת": "Север и Кинерет", "לקבוצות": "Для групп",
   },
 };
 

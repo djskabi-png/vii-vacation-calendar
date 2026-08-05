@@ -313,3 +313,37 @@ test("ships a favicon, three languages and no dependency on the retired site", a
   const html = await response.text();
   assert.match(html, /vii-logo\.png/);
 });
+
+test("ships the immersive media, review and concierge experiences", async () => {
+  const [gallery, reviews, concierge, shell, business, eventPlace, home, data, styles] = await Promise.all([
+    readFile(new URL("../app/components/gallery-experience.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/guest-review-studio.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/smart-concierge.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/page-shell.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/events/place/client-page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/data/site-data.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+  assert.match(gallery, /המקום והמתקנים/);
+  assert.match(gallery, /יחידות האירוח/);
+  assert.match(gallery, /חדרי השינה/);
+  assert.match(gallery, /onTouchStart/);
+  assert.match(gallery, /<video controls playsInline/);
+  assert.match(data, /אינו צילום וידאו רציף/);
+  assert.match(reviews, /תמונות אורחים מאומתות/);
+  assert.match(reviews, /צירוף אסמכתה לביקור/);
+  assert.match(reviews, /אינה נשמרת במערכת/);
+  assert.match(concierge, /המחשה מקומית/);
+  assert.match(concierge, /אינו שולח הודעות לוואטסאפ/);
+  assert.match(shell, /<SmartConcierge/);
+  assert.match(business, /<GalleryExperience/);
+  assert.match(business, /<GuestReviewStudio/);
+  assert.match(eventPlace, /<GalleryExperience/);
+  assert.match(home, /home-last-minute__tabs/);
+  assert.match(home, /הכרטיסים אינם מציגים זמינות חיה/);
+  assert.equal((data.match(/src: "\/media\/tours\//g) || []).length, 11);
+  assert.match(styles, /story-gallery__progress/);
+  assert.match(styles, /smart-concierge__panel/);
+});

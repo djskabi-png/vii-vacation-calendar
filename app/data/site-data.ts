@@ -21,7 +21,15 @@ export type Listing = {
   price?: number;
   roomOptions?: StayOption[];
   sleepingArrangements?: SleepingArrangement[];
+  videos?: ListingVideo[];
   contact?: ListingContact;
+};
+
+export type ListingVideo = {
+  title: string;
+  src: string;
+  poster: string;
+  note: string;
 };
 
 export type ListingContact = {
@@ -68,6 +76,7 @@ export const properties: Property[] = [
     bedrooms: 5,
     image: "/media/322de460abbda5c6.jpg",
     images: ["/media/322de460abbda5c6.jpg", "/media/e9cd942a11518461.jpg", "/media/ab778a6145517591.jpg", "/media/26594117388c096a.jpg", "/media/1f3375e65f593e58.jpg"],
+    videos: [{ title: "סיור חזותי בוילה", src: "/media/tours/aqua-resort-tour.mp4", poster: "/media/322de460abbda5c6.jpg", note: "הסיור נערך מתמונות המקום המאומתות ואינו צילום וידאו רציף." }],
     description: "וילה יוקרתית באילת עם חמישה חדרי שינה, בריכת חוף פרטית ונוף לים סוף ולהרי אדום. המקום מתאים לעד 14 אורחים.",
     features: ["בריכת חוף פרטית", "נוף לים", "מטבח מאובזר", "חניה", "מיזוג אוויר"],
     audiences: ["משפחות", "קבוצות", "זוגות"],
@@ -97,6 +106,7 @@ export const properties: Property[] = [
     bedrooms: 4,
     image: "/media/978e5fd5134b0831.jpeg",
     images: ["/media/978e5fd5134b0831.jpeg", "/media/25a3797914ce4ebc.jpeg", "/media/3d2467d61af8c746.jpeg", "/media/63392bf513efc0d8.jpeg", "/media/263f3613d9d7e1ac.jpeg"],
+    videos: [{ title: "סיור חזותי במתחם", src: "/media/tours/kesem-harimon-tour.mp4", poster: "/media/978e5fd5134b0831.jpeg", note: "הסיור נערך מתמונות המקום המאומתות ואינו צילום וידאו רציף." }],
     description: "מתחם נופש במושב עזריקם עם ארבע סוויטות, בריכת שחייה, ג'קוזי ספא ומשחקי שולחן. מתאים לעד 14 אורחים.",
     features: ["בריכת שחייה", "ג'קוזי ספא", "משחקי שולחן", "מטבח מאובזר", "מתחם חוץ"],
     audiences: ["משפחות", "קבוצות", "זוגות"],
@@ -122,6 +132,7 @@ export const properties: Property[] = [
     bedrooms: 3,
     image: "/media/9a403cb4d9d1cbde.jpg",
     images: ["/media/9a403cb4d9d1cbde.jpg", "/media/27ea67354de7adf5.jpg", "/media/46795433029f635b.jpg", "/media/f2c974e4edc6e951.jpg", "/media/39a22ff22e8130b5.jpg"],
+    videos: [{ title: "סיור חזותי באחוזה", src: "/media/tours/ahuzat-or-tour.mp4", poster: "/media/9a403cb4d9d1cbde.jpg", note: "הסיור נערך מתמונות המקום המאומתות ואינו צילום וידאו רציף." }],
     description: "שלוש סוויטות יוקרתיות בכלנית עם בריכת שחייה, ג'קוזי זוגי בכל סוויטה, משחקי שולחן ואבזור מלא. המתחם מתאים לעד 12 אורחים.",
     features: ["בריכת שחייה", "ג'קוזי בכל סוויטה", "משחקי שולחן", "מטבחון", "נוף"],
     audiences: ["משפחות", "זוגות", "קבוצות קטנות"],
@@ -145,6 +156,7 @@ export const properties: Property[] = [
     bedrooms: 2,
     image: "/media/c3a6274bfd08091a.jpeg",
     images: ["/media/c3a6274bfd08091a.jpeg", "/media/cfbaafcf99fd6ec5.jpeg", "/media/b60283b7a634cd04.jpeg", "/media/fb2329f74cc92e55.jpeg", "/media/eab56144ac75965f.jpeg"],
+    videos: [{ title: "סיור חזותי בדירה", src: "/media/tours/ar-suites-tour.mp4", poster: "/media/c3a6274bfd08091a.jpeg", note: "הסיור נערך מתמונות המקום המאומתות ואינו צילום וידאו רציף." }],
     description: "דירת נופש מעוצבת ומאובזרת באילת עם שני חדרי שינה, סלון, מטבח וחצר עם בריכת שחייה מחוממת. מתאימה לעד שבעה אורחים.",
     features: ["בריכה מחוממת", "מטבח מאובזר", "חצר פרטית", "סלון", "מיזוג אוויר"],
     audiences: ["משפחות", "זוגות"],
@@ -166,6 +178,7 @@ export const properties: Property[] = [
     bedrooms: 8,
     image: "/media/bc85b10f1d64d6db.jpeg",
     images: ["/media/bc85b10f1d64d6db.jpeg", "/media/78fc8af7d313639d.jpeg", "/media/043d473d475768df.jpeg", "/media/9364ef10c919fddf.jpeg", "/media/24beed85986e4496.jpeg"],
+    videos: [{ title: "סיור חזותי במתחם", src: "/media/tours/sol-gilgal-tour.mp4", poster: "/media/bc85b10f1d64d6db.jpeg", note: "הסיור נערך מתמונות המקום המאומתות ואינו צילום וידאו רציף." }],
     description: "מתחם אירוח בגלגל המשלב שש סוויטות, מרחבי חוץ ואפשרות לנופש או לאירוע. המתחם כולל שמונה חדרי שינה ומתאים לעד 26 אורחים.",
     features: ["בריכת שחייה", "גינה פרטית", "מדשאות", "פינת ישיבה", "מטבחון מאובזר"],
     audiences: ["משפחות", "קבוצות", "אירועים קטנים"],
@@ -192,6 +205,7 @@ export const properties: Property[] = [
     bedrooms: 2,
     image: "/media/e65d757e686fda64.jpg",
     images: ["/media/e65d757e686fda64.jpg", "/media/4fa8dc0cb7d99d59.jpeg", "/media/96d6e3022986cdb8.jpeg", "/media/0c9f94d10a51d32c.jpeg", "/media/8e61695d7524a310.jpeg"],
+    videos: [{ title: "סיור חזותי בסוויטות", src: "/media/tours/infinity-suites-tour.mp4", poster: "/media/e65d757e686fda64.jpg", note: "הסיור נערך מתמונות המקום המאומתות ואינו צילום וידאו רציף." }],
     description: "שתי סוויטות באביבים עם ג'קוזי ספא מחומם ומקורה, בריכה, מטבחונים, פינות ישיבה וקמין עצים. המתחם מתאים לעד עשרה אורחים.",
     features: ["בריכה", "ג'קוזי ספא", "קמין עצים", "מטבחון", "פינת מנגל"],
     audiences: ["זוגות", "משפחות"],
@@ -214,6 +228,7 @@ export const properties: Property[] = [
     bedrooms: 4,
     image: "/media/231b0e706cc61cc1.jpg",
     images: ["/media/231b0e706cc61cc1.jpg", "/media/fa2f2bbd00f4e98b.jpg", "/media/122679201a6d4958.jpg", "/media/7ce2e9ab4ab99755.jpg", "/media/58af829dd9a3a209.jpg"],
+    videos: [{ title: "סיור חזותי בגן הקסום", src: "/media/tours/magic-garden-gefen-tour.mp4", poster: "/media/231b0e706cc61cc1.jpg", note: "הסיור נערך מתמונות המקום המאומתות ואינו צילום וידאו רציף." }],
     description: "מתחם פרטי במושב גפן עם ארבע סוויטות מאובזרות, בריכה מחוממת ומקורה, מטבח מרכזי ומשחקי שולחן. מתאים לעד 20 אורחים.",
     features: ["בריכה מחוממת ומקורה", "מטבח מרכזי", "משחקי שולחן", "מתחם פרטי", "חצר"],
     audiences: ["משפחות", "קבוצות"],
@@ -236,6 +251,7 @@ export const properties: Property[] = [
     bedrooms: 6,
     image: "/media/f18d7c0469633ca0.jpeg",
     images: ["/media/f18d7c0469633ca0.jpeg", "/media/8ac8a179f674fd0b.jpeg", "/media/e8bfa1908a5718a1.jpeg", "/media/7ec9bd469f615590.jpeg", "/media/98723ca0b7e64cb5.jpeg"],
+    videos: [{ title: "סיור חזותי באחוזה", src: "/media/tours/anael-estate-tour.mp4", poster: "/media/f18d7c0469633ca0.jpeg", note: "הסיור נערך מתמונות המקום המאומתות ואינו צילום וידאו רציף." }],
     description: "שש סוויטות בוטיק בגליל העליון עם ג'קוזי פרטי, בריכה מגודרת, ספא, סאונה ומשחקים לכל המשפחה. המתחם מתאים לעד 23 אורחים.",
     features: ["בריכה מגודרת", "ג'קוזי פרטי", "ספא", "סאונה", "משחקים למשפחה"],
     audiences: ["משפחות", "זוגות", "קבוצות"],
@@ -262,6 +278,10 @@ export const properties: Property[] = [
     bedrooms: 9,
     image: "/media/69e3820a7e10bc39.jpeg",
     images: ["/media/69e3820a7e10bc39.jpeg", "/media/d0884a4074adf164.jpeg", "/media/17b60333b3f4b544.jpeg", "/media/13f80a1579a643a1.jpeg", "/media/422f8615ae7df2c6.jpeg"],
+    videos: [
+      { title: "סיור חזותי בוילה", src: "/media/tours/perfumes-villa-tour.mp4", poster: "/media/69e3820a7e10bc39.jpeg", note: "הסיור נערך מתמונות המקום המאומתות ואינו צילום וידאו רציף." },
+      { title: "סיור בחדרי השינה", src: "/media/tours/perfumes-villa-bedrooms.mp4", poster: "/media/7567d48a2013fbb4.jpeg", note: "הסיור נערך מתמונות חדרי השינה שנמסרו למקום ואינו צילום וידאו רציף." },
+    ],
     description: "וילה באילת עם תשעה חדרי שינה, בריכת שחייה, נוף, סלון גדול ומטבח מאובזר. מתאימה לעד 30 אורחים.",
     features: ["בריכת שחייה", "נוף", "מטבח מאובזר", "סלון גדול", "מתאים לציבור הדתי"],
     audiences: ["משפחות", "קבוצות", "זוגות", "ציבור דתי"],
@@ -294,6 +314,7 @@ export const properties: Property[] = [
     bedrooms: 5,
     image: "/media/cf58dc69af40c772.jpg",
     images: ["/media/cf58dc69af40c772.jpg", "/media/78ad6fb57aff8002.jpg", "/media/318cc18bc4802985.jpg", "/media/0893cb9de7ce9600.jpg", "/media/0654386871fb5427.jpg"],
+    videos: [{ title: "סיור חזותי באחוזה", src: "/media/tours/rose-estate-tour.mp4", poster: "/media/cf58dc69af40c772.jpg", note: "הסיור נערך מתמונות המקום המאומתות ואינו צילום וידאו רציף." }],
     description: "וילת בוטיק בשומרה עם חמישה חדרי שינה, בריכה מחוממת ומקורה, ג'קוזי ספא, מטבח מאובזר ונוף גלילי. מתאימה לעד 17 אורחים.",
     features: ["בריכה מחוממת ומקורה", "ג'קוזי ספא", "מטבח מאובזר", "נוף גלילי", "משחקי שולחן"],
     audiences: ["משפחות", "זוגות", "קבוצות", "ציבור דתי"],

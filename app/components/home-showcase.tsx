@@ -3,7 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { DiscoveryCard } from "./discovery-card";
 import { PropertyCard } from "./property-card";
 import { eventPlaces, properties } from "../data/site-data";
@@ -18,9 +18,16 @@ function SliderControls({ onPrevious, onNext, label }: { onPrevious: () => void;
 
 export function HomeShowcase() {
   const tracks = useRef<Record<string, HTMLDivElement | null>>({});
+  const [lastMinuteTab, setLastMinuteTab] = useState("all");
   const worldCards = worlds.filter((world) => !["vacation", "events"].includes(world.id));
   const recommendedPlaces = [properties[0],properties[1],properties[2],properties[5],properties[6],properties[7],properties[8],properties[9]];
-  const spontaneousPlaces = [properties[0],properties[8],properties[7]];
+  const lastMinuteGroups = {
+    all: [properties[0], properties[8], properties[7], properties[2], properties[9]],
+    south: [properties[0], properties[3], properties[8]],
+    north: [properties[2], properties[5], properties[7], properties[9]],
+    groups: [properties[8], properties[7], properties[4], properties[6]],
+  };
+  const spontaneousPlaces = lastMinuteGroups[lastMinuteTab as keyof typeof lastMinuteGroups];
 
   function scroll(id: string, direction: "previous" | "next") {
     const track = tracks.current[id];
@@ -36,9 +43,12 @@ export function HomeShowcase() {
     </section>
 
     <section className="section home-last-minute" aria-labelledby="last-minute-title">
-      <div className="shell home-last-minute__layout">
-        <div className="home-last-minute__intro"><span className="eyebrow">לא צריך לתכנן חודשים מראש</span><h2 id="last-minute-title">ספונטניים לרגע האחרון</h2><p>בוחרים מקום, מסמנים תאריך ובודקים זמינות. המחיר והזמינות הסופיים יאומתו לפי התאריך וההרכב.</p><div><Link className="button light" href="/search/">בדיקת מקומות לתאריך קרוב</Link><Link href="/guides/eilat-slow-weekend/">איך בונים סוף שבוע בלי לרוץ</Link></div></div>
-        <div className="home-last-minute__cards">{spontaneousPlaces.map((property,index) => <Link key={property.slug} href={`/business/?id=${property.slug}`}><img src={property.image} alt={property.name} /><span>{index === 0 ? "לקפוץ לאילת" : index === 1 ? "וילה לקבוצה" : "שקט בצפון"}</span><div><small><PinIcon />{property.location}</small><h3>{property.name}</h3><b><CalendarIcon />בדיקת תאריך</b></div></Link>)}</div>
+      <div className="shell">
+        <div className="home-last-minute__top"><div className="home-last-minute__intro"><span className="eyebrow">לא צריך לתכנן חודשים מראש</span><h2 id="last-minute-title">ספונטניים לרגע האחרון</h2><p>בוחרים כיוון, נכנסים למקום ובודקים תאריך. הכרטיסים אינם מציגים זמינות חיה, המחיר והזמינות הסופיים יאומתו לפי התאריך וההרכב.</p></div><div><Link className="button light" href="/search/">בדיקת מקומות לתאריך קרוב</Link><Link href="/guides/eilat-slow-weekend/">איך בונים סוף שבוע בלי לרוץ</Link></div></div>
+        <div className="home-last-minute__tabs" role="tablist" aria-label="סינון מקומות לרגע האחרון">{[
+          ["all", "כל הכיוונים"], ["south", "דרום ואילת"], ["north", "צפון וכנרת"], ["groups", "לקבוצות"],
+        ].map(([id,label]) => <button key={id} type="button" role="tab" aria-selected={lastMinuteTab === id} onClick={() => setLastMinuteTab(id)}>{label}</button>)}</div>
+        <div className="home-last-minute__cards" role="tabpanel">{spontaneousPlaces.map((property,index) => <Link key={property.slug} href={`/business/?id=${property.slug}`}><img src={property.image} alt={property.name} /><span>{index === 0 ? "בחירה ספונטנית" : property.scenario === "single" ? "מקום שלם" : `${property.units || "כמה"} יחידות`}</span><div><small><PinIcon />{property.location}</small><h3>{property.name}</h3><b><CalendarIcon />בדיקת תאריך</b></div></Link>)}</div>
       </div>
     </section>
 

@@ -1,0 +1,108 @@
+"use client";
+
+/* eslint-disable @next/next/no-img-element */
+
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { Property } from "../data/site-data";
+
+type GalleryItem = {
+  src: string;
+  label: string;
+  category: "place" | "units" | "bedrooms";
+};
+
+type GalleryTab = "all" | GalleryItem["category"] | "videos";
+
+const tabLabels: Record<GalleryTab, string> = {
+  all: "כל הסיפור",
+  place: "המקום והמתקנים",
+  units: "יחידות האירוח",
+  bedrooms: "חדרי השינה",
+  videos: "סרטונים",
+};
+
+function uniqueItems(items: GalleryItem[]) {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    if (seen.has(item.src)) return false;
+    seen.add(item.src);
+    return true;
+  });
+}
+
+export function GalleryExperience({ property, open, initialIndex = 0, onClose }: { property: Property; open: boolean; initialIndex?: number; onClose: () => void }) {
+  const closeButton = useRef<HTMLButtonElement>(null);
+  const touchStart = useRef(0);
+  const allItems = useMemo(() => uniqueItems([
+    ...property.images.map((src, index) => ({ src, label: `${property.name}, תמונת המקום ${index + 1}`, category: "place" as const })),
+    ...(property.roomOptions || []).map((room) => ({ src: room.image, label: `${room.name} ב${property.name}`, category: "units" as const })),
+    ...(property.sleepingArrangements || []).map((room) => ({ src: room.galleryImage, label: `${room.name} ב${property.name}`, category: "bedrooms" as const })),
+  ]), [property]);
+  const [tab, setTab] = useState<GalleryTab>("all");
+  const [selected, setSelected] = useState(initialIndex);
+
+  const visibleItems = tab === "all" ? allItems : tab === "videos" ? [] : allItems.filter((item) => item.category === tab);
+  const current = visibleItems[Math.min(selected, Math.max(visibleItems.length - 1, 0))];
+  const tabs = (["all", "place", "units", "bedrooms", "videos"] as GalleryTab[]).filter((item) => item === "all"
+    || item === "videos" && Boolean(property.videos?.length)
+    || item !== "videos" && allItems.some((media) => media.category === item));
+
+  useEffect(() => {
+    if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.setTimeout(() => closeButton.current?.focus(), 0);
+    const escape = (event: KeyboardEvent) => event.key === "Escape" && onClose();
+    window.addEventListener("keydown", escape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", escape);
+    };
+  }, [onClose, open]);
+
+  if (!open) return null;
+
+  function selectTab(next: GalleryTab) {
+    setTab(next);
+    setSelected(0);
+  }
+
+  function move(direction: -1 | 1) {
+    if (!visibleItems.length) return;
+    setSelected((value) => (value + direction + visibleItems.length) % visibleItems.length);
+  }
+
+  return <div className="story-gallery" role="dialog" aria-modal="true" aria-labelledby="story-gallery-title">
+    <header className="story-gallery__header">
+      <div><span>הגלריה של</span><h2 id="story-gallery-title">{property.name}</h2></div>
+      <div className="story-gallery__count" aria-live="polite">{tab === "videos" ? `${property.videos?.length || 0} סרטונים` : `${selected + 1} מתוך ${visibleItems.length}`}</div>
+      <button ref={closeButton} className="story-gallery__close" type="button" onClick={onClose} aria-label="סגירת הגלריה">סגירה</button>
+    </header>
+
+    <nav className="story-gallery__tabs" aria-label="נושאים בגלריה">
+      {tabs.map((item) => <button key={item} type="button" aria-pressed={tab === item} onClick={() => selectTab(item)}>{tabLabels[item]}<small>{item === "videos" ? property.videos?.length : item === "all" ? allItems.length : allItems.filter((media) => media.category === item).length}</small></button>)}
+    </nav>
+
+    {tab === "videos" ? <div className="story-gallery__videos">
+      {property.videos?.map((video) => <article key={video.src}>
+        <video controls playsInline preload="metadata" poster={video.poster} aria-label={video.title}><source src={video.src} type="video/mp4" /></video>
+        <div><h3>{video.title}</h3><p>{video.note}</p></div>
+      </article>)}
+    </div> : <div className="story-gallery__workspace">
+      <div className="story-gallery__story" onTouchStart={(event) => { touchStart.current = event.changedTouches[0].clientX; }} onTouchEnd={(event) => {
+        const distance = event.changedTouches[0].clientX - touchStart.current;
+        if (Math.abs(distance) > 45) move(distance > 0 ? -1 : 1);
+      }}>
+        <div className="story-gallery__progress" aria-hidden="true">{visibleItems.map((item, index) => <i key={item.src} className={index <= selected ? "active" : ""} />)}</div>
+        {current ? <img src={current.src} alt={current.label} /> : null}
+        <button className="story-gallery__tap story-gallery__tap--previous" type="button" onClick={() => move(-1)} aria-label="התמונה הקודמת" />
+        <button className="story-gallery__tap story-gallery__tap--next" type="button" onClick={() => move(1)} aria-label="התמונה הבאה" />
+        <div className="story-gallery__caption"><span>{tabLabels[current?.category || "place"]}</span><strong>{current?.label}</strong></div>
+      </div>
+
+      <div className="story-gallery__grid" aria-label="כל התמונות בנושא">
+        {visibleItems.map((item, index) => <button key={item.src} className={index === selected ? "selected" : ""} type="button" onClick={() => setSelected(index)} aria-label={`הצגת ${item.label}`}><img src={item.src} alt="" /><span>{item.label}</span></button>)}
+      </div>
+    </div>}
+  </div>;
+}
