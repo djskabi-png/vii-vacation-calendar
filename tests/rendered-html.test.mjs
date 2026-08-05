@@ -44,6 +44,10 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(search, /setPool/);
   assert.match(eventSearch, /setEventType/);
   assert.equal((data.match(/liveUrl: "https:\/\/www\.vii\.co\.il\//g) || []).length, 20);
+  assert.equal((data.match(/roomOptions:/g) || []).length, 10);
+  assert.equal((data.match(/name: "(?:אקווה ריזורט, וילת החוף|יחידת סטודיו שני|יחידת סטודיו העמק|סוויטה משפחתית וואנדרפול|יחידת עכו|סוויטות 1\+2|סוויטה משפחתית"|א\.ר סוויטות|סוויטה [1-4]"|חדר שינה"|סוויטת (?:מירון|גאיה|אליה|נועה|יובל|חרמון)|וילת הבשמים|אחוזת השושנים בוטיק)/g) || []).length >= 20, true);
+  assert.match(business, /property\.roomOptions\.map/);
+  assert.match(business, /חדרים ויחידות/);
   assert.match(map, /basemaps\.cartocdn\.com/);
   assert.match(map, /World_Imagery/);
   assert.match(map, /map-preview-image/);
