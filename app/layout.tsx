@@ -7,7 +7,14 @@ export const metadata: Metadata = {
   title: { default: "וי פור ויקיישן | מוצאים את החופשה שמתאימה לכם", template: "%s | וי פור ויקיישן" },
   description: "חיפוש נופש, וילות, סוויטות ומקומות לאירועים ברחבי הארץ, עם מידע ברור ותהליך בחירה נוח.",
   openGraph: { title: "וי פור ויקיישן", description: "מוצאים את החופשה שמתאימה לכם", images: [{ url: "/og-v2.png", width: 1536, height: 1024, alt: "וי פור ויקיישן" }] },
-  icons: { icon: [{ url: "/vii-logo.png", type: "image/png" }], shortcut: "/vii-logo.png", apple: "/vii-logo.png" },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/vii-logo.png", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/vii-logo.png",
+  },
   robots: { index: true, follow: true },
 };
 

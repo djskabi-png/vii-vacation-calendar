@@ -288,7 +288,7 @@ test("includes the accessibility system and honest place disclosures", async () 
 });
 
 test("ships a favicon, three languages and no dependency on the retired site", async () => {
-  const [layout, locale, translations, header, footer, contactActions, data, worldData] = await Promise.all([
+  const [layout, locale, translations, header, footer, contactActions, data, worldData, favicon] = await Promise.all([
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/i18n/locale-provider.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/i18n/translations.generated.json", import.meta.url), "utf8"),
@@ -297,9 +297,11 @@ test("ships a favicon, three languages and no dependency on the retired site", a
     readFile(new URL("../app/components/contact-actions.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/data/site-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/favicon.ico", import.meta.url)),
   ]);
   const dictionaries = JSON.parse(translations);
-  assert.match(layout, /icons: \{ icon:/);
+  assert.match(layout, /icons:\s*\{\s*icon:/);
+  assert.equal(favicon.length > 0, true);
   assert.match(layout, /<LocaleProvider>/);
   assert.match(locale, /"he" \| "en" \| "ru"/);
   assert.match(locale, /document\.documentElement\.dir/);
