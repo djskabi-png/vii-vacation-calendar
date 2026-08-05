@@ -25,6 +25,8 @@ for (const [pathname, expected] of [
   ["/providers", /האנשים שהופכים אירוח לחוויה/],
   ["/activities", /רעיונות טובים ממש ליד החופשה/],
   ["/discover/place", /ספא בוטיק תל אביב/],
+  ["/join", /מביאים את העסק שלכם/],
+  ["/contact", /יצירת קשר/],
   ["/accessibility", /הצהרת נגישות/],
 ]) {
   test(`server renders ${pathname}`, async () => {
@@ -118,6 +120,24 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(homeShowcase, /spaPlaces\.slice/);
   assert.match(homeShowcase, /hourlyPlaces\.slice/);
   assert.match(homeShowcase, /המחיר והזמינות הסופיים יאומתו/);
+});
+
+test("footer destinations and lead forms have real destinations", async () => {
+  const [footer, form, contact, join] = await Promise.all([
+    readFile(new URL("../app/components/site-footer.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/lead-intake-form.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/contact/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/join/page.tsx", import.meta.url), "utf8"),
+  ]);
+  for (const href of ["/search/", "/events/", "/spas/", "/hourly/", "/providers/", "/activities/", "/join/", "/contact/", "/guides/", "/accessibility/", "/legal/terms/", "/legal/privacy/", "/legal/cancellation/"]) {
+    assert.match(footer, new RegExp(`href=["']${href.replaceAll("/", "\\/")}`));
+  }
+  assert.match(form, /https:\/\/app\.spaplus\.co\/api\/integrations\/vii-leads/);
+  assert.match(form, /privacyAccepted/);
+  assert.match(form, /crypto\.randomUUID\(\)/);
+  assert.match(form, /state === "success"/);
+  assert.match(contact, /LeadIntakeForm purpose="contact"/);
+  assert.match(join, /LeadIntakeForm purpose="join"/);
 });
 
 test("includes the accessibility system and honest place disclosures", async () => {

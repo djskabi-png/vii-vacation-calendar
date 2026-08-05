@@ -83,6 +83,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
         <div className="menu-panel__secondary">
           <Link href="/favorites/" onClick={closeMenu}><HeartIcon /><span>מקומות שאהבתי</span></Link>
           <Link href="/contact/" onClick={closeMenu}><ContactIcon /><span>יצירת קשר</span></Link>
+          <Link href="/join/" onClick={closeMenu}><ContactIcon /><span>הצטרפות לאתר</span></Link>
           <Link href="/destinations/" onClick={closeMenu}><PinIcon /><span>יעדים</span></Link>
           <Link href="/guides/" onClick={closeMenu}><InfoIcon /><span>מגזין ומדריכים</span></Link>
           <Link href="/accessibility/" onClick={closeMenu}><AccessibilityIcon /><span>הצהרת נגישות</span></Link>
