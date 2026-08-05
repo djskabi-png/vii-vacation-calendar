@@ -1,5 +1,7 @@
+import type { Metadata } from "next";
 import { LeadIntakeForm } from "../components/lead-intake-form";
 import { PageShell } from "../components/page-shell";
+export const metadata: Metadata = { title: "הצטרפות לאתר", description: "מצטרפים לאתר וי פור ויקיישן לפי תחום הפעילות של העסק.", alternates: { canonical: "/join/" } };
 
 const steps = [
   ["ממלאים פרטים", "בוחרים את עולם התוכן ומספרים לנו בקצרה על העסק."],

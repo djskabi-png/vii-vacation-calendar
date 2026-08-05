@@ -2,11 +2,11 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-async function render(pathname = "/") {
+async function render(pathname = "/", init = {}) {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${pathname}-${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
-  return worker.fetch(new Request(`http://localhost${pathname}`, { headers: { accept: "text/html" } }), { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } }, { waitUntil() {}, passThroughOnException() {} });
+  return worker.fetch(new Request(`http://localhost${pathname}`, { ...init, headers: { accept: "text/html", ...(init.headers || {}) } }), { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } }, { waitUntil() {}, passThroughOnException() {} });
 }
 
 for (const [pathname, expected] of [
@@ -39,21 +39,48 @@ for (const [pathname, expected] of [
   });
 }
 
-test("uses the production subdomain for public metadata", async () => {
+test("uses the live production subdomain for public metadata", async () => {
   const layout = await readFile(new URL("../app/layout.tsx", import.meta.url), "utf8");
-  assert.match(layout, /metadataBase: new URL\("https:\/\/new\.vii\.co\.il\/"\)/);
+  assert.match(layout, /metadataBase: new URL\("https:\/\/vii\.spaplus\.co\/"\)/);
+  assert.doesNotMatch(layout, /new\.vii\.co\.il/);
+});
+
+test("query-driven detail pages render the requested content on the server", async () => {
+  for (const [pathname, expected, unexpected] of [
+    ["/business?id=perfumes-villa", /וילת הבשמים/, /אקווה ריזורט/],
+    ["/events/place?id=black-loft", /בלאק לופט/, /לופט פארטי טיים/],
+    ["/discover/place?id=cassia-jerusalem", /קסיה וולנס וספא/, /ספא בוטיק תל אביב/],
+    ["/guides/article?id=family-villa-guide", /איך בוחרים מקום שבאמת מתאים להרכב שלכם/, /אירוע במקום פרטי/],
+  ]) {
+    const response = await render(pathname);
+    const html = await response.text();
+    const firstHeading = (html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i)?.[1] || "").replace(/<[^>]+>/g, "");
+    assert.equal(response.status, 200, pathname);
+    assert.match(firstHeading, expected, pathname);
+    assert.doesNotMatch(firstHeading, unexpected, pathname);
+  }
+});
+
+test("lead proxy handles bot submissions locally without contacting the lead system", async () => {
+  const response = await render("/api/leads", {
+    method: "POST",
+    headers: { "content-type": "application/json", accept: "application/json" },
+    body: JSON.stringify({ honey: "bot", submissionId: "qa", name: "qa", phone: "000", privacyAccepted: true }),
+  });
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { success: true });
 });
 
 test("keeps calendar contexts, real listing ids and maps", async () => {
   const [calendar, searchBox, business, sleeping, search, eventsPage, eventSearch, eventPlace, data, worldData, worldSwitcher, map, contactActions, homeShowcase, magazineData, magazinePage, articlePage, styles] = await Promise.all([
     readFile(new URL("../app/calendar-demo.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/business/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/sleeping-arrangements.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/search/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/events/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/events/search/page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/events/place/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/events/place/client-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/data/site-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/components/world-switcher.tsx", import.meta.url), "utf8"),
@@ -62,7 +89,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
     readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/data/magazine-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/guides/page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/guides/article/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/guides/article/client-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
   assert.match(calendar, /mode === "home"/);
@@ -70,7 +97,8 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(searchBox, /mode="home"/);
   assert.match(business, /businessKind=\{property\.scenario\}/);
   assert.match(business, /<SearchBox compact \/>/);
-  assert.match(business, /URLSearchParams\(location\.search\)\.get\("id"\)/);
+  assert.match(business, /initialSlug/);
+  assert.doesNotMatch(business, /URLSearchParams\(location\.search\)/);
   assert.match(search, /setPool/);
   assert.match(eventSearch, /setEventType/);
   assert.equal((data.match(/liveUrl: "https:\/\/www\.vii\.co\.il\//g) || []).length, 20);
@@ -126,6 +154,9 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(eventSearch, /mode="events" autoLoad/);
   assert.match(eventSearch, /const \[guests, setGuests\] = useState\(0\)/);
   assert.match(eventSearch, /ללא סינון לפי כמות/);
+  assert.match(eventPlace, /fetch\("\/api\/leads\/"/);
+  assert.match(eventPlace, /privacyAccepted/);
+  assert.doesNotMatch(eventPlace, /defaultValue=\{Math\.min\(40/);
   assert.equal((magazineData.match(/slug: "/g) || []).length, 10);
   assert.equal((magazineData.match(/checklist: \[/g) || []).length, 10);
   assert.match(magazinePage, /vii-magazine-saved/);
@@ -151,7 +182,10 @@ test("footer destinations and lead forms have real destinations", async () => {
   for (const href of ["/search/", "/events/", "/spas/", "/hourly/", "/providers/", "/activities/", "/trails/", "/join/", "/contact/", "/guides/", "/accessibility/", "/legal/terms/", "/legal/privacy/", "/legal/cancellation/"]) {
     assert.match(footer, new RegExp(`href=["']${href.replaceAll("/", "\\/")}`));
   }
-  assert.match(form, /https:\/\/app\.spaplus\.co\/api\/integrations\/vii-leads/);
+  assert.match(form, /const endpoint = "\/api\/leads\/"/);
+  const leadRoute = await readFile(new URL("../app/api/leads/route.ts", import.meta.url), "utf8");
+  assert.match(leadRoute, /https:\/\/app\.spaplus\.co\/api\/integrations\/vii-leads/);
+  assert.match(leadRoute, /sourceSite: "vii\.co\.il"/);
   assert.match(form, /privacyAccepted/);
   assert.match(form, /crypto\.randomUUID\(\)/);
   assert.match(form, /state === "success"/);
@@ -169,7 +203,7 @@ test("independent trails are sourced, filterable and connected to stays", async 
     readFile(new URL("../app/trails/[slug]/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/activities/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/business/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/site-header.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/site-footer.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
@@ -216,11 +250,11 @@ test("includes the accessibility system and honest place disclosures", async () 
     readFile(new URL("../app/site-header.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/site-footer.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/property-card.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/business/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/events/search/page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/events/place/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/events/place/client-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/discovery-card.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/discover/place/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/discover/place/client-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
 
@@ -233,7 +267,7 @@ test("includes the accessibility system and honest place disclosures", async () 
   assert.match(statement, /תקן הישראלי 5568/);
   assert.match(statement, /WCAG 2\.0/);
   assert.match(statement, /פרטי רכז הנגישות טרם נמסרו/);
-  assert.match(statement, /עדיין אינה נוסח סופי לפרסום/);
+  assert.match(statement, /נמצאת בתהליך השלמה/);
   assert.equal((data.match(/"(?:aqua-resort|kesem-harimon|ahuzat-or|ar-suites|sol-gilgal|infinity-suites|magic-garden-gefen|anael-estate|perfumes-villa|rose-estate|party-time|black-loft|sani-loft|360-events|loft-117|fiesta|details-events|star-loft|puzzle-club|paphos-events)"/g) || []).length, 20);
   assert.match(data, /status: "unknown"/);
   assert.match(listing, /האם המקום נגיש/);

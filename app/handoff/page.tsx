@@ -1,4 +1,6 @@
+import type { Metadata } from "next";
 import { PageShell } from "../components/page-shell";
+export const metadata: Metadata = { title: "מרכז מידע לצוות", robots: { index: false, follow: false } };
 const rows=[
   ["דף הבית","חיפוש כללי, יעדים, מקומות מומלצים, תוכן ואירועים"],
   ["תוצאות נופש","סינון, מיון, מפה, שמירה ומצבי אפס"],

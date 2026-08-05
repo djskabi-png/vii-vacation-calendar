@@ -1,11 +1,16 @@
 /* eslint-disable @next/next/no-img-element */
 
+import type { Metadata } from "next";
 import Link from "next/link";
 import { PageShell } from "./components/page-shell";
 import { HomeShowcase } from "./components/home-showcase";
 import { SearchBox } from "./components/search-box";
 import { magazineArticles } from "./data/magazine-data";
 import { destinations } from "./data/site-data";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 export default function HomePage() {
   return (

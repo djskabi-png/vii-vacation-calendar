@@ -5,6 +5,7 @@ import { PageShell } from "../components/page-shell";
 export const metadata: Metadata = {
   title: "הצהרת נגישות",
   description: "מידע על נגישות אתר וי פור ויקיישן, כלי העזר, הסדרי השירות ודרכי דיווח על בעיית נגישות.",
+  alternates: { canonical: "/accessibility/" },
 };
 
 export default function AccessibilityPage() {
@@ -18,9 +19,9 @@ export default function AccessibilityPage() {
           <p className="accessibility-statement__date">נוסח עבודה מעודכן ליום 5 באוגוסט 2026</p>
         </header>
 
-        <aside className="accessibility-statement__notice" aria-label="מידע חשוב לפני פרסום">
-          <strong>הצהרה זו עדיין אינה נוסח סופי לפרסום</strong>
-          <p>טרם נמסרו פרטי רכז הנגישות והסדרי הנגישות הפיזיים של משרדי מפעיל האתר. אין לפרסם הצהרה זו כהוכחה לעמידה מלאה בדין לפני השלמת הפרטים ובדיקת נגישות מקצועית.</p>
+        <aside className="accessibility-statement__notice" aria-label="עדכון בנוגע להצהרת הנגישות">
+          <strong>הצהרת הנגישות נמצאת בתהליך השלמה</strong>
+          <p>פרטי רכז הנגישות והסדרי הנגישות הפיזיים של משרדי מפעיל האתר יפורסמו לאחר מסירה ואימות. עד אז אפשר לדווח על קושי או לבקש התאמה דרך טופס יצירת הקשר.</p>
         </aside>
 
         <section>
@@ -66,12 +67,12 @@ export default function AccessibilityPage() {
 
         <section>
           <h2>הסדרי נגישות בשירות ובמשרדים</h2>
-          <p><strong>המידע ממתין לאישור מפעיל האתר.</strong> לפני פרסום יש להוסיף כתובת קבלת קהל, חניה נגישה, דרך נגישה, מעלית, שירותים נגישים, לולאת השראה או לציין באופן מפורש שאין קבלת קהל.</p>
+          <p><strong>המידע ממתין לאישור מפעיל האתר.</strong> כתובת קבלת הקהל והסדרי החניה, הדרך הנגישה, המעלית, השירותים ואמצעי העזר יפורסמו לאחר מסירה ואימות.</p>
         </section>
 
         <section>
           <h2>רכז נגישות</h2>
-          <p><strong>פרטי רכז הנגישות טרם נמסרו.</strong> לפני פרסום יש להזין שם מלא, טלפון וכתובת דוא״ל מאומתים.</p>
+          <p><strong>פרטי רכז הנגישות טרם נמסרו.</strong> עד לפרסום פרטים מאומתים אפשר להעביר בקשת התאמה או דיווח דרך טופס יצירת הקשר.</p>
         </section>
 
         <section>

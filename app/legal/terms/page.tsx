@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { PageShell } from "../../components/page-shell";
+
+export const metadata: Metadata = { title: "תקנון האתר", description: "תנאי השימוש באתר וי פור ויקיישן.", alternates: { canonical: "/legal/terms/" } };
 
 export default function TermsPage() {
   return <PageShell><main id="main-content"><article className="legal-page shell">

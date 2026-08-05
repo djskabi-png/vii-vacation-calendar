@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 
-const endpoint = "https://app.spaplus.co/api/integrations/vii-leads";
+const endpoint = "/api/leads/";
 
 const worldOptions = [
   { id: "vacation", label: "נופש ומקומות אירוח", description: "וילות, צימרים, סוויטות ומתחמי נופש" },

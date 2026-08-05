@@ -1,10 +1,17 @@
 /* eslint-disable @next/next/no-img-element */
 
+import type { Metadata } from "next";
 import Link from "next/link";
 import { PageShell } from "../components/page-shell";
 import { SearchBox } from "../components/search-box";
 import { eventPlaces } from "../data/site-data";
 import { PinIcon } from "../site-header";
+
+export const metadata: Metadata = {
+  title: "מקומות לאירועים פרטיים",
+  description: "מחפשים מקומות לאירועים לפי אזור, תאריך וכמות משתתפים ומשווים בין מתחמים ברחבי הארץ.",
+  alternates: { canonical: "/events/" },
+};
 
 export default function EventsPage() {
   return (

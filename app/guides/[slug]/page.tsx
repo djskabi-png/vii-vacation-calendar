@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { MagazineArticleView } from "../article/page";
+import { MagazineArticleView } from "../article/client-page";
 import { getMagazineArticle, magazineArticles } from "../../data/magazine-data";
 
 export function generateStaticParams() {
@@ -12,6 +12,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: article.title,
     description: article.excerpt,
+    alternates: { canonical: `/guides/${article.slug}/` },
     openGraph: { title: article.title, description: article.excerpt, images: [{ url: article.image, alt: article.imageAlt }] },
   };
 }

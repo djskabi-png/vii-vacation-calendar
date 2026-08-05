@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { PageShell } from "../../components/page-shell";
+
+export const metadata: Metadata = { title: "מדיניות פרטיות", description: "מדיניות הפרטיות של אתר וי פור ויקיישן.", alternates: { canonical: "/legal/privacy/" } };
 
 export default function PrivacyPage() {
   return <PageShell><main id="main-content"><article className="legal-page shell">

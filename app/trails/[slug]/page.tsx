@@ -11,7 +11,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const trail = getTrail(slug);
-  return { title: `${trail.name}, מדריך מסלול`, description: trail.summary };
+  return { title: `${trail.name}, מדריך מסלול`, description: trail.summary, alternates: { canonical: `/trails/${trail.slug}/` } };
 }
 
 export default async function TrailPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -22,7 +22,7 @@ export default async function TrailPage({ params }: { params: Promise<{ slug: st
 
   return <PageShell variant="activities">
     <main id="main-content" className="trail-detail">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: trail.name, description: trail.summary, inLanguage: "he-IL", mainEntityOfPage: `https://new.vii.co.il/trails/${trail.slug}/`, author: { "@type": "Organization", name: "וי פור ויקיישן" }, about: trail.nature, citation: trail.officialSource }) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: trail.name, description: trail.summary, inLanguage: "he-IL", mainEntityOfPage: `https://vii.spaplus.co/trails/${trail.slug}/`, author: { "@type": "Organization", name: "וי פור ויקיישן" }, about: trail.nature, citation: trail.officialSource }) }} />
       <div className="shell breadcrumbs"><Link href="/">ראשי</Link><span>/</span><Link href="/trails/">מסלולי טיול</Link><span>/</span><span>{trail.name}</span></div>
       <section className="shell trail-detail__hero"><div><span className="eyebrow">מדריך המסלול של וי פור ויקיישן</span><h1>{trail.name}</h1><p>{trail.summary}</p><div className="trail-detail__quick"><span>{trail.region}</span><span>{trail.difficulty}</span><span>{trail.duration}</span><span>{trail.distance}</span></div></div><TrailVisual trail={trail} /></section>
 

@@ -3802,6 +3802,9 @@ body:has(.cookie-card) .world-dock { bottom: 118px; }
 .event-suitable-grid article { display: flex; align-items: center; gap: 9px; padding: 16px; border: 1px solid var(--line); border-radius: 14px; }
 .event-suitable-grid span { color: var(--teal); }
 .event-inquiry form { display: grid; }
+.event-inquiry .consent { display: flex; align-items: flex-start; gap: 9px; font-weight: 400; }
+.event-inquiry .consent input { flex: 0 0 20px; width: 20px; min-height: 20px; margin-top: 2px; }
+.event-inquiry .consent a { color: var(--teal-dark); text-decoration: underline; }
 .event-inquiry > svg { width: 30px; color: var(--teal); }
 .inquiry-success { display: grid; gap: 10px; padding: 18px; border-radius: 16px; background: #edf9f3; }
 .inquiry-success p { color: var(--ink-soft); }

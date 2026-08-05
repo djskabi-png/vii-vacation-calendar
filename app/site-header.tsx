@@ -88,7 +88,6 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
           <Link href="/guides/" onClick={closeMenu}><InfoIcon /><span>מגזין ומדריכים</span></Link>
           <Link href="/trails/" onClick={closeMenu}><PinIcon /><span>מסלולי טיול עצמאיים</span></Link>
           <Link href="/accessibility/" onClick={closeMenu}><AccessibilityIcon /><span>הצהרת נגישות</span></Link>
-          <Link href="/handoff/" onClick={closeMenu}><InfoIcon /><span>מרכז מידע לצוות</span></Link>
         </div>
 
         <div className="menu-panel__footer">

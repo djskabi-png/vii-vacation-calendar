@@ -9,6 +9,7 @@ import { trails } from "../data/trail-data";
 export const metadata: Metadata = {
   title: "מה עושים בחופשה, אטרקציות ומסלולי טיול",
   description: "מסלולי טיול עצמאיים ואטרקציות בתשלום לפי אזור, זמן ואופי החופשה.",
+  alternates: { canonical: "/activities/" },
 };
 
 export default function ActivitiesPage() {
