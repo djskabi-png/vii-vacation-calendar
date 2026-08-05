@@ -4,6 +4,7 @@ import Link from "next/link";
 import { PageShell } from "./components/page-shell";
 import { PropertyCard } from "./components/property-card";
 import { SearchBox } from "./components/search-box";
+import { magazineArticles } from "./data/magazine-data";
 import { destinations, properties } from "./data/site-data";
 
 export default function HomePage() {
@@ -33,6 +34,10 @@ export default function HomePage() {
         <section className="section shell why-section" aria-labelledby="why-title">
           <div><span className="eyebrow">פשוט לבחור נכון</span><h2 id="why-title">כל המידע, בלי ללכת לאיבוד</h2><p>החיפוש, הזמינות, פרטי המקום והמדיניות נמצאים במסלול אחד ברור, בכל מסך ובכל מכשיר.</p><Link className="button primary" href="/search/">מתחילים לחפש</Link></div>
           <div className="benefit-grid"><article><b>01</b><h3>חיפוש מדויק</h3><p>מסננים לפי אזור, תאריך, הרכב ומאפיינים.</p></article><article><b>02</b><h3>תמונה מלאה</h3><p>רואים מה כלול, למי המקום מתאים ומה זמין.</p></article><article><b>03</b><h3>בחירה רגועה</h3><p>שומרים מקומות ומשווים בקצב שלכם.</p></article></div>
+        </section>
+
+        <section className="section home-magazine" aria-labelledby="home-magazine-title">
+          <div className="shell"><div className="section-head"><div><span className="eyebrow">מגזין וי</span><h2 id="home-magazine-title">רעיונות שממשיכים את החופשה</h2></div><Link href="/guides/">לכל הכתבות</Link></div><div className="home-magazine__grid">{magazineArticles.slice(0,3).map((article,index) => <article key={article.slug} className={index === 0 ? "featured" : ""}><Link href={`/guides/${article.slug}/`}><img src={article.image} alt={article.imageAlt} /><span>{article.category}</span><div><small>{article.readTime} דקות קריאה</small><h3>{article.title}</h3><p>{article.excerpt}</p></div></Link></article>)}</div></div>
         </section>
 
         <section className="section shell event-promo"><div><span className="eyebrow">מתכננים אירוע?</span><h2>יש לנו עולם שלם גם לזה</h2><p>לופטים, מתחמים ומקומות לאירועים, עם חיפוש שמותאם לכמות המשתתפים ולסוג האירוע.</p><Link className="button light" href="/events/">לעולם האירועים</Link></div><img src="https://www.vii.co.il/gallery/thumb/600/5962a5b1c42c285.jpeg" alt="סטאר לופט" /></section>

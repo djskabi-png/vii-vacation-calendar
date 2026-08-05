@@ -17,6 +17,9 @@ for (const [pathname, expected] of [
   ["/events/search", /מקומות לאירועים/],
   ["/events/place", /לופט פארטי טיים/],
   ["/favorites", /המקומות שאהבתי/],
+  ["/guides", /החופשה הטובה מתחילה ברעיון טוב/],
+  ["/guides/article", /איך בוחרים מקום שבאמת מתאים/],
+  ["/guides/private-event-checklist", /אירוע במקום פרטי/],
   ["/spas", /מוצאים את הספא שמתאים/],
   ["/hourly", /חדר לכמה שעות/],
   ["/providers", /האנשים שהופכים אירוח לחוויה/],
@@ -32,7 +35,7 @@ for (const [pathname, expected] of [
 }
 
 test("keeps calendar contexts, real listing ids and maps", async () => {
-  const [calendar, searchBox, business, search, eventSearch, eventPlace, data, worldData, worldSwitcher, map, contactActions, styles] = await Promise.all([
+  const [calendar, searchBox, business, search, eventSearch, eventPlace, data, worldData, worldSwitcher, map, contactActions, magazineData, magazinePage, articlePage, styles] = await Promise.all([
     readFile(new URL("../app/calendar-demo.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/business/page.tsx", import.meta.url), "utf8"),
@@ -44,6 +47,9 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
     readFile(new URL("../app/components/world-switcher.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/contact-actions.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/data/magazine-data.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/guides/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/guides/article/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
   assert.match(calendar, /mode === "home"/);
@@ -77,4 +83,10 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(map, /World_Imagery/);
   assert.match(map, /map-preview-image/);
   assert.match(map, /if \(!enabled\)/);
+  assert.equal((magazineData.match(/slug: "/g) || []).length, 10);
+  assert.equal((magazineData.match(/checklist: \[/g) || []).length, 10);
+  assert.match(magazinePage, /vii-magazine-saved/);
+  assert.match(magazinePage, /quizOptions/);
+  assert.match(articlePage, /reading-progress/);
+  assert.match(articlePage, /vii-magazine-checklist/);
 });

@@ -119,6 +119,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
           </nav>
 
           <div className="header-actions">
+            <Link className="magazine-header-link" href="/guides/"><span>חדש</span>מגזין</Link>
             <Link className="icon-button" href="/favorites/" aria-label="מקומות שאהבתי"><HeartIcon /></Link>
             <button className="icon-button" type="button" aria-label="מצב קריאה נוח" aria-pressed={comfortReading} onClick={() => setComfortReading((value) => !value)}><AccessibilityIcon /></button>
             <button ref={menuButtonRef} className="menu-button" type="button" aria-expanded={menuOpen} aria-haspopup="dialog" aria-label="פתיחת תפריט" onClick={() => setMenuOpen(true)}><MenuIcon /><span>תפריט</span></button>
