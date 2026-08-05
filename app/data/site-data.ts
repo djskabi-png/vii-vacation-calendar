@@ -21,6 +21,7 @@ export type Listing = {
   reviews?: number;
   price?: number;
   roomOptions?: StayOption[];
+  sleepingArrangements?: SleepingArrangement[];
   contact?: ListingContact;
 };
 
@@ -37,6 +38,14 @@ export type StayOption = {
   area?: number;
   image: string;
   features: string[];
+};
+
+export type SleepingArrangement = {
+  name: string;
+  floor?: string;
+  beds: Array<{ type: string; count: number }>;
+  amenities: string[];
+  galleryImage: string;
 };
 
 export type Property = Listing;
@@ -281,6 +290,17 @@ export const properties: Property[] = [
     contact: { phone: "055-4538221", whatsapp: "054-4233163" },
     roomOptions: [
       { name: "וילת הבשמים", quantity: 1, guests: 30, bedrooms: 9, image: "https://www.vii.co.il/gallery/thumb/600/776a4e0f15551ad.jpeg", features: ["בריכת שחייה", "מטבח מאובזר", "שני סלונים", "חניה פרטית", "תשעה חדרי שינה"] },
+    ],
+    sleepingArrangements: [
+      { name: "חדר שינה 1", floor: "קומת הכניסה", beds: [{ type: "מיטה זוגית", count: 1 }], amenities: ["מטבחון", "סלון", "מסך טלוויזיה", "מיזוג אוויר", "אחסון", "חדר רחצה פרטי"], galleryImage: "https://www.vii.co.il/gallery/thumb/600/276a4e0f1514781.jpeg" },
+      { name: "חדר שינה 2", floor: "קומת הכניסה", beds: [{ type: "מיטה זוגית", count: 1 }], amenities: ["מסך טלוויזיה", "מיזוג אוויר", "אחסון", "חדר רחצה פרטי"], galleryImage: "https://www.vii.co.il/gallery/thumb/600/446a4e0f14cea24.jpeg" },
+      { name: "חדר שינה 3", floor: "קומת הכניסה", beds: [{ type: "מיטה זוגית", count: 1 }], amenities: ["מסך טלוויזיה", "מיזוג אוויר", "אחסון", "חדר רחצה פרטי"], galleryImage: "https://www.vii.co.il/gallery/thumb/600/936a4e0f1eab1fc.jpeg" },
+      { name: "חדר שינה 4", floor: "קומת הכניסה", beds: [{ type: "מיטת יחיד", count: 1 }], amenities: ["מיזוג אוויר"], galleryImage: "https://www.vii.co.il/gallery/thumb/600/486a4e0f1eba409.jpeg" },
+      { name: "חדר שינה 5", floor: "הקומה השנייה", beds: [{ type: "מיטה זוגית", count: 1 }], amenities: ["מסך טלוויזיה", "מיזוג אוויר", "אחסון", "שירותים"], galleryImage: "https://www.vii.co.il/gallery/thumb/600/716a4e0f1503a82.jpeg" },
+      { name: "חדר שינה 6", floor: "הקומה השלישית", beds: [{ type: "מיטה זוגית", count: 1 }], amenities: ["מסך טלוויזיה", "מיזוג אוויר", "אחסון", "חדר רחצה פרטי"], galleryImage: "https://www.vii.co.il/gallery/thumb/600/606a4e0f15affab.jpeg" },
+      { name: "חדר שינה 7", floor: "הקומה השלישית", beds: [{ type: "מיטה זוגית", count: 1 }], amenities: ["מסך טלוויזיה", "מיזוג אוויר", "אחסון", "חדר רחצה משותף"], galleryImage: "https://www.vii.co.il/gallery/thumb/600/696a4e0f15a91b7.jpeg" },
+      { name: "חדר שינה 8", beds: [{ type: "מיטת יחיד", count: 2 }], amenities: ["מיזוג אוויר"], galleryImage: "https://www.vii.co.il/gallery/thumb/600/196a4e0f14e1025.jpeg" },
+      { name: "חדר שינה 9", beds: [{ type: "מיטת יחיד", count: 2 }], amenities: ["מיזוג אוויר"], galleryImage: "https://www.vii.co.il/gallery/thumb/600/16a4e0f14d85a3.jpeg" },
     ],
   },
   {

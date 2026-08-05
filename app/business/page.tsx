@@ -12,6 +12,7 @@ import { ContactActions } from "../components/contact-actions";
 import { DiscoveryCard } from "../components/discovery-card";
 import { ListingAccessibility } from "../components/listing-accessibility";
 import { SearchBox } from "../components/search-box";
+import { SleepingArrangements } from "../components/sleeping-arrangements";
 import { properties, propertyFaq } from "../data/site-data";
 import { activityIdeas, providerProfiles, spaPlaces, type DiscoveryItem } from "../data/world-data";
 import { CalendarIcon, HeartIcon, PinIcon } from "../site-header";
@@ -97,7 +98,7 @@ export default function BusinessPage() {
 
         <section className="shell property-gallery">{property.images.slice(0, 5).map((image, index) => <button key={image} type="button" aria-label={`פתיחת גלריית ${property.name}, תמונה ${index + 1}`} onClick={() => setGalleryOpen(true)}><img src={image} alt={`${property.name}, תמונה ${index + 1}`} />{index === 4 && <span>לכל התמונות</span>}</button>)}</section>
 
-        <nav className="shell property-anchor-nav" aria-label="ניווט בעמוד"><a href="#about">על המקום</a>{property.roomOptions?.length ? <a href="#rooms">חדרים ויחידות</a> : null}<a href="#features">מאפיינים</a><a href="#accessibility">נגישות במקום</a><a href="#location">מיקום</a><a href="#faq">שאלות ותשובות</a><a href="#policies">חשוב לדעת</a></nav>
+        <nav className="shell property-anchor-nav" aria-label="ניווט בעמוד"><a href="#about">על המקום</a>{property.sleepingArrangements?.length ? <a href="#sleeping">איפה ישנים</a> : property.roomOptions?.length ? <a href="#rooms">חדרים ויחידות</a> : null}<a href="#features">מאפיינים</a><a href="#accessibility">נגישות במקום</a><a href="#location">מיקום</a><a href="#faq">שאלות ותשובות</a><a href="#policies">חשוב לדעת</a></nav>
 
         <div className="shell property-layout">
           <div className="property-content">
@@ -112,7 +113,7 @@ export default function BusinessPage() {
 
             <section id="features" className="feature-section"><h2>מה מחכה לכם במקום</h2><div className="feature-list">{property.features.map((feature) => <span key={feature}>✓ {feature}</span>)}</div><button className="button subtle" type="button" onClick={() => setAllFeaturesOpen(true)}>כל המידע על המתקנים</button></section>
 
-            {property.roomOptions?.length ? <section id="rooms" className="units-section">
+            {property.roomOptions?.length && !property.sleepingArrangements?.length ? <section id="rooms" className="units-section">
               <div className="units-heading">
                 <div><span className="eyebrow">אפשרויות האירוח במקום</span><h2>{property.scenario === "single" ? "כל החדרים במקום" : "הסוויטות והיחידות"}</h2></div>
                 <span className="units-total">{roomQuantity === 1 ? "יחידת אירוח אחת" : `${roomQuantity} יחידות אירוח`}</span>
@@ -130,6 +131,8 @@ export default function BusinessPage() {
                 </article>)}
               </div>
             </section> : null}
+
+            {property.sleepingArrangements?.length ? <SleepingArrangements placeName={property.name} arrangements={property.sleepingArrangements} /> : null}
 
             <ListingAccessibility slug={property.slug} />
 
