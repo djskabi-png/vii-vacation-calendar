@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 
 type EventDateMode = "exact" | "around" | "period";
 
@@ -157,7 +158,7 @@ export function EventDatePicker({
     onClose();
   }
 
-  return (
+  return createPortal(
     <div className="calendar-overlay event-date-overlay" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
       <section className="event-date-dialog" role="dialog" aria-modal="true" aria-labelledby="event-date-title">
         <header className="event-date-dialog__header">
@@ -228,6 +229,7 @@ export function EventDatePicker({
           <button type="button" className="event-date-confirm" disabled={!ready} onClick={confirm}>הצגת מקומות לאירוע</button>
         </footer>
       </section>
-    </div>
+    </div>,
+    document.body,
   );
 }
