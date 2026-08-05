@@ -20,6 +20,17 @@ export type Listing = {
   score?: number;
   reviews?: number;
   price?: number;
+  roomOptions?: StayOption[];
+};
+
+export type StayOption = {
+  name: string;
+  quantity: number;
+  guests: number;
+  bedrooms: number;
+  area?: number;
+  image: string;
+  features: string[];
 };
 
 export type Property = Listing;
@@ -51,6 +62,16 @@ export const properties: Property[] = [
     lng: 34.9440222,
     scenario: "single",
     liveUrl: "https://www.vii.co.il/Aqua_Resort_-_Beachfront_Villa_Eilat",
+    roomOptions: [
+      {
+        name: "אקווה ריזורט, וילת החוף",
+        quantity: 1,
+        guests: 14,
+        bedrooms: 5,
+        image: "https://www.vii.co.il/gallery/thumb/600/256a5627535fb08.jpg",
+        features: ["בריכת שחייה פרטית", "מטבח מאובזר", "סלון משותף", "חניה פרטית", "חדרי רחצה"],
+      },
+    ],
   },
   {
     slug: "kesem-harimon",
@@ -71,6 +92,12 @@ export const properties: Property[] = [
     lng: 34.7048635,
     scenario: "multi",
     liveUrl: "https://www.vii.co.il/villa_esem_harimon",
+    roomOptions: [
+      { name: "יחידת סטודיו שני", quantity: 1, guests: 4, bedrooms: 1, area: 40, image: "https://www.vii.co.il/gallery/thumb/600/336032b1123593a.jpeg", features: ["מיטה זוגית", "ג'קוזי זוגי", "מטבחון מאובזר", "מרפסת", "מיזוג אוויר"] },
+      { name: "יחידת סטודיו העמק", quantity: 1, guests: 2, bedrooms: 1, area: 20, image: "https://www.vii.co.il/gallery/thumb/600/156032b112398d1.jpeg", features: ["מיטה זוגית", "מטבחון מאובזר", "מרפסת", "מסך טלוויזיה", "חדר רחצה פרטי"] },
+      { name: "סוויטה משפחתית וואנדרפול", quantity: 1, guests: 5, bedrooms: 1, area: 65, image: "https://www.vii.co.il/gallery/thumb/600/66032b11240b59.jpeg", features: ["ג'קוזי זוגי", "מטבחון מאובזר", "סלון", "מרפסת", "יציאה לחצר"] },
+      { name: "יחידת עכו", quantity: 1, guests: 3, bedrooms: 1, area: 20, image: "https://www.vii.co.il/gallery/thumb/600/166226082f4a216.jpeg", features: ["מיטה זוגית", "מטבחון", "פינת אוכל", "מיזוג אוויר", "חדר רחצה פרטי"] },
+    ],
   },
   {
     slug: "ahuzat-or",
@@ -91,6 +118,10 @@ export const properties: Property[] = [
     lng: 35.4536474,
     scenario: "multi",
     liveUrl: "https://www.vii.co.il/Ahuzat_Or",
+    roomOptions: [
+      { name: "סוויטות 1+2", quantity: 2, guests: 3, bedrooms: 1, image: "https://www.vii.co.il/gallery/thumb/600/75645b976e1e630.JPG", features: ["מיטה זוגית", "ג'קוזי זוגי", "מטבחון מאובזר", "מרפסת", "חדר רחצה פרטי"] },
+      { name: "סוויטה משפחתית", quantity: 1, guests: 6, bedrooms: 1, image: "https://www.vii.co.il/gallery/thumb/600/42645b976e06d9c.JPG", features: ["מיטה זוגית", "ג'קוזי זוגי", "מטבחון מאובזר", "פינת אוכל", "חדר רחצה פרטי"] },
+    ],
   },
   {
     slug: "ar-suites",
@@ -111,6 +142,9 @@ export const properties: Property[] = [
     lng: 34.9480892,
     scenario: "single",
     liveUrl: "https://www.vii.co.il/A.R_Suite",
+    roomOptions: [
+      { name: "א.ר סוויטות", quantity: 1, guests: 7, bedrooms: 2, image: "https://www.vii.co.il/gallery/thumb/600/46433eebd8ccbd.jpeg", features: ["בריכה מחוממת", "מטבח מאובזר", "סלון משותף", "חצר", "חניה פרטית"] },
+    ],
   },
   {
     slug: "sol-gilgal",
@@ -131,6 +165,13 @@ export const properties: Property[] = [
     lng: 35.8009862,
     scenario: "multi",
     liveUrl: "https://www.vii.co.il/Sol-_Events_And_Parties",
+    roomOptions: [
+      { name: "סוויטה 1", quantity: 1, guests: 8, bedrooms: 2, image: "https://www.vii.co.il/gallery/thumb/600/7636b81690993d.jpeg", features: ["בריכת שחייה", "גינה פרטית", "מטבחון מאובזר", "פינת ישיבה", "מיזוג אוויר"] },
+      { name: "סוויטה 2", quantity: 1, guests: 6, bedrooms: 2, image: "https://www.vii.co.il/gallery/thumb/600/19636b8169059aa.jpeg", features: ["ג'קוזי", "מרפסת", "מטבחון מאובזר", "מסכי טלוויזיה", "מיזוג אוויר"] },
+      { name: "סוויטה 3", quantity: 1, guests: 4, bedrooms: 1, image: "https://www.vii.co.il/gallery/thumb/600/94636b816901794.jpeg", features: ["ג'קוזי", "גינה פרטית", "מטבחון מאובזר", "ספה נפתחת", "חדר רחצה"] },
+      { name: "סוויטה 4", quantity: 1, guests: 4, bedrooms: 1, image: "https://www.vii.co.il/gallery/thumb/600/94636b8169219da.jpeg", features: ["ג'קוזי זוגי", "בר חיצוני", "מטבחון מאובזר", "ספה נפתחת", "חדר רחצה פרטי"] },
+      { name: "חדר שינה", quantity: 2, guests: 2, bedrooms: 1, image: "https://www.vii.co.il/gallery/thumb/600/51636b816915a5b.jpeg", features: ["מיטה זוגית", "מטבחון מאובזר", "מסך טלוויזיה", "מיזוג אוויר", "שידות אחסון"] },
+    ],
   },
   {
     slug: "infinity-suites",
@@ -151,6 +192,10 @@ export const properties: Property[] = [
     lng: 35.470338,
     scenario: "multi",
     liveUrl: "https://www.vii.co.il/suitot_einsof",
+    roomOptions: [
+      { name: "סוויטה 1", quantity: 1, guests: 6, bedrooms: 2, image: "https://www.vii.co.il/gallery/thumb/600/735f956ea9e52bc.jpeg", features: ["ג'קוזי זוגי", "ג'קוזי ספא", "מטבחון", "סלון", "חדר רחצה פרטי"] },
+      { name: "סוויטה 2", quantity: 1, guests: 4, bedrooms: 1, image: "https://www.vii.co.il/gallery/thumb/600/685f956ebc1efd3.jpeg", features: ["בריכה מחוממת", "ג'קוזי ספא", "מטבחון מאובזר", "סלון", "חדר רחצה פרטי"] },
+    ],
   },
   {
     slug: "magic-garden-gefen",
@@ -171,6 +216,9 @@ export const properties: Property[] = [
     lng: 34.8796582,
     scenario: "multi",
     liveUrl: "https://www.vii.co.il/HaGan_HaKasum_Gefen_Suites",
+    roomOptions: [
+      { name: "סוויטות הגן הקסום גפן", quantity: 4, guests: 5, bedrooms: 1, image: "https://www.vii.co.il/gallery/thumb/600/956a68539e055b5.JPG", features: ["בריכה מחוממת ומגודרת", "מטבח מאובזר", "מיזוג אוויר", "חדר אוכל", "חדר רחצה"] },
+    ],
   },
   {
     slug: "anael-estate",
@@ -191,6 +239,14 @@ export const properties: Property[] = [
     lng: 35.4428227,
     scenario: "multi",
     liveUrl: "https://www.vii.co.il/Ahozat_Anael_Bgalil",
+    roomOptions: [
+      { name: "סוויטת מירון", quantity: 1, guests: 4, bedrooms: 1, image: "https://www.vii.co.il/gallery/thumb/600/906a587a6b4f48b.jpeg", features: ["מיטה זוגית", "ג'קוזי ספא", "מטבחון מאובזר", "מסך טלוויזיה", "חדר רחצה פרטי"] },
+      { name: "סוויטת גאיה", quantity: 1, guests: 4, bedrooms: 1, image: "https://www.vii.co.il/gallery/thumb/600/666a587a0ba70f5.jpeg", features: ["מיטה זוגית", "ג'קוזי ספא", "מטבחון מאובזר", "פינת ישיבה", "חדר רחצה פרטי"] },
+      { name: "סוויטת אליה", quantity: 1, guests: 4, bedrooms: 1, image: "https://www.vii.co.il/gallery/thumb/600/826a58793ac3ee4.jpeg", features: ["מיטה זוגית", "ג'קוזי ספא", "מטבחון מאובזר", "פינת ישיבה", "חדר רחצה פרטי"] },
+      { name: "סוויטת נועה", quantity: 1, guests: 4, bedrooms: 1, image: "https://www.vii.co.il/gallery/thumb/600/216a5879219a2cb.jpeg", features: ["מיטה זוגית", "ג'קוזי גדול", "מטבחון מאובזר", "מסך טלוויזיה", "חדר רחצה פרטי"] },
+      { name: "סוויטת יובל", quantity: 1, guests: 4, bedrooms: 1, image: "https://www.vii.co.il/gallery/thumb/600/536a58793a9a9c8.jpeg", features: ["מיטה זוגית", "ג'קוזי ספא", "מטבחון מאובזר", "פינת ישיבה", "חדר רחצה פרטי"] },
+      { name: "סוויטת חרמון", quantity: 1, guests: 3, bedrooms: 1, image: "https://www.vii.co.il/gallery/thumb/600/406a58794ecc098.jpeg", features: ["מיטה זוגית", "ג'קוזי ספא", "מטבחון מאובזר", "פינת ישיבה", "חדר רחצה פרטי"] },
+    ],
   },
   {
     slug: "perfumes-villa",
@@ -210,6 +266,9 @@ export const properties: Property[] = [
     lng: 34.933483,
     scenario: "single",
     liveUrl: "https://www.vii.co.il/Parfumes_Villa",
+    roomOptions: [
+      { name: "וילת הבשמים", quantity: 1, guests: 30, bedrooms: 9, image: "https://www.vii.co.il/gallery/thumb/600/776a4e0f15551ad.jpeg", features: ["בריכת שחייה", "מטבח מאובזר", "שני סלונים", "חניה פרטית", "תשעה חדרי שינה"] },
+    ],
   },
   {
     slug: "rose-estate",
@@ -229,6 +288,9 @@ export const properties: Property[] = [
     lng: 35.288424,
     scenario: "single",
     liveUrl: "https://www.vii.co.il/ahuzat_hashoshanim",
+    roomOptions: [
+      { name: "אחוזת השושנים בוטיק", quantity: 1, guests: 17, bedrooms: 5, area: 200, image: "https://www.vii.co.il/gallery/thumb/600/3683fd1032e080.jpg", features: ["בריכה מחוממת ומקורה", "ג'קוזי ספא", "מטבח מאובזר", "סלון משותף", "חמישה חדרי שינה"] },
+    ],
   },
 ];
 

@@ -21,6 +21,7 @@ export default function BusinessPage() {
   const [shareStatus, setShareStatus] = useState("");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const property = useMemo(() => properties.find((item) => item.slug === slug) || properties[0], [slug]);
+  const roomQuantity = property.roomOptions?.reduce((total, room) => total + room.quantity, 0) || 0;
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -73,7 +74,7 @@ export default function BusinessPage() {
 
         <section className="shell property-gallery">{property.images.slice(0, 5).map((image, index) => <button key={image} type="button" aria-label={`פתיחת גלריית ${property.name}, תמונה ${index + 1}`} onClick={() => setGalleryOpen(true)}><img src={image} alt={`${property.name}, תמונה ${index + 1}`} />{index === 4 && <span>לכל התמונות</span>}</button>)}</section>
 
-        <nav className="shell property-anchor-nav" aria-label="ניווט בעמוד"><a href="#about">על המקום</a><a href="#features">מאפיינים</a><a href="#location">מיקום</a><a href="#faq">שאלות ותשובות</a><a href="#policies">חשוב לדעת</a></nav>
+        <nav className="shell property-anchor-nav" aria-label="ניווט בעמוד"><a href="#about">על המקום</a>{property.roomOptions?.length ? <a href="#rooms">חדרים ויחידות</a> : null}<a href="#features">מאפיינים</a><a href="#location">מיקום</a><a href="#faq">שאלות ותשובות</a><a href="#policies">חשוב לדעת</a></nav>
 
         <div className="shell property-layout">
           <div className="property-content">
@@ -88,7 +89,24 @@ export default function BusinessPage() {
 
             <section id="features" className="feature-section"><h2>מה מחכה לכם במקום</h2><div className="feature-list">{property.features.map((feature) => <span key={feature}>✓ {feature}</span>)}</div><button className="button subtle" type="button" onClick={() => setAllFeaturesOpen(true)}>כל המידע על המתקנים</button></section>
 
-            {property.scenario === "multi" && property.units && <section className="units-section"><span className="eyebrow">מתחם עם כמה יחידות</span><h2>בוחרים את ההרכב שמתאים לכם</h2><p>במקום יש {property.units} יחידות. לאחר בחירת תאריכים, מנוע ההזמנות יציג אילו יחידות פנויות ומה המחיר לכל שילוב.</p><div className="unit-preview-grid">{Array.from({ length: Math.min(property.units, 4) }, (_, index) => <article key={index}><b>יחידה {index + 1}</b><span>הפרטים והזמינות יגיעו ממערכת הניהול</span></article>)}</div></section>}
+            {property.roomOptions?.length ? <section id="rooms" className="units-section">
+              <div className="units-heading">
+                <div><span className="eyebrow">אפשרויות האירוח במקום</span><h2>{property.scenario === "single" ? "כל החדרים במקום" : "הסוויטות והיחידות"}</h2></div>
+                <span className="units-total">{roomQuantity === 1 ? "יחידת אירוח אחת" : `${roomQuantity} יחידות אירוח`}</span>
+              </div>
+              <p>{property.scenario === "single" ? "המקום מוזמן כיחידה שלמה. כאן תוכלו לראות את מבנה האירוח והקיבולת לפני בחירת התאריכים." : "בחרו את סוג היחידה שמתאים להרכב שלכם. זמינות ומחיר יוצגו לפי התאריכים שתבחרו."}</p>
+              <div className="room-card-list">
+                {property.roomOptions.map((room) => <article className="room-card" key={room.name}>
+                  <div className="room-card__image"><img src={room.image} alt={`${room.name} ב${property.name}`} loading="lazy" /><span>{room.quantity === 1 ? "יחידה אחת" : `${room.quantity} יחידות`}</span></div>
+                  <div className="room-card__body">
+                    <div className="room-card__title"><div><span>{property.type}</span><h3>{room.name}</h3></div><b>עד {room.guests} אורחים</b></div>
+                    <div className="room-card__facts"><span>{room.bedrooms === 1 ? "חדר שינה אחד" : `${room.bedrooms} חדרי שינה`}</span>{room.area ? <span>{room.area} מ״ר</span> : null}</div>
+                    <div className="room-card__features">{room.features.map((feature) => <span key={feature}>{feature}</span>)}</div>
+                    <div className="room-card__actions"><button className="button primary" type="button" onClick={() => setCalendarOpen(true)}>בדיקת זמינות</button><a href={property.liveUrl} target="_blank" rel="noreferrer">לכל פרטי המקום</a></div>
+                  </div>
+                </article>)}
+              </div>
+            </section> : null}
 
             <section id="location" className="location-card"><div><span className="eyebrow">המיקום</span><h2>{property.location}</h2><p>{property.area}</p><a href={`https://www.openstreetmap.org/?mlat=${property.lat}&mlon=${property.lng}#map=15/${property.lat}/${property.lng}`} target="_blank" rel="noreferrer">פתיחה במפה מלאה</a></div><ListingMap listings={[property]} single /></section>
 
