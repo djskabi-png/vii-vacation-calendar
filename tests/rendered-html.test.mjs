@@ -203,6 +203,24 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(homeShowcase, /המחיר והזמינות הסופיים יאומתו/);
 });
 
+test("keeps every date dialog above the site header with a reachable close action", async () => {
+  const [vacationCalendar, eventCalendar, spaCalendar, styles] = await Promise.all([
+    readFile(new URL("../app/calendar-demo.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/event-date-picker.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/spa-date-picker.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+
+  for (const calendar of [vacationCalendar, eventCalendar, spaCalendar]) {
+    assert.match(calendar, /createPortal\(/);
+    assert.match(calendar, /document\.body/);
+    assert.match(calendar, /dialog-close/);
+  }
+
+  assert.match(styles, /\.calendar-overlay\s*\{[^}]*z-index:\s*10000/s);
+  assert.match(styles, /\.calendar-dialog-header\s*\{[^}]*position:\s*sticky/s);
+});
+
 test("footer destinations and lead forms have real destinations", async () => {
   const [footer, form, contact, join, cookieConsent] = await Promise.all([
     readFile(new URL("../app/components/site-footer.tsx", import.meta.url), "utf8"),
