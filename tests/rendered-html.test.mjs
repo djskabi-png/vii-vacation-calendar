@@ -169,7 +169,9 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(styles, /\.property-title__actions svg\.filled/);
   assert.equal((worldData.match(/sourceName: "ספא פלוס"/g) || []).length, 10);
   assert.equal((worldData.match(/sourceName: "חדרים וי־איי־פי"/g) || []).length, 10);
-  assert.match(worldSwitcher, /עוברים עולם/);
+  assert.match(worldSwitcher, /בחירת עולם/);
+  assert.match(worldSwitcher, /מה מחפשים\?/);
+  assert.match(worldSwitcher, /aria-current/);
   assert.match(searchBox, /SearchWorldTabs/);
   assert.match(searchBox, /בחרו כמות משתתפים/);
   assert.doesNotMatch(searchBox, /mode === "events" \? 40/);

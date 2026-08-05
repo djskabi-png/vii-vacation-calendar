@@ -2995,11 +2995,12 @@ h3 { font-size: 1.18rem; }
 /* Connected worlds */
 .desktop-nav { gap: clamp(12px, 1.6vw, 24px); }
 .desktop-nav a { font-size: .94rem; white-space: nowrap; }
-.search-world-tabs { position: relative; z-index: 6; width: min(880px, calc(100% - 24px)); margin: 0 auto -1px; display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid rgba(8,126,139,.17); border-bottom: 0; border-radius: 20px 20px 0 0; overflow: hidden; background: rgba(255,255,255,.82); backdrop-filter: blur(16px); }
-.search-world-tabs a { min-height: 55px; display: flex; align-items: center; justify-content: center; gap: 9px; padding: 8px 12px; color: var(--ink-soft); font-size: .9rem; font-weight: 700; border-inline-start: 1px solid var(--line); }
-.search-world-tabs a:first-child { border-inline-start: 0; }
-.search-world-tabs a.active { color: var(--teal-dark); background: white; box-shadow: inset 0 -3px var(--teal); }
-.search-world-tabs + .search-box { border-start-start-radius: 12px; border-start-end-radius: 12px; }
+.search-world-tabs { position: relative; z-index: 6; width: min(760px, calc(100% - 24px)); margin: 0 auto 12px; display: grid; grid-template-columns: auto minmax(0,1fr); align-items: center; gap: 10px; padding: 6px; border: 1px solid rgba(8,126,139,.12); border-radius: 18px; background: rgba(255,255,255,.7); box-shadow: 0 10px 28px rgba(13,47,57,.06); backdrop-filter: blur(16px); }
+.search-world-tabs__prompt { padding-inline: 10px 5px; color: var(--ink-soft); font-size: .76rem; font-weight: 800; white-space: nowrap; }
+.search-world-tabs__options { min-width: 0; display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 4px; }
+.search-world-tabs a { min-width: 0; min-height: 42px; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 6px 8px; border: 1px solid transparent; border-radius: 12px; color: var(--ink-soft); font-size: .84rem; font-weight: 750; transition: background .18s ease, border-color .18s ease, color .18s ease; }
+.search-world-tabs a:hover { color: var(--teal-dark); background: rgba(255,255,255,.76); }
+.search-world-tabs a.active { color: var(--teal-dark); border-color: rgba(8,126,139,.18); background: rgba(255,255,255,.92); box-shadow: 0 4px 14px rgba(13,47,57,.06); }
 .world-mark { flex: 0 0 auto; width: 13px; height: 13px; border-radius: 4px; background: linear-gradient(135deg,var(--teal),var(--blue)); box-shadow: 0 0 0 4px rgba(18,151,166,.09); }
 .world-mark--events { border-radius: 50%; background: linear-gradient(135deg,#805ad5,#3975d5); }
 .world-mark--spa { border-radius: 50% 50% 50% 10%; transform: rotate(45deg); background: linear-gradient(135deg,#e66692,#9f67da); }
@@ -3309,8 +3310,11 @@ body:has(.cookie-card) .world-dock { bottom: 118px; }
   .home-hero h1 { font-size: 2.55rem; }
   .search-box { grid-template-columns: 1fr; gap: 5px; border-radius: 18px; }
   .search-box--hourly { grid-template-columns: 1fr auto; }
-  .search-world-tabs { width: calc(100% - 10px); overflow-x: auto; grid-template-columns: repeat(4,minmax(105px,1fr)); justify-content: start; scrollbar-width: none; }
-  .search-world-tabs a { min-height: 49px; padding-inline: 9px; font-size: .78rem; }
+  .search-world-tabs { width: 100%; grid-template-columns: 1fr; gap: 5px; padding: 7px; margin-bottom: 9px; border-radius: 16px; overflow: visible; }
+  .search-world-tabs__prompt { padding: 0 6px; font-size: .72rem; }
+  .search-world-tabs__options { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 3px; }
+  .search-world-tabs a { min-height: 43px; gap: 5px; padding: 5px 3px; font-size: .73rem; }
+  .search-world-tabs a .world-mark { width: 10px; height: 10px; box-shadow: 0 0 0 3px rgba(18,151,166,.07); }
   .world-hero { padding: 55px 0 50px; }
   .world-hero h1 { font-size: 2.55rem; }
   .world-hero > .shell > p { font-size: 1rem; }
@@ -3384,7 +3388,7 @@ body:has(.cookie-card) .world-dock { bottom: 118px; }
   h2 { font-size: 1.75rem; }
   .home-hero h1 { font-size: 2.25rem; }
   .home-hero__content > p { font-size: 1rem; }
-  .world-dock { right: 12px; bottom: 12px; }
+  .world-dock { right: auto; left: 12px; bottom: 12px; }
   body:has(.cookie-card) .world-dock { bottom: 215px; }
   .world-dock > button { min-width: 154px; min-height: 54px; }
   .world-dock__panel { width: calc(100vw - 24px); }
