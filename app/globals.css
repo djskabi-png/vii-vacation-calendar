@@ -2866,6 +2866,8 @@ h3 { font-size: 1.18rem; }
 .hero-orb--one { width: 200px; height: 200px; inset-inline-end: -40px; top: 80px; background: #a7e3e7; }
 .hero-orb--two { width: 100px; height: 100px; inset-inline-start: 8%; bottom: 40px; background: #83bfe9; }
 .search-box { position: relative; z-index: 5; display: grid; grid-template-columns: 1.05fr .95fr .85fr auto; max-width: 1040px; margin: auto; background: white; border: 1px solid rgba(8,126,139,.17); border-radius: 20px; padding: 7px; box-shadow: var(--shadow); text-align: right; }
+.search-box--hourly { grid-template-columns: minmax(0,1fr) auto; max-width: 720px; }
+.search-box--hourly .search-field { border-inline-end: 0; }
 .search-field-wrap { position: relative; min-width: 0; }
 .search-field { width: 100%; min-height: 70px; padding: 9px 18px; display: flex; align-items: center; gap: 12px; border: 0; border-inline-end: 1px solid var(--line); background: transparent; text-align: right; cursor: pointer; color: var(--ink); }
 .search-field svg { color: var(--teal); flex: 0 0 auto; }
@@ -3027,6 +3029,26 @@ body:has(.cookie-card) .world-dock { bottom: 118px; }
 .world-page--activities .world-hero { background: radial-gradient(circle at 14% 12%, rgba(34,153,192,.18), transparent 28%), linear-gradient(145deg,#f5fbfd,#edf7f5); }
 .source-note { max-width: 370px; margin: 0; color: var(--ink-soft); font-size: .82rem; text-align: left; }
 .discovery-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 22px; }
+.hourly-results { display: grid; gap: 28px; }
+.hourly-results__toolbar { display: grid; gap: 18px; padding: 22px; margin-bottom: 4px; background: #fffaf5; border: 1px solid rgba(230,139,47,.24); border-radius: 22px; }
+.hourly-results__heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+.hourly-results__heading strong { font-size: 1.05rem; color: var(--ink); }
+.hourly-results__filters { display: grid; grid-template-columns: minmax(170px,.8fr) minmax(170px,.8fr) minmax(300px,1.6fr) auto; align-items: end; gap: 14px; }
+.hourly-results__filters > label { display: grid; gap: 7px; color: var(--ink-soft); font-size: .86rem; font-weight: 700; }
+.hourly-results__filters select { width: 100%; min-height: 46px; padding: 0 12px; border: 1px solid var(--line); border-radius: 12px; background: white; color: var(--ink); font: inherit; }
+.hourly-results__filters fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
+.hourly-results__filters legend { margin-bottom: 7px; color: var(--ink-soft); font-size: .86rem; font-weight: 700; }
+.hourly-results__filters fieldset > div { display: flex; flex-wrap: wrap; gap: 7px; }
+.hourly-results__filters fieldset label { position: relative; }
+.hourly-results__filters fieldset input { position: absolute; opacity: 0; pointer-events: none; }
+.hourly-results__filters fieldset span { min-height: 46px; padding: 0 13px; display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px; background: white; color: var(--ink-soft); font-weight: 700; cursor: pointer; }
+.hourly-results__filters fieldset label.selected span { border-color: var(--teal); background: var(--teal); color: white; }
+.hourly-results__filters fieldset input:focus-visible + span { outline: 3px solid rgba(0,145,158,.28); outline-offset: 2px; }
+.hourly-results__reset { min-height: 46px; padding: 0 14px; border: 0; background: transparent; color: var(--teal-dark); font-weight: 800; cursor: pointer; }
+.hourly-results__reset:disabled { color: var(--ink-soft); opacity: .55; cursor: default; }
+.hourly-results__empty { padding: 40px 24px; text-align: center; border: 1px dashed var(--line); border-radius: 22px; background: var(--surface); }
+.hourly-results__empty strong { display: block; margin-bottom: 8px; font-size: 1.2rem; }
+.hourly-results__empty p { margin-bottom: 18px; color: var(--ink-soft); }
 .property-complements { background: linear-gradient(180deg,#fff 0%,#f4fbfc 100%); }
 .property-complements__note { max-width: 760px; margin: -8px 0 24px; color: var(--ink-soft); line-height: 1.75; }
 .discovery-grid--compact .discovery-card__visual { aspect-ratio: 16 / 10; }
@@ -3286,6 +3308,7 @@ body:has(.cookie-card) .world-dock { bottom: 118px; }
   .home-hero { min-height: auto; padding: 55px 0; }
   .home-hero h1 { font-size: 2.55rem; }
   .search-box { grid-template-columns: 1fr; gap: 5px; border-radius: 18px; }
+  .search-box--hourly { grid-template-columns: 1fr auto; }
   .search-world-tabs { width: calc(100% - 10px); overflow-x: auto; grid-template-columns: repeat(4,minmax(105px,1fr)); justify-content: start; scrollbar-width: none; }
   .search-world-tabs a { min-height: 49px; padding-inline: 9px; font-size: .78rem; }
   .world-hero { padding: 55px 0 50px; }
@@ -3295,6 +3318,11 @@ body:has(.cookie-card) .world-dock { bottom: 118px; }
   .discovery-detail__media { min-height: 360px; order: -1; }
   .discovery-detail__media img { height: 360px; }
   .search-field { min-height: 62px; border: 0; border-bottom: 1px solid var(--line); }
+  .search-box--hourly .search-field { border-bottom: 0; }
+  .hourly-results__heading { align-items: flex-start; flex-direction: column; gap: 5px; }
+  .hourly-results__filters { grid-template-columns: 1fr 1fr; }
+  .hourly-results__filters fieldset { grid-column: 1 / -1; }
+  .hourly-results__reset { grid-column: 1 / -1; justify-self: start; }
   .search-submit { min-height: 56px; }
   .search-popover { position: fixed; inset-inline: 14px; top: auto; bottom: 14px; min-width: 0; }
   .section { padding-block: 60px; }
@@ -3363,6 +3391,11 @@ body:has(.cookie-card) .world-dock { bottom: 118px; }
   .world-hero h1 { font-size: 2.25rem; }
   .source-note { max-width: none; text-align: right; }
   .discovery-grid { grid-template-columns: 1fr; }
+  .search-box--hourly { grid-template-columns: 1fr; }
+  .search-box--hourly .search-submit { width: 100%; }
+  .hourly-results__toolbar { padding: 18px; }
+  .hourly-results__filters { grid-template-columns: 1fr; }
+  .hourly-results__filters fieldset, .hourly-results__reset { grid-column: auto; }
   .discovery-card__visual, .discovery-card__placeholder { min-height: 210px; }
   .discovery-card__visual img { height: 210px; }
   .discovery-card p { min-height: 0; }

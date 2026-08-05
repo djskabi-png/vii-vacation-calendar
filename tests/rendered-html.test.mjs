@@ -79,6 +79,18 @@ test("removed places stay out of the public catalog and magazine", async () => {
   assert.equal(removedResponse.status, 404);
 });
 
+test("hourly search starts with location and exposes filters only with the results", async () => {
+  const response = await render("/hourly?location=מרכז");
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /חיפוש חדרים לפי שעה/);
+  assert.match(html, /עיר או אזור/);
+  assert.match(html, /סינון התוצאות/);
+  assert.match(html, /מחיר התחלתי עד/);
+  assert.match(html, /כניסה עצמאית/);
+  assert.doesNotMatch(html, /בחרו תאריכים/);
+});
+
 test("lead proxy handles bot submissions locally without contacting the lead system", async () => {
   const response = await render("/api/leads", {
     method: "POST",

@@ -12,6 +12,7 @@ export type SearchMode = "vacation" | "events" | "spa" | "hourly";
 
 export function SearchBox({ mode = "vacation", compact = false, showWorlds = false }: { mode?: SearchMode; compact?: boolean; showWorlds?: boolean }) {
   const router = useRouter();
+  const isHourly = mode === "hourly";
   const places = useMemo(() => {
     const source = mode === "events" ? eventPlaces : mode === "spa" ? spaPlaces : mode === "hourly" ? hourlyPlaces : properties;
     return ["כל הארץ", ...Array.from(new Set(source.flatMap((item) => [item.area, item.location])))];
@@ -25,6 +26,10 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
 
   function search() {
     const route = mode === "events" ? "/events/search/" : mode === "spa" ? "/spas/" : mode === "hourly" ? "/hourly/" : "/search/";
+    if (isHourly) {
+      router.push(`${route}?location=${encodeURIComponent(locationValue)}`);
+      return;
+    }
     router.push(`${route}?location=${encodeURIComponent(locationValue)}&dates=${encodeURIComponent(dates)}&guests=${guests}`);
   }
 
@@ -35,19 +40,19 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
   return (
     <>
       {showWorlds && !compact && <SearchWorldTabs active={activeWorld} />}
-      <div className={`search-box ${compact ? "compact" : ""}`} role="search" aria-label={mode === "events" ? "חיפוש מקום לאירוע" : "חיפוש חופשה"}>
+      <div className={`search-box ${compact ? "compact" : ""} ${isHourly ? "search-box--hourly" : ""}`} role="search" aria-label={mode === "events" ? "חיפוש מקום לאירוע" : isHourly ? "חיפוש חדרים לפי שעה" : "חיפוש חופשה"}>
         <div className="search-field-wrap">
-          <button type="button" className="search-field" aria-expanded={locationOpen} onClick={() => { setLocationOpen((value) => !value); setGuestOpen(false); }}><PinIcon /><span><small>{mode === "events" ? "אזור או מקום" : "לאן נוסעים"}</small><strong>{locationValue}</strong></span></button>
+          <button type="button" className="search-field" aria-expanded={locationOpen} onClick={() => { setLocationOpen((value) => !value); setGuestOpen(false); }}><PinIcon /><span><small>{mode === "events" ? "אזור או מקום" : isHourly ? "עיר או אזור" : "לאן נוסעים"}</small><strong>{locationValue}</strong></span></button>
           {locationOpen && <div className="search-popover location-list">{places.map((place) => <button type="button" key={place} className={place === locationValue ? "selected" : ""} onClick={() => { setLocationValue(place); setLocationOpen(false); }}>{place}</button>)}</div>}
         </div>
-        <button type="button" className="search-field" onClick={() => { setCalendarOpen(true); setLocationOpen(false); setGuestOpen(false); }}><CalendarIcon /><span><small>{mode === "events" ? "מתי חוגגים" : "מתי יוצאים"}</small><strong>{dates}</strong></span></button>
-        <div className="search-field-wrap">
+        {!isHourly && <button type="button" className="search-field" onClick={() => { setCalendarOpen(true); setLocationOpen(false); setGuestOpen(false); }}><CalendarIcon /><span><small>{mode === "events" ? "מתי חוגגים" : "מתי יוצאים"}</small><strong>{dates}</strong></span></button>}
+        {!isHourly && <div className="search-field-wrap">
           <button type="button" className="search-field" aria-expanded={guestOpen} onClick={() => { setGuestOpen((value) => !value); setLocationOpen(false); }}><PeopleIcon /><span><small>{peopleLabel}</small><strong>{peopleValue}</strong></span></button>
           {guestOpen && <div className="search-popover guest-picker"><strong>{mode === "events" ? "משתתפים" : mode === "spa" ? "אורחים" : "אורחים"}</strong><div><button type="button" disabled={guests <= (mode === "events" ? 0 : 1)} onClick={() => setGuests((value) => value - (mode === "events" ? 10 : 1))}>−</button><span>{mode === "events" && guests === 0 ? "לא נבחר" : guests}</span><button type="button" disabled={mode === "spa" && guests >= 2} onClick={() => setGuests((value) => value + (mode === "events" ? 10 : 1))}>+</button></div><button type="button" className="popover-done" onClick={() => setGuestOpen(false)}>סיום</button></div>}
-        </div>
+        </div>}
         <button type="button" className="search-submit" onClick={search}><SearchIcon /><span>חיפוש</span></button>
       </div>
-      <CalendarDemo mode="home" open={calendarOpen} onClose={() => setCalendarOpen(false)} onConfirm={(result) => setDates(result.summary)} />
+      {!isHourly && <CalendarDemo mode="home" open={calendarOpen} onClose={() => setCalendarOpen(false)} onConfirm={(result) => setDates(result.summary)} />}
     </>
   );
 }
