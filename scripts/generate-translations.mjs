@@ -3,7 +3,15 @@ import { dirname, resolve } from "node:path";
 
 const origin = process.argv[2] || "https://vii.spaplus.co/";
 const output = resolve(process.argv[3] || "app/i18n/translations.generated.json");
-const queue = [new URL("/", origin)];
+const providerDetailIds = [
+  "maor-natan", "nissan-mukhtar", "dj-kfir-w", "liran-elias-dj", "photoshot",
+  "baboom", "balloona", "bp-cocktails", "onyx-bar", "zen-events",
+];
+const queue = [
+  new URL("/", origin),
+  new URL("/providers", origin),
+  ...providerDetailIds.map((id) => new URL(`/discover/place?world=providers&id=${encodeURIComponent(id)}`, origin)),
+];
 const visited = new Set();
 const phrases = new Set([
   "שפה", "עברית", "אנגלית", "רוסית", "נגישות מלאה ומאומתת", "סינונים פעילים", "ניקוי הכל",
@@ -23,7 +31,7 @@ function addPhrase(value) {
   if (/[\u0590-\u05ff]/.test(normalized) && normalized.length <= 700) phrases.add(normalized);
 }
 
-while (queue.length && visited.size < 180) {
+while (queue.length && visited.size < 260) {
   const url = queue.shift();
   const key = `${url.pathname}${url.search}`;
   if (visited.has(key)) continue;
