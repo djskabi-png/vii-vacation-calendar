@@ -29,6 +29,11 @@ export function LeadIntakeForm({ purpose }: { purpose: Purpose }) {
     setState("submitting");
     const form = event.currentTarget;
     const values = new FormData(form);
+    const requestContext = new URLSearchParams(window.location.search);
+    const requestedWorld = requestContext.get("world");
+    const requestedPlace = requestContext.get("place");
+    const requestedPackage = requestContext.get("package");
+    const contextSuffix = requestedPlace ? `\n\nמקום מבוקש: ${requestedPlace}${requestedPackage ? `, חבילה: ${requestedPackage}` : ""}` : "";
     const id = submissionId || crypto.randomUUID();
     if (!submissionId) setSubmissionId(id);
 
@@ -39,14 +44,14 @@ export function LeadIntakeForm({ purpose }: { purpose: Purpose }) {
         body: JSON.stringify({
           submissionId: id,
           purpose,
-          world: values.get("world") || "general",
+          world: requestedWorld || values.get("world") || "general",
           name: values.get("name"),
           phone: values.get("phone"),
           email: values.get("email"),
           organization: values.get("organization"),
           location: values.get("location"),
           website: values.get("website"),
-          message: values.get("message"),
+          message: `${values.get("message") || ""}${contextSuffix}`,
           honey: values.get("company_site"),
           privacyAccepted: values.get("privacy") === "on",
           sourcePage: window.location.href,

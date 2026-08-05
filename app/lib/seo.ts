@@ -203,7 +203,6 @@ export function discoverySchema(item: DiscoveryItem) {
     ...(item.image ? { image: absoluteUrl(item.image) } : {}),
     address: address(item.location, item.area),
     amenityFeature: amenityFeature(item.features),
-    ...(item.sourceUrl ? { isBasedOn: item.sourceUrl } : {}),
   };
 }
 
