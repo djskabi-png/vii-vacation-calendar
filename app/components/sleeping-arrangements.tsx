@@ -45,7 +45,7 @@ export function SleepingArrangements({ placeName, arrangements }: Props) {
           <article className="sleeping-card" key={arrangement.name}>
             <img src={arrangement.galleryImage} alt={`תמונה מתוך גלריית הפנים של ${placeName}`} loading="lazy" />
             <div className="sleeping-card__body">
-              <span>{arrangement.floor || "הקומה לא צוינה במקור"}</span>
+              <span>{arrangement.floor || "הקומה לא צוינה בפרטי המקום"}</span>
               <h3>{arrangement.name}</h3>
               <strong>{bedDescription(arrangement)}</strong>
               <div className="sleeping-card__amenities" aria-label={`אבזור ${arrangement.name}`}>
@@ -56,7 +56,7 @@ export function SleepingArrangements({ placeName, arrangements }: Props) {
         ))}
       </div>
 
-      <p className="sleeping-section__disclosure">התמונות נלקחו מגלריית הפנים של המקום. בעמוד המקור הן אינן משויכות לחדר ממוספר מסוים, ולכן הן מוצגות כתמונות אווירה בלבד.</p>
+      <p className="sleeping-section__disclosure">התמונות מוצגות מתוך גלריית הפנים ואינן משויכות לחדר ממוספר מסוים, לכן הן משמשות כתמונות אווירה בלבד.</p>
     </section>
   );
 }

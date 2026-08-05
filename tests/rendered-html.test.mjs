@@ -69,6 +69,16 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(business, /property\.roomOptions\.map/);
   assert.match(business, /חדרים ויחידות/);
   assert.match(business, /property\.sleepingArrangements/);
+  assert.doesNotMatch(business, /href=\{property\.liveUrl\}/);
+  assert.doesNotMatch(eventPlace, /href=\{place\.liveUrl\}/);
+  assert.doesNotMatch(business, /לכל פרטי המקום|לצפייה בעמוד המקור/);
+  assert.doesNotMatch(eventPlace, /מעבר לעמוד המקור|צפייה בפרטים באתר הקיים/);
+  const legalPages = (await Promise.all([
+    readFile(new URL("../app/legal/cancellation/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/legal/privacy/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/legal/terms/page.tsx", import.meta.url), "utf8"),
+  ])).join("\n");
+  assert.doesNotMatch(legalPages, /href=["']https:\/\/www\.vii\.co\.il/);
   assert.match(sleeping, /איפה ישנים\?/);
   assert.match(sleeping, /תמונות אווירה בלבד/);
   assert.equal((data.match(/name: "חדר שינה [1-9]"/g) || []).length, 9);

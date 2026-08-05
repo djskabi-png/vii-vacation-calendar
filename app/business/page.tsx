@@ -109,7 +109,7 @@ export default function BusinessPage() {
               <div><b>{property.features.length}</b><span>מאפיינים מרכזיים</span></div>
             </section>
 
-            <section id="about"><span className="eyebrow">מידע מאומת מעמוד המקור</span><h2>על {property.name}</h2><p>{property.description}</p><div className="feature-chips audience-chips">{property.audiences.map((audience) => <span key={audience}>מתאים ל{audience}</span>)}</div></section>
+            <section id="about"><span className="eyebrow">כל מה שחשוב לדעת</span><h2>על {property.name}</h2><p>{property.description}</p><div className="feature-chips audience-chips">{property.audiences.map((audience) => <span key={audience}>מתאים ל{audience}</span>)}</div></section>
 
             <section id="features" className="feature-section"><h2>מה מחכה לכם במקום</h2><div className="feature-list">{property.features.map((feature) => <span key={feature}>✓ {feature}</span>)}</div><button className="button subtle" type="button" onClick={() => setAllFeaturesOpen(true)}>כל המידע על המתקנים</button></section>
 
@@ -126,7 +126,7 @@ export default function BusinessPage() {
                     <div className="room-card__title"><div><span>{property.type}</span><h3>{room.name}</h3></div><b>עד {room.guests} אורחים</b></div>
                     <div className="room-card__facts"><span>{room.bedrooms === 1 ? "חדר שינה אחד" : `${room.bedrooms} חדרי שינה`}</span>{room.area ? <span>{room.area} מ״ר</span> : null}</div>
                     <div className="room-card__features">{room.features.map((feature) => <span key={feature}>{feature}</span>)}</div>
-                    <div className="room-card__actions"><button className="button primary" type="button" onClick={() => setCalendarOpen(true)}>בדיקת זמינות</button><a href={property.liveUrl} target="_blank" rel="noreferrer">לכל פרטי המקום</a></div>
+                    <div className="room-card__actions"><button className="button primary" type="button" onClick={() => setCalendarOpen(true)}>בדיקת זמינות</button></div>
                   </div>
                 </article>)}
               </div>
@@ -140,7 +140,7 @@ export default function BusinessPage() {
 
             <section id="faq" className="faq-section"><span className="eyebrow">כל מה שחשוב לפני שמזמינים</span><h2>שאלות ותשובות</h2>{propertyFaq.map((item, index) => <article key={item.question} className={openFaq === index ? "open" : ""}><button type="button" aria-expanded={openFaq === index} onClick={() => setOpenFaq(openFaq === index ? null : index)}><span>{item.question}</span><b>{openFaq === index ? "−" : "+"}</b></button>{openFaq === index && <p>{item.answer}</p>}</article>)}</section>
 
-            <section id="policies" className="policies-section"><span className="eyebrow">חשוב לדעת</span><h2>כללים ותנאי הזמנה</h2><div><article><b>כניסה ויציאה</b><p>שעות הכניסה והיציאה יוצגו לפי המקום והתאריך במנוע ההזמנות.</p></article><article><b>מחיר ותשלום</b><p>המחיר הסופי תלוי בתאריכים, בהרכב וביחידה שנבחרה.</p></article><article><b>ביטול ושינויים</b><p>התנאים המחייבים יוצגו לפני השלמת ההזמנה.</p></article><article><b>מידע מאומת</b><p>הנתונים והתמונות בעמוד זה נלקחו מעמוד המקום באתר הקיים.</p></article></div><a href={property.liveUrl} target="_blank" rel="noreferrer">לצפייה בעמוד המקור</a></section>
+            <section id="policies" className="policies-section"><span className="eyebrow">חשוב לדעת</span><h2>כללים ותנאי הזמנה</h2><div><article><b>כניסה ויציאה</b><p>שעות הכניסה והיציאה יוצגו לפי המקום והתאריך במנוע ההזמנות.</p></article><article><b>מחיר ותשלום</b><p>המחיר הסופי תלוי בתאריכים, בהרכב וביחידה שנבחרה.</p></article><article><b>ביטול ושינויים</b><p>התנאים המחייבים יוצגו לפני השלמת ההזמנה.</p></article><article><b>מידע על המקום</b><p>פרטי המקום והתמונות נבדקו כחלק מהכנת העמוד.</p></article></div></section>
           </div>
 
           <aside className="booking-card"><span className="eyebrow">בדיקת זמינות</span><h2>{property.scenario === "single" ? "כל המקום בשבילכם" : "בוחרים תאריך ויחידה"}</h2><button type="button" className="date-choice" onClick={() => setCalendarOpen(true)}><CalendarIcon /><span><small>תאריכי השהייה</small><strong>{dates}</strong></span></button><label className="booking-guests">כמות אורחים<input type="number" min="1" max={property.guests} defaultValue={2} /></label><div className="booking-facts"><span>עד {property.guests} אורחים</span>{property.bedrooms && <span>{property.bedrooms} חדרי שינה</span>}</div><button className="button primary wide" type="button" onClick={() => setCalendarOpen(true)}>בחירת תאריך</button><small>זמינות ומחיר סופי יחוברו למערכת הניהול הקיימת.</small></aside>
@@ -164,7 +164,7 @@ export default function BusinessPage() {
 
       {galleryOpen && <div className="gallery-overlay" onMouseDown={(event) => event.target === event.currentTarget && setGalleryOpen(false)}><section role="dialog" aria-modal="true" aria-label={`תמונות ${property.name}`}><header><h2>{property.name}</h2><button type="button" onClick={() => setGalleryOpen(false)}>סגירה</button></header><div>{property.images.map((image, index) => <img key={image} src={image} alt={`${property.name}, תמונה ${index + 1}`} />)}</div></section></div>}
 
-      {allFeaturesOpen && <div className="simple-modal" onMouseDown={(event) => event.target === event.currentTarget && setAllFeaturesOpen(false)}><section role="dialog" aria-modal="true" aria-labelledby="features-title"><header><h2 id="features-title">המתקנים של {property.name}</h2><button type="button" onClick={() => setAllFeaturesOpen(false)}>סגירה</button></header><div className="feature-list modal-features">{property.features.map((feature) => <span key={feature}>✓ {feature}</span>)}</div><p>המידע מבוסס על עמוד המקור של המקום באתר הקיים.</p></section></div>}
+      {allFeaturesOpen && <div className="simple-modal" onMouseDown={(event) => event.target === event.currentTarget && setAllFeaturesOpen(false)}><section role="dialog" aria-modal="true" aria-labelledby="features-title"><header><h2 id="features-title">המתקנים של {property.name}</h2><button type="button" onClick={() => setAllFeaturesOpen(false)}>סגירה</button></header><div className="feature-list modal-features">{property.features.map((feature) => <span key={feature}>✓ {feature}</span>)}</div><p>המידע המוצג נבדק כחלק מהכנת עמוד המקום.</p></section></div>}
     </PageShell>
   );
 }
