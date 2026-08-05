@@ -9,7 +9,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   return {
     title: article.title,
     description: article.excerpt,
-    alternates: { canonical: `/guides/${article.slug}/` },
+    alternates: { canonical: `/guides/${article.slug}` },
     openGraph: { title: article.title, description: article.excerpt, images: [{ url: article.image }] },
   };
 }

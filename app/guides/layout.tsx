@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "מגזין וי, רעיונות ומדריכים לחופשה",
   description: "כתבות עומק, מדריכי הזמנה, רעיונות לטיולים, ספא, אירועים וחופשות ברחבי הארץ.",
-  alternates: { canonical: "/guides/" },
+  alternates: { canonical: "/guides" },
   openGraph: {
     title: "מגזין וי, החופשה הטובה מתחילה ברעיון טוב",
     description: "כתבות עומק ורעיונות שימושיים לחופשה הבאה.",

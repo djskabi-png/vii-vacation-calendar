@@ -110,7 +110,7 @@ export function LeadIntakeForm({ purpose }: { purpose: Purpose }) {
       {isJoin ? <label className="form-wide">אתר או עמוד עסקי, לא חובה<input name="website" type="url" inputMode="url" placeholder="https://" /></label> : null}
       <label className="form-wide">{isJoin ? "ספרו לנו בקצרה על העסק" : "איך נוכל לעזור?"}<textarea required name="message" rows={5} minLength={5} maxLength={3000} /></label>
       <label className="form-honey" aria-hidden="true">אתר החברה<input name="company_site" tabIndex={-1} autoComplete="off" /></label>
-      <label className="consent form-wide"><input required name="privacy" type="checkbox" /> <span>קראתי את <Link href="/legal/privacy/">מדיניות הפרטיות</Link> ואני מאשר או מאשרת שימוש בפרטים לצורך טיפול בפנייה.</span></label>
+      <label className="consent form-wide"><input required name="privacy" type="checkbox" /> <span>קראתי את <Link href="/legal/privacy">מדיניות הפרטיות</Link> ואני מאשר או מאשרת שימוש בפרטים לצורך טיפול בפנייה.</span></label>
       <button className="button primary form-wide" type="submit" disabled={state === "submitting"}>{state === "submitting" ? "שולחים את הפרטים..." : isJoin ? "שליחת בקשת הצטרפות" : "שליחת הפנייה"}</button>
       {state === "error" ? <p className="form-error form-wide" role="alert">השליחה לא הושלמה. הפרטים נשארו בטופס ואפשר לנסות שוב.</p> : null}
     </form>

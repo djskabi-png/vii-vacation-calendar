@@ -81,13 +81,14 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
         </div>
 
         <div className="menu-panel__secondary">
-          <Link href="/favorites/" onClick={closeMenu}><HeartIcon /><span>מקומות שאהבתי</span></Link>
-          <Link href="/contact/" onClick={closeMenu}><ContactIcon /><span>יצירת קשר</span></Link>
-          <Link href="/join/" onClick={closeMenu}><ContactIcon /><span>הצטרפות לאתר</span></Link>
-          <Link href="/destinations/" onClick={closeMenu}><PinIcon /><span>יעדים</span></Link>
-          <Link href="/guides/" onClick={closeMenu}><InfoIcon /><span>מגזין ומדריכים</span></Link>
-          <Link href="/trails/" onClick={closeMenu}><PinIcon /><span>מסלולי טיול עצמאיים</span></Link>
-          <Link href="/accessibility/" onClick={closeMenu}><AccessibilityIcon /><span>הצהרת נגישות</span></Link>
+          <Link href="/favorites" onClick={closeMenu}><HeartIcon /><span>מקומות שאהבתי</span></Link>
+          <Link href="/contact" onClick={closeMenu}><ContactIcon /><span>יצירת קשר</span></Link>
+          <Link href="/join" onClick={closeMenu}><ContactIcon /><span>הצטרפות לאתר</span></Link>
+          <Link href="/destinations" onClick={closeMenu}><PinIcon /><span>יעדים</span></Link>
+          <Link href="/guides" onClick={closeMenu}><InfoIcon /><span>מגזין ומדריכים</span></Link>
+          <Link href="/questions" onClick={closeMenu}><InfoIcon /><span>שאלות ותשובות</span></Link>
+          <Link href="/trails" onClick={closeMenu}><PinIcon /><span>מסלולי טיול עצמאיים</span></Link>
+          <Link href="/accessibility" onClick={closeMenu}><AccessibilityIcon /><span>הצהרת נגישות</span></Link>
         </div>
 
         <div className="menu-panel__footer">
@@ -117,8 +118,8 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
           </nav>
 
           <div className="header-actions">
-            <Link className="magazine-header-link" href="/guides/"><span>חדש</span>מגזין</Link>
-            <Link className="icon-button" href="/favorites/" aria-label="מקומות שאהבתי"><HeartIcon /></Link>
+            <Link className="magazine-header-link" href="/guides"><span>חדש</span>מגזין</Link>
+            <Link className="icon-button" href="/favorites" aria-label="מקומות שאהבתי"><HeartIcon /></Link>
             <LanguageSwitcher compact />
             <button ref={menuButtonRef} className="menu-button" type="button" aria-expanded={menuOpen} aria-haspopup="dialog" aria-label="פתיחת תפריט" onClick={() => setMenuOpen(true)}><MenuIcon /><span>תפריט</span></button>
           </div>

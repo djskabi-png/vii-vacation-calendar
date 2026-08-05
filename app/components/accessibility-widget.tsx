@@ -80,7 +80,7 @@ export function AccessibilityWidget() {
       <button type="button" aria-pressed={settings.visibleFocus} onClick={() => toggle("visibleFocus")}><span>מיקוד בולט</span><strong>{settings.visibleFocus ? "פעיל" : "כבוי"}</strong></button>
       <button type="button" aria-pressed={settings.largeCursor} onClick={() => toggle("largeCursor")}><span>סמן גדול</span><strong>{settings.largeCursor ? "פעיל" : "כבוי"}</strong></button>
     </div>
-    <footer><button type="button" className="button subtle" onClick={() => setSettings(defaults)}>איפוס כל ההתאמות</button><Link href="/accessibility/" onClick={close}>להצהרת הנגישות המלאה</Link></footer>
+    <footer><button type="button" className="button subtle" onClick={() => setSettings(defaults)}>איפוס כל ההתאמות</button><Link href="/accessibility" onClick={close}>להצהרת הנגישות המלאה</Link></footer>
   </section></div>, document.body) : null;
 
   return <><button ref={openButton} className="icon-button accessibility-trigger" type="button" aria-label="פתיחת כלי הנגישות" aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen(true)}><span aria-hidden="true">♿</span></button>{panel}</>;

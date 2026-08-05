@@ -27,11 +27,11 @@ export type DiscoveryItem = {
 
 export const worlds: WorldDefinition[] = [
   { id: "vacation", label: "עולם הנופש", shortLabel: "נופש", description: "וילות, סוויטות ומקומות אירוח", href: "/" },
-  { id: "events", label: "עולם האירועים", shortLabel: "אירועים", description: "לופטים ומתחמים לכל חגיגה", href: "/events/" },
-  { id: "spa", label: "עולם הספא", shortLabel: "ספא", description: "טיפולים, חבילות וימי פינוק", href: "/spas/" },
-  { id: "hourly", label: "חדרים לכמה שעות", shortLabel: "לפי שעה", description: "שהייה קצרה, פרטית וגמישה", href: "/hourly/" },
-  { id: "providers", label: "עולם הספקים", shortLabel: "ספקים", description: "שפים, תקליטנים ותוכן לאירוח", href: "/providers/" },
-  { id: "activities", label: "מה עושים בסביבה", shortLabel: "מה עושים", description: "מסלולים, אוכל וחוויות לידכם", href: "/activities/" },
+  { id: "events", label: "עולם האירועים", shortLabel: "אירועים", description: "לופטים ומתחמים לכל חגיגה", href: "/events" },
+  { id: "spa", label: "עולם הספא", shortLabel: "ספא", description: "טיפולים, חבילות וימי פינוק", href: "/spas" },
+  { id: "hourly", label: "חדרים לכמה שעות", shortLabel: "לפי שעה", description: "שהייה קצרה, פרטית וגמישה", href: "/hourly" },
+  { id: "providers", label: "עולם הספקים", shortLabel: "ספקים", description: "שפים, תקליטנים ותוכן לאירוח", href: "/providers" },
+  { id: "activities", label: "מה עושים בסביבה", shortLabel: "מה עושים", description: "מסלולים, אוכל וחוויות לידכם", href: "/activities" },
 ];
 
 export const spaPlaces: DiscoveryItem[] = [

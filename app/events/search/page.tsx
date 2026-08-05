@@ -47,6 +47,7 @@ export default function EventSearchPage() {
     <PageShell variant="events">
       <main id="main-content" className="results-page events-results-page">
         <div className="results-search shell"><SearchBox mode="events" compact /></div>
+        <div className="shell breadcrumbs"><Link href="/">ראשי</Link><span>/</span><Link href="/events">אירועים</Link><span>/</span><span>מקומות לאירועים</span></div>
         <section className="shell results-heading"><div><span className="eyebrow">אירוע שמרגיש בדיוק שלכם</span><h1>מקומות לאירועים</h1><p>{filtered.length} מתוך {eventPlaces.length} מקומות מאומתים מוצגים</p></div><button className={`button map-button ${mapOpen ? "active" : ""}`} type="button" onClick={() => setMapOpen((value) => !value)}><PinIcon />{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</button></section>
         <div className="shell event-results-layout">
           <aside className={`filter-panel ${filtersOpen ? "open" : ""}`}><div className="filter-head"><h2>סינון</h2><button type="button" onClick={() => setFiltersOpen(false)} aria-label="סגירה"><CloseIcon /></button></div>
@@ -61,7 +62,7 @@ export default function EventSearchPage() {
           </aside>
           <section className="event-list">
             <div className="results-toolbar"><button type="button" className="button mobile-filter" onClick={() => setFiltersOpen(true)}>סינון</button><span>{filtered.length} תוצאות</span><label>מיון לפי <select value={sort} onChange={(event) => setSort(event.target.value)}><option value="recommended">מומלצים</option><option value="capacity">קיבולת גבוהה</option><option value="name">שם המקום</option></select></label></div>
-            {mapOpen ? <ListingMap listings={filtered} mode="events" autoLoad /> : filtered.map((place) => <article key={place.slug}><div className="event-card-gallery"><img src={place.image} alt={place.name} /><span>{place.images.length} תמונות</span></div><div><small>{place.type}</small><h2>{place.name}</h2><p><PinIcon />{place.location}, {place.area}</p><p>{place.description}</p><div className="feature-chips">{place.features.slice(0, 3).map((feature) => <span key={feature}>{feature}</span>)}</div><div className="event-capacity">עד {place.guests} אורחים</div><Link className="button primary" href={`/events/place/?id=${place.slug}`}>לפרטים על המקום</Link></div></article>)}
+            {mapOpen ? <ListingMap listings={filtered} mode="events" autoLoad /> : filtered.map((place) => <article key={place.slug}><div className="event-card-gallery"><img src={place.image} alt={place.name} /><span>{place.images.length} תמונות</span></div><div><small>{place.type}</small><h2>{place.name}</h2><p><PinIcon />{place.location}, {place.area}</p><p>{place.description}</p><div className="feature-chips">{place.features.slice(0, 3).map((feature) => <span key={feature}>{feature}</span>)}</div><div className="event-capacity">עד {place.guests} אורחים</div><Link className="button primary" href={`/events/place?id=${place.slug}`}>לפרטים על המקום</Link></div></article>)}
             {filtered.length === 0 && <div className="empty-state"><h2>לא נמצאה התאמה</h2><p>אפשר להפחית את כמות המשתתפים או להסיר סינון.</p><button className="button primary" type="button" onClick={reset}>ניקוי סינונים</button></div>}
           </section>
         </div>

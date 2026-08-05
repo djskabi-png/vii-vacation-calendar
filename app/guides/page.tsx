@@ -51,9 +51,9 @@ export default function GuidesPage() {
             <span className="eyebrow">בחירת המערכת</span>
             <h1>החופשה הטובה מתחילה ברעיון טוב</h1>
             <p>מדריכים שימושיים, מסלולים, אנשים ורגעים שיעזרו לכם לתכנן פחות וליהנות יותר.</p>
-            <Link className="button primary" href={`/guides/${featured.slug}/`}>לכתבה הראשית</Link>
+            <Link className="button primary" href={`/guides/${featured.slug}`}>לכתבה הראשית</Link>
           </div>
-          <Link className="magazine-feature__story" href={`/guides/${featured.slug}/`}>
+          <Link className="magazine-feature__story" href={`/guides/${featured.slug}`}>
             <img src={featured.image} alt={featured.imageAlt} />
             <span>{featured.category}</span>
             <div><small>{featured.readTime} דקות קריאה</small><h2>{featured.title}</h2><p>{featured.excerpt}</p></div>
@@ -69,8 +69,8 @@ export default function GuidesPage() {
       <section className="section shell magazine-feed">
         <div className="section-head"><div><span className="eyebrow">חדש במגזין</span><h2>{category === "הכל" ? "קוראים, שומרים ויוצאים לדרך" : category}</h2></div>{saved.length > 0 && <span className="magazine-saved-count"><HeartIcon filled />{saved.length} כתבות שמורות</span>}</div>
         {filtered.length ? <div className="magazine-grid">{filtered.map((article, index) => <article key={article.slug} className={index === 0 && category === "הכל" && !query ? "magazine-card magazine-card--wide" : "magazine-card"}>
-          <Link className="magazine-card__image" href={`/guides/${article.slug}/`}><img src={article.image} alt={article.imageAlt} /><span>{article.category}</span></Link>
-          <div className="magazine-card__body"><div className="magazine-card__meta"><span>{article.dateLabel}</span><span>{article.readTime} דקות קריאה</span></div><h3><Link href={`/guides/${article.slug}/`}>{article.title}</Link></h3><p>{article.excerpt}</p><div className="magazine-card__footer"><Link href={`/guides/${article.slug}/`}>לקריאת הכתבה</Link><button type="button" aria-label={saved.includes(article.slug) ? `הסרת ${article.title} מהשמורים` : `שמירת ${article.title}`} aria-pressed={saved.includes(article.slug)} onClick={() => toggleSaved(article.slug)}><HeartIcon filled={saved.includes(article.slug)} /></button></div></div>
+          <Link className="magazine-card__image" href={`/guides/${article.slug}`}><img src={article.image} alt={article.imageAlt} /><span>{article.category}</span></Link>
+          <div className="magazine-card__body"><div className="magazine-card__meta"><span>{article.dateLabel}</span><span>{article.readTime} דקות קריאה</span></div><h3><Link href={`/guides/${article.slug}`}>{article.title}</Link></h3><p>{article.excerpt}</p><div className="magazine-card__footer"><Link href={`/guides/${article.slug}`}>לקריאת הכתבה</Link><button type="button" aria-label={saved.includes(article.slug) ? `הסרת ${article.title} מהשמורים` : `שמירת ${article.title}`} aria-pressed={saved.includes(article.slug)} onClick={() => toggleSaved(article.slug)}><HeartIcon filled={saved.includes(article.slug)} /></button></div></div>
         </article>)}</div> : <div className="magazine-empty"><b>לא מצאנו כתבה מתאימה</b><p>נסו מילה אחרת או עברו לקטגוריה אחרת.</p><button className="button subtle" type="button" onClick={() => { setQuery(""); setCategory("הכל"); }}>איפוס החיפוש</button></div>}
       </section>
 
@@ -78,7 +78,7 @@ export default function GuidesPage() {
         <div className="shell magazine-quiz">
           <div><span className="eyebrow">מוצאים את הכתבה שלכם</span><h2>מה בא לכם מהחופשה הבאה?</h2><p>בחרו תחושה וניקח אתכם למדריך שמתאים להתחלה.</p></div>
           <div className="magazine-quiz__options">{quizOptions.map((option) => <button type="button" key={option.slug} className={quizResult?.slug === option.slug ? "active" : ""} onClick={() => setQuizResult(option)}><strong>{option.label}</strong><span>{option.note}</span></button>)}</div>
-          {quizResult && <div className="magazine-quiz__result" role="status"><span>מצאנו לכם התחלה טובה</span><strong>{magazineArticles.find((article) => article.slug === quizResult.slug)?.title}</strong><Link className="button primary" href={`/guides/${quizResult.slug}/`}>קחו אותי לכתבה</Link></div>}
+          {quizResult && <div className="magazine-quiz__result" role="status"><span>מצאנו לכם התחלה טובה</span><strong>{magazineArticles.find((article) => article.slug === quizResult.slug)?.title}</strong><Link className="button primary" href={`/guides/${quizResult.slug}`}>קחו אותי לכתבה</Link></div>}
         </div>
       </section>
 

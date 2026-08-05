@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageShell } from "../../components/page-shell";
 
-export const metadata: Metadata = { title: "ביטול הזמנה", description: "מידע על ביטול ושינוי הזמנות באתר וי פור ויקיישן.", alternates: { canonical: "/legal/cancellation/" } };
+export const metadata: Metadata = { title: "ביטול הזמנה", description: "מידע על ביטול ושינוי הזמנות באתר וי פור ויקיישן.", alternates: { canonical: "/legal/cancellation" } };
 
 export default function CancellationPage() {
   return <PageShell><main id="main-content"><article className="legal-page shell">
@@ -13,6 +13,6 @@ export default function CancellationPage() {
     <p>מומלץ להכין את מספר ההזמנה ולבדוק את התנאים שמופיעים באישור שקיבלתם.</p>
     <h2>צריכים עזרה?</h2>
     <p>אפשר לפנות אלינו עם שם המקום, תאריכי האירוח ומספר ההזמנה, ונעביר את הפרטים לבדיקה.</p>
-    <Link className="button primary" href="/contact/">יצירת קשר</Link>
+    <Link className="button primary" href="/contact">יצירת קשר</Link>
   </article></main></PageShell>;
 }

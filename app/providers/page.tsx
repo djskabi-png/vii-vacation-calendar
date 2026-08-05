@@ -5,7 +5,8 @@ import { providerProfiles } from "../data/world-data";
 export const metadata: Metadata = {
   title: "ספקים ונותני שירות לחופשה ולאירוע",
   description: "שפים פרטיים, תקליטנים, צילום, הפעלות ועיצוב שמגיעים עד מקום האירוח.",
-  alternates: { canonical: "/providers/" },
+  alternates: { canonical: "/providers" },
+  robots: { index: false, follow: true },
 };
 
 export default function ProvidersPage() {

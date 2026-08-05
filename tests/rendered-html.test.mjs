@@ -179,7 +179,7 @@ test("footer destinations and lead forms have real destinations", async () => {
     readFile(new URL("../app/join/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/cookie-consent.tsx", import.meta.url), "utf8"),
   ]);
-  for (const href of ["/search/", "/events/", "/spas/", "/hourly/", "/providers/", "/activities/", "/trails/", "/join/", "/contact/", "/guides/", "/accessibility/", "/legal/terms/", "/legal/privacy/", "/legal/cancellation/"]) {
+  for (const href of ["/search", "/events", "/spas", "/hourly", "/providers", "/activities", "/trails", "/join", "/contact", "/guides", "/accessibility", "/legal/terms", "/legal/privacy", "/legal/cancellation"]) {
     assert.match(footer, new RegExp(`href=["']${href.replaceAll("/", "\\/")}`));
   }
   assert.match(form, /const endpoint = "\/api\/leads\/"/);
@@ -224,8 +224,8 @@ test("independent trails are sourced, filterable and connected to stays", async 
   assert.match(home, /מסלולים ליד החופשה/);
   assert.match(business, /nearbyTrails/);
   assert.match(business, /מסלולים באזור/);
-  assert.match(header, /href="\/trails\/"/);
-  assert.match(footer, /href="\/trails\/"/);
+  assert.match(header, /href="\/trails"/);
+  assert.match(footer, /href="\/trails"/);
   assert.match(styles, /\.trail-filters/);
   assert.match(styles, /\.trail-detail__layout/);
 });
@@ -274,7 +274,7 @@ test("includes the accessibility system and honest place disclosures", async () 
   assert.match(listing, /האם המקום נגיש/);
   assert.doesNotMatch(header, /<AccessibilityWidget/);
   assert.match(header, /<LanguageSwitcher compact/);
-  assert.match(footer, /href="\/accessibility\/"/);
+  assert.match(footer, /href="\/accessibility"/);
   assert.doesNotMatch(propertyCard, /ListingAccessibility/);
   assert.match(searchPage, /נגישות מלאה ומאומתת/);
   assert.match(business, /ListingAccessibility slug=\{property\.slug\}/);
@@ -348,4 +348,85 @@ test("ships the immersive media, review and concierge experiences", async () => 
   assert.equal((data.match(/src: "\/media\/tours\//g) || []).length, 11);
   assert.match(styles, /story-gallery__progress/);
   assert.match(styles, /smart-concierge__panel/);
+});
+
+test("publishes crawler guidance, answer-engine guidance and an RSS feed", async () => {
+  const robots = await render("/robots.txt", { headers: { accept: "text/plain" } });
+  const robotsText = await robots.text();
+  assert.equal(robots.status, 200);
+  assert.match(robotsText, /User-Agent: OAI-SearchBot/);
+  assert.match(robotsText, /User-Agent: GPTBot/);
+  assert.match(robotsText, /Sitemap: https:\/\/vii\.spaplus\.co\/sitemap\.xml/);
+  assert.match(robotsText, /Disallow: \/favorites\//);
+
+  const feed = await render("/feed.xml", { headers: { accept: "application/rss+xml" } });
+  const feedText = await feed.text();
+  assert.equal(feed.status, 200);
+  assert.match(feed.headers.get("content-type") ?? "", /application\/rss\+xml/);
+  assert.equal((feedText.match(/<item>/g) || []).length, 10);
+
+  const [llms, llmsFull, seo, sitemapSource, questions, key] = await Promise.all([
+    readFile(new URL("../public/llms.txt", import.meta.url), "utf8"),
+    readFile(new URL("../public/llms-full.txt", import.meta.url), "utf8"),
+    readFile(new URL("../app/lib/seo.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/sitemap.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/questions/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../public/e7daf03f62b014067d8e10bb84098faa444d71d61f0d851d32013a07fe2502d3.txt", import.meta.url), "utf8"),
+  ]);
+  assert.match(llms, /https:\/\/vii\.spaplus\.co\/questions\//);
+  assert.match(llmsFull, /מידע שלא מופיע בפרטי המקום אינו נחשב מאומת/);
+  assert.match(seo, /"@type": "BreadcrumbList"/);
+  assert.match(seo, /"@type": "FAQPage"/);
+  assert.match(seo, /"@type": "LodgingBusiness"/);
+  assert.match(seo, /"@type": "EventVenue"/);
+  assert.match(seo, /"@type": "TouristTrip"/);
+  assert.doesNotMatch(seo, /numberOfAccommodationUnits/);
+  assert.match(sitemapSource, /!place\.demo/);
+  assert.match(questions, /faqSchema\(allQuestions\)/);
+  assert.equal(key.trim(), "e7daf03f62b014067d8e10bb84098faa444d71d61f0d851d32013a07fe2502d3");
+});
+
+test("every canonical URL in the sitemap has complete crawlable HTML", async () => {
+  const sitemapResponse = await render("/sitemap.xml", { headers: { accept: "application/xml" } });
+  const sitemapXml = await sitemapResponse.text();
+  assert.equal(sitemapResponse.status, 200);
+  const urls = [...sitemapXml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1].replaceAll("&amp;", "&"));
+  assert.equal(urls.length, 80);
+  assert.equal(new Set(urls).size, urls.length);
+
+  for (const absolute of urls) {
+    const target = new URL(absolute);
+    const response = await render(`${target.pathname}${target.search}`);
+    const html = await response.text();
+    assert.equal(response.status, 200, absolute);
+    assert.match(html, /<title>[^<]+<\/title>/, absolute);
+    assert.match(html, /<meta name="description" content="[^"]+"\s*\/?>/, absolute);
+    assert.match(html, /<link rel="canonical" href="https:\/\/vii\.spaplus\.co\/[^"]*"\s*\/?>/, absolute);
+    assert.equal((html.match(/<h1\b/g) || []).length, 1, absolute);
+    assert.doesNotMatch(html, /<meta name="robots" content="noindex/, absolute);
+    for (const match of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
+      assert.doesNotThrow(() => JSON.parse(match[1]), absolute);
+    }
+  }
+});
+
+test("key page types emit matching structured data and private pages stay out of the index", async () => {
+  for (const [pathname, expectedTypes] of [
+    ["/", ["Organization", "WebSite", "SearchAction"]],
+    ["/search", ["CollectionPage", "ItemList", "BreadcrumbList"]],
+    ["/business?id=perfumes-villa", ["LodgingBusiness", "BreadcrumbList", "FAQPage"]],
+    ["/events/place?id=black-loft", ["EventVenue", "BreadcrumbList"]],
+    ["/guides/private-event-checklist", ["Article", "BreadcrumbList"]],
+    ["/trails/snir-hatzbani", ["Article", "TouristTrip", "BreadcrumbList"]],
+    ["/questions", ["FAQPage", "BreadcrumbList"]],
+  ]) {
+    const response = await render(pathname);
+    const html = await response.text();
+    for (const expected of expectedTypes) assert.match(html, new RegExp(`\\"@type\\":\\"${expected}\\"`), `${pathname}: ${expected}`);
+  }
+
+  for (const pathname of ["/favorites", "/providers", "/handoff", "/discover/place?id=guest-table"]) {
+    const response = await render(pathname);
+    assert.match(await response.text(), /<meta name="robots" content="noindex/);
+  }
 });

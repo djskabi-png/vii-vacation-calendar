@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import translations from "./translations.generated.json";
 
 export type SiteLanguage = "he" | "en" | "ru";
 
@@ -17,6 +16,18 @@ const originalText = new WeakMap<Text, string>();
 const originalAttributes = new WeakMap<Element, Map<string, string>>();
 const translatedAttributes = ["aria-label", "alt", "placeholder", "title"];
 let originalDocumentTitle = "";
+
+type TranslationBundle = Record<Exclude<SiteLanguage, "he">, Record<string, string>>;
+let loadedTranslations: TranslationBundle | null = null;
+let translationRequest: Promise<TranslationBundle> | null = null;
+
+function loadTranslations() {
+  translationRequest ??= import("./translations.generated.json").then((module) => {
+    loadedTranslations = module.default as TranslationBundle;
+    return loadedTranslations;
+  });
+  return translationRequest;
+}
 
 const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, string>> = {
   en: {
@@ -173,7 +184,7 @@ function initialLanguage(): SiteLanguage {
 }
 
 function dictionary(language: SiteLanguage): Record<string, string> {
-  return language === "he" ? {} : translations[language];
+  return language === "he" ? {} : loadedTranslations?.[language] || {};
 }
 
 function translateDynamic(value: string, language: Exclude<SiteLanguage, "he">) {
@@ -329,6 +340,7 @@ function applyLanguage(language: SiteLanguage) {
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<SiteLanguage>("he");
+  const [translationVersion, setTranslationVersion] = useState(0);
   const observer = useRef<MutationObserver | null>(null);
 
   useEffect(() => {
@@ -345,6 +357,15 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     setLanguageState(nextLanguage);
   };
 
+  useEffect(() => {
+    if (language === "he" || loadedTranslations) return;
+    let active = true;
+    void loadTranslations().then(() => {
+      if (active) setTranslationVersion((version) => version + 1);
+    });
+    return () => { active = false; };
+  }, [language]);
+
   useLayoutEffect(() => {
     applyLanguage(language);
     observer.current?.disconnect();
@@ -355,7 +376,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     });
     observer.current.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: translatedAttributes });
     return () => { window.cancelAnimationFrame(frame); observer.current?.disconnect(); };
-  }, [language]);
+  }, [language, translationVersion]);
 
   const value = useMemo(() => ({ language, setLanguage }), [language]);
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;

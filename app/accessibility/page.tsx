@@ -5,7 +5,7 @@ import { PageShell } from "../components/page-shell";
 export const metadata: Metadata = {
   title: "הצהרת נגישות",
   description: "מידע על נגישות אתר וי פור ויקיישן, כלי העזר, הסדרי השירות ודרכי דיווח על בעיית נגישות.",
-  alternates: { canonical: "/accessibility/" },
+  alternates: { canonical: "/accessibility" },
 };
 
 export default function AccessibilityPage() {
@@ -78,7 +78,7 @@ export default function AccessibilityPage() {
         <section>
           <h2>דיווח על בעיית נגישות</h2>
           <p>אם נתקלתם בבעיה, כתבו לנו מה ניסיתם לעשות, באיזה עמוד, באיזה דפדפן ומכשיר השתמשתם ואם נעזרתם בקורא מסך או בטכנולוגיה מסייעת. המידע יעזור לנו לבדוק ולתקן במהירות.</p>
-          <Link className="button primary" href="/contact/">דיווח על בעיית נגישות</Link>
+          <Link className="button primary" href="/contact">דיווח על בעיית נגישות</Link>
         </section>
 
         <section className="accessibility-statement__sources">

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageShell } from "../../components/page-shell";
 
-export const metadata: Metadata = { title: "מדיניות פרטיות", description: "מדיניות הפרטיות של אתר וי פור ויקיישן.", alternates: { canonical: "/legal/privacy/" } };
+export const metadata: Metadata = { title: "מדיניות פרטיות", description: "מדיניות הפרטיות של אתר וי פור ויקיישן.", alternates: { canonical: "/legal/privacy" } };
 
 export default function PrivacyPage() {
   return <PageShell><main id="main-content"><article className="legal-page shell">
@@ -13,6 +13,6 @@ export default function PrivacyPage() {
     <p>אפשר לבחור בין קבצים חיוניים לבין שירותים נוספים דרך חלון העדפות הפרטיות.</p>
     <h2>פנייה בנושא פרטיות</h2>
     <p>לבירור, עדכון או בקשה הנוגעת למידע שמסרתם, אפשר לפנות אלינו דרך טופס יצירת הקשר.</p>
-    <Link className="button primary" href="/contact/">יצירת קשר</Link>
+    <Link className="button primary" href="/contact">יצירת קשר</Link>
   </article></main></PageShell>;
 }

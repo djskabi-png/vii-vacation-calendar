@@ -87,7 +87,7 @@ export default function BusinessPage({ initialSlug }: { initialSlug: string }) {
     <PageShell>
       <main id="main-content" className="property-page">
         <div className="sticky-property-search"><div className="shell"><SearchBox compact /></div></div>
-        <div className="shell breadcrumbs"><Link href="/">ראשי</Link><span>/</span><Link href={`/search/?location=${encodeURIComponent(property.area)}`}>{property.area}</Link><span>/</span><span>{property.name}</span></div>
+        <div className="shell breadcrumbs"><Link href="/">ראשי</Link><span>/</span><Link href={`/search?location=${encodeURIComponent(property.area)}`}>{property.area}</Link><span>/</span><span>{property.name}</span></div>
 
         <section className="shell property-title">
           <div><span className="eyebrow">{property.type}</span><h1>{property.name}</h1><p><PinIcon />{property.location}, {property.area}</p></div>
@@ -158,11 +158,11 @@ export default function BusinessPage({ initialSlug }: { initialSlug: string }) {
           <div className="shell">
             <div className="section-head">
               <div><span className="eyebrow">משלימים את החופשה</span><h2>מה אפשר לעשות מסביב</h2></div>
-              <Link href="/activities/">לכל הרעיונות והחוויות</Link>
+              <Link href="/activities">לכל הרעיונות והחוויות</Link>
             </div>
             <p className="property-complements__note">ההצעות מוצגות לפי האזור כשיש התאמה מאומתת. פרופילי ספקים שטרם חוברו לעסק פעיל מסומנים כהדגמה.</p>
             <div className="discovery-grid discovery-grid--compact">{complements.map((item) => <DiscoveryCard key={`${item.world}-${item.id}`} item={item} />)}</div>
-            <div className="property-nearby-trails"><div className="section-head"><div><span className="eyebrow">טיול עצמאי ליד מקום האירוח</span><h2>מסלולים באזור</h2><p>ההתאמה נעשית לפי אזור כללי. המרחק המדויק והמצב בשטח נבדקים לפני היציאה.</p></div><Link href="/trails/">לכל המסלולים</Link></div><div className="trail-grid trail-grid--business">{localTrails.map((trail) => <TrailCard key={trail.slug} trail={trail} compact />)}</div></div>
+            <div className="property-nearby-trails"><div className="section-head"><div><span className="eyebrow">טיול עצמאי ליד מקום האירוח</span><h2>מסלולים באזור</h2><p>ההתאמה נעשית לפי אזור כללי. המרחק המדויק והמצב בשטח נבדקים לפני היציאה.</p></div><Link href="/trails">לכל המסלולים</Link></div><div className="trail-grid trail-grid--business">{localTrails.map((trail) => <TrailCard key={trail.slug} trail={trail} compact />)}</div></div>
           </div>
         </section>
 

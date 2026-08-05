@@ -1,13 +1,18 @@
 import type { Metadata } from "next";
 import { WorldLanding } from "../components/world-landing";
 import { spaPlaces } from "../data/world-data";
+import { StructuredData } from "../components/structured-data";
+import { collectionSchema } from "../lib/seo";
 
 export const metadata: Metadata = {
   title: "בתי ספא וחבילות ספא",
   description: "משווים בין בתי ספא, חבילות וטיפולים לפי אזור, הרכב וסוג החוויה.",
-  alternates: { canonical: "/spas/" },
+  alternates: { canonical: "/spas" },
 };
 
 export default function SpasPage() {
-  return <WorldLanding world="spa" eyebrow="זמן לעצמכם" title="מוצאים את הספא שמתאים לרגע שלכם" description="משווים בין בתי ספא, חבילות וטיפולים ובוחרים לפי אזור, הרכב וסוג החוויה." items={spaPlaces} searchMode="spa" sourceNote="המידע והתמונות נלקחו מעמודי המקור המאומתים של ספא פלוס." />;
+  return <>
+    <StructuredData data={collectionSchema("בתי ספא וחבילות ספא", "בתי ספא וחבילות לפי אזור וסוג החוויה.", "/spas", spaPlaces.map((place) => ({ name: place.name, path: `/discover/place?id=${place.id}`, image: place.image })))} />
+    <WorldLanding world="spa" eyebrow="זמן לעצמכם" title="מוצאים את הספא שמתאים לרגע שלכם" description="משווים בין בתי ספא, חבילות וטיפולים ובוחרים לפי אזור, הרכב וסוג החוויה." items={spaPlaces} searchMode="spa" sourceNote="המידע והתמונות נלקחו מעמודי המקור המאומתים של ספא פלוס." />
+  </>;
 }

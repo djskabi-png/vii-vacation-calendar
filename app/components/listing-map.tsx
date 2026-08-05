@@ -145,7 +145,7 @@ export function ListingMap({ listings, mode = "vacation", single = false, autoLo
             <small>{selected.type}</small>
             <strong>{selected.name}</strong>
             <span>{selected.location} · עד {selected.guests} אורחים</span>
-            <Link href={mode === "events" ? `/events/place/?id=${selected.slug}` : `/business/?id=${selected.slug}`}>לפרטי המקום</Link>
+            <Link href={mode === "events" ? `/events/place?id=${selected.slug}` : `/business?id=${selected.slug}`}>לפרטי המקום</Link>
           </div>
         </article>
       )}

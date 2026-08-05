@@ -45,6 +45,11 @@ while (queue.length && visited.size < 180) {
 const manual = {
   en: {
     "וי פור ויקיישן": "VII Vacation",
+    "מקומות לאירועים פרטיים בישראל | וי פור ויקיישן": "Private Event Venues in Israel | VII Vacation",
+    "עין אפק, גשרים מעל הביצה, מדריך מסלול | וי פור ויקיישן": "Ein Afek Wetland Bridges Trail Guide | VII Vacation",
+    "משווים את סוג הטיפול, משך הטיפול, שימוש במתקנים, ארוחה, פרטיות ומיקום. המחיר והזמינות חייבים להיבדק מול מקור ההזמנה העדכני.": "Compare the treatment type and duration, access to facilities, meals, privacy and location. Confirm the current price and availability with the booking source.",
+    "עוברים מהשאלה לחיפוש מדויק": "Move from a question to a focused search",
+    "ריכזנו תשובות קצרות וברורות לשאלות שחוזרות לפני בחירת מקום. המידע בעמוד אינו מחליף את התנאים המחייבים שיוצגו בתהליך ההזמנה.": "We collected clear answers to common questions that come up before choosing a place. This page does not replace the binding terms shown during booking.",
     "כל החופשה, במקום אחד": "Your whole getaway, in one place",
     "מוצאים את החופשה שמתאימה לכם": "Find the getaway that fits you",
     "נופש": "Stays", "אירועים": "Events", "ספא": "Spa", "ספקים": "Services", "יעדים": "Destinations",
