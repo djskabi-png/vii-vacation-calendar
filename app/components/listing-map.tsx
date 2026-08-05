@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { ListingAccessibility } from "./listing-accessibility";
 import type { Listing } from "../data/site-data";
 import "leaflet/dist/leaflet.css";
 
@@ -142,6 +143,7 @@ export function ListingMap({ listings, mode = "vacation", single = false }: List
             <small>{selected.type}</small>
             <strong>{selected.name}</strong>
             <span>{selected.location} · עד {selected.guests} אורחים</span>
+            <ListingAccessibility slug={selected.slug} compact />
             <Link href={mode === "events" ? `/events/place/?id=${selected.slug}` : `/business/?id=${selected.slug}`}>לפרטי המקום</Link>
           </div>
         </article>

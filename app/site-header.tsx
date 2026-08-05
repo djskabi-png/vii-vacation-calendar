@@ -5,20 +5,15 @@
 import Link from "next/link";
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
+import { AccessibilityWidget } from "./components/accessibility-widget";
 import { worlds, type WorldId } from "./data/world-data";
 
 const nav = worlds.map((world) => ({ id: world.id, href: world.href, label: world.shortLabel, description: world.description }));
 
 export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [comfortReading, setComfortReading] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("comfort-reading", comfortReading);
-    return () => document.documentElement.classList.remove("comfort-reading");
-  }, [comfortReading]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -90,6 +85,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
           <Link href="/contact/" onClick={closeMenu}><ContactIcon /><span>יצירת קשר</span></Link>
           <Link href="/destinations/" onClick={closeMenu}><PinIcon /><span>יעדים</span></Link>
           <Link href="/guides/" onClick={closeMenu}><InfoIcon /><span>מגזין ומדריכים</span></Link>
+          <Link href="/accessibility/" onClick={closeMenu}><AccessibilityIcon /><span>הצהרת נגישות</span></Link>
           <Link href="/handoff/" onClick={closeMenu}><InfoIcon /><span>מרכז מידע לצוות</span></Link>
         </div>
 
@@ -121,7 +117,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
           <div className="header-actions">
             <Link className="magazine-header-link" href="/guides/"><span>חדש</span>מגזין</Link>
             <Link className="icon-button" href="/favorites/" aria-label="מקומות שאהבתי"><HeartIcon /></Link>
-            <button className="icon-button" type="button" aria-label="מצב קריאה נוח" aria-pressed={comfortReading} onClick={() => setComfortReading((value) => !value)}><AccessibilityIcon /></button>
+            <AccessibilityWidget />
             <button ref={menuButtonRef} className="menu-button" type="button" aria-expanded={menuOpen} aria-haspopup="dialog" aria-label="פתיחת תפריט" onClick={() => setMenuOpen(true)}><MenuIcon /><span>תפריט</span></button>
           </div>
         </div>

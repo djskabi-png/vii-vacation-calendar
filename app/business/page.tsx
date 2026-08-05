@@ -10,6 +10,7 @@ import { PageShell } from "../components/page-shell";
 import { PropertyCard } from "../components/property-card";
 import { ContactActions } from "../components/contact-actions";
 import { DiscoveryCard } from "../components/discovery-card";
+import { ListingAccessibility } from "../components/listing-accessibility";
 import { properties, propertyFaq } from "../data/site-data";
 import { activityIdeas, providerProfiles, spaPlaces, type DiscoveryItem } from "../data/world-data";
 import { CalendarIcon, HeartIcon, PinIcon } from "../site-header";
@@ -95,7 +96,7 @@ export default function BusinessPage() {
 
         <section className="shell property-gallery">{property.images.slice(0, 5).map((image, index) => <button key={image} type="button" aria-label={`פתיחת גלריית ${property.name}, תמונה ${index + 1}`} onClick={() => setGalleryOpen(true)}><img src={image} alt={`${property.name}, תמונה ${index + 1}`} />{index === 4 && <span>לכל התמונות</span>}</button>)}</section>
 
-        <nav className="shell property-anchor-nav" aria-label="ניווט בעמוד"><a href="#about">על המקום</a>{property.roomOptions?.length ? <a href="#rooms">חדרים ויחידות</a> : null}<a href="#features">מאפיינים</a><a href="#location">מיקום</a><a href="#faq">שאלות ותשובות</a><a href="#policies">חשוב לדעת</a></nav>
+        <nav className="shell property-anchor-nav" aria-label="ניווט בעמוד"><a href="#about">על המקום</a>{property.roomOptions?.length ? <a href="#rooms">חדרים ויחידות</a> : null}<a href="#features">מאפיינים</a><a href="#accessibility">נגישות במקום</a><a href="#location">מיקום</a><a href="#faq">שאלות ותשובות</a><a href="#policies">חשוב לדעת</a></nav>
 
         <div className="shell property-layout">
           <div className="property-content">
@@ -128,6 +129,8 @@ export default function BusinessPage() {
                 </article>)}
               </div>
             </section> : null}
+
+            <ListingAccessibility slug={property.slug} />
 
             <section id="location" className="location-card"><div><span className="eyebrow">המיקום</span><h2>{property.location}</h2><p>{property.area}</p><a href={`https://www.openstreetmap.org/?mlat=${property.lat}&mlon=${property.lng}#map=15/${property.lat}/${property.lng}`} target="_blank" rel="noreferrer">פתיחה במפה מלאה</a></div><ListingMap listings={[property]} single /></section>
 

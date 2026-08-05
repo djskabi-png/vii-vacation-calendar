@@ -8,6 +8,7 @@ import { ListingMap } from "../../components/listing-map";
 import { PageShell } from "../../components/page-shell";
 import { ContactActions } from "../../components/contact-actions";
 import { DiscoveryCard } from "../../components/discovery-card";
+import { ListingAccessibility } from "../../components/listing-accessibility";
 import { eventPlaces } from "../../data/site-data";
 import { providerProfiles } from "../../data/world-data";
 import { CalendarIcon, HeartIcon, PinIcon } from "../../site-header";
@@ -63,7 +64,7 @@ export default function EventPlacePage() {
         <section className="shell property-title event-title"><div><span className="eyebrow">{place.type}</span><h1>{place.name}</h1><p><PinIcon />{place.location}, {place.area}</p></div><div className="property-title__side"><div className="property-title__actions"><button type="button" aria-pressed={saved} onClick={toggleSaved}><HeartIcon filled={saved} />{saved ? "נשמר" : "שמירה"}</button><button type="button" onClick={() => void share()}>שיתוף</button></div><ContactActions key={place.slug} contact={place.contact} placeName={place.name} /></div></section>
         <section className="shell property-gallery">{place.images.map((image, index) => <button key={image} type="button" onClick={() => setGalleryOpen(true)} aria-label={`פתיחת תמונה ${index + 1} של ${place.name}`}><img src={image} alt={`${place.name}, תמונה ${index + 1}`} />{index === 4 && <span>לכל התמונות</span>}</button>)}</section>
 
-        <nav className="shell property-anchor-nav"><a href="#event-about">על המקום</a><a href="#event-features">מתקנים</a><a href="#event-map">מיקום</a><a href="#event-contact">בדיקת התאמה</a></nav>
+        <nav className="shell property-anchor-nav"><a href="#event-about">על המקום</a><a href="#event-features">מתקנים</a><a href="#accessibility">נגישות במקום</a><a href="#event-map">מיקום</a><a href="#event-contact">בדיקת התאמה</a></nav>
 
         <div className="shell event-place-layout">
           <div>
@@ -71,6 +72,7 @@ export default function EventPlacePage() {
             <section id="event-about"><span className="eyebrow">מידע מאומת מעמוד המקור</span><h2>על המקום</h2><p>{place.description}</p><div className="feature-chips audience-chips">{place.eventTypes.map((item) => <span key={item}>{item}</span>)}</div></section>
             <section id="event-features"><h2>מתקנים ואפשרויות</h2><div className="feature-list">{place.features.map((feature) => <span key={feature}>✓ {feature}</span>)}</div></section>
             <section><h2>למי המקום מתאים</h2><div className="event-suitable-grid">{place.audiences.map((audience) => <article key={audience}><span>✓</span><b>{audience}</b></article>)}</div></section>
+            <ListingAccessibility slug={place.slug} />
             <section id="event-map" className="location-card"><div><span className="eyebrow">המיקום</span><h2>{place.location}</h2><p>{place.area}</p><a href={`https://www.openstreetmap.org/?mlat=${place.lat}&mlon=${place.lng}#map=15/${place.lat}/${place.lng}`} target="_blank" rel="noreferrer">פתיחה במפה מלאה</a></div><ListingMap listings={[place]} mode="events" single /></section>
             <section className="policies-section"><h2>חשוב לדעת</h2><div><article><b>קיבולת</b><p>עד {place.guests} אורחים לפי נתוני עמוד המקום.</p></article><article><b>זמינות</b><p>הזמינות הסופית תיבדק מול מערכת הניהול לאחר חיבור האתר.</p></article><article><b>מחיר</b><p>המחיר תלוי בתאריך, במספר המשתתפים ובאופי האירוע.</p></article><article><b>עמוד מקור</b><p><a href={place.liveUrl} target="_blank" rel="noreferrer">צפייה בפרטים באתר הקיים</a></p></article></div></section>
           </div>

@@ -25,6 +25,7 @@ for (const [pathname, expected] of [
   ["/providers", /האנשים שהופכים אירוח לחוויה/],
   ["/activities", /רעיונות טובים ממש ליד החופשה/],
   ["/discover/place", /ספא בוטיק תל אביב/],
+  ["/accessibility", /הצהרת נגישות/],
 ]) {
   test(`server renders ${pathname}`, async () => {
     const response = await render(pathname);
@@ -96,4 +97,46 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(homeShowcase, /spaPlaces\.slice/);
   assert.match(homeShowcase, /hourlyPlaces\.slice/);
   assert.match(homeShowcase, /המחיר והזמינות הסופיים יאומתו/);
+});
+
+test("includes the accessibility system and honest place disclosures", async () => {
+  const [widget, statement, data, listing, header, footer, propertyCard, business, eventSearch, eventPlace, discoveryCard, discoveryPlace, styles] = await Promise.all([
+    readFile(new URL("../app/components/accessibility-widget.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/accessibility/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/data/accessibility-data.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/listing-accessibility.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/site-header.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/site-footer.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/property-card.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/business/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/events/search/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/events/place/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/discovery-card.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/discover/place/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(widget, /vii-accessibility-settings/);
+  assert.match(widget, /aria-modal="true"/);
+  assert.match(widget, /event\.key === "Escape"/);
+  assert.match(widget, /a11y-high-contrast/);
+  assert.match(widget, /a11y-pause-motion/);
+  assert.match(widget, /a11y-visible-focus/);
+  assert.match(statement, /תקן הישראלי 5568/);
+  assert.match(statement, /WCAG 2\.0/);
+  assert.match(statement, /פרטי רכז הנגישות טרם נמסרו/);
+  assert.match(statement, /עדיין אינה נוסח סופי לפרסום/);
+  assert.equal((data.match(/"(?:aqua-resort|kesem-harimon|ahuzat-or|ar-suites|sol-gilgal|infinity-suites|magic-garden-gefen|anael-estate|perfumes-villa|rose-estate|party-time|black-loft|sani-loft|360-events|loft-117|fiesta|details-events|star-loft|puzzle-club|paphos-events)"/g) || []).length, 20);
+  assert.match(data, /status: "unknown"/);
+  assert.match(listing, /האם המקום נגיש/);
+  assert.match(header, /<AccessibilityWidget/);
+  assert.match(footer, /href="\/accessibility\/"/);
+  assert.match(propertyCard, /ListingAccessibility slug=\{property\.slug\} compact/);
+  assert.match(business, /ListingAccessibility slug=\{property\.slug\}/);
+  assert.match(eventSearch, /ListingAccessibility slug=\{place\.slug\} compact/);
+  assert.match(eventPlace, /ListingAccessibility slug=\{place\.slug\}/);
+  assert.match(discoveryCard, /item\.world === "spa" \|\| item\.world === "hourly"/);
+  assert.match(discoveryPlace, /ListingAccessibility slug=\{item\.id\}/);
+  assert.match(styles, /prefers-reduced-motion/);
+  assert.match(styles, /accessibility-status-explainer/);
 });

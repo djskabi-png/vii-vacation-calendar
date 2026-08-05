@@ -5,6 +5,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ListingMap } from "../../components/listing-map";
+import { ListingAccessibility } from "../../components/listing-accessibility";
 import { PageShell } from "../../components/page-shell";
 import { SearchBox } from "../../components/search-box";
 import { eventPlaces } from "../../data/site-data";
@@ -58,7 +59,7 @@ export default function EventSearchPage() {
           </aside>
           <section className="event-list">
             <div className="results-toolbar"><button type="button" className="button mobile-filter" onClick={() => setFiltersOpen(true)}>סינון</button><span>{filtered.length} תוצאות</span><label>מיון לפי <select value={sort} onChange={(event) => setSort(event.target.value)}><option value="recommended">מומלצים</option><option value="capacity">קיבולת גבוהה</option><option value="name">שם המקום</option></select></label></div>
-            {mapOpen ? <ListingMap listings={filtered} mode="events" /> : filtered.map((place) => <article key={place.slug}><div className="event-card-gallery"><img src={place.image} alt={place.name} /><span>{place.images.length} תמונות</span></div><div><small>{place.type}</small><h2>{place.name}</h2><p><PinIcon />{place.location}, {place.area}</p><p>{place.description}</p><div className="feature-chips">{place.features.slice(0, 3).map((feature) => <span key={feature}>{feature}</span>)}</div><div className="event-capacity">עד {place.guests} אורחים</div><Link className="button primary" href={`/events/place/?id=${place.slug}`}>לפרטים על המקום</Link></div></article>)}
+            {mapOpen ? <ListingMap listings={filtered} mode="events" /> : filtered.map((place) => <article key={place.slug}><div className="event-card-gallery"><img src={place.image} alt={place.name} /><span>{place.images.length} תמונות</span></div><div><small>{place.type}</small><h2>{place.name}</h2><p><PinIcon />{place.location}, {place.area}</p><p>{place.description}</p><ListingAccessibility slug={place.slug} compact /><div className="feature-chips">{place.features.slice(0, 3).map((feature) => <span key={feature}>{feature}</span>)}</div><div className="event-capacity">עד {place.guests} אורחים</div><Link className="button primary" href={`/events/place/?id=${place.slug}`}>לפרטים על המקום</Link></div></article>)}
             {filtered.length === 0 && <div className="empty-state"><h2>לא נמצאה התאמה</h2><p>אפשר להפחית את כמות המשתתפים או להסיר סינון.</p><button className="button primary" type="button" onClick={reset}>ניקוי סינונים</button></div>}
           </section>
         </div>

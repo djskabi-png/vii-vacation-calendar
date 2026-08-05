@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { DiscoveryItem } from "../data/world-data";
 import { PinIcon } from "../site-header";
+import { ListingAccessibility } from "./listing-accessibility";
 
 export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
   return <article className={`discovery-card discovery-card--${item.world}`}>
@@ -15,6 +16,7 @@ export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
       <span className="discovery-card__meta"><PinIcon />{item.location}<small>{item.area}</small></span>
       <h3><Link href={`/discover/place/?world=${item.world}&id=${item.id}`}>{item.name}</Link></h3>
       <p>{item.description}</p>
+      {(item.world === "spa" || item.world === "hourly") && <ListingAccessibility slug={item.id} compact />}
       <div className="discovery-card__chips">{item.features.slice(0, 3).map((feature) => <span key={feature}>{feature}</span>)}</div>
       <footer><strong>{item.priceLabel || item.duration || "לפרטים"}</strong><Link href={`/discover/place/?world=${item.world}&id=${item.id}`}>לפרטים</Link></footer>
     </div>
