@@ -5,6 +5,7 @@ import { sites } from "./build/sites-vite-plugin";
 
 const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
   "00000000-0000-4000-8000-000000000000";
+const ASSET_RELEASE = "calendar-close-v25";
 
 const { d1, r2 } = hostingConfig;
 
@@ -44,6 +45,14 @@ export default defineConfig(async () => {
   const { cloudflare } = await import("@cloudflare/vite-plugin");
 
   return {
+    build: {
+      rollupOptions: {
+        output: {
+          chunkFileNames: `assets/[name]-${ASSET_RELEASE}-[hash].js`,
+          assetFileNames: `assets/[name]-${ASSET_RELEASE}-[hash][extname]`,
+        },
+      },
+    },
     server: isCodexSeatbeltSandbox
       ? { watch: { useFsEvents: false, usePolling: true } }
       : undefined,
