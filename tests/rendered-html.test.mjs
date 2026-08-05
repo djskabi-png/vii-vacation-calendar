@@ -37,6 +37,11 @@ for (const [pathname, expected] of [
   });
 }
 
+test("uses the production subdomain for public metadata", async () => {
+  const layout = await readFile(new URL("../app/layout.tsx", import.meta.url), "utf8");
+  assert.match(layout, /metadataBase: new URL\("https:\/\/new\.vii\.co\.il\/"\)/);
+});
+
 test("keeps calendar contexts, real listing ids and maps", async () => {
   const [calendar, searchBox, business, sleeping, search, eventsPage, eventSearch, eventPlace, data, worldData, worldSwitcher, map, contactActions, homeShowcase, magazineData, magazinePage, articlePage, styles] = await Promise.all([
     readFile(new URL("../app/calendar-demo.tsx", import.meta.url), "utf8"),
