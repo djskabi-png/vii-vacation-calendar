@@ -8,6 +8,7 @@ import { CalendarDemo } from "../calendar-demo";
 import { ListingMap } from "../components/listing-map";
 import { PageShell } from "../components/page-shell";
 import { PropertyCard } from "../components/property-card";
+import { ContactActions } from "../components/contact-actions";
 import { properties, propertyFaq } from "../data/site-data";
 import { CalendarIcon, HeartIcon, PinIcon } from "../site-header";
 
@@ -65,10 +66,13 @@ export default function BusinessPage() {
 
         <section className="shell property-title">
           <div><span className="eyebrow">{property.type}</span><h1>{property.name}</h1><p><PinIcon />{property.location}, {property.area}</p></div>
-          <div className="property-title__actions">
-            <button type="button" aria-pressed={saved} onClick={toggleSaved}><HeartIcon filled={saved} />{saved ? "נשמר" : "שמירה"}</button>
-            <button type="button" onClick={() => void share()}>שיתוף</button>
-            {shareStatus && <span role="status">{shareStatus}</span>}
+          <div className="property-title__side">
+            <div className="property-title__actions">
+              <button type="button" aria-pressed={saved} onClick={toggleSaved}><HeartIcon filled={saved} />{saved ? "נשמר" : "שמירה"}</button>
+              <button type="button" onClick={() => void share()}>שיתוף</button>
+              {shareStatus && <span role="status">{shareStatus}</span>}
+            </div>
+            <ContactActions key={property.slug} contact={property.contact} placeName={property.name} />
           </div>
         </section>
 
