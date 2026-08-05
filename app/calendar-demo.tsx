@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import { CloseIcon } from "./site-header";
 
 export type CalendarMode = "home" | "business";
 export type BusinessKind = "multi" | "single";
@@ -334,6 +335,9 @@ export function CalendarDemo({
   return createPortal(
     <div className="calendar-overlay" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
       <section className={`calendar-dialog mode-${mode}`} role="dialog" aria-modal="true" aria-labelledby="calendar-dialog-title">
+        <button type="button" className="dialog-close calendar-dialog-close" onClick={onClose} aria-label="סגירת חלון התאריכים">
+          <CloseIcon />
+        </button>
         <header className="calendar-dialog-header">
           <div>
             <span className="dialog-kicker">{mode === "home" ? "חיפוש בכל האתר" : "זמינות במקום אחד"}</span>
@@ -348,7 +352,6 @@ export function CalendarDemo({
                   : "ימים תפוסים, מספר היחידות ומינימום הלילות משפיעים על הטווח שניתן לבחור."}
             </p>
           </div>
-          <button type="button" className="dialog-close" onClick={onClose} aria-label="סגירת חלון התאריכים">×</button>
         </header>
 
         {mode === "home" && (

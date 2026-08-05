@@ -20,10 +20,10 @@ export function SleepingArrangements({ placeName, arrangements }: Props) {
   const track = useRef<HTMLDivElement>(null);
   const totalBeds = arrangements.reduce((total, arrangement) => total + arrangement.beds.reduce((sum, bed) => sum + bed.count, 0), 0);
 
-  function move(direction: "next" | "previous") {
+  function move(direction: "left" | "right") {
     if (!track.current) return;
     const amount = track.current.clientWidth * 0.82;
-    track.current.scrollBy({ left: direction === "next" ? -amount : amount, behavior: "smooth" });
+    track.current.scrollBy({ left: direction === "left" ? -amount : amount, behavior: "smooth" });
   }
 
   return (
@@ -35,8 +35,8 @@ export function SleepingArrangements({ placeName, arrangements }: Props) {
           <p>{arrangements.length} חדרי שינה ובהם {totalBeds} מיטות. כל כרטיס מייצג חדר שינה ולא יחידת אירוח.</p>
         </div>
         <div className="sleeping-section__controls" aria-label="דפדוף בין חדרי השינה">
-          <button type="button" onClick={() => move("previous")} aria-label="החדרים הקודמים">‹</button>
-          <button type="button" onClick={() => move("next")} aria-label="החדרים הבאים">›</button>
+          <button type="button" onClick={() => move("left")} aria-label="החדרים שמשמאל">‹</button>
+          <button type="button" onClick={() => move("right")} aria-label="החדרים שמימין">›</button>
         </div>
       </div>
 

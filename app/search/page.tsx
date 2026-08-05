@@ -8,7 +8,7 @@ import { PropertyCard } from "../components/property-card";
 import { SearchBox } from "../components/search-box";
 import { properties } from "../data/site-data";
 import { getPlaceAccessibility } from "../data/accessibility-data";
-import { CloseIcon, PinIcon } from "../site-header";
+import { CalendarIcon, CloseIcon, PinIcon } from "../site-header";
 
 export default function SearchPage() {
   const [sort, setSort] = useState("recommended");
@@ -21,14 +21,17 @@ export default function SearchPage() {
   const [spa, setSpa] = useState(false);
   const [whole, setWhole] = useState(false);
   const [accessibleOnly, setAccessibleOnly] = useState(false);
+  const [requestedPeriod, setRequestedPeriod] = useState("");
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
       const params = new URLSearchParams(location.search);
       const requestedArea = params.get("location");
       const requestedGuests = Number(params.get("guests") || 2);
+      const requestedDates = params.get("dates");
       if (requestedArea && requestedArea !== "כל הארץ") setArea(requestedArea);
       if (Number.isFinite(requestedGuests)) setGuests(Math.max(1, requestedGuests));
+      if (requestedDates) setRequestedPeriod(requestedDates);
     }, 0);
     return () => window.clearTimeout(timer);
   }, []);
@@ -72,7 +75,7 @@ export default function SearchPage() {
         <div className="results-search shell"><SearchBox compact /></div>
         <div className="shell breadcrumbs"><Link href="/">ראשי</Link><span>/</span><span>תוצאות חיפוש</span></div>
         <section className="shell results-heading">
-          <div><span className="eyebrow">מקומות שמתאימים לחיפוש</span><h1>{area === "הכל" ? "נופש ברחבי הארץ" : `נופש ב${area}`}</h1><p>{filtered.length} מתוך {properties.length} מקומות מאומתים מוצגים</p></div>
+          <div><span className="eyebrow">מקומות שמתאימים לחיפוש</span><h1>{area === "הכל" ? "נופש ברחבי הארץ" : `נופש ב${area}`}</h1>{requestedPeriod && <div className="results-period"><CalendarIcon /><span>התקופה שבחרתם</span><strong>{requestedPeriod}</strong></div>}<p>{filtered.length} מתוך {properties.length} מקומות מאומתים מוצגים</p></div>
           <button className={`button map-button ${mapOpen ? "active" : ""}`} type="button" aria-pressed={mapOpen} onClick={(event) => { event.preventDefault(); event.stopPropagation(); setMapOpen((value) => !value); }}><PinIcon />{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</button>
         </section>
 

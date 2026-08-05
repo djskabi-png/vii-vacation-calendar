@@ -3,9 +3,10 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
-import { LanguageSwitcher } from "./i18n/locale-provider";
+import { LanguageSwitcher, useSiteLanguage } from "./i18n/locale-provider";
 import { worlds, type WorldId } from "./data/world-data";
 
 const nav = worlds.map((world) => ({ id: world.id, href: world.href, label: world.shortLabel, description: world.description }));
@@ -14,6 +15,15 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const pathname = usePathname();
+  const { language } = useSiteLanguage();
+  const magazineActive = pathname === "/guides" || pathname.startsWith("/guides/");
+  const magazineCopy = {
+    he: { badge: "חדש", label: "מגזין", menuLabel: "מגזין ומדריכים" },
+    en: { badge: "New", label: "Magazine", menuLabel: "Magazine and guides" },
+    ru: { badge: "Новое", label: "Журнал", menuLabel: "Журнал и путеводители" },
+    fr: { badge: "Nouveau", label: "Magazine", menuLabel: "Magazine et guides" },
+  }[language];
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -85,7 +95,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
           <Link href="/contact" onClick={closeMenu}><ContactIcon /><span>יצירת קשר</span></Link>
           <Link href="/join" onClick={closeMenu}><ContactIcon /><span>הצטרפות לאתר</span></Link>
           <Link href="/destinations" onClick={closeMenu}><PinIcon /><span>יעדים</span></Link>
-          <Link href="/guides" onClick={closeMenu}><InfoIcon /><span>מגזין ומדריכים</span></Link>
+          <Link href="/guides" onClick={closeMenu} aria-current={magazineActive ? "page" : undefined}><InfoIcon /><span>{magazineCopy.menuLabel}</span></Link>
           <Link href="/questions" onClick={closeMenu}><InfoIcon /><span>שאלות ותשובות</span></Link>
           <Link href="/trails" onClick={closeMenu}><PinIcon /><span>מסלולי טיול עצמאיים</span></Link>
           <Link href="/accessibility" onClick={closeMenu}><AccessibilityIcon /><span>הצהרת נגישות</span></Link>
@@ -111,14 +121,14 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
 
           <nav className="desktop-nav" aria-label="ניווט ראשי">
             {nav.map((item) => (
-              <Link key={item.href} href={item.href} className={variant === item.id ? "active" : ""}>
+              <Link key={item.href} href={item.href} className={!magazineActive && variant === item.id ? "active" : ""} aria-current={!magazineActive && variant === item.id ? "page" : undefined}>
                 {item.label}
               </Link>
             ))}
           </nav>
 
           <div className="header-actions">
-            <Link className="magazine-header-link" href="/guides"><span>חדש</span>מגזין</Link>
+            <Link className={`magazine-header-link${magazineActive ? " active" : ""}`} href="/guides" aria-current={magazineActive ? "page" : undefined}><span>{magazineCopy.badge}</span>{magazineCopy.label}</Link>
             <Link className="icon-button" href="/favorites" aria-label="מקומות שאהבתי"><HeartIcon /></Link>
             <LanguageSwitcher compact />
             <button ref={menuButtonRef} className="menu-button" type="button" aria-expanded={menuOpen} aria-haspopup="dialog" aria-label="פתיחת תפריט" onClick={() => setMenuOpen(true)}><MenuIcon /><span>תפריט</span></button>

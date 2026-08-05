@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
-export type SiteLanguage = "he" | "en" | "ru";
+export type SiteLanguage = "he" | "en" | "ru" | "fr";
 
 type LocaleContextValue = {
   language: SiteLanguage;
@@ -42,6 +42,7 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "כל הארץ": "All of Israel", "נופש ברחבי הארץ": "Stays across Israel",
     "יצירת קשר": "Contact us", "פתיחת תפריט": "Open menu", "סגירת תפריט": "Close menu",
     "תצוגה על מפה": "Map view", "תצוגת רשימה": "List view", "פרטים וזמינות": "Details and availability",
+    "גלגלת להגדלה ולהקטנה": "Scroll to zoom in and out",
     "סינון": "Filter", "סינון תוצאות": "Filter results", "מיון לפי": "Sort by", "מומלצים": "Recommended",
     "מחיר לפי תאריך": "Price for selected dates", "מקום אירוח שלם": "Entire place",
     "בריכת שחייה": "Swimming pool", "משחקי שולחן": "Games tables", "מטבח מאובזר": "Fully equipped kitchen",
@@ -57,6 +58,13 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "גלריית אורחים": "Guest gallery", "הוספת תמונות וחוות דעת": "Add photos and a review", "תמונות אורחים מאומתות": "Verified guest photos", "חוות דעת מאומתת": "Verified review", "צירוף אסמכתה לביקור": "Attach proof of visit", "בחירת תמונות": "Choose photos",
     "עוזר חכם": "Smart assistant", "שאלו אותי": "Ask me", "העוזר של וי": "VII assistant", "המחשה פעילה באתר": "Interactive preview", "מה תרצו למצוא?": "What would you like to find?", "שליחה": "Send", "סגירת העוזר": "Close assistant",
     "כל הכיוונים": "All regions", "דרום ואילת": "South and Eilat", "צפון וכנרת": "North and Galilee", "לקבוצות": "For groups",
+    "היום": "Today", "מחר": "Tomorrow", "סוף השבוע הקרוב": "This weekend", "אוגוסט": "August", "ראש השנה": "Rosh Hashanah", "סוכות": "Sukkot",
+    "חופשה באוגוסט": "August getaway", "חופשה בראש השנה": "Rosh Hashanah getaway", "חופשה בסוכות": "Sukkot getaway",
+    "זמינות קרובה": "Coming up now", "תקופות מבוקשות": "Popular periods", "התקופה שבחרתם": "Your selected period",
+    "בדיקת זמינות": "Check availability", "לכל המקומות בתקופה": "View all stays for this period",
+    "חיפוש לפי תאריך קרוב": "Search by a near date", "חיפוש לפי תקופה מבוקשת": "Search by a popular period",
+    "מתחילים מהיום, ממחר או מסוף השבוע הקרוב, ואפשר לקפוץ ישר גם לאוגוסט ולחגים. כל בחירה פותחת חיפוש ממוקד לתקופה שבחרתם.": "Start with today, tomorrow or this weekend, or jump straight to August and the holidays. Each choice opens a focused search for that period.",
+    "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "These cards are search shortcuts. Availability and final pricing are confirmed after selecting dates and guests.",
   },
   ru: {
     "וי פור ויקיישן": "VII Vacation",
@@ -70,6 +78,7 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "כל הארץ": "Весь Израиль", "נופש ברחבי הארץ": "Отдых по всему Израилю",
     "יצירת קשר": "Связаться с нами", "פתיחת תפריט": "Открыть меню", "סגירת תפריט": "Закрыть меню",
     "תצוגה על מפה": "На карте", "תצוגת רשימה": "Списком", "פרטים וזמינות": "Подробнее и проверить даты",
+    "גלגלת להגדלה ולהקטנה": "Прокрутите для изменения масштаба",
     "סינון": "Фильтры", "סינון תוצאות": "Фильтры", "מיון לפי": "Сортировать", "מומלצים": "Рекомендуемые",
     "מחיר לפי תאריך": "Цена на выбранные даты", "מקום אירוח שלם": "Отдельный объект целиком",
     "בריכת שחייה": "Бассейн", "משחקי שולחן": "Игровые столы", "מטבח מאובזר": "Полностью оборудованная кухня",
@@ -85,6 +94,25 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "גלריית אורחים": "Галерея гостей", "הוספת תמונות וחוות דעת": "Добавить фото и отзыв", "תמונות אורחים מאומתות": "Проверенные фото гостей", "חוות דעת מאומתת": "Проверенный отзыв", "צירוף אסמכתה לביקור": "Подтвердить посещение", "בחירת תמונות": "Выбрать фотографии",
     "עוזר חכם": "Умный помощник", "שאלו אותי": "Спросите меня", "העוזר של וי": "Помощник VII", "המחשה פעילה באתר": "Интерактивная версия", "מה תרצו למצוא?": "Что вы хотите найти?", "שליחה": "Отправить", "סגירת העוזר": "Закрыть помощника",
     "כל הכיוונים": "Все регионы", "דרום ואילת": "Юг и Эйлат", "צפון וכנרת": "Север и Кинерет", "לקבוצות": "Для групп",
+    "היום": "Сегодня", "מחר": "Завтра", "סוף השבוע הקרוב": "Ближайшие выходные", "אוגוסט": "Август", "ראש השנה": "Рош ха-Шана", "סוכות": "Суккот",
+    "חופשה באוגוסט": "Отдых в августе", "חופשה בראש השנה": "Отдых на Рош ха-Шана", "חופשה בסוכות": "Отдых на Суккот",
+    "זמינות קרובה": "Ближайшие даты", "תקופות מבוקשות": "Популярные периоды", "התקופה שבחרתם": "Выбранный период",
+    "בדיקת זמינות": "Проверить даты", "לכל המקומות בתקופה": "Все места на этот период",
+    "חיפוש לפי תאריך קרוב": "Поиск по ближайшей дате", "חיפוש לפי תקופה מבוקשת": "Поиск по популярному периоду",
+    "מתחילים מהיום, ממחר או מסוף השבוע הקרוב, ואפשר לקפוץ ישר גם לאוגוסט ולחגים. כל בחירה פותחת חיפוש ממוקד לתקופה שבחרתם.": "Начните с сегодняшнего дня, завтра или ближайших выходных, либо сразу выберите август и праздники. Каждый вариант открывает поиск на выбранный период.",
+    "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "Карточки ведут к поиску. Наличие мест и итоговая цена подтверждаются после выбора дат и состава гостей.",
+  },
+  fr: {
+    "\u05d5\u05d9 \u05e4\u05d5\u05e8 \u05d5\u05d9\u05e7\u05d9\u05d9\u05e9\u05df": "VII Vacation",
+    "\u05db\u05dc \u05d4\u05d7\u05d5\u05e4\u05e9\u05d4, \u05d1\u05de\u05e7\u05d5\u05dd \u05d0\u05d7\u05d3": "Toutes vos vacances, au même endroit",
+    "\u05de\u05d5\u05e6\u05d0\u05d9\u05dd \u05d0\u05ea \u05d4\u05d7\u05d5\u05e4\u05e9\u05d4 \u05e9\u05de\u05ea\u05d0\u05d9\u05de\u05d4 \u05dc\u05db\u05dd": "Trouvez le séjour qui vous correspond",
+    "\u05e0\u05d5\u05e4\u05e9": "Séjours", "\u05d0\u05d9\u05e8\u05d5\u05e2\u05d9\u05dd": "Événements", "\u05e1\u05e4\u05d0": "Spa", "\u05dc\u05e4\u05d9 \u05e9\u05e2\u05d4": "Séjours à l'heure", "\u05e1\u05e4\u05e7\u05d9\u05dd": "Services", "\u05de\u05d4 \u05e2\u05d5\u05e9\u05d9\u05dd": "À faire",
+    "\u05db\u05dc \u05d4\u05d0\u05e8\u05e5": "Tout Israël", "\u05d9\u05e6\u05d9\u05e8\u05ea \u05e7\u05e9\u05e8": "Nous contacter",
+    "\u05ea\u05e6\u05d5\u05d2\u05d4 \u05e2\u05dc \u05de\u05e4\u05d4": "Afficher la carte", "\u05ea\u05e6\u05d5\u05d2\u05ea \u05e8\u05e9\u05d9\u05de\u05d4": "Afficher la liste",
+    "\u05e1\u05d9\u05e0\u05d5\u05df": "Filtres", "\u05e1\u05d9\u05e0\u05d5\u05df \u05ea\u05d5\u05e6\u05d0\u05d5\u05ea": "Filtrer les résultats", "\u05de\u05d5\u05de\u05dc\u05e6\u05d9\u05dd": "Recommandés",
+    "\u05d1\u05d3\u05d9\u05e7\u05ea \u05d6\u05de\u05d9\u05e0\u05d5\u05ea": "Vérifier les disponibilités", "\u05e4\u05e8\u05d8\u05d9\u05dd \u05d5\u05d6\u05de\u05d9\u05e0\u05d5\u05ea": "Détails et disponibilités",
+    "\u05de\u05d2\u05d6\u05d9\u05df": "Magazine", "\u05d7\u05d3\u05e9": "Nouveau", "\u05ea\u05e4\u05e8\u05d9\u05d8": "Menu", "\u05e9\u05e4\u05d4": "Langue",
+    "\u05e0\u05d2\u05d9\u05e9\u05d5\u05ea \u05de\u05dc\u05d0\u05d4 \u05d5\u05de\u05d0\u05d5\u05de\u05ea\u05ea": "Accessibilité complète vérifiée",
   },
 };
 
@@ -171,10 +199,46 @@ const finalUiTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "\u05e2\u05d3": "\u0434\u043e",
     "\u05d0\u05d5\u05e8\u05d7\u05d9\u05dd": "\u0433\u043e\u0441\u0442\u0435\u0439",
   },
+  fr: {
+    "\u05e0\u05d5\u05e4\u05e9 \u05d1\u05d0\u05d9\u05dc\u05ea \u05d5\u05d4\u05e2\u05e8\u05d1\u05d4": "Séjours à Eilat et dans l'Arava",
+    "\u05e0\u05d9\u05e7\u05d5\u05d9 \u05d4\u05db\u05dc": "Tout effacer",
+    "\u05e0\u05d9\u05e7\u05d5\u05d9 \u05e1\u05d9\u05e0\u05d5\u05e0\u05d9\u05dd": "Réinitialiser les filtres",
+    "\u05e1\u05d2\u05d9\u05e8\u05d4": "Fermer",
+    "\u05e1\u05d2\u05d9\u05e8\u05ea \u05e1\u05d9\u05e0\u05d5\u05df": "Fermer les filtres",
+    "\u05e1\u05d5\u05d2 \u05de\u05e7\u05d5\u05dd": "Type de lieu",
+    "\u05d4\u05db\u05dc": "Tous",
+    "\u05de\u05d0\u05e4\u05d9\u05d9\u05e0\u05d9\u05dd": "Équipements",
+    "\u05d4\u05e4\u05e8\u05d8\u05d9\u05d5\u05ea \u05e9\u05dc\u05db\u05dd \u05d7\u05e9\u05d5\u05d1\u05d4": "Votre vie privée compte",
+    "\u05d0\u05d9\u05e9\u05d5\u05e8 \u05d4\u05db\u05dc": "Tout autoriser",
+    "\u05d7\u05d9\u05d5\u05e0\u05d9\u05d9\u05dd \u05d1\u05dc\u05d1\u05d3": "Essentiels uniquement",
+    "\u05d4\u05e2\u05d3\u05e4\u05d5\u05ea": "Préférences",
+    "\u05e9\u05de\u05d9\u05e8\u05d4": "Enregistrer",
+    "\u05e0\u05e9\u05de\u05e8": "Enregistré",
+    "\u05e9\u05d9\u05ea\u05d5\u05e3": "Partager",
+    "\u05d4\u05e6\u05d2 \u05de\u05e1\u05e4\u05e8": "Afficher le numéro",
+    "\u05d1\u05d3\u05d9\u05e7\u05ea \u05d6\u05de\u05d9\u05e0\u05d5\u05ea": "Vérifier les disponibilités",
+    "\u05e2\u05dc \u05d4\u05de\u05e7\u05d5\u05dd": "À propos",
+    "\u05d0\u05d9\u05e4\u05d4 \u05d9\u05e9\u05e0\u05d9\u05dd?": "Où dormirez-vous ?",
+    "\u05e0\u05d2\u05d9\u05e9\u05d5\u05ea \u05d1\u05de\u05e7\u05d5\u05dd": "Accessibilité",
+    "\u05de\u05d9\u05e7\u05d5\u05dd": "Emplacement",
+    "\u05d7\u05e9\u05d5\u05d1 \u05dc\u05d3\u05e2\u05ea": "Bon à savoir",
+    "\u05ea\u05e4\u05e8\u05d9\u05d8 \u05d4\u05d0\u05ea\u05e8": "Menu du site",
+    "\u05e0\u05d9\u05d5\u05d5\u05d8 \u05de\u05dc\u05d0": "Navigation complète",
+    "\u05de\u05ea\u05d7\u05d9\u05dc\u05d9\u05dd \u05de\u05db\u05d0\u05df": "Commencez ici",
+    "\u05dc\u05d0\u05df \u05ea\u05e8\u05e6\u05d5 \u05dc\u05d4\u05d2\u05d9\u05e2?": "Où souhaitez-vous aller ?",
+    "\u05e0\u05d5\u05e4\u05e9, \u05d0\u05d9\u05e8\u05d5\u05e2\u05d9\u05dd, \u05e1\u05e4\u05d0, \u05e1\u05e4\u05e7\u05d9\u05dd \u05d5\u05d7\u05d5\u05d5\u05d9\u05d5\u05ea, \u05d1\u05de\u05e7\u05d5\u05dd \u05d0\u05d7\u05d3.": "Séjours, événements, spa, services et expériences, au même endroit.",
+    "\u05d5\u05d9\u05dc\u05d5\u05ea, \u05e1\u05d5\u05d5\u05d9\u05d8\u05d5\u05ea \u05d5\u05de\u05e7\u05d5\u05de\u05d5\u05ea \u05d0\u05d9\u05e8\u05d5\u05d7": "Villas, suites et hébergements",
+    "\u05dc\u05d5\u05e4\u05d8\u05d9\u05dd \u05d5\u05de\u05ea\u05d7\u05de\u05d9\u05dd \u05dc\u05db\u05dc \u05d7\u05d2\u05d9\u05d2\u05d4": "Lofts et lieux pour toutes les célébrations",
+    "\u05db\u05dc \u05de\u05d4 \u05e9\u05db\u05d9\u05e3 \u05dc\u05e2\u05e9\u05d5\u05ea, \u05d1\u05d3\u05d9\u05d5\u05e7 \u05d1\u05d3\u05e8\u05da \u05e9\u05dc\u05db\u05dd.": "Tout ce qui vaut la peine d'être vécu, à votre façon.",
+    "\u05d0\u05d9\u05da \u05d1\u05d5\u05d7\u05e8\u05d9\u05dd \u05de\u05e7\u05d5\u05dd \u05e9\u05d1\u05d0\u05de\u05ea \u05de\u05ea\u05d0\u05d9\u05dd \u05dc\u05d4\u05e8\u05db\u05d1 \u05e9\u05dc\u05db\u05dd": "Comment choisir un hébergement vraiment adapté à votre groupe",
+    "\u05d4\u05d0\u05d6\u05d5\u05e8 \u05e9\u05de\u05d5\u05e6\u05d2 \u05d1\u05de\u05e4\u05d4": "Zone affichée sur la carte",
+    "\u05dc\u05e4\u05e8\u05d8\u05d9 \u05d4\u05de\u05e7\u05d5\u05dd": "Voir les détails du lieu",
+    "\u05d4\u05e6\u05d2\u05ea": "Afficher", "\u05d4\u05e6\u05d2": "Afficher", "\u05de\u05e1\u05e4\u05e8": "numéro", "\u05dc\u05d4\u05e6\u05d9\u05d2": "Afficher", "\u05e2\u05d3": "Jusqu'à", "\u05d0\u05d5\u05e8\u05d7\u05d9\u05dd": "voyageurs",
+  },
 };
 
 function normalizeLanguage(value: string | null): SiteLanguage {
-  return value === "en" || value === "ru" ? value : "he";
+  return value === "en" || value === "ru" || value === "fr" ? value : "he";
 }
 
 function initialLanguage(): SiteLanguage {
@@ -192,7 +256,9 @@ function translateDynamic(value: string, language: Exclude<SiteLanguage, "he">) 
   if (showPlacesMatch) {
     return language === "en"
       ? "Show " + showPlacesMatch[1] + " places"
-      : "\u041f\u043e\u043a\u0430\u0437\u0430\u0442\u044c " + showPlacesMatch[1] + " \u043c\u0435\u0441\u0442";
+      : language === "fr"
+        ? "Afficher " + showPlacesMatch[1] + " lieux"
+        : "\u041f\u043e\u043a\u0430\u0437\u0430\u0442\u044c " + showPlacesMatch[1] + " \u043c\u0435\u0441\u0442";
   }
 
   const destinationMatch = value.match(/^\u05e0\u05d5\u05e4\u05e9 \u05d1(.+)$/);
@@ -204,7 +270,9 @@ function translateDynamic(value: string, language: Exclude<SiteLanguage, "he">) 
       || sourceDestination;
     return language === "en"
       ? "Stays in " + translatedDestination
-      : "\u041e\u0442\u0434\u044b\u0445 \u0432 " + translatedDestination;
+      : language === "fr"
+        ? "Séjours à " + translatedDestination
+        : "\u041e\u0442\u0434\u044b\u0445 \u0432 " + translatedDestination;
   }
 
   const rules: Array<[RegExp, (...parts: string[]) => string]> = language === "en"
@@ -223,7 +291,23 @@ function translateDynamic(value: string, language: Exclude<SiteLanguage, "he">) 
       [/^(\d+) דקות קריאה$/, (count) => `${count} min read`],
       [/^(\d+) מתוך (\d+) מקומות מאומתים מוצגים$/, (shown, total) => `${shown} of ${total} verified places shown`],
     ]
-    : [
+    : language === "fr"
+      ? [
+        [/^\u05e2\u05d3 (\d+) \u05d0\u05d5\u05e8\u05d7\u05d9\u05dd$/, (count) => `Jusqu'à ${count} voyageurs`],
+        [/^(\d+) \u05d0\u05d5\u05e8\u05d7\u05d9\u05dd$/, (count) => `${count} voyageurs`],
+        [/^\u05dc\u05e4\u05d7\u05d5\u05ea (\d+) \u05d0\u05d5\u05e8\u05d7\u05d9\u05dd$/, (count) => `Au moins ${count} voyageurs`],
+        [/^\u05dc\u05e4\u05d7\u05d5\u05ea (\d+) \u05de\u05e9\u05ea\u05ea\u05e4\u05d9\u05dd$/, (count) => `Au moins ${count} participants`],
+        [/^(\d+) \u05de\u05e9\u05ea\u05ea\u05e4\u05d9\u05dd$/, (count) => `${count} participants`],
+        [/^(\d+) \u05ea\u05d5\u05e6\u05d0\u05d5\u05ea$/, (count) => `${count} résultats`],
+        [/^(\d+) \u05ea\u05de\u05d5\u05e0\u05d5\u05ea$/, (count) => `${count} photos`],
+        [/^(\d+) \u05d7\u05d3\u05e8\u05d9 \u05e9\u05d9\u05e0\u05d4$/, (count) => `${count} chambres`],
+        [/^\u05d7\u05d3\u05e8 \u05e9\u05d9\u05e0\u05d4 (\d+)$/, (count) => `Chambre ${count}`],
+        [/^(\d+) \u05d9\u05d7\u05d9\u05d3\u05d5\u05ea$/, (count) => `${count} unités`],
+        [/^\u05de\u05d9\u05e0\u05d9\u05de\u05d5\u05dd (\d+) \u05dc\u05d9\u05dc\u05d5\u05ea$/, (count) => `${count} nuits minimum`],
+        [/^(\d+) \u05d3\u05e7\u05d5\u05ea \u05e7\u05e8\u05d9\u05d0\u05d4$/, (count) => `${count} min de lecture`],
+        [/^(\d+) \u05de\u05ea\u05d5\u05da (\d+) \u05de\u05e7\u05d5\u05de\u05d5\u05ea \u05de\u05d0\u05d5\u05de\u05ea\u05d9\u05dd \u05de\u05d5\u05e6\u05d2\u05d9\u05dd$/, (shown, total) => `${shown} lieux vérifiés sur ${total} affichés`],
+      ]
+      : [
       [/^עד (\d+) אורחים$/, (count) => `До ${count} гостей`],
       [/^(\d+) אורחים$/, (count) => `${count} гостей`],
       [/^לפחות (\d+) אורחים$/, (count) => `Не менее ${count} гостей`],
@@ -265,7 +349,7 @@ function translateValue(value: string, language: SiteLanguage) {
       .replace(/\btable games\b/gi, "games tables")
       .replace(/\bcomplete accommodation\b/gi, "entire place")
       .replace(/\ba entire place\b/gi, "an entire place");
-  } else {
+  } else if (language === "ru") {
     translated = translated
       .replace(/^дозать (\d+) мест$/i, "Показать $1 мест")
       .replace(/\u0417\u0430\u043a\u0440\u044b\u05e2/g, "\u0417\u0430\u043a\u0440\u044b\u0442\u044c \u0444\u0438\u043b\u044c\u0442\u0440\u044b")
@@ -333,7 +417,9 @@ function applyLanguage(language: SiteLanguage) {
       ? "\u05d4\u05e6\u05d2\u05ea " + count + " \u05de\u05e7\u05d5\u05de\u05d5\u05ea"
       : language === "en"
         ? "Show " + count + " places"
-        : "\u041f\u043e\u043a\u0430\u0437\u0430\u0442\u044c " + count + " " + russianPlace;
+        : language === "fr"
+          ? "Afficher " + count + " lieux"
+          : "\u041f\u043e\u043a\u0430\u0437\u0430\u0442\u044c " + count + " " + russianPlace;
     if (textNode.nodeValue !== label) textNode.nodeValue = label;
   });
 }
@@ -385,7 +471,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
   const { language, setLanguage } = useContext(LocaleContext);
   const select = useRef<HTMLSelectElement>(null);
-  const labels = { he: "עברית", en: "English", ru: "Русский" } as const;
+  const labels = { he: "עברית", en: "English", ru: "Русский", fr: "Français" } as const;
   useLayoutEffect(() => { if (select.current) select.current.value = language; }, [language]);
   return <label className={`language-switcher ${compact ? "language-switcher--compact" : ""}`}>
     <span aria-hidden="true">◎</span>

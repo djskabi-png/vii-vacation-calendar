@@ -8,16 +8,23 @@ import type { Property } from "../data/site-data";
 type GalleryItem = {
   src: string;
   label: string;
-  category: "place" | "units" | "bedrooms";
+  category: "place" | "units" | "bedrooms" | "guests";
 };
 
 type GalleryTab = "all" | GalleryItem["category"] | "videos";
+
+export type GuestPhoto = {
+  src: string;
+  alt: string;
+  author: string;
+};
 
 const tabLabels: Record<GalleryTab, string> = {
   all: "כל הסיפור",
   place: "המקום והמתקנים",
   units: "יחידות האירוח",
   bedrooms: "חדרי השינה",
+  guests: "תמונות אורחים",
   videos: "סרטונים",
 };
 
@@ -30,20 +37,21 @@ function uniqueItems(items: GalleryItem[]) {
   });
 }
 
-export function GalleryExperience({ property, open, initialIndex = 0, onClose }: { property: Property; open: boolean; initialIndex?: number; onClose: () => void }) {
+export function GalleryExperience({ property, open, initialIndex = 0, initialTab = "all", guestPhotos = [], onAddGuestContent, onClose }: { property: Property; open: boolean; initialIndex?: number; initialTab?: GalleryTab; guestPhotos?: GuestPhoto[]; onAddGuestContent?: () => void; onClose: () => void }) {
   const closeButton = useRef<HTMLButtonElement>(null);
   const touchStart = useRef(0);
   const allItems = useMemo(() => uniqueItems([
     ...property.images.map((src, index) => ({ src, label: `${property.name}, תמונת המקום ${index + 1}`, category: "place" as const })),
     ...(property.roomOptions || []).map((room) => ({ src: room.image, label: `${room.name} ב${property.name}`, category: "units" as const })),
     ...(property.sleepingArrangements || []).map((room) => ({ src: room.galleryImage, label: `${room.name} ב${property.name}`, category: "bedrooms" as const })),
-  ]), [property]);
-  const [tab, setTab] = useState<GalleryTab>("all");
+    ...guestPhotos.map((photo) => ({ src: photo.src, label: `${photo.alt}, צילום של ${photo.author}`, category: "guests" as const })),
+  ]), [guestPhotos, property]);
+  const [tab, setTab] = useState<GalleryTab>(initialTab);
   const [selected, setSelected] = useState(initialIndex);
 
   const visibleItems = tab === "all" ? allItems : tab === "videos" ? [] : allItems.filter((item) => item.category === tab);
   const current = visibleItems[Math.min(selected, Math.max(visibleItems.length - 1, 0))];
-  const tabs = (["all", "place", "units", "bedrooms", "videos"] as GalleryTab[]).filter((item) => item === "all"
+  const tabs = (["all", "place", "units", "bedrooms", "guests", "videos"] as GalleryTab[]).filter((item) => item === "all" || item === "guests"
     || item === "videos" && Boolean(property.videos?.length)
     || item !== "videos" && allItems.some((media) => media.category === item));
 
@@ -75,7 +83,7 @@ export function GalleryExperience({ property, open, initialIndex = 0, onClose }:
   return <div className="story-gallery" role="dialog" aria-modal="true" aria-labelledby="story-gallery-title">
     <header className="story-gallery__header">
       <div><span>הגלריה של</span><h2 id="story-gallery-title">{property.name}</h2></div>
-      <div className="story-gallery__count" aria-live="polite">{tab === "videos" ? `${property.videos?.length || 0} סרטונים` : `${selected + 1} מתוך ${visibleItems.length}`}</div>
+      <div className="story-gallery__count" aria-live="polite">{tab === "videos" ? `${property.videos?.length || 0} סרטונים` : tab === "guests" && !guestPhotos.length ? "עדיין אין תמונות אורחים" : `${selected + 1} מתוך ${visibleItems.length}`}</div>
       <button ref={closeButton} className="story-gallery__close" type="button" onClick={onClose} aria-label="סגירת הגלריה">סגירה</button>
     </header>
 
@@ -83,7 +91,12 @@ export function GalleryExperience({ property, open, initialIndex = 0, onClose }:
       {tabs.map((item) => <button key={item} type="button" aria-pressed={tab === item} onClick={() => selectTab(item)}>{tabLabels[item]}<small>{item === "videos" ? property.videos?.length : item === "all" ? allItems.length : allItems.filter((media) => media.category === item).length}</small></button>)}
     </nav>
 
-    {tab === "videos" ? <div className="story-gallery__videos">
+    {tab === "guests" && !guestPhotos.length ? <div className="story-gallery__guest-empty">
+      <span aria-hidden="true">+</span>
+      <strong>הגלריה מחכה לתמונה הראשונה שלכם</strong>
+      <p>תמונות אורחים יופיעו כאן עם שם המעלה רק לאחר הוכחת ביקור ואישור. כך ברור מה צולם על ידי העסק ומה שותף על ידי אורחים.</p>
+      {onAddGuestContent ? <button type="button" onClick={onAddGuestContent}>הוספת תמונות וחוות דעת</button> : null}
+    </div> : tab === "videos" ? <div className="story-gallery__videos">
       {property.videos?.map((video) => <article key={video.src}>
         <video controls playsInline preload="metadata" poster={video.poster} aria-label={video.title}><source src={video.src} type="video/mp4" /></video>
         <div><h3>{video.title}</h3><p>{video.note}</p></div>

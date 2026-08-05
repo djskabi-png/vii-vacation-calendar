@@ -64,6 +64,14 @@ const manual = {
     "מגזין": "Журнал", "חדש": "Новое", "תפריט": "Меню", "שפה": "Язык",
     "נגישות מלאה ומאומתת": "Подтверждённая полная доступность",
   },
+  fr: {
+    "וי פור ויקיישן": "VII Vacation",
+    "כל החופשה, במקום אחד": "Toutes vos vacances, au même endroit",
+    "מוצאים את החופשה שמתאימה לכם": "Trouvez le séjour qui vous correspond",
+    "נופש": "Séjours", "אירועים": "Événements", "ספא": "Spa", "ספקים": "Services", "יעדים": "Destinations",
+    "מגזין": "Magazine", "חדש": "Nouveau", "תפריט": "Menu", "שפה": "Langue",
+    "נגישות מלאה ומאומתת": "Accessibilité complète vérifiée",
+  },
 };
 
 async function translate(text, target) {
@@ -124,8 +132,8 @@ async function mapLimit(values, limit, mapper) {
 
 Object.keys(manual.en).forEach((phrase) => phrases.add(phrase));
 const source = [...phrases].sort((a, b) => a.localeCompare(b, "he"));
-const generated = { en: {}, ru: {} };
-for (const language of ["en", "ru"]) {
+const generated = { en: {}, ru: {}, fr: {} };
+for (const language of ["en", "ru", "fr"]) {
   const batches = makeBatches(source);
   const translatedBatches = await mapLimit(batches, 3, (batch) => translateBatch(batch, language));
   const values = translatedBatches.flat();

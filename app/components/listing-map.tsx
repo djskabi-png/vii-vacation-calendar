@@ -23,19 +23,26 @@ export function ListingMap({ listings, mode = "vacation", single = false, autoLo
 
   useEffect(() => {
     if (!enabled || !mapElement.current || listings.length === 0) return;
+    const container = mapElement.current;
     let cancelled = false;
     let readyTimer: number | undefined;
+    const keepWheelInsideMap = (event: WheelEvent) => event.preventDefault();
     setMapReady(false);
 
     void import("leaflet").then((L) => {
-      if (cancelled || !mapElement.current) return;
+      if (cancelled) return;
       mapInstance.current?.remove();
 
-      const map = L.map(mapElement.current, {
-        scrollWheelZoom: false,
+      const map = L.map(container, {
+        scrollWheelZoom: true,
+        wheelDebounceTime: 40,
+        wheelPxPerZoomLevel: 60,
+        touchZoom: true,
+        doubleClickZoom: true,
         zoomControl: true,
         attributionControl: true,
       });
+      container.addEventListener("wheel", keepWheelInsideMap, { passive: false });
       const streetTiles = L.tileLayer(
         "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
         {
@@ -97,6 +104,7 @@ export function ListingMap({ listings, mode = "vacation", single = false, autoLo
     return () => {
       cancelled = true;
       if (readyTimer) window.clearTimeout(readyTimer);
+      container.removeEventListener("wheel", keepWheelInsideMap);
       mapInstance.current?.remove();
       mapInstance.current = null;
     };
@@ -134,6 +142,7 @@ export function ListingMap({ listings, mode = "vacation", single = false, autoLo
   return (
     <div className={`listing-map-shell ${single ? "single-map" : ""}`}>
       <div ref={mapElement} className={`listing-map ${mapReady || autoLoad ? "is-ready" : ""}`} aria-label="מפה אינטראקטיבית של המקומות" />
+      {mapReady && <span className="map-zoom-hint">גלגלת להגדלה ולהקטנה</span>}
       {!mapReady && (autoLoad
         ? <span className="map-live-loading" role="status">טוענים את המפה ואת הסמנים...</span>
         : <div className="map-preview-card map-loading-preview">{previewContent}</div>)}
