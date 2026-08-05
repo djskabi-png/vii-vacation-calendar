@@ -7,7 +7,9 @@ import Link from "next/link";
 import { ListingMap } from "../../components/listing-map";
 import { PageShell } from "../../components/page-shell";
 import { ContactActions } from "../../components/contact-actions";
+import { DiscoveryCard } from "../../components/discovery-card";
 import { eventPlaces } from "../../data/site-data";
+import { providerProfiles } from "../../data/world-data";
 import { CalendarIcon, HeartIcon, PinIcon } from "../../site-header";
 
 export default function EventPlacePage() {
@@ -16,6 +18,10 @@ export default function EventPlacePage() {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [sent, setSent] = useState(false);
   const place = useMemo(() => eventPlaces.find((item) => item.slug === slug) || eventPlaces[0], [slug]);
+  const eventProviders = useMemo(() => {
+    const start = place.slug.length % providerProfiles.length;
+    return [...providerProfiles.slice(start), ...providerProfiles.slice(0, start)].slice(0, 3);
+  }, [place.slug]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -54,7 +60,7 @@ export default function EventPlacePage() {
     <PageShell variant="events">
       <main id="main-content" className="event-place-page">
         <div className="shell breadcrumbs"><Link href="/events/">אירועים</Link><span>/</span><Link href="/events/search/">מקומות</Link><span>/</span><span>{place.name}</span></div>
-        <section className="shell property-title event-title"><div><span className="eyebrow">{place.type}</span><h1>{place.name}</h1><p><PinIcon />{place.location}, {place.area}</p></div><div className="property-title__side"><div className="property-title__actions"><button type="button" onClick={toggleSaved}><HeartIcon filled={saved} />{saved ? "נשמר" : "שמירה"}</button><button type="button" onClick={() => void share()}>שיתוף</button></div><ContactActions key={place.slug} contact={place.contact} placeName={place.name} /></div></section>
+        <section className="shell property-title event-title"><div><span className="eyebrow">{place.type}</span><h1>{place.name}</h1><p><PinIcon />{place.location}, {place.area}</p></div><div className="property-title__side"><div className="property-title__actions"><button type="button" aria-pressed={saved} onClick={toggleSaved}><HeartIcon filled={saved} />{saved ? "נשמר" : "שמירה"}</button><button type="button" onClick={() => void share()}>שיתוף</button></div><ContactActions key={place.slug} contact={place.contact} placeName={place.name} /></div></section>
         <section className="shell property-gallery">{place.images.map((image, index) => <button key={image} type="button" onClick={() => setGalleryOpen(true)} aria-label={`פתיחת תמונה ${index + 1} של ${place.name}`}><img src={image} alt={`${place.name}, תמונה ${index + 1}`} />{index === 4 && <span>לכל התמונות</span>}</button>)}</section>
 
         <nav className="shell property-anchor-nav"><a href="#event-about">על המקום</a><a href="#event-features">מתקנים</a><a href="#event-map">מיקום</a><a href="#event-contact">בדיקת התאמה</a></nav>
@@ -71,6 +77,14 @@ export default function EventPlacePage() {
 
           <aside id="event-contact" className="booking-card event-inquiry"><CalendarIcon /><span className="eyebrow">בדיקת התאמה</span><h2>ספרו לנו על האירוע</h2>{sent ? <div className="inquiry-success" role="status"><b>הפרטים מוכנים להעברה</b><p>בגרסה המחוברת הטופס יישלח למערכת הלידים הקיימת. כרגע אפשר להמשיך לעמוד המקור.</p><a className="button primary wide" href={place.liveUrl} target="_blank" rel="noreferrer">מעבר לעמוד המקור</a><button className="button subtle wide" type="button" onClick={() => setSent(false)}>עריכת הפרטים</button></div> : <form onSubmit={submitInquiry}><label>תאריך מבוקש<input type="date" required /></label><label>כמות משתתפים<input type="number" min="1" max={place.guests} defaultValue={Math.min(40, place.guests)} required /></label><label>סוג האירוע<select required defaultValue=""><option value="" disabled>בחרו סוג אירוע</option>{place.eventTypes.map((item) => <option key={item}>{item}</option>)}</select></label><label>שם מלא<input type="text" required /></label><label>טלפון<input type="tel" inputMode="tel" required /></label><button className="button primary wide" type="submit">בדיקת התאמה</button><small>הטופס מוצג כחלק מהפרונט. השליחה תחובר למערכת הלידים הקיימת.</small></form>}</aside>
         </div>
+
+        <section className="section property-complements">
+          <div className="shell">
+            <div className="section-head"><div><span className="eyebrow">מרכיבים את כל האירוע</span><h2>ספקים שיכולים להשלים את החגיגה</h2></div><Link href="/providers/">לכל הספקים</Link></div>
+            <p className="property-complements__note">הפרופילים בשלב הזה הם דוגמאות עיצוב ותפקוד. הם מסומנים כהדגמה ולא מוצגים כעסקים פעילים.</p>
+            <div className="discovery-grid discovery-grid--compact">{eventProviders.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>
+          </div>
+        </section>
 
         <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים לאירוע</h2></div><div className="event-more-grid">{eventPlaces.filter((item) => item.slug !== place.slug).slice(0, 3).map((item) => <Link key={item.slug} href={`/events/place/?id=${item.slug}`}><img src={item.image} alt={item.name} /><div><b>{item.name}</b><span>{item.location} · עד {item.guests} אורחים</span></div></Link>)}</div></div></section>
       </main>

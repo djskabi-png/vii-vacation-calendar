@@ -10,13 +10,18 @@ async function render(pathname = "/") {
 }
 
 for (const [pathname, expected] of [
-  ["/", /מוצאים מקום שמתאים בדיוק לכם/],
+  ["/", /כל החופשה, במקום אחד/],
   ["/search", /נופש ברחבי הארץ/],
   ["/business", /אקווה ריזורט/],
   ["/events", /מוצאים מקום לחגוג בו/],
   ["/events/search", /מקומות לאירועים/],
   ["/events/place", /לופט פארטי טיים/],
   ["/favorites", /המקומות שאהבתי/],
+  ["/spas", /מוצאים את הספא שמתאים/],
+  ["/hourly", /חדר לכמה שעות/],
+  ["/providers", /האנשים שהופכים אירוח לחוויה/],
+  ["/activities", /רעיונות טובים ממש ליד החופשה/],
+  ["/discover/place", /ספא בוטיק תל אביב/],
 ]) {
   test(`server renders ${pathname}`, async () => {
     const response = await render(pathname);
@@ -27,15 +32,19 @@ for (const [pathname, expected] of [
 }
 
 test("keeps calendar contexts, real listing ids and maps", async () => {
-  const [calendar, searchBox, business, search, eventSearch, data, map, contactActions] = await Promise.all([
+  const [calendar, searchBox, business, search, eventSearch, eventPlace, data, worldData, worldSwitcher, map, contactActions, styles] = await Promise.all([
     readFile(new URL("../app/calendar-demo.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/business/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/search/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/events/search/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/events/place/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/data/site-data.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/world-switcher.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/contact-actions.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
   assert.match(calendar, /mode === "home"/);
   assert.match(calendar, /mode === "business"/);
@@ -49,10 +58,21 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.equal((data.match(/name: "(?:אקווה ריזורט, וילת החוף|יחידת סטודיו שני|יחידת סטודיו העמק|סוויטה משפחתית וואנדרפול|יחידת עכו|סוויטות 1\+2|סוויטה משפחתית"|א\.ר סוויטות|סוויטה [1-4]"|חדר שינה"|סוויטת (?:מירון|גאיה|אליה|נועה|יובל|חרמון)|וילת הבשמים|אחוזת השושנים בוטיק)/g) || []).length >= 20, true);
   assert.match(business, /property\.roomOptions\.map/);
   assert.match(business, /חדרים ויחידות/);
+  assert.match(business, /מה אפשר לעשות מסביב/);
+  assert.match(business, /complementaryItems/);
+  assert.match(eventPlace, /ספקים שיכולים להשלים את החגיגה/);
+  assert.match(eventPlace, /פרופילים בשלב הזה הם דוגמאות/);
   assert.equal((data.match(/contact: \{ phone:/g) || []).length, 17);
   assert.equal((data.match(/whatsapp:/g) || []).length, 8);
   assert.match(contactActions, /הצג מספר/);
   assert.match(contactActions, /https:\/\/wa\.me\//);
+  assert.match(business, /aria-pressed=\{saved\}/);
+  assert.match(eventPlace, /aria-pressed=\{saved\}/);
+  assert.match(styles, /\.property-title__actions svg\.filled/);
+  assert.equal((worldData.match(/sourceName: "ספא פלוס"/g) || []).length, 10);
+  assert.equal((worldData.match(/sourceName: "חדרים וי־איי־פי"/g) || []).length, 10);
+  assert.match(worldSwitcher, /עוברים עולם/);
+  assert.match(searchBox, /SearchWorldTabs/);
   assert.match(map, /basemaps\.cartocdn\.com/);
   assert.match(map, /World_Imagery/);
   assert.match(map, /map-preview-image/);

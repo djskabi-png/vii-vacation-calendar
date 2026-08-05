@@ -9,8 +9,24 @@ import { ListingMap } from "../components/listing-map";
 import { PageShell } from "../components/page-shell";
 import { PropertyCard } from "../components/property-card";
 import { ContactActions } from "../components/contact-actions";
+import { DiscoveryCard } from "../components/discovery-card";
 import { properties, propertyFaq } from "../data/site-data";
+import { activityIdeas, providerProfiles, spaPlaces, type DiscoveryItem } from "../data/world-data";
 import { CalendarIcon, HeartIcon, PinIcon } from "../site-header";
+
+function complementaryItems(area: string, location: string): DiscoveryItem[] {
+  const activity = activityIdeas.find((item) => item.area === area || item.location === location)
+    || activityIdeas.find((item) => area.includes("אילת") && item.area.includes("אילת"))
+    || activityIdeas.find((item) => (area.includes("גליל") || area.includes("כנרת") || area === "צפון") && item.area === "צפון")
+    || activityIdeas.find((item) => area.includes("ירושלים") && item.area.includes("ירושלים"))
+    || activityIdeas[0];
+  const spa = spaPlaces.find((item) => item.location === location)
+    || spaPlaces.find((item) => area.includes("ירושלים") && item.area.includes("ירושלים"))
+    || spaPlaces.find((item) => (area.includes("חוף") || area.includes("מרכז") || area.includes("שפלה")) && item.area === "מרכז");
+  const provider = providerProfiles[Math.abs(location.length + area.length) % providerProfiles.length];
+
+  return [activity, spa, provider].filter((item): item is DiscoveryItem => Boolean(item));
+}
 
 export default function BusinessPage() {
   const [slug, setSlug] = useState(properties[0].slug);
@@ -23,6 +39,7 @@ export default function BusinessPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const property = useMemo(() => properties.find((item) => item.slug === slug) || properties[0], [slug]);
   const roomQuantity = property.roomOptions?.reduce((total, room) => total + room.quantity, 0) || 0;
+  const complements = useMemo(() => complementaryItems(property.area, property.location), [property.area, property.location]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -121,6 +138,17 @@ export default function BusinessPage() {
 
           <aside className="booking-card"><span className="eyebrow">בדיקת זמינות</span><h2>{property.scenario === "single" ? "כל המקום בשבילכם" : "בוחרים תאריך ויחידה"}</h2><button type="button" className="date-choice" onClick={() => setCalendarOpen(true)}><CalendarIcon /><span><small>תאריכי השהייה</small><strong>{dates}</strong></span></button><label className="booking-guests">כמות אורחים<input type="number" min="1" max={property.guests} defaultValue={2} /></label><div className="booking-facts"><span>עד {property.guests} אורחים</span>{property.bedrooms && <span>{property.bedrooms} חדרי שינה</span>}</div><button className="button primary wide" type="button" onClick={() => setCalendarOpen(true)}>בחירת תאריך</button><small>זמינות ומחיר סופי יחוברו למערכת הניהול הקיימת.</small></aside>
         </div>
+
+        <section className="section property-complements">
+          <div className="shell">
+            <div className="section-head">
+              <div><span className="eyebrow">משלימים את החופשה</span><h2>מה אפשר לעשות מסביב</h2></div>
+              <Link href="/activities/">לכל הרעיונות והחוויות</Link>
+            </div>
+            <p className="property-complements__note">ההצעות מוצגות לפי האזור כשיש התאמה מאומתת. פרופילי ספקים שטרם חוברו לעסק פעיל מסומנים כהדגמה.</p>
+            <div className="discovery-grid discovery-grid--compact">{complements.map((item) => <DiscoveryCard key={`${item.world}-${item.id}`} item={item} />)}</div>
+          </div>
+        </section>
 
         <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים שיכולים להתאים</h2></div><div className="card-grid">{properties.filter((item) => item.slug !== property.slug).slice(0, 3).map((item) => <PropertyCard key={item.slug} property={item} />)}</div></div></section>
       </main>

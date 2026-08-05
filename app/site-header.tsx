@@ -5,15 +5,11 @@
 import Link from "next/link";
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
+import { worlds, type WorldId } from "./data/world-data";
 
-const nav = [
-  { href: "/", label: "נופש", description: "וילות, סוויטות ומתחמי אירוח" },
-  { href: "/events/", label: "אירועים", description: "מקומות מיוחדים לכל חגיגה" },
-  { href: "/destinations/", label: "יעדים", description: "מגלים את האזורים הכי יפים בארץ" },
-  { href: "/guides/", label: "מגזין", description: "מדריכים ורעיונות לחופשה" },
-];
+const nav = worlds.map((world) => ({ id: world.id, href: world.href, label: world.shortLabel, description: world.description }));
 
-export function SiteHeader({ variant = "vacation" }: { variant?: "vacation" | "events" }) {
+export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [comfortReading, setComfortReading] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -77,7 +73,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: "vacation" | "e
         <div className="menu-panel__intro">
           <span>מתחילים מכאן</span>
           <h2>לאן תרצו להגיע?</h2>
-          <p>כל מה שצריך כדי למצוא חופשה או מקום לאירוע, במקום אחד.</p>
+          <p>נופש, אירועים, ספא, ספקים וחוויות, במקום אחד.</p>
         </div>
 
         <div className="menu-panel__main">
@@ -92,12 +88,14 @@ export function SiteHeader({ variant = "vacation" }: { variant?: "vacation" | "e
         <div className="menu-panel__secondary">
           <Link href="/favorites/" onClick={closeMenu}><HeartIcon /><span>מקומות שאהבתי</span></Link>
           <Link href="/contact/" onClick={closeMenu}><ContactIcon /><span>יצירת קשר</span></Link>
+          <Link href="/destinations/" onClick={closeMenu}><PinIcon /><span>יעדים</span></Link>
+          <Link href="/guides/" onClick={closeMenu}><InfoIcon /><span>מגזין ומדריכים</span></Link>
           <Link href="/handoff/" onClick={closeMenu}><InfoIcon /><span>מרכז מידע לצוות</span></Link>
         </div>
 
         <div className="menu-panel__footer">
           <span>VII</span>
-          <p>חופשה ואירועים, בדיוק בדרך שלכם.</p>
+          <p>כל מה שכיף לעשות, בדיוק בדרך שלכם.</p>
         </div>
       </nav>
     </div>,
@@ -114,7 +112,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: "vacation" | "e
 
           <nav className="desktop-nav" aria-label="ניווט ראשי">
             {nav.map((item) => (
-              <Link key={item.href} href={item.href} className={(variant === "events" && item.href === "/events/") || (variant === "vacation" && item.href === "/") ? "active" : ""}>
+              <Link key={item.href} href={item.href} className={variant === item.id ? "active" : ""}>
                 {item.label}
               </Link>
             ))}

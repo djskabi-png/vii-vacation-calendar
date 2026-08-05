@@ -12,10 +12,10 @@ export default function HomePage() {
       <main id="main-content">
         <section className="home-hero">
           <div className="shell home-hero__content">
-            <span className="eyebrow">החופשה הבאה מתחילה כאן</span>
-            <h1>מוצאים מקום שמתאים בדיוק לכם</h1>
-            <p>מגלים מקומות מיוחדים, בוחרים תאריך ורואים את כל מה שחשוב לפני שמזמינים.</p>
-            <SearchBox />
+            <span className="eyebrow">נופש, אירועים, ספא וחוויות</span>
+            <h1>כל החופשה, במקום אחד</h1>
+            <p>מוצאים מקום לישון, מקום לחגוג, זמן להתפנק וכל מה שכיף לעשות מסביב.</p>
+            <SearchBox showWorlds />
             <div className="quick-links" aria-label="חיפושים מהירים"><span>חיפושים מהירים:</span><Link href="/search/?type=וילה">וילות</Link><Link href="/search/?feature=בריכה">עם בריכה</Link><Link href="/search/?audience=משפחות">למשפחות</Link><Link href="/search/?location=צפון">בצפון</Link></div>
           </div>
           <div className="hero-orb hero-orb--one" /><div className="hero-orb hero-orb--two" />

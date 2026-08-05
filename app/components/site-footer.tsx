@@ -11,13 +11,13 @@ export function SiteFooter() {
       <div className="shell footer-grid">
         <section className="footer-about">
           <img src="https://www.vii.co.il/assets/img/logo_new.png" alt="וי פור ויקיישן" />
-          <p>מוצאים מקום שמתאים בדיוק לחופשה שלכם, עם חיפוש ברור, מידע שימושי ותהליך בחירה נוח.</p>
+          <p>נופש, אירועים, ספא, ספקים וחוויות, עם חיפוש אחד שמחבר את כל מה שצריך.</p>
         </section>
         <nav aria-label="יעדים פופולריים"><strong>יעדים פופולריים</strong>{destinations.map((item) => <Link key={item} href={`/search/?location=${encodeURIComponent(item)}`}>נופש ב{item}</Link>)}</nav>
-        <nav aria-label="שירותים"><strong>שירותים</strong><Link href="/search/">חיפוש חופשה</Link><Link href="/events/">מקומות לאירועים</Link><Link href="/favorites/">מקומות שאהבתי</Link><Link href="/contact/">יצירת קשר</Link></nav>
+        <nav aria-label="שירותים"><strong>העולמות שלנו</strong><Link href="/search/">נופש</Link><Link href="/events/">אירועים</Link><Link href="/spas/">ספא</Link><Link href="/hourly/">חדרים לכמה שעות</Link><Link href="/providers/">ספקים</Link><Link href="/activities/">מה עושים בסביבה</Link></nav>
         <nav aria-label="מידע משפטי"><strong>מידע</strong><Link href="/guides/">מגזין ומדריכים</Link><Link href="/legal/terms/">תקנון</Link><Link href="/legal/privacy/">מדיניות פרטיות</Link><Link href="/legal/cancellation/">ביטול הזמנה</Link></nav>
       </div>
-      <div className="shell footer-bottom"><span>© וי פור ויקיישן</span><div><CookiePreferencesButton /><span>חופשה טובה מתחילה בבחירה טובה</span></div></div>
+      <div className="shell footer-bottom"><span>© וי פור ויקיישן</span><div><CookiePreferencesButton /><span>כל החופשה, במקום אחד</span></div></div>
     </footer>
   );
 }
