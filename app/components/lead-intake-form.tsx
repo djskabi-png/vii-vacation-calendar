@@ -17,12 +17,13 @@ const worldOptions = [
 type Purpose = "join" | "contact";
 type SubmitState = "idle" | "submitting" | "success" | "error";
 
-export function LeadIntakeForm({ purpose }: { purpose: Purpose }) {
+export function LeadIntakeForm({ purpose, selectedPackage = "", billingCycle = "" }: { purpose: Purpose; selectedPackage?: string; billingCycle?: "monthly" | "annual" | "" }) {
+  const isJoin = purpose === "join";
   const [state, setState] = useState<SubmitState>("idle");
   const [reference, setReference] = useState("");
   const [submissionId, setSubmissionId] = useState("");
+  const [selectedWorld, setSelectedWorld] = useState(isJoin && selectedPackage ? "providers" : "vacation");
   const worldSelectRef = useRef<HTMLSelectElement>(null);
-  const isJoin = purpose === "join";
 
   useEffect(() => {
     if (isJoin) return;
@@ -39,9 +40,17 @@ export function LeadIntakeForm({ purpose }: { purpose: Purpose }) {
     const requestContext = new URLSearchParams(window.location.search);
     const requestedWorld = requestContext.get("world");
     const requestedPlace = requestContext.get("place");
-    const requestedPackage = requestContext.get("package");
+    const effectiveWorld = String(requestedWorld || values.get("world") || "general");
+    const packageEligible = effectiveWorld === "providers" || effectiveWorld === "activities";
+    const requestedPackage = packageEligible ? selectedPackage || requestContext.get("package") || "" : "";
     const requestedService = requestContext.get("service");
-    const contextSuffix = requestedPlace ? `\n\nמקום או ספק מבוקש: ${requestedPlace}${requestedPackage ? `, חבילה: ${requestedPackage}` : ""}${requestedService ? `, שירות: ${requestedService}` : ""}` : "";
+    const contextDetails = [
+      requestedPlace ? `מקום או ספק מבוקש: ${requestedPlace}` : "",
+      requestedPackage ? `חבילת פרסום: ${requestedPackage}` : "",
+      billingCycle ? `מחזור חיוב: ${billingCycle === "annual" ? "שנתי" : "חודשי"}` : "",
+      requestedService ? `שירות: ${requestedService}` : "",
+    ].filter(Boolean);
+    const contextSuffix = contextDetails.length ? `\n\n${contextDetails.join("\n")}` : "";
     const id = submissionId || crypto.randomUUID();
     if (!submissionId) setSubmissionId(id);
 
@@ -52,7 +61,7 @@ export function LeadIntakeForm({ purpose }: { purpose: Purpose }) {
         body: JSON.stringify({
           submissionId: id,
           purpose,
-          world: requestedWorld || values.get("world") || "general",
+          world: effectiveWorld,
           name: values.get("name"),
           phone: values.get("phone"),
           email: values.get("email"),
@@ -60,6 +69,8 @@ export function LeadIntakeForm({ purpose }: { purpose: Purpose }) {
           location: values.get("location"),
           website: values.get("website"),
           message: `${values.get("message") || ""}${contextSuffix}`,
+          package: requestedPackage || undefined,
+          billingCycle: billingCycle || undefined,
           honey: values.get("company_site"),
           privacyAccepted: values.get("privacy") === "on",
           sourcePage: window.location.href,
@@ -78,8 +89,8 @@ export function LeadIntakeForm({ purpose }: { purpose: Purpose }) {
     return (
       <section className="lead-form-success" role="status" aria-live="polite">
         <span aria-hidden="true">✓</span>
-        <h2>{isJoin ? "הבקשה התקבלה" : "הפנייה התקבלה"}</h2>
-        <p>הפרטים נשמרו במערכת והצוות יוכל לחזור אליכם לפי פרטי הקשר שמסרתם.</p>
+        <h2>{isJoin ? "הקמת העמוד התחילה" : "הפנייה התקבלה"}</h2>
+        <p>{isJoin ? "פרטי העסק והמסלול שבחרתם נשמרו. לאחר אימות קצר תקבלו גישה להעלאת התוכן וקישור אישי לתשלום מאובטח." : "הפרטים נשמרו במערכת והצוות יוכל לחזור אליכם לפי פרטי הקשר שמסרתם."}</p>
         {reference ? <strong dir="ltr">{reference}</strong> : null}
         <Link className="button secondary" href="/">חזרה לדף הבית</Link>
       </section>
@@ -93,9 +104,9 @@ export function LeadIntakeForm({ purpose }: { purpose: Purpose }) {
           <legend>לאיזה עולם העסק שייך?</legend>
           <p>הבחירה תעזור לנו להעביר את הפנייה לצוות המתאים.</p>
           <div>
-            {worldOptions.map((world, index) => (
+            {worldOptions.map((world) => (
               <label key={world.id}>
-                <input defaultChecked={index === 0} required type="radio" name="world" value={world.id} />
+                <input defaultChecked={world.id === selectedWorld} required type="radio" name="world" value={world.id} onChange={() => setSelectedWorld(world.id)} />
                 <span><strong>{world.label}</strong><small>{world.description}</small></span>
               </label>
             ))}
@@ -124,7 +135,9 @@ export function LeadIntakeForm({ purpose }: { purpose: Purpose }) {
       <label className="form-wide">{isJoin ? "ספרו לנו בקצרה על העסק" : "איך נוכל לעזור?"}<textarea required name="message" rows={5} minLength={5} maxLength={3000} /></label>
       <label className="form-honey" aria-hidden="true">אתר החברה<input name="company_site" tabIndex={-1} autoComplete="off" /></label>
       <label className="consent form-wide"><input required name="privacy" type="checkbox" /> <span>קראתי את <Link href="/legal/privacy">מדיניות הפרטיות</Link> ואני מאשר או מאשרת שימוש בפרטים לצורך טיפול בפנייה.</span></label>
-      <button className="button primary form-wide" type="submit" disabled={state === "submitting"}>{state === "submitting" ? "שולחים את הפרטים..." : isJoin ? "שליחת בקשת הצטרפות" : "שליחת הפנייה"}</button>
+      {isJoin && selectedPackage && (selectedWorld === "providers" || selectedWorld === "activities") ? <div className="lead-selected-package form-wide"><span>המסלול שנבחר לספקים ולאטרקציות</span><strong>{selectedPackage}</strong></div> : null}
+      {isJoin && selectedPackage && selectedWorld !== "providers" && selectedWorld !== "activities" ? <div className="lead-selected-package lead-selected-package--custom form-wide"><span>למסלול הזה נבנה הצעה מותאמת</span><strong>המחיר אינו מחויב בשלב הזה</strong></div> : null}
+      <button className="button primary form-wide" type="submit" disabled={state === "submitting"}>{state === "submitting" ? "פותחים את החשבון..." : isJoin && (selectedWorld === "providers" || selectedWorld === "activities") ? "פתיחת חשבון והמשך לאימות" : isJoin ? "שליחת בקשת הצטרפות" : "שליחת הפנייה"}</button>
       {state === "error" ? <p className="form-error form-wide" role="alert">השליחה לא הושלמה. הפרטים נשארו בטופס ואפשר לנסות שוב.</p> : null}
     </form>
   );

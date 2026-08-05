@@ -27,7 +27,7 @@ for (const [pathname, expected] of [
   ["/trails", /יוצאים מהצימר. נכנסים לישראל היפה/],
   ["/trails/snir-hatzbani", /נחל שניר, חצבאני/],
   ["/discover/place", /ספא בוטיק תל אביב/],
-  ["/join", /מביאים את העסק שלכם/],
+  ["/join", /העמוד של העסק שלכם יכול להתחיל לעלות כבר עכשיו/],
   ["/contact", /יצירת קשר/],
   ["/accessibility", /הצהרת נגישות/],
 ]) {
@@ -225,11 +225,12 @@ test("keeps every date dialog above the site header with a reachable close actio
 });
 
 test("footer destinations and lead forms have real destinations", async () => {
-  const [footer, form, contact, join, cookieConsent] = await Promise.all([
+  const [footer, form, contact, join, onboarding, cookieConsent] = await Promise.all([
     readFile(new URL("../app/components/site-footer.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/lead-intake-form.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/contact/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/join/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/join/partner-onboarding.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/cookie-consent.tsx", import.meta.url), "utf8"),
   ]);
   for (const href of ["/search", "/events", "/spas", "/hourly", "/providers", "/activities", "/trails", "/join", "/contact", "/guides", "/accessibility", "/legal/terms", "/legal/privacy", "/legal/cancellation"]) {
@@ -243,7 +244,9 @@ test("footer destinations and lead forms have real destinations", async () => {
   assert.match(form, /crypto\.randomUUID\(\)/);
   assert.match(form, /state === "success"/);
   assert.match(contact, /LeadIntakeForm purpose="contact"/);
-  assert.match(join, /LeadIntakeForm purpose="join"/);
+  assert.match(join, /PartnerOnboarding/);
+  assert.match(onboarding, /LeadIntakeForm purpose="join"/);
+  assert.match(onboarding, /selectedPackage=\{selectionLabel\}/);
   assert.match(cookieConsent, /SETTINGS_HASH = "#privacy-settings"/);
   assert.match(cookieConsent, /window\.addEventListener\("hashchange", openFromHash\)/);
   assert.match(cookieConsent, /href=\{SETTINGS_HASH\}/);
