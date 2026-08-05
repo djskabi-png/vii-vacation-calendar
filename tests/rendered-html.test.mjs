@@ -58,6 +58,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(calendar, /mode === "business"/);
   assert.match(searchBox, /mode="home"/);
   assert.match(business, /businessKind=\{property\.scenario\}/);
+  assert.match(business, /<SearchBox compact \/>/);
   assert.match(business, /URLSearchParams\(location\.search\)\.get\("id"\)/);
   assert.match(search, /setPool/);
   assert.match(eventSearch, /setEventType/);

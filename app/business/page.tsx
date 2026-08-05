@@ -11,6 +11,7 @@ import { PropertyCard } from "../components/property-card";
 import { ContactActions } from "../components/contact-actions";
 import { DiscoveryCard } from "../components/discovery-card";
 import { ListingAccessibility } from "../components/listing-accessibility";
+import { SearchBox } from "../components/search-box";
 import { properties, propertyFaq } from "../data/site-data";
 import { activityIdeas, providerProfiles, spaPlaces, type DiscoveryItem } from "../data/world-data";
 import { CalendarIcon, HeartIcon, PinIcon } from "../site-header";
@@ -79,7 +80,7 @@ export default function BusinessPage() {
   return (
     <PageShell>
       <main id="main-content" className="property-page">
-        <div className="sticky-property-search"><div className="shell"><span><PinIcon />{property.location}</span><button type="button" onClick={() => setCalendarOpen(true)}><CalendarIcon />{dates}</button><button className="button primary" type="button" onClick={() => setCalendarOpen(true)}>בדיקת זמינות</button></div></div>
+        <div className="sticky-property-search"><div className="shell"><SearchBox compact /></div></div>
         <div className="shell breadcrumbs"><Link href="/">ראשי</Link><span>/</span><Link href={`/search/?location=${encodeURIComponent(property.area)}`}>{property.area}</Link><span>/</span><span>{property.name}</span></div>
 
         <section className="shell property-title">

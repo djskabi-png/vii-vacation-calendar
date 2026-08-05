@@ -2921,10 +2921,12 @@ h3 { font-size: 1.18rem; }
 .map-panel > p { color: var(--ink-soft); font-size: .75rem; }
 .empty-state { max-width: 650px; margin: 50px auto; text-align: center; padding: 60px 25px; border: 1px dashed #a9cbd0; border-radius: var(--radius); background: var(--mist); }
 
-.sticky-property-search { position: sticky; top: 0; z-index: 30; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.95); backdrop-filter: blur(15px); }
-.sticky-property-search > div { min-height: 62px; display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
-.sticky-property-search span, .sticky-property-search button { display: flex; align-items: center; gap: 7px; }
-.sticky-property-search > div > button:not(.button), .property-title__actions button { border: 1px solid var(--line); background: white; border-radius: 12px; padding: 9px 12px; }
+.sticky-property-search { position: sticky; top: 0; z-index: 30; padding-block: 9px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.96); backdrop-filter: blur(15px); }
+.sticky-property-search > .shell { display: block; }
+.sticky-property-search .search-box { width: 100%; max-width: 1180px; border-radius: 16px; box-shadow: 0 8px 24px rgba(13, 47, 57, .08); }
+.sticky-property-search .search-field { min-height: 52px; }
+.sticky-property-search .search-submit { min-height: 52px; }
+.property-title__actions button { border: 1px solid var(--line); background: white; border-radius: 12px; padding: 9px 12px; }
 .property-title { display: flex; justify-content: space-between; align-items: end; padding-block: 18px 28px; }
 .property-title h1 { font-size: clamp(2.2rem,5vw,4rem); margin-bottom: 8px; }
 .property-title__side { display: grid; justify-items: end; gap: 13px; }
@@ -3222,8 +3224,7 @@ body:has(.cookie-card) .world-dock { bottom: 118px; }
   .result-cards .stay-card { grid-template-columns: 1fr; }
   .result-cards .stay-card__media { min-height: 260px; }
   .map-panel { grid-column: auto; }
-  .sticky-property-search span { display: none; }
-  .sticky-property-search > div { justify-content: space-between; }
+  .sticky-property-search { position: relative; padding-block: 12px; }
   .property-title { align-items: start; flex-direction: column; gap: 15px; }
   .property-title__side { width: 100%; justify-items: stretch; }
   .listing-contact-actions { justify-content: flex-start; }
