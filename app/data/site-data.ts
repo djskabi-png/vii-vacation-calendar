@@ -348,9 +348,9 @@ export const properties = propertyCatalog
 
 export type EventPlace = Listing & { eventTypes: string[] };
 
-export const eventPlaces: EventPlace[] = [
+const eventPlaceCatalog: EventPlace[] = [
   {
-    slug: "party-time", name: "לופט פארטי טיים", location: "מצליח", area: "מישור החוף והשפלה", type: "לופט", units: 1, guests: 40,
+    slug: "party-time", active: false, name: "לופט פארטי טיים", location: "מצליח", area: "מישור החוף והשפלה", type: "לופט", units: 1, guests: 40,
     image: "/media/95d6a4d598adae11.png",
     images: ["/media/95d6a4d598adae11.png", "/media/9f5b2efa71e5b42e.jpg", "/media/93e697d77ba82b00.jpg", "/media/cbb81d3949850f32.jpg", "/media/c549ced51085ea4c.jpeg"],
     description: "לופט למסיבות במושב מצליח עם בריכה, פינות ישיבה, ערסלים, מקרן, מערכת הגברה ותאורה וג'קוזי.",
@@ -429,6 +429,8 @@ export const eventPlaces: EventPlace[] = [
     contact: { phone: "055-4538198" },
   },
 ];
+
+export const eventPlaces = eventPlaceCatalog.filter((place) => place.active !== false);
 
 export const destinations = [
   { name: "אילת", subtitle: "ים, שמש ומקומות אירוח שלמים", image: properties[0].image },

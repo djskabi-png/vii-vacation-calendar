@@ -15,7 +15,7 @@ for (const [pathname, expected] of [
   ["/business", /אקווה ריזורט/],
   ["/events", /מוצאים מקום לחגוג בו/],
   ["/events/search", /מקומות לאירועים/],
-  ["/events/place", /לופט פארטי טיים/],
+  ["/events/place", /בלאק לופט/],
   ["/favorites", /המקומות שאהבתי/],
   ["/guides", /החופשה הטובה מתחילה ברעיון טוב/],
   ["/guides/article", /איך בוחרים מקום שבאמת מתאים/],
@@ -61,19 +61,22 @@ test("query-driven detail pages render the requested content on the server", asy
   }
 });
 
-test("removed places stay out of the public catalog and magazine", async () => {
-  const [searchResponse, guidesResponse, sitemapResponse, removedResponse] = await Promise.all([
+test("removed places stay out of the public catalogs and magazine", async () => {
+  const [searchResponse, eventSearchResponse, guidesResponse, sitemapResponse, removedResponse] = await Promise.all([
     render("/search"),
+    render("/events/search"),
     render("/guides"),
     render("/sitemap.xml", { headers: { accept: "application/xml" } }),
     render("/business?id=infinity-suites"),
   ]);
-  const [searchHtml, guidesHtml, sitemapXml] = await Promise.all([
+  const [searchHtml, eventSearchHtml, guidesHtml, sitemapXml] = await Promise.all([
     searchResponse.text(),
+    eventSearchResponse.text(),
     guidesResponse.text(),
     sitemapResponse.text(),
   ]);
   assert.doesNotMatch(searchHtml, /infinity-suites|e65d757e686fda64/i);
+  assert.doesNotMatch(eventSearchHtml, /party-time|לופט פארטי טיים|95d6a4d598adae11/i);
   assert.doesNotMatch(guidesHtml, /e65d757e686fda64/i);
   assert.doesNotMatch(sitemapXml, /infinity-suites/i);
   assert.equal(removedResponse.status, 404);
@@ -423,7 +426,8 @@ test("every canonical URL in the sitemap has complete crawlable HTML", async () 
   const sitemapXml = await sitemapResponse.text();
   assert.equal(sitemapResponse.status, 200);
   const urls = [...sitemapXml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1].replaceAll("&amp;", "&"));
-  assert.equal(urls.length, 79);
+  assert.equal(urls.length, 78);
+  assert.equal(urls.some((url) => url.includes("party-time")), false);
   assert.equal(new Set(urls).size, urls.length);
 
   for (const absolute of urls) {
