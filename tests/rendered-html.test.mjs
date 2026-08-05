@@ -44,6 +44,8 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(search, /setPool/);
   assert.match(eventSearch, /setEventType/);
   assert.equal((data.match(/liveUrl: "https:\/\/www\.vii\.co\.il\//g) || []).length, 20);
-  assert.match(map, /tile\.openstreetmap\.org/);
+  assert.match(map, /basemaps\.cartocdn\.com/);
+  assert.match(map, /World_Imagery/);
+  assert.match(map, /map-preview-image/);
   assert.match(map, /if \(!enabled\)/);
 });
