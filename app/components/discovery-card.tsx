@@ -7,7 +7,8 @@ import { PinIcon } from "../site-header";
 export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
   return <article className={`discovery-card discovery-card--${item.world}`}>
     <Link className="discovery-card__visual" href={`/discover/place?world=${item.world}&id=${item.id}`} aria-label={`פרטים על ${item.name}`}>
-      {item.image ? <img src={item.image} alt={item.name} /> : <span className={`discovery-card__placeholder discovery-card__placeholder--${item.world}`}><b>{item.name.slice(0, 1)}</b><small>{item.demo ? "פרופיל הדגמה" : "רעיון מערכת"}</small></span>}
+      {item.image ? <img src={item.image} alt={item.imageLabel ? `תמונת אווירה לתחום ${item.features[0]}` : item.name} /> : <span className={`discovery-card__placeholder discovery-card__placeholder--${item.world}`}><b>{item.name.slice(0, 1)}</b><small>{item.demo ? "פרופיל הדגמה" : "רעיון מערכת"}</small></span>}
+      {item.imageLabel && <span className="image-context-label">{item.imageLabel}</span>}
       {item.demo && <span className="demo-badge">הדגמה</span>}
       {item.rating && <span className="rating-badge">★ {item.rating.toFixed(1)}</span>}
     </Link>

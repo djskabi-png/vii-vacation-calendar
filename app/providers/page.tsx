@@ -3,12 +3,12 @@ import { WorldLanding } from "../components/world-landing";
 import { providerProfiles } from "../data/world-data";
 
 export const metadata: Metadata = {
-  title: "ספקים ונותני שירות לחופשה ולאירוע",
-  description: "שפים פרטיים, תקליטנים, צילום, הפעלות ועיצוב שמגיעים עד מקום האירוח.",
+  title: "ספקים לחופשה ולאירוע במקום אחד",
+  description: "שפים פרטיים, תקליטנים, צילום, ברים, עיצוב ופעילויות שמגיעים עד מקום האירוח.",
   alternates: { canonical: "/providers" },
   robots: { index: false, follow: true },
 };
 
 export default function ProvidersPage() {
-  return <WorldLanding world="providers" eyebrow="מגיעים עד אליכם" title="האנשים שהופכים אירוח לחוויה" description="שף פרטי, תקליטן, צילום, הפעלות ועיצוב. בוחרים שירות ומחברים אותו למקום ולתאריך." items={providerProfiles} sourceNote="הפרופילים בעמוד זה הם פרופילי הדגמה למבנה המוצר ואינם עסקים אמיתיים." />;
+  return <WorldLanding world="providers" eyebrow="כל השירותים סביב האירוח" title="מוצאים ספק שמתאים בדיוק לאירוע" description="שפים פרטיים, מוזיקה, צילום, ברים, עיצוב ופעילויות. מסננים לפי תחום, נכנסים לפרופיל מלא ומבקשים הצעה בלי לצאת מהאתר." items={providerProfiles} sourceNote="הפרטים נאספו מאתרים רשמיים ונבדקו באוגוסט 2026. ספק שלא אומת כשותף פעיל מסומן כך בעמוד שלו, והזמינות מאושרת לפני הזמנה." />;
 }

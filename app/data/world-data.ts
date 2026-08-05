@@ -17,6 +17,8 @@ export type DiscoveryItem = {
   description: string;
   features: string[];
   image?: string;
+  imageLabel?: string;
+  searchTerms?: string[];
   priceLabel?: string;
   rating?: number;
   duration?: string;
@@ -61,12 +63,16 @@ export const hourlyPlaces: DiscoveryItem[] = [
 ];
 
 export const providerProfiles: DiscoveryItem[] = [
-  { id: "guest-table", world: "providers", name: "מטבח אורח", location: "כל הארץ", area: "שירות עד המקום", description: "קונספט לשף פרטי שמגיע למקום האירוח ובונה ארוחה לפי ההרכב והסגנון.", features: ["שף פרטי", "תפריט מותאם", "ארוחה במקום"], priceLabel: "פרופיל הדגמה", demo: true },
-  { id: "pulse-dj", world: "providers", name: "Pulse DJ", location: "מרכז והשרון", area: "אירועים", description: "קונספט לתקליטן שמרכיב קו מוזיקלי למסיבה פרטית או אירוע חברה.", features: ["תקליטן", "ציוד הגברה", "פלייליסט אישי"], priceLabel: "פרופיל הדגמה", demo: true },
-  { id: "happy-pop", world: "providers", name: "פופ אפ שמח", location: "כל הארץ", area: "משפחות", description: "קונספט להפעלות יצירה, משחק ותוכן לילדים במקום האירוח.", features: ["מפעילים", "ילדים", "ציוד מלא"], priceLabel: "פרופיל הדגמה", demo: true },
-  { id: "moment-photo", world: "providers", name: "רגעים", location: "צפון ומרכז", area: "צילום", description: "קונספט לצילום חופשות, הצעות נישואין ואירועים קטנים בלוקיישן.", features: ["צילום", "עריכה", "גלריה דיגיטלית"], priceLabel: "פרופיל הדגמה", demo: true },
-  { id: "flow-on", world: "providers", name: "Flow On", location: "כל הארץ", area: "וולנס", description: "קונספט לשיעור יוגה, נשימה או תנועה פרטית במתחם הנופש.", features: ["יוגה", "מדיטציה", "ציוד לשיעור"], priceLabel: "פרופיל הדגמה", demo: true },
-  { id: "celebrate-table", world: "providers", name: "שולחן חגיגי", location: "מרכז ודרום", area: "עיצוב ואירוח", description: "קונספט לעיצוב שולחן, בלונים ואווירה לארוחה או חגיגה פרטית.", features: ["עיצוב", "בלונים", "הקמה במקום"], priceLabel: "פרופיל הדגמה", demo: true },
+  { id: "maor-natan", world: "providers", name: "מאור נתן", location: "לפי מיקום האירוע", area: "שף פרטי וקייטרינג", description: "ארוחות שף פרטיות, אירוח מלא וקייטרינג בוטיק שמגיעים לבית או למקום הנופש.", features: ["שף פרטי", "אירוח מלא", "תפריט מותאם"], image: "/media/providers/maor-natan.jpg", imageLabel: "תמונת אווירה", priceLabel: "הצעה מותאמת" },
+  { id: "nissan-mukhtar", world: "providers", name: "ניסן מוכתר", location: "כל הארץ", area: "שף פרטי", description: "ארוחות שף בבית או בווילה, עם תפריטים בשריים וחלביים לאירועים פרטיים ועסקיים.", features: ["בשרי או חלבי", "אירועים קטנים", "הגשה במקום"], image: "/media/providers/nissan-mukhtar.jpg", imageLabel: "תמונת אווירה", priceLabel: "הצעה מותאמת" },
+  { id: "dj-kfir-w", world: "providers", name: "DJ Kfir W", searchTerms: ["כפיר", "כפיר וי", "דיג׳יי כפיר"], location: "קריית עקרון", area: "תקליטן ויוצר מוזיקלי", description: "תקליטנות לחתונות, מסיבות ואירועי חברה עם קו מוזיקלי שנבנה לפי הקהל.", features: ["חתונות", "מסיבות פרטיות", "אירועי חברה"], image: "/media/providers/dj-kfir-w.jpg", imageLabel: "תמונת אווירה", priceLabel: "בדיקת זמינות" },
+  { id: "liran-elias-dj", world: "providers", name: "Liran Elias", searchTerms: ["לירן אליאס", "דיג׳יי לירן"], location: "לפי מיקום האירוע", area: "תקליטן ועורך מוזיקלי", description: "מוזיקה לחתונות ואירועי חברה, לצד סדנת תקליטנות אישית או זוגית.", features: ["חתונות", "אירועי חברה", "סדנת DJ"], image: "/media/providers/liran-elias-dj.jpg", imageLabel: "תמונת אווירה", priceLabel: "בדיקת זמינות" },
+  { id: "photoshot", world: "providers", name: "פוטושוט", location: "לפי מיקום האירוע", area: "צילום אירועים", description: "צילום סטילס, וידאו, עריכה ואלבומים לחתונות ולאירועים משפחתיים.", features: ["סטילס", "וידאו", "אלבומים"], image: "/media/providers/photoshot.jpg", imageLabel: "תמונת אווירה", priceLabel: "בחירת חבילה" },
+  { id: "baboom", world: "providers", name: "באבום בלונים", location: "מחיפה ועד אשדוד", area: "עיצוב בלונים", description: "קירות צילום, קשתות, עמודים וחבילות עיצוב בלונים בהתאמה לצבעים ולקונספט.", features: ["קירות צילום", "קשתות", "עיצוב מלא"], image: "/media/providers/baboom.jpg", imageLabel: "תמונת אווירה", priceLabel: "הצעה לפי עיצוב" },
+  { id: "balloona", world: "providers", name: "Balloona", searchTerms: ["בלונה"], location: "לפי מיקום האירוע", area: "אירועי קונספט", description: "עיצוב בלונים אמנותי לאירועי חברה, השקות, חגיגות ועיצוב חדרים.", features: ["קונספט", "מיתוג", "עיצוב חלל"], image: "/media/providers/balloona.jpg", imageLabel: "תמונת אווירה", priceLabel: "הצעה לפי קונספט" },
+  { id: "bp-cocktails", world: "providers", name: "B&P Cocktails", searchTerms: ["בי אנד פי", "בי אנד פי קוקטיילס"], location: "ישראל", area: "בר קוקטיילים", description: "קוקטיילים ממותגים, בר לחתונות ואירועי חברה ותפריט שנבנה לפי הקהל.", features: ["קוקטיילים", "מיתוג", "צוות בר"], image: "/media/providers/bp-cocktails.jpg", imageLabel: "תמונת אווירה", priceLabel: "בניית תפריט" },
+  { id: "onyx-bar", world: "providers", name: "ONYX Bar", searchTerms: ["אוניקס", "אוניקס בר"], location: "לפי מיקום האירוע", area: "בר ומיקסולוגיה", description: "בר קוקטיילים לאירועים פרטיים, מסיבות ועמדות Happy Hour לחברות.", features: ["ברמנים", "מיקסולוגיה", "Happy Hour"], image: "/media/providers/onyx-bar.jpg", imageLabel: "תמונת אווירה", priceLabel: "בקשת הצעה" },
+  { id: "zen-events", world: "providers", name: "Zen Events", searchTerms: ["זן", "זן אירועים"], location: "כל הארץ", area: "יוגה ורווחה", description: "יוגה, אקרו יוגה, נשימה, חשיפה לקור ועמדות עיסוי לאירועים ולימי גיבוש.", features: ["יוגה", "נשימה", "עמדות עיסוי"], image: "/media/providers/zen-events.jpg", imageLabel: "תמונת אווירה", priceLabel: "התאמת פעילות" },
 ];
 
 export const activityIdeas: DiscoveryItem[] = [

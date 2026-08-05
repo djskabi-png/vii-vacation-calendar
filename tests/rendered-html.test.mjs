@@ -22,7 +22,7 @@ for (const [pathname, expected] of [
   ["/guides/private-event-checklist", /אירוע במקום פרטי/],
   ["/spas", /מוצאים את הספא שמתאים/],
   ["/hourly", /חדר לכמה שעות/],
-  ["/providers", /האנשים שהופכים אירוח לחוויה/],
+  ["/providers", /מוצאים ספק שמתאים בדיוק לאירוע/],
   ["/activities", /בוחרים איך לבלות את היום/],
   ["/trails", /יוצאים מהצימר. נכנסים לישראל היפה/],
   ["/trails/snir-hatzbani", /נחל שניר, חצבאני/],
@@ -162,7 +162,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(business, /מה אפשר לעשות מסביב/);
   assert.match(business, /complementaryItems/);
   assert.match(eventPlace, /ספקים שיכולים להשלים את החגיגה/);
-  assert.match(eventPlace, /פרופילים בשלב הזה הם דוגמאות/);
+  assert.match(eventPlace, /הפרטים מבוססים על מידע ציבורי/);
   assert.equal((data.match(/contact: \{ phone:/g) || []).length, 17);
   assert.equal((data.match(/whatsapp:/g) || []).length, 8);
   assert.match(contactActions, /הצג מספר/);
@@ -479,7 +479,7 @@ test("key page types emit matching structured data and private pages stay out of
     for (const expected of expectedTypes) assert.match(html, new RegExp(`\\"@type\\":\\"${expected}\\"`), `${pathname}: ${expected}`);
   }
 
-  for (const pathname of ["/favorites", "/providers", "/handoff", "/discover/place?id=guest-table"]) {
+  for (const pathname of ["/favorites", "/providers", "/handoff", "/discover/place?id=maor-natan"]) {
     const response = await render(pathname);
     assert.match(await response.text(), /<meta name="robots" content="noindex/);
   }

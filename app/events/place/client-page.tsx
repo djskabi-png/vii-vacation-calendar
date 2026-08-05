@@ -110,7 +110,7 @@ export default function EventPlacePage({ initialSlug }: { initialSlug: string })
         <section className="section property-complements">
           <div className="shell">
             <div className="section-head"><div><span className="eyebrow">מרכיבים את כל האירוע</span><h2>ספקים שיכולים להשלים את החגיגה</h2></div><Link href="/providers">לכל הספקים</Link></div>
-            <p className="property-complements__note">הפרופילים בשלב הזה הם דוגמאות עיצוב ותפקוד. הם מסומנים כהדגמה ולא מוצגים כעסקים פעילים.</p>
+            <p className="property-complements__note">הפרטים מבוססים על מידע ציבורי. ספק שלא אומת כשותף פעיל מסומן כך בעמוד שלו, והזמינות מאושרת לפני הזמנה.</p>
             <div className="discovery-grid discovery-grid--compact">{eventProviders.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>
           </div>
         </section>

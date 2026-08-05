@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
 const endpoint = "/api/leads/";
 
@@ -21,7 +21,14 @@ export function LeadIntakeForm({ purpose }: { purpose: Purpose }) {
   const [state, setState] = useState<SubmitState>("idle");
   const [reference, setReference] = useState("");
   const [submissionId, setSubmissionId] = useState("");
+  const worldSelectRef = useRef<HTMLSelectElement>(null);
   const isJoin = purpose === "join";
+
+  useEffect(() => {
+    if (isJoin) return;
+    const requestedWorld = new URLSearchParams(window.location.search).get("world");
+    if (requestedWorld && worldOptions.some((world) => world.id === requestedWorld) && worldSelectRef.current) worldSelectRef.current.value = requestedWorld;
+  }, [isJoin]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -33,7 +40,8 @@ export function LeadIntakeForm({ purpose }: { purpose: Purpose }) {
     const requestedWorld = requestContext.get("world");
     const requestedPlace = requestContext.get("place");
     const requestedPackage = requestContext.get("package");
-    const contextSuffix = requestedPlace ? `\n\nמקום מבוקש: ${requestedPlace}${requestedPackage ? `, חבילה: ${requestedPackage}` : ""}` : "";
+    const requestedService = requestContext.get("service");
+    const contextSuffix = requestedPlace ? `\n\nמקום או ספק מבוקש: ${requestedPlace}${requestedPackage ? `, חבילה: ${requestedPackage}` : ""}${requestedService ? `, שירות: ${requestedService}` : ""}` : "";
     const id = submissionId || crypto.randomUUID();
     if (!submissionId) setSubmissionId(id);
 
@@ -95,7 +103,7 @@ export function LeadIntakeForm({ purpose }: { purpose: Purpose }) {
         </fieldset>
       ) : (
         <label className="form-wide">נושא הפנייה
-          <select name="world" defaultValue="general">
+          <select ref={worldSelectRef} name="world" defaultValue="general">
             <option value="general">שאלה כללית</option>
             <option value="vacation">נופש ומקומות אירוח</option>
             <option value="events">אירועים</option>
