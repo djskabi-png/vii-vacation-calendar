@@ -70,8 +70,12 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.equal((data.match(/roomOptions:/g) || []).length, 10);
   assert.equal((data.match(/name: "(?:אקווה ריזורט, וילת החוף|יחידת סטודיו שני|יחידת סטודיו העמק|סוויטה משפחתית וואנדרפול|יחידת עכו|סוויטות 1\+2|סוויטה משפחתית"|א\.ר סוויטות|סוויטה [1-4]"|חדר שינה"|סוויטת (?:מירון|גאיה|אליה|נועה|יובל|חרמון)|וילת הבשמים|אחוזת השושנים בוטיק)/g) || []).length >= 20, true);
   assert.match(business, /property\.roomOptions\.map/);
-  assert.match(business, /חדרים ויחידות/);
+  assert.match(business, /סוויטות ויחידות/);
   assert.match(business, /property\.sleepingArrangements/);
+  assert.doesNotMatch(business, /property\.roomOptions\?\.length && !property\.sleepingArrangements/);
+  assert.match(business, /room-card__sleeping/);
+  assert.match(business, /חדרי השינה בתוך היחידה/);
+  assert.match(business, /לצפייה בפירוט החדרים, המיטות והתמונות/);
   assert.doesNotMatch(business, /href=\{property\.liveUrl\}/);
   assert.doesNotMatch(eventPlace, /href=\{place\.liveUrl\}/);
   assert.doesNotMatch(business, /לכל פרטי המקום|לצפייה בעמוד המקור/);
@@ -83,7 +87,8 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   ])).join("\n");
   assert.doesNotMatch(legalPages, /href=["']https:\/\/www\.vii\.co\.il/);
   assert.match(sleeping, /איפה ישנים\?/);
-  assert.match(sleeping, /תמונות אווירה בלבד/);
+  assert.match(sleeping, /כל כרטיס מייצג חדר שינה ולא יחידת אירוח/);
+  assert.match(sleeping, /alt=\{`\$\{arrangement\.name\} ב\$\{placeName\}`\}/);
   assert.equal((data.match(/name: "חדר שינה [1-9]"/g) || []).length, 9);
   assert.equal((data.match(/galleryImage: "https:\/\/www\.vii\.co\.il\/gallery\/thumb\/600\//g) || []).length, 9);
   assert.match(business, /מה אפשר לעשות מסביב/);

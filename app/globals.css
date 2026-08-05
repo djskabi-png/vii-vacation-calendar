@@ -3465,6 +3465,17 @@ body:has(.cookie-card) .world-dock { bottom: 118px; }
 .room-card__features { display: flex; flex-wrap: wrap; gap: 7px; }
 .room-card__features span { color: var(--ink-soft); font-size: .76rem; }
 .room-card__features span:not(:last-child)::after { content: "·"; margin-inline-start: 7px; color: #9bb6bb; }
+.room-card__sleeping { display: grid; gap: 9px; padding: 14px; border: 1px solid #cfe3e7; border-radius: 14px; background: #f4fafb; }
+.room-card__sleeping > div:first-child { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.room-card__sleeping strong { color: var(--ink); font-size: .84rem; }
+.room-card__sleeping > div:first-child span { color: var(--teal-dark); font-size: .78rem; font-weight: 800; }
+.room-card__sleeping small { color: var(--ink-soft); font-size: .74rem; line-height: 1.55; }
+.room-card__sleeping a { color: var(--teal-dark); font-size: .78rem; font-weight: 800; text-decoration: underline; text-underline-offset: 4px; }
+.room-card__bed-list { display: flex; flex-wrap: wrap; gap: 7px; }
+.room-card__bed-list span { padding: 6px 9px; border-radius: 999px; background: white; color: var(--ink-soft); font-size: .73rem; font-weight: 700; }
+.sleeping-summary { scroll-margin-top: 90px; padding: 28px !important; border: 1px solid #cfe3e7 !important; border-radius: 22px; background: #fff; }
+.sleeping-summary h2 { margin: 5px 0 8px; }
+.sleeping-summary p { margin: 0; color: var(--ink-soft); line-height: 1.75; }
 .room-card__actions { align-self: end; display: flex; align-items: center; gap: 16px; padding-top: 2px; }
 .room-card__actions .button { min-height: 40px; padding: 9px 17px; }
 .room-card__actions a { color: var(--teal-dark); font-size: .8rem; font-weight: 800; text-decoration: underline; text-underline-offset: 4px; }

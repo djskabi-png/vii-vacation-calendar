@@ -31,6 +31,14 @@ function complementaryItems(area: string, location: string): DiscoveryItem[] {
   return [activity, spa, provider].filter((item): item is DiscoveryItem => Boolean(item));
 }
 
+function bedroomLabel(count: number) {
+  return count === 1 ? "חדר שינה אחד" : `${count} חדרי שינה`;
+}
+
+function bedDetails(features: string[]) {
+  return features.filter((feature) => /מיטה|מיטות|ספה נפתחת|מזרן|מזרנים/.test(feature));
+}
+
 export default function BusinessPage() {
   const [slug, setSlug] = useState(properties[0].slug);
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -98,7 +106,7 @@ export default function BusinessPage() {
 
         <section className="shell property-gallery">{property.images.slice(0, 5).map((image, index) => <button key={image} type="button" aria-label={`פתיחת גלריית ${property.name}, תמונה ${index + 1}`} onClick={() => setGalleryOpen(true)}><img src={image} alt={`${property.name}, תמונה ${index + 1}`} />{index === 4 && <span>לכל התמונות</span>}</button>)}</section>
 
-        <nav className="shell property-anchor-nav" aria-label="ניווט בעמוד"><a href="#about">על המקום</a>{property.sleepingArrangements?.length ? <a href="#sleeping">איפה ישנים</a> : property.roomOptions?.length ? <a href="#rooms">חדרים ויחידות</a> : null}<a href="#features">מאפיינים</a><a href="#accessibility">נגישות במקום</a><a href="#location">מיקום</a><a href="#faq">שאלות ותשובות</a><a href="#policies">חשוב לדעת</a></nav>
+        <nav className="shell property-anchor-nav" aria-label="ניווט בעמוד"><a href="#about">על המקום</a>{property.roomOptions?.length ? <a href="#rooms">{property.scenario === "multi" ? "סוויטות ויחידות" : "מבנה המקום"}</a> : null}{property.bedrooms ? <a href="#sleeping">איפה ישנים</a> : null}<a href="#features">מאפיינים</a><a href="#accessibility">נגישות במקום</a><a href="#location">מיקום</a><a href="#faq">שאלות ותשובות</a><a href="#policies">חשוב לדעת</a></nav>
 
         <div className="shell property-layout">
           <div className="property-content">
@@ -113,26 +121,27 @@ export default function BusinessPage() {
 
             <section id="features" className="feature-section"><h2>מה מחכה לכם במקום</h2><div className="feature-list">{property.features.map((feature) => <span key={feature}>✓ {feature}</span>)}</div><button className="button subtle" type="button" onClick={() => setAllFeaturesOpen(true)}>כל המידע על המתקנים</button></section>
 
-            {property.roomOptions?.length && !property.sleepingArrangements?.length ? <section id="rooms" className="units-section">
+            {property.roomOptions?.length ? <section id="rooms" className="units-section">
               <div className="units-heading">
-                <div><span className="eyebrow">אפשרויות האירוח במקום</span><h2>{property.scenario === "single" ? "כל החדרים במקום" : "הסוויטות והיחידות"}</h2></div>
-                <span className="units-total">{roomQuantity === 1 ? "יחידת אירוח אחת" : `${roomQuantity} יחידות אירוח`}</span>
+                <div><span className="eyebrow">מבנה מקום האירוח</span><h2>{property.scenario === "single" ? "המקום שמזמינים" : "הסוויטות והיחידות"}</h2></div>
+                <span className="units-total">{property.scenario === "single" ? "מקום אירוח שלם" : roomQuantity === 1 ? "יחידת אירוח אחת" : `${roomQuantity} יחידות אירוח`}</span>
               </div>
-              <p>{property.scenario === "single" ? "המקום מוזמן כיחידה שלמה. כאן תוכלו לראות את מבנה האירוח והקיבולת לפני בחירת התאריכים." : "בחרו את סוג היחידה שמתאים להרכב שלכם. זמינות ומחיר יוצגו לפי התאריכים שתבחרו."}</p>
+              <p>{property.scenario === "single" ? "זהו מקום אירוח שמוזמן בשלמותו. פירוט חדרי השינה מוצג בנפרד ואינו נחשב ליחידות אירוח נוספות." : "כל כרטיס מייצג יחידת אירוח נפרדת. בתוך כל יחידה מוצג בנפרד מספר חדרי השינה וסידור המיטות שנמסר עבורה."}</p>
               <div className="room-card-list">
                 {property.roomOptions.map((room) => <article className="room-card" key={room.name}>
-                  <div className="room-card__image"><img src={room.image} alt={`${room.name} ב${property.name}`} loading="lazy" /><span>{room.quantity === 1 ? "יחידה אחת" : `${room.quantity} יחידות`}</span></div>
+                  <div className="room-card__image"><img src={room.image} alt={`${room.name} ב${property.name}`} loading="lazy" /><span>{property.scenario === "single" ? "המקום כולו" : room.quantity === 1 ? "יחידה אחת" : `${room.quantity} יחידות`}</span></div>
                   <div className="room-card__body">
                     <div className="room-card__title"><div><span>{property.type}</span><h3>{room.name}</h3></div><b>עד {room.guests} אורחים</b></div>
-                    <div className="room-card__facts"><span>{room.bedrooms === 1 ? "חדר שינה אחד" : `${room.bedrooms} חדרי שינה`}</span>{room.area ? <span>{room.area} מ״ר</span> : null}</div>
+                    <div className="room-card__facts"><span>{bedroomLabel(room.bedrooms)}</span>{room.area ? <span>{room.area} מ״ר</span> : null}</div>
                     <div className="room-card__features">{room.features.map((feature) => <span key={feature}>{feature}</span>)}</div>
+                    {property.sleepingArrangements?.length ? <div className="room-card__sleeping room-card__sleeping--linked"><div><strong>חדרי השינה במקום</strong><span>{bedroomLabel(room.bedrooms)}</span></div><a href="#sleeping">לצפייה בפירוט החדרים, המיטות והתמונות</a></div> : <div className="room-card__sleeping"><div><strong>חדרי השינה בתוך היחידה</strong><span>{bedroomLabel(room.bedrooms)}</span></div>{bedDetails(room.features).length ? <div className="room-card__bed-list">{bedDetails(room.features).map((detail) => <span key={detail}>{detail}</span>)}</div> : <small>סוג המיטה טרם פורט במידע שנמסר על היחידה.</small>}</div>}
                     <div className="room-card__actions"><button className="button primary" type="button" onClick={() => setCalendarOpen(true)}>בדיקת זמינות</button></div>
                   </div>
                 </article>)}
               </div>
             </section> : null}
 
-            {property.sleepingArrangements?.length ? <SleepingArrangements placeName={property.name} arrangements={property.sleepingArrangements} /> : null}
+            {property.sleepingArrangements?.length ? <SleepingArrangements placeName={property.name} arrangements={property.sleepingArrangements} /> : property.bedrooms ? <section id="sleeping" className="sleeping-summary" aria-labelledby="sleeping-summary-title"><span className="eyebrow">חדרי שינה אינם יחידות אירוח</span><h2 id="sleeping-summary-title">איפה ישנים?</h2><p>{property.scenario === "multi" ? `במתחם יש ${property.units || roomQuantity} יחידות אירוח ובהן ${property.bedrooms} חדרי שינה בסך הכול. פירוט השינה מופיע בתוך כל כרטיס יחידה.` : `במקום יש ${property.bedrooms} חדרי שינה. סוגי המיטות ותמונות החדרים יוצגו כאן לאחר שיוך ואימות מול נתוני המקום.`}</p></section> : null}
 
             <ListingAccessibility slug={property.slug} />
 

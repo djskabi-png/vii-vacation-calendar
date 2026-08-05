@@ -30,9 +30,9 @@ export function SleepingArrangements({ placeName, arrangements }: Props) {
     <section id="sleeping" className="sleeping-section" aria-labelledby="sleeping-title">
       <div className="sleeping-section__heading">
         <div>
-          <span className="eyebrow">פירוט מאומת מעמוד המקום</span>
+          <span className="eyebrow">חדרי השינה, בנפרד מיחידות האירוח</span>
           <h2 id="sleeping-title">איפה ישנים?</h2>
-          <p>{arrangements.length} חדרי שינה, {totalBeds} מיטות לפי הפירוט הקיים באתר.</p>
+          <p>{arrangements.length} חדרי שינה ובהם {totalBeds} מיטות. כל כרטיס מייצג חדר שינה ולא יחידת אירוח.</p>
         </div>
         <div className="sleeping-section__controls" aria-label="דפדוף בין חדרי השינה">
           <button type="button" onClick={() => move("previous")} aria-label="החדרים הקודמים">‹</button>
@@ -43,7 +43,7 @@ export function SleepingArrangements({ placeName, arrangements }: Props) {
       <div className="sleeping-track" ref={track} tabIndex={0} aria-label={`חדרי השינה של ${placeName}`}>
         {arrangements.map((arrangement) => (
           <article className="sleeping-card" key={arrangement.name}>
-            <img src={arrangement.galleryImage} alt={`תמונה מתוך גלריית הפנים של ${placeName}`} loading="lazy" />
+            <img src={arrangement.galleryImage} alt={`${arrangement.name} ב${placeName}`} loading="lazy" />
             <div className="sleeping-card__body">
               <span>{arrangement.floor || "הקומה לא צוינה בפרטי המקום"}</span>
               <h3>{arrangement.name}</h3>
@@ -56,7 +56,7 @@ export function SleepingArrangements({ placeName, arrangements }: Props) {
         ))}
       </div>
 
-      <p className="sleeping-section__disclosure">התמונות מוצגות מתוך גלריית הפנים ואינן משויכות לחדר ממוספר מסוים, לכן הן משמשות כתמונות אווירה בלבד.</p>
+      <p className="sleeping-section__disclosure">הפירוט והתמונות מבוססים על חדרי השינה המופיעים בעמוד המקום. כאשר אין שיוך מאומת לתמונת חדר מסוים, לא תוצג תמונה במקומו.</p>
     </section>
   );
 }
