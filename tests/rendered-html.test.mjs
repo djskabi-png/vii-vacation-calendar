@@ -12,12 +12,11 @@ async function render(pathname = "/") {
 for (const [pathname, expected] of [
   ["/", /מוצאים מקום שמתאים בדיוק לכם/],
   ["/search", /נופש ברחבי הארץ/],
-  ["/business", /קסם הרימון/],
+  ["/business", /אקווה ריזורט/],
   ["/events", /מוצאים מקום לחגוג בו/],
-  ["/destinations", /מוצאים את האזור שמתאים לחופשה/],
-  ["/guides", /מדריכים, רעיונות והמלצות/],
-  ["/contact", /יצירת קשר/],
-  ["/handoff", /מרכז המידע לצוות הפיתוח/],
+  ["/events/search", /מקומות לאירועים/],
+  ["/events/place", /לופט פארטי טיים/],
+  ["/favorites", /המקומות שאהבתי/],
 ]) {
   test(`server renders ${pathname}`, async () => {
     const response = await render(pathname);
@@ -27,16 +26,24 @@ for (const [pathname, expected] of [
   });
 }
 
-test("keeps the calendar contexts and single-property behavior", async () => {
-  const [calendar, search, business] = await Promise.all([
+test("keeps calendar contexts, real listing ids and maps", async () => {
+  const [calendar, searchBox, business, search, eventSearch, data, map] = await Promise.all([
     readFile(new URL("../app/calendar-demo.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/business/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/search/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/events/search/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/data/site-data.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8"),
   ]);
   assert.match(calendar, /mode === "home"/);
   assert.match(calendar, /mode === "business"/);
-  assert.match(search, /mode="home"/);
-  assert.match(business, /mode="business"/);
-  assert.match(business, /businessKind=\{scenario\}/);
-  assert.match(business, /מקום אירוח שלם/);
+  assert.match(searchBox, /mode="home"/);
+  assert.match(business, /businessKind=\{property\.scenario\}/);
+  assert.match(business, /URLSearchParams\(location\.search\)\.get\("id"\)/);
+  assert.match(search, /setPool/);
+  assert.match(eventSearch, /setEventType/);
+  assert.equal((data.match(/liveUrl: "https:\/\/www\.vii\.co\.il\//g) || []).length, 20);
+  assert.match(map, /tile\.openstreetmap\.org/);
+  assert.match(map, /if \(!enabled\)/);
 });
