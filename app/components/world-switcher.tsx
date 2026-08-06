@@ -1,15 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { worlds, type WorldId } from "../data/world-data";
 
 export function WorldSwitcher({ active = "vacation" }: { active?: WorldId }) {
   const [open, setOpen] = useState(false);
   const current = worlds.find((world) => world.id === active) || worlds[0];
 
+  useEffect(() => {
+    if (!open) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [open]);
+
   return (
     <div className={`world-dock ${open ? "open" : ""}`}>
+      {open && <button className="world-dock__backdrop" type="button" aria-label="סגירת בחירת העולמות" onClick={() => setOpen(false)} />}
       {open && <nav className="world-dock__panel" aria-label="מעבר בין עולמות">
         <header><span>כל מה שכיף לעשות</span><strong>לאיזה עולם עוברים?</strong></header>
         {worlds.map((world) => <Link key={world.id} className={world.id === active ? "active" : ""} href={world.href} onClick={() => setOpen(false)}><span className={`world-mark world-mark--${world.id}`} aria-hidden="true" /><span><b>{world.label}</b><small>{world.description}</small></span></Link>)}

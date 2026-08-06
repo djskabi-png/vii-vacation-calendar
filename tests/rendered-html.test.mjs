@@ -841,12 +841,18 @@ test("activities hub separates trails from paid attractions and every main trail
 });
 
 test("persistent world and concierge actions never share the same screen position", async () => {
-  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const [css, worldSwitcher] = await Promise.all([
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/world-switcher.tsx", import.meta.url), "utf8"),
+  ]);
   assert.match(css, /@media \(min-width: 561px\) \{\s*\.world-dock \{ right: 110px; \}/);
   assert.match(css, /body:has\(\.world-dock\.open\) \.smart-concierge/);
   assert.match(css, /body:has\(\.smart-concierge\.open\) \.world-dock/);
   assert.match(css, /\.world-dock > button \{ width: calc\(50vw - 24px\)/);
   assert.match(css, /\.smart-concierge__trigger \{ width: 62px; height: 62px/);
+  assert.match(css, /\.world-dock__backdrop \{ position: fixed/);
+  assert.match(worldSwitcher, /className="world-dock__backdrop"/);
+  assert.match(worldSwitcher, /event\.key === "Escape"/);
 });
 
 test("every business depth template exposes an internal gallery", async () => {

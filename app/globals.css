@@ -3223,6 +3223,8 @@ h3 { font-size: 1.18rem; }
 body:has(.cookie-card) .world-dock { bottom: 118px; }
 body:has(.cookie-card) .smart-concierge { display: none; }
 .world-dock > button { min-width: 174px; min-height: 58px; padding: 7px 14px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(8,126,139,.2); border-radius: 18px; color: white; background: linear-gradient(135deg,var(--teal-dark),#177eb1); box-shadow: 0 18px 42px rgba(2,54,69,.25); cursor: pointer; text-align: right; }
+.world-dock > button,.world-dock__panel { position: relative; z-index: 1; }
+.world-dock__backdrop { position: fixed !important; z-index: 0 !important; inset: 0; width: 100vw !important; min-width: 0 !important; min-height: 0 !important; padding: 0 !important; border: 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; cursor: default !important; }
 .world-dock > button .world-mark { box-shadow: 0 0 0 5px rgba(255,255,255,.16); }
 .world-dock > button span:last-child { display: grid; }
 .world-dock > button small { opacity: .76; }
