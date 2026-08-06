@@ -44,11 +44,13 @@ export function LeadIntakeForm({ purpose, selectedPackage = "", billingCycle = "
     const packageEligible = effectiveWorld === "providers" || effectiveWorld === "activities";
     const requestedPackage = packageEligible ? selectedPackage || requestContext.get("package") || "" : "";
     const requestedService = requestContext.get("service");
+    const requestedIntent = requestContext.get("intent");
     const contextDetails = [
       requestedPlace ? `מקום או ספק מבוקש: ${requestedPlace}` : "",
       requestedPackage ? `חבילת פרסום: ${requestedPackage}` : "",
       billingCycle ? `מחזור חיוב: ${billingCycle === "annual" ? "שנתי" : "חודשי"}` : "",
       requestedService ? `שירות: ${requestedService}` : "",
+      requestedIntent === "activity-order" ? "אופן פנייה: הזמנת אטרקציה מתוך אתר VII" : "",
     ].filter(Boolean);
     const contextSuffix = contextDetails.length ? `\n\n${contextDetails.join("\n")}` : "";
     const id = submissionId || crypto.randomUUID();

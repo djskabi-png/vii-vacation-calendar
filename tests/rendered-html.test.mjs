@@ -138,6 +138,17 @@ test("commercial discovery stays inside VII", async () => {
   assert.match(pages, /מגדילים, מקטינים ומזיזים את המפה כאן בעמוד/);
 });
 
+test("attraction booking follows the supplier conversion mode", async () => {
+  const response = await render("/discover/place?id=horseback-idea");
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /איך מזמינים את האטרקציה/);
+  assert.match(html, /הזמנה דרך האתר/);
+  assert.match(html, /intent=activity-order/);
+  assert.doesNotMatch(html, /href=["'][^"']*(?:roomsvip\.com|spaplus\.co\.il)/i);
+  assert.doesNotMatch(html, /חיוג למקום/);
+});
+
 test("lead proxy handles bot submissions locally without contacting the lead system", async () => {
   const response = await render("/api/leads", {
     method: "POST",

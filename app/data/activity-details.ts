@@ -2,6 +2,12 @@ import type { DiscoveryItem } from "./world-data";
 
 export type ActivityDetails = {
   kind: "guide" | "matching";
+  booking?: {
+    mode: "online" | "phone" | "both";
+    phone?: string;
+    onlineLabel?: string;
+    note: string;
+  };
   about: string[];
   facts: { label: string; value: string }[];
   highlights: string[];
@@ -56,8 +62,16 @@ const plans: Record<string, { highlights: string[]; plan: string[]; preparation:
 export function getActivityDetails(item: DiscoveryItem): ActivityDetails {
   const matching = item.id === "horseback-idea" || item.id === "atv-idea";
   const content = plans[item.id];
+  const booking = item.id === "horseback-idea"
+    ? {
+        mode: "online" as const,
+        onlineLabel: "הזמנה דרך האתר",
+        note: "הבקשה נשלחת מתוך אתר VII עם התאריך, האזור ומספר המשתתפים. לאחר בדיקת הזמינות ממשיכים לתהליך ההזמנה שמתאים לספק, בלי לצאת מהאתר.",
+      }
+    : undefined;
   return {
     kind: matching ? "matching" : "guide",
+    booking,
     about: matching
       ? [`${item.name} הוא שירות התאמה, לא שם של עסק מסוים. שולחים את מקום האירוח, התאריך וההרכב, והצוות מחפש אפשרות פעילה שמתאימה לבקשה.`, "שם הספק, המחיר, הזמינות, הביטוח והמגבלות נמסרים לפני אישור. עד אז לא מוצג באתר עסק שלא עבר בדיקה." ]
       : [`${item.name} הוא רעיון מתוכנן ליציאה עצמאית בזמן החופשה. העמוד מרכז מסלול מוצע, הכנה ונקודות החלטה כדי שלא יהיה צורך לאסוף מידע מכמה מקומות.`, `${item.description} לפני היציאה חשוב לבדוק תנאים עדכניים, שעות פעילות והנחיות רשמיות.`],

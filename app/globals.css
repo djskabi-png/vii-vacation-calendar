@@ -3228,6 +3228,10 @@ body:has(.cookie-card) .world-dock { bottom: 118px; }
 .discovery-detail__media > span { display: grid; justify-items: center; color: white; }
 .discovery-detail__media b { font-size: 7rem; }
 .discovery-detail__actions { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 9px; }
+.activity-booking__inner { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(230px, .5fr); gap: 42px; align-items: center; }
+.activity-booking__inner h2 { margin: 8px 0 12px; }
+.activity-booking__inner p { margin: 0; max-width: 760px; color: var(--muted); line-height: 1.8; }
+.activity-booking__actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-start; }
 .image-context-label--detail { inset-inline-end: 18px; bottom: 18px; }
 .provider-results { display: grid; gap: 22px; }
 .provider-toolbar { position: sticky; top: 78px; z-index: 15; display: grid; grid-template-columns: minmax(220px,.7fr) minmax(0,1.7fr); gap: 16px; align-items: end; padding: 18px; border: 1px solid rgba(34,138,112,.2); border-radius: 24px; background: rgba(250,254,252,.94); box-shadow: 0 14px 38px rgba(18,75,65,.08); backdrop-filter: blur(18px); }
@@ -3636,6 +3640,9 @@ body:has(.cookie-card) .world-dock { bottom: 118px; }
   .discovery-card p { min-height: 0; }
   .world-cross-sell > .shell > div, .discovery-detail__actions { flex-direction: column; }
   .discovery-detail__actions .button { width: 100%; }
+  .activity-booking__inner { grid-template-columns: 1fr; gap: 22px; }
+  .activity-booking__actions { flex-direction: column; }
+  .activity-booking__actions .button { width: 100%; }
   .spa-packages-grid,.spa-facility-list,.spa-visit-info ul { grid-template-columns: 1fr; }
   .spa-package-card footer { align-items: stretch; flex-direction: column; }
   .spa-package-card .button { width: 100%; }
