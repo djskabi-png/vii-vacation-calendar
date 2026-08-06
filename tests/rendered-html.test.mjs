@@ -393,8 +393,13 @@ test("ships the immersive media, review and concierge experiences", async () => 
   assert.match(reviews, /תמונות אורחים מאומתות/);
   assert.match(reviews, /צירוף אסמכתה לביקור/);
   assert.match(reviews, /אינה נשמרת במערכת/);
-  assert.match(concierge, /המחשה מקומית/);
-  assert.match(concierge, /אינו שולח הודעות לוואטסאפ/);
+  assert.match(concierge, /נציג החופשה של וי/);
+  assert.match(concierge, /serviceWhatsappNumber = "972542298986"/);
+  assert.match(concierge, /conversationSummary/);
+  assert.match(concierge, /useSiteLanguage/);
+  assert.match(concierge, /אירוע או חגיגה/);
+  assert.match(concierge, /מעבר לוואטסאפ/);
+  assert.doesNotMatch(concierge, /המחשה מקומית/);
   assert.match(shell, /<SmartConcierge/);
   assert.match(business, /<GalleryExperience/);
   assert.match(business, /<GuestReviewStudio/);
