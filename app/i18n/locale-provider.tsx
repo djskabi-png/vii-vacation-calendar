@@ -188,6 +188,22 @@ const finalUiTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "\u05dc\u05d4\u05e6\u05d9\u05d2": "Show",
     "\u05e2\u05d3": "Up to",
     "\u05d0\u05d5\u05e8\u05d7\u05d9\u05dd": "guests",
+    "בוחרים בדרך שנוחה לכם": "Choose the view that suits you",
+    "המקומות מסומנים על מפה אינטראקטיבית": "Places are shown on an interactive map",
+    "מפה אינטראקטיבית": "Interactive map",
+    "פתיחת המפה": "Open map",
+    "המפה נטענת...": "Loading map...",
+    "טוענים את המפה ואת הסמנים...": "Loading map and markers...",
+    "רואים את כל המקומות, משווים אזורים ובוחרים בקלות": "See every place, compare areas and choose easily",
+    "מוצג אזור המקום. נקודת ההגעה המדויקת נמסרת לאחר אישור.": "The place area is shown. Exact arrival details are provided after confirmation.",
+    "מכירים את האזור לפני שמגיעים": "Explore the area before you arrive",
+    "המקום על המפה": "The place on the map",
+    "בודקים את האזור, המרחקים והדרך הנוחה להגיע לחוויית הספא.": "Check the area, distances and the easiest way to reach your spa experience.",
+    "רואים את אזור המקום ושומרים על פרטיות מלאה. פרטי ההגעה המדויקים נמסרים לאחר אישור.": "See the place area while preserving full privacy. Exact arrival details are provided after confirmation.",
+    "ספא וטיפולים": "Spa and treatments",
+    "שהייה לפי שעה": "Hourly stay",
+    "חבילות וטיפולים": "Packages and treatments",
+    "שהייה קצרה": "Short stay",
   },
   ru: {
     "הנציג החכם של האתר": "Умный консультант сайта",
@@ -260,6 +276,22 @@ const finalUiTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "\u05dc\u05d4\u05e6\u05d9\u05d2": "\u041f\u043e\u043a\u0430\u0437\u0430\u0442\u044c",
     "\u05e2\u05d3": "\u0434\u043e",
     "\u05d0\u05d5\u05e8\u05d7\u05d9\u05dd": "\u0433\u043e\u0441\u0442\u0435\u0439",
+    "בוחרים בדרך שנוחה לכם": "Выберите удобный вид",
+    "המקומות מסומנים על מפה אינטראקטיבית": "Места отмечены на интерактивной карте",
+    "מפה אינטראקטיבית": "Интерактивная карта",
+    "פתיחת המפה": "Открыть карту",
+    "המפה נטענת...": "Карта загружается...",
+    "טוענים את המפה ואת הסמנים...": "Загружаем карту и маркеры...",
+    "רואים את כל המקומות, משווים אזורים ובוחרים בקלות": "Все места на карте, сравнивайте районы и выбирайте",
+    "מוצג אזור המקום. נקודת ההגעה המדויקת נמסרת לאחר אישור.": "Показан район. Точные данные для прибытия предоставляются после подтверждения.",
+    "מכירים את האזור לפני שמגיעים": "Изучите район до приезда",
+    "המקום על המפה": "Место на карте",
+    "בודקים את האזור, המרחקים והדרך הנוחה להגיע לחוויית הספא.": "Проверьте район, расстояния и удобный маршрут до спа.",
+    "רואים את אזור המקום ושומרים על פרטיות מלאה. פרטי ההגעה המדויקים נמסרים לאחר אישור.": "Показан район места, конфиденциальность сохранена. Точные данные для прибытия предоставляются после подтверждения.",
+    "ספא וטיפולים": "Спа и процедуры",
+    "שהייה לפי שעה": "Почасовое пребывание",
+    "חבילות וטיפולים": "Пакеты и процедуры",
+    "שהייה קצרה": "Короткое пребывание",
   },
   fr: {
     "הנציג החכם של האתר": "Concierge intelligent du site",
@@ -327,6 +359,22 @@ const finalUiTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "\u05d4\u05d0\u05d6\u05d5\u05e8 \u05e9\u05de\u05d5\u05e6\u05d2 \u05d1\u05de\u05e4\u05d4": "Zone affichée sur la carte",
     "\u05dc\u05e4\u05e8\u05d8\u05d9 \u05d4\u05de\u05e7\u05d5\u05dd": "Voir les détails du lieu",
     "\u05d4\u05e6\u05d2\u05ea": "Afficher", "\u05d4\u05e6\u05d2": "Afficher", "\u05de\u05e1\u05e4\u05e8": "numéro", "\u05dc\u05d4\u05e6\u05d9\u05d2": "Afficher", "\u05e2\u05d3": "Jusqu'à", "\u05d0\u05d5\u05e8\u05d7\u05d9\u05dd": "voyageurs",
+    "בוחרים בדרך שנוחה לכם": "Choisissez la vue qui vous convient",
+    "המקומות מסומנים על מפה אינטראקטיבית": "Les lieux sont indiqués sur une carte interactive",
+    "מפה אינטראקטיבית": "Carte interactive",
+    "פתיחת המפה": "Ouvrir la carte",
+    "המפה נטענת...": "Chargement de la carte...",
+    "טוענים את המפה ואת הסמנים...": "Chargement de la carte et des repères...",
+    "רואים את כל המקומות, משווים אזורים ובוחרים בקלות": "Affichez tous les lieux, comparez les zones et choisissez facilement",
+    "מוצג אזור המקום. נקודת ההגעה המדויקת נמסרת לאחר אישור.": "La zone du lieu est affichée. Les indications exactes sont fournies après confirmation.",
+    "מכירים את האזור לפני שמגיעים": "Découvrez la zone avant votre arrivée",
+    "המקום על המפה": "Le lieu sur la carte",
+    "בודקים את האזור, המרחקים והדרך הנוחה להגיע לחוויית הספא.": "Vérifiez la zone, les distances et le trajet le plus pratique vers votre expérience spa.",
+    "רואים את אזור המקום ושומרים על פרטיות מלאה. פרטי ההגעה המדויקים נמסרים לאחר אישור.": "La zone du lieu est visible tout en préservant votre confidentialité. Les indications exactes sont fournies après confirmation.",
+    "ספא וטיפולים": "Spa et soins",
+    "שהייה לפי שעה": "Séjour à l'heure",
+    "חבילות וטיפולים": "Formules et soins",
+    "שהייה קצרה": "Court séjour",
   },
 };
 
@@ -352,6 +400,24 @@ function translateDynamic(value: string, language: Exclude<SiteLanguage, "he">) 
       : language === "fr"
         ? "Afficher " + showPlacesMatch[1] + " lieux"
         : "\u041f\u043e\u043a\u0430\u0437\u0430\u0442\u044c " + showPlacesMatch[1] + " \u043c\u0435\u0441\u0442";
+  }
+
+  const placesInListMatch = value.match(/^(\d+) \u05de\u05e7\u05d5\u05de\u05d5\u05ea \u05d1\u05e8\u05e9\u05d9\u05de\u05d4$/);
+  if (placesInListMatch) {
+    return language === "en"
+      ? placesInListMatch[1] + " places in the list"
+      : language === "fr"
+        ? placesInListMatch[1] + " lieux dans la liste"
+        : placesInListMatch[1] + " \u043c\u0435\u0441\u0442 \u0432 \u0441\u043f\u0438\u0441\u043a\u0435";
+  }
+
+  const placesOnMapMatch = value.match(/^(\d+) \u05de\u05e7\u05d5\u05de\u05d5\u05ea \u05e2\u05dc \u05d4\u05de\u05e4\u05d4$/);
+  if (placesOnMapMatch) {
+    return language === "en"
+      ? placesOnMapMatch[1] + " places on the map"
+      : language === "fr"
+        ? placesOnMapMatch[1] + " lieux sur la carte"
+        : placesOnMapMatch[1] + " \u043c\u0435\u0441\u0442 \u043d\u0430 \u043a\u0430\u0440\u0442\u0435";
   }
 
   const destinationMatch = value.match(/^\u05e0\u05d5\u05e4\u05e9 \u05d1(.+)$/);

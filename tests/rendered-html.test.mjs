@@ -91,7 +91,38 @@ test("hourly search starts with location and exposes filters only with the resul
   assert.match(html, /סינון התוצאות/);
   assert.match(html, /מחיר התחלתי עד/);
   assert.match(html, /כניסה עצמאית/);
+  assert.match(html, /תצוגה על מפה/);
   assert.doesNotMatch(html, /בחרו תאריכים/);
+});
+
+test("spa, hourly and event worlds expose interactive maps", async () => {
+  const [spaResponse, hourlyResponse, eventResponse, spaDetailResponse] = await Promise.all([
+    render("/spas"),
+    render("/hourly"),
+    render("/events/search"),
+    render("/discover/place?id=spa-butik-tlv"),
+  ]);
+  for (const response of [spaResponse, hourlyResponse, eventResponse, spaDetailResponse]) assert.equal(response.status, 200);
+  assert.match(await spaResponse.text(), /תצוגה על מפה/);
+  assert.match(await hourlyResponse.text(), /תצוגה על מפה/);
+  assert.match(await eventResponse.text(), /תצוגה על מפה/);
+  const detail = await spaDetailResponse.text();
+  assert.match(detail, /המקום על המפה/);
+  assert.match(detail, /פתיחת המפה/);
+
+  const [mapSource, worldData, hourlyResults, worldResults] = await Promise.all([
+    readFile(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/hourly-results.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/world-map-results.tsx", import.meta.url), "utf8"),
+  ]);
+  assert.match(mapSource, /scrollWheelZoom: true/);
+  assert.match(mapSource, /touchZoom: true/);
+  assert.match(mapSource, /MapTone = "vacation" \| "events" \| "spa" \| "hourly"/);
+  assert.match(mapSource, /map-tone--\$\{tone\}/);
+  assert.equal((worldData.match(/mapPrecision: "area"/g) || []).length, 20);
+  assert.match(hourlyResults, /<DiscoveryMap items=\{filtered\} tone="hourly" autoLoad \/>/);
+  assert.match(worldResults, /<DiscoveryMap items=\{items\} tone=\{world\} autoLoad \/>/);
 });
 
 test("lead proxy handles bot submissions locally without contacting the lead system", async () => {

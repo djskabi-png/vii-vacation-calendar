@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { DiscoveryCard } from "./discovery-card";
 import type { DiscoveryItem } from "../data/world-data";
+import { DiscoveryMap } from "./listing-map";
+import { PinIcon } from "../site-header";
 
 const featureFilters = [
   { id: "parking", label: "חניה", terms: ["חניה"] },
@@ -27,6 +29,7 @@ function HourlyResultsPanel({ items, requestedLocation }: { items: DiscoveryItem
   const [location, setLocation] = useState(requestedLocation);
   const [maximumPrice, setMaximumPrice] = useState(0);
   const [features, setFeatures] = useState<string[]>([]);
+  const [mapOpen, setMapOpen] = useState(false);
 
   const locations = useMemo(
     () => ["כל הארץ", ...Array.from(new Set(items.flatMap((item) => [item.area, item.location])))],
@@ -57,8 +60,8 @@ function HourlyResultsPanel({ items, requestedLocation }: { items: DiscoveryItem
   return <div className="hourly-results">
     <div className="hourly-results__toolbar" aria-label="סינון תוצאות של חדרים לפי שעה">
       <div className="hourly-results__heading">
-        <span className="eyebrow">סינון התוצאות</span>
-        <strong aria-live="polite">{filtered.length} מקומות נמצאו</strong>
+        <div><span className="eyebrow">סינון התוצאות</span><strong aria-live="polite">{filtered.length} מקומות נמצאו</strong></div>
+        <button className={`button map-button ${mapOpen ? "active" : ""}`} type="button" aria-pressed={mapOpen} onClick={() => setMapOpen((value) => !value)}><PinIcon />{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</button>
       </div>
       <div className="hourly-results__filters">
         <label><span>עיר או אזור</span><select value={location} onChange={(event) => setLocation(event.target.value)}>{locations.map((option) => <option key={option}>{option}</option>)}</select></label>
@@ -67,6 +70,6 @@ function HourlyResultsPanel({ items, requestedLocation }: { items: DiscoveryItem
         <button type="button" className="hourly-results__reset" onClick={resetFilters} disabled={location === "כל הארץ" && maximumPrice === 0 && features.length === 0}>ניקוי סינונים</button>
       </div>
     </div>
-    {filtered.length > 0 ? <div className="discovery-grid">{filtered.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div> : <div className="hourly-results__empty"><strong>לא נמצאו מקומות שמתאימים לכל הסינונים</strong><p>אפשר להרחיב את האזור או להסיר אחד מהמאפיינים.</p><button type="button" className="button secondary" onClick={resetFilters}>הצגת כל המקומות</button></div>}
+    {filtered.length > 0 ? mapOpen ? <DiscoveryMap items={filtered} tone="hourly" autoLoad /> : <div className="discovery-grid">{filtered.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div> : <div className="hourly-results__empty"><strong>לא נמצאו מקומות שמתאימים לכל הסינונים</strong><p>אפשר להרחיב את האזור או להסיר אחד מהמאפיינים.</p><button type="button" className="button secondary" onClick={resetFilters}>הצגת כל המקומות</button></div>}
   </div>;
 }

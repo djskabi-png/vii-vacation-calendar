@@ -13,6 +13,7 @@ import { getHourlyDetails, type HourlyDetails } from "../../data/hourly-details"
 import { getActivityDetails, type ActivityDetails } from "../../data/activity-details";
 import { discoveryItems, worlds, type WorldId } from "../../data/world-data";
 import { PinIcon } from "../../site-header";
+import { DiscoveryMap } from "../../components/listing-map";
 
 function SpaPackageCard({ itemId, pack }: { itemId: string; pack: SpaPackage }) {
   const requestHref = `/contact?world=spa&place=${encodeURIComponent(itemId)}&package=${encodeURIComponent(pack.id)}`;
@@ -32,6 +33,7 @@ function SpaContent({ itemId, details }: { itemId: string; details: SpaDetails }
       {details.treatments?.length ? <a href="#spa-treatments">טיפולים</a> : null}
       <a href="#spa-facilities">מתקנים</a>
       {details.hours?.length ? <a href="#spa-info">שעות ופרטים</a> : null}
+      <a href="#location">מפה</a>
     </nav>
     <section className="section shell spa-about" id="spa-about">
       <div><span className="eyebrow">כל מה שחשוב לפני שמזמינים</span><h2>על המקום</h2>{details.about.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div>
@@ -90,7 +92,7 @@ function ProviderContent({ itemId, details }: { itemId: string; details: Provide
 
 function HourlyContent({ itemId, details }: { itemId: string; details: HourlyDetails }) {
   return <>
-    <nav className="shell depth-detail-nav" aria-label="ניווט בדף המקום"><a href="#hourly-about">על המקום</a><a href="#hourly-options">אפשרויות שהייה</a><a href="#hourly-amenities">מה במקום</a><a href="#hourly-info">לפני שמגיעים</a><a href="#hourly-faq">שאלות נפוצות</a></nav>
+    <nav className="shell depth-detail-nav" aria-label="ניווט בדף המקום"><a href="#hourly-about">על המקום</a><a href="#hourly-options">אפשרויות שהייה</a><a href="#hourly-amenities">מה במקום</a><a href="#hourly-info">לפני שמגיעים</a><a href="#hourly-faq">שאלות נפוצות</a><a href="#location">מפה</a></nav>
     <section className="section shell depth-about" id="hourly-about"><div><span className="eyebrow">כל המידע במקום אחד</span><h2>על המקום</h2>{details.about.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div><aside><small>איך מזמינים</small><strong>שולחים שעה ומשך רצוי</strong><small>מתי ההזמנה סופית</small><strong>רק לאחר אישור זמינות ומחיר</strong></aside></section>
     <section className="section section-tint" id="hourly-options"><div className="shell"><div className="section-head"><div><span className="eyebrow">מתאימים את הביקור</span><h2>אפשרויות שהייה</h2></div></div><div className="depth-card-grid">{details.stayOptions.map((option) => <article key={option.title}><h3>{option.title}</h3><p>{option.description}</p><Link className="button primary" href={`/contact?world=hourly&place=${encodeURIComponent(itemId)}`}>בדיקת זמינות</Link></article>)}</div></div></section>
     <section className="section shell depth-columns"><div id="hourly-amenities"><span className="eyebrow">מה ידוע על המקום</span><h2>מתקנים ומאפיינים</h2><ul>{details.amenities.map((entry) => <li key={entry}>{entry}</li>)}</ul></div><div id="hourly-info"><span className="eyebrow">לפני שמגיעים</span><h2>פרטים שימושיים</h2><ul>{details.arrivalNotes.map((entry) => <li key={entry}>{entry}</li>)}</ul></div></section>
@@ -130,6 +132,7 @@ export default function DiscoveryPlacePage({ initialId }: { initialId: string })
       {providerDetails ? <ProviderContent itemId={item.id} details={providerDetails} /> : null}
       {hourlyDetails ? <HourlyContent itemId={item.id} details={hourlyDetails} /> : null}
       {activityDetails ? <ActivityContent itemId={item.id} details={activityDetails} /> : null}
+      {(spaDetails || hourlyDetails) ? <section className={`section shell discovery-location discovery-location--${item.world}`} id="location"><div className="discovery-location__intro"><span className="eyebrow">מכירים את האזור לפני שמגיעים</span><h2>המקום על המפה</h2><p>{item.world === "spa" ? "בודקים את האזור, המרחקים והדרך הנוחה להגיע לחוויית הספא." : "רואים את אזור המקום ושומרים על פרטיות מלאה. פרטי ההגעה המדויקים נמסרים לאחר אישור."}</p></div><DiscoveryMap items={[item]} tone={item.world === "spa" ? "spa" : "hourly"} single /></section> : null}
       {(item.world === "spa" || item.world === "hourly") && <div className="shell discovery-detail__accessibility"><ListingAccessibility slug={item.id} /></div>}
       <section className="section section-tint"><div className="shell"><div className="section-head"><div><span className="eyebrow">באותו עולם</span><h2>עוד אפשרויות שכדאי לראות</h2></div></div><div className="discovery-grid">{related.map((entry) => <DiscoveryCard key={entry.id} item={entry} />)}</div></div></section>
     </main>
