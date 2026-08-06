@@ -174,6 +174,7 @@ const propertyCatalog: Property[] = [
   },
   {
     slug: "ar-suites",
+    active: false,
     name: "א.ר סוויטות",
     location: "אילת",
     area: "אילת והערבה",
@@ -404,9 +405,19 @@ const verifiedProperties: Property[] = verifiedCatalog.vacation.map((item) => ({
   price: item.price,
 }));
 
+const unavailablePropertyImages = new Set([
+  "/media/c3a6274bfd08091a.jpeg",
+]);
+
+export function isPublicProperty(property: Property) {
+  return property.active !== false
+    && Boolean(property.image)
+    && !unavailablePropertyImages.has(property.image);
+}
+
 export const properties = [...propertyCatalog
-  .filter((property) => property.active !== false)
-  .sort((first, second) => activePropertyOrder.indexOf(first.slug) - activePropertyOrder.indexOf(second.slug)), ...verifiedProperties];
+  .filter(isPublicProperty)
+  .sort((first, second) => activePropertyOrder.indexOf(first.slug) - activePropertyOrder.indexOf(second.slug)), ...verifiedProperties.filter(isPublicProperty)];
 
 export type EventPlace = Listing & { eventTypes: string[]; sourcePropertySlug?: string };
 

@@ -990,3 +990,25 @@ test("all depth recommendation sections stay full", async () => {
   assert.ok(discoveryCards.length >= 6, `expected at least 6 related discoveries, received ${discoveryCards.length}`);
   assert.ok(trailCards.length >= 6, `expected at least 6 related trails, received ${trailCards.length}`);
 });
+
+test("unavailable vacation places and unavailable-image cards never reach public results", async () => {
+  const [searchResponse, businessResponse, sitemapResponse, siteData] = await Promise.all([
+    render("/search?location=%D7%90%D7%99%D7%9C%D7%AA&guests=4"),
+    render("/business?id=ar-suites"),
+    render("/sitemap.xml"),
+    readFile(new URL("../app/data/site-data.ts", import.meta.url), "utf8"),
+  ]);
+  const [searchHtml, businessHtml, sitemapXml] = await Promise.all([
+    searchResponse.text(),
+    businessResponse.text(),
+    sitemapResponse.text(),
+  ]);
+
+  assert.match(siteData, /slug: "ar-suites",\s*active: false/);
+  assert.match(siteData, /unavailablePropertyImages/);
+  assert.match(siteData, /\.filter\(isPublicProperty\)/);
+  for (const output of [searchHtml, businessHtml, sitemapXml]) {
+    assert.doesNotMatch(output, /c3a6274bfd08091a\.jpeg/);
+    assert.doesNotMatch(output, /business\?id=ar-suites/);
+  }
+});
