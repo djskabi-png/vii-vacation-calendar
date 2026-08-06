@@ -45,6 +45,15 @@ test("uses the live production subdomain for public metadata", async () => {
   assert.doesNotMatch(layout, /new\.vii\.co\.il/);
 });
 
+test("language control uses the branded accessible menu instead of a native select", async () => {
+  const response = await render("/");
+  const html = await response.text();
+  assert.match(html, /class="language-trigger"/);
+  assert.match(html, /role="menuitemradio"/);
+  assert.match(html, />Français</);
+  assert.doesNotMatch(html, /<select[^>]*aria-label="שפה"/);
+});
+
 test("query-driven detail pages render the requested content on the server", async () => {
   for (const [pathname, expected, unexpected] of [
     ["/business?id=perfumes-villa", /וילת הבשמים/, /אקווה ריזורט/],

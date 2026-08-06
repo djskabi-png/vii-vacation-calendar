@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 
 export type SiteLanguage = "he" | "en" | "ru" | "fr";
 
@@ -540,7 +540,7 @@ function applyLanguage(language: SiteLanguage) {
   let node = walker.nextNode() as Text | null;
   while (node) {
     const parent = node.parentElement;
-    if (parent && !["SCRIPT", "STYLE", "NOSCRIPT", "CODE", "PRE"].includes(parent.tagName)) {
+    if (parent && !parent.closest("[data-no-translate]") && !["SCRIPT", "STYLE", "NOSCRIPT", "CODE", "PRE"].includes(parent.tagName)) {
       if (hebrewPattern.test(node.data)) originalText.set(node, node.data);
       const source = originalText.get(node);
       if (source) {
@@ -552,6 +552,7 @@ function applyLanguage(language: SiteLanguage) {
   }
 
   document.body.querySelectorAll("*").forEach((element) => {
+    if (element.closest("[data-no-translate]")) return;
     const saved = originalAttributes.get(element) || new Map<string, string>();
     translatedAttributes.forEach((attribute) => {
       const current = element.getAttribute(attribute);
@@ -635,16 +636,85 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 
 export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
   const { language, setLanguage } = useContext(LocaleContext);
-  const select = useRef<HTMLSelectElement>(null);
+  const [open, setOpen] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const menuId = useId();
   const labels = { he: "עברית", en: "English", ru: "Русский", fr: "Français" } as const;
-  useLayoutEffect(() => { if (select.current) select.current.value = language; }, [language]);
-  return <label className={`language-switcher ${compact ? "language-switcher--compact" : ""}`}>
-    <span aria-hidden="true">◎</span>
-    <span className="sr-only">שפה</span>
-    <select ref={select} defaultValue="he" onChange={(event) => setLanguage(event.target.value as SiteLanguage)} aria-label="שפה">
-      {(Object.keys(labels) as SiteLanguage[]).map((code) => <option key={code} value={code}>{labels[code]}</option>)}
-    </select>
-  </label>;
+  const chooserLabels = { he: "בחירת שפה", en: "Choose language", ru: "Выбрать язык", fr: "Choisir la langue" } as const;
+
+  useEffect(() => {
+    if (!open) return;
+    const closeFromOutside = (event: PointerEvent) => {
+      if (!root.current?.contains(event.target as Node)) setOpen(false);
+    };
+    const closeFromEscape = (event: globalThis.KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setOpen(false);
+      trigger.current?.focus();
+    };
+    document.addEventListener("pointerdown", closeFromOutside);
+    document.addEventListener("keydown", closeFromEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeFromOutside);
+      document.removeEventListener("keydown", closeFromEscape);
+    };
+  }, [open]);
+
+  const handleTriggerKey = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+    event.preventDefault();
+    setOpen(true);
+    window.requestAnimationFrame(() => {
+      const options = root.current?.querySelectorAll<HTMLButtonElement>(".language-option");
+      const activeIndex = (Object.keys(labels) as SiteLanguage[]).indexOf(language);
+      options?.[event.key === "ArrowUp" ? options.length - 1 : Math.max(activeIndex, 0)]?.focus();
+    });
+  };
+
+  return <div ref={root} data-no-translate className={`language-switcher ${open ? "is-open" : ""} ${compact ? "language-switcher--compact" : ""}`}>
+    <button
+      ref={trigger}
+      className="language-trigger"
+      type="button"
+      aria-label={chooserLabels[language]}
+      aria-haspopup="menu"
+      aria-expanded={open}
+      aria-controls={menuId}
+      onClick={() => setOpen((current) => !current)}
+      onKeyDown={handleTriggerKey}
+    >
+      <svg className="language-trigger__globe" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M3.5 12h17M12 3c2.3 2.5 3.5 5.5 3.5 9S14.3 18.5 12 21c-2.3-2.5-3.5-5.5-3.5-9S9.7 5.5 12 3Z" />
+      </svg>
+      <span className="language-trigger__label" lang={language} dir={language === "he" ? "rtl" : "ltr"}>{labels[language]}</span>
+      <svg className="language-trigger__chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4" /></svg>
+    </button>
+    <div id={menuId} className="language-menu" role="menu" aria-label={chooserLabels[language]} hidden={!open}>
+      <div className="language-menu__eyebrow">{chooserLabels[language]}</div>
+      {(Object.keys(labels) as SiteLanguage[]).map((code) => (
+        <button
+          className={`language-option ${language === code ? "is-active" : ""}`}
+          key={code}
+          type="button"
+          role="menuitemradio"
+          aria-checked={language === code}
+          lang={code}
+          dir={code === "he" ? "rtl" : "ltr"}
+          onClick={() => {
+            setLanguage(code);
+            setOpen(false);
+            trigger.current?.focus();
+          }}
+        >
+          <span className="language-option__mark" aria-hidden="true">{language === code ? "✓" : ""}</span>
+          <span>{labels[code]}</span>
+          <small>{code.toUpperCase()}</small>
+        </button>
+      ))}
+    </div>
+  </div>;
 }
 
 export function useSiteLanguage() {
