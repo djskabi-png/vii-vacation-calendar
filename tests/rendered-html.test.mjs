@@ -410,7 +410,10 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(business, /bookingQuery/);
   assert.match(business, /world: activeWorld/);
   assert.match(business, /initialFrom/);
-  assert.doesNotMatch(business, /contact-actions|wa\.me/);
+  assert.doesNotMatch(business, /contact-actions/);
+  assert.match(business, /wa\.me/);
+  assert.match(business, /booking-summary/);
+  assert.match(business, /שליחת בקשת הזמנה בוואטסאפ/);
   assert.match(business, /aria-pressed=\{saved\}/);
   assert.match(eventPlace, /aria-pressed=\{saved\}/);
   assert.match(styles, /\.property-title__actions svg\.filled/);

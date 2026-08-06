@@ -3460,6 +3460,15 @@ body:has(.cookie-card) .smart-concierge { display: none; }
 .booking-card > small { display: block; text-align: center; margin-top: 10px; color: var(--ink-soft); }
 .booking-card label { display: grid; gap: 6px; margin: 12px 0; font-weight: 600; }
 .booking-card input, .booking-card select { min-height: 44px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: white; }
+.booking-card textarea { width: 100%; min-height: 82px; resize: vertical; padding: 10px; border: 1px solid var(--line); border-radius: 12px; background: white; color: var(--ink); font: inherit; }
+.booking-card__lead { margin: -4px 0 16px; color: var(--ink-soft); font-size: .9rem; line-height: 1.65; }
+.booking-card--request { border-color: #b9dde2; background: linear-gradient(180deg, #fff 0%, #f5fbfc 100%); }
+.booking-card--instant { border-color: #a9d9d2; }
+.booking-request-fields { margin-top: 12px; padding-top: 8px; border-top: 1px solid rgba(12, 104, 118, .13); }
+.booking-request-fields label { color: var(--ink-soft); font-size: .8rem; }
+.booking-whatsapp { background: linear-gradient(135deg, #0a9b72, #087e68); box-shadow: 0 12px 24px rgba(8, 126, 104, .2); }
+.booking-card:target { scroll-margin-top: 110px; animation: booking-card-focus .8s ease; }
+@keyframes booking-card-focus { 0%, 100% { box-shadow: var(--shadow); } 45% { box-shadow: 0 0 0 6px rgba(13, 151, 166, .16), var(--shadow); } }
 .booking-card--event { border-color: #b9dde2; background: linear-gradient(180deg,#fff,#f5fbfc); }
 .booking-card--event .listing-contact-actions { margin-top: 14px; flex-wrap: wrap; }
 .scenario-tools { display: flex; gap: 8px; justify-content: center; align-items: center; padding-bottom: 60px; }

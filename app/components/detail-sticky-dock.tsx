@@ -42,7 +42,10 @@ export function DetailStickyDock({
 
         <div className="detail-sticky-dock__actions">
           {phoneHref ? <a className="detail-sticky-dock__phone" href={phoneHref} aria-label={`חיוג להזמנה אצל ${name}`}><span aria-hidden="true">☎</span><b>חיוג</b></a> : null}
-          {onlineHref ? <Link className="button primary detail-sticky-dock__primary" href={onlineHref}>{onlineLabel}</Link> : null}
+          {onlineHref ? onlineHref.startsWith("#")
+            ? <a className="button primary detail-sticky-dock__primary" href={onlineHref}>{onlineLabel}</a>
+            : <Link className="button primary detail-sticky-dock__primary" href={onlineHref}>{onlineLabel}</Link>
+          : null}
         </div>
       </div>
     </div>
