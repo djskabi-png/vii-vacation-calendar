@@ -3100,6 +3100,7 @@ h3 { font-size: 1.18rem; }
 .results-page .results-heading > div { display: grid; gap: 3px; }
 .results-page .results-heading h1 { margin: 0; font-size: clamp(2rem,3.2vw,3rem); line-height: 1.08; }
 .map-button svg { width: 18px; }
+.map-button__mobile-label { display: none; }
 .results-layout { display: grid; grid-template-columns: 240px minmax(0,1fr); gap: 24px; padding-bottom: 80px; }
 .results-layout.with-map { grid-template-columns: 220px minmax(0,1fr) 330px; }
 .filter-panel { align-self: start; position: sticky; top: 20px; border: 1px solid var(--line); border-radius: 20px; padding: 20px; background: white; }
@@ -5036,33 +5037,38 @@ body:has(.cookie-card) .smart-concierge { display: none; }
   .smart-concierge__footer a { width: 100%; justify-content: center; min-height: 40px; }
 }
 
-/* Mobile map access stays visible above the persistent world and concierge controls. */
+/* Compact, contextual mobile map control inspired by modern result pages. */
 @media (max-width: 760px) {
   .mobile-map-fab {
     position: fixed;
-    z-index: 3700;
+    z-index: 2450;
     right: auto;
-    bottom: calc(92px + env(safe-area-inset-bottom));
+    bottom: calc(18px + env(safe-area-inset-bottom));
     left: 50%;
     width: auto !important;
-    min-width: 154px;
-    min-height: 52px;
+    min-width: 0;
+    min-height: 44px !important;
     flex: 0 0 auto !important;
     justify-content: center;
-    gap: 9px;
-    padding: 10px 18px;
+    gap: 7px;
+    padding: 8px 15px;
     color: white;
-    border: 1px solid rgba(255,255,255,.7);
+    border: 1px solid rgba(255,255,255,.56);
     border-radius: 999px;
-    background: linear-gradient(135deg,#075f70,#158eb4);
-    box-shadow: 0 14px 34px rgba(2,54,69,.3),0 2px 8px rgba(2,54,69,.16);
+    background: #0b3f4a;
+    box-shadow: 0 8px 22px rgba(2,42,51,.24),0 2px 7px rgba(2,42,51,.15);
     transform: translateX(-50%);
     transition: transform .18s ease,box-shadow .18s ease,background .18s ease;
+    touch-action: manipulation;
+    pointer-events: auto;
   }
-  .mobile-map-fab svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+  .mobile-map-fab .map-button__desktop-label { display: none; }
+  .mobile-map-fab .map-button__mobile-label { display: inline; font-size: .86rem; font-weight: 800; line-height: 1; }
+  .mobile-map-fab svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
   .mobile-map-fab:hover { transform: translateX(-50%) translateY(-2px); box-shadow: 0 18px 39px rgba(2,54,69,.34),0 3px 10px rgba(2,54,69,.18); }
   .mobile-map-fab:focus-visible { outline: 3px solid white; outline-offset: 3px; }
-  .mobile-map-fab.active { background: linear-gradient(135deg,#063f4c,#087b89); }
+  .mobile-map-fab.active { display: none; }
+  body:has(.mobile-map-fab:not(.active)) .world-dock { display: none; }
   body:has(.map-results-experience) .mobile-map-fab,
   body:has(.map-results-experience) .world-dock,
   body:has(.map-results-experience) .smart-concierge,

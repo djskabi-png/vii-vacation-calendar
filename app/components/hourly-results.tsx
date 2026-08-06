@@ -62,7 +62,7 @@ function HourlyResultsPanel({ items, requestedLocation }: { items: DiscoveryItem
     <div className="hourly-results__toolbar" aria-label="סינון תוצאות של חדרים לפי שעה">
       <div className="hourly-results__heading">
         <div><span className="eyebrow">סינון התוצאות</span><strong aria-live="polite">{filtered.length} מקומות נמצאו</strong></div>
-        <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-pressed={mapOpen} onClick={() => setMapOpen((value) => !value)}><MapIcon />{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</button>
+        {filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={() => setMapOpen((value) => !value)}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
       </div>
       <div className="hourly-results__filters">
         <ModernSelect label="עיר או אזור" value={location} onChange={setLocation} options={locations.map((option) => ({ value: option, label: option }))} />

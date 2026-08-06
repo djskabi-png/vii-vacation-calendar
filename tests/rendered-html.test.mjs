@@ -216,7 +216,10 @@ test("spa, hourly and event worlds expose interactive maps", async () => {
   assert.match(worldResults, /<DiscoveryMap items=\{items\} tone=\{world\} autoLoad onClose=/);
   for (const source of [hourlyResults, worldResults, searchResults, eventResults]) assert.match(source, /mobile-map-fab/);
   assert.match(styles, /\.mobile-map-fab \{/);
-  assert.match(styles, /bottom: calc\(92px \+ env\(safe-area-inset-bottom\)\)/);
+  assert.match(styles, /bottom: calc\(18px \+ env\(safe-area-inset-bottom\)\)/);
+  assert.match(styles, /min-height: 44px !important/);
+  assert.match(styles, /\.mobile-map-fab\.active \{ display: none; \}/);
+  assert.match(styles, /body:has\(\.mobile-map-fab:not\(\.active\)\) \.world-dock/);
   assert.match(styles, /left: 50%/);
   assert.match(styles, /transform: translateX\(-50%\)/);
   assert.match(styles, /body:has\(\.map-results-experience\) \.mobile-map-fab/);
