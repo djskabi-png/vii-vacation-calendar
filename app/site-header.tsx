@@ -25,6 +25,12 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
     ru: { badge: "Новое", label: "Журнал", menuLabel: "Журнал и путеводители" },
     fr: { badge: "Nouveau", label: "Magazine", menuLabel: "Magazine et guides" },
   }[language];
+  const favoritesLoading = {
+    he: "פותחים את המקומות שאהבתי...",
+    en: "Opening your favorites...",
+    ru: "Открываем избранное...",
+    fr: "Ouverture de vos favoris...",
+  }[language];
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -102,7 +108,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
 
         <div className="menu-panel__secondary">
           <Link href="/account" onClick={closeMenu}><UserIcon /><span>החשבון האישי שלי</span></Link>
-          <Link href="/favorites" onClick={closeMenu}><HeartIcon /><span>מקומות שאהבתי</span></Link>
+          <Link href="/favorites" data-loading-label={favoritesLoading} onClick={closeMenu}><HeartIcon /><span>מקומות שאהבתי</span></Link>
           <Link href="/gift-card" onClick={closeMenu}><HeartIcon /><span>גיפט קארד</span></Link>
           <Link href="/destinations" onClick={closeMenu}><PinIcon /><span>יעדים</span></Link>
           <Link href="/guides" onClick={closeMenu} aria-current={magazineActive ? "page" : undefined}><InfoIcon /><span>{magazineCopy.menuLabel}</span></Link>
@@ -141,8 +147,8 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
           </nav>
 
           <div className="header-actions">
-            <Link className={`magazine-mobile-link${magazineActive ? " active" : ""}`} href="/guides" aria-current={magazineActive ? "page" : undefined}><span>{magazineCopy.label}</span><small>{magazineCopy.badge}</small></Link>
-            <Link className="icon-button" href="/favorites" aria-label="מקומות שאהבתי"><HeartIcon /></Link>
+            <Link className={`magazine-mobile-link${magazineActive ? " active" : ""}`} href="/guides" aria-label={magazineCopy.menuLabel} aria-current={magazineActive ? "page" : undefined}><span>{magazineCopy.label}</span><small>{magazineCopy.badge}</small></Link>
+            <Link className="icon-button" href="/favorites" aria-label="מקומות שאהבתי" data-loading-label={favoritesLoading}><HeartIcon /></Link>
             <Link className="icon-button account-icon-button" href="/account" aria-label="כניסה לחשבון האישי"><UserIcon /></Link>
             <LanguageSwitcher compact />
             <button ref={menuButtonRef} className="menu-button" type="button" aria-expanded={menuOpen} aria-haspopup="dialog" aria-label="פתיחת תפריט" onClick={() => setMenuOpen(true)}><MenuIcon /><span>תפריט</span></button>

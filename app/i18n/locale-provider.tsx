@@ -782,9 +782,8 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   const [translationVersion, setTranslationVersion] = useState(0);
   const observer = useRef<MutationObserver | null>(null);
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => setLanguageState(initialLanguage()), 0);
-    return () => window.clearTimeout(timer);
+  useLayoutEffect(() => {
+    setLanguageState(initialLanguage());
   }, []);
 
   const setLanguage = (nextLanguage: SiteLanguage) => {
