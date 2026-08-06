@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { eventPlaceHref, type EventPlace, type Listing } from "../data/site-data";
 import type { DiscoveryItem } from "../data/world-data";
+import { useSiteLanguage } from "../i18n/locale-provider";
 import "leaflet/dist/leaflet.css";
 
 type MapTone = "vacation" | "events" | "spa" | "hourly";
@@ -260,6 +261,14 @@ export function ListingMap({ listings, mode = "vacation", single = false, autoLo
 }
 
 export function DiscoveryMap({ items, tone, single = false, autoLoad = false, onClose }: { items: DiscoveryItem[]; tone: "spa" | "hourly"; single?: boolean; autoLoad?: boolean; onClose?: () => void }) {
+  const { language } = useSiteLanguage();
+  const localized = language === "en"
+    ? { spa: "Spa and treatments", hourly: "Hourly stay", packages: "Packages and treatments", short: "Short stay", from: "From" }
+    : language === "ru"
+      ? { spa: "Спа и процедуры", hourly: "Почасовое размещение", packages: "Пакеты и процедуры", short: "Короткое пребывание", from: "От" }
+      : language === "fr"
+        ? { spa: "Spa et soins", hourly: "Séjour à l'heure", packages: "Forfaits et soins", short: "Court séjour", from: "À partir de" }
+        : null;
   const places = useMemo<MapPlace[]>(() => items.filter((item) => typeof item.lat === "number" && typeof item.lng === "number").map((item) => {
     const price = item.priceLabel?.match(/[\d,.]+/)?.[0];
     return {
@@ -267,8 +276,8 @@ export function DiscoveryMap({ items, tone, single = false, autoLoad = false, on
       name: item.name,
       location: item.location,
       area: item.area,
-      category: tone === "spa" ? "ספא וטיפולים" : "שהייה לפי שעה",
-      meta: item.priceLabel || (tone === "spa" ? "חבילות וטיפולים" : "שהייה קצרה"),
+      category: localized ? (tone === "spa" ? localized.spa : localized.hourly) : tone === "spa" ? "ספא וטיפולים" : "שהייה לפי שעה",
+      meta: localized ? (price ? `${localized.from} ₪${price}` : tone === "spa" ? localized.packages : localized.short) : item.priceLabel || (tone === "spa" ? "חבילות וטיפולים" : "שהייה קצרה"),
       image: item.image || "/vii-logo.png",
       lat: item.lat!,
       lng: item.lng!,
@@ -276,6 +285,6 @@ export function DiscoveryMap({ items, tone, single = false, autoLoad = false, on
       markerLabel: price ? `${price} ₪` : tone === "spa" ? "ספא" : "לפי שעה",
       precision: item.mapPrecision || "area",
     };
-  }), [items, tone]);
+  }), [items, tone, localized]);
   return <PlacesMap places={places} tone={tone} single={single} autoLoad={autoLoad} onClose={onClose} />;
 }

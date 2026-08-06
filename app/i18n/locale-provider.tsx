@@ -41,6 +41,11 @@ function loadTranslations(language: GeneratedLanguage) {
 
 const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, string>> = {
   en: {
+    "\u05de\u05e4\u05d4 \u05d0\u05d9\u05e0\u05d8\u05e8\u05d0\u05e7\u05d8\u05d9\u05d1\u05d9\u05ea \u05e9\u05dc \u05d4\u05de\u05e7\u05d5\u05de\u05d5\u05ea": "Interactive map of places",
+    "\u05d7\u05d6\u05e8\u05d4 \u05dc\u05ea\u05e6\u05d5\u05d2\u05ea \u05e8\u05e9\u05d9\u05de\u05d4": "Back to list view",
+    "\u05d7\u05d6\u05e8\u05d4 \u05dc\u05e8\u05e9\u05d9\u05de\u05d4": "Back to list",
+    "\u05e1\u05d2\u05d9\u05e8\u05ea \u05e4\u05e8\u05d8\u05d9 \u05d4\u05de\u05e7\u05d5\u05dd": "Close place details",
+    "\u05d4\u05de\u05e7\u05d5\u05de\u05d5\u05ea \u05e9\u05de\u05d5\u05e6\u05d2\u05d9\u05dd \u05e2\u05dc \u05d4\u05de\u05e4\u05d4": "Places shown on the map",
     "\u05e9\u05dd \u05dc\u05d4\u05d6\u05de\u05e0\u05d4": "Booking name",
     "\u05d0\u05d9\u05da \u05dc\u05e4\u05e0\u05d5\u05ea \u05d0\u05dc\u05d9\u05db\u05dd?": "How should we address you?",
     "\u05d8\u05dc\u05e4\u05d5\u05df \u05dc\u05d7\u05d6\u05e8\u05d4": "Callback phone",
@@ -104,6 +109,11 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "These cards are search shortcuts. Availability and final pricing are confirmed after selecting dates and guests.",
   },
   ru: {
+    "\u05de\u05e4\u05d4 \u05d0\u05d9\u05e0\u05d8\u05e8\u05d0\u05e7\u05d8\u05d9\u05d1\u05d9\u05ea \u05e9\u05dc \u05d4\u05de\u05e7\u05d5\u05de\u05d5\u05ea": "Интерактивная карта мест",
+    "\u05d7\u05d6\u05e8\u05d4 \u05dc\u05ea\u05e6\u05d5\u05d2\u05ea \u05e8\u05e9\u05d9\u05de\u05d4": "Вернуться к списку",
+    "\u05d7\u05d6\u05e8\u05d4 \u05dc\u05e8\u05e9\u05d9\u05de\u05d4": "Назад к списку",
+    "\u05e1\u05d2\u05d9\u05e8\u05ea \u05e4\u05e8\u05d8\u05d9 \u05d4\u05de\u05e7\u05d5\u05dd": "Закрыть карточку места",
+    "\u05d4\u05de\u05e7\u05d5\u05de\u05d5\u05ea \u05e9\u05de\u05d5\u05e6\u05d2\u05d9\u05dd \u05e2\u05dc \u05d4\u05de\u05e4\u05d4": "Места на карте",
     "\u05e9\u05dd \u05dc\u05d4\u05d6\u05de\u05e0\u05d4": "Имя для бронирования",
     "\u05d0\u05d9\u05da \u05dc\u05e4\u05e0\u05d5\u05ea \u05d0\u05dc\u05d9\u05db\u05dd?": "Как к вам обращаться?",
     "\u05d8\u05dc\u05e4\u05d5\u05df \u05dc\u05d7\u05d6\u05e8\u05d4": "Телефон для связи",
@@ -167,6 +177,11 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "Карточки ведут к поиску. Наличие мест и итоговая цена подтверждаются после выбора дат и состава гостей.",
   },
   fr: {
+    "\u05de\u05e4\u05d4 \u05d0\u05d9\u05e0\u05d8\u05e8\u05d0\u05e7\u05d8\u05d9\u05d1\u05d9\u05ea \u05e9\u05dc \u05d4\u05de\u05e7\u05d5\u05de\u05d5\u05ea": "Carte interactive des lieux",
+    "\u05d7\u05d6\u05e8\u05d4 \u05dc\u05ea\u05e6\u05d5\u05d2\u05ea \u05e8\u05e9\u05d9\u05de\u05d4": "Retour à la liste",
+    "\u05d7\u05d6\u05e8\u05d4 \u05dc\u05e8\u05e9\u05d9\u05de\u05d4": "Retour à la liste",
+    "\u05e1\u05d2\u05d9\u05e8\u05ea \u05e4\u05e8\u05d8\u05d9 \u05d4\u05de\u05e7\u05d5\u05dd": "Fermer les détails du lieu",
+    "\u05d4\u05de\u05e7\u05d5\u05de\u05d5\u05ea \u05e9\u05de\u05d5\u05e6\u05d2\u05d9\u05dd \u05e2\u05dc \u05d4\u05de\u05e4\u05d4": "Lieux affichés sur la carte",
     "\u05e9\u05dd \u05dc\u05d4\u05d6\u05de\u05e0\u05d4": "Nom de la réservation",
     "\u05d0\u05d9\u05da \u05dc\u05e4\u05e0\u05d5\u05ea \u05d0\u05dc\u05d9\u05db\u05dd?": "Comment devons-nous vous appeler ?",
     "\u05d8\u05dc\u05e4\u05d5\u05df \u05dc\u05d7\u05d6\u05e8\u05d4": "Téléphone de rappel",
