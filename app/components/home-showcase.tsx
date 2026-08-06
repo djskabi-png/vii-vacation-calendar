@@ -7,7 +7,7 @@ import { useRef, useState } from "react";
 import { DiscoveryCard } from "./discovery-card";
 import { PropertyCard } from "./property-card";
 import { eventPlaceHref, eventPlaces, properties } from "../data/site-data";
-import { activityIdeas, hourlyPlaces, providerProfiles, spaPlaces, worlds } from "../data/world-data";
+import { hourlyPlaces, paidAttractions, providerProfiles, spaPlaces, worlds } from "../data/world-data";
 import { trails } from "../data/trail-data";
 import { TrailCard } from "./trail-card";
 import { CalendarIcon, PinIcon } from "../site-header";
@@ -94,7 +94,7 @@ export function HomeShowcase() {
     <section className="section home-worlds" aria-labelledby="home-worlds-title">
       <div className="shell"><div className="section-head"><div><span className="eyebrow">אתר אחד, הרבה דרכים ליהנות</span><h2 id="home-worlds-title">ממשיכים לכל העולמות</h2><p>לא רק מקום לישון. בונים את כל החופשה, הטיפול, השהייה הקצרה, הספקים והיום שמסביב.</p></div></div>
         <div className="home-world-gates">{worldCards.map((world,index) => {
-          const item = index === 0 ? spaPlaces[5] : index === 1 ? hourlyPlaces[3] : index === 2 ? providerProfiles[0] : activityIdeas[1];
+          const item = index === 0 ? spaPlaces[5] : index === 1 ? hourlyPlaces[3] : index === 2 ? providerProfiles[0] : paidAttractions[0];
           return <Link key={world.id} className={`home-world-gate home-world-gate--${world.id}`} href={world.href}>{item.image ? <img src={item.image} alt={item.name} /> : <span className="home-world-gate__visual">{world.shortLabel.slice(0,1)}</span>}<div><span>{world.label}</span><h3>{world.description}</h3><p>{item.demo ? "פרופילים לדוגמה שממחישים איך השירות יעבוד באתר." : item.description}</p><b>לגלות את העולם</b></div></Link>;
         })}</div>
       </div>

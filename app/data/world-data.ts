@@ -110,12 +110,14 @@ const curatedProviderProfiles: DiscoveryItem[] = [
 
 const nationwideServiceAreas = ["צפון", "כנרת", "חיפה", "מרכז", "תל אביב", "ירושלים", "דרום ונגב", "אילת והסביבה"];
 
-export const providerProfiles: DiscoveryItem[] = curatedProviderProfiles.map((item) => ({
-  ...item,
-  serviceAreas: item.location.includes("כל הארץ") || item.location.includes("לפי מיקום") || item.location.includes("בכל הארץ")
-    ? nationwideServiceAreas
-    : [item.area, item.location],
-}));
+export const providerProfiles: DiscoveryItem[] = curatedProviderProfiles
+  .map((item) => ({
+    ...item,
+    serviceAreas: item.location.includes("כל הארץ") || item.location.includes("לפי מיקום") || item.location.includes("בכל הארץ")
+      ? nationwideServiceAreas
+      : [item.area, item.location],
+  }))
+  .filter((item) => (item.images?.length || 0) >= 3);
 
 export const activityIdeas: DiscoveryItem[] = [
   { id: "eilat-sunset", world: "activities", name: "שקיעה לאורך מפרץ אילת", location: "אילת", area: "אילת והערבה", description: "תוכנית לערב רגוע: הליכה בטיילת, עצירה מול הים וארוחה באזור המרינה.", features: ["מסלול קל", "מתאים לזוגות", "כשעתיים"], duration: "כשעתיים", image: "/media/activities/eilat-sunset.jpg", imageLabel: "תמונת אווירה", sourceUrl: "https://www.gov.il/he/pages/sea-rules", sourceName: "כללי בטיחות בים, ממשלת ישראל" },
@@ -128,7 +130,7 @@ export const activityIdeas: DiscoveryItem[] = [
   { id: "atv-idea", world: "activities", name: "מסלול שטח וטרקטורונים", location: "לפי מקום האירוח", area: "חוויה בהזמנה", description: "תוכנית לחוויית שטח שתוצמד למקום לפי מרחק, גיל משתתפים ותנאי המסלול.", features: ["שטח", "קבוצות", "בהזמנה מראש"], duration: "כשעתיים", image: "/media/activities/atv-idea.jpg", imageLabel: "תמונת אווירה", sourceUrl: "https://www.gov.il/he/pages/21-9025", sourceName: "משרד התחבורה והבטיחות בדרכים", indexable: false },
 ];
 
-const curatedPaidAttractions: DiscoveryItem[] = [
+export const attractionOnboardingCategories: DiscoveryItem[] = [
   { id: "bookable-atv", world: "activities", name: "טרקטורונים וטיולי שטח", location: "צפון, מרכז ודרום", area: "שטח ואדרנלין", description: "מתאימים מסלול שטח לפי אזור הלינה, גיל המשתתפים, סוג הכלי ורמת האתגר. פרטי הספק, הביטוח, המחיר והזמינות מוצגים לפני אישור ההזמנה.", features: ["טרקטורונים", "זוגות וקבוצות", "התאמת ספק"], duration: "כשעתיים", image: "/media/activities/atv-idea.jpg", imageLabel: "תמונת אווירה", indexable: false },
   { id: "bookable-horseback", world: "activities", name: "רכיבה על סוסים", location: "בכל הארץ", area: "טבע ורכיבה", description: "מחפשים חווה פעילה ומסלול שמתאים לניסיון, לגיל ולהרכב. מקבלים מראש את תנאי הרכיבה, הציוד, המגבלות ופרטי ההזמנה.", features: ["רכיבה מודרכת", "זוגות ומשפחות", "התאמת ספק"], duration: "שעה עד שעתיים", image: "/media/activities/horseback-idea.jpg", imageLabel: "תמונת אווירה", indexable: false },
   { id: "bookable-eilat-sea", world: "activities", name: "שיט וחוויות ים באילת", location: "אילת והסביבה", area: "ים ושיט", description: "שיט, פעילות ימית או חוויה זוגית במפרץ לפי העונה, תנאי הים והרכב המשתתפים. ההזמנה מתבצעת רק מול ספק פעיל שנבדק.", features: ["שיט", "זוגות ומשפחות", "הזמנה באתר"], duration: "שעה עד חצי יום", image: "/media/activities/eilat-sunset.jpg", imageLabel: "תמונת אווירה", indexable: false },
@@ -181,10 +183,10 @@ const verifiedAttractions: DiscoveryItem[] = verifiedCatalog.attractions.flatMap
   }];
 });
 
-export const paidAttractions: DiscoveryItem[] = [
-  ...verifiedAttractions,
-  ...curatedPaidAttractions.filter((item) => !verifiedAttractions.some((verified) => verified.id === item.id)),
-];
+// Only verified attractions with a complete gallery are public. The curated
+// category records remain available for future onboarding, but are never
+// presented as bookable suppliers before their identity and media are verified.
+export const paidAttractions: DiscoveryItem[] = verifiedAttractions;
 
 export const discoveryItems = [...spaPlaces, ...hourlyPlaces, ...providerProfiles, ...activityIdeas, ...paidAttractions]
   .filter((item) => item.indexable !== false && (item.images?.length || 0) >= 3);
