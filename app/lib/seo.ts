@@ -1,5 +1,5 @@
 import type { DiscoveryItem } from "../data/world-data";
-import type { EventPlace, Listing } from "../data/site-data";
+import { getListingOfferings, type EventPlace, type Listing } from "../data/site-data";
 import type { MagazineArticle } from "../data/magazine-data";
 import type { Trail } from "../data/trail-data";
 
@@ -134,9 +134,11 @@ function address(location: string, area: string) {
 
 export function lodgingSchema(listing: Listing) {
   const url = `${SITE_URL}/business?id=${listing.slug}`;
+  const worlds = getListingOfferings(listing).map((offering) => offering.world);
   return {
     "@context": "https://schema.org",
     "@type": "LodgingBusiness",
+    ...(worlds.includes("events") ? { additionalType: "https://schema.org/EventVenue" } : {}),
     "@id": `${url}#place`,
     name: listing.name,
     description: listing.description,
@@ -150,6 +152,7 @@ export function lodgingSchema(listing: Listing) {
       longitude: listing.lng,
     },
     amenityFeature: amenityFeature(listing.features),
+    ...(worlds.includes("events") ? { maximumAttendeeCapacity: getListingOfferings(listing).find((offering) => offering.world === "events")?.maxGuests } : {}),
     containsPlace: {
       "@type": "Accommodation",
       additionalType: listing.scenario === "single" ? "EntirePlace" : "Suite",

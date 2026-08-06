@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import type { Listing } from "../data/site-data";
+import { eventPlaceHref, type EventPlace, type Listing } from "../data/site-data";
 import type { DiscoveryItem } from "../data/world-data";
 import "leaflet/dist/leaflet.css";
 
@@ -171,7 +171,7 @@ export function ListingMap({ listings, mode = "vacation", single = false, autoLo
     image: listing.image,
     lat: listing.lat,
     lng: listing.lng,
-    href: mode === "events" ? `/events/place?id=${listing.slug}` : `/business?id=${listing.slug}`,
+    href: mode === "events" ? eventPlaceHref(listing as EventPlace) : `/business?id=${listing.slug}`,
     markerLabel: String(listing.guests),
     precision: "exact",
   })), [listings, mode]);
@@ -186,7 +186,7 @@ export function DiscoveryMap({ items, tone, single = false, autoLoad = false }: 
     area: item.area,
     category: tone === "spa" ? "ספא וטיפולים" : "שהייה לפי שעה",
     meta: item.priceLabel || (tone === "spa" ? "חבילות וטיפולים" : "שהייה קצרה"),
-    image: item.image || "/media/vii-logo.png",
+    image: item.image || "/vii-logo.png",
     lat: item.lat!,
     lng: item.lng!,
     href: `/discover/place?world=${item.world}&id=${item.id}`,

@@ -8,6 +8,7 @@ import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import { LanguageSwitcher, useSiteLanguage } from "./i18n/locale-provider";
 import { worlds, type WorldId } from "./data/world-data";
+import { AccessibilityWidget } from "./components/accessibility-widget";
 
 const nav = worlds.map((world) => ({ id: world.id, href: world.href, label: world.shortLabel, description: world.description }));
 
@@ -94,11 +95,14 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
           <Link href="/favorites" onClick={closeMenu}><HeartIcon /><span>מקומות שאהבתי</span></Link>
           <Link href="/contact" onClick={closeMenu}><ContactIcon /><span>יצירת קשר</span></Link>
           <Link href="/join" onClick={closeMenu}><ContactIcon /><span>הצטרפות לאתר</span></Link>
+          <Link href="/gift-card" onClick={closeMenu}><HeartIcon /><span>גיפט קארד</span></Link>
+          <Link href="/corporate" onClick={closeMenu}><ContactIcon /><span>אירועי חברה ורווחה</span></Link>
           <Link href="/destinations" onClick={closeMenu}><PinIcon /><span>יעדים</span></Link>
           <Link href="/guides" onClick={closeMenu} aria-current={magazineActive ? "page" : undefined}><InfoIcon /><span>{magazineCopy.menuLabel}</span></Link>
           <Link href="/questions" onClick={closeMenu}><InfoIcon /><span>שאלות ותשובות</span></Link>
           <Link href="/trails" onClick={closeMenu}><PinIcon /><span>מסלולי טיול עצמאיים</span></Link>
           <Link href="/accessibility" onClick={closeMenu}><AccessibilityIcon /><span>הצהרת נגישות</span></Link>
+          <AccessibilityWidget placement="menu" />
         </div>
 
         <div className="menu-panel__footer">

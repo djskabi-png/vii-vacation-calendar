@@ -87,7 +87,7 @@ export default function SearchPage() {
             {mapOpen && <div className="map-filter-status" aria-live="polite"><PinIcon /><span>האזור שמוצג במפה</span><strong>{area === "הכל" ? "כל הארץ" : area}</strong></div>}
             <label className={`filter-select map-area-select ${mapOpen ? "active" : ""}`}>אזור<select value={area} onChange={(event) => setArea(event.target.value)}>{areas.map((item) => <option value={item} key={item}>{item === "הכל" ? "כל הארץ" : item}</option>)}</select></label>
             <label className="filter-select">סוג מקום<select value={type} onChange={(event) => setType(event.target.value)}>{types.map((item) => <option key={item}>{item}</option>)}</select></label>
-            <fieldset><legend>כמות אורחים מינימלית</legend><input type="range" min="1" max="30" value={guests} onChange={(event) => setGuests(Number(event.target.value))} /><div className="range-value">לפחות {guests} אורחים</div></fieldset>
+            <fieldset><legend>כמות אורחים מינימלית</legend><input type="range" min="1" max="30" value={guests} aria-label="כמות אורחים מינימלית" onChange={(event) => setGuests(Number(event.target.value))} /><div className="range-value">לפחות {guests} אורחים</div></fieldset>
             <fieldset><legend>מאפיינים</legend>
               <label><input type="checkbox" checked={pool} onChange={(event) => setPool(event.target.checked)} /> בריכה</label>
               <label><input type="checkbox" checked={spa} onChange={(event) => setSpa(event.target.checked)} /> ספא, ג׳קוזי או סאונה</label>

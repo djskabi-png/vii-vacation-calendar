@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import BusinessPage from "./client-page";
-import { properties, propertyFaq } from "../data/site-data";
+import { getListingOfferings, properties, propertyFaq, type BusinessWorld } from "../data/site-data";
 import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, faqSchema, lodgingSchema } from "../lib/seo";
 
-type Props = { searchParams: Promise<{ id?: string }> };
+type Props = { searchParams: Promise<{ id?: string; mode?: string }> };
 
 function resolveProperty(id?: string) {
   if (!id) return properties[0];
@@ -25,8 +25,13 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 }
 
 export default async function Page({ searchParams }: Props) {
-  const property = resolveProperty((await searchParams).id);
+  const params = await searchParams;
+  const property = resolveProperty(params.id);
   if (!property) notFound();
+  const requestedWorld = params.mode as BusinessWorld | undefined;
+  const initialWorld: BusinessWorld = getListingOfferings(property).some((offering) => offering.world === requestedWorld)
+    ? requestedWorld as BusinessWorld
+    : getListingOfferings(property)[0].world;
   return <>
     <StructuredData data={lodgingSchema(property)} />
     <StructuredData data={breadcrumbSchema([
@@ -35,6 +40,6 @@ export default async function Page({ searchParams }: Props) {
       { name: property.name, path: `/business?id=${property.slug}` },
     ])} />
     <StructuredData data={faqSchema(propertyFaq)} />
-    <BusinessPage initialSlug={property.slug} />
+    <BusinessPage initialSlug={property.slug} initialWorld={initialWorld} />
   </>;
 }

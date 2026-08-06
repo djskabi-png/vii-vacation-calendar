@@ -28,6 +28,8 @@ for (const [pathname, expected] of [
   ["/trails/snir-hatzbani", /נחל שניר, חצבאני/],
   ["/discover/place", /ספא בוטיק תל אביב/],
   ["/join", /העמוד של העסק שלכם יכול להתחיל לעלות כבר עכשיו/],
+  ["/gift-card", /גיפט קארד אחד/],
+  ["/corporate", /כל מה שצריך כדי לעשות טוב לאנשים שלכם/],
   ["/contact", /יצירת קשר/],
   ["/accessibility", /הצהרת נגישות/],
 ]) {
@@ -104,6 +106,34 @@ test("hourly search starts with location and exposes filters only with the resul
   assert.doesNotMatch(html, /בחרו תאריכים/);
 });
 
+test("one business can serve several worlds without duplicate public pages", async () => {
+  const [businessResponse, eventSearchResponse, sitemapResponse, legacyEventResponse, businessSource] = await Promise.all([
+    render("/business?id=sol-gilgal&mode=events"),
+    render("/events/search"),
+    render("/sitemap.xml", { headers: { accept: "application/xml" } }),
+    render("/events/place?id=sol-gilgal"),
+    readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8"),
+  ]);
+  const [businessHtml, eventSearchHtml, sitemapXml] = await Promise.all([
+    businessResponse.text(),
+    eventSearchResponse.text(),
+    sitemapResponse.text(),
+  ]);
+
+  assert.match(businessHtml, /מה תרצו לעשות במקום/);
+  assert.match(businessHtml, /בדיקת התאמה לאירוע/);
+  assert.match(businessHtml, /אירועים קטנים/);
+  assert.match(businessHtml, /rel="canonical" href="https:\/\/vii\.spaplus\.co\/business\?id=sol-gilgal"/);
+  assert.match(businessHtml, /"maximumAttendeeCapacity":26/);
+  assert.match(eventSearchHtml, /business\?id=sol-gilgal(?:&amp;|&)mode=events/);
+  assert.match(sitemapXml, /business\?id=sol-gilgal/);
+  assert.doesNotMatch(sitemapXml, /events\/place\?id=sol-gilgal/);
+  assert.ok([307, 308].includes(legacyEventResponse.status));
+  assert.match(legacyEventResponse.headers.get("location") || "", /\/business\?id=sol-gilgal(?:&|%26)mode=events/);
+  assert.match(businessSource, /worldSelection\?\.slug === property\.slug/);
+  assert.match(businessSource, /setWorldSelection\(\{ slug: property\.slug, world \}\)/);
+});
+
 test("spa, hourly and event worlds expose interactive maps", async () => {
   const [spaResponse, hourlyResponse, eventResponse, spaDetailResponse] = await Promise.all([
     render("/spas"),
@@ -145,6 +175,45 @@ test("commercial discovery stays inside VII", async () => {
   assert.doesNotMatch(pages, /פתיחה במפה מלאה/);
   assert.match(pages, /לכל פרטי השהייה/);
   assert.match(pages, /מגדילים, מקטינים ומזיזים את המפה כאן בעמוד/);
+});
+
+test("gift cards, corporate experiences and MASU form one internal journey", async () => {
+  const [giftResponse, corporateResponse, masuResponse, homeResponse, sitemapResponse, worldData, businessSource, eventSource, discoverySource, translations] = await Promise.all([
+    render("/gift-card"),
+    render("/corporate"),
+    render("/discover/place?id=masu-home-wellness"),
+    render("/"),
+    render("/sitemap.xml", { headers: { accept: "application/xml" } }),
+    readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/events/place/client-page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/discover/place/client-page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/i18n/translations.generated.json", import.meta.url), "utf8"),
+  ]);
+  const [giftHtml, corporateHtml, masuHtml, homeHtml, sitemapXml] = await Promise.all([
+    giftResponse.text(), corporateResponse.text(), masuResponse.text(), homeResponse.text(), sitemapResponse.text(),
+  ]);
+  assert.match(giftHtml, /gift-card-art/);
+  assert.match(giftHtml, /המשך לרכישת גיפט קארד/);
+  assert.match(corporateHtml, /למנהלות רווחה, משאבי אנוש ומועדוני צרכנות/);
+  assert.match(corporateHtml, /מועדוני צרכנות וארגונים/);
+  assert.match(masuHtml, /מאסו/);
+  assert.match(masuHtml, /עיסוי עד הבית/);
+  assert.doesNotMatch([giftHtml, corporateHtml, masuHtml].join("\n"), /href=["']https?:\/\/(?:www\.)?masu\.co\.il/i);
+  assert.match(homeHtml, /masu-experience--stay/);
+  assert.match(sitemapXml, /\/gift-card</);
+  assert.match(sitemapXml, /\/corporate</);
+  assert.match(sitemapXml, /masu-home-wellness/);
+  assert.match(worldData, /id: "masu-home-wellness"/);
+  assert.doesNotMatch(worldData, /id: "masu-home-wellness"[^\n]*rating:/);
+  assert.match(businessSource, /<MasuExperience/);
+  assert.match(eventSource, /<MasuExperience context="event"/);
+  assert.match(discoverySource, /<MasuExperience context=/);
+  const dictionaries = JSON.parse(translations);
+  for (const language of ["en", "ru", "fr"]) {
+    assert.ok(dictionaries[language]["גיפט קארד אחד."]);
+    assert.ok(dictionaries[language]["מאסו לעובדים ולארגונים"]);
+  }
 });
 
 test("attraction booking follows the supplier conversion mode", async () => {
@@ -193,7 +262,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(calendar, /mode === "business"/);
   assert.match(searchBox, /mode="home"/);
   assert.match(business, /businessKind=\{property\.scenario\}/);
-  assert.match(business, /<SearchBox compact \/>/);
+  assert.match(business, /<SearchBox key=\{activeWorld\} mode=\{activeWorld\} compact \/>/);
   assert.match(business, /initialSlug/);
   assert.doesNotMatch(business, /URLSearchParams\(location\.search\)/);
   assert.match(search, /setPool/);
@@ -392,9 +461,10 @@ test("includes the accessibility system and honest place disclosures", async () 
   assert.equal((data.match(/"(?:aqua-resort|kesem-harimon|ahuzat-or|ar-suites|sol-gilgal|magic-garden-gefen|anael-estate|perfumes-villa|rose-estate|party-time|black-loft|sani-loft|360-events|loft-117|fiesta|details-events|star-loft|puzzle-club|paphos-events)"/g) || []).length, 19);
   assert.match(data, /status: "unknown"/);
   assert.match(listing, /האם המקום נגיש/);
-  assert.doesNotMatch(header, /<AccessibilityWidget/);
+  assert.match(header, /<AccessibilityWidget placement="menu" \/>/);
   assert.match(header, /<LanguageSwitcher compact/);
   assert.match(footer, /href="\/accessibility"/);
+  assert.match(footer, /<AccessibilityWidget placement="footer" \/>/);
   assert.doesNotMatch(propertyCard, /ListingAccessibility/);
   assert.match(searchPage, /נגישות מלאה ומאומתת/);
   assert.match(business, /ListingAccessibility slug=\{property\.slug\}/);
@@ -407,7 +477,7 @@ test("includes the accessibility system and honest place disclosures", async () 
   assert.match(styles, /accessibility-status-explainer/);
 });
 
-test("ships a favicon, three languages and no dependency on the retired site", async () => {
+test("ships a favicon, four languages and no dependency on the retired site", async () => {
   const [layout, locale, translations, header, footer, contactActions, data, worldData, favicon] = await Promise.all([
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/i18n/locale-provider.tsx", import.meta.url), "utf8"),
@@ -427,9 +497,11 @@ test("ships a favicon, three languages and no dependency on the retired site", a
   assert.match(locale, /document\.documentElement\.dir/);
   assert.equal(Object.keys(dictionaries.en).length >= 2000, true);
   assert.equal(Object.keys(dictionaries.ru).length >= 2000, true);
+  assert.equal(Object.keys(dictionaries.fr).length >= 2000, true);
   assert.match(header, /<LanguageSwitcher compact/);
-  assert.doesNotMatch(header, /<AccessibilityWidget/);
+  assert.match(header, /<AccessibilityWidget placement="menu" \/>/);
   assert.match(footer, /<LanguageSwitcher compact/);
+  assert.match(footer, /<AccessibilityWidget placement="footer" \/>/);
   assert.doesNotMatch([header, footer, contactActions, data, worldData].join("\n"), /https:\/\/www\.vii\.co\.il/);
   const response = await render("/");
   const html = await response.text();
@@ -516,7 +588,7 @@ test("every canonical URL in the sitemap has complete crawlable HTML", async () 
   const sitemapXml = await sitemapResponse.text();
   assert.equal(sitemapResponse.status, 200);
   const urls = [...sitemapXml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1].replaceAll("&amp;", "&"));
-  assert.equal(urls.length, 84);
+  assert.equal(urls.length, 87);
   assert.equal(urls.some((url) => url.includes("party-time")), false);
   assert.equal(new Set(urls).size, urls.length);
 
@@ -560,7 +632,7 @@ test("key page types emit matching structured data and private pages stay out of
 test("every discovery card has stable media and every new world has a full detail page", async () => {
   const worldData = await readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8");
   const itemLines = worldData.split("\n").filter((line) => line.includes("world:") && line.includes(" id: "));
-  assert.equal(itemLines.length, 38);
+  assert.equal(itemLines.length, 39);
   for (const line of itemLines) {
     assert.match(line, /image: "\/media\//);
     assert.doesNotMatch(line, /demo: true/);
@@ -579,4 +651,33 @@ test("every discovery card has stable media and every new world has a full detai
     assert.match(html, /שאלות נפוצות/);
     assert.doesNotMatch(html, /פרופיל הדגמה/);
   }
+});
+
+test("persistent world and concierge actions never share the same screen position", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(css, /@media \(min-width: 561px\) \{\s*\.world-dock \{ right: 274px; \}/);
+  assert.match(css, /body:has\(\.world-dock\.open\) \.smart-concierge/);
+  assert.match(css, /body:has\(\.smart-concierge\.open\) \.world-dock/);
+  assert.match(css, /\.world-dock > button \{ width: calc\(50vw - 24px\)/);
+  assert.match(css, /\.smart-concierge__trigger \{ width: calc\(50vw - 24px\)/);
+});
+
+test("every business depth template exposes an internal gallery", async () => {
+  for (const [pathname, name] of [
+    ["/business?id=perfumes-villa", "וילת הבשמים"],
+    ["/events/place?id=black-loft", "בלאק לופט"],
+    ["/discover/place?id=spa-butik-tlv", "ספא בוטיק תל אביב"],
+    ["/discover/place?id=gentleman-haifa", "ג׳נטלמן חיפה"],
+    ["/discover/place?id=masu-home-wellness", "מאסו"],
+    ["/discover/place?id=eilat-sunset", "שקיעה לאורך מפרץ אילת"],
+  ]) {
+    const response = await render(pathname);
+    const html = await response.text();
+    assert.equal(response.status, 200, pathname);
+    assert.match(html, new RegExp(`aria-label="פתיחת (?:גלריית|הגלריה של|תמונה \\d+ של) ${name}`), pathname);
+  }
+
+  const discoveryClient = await readFile(new URL("../app/discover/place/client-page.tsx", import.meta.url), "utf8");
+  assert.match(discoveryClient, /<GalleryExperience/);
+  assert.match(discoveryClient, /discovery-detail__gallery-launch/);
 });

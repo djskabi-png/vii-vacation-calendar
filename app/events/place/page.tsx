@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import EventPlacePage from "./client-page";
-import { eventPlaces } from "../../data/site-data";
+import { eventPlaceHref, eventPlaces } from "../../data/site-data";
 import { StructuredData } from "../../components/structured-data";
 import { breadcrumbSchema, eventVenueSchema } from "../../lib/seo";
 
@@ -15,21 +16,22 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   return {
     title: place.name,
     description: place.description,
-    alternates: { canonical: `/events/place?id=${place.slug}` },
-    openGraph: { type: "website", url: `/events/place?id=${place.slug}`, title: place.name, description: place.description, images: [{ url: place.image, alt: place.name }] },
+    alternates: { canonical: eventPlaceHref(place) },
+    openGraph: { type: "website", url: eventPlaceHref(place), title: place.name, description: place.description, images: [{ url: place.image, alt: place.name }] },
     twitter: { card: "summary_large_image", title: place.name, description: place.description, images: [place.image] },
   };
 }
 
 export default async function Page({ searchParams }: Props) {
   const place = resolvePlace((await searchParams).id);
+  if (place.sourcePropertySlug) redirect(eventPlaceHref(place));
   return <>
     <StructuredData data={eventVenueSchema(place)} />
     <StructuredData data={breadcrumbSchema([
       { name: "ראשי", path: "/" },
       { name: "אירועים", path: "/events/" },
       { name: "מקומות לאירועים", path: "/events/search/" },
-      { name: place.name, path: `/events/place?id=${place.slug}` },
+      { name: place.name, path: eventPlaceHref(place) },
     ])} />
     <EventPlacePage initialSlug={place.slug} />
   </>;

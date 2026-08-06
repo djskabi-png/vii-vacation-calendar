@@ -24,7 +24,31 @@ export type Listing = {
   sleepingArrangements?: SleepingArrangement[];
   videos?: ListingVideo[];
   contact?: ListingContact;
+  offerings?: BusinessOffering[];
 };
+
+export type BusinessWorld = "vacation" | "events" | "hourly" | "spa";
+
+export type BusinessOffering = {
+  world: BusinessWorld;
+  label: string;
+  summary: string;
+  bookingMode: "availability-check" | "inquiry" | "instant-book" | "call-only" | "online-or-call";
+  eventTypes?: string[];
+  maxGuests?: number;
+  minimumNights?: number;
+  minimumHours?: number;
+};
+
+export function getListingOfferings(listing: Listing): BusinessOffering[] {
+  return listing.offerings?.length ? listing.offerings : [{
+    world: "vacation",
+    label: "נופש ולינה",
+    summary: "בוחרים תאריכי הגעה ועזיבה והרכב אורחים.",
+    bookingMode: "availability-check",
+    maxGuests: listing.guests,
+  }];
+}
 
 export type ListingVideo = {
   title: string;
@@ -184,6 +208,23 @@ const propertyCatalog: Property[] = [
     features: ["בריכת שחייה", "גינה פרטית", "מדשאות", "פינת ישיבה", "מטבחון מאובזר"],
     audiences: ["משפחות", "קבוצות", "אירועים קטנים"],
     badges: ["שש סוויטות", "מתאים לקבוצות"],
+    offerings: [
+      {
+        world: "vacation",
+        label: "נופש ולינה",
+        summary: "אירוח בשש סוויטות עם שמונה חדרי שינה לקבוצות ולמשפחות.",
+        bookingMode: "availability-check",
+        maxGuests: 26,
+      },
+      {
+        world: "events",
+        label: "אירועים קטנים",
+        summary: "בדיקת התאמה לאירוע קטן במרחבי החוץ של המתחם.",
+        bookingMode: "inquiry",
+        eventTypes: ["אירוע קטן"],
+        maxGuests: 26,
+      },
+    ],
     lat: 32.9086754,
     lng: 35.8009862,
     scenario: "multi",    contact: { phone: "055-4538181", whatsapp: "052-4477779" },
@@ -346,7 +387,7 @@ export const properties = propertyCatalog
   .filter((property) => property.active !== false)
   .sort((first, second) => activePropertyOrder.indexOf(first.slug) - activePropertyOrder.indexOf(second.slug));
 
-export type EventPlace = Listing & { eventTypes: string[] };
+export type EventPlace = Listing & { eventTypes: string[]; sourcePropertySlug?: string };
 
 const eventPlaceCatalog: EventPlace[] = [
   {
@@ -430,7 +471,27 @@ const eventPlaceCatalog: EventPlace[] = [
   },
 ];
 
-export const eventPlaces = eventPlaceCatalog.filter((place) => place.active !== false);
+const sharedEventPlaces: EventPlace[] = propertyCatalog.flatMap((listing) => {
+  const eventOffering = getListingOfferings(listing).find((offering) => offering.world === "events");
+  if (!eventOffering || listing.active === false) return [];
+  return [{
+    ...listing,
+    eventTypes: eventOffering.eventTypes || [],
+    sourcePropertySlug: listing.slug,
+    ...(eventOffering.maxGuests ? { guests: eventOffering.maxGuests } : {}),
+  }];
+});
+
+export const eventPlaces = [
+  ...eventPlaceCatalog.filter((place) => place.active !== false),
+  ...sharedEventPlaces.filter((shared) => !eventPlaceCatalog.some((place) => place.slug === shared.slug)),
+];
+
+export function eventPlaceHref(place: EventPlace) {
+  return place.sourcePropertySlug
+    ? `/business?id=${place.sourcePropertySlug}&mode=events`
+    : `/events/place?id=${place.slug}`;
+}
 
 export const destinations = [
   { name: "אילת", subtitle: "ים, שמש ומקומות אירוח שלמים", image: properties[0].image },

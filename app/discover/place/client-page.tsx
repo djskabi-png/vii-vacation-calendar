@@ -3,7 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { DiscoveryCard } from "../../components/discovery-card";
 import { ListingAccessibility } from "../../components/listing-accessibility";
 import { PageShell } from "../../components/page-shell";
@@ -14,6 +14,8 @@ import { getActivityDetails, type ActivityDetails } from "../../data/activity-de
 import { discoveryItems, worlds, type WorldId } from "../../data/world-data";
 import { PinIcon } from "../../site-header";
 import { DiscoveryMap } from "../../components/listing-map";
+import { MasuExperience } from "../../components/masu-experience";
+import { GalleryExperience } from "../../components/gallery-experience";
 
 function SpaPackageCard({ itemId, pack }: { itemId: string; pack: SpaPackage }) {
   const requestHref = `/contact?world=spa&place=${encodeURIComponent(itemId)}&package=${encodeURIComponent(pack.id)}`;
@@ -116,6 +118,7 @@ function ActivityContent({ itemId, details }: { itemId: string; details: Activit
 }
 
 export default function DiscoveryPlacePage({ initialId }: { initialId: string }) {
+  const [galleryOpen, setGalleryOpen] = useState(false);
   const item = useMemo(() => discoveryItems.find((entry) => entry.id === initialId) || discoveryItems[0], [initialId]);
   const world = worlds.find((entry) => entry.id === item.world) || worlds[2];
   const related = discoveryItems.filter((entry) => entry.world === item.world && entry.id !== item.id).slice(0, 3);
@@ -123,13 +126,15 @@ export default function DiscoveryPlacePage({ initialId }: { initialId: string })
   const providerDetails = item.world === "providers" ? getProviderDetails(item.id) : undefined;
   const hourlyDetails = item.world === "hourly" ? getHourlyDetails(item) : undefined;
   const activityDetails = item.world === "activities" ? getActivityDetails(item) : undefined;
+  const galleryImages = item.images?.length ? item.images : item.image ? [item.image] : [];
+  const gallerySubject = { name: item.name, images: galleryImages };
 
   return <PageShell variant={item.world as WorldId}>
     <main id="main-content" className={`discovery-detail discovery-detail--${item.world}`}>
       <div className="shell breadcrumbs"><Link href="/">ראשי</Link><span>/</span><Link href={world.href}>{world.label}</Link><span>/</span><span>{item.name}</span></div>
       <section className="shell discovery-detail__hero">
         <div className="discovery-detail__copy"><span className="eyebrow">{world.label}</span><h1>{item.name}</h1><p className="discovery-detail__location"><PinIcon />{item.location}, {item.area}</p><p>{item.description}</p><div className="discovery-card__chips">{item.features.map((feature) => <span key={feature}>{feature}</span>)}</div><div className="discovery-detail__actions">{spaDetails ? <a className="button primary" href={spaDetails.packages?.length ? "#spa-packages" : "#spa-about"}>{spaDetails.packages?.length ? "לבחירת חבילה" : "לכל פרטי המקום"}</a> : providerDetails ? <><a className="button primary" href="#provider-services">לבחירת שירות</a>{providerDetails.phone ? <a className="button secondary" href={`tel:${providerDetails.phone.replace(/[^\d+]/g, "")}`}>חיוג לספק</a> : null}</> : hourlyDetails ? <a className="button primary" href="#hourly-options">לכל פרטי השהייה</a> : activityDetails?.booking ? <a className="button primary" href="#activity-booking">איך מזמינים</a> : activityDetails ? <a className="button primary" href="#activity-plan">לתכנון המלא</a> : <Link className="button primary" href={world.href}>לכל האפשרויות</Link>}<Link className="button secondary" href={world.href}>חזרה לרשימה</Link></div></div>
-        <div className={`discovery-detail__media discovery-card__placeholder--${item.world}`}>{item.image ? <><img src={item.image} alt={item.imageLabel ? `תמונת אווירה לתחום ${item.features[0]}` : item.name} />{item.imageLabel && <span className="image-context-label image-context-label--detail">{item.imageLabel}</span>}</> : <span><b>{item.name.slice(0, 1)}</b><small>{item.demo ? "פרופיל הדגמה" : "רעיון מערכת"}</small></span>}</div>
+        <div className={`discovery-detail__media discovery-card__placeholder--${item.world}`}>{item.image ? <><button className="discovery-detail__gallery-media" type="button" onClick={() => setGalleryOpen(true)} aria-label={`פתיחת הגלריה של ${item.name}`}><img src={item.image} alt={item.imageLabel ? `תמונת אווירה לתחום ${item.features[0]}` : item.name} /></button>{item.imageLabel && <span className="image-context-label image-context-label--detail">{item.imageLabel}</span>}<button className="discovery-detail__gallery-launch" type="button" onClick={() => setGalleryOpen(true)}><span aria-hidden="true">▦</span>לגלריה <small>{galleryImages.length} {galleryImages.length === 1 ? "תמונה" : "תמונות"}</small></button></> : <span><b>{item.name.slice(0, 1)}</b><small>{item.demo ? "פרופיל הדגמה" : "רעיון מערכת"}</small></span>}</div>
       </section>
       {spaDetails ? <SpaContent itemId={item.id} details={spaDetails} /> : null}
       {providerDetails ? <ProviderContent itemId={item.id} details={providerDetails} /> : null}
@@ -137,7 +142,9 @@ export default function DiscoveryPlacePage({ initialId }: { initialId: string })
       {activityDetails ? <ActivityContent itemId={item.id} details={activityDetails} /> : null}
       {(spaDetails || hourlyDetails) ? <section className={`section shell discovery-location discovery-location--${item.world}`} id="location"><div className="discovery-location__intro"><span className="eyebrow">מכירים את האזור לפני שמגיעים</span><h2>המקום על המפה</h2><p>{item.world === "spa" ? "בודקים את האזור, המרחקים והדרך הנוחה להגיע לחוויית הספא." : "רואים את אזור המקום ושומרים על פרטיות מלאה. פרטי ההגעה המדויקים נמסרים לאחר אישור."}</p></div><DiscoveryMap items={[item]} tone={item.world === "spa" ? "spa" : "hourly"} single autoLoad /></section> : null}
       {(item.world === "spa" || item.world === "hourly") && <div className="shell discovery-detail__accessibility"><ListingAccessibility slug={item.id} /></div>}
+      {(item.world === "spa" || item.world === "hourly") && item.id !== "masu-home-wellness" ? <div className="section shell"><MasuExperience context={item.world === "spa" ? "spa" : "hourly"} /></div> : null}
       <section className="section section-tint"><div className="shell"><div className="section-head"><div><span className="eyebrow">באותו עולם</span><h2>עוד אפשרויות שכדאי לראות</h2></div></div><div className="discovery-grid">{related.map((entry) => <DiscoveryCard key={entry.id} item={entry} />)}</div></div></section>
     </main>
+    <GalleryExperience key={`${item.id}-${galleryOpen ? "open" : "closed"}`} property={gallerySubject} open={galleryOpen} onClose={() => setGalleryOpen(false)} />
   </PageShell>;
 }

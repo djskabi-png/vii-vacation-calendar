@@ -18,7 +18,7 @@ type AccessibilitySettings = {
 const defaults: AccessibilitySettings = { fontScale: 100, highContrast: false, monochrome: false, underlineLinks: false, pauseMotion: false, textSpacing: false, visibleFocus: false, largeCursor: false };
 const storageKey = "vii-accessibility-settings";
 
-export function AccessibilityWidget() {
+export function AccessibilityWidget({ placement = "icon" }: { placement?: "icon" | "menu" | "footer" }) {
   const [open, setOpen] = useState(false);
   const [settings, setSettings] = useState<AccessibilitySettings>(defaults);
   const [hydrated, setHydrated] = useState(false);
@@ -83,5 +83,11 @@ export function AccessibilityWidget() {
     <footer><button type="button" className="button subtle" onClick={() => setSettings(defaults)}>איפוס כל ההתאמות</button><Link href="/accessibility" onClick={close}>להצהרת הנגישות המלאה</Link></footer>
   </section></div>, document.body) : null;
 
-  return <><button ref={openButton} className="icon-button accessibility-trigger" type="button" aria-label="פתיחת כלי הנגישות" aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen(true)}><span aria-hidden="true">♿</span></button>{panel}</>;
+  const triggerClass = placement === "menu"
+    ? "accessibility-menu-trigger"
+    : placement === "footer"
+      ? "footer-privacy-button accessibility-footer-trigger"
+      : "icon-button accessibility-trigger";
+
+  return <><button ref={openButton} className={triggerClass} type="button" aria-label="פתיחת כלי הנגישות" aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen(true)}><span aria-hidden="true">♿</span>{placement !== "icon" ? <span>כלי נגישות</span> : null}</button>{panel}</>;
 }

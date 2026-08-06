@@ -27,6 +27,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     item("/hourly/", 0.8),
     item("/activities/", 0.8),
     item("/trails/", 0.8),
+    item("/gift-card/", 0.85, "weekly"),
+    item("/corporate/", 0.85, "weekly"),
     item("/guides/", 0.8),
     item("/destinations/", 0.8),
     item("/questions/", 0.8),
@@ -41,8 +43,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     ...staticPages,
     ...properties.map((place) => item(`/business?id=${place.slug}`, 0.9, "weekly", [place.image, ...place.images])),
-    ...eventPlaces.map((place) => item(`/events/place?id=${place.slug}`, 0.85, "weekly", [place.image, ...place.images])),
-    ...discoveryItems.filter((place) => place.indexable !== false && (place.world === "spa" || place.world === "hourly" || place.world === "activities")).map((place) => item(`/discover/place?id=${place.id}`, 0.7, "weekly", place.image ? [place.image] : undefined)),
+    ...eventPlaces.filter((place) => !place.sourcePropertySlug).map((place) => item(`/events/place?id=${place.slug}`, 0.85, "weekly", [place.image, ...place.images])),
+    ...discoveryItems.filter((place) => place.indexable === true || (place.indexable !== false && (place.world === "spa" || place.world === "hourly" || place.world === "activities"))).map((place) => item(`/discover/place?id=${place.id}`, 0.7, "weekly", place.image ? [place.image] : undefined)),
     ...magazineArticles.map((article) => item(`/guides/${article.slug}/`, 0.75, "monthly", [article.image])),
     ...trails.map((trail) => item(`/trails/${trail.slug}/`, 0.75, "monthly")),
   ];

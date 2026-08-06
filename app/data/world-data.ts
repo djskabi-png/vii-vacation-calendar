@@ -17,6 +17,7 @@ export type DiscoveryItem = {
   description: string;
   features: string[];
   image?: string;
+  images?: string[];
   imageLabel?: string;
   searchTerms?: string[];
   priceLabel?: string;
@@ -67,6 +68,7 @@ export const hourlyPlaces: DiscoveryItem[] = [
 ];
 
 export const providerProfiles: DiscoveryItem[] = [
+  { id: "masu-home-wellness", world: "providers", name: "מאסו", searchTerms: ["מאסו", "Masu", "עיסוי עד הבית", "טיפול פנים עד הבית", "עיסוי במשרד"], location: "בכל הארץ", area: "עיסויים וטיפולי פנים עד הבית", description: "מטפלים מוסמכים שמגיעים לבית, למלון, לווילה, למשרד או לאירוע עם ציוד מתאים. ניתן להזמין עיסוי אישי, טיפול פנים, עמדות עיסוי ופעילות רווחה לצוותים.", features: ["עיסוי עד הבית", "טיפולי פנים", "אירועי חברה"], image: "/media/providers/masu/masu-home.jpg", images: ["/media/providers/masu/masu-home.jpg", "/media/providers/masu/masu-office.png"], priceLabel: "החל מ-340 ₪", sourceUrl: "https://masu.co.il/", sourceName: "מאסו", indexable: true },
   { id: "maor-natan", world: "providers", name: "מאור נתן", location: "לפי מיקום האירוע", area: "שף פרטי וקייטרינג", description: "ארוחות שף פרטיות, אירוח מלא וקייטרינג בוטיק שמגיעים לבית או למקום הנופש.", features: ["שף פרטי", "אירוח מלא", "תפריט מותאם"], image: "/media/providers/maor-natan.jpg", imageLabel: "תמונת אווירה", priceLabel: "הצעה מותאמת" },
   { id: "nissan-mukhtar", world: "providers", name: "ניסן מוכתר", location: "כל הארץ", area: "שף פרטי", description: "ארוחות שף בבית או בווילה, עם תפריטים בשריים וחלביים לאירועים פרטיים ועסקיים.", features: ["בשרי או חלבי", "אירועים קטנים", "הגשה במקום"], image: "/media/providers/nissan-mukhtar.jpg", imageLabel: "תמונת אווירה", priceLabel: "הצעה מותאמת" },
   { id: "dj-kfir-w", world: "providers", name: "DJ Kfir W", searchTerms: ["כפיר", "כפיר וי", "דיג׳יי כפיר"], location: "קריית עקרון", area: "תקליטן ויוצר מוזיקלי", description: "תקליטנות לחתונות, מסיבות ואירועי חברה עם קו מוזיקלי שנבנה לפי הקהל.", features: ["חתונות", "מסיבות פרטיות", "אירועי חברה"], image: "/media/providers/dj-kfir-w.jpg", imageLabel: "תמונת אווירה", priceLabel: "בדיקת זמינות" },

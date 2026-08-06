@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CookiePreferencesButton } from "./cookie-consent";
 import { LanguageSwitcher } from "../i18n/locale-provider";
+import { AccessibilityWidget } from "./accessibility-widget";
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -16,9 +17,9 @@ export function SiteFooter() {
         </section>
         <nav aria-label="יעדים פופולריים"><strong>יעדים פופולריים</strong>{destinations.map((item) => <Link key={item} href={`/search?location=${encodeURIComponent(item)}`}>נופש ב{item}</Link>)}</nav>
         <nav aria-label="שירותים"><strong>העולמות שלנו</strong><Link href="/search">נופש</Link><Link href="/events">אירועים</Link><Link href="/spas">ספא</Link><Link href="/hourly">חדרים לכמה שעות</Link><Link href="/providers">ספקים</Link><Link href="/activities">מה עושים בסביבה</Link><Link href="/trails">מסלולי טיול עצמאיים</Link></nav>
-        <nav aria-label="מידע ושירות"><strong>מידע ושירות</strong><Link className="footer-join-link" href="/join">הצטרפות לאתר</Link><Link href="/contact">יצירת קשר</Link><Link href="/questions">שאלות ותשובות</Link><Link href="/guides">מגזין ומדריכים</Link><Link href="/accessibility">הצהרת נגישות</Link><Link href="/legal/terms">תקנון</Link><Link href="/legal/privacy">מדיניות פרטיות</Link><Link href="/legal/cancellation">ביטול הזמנה</Link></nav>
+        <nav aria-label="מידע ושירות"><strong>מידע ושירות</strong><Link className="footer-join-link" href="/join">הצטרפות לאתר</Link><Link href="/gift-card">גיפט קארד</Link><Link href="/corporate">אירועי חברה ורווחה</Link><Link href="/contact">יצירת קשר</Link><Link href="/questions">שאלות ותשובות</Link><Link href="/guides">מגזין ומדריכים</Link><Link href="/accessibility">הצהרת נגישות</Link><Link href="/legal/terms">תקנון</Link><Link href="/legal/privacy">מדיניות פרטיות</Link><Link href="/legal/cancellation">ביטול הזמנה</Link></nav>
       </div>
-      <div className="shell footer-bottom"><span>© וי פור ויקיישן</span><div><LanguageSwitcher compact /><CookiePreferencesButton /><span>כל החופשה, במקום אחד</span></div></div>
+      <div className="shell footer-bottom"><span>© וי פור ויקיישן</span><div><LanguageSwitcher compact /><AccessibilityWidget placement="footer" /><CookiePreferencesButton /><span>כל החופשה, במקום אחד</span></div></div>
     </footer>
   );
 }

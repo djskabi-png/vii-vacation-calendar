@@ -62,6 +62,8 @@ const manual = {
     "מוצאים את החופשה שמתאימה לכם": "Find the getaway that fits you",
     "נופש": "Stays", "אירועים": "Events", "ספא": "Spa", "ספקים": "Services", "יעדים": "Destinations",
     "מגזין": "Magazine", "חדש": "New", "תפריט": "Menu", "שפה": "Language",
+    "כל מה שצריך כדי לעשות טוב לאנשים שלכם": "Everything you need to create great experiences for your people",
+    "מאסו לעובדים ולארגונים": "MASU for teams and organizations",
     "נגישות מלאה ומאומתת": "Verified full accessibility",
   },
   ru: {
@@ -70,6 +72,8 @@ const manual = {
     "מוצאים את החופשה שמתאימה לכם": "Найдите отдых, который подходит именно вам",
     "נופש": "Отдых", "אירועים": "Мероприятия", "ספא": "Спа", "ספקים": "Услуги", "יעדים": "Направления",
     "מגזין": "Журнал", "חדש": "Новое", "תפריט": "Меню", "שפה": "Язык",
+    "כל מה שצריך כדי לעשות טוב לאנשים שלכם": "Всё для ярких впечатлений вашей команды",
+    "מאסו לעובדים ולארגונים": "MASU для команд и организаций",
     "נגישות מלאה ומאומתת": "Подтверждённая полная доступность",
   },
   fr: {
@@ -78,6 +82,8 @@ const manual = {
     "מוצאים את החופשה שמתאימה לכם": "Trouvez le séjour qui vous correspond",
     "נופש": "Séjours", "אירועים": "Événements", "ספא": "Spa", "ספקים": "Services", "יעדים": "Destinations",
     "מגזין": "Magazine", "חדש": "Nouveau", "תפריט": "Menu", "שפה": "Langue",
+    "כל מה שצריך כדי לעשות טוב לאנשים שלכם": "Tout pour créer de belles expériences pour vos équipes",
+    "מאסו לעובדים ולארגונים": "MASU pour les équipes et les organisations",
     "נגישות מלאה ומאומתת": "Accessibilité complète vérifiée",
   },
 };
@@ -150,4 +156,8 @@ for (const language of ["en", "ru", "fr"]) {
 }
 await mkdir(dirname(output), { recursive: true });
 await writeFile(output, `${JSON.stringify(generated, null, 2)}\n`, "utf8");
+await Promise.all(Object.entries(generated).map(([language, translations]) => {
+  const languageOutput = output.replace(/\.generated\.json$/i, `.${language}.generated.json`);
+  return writeFile(languageOutput, `${JSON.stringify(translations, null, 2)}\n`, "utf8");
+}));
 console.log(JSON.stringify({ pages: visited.size, phrases: source.length, output }));

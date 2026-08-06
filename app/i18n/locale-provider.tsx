@@ -17,16 +17,26 @@ const originalAttributes = new WeakMap<Element, Map<string, string>>();
 const translatedAttributes = ["aria-label", "alt", "placeholder", "title"];
 let originalDocumentTitle = "";
 
-type TranslationBundle = Record<Exclude<SiteLanguage, "he">, Record<string, string>>;
-let loadedTranslations: TranslationBundle | null = null;
-let translationRequest: Promise<TranslationBundle> | null = null;
+type GeneratedLanguage = Exclude<SiteLanguage, "he">;
+type TranslationDictionary = Record<string, string>;
+const loadedTranslations: Partial<Record<GeneratedLanguage, TranslationDictionary>> = {};
+const translationRequests: Partial<Record<GeneratedLanguage, Promise<TranslationDictionary>>> = {};
 
-function loadTranslations() {
-  translationRequest ??= import("./translations.generated.json").then((module) => {
-    loadedTranslations = module.default as TranslationBundle;
-    return loadedTranslations;
-  });
-  return translationRequest;
+function loadTranslations(language: GeneratedLanguage) {
+  const existing = translationRequests[language];
+  if (existing) return existing;
+  const request = (language === "en"
+    ? import("./translations.en.generated.json")
+    : language === "ru"
+      ? import("./translations.ru.generated.json")
+      : import("./translations.fr.generated.json"))
+    .then((module) => {
+      const translations = module.default as TranslationDictionary;
+      loadedTranslations[language] = translations;
+      return translations;
+    });
+  translationRequests[language] = request;
+  return request;
 }
 
 const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, string>> = {
@@ -395,7 +405,7 @@ function initialLanguage(): SiteLanguage {
 }
 
 function dictionary(language: SiteLanguage): Record<string, string> {
-  return language === "he" ? {} : loadedTranslations?.[language] || {};
+  return language === "he" ? {} : loadedTranslations[language] || {};
 }
 
 function translateDynamic(value: string, language: Exclude<SiteLanguage, "he">) {
@@ -610,9 +620,9 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    if (language === "he" || loadedTranslations) return;
+    if (language === "he" || loadedTranslations[language]) return;
     let active = true;
-    void loadTranslations().then(() => {
+    void loadTranslations(language).then(() => {
       if (active) setTranslationVersion((version) => version + 1);
     });
     return () => { active = false; };

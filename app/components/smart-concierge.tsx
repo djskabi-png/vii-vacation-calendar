@@ -159,13 +159,15 @@ export function SmartConcierge() {
 
   useEffect(() => {
     if (!open) return;
-    setUnread(false);
-    window.setTimeout(() => inputRef.current?.focus(), 120);
+    const focusTimer = window.setTimeout(() => inputRef.current?.focus(), 120);
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") setOpen(false);
     };
     window.addEventListener("keydown", closeOnEscape);
-    return () => window.removeEventListener("keydown", closeOnEscape);
+    return () => {
+      window.clearTimeout(focusTimer);
+      window.removeEventListener("keydown", closeOnEscape);
+    };
   }, [open]);
 
   useEffect(() => {
@@ -191,6 +193,11 @@ export function SmartConcierge() {
     form.reset();
   }
 
+  function toggleOpen() {
+    if (!open) setUnread(false);
+    setOpen(!open);
+  }
+
   const conversationSummary = messages.filter((message) => message.role === "guest").map((message) => message.text).join(" | ");
   const whatsappText = conversationSummary ? `${copy.whatsappWith}${conversationSummary}` : copy.whatsappEmpty;
   const whatsappHref = `https://wa.me/${serviceWhatsappNumber}?text=${encodeURIComponent(whatsappText)}`;
@@ -209,6 +216,6 @@ export function SmartConcierge() {
       <form onSubmit={submit} className="smart-concierge__form"><label className="sr-only" htmlFor="concierge-question">{copy.inputLabel}</label><input ref={inputRef} id="concierge-question" name="question" placeholder={copy.placeholder} autoComplete="off" /><button type="submit" aria-label={copy.send}><SendIcon /></button></form>
       <footer className="smart-concierge__footer"><span>{copy.footer}</span><a href={whatsappHref} target="_blank" rel="noreferrer"><WhatsAppIcon /> {copy.whatsapp}</a></footer>
     </section> : null}
-    <button className="smart-concierge__trigger" type="button" onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-controls="smart-concierge-panel"><span className="smart-concierge__trigger-avatar" aria-hidden="true">VII<i /></span><span className="smart-concierge__trigger-copy"><small>{copy.triggerTop}</small><b>{copy.triggerBottom}</b></span>{unread ? <i className="smart-concierge__unread" aria-label={copy.unread} /> : null}</button>
+    <button className="smart-concierge__trigger" type="button" onClick={toggleOpen} aria-expanded={open} aria-controls="smart-concierge-panel"><span className="smart-concierge__trigger-avatar" aria-hidden="true">VII<i /></span><span className="smart-concierge__trigger-copy"><small>{copy.triggerTop}</small><b>{copy.triggerBottom}</b></span>{unread ? <i className="smart-concierge__unread" aria-label={copy.unread} /> : null}</button>
   </aside>;
 }

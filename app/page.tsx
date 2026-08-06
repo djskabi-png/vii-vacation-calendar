@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageShell } from "./components/page-shell";
 import { HomeShowcase } from "./components/home-showcase";
+import { MasuExperience } from "./components/masu-experience";
 import { SearchBox } from "./components/search-box";
 import { magazineArticles } from "./data/magazine-data";
 import { destinations } from "./data/site-data";
@@ -28,6 +29,10 @@ export default function HomePage() {
         </section>
 
         <HomeShowcase />
+
+        <section className="section home-corporate-gift"><div className="shell"><Link className="home-corporate-gift__card home-corporate-gift__card--gift" href="/gift-card"><span className="eyebrow">מתנה שמשאירה את הבחירה אצלם</span><h2>גיפט קארד לכל העולמות של וי</h2><p>נופש, ספא, אירועים, אטרקציות ושירותים, במתנה אחת.</p><strong>יוצרים גיפט קארד</strong></Link><Link className="home-corporate-gift__card home-corporate-gift__card--corporate" href="/corporate"><span className="eyebrow">למנהלות רווחה ולעסקים</span><h2>אירועי חברה, רווחה ומתנות לעובדים</h2><p>מקום, תוכן, ספקים וגיפט קארד במסלול אחד.</p><strong>למרכז הארגוני</strong></Link></div></section>
+
+        <div className="section shell"><MasuExperience context="stay" /></div>
 
         <section className="section shell" aria-labelledby="destination-title">
           <div className="section-head"><div><span className="eyebrow">בחרו כיוון</span><h2 id="destination-title">יעדים שכיף לברוח אליהם</h2></div><Link href="/destinations">לכל היעדים</Link></div>

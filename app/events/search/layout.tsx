@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { eventPlaces } from "../../data/site-data";
+import { eventPlaceHref, eventPlaces } from "../../data/site-data";
 import { StructuredData } from "../../components/structured-data";
 import { breadcrumbSchema, collectionSchema } from "../../lib/seo";
 
@@ -23,7 +23,7 @@ export default function EventSearchLayout({ children }: { children: React.ReactN
       "/events/search/",
       eventPlaces.map((place) => ({
         name: place.name,
-        path: `/events/place?id=${place.slug}`,
+        path: eventPlaceHref(place),
         image: place.image,
       })),
     )} />

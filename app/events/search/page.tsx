@@ -7,7 +7,7 @@ import Link from "next/link";
 import { ListingMap } from "../../components/listing-map";
 import { PageShell } from "../../components/page-shell";
 import { SearchBox } from "../../components/search-box";
-import { eventPlaces } from "../../data/site-data";
+import { eventPlaceHref, eventPlaces } from "../../data/site-data";
 import { getPlaceAccessibility } from "../../data/accessibility-data";
 import { CloseIcon, PinIcon } from "../../site-header";
 
@@ -54,7 +54,7 @@ export default function EventSearchPage() {
             <label className="filter-select">אזור<select value={area} onChange={(event) => setArea(event.target.value)}>{areas.map((item) => <option key={item}>{item}</option>)}</select></label>
             <label className="filter-select">סוג מקום<select value={type} onChange={(event) => setType(event.target.value)}>{types.map((item) => <option key={item}>{item}</option>)}</select></label>
             <label className="filter-select">סוג אירוע<select value={eventType} onChange={(event) => setEventType(event.target.value)}>{eventTypes.map((item) => <option key={item}>{item}</option>)}</select></label>
-            <fieldset><legend>כמות משתתפים</legend><input type="range" min="0" max="300" step="10" value={guests} onChange={(event) => setGuests(Number(event.target.value))} /><div className="range-value">{guests ? `לפחות ${guests} משתתפים` : "ללא סינון לפי כמות"}</div></fieldset>
+            <fieldset><legend>כמות משתתפים</legend><input type="range" min="0" max="300" step="10" value={guests} aria-label="כמות משתתפים מינימלית" onChange={(event) => setGuests(Number(event.target.value))} /><div className="range-value">{guests ? `לפחות ${guests} משתתפים` : "ללא סינון לפי כמות"}</div></fieldset>
             <label><input type="checkbox" checked={noNoiseLimit} onChange={(event) => setNoNoiseLimit(event.target.checked)} /> ללא הגבלת רעש</label>
             <label><input type="checkbox" checked={accessibleOnly} onChange={(event) => setAccessibleOnly(event.target.checked)} /> נגישות מלאה ומאומתת</label>
             <button className="button primary filter-apply" type="button" onClick={() => setFiltersOpen(false)}>{`הצגת ${filtered.length} מקומות`}</button>
@@ -62,7 +62,7 @@ export default function EventSearchPage() {
           </aside>
           <section className="event-list">
             <div className="results-toolbar"><button type="button" className="button mobile-filter" onClick={() => setFiltersOpen(true)}>סינון</button><span>{filtered.length} תוצאות</span><label>מיון לפי <select value={sort} onChange={(event) => setSort(event.target.value)}><option value="recommended">מומלצים</option><option value="capacity">קיבולת גבוהה</option><option value="name">שם המקום</option></select></label></div>
-            {mapOpen ? <ListingMap listings={filtered} mode="events" autoLoad /> : filtered.map((place) => <article key={place.slug}><div className="event-card-gallery"><img src={place.image} alt={place.name} /><span>{place.images.length} תמונות</span></div><div><small>{place.type}</small><h2>{place.name}</h2><p><PinIcon />{place.location}, {place.area}</p><p>{place.description}</p><div className="feature-chips">{place.features.slice(0, 3).map((feature) => <span key={feature}>{feature}</span>)}</div><div className="event-capacity">עד {place.guests} אורחים</div><Link className="button primary" href={`/events/place?id=${place.slug}`}>לפרטים על המקום</Link></div></article>)}
+            {mapOpen ? <ListingMap listings={filtered} mode="events" autoLoad /> : filtered.map((place) => <article key={place.slug}><div className="event-card-gallery"><img src={place.image} alt={place.name} /><span>{place.images.length} תמונות</span></div><div><small>{place.type}</small><h2>{place.name}</h2><p><PinIcon />{place.location}, {place.area}</p><p>{place.description}</p><div className="feature-chips">{place.features.slice(0, 3).map((feature) => <span key={feature}>{feature}</span>)}</div><div className="event-capacity">עד {place.guests} אורחים</div><Link className="button primary" href={eventPlaceHref(place)}>לפרטים על המקום</Link></div></article>)}
             {filtered.length === 0 && <div className="empty-state"><h2>לא נמצאה התאמה</h2><p>אפשר להפחית את כמות המשתתפים או להסיר סינון.</p><button className="button primary" type="button" onClick={reset}>ניקוי סינונים</button></div>}
           </section>
         </div>

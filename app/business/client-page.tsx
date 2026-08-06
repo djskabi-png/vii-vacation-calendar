@@ -13,12 +13,13 @@ import { DiscoveryCard } from "../components/discovery-card";
 import { ListingAccessibility } from "../components/listing-accessibility";
 import { SearchBox } from "../components/search-box";
 import { SleepingArrangements } from "../components/sleeping-arrangements";
-import { properties, propertyFaq } from "../data/site-data";
+import { getListingOfferings, properties, propertyFaq, type BusinessWorld } from "../data/site-data";
 import { activityIdeas, providerProfiles, spaPlaces, type DiscoveryItem } from "../data/world-data";
 import { nearbyTrails } from "../data/trail-data";
 import { TrailCard } from "../components/trail-card";
 import { GalleryExperience } from "../components/gallery-experience";
 import { GuestReviewStudio } from "../components/guest-review-studio";
+import { MasuExperience } from "../components/masu-experience";
 import { CalendarIcon, HeartIcon, PinIcon } from "../site-header";
 
 function complementaryItems(area: string, location: string): DiscoveryItem[] {
@@ -30,7 +31,7 @@ function complementaryItems(area: string, location: string): DiscoveryItem[] {
   const spa = spaPlaces.find((item) => item.location === location)
     || spaPlaces.find((item) => area.includes("ירושלים") && item.area.includes("ירושלים"))
     || spaPlaces.find((item) => (area.includes("חוף") || area.includes("מרכז") || area.includes("שפלה")) && item.area === "מרכז");
-  const provider = providerProfiles[Math.abs(location.length + area.length) % providerProfiles.length];
+  const provider = providerProfiles.find((item) => item.id === "masu-home-wellness") || providerProfiles[Math.abs(location.length + area.length) % providerProfiles.length];
 
   return [activity, spa, provider].filter((item): item is DiscoveryItem => Boolean(item));
 }
@@ -43,7 +44,14 @@ function bedDetails(features: string[]) {
   return features.filter((feature) => /מיטה|מיטות|ספה נפתחת|מזרן|מזרנים/.test(feature));
 }
 
-export default function BusinessPage({ initialSlug }: { initialSlug: string }) {
+const worldLabels: Record<BusinessWorld, string> = {
+  vacation: "נופש ולינה",
+  events: "אירועים",
+  hourly: "שהייה לפי שעה",
+  spa: "ספא",
+};
+
+export default function BusinessPage({ initialSlug, initialWorld = "vacation" }: { initialSlug: string; initialWorld?: BusinessWorld }) {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [dates, setDates] = useState("בחרו תאריכים");
   const [galleryOpen, setGalleryOpen] = useState(false);
@@ -55,6 +63,14 @@ export default function BusinessPage({ initialSlug }: { initialSlug: string }) {
   const [shareStatus, setShareStatus] = useState("");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const property = useMemo(() => properties.find((item) => item.slug === initialSlug) || properties[0], [initialSlug]);
+  const offerings = useMemo(() => getListingOfferings(property), [property]);
+  const [worldSelection, setWorldSelection] = useState<{ slug: string; world: BusinessWorld } | null>(null);
+  const initialActiveWorld = offerings.some((offering) => offering.world === initialWorld) ? initialWorld : offerings[0].world;
+  const activeWorld = worldSelection?.slug === property.slug
+    && offerings.some((offering) => offering.world === worldSelection.world)
+    ? worldSelection.world
+    : initialActiveWorld;
+  const activeOffering = offerings.find((offering) => offering.world === activeWorld) || offerings[0];
   const roomQuantity = property.roomOptions?.reduce((total, room) => total + room.quantity, 0) || 0;
   const complements = useMemo(() => complementaryItems(property.area, property.location), [property.area, property.location]);
   const localTrails = useMemo(() => nearbyTrails(property.area, property.location), [property.area, property.location]);
@@ -75,6 +91,14 @@ export default function BusinessPage({ initialSlug }: { initialSlug: string }) {
     window.dispatchEvent(new Event("vii-favourites-change"));
   }
 
+  function chooseWorld(world: BusinessWorld) {
+    setWorldSelection({ slug: property.slug, world });
+    const url = new URL(window.location.href);
+    if (world === offerings[0].world) url.searchParams.delete("mode");
+    else url.searchParams.set("mode", world);
+    window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+  }
+
   async function share() {
     const data = { title: property.name, text: `מצאתי מקום ב־Vii: ${property.name}`, url: location.href };
     if (navigator.share) await navigator.share(data);
@@ -86,13 +110,13 @@ export default function BusinessPage({ initialSlug }: { initialSlug: string }) {
   }
 
   return (
-    <PageShell>
+    <PageShell variant={activeWorld}>
       <main id="main-content" className="property-page">
-        <div className="sticky-property-search"><div className="shell"><SearchBox compact /></div></div>
+        <div className="sticky-property-search"><div className="shell"><SearchBox key={activeWorld} mode={activeWorld} compact /></div></div>
         <div className="shell breadcrumbs"><Link href="/">ראשי</Link><span>/</span><Link href={`/search?location=${encodeURIComponent(property.area)}`}>{property.area}</Link><span>/</span><span>{property.name}</span></div>
 
         <section className="shell property-title">
-          <div><span className="eyebrow">{property.type}</span><h1>{property.name}</h1><p><PinIcon />{property.location}, {property.area}</p></div>
+          <div><span className="eyebrow">{property.type} · {activeOffering.label}</span><h1>{property.name}</h1><p><PinIcon />{property.location}, {property.area}</p></div>
           <div className="property-title__side">
             <div className="property-title__actions">
               <button type="button" aria-pressed={saved} onClick={toggleSaved}><HeartIcon filled={saved} />{saved ? "נשמר" : "שמירה"}</button>
@@ -102,6 +126,13 @@ export default function BusinessPage({ initialSlug }: { initialSlug: string }) {
             <ContactActions key={property.slug} contact={property.contact} placeName={property.name} />
           </div>
         </section>
+
+        {offerings.length > 1 ? <section className="shell multiworld-offerings" aria-labelledby="multiworld-title">
+          <div><span className="eyebrow">מקום אחד, כמה אפשרויות</span><h2 id="multiworld-title">מה תרצו לעשות במקום?</h2><p>המידע על המקום נשאר זהה. הזמינות, המחיר ותהליך ההזמנה משתנים לפי הבחירה.</p></div>
+          <div className="multiworld-offerings__options" role="group" aria-label="בחירת סוג הזמנה">
+            {offerings.map((offering) => <button key={offering.world} type="button" aria-pressed={activeWorld === offering.world} className={activeWorld === offering.world ? "active" : ""} onClick={() => chooseWorld(offering.world)}><span>{worldLabels[offering.world]}</span><strong>{offering.label}</strong><small>{offering.summary}</small></button>)}
+          </div>
+        </section> : null}
 
         <section className="shell property-gallery">{property.images.slice(0, 5).map((image, index) => <button key={image} type="button" aria-label={`פתיחת גלריית ${property.name}, תמונה ${index + 1}`} onClick={() => { setGalleryTab("all"); setGalleryStart(index); setGalleryOpen(true); }}><img src={image} alt={`${property.name}, תמונה ${index + 1}`} />{index === 4 && <span>לגלריה המלאה</span>}</button>)}</section>
 
@@ -153,7 +184,7 @@ export default function BusinessPage({ initialSlug }: { initialSlug: string }) {
             <section id="policies" className="policies-section"><span className="eyebrow">חשוב לדעת</span><h2>כללים ותנאי הזמנה</h2><div><article><b>כניסה ויציאה</b><p>שעות הכניסה והיציאה יוצגו לפי המקום והתאריך במנוע ההזמנות.</p></article><article><b>מחיר ותשלום</b><p>המחיר הסופי תלוי בתאריכים, בהרכב וביחידה שנבחרה.</p></article><article><b>ביטול ושינויים</b><p>התנאים המחייבים יוצגו לפני השלמת ההזמנה.</p></article><article><b>מידע על המקום</b><p>פרטי המקום והתמונות נבדקו כחלק מהכנת העמוד.</p></article></div></section>
           </div>
 
-          <aside className="booking-card"><span className="eyebrow">בדיקת זמינות</span><h2>{property.scenario === "single" ? "כל המקום בשבילכם" : "בוחרים תאריך ויחידה"}</h2><button type="button" className="date-choice" onClick={() => setCalendarOpen(true)}><CalendarIcon /><span><small>תאריכי השהייה</small><strong>{dates}</strong></span></button><label className="booking-guests">כמות אורחים<input type="number" min="1" max={property.guests} defaultValue={2} /></label><div className="booking-facts"><span>עד {property.guests} אורחים</span>{property.bedrooms && <span>{property.bedrooms} חדרי שינה</span>}</div><button className="button primary wide" type="button" onClick={() => setCalendarOpen(true)}>בחירת תאריך</button><small>זמינות ומחיר סופי יחוברו למערכת הניהול הקיימת.</small></aside>
+          {activeWorld === "events" ? <aside className="booking-card booking-card--event"><span className="eyebrow">בדיקת התאמה לאירוע</span><h2>ספרו לנו מה אתם מתכננים</h2><label>תאריך האירוע<input type="date" /></label><label>כמות משתתפים<input type="number" min="1" max={activeOffering.maxGuests} placeholder="כמה משתתפים צפויים?" /></label>{activeOffering.eventTypes?.length ? <label>סוג האירוע<select defaultValue={activeOffering.eventTypes[0]}>{activeOffering.eventTypes.map((eventType) => <option key={eventType}>{eventType}</option>)}</select></label> : null}<div className="booking-facts"><span>הבקשה נבדקת לפי האירוע</span><span>האירוח והאירוע מנוהלים בנפרד</span></div><ContactActions contact={property.contact} placeName={`${property.name}, ${activeOffering.label}`} /><small>הזמינות, המחיר וכללי המקום לאירוע נבדקים בנפרד מהזמנת לינה.</small></aside> : <aside className="booking-card"><span className="eyebrow">בדיקת זמינות</span><h2>{property.scenario === "single" ? "כל המקום בשבילכם" : "בוחרים תאריך ויחידה"}</h2><button type="button" className="date-choice" onClick={() => setCalendarOpen(true)}><CalendarIcon /><span><small>תאריכי השהייה</small><strong>{dates}</strong></span></button><label className="booking-guests">כמות אורחים<input type="number" min="1" max={activeOffering.maxGuests || property.guests} defaultValue={2} /></label><div className="booking-facts"><span>עד {activeOffering.maxGuests || property.guests} אורחים</span>{property.bedrooms && <span>{property.bedrooms} חדרי שינה</span>}</div><button className="button primary wide" type="button" onClick={() => setCalendarOpen(true)}>בחירת תאריך</button><small>זמינות ומחיר סופי יחוברו למערכת הניהול הקיימת.</small></aside>}
         </div>
 
         <section className="section property-complements">
@@ -168,10 +199,12 @@ export default function BusinessPage({ initialSlug }: { initialSlug: string }) {
           </div>
         </section>
 
+        <div className="section shell"><MasuExperience context={activeWorld === "events" ? "event" : "stay"} /></div>
+
         <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים שיכולים להתאים</h2></div><div className="card-grid">{properties.filter((item) => item.slug !== property.slug).slice(0, 3).map((item) => <PropertyCard key={item.slug} property={item} />)}</div></div></section>
       </main>
 
-      <CalendarDemo mode="business" businessKind={property.scenario} businessName={property.name} open={calendarOpen} onClose={() => setCalendarOpen(false)} onConfirm={(result) => setDates(result.summary)} />
+      <CalendarDemo mode="business" businessKind={property.scenario} businessName={property.name} open={calendarOpen && activeWorld === "vacation"} onClose={() => setCalendarOpen(false)} onConfirm={(result) => setDates(result.summary)} />
 
       <GalleryExperience key={`${property.slug}-${galleryOpen ? `${galleryTab}-${galleryStart}` : "closed"}`} property={property} open={galleryOpen} initialIndex={galleryStart} initialTab={galleryTab} onAddGuestContent={() => { setGalleryOpen(false); setReviewOpen(true); }} onClose={() => setGalleryOpen(false)} />
 

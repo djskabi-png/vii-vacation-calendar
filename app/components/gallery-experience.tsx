@@ -5,6 +5,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Property } from "../data/site-data";
 
+type GallerySubject = Pick<Property, "name" | "images"> & Partial<Pick<Property, "roomOptions" | "sleepingArrangements" | "videos">>;
+
 type GalleryItem = {
   src: string;
   label: string;
@@ -37,7 +39,7 @@ function uniqueItems(items: GalleryItem[]) {
   });
 }
 
-export function GalleryExperience({ property, open, initialIndex = 0, initialTab = "all", guestPhotos = [], onAddGuestContent, onClose }: { property: Property; open: boolean; initialIndex?: number; initialTab?: GalleryTab; guestPhotos?: GuestPhoto[]; onAddGuestContent?: () => void; onClose: () => void }) {
+export function GalleryExperience({ property, open, initialIndex = 0, initialTab = "all", guestPhotos = [], onAddGuestContent, onClose }: { property: GallerySubject; open: boolean; initialIndex?: number; initialTab?: GalleryTab; guestPhotos?: GuestPhoto[]; onAddGuestContent?: () => void; onClose: () => void }) {
   const closeButton = useRef<HTMLButtonElement>(null);
   const touchStart = useRef(0);
   const allItems = useMemo(() => uniqueItems([
@@ -108,8 +110,8 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
       }}>
         <div className="story-gallery__progress" aria-hidden="true">{visibleItems.map((item, index) => <i key={item.src} className={index <= selected ? "active" : ""} />)}</div>
         {current ? <img src={current.src} alt={current.label} /> : null}
-        <button className="story-gallery__tap story-gallery__tap--previous" type="button" onClick={() => move(-1)} aria-label="התמונה הקודמת" />
-        <button className="story-gallery__tap story-gallery__tap--next" type="button" onClick={() => move(1)} aria-label="התמונה הבאה" />
+        {visibleItems.length > 1 ? <><button className="story-gallery__tap story-gallery__tap--previous" type="button" onClick={() => move(-1)} aria-label="התמונה הקודמת" />
+        <button className="story-gallery__tap story-gallery__tap--next" type="button" onClick={() => move(1)} aria-label="התמונה הבאה" /></> : null}
         <div className="story-gallery__caption"><span>{tabLabels[current?.category || "place"]}</span><strong>{current?.label}</strong></div>
       </div>
 

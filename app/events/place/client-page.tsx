@@ -9,8 +9,9 @@ import { PageShell } from "../../components/page-shell";
 import { ContactActions } from "../../components/contact-actions";
 import { DiscoveryCard } from "../../components/discovery-card";
 import { ListingAccessibility } from "../../components/listing-accessibility";
-import { eventPlaces } from "../../data/site-data";
+import { eventPlaceHref, eventPlaces } from "../../data/site-data";
 import { providerProfiles } from "../../data/world-data";
+import { MasuExperience } from "../../components/masu-experience";
 import { CalendarIcon, HeartIcon, PinIcon } from "../../site-header";
 import { GalleryExperience } from "../../components/gallery-experience";
 import { GuestReviewStudio } from "../../components/guest-review-studio";
@@ -24,8 +25,10 @@ export default function EventPlacePage({ initialSlug }: { initialSlug: string })
   const [submissionId, setSubmissionId] = useState("");
   const place = useMemo(() => eventPlaces.find((item) => item.slug === initialSlug) || eventPlaces[0], [initialSlug]);
   const eventProviders = useMemo(() => {
-    const start = place.slug.length % providerProfiles.length;
-    return [...providerProfiles.slice(start), ...providerProfiles.slice(0, start)].slice(0, 3);
+    const masu = providerProfiles.find((item) => item.id === "masu-home-wellness");
+    const otherProviders = providerProfiles.filter((item) => item.id !== "masu-home-wellness");
+    const start = place.slug.length % otherProviders.length;
+    return [masu, ...otherProviders.slice(start), ...otherProviders.slice(0, start)].filter((item): item is (typeof providerProfiles)[number] => Boolean(item)).slice(0, 3);
   }, [place.slug]);
 
   useEffect(() => {
@@ -115,7 +118,9 @@ export default function EventPlacePage({ initialSlug }: { initialSlug: string })
           </div>
         </section>
 
-        <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים לאירוע</h2></div><div className="event-more-grid">{eventPlaces.filter((item) => item.slug !== place.slug).slice(0, 3).map((item) => <Link key={item.slug} href={`/events/place?id=${item.slug}`}><img src={item.image} alt={item.name} /><div><b>{item.name}</b><span>{item.location} · עד {item.guests} אורחים</span></div></Link>)}</div></div></section>
+        <div className="section shell"><MasuExperience context="event" /></div>
+
+        <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים לאירוע</h2></div><div className="event-more-grid">{eventPlaces.filter((item) => item.slug !== place.slug).slice(0, 3).map((item) => <Link key={item.slug} href={eventPlaceHref(item)}><img src={item.image} alt={item.name} /><div><b>{item.name}</b><span>{item.location} · עד {item.guests} אורחים</span></div></Link>)}</div></div></section>
       </main>
 
       <GalleryExperience key={`${place.slug}-${galleryOpen ? galleryStart : "closed"}`} property={place} open={galleryOpen} initialIndex={galleryStart} onClose={() => setGalleryOpen(false)} />
