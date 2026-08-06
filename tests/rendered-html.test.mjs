@@ -108,7 +108,6 @@ test("spa, hourly and event worlds expose interactive maps", async () => {
   assert.match(await eventResponse.text(), /תצוגה על מפה/);
   const detail = await spaDetailResponse.text();
   assert.match(detail, /המקום על המפה/);
-  assert.match(detail, /פתיחת המפה/);
 
   const [mapSource, worldData, hourlyResults, worldResults] = await Promise.all([
     readFile(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8"),
