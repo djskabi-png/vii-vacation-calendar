@@ -3,12 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ListingMap } from "../components/listing-map";
+import { ModernSelect } from "../components/modern-select";
 import { PageShell } from "../components/page-shell";
 import { PropertyCard } from "../components/property-card";
 import { SearchBox } from "../components/search-box";
 import { properties } from "../data/site-data";
 import { getPlaceAccessibility } from "../data/accessibility-data";
-import { CalendarIcon, CloseIcon, PinIcon } from "../site-header";
+import { CloseIcon, MapIcon, PinIcon } from "../site-header";
 
 export default function SearchPage() {
   const [sort, setSort] = useState("recommended");
@@ -21,17 +22,14 @@ export default function SearchPage() {
   const [spa, setSpa] = useState(false);
   const [whole, setWhole] = useState(false);
   const [accessibleOnly, setAccessibleOnly] = useState(false);
-  const [requestedPeriod, setRequestedPeriod] = useState("");
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
       const params = new URLSearchParams(location.search);
       const requestedArea = params.get("location");
       const requestedGuests = Number(params.get("guests") || 2);
-      const requestedDates = params.get("dates");
       if (requestedArea && requestedArea !== "כל הארץ") setArea(requestedArea);
       if (Number.isFinite(requestedGuests)) setGuests(Math.max(1, requestedGuests));
-      if (requestedDates) setRequestedPeriod(requestedDates);
     }, 0);
     return () => window.clearTimeout(timer);
   }, []);
@@ -57,7 +55,15 @@ export default function SearchPage() {
     });
   }, [accessibleOnly, area, guests, pool, sort, spa, type, whole]);
 
-  const activeFilters = [area !== "הכל" ? area : "", type !== "הכל" ? type : "", guests > 2 ? `${guests} אורחים ומעלה` : "", pool ? "בריכה" : "", spa ? "ספא וג'קוזי" : "", whole ? "מקום שלם" : "", accessibleOnly ? "נגישות מלאה ומאומתת" : ""].filter(Boolean);
+  const activeFilters = [
+    area !== "הכל" ? { id: "area", label: area, remove: () => setArea("הכל") } : null,
+    type !== "הכל" ? { id: "type", label: type, remove: () => setType("הכל") } : null,
+    guests > 2 ? { id: "guests", label: `${guests} אורחים ומעלה`, remove: () => setGuests(2) } : null,
+    pool ? { id: "pool", label: "בריכה", remove: () => setPool(false) } : null,
+    spa ? { id: "spa", label: "ספא וג'קוזי", remove: () => setSpa(false) } : null,
+    whole ? { id: "whole", label: "מקום שלם", remove: () => setWhole(false) } : null,
+    accessibleOnly ? { id: "accessible", label: "נגישות מלאה ומאומתת", remove: () => setAccessibleOnly(false) } : null,
+  ].filter((filter): filter is { id: string; label: string; remove: () => void } => Boolean(filter));
 
   function resetFilters() {
     setArea("הכל");
@@ -74,19 +80,12 @@ export default function SearchPage() {
       <main id="main-content" className="results-page">
         <div className="results-search shell"><SearchBox compact /></div>
         <div className="shell breadcrumbs"><Link href="/">ראשי</Link><span>/</span><span>תוצאות חיפוש</span></div>
-        <section className="shell results-heading">
-          <div><span className="eyebrow">מקומות שמתאימים לחיפוש</span><h1>{area === "הכל" ? "נופש ברחבי הארץ" : `נופש ב${area}`}</h1>{requestedPeriod && <div className="results-period"><CalendarIcon /><span>התקופה שבחרתם</span><strong>{requestedPeriod}</strong></div>}<p>{filtered.length} מתוך {properties.length} מקומות מאומתים מוצגים</p></div>
-          <button className={`button map-button ${mapOpen ? "active" : ""}`} type="button" aria-pressed={mapOpen} onClick={(event) => { event.preventDefault(); event.stopPropagation(); setMapOpen((value) => !value); }}><PinIcon />{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</button>
-        </section>
-
-        {activeFilters.length > 0 && <div className="shell active-filter-row"><span>סינונים פעילים:</span>{activeFilters.map((filter) => <button key={filter} type="button" onClick={resetFilters}>{filter} ×</button>)}<button type="button" className="clear-all" onClick={resetFilters}>ניקוי הכל</button></div>}
-
         <div className={`shell results-layout ${mapOpen ? "with-map" : ""}`}>
           <aside className={`filter-panel ${filtersOpen ? "open" : ""} ${mapOpen ? "map-mode" : ""}`} aria-label="סינון תוצאות">
             <div className="filter-head"><h2>סינון תוצאות</h2><button type="button" onClick={() => setFiltersOpen(false)} aria-label="סגירה"><CloseIcon /></button></div>
             {mapOpen && <div className="map-filter-status" aria-live="polite"><PinIcon /><span>האזור שמוצג במפה</span><strong>{area === "הכל" ? "כל הארץ" : area}</strong></div>}
-            <label className={`filter-select map-area-select ${mapOpen ? "active" : ""}`}>אזור<select value={area} onChange={(event) => setArea(event.target.value)}>{areas.map((item) => <option value={item} key={item}>{item === "הכל" ? "כל הארץ" : item}</option>)}</select></label>
-            <label className="filter-select">סוג מקום<select value={type} onChange={(event) => setType(event.target.value)}>{types.map((item) => <option key={item}>{item}</option>)}</select></label>
+            <ModernSelect className={`map-area-select ${mapOpen ? "active" : ""}`} label="אזור" value={area} onChange={setArea} options={areas.map((item) => ({ value: item, label: item === "הכל" ? "כל הארץ" : item }))} />
+            <ModernSelect label="סוג מקום" value={type} onChange={setType} options={types.map((item) => ({ value: item, label: item }))} />
             <fieldset><legend>כמות אורחים מינימלית</legend><input type="range" min="1" max="30" value={guests} aria-label="כמות אורחים מינימלית" onChange={(event) => setGuests(Number(event.target.value))} /><div className="range-value">לפחות {guests} אורחים</div></fieldset>
             <fieldset><legend>מאפיינים</legend>
               <label><input type="checkbox" checked={pool} onChange={(event) => setPool(event.target.checked)} /> בריכה</label>
@@ -99,9 +98,13 @@ export default function SearchPage() {
           </aside>
 
           <section className="results-list" aria-label="תוצאות">
-            <div className="results-toolbar"><button type="button" className="button mobile-filter" onClick={(event) => { event.preventDefault(); event.stopPropagation(); setFiltersOpen(true); }}>סינון</button><label>מיון לפי <select value={sort} onChange={(event) => setSort(event.target.value)}><option value="recommended">מומלצים</option><option value="capacity">קיבולת גבוהה</option><option value="units">מספר יחידות</option><option value="name">שם המקום</option></select></label></div>
+            <section className="results-heading">
+              <div><span className="eyebrow">מקומות שמתאימים לחיפוש</span><h1>{area === "הכל" ? "נופש ברחבי הארץ" : `נופש ב${area}`}</h1><p>{filtered.length} מתוך {properties.length} מקומות מאומתים מוצגים</p></div>
+            </section>
+            {activeFilters.length > 0 && <div className="active-filter-row"><span>סינונים פעילים:</span>{activeFilters.map((filter) => <button key={filter.id} type="button" onClick={filter.remove} aria-label={`הסרת הסינון ${filter.label}`}>{filter.label} ×</button>)}<button type="button" className="clear-all" onClick={resetFilters}>ניקוי הכל</button></div>}
+            <div className="results-toolbar"><div className="results-toolbar__actions"><button type="button" className="button mobile-filter" onClick={(event) => { event.preventDefault(); event.stopPropagation(); setFiltersOpen(true); }}>סינון</button><button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-pressed={mapOpen} onClick={(event) => { event.preventDefault(); event.stopPropagation(); setMapOpen((value) => !value); }}><MapIcon />{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</button></div><ModernSelect compact label="מיון לפי" value={sort} onChange={setSort} options={[{ value: "recommended", label: "מומלצים" }, { value: "capacity", label: "קיבולת גבוהה" }, { value: "units", label: "מספר יחידות" }, { value: "name", label: "שם המקום" }]} /></div>
             {!mapOpen && <div className="result-cards">{filtered.map((property) => <PropertyCard key={property.slug} property={property} />)}</div>}
-            {mapOpen && <ListingMap listings={filtered} autoLoad />}
+            {mapOpen && <ListingMap listings={filtered} autoLoad onClose={() => setMapOpen(false)} />}
             {filtered.length === 0 && <div className="empty-state"><h2>לא נמצאה התאמה מדויקת</h2><p>אפשר לשנות אזור, להפחית את כמות האורחים או להסיר מאפיין.</p><button className="button primary" type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
           </section>
         </div>

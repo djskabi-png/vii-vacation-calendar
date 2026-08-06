@@ -1,0 +1,3954 @@
+{
+  "generatedAt": "2026-08-06T17:13:46.783Z",
+  "spa": [
+    {
+      "id": "spa-head-spa-nahariya",
+      "sourceUrl": "https://www.spaplus.co.il/head_spa_nahariya",
+      "sourceName": "Spa Plus",
+      "name": "ספא ראש והילינג לורנסה נהריה - ספא לנשים בלבד",
+      "location": "נהריה",
+      "area": "צפון",
+      "regionKey": "north",
+      "price": 300,
+      "rating": 10,
+      "lat": 32.85,
+      "lng": 35.18,
+      "image": "/media/verified/spa/spa-head-spa-nahariya-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-head-spa-nahariya-1.jpeg",
+        "/media/verified/spa/spa-head-spa-nahariya-2.jpeg",
+        "/media/verified/spa/spa-head-spa-nahariya-3.jpeg",
+        "/media/verified/spa/spa-head-spa-nahariya-4.jpeg"
+      ],
+      "description": "בספא ראש והילינג לורנסה בנהריה תיהני משילוב בין ספא ראש יפני להילינג עמוק השיטה הייחודית משחררת חסמים רגשיים ולחצים במוח, ומעניקה לך חופש פנימי אמיתי ולא רק רוגע גופני.",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-head-spa-nahariya-package-1",
+          "title": "חבילת \\",
+          "audience": "לפי החבילה",
+          "price": "החל מ-300 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-head-spa-nahariya-package-2",
+          "title": "חבילת \\",
+          "audience": "לפי החבילה",
+          "price": "החל מ-300 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-head-spa-nahariya-package-3",
+          "title": "חבילת יום כיף ליחיד הכוללת עיסוי ראש וקרקפת 60 דק\\",
+          "audience": "לפי החבילה",
+          "price": "החל מ-340 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-head-spa-nahariya-package-4",
+          "title": "חבילת \\",
+          "audience": "לפי החבילה",
+          "price": "החל מ-580 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-spa-at-carmela-boutique-haifa-hotel",
+      "sourceUrl": "https://www.spaplus.co.il/Spa_at_Carmela_Boutique_Haifa_Hotel",
+      "sourceName": "Spa Plus",
+      "name": "ספא במלון כרמלה בוטיק חיפה - Carmela Boutique",
+      "location": "חיפה",
+      "area": "צפון",
+      "regionKey": "north",
+      "price": 360,
+      "rating": 9.1,
+      "lat": 32.85,
+      "lng": 35.18,
+      "image": "/media/verified/spa/spa-spa-at-carmela-boutique-haifa-hotel-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-spa-at-carmela-boutique-haifa-hotel-1.jpeg",
+        "/media/verified/spa/spa-spa-at-carmela-boutique-haifa-hotel-2.jpeg",
+        "/media/verified/spa/spa-spa-at-carmela-boutique-haifa-hotel-3.jpeg",
+        "/media/verified/spa/spa-spa-at-carmela-boutique-haifa-hotel-4.jpeg"
+      ],
+      "description": "ספא במלון בוטיק כרמלה הממוקם בחיפה, הינו מתחם ספא מרהיב עם מגוון טיפולים לגוף ולנפש הנעשים על ידי צוות מטפלים משובח ומקצועי ביותר. כל אורח מקבל יחס אישי תוך התאמה לצרכיו. במתחם הספא מחכה לכם פינת ישיבה מרגיעה ושלל פינוקים.",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-spa-at-carmela-boutique-haifa-hotel-package-1",
+          "title": "חבילת ספא לקבוצות החל מ-3 אנשים הכוללת עיסוי למשך 45 דקות וכניסה למתחם הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-1080 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-at-carmela-boutique-haifa-hotel-package-2",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 45 דקות, ארוחת בוקר וכניסה למתחם הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-860 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-at-carmela-boutique-haifa-hotel-package-3",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 45 דקות וכניסה למתחם הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-360 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-at-carmela-boutique-haifa-hotel-package-4",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 45 דקות וכניסה למתחם הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-720 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-rimonim-aqueduct-hotel",
+      "sourceUrl": "https://www.spaplus.co.il/rimonim_aqueduct_hotel",
+      "sourceName": "Spa Plus",
+      "name": "ספא אחוזת אקוודוקט רגבה (ספא סנדרין )",
+      "location": "רגבה",
+      "area": "צפון",
+      "regionKey": "north",
+      "price": 315,
+      "rating": 9.2,
+      "lat": 32.85,
+      "lng": 35.18,
+      "image": "/media/verified/spa/spa-rimonim-aqueduct-hotel-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-rimonim-aqueduct-hotel-1.jpeg",
+        "/media/verified/spa/spa-rimonim-aqueduct-hotel-2.jpeg",
+        "/media/verified/spa/spa-rimonim-aqueduct-hotel-3.png",
+        "/media/verified/spa/spa-rimonim-aqueduct-hotel-4.png"
+      ],
+      "description": "במושב השיתופי רגבה השוכן סמוך לנהריה שבגליל המערבי ממוקם מלון ספא אקוודוקט, הצופה אל נוף הרי גליל הוא ספא יוקרתי המעניק חווית ספא מפנקת עם מגוון טיפולים לבחירה ומתקני ספא להשלמת החוויה",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-rimonim-aqueduct-hotel-package-1",
+          "title": "חבילת ספא לקבוצות החל מ-3 אורחים הכוללת עיסוי למשך 45 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-945 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-rimonim-aqueduct-hotel-package-2",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 45 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-315 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-rimonim-aqueduct-hotel-package-3",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 45 דקות, ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-630 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-rimonim-aqueduct-hotel-package-4",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 45 דקות, ארוחת בוקר ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-435 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-flow-spa",
+      "sourceUrl": "https://www.spaplus.co.il/flow_spa",
+      "sourceName": "Spa Plus",
+      "name": "פלואו ספא בחוות רום - Flow Spa",
+      "location": "כמון",
+      "area": "צפון",
+      "regionKey": "north",
+      "price": 370,
+      "rating": 9.6,
+      "lat": 32.85,
+      "lng": 35.18,
+      "image": "/media/verified/spa/spa-flow-spa-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-flow-spa-1.jpeg",
+        "/media/verified/spa/spa-flow-spa-2.jpeg",
+        "/media/verified/spa/spa-flow-spa-3.jpeg",
+        "/media/verified/spa/spa-flow-spa-4.jpeg"
+      ],
+      "description": "חוות רום הממוקמת באיזור שמימי ועוצר נשימה פותחת בפניכם את ספא פלואו עם טיפולים שנועדו להתחדשות פיזית ונפשית כאחד ותעניק לכם חוויה רגשית, שלווה ומרעננת",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-flow-spa-package-1",
+          "title": "חבילה קבוצתית החל מ4 אנשים ומעלה ללא עיסוי הכוללת סאונה פינית - ריפוי בחום וקור",
+          "audience": "לפי החבילה",
+          "price": "החל מ-800 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-flow-spa-package-2",
+          "title": "חבילת ספא זוגית הכוללת סדנת קרח - ריפוי בקור למשך 60 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-780 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-flow-spa-package-3",
+          "title": "חבילת ספא קבוצתית הכוללת עיסוי למשך 30 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-960 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-flow-spa-package-4",
+          "title": "חבילת זוגית הכוללת סדנת נשימה מעגלית למשך שעתיים",
+          "audience": "לפי החבילה",
+          "price": "החל מ-640 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-crowne-plaza-haifa",
+      "sourceUrl": "https://www.spaplus.co.il/Crowne_Plaza_Haifa",
+      "sourceName": "Spa Plus",
+      "name": "ספא במלון קראון פלאזה חיפה - SPA CROWNE PLAZA",
+      "location": "חיפה",
+      "area": "צפון",
+      "regionKey": "north",
+      "price": 330,
+      "rating": 9,
+      "lat": 32.85,
+      "lng": 35.18,
+      "image": "/media/verified/spa/spa-crowne-plaza-haifa-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-crowne-plaza-haifa-1.jpeg",
+        "/media/verified/spa/spa-crowne-plaza-haifa-2.jpeg",
+        "/media/verified/spa/spa-crowne-plaza-haifa-3.jpeg",
+        "/media/verified/spa/spa-crowne-plaza-haifa-4.jpeg"
+      ],
+      "description": "הספא ממוקם במלון היוקרתי קראון פלאזהבמרכז כרמל בחיפה. ספא במלון קראון פלאזהחיפה הינו ספא מקצועי אשר חותר לחווית שירות מקסימלית ודואג לנוחות ולהנאה של האורחים בספא.",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-crowne-plaza-haifa-package-1",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 50 דקות, ארוחת בוקר, כניסה לבריכה, סאונה יבשה וג\\",
+          "audience": "לפי החבילה",
+          "price": "החל מ-390 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-crowne-plaza-haifa-package-2",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 50 דקות, כניסה לבריכה , סאונה יבשה וג\\",
+          "audience": "לפי החבילה",
+          "price": "החל מ-660 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-crowne-plaza-haifa-package-3",
+          "title": "חבילת ספא זוגית למשך 50 דקות, ארוחת בוקר, כניסה לבריכה, סאונה יבשה וג\\",
+          "audience": "לפי החבילה",
+          "price": "החל מ-790 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-crowne-plaza-haifa-package-4",
+          "title": "חבילת ספא לקבוצה הכוללת עיסוי למשך 30 דקות, כניסה לבריכה, סאונה יבשה וג\\",
+          "audience": "לפי החבילה",
+          "price": "החל מ-800 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-spa-in-dan-panorama-tlv",
+      "sourceUrl": "https://www.spaplus.co.il/spa_in_dan_panorama_tlv",
+      "sourceName": "Spa Plus",
+      "name": "ספא קאלמה במלון דן פנורמה תל אביב - spa calma in dan panorama tlv",
+      "location": "תל אביב",
+      "area": "מרכז",
+      "regionKey": "center",
+      "price": 440,
+      "rating": 8.7,
+      "lat": 32.08,
+      "lng": 34.82,
+      "image": "/media/verified/spa/spa-spa-in-dan-panorama-tlv-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-spa-in-dan-panorama-tlv-1.jpeg",
+        "/media/verified/spa/spa-spa-in-dan-panorama-tlv-2.jpeg",
+        "/media/verified/spa/spa-spa-in-dan-panorama-tlv-3.jpeg",
+        "/media/verified/spa/spa-spa-in-dan-panorama-tlv-4.jpeg"
+      ],
+      "description": "ספא קאלמה הממוקם במלון דן פנורמה היוקרתי, למול נוף הים של תל אביב, מביא את בשורת הפאר אל טיפולי הספא ומאפשר לכם להתפנק, להירגע ולברוח מהשגרה",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-spa-in-dan-panorama-tlv-package-1",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 50 דקות, ארוחת בוקר, כניסה לבריכה ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-1460 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-in-dan-panorama-tlv-package-2",
+          "title": "חבילת ספא קבוצתית הכוללת עיסוי למשך 50 דקות, ארוחת בוקר, כניסה לבריכה ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-2190 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-in-dan-panorama-tlv-package-3",
+          "title": "חבילת ספא קבוצתית הכוללת עיסוי למשך 50 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-1320 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-in-dan-panorama-tlv-package-4",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 50 דקות, ארוחת בוקר, כניסה לבריכה ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-730 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-sarana-spa",
+      "sourceUrl": "https://www.spaplus.co.il/sarana_spa",
+      "sourceName": "Spa Plus",
+      "name": "שרנא ספא במלון השרון הרצליה - Sarana Spa",
+      "location": "הרצליה",
+      "area": "מרכז",
+      "regionKey": "center",
+      "price": 390,
+      "rating": 8.9,
+      "lat": 32.08,
+      "lng": 34.82,
+      "image": "/media/verified/spa/spa-sarana-spa-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-sarana-spa-1.jpeg",
+        "/media/verified/spa/spa-sarana-spa-2.jpeg",
+        "/media/verified/spa/spa-sarana-spa-3.jpeg",
+        "/media/verified/spa/spa-sarana-spa-4.jpeg"
+      ],
+      "description": "שרנא ספא במלון השרון ממוקם בהרצליה ומשקיף לנוף מרהיב. המלון הינו בעיצוב חדשני ומרהיב. שרנא ספא מציע חופשת ספא איכותית ומפנקת. במתחם הספא תוכלו להנות ממגוון מתקנים מפנקים.",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-sarana-spa-package-1",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 45 דקות וכניסה למתקנים",
+          "audience": "לפי החבילה",
+          "price": "החל מ-390 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-sarana-spa-package-2",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 45 דקות וכניסה למתקנים",
+          "audience": "לפי החבילה",
+          "price": "החל מ-780 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-sarana-spa-package-3",
+          "title": "\\",
+          "audience": "לפי החבילה",
+          "price": "החל מ-990 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-sarana-spa-package-4",
+          "title": "חבילת ספא לקבוצות החל מ-3 אורחים הכוללת עיסוי למשך 45 דקות וכניסה למתקנים",
+          "audience": "לפי החבילה",
+          "price": "החל מ-1170 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-spa-brown-jlm",
+      "sourceUrl": "https://www.spaplus.co.il/Spa_Brown_Jlm",
+      "sourceName": "Spa Plus",
+      "name": "ספא במלון בראון ממילא - SPA BROWN JLM",
+      "location": "ירושלים",
+      "area": "מרכז",
+      "regionKey": "center",
+      "price": 390,
+      "rating": 9.1,
+      "lat": 32.08,
+      "lng": 34.82,
+      "image": "/media/verified/spa/spa-spa-brown-jlm-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-spa-brown-jlm-1.jpeg",
+        "/media/verified/spa/spa-spa-brown-jlm-2.jpeg",
+        "/media/verified/spa/spa-spa-brown-jlm-3.jpeg",
+        "/media/verified/spa/spa-spa-brown-jlm-4.jpeg"
+      ],
+      "description": "ספא במלון בראון JLM ירושלים, בעיר הקסומה ירושלים שיופיה מיוחד במינו שוכן ספא מודרני עם טיפולי ספא שמטרתם להעניק לכם אפשרות להשתחרר ולתת לעצמכם רוגע לגוף ולנפש",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-spa-brown-jlm-package-1",
+          "title": "חבילה ליחיד הכוללת עיסוי למשך 45 דקות וכניסה לבריכה",
+          "audience": "לפי החבילה",
+          "price": "החל מ-390 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-brown-jlm-package-2",
+          "title": "חבילה זוגית הכוללת עיסוי למשך 45 דקות וכניסה לבריכה",
+          "audience": "לפי החבילה",
+          "price": "החל מ-730 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-brown-jlm-package-3",
+          "title": "חבילה ליחיד הכוללת עיסוי למשך 45 דקות, ארוחת בוקר וכניסה לבריכה",
+          "audience": "לפי החבילה",
+          "price": "החל מ-510 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-brown-jlm-package-4",
+          "title": "חבילה זוגית הכוללת עיסוי למשך 45 דקות, ארוחת בוקר וכניסה לבריכה",
+          "audience": "לפי החבילה",
+          "price": "החל מ-970 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-spa-ramat-rachel",
+      "sourceUrl": "https://www.spaplus.co.il/SPA_RAMAT_RACHEL",
+      "sourceName": "Spa Plus",
+      "name": "ספא רמת רחל בירושלים - Spa Ramat Rachel",
+      "location": "ירושלים",
+      "area": "מרכז",
+      "regionKey": "center",
+      "price": 390,
+      "rating": 9.5,
+      "lat": 32.08,
+      "lng": 34.82,
+      "image": "/media/verified/spa/spa-spa-ramat-rachel-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-spa-ramat-rachel-1.jpeg",
+        "/media/verified/spa/spa-spa-ramat-rachel-2.jpeg",
+        "/media/verified/spa/spa-spa-ramat-rachel-3.jpeg",
+        "/media/verified/spa/spa-spa-ramat-rachel-4.jpeg"
+      ],
+      "description": "ספא בקאנטרי רמת רחל מזמין אתכם לחוויית ספא מפנקת במיוחד לצד אחד ממתחמי הקאנטרי המפנקים בירושלים שיעניק לכם שילוב מדויק בין פעילות ספורט לאורח חיים בריא.",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-spa-ramat-rachel-package-1",
+          "title": "חבילת יחיד הכוללת עיסוי למשך 45 דקות, ארוחת בוקר ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-540 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-ramat-rachel-package-2",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 45 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-390 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-ramat-rachel-package-3",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 45 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-640 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-ramat-rachel-package-4",
+          "title": "חבילת ספא קבוצתית הכוללת עיסוי למשך 30 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-825 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-zeuspa-ramat-gan",
+      "sourceUrl": "https://www.spaplus.co.il/zeuspa_ramat_gan",
+      "sourceName": "Spa Plus",
+      "name": "זאוספא רמת גן - Zeuspa",
+      "location": "רמת גן",
+      "area": "מרכז",
+      "regionKey": "center",
+      "price": 390,
+      "rating": 9.6,
+      "lat": 32.08,
+      "lng": 34.82,
+      "image": "/media/verified/spa/spa-zeuspa-ramat-gan-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-zeuspa-ramat-gan-1.jpeg",
+        "/media/verified/spa/spa-zeuspa-ramat-gan-2.jpeg",
+        "/media/verified/spa/spa-zeuspa-ramat-gan-3.jpeg",
+        "/media/verified/spa/spa-zeuspa-ramat-gan-4.jpeg"
+      ],
+      "description": "זאוספא רמת גן הינו ספא מפואר ויוקרתי השוכן במגדל שער העיר ברמת גן, מציע לכם חווית ספא קסומה, איכותית ומלאת פינוקים. הספא מציע תפריט טיפולים עשיר ומתקני ספא מהנים ואיכותיים. אם אתם מעוניינים ביום פינוק, אתם מוזמנים לזאוספא רמת גן.",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-zeuspa-ramat-gan-package-1",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 45 דקות וכניסה למתחם הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-390 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-zeuspa-ramat-gan-package-2",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 45 דקות וכניסה למתחם הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-780 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-zeuspa-ramat-gan-package-3",
+          "title": "חבילת ספא לקבוצות החל מ-3 אורחים הכוללת עיסוי למשך 45 דקות וכניסה למתחם הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-1170 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-nova-hotel",
+      "sourceUrl": "https://www.spaplus.co.il/Nova_hotel",
+      "sourceName": "Spa Plus",
+      "name": "ספא אואזיס במלון נווה אילת - oazis spa eilat",
+      "location": "אילת",
+      "area": "דרום ונגב",
+      "regionKey": "south",
+      "price": 280,
+      "rating": 9.5,
+      "lat": 31.25,
+      "lng": 34.79,
+      "image": "/media/verified/spa/spa-nova-hotel-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-nova-hotel-1.jpeg",
+        "/media/verified/spa/spa-nova-hotel-2.jpeg",
+        "/media/verified/spa/spa-nova-hotel-3.jpeg",
+        "/media/verified/spa/spa-nova-hotel-4.jpeg"
+      ],
+      "description": "באילת הנעימה והזוהרת שוכן ספא אואזיס במלון נובה, עם תפריט עשיר ורב של סוגי טיפולים שיענקו לכם חווית שחרור ורוגע",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-nova-hotel-package-1",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 45 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-280 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-nova-hotel-package-2",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 45 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-560 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-nova-hotel-package-3",
+          "title": "חבילת ספא קבוצתית החל מ-3 הכוללת עיסוי למשך 45 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-840 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-nova-hotel-package-4",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 45 דקות, ארוחת בוקר ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-360 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-royal-spa-boutique",
+      "sourceUrl": "https://www.spaplus.co.il/Royal_spa_boutique",
+      "sourceName": "Spa Plus",
+      "name": "ספא רויאל בוטיק באילת - Royal spa boutique",
+      "location": "אילת",
+      "area": "דרום ונגב",
+      "regionKey": "south",
+      "price": 260,
+      "rating": 9.7,
+      "lat": 31.25,
+      "lng": 34.79,
+      "image": "/media/verified/spa/spa-royal-spa-boutique-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-royal-spa-boutique-1.jpeg",
+        "/media/verified/spa/spa-royal-spa-boutique-2.jpeg",
+        "/media/verified/spa/spa-royal-spa-boutique-3.jpeg",
+        "/media/verified/spa/spa-royal-spa-boutique-4.jpeg"
+      ],
+      "description": "כול מה שאתם מחפשים בספא נמצא אצלנו בספא רויאל בוטיק באילת לקחת חופשה מהעומס היומי ולהתמסר ולהעניק לגוף ולנפש מה שהם זקוקים לו",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-royal-spa-boutique-package-1",
+          "title": "חבילת ספא קבוצתית החל מ3 אנשים הכוללת עיסוי למשך 50 דקות ושימוש במתקני הספא - סאונה, גקוזי ובריכה חיצונית",
+          "audience": "לפי החבילה",
+          "price": "החל מ-780 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-royal-spa-boutique-package-2",
+          "title": "חבילת עיסוי לזוג הכוללת עיסוי למשך 50 דקות ושימוש במתקני הספא - סאונה, גקוזי ובריכה חיצונית",
+          "audience": "לפי החבילה",
+          "price": "החל מ-530 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-royal-spa-boutique-package-3",
+          "title": "חבילת עיסוי ליחיד הכוללת עיסוי למשך 50 דקות ושימוש במתקני הספא - סאונה, גקוזי ובריכה חיצונית",
+          "audience": "לפי החבילה",
+          "price": "החל מ-260 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-royal-spa-boutique-package-4",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 50 דק\\",
+          "audience": "לפי החבילה",
+          "price": "החל מ-530 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-west-and-spa",
+      "sourceUrl": "https://www.spaplus.co.il/west_and_spa",
+      "sourceName": "Spa Plus",
+      "name": "ווסט אנד ספא במלון ווסט אשדוד - West And Spa",
+      "location": "אשדוד",
+      "area": "דרום ונגב",
+      "regionKey": "south",
+      "price": 375,
+      "rating": 8.6,
+      "lat": 31.25,
+      "lng": 34.79,
+      "image": "/media/verified/spa/spa-west-and-spa-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-west-and-spa-1.jpeg",
+        "/media/verified/spa/spa-west-and-spa-2.jpeg",
+        "/media/verified/spa/spa-west-and-spa-3.jpeg",
+        "/media/verified/spa/spa-west-and-spa-4.jpeg"
+      ],
+      "description": "אל מול חופיה הקסומים של העיר אשדוד שוכן לו מלון ווסט ובו ממוקם west and spa המפנק.",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-west-and-spa-package-1",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי מפנק למשך 50 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-375 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-west-and-spa-package-2",
+          "title": "חבילת ספא זוגית הכוללת עיסוי מפנק למשך 50 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-750 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-west-and-spa-package-3",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 50 דקות, ארוחת בוקר",
+          "audience": "לפי החבילה",
+          "price": "החל מ-930 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-west-and-spa-package-4",
+          "title": "חבילת ספא לקבוצות החל מ-3 אורחים הכוללת עיסוי למשך 50 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-1125 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-isla-spa",
+      "sourceUrl": "https://www.spaplus.co.il/isla_spa",
+      "sourceName": "Spa Plus",
+      "name": "ספא איסלה באילת - ISLA SPA EILAT",
+      "location": "אילת",
+      "area": "דרום ונגב",
+      "regionKey": "south",
+      "price": 410,
+      "rating": 9.4,
+      "lat": 31.25,
+      "lng": 34.79,
+      "image": "/media/verified/spa/spa-isla-spa-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-isla-spa-1.jpeg",
+        "/media/verified/spa/spa-isla-spa-2.jpeg",
+        "/media/verified/spa/spa-isla-spa-3.jpeg",
+        "/media/verified/spa/spa-isla-spa-4.jpeg"
+      ],
+      "description": "מלון איסלה החדש מציג את הגרסה האינטליגנטית של הנופש הדרומי: פנינה עיצובית המביאה את הוויב התל אביבי המוכר אל הרי אדום הממכרים",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-isla-spa-package-1",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 50 דקות וכניסה למתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-820 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-isla-spa-package-2",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 50 דקות, ארוחת בוקר וכניסה למתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-1120 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-isla-spa-package-3",
+          "title": "חבילת ספא קבוצתית החל מ- 3 אנשים הכוללת עיסוי למשך 50 דקות וכניסה למתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-1230 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-isla-spa-package-4",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 50 דקות וכניסה למתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-410 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-jah-spa-eilat",
+      "sourceUrl": "https://www.spaplus.co.il/Jah_spa_eilat",
+      "sourceName": "Spa Plus",
+      "name": "ספא במלון דן פנורמה אילת - Jah spa",
+      "location": "אילת",
+      "area": "דרום ונגב",
+      "regionKey": "south",
+      "price": 375,
+      "rating": 9.5,
+      "lat": 31.25,
+      "lng": 34.79,
+      "image": "/media/verified/spa/spa-jah-spa-eilat-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-jah-spa-eilat-1.jpeg",
+        "/media/verified/spa/spa-jah-spa-eilat-2.jpeg",
+        "/media/verified/spa/spa-jah-spa-eilat-3.jpeg",
+        "/media/verified/spa/spa-jah-spa-eilat-4.jpeg"
+      ],
+      "description": "במלון דן פנורמה באילת ממקום JHA SPA, ספא מפנק בו תוכלו להנות מעיסויים וימי כיף. בספא תוכלו להנות מטיפולים מקצועיים מטובי המטפלים אשר ישאירו אתכם עם חשק וטעם לעוד, כך שחווית הספא שלכם תהיה לא פחות ממושלמת.",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-jah-spa-eilat-package-1",
+          "title": "חבילת ספא קבוצתית הכוללת עיסוי למשך 50 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-1200 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-jah-spa-eilat-package-2",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 50 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-375 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-jah-spa-eilat-package-3",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 50 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-750 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-jah-spa-eilat-package-4",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 50 דקות וארוחת בוקר",
+          "audience": "לפי החבילה",
+          "price": "החל מ-475 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-spa-nucha",
+      "sourceUrl": "https://www.spaplus.co.il/spa_nucha",
+      "sourceName": "Spa Plus",
+      "name": "ספא אדמה במלון נוצ'ה - spa in nucha hotel",
+      "location": "ירושלים",
+      "area": "ירושלים",
+      "regionKey": "jerusalem",
+      "price": 390,
+      "rating": 10,
+      "lat": 31.78,
+      "lng": 35.22,
+      "image": "/media/verified/spa/spa-spa-nucha-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-spa-nucha-1.jpeg",
+        "/media/verified/spa/spa-spa-nucha-2.jpeg",
+        "/media/verified/spa/spa-spa-nucha-3.jpeg",
+        "/media/verified/spa/spa-spa-nucha-4.jpeg"
+      ],
+      "description": "אם אתם מחפשים ניתוק אמיתי, מלון נוצ'ה ירושלים הוא המפלט שלכם. המלון מציע שילוב מושלם בין מתחם ספא יוקרתי מקדש של שקט, שמנים ארומטיים וטיפולים משככי שגרה לבין גג רופטופ מטורף עם בריכה ובר קוקטיילים. חוויית אירוח מעוצבת ואינטימית",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-spa-nucha-package-1",
+          "title": "חבילת עיסוי ליחיד הכוללת עיסוי למשך 45 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-390 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-nucha-package-2",
+          "title": "חבילת ספא ליחיד",
+          "audience": "לפי החבילה",
+          "price": "החל מ-330 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-nucha-package-3",
+          "title": "חבילת עיסוי זוגית הכוללת עיסוי למשך 45 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-740 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-nucha-package-4",
+          "title": "חבילת עיסוי לקבוצות החל מ-3 אורחים הכוללת עיסוי למשך 45 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-1170 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-almond-spa",
+      "sourceUrl": "https://www.spaplus.co.il/Almond_spa",
+      "sourceName": "Spa Plus",
+      "name": "מלון ספא אלמונד - Almond spa",
+      "location": "נווה אילן",
+      "area": "ירושלים",
+      "regionKey": "jerusalem",
+      "rating": 9,
+      "lat": 31.78,
+      "lng": 35.22,
+      "image": "/media/verified/spa/spa-almond-spa-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-almond-spa-1.jpeg",
+        "/media/verified/spa/spa-almond-spa-2.jpeg",
+        "/media/verified/spa/spa-almond-spa-3.jpeg",
+        "/media/verified/spa/spa-almond-spa-4.jpeg"
+      ],
+      "description": "באיזור הררי וקסום ליד ירושלים ממוקם מלון אלמונד, בו תוכלו להנות מחווית ספא השואב השראה מיופיו המשתנה של הטבע ויוצר אווירה שמחדשת את הגוף והנשמה.",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-almond-spa-package-1",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 50 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-525 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-almond-spa-package-2",
+          "title": "חבילת ספא לקבוצה הכוללת עיסוי למשך 50 דקות, שימוש במתקני הספא וארוחת בוקר",
+          "audience": "לפי החבילה",
+          "price": "החל מ-2025 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-almond-spa-package-3",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 50 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-1050 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-almond-spa-package-4",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 50 דקות, שימוש במתקני הספא וארוחת בוקר",
+          "audience": "לפי החבילה",
+          "price": "החל מ-1350 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-spa-6-sense",
+      "sourceUrl": "https://www.spaplus.co.il/spa_6_sense",
+      "sourceName": "Spa Plus",
+      "name": "ספא לוטוס במלון יערים קיבוץ מעלה החמישה - Lotus Spa",
+      "location": "מעלה החמישה",
+      "area": "ירושלים",
+      "regionKey": "jerusalem",
+      "rating": 8.8,
+      "lat": 31.78,
+      "lng": 35.22,
+      "image": "/media/verified/spa/spa-spa-6-sense-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-spa-6-sense-1.jpeg",
+        "/media/verified/spa/spa-spa-6-sense-2.jpeg",
+        "/media/verified/spa/spa-spa-6-sense-3.jpeg",
+        "/media/verified/spa/spa-spa-6-sense-4.jpeg"
+      ],
+      "description": "בקיבוץ מעלה החמישה בהרי ירושלים, נמצא מלון יערים היוקרתי ובו מתחם הספא החדשני - ספא לוטוס . בואו ליהנות מחווית פינוק וטיפוח אולטימטיבית עבורכם.",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-spa-6-sense-package-1",
+          "title": "חבילת יום כיף הכוללת 15 דק\\",
+          "audience": "לפי החבילה",
+          "price": "החל מ-150 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-6-sense-package-2",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 45 דקות ושימוש חופשי במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-350 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-6-sense-package-3",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 45 דקות ושימוש חופשי במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-700 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-6-sense-package-4",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 45 דקות, ארוחת בוקר ושימוש חופשי במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-900 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-villa-brown-jerusalem-spa",
+      "sourceUrl": "https://www.spaplus.co.il/villa_brown_jerusalem_spa",
+      "sourceName": "Spa Plus",
+      "name": "ספא במלון וילה בראון ירושלים - Villa Brown Spa",
+      "location": "ירושלים",
+      "area": "ירושלים",
+      "regionKey": "jerusalem",
+      "price": 340,
+      "rating": 9.9,
+      "lat": 31.78,
+      "lng": 35.22,
+      "image": "/media/verified/spa/spa-villa-brown-jerusalem-spa-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-villa-brown-jerusalem-spa-1.jpeg",
+        "/media/verified/spa/spa-villa-brown-jerusalem-spa-2.jpeg",
+        "/media/verified/spa/spa-villa-brown-jerusalem-spa-3.jpeg",
+        "/media/verified/spa/spa-villa-brown-jerusalem-spa-4.jpeg"
+      ],
+      "description": "הספא במלון הבוטיק וילה בראון מזמין אתכם לבילוי קסום באווירה מדהימה, למול נוף העיר. במתחם הספא הייחודי חדר טיפולים מאובזר, מרפסת גג למול נוף מרהיב, מתחם מנוחה חיצוני ואמבט ג'קוזי מפנק",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-villa-brown-jerusalem-spa-package-1",
+          "title": "חבילה ליחיד",
+          "audience": "לפי החבילה",
+          "price": "החל מ-330 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-villa-brown-jerusalem-spa-package-2",
+          "title": "חבילה ליחיד הכוללת עיסוי למשך 45 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-340 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-villa-brown-jerusalem-spa-package-3",
+          "title": "חבילה זוגית הכוללת עיסוי למשך 45 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-640 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-villa-brown-jerusalem-spa-package-4",
+          "title": "חבילה ליחיד הכוללת עיסוי למשך 45 דקות וארוחת בוקר",
+          "audience": "לפי החבילה",
+          "price": "החל מ-460 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-spa-ramada-jerusalem",
+      "sourceUrl": "https://www.spaplus.co.il/spa_ramada_jerusalem",
+      "sourceName": "Spa Plus",
+      "name": "ספא דניאל במלון רמדה ירושלים - spa ramada jerusalem hotel",
+      "location": "ירושלים",
+      "area": "ירושלים",
+      "regionKey": "jerusalem",
+      "price": 280,
+      "rating": 9.1,
+      "lat": 31.78,
+      "lng": 35.22,
+      "image": "/media/verified/spa/spa-spa-ramada-jerusalem-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-spa-ramada-jerusalem-1.jpeg",
+        "/media/verified/spa/spa-spa-ramada-jerusalem-2.jpeg",
+        "/media/verified/spa/spa-spa-ramada-jerusalem-3.jpeg",
+        "/media/verified/spa/spa-spa-ramada-jerusalem-4.jpeg"
+      ],
+      "description": "ספא דניאל במלון רמדה ירושלים מקום שבו כל רגע מתמזג בין עיצוב אלגנטי, שלווה אמיתית ואירוח חם ברמה בינלאומית. כאן אצלנו בספא תגלו חוויה קסומה ועוצרת נשימה",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-spa-ramada-jerusalem-package-1",
+          "title": "חבילת ספא לקבוצה הכולל עיסוי למשך 30 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-825 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-ramada-jerusalem-package-2",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 45 דקות וארוחת בוקר",
+          "audience": "לפי החבילה",
+          "price": "החל מ-540 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-ramada-jerusalem-package-3",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 45 דקות וארוחת בוקר",
+          "audience": "לפי החבילה",
+          "price": "החל מ-1000 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-ramada-jerusalem-package-4",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 45 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-700 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-jah-spa-dan-eilat",
+      "sourceUrl": "https://www.spaplus.co.il/jah_spa_dan_eilat",
+      "sourceName": "Spa Plus",
+      "name": "ספא במלון דן אילת - Jah Spa eilat",
+      "location": "אילת",
+      "area": "אילת והסביבה",
+      "regionKey": "eilat",
+      "price": 480,
+      "rating": 9.4,
+      "lat": 29.56,
+      "lng": 34.95,
+      "image": "/media/verified/spa/spa-jah-spa-dan-eilat-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-jah-spa-dan-eilat-1.jpeg",
+        "/media/verified/spa/spa-jah-spa-dan-eilat-2.jpeg",
+        "/media/verified/spa/spa-jah-spa-dan-eilat-3.jpeg",
+        "/media/verified/spa/spa-jah-spa-dan-eilat-4.jpeg"
+      ],
+      "description": "הכירו את הספא החדש במלון דן אילת - JAH SPA EILAT מתחם ספא מפואר ויוקרתי, המציע לכם חווית ספא בלתי נשכחת.",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-jah-spa-dan-eilat-package-1",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי פיוז\\",
+          "audience": "לפי החבילה",
+          "price": "החל מ-480 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-jah-spa-dan-eilat-package-2",
+          "title": "חבילת ספא זוגית הכוללת עיסוי פיוז\\",
+          "audience": "לפי החבילה",
+          "price": "החל מ-960 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-jah-spa-dan-eilat-package-3",
+          "title": "חבילת ספא לקבוצות החל מ-3 אורחים הכוללת עיסוי למשך 50 דקות וכניסה למתקנים",
+          "audience": "לפי החבילה",
+          "price": "החל מ-1440 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-jah-spa-dan-eilat-package-4",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי פיוז\\",
+          "audience": "לפי החבילה",
+          "price": "החל מ-600 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-club-hotel-eilat-spa",
+      "sourceUrl": "https://www.spaplus.co.il/club_hotel_eilat_spa",
+      "sourceName": "Spa Plus",
+      "name": "ספא קלאב הוטל אילת - Club Hotel Eilat",
+      "location": "אילת",
+      "area": "אילת והסביבה",
+      "regionKey": "eilat",
+      "price": 280,
+      "rating": 8.7,
+      "lat": 29.56,
+      "lng": 34.95,
+      "image": "/media/verified/spa/spa-club-hotel-eilat-spa-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-club-hotel-eilat-spa-1.jpeg",
+        "/media/verified/spa/spa-club-hotel-eilat-spa-2.jpeg",
+        "/media/verified/spa/spa-club-hotel-eilat-spa-3.jpeg",
+        "/media/verified/spa/spa-club-hotel-eilat-spa-4.jpeg"
+      ],
+      "description": "כשאתם נמצאים בחופשה אתם בוודאי רוצים לנוח, להירגע, להתפנק לכם בכיף בזמן איכות זוגי... המקום המושלם לכך הוא הספא במלון קלאב הוטל באילת!",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-club-hotel-eilat-spa-package-1",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 45 דקות וכניסה למתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-280 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-club-hotel-eilat-spa-package-2",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 45 דקות וכניסה למתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-560 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-club-hotel-eilat-spa-package-3",
+          "title": "חבילת ספא לקבוצות החל מ-3 אורחים הכוללת עיסוי למשך 45 דקות וכניסה למתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-840 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-spa-in-hotel-u-splash",
+      "sourceUrl": "https://www.spaplus.co.il/spa_in_hotel_u_splash",
+      "sourceName": "Spa Plus",
+      "name": "ספא אנג'ל במלון יו ספלאש אילת - spa angel eilate",
+      "location": "אילת",
+      "area": "אילת והסביבה",
+      "regionKey": "eilat",
+      "price": 290,
+      "rating": 8,
+      "lat": 29.56,
+      "lng": 34.95,
+      "image": "/media/verified/spa/spa-spa-in-hotel-u-splash-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-spa-in-hotel-u-splash-1.jpeg",
+        "/media/verified/spa/spa-spa-in-hotel-u-splash-2.jpeg",
+        "/media/verified/spa/spa-spa-in-hotel-u-splash-3.jpeg",
+        "/media/verified/spa/spa-spa-in-hotel-u-splash-4.jpeg"
+      ],
+      "description": "בואו לחוות רגעים קסומים של יחד באווירה שלווה ונינוחה אנג'ל ספא הוא המקום בו הזמן עוצר מלכת",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-spa-in-hotel-u-splash-package-1",
+          "title": "חבילת יחיד הכוללת עיסוי למשך 45 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-290 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-in-hotel-u-splash-package-2",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 45 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-590 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-in-hotel-u-splash-package-3",
+          "title": "חבילת ספא לקבוצות החל מ-3 אורחים הכוללת עיסוי למשך 30 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-690 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-angel-spa-and-hamam",
+      "sourceUrl": "https://www.spaplus.co.il/angel_spa_and_Hamam",
+      "sourceName": "Spa Plus",
+      "name": "אנג'ל ספא וחמאם טורקי - angel spa and Hamam",
+      "location": "אילת",
+      "area": "אילת והסביבה",
+      "regionKey": "eilat",
+      "price": 220,
+      "lat": 29.56,
+      "lng": 34.95,
+      "image": "/media/verified/spa/spa-angel-spa-and-hamam-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-angel-spa-and-hamam-1.jpeg",
+        "/media/verified/spa/spa-angel-spa-and-hamam-2.jpeg",
+        "/media/verified/spa/spa-angel-spa-and-hamam-3.jpeg",
+        "/media/verified/spa/spa-angel-spa-and-hamam-4.jpeg"
+      ],
+      "description": "חוויית שקט ייחודית באנג'ל ספא וחמאם טורקי באילת, המשלבת טיפולי חמאם מסורתיים על שיש חם, עיסויי גוף מקצועיים ורוגע מוחלט.",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-angel-spa-and-hamam-package-1",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 30 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-220 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-angel-spa-and-hamam-package-2",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 30 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-450 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-angel-spa-and-hamam-package-3",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 45 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-590 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-angel-spa-and-hamam-package-4",
+          "title": "חבילת ספא לקבוצות החל מ-3 אורחים הכוללת עיסוי למשך 30 דקותה ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-660 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-infinite-beauty-spa",
+      "sourceUrl": "https://www.spaplus.co.il/Infinite_beauty_spa",
+      "sourceName": "Spa Plus",
+      "name": "ספא אינפיניטי - Infinite beauty spa",
+      "location": "אילת",
+      "area": "אילת והסביבה",
+      "regionKey": "eilat",
+      "price": 390,
+      "lat": 29.56,
+      "lng": 34.95,
+      "image": "/media/verified/spa/spa-infinite-beauty-spa-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-infinite-beauty-spa-1.jpeg",
+        "/media/verified/spa/spa-infinite-beauty-spa-2.jpeg",
+        "/media/verified/spa/spa-infinite-beauty-spa-3.jpeg",
+        "/media/verified/spa/spa-infinite-beauty-spa-4.jpeg"
+      ],
+      "description": "אצלנו בספא אינפיניטי אנחנו מציעים לכם עולם שלם של יופי ובריאות באווירה יוקרתית ומאזנת, שתעניק לכם את השקט שחיפשתם מחכים לכם לחוויה של פעם בחיים",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-infinite-beauty-spa-package-1",
+          "title": "חבילת ספא זוגית \\",
+          "audience": "לפי החבילה",
+          "price": "החל מ-1890 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-infinite-beauty-spa-package-2",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 50 דקות ולינה בחדר זוגי עם אמבטיה",
+          "audience": "לפי החבילה",
+          "price": "החל מ-1390 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-infinite-beauty-spa-package-3",
+          "title": "חבילת יחיד \\",
+          "audience": "לפי החבילה",
+          "price": "החל מ-990 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-infinite-beauty-spa-package-4",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי 50 דקות וללא כניסה למתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-390 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-flamingo-spa",
+      "sourceUrl": "https://www.spaplus.co.il/flamingo_spa",
+      "sourceName": "Spa Plus",
+      "name": "פלמינגו ספא במלון מרום חיפה - Flamingo Spa",
+      "location": "חיפה",
+      "area": "חיפה",
+      "regionKey": "haifa",
+      "price": 275,
+      "rating": 9,
+      "lat": 32.79,
+      "lng": 34.99,
+      "image": "/media/verified/spa/spa-flamingo-spa-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-flamingo-spa-1.jpeg",
+        "/media/verified/spa/spa-flamingo-spa-2.jpeg",
+        "/media/verified/spa/spa-flamingo-spa-3.jpeg",
+        "/media/verified/spa/spa-flamingo-spa-4.jpeg"
+      ],
+      "description": "ספא פלמינגו הינו ספא פרטי בהתאמה אישית לכל סוגי האירועים השוכן במלון מרום חיפה שבצפון הארץ. במתחם הספא תוכלו למצוא מתקני ספא מרהיבים להשלמת תחושת הרוגע והשלווה. ספא פלמינגו היוקרתי הוא ספא המותאם לאירועים מיוחדים כמו מסיבות רווקות, ימי הולדת, וגם לחווית ספא זוגית ורומנטית.",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-flamingo-spa-package-1",
+          "title": "חבילת ספא ראש יפני ליחיד למשך 45 דקות הכוללת מסיכת חימר ירוק לעור הפנים+מסכת הזנה לקרקפת ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-415 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-flamingo-spa-package-2",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 45 דק\\",
+          "audience": "לפי החבילה",
+          "price": "החל מ-625 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-flamingo-spa-package-3",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 45 דק\\",
+          "audience": "לפי החבילה",
+          "price": "החל מ-1180 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-flamingo-spa-package-4",
+          "title": "חבילת קומבינצה יפנית מלכותית לזוג הכוללת עיסוי למשך 45 דק\\",
+          "audience": "לפי החבילה",
+          "price": "החל מ-1580 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-holmes-place-spa-haifa",
+      "sourceUrl": "https://www.spaplus.co.il/holmes_place_spa_haifa",
+      "sourceName": "Spa Plus",
+      "name": "ספא הולמס פלייס גרנד קניון חיפה -Holmes Place Haifa",
+      "location": "חיפה",
+      "area": "חיפה",
+      "regionKey": "haifa",
+      "price": 225,
+      "rating": 8.7,
+      "lat": 32.79,
+      "lng": 34.99,
+      "image": "/media/verified/spa/spa-holmes-place-spa-haifa-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-holmes-place-spa-haifa-1.jpeg",
+        "/media/verified/spa/spa-holmes-place-spa-haifa-2.jpeg",
+        "/media/verified/spa/spa-holmes-place-spa-haifa-3.jpeg",
+        "/media/verified/spa/spa-holmes-place-spa-haifa-4.jpeg"
+      ],
+      "description": "ספא הולמס פלייס השוכן בגרנד קניון בחיפה מזמין אתכם לבוא וליהנות מחווית ספא קסומה. במתחם הספא תיהנו מעיסויים וטיפולי ספא איכותיים הנעשים על ידי אנשי מקצוע הטובים ביותר בתחום",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-holmes-place-spa-haifa-package-1",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 50 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-225 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-holmes-place-spa-haifa-package-2",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 50 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-450 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-holmes-place-spa-haifa-package-3",
+          "title": "חבילת ספא קבוצתית הכוללת עיסוי למשך 50 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-675 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-leonardo-plaza",
+      "sourceUrl": "https://www.spaplus.co.il/Leonardo_Plaza",
+      "sourceName": "Spa Plus",
+      "name": "ספא במלון לאונרדו פלאזה חיפה - spa Leonardo Plaza Haifa",
+      "location": "חיפה",
+      "area": "חיפה",
+      "regionKey": "haifa",
+      "price": 300,
+      "rating": 9.2,
+      "lat": 32.79,
+      "lng": 34.99,
+      "image": "/media/verified/spa/spa-leonardo-plaza-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-leonardo-plaza-1.jpeg",
+        "/media/verified/spa/spa-leonardo-plaza-2.jpeg",
+        "/media/verified/spa/spa-leonardo-plaza-3.jpeg",
+        "/media/verified/spa/spa-leonardo-plaza-4.jpeg"
+      ],
+      "description": "במלון לאונרדו פלאזה תוכלו להנות מחווית ספא בלתי נשכחת עם קשת רחבה של טיפולי ספא מרגיעים עבור הגוף ולנפש",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-leonardo-plaza-package-1",
+          "title": "חבילה \\",
+          "audience": "לפי החבילה",
+          "price": "החל מ-500 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-leonardo-plaza-package-2",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 50 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-300 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-leonardo-plaza-package-3",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 50 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-600 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-leonardo-plaza-package-4",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 50 דקות, ארוחת בוקר ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-400 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-salt-rooms",
+      "sourceUrl": "https://www.spaplus.co.il/salt_rooms",
+      "sourceName": "Spa Plus",
+      "name": "חדרי מלח המרכז לנשימה ומגע - salt rooms",
+      "location": "חיפה",
+      "area": "חיפה",
+      "regionKey": "haifa",
+      "price": 130,
+      "rating": 10,
+      "lat": 32.79,
+      "lng": 34.99,
+      "image": "/media/verified/spa/spa-salt-rooms-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-salt-rooms-1.jpeg",
+        "/media/verified/spa/spa-salt-rooms-2.jpeg",
+        "/media/verified/spa/spa-salt-rooms-3.jpeg",
+        "/media/verified/spa/spa-salt-rooms-4.jpeg"
+      ],
+      "description": "חדר המלח שלנו הוא המקום האידיאלי לחיזוק הגוף ולטיפול בבעיות נשימה ואלרגיות באווירה שלווה ומחדשת. השלימו את הטיפול עם מגוון עיסויים וטיפולים אנרגטיים משלימים המעניקים מענה שלם לגוף ולנפש.",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-salt-rooms-package-1",
+          "title": "חבילת ספא זוגית הכולל עיסוי בחדר מלח למשך 45 דקות וכניסה למתקנים",
+          "audience": "לפי החבילה",
+          "price": "החל מ-630 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-salt-rooms-package-2",
+          "title": "חבילת ספא ליחיד הכולל טיפול נשימה בחדר מלח וכניסה למתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-130 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-salt-rooms-package-3",
+          "title": "חבילת יחיד הכוללת עיסוי למשך 30 דקות וכניסה למתקנים",
+          "audience": "לפי החבילה",
+          "price": "החל מ-280 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-salt-rooms-package-4",
+          "title": "חבילה זוגית הכוללת עיסוי למשך 30 דקות וכניסה למתקנים",
+          "audience": "לפי החבילה",
+          "price": "החל מ-450 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-spa-pnina-bacarmel",
+      "sourceUrl": "https://www.spaplus.co.il/spa_pnina_bacarmel",
+      "sourceName": "Spa Plus",
+      "name": "ספא פנינה בכרמל חיפה - Pnina Bacarmel",
+      "location": "חיפה",
+      "area": "חיפה",
+      "regionKey": "haifa",
+      "price": 360,
+      "rating": 9.2,
+      "lat": 32.79,
+      "lng": 34.99,
+      "image": "/media/verified/spa/spa-spa-pnina-bacarmel-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-spa-pnina-bacarmel-1.jpeg",
+        "/media/verified/spa/spa-spa-pnina-bacarmel-2.jpeg",
+        "/media/verified/spa/spa-spa-pnina-bacarmel-3.jpeg",
+        "/media/verified/spa/spa-spa-pnina-bacarmel-4.jpeg"
+      ],
+      "description": "ספא פנינה בכרמל הנו ספא מפואר, יוקרתי ומוביל מסוגו, הממוקם בחיפה, באזור הכרמל, ומשקיף אל נופו המהמם של מפרץ חיפה, הרי הגליל העליון ורכס ראש הנקרה/",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-spa-pnina-bacarmel-package-1",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 45 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-710 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-pnina-bacarmel-package-2",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 45 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-360 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-pnina-bacarmel-package-3",
+          "title": "חבילה זוגית הכוללת עיסוי למשך 45 דקות, ג\\",
+          "audience": "לפי החבילה",
+          "price": "החל מ-910 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-pnina-bacarmel-package-4",
+          "title": "חבילה זוגית הכוללת עיסוי למשך 45 דקות, ארוחת בוקר, ג\\",
+          "audience": "לפי החבילה",
+          "price": "החל מ-1150 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-galei-spa",
+      "sourceUrl": "https://www.spaplus.co.il/galei_spa",
+      "sourceName": "Spa Plus",
+      "name": "ספא במלון גלי כנרת - Galei Spa",
+      "location": "טבריה",
+      "area": "כנרת",
+      "regionKey": "kinneret",
+      "price": 555,
+      "rating": 9.3,
+      "lat": 32.79,
+      "lng": 35.54,
+      "image": "/media/verified/spa/spa-galei-spa-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-galei-spa-1.jpeg",
+        "/media/verified/spa/spa-galei-spa-2.jpeg",
+        "/media/verified/spa/spa-galei-spa-3.jpeg",
+        "/media/verified/spa/spa-galei-spa-4.jpeg"
+      ],
+      "description": "כאשר אתם זקוקים לחוויה שתנתק אתכם לרגע מהשגרה המעייפת, ותמלא את הגוף והנפש באנרגיות מחודשות, ספא במלון גלי כנרת טבריה, הוא הכתובת. הנכם מוזמנים לחוויה סוחפת, מרגשת וקסומה.",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-galei-spa-package-1",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 50 דקות וכניסה למתקנים",
+          "audience": "לפי החבילה",
+          "price": "החל מ-1110 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-galei-spa-package-2",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 50 דקות וכניסה למתקנים",
+          "audience": "לפי החבילה",
+          "price": "החל מ-555 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-galei-spa-package-3",
+          "title": "חבילת ספא לקבוצות החל מ-3 אורחים הכוללת עיסוי למשך 50 דקות וכניסה למתקנים",
+          "audience": "לפי החבילה",
+          "price": "החל מ-1665 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-galei-spa-package-4",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 50 דקות, ארוחת בוקר ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-715 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-spa-darya-tiberias",
+      "sourceUrl": "https://www.spaplus.co.il/spa_darya_Tiberias",
+      "sourceName": "Spa Plus",
+      "name": "ספא דריה במלון נבל דוד גליל ריזורט - spa darya",
+      "location": "טבריה",
+      "area": "כנרת",
+      "regionKey": "kinneret",
+      "price": 525,
+      "rating": 9.4,
+      "lat": 32.79,
+      "lng": 35.54,
+      "image": "/media/verified/spa/spa-spa-darya-tiberias-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-spa-darya-tiberias-1.jpeg",
+        "/media/verified/spa/spa-spa-darya-tiberias-2.jpeg",
+        "/media/verified/spa/spa-spa-darya-tiberias-3.jpeg",
+        "/media/verified/spa/spa-spa-darya-tiberias-4.jpeg"
+      ],
+      "description": "במלון נבל דוד תכירו את ספא דריה המדהים הצופה אל מעבר לכנרת אתם מוזמנים להגיע ולהתפעם מתפריט רחב של עיסוים מפנקים ומרגיעים",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-spa-darya-tiberias-package-1",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 50 דקות, ארוחת בוקר ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-645 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-darya-tiberias-package-2",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 50 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-525 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-darya-tiberias-package-3",
+          "title": "חבילה ספא זוגית הכוללת עיסוי למשך 50 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-1050 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-darya-tiberias-package-4",
+          "title": "חבילת ספא קבוצתית הכוללת עיסוי למשך 50 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-1575 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-u-boutique-spa",
+      "sourceUrl": "https://www.spaplus.co.il/u_boutique_spa",
+      "sourceName": "Spa Plus",
+      "name": "ספא במלון יו בוטיק כנרת - U Boutique Spa",
+      "location": "טבריה",
+      "area": "כנרת",
+      "regionKey": "kinneret",
+      "price": 300,
+      "rating": 9.1,
+      "lat": 32.79,
+      "lng": 35.54,
+      "image": "/media/verified/spa/spa-u-boutique-spa-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-u-boutique-spa-1.jpeg",
+        "/media/verified/spa/spa-u-boutique-spa-2.jpeg",
+        "/media/verified/spa/spa-u-boutique-spa-3.jpeg",
+        "/media/verified/spa/spa-u-boutique-spa-4.jpeg"
+      ],
+      "description": "מלון יו בוטיק כנרת מזמין אתכם לחוויית נופש מרגיעה וייחודית, ממש על שפת הכנרת, באווירה השלווה והנעימה. חוויה מדהימה המשלבת פינוקי ספא מרעננים המעניקים לכם אנרגיות מחודשות לגוף ולנפש.",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-u-boutique-spa-package-1",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 50 דקות בחדר טיפולים זוגי ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-650 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-u-boutique-spa-package-2",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 50 דקות, ארוחת בוקר ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-800 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-u-boutique-spa-package-3",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 50 דקות ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-300 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-u-boutique-spa-package-4",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 50 דקות, ארוחת בוקר ושימוש במתקני הספא",
+          "audience": "לפי החבילה",
+          "price": "החל מ-400 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-eva-spa",
+      "sourceUrl": "https://www.spaplus.co.il/eva_spa",
+      "sourceName": "Spa Plus",
+      "name": "אווה ספא טבריה - Eva Spa",
+      "location": "טבריה",
+      "area": "כנרת",
+      "regionKey": "kinneret",
+      "price": 129,
+      "rating": 9.6,
+      "lat": 32.79,
+      "lng": 35.54,
+      "image": "/media/verified/spa/spa-eva-spa-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-eva-spa-1.jpeg",
+        "/media/verified/spa/spa-eva-spa-2.jpeg",
+        "/media/verified/spa/spa-eva-spa-3.jpeg",
+        "/media/verified/spa/spa-eva-spa-4.jpeg"
+      ],
+      "description": "אווה ספא הינו ספא בוטיק בטבריה המציע חוויה זוגית רומנטית ופרטית עם מגוון חבילות ספא משתלמות לכל כיס",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-eva-spa-package-1",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 30 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-129 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-eva-spa-package-2",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 30 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-258 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-eva-spa-package-3",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 50 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-200 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-eva-spa-package-4",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 50 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-400 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-prince-spa-tiberias",
+      "sourceUrl": "https://www.spaplus.co.il/prince_spa_tiberias",
+      "sourceName": "Spa Plus",
+      "name": "פרינס ספא בטבריה - Prince Spa Tiberias",
+      "location": "טבריה",
+      "area": "כנרת",
+      "regionKey": "kinneret",
+      "price": 320,
+      "rating": 10,
+      "lat": 32.79,
+      "lng": 35.54,
+      "image": "/media/verified/spa/spa-prince-spa-tiberias-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-prince-spa-tiberias-1.jpeg",
+        "/media/verified/spa/spa-prince-spa-tiberias-2.jpeg",
+        "/media/verified/spa/spa-prince-spa-tiberias-3.jpeg",
+        "/media/verified/spa/spa-prince-spa-tiberias-4.jpeg"
+      ],
+      "description": "אם אתם מחפשים מקום לברוח אליו מהשגרה, להתחבר לעצמכם וליהנות מרגעים של שקט ופינוק ספא פרינס בטבריה הוא בדיוק הכתובת מחכה לכם חוויית ספא שלווה, טבעית ומרוממת חושים.",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-prince-spa-tiberias-package-1",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 45 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-650 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-prince-spa-tiberias-package-2",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 45 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-320 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-prince-spa-tiberias-package-3",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 45 דקות וארוחת בוקר",
+          "audience": "לפי החבילה",
+          "price": "החל מ-440 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-prince-spa-tiberias-package-4",
+          "title": "חבילת ספא קבוצתית הכוללת עיסוי למשך 45 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-960 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-spa-in-kabala-hotel",
+      "sourceUrl": "https://www.spaplus.co.il/Spa_in_Kabala_Hotel",
+      "sourceName": "Spa Plus",
+      "name": "ספא במלון ריספשן - spa in hotel reception",
+      "location": "תל אביב",
+      "area": "תל אביב",
+      "regionKey": "telaviv",
+      "price": 365,
+      "rating": 8.2,
+      "lat": 32.08,
+      "lng": 34.78,
+      "image": "/media/verified/spa/spa-spa-in-kabala-hotel-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-spa-in-kabala-hotel-1.jpeg",
+        "/media/verified/spa/spa-spa-in-kabala-hotel-2.jpeg",
+        "/media/verified/spa/spa-spa-in-kabala-hotel-3.jpeg",
+        "/media/verified/spa/spa-spa-in-kabala-hotel-4.jpeg"
+      ],
+      "description": "צריכים הפסקה מהקצב התל אביבי? מתחם הספא של מלון ריספשן מזמין אתכם להשאיר את השגרה בחוץ, לעטות חלוק ולהתמסר לחוויית מגע מקצועית ומרגיעה. פסק זמן הוליסטי ומדויק של שלווה, ניתוק וטעינת מצברים, במרחק נגיעה מכיכר דיזנגוף.",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-spa-in-kabala-hotel-package-1",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 45 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-365 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-in-kabala-hotel-package-2",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 45 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-684 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-in-kabala-hotel-package-3",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 45 דקות וכניסה לבריכה",
+          "audience": "לפי החבילה",
+          "price": "החל מ-884 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-the-george-spa",
+      "sourceUrl": "https://www.spaplus.co.il/The_george_spa",
+      "sourceName": "Spa Plus",
+      "name": "ספא דה ג'ורג' - The George Spa",
+      "location": "תל אביב",
+      "area": "תל אביב",
+      "regionKey": "telaviv",
+      "price": 525,
+      "rating": 9.4,
+      "lat": 32.08,
+      "lng": 34.78,
+      "image": "/media/verified/spa/spa-the-george-spa-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-the-george-spa-1.jpeg",
+        "/media/verified/spa/spa-the-george-spa-2.jpeg",
+        "/media/verified/spa/spa-the-george-spa-3.jpeg",
+        "/media/verified/spa/spa-the-george-spa-4.jpeg"
+      ],
+      "description": "לפעמים, כדי למצוא שקט, צריך פשוט להיכנס פנימה. ספא מלון דה ג'ורג' מציע מרחב של שלווה עמוקה בלב העיר התוססת ומזמין אתכם להתמסר לאווירה עוטפת ומרגיעה, וליהנות מעיסויים ומטיפולי גוף מפנקים מידיהם של מטפלים מיומנים ומקצועיים.",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-the-george-spa-package-1",
+          "title": "Urban Escape זוגי הכוללת עיסוי למשך 50 דקות וגישה למתקני הספא המוקפדים",
+          "audience": "לפי החבילה",
+          "price": "החל מ-1050 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-the-george-spa-package-2",
+          "title": "חוויית וולנס אורבנית ליחיד הכוללת עיסוי למשך 50 דקות, ארוחת בוקר במסעדת המלון, כניסה לבריכה וגישה למתקני הספא המוקפדים",
+          "audience": "לפי החבילה",
+          "price": "החל מ-875 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-the-george-spa-package-3",
+          "title": "חוויית וולנס אורבנית קבוצתית החל מ3 הכוללת עיסוי למשך 50 דקות, ארוחת בוקר במסעדת המלון, כניסה לבריכה וגישה למתקני הספא המוקפדים",
+          "audience": "לפי החבילה",
+          "price": "החל מ-2625 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-the-george-spa-package-4",
+          "title": "חוויית וולנס אורבנית ליחיד הכוללת עיסוי למשך 50 דקות וגישה למתקני הספא המוקפדים",
+          "audience": "לפי החבילה",
+          "price": "החל מ-525 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-spa-opolsky",
+      "sourceUrl": "https://www.spaplus.co.il/spa_OpolSky",
+      "sourceName": "Spa Plus",
+      "name": "פלאיה ספא - ספא במלון פליי ווסט תל אביב",
+      "location": "תל אביב",
+      "area": "תל אביב",
+      "regionKey": "telaviv",
+      "price": 415,
+      "rating": 9.7,
+      "lat": 32.08,
+      "lng": 34.78,
+      "image": "/media/verified/spa/spa-spa-opolsky-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-spa-opolsky-1.jpeg",
+        "/media/verified/spa/spa-spa-opolsky-2.jpeg",
+        "/media/verified/spa/spa-spa-opolsky-3.png",
+        "/media/verified/spa/spa-spa-opolsky-4.png"
+      ],
+      "description": "ספא פלאיה הינו מתחם ספא חדש ויוקרתי בתל אביב, במקום מחכה לכם עולם של רוגע, טיפולי גוף מקצועיים וחוויה מפנקת שמאפשרת להתנתק לגמרי מהשגרה.",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-spa-opolsky-package-1",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 50 דקות ושימוש במתקני הספא - סאונה יבשה, סאונת אדים, חדר כושר, מלתחות ופינת כיבוד",
+          "audience": "לפי החבילה",
+          "price": "החל מ-830 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-opolsky-package-2",
+          "title": "חבילת ספא לזוג הכוללת עיסוי למשך 50 דק\\",
+          "audience": "לפי החבילה",
+          "price": "החל מ-1030 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-opolsky-package-3",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 50 דקות ושימוש במתקני הספא - סאונה יבשה, סאונת אדים, חדר כושר, מלתחות ופינת כיבוד",
+          "audience": "לפי החבילה",
+          "price": "החל מ-415 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-opolsky-package-4",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 50 דקות, ארוחת בוקר ושימוש במתקני הספא - סאונה יבשה, סאונת אדים, חדר כושר, מלתחות ופינת כיבוד",
+          "audience": "לפי החבילה",
+          "price": "החל מ-515 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-bachar-house-spa",
+      "sourceUrl": "https://www.spaplus.co.il/bachar_house_spa",
+      "sourceName": "Spa Plus",
+      "name": "ספא במלון בכר האוס - SPA Bachar House",
+      "location": "תל אביב",
+      "area": "תל אביב",
+      "regionKey": "telaviv",
+      "price": 365,
+      "rating": 8.8,
+      "lat": 32.08,
+      "lng": 34.78,
+      "image": "/media/verified/spa/spa-bachar-house-spa-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-bachar-house-spa-1.jpeg",
+        "/media/verified/spa/spa-bachar-house-spa-2.jpeg",
+        "/media/verified/spa/spa-bachar-house-spa-3.jpeg",
+        "/media/verified/spa/spa-bachar-house-spa-4.jpeg"
+      ],
+      "description": "בואו ליהנות מחוויית ספא מדהימה במלון ספא בוטיק בכר האוס השוכן בתל אביב.",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-bachar-house-spa-package-1",
+          "title": "חבילת ספא זוגית קלאסית הכוללת עיסוי למשך 45 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-684 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-bachar-house-spa-package-2",
+          "title": "חבילת ספא זוגית הכוללת עיסוי למשך 45 דקות וכניסה לטרקלין",
+          "audience": "לפי החבילה",
+          "price": "החל מ-784 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-bachar-house-spa-package-3",
+          "title": "חבילת ספא ליחיד הכוללת עיסוי למשך 45 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-365 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    },
+    {
+      "id": "spa-spa-hotel-1935",
+      "sourceUrl": "https://www.spaplus.co.il/spa_hotel_1935",
+      "sourceName": "Spa Plus",
+      "name": "ספא במלון 1935 בתל אביב - spa hotel 1935 tlv",
+      "location": "תל אביב",
+      "area": "תל אביב",
+      "regionKey": "telaviv",
+      "price": 365,
+      "rating": 9.9,
+      "lat": 32.08,
+      "lng": 34.78,
+      "image": "/media/verified/spa/spa-spa-hotel-1935-1.jpeg",
+      "images": [
+        "/media/verified/spa/spa-spa-hotel-1935-1.jpeg",
+        "/media/verified/spa/spa-spa-hotel-1935-2.jpeg",
+        "/media/verified/spa/spa-spa-hotel-1935-3.jpeg",
+        "/media/verified/spa/spa-spa-hotel-1935-4.jpeg"
+      ],
+      "description": "בסביבה רגועה ושקטה שנותנת רגע של שלווה כזה שאפשר לקחת אחרי יום בעיר זה המקום לעצור לכמה רגעים, להתנתק מהמסכים ומהריצה, ולקבל טיפול שמחזיר את האנרגיה בדיוק איפה שצריך.",
+      "features": [
+        "טיפולי ספא",
+        "חבילות ליחיד ולזוג",
+        "הזמנה מקוונת"
+      ],
+      "packages": [
+        {
+          "id": "spa-spa-hotel-1935-package-1",
+          "title": "חבילה ליחיד הכוללת עיסוי למשך 45 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-365 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-hotel-1935-package-2",
+          "title": "חבילה זוגית הכוללת עיסוי למשך 45 דקות",
+          "audience": "לפי החבילה",
+          "price": "החל מ-684 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-hotel-1935-package-3",
+          "title": "חבילת ספא ליחיד",
+          "audience": "לפי החבילה",
+          "price": "החל מ-355 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        },
+        {
+          "id": "spa-spa-hotel-1935-package-4",
+          "title": "חבילת ספא זוגית",
+          "audience": "לפי החבילה",
+          "price": "החל מ-684 ₪",
+          "duration": "לפי החבילה",
+          "includes": []
+        }
+      ]
+    }
+  ],
+  "hourly": [
+    {
+      "id": "hourly-ahuzat-hastav",
+      "sourceUrl": "https://roomsvip.com/ahuzat_hastav",
+      "sourceName": "RoomsVIP",
+      "name": "אחוזת הסתיו למרגלות הגלבוע",
+      "location": "פרזון",
+      "area": "צפון",
+      "regionKey": "north",
+      "guests": 10,
+      "price": 300,
+      "lat": 32.545456,
+      "lng": 35.311114,
+      "image": "/media/verified/hourly/hourly-ahuzat-hastav-1.jpeg",
+      "images": [
+        "/media/verified/hourly/hourly-ahuzat-hastav-1.jpeg",
+        "/media/verified/hourly/hourly-ahuzat-hastav-2.jpeg",
+        "/media/verified/hourly/hourly-ahuzat-hastav-3.jpeg",
+        "/media/verified/hourly/hourly-ahuzat-hastav-4.jpeg"
+      ],
+      "description": "אחוזת הסתיו מזמינה אותכם לנופש בלתי נשכח במושב פרזון בגליל עם 8 יחידות אירוח מפנקות וכל האבזור הנדרש לחופשה מפנקת ביותר!",
+      "features": [
+        "שעה",
+        "שהייה לפי שעה",
+        "פרטיות",
+        "בחירת משך שהייה"
+      ],
+      "packages": []
+    },
+    {
+      "id": "hourly-gentleman-haifa",
+      "sourceUrl": "https://roomsvip.com/Gentleman_Haifa",
+      "sourceName": "RoomsVIP",
+      "name": "גנטלמן חיפה",
+      "location": "חיפה",
+      "area": "צפון",
+      "regionKey": "north",
+      "guests": 10,
+      "price": 200,
+      "lat": 32.8225403,
+      "lng": 35.0505743,
+      "image": "/media/verified/hourly/hourly-gentleman-haifa-1.jpg",
+      "images": [
+        "/media/verified/hourly/hourly-gentleman-haifa-1.jpg",
+        "/media/verified/hourly/hourly-gentleman-haifa-2.jpg",
+        "/media/verified/hourly/hourly-gentleman-haifa-3.jpg",
+        "/media/verified/hourly/hourly-gentleman-haifa-4.jpg"
+      ],
+      "description": "חדרים לפי שעה בחיפה - ג'נטלמן. פרטיות מוחלטת לזוגות, מיקום שקט ליד חוף הים ומקומות הבילוי. כניסה ותשלום ללא מפגש. החל מ150 שח",
+      "features": [
+        "שעה",
+        "שהייה לפי שעה",
+        "פרטיות",
+        "בחירת משך שהייה"
+      ],
+      "packages": []
+    },
+    {
+      "id": "hourly-the-love-orchard-suites-in-the-galilee",
+      "sourceUrl": "https://roomsvip.com/The_Love_Orchard_Suites_in_the_Galilee",
+      "sourceName": "RoomsVIP",
+      "name": "סוויטות בוסתן האהבה בגליל",
+      "location": "חצור הגלילית",
+      "area": "צפון",
+      "regionKey": "north",
+      "guests": 10,
+      "price": 500,
+      "lat": 32.9846279,
+      "lng": 35.5480336,
+      "image": "/media/verified/hourly/hourly-the-love-orchard-suites-in-the-galilee-1.jpeg",
+      "images": [
+        "/media/verified/hourly/hourly-the-love-orchard-suites-in-the-galilee-1.jpeg",
+        "/media/verified/hourly/hourly-the-love-orchard-suites-in-the-galilee-2.jpeg",
+        "/media/verified/hourly/hourly-the-love-orchard-suites-in-the-galilee-3.jpeg",
+        "/media/verified/hourly/hourly-the-love-orchard-suites-in-the-galilee-4.jpeg"
+      ],
+      "description": "בוסתן גלילי קסום מציע סוויטות בעיצוב רומנטי עם ג’קוזי פינתי, טלוויזיה גדולה ומתחם חצר מפנק לאירוח לפי שעה.הסוויטות ממוקמות באזור שקט בחצור הגלילית עם פרטיות מלאה ואפשרות לחניה צמודה ודיסקרטית.הצימר מתאים לבילוי זוגי אינטימי עם נוף מרגיע לאווירה חלומית ומנותקת.",
+      "features": [
+        "שעה",
+        "שהייה לפי שעה",
+        "פרטיות",
+        "בחירת משך שהייה"
+      ],
+      "packages": []
+    },
+    {
+      "id": "hourly-yokra-ba-tzafon",
+      "sourceUrl": "https://roomsvip.com/Yokra_Ba_Tzafon",
+      "sourceName": "RoomsVIP",
+      "name": "כינר סוויטות יוקרה",
+      "location": "ראש פינה",
+      "area": "צפון",
+      "regionKey": "north",
+      "guests": 10,
+      "price": 500,
+      "lat": 32.9574577,
+      "lng": 35.5403307,
+      "image": "/media/verified/hourly/hourly-yokra-ba-tzafon-1.jpg",
+      "images": [
+        "/media/verified/hourly/hourly-yokra-ba-tzafon-1.jpg",
+        "/media/verified/hourly/hourly-yokra-ba-tzafon-2.jpg",
+        "/media/verified/hourly/hourly-yokra-ba-tzafon-3.jpg",
+        "/media/verified/hourly/hourly-yokra-ba-tzafon-4.jpg"
+      ],
+      "description": "יוקרה בצפון, נופש שעתי בראש פינה עם כל מה שצריך לשבירת שגרה, כנסו עכשיו לכל הפרטים והזמינו עוד היום. סוויטות יוקרתיות ודסקרטיות עם בריכה, ג'קוזי ועוד...",
+      "features": [
+        "שעה",
+        "שהייה לפי שעה",
+        "פרטיות",
+        "בחירת משך שהייה"
+      ],
+      "packages": []
+    },
+    {
+      "id": "hourly-ohavim-srooms",
+      "sourceUrl": "https://roomsvip.com/ohavim-srooms",
+      "sourceName": "RoomsVIP",
+      "name": "טרופי צימר ספא",
+      "location": "שזור",
+      "area": "צפון",
+      "regionKey": "north",
+      "guests": 10,
+      "price": 1100,
+      "lat": 32.933902,
+      "lng": 35.3632778,
+      "image": "/media/verified/hourly/hourly-ohavim-srooms-1.jpeg",
+      "images": [
+        "/media/verified/hourly/hourly-ohavim-srooms-1.jpeg",
+        "/media/verified/hourly/hourly-ohavim-srooms-2.jpeg",
+        "/media/verified/hourly/hourly-ohavim-srooms-3.jpeg",
+        "/media/verified/hourly/hourly-ohavim-srooms-4.jpeg"
+      ],
+      "description": "אוהבים - חדרים לפי שעה, מתחם צימרים דיסקרטיים בשזור שבצפון הארץ, היכנסו עכשיו והזמינו",
+      "features": [
+        "שעה",
+        "שהייה לפי שעה",
+        "פרטיות",
+        "בחירת משך שהייה"
+      ],
+      "packages": []
+    },
+    {
+      "id": "hourly-blue-topaz",
+      "sourceUrl": "https://roomsvip.com/Blue_topaz",
+      "sourceName": "RoomsVIP",
+      "name": "בלו טופז איטלי",
+      "location": "ראשון לציון",
+      "area": "מרכז",
+      "regionKey": "center",
+      "guests": 10,
+      "price": 330,
+      "lat": 31.9918241,
+      "lng": 34.7565245,
+      "image": "/media/verified/hourly/hourly-blue-topaz-1.jpg",
+      "images": [
+        "/media/verified/hourly/hourly-blue-topaz-1.jpg",
+        "/media/verified/hourly/hourly-blue-topaz-2.jpg",
+        "/media/verified/hourly/hourly-blue-topaz-3.jpg",
+        "/media/verified/hourly/hourly-blue-topaz-4.jpg"
+      ],
+      "description": "מחפשים מקום לדייט הבא שיוציא אותכם מהשגרה ? בלו טופז זה המקום לדייט המושלם עבורכם! הזמינו עוד היום",
+      "features": [
+        "שעה",
+        "שהייה לפי שעה",
+        "פרטיות",
+        "בחירת משך שהייה"
+      ],
+      "packages": []
+    },
+    {
+      "id": "hourly-roza-dream",
+      "sourceUrl": "https://roomsvip.com/roza_dream",
+      "sourceName": "RoomsVIP",
+      "name": "רוזה דרים",
+      "location": "קיסריה",
+      "area": "מרכז",
+      "regionKey": "center",
+      "guests": 10,
+      "price": 450,
+      "lat": 32.5209221,
+      "lng": 34.9246284,
+      "image": "/media/verified/hourly/hourly-roza-dream-1.jpeg",
+      "images": [
+        "/media/verified/hourly/hourly-roza-dream-1.jpeg",
+        "/media/verified/hourly/hourly-roza-dream-2.jpeg",
+        "/media/verified/hourly/hourly-roza-dream-3.jpeg",
+        "/media/verified/hourly/hourly-roza-dream-4.jpeg"
+      ],
+      "description": "מפשים מקום דיסקרטי ופרטי לבלות עם אהוב לבכם? הכירו את וילה רוזה דרים - מבחר סוויטות לכל אחת פרטיות מלאה, גקוזי ספא ועוד.",
+      "features": [
+        "שעה",
+        "שהייה לפי שעה",
+        "פרטיות",
+        "בחירת משך שהייה"
+      ],
+      "packages": []
+    },
+    {
+      "id": "hourly-kinki-rooms",
+      "sourceUrl": "https://roomsvip.com/Kinki_rooms",
+      "sourceName": "RoomsVIP",
+      "name": "קינקי רומס",
+      "location": "ראשון לציון",
+      "area": "מרכז",
+      "regionKey": "center",
+      "guests": 10,
+      "price": 330,
+      "lat": 31.9918241,
+      "lng": 34.7565245,
+      "image": "/media/verified/hourly/hourly-kinki-rooms-1.jpg",
+      "images": [
+        "/media/verified/hourly/hourly-kinki-rooms-1.jpg",
+        "/media/verified/hourly/hourly-kinki-rooms-2.jpg",
+        "/media/verified/hourly/hourly-kinki-rooms-3.jpg",
+        "/media/verified/hourly/hourly-kinki-rooms-4.jpg"
+      ],
+      "description": "קינקי רומס, סוויטה בראשון לציון. . במקום יש פינת ישיבה,זוגות,מסך טלויזיה LCD,קומקום חשמלי,מגבות רחצה,חניה פרטית,שמפו,מזגן,חלוקים,חדר רחצה,ג'קוזי,מיטה עגולה,סלון מעוצב,פינת קפה,כניסה דיסקרטית,תשלום ללא מפגש,חניה חינם,מיטת תנוחות,מראות,פינת ישיבה,זוגות,מסך טלויזיה LCD,קומקום חשמלי,מגבות רחצה,חניה פרטית,שמפו,מיטה זוגית,מזגן,חלוקים,חדר רחצה,ג'קוזי,פינת קפה,כניסה דיסקרטית,תשלום ללא מפגש,חניה חינם,פינת ישיבה,זוגות,מסך טלויזיה LCD,קומקום חשמלי,מגבות רחצה,חניה פרטית,שמפו,מיטה זוגית,מזגן,חלוקים,חדר רחצה,ג'קוזי,סלון מעוצב,פינת קפה,כניסה דיסקרטית,תשלום ללא מפגש,חניה חינם,מראות.",
+      "features": [
+        "שעה",
+        "שהייה לפי שעה",
+        "פרטיות",
+        "בחירת משך שהייה"
+      ],
+      "packages": []
+    },
+    {
+      "id": "hourly-miamor-ranna",
+      "sourceUrl": "https://roomsvip.com/MIAMOR_RANNA",
+      "sourceName": "RoomsVIP",
+      "name": "מיאמור רעננה - MIAMOR",
+      "location": "רעננה",
+      "area": "מרכז",
+      "regionKey": "center",
+      "guests": 10,
+      "price": 250,
+      "lat": 32.1950531,
+      "lng": 34.8848524,
+      "image": "/media/verified/hourly/hourly-miamor-ranna-1.jpg",
+      "images": [
+        "/media/verified/hourly/hourly-miamor-ranna-1.jpg",
+        "/media/verified/hourly/hourly-miamor-ranna-2.jpg",
+        "/media/verified/hourly/hourly-miamor-ranna-3.jpg",
+        "/media/verified/hourly/hourly-miamor-ranna-4.jpg"
+      ],
+      "description": "מחפשים פינה שקטה ברעננה? מיאמור רעננה - MIAMOR מציע חדרי אירוח מפנקים, כניסה פרטית, מכונת אספרסו ודיסקרטיות מלאה וחניה פרטית. הזמינו עכשיו",
+      "features": [
+        "שעה",
+        "שהייה לפי שעה",
+        "פרטיות",
+        "בחירת משך שהייה"
+      ],
+      "packages": []
+    },
+    {
+      "id": "hourly-spa-house-rishon-lezion",
+      "sourceUrl": "https://roomsvip.com/spa_house_rishon_lezion",
+      "sourceName": "RoomsVIP",
+      "name": "ספא האוס - ראשון לציון",
+      "location": "ראשון לציון",
+      "area": "מרכז",
+      "regionKey": "center",
+      "guests": 10,
+      "price": 200,
+      "lat": 31.9746067,
+      "lng": 34.8075918,
+      "image": "/media/verified/hourly/hourly-spa-house-rishon-lezion-1.jpg",
+      "images": [
+        "/media/verified/hourly/hourly-spa-house-rishon-lezion-1.jpg",
+        "/media/verified/hourly/hourly-spa-house-rishon-lezion-2.jpg",
+        "/media/verified/hourly/hourly-spa-house-rishon-lezion-3.jpg",
+        "/media/verified/hourly/hourly-spa-house-rishon-lezion-4.jpg"
+      ],
+      "description": "מתחם אירוח עם חדרים מפנקים לאירוח שעתי או לילי, ממוקמים בראשון לציון. חדרים מוצעים, ג'קוזי מפנק, טלוויזיה, פינות ישיבה ועוד. לכל הפרטים הקליקו כאן",
+      "features": [
+        "שעה",
+        "שהייה לפי שעה",
+        "פרטיות",
+        "בחירת משך שהייה"
+      ],
+      "packages": []
+    },
+    {
+      "id": "hourly-village-complex",
+      "sourceUrl": "https://roomsvip.com/Village_Complex",
+      "sourceName": "RoomsVIP",
+      "name": "ויליג' קומפלקס",
+      "location": "ניר בנים",
+      "area": "דרום ונגב",
+      "regionKey": "south",
+      "guests": 10,
+      "price": 250,
+      "lat": 31.6705011,
+      "lng": 34.7527234,
+      "image": "/media/verified/hourly/hourly-village-complex-1.jpeg",
+      "images": [
+        "/media/verified/hourly/hourly-village-complex-1.jpeg",
+        "/media/verified/hourly/hourly-village-complex-2.jpeg",
+        "/media/verified/hourly/hourly-village-complex-3.jpeg",
+        "/media/verified/hourly/hourly-village-complex-4.jpeg"
+      ],
+      "description": "רוצים לברוח מהשגרה? בוויליג' קומפלקס בניר בנים תמצאו סוויטות רומנטיות לפי שעה, ג'קוזי מפנק, בריכה גדולה ומתחם ספא יוקרתי. פרטיות, שקט וקסם במרחק קצר מתל אביב",
+      "features": [
+        "שעה",
+        "שהייה לפי שעה",
+        "פרטיות",
+        "בחירת משך שהייה"
+      ],
+      "packages": []
+    },
+    {
+      "id": "hourly-zimer-shvil-hahava",
+      "sourceUrl": "https://roomsvip.com/zimer_shvil_hahava",
+      "sourceName": "RoomsVIP",
+      "name": "צימר שביל האהבה",
+      "location": "הודיה",
+      "area": "דרום ונגב",
+      "regionKey": "south",
+      "guests": 10,
+      "price": 200,
+      "lat": 31.676356,
+      "lng": 34.639275,
+      "image": "/media/verified/hourly/hourly-zimer-shvil-hahava-1.jpg",
+      "images": [
+        "/media/verified/hourly/hourly-zimer-shvil-hahava-1.jpg",
+        "/media/verified/hourly/hourly-zimer-shvil-hahava-2.jpg",
+        "/media/verified/hourly/hourly-zimer-shvil-hahava-3.jpg",
+        "/media/verified/hourly/hourly-zimer-shvil-hahava-4.jpg"
+      ],
+      "description": "אם גם אתם מחפשים את הפינה השקטה והדיסקרטית לאירוח שעתי, הגעתם למקום הנכון, בואו להכיר את צימר שביל האהבה במושב הודיה",
+      "features": [
+        "שעה",
+        "שהייה לפי שעה",
+        "פרטיות",
+        "בחירת משך שהייה"
+      ],
+      "packages": []
+    },
+    {
+      "id": "hourly-aria-spa",
+      "regionKey": "south",
+      "name": "אריא ספא",
+      "location": "אשדוד",
+      "area": "דרום ונגב",
+      "sourceUrl": "https://roomsvip.com/Aria_Spa",
+      "sourceName": "RoomsVIP",
+      "guests": 2,
+      "price": 150,
+      "lat": 31.8044,
+      "lng": 34.6553,
+      "image": "/media/verified/hourly/hourly-aria-spa-1.jpeg",
+      "images": [
+        "/media/verified/hourly/hourly-aria-spa-1.jpeg",
+        "/media/verified/hourly/hourly-aria-spa-2.jpeg",
+        "/media/verified/hourly/hourly-aria-spa-3.jpeg",
+        "/media/verified/hourly/hourly-aria-spa-4.jpeg"
+      ],
+      "description": "ARIA SPA - אריא ספא, סוויטה באשדוד. . במקום יש ג'קוזי ספא מחומם,פינת ישיבה,פינת אוכל,זוגות,מסך טלויזיה LCD,מגבות רחצה,סבונים,שמפו,מיטה זוגית,מזגן,כיור,מטבחון,חדר רחצה,בר מים,מרפסת,ג'קוזי,מיטה עגולה,פינת קפה,תשלום ללא מפגש,גיי פרנדלי.",
+      "features": [
+        "שעה",
+        "שהייה לפי שעה",
+        "פרטיות",
+        "בחירת משך שהייה"
+      ],
+      "packages": []
+    },
+    {
+      "id": "hourly-neve-bar",
+      "regionKey": "south",
+      "name": "נווה בר - מלון בוטיק בכפר",
+      "location": "נווה מבטח",
+      "area": "דרום ונגב",
+      "sourceUrl": "https://roomsvip.com/neve_bar",
+      "sourceName": "RoomsVIP",
+      "guests": 2,
+      "price": 250,
+      "lat": 31.8057,
+      "lng": 34.7387,
+      "image": "/media/verified/hourly/hourly-neve-bar-1.jpg",
+      "images": [
+        "/media/verified/hourly/hourly-neve-bar-1.jpg",
+        "/media/verified/hourly/hourly-neve-bar-2.jpg",
+        "/media/verified/hourly/hourly-neve-bar-3.jpg",
+        "/media/verified/hourly/hourly-neve-bar-4.jpg"
+      ],
+      "description": "נווה בר - נופש שעתי רומנטי ומפנק במיוחד בנווה מבטח, כניסה דיסקרטית, תשלום ללא מפגש",
+      "features": [
+        "שעה",
+        "שהייה לפי שעה",
+        "פרטיות",
+        "בחירת משך שהייה"
+      ],
+      "packages": []
+    }
+  ],
+  "vacation": [
+    {
+      "id": "vacation-vila-harel",
+      "sourceUrl": "https://www.vii.co.il/vila_harel",
+      "sourceName": "VII",
+      "name": "וילה הראל",
+      "location": "גליל מערבי שלומי וילה 8 חדרים עד 30 אורחים",
+      "area": "צפון",
+      "regionKey": "north",
+      "guests": 30,
+      "lat": 32.85,
+      "lng": 35.18,
+      "image": "/media/verified/vacation/vacation-vila-harel-1.jpeg",
+      "images": [
+        "/media/verified/vacation/vacation-vila-harel-1.jpeg",
+        "/media/verified/vacation/vacation-vila-harel-2.jpeg",
+        "/media/verified/vacation/vacation-vila-harel-3.jpeg",
+        "/media/verified/vacation/vacation-vila-harel-4.jpeg"
+      ],
+      "description": "וילה הראל היא המקום שלכם לחופשה יוקרתית בצפון הארץ – בגליל המערבי, בשכונת יערית שבשלומי, בוילה שתי קומות ובהן 8 חדרי שינה זוגיים מרווחים, עם מזגן, טלוויזיה, ארונות, ושירותים ומקלחת פרטיים לכל חדר.בכל קומה תיהנו מסלון מרוהט, טלוויזיה עם חיבור YES, מטבח רחב ידיים עם שני תנורים, תמי 4, מקרר, כלי בישול והגשה.המתחם החיצוני כולל בריכת שחייה גדולה (12x3.5 מטר), שולחנות פינג פונג וכדורגל, ריהוט גן מפנק ועמדת BBQ.הוילה מיועדת למשפחות, קבוצות וזוגות, מתאימה לדתיים וכוללת בית כנסת בקרבת מקום – עד 30 איש.",
+      "features": [
+        "נופש",
+        "בדיקת זמינות",
+        "עד 30 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "vacation-villa-circle",
+      "sourceUrl": "https://www.vii.co.il/Villa_Circle",
+      "sourceName": "VII",
+      "name": "וילה סירקל – Villa Circle",
+      "location": "גליל עליון נוף כנרת 3 וילות לזוגות ומשפחות",
+      "area": "צפון",
+      "regionKey": "north",
+      "guests": 75,
+      "lat": 32.85,
+      "lng": 35.18,
+      "image": "/media/verified/vacation/vacation-villa-circle-1.jpg",
+      "images": [
+        "/media/verified/vacation/vacation-villa-circle-1.jpg",
+        "/media/verified/vacation/vacation-villa-circle-2.jpg",
+        "/media/verified/vacation/vacation-villa-circle-3.jpg",
+        "/media/verified/vacation/vacation-villa-circle-4.jpg"
+      ],
+      "description": "מוכנים להתאהב? וילה סירקל מזמינה אתכם להנות ממתחם הכולל 3 וילות יוקרתיות אשר ניתן להשכיר כל אחת בנפרד וגם יחד, סך הכל עד 60 אורחים לכל המתחם. עם בריכה פרטית לכל וילה, ועוד מגוון פינוקים..מהרו לשריין!",
+      "features": [
+        "נופש",
+        "בדיקת זמינות",
+        "עד 75 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "vacation-hamata-begalil-primium",
+      "sourceUrl": "https://www.vii.co.il/hamata_begalil_primium",
+      "sourceName": "VII",
+      "name": "המטע בגליל פרימיום",
+      "location": "גליל מערבי ירכא 4 יחידות לזוגות ומשפחות",
+      "area": "צפון",
+      "regionKey": "north",
+      "guests": 28,
+      "lat": 32.85,
+      "lng": 35.18,
+      "image": "/media/verified/vacation/vacation-hamata-begalil-primium-1.jpg",
+      "images": [
+        "/media/verified/vacation/vacation-hamata-begalil-primium-1.jpg",
+        "/media/verified/vacation/vacation-hamata-begalil-primium-2.jpg",
+        "/media/verified/vacation/vacation-hamata-begalil-primium-3.jpg",
+        "/media/verified/vacation/vacation-hamata-begalil-primium-4.jpg"
+      ],
+      "description": "המטע בגליל פרימיום בירכא מזמין אתכם לחופשה קסומה בין נופי הגליל. 4 בקתות מפנקות, בריכה מחוממת, ג'קוזי ספא, מתחמי בילוי ואווירה פסטורלית מושלמת למשפחות, קבוצות ואירועים.",
+      "features": [
+        "נופש",
+        "בדיקת זמינות",
+        "עד 28 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "vacation-gesthouse-royal",
+      "sourceUrl": "https://www.vii.co.il/gesthouse_royal",
+      "sourceName": "VII",
+      "name": "גאסטהאוס רויאל",
+      "location": "קריות קרית אתא וילה 5 חדרים עד 20 אורחים",
+      "area": "צפון",
+      "regionKey": "north",
+      "guests": 20,
+      "lat": 32.85,
+      "lng": 35.18,
+      "image": "/media/verified/vacation/vacation-gesthouse-royal-1.jpeg",
+      "images": [
+        "/media/verified/vacation/vacation-gesthouse-royal-1.jpeg",
+        "/media/verified/vacation/vacation-gesthouse-royal-2.jpeg",
+        "/media/verified/vacation/vacation-gesthouse-royal-3.jpeg",
+        "/media/verified/vacation/vacation-gesthouse-royal-4.jpeg"
+      ],
+      "description": "מתחם אירוח לאירועים ונופש בקריית אתא, שם תהנו מבריכה, 5 חדרי שינה מרווחים, עמדת מנגל, מערכת הגברה, מטבח מאובזר ועוד..לינה עד 20 איש",
+      "features": [
+        "נופש",
+        "בדיקת זמינות",
+        "עד 20 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "vacation-como-boutique",
+      "sourceUrl": "https://www.vii.co.il/Como_Boutique",
+      "sourceName": "VII",
+      "name": "אחוזת קומו בוטיק - Como Boutique",
+      "location": "כנרת טפחות 2 וילות לזוגות ומשפחות",
+      "area": "צפון",
+      "regionKey": "north",
+      "guests": 20,
+      "lat": 32.85,
+      "lng": 35.18,
+      "image": "/media/verified/vacation/vacation-como-boutique-1.jpeg",
+      "images": [
+        "/media/verified/vacation/vacation-como-boutique-1.jpeg",
+        "/media/verified/vacation/vacation-como-boutique-2.jpeg",
+        "/media/verified/vacation/vacation-como-boutique-3.jpeg",
+        "/media/verified/vacation/vacation-como-boutique-4.jpeg"
+      ],
+      "description": "חופשת יוקרה באחוזת קומו בוטיק - Como Boutique טפחות! 2 וילות מפוארות עם בריכה פרטית מחוממת בחצר. מושלם למשפחות וקבוצות עד 20 איש. אבזור מלא: פלייסטיישן 5, מטבח חוץ,מנגל וריהוט גן יוקרתי.",
+      "features": [
+        "נופש",
+        "בדיקת זמינות",
+        "עד 20 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "vacation-villa-exodus",
+      "sourceUrl": "https://www.vii.co.il/villa_exodus",
+      "sourceName": "VII",
+      "name": "וילה אקסודוס",
+      "location": "ירושלים והרי יהודה שדות מיכה וילה 4 חדרים עד 30 אורחים",
+      "area": "מרכז",
+      "regionKey": "center",
+      "guests": 30,
+      "lat": 32.08,
+      "lng": 34.82,
+      "image": "/media/verified/vacation/vacation-villa-exodus-1.jpeg",
+      "images": [
+        "/media/verified/vacation/vacation-villa-exodus-1.jpeg",
+        "/media/verified/vacation/vacation-villa-exodus-2.jpeg",
+        "/media/verified/vacation/vacation-villa-exodus-3.jpeg",
+        "/media/verified/vacation/vacation-villa-exodus-4.jpg"
+      ],
+      "description": "מחפשים מקום שמתאים גם לנופש וגם למסיבות? הכירו את וילה אקסודוס - מזמינים אתכם להנות ממתחם מהמם, עם 4 חדרי שינה, בריכת שחייה וגקוזי מפנקים ועוד המון פינוקים שיסגרו לכם את החופשה הבאה. מהרו לשריין!",
+      "features": [
+        "נופש",
+        "בדיקת זמינות",
+        "עד 30 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "vacation-tepers-estate",
+      "sourceUrl": "https://www.vii.co.il/Tepers_estate",
+      "sourceName": "VII",
+      "name": "אחוזת טפרס",
+      "location": "מישור החוף הצפוני עמק חפר וילה 9 חדרים עד 35 אורחים",
+      "area": "מרכז",
+      "regionKey": "center",
+      "guests": 35,
+      "lat": 32.08,
+      "lng": 34.82,
+      "image": "/media/verified/vacation/vacation-tepers-estate-1.jpg",
+      "images": [
+        "/media/verified/vacation/vacation-tepers-estate-1.jpg",
+        "/media/verified/vacation/vacation-tepers-estate-2.jpg",
+        "/media/verified/vacation/vacation-tepers-estate-3.jpg",
+        "/media/verified/vacation/vacation-tepers-estate-4.jpg"
+      ],
+      "description": "מחפשים מקום מושלם לנופש משפחתי? אחוזת טפרס היא התשובה – מתחם ענק בלב עמק חפר עם מרחבים ירוקים ושקט מלא, במקום תיהנו מ-9 סוויטות מפנקות, מטבח כשר מאובזר, פינת אוכל ענקית ואזורי ישיבה נעימים.בריכת שחייה גדולה, חדר משחקים לילדים ומתחם חיצוני עם פינות ישיבה יבטיחו לכל המשפחה חוויה כיפית.",
+      "features": [
+        "נופש",
+        "בדיקת זמינות",
+        "עד 35 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "vacation-villa-esem-harimon",
+      "sourceUrl": "https://www.vii.co.il/villa_esem_harimon",
+      "sourceName": "VII",
+      "name": "קסם הרימון",
+      "location": "מישור החוף והשפלה עזריקם 4 יחידות לזוגות ומשפחות",
+      "area": "מרכז",
+      "regionKey": "center",
+      "guests": 14,
+      "lat": 32.08,
+      "lng": 34.82,
+      "image": "/media/verified/vacation/vacation-villa-esem-harimon-1.jpeg",
+      "images": [
+        "/media/verified/vacation/vacation-villa-esem-harimon-1.jpeg",
+        "/media/verified/vacation/vacation-villa-esem-harimon-2.jpeg",
+        "/media/verified/vacation/vacation-villa-esem-harimon-3.jpeg",
+        "/media/verified/vacation/vacation-villa-esem-harimon-4.jpeg"
+      ],
+      "description": "קסם הרימון - 4 סוויטות מפנקות במושב עזריקם, בריכת שחייה, גקוזי ספא, משחקי שולחן ועוד. היכנסו עכשיו, התרשמו מתמונות, חוות דעת והזמינו עוד היום תאריך לחופשה הבאה שלכם.",
+      "features": [
+        "נופש",
+        "בדיקת זמינות",
+        "עד 14 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "vacation-sea-view-penthouse-26-spa-netanya",
+      "sourceUrl": "https://www.vii.co.il/Sea_view_penthouse_%26_spa_Netanya",
+      "sourceName": "VII",
+      "name": "סי וויו פנטהאוז וספא נתניה - Sea view penthouse & spa Netanya",
+      "location": "שרון נתניה 2 וילות לזוגות ומשפחות",
+      "area": "מרכז",
+      "regionKey": "center",
+      "guests": 13,
+      "lat": 32.08,
+      "lng": 34.82,
+      "image": "/media/verified/vacation/vacation-sea-view-penthouse-26-spa-netanya-1.jpeg",
+      "images": [
+        "/media/verified/vacation/vacation-sea-view-penthouse-26-spa-netanya-1.jpeg",
+        "/media/verified/vacation/vacation-sea-view-penthouse-26-spa-netanya-2.jpg",
+        "/media/verified/vacation/vacation-sea-view-penthouse-26-spa-netanya-3.jpg",
+        "/media/verified/vacation/vacation-sea-view-penthouse-26-spa-netanya-4.jpg"
+      ],
+      "description": "סי וויו פנטהאוז וספא בנתניה מציע שני פנטהאוזים יוקרתיים מול הים עם בריכות פרטיות מחוממות, סאונה יבשה ורטובה, ג'קוזי, מרפסות נוף מרהיבות ואירוח ברמה גבוהה כנסו עכשיו",
+      "features": [
+        "נופש",
+        "בדיקת זמינות",
+        "עד 13 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "vacation-daniel",
+      "sourceUrl": "https://www.vii.co.il/Daniel",
+      "sourceName": "VII",
+      "name": "אחוזת דניאל",
+      "location": "ירושלים והרי יהודה זכריה וילה 3 חדרים עד 15 אורחים",
+      "area": "מרכז",
+      "regionKey": "center",
+      "guests": 15,
+      "lat": 32.08,
+      "lng": 34.82,
+      "image": "/media/verified/vacation/vacation-daniel-1.jpeg",
+      "images": [
+        "/media/verified/vacation/vacation-daniel-1.jpeg",
+        "/media/verified/vacation/vacation-daniel-2.jpeg",
+        "/media/verified/vacation/vacation-daniel-3.jpeg",
+        "/media/verified/vacation/vacation-daniel-4.jpeg"
+      ],
+      "description": "אחוזת דניאל בזכריה מזמינה אתכם לנופש יוקרתי במתחם ענקי הכולל בריכת שחייה גדולה, פינות ישיבה, 3 חדרי שינה, מערכת קריוקי ועוד.",
+      "features": [
+        "נופש",
+        "בדיקת זמינות",
+        "עד 15 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "vacation-aqua-sol-dreamy-rent",
+      "sourceUrl": "https://www.vii.co.il/Aqua_Sol_Dreamy_Rent",
+      "sourceName": "VII",
+      "name": "וילה אקווה סול - Dreamy Rent",
+      "location": "אילת והערבה אילת וילה 5 חדרים עד 14 אורחים",
+      "area": "דרום ונגב",
+      "regionKey": "south",
+      "guests": 14,
+      "lat": 31.25,
+      "lng": 34.79,
+      "image": "/media/verified/vacation/vacation-aqua-sol-dreamy-rent-1.jpeg",
+      "images": [
+        "/media/verified/vacation/vacation-aqua-sol-dreamy-rent-1.jpeg",
+        "/media/verified/vacation/vacation-aqua-sol-dreamy-rent-2.jpeg",
+        "/media/verified/vacation/vacation-aqua-sol-dreamy-rent-3.jpeg",
+        "/media/verified/vacation/vacation-aqua-sol-dreamy-rent-4.jpeg"
+      ],
+      "description": "וילה יוקרתית באילת להשכרה עם בריכה מחוממת, חצר מפנקת ונוף לים ולהרים -וילה אקווה סול היא הבחירה המושלמת לחופשה איכותית, מתאימה למשפחות, קבוצות וזוגות שמחפשים פרטיות, מרחב ואבזור ברמה גבוהה - ממוקמת דקות נסיעה מחוף מוש, הטיילת, קניון אילת ומסעדות מובילות.",
+      "features": [
+        "נופש",
+        "בדיקת זמינות",
+        "עד 14 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "vacation-ahuzat-shaked",
+      "sourceUrl": "https://www.vii.co.il/Ahuzat_Shaked",
+      "sourceName": "VII",
+      "name": "אחוזת השקד שדה צבי",
+      "location": "מישור החוף הדרומי שדה צבי וילה 5 חדרים עד 16 אורחים",
+      "area": "דרום ונגב",
+      "regionKey": "south",
+      "guests": 16,
+      "lat": 31.25,
+      "lng": 34.79,
+      "image": "/media/verified/vacation/vacation-ahuzat-shaked-1.jpeg",
+      "images": [
+        "/media/verified/vacation/vacation-ahuzat-shaked-1.jpeg",
+        "/media/verified/vacation/vacation-ahuzat-shaked-2.jpeg",
+        "/media/verified/vacation/vacation-ahuzat-shaked-3.jpeg",
+        "/media/verified/vacation/vacation-ahuzat-shaked-4.jpeg"
+      ],
+      "description": "אחוזת השקד בשדה צבי: וילת נופש יוקרתית לעד 16 איש עם 5 חדרי שינה, בריכה מרעננת, חצר ענקית ופרטיות מלאה. המתחם מותאם לשומרי שבת. הזמינו חופשה",
+      "features": [
+        "נופש",
+        "בדיקת זמינות",
+        "עד 16 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "vacation-villa-white-house",
+      "sourceUrl": "https://www.vii.co.il/Villa_White_House",
+      "sourceName": "VII",
+      "name": "וילה איתן",
+      "location": "אילת והערבה אילת וילה 4 חדרים עד 14 אורחים",
+      "area": "דרום ונגב",
+      "regionKey": "south",
+      "guests": 14,
+      "lat": 31.25,
+      "lng": 34.79,
+      "image": "/media/verified/vacation/vacation-villa-white-house-1.jpeg",
+      "images": [
+        "/media/verified/vacation/vacation-villa-white-house-1.jpeg",
+        "/media/verified/vacation/vacation-villa-white-house-2.jpeg",
+        "/media/verified/vacation/vacation-villa-white-house-3.jpeg",
+        "/media/verified/vacation/vacation-villa-white-house-4.jpeg"
+      ],
+      "description": "וילה איתן - וילת נופש מפנקת בעיר אילת עם כל מה שצריך לחופשה בלתי נשכחת, 4 חדרי שינה, בריכת שחייה ועוד. כנסו עכשיו לכל הפרטים והזמינו עוד היום תאריך לחופשה.",
+      "features": [
+        "נופש",
+        "בדיקת זמינות",
+        "עד 14 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "vacation-villa-yotam",
+      "sourceUrl": "https://www.vii.co.il/villa_yotam",
+      "sourceName": "VII",
+      "name": "וילה יותם בריכה מחוממת",
+      "location": "אילת והערבה אילת וילה 4 חדרים עד 11 אורחים",
+      "area": "דרום ונגב",
+      "regionKey": "south",
+      "guests": 11,
+      "lat": 31.25,
+      "lng": 34.79,
+      "image": "/media/verified/vacation/vacation-villa-yotam-1.jpg",
+      "images": [
+        "/media/verified/vacation/vacation-villa-yotam-1.jpg",
+        "/media/verified/vacation/vacation-villa-yotam-2.jpg",
+        "/media/verified/vacation/vacation-villa-yotam-3.jpg",
+        "/media/verified/vacation/vacation-villa-yotam-4.jpg"
+      ],
+      "description": "וילה יותם, וילת נופש מפנקת במיוחד בעיר אילת, מונה 4 חדרי שינה מפנקים ומתאימה לנופש משפחות וזוגות עד 11 איש, בוילה בריכת שחייה מחוממת בעונת החורף, משחקים לילדים ועוד שלל הפתעות ופינוקים, כנסו עכשיו והזמינו עוד היום תאריך לחופשה הבאה שלכם.",
+      "features": [
+        "נופש",
+        "בדיקת זמינות",
+        "עד 11 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "vacation-villa-marrakesh",
+      "sourceUrl": "https://www.vii.co.il/Villa_Marrakesh",
+      "sourceName": "VII",
+      "name": "וילה מרקש",
+      "location": "אילת והערבה אילת וילה 7 חדרים עד 30 אורחים",
+      "area": "דרום ונגב",
+      "regionKey": "south",
+      "guests": 30,
+      "lat": 31.25,
+      "lng": 34.79,
+      "image": "/media/verified/vacation/vacation-villa-marrakesh-1.jpeg",
+      "images": [
+        "/media/verified/vacation/vacation-villa-marrakesh-1.jpeg",
+        "/media/verified/vacation/vacation-villa-marrakesh-2.jpeg",
+        "/media/verified/vacation/vacation-villa-marrakesh-3.jpeg",
+        "/media/verified/vacation/vacation-villa-marrakesh-4.jpeg"
+      ],
+      "description": "בוילת מרקש תוכלו להנות מבריכה מחוממת, פינות ישיבה, סלון רחב ידיים, 7 חדרי שינה מפנקים, מדשאות, נוף מרהיב, מטבח מאובזר ועוד",
+      "features": [
+        "נופש",
+        "בדיקת זמינות",
+        "עד 30 אורחים"
+      ],
+      "packages": []
+    }
+  ],
+  "events": [
+    {
+      "id": "events-star-loft",
+      "sourceUrl": "https://www.vii.co.il/events/Star_Loft",
+      "sourceName": "VII",
+      "name": "סטאר לופט",
+      "location": "חיפה וחוף הכרמל נשר 1 לופט עד 40 אורחים",
+      "area": "צפון",
+      "regionKey": "north",
+      "guests": 40,
+      "lat": 32.85,
+      "lng": 35.18,
+      "image": "/media/verified/events/events-star-loft-1.jpeg",
+      "images": [
+        "/media/verified/events/events-star-loft-1.jpeg",
+        "/media/verified/events/events-star-loft-2.jpeg",
+        "/media/verified/events/events-star-loft-3.jpeg",
+        "/media/verified/events/events-star-loft-4.jpeg"
+      ],
+      "description": "תיאור שיווקי לעמוד בגוגל:סטאר לופט נשר - מתחם אירועי בוטיק יוקרתי בעיצוב אורבני חדשני. שילוב מושלם של טכנולוגיה מתקדמת, אווירה אינטימית וליווי מקצועי.",
+      "features": [
+        "אירועים פרטיים",
+        "בדיקת זמינות",
+        "עד 40 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "events-black-loft",
+      "sourceUrl": "https://www.vii.co.il/events/Black_Loft",
+      "sourceName": "VII",
+      "name": "בלאק לופט - Black Loft",
+      "location": "חיפה וחוף הכרמל נשר 1 לופט עד 80 אורחים",
+      "area": "צפון",
+      "regionKey": "north",
+      "guests": 80,
+      "lat": 32.85,
+      "lng": 35.18,
+      "image": "/media/verified/events/events-black-loft-1.jpg",
+      "images": [
+        "/media/verified/events/events-black-loft-1.jpg",
+        "/media/verified/events/events-black-loft-2.jpg",
+        "/media/verified/events/events-black-loft-3.jpg",
+        "/media/verified/events/events-black-loft-4.jpg"
+      ],
+      "description": "בלאק לופט נשר: מתחם אירועים יוקרתי 180 מ\"ר לעד 80 אורחים! סנוקר, קריוקי, אפשרות לברביקיו וללא הגבלת רעש.",
+      "features": [
+        "אירועים פרטיים",
+        "בדיקת זמינות",
+        "עד 80 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "events-king-loft",
+      "sourceUrl": "https://www.vii.co.il/events/King_Loft",
+      "sourceName": "VII",
+      "name": "קינג לופט",
+      "location": "קריות קרית אתא 1 לופט עד 100 אורחים",
+      "area": "צפון",
+      "regionKey": "north",
+      "guests": 100,
+      "lat": 32.85,
+      "lng": 35.18,
+      "image": "/media/verified/events/events-king-loft-1.jpg",
+      "images": [
+        "/media/verified/events/events-king-loft-1.jpg",
+        "/media/verified/events/events-king-loft-2.jpg",
+        "/media/verified/events/events-king-loft-3.jpg",
+        "/media/verified/events/events-king-loft-4.jpg"
+      ],
+      "description": "תיאור שיווקי לעמוד בגוגל:קינג לופט קריית אתא - מתחם אירועים יוקרתי המשתרע על 220 מ\"ר עם עיצוב מודרני, טכנולוגיה מתקדמת וצוות מקצועי מלווה.",
+      "features": [
+        "אירועים פרטיים",
+        "בדיקת זמינות",
+        "עד 100 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "events-loft-golden-r",
+      "sourceUrl": "https://www.vii.co.il/events/LOFT_GOLDEN_R",
+      "sourceName": "VII",
+      "name": "לופט גולדן R",
+      "location": "גליל מערבי עבדון וילה עד 30 אורחים",
+      "area": "צפון",
+      "regionKey": "north",
+      "guests": 30,
+      "lat": 32.85,
+      "lng": 35.18,
+      "image": "/media/verified/events/events-loft-golden-r-1.jpg",
+      "images": [
+        "/media/verified/events/events-loft-golden-r-1.jpg",
+        "/media/verified/events/events-loft-golden-r-2.jpg",
+        "/media/verified/events/events-loft-golden-r-3.jpg",
+        "/media/verified/events/events-loft-golden-r-4.jpg"
+      ],
+      "description": "מי שמחפש מסיבה עם רמה – מוצא אותה בלופט גולדן R, מתחם מרהיב ומפנק ברמה שלא רואים כל יום.בריכה מחוממת מקורה, ג’קוזי ענק, בר מקצועי, סנוקר ותאורה צבעונית יוצרים מתחם שכולו אנרגיה וחוויה.אין הגבלת רעש -חוגגים עד אור הבוקר",
+      "features": [
+        "אירועים פרטיים",
+        "בדיקת זמינות",
+        "עד 30 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "events-gutman-concept-events",
+      "sourceUrl": "https://www.vii.co.il/events/Gutman_Concept_Events",
+      "sourceName": "VII",
+      "name": "גוטמן - לופט לאירועי קונספט",
+      "location": "קריות קרית חיים 1 לופט עד 80 אורחים",
+      "area": "צפון",
+      "regionKey": "north",
+      "guests": 80,
+      "lat": 32.85,
+      "lng": 35.18,
+      "image": "/media/verified/events/events-gutman-concept-events-1.jpg",
+      "images": [
+        "/media/verified/events/events-gutman-concept-events-1.jpg",
+        "/media/verified/events/events-gutman-concept-events-2.jpg",
+        "/media/verified/events/events-gutman-concept-events-3.jpg",
+        "/media/verified/events/events-gutman-concept-events-4.jpg"
+      ],
+      "description": "גוטמן מתחם לאירועי קונספט בקריית חיים: לופט בוטיק אדריכלי ויוקרתי לאירועים ומסיבות עד 80 איש בצפון. עם הגברה, תאורה מתקדמת וקולינריה משובחת.",
+      "features": [
+        "אירועים פרטיים",
+        "בדיקת זמינות",
+        "עד 80 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "events-infinity-loft",
+      "sourceUrl": "https://www.vii.co.il/events/infinity_loft",
+      "sourceName": "VII",
+      "name": "אינפיניטי לופט",
+      "location": "מישור החוף והשפלה ראשון לציון 1 לופט עד 150 אורחים",
+      "area": "מרכז",
+      "regionKey": "center",
+      "guests": 150,
+      "lat": 32.08,
+      "lng": 34.82,
+      "image": "/media/verified/events/events-infinity-loft-1.jpeg",
+      "images": [
+        "/media/verified/events/events-infinity-loft-1.jpeg",
+        "/media/verified/events/events-infinity-loft-2.jpeg",
+        "/media/verified/events/events-infinity-loft-3.jpeg",
+        "/media/verified/events/events-infinity-loft-4.jpeg"
+      ],
+      "description": "לופט מפואר בראשון לציון לאירועים ללא הגבלת רעש, עם מערכות הגברה ותאורה, בריכת שחייה בנויה ומחוממת, ג'קוזי ספא, שולחן סנוקר, בר משקאות ועוד.",
+      "features": [
+        "אירועים פרטיים",
+        "בדיקת זמינות",
+        "עד 150 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "events-santorini-loft",
+      "sourceUrl": "https://www.vii.co.il/events/Santorini_Loft",
+      "sourceName": "VII",
+      "name": "לופט סנטוריני",
+      "location": "מישור החוף והשפלה בת ים 2 לופטים עד 215 אורחים",
+      "area": "מרכז",
+      "regionKey": "center",
+      "guests": 215,
+      "lat": 32.08,
+      "lng": 34.82,
+      "image": "/media/verified/events/events-santorini-loft-1.jpeg",
+      "images": [
+        "/media/verified/events/events-santorini-loft-1.jpeg",
+        "/media/verified/events/events-santorini-loft-2.jpeg",
+        "/media/verified/events/events-santorini-loft-3.jpeg",
+        "/media/verified/events/events-santorini-loft-4.jpeg"
+      ],
+      "description": "לופט סנטוריני, 2 לופטים ללא הגבלת רעש בבת ים עם בריכת שחייה מחוממת ומקורה, ג'קוזי, שולחן סנוקר וכל מה שצריך לאירוע בלתי נשכח. כנסו עכשיו לכל הפרטים והזמינו.",
+      "features": [
+        "אירועים פרטיים",
+        "בדיקת זמינות",
+        "עד 215 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "events-havilla-bemishmar-hashiva",
+      "sourceUrl": "https://www.vii.co.il/events/havilla_bemishmar_hashiva",
+      "sourceName": "VII",
+      "name": "הוילה במשמר השבעה",
+      "location": "מישור החוף והשפלה משמר השבעה 1 לופט עד 350 אורחים",
+      "area": "מרכז",
+      "regionKey": "center",
+      "guests": 350,
+      "lat": 32.08,
+      "lng": 34.82,
+      "image": "/media/verified/events/events-havilla-bemishmar-hashiva-1.jpeg",
+      "images": [
+        "/media/verified/events/events-havilla-bemishmar-hashiva-1.jpeg",
+        "/media/verified/events/events-havilla-bemishmar-hashiva-2.jpeg",
+        "/media/verified/events/events-havilla-bemishmar-hashiva-3.jpg",
+        "/media/verified/events/events-havilla-bemishmar-hashiva-4.jpg"
+      ],
+      "description": "מחפשים אירוע בלתי נשכח במקום מרהיב שכולם ידברו עליו? אתם חייבים להכיר את הוילה במשמר השבעה. מתחם ענק היכול להכיל עד 350 אורחים אז למה אתם מחכים? כהסו עכשיו ותזמינו",
+      "features": [
+        "אירועים פרטיים",
+        "בדיקת זמינות",
+        "עד 350 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "events-loft-tokyo",
+      "sourceUrl": "https://www.vii.co.il/events/Loft_Tokyo",
+      "sourceName": "VII",
+      "name": "לופט טוקיו - Loft Tokyo",
+      "location": "מישור החוף והשפלה ראשון לציון 1 לופט עד 200 אורחים",
+      "area": "מרכז",
+      "regionKey": "center",
+      "guests": 200,
+      "lat": 32.08,
+      "lng": 34.82,
+      "image": "/media/verified/events/events-loft-tokyo-1.jpg",
+      "images": [
+        "/media/verified/events/events-loft-tokyo-1.jpg",
+        "/media/verified/events/events-loft-tokyo-2.jpg",
+        "/media/verified/events/events-loft-tokyo-3.jpg",
+        "/media/verified/events/events-loft-tokyo-4.jpg"
+      ],
+      "description": "לופט טוקיו ראשון לציון: מתחם אירועים בעיצוב יפני! ללא הגבלות רעש, עם סנוקר, רחבת ריקודים ומערכות תאורה והגברה מתקדמות.",
+      "features": [
+        "אירועים פרטיים",
+        "בדיקת זמינות",
+        "עד 200 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "events-loft-casa-boutique",
+      "sourceUrl": "https://www.vii.co.il/events/Loft_Casa_Boutique",
+      "sourceName": "VII",
+      "name": "Loft Casa Boutique - לופט קאסה בוטיק",
+      "location": "שרון נתניה 1 לופט עד 100 אורחים",
+      "area": "מרכז",
+      "regionKey": "center",
+      "guests": 100,
+      "lat": 32.08,
+      "lng": 34.82,
+      "image": "/media/verified/events/events-loft-casa-boutique-1.jpeg",
+      "images": [
+        "/media/verified/events/events-loft-casa-boutique-1.jpeg",
+        "/media/verified/events/events-loft-casa-boutique-2.jpeg",
+        "/media/verified/events/events-loft-casa-boutique-3.jpeg",
+        "/media/verified/events/events-loft-casa-boutique-4.jpeg"
+      ],
+      "description": "לופט קאסה בוטיק נתניה: אירוע חלומי מול הבריכה! עד 100 אורחים, בר אלכוהול, מערכת שמע ומבצע חורף - רק 1,999 ₪ באמצע שבוע!",
+      "features": [
+        "אירועים פרטיים",
+        "בדיקת זמינות",
+        "עד 100 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "events-oasis",
+      "sourceUrl": "https://www.vii.co.il/events/oasis",
+      "sourceName": "VII",
+      "name": "אואזיס",
+      "location": "מישור החוף הדרומי שדה צבי וילה עד 250 אורחים",
+      "area": "דרום ונגב",
+      "regionKey": "south",
+      "guests": 250,
+      "lat": 31.25,
+      "lng": 34.79,
+      "image": "/media/verified/events/events-oasis-1.jpg",
+      "images": [
+        "/media/verified/events/events-oasis-1.jpg",
+        "/media/verified/events/events-oasis-2.jpeg",
+        "/media/verified/events/events-oasis-3.jpeg",
+        "/media/verified/events/events-oasis-4.jpeg"
+      ],
+      "description": "אואזיס: מתחם אירועים יוקרתי של 800 מ\"ר עם בריכה! מושלם לחתונות ומסיבות רווקות, DJ מקצועי וחניה צמודה.",
+      "features": [
+        "אירועים פרטיים",
+        "בדיקת זמינות",
+        "עד 250 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "events-noni-loft",
+      "sourceUrl": "https://www.vii.co.il/events/Noni_Loft",
+      "sourceName": "VII",
+      "name": "נוני לופט - Noni Loft",
+      "location": "נגב באר שבע 1 לופט עד 100 אורחים",
+      "area": "דרום ונגב",
+      "regionKey": "south",
+      "guests": 100,
+      "lat": 31.25,
+      "lng": 34.79,
+      "image": "/media/verified/events/events-noni-loft-1.jpg",
+      "images": [
+        "/media/verified/events/events-noni-loft-1.jpg",
+        "/media/verified/events/events-noni-loft-2.jpg",
+        "/media/verified/events/events-noni-loft-3.jpg",
+        "/media/verified/events/events-noni-loft-4.jpg"
+      ],
+      "description": "תיאור שיווקי לעמוד בגוגל:נוני לופט באר שבע - מתחם אירועים יוקרתי עם תאורה מרהיבה, מערכות הגברה עוצמתיות ובר אלכוהול מעוצב. חוויית מסיבה בלתי נשכחת!",
+      "features": [
+        "אירועים פרטיים",
+        "בדיקת זמינות",
+        "עד 100 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "events-fatamorgana-loft-40gmail-com",
+      "sourceUrl": "https://www.vii.co.il/events/fatamorgana.loft%40gmail.com",
+      "sourceName": "VII",
+      "name": "אואזיס פאטה מורגנה",
+      "location": "נגב באר שבע 1 לופט עד 90 אורחים",
+      "area": "דרום ונגב",
+      "regionKey": "south",
+      "guests": 90,
+      "lat": 31.25,
+      "lng": 34.79,
+      "image": "/media/verified/events/events-fatamorgana-loft-40gmail-com-1.jpeg",
+      "images": [
+        "/media/verified/events/events-fatamorgana-loft-40gmail-com-1.jpeg",
+        "/media/verified/events/events-fatamorgana-loft-40gmail-com-2.jpeg",
+        "/media/verified/events/events-fatamorgana-loft-40gmail-com-3.jpeg",
+        "/media/verified/events/events-fatamorgana-loft-40gmail-com-4.jpeg"
+      ],
+      "description": "חוגגים באואזיס באר שבע! לופטים יוקרתיים לאירועים עד 90 איש, בריכה פרטית, מערכות הגברה ופרטיות מוחלטת. הזמינו מקום לאירוע מנצח עוד היום.",
+      "features": [
+        "אירועים פרטיים",
+        "בדיקת זמינות",
+        "עד 90 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "events-monkata",
+      "sourceUrl": "https://www.vii.co.il/events/Monkata",
+      "sourceName": "VII",
+      "name": "מונקאטה",
+      "location": "מישור החוף הדרומי שדה דוד וילה עד 20 אורחים",
+      "area": "דרום ונגב",
+      "regionKey": "south",
+      "guests": 20,
+      "lat": 31.25,
+      "lng": 34.79,
+      "image": "/media/verified/events/events-monkata-1.jpeg",
+      "images": [
+        "/media/verified/events/events-monkata-1.jpeg",
+        "/media/verified/events/events-monkata-2.jpeg",
+        "/media/verified/events/events-monkata-3.jpeg",
+        "/media/verified/events/events-monkata-4.jpeg"
+      ],
+      "description": "תיאור שיווקי לעמוד בגוגל:מתחם מונקאטה - חופשה בסגנון אינדיאני אותנטי עם טיפי מרווחים, ג'קוזי, בריכה ומטבח חיצוני. חוויית נופש ייחודית בדרום!",
+      "features": [
+        "אירועים פרטיים",
+        "בדיקת זמינות",
+        "עד 20 אורחים"
+      ],
+      "packages": []
+    },
+    {
+      "id": "events-loft-98-beer-sheva",
+      "sourceUrl": "https://www.vii.co.il/events/Loft_98_Beer_Sheva",
+      "sourceName": "VII",
+      "name": "לופט 98 באר שבע",
+      "location": "נגב באר שבע 1 לופט עד 100 אורחים",
+      "area": "דרום ונגב",
+      "regionKey": "south",
+      "guests": 100,
+      "lat": 31.25,
+      "lng": 34.79,
+      "image": "/media/verified/events/events-loft-98-beer-sheva-1.jpeg",
+      "images": [
+        "/media/verified/events/events-loft-98-beer-sheva-1.jpeg",
+        "/media/verified/events/events-loft-98-beer-sheva-2.jpeg",
+        "/media/verified/events/events-loft-98-beer-sheva-3.jpeg",
+        "/media/verified/events/events-loft-98-beer-sheva-4.jpeg"
+      ],
+      "description": "לופט 98 באר שבע: מתחם אירועים מושלם! בריכה פרטית, ג'קוזי ספא מחומם, קריוקי, מערכות הגברה ומגוון אטרקציות לכל סוגי האירועים.",
+      "features": [
+        "אירועים פרטיים",
+        "בדיקת זמינות",
+        "עד 100 אורחים"
+      ],
+      "packages": []
+    }
+  ],
+  "attractions": [
+    {
+      "id": "kfar-blum-kayaks",
+      "regionKey": "north",
+      "name": "קייקי כפר בלום",
+      "location": "כפר בלום",
+      "area": "צפון",
+      "sourceUrl": "https://www.kayaks.co.il/",
+      "description": "שייט קיאקים וחוויות מים בגליל העליון, עם מסלולים למשפחות, לקבוצות ולימי גיבוש.",
+      "features": [
+        "שייט קיאקים",
+        "משפחות וקבוצות",
+        "רכישת כרטיסים",
+        "פעילות בתשלום",
+        "פרטים מלאים",
+        "בדיקת אפשרויות הזמנה"
+      ],
+      "lat": 33.1718,
+      "lng": 35.6084,
+      "sourceName": "האתר הרשמי של קייקי כפר בלום",
+      "image": "/media/verified/attractions/kfar-blum-kayaks-1.png",
+      "images": [
+        "/media/verified/attractions/kfar-blum-kayaks-1.png",
+        "/media/verified/attractions/kfar-blum-kayaks-2.png",
+        "/media/verified/attractions/kfar-blum-kayaks-3.jpg",
+        "/media/verified/attractions/kfar-blum-kayaks-4.png"
+      ],
+      "packages": []
+    },
+    {
+      "id": "aqua-kef",
+      "regionKey": "north",
+      "name": "אקווה כיף",
+      "location": "טבריה",
+      "area": "כנרת",
+      "sourceUrl": "https://aquakef.co.il/",
+      "description": "פארק מים צף בחוף גנים בכנרת עם מסלול מכשולים, קארטינג ימי, חוף רחצה ומתחם אוכל.",
+      "features": [
+        "פארק מים צף",
+        "קארטינג ימי",
+        "חוף רחצה",
+        "פעילות בתשלום",
+        "פרטים מלאים",
+        "בדיקת אפשרויות הזמנה"
+      ],
+      "lat": 32.7787,
+      "lng": 35.5414,
+      "sourceName": "האתר הרשמי של אקווה כיף",
+      "image": "/media/verified/attractions/aqua-kef-1.png",
+      "images": [
+        "/media/verified/attractions/aqua-kef-1.png",
+        "/media/verified/attractions/aqua-kef-2.png",
+        "/media/verified/attractions/aqua-kef-3.webp",
+        "/media/verified/attractions/aqua-kef-4.webp"
+      ],
+      "packages": []
+    },
+    {
+      "id": "hamat-gader",
+      "regionKey": "north",
+      "name": "חמת גדר",
+      "location": "חמת גדר",
+      "area": "כנרת והעמקים",
+      "sourceUrl": "https://hamat-gader.com/",
+      "description": "אתר מרחצאות ומעיינות חמים עם בריכות, מתחמי ספא ואטרקציות עונתיות לכל המשפחה.",
+      "features": [
+        "מעיינות חמים",
+        "בריכות",
+        "רכישת כרטיסים",
+        "אני מסכים/ה לקבל דיוור מחמת גדר",
+        "פעילות בתשלום",
+        "פרטים מלאים",
+        "בדיקת אפשרויות הזמנה"
+      ],
+      "lat": 32.6836,
+      "lng": 35.6648,
+      "sourceName": "האתר הרשמי של חמת גדר",
+      "image": "/media/verified/attractions/hamat-gader-1.png",
+      "images": [
+        "/media/verified/attractions/hamat-gader-1.png",
+        "/media/verified/attractions/hamat-gader-2.jpg",
+        "/media/verified/attractions/hamat-gader-3.jpg",
+        "/media/verified/attractions/hamat-gader-4.jpg"
+      ],
+      "packages": []
+    },
+    {
+      "id": "haifa-museums",
+      "regionKey": "north",
+      "name": "מוזיאוני חיפה",
+      "location": "חיפה",
+      "area": "חיפה",
+      "sourceUrl": "https://www.hms.org.il/",
+      "description": "מערך של שישה מוזיאונים בחיפה, ובהם אמנות, תרבות יפנית, ים, עיר והיסטוריה מקומית.",
+      "features": [
+        "שישה מוזיאונים",
+        "תערוכות",
+        "רכישת כרטיסים",
+        "פעילות בתשלום",
+        "פרטים מלאים",
+        "בדיקת אפשרויות הזמנה"
+      ],
+      "lat": 32.8157,
+      "lng": 34.9889,
+      "sourceName": "האתר הרשמי של מוזיאוני חיפה",
+      "image": "/media/verified/attractions/haifa-museums-1.png",
+      "images": [
+        "/media/verified/attractions/haifa-museums-1.png",
+        "/media/verified/attractions/haifa-museums-2.jpg",
+        "/media/verified/attractions/haifa-museums-3.jpg",
+        "/media/verified/attractions/haifa-museums-4.jpg"
+      ],
+      "packages": []
+    },
+    {
+      "id": "madatech-haifa",
+      "regionKey": "north",
+      "name": "מדעטק",
+      "location": "חיפה",
+      "area": "חיפה",
+      "sourceUrl": "https://www.madatech.org.il/",
+      "description": "המוזיאון הלאומי למדע, טכנולוגיה וחלל בחיפה עם תערוכות אינטראקטיביות ופעילויות למשפחות.",
+      "features": [
+        "מוזיאון מדע",
+        "תערוכות אינטראקטיביות",
+        "משפחות",
+        "פעילות בתשלום",
+        "פרטים מלאים",
+        "בדיקת אפשרויות הזמנה"
+      ],
+      "lat": 32.8112,
+      "lng": 34.9983,
+      "sourceName": "האתר הרשמי של מדעטק",
+      "image": "/media/verified/attractions/madatech-haifa-1.png",
+      "images": [
+        "/media/verified/attractions/madatech-haifa-1.png",
+        "/media/verified/attractions/madatech-haifa-2.png",
+        "/media/verified/attractions/madatech-haifa-3.png",
+        "/media/verified/attractions/madatech-haifa-4.webp"
+      ],
+      "packages": []
+    },
+    {
+      "id": "safari-ramat-gan",
+      "regionKey": "center",
+      "name": "הספארי ברמת גן",
+      "location": "רמת גן",
+      "area": "מרכז",
+      "sourceUrl": "https://www.safari.co.il/",
+      "description": "מרכז זואולוגי עם שטח פתוח לנסיעה וגן חיות, סיורים ופעילויות לקהל הרחב.",
+      "features": [
+        "ספארי",
+        "גן חיות",
+        "רכישת כרטיסים",
+        "פעילות בתשלום",
+        "פרטים מלאים",
+        "בדיקת אפשרויות הזמנה"
+      ],
+      "lat": 32.0464,
+      "lng": 34.8217,
+      "sourceName": "האתר הרשמי של הספארי ברמת גן",
+      "image": "/media/verified/attractions/safari-ramat-gan-1.png",
+      "images": [
+        "/media/verified/attractions/safari-ramat-gan-1.png",
+        "/media/verified/attractions/safari-ramat-gan-2.png",
+        "/media/verified/attractions/safari-ramat-gan-3.png",
+        "/media/verified/attractions/safari-ramat-gan-4.png"
+      ],
+      "packages": []
+    },
+    {
+      "id": "luna-park-tel-aviv",
+      "regionKey": "center",
+      "name": "לונה פארק תל אביב",
+      "location": "תל אביב",
+      "area": "מרכז",
+      "sourceUrl": "https://lunapark.co.il/",
+      "description": "פארק שעשועים בתל אביב עם מתקנים לקטנטנים, למשפחות ולחובבי אקסטרים.",
+      "features": [
+        "פארק שעשועים",
+        "מתקני אקסטרים",
+        "משפחות",
+        "פעילות בתשלום",
+        "פרטים מלאים",
+        "בדיקת אפשרויות הזמנה"
+      ],
+      "lat": 32.1057,
+      "lng": 34.8104,
+      "sourceName": "האתר הרשמי של לונה פארק תל אביב",
+      "image": "/media/verified/attractions/luna-park-tel-aviv-1.png",
+      "images": [
+        "/media/verified/attractions/luna-park-tel-aviv-1.png",
+        "/media/verified/attractions/luna-park-tel-aviv-2.webp",
+        "/media/verified/attractions/luna-park-tel-aviv-3.jpg",
+        "/media/verified/attractions/luna-park-tel-aviv-4.webp"
+      ],
+      "packages": []
+    },
+    {
+      "id": "superland",
+      "regionKey": "center",
+      "name": "סופרלנד",
+      "location": "ראשון לציון",
+      "area": "מרכז",
+      "sourceUrl": "https://www.superland.co.il/",
+      "description": "פארק שעשועים בראשון לציון עם מתקני משפחות, ילדים ואקסטרים.",
+      "features": [
+        "פארק שעשועים",
+        "מתקנים למשפחות",
+        "רכישת כרטיסים",
+        "פעילות בתשלום",
+        "פרטים מלאים",
+        "בדיקת אפשרויות הזמנה"
+      ],
+      "lat": 31.9786,
+      "lng": 34.7448,
+      "sourceName": "האתר הרשמי של סופרלנד",
+      "image": "/media/verified/attractions/superland-1.webp",
+      "images": [
+        "/media/verified/attractions/superland-1.webp",
+        "/media/verified/attractions/superland-2.webp",
+        "/media/verified/attractions/superland-3.webp",
+        "/media/verified/attractions/superland-4.webp"
+      ],
+      "packages": []
+    },
+    {
+      "id": "steinhardt-museum",
+      "regionKey": "center",
+      "name": "מוזיאון הטבע ע״ש שטיינהרדט",
+      "location": "תל אביב",
+      "area": "מרכז",
+      "sourceUrl": "https://smnh.tau.ac.il/",
+      "description": "מוזיאון טבע באוניברסיטת תל אביב עם תערוכות על מגוון ביולוגי, בעלי חיים וסביבת ישראל.",
+      "features": [
+        "מוזיאון טבע",
+        "תערוכות",
+        "פעילות למשפחות",
+        "פעילות בתשלום",
+        "פרטים מלאים",
+        "בדיקת אפשרויות הזמנה"
+      ],
+      "lat": 32.1137,
+      "lng": 34.8045,
+      "sourceName": "האתר הרשמי של מוזיאון הטבע ע״ש שטיינהרדט",
+      "image": "/media/verified/attractions/steinhardt-museum-1.png",
+      "images": [
+        "/media/verified/attractions/steinhardt-museum-1.png",
+        "/media/verified/attractions/steinhardt-museum-2.png",
+        "/media/verified/attractions/steinhardt-museum-3.png",
+        "/media/verified/attractions/steinhardt-museum-4.png"
+      ],
+      "packages": []
+    },
+    {
+      "id": "tel-aviv-museum",
+      "regionKey": "center",
+      "name": "מוזיאון תל אביב לאמנות",
+      "location": "תל אביב",
+      "area": "מרכז",
+      "sourceUrl": "https://www.tamuseum.org.il/he/",
+      "description": "מוזיאון אמנות מרכזי עם תערוכות קבועות ומתחלפות, פעילויות וסדנאות לקהל הרחב.",
+      "features": [
+        "אמנות",
+        "תערוכות",
+        "רכישת כרטיסים",
+        "פעילות בתשלום",
+        "פרטים מלאים",
+        "בדיקת אפשרויות הזמנה"
+      ],
+      "lat": 32.0775,
+      "lng": 34.7868,
+      "sourceName": "האתר הרשמי של מוזיאון תל אביב לאמנות",
+      "image": "/media/verified/attractions/tel-aviv-museum-1.jpg",
+      "images": [
+        "/media/verified/attractions/tel-aviv-museum-1.jpg",
+        "/media/verified/attractions/tel-aviv-museum-2.jpg",
+        "/media/verified/attractions/tel-aviv-museum-3.jpg",
+        "/media/verified/attractions/tel-aviv-museum-4.jpg"
+      ],
+      "packages": []
+    },
+    {
+      "id": "timna-park",
+      "regionKey": "south",
+      "name": "פארק תמנע",
+      "location": "הערבה הדרומית",
+      "area": "אילת והסביבה",
+      "sourceUrl": "https://parktimna.co.il/",
+      "description": "פארק מדברי רחב ידיים עם עמודי שלמה, הקשתות, אגם תמנע ומסלולי נסיעה והליכה.",
+      "features": [
+        "טבע מדברי",
+        "מסלולים",
+        "רכישת כרטיסים",
+        "פעילות בתשלום",
+        "פרטים מלאים",
+        "בדיקת אפשרויות הזמנה"
+      ],
+      "lat": 29.7895,
+      "lng": 34.9879,
+      "sourceName": "האתר הרשמי של פארק תמנע",
+      "image": "/media/verified/attractions/timna-park-1.jpg",
+      "images": [
+        "/media/verified/attractions/timna-park-1.jpg",
+        "/media/verified/attractions/timna-park-2.jpg",
+        "/media/verified/attractions/timna-park-3.jpg",
+        "/media/verified/attractions/timna-park-4.jpg"
+      ],
+      "packages": []
+    },
+    {
+      "id": "underwater-observatory",
+      "regionKey": "south",
+      "name": "פארק המצפה התת ימי",
+      "location": "אילת",
+      "area": "אילת והסביבה",
+      "sourceUrl": "https://coralworld.co.il/",
+      "description": "פארק ימי בחוף האלמוגים עם מצפה תת ימי, אקווריומים, כרישים וצבי ים.",
+      "features": [
+        "מצפה תת ימי",
+        "אקווריומים",
+        "רכישת כרטיסים",
+        "פעילות בתשלום",
+        "פרטים מלאים",
+        "בדיקת אפשרויות הזמנה"
+      ],
+      "lat": 29.5041,
+      "lng": 34.9181,
+      "sourceName": "האתר הרשמי של פארק המצפה התת ימי",
+      "image": "/media/verified/attractions/underwater-observatory-1.png",
+      "images": [
+        "/media/verified/attractions/underwater-observatory-1.png",
+        "/media/verified/attractions/underwater-observatory-2.png",
+        "/media/verified/attractions/underwater-observatory-3.png",
+        "/media/verified/attractions/underwater-observatory-4.png"
+      ],
+      "packages": []
+    },
+    {
+      "id": "dolphin-reef",
+      "regionKey": "south",
+      "name": "ריף הדולפינים",
+      "location": "אילת",
+      "area": "אילת והסביבה",
+      "sourceUrl": "https://www.dolphinreef.co.il/",
+      "description": "אתר ימי טבעי באילת עם תצפית בדולפינים, חוף, צלילות ופעילויות מודרכות.",
+      "features": [
+        "דולפינים",
+        "חוף",
+        "פעילויות מים",
+        "פעילות בתשלום",
+        "פרטים מלאים",
+        "בדיקת אפשרויות הזמנה"
+      ],
+      "lat": 29.5263,
+      "lng": 34.936,
+      "sourceName": "האתר הרשמי של ריף הדולפינים",
+      "image": "/media/verified/attractions/dolphin-reef-1.png",
+      "images": [
+        "/media/verified/attractions/dolphin-reef-1.png",
+        "/media/verified/attractions/dolphin-reef-2.jpg",
+        "/media/verified/attractions/dolphin-reef-3.jpg",
+        "/media/verified/attractions/dolphin-reef-4.jpg"
+      ],
+      "packages": []
+    },
+    {
+      "id": "camel-ranch-eilat",
+      "regionKey": "south",
+      "name": "חוות הגמלים אילת",
+      "location": "אילת",
+      "area": "אילת והסביבה",
+      "sourceUrl": "https://www.camel-ranch.co.il/",
+      "description": "חווה מדברית בהרי אילת עם טיולי גמלים, פעילויות שטח וחוויות לקבוצות ולמשפחות.",
+      "features": [
+        "טיולי גמלים",
+        "מדבר",
+        "משפחות וקבוצות",
+        "פעילות בתשלום",
+        "פרטים מלאים",
+        "בדיקת אפשרויות הזמנה"
+      ],
+      "lat": 29.5791,
+      "lng": 34.9505,
+      "sourceName": "האתר הרשמי של חוות הגמלים אילת",
+      "image": "/media/verified/attractions/camel-ranch-eilat-1.png",
+      "images": [
+        "/media/verified/attractions/camel-ranch-eilat-1.png",
+        "/media/verified/attractions/camel-ranch-eilat-2.png",
+        "/media/verified/attractions/camel-ranch-eilat-3.png",
+        "/media/verified/attractions/camel-ranch-eilat-4.webp"
+      ],
+      "packages": []
+    },
+    {
+      "id": "carasso-science-park",
+      "regionKey": "south",
+      "name": "פארק קרסו למדע",
+      "location": "באר שבע",
+      "area": "דרום ונגב",
+      "sourceUrl": "https://sci-park.co.il/",
+      "description": "מוזיאון מדע וטכנולוגיה בבאר שבע עם תערוכות אינטראקטיביות וגן מדעי.",
+      "features": [
+        "מוזיאון מדע",
+        "תערוכות אינטראקטיביות",
+        "רכישת כרטיסים",
+        "פעילות בתשלום",
+        "פרטים מלאים",
+        "בדיקת אפשרויות הזמנה"
+      ],
+      "lat": 31.2389,
+      "lng": 34.7879,
+      "sourceName": "האתר הרשמי של פארק קרסו למדע",
+      "image": "/media/verified/attractions/carasso-science-park-1.png",
+      "images": [
+        "/media/verified/attractions/carasso-science-park-1.png",
+        "/media/verified/attractions/carasso-science-park-2.png",
+        "/media/verified/attractions/carasso-science-park-3.png",
+        "/media/verified/attractions/carasso-science-park-4.png"
+      ],
+      "packages": []
+    }
+  ]
+}

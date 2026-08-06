@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { PageShell } from "../../components/page-shell";
 
 export const metadata: Metadata = { title: "מדיניות פרטיות", description: "מדיניות הפרטיות של אתר וי פור ויקיישן.", alternates: { canonical: "/legal/privacy" } };
@@ -11,8 +10,7 @@ export default function PrivacyPage() {
     <p className="lead">הפרטיות שלכם חשובה לנו. השימוש במידע נעשה בהתאם לבחירות שלכם ולצורך מתן השירות.</p>
     <h2>העדפות בדפדפן</h2>
     <p>אפשר לבחור בין קבצים חיוניים לבין שירותים נוספים דרך חלון העדפות הפרטיות.</p>
-    <h2>פנייה בנושא פרטיות</h2>
-    <p>לבירור, עדכון או בקשה הנוגעת למידע שמסרתם, אפשר לפנות אלינו דרך טופס יצירת הקשר.</p>
-    <Link className="button primary" href="/contact">יצירת קשר</Link>
+    <h2>ניהול המידע שנמסר בהזמנה</h2>
+    <p>בקשה לעדכון או למחיקה של מידע שנמסר בהזמנה נשלחת מתוך מסך ניהול ההזמנה, יחד עם מספר ההזמנה לצורך זיהוי.</p>
   </article></main></PageShell>;
 }

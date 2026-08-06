@@ -23,7 +23,7 @@ export function SearchWorldTabs({ active }: { active: WorldId }) {
   return <nav className="search-world-tabs" aria-label="בחירת עולם לחיפוש">
     <span className="search-world-tabs__prompt">מה מחפשים?</span>
     <div className="search-world-tabs__options">
-      {worlds.slice(0, 4).map((world) => <Link key={world.id} href={world.href} className={world.id === active ? "active" : ""} aria-current={world.id === active ? "page" : undefined}><span className={`world-mark world-mark--${world.id}`} aria-hidden="true" />{world.shortLabel}</Link>)}
+      {worlds.filter((world) => ["vacation", "events", "spa", "hourly"].includes(world.id)).map((world) => <Link key={world.id} href={world.href} className={world.id === active ? "active" : ""} aria-current={world.id === active ? "page" : undefined}><span className={`world-mark world-mark--${world.id}`} aria-hidden="true" />{world.shortLabel}</Link>)}
     </div>
   </nav>;
 }

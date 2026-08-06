@@ -25,15 +25,15 @@ export default function JoinPage() {
         <section className="join-hero join-hero--conversion">
           <div className="shell">
             <span className="eyebrow">מצטרפים לעולמות של וי פור ויקיישן</span>
-            <h1>העמוד של העסק שלכם יכול להתחיל לעלות כבר עכשיו</h1>
-            <p>בוחרים מסלול, פותחים חשבון, מעלים את העסק ומתחילים לנהל תוכן, חבילות וזמינות ממקום אחד.</p>
+            <h1>מצטרפים בדרך שמתאימה בדיוק לעסק שלכם</h1>
+            <p>ספקים בוחרים חבילת פרסום ומתחילים אונליין. מקומות אירוח, אירועים, ספא, חדרים לפי שעה ואטרקציות מתחילים ברישום קצר וממשיכים עם נציג מומחה.</p>
             <div className="join-hero__actions">
               <Link className="button primary" href="#join-pricing">לבחירת מסלול</Link>
               <Link className="button subtle" href="#join-benefits">מה מקבלים?</Link>
             </div>
             <ul className="join-hero__trust" aria-label="יתרונות מרכזיים">
               <li>ללא דמי הקמה במחיר ההיכרות</li>
-              <li>תשלום חודשי או שנתי</li>
+              <li>מחירון ודרך הצטרפות לפי תחום</li>
               <li>שליטה עצמית בעמוד העסק</li>
             </ul>
           </div>

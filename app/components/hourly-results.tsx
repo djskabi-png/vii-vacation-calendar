@@ -5,7 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { DiscoveryCard } from "./discovery-card";
 import type { DiscoveryItem } from "../data/world-data";
 import { DiscoveryMap } from "./listing-map";
-import { PinIcon } from "../site-header";
+import { MapIcon } from "../site-header";
+import { ModernSelect } from "./modern-select";
 
 const featureFilters = [
   { id: "parking", label: "חניה", terms: ["חניה"] },
@@ -61,15 +62,15 @@ function HourlyResultsPanel({ items, requestedLocation }: { items: DiscoveryItem
     <div className="hourly-results__toolbar" aria-label="סינון תוצאות של חדרים לפי שעה">
       <div className="hourly-results__heading">
         <div><span className="eyebrow">סינון התוצאות</span><strong aria-live="polite">{filtered.length} מקומות נמצאו</strong></div>
-        <button className={`button map-button ${mapOpen ? "active" : ""}`} type="button" aria-pressed={mapOpen} onClick={() => setMapOpen((value) => !value)}><PinIcon />{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</button>
+        <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-pressed={mapOpen} onClick={() => setMapOpen((value) => !value)}><MapIcon />{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</button>
       </div>
       <div className="hourly-results__filters">
-        <label><span>עיר או אזור</span><select value={location} onChange={(event) => setLocation(event.target.value)}>{locations.map((option) => <option key={option}>{option}</option>)}</select></label>
-        <label><span>מחיר התחלתי עד</span><select value={maximumPrice} onChange={(event) => setMaximumPrice(Number(event.target.value))}><option value={0}>ללא הגבלה</option><option value={200}>200 ₪</option><option value={250}>250 ₪</option><option value={300}>300 ₪</option><option value={400}>400 ₪</option></select></label>
+        <ModernSelect label="עיר או אזור" value={location} onChange={setLocation} options={locations.map((option) => ({ value: option, label: option }))} />
+        <ModernSelect label="מחיר התחלתי עד" value={String(maximumPrice)} onChange={(nextValue) => setMaximumPrice(Number(nextValue))} options={[{ value: "0", label: "ללא הגבלה" }, { value: "200", label: "200 ₪" }, { value: "250", label: "250 ₪" }, { value: "300", label: "300 ₪" }, { value: "400", label: "400 ₪" }]} />
         <fieldset><legend>מאפייני המקום</legend><div>{featureFilters.map((filter) => <label key={filter.id} className={features.includes(filter.id) ? "selected" : ""}><input type="checkbox" checked={features.includes(filter.id)} onChange={() => toggleFeature(filter.id)} /><span>{filter.label}</span></label>)}</div></fieldset>
         <button type="button" className="hourly-results__reset" onClick={resetFilters} disabled={location === "כל הארץ" && maximumPrice === 0 && features.length === 0}>ניקוי סינונים</button>
       </div>
     </div>
-    {filtered.length > 0 ? mapOpen ? <DiscoveryMap items={filtered} tone="hourly" autoLoad /> : <div className="discovery-grid">{filtered.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div> : <div className="hourly-results__empty"><strong>לא נמצאו מקומות שמתאימים לכל הסינונים</strong><p>אפשר להרחיב את האזור או להסיר אחד מהמאפיינים.</p><button type="button" className="button secondary" onClick={resetFilters}>הצגת כל המקומות</button></div>}
+    {filtered.length > 0 ? mapOpen ? <DiscoveryMap items={filtered} tone="hourly" autoLoad onClose={() => setMapOpen(false)} /> : <div className="discovery-grid">{filtered.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div> : <div className="hourly-results__empty"><strong>לא נמצאו מקומות שמתאימים לכל הסינונים</strong><p>אפשר להרחיב את האזור או להסיר אחד מהמאפיינים.</p><button type="button" className="button secondary" onClick={resetFilters}>הצגת כל המקומות</button></div>}
   </div>;
 }

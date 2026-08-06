@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageShell } from "../../components/page-shell";
 import { TrailCard, TrailVisual } from "../../components/trail-card";
-import { getTrail, trails } from "../../data/trail-data";
+import { getTrail, nearbyTrails, trails } from "../../data/trail-data";
 import { StructuredData } from "../../components/structured-data";
 import { breadcrumbSchema, trailSchema } from "../../lib/seo";
+import { FavoriteButton } from "../../components/favorite-button";
+import { GuestReviewStudio } from "../../components/guest-review-studio";
 
 export function generateStaticParams() {
   return trails.map((trail) => ({ slug: trail.slug }));
@@ -25,7 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function TrailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const trail = getTrail(slug);
-  const related = trails.filter((item) => item.slug !== trail.slug && (item.region === trail.region || item.nature.some((nature) => trail.nature.includes(nature)))).slice(0, 3);
+  const related = nearbyTrails(trail.mainArea, trail.region, 7).filter((item) => item.slug !== trail.slug).slice(0, 6);
   const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(trail.mapQuery)}`;
 
   return <PageShell variant="activities">
@@ -37,7 +39,7 @@ export default async function TrailPage({ params }: { params: Promise<{ slug: st
         { name: trail.name, path: `/trails/${trail.slug}/` },
       ])} />
       <div className="shell breadcrumbs"><Link href="/">ראשי</Link><span>/</span><Link href="/trails">מסלולי טיול</Link><span>/</span><span>{trail.name}</span></div>
-      <section className="shell trail-detail__hero"><div><span className="eyebrow">מדריך המסלול של וי פור ויקיישן</span><h1>{trail.name}</h1><p>{trail.summary}</p><div className="trail-detail__quick"><span>{trail.region}</span><span>{trail.difficulty}</span><span>{trail.duration}</span><span>{trail.distance}</span></div></div><TrailVisual trail={trail} /></section>
+      <section className="shell trail-detail__hero"><div><span className="eyebrow">מדריך המסלול של וי פור ויקיישן</span><h1>{trail.name}</h1><p>{trail.summary}</p><div className="trail-detail__quick"><span>{trail.region}</span><span>{trail.difficulty}</span><span>{trail.duration}</span><span>{trail.distance}</span></div><FavoriteButton id={trail.slug} world="trails" name={trail.name} location={`${trail.mainArea}, ${trail.region}`} href={`/trails/${trail.slug}`} meta={`${trail.duration} · ${trail.difficulty}`} compact={false} /></div><TrailVisual trail={trail} /></section>
 
       <div className="shell trail-detail__layout">
         <article className="trail-detail__content">
@@ -49,6 +51,8 @@ export default async function TrailPage({ params }: { params: Promise<{ slug: st
 
         <aside className="trail-detail__aside"><div><span className="eyebrow">כרטיס מסלול</span><dl><div><dt>אזור</dt><dd>{trail.region}</dd></div><div><dt>קושי</dt><dd>{trail.difficulty}</dd></div><div><dt>משך</dt><dd>{trail.duration}</dd></div><div><dt>מרחק</dt><dd>{trail.distance}</dd></div><div><dt>אופי</dt><dd>{trail.routeType}</dd></div><div><dt>עונה מומלצת</dt><dd>{trail.bestSeason}</dd></div></dl><a className="button primary wide" href={mapUrl} target="_blank" rel="noreferrer">פתיחת נקודת ההתחלה במפה</a><a className="trail-source-link" href={trail.officialSource} target="_blank" rel="noreferrer">מקור רשמי ומבזקים</a></div></aside>
       </div>
+
+      <div className="section shell"><GuestReviewStudio placeName={trail.name} subjectId={trail.slug} subjectType="trail" /></div>
 
       <section className="section section-tint"><div className="shell"><div className="section-head"><div><span className="eyebrow">עוד רעיונות באזור ובאותו סגנון</span><h2>ממשיכים לטייל</h2></div><Link href="/trails">לכל המסלולים</Link></div><div className="trail-grid trail-grid--related">{related.map((item) => <TrailCard key={item.slug} trail={item} compact />)}</div></div></section>
     </main>

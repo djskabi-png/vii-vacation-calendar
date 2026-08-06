@@ -19,13 +19,25 @@ function pickProperties(...slugs: string[]) {
 }
 
 const lastMinutePeriods = [
-  { id: "today", label: "היום", group: "immediate", dateSummary: "היום", slugs: ["aqua-resort", "ar-suites", "kesem-harimon", "ahuzat-or", "rose-estate"] },
-  { id: "tomorrow", label: "מחר", group: "immediate", dateSummary: "מחר", slugs: ["perfumes-villa", "aqua-resort", "anael-estate", "magic-garden-gefen", "kesem-harimon"] },
-  { id: "weekend", label: "סוף השבוע הקרוב", group: "immediate", dateSummary: "סוף השבוע הקרוב", slugs: ["rose-estate", "ahuzat-or", "sol-gilgal", "perfumes-villa", "aqua-resort"] },
-  { id: "august", label: "אוגוסט", group: "upcoming", dateSummary: "חופשה באוגוסט", slugs: ["aqua-resort", "perfumes-villa", "ar-suites", "kesem-harimon", "ahuzat-or"] },
-  { id: "rosh-hashana", label: "ראש השנה", group: "upcoming", dateSummary: "חופשה בראש השנה", slugs: ["anael-estate", "magic-garden-gefen", "rose-estate", "sol-gilgal", "ahuzat-or"] },
-  { id: "sukkot", label: "סוכות", group: "upcoming", dateSummary: "חופשה בסוכות", slugs: ["kesem-harimon", "aqua-resort", "anael-estate", "perfumes-villa", "rose-estate"] },
+  { id: "today", label: "היום", group: "immediate", dateSummary: "6 עד 7 באוגוסט", from: "2026-08-06", till: "2026-08-07", slugs: ["aqua-resort", "ar-suites", "kesem-harimon", "ahuzat-or", "rose-estate"] },
+  { id: "tomorrow", label: "מחר", group: "immediate", dateSummary: "7 עד 8 באוגוסט", from: "2026-08-07", till: "2026-08-08", slugs: ["perfumes-villa", "aqua-resort", "anael-estate", "magic-garden-gefen", "kesem-harimon"] },
+  { id: "weekend", label: "סוף השבוע הקרוב", group: "immediate", dateSummary: "7 עד 9 באוגוסט", from: "2026-08-07", till: "2026-08-09", slugs: ["rose-estate", "ahuzat-or", "sol-gilgal", "perfumes-villa", "aqua-resort"] },
+  { id: "august", label: "אוגוסט", group: "upcoming", dateSummary: "20 עד 22 באוגוסט", from: "2026-08-20", till: "2026-08-22", slugs: ["aqua-resort", "perfumes-villa", "ar-suites", "kesem-harimon", "ahuzat-or"] },
+  { id: "rosh-hashana", label: "ראש השנה", group: "upcoming", dateSummary: "11 עד 13 בספטמבר", from: "2026-09-11", till: "2026-09-13", slugs: ["anael-estate", "magic-garden-gefen", "rose-estate", "sol-gilgal", "ahuzat-or"] },
+  { id: "sukkot", label: "סוכות", group: "upcoming", dateSummary: "25 עד 27 בספטמבר", from: "2026-09-25", till: "2026-09-27", slugs: ["kesem-harimon", "aqua-resort", "anael-estate", "perfumes-villa", "rose-estate"] },
 ] as const;
+
+const lastMinuteStartingPrices: Record<string, number> = {
+  "aqua-resort": 3500,
+  "ar-suites": 950,
+  "kesem-harimon": 1200,
+  "ahuzat-or": 1200,
+  "rose-estate": 6000,
+  "perfumes-villa": 3500,
+  "anael-estate": 4800,
+  "magic-garden-gefen": 2400,
+  "sol-gilgal": 2200,
+};
 
 type LastMinutePeriodId = (typeof lastMinutePeriods)[number]["id"];
 
@@ -40,7 +52,7 @@ export function HomeShowcase() {
   const recommendedPlaces = pickProperties("aqua-resort", "kesem-harimon", "ahuzat-or", "anael-estate", "magic-garden-gefen", "perfumes-villa", "rose-estate");
   const selectedLastMinutePeriod = lastMinutePeriods.find((period) => period.id === lastMinuteTab) ?? lastMinutePeriods[0];
   const spontaneousPlaces = pickProperties(...selectedLastMinutePeriod.slugs);
-  const lastMinuteSearchHref = `/search?period=${encodeURIComponent(selectedLastMinutePeriod.id)}&dates=${encodeURIComponent(selectedLastMinutePeriod.dateSummary)}&guests=2`;
+  const lastMinuteSearchHref = `/search?period=${encodeURIComponent(selectedLastMinutePeriod.id)}&dates=${encodeURIComponent(selectedLastMinutePeriod.dateSummary)}&from=${selectedLastMinutePeriod.from}&till=${selectedLastMinutePeriod.till}&guests=2`;
 
   function scroll(id: string, direction: "previous" | "next") {
     const track = tracks.current[id];
@@ -62,8 +74,12 @@ export function HomeShowcase() {
           <div className="home-last-minute__period-group"><span>זמינות קרובה</span><div className="home-last-minute__tabs" role="tablist" aria-label="חיפוש לפי תאריך קרוב">{lastMinutePeriods.filter((period) => period.group === "immediate").map((period) => <button key={period.id} type="button" role="tab" aria-selected={lastMinuteTab === period.id} onClick={() => setLastMinuteTab(period.id)}>{period.label}</button>)}</div></div>
           <div className="home-last-minute__period-group"><span>תקופות מבוקשות</span><div className="home-last-minute__tabs" role="tablist" aria-label="חיפוש לפי תקופה מבוקשת">{lastMinutePeriods.filter((period) => period.group === "upcoming").map((period) => <button key={period.id} type="button" role="tab" aria-selected={lastMinuteTab === period.id} onClick={() => setLastMinuteTab(period.id)}>{period.label}</button>)}</div></div>
         </div>
-        <div className="home-last-minute__selection" aria-live="polite"><span>התקופה שבחרתם</span><strong>{selectedLastMinutePeriod.label}</strong><small>הכרטיסים אינם מציגים זמינות חיה. המחיר והזמינות הסופיים יאומתו לאחר בחירת תאריך והרכב.</small></div>
-        <div className="home-last-minute__cards" role="tabpanel">{spontaneousPlaces.map((property) => <Link key={property.slug} href={`/business?id=${property.slug}&period=${encodeURIComponent(selectedLastMinutePeriod.id)}&dates=${encodeURIComponent(selectedLastMinutePeriod.dateSummary)}`}><img src={property.image} alt={property.name} /><span><strong>{selectedLastMinutePeriod.label}</strong><small>בדיקת זמינות</small></span><div><small><PinIcon />{property.location}</small><h3>{property.name}</h3><b><CalendarIcon /><span>בדיקת זמינות</span><em>{selectedLastMinutePeriod.label}</em></b></div></Link>)}</div>
+        <div className="home-last-minute__selection" aria-live="polite"><span>התקופה שבחרתם</span><strong>{selectedLastMinutePeriod.label}</strong><b>{selectedLastMinutePeriod.dateSummary}</b><small>המחירים מוצגים להמחשה. המחיר והזמינות הסופיים יאומתו לפי התאריך והרכב האורחים.</small></div>
+        <div className="home-last-minute__cards" role="tabpanel">{spontaneousPlaces.map((property) => {
+          const price = property.price || lastMinuteStartingPrices[property.slug] || 1200;
+          const detailHref = `/business?id=${property.slug}&period=${encodeURIComponent(selectedLastMinutePeriod.id)}&dates=${encodeURIComponent(selectedLastMinutePeriod.dateSummary)}&from=${selectedLastMinutePeriod.from}&till=${selectedLastMinutePeriod.till}&guests=2&price=${price}`;
+          return <Link key={property.slug} href={detailHref}><img src={property.image} alt={property.name} /><span><strong>{selectedLastMinutePeriod.label}</strong><small>{selectedLastMinutePeriod.dateSummary}</small></span><div><small><PinIcon />{property.location}</small><h3>{property.name}</h3><div className="home-last-minute__deal"><b><CalendarIcon /><span>{selectedLastMinutePeriod.dateSummary}</span></b><strong><small>מחיר להמחשה</small>{price.toLocaleString("he-IL")} ₪</strong></div><em className="home-last-minute__continue">לפרטים ולהמשך הזמנה</em></div></Link>;
+        })}</div>
       </div>
     </section>
 

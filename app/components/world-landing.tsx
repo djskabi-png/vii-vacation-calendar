@@ -7,6 +7,36 @@ import { HourlyResults } from "./hourly-results";
 import { ProviderResults } from "./provider-results";
 import { WorldMapResults } from "./world-map-results";
 
+const crossSellByWorld = {
+  hourly: {
+    eyebrow: "רוצים להמשיך מכאן?",
+    title: "משהייה קצרה לחופשה או ליום של פינוק",
+    description: "אם אתם מחפשים יותר מכמה שעות, אפשר לעבור למקומות לינה ללילה שלם או לבחור חבילת ספא שמתאימה לזוג וליחיד.",
+    links: [
+      { href: "/", label: "למקומות נופש" },
+      { href: "/spas", label: "לחבילות ספא" },
+    ],
+  },
+  spa: {
+    eyebrow: "משלימים את החוויה",
+    title: "הופכים את הטיפול ליום שלם",
+    description: "אפשר לשלב את הספא עם מקום לינה, מסעדה, מסלול או פעילות קרובה ולבנות יום שמתאים בדיוק לכם.",
+    links: [
+      { href: "/", label: "למקומות נופש" },
+      { href: "/what-to-do", label: "לפעילויות בסביבה" },
+    ],
+  },
+  providers: {
+    eyebrow: "מתכננים את האירוע השלם",
+    title: "מוצאים מקום שמתאים לספק שבחרתם",
+    description: "עברו למתחמי האירועים, התאימו מקום לכמות המשתתפים והשלימו את כל השירותים בלי לצאת מהאתר.",
+    links: [
+      { href: "/events", label: "למקומות לאירועים" },
+      { href: "/corporate", label: "לאירועי חברה" },
+    ],
+  },
+} as const;
+
 export function WorldLanding({
   world,
   eyebrow,
@@ -24,6 +54,10 @@ export function WorldLanding({
   searchMode?: SearchMode;
   sourceNote?: string;
 }) {
+  const crossSell = world === "hourly" || world === "spa" || world === "providers"
+    ? crossSellByWorld[world]
+    : null;
+
   return <PageShell variant={world}>
     <main id="main-content" className={`world-page world-page--${world}`}>
       <section className="world-hero"><div className="shell"><span className="eyebrow">{eyebrow}</span><h1>{title}</h1><p>{description}</p>{searchMode && <SearchBox mode={searchMode} showWorlds />}</div></section>
@@ -31,7 +65,7 @@ export function WorldLanding({
         <div className="section-head"><div><span className="eyebrow">מקומות ורעיונות שכדאי להכיר</span><h2>{items.length} אפשרויות להתחיל מהן</h2></div>{sourceNote && <p className="source-note">{sourceNote}</p>}</div>
         {world === "hourly" ? <HourlyResults items={items} /> : world === "providers" ? <ProviderResults items={items} /> : world === "spa" ? <WorldMapResults items={items} world="spa" /> : <div className="discovery-grid">{items.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>}
       </section>
-      <section className="section section-tint world-cross-sell"><div className="shell"><span className="eyebrow">החיבור שעושה את ההבדל</span><h2>לא רק מקום. כל מה שצריך מסביב.</h2><p>בכל דף מקום יוצגו בהמשך הספא, הספקים, האוכל והפעילויות שבאמת קרובים אליו.</p><div><Link className="button primary" href="/">חזרה לעולם הנופש</Link><Link className="button secondary" href="/events">לעולם האירועים</Link></div></div></section>
+      {crossSell && <section className="section section-tint world-cross-sell"><div className="shell"><span className="eyebrow">{crossSell.eyebrow}</span><h2>{crossSell.title}</h2><p>{crossSell.description}</p><div>{crossSell.links.map((link, index) => <Link key={link.href} className={`button ${index === 0 ? "primary" : "secondary"}`} href={link.href}>{link.label}</Link>)}</div></div></section>}
     </main>
   </PageShell>;
 }

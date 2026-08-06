@@ -91,16 +91,24 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
           ))}
         </div>
 
+        <Link className="menu-panel__join" href="/join" onClick={closeMenu}>
+          <ContactIcon />
+          <span>
+            <strong>הצטרפות לאתר</strong>
+            <small>פרסום עסק, ספק, אטרקציה או מקום אירוח</small>
+          </span>
+          <ArrowIcon />
+        </Link>
+
         <div className="menu-panel__secondary">
+          <Link href="/account" onClick={closeMenu}><UserIcon /><span>החשבון האישי שלי</span></Link>
           <Link href="/favorites" onClick={closeMenu}><HeartIcon /><span>מקומות שאהבתי</span></Link>
-          <Link href="/contact" onClick={closeMenu}><ContactIcon /><span>יצירת קשר</span></Link>
-          <Link href="/join" onClick={closeMenu}><ContactIcon /><span>הצטרפות לאתר</span></Link>
           <Link href="/gift-card" onClick={closeMenu}><HeartIcon /><span>גיפט קארד</span></Link>
-          <Link href="/corporate" onClick={closeMenu}><ContactIcon /><span>אירועי חברה ורווחה</span></Link>
           <Link href="/destinations" onClick={closeMenu}><PinIcon /><span>יעדים</span></Link>
           <Link href="/guides" onClick={closeMenu} aria-current={magazineActive ? "page" : undefined}><InfoIcon /><span>{magazineCopy.menuLabel}</span></Link>
           <Link href="/questions" onClick={closeMenu}><InfoIcon /><span>שאלות ותשובות</span></Link>
           <Link href="/trails" onClick={closeMenu}><PinIcon /><span>מסלולי טיול עצמאיים</span></Link>
+          <Link href="/attractions" onClick={closeMenu}><PinIcon /><span>אטרקציות בתשלום</span></Link>
           <Link href="/accessibility" onClick={closeMenu}><AccessibilityIcon /><span>הצהרת נגישות</span></Link>
           <AccessibilityWidget placement="menu" />
         </div>
@@ -135,6 +143,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
           <div className="header-actions">
             <Link className={`magazine-mobile-link${magazineActive ? " active" : ""}`} href="/guides" aria-current={magazineActive ? "page" : undefined}><span>{magazineCopy.label}</span><small>{magazineCopy.badge}</small></Link>
             <Link className="icon-button" href="/favorites" aria-label="מקומות שאהבתי"><HeartIcon /></Link>
+            <Link className="icon-button account-icon-button" href="/account" aria-label="כניסה לחשבון האישי"><UserIcon /></Link>
             <LanguageSwitcher compact />
             <button ref={menuButtonRef} className="menu-button" type="button" aria-expanded={menuOpen} aria-haspopup="dialog" aria-label="פתיחת תפריט" onClick={() => setMenuOpen(true)}><MenuIcon /><span>תפריט</span></button>
           </div>
@@ -152,7 +161,9 @@ export function AccessibilityIcon() { return <svg viewBox="0 0 24 24" aria-hidde
 export function ArrowIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" /></svg>; }
 export function SearchIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg>; }
 export function PinIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg>; }
+export function MapIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 6 5-2 8 3 5-2v13l-5 2-8-3-5 2V6Z" /><path d="M8 4v13m8-10v13" /></svg>; }
 export function CalendarIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3" /><path d="M8 3v4m8-4v4M3 10h18" /></svg>; }
 export function PeopleIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3" /><path d="M3 20c0-4 2-7 6-7s6 3 6 7m0-9c3 0 5 2 5 5v4" /></svg>; }
+export function UserIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 21c.7-5 3.3-8 8-8s7.3 3 8 8" /></svg>; }
 function ContactIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H8l-4 3V5Z" /><path d="M8 9h8M8 13h5" /></svg>; }
 function InfoIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v6M12 7h.01" /></svg>; }

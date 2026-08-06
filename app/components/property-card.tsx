@@ -3,38 +3,18 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import type { Property } from "../data/site-data";
-import { HeartIcon, PinIcon } from "../site-header";
+import { PinIcon } from "../site-header";
+import { FavoriteButton } from "./favorite-button";
 
 export function PropertyCard({ property }: { property: Property }) {
-  const [saved, setSaved] = useState(false);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      const items = JSON.parse(localStorage.getItem("vii-favourites") || "[]") as string[];
-      setSaved(items.includes(property.slug));
-    }, 0);
-    return () => window.clearTimeout(timer);
-  }, [property.slug]);
-
-  function toggle() {
-    const items = JSON.parse(localStorage.getItem("vii-favourites") || "[]") as string[];
-    const next = items.includes(property.slug) ? items.filter((item) => item !== property.slug) : [...items, property.slug];
-    localStorage.setItem("vii-favourites", JSON.stringify(next));
-    setSaved(next.includes(property.slug));
-    window.dispatchEvent(new Event("vii-favourites-change"));
-  }
-
   return (
     <article className="stay-card">
       <div className="stay-card__media">
         <Link href={`/business?id=${property.slug}`} aria-label={`פרטים על ${property.name}`}>
           <img src={property.image} alt={property.name} />
         </Link>
-        <button type="button" className="heart-button" aria-label={saved ? "הסרה מהמועדפים" : "שמירה במועדפים"} aria-pressed={saved} onClick={toggle}>
-          <HeartIcon filled={saved} />
-        </button>
+        <FavoriteButton className="heart-button" id={property.slug} world="vacation" name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={`/business?id=${property.slug}`} meta={`${property.type} · עד ${property.guests} אורחים`} />
         <div className="stay-card__badges">{property.badges.slice(0, 2).map((badge) => <span key={badge}>{badge}</span>)}</div>
       </div>
       <div className="stay-card__body">

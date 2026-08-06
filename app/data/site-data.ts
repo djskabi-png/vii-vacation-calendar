@@ -1,3 +1,5 @@
+import verifiedCatalog from "./verified-catalog.json";
+
 export type Listing = {
   slug: string;
   active?: boolean;
@@ -383,9 +385,28 @@ const activePropertyOrder = [
   "rose-estate",
 ];
 
-export const properties = propertyCatalog
+const verifiedProperties: Property[] = verifiedCatalog.vacation.map((item) => ({
+  slug: item.id,
+  name: item.name,
+  location: item.location,
+  area: item.area,
+  type: "מתחם נופש",
+  guests: item.guests,
+  image: item.image,
+  images: item.images,
+  description: item.description,
+  features: item.features,
+  audiences: ["משפחות", "זוגות", "קבוצות"],
+  badges: [item.area, "מידע ותמונות מאומתים"],
+  lat: item.lat,
+  lng: item.lng,
+  scenario: "single",
+  price: item.price,
+}));
+
+export const properties = [...propertyCatalog
   .filter((property) => property.active !== false)
-  .sort((first, second) => activePropertyOrder.indexOf(first.slug) - activePropertyOrder.indexOf(second.slug));
+  .sort((first, second) => activePropertyOrder.indexOf(first.slug) - activePropertyOrder.indexOf(second.slug)), ...verifiedProperties];
 
 export type EventPlace = Listing & { eventTypes: string[]; sourcePropertySlug?: string };
 
@@ -482,9 +503,30 @@ const sharedEventPlaces: EventPlace[] = propertyCatalog.flatMap((listing) => {
   }];
 });
 
+const verifiedEventPlaces: EventPlace[] = verifiedCatalog.events.map((item) => ({
+  slug: item.id,
+  name: item.name,
+  location: item.location,
+  area: item.area,
+  type: "מתחם אירועים",
+  guests: item.guests,
+  image: item.image,
+  images: item.images,
+  description: item.description,
+  features: item.features,
+  audiences: ["אירועים פרטיים", "ימי הולדת", "אירועי חברה"],
+  eventTypes: ["אירוע פרטי", "יום הולדת", "אירוע חברה"],
+  badges: [item.area, `עד ${item.guests} אורחים`],
+  lat: item.lat,
+  lng: item.lng,
+  scenario: "single",
+  price: item.price,
+}));
+
 export const eventPlaces = [
   ...eventPlaceCatalog.filter((place) => place.active !== false),
   ...sharedEventPlaces.filter((shared) => !eventPlaceCatalog.some((place) => place.slug === shared.slug)),
+  ...verifiedEventPlaces,
 ];
 
 export function eventPlaceHref(place: EventPlace) {

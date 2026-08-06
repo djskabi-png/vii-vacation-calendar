@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import { ModernSelect } from "./modern-select";
 
 const endpoint = "/api/leads/";
 
@@ -14,22 +15,27 @@ const worldOptions = [
   { id: "activities", label: "אטרקציות בסביבה", description: "מסעדות, מסלולים, טיולים וחוויות" },
 ] as const;
 
-type Purpose = "join" | "contact";
+type Purpose = "join" | "booking" | "accessibility";
 type SubmitState = "idle" | "submitting" | "success" | "error";
 
-export function LeadIntakeForm({ purpose, selectedPackage = "", billingCycle = "" }: { purpose: Purpose; selectedPackage?: string; billingCycle?: "monthly" | "annual" | "" }) {
+export function LeadIntakeForm({ purpose, selectedPackage = "", billingCycle = "", fixedWorld = "", onSuccess, submitLabel = "" }: { purpose: Purpose; selectedPackage?: string; billingCycle?: "monthly" | "annual" | ""; fixedWorld?: string; onSuccess?: () => void; submitLabel?: string }) {
   const isJoin = purpose === "join";
+  const isAccessibility = purpose === "accessibility";
   const [state, setState] = useState<SubmitState>("idle");
   const [reference, setReference] = useState("");
   const [submissionId, setSubmissionId] = useState("");
-  const [selectedWorld, setSelectedWorld] = useState(isJoin && selectedPackage ? "providers" : "vacation");
-  const worldSelectRef = useRef<HTMLSelectElement>(null);
+  const [selectedWorld, setSelectedWorld] = useState(fixedWorld || (isJoin && selectedPackage ? "providers" : "vacation"));
+  const [bookingWorld, setBookingWorld] = useState("general");
 
   useEffect(() => {
     if (isJoin) return;
     const requestedWorld = new URLSearchParams(window.location.search).get("world");
-    if (requestedWorld && worldOptions.some((world) => world.id === requestedWorld) && worldSelectRef.current) worldSelectRef.current.value = requestedWorld;
+    if (requestedWorld && worldOptions.some((world) => world.id === requestedWorld)) setBookingWorld(requestedWorld);
   }, [isJoin]);
+
+  useEffect(() => {
+    if (fixedWorld) setSelectedWorld(fixedWorld);
+  }, [fixedWorld]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -40,8 +46,8 @@ export function LeadIntakeForm({ purpose, selectedPackage = "", billingCycle = "
     const requestContext = new URLSearchParams(window.location.search);
     const requestedWorld = requestContext.get("world");
     const requestedPlace = requestContext.get("place");
-    const effectiveWorld = String(requestedWorld || values.get("world") || "general");
-    const packageEligible = effectiveWorld === "providers" || effectiveWorld === "activities";
+    const effectiveWorld = String(fixedWorld || requestedWorld || values.get("world") || "general");
+    const packageEligible = effectiveWorld === "providers" || effectiveWorld === "corporate";
     const requestedPackage = packageEligible ? selectedPackage || requestContext.get("package") || "" : "";
     const requestedService = requestContext.get("service");
     const requestedIntent = requestContext.get("intent");
@@ -82,6 +88,7 @@ export function LeadIntakeForm({ purpose, selectedPackage = "", billingCycle = "
       if (!response.ok || !result.success) throw new Error("submission failed");
       setReference(result.reference || "");
       setState("success");
+      onSuccess?.();
     } catch {
       setState("error");
     }
@@ -91,8 +98,8 @@ export function LeadIntakeForm({ purpose, selectedPackage = "", billingCycle = "
     return (
       <section className="lead-form-success" role="status" aria-live="polite">
         <span aria-hidden="true">✓</span>
-        <h2>{isJoin ? "הקמת העמוד התחילה" : "הפנייה התקבלה"}</h2>
-        <p>{isJoin ? "פרטי העסק והמסלול שבחרתם נשמרו. לאחר אימות קצר תקבלו גישה להעלאת התוכן וקישור אישי לתשלום מאובטח." : "הפרטים נשמרו במערכת והצוות יוכל לחזור אליכם לפי פרטי הקשר שמסרתם."}</p>
+        <h2>{isJoin ? selectedWorld === "providers" ? "הקמת עמוד הספק התחילה" : "בקשת שיתוף הפעולה התקבלה" : isAccessibility ? "דיווח הנגישות התקבל" : "בקשת ההזמנה התקבלה"}</h2>
+        <p>{isJoin ? selectedWorld === "providers" ? "פרטי העסק והמסלול שבחרתם נשמרו. לאחר אימות קצר תקבלו גישה להעלאת התוכן וקישור אישי לתשלום מאובטח." : "הפרטים נשמרו והועברו לנציג מומחה בתחום שבחרתם. הנציג יעבור על העסק ויחזור עם דרך שיתוף הפעולה המתאימה, לפני כל התחייבות." : isAccessibility ? "הדיווח נשמר עם פרטי העמוד והמכשיר שמסרתם כדי שנוכל לבדוק ולטפל בו." : "פרטי ההזמנה נשמרו. הזמינות, המחיר והתנאים יאושרו לפני כל חיוב או התחייבות."}</p>
         {reference ? <strong dir="ltr">{reference}</strong> : null}
         <Link className="button secondary" href="/">חזרה לדף הבית</Link>
       </section>
@@ -101,7 +108,7 @@ export function LeadIntakeForm({ purpose, selectedPackage = "", billingCycle = "
 
   return (
     <form className="lead-intake-form" onSubmit={submit}>
-      {isJoin ? (
+      {fixedWorld ? <input type="hidden" name="world" value={fixedWorld} /> : isJoin ? (
         <fieldset className="lead-world-picker">
           <legend>לאיזה עולם העסק שייך?</legend>
           <p>הבחירה תעזור לנו להעביר את הפנייה לצוות המתאים.</p>
@@ -114,32 +121,32 @@ export function LeadIntakeForm({ purpose, selectedPackage = "", billingCycle = "
             ))}
           </div>
         </fieldset>
+      ) : isAccessibility ? (
+        <input type="hidden" name="world" value="accessibility" />
       ) : (
-        <label className="form-wide">נושא הפנייה
-          <select ref={worldSelectRef} name="world" defaultValue="general">
-            <option value="general">שאלה כללית</option>
-            <option value="vacation">נופש ומקומות אירוח</option>
-            <option value="events">אירועים</option>
-            <option value="spa">ספא</option>
-            <option value="hourly">חדרים לפי שעה</option>
-            <option value="providers">ספקים</option>
-            <option value="activities">אטרקציות בסביבה</option>
-          </select>
-        </label>
+        <ModernSelect className="form-wide" label="תחום ההזמנה" name="world" value={bookingWorld} onChange={setBookingWorld} options={[
+          { value: "general", label: "אירוע חברה או הזמנה משולבת" },
+          { value: "vacation", label: "נופש ומקומות אירוח" },
+          { value: "events", label: "אירועים" },
+          { value: "spa", label: "ספא" },
+          { value: "hourly", label: "חדרים לפי שעה" },
+          { value: "providers", label: "ספקים" },
+          { value: "activities", label: "אטרקציות בסביבה" },
+        ]} />
       )}
 
       {isJoin ? <label>שם העסק<input required name="organization" autoComplete="organization" minLength={2} /></label> : null}
       <label>שם מלא<input required name="name" autoComplete="name" minLength={2} /></label>
-      <label>טלפון<input required name="phone" type="tel" inputMode="tel" autoComplete="tel" minLength={7} /></label>
+      <label>טלפון לחזרה<input required name="phone" type="tel" inputMode="tel" autoComplete="tel" minLength={7} /></label>
       <label>כתובת דוא״ל, לא חובה<input name="email" type="email" autoComplete="email" /></label>
       {isJoin ? <label>יישוב או אזור<input name="location" autoComplete="address-level2" /></label> : null}
       {isJoin ? <label className="form-wide">אתר או עמוד עסקי, לא חובה<input name="website" type="url" inputMode="url" placeholder="https://" /></label> : null}
-      <label className="form-wide">{isJoin ? "ספרו לנו בקצרה על העסק" : "איך נוכל לעזור?"}<textarea required name="message" rows={5} minLength={5} maxLength={3000} /></label>
+      <label className="form-wide">{isJoin ? "ספרו לנו בקצרה על העסק" : isAccessibility ? "תיאור הבעיה, כתובת העמוד, המכשיר והדפדפן" : "פרטי ההזמנה, תאריך, כמות משתתפים ותקציב"}<textarea required name="message" rows={5} minLength={5} maxLength={3000} /></label>
       <label className="form-honey" aria-hidden="true">אתר החברה<input name="company_site" tabIndex={-1} autoComplete="off" /></label>
-      <label className="consent form-wide"><input required name="privacy" type="checkbox" /> <span>קראתי את <Link href="/legal/privacy">מדיניות הפרטיות</Link> ואני מאשר או מאשרת שימוש בפרטים לצורך טיפול בפנייה.</span></label>
-      {isJoin && selectedPackage && (selectedWorld === "providers" || selectedWorld === "activities") ? <div className="lead-selected-package form-wide"><span>המסלול שנבחר לספקים ולאטרקציות</span><strong>{selectedPackage}</strong></div> : null}
-      {isJoin && selectedPackage && selectedWorld !== "providers" && selectedWorld !== "activities" ? <div className="lead-selected-package lead-selected-package--custom form-wide"><span>למסלול הזה נבנה הצעה מותאמת</span><strong>המחיר אינו מחויב בשלב הזה</strong></div> : null}
-      <button className="button primary form-wide" type="submit" disabled={state === "submitting"}>{state === "submitting" ? "פותחים את החשבון..." : isJoin && (selectedWorld === "providers" || selectedWorld === "activities") ? "פתיחת חשבון והמשך לאימות" : isJoin ? "שליחת בקשת הצטרפות" : "שליחת הפנייה"}</button>
+      <label className="consent legal-consent form-wide"><input required name="privacy" type="checkbox" /><span>קראתי והסכמתי ל<Link href="/legal/terms">תקנון האתר</Link> ול<Link href="/legal/privacy">מדיניות הפרטיות</Link>, ואני מאשר או מאשרת שימוש בפרטים לצורך הטיפול בבקשה.</span></label>
+      {isJoin && selectedPackage && selectedWorld === "providers" ? <div className="lead-selected-package form-wide"><span>המסלול שנבחר לספק</span><strong>{selectedPackage}</strong></div> : null}
+      {isJoin && selectedPackage && selectedWorld !== "providers" ? <div className="lead-selected-package lead-selected-package--custom form-wide"><span>מסלול שיתוף פעולה מותאם</span><strong>נציג מומחה יחזור לאחר בדיקת הפרטים, ללא חיוב בשלב הזה</strong></div> : null}
+      <button className="button primary form-wide" type="submit" disabled={state === "submitting"}>{state === "submitting" ? "שומרים את הפרטים..." : submitLabel || (isJoin && selectedWorld === "providers" ? "פתיחת חשבון והמשך לאימות" : isJoin ? "רישום ראשוני והעברה לנציג מומחה" : isAccessibility ? "שליחת דיווח נגישות" : "המשך להזמנה")}</button>
       {state === "error" ? <p className="form-error form-wide" role="alert">השליחה לא הושלמה. הפרטים נשארו בטופס ואפשר לנסות שוב.</p> : null}
     </form>
   );

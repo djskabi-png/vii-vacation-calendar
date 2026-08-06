@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { LeadIntakeForm } from "../components/lead-intake-form";
 import { PageShell } from "../components/page-shell";
 
 export const metadata: Metadata = {
@@ -72,13 +72,13 @@ export default function AccessibilityPage() {
 
         <section>
           <h2>רכז נגישות</h2>
-          <p><strong>פרטי רכז הנגישות טרם נמסרו.</strong> עד לפרסום פרטים מאומתים אפשר להעביר בקשת התאמה או דיווח דרך טופס יצירת הקשר.</p>
+          <p><strong>פרטי רכז הנגישות טרם נמסרו.</strong> עד לפרסום פרטים מאומתים אפשר להעביר בקשת התאמה או דיווח בטופס הנגישות הייעודי שבעמוד זה.</p>
         </section>
 
         <section>
           <h2>דיווח על בעיית נגישות</h2>
           <p>אם נתקלתם בבעיה, כתבו לנו מה ניסיתם לעשות, באיזה עמוד, באיזה דפדפן ומכשיר השתמשתם ואם נעזרתם בקורא מסך או בטכנולוגיה מסייעת. המידע יעזור לנו לבדוק ולתקן במהירות.</p>
-          <Link className="button primary" href="/contact">דיווח על בעיית נגישות</Link>
+          <LeadIntakeForm purpose="accessibility" />
         </section>
 
         <section className="accessibility-statement__sources">

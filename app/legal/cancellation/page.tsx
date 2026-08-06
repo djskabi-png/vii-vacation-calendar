@@ -11,8 +11,8 @@ export default function CancellationPage() {
     <p className="lead">תנאי הביטול נקבעים לפי פרטי ההזמנה והמדיניות שהוצגה במועד ביצועה.</p>
     <h2>לפני שמבטלים</h2>
     <p>מומלץ להכין את מספר ההזמנה ולבדוק את התנאים שמופיעים באישור שקיבלתם.</p>
-    <h2>צריכים עזרה?</h2>
-    <p>אפשר לפנות אלינו עם שם המקום, תאריכי האירוח ומספר ההזמנה, ונעביר את הפרטים לבדיקה.</p>
-    <Link className="button primary" href="/contact">יצירת קשר</Link>
+    <h2>שליחת בקשת ביטול או שינוי</h2>
+    <p>מזינים את מספר ההזמנה ואת הבקשה. הפרטים נכנסים ישירות למסלול ניהול ההזמנות.</p>
+    <Link className="button primary" href="/booking?action=manage">ניהול הזמנה</Link>
   </article></main></PageShell>;
 }

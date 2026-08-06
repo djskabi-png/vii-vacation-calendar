@@ -5,11 +5,13 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ListingMap } from "../../components/listing-map";
+import { ModernSelect } from "../../components/modern-select";
 import { PageShell } from "../../components/page-shell";
 import { SearchBox } from "../../components/search-box";
 import { eventPlaceHref, eventPlaces } from "../../data/site-data";
 import { getPlaceAccessibility } from "../../data/accessibility-data";
-import { CloseIcon, PinIcon } from "../../site-header";
+import { CloseIcon, MapIcon, PinIcon } from "../../site-header";
+import { FavoriteButton } from "../../components/favorite-button";
 
 export default function EventSearchPage() {
   const [area, setArea] = useState("הכל");
@@ -48,12 +50,11 @@ export default function EventSearchPage() {
       <main id="main-content" className="results-page events-results-page">
         <div className="results-search shell"><SearchBox mode="events" compact /></div>
         <div className="shell breadcrumbs"><Link href="/">ראשי</Link><span>/</span><Link href="/events">אירועים</Link><span>/</span><span>מקומות לאירועים</span></div>
-        <section className="shell results-heading"><div><span className="eyebrow">אירוע שמרגיש בדיוק שלכם</span><h1>מקומות לאירועים</h1><p>{filtered.length} מתוך {eventPlaces.length} מקומות מאומתים מוצגים</p></div><button className={`button map-button ${mapOpen ? "active" : ""}`} type="button" onClick={() => setMapOpen((value) => !value)}><PinIcon />{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</button></section>
         <div className="shell event-results-layout">
           <aside className={`filter-panel ${filtersOpen ? "open" : ""}`}><div className="filter-head"><h2>סינון</h2><button type="button" onClick={() => setFiltersOpen(false)} aria-label="סגירה"><CloseIcon /></button></div>
-            <label className="filter-select">אזור<select value={area} onChange={(event) => setArea(event.target.value)}>{areas.map((item) => <option key={item}>{item}</option>)}</select></label>
-            <label className="filter-select">סוג מקום<select value={type} onChange={(event) => setType(event.target.value)}>{types.map((item) => <option key={item}>{item}</option>)}</select></label>
-            <label className="filter-select">סוג אירוע<select value={eventType} onChange={(event) => setEventType(event.target.value)}>{eventTypes.map((item) => <option key={item}>{item}</option>)}</select></label>
+            <ModernSelect label="אזור" value={area} onChange={setArea} options={areas.map((item) => ({ value: item, label: item }))} />
+            <ModernSelect label="סוג מקום" value={type} onChange={setType} options={types.map((item) => ({ value: item, label: item }))} />
+            <ModernSelect label="סוג אירוע" value={eventType} onChange={setEventType} options={eventTypes.map((item) => ({ value: item, label: item }))} />
             <fieldset><legend>כמות משתתפים</legend><input type="range" min="0" max="300" step="10" value={guests} aria-label="כמות משתתפים מינימלית" onChange={(event) => setGuests(Number(event.target.value))} /><div className="range-value">{guests ? `לפחות ${guests} משתתפים` : "ללא סינון לפי כמות"}</div></fieldset>
             <label><input type="checkbox" checked={noNoiseLimit} onChange={(event) => setNoNoiseLimit(event.target.checked)} /> ללא הגבלת רעש</label>
             <label><input type="checkbox" checked={accessibleOnly} onChange={(event) => setAccessibleOnly(event.target.checked)} /> נגישות מלאה ומאומתת</label>
@@ -61,8 +62,9 @@ export default function EventSearchPage() {
             <button className="button subtle wide" type="button" onClick={reset}>ניקוי סינונים</button>
           </aside>
           <section className="event-list">
-            <div className="results-toolbar"><button type="button" className="button mobile-filter" onClick={() => setFiltersOpen(true)}>סינון</button><span>{filtered.length} תוצאות</span><label>מיון לפי <select value={sort} onChange={(event) => setSort(event.target.value)}><option value="recommended">מומלצים</option><option value="capacity">קיבולת גבוהה</option><option value="name">שם המקום</option></select></label></div>
-            {mapOpen ? <ListingMap listings={filtered} mode="events" autoLoad /> : filtered.map((place) => <article key={place.slug}><div className="event-card-gallery"><img src={place.image} alt={place.name} /><span>{place.images.length} תמונות</span></div><div><small>{place.type}</small><h2>{place.name}</h2><p><PinIcon />{place.location}, {place.area}</p><p>{place.description}</p><div className="feature-chips">{place.features.slice(0, 3).map((feature) => <span key={feature}>{feature}</span>)}</div><div className="event-capacity">עד {place.guests} אורחים</div><Link className="button primary" href={eventPlaceHref(place)}>לפרטים על המקום</Link></div></article>)}
+            <section className="results-heading"><div><span className="eyebrow">אירוע שמרגיש בדיוק שלכם</span><h1>מקומות לאירועים</h1><p>{filtered.length} מתוך {eventPlaces.length} מקומות מאומתים מוצגים</p></div></section>
+            <div className="results-toolbar"><div className="results-toolbar__actions"><button type="button" className="button mobile-filter" onClick={() => setFiltersOpen(true)}>סינון</button><button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-pressed={mapOpen} onClick={() => setMapOpen((value) => !value)}><MapIcon />{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</button></div><ModernSelect compact label="מיון לפי" value={sort} onChange={setSort} options={[{ value: "recommended", label: "מומלצים" }, { value: "capacity", label: "קיבולת גבוהה" }, { value: "name", label: "שם המקום" }]} /></div>
+            {mapOpen ? <ListingMap listings={filtered} mode="events" autoLoad onClose={() => setMapOpen(false)} /> : filtered.map((place) => <article key={place.slug}><div className="event-card-gallery"><img src={place.image} alt={place.name} /><span>{place.images.length} תמונות</span><FavoriteButton id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים`} /></div><div><small>{place.type}</small><h2>{place.name}</h2><p><PinIcon />{place.location}, {place.area}</p><p>{place.description}</p><div className="feature-chips">{place.features.slice(0, 3).map((feature) => <span key={feature}>{feature}</span>)}</div><div className="event-capacity">עד {place.guests} אורחים</div><Link className="button primary" href={eventPlaceHref(place)}>לפרטים על המקום</Link></div></article>)}
             {filtered.length === 0 && <div className="empty-state"><h2>לא נמצאה התאמה</h2><p>אפשר להפחית את כמות המשתתפים או להסיר סינון.</p><button className="button primary" type="button" onClick={reset}>ניקוי סינונים</button></div>}
           </section>
         </div>

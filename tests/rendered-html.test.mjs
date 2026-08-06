@@ -27,10 +27,9 @@ for (const [pathname, expected] of [
   ["/trails", /יוצאים מהצימר. נכנסים לישראל היפה/],
   ["/trails/snir-hatzbani", /נחל שניר, חצבאני/],
   ["/discover/place", /ספא בוטיק תל אביב/],
-  ["/join", /העמוד של העסק שלכם יכול להתחיל לעלות כבר עכשיו/],
+  ["/join", /מצטרפים בדרך שמתאימה בדיוק לעסק שלכם/],
   ["/gift-card", /גיפט קארד אחד/],
   ["/corporate", /כל מה שצריך כדי לעשות טוב לאנשים שלכם/],
-  ["/contact", /יצירת קשר/],
   ["/accessibility", /הצהרת נגישות/],
 ]) {
   test(`server renders ${pathname}`, async () => {
@@ -40,6 +39,12 @@ for (const [pathname, expected] of [
     assert.match(await response.text(), expected);
   });
 }
+
+test("retired contact route redirects to site enrollment", async () => {
+  const response = await render("/contact");
+  assert.equal(response.status, 308);
+  assert.equal(new URL(response.headers.get("location")).pathname, "/join");
+});
 
 test("uses the live production subdomain for public metadata", async () => {
   const layout = await readFile(new URL("../app/layout.tsx", import.meta.url), "utf8");
@@ -106,6 +111,51 @@ test("hourly search starts with location and exposes filters only with the resul
   assert.doesNotMatch(html, /בחרו תאריכים/);
 });
 
+test("search result bars preserve the submitted criteria", async () => {
+  const [vacationResponse, eventResponse, spaResponse, hourlyResponse] = await Promise.all([
+    render("/search?location=אילת&dates=10%20באוג׳%20עד%2012%20באוג׳&guests=4"),
+    render("/events/search?location=מרכז&dates=15%20באוג׳&guests=80&from=2026-08-15&to=2026-08-15"),
+    render("/spas?location=תל%20אביב&dates=18%20באוג׳&guests=2&spaFor=couple&date=2026-08-18&withoutDate=0"),
+    render("/hourly?location=חיפה"),
+  ]);
+  const [vacationHtml, eventHtml, spaHtml, hourlyHtml] = await Promise.all([
+    vacationResponse.text(),
+    eventResponse.text(),
+    spaResponse.text(),
+    hourlyResponse.text(),
+  ]);
+
+  assert.match(vacationHtml, /אילת/);
+  assert.match(vacationHtml, /10 באוג׳ עד 12 באוג׳/);
+  assert.match(vacationHtml, /4 אורחים/);
+  assert.match(eventHtml, /מרכז/);
+  assert.match(eventHtml, /15 באוג׳/);
+  assert.match(eventHtml, /80 משתתפים/);
+  assert.match(spaHtml, /תל אביב/);
+  assert.match(spaHtml, /18 באוג׳/);
+  assert.match(spaHtml, /זוגי/);
+  assert.match(hourlyHtml, /חיפה/);
+});
+
+test("search submissions reload the selected result set", async () => {
+  const [source, feedback, shell, styles] = await Promise.all([
+    readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/global-action-feedback.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/page-shell.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+  assert.doesNotMatch(source, /router\.push\(/);
+  assert.equal((source.match(/window\.location\.assign\(/g) || []).length, 1);
+  assert.match(source, /isSearching/);
+  assert.match(source, /מחפשים\.\.\./);
+  assert.match(source, /aria-busy=\{isSearching\}/);
+  assert.match(feedback, /טוענים את העמוד\.\.\./);
+  assert.match(feedback, /document\.addEventListener\("click", onClick, true\)/);
+  assert.match(shell, /<GlobalActionFeedback \/>/);
+  assert.match(styles, /\.global-action-feedback\.is-visible/);
+  assert.match(styles, /\.search-submit__icon > i/);
+});
+
 test("one business can serve several worlds without duplicate public pages", async () => {
   const [businessResponse, eventSearchResponse, sitemapResponse, legacyEventResponse, businessSource] = await Promise.all([
     render("/business?id=sol-gilgal&mode=events"),
@@ -148,19 +198,32 @@ test("spa, hourly and event worlds expose interactive maps", async () => {
   const detail = await spaDetailResponse.text();
   assert.match(detail, /המקום על המפה/);
 
-  const [mapSource, worldData, hourlyResults, worldResults] = await Promise.all([
+  const [mapSource, worldData, hourlyResults, worldResults, searchResults, eventResults, styles] = await Promise.all([
     readFile(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/components/hourly-results.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/world-map-results.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/search/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/events/search/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
   assert.match(mapSource, /scrollWheelZoom: true/);
   assert.match(mapSource, /touchZoom: true/);
   assert.match(mapSource, /MapTone = "vacation" \| "events" \| "spa" \| "hourly"/);
   assert.match(mapSource, /map-tone--\$\{tone\}/);
-  assert.equal((worldData.match(/mapPrecision: "area"/g) || []).length, 20);
-  assert.match(hourlyResults, /<DiscoveryMap items=\{filtered\} tone="hourly" autoLoad \/>/);
-  assert.match(worldResults, /<DiscoveryMap items=\{items\} tone=\{world\} autoLoad \/>/);
+  assert.ok((worldData.match(/mapPrecision: "area"/g) || []).length >= 20);
+  assert.match(hourlyResults, /<DiscoveryMap items=\{filtered\} tone="hourly" autoLoad onClose=/);
+  assert.match(worldResults, /<DiscoveryMap items=\{items\} tone=\{world\} autoLoad onClose=/);
+  for (const source of [hourlyResults, worldResults, searchResults, eventResults]) assert.match(source, /mobile-map-fab/);
+  assert.match(styles, /\.mobile-map-fab \{/);
+  assert.match(styles, /bottom: calc\(92px \+ env\(safe-area-inset-bottom\)\)/);
+  assert.match(styles, /left: 50%/);
+  assert.match(styles, /transform: translateX\(-50%\)/);
+  assert.match(styles, /body:has\(\.map-results-experience\) \.mobile-map-fab/);
+  assert.match(styles, /body:has\(\.map-results-experience\) \.smart-concierge/);
+  assert.match(mapSource, /map-results-experience/);
+  assert.match(mapSource, /scrollIntoView\(\{ behavior: "smooth", block: "nearest" \}\)/);
+  assert.match(mapSource, /flyTo\(\[place\.lat, place\.lng\]/);
 });
 
 test("commercial discovery stays inside VII", async () => {
@@ -194,12 +257,25 @@ test("gift cards, corporate experiences and MASU form one internal journey", asy
     giftResponse.text(), corporateResponse.text(), masuResponse.text(), homeResponse.text(), sitemapResponse.text(),
   ]);
   assert.match(giftHtml, /gift-card-art/);
-  assert.match(giftHtml, /המשך לרכישת גיפט קארד/);
+  assert.match(giftHtml, /gift-checkout__steps/);
+  assert.match(giftHtml, /gift-designs/);
   assert.match(corporateHtml, /למנהלות רווחה, משאבי אנוש ומועדוני צרכנות/);
   assert.match(corporateHtml, /מועדוני צרכנות וארגונים/);
+  assert.match(corporateHtml, /חבילות מלאות שקל להתחיל מהן/);
+  assert.match(corporateHtml, /ללא אשראי וללא התחייבות/);
   assert.match(masuHtml, /מאסו/);
   assert.match(masuHtml, /עיסוי עד הבית/);
-  assert.doesNotMatch([giftHtml, corporateHtml, masuHtml].join("\n"), /href=["']https?:\/\/(?:www\.)?masu\.co\.il/i);
+  assert.match(masuHtml, /href=["']https:\/\/masu\.co\.il\/partners\/\?page=product&amp;lang=he["']/i);
+  assert.match(masuHtml, /href=["']https:\/\/masu\.co\.il\/partners\/\?page=skincare&amp;lang=he["']/i);
+  assert.match(masuHtml, /href=["']https:\/\/masu\.co\.il\/your-office-massage\/["']/i);
+  assert.match(masuHtml, /href=["']https:\/\/masu\.co\.il\/your-pamper-party\/["']/i);
+  assert.match(masuHtml, /target=["']_blank["']/i);
+  assert.match(masuHtml, /rel=["']noopener noreferrer["']/i);
+  for (const html of [giftHtml, corporateHtml]) {
+    assert.match(html, /href=["']\/discover\/place\?id=masu-home-wellness["']/i);
+    assert.match(html, />כניסה<\/a>/);
+    assert.doesNotMatch(html, /href=["']https:\/\/masu\.co\.il/i);
+  }
   assert.match(homeHtml, /masu-experience--stay/);
   assert.match(sitemapXml, /\/gift-card</);
   assert.match(sitemapXml, /\/corporate</);
@@ -216,13 +292,42 @@ test("gift cards, corporate experiences and MASU form one internal journey", asy
   }
 });
 
+test("checkout journeys include legal consent and safe demo payment", async () => {
+  const [giftResponse, bookingResponse, giftSource, bookingSource, paymentSource] = await Promise.all([
+    render("/gift-card"),
+    render("/booking"),
+    readFile(new URL("../app/gift-card/gift-card-builder.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/booking/client-page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/demo-payment-fields.tsx", import.meta.url), "utf8"),
+  ]);
+  const [giftHtml, bookingHtml] = await Promise.all([giftResponse.text(), bookingResponse.text()]);
+  assert.match(giftHtml, /gift-checkout__steps/);
+  assert.match(giftHtml, /gift-designs/);
+  assert.match(giftSource, /type="date"/);
+  assert.match(giftSource, /type="time"/);
+  assert.match(giftSource, /gift-voucher/);
+  assert.match(giftSource, /gift-notification-previews/);
+  assert.match(giftSource, /<DemoPaymentFields/);
+  assert.match(bookingSource, /<DemoPaymentFields/);
+  assert.match(bookingHtml, /demo-payment/);
+  assert.match(paymentSource, /4242 4242 4242 4242/);
+  assert.match(paymentSource, /demoCardNumber/);
+  assert.doesNotMatch(giftSource, /demoCardNumber\s*:/);
+  assert.doesNotMatch(bookingSource, /demoCardNumber\s*:/);
+  for (const source of [giftSource, bookingSource]) {
+    assert.match(source, /href="\/legal\/terms"/);
+    assert.match(source, /href="\/legal\/privacy"/);
+    assert.match(source, /legal-consent/);
+  }
+});
+
 test("attraction booking follows the supplier conversion mode", async () => {
   const response = await render("/discover/place?id=horseback-idea");
   const html = await response.text();
   assert.equal(response.status, 200);
   assert.match(html, /איך מזמינים את האטרקציה/);
   assert.match(html, /הזמנה דרך האתר/);
-  assert.match(html, /intent=activity-order/);
+  assert.match(html, /offer=activity-order/);
   assert.doesNotMatch(html, /href=["'][^"']*(?:roomsvip\.com|spaplus\.co\.il)/i);
   assert.doesNotMatch(html, /חיוג למקום/);
 });
@@ -238,10 +343,11 @@ test("lead proxy handles bot submissions locally without contacting the lead sys
 });
 
 test("keeps calendar contexts, real listing ids and maps", async () => {
-  const [calendar, searchBox, business, sleeping, search, eventsPage, eventSearch, eventPlace, data, worldData, worldSwitcher, map, contactActions, homeShowcase, magazineData, magazinePage, articlePage, styles] = await Promise.all([
+  const [calendar, searchBox, business, detailDock, sleeping, search, eventsPage, eventSearch, eventPlace, data, worldData, worldSwitcher, map, homeShowcase, magazineData, magazinePage, articlePage, styles] = await Promise.all([
     readFile(new URL("../app/calendar-demo.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/detail-sticky-dock.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/sleeping-arrangements.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/search/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/events/page.tsx", import.meta.url), "utf8"),
@@ -251,7 +357,6 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
     readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/components/world-switcher.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/components/contact-actions.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/data/magazine-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/guides/page.tsx", import.meta.url), "utf8"),
@@ -262,7 +367,11 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(calendar, /mode === "business"/);
   assert.match(searchBox, /mode="home"/);
   assert.match(business, /businessKind=\{property\.scenario\}/);
-  assert.match(business, /<SearchBox key=\{activeWorld\} mode=\{activeWorld\} compact \/>/);
+  assert.match(business, /<DetailStickyDock/);
+  assert.doesNotMatch(business, /sticky-property-search/);
+  assert.match(detailDock, /onlineHref/);
+  assert.match(detailDock, /phone/);
+  assert.match(detailDock, /ניווט בתוך עמוד המקום/);
   assert.match(business, /initialSlug/);
   assert.doesNotMatch(business, /URLSearchParams\(location\.search\)/);
   assert.match(search, /setPool/);
@@ -298,8 +407,10 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(eventPlace, /הפרטים מבוססים על מידע ציבורי/);
   assert.equal((data.match(/contact: \{ phone:/g) || []).length, 17);
   assert.equal((data.match(/whatsapp:/g) || []).length, 8);
-  assert.match(contactActions, /הצג מספר/);
-  assert.match(contactActions, /https:\/\/wa\.me\//);
+  assert.match(business, /bookingQuery/);
+  assert.match(business, /world: activeWorld/);
+  assert.match(business, /initialFrom/);
+  assert.doesNotMatch(business, /contact-actions|wa\.me/);
   assert.match(business, /aria-pressed=\{saved\}/);
   assert.match(eventPlace, /aria-pressed=\{saved\}/);
   assert.match(styles, /\.property-title__actions svg\.filled/);
@@ -317,7 +428,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(map, /map-preview-image/);
   assert.match(map, /if \(!enabled\)/);
   assert.match(map, /autoLoad/);
-  assert.match(search, /<ListingMap listings=\{filtered\} autoLoad \/>/);
+  assert.match(search, /<ListingMap listings=\{filtered\} autoLoad onClose=/);
   assert.match(search, /האזור שמוצג במפה/);
   assert.match(eventSearch, /mode="events" autoLoad/);
   assert.match(eventSearch, /const \[guests, setGuests\] = useState\(0\)/);
@@ -357,7 +468,7 @@ test("keeps every date dialog above the site header with a reachable close actio
   assert.match(styles, /\.calendar-dialog-header\s*\{[^}]*position:\s*sticky/s);
 });
 
-test("footer destinations and lead forms have real destinations", async () => {
+test("footer destinations and booking forms have real destinations", async () => {
   const [footer, form, contact, join, onboarding, cookieConsent] = await Promise.all([
     readFile(new URL("../app/components/site-footer.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/lead-intake-form.tsx", import.meta.url), "utf8"),
@@ -366,7 +477,7 @@ test("footer destinations and lead forms have real destinations", async () => {
     readFile(new URL("../app/join/partner-onboarding.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/cookie-consent.tsx", import.meta.url), "utf8"),
   ]);
-  for (const href of ["/search", "/events", "/spas", "/hourly", "/providers", "/activities", "/trails", "/join", "/contact", "/guides", "/accessibility", "/legal/terms", "/legal/privacy", "/legal/cancellation"]) {
+  for (const href of ["/search", "/events", "/spas", "/hourly", "/providers", "/activities", "/trails", "/join", "/booking", "/guides", "/accessibility", "/legal/terms", "/legal/privacy", "/legal/cancellation"]) {
     assert.match(footer, new RegExp(`href=["']${href.replaceAll("/", "\\/")}`));
   }
   assert.match(form, /const endpoint = "\/api\/leads\/"/);
@@ -376,9 +487,16 @@ test("footer destinations and lead forms have real destinations", async () => {
   assert.match(form, /privacyAccepted/);
   assert.match(form, /crypto\.randomUUID\(\)/);
   assert.match(form, /state === "success"/);
-  assert.match(contact, /LeadIntakeForm purpose="contact"/);
+  assert.match(contact, /permanentRedirect\("\/join"\)/);
+  assert.match(form, /type Purpose = "join" \| "booking" \| "accessibility"/);
   assert.match(join, /PartnerOnboarding/);
   assert.match(onboarding, /LeadIntakeForm purpose="join"/);
+  assert.match(onboarding, /מחירון ודרך הצטרפות לפי תחום/);
+  assert.match(onboarding, /התחייבות שנתית משתלמת משמעותית/);
+  assert.match(form, /רישום ראשוני והעברה לנציג מומחה/);
+  assert.match(onboarding, /fixedWorld="providers"/);
+  assert.match(onboarding, /DemoPaymentFields amountLabel=\{priceLabel\}/);
+  assert.match(onboarding, /השלמת תשלום ההדגמה/);
   assert.match(onboarding, /selectedPackage=\{selectionLabel\}/);
   assert.match(cookieConsent, /SETTINGS_HASH = "#privacy-settings"/);
   assert.match(cookieConsent, /window\.addEventListener\("hashchange", openFromHash\)/);
@@ -397,11 +515,11 @@ test("independent trails are sourced, filterable and connected to stays", async 
     readFile(new URL("../app/components/site-footer.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
-  assert.equal((data.match(/officialSource: "https:\/\/www\.parks\.org\.il\//g) || []).length, 13);
-  assert.equal((data.match(/sourceName: "רשות הטבע והגנים"/g) || []).length, 13);
-  assert.equal((data.match(/difficulty: "/g) || []).length, 13);
-  assert.equal((data.match(/duration: "/g) || []).length, 13);
-  assert.equal((data.match(/safety: \[/g) || []).length, 13);
+  assert.equal((data.match(/officialSource: "https:\/\/www\.parks\.org\.il\//g) || []).length, 31);
+  assert.equal((data.match(/sourceName: "רשות הטבע והגנים"/g) || []).length, 31);
+  assert.equal((data.match(/difficulty: "/g) || []).length, 48);
+  assert.equal((data.match(/duration: "/g) || []).length, 48);
+  assert.equal((data.match(/safety: \[/g) || []).length, 23);
   assert.match(listing, /סינון מסלולי טיול/);
   assert.match(listing, /setDifficulty/);
   assert.match(listing, /setNature/);
@@ -478,13 +596,12 @@ test("includes the accessibility system and honest place disclosures", async () 
 });
 
 test("ships a favicon, four languages and no dependency on the retired site", async () => {
-  const [layout, locale, translations, header, footer, contactActions, data, worldData, favicon] = await Promise.all([
+  const [layout, locale, translations, header, footer, data, worldData, favicon] = await Promise.all([
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/i18n/locale-provider.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/i18n/translations.generated.json", import.meta.url), "utf8"),
     readFile(new URL("../app/site-header.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/site-footer.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/components/contact-actions.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/data/site-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/favicon.ico", import.meta.url)),
@@ -500,22 +617,52 @@ test("ships a favicon, four languages and no dependency on the retired site", as
   assert.equal(Object.keys(dictionaries.fr).length >= 2000, true);
   assert.match(header, /<LanguageSwitcher compact/);
   assert.match(header, /<AccessibilityWidget placement="menu" \/>/);
+  assert.match(header, /className="menu-panel__join" href="\/join"/);
   assert.match(footer, /<LanguageSwitcher compact/);
   assert.match(footer, /<AccessibilityWidget placement="footer" \/>/);
-  assert.doesNotMatch([header, footer, contactActions, data, worldData].join("\n"), /https:\/\/www\.vii\.co\.il/);
+  assert.doesNotMatch([header, footer, data, worldData].join("\n"), /https:\/\/www\.vii\.co\.il/);
   const response = await render("/");
   const html = await response.text();
   assert.match(html, /vii-logo\.png/);
 });
 
+test("keeps each world cross-sell relevant to the page the visitor is viewing", async () => {
+  const landing = await readFile(new URL("../app/components/world-landing.tsx", import.meta.url), "utf8");
+
+  assert.match(landing, /hourly:[\s\S]*משהייה קצרה לחופשה או ליום של פינוק/);
+  assert.match(landing, /spa:[\s\S]*הופכים את הטיפול ליום שלם/);
+  assert.match(landing, /providers:[\s\S]*מוצאים מקום שמתאים לספק שבחרתם/);
+  assert.doesNotMatch(landing, /בכל דף מקום יוצגו בהמשך/);
+});
+
+test("keeps the footer foundation fixed while adapting discovery links to each world", async () => {
+  const [footer, shell, providers, trails] = await Promise.all([
+    readFile(new URL("../app/components/site-footer.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/page-shell.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/provider-results.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/trails/trails-explorer.tsx", import.meta.url), "utf8"),
+  ]);
+
+  for (const world of ["vacation", "events", "spa", "hourly", "providers", "activities"]) assert.match(footer, new RegExp(`${world}:`));
+  assert.match(footer, /העולמות שלנו/);
+  assert.match(footer, /מידע ושירות/);
+  assert.match(footer, /LanguageSwitcher/);
+  assert.match(footer, /AccessibilityWidget/);
+  assert.match(shell, /<SiteFooter variant=\{variant\} \/>/);
+  assert.match(providers, /searchParams\.get\("category"\)/);
+  assert.match(trails, /searchParams\.get\("area"\)/);
+});
+
 test("ships the immersive media, review and concierge experiences", async () => {
-  const [gallery, reviews, concierge, shell, business, eventPlace, home, data, styles] = await Promise.all([
+  const [gallery, reviews, concierge, shell, business, eventPlace, discoveryPlace, trailPlace, home, data, styles] = await Promise.all([
     readFile(new URL("../app/components/gallery-experience.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/guest-review-studio.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/smart-concierge.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/page-shell.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/events/place/client-page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/discover/place/client-page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/trails/[slug]/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/data/site-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
@@ -526,13 +673,16 @@ test("ships the immersive media, review and concierge experiences", async () => 
   assert.match(gallery, /onTouchStart/);
   assert.match(gallery, /<video controls playsInline/);
   assert.match(data, /אינו צילום וידאו רציף/);
-  assert.match(reviews, /תמונות אורחים מאומתות/);
+  assert.match(reviews, /כל תוכן חדש עובר בדיקה לפני שהוא מוצג לציבור/);
+  assert.match(reviews, /תגובות מטיילים על המסלול/);
+  assert.match(reviews, /ממתינה לאישור/);
   assert.match(reviews, /צירוף אסמכתה לביקור/);
-  assert.match(reviews, /אינה נשמרת במערכת/);
+  assert.match(reviews, /אינו מוצג לגולשים אחרים/);
   assert.match(concierge, /נציג החופשה של וי/);
   assert.match(concierge, /serviceWhatsappNumber = "972542298986"/);
   assert.match(concierge, /conversationSummary/);
   assert.match(concierge, /useSiteLanguage/);
+  assert.match(concierge, /smart-concierge__trigger-icon/);
   assert.match(concierge, /אירוע או חגיגה/);
   assert.match(concierge, /מעבר לוואטסאפ/);
   assert.doesNotMatch(concierge, /המחשה מקומית/);
@@ -540,10 +690,17 @@ test("ships the immersive media, review and concierge experiences", async () => 
   assert.match(business, /<GalleryExperience/);
   assert.match(business, /<GuestReviewStudio/);
   assert.match(eventPlace, /<GalleryExperience/);
+  assert.match(eventPlace, /<GuestReviewStudio/);
+  assert.match(discoveryPlace, /<GuestReviewStudio/);
+  assert.match(trailPlace, /subjectType="trail"/);
   assert.match(home, /home-last-minute__tabs/);
-  assert.match(home, /הכרטיסים אינם מציגים זמינות חיה/);
+  assert.match(home, /מחיר להמחשה/);
+  assert.match(home, /from=/);
+  assert.match(home, /till=/);
+  assert.match(home, /לפרטים ולהמשך הזמנה/);
   assert.equal((data.match(/src: "\/media\/tours\//g) || []).length, 11);
   assert.match(styles, /story-gallery__progress/);
+  assert.match(styles, /\.smart-concierge__trigger \{ position: relative; width: 72px/);
   assert.match(styles, /smart-concierge__panel/);
 });
 
@@ -588,7 +745,7 @@ test("every canonical URL in the sitemap has complete crawlable HTML", async () 
   const sitemapXml = await sitemapResponse.text();
   assert.equal(sitemapResponse.status, 200);
   const urls = [...sitemapXml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1].replaceAll("&amp;", "&"));
-  assert.equal(urls.length, 87);
+  assert.ok(urls.length >= 132);
   assert.equal(urls.some((url) => url.includes("party-time")), false);
   assert.equal(new Set(urls).size, urls.length);
 
@@ -623,7 +780,7 @@ test("key page types emit matching structured data and private pages stay out of
     for (const expected of expectedTypes) assert.match(html, new RegExp(`\\"@type\\":\\"${expected}\\"`), `${pathname}: ${expected}`);
   }
 
-  for (const pathname of ["/favorites", "/providers", "/handoff", "/discover/place?id=maor-natan"]) {
+  for (const pathname of ["/favorites", "/providers", "/handoff", "/booking"]) {
     const response = await render(pathname);
     assert.match(await response.text(), /<meta name="robots" content="noindex/);
   }
@@ -632,7 +789,7 @@ test("key page types emit matching structured data and private pages stay out of
 test("every discovery card has stable media and every new world has a full detail page", async () => {
   const worldData = await readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8");
   const itemLines = worldData.split("\n").filter((line) => line.includes("world:") && line.includes(" id: "));
-  assert.equal(itemLines.length, 39);
+  assert.equal(itemLines.length, 47);
   for (const line of itemLines) {
     assert.match(line, /image: "\/media\//);
     assert.doesNotMatch(line, /demo: true/);
@@ -642,7 +799,7 @@ test("every discovery card has stable media and every new world has a full detai
     ["/discover/place?id=gentleman-haifa", /אפשרויות שהייה/],
     ["/discover/place?id=eilat-sunset", /תוכנית מוצעת/],
     ["/discover/place?id=horseback-idea", /כך מתאימים את החוויה/],
-    ["/discover/place?id=assemblage-spa", /מסלולי בקשה/],
+    ["/discover/place?id=assemblage-spa", /חבילות הספא/],
   ]) {
     const response = await render(pathname);
     const html = await response.text();
@@ -653,13 +810,37 @@ test("every discovery card has stable media and every new world has a full detai
   }
 });
 
+test("activities hub separates trails from paid attractions and every main trail area has six routes", async () => {
+  const [hubResponse, trailsResponse, attractionsResponse, trailSource] = await Promise.all([
+    render("/activities"),
+    render("/trails"),
+    render("/attractions"),
+    readFile(new URL("../app/data/trail-data.ts", import.meta.url), "utf8"),
+  ]);
+  const [hubHtml, trailsHtml, attractionsHtml] = await Promise.all([hubResponse.text(), trailsResponse.text(), attractionsResponse.text()]);
+
+  assert.match(hubHtml, /href="\/trails"[^>]*><strong>מסלולי טיולים/);
+  assert.match(hubHtml, /href="\/attractions"[^>]*><strong>אטרקציות בתשלום/);
+  assert.match(attractionsHtml, /אטרקציות בתשלום בישראל/);
+  assert.match(attractionsHtml, /aria-label="סינון אטרקציות בתשלום"/);
+  assert.match(attractionsHtml, /בלי עסקים מומצאים/);
+  assert.match(trailsHtml, /"numberOfItems":48/);
+
+  for (const area of ["צפון", "כנרת", "חיפה", "מרכז", "תל אביב", "דרום ונגב", "ירושלים", "אילת והסביבה"]) {
+    const directCount = [...trailSource.matchAll(new RegExp(`mainArea: "${area}"`, "g"))].length;
+    const mappedCount = [...trailSource.matchAll(new RegExp(`^\\s+"[^"]+": "${area}",$`, "gm"))].length;
+    const count = directCount + mappedCount;
+    assert.equal(count, 6, `${area} source coverage`);
+  }
+});
+
 test("persistent world and concierge actions never share the same screen position", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
-  assert.match(css, /@media \(min-width: 561px\) \{\s*\.world-dock \{ right: 274px; \}/);
+  assert.match(css, /@media \(min-width: 561px\) \{\s*\.world-dock \{ right: 110px; \}/);
   assert.match(css, /body:has\(\.world-dock\.open\) \.smart-concierge/);
   assert.match(css, /body:has\(\.smart-concierge\.open\) \.world-dock/);
   assert.match(css, /\.world-dock > button \{ width: calc\(50vw - 24px\)/);
-  assert.match(css, /\.smart-concierge__trigger \{ width: calc\(50vw - 24px\)/);
+  assert.match(css, /\.smart-concierge__trigger \{ width: 62px; height: 62px/);
 });
 
 test("every business depth template exposes an internal gallery", async () => {
@@ -680,4 +861,120 @@ test("every business depth template exposes an internal gallery", async () => {
   const discoveryClient = await readFile(new URL("../app/discover/place/client-page.tsx", import.meta.url), "utf8");
   assert.match(discoveryClient, /<GalleryExperience/);
   assert.match(discoveryClient, /discovery-detail__gallery-launch/);
+});
+
+test("spa results expose working place and amenity filters before the result list", async () => {
+  const response = await render("/spas?location=כל%20הארץ");
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /aria-label="סינון תוצאות ספא"/);
+  for (const label of ["ספא בבית מלון", "ספא בוטיק או פרטי", "בריכה", "ג׳קוזי", "סאונה", "חדר כושר", "חבילה זוגית", "יום כיף", "חבילה עם ארוחה"]) {
+    assert.match(html, new RegExp(label));
+  }
+
+  const source = await readFile(new URL("../app/components/world-map-results.tsx", import.meta.url), "utf8");
+  assert.match(source, /selectedFilters\.every/);
+  assert.match(source, /<DiscoveryMap items=\{filtered\}/);
+  assert.match(source, /filtered\.map\(\(item\)/);
+});
+
+test("provider pages demonstrate direct WhatsApp and full-site booking modes", async () => {
+  const [whatsappResponse, fullResponse, source, details, styles] = await Promise.all([
+    render("/discover/place?id=maor-natan"),
+    render("/discover/place?id=nissan-mukhtar"),
+    readFile(new URL("../app/discover/place/client-page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/data/provider-details.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+  const [whatsappHtml, fullHtml] = await Promise.all([whatsappResponse.text(), fullResponse.text()]);
+
+  assert.match(whatsappHtml, /הזמנה בוואטסאפ/);
+  assert.match(whatsappHtml, /הצגת מספר/);
+  assert.doesNotMatch(whatsappHtml, />050-786-7711</);
+  assert.match(fullHtml, /התחלת הזמנה/);
+  assert.match(fullHtml, /\/booking\?world=providers&amp;place=nissan-mukhtar/);
+  assert.match(source, /https:\/\/wa\.me\/\$\{whatsappNumber\}/);
+  assert.match(source, /role="dialog" aria-modal="true"/);
+  assert.match(details, /"maor-natan":[\s\S]*bookingMode: "whatsapp"/);
+  assert.match(details, /"nissan-mukhtar":[\s\S]*bookingMode: "full"/);
+  assert.match(styles, /\.discovery-detail--providers \.provider-occasions \{ padding-block: 44px 40px; \}/);
+  assert.match(styles, /\.discovery-detail--providers \.provider-process-section/);
+});
+
+test("all public sorting and filtering controls use the branded modern selector", async () => {
+  const sourcePaths = [
+    "../app/search/page.tsx",
+    "../app/events/search/page.tsx",
+    "../app/components/hourly-results.tsx",
+    "../app/components/world-map-results.tsx",
+    "../app/attractions/attractions-explorer.tsx",
+    "../app/trails/trails-explorer.tsx",
+    "../app/components/lead-intake-form.tsx",
+    "../app/business/client-page.tsx",
+    "../app/events/place/client-page.tsx",
+  ];
+  const sources = await Promise.all(sourcePaths.map((path) => readFile(new URL(path, import.meta.url), "utf8")));
+  for (const [index, source] of sources.entries()) {
+    assert.doesNotMatch(source, /<select\b/, sourcePaths[index]);
+  }
+
+  const [component, styles] = await Promise.all([
+    readFile(new URL("../app/components/modern-select.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+  assert.match(component, /aria-haspopup="listbox"/);
+  assert.match(component, /role="option"/);
+  assert.match(component, /event\.key === "Escape"/);
+  assert.match(styles, /\.modern-select__menu/);
+  assert.match(styles, /\.filter-panel input\[type="checkbox"\]:checked/);
+});
+
+test("favorites span every world and bookings continue into the personal account", async () => {
+  const favoriteButton = await readFile(new URL("../app/components/favorite-button.tsx", import.meta.url), "utf8");
+  const savedItems = await readFile(new URL("../app/lib/saved-items.ts", import.meta.url), "utf8");
+  const favoritesPage = await readFile(new URL("../app/favorites/page.tsx", import.meta.url), "utf8");
+  const accountPage = await readFile(new URL("../app/account/page.tsx", import.meta.url), "utf8");
+  const bookingPage = await readFile(new URL("../app/booking/client-page.tsx", import.meta.url), "utf8");
+  const discoveryCard = await readFile(new URL("../app/components/discovery-card.tsx", import.meta.url), "utf8");
+  const trailCard = await readFile(new URL("../app/components/trail-card.tsx", import.meta.url), "utf8");
+  const eventSearch = await readFile(new URL("../app/events/search/page.tsx", import.meta.url), "utf8");
+
+  for (const world of ["vacation", "events", "spa", "hourly", "providers", "activities", "trails"]) assert.match(favoritesPage, new RegExp(`${world}:`));
+  assert.match(savedItems, /vii-saved-items-v2/);
+  assert.match(favoriteButton, /readSavedItems/);
+  assert.match(discoveryCard, /FavoriteButton/);
+  assert.match(trailCard, /FavoriteButton/);
+  assert.match(eventSearch, /FavoriteButton/);
+  assert.match(accountPage, /ההזמנות שלי/);
+  assert.match(accountPage, /פריטים שאהבתי/);
+  assert.match(bookingPage, /saveBooking/);
+  assert.match(bookingPage, /לצפייה בהזמנות שלי/);
+});
+
+test("business depth pages always fill nearby experiences and trails", async () => {
+  const response = await render("/business?id=perfumes-villa");
+  const html = await response.text();
+  const discoveryCards = html.match(/class="discovery-card discovery-card--/g) || [];
+  const trailCards = html.match(/class="trail-card trail-card--compact"/g) || [];
+  const trailData = await readFile(new URL("../app/data/trail-data.ts", import.meta.url), "utf8");
+  const businessPage = await readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8");
+
+  assert.ok(discoveryCards.length >= 6, `expected at least 6 nearby experiences, received ${discoveryCards.length}`);
+  assert.ok(trailCards.length >= 6, `expected at least 6 nearby trails, received ${trailCards.length}`);
+  assert.match(trailData, /limit = 6/);
+  assert.match(trailData, /\.\.\.exact, \.\.\.fallback, \.\.\.trails/);
+  assert.match(businessPage, /\.slice\(0, 6\)/);
+});
+
+test("all depth recommendation sections stay full", async () => {
+  const [discoveryResponse, trailResponse] = await Promise.all([
+    render("/discover/place?id=cassia-jerusalem"),
+    render("/trails/snir-hatzbani"),
+  ]);
+  const [discoveryHtml, trailHtml] = await Promise.all([discoveryResponse.text(), trailResponse.text()]);
+  const discoveryCards = discoveryHtml.match(/class="discovery-card discovery-card--/g) || [];
+  const trailCards = trailHtml.match(/class="trail-card trail-card--compact"/g) || [];
+
+  assert.ok(discoveryCards.length >= 6, `expected at least 6 related discoveries, received ${discoveryCards.length}`);
+  assert.ok(trailCards.length >= 6, `expected at least 6 related trails, received ${trailCards.length}`);
 });

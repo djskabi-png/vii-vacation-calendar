@@ -216,6 +216,6 @@ export function SmartConcierge() {
       <form onSubmit={submit} className="smart-concierge__form"><label className="sr-only" htmlFor="concierge-question">{copy.inputLabel}</label><input ref={inputRef} id="concierge-question" name="question" placeholder={copy.placeholder} autoComplete="off" /><button type="submit" aria-label={copy.send}><SendIcon /></button></form>
       <footer className="smart-concierge__footer"><span>{copy.footer}</span><a href={whatsappHref} target="_blank" rel="noreferrer"><WhatsAppIcon /> {copy.whatsapp}</a></footer>
     </section> : null}
-    <button className="smart-concierge__trigger" type="button" onClick={toggleOpen} aria-expanded={open} aria-controls="smart-concierge-panel"><span className="smart-concierge__trigger-avatar" aria-hidden="true">VII<i /></span><span className="smart-concierge__trigger-copy"><small>{copy.triggerTop}</small><b>{copy.triggerBottom}</b></span>{unread ? <i className="smart-concierge__unread" aria-label={copy.unread} /> : null}</button>
+    <button className="smart-concierge__trigger" type="button" onClick={toggleOpen} aria-expanded={open} aria-controls="smart-concierge-panel" aria-label={`${copy.triggerTop}. ${copy.triggerBottom}${unread ? `. ${copy.unread}` : ""}`}><span className="smart-concierge__trigger-icon" aria-hidden="true"><WhatsAppIcon /><i /></span>{unread ? <i className="smart-concierge__unread" aria-hidden="true" /> : null}</button>
   </aside>;
 }

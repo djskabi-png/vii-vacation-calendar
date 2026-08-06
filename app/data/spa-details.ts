@@ -1,7 +1,9 @@
+import verifiedCatalog from "./verified-catalog.json";
+
 export type SpaPackage = {
   id: string;
   title: string;
-  audience: "יחיד" | "זוג" | "יום כיף";
+  audience: "יחיד" | "זוג" | "קבוצה" | "יום כיף";
   price: string;
   duration?: string;
   includes: string[];
@@ -99,26 +101,56 @@ export const spaDetailsById: Record<string, SpaDetails> = {
   },
   "assemblage-spa": {
     about: ["ספא במלון הבוטיק אסמבלאז׳ בתל אביב, עם חדרי טיפולים וחבילות ליחידים ולזוגות."],
+    packages: [
+      { id: "assemblage-single-80", title: "עיסוי משולב וטיפול פילינג", audience: "יחיד", price: "החל מ-540 ₪", duration: "80 דקות", includes: ["עיסוי משולב", "טיפול פילינג", "שימוש במתקני הספא"] },
+      { id: "assemblage-couple-day-room", title: "עיסוי זוגי וחדר לשימוש יומי", audience: "זוג", price: "החל מ-890 ₪", duration: "עיסוי 50 דקות וחדר ל-4 שעות", includes: ["עיסוי זוגי", "חדר לשימוש יומי", "כניסה למתחם הספא"] },
+      { id: "assemblage-couple-night", title: "עיסוי זוגי ולינה במלון", audience: "זוג", price: "החל מ-980 ₪", duration: "עיסוי 50 דקות", includes: ["עיסוי זוגי", "חדר לינה במלון", "כניסה למתחם הספא" ] },
+      { id: "assemblage-couple", title: "עיסוי זוגי וכניסה למתחם", audience: "זוג", price: "החל מ-680 ₪", duration: "50 דקות", includes: ["עיסוי זוגי", "כניסה למתחם הספא"] },
+    ],
     facilities: ["מלון בוטיק", "חדרי טיפולים", "חבילות זוגיות"],
     suitableFor: ["יחיד", "זוג"],
   },
   "urban-spa-tlv": {
     about: ["מתחם ספא אורבני בצפון תל אביב, עם טיפולי גוף ומרחבים שקטים למנוחה לפני הטיפול ואחריו."],
+    packages: [
+      { id: "urban-express-couple", title: "אורבן אקספרס זוגי", audience: "זוג", price: "החל מ-710 ₪", duration: "45 דקות", includes: ["עיסוי סטרס קייר זוגי"] },
+      { id: "urban-romantic-couple", title: "אורבניקה רומנטית", audience: "זוג", price: "החל מ-799 ₪", duration: "60 דקות", includes: ["עיסוי זוגי", "חוויה זוגית במתחם"] },
+      { id: "urban-head-single", title: "עיסוי ראש יפני", audience: "יחיד", price: "החל מ-355 ₪", duration: "45 דקות", includes: ["עיסוי ראש יפני"] },
+      { id: "urban-tlv-single", title: "אורבן תל אביב ליחיד", audience: "יחיד", price: "החל מ-425 ₪", duration: "60 דקות", includes: ["עיסוי ליחיד"] },
+    ],
     facilities: ["סאונה יבשה", "סאונה רטובה", "חדר מנוחה", "חדרי טיפולים"],
     suitableFor: ["יחיד", "זוג"],
   },
   "david-intercontinental": {
     about: ["מתחם ספא במלון דיוויד אינטרקונטיננטל תל אביב, עם חבילות טיפול ואפשרויות המשלבות ארוחה ושימוש במתקני המלון."],
+    packages: [
+      { id: "david-single-breakfast", title: "עיסוי ליחיד וארוחת בוקר", audience: "יחיד", price: "החל מ-715 ₪", duration: "50 דקות", includes: ["עיסוי ליחיד", "ארוחת בוקר", "שימוש במתקני הספא"] },
+      { id: "david-group", title: "חבילת ספא קבוצתית", audience: "קבוצה", price: "החל מ-555 ₪ לאדם", duration: "50 דקות", includes: ["עיסוי לכל משתתף", "שימוש במתקני הספא", "מינימום 3 אורחים"] },
+      { id: "david-single", title: "עיסוי ליחיד ומתקני הספא", audience: "יחיד", price: "החל מ-555 ₪", duration: "50 דקות", includes: ["עיסוי ליחיד", "שימוש במתקני הספא"] },
+      { id: "david-couple", title: "עיסוי זוגי ומתקני הספא", audience: "זוג", price: "החל מ-1,110 ₪", duration: "50 דקות", includes: ["עיסוי זוגי", "שימוש במתקני הספא"] },
+    ],
     facilities: ["בריכה", "מתקני מלון", "חדרי טיפולים", "אפשרות לחבילה עם ארוחה"],
     suitableFor: ["יחיד", "זוג"],
   },
   "debrah-spa": {
     about: ["ספא במלון דברה בתל אביב, עם חדרי טיפול וחבילות ליחידים ולזוגות."],
+    packages: [
+      { id: "debrah-fun-day", title: "יום כיף עם ארוחת בוקר וג׳קוזי", audience: "יום כיף", price: "החל מ-250 ₪ לאדם", includes: ["ארוחת בוקר", "כניסה לג׳קוזי בגג המלון", "ללא טיפול"] },
+      { id: "debrah-single", title: "חבילת אדמה ליחיד", audience: "יחיד", price: "החל מ-400 ₪", duration: "45 דקות", includes: ["עיסוי ליחיד", "כניסה לג׳קוזי בגג המלון"] },
+      { id: "debrah-morning-single", title: "חבילת אדמת בוקר ליחיד", audience: "יחיד", price: "החל מ-520 ₪", duration: "45 דקות", includes: ["עיסוי ליחיד", "ארוחת בוקר", "כניסה לג׳קוזי בגג המלון"] },
+      { id: "debrah-couple", title: "חבילת אדמה זוגית", audience: "זוג", price: "החל מ-750 ₪", duration: "45 דקות", includes: ["עיסוי זוגי", "כניסה לג׳קוזי בגג המלון"] },
+    ],
     facilities: ["מלון בוטיק", "חדרי טיפול", "גג המלון"],
     suitableFor: ["יחיד", "זוג"],
   },
   "bobo-spa": {
     about: ["ספא במלון בובו ברחוב יבנה בתל אביב, עם חדרי טיפולים מרווחים ופינות מנוחה."],
+    packages: [
+      { id: "bobo-group-breakfast", title: "חבילת אדמה בוקר קבוצתית", audience: "קבוצה", price: "החל מ-380 ₪ לאדם", duration: "25 דקות", includes: ["עיסוי לכל משתתף", "ארוחת בוקר", "מינימום 3 אורחים"] },
+      { id: "bobo-fun-day", title: "יום כיף עם ארוחת בוקר ובריכה", audience: "יום כיף", price: "החל מ-300 ₪ לאדם", includes: ["ארוחת בוקר", "כניסה לבריכה", "ללא טיפול"] },
+      { id: "bobo-single", title: "חבילת אדמה ליחיד", audience: "יחיד", price: "החל מ-400 ₪", duration: "45 דקות", includes: ["עיסוי ליחיד"] },
+      { id: "bobo-group", title: "חבילת אדמה קבוצתית", audience: "קבוצה", price: "החל מ-260 ₪ לאדם", duration: "25 דקות", includes: ["עיסוי לכל משתתף", "מינימום 3 אורחים"] },
+    ],
     facilities: ["חדרי טיפולים", "פינות מנוחה", "מלון בוטיק"],
     suitableFor: ["יחיד", "זוג"],
   },
@@ -126,26 +158,38 @@ export const spaDetailsById: Record<string, SpaDetails> = {
     about: ["ספא במלון לאונרדו פלאזה ירושלים, עם טיפולים ואפשרויות המשלבות ארוחת בוקר או יום כיף."],
     facilities: ["בריכה", "מתקני מלון", "חדרי טיפולים", "אפשרות ליום כיף"],
     suitableFor: ["יחיד", "זוג", "יום כיף"],
+    phone: "03-9638424",
   },
   "playa-spa": {
     about: ["ספא במלון פליי ווסט בצפון תל אביב, ליד חוף הצוק, עם מתקני רגיעה וכושר."],
+    packages: [
+      { id: "playa-single", title: "עיסוי ליחיד ומתקני הספא", audience: "יחיד", price: "החל מ-415 ₪", duration: "50 דקות", includes: ["עיסוי ליחיד", "סאונה יבשה", "סאונת אדים", "חדר כושר", "מלתחות ופינת כיבוד"] },
+      { id: "playa-single-breakfast", title: "עיסוי ליחיד וארוחת בוקר", audience: "יחיד", price: "החל מ-515 ₪", duration: "50 דקות", includes: ["עיסוי ליחיד", "ארוחת בוקר", "שימוש במתקני הספא"] },
+      { id: "playa-couple", title: "עיסוי זוגי ומתקני הספא", audience: "זוג", price: "החל מ-830 ₪", duration: "50 דקות", includes: ["עיסוי זוגי", "שימוש במתקני הספא"] },
+      { id: "playa-couple-breakfast", title: "עיסוי זוגי וארוחת בוקר", audience: "זוג", price: "החל מ-1,030 ₪", duration: "50 דקות", includes: ["עיסוי זוגי", "ארוחת בוקר", "שימוש במתקני הספא"] },
+    ],
     facilities: ["סאונה יבשה", "סאונה רטובה", "חדר כושר", "מלתחות", "קרבה לים"],
     suitableFor: ["יחיד", "זוג"],
   },
 };
 
 export function getSpaDetails(id: string) {
-  const details = spaDetailsById[id];
+  const verified = verifiedCatalog.spa.find((item) => item.id === id);
+  const generatedDetails: SpaDetails | undefined = verified ? {
+    about: [verified.description, `בעמוד זה מרוכזים החבילות, המתקנים והתמונות של ${verified.name}, לפי המידע שפורסם במקור המאומת.`],
+    packages: verified.packages.map((entry) => ({ ...entry, audience: "זוג" as const })),
+    facilities: verified.features,
+    suitableFor: ["יחיד", "זוג", "קבוצה", "יום כיף"],
+    address: verified.location,
+  } : undefined;
+  const details = spaDetailsById[id] || generatedDetails;
   if (!details) return undefined;
-  const packagesAreRequests = !details.packages?.length;
-  const packages = details.packages?.length ? details.packages : [
-    { id: "custom-treatment", title: "התאמת טיפול אישית", audience: "יחיד" as const, price: "מחיר בבדיקת זמינות", includes: ["בדיקת סוג טיפול", "התאמת משך", "אישור שעה ומחיר"] },
-    { id: "custom-couple", title: "בקשה לחוויה זוגית", audience: "זוג" as const, price: "מחיר בבדיקת זמינות", includes: ["בדיקת טיפול זוגי", "בדיקת מתקנים כלולים", "אישור חבילה לפני תשלום"] },
-  ];
+  const packagesAreRequests = false;
+  const packages = details.packages;
   const faq = details.faq?.length ? [...details.faq] : [];
   const defaults = [
     { question: "איך יודעים מה כלול בחבילה?", answer: "כל רכיב בחבילה מאושר בזמן בדיקת הזמינות. לא סוגרים הזמנה לפני שמקבלים פירוט של הטיפול, משך השהייה והמתקנים הכלולים." },
-    { question: "אפשר להזמין ליחיד או לזוג?", answer: "אפשר לשלוח בקשה לפי ההרכב הרצוי. סוג הטיפול, החדר והמתקנים תלויים בזמינות של המקום בתאריך שנבחר." },
+    { question: "אפשר להזמין ליחיד או לזוג?", answer: "אפשר להתחיל הזמנה לפי ההרכב הרצוי. סוג הטיפול, החדר והמתקנים תלויים בזמינות של המקום בתאריך שנבחר." },
     { question: "המחיר שמופיע הוא סופי?", answer: "מחיר התחלה אינו מחיר סופי. המחיר המדויק נקבע לפי התאריך, משך הטיפול, מספר האורחים והחבילה המאושרת." },
   ];
   for (const entry of defaults) if (faq.length < 3 && !faq.some((item) => item.question === entry.question)) faq.push(entry);

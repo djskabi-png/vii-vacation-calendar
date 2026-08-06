@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
-import { LeadIntakeForm } from "../components/lead-intake-form";
-import { PageShell } from "../components/page-shell";
-export const metadata: Metadata = { title: "יצירת קשר", description: "יוצרים קשר עם צוות וי פור ויקיישן.", alternates: { canonical: "/contact" } };
-export default function ContactPage(){return <PageShell showWorldSwitcher={false}><main id="main-content"><section className="inner-hero shell"><span className="eyebrow">אנחנו כאן לעזור</span><h1>יצירת קשר</h1><p>ספרו לנו במה נוכל לעזור. הפנייה נשמרת במערכת ומועברת לצוות המתאים.</p></section><section className="section shell contact-layout"><div className="contact-copy"><h2>איך אפשר לעזור?</h2><p>שאלות על חיפוש, מקום אירוח או שימוש באתר. לפרטי הזמנה קיימת מומלץ לצרף את שם המקום והתאריכים.</p><div><strong>הודעה ברורה</strong><span>מוסיפים את שם המקום, התאריכים ומה תרצו לבדוק.</span></div><div><strong>פרטי התקשרות</strong><span>משאירים דרך נוחה לחזרה אליכם.</span></div></div><LeadIntakeForm purpose="contact" /></section></main></PageShell>}
+import { permanentRedirect } from "next/navigation";
+
+export default function ContactPage() {
+  permanentRedirect("/join");
+}

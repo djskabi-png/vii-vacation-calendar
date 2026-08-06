@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { DiscoveryItem } from "../data/world-data";
 import { PinIcon } from "../site-header";
+import { FavoriteButton } from "./favorite-button";
 
 export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
   return <article className={`discovery-card discovery-card--${item.world}`}>
@@ -12,6 +13,7 @@ export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
       {item.demo && <span className="demo-badge">הדגמה</span>}
       {item.rating && <span className="rating-badge">★ {item.rating.toFixed(1)}</span>}
     </Link>
+    <FavoriteButton id={item.id} world={item.world} name={item.name} location={`${item.location}, ${item.area}`} image={item.image} href={`/discover/place?world=${item.world}&id=${item.id}`} meta={item.priceLabel || item.duration} />
     <div className="discovery-card__body">
       <span className="discovery-card__meta"><PinIcon />{item.location}<small>{item.area}</small></span>
       <h3><Link href={`/discover/place?world=${item.world}&id=${item.id}`}>{item.name}</Link></h3>

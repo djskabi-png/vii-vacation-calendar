@@ -6,7 +6,6 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ListingMap } from "../../components/listing-map";
 import { PageShell } from "../../components/page-shell";
-import { ContactActions } from "../../components/contact-actions";
 import { DiscoveryCard } from "../../components/discovery-card";
 import { ListingAccessibility } from "../../components/listing-accessibility";
 import { eventPlaceHref, eventPlaces } from "../../data/site-data";
@@ -15,6 +14,8 @@ import { MasuExperience } from "../../components/masu-experience";
 import { CalendarIcon, HeartIcon, PinIcon } from "../../site-header";
 import { GalleryExperience } from "../../components/gallery-experience";
 import { GuestReviewStudio } from "../../components/guest-review-studio";
+import { DetailStickyDock, type DetailSectionLink } from "../../components/detail-sticky-dock";
+import { ModernSelect } from "../../components/modern-select";
 
 export default function EventPlacePage({ initialSlug }: { initialSlug: string }) {
   const [saved, setSaved] = useState(false);
@@ -24,6 +25,14 @@ export default function EventPlacePage({ initialSlug }: { initialSlug: string })
   const [reference, setReference] = useState("");
   const [submissionId, setSubmissionId] = useState("");
   const place = useMemo(() => eventPlaces.find((item) => item.slug === initialSlug) || eventPlaces[0], [initialSlug]);
+  const sectionLinks = useMemo<DetailSectionLink[]>(() => [
+    { href: "#event-about", label: "על המקום" },
+    { href: "#event-features", label: "מתקנים" },
+    { href: "#accessibility", label: "נגישות" },
+    { href: "#event-map", label: "מיקום" },
+    { href: "#reviews", label: "חוות דעת" },
+    { href: "#event-booking", label: "הזמנה" },
+  ], []);
   const eventProviders = useMemo(() => {
     const masu = providerProfiles.find((item) => item.id === "masu-home-wellness");
     const otherProviders = providerProfiles.filter((item) => item.id !== "masu-home-wellness");
@@ -60,7 +69,7 @@ export default function EventPlacePage({ initialSlug }: { initialSlug: string })
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           submissionId: id,
-          purpose: "contact",
+          purpose: "booking",
           world: "events",
           name: values.get("name"),
           phone: values.get("phone"),
@@ -90,10 +99,10 @@ export default function EventPlacePage({ initialSlug }: { initialSlug: string })
     <PageShell variant="events">
       <main id="main-content" className="event-place-page">
         <div className="shell breadcrumbs"><Link href="/">ראשי</Link><span>/</span><Link href="/events">אירועים</Link><span>/</span><Link href="/events/search">מקומות</Link><span>/</span><span>{place.name}</span></div>
-        <section className="shell property-title event-title"><div><span className="eyebrow">{place.type}</span><h1>{place.name}</h1><p><PinIcon />{place.location}, {place.area}</p></div><div className="property-title__side"><div className="property-title__actions"><button type="button" aria-pressed={saved} onClick={toggleSaved}><HeartIcon filled={saved} />{saved ? "נשמר" : "שמירה"}</button><button type="button" onClick={() => void share()}>שיתוף</button></div><ContactActions key={place.slug} contact={place.contact} placeName={place.name} /></div></section>
+        <section className="shell property-title event-title"><div><span className="eyebrow">{place.type}</span><h1>{place.name}</h1><p><PinIcon />{place.location}, {place.area}</p></div><div className="property-title__side"><div className="property-title__actions"><button type="button" aria-pressed={saved} onClick={toggleSaved}><HeartIcon filled={saved} />{saved ? "נשמר" : "שמירה"}</button><button type="button" onClick={() => void share()}>שיתוף</button></div><a className="button primary" href="#event-booking">הזמנה אונליין</a></div></section>
         <section className="shell property-gallery">{place.images.map((image, index) => <button key={image} type="button" onClick={() => { setGalleryStart(index); setGalleryOpen(true); }} aria-label={`פתיחת תמונה ${index + 1} של ${place.name}`}><img src={image} alt={`${place.name}, תמונה ${index + 1}`} />{index === 4 && <span>לגלריה המלאה</span>}</button>)}</section>
 
-        <nav className="shell property-anchor-nav"><a href="#event-about">על המקום</a><a href="#event-features">מתקנים</a><a href="#accessibility">נגישות במקום</a><a href="#event-map">מיקום</a><a href="#event-contact">בדיקת התאמה</a></nav>
+        <DetailStickyDock name={place.name} location={`${place.location}, ${place.area}`} sections={sectionLinks} onlineHref="#event-booking" onlineLabel="בדיקת תאריך לאירוע" />
 
         <div className="shell event-place-layout">
           <div>
@@ -104,10 +113,10 @@ export default function EventPlacePage({ initialSlug }: { initialSlug: string })
             <ListingAccessibility slug={place.slug} />
             <section id="event-map" className="location-card"><div><span className="eyebrow">המיקום</span><h2>{place.location}</h2><p>{place.area}</p><span className="location-card__inline-note">מגדילים, מקטינים ומזיזים את המפה כאן בעמוד.</span></div><ListingMap listings={[place]} mode="events" single autoLoad /></section>
             <section className="policies-section"><h2>חשוב לדעת</h2><div><article><b>קיבולת</b><p>עד {place.guests} אורחים לפי פרטי המקום.</p></article><article><b>זמינות</b><p>הזמינות הסופית נבדקת מול צוות המקום לאחר שליחת הבקשה.</p></article><article><b>מחיר</b><p>המחיר תלוי בתאריך, במספר המשתתפים ובאופי האירוע.</p></article><article><b>בקשת התאמה</b><p>הטופס מועבר למערכת הלידים עם פרטי המקום והאירוע שבחרתם.</p></article></div></section>
-            <GuestReviewStudio placeName={place.name} />
+            <GuestReviewStudio placeName={place.name} subjectId={place.slug} />
           </div>
 
-          <aside id="event-contact" className="booking-card event-inquiry"><CalendarIcon /><span className="eyebrow">בדיקת התאמה</span><h2>ספרו לנו על האירוע</h2>{submitState === "success" ? <div className="inquiry-success" role="status"><b>הבקשה התקבלה</b><p>הפרטים נשמרו במערכת והצוות יוכל לחזור אליכם.</p>{reference ? <strong dir="ltr">{reference}</strong> : null}</div> : <form onSubmit={submitInquiry}><label>תאריך מבוקש<input name="date" type="date" required /></label><label>כמות משתתפים<input name="guests" type="number" min="1" max={place.guests} placeholder="הקלידו כמות" required /></label><label>סוג האירוע<select name="eventType" required defaultValue=""><option value="" disabled>בחרו סוג אירוע</option>{place.eventTypes.map((item) => <option key={item}>{item}</option>)}</select></label><label>שם מלא<input name="name" type="text" autoComplete="name" minLength={2} required /></label><label>טלפון<input name="phone" type="tel" inputMode="tel" autoComplete="tel" minLength={7} required /></label><label className="form-honey" aria-hidden="true">אתר החברה<input name="company_site" tabIndex={-1} autoComplete="off" /></label><label className="consent"><input name="privacy" type="checkbox" required /><span>קראתי את <Link href="/legal/privacy">מדיניות הפרטיות</Link> ואני מאשר או מאשרת טיפול בפרטים לצורך הבקשה.</span></label><button className="button primary wide" type="submit" disabled={submitState === "submitting"}>{submitState === "submitting" ? "שולחים..." : "שליחת בקשת התאמה"}</button>{submitState === "error" ? <p className="form-error" role="alert">השליחה לא הושלמה. הפרטים נשארו בטופס ואפשר לנסות שוב.</p> : null}<small>הבקשה תישמר במערכת עם שם המקום ופרטי האירוע.</small></form>}</aside>
+          <aside id="event-booking" className="booking-card event-inquiry"><CalendarIcon /><span className="eyebrow">הזמנה אונליין</span><h2>מזמינים את האירוע</h2>{submitState === "success" ? <div className="inquiry-success" role="status"><b>ההזמנה נקלטה</b><p>הפרטים נשמרו במערכת. אישור סופי יישלח לאחר בדיקת זמינות ומחיר.</p>{reference ? <strong dir="ltr">{reference}</strong> : null}</div> : <form onSubmit={submitInquiry}><label>תאריך מבוקש<input name="date" type="date" required /></label><label>כמות משתתפים<input name="guests" type="number" min="1" max={place.guests} placeholder="הקלידו כמות" required /></label><ModernSelect name="eventType" label="סוג האירוע" defaultValue={place.eventTypes[0]} options={place.eventTypes.map((item) => ({ value: item, label: item }))} /><label>שם מלא<input name="name" type="text" autoComplete="name" minLength={2} required /></label><label>טלפון<input name="phone" type="tel" inputMode="tel" autoComplete="tel" minLength={7} required /></label><label className="form-honey" aria-hidden="true">אתר החברה<input name="company_site" tabIndex={-1} autoComplete="off" /></label><label className="consent legal-consent"><input name="privacy" type="checkbox" required /><span>קראתי והסכמתי ל<Link href="/legal/terms">תקנון האתר</Link> ול<Link href="/legal/privacy">מדיניות הפרטיות</Link>, ואני מאשר או מאשרת טיפול בפרטים לצורך ההזמנה.</span></label><button className="button primary wide" type="submit" disabled={submitState === "submitting"}>{submitState === "submitting" ? "שולחים..." : "שליחת ההזמנה"}</button>{submitState === "error" ? <p className="form-error" role="alert">השליחה לא הושלמה. הפרטים נשארו בטופס ואפשר לנסות שוב.</p> : null}<small>אין חיוב לפני אישור זמינות, מחיר ותנאי האירוע.</small></form>}</aside>
         </div>
 
         <section className="section property-complements">
