@@ -124,6 +124,20 @@ test("spa, hourly and event worlds expose interactive maps", async () => {
   assert.match(worldResults, /<DiscoveryMap items=\{items\} tone=\{world\} autoLoad \/>/);
 });
 
+test("commercial discovery stays inside VII", async () => {
+  const responses = await Promise.all([
+    render("/discover/place?world=spa&id=spa-butik-tlv"),
+    render("/discover/place?world=hourly&id=gentleman-haifa"),
+    render("/business?id=perfumes-villa"),
+    render("/events/place?id=black-loft"),
+  ]);
+  const pages = (await Promise.all(responses.map((response) => response.text()))).join("\n");
+  assert.doesNotMatch(pages, /href=["'][^"']*(?:roomsvip\.com|spaplus\.co\.il)/i);
+  assert.doesNotMatch(pages, /פתיחה במפה מלאה/);
+  assert.match(pages, /לכל פרטי השהייה/);
+  assert.match(pages, /מגדילים, מקטינים ומזיזים את המפה כאן בעמוד/);
+});
+
 test("lead proxy handles bot submissions locally without contacting the lead system", async () => {
   const response = await render("/api/leads", {
     method: "POST",

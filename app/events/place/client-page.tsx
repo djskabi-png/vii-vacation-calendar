@@ -99,7 +99,7 @@ export default function EventPlacePage({ initialSlug }: { initialSlug: string })
             <section id="event-features"><h2>מתקנים ואפשרויות</h2><div className="feature-list">{place.features.map((feature) => <span key={feature}>✓ {feature}</span>)}</div></section>
             <section><h2>למי המקום מתאים</h2><div className="event-suitable-grid">{place.audiences.map((audience) => <article key={audience}><span>✓</span><b>{audience}</b></article>)}</div></section>
             <ListingAccessibility slug={place.slug} />
-            <section id="event-map" className="location-card"><div><span className="eyebrow">המיקום</span><h2>{place.location}</h2><p>{place.area}</p><a href={`https://www.openstreetmap.org/?mlat=${place.lat}&mlon=${place.lng}#map=15/${place.lat}/${place.lng}`} target="_blank" rel="noreferrer">פתיחה במפה מלאה</a></div><ListingMap listings={[place]} mode="events" single autoLoad /></section>
+            <section id="event-map" className="location-card"><div><span className="eyebrow">המיקום</span><h2>{place.location}</h2><p>{place.area}</p><span className="location-card__inline-note">מגדילים, מקטינים ומזיזים את המפה כאן בעמוד.</span></div><ListingMap listings={[place]} mode="events" single autoLoad /></section>
             <section className="policies-section"><h2>חשוב לדעת</h2><div><article><b>קיבולת</b><p>עד {place.guests} אורחים לפי פרטי המקום.</p></article><article><b>זמינות</b><p>הזמינות הסופית נבדקת מול צוות המקום לאחר שליחת הבקשה.</p></article><article><b>מחיר</b><p>המחיר תלוי בתאריך, במספר המשתתפים ובאופי האירוע.</p></article><article><b>בקשת התאמה</b><p>הטופס מועבר למערכת הלידים עם פרטי המקום והאירוע שבחרתם.</p></article></div></section>
             <GuestReviewStudio placeName={place.name} />
           </div>

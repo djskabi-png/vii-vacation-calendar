@@ -3834,6 +3834,7 @@ body:has(.cookie-card) .world-dock { bottom: 118px; }
 .room-card__actions a { color: var(--teal-dark); font-size: .8rem; font-weight: 800; text-decoration: underline; text-underline-offset: 4px; }
 .location-card .listing-map-shell { min-width: 0; }
 .location-card > div > a, .policies-section > a { color: var(--teal-dark); font-weight: 800; text-decoration: underline; text-underline-offset: 4px; }
+.location-card__inline-note { display: block; max-width: 28ch; color: var(--muted); font-weight: 700; line-height: 1.6; }
 .faq-section article { border-top: 1px solid var(--line); }
 .faq-section article:last-child { border-bottom: 1px solid var(--line); }
 .faq-section article > button { width: 100%; min-height: 58px; display: flex; align-items: center; justify-content: space-between; border: 0; background: transparent; text-align: right; font-weight: 800; cursor: pointer; }
