@@ -84,9 +84,9 @@ export default function AccessibilityPage() {
         <section className="accessibility-statement__sources">
           <h2>מקורות רשמיים</h2>
           <ul>
-            <li><a href="https://www.gov.il/he/pages/declaration_website_accessibility?chapterIndex=1" target="_blank" rel="noreferrer">מדריך ממשלתי להצהרת נגישות ולפרסום הסדרים</a></li>
-            <li><a href="https://www.gov.il/he/pages/website_accessibility?chapterIndex=3" target="_blank" rel="noreferrer">מדריך ממשלתי לנגישות אתרי אינטרנט</a></li>
-            <li><a href="https://www.gov.il/BlobFolder/guide/accommodating_service_providing_rules/he/sitedocs_service_acessibility_regulations.pdf" target="_blank" rel="noreferrer">תקנות שוויון זכויות לאנשים עם מוגבלות, התאמות נגישות לשירות</a></li>
+            <li>מדריך ממשלתי להצהרת נגישות ולפרסום הסדרים</li>
+            <li>מדריך ממשלתי לנגישות אתרי אינטרנט</li>
+            <li>תקנות שוויון זכויות לאנשים עם מוגבלות, התאמות נגישות לשירות</li>
           </ul>
         </section>
       </article>

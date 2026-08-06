@@ -77,7 +77,10 @@ export function GlobalActionFeedback() {
     };
   }, [copy]);
 
-  useEffect(() => setMessage(null), [pathname]);
+  useEffect(() => {
+    const resetTimer = window.setTimeout(() => setMessage(null), 0);
+    return () => window.clearTimeout(resetTimer);
+  }, [pathname]);
 
   return <div className={`global-action-feedback ${message ? "is-visible" : ""}`} role="status" aria-live="polite" aria-atomic="true"><span aria-hidden="true" />{message && <strong>{message}</strong>}</div>;
 }

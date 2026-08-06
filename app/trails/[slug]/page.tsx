@@ -28,7 +28,6 @@ export default async function TrailPage({ params }: { params: Promise<{ slug: st
   const { slug } = await params;
   const trail = getTrail(slug);
   const related = nearbyTrails(trail.mainArea, trail.region, 7).filter((item) => item.slug !== trail.slug).slice(0, 6);
-  const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(trail.mapQuery)}`;
 
   return <PageShell variant="activities">
     <main id="main-content" className="trail-detail">
@@ -45,11 +44,11 @@ export default async function TrailPage({ params }: { params: Promise<{ slug: st
         <article className="trail-detail__content">
           <section aria-labelledby="trail-plan"><span className="eyebrow">התוכנית שלנו ליום הזה</span><h2 id="trail-plan">איך עושים את המסלול נכון</h2><ol className="trail-plan">{trail.dayPlan.map((step, index) => <li key={step}><span>{index + 1}</span><p>{step}</p></li>)}</ol></section>
           <section aria-labelledby="trail-highlights"><h2 id="trail-highlights">מה פוגשים בדרך</h2><div className="trail-highlight-grid">{trail.highlights.map((item) => <span key={item}>{item}</span>)}</div></section>
-          <section className="trail-safety" aria-labelledby="trail-safety"><span className="eyebrow">לא יוצאים בלי לבדוק</span><h2 id="trail-safety">בטיחות ותנאים משתנים</h2><ul>{trail.safety.map((item) => <li key={item}>{item}</li>)}</ul><p>המידע אינו אישור שהמסלול פתוח כרגע. לפני היציאה בודקים מבזקים, תחזית, שעות פעילות והנחיות בשטח.</p><a href={trail.officialSource} target="_blank" rel="noreferrer">בדיקת המידע העדכני באתר {trail.sourceName}</a></section>
+          <section className="trail-safety" aria-labelledby="trail-safety"><span className="eyebrow">לא יוצאים בלי לבדוק</span><h2 id="trail-safety">בטיחות ותנאים משתנים</h2><ul>{trail.safety.map((item) => <li key={item}>{item}</li>)}</ul><p>המידע אינו אישור שהמסלול פתוח כרגע. לפני היציאה בודקים מבזקים, תחזית, שעות פעילות והנחיות בשטח.</p><p className="trail-source-link">מקור המידע שנבדק: {trail.sourceName}</p></section>
           <section aria-labelledby="trail-who"><h2 id="trail-who">למי זה מתאים</h2><p>{trail.familyFit}</p><h3>נגישות במסלול</h3><p>{trail.accessibility}</p></section>
         </article>
 
-        <aside className="trail-detail__aside"><div><span className="eyebrow">כרטיס מסלול</span><dl><div><dt>אזור</dt><dd>{trail.region}</dd></div><div><dt>קושי</dt><dd>{trail.difficulty}</dd></div><div><dt>משך</dt><dd>{trail.duration}</dd></div><div><dt>מרחק</dt><dd>{trail.distance}</dd></div><div><dt>אופי</dt><dd>{trail.routeType}</dd></div><div><dt>עונה מומלצת</dt><dd>{trail.bestSeason}</dd></div></dl><a className="button primary wide" href={mapUrl} target="_blank" rel="noreferrer">פתיחת נקודת ההתחלה במפה</a><a className="trail-source-link" href={trail.officialSource} target="_blank" rel="noreferrer">מקור רשמי ומבזקים</a></div></aside>
+        <aside className="trail-detail__aside"><div><span className="eyebrow">כרטיס מסלול</span><dl><div><dt>אזור</dt><dd>{trail.region}</dd></div><div><dt>קושי</dt><dd>{trail.difficulty}</dd></div><div><dt>משך</dt><dd>{trail.duration}</dd></div><div><dt>מרחק</dt><dd>{trail.distance}</dd></div><div><dt>אופי</dt><dd>{trail.routeType}</dd></div><div><dt>עונה מומלצת</dt><dd>{trail.bestSeason}</dd></div></dl><div className="trail-source-link"><strong>נקודת התחלה לחיפוש במפה</strong><span>{trail.mapQuery}</span><small>המידע נשאר בתוך VII. לפני היציאה מאמתים פתיחה והנחיות בטיחות מול הגורם הרשמי.</small></div></div></aside>
       </div>
 
       <div className="section shell"><GuestReviewStudio placeName={trail.name} subjectId={trail.slug} subjectType="trail" /></div>

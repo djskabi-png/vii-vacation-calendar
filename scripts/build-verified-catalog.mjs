@@ -171,7 +171,7 @@ async function enrich(item, world) {
   const imageSources = [...new Set([...item.remoteImages, ...detailImages])];
   const localImages = [];
   await mkdir(path.join(mediaRoot, world), { recursive: true });
-  for (const [index, remote] of imageSources.slice(0, 6).entries()) {
+  for (const remote of imageSources.slice(0, 6)) {
     if (localImages.length >= 4) break;
     const ext = (new URL(remote).pathname.match(/\.(jpe?g|png|webp)$/i)?.[1] || "jpg").toLowerCase();
     const filename = `${item.id}-${localImages.length + 1}.${ext}`;

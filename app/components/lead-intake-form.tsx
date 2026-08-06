@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { FormEvent, useState } from "react";
 import { ModernSelect } from "./modern-select";
 
 const endpoint = "/api/leads/";
@@ -21,21 +22,13 @@ type SubmitState = "idle" | "submitting" | "success" | "error";
 export function LeadIntakeForm({ purpose, selectedPackage = "", billingCycle = "", fixedWorld = "", onSuccess, submitLabel = "" }: { purpose: Purpose; selectedPackage?: string; billingCycle?: "monthly" | "annual" | ""; fixedWorld?: string; onSuccess?: () => void; submitLabel?: string }) {
   const isJoin = purpose === "join";
   const isAccessibility = purpose === "accessibility";
+  const requestedWorld = useSearchParams().get("world");
   const [state, setState] = useState<SubmitState>("idle");
   const [reference, setReference] = useState("");
   const [submissionId, setSubmissionId] = useState("");
-  const [selectedWorld, setSelectedWorld] = useState(fixedWorld || (isJoin && selectedPackage ? "providers" : "vacation"));
-  const [bookingWorld, setBookingWorld] = useState("general");
-
-  useEffect(() => {
-    if (isJoin) return;
-    const requestedWorld = new URLSearchParams(window.location.search).get("world");
-    if (requestedWorld && worldOptions.some((world) => world.id === requestedWorld)) setBookingWorld(requestedWorld);
-  }, [isJoin]);
-
-  useEffect(() => {
-    if (fixedWorld) setSelectedWorld(fixedWorld);
-  }, [fixedWorld]);
+  const [selectedWorld, setSelectedWorld] = useState(isJoin && selectedPackage ? "providers" : "vacation");
+  const effectiveSelectedWorld = fixedWorld || selectedWorld;
+  const [bookingWorld, setBookingWorld] = useState(() => requestedWorld && worldOptions.some((world) => world.id === requestedWorld) ? requestedWorld : "general");
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -98,8 +91,8 @@ export function LeadIntakeForm({ purpose, selectedPackage = "", billingCycle = "
     return (
       <section className="lead-form-success" role="status" aria-live="polite">
         <span aria-hidden="true">✓</span>
-        <h2>{isJoin ? selectedWorld === "providers" ? "הקמת עמוד הספק התחילה" : "בקשת שיתוף הפעולה התקבלה" : isAccessibility ? "דיווח הנגישות התקבל" : "בקשת ההזמנה התקבלה"}</h2>
-        <p>{isJoin ? selectedWorld === "providers" ? "פרטי העסק והמסלול שבחרתם נשמרו. לאחר אימות קצר תקבלו גישה להעלאת התוכן וקישור אישי לתשלום מאובטח." : "הפרטים נשמרו והועברו לנציג מומחה בתחום שבחרתם. הנציג יעבור על העסק ויחזור עם דרך שיתוף הפעולה המתאימה, לפני כל התחייבות." : isAccessibility ? "הדיווח נשמר עם פרטי העמוד והמכשיר שמסרתם כדי שנוכל לבדוק ולטפל בו." : "פרטי ההזמנה נשמרו. הזמינות, המחיר והתנאים יאושרו לפני כל חיוב או התחייבות."}</p>
+        <h2>{isJoin ? effectiveSelectedWorld === "providers" ? "הקמת עמוד הספק התחילה" : "בקשת שיתוף הפעולה התקבלה" : isAccessibility ? "דיווח הנגישות התקבל" : "בקשת ההזמנה התקבלה"}</h2>
+        <p>{isJoin ? effectiveSelectedWorld === "providers" ? "פרטי העסק והמסלול שבחרתם נשמרו. לאחר אימות קצר תקבלו גישה להעלאת התוכן וקישור אישי לתשלום מאובטח." : "הפרטים נשמרו והועברו לנציג מומחה בתחום שבחרתם. הנציג יעבור על העסק ויחזור עם דרך שיתוף הפעולה המתאימה, לפני כל התחייבות." : isAccessibility ? "הדיווח נשמר עם פרטי העמוד והמכשיר שמסרתם כדי שנוכל לבדוק ולטפל בו." : "פרטי ההזמנה נשמרו. הזמינות, המחיר והתנאים יאושרו לפני כל חיוב או התחייבות."}</p>
         {reference ? <strong dir="ltr">{reference}</strong> : null}
         <Link className="button secondary" href="/">חזרה לדף הבית</Link>
       </section>
@@ -115,7 +108,7 @@ export function LeadIntakeForm({ purpose, selectedPackage = "", billingCycle = "
           <div>
             {worldOptions.map((world) => (
               <label key={world.id}>
-                <input defaultChecked={world.id === selectedWorld} required type="radio" name="world" value={world.id} onChange={() => setSelectedWorld(world.id)} />
+                <input defaultChecked={world.id === effectiveSelectedWorld} required type="radio" name="world" value={world.id} onChange={() => setSelectedWorld(world.id)} />
                 <span><strong>{world.label}</strong><small>{world.description}</small></span>
               </label>
             ))}
@@ -144,9 +137,9 @@ export function LeadIntakeForm({ purpose, selectedPackage = "", billingCycle = "
       <label className="form-wide">{isJoin ? "ספרו לנו בקצרה על העסק" : isAccessibility ? "תיאור הבעיה, כתובת העמוד, המכשיר והדפדפן" : "פרטי ההזמנה, תאריך, כמות משתתפים ותקציב"}<textarea required name="message" rows={5} minLength={5} maxLength={3000} /></label>
       <label className="form-honey" aria-hidden="true">אתר החברה<input name="company_site" tabIndex={-1} autoComplete="off" /></label>
       <label className="consent legal-consent form-wide"><input required name="privacy" type="checkbox" /><span>קראתי והסכמתי ל<Link href="/legal/terms">תקנון האתר</Link> ול<Link href="/legal/privacy">מדיניות הפרטיות</Link>, ואני מאשר או מאשרת שימוש בפרטים לצורך הטיפול בבקשה.</span></label>
-      {isJoin && selectedPackage && selectedWorld === "providers" ? <div className="lead-selected-package form-wide"><span>המסלול שנבחר לספק</span><strong>{selectedPackage}</strong></div> : null}
-      {isJoin && selectedPackage && selectedWorld !== "providers" ? <div className="lead-selected-package lead-selected-package--custom form-wide"><span>מסלול שיתוף פעולה מותאם</span><strong>נציג מומחה יחזור לאחר בדיקת הפרטים, ללא חיוב בשלב הזה</strong></div> : null}
-      <button className="button primary form-wide" type="submit" disabled={state === "submitting"}>{state === "submitting" ? "שומרים את הפרטים..." : submitLabel || (isJoin && selectedWorld === "providers" ? "פתיחת חשבון והמשך לאימות" : isJoin ? "רישום ראשוני והעברה לנציג מומחה" : isAccessibility ? "שליחת דיווח נגישות" : "המשך להזמנה")}</button>
+      {isJoin && selectedPackage && effectiveSelectedWorld === "providers" ? <div className="lead-selected-package form-wide"><span>המסלול שנבחר לספק</span><strong>{selectedPackage}</strong></div> : null}
+      {isJoin && selectedPackage && effectiveSelectedWorld !== "providers" ? <div className="lead-selected-package lead-selected-package--custom form-wide"><span>מסלול שיתוף פעולה מותאם</span><strong>נציג מומחה יחזור לאחר בדיקת הפרטים, ללא חיוב בשלב הזה</strong></div> : null}
+      <button className="button primary form-wide" type="submit" disabled={state === "submitting"}>{state === "submitting" ? "שומרים את הפרטים..." : submitLabel || (isJoin && effectiveSelectedWorld === "providers" ? "פתיחת חשבון והמשך לאימות" : isJoin ? "רישום ראשוני והעברה לנציג מומחה" : isAccessibility ? "שליחת דיווח נגישות" : "המשך להזמנה")}</button>
       {state === "error" ? <p className="form-error form-wide" role="alert">השליחה לא הושלמה. הפרטים נשארו בטופס ואפשר לנסות שוב.</p> : null}
     </form>
   );

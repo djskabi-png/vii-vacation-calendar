@@ -95,7 +95,7 @@ export const spaPlaces: DiscoveryItem[] = [...curatedSpaPlaces, ...verifiedDisco
 export const hourlyPlaces: DiscoveryItem[] = [...curatedHourlyPlaces, ...verifiedDiscoveryItems("hourly").filter((item) => !curatedHourlyPlaces.some((existing) => existing.sourceUrl === item.sourceUrl))];
 
 const curatedProviderProfiles: DiscoveryItem[] = [
-  { id: "masu-home-wellness", world: "providers", name: "מאסו", searchTerms: ["מאסו", "Masu", "עיסוי עד הבית", "טיפול פנים עד הבית", "עיסוי במשרד"], location: "בכל הארץ", area: "עיסויים וטיפולי פנים עד הבית", description: "מטפלים מוסמכים שמגיעים לבית, למלון, לווילה, למשרד או לאירוע עם ציוד מתאים. ניתן להזמין עיסוי אישי, טיפול פנים, עמדות עיסוי ופעילות רווחה לצוותים.", features: ["עיסוי עד הבית", "טיפולי פנים", "אירועי חברה"], image: "/media/providers/masu/masu-home.jpg", images: ["/media/providers/masu/masu-home.jpg", "/media/providers/masu/masu-office.png"], priceLabel: "החל מ-340 ₪", sourceUrl: "https://masu.co.il/", sourceName: "מאסו", indexable: true },
+  { id: "masu-home-wellness", world: "providers", name: "מאסו", searchTerms: ["מאסו", "Masu", "עיסוי עד הבית", "טיפול פנים עד הבית", "עיסוי במשרד"], location: "בכל הארץ", area: "עיסויים וטיפולי פנים עד הבית", description: "מטפלים מוסמכים שמגיעים לבית, למלון, לווילה, למשרד או לאירוע עם ציוד מתאים. ניתן להזמין עיסוי אישי, טיפול פנים, עמדות עיסוי ופעילות רווחה לצוותים.", features: ["עיסוי עד הבית", "טיפולי פנים", "אירועי חברה"], image: "/media/providers/masu/masu-home.jpg", images: ["/media/providers/masu/masu-home.jpg", "/media/providers/masu/masu-office.png", "/media/providers/masu/masu-logo.png"], priceLabel: "החל מ-340 ₪", sourceUrl: "https://masu.co.il/", sourceName: "מאסו", indexable: true },
   { id: "maor-natan", world: "providers", name: "מאור נתן", location: "לפי מיקום האירוע", area: "שף פרטי וקייטרינג", description: "ארוחות שף פרטיות, אירוח מלא וקייטרינג בוטיק שמגיעים לבית או למקום הנופש.", features: ["שף פרטי", "אירוח מלא", "תפריט מותאם"], image: "/media/providers/maor-natan-1.jpg", images: ["/media/providers/maor-natan-1.jpg", "/media/providers/maor-natan-2.jpg", "/media/providers/maor-natan-3.jpg"], priceLabel: "מחיר לפי תפריט והרכב", sourceUrl: "https://www.maornatan.co.il/", sourceName: "האתר הרשמי של מאור נתן", indexable: true },
   { id: "nissan-mukhtar", world: "providers", name: "ניסן מוכתר", location: "כל הארץ", area: "שף פרטי", description: "ארוחות שף בבית או בווילה, עם תפריטים בשריים וחלביים לאירועים פרטיים ועסקיים.", features: ["בשרי או חלבי", "אירועים קטנים", "הגשה במקום"], image: "/media/providers/nissan-mukhtar-1.jpg", images: ["/media/providers/nissan-mukhtar-1.jpg", "/media/providers/nissan-mukhtar-2.jpg", "/media/providers/nissan-mukhtar-3.jpg"], priceLabel: "מחיר לפי תפריט והרכב", sourceUrl: "https://www.chef-b.co.il/", sourceName: "האתר הרשמי של ניסן מוכתר", indexable: true },
   { id: "dj-kfir-w", world: "providers", name: "DJ Kfir W", searchTerms: ["כפיר", "כפיר וי", "דיג׳יי כפיר"], location: "קריית עקרון", area: "תקליטן ויוצר מוזיקלי", description: "תקליטנות לחתונות, מסיבות ואירועי חברה עם קו מוזיקלי שנבנה לפי הקהל.", features: ["חתונות", "מסיבות פרטיות", "אירועי חברה"], image: "/media/providers/dj-kfir-w-1.jpg", images: ["/media/providers/dj-kfir-w-1.jpg", "/media/providers/dj-kfir-w-2.jpg", "/media/providers/dj-kfir-w-3.jpg"], priceLabel: "מחיר לפי אירוע וציוד", sourceUrl: "https://www.kfirw.co.il/", sourceName: "האתר הרשמי של כפיר וישניה", indexable: true },
@@ -139,28 +139,52 @@ const curatedPaidAttractions: DiscoveryItem[] = [
   { id: "bookable-central-workshop", world: "activities", name: "סדנאות וחוויות משפחתיות", location: "מרכז ותל אביב", area: "יצירה וקבוצות", description: "סדנת בישול, יצירה או פעילות קבוצתית שמתאימה לגיל, למספר המשתתפים ולמיקום. בוחרים אפשרות ורואים מה כלול לפני ההזמנה.", features: ["סדנאות", "משפחות וקבוצות", "הזמנה באתר"], duration: "שעה וחצי עד שלוש שעות", image: "/media/activities/mount-zefahot.jpg", imageLabel: "תמונת אווירה", indexable: false },
 ];
 
-const verifiedAttractions: DiscoveryItem[] = verifiedCatalog.attractions.map((item) => ({
-  id: item.id,
-  world: "activities",
-  name: item.name,
-  location: item.location,
-  area: item.area,
-  description: item.description,
-  features: item.features,
-  image: item.image,
-  images: item.images,
-  priceLabel: item.price ? `החל מ-${item.price} ₪` : "מחיר מוצג בבחירת מועד",
-  sourceUrl: item.sourceUrl,
-  sourceName: item.sourceName,
-  lat: item.lat,
-  lng: item.lng,
-  mapPrecision: "exact",
-  indexable: true,
-}));
+const lowQualityAttractionMedia = new Set([
+  "/media/verified/attractions/kfar-blum-kayaks-1.png",
+  "/media/verified/attractions/aqua-kef-1.png",
+  "/media/verified/attractions/aqua-kef-2.png",
+  "/media/verified/attractions/aqua-kef-4.webp",
+  "/media/verified/attractions/haifa-museums-1.png",
+  "/media/verified/attractions/safari-ramat-gan-1.png",
+  "/media/verified/attractions/safari-ramat-gan-2.png",
+  "/media/verified/attractions/safari-ramat-gan-3.png",
+  "/media/verified/attractions/safari-ramat-gan-4.png",
+  "/media/verified/attractions/underwater-observatory-2.png",
+  "/media/verified/attractions/underwater-observatory-3.png",
+  "/media/verified/attractions/underwater-observatory-4.png",
+  "/media/verified/attractions/dolphin-reef-3.jpg",
+  "/media/verified/attractions/camel-ranch-eilat-1.png",
+  "/media/verified/attractions/camel-ranch-eilat-2.png",
+  "/media/verified/attractions/camel-ranch-eilat-3.png",
+]);
+
+const verifiedAttractions: DiscoveryItem[] = verifiedCatalog.attractions.flatMap((item) => {
+  const images = item.images.filter((image) => !lowQualityAttractionMedia.has(image));
+  if (images.length < 3) return [];
+  return [{
+    id: item.id,
+    world: "activities" as const,
+    name: item.name,
+    location: item.location,
+    area: item.area,
+    description: item.description,
+    features: item.features,
+    image: images[0],
+    images,
+    priceLabel: item.price ? `החל מ-${item.price} ₪` : "מחיר מוצג בבחירת מועד",
+    sourceUrl: item.sourceUrl,
+    sourceName: item.sourceName,
+    lat: item.lat,
+    lng: item.lng,
+    mapPrecision: "exact" as const,
+    indexable: true,
+  }];
+});
 
 export const paidAttractions: DiscoveryItem[] = [
   ...verifiedAttractions,
   ...curatedPaidAttractions.filter((item) => !verifiedAttractions.some((verified) => verified.id === item.id)),
 ];
 
-export const discoveryItems = [...spaPlaces, ...hourlyPlaces, ...providerProfiles, ...activityIdeas, ...paidAttractions];
+export const discoveryItems = [...spaPlaces, ...hourlyPlaces, ...providerProfiles, ...activityIdeas, ...paidAttractions]
+  .filter((item) => item.indexable !== false && (item.images?.length || 0) >= 3);

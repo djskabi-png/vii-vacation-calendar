@@ -262,13 +262,13 @@ export function ListingMap({ listings, mode = "vacation", single = false, autoLo
 
 export function DiscoveryMap({ items, tone, single = false, autoLoad = false, onClose }: { items: DiscoveryItem[]; tone: "spa" | "hourly"; single?: boolean; autoLoad?: boolean; onClose?: () => void }) {
   const { language } = useSiteLanguage();
-  const localized = language === "en"
+  const localized = useMemo(() => language === "en"
     ? { spa: "Spa and treatments", hourly: "Hourly stay", packages: "Packages and treatments", short: "Short stay", from: "From" }
     : language === "ru"
       ? { spa: "Спа и процедуры", hourly: "Почасовое размещение", packages: "Пакеты и процедуры", short: "Короткое пребывание", from: "От" }
       : language === "fr"
         ? { spa: "Spa et soins", hourly: "Séjour à l'heure", packages: "Forfaits et soins", short: "Court séjour", from: "À partir de" }
-        : null;
+        : null, [language]);
   const places = useMemo<MapPlace[]>(() => items.filter((item) => typeof item.lat === "number" && typeof item.lng === "number").map((item) => {
     const price = item.priceLabel?.match(/[\d,.]+/)?.[0];
     return {

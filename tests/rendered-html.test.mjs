@@ -325,7 +325,7 @@ test("checkout journeys include legal consent and safe demo payment", async () =
 });
 
 test("attraction booking follows the supplier conversion mode", async () => {
-  const response = await render("/discover/place?id=horseback-idea");
+  const response = await render("/discover/place?id=kfar-blum-kayaks");
   const html = await response.text();
   assert.equal(response.status, 200);
   assert.match(html, /איך מזמינים את האטרקציה/);
@@ -530,8 +530,9 @@ test("independent trails are sourced, filterable and connected to stays", async 
   assert.match(listing, /setDifficulty/);
   assert.match(listing, /setNature/);
   assert.match(detail, /המידע אינו אישור שהמסלול פתוח כרגע/);
-  assert.match(detail, /officialSource/);
-  assert.match(detail, /פתיחת נקודת ההתחלה במפה/);
+  assert.match(detail, /sourceName/);
+  assert.match(detail, /נקודת התחלה לחיפוש במפה/);
+  assert.doesNotMatch(detail, /href=\{trail\.officialSource\}/);
   assert.match(activities, /מסלולי טיול עצמאיים/);
   assert.match(activities, /אטרקציות בתשלום/);
   assert.match(home, /מסלולים ליד החופשה/);
@@ -549,7 +550,8 @@ test("all trail guides render as public pages", async () => {
     const response = await render(`/trails/${slug}`);
     assert.equal(response.status, 200, slug);
     const html = await response.text();
-    assert.match(html, /מקור רשמי ומבזקים/, slug);
+    assert.match(html, /מקור המידע שנבדק/, slug);
+    assert.match(html, /נקודת התחלה לחיפוש במפה/, slug);
     assert.match(html, /application\/ld\+json/, slug);
   }
 });
@@ -803,8 +805,8 @@ test("every discovery card has stable media and every new world has a full detai
 
   for (const [pathname, expected] of [
     ["/discover/place?id=gentleman-haifa", /אפשרויות שהייה/],
-    ["/discover/place?id=eilat-sunset", /תוכנית מוצעת/],
-    ["/discover/place?id=horseback-idea", /כך מתאימים את החוויה/],
+    ["/discover/place?id=timna-park", /איך מזמינים את האטרקציה/],
+    ["/discover/place?id=kfar-blum-kayaks", /איך מזמינים את האטרקציה/],
     ["/discover/place?id=assemblage-spa", /חבילות הספא/],
   ]) {
     const response = await render(pathname);
@@ -862,7 +864,7 @@ test("every business depth template exposes an internal gallery", async () => {
     ["/discover/place?id=spa-butik-tlv", "ספא בוטיק תל אביב"],
     ["/discover/place?id=gentleman-haifa", "ג׳נטלמן חיפה"],
     ["/discover/place?id=masu-home-wellness", "מאסו"],
-    ["/discover/place?id=eilat-sunset", "שקיעה לאורך מפרץ אילת"],
+    ["/discover/place?id=timna-park", "פארק תמנע"],
   ]) {
     const response = await render(pathname);
     const html = await response.text();

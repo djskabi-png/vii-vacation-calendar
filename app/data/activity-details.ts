@@ -60,7 +60,7 @@ const plans: Record<string, { highlights: string[]; plan: string[]; preparation:
 };
 
 export function getActivityDetails(item: DiscoveryItem): ActivityDetails {
-  const matching = item.id === "horseback-idea" || item.id === "atv-idea" || item.id.startsWith("bookable-");
+  const matching = item.world === "activities";
   const content = plans[item.id] || {
     highlights: ["התאמה לפי אזור מקום האירוח", "בדיקת ספק וזמינות לפני הצגה", "תנאים ומחיר מלאים לפני אישור", "תהליך הזמנה שנשאר בתוך אתר VII"],
     plan: ["בוחרים אזור, תאריך והרכב", "המערכת מציגה אפשרויות פעילות מתאימות", "בודקים מה כלול, מגבלות ומדיניות ביטול", "משלימים הזמנה או עוברים לשיחה עם הספק לפי שיטת המכירה שלו"],
