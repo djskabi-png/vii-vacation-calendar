@@ -125,10 +125,11 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
                 {item.label}
               </Link>
             ))}
+            <Link className={`magazine-nav-link${magazineActive ? " active" : ""}`} href="/guides" aria-current={magazineActive ? "page" : undefined}><span>{magazineCopy.label}</span><small>{magazineCopy.badge}</small></Link>
           </nav>
 
           <div className="header-actions">
-            <Link className={`magazine-header-link${magazineActive ? " active" : ""}`} href="/guides" aria-current={magazineActive ? "page" : undefined}><span>{magazineCopy.badge}</span>{magazineCopy.label}</Link>
+            <Link className={`magazine-mobile-link${magazineActive ? " active" : ""}`} href="/guides" aria-current={magazineActive ? "page" : undefined}><span>{magazineCopy.label}</span><small>{magazineCopy.badge}</small></Link>
             <Link className="icon-button" href="/favorites" aria-label="מקומות שאהבתי"><HeartIcon /></Link>
             <LanguageSwitcher compact />
             <button ref={menuButtonRef} className="menu-button" type="button" aria-expanded={menuOpen} aria-haspopup="dialog" aria-label="פתיחת תפריט" onClick={() => setMenuOpen(true)}><MenuIcon /><span>תפריט</span></button>
