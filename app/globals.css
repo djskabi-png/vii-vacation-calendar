@@ -4078,7 +4078,7 @@ body:has(.cookie-card) .world-dock { bottom: 118px; }
 .smart-concierge { right: 24px; bottom: 24px; font-family: inherit; }
 .smart-concierge__trigger { position: relative; min-width: 236px; min-height: 72px; grid-template-columns: 48px 1fr; align-items: center; gap: 12px; padding: 10px 12px 10px 16px; color: #fff; border: 1px solid rgba(255,255,255,.24); border-radius: 24px 24px 7px 24px; background: linear-gradient(135deg,#078c91 0%,#1182b5 100%); box-shadow: 0 18px 46px rgba(0,73,88,.27),inset 0 1px rgba(255,255,255,.2); transition: transform .2s ease,box-shadow .2s ease; }
 .smart-concierge__trigger:hover { transform: translateY(-2px); box-shadow: 0 22px 52px rgba(0,73,88,.33),inset 0 1px rgba(255,255,255,.22); }
-.smart-concierge.open .smart-concierge__trigger { transform: scale(.96); opacity: .82; }
+.smart-concierge.open .smart-concierge__trigger { pointer-events: none; transform: translateY(12px) scale(.92); opacity: 0; }
 .smart-concierge__trigger-avatar,.smart-concierge__avatar { position: relative; display: grid; place-items: center; color: #096879; background: linear-gradient(145deg,#fff,#eaf9fa); font-size: .7rem; font-weight: 950; letter-spacing: -.03em; box-shadow: 0 8px 18px rgba(0,48,59,.13); }
 .smart-concierge__trigger-avatar { width: 48px; height: 48px; border-radius: 17px; }
 .smart-concierge__trigger-avatar i,.smart-concierge__avatar i { position: absolute; right: -2px; bottom: -2px; width: 12px; height: 12px; border: 3px solid #fff; border-radius: 50%; background: #2bc277; }
