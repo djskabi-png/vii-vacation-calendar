@@ -41,6 +41,33 @@ function loadTranslations(language: GeneratedLanguage) {
 
 const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, string>> = {
   en: {
+    "\u05e9\u05dd \u05dc\u05d4\u05d6\u05de\u05e0\u05d4": "Booking name",
+    "\u05d0\u05d9\u05da \u05dc\u05e4\u05e0\u05d5\u05ea \u05d0\u05dc\u05d9\u05db\u05dd?": "How should we address you?",
+    "\u05d8\u05dc\u05e4\u05d5\u05df \u05dc\u05d7\u05d6\u05e8\u05d4": "Callback phone",
+    "\u05de\u05e1\u05e4\u05e8 \u05d8\u05dc\u05e4\u05d5\u05df": "Phone number",
+    "\u05d4\u05e2\u05e8\u05d4 \u05dc\u05d1\u05e2\u05dc \u05d4\u05de\u05e7\u05d5\u05dd": "Note to the host",
+    "\u05d1\u05e7\u05e9\u05d4 \u05de\u05d9\u05d5\u05d7\u05d3\u05ea, \u05d2\u05d9\u05dc\u05d0\u05d9 \u05d9\u05dc\u05d3\u05d9\u05dd \u05d0\u05d5 \u05db\u05dc \u05e4\u05e8\u05d8 \u05d7\u05e9\u05d5\u05d1": "Special request, children's ages or any important detail",
+    "\u05d1\u05d7\u05d9\u05e8\u05ea \u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd": "Choose dates",
+    "\u05d1\u05d7\u05e8\u05d5 \u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd \u05db\u05d3\u05d9 \u05dc\u05e9\u05dc\u05d5\u05d7 \u05d1\u05e7\u05e9\u05d4": "Choose dates to send a request",
+    "\u05d4\u05e2\u05d3\u05e4\u05d4 \u05dc\u05e9\u05d9\u05d7\u05d4? \u05d7\u05d9\u05d5\u05d2 \u05dc\u05de\u05e7\u05d5\u05dd": "Prefer to talk? Call the property",
+    "\u05d4\u05d1\u05e7\u05e9\u05d4 \u05e0\u05e4\u05ea\u05d7\u05ea \u05d1\u05d5\u05d5\u05d0\u05d8\u05e1\u05d0\u05e4 \u05e2\u05dd \u05d4\u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd, \u05de\u05e1\u05e4\u05e8 \u05d4\u05d0\u05d5\u05e8\u05d7\u05d9\u05dd \u05d5\u05d4\u05e4\u05e8\u05d8\u05d9\u05dd \u05e9\u05de\u05d9\u05dc\u05d0\u05ea\u05dd. \u05d4\u05d4\u05d6\u05de\u05e0\u05d4 \u05e1\u05d5\u05e4\u05d9\u05ea \u05e8\u05e7 \u05dc\u05d0\u05d7\u05e8 \u05d0\u05d9\u05e9\u05d5\u05e8 \u05d4\u05de\u05e7\u05d5\u05dd.": "Your request opens in WhatsApp with the dates, guest count and details you entered. The booking is final only after the property confirms it.",
+    "\u05de\u05e1\u05e0\u05e0\u05d9\u05dd \u05dc\u05e4\u05d9 \u05de\u05d4 \u05e9\u05d7\u05e9\u05d5\u05d1 \u05dc\u05db\u05dd": "Filter by what matters to you",
+    "\u05de\u05ea\u05d7\u05de\u05d9 \u05e1\u05e4\u05d0 \u05e0\u05de\u05e6\u05d0\u05d5": "spa venues found",
+    "\u05e1\u05e4\u05d0 \u05d1\u05d5\u05d8\u05d9\u05e7 \u05d0\u05d5 \u05e4\u05e8\u05d8\u05d9": "Boutique or private spa",
+    "\u05d1\u05d7\u05e8\u05d5 \u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd": "Choose dates",
+    "\u05d0\u05d9\u05dc\u05ea": "Eilat",
+    "\u05e6\u05e4\u05d5\u05df": "North",
+    "\u05db\u05e0\u05e8\u05ea": "Sea of Galilee",
+    "\u05d2\u05dc\u05d9\u05dc \u05de\u05e2\u05e8\u05d1\u05d9": "Western Galilee",
+    "\u05de\u05e8\u05db\u05d6": "Central Israel",
+    "\u05d9\u05e8\u05d5\u05e9\u05dc\u05d9\u05dd": "Jerusalem",
+    "\u05d9\u05dd \u05d4\u05de\u05dc\u05d7": "Dead Sea",
+    "\u05de\u05e1\u05dc\u05d5\u05dc\u05d9 \u05d8\u05d9\u05d5\u05dc\u05d9\u05dd": "Hiking trails",
+    "\u05d4\u05d7\u05e9\u05d1\u05d5\u05df \u05d4\u05d0\u05d9\u05e9\u05d9 \u05e9\u05dc\u05d9": "My account",
+    "\u05e4\u05e8\u05e1\u05d5\u05dd \u05d5\u05d4\u05e6\u05d8\u05e8\u05e4\u05d5\u05ea \u05dc\u05d0\u05ea\u05e8": "Advertise and join VII",
+    "\u05e0\u05d9\u05d4\u05d5\u05dc \u05d4\u05d6\u05de\u05e0\u05d4": "Manage booking",
+    "\u05e4\u05ea\u05d9\u05d7\u05ea \u05db\u05dc\u05d9 \u05d4\u05e0\u05d2\u05d9\u05e9\u05d5\u05ea": "Open accessibility tools",
+    "\u05db\u05dc\u05d9 \u05e0\u05d2\u05d9\u05e9\u05d5\u05ea": "Accessibility tools",
     "וי פור ויקיישן": "VII Vacation",
     "וי פור ויקיישן | מוצאים את החופשה שמתאימה לכם": "VII Vacation | Find your perfect stay",
     "כל החופשה, במקום אחד": "Your whole getaway, in one place",
@@ -77,6 +104,33 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "These cards are search shortcuts. Availability and final pricing are confirmed after selecting dates and guests.",
   },
   ru: {
+    "\u05e9\u05dd \u05dc\u05d4\u05d6\u05de\u05e0\u05d4": "Имя для бронирования",
+    "\u05d0\u05d9\u05da \u05dc\u05e4\u05e0\u05d5\u05ea \u05d0\u05dc\u05d9\u05db\u05dd?": "Как к вам обращаться?",
+    "\u05d8\u05dc\u05e4\u05d5\u05df \u05dc\u05d7\u05d6\u05e8\u05d4": "Телефон для связи",
+    "\u05de\u05e1\u05e4\u05e8 \u05d8\u05dc\u05e4\u05d5\u05df": "Номер телефона",
+    "\u05d4\u05e2\u05e8\u05d4 \u05dc\u05d1\u05e2\u05dc \u05d4\u05de\u05e7\u05d5\u05dd": "Сообщение владельцу",
+    "\u05d1\u05e7\u05e9\u05d4 \u05de\u05d9\u05d5\u05d7\u05d3\u05ea, \u05d2\u05d9\u05dc\u05d0\u05d9 \u05d9\u05dc\u05d3\u05d9\u05dd \u05d0\u05d5 \u05db\u05dc \u05e4\u05e8\u05d8 \u05d7\u05e9\u05d5\u05d1": "Особые пожелания, возраст детей или важная информация",
+    "\u05d1\u05d7\u05d9\u05e8\u05ea \u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd": "Выбрать даты",
+    "\u05d1\u05d7\u05e8\u05d5 \u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd \u05db\u05d3\u05d9 \u05dc\u05e9\u05dc\u05d5\u05d7 \u05d1\u05e7\u05e9\u05d4": "Выберите даты, чтобы отправить запрос",
+    "\u05d4\u05e2\u05d3\u05e4\u05d4 \u05dc\u05e9\u05d9\u05d7\u05d4? \u05d7\u05d9\u05d5\u05d2 \u05dc\u05de\u05e7\u05d5\u05dd": "Предпочитаете звонок? Позвонить объекту",
+    "\u05d4\u05d1\u05e7\u05e9\u05d4 \u05e0\u05e4\u05ea\u05d7\u05ea \u05d1\u05d5\u05d5\u05d0\u05d8\u05e1\u05d0\u05e4 \u05e2\u05dd \u05d4\u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd, \u05de\u05e1\u05e4\u05e8 \u05d4\u05d0\u05d5\u05e8\u05d7\u05d9\u05dd \u05d5\u05d4\u05e4\u05e8\u05d8\u05d9\u05dd \u05e9\u05de\u05d9\u05dc\u05d0\u05ea\u05dd. \u05d4\u05d4\u05d6\u05de\u05e0\u05d4 \u05e1\u05d5\u05e4\u05d9\u05ea \u05e8\u05e7 \u05dc\u05d0\u05d7\u05e8 \u05d0\u05d9\u05e9\u05d5\u05e8 \u05d4\u05de\u05e7\u05d5\u05dd.": "Запрос откроется в WhatsApp с датами, числом гостей и введёнными данными. Бронирование окончательно только после подтверждения объектом.",
+    "\u05de\u05e1\u05e0\u05e0\u05d9\u05dd \u05dc\u05e4\u05d9 \u05de\u05d4 \u05e9\u05d7\u05e9\u05d5\u05d1 \u05dc\u05db\u05dd": "Фильтры по важным параметрам",
+    "\u05de\u05ea\u05d7\u05de\u05d9 \u05e1\u05e4\u05d0 \u05e0\u05de\u05e6\u05d0\u05d5": "спа-центров найдено",
+    "\u05e1\u05e4\u05d0 \u05d1\u05d5\u05d8\u05d9\u05e7 \u05d0\u05d5 \u05e4\u05e8\u05d8\u05d9": "Бутик-спа или частный спа",
+    "\u05d1\u05d7\u05e8\u05d5 \u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd": "Выберите даты",
+    "\u05d0\u05d9\u05dc\u05ea": "Эйлат",
+    "\u05e6\u05e4\u05d5\u05df": "Север",
+    "\u05db\u05e0\u05e8\u05ea": "Кинерет",
+    "\u05d2\u05dc\u05d9\u05dc \u05de\u05e2\u05e8\u05d1\u05d9": "Западная Галилея",
+    "\u05de\u05e8\u05db\u05d6": "Центр Израиля",
+    "\u05d9\u05e8\u05d5\u05e9\u05dc\u05d9\u05dd": "Иерусалим",
+    "\u05d9\u05dd \u05d4\u05de\u05dc\u05d7": "Мёртвое море",
+    "\u05de\u05e1\u05dc\u05d5\u05dc\u05d9 \u05d8\u05d9\u05d5\u05dc\u05d9\u05dd": "Маршруты",
+    "\u05d4\u05d7\u05e9\u05d1\u05d5\u05df \u05d4\u05d0\u05d9\u05e9\u05d9 \u05e9\u05dc\u05d9": "Мой аккаунт",
+    "\u05e4\u05e8\u05e1\u05d5\u05dd \u05d5\u05d4\u05e6\u05d8\u05e8\u05e4\u05d5\u05ea \u05dc\u05d0\u05ea\u05e8": "Реклама и подключение к VII",
+    "\u05e0\u05d9\u05d4\u05d5\u05dc \u05d4\u05d6\u05de\u05e0\u05d4": "Управление бронированием",
+    "\u05e4\u05ea\u05d9\u05d7\u05ea \u05db\u05dc\u05d9 \u05d4\u05e0\u05d2\u05d9\u05e9\u05d5\u05ea": "Открыть инструменты доступности",
+    "\u05db\u05dc\u05d9 \u05e0\u05d2\u05d9\u05e9\u05d5\u05ea": "Инструменты доступности",
     "וי פור ויקיישן": "VII Vacation",
     "וי פור ויקיישן | מוצאים את החופשה שמתאימה לכם": "VII Vacation | Найдите идеальный отдых",
     "כל החופשה, במקום אחד": "Весь отдых в одном месте",
@@ -113,6 +167,33 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "Карточки ведут к поиску. Наличие мест и итоговая цена подтверждаются после выбора дат и состава гостей.",
   },
   fr: {
+    "\u05e9\u05dd \u05dc\u05d4\u05d6\u05de\u05e0\u05d4": "Nom de la réservation",
+    "\u05d0\u05d9\u05da \u05dc\u05e4\u05e0\u05d5\u05ea \u05d0\u05dc\u05d9\u05db\u05dd?": "Comment devons-nous vous appeler ?",
+    "\u05d8\u05dc\u05e4\u05d5\u05df \u05dc\u05d7\u05d6\u05e8\u05d4": "Téléphone de rappel",
+    "\u05de\u05e1\u05e4\u05e8 \u05d8\u05dc\u05e4\u05d5\u05df": "Numéro de téléphone",
+    "\u05d4\u05e2\u05e8\u05d4 \u05dc\u05d1\u05e2\u05dc \u05d4\u05de\u05e7\u05d5\u05dd": "Message au propriétaire",
+    "\u05d1\u05e7\u05e9\u05d4 \u05de\u05d9\u05d5\u05d7\u05d3\u05ea, \u05d2\u05d9\u05dc\u05d0\u05d9 \u05d9\u05dc\u05d3\u05d9\u05dd \u05d0\u05d5 \u05db\u05dc \u05e4\u05e8\u05d8 \u05d7\u05e9\u05d5\u05d1": "Demande spéciale, âge des enfants ou toute information importante",
+    "\u05d1\u05d7\u05d9\u05e8\u05ea \u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd": "Choisir les dates",
+    "\u05d1\u05d7\u05e8\u05d5 \u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd \u05db\u05d3\u05d9 \u05dc\u05e9\u05dc\u05d5\u05d7 \u05d1\u05e7\u05e9\u05d4": "Choisissez les dates pour envoyer une demande",
+    "\u05d4\u05e2\u05d3\u05e4\u05d4 \u05dc\u05e9\u05d9\u05d7\u05d4? \u05d7\u05d9\u05d5\u05d2 \u05dc\u05de\u05e7\u05d5\u05dd": "Vous préférez parler ? Appelez l'établissement",
+    "\u05d4\u05d1\u05e7\u05e9\u05d4 \u05e0\u05e4\u05ea\u05d7\u05ea \u05d1\u05d5\u05d5\u05d0\u05d8\u05e1\u05d0\u05e4 \u05e2\u05dd \u05d4\u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd, \u05de\u05e1\u05e4\u05e8 \u05d4\u05d0\u05d5\u05e8\u05d7\u05d9\u05dd \u05d5\u05d4\u05e4\u05e8\u05d8\u05d9\u05dd \u05e9\u05de\u05d9\u05dc\u05d0\u05ea\u05dd. \u05d4\u05d4\u05d6\u05de\u05e0\u05d4 \u05e1\u05d5\u05e4\u05d9\u05ea \u05e8\u05e7 \u05dc\u05d0\u05d7\u05e8 \u05d0\u05d9\u05e9\u05d5\u05e8 \u05d4\u05de\u05e7\u05d5\u05dd.": "La demande s'ouvre dans WhatsApp avec les dates, le nombre de voyageurs et les informations saisies. La réservation n'est définitive qu'après confirmation de l'établissement.",
+    "\u05de\u05e1\u05e0\u05e0\u05d9\u05dd \u05dc\u05e4\u05d9 \u05de\u05d4 \u05e9\u05d7\u05e9\u05d5\u05d1 \u05dc\u05db\u05dd": "Filtrez selon vos priorités",
+    "\u05de\u05ea\u05d7\u05de\u05d9 \u05e1\u05e4\u05d0 \u05e0\u05de\u05e6\u05d0\u05d5": "spas trouvés",
+    "\u05e1\u05e4\u05d0 \u05d1\u05d5\u05d8\u05d9\u05e7 \u05d0\u05d5 \u05e4\u05e8\u05d8\u05d9": "Spa boutique ou privé",
+    "\u05d1\u05d7\u05e8\u05d5 \u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd": "Choisir les dates",
+    "\u05d0\u05d9\u05dc\u05ea": "Eilat",
+    "\u05e6\u05e4\u05d5\u05df": "Nord",
+    "\u05db\u05e0\u05e8\u05ea": "Lac de Tibériade",
+    "\u05d2\u05dc\u05d9\u05dc \u05de\u05e2\u05e8\u05d1\u05d9": "Galilée occidentale",
+    "\u05de\u05e8\u05db\u05d6": "Centre d'Israël",
+    "\u05d9\u05e8\u05d5\u05e9\u05dc\u05d9\u05dd": "Jérusalem",
+    "\u05d9\u05dd \u05d4\u05de\u05dc\u05d7": "Mer Morte",
+    "\u05de\u05e1\u05dc\u05d5\u05dc\u05d9 \u05d8\u05d9\u05d5\u05dc\u05d9\u05dd": "Randonnées",
+    "\u05d4\u05d7\u05e9\u05d1\u05d5\u05df \u05d4\u05d0\u05d9\u05e9\u05d9 \u05e9\u05dc\u05d9": "Mon compte",
+    "\u05e4\u05e8\u05e1\u05d5\u05dd \u05d5\u05d4\u05e6\u05d8\u05e8\u05e4\u05d5\u05ea \u05dc\u05d0\u05ea\u05e8": "Publier et rejoindre VII",
+    "\u05e0\u05d9\u05d4\u05d5\u05dc \u05d4\u05d6\u05de\u05e0\u05d4": "Gérer une réservation",
+    "\u05e4\u05ea\u05d9\u05d7\u05ea \u05db\u05dc\u05d9 \u05d4\u05e0\u05d2\u05d9\u05e9\u05d5\u05ea": "Ouvrir les outils d'accessibilité",
+    "\u05db\u05dc\u05d9 \u05e0\u05d2\u05d9\u05e9\u05d5\u05ea": "Outils d'accessibilité",
     "\u05d5\u05d9 \u05e4\u05d5\u05e8 \u05d5\u05d9\u05e7\u05d9\u05d9\u05e9\u05df": "VII Vacation",
     "\u05db\u05dc \u05d4\u05d7\u05d5\u05e4\u05e9\u05d4, \u05d1\u05de\u05e7\u05d5\u05dd \u05d0\u05d7\u05d3": "Toutes vos vacances, au même endroit",
     "\u05de\u05d5\u05e6\u05d0\u05d9\u05dd \u05d0\u05ea \u05d4\u05d7\u05d5\u05e4\u05e9\u05d4 \u05e9\u05de\u05ea\u05d0\u05d9\u05de\u05d4 \u05dc\u05db\u05dd": "Trouvez le séjour qui vous correspond",
@@ -128,6 +209,20 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
 
 const finalUiTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, string>> = {
   en: {
+    "חברות": "Corporate",
+    "שינוי חיפוש": "Change search",
+    "סגירת החיפוש": "Close search",
+    "סינון תוצאות ספא": "Filter spa results",
+    "סוג המקום, מתקנים וחבילות": "Place type, amenities and packages",
+    "ספא בבית מלון": "Hotel spa",
+    "חבילה זוגית": "Couples package",
+    "חבילה עם ארוחה": "Package with a meal",
+    "החליקו לעוד סינונים": "Swipe for more filters",
+    "סינונים פעילים": "Active filters",
+    "סינונים פעילים:": "Active filters:",
+    "לא נמצאו מתחמים שמתאימים לכל הסינונים": "No spa venues match all filters",
+    "אפשר להסיר מאפיין אחד או לבחור אזור רחב יותר.": "Remove one filter or choose a wider area.",
+    "הצגת כל מתחמי הספא": "Show all spa venues",
     "הנציג החכם של האתר": "Site concierge",
     "נציג החופשה של וי": "Your VII vacation concierge",
     "זמין עכשיו באתר": "Online on the site",
@@ -218,6 +313,20 @@ const finalUiTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "שהייה קצרה": "Short stay",
   },
   ru: {
+    "חברות": "Для компаний",
+    "שינוי חיפוש": "Изменить поиск",
+    "סגירת החיפוש": "Закрыть поиск",
+    "סינון תוצאות ספא": "Фильтр результатов спа",
+    "סוג המקום, מתקנים וחבילות": "Тип места, удобства и пакеты",
+    "ספא בבית מלון": "Спа в отеле",
+    "חבילה זוגית": "Пакет для пары",
+    "חבילה עם ארוחה": "Пакет с питанием",
+    "החליקו לעוד סינונים": "Проведите, чтобы увидеть больше фильтров",
+    "סינונים פעילים": "Активные фильтры",
+    "סינונים פעילים:": "Активные фильтры:",
+    "לא נמצאו מתחמים שמתאימים לכל הסינונים": "Нет спа, соответствующих всем фильтрам",
+    "אפשר להסיר מאפיין אחד או לבחור אזור רחב יותר.": "Уберите один фильтр или выберите более широкий регион.",
+    "הצגת כל מתחמי הספא": "Показать все спа",
     "הנציג החכם של האתר": "Умный консультант сайта",
     "נציג החופשה של וי": "Ваш консультант VII",
     "זמין עכשיו באתר": "Сейчас онлайн",
@@ -308,6 +417,20 @@ const finalUiTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "שהייה קצרה": "Короткое пребывание",
   },
   fr: {
+    "חברות": "Entreprises",
+    "שינוי חיפוש": "Modifier la recherche",
+    "סגירת החיפוש": "Fermer la recherche",
+    "סינון תוצאות ספא": "Filtrer les résultats spa",
+    "סוג המקום, מתקנים וחבילות": "Type de lieu, équipements et formules",
+    "ספא בבית מלון": "Spa d’hôtel",
+    "חבילה זוגית": "Formule en duo",
+    "חבילה עם ארוחה": "Formule avec repas",
+    "החליקו לעוד סינונים": "Faites glisser pour voir plus de filtres",
+    "סינונים פעילים": "Filtres actifs",
+    "סינונים פעילים:": "Filtres actifs :",
+    "לא נמצאו מתחמים שמתאימים לכל הסינונים": "Aucun spa ne correspond à tous les filtres",
+    "אפשר להסיר מאפיין אחד או לבחור אזור רחב יותר.": "Retirez un filtre ou choisissez une zone plus large.",
+    "הצגת כל מתחמי הספא": "Afficher tous les spas",
     "הנציג החכם של האתר": "Concierge intelligent du site",
     "נציג החופשה של וי": "Votre concierge VII",
     "זמין עכשיו באתר": "Disponible sur le site",
@@ -409,6 +532,45 @@ function dictionary(language: SiteLanguage): Record<string, string> {
 }
 
 function translateDynamic(value: string, language: Exclude<SiteLanguage, "he">) {
+  const translatePart = (source: string) => finalUiTranslations[language][source]
+    || curatedTranslations[language][source]
+    || dictionary(language)[source]
+    || source;
+
+  const searchSummaryMatch = value.match(/^שינוי חיפוש\.\s*(.+)$/);
+  if (searchSummaryMatch) {
+    const translatedSummary = searchSummaryMatch[1]
+      .split(/\s*[·•]\s*/)
+      .map((part) => translateValue(part, language).trim())
+      .join(" · ");
+    return language === "en"
+      ? `Change search. ${translatedSummary}`
+      : language === "fr"
+        ? `Modifier la recherche. ${translatedSummary}`
+        : `Изменить поиск. ${translatedSummary}`;
+  }
+
+  const removeFilterMatch = value.match(/^הסרת הסינון (.+)$/);
+  if (removeFilterMatch) {
+    const label = translatePart(removeFilterMatch[1]);
+    return language === "en"
+      ? `Remove ${label} filter`
+      : language === "fr"
+        ? `Retirer le filtre ${label}`
+        : `Убрать фильтр ${label}`;
+  }
+
+  const favoriteMatch = value.match(/^(שמירת|הסרת) (.+) (?:במקומות שאהבתי|מהמקומות שאהבתי)$/);
+  if (favoriteMatch) {
+    const name = translatePart(favoriteMatch[2]);
+    const saving = favoriteMatch[1] === "שמירת";
+    return language === "en"
+      ? `${saving ? "Save" : "Remove"} ${name} ${saving ? "to" : "from"} favorites`
+      : language === "fr"
+        ? `${saving ? "Ajouter" : "Retirer"} ${name} ${saving ? "aux" : "des"} favoris`
+        : `${saving ? "Добавить" : "Удалить"} ${name} ${saving ? "в избранное" : "из избранного"}`;
+  }
+
   const showPlacesMatch = value.match(/^\u05d4\u05e6\u05d2\u05ea (\d+) \u05de\u05e7\u05d5\u05de\u05d5\u05ea$/);
   if (showPlacesMatch) {
     return language === "en"

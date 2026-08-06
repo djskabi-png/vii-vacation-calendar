@@ -3673,9 +3673,9 @@ body:has(.cookie-card) .smart-concierge { display: none; }
   .header-actions .language-trigger__label { min-width: 52px; }
   .header-actions .language-menu { min-width: 205px; }
   .header-actions { min-width: 0; gap: 6px; }
-  .magazine-mobile-link { position: relative; min-height: 38px; display: inline-flex; align-items: center; padding: 0 10px; border: 0; border-radius: 999px; color: var(--ink-soft); background: transparent; font-size: .8rem; font-weight: 800; }
+  .magazine-mobile-link { position: relative; min-height: 38px; display: inline-flex; align-items: center; gap: 4px; padding: 0 10px; border: 0; border-radius: 999px; color: var(--ink-soft); background: transparent; font-size: .8rem; font-weight: 800; white-space: nowrap; }
   .magazine-mobile-link.active { color: var(--teal-dark); background: var(--mist); }
-  .magazine-mobile-link small { position: static; margin-inline-start: 4px; padding: 1px 4px; border-radius: 999px; background: #ff8b3d; color: white; font-size: .48rem; line-height: 1.35; }
+  .magazine-mobile-link small { position: static; flex: 0 0 auto; margin-inline-start: 0; padding: 1px 4px; border-radius: 999px; background: #ff8b3d; color: white; font-size: .48rem; line-height: 1.35; }
   .menu-button span { display: none; }
   .menu-button { width: 44px; padding: 0; }
   .home-hero { min-height: auto; padding: 55px 0; }
@@ -4503,7 +4503,10 @@ body:has(.cookie-card) .smart-concierge { display: none; }
 }
 
 @media (max-width: 560px) {
-  .magazine-mobile-link { padding-inline: 8px; font-size: .76rem; }
+  .site-header__inner { gap: 6px; }
+  .brand, .brand img { width: 76px; }
+  .magazine-mobile-link { min-height: 34px; gap: 5px; padding-inline: 5px; font-size: .68rem; }
+  .magazine-mobile-link small { width: 7px; height: 7px; overflow: hidden; padding: 0; color: transparent; font-size: 0; }
   .home-recommended .section-head, .home-spa-strip .section-head, .home-short-stay .section-head { display: grid; grid-template-columns: 1fr; }
   .home-recommended .section-head > div:last-child, .home-spa-strip .section-head > div:last-child, .home-short-stay .section-head > div:last-child { flex-direction: row; justify-content: space-between; align-items: center; }
   .home-slider__item, .home-slider__track--discovery .home-slider__item { flex-basis: calc(100vw - 48px); }

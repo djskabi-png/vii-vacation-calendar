@@ -60,7 +60,7 @@ function SpaResults({ items }: { items: DiscoveryItem[] }) {
   return <div className="world-map-results world-map-results--spa spa-results">
     <div className="spa-results__toolbar" aria-label="סינון תוצאות ספא">
       <div className="spa-results__heading">
-        <div><span className="eyebrow">מסננים לפי מה שחשוב לכם</span><strong aria-live="polite">{filtered.length} מתחמי ספא נמצאו</strong></div>
+        <div><span className="eyebrow">מסננים לפי מה שחשוב לכם</span><strong aria-live="polite"><span>{filtered.length}</span> <span>מתחמי ספא נמצאו</span></strong></div>
         <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-pressed={mapOpen} onClick={() => setMapOpen((value) => !value)}><MapIcon />{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</button>
       </div>
       <div className="spa-results__filters">

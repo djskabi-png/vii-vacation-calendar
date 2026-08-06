@@ -127,7 +127,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
       {showWorlds && !shouldCollapse && <SearchWorldTabs active={activeWorld} />}
       <div className={`search-box-shell ${shouldCollapse ? "search-box-shell--results" : ""} ${mobileExpanded ? "mobile-expanded" : "mobile-collapsed"}`}>
         {shouldCollapse && <button type="button" className="search-mobile-summary" onClick={() => setMobileExpanded(true)} aria-expanded={mobileExpanded} aria-label={`שינוי חיפוש. ${mobileSummary}`}>
-          <span className="search-mobile-summary__copy"><strong>{locationValue}</strong><small>{[!isHourly ? dates : "", !isHourly ? peopleValue : ""].filter(Boolean).join(" · ")}</small></span>
+          <span className="search-mobile-summary__copy"><strong>{locationValue}</strong><small>{!isHourly && <><span>{dates}</span><span aria-hidden="true"> · </span><span>{peopleValue}</span></>}</small></span>
           <span className="search-mobile-summary__action"><SearchIcon /><b>שינוי חיפוש</b></span>
         </button>}
         {shouldCollapse && mobileExpanded && <button type="button" className="search-mobile-backdrop" onClick={() => setMobileExpanded(false)} aria-label="סגירת החיפוש" />}
