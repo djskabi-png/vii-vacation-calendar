@@ -845,6 +845,25 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   }, [language]);
 
   useEffect(() => {
+    const originalPushState = window.history.pushState.bind(window.history);
+    const originalReplaceState = window.history.replaceState.bind(window.history);
+    const localeAwareUrl = (url?: string | URL | null) => {
+      if (url == null) return url;
+      const rawUrl = String(url);
+      if (rawUrl.startsWith("#")) return url;
+      const resolved = new URL(rawUrl, window.location.href);
+      if (resolved.origin !== window.location.origin) return url;
+      return localizedPath(`${resolved.pathname}${resolved.search}${resolved.hash}`, language);
+    };
+    window.history.pushState = (state, unused, url) => originalPushState(state, unused, localeAwareUrl(url));
+    window.history.replaceState = (state, unused, url) => originalReplaceState(state, unused, localeAwareUrl(url));
+    return () => {
+      window.history.pushState = originalPushState;
+      window.history.replaceState = originalReplaceState;
+    };
+  }, [language]);
+
+  useEffect(() => {
     if (language === "he" || loadedTranslations[language]) return;
     let active = true;
     void loadTranslations(language).then(() => {
