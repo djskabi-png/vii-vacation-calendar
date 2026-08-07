@@ -3,7 +3,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageShell } from "./components/page-shell";
-import { HomeShowcase } from "./components/home-showcase";
+import { HomeShowcase, HomeTrails } from "./components/home-showcase";
 import { MasuExperience } from "./components/masu-experience";
 import { SearchBox } from "./components/search-box";
 import { magazineArticles } from "./data/magazine-data";
@@ -47,6 +47,8 @@ export default function HomePage() {
         <section className="section home-magazine" aria-labelledby="home-magazine-title">
           <div className="shell"><div className="section-head"><div><span className="eyebrow">מגזין וי</span><h2 id="home-magazine-title">רעיונות שממשיכים את החופשה</h2></div><Link href="/guides">לכל הכתבות</Link></div><div className="home-magazine__grid">{magazineArticles.slice(0,3).map((article,index) => <article key={article.slug} className={index === 0 ? "featured" : ""}><Link href={`/guides/${article.slug}`}><img src={article.image} alt={article.imageAlt} /><span>{article.category}</span><div><small>{article.readTime} דקות קריאה</small><h3>{article.title}</h3><p>{article.excerpt}</p></div></Link></article>)}</div></div>
         </section>
+
+        <HomeTrails />
 
       </main>
     </PageShell>

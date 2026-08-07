@@ -107,11 +107,13 @@ export function HomeShowcase() {
       </div>
     </section>
 
-    <section className="section home-trails" aria-labelledby="home-trails-title">
-      <div className="shell"><div className="section-head"><div><span className="eyebrow">יוצאים מהצימר אל הטבע</span><h2 id="home-trails-title">מסלולים ליד החופשה</h2><p>מדריכי טיול עצמאיים עם זמן, קושי, עונה, בטיחות ומקור רשמי לבדיקה ביום היציאה.</p></div><Link href="/trails">לכל המסלולים</Link></div>
-        <div className="trail-grid trail-grid--home">{trails.slice(0, 4).map((trail) => <TrailCard key={trail.slug} trail={trail} compact />)}</div>
-      </div>
-    </section>
-
   </>;
+}
+
+export function HomeTrails() {
+  return <section className="section home-trails" aria-labelledby="home-trails-title">
+    <div className="shell"><div className="section-head"><div><span className="eyebrow">יוצאים מהצימר אל הטבע</span><h2 id="home-trails-title">מסלולים ליד החופשה</h2><p>מדריכי טיול עצמאיים עם זמן, קושי, עונה, בטיחות ומקור רשמי לבדיקה ביום היציאה.</p></div><Link href="/trails">לכל המסלולים</Link></div>
+      <div className="trail-grid trail-grid--home">{trails.slice(0, 4).map((trail) => <TrailCard key={trail.slug} trail={trail} compact />)}</div>
+    </div>
+  </section>;
 }

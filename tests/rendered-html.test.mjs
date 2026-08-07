@@ -560,12 +560,13 @@ test("footer destinations and booking forms have real destinations", async () =>
 });
 
 test("independent trails are sourced, filterable and connected to stays", async () => {
-  const [data, listing, detail, activities, home, business, header, footer, styles] = await Promise.all([
+  const [data, listing, detail, activities, home, homepage, business, header, footer, styles] = await Promise.all([
     readFile(new URL("../app/data/trail-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/trails/trails-explorer.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/trails/[slug]/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/activities/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/site-header.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/site-footer.tsx", import.meta.url), "utf8"),
@@ -588,7 +589,7 @@ test("independent trails are sourced, filterable and connected to stays", async 
   assert.match(home, /מסלולים ליד החופשה/);
   assert.match(home, /ספא ורוגע, כחלק מהחופשה/);
   assert.match(home, /חדרים לכמה שעות/);
-  assert.ok(home.indexOf("מסלולים ליד החופשה") > home.indexOf("ממשיכים לכל העולמות"));
+  assert.ok(homepage.indexOf("<HomeTrails />") > homepage.indexOf("רעיונות שממשיכים את החופשה"));
   assert.match(business, /nearbyTrails/);
   assert.match(business, /מסלולים באזור/);
   assert.match(header, /href="\/trails"/);
