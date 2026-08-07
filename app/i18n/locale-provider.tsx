@@ -835,7 +835,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
       const href = anchor.getAttribute("href");
       if (!href || !href.startsWith("/") || href.startsWith("//")) return;
       const destination = localizedPath(href, language);
-      if (destination === href) return;
+      if (language === "he" && destination === href) return;
       event.preventDefault();
       event.stopPropagation();
       window.location.assign(destination);
