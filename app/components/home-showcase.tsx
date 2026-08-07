@@ -39,6 +39,33 @@ const lastMinuteStartingPrices: Record<string, number> = {
   "sol-gilgal": 2200,
 };
 
+const vacationDestinations = [
+  { label: "נופש בצפון", note: "גליל, גולן ונוף ירוק", href: "/search?location=צפון&guests=2", image: "/media/f18d7c0469633ca0.jpeg" },
+  { label: "נופש בכנרת", note: "חופשה רגועה ליד המים", href: "/search?location=סובב כנרת&guests=2", image: "/media/9a403cb4d9d1cbde.jpg" },
+  { label: "נופש בירושלים", note: "הרי יהודה ואוויר הרים", href: "/search?location=ירושלים והרי יהודה&guests=2", image: "/media/231b0e706cc61cc1.jpg" },
+  { label: "נופש במרכז", note: "קרוב, נוח ובלי להתפשר", href: "/search?location=מרכז&guests=2", image: "/media/verified/vacation/vacation-tepers-estate-1.jpg" },
+  { label: "נופש בדרום", note: "מדבר, שקט ומרחבים", href: "/search?location=דרום ונגב&guests=2", image: "/media/verified/vacation/vacation-ahuzat-shaked-1.jpeg" },
+  { label: "נופש באילת", note: "שמש, ים ומקומות שלמים", href: "/search?location=אילת&guests=2", image: "/media/322de460abbda5c6.jpg" },
+] as const;
+
+const popularVacationSearches = [
+  { label: "נופש למשפחה עם בריכה מחוממת", note: "מקומות שמתאימים לארבעה אורחים ומעלה", href: "/search?location=כל הארץ&guests=4&pool=1", image: "/media/cf58dc69af40c772.jpg" },
+  { label: "נופש לזוג עם בריכה פרטית", note: "חופשה שקטה לשניים", href: "/search?location=כל הארץ&guests=2&pool=1", image: "/media/69e3820a7e10bc39.jpeg" },
+  { label: "נופש עם ג׳קוזי וספא", note: "רוגע ופינוק בתוך מקום האירוח", href: "/search?location=כל הארץ&guests=2&spa=1", image: "/media/f18d7c0469633ca0.jpeg" },
+  { label: "מקום שלם למשפחה", note: "פרטיות מלאה ומרחב משותף", href: "/search?location=כל הארץ&guests=4&whole=1", image: "/media/978e5fd5134b0831.jpeg" },
+  { label: "נופש בצפון למשפחות", note: "מקומות מרווחים לארבעה אורחים ומעלה", href: "/search?location=צפון&guests=4", image: "/media/verified/vacation/vacation-villa-circle-1.jpg" },
+  { label: "חופשה לקבוצה גדולה", note: "מתחמים שמתאימים ל־12 אורחים ומעלה", href: "/search?location=כל הארץ&guests=12", image: "/media/bc85b10f1d64d6db.jpeg" },
+] as const;
+
+const accommodationStyles = [
+  { label: "וילות נופש", note: "בית שלם, פרטיות ומרחב", href: "/search?location=כל הארץ&type=וילה&guests=2", image: "/media/322de460abbda5c6.jpg" },
+  { label: "מתחמי סוויטות", note: "כמה יחידות סביב מתחם משותף", href: "/search?location=כל הארץ&type=מתחם סוויטות&guests=2", image: "/media/9a403cb4d9d1cbde.jpg" },
+  { label: "סוויטות יוקרה", note: "עיצוב מוקפד וחופשה מפנקת", href: "/search?location=כל הארץ&type=סוויטות יוקרה&guests=2", image: "/media/f18d7c0469633ca0.jpeg" },
+  { label: "מתחמי נופש", note: "אפשרויות אירוח לקבוצות ומשפחות", href: "/search?location=כל הארץ&type=מתחם נופש&guests=4", image: "/media/verified/vacation/vacation-como-boutique-1.jpeg" },
+  { label: "אירוח רומנטי לזוגות", note: "מקומות אינטימיים לחופשה בשניים", href: "/search?location=כל הארץ&guests=2", image: "/media/231b0e706cc61cc1.jpg" },
+  { label: "אירוח למשפחות", note: "מרחב, בריכה וחדרים לכולם", href: "/search?location=כל הארץ&guests=5", image: "/media/cf58dc69af40c772.jpg" },
+] as const;
+
 type LastMinutePeriodId = (typeof lastMinutePeriods)[number]["id"];
 
 function SliderControls({ onPrevious, onNext, label }: { onPrevious: () => void; onNext: () => void; label: string }) {
@@ -83,6 +110,37 @@ export function HomeShowcase() {
           const detailHref = `/business?id=${property.slug}&period=${encodeURIComponent(selectedLastMinutePeriod.id)}&dates=${encodeURIComponent(selectedLastMinutePeriod.dateSummary)}&from=${selectedLastMinutePeriod.from}&till=${selectedLastMinutePeriod.till}&guests=2&price=${price}`;
           return <Link key={property.slug} href={detailHref}><img src={property.image} alt={property.name} /><span><strong>{selectedLastMinutePeriod.label}</strong><small>{selectedLastMinutePeriod.dateSummary}</small></span><div><small><PinIcon />{property.location}</small><h3>{property.name}</h3><div className="home-last-minute__deal"><b><CalendarIcon /><span>{selectedLastMinutePeriod.dateSummary}</span></b><strong><small>אומדן לתקופה</small>{price.toLocaleString("he-IL")} ₪</strong></div><em className="home-last-minute__continue">לפרטים ולהמשך הזמנה</em></div></Link>;
         })}</div>
+      </div>
+    </section>
+
+    <section className="section home-vacation-discovery" aria-labelledby="vacation-discovery-title">
+      <div className="shell">
+        <div className="home-vacation-discovery__intro">
+          <span className="eyebrow">מכאן קל יותר לבחור</span>
+          <h2 id="vacation-discovery-title">מוצאים את הנופש בדרך שמתאימה לכם</h2>
+          <p>מתחילים באזור, בהרכב או בסגנון האירוח, ומגיעים ישר לתוצאות המתאימות.</p>
+        </div>
+
+        <div className="home-vacation-strip">
+          <div className="home-vacation-strip__head"><div><span>לפי אזור</span><h3>יעדים מומלצים לנופש</h3></div><SliderControls label="יעדי נופש" onPrevious={() => scroll("destinations", "previous")} onNext={() => scroll("destinations", "next")} /></div>
+          <div className="home-vacation-strip__track home-vacation-strip__track--destinations" ref={(node) => { tracks.current.destinations = node; }}>
+            {vacationDestinations.map((item) => <Link className="home-vacation-card home-vacation-card--destination home-slider__item" href={item.href} key={item.label}><img src={item.image} alt="" /><span>יעד מומלץ</span><div><h4>{item.label}</h4><p>{item.note}</p><b>לכל המקומות באזור</b></div></Link>)}
+          </div>
+        </div>
+
+        <div className="home-vacation-strip">
+          <div className="home-vacation-strip__head"><div><span>לפי מה שחשוב בחופשה</span><h3>חיפושים נפוצים</h3></div><SliderControls label="חיפושים נפוצים" onPrevious={() => scroll("popular-searches", "previous")} onNext={() => scroll("popular-searches", "next")} /></div>
+          <div className="home-vacation-strip__track" ref={(node) => { tracks.current["popular-searches"] = node; }}>
+            {popularVacationSearches.map((item) => <Link className="home-vacation-card home-vacation-card--compact home-slider__item" href={item.href} key={item.label}><img src={item.image} alt="" /><div><span>חיפוש פופולרי</span><h4>{item.label}</h4><p>{item.note}</p></div><b aria-hidden="true">←</b></Link>)}
+          </div>
+        </div>
+
+        <div className="home-vacation-strip">
+          <div className="home-vacation-strip__head"><div><span>לפי סוג המקום</span><h3>סוגים וסגנונות אירוח</h3></div><SliderControls label="סוגי אירוח" onPrevious={() => scroll("stay-types", "previous")} onNext={() => scroll("stay-types", "next")} /></div>
+          <div className="home-vacation-strip__track" ref={(node) => { tracks.current["stay-types"] = node; }}>
+            {accommodationStyles.map((item) => <Link className="home-vacation-card home-vacation-card--compact home-slider__item" href={item.href} key={item.label}><img src={item.image} alt="" /><div><span>סגנון אירוח</span><h4>{item.label}</h4><p>{item.note}</p></div><b aria-hidden="true">←</b></Link>)}
+          </div>
+        </div>
       </div>
     </section>
 

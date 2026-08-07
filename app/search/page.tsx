@@ -48,13 +48,23 @@ export default function SearchPage() {
     updateSearchContext({ guests: String(nextGuests) });
   }
 
+  function changeType(nextType: string) {
+    setType(nextType);
+    updateSearchContext({ type: nextType === "הכל" ? null : nextType });
+  }
+
   useEffect(() => {
     const timer = window.setTimeout(() => {
       const params = new URLSearchParams(location.search);
       const requestedArea = params.get("location");
       const requestedGuests = Number(params.get("guests") || 2);
+      const requestedType = params.get("type");
       if (requestedArea && requestedArea !== "כל הארץ") setArea(requestedArea);
       if (Number.isFinite(requestedGuests)) setGuests(Math.max(1, requestedGuests));
+      if (requestedType) setType(requestedType);
+      setPool(params.get("pool") === "1");
+      setSpa(params.get("spa") === "1");
+      setWhole(params.get("whole") === "1");
     }, 0);
     return () => window.clearTimeout(timer);
   }, []);
@@ -82,7 +92,7 @@ export default function SearchPage() {
 
   const activeFilters = [
     area !== "הכל" ? { id: "area", label: area, remove: () => changeArea("הכל") } : null,
-    type !== "הכל" ? { id: "type", label: type, remove: () => setType("הכל") } : null,
+    type !== "הכל" ? { id: "type", label: type, remove: () => changeType("הכל") } : null,
     guests > 2 ? { id: "guests", label: `${guests} אורחים ומעלה`, remove: () => changeGuests(2) } : null,
     pool ? { id: "pool", label: "בריכה", remove: () => setPool(false) } : null,
     spa ? { id: "spa", label: "ספא וג'קוזי", remove: () => setSpa(false) } : null,
@@ -111,7 +121,7 @@ export default function SearchPage() {
             <div className="filter-head"><h2>סינון תוצאות</h2><button type="button" onClick={() => setFiltersOpen(false)} aria-label="סגירה"><CloseIcon /></button></div>
             {mapOpen && <div className="map-filter-status" aria-live="polite"><PinIcon /><span>האזור שמוצג במפה</span><strong>{area === "הכל" ? "כל הארץ" : area}</strong></div>}
             <ModernSelect className={`map-area-select ${mapOpen ? "active" : ""}`} label="אזור" value={area} onChange={changeArea} options={areas.map((item) => ({ value: item, label: item === "הכל" ? "כל הארץ" : item }))} />
-            <ModernSelect label="סוג מקום" value={type} onChange={setType} options={types.map((item) => ({ value: item, label: item }))} />
+            <ModernSelect label="סוג מקום" value={type} onChange={changeType} options={types.map((item) => ({ value: item, label: item }))} />
             <fieldset><legend>כמות אורחים מינימלית</legend><input type="range" min="1" max="30" value={guests} aria-label="כמות אורחים מינימלית" onChange={(event) => changeGuests(Number(event.target.value))} /><div className="range-value">לפחות {guests} אורחים</div></fieldset>
             <fieldset><legend>מאפיינים</legend>
               <label><input type="checkbox" checked={pool} onChange={(event) => setPool(event.target.checked)} /> בריכה</label>

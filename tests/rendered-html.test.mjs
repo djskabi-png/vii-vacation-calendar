@@ -1069,3 +1069,18 @@ test("unavailable vacation places and unavailable-image cards never reach public
     assert.doesNotMatch(output, /business\?id=ar-suites/);
   }
 });
+
+test("homepage keeps vacation discovery strips between last minute deals and spa", async () => {
+  const source = await readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8");
+  const lastMinute = source.indexOf('className="section home-last-minute"');
+  const vacationDiscovery = source.indexOf('className="section home-vacation-discovery"');
+  const spa = source.indexOf('className="section home-spa-strip"');
+
+  assert.ok(lastMinute >= 0 && vacationDiscovery > lastMinute && spa > vacationDiscovery);
+  assert.match(source, /יעדים מומלצים לנופש/);
+  assert.match(source, /חיפושים נפוצים/);
+  assert.match(source, /סוגים וסגנונות אירוח/);
+  assert.match(source, /\/search\?location=/);
+  assert.match(source, /pool=1/);
+  assert.match(source, /type=וילה/);
+});
