@@ -19,9 +19,8 @@ export default function HomePage() {
       <main id="main-content">
         <section className="home-hero">
           <div className="shell home-hero__content">
-            <span className="eyebrow">נופש, אירועים, ספא וחוויות</span>
             <h1>כל החופשה, במקום אחד</h1>
-            <p>מוצאים מקום לישון, מקום לחגוג, זמן להתפנק וכל מה שכיף לעשות מסביב.</p>
+            <p>נופש, ספא, אירועים וכל מה שעושים מסביב.</p>
             <SearchBox showWorlds />
             <div className="quick-links" aria-label="חיפושים מהירים"><span>חיפושים מהירים:</span><Link href="/search?type=וילה">וילות</Link><Link href="/search?feature=בריכה">עם בריכה</Link><Link href="/search?audience=משפחות">למשפחות</Link><Link href="/search?location=צפון">בצפון</Link></div>
           </div>
