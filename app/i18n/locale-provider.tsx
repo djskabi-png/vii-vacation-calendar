@@ -826,6 +826,25 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    const preserveLanguageOnInternalNavigation = (event: MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const anchor = target.closest<HTMLAnchorElement>("a[href]");
+      if (!anchor || anchor.hasAttribute("download") || (anchor.target && anchor.target !== "_self")) return;
+      const href = anchor.getAttribute("href");
+      if (!href || !href.startsWith("/") || href.startsWith("//")) return;
+      const destination = localizedPath(href, language);
+      if (destination === href) return;
+      event.preventDefault();
+      event.stopPropagation();
+      window.location.assign(destination);
+    };
+    document.addEventListener("click", preserveLanguageOnInternalNavigation, true);
+    return () => document.removeEventListener("click", preserveLanguageOnInternalNavigation, true);
+  }, [language]);
+
+  useEffect(() => {
     if (language === "he" || loadedTranslations[language]) return;
     let active = true;
     void loadTranslations(language).then(() => {

@@ -70,6 +70,8 @@ test("language routes use real path prefixes and keep the Hebrew homepage canoni
   ]);
   assert.match(config, /:locale\(en\|ru\|fr\)/);
   assert.match(provider, /window\.location\.assign\(destination\)/);
+  assert.match(provider, /preserveLanguageOnInternalNavigation/);
+  assert.match(provider, /document\.addEventListener\("click", preserveLanguageOnInternalNavigation, true\)/);
   assert.match(provider, /languageFromPathname\(window\.location\.pathname\)/);
   assert.doesNotMatch(provider, /url\.searchParams\.set\("lang"/);
   assert.match(routing, /language === "he" \? basePath/);
