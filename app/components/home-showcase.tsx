@@ -8,6 +8,8 @@ import { DiscoveryCard } from "./discovery-card";
 import { PropertyCard } from "./property-card";
 import { eventPlaceHref, eventPlaces, properties } from "../data/site-data";
 import { hourlyPlaces, paidAttractions, providerProfiles, spaPlaces, worlds } from "../data/world-data";
+import { trails } from "../data/trail-data";
+import { TrailCard } from "./trail-card";
 import { CalendarIcon, PinIcon } from "../site-header";
 
 function pickProperties(...slugs: string[]) {
@@ -102,6 +104,12 @@ export function HomeShowcase() {
           const item = world.id === "providers" ? providerProfiles[0] : paidAttractions[0];
           return <Link key={world.id} className={`home-world-gate home-world-gate--${world.id}`} href={world.href}>{item.image ? <img src={item.image} alt={item.name} /> : <span className="home-world-gate__visual">{world.shortLabel.slice(0,1)}</span>}<div><span>{world.label}</span><h3>{world.description}</h3><p>{item.demo ? "פרופילים לדוגמה שממחישים איך השירות יעבוד באתר." : item.description}</p><b>לגלות את העולם</b></div></Link>;
         })}</div>
+      </div>
+    </section>
+
+    <section className="section home-trails" aria-labelledby="home-trails-title">
+      <div className="shell"><div className="section-head"><div><span className="eyebrow">יוצאים מהצימר אל הטבע</span><h2 id="home-trails-title">מסלולים ליד החופשה</h2><p>מדריכי טיול עצמאיים עם זמן, קושי, עונה, בטיחות ומקור רשמי לבדיקה ביום היציאה.</p></div><Link href="/trails">לכל המסלולים</Link></div>
+        <div className="trail-grid trail-grid--home">{trails.slice(0, 4).map((trail) => <TrailCard key={trail.slug} trail={trail} compact />)}</div>
       </div>
     </section>
 
