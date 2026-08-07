@@ -151,6 +151,9 @@ test("search submissions reload the selected result set", async () => {
   assert.match(source, /aria-busy=\{isSearching\}/);
   assert.match(feedback, /showIfStillWaiting/);
   assert.match(feedback, /delay = 500/);
+  assert.doesNotMatch(feedback, /copy\.page/);
+  assert.doesNotMatch(feedback, /destination\.origin/);
+  assert.match(feedback, /dataset\.globalFeedback/);
   assert.doesNotMatch(feedback, /טוענים את העמוד\.\.\./);
   assert.match(feedback, /document\.addEventListener\("click", onClick, true\)/);
   assert.match(shell, /<GlobalActionFeedback \/>/);

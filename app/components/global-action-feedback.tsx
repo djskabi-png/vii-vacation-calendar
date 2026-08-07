@@ -7,10 +7,10 @@ import { useSiteLanguage } from "../i18n/locale-provider";
 export const ACTION_FEEDBACK_EVENT = "vii-action-feedback";
 
 const feedbackCopy = {
-  he: { page: "עוד רגע עוברים לעמוד...", submit: "שומרים את הפרטים..." },
-  en: { page: "Opening the page...", submit: "Saving your details..." },
-  ru: { page: "Открываем страницу...", submit: "Сохраняем данные..." },
-  fr: { page: "Ouverture de la page...", submit: "Enregistrement des informations..." },
+  he: { submit: "שומרים את הפרטים..." },
+  en: { submit: "Saving your details..." },
+  ru: { submit: "Сохраняем данные..." },
+  fr: { submit: "Enregistrement des informations..." },
 };
 
 export function GlobalActionFeedback() {
@@ -49,18 +49,14 @@ export function GlobalActionFeedback() {
       if (!element || element.getAttribute("aria-disabled") === "true" || (element instanceof HTMLButtonElement && element.disabled)) return;
       press(element);
 
-      if (element instanceof HTMLAnchorElement) {
-        const href = element.getAttribute("href");
-        if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:") || element.target === "_blank") return;
-        const destination = new URL(element.href, window.location.href);
-        if (destination.origin === window.location.origin && destination.href !== window.location.href) showIfStillWaiting(element.dataset.loadingLabel || copy.page);
-      } else if (element.dataset.feedbackLabel && element.dataset.feedbackSilent !== "true") {
+      if (!(element instanceof HTMLAnchorElement) && element.dataset.feedbackLabel && element.dataset.feedbackSilent !== "true") {
         show(element.dataset.feedbackLabel);
       }
     };
     const onSubmit = (event: SubmitEvent) => {
       const form = event.target as HTMLFormElement;
       const submitter = event.submitter as HTMLElement | null;
+      if (form.dataset.globalFeedback !== "true" && submitter?.dataset.globalFeedback !== "true") return;
       showIfStillWaiting(submitter?.dataset.loadingLabel || form.dataset.loadingLabel || copy.submit);
     };
     const onFeedback = (event: Event) => {
