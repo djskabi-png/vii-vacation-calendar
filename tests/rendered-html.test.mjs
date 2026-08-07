@@ -585,7 +585,9 @@ test("independent trails are sourced, filterable and connected to stays", async 
   assert.doesNotMatch(detail, /href=\{trail\.officialSource\}/);
   assert.match(activities, /מסלולי טיול עצמאיים/);
   assert.match(activities, /אטרקציות בתשלום/);
-  assert.match(home, /מסלולים ליד החופשה/);
+  assert.doesNotMatch(home, /מסלולים ליד החופשה/);
+  assert.match(home, /ספא ורוגע, כחלק מהחופשה/);
+  assert.match(home, /חדרים לכמה שעות/);
   assert.match(business, /nearbyTrails/);
   assert.match(business, /מסלולים באזור/);
   assert.match(header, /href="\/trails"/);
