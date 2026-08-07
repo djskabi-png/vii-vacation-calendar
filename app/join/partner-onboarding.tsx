@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
-import { DemoPaymentFields } from "../components/demo-payment-fields";
 import { LeadIntakeForm } from "../components/lead-intake-form";
 
 type BillingCycle = "monthly" | "annual";
@@ -52,15 +51,18 @@ const plans = {
 
 const launchSteps = [
   ["בוחרים מסלול", "רואים מראש את מחיר ההתחייבות השנתית ואת המחיר ללא התחייבות."],
-  ["פותחים חשבון", "ממלאים את פרטי העסק ומקבלים גישה להעלאת התוכן."],
-  ["מאמתים ומשלמים", "לאחר בדיקה קצרה ממשיכים לתשלום ולהשלמת העמוד."],
-  ["עולים לאתר", "העמוד עובר בדיקת איכות ומתפרסם כשהפרטים מלאים ותקינים."],
+  ["מקבלים מערכת ניהול אישית", "נכנסים לאזור העסק ומעלים לבד תמונות, סרטונים, שירותים, חבילות, מחירים ומבצעים."],
+  ["מנהלים זמינות והזמנות", "מעדכנים יומן וזמינות, ורואים במקום אחד פניות, הזמנות וחוות דעת."],
+  ["מפרסמים וממשיכים לנהל", "אחרי בדיקת איכות העמוד עולה לאתר, וכל שינוי עתידי נשאר בשליטת העסק."],
 ] as const;
+
+const managementCapabilities = ["עמוד העסק והתוכן", "תמונות, גלריות וסרטונים", "שירותים, חבילות ומחירים", "מבצעים והטבות", "יומן וזמינות", "פניות והזמנות", "חוות דעת", "נתוני צפייה וביצועים"] as const;
 
 export function PartnerOnboarding() {
   const [selectedWorld, setSelectedWorld] = useState<JoinWorld>("providers");
   const [billing, setBilling] = useState<BillingCycle>("annual");
   const [selectedPlan, setSelectedPlan] = useState<PlanId>("standard");
+  const [planBilling, setPlanBilling] = useState<Record<PlanId, BillingCycle>>({ standard: "annual", premium: "annual" });
   const [providerStep, setProviderStep] = useState<"details" | "payment" | "success">("details");
   const selected = plans[selectedPlan];
   const selectedPrice = billing === "annual" ? selected.annual : selected.monthly;
@@ -81,7 +83,7 @@ export function PartnerOnboarding() {
     window.setTimeout(() => document.getElementById("join-form")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
   }
 
-  function completeDemoPayment(event: FormEvent<HTMLFormElement>) {
+  function completeRegistration(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setProviderStep("success");
   }
@@ -112,7 +114,7 @@ export function PartnerOnboarding() {
           <div>
             <span className="eyebrow">מחיר היכרות לספקים ונותני שירות</span>
             <h2 id="provider-pricing-title">התחייבות שנתית משתלמת משמעותית</h2>
-            <p>בכל חבילה רואים את שתי האפשרויות יחד. המחיר השנתי מוצג גם כמחיר חודשי ממוצע, כדי שהחיסכון יהיה ברור.</p>
+            <p>בכל חבילה בוחרים חיוב שנתי או חודשי ורואים מיד את המחיר המתאים. במסלול השנתי המחיר מוצג כממוצע חודשי כדי שהחיסכון יהיה ברור.</p>
           </div>
         </div>
         <div className="pricing-grid">
@@ -120,23 +122,28 @@ export function PartnerOnboarding() {
             const plan = plans[planId];
             const annualMonthly = Math.round(plan.annual / 12);
             const annualSaving = plan.monthly * 12 - plan.annual;
+            const activeBilling = planBilling[planId];
+            const isAnnual = activeBilling === "annual";
+            const displayedPrice = isAnnual ? annualMonthly : plan.monthly;
             return <article key={planId} className={`pricing-card${planId === "premium" ? " pricing-card--premium" : ""}${selectedPlan === planId ? " selected" : ""}`}>
               <span className="pricing-card__badge">{planId === "premium" ? "הכי הרבה חשיפה" : "מתחילים חכם"}</span>
               <h3>{plan.name}</h3>
               <p>{plan.description}</p>
-              <div className="pricing-choice pricing-choice--recommended">
-                <span><b>התחייבות שנתית</b><em>הבחירה המשתלמת</em></span>
-                <strong>{annualMonthly} ₪ <small>לחודש</small></strong>
-                <p>חיוב שנתי בסך {plan.annual.toLocaleString("he-IL")} ₪</p>
-                <mark>חיסכון של {annualSaving.toLocaleString("he-IL")} ₪ בשנה</mark>
-                <button type="button" onClick={() => choosePlan(planId, "annual")}>בחירת מסלול שנתי</button>
+              <div className="pricing-cycle-toggle" role="group" aria-label={`בחירת אופן חיוב לחבילת ${plan.name}`}>
+                <button type="button" className={isAnnual ? "active" : ""} aria-pressed={isAnnual} onClick={() => setPlanBilling((current) => ({ ...current, [planId]: "annual" }))}>
+                  <strong>שנתי</strong><small>הכי משתלם</small>
+                </button>
+                <button type="button" className={!isAnnual ? "active" : ""} aria-pressed={!isAnnual} onClick={() => setPlanBilling((current) => ({ ...current, [planId]: "monthly" }))}>
+                  <strong>חודשי</strong><small>ללא התחייבות</small>
+                </button>
               </div>
-              <div className="pricing-choice">
-                <span><b>חודש בחודשו</b><em>ללא התחייבות</em></span>
-                <strong>{plan.monthly} ₪ <small>לחודש</small></strong>
-                <p>חיוב חודשי מתחדש, ניתן להפסיק לפי תנאי המסלול</p>
-                <button type="button" onClick={() => choosePlan(planId, "monthly")}>בחירה ללא התחייבות</button>
+              <div className={`pricing-choice pricing-choice--single${isAnnual ? " pricing-choice--recommended" : ""}`} aria-live="polite">
+                <span><b>{isAnnual ? "התחייבות שנתית" : "חודש בחודשו"}</b>{isAnnual ? <em>הבחירה המשתלמת</em> : null}</span>
+                <strong>{displayedPrice} ₪ <small>לחודש</small></strong>
+                <p>{isAnnual ? `חיוב שנתי בסך ${plan.annual.toLocaleString("he-IL")} ₪` : "חיוב חודשי מתחדש, ניתן להפסיק לפי תנאי המסלול"}</p>
+                {isAnnual ? <mark>חיסכון של {annualSaving.toLocaleString("he-IL")} ₪ בשנה</mark> : null}
               </div>
+              <button className="button primary pricing-card__select" type="button" onClick={() => choosePlan(planId, activeBilling)}>בחירת חבילת {plan.name}</button>
               <ul>{plan.features.map((feature) => <li key={feature}>{feature}</li>)}</ul>
             </article>;
           })}
@@ -160,8 +167,16 @@ export function PartnerOnboarding() {
 
     {isProvider ? <section id="join-form" className="section shell join-onboarding" aria-labelledby="join-form-title">
       <div className="join-onboarding__intro">
-        <span className="eyebrow">המסלול שלכם</span>
-        <h2 id="join-form-title">פותחים את העסק באתר</h2>
+        <span className="eyebrow">העסק שלכם, השליטה שלכם</span>
+        <h2 id="join-form-title">מקבלים מערכת ניהול מלאה לעסק</h2>
+        <p className="join-onboarding__lead">לא רק עמוד באתר. עם הפעלת החשבון תקבלו כניסה אישית ותנהלו בעצמכם את כל מה שהגולשים רואים ואת כל מה שקורה מאחורי הקלעים.</p>
+        <section className="join-management-promise" aria-label="מה אפשר לנהל במערכת העסק">
+          <div><strong>אתם מעלים</strong><span>תוכן, תמונות, סרטונים ושירותים</span></div>
+          <div><strong>אתם קובעים</strong><span>מחירים, חבילות, מבצעים וזמינות</span></div>
+          <div><strong>אתם מנהלים</strong><span>פניות, הזמנות, יומן וחוות דעת</span></div>
+          <div><strong>אתם רואים</strong><span>צפיות, ביצועים ופעולות של גולשים</span></div>
+        </section>
+        <div className="join-management-capabilities" aria-label="יכולות מערכת הניהול">{managementCapabilities.map((capability) => <span key={capability}>{capability}</span>)}</div>
         <div className="selected-plan-summary">
           <span>{selected.name}, {billing === "annual" ? "התחייבות שנתית" : "חודש בחודשו"}</span>
           <strong>{priceLabel}</strong>
@@ -169,17 +184,17 @@ export function PartnerOnboarding() {
         </div>
         <ol className="join-launch-steps">{launchSteps.map(([title, description], index) => <li key={title} className={providerStep === "payment" && index < 2 || providerStep === "success" ? "complete" : ""}><b>{index + 1}</b><span><strong>{title}</strong><small>{description}</small></span></li>)}</ol>
       </div>
-      {providerStep === "details" ? <LeadIntakeForm purpose="join" fixedWorld="providers" selectedPackage={selectionLabel} billingCycle={billing} onSuccess={() => setProviderStep("payment")} /> : providerStep === "payment" ? <form className="supplier-checkout" onSubmit={completeDemoPayment}>
-        <span className="eyebrow">שלב התשלום</span>
-        <h2>השלמת ההצטרפות אונליין</h2>
+      {providerStep === "details" ? <LeadIntakeForm purpose="join" fixedWorld="providers" selectedPackage={selectionLabel} billingCycle={billing} onSuccess={() => setProviderStep("payment")} /> : providerStep === "payment" ? <form className="supplier-checkout" onSubmit={completeRegistration}>
+        <span className="eyebrow">אישור המסלול</span>
+        <h2>מאשרים את בקשת ההצטרפות</h2>
         <div className="supplier-checkout__summary"><span>{selectionLabel}</span><strong>{priceLabel}</strong><small>{billing === "annual" ? `כ־${Math.round(selected.annual / 12)} ₪ לחודש בממוצע` : "ללא התחייבות שנתית"}</small></div>
-        <DemoPaymentFields amountLabel={priceLabel} />
+        <div className="supplier-checkout__summary"><span>השלב הבא</span><p>הבקשה תיבדק לפני פתיחת החשבון ולפני כל חיוב. נציג יחזור אליכם עם אישור המסלול והמשך מאובטח.</p></div>
         <label className="consent legal-consent"><input required name="privacy" type="checkbox" /><span>קראתי והסכמתי ל<Link href="/legal/terms">תקנון האתר</Link> ול<Link href="/legal/privacy">מדיניות הפרטיות</Link>, ואני מאשר או מאשרת את מסלול ההצטרפות שנבחר.</span></label>
-        <div className="supplier-checkout__actions"><button className="button secondary" type="button" onClick={() => setProviderStep("details")}>חזרה לפרטי העסק</button><button className="button primary" type="submit">השלמת תשלום ההדגמה</button></div>
+        <div className="supplier-checkout__actions"><button className="button secondary" type="button" onClick={() => setProviderStep("details")}>חזרה לפרטי העסק</button><button className="button primary" type="submit">אישור ושליחת הבקשה</button></div>
       </form> : <section className="supplier-checkout-success" role="status" aria-live="polite">
-        <span>ההרשמה הושלמה בהדגמה</span>
-        <h2>עמוד הספק מוכן לעבור להקמה</h2>
-        <p>המסלול, פרטי העסק ושלב התשלום נשמרו בתהליך ההדגמה. בחיבור הסופי תיפתח מכאן גישה להעלאת תמונות, שירותים, מחירים וזמינות.</p>
+        <span>בקשת ההצטרפות נקלטה</span>
+        <h2>העסק מוכן לעבור לאימות ולהקמה</h2>
+        <p>המסלול ופרטי העסק נשמרו. לאחר האימות נפתח את מערכת הניהול האישית, ובה תוכלו להעלות תוכן ומדיה, לקבוע שירותים ומחירים, לנהל זמינות ולטפל בפניות ובהזמנות.</p>
         <div><strong>{selectionLabel}</strong><b>{priceLabel}</b></div>
         <Link className="button primary" href="/account">מעבר לחשבון העסק</Link>
       </section>}

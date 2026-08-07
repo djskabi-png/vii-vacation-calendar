@@ -412,6 +412,7 @@ const unavailablePropertyImages = new Set([
 export function isPublicProperty(property: Property) {
   return property.active !== false
     && Boolean(property.image)
+    && (property.images?.filter(Boolean).length || 0) >= 3
     && !unavailablePropertyImages.has(property.image);
 }
 
@@ -535,9 +536,9 @@ const verifiedEventPlaces: EventPlace[] = verifiedCatalog.events.map((item) => (
 }));
 
 export const eventPlaces = [
-  ...eventPlaceCatalog.filter((place) => place.active !== false),
-  ...sharedEventPlaces.filter((shared) => !eventPlaceCatalog.some((place) => place.slug === shared.slug)),
-  ...verifiedEventPlaces,
+  ...eventPlaceCatalog.filter(isPublicProperty),
+  ...sharedEventPlaces.filter((shared) => isPublicProperty(shared) && !eventPlaceCatalog.some((place) => place.slug === shared.slug)),
+  ...verifiedEventPlaces.filter(isPublicProperty),
 ];
 
 export function eventPlaceHref(place: EventPlace) {

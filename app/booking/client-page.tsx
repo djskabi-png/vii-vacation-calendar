@@ -4,7 +4,7 @@ import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { CalendarIcon } from "../site-header";
 import { saveBooking } from "../lib/account";
-import { DemoPaymentFields } from "../components/demo-payment-fields";
+import { SpaAppointmentPicker } from "../components/spa-appointment-picker";
 
 type Props = {
   world: string;
@@ -23,6 +23,7 @@ export default function BookingPageClient(props: Props) {
   const [state, setState] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [reference, setReference] = useState("");
   const [submissionId, setSubmissionId] = useState("");
+  const [spaAppointmentReady, setSpaAppointmentReady] = useState(false);
   const isManage = props.action === "manage";
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -75,7 +76,7 @@ export default function BookingPageClient(props: Props) {
     <section className="booking-success" role="status" aria-live="polite">
       <span aria-hidden="true">✓</span>
       <h1>{isManage ? "בקשת השינוי התקבלה" : "ההזמנה נקלטה"}</h1>
-      <p>{isManage ? "הבקשה נשמרה במערכת ונציג יבדוק אותה." : "התשלום בוצע בהדגמה בלבד. ההזמנה נשמרה, וסיכום ההזמנה מוכן להצגה באזור האישי."}</p>
+      <p>{isManage ? "הבקשה נשמרה במערכת ונציג יבדוק אותה." : "בקשת ההזמנה נשמרה. נציג יאמת את הזמינות והמחיר לפני אישור סופי או חיוב."}</p>
       {reference ? <strong dir="ltr">{reference}</strong> : null}
       <div className="booking-success__actions"><Link className="button primary" href="/account">לצפייה בהזמנות שלי</Link><Link className="button secondary" href="/">חזרה לדף הבית</Link></div>
     </section>
@@ -100,9 +101,9 @@ export default function BookingPageClient(props: Props) {
 
       <form className="booking-form" onSubmit={submit}>
         {isManage ? <label className="form-wide">מספר הזמנה<input name="bookingReference" required /></label> : <>
-          <label>תאריך הגעה<input name="date" type="date" defaultValue={props.initialFrom} required /></label>
+          {props.world === "spa" ? <SpaAppointmentPicker initialDate={props.initialFrom} onSelectionChange={setSpaAppointmentReady} /> : <label>תאריך הגעה<input name="date" type="date" defaultValue={props.initialFrom} required /></label>}
           {props.world === "vacation" ? <label>תאריך עזיבה<input name="till" type="date" defaultValue={props.initialTill} required /></label> : null}
-          <label>שעה מועדפת<input name="time" type="time" /></label>
+          {props.world !== "spa" ? <label>שעה מועדפת<input name="time" type="time" /></label> : null}
           <label>כמות אורחים או משתתפים<input name="guests" type="number" min="1" defaultValue={props.initialGuests || "2"} required /></label>
         </>}
         <label>שם מלא<input name="name" autoComplete="name" minLength={2} required /></label>
@@ -110,9 +111,9 @@ export default function BookingPageClient(props: Props) {
         <label>דואר אלקטרוני<input name="email" type="email" autoComplete="email" /></label>
         <label className="form-wide">{isManage ? "מה תרצו לעדכן?" : "בקשות מיוחדות"}<textarea name="notes" rows={4} maxLength={1500} /></label>
         <label className="form-honey" aria-hidden="true">אתר החברה<input name="company_site" tabIndex={-1} autoComplete="off" /></label>
-        {!isManage ? <DemoPaymentFields amountLabel={props.price} /> : null}
         <label className="consent legal-consent form-wide"><input name="privacy" type="checkbox" required /><span>קראתי והסכמתי ל<Link href="/legal/terms">תקנון האתר</Link> ול<Link href="/legal/privacy">מדיניות הפרטיות</Link>, ואני מאשר או מאשרת שימוש בפרטים לצורך הטיפול בהזמנה.</span></label>
-        <button className="button primary form-wide" disabled={state === "submitting"} type="submit">{state === "submitting" ? "שולחים..." : isManage ? "שליחת בקשת שינוי" : "שליחת ההזמנה"}</button>
+        <button className="button primary form-wide" disabled={state === "submitting" || (!isManage && props.world === "spa" && !spaAppointmentReady)} type="submit">{state === "submitting" ? "שולחים..." : isManage ? "שליחת בקשת שינוי" : "שליחת בקשת הזמנה"}</button>
+        {!isManage && props.world === "spa" && !spaAppointmentReady ? <p className="booking-form__hint form-wide" role="status">בחרו תאריך ושעה כדי להמשיך להזמנה.</p> : null}
         {state === "error" ? <p className="form-error form-wide" role="alert">השליחה לא הושלמה. הפרטים נשארו בטופס ואפשר לנסות שוב.</p> : null}
       </form>
     </div>

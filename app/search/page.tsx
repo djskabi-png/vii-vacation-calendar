@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ListingMap } from "../components/listing-map";
 import { ModernSelect } from "../components/modern-select";
 import { PageShell } from "../components/page-shell";
@@ -12,6 +13,7 @@ import { getPlaceAccessibility } from "../data/accessibility-data";
 import { CloseIcon, MapIcon, PinIcon } from "../site-header";
 
 export default function SearchPage() {
+  const router = useRouter();
   const [sort, setSort] = useState("recommended");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [mapOpen, setMapOpen] = useState(false);
@@ -22,6 +24,26 @@ export default function SearchPage() {
   const [spa, setSpa] = useState(false);
   const [whole, setWhole] = useState(false);
   const [accessibleOnly, setAccessibleOnly] = useState(false);
+
+  function updateSearchContext(updates: Record<string, string | null>) {
+    const params = new URLSearchParams(window.location.search);
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === null) params.delete(key);
+      else params.set(key, value);
+    });
+    const query = params.toString();
+    router.replace(query ? `/search?${query}` : "/search", { scroll: false });
+  }
+
+  function changeArea(nextArea: string) {
+    setArea(nextArea);
+    updateSearchContext({ location: nextArea === "הכל" ? "כל הארץ" : nextArea });
+  }
+
+  function changeGuests(nextGuests: number) {
+    setGuests(nextGuests);
+    updateSearchContext({ guests: String(nextGuests) });
+  }
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -34,7 +56,7 @@ export default function SearchPage() {
     return () => window.clearTimeout(timer);
   }, []);
 
-  const areas = useMemo(() => ["הכל", ...Array.from(new Set(properties.map((p) => p.area)))], []);
+  const areas = useMemo(() => ["הכל", ...Array.from(new Set(properties.flatMap((property) => [property.area, property.location])))], []);
   const types = useMemo(() => ["הכל", ...Array.from(new Set(properties.map((p) => p.type)))], []);
   const filtered = useMemo(() => {
     const matches = properties.filter((property) => {
@@ -56,9 +78,9 @@ export default function SearchPage() {
   }, [accessibleOnly, area, guests, pool, sort, spa, type, whole]);
 
   const activeFilters = [
-    area !== "הכל" ? { id: "area", label: area, remove: () => setArea("הכל") } : null,
+    area !== "הכל" ? { id: "area", label: area, remove: () => changeArea("הכל") } : null,
     type !== "הכל" ? { id: "type", label: type, remove: () => setType("הכל") } : null,
-    guests > 2 ? { id: "guests", label: `${guests} אורחים ומעלה`, remove: () => setGuests(2) } : null,
+    guests > 2 ? { id: "guests", label: `${guests} אורחים ומעלה`, remove: () => changeGuests(2) } : null,
     pool ? { id: "pool", label: "בריכה", remove: () => setPool(false) } : null,
     spa ? { id: "spa", label: "ספא וג'קוזי", remove: () => setSpa(false) } : null,
     whole ? { id: "whole", label: "מקום שלם", remove: () => setWhole(false) } : null,
@@ -73,6 +95,7 @@ export default function SearchPage() {
     setSpa(false);
     setWhole(false);
     setAccessibleOnly(false);
+    updateSearchContext({ location: "כל הארץ", guests: "2" });
   }
 
   return (
@@ -84,9 +107,9 @@ export default function SearchPage() {
           <aside className={`filter-panel ${filtersOpen ? "open" : ""} ${mapOpen ? "map-mode" : ""}`} aria-label="סינון תוצאות">
             <div className="filter-head"><h2>סינון תוצאות</h2><button type="button" onClick={() => setFiltersOpen(false)} aria-label="סגירה"><CloseIcon /></button></div>
             {mapOpen && <div className="map-filter-status" aria-live="polite"><PinIcon /><span>האזור שמוצג במפה</span><strong>{area === "הכל" ? "כל הארץ" : area}</strong></div>}
-            <ModernSelect className={`map-area-select ${mapOpen ? "active" : ""}`} label="אזור" value={area} onChange={setArea} options={areas.map((item) => ({ value: item, label: item === "הכל" ? "כל הארץ" : item }))} />
+            <ModernSelect className={`map-area-select ${mapOpen ? "active" : ""}`} label="אזור" value={area} onChange={changeArea} options={areas.map((item) => ({ value: item, label: item === "הכל" ? "כל הארץ" : item }))} />
             <ModernSelect label="סוג מקום" value={type} onChange={setType} options={types.map((item) => ({ value: item, label: item }))} />
-            <fieldset><legend>כמות אורחים מינימלית</legend><input type="range" min="1" max="30" value={guests} aria-label="כמות אורחים מינימלית" onChange={(event) => setGuests(Number(event.target.value))} /><div className="range-value">לפחות {guests} אורחים</div></fieldset>
+            <fieldset><legend>כמות אורחים מינימלית</legend><input type="range" min="1" max="30" value={guests} aria-label="כמות אורחים מינימלית" onChange={(event) => changeGuests(Number(event.target.value))} /><div className="range-value">לפחות {guests} אורחים</div></fieldset>
             <fieldset><legend>מאפיינים</legend>
               <label><input type="checkbox" checked={pool} onChange={(event) => setPool(event.target.checked)} /> בריכה</label>
               <label><input type="checkbox" checked={spa} onChange={(event) => setSpa(event.target.checked)} /> ספא, ג׳קוזי או סאונה</label>

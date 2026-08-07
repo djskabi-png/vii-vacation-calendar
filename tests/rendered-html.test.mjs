@@ -149,7 +149,9 @@ test("search submissions reload the selected result set", async () => {
   assert.match(source, /isSearching/);
   assert.match(source, /מחפשים\.\.\./);
   assert.match(source, /aria-busy=\{isSearching\}/);
-  assert.match(feedback, /טוענים את העמוד\.\.\./);
+  assert.match(feedback, /showIfStillWaiting/);
+  assert.match(feedback, /delay = 500/);
+  assert.doesNotMatch(feedback, /טוענים את העמוד\.\.\./);
   assert.match(feedback, /document\.addEventListener\("click", onClick, true\)/);
   assert.match(shell, /<GlobalActionFeedback \/>/);
   assert.match(styles, /\.global-action-feedback\.is-visible/);
@@ -184,37 +186,41 @@ test("one business can serve several worlds without duplicate public pages", asy
   assert.match(businessSource, /setWorldSelection\(\{ slug: property\.slug, world \}\)/);
 });
 
-test("spa, hourly and event worlds expose interactive maps", async () => {
-  const [spaResponse, hourlyResponse, eventResponse, spaDetailResponse] = await Promise.all([
+test("spa, hourly, event and attraction worlds expose interactive maps", async () => {
+  const [spaResponse, hourlyResponse, eventResponse, attractionResponse, spaDetailResponse] = await Promise.all([
     render("/spas"),
     render("/hourly"),
     render("/events/search"),
+    render("/attractions"),
     render("/discover/place?id=spa-butik-tlv"),
   ]);
-  for (const response of [spaResponse, hourlyResponse, eventResponse, spaDetailResponse]) assert.equal(response.status, 200);
+  for (const response of [spaResponse, hourlyResponse, eventResponse, attractionResponse, spaDetailResponse]) assert.equal(response.status, 200);
   assert.match(await spaResponse.text(), /תצוגה על מפה/);
   assert.match(await hourlyResponse.text(), /תצוגה על מפה/);
   assert.match(await eventResponse.text(), /תצוגה על מפה/);
+  assert.match(await attractionResponse.text(), /תצוגה על מפה/);
   const detail = await spaDetailResponse.text();
   assert.match(detail, /המקום על המפה/);
 
-  const [mapSource, worldData, hourlyResults, worldResults, searchResults, eventResults, styles] = await Promise.all([
+  const [mapSource, worldData, hourlyResults, worldResults, attractionResults, searchResults, eventResults, styles] = await Promise.all([
     readFile(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/components/hourly-results.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/world-map-results.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/attractions/attractions-explorer.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/search/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/events/search/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
   assert.match(mapSource, /scrollWheelZoom: true/);
   assert.match(mapSource, /touchZoom: true/);
-  assert.match(mapSource, /MapTone = "vacation" \| "events" \| "spa" \| "hourly"/);
+  assert.match(mapSource, /MapTone = "vacation" \| "events" \| "spa" \| "hourly" \| "activities"/);
   assert.match(mapSource, /map-tone--\$\{tone\}/);
   assert.ok((worldData.match(/mapPrecision: "area"/g) || []).length >= 20);
   assert.match(hourlyResults, /<DiscoveryMap items=\{filtered\} tone="hourly" autoLoad onClose=/);
   assert.match(worldResults, /<DiscoveryMap items=\{items\} tone=\{world\} autoLoad onClose=/);
-  for (const source of [hourlyResults, worldResults, searchResults, eventResults]) assert.match(source, /mobile-map-fab/);
+  assert.match(attractionResults, /<DiscoveryMap items=\{filtered\} tone="activities" autoLoad onClose=/);
+  for (const source of [hourlyResults, worldResults, attractionResults, searchResults, eventResults]) assert.match(source, /mobile-map-fab/);
   assert.match(styles, /\.mobile-map-fab \{/);
   assert.match(styles, /bottom: calc\(18px \+ env\(safe-area-inset-bottom\)\)/);
   assert.match(styles, /min-height: 44px !important/);
@@ -225,7 +231,7 @@ test("spa, hourly and event worlds expose interactive maps", async () => {
   assert.match(styles, /body:has\(\.map-results-experience\) \.mobile-map-fab/);
   assert.match(styles, /body:has\(\.map-results-experience\) \.smart-concierge/);
   assert.match(mapSource, /map-results-experience/);
-  assert.match(mapSource, /scrollIntoView\(\{ behavior: "smooth", block: "nearest" \}\)/);
+  assert.doesNotMatch(mapSource, /map-results-side|map-results-list/);
   assert.match(mapSource, /flyTo\(\[place\.lat, place\.lng\]/);
 });
 
@@ -295,13 +301,12 @@ test("gift cards, corporate experiences and MASU form one internal journey", asy
   }
 });
 
-test("checkout journeys include legal consent and safe demo payment", async () => {
-  const [giftResponse, bookingResponse, giftSource, bookingSource, paymentSource] = await Promise.all([
+test("checkout journeys include legal consent and requests without card collection", async () => {
+  const [giftResponse, bookingResponse, giftSource, bookingSource] = await Promise.all([
     render("/gift-card"),
     render("/booking"),
     readFile(new URL("../app/gift-card/gift-card-builder.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/booking/client-page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/components/demo-payment-fields.tsx", import.meta.url), "utf8"),
   ]);
   const [giftHtml, bookingHtml] = await Promise.all([giftResponse.text(), bookingResponse.text()]);
   assert.match(giftHtml, /gift-checkout__steps/);
@@ -310,11 +315,12 @@ test("checkout journeys include legal consent and safe demo payment", async () =
   assert.match(giftSource, /type="time"/);
   assert.match(giftSource, /gift-voucher/);
   assert.match(giftSource, /gift-notification-previews/);
-  assert.match(giftSource, /<DemoPaymentFields/);
-  assert.match(bookingSource, /<DemoPaymentFields/);
-  assert.match(bookingHtml, /demo-payment/);
-  assert.match(paymentSource, /4242 4242 4242 4242/);
-  assert.match(paymentSource, /demoCardNumber/);
+  assert.doesNotMatch(giftSource, /<DemoPaymentFields/);
+  assert.doesNotMatch(bookingSource, /DemoPaymentFields/);
+  assert.doesNotMatch(bookingHtml, /demo-payment/);
+  assert.match(bookingSource, /שליחת בקשת הזמנה/);
+  assert.doesNotMatch(giftSource, /4242 4242 4242 4242/);
+  assert.doesNotMatch(bookingSource, /demoCardNumber/);
   assert.doesNotMatch(giftSource, /demoCardNumber\s*:/);
   assert.doesNotMatch(bookingSource, /demoCardNumber\s*:/);
   for (const source of [giftSource, bookingSource]) {
@@ -501,8 +507,8 @@ test("footer destinations and booking forms have real destinations", async () =>
   assert.match(onboarding, /התחייבות שנתית משתלמת משמעותית/);
   assert.match(form, /רישום ראשוני והעברה לנציג מומחה/);
   assert.match(onboarding, /fixedWorld="providers"/);
-  assert.match(onboarding, /DemoPaymentFields amountLabel=\{priceLabel\}/);
-  assert.match(onboarding, /השלמת תשלום ההדגמה/);
+  assert.doesNotMatch(onboarding, /DemoPaymentFields/);
+  assert.match(onboarding, /אישור ושליחת הבקשה/);
   assert.match(onboarding, /selectedPackage=\{selectionLabel\}/);
   assert.match(cookieConsent, /SETTINGS_HASH = "#privacy-settings"/);
   assert.match(cookieConsent, /window\.addEventListener\("hashchange", openFromHash\)/);
@@ -702,7 +708,7 @@ test("ships the immersive media, review and concierge experiences", async () => 
   assert.match(discoveryPlace, /<GuestReviewStudio/);
   assert.match(trailPlace, /subjectType="trail"/);
   assert.match(home, /home-last-minute__tabs/);
-  assert.match(home, /מחיר להמחשה/);
+  assert.match(home, /אומדן לתקופה/);
   assert.match(home, /from=/);
   assert.match(home, /till=/);
   assert.match(home, /לפרטים ולהמשך הזמנה/);

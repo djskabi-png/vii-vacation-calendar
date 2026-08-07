@@ -78,6 +78,10 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "כל החופשה, במקום אחד": "Your whole getaway, in one place",
     "מוצאים את החופשה שמתאימה לכם": "Find the getaway that fits you",
     "נופש": "Stays", "אירועים": "Events", "ספא": "Spa", "לפי שעה": "Hourly stays", "ספקים": "Services", "מה עושים": "Things to do",
+    "אטרקציות": "Attractions", "גיפט קארד": "Gift card", "עוד": "More", "עוד ב־VII": "More from VII", "כל העולמות והתוכן": "All worlds and guides",
+    "אירועי חברה ורווחה": "Corporate events and wellbeing", "חבילות מלאות לארגונים": "Complete packages for organizations", "שפים, תקליטנים ושירותים": "Chefs, DJs and services",
+    "מה עושים בסביבה": "Things to do nearby", "כל הרעיונות במקום אחד": "Every idea in one place", "מסלולי טיול": "Trails", "טיולים עצמאיים לפי אזור": "Independent trails by region",
+    "מגזין ומדריכים": "Magazine and guides", "רעיונות, תוכן ומדריכים": "Ideas, stories and guides",
     "מומלצים שכדאי להכיר": "Recommended stays",
     "המקומות שעושים חשק לארוז": "Places worth packing for",
     "לכל המקומות": "View all stays", "הקודם": "Previous", "הבא": "Next",
@@ -146,6 +150,10 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "כל החופשה, במקום אחד": "Весь отдых в одном месте",
     "מוצאים את החופשה שמתאימה לכם": "Найдите отдых, который подходит именно вам",
     "נופש": "Отдых", "אירועים": "Мероприятия", "ספא": "Спа", "לפי שעה": "Почасовой отдых", "ספקים": "Услуги", "מה עושים": "Чем заняться",
+    "אטרקציות": "Развлечения", "גיפט קארד": "Подарочная карта", "עוד": "Ещё", "עוד ב־VII": "Ещё в VII", "כל העולמות והתוכן": "Все разделы и материалы",
+    "אירועי חברה ורווחה": "Корпоративные события", "חבילות מלאות לארגונים": "Готовые пакеты для компаний", "שפים, תקליטנים ושירותים": "Повара, диджеи и услуги",
+    "מה עושים בסביבה": "Чем заняться рядом", "כל הרעיונות במקום אחד": "Все идеи в одном месте", "מסלולי טיול": "Маршруты", "טיולים עצמאיים לפי אזור": "Самостоятельные маршруты по регионам",
+    "מגזין ומדריכים": "Журнал и гиды", "רעיונות, תוכן ומדריכים": "Идеи, статьи и путеводители",
     "מומלצים שכדאי להכיר": "Рекомендуемые места",
     "המקומות שעושים חשק לארוז": "Места, ради которых хочется собрать чемодан",
     "לכל המקומות": "Все места", "הקודם": "Назад", "הבא": "Вперёд",
@@ -222,6 +230,10 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "\u05db\u05dc \u05d4\u05d7\u05d5\u05e4\u05e9\u05d4, \u05d1\u05de\u05e7\u05d5\u05dd \u05d0\u05d7\u05d3": "Toutes vos vacances, au même endroit",
     "\u05de\u05d5\u05e6\u05d0\u05d9\u05dd \u05d0\u05ea \u05d4\u05d7\u05d5\u05e4\u05e9\u05d4 \u05e9\u05de\u05ea\u05d0\u05d9\u05de\u05d4 \u05dc\u05db\u05dd": "Trouvez le séjour qui vous correspond",
     "\u05e0\u05d5\u05e4\u05e9": "Séjours", "\u05d0\u05d9\u05e8\u05d5\u05e2\u05d9\u05dd": "Événements", "\u05e1\u05e4\u05d0": "Spa", "\u05dc\u05e4\u05d9 \u05e9\u05e2\u05d4": "Séjours à l'heure", "\u05e1\u05e4\u05e7\u05d9\u05dd": "Services", "\u05de\u05d4 \u05e2\u05d5\u05e9\u05d9\u05dd": "À faire",
+    "אטרקציות": "Attractions", "גיפט קארד": "Carte cadeau", "עוד": "Plus", "עוד ב־VII": "Plus sur VII", "כל העולמות והתוכן": "Tous les univers et les guides",
+    "אירועי חברה ורווחה": "Événements d’entreprise et bien-être", "חבילות מלאות לארגונים": "Formules complètes pour les organisations", "שפים, תקליטנים ושירותים": "Chefs, DJ et services",
+    "מה עושים בסביבה": "À faire à proximité", "כל הרעיונות במקום אחד": "Toutes les idées au même endroit", "מסלולי טיול": "Itinéraires", "טיולים עצמאיים לפי אזור": "Itinéraires autonomes par région",
+    "מגזין ומדריכים": "Magazine et guides", "רעיונות, תוכן ומדריכים": "Idées, articles et guides",
     "\u05db\u05dc \u05d4\u05d0\u05e8\u05e5": "Tout Israël", "\u05d9\u05e6\u05d9\u05e8\u05ea \u05e7\u05e9\u05e8": "Nous contacter",
     "\u05ea\u05e6\u05d5\u05d2\u05d4 \u05e2\u05dc \u05de\u05e4\u05d4": "Afficher la carte", "\u05ea\u05e6\u05d5\u05d2\u05ea \u05e8\u05e9\u05d9\u05de\u05d4": "Afficher la liste",
     "\u05e1\u05d9\u05e0\u05d5\u05df": "Filtres", "\u05e1\u05d9\u05e0\u05d5\u05df \u05ea\u05d5\u05e6\u05d0\u05d5\u05ea": "Filtrer les résultats", "\u05de\u05d5\u05de\u05dc\u05e6\u05d9\u05dd": "Recommandés",
@@ -787,14 +799,9 @@ function applyLanguage(language: SiteLanguage) {
 }
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<SiteLanguage>("he");
+  const [language, setLanguageState] = useState<SiteLanguage>(() => initialLanguage());
   const [translationVersion, setTranslationVersion] = useState(0);
   const observer = useRef<MutationObserver | null>(null);
-
-  useLayoutEffect(() => {
-    const languageTimer = window.setTimeout(() => setLanguageState(initialLanguage()), 0);
-    return () => window.clearTimeout(languageTimer);
-  }, []);
 
   const setLanguage = (nextLanguage: SiteLanguage) => {
     localStorage.setItem(languageStorageKey, nextLanguage);
@@ -810,12 +817,16 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     let active = true;
     void loadTranslations(language).then(() => {
       if (active) setTranslationVersion((version) => version + 1);
+    }).catch(() => {
+      document.documentElement.removeAttribute("data-locale-pending");
     });
     return () => { active = false; };
   }, [language]);
 
   useLayoutEffect(() => {
     applyLanguage(language);
+    const translationReady = language === "he" || Boolean(loadedTranslations[language]);
+    if (translationReady) document.documentElement.removeAttribute("data-locale-pending");
     observer.current?.disconnect();
     let frame = 0;
     observer.current = new MutationObserver(() => {
@@ -830,7 +841,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;
 }
 
-export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
+export function LanguageSwitcher({ compact = false, iconOnly = false }: { compact?: boolean; iconOnly?: boolean }) {
   const { language, setLanguage } = useContext(LocaleContext);
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
@@ -868,7 +879,7 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
     });
   };
 
-  return <div ref={root} data-no-translate className={`language-switcher ${open ? "is-open" : ""} ${compact ? "language-switcher--compact" : ""}`}>
+  return <div ref={root} data-no-translate className={`language-switcher ${open ? "is-open" : ""} ${compact ? "language-switcher--compact" : ""} ${iconOnly ? "language-switcher--icon-only" : ""}`}>
     <button
       ref={trigger}
       className="language-trigger"

@@ -7,7 +7,7 @@ import type { DiscoveryItem } from "../data/world-data";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import "leaflet/dist/leaflet.css";
 
-type MapTone = "vacation" | "events" | "spa" | "hourly";
+type MapTone = "vacation" | "events" | "spa" | "hourly" | "activities";
 
 type MapPlace = {
   id: string;
@@ -46,7 +46,6 @@ function PlacesMap({ places, tone = "vacation", single = false, autoLoad = false
   const mapElement = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<import("leaflet").Map | null>(null);
   const markerInstances = useRef<Map<string, import("leaflet").Marker>>(new Map());
-  const resultElements = useRef<Map<string, HTMLElement>>(new Map());
   const selectedIdRef = useRef(places[0]?.id ?? "");
   const [enabled, setEnabled] = useState(autoLoad);
   const [mapReady, setMapReady] = useState(false);
@@ -55,17 +54,12 @@ function PlacesMap({ places, tone = "vacation", single = false, autoLoad = false
   const effectiveSelectedId = selectedId === "" ? "" : places.some((place) => place.id === selectedId) ? selectedId : places[0]?.id ?? "";
   const selected = places.find((place) => place.id === effectiveSelectedId) ?? null;
 
-  const selectPlace = useCallback((id: string, source: "map" | "list") => {
+  const selectPlace = useCallback((id: string) => {
     const place = places.find((entry) => entry.id === id);
     if (!place) return;
     setSelectedId(id);
-    if (source === "list" && mapInstance.current) {
-      const currentZoom = mapInstance.current.getZoom();
-      mapInstance.current.flyTo([place.lat, place.lng], Math.max(currentZoom, 10), { duration: 0.65 });
-    }
-    if (source === "map") {
-      window.requestAnimationFrame(() => resultElements.current.get(id)?.scrollIntoView({ behavior: "smooth", block: "nearest" }));
-    }
+    const map = mapInstance.current;
+    if (map) map.flyTo([place.lat, place.lng], Math.max(map.getZoom(), place.precision === "area" ? 11 : 13), { duration: 0.45 });
   }, [places]);
 
   useEffect(() => {
@@ -142,16 +136,16 @@ function PlacesMap({ places, tone = "vacation", single = false, autoLoad = false
           offset: [0, -42],
           className: "vii-map-tooltip",
         });
-        marker.on("click", () => selectPlace(place.id, "map"));
+        marker.on("click", () => selectPlace(place.id));
         const markerElement = marker.getElement();
         markerElement?.addEventListener("click", (event) => {
           event.stopPropagation();
-          selectPlace(place.id, "map");
+          selectPlace(place.id);
         });
         markerElement?.addEventListener("keydown", (event) => {
           if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
-            selectPlace(place.id, "map");
+            selectPlace(place.id);
           }
         });
         markerRegistry.set(place.id, marker);
@@ -214,32 +208,7 @@ function PlacesMap({ places, tone = "vacation", single = false, autoLoad = false
 
   if (single) return mapCanvas;
 
-  return <div className={`map-results-experience map-tone--${tone}`}>
-    <aside className="map-results-rail" aria-label="המקומות שמוצגים על המפה">
-      <header>
-        <div><span>תוצאות על המפה</span><strong>{places.length} מקומות</strong></div>
-        {onClose && <button type="button" onClick={onClose}>חזרה לרשימה</button>}
-      </header>
-      <div className="map-results-scroll">
-        {places.map((place) => <article
-          key={place.id}
-          ref={(element) => {
-            if (element) resultElements.current.set(place.id, element);
-            else resultElements.current.delete(place.id);
-          }}
-          className={`map-result-card ${effectiveSelectedId === place.id ? "is-selected" : ""}`}
-        >
-          <button type="button" className="map-result-select" onClick={() => selectPlace(place.id, "list")} aria-pressed={effectiveSelectedId === place.id}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={place.image} alt="" />
-            <span><small>{place.category}</small><strong>{place.name}</strong><span>{place.location}, {place.area}</span><b>{place.meta}</b></span>
-          </button>
-          <Link href={place.href}>לפרטים וזמינות</Link>
-        </article>)}
-      </div>
-    </aside>
-    <div className="map-results-canvas">{mapCanvas}</div>
-  </div>;
+  return <div className={`map-results-experience map-tone--${tone}`}><div className="map-results-canvas">{mapCanvas}</div></div>;
 }
 
 export function ListingMap({ listings, mode = "vacation", single = false, autoLoad = false, onClose }: { listings: Listing[]; mode?: "vacation" | "events"; single?: boolean; autoLoad?: boolean; onClose?: () => void }) {
@@ -260,7 +229,7 @@ export function ListingMap({ listings, mode = "vacation", single = false, autoLo
   return <PlacesMap places={places} tone={mode} single={single} autoLoad={autoLoad} onClose={onClose} />;
 }
 
-export function DiscoveryMap({ items, tone, single = false, autoLoad = false, onClose }: { items: DiscoveryItem[]; tone: "spa" | "hourly"; single?: boolean; autoLoad?: boolean; onClose?: () => void }) {
+export function DiscoveryMap({ items, tone, single = false, autoLoad = false, onClose }: { items: DiscoveryItem[]; tone: "spa" | "hourly" | "activities"; single?: boolean; autoLoad?: boolean; onClose?: () => void }) {
   const { language } = useSiteLanguage();
   const localized = useMemo(() => language === "en"
     ? { spa: "Spa and treatments", hourly: "Hourly stay", packages: "Packages and treatments", short: "Short stay", from: "From" }
@@ -276,13 +245,13 @@ export function DiscoveryMap({ items, tone, single = false, autoLoad = false, on
       name: item.name,
       location: item.location,
       area: item.area,
-      category: localized ? (tone === "spa" ? localized.spa : localized.hourly) : tone === "spa" ? "ספא וטיפולים" : "שהייה לפי שעה",
-      meta: localized ? (price ? `${localized.from} ₪${price}` : tone === "spa" ? localized.packages : localized.short) : item.priceLabel || (tone === "spa" ? "חבילות וטיפולים" : "שהייה קצרה"),
+      category: tone === "activities" ? item.area : localized ? (tone === "spa" ? localized.spa : localized.hourly) : tone === "spa" ? "ספא וטיפולים" : "שהייה לפי שעה",
+      meta: localized ? (price ? `${localized.from} ₪${price}` : tone === "spa" ? localized.packages : tone === "activities" ? item.priceLabel || item.location : localized.short) : item.priceLabel || (tone === "spa" ? "חבילות וטיפולים" : tone === "activities" ? "חוויה בתשלום" : "שהייה קצרה"),
       image: item.image || "/vii-logo.png",
       lat: item.lat!,
       lng: item.lng!,
       href: `/discover/place?world=${item.world}&id=${item.id}`,
-      markerLabel: price ? `${price} ₪` : tone === "spa" ? "ספא" : "לפי שעה",
+      markerLabel: price ? `${price} ₪` : tone === "spa" ? "ספא" : tone === "activities" ? "אטרקציה" : "לפי שעה",
       precision: item.mapPrecision || "area",
     };
   }), [items, tone, localized]);

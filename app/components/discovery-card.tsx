@@ -7,6 +7,7 @@ import type { DiscoveryItem } from "../data/world-data";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { PinIcon } from "../site-header";
 import { FavoriteButton } from "./favorite-button";
+import { useState } from "react";
 
 const placeNames: Record<Exclude<SiteLanguage, "he">, Record<string, string>> = {
   en: { "תל אביב": "Tel Aviv", "ירושלים": "Jerusalem", "נהריה": "Nahariya", "חיפה": "Haifa", "רגבה": "Regba", "כמון": "Kamon", "רמת גן": "Ramat Gan", "אילת": "Eilat", "הרצליה": "Herzliya", "אשדוד": "Ashdod", "אשקלון": "Ashkelon", "טבריה": "Tiberias", "נתניה": "Netanya", "פתח תקווה": "Petah Tikva", "ראשון לציון": "Rishon LeZion", "רחובות": "Rehovot", "באר שבע": "Beersheba", "ים המלח": "Dead Sea", "מרכז": "Central Israel", "צפון": "Northern Israel", "דרום ונגב": "Southern Israel and the Negev", "ירושלים והסביבה": "Jerusalem area", "אילת והערבה": "Eilat and the Arava", "גליל מערבי": "Western Galilee", "חיפה והקריות": "Haifa area" },
@@ -49,6 +50,7 @@ function localizedPrice(label: string | undefined, language: Exclude<SiteLanguag
 
 export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
   const { language } = useSiteLanguage();
+  const [phoneVisible, setPhoneVisible] = useState(false);
   const localized = language === "he" ? null : worldCopy[language][item.world];
   const ui = language === "he" ? null : interfaceCopy[language];
   const location = language === "he" ? item.location : placeNames[language][item.location] || ui!.israel;
@@ -58,11 +60,12 @@ export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
   const details = ui?.details || "לפרטים";
   const price = language === "he" ? item.priceLabel || item.duration || details : localizedPrice(item.priceLabel || item.duration, language, details);
 
+  if (!item.image) return null;
+
   return <article className={`discovery-card discovery-card--${item.world}`}>
     <Link className="discovery-card__visual" href={`/discover/place?world=${item.world}&id=${item.id}`} aria-label={`${details}: ${item.name}`}>
-      {item.image ? <img src={item.image} alt={item.imageLabel && ui ? ui.image : item.name} /> : <span className={`discovery-card__placeholder discovery-card__placeholder--${item.world}`}><b>{item.name.slice(0, 1)}</b><small>{item.demo ? ui?.demo || "פרופיל הדגמה" : ui?.system || "רעיון מערכת"}</small></span>}
+      <img src={item.image} alt={item.imageLabel && ui ? ui.image : item.name} />
       {item.imageLabel && <span className="image-context-label">{ui?.image || item.imageLabel}</span>}
-      {item.demo && <span className="demo-badge">{ui?.demo || "הדגמה"}</span>}
       {item.rating && <span className="rating-badge">★ {item.rating.toFixed(1)}</span>}
     </Link>
     <FavoriteButton id={item.id} world={item.world} name={item.name} location={`${location}, ${area}`} image={item.image} href={`/discover/place?world=${item.world}&id=${item.id}`} meta={price} />
@@ -71,7 +74,16 @@ export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
       <h3><Link href={`/discover/place?world=${item.world}&id=${item.id}`}>{item.name}</Link></h3>
       <p>{description}</p>
       <div className="discovery-card__chips">{features.map((feature) => <span key={feature}>{feature}</span>)}</div>
-      <footer><strong>{price}</strong><Link href={`/discover/place?world=${item.world}&id=${item.id}`}>{details}</Link></footer>
+      <footer className={item.world === "hourly" ? "discovery-card__hourly-footer" : undefined}>
+        <strong>{price}</strong>
+        <div className="discovery-card__footer-actions">
+          {item.world === "hourly" && item.phone ? phoneVisible
+            ? <a className="discovery-card__quick-call" dir="ltr" href={`tel:${item.phone.replace(/[^\d+]/g, "")}`} aria-label={`חיוג אל ${item.name}`}>☎ {item.phone}</a>
+            : <button className="discovery-card__reveal-phone" type="button" onClick={() => setPhoneVisible(true)}>הצגת מספר</button>
+          : null}
+          <Link href={`/discover/place?world=${item.world}&id=${item.id}`}>{details}</Link>
+        </div>
+      </footer>
     </div>
   </article>;
 }

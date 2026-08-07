@@ -19,7 +19,7 @@ const worldOptions = [
 type Purpose = "join" | "booking" | "accessibility";
 type SubmitState = "idle" | "submitting" | "success" | "error";
 
-export function LeadIntakeForm({ purpose, selectedPackage = "", billingCycle = "", fixedWorld = "", onSuccess, submitLabel = "" }: { purpose: Purpose; selectedPackage?: string; billingCycle?: "monthly" | "annual" | ""; fixedWorld?: string; onSuccess?: () => void; submitLabel?: string }) {
+export function LeadIntakeForm({ purpose, selectedPackage = "", billingCycle = "", fixedWorld = "", onSuccess, submitLabel = "", formVariant = "default" }: { purpose: Purpose; selectedPackage?: string; billingCycle?: "monthly" | "annual" | ""; fixedWorld?: string; onSuccess?: () => void; submitLabel?: string; formVariant?: "default" | "corporate" }) {
   const isJoin = purpose === "join";
   const isAccessibility = purpose === "accessibility";
   const requestedWorld = useSearchParams().get("world");
@@ -44,12 +44,18 @@ export function LeadIntakeForm({ purpose, selectedPackage = "", billingCycle = "
     const requestedPackage = packageEligible ? selectedPackage || requestContext.get("package") || "" : "";
     const requestedService = requestContext.get("service");
     const requestedIntent = requestContext.get("intent");
+    const eventDate = String(values.get("event_date") || "").trim();
+    const participants = String(values.get("participants") || "").trim();
+    const budget = String(values.get("budget") || "").trim();
     const contextDetails = [
       requestedPlace ? `מקום או ספק מבוקש: ${requestedPlace}` : "",
       requestedPackage ? `חבילת פרסום: ${requestedPackage}` : "",
       billingCycle ? `מחזור חיוב: ${billingCycle === "annual" ? "שנתי" : "חודשי"}` : "",
       requestedService ? `שירות: ${requestedService}` : "",
       requestedIntent === "activity-order" ? "אופן פנייה: הזמנת אטרקציה מתוך אתר VII" : "",
+      eventDate ? `מועד משוער: ${eventDate}` : "",
+      participants ? `כמות משתתפים: ${participants}` : "",
+      budget ? `תקציב משוער: ${budget}` : "",
     ].filter(Boolean);
     const contextSuffix = contextDetails.length ? `\n\n${contextDetails.join("\n")}` : "";
     const id = submissionId || crypto.randomUUID();
@@ -100,7 +106,8 @@ export function LeadIntakeForm({ purpose, selectedPackage = "", billingCycle = "
   }
 
   return (
-    <form className="lead-intake-form" onSubmit={submit}>
+    <form className={`lead-intake-form${formVariant === "corporate" ? " lead-intake-form--corporate" : ""}`} onSubmit={submit}>
+      {formVariant === "corporate" ? <div className="lead-intake-form__heading form-wide"><span>עוד כמה פרטים ומתחילים</span><h3>למי המומחה חוזר?</h3><p>הפרטים ישמשו להכנת כיוון ראשוני. אין חיוב ואין התחייבות.</p></div> : null}
       {fixedWorld ? <input type="hidden" name="world" value={fixedWorld} /> : isJoin ? (
         <fieldset className="lead-world-picker">
           <legend>לאיזה עולם העסק שייך?</legend>
@@ -131,16 +138,22 @@ export function LeadIntakeForm({ purpose, selectedPackage = "", billingCycle = "
       {isJoin ? <label>שם העסק<input required name="organization" autoComplete="organization" minLength={2} /></label> : null}
       <label>שם מלא<input required name="name" autoComplete="name" minLength={2} /></label>
       <label>טלפון לחזרה<input required name="phone" type="tel" inputMode="tel" autoComplete="tel" minLength={7} /></label>
-      <label>כתובת דוא״ל, לא חובה<input name="email" type="email" autoComplete="email" /></label>
+      <label className={formVariant === "corporate" ? "form-wide" : undefined}>כתובת דוא״ל, לא חובה<input name="email" type="email" autoComplete="email" /></label>
+      {formVariant === "corporate" ? <>
+        <div className="lead-intake-form__divider form-wide"><span>על האירוע</span></div>
+        <label>מועד משוער<input name="event_date" placeholder="לדוגמה, סוף ספטמבר" /></label>
+        <label>כמות משתתפים<input name="participants" inputMode="numeric" placeholder="לדוגמה, 80 עובדים" /></label>
+        <label className="form-wide">תקציב משוער, לא חובה<input name="budget" placeholder="אפשר גם לרשום שעדיין לא נקבע" /></label>
+      </> : null}
       {isJoin ? <label>יישוב או אזור<input name="location" autoComplete="address-level2" /></label> : null}
       {isJoin ? <label className="form-wide">אתר או עמוד עסקי, לא חובה<input name="website" type="url" inputMode="url" placeholder="https://" /></label> : null}
-      <label className="form-wide">{isJoin ? "ספרו לנו בקצרה על העסק" : isAccessibility ? "תיאור הבעיה, כתובת העמוד, המכשיר והדפדפן" : "פרטי ההזמנה, תאריך, כמות משתתפים ותקציב"}<textarea required name="message" rows={5} minLength={5} maxLength={3000} /></label>
+      <label className="form-wide">{isJoin ? "ספרו לנו בקצרה על העסק" : isAccessibility ? "תיאור הבעיה, כתובת העמוד, המכשיר והדפדפן" : formVariant === "corporate" ? "מה עוד חשוב שנדע? לא חובה" : "פרטי ההזמנה, תאריך, כמות משתתפים ותקציב"}<textarea required={formVariant !== "corporate"} name="message" rows={formVariant === "corporate" ? 3 : 5} minLength={5} maxLength={3000} placeholder={formVariant === "corporate" ? "רגישויות, מטרת האירוע, אזור מועדף או כל פרט שיעזור לנו לדייק" : undefined} /></label>
       <label className="form-honey" aria-hidden="true">אתר החברה<input name="company_site" tabIndex={-1} autoComplete="off" /></label>
       <label className="consent legal-consent form-wide"><input required name="privacy" type="checkbox" /><span>קראתי והסכמתי ל<Link href="/legal/terms">תקנון האתר</Link> ול<Link href="/legal/privacy">מדיניות הפרטיות</Link>, ואני מאשר או מאשרת שימוש בפרטים לצורך הטיפול בבקשה.</span></label>
       {isJoin && selectedPackage && effectiveSelectedWorld === "providers" ? <div className="lead-selected-package form-wide"><span>המסלול שנבחר לספק</span><strong>{selectedPackage}</strong></div> : null}
       {isJoin && selectedPackage && effectiveSelectedWorld !== "providers" ? <div className="lead-selected-package lead-selected-package--custom form-wide"><span>מסלול שיתוף פעולה מותאם</span><strong>נציג מומחה יחזור לאחר בדיקת הפרטים, ללא חיוב בשלב הזה</strong></div> : null}
-      <button className="button primary form-wide" type="submit" disabled={state === "submitting"}>{state === "submitting" ? "שומרים את הפרטים..." : submitLabel || (isJoin && effectiveSelectedWorld === "providers" ? "פתיחת חשבון והמשך לאימות" : isJoin ? "רישום ראשוני והעברה לנציג מומחה" : isAccessibility ? "שליחת דיווח נגישות" : "המשך להזמנה")}</button>
-      {state === "error" ? <p className="form-error form-wide" role="alert">השליחה לא הושלמה. הפרטים נשארו בטופס ואפשר לנסות שוב.</p> : null}
+      <button className="button primary form-wide" type="submit" disabled={state === "submitting"}>{state === "submitting" ? "שומרים את הפרטים..." : submitLabel || (isJoin && effectiveSelectedWorld === "providers" ? "פתיחת חשבון וקבלת גישה לניהול" : isJoin ? "רישום ראשוני והעברה לנציג מומחה" : isAccessibility ? "שליחת דיווח נגישות" : "המשך להזמנה")}</button>
+      {state === "error" ? <div className="form-error form-wide" role="alert"><strong>הפרטים עדיין לא נשמרו</strong><span>לא בוצע חיוב. כל מה שמילאתם נשאר בטופס, ואפשר לנסות שוב בעוד רגע.</span></div> : null}
     </form>
   );
 }

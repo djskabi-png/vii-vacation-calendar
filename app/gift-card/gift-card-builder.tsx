@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
-import { DemoPaymentFields } from "../components/demo-payment-fields";
 import { saveBooking } from "../lib/account";
 
 const amounts = [300, 500, 750, 1000];
@@ -68,7 +67,7 @@ export function GiftCardBuilder() {
       if (!response.ok || !result.success) throw new Error("submit failed");
       const orderReference = result.reference || `GIFT-${id.slice(0, 8).toUpperCase()}`;
       setReference(orderReference);
-      saveBooking({ id, reference: orderReference, world: "gift-card", placeName: "גיפט קארד VII", offerName: `${selectedDesign.label}, ${finalAmount} ₪`, date: `${deliveryDate} ${deliveryTime}`, status: "confirmed", createdAt: new Date().toISOString() });
+      saveBooking({ id, reference: orderReference, world: "gift-card", placeName: "גיפט קארד VII", offerName: `${selectedDesign.label}, ${finalAmount} ₪`, date: `${deliveryDate} ${deliveryTime}`, status: "pending", createdAt: new Date().toISOString() });
       setStep("success");
       setState("idle");
     } catch {
@@ -79,12 +78,12 @@ export function GiftCardBuilder() {
   return <div className="gift-checkout">
     <ol className="gift-checkout__steps" aria-label="שלבי רכישת גיפט קארד">
       <li aria-current={step === "details" ? "step" : undefined} className={step !== "details" ? "complete" : ""}><span>1</span><b>עיצוב ומשלוח</b></li>
-      <li aria-current={step === "payment" ? "step" : undefined} className={step === "success" ? "complete" : ""}><span>2</span><b>תשלום</b></li>
-      <li aria-current={step === "success" ? "step" : undefined}><span>3</span><b>אישור ושובר</b></li>
+      <li aria-current={step === "payment" ? "step" : undefined} className={step === "success" ? "complete" : ""}><span>2</span><b>בדיקה ואישור</b></li>
+      <li aria-current={step === "success" ? "step" : undefined}><span>3</span><b>קליטת הבקשה</b></li>
     </ol>
 
     {step === "success" ? <section className="gift-thank-you" role="status" aria-live="polite">
-      <div className="gift-thank-you__intro"><span>תודה, המתנה מוכנה</span><h2>הרכישה הושלמה בהדגמה</h2><p>לא בוצע חיוב אמיתי ולא נשלחה הודעה חיצונית. זהו המסלול המלא שיופעל לאחר חיבור הסליקה, הדואר והמסרונים.</p>{reference ? <strong dir="ltr">{reference}</strong> : null}</div>
+      <div className="gift-thank-you__intro"><span>תודה, הבקשה נקלטה</span><h2>אנחנו מאמתים את פרטי המתנה</h2><p>לא בוצע חיוב. נציג יאמת את הסכום, מועד השליחה ופרטי המקבל לפני הפקת השובר והמשך לתשלום.</p>{reference ? <strong dir="ltr">{reference}</strong> : null}</div>
       <div className={`gift-voucher gift-voucher--${design}`}><small>VII GIFT CARD</small><h3>{selectedDesign.label}</h3><b>{finalAmount.toLocaleString("he-IL")} ₪</b><p>לכבוד {recipient}</p><span>{message || "שתהיה לך חוויה נפלאה"}</span><footer>בתוקף ובכפוף לתקנון המימוש שיופיע בשובר הסופי</footer></div>
       <div className="gift-notification-previews">
         <article><span>הודעת הדואר למקבל או למקבלת</span><h3>{recipient}, מחכה לך מתנה</h3><p>{sender} שלח או שלחה לך גיפט קארד של VII בסך {finalAmount.toLocaleString("he-IL")} ₪. השובר יצורף להודעה ויכלול קישור למימוש.</p><small>{recipientEmail}</small></article>
@@ -113,13 +112,13 @@ export function GiftCardBuilder() {
           <label>שעת השליחה<input value={deliveryTime} onChange={(event) => setDeliveryTime(event.target.value)} required type="time" /></label>
           <label className="form-wide">ברכה אישית, לא חובה<textarea value={message} onChange={(event) => setMessage(event.target.value)} rows={3} maxLength={300} /></label>
         </div>
-        <button className="button primary wide" type="submit">המשך מאובטח לתשלום</button>
+        <button className="button primary wide" type="submit">המשך לבדיקה ואישור</button>
       </form> : <form onSubmit={submitPayment}>
         <div className="gift-payment-summary"><span>המתנה שלכם</span><h3>{selectedDesign.label}</h3><p>לכבוד {recipient}, לשליחה בתאריך {deliveryDate} בשעה {deliveryTime}</p><strong>{finalAmount.toLocaleString("he-IL")} ₪</strong></div>
-        <DemoPaymentFields amountLabel={`${finalAmount.toLocaleString("he-IL")} ₪`} />
+        <div className="gift-payment-summary"><span>לתשומת לבכם</span><p>הבקשה תישלח לאימות לפני חיוב. לאחר האישור תקבלו קישור מאובטח לתשלום ולהפקת השובר.</p></div>
         <label className="form-honey" aria-hidden="true">אתר החברה<input name="company_site" tabIndex={-1} autoComplete="off" /></label>
-        <label className="consent legal-consent"><input name="privacy" type="checkbox" required /><span>קראתי והסכמתי ל<Link href="/legal/terms">תקנון האתר</Link> ול<Link href="/legal/privacy">מדיניות הפרטיות</Link>, ואני מאשר או מאשרת את רכישת ההדגמה.</span></label>
-        <div className="gift-payment-actions"><button className="button secondary" type="button" onClick={() => setStep("details")}>חזרה לעריכה</button><button className="button primary" type="submit" disabled={state === "submitting"}>{state === "submitting" ? "מבצעים תשלום דמה..." : `תשלום דמה בסך ${finalAmount.toLocaleString("he-IL")} ₪`}</button></div>
+        <label className="consent legal-consent"><input name="privacy" type="checkbox" required /><span>קראתי והסכמתי ל<Link href="/legal/terms">תקנון האתר</Link> ול<Link href="/legal/privacy">מדיניות הפרטיות</Link>, ואני מאשר או מאשרת את שליחת בקשת הרכישה.</span></label>
+        <div className="gift-payment-actions"><button className="button secondary" type="button" onClick={() => setStep("details")}>חזרה לעריכה</button><button className="button primary" type="submit" disabled={state === "submitting"}>{state === "submitting" ? "שולחים את הבקשה..." : `שליחת בקשה בסך ${finalAmount.toLocaleString("he-IL")} ₪`}</button></div>
         {state === "error" ? <p className="form-error" role="alert">הפעולה לא הושלמה. הפרטים נשמרו במסך ואפשר לנסות שוב.</p> : null}
       </form>}
     </div>}

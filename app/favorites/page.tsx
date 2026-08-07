@@ -126,7 +126,7 @@ export default function FavoritesPage() {
           <div className="favorites-grid">
             {visibleItems.map((item) => <article key={item.key} className="favorite-card">
               <Link className="favorite-card__media" href={item.href}>{item.image ? <img src={item.image} alt={item.name} /> : <span>{item.name.slice(0, 1)}</span>}</Link>
-              <FavoriteButton {...item} />
+              <FavoriteButton id={item.id} world={item.world} name={item.name} location={item.location} image={item.image} href={item.href} meta={item.meta} />
               <div className="favorite-card__body"><small>{labels[item.world]}</small><h2><Link href={item.href}>{item.name}</Link></h2><p>{localizeLocation(item.location, language)}</p>{localizeMeta(item, language) ? <span>{localizeMeta(item, language)}</span> : null}<Link className="button secondary" href={item.href}>{copy.details}</Link></div>
             </article>)}
           </div>
