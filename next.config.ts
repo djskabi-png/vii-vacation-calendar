@@ -11,6 +11,14 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
+  async rewrites() {
+    return {
+      beforeFiles: [
+        { source: "/:locale(en|ru|fr)", destination: "/" },
+        { source: "/:locale(en|ru|fr)/:path*", destination: "/:path*" },
+      ],
+    };
+  },
 };
 
 export default nextConfig;

@@ -61,6 +61,29 @@ test("language control uses the branded accessible menu instead of a native sele
   assert.doesNotMatch(html, /<select[^>]*aria-label="שפה"/);
 });
 
+test("language routes use real path prefixes and keep the Hebrew homepage canonical", async () => {
+  const [provider, routing, config, layout] = await Promise.all([
+    readFile(new URL("../app/i18n/locale-provider.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/i18n/locale-routing.ts", import.meta.url), "utf8"),
+    readFile(new URL("../next.config.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
+  ]);
+  assert.match(config, /:locale\(en\|ru\|fr\)/);
+  assert.match(provider, /window\.location\.assign\(destination\)/);
+  assert.match(provider, /languageFromPathname\(window\.location\.pathname\)/);
+  assert.doesNotMatch(provider, /url\.searchParams\.set\("lang"/);
+  assert.match(routing, /language === "he" \? basePath/);
+  assert.match(layout, /location\.pathname\.match/);
+  const searchBox = await readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8");
+  const searchPage = await readFile(new URL("../app/search/page.tsx", import.meta.url), "utf8");
+  assert.match(searchBox, /window\.location\.assign\(localizedPath\(destination, language\)\)/);
+  assert.match(searchPage, /router\.replace\(localizedPath/);
+  for (const path of ["/en", "/en/search?guests=2", "/ru/guides", "/fr/spas"]) {
+    const response = await render(path);
+    assert.equal(response.status, 200, path);
+  }
+});
+
 test("query-driven detail pages render the requested content on the server", async () => {
   for (const [pathname, expected, unexpected] of [
     ["/business?id=perfumes-villa", /וילת הבשמים/, /אקווה ריזורט/],
@@ -626,9 +649,10 @@ test("includes the accessibility system and honest place disclosures", async () 
 });
 
 test("ships a favicon, four languages and no dependency on the retired site", async () => {
-  const [layout, locale, translations, header, footer, data, worldData, favicon] = await Promise.all([
+  const [layout, locale, localeRouting, translations, header, footer, data, worldData, favicon] = await Promise.all([
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/i18n/locale-provider.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/i18n/locale-routing.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/i18n/translations.generated.json", import.meta.url), "utf8"),
     readFile(new URL("../app/site-header.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/site-footer.tsx", import.meta.url), "utf8"),
@@ -640,7 +664,7 @@ test("ships a favicon, four languages and no dependency on the retired site", as
   assert.match(layout, /icons:\s*\{\s*icon:/);
   assert.equal(favicon.length > 0, true);
   assert.match(layout, /<LocaleProvider>/);
-  assert.match(locale, /"he" \| "en" \| "ru"/);
+  assert.match(localeRouting, /"he" \| "en" \| "ru" \| "fr"/);
   assert.match(locale, /document\.documentElement\.dir/);
   assert.equal(Object.keys(dictionaries.en).length >= 2000, true);
   assert.equal(Object.keys(dictionaries.ru).length >= 2000, true);

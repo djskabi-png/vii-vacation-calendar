@@ -9,6 +9,8 @@ import { eventPlaces, properties } from "../data/site-data";
 import { hourlyPlaces, spaPlaces, type WorldId } from "../data/world-data";
 import { CalendarIcon, PeopleIcon, PinIcon, SearchIcon } from "../site-header";
 import { SearchWorldTabs } from "./world-switcher";
+import { useSiteLanguage } from "../i18n/locale-provider";
+import { localizedPath } from "../i18n/locale-routing";
 
 export type SearchMode = "vacation" | "events" | "spa" | "hourly";
 type SpaAudience = "single" | "couple" | "group" | "day-pass";
@@ -43,6 +45,7 @@ function parseSpaAudience(value: string | null): SpaAudience {
 
 export function SearchBox({ mode = "vacation", compact = false, showWorlds = false }: { mode?: SearchMode; compact?: boolean; showWorlds?: boolean }) {
   const searchParams = useSearchParams();
+  const { language } = useSiteLanguage();
   const isHourly = mode === "hourly";
   const shouldCollapse = compact || searchParams.has("location");
   const places = useMemo(() => {
@@ -110,7 +113,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
     }
     window.setTimeout(() => {
       try {
-        window.location.assign(destination);
+        window.location.assign(localizedPath(destination, language));
       } catch {
         setIsSearching(false);
       }

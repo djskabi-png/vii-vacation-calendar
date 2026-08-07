@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import { LanguageSwitcher, useSiteLanguage } from "./i18n/locale-provider";
+import { stripLanguagePrefix } from "./i18n/locale-routing";
 import { worlds, type WorldId } from "./data/world-data";
 import { AccessibilityWidget } from "./components/accessibility-widget";
 
@@ -19,7 +20,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const moreRootRef = useRef<HTMLDivElement>(null);
   const moreButtonRef = useRef<HTMLButtonElement>(null);
-  const pathname = usePathname();
+  const pathname = stripLanguagePrefix(usePathname());
   const { language } = useSiteLanguage();
   const magazineActive = pathname === "/guides" || pathname.startsWith("/guides/");
   const magazineCopy = {

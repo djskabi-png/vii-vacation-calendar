@@ -11,9 +11,12 @@ import { SearchBox } from "../components/search-box";
 import { properties } from "../data/site-data";
 import { getPlaceAccessibility } from "../data/accessibility-data";
 import { CloseIcon, MapIcon, PinIcon } from "../site-header";
+import { useSiteLanguage } from "../i18n/locale-provider";
+import { localizedPath } from "../i18n/locale-routing";
 
 export default function SearchPage() {
   const router = useRouter();
+  const { language } = useSiteLanguage();
   const [sort, setSort] = useState("recommended");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [mapOpen, setMapOpen] = useState(false);
@@ -32,7 +35,7 @@ export default function SearchPage() {
       else params.set(key, value);
     });
     const query = params.toString();
-    router.replace(query ? `/search?${query}` : "/search", { scroll: false });
+    router.replace(localizedPath(query ? `/search?${query}` : "/search", language), { scroll: false });
   }
 
   function changeArea(nextArea: string) {

@@ -30,7 +30,7 @@ export function organizationSchema() {
       width: 160,
       height: 122,
     },
-    knowsLanguage: ["he-IL", "en", "ru"],
+    knowsLanguage: ["he-IL", "en", "ru", "fr"],
   };
 }
 

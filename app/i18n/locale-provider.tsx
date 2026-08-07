@@ -1,8 +1,9 @@
 "use client";
 
 import { createContext, useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { languageFromPathname, localizedPath, type SiteLanguage } from "./locale-routing";
 
-export type SiteLanguage = "he" | "en" | "ru" | "fr";
+export type { SiteLanguage } from "./locale-routing";
 
 type LocaleContextValue = {
   language: SiteLanguage;
@@ -553,14 +554,9 @@ const finalUiTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
   },
 };
 
-function normalizeLanguage(value: string | null): SiteLanguage {
-  return value === "en" || value === "ru" || value === "fr" ? value : "he";
-}
-
 function initialLanguage(): SiteLanguage {
   if (typeof window === "undefined") return "he";
-  const urlLanguage = new URLSearchParams(window.location.search).get("lang");
-  return normalizeLanguage(urlLanguage || localStorage.getItem(languageStorageKey));
+  return languageFromPathname(window.location.pathname);
 }
 
 function dictionary(language: SiteLanguage): Record<string, string> {
@@ -774,6 +770,13 @@ function applyLanguage(language: SiteLanguage) {
     if (saved.size) originalAttributes.set(element, saved);
   });
 
+  document.body.querySelectorAll<HTMLAnchorElement>("a[href]").forEach((anchor) => {
+    const href = anchor.getAttribute("href");
+    if (!href || !href.startsWith("/") || href.startsWith("//")) return;
+    const localizedHref = localizedPath(href, language);
+    if (href !== localizedHref) anchor.setAttribute("href", localizedHref);
+  });
+
   if (document.title && hebrewPattern.test(document.title)) originalDocumentTitle = document.title;
   if (originalDocumentTitle) document.title = translateValue(originalDocumentTitle, language);
 
@@ -806,11 +809,21 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   const setLanguage = (nextLanguage: SiteLanguage) => {
     localStorage.setItem(languageStorageKey, nextLanguage);
     const url = new URL(window.location.href);
-    if (nextLanguage === "he") url.searchParams.delete("lang");
-    else url.searchParams.set("lang", nextLanguage);
-    window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
-    setLanguageState(nextLanguage);
+    url.searchParams.delete("lang");
+    const destination = localizedPath(`${url.pathname}${url.search}${url.hash}`, nextLanguage);
+    window.location.assign(destination);
   };
+
+  useEffect(() => {
+    const syncLanguageWithRoute = () => {
+      const routeLanguage = languageFromPathname(window.location.pathname);
+      localStorage.setItem(languageStorageKey, routeLanguage);
+      setLanguageState(routeLanguage);
+    };
+    syncLanguageWithRoute();
+    window.addEventListener("popstate", syncLanguageWithRoute);
+    return () => window.removeEventListener("popstate", syncLanguageWithRoute);
+  }, []);
 
   useEffect(() => {
     if (language === "he" || loadedTranslations[language]) return;
