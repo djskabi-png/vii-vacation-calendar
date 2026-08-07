@@ -131,12 +131,9 @@ function PlacesMap({ places, tone = "vacation", single = false, autoLoad = false
             iconAnchor: single ? [25, 51] : [56, 51],
           }),
         }).addTo(map);
-        marker.bindTooltip(place.name, {
-          direction: "top",
-          offset: [0, -42],
-          className: "vii-map-tooltip",
-        });
         marker.on("click", () => selectPlace(place.id));
+        marker.on("mouseover", () => setSelectedId(place.id));
+        marker.on("focus", () => setSelectedId(place.id));
         const markerElement = marker.getElement();
         markerElement?.addEventListener("click", (event) => {
           event.stopPropagation();
@@ -198,10 +195,10 @@ function PlacesMap({ places, tone = "vacation", single = false, autoLoad = false
     {onClose && !single && <button className="map-mobile-close" type="button" onClick={onClose} aria-label="חזרה לתצוגת רשימה"><span aria-hidden="true">×</span>חזרה לרשימה</button>}
     {mapReady && <span className="map-zoom-hint">גלגלת העכבר מגדילה ומקטינה את המפה</span>}
     {!mapReady && (autoLoad ? <span className="map-live-loading" role="status">טוענים את המפה ואת הסמנים...</span> : <div className="map-preview-card map-loading-preview">{previewContent}</div>)}
-    {mapReady && !single && selected && <article className="map-selection-card">
+    {mapReady && !single && selected && <article className="map-selection-card" aria-live="polite">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={selected.image} alt={selected.name} />
-      <div><small>{selected.category}</small><strong>{selected.name}</strong><span>{selected.location} · {selected.meta}</span><Link href={selected.href}>לפרטי המקום</Link></div>
+      <div><small>{selected.category}</small><strong>{selected.name}</strong><span>{selected.location} · {selected.meta}</span><Link href={selected.href}>לכל הפרטים</Link></div>
       <button type="button" onClick={() => setSelectedId("")} aria-label="סגירת פרטי המקום">×</button>
     </article>}
   </div>;

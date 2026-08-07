@@ -238,6 +238,19 @@ test("spa, hourly, event and attraction worlds expose interactive maps", async (
   assert.match(mapSource, /flyTo\(\[place\.lat, place\.lng\]/);
 });
 
+test("map markers use the rich synchronized place card instead of legacy text tooltips", async () => {
+  const [source, styles] = await Promise.all([
+    readFile(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+  assert.doesNotMatch(source, /bindTooltip/);
+  assert.doesNotMatch(styles, /\.vii-map-tooltip/);
+  assert.match(source, /marker\.on\("mouseover"/);
+  assert.match(source, /aria-live="polite"/);
+  assert.match(styles, /\.map-selection-card \{ position: absolute/);
+  assert.match(styles, /backdrop-filter: blur\(18px\)/);
+});
+
 test("commercial discovery stays inside VII", async () => {
   const responses = await Promise.all([
     render("/discover/place?world=spa&id=spa-butik-tlv"),
