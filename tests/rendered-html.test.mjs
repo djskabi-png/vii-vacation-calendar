@@ -151,6 +151,19 @@ test("hourly search starts with location and exposes filters only with the resul
   assert.doesNotMatch(html, /בחרו תאריכים/);
 });
 
+test("vacation search keeps a complete Airbnb-style party breakdown", async () => {
+  const searchBox = await readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8");
+  for (const label of ["מבוגרים", "ילדים", "תינוקות", "חיות מחמד", "חדרים"]) {
+    assert.match(searchBox, new RegExp(`label: "${label}"`));
+  }
+  assert.match(searchBox, /adults=\$\{vacationParty\.adults\}/);
+  assert.match(searchBox, /children=\$\{vacationParty\.children\}/);
+  assert.match(searchBox, /infants=\$\{vacationParty\.infants\}/);
+  assert.match(searchBox, /pets=\$\{vacationParty\.pets\}/);
+  assert.match(searchBox, /rooms=\$\{vacationParty\.rooms\}/);
+  assert.match(searchBox, /mode === "vacation"/);
+});
+
 test("search result bars preserve the submitted criteria", async () => {
   const [vacationResponse, eventResponse, spaResponse, hourlyResponse] = await Promise.all([
     render("/search?location=אילת&dates=10%20באוג׳%20עד%2012%20באוג׳&guests=4"),

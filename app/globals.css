@@ -3042,7 +3042,11 @@ h3 { font-size: 1.18rem; }
 .hero-orb--one { width: 200px; height: 200px; inset-inline-end: -40px; top: 80px; background: #a7e3e7; }
 .hero-orb--two { width: 100px; height: 100px; inset-inline-start: 8%; bottom: 40px; background: #83bfe9; }
 .search-box-shell { position: relative; }
-.search-mobile-summary, .search-mobile-backdrop, .search-mobile-sheet-head { display: none; }
+.home-hero:has(.search-option-backdrop),
+.results-search:has(.search-option-backdrop),
+.world-hero:has(.search-option-backdrop) { z-index: 1500; }
+.search-box-shell:has(.search-option-backdrop) { z-index: 1500; }
+.search-mobile-summary, .search-mobile-backdrop, .search-mobile-sheet-head, .search-option-backdrop { display: none; }
 .search-box { position: relative; z-index: 5; display: grid; grid-template-columns: 1.05fr .95fr .85fr auto; max-width: 1040px; margin: auto; background: white; border: 1px solid rgba(8,126,139,.17); border-radius: 20px; padding: 7px; box-shadow: var(--shadow); text-align: right; }
 .search-box--hourly { grid-template-columns: minmax(0,1fr) auto; max-width: 720px; }
 .search-box--hourly .search-field { border-inline-end: 0; }
@@ -3059,6 +3063,23 @@ h3 { font-size: 1.18rem; }
 .location-list button.selected { background: var(--sky); color: var(--teal-dark); font-weight: 700; }
 .guest-picker > div { display: flex; align-items: center; justify-content: space-between; margin: 16px 0; }
 .guest-picker > div button { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: white; }
+.vacation-party-picker { width: min(390px, calc(100vw - 28px)); padding: 0; overflow: hidden; direction: rtl; font-family: var(--font-sans); }
+.vacation-party-picker > header { min-height: 70px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--line); }
+.vacation-party-picker > header > div { display: grid; gap: 2px; }
+.vacation-party-picker > header strong { font-size: 1.08rem; }
+.vacation-party-picker > header small { color: var(--ink-soft); }
+.vacation-party-picker > header button { width: 40px; height: 40px; flex: 0 0 auto; border: 1px solid var(--line); border-radius: 50%; background: var(--mist); color: var(--ink); font: 500 1.45rem/1 var(--font-sans); cursor: pointer; }
+.vacation-party-picker__rows { padding-inline: 16px; }
+.vacation-party-row { min-height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 18px; border-bottom: 1px solid var(--line); }
+.vacation-party-row:last-child { border-bottom: 0; }
+.vacation-party-row > span { min-width: 0; display: grid; gap: 2px; }
+.vacation-party-row > span strong { font-size: .95rem; }
+.vacation-party-row > span small { color: var(--ink-soft); font-size: .78rem; }
+.vacation-party-counter { display: grid; grid-template-columns: 38px 28px 38px; align-items: center; justify-items: center; direction: ltr; }
+.vacation-party-counter button { width: 38px; height: 38px; border: 1px solid var(--line); border-radius: 50%; background: white; color: var(--teal-dark); font: 600 1.2rem/1 var(--font-sans); cursor: pointer; }
+.vacation-party-counter button:disabled { color: #aebfc3; background: var(--mist); cursor: not-allowed; }
+.vacation-party-counter b { color: var(--ink); font-size: .95rem; }
+.vacation-party-picker .popover-done { width: calc(100% - 32px); min-height: 46px; margin: 8px 16px 16px; }
 .popover-done { width: 100%; border: 0; border-radius: 10px; padding: 9px; background: var(--teal); color: white; }
 .quick-links { margin-top: 16px; display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; color: var(--ink-soft); font-size: .88rem; }
 .quick-links a { background: rgba(255,255,255,.75); border: 1px solid var(--line); border-radius: 50px; padding: 5px 11px; }
@@ -3815,7 +3836,13 @@ body:has(.cookie-card) .smart-concierge { display: none; }
   .hourly-results__filters fieldset { grid-column: 1 / -1; }
   .hourly-results__reset { grid-column: 1 / -1; justify-self: start; }
   .search-submit { min-height: 56px; }
-  .search-popover { position: fixed; inset-inline: 14px; top: auto; bottom: 14px; min-width: 0; }
+  .home-hero:has(.search-option-backdrop),
+  .results-search:has(.search-option-backdrop),
+  .world-hero:has(.search-option-backdrop) { z-index: 1500; }
+  .search-box-shell:has(.search-option-backdrop) { z-index: 1500; }
+  .search-option-backdrop { position: fixed; z-index: 4; inset: 0; display: block; border: 0; background: rgba(2,25,32,.38); }
+  .search-popover { position: fixed; z-index: 30; inset-inline: 14px; top: auto; bottom: max(14px, env(safe-area-inset-bottom, 0px)); min-width: 0; max-height: calc(100dvh - 28px); overflow-y: auto; overscroll-behavior: contain; }
+  .vacation-party-picker { width: auto; }
   .section { padding-block: 60px; }
   .destination-grid { grid-template-columns: 1fr 1fr; grid-template-rows: 260px 200px 200px; }
   .destination-tile--1 { grid-row: auto; grid-column: 1/3; }
