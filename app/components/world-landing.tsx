@@ -39,7 +39,6 @@ const crossSellByWorld = {
 
 export function WorldLanding({
   world,
-  eyebrow,
   title,
   description,
   items,
@@ -47,7 +46,6 @@ export function WorldLanding({
   sourceNote,
 }: {
   world: WorldId;
-  eyebrow: string;
   title: string;
   description: string;
   items: DiscoveryItem[];
@@ -57,12 +55,21 @@ export function WorldLanding({
   const crossSell = world === "hourly" || world === "spa" || world === "providers"
     ? crossSellByWorld[world]
     : null;
+  const worldLabel = world === "spa" ? "ספא" : world === "hourly" ? "חדרים לפי שעה" : world === "providers" ? "ספקים" : world === "activities" ? "אטרקציות" : "מקומות";
+  const collectionTitle = world === "spa"
+    ? `${items.length} בתי ספא בישראל`
+    : world === "hourly"
+      ? `${items.length} חדרים לפי שעה`
+      : world === "providers"
+        ? `${items.length} ספקים ושירותים`
+        : `${items.length} ${worldLabel}`;
 
   return <PageShell variant={world}>
     <main id="main-content" className={`world-page world-page--${world}`}>
-      <section className="world-hero"><div className="shell"><span className="eyebrow">{eyebrow}</span><h1>{title}</h1><p>{description}</p>{searchMode && <SearchBox mode={searchMode} showWorlds />}</div></section>
+      <div className="shell breadcrumbs world-breadcrumbs"><Link href="/">ראשי</Link><span>/</span><span>{worldLabel}</span></div>
+      <section className="world-hero"><div className="shell"><h1>{title}</h1><p>{description}</p>{searchMode && <SearchBox mode={searchMode} showWorlds />}</div></section>
       <section className="section shell">
-        <div className="section-head"><div><span className="eyebrow">מקומות ורעיונות שכדאי להכיר</span><h2>{items.length} אפשרויות להתחיל מהן</h2></div>{sourceNote && <p className="source-note">{sourceNote}</p>}</div>
+        <div className="section-head world-results-title"><div><h2>{collectionTitle}</h2></div>{sourceNote && <p className="source-note">{sourceNote}</p>}</div>
         {world === "hourly" ? <HourlyResults items={items} /> : world === "providers" ? <ProviderResults items={items} /> : world === "spa" ? <WorldMapResults items={items} world="spa" /> : <div className="discovery-grid">{items.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>}
       </section>
       {crossSell && <section className="section section-tint world-cross-sell"><div className="shell"><span className="eyebrow">{crossSell.eyebrow}</span><h2>{crossSell.title}</h2><p>{crossSell.description}</p><div>{crossSell.links.map((link, index) => <Link key={link.href} className={`button ${index === 0 ? "primary" : "secondary"}`} href={link.href}>{link.label}</Link>)}</div></div></section>}

@@ -10,5 +10,5 @@ export const metadata: Metadata = {
 };
 
 export default function ProvidersPage() {
-  return <WorldLanding world="providers" eyebrow="כל השירותים סביב האירוח" title="מוצאים ספק שמתאים בדיוק לאירוע" description="שפים פרטיים, מוזיקה, צילום, ברים, עיצוב ופעילויות. מסננים לפי תחום, נכנסים לפרופיל מלא ומבקשים הצעה בלי לצאת מהאתר." items={providerProfiles} sourceNote="הפרטים נאספו מאתרים רשמיים ונבדקו באוגוסט 2026. ספק שלא אומת כשותף פעיל מסומן כך בעמוד שלו, והזמינות מאושרת לפני הזמנה." />;
+  return <WorldLanding world="providers" title="ספקים לאירוח ולאירועים" description="שפים, מוזיקה, צילום, עיצוב ופעילויות במקום אחד." items={providerProfiles} sourceNote="הפרטים נאספו ממקורות רשמיים ונבדקו באוגוסט 2026." />;
 }
