@@ -113,7 +113,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       const matchesWhole = !whole || property.scenario === "single";
       const matchesAccessibility = !accessibleOnly || getPlaceAccessibility(property.slug).status === "accessible";
       return matchesType && matchesGuests && matchesPool && matchesSpa && matchesWhole && matchesAccessibility;
-    }), [accessibleOnly, guests, landing?.type, landing?.types, pool, spa, type, whole]);
+    }), [accessibleOnly, guests, landing, pool, spa, type, whole]);
 
   const filtered = useMemo(() => {
     const useLandingSet = Boolean(landing?.listingSlugs?.length && (!landing.area || area === landing.area));
@@ -124,7 +124,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       if (sort === "name") return a.name.localeCompare(b.name, "he");
       return properties.indexOf(a) - properties.indexOf(b);
     });
-  }, [area, landing?.area, landing?.listingSlugs, mapCandidates, sort]);
+  }, [area, landing, mapCandidates, sort]);
 
   const activeFilters = [
     area !== "הכל" ? { id: "area", label: area, remove: () => changeArea("הכל") } : null,

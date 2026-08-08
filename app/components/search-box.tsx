@@ -34,11 +34,6 @@ function defaultGuestCount(mode: SearchMode) {
   return 2;
 }
 
-function parseGuestCount(value: string | null, mode: SearchMode) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : defaultGuestCount(mode);
-}
-
 function parseSpaAudience(value: string | null): SpaAudience {
   return SPA_AUDIENCES.some((option) => option.id === value) ? value as SpaAudience : "single";
 }
