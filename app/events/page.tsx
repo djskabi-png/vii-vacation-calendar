@@ -7,7 +7,8 @@ import { SearchBox } from "../components/search-box";
 import { eventPlaceHref, eventPlaces } from "../data/site-data";
 import { PinIcon } from "../site-header";
 import { StructuredData } from "../components/structured-data";
-import { collectionSchema } from "../lib/seo";
+import { BreadcrumbTrail } from "../components/breadcrumb-trail";
+import { breadcrumbSchema, collectionSchema } from "../lib/seo";
 
 export const metadata: Metadata = {
   title: "מקומות לאירועים פרטיים",
@@ -20,6 +21,8 @@ export default function EventsPage() {
     <PageShell variant="events">
       <main id="main-content">
         <StructuredData data={collectionSchema("מקומות לאירועים פרטיים", "מקומות לאירועים לפי אזור, כמות משתתפים וסוג האירוע.", "/events", eventPlaces.map((place) => ({ name: place.name, path: eventPlaceHref(place), image: place.image })))} />
+        <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }])} />
+        <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "אירועים" }]} />
         <section className="events-hero"><div className="shell"><span className="eyebrow">אירוע שמרגיש בדיוק שלכם</span><h1>מוצאים מקום לחגוג בו</h1><p>מחפשים לפי אזור, תאריך וכמות משתתפים ומשווים בין מקומות אמיתיים.</p><SearchBox mode="events" showWorlds /></div></section>
         <section className="section shell"><div className="section-head"><div><span className="eyebrow">אזורים מבוקשים</span><h2>איפה חוגגים?</h2></div></div><div className="event-region-grid">{["מישור החוף והשפלה", "חיפה וחוף הכרמל", "מישור החוף הדרומי", "תל אביב", "ראשון לציון", "נשר"].map((area) => <Link key={area} href={`/events/search?location=${encodeURIComponent(area)}`}><PinIcon /><strong>{area}</strong><span>למקומות באזור</span></Link>)}</div></section>
         <section className="section section-tint"><div className="shell"><div className="section-head"><div><span className="eyebrow">מקומות שכדאי להכיר</span><h2>מומלצים לאירוע הבא</h2></div><Link href="/events/search">לכל המקומות</Link></div><div className="event-card-grid">{eventPlaces.slice(0, 4).map((place) => <article className="event-card" key={place.slug}><Link href={eventPlaceHref(place)}><img src={place.image} alt={place.name} /><span className="event-card__body"><small>{place.type}</small><h3>{place.name}</h3><p><PinIcon />{place.location}</p><span>עד {place.guests} אורחים</span><span className="button secondary">לפרטים</span></span></Link></article>)}</div></div></section>

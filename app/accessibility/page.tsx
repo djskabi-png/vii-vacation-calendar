@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { LeadIntakeForm } from "../components/lead-intake-form";
 import { PageShell } from "../components/page-shell";
+import { BreadcrumbTrail } from "../components/breadcrumb-trail";
+import { StructuredData } from "../components/structured-data";
+import { breadcrumbSchema } from "../lib/seo";
 
 export const metadata: Metadata = {
   title: "הצהרת נגישות",
@@ -11,6 +14,8 @@ export const metadata: Metadata = {
 export default function AccessibilityPage() {
   return <PageShell>
     <main id="main-content">
+      <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "הצהרת נגישות", path: "/accessibility" }])} />
+      <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "הצהרת נגישות" }]} />
       <article className="accessibility-statement shell">
         <header>
           <span className="eyebrow">שירות שווה לכולם</span>

@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageShell } from "../components/page-shell";
 import { PartnerOnboarding } from "./partner-onboarding";
+import { BreadcrumbTrail } from "../components/breadcrumb-trail";
+import { StructuredData } from "../components/structured-data";
+import { breadcrumbSchema } from "../lib/seo";
 
 export const metadata: Metadata = {
   title: "הצטרפות ופרסום עסק באתר",
@@ -22,6 +25,8 @@ export default function JoinPage() {
   return (
     <PageShell showWorldSwitcher={false}>
       <main id="main-content">
+        <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "הצטרפות ופרסום", path: "/join" }])} />
+        <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "הצטרפות ופרסום" }]} />
         <section className="join-hero join-hero--conversion">
           <div className="shell">
             <span className="eyebrow">מצטרפים לעולמות של וי פור ויקיישן</span>

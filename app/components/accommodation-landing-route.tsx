@@ -28,7 +28,7 @@ export function AccommodationLandingRoute({ categoryId, regionSlug }: { category
 
   const breadcrumbs = [
     { name: "ראשי", path: "/" },
-    { name: "מקומות נופש", path: "/search" },
+    { name: "נופש", path: "/search" },
     ...(landing.region ? [{ name: landing.category.title, path: landing.category.path }] : []),
     { name: landing.title, path: landing.path },
   ];

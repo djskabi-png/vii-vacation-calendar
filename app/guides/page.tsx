@@ -7,6 +7,9 @@ import { useEffect, useMemo, useState } from "react";
 import { PageShell } from "../components/page-shell";
 import { magazineArticles, magazineCategories } from "../data/magazine-data";
 import { HeartIcon, SearchIcon } from "../site-header";
+import { BreadcrumbTrail } from "../components/breadcrumb-trail";
+import { StructuredData } from "../components/structured-data";
+import { breadcrumbSchema } from "../lib/seo";
 
 const quizOptions = [
   { label: "שקט וזמן זוגי", slug: "couples-reset", note: "חופשה זוגית בקצב אחר" },
@@ -44,6 +47,8 @@ export default function GuidesPage() {
 
   return <PageShell>
     <main id="main-content" className="magazine-page">
+      <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "מגזין ומדריכים", path: "/guides" }])} />
+      <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "מגזין ומדריכים" }]} />
       <section className="magazine-masthead">
         <div className="shell magazine-masthead__bar"><span>מגזין וי</span><p>רעיונות טובים לחופשה שמתחילה עוד לפני שיוצאים</p><strong>{magazineArticles.length} כתבות לקריאה</strong></div>
         <div className="shell magazine-feature">

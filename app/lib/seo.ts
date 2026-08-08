@@ -8,6 +8,16 @@ export const SITE_NAME = "וי פור ויקיישן";
 export const ORGANIZATION_ID = `${SITE_URL}/#organization`;
 export const WEBSITE_ID = `${SITE_URL}/#website`;
 
+export function worldBreadcrumb(world: string) {
+  if (world === "spa") return { name: "בתי ספא", path: "/spas" };
+  if (world === "hourly") return { name: "חדרים לפי שעה", path: "/hourly" };
+  if (world === "activities") return { name: "אטרקציות", path: "/attractions" };
+  if (world === "providers") return { name: "ספקים", path: "/providers" };
+  if (world === "events") return { name: "אירועים", path: "/events" };
+  if (world === "corporate") return { name: "אירועי חברה ורווחה", path: "/corporate" };
+  return { name: "נופש", path: "/search" };
+}
+
 export function absoluteUrl(path: string) {
   if (/^https?:\/\//.test(path)) return path;
   const normalized = path.startsWith("/") ? path : `/${path}`;

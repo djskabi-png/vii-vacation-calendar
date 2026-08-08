@@ -49,7 +49,7 @@ export default function EventSearchPage() {
     <PageShell variant="events">
       <main id="main-content" className="results-page events-results-page">
         <div className="results-search shell"><SearchBox mode="events" compact /></div>
-        <div className="shell breadcrumbs"><Link href="/">ראשי</Link><span>/</span><Link href="/events">אירועים</Link><span>/</span><span>מקומות לאירועים</span></div>
+        <nav className="shell breadcrumbs" aria-label="פירורי לחם"><Link href="/">ראשי</Link><span>/</span><Link href="/events">אירועים</Link><span>/</span><span aria-current="page">מקומות לאירועים</span></nav>
         <div className="shell event-results-layout">
           <aside className={`filter-panel ${filtersOpen ? "open" : ""}`}><div className="filter-head"><h2>סינון</h2><button type="button" onClick={() => setFiltersOpen(false)} aria-label="סגירה"><CloseIcon /></button></div>
             <ModernSelect label="אזור" value={area} onChange={setArea} options={areas.map((item) => ({ value: item, label: item }))} />

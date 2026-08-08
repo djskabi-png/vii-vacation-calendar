@@ -75,7 +75,7 @@ export function MagazineArticleView({ initialSlug = magazineArticles[0].slug, re
   return <PageShell>
     <div className="reading-progress" aria-hidden="true"><span style={{ width: `${progress}%` }} /></div>
     <main id="main-content" className="magazine-article">
-      <div className="shell magazine-article__crumbs"><Link href="/">ראשי</Link><span>/</span><Link href="/guides">מגזין וי</Link><span>/</span><span>{article.title}</span></div>
+      <nav className="shell magazine-article__crumbs" aria-label="פירורי לחם"><Link href="/">ראשי</Link><span>/</span><Link href="/guides">מגזין ומדריכים</Link><span>/</span><span aria-current="page">{article.title}</span></nav>
       <header className="shell magazine-article__hero">
         <div className="magazine-article__headline"><span className="eyebrow">{article.category}</span><h1>{article.title}</h1><p>{article.excerpt}</p><div className="magazine-article__meta"><span>מאת מערכת מגזין וי</span><span>{article.dateLabel}</span><span>{article.readTime} דקות קריאה</span></div><div className="magazine-article__actions"><button type="button" aria-pressed={saved} onClick={toggleSaved}><HeartIcon filled={saved} />{saved ? "נשמר לקריאה" : "שמירה לקריאה"}</button><button type="button" onClick={() => void share()}>שיתוף</button>{shareStatus && <span role="status">{shareStatus}</span>}</div></div>
         <figure><img src={article.image} alt={article.imageAlt} /><figcaption>תמונה מעמוד מקום מאומת באתר וי, להמחשת נושא הכתבה.</figcaption></figure>

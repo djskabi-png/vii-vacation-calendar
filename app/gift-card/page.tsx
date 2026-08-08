@@ -5,6 +5,7 @@ import { MasuExperience } from "../components/masu-experience";
 import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema } from "../lib/seo";
 import { GiftCardBuilder } from "./gift-card-builder";
+import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 
 export const metadata: Metadata = {
   title: "גיפט קארד לחופשה, ספא וחוויות",
@@ -25,6 +26,7 @@ export default function GiftCardPage() {
   return <PageShell>
     <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "גיפט קארד", path: "/gift-card/" }])} />
     <main id="main-content" className="gift-page">
+      <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "גיפט קארד" }]} />
       <section className="gift-hero"><div className="shell"><div><span className="eyebrow">מתנה שלא מגבילה את החוויה</span><h1>גיפט קארד אחד.<br />עולם שלם של אפשרויות.</h1><p>נותנים סכום, והם בוחרים איך ליהנות ממנו: נופש, ספא, אירוע, אטרקציה או שירות שמגיע עד המקום.</p><a className="button primary" href="#gift-builder">בוחרים מתנה</a></div><div className="gift-hero__card"><span>VII GIFT CARD</span><b>החופש לבחור</b><small>נופש · ספא · אירועים · חוויות</small></div></div></section>
 
       <section className="section shell gift-worlds" aria-labelledby="gift-worlds-title"><div className="section-head"><div><span className="eyebrow">מתנה שמתאימה לכולם</span><h2 id="gift-worlds-title">לא צריך לנחש מה הם אוהבים</h2><p>הגיפט קארד משאיר את הבחירה אצל מי שמקבל אותו.</p></div></div><div>{worlds.map(([title, description], index) => <article key={title}><span>0{index + 1}</span><h3>{title}</h3><p>{description}</p></article>)}</div></section>

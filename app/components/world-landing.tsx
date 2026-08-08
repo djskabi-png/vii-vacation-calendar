@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BreadcrumbTrail } from "./breadcrumb-trail";
 import { PageShell } from "./page-shell";
 import { DiscoveryCard } from "./discovery-card";
 import { SearchBox } from "./search-box";
@@ -56,7 +57,7 @@ export function WorldLanding({
   const crossSell = world === "hourly" || world === "spa" || world === "providers"
     ? crossSellByWorld[world]
     : null;
-  const worldLabel = world === "spa" ? "ספא" : world === "hourly" ? "חדרים לפי שעה" : world === "providers" ? "ספקים" : world === "activities" ? "אטרקציות" : "מקומות";
+  const worldLabel = world === "spa" ? "בתי ספא" : world === "hourly" ? "חדרים לפי שעה" : world === "providers" ? "ספקים" : world === "activities" ? "אטרקציות" : "מקומות";
   const collectionTitle = world === "spa"
     ? "בתי ספא לפי אזור וסוג חוויה"
     : world === "hourly"
@@ -67,7 +68,7 @@ export function WorldLanding({
 
   return <PageShell variant={world}>
     <main id="main-content" className={`world-page world-page--${world}`}>
-      <div className="shell breadcrumbs world-breadcrumbs"><Link href="/">ראשי</Link><span>/</span><span>{worldLabel}</span></div>
+      <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: worldLabel }]} />
       <section className="world-hero"><div className="shell world-hero__inner"><h1>{title}</h1><p>{description}</p>{searchMode && <SearchBox mode={searchMode} showWorlds />}</div></section>
       <section className="section shell">
         <div className="section-head world-results-title"><div><h2>{collectionTitle}</h2></div>{sourceNote && <p className="source-note">{sourceNote}</p>}</div>

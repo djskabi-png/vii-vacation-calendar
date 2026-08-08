@@ -29,7 +29,7 @@ export default function SearchLayout({ children }: { children: React.ReactNode }
     )} />
     <StructuredData data={breadcrumbSchema([
       { name: "ראשי", path: "/" },
-      { name: "מקומות נופש", path: "/search/" },
+      { name: "נופש", path: "/search/" },
     ])} />
     {children}
   </>;

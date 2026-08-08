@@ -5,6 +5,7 @@ import { PageShell } from "../components/page-shell";
 import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema } from "../lib/seo";
 import { CorporatePackageBuilder } from "./corporate-package-builder";
+import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 
 export const metadata: Metadata = {
   title: "אירועי חברה, רווחה ומתנות לעובדים",
@@ -23,8 +24,9 @@ const solutions = [
 
 export default function CorporatePage() {
   return <PageShell variant="corporate">
-    <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "חברות ורווחה", path: "/corporate/" }])} />
+    <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "אירועי חברה ורווחה", path: "/corporate/" }])} />
     <main id="main-content" className="corporate-page">
+      <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "אירועי חברה ורווחה" }]} />
       <section className="corporate-hero"><div className="shell"><div className="corporate-hero__copy"><span className="eyebrow">למנהלות רווחה, משאבי אנוש ומועדוני צרכנות</span><h1>כל מה שצריך כדי לעשות טוב לאנשים שלכם</h1><p>ממקום לאירוע ועד טיפול שמגיע למשרד. בונים חוויה, מתנה או תוכנית רווחה במסלול אחד ברור.</p><div><a className="button primary" href="#corporate-contact">בונים הצעה</a><Link className="button secondary" href="/gift-card">גיפט קארד לעובדים</Link></div></div><div className="corporate-hero__board"><span>מתחילים בצורך, לא בספק</span><ul><li><b>01</b>כמה אנשים?</li><li><b>02</b>מה רוצים להרגיש?</li><li><b>03</b>איפה ומתי?</li><li><b>04</b>מה התקציב?</li></ul><strong>ומכאן מרכיבים את החוויה</strong></div></div></section>
 
       <section className="section shell corporate-solutions" aria-labelledby="corporate-solutions-title"><div className="section-head"><div><span className="eyebrow">מתאימים פתרון למטרה</span><h2 id="corporate-solutions-title">רעיונות שאפשר להפוך לתוכנית אמיתית</h2><p>כל מסלול מתחבר למקומות ולשירותים שכבר נמצאים בתוך האתר.</p></div></div><div>{solutions.map((solution) => <Link key={solution.number} href={solution.href}><span>{solution.number}</span><h3>{solution.title}</h3><p>{solution.text}</p><strong>לפתיחת האפשרויות</strong></Link>)}</div></section>

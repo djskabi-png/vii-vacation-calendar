@@ -4,6 +4,7 @@ import BusinessPage from "./client-page";
 import { getListingOfferings, properties, propertyFaq, type BusinessWorld } from "../data/site-data";
 import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, faqSchema, lodgingSchema } from "../lib/seo";
+import { vacationBreadcrumbForLocation } from "../data/vacation-landings";
 
 type Props = { searchParams: Promise<{ id?: string; mode?: string; dates?: string; from?: string; till?: string; guests?: string; price?: string }> };
 
@@ -32,11 +33,19 @@ export default async function Page({ searchParams }: Props) {
   const initialWorld: BusinessWorld = getListingOfferings(property).some((offering) => offering.world === requestedWorld)
     ? requestedWorld as BusinessWorld
     : getListingOfferings(property)[0].world;
+  const primaryWorld = getListingOfferings(property)[0].world;
+  const vacationArea = vacationBreadcrumbForLocation(property.area);
+  const hierarchy = primaryWorld === "events"
+    ? [{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, { name: "מקומות לאירועים", path: "/events/search" }]
+    : primaryWorld === "spa"
+      ? [{ name: "ראשי", path: "/" }, { name: "בתי ספא", path: "/spas" }]
+      : primaryWorld === "hourly"
+        ? [{ name: "ראשי", path: "/" }, { name: "חדרים לפי שעה", path: "/hourly" }]
+        : [{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, vacationArea];
   return <>
     <StructuredData data={lodgingSchema(property)} />
     <StructuredData data={breadcrumbSchema([
-      { name: "ראשי", path: "/" },
-      { name: property.area, path: `/search?location=${encodeURIComponent(property.area)}` },
+      ...hierarchy,
       { name: property.name, path: `/business?id=${property.slug}` },
     ])} />
     <StructuredData data={faqSchema(propertyFaq)} />

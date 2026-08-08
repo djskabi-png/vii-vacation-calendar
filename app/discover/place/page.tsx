@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import DiscoveryPlacePage from "./client-page";
-import { discoveryItems, worlds } from "../../data/world-data";
+import { discoveryItems } from "../../data/world-data";
 import { StructuredData } from "../../components/structured-data";
-import { breadcrumbSchema, discoverySchema } from "../../lib/seo";
+import { breadcrumbSchema, discoverySchema, worldBreadcrumb } from "../../lib/seo";
 
 type Props = { searchParams: Promise<{ id?: string }> };
 
@@ -24,13 +24,12 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 
 export default async function Page({ searchParams }: Props) {
   const item = resolveItem((await searchParams).id);
-  const world = worlds.find((entry) => entry.id === item.world)!;
   const indexable = item.indexable === true || (item.indexable !== false && (item.world === "spa" || item.world === "hourly" || item.world === "activities"));
   return <>
     {indexable ? <StructuredData data={discoverySchema(item)} /> : null}
     <StructuredData data={breadcrumbSchema([
       { name: "ראשי", path: "/" },
-      { name: world.label, path: world.href },
+      worldBreadcrumb(item.world),
       { name: item.name, path: `/discover/place?id=${item.id}` },
     ])} />
     <DiscoveryPlacePage initialId={item.id} />

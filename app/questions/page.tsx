@@ -64,7 +64,7 @@ export default function QuestionsPage() {
         { name: "ראשי", path: "/" },
         { name: "שאלות ותשובות", path: "/questions/" },
       ])} />
-      <div className="shell breadcrumbs"><Link href="/">ראשי</Link><span>/</span><span>שאלות ותשובות</span></div>
+      <nav className="shell breadcrumbs" aria-label="פירורי לחם"><Link href="/">ראשי</Link><span>/</span><span aria-current="page">שאלות ותשובות</span></nav>
       <header className="shell questions-hero">
         <span className="eyebrow">תשובות לפני שמחליטים</span>
         <h1>כל מה שרוצים לדעת לפני חופשה, אירוע או יום פינוק</h1>

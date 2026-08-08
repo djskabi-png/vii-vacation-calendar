@@ -4,6 +4,8 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { BreadcrumbTrail } from "../components/breadcrumb-trail";
+import { vacationBreadcrumbForLocation } from "../data/vacation-landings";
 import { CalendarDemo } from "../calendar-demo";
 import { ListingMap } from "../components/listing-map";
 import { PageShell } from "../components/page-shell";
@@ -148,7 +150,13 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
   return (
     <PageShell variant={activeWorld}>
       <main id="main-content" className="property-page">
-        <div className="shell breadcrumbs"><Link href="/">ראשי</Link><span>/</span><Link href={`/search?location=${encodeURIComponent(property.area)}`}>{property.area}</Link><span>/</span><span>{property.name}</span></div>
+        <BreadcrumbTrail items={activeWorld === "events"
+          ? [{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, { name: "מקומות לאירועים", path: "/events/search" }, { name: property.name }]
+          : activeWorld === "spa"
+            ? [{ name: "ראשי", path: "/" }, { name: "בתי ספא", path: "/spas" }, { name: property.name }]
+            : activeWorld === "hourly"
+              ? [{ name: "ראשי", path: "/" }, { name: "חדרים לפי שעה", path: "/hourly" }, { name: property.name }]
+              : [{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, vacationBreadcrumbForLocation(property.area), { name: property.name }]} />
 
         <section className="shell property-title">
           <div><span className="eyebrow">{property.type} · {activeOffering.label}</span><h1>{property.name}</h1><p><PinIcon />{property.location}, {property.area}</p></div>
