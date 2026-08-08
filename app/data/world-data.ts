@@ -20,6 +20,8 @@ export type DiscoveryItem = {
   features: string[];
   image?: string;
   images?: string[];
+  imageFit?: "cover" | "contain";
+  imagePosition?: string;
   imageLabel?: string;
   searchTerms?: string[];
   priceLabel?: string;
@@ -184,9 +186,20 @@ const lowQualityAttractionMedia = new Set([
   "/media/verified/attractions/camel-ranch-eilat-3.png",
 ]);
 
+const approvedAttractionCardMedia: Record<string, { image: string; fit: "cover" | "contain"; position?: string }> = {
+  "kfar-blum-kayaks": { image: "/media/verified/attractions/kfar-blum-kayaks-3.jpg", fit: "cover", position: "center" },
+  "hamat-gader": { image: "/media/verified/attractions/hamat-gader-3.jpg", fit: "cover", position: "center" },
+  "luna-park-tel-aviv": { image: "/media/verified/attractions/luna-park-tel-aviv-3.jpg", fit: "cover", position: "center" },
+  "superland": { image: "/media/verified/attractions/superland-3.webp", fit: "cover", position: "center" },
+  "tel-aviv-museum": { image: "/media/verified/attractions/tel-aviv-museum-4.jpg", fit: "cover", position: "center" },
+  "timna-park": { image: "/media/verified/attractions/timna-park-2.jpg", fit: "cover", position: "center" },
+};
+
 const verifiedAttractions: DiscoveryItem[] = verifiedCatalog.attractions.flatMap((item) => {
   const images = item.images.filter((image) => !lowQualityAttractionMedia.has(image));
   if (images.length < 3) return [];
+  const media = approvedAttractionCardMedia[item.id];
+  if (!media || !images.includes(media.image)) return [];
   return [{
     id: item.id,
     world: "activities" as const,
@@ -195,8 +208,10 @@ const verifiedAttractions: DiscoveryItem[] = verifiedCatalog.attractions.flatMap
     area: item.area,
     description: item.description,
     features: item.features,
-    image: images[0],
+    image: media.image,
     images,
+    imageFit: media.fit,
+    imagePosition: media.position,
     priceLabel: item.price ? `החל מ-${item.price} ₪` : "מחיר מוצג בבחירת מועד",
     sourceUrl: item.sourceUrl,
     sourceName: item.sourceName,

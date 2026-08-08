@@ -62,9 +62,11 @@ export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
 
   if (!item.image) return null;
 
+  const imageFit = item.imageFit || "cover";
+
   return <article className={`discovery-card discovery-card--${item.world}`}>
-    <Link className="discovery-card__visual" href={`/discover/place?world=${item.world}&id=${item.id}`} aria-label={`${details}: ${item.name}`}>
-      <img src={item.image} alt={item.imageLabel && ui ? ui.image : item.name} />
+    <Link className={`discovery-card__visual discovery-card__visual--${imageFit}`} href={`/discover/place?world=${item.world}&id=${item.id}`} aria-label={`${details}: ${item.name}`}>
+      <img src={item.image} alt={item.imageLabel && ui ? ui.image : item.name} style={item.imagePosition ? { objectPosition: item.imagePosition } : undefined} />
       {item.imageLabel && <span className="image-context-label">{ui?.image || item.imageLabel}</span>}
       {item.rating && <span className="rating-badge">★ {item.rating.toFixed(1)}</span>}
     </Link>

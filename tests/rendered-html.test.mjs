@@ -907,6 +907,32 @@ test("every discovery card has stable media and every new world has a full detai
   }
 });
 
+test("attraction result cards use only approved photographic cover media", async () => {
+  const [response, worldData, styles] = await Promise.all([
+    render("/attractions"),
+    readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+  const html = await response.text();
+  const approved = [
+    "kfar-blum-kayaks-3.jpg",
+    "hamat-gader-3.jpg",
+    "luna-park-tel-aviv-3.jpg",
+    "superland-3.webp",
+    "tel-aviv-museum-4.jpg",
+    "timna-park-2.jpg",
+  ];
+  for (const image of approved) {
+    assert.match(worldData, new RegExp(image.replaceAll(".", "\\.")));
+    assert.match(html, new RegExp(image.replaceAll(".", "\\.")));
+  }
+  for (const rejected of ["haifa-museums-2.jpg", "madatech-haifa-3.png", "steinhardt-museum-1.png", "carasso-science-park-1.png"]) {
+    assert.doesNotMatch(html, new RegExp(rejected.replaceAll(".", "\\.")));
+  }
+  assert.match(styles, /\.attraction-grid \.discovery-card__visual \{ aspect-ratio: 16 \/ 10; min-height: 0; \}/);
+  assert.match(styles, /\.attraction-grid \.discovery-card__visual img \{ width: 100%; height: 100%; \}/);
+});
+
 test("activities hub separates trails from paid attractions and every main trail area has six routes", async () => {
   const [hubResponse, trailsResponse, attractionsResponse, trailSource] = await Promise.all([
     render("/activities"),

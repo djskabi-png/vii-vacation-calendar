@@ -3297,7 +3297,10 @@ body:has(.cookie-card) .smart-concierge { display: none; }
 .discovery-card:hover { transform: translateY(-3px); box-shadow: 0 20px 42px rgba(3,49,61,.12); }
 .discovery-card__visual { position: relative; min-height: 225px; display: block; overflow: hidden; background: var(--mist); }
 .discovery-card__visual img { width: 100%; height: 225px; object-fit: cover; transition: transform .35s ease; }
+.discovery-card__visual--contain { display: grid; place-items: center; padding: 24px; background: linear-gradient(145deg,#f8fbfc,#edf6f7); }
+.discovery-card__visual--contain img { width: 100%; height: 177px; object-fit: contain; object-position: center; }
 .discovery-card:hover .discovery-card__visual img { transform: scale(1.035); }
+.discovery-card:hover .discovery-card__visual--contain img { transform: scale(1.015); }
 .discovery-card__placeholder { min-height: 225px; display: grid; place-content: center; justify-items: center; gap: 6px; color: white; background: linear-gradient(135deg,#0c7e91,#2db8b0); }
 .discovery-card__placeholder b { font-size: 4rem; line-height: 1; }
 .discovery-card__placeholder small { font-weight: 700; opacity: .8; }
@@ -5555,7 +5558,9 @@ body:has(.smart-concierge.open) .world-dock { display: none; }
 .attraction-results-head { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
 .attraction-results-head > div { display: grid; gap: 5px; }
 .attraction-results-head .map-button.active { background: linear-gradient(135deg,#087f86,#2b9b75); border-color: transparent; color: #fff; }
-.attraction-grid .discovery-card__visual { aspect-ratio: 16 / 10; }
+.attraction-grid .discovery-card__visual { aspect-ratio: 16 / 10; min-height: 0; }
+.attraction-grid .discovery-card__visual img { width: 100%; height: 100%; }
+.attraction-grid .discovery-card__visual--contain img { object-fit: contain; }
 
 @media (max-width: 980px) {
   .attractions-hero__layout { grid-template-columns: 1fr; }
@@ -5571,6 +5576,11 @@ body:has(.smart-concierge.open) .world-dock { display: none; }
   .attraction-trust .shell > div:last-child { border-inline: 0; border-bottom: 0; }
   .attraction-filters,.activities-hub__paid-types { grid-template-columns: 1fr; }
   .attraction-results-head { align-items: flex-start; }
+}
+
+@media (max-width: 760px) {
+  .attraction-grid .discovery-card__visual { min-height: 0; }
+  .attraction-grid .discovery-card__visual img { height: 100%; }
 }
 
 /* Immediate feedback for every action and a clear search loading state. */
