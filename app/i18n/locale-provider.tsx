@@ -42,6 +42,12 @@ function loadTranslations(language: GeneratedLanguage) {
 
 const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, string>> = {
   en: {
+    "בתי ספא לפי אזור": "Spas by region",
+    "ספא בתל אביב": "Spas in Tel Aviv",
+    "ספא בירושלים": "Spas in Jerusalem",
+    "ספא במרכז": "Spas in Central Israel",
+    "ספא בצפון": "Spas in Northern Israel",
+    "ספא בחיפה": "Spas in Haifa",
     "\u05de\u05e4\u05d4 \u05d0\u05d9\u05e0\u05d8\u05e8\u05d0\u05e7\u05d8\u05d9\u05d1\u05d9\u05ea \u05e9\u05dc \u05d4\u05de\u05e7\u05d5\u05de\u05d5\u05ea": "Interactive map of places",
     "\u05d7\u05d6\u05e8\u05d4 \u05dc\u05ea\u05e6\u05d5\u05d2\u05ea \u05e8\u05e9\u05d9\u05de\u05d4": "Back to list view",
     "\u05d7\u05d6\u05e8\u05d4 \u05dc\u05e8\u05e9\u05d9\u05de\u05d4": "Back to list",
@@ -114,6 +120,12 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "These cards are search shortcuts. Availability and final pricing are confirmed after selecting dates and guests.",
   },
   ru: {
+    "בתי ספא לפי אזור": "Спа по регионам",
+    "ספא בתל אביב": "Спа в Тель-Авиве",
+    "ספא בירושלים": "Спа в Иерусалиме",
+    "ספא במרכז": "Спа в центре Израиля",
+    "ספא בצפון": "Спа на севере Израиля",
+    "ספא בחיפה": "Спа в Хайфе",
     "\u05de\u05e4\u05d4 \u05d0\u05d9\u05e0\u05d8\u05e8\u05d0\u05e7\u05d8\u05d9\u05d1\u05d9\u05ea \u05e9\u05dc \u05d4\u05de\u05e7\u05d5\u05de\u05d5\u05ea": "Интерактивная карта мест",
     "\u05d7\u05d6\u05e8\u05d4 \u05dc\u05ea\u05e6\u05d5\u05d2\u05ea \u05e8\u05e9\u05d9\u05de\u05d4": "Вернуться к списку",
     "\u05d7\u05d6\u05e8\u05d4 \u05dc\u05e8\u05e9\u05d9\u05de\u05d4": "Назад к списку",
@@ -186,6 +198,12 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "Карточки ведут к поиску. Наличие мест и итоговая цена подтверждаются после выбора дат и состава гостей.",
   },
   fr: {
+    "בתי ספא לפי אזור": "Spas par région",
+    "ספא בתל אביב": "Spas à Tel-Aviv",
+    "ספא בירושלים": "Spas à Jérusalem",
+    "ספא במרכז": "Spas dans le centre d’Israël",
+    "ספא בצפון": "Spas dans le nord d’Israël",
+    "ספא בחיפה": "Spas à Haïfa",
     "הצגת תוצאות על המפה": "Afficher les résultats sur la carte",
     "חזרה לתצוגת רשימה": "Revenir à la liste",
     "תצוגה על מפה": "Carte",

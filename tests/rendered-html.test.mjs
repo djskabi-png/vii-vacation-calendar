@@ -759,6 +759,10 @@ test("keeps the footer foundation fixed while adapting discovery links to each w
   for (const world of ["vacation", "events", "spa", "hourly", "providers", "activities"]) assert.match(footer, new RegExp(`${world}:`));
   assert.match(footer, /העולמות שלנו/);
   assert.match(footer, /מידע ושירות/);
+  assert.match(footer, /בתי ספא לפי אזור/);
+  assert.match(footer, /\["תל אביב", "ירושלים", "מרכז", "צפון", "חיפה"\]/);
+  assert.match(footer, /label: `ספא ב\$\{item\}`/);
+  assert.doesNotMatch(footer, /עולם הספא/);
   assert.match(footer, /LanguageSwitcher/);
   assert.match(footer, /AccessibilityWidget/);
   assert.match(shell, /<SiteFooter variant=\{variant\} \/>/);

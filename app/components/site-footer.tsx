@@ -28,8 +28,11 @@ const contextualLinks: Record<WorldId, { label: string; links: { href: string; l
     ],
   },
   spa: {
-    label: "עולם הספא",
-    links: ["תל אביב", "ירושלים", "מרכז", "צפון", "חיפה"].map((item) => ({ href: `/spas?location=${encodeURIComponent(item)}`, label: item })),
+    label: "בתי ספא לפי אזור",
+    links: ["תל אביב", "ירושלים", "מרכז", "צפון", "חיפה"].map((item) => ({
+      href: `/spas?location=${encodeURIComponent(item)}`,
+      label: `ספא ב${item}`,
+    })),
   },
   hourly: {
     label: "חדרים לפי שעה",
