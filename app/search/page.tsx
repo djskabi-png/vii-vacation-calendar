@@ -15,6 +15,8 @@ import { useSiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
 import { footerTopicForPropertyType } from "../data/footer-context";
 import { cleanAccommodationPath } from "../data/accommodation-landings";
+import { matchesSearchLocation, searchLocationOptions } from "../data/search-taxonomy";
+import { cleanVacationPath } from "../data/vacation-landings";
 
 export type SearchLandingContext = {
   path: string;
@@ -50,7 +52,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     });
     const defaultGuests = (params.get("guests") || "2") === "2";
     const hasTemporaryFilters = Array.from(params.keys()).some((key) => !["location", "type", "guests"].includes(key)) || !defaultGuests;
-    const cleanPath = nextType !== "הכל" ? cleanAccommodationPath(nextType, nextArea) : null;
+    const cleanPath = nextType !== "הכל" ? cleanAccommodationPath(nextType, nextArea) : cleanVacationPath(nextArea);
     if (cleanPath) {
       params.delete("location");
       params.delete("type");
@@ -82,7 +84,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       const requestedArea = params.get("location");
       const requestedGuests = Number(params.get("guests") || 2);
       const requestedType = params.get("type");
-      const requestedPath = requestedType ? cleanAccommodationPath(requestedType, requestedArea || "כל הארץ") : null;
+      const requestedPath = requestedType ? cleanAccommodationPath(requestedType, requestedArea || "כל הארץ") : cleanVacationPath(requestedArea || "כל הארץ");
       if (!landing && requestedPath) {
         params.delete("location");
         params.delete("type");
@@ -103,7 +105,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     return () => window.clearTimeout(timer);
   }, [landing, language, router]);
 
-  const areas = useMemo(() => ["הכל", ...Array.from(new Set(properties.flatMap((property) => [property.area, property.location])))], []);
+  const areas = useMemo(() => ["הכל", ...searchLocationOptions("vacation").filter((item) => item !== "כל הארץ")], []);
   const types = useMemo(() => ["הכל", ...Array.from(new Set(properties.map((p) => p.type)))], []);
   const mapCandidates = useMemo(() => properties.filter((property) => {
       const matchesType = type === "הכל" || (landing?.types?.length && type === landing.type ? landing.types.includes(property.type) : property.type === type);
@@ -117,7 +119,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
 
   const filtered = useMemo(() => {
     const useLandingSet = Boolean(landing?.listingSlugs?.length && (!landing.area || area === landing.area));
-    const matches = mapCandidates.filter((property) => useLandingSet ? landing?.listingSlugs?.includes(property.slug) : area === "הכל" || property.area === area || property.location === area);
+    const matches = mapCandidates.filter((property) => useLandingSet ? landing?.listingSlugs?.includes(property.slug) : matchesSearchLocation(property, area));
     return [...matches].sort((a, b) => {
       if (sort === "capacity") return b.guests - a.guests;
       if (sort === "units") return (b.units || 1) - (a.units || 1);
@@ -150,8 +152,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   return (
     <PageShell footerTopic={footerTopicForPropertyType(type)}>
       <main id="main-content" className="results-page">
-        <div className="results-search shell"><SearchBox compact initialLocation={area === "הכל" ? "כל הארץ" : area} initialGuests={guests} basePath={landing?.path} /></div>
-        <div className="shell breadcrumbs"><Link href="/">ראשי</Link><span>/</span>{landing ? <><Link href="/search">מקומות נופש</Link><span>/</span><span>{landing.breadcrumb}</span></> : <span>תוצאות חיפוש</span>}</div>
+        <div className="results-search shell"><SearchBox compact initialLocation={area === "הכל" ? "כל הארץ" : area} initialGuests={guests} basePath={landing?.path} vacationType={type === "הכל" ? undefined : type} /></div>
+        <nav className="shell breadcrumbs" aria-label="פירורי לחם"><Link href="/">ראשי</Link><span>/</span><Link href="/search">נופש</Link>{(landing || area !== "הכל") && <><span>/</span><span aria-current="page">{landing?.breadcrumb || `נופש ב${area}`}</span></>}</nav>
         <div className={`shell results-layout ${mapOpen ? "with-map" : ""}`}>
           <aside className={`filter-panel ${filtersOpen ? "open" : ""} ${mapOpen ? "map-mode" : ""}`} aria-label="סינון תוצאות">
             <div className="filter-head"><h2>סינון תוצאות</h2><button type="button" onClick={() => setFiltersOpen(false)} aria-label="סגירה"><CloseIcon /></button></div>

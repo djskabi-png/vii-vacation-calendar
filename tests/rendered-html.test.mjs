@@ -177,6 +177,25 @@ test("search result bars preserve the submitted criteria", async () => {
   assert.match(hourlyHtml, /חיפה/);
 });
 
+test("vacation search uses a curated geography and descriptive breadcrumbs", async () => {
+  const [response, cleanResponse] = await Promise.all([
+    render("/search?location=%D7%9E%D7%A8%D7%9B%D7%96&guests=2"),
+    render("/vacations/center"),
+  ]);
+  const taxonomy = await readFile(new URL("../app/data/search-taxonomy.ts", import.meta.url), "utf8");
+  const html = await response.text();
+  const cleanHtml = await cleanResponse.text();
+  assert.equal(response.status, 200);
+  assert.equal(cleanResponse.status, 200);
+  assert.match(html, /aria-label="פירורי לחם"/);
+  assert.match(html, /נופש במרכז/);
+  assert.match(html, />נופש</);
+  assert.match(cleanHtml, /נופש במרכז/);
+  assert.match(cleanHtml, /BreadcrumbList/);
+  assert.doesNotMatch(taxonomy, /וילה 8 חדרים עד 30 אורחים/);
+  assert.doesNotMatch(taxonomy, /4 יחידות לזוגות ומשפחות/);
+});
+
 test("search submissions reload the selected result set", async () => {
   const [source, feedback, shell, styles] = await Promise.all([
     readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8"),

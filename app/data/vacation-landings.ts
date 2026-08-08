@@ -1,0 +1,45 @@
+import { properties } from "./site-data";
+import { matchesSearchLocation } from "./search-taxonomy";
+
+export type VacationRegion = {
+  slug: string;
+  label: string;
+};
+
+export const vacationRegions: VacationRegion[] = [
+  { slug: "north", label: "צפון" },
+  { slug: "kinneret", label: "כנרת" },
+  { slug: "western-galilee", label: "גליל מערבי" },
+  { slug: "haifa-carmel", label: "חיפה והכרמל" },
+  { slug: "center", label: "מרכז" },
+  { slug: "tel-aviv", label: "תל אביב" },
+  { slug: "jerusalem", label: "ירושלים והסביבה" },
+  { slug: "dead-sea", label: "ים המלח" },
+  { slug: "south-negev", label: "דרום ונגב" },
+  { slug: "eilat", label: "אילת והערבה" },
+];
+
+export function vacationRegionBySlug(slug?: string | null) {
+  return slug ? vacationRegions.find((region) => region.slug === slug) : undefined;
+}
+
+export function vacationRegionByLabel(label?: string | null) {
+  return label ? vacationRegions.find((region) => region.label === label) : undefined;
+}
+
+export function vacationRegionListings(region: VacationRegion) {
+  return properties.filter((property) => matchesSearchLocation(property, region.label));
+}
+
+export function cleanVacationPath(location: string) {
+  if (!location || location === "הכל" || location === "כל הארץ") return null;
+  const region = vacationRegionByLabel(location);
+  return region && vacationRegionListings(region).length ? `/vacations/${region.slug}` : null;
+}
+
+export function indexableVacationLandings() {
+  return vacationRegions
+    .map((region) => ({ region, listings: vacationRegionListings(region), path: `/vacations/${region.slug}` }))
+    .filter((landing) => landing.listings.length > 0);
+}
+

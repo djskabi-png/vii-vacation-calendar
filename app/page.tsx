@@ -23,7 +23,7 @@ export default function HomePage() {
             <h1>כל החופשה, במקום אחד</h1>
             <p>נופש, ספא, אירועים וכל מה שעושים מסביב.</p>
             <SearchBox showWorlds />
-            <div className="quick-links" aria-label="חיפושים מהירים"><span>חיפושים מהירים:</span><Link href="/search?type=וילה">וילות</Link><Link href="/search?feature=בריכה">עם בריכה</Link><Link href="/search?audience=משפחות">למשפחות</Link><Link href="/search?location=צפון">בצפון</Link></div>
+            <div className="quick-links" aria-label="חיפושים מהירים"><span>חיפושים מהירים:</span><Link href="/villas">וילות</Link><Link href="/search?feature=בריכה">עם בריכה</Link><Link href="/search?audience=משפחות">למשפחות</Link><Link href="/vacations/north">בצפון</Link></div>
           </div>
           <div className="hero-orb hero-orb--one" /><div className="hero-orb hero-orb--two" />
         </section>

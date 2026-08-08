@@ -1,5 +1,6 @@
 import type { WorldId } from "./world-data";
 import { cleanAccommodationPath } from "./accommodation-landings";
+import { cleanVacationPath } from "./vacation-landings";
 
 export type FooterLink = { href: string; label: string };
 export type FooterContext = { label: string; links: FooterLink[] };
@@ -17,7 +18,10 @@ function regionalLinks(path: string, regions: string[], label: (region: string) 
 export const worldFooterContexts: Record<WorldId, FooterContext> = {
   vacation: {
     label: "יעדי נופש פופולריים",
-    links: regionalLinks("/search", vacationDestinations, (region) => `נופש ב${region}`),
+    links: vacationDestinations.flatMap((region) => {
+      const href = cleanVacationPath(region);
+      return href ? [{ href, label: `נופש ב${region}` }] : [];
+    }),
   },
   events: {
     label: "מקומות לאירועים לפי אזור",

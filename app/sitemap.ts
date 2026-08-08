@@ -5,6 +5,7 @@ import { magazineArticles } from "./data/magazine-data";
 import { trails } from "./data/trail-data";
 import { absoluteUrl } from "./lib/seo";
 import { indexableAccommodationLandings } from "./data/accommodation-landings";
+import { indexableVacationLandings } from "./data/vacation-landings";
 
 const updated = new Date("2026-08-06T00:00:00+03:00");
 
@@ -44,6 +45,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     ...staticPages,
     ...indexableAccommodationLandings().map(({ path }) => item(path, 0.88, "weekly")),
+    ...indexableVacationLandings().map(({ path }) => item(path, 0.9, "daily")),
     ...properties.map((place) => item(`/business?id=${place.slug}`, 0.9, "weekly", [place.image, ...place.images])),
     ...eventPlaces.filter((place) => !place.sourcePropertySlug).map((place) => item(`/events/place?id=${place.slug}`, 0.85, "weekly", [place.image, ...place.images])),
     ...discoveryItems.filter((place) => place.indexable === true || (place.indexable !== false && (place.world === "spa" || place.world === "hourly" || place.world === "activities"))).map((place) => item(`/discover/place?id=${place.id}`, 0.7, "weekly", place.image ? [place.image] : undefined)),

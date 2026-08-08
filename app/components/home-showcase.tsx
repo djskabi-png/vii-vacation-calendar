@@ -40,12 +40,12 @@ const lastMinuteStartingPrices: Record<string, number> = {
 };
 
 const vacationDestinations = [
-  { label: "נופש בצפון", note: "גליל, גולן ונוף ירוק", href: "/search?location=צפון&guests=2", image: "/media/f18d7c0469633ca0.jpeg" },
-  { label: "נופש בכנרת", note: "חופשה רגועה ליד המים", href: "/search?location=סובב כנרת&guests=2", image: "/media/9a403cb4d9d1cbde.jpg" },
-  { label: "נופש בירושלים", note: "הרי יהודה ואוויר הרים", href: "/search?location=ירושלים והרי יהודה&guests=2", image: "/media/231b0e706cc61cc1.jpg" },
-  { label: "נופש במרכז", note: "קרוב, נוח ובלי להתפשר", href: "/search?location=מרכז&guests=2", image: "/media/verified/vacation/vacation-tepers-estate-1.jpg" },
-  { label: "נופש בדרום", note: "מדבר, שקט ומרחבים", href: "/search?location=דרום ונגב&guests=2", image: "/media/verified/vacation/vacation-ahuzat-shaked-1.jpeg" },
-  { label: "נופש באילת", note: "שמש, ים ומקומות שלמים", href: "/search?location=אילת&guests=2", image: "/media/322de460abbda5c6.jpg" },
+  { label: "נופש בצפון", note: "גליל, גולן ונוף ירוק", href: "/vacations/north?guests=2", image: "/media/f18d7c0469633ca0.jpeg" },
+  { label: "נופש בכנרת", note: "חופשה רגועה ליד המים", href: "/vacations/kinneret?guests=2", image: "/media/9a403cb4d9d1cbde.jpg" },
+  { label: "נופש בירושלים", note: "הרי יהודה ואוויר הרים", href: "/vacations/jerusalem?guests=2", image: "/media/231b0e706cc61cc1.jpg" },
+  { label: "נופש במרכז", note: "קרוב, נוח ובלי להתפשר", href: "/vacations/center?guests=2", image: "/media/verified/vacation/vacation-tepers-estate-1.jpg" },
+  { label: "נופש בדרום", note: "מדבר, שקט ומרחבים", href: "/vacations/south-negev?guests=2", image: "/media/verified/vacation/vacation-ahuzat-shaked-1.jpeg" },
+  { label: "נופש באילת", note: "שמש, ים ומקומות שלמים", href: "/vacations/eilat?guests=2", image: "/media/322de460abbda5c6.jpg" },
 ] as const;
 
 const popularVacationSearches = [

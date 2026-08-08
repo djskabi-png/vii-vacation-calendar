@@ -5,14 +5,15 @@ import { useSearchParams } from "next/navigation";
 import { CalendarDemo } from "../calendar-demo";
 import { EventDatePicker } from "./event-date-picker";
 import { SpaDatePicker } from "./spa-date-picker";
-import { eventPlaces, properties } from "../data/site-data";
-import { hourlyPlaces, spaPlaces, type WorldId } from "../data/world-data";
+import { type WorldId } from "../data/world-data";
+import { searchLocationOptions, type SearchMode } from "../data/search-taxonomy";
 import { CalendarIcon, PeopleIcon, PinIcon, SearchIcon } from "../site-header";
 import { SearchWorldTabs } from "./world-switcher";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
+import { cleanVacationPath } from "../data/vacation-landings";
+import { cleanAccommodationPath } from "../data/accommodation-landings";
 
-export type SearchMode = "vacation" | "events" | "spa" | "hourly";
 type SpaAudience = "single" | "couple" | "group" | "day-pass";
 
 const SPA_AUDIENCES: Array<{ id: SpaAudience; label: string; description: string; guests: number }> = [
@@ -38,15 +39,12 @@ function parseSpaAudience(value: string | null): SpaAudience {
   return SPA_AUDIENCES.some((option) => option.id === value) ? value as SpaAudience : "single";
 }
 
-export function SearchBox({ mode = "vacation", compact = false, showWorlds = false, initialLocation, initialGuests, basePath }: { mode?: SearchMode; compact?: boolean; showWorlds?: boolean; initialLocation?: string; initialGuests?: number; basePath?: string }) {
+export function SearchBox({ mode = "vacation", compact = false, showWorlds = false, initialLocation, initialGuests, basePath, vacationType }: { mode?: SearchMode; compact?: boolean; showWorlds?: boolean; initialLocation?: string; initialGuests?: number; basePath?: string; vacationType?: string }) {
   const searchParams = useSearchParams();
   const { language } = useSiteLanguage();
   const isHourly = mode === "hourly";
   const shouldCollapse = compact || searchParams.has("location");
-  const places = useMemo(() => {
-    const source = mode === "events" ? eventPlaces : mode === "spa" ? spaPlaces : mode === "hourly" ? hourlyPlaces : properties;
-    return ["כל הארץ", ...Array.from(new Set(source.flatMap((item) => [item.area, item.location])))];
-  }, [mode]);
+  const places = useMemo(() => searchLocationOptions(mode), [mode]);
   const [locationValue, setLocationValue] = useState(() => searchParams.get("location") || initialLocation || "כל הארץ");
   const [dates, setDates] = useState(() => searchParams.get("dates") || defaultDateLabel(mode));
   const [eventDateRange, setEventDateRange] = useState<{ from: string | null; to: string | null }>(() => ({ from: searchParams.get("from"), to: searchParams.get("to") }));
@@ -95,7 +93,8 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
   function search() {
     if (isSearching) return;
     setIsSearching(true);
-    const route = basePath && mode === "vacation" ? basePath : mode === "events" ? "/events/search/" : mode === "spa" ? "/spas/" : mode === "hourly" ? "/hourly/" : "/search/";
+    const cleanVacationRoute = mode === "vacation" ? (vacationType ? cleanAccommodationPath(vacationType, locationValue) : cleanVacationPath(locationValue)) : null;
+    const route = cleanVacationRoute || (basePath && mode === "vacation" ? basePath : mode === "events" ? "/events/search/" : mode === "spa" ? "/spas/" : mode === "hourly" ? "/hourly/" : "/search/");
     let destination: string;
     if (isHourly) {
       destination = `${route}?location=${encodeURIComponent(locationValue)}`;
@@ -104,7 +103,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
       const spaWithoutDate = mode === "spa" && !spaDate.date;
       const dateSummary = spaWithoutDate ? "בלי תאריך כרגע" : dates;
       const spaSelection = mode === "spa" ? `&spaFor=${encodeURIComponent(spaAudience)}&date=${encodeURIComponent(spaDate.date ?? "")}&withoutDate=${spaWithoutDate || spaDate.withoutDate ? "1" : "0"}` : "";
-      const locationQuery = basePath && mode === "vacation" ? "" : `location=${encodeURIComponent(locationValue)}&`;
+      const locationQuery = cleanVacationRoute || (basePath && mode === "vacation" && locationValue === initialLocation) ? "" : `location=${encodeURIComponent(locationValue)}&`;
       destination = `${route}?${locationQuery}dates=${encodeURIComponent(dateSummary)}&guests=${guests}${eventRange}${spaSelection}`;
     }
     window.setTimeout(() => {

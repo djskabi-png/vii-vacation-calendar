@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { PageShell } from "./page-shell";
 import { DiscoveryCard } from "./discovery-card";
-import { SearchBox, type SearchMode } from "./search-box";
+import { SearchBox } from "./search-box";
+import type { SearchMode } from "../data/search-taxonomy";
 import type { DiscoveryItem, WorldId } from "../data/world-data";
 import { HourlyResults } from "./hourly-results";
 import { ProviderResults } from "./provider-results";
