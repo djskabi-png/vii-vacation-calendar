@@ -1,4 +1,5 @@
 import type { WorldId } from "./world-data";
+import { cleanAccommodationPath } from "./accommodation-landings";
 
 export type FooterLink = { href: string; label: string };
 export type FooterContext = { label: string; links: FooterLink[] };
@@ -87,9 +88,9 @@ export function footerContextFor(variant: WorldId, topic?: FooterTopicId): Foote
   const definition = vacationTopicDefinitions[topic];
   return {
     label: definition.label,
-    links: definition.regions.map((region) => ({
-      href: `/search?type=${encodeURIComponent(definition.type)}&location=${encodeURIComponent(region)}`,
-      label: `${definition.label.replace(" לפי אזור", "")} ב${region}`,
-    })),
+    links: definition.regions.flatMap((region) => {
+      const href = cleanAccommodationPath(definition.type, region);
+      return href ? [{ href, label: `${definition.label.replace(" לפי אזור", "")} ב${region}` }] : [];
+    }),
   };
 }

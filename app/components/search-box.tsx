@@ -43,7 +43,7 @@ function parseSpaAudience(value: string | null): SpaAudience {
   return SPA_AUDIENCES.some((option) => option.id === value) ? value as SpaAudience : "single";
 }
 
-export function SearchBox({ mode = "vacation", compact = false, showWorlds = false }: { mode?: SearchMode; compact?: boolean; showWorlds?: boolean }) {
+export function SearchBox({ mode = "vacation", compact = false, showWorlds = false, initialLocation, initialGuests, basePath }: { mode?: SearchMode; compact?: boolean; showWorlds?: boolean; initialLocation?: string; initialGuests?: number; basePath?: string }) {
   const searchParams = useSearchParams();
   const { language } = useSiteLanguage();
   const isHourly = mode === "hourly";
@@ -52,12 +52,12 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
     const source = mode === "events" ? eventPlaces : mode === "spa" ? spaPlaces : mode === "hourly" ? hourlyPlaces : properties;
     return ["כל הארץ", ...Array.from(new Set(source.flatMap((item) => [item.area, item.location])))];
   }, [mode]);
-  const [locationValue, setLocationValue] = useState(() => searchParams.get("location") || "כל הארץ");
+  const [locationValue, setLocationValue] = useState(() => searchParams.get("location") || initialLocation || "כל הארץ");
   const [dates, setDates] = useState(() => searchParams.get("dates") || defaultDateLabel(mode));
   const [eventDateRange, setEventDateRange] = useState<{ from: string | null; to: string | null }>(() => ({ from: searchParams.get("from"), to: searchParams.get("to") }));
   const [spaDate, setSpaDate] = useState<{ date: string | null; withoutDate: boolean }>(() => ({ date: searchParams.get("date"), withoutDate: searchParams.get("withoutDate") === "1" }));
   const [spaAudience, setSpaAudience] = useState<SpaAudience>(() => parseSpaAudience(searchParams.get("spaFor")));
-  const [guests, setGuests] = useState(() => parseGuestCount(searchParams.get("guests"), mode));
+  const [guests, setGuests] = useState(() => Number(searchParams.get("guests")) || initialGuests || defaultGuestCount(mode));
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [locationOpen, setLocationOpen] = useState(false);
   const [guestOpen, setGuestOpen] = useState(false);
@@ -66,9 +66,9 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      setLocationValue(searchParams.get("location") || "כל הארץ");
+      setLocationValue(searchParams.get("location") || initialLocation || "כל הארץ");
       setDates(searchParams.get("dates") || defaultDateLabel(mode));
-      setGuests(parseGuestCount(searchParams.get("guests"), mode));
+      setGuests(Number(searchParams.get("guests")) || initialGuests || defaultGuestCount(mode));
 
       if (mode === "events") {
         setEventDateRange({ from: searchParams.get("from"), to: searchParams.get("to") });
@@ -81,7 +81,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
     }, 0);
 
     return () => window.clearTimeout(timer);
-  }, [mode, searchParams]);
+  }, [initialGuests, initialLocation, mode, searchParams]);
 
   useEffect(() => {
     if (!mobileExpanded) return;
@@ -100,7 +100,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
   function search() {
     if (isSearching) return;
     setIsSearching(true);
-    const route = mode === "events" ? "/events/search/" : mode === "spa" ? "/spas/" : mode === "hourly" ? "/hourly/" : "/search/";
+    const route = basePath && mode === "vacation" ? basePath : mode === "events" ? "/events/search/" : mode === "spa" ? "/spas/" : mode === "hourly" ? "/hourly/" : "/search/";
     let destination: string;
     if (isHourly) {
       destination = `${route}?location=${encodeURIComponent(locationValue)}`;
@@ -109,7 +109,8 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
       const spaWithoutDate = mode === "spa" && !spaDate.date;
       const dateSummary = spaWithoutDate ? "בלי תאריך כרגע" : dates;
       const spaSelection = mode === "spa" ? `&spaFor=${encodeURIComponent(spaAudience)}&date=${encodeURIComponent(spaDate.date ?? "")}&withoutDate=${spaWithoutDate || spaDate.withoutDate ? "1" : "0"}` : "";
-      destination = `${route}?location=${encodeURIComponent(locationValue)}&dates=${encodeURIComponent(dateSummary)}&guests=${guests}${eventRange}${spaSelection}`;
+      const locationQuery = basePath && mode === "vacation" ? "" : `location=${encodeURIComponent(locationValue)}&`;
+      destination = `${route}?${locationQuery}dates=${encodeURIComponent(dateSummary)}&guests=${guests}${eventRange}${spaSelection}`;
     }
     window.setTimeout(() => {
       try {
