@@ -508,9 +508,9 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(business, /wa\.me/);
   assert.match(business, /booking-summary/);
   assert.match(business, /שליחת בקשת הזמנה בוואטסאפ/);
-  assert.match(business, /aria-pressed=\{saved\}/);
-  assert.match(eventPlace, /aria-pressed=\{saved\}/);
-  assert.match(styles, /\.property-title__actions svg\.filled/);
+  assert.match(business, /<FavoriteButton compact=\{false\}/);
+  assert.match(eventPlace, /<FavoriteButton compact=\{false\}/);
+  assert.match(styles, /\.universal-favorite\.is-saved/);
   assert.equal((worldData.match(/sourceName: "ספא פלוס"/g) || []).length, 10);
   assert.equal((worldData.match(/sourceName: "חדרים וי־איי־פי"/g) || []).length, 10);
   assert.match(worldSwitcher, /בחירת עולם/);
@@ -803,6 +803,9 @@ test("ships the immersive media, review and concierge experiences", async () => 
   assert.match(discoveryPlace, /<GuestReviewStudio/);
   assert.match(trailPlace, /subjectType="trail"/);
   assert.match(home, /home-last-minute__tabs/);
+  assert.match(home, /useLayoutEffect/);
+  assert.match(home, /tracks\.current\["last-minute"\]/);
+  assert.match(styles, /\.home-last-minute__cards \{[^}]*direction: rtl/);
   assert.match(home, /אומדן לתקופה/);
   assert.match(home, /from=/);
   assert.match(home, /till=/);

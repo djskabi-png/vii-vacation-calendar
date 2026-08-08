@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { CalendarDemo } from "../calendar-demo";
 import { ListingMap } from "../components/listing-map";
@@ -20,7 +20,8 @@ import { GuestReviewStudio } from "../components/guest-review-studio";
 import { MasuExperience } from "../components/masu-experience";
 import { DetailStickyDock, type DetailSectionLink } from "../components/detail-sticky-dock";
 import { ModernSelect } from "../components/modern-select";
-import { CalendarIcon, HeartIcon, PinIcon } from "../site-header";
+import { FavoriteButton } from "../components/favorite-button";
+import { CalendarIcon, PinIcon } from "../site-header";
 
 function complementaryItems(area: string, location: string): DiscoveryItem[] {
   const query = `${area} ${location}`.toLocaleLowerCase("he");
@@ -81,7 +82,6 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
   const [galleryTab, setGalleryTab] = useState<"all" | "guests">("all");
   const [reviewOpen, setReviewOpen] = useState(false);
   const [allFeaturesOpen, setAllFeaturesOpen] = useState(false);
-  const [saved, setSaved] = useState(false);
   const [shareStatus, setShareStatus] = useState("");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const property = useMemo(() => properties.find((item) => item.slug === initialSlug) || properties[0], [initialSlug]);
@@ -127,22 +127,6 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
   const complements = useMemo(() => complementaryItems(property.area, property.location), [property.area, property.location]);
   const localTrails = useMemo(() => nearbyTrails(property.area, property.location, 6), [property.area, property.location]);
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      const items = JSON.parse(localStorage.getItem("vii-favourites") || "[]") as string[];
-      setSaved(items.includes(property.slug));
-    }, 0);
-    return () => window.clearTimeout(timer);
-  }, [property.slug]);
-
-  function toggleSaved() {
-    const items = JSON.parse(localStorage.getItem("vii-favourites") || "[]") as string[];
-    const next = items.includes(property.slug) ? items.filter((item) => item !== property.slug) : [...items, property.slug];
-    localStorage.setItem("vii-favourites", JSON.stringify(next));
-    setSaved(next.includes(property.slug));
-    window.dispatchEvent(new Event("vii-favourites-change"));
-  }
-
   function chooseWorld(world: BusinessWorld) {
     setWorldSelection({ slug: property.slug, world });
     const url = new URL(window.location.href);
@@ -170,7 +154,7 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
           <div><span className="eyebrow">{property.type} · {activeOffering.label}</span><h1>{property.name}</h1><p><PinIcon />{property.location}, {property.area}</p></div>
           <div className="property-title__side">
             <div className="property-title__actions">
-              <button type="button" aria-pressed={saved} onClick={toggleSaved}><HeartIcon filled={saved} />{saved ? "נשמר" : "שמירה"}</button>
+              <FavoriteButton compact={false} id={property.slug} world={activeWorld} name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={`/business?id=${property.slug}${activeWorld === offerings[0].world ? "" : `&mode=${activeWorld}`}`} meta={`${property.type} · עד ${property.guests} אורחים`} />
               <button type="button" onClick={() => void share()}>שיתוף</button>
               {shareStatus && <span role="status">{shareStatus}</span>}
             </div>

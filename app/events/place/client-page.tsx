@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import Link from "next/link";
 import { ListingMap } from "../../components/listing-map";
 import { PageShell } from "../../components/page-shell";
@@ -11,14 +11,14 @@ import { ListingAccessibility } from "../../components/listing-accessibility";
 import { eventPlaceHref, eventPlaces } from "../../data/site-data";
 import { providerProfiles } from "../../data/world-data";
 import { MasuExperience } from "../../components/masu-experience";
-import { CalendarIcon, HeartIcon, PinIcon } from "../../site-header";
+import { CalendarIcon, PinIcon } from "../../site-header";
 import { GalleryExperience } from "../../components/gallery-experience";
 import { GuestReviewStudio } from "../../components/guest-review-studio";
 import { DetailStickyDock, type DetailSectionLink } from "../../components/detail-sticky-dock";
 import { ModernSelect } from "../../components/modern-select";
+import { FavoriteButton } from "../../components/favorite-button";
 
 export default function EventPlacePage({ initialSlug }: { initialSlug: string }) {
-  const [saved, setSaved] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryStart, setGalleryStart] = useState(0);
   const [submitState, setSubmitState] = useState<"idle" | "submitting" | "success" | "error">("idle");
@@ -39,21 +39,6 @@ export default function EventPlacePage({ initialSlug }: { initialSlug: string })
     const start = place.slug.length % otherProviders.length;
     return [masu, ...otherProviders.slice(start), ...otherProviders.slice(0, start)].filter((item): item is (typeof providerProfiles)[number] => Boolean(item)).slice(0, 3);
   }, [place.slug]);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      const items = JSON.parse(localStorage.getItem("vii-event-favourites") || "[]") as string[];
-      setSaved(items.includes(place.slug));
-    }, 0);
-    return () => window.clearTimeout(timer);
-  }, [place.slug]);
-
-  function toggleSaved() {
-    const items = JSON.parse(localStorage.getItem("vii-event-favourites") || "[]") as string[];
-    const next = items.includes(place.slug) ? items.filter((item) => item !== place.slug) : [...items, place.slug];
-    localStorage.setItem("vii-event-favourites", JSON.stringify(next));
-    setSaved(next.includes(place.slug));
-  }
 
   async function submitInquiry(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -99,7 +84,7 @@ export default function EventPlacePage({ initialSlug }: { initialSlug: string })
     <PageShell variant="events">
       <main id="main-content" className="event-place-page">
         <div className="shell breadcrumbs"><Link href="/">ראשי</Link><span>/</span><Link href="/events">אירועים</Link><span>/</span><Link href="/events/search">מקומות</Link><span>/</span><span>{place.name}</span></div>
-        <section className="shell property-title event-title"><div><span className="eyebrow">{place.type}</span><h1>{place.name}</h1><p><PinIcon />{place.location}, {place.area}</p></div><div className="property-title__side"><div className="property-title__actions"><button type="button" aria-pressed={saved} onClick={toggleSaved}><HeartIcon filled={saved} />{saved ? "נשמר" : "שמירה"}</button><button type="button" onClick={() => void share()}>שיתוף</button></div><a className="button primary" href="#event-booking">הזמנה אונליין</a></div></section>
+        <section className="shell property-title event-title"><div><span className="eyebrow">{place.type}</span><h1>{place.name}</h1><p><PinIcon />{place.location}, {place.area}</p></div><div className="property-title__side"><div className="property-title__actions"><FavoriteButton compact={false} id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים`} /><button type="button" onClick={() => void share()}>שיתוף</button></div><a className="button primary" href="#event-booking">הזמנה אונליין</a></div></section>
         <section className="shell property-gallery">{place.images.map((image, index) => <button key={image} type="button" onClick={() => { setGalleryStart(index); setGalleryOpen(true); }} aria-label={`פתיחת תמונה ${index + 1} של ${place.name}`}><img src={image} alt={`${place.name}, תמונה ${index + 1}`} />{index === 4 && <span>לגלריה המלאה</span>}</button>)}</section>
 
         <DetailStickyDock name={place.name} location={`${place.location}, ${place.area}`} sections={sectionLinks} onlineHref="#event-booking" onlineLabel="בדיקת תאריך לאירוע" />

@@ -3,7 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { DiscoveryCard } from "./discovery-card";
 import { PropertyCard } from "./property-card";
 import { eventPlaceHref, eventPlaces, properties } from "../data/site-data";
@@ -81,6 +81,12 @@ export function HomeShowcase() {
   const spontaneousPlaces = pickProperties(...selectedLastMinutePeriod.slugs);
   const lastMinuteSearchHref = `/search?period=${encodeURIComponent(selectedLastMinutePeriod.id)}&dates=${encodeURIComponent(selectedLastMinutePeriod.dateSummary)}&from=${selectedLastMinutePeriod.from}&till=${selectedLastMinutePeriod.till}&guests=2`;
 
+  useLayoutEffect(() => {
+    const track = tracks.current["last-minute"];
+    if (!track) return;
+    track.scrollTo({ left: 0, behavior: "auto" });
+  }, [lastMinuteTab]);
+
   function scroll(id: string, direction: "previous" | "next") {
     const track = tracks.current[id];
     if (!track) return;
@@ -105,7 +111,7 @@ export function HomeShowcase() {
           <div className="home-last-minute__period-group"><span>תקופות מבוקשות</span><div className="home-last-minute__tabs" role="tablist" aria-label="חיפוש לפי תקופה מבוקשת">{lastMinutePeriods.filter((period) => period.group === "upcoming").map((period) => <button key={period.id} type="button" role="tab" aria-selected={lastMinuteTab === period.id} onClick={() => setLastMinuteTab(period.id)}>{period.label}</button>)}</div></div>
         </div>
         <div className="home-last-minute__selection" aria-live="polite"><span>התקופה שבחרתם</span><strong>{selectedLastMinutePeriod.label}</strong><b>{selectedLastMinutePeriod.dateSummary}</b><small>זהו אומדן ראשוני. המחיר והזמינות הסופיים יאומתו לפי התאריך והרכב האורחים.</small></div>
-        <div className="home-last-minute__cards" role="tabpanel">{spontaneousPlaces.map((property) => {
+        <div className="home-last-minute__cards" role="tabpanel" ref={(node) => { tracks.current["last-minute"] = node; }}>{spontaneousPlaces.map((property) => {
           const price = property.price || lastMinuteStartingPrices[property.slug] || 1200;
           const detailHref = `/business?id=${property.slug}&period=${encodeURIComponent(selectedLastMinutePeriod.id)}&dates=${encodeURIComponent(selectedLastMinutePeriod.dateSummary)}&from=${selectedLastMinutePeriod.from}&till=${selectedLastMinutePeriod.till}&guests=2&price=${price}`;
           return <Link key={property.slug} href={detailHref}><img src={property.image} alt={property.name} /><span><strong>{selectedLastMinutePeriod.label}</strong><small>{selectedLastMinutePeriod.dateSummary}</small></span><div><small><PinIcon />{property.location}</small><h3>{property.name}</h3><div className="home-last-minute__deal"><b><CalendarIcon /><span>{selectedLastMinutePeriod.dateSummary}</span></b><strong><small>אומדן לתקופה</small>{price.toLocaleString("he-IL")} ₪</strong></div><em className="home-last-minute__continue">לפרטים ולהמשך הזמנה</em></div></Link>;
