@@ -285,22 +285,33 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
   return <div className={`map-results-experience map-tone--${tone}`}><div className="map-results-canvas">{mapCanvas}</div></div>;
 }
 
-export function ListingMap({ listings, mode = "vacation", single = false, autoLoad = false, onClose }: { listings: Listing[]; mode?: "vacation" | "events"; single?: boolean; autoLoad?: boolean; onClose?: () => void }) {
+export function ListingMap({ listings, initialListings, mode = "vacation", single = false, autoLoad = false, onClose, onVisibleCountChange }: { listings: Listing[]; initialListings?: Listing[]; mode?: "vacation" | "events"; single?: boolean; autoLoad?: boolean; onClose?: () => void; onVisibleCountChange?: (count: number) => void }) {
   const places = useMemo<MapPlace[]>(() => listings.map((listing) => ({
     id: listing.slug,
     name: listing.name,
     location: listing.location,
     area: listing.area,
     category: listing.type,
-    meta: `עד ${listing.guests} אורחים`,
+    meta: [
+      listing.bedrooms ? `${listing.bedrooms} חדרי שינה` : null,
+      listing.units && listing.units > 1 ? `${listing.units} יחידות` : null,
+      `עד ${listing.guests} אורחים`,
+    ].filter(Boolean).join(" · "),
     image: listing.image,
     lat: listing.lat,
     lng: listing.lng,
     href: mode === "events" ? eventPlaceHref(listing as EventPlace) : `/business?id=${listing.slug}`,
-    markerLabel: `עד ${listing.guests}`,
+    markerLabel: mode === "events"
+      ? `${listing.guests} אורחים`
+      : listing.bedrooms
+        ? `${listing.bedrooms} חדרים`
+        : listing.units && listing.units > 1
+          ? `${listing.units} יחידות`
+          : listing.type,
     precision: "exact",
   })), [listings, mode]);
-  return <PlacesMap places={places} tone={mode} single={single} autoLoad={autoLoad} onClose={onClose} />;
+  const initialPlaceIds = useMemo(() => initialListings?.map((listing) => listing.slug), [initialListings]);
+  return <PlacesMap key={initialPlaceIds?.join("|") || "all"} places={places} initialPlaceIds={initialPlaceIds} tone={mode} single={single} autoLoad={autoLoad} onClose={onClose} onVisibleCountChange={onVisibleCountChange} />;
 }
 
 export function DiscoveryMap({ items, initialItems, tone, single = false, autoLoad = false, onClose, onVisibleCountChange }: { items: DiscoveryItem[]; initialItems?: DiscoveryItem[]; tone: "spa" | "hourly" | "activities"; single?: boolean; autoLoad?: boolean; onClose?: () => void; onVisibleCountChange?: (count: number) => void }) {

@@ -513,7 +513,12 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(map, /map-preview-image/);
   assert.match(map, /if \(!enabled\)/);
   assert.match(map, /autoLoad/);
-  assert.match(search, /<ListingMap listings=\{filtered\} autoLoad onClose=/);
+  assert.match(search, /<ListingMap listings=\{mapCandidates\} initialListings=\{filtered\} autoLoad/);
+  assert.match(search, /onVisibleCountChange=\{setVisibleMapCount\}/);
+  assert.doesNotMatch(search, /מתוך \$\{properties\.length\}/);
+  assert.match(map, /listing\.bedrooms/);
+  assert.match(map, /`\$\{listing\.bedrooms\} חדרים`/);
+  assert.match(data, /readVerifiedCount\(item\.location/);
   assert.match(search, /האזור שמוצג במפה/);
   assert.match(eventSearch, /mode="events" autoLoad/);
   assert.match(eventSearch, /const \[guests, setGuests\] = useState\(0\)/);

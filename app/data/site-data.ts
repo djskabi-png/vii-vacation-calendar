@@ -386,13 +386,20 @@ const activePropertyOrder = [
   "rose-estate",
 ];
 
+function readVerifiedCount(value: string, pattern: RegExp) {
+  const match = value.match(pattern);
+  return match ? Number(match[1]) : undefined;
+}
+
 const verifiedProperties: Property[] = verifiedCatalog.vacation.map((item) => ({
   slug: item.id,
   name: item.name,
   location: item.location,
   area: item.area,
   type: "מתחם נופש",
+  units: readVerifiedCount(item.location, /(\d+)\s*(?:יחידות|וילות|סוויטות)/),
   guests: item.guests,
+  bedrooms: readVerifiedCount(item.location, /(\d+)\s*חדרים/),
   image: item.image,
   images: item.images,
   description: item.description,
