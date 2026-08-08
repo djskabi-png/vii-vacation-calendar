@@ -4030,6 +4030,7 @@ body:has(.cookie-card) .smart-concierge { display: none; }
 .listing-map-shell .leaflet-control-layers { border: 0; border-radius: 12px; box-shadow: 0 8px 24px rgba(0, 35, 44, .2); font-family: inherit; }
 .listing-map-shell .leaflet-control-layers-expanded { padding: 10px 12px; color: var(--teal-dark); }
 .listing-map-shell .leaflet-control-layers label { margin: 4px 0; font-weight: 700; }
+/* Shared map cards stay single-column on desktop so media can never squeeze the content. */
 .map-selection-card { position: absolute; z-index: 500; top: 74px; left: 16px; width: min(356px, calc(100% - 32px)); display: grid; grid-template-columns: minmax(0,1fr); grid-template-rows: 178px auto; overflow: hidden; border: 1px solid rgba(255,255,255,.86); border-radius: 26px; background: rgba(255,255,255,.98); box-shadow: 0 26px 70px rgba(0,38,48,.24); backdrop-filter: blur(20px) saturate(1.16); direction: inherit; text-align: start; animation: map-card-enter .22s ease-out both; }
 .map-selection-card__media { position: relative; min-width: 0; overflow: hidden; background: #dcebed; }
 .map-selection-card__media::after { content: ""; position: absolute; inset: 42% 0 0; background: linear-gradient(180deg,transparent,rgba(2,31,39,.62)); pointer-events: none; }
