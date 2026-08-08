@@ -824,22 +824,39 @@ function applyLanguage(language: SiteLanguage) {
   document.documentElement.dir = language === "he" ? "rtl" : "ltr";
   document.documentElement.dataset.locale = language;
 
-  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-  let node = walker.nextNode() as Text | null;
-  while (node) {
-    const parent = node.parentElement;
-    if (parent && !parent.closest("[data-no-translate]") && !["SCRIPT", "STYLE", "NOSCRIPT", "CODE", "PRE"].includes(parent.tagName)) {
-      if (hebrewPattern.test(node.data)) originalText.set(node, node.data);
-      const source = originalText.get(node);
-      if (source) {
-        const translated = translateValue(source, language);
-        if (node.data !== translated) node.data = translated;
-      }
+  // Hebrew is the server-rendered source language. Rewalking the full document
+  // on Hebrew routes adds work without changing a single node.
+  if (language !== "he") applyLanguageToRoot(document.body, language);
+
+  if (document.title && hebrewPattern.test(document.title)) originalDocumentTitle = document.title;
+  if (originalDocumentTitle) document.title = translateValue(originalDocumentTitle, language);
+}
+
+function applyLanguageToRoot(root: Node, language: SiteLanguage) {
+  const translateTextNode = (textNode: Text) => {
+    const parent = textNode.parentElement;
+    if (!parent || parent.closest("[data-no-translate]") || ["SCRIPT", "STYLE", "NOSCRIPT", "CODE", "PRE"].includes(parent.tagName)) return;
+    if (hebrewPattern.test(textNode.data)) originalText.set(textNode, textNode.data);
+    const source = originalText.get(textNode);
+    if (!source) return;
+    const translated = translateValue(source, language);
+    if (textNode.data !== translated) textNode.data = translated;
+  };
+
+  if (root.nodeType === Node.TEXT_NODE) {
+    translateTextNode(root as Text);
+  } else {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    let node = walker.nextNode() as Text | null;
+    while (node) {
+      translateTextNode(node);
+      node = walker.nextNode() as Text | null;
     }
-    node = walker.nextNode() as Text | null;
   }
 
-  document.body.querySelectorAll("*").forEach((element) => {
+  const rootElement = root.nodeType === Node.ELEMENT_NODE ? root as Element : root.parentElement;
+  const elements = rootElement ? [rootElement, ...rootElement.querySelectorAll("*")] : [];
+  elements.forEach((element) => {
     if (element.closest("[data-no-translate]")) return;
     const saved = originalAttributes.get(element) || new Map<string, string>();
     translatedAttributes.forEach((attribute) => {
@@ -854,17 +871,15 @@ function applyLanguage(language: SiteLanguage) {
     if (saved.size) originalAttributes.set(element, saved);
   });
 
-  document.body.querySelectorAll<HTMLAnchorElement>("a[href]").forEach((anchor) => {
+  const anchors = elements.filter((element): element is HTMLAnchorElement => element instanceof HTMLAnchorElement && element.hasAttribute("href"));
+  anchors.forEach((anchor) => {
     const href = anchor.getAttribute("href");
     if (!href || !href.startsWith("/") || href.startsWith("//")) return;
     const localizedHref = localizedPath(href, language);
     if (href !== localizedHref) anchor.setAttribute("href", localizedHref);
   });
 
-  if (document.title && hebrewPattern.test(document.title)) originalDocumentTitle = document.title;
-  if (originalDocumentTitle) document.title = translateValue(originalDocumentTitle, language);
-
-  document.body.querySelectorAll<HTMLElement>(".filter-apply").forEach((button) => {
+  elements.filter((element): element is HTMLElement => element instanceof HTMLElement && element.classList.contains("filter-apply")).forEach((button) => {
     const count = button.textContent?.match(/\d+/)?.[0];
     const textNode = button.firstChild;
     if (!count || !textNode || textNode.nodeType !== Node.TEXT_NODE) return;
@@ -911,7 +926,6 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const preserveLanguageOnInternalNavigation = (event: MouseEvent) => {
-      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       const target = event.target;
       if (!(target instanceof Element)) return;
       const anchor = target.closest<HTMLAnchorElement>("a[href]");
@@ -920,9 +934,9 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
       if (!href || !href.startsWith("/") || href.startsWith("//")) return;
       const destination = localizedPath(href, language);
       if (language === "he" && destination === href) return;
-      event.preventDefault();
-      event.stopPropagation();
-      window.location.assign(destination);
+      // Keep the localized URL while allowing Next to retain its fast
+      // client-side navigation instead of forcing a full document reload.
+      if (destination !== href) anchor.setAttribute("href", destination);
     };
     document.addEventListener("click", preserveLanguageOnInternalNavigation, true);
     return () => document.removeEventListener("click", preserveLanguageOnInternalNavigation, true);
@@ -963,12 +977,26 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     const translationReady = language === "he" || Boolean(loadedTranslations[language]);
     if (translationReady) document.documentElement.removeAttribute("data-locale-pending");
     observer.current?.disconnect();
+    if (language === "he") return;
     let frame = 0;
-    observer.current = new MutationObserver(() => {
+    const pendingRoots = new Set<Node>();
+    const observe = () => observer.current?.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: translatedAttributes });
+    observer.current = new MutationObserver((records) => {
+      records.forEach((record) => {
+        if (record.type === "childList") record.addedNodes.forEach((node) => pendingRoots.add(node));
+        else pendingRoots.add(record.target);
+      });
       window.cancelAnimationFrame(frame);
-      frame = window.requestAnimationFrame(() => applyLanguage(language));
+      frame = window.requestAnimationFrame(() => {
+        observer.current?.disconnect();
+        pendingRoots.forEach((root) => {
+          if (root.isConnected) applyLanguageToRoot(root, language);
+        });
+        pendingRoots.clear();
+        observe();
+      });
     });
-    observer.current.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: translatedAttributes });
+    observe();
     return () => { window.cancelAnimationFrame(frame); observer.current?.disconnect(); };
   }, [language, translationVersion]);
 

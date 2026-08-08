@@ -40,9 +40,11 @@ export function GlobalActionFeedback() {
     };
     const press = (element: HTMLElement) => {
       element.classList.remove("is-action-pressed");
-      void element.offsetWidth;
-      element.classList.add("is-action-pressed");
-      window.setTimeout(() => element.classList.remove("is-action-pressed"), 360);
+      window.requestAnimationFrame(() => {
+        if (!element.isConnected) return;
+        element.classList.add("is-action-pressed");
+        window.setTimeout(() => element.classList.remove("is-action-pressed"), 260);
+      });
     };
     const onClick = (event: MouseEvent) => {
       const element = (event.target as HTMLElement | null)?.closest<HTMLElement>("a, button, [role='button']");
