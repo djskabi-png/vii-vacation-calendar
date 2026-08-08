@@ -308,6 +308,18 @@ test("map markers use the rich synchronized place card instead of legacy text to
   assert.doesNotMatch(styles, /\.map-selection-card strong[^}]*white-space: nowrap/);
 });
 
+test("shared map markers use modern icon markers and visible active list controls", async () => {
+  const mapSource = await readFile("app/components/listing-map.tsx", "utf8");
+  const css = await readFile("app/globals.css", "utf8");
+  assert.match(mapSource, /function markerIcon\(tone: MapTone\)/);
+  assert.match(mapSource, /vii-map-marker__icon/);
+  assert.doesNotMatch(mapSource, /<b>\$\{/);
+  assert.match(css, /\.listing-map-shell[^}]+font-family:\s*Heebo, Arial, sans-serif/);
+  assert.match(css, /\.map-button\.active[^}]+color:\s*#fff\s*!important/);
+  assert.match(css, /\.map-button\.active \.map-button__desktop-label/);
+  assert.match(css, /\.vii-map-marker-wrap\.is-icon \.vii-map-marker/);
+});
+
 test("commercial discovery stays inside VII", async () => {
   const responses = await Promise.all([
     render("/discover/place?world=spa&id=spa-butik-tlv"),

@@ -44,6 +44,15 @@ function safeMarkerLabel(value: string) {
   })[character] ?? character);
 }
 
+function markerIcon(tone: MapTone) {
+  const common = 'viewBox="0 0 24 24" aria-hidden="true" focusable="false"';
+  if (tone === "events") return `<svg ${common}><path d="M6 3v3M18 3v3M4 8h16M5 5h14a2 2 0 0 1 2 2v12H3V7a2 2 0 0 1 2-2Z"/></svg>`;
+  if (tone === "spa") return `<svg ${common}><path d="M12 3c.7 3.2 2.5 5 5.7 5.7-3.2.7-5 2.5-5.7 5.7-.7-3.2-2.5-5-5.7-5.7C9.5 8 11.3 6.2 12 3ZM18.5 14.5c.4 1.8 1.4 2.8 3.2 3.2-1.8.4-2.8 1.4-3.2 3.2-.4-1.8-1.4-2.8-3.2-3.2 1.8-.4 2.8-1.4 3.2-3.2Z"/></svg>`;
+  if (tone === "hourly") return `<svg ${common}><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5l3.3 2"/></svg>`;
+  if (tone === "activities") return `<svg ${common}><path d="M4 7.5A2.5 2.5 0 0 0 6.5 10 2.5 2.5 0 0 0 4 12.5V17h16v-4.5A2.5 2.5 0 0 0 17.5 10 2.5 2.5 0 0 0 20 7.5V7H4v.5Z"/><path d="M9 7v10M15 7v10"/></svg>`;
+  return `<svg ${common}><path d="m4 11 8-7 8 7v9h-6v-6h-4v6H4v-9Z"/></svg>`;
+}
+
 function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false, autoLoad = false, onClose, onVisibleCountChange }: PlacesMapProps) {
   const { language } = useSiteLanguage();
   const cardCopy = language === "en"
@@ -174,15 +183,20 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
           const place = cluster.entries[0];
           const clustered = cluster.entries.length > 1;
           const clusterText = language === "he" ? `${cluster.entries.length} מקומות` : `${cluster.entries.length}`;
+          const visibleLabel = clustered ? String(cluster.entries.length) : place.markerLabel;
+          const useTextLabel = clustered || /\d/.test(visibleLabel);
+          const markerContent = useTextLabel
+            ? `<span class="vii-map-marker__label">${safeMarkerLabel(visibleLabel)}</span>`
+            : `<span class="vii-map-marker__icon">${markerIcon(tone)}</span>`;
           const marker = L.marker(clusterCenter, {
             keyboard: true,
             title: clustered ? clusterText : place.name,
             alt: clustered ? clusterText : place.name,
             icon: L.divIcon({
-              className: `vii-map-marker-wrap map-tone--${tone}${clustered ? " is-cluster" : ""}${!clustered && place.id === selectedIdRef.current ? " is-active" : ""}`,
-              html: `<span class="vii-map-marker"><b>${single ? "•" : safeMarkerLabel(clustered ? clusterText : place.markerLabel)}</b></span>`,
-              iconSize: single ? [50, 54] : clustered ? [126, 58] : [112, 54],
-              iconAnchor: single ? [25, 51] : clustered ? [63, 54] : [56, 51],
+              className: `vii-map-marker-wrap map-tone--${tone}${clustered ? " is-cluster" : ""}${useTextLabel ? " is-text" : " is-icon"}${!clustered && place.id === selectedIdRef.current ? " is-active" : ""}`,
+              html: `<span class="vii-map-marker">${markerContent}</span>`,
+              iconSize: clustered ? [72, 58] : useTextLabel ? [112, 54] : [54, 58],
+              iconAnchor: clustered ? [36, 54] : useTextLabel ? [56, 51] : [27, 54],
             }),
           }).addTo(markerLayer);
 
