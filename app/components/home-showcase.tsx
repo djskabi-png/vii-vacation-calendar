@@ -124,21 +124,21 @@ export function HomeShowcase() {
         <div className="home-vacation-strip">
           <div className="home-vacation-strip__head"><div><span>לפי אזור</span><h3>יעדים מומלצים לנופש</h3></div><SliderControls label="יעדי נופש" onPrevious={() => scroll("destinations", "previous")} onNext={() => scroll("destinations", "next")} /></div>
           <div className="home-vacation-strip__track home-vacation-strip__track--destinations" ref={(node) => { tracks.current.destinations = node; }}>
-            {vacationDestinations.map((item) => <Link className="home-vacation-card home-vacation-card--destination home-slider__item" href={item.href} key={item.label}><img src={item.image} alt="" /><span>יעד מומלץ</span><div><h4>{item.label}</h4><p>{item.note}</p><b>לכל המקומות באזור</b></div></Link>)}
+            {vacationDestinations.map((item) => <Link className="home-vacation-card home-vacation-card--destination home-slider__item" href={item.href} key={item.label}><img src={item.image} alt="" /><div><span>יעד מומלץ</span><h4>{item.label}</h4><p>{item.note}</p><b>לכל המקומות באזור</b></div></Link>)}
           </div>
         </div>
 
         <div className="home-vacation-strip">
           <div className="home-vacation-strip__head"><div><span>לפי מה שחשוב בחופשה</span><h3>חיפושים נפוצים</h3></div><SliderControls label="חיפושים נפוצים" onPrevious={() => scroll("popular-searches", "previous")} onNext={() => scroll("popular-searches", "next")} /></div>
           <div className="home-vacation-strip__track" ref={(node) => { tracks.current["popular-searches"] = node; }}>
-            {popularVacationSearches.map((item) => <Link className="home-vacation-card home-vacation-card--compact home-slider__item" href={item.href} key={item.label}><img src={item.image} alt="" /><div><span>חיפוש פופולרי</span><h4>{item.label}</h4><p>{item.note}</p></div><b aria-hidden="true">←</b></Link>)}
+            {popularVacationSearches.map((item, index) => <Link className="home-vacation-card home-vacation-card--search home-slider__item" href={item.href} key={item.label}><span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><div><small>חיפוש פופולרי</small><h4>{item.label}</h4><p>{item.note}</p><b>לצפייה במקומות</b></div></Link>)}
           </div>
         </div>
 
         <div className="home-vacation-strip">
           <div className="home-vacation-strip__head"><div><span>לפי סוג המקום</span><h3>סוגים וסגנונות אירוח</h3></div><SliderControls label="סוגי אירוח" onPrevious={() => scroll("stay-types", "previous")} onNext={() => scroll("stay-types", "next")} /></div>
           <div className="home-vacation-strip__track" ref={(node) => { tracks.current["stay-types"] = node; }}>
-            {accommodationStyles.map((item) => <Link className="home-vacation-card home-vacation-card--compact home-slider__item" href={item.href} key={item.label}><img src={item.image} alt="" /><div><span>סגנון אירוח</span><h4>{item.label}</h4><p>{item.note}</p></div><b aria-hidden="true">←</b></Link>)}
+            {accommodationStyles.map((item) => <Link className="home-vacation-card home-vacation-card--style home-slider__item" href={item.href} key={item.label}><img src={item.image} alt="" /><div><span>סגנון אירוח</span><h4>{item.label}</h4><p>{item.note}</p><b>לכל המקומות</b></div></Link>)}
           </div>
         </div>
       </div>

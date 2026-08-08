@@ -8,6 +8,7 @@ import { MasuExperience } from "./components/masu-experience";
 import { SearchBox } from "./components/search-box";
 import { magazineArticles } from "./data/magazine-data";
 import { destinations } from "./data/site-data";
+import { GiftIcon, PeopleIcon } from "./site-header";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -29,16 +30,16 @@ export default function HomePage() {
 
         <HomeShowcase />
 
-        <section className="section home-corporate-gift"><div className="shell"><Link className="home-corporate-gift__card home-corporate-gift__card--gift" href="/gift-card"><span className="eyebrow">מתנה שמשאירה את הבחירה אצלם</span><h2>גיפט קארד לכל העולמות של וי</h2><p>נופש, ספא, אירועים, אטרקציות ושירותים, במתנה אחת.</p><strong>יוצרים גיפט קארד</strong></Link><Link className="home-corporate-gift__card home-corporate-gift__card--corporate" href="/corporate"><span className="eyebrow">למנהלות רווחה ולעסקים</span><h2>אירועי חברה, רווחה ומתנות לעובדים</h2><p>מקום, תוכן, ספקים וגיפט קארד במסלול אחד.</p><strong>למרכז הארגוני</strong></Link></div></section>
+        <section className="section home-corporate-gift"><div className="shell"><Link className="home-corporate-gift__card home-corporate-gift__card--gift" href="/gift-card"><span className="home-corporate-gift__visual"><GiftIcon /></span><div><span className="eyebrow">מתנה שמשאירה את הבחירה אצלם</span><h2>גיפט קארד לכל העולמות של וי</h2><p>נופש, ספא, אירועים, אטרקציות ושירותים, במתנה אחת.</p><strong>יוצרים גיפט קארד</strong></div></Link><Link className="home-corporate-gift__card home-corporate-gift__card--corporate" href="/corporate"><span className="home-corporate-gift__visual"><PeopleIcon /></span><div><span className="eyebrow">למנהלות רווחה ולעסקים</span><h2>אירועי חברה, רווחה ומתנות לעובדים</h2><p>מקום, תוכן, ספקים וגיפט קארד במסלול אחד.</p><strong>למרכז הארגוני</strong></div></Link></div></section>
 
-        <div className="section shell"><MasuExperience context="stay" /></div>
+        <div className="section shell home-page-section"><MasuExperience context="stay" /></div>
 
-        <section className="section shell" aria-labelledby="destination-title">
+        <section className="section shell home-page-section" aria-labelledby="destination-title">
           <div className="section-head"><div><span className="eyebrow">בחרו כיוון</span><h2 id="destination-title">יעדים שכיף לברוח אליהם</h2></div><Link href="/destinations">לכל היעדים</Link></div>
           <div className="destination-grid">{destinations.map((destination, index) => <Link key={destination.name} className={`destination-tile destination-tile--${index + 1}`} href={`/search?location=${encodeURIComponent(destination.name)}`}><img src={destination.image} alt={destination.name} /><span><strong>{destination.name}</strong><small>{destination.subtitle}</small></span></Link>)}</div>
         </section>
 
-        <section className="section shell why-section" aria-labelledby="why-title">
+        <section className="section shell why-section home-page-section" aria-labelledby="why-title">
           <div><span className="eyebrow">פשוט לבחור נכון</span><h2 id="why-title">כל המידע, בלי ללכת לאיבוד</h2><p>החיפוש, הזמינות, פרטי המקום והמדיניות נמצאים במסלול אחד ברור, בכל מסך ובכל מכשיר.</p><Link className="button primary" href="/search">מתחילים לחפש</Link></div>
           <div className="benefit-grid"><article><b>01</b><h3>חיפוש מדויק</h3><p>מסננים לפי אזור, תאריך, הרכב ומאפיינים.</p></article><article><b>02</b><h3>תמונה מלאה</h3><p>רואים מה כלול, למי המקום מתאים ומה זמין.</p></article><article><b>03</b><h3>בחירה רגועה</h3><p>שומרים מקומות ומשווים בקצב שלכם.</p></article></div>
         </section>

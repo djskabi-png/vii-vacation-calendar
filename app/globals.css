@@ -4205,8 +4205,8 @@ body:has(.cookie-card) .smart-concierge { display: none; }
 .home-slider__item { flex: 0 0 clamp(310px,30vw,390px); min-width: 0; scroll-snap-align: start; scroll-snap-stop: always; }
 .home-slider__track--properties .home-slider__item { flex-basis: calc((100% - 40px) / 3); }
 .home-slider__item > * { height: 100%; }
-.home-recommended { overflow: hidden; padding-block: 52px 64px; background: white; }
-.home-last-minute { padding-block: 85px; color: var(--ink); background: radial-gradient(circle at 14% 18%,rgba(100,205,210,.22),transparent 32%),linear-gradient(135deg,#eef9f8 0%,#f8fbfb 55%,#fff8f2 100%); }
+.home-recommended { overflow: hidden; padding-block: 64px; background: white; }
+.home-last-minute { padding-block: 64px; color: var(--ink); background: radial-gradient(circle at 14% 18%,rgba(100,205,210,.22),transparent 32%),linear-gradient(135deg,#eef9f8 0%,#f8fbfb 55%,#fff8f2 100%); }
 .home-last-minute__layout { display: grid; grid-template-columns: .58fr 1.42fr; gap: clamp(35px,5vw,70px); align-items: center; }
 .home-last-minute__intro h2 { margin: 10px 0 18px; color: var(--ink); font-size: clamp(2.5rem,4.5vw,4.4rem); line-height: .98; }
 .home-last-minute__intro > p { color: var(--ink-soft); line-height: 1.75; }
@@ -4223,11 +4223,11 @@ body:has(.cookie-card) .smart-concierge { display: none; }
 .home-last-minute__cards svg, .home-event-feature svg { width: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; }
 .home-last-minute__cards h3 { margin: 6px 0 15px; color: white; font-size: 1.2rem; }
 .home-last-minute__cards b { display: flex; align-items: center; gap: 7px; color: #a9e8ec; font-size: .78rem; }
-.home-vacation-discovery { overflow: hidden; padding-block: 84px 92px; background: #fff; }
-.home-vacation-discovery__intro { max-width: 780px; margin-bottom: 42px; }
+.home-vacation-discovery { overflow: hidden; padding-block: 64px; background: #fff; }
+.home-vacation-discovery__intro { max-width: 780px; margin-bottom: 34px; }
 .home-vacation-discovery__intro h2 { max-width: 720px; margin: 9px 0 12px; font-size: clamp(2.25rem,4.2vw,4.15rem); line-height: 1.02; letter-spacing: -.045em; }
 .home-vacation-discovery__intro p { max-width: 680px; margin: 0; color: var(--ink-soft); font-size: 1.02rem; line-height: 1.7; }
-.home-vacation-strip + .home-vacation-strip { margin-top: 48px; }
+.home-vacation-strip + .home-vacation-strip { margin-top: 38px; }
 .home-vacation-strip__head { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 17px; }
 .home-vacation-strip__head > div > span { color: var(--teal); font-size: .72rem; font-weight: 850; }
 .home-vacation-strip__head h3 { margin: 4px 0 0; color: var(--ink); font-size: clamp(1.45rem,2.4vw,2.15rem); letter-spacing: -.025em; }
@@ -4239,13 +4239,13 @@ body:has(.cookie-card) .smart-concierge { display: none; }
 .home-vacation-card:hover { transform: translateY(-4px); border-color: rgba(7,142,154,.35); box-shadow: 0 22px 45px rgba(3,59,71,.13); }
 .home-vacation-card img { width: 100%; object-fit: cover; transition: transform .45s ease; }
 .home-vacation-card:hover img { transform: scale(1.035); }
-.home-vacation-card--destination { min-height: 285px; display: flex; align-items: end; color: white; isolation: isolate; }
+.home-vacation-card--destination { min-height: 285px; display: block; color: white; isolation: isolate; }
 .home-vacation-card--destination::after { content: ""; position: absolute; inset: 22% 0 0; z-index: -1; background: linear-gradient(0deg,rgba(1,27,35,.94),rgba(1,27,35,0)); }
 .home-vacation-card--destination > img { position: absolute; inset: 0; z-index: -2; height: 100%; }
-.home-vacation-card--destination > span { position: absolute; top: 14px; right: 14px; height: auto; padding: 6px 9px; border-radius: 999px; background: rgba(255,255,255,.92); color: var(--teal-dark); font-size: .65rem; font-weight: 850; }
-.home-vacation-card--destination > div { width: 100%; padding: 20px; }
+.home-vacation-card--destination > div { position: absolute; z-index: 1; inset-inline: 0; bottom: 0; display: flex; min-height: 68%; flex-direction: column; justify-content: flex-end; padding: 76px 20px 20px; }
+.home-vacation-card--destination > div > span { align-self: flex-start; margin-bottom: 8px; padding: 6px 9px; border-radius: 999px; background: rgba(255,255,255,.94); color: var(--teal-dark); font-size: .65rem; font-weight: 850; }
 .home-vacation-card h4 { margin: 3px 0 5px; font-size: 1.18rem; }
-.home-vacation-card--destination h4 { color: white; font-size: 1.3rem; }
+.home-vacation-card--destination h4 { margin-top: 0; color: white; font-size: 1.3rem; }
 .home-vacation-card p { margin: 0; color: var(--ink-soft); font-size: .77rem; line-height: 1.55; }
 .home-vacation-card--destination p { color: rgba(255,255,255,.76); }
 .home-vacation-card--destination b { display: inline-block; margin-top: 13px; color: #a9e8ec; font-size: .74rem; }
@@ -4254,7 +4254,21 @@ body:has(.cookie-card) .smart-concierge { display: none; }
 .home-vacation-card--compact > div { min-width: 0; padding: 15px 16px; }
 .home-vacation-card--compact > div > span { color: var(--teal); font-size: .64rem; font-weight: 850; }
 .home-vacation-card--compact > b { align-self: stretch; display: grid; place-items: center; padding-inline: 13px; border-inline-start: 1px solid var(--line); color: var(--teal); font-size: 1.2rem; }
-.home-events-world { padding: 95px 0; overflow: hidden; color: var(--ink); background: radial-gradient(circle at 86% 16%,rgba(255,170,104,.18),transparent 30%),linear-gradient(180deg,#fffaf5,#f7fbfb); }
+.home-vacation-card--search { min-height: 190px; display: grid; grid-template-columns: auto 1fr; gap: 18px; padding: 24px; background: linear-gradient(145deg,#f5fbfb,#fff); }
+.home-vacation-card--search > span { display: grid; width: 44px; height: 44px; place-items: center; border-radius: 15px; color: white; background: linear-gradient(135deg,#07929d,#2b7ebe); font-size: .75rem; font-weight: 900; box-shadow: 0 10px 24px rgba(7,132,147,.2); }
+.home-vacation-card--search > div { min-width: 0; display: flex; flex-direction: column; }
+.home-vacation-card--search small,.home-vacation-card--style span { color: var(--teal); font-size: .68rem; font-weight: 850; }
+.home-vacation-card--search h4 { margin: 8px 0 6px; font-size: 1.08rem; line-height: 1.35; }
+.home-vacation-card--search p { margin-bottom: 18px; }
+.home-vacation-card--search b { margin-top: auto; color: var(--teal-dark); font-size: .74rem; }
+.home-vacation-card--style { min-height: 235px; display: block; color: white; isolation: isolate; }
+.home-vacation-card--style::after { content: ""; position: absolute; inset: 22% 0 0; z-index: -1; background: linear-gradient(0deg,rgba(2,29,37,.95),rgba(2,29,37,0)); }
+.home-vacation-card--style > img { position: absolute; inset: 0; z-index: -2; height: 100%; }
+.home-vacation-card--style > div { position: absolute; inset-inline: 0; bottom: 0; padding: 68px 20px 20px; }
+.home-vacation-card--style h4 { margin: 5px 0; color: white; font-size: 1.28rem; }
+.home-vacation-card--style p { color: rgba(255,255,255,.78); }
+.home-vacation-card--style b { display: inline-block; margin-top: 12px; color: #a9e8ec; font-size: .74rem; }
+.home-events-world { padding: 64px 0; overflow: hidden; color: var(--ink); background: radial-gradient(circle at 86% 16%,rgba(255,170,104,.18),transparent 30%),linear-gradient(180deg,#fffaf5,#f7fbfb); }
 .home-events-world__head { display: grid; grid-template-columns: 1fr auto; gap: 35px; align-items: end; margin-bottom: 35px; }
 .home-events-world__head h2 { max-width: 850px; margin: 10px 0 14px; color: var(--ink); font-size: clamp(2.6rem,5vw,5rem); line-height: .98; }
 .home-events-world__head p { max-width: 760px; margin: 0; color: var(--ink-soft); font-size: 1.08rem; line-height: 1.75; }
@@ -4289,8 +4303,8 @@ body:has(.cookie-card) .smart-concierge { display: none; }
 .home-world-gate h3 { margin: 8px 0; color: white; font-size: clamp(1.8rem,3vw,3rem); }
 .home-world-gate p { margin: 0 0 18px; color: rgba(255,255,255,.72); line-height: 1.6; }
 .home-world-gate b { color: white; border-bottom: 1px solid rgba(255,255,255,.5); }
-.home-spa-strip { overflow: hidden; background: linear-gradient(180deg,#fff,#f7fbfa); }
-.home-short-stay { overflow: hidden; background: linear-gradient(180deg,#fff9f4,#fff); }
+.home-spa-strip { overflow: hidden; padding-block: 64px; background: linear-gradient(180deg,#fff,#f7fbfa); }
+.home-short-stay { overflow: hidden; padding-block: 64px; background: linear-gradient(180deg,#fff9f4,#fff); }
 .home-slider__track--discovery .home-slider__item { flex-basis: clamp(300px,28vw,365px); }
 .home-magazine { background: #062f3a; color: white; }
 .home-magazine .section-head h2, .home-magazine .section-head a { color: white; }
@@ -5235,18 +5249,36 @@ body:has(.cookie-card) .smart-concierge { display: none; }
 .masu-experience__copy > p { max-width: 680px; color: var(--ink-soft); font-size: 1.05rem; line-height: 1.75; }
 .masu-experience__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
 
-.home-corporate-gift { padding-block: 28px 76px; }
+.home-corporate-gift { padding-block: 64px; }
 .home-corporate-gift > .shell { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-.home-corporate-gift__card { min-height: 330px; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end; overflow: hidden; position: relative; padding: clamp(28px,4vw,52px); border-radius: 32px; color: white; isolation: isolate; box-shadow: 0 24px 55px rgba(4,67,77,.16); }
+.home-corporate-gift__card { min-height: 330px; display: grid; grid-template-columns: minmax(0,1fr) 150px; align-items: end; gap: 24px; overflow: hidden; position: relative; padding: clamp(28px,4vw,48px); border-radius: 32px; color: white; isolation: isolate; box-shadow: 0 24px 55px rgba(4,67,77,.16); }
 .home-corporate-gift__card::before,.home-corporate-gift__card::after { content: ""; position: absolute; z-index: -1; border-radius: 50%; background: rgba(255,255,255,.1); }
 .home-corporate-gift__card::before { width: 260px; height: 260px; top: -100px; inset-inline-start: -60px; }
 .home-corporate-gift__card::after { width: 150px; height: 150px; bottom: -70px; inset-inline-end: 40px; }
 .home-corporate-gift__card--gift { background: linear-gradient(135deg,#0f8791,#1c6690); }
 .home-corporate-gift__card--corporate { background: linear-gradient(135deg,#073d49,#177a79); }
+.home-corporate-gift__visual { grid-column: 2; grid-row: 1; align-self: center; display: grid; width: 132px; height: 132px; place-items: center; border: 1px solid rgba(255,255,255,.28); border-radius: 34px; background: rgba(255,255,255,.12); box-shadow: inset 0 1px 0 rgba(255,255,255,.26),0 20px 45px rgba(1,38,47,.16); backdrop-filter: blur(9px); transform: rotate(-4deg); }
+.home-corporate-gift__card--corporate .home-corporate-gift__visual { transform: rotate(4deg); }
+.home-corporate-gift__visual svg { width: 72px; height: 72px; fill: none; stroke: white; stroke-width: 2.7; stroke-linecap: round; stroke-linejoin: round; }
+.home-corporate-gift__card > div { grid-column: 1; grid-row: 1; }
 .home-corporate-gift__card .eyebrow { color: #9af2e5; }
 .home-corporate-gift__card h2 { max-width: 650px; margin: 9px 0 10px; color: white; font-size: clamp(1.8rem,3.6vw,3rem); }
 .home-corporate-gift__card p { max-width: 590px; margin: 0 0 24px; color: rgba(255,255,255,.78); line-height: 1.65; }
 .home-corporate-gift__card strong { padding-bottom: 5px; border-bottom: 2px solid rgba(255,255,255,.7); }
+.home-worlds,.home-magazine,.home-trails,.home-page-section { padding-block: 64px; }
+
+@media (max-width: 760px) {
+  .home-recommended,.home-last-minute,.home-vacation-discovery,.home-spa-strip,.home-short-stay,.home-worlds,.home-magazine,.home-trails,.home-page-section,.home-corporate-gift { padding-block: 48px; }
+  .home-events-world { padding-block: 48px; }
+  .home-vacation-discovery__intro { margin-bottom: 28px; }
+  .home-vacation-strip + .home-vacation-strip { margin-top: 32px; }
+  .home-vacation-card--destination > div { padding: 76px 18px 18px; }
+  .home-vacation-card--search { min-height: 178px; padding: 20px; }
+  .home-vacation-card--style { min-height: 270px; }
+  .home-corporate-gift__card { min-height: 300px; grid-template-columns: minmax(0,1fr) 78px; gap: 14px; padding: 26px; }
+  .home-corporate-gift__visual { width: 74px; height: 74px; border-radius: 22px; }
+  .home-corporate-gift__visual svg { width: 42px; height: 42px; }
+}
 
 .gift-hero { padding: 76px 0 84px; background: radial-gradient(circle at 18% 28%,rgba(91,189,204,.26),transparent 26%),linear-gradient(135deg,#eafafa,#f8fbff); }
 .gift-hero > .shell { display: grid; grid-template-columns: minmax(0,1.05fr) minmax(350px,.95fr); gap: clamp(40px,7vw,90px); align-items: center; }
