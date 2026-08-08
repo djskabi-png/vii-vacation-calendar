@@ -57,9 +57,9 @@ export function WorldLanding({
     : null;
   const worldLabel = world === "spa" ? "ספא" : world === "hourly" ? "חדרים לפי שעה" : world === "providers" ? "ספקים" : world === "activities" ? "אטרקציות" : "מקומות";
   const collectionTitle = world === "spa"
-    ? `${items.length} בתי ספא בישראל`
+    ? "בתי ספא לפי אזור וסוג חוויה"
     : world === "hourly"
-      ? `${items.length} חדרים לפי שעה`
+      ? "חדרים לפי שעה בישראל"
       : world === "providers"
         ? `${items.length} ספקים ושירותים`
         : `${items.length} ${worldLabel}`;
@@ -67,7 +67,7 @@ export function WorldLanding({
   return <PageShell variant={world}>
     <main id="main-content" className={`world-page world-page--${world}`}>
       <div className="shell breadcrumbs world-breadcrumbs"><Link href="/">ראשי</Link><span>/</span><span>{worldLabel}</span></div>
-      <section className="world-hero"><div className="shell"><h1>{title}</h1><p>{description}</p>{searchMode && <SearchBox mode={searchMode} showWorlds />}</div></section>
+      <section className="world-hero"><div className="shell world-hero__inner"><h1>{title}</h1><p>{description}</p>{searchMode && <SearchBox mode={searchMode} showWorlds />}</div></section>
       <section className="section shell">
         <div className="section-head world-results-title"><div><h2>{collectionTitle}</h2></div>{sourceNote && <p className="source-note">{sourceNote}</p>}</div>
         {world === "hourly" ? <HourlyResults items={items} /> : world === "providers" ? <ProviderResults items={items} /> : world === "spa" ? <WorldMapResults items={items} world="spa" /> : <div className="discovery-grid">{items.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>}

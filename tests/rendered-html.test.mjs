@@ -144,7 +144,7 @@ test("hourly search starts with location and exposes filters only with the resul
   assert.equal(response.status, 200);
   assert.match(html, /חיפוש חדרים לפי שעה/);
   assert.match(html, /עיר או אזור/);
-  assert.match(html, /סינון התוצאות/);
+  assert.match(html, /מקומות נמצאו/);
   assert.match(html, /מחיר התחלתי עד/);
   assert.match(html, /כניסה עצמאית/);
   assert.match(html, /תצוגה על מפה/);
@@ -878,6 +878,9 @@ test("key page types emit matching structured data and private pages stay out of
   for (const [pathname, expectedTypes] of [
     ["/", ["Organization", "WebSite", "SearchAction"]],
     ["/search", ["CollectionPage", "ItemList", "BreadcrumbList"]],
+    ["/spas", ["CollectionPage", "ItemList", "BreadcrumbList"]],
+    ["/hourly", ["CollectionPage", "ItemList", "BreadcrumbList"]],
+    ["/attractions", ["CollectionPage", "ItemList", "BreadcrumbList"]],
     ["/business?id=perfumes-villa", ["LodgingBusiness", "BreadcrumbList", "FAQPage"]],
     ["/events/place?id=black-loft", ["EventVenue", "BreadcrumbList"]],
     ["/guides/private-event-checklist", ["Article", "BreadcrumbList"]],
@@ -958,7 +961,7 @@ test("activities hub separates trails from paid attractions and every main trail
   assert.match(hubHtml, /href="\/attractions"[^>]*><strong>אטרקציות בתשלום/);
   assert.match(attractionsHtml, /אטרקציות בתשלום בישראל/);
   assert.match(attractionsHtml, /aria-label="סינון אטרקציות בתשלום"/);
-  assert.match(attractionsHtml, /בלי עסקים מומצאים/);
+  assert.match(attractionsHtml, /מידע מאומת/);
   assert.match(trailsHtml, /"numberOfItems":48/);
 
   for (const area of ["צפון", "כנרת", "חיפה", "מרכז", "תל אביב", "דרום ונגב", "ירושלים", "אילת והסביבה"]) {

@@ -9,6 +9,10 @@ import { PinIcon } from "../site-header";
 import { FavoriteButton } from "./favorite-button";
 import { useState } from "react";
 
+function PhoneIcon() {
+  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.7 3.5 9 3a1.6 1.6 0 0 1 1.8 1l1 3a1.6 1.6 0 0 1-.5 1.7L9.7 10a14 14 0 0 0 4.3 4.3l1.3-1.6a1.6 1.6 0 0 1 1.7-.5l3 1a1.6 1.6 0 0 1 1 1.8l-.5 2.3a3 3 0 0 1-3 2.4A15.5 15.5 0 0 1 4.3 6.5a3 3 0 0 1 2.4-3Z"/></svg>;
+}
+
 const placeNames: Record<Exclude<SiteLanguage, "he">, Record<string, string>> = {
   en: { "תל אביב": "Tel Aviv", "ירושלים": "Jerusalem", "נהריה": "Nahariya", "חיפה": "Haifa", "רגבה": "Regba", "כמון": "Kamon", "רמת גן": "Ramat Gan", "אילת": "Eilat", "הרצליה": "Herzliya", "אשדוד": "Ashdod", "אשקלון": "Ashkelon", "טבריה": "Tiberias", "נתניה": "Netanya", "פתח תקווה": "Petah Tikva", "ראשון לציון": "Rishon LeZion", "רחובות": "Rehovot", "באר שבע": "Beersheba", "ים המלח": "Dead Sea", "מרכז": "Central Israel", "צפון": "Northern Israel", "דרום ונגב": "Southern Israel and the Negev", "ירושלים והסביבה": "Jerusalem area", "אילת והערבה": "Eilat and the Arava", "גליל מערבי": "Western Galilee", "חיפה והקריות": "Haifa area" },
   ru: { "תל אביב": "Тель-Авив", "ירושלים": "Иерусалим", "נהריה": "Нагария", "חיפה": "Хайфа", "רגבה": "Регба", "כמון": "Камон", "רמת גן": "Рамат-Ган", "אילת": "Эйлат", "הרצליה": "Герцлия", "אשדוד": "Ашдод", "אשקלון": "Ашкелон", "טבריה": "Тверия", "נתניה": "Нетания", "פתח תקווה": "Петах-Тиква", "ראשון לציון": "Ришон-ле-Цион", "רחובות": "Реховот", "באר שבע": "Беэр-Шева", "ים המלח": "Мёртвое море", "מרכז": "Центр Израиля", "צפון": "Север Израиля", "דרום ונגב": "Юг Израиля и Негев", "ירושלים והסביבה": "Иерусалим и окрестности", "אילת והערבה": "Эйлат и Арава", "גליל מערבי": "Западная Галилея", "חיפה והקריות": "Хайфа и окрестности" },
@@ -57,7 +61,7 @@ export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
   const area = language === "he" ? item.area : placeNames[language][item.area] || ui!.israel;
   const description = localized?.description || item.description;
   const features = localized?.chips || item.features.slice(0, 3);
-  const details = ui?.details || "לפרטים";
+  const details = ui?.details || (item.world === "hourly" ? "פרטי המקום" : "לפרטים");
   const price = language === "he" ? item.priceLabel || item.duration || details : localizedPrice(item.priceLabel || item.duration, language, details);
 
   if (!item.image) return null;
@@ -80,8 +84,8 @@ export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
         <strong>{price}</strong>
         <div className="discovery-card__footer-actions">
           {item.world === "hourly" && item.phone ? phoneVisible
-            ? <a className="discovery-card__quick-call" dir="ltr" href={`tel:${item.phone.replace(/[^\d+]/g, "")}`} aria-label={`חיוג אל ${item.name}`}>☎ {item.phone}</a>
-            : <button className="discovery-card__reveal-phone" type="button" onClick={() => setPhoneVisible(true)}>הצגת מספר</button>
+            ? <a className="discovery-card__quick-call" dir="ltr" href={`tel:${item.phone.replace(/[^\d+]/g, "")}`} aria-label={`חיוג אל ${item.name}`}><PhoneIcon /><bdi>{item.phone}</bdi></a>
+            : <button className="discovery-card__reveal-phone" type="button" onClick={() => setPhoneVisible(true)}><PhoneIcon /><span>הצגת מספר</span></button>
           : null}
           <Link href={`/discover/place?world=${item.world}&id=${item.id}`}>{details}</Link>
         </div>
