@@ -3,66 +3,12 @@ import { CookiePreferencesButton } from "./cookie-consent";
 import { LanguageSwitcher } from "../i18n/locale-provider";
 import { AccessibilityWidget } from "./accessibility-widget";
 import type { WorldId } from "../data/world-data";
+import { footerContextFor, type FooterTopicId } from "../data/footer-context";
 
 /* eslint-disable @next/next/no-img-element */
 
-const destinations = ["צפון", "כנרת", "גליל מערבי", "מרכז", "ירושלים", "ים המלח", "אילת"];
-
-const contextualLinks: Record<WorldId, { label: string; links: { href: string; label: string }[] }> = {
-  vacation: {
-    label: "יעדים פופולריים",
-    links: destinations.map((item) => ({ href: `/search?location=${encodeURIComponent(item)}`, label: `נופש ב${item}` })),
-  },
-  events: {
-    label: "אזורים מבוקשים",
-    links: ["תל אביב", "מישור החוף והשפלה", "חיפה וחוף הכרמל", "מישור החוף הדרומי", "ראשון לציון", "נשר"].map((item) => ({ href: `/events/search?location=${encodeURIComponent(item)}`, label: item })),
-  },
-  corporate: {
-    label: "אירועי חברה ורווחה",
-    links: [
-      { href: "/corporate#corporate-packages", label: "חבילות מוכנות לאירועי חברה" },
-      { href: "/corporate#corporate-contact", label: "בניית חבילה עם מומחה" },
-      { href: "/corporate#corporate-packages", label: "ימי גיבוש" },
-      { href: "/corporate#corporate-packages", label: "רווחה במשרד" },
-      { href: "/gift-card", label: "מתנות וגיפט קארד לעובדים" },
-    ],
-  },
-  spa: {
-    label: "בתי ספא לפי אזור",
-    links: ["תל אביב", "ירושלים", "מרכז", "צפון", "חיפה"].map((item) => ({
-      href: `/spas?location=${encodeURIComponent(item)}`,
-      label: `ספא ב${item}`,
-    })),
-  },
-  hourly: {
-    label: "חדרים לפי שעה",
-    links: ["תל אביב", "ראשון לציון", "חיפה", "ירושלים", "הרצליה"].map((item) => ({ href: `/hourly?location=${encodeURIComponent(item)}`, label: item })),
-  },
-  providers: {
-    label: "ספקים",
-    links: [
-      { href: "/providers?category=food", label: "שפים ואוכל" },
-      { href: "/providers?category=music", label: "מוזיקה" },
-      { href: "/providers?category=photo", label: "צילום" },
-      { href: "/providers?category=design", label: "עיצוב" },
-      { href: "/providers?category=bar", label: "ברים" },
-      { href: "/providers?category=wellness", label: "רווחה ותנועה" },
-    ],
-  },
-  activities: {
-    label: "מה עושים בסביבה",
-    links: [
-      { href: "/trails", label: "מסלולי טיולים" },
-      { href: "/attractions", label: "אטרקציות בתשלום" },
-      { href: "/trails?area=צפון", label: "מסלולים בצפון" },
-      { href: "/trails?area=ירושלים", label: "מסלולים בירושלים" },
-      { href: "/trails?area=אילת%20והסביבה", label: "מסלולים באילת" },
-    ],
-  },
-};
-
-export function SiteFooter({ variant = "vacation" }: { variant?: WorldId }) {
-  const contextual = contextualLinks[variant];
+export function SiteFooter({ variant = "vacation", topic }: { variant?: WorldId; topic?: FooterTopicId }) {
+  const contextual = footerContextFor(variant, topic);
   return (
     <footer className="site-footer">
       <div className="shell footer-grid">

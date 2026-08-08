@@ -748,24 +748,29 @@ test("keeps each world cross-sell relevant to the page the visitor is viewing", 
   assert.doesNotMatch(landing, /בכל דף מקום יוצגו בהמשך/);
 });
 
-test("keeps the footer foundation fixed while adapting discovery links to each world", async () => {
-  const [footer, shell, providers, trails] = await Promise.all([
+test("keeps the footer foundation fixed while adapting discovery links to each world and curated topic", async () => {
+  const [footer, footerContext, shell, search, providers, trails] = await Promise.all([
     readFile(new URL("../app/components/site-footer.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/data/footer-context.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/components/page-shell.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/search/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/provider-results.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/trails/trails-explorer.tsx", import.meta.url), "utf8"),
   ]);
 
-  for (const world of ["vacation", "events", "spa", "hourly", "providers", "activities"]) assert.match(footer, new RegExp(`${world}:`));
+  for (const world of ["vacation", "events", "spa", "hourly", "providers", "activities"]) assert.match(footerContext, new RegExp(`${world}:`));
   assert.match(footer, /העולמות שלנו/);
   assert.match(footer, /מידע ושירות/);
-  assert.match(footer, /בתי ספא לפי אזור/);
-  assert.match(footer, /\["תל אביב", "ירושלים", "מרכז", "צפון", "חיפה"\]/);
-  assert.match(footer, /label: `ספא ב\$\{item\}`/);
-  assert.doesNotMatch(footer, /עולם הספא/);
+  assert.match(footerContext, /בתי ספא לפי אזור/);
+  assert.match(footerContext, /מקומות לאירועים לפי אזור/);
+  assert.match(footerContext, /חדרים לפי שעה לפי אזור/);
+  assert.match(footerContext, /סוויטות יוקרה לפי אזור/);
+  assert.match(footerContext, /footerTopicForPropertyType/);
+  assert.doesNotMatch(footerContext, /עולם הספא/);
   assert.match(footer, /LanguageSwitcher/);
   assert.match(footer, /AccessibilityWidget/);
-  assert.match(shell, /<SiteFooter variant=\{variant\} \/>/);
+  assert.match(shell, /<SiteFooter variant=\{variant\} topic=\{footerTopic\} \/>/);
+  assert.match(search, /footerTopicForPropertyType\(type\)/);
   assert.match(providers, /searchParams\.get\("category"\)/);
   assert.match(trails, /searchParams\.get\("area"\)/);
 });

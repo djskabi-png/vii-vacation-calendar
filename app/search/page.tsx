@@ -13,6 +13,7 @@ import { getPlaceAccessibility } from "../data/accessibility-data";
 import { CloseIcon, MapIcon, PinIcon } from "../site-header";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
+import { footerTopicForPropertyType } from "../data/footer-context";
 
 export default function SearchPage() {
   const router = useRouter();
@@ -114,7 +115,7 @@ export default function SearchPage() {
   }
 
   return (
-    <PageShell>
+    <PageShell footerTopic={footerTopicForPropertyType(type)}>
       <main id="main-content" className="results-page">
         <div className="results-search shell"><SearchBox compact /></div>
         <div className="shell breadcrumbs"><Link href="/">ראשי</Link><span>/</span><span>תוצאות חיפוש</span></div>

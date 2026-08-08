@@ -42,6 +42,15 @@ function loadTranslations(language: GeneratedLanguage) {
 
 const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, string>> = {
   en: {
+    "יעדי נופש פופולריים": "Popular stay destinations",
+    "מקומות לאירועים לפי אזור": "Event venues by region",
+    "חדרים לפי שעה לפי אזור": "Hourly stays by region",
+    "שירותים לאירוח ולאירועים": "Stay and event services",
+    "מסלולים ואטרקציות": "Trails and attractions",
+    "וילות נופש לפי אזור": "Vacation villas by region",
+    "מתחמי סוויטות לפי אזור": "Suite complexes by region",
+    "סוויטות יוקרה לפי אזור": "Luxury suites by region",
+    "דירות נופש לפי אזור": "Vacation apartments by region",
     "בתי ספא לפי אזור": "Spas by region",
     "ספא בתל אביב": "Spas in Tel Aviv",
     "ספא בירושלים": "Spas in Jerusalem",
@@ -120,6 +129,15 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "These cards are search shortcuts. Availability and final pricing are confirmed after selecting dates and guests.",
   },
   ru: {
+    "יעדי נופש פופולריים": "Популярные направления",
+    "מקומות לאירועים לפי אזור": "Площадки для мероприятий по регионам",
+    "חדרים לפי שעה לפי אזור": "Почасовые номера по регионам",
+    "שירותים לאירוח ולאירועים": "Услуги для отдыха и мероприятий",
+    "מסלולים ואטרקציות": "Маршруты и развлечения",
+    "וילות נופש לפי אזור": "Виллы для отдыха по регионам",
+    "מתחמי סוויטות לפי אזור": "Комплексы люксов по регионам",
+    "סוויטות יוקרה לפי אזור": "Люксы премиум-класса по регионам",
+    "דירות נופש לפי אזור": "Апартаменты для отдыха по регионам",
     "בתי ספא לפי אזור": "Спа по регионам",
     "ספא בתל אביב": "Спа в Тель-Авиве",
     "ספא בירושלים": "Спа в Иерусалиме",
@@ -198,6 +216,15 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "Карточки ведут к поиску. Наличие мест и итоговая цена подтверждаются после выбора дат и состава гостей.",
   },
   fr: {
+    "יעדי נופש פופולריים": "Destinations de séjour populaires",
+    "מקומות לאירועים לפי אזור": "Lieux événementiels par région",
+    "חדרים לפי שעה לפי אזור": "Chambres à l’heure par région",
+    "שירותים לאירוח ולאירועים": "Services pour séjours et événements",
+    "מסלולים ואטרקציות": "Itinéraires et attractions",
+    "וילות נופש לפי אזור": "Villas de vacances par région",
+    "מתחמי סוויטות לפי אזור": "Complexes de suites par région",
+    "סוויטות יוקרה לפי אזור": "Suites de luxe par région",
+    "דירות נופש לפי אזור": "Appartements de vacances par région",
     "בתי ספא לפי אזור": "Spas par région",
     "ספא בתל אביב": "Spas à Tel-Aviv",
     "ספא בירושלים": "Spas à Jérusalem",
@@ -660,6 +687,45 @@ function translateDynamic(value: string, language: Exclude<SiteLanguage, "he">) 
       : language === "fr"
         ? "Séjours à " + translatedDestination
         : "\u041e\u0442\u0434\u044b\u0445 \u0432 " + translatedDestination;
+  }
+
+  const regionalFooterMatch = value.match(/^(מקומות לאירועים|חדרים לפי שעה|ספא|וילות נופש|מתחמי סוויטות|סוויטות יוקרה|דירות נופש) ב(.+)$/);
+  if (regionalFooterMatch) {
+    const [, topic, sourceRegion] = regionalFooterMatch;
+    const translatedRegion = translatePart(sourceRegion);
+    const topics = {
+      en: {
+        "מקומות לאירועים": "Event venues",
+        "חדרים לפי שעה": "Hourly stays",
+        "ספא": "Spas",
+        "וילות נופש": "Vacation villas",
+        "מתחמי סוויטות": "Suite complexes",
+        "סוויטות יוקרה": "Luxury suites",
+        "דירות נופש": "Vacation apartments",
+      },
+      ru: {
+        "מקומות לאירועים": "Площадки для мероприятий",
+        "חדרים לפי שעה": "Почасовые номера",
+        "ספא": "Спа",
+        "וילות נופש": "Виллы для отдыха",
+        "מתחמי סוויטות": "Комплексы люксов",
+        "סוויטות יוקרה": "Люксы премиум-класса",
+        "דירות נופש": "Апартаменты для отдыха",
+      },
+      fr: {
+        "מקומות לאירועים": "Lieux événementiels",
+        "חדרים לפי שעה": "Chambres à l’heure",
+        "ספא": "Spas",
+        "וילות נופש": "Villas de vacances",
+        "מתחמי סוויטות": "Complexes de suites",
+        "סוויטות יוקרה": "Suites de luxe",
+        "דירות נופש": "Appartements de vacances",
+      },
+    } as const;
+    const translatedTopic = topics[language][topic as keyof typeof topics.en];
+    if (language === "en") return `${translatedTopic} in ${translatedRegion}`;
+    if (language === "fr") return `${translatedTopic} à ${translatedRegion}`;
+    return `${translatedTopic}, ${translatedRegion}`;
   }
 
   const rules: Array<[RegExp, (...parts: string[]) => string]> = language === "en"
