@@ -257,6 +257,13 @@ test("spa, hourly, event and attraction worlds expose interactive maps", async (
   ]);
   assert.match(mapSource, /scrollWheelZoom: true/);
   assert.match(mapSource, /touchZoom: true/);
+  assert.match(mapSource, /tile\.openstreetmap\.org/);
+  assert.match(mapSource, /מפה בעברית/);
+  assert.match(mapSource, /map\.getBounds\(\)\.pad/);
+  assert.match(mapSource, /visibleCountCallback\.current/);
+  assert.match(mapSource, /clusters\.find/);
+  assert.match(mapSource, /is-cluster/);
+  assert.match(mapSource, /initialPlaceIds/);
   assert.match(mapSource, /MapTone = "vacation" \| "events" \| "spa" \| "hourly" \| "activities"/);
   assert.match(mapSource, /map-tone--\$\{tone\}/);
   assert.ok((worldData.match(/mapPrecision: "area"/g) || []).length >= 20);
@@ -955,8 +962,14 @@ test("spa results expose working place and amenity filters before the result lis
 
   const source = await readFile(new URL("../app/components/world-map-results.tsx", import.meta.url), "utf8");
   assert.match(source, /selectedFilters\.every/);
-  assert.match(source, /<DiscoveryMap items=\{filtered\}/);
+  assert.match(source, /<DiscoveryMap items=\{amenityFiltered\} initialItems=\{filtered\}/);
+  assert.match(source, /onVisibleCountChange=\{setVisibleMapCount\}/);
   assert.match(source, /filtered\.map\(\(item\)/);
+
+  const worldData = await readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8");
+  assert.match(worldData, /function areaMapCoordinates/);
+  assert.match(worldData, /region\.includes\("ירושלים"\)/);
+  assert.match(worldData, /mapPrecision: "area"/);
 });
 
 test("provider pages demonstrate direct WhatsApp and full-site booking modes", async () => {

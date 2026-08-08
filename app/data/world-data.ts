@@ -73,7 +73,28 @@ const curatedHourlyPlaces: DiscoveryItem[] = [
   { id: "titanic-spa", world: "hourly", name: "סוויטות טיטאניק", location: "ראשון לציון", area: "מרכז", description: "מתחם של 17 סוויטות עם אפשרויות אירוח קצרות לפי שעה.", features: ["17 סוויטות", "שהייה קצרה", "ראשון לציון"], image: "/media/discovery/titanic-spa.jpg", images: ["/media/discovery/titanic-spa.jpg", "/media/discovery/titanic-spa-1.jpeg", "/media/discovery/titanic-spa-2.jpg", "/media/discovery/titanic-spa-3.jpg"], priceLabel: "שעה החל מ־120 ₪", phone: "055-4549882", lat: 31.9860, lng: 34.7955, mapPrecision: "area", sourceUrl: "https://roomsvip.com/Titanic_Spa", sourceName: "חדרים וי־איי־פי" },
 ];
 
-const verifiedDiscoveryItems = (world: "spa" | "hourly"): DiscoveryItem[] => verifiedCatalog[world].map((item) => ({
+function areaMapCoordinates(item: { id: string; location: string; area: string; lat: number; lng: number }) {
+  const region = `${item.location} ${item.area}`;
+  let lat = item.lat;
+  let lng = item.lng;
+
+  if (region.includes("ירושלים") && (lat > 31.92 || lat < 31.62 || lng < 35.08 || lng > 35.36)) {
+    lat = 31.778;
+    lng = 35.223;
+  } else if (region.includes("תל אביב") && (lat < 31.95 || lat > 32.2 || lng < 34.68 || lng > 34.9)) {
+    lat = 32.085;
+    lng = 34.78;
+  }
+
+  const hash = Array.from(item.id).reduce((value, character) => ((value * 31) + character.charCodeAt(0)) >>> 0, 7);
+  const angle = (hash % 360) * Math.PI / 180;
+  const radius = 0.0035 + ((hash >>> 8) % 7) * 0.0011;
+  return { lat: lat + Math.sin(angle) * radius, lng: lng + Math.cos(angle) * radius };
+}
+
+const verifiedDiscoveryItems = (world: "spa" | "hourly"): DiscoveryItem[] => verifiedCatalog[world].map((item) => {
+  const coordinates = areaMapCoordinates(item);
+  return {
   id: item.id,
   world,
   name: item.name,
@@ -87,11 +108,12 @@ const verifiedDiscoveryItems = (world: "spa" | "hourly"): DiscoveryItem[] => ver
   rating: item.rating,
   sourceUrl: item.sourceUrl,
   sourceName: item.sourceName,
-  lat: item.lat,
-  lng: item.lng,
+  lat: coordinates.lat,
+  lng: coordinates.lng,
   mapPrecision: "area",
   indexable: true,
-}));
+  };
+});
 
 export const spaPlaces: DiscoveryItem[] = [...curatedSpaPlaces, ...verifiedDiscoveryItems("spa").filter((item) => !curatedSpaPlaces.some((existing) => existing.sourceUrl === item.sourceUrl))];
 export const hourlyPlaces: DiscoveryItem[] = [...curatedHourlyPlaces, ...verifiedDiscoveryItems("hourly").filter((item) => !curatedHourlyPlaces.some((existing) => existing.sourceUrl === item.sourceUrl))];

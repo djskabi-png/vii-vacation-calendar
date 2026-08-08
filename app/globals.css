@@ -4092,6 +4092,9 @@ body:has(.cookie-card) .smart-concierge { display: none; }
 .map-tone--hourly .map-preview-label { background: rgba(137,77,18,.5); }
 .map-tone--activities .map-preview-label { background: rgba(4,95,94,.58); }
 .vii-map-marker-wrap:hover .vii-map-marker,.vii-map-marker-wrap:focus .vii-map-marker,.vii-map-marker-wrap.is-active .vii-map-marker { filter: brightness(1.08); transform: translateY(-3px) scale(1.07); box-shadow: 0 13px 27px rgba(0, 55, 65, .36); }
+.vii-map-marker-wrap.is-cluster .vii-map-marker { min-width: 78px; height: 46px; padding-inline: 16px; border-width: 4px; background: linear-gradient(145deg, #8d49bf, #c258a0); box-shadow: 0 10px 26px rgba(81, 36, 104, .34); font-size: .78rem; }
+.vii-map-marker-wrap.is-cluster .vii-map-marker::after { background: #9b4eb9; }
+.vii-map-marker-wrap.is-cluster:hover .vii-map-marker,.vii-map-marker-wrap.is-cluster:focus .vii-map-marker { transform: translateY(-3px) scale(1.05); }
 
 .map-results-experience { min-width: 0; display: block; direction: rtl; }
 .map-results-rail { grid-area: rail; min-width: 0; height: 640px; overflow: hidden; border: 1px solid var(--line); border-radius: 24px; background: #f8fbfc; box-shadow: 0 12px 34px rgba(0, 55, 65, .07); }

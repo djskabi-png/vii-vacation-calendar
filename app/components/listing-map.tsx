@@ -26,10 +26,12 @@ type MapPlace = {
 
 type PlacesMapProps = {
   places: MapPlace[];
+  initialPlaceIds?: string[];
   tone?: MapTone;
   single?: boolean;
   autoLoad?: boolean;
   onClose?: () => void;
+  onVisibleCountChange?: (count: number) => void;
 };
 
 function safeMarkerLabel(value: string) {
@@ -42,17 +44,25 @@ function safeMarkerLabel(value: string) {
   })[character] ?? character);
 }
 
-function PlacesMap({ places, tone = "vacation", single = false, autoLoad = false, onClose }: PlacesMapProps) {
+function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false, autoLoad = false, onClose, onVisibleCountChange }: PlacesMapProps) {
+  const { language } = useSiteLanguage();
   const mapElement = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<import("leaflet").Map | null>(null);
   const markerInstances = useRef<Map<string, import("leaflet").Marker>>(new Map());
-  const selectedIdRef = useRef(places[0]?.id ?? "");
+  const visibleCountCallback = useRef(onVisibleCountChange);
+  const initialSelectedId = initialPlaceIds?.find((id) => places.some((place) => place.id === id)) ?? places[0]?.id ?? "";
+  const selectedIdRef = useRef(initialSelectedId);
   const [enabled, setEnabled] = useState(autoLoad);
   const [mapReady, setMapReady] = useState(false);
-  const [selectedId, setSelectedId] = useState(places[0]?.id ?? "");
+  const [selectedId, setSelectedId] = useState(initialSelectedId);
   const preview = places[0] ?? null;
   const effectiveSelectedId = selectedId === "" ? "" : places.some((place) => place.id === selectedId) ? selectedId : places[0]?.id ?? "";
   const selected = places.find((place) => place.id === effectiveSelectedId) ?? null;
+  const focusKey = initialPlaceIds?.join("|") ?? "";
+
+  useEffect(() => {
+    visibleCountCallback.current = onVisibleCountChange;
+  }, [onVisibleCountChange]);
 
   const selectPlace = useCallback((id: string) => {
     const place = places.find((entry) => entry.id === id);
@@ -93,21 +103,30 @@ function PlacesMap({ places, tone = "vacation", single = false, autoLoad = false
         attributionControl: true,
       });
       container.addEventListener("wheel", keepWheelInsideMap, { passive: false });
-      const streetTiles = L.tileLayer(
-        "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-        {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-          maxZoom: 20,
-          subdomains: "abcd",
-        },
-      );
+      const streetTiles = language === "he"
+        ? L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 19,
+          })
+        : L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            maxZoom: 20,
+            subdomains: "abcd",
+          });
       const aerialTiles = L.tileLayer(
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         { attribution: "Tiles &copy; Esri", maxZoom: 19 },
       );
       streetTiles.addTo(map);
+      const layerNames = language === "he"
+        ? { street: "מפה בעברית", aerial: "תצלום אוויר" }
+        : language === "ru"
+          ? { street: "Карта", aerial: "Спутник" }
+          : language === "fr"
+            ? { street: "Plan", aerial: "Satellite" }
+            : { street: "Map", aerial: "Satellite" };
       L.control.layers(
-        { "מפה בהירה": streetTiles, "תצלום אוויר": aerialTiles },
+        { [layerNames.street]: streetTiles, [layerNames.aerial]: aerialTiles },
         undefined,
         { position: "topright" },
       ).addTo(map);
@@ -118,39 +137,82 @@ function PlacesMap({ places, tone = "vacation", single = false, autoLoad = false
       streetTiles.once("load", showMap);
       readyTimer = window.setTimeout(showMap, 2200);
 
-      const bounds = L.latLngBounds([]);
-      places.forEach((place) => {
-        const marker = L.marker([place.lat, place.lng], {
-          keyboard: true,
-          title: place.name,
-          alt: place.name,
-          icon: L.divIcon({
-            className: `vii-map-marker-wrap map-tone--${tone}${place.id === selectedIdRef.current ? " is-active" : ""}`,
-            html: `<span class="vii-map-marker"><b>${single ? "•" : safeMarkerLabel(place.markerLabel)}</b></span>`,
-            iconSize: single ? [50, 54] : [112, 54],
-            iconAnchor: single ? [25, 51] : [56, 51],
-          }),
-        }).addTo(map);
-        marker.on("click", () => selectPlace(place.id));
-        marker.on("mouseover", () => setSelectedId(place.id));
-        marker.on("focus", () => setSelectedId(place.id));
-        const markerElement = marker.getElement();
-        markerElement?.addEventListener("click", (event) => {
-          event.stopPropagation();
-          selectPlace(place.id);
-        });
-        markerElement?.addEventListener("keydown", (event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            selectPlace(place.id);
+      const markerLayer = L.layerGroup().addTo(map);
+      const renderMarkers = () => {
+        markerLayer.clearLayers();
+        markerRegistry.clear();
+        const threshold = map.getZoom() < 8 ? 92 : map.getZoom() < 11 ? 70 : 52;
+        const clusters: Array<{ entries: MapPlace[]; point: import("leaflet").Point }> = [];
+
+        places.forEach((place) => {
+          const point = map.latLngToContainerPoint([place.lat, place.lng]);
+          const cluster = single ? undefined : clusters.find((entry) => entry.point.distanceTo(point) < threshold);
+          if (cluster) {
+            cluster.entries.push(place);
+            const count = cluster.entries.length;
+            cluster.point = L.point(
+              (cluster.point.x * (count - 1) + point.x) / count,
+              (cluster.point.y * (count - 1) + point.y) / count,
+            );
+          } else {
+            clusters.push({ entries: [place], point });
           }
         });
-        markerRegistry.set(place.id, marker);
-        bounds.extend([place.lat, place.lng]);
-      });
 
-      if (places.length === 1) map.setView([places[0].lat, places[0].lng], places[0].precision === "area" ? 12 : 14);
-      else map.fitBounds(bounds.pad(0.17), { maxZoom: 11, padding: [44, 44] });
+        clusters.forEach((cluster) => {
+          const clusterCenter = L.latLng(
+            cluster.entries.reduce((sum, place) => sum + place.lat, 0) / cluster.entries.length,
+            cluster.entries.reduce((sum, place) => sum + place.lng, 0) / cluster.entries.length,
+          );
+          const place = cluster.entries[0];
+          const clustered = cluster.entries.length > 1;
+          const clusterText = language === "he" ? `${cluster.entries.length} מקומות` : `${cluster.entries.length}`;
+          const marker = L.marker(clusterCenter, {
+            keyboard: true,
+            title: clustered ? clusterText : place.name,
+            alt: clustered ? clusterText : place.name,
+            icon: L.divIcon({
+              className: `vii-map-marker-wrap map-tone--${tone}${clustered ? " is-cluster" : ""}${!clustered && place.id === selectedIdRef.current ? " is-active" : ""}`,
+              html: `<span class="vii-map-marker"><b>${single ? "•" : safeMarkerLabel(clustered ? clusterText : place.markerLabel)}</b></span>`,
+              iconSize: single ? [50, 54] : clustered ? [126, 58] : [112, 54],
+              iconAnchor: single ? [25, 51] : clustered ? [63, 54] : [56, 51],
+            }),
+          }).addTo(markerLayer);
+
+          if (clustered) {
+            marker.on("click", () => {
+              const clusterBounds = L.latLngBounds(cluster.entries.map((entry) => [entry.lat, entry.lng] as [number, number]));
+              if (clusterBounds.getNorthEast().distanceTo(clusterBounds.getSouthWest()) < 80) map.flyTo(clusterCenter, Math.min(map.getZoom() + 2, 16), { duration: 0.4 });
+              else map.fitBounds(clusterBounds.pad(0.65), { maxZoom: Math.min(map.getZoom() + 3, 15), padding: [70, 70] });
+            });
+          } else {
+            marker.on("click", () => selectPlace(place.id));
+            marker.on("mouseover", () => setSelectedId(place.id));
+            marker.on("focus", () => setSelectedId(place.id));
+            markerRegistry.set(place.id, marker);
+          }
+        });
+      };
+
+      const reportVisiblePlaces = () => {
+        const currentBounds = map.getBounds().pad(0.04);
+        visibleCountCallback.current?.(places.filter((place) => currentBounds.contains([place.lat, place.lng])).length);
+      };
+
+      const focusPlaces = initialPlaceIds?.length
+        ? places.filter((place) => initialPlaceIds.includes(place.id))
+        : places;
+      const targetPlaces = focusPlaces.length ? focusPlaces : places;
+      const bounds = L.latLngBounds(targetPlaces.map((place) => [place.lat, place.lng] as [number, number]));
+      if (targetPlaces.length === 1) map.setView([targetPlaces[0].lat, targetPlaces[0].lng], targetPlaces[0].precision === "area" ? 13 : 15);
+      else map.fitBounds(bounds.pad(0.22), { maxZoom: 13, padding: [72, 72] });
+
+      map.on("zoomend moveend", () => {
+        renderMarkers();
+        reportVisiblePlaces();
+      });
+      renderMarkers();
+      reportVisiblePlaces();
 
       mapInstance.current = map;
       window.setTimeout(() => map.invalidateSize(), 80);
@@ -164,7 +226,7 @@ function PlacesMap({ places, tone = "vacation", single = false, autoLoad = false
       mapInstance.current?.remove();
       mapInstance.current = null;
     };
-  }, [enabled, places, selectPlace, single, tone]);
+  }, [enabled, places, selectPlace, single, tone, language, focusKey, initialPlaceIds]);
 
   if (!preview) return null;
 
@@ -226,7 +288,7 @@ export function ListingMap({ listings, mode = "vacation", single = false, autoLo
   return <PlacesMap places={places} tone={mode} single={single} autoLoad={autoLoad} onClose={onClose} />;
 }
 
-export function DiscoveryMap({ items, tone, single = false, autoLoad = false, onClose }: { items: DiscoveryItem[]; tone: "spa" | "hourly" | "activities"; single?: boolean; autoLoad?: boolean; onClose?: () => void }) {
+export function DiscoveryMap({ items, initialItems, tone, single = false, autoLoad = false, onClose, onVisibleCountChange }: { items: DiscoveryItem[]; initialItems?: DiscoveryItem[]; tone: "spa" | "hourly" | "activities"; single?: boolean; autoLoad?: boolean; onClose?: () => void; onVisibleCountChange?: (count: number) => void }) {
   const { language } = useSiteLanguage();
   const localized = useMemo(() => language === "en"
     ? { spa: "Spa and treatments", hourly: "Hourly stay", packages: "Packages and treatments", short: "Short stay", from: "From" }
@@ -252,5 +314,6 @@ export function DiscoveryMap({ items, tone, single = false, autoLoad = false, on
       precision: item.mapPrecision || "area",
     };
   }), [items, tone, localized]);
-  return <PlacesMap places={places} tone={tone} single={single} autoLoad={autoLoad} onClose={onClose} />;
+  const initialPlaceIds = useMemo(() => initialItems?.map((item) => item.id), [initialItems]);
+  return <PlacesMap key={initialPlaceIds?.join("|") || "all"} places={places} initialPlaceIds={initialPlaceIds} tone={tone} single={single} autoLoad={autoLoad} onClose={onClose} onVisibleCountChange={onVisibleCountChange} />;
 }
