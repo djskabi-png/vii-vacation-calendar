@@ -46,6 +46,13 @@ function safeMarkerLabel(value: string) {
 
 function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false, autoLoad = false, onClose, onVisibleCountChange }: PlacesMapProps) {
   const { language } = useSiteLanguage();
+  const cardCopy = language === "en"
+    ? { details: "View details", close: "Close place details" }
+    : language === "ru"
+      ? { details: "Подробнее", close: "Закрыть карточку места" }
+      : language === "fr"
+        ? { details: "Voir les détails", close: "Fermer la fiche du lieu" }
+        : { details: "לכל הפרטים", close: "סגירת פרטי המקום" };
   const mapElement = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<import("leaflet").Map | null>(null);
   const markerInstances = useRef<Map<string, import("leaflet").Marker>>(new Map());
@@ -258,10 +265,18 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
     {mapReady && <span className="map-zoom-hint">גלגלת העכבר מגדילה ומקטינה את המפה</span>}
     {!mapReady && (autoLoad ? <span className="map-live-loading" role="status">טוענים את המפה ואת הסמנים...</span> : <div className="map-preview-card map-loading-preview">{previewContent}</div>)}
     {mapReady && !single && selected && <article className="map-selection-card" aria-live="polite">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={selected.image} alt={selected.name} />
-      <div><small>{selected.category}</small><strong>{selected.name}</strong><span>{selected.location} · {selected.meta}</span><Link href={selected.href}>לכל הפרטים</Link></div>
-      <button type="button" onClick={() => setSelectedId("")} aria-label="סגירת פרטי המקום">×</button>
+      <div className="map-selection-card__media">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={selected.image} alt={selected.name} />
+        <small>{selected.category}</small>
+      </div>
+      <div className="map-selection-card__body">
+        <span className="map-selection-card__location">{selected.location}</span>
+        <strong>{selected.name}</strong>
+        <span className="map-selection-card__meta">{selected.meta}</span>
+        <Link href={selected.href}>{cardCopy.details}</Link>
+      </div>
+      <button className="map-selection-card__close" type="button" onClick={() => setSelectedId("")} aria-label={cardCopy.close}>×</button>
     </article>}
   </div>;
 

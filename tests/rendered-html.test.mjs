@@ -294,8 +294,18 @@ test("map markers use the rich synchronized place card instead of legacy text to
   assert.doesNotMatch(styles, /\.vii-map-tooltip/);
   assert.match(source, /marker\.on\("mouseover"/);
   assert.match(source, /aria-live="polite"/);
+  assert.match(source, /map-selection-card__media/);
+  assert.match(source, /map-selection-card__body/);
+  assert.match(source, /map-selection-card__close/);
+  assert.match(source, /View details/);
+  assert.match(source, /Voir les détails/);
   assert.match(styles, /\.map-selection-card \{ position: absolute/);
-  assert.match(styles, /backdrop-filter: blur\(18px\)/);
+  assert.match(styles, /grid-template-rows: 178px auto/);
+  assert.match(styles, /backdrop-filter: blur\(20px\)/);
+  assert.match(styles, /-webkit-line-clamp: 2/);
+  assert.match(styles, /\.map-selection-card__close[^}]*width: 40px[^}]*height: 40px/);
+  assert.match(styles, /grid-template-columns: 112px minmax\(0,1fr\)/);
+  assert.doesNotMatch(styles, /\.map-selection-card strong[^}]*white-space: nowrap/);
 });
 
 test("commercial discovery stays inside VII", async () => {
