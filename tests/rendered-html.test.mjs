@@ -704,7 +704,7 @@ test("includes the accessibility system and honest place disclosures", async () 
 });
 
 test("ships a favicon, four languages and no dependency on the retired site", async () => {
-  const [layout, locale, localeRouting, translations, header, footer, data, worldData, favicon] = await Promise.all([
+  const [layout, locale, localeRouting, translations, header, footer, data, worldData, styles, favicon] = await Promise.all([
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/i18n/locale-provider.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/i18n/locale-routing.ts", import.meta.url), "utf8"),
@@ -713,6 +713,7 @@ test("ships a favicon, four languages and no dependency on the retired site", as
     readFile(new URL("../app/components/site-footer.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/data/site-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../app/favicon.ico", import.meta.url)),
   ]);
   const dictionaries = JSON.parse(translations);
@@ -727,6 +728,9 @@ test("ships a favicon, four languages and no dependency on the retired site", as
   assert.match(header, /<LanguageSwitcher compact/);
   assert.match(header, /<AccessibilityWidget placement="menu" \/>/);
   assert.match(header, /className="menu-panel__join" href="\/join"/);
+  assert.match(header, /className="menu-panel__intro-top"/);
+  assert.equal((header.match(/href="\/join"/g) || []).length, 2);
+  assert.match(styles, /scroll-padding-bottom:\s*calc\(118px \+ env\(safe-area-inset-bottom/);
   assert.match(footer, /<LanguageSwitcher compact/);
   assert.match(footer, /<AccessibilityWidget placement="footer" \/>/);
   assert.doesNotMatch([header, footer, data, worldData].join("\n"), /https:\/\/www\.vii\.co\.il/);

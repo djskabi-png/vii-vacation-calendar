@@ -122,7 +122,10 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
         </div>
 
         <div className="menu-panel__intro">
-          <span>מתחילים מכאן</span>
+          <div className="menu-panel__intro-top">
+            <span>מתחילים מכאן</span>
+            <Link href="/join" onClick={closeMenu}>הצטרפות לאתר <ArrowIcon /></Link>
+          </div>
           <h2>לאן תרצו להגיע?</h2>
           <p>נופש, אירועים, ספא, ספקים וחוויות, במקום אחד.</p>
         </div>
