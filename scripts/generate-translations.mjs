@@ -1,5 +1,6 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
+import ts from "typescript";
 
 const origin = process.argv[2] || "https://vii.spaplus.co/";
 const output = resolve(process.argv[3] || "app/i18n/translations.generated.json");
@@ -30,6 +31,27 @@ function addPhrase(value) {
   const normalized = decodeHtml(value).replace(/\s+/g, " ").trim();
   if (/[\u0590-\u05ff]/.test(normalized) && normalized.length <= 700) phrases.add(normalized);
 }
+
+async function collectSourcePhrases(directory) {
+  const entries = await readdir(directory, { withFileTypes: true });
+  for (const entry of entries) {
+    const path = resolve(directory, entry.name);
+    if (entry.isDirectory()) {
+      if (entry.name !== "i18n") await collectSourcePhrases(path);
+      continue;
+    }
+    if (!/\.(?:ts|tsx)$/.test(entry.name)) continue;
+    const source = await readFile(path, "utf8");
+    const sourceFile = ts.createSourceFile(path, source, ts.ScriptTarget.Latest, true, entry.name.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
+    const visit = (node) => {
+      if (ts.isStringLiteralLike(node) || ts.isJsxText(node) || ts.isTemplateHead(node) || ts.isTemplateMiddle(node) || ts.isTemplateTail(node)) addPhrase(node.text);
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+  }
+}
+
+await collectSourcePhrases(resolve("app"));
 
 while (queue.length && visited.size < 260) {
   const url = queue.shift();

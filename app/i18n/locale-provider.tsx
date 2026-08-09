@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { languageFromPathname, localizedPath, type SiteLanguage } from "./locale-routing";
 
 export type { SiteLanguage } from "./locale-routing";
@@ -42,6 +42,20 @@ function loadTranslations(language: GeneratedLanguage) {
 
 const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, string>> = {
   en: {
+    "ראשי": "Home",
+    "מסלולי טיול ואטרקציות": "Trails and attractions",
+    "בוחרים איך לבלות את היום": "Choose how to spend your day",
+    "שני אזורים ברורים: מסלול עצמאי בטבע עם מידע מלא, או אטרקציה בתשלום עם התאמת ספק ותהליך הזמנה.": "Choose an independent nature trail with complete practical information, or a paid attraction with a clear provider and booking process.",
+    "מסלולי טיולים": "Hiking trails",
+    "48 מסלולים, לפחות שישה בכל אזור ראשי": "48 trails, with at least six in every main region",
+    "למסלולים": "Explore trails",
+    "אטרקציות בתשלום": "Paid attractions",
+    "שטח, מים, סוסים, אוכל וסדנאות": "Off-road adventures, water activities, horse riding, food and workshops",
+    "לאטרקציות": "Explore attractions",
+    "יוצאים מהצימר. נכנסים לישראל היפה.": "Leave your stay behind. Step into Israel’s beautiful outdoors.",
+    "לכל": "View all",
+    "המסלולים": "trails",
+    "סוגי חוויה שמתחילים בבחירה נכונה": "experience types, one clear place to start",
     "יעדי נופש פופולריים": "Popular stay destinations",
     "מקומות לאירועים לפי אזור": "Event venues by region",
     "חדרים לפי שעה לפי אזור": "Hourly stays by region",
@@ -129,6 +143,20 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "These cards are search shortcuts. Availability and final pricing are confirmed after selecting dates and guests.",
   },
   ru: {
+    "ראשי": "Главная",
+    "מסלולי טיול ואטרקציות": "Маршруты и развлечения",
+    "בוחרים איך לבלות את היום": "Выберите, как провести день",
+    "שני אזורים ברורים: מסלול עצמאי בטבע עם מידע מלא, או אטרקציה בתשלום עם התאמת ספק ותהליך הזמנה.": "Выберите самостоятельный маршрут на природе с полной практической информацией или платное развлечение с понятным процессом выбора и бронирования.",
+    "מסלולי טיולים": "Пешеходные маршруты",
+    "48 מסלולים, לפחות שישה בכל אזור ראשי": "48 маршрутов, не менее шести в каждом основном регионе",
+    "למסלולים": "Смотреть маршруты",
+    "אטרקציות בתשלום": "Платные развлечения",
+    "שטח, מים, סוסים, אוכל וסדנאות": "Поездки по бездорожью, водные развлечения, конные прогулки, гастрономия и мастер-классы",
+    "לאטרקציות": "Смотреть развлечения",
+    "יוצאים מהצימר. נכנסים לישראל היפה.": "Оставьте место проживания позади. Откройте для себя красоту Израиля.",
+    "לכל": "Смотреть все",
+    "המסלולים": "маршрутов",
+    "סוגי חוויה שמתחילים בבחירה נכונה": "видов отдыха, с понятным выбором с самого начала",
     "יעדי נופש פופולריים": "Популярные направления",
     "מקומות לאירועים לפי אזור": "Площадки для мероприятий по регионам",
     "חדרים לפי שעה לפי אזור": "Почасовые номера по регионам",
@@ -216,6 +244,20 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "Карточки ведут к поиску. Наличие мест и итоговая цена подтверждаются после выбора дат и состава гостей.",
   },
   fr: {
+    "ראשי": "Accueil",
+    "מסלולי טיול ואטרקציות": "Randonnées et activités",
+    "בוחרים איך לבלות את היום": "Choisissez comment profiter de votre journée",
+    "שני אזורים ברורים: מסלול עצמאי בטבע עם מידע מלא, או אטרקציה בתשלום עם התאמת ספק ותהליך הזמנה.": "Choisissez une randonnée autonome avec toutes les informations pratiques, ou une activité payante avec un prestataire identifié et un parcours de réservation clair.",
+    "מסלולי טיולים": "Randonnées",
+    "48 מסלולים, לפחות שישה בכל אזור ראשי": "48 parcours, avec au moins six itinéraires dans chaque grande région",
+    "למסלולים": "Voir les randonnées",
+    "אטרקציות בתשלום": "Activités payantes",
+    "שטח, מים, סוסים, אוכל וסדנאות": "Tout-terrain, activités nautiques, équitation, gastronomie et ateliers",
+    "לאטרקציות": "Voir les activités",
+    "יוצאים מהצימר. נכנסים לישראל היפה.": "Quittez votre hébergement. Partez à la découverte des plus beaux paysages d’Israël.",
+    "לכל": "Voir les",
+    "המסלולים": "parcours",
+    "סוגי חוויה שמתחילים בבחירה נכונה": "types d’expérience, un point de départ clair",
     "יעדי נופש פופולריים": "Destinations de séjour populaires",
     "מקומות לאירועים לפי אזור": "Lieux événementiels par région",
     "חדרים לפי שעה לפי אזור": "Chambres à l’heure par région",
@@ -600,8 +642,9 @@ const finalUiTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
 };
 
 function initialLanguage(): SiteLanguage {
-  if (typeof window === "undefined") return "he";
-  return languageFromPathname(window.location.pathname);
+  // The server source is Hebrew. Start from the same state during hydration,
+  // then synchronize with the localized route after the first client commit.
+  return "he";
 }
 
 function dictionary(language: SiteLanguage): Record<string, string> {
@@ -613,6 +656,24 @@ function translateDynamic(value: string, language: Exclude<SiteLanguage, "he">) 
     || curatedTranslations[language][source]
     || dictionary(language)[source]
     || source;
+
+  const allTrailsMatch = value.match(/^לכל (\d+) המסלולים$/);
+  if (allTrailsMatch) {
+    return language === "en"
+      ? `View all ${allTrailsMatch[1]} trails`
+      : language === "fr"
+        ? `Voir les ${allTrailsMatch[1]} parcours`
+        : `Смотреть все ${allTrailsMatch[1]} маршрутов`;
+  }
+
+  const experienceTypesMatch = value.match(/^(\d+) סוגי חוויה שמתחילים בבחירה נכונה$/);
+  if (experienceTypesMatch) {
+    return language === "en"
+      ? `${experienceTypesMatch[1]} experience types, one clear place to start`
+      : language === "fr"
+        ? `${experienceTypesMatch[1]} types d’expérience, un point de départ clair`
+        : `${experienceTypesMatch[1]} видов отдыха, с понятным выбором с самого начала`;
+  }
 
   const searchSummaryMatch = value.match(/^שינוי חיפוש\.\s*(.+)$/);
   if (searchSummaryMatch) {
@@ -836,7 +897,7 @@ function applyLanguageToRoot(root: Node, language: SiteLanguage) {
   const translateTextNode = (textNode: Text) => {
     const parent = textNode.parentElement;
     if (!parent || parent.closest("[data-no-translate]") || ["SCRIPT", "STYLE", "NOSCRIPT", "CODE", "PRE"].includes(parent.tagName)) return;
-    if (hebrewPattern.test(textNode.data)) originalText.set(textNode, textNode.data);
+    if (hebrewPattern.test(textNode.data) && !originalText.has(textNode)) originalText.set(textNode, textNode.data);
     const source = originalText.get(textNode);
     if (!source) return;
     const translated = translateValue(source, language);
@@ -861,7 +922,7 @@ function applyLanguageToRoot(root: Node, language: SiteLanguage) {
     const saved = originalAttributes.get(element) || new Map<string, string>();
     translatedAttributes.forEach((attribute) => {
       const current = element.getAttribute(attribute);
-      if (current && hebrewPattern.test(current)) saved.set(attribute, current);
+      if (current && hebrewPattern.test(current) && !saved.has(attribute)) saved.set(attribute, current);
       const source = saved.get(attribute);
       if (source) {
         const translated = translateValue(source, language);
@@ -972,7 +1033,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     return () => { active = false; };
   }, [language]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     applyLanguage(language);
     const translationReady = language === "he" || Boolean(loadedTranslations[language]);
     if (translationReady) document.documentElement.removeAttribute("data-locale-pending");
@@ -997,7 +1058,14 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
       });
     });
     observe();
-    return () => { window.cancelAnimationFrame(frame); observer.current?.disconnect(); };
+    const settleFrame = window.requestAnimationFrame(() => applyLanguageToRoot(document.body, language));
+    const settleTimer = window.setTimeout(() => applyLanguageToRoot(document.body, language), 350);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.cancelAnimationFrame(settleFrame);
+      window.clearTimeout(settleTimer);
+      observer.current?.disconnect();
+    };
   }, [language, translationVersion]);
 
   const value = useMemo(() => ({ language, setLanguage }), [language]);

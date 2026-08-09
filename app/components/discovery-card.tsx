@@ -75,7 +75,7 @@ export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
       {item.rating && <span className="rating-badge">★ {item.rating.toFixed(1)}</span>}
     </Link>
     <FavoriteButton id={item.id} world={item.world} name={item.name} location={`${location}, ${area}`} image={item.image} href={`/discover/place/${item.id}`} meta={price} />
-    <div className="discovery-card__body" data-no-translate={language !== "he" ? true : undefined}>
+    <div className="discovery-card__body">
       <span className="discovery-card__meta"><PinIcon />{location}<small>{area}</small></span>
       <h3><Link href={`/discover/place/${item.id}`}>{item.name}</Link></h3>
       <p>{description}</p>
