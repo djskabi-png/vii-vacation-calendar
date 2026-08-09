@@ -63,7 +63,6 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
         ? { details: "Voir les détails", close: "Fermer la fiche du lieu", results: "Résultats sur la carte", visible: "lieux", list: "Liste des résultats", openCluster: "Ouvrir les lieux regroupés" }
       : { details: "לכל הפרטים", close: "סגירת פרטי המקום", results: "תוצאות על המפה", visible: "מקומות", list: "רשימת תוצאות במפה", openCluster: "פתיחת המקומות המקובצים" };
   const mapElement = useRef<HTMLDivElement>(null);
-  const resultRail = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<import("leaflet").Map | null>(null);
   const markerInstances = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const visibleCountCallback = useRef(onVisibleCountChange);
@@ -95,11 +94,6 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
       marker.getElement()?.classList.toggle("is-active", id === effectiveSelectedId);
     });
   }, [effectiveSelectedId, mapReady]);
-
-  useEffect(() => {
-    if (single || !effectiveSelectedId) return;
-    resultRail.current?.querySelector<HTMLElement>(`[data-map-result-id="${CSS.escape(effectiveSelectedId)}"]`)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
-  }, [effectiveSelectedId, single]);
 
   useEffect(() => {
     if (!enabled || !mapElement.current || places.length === 0) return;
@@ -359,19 +353,6 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
   if (single) return mapCanvas;
 
   return <div className={`map-results-experience map-tone--${tone}`}>
-    <aside className="map-results-rail" aria-label={cardCopy.list}>
-      <header><div><span>{cardCopy.results}</span><strong>{places.length} {cardCopy.visible}</strong></div></header>
-      <div ref={resultRail} className="map-results-scroll">
-        {places.map((place) => <article key={place.id} data-map-result-id={place.id} className={`map-result-card ${place.id === effectiveSelectedId ? "is-selected" : ""}`}>
-          <button type="button" className="map-result-select" aria-pressed={place.id === effectiveSelectedId} onClick={() => selectPlace(place.id)}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={place.image} alt="" />
-            <span><small>{place.category}</small><strong>{place.name}</strong><span>{place.location}</span><b>{place.meta}</b></span>
-          </button>
-          <Link href={place.href}>{cardCopy.details}</Link>
-        </article>)}
-      </div>
-    </aside>
     <div className="map-results-canvas">{mapCanvas}</div>
   </div>;
 }

@@ -5,13 +5,12 @@ import test from "node:test";
 const component = readFileSync(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8");
 const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
 
-test("desktop map combines a synchronized result rail and map canvas", () => {
-  assert.match(component, /<aside className="map-results-rail"/);
-  assert.match(component, /className={`map-result-card \$\{place\.id === effectiveSelectedId \? "is-selected"/);
-  assert.match(component, /onClick=\{\(\) => selectPlace\(place\.id\)\}/);
-  assert.match(component, /data-map-result-id=\{place\.id\}/);
-  assert.match(component, /scrollIntoView\(\{ block: "nearest", behavior: "smooth" \}\)/);
-  assert.match(styles, /\.map-results-experience \{[^}]*display: grid;[^}]*grid-template-areas: "rail map"/);
+test("desktop map uses the full canvas without a narrow result rail", () => {
+  assert.doesNotMatch(component, /map-results-rail|map-results-scroll|map-result-card|data-map-result-id/);
+  assert.doesNotMatch(styles, /\.map-results-rail|\.map-results-scroll|\.map-result-card|\.map-result-select/);
+  assert.match(component, /<div className="map-results-canvas">\{mapCanvas\}<\/div>/);
+  assert.match(styles, /\.map-results-experience \{[^}]*overflow: hidden;[^}]*border-radius: 24px/);
+  assert.match(component, /marker\.on\("click", \(\) => selectPlace\(place\.id\)\)/);
 });
 
 test("useful numeric labels appear on markers while generic places keep icons", () => {
@@ -29,7 +28,6 @@ test("tightly overlapping clusters expand into individually selectable spider ma
   assert.doesNotMatch(component, /distanceTo\(clusterBounds\.getSouthWest\(\)\) < 80\) map\.flyTo/);
 });
 
-test("mobile map remains full screen and hides the desktop result rail", () => {
+test("mobile map remains full screen", () => {
   assert.match(styles, /\.map-results-experience \{ position: fixed; inset: 0;[^}]*border-radius: 0/);
-  assert.match(styles, /\.map-results-rail \{ display: none; \}/);
 });
