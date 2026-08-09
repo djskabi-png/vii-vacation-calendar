@@ -583,11 +583,13 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(articlePage, /reading-progress/);
   assert.match(articlePage, /vii-magazine-checklist/);
   assert.match(homeShowcase, /מומלצים שכדאי להכיר/);
-  assert.match(homeShowcase, /ספונטניים לרגע האחרון/);
+  assert.match(homeShowcase, /כל הדילים במקום אחד/);
+  assert.match(homeShowcase, /דילים ברגע האחרון/);
+  assert.match(homeShowcase, /דילים לתקופות מבוקשות/);
   assert.match(homeShowcase, /כל סיבה טובה הופכת כאן לאירוע/);
   assert.match(homeShowcase, /spaPlaces\.slice/);
   assert.match(homeShowcase, /hourlyPlaces\.slice/);
-  assert.match(homeShowcase, /המחיר והזמינות הסופיים יאומתו/);
+  assert.doesNotMatch(homeShowcase, /המחיר והזמינות הסופיים יאומתו/);
 });
 
 test("keeps every date dialog above the site header with a reachable close action", async () => {
@@ -856,12 +858,12 @@ test("ships the immersive media, review and concierge experiences", async () => 
   assert.match(trailPlace, /subjectType="trail"/);
   assert.match(home, /home-last-minute__tabs/);
   assert.match(home, /href=\{lastMinuteHref\(period\)\}/);
-  assert.match(home, /tracks\.current\["last-minute"\]/);
+  assert.match(home, /tracks\.current\[group\.id\]/);
   assert.match(styles, /\.home-last-minute__cards \{[^}]*direction: rtl/);
-  assert.match(home, /אומדן לתקופה/);
+  assert.doesNotMatch(home, /home-last-minute__selection/);
   assert.match(home, /from=/);
   assert.match(home, /till=/);
-  assert.match(home, /לפרטים ולהמשך הזמנה/);
+  assert.match(home, /דילים לתקופות מבוקשות/);
   assert.equal((data.match(/src: "\/media\/tours\//g) || []).length, 11);
   assert.match(styles, /story-gallery__progress/);
   assert.match(styles, /\.smart-concierge__trigger \{ position: relative; width: 72px/);

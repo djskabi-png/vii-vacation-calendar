@@ -10,7 +10,7 @@ import { eventPlaceHref, eventPlaces, properties } from "../data/site-data";
 import { hourlyPlaces, paidAttractions, providerProfiles, publicWorldNavigation, spaPlaces } from "../data/world-data";
 import { trails } from "../data/trail-data";
 import { TrailCard } from "./trail-card";
-import { CalendarIcon, PinIcon } from "../site-header";
+import { PinIcon } from "../site-header";
 
 function pickProperties(...slugs: string[]) {
   return slugs
@@ -82,16 +82,19 @@ export function HomeShowcase() {
   const tracks = useRef<Record<string, HTMLDivElement | null>>({});
   const worldCards = publicWorldNavigation.filter((world) => !["vacation", "events", "spa", "hourly"].includes(world.id));
   const recommendedPlaces = pickProperties("aqua-resort", "kesem-harimon", "ahuzat-or", "anael-estate", "magic-garden-gefen", "perfumes-villa", "rose-estate");
-  const selectedLastMinutePeriod = lastMinutePeriods[0];
-  const spontaneousPlaces = pickProperties(...selectedLastMinutePeriod.slugs);
-  const lastMinuteSearchHref = lastMinuteHref(selectedLastMinutePeriod);
+  const immediatePeriod = lastMinutePeriods.find((period) => period.group === "immediate")!;
+  const upcomingPeriod = lastMinutePeriods.find((period) => period.group === "upcoming")!;
+  const dealGroups = [
+    { id: "last-minute", title: "דילים ברגע האחרון", period: immediatePeriod, periods: lastMinutePeriods.filter((period) => period.group === "immediate") },
+    { id: "popular-periods", title: "דילים לתקופות מבוקשות", period: upcomingPeriod, periods: lastMinutePeriods.filter((period) => period.group === "upcoming") },
+  ];
   const featuredTours = properties.flatMap((property) => (property.videos || []).map((video) => ({ property, video }))).slice(0, 7);
   const topRatedPlaces = [...spaPlaces].filter((item) => item.rating).sort((first, second) => (second.rating || 0) - (first.rating || 0)).slice(0, 7);
 
   function scroll(id: string, direction: "previous" | "next") {
     const track = tracks.current[id];
     if (!track) return;
-    const firstItem = track.querySelector<HTMLElement>(".home-slider__item");
+    const firstItem = track.querySelector<HTMLElement>(".home-slider__item, .home-last-minute__cards > a");
     const gap = Number.parseFloat(window.getComputedStyle(track).columnGap || window.getComputedStyle(track).gap) || 0;
     const step = firstItem ? firstItem.getBoundingClientRect().width + gap : track.clientWidth;
     track.scrollBy({ left: direction === "next" ? -step : step, behavior: "smooth" });
@@ -106,17 +109,15 @@ export function HomeShowcase() {
 
     <section className="section home-last-minute" aria-labelledby="last-minute-title">
       <div className="shell">
-        <div className="home-last-minute__top"><div className="home-last-minute__intro"><span className="eyebrow">לא צריך לתכנן חודשים מראש</span><h2 id="last-minute-title">ספונטניים לרגע האחרון</h2><p>כל תקופות הדילים מהאתר הישן זמינות כאן גם באתר החדש. כל לשונית מציגה תקופה אחרת ומובילה לחיפוש הייעודי שלה.</p></div><div><Link className="button" href={lastMinuteSearchHref}>{selectedLastMinutePeriod.cta}</Link><Link href="/guides/eilat-slow-weekend">איך בונים סוף שבוע בלי לרוץ</Link></div></div>
-        <div className="home-last-minute__period-picker">
-          <div className="home-last-minute__period-group"><span>זמינות קרובה</span><nav className="home-last-minute__tabs" aria-label="חיפוש לפי תאריך קרוב">{lastMinutePeriods.filter((period) => period.group === "immediate").map((period) => <Link key={period.id} href={lastMinuteHref(period)}>{period.label}</Link>)}</nav></div>
-          <div className="home-last-minute__period-group"><span>תקופות מבוקשות</span><nav className="home-last-minute__tabs" aria-label="חיפוש לפי תקופה מבוקשת">{lastMinutePeriods.filter((period) => period.group === "upcoming").map((period) => <Link key={period.id} href={lastMinuteHref(period)}>{period.label}</Link>)}</nav></div>
-        </div>
-        <div className="home-last-minute__selection" aria-live="polite"><span>התקופה שבחרתם</span><strong>{selectedLastMinutePeriod.label}</strong><b>{selectedLastMinutePeriod.dateSummary}</b><small>זהו אומדן ראשוני. המחיר והזמינות הסופיים יאומתו לפי התאריך והרכב האורחים.</small></div>
-        <div className="home-last-minute__cards" ref={(node) => { tracks.current["last-minute"] = node; }}>{spontaneousPlaces.map((property) => {
-          const price = property.price || lastMinuteStartingPrices[property.slug] || 1200;
-          const detailHref = `/business?id=${property.slug}&period=${encodeURIComponent(selectedLastMinutePeriod.id)}&dates=${encodeURIComponent(selectedLastMinutePeriod.dateSummary)}&from=${selectedLastMinutePeriod.from}&till=${selectedLastMinutePeriod.till}&guests=2&price=${price}`;
-          return <Link key={property.slug} href={detailHref}><img src={property.image} alt={property.name} /><span><strong>{selectedLastMinutePeriod.label}</strong><small>{selectedLastMinutePeriod.dateSummary}</small></span><div><small><PinIcon />{property.location}</small><h3>{property.name}</h3><div className="home-last-minute__deal"><b><CalendarIcon /><span>{selectedLastMinutePeriod.dateSummary}</span></b><strong><small>אומדן לתקופה</small>{price.toLocaleString("he-IL")} ₪</strong></div><em className="home-last-minute__continue">לפרטים ולהמשך הזמנה</em></div></Link>;
-        })}</div>
+        <div className="home-last-minute__intro"><span className="eyebrow">הזמינות הקרובה באתר</span><h2 id="last-minute-title">כל הדילים במקום אחד</h2></div>
+        {dealGroups.map((group) => <section className="home-last-minute__slider" key={group.id} aria-labelledby={`${group.id}-title`}>
+          <div className="home-last-minute__slider-head"><div><h3 id={`${group.id}-title`}>{group.title}</h3><nav className="home-last-minute__tabs" aria-label={group.title}>{group.periods.map((period) => <Link key={period.id} href={lastMinuteHref(period)}>{period.label}</Link>)}</nav></div><div><Link href={lastMinuteHref(group.period)}>{group.period.cta}</Link><SliderControls label={group.title} onPrevious={() => scroll(group.id, "previous")} onNext={() => scroll(group.id, "next")} /></div></div>
+          <div className="home-last-minute__cards" ref={(node) => { tracks.current[group.id] = node; }}>{pickProperties(...group.period.slugs).map((property) => {
+            const price = property.price || lastMinuteStartingPrices[property.slug] || 1200;
+            const detailHref = `/business?id=${property.slug}&period=${encodeURIComponent(group.period.id)}&dates=${encodeURIComponent(group.period.dateSummary)}&from=${group.period.from}&till=${group.period.till}&guests=2&price=${price}`;
+            return <Link key={property.slug} href={detailHref}><img src={property.image} alt={property.name} /><span>{group.period.label}</span><div><small><PinIcon />{property.location}</small><h3>{property.name}</h3><div className="home-last-minute__deal"><b>{group.period.dateSummary}</b><strong>{price.toLocaleString("he-IL")} ₪</strong></div></div></Link>;
+          })}</div>
+        </section>)}
       </div>
     </section>
 

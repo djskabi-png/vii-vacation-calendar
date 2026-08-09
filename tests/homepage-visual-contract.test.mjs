@@ -20,6 +20,7 @@ test("homepage discovery uses complete card compositions", async () => {
 
 test("homepage preserves every legacy deal period with a dedicated live search link", async () => {
   const source = await readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8");
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   for (const label of ["ברגע האחרון", "2 לילות חמישי עד שבת", "2 לילות שישי עד ראשון", "פנוי לחמישי", "פנוי לשישי", "אוגוסט", "ראש השנה", "סוכות", "שמחת תורה", "חג הסיגד"]) {
     assert.match(source, new RegExp(label));
   }
@@ -27,7 +28,11 @@ test("homepage preserves every legacy deal period with a dedicated live search l
   assert.match(source, /<nav className="home-last-minute__tabs"/);
   assert.match(source, /<Link key=\{period\.id\} href=\{lastMinuteHref\(period\)\}>/);
   assert.doesNotMatch(source, /href=\{lastMinuteHref\(period\)\}[^>]*preventDefault/);
-  assert.match(source, /selectedLastMinutePeriod\.cta/);
+  assert.match(source, /דילים ברגע האחרון/);
+  assert.match(source, /דילים לתקופות מבוקשות/);
+  assert.match(source, /dealGroups\.map/);
+  assert.doesNotMatch(source, /home-last-minute__selection/);
+  assert.doesNotMatch(css, /home-last-minute__(?:selection|period-picker|period-group|top)/);
 });
 
 test("homepage commercial cards include visible semantic artwork", async () => {

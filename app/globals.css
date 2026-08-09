@@ -4772,16 +4772,11 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
 .smart-concierge__footer svg { width: 17px; height: 17px; fill: none; stroke: #12a75b; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 
 /* Last-minute tabs */
-.home-last-minute__top { display: flex; align-items: end; justify-content: space-between; gap: 35px; }.home-last-minute__intro { max-width: 760px; }.home-last-minute__top > div:last-child { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 14px; }.home-last-minute__top > div:last-child > a:last-child { color: var(--teal-dark); font-size: .84rem; font-weight: 800; }.home-last-minute__tabs { display: flex; gap: 8px; overflow-x: auto; margin: 30px 0 18px; scrollbar-width: none; }.home-last-minute__tabs a { flex: 0 0 auto; min-height: 44px; display: inline-flex; align-items: center; padding: 0 17px; color: #315f68; border: 1px solid #c6dfe1; border-radius: 999px; background: rgba(255,255,255,.76); font: inherit; font-size: .82rem; font-weight: 800; text-decoration: none; cursor: pointer; }.home-last-minute__tabs a[aria-selected="true"] { color: white; border-color: var(--teal); background: var(--teal); box-shadow: 0 8px 18px rgba(11,139,151,.2); }.home-last-minute__tabs a:focus-visible { outline: 3px solid #0b7f8b; outline-offset: 3px; }.home-last-minute__cards { grid-template-columns: repeat(5,minmax(0,1fr)); overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }.home-last-minute__cards > a { min-width: 230px; min-height: 360px; scroll-snap-align: start; }
-.home-last-minute__period-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 30px 0 14px; }
-.home-last-minute__period-group { min-width: 0; padding: 13px 15px 11px; border: 1px solid #d5e6e7; border-radius: 19px; background: rgba(255,255,255,.82); box-shadow: 0 12px 30px rgba(8,77,88,.06); backdrop-filter: blur(12px); }
-.home-last-minute__period-group > span { display: block; color: var(--ink-soft); font-size: .7rem; font-weight: 800; }
-.home-last-minute__period-group .home-last-minute__tabs { margin: 8px 0 0; padding-bottom: 2px; }
-.home-last-minute__selection { min-height: 47px; display: flex; align-items: center; gap: 10px; margin-bottom: 18px; padding: 9px 14px; border: 1px solid #d8e8e9; border-radius: 15px; background: rgba(255,255,255,.8); }
-.home-last-minute__selection > span { color: var(--ink-soft); font-size: .72rem; }
-.home-last-minute__selection strong { padding: 5px 10px; border-radius: 999px; color: #063946; background: #c9eef0; font-size: .8rem; }
-.home-last-minute__selection > b { color: var(--ink); font-size: .8rem; }
-.home-last-minute__selection small { margin-inline-start: auto; color: var(--ink-soft); font-size: .68rem; }
+.home-last-minute__tabs { display: flex; gap: 8px; overflow-x: auto; margin: 30px 0 18px; scrollbar-width: none; }
+.home-last-minute__tabs a { flex: 0 0 auto; min-height: 44px; display: inline-flex; align-items: center; padding: 0 17px; color: #315f68; border: 1px solid #c6dfe1; border-radius: 999px; background: rgba(255,255,255,.76); font: inherit; font-size: .82rem; font-weight: 800; text-decoration: none; cursor: pointer; }
+.home-last-minute__tabs a:focus-visible { outline: 3px solid #0b7f8b; outline-offset: 3px; }
+.home-last-minute__cards { grid-template-columns: repeat(5,minmax(0,1fr)); overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+.home-last-minute__cards > a { min-width: 230px; min-height: 360px; scroll-snap-align: start; }
 .home-last-minute__cards > a > span { display: grid; gap: 1px; }
 .home-last-minute__cards > a > span strong { font-size: .72rem; }
 .home-last-minute__cards > a > span small { color: #52737a; font-size: .58rem; }
@@ -4791,6 +4786,17 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
 .home-last-minute__deal > strong { display: grid; justify-items: end; color: white; font-size: 1.05rem; }
 .home-last-minute__deal > strong small { color: #a9e8ec; font-size: .58rem; font-weight: 700; }
 .home-last-minute__continue { display: block; margin-top: 12px; color: #a9e8ec; font-size: .72rem; font-style: normal; font-weight: 850; }
+.home-last-minute__intro { max-width: 720px; margin-bottom: 30px; }
+.home-last-minute__intro h2 { margin-bottom: 0; }
+.home-last-minute__slider + .home-last-minute__slider { margin-top: 52px; }
+.home-last-minute__slider-head { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 18px; }
+.home-last-minute__slider-head h3 { margin: 0; font-size: clamp(1.35rem,2.2vw,2rem); }
+.home-last-minute__slider-head > div:last-child { display: flex; align-items: center; gap: 16px; }
+.home-last-minute__slider-head > div:last-child > a { flex: 0 0 auto; color: var(--teal-dark); font-size: .8rem; font-weight: 850; }
+.home-last-minute__slider-head .home-last-minute__tabs { margin: 11px 0 0; }
+.home-last-minute__cards > a > span { display: inline-flex; align-items: center; min-height: 34px; }
+.home-last-minute__deal > b { display: block; color: rgba(255,255,255,.82); }
+.home-last-minute__deal > strong { display: block; color: white; font-size: 1.05rem; }
 .booking-card__illustrative-price { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid #c9e1e4; border-radius: 14px; background: #effafa; }
 .booking-card__illustrative-price small { color: var(--ink-soft); }
 .booking-card__illustrative-price strong { color: var(--teal-dark); font-size: 1.15rem; }
@@ -4801,8 +4807,9 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
 
 @media (max-width: 900px) {
   .story-gallery__workspace { grid-template-columns: 1fr; }.story-gallery__grid { grid-template-columns: repeat(4,1fr); max-height: 230px; }.story-gallery__grid button { min-height: 150px; }
-  .guest-gallery { align-items: flex-start; flex-direction: column; }.guest-gallery__open { width: 100%; }.home-last-minute__top { align-items: flex-start; flex-direction: column; }.home-last-minute__top > div:last-child { justify-content: flex-start; }
-  .home-last-minute__period-picker { grid-template-columns: 1fr; }
+  .guest-gallery { align-items: flex-start; flex-direction: column; }.guest-gallery__open { width: 100%; }
+  .home-last-minute__slider-head { align-items: start; flex-direction: column; }
+  .home-last-minute__slider-head > div:last-child { width: 100%; justify-content: space-between; }
 }
 
 @media (max-width: 560px) {
@@ -4820,10 +4827,14 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
   body:has(.search-popover) .world-dock,
   body:has(.search-popover) .smart-concierge { display: none; }
   .home-last-minute__cards { display: flex; }.home-last-minute__cards > a { flex: 0 0 82vw; min-height: 390px; }
-  .home-last-minute__period-picker { margin-top: 23px; }
-  .home-last-minute__period-group { padding: 11px 12px 9px; }
-  .home-last-minute__selection { align-items: flex-start; flex-wrap: wrap; }
-  .home-last-minute__selection small { width: 100%; margin-inline-start: 0; line-height: 1.45; }
+  .home-last-minute__slider + .home-last-minute__slider { margin-top: 40px; }
+  .home-last-minute__slider-head { gap: 14px; margin-bottom: 14px; }
+  .home-last-minute__slider-head .home-last-minute__tabs { width: calc(100vw - 40px); margin-top: 9px; }
+  .home-last-minute__slider-head > div:last-child > a { font-size: .74rem; }
+  .home-last-minute__cards > a { flex-basis: calc(100vw - 58px); min-height: 330px; }
+  .home-last-minute__cards > a > div { padding: 17px; }
+  .home-last-minute__cards h3 { margin-bottom: 10px; }
+  .home-last-minute__deal { padding-top: 9px; }
 }
 
 @media (max-width: 820px) {
