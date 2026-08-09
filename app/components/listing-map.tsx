@@ -149,9 +149,11 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
       readyTimer = window.setTimeout(showMap, 2200);
 
       const markerLayer = L.layerGroup().addTo(map);
-      const spiderfyCluster = (entries: MapPlace[], center: import("leaflet").LatLng) => {
-        markerLayer.clearLayers();
-        markerRegistry.clear();
+      const spiderfyCluster = (entries: MapPlace[], center: import("leaflet").LatLng, clearExisting = true) => {
+        if (clearExisting) {
+          markerLayer.clearLayers();
+          markerRegistry.clear();
+        }
         const selectionReadyAt = performance.now() + 300;
         const centerPoint = map.latLngToLayerPoint(center);
         const radius = Math.min(92, Math.max(54, 42 + entries.length * 6));
@@ -220,6 +222,10 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
           );
           const place = cluster.entries[0];
           const clustered = cluster.entries.length > 1;
+          if (clustered && map.getZoom() >= 13) {
+            spiderfyCluster(cluster.entries, clusterCenter, false);
+            return;
+          }
           const clusterText = language === "he" ? `${cluster.entries.length} מקומות` : `${cluster.entries.length}`;
           const visibleLabel = clustered ? String(cluster.entries.length) : place.markerLabel;
           // Clusters communicate result count. Numeric labels keep useful values,
@@ -247,7 +253,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
               const clusterDistance = clusterBounds.getNorthEast().distanceTo(clusterBounds.getSouthWest());
               const paddedClusterBounds = clusterBounds.pad(0.65);
               const targetZoom = Math.min(map.getBoundsZoom(paddedClusterBounds, false, L.point(140, 140)), map.getZoom() + 3, 17);
-              if (clusterDistance < 80 || map.getZoom() >= 14 || targetZoom <= map.getZoom()) spiderfyCluster(cluster.entries, clusterCenter);
+              if (clusterDistance < 80 || map.getZoom() >= 13 || targetZoom <= map.getZoom()) spiderfyCluster(cluster.entries, clusterCenter);
               else map.fitBounds(paddedClusterBounds, { maxZoom: targetZoom, padding: [70, 70] });
             });
           } else {

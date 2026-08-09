@@ -85,7 +85,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const requestHeaders = await headers();
   const locale = requestHeaders.get("x-vii-locale") || "he";
   const direction = locale === "he" ? "rtl" : "ltr";
-  const localeBootstrap = `(function(){try{var p=location.pathname.match(/^\\/(en|ru|fr)(?:\\/|$)/);var l=p?p[1]:'he';localStorage.setItem('vii-site-language',l);document.documentElement.lang=l;document.documentElement.dir=l==='he'?'rtl':'ltr';document.documentElement.dataset.locale=l;if(l!=='he')document.documentElement.dataset.localePending='true';}catch(e){}})();`;
+  const localeBootstrap = `(function(){try{var p=location.pathname.match(/^\\/(en|ru|fr)(?:\\/|$)/);var l=p?p[1]:'he';localStorage.setItem('vii-site-language',l);document.documentElement.lang=l;document.documentElement.dir=l==='he'?'rtl':'ltr';document.documentElement.dataset.locale=l;if(l!=='he'){document.documentElement.dataset.localePending='true';document.documentElement.style.visibility='hidden';}}catch(e){document.documentElement.style.visibility='';}})();`;
   return <html lang={locale} dir={direction} suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: localeBootstrap }} /></head><body>
     <StructuredData data={organizationSchema()} />
     <StructuredData data={websiteSchema()} />

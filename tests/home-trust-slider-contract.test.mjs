@@ -31,6 +31,7 @@ test("home ratings use sourced values, clean excerpts and responsive cards", () 
   assert.match(source, />לפרטי המקום</);
   assert.match(styles, /\.home-slider__track--trust \.home-slider__item \{ flex-basis: clamp/);
   assert.match(styles, /\.home-slider__track--ratings \.home-slider__item \{ flex-basis: calc\(\(100% - 60px\) \/ 4\); \}/);
+  assert.match(styles, /@media \(min-width: 561px\) and \(max-width: 1000px\)[\s\S]*\.home-slider__track--ratings \.home-slider__item \{ flex-basis: calc\(\(100% - 20px\) \/ 2\); \}/);
   assert.match(styles, /\.home-rating-card__top > img \{ width: 84px; aspect-ratio: 1;/);
   assert.match(styles, /\.home-slider__track--trust \.home-slider__item \{ flex-basis: calc\(100vw - 48px\); \}/);
 });

@@ -933,6 +933,11 @@ function applyLanguage(language: SiteLanguage) {
   if (originalDocumentTitle) document.title = translateValue(originalDocumentTitle, language);
 }
 
+function revealLocalizedDocument() {
+  document.documentElement.removeAttribute("data-locale-pending");
+  document.documentElement.style.visibility = "";
+}
+
 function applyLanguageToRoot(root: Node, language: SiteLanguage) {
   const translateTextNode = (textNode: Text) => {
     const parent = textNode.parentElement;
@@ -1068,7 +1073,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     void loadTranslations(language).then(() => {
       if (active) setTranslationVersion((version) => version + 1);
     }).catch(() => {
-      document.documentElement.removeAttribute("data-locale-pending");
+      revealLocalizedDocument();
     });
     return () => { active = false; };
   }, [language]);
@@ -1076,7 +1081,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     applyLanguage(language);
     const translationReady = language === "he" || Boolean(loadedTranslations[language]);
-    if (translationReady) document.documentElement.removeAttribute("data-locale-pending");
+    if (translationReady) revealLocalizedDocument();
     observer.current?.disconnect();
     if (language === "he") return;
     let frame = 0;
@@ -1108,11 +1113,14 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     };
   }, [language, translationVersion]);
 
-  const value = useMemo(() => ({
-    language,
-    setLanguage,
-    translate: (source: string) => translateValue(source, language),
-  }), [language, translationVersion]);
+  const value = useMemo(() => {
+    void translationVersion;
+    return {
+      language,
+      setLanguage,
+      translate: (source: string) => translateValue(source, language),
+    };
+  }, [language, translationVersion]);
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;
 }
 

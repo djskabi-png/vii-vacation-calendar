@@ -1,6 +1,54 @@
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
+import enTranslations from "../app/i18n/translations.en.generated.json";
+import ruTranslations from "../app/i18n/translations.ru.generated.json";
+import frTranslations from "../app/i18n/translations.fr.generated.json";
+
+type PublicLocale = "he" | "en" | "ru" | "fr";
+type TranslationDictionary = Record<string, string>;
+
+const serverTranslations: Record<Exclude<PublicLocale, "he">, TranslationDictionary> = {
+  en: enTranslations,
+  ru: ruTranslations,
+  fr: frTranslations,
+};
+
+function translateServerText(value: string, locale: PublicLocale) {
+  if (locale === "he" || !/[\u0590-\u05ff]/.test(value)) return value;
+  const leading = value.match(/^\s*/)?.[0] || "";
+  const trailing = value.match(/\s*$/)?.[0] || "";
+  const core = value.slice(leading.length, value.length - trailing.length);
+  if (!core) return value;
+  return `${leading}${serverTranslations[locale][core] || core}${trailing}`;
+}
+
+function localizeStructuredData(value: unknown, locale: Exclude<PublicLocale, "he">, key?: string): unknown {
+  if (key === "inLanguage") return locale;
+  if (typeof value === "string") return translateServerText(value, locale);
+  if (Array.isArray(value)) return value.map((item) => localizeStructuredData(item, locale));
+  if (value && typeof value === "object") {
+    return Object.fromEntries(Object.entries(value).map(([entryKey, entryValue]) => [entryKey, localizeStructuredData(entryValue, locale, entryKey)]));
+  }
+  return value;
+}
+
+function translateSeoHtml(html: string, locale: PublicLocale) {
+  if (locale === "he") return html;
+  return html
+    .replace(/<title>([^<]*)<\/title>/g, (_match, value: string) => `<title>${translateServerText(value, locale)}</title>`)
+    .replace(/<meta([^>]*?)content="([^"]*)"([^>]*)>/g, (_match, before: string, value: string, after: string) => {
+      const translated = translateServerText(value, locale).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+      return `<meta${before}content="${translated}"${after}>`;
+    })
+    .replace(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g, (match, value: string) => {
+      try {
+        return `<script type="application/ld+json">${JSON.stringify(localizeStructuredData(JSON.parse(value), locale))}</script>`;
+      } catch {
+        return match;
+      }
+    });
+}
 
 interface Env {
   ASSETS: Fetcher;
@@ -54,7 +102,7 @@ const worker = {
     const contentType = response.headers.get("content-type") || "";
     if (!contentType.includes("text/html")) return response;
 
-    const locale = localeMatch?.[1] || "he";
+    const locale = (localeMatch?.[1] || "he") as PublicLocale;
     const makeLocaleLinks = (currentHref: string) => {
       const canonicalUrl = new URL(currentHref || url.pathname, url.origin);
       const basePathname = canonicalUrl.pathname.replace(/^\/(en|ru|fr)(?=\/|$)/, "") || "/";
@@ -78,15 +126,49 @@ const worker = {
     };
 
     if (typeof HTMLRewriter !== "undefined") {
-      return new HTMLRewriter()
+      const rewriter = new HTMLRewriter()
         .on('link[rel="canonical"]', {
           element(element) {
             const links = makeLocaleLinks(element.getAttribute("href") || url.pathname);
             element.setAttribute("href", links.canonical);
             element.after(links.alternates, { html: true });
           },
-        })
-        .transform(response);
+        });
+
+      if (locale !== "he") {
+        let structuredData = "";
+        rewriter
+          .on("title", {
+            text(text) {
+              const translated = translateServerText(text.text, locale);
+              if (translated !== text.text) text.replace(translated);
+            },
+          })
+          .on('meta[content]', {
+            element(element) {
+              const content = element.getAttribute("content");
+              if (!content) return;
+              const translated = translateServerText(content, locale);
+              if (translated !== content) element.setAttribute("content", translated);
+            },
+          })
+          .on('script[type="application/ld+json"]', {
+            text(text) {
+              structuredData += text.text;
+              text.remove();
+              if (!text.lastInTextNode) return;
+              try {
+                text.after(JSON.stringify(localizeStructuredData(JSON.parse(structuredData), locale)), { html: false });
+              } catch {
+                text.after(structuredData, { html: false });
+              } finally {
+                structuredData = "";
+              }
+            },
+          });
+      }
+
+      return rewriter.transform(response);
     }
 
     // The standalone Vinext production server used by local QA does not
@@ -100,7 +182,7 @@ const worker = {
         return `<link rel="canonical" href="${links.canonical}">${links.alternates}`;
       },
     );
-    return new Response(rewritten, response);
+    return new Response(translateSeoHtml(rewritten, locale), response);
   },
 };
 

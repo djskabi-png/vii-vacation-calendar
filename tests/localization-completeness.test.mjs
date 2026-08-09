@@ -42,10 +42,17 @@ test("every static Hebrew source phrase has a non-Hebrew translation in every pu
   }
 });
 
-test("localized routes hydrate from the Hebrew server source before applying their language", async () => {
+test("localized routes translate the server response and retain safe hydration", async () => {
   const provider = await readFile(resolve(root, "app/i18n/locale-provider.tsx"), "utf8");
   const card = await readFile(resolve(root, "app/components/discovery-card.tsx"), "utf8");
+  const worker = await readFile(resolve(root, "worker/index.ts"), "utf8");
   assert.match(provider, /function initialLanguage\(\): SiteLanguage \{[\s\S]*return "he";/);
+  assert.match(worker, /serverTranslations/);
+  assert.match(worker, /translateServerText/);
+  assert.match(worker, /script\[type="application\/ld\+json"\]/);
+  assert.match(worker, /translateSeoHtml\(rewritten, locale\)/);
+  assert.doesNotMatch(worker, /body \*:not\(script\):not\(style\):not\(noscript\)/);
+  assert.match(provider, /function revealLocalizedDocument\(\)/);
   assert.doesNotMatch(provider, /useLayoutEffect/);
   assert.match(provider, /!originalText\.has\(textNode\)/);
   assert.match(provider, /!saved\.has\(attribute\)/);

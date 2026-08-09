@@ -295,7 +295,7 @@ test("spa, hourly, event and attraction worlds expose interactive maps", async (
   ]);
   assert.match(mapSource, /scrollWheelZoom: true/);
   assert.match(mapSource, /touchZoom: true/);
-  assert.match(mapSource, /basemaps\.cartocdn\.com\/light_all/);
+  assert.match(mapSource, /basemaps\.cartocdn\.com\/rastertiles\/voyager/);
   assert.match(mapSource, /openstreetmap\.org\/copyright/);
   assert.match(mapSource, /מפה בעברית/);
   assert.match(mapSource, /map\.getBounds\(\)\.pad/);
@@ -336,7 +336,7 @@ test("map markers use the rich synchronized place card instead of legacy text to
   assert.doesNotMatch(source, /title: entry\.name|title: clustered \?/);
   assert.match(source, /marker\.on\("click", \(\) => selectPlace/);
   assert.match(source, /const initialSelectedId = single \?/);
-  assert.match(source, /basemaps\.cartocdn\.com\/light_all/);
+  assert.match(source, /basemaps\.cartocdn\.com\/rastertiles\/voyager/);
   assert.match(source, /aria-live="polite"/);
   assert.match(source, /map-selection-card__media/);
   assert.match(source, /map-selection-card__body/);
