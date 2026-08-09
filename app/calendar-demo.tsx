@@ -241,6 +241,7 @@ export function CalendarDemo({
   businessName = "קסם הרימון",
   open,
   onClose,
+  onCancel,
   onConfirm,
 }: {
   mode: CalendarMode;
@@ -248,8 +249,10 @@ export function CalendarDemo({
   businessName?: string;
   open: boolean;
   onClose: () => void;
+  onCancel?: () => void;
   onConfirm: (result: CalendarResult) => void;
 }) {
+  const cancel = onCancel ?? onClose;
   const [checkIn, setCheckIn] = useState<string | null>(null);
   const [checkOut, setCheckOut] = useState<string | null>(null);
   const [monthOffset, setMonthOffset] = useState(0);
@@ -270,14 +273,14 @@ export function CalendarDemo({
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") cancel();
     }
     window.addEventListener("keydown", onKeyDown);
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [open, onClose]);
+  }, [cancel, open]);
 
   if (!open) return null;
 
@@ -333,9 +336,9 @@ export function CalendarDemo({
   }
 
   return createPortal(
-    <div className="calendar-overlay" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+    <div className="calendar-overlay" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && cancel()}>
       <section className={`calendar-dialog mode-${mode}`} role="dialog" aria-modal="true" aria-labelledby="calendar-dialog-title">
-        <button type="button" className="dialog-close calendar-dialog-close" onClick={onClose} aria-label="סגירת חלון התאריכים">
+        <button type="button" className="dialog-close calendar-dialog-close" onClick={cancel} aria-label="סגירת חלון התאריכים">
           <CloseIcon />
         </button>
         <header className="calendar-dialog-header">

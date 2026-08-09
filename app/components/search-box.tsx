@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { CalendarDemo } from "../calendar-demo";
 import { EventDatePicker } from "./event-date-picker";
@@ -95,6 +95,15 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
   const [mobileExpanded, setMobileExpanded] = useState(false);
   const [mobileStep, setMobileStep] = useState<"location" | "dates" | "guests">("location");
 
+  const closeMobileSearch = useCallback(() => {
+    setCalendarOpen(false);
+    setLocationOpen(false);
+    setGuestOpen(false);
+    setPriceOpen(false);
+    setMobileExpanded(false);
+    setMobileStep("location");
+  }, []);
+
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setLocationValue(searchParams.get("location") || initialLocation || "כל הארץ");
@@ -122,7 +131,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
     if (!mobileExpanded) return;
     const previousOverflow = document.body.style.overflow;
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMobileExpanded(false);
+      if (event.key === "Escape") closeMobileSearch();
     };
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", closeOnEscape);
@@ -130,7 +139,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", closeOnEscape);
     };
-  }, [mobileExpanded]);
+  }, [closeMobileSearch, mobileExpanded]);
 
   function search() {
     if (isSearching) return;
@@ -229,10 +238,10 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
           <span className="search-mobile-summary__copy"><strong>{locationValue}</strong><small>{!isHourly && <><span>{dates}</span><span aria-hidden="true"> · </span><span>{peopleValue}</span></>}</small></span>
           <span className="search-mobile-summary__action"><SearchIcon /><b>שינוי חיפוש</b></span>
         </button>}
-        {mobileExpanded && <button type="button" className="search-mobile-backdrop" onClick={() => setMobileExpanded(false)} aria-label="סגירת החיפוש" />}
+        {mobileExpanded && <button type="button" className="search-mobile-backdrop" onClick={closeMobileSearch} aria-label="סגירת החיפוש" />}
         {(locationOpen || guestOpen || priceOpen) && <button type="button" className="search-option-backdrop" onClick={() => { setLocationOpen(false); setGuestOpen(false); setPriceOpen(false); }} aria-label="סגירת אפשרויות החיפוש" />}
         <div className={`search-box ${shouldCollapse ? "compact" : ""} ${isHourly ? "search-box--hourly" : ""} mobile-step-${mobileStep}`} role="search" aria-label={mode === "events" ? "חיפוש מקום לאירוע" : mode === "spa" ? "חיפוש מתחם ספא" : isHourly ? "חיפוש חדרים לפי שעה" : "חיפוש חופשה"}>
-        {mobileExpanded && <div className="search-mobile-sheet-head"><strong>בונים את החופשה</strong><button type="button" onClick={() => setMobileExpanded(false)} aria-label="סגירת החיפוש">×</button></div>}
+        {mobileExpanded && <div className="search-mobile-sheet-head"><strong>בונים את החופשה</strong><button type="button" onClick={closeMobileSearch} aria-label="סגירת החיפוש">×</button></div>}
         <div className={`search-field-wrap search-step search-step--location ${mobileStep === "location" ? "active" : ""}`}>
           <button type="button" className="search-field" aria-expanded={locationOpen} onClick={() => { setMobileStep("location"); expandMobileSearch(); setLocationOpen((value) => !value); setGuestOpen(false); setPriceOpen(false); }}><PinIcon /><span><small>{mode === "events" ? "אזור או מקום" : isHourly ? "עיר או אזור" : "לאן נוסעים"}</small><strong>{locationValue}</strong></span></button>
           {locationOpen && <div className="search-popover location-list"><label className="location-list__search"><span>חיפוש יעד</span><input value={locationQuery} onChange={(event) => setLocationQuery(event.target.value)} placeholder="הקלידו עיר או אזור" autoFocus /></label><div>{visiblePlaces.map((place) => <button type="button" key={place} className={place === locationValue ? "selected" : ""} onClick={() => { setLocationValue(place); setLocationOpen(false); setLocationQuery(""); if (!isHourly && window.matchMedia("(max-width: 820px)").matches) { setMobileStep("dates"); setCalendarOpen(true); } }}>{place}</button>)}</div>{visiblePlaces.length === 0 ? <p>לא מצאנו יעד מתאים.</p> : null}</div>}
@@ -267,7 +276,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
         </div>
         <span className="search-status" role="status" aria-live="polite">{isSearching ? "מחפשים" : ""}</span>
       </div>
-      {mode === "events" ? <EventDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onConfirm={(result) => { setDates(result.summary); setEventDateRange({ from: result.from, to: result.to }); setMobileStep("guests"); setGuestOpen(true); }} /> : mode === "spa" ? <SpaDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onConfirm={(result) => { setDates(result.summary); setSpaDate({ date: result.date, withoutDate: result.withoutDate }); setMobileStep("guests"); setGuestOpen(true); }} /> : !isHourly && <CalendarDemo mode="home" open={calendarOpen} onClose={() => setCalendarOpen(false)} onConfirm={(result) => { setDates(result.summary); setMobileStep("guests"); setGuestOpen(true); }} />}
+      {mode === "events" ? <EventDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={closeMobileSearch} onConfirm={(result) => { setDates(result.summary); setEventDateRange({ from: result.from, to: result.to }); setMobileStep("guests"); setGuestOpen(true); }} /> : mode === "spa" ? <SpaDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={closeMobileSearch} onConfirm={(result) => { setDates(result.summary); setSpaDate({ date: result.date, withoutDate: result.withoutDate }); setMobileStep("guests"); setGuestOpen(true); }} /> : !isHourly && <CalendarDemo mode="home" open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={closeMobileSearch} onConfirm={(result) => { setDates(result.summary); setMobileStep("guests"); setGuestOpen(true); }} />}
     </>
   );
 }

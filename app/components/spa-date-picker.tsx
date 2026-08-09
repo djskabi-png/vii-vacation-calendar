@@ -50,12 +50,15 @@ function daysInMonth(month: Date) {
 export function SpaDatePicker({
   open,
   onClose,
+  onCancel,
   onConfirm,
 }: {
   open: boolean;
   onClose: () => void;
+  onCancel?: () => void;
   onConfirm: (result: SpaDateResult) => void;
 }) {
+  const cancel = onCancel ?? onClose;
   const today = useMemo(() => startOfDay(new Date()), []);
   const firstMonth = useMemo(() => startOfMonth(today), [today]);
   const [withoutDate, setWithoutDate] = useState(false);
@@ -77,14 +80,14 @@ export function SpaDatePicker({
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     function closeWithEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") cancel();
     }
     window.addEventListener("keydown", closeWithEscape);
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", closeWithEscape);
     };
-  }, [open, onClose]);
+  }, [cancel, open]);
 
   if (!open) return null;
 
@@ -99,7 +102,7 @@ export function SpaDatePicker({
   }
 
   return createPortal(
-    <div className="calendar-overlay spa-date-overlay" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+    <div className="calendar-overlay spa-date-overlay" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && cancel()}>
       <section className="spa-date-dialog" role="dialog" aria-modal="true" aria-labelledby="spa-date-title">
         <header className="spa-date-dialog__header">
           <div>
@@ -107,7 +110,7 @@ export function SpaDatePicker({
             <h2 id="spa-date-title">מתי תרצו להגיע?</h2>
             <p>בוחרים יום אחד, או ממשיכים בלי תאריך ומחליטים בהמשך.</p>
           </div>
-          <button type="button" className="dialog-close" aria-label="סגירת בחירת תאריך לספא" onClick={onClose}>×</button>
+          <button type="button" className="dialog-close" aria-label="סגירת בחירת תאריך לספא" onClick={cancel}>×</button>
         </header>
 
         <div className="spa-date-choice" role="tablist" aria-label="בחירת מועד לספא">
