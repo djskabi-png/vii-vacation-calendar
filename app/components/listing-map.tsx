@@ -56,12 +56,12 @@ function markerIcon(tone: MapTone) {
 function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false, autoLoad = false, onClose, onVisibleCountChange }: PlacesMapProps) {
   const { language } = useSiteLanguage();
   const cardCopy = language === "en"
-    ? { details: "View details", close: "Close place details", results: "Results on the map", visible: "places", list: "Result list" }
+    ? { details: "View details", close: "Close place details", results: "Results on the map", visible: "places", list: "Result list", openCluster: "Open grouped places" }
     : language === "ru"
-      ? { details: "Подробнее", close: "Закрыть карточку места", results: "Результаты на карте", visible: "мест", list: "Список результатов" }
+      ? { details: "Подробнее", close: "Закрыть карточку места", results: "Результаты на карте", visible: "мест", list: "Список результатов", openCluster: "Открыть сгруппированные места" }
       : language === "fr"
-        ? { details: "Voir les détails", close: "Fermer la fiche du lieu", results: "Résultats sur la carte", visible: "lieux", list: "Liste des résultats" }
-      : { details: "לכל הפרטים", close: "סגירת פרטי המקום", results: "תוצאות על המפה", visible: "מקומות", list: "רשימת תוצאות במפה" };
+        ? { details: "Voir les détails", close: "Fermer la fiche du lieu", results: "Résultats sur la carte", visible: "lieux", list: "Liste des résultats", openCluster: "Ouvrir les lieux regroupés" }
+      : { details: "לכל הפרטים", close: "סגירת פרטי המקום", results: "תוצאות על המפה", visible: "מקומות", list: "רשימת תוצאות במפה", openCluster: "פתיחת המקומות המקובצים" };
   const mapElement = useRef<HTMLDivElement>(null);
   const resultRail = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<import("leaflet").Map | null>(null);
@@ -160,6 +160,47 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
       readyTimer = window.setTimeout(showMap, 2200);
 
       const markerLayer = L.layerGroup().addTo(map);
+      const spiderfyCluster = (entries: MapPlace[], center: import("leaflet").LatLng) => {
+        markerLayer.clearLayers();
+        markerRegistry.clear();
+        const centerPoint = map.latLngToLayerPoint(center);
+        const radius = Math.min(92, Math.max(54, 42 + entries.length * 6));
+
+        entries.forEach((entry, index) => {
+          const angle = -Math.PI / 2 + (Math.PI * 2 * index) / entries.length;
+          const spiderPoint = centerPoint.add(L.point(Math.cos(angle) * radius, Math.sin(angle) * radius));
+          const spiderPosition = map.layerPointToLatLng(spiderPoint);
+          const useTextLabel = /\d/.test(entry.markerLabel);
+          const markerContent = useTextLabel
+            ? `<span class="vii-map-marker__label">${safeMarkerLabel(entry.markerLabel)}</span>`
+            : `<span class="vii-map-marker__icon">${markerIcon(tone)}</span>`;
+
+          L.polyline([center, spiderPosition], {
+            color: tone === "spa" ? "#a33a82" : "#087e8b",
+            weight: 2,
+            opacity: 0.72,
+            interactive: false,
+          }).addTo(markerLayer);
+
+          const spiderMarker = L.marker(spiderPosition, {
+            keyboard: true,
+            title: entry.name,
+            alt: entry.name,
+            zIndexOffset: 900 + index,
+            icon: L.divIcon({
+              className: `vii-map-marker-wrap map-tone--${tone}${useTextLabel ? " is-text" : " is-icon"}${entry.id === selectedIdRef.current ? " is-active" : ""}`,
+              html: `<span class="vii-map-marker">${markerContent}</span>`,
+              iconSize: useTextLabel ? [112, 54] : [54, 58],
+              iconAnchor: useTextLabel ? [56, 51] : [27, 54],
+            }),
+          }).addTo(markerLayer);
+          spiderMarker.on("click", () => selectPlace(entry.id));
+          spiderMarker.on("mouseover", () => setSelectedId(entry.id));
+          spiderMarker.on("focus", () => setSelectedId(entry.id));
+          markerRegistry.set(entry.id, spiderMarker);
+        });
+      };
+
       const renderMarkers = () => {
         markerLayer.clearLayers();
         markerRegistry.clear();
@@ -209,10 +250,14 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
           }).addTo(markerLayer);
 
           if (clustered) {
+            marker.getElement()?.setAttribute("aria-label", `${clusterText}, ${cardCopy.openCluster}`);
             marker.on("click", () => {
               const clusterBounds = L.latLngBounds(cluster.entries.map((entry) => [entry.lat, entry.lng] as [number, number]));
-              if (clusterBounds.getNorthEast().distanceTo(clusterBounds.getSouthWest()) < 80) map.flyTo(clusterCenter, Math.min(map.getZoom() + 2, 16), { duration: 0.4 });
-              else map.fitBounds(clusterBounds.pad(0.65), { maxZoom: Math.min(map.getZoom() + 3, 15), padding: [70, 70] });
+              const clusterDistance = clusterBounds.getNorthEast().distanceTo(clusterBounds.getSouthWest());
+              const paddedClusterBounds = clusterBounds.pad(0.65);
+              const targetZoom = Math.min(map.getBoundsZoom(paddedClusterBounds, false, L.point(140, 140)), map.getZoom() + 3, 17);
+              if (clusterDistance < 80 || map.getZoom() >= 14 || targetZoom <= map.getZoom()) spiderfyCluster(cluster.entries, clusterCenter);
+              else map.fitBounds(paddedClusterBounds, { maxZoom: targetZoom, padding: [70, 70] });
             });
           } else {
             marker.on("click", () => selectPlace(place.id));
@@ -264,7 +309,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
       mapInstance.current?.remove();
       mapInstance.current = null;
     };
-  }, [enabled, places, selectPlace, single, tone, language, focusKey, initialPlaceIds]);
+  }, [enabled, places, selectPlace, single, tone, language, focusKey, initialPlaceIds, cardCopy.openCluster]);
 
   if (!preview) return null;
 
