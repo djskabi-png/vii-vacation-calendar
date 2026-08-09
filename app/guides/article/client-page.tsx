@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import { PageShell } from "../../components/page-shell";
 import { getMagazineArticle, magazineArticles } from "../../data/magazine-data";
 import { HeartIcon } from "../../site-header";
+import { BreadcrumbTrail } from "../../components/breadcrumb-trail";
 
 export function MagazineArticleView({ initialSlug = magazineArticles[0].slug, readQuery = true }: { initialSlug?: string; readQuery?: boolean }) {
   const [slug, setSlug] = useState(initialSlug);
@@ -86,7 +87,7 @@ export function MagazineArticleView({ initialSlug = magazineArticles[0].slug, re
       <strong>{Math.round(progress)}%</strong>
     </div>
     <main id="main-content" className="magazine-article">
-      <nav className="shell magazine-article__crumbs" aria-label="פירורי לחם"><Link href="/">ראשי</Link><span>/</span><Link href="/guides">מגזין ומדריכים</Link><span>/</span><span aria-current="page">{article.title}</span></nav>
+      <BreadcrumbTrail className="magazine-article__crumbs" items={[{ name: "ראשי", path: "/" }, { name: "מגזין ומדריכים", path: "/guides" }, { name: article.title }]} />
       <header className="shell magazine-article__hero">
         <div className="magazine-article__headline"><span className="eyebrow">{article.category}</span><h1>{article.title}</h1><p>{article.excerpt}</p><div className="magazine-article__meta"><span>מאת מערכת מגזין וי</span><span>{article.dateLabel}</span><span>{article.readTime} דקות קריאה</span></div><div className="magazine-article__actions"><button type="button" aria-pressed={saved} onClick={toggleSaved}><HeartIcon filled={saved} />{saved ? "נשמר לקריאה" : "שמירה לקריאה"}</button><button type="button" onClick={() => void share()}>שיתוף</button>{shareStatus && <span role="status">{shareStatus}</span>}</div></div>
         <figure><img src={article.image} alt={article.imageAlt} /><figcaption>תמונה מעמוד מקום מאומת באתר וי, להמחשת נושא הכתבה.</figcaption></figure>

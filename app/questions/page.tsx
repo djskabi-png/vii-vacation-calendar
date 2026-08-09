@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PageShell } from "../components/page-shell";
 import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, faqSchema } from "../lib/seo";
+import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 
 export const metadata: Metadata = {
   title: "שאלות ותשובות על נופש, אירועים, ספא וטיולים",
@@ -64,7 +65,7 @@ export default function QuestionsPage() {
         { name: "ראשי", path: "/" },
         { name: "שאלות ותשובות", path: "/questions/" },
       ])} />
-      <nav className="shell breadcrumbs" aria-label="פירורי לחם"><Link href="/">ראשי</Link><span>/</span><span aria-current="page">שאלות ותשובות</span></nav>
+      <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "מידע ושירות", path: "/guides" }, { name: "שאלות ותשובות" }]} />
       <header className="shell questions-hero">
         <span className="eyebrow">תשובות לפני שמחליטים</span>
         <h1>כל מה שרוצים לדעת לפני חופשה, אירוע או יום פינוק</h1>

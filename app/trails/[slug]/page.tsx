@@ -7,6 +7,7 @@ import { StructuredData } from "../../components/structured-data";
 import { breadcrumbSchema, trailSchema } from "../../lib/seo";
 import { FavoriteButton } from "../../components/favorite-button";
 import { GuestReviewStudio } from "../../components/guest-review-studio";
+import { BreadcrumbTrail } from "../../components/breadcrumb-trail";
 
 export function generateStaticParams() {
   return trails.map((trail) => ({ slug: trail.slug }));
@@ -38,7 +39,7 @@ export default async function TrailPage({ params }: { params: Promise<{ slug: st
         { name: "מסלולי טיול", path: "/trails/" },
         { name: trail.name, path: `/trails/${trail.slug}/` },
       ])} />
-      <nav className="shell breadcrumbs" aria-label="פירורי לחם"><Link href="/">ראשי</Link><span>/</span><Link href="/activities">מה עושים בחופשה</Link><span>/</span><Link href="/trails">מסלולי טיול</Link><span>/</span><span aria-current="page">{trail.name}</span></nav>
+      <BreadcrumbTrail items={[{ name: "ראשי", path: "/" }, { name: "מה עושים בחופשה", path: "/activities" }, { name: "מסלולי טיול", path: "/trails" }, { name: trail.name }]} />
       <section className="shell trail-detail__hero"><div><span className="eyebrow">מדריך המסלול של וי פור ויקיישן</span><h1>{trail.name}</h1><p>{trail.summary}</p><div className="trail-detail__quick"><span>{trail.region}</span><span>{trail.difficulty}</span><span>{trail.duration}</span><span>{trail.distance}</span></div><FavoriteButton id={trail.slug} world="trails" name={trail.name} location={`${trail.mainArea}, ${trail.region}`} href={`/trails/${trail.slug}`} meta={`${trail.duration} · ${trail.difficulty}`} compact={false} /></div><TrailVisual trail={trail} /></section>
 
       <div className="shell trail-detail__layout">

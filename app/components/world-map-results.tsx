@@ -55,7 +55,7 @@ function SpaResults({ items }: { items: DiscoveryItem[] }) {
   const [spaAudience, setSpaAudience] = useState<SpaAudienceId | "">(
     requestedAudience && requestedAudience in spaAudiences ? requestedAudience as SpaAudienceId : "",
   );
-  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [selectedFilters, setSelectedFilters] = useState<string[]>(() => (searchParams.get("features") || "").split(",").filter((id) => spaFilters.some((filter) => filter.id === id)));
   const [mapOpen, setMapOpen] = useState(false);
   const [visibleMapCount, setVisibleMapCount] = useState(0);
 
@@ -79,14 +79,28 @@ function SpaResults({ items }: { items: DiscoveryItem[] }) {
     location === "כל הארץ" || item.area === location || item.location === location
   )), [amenityFiltered, location]);
 
+  function updateUrl(updates: Record<string, string>) {
+    const params = new URLSearchParams(window.location.search);
+    Object.entries(updates).forEach(([key, value]) => value && value !== "כל הארץ" ? params.set(key, value) : params.delete(key));
+    window.history.replaceState(null, "", `${window.location.pathname}${params.size ? `?${params}` : ""}`);
+  }
+
+  function changeLocation(value: string) { setLocation(value); updateUrl({ location: value }); }
+  function changeAudience(value: SpaAudienceId | "") { setSpaAudience(value); updateUrl({ spaFor: value }); }
+
   function toggleFilter(id: string) {
-    setSelectedFilters((current) => current.includes(id) ? current.filter((filter) => filter !== id) : [...current, id]);
+    setSelectedFilters((current) => {
+      const next = current.includes(id) ? current.filter((filter) => filter !== id) : [...current, id];
+      updateUrl({ features: next.join(",") });
+      return next;
+    });
   }
 
   function resetFilters() {
     setLocation("כל הארץ");
     setSpaAudience("");
     setSelectedFilters([]);
+    updateUrl({ location: "", spaFor: "", features: "" });
   }
 
   const hasFilters = location !== "כל הארץ" || spaAudience !== "" || selectedFilters.length > 0;
@@ -101,11 +115,11 @@ function SpaResults({ items }: { items: DiscoveryItem[] }) {
         {filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={() => setMapOpen((value) => !value)}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
       </div>
       <div className="spa-results__filters">
-        <div className="spa-results__location-card"><span className="spa-results__location-icon"><MapIcon /></span><ModernSelect className="spa-results__location" label="איפה תרצו להתפנק?" value={location} onChange={setLocation} options={locations.map((option) => ({ value: option, label: option }))} /></div>
+        <div className="spa-results__location-card"><span className="spa-results__location-icon"><MapIcon /></span><ModernSelect className="spa-results__location" label="איפה תרצו להתפנק?" value={location} onChange={changeLocation} options={locations.map((option) => ({ value: option, label: option }))} /></div>
         <fieldset><legend>מה תרצו שיהיה במקום?</legend><div>{spaFilters.map((filter) => <label key={filter.id} className={selectedFilters.includes(filter.id) ? "selected" : ""}><input type="checkbox" checked={selectedFilters.includes(filter.id)} onChange={() => toggleFilter(filter.id)} /><span className="spa-results__filter-icon"><SpaFilterIcon id={filter.id} /></span><span className="spa-results__filter-label">{filter.label}</span><span className="spa-results__filter-check" aria-hidden="true">✓</span></label>)}</div><small className="spa-results__swipe-hint">החליקו לעוד אפשרויות</small></fieldset>
         <button type="button" className="spa-results__reset" onClick={resetFilters} disabled={!hasFilters}>ניקוי סינונים</button>
       </div>
-      {hasFilters && <div className="spa-results__active" aria-label="סינונים פעילים"><span>סינונים פעילים:</span>{location !== "כל הארץ" && <button type="button" onClick={() => setLocation("כל הארץ")}>{location} ×</button>}{spaAudience && <button type="button" onClick={() => setSpaAudience("")}>{spaAudiences[spaAudience].label} ×</button>}{selectedFilters.map((id) => { const filter = spaFilters.find((entry) => entry.id === id); return filter ? <button type="button" key={id} onClick={() => toggleFilter(id)}>{filter.label} ×</button> : null; })}</div>}
+      {hasFilters && <div className="spa-results__active" aria-label="סינונים פעילים"><span>סינונים פעילים:</span>{location !== "כל הארץ" && <button type="button" onClick={() => changeLocation("כל הארץ")}>{location} ×</button>}{spaAudience && <button type="button" onClick={() => changeAudience("")}>{spaAudiences[spaAudience].label} ×</button>}{selectedFilters.map((id) => { const filter = spaFilters.find((entry) => entry.id === id); return filter ? <button type="button" key={id} onClick={() => toggleFilter(id)}>{filter.label} ×</button> : null; })}</div>}
     </div>
     {filtered.length > 0 ? mapOpen ? <DiscoveryMap items={amenityFiltered} initialItems={filtered} tone="spa" autoLoad onClose={() => setMapOpen(false)} onVisibleCountChange={setVisibleMapCount} /> : <div className="discovery-grid">{filtered.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div> : <div className="spa-results__empty"><strong>לא נמצאו מתחמים שמתאימים לכל הסינונים</strong><p>אפשר להסיר מאפיין אחד או לבחור אזור רחב יותר.</p><button type="button" className="button secondary" onClick={resetFilters}>הצגת כל מתחמי הספא</button></div>}
   </div>;

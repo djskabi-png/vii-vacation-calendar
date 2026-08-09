@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { DiscoveryCard } from "../components/discovery-card";
 import { DiscoveryMap } from "../components/listing-map";
 import { ModernSelect } from "../components/modern-select";
@@ -11,9 +12,12 @@ const areas = ["הכל", "צפון", "כנרת", "מרכז ותל אביב", "י
 const types = ["הכל", "שטח ואדרנלין", "טבע ורכיבה", "ים ושיט", "מים ומשפחה", "נחלים ומים", "אוכל ותרבות", "מדבר ושטח", "יצירה וקבוצות"];
 
 export function AttractionsExplorer() {
-  const [query, setQuery] = useState("");
-  const [area, setArea] = useState("הכל");
-  const [type, setType] = useState("הכל");
+  const searchParams = useSearchParams();
+  const requestedArea = searchParams.get("area") || "הכל";
+  const requestedType = searchParams.get("type") || "הכל";
+  const [query, setQuery] = useState(searchParams.get("q") || "");
+  const [area, setArea] = useState(areas.includes(requestedArea) ? requestedArea : "הכל");
+  const [type, setType] = useState(types.includes(requestedType) ? requestedType : "הכל");
   const [mapOpen, setMapOpen] = useState(false);
 
   const filtered = useMemo(() => paidAttractions.filter((item) => {
@@ -22,17 +26,28 @@ export function AttractionsExplorer() {
     return areaMatch && (type === "הכל" || item.area === type) && (!query.trim() || searchable.includes(query.trim()));
   }), [area, query, type]);
 
+  function updateUrl(updates: Record<string, string>) {
+    const params = new URLSearchParams(window.location.search);
+    Object.entries(updates).forEach(([key, value]) => value && value !== "הכל" ? params.set(key, value) : params.delete(key));
+    window.history.replaceState(null, "", `${window.location.pathname}${params.size ? `?${params}` : ""}`);
+  }
+
+  function changeQuery(value: string) { setQuery(value); updateUrl({ q: value.trim() }); }
+  function changeArea(value: string) { setArea(value); updateUrl({ area: value }); }
+  function changeType(value: string) { setType(value); updateUrl({ type: value }); }
+
   function resetFilters() {
     setQuery("");
     setArea("הכל");
     setType("הכל");
+    updateUrl({ q: "", area: "", type: "" });
   }
 
   return <>
     <form className="trail-filters attraction-filters" onSubmit={(event) => event.preventDefault()} aria-label="סינון אטרקציות בתשלום">
-      <label><span>מה מתחשק לעשות?</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="לדוגמה: סוסים, שיט, סדנה" /></label>
-      <ModernSelect label="אזור" value={area} onChange={setArea} options={areas.map((item) => ({ value: item, label: item }))} />
-      <ModernSelect label="סוג חוויה" value={type} onChange={setType} options={types.map((item) => ({ value: item, label: item }))} />
+      <label><span>מה מתחשק לעשות?</span><input value={query} onChange={(event) => changeQuery(event.target.value)} placeholder="לדוגמה: סוסים, שיט, סדנה" /></label>
+      <ModernSelect label="אזור" value={area} onChange={changeArea} options={areas.map((item) => ({ value: item, label: item }))} />
+      <ModernSelect label="סוג חוויה" value={type} onChange={changeType} options={types.map((item) => ({ value: item, label: item }))} />
     </form>
     <div className="trail-results-head attraction-results-head">
       <div><strong>{filtered.length === 1 ? "חוויה אחת מתאימה" : `${filtered.length} חוויות מתאימות`}</strong><span>הספק, הזמינות והמחיר מוצגים רק לאחר אימות.</span></div>

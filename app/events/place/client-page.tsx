@@ -14,6 +14,7 @@ import { MasuExperience } from "../../components/masu-experience";
 import { CalendarIcon, PinIcon } from "../../site-header";
 import { GalleryExperience } from "../../components/gallery-experience";
 import { GuestReviewStudio } from "../../components/guest-review-studio";
+import { BreadcrumbTrail } from "../../components/breadcrumb-trail";
 import { DetailStickyDock, type DetailSectionLink } from "../../components/detail-sticky-dock";
 import { ModernSelect } from "../../components/modern-select";
 import { FavoriteButton } from "../../components/favorite-button";
@@ -83,7 +84,7 @@ export default function EventPlacePage({ initialSlug }: { initialSlug: string })
   return (
     <PageShell variant="events">
       <main id="main-content" className="event-place-page">
-        <nav className="shell breadcrumbs" aria-label="פירורי לחם"><Link href="/">ראשי</Link><span>/</span><Link href="/events">אירועים</Link><span>/</span><Link href="/events/search">מקומות לאירועים</Link><span>/</span><span aria-current="page">{place.name}</span></nav>
+        <BreadcrumbTrail items={[{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, { name: "מקומות לאירועים", path: "/events/search" }, { name: place.name }]} />
         <section className="shell property-title event-title"><div><span className="eyebrow">{place.type}</span><h1>{place.name}</h1><p><PinIcon />{place.location}, {place.area}</p></div><div className="property-title__side"><div className="property-title__actions"><FavoriteButton compact={false} id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים`} /><button type="button" onClick={() => void share()}>שיתוף</button></div><a className="button primary" href="#event-booking">הזמנה אונליין</a></div></section>
         <section className="shell property-gallery">{place.images.map((image, index) => <button key={image} type="button" onClick={() => { setGalleryStart(index); setGalleryOpen(true); }} aria-label={`פתיחת תמונה ${index + 1} של ${place.name}`}><img src={image} alt={`${place.name}, תמונה ${index + 1}`} />{index === 4 && <span>לגלריה המלאה</span>}</button>)}</section>
 

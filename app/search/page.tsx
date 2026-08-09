@@ -8,6 +8,7 @@ import { ModernSelect } from "../components/modern-select";
 import { PageShell } from "../components/page-shell";
 import { PropertyCard } from "../components/property-card";
 import { SearchBox } from "../components/search-box";
+import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 import { properties } from "../data/site-data";
 import { getPlaceAccessibility } from "../data/accessibility-data";
 import { CloseIcon, MapIcon, PinIcon } from "../site-header";
@@ -154,6 +155,25 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     updateSearchContext({ type: nextType === "הכל" ? null : nextType }, nextType, area);
   }
 
+  function changeBinaryFilter(key: "pool" | "spa" | "whole" | "accessible", nextValue: boolean) {
+    if (key === "pool") setPool(nextValue);
+    if (key === "spa") setSpa(nextValue);
+    if (key === "whole") setWhole(nextValue);
+    if (key === "accessible") setAccessibleOnly(nextValue);
+    updateSearchContext({ [key]: nextValue ? "1" : null });
+  }
+
+  function toggleExtraFilter(id: string) {
+    const nextExtras = selectedExtras.includes(id) ? selectedExtras.filter((item) => item !== id) : [...selectedExtras, id];
+    setSelectedExtras(nextExtras);
+    updateSearchContext({ features: nextExtras.length ? nextExtras.join(",") : null });
+  }
+
+  function changeSort(nextSort: string) {
+    setSort(nextSort);
+    updateSearchContext({ sort: nextSort === "recommended" ? null : nextSort });
+  }
+
   useEffect(() => {
     const timer = window.setTimeout(() => {
       const params = new URLSearchParams(window.location.search);
@@ -177,6 +197,9 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       setPool(params.get("pool") === "1");
       setSpa(params.get("spa") === "1");
       setWhole(params.get("whole") === "1");
+      setAccessibleOnly(params.get("accessible") === "1");
+      setSelectedExtras((params.get("features") || "").split(",").filter((id) => legacyExtraFilters.some((item) => item.id === id)));
+      setSort(["capacity", "units", "name"].includes(params.get("sort") || "") ? params.get("sort") || "recommended" : "recommended");
     }, 0);
     return () => window.clearTimeout(timer);
   }, [landing, language, router]);
@@ -214,19 +237,31 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     area !== "הכל" ? { id: "area", label: area, remove: () => changeArea("הכל") } : null,
     type !== "הכל" ? { id: "type", label: type, remove: () => changeType("הכל") } : null,
     guests > 2 ? { id: "guests", label: `${guests} אורחים ומעלה`, remove: () => changeGuests(2) } : null,
-    pool ? { id: "pool", label: "בריכה", remove: () => setPool(false) } : null,
-    spa ? { id: "spa", label: "ספא וג'קוזי", remove: () => setSpa(false) } : null,
-    whole ? { id: "whole", label: "מקום שלם", remove: () => setWhole(false) } : null,
-    accessibleOnly ? { id: "accessible", label: "נגישות מלאה ומאומתת", remove: () => setAccessibleOnly(false) } : null,
+    pool ? { id: "pool", label: "בריכה", remove: () => changeBinaryFilter("pool", false) } : null,
+    spa ? { id: "spa", label: "ספא וג'קוזי", remove: () => changeBinaryFilter("spa", false) } : null,
+    whole ? { id: "whole", label: "מקום שלם", remove: () => changeBinaryFilter("whole", false) } : null,
+    accessibleOnly ? { id: "accessible", label: "נגישות מלאה ומאומתת", remove: () => changeBinaryFilter("accessible", false) } : null,
     ...selectedExtras.map((id) => {
       const option = legacyExtraFilters.find((item) => item.id === id);
-      return option ? { id: `extra-${id}`, label: option.label, remove: () => setSelectedExtras((current) => current.filter((item) => item !== id)) } : null;
+      return option ? { id: `extra-${id}`, label: option.label, remove: () => toggleExtraFilter(id) } : null;
     }),
   ].filter((filter): filter is { id: string; label: string; remove: () => void } => Boolean(filter));
 
   const landingResultSummary = landing
     ? `${filtered.length === 1 ? landing.resultNounOne || landing.resultNoun || "מקום אחד" : `${filtered.length} ${landing.resultNoun || "מקומות"}`} ${landing.area ? `ב${landing.area}` : "בישראל"}`
     : null;
+
+  const breadcrumbFilterLabels = [
+    area !== "הכל" ? area : null,
+    type !== "הכל" ? type : null,
+    guests > 2 ? `${guests} אורחים ומעלה` : null,
+    ...selectedExtras.map((id) => legacyExtraFilters.find((item) => item.id === id)?.label || null),
+  ].filter((item): item is string => Boolean(item));
+  const breadcrumbItems = [
+    { name: "ראשי", path: "/" },
+    { name: "נופש", path: breadcrumbFilterLabels.length || landing ? "/search" : undefined },
+    ...(breadcrumbFilterLabels.length || landing ? [{ name: landing?.breadcrumb || breadcrumbFilterLabels.join(" · ") || "תוצאות חיפוש" }] : []),
+  ];
 
   function resetFilters() {
     setArea("הכל");
@@ -237,14 +272,14 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     setWhole(false);
     setAccessibleOnly(false);
     setSelectedExtras([]);
-    updateSearchContext({ location: "כל הארץ", guests: null, type: null }, "הכל", "הכל");
+    updateSearchContext({ location: "כל הארץ", guests: null, type: null, pool: null, spa: null, whole: null, accessible: null, features: null, sort: null }, "הכל", "הכל");
   }
 
   return (
     <PageShell footerTopic={footerTopicForPropertyType(type)}>
       <main id="main-content" className="results-page">
         <div className="results-search shell"><SearchBox compact initialLocation={area === "הכל" ? "כל הארץ" : area} initialGuests={guests} basePath={landing?.path} vacationType={type === "הכל" ? undefined : type} /></div>
-        <nav className="shell breadcrumbs" aria-label="פירורי לחם"><Link href="/">ראשי</Link><span>/</span><Link href="/search">נופש</Link>{(landing || area !== "הכל") && <><span>/</span><span aria-current="page">{landing?.breadcrumb || `נופש ב${area}`}</span></>}</nav>
+        <BreadcrumbTrail items={breadcrumbItems} />
         <div className={`shell results-layout ${mapOpen ? "with-map" : ""}`}>
           <aside className={`filter-panel ${filtersOpen ? "open" : ""} ${mapOpen ? "map-mode" : ""}`} aria-label="סינון תוצאות">
             <div className="filter-head"><h2>סינון תוצאות</h2><button type="button" onClick={() => setFiltersOpen(false)} aria-label="סגירה"><CloseIcon /></button></div>
@@ -256,7 +291,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
             {filterSection === "types" ? <fieldset className="vacation-type-options"><legend>סוגי אירוח</legend>{legacyAccommodationTypes.map((item) => <label key={item.label}><input type="radio" name="vacation-accommodation-type" checked={type === item.label} onChange={() => changeType(item.label)} /> {item.label}</label>)}</fieldset> : <div className="vacation-more-filters">
               <ModernSelect className={`map-area-select ${mapOpen ? "active" : ""}`} label="אזור" value={area} onChange={changeArea} options={areas.map((item) => ({ value: item, label: item === "הכל" ? "כל הארץ" : item }))} />
               <fieldset><legend>כמות אורחים מינימלית</legend><input type="range" min="1" max="30" value={guests} aria-label="כמות אורחים מינימלית" onChange={(event) => changeGuests(Number(event.target.value))} /><div className="range-value">לפחות {guests} אורחים</div></fieldset>
-              <div className="vacation-extra-groups">{legacyExtraFilterGroups.map((group) => <fieldset key={group.title}><legend>{group.title}</legend>{group.options.map((item) => <label key={item.id}><input type="checkbox" checked={selectedExtras.includes(item.id)} onChange={() => setSelectedExtras((current) => current.includes(item.id) ? current.filter((id) => id !== item.id) : [...current, item.id])} /> {item.label}</label>)}</fieldset>)}</div>
+              <div className="vacation-extra-groups">{legacyExtraFilterGroups.map((group) => <fieldset key={group.title}><legend>{group.title}</legend>{group.options.map((item) => <label key={item.id}><input type="checkbox" checked={selectedExtras.includes(item.id)} onChange={() => toggleExtraFilter(item.id)} /> {item.label}</label>)}</fieldset>)}</div>
             </div>}
             <button type="button" className="button primary filter-apply" onClick={() => setFiltersOpen(false)}>{`הצגת ${filtered.length} מקומות`}</button>
             <button type="button" className="button subtle wide" onClick={resetFilters}>ניקוי סינונים</button>
@@ -267,7 +302,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
               <div><h1>{landing?.title || (area === "הכל" ? "נופש ברחבי הארץ" : `נופש ב${area}`)}</h1><p>{landingResultSummary || (mapOpen ? `${visibleMapCount} מקומות באזור המוצג במפה` : area === "הכל" ? `נמצאו ${filtered.length} מקומות` : `נמצאו ${filtered.length} מקומות ב${area}`)}</p></div>
             </section>
             {activeFilters.length > 0 && <div className="active-filter-row"><span>סינונים פעילים:</span>{activeFilters.map((filter) => <button key={filter.id} type="button" onClick={filter.remove} aria-label={`הסרת הסינון ${filter.label}`}>{filter.label} ×</button>)}<button type="button" className="clear-all" onClick={resetFilters}>ניקוי הכל</button></div>}
-            <div className="results-toolbar"><div className="results-toolbar__actions"><button type="button" className={`button mobile-filter ${activeFilters.length ? "has-filters" : ""}`} aria-expanded={filtersOpen} onClick={(event) => { event.preventDefault(); event.stopPropagation(); setFiltersOpen(true); }}><span className="mobile-filter__icon" aria-hidden="true"><i /><i /><i /></span><span>סינון</span>{activeFilters.length ? <b aria-label={`${activeFilters.length} סינונים פעילים`}>{activeFilters.length}</b> : null}</button>{filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (!mapOpen) setVisibleMapCount(filtered.length); setMapOpen(!mapOpen); }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect compact label="מיון לפי" value={sort} onChange={setSort} options={[{ value: "recommended", label: "מומלצים" }, { value: "capacity", label: "קיבולת גבוהה" }, { value: "units", label: "מספר יחידות" }, { value: "name", label: "שם המקום" }]} /></div>
+            <div className="results-toolbar"><div className="results-toolbar__actions"><button type="button" className={`button mobile-filter ${activeFilters.length ? "has-filters" : ""}`} aria-expanded={filtersOpen} onClick={(event) => { event.preventDefault(); event.stopPropagation(); setFiltersOpen(true); }}><span className="mobile-filter__icon" aria-hidden="true"><i /><i /><i /></span><span>סינון</span>{activeFilters.length ? <b aria-label={`${activeFilters.length} סינונים פעילים`}>{activeFilters.length}</b> : null}</button>{filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (!mapOpen) setVisibleMapCount(filtered.length); setMapOpen(!mapOpen); }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect compact label="מיון לפי" value={sort} onChange={changeSort} options={[{ value: "recommended", label: "מומלצים" }, { value: "capacity", label: "קיבולת גבוהה" }, { value: "units", label: "מספר יחידות" }, { value: "name", label: "שם המקום" }]} /></div>
             {!mapOpen && <div className="result-cards">{filtered.map((property) => <PropertyCard key={property.slug} property={property} />)}</div>}
             {mapOpen && <ListingMap listings={mapCandidates} initialListings={filtered} autoLoad onClose={() => setMapOpen(false)} onVisibleCountChange={setVisibleMapCount} />}
             {filtered.length === 0 && <div className="empty-state"><h2>לא נמצאה התאמה מדויקת</h2><p>אפשר לשנות אזור, להפחית את כמות האורחים או להסיר מאפיין.</p><button className="button primary" type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
