@@ -6276,6 +6276,26 @@ body:has(.menu-layer) .mobile-map-fab {
 html[data-locale-pending="true"] body { opacity: 0; }
 html body { transition: opacity .12s ease; }
 
+/* Locale direction contract. Hebrew is the only RTL interface. */
+html[data-locale="en"] body,
+html[data-locale="ru"] body,
+html[data-locale="fr"] body {
+  direction: ltr;
+  text-align: start;
+}
+
+html[data-locale="en"] body *:not([dir="rtl"]):not(.leaflet-container):not(.leaflet-container *),
+html[data-locale="ru"] body *:not([dir="rtl"]):not(.leaflet-container):not(.leaflet-container *),
+html[data-locale="fr"] body *:not([dir="rtl"]):not(.leaflet-container):not(.leaflet-container *) {
+  direction: ltr;
+}
+
+html[data-locale="en"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, legend, summary, input, textarea, select, button, a),
+html[data-locale="ru"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, legend, summary, input, textarea, select, button, a),
+html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, legend, summary, input, textarea, select, button, a) {
+  text-align: start;
+}
+
 /* Indexable accommodation landing pages */
 .accommodation-landing-copy {
   display: grid;
