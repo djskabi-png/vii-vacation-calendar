@@ -43,6 +43,66 @@ const legacyAccommodationTypes = [
   { label: "אוהלים אינדיאנים", matches: ["אוהל אינדיאני", "אוהלים אינדיאנים"] },
 ] as const;
 
+const legacyExtraFilterGroups = [
+  { title: "כללי", options: [
+    { id: "accessible", label: "נגישות לנכים", matches: ["נגיש"] },
+    { id: "pets", label: "מקבלים בעלי חיים", matches: ["בעלי חיים", "חיות מחמד"] },
+    { id: "business-license", label: "רישיון עסק", matches: ["רישיון עסק"] },
+    { id: "free-parking", label: "חניה חינם", matches: ["חניה חינם"] },
+    { id: "private-units", label: "יחידות", matches: ["יחידות"] },
+    { id: "isolated", label: "מבודדת", matches: ["מבודד", "מבודדת"] },
+    { id: "religious-complex", label: "מתחמים שומרי שבת", matches: ["שומרי שבת"] },
+  ] },
+  { title: "מתחם חיצוני", options: [
+    { id: "pool", label: "בריכה", matches: ["בריכה"] },
+    { id: "covered-heated-pool", label: "בריכת שחייה מחוממת ומקורה", matches: ["בריכה מחוממת ומקורה"] },
+    { id: "children-pool", label: "בריכת ילדים", matches: ["בריכת ילדים"] },
+    { id: "sauna", label: "סאונה", matches: ["סאונה"] },
+    { id: "spa", label: "ספא", matches: ["ספא"] },
+    { id: "private-pool", label: "בריכת שחייה פרטית", matches: ["בריכה פרטית"] },
+    { id: "current-pool", label: "בריכת זרמים", matches: ["בריכת זרמים"] },
+    { id: "jacuzzi", label: "ג׳קוזי", matches: ["ג׳קוזי", "ג'קוזי"] },
+    { id: "outdoor-sound", label: "מערכת הגברה", matches: ["מערכת הגברה"] },
+    { id: "heated-pool", label: "בריכת שחייה מחוממת", matches: ["בריכה מחוממת"] },
+    { id: "fenced-pool", label: "בריכת שחייה מגודרת", matches: ["בריכה מגודרת"] },
+    { id: "covered-hot-tub", label: "ג׳קוזי ספא מחומם ומקורה", matches: ["ג׳קוזי ספא מחומם ומקורה", "ג'קוזי ספא מחומם ומקורה"] },
+    { id: "barbecue", label: "פינת מנגל", matches: ["מנגל", "ברביקיו"] },
+    { id: "steam-sauna", label: "סאונה רטובה", matches: ["סאונה רטובה"] },
+  ] },
+  { title: "מתחם פנימי", options: [
+    { id: "equipped-kitchen", label: "מטבח מאובזר", matches: ["מטבח מאובזר"] },
+    { id: "wifi", label: "אינטרנט אלחוטי", matches: ["אינטרנט אלחוטי", "WiFi", "WIFI"] },
+    { id: "fireplace", label: "קמין עצים", matches: ["קמין עצים", "קמין"] },
+    { id: "projector", label: "מקרן", matches: ["מקרן"] },
+    { id: "indoor-jacuzzi", label: "ג׳קוזי", matches: ["ג׳קוזי", "ג'קוזי"] },
+    { id: "karaoke", label: "עמדת קריוקי", matches: ["קריוקי"] },
+    { id: "indoor-sound", label: "מערכת הגברה", matches: ["מערכת הגברה"] },
+    { id: "indoor-spa", label: "ג׳קוזי ספא", matches: ["ג׳קוזי ספא", "ג'קוזי ספא"] },
+    { id: "games-room", label: "חדר משחקים", matches: ["חדר משחקים"] },
+  ] },
+  { title: "קהלי יעד", options: [
+    { id: "events", label: "מתאים לאירועים", matches: ["אירועים"] },
+    { id: "fun-days", label: "ימי כיף", matches: ["ימי כיף"] },
+    { id: "parties", label: "מסיבות", matches: ["מסיבות"] },
+    { id: "bachelorette", label: "מסיבות רווקות", matches: ["מסיבת רווקות", "מסיבות רווקות"] },
+    { id: "youth", label: "בני נוער", matches: ["בני נוער"] },
+    { id: "groom-shabbat", label: "שבתות חתן", matches: ["שבת חתן", "שבתות חתן"] },
+    { id: "families", label: "משפחות", matches: ["משפחות", "משפחה"] },
+    { id: "team-building", label: "ערבי גיבוש", matches: ["ערבי גיבוש", "יום גיבוש"] },
+    { id: "couples-only", label: "סוויטה לזוגות בלבד", matches: ["זוגות בלבד"] },
+    { id: "proposals", label: "הצעות נישואין", matches: ["הצעת נישואין", "הצעות נישואין"] },
+    { id: "mitzvah", label: "בר או בת מצווה", matches: ["בר מצווה", "בת מצווה"] },
+    { id: "groups", label: "קבוצות", matches: ["קבוצות", "קבוצה"] },
+    { id: "couples", label: "זוגות", matches: ["זוגות", "זוג"] },
+    { id: "birthdays", label: "ימי הולדת", matches: ["יום הולדת", "ימי הולדת"] },
+    { id: "bachelor", label: "מסיבת רווקים", matches: ["מסיבת רווקים"] },
+    { id: "religious", label: "ציבור דתי", matches: ["ציבור דתי", "שומרי שבת"] },
+    { id: "weddings", label: "חתונות", matches: ["חתונה", "חתונות"] },
+  ] },
+] as const;
+
+const legacyExtraFilters = legacyExtraFilterGroups.flatMap((group) => group.options);
+
 export function SearchExperience({ landing }: { landing?: SearchLandingContext }) {
   const router = useRouter();
   const { language } = useSiteLanguage();
@@ -57,6 +117,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const [spa, setSpa] = useState(false);
   const [whole, setWhole] = useState(false);
   const [accessibleOnly, setAccessibleOnly] = useState(false);
+  const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
   const [visibleMapCount, setVisibleMapCount] = useState(0);
 
   function updateSearchContext(updates: Record<string, string | null>, nextType = type, nextArea = area) {
@@ -129,8 +190,14 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       const matchesSpa = !spa || property.features.some((feature) => feature.includes("ג'קוזי") || feature.includes("ספא") || feature.includes("סאונה"));
       const matchesWhole = !whole || property.scenario === "single";
       const matchesAccessibility = !accessibleOnly || getPlaceAccessibility(property.slug).status === "accessible";
-      return matchesType && matchesGuests && matchesPool && matchesSpa && matchesWhole && matchesAccessibility;
-    }), [accessibleOnly, guests, landing, pool, spa, type, whole]);
+      const searchableFacts = [property.description, property.type, property.location, property.area, ...property.features].join(" ").toLocaleLowerCase("he");
+      const matchesExtras = selectedExtras.every((id) => {
+        if (id === "accessible") return getPlaceAccessibility(property.slug).status === "accessible";
+        const option = legacyExtraFilters.find((item) => item.id === id);
+        return option ? option.matches.some((term) => searchableFacts.includes(term.toLocaleLowerCase("he"))) : false;
+      });
+      return matchesType && matchesGuests && matchesPool && matchesSpa && matchesWhole && matchesAccessibility && matchesExtras;
+    }), [accessibleOnly, guests, landing, pool, selectedExtras, spa, type, whole]);
 
   const filtered = useMemo(() => {
     const useLandingSet = Boolean(landing?.listingSlugs?.length && (landing.area ? area === landing.area : area === "הכל"));
@@ -151,6 +218,10 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     spa ? { id: "spa", label: "ספא וג'קוזי", remove: () => setSpa(false) } : null,
     whole ? { id: "whole", label: "מקום שלם", remove: () => setWhole(false) } : null,
     accessibleOnly ? { id: "accessible", label: "נגישות מלאה ומאומתת", remove: () => setAccessibleOnly(false) } : null,
+    ...selectedExtras.map((id) => {
+      const option = legacyExtraFilters.find((item) => item.id === id);
+      return option ? { id: `extra-${id}`, label: option.label, remove: () => setSelectedExtras((current) => current.filter((item) => item !== id)) } : null;
+    }),
   ].filter((filter): filter is { id: string; label: string; remove: () => void } => Boolean(filter));
 
   const landingResultSummary = landing
@@ -165,6 +236,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     setSpa(false);
     setWhole(false);
     setAccessibleOnly(false);
+    setSelectedExtras([]);
     updateSearchContext({ location: "כל הארץ", guests: null, type: null }, "הכל", "הכל");
   }
 
@@ -184,12 +256,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
             {filterSection === "types" ? <fieldset className="vacation-type-options"><legend>סוגי אירוח</legend>{legacyAccommodationTypes.map((item) => <label key={item.label}><input type="radio" name="vacation-accommodation-type" checked={type === item.label} onChange={() => changeType(item.label)} /> {item.label}</label>)}</fieldset> : <div className="vacation-more-filters">
               <ModernSelect className={`map-area-select ${mapOpen ? "active" : ""}`} label="אזור" value={area} onChange={changeArea} options={areas.map((item) => ({ value: item, label: item === "הכל" ? "כל הארץ" : item }))} />
               <fieldset><legend>כמות אורחים מינימלית</legend><input type="range" min="1" max="30" value={guests} aria-label="כמות אורחים מינימלית" onChange={(event) => changeGuests(Number(event.target.value))} /><div className="range-value">לפחות {guests} אורחים</div></fieldset>
-              <fieldset><legend>מאפיינים</legend>
-                <label><input type="checkbox" checked={pool} onChange={(event) => setPool(event.target.checked)} /> בריכה</label>
-                <label><input type="checkbox" checked={spa} onChange={(event) => setSpa(event.target.checked)} /> ספא, ג׳קוזי או סאונה</label>
-                <label><input type="checkbox" checked={whole} onChange={(event) => setWhole(event.target.checked)} /> מקום אירוח שלם</label>
-                <label><input type="checkbox" checked={accessibleOnly} onChange={(event) => setAccessibleOnly(event.target.checked)} /> נגישות מלאה ומאומתת</label>
-              </fieldset>
+              <div className="vacation-extra-groups">{legacyExtraFilterGroups.map((group) => <fieldset key={group.title}><legend>{group.title}</legend>{group.options.map((item) => <label key={item.id}><input type="checkbox" checked={selectedExtras.includes(item.id)} onChange={() => setSelectedExtras((current) => current.includes(item.id) ? current.filter((id) => id !== item.id) : [...current, item.id])} /> {item.label}</label>)}</fieldset>)}</div>
             </div>}
             <button type="button" className="button primary filter-apply" onClick={() => setFiltersOpen(false)}>{`הצגת ${filtered.length} מקומות`}</button>
             <button type="button" className="button subtle wide" onClick={resetFilters}>ניקוי סינונים</button>

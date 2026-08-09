@@ -3165,8 +3165,13 @@ h3 { font-size: 1.18rem; }
 .filter-panel .vacation-type-options legend { grid-column: 1 / -1; }
 .filter-panel .vacation-type-options label { min-height: 40px; }
 .vacation-more-filters { display: grid; }
+.vacation-extra-groups { display: grid; gap: 2px; }
+.filter-panel .vacation-extra-groups fieldset { grid-template-columns: repeat(2,minmax(0,1fr)); column-gap: 12px; }
+.filter-panel .vacation-extra-groups legend { grid-column: 1 / -1; }
+.filter-panel .vacation-extra-groups label { min-height: 40px; font-size: .82rem; }
 @media (max-width: 760px) {
   .filter-panel .vacation-type-options { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .filter-panel .vacation-extra-groups fieldset { grid-template-columns: repeat(2,minmax(0,1fr)); }
 }
 .range-labels { display: flex; justify-content: space-between; font-size: .72rem; color: var(--ink-soft); }
 .filter-apply { display: none; }
