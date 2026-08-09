@@ -1144,9 +1144,9 @@ test("all public sorting and filtering controls use the branded modern selector"
 test("mobile result filtering and sorting share one compact row", async () => {
   const styles = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(styles, /Mobile result controls stay on one clear row/);
-  assert.match(styles, /\.results-toolbar\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*minmax\(104px,\.8fr\)\s+minmax\(174px,1\.2fr\)/s);
+  assert.match(styles, /\.results-toolbar\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*minmax\(90px,\.7fr\)\s+minmax\(150px,1\.3fr\)/s);
+  assert.match(styles, /\.results-toolbar__actions \.mobile-filter\s*\{[^}]*min-height:\s*44px;[^}]*background:\s*#fff;[^}]*box-shadow:\s*none;/s);
   assert.match(styles, /\.results-toolbar__actions\s*\{[^}]*width:\s*auto;[^}]*min-width:\s*0;/s);
-  assert.match(styles, /\.results-toolbar__actions \.mobile-filter\s*\{[^}]*min-height:\s*52px;/s);
   assert.match(styles, /\.results-toolbar > \.modern-select\s*\{[^}]*grid-template-columns:\s*1fr/s);
 });
 

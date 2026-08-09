@@ -20,13 +20,27 @@ test("all rendered breadcrumbs use the shared accessible component", () => {
 
 test("vacation and event filters serialize and restore their complete state", () => {
   const vacation = read("app/search/page.tsx");
+  const vacationUrl = read("app/lib/vacation-search-url.ts");
   ["accessible", "features", "sort"].forEach((key) => assert.match(vacation, new RegExp(`\\.get\\(\"${key}\"\\)`)));
   assert.match(vacation, /toggleExtraFilter/);
   assert.match(vacation, /changeSort/);
+  assert.match(vacation, /useSearchParams/);
+  assert.match(vacation, /params\.get\("adults"\)/);
+  assert.match(vacationUrl, /params\.set\("location", nextArea\)/);
+  assert.match(vacationUrl, /params\.set\("type", nextType\)/);
+  assert.match(vacationUrl, /return query \? `\$\{path\}\?\$\{query\}` : path/);
 
   const events = read("app/events/search/page.tsx");
   ["type", "eventType", "noise", "accessible", "sort"].forEach((key) => assert.match(events, new RegExp(`params\\.get\\(\"${key}\"\\)`)));
   assert.match(events, /function changeFilter/);
+});
+
+test("provider filters serialize, restore and reset their complete state", () => {
+  const providers = read("app/components/provider-results.tsx");
+  ["q", "region", "category"].forEach((key) => assert.match(providers, new RegExp(`searchParams\\.get\\(\"${key}\"\\)`)));
+  assert.match(providers, /new URLSearchParams\(window\.location\.search\)/);
+  assert.match(providers, /window\.history\.replaceState/);
+  assert.match(providers, /function resetFilters/);
 });
 
 test("attractions, trails, spa and hourly filters have shareable URL state", () => {

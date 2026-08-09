@@ -50,6 +50,12 @@ function SpaResults({ items, activeSpaFilter }: { items: DiscoveryItem[]; active
   const [selectedFilters, setSelectedFilters] = useState<string[]>(() => (searchParams.get("features") || "").split(",").filter((id) => spaFilters.some((filter) => filter.id === id)));
   const [mapOpen, setMapOpen] = useState(false);
   const [visibleMapCount, setVisibleMapCount] = useState(0);
+  const spaLandingContext = useMemo(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("features");
+    const query = params.toString();
+    return (filterId: string) => `${spaLandingHref(spaFilters.find((filter) => filter.id === filterId)!)}${query ? `?${query}` : ""}`;
+  }, [searchParams]);
 
   const locations = useMemo(
     () => ["כל הארץ", ...Array.from(new Set(items.flatMap((item) => [item.area, item.location])))],
@@ -108,7 +114,7 @@ function SpaResults({ items, activeSpaFilter }: { items: DiscoveryItem[]; active
       </div>
       <div className="spa-results__filters">
         <div className="spa-results__location-card"><span className="spa-results__location-icon"><MapIcon /></span><ModernSelect className="spa-results__location" label="איפה תרצו להתפנק?" value={location} onChange={changeLocation} options={locations.map((option) => ({ value: option, label: option }))} /></div>
-        <nav className="spa-results__landing-links" aria-label="עמודי ספא לפי מאפיין"><strong>מה תרצו שיהיה במקום?</strong><div>{spaFilters.map((filter) => <Link key={filter.id} href={spaLandingHref(filter)} aria-current={activeSpaFilter === filter.id ? "page" : undefined} className={activeSpaFilter === filter.id ? "selected" : ""}><span className="spa-results__filter-icon"><SpaFilterIcon id={filter.id} /></span><span className="spa-results__filter-label">{filter.label}</span></Link>)}</div><small className="spa-results__swipe-hint">החליקו לעוד אפשרויות</small></nav>
+        <nav className="spa-results__landing-links" aria-label="עמודי ספא לפי מאפיין"><strong>מה תרצו שיהיה במקום?</strong><div>{spaFilters.map((filter) => <Link key={filter.id} href={spaLandingContext(filter.id)} aria-current={activeSpaFilter === filter.id ? "page" : undefined} className={activeSpaFilter === filter.id ? "selected" : ""}><span className="spa-results__filter-icon"><SpaFilterIcon id={filter.id} /></span><span className="spa-results__filter-label">{filter.label}</span></Link>)}</div><small className="spa-results__swipe-hint">החליקו לעוד אפשרויות</small></nav>
         <button type="button" className="spa-results__reset" onClick={resetFilters} disabled={!hasFilters}>ניקוי סינונים</button>
       </div>
       {hasFilters && <div className="spa-results__active" aria-label="סינונים פעילים"><span>סינונים פעילים:</span>{location !== "כל הארץ" && <button type="button" onClick={() => changeLocation("כל הארץ")}>{location} ×</button>}{spaAudience && <button type="button" onClick={() => changeAudience("")}>{spaAudiences[spaAudience].label} ×</button>}{selectedFilters.map((id) => { const filter = spaFilters.find((entry) => entry.id === id); return filter ? <button type="button" key={id} onClick={() => toggleFilter(id)}>{filter.label} ×</button> : null; })}</div>}

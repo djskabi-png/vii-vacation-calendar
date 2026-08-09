@@ -111,7 +111,7 @@ function accommodationRegionForArea(area: string) {
 }
 
 export function cleanAccommodationPath(type: string, area: string) {
-  const category = accommodationCategories.find((item) => item.propertyTypes.includes(type));
+  const category = accommodationCategories.find((item) => item.propertyTypes.includes(type) || item.title === type || item.singular === type);
   if (!category) return null;
   if (area === "הכל" || area === "כל הארץ") return category.path;
   const region = accommodationRegionForArea(area);

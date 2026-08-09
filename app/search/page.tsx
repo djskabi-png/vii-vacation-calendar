@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ListingMap } from "../components/listing-map";
 import { ModernSelect } from "../components/modern-select";
 import { PageShell } from "../components/page-shell";
@@ -18,6 +18,7 @@ import { footerTopicForPropertyType } from "../data/footer-context";
 import { cleanAccommodationPath } from "../data/accommodation-landings";
 import { matchesSearchLocation, searchLocationOptions } from "../data/search-taxonomy";
 import { cleanVacationPath } from "../data/vacation-landings";
+import { buildVacationSearchUrl } from "../lib/vacation-search-url";
 
 export type SearchLandingContext = {
   path: string;
@@ -109,6 +110,8 @@ const legacyExtraFilters = legacyExtraFilterGroups.flatMap((group) => group.opti
 
 export function SearchExperience({ landing }: { landing?: SearchLandingContext }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.toString();
   const { language } = useSiteLanguage();
   const [sort, setSort] = useState("recommended");
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -125,22 +128,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const [visibleMapCount, setVisibleMapCount] = useState(0);
 
   function updateSearchContext(updates: Record<string, string | null>, nextType = type, nextArea = area) {
-    const params = new URLSearchParams(window.location.search);
-    Object.entries(updates).forEach(([key, value]) => {
-      if (value === null) params.delete(key);
-      else params.set(key, value);
-    });
-    const defaultGuests = (params.get("guests") || "2") === "2";
-    const hasTemporaryFilters = Array.from(params.keys()).some((key) => !["location", "type", "guests"].includes(key)) || !defaultGuests;
-    const cleanPath = nextType !== "הכל" ? cleanAccommodationPath(nextType, nextArea) : cleanVacationPath(nextArea);
-    if (cleanPath) {
-      params.delete("location");
-      params.delete("type");
-      if (defaultGuests) params.delete("guests");
-    }
-    const query = params.toString();
-    const path = cleanPath || "/search";
-    router.replace(localizedPath(query && (cleanPath || hasTemporaryFilters) ? `${path}?${query}` : path, language), { scroll: false });
+    const nextUrl = buildVacationSearchUrl(window.location.search, updates, nextType, nextArea);
+    router.replace(localizedPath(nextUrl, language), { scroll: false });
   }
 
   function changeArea(nextArea: string) {
@@ -179,9 +168,9 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      const params = new URLSearchParams(window.location.search);
+      const params = new URLSearchParams(searchQuery);
       const requestedArea = params.get("location");
-      const requestedGuests = Number(params.get("guests") || 2);
+      const requestedGuests = Number(params.get("guests") || (Number(params.get("adults") || 2) + Number(params.get("children") || 0)));
       const requestedType = params.get("type");
       const requestedPath = requestedType ? cleanAccommodationPath(requestedType, requestedArea || "כל הארץ") : cleanVacationPath(requestedArea || "כל הארץ");
       if (!landing && requestedPath) {
@@ -205,7 +194,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       setSort(["capacity", "units", "name"].includes(params.get("sort") || "") ? params.get("sort") || "recommended" : "recommended");
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [landing, language, router]);
+  }, [landing, language, router, searchQuery]);
 
   const areas = useMemo(() => ["הכל", ...searchLocationOptions("vacation").filter((item) => item !== "כל הארץ")], []);
   const mapCandidates = useMemo(() => properties.filter((property) => {

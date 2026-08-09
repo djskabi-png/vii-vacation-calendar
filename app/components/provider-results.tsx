@@ -22,8 +22,8 @@ export function ProviderResults({ items }: { items: DiscoveryItem[] }) {
   const requestedCategory = searchParams.get("category") || "all";
   const initialCategory = categories.some((entry) => entry.id === requestedCategory) ? requestedCategory : "all";
   const [category, setCategory] = useState(initialCategory);
-  const [query, setQuery] = useState("");
-  const [region, setRegion] = useState("כל הארץ");
+  const [query, setQuery] = useState(searchParams.get("q") || "");
+  const [region, setRegion] = useState(searchParams.get("region") || "כל הארץ");
   const regions = useMemo(() => ["כל הארץ", ...Array.from(new Set(items.flatMap((item) => item.serviceAreas || [item.area])))], [items]);
   const filtered = useMemo(() => {
     const selected = categories.find((entry) => entry.id === category);
@@ -37,13 +37,27 @@ export function ProviderResults({ items }: { items: DiscoveryItem[] }) {
     });
   }, [category, items, query, region]);
 
+  function updateUrl(updates: Record<string, string>) {
+    const params = new URLSearchParams(window.location.search);
+    Object.entries(updates).forEach(([key, value]) => value && value !== "all" && value !== "כל הארץ" ? params.set(key, value) : params.delete(key));
+    window.history.replaceState(null, "", `${window.location.pathname}${params.size ? `?${params}` : ""}`);
+  }
+
+  function resetFilters() {
+    setCategory("all");
+    setQuery("");
+    setRegion("כל הארץ");
+    updateUrl({ category: "", q: "", region: "" });
+  }
+
   return <div className="provider-results">
     <div className="provider-toolbar">
-      <label className="provider-search"><span>חיפוש ספק</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="שם, שירות או תחום" /></label>
-      <ModernSelect label="אזור שירות" value={region} onChange={setRegion} options={regions.map((option) => ({ value: option, label: option }))} />
+      <label className="provider-search"><span>חיפוש ספק</span><input value={query} onChange={(event) => { const value = event.target.value; setQuery(value); updateUrl({ q: value.trim() }); }} placeholder="שם, שירות או תחום" /></label>
+      <ModernSelect label="אזור שירות" value={region} onChange={(value) => { setRegion(value); updateUrl({ region: value }); }} options={regions.map((option) => ({ value: option, label: option }))} />
       <div className="provider-categories" role="group" aria-label="סינון ספקים לפי תחום">
-        {categories.map((entry) => <button key={entry.id} type="button" aria-pressed={category === entry.id} onClick={() => setCategory(entry.id)}>{entry.label}</button>)}
+        {categories.map((entry) => <button key={entry.id} type="button" aria-pressed={category === entry.id} onClick={() => { setCategory(entry.id); updateUrl({ category: entry.id }); }}>{entry.label}</button>)}
       </div>
+      {(category !== "all" || query || region !== "כל הארץ") ? <button type="button" className="provider-reset" onClick={resetFilters}>ניקוי סינונים</button> : null}
     </div>
     <p className="provider-results-count" aria-live="polite">{filtered.length === 1 ? "ספק אחד מתאים" : `${filtered.length} ספקים מתאימים`}</p>
     {filtered.length ? <div className="discovery-grid">{filtered.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div> : <div className="provider-empty"><h3>לא מצאנו התאמה מדויקת</h3><p>אפשר לנקות את החיפוש או לבחור תחום אחר.</p></div>}

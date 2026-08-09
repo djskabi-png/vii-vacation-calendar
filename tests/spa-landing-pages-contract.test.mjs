@@ -9,7 +9,8 @@ const sitemap = readFileSync(new URL("../app/sitemap.ts", import.meta.url), "utf
 
 test("all nine spa feature controls are crawlable clean links", () => {
   assert.equal((taxonomy.match(/slug: "/g) || []).length, 9);
-  assert.match(results, /<Link key=\{filter\.id\} href=\{spaLandingHref\(filter\)\}/);
+  assert.match(results, /<Link key=\{filter\.id\} href=\{spaLandingContext\(filter\.id\)\}/);
+  assert.match(results, /params\.delete\("features"\)/);
   assert.doesNotMatch(results, /spaFilters\.map\(\(filter\) => <label/);
 });
 

@@ -43,6 +43,10 @@ function loadTranslations(language: GeneratedLanguage) {
 
 const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, string>> = {
   en: {
+    "בונים את החופשה": "Plan your stay",
+    "חיפוש יעד": "Search destinations",
+    "הקלידו עיר או אזור": "Enter a city or region",
+    "לא מצאנו יעד מתאים.": "No matching destination found.",
     "ראשי": "Home",
     "מסלולי טיול ואטרקציות": "Trails and attractions",
     "בוחרים איך לבלות את היום": "Choose how to spend your day",
@@ -144,6 +148,10 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "These cards are search shortcuts. Availability and final pricing are confirmed after selecting dates and guests.",
   },
   ru: {
+    "בונים את החופשה": "Спланируйте поездку",
+    "חיפוש יעד": "Поиск направления",
+    "הקלידו עיר או אזור": "Введите город или регион",
+    "לא מצאנו יעד מתאים.": "Подходящее направление не найдено.",
     "ראשי": "Главная",
     "מסלולי טיול ואטרקציות": "Маршруты и развлечения",
     "בוחרים איך לבלות את היום": "Выберите, как провести день",
@@ -245,6 +253,10 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "Карточки ведут к поиску. Наличие мест и итоговая цена подтверждаются после выбора дат и состава гостей.",
   },
   fr: {
+    "בונים את החופשה": "Planifiez votre séjour",
+    "חיפוש יעד": "Rechercher une destination",
+    "הקלידו עיר או אזור": "Saisissez une ville ou une région",
+    "לא מצאנו יעד מתאים.": "Aucune destination correspondante.",
     "ראשי": "Accueil",
     "מסלולי טיול ואטרקציות": "Randonnées et activités",
     "בוחרים איך לבלות את היום": "Choisissez comment profiter de votre journée",
