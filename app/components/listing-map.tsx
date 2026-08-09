@@ -56,19 +56,18 @@ function markerIcon(tone: MapTone) {
 function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false, autoLoad = false, onClose, onVisibleCountChange }: PlacesMapProps) {
   const { language } = useSiteLanguage();
   const cardCopy = language === "en"
-    ? { details: "View details", close: "Close place details" }
+    ? { details: "View details", close: "Close place details", results: "Results on the map", visible: "places", list: "Result list" }
     : language === "ru"
-      ? { details: "Подробнее", close: "Закрыть карточку места" }
+      ? { details: "Подробнее", close: "Закрыть карточку места", results: "Результаты на карте", visible: "мест", list: "Список результатов" }
       : language === "fr"
-        ? { details: "Voir les détails", close: "Fermer la fiche du lieu" }
-        : { details: "לכל הפרטים", close: "סגירת פרטי המקום" };
+        ? { details: "Voir les détails", close: "Fermer la fiche du lieu", results: "Résultats sur la carte", visible: "lieux", list: "Liste des résultats" }
+      : { details: "לכל הפרטים", close: "סגירת פרטי המקום", results: "תוצאות על המפה", visible: "מקומות", list: "רשימת תוצאות במפה" };
   const mapElement = useRef<HTMLDivElement>(null);
+  const resultRail = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<import("leaflet").Map | null>(null);
   const markerInstances = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const visibleCountCallback = useRef(onVisibleCountChange);
-  const initialSelectedId = single
-    ? initialPlaceIds?.find((id) => places.some((place) => place.id === id)) ?? places[0]?.id ?? ""
-    : "";
+  const initialSelectedId = initialPlaceIds?.find((id) => places.some((place) => place.id === id)) ?? places[0]?.id ?? "";
   const selectedIdRef = useRef(initialSelectedId);
   const [enabled, setEnabled] = useState(autoLoad);
   const [mapReady, setMapReady] = useState(false);
@@ -96,6 +95,11 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
       marker.getElement()?.classList.toggle("is-active", id === effectiveSelectedId);
     });
   }, [effectiveSelectedId, mapReady]);
+
+  useEffect(() => {
+    if (single || !effectiveSelectedId) return;
+    resultRail.current?.querySelector<HTMLElement>(`[data-map-result-id="${CSS.escape(effectiveSelectedId)}"]`)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [effectiveSelectedId, single]);
 
   useEffect(() => {
     if (!enabled || !mapElement.current || places.length === 0) return;
@@ -186,9 +190,9 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
           const clustered = cluster.entries.length > 1;
           const clusterText = language === "he" ? `${cluster.entries.length} מקומות` : `${cluster.entries.length}`;
           const visibleLabel = clustered ? String(cluster.entries.length) : place.markerLabel;
-          // Clusters communicate result count. A single place stays a clean pin;
-          // capacity, category and price belong in the selected-place card.
-          const useTextLabel = clustered;
+          // Clusters communicate result count. Numeric labels keep useful values,
+          // such as price or capacity, visible without opening a result card.
+          const useTextLabel = clustered || /\d/.test(place.markerLabel);
           const markerContent = useTextLabel
             ? `<span class="vii-map-marker__label">${safeMarkerLabel(visibleLabel)}</span>`
             : `<span class="vii-map-marker__icon">${markerIcon(tone)}</span>`;
@@ -309,7 +313,22 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
 
   if (single) return mapCanvas;
 
-  return <div className={`map-results-experience map-tone--${tone}`}><div className="map-results-canvas">{mapCanvas}</div></div>;
+  return <div className={`map-results-experience map-tone--${tone}`}>
+    <aside className="map-results-rail" aria-label={cardCopy.list}>
+      <header><div><span>{cardCopy.results}</span><strong>{places.length} {cardCopy.visible}</strong></div></header>
+      <div ref={resultRail} className="map-results-scroll">
+        {places.map((place) => <article key={place.id} data-map-result-id={place.id} className={`map-result-card ${place.id === effectiveSelectedId ? "is-selected" : ""}`}>
+          <button type="button" className="map-result-select" aria-pressed={place.id === effectiveSelectedId} onClick={() => selectPlace(place.id)}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={place.image} alt="" />
+            <span><small>{place.category}</small><strong>{place.name}</strong><span>{place.location}</span><b>{place.meta}</b></span>
+          </button>
+          <Link href={place.href}>{cardCopy.details}</Link>
+        </article>)}
+      </div>
+    </aside>
+    <div className="map-results-canvas">{mapCanvas}</div>
+  </div>;
 }
 
 export function ListingMap({ listings, initialListings, mode = "vacation", single = false, autoLoad = false, onClose, onVisibleCountChange }: { listings: Listing[]; initialListings?: Listing[]; mode?: "vacation" | "events"; single?: boolean; autoLoad?: boolean; onClose?: () => void; onVisibleCountChange?: (count: number) => void }) {
