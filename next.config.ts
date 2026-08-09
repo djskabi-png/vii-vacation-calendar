@@ -11,6 +11,14 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
+  async redirects() {
+    return [
+      { source: "/privacy_policy", destination: "/legal/privacy", permanent: true },
+      { source: "/term_and_conditions", destination: "/legal/terms", permanent: true },
+      { source: "/:locale(en|ru|fr)/privacy_policy", destination: "/:locale/legal/privacy", permanent: true },
+      { source: "/:locale(en|ru|fr)/term_and_conditions", destination: "/:locale/legal/terms", permanent: true },
+    ];
+  },
   async rewrites() {
     return {
       beforeFiles: [

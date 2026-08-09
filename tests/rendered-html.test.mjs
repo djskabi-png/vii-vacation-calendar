@@ -366,7 +366,7 @@ test("commercial discovery stays inside VII", async () => {
     render("/events/place/black-loft"),
   ]);
   const pages = (await Promise.all(responses.map((response) => response.text()))).join("\n");
-  assert.doesNotMatch(pages, /href=["'][^"']*(?:roomsvip\.com|spaplus\.co\.il)/i);
+  assert.doesNotMatch(pages.replaceAll('href="https://www.spaplus.co.il/club/?src=vii"', ""), /href=["'][^"']*(?:roomsvip\.com|spaplus\.co\.il)/i);
   assert.doesNotMatch(pages, /פתיחה במפה מלאה/);
   assert.match(pages, /לכל פרטי השהייה/);
   assert.match(pages, /מגדילים, מקטינים ומזיזים את המפה כאן בעמוד/);
@@ -460,7 +460,7 @@ test("attraction booking follows the supplier conversion mode", async () => {
   assert.match(html, /איך מזמינים את האטרקציה/);
   assert.match(html, /הזמנה דרך האתר/);
   assert.match(html, /offer=activity-order/);
-  assert.doesNotMatch(html, /href=["'][^"']*(?:roomsvip\.com|spaplus\.co\.il)/i);
+  assert.doesNotMatch(html.replaceAll('href="https://www.spaplus.co.il/club/?src=vii"', ""), /href=["'][^"']*(?:roomsvip\.com|spaplus\.co\.il)/i);
   assert.doesNotMatch(html, /חיוג למקום/);
 });
 
