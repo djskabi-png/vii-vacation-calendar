@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { DiscoveryCard } from "./discovery-card";
 import type { DiscoveryItem } from "../data/world-data";
@@ -34,6 +34,7 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
   const [features, setFeatures] = useState<string[]>(requestedFeatures);
   const [mapOpen, setMapOpen] = useState(false);
   const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
+  const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
 
   const locations = useMemo(
     () => ["כל הארץ", ...Array.from(new Set(items.flatMap((item) => [item.area, item.location])))],
@@ -54,7 +55,7 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
   function updateUrl(updates: Record<string, string>) {
     const params = new URLSearchParams(window.location.search);
     Object.entries(updates).forEach(([key, value]) => value && value !== "כל הארץ" && value !== "0" ? params.set(key, value) : params.delete(key));
-    window.history.replaceState(null, "", `${window.location.pathname}${params.size ? `?${params}` : ""}`);
+    window.history.pushState(null, "", `${window.location.pathname}${params.size ? `?${params}` : ""}`);
   }
 
   function changeLocation(value: string) { setLocation(value); updateUrl({ location: value }); }
@@ -76,6 +77,16 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
   }
 
   const resultLabel = filtered.length === 1 ? "מקום אחד נמצא" : `${filtered.length} מקומות נמצאו`;
+  const displayed = useMemo(() => {
+    if (!mapVisibleIds) return filtered;
+    const visible = new Set(mapVisibleIds);
+    return filtered.filter((item) => visible.has(item.id));
+  }, [filtered, mapVisibleIds]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setMapVisibleIds(null), 0);
+    return () => window.clearTimeout(timer);
+  }, [features, location, maximumPrice]);
 
   return <div className="hourly-results">
     <div className="hourly-results__toolbar" aria-label="סינון תוצאות של חדרים לפי שעה">
@@ -91,6 +102,6 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
         <button type="button" className="hourly-results__reset" onClick={resetFilters} disabled={location === "כל הארץ" && maximumPrice === 0 && features.length === 0}>ניקוי סינונים</button>
       </div>
     </div>
-    {filtered.length > 0 ? mapOpen ? <DiscoveryMap items={filtered} tone="hourly" autoLoad onClose={() => setMapOpen(false)} /> : <div className="discovery-grid">{filtered.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div> : <div className="hourly-results__empty"><strong>לא נמצאו מקומות שמתאימים לכל הסינונים</strong><p>אפשר להרחיב את האזור או להסיר אחד מהמאפיינים.</p><button type="button" className="button secondary" onClick={resetFilters}>הצגת כל המקומות</button></div>}
+    {filtered.length > 0 ? mapOpen ? <DiscoveryMap items={filtered} tone="hourly" autoLoad onClose={() => setMapOpen(false)} onVisiblePlaceIdsChange={setMapVisibleIds} /> : <div className="discovery-grid">{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div> : <div className="hourly-results__empty"><strong>לא נמצאו מקומות שמתאימים לכל הסינונים</strong><p>אפשר להרחיב את האזור או להסיר אחד מהמאפיינים.</p><button type="button" className="button secondary" onClick={resetFilters}>הצגת כל המקומות</button></div>}
   </div>;
 }

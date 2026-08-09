@@ -13,8 +13,11 @@ import { getPlaceAccessibility } from "../../data/accessibility-data";
 import { CloseIcon, MapIcon, PinIcon } from "../../site-header";
 import { FavoriteButton } from "../../components/favorite-button";
 import { BreadcrumbTrail } from "../../components/breadcrumb-trail";
+import { useSearchParams } from "next/navigation";
 
 export default function EventSearchPage() {
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.toString();
   const [area, setArea] = useState("הכל");
   const [type, setType] = useState("הכל");
   const [eventType, setEventType] = useState("הכל");
@@ -24,12 +27,13 @@ export default function EventSearchPage() {
   const [mapOpen, setMapOpen] = useState(false);
   const [sort, setSort] = useState("recommended");
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
 
   function updateUrl(updates: Record<string, string | null>) {
     const params = new URLSearchParams(window.location.search);
     Object.entries(updates).forEach(([key, value]) => value === null ? params.delete(key) : params.set(key, value));
     const query = params.toString();
-    window.history.replaceState({}, "", query ? `${window.location.pathname}?${query}` : window.location.pathname);
+    window.history.pushState({}, "", query ? `${window.location.pathname}?${query}` : window.location.pathname);
   }
 
   function changeFilter(key: "location" | "type" | "eventType" | "guests" | "noise" | "accessible" | "sort", value: string | boolean | number) {
@@ -46,7 +50,7 @@ export default function EventSearchPage() {
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      const params = new URLSearchParams(location.search);
+      const params = new URLSearchParams(searchQuery);
       const requestedArea = params.get("location");
       const requestedGuests = Number(params.get("guests") || 0);
       if (requestedArea && requestedArea !== "כל הארץ") setArea(requestedArea);
@@ -58,7 +62,7 @@ export default function EventSearchPage() {
       if (["capacity", "name"].includes(params.get("sort") || "")) setSort(params.get("sort") || "recommended");
     }, 0);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [searchQuery]);
 
   const areas = useMemo(() => ["הכל", ...Array.from(new Set(eventPlaces.map((place) => place.area)))], []);
   const types = useMemo(() => ["הכל", ...Array.from(new Set(eventPlaces.map((place) => place.type)))], []);
@@ -66,6 +70,17 @@ export default function EventSearchPage() {
   const filtered = useMemo(() => {
     const result = eventPlaces.filter((place) => (area === "הכל" || place.area === area || place.location === area) && (type === "הכל" || place.type === type) && (eventType === "הכל" || place.eventTypes.includes(eventType)) && (!guests || place.guests >= guests) && (!noNoiseLimit || place.features.some((feature) => feature.includes("ללא הגבלת רעש"))) && (!accessibleOnly || getPlaceAccessibility(place.slug).status === "accessible"));
     return [...result].sort((a, b) => sort === "capacity" ? b.guests - a.guests : sort === "name" ? a.name.localeCompare(b.name, "he") : eventPlaces.indexOf(a) - eventPlaces.indexOf(b));
+  }, [accessibleOnly, area, eventType, guests, noNoiseLimit, sort, type]);
+
+  const displayed = useMemo(() => {
+    if (!mapVisibleIds) return filtered;
+    const visible = new Set(mapVisibleIds);
+    return filtered.filter((place) => visible.has(place.slug));
+  }, [filtered, mapVisibleIds]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setMapVisibleIds(null), 0);
+    return () => window.clearTimeout(timer);
   }, [accessibleOnly, area, eventType, guests, noNoiseLimit, sort, type]);
 
   function reset() { setArea("הכל"); setType("הכל"); setEventType("הכל"); setGuests(0); setNoNoiseLimit(false); setAccessibleOnly(false); setSort("recommended"); updateUrl({ location: null, type: null, eventType: null, guests: null, noise: null, accessible: null, sort: null }); }
@@ -89,10 +104,10 @@ export default function EventSearchPage() {
             <button className="button subtle wide" type="button" onClick={reset}>ניקוי סינונים</button>
           </aside>
           <section className="event-list">
-            <section className="results-heading"><div><h1>{area === "הכל" ? "מקומות לאירועים בישראל" : `מקומות לאירועים ב${area}`}</h1><p>{filtered.length} מקומות מתאימים לחיפוש</p></div></section>
+            <section className="results-heading"><div><h1>{area === "הכל" ? "מקומות לאירועים בישראל" : `מקומות לאירועים ב${area}`}</h1><p>{displayed.length} מקומות מתאימים לחיפוש</p></div></section>
             <div className="results-toolbar"><div className="results-toolbar__actions"><button type="button" className="button mobile-filter" onClick={() => setFiltersOpen(true)}>סינון</button>{filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={() => setMapOpen((value) => !value)}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect compact label="מיון לפי" value={sort} onChange={(value) => changeFilter("sort", value)} options={[{ value: "recommended", label: "מומלצים" }, { value: "capacity", label: "קיבולת גבוהה" }, { value: "name", label: "שם המקום" }]} /></div>
-            {mapOpen ? <ListingMap listings={filtered} mode="events" autoLoad onClose={() => setMapOpen(false)} /> : filtered.map((place) => <article key={place.slug}><div className="event-card-gallery"><img src={place.image} alt={place.name} /><span>{place.images.length} תמונות</span><FavoriteButton id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים`} /></div><div><small>{place.type}</small><h2>{place.name}</h2><p><PinIcon />{place.location}, {place.area}</p><p>{place.description}</p><div className="feature-chips">{place.features.slice(0, 3).map((feature) => <span key={feature}>{feature}</span>)}</div><div className="event-capacity">עד {place.guests} אורחים</div><Link className="button primary" href={eventPlaceHref(place)}>לפרטים על המקום</Link></div></article>)}
-            {filtered.length === 0 && <div className="empty-state"><h2>לא נמצאה התאמה</h2><p>אפשר להפחית את כמות המשתתפים או להסיר סינון.</p><button className="button primary" type="button" onClick={reset}>ניקוי סינונים</button></div>}
+            {mapOpen ? <ListingMap listings={filtered} mode="events" autoLoad onClose={() => setMapOpen(false)} onVisiblePlaceIdsChange={setMapVisibleIds} /> : displayed.map((place) => <article key={place.slug}><div className="event-card-gallery"><img src={place.image} alt={place.name} /><span>{place.images.length} תמונות</span><FavoriteButton id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים`} /></div><div><small>{place.type}</small><h2>{place.name}</h2><p><PinIcon />{place.location}, {place.area}</p><p>{place.description}</p><div className="feature-chips">{place.features.slice(0, 3).map((feature) => <span key={feature}>{feature}</span>)}</div><div className="event-capacity">עד {place.guests} אורחים</div><Link className="button primary" href={eventPlaceHref(place)}>לפרטים על המקום</Link></div></article>)}
+            {displayed.length === 0 && <div className="empty-state"><h2>לא נמצאה התאמה</h2><p>אפשר להפחית את כמות המשתתפים או להסיר סינון.</p><button className="button primary" type="button" onClick={reset}>ניקוי סינונים</button></div>}
           </section>
         </div>
         {filtersOpen && <button className="filter-backdrop" aria-label="סגירת סינון" onClick={() => setFiltersOpen(false)} />}

@@ -39,7 +39,7 @@ test("provider filters serialize, restore and reset their complete state", () =>
   const providers = read("app/components/provider-results.tsx");
   ["q", "region", "category"].forEach((key) => assert.match(providers, new RegExp(`searchParams\\.get\\(\"${key}\"\\)`)));
   assert.match(providers, /new URLSearchParams\(window\.location\.search\)/);
-  assert.match(providers, /window\.history\.replaceState/);
+  assert.match(providers, /window\.history\.pushState/);
   assert.match(providers, /function resetFilters/);
 });
 
@@ -52,7 +52,7 @@ test("attractions, trails, spa and hourly filters have shareable URL state", () 
   ];
   expectations.forEach(([file, keys]) => {
     const source = read(file);
-    assert.match(source, /window\.history\.replaceState/);
+    assert.match(source, /window\.history\.pushState/);
     keys.forEach((key) => assert.match(source, new RegExp(key)));
   });
 });

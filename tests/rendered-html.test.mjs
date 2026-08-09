@@ -1082,7 +1082,7 @@ test("spa results expose working place and amenity filters before the result lis
   assert.match(source, /selectedFilters\.every/);
   assert.match(source, /<DiscoveryMap items=\{amenityFiltered\} initialItems=\{filtered\}/);
   assert.match(source, /onVisibleCountChange=\{setVisibleMapCount\}/);
-  assert.match(source, /filtered\.map\(\(item\)/);
+  assert.match(source, /displayed\.map\(\(item\)/);
 
   const worldData = await readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8");
   assert.match(worldData, /function areaMapCoordinates/);

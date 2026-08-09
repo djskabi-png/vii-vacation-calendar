@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { TrailCard } from "../components/trail-card";
 import { natureTypes, regions, trails, type TrailDifficulty } from "../data/trail-data";
@@ -10,6 +10,7 @@ const difficulties: Array<"הכל" | TrailDifficulty> = ["הכל", "קל", "בי
 
 export function TrailsExplorer() {
   const searchParams = useSearchParams();
+  const searchQuery = searchParams.toString();
   const requestedRegion = searchParams.get("area") || "הכל";
   const initialRegion = regions.includes(requestedRegion) ? requestedRegion : "הכל";
   const [region, setRegion] = useState(initialRegion);
@@ -30,7 +31,7 @@ export function TrailsExplorer() {
   function updateUrl(updates: Record<string, string>) {
     const params = new URLSearchParams(window.location.search);
     Object.entries(updates).forEach(([key, value]) => value && value !== "הכל" ? params.set(key, value) : params.delete(key));
-    window.history.replaceState(null, "", `${window.location.pathname}${params.size ? `?${params}` : ""}`);
+    window.history.pushState(null, "", `${window.location.pathname}${params.size ? `?${params}` : ""}`);
   }
 
   function changeRegion(value: string) { setRegion(value); updateUrl({ area: value }); }
@@ -38,6 +39,20 @@ export function TrailsExplorer() {
   function changeDifficulty(value: string) { setDifficulty(value as (typeof difficulties)[number]); updateUrl({ difficulty: value }); }
   function changeQuery(value: string) { setQuery(value); updateUrl({ q: value.trim() }); }
   function resetFilters() { setRegion("הכל"); setNature("הכל"); setDifficulty("הכל"); setQuery(""); updateUrl({ area: "", nature: "", difficulty: "", q: "" }); }
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const params = new URLSearchParams(searchQuery);
+      const nextRegion = params.get("area") || "הכל";
+      const nextNature = params.get("nature") || "הכל";
+      const nextDifficulty = params.get("difficulty") || "הכל";
+      setRegion(regions.includes(nextRegion) ? nextRegion : "הכל");
+      setNature(natureTypes.includes(nextNature) ? nextNature : "הכל");
+      setDifficulty(difficulties.includes(nextDifficulty as (typeof difficulties)[number]) ? nextDifficulty as (typeof difficulties)[number] : "הכל");
+      setQuery(params.get("q") || "");
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [searchQuery]);
 
   return <>
     <form className="trail-filters" onSubmit={(event) => event.preventDefault()} aria-label="סינון מסלולי טיול">

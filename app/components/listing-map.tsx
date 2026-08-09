@@ -32,6 +32,7 @@ type PlacesMapProps = {
   autoLoad?: boolean;
   onClose?: () => void;
   onVisibleCountChange?: (count: number) => void;
+  onVisiblePlaceIdsChange?: (ids: string[]) => void;
 };
 
 function safeMarkerLabel(value: string) {
@@ -53,24 +54,35 @@ function markerIcon(tone: MapTone) {
   return `<svg ${common}><path d="m4 11 8-7 8 7v9h-6v-6h-4v6H4v-9Z"/></svg>`;
 }
 
-function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false, autoLoad = false, onClose, onVisibleCountChange }: PlacesMapProps) {
+function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false, autoLoad = false, onClose, onVisibleCountChange, onVisiblePlaceIdsChange }: PlacesMapProps) {
   const { language } = useSiteLanguage();
   const cardCopy = language === "en"
-    ? { details: "View details", close: "Close place details", results: "Results on the map", visible: "places", list: "Result list", openCluster: "Open grouped places" }
+    ? { details: "View details", close: "Close place details", results: "Results on the map", visible: "places", list: "Result list", openCluster: "Open grouped places", searchArea: "Search this area" }
     : language === "ru"
-      ? { details: "Подробнее", close: "Закрыть карточку места", results: "Результаты на карте", visible: "мест", list: "Список результатов", openCluster: "Открыть сгруппированные места" }
+      ? { details: "Подробнее", close: "Закрыть карточку места", results: "Результаты на карте", visible: "мест", list: "Список результатов", openCluster: "Открыть сгруппированные места", searchArea: "Искать в этой области" }
       : language === "fr"
-        ? { details: "Voir les détails", close: "Fermer la fiche du lieu", results: "Résultats sur la carte", visible: "lieux", list: "Liste des résultats", openCluster: "Ouvrir les lieux regroupés" }
-      : { details: "לכל הפרטים", close: "סגירת פרטי המקום", results: "תוצאות על המפה", visible: "מקומות", list: "רשימת תוצאות במפה", openCluster: "פתיחת המקומות המקובצים" };
+        ? { details: "Voir les détails", close: "Fermer la fiche du lieu", results: "Résultats sur la carte", visible: "lieux", list: "Liste des résultats", openCluster: "Ouvrir les lieux regroupés", searchArea: "Rechercher dans cette zone" }
+      : { details: "לכל הפרטים", close: "סגירת פרטי המקום", results: "תוצאות על המפה", visible: "מקומות", list: "רשימת תוצאות במפה", openCluster: "פתיחת המקומות המקובצים", searchArea: "חיפוש באזור הזה" };
+  const mapCopy = language === "en"
+    ? { preview: "Interactive map", label: "Interactive places map", back: "Back to list", hint: "Use the mouse wheel to zoom the map", loading: "Loading the map and markers" }
+    : language === "ru"
+      ? { preview: "Интерактивная карта", label: "Интерактивная карта мест", back: "Вернуться к списку", hint: "Используйте колесо мыши для масштабирования", loading: "Загрузка карты и маркеров" }
+      : language === "fr"
+        ? { preview: "Carte interactive", label: "Carte interactive des lieux", back: "Retour à la liste", hint: "Utilisez la molette pour zoomer", loading: "Chargement de la carte et des repères" }
+        : { preview: "מפה אינטראקטיבית", label: "מפה אינטראקטיבית של המקומות", back: "חזרה לרשימה", hint: "גלגלת העכבר מגדילה ומקטינה את המפה", loading: "טוענים את המפה ואת הסמנים" };
   const mapElement = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<import("leaflet").Map | null>(null);
   const markerInstances = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const visibleCountCallback = useRef(onVisibleCountChange);
+  const visiblePlaceIdsCallback = useRef(onVisiblePlaceIdsChange);
+  const suppressViewportPrompt = useRef(false);
   const initialSelectedId = single ? initialPlaceIds?.find((id) => places.some((place) => place.id === id)) ?? places[0]?.id ?? "" : "";
   const selectedIdRef = useRef(initialSelectedId);
   const [enabled, setEnabled] = useState(autoLoad);
   const [mapReady, setMapReady] = useState(false);
   const [selectedId, setSelectedId] = useState(initialSelectedId);
+  const [pendingVisibleIds, setPendingVisibleIds] = useState<string[]>([]);
+  const [viewportDirty, setViewportDirty] = useState(false);
   const preview = places[0] ?? null;
   const effectiveSelectedId = selectedId === "" ? "" : places.some((place) => place.id === selectedId) ? selectedId : places[0]?.id ?? "";
   const selected = places.find((place) => place.id === effectiveSelectedId) ?? null;
@@ -78,15 +90,42 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
 
   useEffect(() => {
     visibleCountCallback.current = onVisibleCountChange;
-  }, [onVisibleCountChange]);
+    visiblePlaceIdsCallback.current = onVisiblePlaceIdsChange;
+  }, [onVisibleCountChange, onVisiblePlaceIdsChange]);
 
   const selectPlace = useCallback((id: string) => {
     const place = places.find((entry) => entry.id === id);
     if (!place) return;
     setSelectedId(id);
     const map = mapInstance.current;
-    if (map) map.flyTo([place.lat, place.lng], Math.max(map.getZoom(), place.precision === "area" ? 11 : 13), { duration: 0.45 });
+    if (map) {
+      suppressViewportPrompt.current = true;
+      map.once("moveend", () => { suppressViewportPrompt.current = false; });
+      map.flyTo([place.lat, place.lng], Math.max(map.getZoom(), place.precision === "area" ? 11 : 13), { duration: 0.45 });
+    }
   }, [places]);
+
+  const closeSelectedPlace = useCallback(() => {
+    const marker = markerInstances.current.get(selectedIdRef.current);
+    setSelectedId("");
+    window.setTimeout(() => marker?.getElement()?.focus(), 0);
+  }, []);
+
+  useEffect(() => {
+    if (!effectiveSelectedId) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeSelectedPlace();
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [closeSelectedPlace, effectiveSelectedId]);
+
+  const applyVisibleArea = useCallback(() => {
+    visibleCountCallback.current?.(pendingVisibleIds.length);
+    visiblePlaceIdsCallback.current?.(pendingVisibleIds);
+    setViewportDirty(false);
+    setSelectedId("");
+  }, [pendingVisibleIds]);
 
   useEffect(() => {
     selectedIdRef.current = effectiveSelectedId;
@@ -264,9 +303,15 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
         });
       };
 
-      const reportVisiblePlaces = () => {
+      const visiblePlaceIds = () => {
         const currentBounds = map.getBounds().pad(0.04);
-        visibleCountCallback.current?.(places.filter((place) => currentBounds.contains([place.lat, place.lng])).length);
+        return places.filter((place) => currentBounds.contains([place.lat, place.lng])).map((place) => place.id);
+      };
+      const reportVisiblePlaces = (prompt = false) => {
+        const ids = visiblePlaceIds();
+        setPendingVisibleIds(ids);
+        if (prompt && !suppressViewportPrompt.current) setViewportDirty(true);
+        else visibleCountCallback.current?.(ids.length);
       };
 
       const focusPlaces = initialPlaceIds?.length
@@ -286,10 +331,11 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
         if (compactViewport && map.getZoom() < 7) map.setZoom(7, { animate: false });
       }
 
-      map.on("zoomend moveend", () => {
+      map.on("moveend", () => {
         renderMarkers();
-        reportVisiblePlaces();
       });
+      map.on("zoomend", () => { renderMarkers(); reportVisiblePlaces(true); });
+      map.on("dragend", () => reportVisiblePlaces(true));
       renderMarkers();
       reportVisiblePlaces();
 
@@ -316,7 +362,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
       <img className="map-preview-image" src={preview.image} alt={`מבט על ${preview.name}`} />
       <span className="map-preview-shade" aria-hidden="true" />
       <div className="map-preview-content">
-        <span className="map-preview-label">מפה אינטראקטיבית</span>
+        <span className="map-preview-label">{mapCopy.preview}</span>
         <span className="map-consent-pin" aria-hidden="true">⌖</span>
         <div>
           <h3>{single ? preview.name : `${places.length} מקומות על המפה`}</h3>
@@ -332,10 +378,11 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
   if (!enabled) return <div className={`map-preview-card map-tone--${tone} ${single ? "single-map-preview" : ""}`}>{previewContent}</div>;
 
   const mapCanvas = <div className={`listing-map-shell map-tone--${tone} ${single ? "single-map" : ""}`}>
-    <div ref={mapElement} className={`listing-map ${mapReady ? "is-ready" : ""}`} aria-label="מפה אינטראקטיבית של המקומות" />
-    {onClose && !single && <button className="map-mobile-close" type="button" onClick={onClose} aria-label="חזרה לתצוגת רשימה"><span aria-hidden="true">×</span>חזרה לרשימה</button>}
-    {mapReady && <span className="map-zoom-hint">גלגלת העכבר מגדילה ומקטינה את המפה</span>}
-    {!mapReady && (autoLoad ? <span className="map-live-loading" role="status">טוענים את המפה ואת הסמנים...</span> : <div className="map-preview-card map-loading-preview">{previewContent}</div>)}
+    <div ref={mapElement} className={`listing-map ${mapReady ? "is-ready" : ""}`} aria-label={mapCopy.label} />
+    {onClose && !single && <button className="map-mobile-close" type="button" onClick={onClose} aria-label={mapCopy.back}><span aria-hidden="true">×</span>{mapCopy.back}</button>}
+    {mapReady && <span className="map-zoom-hint">{mapCopy.hint}</span>}
+    {mapReady && !single && viewportDirty && <button className="map-search-area" type="button" onClick={applyVisibleArea}><span>{cardCopy.searchArea}</span><small>{pendingVisibleIds.length} {cardCopy.visible}</small></button>}
+    {!mapReady && (autoLoad ? <span className="map-live-loading" role="status">{mapCopy.loading}</span> : <div className="map-preview-card map-loading-preview">{previewContent}</div>)}
     {mapReady && !single && selected && <article className="map-selection-card" aria-live="polite">
       <div className="map-selection-card__media">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -348,7 +395,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
         <span className="map-selection-card__meta">{selected.meta}</span>
         <Link href={selected.href}>{cardCopy.details}</Link>
       </div>
-      <button className="map-selection-card__close" type="button" onClick={() => setSelectedId("")} aria-label={cardCopy.close}>×</button>
+      <button className="map-selection-card__close" type="button" onClick={closeSelectedPlace} aria-label={cardCopy.close}>×</button>
     </article>}
   </div>;
 
@@ -359,7 +406,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
   </div>;
 }
 
-export function ListingMap({ listings, initialListings, mode = "vacation", single = false, autoLoad = false, onClose, onVisibleCountChange }: { listings: Listing[]; initialListings?: Listing[]; mode?: "vacation" | "events"; single?: boolean; autoLoad?: boolean; onClose?: () => void; onVisibleCountChange?: (count: number) => void }) {
+export function ListingMap({ listings, initialListings, mode = "vacation", single = false, autoLoad = false, onClose, onVisibleCountChange, onVisiblePlaceIdsChange }: { listings: Listing[]; initialListings?: Listing[]; mode?: "vacation" | "events"; single?: boolean; autoLoad?: boolean; onClose?: () => void; onVisibleCountChange?: (count: number) => void; onVisiblePlaceIdsChange?: (ids: string[]) => void }) {
   const places = useMemo<MapPlace[]>(() => listings.map((listing) => ({
     id: listing.slug,
     name: listing.name,
@@ -385,10 +432,10 @@ export function ListingMap({ listings, initialListings, mode = "vacation", singl
     precision: "exact",
   })), [listings, mode]);
   const initialPlaceIds = useMemo(() => initialListings?.map((listing) => listing.slug), [initialListings]);
-  return <PlacesMap key={initialPlaceIds?.join("|") || "all"} places={places} initialPlaceIds={initialPlaceIds} tone={mode} single={single} autoLoad={autoLoad} onClose={onClose} onVisibleCountChange={onVisibleCountChange} />;
+  return <PlacesMap key={initialPlaceIds?.join("|") || "all"} places={places} initialPlaceIds={initialPlaceIds} tone={mode} single={single} autoLoad={autoLoad} onClose={onClose} onVisibleCountChange={onVisibleCountChange} onVisiblePlaceIdsChange={onVisiblePlaceIdsChange} />;
 }
 
-export function DiscoveryMap({ items, initialItems, tone, single = false, autoLoad = false, onClose, onVisibleCountChange }: { items: DiscoveryItem[]; initialItems?: DiscoveryItem[]; tone: "spa" | "hourly" | "activities"; single?: boolean; autoLoad?: boolean; onClose?: () => void; onVisibleCountChange?: (count: number) => void }) {
+export function DiscoveryMap({ items, initialItems, tone, single = false, autoLoad = false, onClose, onVisibleCountChange, onVisiblePlaceIdsChange }: { items: DiscoveryItem[]; initialItems?: DiscoveryItem[]; tone: "spa" | "hourly" | "activities"; single?: boolean; autoLoad?: boolean; onClose?: () => void; onVisibleCountChange?: (count: number) => void; onVisiblePlaceIdsChange?: (ids: string[]) => void }) {
   const { language } = useSiteLanguage();
   const localized = useMemo(() => language === "en"
     ? { spa: "Spa and treatments", hourly: "Hourly stay", packages: "Packages and treatments", short: "Short stay", from: "From" }
@@ -415,5 +462,5 @@ export function DiscoveryMap({ items, initialItems, tone, single = false, autoLo
     };
   }), [items, tone, localized]);
   const initialPlaceIds = useMemo(() => initialItems?.map((item) => item.id), [initialItems]);
-  return <PlacesMap key={initialPlaceIds?.join("|") || "all"} places={places} initialPlaceIds={initialPlaceIds} tone={tone} single={single} autoLoad={autoLoad} onClose={onClose} onVisibleCountChange={onVisibleCountChange} />;
+  return <PlacesMap key={initialPlaceIds?.join("|") || "all"} places={places} initialPlaceIds={initialPlaceIds} tone={tone} single={single} autoLoad={autoLoad} onClose={onClose} onVisibleCountChange={onVisibleCountChange} onVisiblePlaceIdsChange={onVisiblePlaceIdsChange} />;
 }

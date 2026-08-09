@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { DiscoveryItem } from "../data/world-data";
 import { DiscoveryCard } from "./discovery-card";
@@ -19,6 +19,7 @@ const categories = [
 
 export function ProviderResults({ items }: { items: DiscoveryItem[] }) {
   const searchParams = useSearchParams();
+  const searchQuery = searchParams.toString();
   const requestedCategory = searchParams.get("category") || "all";
   const initialCategory = categories.some((entry) => entry.id === requestedCategory) ? requestedCategory : "all";
   const [category, setCategory] = useState(initialCategory);
@@ -40,7 +41,7 @@ export function ProviderResults({ items }: { items: DiscoveryItem[] }) {
   function updateUrl(updates: Record<string, string>) {
     const params = new URLSearchParams(window.location.search);
     Object.entries(updates).forEach(([key, value]) => value && value !== "all" && value !== "כל הארץ" ? params.set(key, value) : params.delete(key));
-    window.history.replaceState(null, "", `${window.location.pathname}${params.size ? `?${params}` : ""}`);
+    window.history.pushState(null, "", `${window.location.pathname}${params.size ? `?${params}` : ""}`);
   }
 
   function resetFilters() {
@@ -49,6 +50,17 @@ export function ProviderResults({ items }: { items: DiscoveryItem[] }) {
     setRegion("כל הארץ");
     updateUrl({ category: "", q: "", region: "" });
   }
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const params = new URLSearchParams(searchQuery);
+      const nextCategory = params.get("category") || "all";
+      setCategory(categories.some((entry) => entry.id === nextCategory) ? nextCategory : "all");
+      setQuery(params.get("q") || "");
+      setRegion(params.get("region") || "כל הארץ");
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [searchQuery]);
 
   return <div className="provider-results">
     <div className="provider-toolbar">
