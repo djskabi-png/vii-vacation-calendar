@@ -14,6 +14,8 @@ export type Listing = {
   images: string[];
   description: string;
   features: string[];
+  highlights?: ListingHighlight[];
+  featureGroups?: ListingFeatureGroup[];
   audiences: string[];
   badges: string[];
   lat: number;
@@ -72,6 +74,20 @@ export type StayOption = {
   area?: number;
   image: string;
   features: string[];
+  highlights?: ListingHighlight[];
+  featureGroups?: ListingFeatureGroup[];
+};
+
+export type ListingHighlightIcon = "units" | "pool" | "spa" | "games" | "garden" | "kitchen" | "view" | "parking" | "accessibility" | "events" | "default";
+
+export type ListingHighlight = {
+  label: string;
+  icon: ListingHighlightIcon;
+};
+
+export type ListingFeatureGroup = {
+  title: string;
+  items: string[];
 };
 
 export type SleepingArrangement = {
@@ -106,6 +122,13 @@ const propertyCatalog: Property[] = [
     videos: [{ title: "סיור חזותי בוילה", src: "/media/tours/aqua-resort-tour.mp4", poster: "/media/322de460abbda5c6.jpg", note: "הסיור נערך מתמונות המקום המאומתות ואינו צילום וידאו רציף." }],
     description: "וילה יוקרתית באילת עם חמישה חדרי שינה, בריכת חוף פרטית ונוף לים סוף ולהרי אדום. המקום מתאים לעד 14 אורחים.",
     features: ["בריכת חוף פרטית", "נוף לים", "מטבח מאובזר", "חניה", "מיזוג אוויר"],
+    highlights: [
+      { label: "בריכת חוף פרטית", icon: "pool" },
+      { label: "נוף לים", icon: "view" },
+      { label: "מטבח מאובזר", icon: "kitchen" },
+      { label: "חניה", icon: "parking" },
+      { label: "מיזוג אוויר", icon: "default" },
+    ],
     audiences: ["משפחות", "קבוצות", "זוגות"],
     badges: ["קרוב לים", "מקום אירוח שלם"],
     lat: 29.545042,

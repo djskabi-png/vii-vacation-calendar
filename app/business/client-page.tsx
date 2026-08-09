@@ -13,7 +13,7 @@ import { PropertyCard } from "../components/property-card";
 import { DiscoveryCard } from "../components/discovery-card";
 import { ListingAccessibility } from "../components/listing-accessibility";
 import { SleepingArrangements } from "../components/sleeping-arrangements";
-import { getListingOfferings, properties, propertyFaq, type BusinessWorld } from "../data/site-data";
+import { getListingOfferings, properties, propertyFaq, type BusinessWorld, type ListingFeatureGroup, type ListingHighlightIcon } from "../data/site-data";
 import { discoveryItems, type DiscoveryItem } from "../data/world-data";
 import { nearbyTrails } from "../data/trail-data";
 import { TrailCard } from "../components/trail-card";
@@ -54,6 +54,45 @@ function bedroomLabel(count: number) {
 
 function bedDetails(features: string[]) {
   return features.filter((feature) => /מיטה|מיטות|ספה נפתחת|מזרן|מזרנים/.test(feature));
+}
+
+function highlightIconFor(label: string): ListingHighlightIcon {
+  if (/בריכ/.test(label)) return "pool";
+  if (/ג׳קוזי|ג'קוזי|סאונה|ספא/.test(label)) return "spa";
+  if (/משחק|סנוקר|פינג פונג|קריוקי/.test(label)) return "games";
+  if (/חצר|גינה|מדשא|מרפסת/.test(label)) return "garden";
+  if (/מטבח|מטבחון/.test(label)) return "kitchen";
+  if (/נוף|ים/.test(label)) return "view";
+  if (/חניה/.test(label)) return "parking";
+  if (/נגיש/.test(label)) return "accessibility";
+  if (/אירוע/.test(label)) return "events";
+  if (/יחיד|סוויט|חדר/.test(label)) return "units";
+  return "default";
+}
+
+function derivedFeatureGroups(features: string[]): ListingFeatureGroup[] {
+  const groups: ListingFeatureGroup[] = [
+    { title: "מתחם חיצוני", items: features.filter((item) => /בריכ|ג׳קוזי|ג'קוזי|סאונה|חצר|גינה|מדשא|מרפסת|מנגל/.test(item)) },
+    { title: "מתחם פנימי", items: features.filter((item) => /מטבח|מטבחון|סלון|מיזוג|טלוויז|מסך|חדר רחצה/.test(item)) },
+  ];
+  const assigned = new Set(groups.flatMap((group) => group.items));
+  const general = features.filter((item) => !assigned.has(item));
+  return [...(general.length ? [{ title: "כללי", items: general }] : []), ...groups.filter((group) => group.items.length)];
+}
+
+function PropertyHighlightIcon({ icon }: { icon: ListingHighlightIcon }) {
+  const path = icon === "pool" ? <><path d="M3 10c2-2 4-2 6 0s4 2 6 0 4-2 6 0" /><path d="M3 15c2-2 4-2 6 0s4 2 6 0 4-2 6 0" /></>
+    : icon === "spa" ? <><path d="M8 4c-2 3 2 4 0 7M12 3c-2 3 2 4 0 7M16 4c-2 3 2 4 0 7" /><path d="M5 14h14l-1 5H6z" /></>
+    : icon === "games" ? <><rect x="4" y="7" width="16" height="10" rx="4" /><path d="M8 12h4M10 10v4" /><circle cx="16" cy="11" r="1" /><circle cx="18" cy="14" r="1" /></>
+    : icon === "garden" ? <><path d="M12 20v-9" /><path d="M12 12C8 12 5 9 5 5c4 0 7 2 7 7ZM12 15c4 0 7-2 7-6-4 0-7 2-7 6Z" /></>
+    : icon === "kitchen" ? <><path d="M7 3v8M4 3v5c0 2 6 2 6 0V3M7 11v10M16 3v18M16 3c4 3 4 8 0 10" /></>
+    : icon === "view" ? <><path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6S2 12 2 12Z" /><circle cx="12" cy="12" r="3" /></>
+    : icon === "parking" ? <><rect x="5" y="3" width="14" height="18" rx="3" /><path d="M10 17V7h3.5a3 3 0 0 1 0 6H10" /></>
+    : icon === "accessibility" ? <><circle cx="12" cy="4" r="2" /><path d="M9 8h5l2 5h-5l-2 7M7 11a6 6 0 1 0 9 6" /></>
+    : icon === "events" ? <path d="m12 3 2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9Z" />
+    : icon === "units" ? <><rect x="4" y="4" width="7" height="7" rx="1" /><rect x="13" y="4" width="7" height="7" rx="1" /><rect x="4" y="13" width="7" height="7" rx="1" /><rect x="13" y="13" width="7" height="7" rx="1" /></>
+    : <path d="m5 12 4 4L19 6" />;
+  return <span className={`property-highlight-icon property-highlight-icon--${icon}`} aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{path}</svg></span>;
 }
 
 const worldLabels: Record<BusinessWorld, string> = {
@@ -130,6 +169,8 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
     { href: "#policies", label: "חשוב לדעת" },
   ], [property.bedrooms, property.roomOptions?.length, property.scenario]);
   const roomQuantity = property.roomOptions?.reduce((total, room) => total + room.quantity, 0) || 0;
+  const highlights = (property.highlights?.length ? property.highlights : property.features.map((label) => ({ label, icon: highlightIconFor(label) }))).slice(0, 5);
+  const featureGroups = property.featureGroups?.length ? property.featureGroups : derivedFeatureGroups(property.features);
   const complements = useMemo(() => complementaryItems(property.area, property.location), [property.area, property.location]);
   const localTrails = useMemo(() => nearbyTrails(property.area, property.location, 6), [property.area, property.location]);
 
@@ -201,9 +242,9 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
               <div><b>{property.features.length}</b><span>מאפיינים מרכזיים</span></div>
             </section>
 
-            <section id="about"><span className="eyebrow">כל מה שחשוב לדעת</span><h2>על {property.name}</h2><p>{property.description}</p><div className="feature-chips audience-chips">{property.audiences.map((audience) => <span key={audience}>מתאים ל{audience}</span>)}</div></section>
+            <section id="about" className="property-about"><span className="eyebrow">תיאור מקום האירוח</span><h2>על {property.name}</h2><p>{property.description}</p><div className="feature-chips audience-chips">{property.audiences.map((audience) => <span key={audience}>מתאים ל{audience}</span>)}</div>{highlights.length ? <div className="property-highlights" aria-label="הדברים הבולטים במקום">{highlights.map((highlight) => <article key={highlight.label}><PropertyHighlightIcon icon={highlight.icon} /><strong>{highlight.label}</strong></article>)}</div> : null}</section>
 
-            <section id="features" className="feature-section"><h2>מה מחכה לכם במקום</h2><div className="feature-list">{property.features.map((feature) => <span key={feature}>✓ {feature}</span>)}</div><button className="button subtle" type="button" onClick={() => setAllFeaturesOpen(true)}>כל המידע על המתקנים</button></section>
+            <section id="features" className="feature-section"><span className="eyebrow">מאפייני המתחם</span><h2>מה מחכה לכם במקום</h2><div className="property-feature-groups">{featureGroups.map((group) => <article key={group.title}><h3>{group.title}</h3><div className="feature-list">{group.items.map((feature) => <span key={feature}>✓ {feature}</span>)}</div></article>)}</div><button className="button subtle" type="button" onClick={() => setAllFeaturesOpen(true)}>כל המידע על המתקנים</button></section>
 
             {property.roomOptions?.length ? <section id="rooms" className="units-section">
               <div className="units-heading">
@@ -262,7 +303,7 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
 
       <GalleryExperience key={`${property.slug}-${galleryOpen ? `${galleryTab}-${galleryStart}` : "closed"}`} property={property} open={galleryOpen} initialIndex={galleryStart} initialTab={galleryTab} onAddGuestContent={() => { setGalleryOpen(false); setReviewOpen(true); }} onClose={() => setGalleryOpen(false)} />
 
-      {allFeaturesOpen && <div className="simple-modal" onMouseDown={(event) => event.target === event.currentTarget && setAllFeaturesOpen(false)}><section role="dialog" aria-modal="true" aria-labelledby="features-title"><header><h2 id="features-title">המתקנים של {property.name}</h2><button type="button" onClick={() => setAllFeaturesOpen(false)}>סגירה</button></header><div className="feature-list modal-features">{property.features.map((feature) => <span key={feature}>✓ {feature}</span>)}</div><p>המידע המוצג נבדק כחלק מהכנת עמוד המקום.</p></section></div>}
+      {allFeaturesOpen && <div className="simple-modal" onMouseDown={(event) => event.target === event.currentTarget && setAllFeaturesOpen(false)}><section role="dialog" aria-modal="true" aria-labelledby="features-title"><header><h2 id="features-title">המתקנים של {property.name}</h2><button type="button" onClick={() => setAllFeaturesOpen(false)}>סגירה</button></header><div className="modal-feature-groups">{featureGroups.map((group) => <section key={group.title}><h3>{group.title}</h3><div className="feature-list modal-features">{group.items.map((feature) => <span key={feature}>✓ {feature}</span>)}</div></section>)}</div><p>המידע המוצג נבדק כחלק מהכנת עמוד המקום.</p></section></div>}
     </PageShell>
   );
 }
