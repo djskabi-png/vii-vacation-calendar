@@ -2937,15 +2937,9 @@ h3 { font-size: 1.18rem; }
 .text-button { border: 0; background: none; color: var(--teal-dark); cursor: pointer; }
 
 .site-header { position: relative; z-index: 40; background: rgba(255,255,255,.94); border-bottom: 1px solid var(--line); backdrop-filter: blur(18px); }
-.site-header__inner { min-height: 74px; display: grid; grid-template-columns: 128px minmax(0,1fr) max-content; align-items: center; gap: 14px; }
+.site-header__inner { min-height: 74px; display: grid; grid-template-columns: minmax(0,1fr) max-content; align-items: center; gap: 14px; }
 .brand { display: inline-flex; width: 112px; }
 .brand img { width: 112px; height: 58px; object-fit: contain; }
-.desktop-nav { display: flex; align-items: stretch; justify-content: center; gap: clamp(12px,1.5vw,24px); align-self: stretch; }
-.desktop-nav > a { position: relative; display: flex; align-items: center; gap: 6px; padding: 0 3px; font-weight: 650; color: var(--ink-soft); white-space: nowrap; }
-.desktop-nav > a svg { width: 17px; height: 17px; color: #ef7f32; }
-.desktop-nav > a::after { content: ""; position: absolute; inset-inline: 0; bottom: 0; height: 3px; background: var(--teal); transform: scaleX(0); border-radius: 5px 5px 0 0; transition: transform .2s; }
-.desktop-nav > a:hover, .desktop-nav > a.active { color: var(--ink); }
-.desktop-nav > a.active::after { transform: scaleX(1); }
 .header-more { position: relative; display: flex; align-items: center; }
 .header-more > button { min-height: 38px; display: inline-flex; align-items: center; gap: 4px; padding: 0 9px; border: 0; border-radius: 999px; color: var(--ink-soft); background: transparent; font: inherit; font-weight: 700; cursor: pointer; transition: color .18s ease,background .18s ease; }
 .header-more > button:hover,.header-more.open > button { color: var(--teal-dark); background: #edf8f8; }
@@ -3308,8 +3302,6 @@ h3 { font-size: 1.18rem; }
 .listing-contact-actions a:hover, .listing-contact-actions button:hover { transform: translateY(-1px); }
 
 /* Connected worlds */
-.desktop-nav { gap: clamp(10px, 1.35vw, 20px); }
-.desktop-nav > a { font-size: .9rem; }
 .search-world-tabs { position: relative; z-index: 6; width: min(650px, calc(100% - 24px)); margin: 0 auto 17px; display: flex; align-items: center; justify-content: center; gap: 18px; padding: 0; border: 0; background: transparent; box-shadow: none; }
 .search-world-tabs__prompt { color: var(--ink-soft); font-size: .74rem; font-weight: 750; white-space: nowrap; }
 .search-world-tabs__options { min-width: 0; display: flex; align-items: center; justify-content: center; gap: clamp(18px,4vw,38px); border-bottom: 1px solid rgba(8,126,139,.18); }
@@ -3839,10 +3831,8 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
 .comfort-reading *:focus { outline: 3px solid var(--orange) !important; outline-offset: 3px; }
 
 @media (max-width: 1050px) {
-  .site-header__inner { grid-template-columns: 105px minmax(0,1fr) max-content; gap: 9px; }
+  .site-header__inner { grid-template-columns: minmax(0,1fr) max-content; gap: 9px; }
   .brand,.brand img { width: 98px; }
-  .desktop-nav { gap: 8px; }
-  .desktop-nav > a { font-size: .8rem; }
   .header-more > button { padding-inline: 6px; font-size: .8rem; }
   .discovery-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .event-region-grid { grid-template-columns: repeat(3,1fr); }
@@ -3857,7 +3847,6 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
   .site-header__inner { min-height: 70px; grid-template-columns: minmax(0,1fr) auto; }
   .brand, .brand img { width: 102px; }
   .brand img { height: 54px; }
-  .desktop-nav { display: none; }
   .header-actions .icon-button:nth-child(2) { display: inline-flex; }
   .header-actions .language-trigger { min-height: 40px; padding-inline: 8px; gap: 5px; font-size: .78rem; }
   .header-actions .language-trigger__globe { width: 17px; height: 17px; }
@@ -6267,7 +6256,6 @@ button:not(:disabled):active,a[href]:active,[role="button"]:active,.is-action-pr
   .site-header__inner { min-height: 70px; grid-template-columns: minmax(0,1fr) auto; }
   .brand, .brand img { width: 102px; }
   .brand img { height: 54px; }
-  .desktop-nav { display: none; }
   .menu-button { width: 44px; padding: 0; }
   .menu-button span { display: none; }
 }

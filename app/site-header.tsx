@@ -34,15 +34,6 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
     fr: "Ouverture de vos favoris...",
   }[language];
 
-  const primaryNavigation = [
-    { href: "/", label: "נופש", active: !magazineActive && variant === "vacation" },
-    { href: "/events", label: "אירועים", active: !magazineActive && variant === "events" },
-    { href: "/spas", label: "ספא", active: !magazineActive && variant === "spa" },
-    { href: "/attractions", label: "אטרקציות", active: pathname.startsWith("/attractions") },
-    { href: "/trails", label: "מסלולי טיול", active: pathname.startsWith("/trails") },
-    { href: "/hourly", label: "לפי שעה", active: !magazineActive && variant === "hourly" },
-  ];
-
   useEffect(() => {
     if (!menuOpen) return;
     const previous = document.body.style.overflow;
@@ -148,14 +139,6 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
           <Link className="brand" href="/" aria-label="וי פור ויקיישן, דף הבית">
             <img src="/vii-logo.png" alt="וי פור ויקיישן" />
           </Link>
-
-          <nav className="desktop-nav" aria-label="ניווט ראשי">
-            {primaryNavigation.map((item) => (
-              <Link key={item.href} href={item.href} className={item.active ? "active" : ""} aria-current={item.active ? "page" : undefined}>
-                <span>{item.label}</span>
-              </Link>
-            ))}
-          </nav>
 
           <div className="header-actions">
             <Link className="icon-button" href="/favorites" aria-label="מקומות שאהבתי" data-loading-label={favoritesLoading}><HeartIcon /></Link>

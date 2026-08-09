@@ -23,9 +23,9 @@ test("public navigation replaces the generic activities hub with trails and attr
   assert.match(switcher, /publicWorldNavigation\.map/);
 });
 
-test("header, footer and homepage link directly to both dedicated pages", () => {
-  assert.match(header, /href: "\/trails", label: "מסלולי טיול"/);
-  assert.match(header, /href: "\/attractions", label: "אטרקציות"/);
+test("header world controls, footer and homepage expose both dedicated pages", () => {
+  assert.match(header, /publicWorldNavigation\.map/);
+  assert.match(header, /<WorldSwitcher active=\{variant\}/);
   assert.doesNotMatch(footer, /href="\/activities"/);
   assert.match(footer, /href="\/trails">מסלולי טיולים/);
   assert.match(footer, /href="\/attractions">אטרקציות/);

@@ -679,7 +679,8 @@ test("independent trails are sourced, filterable and connected to stays", async 
   assert.ok(homepage.indexOf("<HomeTrails />") > homepage.indexOf("רעיונות שממשיכים את החופשה"));
   assert.match(business, /nearbyTrails/);
   assert.match(business, /מסלולים באזור/);
-  assert.match(header, /href: "\/trails"/);
+  assert.match(header, /publicWorldNavigation\.map/);
+  assert.match(header, /<WorldSwitcher active=\{variant\}/);
   assert.match(footer, /href="\/trails"/);
   assert.match(styles, /\.trail-filters/);
   assert.match(styles, /\.trail-detail__layout/);

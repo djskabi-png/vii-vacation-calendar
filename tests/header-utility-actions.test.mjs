@@ -7,10 +7,13 @@ const switcher = await readFile(new URL("../app/components/world-switcher.tsx", 
 const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
 
 test("desktop navigation has no duplicate more menu or gift-card text link", () => {
+  assert.doesNotMatch(header, /primaryNavigation/);
+  assert.doesNotMatch(header, /className="desktop-nav"/);
   assert.doesNotMatch(header, /className={`header-more/);
   assert.doesNotMatch(header, /<span>עוד<\/span>/);
   assert.match(header, /className={`icon-button header-gift/);
   assert.match(header, /aria-label="גיפט קארד"/);
+  assert.match(css, /\.site-header__inner \{ min-height: 74px; display: grid; grid-template-columns: minmax\(0,1fr\) max-content;/);
 });
 
 test("world selection uses a descriptive icon and accessible label", () => {
