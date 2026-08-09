@@ -22,8 +22,8 @@ test("place cards open only after marker activation and use a quiet modern basem
   assert.match(component, /if \(performance\.now\(\) < selectionReadyAt\) return/);
   assert.match(component, /if \(clustered\) \{[\s\S]*marker\.on\("click", \(\) => \{[\s\S]*setSelectedId\(""\)/);
   assert.doesNotMatch(component, /title: entry\.name|title: clustered \?/);
-  assert.match(component, /basemaps\.cartocdn\.com\/light_all/);
-  assert.match(styles, /\.listing-map-shell \.leaflet-tile-pane \{ filter: saturate\(\.82\) contrast\(\.96\) brightness\(1\.025\); \}/);
+  assert.match(component, /basemaps\.cartocdn\.com\/rastertiles\/voyager/);
+  assert.match(styles, /\.listing-map-shell \.leaflet-tile-pane \{ filter: saturate\(1\.08\) contrast\(1\.02\); \}/);
 });
 
 test("useful numeric labels appear on markers while generic places keep icons", () => {
