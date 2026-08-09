@@ -7,18 +7,10 @@ import { MapIcon } from "../site-header";
 import { DiscoveryCard } from "./discovery-card";
 import { DiscoveryMap } from "./listing-map";
 import { ModernSelect } from "./modern-select";
+import Link from "next/link";
+import { spaLandings, spaLandingHref } from "../data/spa-landings";
 
-const spaFilters = [
-  { id: "hotel", label: "ספא בבית מלון", terms: ["מלון"] },
-  { id: "boutique", label: "ספא בוטיק או פרטי", terms: ["בוטיק", "פרטי", "סוויטה פרטית"] },
-  { id: "pool", label: "בריכה", terms: ["בריכה", "בריכות"] },
-  { id: "jacuzzi", label: "ג׳קוזי", terms: ["ג׳קוזי"] },
-  { id: "sauna", label: "סאונה", terms: ["סאונה", "סאונות"] },
-  { id: "gym", label: "חדר כושר", terms: ["חדר כושר"] },
-  { id: "couples", label: "חבילה זוגית", terms: ["זוג", "זוגי", "זוגיות"] },
-  { id: "day-pass", label: "יום כיף", terms: ["יום כיף"] },
-  { id: "meal", label: "חבילה עם ארוחה", terms: ["ארוחה", "ארוחת בוקר"] },
-];
+const spaFilters = spaLandings;
 
 const spaAudiences = {
   single: { label: "יחיד", terms: ["יחיד", "אישי"] },
@@ -47,7 +39,7 @@ function searchableText(item: DiscoveryItem) {
   return `${item.name} ${item.description} ${item.features.join(" ")}`;
 }
 
-function SpaResults({ items }: { items: DiscoveryItem[] }) {
+function SpaResults({ items, activeSpaFilter }: { items: DiscoveryItem[]; activeSpaFilter?: string }) {
   const searchParams = useSearchParams();
   const requestedLocation = searchParams.get("location") || "כל הארץ";
   const requestedAudience = searchParams.get("spaFor");
@@ -116,7 +108,7 @@ function SpaResults({ items }: { items: DiscoveryItem[] }) {
       </div>
       <div className="spa-results__filters">
         <div className="spa-results__location-card"><span className="spa-results__location-icon"><MapIcon /></span><ModernSelect className="spa-results__location" label="איפה תרצו להתפנק?" value={location} onChange={changeLocation} options={locations.map((option) => ({ value: option, label: option }))} /></div>
-        <fieldset><legend>מה תרצו שיהיה במקום?</legend><div>{spaFilters.map((filter) => <label key={filter.id} className={selectedFilters.includes(filter.id) ? "selected" : ""}><input type="checkbox" checked={selectedFilters.includes(filter.id)} onChange={() => toggleFilter(filter.id)} /><span className="spa-results__filter-icon"><SpaFilterIcon id={filter.id} /></span><span className="spa-results__filter-label">{filter.label}</span><span className="spa-results__filter-check" aria-hidden="true">✓</span></label>)}</div><small className="spa-results__swipe-hint">החליקו לעוד אפשרויות</small></fieldset>
+        <nav className="spa-results__landing-links" aria-label="עמודי ספא לפי מאפיין"><strong>מה תרצו שיהיה במקום?</strong><div>{spaFilters.map((filter) => <Link key={filter.id} href={spaLandingHref(filter)} aria-current={activeSpaFilter === filter.id ? "page" : undefined} className={activeSpaFilter === filter.id ? "selected" : ""}><span className="spa-results__filter-icon"><SpaFilterIcon id={filter.id} /></span><span className="spa-results__filter-label">{filter.label}</span></Link>)}</div><small className="spa-results__swipe-hint">החליקו לעוד אפשרויות</small></nav>
         <button type="button" className="spa-results__reset" onClick={resetFilters} disabled={!hasFilters}>ניקוי סינונים</button>
       </div>
       {hasFilters && <div className="spa-results__active" aria-label="סינונים פעילים"><span>סינונים פעילים:</span>{location !== "כל הארץ" && <button type="button" onClick={() => changeLocation("כל הארץ")}>{location} ×</button>}{spaAudience && <button type="button" onClick={() => changeAudience("")}>{spaAudiences[spaAudience].label} ×</button>}{selectedFilters.map((id) => { const filter = spaFilters.find((entry) => entry.id === id); return filter ? <button type="button" key={id} onClick={() => toggleFilter(id)}>{filter.label} ×</button> : null; })}</div>}
@@ -125,10 +117,10 @@ function SpaResults({ items }: { items: DiscoveryItem[] }) {
   </div>;
 }
 
-export function WorldMapResults({ items, world }: { items: DiscoveryItem[]; world: "spa" | "hourly" }) {
+export function WorldMapResults({ items, world, activeSpaFilter }: { items: DiscoveryItem[]; world: "spa" | "hourly"; activeSpaFilter?: string }) {
   const [mapOpen, setMapOpen] = useState(false);
 
-  if (world === "spa") return <SpaResults items={items} />;
+  if (world === "spa") return <SpaResults items={items} activeSpaFilter={activeSpaFilter} />;
 
   return <div className={`world-map-results world-map-results--${world}`}>
     <div className="world-map-results__toolbar">

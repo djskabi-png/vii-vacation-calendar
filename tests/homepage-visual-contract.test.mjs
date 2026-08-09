@@ -45,7 +45,7 @@ test("ordinary homepage sections share the compact spacing contract", async () =
   assert.match(css, /@media \(max-width:\s*760px\)[\s\S]*home-corporate-gift[^}]*padding-block:\s*48px/);
 });
 
-test("spa filters use illustrated choice tiles and a branded location card", async () => {
+test("spa landing links use illustrated choice tiles and a branded location card", async () => {
   const component = await readFile(new URL("app/components/world-map-results.tsx", root), "utf8");
   const css = await readFile(new URL("app/globals.css", root), "utf8");
   assert.match(component, /function SpaFilterIcon/);
@@ -55,7 +55,7 @@ test("spa filters use illustrated choice tiles and a branded location card", asy
   assert.match(component, /spa-results__location-card/);
   assert.match(component, /spa-results__filter-icon/);
   assert.match(component, /spa-results__filter-label/);
-  assert.match(css, /spa-results__filters fieldset > div[^}]*grid-template-columns:\s*repeat\(9/);
+  assert.match(css, /spa-results__landing-links > div[^}]*grid-template-columns:\s*repeat\(9/);
   assert.match(css, /spa-results__filter-icon[^}]*border-radius:\s*50%/);
   assert.match(css, /spa-results__location-icon[^}]*border-radius:\s*50%/);
 });

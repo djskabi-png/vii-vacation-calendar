@@ -7,6 +7,7 @@ import { absoluteUrl } from "./lib/seo";
 import { indexableAccommodationLandings } from "./data/accommodation-landings";
 import { indexableVacationLandings } from "./data/vacation-landings";
 import { joinWorlds } from "./join/worlds";
+import { spaLandings, spaLandingHref } from "./data/spa-landings";
 
 const updated = new Date("2026-08-06T00:00:00+03:00");
 
@@ -27,6 +28,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     item("/events/", 0.9, "weekly"),
     item("/events/search/", 0.8, "daily"),
     item("/spas/", 0.8),
+    ...spaLandings.map((landing) => item(spaLandingHref(landing), 0.82, "weekly")),
     item("/hourly/", 0.8),
     item("/activities/", 0.8),
     item("/trails/", 0.8),
