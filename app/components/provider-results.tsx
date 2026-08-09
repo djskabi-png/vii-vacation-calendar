@@ -10,6 +10,7 @@ const categories = [
   { id: "all", label: "הכל" },
   { id: "food", label: "שפים ואוכל", tokens: ["שף", "קייטרינג"] },
   { id: "music", label: "מוזיקה", tokens: ["תקליטן", "מוזיקלי", "DJ"] },
+  { id: "entertainment", label: "מופעים ואמנים", tokens: ["אמן חושים", "קוסם", "מופע", "בידור"] },
   { id: "photo", label: "צילום", tokens: ["צילום", "סטילס", "וידאו"] },
   { id: "design", label: "עיצוב", tokens: ["בלונים", "קונספט", "עיצוב"] },
   { id: "bar", label: "ברים", tokens: ["בר ", "קוקטייל", "מיקסולוגיה"] },

@@ -958,7 +958,7 @@ test("key page types emit matching structured data and private pages stay out of
 test("every discovery card has stable media and every new world has a full detail page", async () => {
   const worldData = await readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8");
   const itemLines = worldData.split("\n").filter((line) => line.includes("world:") && line.includes(" id: "));
-  assert.equal(itemLines.length, 47);
+  assert.equal(itemLines.length, 48);
   for (const line of itemLines) {
     assert.match(line, /image: "\/media\//);
     assert.doesNotMatch(line, /demo: true/);
@@ -969,6 +969,7 @@ test("every discovery card has stable media and every new world has a full detai
     ["/discover/place/timna-park", /איך מזמינים את האטרקציה/],
     ["/discover/place/kfar-blum-kayaks", /איך מזמינים את האטרקציה/],
     ["/discover/place/assemblage-spa", /חבילות הספא/],
+    ["/discover/place/amit-mitrani-magic-man", /שירותים וחבילות להזמנה/],
   ]) {
     const response = await render(pathname);
     const html = await response.text();
