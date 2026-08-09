@@ -3911,6 +3911,9 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
   .property-gallery.single { grid-template-rows: 400px; }
   .property-layout, .event-place-layout { grid-template-columns: 1fr; padding-top: 35px; }
   .booking-card { position: static; order: -1; }
+  .property-layout { padding-bottom: max(56px, calc(32px + env(safe-area-inset-bottom))); }
+  .booking-card--request { overflow: visible; margin-bottom: max(24px, env(safe-area-inset-bottom)); padding-bottom: max(32px, calc(24px + env(safe-area-inset-bottom))); }
+  .booking-card--request .booking-whatsapp { min-height: 54px; margin-bottom: 8px; scroll-margin-bottom: max(28px, calc(16px + env(safe-area-inset-bottom))); }
   .event-card-grid { grid-template-columns: 1fr 1fr; }
   .event-list article { grid-template-columns: 220px 1fr; }
   .event-place-hero { grid-template-columns: 1fr; }
