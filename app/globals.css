@@ -3938,6 +3938,18 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
   .search-box-shell.mobile-expanded .location-list > div { grid-template-columns: 1fr; }
   .search-box-shell.mobile-expanded .location-list button { min-height: 48px; text-align: right; }
   .vacation-party-picker { width: auto; }
+  .search-box-shell.mobile-expanded .search-step--guests { display: grid; align-content: start; gap: 12px; }
+  .search-box-shell.mobile-expanded .search-step--guests .search-popover {
+    position: static;
+    inset: auto;
+    width: 100%;
+    min-width: 0;
+    max-height: none;
+    margin: 0;
+    overflow: visible;
+    box-shadow: 0 10px 28px rgba(13,47,57,.08);
+  }
+  .search-box-shell.mobile-expanded .vacation-party-picker .popover-done { display: none; }
   .section { padding-block: 60px; }
   .destination-grid { grid-template-columns: 1fr 1fr; grid-template-rows: 260px 200px 200px; }
   .destination-tile--1 { grid-row: auto; grid-column: 1/3; }
