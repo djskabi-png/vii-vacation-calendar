@@ -31,7 +31,16 @@ type Props = {
 function resolveBooking(params: Awaited<Props["searchParams"]>) {
   const offerId = params.package || params.service || params.offer || "";
   const property = properties.find((item) => item.slug === params.place);
-  if (property) return { world: params.world || "vacation", placeId: property.slug, placeName: property.name, offerId, offerName: "הזמנת המקום", price: params.price ? `${Number(params.price).toLocaleString("he-IL")} ₪, בכפוף לאישור זמינות` : "מחיר סופי לאחר בחירת תאריך" };
+  if (property) return {
+    world: "vacation",
+    placeId: property.slug,
+    placeName: property.name,
+    offerId,
+    offerName: "הזמנת המקום",
+    price: params.price ? `${Number(params.price).toLocaleString("he-IL")} ₪, בכפוף לאישור זמינות` : "מחיר סופי לאחר בחירת תאריך",
+    onlineReady: Boolean(params.from && params.till && params.price && Number(params.price) > 0),
+    phone: property.contact?.phone,
+  };
 
   const eventPlace = eventPlaces.find((item) => item.slug === params.place);
   if (eventPlace) return { world: "events", placeId: eventPlace.slug, placeName: eventPlace.name, offerId, offerName: "הזמנת אירוע", price: "מחיר לפי תאריך והרכב" };
