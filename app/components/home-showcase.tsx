@@ -7,7 +7,7 @@ import { useRef } from "react";
 import { DiscoveryCard } from "./discovery-card";
 import { PropertyCard } from "./property-card";
 import { eventPlaceHref, eventPlaces, properties } from "../data/site-data";
-import { hourlyPlaces, paidAttractions, providerProfiles, spaPlaces, worlds } from "../data/world-data";
+import { hourlyPlaces, paidAttractions, providerProfiles, publicWorldNavigation, spaPlaces } from "../data/world-data";
 import { trails } from "../data/trail-data";
 import { TrailCard } from "./trail-card";
 import { CalendarIcon, PinIcon } from "../site-header";
@@ -80,7 +80,7 @@ function SliderControls({ onPrevious, onNext, label }: { onPrevious: () => void;
 
 export function HomeShowcase() {
   const tracks = useRef<Record<string, HTMLDivElement | null>>({});
-  const worldCards = worlds.filter((world) => !["vacation", "events", "spa", "hourly"].includes(world.id));
+  const worldCards = publicWorldNavigation.filter((world) => !["vacation", "events", "spa", "hourly"].includes(world.id));
   const recommendedPlaces = pickProperties("aqua-resort", "kesem-harimon", "ahuzat-or", "anael-estate", "magic-garden-gefen", "perfumes-villa", "rose-estate");
   const selectedLastMinutePeriod = lastMinutePeriods[0];
   const spontaneousPlaces = pickProperties(...selectedLastMinutePeriod.slugs);
@@ -189,8 +189,8 @@ export function HomeShowcase() {
     <section className="section home-worlds" aria-labelledby="home-worlds-title">
       <div className="shell"><div className="section-head"><div><span className="eyebrow">אתר אחד, הרבה דרכים ליהנות</span><h2 id="home-worlds-title">ממשיכים לכל העולמות</h2><p>לא רק מקום לישון. בונים את כל החופשה, הטיפול, השהייה הקצרה, הספקים והיום שמסביב.</p></div></div>
         <div className="home-world-gates">{worldCards.map((world) => {
-          const item = world.id === "providers" ? providerProfiles[0] : paidAttractions[0];
-          return <Link key={world.id} className={`home-world-gate home-world-gate--${world.id}`} href={world.href}>{item.image ? <img src={item.image} alt={item.name} /> : <span className="home-world-gate__visual">{world.shortLabel.slice(0,1)}</span>}<div><span>{world.label}</span><h3>{world.description}</h3><p>{item.demo ? "פרופילים לדוגמה שממחישים איך השירות יעבוד באתר." : item.description}</p><b>לגלות את העולם</b></div></Link>;
+          const item = world.id === "providers" ? providerProfiles[0] : world.id === "trails" ? trails[0] : paidAttractions[0];
+          return <Link key={world.id} className={`home-world-gate home-world-gate--${world.id}`} href={world.href}>{item.image ? <img src={item.image} alt={item.name} /> : <span className="home-world-gate__visual">{world.shortLabel.slice(0,1)}</span>}<div><span>{world.label}</span><h3>{world.description}</h3><p>{"demo" in item && item.demo ? "פרופילים לדוגמה שממחישים איך השירות יעבוד באתר." : item.description}</p><b>לגלות את העולם</b></div></Link>;
         })}</div>
       </div>
     </section>

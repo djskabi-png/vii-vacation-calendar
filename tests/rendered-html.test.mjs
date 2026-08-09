@@ -617,7 +617,7 @@ test("footer destinations and booking forms have real destinations", async () =>
     readFile(new URL("../app/join/partner-onboarding.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/cookie-consent.tsx", import.meta.url), "utf8"),
   ]);
-  for (const href of ["/search", "/events", "/spas", "/hourly", "/providers", "/activities", "/trails", "/booking", "/guides", "/accessibility", "/legal/terms", "/legal/privacy", "/legal/cancellation"]) {
+  for (const href of ["/search", "/events", "/spas", "/hourly", "/providers", "/trails", "/attractions", "/booking", "/guides", "/accessibility", "/legal/terms", "/legal/privacy", "/legal/cancellation"]) {
     assert.match(footer, new RegExp(`href=["']${href.replaceAll("/", "\\/")}`));
   }
   assert.match(footer, /href=\{`\/join\/\$\{variant\}`\}/);
@@ -677,7 +677,7 @@ test("independent trails are sourced, filterable and connected to stays", async 
   assert.ok(homepage.indexOf("<HomeTrails />") > homepage.indexOf("רעיונות שממשיכים את החופשה"));
   assert.match(business, /nearbyTrails/);
   assert.match(business, /מסלולים באזור/);
-  assert.match(header, /href="\/trails"/);
+  assert.match(header, /href: "\/trails"/);
   assert.match(footer, /href="\/trails"/);
   assert.match(styles, /\.trail-filters/);
   assert.match(styles, /\.trail-detail__layout/);

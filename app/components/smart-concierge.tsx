@@ -31,7 +31,7 @@ const ui = {
     inputLabel: "כתבו לנציג מה תרצו למצוא", placeholder: "אפשר לכתוב לי הכל...", send: "שליחת הודעה",
     footer: "רוצים להמשיך עם שירות הלקוחות?", whatsapp: "מעבר לוואטסאפ", triggerTop: "נציג החופשה שלכם", triggerBottom: "איך אפשר לעזור?", unread: "הודעה חדשה",
     opening: "היי, אני הנציג החכם של וי. ספרו לי בחופשיות מה אתם מתכננים, למי, איפה ומתי. אעזור לכם להתמקד ואמצא את העמוד הנכון באתר.",
-    quick: ["מחפשים נופש", "אירוע או חגיגה", "ספא או יום כיף", "מה עושים באזור", "חדר לכמה שעות"],
+    quick: ["מחפשים נופש", "אירוע או חגיגה", "ספא או יום כיף", "אטרקציות באזור", "חדר לכמה שעות"],
     whatsappEmpty: "היי, הגעתי מהנציג החכם באתר VII ואשמח לעזרה.", whatsappWith: "היי, דיברתי עם הנציג החכם באתר VII. אני מחפש/ת: ",
   },
   en: {
@@ -87,7 +87,7 @@ function routeFor(intent: Intent, place?: Place) {
   if (intent === "join") return "/join/";
   if (intent === "providers") return "/providers/";
   if (intent === "trails") return "/trails/";
-  if (intent === "activities") return "/activities/";
+  if (intent === "activities") return "/attractions/";
   if (intent === "hourly") return "/hourly/";
   if (intent === "spa") return "/spas/";
   if (intent === "events") return "/events/";

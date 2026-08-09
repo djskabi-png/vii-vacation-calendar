@@ -8,11 +8,11 @@ import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import { LanguageSwitcher, useSiteLanguage } from "./i18n/locale-provider";
 import { stripLanguagePrefix } from "./i18n/locale-routing";
-import { worlds, type WorldId } from "./data/world-data";
+import { publicWorldNavigation, type WorldId } from "./data/world-data";
 import { AccessibilityWidget } from "./components/accessibility-widget";
 import { WorldSwitcher } from "./components/world-switcher";
 
-const nav = worlds.map((world) => ({ id: world.id, href: world.href, label: world.shortLabel, description: world.description }));
+const nav = publicWorldNavigation.map((world) => ({ id: world.id, href: world.href, label: world.shortLabel, description: world.description }));
 
 export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: { variant?: WorldId; showWorldSwitcher?: boolean }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -39,6 +39,7 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
     { href: "/events", label: "אירועים", active: !magazineActive && variant === "events" },
     { href: "/spas", label: "ספא", active: !magazineActive && variant === "spa" },
     { href: "/attractions", label: "אטרקציות", active: pathname.startsWith("/attractions") },
+    { href: "/trails", label: "מסלולי טיול", active: pathname.startsWith("/trails") },
     { href: "/hourly", label: "לפי שעה", active: !magazineActive && variant === "hourly" },
   ];
 
@@ -126,8 +127,6 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
           <Link href="/destinations" onClick={closeMenu}><PinIcon /><span>יעדים</span></Link>
           <Link href="/guides" onClick={closeMenu} aria-current={magazineActive ? "page" : undefined}><InfoIcon /><span>{magazineCopy.menuLabel}</span></Link>
           <Link href="/questions" onClick={closeMenu}><InfoIcon /><span>שאלות ותשובות</span></Link>
-          <Link href="/trails" onClick={closeMenu}><PinIcon /><span>מסלולי טיול עצמאיים</span></Link>
-          <Link href="/attractions" onClick={closeMenu}><PinIcon /><span>אטרקציות בתשלום</span></Link>
           <Link href="/accessibility" onClick={closeMenu}><AccessibilityIcon /><span>הצהרת נגישות</span></Link>
           <AccessibilityWidget placement="menu" />
         </div>

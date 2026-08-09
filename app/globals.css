@@ -3100,6 +3100,8 @@ h3 { font-size: 1.18rem; }
 .section-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 32px; }
 .section-head h2 { margin-bottom: 0; }
 .section-head > a { color: var(--teal-dark); font-weight: 700; }
+.section-head__links { display: flex; flex-wrap: wrap; justify-content: end; gap: 8px 16px; }
+.section-head__links a { color: var(--teal-dark); font-weight: 700; }
 .destination-grid { display: grid; grid-template-columns: 1.2fr .8fr .8fr; grid-template-rows: 240px 240px; gap: 16px; }
 .destination-tile { position: relative; overflow: hidden; border-radius: var(--radius); color: white; }
 .destination-tile--1 { grid-row: 1 / 3; }
@@ -3305,6 +3307,8 @@ h3 { font-size: 1.18rem; }
 .world-mark--hourly { background: linear-gradient(135deg,#f27a2f,#f2b33f); }
 .world-mark--providers { border-radius: 50% 50% 10% 50%; background: linear-gradient(135deg,#0f9a86,#6db858); }
 .world-mark--activities { border-radius: 50%; background: linear-gradient(135deg,#108bc1,#40bfa1); }
+.world-mark--trails { border-radius: 50% 50% 45% 10%; background: linear-gradient(135deg,#2e8b67,#79b84a); }
+.world-mark--attractions { border-radius: 50%; background: linear-gradient(135deg,#167fc1,#8b62d8); }
 .world-dock { position: fixed; z-index: 850; right: 22px; bottom: 22px; display: grid; justify-items: end; gap: 10px; }
 body:has(.cookie-card) .world-dock { bottom: 118px; }
 body:has(.cookie-card) .smart-concierge { display: none; }

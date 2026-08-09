@@ -192,7 +192,7 @@ export const magazineArticles: MagazineArticle[] = [
   {
     slug: "build-a-day-around-your-stay",
     title: "כך בונים יום טיול סביב מקום האירוח",
-    category: "מה עושים בסביבה",
+    category: "טיולים ואטרקציות",
     excerpt: "מסלול אחד טוב, ארוחה במקום הנכון וחזרה בזמן. שיטה פשוטה ליום שמרגיש מלא ולא מעייף.",
     image: propertyImage("perfumes-villa"),
     imageAlt: "נוף פתוח בגליל המערבי ליד מקום אירוח",

@@ -46,8 +46,14 @@ export const worlds: WorldDefinition[] = [
   { id: "spa", label: "עולם הספא", shortLabel: "ספא", description: "טיפולים, חבילות וימי פינוק", href: "/spas" },
   { id: "hourly", label: "חדרים לכמה שעות", shortLabel: "לפי שעה", description: "שהייה קצרה, פרטית וגמישה", href: "/hourly" },
   { id: "providers", label: "עולם הספקים", shortLabel: "ספקים", description: "שפים, תקליטנים ותוכן לאירוח", href: "/providers" },
-  { id: "activities", label: "מה עושים בסביבה", shortLabel: "מה עושים", description: "מסלולים, אוכל וחוויות לידכם", href: "/activities" },
+  { id: "activities", label: "אטרקציות", shortLabel: "אטרקציות", description: "אטרקציות וחוויות פעילות עם מידע מאומת", href: "/attractions" },
 ];
+
+export const publicWorldNavigation = [
+  ...worlds.filter((world) => world.id !== "activities"),
+  { id: "trails", label: "מסלולי טיול", shortLabel: "מסלולים", description: "מסלולים עצמאיים לפי אזור, טבע ורמת קושי", href: "/trails" },
+  { id: "attractions", label: "אטרקציות", shortLabel: "אטרקציות", description: "אטרקציות פעילות עם מידע מאומת ואפשרויות הזמנה", href: "/attractions" },
+] as const;
 
 const curatedSpaPlaces: DiscoveryItem[] = [
   { id: "spa-butik-tlv", world: "spa", name: "ספא בוטיק תל אביב", location: "תל אביב", area: "מרכז", description: "מתחם ספא זוגי עם סוויטות פרטיות, ג׳קוזי ומבחר חבילות טיפול.", features: ["עיסוי זוגי", "סוויטה פרטית", "ג׳קוזי"], image: "/media/discovery/spa-butik-tlv.jpg", images: ["/media/discovery/spa-butik-tlv.jpg", "/media/discovery/spa-butik-tlv-1.jpg", "/media/discovery/spa-butik-tlv-2.jpg", "/media/discovery/spa-butik-tlv-3.jpg"], priceLabel: "החל מ־399 ₪", rating: 8.9, lat: 32.0805, lng: 34.7692, mapPrecision: "area", sourceUrl: "https://www.spaplus.co.il/spa_butik_tlv", sourceName: "ספא פלוס" },

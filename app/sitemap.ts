@@ -30,7 +30,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     item("/spas/", 0.8),
     ...spaLandings.map((landing) => item(spaLandingHref(landing), 0.82, "weekly")),
     item("/hourly/", 0.8),
-    item("/activities/", 0.8),
     item("/trails/", 0.8),
     item("/attractions/", 0.8),
     item("/gift-card/", 0.85, "weekly"),

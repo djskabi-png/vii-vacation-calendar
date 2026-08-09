@@ -286,7 +286,7 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
           <div className="shell">
             <div className="section-head">
               <div><span className="eyebrow">משלימים את החופשה</span><h2>מה אפשר לעשות מסביב</h2></div>
-              <Link href="/activities">לכל הרעיונות והחוויות</Link>
+              <span className="section-head__links"><Link href="/trails">למסלולי טיול</Link><Link href="/attractions">לאטרקציות</Link></span>
             </div>
             <p className="property-complements__note">ההצעות מוצגות לפי האזור ורק לאחר אימות התאמה, פרטים ואופן הזמנה.</p>
             <div className="discovery-grid discovery-grid--compact">{complements.map((item) => <DiscoveryCard key={`${item.world}-${item.id}`} item={item} />)}</div>
