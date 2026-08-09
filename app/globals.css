@@ -1480,12 +1480,12 @@ a:focus-visible {
   cursor: pointer;
 }
 
-.demo-day:hover:not(:disabled) {
+.demo-day:hover:not(:disabled):not(.range-start):not(.range-end) {
   border-color: var(--blue);
   background: var(--blue-soft);
 }
 
-.mode-business .demo-day:hover:not(:disabled) {
+.mode-business .demo-day:hover:not(:disabled):not(.range-start):not(.range-end) {
   border-color: var(--orange);
   background: var(--orange-soft);
 }
@@ -1516,17 +1516,18 @@ a:focus-visible {
 }
 
 .demo-day.state-past {
-  color: #c7cdcf;
+  background: #f3f6f7;
+  color: #5b6b6f;
 }
 
 .demo-day.state-busy {
-  background: #f1f2f2;
-  color: #a2abad;
+  background: #e8edef;
+  color: #53666b;
   text-decoration: line-through;
 }
 
 .demo-day.state-busy .demo-availability {
-  color: #9ba5a7;
+  color: #53666b;
   text-decoration: none;
 }
 
@@ -1545,15 +1546,15 @@ a:focus-visible {
 
 .demo-day.range-start,
 .demo-day.range-end {
-  border-color: var(--blue-dark);
-  background: var(--blue);
+  border-color: #1d4e75;
+  background: #27628f;
   color: #fff;
 }
 
 .mode-business .demo-day.range-start,
 .mode-business .demo-day.range-end {
-  border-color: var(--orange-dark);
-  background: var(--orange);
+  border-color: #713000;
+  background: #9b3f00;
 }
 
 .demo-day.range-start .demo-availability,
