@@ -20,9 +20,12 @@ test("home tours use verified media with an honest disclosure", () => {
   assert.match(source, /href=\{`\/business\?id=\$\{property\.slug\}`\}/);
 });
 
-test("home ratings use sourced values and every slider remains responsive", () => {
+test("home ratings use sourced values, clean excerpts and responsive cards", () => {
   assert.match(source, /filter\(\(item\) => item\.rating\)/);
-  assert.match(source, /הדירוג מוצג לפי מקור המידע המאומת של המקום/);
+  assert.match(source, /localized\?\.summary \|\| reviewExcerpt\(item\.description\)/);
+  assert.match(source, /ratingCardCopy/);
+  assert.doesNotMatch(source, /הדירוג מוצג לפי מקור המידע המאומת של המקום/);
+  assert.doesNotMatch(styles, /\.home-rating-card > p[^}]*-webkit-line-clamp/);
   assert.match(source, /href=\{`\/discover\/place\/\$\{item\.id\}`\}/);
   assert.match(source, /home-rating-card__top/);
   assert.match(source, />לפרטי המקום</);

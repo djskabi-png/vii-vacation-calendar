@@ -11,6 +11,7 @@ import { hourlyPlaces, paidAttractions, providerProfiles, publicWorldNavigation,
 import { trails } from "../data/trail-data";
 import { TrailCard } from "./trail-card";
 import { PinIcon } from "../site-header";
+import { useSiteLanguage } from "../i18n/locale-provider";
 
 function pickProperties(...slugs: string[]) {
   return slugs
@@ -78,8 +79,47 @@ function SliderControls({ onPrevious, onNext, label }: { onPrevious: () => void;
   return <div className="home-slider__controls" aria-label={`דפדוף ${label}`}><button type="button" onClick={onPrevious} aria-label={`הקודם, ${label}`}>הקודם</button><button type="button" onClick={onNext} aria-label={`הבא, ${label}`}>הבא</button></div>;
 }
 
+function reviewExcerpt(value: string) {
+  const normalized = value.trim().replace(/\s+/g, " ");
+  if (normalized.length <= 118) return normalized;
+  const candidate = normalized.slice(0, 119);
+  const lastWord = candidate.lastIndexOf(" ");
+  return `${candidate.slice(0, lastWord > 82 ? lastWord : 118).trim()}...`;
+}
+
+const ratingCardCopy = {
+  en: {
+    "spa-head-spa-nahariya": { name: "Lorensa Head Spa, Nahariya", summary: "A women-only Japanese head spa and deep healing experience designed for calm, release and genuine personal renewal..." },
+    "spa-spa-nucha": { name: "Adama Spa at Nucha Hotel", summary: "A quiet Jerusalem hotel spa with aromatic treatments, a rooftop pool and an intimate atmosphere for a complete break..." },
+    "spa-salt-rooms": { name: "Salt Rooms, Breathing and Touch Center", summary: "A calming salt-room experience complemented by massages and energy treatments for breathing, relaxation and renewal..." },
+    "spa-prince-spa-tiberias": { name: "Prince Spa Tiberias", summary: "A peaceful spa retreat in Tiberias for slowing down, reconnecting and enjoying a naturally relaxing experience..." },
+    "debrah-spa": { name: "Debrah Spa by Adama", summary: "Hotel treatment rooms with individual and couples packages available through convenient online booking..." },
+    "bobo-spa": { name: "Bobo Spa by Adama", summary: "Spacious treatment rooms and comfortable relaxation areas at the Bobo Hotel on Yavne Street..." },
+    "spa-villa-brown-jerusalem-spa": { name: "Villa Brown Jerusalem Spa", summary: "A boutique hotel spa with an equipped treatment room, rooftop terrace, city views and an outdoor relaxation area..." },
+  },
+  ru: {
+    "spa-head-spa-nahariya": { name: "Lorensa Head Spa, Нагария", summary: "Японский спа для головы и глубокое расслабление в пространстве только для женщин, созданном для спокойствия и обновления..." },
+    "spa-spa-nucha": { name: "Adama Spa в отеле Nucha", summary: "Тихий спа в Иерусалиме с ароматическими процедурами, бассейном на крыше и уютной атмосферой для полноценного отдыха..." },
+    "spa-salt-rooms": { name: "Соляные комнаты, центр дыхания и прикосновения", summary: "Спокойная соляная комната, массажи и дополнительные энергетические процедуры для дыхания, расслабления и восстановления..." },
+    "spa-prince-spa-tiberias": { name: "Prince Spa Тверия", summary: "Спокойный спа в Тверии, где можно отвлечься от рутины, восстановить силы и насладиться естественным расслаблением..." },
+    "debrah-spa": { name: "Debrah Spa от сети Adama", summary: "Процедурные кабинеты в отеле и пакеты для одного или пары с удобным онлайн-бронированием..." },
+    "bobo-spa": { name: "Bobo Spa от сети Adama", summary: "Просторные процедурные кабинеты и комфортные зоны отдыха в отеле Bobo на улице Явне..." },
+    "spa-villa-brown-jerusalem-spa": { name: "Villa Brown Spa, Иерусалим", summary: "Спа бутик-отеля с оборудованным кабинетом, террасой на крыше, видом на город и открытой зоной отдыха..." },
+  },
+  fr: {
+    "spa-head-spa-nahariya": { name: "Lorensa Head Spa, Nahariya", summary: "Un spa japonais du cuir chevelu réservé aux femmes, pensé pour la détente profonde, le lâcher-prise et le renouveau..." },
+    "spa-spa-nucha": { name: "Adama Spa à l’hôtel Nucha", summary: "Un spa paisible à Jérusalem avec soins aromatiques, piscine sur le toit et ambiance intime pour une vraie pause..." },
+    "spa-salt-rooms": { name: "Salles de sel, centre de respiration et de toucher", summary: "Une expérience apaisante en salle de sel, complétée par des massages et des soins énergétiques pour se ressourcer..." },
+    "spa-prince-spa-tiberias": { name: "Prince Spa Tibériade", summary: "Une parenthèse paisible à Tibériade pour ralentir, se reconnecter et profiter d’une expérience naturellement relaxante..." },
+    "debrah-spa": { name: "Debrah Spa par Adama", summary: "Des salles de soins à l’hôtel et des formules individuelles ou en duo avec réservation en ligne..." },
+    "bobo-spa": { name: "Bobo Spa par Adama", summary: "Des salles de soins spacieuses et des espaces de repos confortables à l’hôtel Bobo, rue Yavne..." },
+    "spa-villa-brown-jerusalem-spa": { name: "Villa Brown Spa, Jérusalem", summary: "Un spa d’hôtel boutique avec salle de soins, terrasse sur le toit, vue sur la ville et espace détente extérieur..." },
+  },
+} as const;
+
 export function HomeShowcase() {
   const tracks = useRef<Record<string, HTMLDivElement | null>>({});
+  const { language } = useSiteLanguage();
   const worldCards = publicWorldNavigation.filter((world) => !["vacation", "events", "spa", "hourly"].includes(world.id));
   const recommendedPlaces = pickProperties("aqua-resort", "kesem-harimon", "ahuzat-or", "anael-estate", "magic-garden-gefen", "perfumes-villa", "rose-estate");
   const immediatePeriod = lastMinutePeriods.find((period) => period.group === "immediate")!;
@@ -167,9 +207,12 @@ export function HomeShowcase() {
         <div className="home-trust-strip">
           <div className="home-vacation-strip__head"><div><span>דירוגים ממקור המידע של המקום</span><h2 id="home-ratings-title">חוות דעת מובילות</h2></div><SliderControls label="חוות דעת מובילות" onPrevious={() => scroll("ratings", "previous")} onNext={() => scroll("ratings", "next")} /></div>
           <div className="home-slider__track home-slider__track--trust home-slider__track--ratings" ref={(node) => { tracks.current.ratings = node; }} aria-labelledby="home-ratings-title">
-            {topRatedPlaces.map((item) => <Link className="home-rating-card home-slider__item" href={`/discover/place/${item.id}`} key={item.id}>
-              <div className="home-rating-card__top"><img src={item.image} alt="" /><div><span>{item.location}</span><h3>{item.name}</h3><strong aria-label={`${item.rating} מתוך 10`}><b>{item.rating}</b><i aria-hidden="true">★★★★★</i></strong></div></div><p>{item.description}</p><small>הדירוג מוצג לפי מקור המידע המאומת של המקום</small><b className="home-rating-card__cta">לפרטי המקום</b>
-            </Link>)}
+            {topRatedPlaces.map((item) => {
+              const localized = language === "he" ? null : ratingCardCopy[language][item.id as keyof (typeof ratingCardCopy)[typeof language]];
+              return <Link className="home-rating-card home-slider__item" href={`/discover/place/${item.id}`} key={item.id}>
+                <div className="home-rating-card__top"><img src={item.image} alt="" /><div><span>{item.location}</span><h3>{localized?.name || item.name}</h3><strong aria-label={`${item.rating} מתוך 10`}><b>{item.rating}</b><i aria-hidden="true">★★★★★</i></strong></div></div><p>{localized?.summary || reviewExcerpt(item.description)}</p><b className="home-rating-card__cta">לפרטי המקום</b>
+              </Link>;
+            })}
           </div>
         </div>
       </div>

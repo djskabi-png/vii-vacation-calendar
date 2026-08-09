@@ -4521,8 +4521,7 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
 .home-rating-card strong { display: flex; align-items: center; gap: 8px; color: #c77a0a; }
 .home-rating-card strong b { min-width: 42px; min-height: 34px; display: grid; place-items: center; border-radius: 11px; color: white; background: var(--teal-dark); font-size: .88rem; }
 .home-rating-card strong i { font-style: normal; font-size: .74rem; letter-spacing: 1px; }
-.home-rating-card > p { min-height: 3.9em; display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
-.home-rating-card small { color: var(--muted); font-size: .66rem; line-height: 1.45; }
+.home-rating-card > p { min-height: 4.8em; }
 .home-rating-card__cta { width: fit-content; margin-top: auto; color: var(--teal-dark); font-size: .78rem; text-decoration: underline; text-underline-offset: 4px; }
 .home-magazine { background: #062f3a; color: white; }
 .home-magazine .section-head h2, .home-magazine .section-head a { color: white; }
