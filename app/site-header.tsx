@@ -10,10 +10,11 @@ import { LanguageSwitcher, useSiteLanguage } from "./i18n/locale-provider";
 import { stripLanguagePrefix } from "./i18n/locale-routing";
 import { worlds, type WorldId } from "./data/world-data";
 import { AccessibilityWidget } from "./components/accessibility-widget";
+import { WorldSwitcher } from "./components/world-switcher";
 
 const nav = worlds.map((world) => ({ id: world.id, href: world.href, label: world.shortLabel, description: world.description }));
 
-export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
+export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: { variant?: WorldId; showWorldSwitcher?: boolean }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -200,6 +201,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
           <div className="header-actions">
             <Link className="icon-button" href="/favorites" aria-label="מקומות שאהבתי" data-loading-label={favoritesLoading}><HeartIcon /></Link>
             <LanguageSwitcher compact iconOnly />
+            {showWorldSwitcher ? <WorldSwitcher active={variant} /> : null}
             <button ref={menuButtonRef} className="menu-button" type="button" aria-expanded={menuOpen} aria-haspopup="dialog" aria-label="פתיחת תפריט" onClick={() => { setMoreOpen(false); setMenuOpen(true); }}><MenuIcon /><span>תפריט</span></button>
           </div>
         </div>

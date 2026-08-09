@@ -6212,7 +6212,7 @@ html body { transition: opacity .12s ease; }
 }
 
 @media (max-width: 960px) {
-  .world-dock { top: 15px; left: 160px; }
+  .header-actions .world-dock { position: relative; inset: auto; z-index: auto; flex: 0 0 40px; }
   .world-dock > button {
     width: 40px;
     min-width: 40px;
@@ -6233,5 +6233,5 @@ html body { transition: opacity .12s ease; }
 }
 
 @media (max-width: 360px) {
-  .world-dock { left: 148px; }
+  .header-actions .world-dock { inset: auto; }
 }
