@@ -3156,6 +3156,18 @@ h3 { font-size: 1.18rem; }
 .filter-panel label { display: flex; gap: 8px; align-items: center; color: var(--ink-soft); }
 .filter-panel input[type="checkbox"], .filter-panel input[type="radio"] { accent-color: var(--teal); width: 18px; height: 18px; }
 .filter-panel input[type="range"] { accent-color: var(--teal); width: 100%; }
+.vacation-filter-sections { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin: 4px 0 16px; }
+.vacation-filter-sections button { min-height: 46px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 11px; color: var(--ink-soft); background: #fff; font: 750 .86rem/1.35 var(--font-sans); cursor: pointer; }
+.vacation-filter-sections button:hover { border-color: #78bdc5; color: var(--teal-dark); }
+.vacation-filter-sections button.active { border-color: var(--teal); color: var(--teal-dark); background: #eef9f8; box-shadow: inset 0 0 0 1px rgba(8,126,139,.08); }
+.vacation-filter-sections button:focus-visible { outline: 3px solid rgba(9,145,157,.2); outline-offset: 2px; }
+.filter-panel .vacation-type-options { grid-template-columns: repeat(2,minmax(0,1fr)); column-gap: 14px; }
+.filter-panel .vacation-type-options legend { grid-column: 1 / -1; }
+.filter-panel .vacation-type-options label { min-height: 40px; }
+.vacation-more-filters { display: grid; }
+@media (max-width: 760px) {
+  .filter-panel .vacation-type-options { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
 .range-labels { display: flex; justify-content: space-between; font-size: .72rem; color: var(--ink-soft); }
 .filter-apply { display: none; }
 .results-toolbar { min-height: 48px; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }

@@ -31,11 +31,24 @@ export type SearchLandingContext = {
   listingSlugs?: string[];
 };
 
+const legacyAccommodationTypes = [
+  { label: "בקתות עץ", matches: ["בקתת עץ", "בקתות עץ"] },
+  { label: "וילות", matches: ["וילה", "וילות"] },
+  { label: "דירות נופש", matches: ["דירת נופש", "דירות נופש"] },
+  { label: "סוויטות", matches: ["סוויטות", "סוויטות יוקרה", "מתחם סוויטות"] },
+  { label: "מערות", matches: ["מערה", "מערות"] },
+  { label: "צימרים מאבן", matches: ["צימר מאבן", "צימרים מאבן"] },
+  { label: "צימרים", matches: ["צימר", "צימרים"] },
+  { label: "מתחמי אירוח", matches: ["מתחם אירוח", "מתחמי אירוח", "מתחם נופש", "מתחם סוויטות"] },
+  { label: "אוהלים אינדיאנים", matches: ["אוהל אינדיאני", "אוהלים אינדיאנים"] },
+] as const;
+
 export function SearchExperience({ landing }: { landing?: SearchLandingContext }) {
   const router = useRouter();
   const { language } = useSiteLanguage();
   const [sort, setSort] = useState("recommended");
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filterSection, setFilterSection] = useState<"types" | "more">("types");
   const [mapOpen, setMapOpen] = useState(false);
   const [area, setArea] = useState(landing?.area || "הכל");
   const [type, setType] = useState(landing?.type || "הכל");
@@ -108,9 +121,9 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   }, [landing, language, router]);
 
   const areas = useMemo(() => ["הכל", ...searchLocationOptions("vacation").filter((item) => item !== "כל הארץ")], []);
-  const types = useMemo(() => ["הכל", ...Array.from(new Set(properties.map((p) => p.type)))], []);
   const mapCandidates = useMemo(() => properties.filter((property) => {
-      const matchesType = type === "הכל" || (landing?.types?.length && type === landing.type ? landing.types.includes(property.type) : property.type === type);
+      const legacyType = legacyAccommodationTypes.find((item) => item.label === type);
+      const matchesType = type === "הכל" || (landing?.types?.length && type === landing.type ? landing.types.includes(property.type) : legacyType ? legacyType.matches.some((item) => item === property.type) : property.type === type);
       const matchesGuests = property.guests >= guests;
       const matchesPool = !pool || property.features.some((feature) => feature.includes("בריכ"));
       const matchesSpa = !spa || property.features.some((feature) => feature.includes("ג'קוזי") || feature.includes("ספא") || feature.includes("סאונה"));
@@ -163,16 +176,21 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
         <div className={`shell results-layout ${mapOpen ? "with-map" : ""}`}>
           <aside className={`filter-panel ${filtersOpen ? "open" : ""} ${mapOpen ? "map-mode" : ""}`} aria-label="סינון תוצאות">
             <div className="filter-head"><h2>סינון תוצאות</h2><button type="button" onClick={() => setFiltersOpen(false)} aria-label="סגירה"><CloseIcon /></button></div>
+            <div className="vacation-filter-sections" aria-label="קטגוריות סינון">
+              <button type="button" className={filterSection === "types" ? "active" : ""} aria-pressed={filterSection === "types"} onClick={() => setFilterSection("types")}>סוגי אירוח</button>
+              <button type="button" className={filterSection === "more" ? "active" : ""} aria-pressed={filterSection === "more"} onClick={() => setFilterSection("more")}>סינונים נוספים</button>
+            </div>
             {mapOpen && <div className="map-filter-status" aria-live="polite"><PinIcon /><span>האזור שמוצג במפה</span><strong>{area === "הכל" ? "כל הארץ" : area}</strong></div>}
-            <ModernSelect className={`map-area-select ${mapOpen ? "active" : ""}`} label="אזור" value={area} onChange={changeArea} options={areas.map((item) => ({ value: item, label: item === "הכל" ? "כל הארץ" : item }))} />
-            <ModernSelect label="סוג מקום" value={type} onChange={changeType} options={types.map((item) => ({ value: item, label: item }))} />
-            <fieldset><legend>כמות אורחים מינימלית</legend><input type="range" min="1" max="30" value={guests} aria-label="כמות אורחים מינימלית" onChange={(event) => changeGuests(Number(event.target.value))} /><div className="range-value">לפחות {guests} אורחים</div></fieldset>
-            <fieldset><legend>מאפיינים</legend>
-              <label><input type="checkbox" checked={pool} onChange={(event) => setPool(event.target.checked)} /> בריכה</label>
-              <label><input type="checkbox" checked={spa} onChange={(event) => setSpa(event.target.checked)} /> ספא, ג׳קוזי או סאונה</label>
-              <label><input type="checkbox" checked={whole} onChange={(event) => setWhole(event.target.checked)} /> מקום אירוח שלם</label>
-              <label><input type="checkbox" checked={accessibleOnly} onChange={(event) => setAccessibleOnly(event.target.checked)} /> נגישות מלאה ומאומתת</label>
-            </fieldset>
+            {filterSection === "types" ? <fieldset className="vacation-type-options"><legend>סוגי אירוח</legend>{legacyAccommodationTypes.map((item) => <label key={item.label}><input type="radio" name="vacation-accommodation-type" checked={type === item.label} onChange={() => changeType(item.label)} /> {item.label}</label>)}</fieldset> : <div className="vacation-more-filters">
+              <ModernSelect className={`map-area-select ${mapOpen ? "active" : ""}`} label="אזור" value={area} onChange={changeArea} options={areas.map((item) => ({ value: item, label: item === "הכל" ? "כל הארץ" : item }))} />
+              <fieldset><legend>כמות אורחים מינימלית</legend><input type="range" min="1" max="30" value={guests} aria-label="כמות אורחים מינימלית" onChange={(event) => changeGuests(Number(event.target.value))} /><div className="range-value">לפחות {guests} אורחים</div></fieldset>
+              <fieldset><legend>מאפיינים</legend>
+                <label><input type="checkbox" checked={pool} onChange={(event) => setPool(event.target.checked)} /> בריכה</label>
+                <label><input type="checkbox" checked={spa} onChange={(event) => setSpa(event.target.checked)} /> ספא, ג׳קוזי או סאונה</label>
+                <label><input type="checkbox" checked={whole} onChange={(event) => setWhole(event.target.checked)} /> מקום אירוח שלם</label>
+                <label><input type="checkbox" checked={accessibleOnly} onChange={(event) => setAccessibleOnly(event.target.checked)} /> נגישות מלאה ומאומתת</label>
+              </fieldset>
+            </div>}
             <button type="button" className="button primary filter-apply" onClick={() => setFiltersOpen(false)}>{`הצגת ${filtered.length} מקומות`}</button>
             <button type="button" className="button subtle wide" onClick={resetFilters}>ניקוי סינונים</button>
           </aside>
