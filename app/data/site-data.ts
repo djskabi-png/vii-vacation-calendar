@@ -551,7 +551,7 @@ export const eventPlaces = [
 export function eventPlaceHref(place: EventPlace) {
   return place.sourcePropertySlug
     ? `/business?id=${place.sourcePropertySlug}&mode=events`
-    : `/events/place?id=${place.slug}`;
+    : `/events/place/${place.slug}`;
 }
 
 export const destinations = [

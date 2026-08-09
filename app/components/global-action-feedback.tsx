@@ -51,7 +51,9 @@ export function GlobalActionFeedback() {
       if (!element || element.getAttribute("aria-disabled") === "true" || (element instanceof HTMLButtonElement && element.disabled)) return;
       press(element);
 
-      if (!(element instanceof HTMLAnchorElement) && element.dataset.feedbackLabel && element.dataset.feedbackSilent !== "true") {
+      if (element instanceof HTMLAnchorElement && element.dataset.globalFeedback === "true") {
+        showIfStillWaiting(element.dataset.loadingLabel || "פותחים את התוצאות...", 320);
+      } else if (element.dataset.feedbackLabel && element.dataset.feedbackSilent !== "true") {
         show(element.dataset.feedbackLabel);
       }
     };

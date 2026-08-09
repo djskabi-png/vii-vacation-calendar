@@ -186,7 +186,7 @@ export function lodgingSchema(listing: Listing) {
 }
 
 export function eventVenueSchema(place: EventPlace) {
-  const url = `${SITE_URL}/events/place?id=${place.slug}`;
+  const url = `${SITE_URL}/events/place/${place.slug}`;
   return {
     "@context": "https://schema.org",
     "@type": "EventVenue",
@@ -204,7 +204,7 @@ export function eventVenueSchema(place: EventPlace) {
 }
 
 export function discoverySchema(item: DiscoveryItem) {
-  const url = `${SITE_URL}/discover/place?id=${item.id}`;
+  const url = `${SITE_URL}/discover/place/${item.id}`;
   const type = item.world === "spa" ? "DaySpa" : item.world === "hourly" ? "LodgingBusiness" : item.world === "activities" ? "TouristAttraction" : "ProfessionalService";
   return {
     "@context": "https://schema.org",

@@ -40,7 +40,67 @@ const worker = {
       }, allowedWidths);
     }
 
-    return handler.fetch(request, env, ctx);
+    // Vinext resolves locale-prefixed routes through Next rewrites, but the
+    // root layout still needs the original request path to render the correct
+    // server-side lang/dir, canonical URL and hreflang alternates. Forwarding
+    // these values as internal request headers preserves the URL and query
+    // string, so search and filter routes keep working normally.
+    const localeMatch = url.pathname.match(/^\/(en|ru|fr)(?:\/|$)/);
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set("x-vii-pathname", url.pathname);
+    requestHeaders.set("x-vii-locale", localeMatch?.[1] || "he");
+
+    const response = await handler.fetch(new Request(request, { headers: requestHeaders }), env, ctx);
+    const contentType = response.headers.get("content-type") || "";
+    if (!contentType.includes("text/html")) return response;
+
+    const locale = localeMatch?.[1] || "he";
+    const makeLocaleLinks = (currentHref: string) => {
+      const canonicalUrl = new URL(currentHref || url.pathname, url.origin);
+      const basePathname = canonicalUrl.pathname.replace(/^\/(en|ru|fr)(?=\/|$)/, "") || "/";
+      const basePath = `${basePathname}${canonicalUrl.search}`;
+      const localizedPath = locale === "he"
+        ? basePath
+        : `/${locale}${basePathname === "/" ? "" : basePathname}${canonicalUrl.search}`;
+      const publicOrigin = "https://vii.spaplus.co";
+      const canonical = new URL(localizedPath, publicOrigin).toString();
+      const alternatePaths: Record<string, string> = {
+        "he-IL": basePath,
+        en: `/en${basePathname === "/" ? "" : basePathname}${canonicalUrl.search}`,
+        ru: `/ru${basePathname === "/" ? "" : basePathname}${canonicalUrl.search}`,
+        fr: `/fr${basePathname === "/" ? "" : basePathname}${canonicalUrl.search}`,
+        "x-default": basePath,
+      };
+      const alternates = Object.entries(alternatePaths)
+        .map(([hrefLang, path]) => `<link rel="alternate" hreflang="${hrefLang}" href="${new URL(path, publicOrigin)}">`)
+        .join("");
+      return { canonical, alternates };
+    };
+
+    if (typeof HTMLRewriter !== "undefined") {
+      return new HTMLRewriter()
+        .on('link[rel="canonical"]', {
+          element(element) {
+            const links = makeLocaleLinks(element.getAttribute("href") || url.pathname);
+            element.setAttribute("href", links.canonical);
+            element.after(links.alternates, { html: true });
+          },
+        })
+        .transform(response);
+    }
+
+    // The standalone Vinext production server used by local QA does not
+    // expose Cloudflare's HTMLRewriter. Keep the same output contract there
+    // so raw-HTML SEO checks exercise the exact locale behavior.
+    const html = await response.text();
+    const rewritten = html.replace(
+      /<link rel="canonical" href="([^"]+)"\s*\/?>/,
+      (_match, currentHref: string) => {
+        const links = makeLocaleLinks(currentHref);
+        return `<link rel="canonical" href="${links.canonical}">${links.alternates}`;
+      },
+    );
+    return new Response(rewritten, response);
   },
 };
 

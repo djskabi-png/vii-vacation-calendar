@@ -13,9 +13,11 @@ export function SiteFooter({ variant = "vacation", topic }: { variant?: WorldId;
     <footer className="site-footer">
       <div className="shell footer-grid">
         <section className="footer-about">
-          <img src="/vii-logo.png" alt="וי פור ויקיישן" />
+          <Link href="/" aria-label="וי פור ויקיישן, דף הבית">
+            <img src="/vii-logo.png" alt="וי פור ויקיישן" />
+          </Link>
           <p>נופש, אירועים, ספא, ספקים וחוויות, עם חיפוש אחד שמחבר את כל מה שצריך.</p>
-          <Link className="footer-join-link" href="/join">פרסום והצטרפות לאתר</Link>
+          <Link className="footer-join-link" href={`/join/${variant}`}>פרסום והצטרפות בתחום זה</Link>
         </section>
         <nav aria-label={contextual.label}><strong>{contextual.label}</strong>{contextual.links.map((item) => <Link key={`${item.href}-${item.label}`} href={item.href}>{item.label}</Link>)}</nav>
         <nav aria-label="שירותים"><strong>העולמות שלנו</strong><Link href="/search">נופש</Link><Link href="/events">אירועים</Link><Link href="/corporate">אירועי חברה ורווחה</Link><Link href="/spas">ספא</Link><Link href="/hourly">חדרים לכמה שעות</Link><Link href="/providers">ספקים</Link><Link href="/activities">מה עושים בסביבה</Link><Link href="/trails">מסלולי טיולים</Link><Link href="/attractions">אטרקציות בתשלום</Link></nav>

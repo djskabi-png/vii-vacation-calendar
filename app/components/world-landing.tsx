@@ -25,7 +25,7 @@ const crossSellByWorld = {
     description: "אפשר לשלב את הספא עם מקום לינה, מסעדה, מסלול או פעילות קרובה ולבנות יום שמתאים בדיוק לכם.",
     links: [
       { href: "/", label: "למקומות נופש" },
-      { href: "/what-to-do", label: "לפעילויות בסביבה" },
+      { href: "/activities", label: "לפעילויות בסביבה" },
     ],
   },
   providers: {

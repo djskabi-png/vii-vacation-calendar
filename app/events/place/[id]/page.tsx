@@ -1,20 +1,20 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import EventPlacePage from "./client-page";
-import { eventPlaceHref, eventPlaces } from "../../data/site-data";
-import { StructuredData } from "../../components/structured-data";
-import { breadcrumbSchema, eventVenueSchema } from "../../lib/seo";
+import EventPlacePage from "../client-page";
+import { eventPlaceHref, eventPlaces } from "../../../data/site-data";
+import { StructuredData } from "../../../components/structured-data";
+import { breadcrumbSchema, eventVenueSchema } from "../../../lib/seo";
 
-type Props = { searchParams: Promise<{ id?: string }> };
+type Props = { params: Promise<{ id: string }> };
 
-function resolvePlace(id?: string) {
-  const place = id ? eventPlaces.find((item) => item.slug === id) : undefined;
+function resolvePlace(id: string) {
+  const place = eventPlaces.find((item) => item.slug === id);
   if (!place) notFound();
   return place;
 }
 
-export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const place = resolvePlace((await searchParams).id);
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const place = resolvePlace((await params).id);
   return {
     title: place.name,
     description: place.description,
@@ -24,8 +24,8 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   };
 }
 
-export default async function Page({ searchParams }: Props) {
-  const place = resolvePlace((await searchParams).id);
+export default async function Page({ params }: Props) {
+  const place = resolvePlace((await params).id);
   if (place.sourcePropertySlug) redirect(eventPlaceHref(place));
   return <>
     <StructuredData data={eventVenueSchema(place)} />

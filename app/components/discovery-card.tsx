@@ -69,15 +69,15 @@ export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
   const imageFit = item.imageFit || "cover";
 
   return <article className={`discovery-card discovery-card--${item.world}`}>
-    <Link className={`discovery-card__visual discovery-card__visual--${imageFit}`} href={`/discover/place?world=${item.world}&id=${item.id}`} aria-label={`${details}: ${item.name}`}>
+    <Link className={`discovery-card__visual discovery-card__visual--${imageFit}`} href={`/discover/place/${item.id}`} aria-label={`${details}: ${item.name}`}>
       <img src={item.image} alt={item.imageLabel && ui ? ui.image : item.name} style={item.imagePosition ? { objectPosition: item.imagePosition } : undefined} />
       {item.imageLabel && <span className="image-context-label">{ui?.image || item.imageLabel}</span>}
       {item.rating && <span className="rating-badge">★ {item.rating.toFixed(1)}</span>}
     </Link>
-    <FavoriteButton id={item.id} world={item.world} name={item.name} location={`${location}, ${area}`} image={item.image} href={`/discover/place?world=${item.world}&id=${item.id}`} meta={price} />
+    <FavoriteButton id={item.id} world={item.world} name={item.name} location={`${location}, ${area}`} image={item.image} href={`/discover/place/${item.id}`} meta={price} />
     <div className="discovery-card__body" data-no-translate={language !== "he" ? true : undefined}>
       <span className="discovery-card__meta"><PinIcon />{location}<small>{area}</small></span>
-      <h3><Link href={`/discover/place?world=${item.world}&id=${item.id}`}>{item.name}</Link></h3>
+      <h3><Link href={`/discover/place/${item.id}`}>{item.name}</Link></h3>
       <p>{description}</p>
       <div className="discovery-card__chips">{features.map((feature) => <span key={feature}>{feature}</span>)}</div>
       <footer className={item.world === "hourly" ? "discovery-card__hourly-footer" : undefined}>
@@ -87,7 +87,7 @@ export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
             ? <a className="discovery-card__quick-call" dir="ltr" href={`tel:${item.phone.replace(/[^\d+]/g, "")}`} aria-label={`חיוג אל ${item.name}`}><PhoneIcon /><bdi>{item.phone}</bdi></a>
             : <button className="discovery-card__reveal-phone" type="button" onClick={() => setPhoneVisible(true)}><PhoneIcon /><span>הצגת מספר</span></button>
           : null}
-          <Link href={`/discover/place?world=${item.world}&id=${item.id}`}>{details}</Link>
+          <Link href={`/discover/place/${item.id}`}>{details}</Link>
         </div>
       </footer>
     </div>

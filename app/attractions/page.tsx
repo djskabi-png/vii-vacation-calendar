@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 export default function AttractionsPage() {
   return <PageShell variant="activities">
     <main id="main-content" className="attractions-page">
-      <StructuredData data={collectionSchema("אטרקציות בתשלום בישראל", "אטרקציות, סיורים וחוויות לפי אזור וסוג פעילות.", "/attractions/", paidAttractions.map((item) => ({ name: item.name, path: `/discover/place?world=activities&id=${item.id}` })))} />
+      <StructuredData data={collectionSchema("אטרקציות בתשלום בישראל", "אטרקציות, סיורים וחוויות לפי אזור וסוג פעילות.", "/attractions/", paidAttractions.map((item) => ({ name: item.name, path: `/discover/place/${item.id}` })))} />
       <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "אטרקציות", path: "/attractions/" }])} />
       <nav className="shell breadcrumbs world-breadcrumbs" aria-label="פירורי לחם"><Link href="/">ראשי</Link><span>/</span><span aria-current="page">אטרקציות</span></nav>
       <section className="attractions-hero"><div className="shell attractions-hero__layout"><div><h1>אטרקציות בישראל</h1><p>בוחרים אזור וסוג פעילות ומוצאים חוויה שמתאימה בדיוק להרכב שלכם.</p><div className="trails-hero__actions"><a className="button primary" href="#attraction-search">מציאת אטרקציה</a><Link className="button light" href="/trails">מסלולי טיול עצמאיים</Link></div></div><div className="attractions-hero__panel" aria-label="איך ההזמנה עובדת"><span>תהליך פשוט</span><ol><li><b>1</b><strong>בוחרים חוויה</strong><small>אזור, תאריך והרכב</small></li><li><b>2</b><strong>רואים את כל הפרטים</strong><small>מחיר, תנאים ומה כלול</small></li><li><b>3</b><strong>מזמינים בדרך המתאימה</strong><small>תשלום באתר או חיוג לספק</small></li></ol></div></div></section>

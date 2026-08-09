@@ -66,7 +66,9 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
   const mapInstance = useRef<import("leaflet").Map | null>(null);
   const markerInstances = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const visibleCountCallback = useRef(onVisibleCountChange);
-  const initialSelectedId = initialPlaceIds?.find((id) => places.some((place) => place.id === id)) ?? places[0]?.id ?? "";
+  const initialSelectedId = single
+    ? initialPlaceIds?.find((id) => places.some((place) => place.id === id)) ?? places[0]?.id ?? ""
+    : "";
   const selectedIdRef = useRef(initialSelectedId);
   const [enabled, setEnabled] = useState(autoLoad);
   const [mapReady, setMapReady] = useState(false);
@@ -184,7 +186,9 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
           const clustered = cluster.entries.length > 1;
           const clusterText = language === "he" ? `${cluster.entries.length} מקומות` : `${cluster.entries.length}`;
           const visibleLabel = clustered ? String(cluster.entries.length) : place.markerLabel;
-          const useTextLabel = clustered || /\d/.test(visibleLabel);
+          // Clusters communicate result count. A single place stays a clean pin;
+          // capacity, category and price belong in the selected-place card.
+          const useTextLabel = clustered;
           const markerContent = useTextLabel
             ? `<span class="vii-map-marker__label">${safeMarkerLabel(visibleLabel)}</span>`
             : `<span class="vii-map-marker__icon">${markerIcon(tone)}</span>`;
@@ -225,8 +229,17 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
         : places;
       const targetPlaces = focusPlaces.length ? focusPlaces : places;
       const bounds = L.latLngBounds(targetPlaces.map((place) => [place.lat, place.lng] as [number, number]));
+      const compactViewport = container.clientWidth <= 640;
+      const boundsPadding: [number, number] = compactViewport ? [22, 22] : [56, 56];
+      const boundsExpansion = compactViewport ? 0.04 : 0.12;
       if (targetPlaces.length === 1) map.setView([targetPlaces[0].lat, targetPlaces[0].lng], targetPlaces[0].precision === "area" ? 13 : 15);
-      else map.fitBounds(bounds.pad(0.22), { maxZoom: 13, padding: [72, 72] });
+      else {
+        map.fitBounds(bounds.pad(boundsExpansion), { maxZoom: 13, padding: boundsPadding });
+        // A tall mobile viewport can otherwise zoom out far beyond Israel just
+        // to preserve generous horizontal padding. Keep the national overview
+        // useful while retaining every relevant result inside the viewport.
+        if (compactViewport && map.getZoom() < 7) map.setZoom(7, { animate: false });
+      }
 
       map.on("zoomend moveend", () => {
         renderMarkers();
@@ -274,7 +287,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
   if (!enabled) return <div className={`map-preview-card map-tone--${tone} ${single ? "single-map-preview" : ""}`}>{previewContent}</div>;
 
   const mapCanvas = <div className={`listing-map-shell map-tone--${tone} ${single ? "single-map" : ""}`}>
-    <div ref={mapElement} className={`listing-map ${mapReady || autoLoad ? "is-ready" : ""}`} aria-label="מפה אינטראקטיבית של המקומות" />
+    <div ref={mapElement} className={`listing-map ${mapReady ? "is-ready" : ""}`} aria-label="מפה אינטראקטיבית של המקומות" />
     {onClose && !single && <button className="map-mobile-close" type="button" onClick={onClose} aria-label="חזרה לתצוגת רשימה"><span aria-hidden="true">×</span>חזרה לרשימה</button>}
     {mapReady && <span className="map-zoom-hint">גלגלת העכבר מגדילה ומקטינה את המפה</span>}
     {!mapReady && (autoLoad ? <span className="map-live-loading" role="status">טוענים את המפה ואת הסמנים...</span> : <div className="map-preview-card map-loading-preview">{previewContent}</div>)}
@@ -349,7 +362,7 @@ export function DiscoveryMap({ items, initialItems, tone, single = false, autoLo
       image: item.image || "/vii-logo.png",
       lat: item.lat!,
       lng: item.lng!,
-      href: `/discover/place?world=${item.world}&id=${item.id}`,
+      href: `/discover/place/${item.id}`,
       markerLabel: price ? `${price} ₪` : tone === "spa" ? "ספא" : tone === "activities" ? "אטרקציה" : "לפי שעה",
       precision: item.mapPrecision || "area",
     };

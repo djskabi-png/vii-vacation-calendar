@@ -124,7 +124,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
         <div className="menu-panel__intro">
           <div className="menu-panel__intro-top">
             <span>מתחילים מכאן</span>
-            <Link href="/join" onClick={closeMenu}>הצטרפות לאתר <ArrowIcon /></Link>
+            <Link href="/join/providers" onClick={closeMenu}>הצטרפות כספק <ArrowIcon /></Link>
           </div>
           <h2>לאן תרצו להגיע?</h2>
           <p>נופש, אירועים, ספא, ספקים וחוויות, במקום אחד.</p>
@@ -139,7 +139,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
           ))}
         </div>
 
-        <Link className="menu-panel__join" href="/join" onClick={closeMenu}>
+        <Link className="menu-panel__join" href="/join/providers" onClick={closeMenu}>
           <ContactIcon />
           <span>
             <strong>הצטרפות לאתר</strong>

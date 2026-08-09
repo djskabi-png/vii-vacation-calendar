@@ -74,6 +74,17 @@ export function MagazineArticleView({ initialSlug = magazineArticles[0].slug, re
 
   return <PageShell>
     <div className="reading-progress" aria-hidden="true"><span style={{ width: `${progress}%` }} /></div>
+    <div
+      className={`mobile-reading-progress${progress >= 1 ? " is-visible" : ""}`}
+      role="progressbar"
+      aria-label={`התקדמות בקריאה, ${Math.round(progress)} אחוזים`}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={Math.round(progress)}
+    >
+      <span>התקדמות בקריאה</span>
+      <strong>{Math.round(progress)}%</strong>
+    </div>
     <main id="main-content" className="magazine-article">
       <nav className="shell magazine-article__crumbs" aria-label="פירורי לחם"><Link href="/">ראשי</Link><span>/</span><Link href="/guides">מגזין ומדריכים</Link><span>/</span><span aria-current="page">{article.title}</span></nav>
       <header className="shell magazine-article__hero">

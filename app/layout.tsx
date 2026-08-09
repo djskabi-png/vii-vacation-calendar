@@ -3,8 +3,9 @@ import "./globals.css";
 import { LocaleProvider } from "./i18n/locale-provider";
 import { StructuredData } from "./components/structured-data";
 import { organizationSchema, websiteSchema } from "./lib/seo";
+import { headers } from "next/headers";
 
-export const metadata: Metadata = {
+const baseMetadata: Metadata = {
   metadataBase: new URL("https://vii.spaplus.co/"),
   title: { default: "וי פור ויקיישן | מוצאים את החופשה שמתאימה לכם", template: "%s | וי פור ויקיישן" },
   description: "חיפוש נופש, וילות, סוויטות ומקומות לאירועים ברחבי הארץ, עם מידע ברור ותהליך בחירה נוח.",
@@ -53,11 +54,39 @@ export const metadata: Metadata = {
   },
 };
 
+function stripLocale(pathname: string) {
+  const stripped = pathname.replace(/^\/(en|ru|fr)(?=\/|$)/, "");
+  return stripped || "/";
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const requestHeaders = await headers();
+  const pathname = requestHeaders.get("x-vii-pathname") || "/";
+  const basePath = stripLocale(pathname);
+  return {
+    ...baseMetadata,
+    alternates: {
+      ...baseMetadata.alternates,
+      canonical: pathname,
+      languages: {
+        "he-IL": basePath,
+        en: `/en${basePath === "/" ? "" : basePath}`,
+        ru: `/ru${basePath === "/" ? "" : basePath}`,
+        fr: `/fr${basePath === "/" ? "" : basePath}`,
+        "x-default": basePath,
+      },
+    },
+  };
+}
+
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#087e8b" };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const requestHeaders = await headers();
+  const locale = requestHeaders.get("x-vii-locale") || "he";
+  const direction = locale === "he" ? "rtl" : "ltr";
   const localeBootstrap = `(function(){try{var p=location.pathname.match(/^\\/(en|ru|fr)(?:\\/|$)/);var l=p?p[1]:'he';localStorage.setItem('vii-site-language',l);document.documentElement.lang=l;document.documentElement.dir=l==='he'?'rtl':'ltr';document.documentElement.dataset.locale=l;if(l!=='he')document.documentElement.dataset.localePending='true';}catch(e){}})();`;
-  return <html lang="he" dir="rtl" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: localeBootstrap }} /></head><body>
+  return <html lang={locale} dir={direction} suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: localeBootstrap }} /></head><body>
     <StructuredData data={organizationSchema()} />
     <StructuredData data={websiteSchema()} />
     <LocaleProvider>{children}</LocaleProvider>

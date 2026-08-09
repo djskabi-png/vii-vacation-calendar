@@ -134,25 +134,56 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
     const route = cleanVacationRoute || (basePath && mode === "vacation" ? basePath : mode === "events" ? "/events/search/" : mode === "spa" ? "/spas/" : mode === "hourly" ? "/hourly/" : "/search/");
     let destination: string;
     if (isHourly) {
-      destination = `${route}?location=${encodeURIComponent(locationValue)}`;
+      const params = new URLSearchParams();
+      if (locationValue !== "כל הארץ") params.set("location", locationValue);
+      const query = params.toString();
+      destination = query ? `${route}?${query}` : route;
+    } else if (mode === "vacation" && cleanVacationRoute) {
+      const params = new URLSearchParams();
+      if (dates !== defaultDateLabel(mode)) params.set("dates", dates);
+      if (vacationParty.adults !== 2) params.set("adults", String(vacationParty.adults));
+      if (vacationParty.children) params.set("children", String(vacationParty.children));
+      if (vacationParty.infants) params.set("infants", String(vacationParty.infants));
+      if (vacationParty.pets) params.set("pets", String(vacationParty.pets));
+      if (vacationParty.rooms !== 1) params.set("rooms", String(vacationParty.rooms));
+      const query = params.toString();
+      destination = query ? `${route}?${query}` : route;
     } else {
-      const eventRange = mode === "events" ? `&from=${encodeURIComponent(eventDateRange.from ?? "")}&to=${encodeURIComponent(eventDateRange.to ?? "")}` : "";
-      const spaWithoutDate = mode === "spa" && !spaDate.date;
-      const dateSummary = spaWithoutDate ? "בלי תאריך כרגע" : dates;
-      const spaSelection = mode === "spa" ? `&spaFor=${encodeURIComponent(spaAudience)}&date=${encodeURIComponent(spaDate.date ?? "")}&withoutDate=${spaWithoutDate || spaDate.withoutDate ? "1" : "0"}` : "";
-      const vacationSelection = mode === "vacation"
-        ? `&adults=${vacationParty.adults}&children=${vacationParty.children}&infants=${vacationParty.infants}&pets=${vacationParty.pets}&rooms=${vacationParty.rooms}`
-        : "";
-      const locationQuery = cleanVacationRoute || (basePath && mode === "vacation" && locationValue === initialLocation) ? "" : `location=${encodeURIComponent(locationValue)}&`;
-      destination = `${route}?${locationQuery}dates=${encodeURIComponent(dateSummary)}&guests=${guests}${vacationSelection}${eventRange}${spaSelection}`;
-    }
-    window.setTimeout(() => {
-      try {
-        window.location.assign(localizedPath(destination, language));
-      } catch {
-        setIsSearching(false);
+      const params = new URLSearchParams();
+      if (!(basePath && mode === "vacation" && locationValue === initialLocation) && locationValue !== "כל הארץ") {
+        params.set("location", locationValue);
       }
-    }, 140);
+      if (mode === "events") {
+        if (eventDateRange.from) params.set("from", eventDateRange.from);
+        if (eventDateRange.to) params.set("to", eventDateRange.to);
+        if (guests > 0) params.set("guests", String(guests));
+      } else if (mode === "spa") {
+        if (spaAudience !== "single") params.set("spaFor", spaAudience);
+        if (spaDate.date) params.set("date", spaDate.date);
+        if (spaDate.withoutDate) params.set("withoutDate", "1");
+      } else {
+        if (dates !== defaultDateLabel(mode)) params.set("dates", dates);
+        if (vacationParty.adults !== 2) params.set("adults", String(vacationParty.adults));
+        if (vacationParty.children) params.set("children", String(vacationParty.children));
+        if (vacationParty.infants) params.set("infants", String(vacationParty.infants));
+        if (vacationParty.pets) params.set("pets", String(vacationParty.pets));
+        if (vacationParty.rooms !== 1) params.set("rooms", String(vacationParty.rooms));
+      }
+      const query = params.toString();
+      destination = query ? `${route}?${query}` : route;
+    }
+    try {
+      const target = localizedPath(destination, language);
+      const current = `${window.location.pathname}${window.location.search}`;
+      if (current === target || `${current}/` === target || current === `${target}/`) {
+        document.querySelector<HTMLElement>("[data-search-results], .results-heading, .search-results")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        window.setTimeout(() => setIsSearching(false), 240);
+        return;
+      }
+      window.location.assign(target);
+    } catch {
+      setIsSearching(false);
+    }
   }
 
   function changeVacationParty(id: keyof VacationParty, difference: number) {
@@ -219,7 +250,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
         </div>}
         <button type="button" className={`search-submit ${isSearching ? "is-searching" : ""}`} onClick={search} disabled={isSearching} aria-busy={isSearching}><span className="search-submit__icon" aria-hidden="true">{isSearching ? <i /> : <SearchIcon />}</span><span>{isSearching ? "מחפשים..." : "חיפוש"}</span></button>
         </div>
-        <span className="search-status" role="status" aria-live="polite">{isSearching ? "החיפוש התחיל, עוברים לתוצאות" : ""}</span>
+        <span className="search-status" role="status" aria-live="polite">{isSearching ? "מחפשים" : ""}</span>
       </div>
       {mode === "events" ? <EventDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onConfirm={(result) => { setDates(result.summary); setEventDateRange({ from: result.from, to: result.to }); }} /> : mode === "spa" ? <SpaDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onConfirm={(result) => { setDates(result.summary); setSpaDate({ date: result.date, withoutDate: result.withoutDate }); }} /> : !isHourly && <CalendarDemo mode="home" open={calendarOpen} onClose={() => setCalendarOpen(false)} onConfirm={(result) => setDates(result.summary)} />}
     </>

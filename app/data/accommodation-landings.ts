@@ -8,6 +8,7 @@ export type AccommodationCategory = {
   propertyTypes: string[];
   title: string;
   singular: string;
+  countOne: string;
   description: string;
   footerTopic: "vacation-villas" | "suite-complexes" | "luxury-suites" | "vacation-apartments";
 };
@@ -25,6 +26,7 @@ export const accommodationCategories: AccommodationCategory[] = [
     propertyTypes: ["וילה"],
     title: "וילות נופש",
     singular: "וילה",
+    countOne: "וילת נופש אחת",
     description: "וילות נופש פעילות עם תמונות מלאות, פרטי חדרים, מתקנים ואפשרויות הזמנה במקום אחד.",
     footerTopic: "vacation-villas",
   },
@@ -34,6 +36,7 @@ export const accommodationCategories: AccommodationCategory[] = [
     propertyTypes: ["מתחם סוויטות", "סוויטות", "מתחם נופש"],
     title: "מתחמי סוויטות",
     singular: "מתחם סוויטות",
+    countOne: "מתחם סוויטות אחד",
     description: "מתחמי סוויטות פעילים למשפחות, זוגות וקבוצות, עם מידע מלא על היחידות והמתקנים.",
     footerTopic: "suite-complexes",
   },
@@ -43,6 +46,7 @@ export const accommodationCategories: AccommodationCategory[] = [
     propertyTypes: ["סוויטות יוקרה"],
     title: "סוויטות יוקרה",
     singular: "סוויטת יוקרה",
+    countOne: "סוויטת יוקרה אחת",
     description: "סוויטות יוקרה פעילות עם פרטיות, מתקנים איכותיים ומידע מלא לבחירה בטוחה.",
     footerTopic: "luxury-suites",
   },
@@ -52,6 +56,7 @@ export const accommodationCategories: AccommodationCategory[] = [
     propertyTypes: ["דירת נופש"],
     title: "דירות נופש",
     singular: "דירת נופש",
+    countOne: "דירת נופש אחת",
     description: "דירות נופש פעילות עם פירוט חדרים, מתקנים, תמונות ואפשרויות הזמנה.",
     footerTopic: "vacation-apartments",
   },
@@ -88,7 +93,7 @@ export function accommodationLandingPath(category: AccommodationCategory, region
   return `${category.path}${region ? `/${region.slug}` : ""}`;
 }
 
-const minimumRegionalListings = 2;
+const minimumRegionalListings = 1;
 
 function accommodationRegionForArea(area: string) {
   const normalized = area.trim();
@@ -108,9 +113,9 @@ function accommodationRegionForArea(area: string) {
 export function cleanAccommodationPath(type: string, area: string) {
   const category = accommodationCategories.find((item) => item.propertyTypes.includes(type));
   if (!category) return null;
-  if (area === "הכל" || area === "כל הארץ") return accommodationListings(category).length ? category.path : null;
+  if (area === "הכל" || area === "כל הארץ") return category.path;
   const region = accommodationRegionForArea(area);
-  if (!region || accommodationListings(category, region).length < minimumRegionalListings) return null;
+  if (!region) return null;
   return accommodationLandingPath(category, region);
 }
 
@@ -130,7 +135,6 @@ export function accommodationLandingForPath(categoryId: AccommodationCategoryId,
   const region = getAccommodationRegion(regionSlug);
   if (regionSlug && !region) return null;
   const listings = accommodationListings(category, region);
-  if (!listings.length || (region && listings.length < minimumRegionalListings)) return null;
   const path = accommodationLandingPath(category, region);
   const title = region ? `${category.title} ב${region.label}` : `${category.title} בישראל`;
   const description = region

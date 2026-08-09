@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageShell } from "../components/page-shell";
 import { PartnerOnboarding } from "./partner-onboarding";
+import type { JoinWorld } from "./worlds";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema } from "../lib/seo";
@@ -21,7 +22,7 @@ const benefits = [
   ["כלים לצמיחה", "נתוני צפייה ופניות, איסוף חוות דעת וקישור שקל לשתף עם לקוחות."],
 ];
 
-export default function JoinPage() {
+export default function JoinPage({ initialWorld }: { initialWorld?: JoinWorld }) {
   return (
     <PageShell showWorldSwitcher={false}>
       <main id="main-content">
@@ -63,7 +64,7 @@ export default function JoinPage() {
           </div>
         </section>
 
-        <PartnerOnboarding />
+        <PartnerOnboarding initialWorld={initialWorld} />
 
         <section className="section shell join-final-cta">
           <span className="eyebrow">החשיפה מתחילה בעמוד שבנוי נכון</span>

@@ -6,6 +6,7 @@ import { trails } from "./data/trail-data";
 import { absoluteUrl } from "./lib/seo";
 import { indexableAccommodationLandings } from "./data/accommodation-landings";
 import { indexableVacationLandings } from "./data/vacation-landings";
+import { joinWorlds } from "./join/worlds";
 
 const updated = new Date("2026-08-06T00:00:00+03:00");
 
@@ -36,6 +37,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     item("/destinations/", 0.8),
     item("/questions/", 0.8),
     item("/join/", 0.4, "monthly"),
+    ...joinWorlds.map((world) => item(`/join/${world}/`, 0.35, "monthly")),
     item("/accessibility/", 0.3, "yearly"),
     item("/legal/terms/", 0.2, "yearly"),
     item("/legal/privacy/", 0.2, "yearly"),
@@ -47,8 +49,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...indexableAccommodationLandings().map(({ path }) => item(path, 0.88, "weekly")),
     ...indexableVacationLandings().map(({ path }) => item(path, 0.9, "daily")),
     ...properties.map((place) => item(`/business?id=${place.slug}`, 0.9, "weekly", [place.image, ...place.images])),
-    ...eventPlaces.filter((place) => !place.sourcePropertySlug).map((place) => item(`/events/place?id=${place.slug}`, 0.85, "weekly", [place.image, ...place.images])),
-    ...discoveryItems.filter((place) => place.indexable === true || (place.indexable !== false && (place.world === "spa" || place.world === "hourly" || place.world === "activities"))).map((place) => item(`/discover/place?id=${place.id}`, 0.7, "weekly", place.image ? [place.image] : undefined)),
+    ...eventPlaces.filter((place) => !place.sourcePropertySlug).map((place) => item(`/events/place/${place.slug}`, 0.85, "weekly", [place.image, ...place.images])),
+    ...discoveryItems.filter((place) => place.indexable === true || (place.indexable !== false && (place.world === "spa" || place.world === "hourly" || place.world === "activities"))).map((place) => item(`/discover/place/${place.id}`, 0.7, "weekly", place.image ? [place.image] : undefined)),
     ...magazineArticles.map((article) => item(`/guides/${article.slug}/`, 0.75, "monthly", [article.image])),
     ...trails.map((trail) => item(`/trails/${trail.slug}/`, 0.75, "monthly")),
   ];

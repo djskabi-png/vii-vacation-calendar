@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
 import { LeadIntakeForm } from "../components/lead-intake-form";
+import type { JoinWorld } from "./worlds";
 
 type BillingCycle = "monthly" | "annual";
 type PlanId = "standard" | "premium";
-type JoinWorld = "providers" | "vacation" | "events" | "spa" | "hourly" | "activities";
 
 const worlds: Array<{ id: JoinWorld; label: string; description: string }> = [
   { id: "providers", label: "ספקים ונותני שירות", description: "הרשמה מלאה אונליין ובחירת חבילת פרסום" },
@@ -58,8 +58,8 @@ const launchSteps = [
 
 const managementCapabilities = ["עמוד העסק והתוכן", "תמונות, גלריות וסרטונים", "שירותים, חבילות ומחירים", "מבצעים והטבות", "יומן וזמינות", "פניות והזמנות", "חוות דעת", "נתוני צפייה וביצועים"] as const;
 
-export function PartnerOnboarding() {
-  const [selectedWorld, setSelectedWorld] = useState<JoinWorld>("providers");
+export function PartnerOnboarding({ initialWorld = "providers" }: { initialWorld?: JoinWorld }) {
+  const [selectedWorld, setSelectedWorld] = useState<JoinWorld>(initialWorld);
   const [billing, setBilling] = useState<BillingCycle>("annual");
   const [selectedPlan, setSelectedPlan] = useState<PlanId>("standard");
   const [planBilling, setPlanBilling] = useState<Record<PlanId, BillingCycle>>({ standard: "annual", premium: "annual" });

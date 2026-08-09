@@ -22,7 +22,7 @@ export default function SpasPage() {
       { name: "ראשי", path: "/" },
       { name: "בתי ספא", path: "/spas/" },
     ])} />
-    <StructuredData data={collectionSchema("בתי ספא וחבילות ספא", "בתי ספא וחבילות לפי אזור וסוג החוויה.", "/spas", spaPlaces.map((place) => ({ name: place.name, path: `/discover/place?id=${place.id}`, image: place.image })))} />
+    <StructuredData data={collectionSchema("בתי ספא וחבילות ספא", "בתי ספא וחבילות לפי אזור וסוג החוויה.", "/spas", spaPlaces.map((place) => ({ name: place.name, path: `/discover/place/${place.id}`, image: place.image })))} />
     <WorldLanding world="spa" title="בתי ספא בישראל" description="בוחרים אזור, תאריך וסוג חוויה ומוצאים את הספא שמתאים לכם." items={spaPlaces} searchMode="spa" />
   </>;
 }

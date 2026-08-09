@@ -12,6 +12,7 @@ export function accommodationLandingMetadata(categoryId: AccommodationCategoryId
     title: `${landing.title}, מקומות פעילים להזמנה`,
     description: landing.description,
     alternates: { canonical: landing.path },
+    robots: landing.listings.length ? undefined : { index: false, follow: true },
     openGraph: {
       type: "website",
       url: landing.path,
@@ -63,6 +64,8 @@ export function AccommodationLandingRoute({ categoryId, regionSlug }: { category
       breadcrumb: landing.title,
       type: landing.category.propertyTypes[0],
       types: landing.category.propertyTypes,
+      resultNoun: landing.category.title,
+      resultNounOne: landing.category.countOne,
       area: landing.region?.label,
       listingSlugs: landing.listings.map((property) => property.slug),
     }} />

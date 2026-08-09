@@ -26,7 +26,7 @@ export function MasuExperience({ context = "stay" }: { context?: MasuContext }) 
       <p>{content.description}</p>
       <div className="feature-chips">{content.chips.map((chip) => <span key={chip}>{chip}</span>)}</div>
       <div className="masu-experience__actions">
-        <Link className="button primary" href="/discover/place?id=masu-home-wellness">כניסה</Link>
+        <Link className="button primary" href="/discover/place/masu-home-wellness">כניסה</Link>
       </div>
     </div>
   </section>;

@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
-import ArticlePage from "./client-page";
-import { getMagazineArticle } from "../../data/magazine-data";
+import { magazineArticles } from "../../data/magazine-data";
+import { notFound, redirect } from "next/navigation";
 
 type Props = { searchParams: Promise<{ id?: string }> };
 
+function resolveArticle(id?: string) {
+  const article = id ? magazineArticles.find((entry) => entry.slug === id) : undefined;
+  if (!article) notFound();
+  return article;
+}
+
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const article = getMagazineArticle((await searchParams).id);
+  const article = resolveArticle((await searchParams).id);
   return {
     title: article.title,
     description: article.excerpt,
@@ -15,6 +21,6 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 }
 
 export default async function Page({ searchParams }: Props) {
-  const article = getMagazineArticle((await searchParams).id);
-  return <ArticlePage initialSlug={article.slug} />;
+  const article = resolveArticle((await searchParams).id);
+  redirect(`/guides/${article.slug}`);
 }

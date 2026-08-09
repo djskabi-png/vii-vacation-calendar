@@ -58,7 +58,7 @@ const popularVacationSearches = [
 ] as const;
 
 const accommodationStyles = [
-  { label: "וילות נופש", note: "בית שלם, פרטיות ומרחב", href: "/search?location=כל הארץ&type=וילה&guests=2", image: "/media/322de460abbda5c6.jpg" },
+  { label: "וילות נופש", note: "בית שלם, פרטיות ומרחב", href: "/villas", image: "/media/322de460abbda5c6.jpg" },
   { label: "מתחמי סוויטות", note: "כמה יחידות סביב מתחם משותף", href: "/search?location=כל הארץ&type=מתחם סוויטות&guests=2", image: "/media/9a403cb4d9d1cbde.jpg" },
   { label: "סוויטות יוקרה", note: "עיצוב מוקפד וחופשה מפנקת", href: "/search?location=כל הארץ&type=סוויטות יוקרה&guests=2", image: "/media/f18d7c0469633ca0.jpeg" },
   { label: "מתחמי נופש", note: "אפשרויות אירוח לקבוצות ומשפחות", href: "/search?location=כל הארץ&type=מתחם נופש&guests=4", image: "/media/verified/vacation/vacation-como-boutique-1.jpeg" },

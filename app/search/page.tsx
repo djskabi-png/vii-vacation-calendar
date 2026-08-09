@@ -25,6 +25,8 @@ export type SearchLandingContext = {
   breadcrumb: string;
   type: string;
   types?: string[];
+  resultNoun?: string;
+  resultNounOne?: string;
   area?: string;
   listingSlugs?: string[];
 };
@@ -118,7 +120,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     }), [accessibleOnly, guests, landing, pool, spa, type, whole]);
 
   const filtered = useMemo(() => {
-    const useLandingSet = Boolean(landing?.listingSlugs?.length && (!landing.area || area === landing.area));
+    const useLandingSet = Boolean(landing?.listingSlugs?.length && (landing.area ? area === landing.area : area === "הכל"));
     const matches = mapCandidates.filter((property) => useLandingSet ? landing?.listingSlugs?.includes(property.slug) : matchesSearchLocation(property, area));
     return [...matches].sort((a, b) => {
       if (sort === "capacity") return b.guests - a.guests;
@@ -137,6 +139,10 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     whole ? { id: "whole", label: "מקום שלם", remove: () => setWhole(false) } : null,
     accessibleOnly ? { id: "accessible", label: "נגישות מלאה ומאומתת", remove: () => setAccessibleOnly(false) } : null,
   ].filter((filter): filter is { id: string; label: string; remove: () => void } => Boolean(filter));
+
+  const landingResultSummary = landing
+    ? `${filtered.length === 1 ? landing.resultNounOne || landing.resultNoun || "מקום אחד" : `${filtered.length} ${landing.resultNoun || "מקומות"}`} ${landing.area ? `ב${landing.area}` : "בישראל"}`
+    : null;
 
   function resetFilters() {
     setArea("הכל");
@@ -173,7 +179,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
 
           <section className="results-list" aria-label="תוצאות">
             <section className="results-heading">
-              <div><span className="eyebrow">מקומות פעילים שנבדקו</span><h1>{landing?.title || (area === "הכל" ? "נופש ברחבי הארץ" : `נופש ב${area}`)}</h1><p>{landing?.description || (mapOpen ? `${visibleMapCount} מקומות באזור המוצג במפה` : area === "הכל" ? `נמצאו ${filtered.length} מקומות` : `נמצאו ${filtered.length} מקומות ב${area}`)}</p></div>
+              <div><h1>{landing?.title || (area === "הכל" ? "נופש ברחבי הארץ" : `נופש ב${area}`)}</h1><p>{landingResultSummary || (mapOpen ? `${visibleMapCount} מקומות באזור המוצג במפה` : area === "הכל" ? `נמצאו ${filtered.length} מקומות` : `נמצאו ${filtered.length} מקומות ב${area}`)}</p></div>
             </section>
             {activeFilters.length > 0 && <div className="active-filter-row"><span>סינונים פעילים:</span>{activeFilters.map((filter) => <button key={filter.id} type="button" onClick={filter.remove} aria-label={`הסרת הסינון ${filter.label}`}>{filter.label} ×</button>)}<button type="button" className="clear-all" onClick={resetFilters}>ניקוי הכל</button></div>}
             <div className="results-toolbar"><div className="results-toolbar__actions"><button type="button" className="button mobile-filter" onClick={(event) => { event.preventDefault(); event.stopPropagation(); setFiltersOpen(true); }}>סינון</button>{filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (!mapOpen) setVisibleMapCount(filtered.length); setMapOpen(!mapOpen); }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect compact label="מיון לפי" value={sort} onChange={setSort} options={[{ value: "recommended", label: "מומלצים" }, { value: "capacity", label: "קיבולת גבוהה" }, { value: "units", label: "מספר יחידות" }, { value: "name", label: "שם המקום" }]} /></div>
