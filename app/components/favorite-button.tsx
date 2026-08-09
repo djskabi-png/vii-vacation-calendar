@@ -19,7 +19,7 @@ type Props = {
 };
 
 export function FavoriteButton({ id, world, name, location, image, href, meta, compact = true, className = "" }: Props) {
-  const { language } = useSiteLanguage();
+  const { language, translate } = useSiteLanguage();
   const key = savedItemKey(world, id);
   const [saved, setSaved] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -70,7 +70,7 @@ export function FavoriteButton({ id, world, name, location, image, href, meta, c
   return <button
     type="button"
     className={`universal-favorite${compact ? " universal-favorite--compact" : ""}${saved ? " is-saved" : ""}${busy ? " is-loading" : ""}${className ? ` ${className}` : ""}`}
-    aria-label={`${saved ? copy.removeLabel : copy.addLabel}: ${name}`}
+    aria-label={`${saved ? copy.removeLabel : copy.addLabel}: ${translate(name)}`}
     aria-pressed={saved}
     aria-busy={busy}
     disabled={busy}

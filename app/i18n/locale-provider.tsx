@@ -8,9 +8,10 @@ export type { SiteLanguage } from "./locale-routing";
 type LocaleContextValue = {
   language: SiteLanguage;
   setLanguage: (language: SiteLanguage) => void;
+  translate: (value: string) => string;
 };
 
-const LocaleContext = createContext<LocaleContextValue>({ language: "he", setLanguage: () => undefined });
+const LocaleContext = createContext<LocaleContextValue>({ language: "he", setLanguage: () => undefined, translate: (value) => value });
 const languageStorageKey = "vii-site-language";
 const hebrewPattern = /[\u0590-\u05ff]/;
 const originalText = new WeakMap<Text, string>();
@@ -657,6 +658,14 @@ function translateDynamic(value: string, language: Exclude<SiteLanguage, "he">) 
     || dictionary(language)[source]
     || source;
 
+  // Some client components already localize the action label while their
+  // CMS-backed place or trail name is still Hebrew. Translate that embedded
+  // entity as well so accessible names never become bilingual.
+  const localizedPrefixMatch = value.match(/^([^:\u0590-\u05ff]+):\s*(.+[\u0590-\u05ff].*)$/);
+  if (localizedPrefixMatch) {
+    return `${localizedPrefixMatch[1]}: ${translatePart(localizedPrefixMatch[2])}`;
+  }
+
   const allTrailsMatch = value.match(/^לכל (\d+) המסלולים$/);
   if (allTrailsMatch) {
     return language === "en"
@@ -743,6 +752,7 @@ function translateDynamic(value: string, language: Exclude<SiteLanguage, "he">) 
       || curatedTranslations[language][sourceDestination]
       || dictionary(language)[sourceDestination]
       || sourceDestination;
+    if (translatedDestination === sourceDestination) return value;
     return language === "en"
       ? "Stays in " + translatedDestination
       : language === "fr"
@@ -754,6 +764,7 @@ function translateDynamic(value: string, language: Exclude<SiteLanguage, "he">) 
   if (regionalFooterMatch) {
     const [, topic, sourceRegion] = regionalFooterMatch;
     const translatedRegion = translatePart(sourceRegion);
+    if (translatedRegion === sourceRegion) return value;
     const topics = {
       en: {
         "מקומות לאירועים": "Event venues",
@@ -1068,7 +1079,11 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     };
   }, [language, translationVersion]);
 
-  const value = useMemo(() => ({ language, setLanguage }), [language]);
+  const value = useMemo(() => ({
+    language,
+    setLanguage,
+    translate: (source: string) => translateValue(source, language),
+  }), [language, translationVersion]);
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;
 }
 

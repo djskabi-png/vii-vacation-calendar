@@ -53,7 +53,7 @@ function localizedPrice(label: string | undefined, language: Exclude<SiteLanguag
 }
 
 export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
-  const { language } = useSiteLanguage();
+  const { language, translate } = useSiteLanguage();
   const [phoneVisible, setPhoneVisible] = useState(false);
   const localized = language === "he" ? null : worldCopy[language][item.world];
   const ui = language === "he" ? null : interfaceCopy[language];
@@ -69,8 +69,8 @@ export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
   const imageFit = item.imageFit || "cover";
 
   return <article className={`discovery-card discovery-card--${item.world}`}>
-    <Link className={`discovery-card__visual discovery-card__visual--${imageFit}`} href={`/discover/place/${item.id}`} aria-label={`${details}: ${item.name}`}>
-      <img src={item.image} alt={item.imageLabel && ui ? ui.image : item.name} style={item.imagePosition ? { objectPosition: item.imagePosition } : undefined} />
+    <Link className={`discovery-card__visual discovery-card__visual--${imageFit}`} href={`/discover/place/${item.id}`} aria-label={`${details}: ${translate(item.name)}`}>
+      <img src={item.image} alt={item.imageLabel && ui ? ui.image : translate(item.name)} style={item.imagePosition ? { objectPosition: item.imagePosition } : undefined} />
       {item.imageLabel && <span className="image-context-label">{ui?.image || item.imageLabel}</span>}
       {item.rating && <span className="rating-badge">★ {item.rating.toFixed(1)}</span>}
     </Link>
@@ -84,7 +84,7 @@ export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
         <strong>{price}</strong>
         <div className="discovery-card__footer-actions">
           {item.world === "hourly" && item.phone ? phoneVisible
-            ? <a className="discovery-card__quick-call" dir="ltr" href={`tel:${item.phone.replace(/[^\d+]/g, "")}`} aria-label={`חיוג אל ${item.name}`}><PhoneIcon /><bdi>{item.phone}</bdi></a>
+            ? <a className="discovery-card__quick-call" dir="ltr" href={`tel:${item.phone.replace(/[^\d+]/g, "")}`} aria-label={translate(`חיוג אל ${item.name}`)}><PhoneIcon /><bdi>{item.phone}</bdi></a>
             : <button className="discovery-card__reveal-phone" type="button" onClick={() => setPhoneVisible(true)}><PhoneIcon /><span>הצגת מספר</span></button>
           : null}
           <Link href={`/discover/place/${item.id}`}>{details}</Link>

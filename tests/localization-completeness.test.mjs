@@ -54,3 +54,17 @@ test("localized routes hydrate from the Hebrew server source before applying the
   assert.match(provider, /"יוצאים מהצימר\. נכנסים לישראל היפה\.": "Оставьте место проживания позади\. Откройте для себя красоту Израиля\."/);
   assert.match(provider, /"יוצאים מהצימר\. נכנסים לישראל היפה\.": "Quittez votre hébergement\. Partez à la découverte des plus beaux paysages d’Israël\."/);
 });
+
+test("CMS-backed names stay localized in controls, favorites and accessible labels", async () => {
+  const provider = await readFile(resolve(root, "app/i18n/locale-provider.tsx"), "utf8");
+  const favorite = await readFile(resolve(root, "app/components/favorite-button.tsx"), "utf8");
+  const discovery = await readFile(resolve(root, "app/components/discovery-card.tsx"), "utf8");
+  const favoritesPage = await readFile(resolve(root, "app/favorites/page.tsx"), "utf8");
+  assert.match(provider, /translate: \(value: string\) => string/);
+  assert.match(provider, /localizedPrefixMatch/);
+  assert.match(provider, /if \(translatedRegion === sourceRegion\) return value/);
+  assert.match(provider, /if \(translatedDestination === sourceDestination\) return value/);
+  assert.match(favorite, /aria-label=\{`\$\{saved \? copy\.removeLabel : copy\.addLabel\}: \$\{translate\(name\)\}`\}/);
+  assert.match(favoritesPage, /translate\(item\.name\)/);
+  assert.match(discovery, /aria-label=\{`\$\{details\}: \$\{translate\(item\.name\)\}`\}/);
+});

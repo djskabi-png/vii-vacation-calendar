@@ -63,7 +63,7 @@ function migrateLegacyFavorites() {
 }
 
 export default function FavoritesPage() {
-  const { language } = useSiteLanguage();
+  const { language, translate } = useSiteLanguage();
   const [items, setItems] = useState<SavedItem[]>([]);
   const [activeWorld, setActiveWorld] = useState<SavedWorld | "all">("all");
   const [ready, setReady] = useState(false);
@@ -125,9 +125,9 @@ export default function FavoritesPage() {
           {filtering ? <div className="favorites-filtering" role="status"><span aria-hidden="true" />{statusCopy.filtering}</div> : null}
           <div className="favorites-grid">
             {visibleItems.map((item) => <article key={item.key} className="favorite-card">
-              <Link className="favorite-card__media" href={item.href}>{item.image ? <img src={item.image} alt={item.name} /> : <span>{item.name.slice(0, 1)}</span>}</Link>
+              <Link className="favorite-card__media" href={item.href}>{item.image ? <img src={item.image} alt={translate(item.name)} /> : <span>{translate(item.name).slice(0, 1)}</span>}</Link>
               <FavoriteButton id={item.id} world={item.world} name={item.name} location={item.location} image={item.image} href={item.href} meta={item.meta} />
-              <div className="favorite-card__body"><small>{labels[item.world]}</small><h2><Link href={item.href}>{item.name}</Link></h2><p>{localizeLocation(item.location, language)}</p>{localizeMeta(item, language) ? <span>{localizeMeta(item, language)}</span> : null}<Link className="button secondary" href={item.href}>{copy.details}</Link></div>
+              <div className="favorite-card__body"><small>{labels[item.world]}</small><h2><Link href={item.href}>{translate(item.name)}</Link></h2><p>{translate(item.location)}</p>{localizeMeta(item, language) ? <span>{translate(localizeMeta(item, language) || "")}</span> : null}<Link className="button secondary" href={item.href}>{copy.details}</Link></div>
             </article>)}
           </div>
         </> : <div className="favorites-empty">
