@@ -166,9 +166,9 @@ export function HomeShowcase() {
 
         <div className="home-trust-strip">
           <div className="home-vacation-strip__head"><div><span>דירוגים ממקור המידע של המקום</span><h2 id="home-ratings-title">חוות דעת מובילות</h2></div><SliderControls label="חוות דעת מובילות" onPrevious={() => scroll("ratings", "previous")} onNext={() => scroll("ratings", "next")} /></div>
-          <div className="home-slider__track home-slider__track--trust" ref={(node) => { tracks.current.ratings = node; }} aria-labelledby="home-ratings-title">
+          <div className="home-slider__track home-slider__track--trust home-slider__track--ratings" ref={(node) => { tracks.current.ratings = node; }} aria-labelledby="home-ratings-title">
             {topRatedPlaces.map((item) => <Link className="home-rating-card home-slider__item" href={`/discover/place/${item.id}`} key={item.id}>
-              <img src={item.image} alt="" /><div><span>{item.location}</span><h3>{item.name}</h3><strong aria-label={`${item.rating} מתוך 10`}><b>{item.rating}</b><i aria-hidden="true">★★★★★</i></strong><p>{item.description}</p><small>הדירוג מוצג לפי מקור המידע המאומת של המקום</small></div>
+              <div className="home-rating-card__top"><img src={item.image} alt="" /><div><span>{item.location}</span><h3>{item.name}</h3><strong aria-label={`${item.rating} מתוך 10`}><b>{item.rating}</b><i aria-hidden="true">★★★★★</i></strong></div></div><p>{item.description}</p><small>הדירוג מוצג לפי מקור המידע המאומת של המקום</small><b className="home-rating-card__cta">לפרטי המקום</b>
             </Link>)}
           </div>
         </div>

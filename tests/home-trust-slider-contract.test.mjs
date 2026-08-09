@@ -24,6 +24,10 @@ test("home ratings use sourced values and every slider remains responsive", () =
   assert.match(source, /filter\(\(item\) => item\.rating\)/);
   assert.match(source, /הדירוג מוצג לפי מקור המידע המאומת של המקום/);
   assert.match(source, /href=\{`\/discover\/place\/\$\{item\.id\}`\}/);
+  assert.match(source, /home-rating-card__top/);
+  assert.match(source, />לפרטי המקום</);
   assert.match(styles, /\.home-slider__track--trust \.home-slider__item \{ flex-basis: clamp/);
+  assert.match(styles, /\.home-slider__track--ratings \.home-slider__item \{ flex-basis: calc\(\(100% - 60px\) \/ 4\); \}/);
+  assert.match(styles, /\.home-rating-card__top > img \{ width: 84px; aspect-ratio: 1;/);
   assert.match(styles, /\.home-slider__track--trust \.home-slider__item \{ flex-basis: calc\(100vw - 48px\); \}/);
 });

@@ -4516,6 +4516,7 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
 .home-trust-discovery > .shell { display: grid; gap: 58px; }
 .home-trust-strip { min-width: 0; display: grid; gap: 18px; }
 .home-slider__track--trust .home-slider__item { flex-basis: clamp(270px,24vw,325px); }
+.home-slider__track--ratings .home-slider__item { flex-basis: calc((100% - 60px) / 4); }
 .home-tour-card,.home-rating-card { overflow: hidden; border: 1px solid #d5e6e8; border-radius: 22px; background: white; box-shadow: 0 12px 34px rgba(0,55,65,.08); }
 .home-tour-card video { width: 100%; aspect-ratio: 16/9; display: block; object-fit: cover; background: #061d23; }
 .home-tour-card > div,.home-rating-card > div { display: grid; align-content: start; gap: 7px; padding: 17px; }
@@ -4523,12 +4524,17 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
 .home-tour-card h3,.home-rating-card h3 { margin: 0; color: var(--ink); font-size: 1.02rem; }
 .home-tour-card p,.home-rating-card p { margin: 0; color: var(--ink-soft); font-size: .78rem; line-height: 1.6; }
 .home-tour-card a { width: fit-content; margin-top: 4px; color: var(--teal-dark); font-size: .78rem; font-weight: 850; text-decoration: underline; text-underline-offset: 3px; }
-.home-rating-card { display: grid; grid-template-columns: 116px minmax(0,1fr); color: inherit; }
-.home-rating-card > img { width: 116px; height: 100%; min-height: 220px; display: block; object-fit: cover; background: #e5f0f1; }
+.home-rating-card { min-height: 270px; display: flex; flex-direction: column; gap: 11px; padding: 16px; color: inherit; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
+.home-rating-card:hover { transform: translateY(-3px); border-color: rgba(0,129,143,.32); box-shadow: 0 17px 38px rgba(0,55,65,.13); }
+.home-rating-card__top { display: grid; grid-template-columns: 84px minmax(0,1fr); align-items: center; gap: 13px; }
+.home-rating-card__top > img { width: 84px; aspect-ratio: 1; display: block; border-radius: 16px; object-fit: cover; background: #e5f0f1; }
+.home-rating-card__top > div { min-width: 0; display: grid; gap: 5px; }
 .home-rating-card strong { display: flex; align-items: center; gap: 8px; color: #c77a0a; }
 .home-rating-card strong b { min-width: 42px; min-height: 34px; display: grid; place-items: center; border-radius: 11px; color: white; background: var(--teal-dark); font-size: .88rem; }
 .home-rating-card strong i { font-style: normal; font-size: .74rem; letter-spacing: 1px; }
+.home-rating-card > p { min-height: 3.9em; display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
 .home-rating-card small { color: var(--muted); font-size: .66rem; line-height: 1.45; }
+.home-rating-card__cta { width: fit-content; margin-top: auto; color: var(--teal-dark); font-size: .78rem; text-decoration: underline; text-underline-offset: 4px; }
 .home-magazine { background: #062f3a; color: white; }
 .home-magazine .section-head h2, .home-magazine .section-head a { color: white; }
 .home-magazine__grid { display: grid; grid-template-columns: 1.25fr .75fr; grid-template-rows: 1fr 1fr; gap: 18px; }
@@ -4895,6 +4901,9 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
   .home-recommended .section-head, .home-spa-strip .section-head, .home-short-stay .section-head { display: grid; grid-template-columns: 1fr; }
   .home-recommended .section-head > div:last-child, .home-spa-strip .section-head > div:last-child, .home-short-stay .section-head > div:last-child { flex-direction: row; justify-content: space-between; align-items: center; }
   .home-slider__item, .home-slider__track--properties .home-slider__item, .home-slider__track--discovery .home-slider__item, .home-slider__track--trust .home-slider__item { flex-basis: calc(100vw - 48px); }
+  .home-rating-card { min-height: 250px; padding: 15px; }
+  .home-rating-card__top { grid-template-columns: 76px minmax(0,1fr); }
+  .home-rating-card__top > img { width: 76px; }
   .home-vacation-discovery { padding-block: 62px 70px; }
   .home-vacation-discovery__intro { margin-bottom: 34px; }
   .home-vacation-discovery__intro h2 { font-size: 2.5rem; }
