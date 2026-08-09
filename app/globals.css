@@ -4445,6 +4445,23 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
 .home-spa-strip { overflow: hidden; padding-block: 64px; background: linear-gradient(180deg,#fff,#f7fbfa); }
 .home-short-stay { overflow: hidden; padding-block: 64px; background: linear-gradient(180deg,#fff9f4,#fff); }
 .home-slider__track--discovery .home-slider__item { flex-basis: clamp(300px,28vw,365px); }
+.home-trust-discovery { background: linear-gradient(180deg,#fff 0%,#f5fbfb 52%,#fff 100%); }
+.home-trust-discovery > .shell { display: grid; gap: 58px; }
+.home-trust-strip { min-width: 0; display: grid; gap: 18px; }
+.home-slider__track--trust .home-slider__item { flex-basis: clamp(270px,24vw,325px); }
+.home-tour-card,.home-rating-card { overflow: hidden; border: 1px solid #d5e6e8; border-radius: 22px; background: white; box-shadow: 0 12px 34px rgba(0,55,65,.08); }
+.home-tour-card video { width: 100%; aspect-ratio: 16/9; display: block; object-fit: cover; background: #061d23; }
+.home-tour-card > div,.home-rating-card > div { display: grid; align-content: start; gap: 7px; padding: 17px; }
+.home-tour-card span,.home-rating-card span { color: var(--teal); font-size: .72rem; font-weight: 800; }
+.home-tour-card h3,.home-rating-card h3 { margin: 0; color: var(--ink); font-size: 1.02rem; }
+.home-tour-card p,.home-rating-card p { margin: 0; color: var(--ink-soft); font-size: .78rem; line-height: 1.6; }
+.home-tour-card a { width: fit-content; margin-top: 4px; color: var(--teal-dark); font-size: .78rem; font-weight: 850; text-decoration: underline; text-underline-offset: 3px; }
+.home-rating-card { display: grid; grid-template-columns: 116px minmax(0,1fr); color: inherit; }
+.home-rating-card > img { width: 116px; height: 100%; min-height: 220px; display: block; object-fit: cover; background: #e5f0f1; }
+.home-rating-card strong { display: flex; align-items: center; gap: 8px; color: #c77a0a; }
+.home-rating-card strong b { min-width: 42px; min-height: 34px; display: grid; place-items: center; border-radius: 11px; color: white; background: var(--teal-dark); font-size: .88rem; }
+.home-rating-card strong i { font-style: normal; font-size: .74rem; letter-spacing: 1px; }
+.home-rating-card small { color: var(--muted); font-size: .66rem; line-height: 1.45; }
 .home-magazine { background: #062f3a; color: white; }
 .home-magazine .section-head h2, .home-magazine .section-head a { color: white; }
 .home-magazine__grid { display: grid; grid-template-columns: 1.25fr .75fr; grid-template-rows: 1fr 1fr; gap: 18px; }
@@ -4798,13 +4815,13 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
   .header-actions > .icon-button:not(.account-icon-button) { width: 38px; height: 38px; flex: 0 0 38px; }
   .home-recommended .section-head, .home-spa-strip .section-head, .home-short-stay .section-head { display: grid; grid-template-columns: 1fr; }
   .home-recommended .section-head > div:last-child, .home-spa-strip .section-head > div:last-child, .home-short-stay .section-head > div:last-child { flex-direction: row; justify-content: space-between; align-items: center; }
-  .home-slider__item, .home-slider__track--properties .home-slider__item, .home-slider__track--discovery .home-slider__item { flex-basis: calc(100vw - 48px); }
+  .home-slider__item, .home-slider__track--properties .home-slider__item, .home-slider__track--discovery .home-slider__item, .home-slider__track--trust .home-slider__item { flex-basis: calc(100vw - 48px); }
   .home-vacation-discovery { padding-block: 62px 70px; }
   .home-vacation-discovery__intro { margin-bottom: 34px; }
   .home-vacation-discovery__intro h2 { font-size: 2.5rem; }
   .home-vacation-strip + .home-vacation-strip { margin-top: 38px; }
   .home-vacation-strip__head { align-items: center; }
-  .home-vacation-strip__head h3 { font-size: 1.55rem; }
+  .home-vacation-strip__head h2,.home-vacation-strip__head h3 { font-size: 1.55rem; }
   .home-vacation-strip__head .home-slider__controls button { min-width: 48px; padding-inline: 8px; }
   .home-vacation-strip__track .home-slider__item, .home-vacation-strip__track--destinations .home-slider__item { flex-basis: calc(100vw - 58px); }
   .home-vacation-card--destination { min-height: 305px; }

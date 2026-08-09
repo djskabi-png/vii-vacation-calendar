@@ -85,6 +85,8 @@ export function HomeShowcase() {
   const selectedLastMinutePeriod = lastMinutePeriods[0];
   const spontaneousPlaces = pickProperties(...selectedLastMinutePeriod.slugs);
   const lastMinuteSearchHref = lastMinuteHref(selectedLastMinutePeriod);
+  const featuredTours = properties.flatMap((property) => (property.videos || []).map((video) => ({ property, video }))).slice(0, 7);
+  const topRatedPlaces = [...spaPlaces].filter((item) => item.rating).sort((first, second) => (second.rating || 0) - (first.rating || 0)).slice(0, 7);
 
   function scroll(id: string, direction: "previous" | "next") {
     const track = tracks.current[id];
@@ -141,9 +143,32 @@ export function HomeShowcase() {
         </div>
 
         <div className="home-vacation-strip">
-          <div className="home-vacation-strip__head"><div><span>לפי סוג המקום</span><h3>סוגים וסגנונות אירוח</h3></div><SliderControls label="סוגי אירוח" onPrevious={() => scroll("stay-types", "previous")} onNext={() => scroll("stay-types", "next")} /></div>
+          <div className="home-vacation-strip__head"><div><span>סוגים וסגנונות אירוח</span><h3>מה אתם מחפשים?</h3></div><SliderControls label="סוגי אירוח" onPrevious={() => scroll("stay-types", "previous")} onNext={() => scroll("stay-types", "next")} /></div>
           <div className="home-vacation-strip__track" ref={(node) => { tracks.current["stay-types"] = node; }}>
             {accommodationStyles.map((item) => <Link className="home-vacation-card home-vacation-card--style home-slider__item" href={item.href} key={item.label}><img src={item.image} alt="" /><div><span>סגנון אירוח</span><h4>{item.label}</h4><p>{item.note}</p><b>לכל המקומות</b></div></Link>)}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section className="section home-trust-discovery" aria-labelledby="home-tours-title">
+      <div className="shell">
+        <div className="home-trust-strip">
+          <div className="home-vacation-strip__head"><div><span>רואים לפני שבוחרים</span><h2 id="home-tours-title">סרטונים מובילים</h2></div><SliderControls label="סרטונים מובילים" onPrevious={() => scroll("tours", "previous")} onNext={() => scroll("tours", "next")} /></div>
+          <div className="home-slider__track home-slider__track--trust" ref={(node) => { tracks.current.tours = node; }}>
+            {featuredTours.map(({ property, video }) => <article className="home-tour-card home-slider__item" key={`${property.slug}-${video.src}`}>
+              <video controls playsInline preload="metadata" poster={video.poster} aria-label={`${video.title}, ${property.name}`}><source src={video.src} type="video/mp4" /></video>
+              <div><span>{property.location}</span><h3>{property.name}</h3><p>{video.note}</p><Link href={`/business?id=${property.slug}`}>לפרטי המקום</Link></div>
+            </article>)}
+          </div>
+        </div>
+
+        <div className="home-trust-strip">
+          <div className="home-vacation-strip__head"><div><span>דירוגים ממקור המידע של המקום</span><h2 id="home-ratings-title">חוות דעת מובילות</h2></div><SliderControls label="חוות דעת מובילות" onPrevious={() => scroll("ratings", "previous")} onNext={() => scroll("ratings", "next")} /></div>
+          <div className="home-slider__track home-slider__track--trust" ref={(node) => { tracks.current.ratings = node; }} aria-labelledby="home-ratings-title">
+            {topRatedPlaces.map((item) => <Link className="home-rating-card home-slider__item" href={`/discover/place/${item.id}`} key={item.id}>
+              <img src={item.image} alt="" /><div><span>{item.location}</span><h3>{item.name}</h3><strong aria-label={`${item.rating} מתוך 10`}><b>{item.rating}</b><i aria-hidden="true">★★★★★</i></strong><p>{item.description}</p><small>הדירוג מוצג לפי מקור המידע המאומת של המקום</small></div>
+            </Link>)}
           </div>
         </div>
       </div>
