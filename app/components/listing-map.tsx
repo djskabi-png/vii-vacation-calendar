@@ -66,7 +66,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
   const mapInstance = useRef<import("leaflet").Map | null>(null);
   const markerInstances = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const visibleCountCallback = useRef(onVisibleCountChange);
-  const initialSelectedId = initialPlaceIds?.find((id) => places.some((place) => place.id === id)) ?? places[0]?.id ?? "";
+  const initialSelectedId = single ? initialPlaceIds?.find((id) => places.some((place) => place.id === id)) ?? places[0]?.id ?? "" : "";
   const selectedIdRef = useRef(initialSelectedId);
   const [enabled, setEnabled] = useState(autoLoad);
   const [mapReady, setMapReady] = useState(false);
@@ -119,16 +119,11 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
         attributionControl: true,
       });
       container.addEventListener("wheel", keepWheelInsideMap, { passive: false });
-      const streetTiles = language === "he"
-        ? L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-            maxZoom: 19,
-          })
-        : L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-            maxZoom: 20,
-            subdomains: "abcd",
-          });
+      const streetTiles = L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        maxZoom: 20,
+        subdomains: "abcd",
+      });
       const aerialTiles = L.tileLayer(
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         { attribution: "Tiles &copy; Esri", maxZoom: 19 },
@@ -157,6 +152,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
       const spiderfyCluster = (entries: MapPlace[], center: import("leaflet").LatLng) => {
         markerLayer.clearLayers();
         markerRegistry.clear();
+        const selectionReadyAt = performance.now() + 300;
         const centerPoint = map.latLngToLayerPoint(center);
         const radius = Math.min(92, Math.max(54, 42 + entries.length * 6));
 
@@ -178,7 +174,6 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
 
           const spiderMarker = L.marker(spiderPosition, {
             keyboard: true,
-            title: entry.name,
             alt: entry.name,
             zIndexOffset: 900 + index,
             icon: L.divIcon({
@@ -188,9 +183,11 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
               iconAnchor: useTextLabel ? [56, 51] : [27, 54],
             }),
           }).addTo(markerLayer);
-          spiderMarker.on("click", () => selectPlace(entry.id));
-          spiderMarker.on("mouseover", () => setSelectedId(entry.id));
-          spiderMarker.on("focus", () => setSelectedId(entry.id));
+          spiderMarker.getElement()?.setAttribute("aria-label", entry.name);
+          spiderMarker.on("click", () => {
+            if (performance.now() < selectionReadyAt) return;
+            selectPlace(entry.id);
+          });
           markerRegistry.set(entry.id, spiderMarker);
         });
       };
@@ -233,7 +230,6 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
             : `<span class="vii-map-marker__icon">${markerIcon(tone)}</span>`;
           const marker = L.marker(clusterCenter, {
             keyboard: true,
-            title: clustered ? clusterText : place.name,
             alt: clustered ? clusterText : place.name,
             icon: L.divIcon({
               className: `vii-map-marker-wrap map-tone--${tone}${clustered ? " is-cluster" : ""}${useTextLabel ? " is-text" : " is-icon"}${!clustered && place.id === selectedIdRef.current ? " is-active" : ""}`,
@@ -246,6 +242,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
           if (clustered) {
             marker.getElement()?.setAttribute("aria-label", `${clusterText}, ${cardCopy.openCluster}`);
             marker.on("click", () => {
+              setSelectedId("");
               const clusterBounds = L.latLngBounds(cluster.entries.map((entry) => [entry.lat, entry.lng] as [number, number]));
               const clusterDistance = clusterBounds.getNorthEast().distanceTo(clusterBounds.getSouthWest());
               const paddedClusterBounds = clusterBounds.pad(0.65);
@@ -254,9 +251,8 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
               else map.fitBounds(paddedClusterBounds, { maxZoom: targetZoom, padding: [70, 70] });
             });
           } else {
+            marker.getElement()?.setAttribute("aria-label", place.name);
             marker.on("click", () => selectPlace(place.id));
-            marker.on("mouseover", () => setSelectedId(place.id));
-            marker.on("focus", () => setSelectedId(place.id));
             markerRegistry.set(place.id, marker);
           }
         });

@@ -13,6 +13,19 @@ test("desktop map uses the full canvas without a narrow result rail", () => {
   assert.match(component, /marker\.on\("click", \(\) => selectPlace\(place\.id\)\)/);
 });
 
+test("place cards open only after marker activation and use a quiet modern basemap", () => {
+  assert.match(component, /const initialSelectedId = single \?/);
+  assert.doesNotMatch(component, /\.on\("mouseover", \(\) => setSelectedId/);
+  assert.doesNotMatch(component, /\.on\("focus", \(\) => setSelectedId/);
+  assert.match(component, /marker\.on\("click", \(\) => selectPlace/);
+  assert.match(component, /const selectionReadyAt = performance\.now\(\) \+ 300/);
+  assert.match(component, /if \(performance\.now\(\) < selectionReadyAt\) return/);
+  assert.match(component, /if \(clustered\) \{[\s\S]*marker\.on\("click", \(\) => \{[\s\S]*setSelectedId\(""\)/);
+  assert.doesNotMatch(component, /title: entry\.name|title: clustered \?/);
+  assert.match(component, /basemaps\.cartocdn\.com\/light_all/);
+  assert.match(styles, /\.listing-map-shell \.leaflet-tile-pane \{ filter: saturate\(\.82\) contrast\(\.96\) brightness\(1\.025\); \}/);
+});
+
 test("useful numeric labels appear on markers while generic places keep icons", () => {
   assert.match(component, /const useTextLabel = clustered \|\| \/\\d\/\.test\(place\.markerLabel\)/);
 });
@@ -20,7 +33,7 @@ test("useful numeric labels appear on markers while generic places keep icons", 
 test("tightly overlapping clusters expand into individually selectable spider markers", () => {
   assert.match(component, /const spiderfyCluster = \(entries: MapPlace\[\], center:/);
   assert.match(component, /spiderfyCluster\(cluster\.entries, clusterCenter\)/);
-  assert.match(component, /spiderMarker\.on\("click", \(\) => selectPlace\(entry\.id\)\)/);
+  assert.match(component, /spiderMarker\.on\("click", \(\) => \{[\s\S]*if \(performance\.now\(\) < selectionReadyAt\) return;[\s\S]*selectPlace\(entry\.id\)/);
   assert.match(component, /L\.polyline\(\[center, spiderPosition\]/);
   assert.match(component, /setAttribute\("aria-label", `\$\{clusterText\}, \$\{cardCopy\.openCluster\}`\)/);
   assert.match(component, /map\.getBoundsZoom\(paddedClusterBounds, false, L\.point\(140, 140\)\)/);
