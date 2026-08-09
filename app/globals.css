@@ -1742,7 +1742,12 @@ a:focus-visible {
 }
 
 .mode-home .confirm-dates {
-  background: var(--blue-dark);
+  background: #222;
+  box-shadow: 0 7px 16px rgba(0, 0, 0, 0.16);
+}
+
+.mode-home .confirm-dates:hover:not(:disabled) {
+  background: #000;
 }
 
 .confirm-dates:disabled {

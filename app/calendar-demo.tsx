@@ -458,7 +458,7 @@ export function CalendarDemo({
           <div className="dialog-actions">
             {!flexible && <button type="button" className="clear-dates" onClick={reset} disabled={!checkIn && !checkOut}>ניקוי</button>}
             <button type="button" className="confirm-dates" onClick={confirm} disabled={!ready}>
-              {mode === "home" ? "הצגת תוצאות" : businessKind === "single" ? "בדיקת מחיר וזמינות" : "בדיקת יחידות ומחירים"}
+              {mode === "home" ? "הבא" : businessKind === "single" ? "בדיקת מחיר וזמינות" : "בדיקת יחידות ומחירים"}
             </button>
           </div>
         </footer>
