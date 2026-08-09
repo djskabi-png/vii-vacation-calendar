@@ -103,7 +103,7 @@ function SpaResults({ items, activeSpaFilter }: { items: DiscoveryItem[]; active
   return <div className="world-map-results world-map-results--spa spa-results">
     <div className="spa-results__toolbar" aria-label="סינון תוצאות ספא">
       <div className="spa-results__heading">
-        <div><strong aria-live="polite">{resultLabel}</strong></div>
+        <div><h2 aria-live="polite">{resultLabel}</h2></div>
         {filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={() => setMapOpen((value) => !value)}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
       </div>
       <div className="spa-results__filters">

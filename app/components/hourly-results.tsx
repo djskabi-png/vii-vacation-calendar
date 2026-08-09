@@ -75,10 +75,12 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
     updateUrl({ location: "", maxPrice: "", features: "" });
   }
 
+  const resultLabel = filtered.length === 1 ? "מקום אחד נמצא" : `${filtered.length} מקומות נמצאו`;
+
   return <div className="hourly-results">
     <div className="hourly-results__toolbar" aria-label="סינון תוצאות של חדרים לפי שעה">
       <div className="hourly-results__heading">
-        <div><strong aria-live="polite">{filtered.length} מקומות נמצאו</strong><span>אפשר לדייק את הרשימה לפי אזור, מחיר ומאפייני המקום.</span></div>
+        <div><h2 aria-live="polite">{resultLabel}</h2><span>אפשר לדייק את הרשימה לפי אזור, מחיר ומאפייני המקום.</span></div>
         {filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={() => setMapOpen((value) => !value)}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
       </div>
       <div className="hourly-results__filters">

@@ -736,6 +736,35 @@ function translateDynamic(value: string, language: Exclude<SiteLanguage, "he">) 
         : placesInListMatch[1] + " \u043c\u0435\u0441\u0442 \u0432 \u0441\u043f\u0438\u0441\u043a\u0435";
   }
 
+  const hourlyResultsMatch = value.match(/^(\d+) מקומות נמצאו$/);
+  if (hourlyResultsMatch) {
+    const count = Number(hourlyResultsMatch[1]);
+    if (language === "en") return count === 1 ? "One place found" : `${count} places found`;
+    if (language === "fr") return count === 1 ? "Un lieu trouvé" : `${count} lieux trouvés`;
+    const noun = count % 10 === 1 && count % 100 !== 11 ? "место" : count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 12 || count % 100 > 14) ? "места" : "мест";
+    return `Найдено ${count} ${noun}`;
+  }
+
+  const spaResultsMatch = value.match(/^(\d+) בתי ספא(?: בישראל| ב(?!אזור המוצג במפה)(.+))$/);
+  if (spaResultsMatch) {
+    const count = Number(spaResultsMatch[1]);
+    const sourceLocation = spaResultsMatch[2];
+    const location = sourceLocation ? translatePart(sourceLocation) : null;
+    if (language === "en") return `${count} ${count === 1 ? "spa" : "spas"}${location ? ` in ${location}` : " in Israel"}`;
+    if (language === "fr") return `${count} spa${count === 1 ? "" : "s"}${location ? ` à ${location}` : " en Israël"}`;
+    const noun = count % 10 === 1 && count % 100 !== 11 ? "спа-центр" : count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 12 || count % 100 > 14) ? "спа-центра" : "спа-центров";
+    return `${count} ${noun}${location ? ` в ${location}` : " в Израиле"}`;
+  }
+
+  const spaMapResultsMatch = value.match(/^(\d+) בתי ספא באזור המוצג במפה$/);
+  if (spaMapResultsMatch) {
+    const count = Number(spaMapResultsMatch[1]);
+    if (language === "en") return `${count} ${count === 1 ? "spa" : "spas"} in the map area`;
+    if (language === "fr") return `${count} spa${count === 1 ? "" : "s"} dans la zone affichée`;
+    const noun = count % 10 === 1 && count % 100 !== 11 ? "спа-центр" : count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 12 || count % 100 > 14) ? "спа-центра" : "спа-центров";
+    return `${count} ${noun} в области карты`;
+  }
+
   const placesOnMapMatch = value.match(/^(\d+) \u05de\u05e7\u05d5\u05de\u05d5\u05ea \u05e2\u05dc \u05d4\u05de\u05e4\u05d4$/);
   if (placesOnMapMatch) {
     return language === "en"
