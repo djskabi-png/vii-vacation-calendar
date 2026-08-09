@@ -9,6 +9,7 @@ import { PinIcon } from "../site-header";
 import { StructuredData } from "../components/structured-data";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 import { breadcrumbSchema, collectionSchema } from "../lib/seo";
+import { WorldQuickSearches } from "../components/world-quick-searches";
 
 export const metadata: Metadata = {
   title: "מקומות לאירועים פרטיים",
@@ -23,7 +24,7 @@ export default function EventsPage() {
         <StructuredData data={collectionSchema("מקומות לאירועים פרטיים", "מקומות לאירועים לפי אזור, כמות משתתפים וסוג האירוע.", "/events", eventPlaces.map((place) => ({ name: place.name, path: eventPlaceHref(place), image: place.image })))} />
         <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }])} />
         <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "אירועים" }]} />
-        <section className="events-hero"><div className="shell"><h1>מוצאים מקום לחגוג בו</h1><p>מחפשים לפי אזור, תאריך וכמות משתתפים ומשווים בין מקומות אמיתיים.</p><SearchBox mode="events" showWorlds /></div></section>
+        <section className="events-hero"><div className="shell"><h1>מוצאים מקום לחגוג בו</h1><p>מחפשים לפי אזור, תאריך וכמות משתתפים ומשווים בין מקומות אמיתיים.</p><SearchBox mode="events" showWorlds /><WorldQuickSearches mode="events" /></div></section>
         <section className="section shell">
           <div className="section-head">
             <div>
