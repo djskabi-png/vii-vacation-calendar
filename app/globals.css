@@ -6232,9 +6232,19 @@ html body { transition: opacity .12s ease; }
 .accommodation-landing-copy__links { display: grid; align-content: center; gap: 9px; }
 .accommodation-landing-copy__links a { min-height: 46px; display: flex; align-items: center; padding: 10px 15px; border: 1px solid #d1e4e6; border-radius: 14px; color: var(--teal-dark); background: #fff; font-weight: 800; text-decoration: none; }
 .accommodation-landing-copy__links a:hover { border-color: #72bdc5; box-shadow: 0 8px 20px rgba(5, 64, 74, .08); }
+.accommodation-page-guide,.accommodation-page-faq { scroll-margin-top: 110px; margin-top: 28px; padding: clamp(24px,4vw,42px); border: 1px solid #d1e4e6; border-radius: 24px; background: #fff; }
+.accommodation-page-guide h2,.accommodation-page-faq h2 { margin: 7px 0 18px; font-size: clamp(1.65rem,3vw,2.35rem); }
+.accommodation-page-guide > div { display: grid; gap: 13px; }
+.accommodation-page-guide p { max-width: 900px; margin: 0; color: var(--ink-soft); line-height: 1.85; }
+.accommodation-page-faq > div { display: grid; gap: 10px; }
+.accommodation-page-faq details { border: 1px solid #dbe9eb; border-radius: 16px; background: #f9fcfc; }
+.accommodation-page-faq summary { min-height: 58px; display: flex; align-items: center; padding: 14px 18px; font-weight: 850; cursor: pointer; }
+.accommodation-page-faq details p { margin: 0; padding: 0 18px 18px; color: var(--ink-soft); line-height: 1.75; }
+.accommodation-page-faq summary:focus-visible,.accommodation-landing-copy__links a:focus-visible { outline: 3px solid rgba(0,143,162,.25); outline-offset: 3px; }
 
 @media (max-width: 760px) {
   .accommodation-landing-copy { grid-template-columns: 1fr; gap: 20px; margin-top: 24px; padding: 20px; border-radius: 20px; }
+  .accommodation-page-guide,.accommodation-page-faq { margin-top: 18px; padding: 20px 16px; border-radius: 20px; }
 }
 
 /* Compact world selector in the global header zone */

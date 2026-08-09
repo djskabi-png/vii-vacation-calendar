@@ -30,6 +30,9 @@ export type SearchLandingContext = {
   resultNounOne?: string;
   area?: string;
   listingSlugs?: string[];
+  guideTitle?: string;
+  guideParagraphs?: string[];
+  faqs?: Array<{ question: string; answer: string }>;
 };
 
 const legacyAccommodationTypes = [
@@ -306,7 +309,11 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
             {!mapOpen && <div className="result-cards">{filtered.map((property) => <PropertyCard key={property.slug} property={property} />)}</div>}
             {mapOpen && <ListingMap listings={mapCandidates} initialListings={filtered} autoLoad onClose={() => setMapOpen(false)} onVisibleCountChange={setVisibleMapCount} />}
             {filtered.length === 0 && <div className="empty-state"><h2>לא נמצאה התאמה מדויקת</h2><p>אפשר לשנות אזור, להפחית את כמות האורחים או להסיר מאפיין.</p><button className="button primary" type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
-            {landing && filtered.length > 0 && <section className="accommodation-landing-copy" aria-labelledby="accommodation-guide-title"><div><span className="eyebrow">מידע שימושי לפני שמזמינים</span><h2 id="accommodation-guide-title">איך בוחרים {landing.breadcrumb}</h2><p>בדקו את מספר חדרי השינה והיחידות, התאמה להרכב האורחים, מתקנים פעילים ומדיניות ההזמנה. בכל כרטיס אפשר להמשיך לעמוד המקום ולראות את התמונות, החדרים והפרטים המלאים.</p></div><div className="accommodation-landing-copy__links"><Link href="/guides">מדריכי נופש</Link><Link href="/questions">שאלות ותשובות</Link><Link href="/gift-card">גיפט קארד לחופשה</Link></div></section>}
+            {landing && filtered.length > 0 && <>
+              <section className="accommodation-landing-copy" aria-labelledby="accommodation-guide-title"><div><span className="eyebrow">מידע שימושי לפני שמזמינים</span><h2 id="accommodation-guide-title">{landing.guideTitle || `איך בוחרים ${landing.breadcrumb}`}</h2><p>{landing.description}</p></div><nav className="accommodation-landing-copy__links" aria-label={`מידע על ${landing.breadcrumb}`}><a href="#accommodation-guide">המדריך של העמוד</a><a href="#accommodation-faq">שאלות ותשובות של העמוד</a><Link href="/gift-card">גיפט קארד לחופשה</Link></nav></section>
+              <section id="accommodation-guide" className="accommodation-page-guide" aria-labelledby="accommodation-page-guide-title"><span className="eyebrow">המדריך של העמוד</span><h2 id="accommodation-page-guide-title">{landing.guideTitle || `איך בוחרים ${landing.breadcrumb}`}</h2><div>{(landing.guideParagraphs || [landing.description]).map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div></section>
+              {landing.faqs?.length ? <section id="accommodation-faq" className="accommodation-page-faq" aria-labelledby="accommodation-page-faq-title"><span className="eyebrow">תשובות ממוקדות לעמוד הזה</span><h2 id="accommodation-page-faq-title">שאלות ותשובות על {landing.breadcrumb}</h2><div>{landing.faqs.map((item) => <details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}</div></section> : null}
+            </>}
           </section>
         </div>
         {filtersOpen && <button className="filter-backdrop" aria-label="סגירת סינון" onClick={() => setFiltersOpen(false)} />}

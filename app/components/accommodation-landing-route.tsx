@@ -47,6 +47,13 @@ export function AccommodationLandingRoute({ categoryId, regionSlug }: { category
       answer: "נכנסים לעמוד המקום, בוחרים תאריכים והרכב אורחים וממשיכים להזמנה מקוונת או לפנייה ישירה, בהתאם לשיטת העבודה של המקום.",
     },
   ];
+  const subject = landing.region ? `${landing.category.title} באזור ${landing.region.label}` : landing.category.title;
+  const guideTitle = `איך בוחרים ${landing.title}`;
+  const guideParagraphs = [
+    `מקומות האירוח בקטגוריית ${subject} מתאימים לחופשות מסוגים שונים, ולכן כדאי להתחיל בהרכב האורחים ובמספר חדרי השינה והיחידות הדרושים. לאחר מכן משווים בין המתקנים, רמת הפרטיות, המרחבים המשותפים והמיקום המדויק.`,
+    `בעמוד הזה מוצגים רק מקומות פעילים ששייכים לקטגוריית ${landing.category.title}${landing.region ? ` באזור ${landing.region.label}` : " בישראל"}. בכל כרטיס אפשר להיכנס לעמוד המקום ולבדוק תמונות, סידורי לינה, קיבולת, מתקנים ואופן ההזמנה.`,
+    "לפני שממשיכים להזמנה בודקים שהתאריכים, המחיר והרכב האורחים מופיעים יחד. כאשר אין מחיר או תאריך מחובר, ממשיכים לשיחה עם המקום כדי לקבל אישור מדויק ולא להסתמך על מידע חלקי.",
+  ];
 
   return <>
     <StructuredData data={collectionSchema(
@@ -68,6 +75,9 @@ export function AccommodationLandingRoute({ categoryId, regionSlug }: { category
       resultNounOne: landing.category.countOne,
       area: landing.region?.label,
       listingSlugs: landing.listings.map((property) => property.slug),
+      guideTitle,
+      guideParagraphs,
+      faqs,
     }} />
   </>;
 }
