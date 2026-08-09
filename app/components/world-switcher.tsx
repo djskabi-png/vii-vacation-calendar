@@ -6,7 +6,6 @@ import { worlds, type WorldId } from "../data/world-data";
 
 export function WorldSwitcher({ active = "vacation" }: { active?: WorldId }) {
   const [open, setOpen] = useState(false);
-  const current = worlds.find((world) => world.id === active) || worlds[0];
 
   useEffect(() => {
     if (!open) return;
@@ -24,9 +23,13 @@ export function WorldSwitcher({ active = "vacation" }: { active?: WorldId }) {
         <header><span>כל מה שכיף לעשות</span><strong>לאיזה עולם עוברים?</strong></header>
         {worlds.map((world) => <Link key={world.id} className={world.id === active ? "active" : ""} href={world.href} onClick={() => setOpen(false)}><span className={`world-mark world-mark--${world.id}`} aria-hidden="true" /><span><b>{world.label}</b><small>{world.description}</small></span></Link>)}
       </nav>}
-      <button type="button" aria-label={open ? "סגירת בחירת עולם" : `בחירת עולם. העולם הנוכחי: ${current.shortLabel}`} aria-expanded={open} aria-haspopup="true" onClick={() => setOpen((value) => !value)}><span className={`world-mark world-mark--${current.id}`} aria-hidden="true" /><span><small>{current.shortLabel}</small><strong>{open ? "סגירה" : "בחירת עולם"}</strong></span></button>
+      <button type="button" aria-label={open ? "סגירת בחירת עולם" : "בחירת עולם"} aria-expanded={open} aria-haspopup="true" onClick={() => setOpen((value) => !value)}><WorldsIcon /><span><strong>{open ? "סגירה" : "בחירת עולם"}</strong></span></button>
     </div>
   );
+}
+
+function WorldsIcon() {
+  return <svg className="worlds-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="6.5" height="6.5" rx="2" /><rect x="14" y="3.5" width="6.5" height="6.5" rx="2" /><rect x="3.5" y="14" width="6.5" height="6.5" rx="2" /><rect x="14" y="14" width="6.5" height="6.5" rx="2" /><path d="M10 6.75h4M6.75 10v4m10.5-4v4M10 17.25h4" /></svg>;
 }
 
 export function SearchWorldTabs({ active }: { active: WorldId }) {

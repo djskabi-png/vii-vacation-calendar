@@ -16,11 +16,8 @@ const nav = worlds.map((world) => ({ id: world.id, href: world.href, label: worl
 
 export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: { variant?: WorldId; showWorldSwitcher?: boolean }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const moreRootRef = useRef<HTMLDivElement>(null);
-  const moreButtonRef = useRef<HTMLButtonElement>(null);
   const pathname = stripLanguagePrefix(usePathname());
   const { language } = useSiteLanguage();
   const magazineActive = pathname === "/guides" || pathname.startsWith("/guides/");
@@ -43,34 +40,7 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
     { href: "/spas", label: "ספא", active: !magazineActive && variant === "spa" },
     { href: "/attractions", label: "אטרקציות", active: pathname.startsWith("/attractions") },
     { href: "/hourly", label: "לפי שעה", active: !magazineActive && variant === "hourly" },
-    { href: "/gift-card", label: "גיפט קארד", active: pathname === "/gift-card" },
   ];
-
-  const moreNavigation = [
-    { href: "/corporate", label: "אירועי חברה ורווחה", description: "חבילות מלאות לארגונים" },
-    { href: "/providers", label: "ספקים", description: "שפים, תקליטנים ושירותים" },
-    { href: "/activities", label: "מה עושים בסביבה", description: "כל הרעיונות במקום אחד" },
-    { href: "/trails", label: "מסלולי טיול", description: "טיולים עצמאיים לפי אזור" },
-    { href: "/guides", label: magazineCopy.menuLabel, description: "רעיונות, תוכן ומדריכים" },
-  ];
-
-  useEffect(() => {
-    if (!moreOpen) return;
-    const closeFromOutside = (event: PointerEvent) => {
-      if (!moreRootRef.current?.contains(event.target as Node)) setMoreOpen(false);
-    };
-    const closeFromEscape = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      setMoreOpen(false);
-      moreButtonRef.current?.focus();
-    };
-    document.addEventListener("pointerdown", closeFromOutside);
-    document.addEventListener("keydown", closeFromEscape);
-    return () => {
-      document.removeEventListener("pointerdown", closeFromOutside);
-      document.removeEventListener("keydown", closeFromEscape);
-    };
-  }, [moreOpen]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -152,7 +122,7 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
         <div className="menu-panel__secondary">
           <Link href="/account" onClick={closeMenu}><UserIcon /><span>החשבון האישי שלי</span></Link>
           <Link href="/favorites" data-loading-label={favoritesLoading} onClick={closeMenu}><HeartIcon /><span>מקומות שאהבתי</span></Link>
-          <Link href="/gift-card" onClick={closeMenu}><HeartIcon /><span>גיפט קארד</span></Link>
+          <Link href="/gift-card" onClick={closeMenu}><GiftIcon /><span>גיפט קארד</span></Link>
           <Link href="/destinations" onClick={closeMenu}><PinIcon /><span>יעדים</span></Link>
           <Link href="/guides" onClick={closeMenu} aria-current={magazineActive ? "page" : undefined}><InfoIcon /><span>{magazineCopy.menuLabel}</span></Link>
           <Link href="/questions" onClick={closeMenu}><InfoIcon /><span>שאלות ותשובות</span></Link>
@@ -183,26 +153,17 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
           <nav className="desktop-nav" aria-label="ניווט ראשי">
             {primaryNavigation.map((item) => (
               <Link key={item.href} href={item.href} className={item.active ? "active" : ""} aria-current={item.active ? "page" : undefined}>
-                {item.href === "/gift-card" ? <GiftIcon /> : null}
                 <span>{item.label}</span>
               </Link>
             ))}
-            <div ref={moreRootRef} className={`header-more${moreOpen ? " open" : ""}`}>
-              <button ref={moreButtonRef} type="button" aria-haspopup="menu" aria-expanded={moreOpen} onClick={() => setMoreOpen((current) => !current)}>
-                <span>עוד</span><ChevronIcon />
-              </button>
-              <div className="header-more__menu" role="menu" hidden={!moreOpen}>
-                <div><strong>עוד ב־VII</strong><small>כל העולמות והתוכן</small></div>
-                {moreNavigation.map((item) => <Link key={item.href} href={item.href} role="menuitem" onClick={() => setMoreOpen(false)}><span><strong>{item.label}</strong><small>{item.description}</small></span><ArrowIcon /></Link>)}
-              </div>
-            </div>
           </nav>
 
           <div className="header-actions">
             <Link className="icon-button" href="/favorites" aria-label="מקומות שאהבתי" data-loading-label={favoritesLoading}><HeartIcon /></Link>
             <LanguageSwitcher compact iconOnly />
+            <Link className={`icon-button header-gift${pathname === "/gift-card" ? " active" : ""}`} href="/gift-card" aria-label="גיפט קארד" aria-current={pathname === "/gift-card" ? "page" : undefined}><GiftIcon /></Link>
             {showWorldSwitcher ? <WorldSwitcher active={variant} /> : null}
-            <button ref={menuButtonRef} className="menu-button" type="button" aria-expanded={menuOpen} aria-haspopup="dialog" aria-label="פתיחת תפריט" onClick={() => { setMoreOpen(false); setMenuOpen(true); }}><MenuIcon /><span>תפריט</span></button>
+            <button ref={menuButtonRef} className="menu-button" type="button" aria-expanded={menuOpen} aria-haspopup="dialog" aria-label="פתיחת תפריט" onClick={() => setMenuOpen(true)}><MenuIcon /><span>תפריט</span></button>
           </div>
         </div>
       </header>
@@ -223,6 +184,5 @@ export function CalendarIcon() { return <svg viewBox="0 0 24 24" aria-hidden="tr
 export function PeopleIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3" /><path d="M3 20c0-4 2-7 6-7s6 3 6 7m0-9c3 0 5 2 5 5v4" /></svg>; }
 export function UserIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 21c.7-5 3.3-8 8-8s7.3 3 8 8" /></svg>; }
 export function GiftIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h16v11H4zM3 6h18v4H3zM12 6v15" /><path d="M12 6c-4 0-5-2-4-3s4 0 4 3Zm0 0c4 0 5-2 4-3s-4 0-4 3Z" /></svg>; }
-function ChevronIcon() { return <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4" /></svg>; }
 function ContactIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H8l-4 3V5Z" /><path d="M8 9h8M8 13h5" /></svg>; }
 function InfoIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v6M12 7h.01" /></svg>; }

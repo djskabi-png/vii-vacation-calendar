@@ -2991,6 +2991,8 @@ h3 { font-size: 1.18rem; }
 [dir="ltr"] .menu-panel { inset-inline-start: 0; inset-inline-end: auto; }
 .icon-button, .menu-button { border: 1px solid var(--line); background: white; color: var(--ink); height: 44px; border-radius: 50px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
 .icon-button { width: 44px; }
+.icon-button svg { width: 20px; height: 20px; }
+.header-gift.active { color: var(--teal-dark); border-color: rgba(8,126,139,.35); background: var(--mist); }
 .menu-button { gap: 8px; padding: 0 15px; }
 .icon-button[aria-pressed="true"] { background: var(--sky); color: var(--teal-dark); }
 .menu-layer { position: fixed; inset: 0; z-index: 1000; background: rgba(3,27,34,.58); backdrop-filter: blur(8px); animation: menuFade .2s ease-out; }
@@ -4854,7 +4856,8 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
   .brand, .brand img { width: 76px; }
   .magazine-mobile-link { min-height: 34px; gap: 5px; padding-inline: 5px; font-size: .68rem; }
   .magazine-mobile-link small { width: 7px; height: 7px; overflow: hidden; padding: 0; color: transparent; font-size: 0; }
-  .header-actions > .icon-button:not(.account-icon-button) { width: 38px; height: 38px; flex: 0 0 38px; }
+  .header-actions > .icon-button:not(.account-icon-button) { width: 40px; height: 40px; flex: 0 0 40px; }
+  .header-actions .menu-button { width: 40px; height: 40px; }
   .home-recommended .section-head, .home-spa-strip .section-head, .home-short-stay .section-head { display: grid; grid-template-columns: 1fr; }
   .home-recommended .section-head > div:last-child, .home-spa-strip .section-head > div:last-child, .home-short-stay .section-head > div:last-child { flex-direction: row; justify-content: space-between; align-items: center; }
   .home-slider__item, .home-slider__track--properties .home-slider__item, .home-slider__track--discovery .home-slider__item, .home-slider__track--trust .home-slider__item { flex-basis: calc(100vw - 48px); }
@@ -6291,38 +6294,31 @@ html body { transition: opacity .12s ease; }
 }
 
 /* Compact world selector in the global header zone */
-.world-dock {
-  top: 16px;
-  right: auto;
-  bottom: auto;
-  left: calc(max((100vw - 1195px) / 2, 20px) + 212px);
+.header-actions .world-dock {
+  position: relative;
+  inset: auto;
   z-index: 55;
   display: block !important;
 }
 .world-dock > button {
-  width: 108px;
-  min-width: 108px;
-  min-height: 42px;
-  padding: 5px 11px;
+  width: 132px;
+  min-width: 132px;
+  min-height: 44px;
+  padding: 5px 14px;
   gap: 8px;
   border-color: var(--line);
   border-radius: 999px;
   color: var(--ink);
   background: rgba(255,255,255,.97);
-  box-shadow: 0 7px 20px rgba(3,35,43,.08);
+  box-shadow: none;
 }
 .world-dock > button:hover,
 .world-dock > button[aria-expanded="true"] {
   border-color: rgba(8,126,139,.35);
   background: var(--mist);
 }
-.world-dock > button .world-mark {
-  width: 10px;
-  height: 10px;
-  box-shadow: 0 0 0 4px rgba(8,126,139,.08);
-}
-.world-dock > button small { color: var(--ink-soft); font-size: .66rem; }
-.world-dock > button strong { font-size: .76rem; }
+.world-dock > button .worlds-icon { width: 20px; height: 20px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.world-dock > button strong { font-size: .82rem; }
 .world-dock__panel {
   position: fixed;
   top: 72px;
@@ -6344,7 +6340,7 @@ html body { transition: opacity .12s ease; }
     border-radius: 50%;
   }
   .world-dock > button > span:last-child { display: none; }
-  .world-dock > button .world-mark { width: 11px; height: 11px; }
+  .world-dock > button .worlds-icon { width: 20px; height: 20px; }
   .world-dock__panel {
     top: 76px;
     right: 12px;

@@ -17,5 +17,6 @@ test("the mobile world switcher is a compact forty pixel header control", () => 
   assert.match(styles, /\.header-actions \.world-dock \{ position: relative; inset: auto; z-index: auto; flex: 0 0 40px; \}/);
   assert.match(styles, /\.world-dock > button \{[\s\S]*width: 40px;[\s\S]*min-height: 40px/);
   assert.match(styles, /\.world-dock > button > span:last-child \{ display: none; \}/);
-  assert.match(switcher, /aria-label=\{open \? "סגירת בחירת עולם" : `בחירת עולם\. העולם הנוכחי:/);
+  assert.match(switcher, /aria-label=\{open \? "סגירת בחירת עולם" : "בחירת עולם"\}/);
+  assert.match(switcher, /<WorldsIcon \/>/);
 });
