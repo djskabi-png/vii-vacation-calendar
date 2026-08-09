@@ -77,8 +77,8 @@ export function WorldLanding({
 
   return <PageShell variant={world}>
     <main id="main-content" className={`world-page world-page--${world}`}>
-      <BreadcrumbTrail className="world-breadcrumbs" items={breadcrumbItems || [{ name: "ראשי", path: "/" }, { name: worldLabel }]} />
       <section className="world-hero"><div className="shell world-hero__inner"><h1>{title}</h1><p>{description}</p>{searchMode && <><SearchBox mode={searchMode} showWorlds /><WorldQuickSearches mode={searchMode} /></>}</div></section>
+      <BreadcrumbTrail className="world-breadcrumbs" items={breadcrumbItems || [{ name: "ראשי", path: "/" }, { name: worldLabel }]} />
       <section className="section shell">
         <div className="section-head world-results-title"><div><h2>{collectionTitle}</h2></div>{sourceNote && <p className="source-note">{sourceNote}</p>}</div>
         {world === "hourly" ? <HourlyResults items={items} /> : world === "providers" ? <ProviderResults items={items} /> : world === "spa" ? <WorldMapResults items={items} world="spa" activeSpaFilter={activeSpaFilter} /> : <div className="discovery-grid">{items.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>}

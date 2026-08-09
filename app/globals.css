@@ -3337,7 +3337,7 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
 .world-page--hourly .world-hero { background: radial-gradient(circle at 14% 12%, rgba(244,146,45,.18), transparent 28%), linear-gradient(145deg,#fffaf5,#f6f5ee); }
 .world-page--providers .world-hero { background: radial-gradient(circle at 14% 12%, rgba(55,162,123,.16), transparent 28%), linear-gradient(145deg,#f7fcf8,#edf7f2); }
 .world-page--activities .world-hero { background: radial-gradient(circle at 14% 12%, rgba(34,153,192,.18), transparent 28%), linear-gradient(145deg,#f5fbfd,#edf7f5); }
-.world-breadcrumbs { padding-block: 13px; border-bottom: 1px solid rgba(10,105,119,.08); }
+.world-breadcrumbs { padding-block: 12px; border-bottom: 1px solid rgba(10,105,119,.08); background: #fff; }
 .world-breadcrumbs span:last-child { color: var(--ink); font-weight: 750; }
 .world-page > .section,
 .events-page > .section { padding-block: 64px; }
