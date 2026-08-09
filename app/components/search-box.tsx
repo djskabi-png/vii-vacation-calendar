@@ -88,6 +88,8 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [locationOpen, setLocationOpen] = useState(false);
   const [guestOpen, setGuestOpen] = useState(false);
+  const [priceOpen, setPriceOpen] = useState(false);
+  const [maximumPrice, setMaximumPrice] = useState(() => Number(searchParams.get("maxPrice")) || 0);
   const [isSearching, setIsSearching] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState(false);
 
@@ -96,6 +98,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
       setLocationValue(searchParams.get("location") || initialLocation || "כל הארץ");
       setDates(searchParams.get("dates") || defaultDateLabel(mode));
       setGuests(Number(searchParams.get("guests")) || initialGuests || defaultGuestCount(mode));
+      setMaximumPrice(Number(searchParams.get("maxPrice")) || 0);
       if (mode === "vacation") {
         setVacationParty(initialVacationParty(searchParams, Number(searchParams.get("guests")) || initialGuests || 2));
       }
@@ -136,6 +139,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
     if (isHourly) {
       const params = new URLSearchParams();
       if (locationValue !== "כל הארץ") params.set("location", locationValue);
+      if (maximumPrice > 0) params.set("maxPrice", String(maximumPrice));
       const query = params.toString();
       destination = query ? `${route}?${query}` : route;
     } else if (mode === "vacation" && cleanVacationRoute) {
@@ -219,13 +223,17 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
           <span className="search-mobile-summary__action"><SearchIcon /><b>שינוי חיפוש</b></span>
         </button>}
         {shouldCollapse && mobileExpanded && <button type="button" className="search-mobile-backdrop" onClick={() => setMobileExpanded(false)} aria-label="סגירת החיפוש" />}
-        {(locationOpen || guestOpen) && <button type="button" className="search-option-backdrop" onClick={() => { setLocationOpen(false); setGuestOpen(false); }} aria-label="סגירת אפשרויות החיפוש" />}
+        {(locationOpen || guestOpen || priceOpen) && <button type="button" className="search-option-backdrop" onClick={() => { setLocationOpen(false); setGuestOpen(false); setPriceOpen(false); }} aria-label="סגירת אפשרויות החיפוש" />}
         <div className={`search-box ${shouldCollapse ? "compact" : ""} ${isHourly ? "search-box--hourly" : ""}`} role="search" aria-label={mode === "events" ? "חיפוש מקום לאירוע" : mode === "spa" ? "חיפוש מתחם ספא" : isHourly ? "חיפוש חדרים לפי שעה" : "חיפוש חופשה"}>
         {shouldCollapse && <div className="search-mobile-sheet-head"><strong>שינוי חיפוש</strong><button type="button" onClick={() => setMobileExpanded(false)} aria-label="סגירת החיפוש">×</button></div>}
         <div className="search-field-wrap">
-          <button type="button" className="search-field" aria-expanded={locationOpen} onClick={() => { setLocationOpen((value) => !value); setGuestOpen(false); }}><PinIcon /><span><small>{mode === "events" ? "אזור או מקום" : isHourly ? "עיר או אזור" : "לאן נוסעים"}</small><strong>{locationValue}</strong></span></button>
+          <button type="button" className="search-field" aria-expanded={locationOpen} onClick={() => { setLocationOpen((value) => !value); setGuestOpen(false); setPriceOpen(false); }}><PinIcon /><span><small>{mode === "events" ? "אזור או מקום" : isHourly ? "עיר או אזור" : "לאן נוסעים"}</small><strong>{locationValue}</strong></span></button>
           {locationOpen && <div className="search-popover location-list">{places.map((place) => <button type="button" key={place} className={place === locationValue ? "selected" : ""} onClick={() => { setLocationValue(place); setLocationOpen(false); }}>{place}</button>)}</div>}
         </div>
+        {isHourly && <div className="search-field-wrap search-field-wrap--price">
+          <button type="button" className="search-field" aria-expanded={priceOpen} onClick={() => { setPriceOpen((value) => !value); setLocationOpen(false); }}><span><small>מחיר התחלתי עד</small><strong>{maximumPrice ? `${maximumPrice} ₪` : "ללא הגבלה"}</strong></span></button>
+          {priceOpen && <div className="search-popover search-price-list">{[0, 200, 250, 300, 400].map((price) => <button type="button" key={price} className={price === maximumPrice ? "selected" : ""} onClick={() => { setMaximumPrice(price); setPriceOpen(false); }}>{price ? `${price} ₪` : "ללא הגבלה"}</button>)}</div>}
+        </div>}
         {!isHourly && <button type="button" className="search-field" onClick={() => { setCalendarOpen(true); setLocationOpen(false); setGuestOpen(false); }}><CalendarIcon /><span><small>{mode === "events" ? "מתי האירוע?" : mode === "spa" ? "מתי מגיעים?" : "מתי יוצאים"}</small><strong>{dates}</strong></span></button>}
         {!isHourly && <div className="search-field-wrap">
           <button type="button" className="search-field" aria-expanded={guestOpen} onClick={() => { setGuestOpen((value) => !value); setLocationOpen(false); }}><PeopleIcon /><span><small>{peopleLabel}</small><strong>{peopleValue}</strong></span></button>
