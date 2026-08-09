@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 export default function EventsPage() {
   return (
     <PageShell variant="events">
-      <main id="main-content">
+      <main id="main-content" className="events-page">
         <StructuredData data={collectionSchema("מקומות לאירועים פרטיים", "מקומות לאירועים לפי אזור, כמות משתתפים וסוג האירוע.", "/events", eventPlaces.map((place) => ({ name: place.name, path: eventPlaceHref(place), image: place.image })))} />
         <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }])} />
         <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "אירועים" }]} />
