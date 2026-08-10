@@ -5742,8 +5742,6 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
 }
 
 @media (max-width: 760px) {
-  body:has(.corporate-builder) .world-dock,
-  body:has(.corporate-builder) .smart-concierge { display: none; }
   .masu-experience,.gift-hero > .shell,.gift-builder,.corporate-hero > .shell,.corporate-clubs { grid-template-columns: 1fr; }
   .masu-experience { min-height: 0; border-radius: 26px; }
   .masu-experience__media { min-height: 270px; }
@@ -6296,8 +6294,6 @@ button:not(:disabled):active,a[href]:active,[role="button"]:active,.is-action-pr
   body:has(.menu-layer) .smart-concierge,
   body:has(.menu-layer) .world-dock,
   body:has(.menu-layer) .mobile-map-fab { display: none; }
-  body:has(.detail-sticky-wrap) .smart-concierge,
-  body:has(.detail-sticky-wrap) .world-dock { display: none; }
   .hourly-rate-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .hourly-call-panel { grid-template-columns: 1fr; padding: 20px; border-radius: 22px; }
   .hourly-call-panel aside { padding: 18px; }
