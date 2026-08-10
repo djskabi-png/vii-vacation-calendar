@@ -68,3 +68,11 @@ test("vacation type choices are OR filters while additional choices are cumulati
   assert.match(source, /shownFilters\.selectedExtras\.every/);
   assert.match(source, /\.\.\.selectedTypes\.map\(\(selectedType\) => \(\{ id: `type-\$\{selectedType\}`/);
 });
+
+test("regional vacation pages never serialize the all-types default as an active type", async () => {
+  const source = await readFile(new URL("app/search/page.tsx", root), "utf8");
+  assert.match(source, /function normalizedLandingType\(landing\?: SearchLandingContext\)/);
+  assert.match(source, /return normalized === "הכל" \? null : normalized/);
+  assert.match(source, /const landingType = normalizedLandingType\(landing\)/);
+  assert.doesNotMatch(source, /landing\?\.type \? \[normalizeAccommodationType\(landing\.type\)\] : \[\]/);
+});

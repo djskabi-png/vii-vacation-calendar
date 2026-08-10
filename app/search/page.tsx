@@ -67,6 +67,12 @@ function normalizeAccommodationType(value: string) {
   return option?.label || value;
 }
 
+function normalizedLandingType(landing?: SearchLandingContext) {
+  if (!landing?.type) return null;
+  const normalized = normalizeAccommodationType(landing.type);
+  return normalized === "הכל" ? null : normalized;
+}
+
 const legacyExtraFilterGroups = [
   { title: "כללי", options: [
     { id: "accessible", label: "נגישות לנכים", matches: ["נגיש"] },
@@ -133,12 +139,13 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const searchParams = useSearchParams();
   const searchQuery = searchParams.toString();
   const { language } = useSiteLanguage();
+  const landingType = normalizedLandingType(landing);
   const [sort, setSort] = useState("recommended");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [filterSection, setFilterSection] = useState<"types" | "more">("types");
   const { mapOpen, openMap, closeMap } = useMapViewState();
   const [area, setArea] = useState(landing?.area || "הכל");
-  const [selectedTypes, setSelectedTypes] = useState<string[]>(landing?.type ? [normalizeAccommodationType(landing.type)] : []);
+  const [selectedTypes, setSelectedTypes] = useState<string[]>(landingType ? [landingType] : []);
   const [guests, setGuests] = useState(2);
   const [pool, setPool] = useState(false);
   const [spa, setSpa] = useState(false);
@@ -196,7 +203,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     }
     const currentTypes = selectedTypes.length
       ? selectedTypes
-      : landing?.type ? [normalizeAccommodationType(landing.type)] : [];
+      : landingType ? [landingType] : [];
     const nextTypes = currentTypes.includes(nextType)
       ? currentTypes.filter((item) => item !== nextType)
       : [...currentTypes, nextType];
@@ -263,7 +270,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       else if (landing?.area) setArea(landing.area);
       if (Number.isFinite(requestedGuests)) setGuests(Math.max(1, requestedGuests));
       if (requestedTypes.length) setSelectedTypes(requestedTypes);
-      else if (landing?.type) setSelectedTypes([normalizeAccommodationType(landing.type)]);
+      else if (landingType) setSelectedTypes([landingType]);
       else setSelectedTypes([]);
       setPool(params.get("pool") === "1");
       setSpa(params.get("spa") === "1");
@@ -309,7 +316,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
 
   const filtered = useMemo(() => {
     const useLandingSet = Boolean(landing?.listingSlugs?.length
-      && (!landing.type || (selectedTypes.length === 1 && selectedTypes[0] === normalizeAccommodationType(landing.type)))
+      && (!landingType || (selectedTypes.length === 1 && selectedTypes[0] === landingType))
       && (landing.area ? area === landing.area : area === "הכל"));
     const matches = mapCandidates.filter((property) => useLandingSet ? landing?.listingSlugs?.includes(property.slug) : matchesSearchLocation(property, area));
     return [...matches].sort((a, b) => {
@@ -341,7 +348,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       && matchesExtras;
   });
   const draftUsesLandingSet = Boolean(landing?.listingSlugs?.length
-    && (!landing.type || (shownFilters.selectedTypes.length === 1 && shownFilters.selectedTypes[0] === normalizeAccommodationType(landing.type)))
+      && (!landingType || (shownFilters.selectedTypes.length === 1 && shownFilters.selectedTypes[0] === landingType))
     && (landing.area ? shownFilters.area === landing.area : shownFilters.area === "הכל"));
   const draftResultCount = draftCandidates.filter((property) => draftUsesLandingSet ? landing?.listingSlugs?.includes(property.slug) : matchesSearchLocation(property, shownFilters.area)).length;
   const draftResultLabel = draftResultCount === 1 ? "הצגת מקום אחד" : `הצגת ${draftResultCount} מקומות`;
