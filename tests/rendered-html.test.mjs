@@ -1151,7 +1151,8 @@ test("mobile result filtering and sorting share one compact app entry", async ()
   const styles = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(styles, /Mobile results use one compact app-style entry/);
   assert.match(styles, /\.results-toolbar\s*\{[^}]*display:\s*flex;[^}]*justify-content:\s*flex-start;[^}]*min-height:\s*0;[^}]*height:\s*0/s);
-  assert.match(styles, /\.results-heading__meta \.mobile-filter\s*\{[^}]*width:\s*auto;[^}]*min-height:\s*36px;[^}]*border-radius:\s*999px;/s);
+  assert.match(styles, /\.results-heading__meta \.mobile-filter\s*\{[^}]*width:\s*auto;[^}]*min-height:\s*40px;[^}]*border-radius:\s*14px;/s);
+  assert.match(styles, /\.mobile-filter__icon svg\s*\{[^}]*width:\s*17px;[^}]*stroke-width:\s*1\.8;/s);
   assert.match(styles, /\.results-toolbar__actions\s*\{[^}]*width:\s*auto;[^}]*min-width:\s*0;/s);
   assert.match(styles, /\.results-toolbar > \.results-toolbar__sort\s*\{[^}]*display:\s*none;/s);
   assert.match(styles, /\.filter-panel__mobile-sort\s*\{[^}]*display:\s*block;/s);

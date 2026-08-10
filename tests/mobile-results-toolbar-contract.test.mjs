@@ -20,9 +20,10 @@ test("mobile vacation and event headings keep a compact filter beside the result
     assert.match(source, /className="results-toolbar__sort"/);
   });
   assert.match(css, /\.results-toolbar \{[\s\S]*min-height: 0;[\s\S]*height: 0;[\s\S]*background: transparent;[\s\S]*box-shadow: none/);
-  assert.match(css, /\.results-heading__meta \.mobile-filter \{[\s\S]*width: auto;[\s\S]*min-height: 36px;[\s\S]*min-width: 76px;[\s\S]*border-radius: 999px;[\s\S]*background: #fff/);
+  assert.match(css, /\.results-heading__meta \.mobile-filter \{[\s\S]*width: auto;[\s\S]*min-height: 40px;[\s\S]*min-width: 94px;[\s\S]*border-radius: 14px;[\s\S]*background: #fff/);
   assert.match(css, /\.mobile-filter b \{ position: static;/);
-  assert.match(css, /\.mobile-filter__icon i::after/);
+  assert.match(css, /\.mobile-filter__icon svg \{ width: 17px; height: 17px;[\s\S]*stroke-width: 1\.8/);
+  assert.doesNotMatch(css, /\.mobile-filter__icon i::after/);
   assert.match(css, /\.results-toolbar > \.results-toolbar__sort \{ display: none; \}/);
   assert.match(css, /\.filter-panel__mobile-sort \{ display: block;/);
 });
