@@ -94,7 +94,7 @@ test("language routes use real path prefixes and keep the Hebrew homepage canoni
   const searchBox = await readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8");
   const searchPage = await readFile(new URL("../app/search/page.tsx", import.meta.url), "utf8");
   assert.match(searchBox, /const target = localizedPath\(destination, language\)/);
-  assert.match(searchBox, /window\.location\.assign\(target\)/);
+  assert.match(searchBox, /router\.push\(target\)/);
   assert.match(searchPage, /router\.replace\(localizedPath/);
   for (const path of ["/en", "/en/search?guests=2", "/ru/guides", "/fr/spas"]) {
     const response = await render(path);
@@ -145,7 +145,7 @@ test("hourly search starts with location and exposes filters only with the resul
   assert.match(html, /חיפוש חדרים לפי שעה/);
   assert.match(html, /עיר או אזור/);
   assert.match(html, /מקומות נמצאו/);
-  assert.match(html, /מחיר התחלתי עד/);
+  assert.match(html, /מחיר לשעתיים עד/);
   assert.match(html, /כניסה עצמאית/);
   assert.match(html, /תצוגה על מפה/);
   assert.doesNotMatch(html, /בחרו תאריכים/);
@@ -215,15 +215,15 @@ test("vacation search uses a curated geography and descriptive breadcrumbs", asy
   assert.doesNotMatch(taxonomy, /4 יחידות לזוגות ומשפחות/);
 });
 
-test("search submissions reload the selected result set", async () => {
+test("search submissions navigate to the selected result set without a document reload", async () => {
   const [source, feedback, shell, styles] = await Promise.all([
     readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/global-action-feedback.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/page-shell.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
-  assert.doesNotMatch(source, /router\.push\(/);
-  assert.equal((source.match(/window\.location\.assign\(/g) || []).length, 1);
+  assert.match(source, /router\.push\(target\)/);
+  assert.doesNotMatch(source, /window\.location\.assign\(target\)/);
   assert.match(source, /isSearching/);
   assert.match(source, /מחפשים\.\.\./);
   assert.match(source, /aria-busy=\{isSearching\}/);
@@ -306,9 +306,9 @@ test("spa, hourly, event and attraction worlds expose interactive maps", async (
   assert.match(mapSource, /MapTone = "vacation" \| "events" \| "spa" \| "hourly" \| "activities"/);
   assert.match(mapSource, /map-tone--\$\{tone\}/);
   assert.ok((worldData.match(/mapPrecision: "area"/g) || []).length >= 20);
-  assert.match(hourlyResults, /<DiscoveryMap items=\{filtered\} tone="hourly" autoLoad onClose=/);
-  assert.match(worldResults, /<DiscoveryMap items=\{items\} tone=\{world\} autoLoad onClose=/);
-  assert.match(attractionResults, /<DiscoveryMap items=\{filtered\} tone="activities" autoLoad onClose=/);
+  assert.match(hourlyResults, /<DeferredDiscoveryMap items=\{filtered\} tone="hourly" autoLoad onClose=/);
+  assert.match(worldResults, /<DeferredDiscoveryMap items=\{items\} tone=\{world\} autoLoad onClose=/);
+  assert.match(attractionResults, /<DeferredDiscoveryMap items=\{filtered\} tone="activities" autoLoad onClose=/);
   for (const source of [hourlyResults, worldResults, attractionResults, searchResults, eventResults]) assert.match(source, /mobile-map-fab/);
   assert.match(styles, /\.mobile-map-fab \{/);
   assert.match(styles, /bottom: calc\(18px \+ env\(safe-area-inset-bottom\)\)/);
@@ -569,7 +569,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(map, /map-preview-image/);
   assert.match(map, /if \(!enabled\)/);
   assert.match(map, /autoLoad/);
-  assert.match(search, /<ListingMap listings=\{mapCandidates\} initialListings=\{filtered\} autoLoad/);
+  assert.match(search, /<DeferredListingMap listings=\{mapCandidates\} initialListings=\{filtered\} autoLoad/);
   assert.match(search, /onVisibleCountChange=\{setVisibleMapCount\}/);
   assert.doesNotMatch(search, /מתוך \$\{properties\.length\}/);
   assert.match(map, /listing\.bedrooms/);
@@ -1080,7 +1080,7 @@ test("spa results expose working place and amenity filters before the result lis
 
   const source = await readFile(new URL("../app/components/world-map-results.tsx", import.meta.url), "utf8");
   assert.match(source, /selectedFilters\.every/);
-  assert.match(source, /<DiscoveryMap items=\{amenityFiltered\} initialItems=\{filtered\}/);
+  assert.match(source, /<DeferredDiscoveryMap items=\{amenityFiltered\} initialItems=\{filtered\}/);
   assert.match(source, /onVisibleCountChange=\{setVisibleMapCount\}/);
   assert.match(source, /displayed\.map\(\(item\)/);
 
@@ -1144,8 +1144,8 @@ test("all public sorting and filtering controls use the branded modern selector"
 test("mobile result filtering and sorting share one compact app entry", async () => {
   const styles = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(styles, /Mobile results use one compact app-style entry/);
-  assert.match(styles, /\.results-toolbar\s*\{[^}]*display:\s*flex;[^}]*justify-content:\s*flex-start;[^}]*min-height:\s*40px/s);
-  assert.match(styles, /\.results-toolbar__actions \.mobile-filter\s*\{[^}]*width:\s*auto;[^}]*min-height:\s*40px;[^}]*border-radius:\s*999px;/s);
+  assert.match(styles, /\.results-toolbar\s*\{[^}]*display:\s*flex;[^}]*justify-content:\s*flex-start;[^}]*min-height:\s*0;[^}]*height:\s*0/s);
+  assert.match(styles, /\.results-heading__meta \.mobile-filter\s*\{[^}]*width:\s*40px;[^}]*min-height:\s*40px;[^}]*border-radius:\s*50%;/s);
   assert.match(styles, /\.results-toolbar__actions\s*\{[^}]*width:\s*auto;[^}]*min-width:\s*0;/s);
   assert.match(styles, /\.results-toolbar > \.results-toolbar__sort\s*\{[^}]*display:\s*none;/s);
   assert.match(styles, /\.filter-panel__mobile-sort\s*\{[^}]*display:\s*block;/s);

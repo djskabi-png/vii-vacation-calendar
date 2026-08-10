@@ -100,7 +100,17 @@ const worker = {
 
     const response = await handler.fetch(new Request(request, { headers: requestHeaders }), env, ctx);
     const contentType = response.headers.get("content-type") || "";
-    if (!contentType.includes("text/html")) return response;
+    if (!contentType.includes("text/html")) {
+      // Vite gives every compiled asset a content hash. Let the browser keep
+      // those immutable files locally so returning visitors and world changes
+      // do not revalidate the same JavaScript, CSS and fonts on every visit.
+      if (url.pathname.startsWith("/assets/")) {
+        const headers = new Headers(response.headers);
+        headers.set("Cache-Control", "public, max-age=31536000, immutable");
+        return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+      }
+      return response;
+    }
 
     const locale = (localeMatch?.[1] || "he") as PublicLocale;
     const makeLocaleLinks = (currentHref: string) => {

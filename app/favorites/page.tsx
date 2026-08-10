@@ -11,10 +11,10 @@ import { eventPlaceHref, eventPlaces, properties } from "../data/site-data";
 import { readSavedItems, savedItemKey, SAVED_ITEMS_EVENT, type SavedItem, type SavedWorld, writeSavedItems } from "../lib/saved-items";
 
 const worldLabels: Record<SiteLanguage, Record<SavedWorld, string>> = {
-  he: { vacation: "נופש", events: "אירועים ולופטים", spa: "ספא", hourly: "חדרים לפי שעה", providers: "ספקים", activities: "אטרקציות", trails: "מסלולי טיול" },
-  en: { vacation: "Stays", events: "Events and lofts", spa: "Spa", hourly: "Hourly stays", providers: "Services", activities: "Attractions", trails: "Trails" },
-  ru: { vacation: "Отдых", events: "Мероприятия и лофты", spa: "Спа", hourly: "Почасовой отдых", providers: "Услуги", activities: "Аттракционы", trails: "Маршруты" },
-  fr: { vacation: "Séjours", events: "Événements et lofts", spa: "Spa", hourly: "Séjours à l'heure", providers: "Services", activities: "Attractions", trails: "Randonnées" },
+  he: { vacation: "נופש", events: "אירועים ולופטים", corporate: "אירועי חברה", spa: "ספא", hourly: "חדרים לפי שעה", providers: "ספקים", activities: "אטרקציות", trails: "מסלולי טיול" },
+  en: { vacation: "Stays", events: "Events and lofts", corporate: "Corporate events", spa: "Spa", hourly: "Hourly stays", providers: "Services", activities: "Attractions", trails: "Trails" },
+  ru: { vacation: "Отдых", events: "Мероприятия и лофты", corporate: "Корпоративные мероприятия", spa: "Спа", hourly: "Почасовой отдых", providers: "Услуги", activities: "Аттракционы", trails: "Маршруты" },
+  fr: { vacation: "Séjours", events: "Événements et lofts", corporate: "Événements d’entreprise", spa: "Spa", hourly: "Séjours à l'heure", providers: "Services", activities: "Attractions", trails: "Randonnées" },
 };
 
 const pageCopy = {
@@ -23,17 +23,6 @@ const pageCopy = {
   ru: { eyebrow: "Сохраняйте всё впечатление", title: "Моё избранное", intro: "Отдых, мероприятия, спа, услуги, почасовые номера, аттракционы и маршруты, всё в одном месте.", one: "сохранённый объект", many: "сохранённых объектов", account: "Мой аккаунт", all: "Все", filterLabel: "Фильтр избранного", details: "Подробнее и бронирование", emptyTitle: "Начните сохранять", emptyText: "Нажмите на сердце у понравившегося места, услуги или впечатления. Всё сохранённое появится здесь.", stripEyebrow: "Ничего не теряется", stripTitle: "Избранное и бронирования в одном аккаунте", stripText: "В аккаунте собраны ваши сохранённые варианты и бронирования, в том числе на разных устройствах после подключения синхронизации.", login: "Войти", guests: "гостей" },
   fr: { eyebrow: "Gardez toute l'expérience", title: "Mes favoris", intro: "Séjours, événements, spas, services, chambres à l'heure, attractions et randonnées, tout est enregistré ici.", one: "favori enregistré", many: "favoris enregistrés", account: "Mon compte", all: "Tous", filterLabel: "Filtrer les favoris", details: "Détails et réservation", emptyTitle: "Commencez à enregistrer", emptyText: "Touchez le cœur d'un lieu, d'un service ou d'une expérience que vous aimez. Tous vos choix apparaîtront ici.", stripEyebrow: "Ne perdez aucun choix", stripTitle: "Favoris et réservations dans un seul compte", stripText: "Votre compte rassemble vos favoris et vos réservations, y compris sur plusieurs appareils une fois la synchronisation activée.", login: "Se connecter", guests: "personnes" },
 };
-
-const locationTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, string>> = {
-  en: { "אילת": "Eilat", "אילת והערבה": "Eilat and the Arava", "צפון": "Northern Israel", "כנרת": "Sea of Galilee", "גליל מערבי": "Western Galilee", "מרכז": "Central Israel", "תל אביב": "Tel Aviv", "ירושלים": "Jerusalem", "ים המלח": "Dead Sea", "חיפה": "Haifa", "דרום ונגב": "South and Negev" },
-  ru: { "אילת": "Эйлат", "אילת והערבה": "Эйлат и Арава", "צפון": "Север Израиля", "כנרת": "Кинерет", "גליל מערבי": "Западная Галилея", "מרכז": "Центр Израиля", "תל אביב": "Тель-Авив", "ירושלים": "Иерусалим", "ים המלח": "Мёртвое море", "חיפה": "Хайфа", "דרום ונגב": "Юг и Негев" },
-  fr: { "אילת": "Eilat", "אילת והערבה": "Eilat et Arava", "צפון": "Nord d'Israël", "כנרת": "Lac de Tibériade", "גליל מערבי": "Galilée occidentale", "מרכז": "Centre d'Israël", "תל אביב": "Tel-Aviv", "ירושלים": "Jérusalem", "ים המלח": "Mer Morte", "חיפה": "Haïfa", "דרום ונגב": "Sud et Néguev" },
-};
-
-function localizeLocation(value: string, language: SiteLanguage) {
-  if (language === "he") return value;
-  return value.split(",").map((part) => locationTranslations[language][part.trim()] || part.trim()).join(", ");
-}
 
 function localizeMeta(item: SavedItem, language: SiteLanguage) {
   if (language === "he") return item.meta;

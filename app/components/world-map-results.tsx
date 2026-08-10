@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import type { DiscoveryItem } from "../data/world-data";
 import { MapIcon } from "../site-header";
 import { DiscoveryCard } from "./discovery-card";
-import { DiscoveryMap } from "./listing-map";
+import { DeferredDiscoveryMap } from "./deferred-listing-map";
 import { ModernSelect } from "./modern-select";
 import Link from "next/link";
 import { spaLandings, spaLandingHref } from "../data/spa-landings";
@@ -142,7 +142,7 @@ function SpaResults({ items, activeSpaFilter }: { items: DiscoveryItem[]; active
       </div>
       {hasFilters && <div className="spa-results__active" aria-label="סינונים פעילים"><span>סינונים פעילים:</span>{location !== "כל הארץ" && <button type="button" onClick={() => changeLocation("כל הארץ")}>{location} ×</button>}{spaAudience && <button type="button" onClick={() => changeAudience("")}>{spaAudiences[spaAudience].label} ×</button>}{selectedFilters.map((id) => { const filter = spaFilters.find((entry) => entry.id === id); return filter ? <button type="button" key={id} onClick={() => toggleFilter(id)}>{filter.label} ×</button> : null; })}</div>}
     </div>
-    {filtered.length > 0 ? mapOpen ? <DiscoveryMap items={amenityFiltered} initialItems={filtered} tone="spa" autoLoad onClose={() => setMapOpen(false)} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} /> : <div className="discovery-grid">{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div> : <div className="spa-results__empty"><strong>לא נמצאו מתחמים שמתאימים לכל הסינונים</strong><p>אפשר להסיר מאפיין אחד או לבחור אזור רחב יותר.</p><button type="button" className="button secondary" onClick={resetFilters}>הצגת כל מתחמי הספא</button></div>}
+    {filtered.length > 0 ? mapOpen ? <DeferredDiscoveryMap items={amenityFiltered} initialItems={filtered} tone="spa" autoLoad onClose={() => setMapOpen(false)} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} /> : <div className="discovery-grid">{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div> : <div className="spa-results__empty"><strong>לא נמצאו מתחמים שמתאימים לכל הסינונים</strong><p>אפשר להסיר מאפיין אחד או לבחור אזור רחב יותר.</p><button type="button" className="button secondary" onClick={resetFilters}>הצגת כל מתחמי הספא</button></div>}
   </div>;
 }
 
@@ -156,6 +156,6 @@ export function WorldMapResults({ items, world, activeSpaFilter }: { items: Disc
       <div><span className="eyebrow">בוחרים בדרך שנוחה לכם</span><strong>{mapOpen ? "המקומות מסומנים על מפה אינטראקטיבית" : `${items.length} מקומות ברשימה`}</strong></div>
       {items.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={() => setMapOpen((value) => !value)}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
     </div>
-    {mapOpen ? <DiscoveryMap items={items} tone={world} autoLoad onClose={() => setMapOpen(false)} /> : <div className="discovery-grid">{items.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>}
+    {mapOpen ? <DeferredDiscoveryMap items={items} tone={world} autoLoad onClose={() => setMapOpen(false)} /> : <div className="discovery-grid">{items.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>}
   </div>;
 }

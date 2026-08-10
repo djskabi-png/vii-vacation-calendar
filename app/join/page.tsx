@@ -5,7 +5,7 @@ import { PartnerOnboarding } from "./partner-onboarding";
 import type { JoinWorld } from "./worlds";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 import { StructuredData } from "../components/structured-data";
-import { breadcrumbSchema } from "../lib/seo";
+import { breadcrumbSchema, faqSchema } from "../lib/seo";
 
 export const metadata: Metadata = {
   title: "הצטרפות ופרסום עסק באתר",
@@ -22,11 +22,47 @@ const benefits = [
   ["כלים לצמיחה", "נתוני צפייה ופניות, איסוף חוות דעת וקישור שקל לשתף עם לקוחות."],
 ];
 
+const joinFaqs = [
+  {
+    question: "איך מצטרפים ומפרסמים עסק באתר?",
+    answer: "בוחרים את תחום העסק, ממלאים את הפרטים בטופס המתאים ושולחים בקשה. ספקים יכולים לבחור מסלול פרסום, ובעולמות האירוח, האירועים, הספא, החדרים לפי שעה והאטרקציות ממשיכים לאחר הרישום עם נציג מומחה.",
+  },
+  {
+    question: "האם תהליך ההצטרפות זהה לכל סוגי העסקים?",
+    answer: "לא. מסלול ההצטרפות מותאם לתחום העסק. ספקים בוחרים חבילת פרסום, ואילו עסקים בתחומי האירוח והפנאי מתחילים ברישום קצר ובהתאמת דרך העבודה עם נציג מומחה.",
+  },
+  {
+    question: "אילו מסלולי פרסום קיימים לספקים?",
+    answer: "ספקים יכולים לבחור בין מסלול סטנדרט למסלול פרימיום, לפי היקף החשיפה וכלי הניהול המתאימים להם. בעמוד ההצטרפות מוצגים המחיר והמרכיבים של כל מסלול לפני שליחת הבקשה.",
+  },
+  {
+    question: "האם אפשר לבחור חיוב חודשי או שנתי?",
+    answer: "כן. במסלולי הספקים אפשר לבחור חיוב חודשי או התחייבות שנתית. הסכום ותנאי המסלול מוצגים בצורה ברורה לפני שליחת הבקשה.",
+  },
+  {
+    question: "האם מחייבים מיד לאחר שליחת הטופס?",
+    answer: "לא. הבקשה נבדקת לפני פתיחת החשבון ולפני ביצוע חיוב. נציג יכול ליצור קשר כדי להשלים פרטים ולוודא שהמסלול מתאים לעסק.",
+  },
+  {
+    question: "מה אפשר לנהל במערכת העסק?",
+    answer: "המערכת מיועדת לניהול פרטי העסק, תוכן, תמונות, שירותים, חבילות, מחירים, מבצעים, זמינות, פניות והזמנות, בהתאם לתחום ולמסלול שנבחר.",
+  },
+  {
+    question: "מתי עמוד העסק עולה לאתר?",
+    answer: "עמוד העסק עולה לאחר בדיקת הפרטים והשלמת התוכן הנדרש. זמן ההכנה תלוי בתחום, בכמות המידע ובתמונות שנמסרו.",
+  },
+  {
+    question: "אילו פרטים כדאי להכין לפני ההרשמה?",
+    answer: "מומלץ להכין שם עסק, פרטי קשר, אזורי שירות, תיאור קצר, רשימת שירותים או חבילות, מחירים מעודכנים ותמונות מקוריות שמותר לעסק לפרסם.",
+  },
+];
+
 export default function JoinPage({ initialWorld }: { initialWorld?: JoinWorld }) {
   return (
     <PageShell showWorldSwitcher={false}>
       <main id="main-content">
         <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "הצטרפות ופרסום", path: "/join" }])} />
+        <StructuredData data={faqSchema(joinFaqs)} />
         <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "הצטרפות ופרסום" }]} />
         <section className="join-hero join-hero--conversion">
           <div className="shell">
@@ -66,11 +102,20 @@ export default function JoinPage({ initialWorld }: { initialWorld?: JoinWorld })
 
         <PartnerOnboarding initialWorld={initialWorld} />
 
-        <section className="section shell join-final-cta">
-          <span className="eyebrow">החשיפה מתחילה בעמוד שבנוי נכון</span>
-          <h2>מוכנים לפתוח את העסק באתר?</h2>
-          <p>בוחרים מסלול, משאירים את פרטי העסק ומקבלים מעבר מסודר לאימות, תשלום והעלאת התוכן.</p>
-          <Link className="button primary" href="#join-form">מתחילים עכשיו</Link>
+        <section className="section shell join-faq" aria-labelledby="join-faq-title">
+          <div className="join-faq__intro">
+            <span className="eyebrow">מידע לפני שמצטרפים</span>
+            <h2 id="join-faq-title">שאלות ותשובות על הצטרפות ופרסום באתר</h2>
+            <p>תשובות ברורות על מסלולי הפרסום, תהליך הבדיקה, החיוב וניהול עמוד העסק.</p>
+          </div>
+          <div className="join-faq__list">
+            {joinFaqs.map((item) => (
+              <details key={item.question}>
+                <summary>{item.question}</summary>
+                <p>{item.answer}</p>
+              </details>
+            ))}
+          </div>
         </section>
       </main>
     </PageShell>

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { DiscoveryCard } from "../components/discovery-card";
-import { DiscoveryMap } from "../components/listing-map";
+import { DeferredDiscoveryMap } from "../components/deferred-listing-map";
 import { ModernSelect } from "../components/modern-select";
 import { paidAttractions } from "../data/world-data";
 import { MapIcon } from "../site-header";
@@ -80,7 +80,7 @@ export function AttractionsExplorer() {
     </div>
     {filtered.length
       ? mapOpen
-        ? <DiscoveryMap items={filtered} tone="activities" autoLoad onClose={closeMap} onVisiblePlaceIdsChange={setMapVisibleIds} />
+        ? <DeferredDiscoveryMap items={filtered} tone="activities" autoLoad onClose={closeMap} onVisiblePlaceIdsChange={setMapVisibleIds} />
         : <div className="discovery-grid attraction-grid">{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>
       : <div className="trail-empty"><h2>לא מצאנו התאמה לסינון הזה</h2><p>אפשר להסיר סינון או לבחור אזור סמוך.</p><button type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
   </>;

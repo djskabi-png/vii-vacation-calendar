@@ -155,7 +155,7 @@ export function HomeShowcase() {
           <div className="home-last-minute__cards" ref={(node) => { tracks.current[group.id] = node; }}>{pickProperties(...group.period.slugs).map((property) => {
             const price = property.price || lastMinuteStartingPrices[property.slug] || 1200;
             const detailHref = `/business?id=${property.slug}&period=${encodeURIComponent(group.period.id)}&dates=${encodeURIComponent(group.period.dateSummary)}&from=${group.period.from}&till=${group.period.till}&guests=2&price=${price}`;
-            return <Link key={property.slug} href={detailHref}><img src={property.image} alt={property.name} /><span>{group.period.label}</span><div><small><PinIcon />{property.location}</small><h3>{property.name}</h3><div className="home-last-minute__deal"><b>{group.period.dateSummary}</b><strong>{price.toLocaleString("he-IL")} ₪</strong></div></div></Link>;
+            return <Link key={property.slug} href={detailHref}><img src={property.image} alt={property.name} loading="lazy" decoding="async" /><span>{group.period.label}</span><div><small><PinIcon />{property.location}</small><h3>{property.name}</h3><div className="home-last-minute__deal"><b>{group.period.dateSummary}</b><strong>{price.toLocaleString("he-IL")} ₪</strong></div></div></Link>;
           })}</div>
         </section>)}
       </div>
@@ -172,7 +172,7 @@ export function HomeShowcase() {
         <div className="home-vacation-strip">
           <div className="home-vacation-strip__head"><div><span>לפי אזור</span><h3>יעדים מומלצים לנופש</h3></div><SliderControls label="יעדי נופש" onPrevious={() => scroll("destinations", "previous")} onNext={() => scroll("destinations", "next")} /></div>
           <div className="home-vacation-strip__track home-vacation-strip__track--destinations" ref={(node) => { tracks.current.destinations = node; }}>
-            {vacationDestinations.map((item) => <Link className="home-vacation-card home-vacation-card--destination home-slider__item" href={item.href} key={item.label}><img src={item.image} alt="" /><div><span>יעד מומלץ</span><h4>{item.label}</h4><p>{item.note}</p><b>לכל המקומות באזור</b></div></Link>)}
+            {vacationDestinations.map((item) => <Link className="home-vacation-card home-vacation-card--destination home-slider__item" href={item.href} key={item.label}><img src={item.image} alt="" loading="lazy" decoding="async" /><div><span>יעד מומלץ</span><h4>{item.label}</h4><p>{item.note}</p><b>לכל המקומות באזור</b></div></Link>)}
           </div>
         </div>
 
@@ -186,7 +186,7 @@ export function HomeShowcase() {
         <div className="home-vacation-strip">
           <div className="home-vacation-strip__head"><div><span>סוגים וסגנונות אירוח</span><h3>מה אתם מחפשים?</h3></div><SliderControls label="סוגי אירוח" onPrevious={() => scroll("stay-types", "previous")} onNext={() => scroll("stay-types", "next")} /></div>
           <div className="home-vacation-strip__track" ref={(node) => { tracks.current["stay-types"] = node; }}>
-            {accommodationStyles.map((item) => <Link className="home-vacation-card home-vacation-card--style home-slider__item" href={item.href} key={item.label}><img src={item.image} alt="" /><div><span>סגנון אירוח</span><h4>{item.label}</h4><p>{item.note}</p><b>לכל המקומות</b></div></Link>)}
+            {accommodationStyles.map((item) => <Link className="home-vacation-card home-vacation-card--style home-slider__item" href={item.href} key={item.label}><img src={item.image} alt="" loading="lazy" decoding="async" /><div><span>סגנון אירוח</span><h4>{item.label}</h4><p>{item.note}</p><b>לכל המקומות</b></div></Link>)}
           </div>
         </div>
       </div>
@@ -198,7 +198,7 @@ export function HomeShowcase() {
           <div className="home-vacation-strip__head"><div><span>רואים לפני שבוחרים</span><h2 id="home-tours-title">סרטונים מובילים</h2></div><SliderControls label="סרטונים מובילים" onPrevious={() => scroll("tours", "previous")} onNext={() => scroll("tours", "next")} /></div>
           <div className="home-slider__track home-slider__track--trust" ref={(node) => { tracks.current.tours = node; }}>
             {featuredTours.map(({ property, video }) => <article className="home-tour-card home-slider__item" key={`${property.slug}-${video.src}`}>
-              <video controls playsInline preload="metadata" poster={video.poster} aria-label={`${video.title}, ${property.name}`}><source src={video.src} type="video/mp4" /></video>
+              <video controls playsInline preload="none" poster={video.poster} aria-label={`${video.title}, ${property.name}`}><source src={video.src} type="video/mp4" /></video>
               <div><span>{property.location}</span><h3>{property.name}</h3><p>{video.note}</p><Link href={`/business?id=${property.slug}`}>לפרטי המקום</Link></div>
             </article>)}
           </div>
@@ -210,7 +210,7 @@ export function HomeShowcase() {
             {topRatedPlaces.map((item) => {
               const localized = language === "he" ? null : ratingCardCopy[language][item.id as keyof (typeof ratingCardCopy)[typeof language]];
               return <Link className="home-rating-card home-slider__item" href={`/discover/place/${item.id}`} key={item.id}>
-                <div className="home-rating-card__top"><img src={item.image} alt="" /><div><span>{item.location}</span><h3>{localized?.name || item.name}</h3><strong aria-label={`${item.rating} מתוך 10`}><b>{item.rating}</b><i aria-hidden="true">★★★★★</i></strong></div></div><p>{localized?.summary || reviewExcerpt(item.description)}</p><b className="home-rating-card__cta">לפרטי המקום</b>
+                <div className="home-rating-card__top"><img src={item.image} alt="" loading="lazy" decoding="async" /><div><span>{item.location}</span><h3>{localized?.name || item.name}</h3><strong aria-label={`${item.rating} מתוך 10`}><b>{item.rating}</b><i aria-hidden="true">★★★★★</i></strong></div></div><p>{localized?.summary || reviewExcerpt(item.description)}</p><b className="home-rating-card__cta">לפרטי המקום</b>
               </Link>;
             })}
           </div>
@@ -225,8 +225,8 @@ export function HomeShowcase() {
     <section className="home-events-world" aria-labelledby="home-events-title">
       <div className="shell home-events-world__head"><div><span className="eyebrow">עולם האירועים</span><h2 id="home-events-title">כל סיבה טובה הופכת כאן לאירוע</h2><p>לופטים ומתחמים לימי הולדת, מסיבות, אירועי חברה וחגיגות פרטיות, עם חיפוש לפי כמות ואופי האירוע.</p></div><Link className="button" href="/events">נכנסים לעולם האירועים</Link></div>
       <div className="shell home-events-world__layout">
-        <Link className="home-event-feature" href={eventPlaceHref(eventPlaces[3])}><img src={eventPlaces[3].image} alt={eventPlaces[3].name} /><span>{eventPlaces[3].type}</span><div><small><PinIcon />{eventPlaces[3].location}</small><h3>{eventPlaces[3].name}</h3><p>{eventPlaces[3].description}</p><b>עד {eventPlaces[3].guests} אורחים</b></div></Link>
-        <div className="home-event-list">{eventPlaces.filter((place) => ![eventPlaces[0].slug,eventPlaces[3].slug].includes(place.slug)).slice(0,4).map((place) => <Link key={place.slug} href={eventPlaceHref(place)}><img src={place.image} alt={place.name} /><div><span>{place.type}</span><h3>{place.name}</h3><small>{place.location}, עד {place.guests} אורחים</small></div></Link>)}</div>
+        <Link className="home-event-feature" href={eventPlaceHref(eventPlaces[3])}><img src={eventPlaces[3].image} alt={eventPlaces[3].name} loading="lazy" decoding="async" /><span>{eventPlaces[3].type}</span><div><small><PinIcon />{eventPlaces[3].location}</small><h3>{eventPlaces[3].name}</h3><p>{eventPlaces[3].description}</p><b>עד {eventPlaces[3].guests} אורחים</b></div></Link>
+        <div className="home-event-list">{eventPlaces.filter((place) => ![eventPlaces[0].slug,eventPlaces[3].slug].includes(place.slug)).slice(0,4).map((place) => <Link key={place.slug} href={eventPlaceHref(place)}><img src={place.image} alt={place.name} loading="lazy" decoding="async" /><div><span>{place.type}</span><h3>{place.name}</h3><small>{place.location}, עד {place.guests} אורחים</small></div></Link>)}</div>
       </div>
     </section>
 
@@ -234,7 +234,9 @@ export function HomeShowcase() {
       <div className="shell"><div className="section-head"><div><span className="eyebrow">אתר אחד, הרבה דרכים ליהנות</span><h2 id="home-worlds-title">ממשיכים לכל העולמות</h2><p>לא רק מקום לישון. בונים את כל החופשה, הטיפול, השהייה הקצרה, הספקים והיום שמסביב.</p></div></div>
         <div className="home-world-gates">{worldCards.map((world) => {
           const item = world.id === "providers" ? providerProfiles[0] : world.id === "trails" ? trails[0] : paidAttractions[0];
-          return <Link key={world.id} className={`home-world-gate home-world-gate--${world.id}`} href={world.href}>{item.image ? <img src={item.image} alt={item.name} /> : <span className="home-world-gate__visual">{world.shortLabel.slice(0,1)}</span>}<div><span>{world.label}</span><h3>{world.description}</h3><p>{"demo" in item && item.demo ? "פרופילים לדוגמה שממחישים איך השירות יעבוד באתר." : item.description}</p><b>לגלות את העולם</b></div></Link>;
+          const image = "image" in item ? item.image : undefined;
+          const description = "description" in item ? item.description : item.summary;
+          return <Link key={world.id} className={`home-world-gate home-world-gate--${world.id}`} href={world.href}>{image ? <img src={image} alt={item.name} loading="lazy" decoding="async" /> : <span className="home-world-gate__visual">{world.shortLabel.slice(0,1)}</span>}<div><span>{world.label}</span><h3>{world.description}</h3><p>{"demo" in item && item.demo ? "פרופילים לדוגמה שממחישים איך השירות יעבוד באתר." : description}</p><b>לגלות את העולם</b></div></Link>;
         })}</div>
       </div>
     </section>

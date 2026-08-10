@@ -33,3 +33,16 @@ test("vacation search includes the complete legacy additional filters", async ()
   assert.match(source, /label: "מטבח מאובזר", matches: \["מטבח מאובזר"\]/);
   assert.match(source, /label: "מבודדת", matches: \["מבודד", "מבודדת"\]/);
 });
+
+test("mobile vacation filters use a draft and apply contract", async () => {
+  const source = await readFile(new URL("app/search/page.tsx", root), "utf8");
+  assert.match(source, /const \[draftFilters, setDraftFilters\]/);
+  assert.match(source, /function openFiltersPanel\(\)/);
+  assert.match(source, /function closeFiltersPanel\(\)/);
+  assert.match(source, /function applyFilters\(\)/);
+  assert.match(source, /onClick=\{applyFilters\}/);
+  assert.match(source, /onClick=\{closeFiltersPanel\}/);
+  assert.match(source, /checked=\{shownFilters\.type === item\.label\}/);
+  assert.match(source, /draftResultCount/);
+  assert.doesNotMatch(source, /onChange=\{\(\) => changeType\(item\.label\)\}[^\n]+onClick=\{\(\) => setFiltersOpen\(false\)\}/);
+});

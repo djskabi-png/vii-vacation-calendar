@@ -15,7 +15,7 @@ test("homepage keeps the requested discovery sliders before the next world", () 
 
 test("home tours use verified media with an honest disclosure", () => {
   assert.match(source, /properties\.flatMap\(\(property\) => \(property\.videos \|\| \[\]\)/);
-  assert.match(source, /<video controls playsInline preload="metadata"/);
+  assert.match(source, /<video controls playsInline preload="none"/);
   assert.match(source, /\{video\.note\}/);
   assert.match(source, /href=\{`\/business\?id=\$\{property\.slug\}`\}/);
 });

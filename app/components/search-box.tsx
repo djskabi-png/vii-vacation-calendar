@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { CalendarDemo } from "../calendar-demo";
 import { EventDatePicker } from "./event-date-picker";
 import { SpaDatePicker } from "./spa-date-picker";
@@ -72,7 +72,15 @@ function parseSpaAudience(value: string | null): SpaAudience {
   return SPA_AUDIENCES.some((option) => option.id === value) ? value as SpaAudience : "single";
 }
 
+const HOURLY_PRICE_OPTIONS = [0, 250, 400, 600] as const;
+
+function normalizeHourlyPrice(value: string | null) {
+  const price = Number(value) || 0;
+  return HOURLY_PRICE_OPTIONS.includes(price as typeof HOURLY_PRICE_OPTIONS[number]) ? price : 0;
+}
+
 export function SearchBox({ mode = "vacation", compact = false, showWorlds = false, initialLocation, initialGuests, basePath, vacationType }: { mode?: SearchMode; compact?: boolean; showWorlds?: boolean; initialLocation?: string; initialGuests?: number; basePath?: string; vacationType?: string }) {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const { language } = useSiteLanguage();
   const isHourly = mode === "hourly";
@@ -90,7 +98,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
   const [locationQuery, setLocationQuery] = useState("");
   const [guestOpen, setGuestOpen] = useState(false);
   const [priceOpen, setPriceOpen] = useState(false);
-  const [maximumPrice, setMaximumPrice] = useState(() => Number(searchParams.get("maxPrice")) || 0);
+  const [maximumPrice, setMaximumPrice] = useState(() => normalizeHourlyPrice(searchParams.get("maxPrice")));
   const [isSearching, setIsSearching] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState(false);
   const [mobileStep, setMobileStep] = useState<"location" | "dates" | "guests">("location");
@@ -109,7 +117,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
       setLocationValue(searchParams.get("location") || initialLocation || "כל הארץ");
       setDates(searchParams.get("dates") || defaultDateLabel(mode));
       setGuests(Number(searchParams.get("guests")) || initialGuests || defaultGuestCount(mode));
-      setMaximumPrice(Number(searchParams.get("maxPrice")) || 0);
+      setMaximumPrice(normalizeHourlyPrice(searchParams.get("maxPrice")));
       if (mode === "vacation") {
         setVacationParty(initialVacationParty(searchParams, Number(searchParams.get("guests")) || initialGuests || 2));
       }
@@ -144,6 +152,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
   function search() {
     if (isSearching) return;
     setIsSearching(true);
+    closeMobileSearch();
     const cleanVacationRoute = mode === "vacation" ? (vacationType ? cleanAccommodationPath(vacationType, locationValue) : cleanVacationPath(locationValue)) : null;
     const route = cleanVacationRoute || (basePath && mode === "vacation" ? basePath : mode === "events" ? "/events/search/" : mode === "spa" ? "/spas/" : mode === "hourly" ? "/hourly/" : "/search/");
     let destination: string;
@@ -195,7 +204,11 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
         window.setTimeout(() => setIsSearching(false), 240);
         return;
       }
-      window.location.assign(target);
+      // Keep search transitions inside the app router. A document-level
+      // navigation reloads the header, locale runtime, styles and route data,
+      // which made every search feel like a cold page load.
+      router.push(target);
+      window.setTimeout(() => setIsSearching(false), 1200);
     } catch {
       setIsSearching(false);
     }
@@ -248,8 +261,8 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
           {locationOpen && <div className="search-popover location-list"><label className="location-list__search"><span>חיפוש יעד</span><input value={locationQuery} onChange={(event) => setLocationQuery(event.target.value)} placeholder="הקלידו עיר או אזור" autoFocus /></label><div>{visiblePlaces.map((place) => <button type="button" key={place} className={place === locationValue ? "selected" : ""} onClick={() => { setLocationValue(place); setLocationOpen(false); setLocationQuery(""); if (!isHourly && window.matchMedia("(max-width: 820px)").matches) { setMobileStep("dates"); setCalendarOpen(true); } }}>{place}</button>)}</div>{visiblePlaces.length === 0 ? <p>לא מצאנו יעד מתאים.</p> : null}</div>}
         </div>
         {isHourly && <div className="search-field-wrap search-field-wrap--price">
-          <button type="button" className="search-field" aria-expanded={priceOpen} onClick={() => { setPriceOpen((value) => !value); setLocationOpen(false); }}><span><small>מחיר התחלתי עד</small><strong>{maximumPrice ? `${maximumPrice} ₪` : "ללא הגבלה"}</strong></span></button>
-          {priceOpen && <div className="search-popover search-price-list">{[0, 200, 250, 300, 400].map((price) => <button type="button" key={price} className={price === maximumPrice ? "selected" : ""} onClick={() => { setMaximumPrice(price); setPriceOpen(false); }}>{price ? `${price} ₪` : "ללא הגבלה"}</button>)}</div>}
+          <button type="button" className="search-field" aria-expanded={priceOpen} onClick={() => { setPriceOpen((value) => !value); setLocationOpen(false); }}><span><small>מחיר לשעתיים עד</small><strong>{maximumPrice ? `${maximumPrice} ₪` : "ללא הגבלת מחיר"}</strong></span></button>
+          {priceOpen && <div className="search-popover search-price-list">{HOURLY_PRICE_OPTIONS.map((price) => <button type="button" key={price} className={price === maximumPrice ? "selected" : ""} onClick={() => { setMaximumPrice(price); setPriceOpen(false); }}>{price ? `עד ${price} ₪ לשעתיים` : "ללא הגבלת מחיר"}</button>)}</div>}
         </div>}
         {!isHourly && <button type="button" className={`search-field search-step search-step--dates ${mobileStep === "dates" ? "active" : ""}`} onClick={() => { setMobileStep("dates"); expandMobileSearch(); setCalendarOpen(true); setLocationOpen(false); setGuestOpen(false); }}><CalendarIcon /><span><small>{mode === "events" ? "מתי האירוע?" : mode === "spa" ? "מתי מגיעים?" : "מתי יוצאים"}</small><strong>{dates}</strong></span></button>}
         {!isHourly && <div className={`search-field-wrap search-step search-step--guests ${mobileStep === "guests" ? "active" : ""}`}>

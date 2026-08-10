@@ -22,6 +22,12 @@ const verifiedHourlyRates: Record<string, HourlyDetails["rates"]> = {
   "titanic-spa": [{ duration: "שעה", price: "120 ₪" }, { duration: "שעתיים", price: "120 ₪" }, { duration: "3 שעות", price: "170 ₪" }],
 };
 
+export function verifiedHourlyPrice(itemId: string, duration: string): number | undefined {
+  const rate = verifiedHourlyRates[itemId]?.find((option) => option.duration === duration);
+  const amount = rate?.price.match(/\d[\d,]*/)?.[0];
+  return amount ? Number(amount.replaceAll(",", "")) : undefined;
+}
+
 export function getHourlyDetails(item: DiscoveryItem): HourlyDetails {
   const placeName = item.name;
   const location = item.location;

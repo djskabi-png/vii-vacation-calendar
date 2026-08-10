@@ -39,6 +39,8 @@ test("vacation and event filters serialize and restore their complete state", ()
   assert.match(vacationUrl, /params\.set\("location", nextArea\)/);
   assert.match(vacationUrl, /params\.set\("type", nextType\)/);
   assert.match(vacationUrl, /return query \? `\$\{path\}\?\$\{query\}` : path/);
+  const landings = read("app/data/accommodation-landings.ts");
+  ["וילות", "דירות נופש", "סוויטות"].forEach((label) => assert.match(landings, new RegExp(`"${label}"`)));
 
   const events = read("app/events/search/page.tsx");
   ["type", "eventType", "noise", "accessible", "sort"].forEach((key) => assert.match(events, new RegExp(`params\\.get\\(\"${key}\"\\)`)));

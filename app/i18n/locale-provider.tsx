@@ -96,13 +96,10 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "\u05e1\u05e4\u05d0 \u05d1\u05d5\u05d8\u05d9\u05e7 \u05d0\u05d5 \u05e4\u05e8\u05d8\u05d9": "Boutique or private spa",
     "\u05d1\u05d7\u05e8\u05d5 \u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd": "Choose dates",
     "\u05d0\u05d9\u05dc\u05ea": "Eilat",
-    "\u05e6\u05e4\u05d5\u05df": "North",
     "\u05db\u05e0\u05e8\u05ea": "Sea of Galilee",
-    "\u05d2\u05dc\u05d9\u05dc \u05de\u05e2\u05e8\u05d1\u05d9": "Western Galilee",
     "\u05de\u05e8\u05db\u05d6": "Central Israel",
     "\u05d9\u05e8\u05d5\u05e9\u05dc\u05d9\u05dd": "Jerusalem",
     "\u05d9\u05dd \u05d4\u05de\u05dc\u05d7": "Dead Sea",
-    "\u05de\u05e1\u05dc\u05d5\u05dc\u05d9 \u05d8\u05d9\u05d5\u05dc\u05d9\u05dd": "Hiking trails",
     "\u05d4\u05d7\u05e9\u05d1\u05d5\u05df \u05d4\u05d0\u05d9\u05e9\u05d9 \u05e9\u05dc\u05d9": "My account",
     "\u05e4\u05e8\u05e1\u05d5\u05dd \u05d5\u05d4\u05e6\u05d8\u05e8\u05e4\u05d5\u05ea \u05dc\u05d0\u05ea\u05e8": "Advertise and join VII",
     "\u05e0\u05d9\u05d4\u05d5\u05dc \u05d4\u05d6\u05de\u05e0\u05d4": "Manage booking",
@@ -201,13 +198,10 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "\u05e1\u05e4\u05d0 \u05d1\u05d5\u05d8\u05d9\u05e7 \u05d0\u05d5 \u05e4\u05e8\u05d8\u05d9": "Бутик-спа или частный спа",
     "\u05d1\u05d7\u05e8\u05d5 \u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd": "Выберите даты",
     "\u05d0\u05d9\u05dc\u05ea": "Эйлат",
-    "\u05e6\u05e4\u05d5\u05df": "Север",
     "\u05db\u05e0\u05e8\u05ea": "Кинерет",
-    "\u05d2\u05dc\u05d9\u05dc \u05de\u05e2\u05e8\u05d1\u05d9": "Западная Галилея",
     "\u05de\u05e8\u05db\u05d6": "Центр Израиля",
     "\u05d9\u05e8\u05d5\u05e9\u05dc\u05d9\u05dd": "Иерусалим",
     "\u05d9\u05dd \u05d4\u05de\u05dc\u05d7": "Мёртвое море",
-    "\u05de\u05e1\u05dc\u05d5\u05dc\u05d9 \u05d8\u05d9\u05d5\u05dc\u05d9\u05dd": "Маршруты",
     "\u05d4\u05d7\u05e9\u05d1\u05d5\u05df \u05d4\u05d0\u05d9\u05e9\u05d9 \u05e9\u05dc\u05d9": "Мой аккаунт",
     "\u05e4\u05e8\u05e1\u05d5\u05dd \u05d5\u05d4\u05e6\u05d8\u05e8\u05e4\u05d5\u05ea \u05dc\u05d0\u05ea\u05e8": "Реклама и подключение к VII",
     "\u05e0\u05d9\u05d4\u05d5\u05dc \u05d4\u05d6\u05de\u05e0\u05d4": "Управление бронированием",
@@ -296,7 +290,6 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "משווים בין בתי ספא, חבילות וטיפולים ובוחרים לפי אזור, הרכב וסוג החוויה.": "Comparez les spas, les formules et les soins selon la région, la composition du groupe et le type d’expérience.",
     "שולחים אזור, תאריך והרכב": "Indiquez la région, la date et la composition du groupe",
     "\u05de\u05e4\u05d4 \u05d0\u05d9\u05e0\u05d8\u05e8\u05d0\u05e7\u05d8\u05d9\u05d1\u05d9\u05ea \u05e9\u05dc \u05d4\u05de\u05e7\u05d5\u05de\u05d5\u05ea": "Carte interactive des lieux",
-    "\u05d7\u05d6\u05e8\u05d4 \u05dc\u05ea\u05e6\u05d5\u05d2\u05ea \u05e8\u05e9\u05d9\u05de\u05d4": "Retour à la liste",
     "\u05d7\u05d6\u05e8\u05d4 \u05dc\u05e8\u05e9\u05d9\u05de\u05d4": "Retour à la liste",
     "\u05e1\u05d2\u05d9\u05e8\u05ea \u05e4\u05e8\u05d8\u05d9 \u05d4\u05de\u05e7\u05d5\u05dd": "Fermer les détails du lieu",
     "\u05d4\u05de\u05e7\u05d5\u05de\u05d5\u05ea \u05e9\u05de\u05d5\u05e6\u05d2\u05d9\u05dd \u05e2\u05dc \u05d4\u05de\u05e4\u05d4": "Lieux affichés sur la carte",
@@ -321,7 +314,6 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "\u05de\u05e8\u05db\u05d6": "Centre d'Israël",
     "\u05d9\u05e8\u05d5\u05e9\u05dc\u05d9\u05dd": "Jérusalem",
     "\u05d9\u05dd \u05d4\u05de\u05dc\u05d7": "Mer Morte",
-    "\u05de\u05e1\u05dc\u05d5\u05dc\u05d9 \u05d8\u05d9\u05d5\u05dc\u05d9\u05dd": "Randonnées",
     "\u05d4\u05d7\u05e9\u05d1\u05d5\u05df \u05d4\u05d0\u05d9\u05e9\u05d9 \u05e9\u05dc\u05d9": "Mon compte",
     "\u05e4\u05e8\u05e1\u05d5\u05dd \u05d5\u05d4\u05e6\u05d8\u05e8\u05e4\u05d5\u05ea \u05dc\u05d0\u05ea\u05e8": "Publier et rejoindre VII",
     "\u05e0\u05d9\u05d4\u05d5\u05dc \u05d4\u05d6\u05de\u05e0\u05d4": "Gérer une réservation",
@@ -336,7 +328,6 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "מה עושים בסביבה": "À faire à proximité", "כל הרעיונות במקום אחד": "Toutes les idées au même endroit", "מסלולי טיול": "Itinéraires", "טיולים עצמאיים לפי אזור": "Itinéraires autonomes par région",
     "מגזין ומדריכים": "Magazine et guides", "רעיונות, תוכן ומדריכים": "Idées, articles et guides",
     "\u05db\u05dc \u05d4\u05d0\u05e8\u05e5": "Tout Israël", "\u05d9\u05e6\u05d9\u05e8\u05ea \u05e7\u05e9\u05e8": "Nous contacter",
-    "\u05ea\u05e6\u05d5\u05d2\u05d4 \u05e2\u05dc \u05de\u05e4\u05d4": "Afficher la carte", "\u05ea\u05e6\u05d5\u05d2\u05ea \u05e8\u05e9\u05d9\u05de\u05d4": "Afficher la liste",
     "\u05e1\u05d9\u05e0\u05d5\u05df": "Filtres", "\u05e1\u05d9\u05e0\u05d5\u05df \u05ea\u05d5\u05e6\u05d0\u05d5\u05ea": "Filtrer les résultats", "\u05de\u05d5\u05de\u05dc\u05e6\u05d9\u05dd": "Recommandés",
     "\u05d1\u05d3\u05d9\u05e7\u05ea \u05d6\u05de\u05d9\u05e0\u05d5\u05ea": "Vérifier les disponibilités", "\u05e4\u05e8\u05d8\u05d9\u05dd \u05d5\u05d6\u05de\u05d9\u05e0\u05d5\u05ea": "Détails et disponibilités",
     "\u05de\u05d2\u05d6\u05d9\u05df": "Magazine", "\u05d7\u05d3\u05e9": "Nouveau", "\u05ea\u05e4\u05e8\u05d9\u05d8": "Menu", "\u05e9\u05e4\u05d4": "Langue",
@@ -654,6 +645,89 @@ const finalUiTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
   },
 };
 
+const spaBookingTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, string>> = {
+  en: {
+    "הרכב ומועד": "Guests and appointment",
+    "מי מגיע ומתי?": "Who is coming, and when?",
+    "קודם בוחרים את הרכב המטופלים, אחר כך תאריך, ורק אז שעה לבקשת זמינות.": "First choose the guests, then the date, and only then a preferred time.",
+    "הרכב": "Guests",
+    "שלב ראשון": "First step",
+    "כמה אנשים מגיעים?": "How many people are coming?",
+    "ברירת המחדל היא שני אנשים": "Two people are selected by default",
+    "מספר משתתפים": "Number of guests",
+    "אדם אחד": "One person",
+    "2 אנשים": "2 people",
+    "3 אנשים": "3 people",
+    "4 אנשים": "4 people",
+    "מה הרכב המטופלים?": "Who will receive the treatments?",
+    "המידע עוזר למקום להתאים את צוות המטפלים.": "This helps the spa assign the right therapists.",
+    "גבר ואישה": "One man and one woman",
+    "שני גברים": "Two men",
+    "שתי נשים": "Two women",
+    "בחרו קודם את הרכב המטופלים": "Choose the guests first",
+    "לאחר הבחירה תוכלו לבחור תאריך ושעה.": "Then you can choose a date and time.",
+    "בחרו שעה לבקשת זמינות": "Choose a preferred time",
+    "אלו שעות לבקשה, לא זמינות חיה.": "These are requested times, not live availability.",
+    "לאחר החיבור למערכת יוצגו שעות פנויות בזמן אמת. עד אז המקום מאמת את השעה לפני אישור ההזמנה.": "Once the booking system is connected, live availability will be shown. Until then, the spa confirms the requested time before approving the booking.",
+    "בחרו הרכב, תאריך ושעה כדי להמשיך.": "Choose the guests, date and time to continue.",
+    "הרכב המטופלים": "Guest composition",
+  },
+  ru: {
+    "הרכב ומועד": "Состав гостей и время",
+    "מי מגיע ומתי?": "Кто придёт и когда?",
+    "קודם בוחרים את הרכב המטופלים, אחר כך תאריך, ורק אז שעה לבקשת זמינות.": "Сначала выберите состав гостей, затем дату и только после этого желаемое время.",
+    "הרכב": "Состав",
+    "שלב ראשון": "Первый шаг",
+    "כמה אנשים מגיעים?": "Сколько человек придёт?",
+    "ברירת המחדל היא שני אנשים": "По умолчанию выбраны два человека",
+    "מספר משתתפים": "Количество гостей",
+    "אדם אחד": "Один человек",
+    "2 אנשים": "2 человека",
+    "3 אנשים": "3 человека",
+    "4 אנשים": "4 человека",
+    "מה הרכב המטופלים?": "Кто будет получать процедуры?",
+    "המידע עוזר למקום להתאים את צוות המטפלים.": "Это поможет спа подобрать подходящих специалистов.",
+    "גבר ואישה": "Мужчина и женщина",
+    "שני גברים": "Двое мужчин",
+    "שתי נשים": "Две женщины",
+    "בחרו קודם את הרכב המטופלים": "Сначала выберите состав гостей",
+    "לאחר הבחירה תוכלו לבחור תאריך ושעה.": "После этого можно выбрать дату и время.",
+    "בחרו שעה לבקשת זמינות": "Выберите желаемое время",
+    "אלו שעות לבקשה, לא זמינות חיה.": "Это варианты для запроса, а не свободное время в реальном времени.",
+    "לאחר החיבור למערכת יוצגו שעות פנויות בזמן אמת. עד אז המקום מאמת את השעה לפני אישור ההזמנה.": "После подключения системы будет показано свободное время в реальном времени. Пока спа подтверждает выбранное время перед одобрением бронирования.",
+    "בחרו הרכב, תאריך ושעה כדי להמשיך.": "Выберите состав гостей, дату и время, чтобы продолжить.",
+    "הרכב המטופלים": "Состав гостей",
+  },
+  fr: {
+    "הרכב ומועד": "Participants et horaire",
+    "מי מגיע ומתי?": "Qui vient, et quand ?",
+    "קודם בוחרים את הרכב המטופלים, אחר כך תאריך, ורק אז שעה לבקשת זמינות.": "Choisissez d’abord les participants, puis la date, et enfin l’heure souhaitée.",
+    "הרכב": "Participants",
+    "שלב ראשון": "Première étape",
+    "כמה אנשים מגיעים?": "Combien de personnes viennent ?",
+    "ברירת המחדל היא שני אנשים": "Deux personnes sont sélectionnées par défaut",
+    "מספר משתתפים": "Nombre de participants",
+    "אדם אחד": "Une personne",
+    "2 אנשים": "2 personnes",
+    "3 אנשים": "3 personnes",
+    "4 אנשים": "4 personnes",
+    "מה הרכב המטופלים?": "Qui recevra les soins ?",
+    "המידע עוזר למקום להתאים את צוות המטפלים.": "Cette information aide le spa à prévoir les praticiens adaptés.",
+    "גבר ואישה": "Un homme et une femme",
+    "שני גברים": "Deux hommes",
+    "שתי נשים": "Deux femmes",
+    "בחרו קודם את הרכב המטופלים": "Choisissez d’abord les participants",
+    "לאחר הבחירה תוכלו לבחור תאריך ושעה.": "Vous pourrez ensuite choisir une date et une heure.",
+    "בחרו שעה לבקשת זמינות": "Choisissez l’heure souhaitée",
+    "אלו שעות לבקשה, לא זמינות חיה.": "Ces horaires sont proposés pour la demande, sans disponibilité en temps réel.",
+    "לאחר החיבור למערכת יוצגו שעות פנויות בזמן אמת. עד אז המקום מאמת את השעה לפני אישור ההזמנה.": "Une fois le système connecté, les disponibilités seront affichées en temps réel. En attendant, le spa confirme l’heure demandée avant d’approuver la réservation.",
+    "בחרו הרכב, תאריך ושעה כדי להמשיך.": "Choisissez les participants, la date et l’heure pour continuer.",
+    "הרכב המטופלים": "Composition des participants",
+  },
+};
+
+for (const language of ["en", "ru", "fr"] as const) Object.assign(finalUiTranslations[language], spaBookingTranslations[language]);
+
 function initialLanguage(): SiteLanguage {
   // The server source is Hebrew. Start from the same state during hydration,
   // then synchronize with the localized route after the first client commit.
@@ -664,7 +738,7 @@ function dictionary(language: SiteLanguage): Record<string, string> {
   return language === "he" ? {} : loadedTranslations[language] || {};
 }
 
-function translateDynamic(value: string, language: Exclude<SiteLanguage, "he">) {
+function translateDynamic(value: string, language: Exclude<SiteLanguage, "he">): string {
   const translatePart = (source: string) => finalUiTranslations[language][source]
     || curatedTranslations[language][source]
     || dictionary(language)[source]
@@ -698,9 +772,9 @@ function translateDynamic(value: string, language: Exclude<SiteLanguage, "he">) 
 
   const searchSummaryMatch = value.match(/^שינוי חיפוש\.\s*(.+)$/);
   if (searchSummaryMatch) {
-    const translatedSummary = searchSummaryMatch[1]
+    const translatedSummary: string = searchSummaryMatch[1]
       .split(/\s*[·•]\s*/)
-      .map((part) => translateValue(part, language).trim())
+      .map((part): string => translateValue(part, language).trim())
       .join(" · ");
     return language === "en"
       ? `Change search. ${translatedSummary}`
@@ -896,13 +970,13 @@ function translateDynamic(value: string, language: Exclude<SiteLanguage, "he">) 
   return value;
 }
 
-function translateValue(value: string, language: SiteLanguage) {
+function translateValue(value: string, language: SiteLanguage): string {
   if (language === "he" || !hebrewPattern.test(value)) return value;
   const leading = value.match(/^\s*/)?.[0] || "";
   const trailing = value.match(/\s*$/)?.[0] || "";
   const core = value.trim().replace(/\s+/g, " ");
   const exact = finalUiTranslations[language][core] || curatedTranslations[language][core] || dictionary(language)[core];
-  let translated = exact || translateDynamic(core, language);
+  let translated: string = exact || translateDynamic(core, language);
   if (language === "en") {
     translated = translated
       .replace(/^presentation (\d+) places$/i, "Show $1 places")

@@ -21,18 +21,21 @@ const placeNames: Record<Exclude<SiteLanguage, "he">, Record<string, string>> = 
 
 const worldCopy: Record<Exclude<SiteLanguage, "he">, Record<DiscoveryItem["world"], { description: string; chips: string[] }>> = {
   en: {
+    corporate: { description: "Corporate events and employee experiences with clear service details and booking options.", chips: ["Corporate events", "Employee experiences", "Booking options"] },
     spa: { description: "Spa venue with treatments, packages and facilities presented here for easy comparison and booking.", chips: ["Spa treatments", "Packages", "Booking options"] },
     hourly: { description: "Private short-stay accommodation with clear stay options and booking information.", chips: ["Private stay", "Flexible hours", "Booking options"] },
     providers: { description: "Professional service for holidays and events, with service details and a direct booking route.", chips: ["Professional service", "Events", "Direct booking"] },
     activities: { description: "An experience to add to your visit, with practical information and booking options in one place.", chips: ["Experience", "Nearby", "Visitor information"] },
   },
   ru: {
+    corporate: { description: "Корпоративные мероприятия и программы для сотрудников с понятными условиями и вариантами бронирования.", chips: ["Корпоративные мероприятия", "Программы для сотрудников", "Бронирование"] },
     spa: { description: "Спа-центр с процедурами, пакетами и удобствами для простого сравнения и бронирования.", chips: ["Спа-процедуры", "Пакеты", "Варианты бронирования"] },
     hourly: { description: "Приватное размещение на несколько часов с понятными вариантами пребывания и бронирования.", chips: ["Приватность", "Гибкие часы", "Бронирование"] },
     providers: { description: "Профессиональная услуга для отдыха и мероприятий с подробностями и прямым способом заказа.", chips: ["Профессиональная услуга", "Мероприятия", "Прямой заказ"] },
     activities: { description: "Впечатление для вашей поездки с полезной информацией и вариантами заказа в одном месте.", chips: ["Впечатление", "Рядом", "Информация"] },
   },
   fr: {
+    corporate: { description: "Événements d’entreprise et expériences pour les équipes, avec des informations claires et des options de réservation.", chips: ["Événements d’entreprise", "Expériences d’équipe", "Réservation"] },
     spa: { description: "Un spa avec soins, forfaits et équipements présentés ici pour comparer et réserver facilement.", chips: ["Soins spa", "Forfaits", "Options de réservation"] },
     hourly: { description: "Un hébergement privé de courte durée avec des formules claires et des options de réservation.", chips: ["Séjour privé", "Horaires flexibles", "Réservation"] },
     providers: { description: "Un service professionnel pour les séjours et événements, avec les détails et un parcours de réservation direct.", chips: ["Service professionnel", "Événements", "Réservation directe"] },
@@ -70,7 +73,7 @@ export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
 
   return <article className={`discovery-card discovery-card--${item.world}`}>
     <Link className={`discovery-card__visual discovery-card__visual--${imageFit}`} href={`/discover/place/${item.id}`} aria-label={`${details}: ${translate(item.name)}`}>
-      <img src={item.image} alt={item.imageLabel && ui ? ui.image : translate(item.name)} style={item.imagePosition ? { objectPosition: item.imagePosition } : undefined} />
+      <img src={item.image} alt={item.imageLabel && ui ? ui.image : translate(item.name)} loading="lazy" decoding="async" style={item.imagePosition ? { objectPosition: item.imagePosition } : undefined} />
       {item.imageLabel && <span className="image-context-label">{ui?.image || item.imageLabel}</span>}
       {item.rating && <span className="rating-badge">★ {item.rating.toFixed(1)}</span>}
     </Link>

@@ -16,7 +16,7 @@ const quickSearches: Partial<Record<SearchMode, Array<{ label: string; href: str
   ],
   hourly: [
     { label: "במרכז", href: "/hourly?location=מרכז" },
-    { label: "עד 250 ₪", href: "/hourly?maxPrice=250" },
+    { label: "עד 250 ₪ לשעתיים", href: "/hourly?maxPrice=250" },
     { label: "עם ג׳קוזי", href: "/hourly?features=jacuzzi" },
     { label: "כניסה עצמאית", href: "/hourly?features=independent" },
   ],

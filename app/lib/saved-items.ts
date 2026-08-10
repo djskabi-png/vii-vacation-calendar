@@ -1,7 +1,7 @@
 export const SAVED_ITEMS_KEY = "vii-saved-items-v2";
 export const SAVED_ITEMS_EVENT = "vii-saved-items-change";
 
-export type SavedWorld = "vacation" | "events" | "spa" | "hourly" | "providers" | "activities" | "trails";
+export type SavedWorld = "vacation" | "events" | "corporate" | "spa" | "hourly" | "providers" | "activities" | "trails";
 
 export type SavedItem = {
   key: string;

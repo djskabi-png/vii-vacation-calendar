@@ -4,10 +4,11 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { DiscoveryCard } from "./discovery-card";
 import type { DiscoveryItem } from "../data/world-data";
-import { DiscoveryMap } from "./listing-map";
+import { DeferredDiscoveryMap } from "./deferred-listing-map";
 import { MapIcon } from "../site-header";
 import { ModernSelect } from "./modern-select";
 import { useMapViewState } from "./map-view-state";
+import { verifiedHourlyPrice } from "../data/hourly-details";
 
 const featureFilters = [
   { id: "parking", label: "חניה", terms: ["חניה"] },
@@ -16,9 +17,10 @@ const featureFilters = [
   { id: "pool", label: "בריכה", terms: ["בריכה"] },
 ];
 
-function startingPrice(item: DiscoveryItem) {
-  const value = item.priceLabel?.match(/\d+/)?.[0];
-  return value ? Number(value) : Number.POSITIVE_INFINITY;
+const hourlyPriceOptions = [0, 250, 400, 600] as const;
+
+function twoHourPrice(item: DiscoveryItem) {
+  return verifiedHourlyPrice(item.id, "שעתיים") ?? Number.POSITIVE_INFINITY;
 }
 
 export function HourlyResults({ items }: { items: DiscoveryItem[] }) {
@@ -31,7 +33,7 @@ export function HourlyResults({ items }: { items: DiscoveryItem[] }) {
 
 function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requestedFeatures }: { items: DiscoveryItem[]; requestedLocation: string; requestedPrice: number; requestedFeatures: string[] }) {
   const [location, setLocation] = useState(requestedLocation);
-  const [maximumPrice, setMaximumPrice] = useState([0, 200, 250, 300, 400].includes(requestedPrice) ? requestedPrice : 0);
+  const [maximumPrice, setMaximumPrice] = useState(hourlyPriceOptions.includes(requestedPrice as typeof hourlyPriceOptions[number]) ? requestedPrice : 0);
   const [features, setFeatures] = useState<string[]>(requestedFeatures);
   const { mapOpen, closeMap, toggleMap } = useMapViewState();
   const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
@@ -44,7 +46,7 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
 
   const filtered = useMemo(() => items.filter((item) => {
     const locationMatches = location === "כל הארץ" || item.area === location || item.location === location;
-    const priceMatches = maximumPrice === 0 || startingPrice(item) <= maximumPrice;
+    const priceMatches = maximumPrice === 0 || twoHourPrice(item) <= maximumPrice;
     const searchable = `${item.description} ${item.features.join(" ")}`;
     const featuresMatch = features.every((featureId) => {
       const filter = featureFilters.find((entry) => entry.id === featureId);
@@ -97,12 +99,12 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
       </div>
       <div className="hourly-results__filters">
         <ModernSelect label="עיר או אזור" value={location} onChange={changeLocation} options={locations.map((option) => ({ value: option, label: option }))} />
-        <ModernSelect label="מחיר התחלתי עד" value={String(maximumPrice)} onChange={changePrice} options={[{ value: "0", label: "ללא הגבלה" }, { value: "200", label: "200 ₪" }, { value: "250", label: "250 ₪" }, { value: "300", label: "300 ₪" }, { value: "400", label: "400 ₪" }]} />
+        <ModernSelect label="מחיר לשעתיים עד" value={String(maximumPrice)} onChange={changePrice} options={[{ value: "0", label: "ללא הגבלת מחיר" }, { value: "250", label: "עד 250 ₪ לשעתיים" }, { value: "400", label: "עד 400 ₪ לשעתיים" }, { value: "600", label: "עד 600 ₪ לשעתיים" }]} />
         <button type="button" className="hourly-more-filters" aria-expanded={moreFiltersOpen} onClick={() => setMoreFiltersOpen((value) => !value)}>סינון נוסף{features.length ? ` (${features.length})` : ""}</button>
         <fieldset className={moreFiltersOpen ? "open" : ""}><legend>מאפייני המקום</legend><div>{featureFilters.map((filter) => <label key={filter.id} className={features.includes(filter.id) ? "selected" : ""}><input type="checkbox" checked={features.includes(filter.id)} onChange={() => toggleFeature(filter.id)} /><span>{filter.label}</span></label>)}</div></fieldset>
         <button type="button" className="hourly-results__reset" onClick={resetFilters} disabled={location === "כל הארץ" && maximumPrice === 0 && features.length === 0}>ניקוי סינונים</button>
       </div>
     </div>
-    {filtered.length > 0 ? mapOpen ? <DiscoveryMap items={filtered} tone="hourly" autoLoad onClose={closeMap} onVisiblePlaceIdsChange={setMapVisibleIds} /> : <div className="discovery-grid">{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div> : <div className="hourly-results__empty"><strong>לא נמצאו מקומות שמתאימים לכל הסינונים</strong><p>אפשר להרחיב את האזור או להסיר אחד מהמאפיינים.</p><button type="button" className="button secondary" onClick={resetFilters}>הצגת כל המקומות</button></div>}
+    {filtered.length > 0 ? mapOpen ? <DeferredDiscoveryMap items={filtered} tone="hourly" autoLoad onClose={closeMap} onVisiblePlaceIdsChange={setMapVisibleIds} /> : <div className="discovery-grid">{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div> : <div className="hourly-results__empty"><strong>לא נמצאו מקומות שמתאימים לכל הסינונים</strong><p>אפשר להרחיב את האזור או להסיר אחד מהמאפיינים.</p><button type="button" className="button secondary" onClick={resetFilters}>הצגת כל המקומות</button></div>}
   </div>;
 }

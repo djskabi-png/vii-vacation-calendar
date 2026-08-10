@@ -432,7 +432,7 @@ const verifiedProperties: Property[] = verifiedCatalog.vacation.map((item) => ({
   lat: item.lat,
   lng: item.lng,
   scenario: "single",
-  price: item.price,
+  price: "price" in item && typeof item.price === "number" ? item.price : undefined,
 }));
 
 const unavailablePropertyImages = new Set([
@@ -562,7 +562,7 @@ const verifiedEventPlaces: EventPlace[] = verifiedCatalog.events.map((item) => (
   lat: item.lat,
   lng: item.lng,
   scenario: "single",
-  price: item.price,
+  price: "price" in item && typeof item.price === "number" ? item.price : undefined,
 }));
 
 export const eventPlaces = [

@@ -11,3 +11,8 @@ test("closing any mobile date flow resets the full search sheet", () => {
   assert.match(source, /className="search-mobile-backdrop" onClick=\{closeMobileSearch\}/);
   assert.match(source, /event\.key === "Escape"\) closeMobileSearch\(\)/);
 });
+
+test("submitting a search closes every open search layer before showing results", () => {
+  assert.match(source, /function search\(\) \{[\s\S]*?setIsSearching\(true\);[\s\S]*?closeMobileSearch\(\);/);
+  assert.match(source, /const closeMobileSearch = useCallback\(\(\) => \{[\s\S]*?setPriceOpen\(false\);[\s\S]*?setMobileExpanded\(false\);/);
+});
