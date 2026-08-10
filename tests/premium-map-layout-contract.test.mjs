@@ -33,12 +33,14 @@ test("useful numeric labels appear on markers while generic places keep icons", 
 test("tightly overlapping clusters expand into individually selectable spider markers", () => {
   assert.match(component, /const spiderfyCluster = \(entries: MapPlace\[\], center: import\("leaflet"\)\.LatLng, clearExisting = true\)/);
   assert.match(component, /spiderfyCluster\(cluster\.entries, clusterCenter\)/);
-  assert.match(component, /if \(clustered && map\.getZoom\(\) >= 13\) \{[\s\S]*spiderfyCluster\(cluster\.entries, clusterCenter, false\)/);
+  assert.match(component, /const threshold = zoom < 8 \? 92 : zoom < 10 \? 66 : zoom < 12 \? 44 : 32/);
+  assert.match(component, /if \(clustered && zoom >= 9\) \{[\s\S]*spiderfyCluster\(cluster\.entries, clusterCenter, false\)/);
+  assert.match(component, /const goldenAngle = Math\.PI \* \(3 - Math\.sqrt\(5\)\)/);
   assert.match(component, /spiderMarker\.on\("click", \(\) => \{[\s\S]*if \(performance\.now\(\) < selectionReadyAt\) return;[\s\S]*selectPlace\(entry\.id\)/);
   assert.match(component, /L\.polyline\(\[center, spiderPosition\]/);
   assert.match(component, /setAttribute\("aria-label", `\$\{clusterText\}, \$\{cardCopy\.openCluster\}`\)/);
   assert.match(component, /map\.getBoundsZoom\(paddedClusterBounds, false, L\.point\(140, 140\)\)/);
-  assert.match(component, /clusterDistance < 80 \|\| map\.getZoom\(\) >= 13 \|\| targetZoom <= map\.getZoom\(\)/);
+  assert.match(component, /clusterDistance < 80 \|\| map\.getZoom\(\) >= 9 \|\| targetZoom <= map\.getZoom\(\)/);
   assert.doesNotMatch(component, /distanceTo\(clusterBounds\.getSouthWest\(\)\) < 80\) map\.flyTo/);
 });
 
