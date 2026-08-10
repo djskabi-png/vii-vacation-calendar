@@ -34,5 +34,7 @@ test("the desktop map control toggles back to the list", () => {
 test("map controls and markers use the site typography", () => {
   assert.match(styles, /\.listing-map-shell[^}]+font-family: Rubik, Heebo, Assistant, Arial, sans-serif/);
   assert.match(styles, /\.vii-map-marker[^}]+font-family: Rubik, Heebo, Assistant, Arial, sans-serif/);
+  assert.match(styles, /\.map-search-area[^}]+font-family: Rubik, Heebo, Assistant, Arial, sans-serif/);
+  assert.match(styles, /\.map-mobile-close[^}]+font-family: Rubik, Heebo, Assistant, Arial, sans-serif/);
   assert.doesNotMatch(styles, /\.listing-map-shell[^}]+font-family: Heebo, Arial, sans-serif/);
 });
