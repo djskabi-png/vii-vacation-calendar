@@ -41,10 +41,14 @@ test("verified legacy facts are attached only to their matching properties", () 
 });
 
 test("compact card actions remain usable on mobile and keyboard", () => {
-  assert.match(css, /\.stay-card__contact \{[^}]*min-height: 36px/);
+  assert.match(css, /\.stay-card__contact \{[^}]*min-height: 38px/);
   assert.match(css, /\.stay-card__contact:focus-visible/);
-  assert.match(css, /\.stay-card__contact \{ min-width: 42px; min-height: 42px/);
+  assert.match(css, /\.stay-card__contact \{ width: 44px; min-width: 44px; height: 44px; min-height: 44px/);
+  assert.match(css, /\.stay-card__contact svg \{ width: 20px; height: 20px; stroke-width: 2\.25/);
+  assert.match(css, /\.stay-card__contact--whatsapp \{[^}]*background: #20a75a/);
   assert.match(css, /\.stay-card__contact span \{ display: none; \}/);
+  assert.match(card, /aria-label=\{`\$\{copy\.call\}: \$\{property\.name\}`\}/);
+  assert.match(card, /aria-label=\{`\$\{copy\.whatsapp\}: \$\{property\.name\}`\}/);
   assert.doesNotMatch(card, /className="button secondary"/);
 });
 
