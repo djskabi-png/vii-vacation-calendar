@@ -1,15 +1,18 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { DiscoveryItem } from "../data/world-data";
 import { MapIcon } from "../site-header";
 import { DiscoveryCard } from "./discovery-card";
 import { DeferredDiscoveryMap } from "./deferred-listing-map";
 import { ModernSelect } from "./modern-select";
 import Link from "next/link";
-import { spaLandings, spaLandingHref } from "../data/spa-landings";
+import { spaLandings } from "../data/spa-landings";
 import { useMapViewState } from "./map-view-state";
+import { spaSearchHref, spaSearchStateFromValues, type SpaSearchAudienceId } from "../data/spa-search-landings";
+import { localizedPath } from "../i18n/locale-routing";
+import { useSiteLanguage } from "../i18n/locale-provider";
 
 const spaFilters = spaLandings;
 
@@ -20,7 +23,7 @@ const spaAudiences = {
   "day-pass": { label: "יום כיף", terms: ["יום כיף"] },
 } as const;
 
-type SpaAudienceId = keyof typeof spaAudiences;
+type SpaAudienceId = SpaSearchAudienceId;
 
 function SpaFilterIcon({ id }: { id: string }) {
   const shared = { fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
@@ -40,25 +43,36 @@ function searchableText(item: DiscoveryItem) {
   return `${item.name} ${item.description} ${item.features.join(" ")}`;
 }
 
-function SpaResults({ items, activeSpaFilter }: { items: DiscoveryItem[]; activeSpaFilter?: string }) {
+function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudience, initialSpaFilters }: { items: DiscoveryItem[]; activeSpaFilter?: string; initialLocation?: string; initialSpaAudience?: string; initialSpaFilters?: string[] }) {
+  const router = useRouter();
   const searchParams = useSearchParams();
+  const { language } = useSiteLanguage();
   const searchQuery = searchParams.toString();
-  const requestedLocation = searchParams.get("location") || "כל הארץ";
-  const requestedAudience = searchParams.get("spaFor");
+  const requestedLocation = searchParams.get("location") || initialLocation || "כל הארץ";
+  const requestedAudience = searchParams.get("spaFor") || initialSpaAudience;
   const [location, setLocation] = useState(requestedLocation);
   const [spaAudience, setSpaAudience] = useState<SpaAudienceId | "">(
     requestedAudience && requestedAudience in spaAudiences ? requestedAudience as SpaAudienceId : "",
   );
-  const [selectedFilters, setSelectedFilters] = useState<string[]>(() => (searchParams.get("features") || "").split(",").filter((id) => spaFilters.some((filter) => filter.id === id)));
+  const [selectedFilters, setSelectedFilters] = useState<string[]>(() => {
+    const requested = (searchParams.get("features") || "").split(",").filter(Boolean);
+    return (requested.length ? requested : initialSpaFilters || []).filter((id) => spaFilters.some((filter) => filter.id === id));
+  });
   const { mapOpen, setMapOpen } = useMapViewState();
   const [visibleMapCount, setVisibleMapCount] = useState(0);
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
   const spaLandingContext = useMemo(() => {
     const params = new URLSearchParams(searchParams.toString());
+    params.delete("location");
+    params.delete("spaFor");
     params.delete("features");
     const query = params.toString();
-    return (filterId: string) => `${spaLandingHref(spaFilters.find((filter) => filter.id === filterId)!)}${query ? `?${query}` : ""}`;
-  }, [searchParams]);
+    return (filterId: string) => {
+      const nextFilters = selectedFilters.includes(filterId) ? selectedFilters.filter((id) => id !== filterId) : [...selectedFilters, filterId];
+      const href = spaSearchHref(spaSearchStateFromValues(location, spaAudience, nextFilters));
+      return `${href}${query ? `?${query}` : ""}`;
+    };
+  }, [location, searchParams, selectedFilters, spaAudience]);
 
   const locations = useMemo(
     () => ["כל הארץ", ...Array.from(new Set(items.flatMap((item) => [item.area, item.location])))],
@@ -80,19 +94,23 @@ function SpaResults({ items, activeSpaFilter }: { items: DiscoveryItem[]; active
     location === "כל הארץ" || item.area === location || item.location === location
   )), [amenityFiltered, location]);
 
-  function updateUrl(updates: Record<string, string>) {
+  function updateUrl(nextLocation: string, nextAudience: SpaAudienceId | "", nextFilters: string[]) {
     const params = new URLSearchParams(window.location.search);
-    Object.entries(updates).forEach(([key, value]) => value && value !== "כל הארץ" ? params.set(key, value) : params.delete(key));
-    window.history.pushState(null, "", `${window.location.pathname}${params.size ? `?${params}` : ""}`);
+    params.delete("location");
+    params.delete("spaFor");
+    params.delete("features");
+    const path = spaSearchHref(spaSearchStateFromValues(nextLocation, nextAudience, nextFilters));
+    const query = params.toString();
+    router.push(localizedPath(`${path}${query ? `?${query}` : ""}`, language));
   }
 
-  function changeLocation(value: string) { setLocation(value); updateUrl({ location: value }); }
-  function changeAudience(value: SpaAudienceId | "") { setSpaAudience(value); updateUrl({ spaFor: value }); }
+  function changeLocation(value: string) { setLocation(value); updateUrl(value, spaAudience, selectedFilters); }
+  function changeAudience(value: SpaAudienceId | "") { setSpaAudience(value); updateUrl(location, value, selectedFilters); }
 
   function toggleFilter(id: string) {
     setSelectedFilters((current) => {
       const next = current.includes(id) ? current.filter((filter) => filter !== id) : [...current, id];
-      updateUrl({ features: next.join(",") });
+      updateUrl(location, spaAudience, next);
       return next;
     });
   }
@@ -101,7 +119,7 @@ function SpaResults({ items, activeSpaFilter }: { items: DiscoveryItem[]; active
     setLocation("כל הארץ");
     setSpaAudience("");
     setSelectedFilters([]);
-    updateUrl({ location: "", spaFor: "", features: "" });
+    updateUrl("כל הארץ", "", []);
   }
 
   const hasFilters = location !== "כל הארץ" || spaAudience !== "" || selectedFilters.length > 0;
@@ -118,13 +136,14 @@ function SpaResults({ items, activeSpaFilter }: { items: DiscoveryItem[]; active
   useEffect(() => {
     const timer = window.setTimeout(() => {
       const params = new URLSearchParams(searchQuery);
-      setLocation(params.get("location") || "כל הארץ");
-      const nextAudience = params.get("spaFor");
+      setLocation(params.get("location") || initialLocation || "כל הארץ");
+      const nextAudience = params.get("spaFor") || initialSpaAudience;
       setSpaAudience(nextAudience && nextAudience in spaAudiences ? nextAudience as SpaAudienceId : "");
-      setSelectedFilters((params.get("features") || "").split(",").filter((id) => spaFilters.some((filter) => filter.id === id)));
+      const requestedFilters = (params.get("features") || "").split(",").filter(Boolean);
+      setSelectedFilters((requestedFilters.length ? requestedFilters : initialSpaFilters || []).filter((id) => spaFilters.some((filter) => filter.id === id)));
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [searchQuery]);
+  }, [initialLocation, initialSpaAudience, initialSpaFilters, searchQuery]);
   const resultLabel = mapOpen
     ? `${visibleMapCount} בתי ספא באזור המוצג במפה`
     : `${displayed.length} בתי ספא${mapVisibleIds ? " באזור שבחרתם במפה" : location === "כל הארץ" ? " בישראל" : ` ב${location}`}`;
@@ -137,7 +156,7 @@ function SpaResults({ items, activeSpaFilter }: { items: DiscoveryItem[]; active
       </div>
       <div className="spa-results__filters">
         <div className="spa-results__location-card"><span className="spa-results__location-icon"><MapIcon /></span><ModernSelect className="spa-results__location" label="איפה תרצו להתפנק?" value={location} onChange={changeLocation} options={locations.map((option) => ({ value: option, label: option }))} /></div>
-        <nav className="spa-results__landing-links" aria-label="עמודי ספא לפי מאפיין"><strong>מה תרצו שיהיה במקום?</strong><div>{spaFilters.map((filter) => <Link key={filter.id} href={spaLandingContext(filter.id)} scroll={false} aria-current={activeSpaFilter === filter.id ? "page" : undefined} className={activeSpaFilter === filter.id ? "selected" : ""}><span className="spa-results__filter-icon"><SpaFilterIcon id={filter.id} /></span><span className="spa-results__filter-label">{filter.label}</span></Link>)}</div><small className="spa-results__swipe-hint">החליקו לעוד אפשרויות</small></nav>
+        <nav className="spa-results__landing-links" aria-label="עמודי ספא לפי מאפיין"><strong>מה תרצו שיהיה במקום?</strong><div>{spaFilters.map((filter) => { const selected = selectedFilters.includes(filter.id) || activeSpaFilter === filter.id; return <Link key={filter.id} href={spaLandingContext(filter.id)} scroll={false} aria-current={selected ? "page" : undefined} className={selected ? "selected" : ""}><span className="spa-results__filter-icon"><SpaFilterIcon id={filter.id} /></span><span className="spa-results__filter-label">{filter.label}</span></Link>; })}</div><small className="spa-results__swipe-hint">החליקו לעוד אפשרויות</small></nav>
         <button type="button" className="spa-results__reset" onClick={resetFilters} disabled={!hasFilters}>ניקוי סינונים</button>
       </div>
       {hasFilters && <div className="spa-results__active" aria-label="סינונים פעילים"><span>סינונים פעילים:</span>{location !== "כל הארץ" && <button type="button" onClick={() => changeLocation("כל הארץ")}>{location} ×</button>}{spaAudience && <button type="button" onClick={() => changeAudience("")}>{spaAudiences[spaAudience].label} ×</button>}{selectedFilters.map((id) => { const filter = spaFilters.find((entry) => entry.id === id); return filter ? <button type="button" key={id} onClick={() => toggleFilter(id)}>{filter.label} ×</button> : null; })}</div>}
@@ -146,10 +165,10 @@ function SpaResults({ items, activeSpaFilter }: { items: DiscoveryItem[]; active
   </div>;
 }
 
-export function WorldMapResults({ items, world, activeSpaFilter }: { items: DiscoveryItem[]; world: "spa" | "hourly"; activeSpaFilter?: string }) {
+export function WorldMapResults({ items, world, activeSpaFilter, initialLocation, initialSpaAudience, initialSpaFilters }: { items: DiscoveryItem[]; world: "spa" | "hourly"; activeSpaFilter?: string; initialLocation?: string; initialSpaAudience?: string; initialSpaFilters?: string[] }) {
   const { mapOpen, setMapOpen } = useMapViewState();
 
-  if (world === "spa") return <SpaResults items={items} activeSpaFilter={activeSpaFilter} />;
+  if (world === "spa") return <SpaResults items={items} activeSpaFilter={activeSpaFilter} initialLocation={initialLocation} initialSpaAudience={initialSpaAudience} initialSpaFilters={initialSpaFilters} />;
 
   return <div className={`world-map-results world-map-results--${world}`}>
     <div className="world-map-results__toolbar">

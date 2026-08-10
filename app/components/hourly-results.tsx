@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { DiscoveryCard } from "./discovery-card";
 import type { DiscoveryItem } from "../data/world-data";
 import { DeferredDiscoveryMap } from "./deferred-listing-map";
@@ -9,6 +9,9 @@ import { MapIcon } from "../site-header";
 import { ModernSelect } from "./modern-select";
 import { useMapViewState } from "./map-view-state";
 import { verifiedHourlyPrice } from "../data/hourly-details";
+import { hourlySearchHref } from "../data/world-search-landings";
+import { localizedPath } from "../i18n/locale-routing";
+import { useSiteLanguage } from "../i18n/locale-provider";
 
 const featureFilters = [
   { id: "parking", label: "חניה", terms: ["חניה"] },
@@ -23,15 +26,17 @@ function twoHourPrice(item: DiscoveryItem) {
   return verifiedHourlyPrice(item.id, "שעתיים") ?? Number.POSITIVE_INFINITY;
 }
 
-export function HourlyResults({ items }: { items: DiscoveryItem[] }) {
+export function HourlyResults({ items, initialLocation }: { items: DiscoveryItem[]; initialLocation?: string }) {
   const searchParams = useSearchParams();
-  const requestedLocation = searchParams.get("location") || "כל הארץ";
+  const requestedLocation = searchParams.get("location") || initialLocation || "כל הארץ";
   const requestedPrice = Number(searchParams.get("maxPrice") || 0);
   const requestedFeatures = (searchParams.get("features") || "").split(",").filter((id) => featureFilters.some((filter) => filter.id === id));
   return <HourlyResultsPanel key={`${requestedLocation}-${requestedPrice}-${requestedFeatures.join(",")}`} items={items} requestedLocation={requestedLocation} requestedPrice={requestedPrice} requestedFeatures={requestedFeatures} />;
 }
 
 function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requestedFeatures }: { items: DiscoveryItem[]; requestedLocation: string; requestedPrice: number; requestedFeatures: string[] }) {
+  const router = useRouter();
+  const { language } = useSiteLanguage();
   const [location, setLocation] = useState(requestedLocation);
   const [maximumPrice, setMaximumPrice] = useState(hourlyPriceOptions.includes(requestedPrice as typeof hourlyPriceOptions[number]) ? requestedPrice : 0);
   const [features, setFeatures] = useState<string[]>(requestedFeatures);
@@ -58,7 +63,10 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
   function updateUrl(updates: Record<string, string>) {
     const params = new URLSearchParams(window.location.search);
     Object.entries(updates).forEach(([key, value]) => value && value !== "כל הארץ" && value !== "0" ? params.set(key, value) : params.delete(key));
-    window.history.pushState(null, "", `${window.location.pathname}${params.size ? `?${params}` : ""}`);
+    const requestedLocation = updates.location === undefined ? location : updates.location || "כל הארץ";
+    params.delete("location");
+    const path = hourlySearchHref(requestedLocation);
+    router.push(localizedPath(`${path}${params.size ? `?${params}` : ""}`, language));
   }
 
   function changeLocation(value: string) { setLocation(value); updateUrl({ location: value }); }

@@ -1,6 +1,7 @@
 import type { WorldId } from "./world-data";
 import { cleanAccommodationPath } from "./accommodation-landings";
 import { cleanVacationPath } from "./vacation-landings";
+import { spaSearchHref, spaSearchStateFromValues } from "./spa-search-landings";
 
 export type FooterLink = { href: string; label: string };
 export type FooterContext = { label: string; links: FooterLink[] };
@@ -43,7 +44,7 @@ export const worldFooterContexts: Record<WorldId, FooterContext> = {
   },
   spa: {
     label: "בתי ספא לפי אזור",
-    links: regionalLinks("/spas", ["תל אביב", "ירושלים", "מרכז", "צפון", "חיפה"], (region) => `ספא ב${region}`),
+    links: ["תל אביב", "ירושלים והסביבה", "מרכז", "צפון", "חיפה"].map((region) => ({ href: spaSearchHref(spaSearchStateFromValues(region)), label: `ספא ב${region}` })),
   },
   hourly: {
     label: "חדרים לפי שעה לפי אזור",

@@ -43,15 +43,22 @@ test("all map result worlds apply viewport ids to their list", () => {
 });
 
 test("filter changes create restorable history entries", () => {
-  const paths = [
+  const routerPaths = [
     "app/events/search/page.tsx",
     "app/components/hourly-results.tsx",
-    "app/attractions/attractions-explorer.tsx",
     "app/components/world-map-results.tsx",
+  ];
+  for (const path of routerPaths) {
+    const source = read(path);
+    assert.match(source, /router\.push/);
+    assert.doesNotMatch(source, /history\.replaceState/);
+  }
+  const nativePaths = [
+    "app/attractions/attractions-explorer.tsx",
     "app/trails/trails-explorer.tsx",
     "app/components/provider-results.tsx",
   ];
-  for (const path of paths) {
+  for (const path of nativePaths) {
     const source = read(path);
     assert.match(source, /history\.pushState/);
     assert.doesNotMatch(source, /history\.replaceState/);

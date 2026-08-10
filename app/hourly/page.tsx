@@ -3,6 +3,8 @@ import { WorldLanding } from "../components/world-landing";
 import { hourlyPlaces } from "../data/world-data";
 import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, collectionSchema } from "../lib/seo";
+import { matchesSearchLocation } from "../data/search-taxonomy";
+import { hourlySearchHref } from "../data/world-search-landings";
 
 export const metadata: Metadata = {
   title: "חדרים לפי שעה",
@@ -16,13 +18,27 @@ export const metadata: Metadata = {
   },
 };
 
-export default function HourlyPage() {
+export function HourlyLanding({ initialLocation }: { initialLocation?: string }) {
+  const title = initialLocation ? `חדרים לפי שעה ב${initialLocation}` : "חדרים לפי שעה";
+  const description = initialLocation
+    ? `חדרים וסוויטות לשהייה קצרה ב${initialLocation}, עם סינון לפי מחיר ומאפייני המקום.`
+    : "בוחרים אזור ומחייגים ישירות למקום, בלי להזמין לילה שלם.";
+  const path = hourlySearchHref(initialLocation);
+  const matchingItems = initialLocation
+    ? hourlyPlaces.filter((place) => matchesSearchLocation(place, initialLocation))
+    : hourlyPlaces;
+
   return <>
     <StructuredData data={breadcrumbSchema([
       { name: "ראשי", path: "/" },
       { name: "חדרים לפי שעה", path: "/hourly/" },
+      ...(initialLocation ? [{ name: title, path }] : []),
     ])} />
-    <StructuredData data={collectionSchema("חדרים לפי שעה", "חדרים וסוויטות לשהייה קצרה לפי אזור וסוג האירוח.", "/hourly", hourlyPlaces.map((place) => ({ name: place.name, path: `/discover/place/${place.id}`, image: place.image })))} />
-    <WorldLanding world="hourly" title="חדרים לפי שעה" description="בוחרים אזור ומחייגים ישירות למקום, בלי להזמין לילה שלם." items={hourlyPlaces} searchMode="hourly" />
+    <StructuredData data={collectionSchema(title, description, path, matchingItems.map((place) => ({ name: place.name, path: `/discover/place/${place.id}`, image: place.image })))} />
+    <WorldLanding world="hourly" title={title} description={description} items={hourlyPlaces} searchMode="hourly" initialSearchLocation={initialLocation} />
   </>;
+}
+
+export default function HourlyPage() {
+  return <HourlyLanding />;
 }

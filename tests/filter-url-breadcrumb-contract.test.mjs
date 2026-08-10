@@ -59,14 +59,48 @@ test("provider filters serialize, restore and reset their complete state", () =>
 
 test("attractions, trails, spa and hourly filters have shareable URL state", () => {
   const expectations = [
-    ["app/attractions/attractions-explorer.tsx", ["q", "area", "type"]],
-    ["app/trails/trails-explorer.tsx", ["q", "area", "nature", "difficulty"]],
-    ["app/components/world-map-results.tsx", ["location", "spaFor", "features"]],
-    ["app/components/hourly-results.tsx", ["location", "maxPrice", "features"]],
+    ["app/attractions/attractions-explorer.tsx", ["q", "area", "type"], /window\.history\.pushState/],
+    ["app/trails/trails-explorer.tsx", ["q", "area", "nature", "difficulty"], /window\.history\.pushState/],
+    ["app/components/world-map-results.tsx", ["location", "spaFor", "features"], /router\.push/],
+    ["app/components/hourly-results.tsx", ["location", "maxPrice", "features"], /router\.push/],
   ];
-  expectations.forEach(([file, keys]) => {
+  expectations.forEach(([file, keys, navigation]) => {
     const source = read(file);
-    assert.match(source, /window\.history\.pushState/);
+    assert.match(source, navigation);
     keys.forEach((key) => assert.match(source, new RegExp(key)));
   });
+});
+
+test("spa, events and hourly preserve location in semantic search routes", () => {
+  const spa = read("app/data/spa-search-landings.ts");
+  assert.match(spa, /spaSearchStateFromSegments/);
+  assert.match(spa, /spaSearchHref/);
+  assert.match(spa, /spaSearchTitle/);
+  assert.match(spa, /slug: "spa-day-pass"/);
+  assert.match(spa, /getSpaDetails\(item\.id\)\?\.packages/);
+  assert.match(spa, /matchesSearchLocation/);
+
+  const spaPage = read("app/spas/search/[...segments]/page.tsx");
+  assert.match(spaPage, /alternates: \{ canonical: path \}/);
+  assert.match(spaPage, /collectionSchema/);
+  assert.match(spaPage, /initialSearchLocation/);
+  assert.match(spaPage, /initialSpaAudience/);
+  assert.match(spaPage, /initialSpaFilters/);
+
+  const shared = read("app/data/world-search-landings.ts");
+  assert.match(shared, /eventSearchHref/);
+  assert.match(shared, /hourlySearchHref/);
+  assert.match(read("app/events/search/page.tsx"), /eventHeading/);
+  assert.match(read("app/events/search/[region]/page.tsx"), /alternates: \{ canonical: url \}/);
+  assert.match(read("app/hourly/search/[region]/page.tsx"), /alternates: \{ canonical: url \}/);
+  const heading = read("app/components/semantic-world-heading.tsx");
+  assert.match(heading, /spaSearchStateFromSegments/);
+  assert.match(heading, /spaSearchTitle/);
+  assert.match(heading, /searchParams\.get\("features"\)/);
+  assert.match(heading, /queryFeatures\.filter/);
+
+  const sitemap = read("app/sitemap.ts");
+  assert.match(sitemap, /indexableSpaSearchStates/);
+  assert.match(sitemap, /eventSearchHref/);
+  assert.match(sitemap, /hourlySearchHref/);
 });

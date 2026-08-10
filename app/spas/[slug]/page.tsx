@@ -25,6 +25,6 @@ export default async function SpaLandingPage({ params }: { params: Promise<{ slu
   return <>
     <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "בתי ספא", path: "/spas" }, { name: landing.title, path }])} />
     <StructuredData data={collectionSchema(landing.title, landing.description, path, items.map((item) => ({ name: item.name, path: `/discover/place/${item.id}`, image: item.image })))} />
-    <WorldLanding world="spa" title={landing.title} description={landing.description} items={items} searchMode="spa" activeSpaFilter={landing.id} breadcrumbItems={[{ name: "ראשי", path: "/" }, { name: "בתי ספא", path: "/spas" }, { name: landing.title }]} collectionTitle={`${landing.title}, ${items.length} מקומות מתאימים`} />
+    <WorldLanding world="spa" title={landing.title} description={landing.description} items={spaPlaces} searchMode="spa" activeSpaFilter={landing.id} initialSpaFilters={[landing.id]} breadcrumbItems={[{ name: "ראשי", path: "/" }, { name: "בתי ספא", path: "/spas" }, { name: landing.title }]} collectionTitle={`${landing.title}, ${items.length} מקומות מתאימים`} />
   </>;
 }

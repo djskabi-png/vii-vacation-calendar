@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { eventPlaces, properties } from "./data/site-data";
-import { discoveryItems } from "./data/world-data";
+import { discoveryItems, spaPlaces } from "./data/world-data";
 import { magazineArticles } from "./data/magazine-data";
 import { trails } from "./data/trail-data";
 import { absoluteUrl } from "./lib/seo";
@@ -8,6 +8,9 @@ import { indexableAccommodationLandings } from "./data/accommodation-landings";
 import { indexableVacationLandings } from "./data/vacation-landings";
 import { joinWorlds } from "./join/worlds";
 import { spaLandings, spaLandingHref } from "./data/spa-landings";
+import { indexableSpaSearchStates, spaSearchHref } from "./data/spa-search-landings";
+import { matchesSearchLocation, searchLocationOptions } from "./data/search-taxonomy";
+import { eventSearchHref, hourlySearchHref } from "./data/world-search-landings";
 
 const updated = new Date("2026-08-06T00:00:00+03:00");
 
@@ -27,9 +30,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     item("/search/", 0.9, "daily"),
     item("/events/", 0.9, "weekly"),
     item("/events/search/", 0.8, "daily"),
+    ...searchLocationOptions("events").filter((location) => location !== "כל הארץ" && eventPlaces.some((place) => matchesSearchLocation(place, location))).map((location) => item(eventSearchHref(location), 0.82, "weekly")),
     item("/spas/", 0.8),
     ...spaLandings.map((landing) => item(spaLandingHref(landing), 0.82, "weekly")),
+    ...Array.from(new Set(indexableSpaSearchStates(spaPlaces).map(spaSearchHref))).map((path) => item(path, 0.84, "weekly")),
     item("/hourly/", 0.8),
+    ...searchLocationOptions("hourly").filter((location) => location !== "כל הארץ" && discoveryItems.filter((place) => place.world === "hourly").some((place) => matchesSearchLocation(place, location))).map((location) => item(hourlySearchHref(location), 0.82, "weekly")),
     item("/trails/", 0.8),
     item("/attractions/", 0.8),
     item("/gift-card/", 0.85, "weekly"),

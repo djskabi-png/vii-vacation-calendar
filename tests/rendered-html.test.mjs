@@ -577,7 +577,8 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(data, /readVerifiedCount\(item\.location/);
   assert.match(search, /האזור שמוצג במפה/);
   assert.match(eventSearch, /mode="events" autoLoad/);
-  assert.match(eventSearch, /const \[guests, setGuests\] = useState\(0\)/);
+  assert.match(eventSearch, /const \[guests, setGuests\] = useState\(/);
+  assert.match(eventSearch, /initialGuests/);
   assert.match(eventSearch, /ללא סינון לפי כמות/);
   assert.match(eventPlace, /fetch\("\/api\/leads\/"/);
   assert.match(eventPlace, /privacyAccepted/);

@@ -13,6 +13,8 @@ import { useSiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
 import { cleanVacationPath } from "../data/vacation-landings";
 import { cleanAccommodationPath } from "../data/accommodation-landings";
+import { spaSearchHref, spaSearchStateFromValues } from "../data/spa-search-landings";
+import { eventSearchHref, hourlySearchHref } from "../data/world-search-landings";
 
 type SpaAudience = "single" | "couple" | "group" | "day-pass";
 
@@ -79,7 +81,7 @@ function normalizeHourlyPrice(value: string | null) {
   return HOURLY_PRICE_OPTIONS.includes(price as typeof HOURLY_PRICE_OPTIONS[number]) ? price : 0;
 }
 
-export function SearchBox({ mode = "vacation", compact = false, showWorlds = false, initialLocation, initialGuests, basePath, vacationType }: { mode?: SearchMode; compact?: boolean; showWorlds?: boolean; initialLocation?: string; initialGuests?: number; basePath?: string; vacationType?: string }) {
+export function SearchBox({ mode = "vacation", compact = false, showWorlds = false, initialLocation, initialGuests, basePath, vacationType, initialSpaAudience, initialSpaFeatures = [] }: { mode?: SearchMode; compact?: boolean; showWorlds?: boolean; initialLocation?: string; initialGuests?: number; basePath?: string; vacationType?: string; initialSpaAudience?: string; initialSpaFeatures?: string[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { language } = useSiteLanguage();
@@ -91,7 +93,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
   const [vacationDateRange, setVacationDateRange] = useState<{ from: string | null; till: string | null }>(() => ({ from: searchParams.get("from"), till: searchParams.get("till") }));
   const [eventDateRange, setEventDateRange] = useState<{ from: string | null; to: string | null }>(() => ({ from: searchParams.get("from"), to: searchParams.get("to") }));
   const [spaDate, setSpaDate] = useState<{ date: string | null; withoutDate: boolean }>(() => ({ date: searchParams.get("date"), withoutDate: searchParams.get("withoutDate") === "1" }));
-  const [spaAudience, setSpaAudience] = useState<SpaAudience>(() => parseSpaAudience(searchParams.get("spaFor")));
+  const [spaAudience, setSpaAudience] = useState<SpaAudience>(() => parseSpaAudience(searchParams.get("spaFor") || initialSpaAudience || null));
   const [guests, setGuests] = useState(() => Number(searchParams.get("guests")) || initialGuests || defaultGuestCount(mode));
   const [vacationParty, setVacationParty] = useState<VacationParty>(() => initialVacationParty(searchParams, Number(searchParams.get("guests")) || initialGuests || 2));
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -129,13 +131,13 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
       }
 
       if (mode === "spa") {
-        setSpaAudience(parseSpaAudience(searchParams.get("spaFor")));
+        setSpaAudience(parseSpaAudience(searchParams.get("spaFor") || initialSpaAudience || null));
         setSpaDate({ date: searchParams.get("date"), withoutDate: searchParams.get("withoutDate") === "1" });
       }
     }, 0);
 
     return () => window.clearTimeout(timer);
-  }, [initialGuests, initialLocation, mode, searchParams]);
+  }, [initialGuests, initialLocation, initialSpaAudience, mode, searchParams]);
 
   useEffect(() => {
     if (!mobileExpanded) return;
@@ -156,11 +158,13 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
     setIsSearching(true);
     closeMobileSearch();
     const cleanVacationRoute = mode === "vacation" ? (vacationType ? cleanAccommodationPath(vacationType, locationValue) : cleanVacationPath(locationValue)) : null;
-    const route = cleanVacationRoute || (basePath && mode === "vacation" ? basePath : mode === "events" ? "/events/search/" : mode === "spa" ? "/spas/" : mode === "hourly" ? "/hourly/" : "/search/");
+    const cleanSpaRoute = mode === "spa" ? spaSearchHref(spaSearchStateFromValues(locationValue, spaAudience, initialSpaFeatures)) : null;
+    const cleanEventRoute = mode === "events" ? eventSearchHref(locationValue) : null;
+    const cleanHourlyRoute = mode === "hourly" ? hourlySearchHref(locationValue) : null;
+    const route = cleanVacationRoute || cleanSpaRoute || cleanEventRoute || cleanHourlyRoute || (basePath && mode === "vacation" ? basePath : "/search/");
     let destination: string;
     if (isHourly) {
       const params = new URLSearchParams();
-      if (locationValue !== "כל הארץ") params.set("location", locationValue);
       if (maximumPrice > 0) params.set("maxPrice", String(maximumPrice));
       const query = params.toString();
       destination = query ? `${route}?${query}` : route;
@@ -178,7 +182,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
       destination = query ? `${route}?${query}` : route;
     } else {
       const params = new URLSearchParams();
-      if (!(basePath && mode === "vacation" && locationValue === initialLocation) && locationValue !== "כל הארץ") {
+      if (mode !== "events" && !(basePath && mode === "vacation" && locationValue === initialLocation) && locationValue !== "כל הארץ") {
         params.set("location", locationValue);
       }
       if (mode === "events") {
@@ -186,7 +190,6 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
         if (eventDateRange.to) params.set("to", eventDateRange.to);
         if (guests > 0) params.set("guests", String(guests));
       } else if (mode === "spa") {
-        if (spaAudience !== "single") params.set("spaFor", spaAudience);
         if (spaDate.date) params.set("date", spaDate.date);
         if (spaDate.withoutDate) params.set("withoutDate", "1");
       } else {

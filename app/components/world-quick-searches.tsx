@@ -1,5 +1,7 @@
 import Link from "next/link";
 import type { SearchMode } from "../data/search-taxonomy";
+import { eventSearchHref, hourlySearchHref } from "../data/world-search-landings";
+import { spaSearchHref, spaSearchStateFromValues } from "../data/spa-search-landings";
 
 const quickSearches: Partial<Record<SearchMode, Array<{ label: string; href: string }>>> = {
   events: [
@@ -22,12 +24,19 @@ const quickSearches: Partial<Record<SearchMode, Array<{ label: string; href: str
   ],
 };
 
-export function WorldQuickSearches({ mode }: { mode: SearchMode }) {
+export function WorldQuickSearches({ mode, initialLocation, initialSpaAudience }: { mode: SearchMode; initialLocation?: string; initialSpaAudience?: string }) {
   const links = quickSearches[mode];
   if (!links?.length) return null;
+  const spaFeatureIds = ["couples", "day-pass", "hotel", "pool"];
+  const contextualLinks = links.map((link, index) => {
+    if (mode === "spa") return { ...link, href: spaSearchHref(spaSearchStateFromValues(initialLocation, initialSpaAudience, [spaFeatureIds[index]])) };
+    if (mode === "events" && initialLocation) return { ...link, href: `${eventSearchHref(initialLocation)}${link.href.includes("?") ? link.href.slice(link.href.indexOf("?")) : ""}` };
+    if (mode === "hourly" && initialLocation) return { ...link, href: `${hourlySearchHref(initialLocation)}${link.href.includes("?") ? link.href.slice(link.href.indexOf("?")) : ""}` };
+    return link;
+  });
 
   return <nav className="quick-links world-quick-links" aria-label="חיפושים מהירים">
     <span>חיפושים מהירים:</span>
-    {links.map((link) => <Link key={link.href} href={link.href} data-global-feedback="true" data-loading-label={`פותחים ${link.label}...`}>{link.label}</Link>)}
+    {contextualLinks.map((link) => <Link key={link.href} href={link.href} data-global-feedback="true" data-loading-label={`פותחים ${link.label}...`}>{link.label}</Link>)}
   </nav>;
 }
