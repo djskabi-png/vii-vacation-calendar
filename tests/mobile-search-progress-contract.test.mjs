@@ -12,3 +12,13 @@ test("mobile search exposes a real current step and only submits at the final st
   assert.match(css, /\.search-box-shell\.mobile-expanded \.search-submit\s*\{[^}]*display:\s*none;/);
   assert.match(css, /\.search-box-shell\.mobile-expanded \.search-box\.mobile-step-guests \.search-submit,[\s\S]*?display:\s*flex;/);
 });
+
+test("mobile spa and event guest steps stay complete and hide persistent actions", () => {
+  assert.match(source, /mode === "events" \? "בונים את האירוע"/);
+  assert.match(source, /mode === "spa" \? "בונים את חוויית הספא"/);
+  assert.match(source, /mobileExpanded \? true : !value/);
+  assert.match(source, /if \(!mobileExpanded\) setGuestOpen\(false\)/);
+  assert.match(css, /\.search-box-shell\.mobile-expanded \.search-step--guests \.popover-done \{ display: none; \}/);
+  assert.match(css, /body:has\(\.search-box-shell\.mobile-expanded\) \.smart-concierge/);
+  assert.match(css, /body:has\(\.search-box-shell\.mobile-expanded\) \.mobile-map-fab/);
+});

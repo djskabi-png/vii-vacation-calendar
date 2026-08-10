@@ -43,7 +43,7 @@ function loadTranslations(language: GeneratedLanguage) {
 
 const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, string>> = {
   en: {
-    "בונים את החופשה": "Plan your stay",
+    "בונים את החופשה": "Plan your stay", "בונים את האירוע": "Plan your event", "בונים את חוויית הספא": "Plan your spa experience", "מדייקים את החיפוש": "Refine your search",
     "חיפוש יעד": "Search destinations",
     "הקלידו עיר או אזור": "Enter a city or region",
     "לא מצאנו יעד מתאים.": "No matching destination found.",
@@ -148,7 +148,7 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "These cards are search shortcuts. Availability and final pricing are confirmed after selecting dates and guests.",
   },
   ru: {
-    "בונים את החופשה": "Спланируйте поездку",
+    "בונים את החופשה": "Спланируйте поездку", "בונים את האירוע": "Организуйте мероприятие", "בונים את חוויית הספא": "Спланируйте спа-программу", "מדייקים את החיפוש": "Уточните поиск",
     "חיפוש יעד": "Поиск направления",
     "הקלידו עיר או אזור": "Введите город или регион",
     "לא מצאנו יעד מתאים.": "Подходящее направление не найдено.",
@@ -253,7 +253,7 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "Карточки ведут к поиску. Наличие мест и итоговая цена подтверждаются после выбора дат и состава гостей.",
   },
   fr: {
-    "בונים את החופשה": "Planifiez votre séjour",
+    "בונים את החופשה": "Planifiez votre séjour", "בונים את האירוע": "Organisez votre événement", "בונים את חוויית הספא": "Préparez votre expérience spa", "מדייקים את החיפוש": "Affinez votre recherche",
     "חיפוש יעד": "Rechercher une destination",
     "הקלידו עיר או אזור": "Saisissez une ville ou une région",
     "לא מצאנו יעד מתאים.": "Aucune destination correspondante.",
