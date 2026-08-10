@@ -8,15 +8,23 @@ export type BreadcrumbTrailItem = {
 export function BreadcrumbTrail({ items, className = "" }: { items: BreadcrumbTrailItem[]; className?: string }) {
   return (
     <nav className={`shell breadcrumbs ${className}`.trim()} aria-label="פירורי לחם">
-      {items.map((item, index) => {
-        const current = index === items.length - 1;
-        return (
-          <span className="breadcrumbs__item" key={`${item.name}-${index}`}>
-            {index > 0 ? <span className="breadcrumbs__separator" aria-hidden="true">/</span> : null}
-            {!current && item.path ? <Link href={item.path}>{item.name}</Link> : <span aria-current={current ? "page" : undefined}>{item.name}</span>}
-          </span>
-        );
-      })}
+      <ol className="breadcrumbs__list">
+        {items.map((item, index) => {
+          const current = index === items.length - 1;
+          return (
+            <li className="breadcrumbs__item" key={`${item.name}-${index}`}>
+              {index > 0 ? (
+                <span className="breadcrumbs__separator" aria-hidden="true">
+                  <svg viewBox="0 0 12 16" focusable="false">
+                    <path d="M8.5 3.5 4 8l4.5 4.5" />
+                  </svg>
+                </span>
+              ) : null}
+              {!current && item.path ? <Link href={item.path}>{item.name}</Link> : <span aria-current={current ? "page" : undefined}>{item.name}</span>}
+            </li>
+          );
+        })}
+      </ol>
     </nav>
   );
 }

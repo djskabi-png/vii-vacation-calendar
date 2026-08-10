@@ -16,6 +16,16 @@ test("all rendered breadcrumbs use the shared accessible component", () => {
   ];
   files.forEach((file) => assert.match(read(file), /BreadcrumbTrail/));
   files.forEach((file) => assert.doesNotMatch(read(file), /<nav[^>]+breadcrumbs/));
+
+  const trail = read("app/components/breadcrumb-trail.tsx");
+  const styles = read("app/globals.css");
+  assert.match(trail, /aria-label="פירורי לחם"/);
+  assert.match(trail, /<ol className="breadcrumbs__list">/);
+  assert.match(trail, /<li className="breadcrumbs__item"/);
+  assert.match(trail, /aria-current=\{current \? "page"/);
+  assert.match(styles, /\.breadcrumbs__item \[aria-current="page"\]/);
+  assert.match(styles, /\.breadcrumbs__item a:focus-visible/);
+  assert.match(styles, /:dir\(ltr\) \.breadcrumbs__separator svg/);
 });
 
 test("vacation and event filters serialize and restore their complete state", () => {
