@@ -358,7 +358,7 @@ test("shared map markers use modern icon markers and visible active list control
   assert.match(mapSource, /function markerIcon\(tone: MapTone\)/);
   assert.match(mapSource, /vii-map-marker__icon/);
   assert.doesNotMatch(mapSource, /<b>\$\{/);
-  assert.match(css, /\.listing-map-shell[^}]+font-family:\s*Heebo, Arial, sans-serif/);
+  assert.match(css, /\.listing-map-shell[^}]+font-family:\s*Rubik, Heebo, Assistant, Arial, sans-serif/);
   assert.match(css, /\.map-button\.active[^}]+color:\s*#fff\s*!important/);
   assert.match(css, /\.map-button\.active \.map-button__desktop-label/);
   assert.match(css, /\.vii-map-marker-wrap\.is-icon \.vii-map-marker/);

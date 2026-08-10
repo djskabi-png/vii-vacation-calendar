@@ -7,6 +7,7 @@ import { DiscoveryMap } from "../components/listing-map";
 import { ModernSelect } from "../components/modern-select";
 import { paidAttractions } from "../data/world-data";
 import { MapIcon } from "../site-header";
+import { useMapViewState } from "../components/map-view-state";
 
 const areas = ["הכל", "צפון", "כנרת", "מרכז ותל אביב", "ירושלים", "דרום ונגב", "אילת והסביבה"];
 const types = ["הכל", "שטח ואדרנלין", "טבע ורכיבה", "ים ושיט", "מים ומשפחה", "נחלים ומים", "אוכל ותרבות", "מדבר ושטח", "יצירה וקבוצות"];
@@ -19,7 +20,7 @@ export function AttractionsExplorer() {
   const [query, setQuery] = useState(searchParams.get("q") || "");
   const [area, setArea] = useState(areas.includes(requestedArea) ? requestedArea : "הכל");
   const [type, setType] = useState(types.includes(requestedType) ? requestedType : "הכל");
-  const [mapOpen, setMapOpen] = useState(false);
+  const { mapOpen, closeMap, toggleMap } = useMapViewState();
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
 
   const filtered = useMemo(() => paidAttractions.filter((item) => {
@@ -75,11 +76,11 @@ export function AttractionsExplorer() {
     </form>
     <div className="trail-results-head attraction-results-head">
       <div><strong>{displayed.length === 1 ? "חוויה אחת מתאימה" : `${displayed.length} חוויות מתאימות`}</strong><span>הספק, הזמינות והמחיר מוצגים רק לאחר אימות.</span></div>
-      {filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת האטרקציות על המפה"} aria-pressed={mapOpen} onClick={() => setMapOpen((value) => !value)}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
+      {filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת האטרקציות על המפה"} aria-pressed={mapOpen} onClick={toggleMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
     </div>
     {filtered.length
       ? mapOpen
-        ? <DiscoveryMap items={filtered} tone="activities" autoLoad onClose={() => setMapOpen(false)} onVisiblePlaceIdsChange={setMapVisibleIds} />
+        ? <DiscoveryMap items={filtered} tone="activities" autoLoad onClose={closeMap} onVisiblePlaceIdsChange={setMapVisibleIds} />
         : <div className="discovery-grid attraction-grid">{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>
       : <div className="trail-empty"><h2>לא מצאנו התאמה לסינון הזה</h2><p>אפשר להסיר סינון או לבחור אזור סמוך.</p><button type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
   </>;

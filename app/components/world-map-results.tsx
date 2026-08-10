@@ -9,6 +9,7 @@ import { DiscoveryMap } from "./listing-map";
 import { ModernSelect } from "./modern-select";
 import Link from "next/link";
 import { spaLandings, spaLandingHref } from "../data/spa-landings";
+import { useMapViewState } from "./map-view-state";
 
 const spaFilters = spaLandings;
 
@@ -49,7 +50,7 @@ function SpaResults({ items, activeSpaFilter }: { items: DiscoveryItem[]; active
     requestedAudience && requestedAudience in spaAudiences ? requestedAudience as SpaAudienceId : "",
   );
   const [selectedFilters, setSelectedFilters] = useState<string[]>(() => (searchParams.get("features") || "").split(",").filter((id) => spaFilters.some((filter) => filter.id === id)));
-  const [mapOpen, setMapOpen] = useState(false);
+  const { mapOpen, setMapOpen } = useMapViewState();
   const [visibleMapCount, setVisibleMapCount] = useState(0);
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
   const spaLandingContext = useMemo(() => {
@@ -146,7 +147,7 @@ function SpaResults({ items, activeSpaFilter }: { items: DiscoveryItem[]; active
 }
 
 export function WorldMapResults({ items, world, activeSpaFilter }: { items: DiscoveryItem[]; world: "spa" | "hourly"; activeSpaFilter?: string }) {
-  const [mapOpen, setMapOpen] = useState(false);
+  const { mapOpen, setMapOpen } = useMapViewState();
 
   if (world === "spa") return <SpaResults items={items} activeSpaFilter={activeSpaFilter} />;
 
