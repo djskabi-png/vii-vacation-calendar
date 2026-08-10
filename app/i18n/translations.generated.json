@@ -1,5 +1,10 @@
 {
   "en": {
+    "פנה למתחם לבירור מחיר": "Contact the property for a price",
+    "המחיר כולל עד": "The price includes up to",
+    "פנוי בתאריכים שנבחרו": "Available for the selected dates",
+    "לא פנוי בתאריכים שנבחרו": "Unavailable for the selected dates",
+    "זמינות: לא עודכן": "Availability not updated",
     ", 2 יחידות": ", 2 units",
     ", 3 יחידות": ", 3 units",
     ", 4 יחידות": ", 4 units",
@@ -4652,6 +4657,7 @@
     "סוג טבע": "type of nature",
     "סוג מקום": "kind of place",
     "סוגי אירוח": "Types of hosting",
+    "סוגי אירוח, אפשר לבחור כמה אפשרויות": "Accommodation types, select as many as you need",
     "סוגי אירועים": "Types of events",
     "סוגי חוויה שמתחילים בבחירה נכונה": "Types of experience that start with the right choice",
     "סוגים וסגנונות אירוח": "Types and styles of accommodation",
@@ -6388,6 +6394,11 @@
     "Zen Events מביאים לאירועים יוגה, אקרו יוגה, סדנאות נשימה וחשיפה לקור, עמדות עיסוי וציוד ממותג.": "Zen Events brings yoga, acro yoga, breathing and exposure to cold workshops, massage stations and branded equipment to events."
   },
   "ru": {
+    "פנה למתחם לבירור מחיר": "Уточните цену у объекта",
+    "המחיר כולל עד": "Цена включает до",
+    "פנוי בתאריכים שנבחרו": "Свободно на выбранные даты",
+    "לא פנוי בתאריכים שנבחרו": "Нет мест на выбранные даты",
+    "זמינות: לא עודכן": "Наличие не обновлено",
     ", 2 יחידות": ", 2 единицы",
     ", 3 יחידות": ", 3 единицы",
     ", 4 יחידות": ", 4 единицы",
@@ -11040,6 +11051,7 @@
     "סוג טבע": "тип природы",
     "סוג מקום": "какое-то место",
     "סוגי אירוח": "Виды хостинга",
+    "סוגי אירוח, אפשר לבחור כמה אפשרויות": "Типы размещения, можно выбрать несколько вариантов",
     "סוגי אירועים": "Типы событий",
     "סוגי חוויה שמתחילים בבחירה נכונה": "Типы опыта, которые начинаются с правильного выбора",
     "סוגים וסגנונות אירוח": "Типы и стили размещения",
@@ -12776,6 +12788,11 @@
     "Zen Events מביאים לאירועים יוגה, אקרו יוגה, סדנאות נשימה וחשיפה לקור, עמדות עיסוי וציוד ממותג.": "Zen Events предлагает на мероприятиях йогу, акро-йогу, дыхание и воздействие холода, массажные станции и фирменное оборудование."
   },
   "fr": {
+    "פנה למתחם לבירור מחיר": "Contactez l'établissement pour connaître le prix",
+    "המחיר כולל עד": "Le prix comprend jusqu'à",
+    "פנוי בתאריכים שנבחרו": "Disponible aux dates choisies",
+    "לא פנוי בתאריכים שנבחרו": "Indisponible aux dates choisies",
+    "זמינות: לא עודכן": "Disponibilité non mise à jour",
     ", 2 יחידות": ", 2 unités",
     ", 3 יחידות": ", 3 unités",
     ", 4 יחידות": ", 4 unités",
@@ -17428,6 +17445,7 @@
     "סוג טבע": "type de nature",
     "סוג מקום": "genre d'endroit",
     "סוגי אירוח": "Types d'hébergement",
+    "סוגי אירוח, אפשר לבחור כמה אפשרויות": "Types d’hébergement, plusieurs choix possibles",
     "סוגי אירועים": "Types d'événements",
     "סוגי חוויה שמתחילים בבחירה נכונה": "Des types d'expériences qui commencent par le bon choix",
     "סוגים וסגנונות אירוח": "Types et styles d'hébergement",

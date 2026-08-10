@@ -818,7 +818,7 @@ test("keeps the footer foundation fixed while adapting discovery links to each w
   assert.match(footer, /LanguageSwitcher/);
   assert.match(footer, /AccessibilityWidget/);
   assert.match(shell, /<SiteFooter variant=\{variant\} topic=\{footerTopic\} \/>/);
-  assert.match(search, /footerTopicForPropertyType\(type\)/);
+  assert.match(search, /footerTopicForPropertyType\(selectedTypes\[0\] \|\| "הכל"\)/);
   assert.match(providers, /searchParams\.get\("category"\)/);
   assert.match(trails, /searchParams\.get\("area"\)/);
 });
@@ -1151,7 +1151,7 @@ test("mobile result filtering and sorting share one compact app entry", async ()
   const styles = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(styles, /Mobile results use one compact app-style entry/);
   assert.match(styles, /\.results-toolbar\s*\{[^}]*display:\s*flex;[^}]*justify-content:\s*flex-start;[^}]*min-height:\s*0;[^}]*height:\s*0/s);
-  assert.match(styles, /\.results-heading__meta \.mobile-filter\s*\{[^}]*width:\s*40px;[^}]*min-height:\s*40px;[^}]*border-radius:\s*50%;/s);
+  assert.match(styles, /\.results-heading__meta \.mobile-filter\s*\{[^}]*width:\s*auto;[^}]*min-height:\s*36px;[^}]*border-radius:\s*999px;/s);
   assert.match(styles, /\.results-toolbar__actions\s*\{[^}]*width:\s*auto;[^}]*min-width:\s*0;/s);
   assert.match(styles, /\.results-toolbar > \.results-toolbar__sort\s*\{[^}]*display:\s*none;/s);
   assert.match(styles, /\.filter-panel__mobile-sort\s*\{[^}]*display:\s*block;/s);
@@ -1266,7 +1266,7 @@ test("villa discovery uses a clean landing route and delayed navigation feedback
   assert.match(feedback, /showIfStillWaiting\(element\.dataset\.loadingLabel[^,]*, 320\)/);
 });
 
-test("regional villa filters resolve to a clean landing with a matching title and count", async () => {
+test("regional villa filters resolve to a clean landing with inventory counts", async () => {
   const [response, searchBox, landings] = await Promise.all([
     render("/villas/center"),
     readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8"),
@@ -1276,7 +1276,7 @@ test("regional villa filters resolve to a clean landing with a matching title an
 
   assert.equal(response.status, 200);
   assert.match(html, /וילות נופש במרכז/);
-  assert.match(html, /0 וילות נופש במרכז|וילת נופש אחת במרכז|[2-9][0-9]* וילות נופש במרכז/);
+  assert.match(html, /(?:מתחם אחד|\d+ מתחמים), (?:יחידת נופש אחת|\d+ יחידות נופש)/);
   assert.match(html, /BreadcrumbList/);
   assert.match(html, /canonical[^>]+\/villas\/center/);
   assert.match(searchBox, /mode === "vacation" && cleanVacationRoute/);

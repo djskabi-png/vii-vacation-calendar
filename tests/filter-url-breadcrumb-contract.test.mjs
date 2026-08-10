@@ -37,7 +37,9 @@ test("vacation and event filters serialize and restore their complete state", ()
   assert.match(vacation, /useSearchParams/);
   assert.match(vacation, /params\.get\("adults"\)/);
   assert.match(vacationUrl, /params\.set\("location", nextArea\)/);
-  assert.match(vacationUrl, /params\.set\("type", nextType\)/);
+  assert.match(vacationUrl, /nextTypes\.length === 1/);
+  assert.match(vacationUrl, /params\.set\("types", nextTypes\.join\(","\)\)/);
+  assert.match(vacationUrl, /params\.delete\("type"\)/);
   assert.match(vacationUrl, /return query \? `\$\{path\}\?\$\{query\}` : path/);
   const landings = read("app/data/accommodation-landings.ts");
   ["וילות", "דירות נופש", "סוויטות"].forEach((label) => assert.match(landings, new RegExp(`"${label}"`)));

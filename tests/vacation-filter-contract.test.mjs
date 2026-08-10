@@ -11,7 +11,8 @@ test("vacation search preserves every legacy accommodation type", async () => {
   }
   assert.match(source, />סוגי אירוח<\/button>/);
   assert.match(source, />סינונים נוספים<\/button>/);
-  assert.match(source, /type="radio" name="vacation-accommodation-type"/);
+  assert.match(source, /type="checkbox" checked=\{shownFilters\.selectedTypes\.includes\(item\.label\)\}/);
+  assert.match(source, /selectedTypes\.some/);
   assert.match(source, /legacyType\.matches\.some/);
   assert.match(source, /label: "בקתות עץ", matches: \["בקתת עץ", "בקתות עץ"\]/);
   assert.match(source, /label: "צימרים", matches: \["צימר", "צימרים"\]/);
@@ -42,7 +43,28 @@ test("mobile vacation filters use a draft and apply contract", async () => {
   assert.match(source, /function applyFilters\(\)/);
   assert.match(source, /onClick=\{applyFilters\}/);
   assert.match(source, /onClick=\{closeFiltersPanel\}/);
-  assert.match(source, /checked=\{shownFilters\.type === item\.label\}/);
+  assert.match(source, /checked=\{shownFilters\.selectedTypes\.includes\(item\.label\)\}/);
+  assert.match(source, /function toggleType\(nextType: string\)/);
+  assert.match(source, /types: draftFilters\.selectedTypes\.length > 1/);
   assert.match(source, /draftResultCount/);
-  assert.doesNotMatch(source, /onChange=\{\(\) => changeType\(item\.label\)\}[^\n]+onClick=\{\(\) => setFiltersOpen\(false\)\}/);
+  assert.doesNotMatch(source, /type="radio" name="vacation-accommodation-type"/);
+});
+
+test("mobile vacation filter actions stay fixed across both filter sections", async () => {
+  const source = await readFile(new URL("app/search/page.tsx", root), "utf8");
+  const css = await readFile(new URL("app/globals.css", root), "utf8");
+  assert.match(source, /className="filter-panel__scroll"/);
+  assert.match(source, /className="filter-panel__actions"/);
+  assert.match(css, /\.filter-panel\.open \.filter-panel__scroll[^}]*overflow-y:\s*auto/);
+  assert.match(css, /\.filter-panel\.open \.filter-panel__actions[^}]*flex:\s*none/);
+  assert.match(css, /\.filter-panel\.open \.filter-panel__actions[^}]*border-top:/);
+});
+
+test("vacation type choices are OR filters while additional choices are cumulative AND filters", async () => {
+  const source = await readFile(new URL("app/search/page.tsx", root), "utf8");
+  assert.match(source, /selectedTypes\.length === 0 \|\| selectedTypes\.some/);
+  assert.match(source, /shownFilters\.selectedTypes\.length === 0 \|\| shownFilters\.selectedTypes\.some/);
+  assert.match(source, /selectedExtras\.every/);
+  assert.match(source, /shownFilters\.selectedExtras\.every/);
+  assert.match(source, /\.\.\.selectedTypes\.map\(\(selectedType\) => \(\{ id: `type-\$\{selectedType\}`/);
 });

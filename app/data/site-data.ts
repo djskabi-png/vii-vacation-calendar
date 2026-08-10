@@ -24,11 +24,22 @@ export type Listing = {
   score?: number;
   reviews?: number;
   price?: number;
+  dateQuotes?: ListingDateQuote[];
   roomOptions?: StayOption[];
   sleepingArrangements?: SleepingArrangement[];
   videos?: ListingVideo[];
   contact?: ListingContact;
   offerings?: BusinessOffering[];
+};
+
+export type ListingAvailability = "available" | "unavailable" | "unknown";
+
+export type ListingDateQuote = {
+  from: string;
+  till: string;
+  availability: ListingAvailability;
+  nightlyPrice?: number;
+  includedGuests?: number;
 };
 
 export type BusinessWorld = "vacation" | "events" | "hourly" | "spa";
@@ -187,6 +198,9 @@ const propertyCatalog: Property[] = [
     features: ["בריכת שחייה", "ג'קוזי בכל סוויטה", "משחקי שולחן", "מטבחון", "נוף"],
     audiences: ["משפחות", "זוגות", "קבוצות קטנות"],
     badges: ["ליד הכנרת", "שלוש סוויטות"],
+    score: 10,
+    reviews: 8,
+    price: 950,
     lat: 32.875043,
     lng: 35.4536474,
     scenario: "multi",    contact: { phone: "052-9170990", whatsapp: "050-7780463" },
@@ -355,6 +369,9 @@ const propertyCatalog: Property[] = [
     features: ["בריכת שחייה", "נוף", "מטבח מאובזר", "סלון גדול", "מתאים לציבור הדתי"],
     audiences: ["משפחות", "קבוצות", "זוגות", "ציבור דתי"],
     badges: ["תשעה חדרים", "עד 30 אורחים"],
+    score: 9.6,
+    reviews: 36,
+    price: 5000,
     lat: 29.539488,
     lng: 34.933483,
     scenario: "single",    contact: { phone: "055-4538221", whatsapp: "054-4233163" },
