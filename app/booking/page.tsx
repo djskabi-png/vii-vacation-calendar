@@ -50,7 +50,17 @@ function resolveBooking(params: Awaited<Props["searchParams"]>) {
 
   if (item.world === "spa") {
     const pack = getSpaDetails(item.id)?.packages?.find((entry) => entry.id === offerId);
-    return { world: item.world, placeId: item.id, placeName: item.name, offerId, offerName: pack?.title || "חבילת ספא", price: pack?.price || item.priceLabel || "מחיר יוצג לפני אישור" };
+    return {
+      world: item.world,
+      placeId: item.id,
+      placeName: item.name,
+      offerId,
+      offerName: pack?.title || "חבילת ספא",
+      offerAudience: pack?.audience,
+      offerDuration: pack?.duration,
+      offerIncludes: pack?.includes || [],
+      price: pack?.price || item.priceLabel || "מחיר יוצג לפני אישור",
+    };
   }
 
   if (item.world === "providers") {

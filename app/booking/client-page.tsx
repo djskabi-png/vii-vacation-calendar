@@ -12,6 +12,9 @@ type Props = {
   placeName: string;
   offerId: string;
   offerName: string;
+  offerAudience?: string;
+  offerDuration?: string;
+  offerIncludes?: string[];
   price: string;
   action: string;
   initialFrom?: string;
@@ -33,6 +36,7 @@ export default function BookingPageClient(props: Props) {
   const [departure, setDeparture] = useState(props.initialTill || "");
   const [guests, setGuests] = useState(props.initialGuests || "2");
   const [spaComposition, setSpaComposition] = useState("");
+  const [spaTime, setSpaTime] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -74,6 +78,8 @@ export default function BookingPageClient(props: Props) {
       values.get("time") ? `שעה: ${values.get("time")}` : "",
       values.get("guests") ? `כמות משתתפים: ${values.get("guests")}` : "",
       values.get("spaCompositionLabel") ? `הרכב המטופלים: ${values.get("spaCompositionLabel")}` : "",
+      props.offerDuration ? `משך הטיפול: ${props.offerDuration}` : "",
+      props.offerIncludes?.length ? `מה כלול: ${props.offerIncludes.join(", ")}` : "",
       values.get("notes") ? `הערות: ${values.get("notes")}` : "",
     ].filter(Boolean).join("\n");
 
@@ -145,6 +151,11 @@ export default function BookingPageClient(props: Props) {
         <h2>{props.offerName}</h2>
         <strong>{props.placeName}</strong>
         <p>{props.price}</p>
+        {props.world === "spa" ? <dl className="booking-summary__package">
+          {props.offerAudience ? <div><dt>מתאים ל</dt><dd>{props.offerAudience}</dd></div> : null}
+          {props.offerDuration ? <div><dt>משך הטיפול</dt><dd>{props.offerDuration}</dd></div> : null}
+          {props.offerIncludes?.length ? <div><dt>מה כלול</dt><dd>{props.offerIncludes.join(" · ")}</dd></div> : null}
+        </dl> : null}
         <ul><li>אין הזנת כרטיס אשראי</li><li>הבקשה נשמרת בסטטוס ממתין</li><li>אישור סופי מתקבל לאחר בדיקת המקום</li></ul>
       </aside>
 
@@ -152,11 +163,12 @@ export default function BookingPageClient(props: Props) {
         <section data-booking-step="1" hidden={step !== 1} aria-labelledby="booking-step-one-title">
           <header><span>שלב 1 מתוך 3</span><h2 id="booking-step-one-title">פרטי השהייה</h2></header>
           {isManage ? <label className="form-wide">מספר הזמנה<input name="bookingReference" required /></label> : <>
-            {props.world === "spa" ? <SpaAppointmentPicker initialDate={props.initialFrom} initialGuests={props.initialGuests} onSelectionChange={(selection) => {
+            {props.world === "spa" ? <SpaAppointmentPicker initialDate={props.initialFrom} initialGuests={props.initialGuests} offerName={props.offerName} offerDuration={props.offerDuration} onSelectionChange={(selection) => {
               setSpaAppointmentReady(selection.ready);
               setArrival(selection.date);
               setGuests(String(selection.guests));
               setSpaComposition(selection.compositionLabel);
+              setSpaTime(selection.time);
             }} /> : <label>תאריך הגעה<input name="date" type="date" value={arrival} onChange={(event) => setArrival(event.target.value)} required /></label>}
             {props.world === "vacation" ? <label>תאריך עזיבה<input name="till" type="date" value={departure} min={arrival || undefined} onChange={(event) => setDeparture(event.target.value)} required /></label> : null}
             {props.world !== "spa" ? <label>שעה מועדפת<input name="time" type="time" /></label> : null}
@@ -179,7 +191,7 @@ export default function BookingPageClient(props: Props) {
 
         <section data-booking-step="3" hidden={step !== 3} aria-labelledby="booking-step-three-title">
           <header><span>שלב 3 מתוך 3</span><h2 id="booking-step-three-title">סיכום ושליחת הבקשה</h2></header>
-          <div className="booking-review form-wide"><article><span>מקום</span><strong>{props.placeName}</strong><small>{props.offerName}</small></article><article><span>תאריכים והרכב</span><strong>{arrival || "לפי הבחירה"}{departure ? ` עד ${departure}` : ""}</strong><small>{props.world === "spa" ? `${guests} משתתפים${spaComposition ? `, ${spaComposition}` : ""}` : `${guests} אורחים או משתתפים`}</small></article><article><span>פרטי המזמין</span><strong>{name}</strong><small>{phone}{email ? ` · ${email}` : ""}</small></article><article><span>מחיר הבקשה</span><strong>{props.price}</strong><small>ללא חיוב וללא אשראי בשלב זה</small></article></div>
+          <div className="booking-review form-wide"><article><span>מקום וחבילה</span><strong>{props.placeName}</strong><small>{props.offerName}{props.offerDuration ? ` · ${props.offerDuration}` : ""}</small></article><article><span>מועד והרכב</span><strong>{arrival || "לפי הבחירה"}{spaTime ? ` בשעה ${spaTime}` : departure ? ` עד ${departure}` : ""}</strong><small>{props.world === "spa" ? `${guests} משתתפים${spaComposition ? `, ${spaComposition}` : ""}` : `${guests} אורחים או משתתפים`}</small></article><article><span>פרטי המזמין</span><strong>{name}</strong><small>{phone}{email ? ` · ${email}` : ""}</small></article><article><span>מחיר הבקשה</span><strong>{props.price}</strong><small>ללא חיוב וללא אשראי בשלב זה</small></article></div>
           <div className="booking-approval-note form-wide"><strong>מה קורה אחרי השליחה?</strong><p>הבקשה נשמרת ומועברת למקום. לאחר בדיקת הזמינות והמחיר יישלח אישור סופי. עד אז הסטטוס הוא ממתין לאישור.</p></div>
           <div className="booking-form__actions form-wide"><button className="button secondary" type="button" onClick={() => setStep(2)}>עריכת הפרטים</button><button className="button primary" disabled={state === "submitting"} type="submit">{state === "submitting" ? "שולחים..." : isManage ? "שליחת בקשת שינוי" : "שליחת בקשת הזמנה"}</button></div>
           {state === "error" ? <p className="form-error form-wide" role="alert">השליחה לא הושלמה. הפרטים נשארו בטופס ואפשר לנסות שוב.</p> : null}

@@ -5,6 +5,8 @@ import { useMemo, useState } from "react";
 type Props = {
   initialDate?: string;
   initialGuests?: string;
+  offerName?: string;
+  offerDuration?: string;
   onSelectionChange?: (selection: SpaAppointmentSelection) => void;
 };
 
@@ -55,7 +57,7 @@ function formatSelectedDate(date: Date | null) {
   return new Intl.DateTimeFormat("he-IL", { weekday: "long", day: "numeric", month: "long" }).format(date);
 }
 
-export function SpaAppointmentPicker({ initialDate, initialGuests, onSelectionChange }: Props) {
+export function SpaAppointmentPicker({ initialDate, initialGuests, offerName, offerDuration, onSelectionChange }: Props) {
   const today = useMemo(() => startOfDay(new Date()), []);
   const initial = useMemo(() => {
     const parsed = parseLocalDate(initialDate);
@@ -67,7 +69,7 @@ export function SpaAppointmentPicker({ initialDate, initialGuests, onSelectionCh
     const parsed = Number(initialGuests || 2);
     return Number.isFinite(parsed) ? Math.min(4, Math.max(1, Math.round(parsed))) : 2;
   });
-  const [composition, setComposition] = useState("");
+  const [composition, setComposition] = useState("mixed");
   const [month, setMonth] = useState(() => new Date((initial || today).getFullYear(), (initial || today).getMonth(), 1));
   const participantsReady = participants !== 2 || Boolean(composition);
   const compositionLabel = COMPOSITION_OPTIONS.find((option) => option.id === composition)?.label || "";
@@ -149,7 +151,7 @@ export function SpaAppointmentPicker({ initialDate, initialGuests, onSelectionCh
       <div>
         <span>הרכב ומועד</span>
         <h2 id="spa-appointment-title">מי מגיע ומתי?</h2>
-        <p>קודם בוחרים את הרכב המטופלים, אחר כך תאריך, ורק אז שעה לבקשת זמינות.</p>
+        <p>בדיוק כמו בספא פלוס: בוחרים הרכב, תאריך ושעה מועדפת, ואז ממשיכים לפרטי המזמין.</p>
       </div>
       <ol aria-label="שלבי בחירת המועד">
         <li className={participantsReady ? "complete" : "active"}><b>1</b><span>הרכב</span></li>
@@ -157,6 +159,12 @@ export function SpaAppointmentPicker({ initialDate, initialGuests, onSelectionCh
         <li className={selectedTime ? "complete" : selectedDate && participantsReady ? "active" : ""}><b>3</b><span>שעה</span></li>
       </ol>
     </header>
+
+    {offerName ? <div className="spa-appointment__offer" aria-label="החבילה שנבחרה">
+      <span>החבילה שבחרתם</span>
+      <strong>{offerName}</strong>
+      {offerDuration ? <small>משך הטיפול: {offerDuration}</small> : null}
+    </div> : null}
 
     <div className="spa-appointment__participants">
       <div className="spa-appointment__participant-heading"><span>שלב ראשון</span><strong>כמה אנשים מגיעים?</strong><small>ברירת המחדל היא שני אנשים</small></div>
@@ -203,11 +211,13 @@ export function SpaAppointmentPicker({ initialDate, initialGuests, onSelectionCh
           <strong>השעות יופיעו כאן</strong>
           <p>בחרו תחילה יום פנוי בלוח.</p>
         </div> : <div className="spa-appointment__slots">
-          <h3>בחרו שעה לבקשת זמינות</h3>
+          <h3>בחרו שעה מועדפת</h3>
+          <p className="spa-appointment__slot-help">לאחר חיבור מערכת ספא פלוס יוצגו כאן רק השעות הפנויות בפועל.</p>
           {timeGroups.map((group) => <div className="spa-appointment__slot-group" key={group.label}>
             <span>{group.label}</span>
             <div>{group.slots.map((time) => <button key={time} type="button" dir="ltr" aria-pressed={selectedTime === time} onClick={() => chooseTime(time)}>{time}</button>)}</div>
           </div>)}
+          <button className="spa-appointment__flexible" type="button" aria-pressed={selectedTime === "גמישים בשעה"} onClick={() => chooseTime("גמישים בשעה")}>גמישים בשעה</button>
         </div>}
       </div>
     </div>
