@@ -1141,13 +1141,14 @@ test("all public sorting and filtering controls use the branded modern selector"
   assert.match(styles, /\.filter-panel input\[type="checkbox"\]:checked/);
 });
 
-test("mobile result filtering and sorting share one compact row", async () => {
+test("mobile result filtering and sorting share one compact app entry", async () => {
   const styles = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
-  assert.match(styles, /Mobile result controls stay on one clear row/);
-  assert.match(styles, /\.results-toolbar\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*minmax\(90px,\.7fr\)\s+minmax\(150px,1\.3fr\)/s);
-  assert.match(styles, /\.results-toolbar__actions \.mobile-filter\s*\{[^}]*min-height:\s*44px;[^}]*background:\s*#fff;[^}]*box-shadow:\s*none;/s);
+  assert.match(styles, /Mobile results use one compact app-style entry/);
+  assert.match(styles, /\.results-toolbar\s*\{[^}]*display:\s*flex;[^}]*justify-content:\s*flex-start;[^}]*min-height:\s*40px/s);
+  assert.match(styles, /\.results-toolbar__actions \.mobile-filter\s*\{[^}]*width:\s*auto;[^}]*min-height:\s*40px;[^}]*border-radius:\s*999px;/s);
   assert.match(styles, /\.results-toolbar__actions\s*\{[^}]*width:\s*auto;[^}]*min-width:\s*0;/s);
-  assert.match(styles, /\.results-toolbar > \.modern-select\s*\{[^}]*grid-template-columns:\s*1fr/s);
+  assert.match(styles, /\.results-toolbar > \.results-toolbar__sort\s*\{[^}]*display:\s*none;/s);
+  assert.match(styles, /\.filter-panel__mobile-sort\s*\{[^}]*display:\s*block;/s);
 });
 
 test("favorites span every world and bookings continue into the personal account", async () => {

@@ -6191,6 +6191,7 @@ button:not(:disabled):active,a[href]:active,[role="button"]:active,.is-action-pr
   .gift-voucher b { font-size: 3rem; }
 }
 .results-toolbar > .modern-select { margin-inline-start: auto; }
+.filter-panel__mobile-sort { display: none; }
 .trail-filters .modern-select,.attraction-filters .modern-select,.hourly-results__filters .modern-select,.spa-results__filters .modern-select { align-self: stretch; }
 
 @media (max-width: 760px) {
@@ -6201,15 +6202,14 @@ button:not(:disabled):active,a[href]:active,[role="button"]:active,.is-action-pr
   .results-toolbar > .modern-select { width: 100%; margin: 0; }
 }
 
-/* Mobile result controls stay on one clear row: filter first, sorting beside it. */
+/* Mobile results use one compact app-style entry for filtering and sorting. */
 @media (max-width: 760px) {
   .results-toolbar {
-    display: grid;
-    grid-template-columns: minmax(90px,.7fr) minmax(150px,1.3fr);
+    display: flex;
     align-items: center;
-    gap: 8px;
-    min-height: 44px;
-    margin-bottom: 12px;
+    justify-content: flex-start;
+    min-height: 40px;
+    margin-bottom: 10px;
     padding: 0;
     border: 0;
     border-radius: 0;
@@ -6218,19 +6218,19 @@ button:not(:disabled):active,a[href]:active,[role="button"]:active,.is-action-pr
   }
   .results-toolbar__actions { width: auto; min-width: 0; }
   .results-toolbar__actions .mobile-filter {
-    width: 100%;
-    min-height: 44px;
+    width: auto;
+    min-height: 40px;
     flex: none;
     justify-content: center;
-    gap: 6px;
-    padding-inline: 10px;
+    gap: 7px;
+    padding-inline: 14px;
     border: 1px solid rgba(8,126,139,.22);
-    border-radius: 12px;
+    border-radius: 999px;
     color: var(--teal-dark);
     background: #fff;
     box-shadow: none;
-    font-size: .82rem;
-    font-weight: 750;
+    font-size: .8rem;
+    font-weight: 800;
   }
   .results-toolbar__actions .mobile-filter.has-filters { border-color: rgba(8,126,139,.38); background: #eef8f9; }
   .results-toolbar__actions .mobile-filter:hover { color: var(--teal-dark); background: #eef8f9; }
@@ -6241,33 +6241,10 @@ button:not(:disabled):active,a[href]:active,[role="button"]:active,.is-action-pr
   .mobile-filter__icon i:nth-child(1)::after,.mobile-filter__icon i:nth-child(3)::after { inset-inline-start: 3px; }
   .mobile-filter__icon i:nth-child(2)::after { inset-inline-end: 3px; }
   .mobile-filter b { min-width: 18px; height: 18px; display: grid; place-items: center; padding-inline: 4px; border-radius: 999px; color: #fff; background: var(--teal); font-size: .64rem; line-height: 1; }
-  .results-toolbar > .modern-select {
-    width: auto;
-    min-width: 0;
-    display: grid;
-    grid-template-columns: 1fr;
-    align-content: center;
-    gap: 0;
-    padding: 0;
-  }
-  .results-toolbar > .modern-select .modern-select__label {
-    padding-inline: 9px;
-    color: var(--muted);
-    font-size: .6rem;
-    font-weight: 750;
-    line-height: 1;
-    white-space: nowrap;
-  }
-  .results-toolbar > .modern-select .modern-select__trigger {
-    min-height: 30px;
-    padding-inline: 9px;
-    border: 1px solid rgba(8,126,139,.16);
-    border-radius: 10px;
-    background: #fff;
-    box-shadow: none;
-  }
-  .results-toolbar > .modern-select .modern-select__trigger strong { color: var(--teal-dark); font-size: .8rem; }
-  .results-toolbar > .modern-select .modern-select__chevron { border-color: var(--teal-dark); }
+  .results-toolbar > .results-toolbar__sort { display: none; }
+  .filter-panel__mobile-sort { display: block; padding: 14px 0 16px; border-bottom: 1px solid var(--line); }
+  .filter-panel__mobile-sort .modern-select { width: 100%; }
+  .filter-panel__mobile-sort .modern-select__trigger { min-height: 46px; border-radius: 14px; background: #fff; box-shadow: none; }
 }
 
 /* Hourly stays: discreet, direct-call booking flow */
