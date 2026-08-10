@@ -960,6 +960,12 @@ test("key page types emit matching structured data and private pages stay out of
     const response = await render(pathname);
     assert.match(await response.text(), /<meta (?:name="robots" content="noindex|content="noindex" name="robots")/);
   }
+
+  const notFound = await render("/release-qa-missing-page");
+  const notFoundHtml = await notFound.text();
+  assert.equal(notFound.status, 404);
+  assert.equal((notFoundHtml.match(/<meta (?:name="robots" content="noindex|content="noindex" name="robots")/g) || []).length, 1);
+  assert.doesNotMatch(notFoundHtml, /<meta (?:name="robots" content="index, follow|content="index, follow" name="robots")/);
 });
 
 test("every discovery card has stable media and every new world has a full detail page", async () => {
