@@ -98,6 +98,11 @@ test("spa, events and hourly preserve location in semantic search routes", () =>
   assert.match(heading, /spaSearchTitle/);
   assert.match(heading, /searchParams\.get\("features"\)/);
   assert.match(heading, /queryFeatures\.filter/);
+  assert.match(heading, /useSiteLanguage/);
+  assert.match(heading, /spaSearchTitle\(state, language\)/);
+  const localeProvider = read("app/i18n/locale-provider.tsx");
+  assert.match(localeProvider, /spaSemanticMatch/);
+  assert.match(localeProvider, /Spa\$\{audience/);
 
   const sitemap = read("app/sitemap.ts");
   assert.match(sitemap, /indexableSpaSearchStates/);

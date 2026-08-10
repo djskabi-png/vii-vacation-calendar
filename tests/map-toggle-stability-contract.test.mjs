@@ -24,6 +24,10 @@ test("mobile map overlay locks and restores the exact page position", () => {
 
 test("the full mobile map control is one stable hit target", () => {
   assert.match(styles, /\.mobile-map-fab > \* \{ pointer-events: none; \}/);
+  assert.match(styles, /\.mobile-map-fab::before \{[^}]+inset: -6px/);
+  assert.match(styles, /\.mobile-map-fab \{[\s\S]+?z-index: 3500/);
+  assert.match(consumers[4], /onPointerDown=\{\(event\) => event\.stopPropagation\(\)\}/);
+  assert.match(consumers[4], /event\.preventDefault\(\); event\.stopPropagation\(\); if \(mapOpen\) closeMap\(\); else openMap\(\)/);
   assert.match(styles, /@media \(max-width: 760px\) and \(hover: hover\) and \(pointer: fine\)/);
 });
 

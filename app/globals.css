@@ -5599,7 +5599,7 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
 @media (max-width: 760px) {
   .mobile-map-fab {
     position: fixed;
-    z-index: 2450;
+    z-index: 3500;
     right: auto;
     bottom: calc(18px + env(safe-area-inset-bottom));
     left: 50%;
@@ -5619,7 +5619,9 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
     transition: transform .18s ease,box-shadow .18s ease,background .18s ease;
     touch-action: manipulation;
     pointer-events: auto;
+    isolation: isolate;
   }
+  .mobile-map-fab::before { content: ""; position: absolute; inset: -6px; border-radius: inherit; }
   .mobile-map-fab .map-button__desktop-label { display: none; }
   .mobile-map-fab .map-button__mobile-label { display: inline; font-size: .86rem; font-weight: 800; line-height: 1; }
   .mobile-map-fab svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }

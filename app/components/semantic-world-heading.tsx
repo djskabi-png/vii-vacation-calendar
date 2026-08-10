@@ -5,10 +5,12 @@ import type { SearchMode } from "../data/search-taxonomy";
 import { searchLocationFromSlug } from "../data/world-search-landings";
 import { spaSearchDescription, spaSearchStateFromSegments, spaSearchTitle } from "../data/spa-search-landings";
 import { spaLandings } from "../data/spa-landings";
+import { useSiteLanguage } from "../i18n/locale-provider";
 
 export function SemanticWorldHeading({ mode, title, description }: { mode?: SearchMode; title: string; description: string }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { language } = useSiteLanguage();
   let liveTitle = title;
   let liveDescription = description;
 
@@ -30,8 +32,8 @@ export function SemanticWorldHeading({ mode, title, description }: { mode?: Sear
         ? { features: queryFeatures }
         : null;
     if (state) {
-      liveTitle = spaSearchTitle(state);
-      liveDescription = spaSearchDescription(state);
+      liveTitle = spaSearchTitle(state, language);
+      liveDescription = spaSearchDescription(state, language);
     }
   }
 

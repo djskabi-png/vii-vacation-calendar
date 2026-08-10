@@ -777,6 +777,34 @@ function translateDynamic(value: string, language: Exclude<SiteLanguage, "he">):
     || dictionary(language)[source]
     || source;
 
+  const spaSemanticMatch = value.match(/^ספא(?: (ליחיד|לזוג|לקבוצה|ליום כיף))? ב(.+?)(?: עם (.+?))?(, עם חבילות וטיפולים מאומתים, פרטי מקום ברורים ואפשרות להמשיך לבקשת הזמנה באתר\.)?$/);
+  if (spaSemanticMatch) {
+    const [, sourceAudience, sourceRegion, sourceFeatures, sourceDescription] = spaSemanticMatch;
+    const audienceTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, string>> = {
+      en: { "ליחיד": "for one", "לזוג": "for couples", "לקבוצה": "for groups", "ליום כיף": "for a spa day" },
+      fr: { "ליחיד": "pour une personne", "לזוג": "pour les couples", "לקבוצה": "pour les groupes", "ליום כיף": "pour une journée bien-être" },
+      ru: { "ליחיד": "для одного", "לזוג": "для пар", "לקבוצה": "для групп", "ליום כיף": "на спа-день" },
+    };
+    const audience = sourceAudience
+      ? audienceTranslations[language][sourceAudience]
+      : "";
+    const region = translatePart(sourceRegion);
+    const features = sourceFeatures
+      ? sourceFeatures.split(/\s+ו(?=\S)/).map((feature) => translatePart(feature)).join(language === "fr" ? " et " : language === "ru" ? " и " : " and ")
+      : "";
+    const title = language === "fr"
+      ? `Spa${audience ? ` ${audience}` : ""} à ${region}${features ? ` avec ${features}` : ""}`
+      : language === "ru"
+        ? `Спа${audience ? ` ${audience}` : ""} в ${region}${features ? ` с ${features}` : ""}`
+        : `Spa${audience ? ` ${audience}` : ""} in ${region}${features ? ` with ${features}` : ""}`;
+    if (!sourceDescription) return title;
+    return language === "fr"
+      ? `${title}, avec des formules et soins vérifiés, des informations claires et un parcours simple pour demander une réservation.`
+      : language === "ru"
+        ? `${title}, с проверенными пакетами и процедурами, понятной информацией и удобным переходом к запросу на бронирование.`
+        : `${title}, with verified packages and treatments, clear venue details and a simple way to request a booking.`;
+  }
+
   // Some client components already localize the action label while their
   // CMS-backed place or trail name is still Hebrew. Translate that embedded
   // entity as well so accessible names never become bilingual.
