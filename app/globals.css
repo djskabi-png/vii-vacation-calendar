@@ -6311,6 +6311,7 @@ button:not(:disabled):active,a[href]:active,[role="button"]:active,.is-action-pr
     min-height: 40px;
     min-width: 94px;
     flex: none;
+    align-items: center;
     justify-content: center;
     gap: 8px;
     padding: 0 10px 0 12px;
@@ -6319,13 +6320,15 @@ button:not(:disabled):active,a[href]:active,[role="button"]:active,.is-action-pr
     color: var(--teal-dark);
     background: #fff;
     box-shadow: 0 6px 18px rgba(3,57,68,.07);
-    font: 800 .8rem/1 var(--font-sans);
+    font-family: var(--font-sans);
+    font-size: .8rem;
     font-weight: 800;
+    line-height: 1;
   }
   .results-heading__meta .mobile-filter.has-filters { border-color: #98cdd3; background: #f5fbfc; }
   .results-heading__meta .mobile-filter:hover { color: var(--teal-dark); background: #eef8f9; }
   .results-heading__meta .mobile-filter:focus-visible { outline: 3px solid rgba(8,126,139,.22); outline-offset: 2px; }
-  .mobile-filter__label { display: inline; }
+  .mobile-filter__label { display: block; line-height: 1; }
   .mobile-filter__icon { width: 24px; height: 24px; display: grid; flex: none; place-items: center; border-radius: 8px; color: #087e8b; background: #e8f6f7; }
   .mobile-filter__icon svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
   .mobile-filter b { position: static; min-width: 19px; height: 19px; display: grid; flex: none; place-items: center; padding-inline: 4px; border-radius: 7px; color: #fff; background: var(--teal-dark); font-size: .64rem; font-weight: 900; line-height: 1; }

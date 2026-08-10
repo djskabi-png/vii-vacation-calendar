@@ -1152,6 +1152,7 @@ test("mobile result filtering and sorting share one compact app entry", async ()
   assert.match(styles, /Mobile results use one compact app-style entry/);
   assert.match(styles, /\.results-toolbar\s*\{[^}]*display:\s*flex;[^}]*justify-content:\s*flex-start;[^}]*min-height:\s*0;[^}]*height:\s*0/s);
   assert.match(styles, /\.results-heading__meta \.mobile-filter\s*\{[^}]*width:\s*auto;[^}]*min-height:\s*40px;[^}]*border-radius:\s*14px;/s);
+  assert.match(styles, /\.results-heading__meta \.mobile-filter\s*\{[^}]*align-items:\s*center;[^}]*font-size:\s*\.8rem;[^}]*line-height:\s*1;/s);
   assert.match(styles, /\.mobile-filter__icon svg\s*\{[^}]*width:\s*17px;[^}]*stroke-width:\s*1\.8;/s);
   assert.match(styles, /\.results-toolbar__actions\s*\{[^}]*width:\s*auto;[^}]*min-width:\s*0;/s);
   assert.match(styles, /\.results-toolbar > \.results-toolbar__sort\s*\{[^}]*display:\s*none;/s);
