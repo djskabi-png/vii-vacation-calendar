@@ -40,6 +40,8 @@ test("dynamic location labels are localized and suppress whole-country aliases",
   assert.match(component, /useSiteLanguage/);
   assert.match(component, /translatedLocation = location \? translate\(location\)/);
   assert.match(component, /wholeCountryLabels/);
-  assert.match(component, /"all-country"/);
+  assert.match(component, /"all-country", "all"/);
+  assert.match(component, /\\u0432\\u0441\\u0435/);
+  assert.match(component, /"tous"/);
   assert.match(component, /locationPrefixes\[language\]/);
 });

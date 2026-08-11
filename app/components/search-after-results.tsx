@@ -145,7 +145,7 @@ export function SearchAfterResults({
   const reviews = reviewHighlights.filter((item) => Number.isFinite(item.rating) && item.rating > 0).slice(0, 3);
   const translatedLocation = location ? translate(location) : "";
   const normalizedLocation = translatedLocation.trim().toLocaleLowerCase();
-  const wholeCountryLabels = ["\u05d4\u05db\u05dc", "\u05db\u05dc \u05d4\u05d0\u05e8\u05e5", "all-country", "all israel", "whole country", "\u0432\u0441\u044f \u0441\u0442\u0440\u0430\u043d\u0430", "\u0432\u0435\u0441\u044c \u0438\u0437\u0440\u0430\u0438\u043b\u044c", "tout isra\u00ebl", "toute isra\u00ebl"];
+  const wholeCountryLabels = ["\u05d4\u05db\u05dc", "\u05db\u05dc \u05d4\u05d0\u05e8\u05e5", "all-country", "all", "all israel", "whole country", "\u0432\u0441\u0435", "\u0432\u0441\u044f \u0441\u0442\u0440\u0430\u043d\u0430", "\u0432\u0435\u0441\u044c \u0438\u0437\u0440\u0430\u0438\u043b\u044c", "tous", "tout isra\u00ebl", "toute isra\u00ebl"];
   const locationPrefixes: Record<SiteLanguage, string> = { he: " \u05d1\u05d0\u05d6\u05d5\u05e8 ", en: " in ", ru: " \u0432 \u0440\u0435\u0433\u0438\u043e\u043d\u0435 ", fr: " dans la r\u00e9gion " };
   const locationLabel = location && !wholeCountryLabels.includes(normalizedLocation) ? `${locationPrefixes[language]}${translatedLocation}` : "";
 
