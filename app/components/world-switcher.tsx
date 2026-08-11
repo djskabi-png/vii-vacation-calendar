@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { publicWorldNavigation, worlds, type WorldId } from "../data/world-data";
+import { useSiteLanguage } from "../i18n/locale-provider";
+import { localizedPath } from "../i18n/locale-routing";
 
 export function WorldSwitcher({ active = "vacation" }: { active?: WorldId }) {
   const [open, setOpen] = useState(false);
@@ -33,10 +35,34 @@ function WorldsIcon() {
 }
 
 export function SearchWorldTabs({ active }: { active: WorldId }) {
-  return <nav className="search-world-tabs" aria-label="בחירת עולם לחיפוש">
-    <span className="search-world-tabs__prompt">מה מחפשים?</span>
+  const { language, translate } = useSiteLanguage();
+  const moreRef = useRef<HTMLDetailsElement>(null);
+  const primaryWorlds = ["vacation", "spa", "events", "hourly"] as const;
+  const iconByWorld = { vacation: "🏡", spa: "🧖", events: "🎈", hourly: "🕒" } as const;
+  const moreWorlds = publicWorldNavigation.filter((world) => !primaryWorlds.includes(world.id as typeof primaryWorlds[number]));
+
+  return <nav className="search-world-tabs" aria-label={translate("בחירת עולם לחיפוש")}>
+    <span className="search-world-tabs__prompt">{translate("מה מחפשים?")}</span>
     <div className="search-world-tabs__options">
-      {worlds.filter((world) => ["vacation", "events", "spa", "hourly"].includes(world.id)).map((world) => <Link key={world.id} href={world.href} className={world.id === active ? "active" : ""} aria-current={world.id === active ? "page" : undefined}><span className={`world-mark world-mark--${world.id}`} aria-hidden="true" />{world.shortLabel}</Link>)}
+      {primaryWorlds.map((worldId) => {
+        const world = worlds.find((item) => item.id === worldId)!;
+        return <Link key={world.id} href={localizedPath(world.href, language)} className={world.id === active ? "active" : ""} aria-current={world.id === active ? "page" : undefined}>
+          <span className="search-world-tabs__icon" aria-hidden="true">{iconByWorld[worldId]}</span>
+          <span>{translate(world.shortLabel)}</span>
+        </Link>;
+      })}
+      <details className="search-world-tabs__more" ref={moreRef}>
+        <summary aria-label={translate("עולמות נוספים")}>
+          <span className="search-world-tabs__icon search-world-tabs__icon--more" aria-hidden="true"><i /><i /><i /></span>
+          <span>{translate("עוד")}</span>
+        </summary>
+        <div className="search-world-tabs__menu">
+          {moreWorlds.map((world) => <Link key={world.id} href={localizedPath(world.href, language)} onClick={() => moreRef.current?.removeAttribute("open")}>
+            <span className={`world-mark world-mark--${world.id}`} aria-hidden="true" />
+            <span><strong>{translate(world.shortLabel)}</strong><small>{translate(world.description)}</small></span>
+          </Link>)}
+        </div>
+      </details>
     </div>
   </nav>;
 }

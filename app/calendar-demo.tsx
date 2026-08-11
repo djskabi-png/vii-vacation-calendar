@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useSiteLanguage } from "./i18n/locale-provider";
+import { CalendarIcon } from "./site-header";
 
 export type CalendarMode = "home" | "business";
 export type BusinessKind = "multi" | "single";
@@ -63,6 +64,7 @@ const FLEX_STAYS = [
   { id: "weekend", label: "סוף שבוע", nights: 2 },
   { id: "long-weekend", label: "סוף שבוע ארוך", nights: 3 },
   { id: "week", label: "שבוע", nights: 7 },
+  { id: "month", label: "חודש", nights: 30 },
 ] as const;
 
 function keyOf(date: Date) {
@@ -331,8 +333,8 @@ export function CalendarDemo({
   function confirm() {
     const selectedStay = FLEX_STAYS.find((stay) => stay.id === flexStay) ?? FLEX_STAYS[0];
     const summary = flexible
-      ? `${selectedStay.label} ב${compactMonth(addMonths(START_MONTH, flexMonth), dateLocale)}, גמישות ${flexDays} ימים`
-      : `${shortDate(checkIn, dateLocale)} עד ${shortDate(checkOut, dateLocale)}`;
+      ? `${translate(selectedStay.label)} · ${compactMonth(addMonths(START_MONTH, flexMonth), dateLocale)} · ${flexDays === 0 ? translate("ללא גמישות") : `±${flexDays} ${translate(flexDays === 1 ? "יום" : "ימים")}`}`
+      : `${shortDate(checkIn, dateLocale)} ${translate("עד")} ${shortDate(checkOut, dateLocale)}`;
     onConfirm({ checkIn, checkOut, flexible, summary });
     onClose();
   }
@@ -366,38 +368,48 @@ export function CalendarDemo({
 
         {flexible ? (
           <div className="flexible-content">
-            <div>
-              <h3>כמה זמן?</h3>
-              <div className="choice-row">
+            <section className="flexible-section flexible-section--stay" aria-labelledby="flexible-stay-title">
+              <div className="flexible-section__heading">
+                <span>{translate("1. משך")}</span>
+                <h3 id="flexible-stay-title">{translate("מה אורך השהייה?")}</h3>
+              </div>
+              <div className="choice-row flexible-stay-choices">
                 {FLEX_STAYS.map((stay) => (
-                  <button type="button" key={stay.id} className={flexStay === stay.id ? "selected" : ""} onClick={() => setFlexStay(stay.id)}>
-                    <strong>{stay.label}</strong>
-                    <small>{stay.nights} לילות</small>
+                  <button type="button" key={stay.id} className={flexStay === stay.id ? "selected" : ""} aria-pressed={flexStay === stay.id} onClick={() => setFlexStay(stay.id)}>
+                    <strong>{translate(stay.label)}</strong>
+                    <small>{translate(`${stay.nights} לילות`)}</small>
                   </button>
                 ))}
               </div>
-            </div>
-            <div>
-              <h3>באיזה חודש?</h3>
+            </section>
+            <section className="flexible-section flexible-section--month" aria-labelledby="flexible-month-title">
+              <div className="flexible-section__heading">
+                <span>{translate("2. חודש")}</span>
+                <h3 id="flexible-month-title">{translate("מתי תרצו לנסוע?")}</h3>
+              </div>
               <div className="choice-row month-choice-row">
                 {Array.from({ length: 5 }, (_, index) => addMonths(START_MONTH, index)).map((month, index) => (
-                  <button type="button" key={keyOf(month)} className={flexMonth === index ? "selected" : ""} onClick={() => setFlexMonth(index)}>
+                  <button type="button" key={keyOf(month)} className={flexMonth === index ? "selected" : ""} aria-pressed={flexMonth === index} onClick={() => setFlexMonth(index)}>
+                    <CalendarIcon />
                     <strong>{compactMonth(month, dateLocale)}</strong>
                     <small>{month.getFullYear()}</small>
                   </button>
                 ))}
               </div>
-            </div>
-            <div>
-              <h3>כמה גמישות?</h3>
+            </section>
+            <section className="flexible-section flexible-section--days" aria-labelledby="flexible-days-title">
+              <div className="flexible-section__heading">
+                <span>{translate("3. גמישות")}</span>
+                <h3 id="flexible-days-title">{translate("כמה גמישות מתאימה לכם?")}</h3>
+              </div>
               <div className="choice-row compact-choices">
                 {[0, 1, 3, 7].map((days) => (
-                  <button type="button" key={days} className={flexDays === days ? "selected" : ""} onClick={() => setFlexDays(days)}>
-                    {days === 0 ? "ללא גמישות" : `${days} ימים לכל כיוון`}
+                  <button type="button" key={days} className={flexDays === days ? "selected" : ""} aria-pressed={flexDays === days} onClick={() => setFlexDays(days)}>
+                    {days === 0 ? translate("ללא גמישות") : `±${days} ${translate(days === 1 ? "יום" : "ימים")}`}
                   </button>
                 ))}
               </div>
-            </div>
+            </section>
           </div>
         ) : (
           <div className="calendar-body">
@@ -433,7 +445,7 @@ export function CalendarDemo({
           <div className="dialog-status" aria-live="polite">
             <span className={ready ? "status-ready" : ""}>{ready ? "✓" : "i"}</span>
             <div>
-              <strong>{flexible ? "החיפוש הגמיש מוכן" : checkIn && checkOut ? `${longDate(checkIn, dateLocale)} עד ${longDate(checkOut, dateLocale)}` : checkIn ? `${longDate(checkIn, dateLocale)} · ${notice}` : notice}</strong>
+              <strong>{flexible ? translate("החיפוש הגמיש מוכן") : checkIn && checkOut ? `${longDate(checkIn, dateLocale)} עד ${longDate(checkOut, dateLocale)}` : checkIn ? `${longDate(checkIn, dateLocale)} · ${notice}` : notice}</strong>
               <small>{!flexible && checkIn && checkOut ? `${nights === 1 ? "לילה אחד" : `${nights} לילות`} · ` : ""}{mode === "home" ? "הבחירה תחול על כל תוצאות האתר" : businessKind === "single" ? `הבחירה תחול על כל המקום ב${businessName}` : `הבחירה תחול רק על יחידות ${businessName}`}</small>
             </div>
           </div>

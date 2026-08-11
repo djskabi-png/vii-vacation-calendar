@@ -563,6 +563,11 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(worldSwitcher, /בחירת עולם/);
   assert.match(worldSwitcher, /מה מחפשים\?/);
   assert.match(worldSwitcher, /aria-current/);
+  assert.match(worldSwitcher, /primaryWorlds = \["vacation", "spa", "events", "hourly"\]/);
+  assert.match(worldSwitcher, /search-world-tabs__more/);
+  assert.match(calendar, /id: "month", label: ".+", nights: 30/);
+  assert.match(calendar, /aria-pressed/);
+  assert.match(styles, /\.flexible-section/);
   assert.match(searchBox, /SearchWorldTabs/);
   assert.match(searchBox, /בחרו כמות משתתפים/);
   assert.doesNotMatch(searchBox, /mode === "events" \? 40/);
