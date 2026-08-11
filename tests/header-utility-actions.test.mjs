@@ -12,7 +12,7 @@ test("desktop navigation has no duplicate more menu or gift-card text link", () 
   assert.doesNotMatch(header, /className={`header-more/);
   assert.doesNotMatch(header, /<span>עוד<\/span>/);
   assert.match(header, /className={`icon-button header-gift/);
-  assert.match(header, /aria-label="גיפט קארד"/);
+  assert.match(header, /aria-label=\{translate\("גיפט קארד"\)\}/);
   assert.match(css, /\.site-header__inner \{ min-height: 74px; display: grid; grid-template-columns: minmax\(0,1fr\) max-content;/);
 });
 

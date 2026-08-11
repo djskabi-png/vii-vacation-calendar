@@ -20,7 +20,7 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const pathname = stripLanguagePrefix(usePathname());
-  const { language } = useSiteLanguage();
+  const { language, translate } = useSiteLanguage();
   const { account, openLogin } = useAccountAccess();
   const magazineActive = pathname === "/guides" || pathname.startsWith("/guides/");
   const magazineCopy = {
@@ -91,13 +91,13 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
     }, 0);
   };
   const menu = menuOpen && typeof document !== "undefined" ? createPortal(
-    <div className="menu-layer" role="dialog" aria-modal="true" aria-label="תפריט האתר" onMouseDown={(event) => event.target === event.currentTarget && closeMenu()}>
-      <nav className="menu-panel" aria-label="ניווט מלא">
+    <div className="menu-layer" role="dialog" aria-modal="true" aria-label={translate("תפריט האתר")} onMouseDown={(event) => event.target === event.currentTarget && closeMenu()}>
+      <nav className="menu-panel" aria-label={translate("ניווט מלא")}>
         <div className="menu-panel__head">
-          <Link href="/" onClick={closeMenu} aria-label="וי פור ויקיישן, דף הבית">
-            <img src="/vii-logo.png" alt="וי פור ויקיישן" />
+          <Link href="/" onClick={closeMenu} aria-label={translate("וי פור ויקיישן, דף הבית")}>
+            <img src="/vii-logo.png" alt={translate("וי פור ויקיישן")} />
           </Link>
-          <button ref={closeButtonRef} type="button" onClick={closeMenu} aria-label="סגירת תפריט"><CloseIcon /></button>
+          <button ref={closeButtonRef} type="button" onClick={closeMenu} aria-label={translate("סגירת תפריט")}><CloseIcon /></button>
         </div>
 
 
@@ -123,17 +123,17 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
         )}
         <div className="menu-panel__intro">
           <div className="menu-panel__intro-top">
-            <span>מתחילים מכאן</span>
-            <Link href="/join/providers" onClick={closeMenu}>הצטרפות כספק <ArrowIcon /></Link>
+            <span>{translate("מתחילים מכאן")}</span>
+            <Link href="/join/providers" onClick={closeMenu}>{translate("הצטרפות כספק")} <ArrowIcon /></Link>
           </div>
-          <h2>לאן תרצו להגיע?</h2>
-          <p>נופש, אירועים, ספא, ספקים וחוויות, במקום אחד.</p>
+          <h2>{translate("לאן תרצו להגיע?")}</h2>
+          <p>{translate("נופש, אירועים, ספא, ספקים וחוויות, במקום אחד.")}</p>
         </div>
 
         <div className="menu-panel__main">
           {nav.map((item) => (
             <Link key={item.href} href={item.href} onClick={closeMenu}>
-              <span><strong>{item.label}</strong><small>{item.description}</small></span>
+              <span><strong>{translate(item.label)}</strong><small>{translate(item.description)}</small></span>
               <ArrowIcon />
             </Link>
           ))}
@@ -142,25 +142,25 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
         <Link className="menu-panel__join" href="/join/providers" onClick={closeMenu}>
           <ContactIcon />
           <span>
-            <strong>הצטרפות לאתר</strong>
-            <small>פרסום עסק, ספק, אטרקציה או מקום אירוח</small>
+            <strong>{translate("הצטרפות לאתר")}</strong>
+            <small>{translate("פרסום עסק, ספק, אטרקציה או מקום אירוח")}</small>
           </span>
           <ArrowIcon />
         </Link>
 
         <div className="menu-panel__secondary">
-          <Link href="/favorites" data-loading-label={favoritesLoading} onClick={closeMenu}><HeartIcon /><span>מקומות שאהבתי</span></Link>
-          <Link href="/gift-card" onClick={closeMenu}><GiftIcon /><span>גיפט קארד</span></Link>
-          <Link href="/destinations" onClick={closeMenu}><PinIcon /><span>יעדים</span></Link>
+          <Link href="/favorites" data-loading-label={favoritesLoading} onClick={closeMenu}><HeartIcon /><span>{translate("מקומות שאהבתי")}</span></Link>
+          <Link href="/gift-card" onClick={closeMenu}><GiftIcon /><span>{translate("גיפט קארד")}</span></Link>
+          <Link href="/destinations" onClick={closeMenu}><PinIcon /><span>{translate("יעדים")}</span></Link>
           <Link href="/guides" onClick={closeMenu} aria-current={magazineActive ? "page" : undefined}><InfoIcon /><span>{magazineCopy.menuLabel}</span></Link>
-          <Link href="/questions" onClick={closeMenu}><InfoIcon /><span>שאלות ותשובות</span></Link>
-          <Link href="/accessibility" onClick={closeMenu}><AccessibilityIcon /><span>הצהרת נגישות</span></Link>
+          <Link href="/questions" onClick={closeMenu}><InfoIcon /><span>{translate("שאלות ותשובות")}</span></Link>
+          <Link href="/accessibility" onClick={closeMenu}><AccessibilityIcon /><span>{translate("הצהרת נגישות")}</span></Link>
           <AccessibilityWidget placement="menu" />
         </div>
 
         <div className="menu-panel__footer">
           <span>VII</span>
-          <p>כל מה שכיף לעשות, בדיוק בדרך שלכם.</p>
+          <p>{translate("כל מה שכיף לעשות, בדיוק בדרך שלכם.")}</p>
           <LanguageSwitcher compact />
         </div>
       </nav>
@@ -172,16 +172,16 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
     <>
       <header className="site-header">
         <div className="site-header__inner shell">
-          <Link className="brand" href="/" aria-label="וי פור ויקיישן, דף הבית">
-            <img src="/vii-logo.png" alt="וי פור ויקיישן" />
+          <Link className="brand" href="/" aria-label={translate("וי פור ויקיישן, דף הבית")}>
+            <img src="/vii-logo.png" alt={translate("וי פור ויקיישן")} />
           </Link>
 
           <div className="header-actions">
-            <Link className="icon-button" href="/favorites" aria-label="מקומות שאהבתי" data-loading-label={favoritesLoading}><HeartIcon /></Link>
+            <Link className="icon-button" href="/favorites" aria-label={translate("מקומות שאהבתי")} data-loading-label={favoritesLoading}><HeartIcon /></Link>
             <LanguageSwitcher compact iconOnly />
-            <Link className={`icon-button header-gift${pathname === "/gift-card" ? " active" : ""}`} href="/gift-card" aria-label="גיפט קארד" aria-current={pathname === "/gift-card" ? "page" : undefined}><GiftIcon /></Link>
+            <Link className={`icon-button header-gift${pathname === "/gift-card" ? " active" : ""}`} href="/gift-card" aria-label={translate("גיפט קארד")} aria-current={pathname === "/gift-card" ? "page" : undefined}><GiftIcon /></Link>
             {showWorldSwitcher ? <WorldSwitcher active={variant} /> : null}
-            <button ref={menuButtonRef} className="menu-button" type="button" aria-expanded={menuOpen} aria-haspopup="dialog" aria-label="פתיחת תפריט" onClick={() => setMenuOpen(true)}><MenuIcon /><span>תפריט</span></button>
+            <button ref={menuButtonRef} className="menu-button" type="button" aria-expanded={menuOpen} aria-haspopup="dialog" aria-label={translate("פתיחת תפריט")} onClick={() => setMenuOpen(true)}><MenuIcon /><span>{translate("תפריט")}</span></button>
           </div>
         </div>
       </header>

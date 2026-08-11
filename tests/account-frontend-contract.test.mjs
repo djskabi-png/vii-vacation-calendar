@@ -17,6 +17,9 @@ test("frontend account access is shared, explicit and never claims real OAuth", 
   assert.match(header, /account\.name\.trim\(\)\.slice\(0, 1\)/);
   assert.match(header, /openAccountLogin/);
   assert.equal(header.split('href="/account"').length - 1, 1);
+  assert.match(header, /translate\(item\.label\)/);
+  assert.match(header, /translate\("מתחילים מכאן"\)/);
+  assert.match(header, /translate\("שאלות ותשובות"\)/);
   assert.match(access, /aria-label=\{copy\[language\]\.login\}/);
   assert.match(account, /הזמנות ובקשות/);
 });
