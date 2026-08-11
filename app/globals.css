@@ -2991,6 +2991,17 @@ h3 { font-size: 1.18rem; }
 .menu-panel__head img { width: 116px; height: 58px; object-fit: contain; }
 .menu-panel__head button { border: 1px solid var(--line); background: white; color: var(--ink); width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; box-shadow: 0 6px 18px rgba(3,35,43,.08); }
 .menu-panel__head button:hover { color: var(--teal-dark); background: var(--mist); }
+.menu-panel__account { width: 100%; min-height: 86px; display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; gap: 13px; margin: 0 0 14px; padding: 14px 15px; color: var(--ink); border: 1px solid #cfe5e8; border-radius: 20px; background: linear-gradient(135deg,#ecfafb,#fff); box-shadow: 0 10px 28px rgba(5,77,88,.08); font: inherit; text-align: start; cursor: pointer; }
+.menu-panel__account:hover { color: var(--ink); border-color: #91cbd1; background: #fff; box-shadow: 0 13px 32px rgba(5,77,88,.12); }
+.menu-panel__account-avatar { width: 56px; height: 56px; display: grid; place-items: center; color: #fff; border-radius: 50%; background: linear-gradient(135deg,#087e8b,#2f8ec2); font-size: 1.25rem; font-weight: 900; box-shadow: 0 8px 20px rgba(7,117,132,.2); }
+.menu-panel__account-avatar--guest { color: var(--teal-dark); border: 1px solid #b9dce0; background: #fff; }
+.menu-panel__account-avatar svg { width: 25px; height: 25px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+.menu-panel__account-copy { min-width: 0; display: grid; gap: 3px; }
+.menu-panel__account-copy small { color: var(--teal-dark); font-size: .7rem; font-weight: 850; }
+.menu-panel__account-copy strong { overflow: hidden; color: var(--ink); font-size: 1rem; text-overflow: ellipsis; white-space: nowrap; }
+.menu-panel__account-copy span { overflow: hidden; color: var(--ink-soft); font-size: .76rem; text-overflow: ellipsis; white-space: nowrap; }
+.menu-panel__account-action { display: inline-flex; align-items: center; gap: 4px; color: var(--teal-dark); font-size: .72rem; font-weight: 850; white-space: nowrap; }
+.menu-panel__account-action svg { width: 16px; height: 16px; transform: rotate(180deg); }
 .menu-panel__intro { padding: 18px 20px; margin-bottom: 14px; border: 1px solid #d4eaed; border-radius: 20px; background: linear-gradient(135deg,#effafb,#f7fbff); }
 .menu-panel__intro-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .menu-panel__intro-top > span { color: var(--teal-dark); font-size: .78rem; font-weight: 800; }
@@ -4217,6 +4228,9 @@ body:has(.whatsapp-lead-layer) .smart-concierge { display: none; }
   .menu-panel { width: 100vw; padding: 16px 18px calc(118px + env(safe-area-inset-bottom, 0px)); }
   .menu-panel__head { margin-bottom: 12px; }
   .menu-panel__head img { width: 100px; height: 52px; }
+  .menu-panel__account { min-height: 78px; grid-template-columns: auto minmax(0,1fr); padding: 12px; }
+  .menu-panel__account-avatar { width: 50px; height: 50px; }
+  .menu-panel__account-action { grid-column: 2; justify-content: flex-start; }
   .menu-panel__intro { padding: 14px 16px; margin-bottom: 10px; }
   .menu-panel__intro-top > a { min-height: 32px; padding-inline: 10px; font-size: .72rem; }
   .menu-panel__intro h2 { font-size: 1.45rem; }

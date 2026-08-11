@@ -11,7 +11,7 @@ import { stripLanguagePrefix } from "./i18n/locale-routing";
 import { publicWorldNavigation, type WorldId } from "./data/world-data";
 import { AccessibilityWidget } from "./components/accessibility-widget";
 import { WorldSwitcher } from "./components/world-switcher";
-import { AccountHeaderButton } from "./components/account-access";
+import { useAccountAccess } from "./components/account-access";
 
 const nav = publicWorldNavigation.map((world) => ({ id: world.id, href: world.href, label: world.shortLabel, description: world.description }));
 
@@ -21,6 +21,7 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const pathname = stripLanguagePrefix(usePathname());
   const { language } = useSiteLanguage();
+  const { account, openLogin } = useAccountAccess();
   const magazineActive = pathname === "/guides" || pathname.startsWith("/guides/");
   const magazineCopy = {
     he: { badge: "חדש", label: "מגזין", menuLabel: "מגזין ומדריכים" },
@@ -33,6 +34,12 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
     en: "Opening your favorites...",
     ru: "Открываем избранное...",
     fr: "Ouverture de vos favoris...",
+  }[language];
+  const accountCopy = {
+    he: { connected: "מחוברים לחשבון", title: "החשבון האישי שלי", summary: "אהובים, הזמנות ובקשות במקום אחד", login: "התחברות או פתיחת חשבון", enter: "כניסה לאזור האישי" },
+    en: { connected: "Signed in", title: "My account", summary: "Favorites, bookings and requests in one place", login: "Sign in or create an account", enter: "Open my account" },
+    ru: { connected: "Вы вошли", title: "Мой аккаунт", summary: "Избранное, бронирования и запросы в одном месте", login: "Войти или создать аккаунт", enter: "Открыть аккаунт" },
+    fr: { connected: "Connecté", title: "Mon compte", summary: "Favoris, réservations et demandes au même endroit", login: "Se connecter ou créer un compte", enter: "Ouvrir mon compte" },
   }[language];
 
   useEffect(() => {
@@ -75,6 +82,14 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
     window.setTimeout(() => menuButtonRef.current?.focus(), 0);
   };
 
+
+  const openAccountLogin = () => {
+    setMenuOpen(false);
+    window.setTimeout(() => {
+      menuButtonRef.current?.focus();
+      openLogin();
+    }, 0);
+  };
   const menu = menuOpen && typeof document !== "undefined" ? createPortal(
     <div className="menu-layer" role="dialog" aria-modal="true" aria-label="תפריט האתר" onMouseDown={(event) => event.target === event.currentTarget && closeMenu()}>
       <nav className="menu-panel" aria-label="ניווט מלא">
@@ -85,6 +100,27 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
           <button ref={closeButtonRef} type="button" onClick={closeMenu} aria-label="סגירת תפריט"><CloseIcon /></button>
         </div>
 
+
+        {account ? (
+          <Link className="menu-panel__account" href="/account" onClick={closeMenu}>
+            <span className="menu-panel__account-avatar" aria-hidden="true">{account.name.trim().slice(0, 1).toUpperCase()}</span>
+            <span className="menu-panel__account-copy">
+              <small>{accountCopy.connected}</small>
+              <strong>{account.name}</strong>
+              <span>{account.email}</span>
+            </span>
+            <span className="menu-panel__account-action">{accountCopy.enter}<ArrowIcon /></span>
+          </Link>
+        ) : (
+          <button className="menu-panel__account" type="button" onClick={openAccountLogin}>
+            <span className="menu-panel__account-avatar menu-panel__account-avatar--guest" aria-hidden="true"><UserIcon /></span>
+            <span className="menu-panel__account-copy">
+              <strong>{accountCopy.title}</strong>
+              <span>{accountCopy.summary}</span>
+            </span>
+            <span className="menu-panel__account-action">{accountCopy.login}<ArrowIcon /></span>
+          </button>
+        )}
         <div className="menu-panel__intro">
           <div className="menu-panel__intro-top">
             <span>מתחילים מכאן</span>
@@ -113,7 +149,6 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
         </Link>
 
         <div className="menu-panel__secondary">
-          <Link href="/account" onClick={closeMenu}><UserIcon /><span>החשבון האישי שלי</span></Link>
           <Link href="/favorites" data-loading-label={favoritesLoading} onClick={closeMenu}><HeartIcon /><span>מקומות שאהבתי</span></Link>
           <Link href="/gift-card" onClick={closeMenu}><GiftIcon /><span>גיפט קארד</span></Link>
           <Link href="/destinations" onClick={closeMenu}><PinIcon /><span>יעדים</span></Link>
@@ -142,7 +177,6 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
           </Link>
 
           <div className="header-actions">
-            <AccountHeaderButton />
             <Link className="icon-button" href="/favorites" aria-label="מקומות שאהבתי" data-loading-label={favoritesLoading}><HeartIcon /></Link>
             <LanguageSwitcher compact iconOnly />
             <Link className={`icon-button header-gift${pathname === "/gift-card" ? " active" : ""}`} href="/gift-card" aria-label="גיפט קארד" aria-current={pathname === "/gift-card" ? "page" : undefined}><GiftIcon /></Link>

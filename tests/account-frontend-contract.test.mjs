@@ -11,7 +11,12 @@ test("frontend account access is shared, explicit and never claims real OAuth", 
   assert.match(access, /localStorage|stored only in this browser/);
   assert.doesNotMatch(access, /signInWith|oauth|accounts\.google\.com|graph\.facebook/iu);
   assert.match(layout, /AccountAccessProvider/);
-  assert.match(header, /AccountHeaderButton/);
+  assert.doesNotMatch(header, /<AccountHeaderButton/);
+  assert.match(header, /className="menu-panel__account"/);
+  assert.match(header, /useAccountAccess/);
+  assert.match(header, /account\.name\.trim\(\)\.slice\(0, 1\)/);
+  assert.match(header, /openAccountLogin/);
+  assert.equal(header.split('href="/account"').length - 1, 1);
   assert.match(access, /aria-label=\{copy\[language\]\.login\}/);
   assert.match(account, /הזמנות ובקשות/);
 });
