@@ -62,6 +62,7 @@ test("compact card actions remain usable on mobile and keyboard", () => {
   assert.match(css, /\.stay-card__actions \{ width: 100%; grid-template-columns: repeat\(2,minmax\(0,1fr\)\)/);
   assert.match(css, /\.stay-card__contact svg \{ flex: 0 0 auto; width: 19px; height: 19px; stroke-width: 2\.25/);
   assert.match(css, /\.stay-card__contact span \{ display: inline; \}/);
+  assert.match(css, /stay-card__contact--revealed bdi \{[^}]*white-space: nowrap/);
   assert.match(css, /\.stay-card__details-link \{ grid-column: 1 \/ -1; width: 100%; min-height: 48px/);
   assert.match(card, /aria-label=\{`\$\{phoneCopy\[language\]\.call\}: \$\{property\.name\}`\}/);
   assert.doesNotMatch(card, /className="button secondary"/);

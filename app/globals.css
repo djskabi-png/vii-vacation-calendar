@@ -3292,7 +3292,7 @@ h3 { font-size: 1.18rem; }
 .stay-card__contact { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 9px 13px; border: 1px solid #b8dce1; border-radius: 12px; color: #087987; background: #f1fafb; box-shadow: 0 5px 14px rgba(3,57,68,.06); font: 800 .76rem/1.2 var(--font-sans); text-decoration: none; cursor: pointer; transition: transform .16s ease,box-shadow .16s ease,background .16s ease; }
 .stay-card__contact--phone { font-family: var(--font-sans); }
 .stay-card__contact--revealed { background: #e7f6f8; }
-.stay-card__contact--revealed bdi { font-weight: 850; }
+.stay-card__contact--revealed bdi { min-width: 0; direction: ltr; unicode-bidi: isolate; font-size: .74rem; font-weight: 850; font-variant-numeric: tabular-nums; line-height: 1; letter-spacing: .01em; white-space: nowrap; }
 .stay-card__footer--promotional .stay-card__actions { grid-template-columns: 1fr; }
 .stay-card__contact svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.15; stroke-linecap: round; stroke-linejoin: round; }
 .stay-card__contact--whatsapp { color: #147a47; border-color: #b9ddc9; background: #effaf4; }
@@ -4435,7 +4435,7 @@ body:has(.whatsapp-lead-layer) .smart-concierge { display: none; }
   .stay-card__contact:hover { color: #066c78; background: #e7f6f8; }
   .stay-card__contact--whatsapp:hover { color: #116b3d; background: #e4f7ec; }
   .stay-card__contact span { display: inline; }
-  .stay-card__contact--revealed bdi { max-width: 100%; overflow: hidden; text-overflow: ellipsis; direction: ltr; }
+  .stay-card__contact--revealed bdi { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
   .stay-card__footer--promotional .stay-card__actions { grid-template-columns: 1fr; }
   .event-promo { margin-inline: 12px; border-radius: 24px; }
   .result-cards .stay-card__media { min-height: 230px; }
