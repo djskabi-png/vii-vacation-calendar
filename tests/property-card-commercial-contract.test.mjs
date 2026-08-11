@@ -28,9 +28,9 @@ test("listing cards expose only verified commercial fields", () => {
 
 test("recommended cards omit booking price copy and keep a measured reveal action", () => {
   assert.match(card, /promotional = false/);
-  assert.match(card, /!promotional && selectedQuote \? <div className="stay-card__date-status"/);
+  assert.match(card, /!promotional && resolvedAvailability \? <div className="stay-card__date-status"/);
   assert.match(card, /!promotional \? <div className="stay-card__commercial-summary">/);
-  assert.match(card, /const cardMode = promotional \? "promotional" : selectedQuote \? "dated" : "result"/);
+  assert.match(card, /const cardMode = promotional \? "promotional" : resolvedAvailability \? "dated" : "result"/);
   assert.match(card, /!promotional && whatsapp \? <WhatsAppLeadButton/);
   assert.match(card, /phoneCopy\[language\]\.reveal/);
   assert.match(analytics, /event: "vii_phone_reveal"/);

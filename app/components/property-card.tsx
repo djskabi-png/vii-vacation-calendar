@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useRef, useState, type MouseEvent } from "react";
 import type { ListingAvailability, ListingDateQuote, Property } from "../data/site-data";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
@@ -31,6 +32,20 @@ const phoneCopy: Record<SiteLanguage, { reveal: string; call: string }> = {
 
 type SelectedStay = { from: string; till: string };
 
+type DemoAvailabilityKind = "available-price" | "price-only" | "available-no-price" | "no-data" | "unavailable" | "unavailable-alternatives" | "unavailable-price";
+type ResolvedAvailability = ListingDateQuote & { showSelectedDates: boolean; alternatives?: Array<{ from: string; till: string; nightlyPrice: number }>; illustrative?: boolean };
+
+const demoScenarioCopy: Record<SiteLanguage, { label: string; alternatives: string; alternativePrice: string }> = {
+  he: { label: "\u05d4\u05de\u05d7\u05e9\u05ea \u05ea\u05e6\u05d5\u05d2\u05d4 \u05d1\u05dc\u05d1\u05d3", alternatives: "\u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd \u05d7\u05dc\u05d5\u05e4\u05d9\u05d9\u05dd \u05dc\u05d3\u05d5\u05d2\u05de\u05d4", alternativePrice: "\u05de\u05d7\u05d9\u05e8 \u05dc\u05d3\u05d5\u05d2\u05de\u05d4" },
+  en: { label: "Display example only", alternatives: "Example alternative dates", alternativePrice: "Example price" },
+  ru: { label: "\u0422\u043e\u043b\u044c\u043a\u043e \u043f\u0440\u0438\u043c\u0435\u0440 \u043e\u0442\u043e\u0431\u0440\u0430\u0436\u0435\u043d\u0438\u044f", alternatives: "\u041f\u0440\u0438\u043c\u0435\u0440\u044b \u0430\u043b\u044c\u0442\u0435\u0440\u043d\u0430\u0442\u0438\u0432\u043d\u044b\u0445 \u0434\u0430\u0442", alternativePrice: "\u041f\u0440\u0438\u043c\u0435\u0440 \u0446\u0435\u043d\u044b" },
+  fr: { label: "Exemple d\u2019affichage uniquement", alternatives: "Exemples de dates alternatives", alternativePrice: "Exemple de prix" },
+};
+const demoAvailabilityScenarios: Record<string, DemoAvailabilityKind> = {
+  "aqua-resort": "available-price", "kesem-harimon": "price-only", "ahuzat-or": "available-no-price", "sol-gilgal": "no-data",
+  "anael-estate": "unavailable", "magic-garden-gefen": "unavailable-alternatives", "perfumes-villa": "unavailable-price",
+};
+
 function localizedDate(value: string, language: SiteLanguage) {
   const locales: Record<SiteLanguage, string> = { he: "he-IL", en: "en-GB", ru: "ru-RU", fr: "fr-FR" };
   const date = new Date(`${value}T12:00:00`);
@@ -49,8 +64,34 @@ function quoteForStay(property: Property, selectedStay: SelectedStay | null): Li
   };
 }
 
+function shiftStayDate(value: string, days: number) {
+  const date = new Date(value + "T12:00:00Z");
+  if (Number.isNaN(date.getTime())) return value;
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
+function demoAvailabilityFor(property: Property, selectedStay: SelectedStay | null, pathname: string, requestedLocation: string | null): ResolvedAvailability | null {
+  if (!selectedStay) return null;
+  const basePath = pathname.replace(/^\/(en|ru|fr)(?=\/|$)/, "") || "/";
+  if (basePath !== "/search" && basePath !== "/vacations") return null;
+  if (requestedLocation && requestedLocation !== "\u05db\u05dc \u05d4\u05d0\u05e8\u05e5") return null;
+  const kind = demoAvailabilityScenarios[property.slug];
+  if (!kind) return null;
+  const common = { ...selectedStay, illustrative: true };
+  if (kind === "available-price") return { ...common, availability: "available", nightlyPrice: 1300, includedGuests: 2, showSelectedDates: true };
+  if (kind === "price-only") return { ...common, availability: "unknown", nightlyPrice: 1100, includedGuests: 4, showSelectedDates: false };
+  if (kind === "available-no-price") return { ...common, availability: "available", showSelectedDates: true };
+  if (kind === "no-data") return { ...common, availability: "unknown", showSelectedDates: false };
+  if (kind === "unavailable") return { ...common, availability: "unavailable", showSelectedDates: true };
+  if (kind === "unavailable-price") return { ...common, availability: "unavailable", nightlyPrice: 1600, includedGuests: 2, showSelectedDates: true };
+  return { ...common, availability: "unavailable", showSelectedDates: true, alternatives: [7, 14].map((days) => ({ from: shiftStayDate(selectedStay.from, days), till: shiftStayDate(selectedStay.till, days), nightlyPrice: 2400 })) };
+}
+
 export function PropertyCard({ property, selectedStay = null, promotional = false, detailHref }: { property: Property; selectedStay?: SelectedStay | null; promotional?: boolean; detailHref?: string }) {
   const { language } = useSiteLanguage();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const copy = cardCopy[language];
   const galleryImages = [property.image, ...property.images].filter((src, index, all) => src && all.indexOf(src) === index).slice(0, 10);
   const [imageIndex, setImageIndex] = useState(0);
@@ -61,8 +102,10 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
   const phone = property.contact?.phone?.replace(/[^\d+]/g, "");
   const whatsapp = property.contact?.whatsapp;
   const selectedQuote = quoteForStay(property, selectedStay);
-  const hasQuotedPrice = Boolean(selectedQuote?.nightlyPrice && selectedQuote?.includedGuests);
-  const cardMode = promotional ? "promotional" : selectedQuote ? "dated" : "result";
+  const demoAvailability = promotional ? null : demoAvailabilityFor(property, selectedStay, pathname, searchParams.get("location"));
+  const resolvedAvailability: ResolvedAvailability | null = demoAvailability || (selectedQuote ? { ...selectedQuote, showSelectedDates: true } : null);
+  const hasQuotedPrice = Boolean(resolvedAvailability?.nightlyPrice);
+  const cardMode = promotional ? "promotional" : resolvedAvailability ? "dated" : "result";
   const propertyHref = detailHref || `/business?id=${property.slug}`;
 
   function moveImage(event: MouseEvent<HTMLButtonElement>, direction: -1 | 1) {
@@ -91,13 +134,20 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
         </div>
         <p className="stay-card__meta">{property.type}{property.units && property.units > 1 ? `, ${property.units} יחידות` : ", מקום אירוח שלם"} · עד {property.guests} אורחים</p>
         <div className="feature-chips">{property.features.slice(0, 3).map((feature) => <span key={feature}>{feature}</span>)}</div>
-        {!promotional && selectedQuote ? <div className="stay-card__date-status" aria-live="polite">
-          <div className="stay-card__selected-dates"><span>{localizedDate(selectedQuote.from, language)}</span><small>{copy.to}</small><span>{localizedDate(selectedQuote.till, language)}</span></div>
-          <strong className={`stay-card__availability stay-card__availability--${selectedQuote.availability}`}>{copy.availability[selectedQuote.availability]}</strong>
+        {!promotional && resolvedAvailability ? <div className="stay-card__date-status" aria-live="polite">
+          {resolvedAvailability.illustrative ? <span className="stay-card__demo-label">{demoScenarioCopy[language].label}</span> : null}
+          <div className="stay-card__date-status-row">
+            {resolvedAvailability.showSelectedDates ? <div className="stay-card__selected-dates"><span>{localizedDate(resolvedAvailability.from, language)}</span><small>{copy.to}</small><span>{localizedDate(resolvedAvailability.till, language)}</span></div> : null}
+            <strong className={`stay-card__availability stay-card__availability--${resolvedAvailability.availability}`}>{copy.availability[resolvedAvailability.availability]}</strong>
+          </div>
+          {resolvedAvailability.alternatives?.length ? <div className="stay-card__alternatives">
+            <strong>{demoScenarioCopy[language].alternatives}</strong>
+            <div>{resolvedAvailability.alternatives.map((alternative) => <span key={alternative.from}><small>{localizedDate(alternative.from, language)} {copy.to} {localizedDate(alternative.till, language)}</small><b><PriceValue amount={alternative.nightlyPrice.toLocaleString()} language={language} /></b></span>)}</div>
+          </div> : null}
         </div> : null}
         <div className={`stay-card__footer stay-card__footer--${cardMode}`}>
           {!promotional ? <div className="stay-card__commercial-summary">
-            {selectedQuote ? <span className={`stay-card__price stay-card__price--selected ${hasQuotedPrice ? "stay-card__price--known" : ""}`}>{hasQuotedPrice ? <><b><PriceValue amount={selectedQuote.nightlyPrice?.toLocaleString() || ""} language={language} /></b><small>{copy.night}</small><em>{copy.includedGuests(selectedQuote.includedGuests || 0)}</em></> : <strong>{copy.inquirePrice}</strong>}</span> : <span className={`stay-card__price ${property.price ? "stay-card__price--known" : ""}`}>{property.price ? <><small>{copy.from}</small><b><PriceValue amount={property.price.toLocaleString()} language={language} /></b><small>{copy.night}</small></> : copy.datePrice}</span>}
+            {resolvedAvailability ? <span className={`stay-card__price stay-card__price--selected ${hasQuotedPrice ? "stay-card__price--known" : ""}`}>{hasQuotedPrice ? <><b><PriceValue amount={resolvedAvailability.nightlyPrice?.toLocaleString() || ""} language={language} /></b><small>{copy.night}</small>{resolvedAvailability.includedGuests ? <em>{copy.includedGuests(resolvedAvailability.includedGuests)}</em> : null}</> : resolvedAvailability.alternatives?.length ? <strong>{demoScenarioCopy[language].alternativePrice}</strong> : <strong>{copy.inquirePrice}</strong>}</span> : <span className={`stay-card__price ${property.price ? "stay-card__price--known" : ""}`}>{property.price ? <><small>{copy.from}</small><b><PriceValue amount={property.price.toLocaleString()} language={language} /></b><small>{copy.night}</small></> : copy.datePrice}</span>}
           </div> : null}
           <div className="stay-card__actions">
             <Link className="stay-card__details-link" href={propertyHref}>{copy.details}</Link>
