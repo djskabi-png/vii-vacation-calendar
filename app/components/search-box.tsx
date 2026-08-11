@@ -84,7 +84,7 @@ function normalizeHourlyPrice(value: string | null) {
 export function SearchBox({ mode = "vacation", compact = false, showWorlds = false, initialLocation, initialGuests, basePath, vacationType, initialSpaAudience, initialSpaFeatures = [] }: { mode?: SearchMode; compact?: boolean; showWorlds?: boolean; initialLocation?: string; initialGuests?: number; basePath?: string; vacationType?: string; initialSpaAudience?: string; initialSpaFeatures?: string[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { language } = useSiteLanguage();
+  const { language, translate } = useSiteLanguage();
   const isHourly = mode === "hourly";
   const shouldCollapse = compact || searchParams.has("location");
   const places = useMemo(() => searchLocationOptions(mode), [mode]);
@@ -298,7 +298,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
       {showWorlds && !shouldCollapse && <SearchWorldTabs active={activeWorld} />}
       <div className={`search-box-shell ${shouldCollapse ? "search-box-shell--results" : ""} ${mobileExpanded ? "mobile-expanded" : "mobile-collapsed"}`}>
         {shouldCollapse && <button type="button" className="search-mobile-summary" onClick={() => { setMobileStep("location"); setMobileExpanded(true); setLocationOpen(true); }} aria-expanded={mobileExpanded} aria-label={`שינוי חיפוש. ${mobileSummary}`}>
-          <span className="search-mobile-summary__copy"><strong>{locationValue}</strong><small>{!isHourly && <><span>{dates}</span><span aria-hidden="true"> · </span><span>{peopleValue}</span></>}</small></span>
+          <span className="search-mobile-summary__copy"><strong>{translate(locationValue)}</strong><small>{!isHourly && <><span>{dates}</span><span aria-hidden="true"> · </span><span>{peopleValue}</span></>}</small></span>
           <span className="search-mobile-summary__action"><SearchIcon /><b>שינוי חיפוש</b></span>
         </button>}
         {mobileExpanded && <button type="button" className="search-mobile-backdrop" onClick={closeMobileSearch} aria-label="סגירת החיפוש" />}
@@ -306,34 +306,34 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
         <div className={`search-box ${shouldCollapse ? "compact" : ""} ${isHourly ? "search-box--hourly" : ""} mobile-step-${mobileStep}`} role="search" aria-label={mode === "events" ? "חיפוש מקום לאירוע" : mode === "spa" ? "חיפוש מתחם ספא" : isHourly ? "חיפוש חדרים לפי שעה" : "חיפוש חופשה"}>
         {mobileExpanded && <div className="search-mobile-sheet-head"><strong>{mobileSheetTitle}</strong><ol className="search-mobile-progress" aria-label={`שלב ${mobileStep === "location" ? 1 : mobileStep === "dates" ? 2 : 3} מתוך 3`}><li className={mobileStep === "location" ? "active" : "complete"} aria-current={mobileStep === "location" ? "step" : undefined}>1</li><li className={mobileStep === "dates" ? "active" : mobileStep === "guests" ? "complete" : ""} aria-current={mobileStep === "dates" ? "step" : undefined}>2</li><li className={mobileStep === "guests" ? "active" : ""} aria-current={mobileStep === "guests" ? "step" : undefined}>3</li></ol><button type="button" onClick={closeMobileSearch} aria-label="סגירת החיפוש">×</button></div>}
         <div className={`search-field-wrap search-step search-step--location ${mobileStep === "location" ? "active" : ""}`}>
-          <button type="button" className="search-field" aria-expanded={locationOpen} onClick={() => { setMobileStep("location"); expandMobileSearch(); setLocationOpen((value) => !value); setGuestOpen(false); setPriceOpen(false); }}><PinIcon /><span><small>{mode === "events" ? "אזור או מקום" : isHourly ? "עיר או אזור" : "לאן נוסעים"}</small><strong>{locationValue}</strong></span></button>
+          <button type="button" className="search-field" aria-expanded={locationOpen} onClick={() => { setMobileStep("location"); expandMobileSearch(); setLocationOpen((value) => !value); setGuestOpen(false); setPriceOpen(false); }}><PinIcon /><span><small>{mode === "events" ? "אזור או מקום" : isHourly ? "עיר או אזור" : "לאן נוסעים"}</small><strong>{translate(locationValue)}</strong></span></button>
           {locationOpen && <div className="search-popover location-list">
-            <label className="location-list__search"><span>חיפוש יעד</span><input value={locationQuery} onChange={(event) => setLocationQuery(event.target.value)} placeholder="הקלידו עיר או אזור" autoFocus /></label>
+            <label className="location-list__search"><span>{translate("חיפוש יעד")}</span><input value={locationQuery} onChange={(event) => setLocationQuery(event.target.value)} placeholder={translate("הקלידו עיר או אזור")} autoFocus /></label>
             {locationQuery.trim() ? (
               <div className="location-search-results">
-                {visiblePlaces.map((place) => <button type="button" key={place} className={place === locationValue ? "selected" : ""} onClick={() => chooseLocation(place)}><PinIcon /><span>{place}</span></button>)}
-                {visiblePlaces.length === 0 ? <p>לא מצאנו יעד מתאים.</p> : null}
+                {visiblePlaces.map((place) => <button type="button" key={place} className={place === locationValue ? "selected" : ""} onClick={() => chooseLocation(place)}><PinIcon /><span>{translate(place)}</span></button>)}
+                {visiblePlaces.length === 0 ? <p>{translate("לא מצאנו יעד מתאים.")}</p> : null}
               </div>
             ) : mode === "vacation" ? (
               <div className="location-discovery">
                 <button type="button" className="location-nearby" onClick={chooseNearbyLocation} disabled={locating}>
                   <span className="location-nearby__icon"><PinIcon /></span>
-                  <span><strong>מקומות בסביבה הקרובה</strong><small>נמצא את האזור הקרוב לפי המיקום שלכם</small></span>
+                  <span><strong>{translate("מקומות בסביבה הקרובה")}</strong><small>{translate("נמצא את האזור הקרוב לפי המיקום שלכם")}</small></span>
                   <b aria-hidden="true">←</b>
                 </button>
-                {locationStatus ? <p className="location-status" role="status">{locationStatus}</p> : null}
+                {locationStatus ? <p className="location-status" role="status">{translate(locationStatus)}</p> : null}
                 {vacationLocationGroups.map((group) => (
                   <section className={`location-group location-group--${group.id}`} key={group.id}>
-                    <h3>{group.title}</h3>
+                    <h3>{translate(group.title)}</h3>
                     <div>
-                      {group.options.map((place) => <button type="button" key={place} className={place === locationValue ? "selected" : ""} aria-pressed={place === locationValue} onClick={() => chooseLocation(place)}><PinIcon /><span>{place}</span></button>)}
+                      {group.options.map((place) => <button type="button" key={place} className={place === locationValue ? "selected" : ""} aria-pressed={place === locationValue} onClick={() => chooseLocation(place)}><PinIcon /><span>{translate(place)}</span></button>)}
                     </div>
                   </section>
                 ))}
               </div>
             ) : (
               <div className="location-search-results">
-                {visiblePlaces.map((place) => <button type="button" key={place} className={place === locationValue ? "selected" : ""} onClick={() => chooseLocation(place)}><PinIcon /><span>{place}</span></button>)}
+                {visiblePlaces.map((place) => <button type="button" key={place} className={place === locationValue ? "selected" : ""} onClick={() => chooseLocation(place)}><PinIcon /><span>{translate(place)}</span></button>)}
               </div>
             )}
           </div>}
