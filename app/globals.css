@@ -4629,11 +4629,11 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .listing-map-shell.single-map, .listing-map-shell.single-map .listing-map { min-height: 300px; }
 .vii-map-marker-wrap { display: grid !important; place-items: center; background: transparent !important; border: 0 !important; }
 .listing-map-shell,.listing-map-shell button,.listing-map-shell .leaflet-container { font-family: Rubik, Heebo, Assistant, Arial, sans-serif; }
-.vii-map-marker { position: relative; min-width: 48px; width: max-content; height: 42px; display: grid; place-content: center; padding: 0 13px; border: 3px solid white; border-radius: 999px; background: linear-gradient(145deg, var(--teal), #08768a); color: white; box-shadow: 0 8px 20px rgba(0, 55, 65, .3); font-family: Rubik, Heebo, Assistant, Arial, sans-serif; font-size: .82rem; font-weight: 800; line-height: 1; white-space: nowrap; transition: transform .2s ease, filter .2s ease, box-shadow .2s ease; }
-.vii-map-marker::after { content: ""; position: absolute; left: 50%; bottom: -8px; width: 12px; height: 12px; border-right: 3px solid white; border-bottom: 3px solid white; background: #08768a; transform: translateX(-50%) rotate(45deg); }
+.vii-map-marker { position: relative; min-width: 48px; width: max-content; height: 42px; display: grid; place-content: center; padding: 0 13px; border: 1px solid rgba(32,89,101,.16); border-radius: 999px; background: rgba(255,255,255,.97); color: #476f79; box-shadow: 0 5px 16px rgba(20,60,69,.18); font-family: Rubik, Heebo, Assistant, Arial, sans-serif; font-size: .82rem; font-weight: 800; line-height: 1; white-space: nowrap; transition: transform .2s ease, color .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease; }
+.vii-map-marker::after { content: ""; position: absolute; left: 50%; bottom: -7px; width: 12px; height: 12px; border-right: 1px solid rgba(32,89,101,.16); border-bottom: 1px solid rgba(32,89,101,.16); background: rgba(255,255,255,.97); transform: translateX(-50%) rotate(45deg); transition: background .2s ease, border-color .2s ease; }
 .vii-map-marker__label,.vii-map-marker__icon { position: relative; z-index: 1; display: grid; place-items: center; }
-.vii-map-marker__icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.vii-map-marker-wrap.is-icon .vii-map-marker { width: 48px; min-width: 48px; height: 48px; padding: 0; border-radius: 50%; }
+.vii-map-marker__icon svg { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.vii-map-marker-wrap.is-icon .vii-map-marker { width: 50px; min-width: 50px; height: 50px; padding: 0; border-radius: 50%; }
 .vii-map-marker-wrap.is-icon .vii-map-marker::after { bottom: -7px; }
 .listing-map-shell .leaflet-control-layers { border: 0; border-radius: 12px; box-shadow: 0 8px 24px rgba(0, 35, 44, .2); font-family: inherit; }
 .listing-map-shell .leaflet-control-layers-expanded { padding: 10px 12px; color: var(--teal-dark); }
@@ -4708,10 +4708,11 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .map-tone--spa .map-preview-label { background: rgba(116,48,109,.5); }
 .map-tone--hourly .map-preview-label { background: rgba(137,77,18,.5); }
 .map-tone--activities .map-preview-label { background: rgba(4,95,94,.58); }
-.vii-map-marker-wrap:hover .vii-map-marker,.vii-map-marker-wrap:focus .vii-map-marker,.vii-map-marker-wrap.is-active .vii-map-marker { filter: brightness(1.08); transform: translateY(-3px) scale(1.07); box-shadow: 0 13px 27px rgba(0, 55, 65, .36); }
-.vii-map-marker-wrap.is-cluster .vii-map-marker { min-width: 54px; height: 46px; padding-inline: 12px; border-width: 4px; background: linear-gradient(145deg, #8d49bf, #c258a0); box-shadow: 0 10px 26px rgba(81, 36, 104, .34); font-size: .88rem; }
-.vii-map-marker-wrap.is-cluster .vii-map-marker::after { background: #9b4eb9; }
-.vii-map-marker-wrap.is-cluster:hover .vii-map-marker,.vii-map-marker-wrap.is-cluster:focus .vii-map-marker { transform: translateY(-3px) scale(1.05); }
+.vii-map-marker-wrap:hover .vii-map-marker,.vii-map-marker-wrap:focus .vii-map-marker,.vii-map-marker-wrap.is-active .vii-map-marker { transform: translateY(-3px) scale(1.06); }
+.vii-map-marker-wrap:focus-visible .vii-map-marker { outline: 3px solid rgba(23,139,180,.28); outline-offset: 4px; }
+.vii-map-marker-wrap.is-cluster .vii-map-marker { min-width: 54px; height: 46px; padding-inline: 12px; border: 2px solid rgba(255,255,255,.96); color: #fff; background: linear-gradient(145deg,#159ca6,#188bc0); box-shadow: 0 9px 24px rgba(11,100,126,.3); font-size: .88rem; }
+.vii-map-marker-wrap.is-cluster .vii-map-marker::after { border-color: rgba(255,255,255,.96); background: #178fb8; }
+.vii-map-marker-wrap.is-cluster:hover .vii-map-marker,.vii-map-marker-wrap.is-cluster:focus .vii-map-marker { transform: translateY(-3px) scale(1.05); box-shadow: 0 12px 28px rgba(11,100,126,.36); }
 
 .map-results-experience { min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 24px; background: #f8fbfc; box-shadow: 0 18px 48px rgba(0,55,65,.1); }
 .map-results-canvas { grid-area: map; min-width: 0; }
@@ -7177,14 +7178,14 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
 .listing-map-shell .leaflet-control-zoom a { width: 42px; height: 42px; display: grid; place-items: center; border: 0; color: #18363d; background: rgba(255,255,255,.98); font: 500 1.35rem/1 Rubik, Heebo, Assistant, Arial, sans-serif; }
 .listing-map-shell .leaflet-control-zoom a + a { border-top: 1px solid #e1e8e9; }
 .listing-map-shell .leaflet-control-zoom a:hover { color: #006c78; background: #f7fbfb; }
-.vii-map-marker-wrap:not(.is-cluster) .vii-map-marker { border: 1px solid rgba(0,0,0,.12); color: #172a2f; background: #fff; box-shadow: 0 4px 14px rgba(20,36,40,.22); }
-.vii-map-marker-wrap:not(.is-cluster) .vii-map-marker::after { border-right: 1px solid rgba(0,0,0,.12); border-bottom: 1px solid rgba(0,0,0,.12); background: #fff; }
+.vii-map-marker-wrap:not(.is-cluster) .vii-map-marker { border-color: rgba(32,89,101,.16); color: #476f79; background: rgba(255,255,255,.97); box-shadow: 0 5px 16px rgba(20,60,69,.18); }
+.vii-map-marker-wrap:not(.is-cluster) .vii-map-marker::after { border-color: rgba(32,89,101,.16); background: rgba(255,255,255,.97); }
 .vii-map-marker-wrap:not(.is-cluster).is-active .vii-map-marker,
 .vii-map-marker-wrap:not(.is-cluster):hover .vii-map-marker,
-.vii-map-marker-wrap:not(.is-cluster):focus .vii-map-marker { border-color: #0d2f36; color: #fff; background: #0d2f36; box-shadow: 0 8px 22px rgba(10,36,42,.28); }
+.vii-map-marker-wrap:not(.is-cluster):focus .vii-map-marker { border-color: rgba(18,151,166,.22); color: #178bb4; background: linear-gradient(145deg,rgba(224,250,249,.98),rgba(226,244,255,.98)); box-shadow: 0 10px 26px rgba(16,126,155,.22),0 0 0 6px rgba(69,193,207,.13); }
 .vii-map-marker-wrap:not(.is-cluster).is-active .vii-map-marker::after,
 .vii-map-marker-wrap:not(.is-cluster):hover .vii-map-marker::after,
-.vii-map-marker-wrap:not(.is-cluster):focus .vii-map-marker::after { border-color: #0d2f36; background: #0d2f36; }
+.vii-map-marker-wrap:not(.is-cluster):focus .vii-map-marker::after { border-color: rgba(18,151,166,.22); background: #e1f7fb; }
 
 .event-list--map-open { min-width: 0; display: grid; grid-template-columns: minmax(500px,.92fr) minmax(480px,1.08fr); gap: 18px; align-items: start; }
 .event-list--map-open > .results-heading,.event-list--map-open > .results-toolbar,.event-list--map-open > .empty-state { grid-column: 1 / -1; }

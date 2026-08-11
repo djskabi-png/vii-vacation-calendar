@@ -359,11 +359,18 @@ test("shared map markers use modern icon markers and visible active list control
   const css = await readFile("app/globals.css", "utf8");
   assert.match(mapSource, /function markerIcon\(tone: MapTone\)/);
   assert.match(mapSource, /vii-map-marker__icon/);
+  assert.match(mapSource, /m3\.5 11 8\.5-7 8\.5 7/);
+  assert.match(mapSource, /M12 20\.5c4\.3-2\.3/);
+  assert.match(mapSource, /M12 5\.2c\.7 3\.6/);
+  assert.match(mapSource, /M12 7\.3v5l3\.3 2/);
   assert.doesNotMatch(mapSource, /<b>\$\{/);
   assert.match(css, /\.listing-map-shell[^}]+font-family:\s*Rubik, Heebo, Assistant, Arial, sans-serif/);
   assert.match(css, /\.map-button\.active[^}]+color:\s*#fff\s*!important/);
   assert.match(css, /\.map-button\.active \.map-button__desktop-label/);
   assert.match(css, /\.vii-map-marker-wrap\.is-icon \.vii-map-marker/);
+  assert.match(css, /\.vii-map-marker__icon svg[^}]+stroke-width:\s*1\.75/);
+  assert.match(css, /linear-gradient\(145deg,rgba\(224,250,249,\.98\),rgba\(226,244,255,\.98\)\)/);
+  assert.match(css, /\.vii-map-marker-wrap\.is-cluster \.vii-map-marker[^}]+#159ca6[^}]+#188bc0/);
 });
 
 test("commercial discovery stays inside VII", async () => {

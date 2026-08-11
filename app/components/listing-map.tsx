@@ -47,11 +47,11 @@ function safeMarkerLabel(value: string) {
 
 function markerIcon(tone: MapTone) {
   const common = 'viewBox="0 0 24 24" aria-hidden="true" focusable="false"';
-  if (tone === "events") return `<svg ${common}><path d="M6 3v3M18 3v3M4 8h16M5 5h14a2 2 0 0 1 2 2v12H3V7a2 2 0 0 1 2-2Z"/></svg>`;
-  if (tone === "spa") return `<svg ${common}><path d="M12 3c.7 3.2 2.5 5 5.7 5.7-3.2.7-5 2.5-5.7 5.7-.7-3.2-2.5-5-5.7-5.7C9.5 8 11.3 6.2 12 3ZM18.5 14.5c.4 1.8 1.4 2.8 3.2 3.2-1.8.4-2.8 1.4-3.2 3.2-.4-1.8-1.4-2.8-3.2-3.2 1.8-.4 2.8-1.4 3.2-3.2Z"/></svg>`;
-  if (tone === "hourly") return `<svg ${common}><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5l3.3 2"/></svg>`;
-  if (tone === "activities") return `<svg ${common}><path d="M4 7.5A2.5 2.5 0 0 0 6.5 10 2.5 2.5 0 0 0 4 12.5V17h16v-4.5A2.5 2.5 0 0 0 17.5 10 2.5 2.5 0 0 0 20 7.5V7H4v.5Z"/><path d="M9 7v10M15 7v10"/></svg>`;
-  return `<svg ${common}><path d="m4 11 8-7 8 7v9h-6v-6h-4v6H4v-9Z"/></svg>`;
+  if (tone === "events") return `<svg ${common}><path d="M12 5.2c.7 3.6 2.8 5.7 6.4 6.4-3.6.7-5.7 2.8-6.4 6.4-.7-3.6-2.8-5.7-6.4-6.4 3.6-.7 5.7-2.8 6.4-6.4Z"/><path d="M5.2 4.2v2.4M4 5.4h2.4M19 17.7v2.1M18 18.7h2"/></svg>`;
+  if (tone === "spa") return `<svg ${common}><path d="M12 20.5c4.3-2.3 6.8-5.3 6.8-8.6A3.6 3.6 0 0 0 12 10.3a3.6 3.6 0 0 0-6.8 1.6c0 3.3 2.5 6.3 6.8 8.6Z"/><path d="M12 6.5c-.1-1.7.6-3 2.1-4M8.4 8C7 6.8 6.5 5.4 6.8 3.7M15.6 8c1.4-1.2 1.9-2.6 1.6-4.3"/></svg>`;
+  if (tone === "hourly") return `<svg ${common}><circle cx="12" cy="12" r="8.5"/><path d="M12 7.3v5l3.3 2M8.2 3.8l-1.6 2.1M15.8 3.8l1.6 2.1"/></svg>`;
+  if (tone === "activities") return `<svg ${common}><path d="M4.5 7.4h15v9.2h-15V7.4Z"/><path d="M8.8 7.4v9.2M15.2 7.4v9.2M12 4.2v3.2M10.3 5.5 12 4l1.7 1.5"/></svg>`;
+  return `<svg ${common}><path d="m3.5 11 8.5-7 8.5 7v8.4a1.6 1.6 0 0 1-1.6 1.6H5.1a1.6 1.6 0 0 1-1.6-1.6V11Z"/><path d="M9.1 21v-5.7h5.8V21M7.2 11.5h2.3M14.5 11.5h2.3"/></svg>`;
 }
 
 function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false, autoLoad = false, onClose, onVisibleCountChange, onVisiblePlaceIdsChange }: PlacesMapProps) {
@@ -94,7 +94,9 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
   }, [onVisibleCountChange, onVisiblePlaceIdsChange]);
 
   useEffect(() => {
-    if (selectedId && !places.some((place) => place.id === selectedId)) setSelectedId("");
+    if (!selectedId || places.some((place) => place.id === selectedId)) return;
+    const clearSelectionFrame = window.requestAnimationFrame(() => setSelectedId(""));
+    return () => window.cancelAnimationFrame(clearSelectionFrame);
   }, [places, selectedId]);
 
   const selectPlace = useCallback((id: string) => {
