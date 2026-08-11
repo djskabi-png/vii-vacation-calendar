@@ -7266,7 +7266,7 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   .search-box-shell.mobile-expanded .search-field { min-height: 66px; margin-top: 8px; border: 1px solid #dbe7e9; border-radius: 17px; background: #fff; box-shadow: 0 6px 20px rgba(13,47,57,.055); }
   .search-box-shell.mobile-expanded .search-step.active > .search-field,
   .search-box-shell.mobile-expanded .search-field[aria-expanded="true"] { border-color: #7fc8ce; box-shadow: 0 0 0 3px rgba(8,126,139,.09), 0 9px 25px rgba(13,47,57,.07); }
-  .search-box-shell.mobile-expanded .location-list { position: static; inset: auto; width: 100%; min-width: 0; max-height: 48svh; margin: 8px 0 2px; padding: 12px; overflow-y: auto; border-radius: 18px; box-shadow: 0 9px 25px rgba(13,47,57,.07); touch-action: pan-y; -webkit-overflow-scrolling: touch; }
+  .search-box-shell.mobile-expanded .location-list { position: static; inset: auto; width: 100%; min-width: 0; max-height: none; margin: 8px 0 2px; padding: 12px; overflow: visible; border-radius: 18px; box-shadow: 0 9px 25px rgba(13,47,57,.07); touch-action: pan-y; -webkit-overflow-scrolling: touch; }
   .search-box-shell.mobile-expanded .location-list__search { top: -12px; padding-top: 12px; }
   .search-box-shell.mobile-expanded .search-submit,
   .search-box-shell.mobile-expanded .search-box.mobile-step-location .search-submit,
