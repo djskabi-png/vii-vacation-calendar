@@ -61,7 +61,7 @@ test("the lead modal is keyboard and mobile safe", async () => {
   assert.match(component, /event\.key !== "Tab"/);
   assert.match(component, /triggerRef\.current\?\.focus/);
   assert.match(css, /\.whatsapp-lead-dialog\s*\{[^}]*font-family:\s*Rubik,Heebo,Assistant,Arial,sans-serif/s);
-  assert.match(css, /@media \(max-width: 760px\)[\s\S]*\.whatsapp-lead-dialog\s*\{[^}]*max-height:\s*94dvh/s);
+  assert.match(css, /@media \(max-width: 760px\)[\s\S]*\.whatsapp-lead-dialog\s*\{[^}]*max-height:\s*calc\(100dvh - 18px\)/s);
   assert.match(css, /@media \(max-height: 650px\)[\s\S]*\.whatsapp-lead-dialog\s*\{[^}]*max-height:\s*100dvh/s);
 });
 
@@ -87,6 +87,9 @@ test("the lead modal looks and behaves like the start of a WhatsApp conversation
   assert.match(component, /function WhatsAppIcon\(\)/);
   assert.match(component, /whatsapp-lead-dialog__appbar/);
   assert.match(component, /whatsapp-lead-dialog__conversation/);
+  assert.match(component, /<AccountFormPrompt compact \/>/);
+  assert.doesNotMatch(component, /labels\.previewStatus\}<\/small>/);
+  assert.match(css, /\.account-form-prompt--compact/);
   assert.match(component, /labels\.conversationWith\(placeName\)/);
   assert.match(component, /className=\{`\$\{buttonClassName\} whatsapp-lead-trigger`\}/);
   assert.match(component, /className="button primary booking-whatsapp"[^>]*><WhatsAppIcon \/>/);

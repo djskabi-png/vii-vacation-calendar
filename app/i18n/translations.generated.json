@@ -6573,7 +6573,8 @@
     "משלימים את ההזמנה...": "Completing your booking...",
     "אישור תשלום והמשך": "Confirm payment and continue",
     "אישור כרטיס לביטחון והמשך": "Confirm security card and continue",
-    "ההזמנה לא נשמרה. אפשר לסגור ולנסות שוב בלי לאבד את הפרטים.": "The booking was not saved. You can close this window and try again without losing your details."
+    "ההזמנה לא נשמרה. אפשר לסגור ולנסות שוב בלי לאבד את הפרטים.": "The booking was not saved. You can close this window and try again without losing your details.",
+    "פרטים לפתיחת שיחה": "Details to start the chat"
   },
   "ru": {
     "וואטסאפ": "WhatsApp",
@@ -13149,7 +13150,8 @@
     "משלימים את ההזמנה...": "Завершаем бронирование...",
     "אישור תשלום והמשך": "Подтвердить оплату и продолжить",
     "אישור כרטיס לביטחון והמשך": "Подтвердить карту для гарантии и продолжить",
-    "ההזמנה לא נשמרה. אפשר לסגור ולנסות שוב בלי לאבד את הפרטים.": "Бронирование не сохранено. Закройте окно и повторите попытку, данные останутся заполненными."
+    "ההזמנה לא נשמרה. אפשר לסגור ולנסות שוב בלי לאבד את הפרטים.": "Бронирование не сохранено. Закройте окно и повторите попытку, данные останутся заполненными.",
+    "פרטים לפתיחת שיחה": "Данные для начала разговора"
   },
   "fr": {
     "וואטסאפ": "WhatsApp",
@@ -19725,6 +19727,7 @@
     "משלימים את ההזמנה...": "Finalisation de votre réservation...",
     "אישור תשלום והמשך": "Confirmer le paiement et continuer",
     "אישור כרטיס לביטחון והמשך": "Confirmer la carte de garantie et continuer",
-    "ההזמנה לא נשמרה. אפשר לסגור ולנסות שוב בלי לאבד את הפרטים.": "La réservation n’a pas été enregistrée. Vous pouvez fermer cette fenêtre et réessayer sans perdre vos informations."
+    "ההזמנה לא נשמרה. אפשר לסגור ולנסות שוב בלי לאבד את הפרטים.": "La réservation n’a pas été enregistrée. Vous pouvez fermer cette fenêtre et réessayer sans perdre vos informations.",
+    "פרטים לפתיחת שיחה": "Informations pour démarrer la conversation"
   }
 }

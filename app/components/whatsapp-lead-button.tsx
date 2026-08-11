@@ -45,7 +45,7 @@ const copy: Record<SiteLanguage, Copy> = {
     previewMessage: "\u05e9\u05dc\u05d5\u05dd, \u05d0\u05e9\u05de\u05d7 \u05dc\u05d1\u05d3\u05d5\u05e7 \u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d5\u05dc\u05e9\u05de\u05d5\u05e2 \u05e4\u05e8\u05d8\u05d9\u05dd.",
     previewStatus: "\u05d4\u05d4\u05d5\u05d3\u05e2\u05d4 \u05ea\u05d9\u05e4\u05ea\u05d7 \u05d0\u05d7\u05e8\u05d9 \u05e9\u05de\u05d9\u05e8\u05ea \u05d4\u05e4\u05e8\u05d8\u05d9\u05dd",
     eyebrow: "\u05e4\u05e0\u05d9\u05d9\u05d4 \u05de\u05ea\u05d5\u05e2\u05d3\u05ea \u05dc\u05de\u05e7\u05d5\u05dd",
-    title: "\u05de\u05de\u05dc\u05d0\u05d9\u05dd \u05e4\u05e8\u05d8\u05d9\u05dd \u05d5\u05de\u05ea\u05d7\u05d9\u05dc\u05d9\u05dd \u05e9\u05d9\u05d7\u05d4",
+    title: "\u05e4\u05e8\u05d8\u05d9\u05dd \u05dc\u05e4\u05ea\u05d9\u05d7\u05ea \u05e9\u05d9\u05d7\u05d4",
     description: "\u05d4\u05e4\u05e8\u05d8\u05d9\u05dd \u05e0\u05e9\u05de\u05e8\u05d9\u05dd \u05dc\u05e4\u05e0\u05d9 \u05d4\u05de\u05e2\u05d1\u05e8 \u05dc\u05d5\u05d5\u05d0\u05d8\u05e1\u05d0\u05e4, \u05db\u05d3\u05d9 \u05e9\u05d4\u05de\u05e7\u05d5\u05dd \u05d5\u05d0\u05e0\u05d7\u05e0\u05d5 \u05e0\u05d5\u05db\u05dc \u05dc\u05e2\u05e7\u05d5\u05d1 \u05d0\u05d7\u05e8\u05d9 \u05d4\u05e4\u05e0\u05d9\u05d9\u05d4.",
     name: "\u05e9\u05dd \u05de\u05dc\u05d0",
     phone: "\u05d8\u05dc\u05e4\u05d5\u05df",
@@ -70,7 +70,7 @@ const copy: Record<SiteLanguage, Copy> = {
   },
   en: {
     appName: "WhatsApp", conversationWith: (placeName) => `Chat with ${placeName}`, previewMessage: "Hello, I would like to check availability and receive more details.", previewStatus: "The message will open after your details are saved",
-    button: "WhatsApp enquiry", eyebrow: "A tracked enquiry to the business", title: "Add your details and start the conversation", description: "We save the enquiry before opening WhatsApp so the business and our team can follow it up.", name: "Full name", phone: "Phone", date: "Requested date", guests: "Number of guests, optional", guestsHint: "You can leave this blank", privacyPrefix: "I agree to the use of my details to handle this enquiry under the", privacyLink: "privacy policy", submit: "Save details and open chat", submitting: "Saving your enquiry...", close: "Close enquiry dialog", errorTitle: "Your details have not been saved yet", errorBody: "We did not open WhatsApp. Check your connection and try again.", messageIntro: (placeName) => `Hello ${placeName}, I came through the VII website and would like to check availability.`, messageName: "Full name", messagePhone: "Phone", messageDate: "Requested date", messageGuests: "Guests", messageService: "Requested service", messageReference: "Enquiry reference", messageOutro: "I would be happy to receive more information.",
+    button: "WhatsApp enquiry", eyebrow: "A tracked enquiry to the business", title: "Details to start the chat", description: "We save the enquiry before opening WhatsApp so the business and our team can follow it up.", name: "Full name", phone: "Phone", date: "Requested date", guests: "Number of guests, optional", guestsHint: "You can leave this blank", privacyPrefix: "I agree to the use of my details to handle this enquiry under the", privacyLink: "privacy policy", submit: "Save details and open chat", submitting: "Saving your enquiry...", close: "Close enquiry dialog", errorTitle: "Your details have not been saved yet", errorBody: "We did not open WhatsApp. Check your connection and try again.", messageIntro: (placeName) => `Hello ${placeName}, I came through the VII website and would like to check availability.`, messageName: "Full name", messagePhone: "Phone", messageDate: "Requested date", messageGuests: "Guests", messageService: "Requested service", messageReference: "Enquiry reference", messageOutro: "I would be happy to receive more information.",
   },
   ru: {
     appName: "WhatsApp", conversationWith: (placeName) => `Чат с ${placeName}`, previewMessage: "Здравствуйте, хочу уточнить наличие мест и получить подробности.", previewStatus: "Сообщение откроется после сохранения данных",
@@ -232,12 +232,12 @@ export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, s
         </header>
         <div className="whatsapp-lead-dialog__conversation" aria-label={labels.conversationWith(placeName)}>
           <span className="whatsapp-lead-dialog__avatar" aria-hidden="true"><WhatsAppIcon /></span>
-          <div className="whatsapp-lead-dialog__bubble"><strong>{placeName}</strong><p>{labels.previewMessage}</p><small>{labels.previewStatus}</small></div>
+          <div className="whatsapp-lead-dialog__bubble"><strong>{placeName}</strong><p>{labels.previewMessage}</p></div>
         </div>
-        <div className="whatsapp-lead-dialog__intro"><h2 id={titleId}>{labels.title}</h2><p id={descriptionId}>{labels.description}</p></div>
+        <div className="whatsapp-lead-dialog__intro"><h2 id={titleId}>{labels.title}</h2><p id={descriptionId} className="sr-only">{labels.description}</p></div>
         <form onSubmit={submit}>
           <div className="whatsapp-lead-dialog__fields">
-            <div className="form-wide"><AccountFormPrompt /></div>
+            <div className="form-wide"><AccountFormPrompt compact /></div>
             <label>{labels.name}<input key={`name-${account?.email || "guest"}`} ref={firstInputRef} required name="name" autoComplete="name" minLength={2} defaultValue={account?.name || ""} /></label>
             <label>{labels.phone}<input key={`phone-${account?.email || "guest"}`} required name="phone" type="tel" inputMode="tel" autoComplete="tel" minLength={7} maxLength={20} pattern="[0-9+() -]{7,20}" defaultValue={account?.phone || ""} /></label>
             <label>{labels.date}<input required name="requested_date" type="date" defaultValue={initialDate} /></label>
@@ -246,7 +246,6 @@ export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, s
             <label className="whatsapp-lead-dialog__privacy"><input required name="privacy" type="checkbox" /><span>{labels.privacyPrefix} <Link href="/legal/privacy" target="_blank" rel="noopener noreferrer">{labels.privacyLink}<span className="sr-only"> ({newTabLabel[language]})</span></Link>.</span></label>
           </div>
           <footer>
-            <button className="button secondary" type="button" onClick={closeDialog}>{labels.close}</button>
             <button className="button primary booking-whatsapp" type="submit" disabled={state === "submitting"}><WhatsAppIcon /><span>{state === "submitting" ? labels.submitting : labels.submit}</span></button>
           </footer>
           {state === "error" ? <div className="whatsapp-lead-dialog__error" role="alert"><strong>{labels.errorTitle}</strong><span>{labels.errorBody}</span></div> : null}
