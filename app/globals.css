@@ -3894,7 +3894,7 @@ body:has(.whatsapp-lead-layer) .smart-concierge { display: none; }
 .booking-form .consent a { color: var(--teal-dark); text-decoration: underline; }
 .booking-form__hint { margin: -6px 0 0; color: var(--muted); text-align: center; font-size: .82rem; }
 
-.spa-appointment { overflow: hidden; border: 1px solid #cde1e4; border-radius: 25px; background: linear-gradient(145deg,#fff 55%,#f0fafb); box-shadow: 0 18px 48px rgba(4,62,72,.08); }
+.spa-appointment { container-type: inline-size; overflow: hidden; border: 1px solid #cde1e4; border-radius: 25px; background: linear-gradient(145deg,#fff 55%,#f0fafb); box-shadow: 0 18px 48px rgba(4,62,72,.08); }
 .spa-appointment__header { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 24px 26px 20px; border-bottom: 1px solid #dcebed; background: linear-gradient(135deg,#f4fbfc,#fff); }
 .spa-appointment__header > div > span { color: var(--teal-dark); font-size: .75rem; font-weight: 850; }
 .spa-appointment__header h2 { margin: 4px 0 5px; font-size: clamp(1.45rem,3vw,2rem); }
@@ -3960,12 +3960,18 @@ body:has(.whatsapp-lead-layer) .smart-concierge { display: none; }
 .spa-appointment__slot-help { margin: -6px 0 0; color: var(--muted); font-size: .72rem; line-height: 1.5; }
 .spa-appointment__slot-group { display: grid; gap: 7px; }
 .spa-appointment__slot-group > span { color: var(--muted); font-size: .7rem; font-weight: 800; }
-.spa-appointment__slot-group > div { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 7px; }
-.spa-appointment__slot-group button { width: 100%; min-width: 0; min-height: 41px; padding-inline: 3px; color: #234b53; border: 1px solid #cbdfe2; border-radius: 12px; background: #fff; font: inherit; font-size: .82rem; font-weight: 850; cursor: pointer; }
+.spa-appointment__slot-group > div { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 9px; }
+.spa-appointment__slot-group button { width: 100%; min-width: 0; min-height: 44px; padding-inline: 9px; color: #234b53; border: 1px solid #cbdfe2; border-radius: 12px; background: #fff; font: inherit; font-size: .82rem; font-variant-numeric: tabular-nums; font-weight: 850; white-space: nowrap; cursor: pointer; }
 .spa-appointment__slot-group button:hover { color: var(--teal-dark); border-color: #7fc4cb; background: #effafb; }
 .spa-appointment__slot-group button[aria-pressed="true"] { color: #fff; border-color: transparent; background: linear-gradient(135deg,#078b96,#2d8fc4); box-shadow: 0 7px 16px rgba(4,124,140,.2); }
 .spa-appointment__flexible { min-height: 43px; padding: 8px 14px; color: var(--teal-dark); border: 1px dashed #7fc4cb; border-radius: 13px; background: #f0fafb; font: inherit; font-weight: 850; cursor: pointer; }
 .spa-appointment__flexible[aria-pressed="true"] { color: #fff; border-style: solid; border-color: transparent; background: linear-gradient(135deg,#078b96,#2d8fc4); }
+
+@container (max-width: 690px) {
+  .spa-appointment__body { grid-template-columns: 1fr; }
+  .spa-appointment__calendar { order: 1; }
+  .spa-appointment__times { order: 2; }
+}
 .booking-summary__package { display: grid; gap: 8px; margin: 16px 0; padding: 14px; border: 1px solid #d9e8ea; border-radius: 16px; background: #f7fbfb; }
 .booking-summary__package div { display: grid; gap: 2px; }
 .booking-summary__package dt { color: var(--muted); font-size: .7rem; font-weight: 750; }

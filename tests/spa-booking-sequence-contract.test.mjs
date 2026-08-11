@@ -55,3 +55,10 @@ test("participant controls have responsive styling and localized copy", () => {
   assert.match(css, /@media \(max-width: 820px\)[\s\S]*\.spa-appointment__participants \{ grid-template-columns: 1fr/);
   for (const language of ["en", "ru", "fr"]) assert.match(locale, new RegExp(`${language}: \\{[\\s\\S]*?"מי מגיע ומתי\\?"`));
 });
+
+test("spa time choices stay readable in narrow booking cards", () => {
+  assert.match(css, /\.spa-appointment\s*\{[^}]*container-type:\s*inline-size/);
+  assert.match(css, /\.spa-appointment__slot-group\s*>\s*div\s*\{[^}]*grid-template-columns:\s*repeat\(3,minmax\(0,1fr\)\)[^}]*gap:\s*9px/);
+  assert.match(css, /\.spa-appointment__slot-group button\s*\{[^}]*min-height:\s*44px[^}]*font-variant-numeric:\s*tabular-nums[^}]*white-space:\s*nowrap/);
+  assert.match(css, /@container\s*\(max-width:\s*690px\)\s*\{[\s\S]*?\.spa-appointment__body\s*\{[^}]*grid-template-columns:\s*1fr/);
+});
