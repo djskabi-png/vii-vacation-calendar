@@ -46,3 +46,9 @@ test("booking UI has responsive step, review, phone and safe mobile rules", () =
   assert.match(css, /\.spa-appointment__participants > \.spa-appointment__composition \{ grid-column: 1 \/ -1/);
   assert.doesNotMatch(css, /\.spa-appointment__participants \{[^}]*minmax\(300px/);
 });
+
+test("spa package includes are localized item by item", () => {
+  assert.match(booking, /const \{ translate \} = useSiteLanguage\(\)/);
+  assert.match(booking, /props\.offerIncludes\?\.map\(\(item\) => translate\(item\)\)/);
+  assert.match(booking, /localizedOfferIncludes\.join\(" · "\)/);
+});

@@ -5,6 +5,7 @@ import { FormEvent, useCallback, useEffect, useId, useRef, useState } from "reac
 import { CalendarIcon } from "../site-header";
 import { saveBooking } from "../lib/account";
 import { SpaAppointmentPicker } from "../components/spa-appointment-picker";
+import { useSiteLanguage } from "../i18n/locale-provider";
 
 type Props = {
   world: string;
@@ -25,6 +26,7 @@ type Props = {
 };
 
 export default function BookingPageClient(props: Props) {
+  const { translate } = useSiteLanguage();
   const formRef = useRef<HTMLFormElement>(null);
   const paymentTriggerRef = useRef<HTMLButtonElement>(null);
   const paymentDialogRef = useRef<HTMLElement>(null);
@@ -50,6 +52,7 @@ export default function BookingPageClient(props: Props) {
   const isManage = props.action === "manage";
   const onlineReady = props.world !== "vacation" || Boolean(props.onlineReady);
   const usesSpaPayment = props.world === "spa" && !isManage;
+  const localizedOfferIncludes = props.offerIncludes?.map((item) => translate(item));
   const paymentMethodLabel = paymentMethod === "pay_now" ? "תשלום בכרטיס עכשיו" : "תשלום במקום, כרטיס לביטחון";
 
   const closePayment = useCallback(() => {
@@ -226,7 +229,7 @@ export default function BookingPageClient(props: Props) {
         {props.world === "spa" ? <dl className="booking-summary__package">
           {props.offerAudience ? <div><dt>מתאים ל</dt><dd>{props.offerAudience}</dd></div> : null}
           {props.offerDuration ? <div><dt>משך הטיפול</dt><dd>{props.offerDuration}</dd></div> : null}
-          {props.offerIncludes?.length ? <div><dt>מה כלול</dt><dd>{props.offerIncludes.join(" · ")}</dd></div> : null}
+          {localizedOfferIncludes?.length ? <div><dt>מה כלול</dt><dd>{localizedOfferIncludes.join(" · ")}</dd></div> : null}
         </dl> : null}
         <ul>{usesSpaPayment ? <><li>בוחרים תשלום עכשיו או במקום</li><li>הכרטיס מוזן רק בחלון סליקה מאובטח</li><li>בשלב ההמחשה לא נאספים פרטי כרטיס</li></> : <><li>אין הזנת כרטיס אשראי</li><li>הבקשה נשמרת בסטטוס ממתין</li><li>אישור סופי מתקבל לאחר בדיקת המקום</li></>}</ul>
       </aside>
