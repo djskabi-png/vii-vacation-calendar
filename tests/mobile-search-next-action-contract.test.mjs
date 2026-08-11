@@ -21,4 +21,5 @@ test("vacation calendar uses continuous complete months and one footer summary",
   assert.doesNotMatch(css, /\.secondary-month\s*\{[^}]*display:\s*none/);
   assert.match(css, /scroll-snap-type:\s*y proximity/);
   assert.match(calendar, /calendar-dialog-close[^>]*>×<\/button>/);
+  assert.match(calendar, /Intl\.DateTimeFormat\(locale, \{ weekday: "narrow" \}\)/);
 });

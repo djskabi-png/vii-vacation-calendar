@@ -23,8 +23,6 @@ type CalendarResult = {
 const DAY_MS = 86_400_000;
 const DEMO_TODAY = new Date(2026, 7, 4);
 const START_MONTH = new Date(2026, 7, 1);
-const WEEKDAYS = ["א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"];
-
 const BUSINESS_BUSY_DATES = new Set([
   "2026-08-10",
   "2026-08-11",
@@ -179,6 +177,8 @@ function CalendarMonth({
   secondary?: boolean;
   locale: string;
 }) {
+  const weekdays = useMemo(() => Array.from({ length: 7 }, (_, index) => new Intl.DateTimeFormat(locale, { weekday: "narrow" }).format(new Date(2026, 7, 2 + index))), [locale]);
+
   const cells = useMemo(() => {
     const result: Array<Date | null> = [];
     const offset = new Date(month.getFullYear(), month.getMonth(), 1).getDay();
@@ -193,7 +193,7 @@ function CalendarMonth({
     <section className={`demo-month${secondary ? " secondary-month" : ""}`} aria-label={monthLabel(month, locale)}>
       <h3>{monthLabel(month, locale)}</h3>
       <div className="demo-weekdays" aria-hidden="true">
-        {WEEKDAYS.map((day) => <span key={day}>{day}</span>)}
+        {weekdays.map((day, index) => <span key={`${day}-${index}`}>{day}</span>)}
       </div>
       <div className="demo-days">
         {cells.map((date, index) => {
