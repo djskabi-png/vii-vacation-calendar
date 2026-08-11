@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import { SearchWorldTabs } from "./world-switcher";
 
 type EventDateMode = "exact" | "around" | "period";
 
@@ -172,6 +173,8 @@ export function EventDatePicker({
           </div>
           <button type="button" className="dialog-close" aria-label="סגירת בחירת תאריך לאירוע" onClick={cancel}>×</button>
         </header>
+
+        <div className="search-dialog-worlds"><SearchWorldTabs active="events" onNavigate={cancel} /></div>
 
         <div className="event-date-modes" role="tablist" aria-label="אופן בחירת מועד לאירוע">
           <button type="button" role="tab" aria-selected={mode === "exact"} className={mode === "exact" ? "active" : ""} onClick={() => switchMode("exact")}>תאריך מדויק</button>

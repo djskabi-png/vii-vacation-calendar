@@ -81,7 +81,7 @@ function normalizeHourlyPrice(value: string | null) {
   return HOURLY_PRICE_OPTIONS.includes(price as typeof HOURLY_PRICE_OPTIONS[number]) ? price : 0;
 }
 
-export function SearchBox({ mode = "vacation", compact = false, showWorlds = false, initialLocation, initialGuests, basePath, vacationType, initialSpaAudience, initialSpaFeatures = [] }: { mode?: SearchMode; compact?: boolean; showWorlds?: boolean; initialLocation?: string; initialGuests?: number; basePath?: string; vacationType?: string; initialSpaAudience?: string; initialSpaFeatures?: string[] }) {
+export function SearchBox({ mode = "vacation", compact = false, showWorlds = true, initialLocation, initialGuests, basePath, vacationType, initialSpaAudience, initialSpaFeatures = [] }: { mode?: SearchMode; compact?: boolean; showWorlds?: boolean; initialLocation?: string; initialGuests?: number; basePath?: string; vacationType?: string; initialSpaAudience?: string; initialSpaFeatures?: string[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { language, translate } = useSiteLanguage();
@@ -296,6 +296,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
   return (
     <>
       {showWorlds && !shouldCollapse && <SearchWorldTabs active={activeWorld} />}
+      {showWorlds && shouldCollapse && (locationOpen || guestOpen || priceOpen) && <div className="search-context-worlds"><SearchWorldTabs active={activeWorld} onNavigate={closeMobileSearch} /></div>}
       <div className={`search-box-shell ${shouldCollapse ? "search-box-shell--results" : ""} ${mobileExpanded ? "mobile-expanded" : "mobile-collapsed"}`}>
         {shouldCollapse && <button type="button" className="search-mobile-summary" onClick={() => { setMobileStep("location"); setMobileExpanded(true); setLocationOpen(true); }} aria-expanded={mobileExpanded} aria-label={`שינוי חיפוש. ${mobileSummary}`}>
           <span className="search-mobile-summary__copy"><strong>{translate(locationValue)}</strong><small>{!isHourly && <><span>{dates}</span><span aria-hidden="true"> · </span><span>{peopleValue}</span></>}</small></span>
@@ -305,7 +306,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
         {(locationOpen || guestOpen || priceOpen) && <button type="button" className="search-option-backdrop" onClick={() => { setLocationOpen(false); setGuestOpen(false); setPriceOpen(false); }} aria-label="סגירת אפשרויות החיפוש" />}
         <div className={`search-box ${shouldCollapse ? "compact" : ""} ${isHourly ? "search-box--hourly" : ""} mobile-step-${mobileStep}`} role="search" aria-label={mode === "events" ? "חיפוש מקום לאירוע" : mode === "spa" ? "חיפוש מתחם ספא" : isHourly ? "חיפוש חדרים לפי שעה" : "חיפוש חופשה"}>
         {mobileExpanded && <div className="search-mobile-sheet-head"><strong>{mobileSheetTitle}</strong><ol className="search-mobile-progress" aria-label={`שלב ${mobileStep === "location" ? 1 : mobileStep === "dates" ? 2 : 3} מתוך 3`}><li className={mobileStep === "location" ? "active" : "complete"} aria-current={mobileStep === "location" ? "step" : undefined}>1</li><li className={mobileStep === "dates" ? "active" : mobileStep === "guests" ? "complete" : ""} aria-current={mobileStep === "dates" ? "step" : undefined}>2</li><li className={mobileStep === "guests" ? "active" : ""} aria-current={mobileStep === "guests" ? "step" : undefined}>3</li></ol><button type="button" onClick={closeMobileSearch} aria-label="סגירת החיפוש">×</button></div>}
-        {mobileExpanded && showWorlds && !shouldCollapse && <div className="search-mobile-worlds"><SearchWorldTabs active={activeWorld} /></div>}
+        {mobileExpanded && showWorlds && <div className="search-mobile-worlds"><SearchWorldTabs active={activeWorld} onNavigate={closeMobileSearch} /></div>}
         <div className={`search-field-wrap search-step search-step--location ${mobileStep === "location" ? "active" : ""}`}>
           <button type="button" className="search-field" aria-expanded={locationOpen} onClick={() => { setMobileStep("location"); expandMobileSearch(); setLocationOpen((value) => !value); setGuestOpen(false); setPriceOpen(false); }}><PinIcon /><span><small>{mode === "events" ? "אזור או מקום" : isHourly ? "עיר או אזור" : "לאן נוסעים"}</small><strong>{translate(locationValue)}</strong></span></button>
           {locationOpen && <div className="search-popover location-list">

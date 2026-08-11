@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import { SearchWorldTabs } from "./world-switcher";
 
 export type SpaDateResult = {
   date: string | null;
@@ -112,6 +113,8 @@ export function SpaDatePicker({
           </div>
           <button type="button" className="dialog-close" aria-label="סגירת בחירת תאריך לספא" onClick={cancel}>×</button>
         </header>
+
+        <div className="search-dialog-worlds"><SearchWorldTabs active="spa" onNavigate={cancel} /></div>
 
         <div className="spa-date-choice" role="tablist" aria-label="בחירת מועד לספא">
           <button type="button" role="tab" aria-selected={!withoutDate} className={!withoutDate ? "active" : ""} onClick={() => setWithoutDate(false)}>בחירת תאריך</button>

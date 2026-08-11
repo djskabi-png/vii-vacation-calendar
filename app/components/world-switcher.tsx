@@ -34,7 +34,7 @@ function WorldsIcon() {
   return <svg className="worlds-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="6.5" height="6.5" rx="2" /><rect x="14" y="3.5" width="6.5" height="6.5" rx="2" /><rect x="3.5" y="14" width="6.5" height="6.5" rx="2" /><rect x="14" y="14" width="6.5" height="6.5" rx="2" /><path d="M10 6.75h4M6.75 10v4m10.5-4v4M10 17.25h4" /></svg>;
 }
 
-export function SearchWorldTabs({ active }: { active: WorldId }) {
+export function SearchWorldTabs({ active, onNavigate }: { active: WorldId; onNavigate?: () => void }) {
   const { language, translate } = useSiteLanguage();
   const moreRef = useRef<HTMLDetailsElement>(null);
   const primaryWorlds = ["vacation", "spa", "events", "hourly"] as const;
@@ -46,7 +46,7 @@ export function SearchWorldTabs({ active }: { active: WorldId }) {
     <div className="search-world-tabs__options">
       {primaryWorlds.map((worldId) => {
         const world = worlds.find((item) => item.id === worldId)!;
-        return <Link key={world.id} href={localizedPath(world.href, language)} className={world.id === active ? "active" : ""} aria-current={world.id === active ? "page" : undefined}>
+        return <Link key={world.id} href={localizedPath(world.href, language)} className={world.id === active ? "active" : ""} aria-current={world.id === active ? "page" : undefined} onClick={onNavigate}>
           <span className="search-world-tabs__icon" aria-hidden="true">{iconByWorld[worldId]}</span>
           <span>{translate(world.shortLabel)}</span>
         </Link>;
@@ -57,7 +57,7 @@ export function SearchWorldTabs({ active }: { active: WorldId }) {
           <span>{translate("עוד")}</span>
         </summary>
         <div className="search-world-tabs__menu">
-          {moreWorlds.map((world) => <Link key={world.id} href={localizedPath(world.href, language)} onClick={() => moreRef.current?.removeAttribute("open")}>
+          {moreWorlds.map((world) => <Link key={world.id} href={localizedPath(world.href, language)} onClick={() => { moreRef.current?.removeAttribute("open"); onNavigate?.(); }}>
             <span className={`world-mark world-mark--${world.id}`} aria-hidden="true" />
             <span><strong>{translate(world.shortLabel)}</strong><small>{translate(world.description)}</small></span>
           </Link>)}

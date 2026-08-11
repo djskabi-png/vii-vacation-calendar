@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useSiteLanguage } from "./i18n/locale-provider";
 import { CalendarIcon } from "./site-header";
+import { SearchWorldTabs } from "./components/world-switcher";
 
 export type CalendarMode = "home" | "business";
 export type BusinessKind = "multi" | "single";
@@ -358,6 +359,8 @@ export function CalendarDemo({
           </div>
           <button type="button" className="dialog-close calendar-dialog-close" onClick={cancel} aria-label="סגירת חלון התאריכים">×</button>
         </header>
+
+        {mode === "home" && <div className="search-dialog-worlds"><SearchWorldTabs active="vacation" onNavigate={cancel} /></div>}
 
         {mode === "home" && (
           <div className="date-mode-tabs" role="tablist" aria-label="אופן בחירת תאריכים">
