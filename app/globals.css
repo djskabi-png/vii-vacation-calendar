@@ -7114,3 +7114,116 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   .calendar-dialog:has(.flexible-content) .calendar-dialog-footer { gap: 7px; }
   .calendar-dialog:has(.flexible-content) .dialog-status small { display: none; }
 }
+
+/* Airbnb-inspired search and map experience */
+.search-quick-filters {
+  position: sticky;
+  top: 0;
+  z-index: 24;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  overflow-x: auto;
+  padding: 10px 2px 12px;
+  border-bottom: 1px solid rgba(8, 68, 78, .1);
+  background: rgba(255,255,255,.96);
+  backdrop-filter: blur(18px);
+  scrollbar-width: none;
+}
+.search-quick-filters::-webkit-scrollbar { display: none; }
+.search-quick-filters button {
+  flex: 0 0 auto;
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 16px;
+  border: 1px solid #c9dadd;
+  border-radius: 999px;
+  color: #173c44;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(4,55,64,.04);
+  font: 760 .79rem/1 Rubik, Heebo, Assistant, Arial, sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color .16s ease, background .16s ease, box-shadow .16s ease, transform .16s ease;
+}
+.search-quick-filters button:hover { border-color: #648b92; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(4,55,64,.09); }
+.search-quick-filters button.active { border-color: #093f48; color: #fff; background: #093f48; }
+.search-quick-filters button:focus-visible { outline: 3px solid rgba(9,145,157,.22); outline-offset: 2px; }
+.search-quick-filters svg { width: 17px; height: 17px; }
+.search-quick-filters b { min-width: 20px; height: 20px; display: grid; place-items: center; padding: 0 5px; border-radius: 999px; color: #093f48; background: #fff; font-size: .68rem; }
+
+.airbnb-map-split { min-width: 0; display: grid; grid-template-columns: minmax(500px, .92fr) minmax(480px, 1.08fr); gap: 18px; align-items: start; }
+.airbnb-map-split__results { min-width: 0; }
+.airbnb-map-split__map { position: sticky; top: 12px; min-width: 0; height: calc(100vh - 24px); min-height: 620px; max-height: 900px; }
+.airbnb-map-split__map .map-results-experience,
+.airbnb-map-split__map .map-results-canvas,
+.airbnb-map-split__map .listing-map-shell,
+.airbnb-map-split__map .listing-map { width: 100%; height: 100%; min-height: 100%; }
+.airbnb-map-split__map .map-results-experience { border-radius: 20px; }
+.airbnb-map-split__results .stay-card { grid-template-columns: minmax(210px, 42%) minmax(0, 1fr); }
+.airbnb-map-split__results .stay-card__media { min-height: 260px; }
+.world-map-split .airbnb-map-split__results.discovery-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.world-map-split .airbnb-map-split__results .discovery-card { min-width: 0; }
+
+.listing-map-shell .leaflet-control-zoom { overflow: hidden; border: 0; border-radius: 13px; box-shadow: 0 7px 24px rgba(15,35,40,.18); }
+.listing-map-shell .leaflet-control-zoom a { width: 42px; height: 42px; display: grid; place-items: center; border: 0; color: #18363d; background: rgba(255,255,255,.98); font: 500 1.35rem/1 Rubik, Heebo, Assistant, Arial, sans-serif; }
+.listing-map-shell .leaflet-control-zoom a + a { border-top: 1px solid #e1e8e9; }
+.listing-map-shell .leaflet-control-zoom a:hover { color: #006c78; background: #f7fbfb; }
+.vii-map-marker-wrap:not(.is-cluster) .vii-map-marker { border: 1px solid rgba(0,0,0,.12); color: #172a2f; background: #fff; box-shadow: 0 4px 14px rgba(20,36,40,.22); }
+.vii-map-marker-wrap:not(.is-cluster) .vii-map-marker::after { border-right: 1px solid rgba(0,0,0,.12); border-bottom: 1px solid rgba(0,0,0,.12); background: #fff; }
+.vii-map-marker-wrap:not(.is-cluster).is-active .vii-map-marker,
+.vii-map-marker-wrap:not(.is-cluster):hover .vii-map-marker,
+.vii-map-marker-wrap:not(.is-cluster):focus .vii-map-marker { border-color: #0d2f36; color: #fff; background: #0d2f36; box-shadow: 0 8px 22px rgba(10,36,42,.28); }
+.vii-map-marker-wrap:not(.is-cluster).is-active .vii-map-marker::after,
+.vii-map-marker-wrap:not(.is-cluster):hover .vii-map-marker::after,
+.vii-map-marker-wrap:not(.is-cluster):focus .vii-map-marker::after { border-color: #0d2f36; background: #0d2f36; }
+
+.event-list--map-open { min-width: 0; display: grid; grid-template-columns: minmax(500px,.92fr) minmax(480px,1.08fr); gap: 18px; align-items: start; }
+.event-list--map-open > .results-heading,.event-list--map-open > .results-toolbar,.event-list--map-open > .empty-state { grid-column: 1 / -1; }
+.event-list--map-open > article { grid-column: 1; }
+.event-map-pane { position: sticky; top: 12px; grid-column: 2; grid-row: 3 / span 50; height: calc(100vh - 24px); min-height: 620px; max-height: 900px; }
+.event-map-pane .map-results-experience,.event-map-pane .map-results-canvas,.event-map-pane .listing-map-shell,.event-map-pane .listing-map { width: 100%; height: 100%; min-height: 100%; }
+
+@media (min-width: 1101px) {
+  .airbnb-results-layout,
+  .airbnb-results-layout.with-map { display: block; }
+  .airbnb-results-layout > .filter-panel { display: none; }
+  .airbnb-results-layout > .filter-panel.open {
+    position: fixed;
+    z-index: 4210;
+    top: 50%;
+    left: 50%;
+    width: min(620px, calc(100vw - 40px));
+    max-height: min(820px, calc(100dvh - 40px));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0;
+    border-radius: 24px;
+    box-shadow: 0 30px 90px rgba(0,30,38,.28);
+    transform: translate(-50%, -50%);
+  }
+  .airbnb-results-layout > .filter-panel.open .filter-panel__scroll { flex: 1; overflow-y: auto; padding: 22px 26px 10px; overscroll-behavior: contain; }
+  .airbnb-results-layout > .filter-panel.open .filter-head { position: sticky; top: -22px; z-index: 2; margin: -22px -26px 8px; padding: 20px 26px 14px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.97); backdrop-filter: blur(14px); }
+  .airbnb-results-layout > .filter-panel.open .filter-head button { width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; background: #fff; cursor: pointer; }
+  .airbnb-results-layout > .filter-panel.open .filter-panel__actions { flex: 0 0 auto; display: flex; flex-direction: row; gap: 12px; padding: 14px 22px; border-top: 1px solid var(--line); background: #fff; box-shadow: 0 -10px 30px rgba(0,40,48,.07); }
+  .airbnb-results-layout > .filter-panel.open .filter-apply { min-height: 50px; display: inline-flex; flex: 1; }
+  .airbnb-results-layout > .filter-panel.open .filter-reset { width: auto; flex: 0 0 auto; }
+  .results-page > .filter-backdrop { z-index: 4200; background: rgba(13,32,38,.48); backdrop-filter: blur(2px); }
+  .airbnb-results-layout.with-map { width: min(1760px, calc(100% - 28px)); max-width: none; }
+  .airbnb-results-layout.with-map .results-page .results-heading h1 { font-size: clamp(1.8rem,2.4vw,2.7rem); }
+}
+
+@media (max-width: 1100px) {
+  .event-list--map-open { display: block; }
+  .event-list--map-open > article { display: none; }
+  .event-map-pane { position: static; height: auto; min-height: 0; max-height: none; }
+  .search-quick-filters { margin-inline: -16px; padding-inline: 16px; }
+  .airbnb-map-split { display: block; }
+  .airbnb-map-split__results { display: none; }
+  .airbnb-map-split__map { position: static; height: auto; min-height: 0; max-height: none; }
+}

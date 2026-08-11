@@ -1,0 +1,99 @@
+/* Tablet search layout: keep every result and its border fully inside the viewport. */
+
+@media (min-width: 821px) and (max-width: 1180px) {
+  .results-page .results-layout {
+    grid-template-columns: minmax(210px, 22vw) minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .results-page .results-list,
+  .results-page .result-cards,
+  .results-page .stay-card,
+  .results-page .stay-card__body {
+    min-width: 0;
+  }
+
+  .results-page .result-cards .stay-card {
+    grid-template-columns: minmax(230px, 42%) minmax(0, 1fr);
+  }
+
+  .results-page .stay-card__actions {
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .results-page .stay-card__details-link {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .results-page .stay-card__contact {
+    width: 100%;
+    min-width: 0;
+    padding-inline: 10px;
+  }
+}
+
+@media (min-width: 821px) and (max-width: 1100px) {
+  .results-page .results-layout,
+  .results-page .results-layout.with-map {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .results-page .filter-panel:not(.static) {
+    position: fixed;
+    z-index: 1200;
+    inset: auto 0 0;
+    max-height: min(88vh, 760px);
+    display: none;
+    overflow: hidden;
+    border-radius: 24px 24px 0 0;
+  }
+
+  .results-page .filter-panel.open {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .results-page .filter-panel.open .filter-panel__scroll {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+  }
+
+  .results-page .filter-panel.open .filter-panel__actions {
+    flex: none;
+    min-height: 64px;
+    padding-block: 10px max(2px, env(safe-area-inset-bottom));
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    border-top: 1px solid var(--line);
+    background: #fff;
+  }
+
+  .results-page .filter-head button,
+  .results-page .filter-apply,
+  .results-page .mobile-filter {
+    display: inline-flex;
+  }
+
+  .results-page .filter-panel__actions .filter-apply {
+    flex: 1;
+  }
+
+  .results-page .filter-panel__actions .filter-reset {
+    width: auto;
+    margin: 0;
+    padding-inline: 12px;
+  }
+
+  .results-page .filter-backdrop {
+    position: fixed;
+    z-index: 1100;
+    inset: 0;
+    border: 0;
+    background: rgba(2, 25, 32, 0.48);
+  }
+}

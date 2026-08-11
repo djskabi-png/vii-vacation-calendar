@@ -80,7 +80,7 @@ export function AttractionsExplorer() {
     </div>
     {filtered.length
       ? mapOpen
-        ? <DeferredDiscoveryMap items={filtered} tone="activities" autoLoad onClose={closeMap} onVisiblePlaceIdsChange={setMapVisibleIds} />
+        ? <div className="airbnb-map-split world-map-split"><div className="airbnb-map-split__results discovery-grid attraction-grid">{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div><div className="airbnb-map-split__map"><DeferredDiscoveryMap items={filtered} tone="activities" autoLoad onClose={closeMap} onVisiblePlaceIdsChange={setMapVisibleIds} /></div></div>
         : <div className="discovery-grid attraction-grid">{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>
       : <div className="trail-empty"><h2>לא מצאנו התאמה לסינון הזה</h2><p>אפשר להסיר סינון או לבחור אזור סמוך.</p><button type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
   </>;

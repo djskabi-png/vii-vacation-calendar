@@ -293,7 +293,7 @@ test("spa, hourly, event and attraction worlds expose interactive maps", async (
     readFile(new URL("../app/events/search/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
-  assert.match(mapSource, /scrollWheelZoom: false/);
+  assert.match(mapSource, /scrollWheelZoom: true/);
   assert.doesNotMatch(mapSource, /addEventListener\("wheel"/);
   assert.doesNotMatch(mapSource, /map\.flyTo\(/);
   assert.match(mapSource, /touchZoom: true/);
@@ -581,7 +581,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(search, /onVisibleCountChange=\{setVisibleMapCount\}/);
   assert.doesNotMatch(search, /מתוך \$\{properties\.length\}/);
   assert.match(map, /listing\.bedrooms/);
-  assert.match(map, /`\$\{listing\.bedrooms\} חדרים`/);
+  assert.match(map, /typeof listing\.price === "number"/);
   assert.match(data, /readVerifiedCount\(item\.location/);
   assert.match(search, /האזור שמוצג במפה/);
   assert.match(eventSearch, /mode="events" autoLoad/);

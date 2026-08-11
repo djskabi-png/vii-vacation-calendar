@@ -4,6 +4,7 @@ import test from "node:test";
 
 const component = readFileSync(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8");
 const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const search = readFileSync(new URL("../app/search/page.tsx", import.meta.url), "utf8");
 
 test("desktop map uses the full canvas without a narrow result rail", () => {
   assert.doesNotMatch(component, /map-results-rail|map-results-scroll|map-result-card|data-map-result-id/);
@@ -50,4 +51,23 @@ test("tightly overlapping clusters expand into individually selectable spider ma
 
 test("mobile map remains full screen", () => {
   assert.match(styles, /\.map-results-experience \{ position: fixed; inset: 0;[^}]*border-radius: 0/);
+});
+
+test("desktop search combines a synchronized result list, sticky map and quick filters", () => {
+  assert.match(search, /className="airbnb-map-split"/);
+  assert.match(search, /className="airbnb-map-split__results result-cards"/);
+  assert.match(search, /className="airbnb-map-split__map"/);
+  assert.match(search, /className="search-quick-filters"/);
+  assert.match(search, />טווח מחיר<\/button>/);
+  assert.match(search, /changeBinaryFilter\("pool", !pool\)/);
+  assert.match(styles, /\.airbnb-map-split \{[^}]*grid-template-columns:/);
+  assert.match(styles, /\.airbnb-map-split__map \{[^}]*position: sticky/);
+});
+
+test("vacation markers prioritize verified price and map zoom is direct", () => {
+  assert.match(component, /typeof listing\.price === "number"/);
+  assert.match(component, /listing\.price\.toLocaleString/);
+  assert.match(component, /scrollWheelZoom: true/);
+  assert.match(component, /wheelPxPerZoomLevel: 80/);
+  assert.match(component, /maxBoundsViscosity: 0\.72/);
 });

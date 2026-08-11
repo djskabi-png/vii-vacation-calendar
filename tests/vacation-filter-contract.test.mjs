@@ -38,7 +38,7 @@ test("vacation search includes the complete legacy additional filters", async ()
 test("mobile vacation filters use a draft and apply contract", async () => {
   const source = await readFile(new URL("app/search/page.tsx", root), "utf8");
   assert.match(source, /const \[draftFilters, setDraftFilters\]/);
-  assert.match(source, /function openFiltersPanel\(\)/);
+  assert.match(source, /function openFiltersPanel\(section: "types" \| "more" = filterSection\)/);
   assert.match(source, /function closeFiltersPanel\(\)/);
   assert.match(source, /function applyFilters\(\)/);
   assert.match(source, /onClick=\{applyFilters\}/);

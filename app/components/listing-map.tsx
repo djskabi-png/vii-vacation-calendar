@@ -147,11 +147,19 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
       markerRegistry.clear();
 
       const map = L.map(container, {
-        scrollWheelZoom: false,
+        scrollWheelZoom: true,
         touchZoom: true,
         doubleClickZoom: true,
+        boxZoom: true,
+        keyboard: true,
+        zoomSnap: 0.5,
+        wheelDebounceTime: 40,
+        wheelPxPerZoomLevel: 80,
         zoomControl: true,
         attributionControl: true,
+        minZoom: 6,
+        maxBounds: [[28.65, 33.55], [34.15, 36.45]],
+        maxBoundsViscosity: 0.72,
       });
       const streetTiles = L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
@@ -411,6 +419,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
 }
 
 export function ListingMap({ listings, initialListings, mode = "vacation", single = false, autoLoad = false, detailQuery, onClose, onVisibleCountChange, onVisiblePlaceIdsChange }: { listings: Listing[]; initialListings?: Listing[]; mode?: "vacation" | "events"; single?: boolean; autoLoad?: boolean; detailQuery?: string; onClose?: () => void; onVisibleCountChange?: (count: number) => void; onVisiblePlaceIdsChange?: (ids: string[]) => void }) {
+  const { language } = useSiteLanguage();
   const places = useMemo<MapPlace[]>(() => listings.map((listing) => ({
     id: listing.slug,
     name: listing.name,
@@ -428,13 +437,13 @@ export function ListingMap({ listings, initialListings, mode = "vacation", singl
     href: mode === "events" ? eventPlaceHref(listing as EventPlace) : `/business?id=${listing.slug}${detailQuery ? `&${detailQuery}` : ""}`,
     markerLabel: mode === "events"
       ? `${listing.guests} אורחים`
-      : listing.bedrooms
-        ? `${listing.bedrooms} חדרים`
-        : listing.units && listing.units > 1
-          ? `${listing.units} יחידות`
-          : listing.type,
+      : typeof listing.price === "number"
+        ? language === "he"
+          ? `${listing.price.toLocaleString("he-IL")} ₪`
+          : `₪${listing.price.toLocaleString(language === "fr" ? "fr-FR" : language === "ru" ? "ru-RU" : "en-US")}`
+        : listing.type,
     precision: "exact",
-  })), [detailQuery, listings, mode]);
+  })), [detailQuery, language, listings, mode]);
   const initialPlaceIds = useMemo(() => initialListings?.map((listing) => listing.slug), [initialListings]);
   return <PlacesMap key={initialPlaceIds?.join("|") || "all"} places={places} initialPlaceIds={initialPlaceIds} tone={mode} single={single} autoLoad={autoLoad} onClose={onClose} onVisibleCountChange={onVisibleCountChange} onVisiblePlaceIdsChange={onVisiblePlaceIdsChange} />;
 }

@@ -5,8 +5,8 @@ import test from "node:test";
 const mapSource = readFileSync(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8");
 const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
 
-test("the results map never traps page wheel scrolling or jumps on marker selection", () => {
-  assert.match(mapSource, /scrollWheelZoom:\s*false/);
+test("the results map supports natural zoom without jumping on marker selection", () => {
+  assert.match(mapSource, /scrollWheelZoom:\s*true/);
   assert.doesNotMatch(mapSource, /addEventListener\("wheel"/);
   assert.doesNotMatch(mapSource, /preventDefault\(\)/);
   assert.doesNotMatch(mapSource, /map\.flyTo\(/);
