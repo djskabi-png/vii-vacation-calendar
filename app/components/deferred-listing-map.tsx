@@ -16,6 +16,7 @@ export const DeferredListingMap = dynamic(
   mode?: "vacation" | "events";
   single?: boolean;
   autoLoad?: boolean;
+  detailQuery?: string;
   onClose?: () => void;
   onVisibleCountChange?: (count: number) => void;
   onVisiblePlaceIdsChange?: (ids: string[]) => void;

@@ -64,12 +64,12 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
         ? { details: "Voir les détails", close: "Fermer la fiche du lieu", results: "Résultats sur la carte", visible: "lieux", list: "Liste des résultats", openCluster: "Ouvrir les lieux regroupés", searchArea: "Rechercher dans cette zone" }
       : { details: "לכל הפרטים", close: "סגירת פרטי המקום", results: "תוצאות על המפה", visible: "מקומות", list: "רשימת תוצאות במפה", openCluster: "פתיחת המקומות המקובצים", searchArea: "חיפוש באזור הזה" };
   const mapCopy = language === "en"
-    ? { preview: "Interactive map", label: "Interactive places map", back: "Back to list", hint: "Use the mouse wheel to zoom the map", loading: "Loading the map and markers" }
+    ? { preview: "Interactive map", label: "Interactive places map", back: "Back to list", hint: "Use the map controls to zoom in and out", loading: "Loading the map and markers" }
     : language === "ru"
-      ? { preview: "Интерактивная карта", label: "Интерактивная карта мест", back: "Вернуться к списку", hint: "Используйте колесо мыши для масштабирования", loading: "Загрузка карты и маркеров" }
+      ? { preview: "Интерактивная карта", label: "Интерактивная карта мест", back: "Вернуться к списку", hint: "Используйте кнопки карты для изменения масштаба", loading: "Загрузка карты и маркеров" }
       : language === "fr"
-        ? { preview: "Carte interactive", label: "Carte interactive des lieux", back: "Retour à la liste", hint: "Utilisez la molette pour zoomer", loading: "Chargement de la carte et des repères" }
-        : { preview: "מפה אינטראקטיבית", label: "מפה אינטראקטיבית של המקומות", back: "חזרה לרשימה", hint: "גלגלת העכבר מגדילה ומקטינה את המפה", loading: "טוענים את המפה ואת הסמנים" };
+        ? { preview: "Carte interactive", label: "Carte interactive des lieux", back: "Retour à la liste", hint: "Utilisez les boutons de la carte pour zoomer", loading: "Chargement de la carte et des repères" }
+        : { preview: "מפה אינטראקטיבית", label: "מפה אינטראקטיבית של המקומות", back: "חזרה לרשימה", hint: "השתמשו בכפתורי המפה כדי להגדיל ולהקטין", loading: "טוענים את המפה ואת הסמנים" };
   const mapElement = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<import("leaflet").Map | null>(null);
   const markerInstances = useRef<Map<string, import("leaflet").Marker>>(new Map());
@@ -101,12 +101,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
     const place = places.find((entry) => entry.id === id);
     if (!place) return;
     setSelectedId(id);
-    const map = mapInstance.current;
-    if (map) {
-      suppressViewportPrompt.current = true;
-      map.once("moveend", () => { suppressViewportPrompt.current = false; });
-      map.flyTo([place.lat, place.lng], Math.max(map.getZoom(), place.precision === "area" ? 11 : 13), { duration: 0.45 });
-    }
+
   }, [places]);
 
   const closeSelectedPlace = useCallback(() => {
@@ -144,7 +139,6 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
     const markerRegistry = markerInstances.current;
     let cancelled = false;
     let readyTimer: number | undefined;
-    const keepWheelInsideMap = (event: WheelEvent) => event.preventDefault();
     setMapReady(false);
 
     void import("leaflet").then((L) => {
@@ -153,15 +147,12 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
       markerRegistry.clear();
 
       const map = L.map(container, {
-        scrollWheelZoom: true,
-        wheelDebounceTime: 30,
-        wheelPxPerZoomLevel: 52,
+        scrollWheelZoom: false,
         touchZoom: true,
         doubleClickZoom: true,
         zoomControl: true,
         attributionControl: true,
       });
-      container.addEventListener("wheel", keepWheelInsideMap, { passive: false });
       const streetTiles = L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
         maxZoom: 20,
@@ -360,7 +351,6 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
     return () => {
       cancelled = true;
       if (readyTimer) window.clearTimeout(readyTimer);
-      container.removeEventListener("wheel", keepWheelInsideMap);
       markerRegistry.clear();
       mapInstance.current?.remove();
       mapInstance.current = null;
@@ -420,7 +410,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
   </div>;
 }
 
-export function ListingMap({ listings, initialListings, mode = "vacation", single = false, autoLoad = false, onClose, onVisibleCountChange, onVisiblePlaceIdsChange }: { listings: Listing[]; initialListings?: Listing[]; mode?: "vacation" | "events"; single?: boolean; autoLoad?: boolean; onClose?: () => void; onVisibleCountChange?: (count: number) => void; onVisiblePlaceIdsChange?: (ids: string[]) => void }) {
+export function ListingMap({ listings, initialListings, mode = "vacation", single = false, autoLoad = false, detailQuery, onClose, onVisibleCountChange, onVisiblePlaceIdsChange }: { listings: Listing[]; initialListings?: Listing[]; mode?: "vacation" | "events"; single?: boolean; autoLoad?: boolean; detailQuery?: string; onClose?: () => void; onVisibleCountChange?: (count: number) => void; onVisiblePlaceIdsChange?: (ids: string[]) => void }) {
   const places = useMemo<MapPlace[]>(() => listings.map((listing) => ({
     id: listing.slug,
     name: listing.name,
@@ -435,7 +425,7 @@ export function ListingMap({ listings, initialListings, mode = "vacation", singl
     image: listing.image,
     lat: listing.lat,
     lng: listing.lng,
-    href: mode === "events" ? eventPlaceHref(listing as EventPlace) : `/business?id=${listing.slug}`,
+    href: mode === "events" ? eventPlaceHref(listing as EventPlace) : `/business?id=${listing.slug}${detailQuery ? `&${detailQuery}` : ""}`,
     markerLabel: mode === "events"
       ? `${listing.guests} אורחים`
       : listing.bedrooms
@@ -444,7 +434,7 @@ export function ListingMap({ listings, initialListings, mode = "vacation", singl
           ? `${listing.units} יחידות`
           : listing.type,
     precision: "exact",
-  })), [listings, mode]);
+  })), [detailQuery, listings, mode]);
   const initialPlaceIds = useMemo(() => initialListings?.map((listing) => listing.slug), [initialListings]);
   return <PlacesMap key={initialPlaceIds?.join("|") || "all"} places={places} initialPlaceIds={initialPlaceIds} tone={mode} single={single} autoLoad={autoLoad} onClose={onClose} onVisibleCountChange={onVisibleCountChange} onVisiblePlaceIdsChange={onVisiblePlaceIdsChange} />;
 }

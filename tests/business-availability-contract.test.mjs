@@ -5,13 +5,15 @@ import { readFileSync } from "node:fs";
 const business = readFileSync(new URL("../app/business/client-page.tsx", import.meta.url), "utf8");
 
 test("vacation detail pages keep availability as the primary action", () => {
-  assert.match(business, /activeWorld === "vacation"[^\n]+href="#booking-summary">בדיקת זמינות/);
-  assert.match(business, /activeWorld === "vacation" \? "בדיקת זמינות"/);
+  assert.match(business, /activeWorld === "vacation" \? <Link className="button primary" href="#booking-summary">\{hasSearchContext/);
+  assert.match(business, /hasSearchContext \? "בדיקת זמינות לחיפוש הזה" : "בדיקת זמינות"/);
   assert.doesNotMatch(business, /vacationPhoneFallback \? <aside id="booking-summary"/);
 });
 
 test("vacation availability starts with dates and only then offers an enquiry", () => {
   assert.match(business, /בדיקת זמינות במתחם/);
+  assert.match(business, /בודקים את החופשה שבחרתם/);
+  assert.match(business, /התאריכים והרכב האורחים נשמרו מהחיפוש/);
   assert.match(business, /בחירת תאריכים ובדיקת זמינות/);
   assert.match(business, /vacationRequest \? !hasSelectedDates/);
   assert.match(business, /שליחת בקשת זמינות בוואטסאפ/);

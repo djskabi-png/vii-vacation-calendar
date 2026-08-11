@@ -1216,7 +1216,7 @@
   "גישה נוחה לציוד": "Accès facile aux équipements",
   "גלגל": "roue",
   "גלגל, בקעת הירדן": "Guilgal, vallée du Jourdain",
-  "גלגלת העכבר מגדילה ומקטינה את המפה": "La molette de la souris effectue un zoom avant et arrière sur la carte",
+  "השתמשו בכפתורי המפה כדי להגדיל ולהקטין": "Utilisez les boutons de la carte pour zoomer",
   "גליל": "rouler",
   "גליל מערבי": "Galilée occidentale",
   "גליל מערבי ירכא 4 יחידות לזוגות ומשפחות": "La Galilée occidentale proposera 4 unités pour les couples et les familles",
@@ -6520,5 +6520,11 @@
   "??? ?????? ??????? ??????? ?????": "Comment choisir une activit? adapt?e ? votre groupe",
   "???? ??? ??????? ?????": "Des avis qui vous aident ? choisir",
   "??????? ??????": "Recherches associ?es",
-  "דירוג מתוך": "Note issue de"
+  "דירוג מתוך": "Note issue de",
+  "בדיקת זמינות לחיפוש הזה": "Vérifier la disponibilité pour cette recherche",
+  "החיפוש שממנו הגעתם": "La recherche depuis laquelle vous êtes arrivé",
+  "החיפוש שבחרתם": "Votre recherche sélectionnée",
+  "בודקים את החופשה שבחרתם": "Vérification du séjour sélectionné",
+  "התאריכים והרכב האורחים נשמרו מהחיפוש. אפשר לשנות אותם או לשלוח בקשת זמינות מסודרת.": "Les dates et le nombre de voyageurs ont été conservés depuis la recherche. Vous pouvez les modifier ou envoyer une demande de disponibilité détaillée.",
+  "חדר": "chambre"
 }

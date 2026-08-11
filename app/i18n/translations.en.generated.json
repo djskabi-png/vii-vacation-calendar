@@ -1216,7 +1216,7 @@
   "גישה נוחה לציוד": "Easy access to equipment",
   "גלגל": "wheel",
   "גלגל, בקעת הירדן": "Gilgal, Jordan Valley",
-  "גלגלת העכבר מגדילה ומקטינה את המפה": "The mouse wheel zooms in and out of the map",
+  "השתמשו בכפתורי המפה כדי להגדיל ולהקטין": "Use the map controls to zoom in and out",
   "גליל": "roll",
   "גליל מערבי": "Western Galilee",
   "גליל מערבי ירכא 4 יחידות לזוגות ומשפחות": "Western Galilee will offer 4 units for couples and families",
@@ -6520,5 +6520,11 @@
   "??? ?????? ??????? ??????? ?????": "How to choose an activity for your group",
   "???? ??? ??????? ?????": "Reviews that help you decide",
   "??????? ??????": "Related searches",
-  "דירוג מתוך": "Rating from"
+  "דירוג מתוך": "Rating from",
+  "בדיקת זמינות לחיפוש הזה": "Check availability for this search",
+  "החיפוש שממנו הגעתם": "The search you came from",
+  "החיפוש שבחרתם": "Your selected search",
+  "בודקים את החופשה שבחרתם": "Checking your selected stay",
+  "התאריכים והרכב האורחים נשמרו מהחיפוש. אפשר לשנות אותם או לשלוח בקשת זמינות מסודרת.": "Your dates and guest details were carried over from the search. You can change them or send a clear availability request.",
+  "חדר": "room"
 }

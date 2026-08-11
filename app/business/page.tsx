@@ -6,7 +6,7 @@ import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, faqSchema, lodgingSchema } from "../lib/seo";
 import { vacationBreadcrumbForLocation } from "../data/vacation-landings";
 
-type Props = { searchParams: Promise<{ id?: string; mode?: string; dates?: string; from?: string; till?: string; guests?: string; price?: string }> };
+type Props = { searchParams: Promise<{ id?: string; mode?: string; dates?: string; from?: string; till?: string; guests?: string; rooms?: string; price?: string; source?: string }> };
 
 function resolveProperty(id?: string) {
   if (!id) return properties[0];
@@ -49,6 +49,6 @@ export default async function Page({ searchParams }: Props) {
       { name: property.name, path: `/business?id=${property.slug}` },
     ])} />
     <StructuredData data={faqSchema(propertyFaq)} />
-    <BusinessPage initialSlug={property.slug} initialWorld={initialWorld} initialDates={params.dates} initialFrom={params.from} initialTill={params.till} initialGuests={params.guests} initialPrice={params.price} />
+    <BusinessPage initialSlug={property.slug} initialWorld={initialWorld} initialDates={params.dates} initialFrom={params.from} initialTill={params.till} initialGuests={params.guests} initialRooms={params.rooms} initialPrice={params.price} initialSource={params.source} />
   </>;
 }

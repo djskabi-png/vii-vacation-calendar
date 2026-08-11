@@ -45,7 +45,7 @@ function quoteForStay(property: Property, selectedStay: SelectedStay | null): Li
   };
 }
 
-export function PropertyCard({ property, selectedStay = null, promotional = false }: { property: Property; selectedStay?: SelectedStay | null; promotional?: boolean }) {
+export function PropertyCard({ property, selectedStay = null, promotional = false, detailHref }: { property: Property; selectedStay?: SelectedStay | null; promotional?: boolean; detailHref?: string }) {
   const { language } = useSiteLanguage();
   const copy = cardCopy[language];
   const galleryImages = [property.image, ...property.images].filter((src, index, all) => src && all.indexOf(src) === index).slice(0, 10);
@@ -59,6 +59,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
   const selectedQuote = quoteForStay(property, selectedStay);
   const hasQuotedPrice = Boolean(selectedQuote?.nightlyPrice && selectedQuote?.includedGuests);
   const cardMode = promotional ? "promotional" : selectedQuote ? "dated" : "result";
+  const propertyHref = detailHref || `/business?id=${property.slug}`;
 
   function moveImage(event: MouseEvent<HTMLButtonElement>, direction: -1 | 1) {
     event.preventDefault();
@@ -69,17 +70,17 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
   return (
     <article className={`stay-card stay-card--${cardMode}`}>
       <div className="stay-card__media" onTouchStart={(event) => { if (swipeResetTimer.current) clearTimeout(swipeResetTimer.current); didSwipe.current = false; touchStart.current = event.changedTouches[0].clientX; }} onTouchEnd={(event) => { if (touchStart.current === null || galleryImages.length < 2) return; const distance = event.changedTouches[0].clientX - touchStart.current; if (Math.abs(distance) > 45) { didSwipe.current = true; swipeResetTimer.current = setTimeout(() => { didSwipe.current = false; swipeResetTimer.current = null; }, 500); setImageIndex((current) => (current + (distance > 0 ? -1 : 1) + galleryImages.length) % galleryImages.length); } touchStart.current = null; }}>
-        <Link href={`/business?id=${property.slug}`} aria-label={`פרטים על ${property.name}`} onClick={(event) => { if (!didSwipe.current) return; event.preventDefault(); event.stopPropagation(); didSwipe.current = false; if (swipeResetTimer.current) clearTimeout(swipeResetTimer.current); swipeResetTimer.current = null; }}>
+        <Link href={propertyHref} aria-label={`פרטים על ${property.name}`} onClick={(event) => { if (!didSwipe.current) return; event.preventDefault(); event.stopPropagation(); didSwipe.current = false; if (swipeResetTimer.current) clearTimeout(swipeResetTimer.current); swipeResetTimer.current = null; }}>
           <img key={galleryImages[imageIndex]} src={galleryImages[imageIndex]} alt={`${property.name}, תמונה ${imageIndex + 1} מתוך ${galleryImages.length}`} loading="lazy" decoding="async" />
         </Link>
         {galleryImages.length > 1 ? <><button className="stay-card__gallery-arrow stay-card__gallery-arrow--previous" type="button" aria-label={`התמונה הקודמת של ${property.name}`} onClick={(event) => moveImage(event, -1)}><span aria-hidden="true">‹</span></button><button className="stay-card__gallery-arrow stay-card__gallery-arrow--next" type="button" aria-label={`התמונה הבאה של ${property.name}`} onClick={(event) => moveImage(event, 1)}><span aria-hidden="true">›</span></button><div className="stay-card__gallery-dots" aria-label={`בחירת תמונה של ${property.name}`}>{galleryImages.slice(0, 5).map((src, index) => { const active = imageIndex === index || index === 4 && imageIndex >= 4; return <button key={src} className={active ? "active" : ""} type="button" aria-label={`הצגת תמונה ${index + 1} של ${property.name}`} aria-current={active ? "true" : undefined} onClick={(event) => { event.preventDefault(); event.stopPropagation(); setImageIndex(index); }} />; })}</div><span className="stay-card__gallery-count" aria-live="polite">{imageIndex + 1}/{galleryImages.length}</span></> : null}
-        <FavoriteButton className="heart-button" id={property.slug} world="vacation" name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={`/business?id=${property.slug}`} meta={`${property.type} · עד ${property.guests} אורחים`} />
+        <FavoriteButton className="heart-button" id={property.slug} world="vacation" name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={propertyHref} meta={`${property.type} · עד ${property.guests} אורחים`} />
         <div className="stay-card__badges">{property.badges.slice(0, 2).map((badge) => <span key={badge}>{badge}</span>)}</div>
       </div>
       <div className="stay-card__body">
         <div className="stay-card__title">
           <div>
-            <h3><Link href={`/business?id=${property.slug}`}>{property.name}</Link></h3>
+            <h3><Link href={propertyHref}>{property.name}</Link></h3>
             <p><PinIcon />{property.location}, {property.area}</p>
           </div>
           {property.score && property.reviews ? <span className="stay-card__rating" aria-label={`${property.score} ${copy.outOfTen}, ${property.reviews} ${copy.reviews}`}><b aria-hidden="true">★</b><strong>{property.score}</strong><small>({property.reviews})</small></span> : null}
@@ -95,7 +96,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
             {selectedQuote ? <span className={`stay-card__price stay-card__price--selected ${hasQuotedPrice ? "stay-card__price--known" : ""}`}>{hasQuotedPrice ? <><b><bdi dir="ltr">{selectedQuote.nightlyPrice?.toLocaleString()} ₪</bdi></b><small>{copy.night}</small><em>{copy.includedGuests(selectedQuote.includedGuests || 0)}</em></> : <strong>{copy.inquirePrice}</strong>}</span> : <span className={`stay-card__price ${property.price ? "stay-card__price--known" : ""}`}>{property.price ? <><small>{copy.from}</small><b><bdi dir="ltr">{property.price.toLocaleString()} ₪</bdi></b><small>{copy.night}</small></> : copy.datePrice}</span>}
           </div> : null}
           <div className="stay-card__actions">
-            <Link className="stay-card__details-link" href={`/business?id=${property.slug}`}>{copy.details}</Link>
+            <Link className="stay-card__details-link" href={propertyHref}>{copy.details}</Link>
             {!promotional && phone ? phoneVisible
               ? <a className="stay-card__contact stay-card__contact--phone stay-card__contact--revealed" href={`tel:${phone}`} aria-label={`${phoneCopy[language].call}: ${property.name}`}><PhoneIcon /><bdi>{property.contact?.phone}</bdi></a>
               : <button className="stay-card__contact stay-card__contact--phone" type="button" aria-expanded={phoneVisible} onClick={() => { setPhoneVisible(true); trackPhoneReveal({ placeId: property.slug, placeName: property.name, world: "vacation", placement: "property_card" }); }}><PhoneIcon /><span>{phoneCopy[language].reveal}</span></button>

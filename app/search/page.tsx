@@ -413,6 +413,22 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     const till = searchParams.get("till");
     return from && till ? { from, till } : null;
   }, [searchParams]);
+  const detailQuery = useMemo(() => {
+    const params = new URLSearchParams();
+    const dates = searchParams.get("dates");
+    const from = searchParams.get("from");
+    const till = searchParams.get("till");
+    const rooms = searchParams.get("rooms");
+    if (!dates && !(from && till)) return "";
+    params.set("source", "search");
+    if (dates) params.set("dates", dates);
+    if (from) params.set("from", from);
+    if (till) params.set("till", till);
+    params.set("guests", String(guests));
+    if (rooms) params.set("rooms", rooms);
+    return params.toString();
+  }, [guests, searchParams]);
+  const detailHref = (slug: string) => `/business?id=${slug}${detailQuery ? `&${detailQuery}` : ""}`;
 
   useEffect(() => {
     const timer = window.setTimeout(() => setMapVisibleIds(null), 0);
@@ -544,8 +560,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
             </section>
             {activeFilters.length > 0 && <div className="active-filter-row"><span>סינונים פעילים:</span>{activeFilters.map((filter) => <button key={filter.id} type="button" onClick={filter.remove} aria-label={`הסרת הסינון ${filter.label}`}>{filter.label} ×</button>)}<button type="button" className="clear-all" onClick={resetFilters}>ניקוי הכל</button></div>}
             <div className="results-toolbar"><div className="results-toolbar__actions">{filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (mapOpen) closeMap(); else { setVisibleMapCount(filtered.length); openMap(); } }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect className="results-toolbar__sort" compact label="מיון לפי" value={sort} onChange={changeSort} options={[{ value: "recommended", label: "מומלצים" }, { value: "capacity", label: "קיבולת גבוהה" }, { value: "units", label: "מספר יחידות" }, { value: "name", label: "שם המקום" }]} /></div>
-            {!mapOpen && <div className="result-cards">{displayedResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStay} />)}</div>}
-            {mapOpen && <DeferredListingMap listings={mapCandidates} initialListings={filtered} autoLoad onClose={closeMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} />}
+            {!mapOpen && <div className="result-cards">{displayedResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStay} detailHref={detailHref(property.slug)} />)}</div>}
+            {mapOpen && <DeferredListingMap listings={mapCandidates} initialListings={filtered} autoLoad detailQuery={detailQuery} onClose={closeMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} />}
             {(mapVisibleIds ? displayedResults.length === 0 : filtered.length === 0) && <div className="empty-state"><h2>לא נמצאה התאמה מדויקת</h2><p>אפשר לשנות אזור, להפחית את כמות האורחים או להסיר מאפיין.</p><button className="button primary" type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
             {landing && filtered.length > 0 && <>
               <section className="accommodation-landing-copy" aria-labelledby="accommodation-guide-title"><div><span className="eyebrow">מידע שימושי לפני שמזמינים</span><h2 id="accommodation-guide-title">{landing.guideTitle || `איך בוחרים ${landing.breadcrumb}`}</h2><p>{landing.description}</p></div><nav className="accommodation-landing-copy__links" aria-label={`מידע על ${landing.breadcrumb}`}><a href="#accommodation-guide">המדריך של העמוד</a><a href="#accommodation-faq">שאלות ותשובות של העמוד</a><Link href="/gift-card">גיפט קארד לחופשה</Link></nav></section>

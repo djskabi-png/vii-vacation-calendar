@@ -1217,7 +1217,7 @@
     "גישה נוחה לציוד": "Easy access to equipment",
     "גלגל": "wheel",
     "גלגל, בקעת הירדן": "Gilgal, Jordan Valley",
-    "גלגלת העכבר מגדילה ומקטינה את המפה": "The mouse wheel zooms in and out of the map",
+    "השתמשו בכפתורי המפה כדי להגדיל ולהקטין": "Use the map controls to zoom in and out",
     "גליל": "roll",
     "גליל מערבי": "Western Galilee",
     "גליל מערבי ירכא 4 יחידות לזוגות ומשפחות": "Western Galilee will offer 4 units for couples and families",
@@ -6521,7 +6521,13 @@
     "??? ?????? ??????? ??????? ?????": "How to choose an activity for your group",
     "???? ??? ??????? ?????": "Reviews that help you decide",
     "??????? ??????": "Related searches",
-    "דירוג מתוך": "Rating from"
+    "דירוג מתוך": "Rating from",
+    "בדיקת זמינות לחיפוש הזה": "Check availability for this search",
+    "החיפוש שממנו הגעתם": "The search you came from",
+    "החיפוש שבחרתם": "Your selected search",
+    "בודקים את החופשה שבחרתם": "Checking your selected stay",
+    "התאריכים והרכב האורחים נשמרו מהחיפוש. אפשר לשנות אותם או לשלוח בקשת זמינות מסודרת.": "Your dates and guest details were carried over from the search. You can change them or send a clear availability request.",
+    "חדר": "room"
   },
   "ru": {
     ", 2 יחידות": ", 2 единицы",
@@ -7741,7 +7747,7 @@
     "גישה נוחה לציוד": "Легкий доступ к оборудованию",
     "גלגל": "колесо",
     "גלגל, בקעת הירדן": "Галгал, Иорданская долина",
-    "גלגלת העכבר מגדילה ומקטינה את המפה": "Колесо мыши позволяет увеличивать и уменьшать масштаб карты.",
+    "השתמשו בכפתורי המפה כדי להגדיל ולהקטין": "Используйте кнопки карты для изменения масштаба",
     "גליל": "рулон",
     "גליל מערבי": "Западная Галилея",
     "גליל מערבי ירכא 4 יחידות לזוגות ומשפחות": "Западная Галилея предложит 4 квартиры для пар и семей.",
@@ -13045,7 +13051,13 @@
     "??? ?????? ??????? ??????? ?????": "??? ??????? ??????????? ??? ????? ??????",
     "???? ??? ??????? ?????": "??????, ??????? ???????? ???????",
     "??????? ??????": "??????? ???????",
-    "דירוג מתוך": "Рейтинг по данным"
+    "דירוג מתוך": "Рейтинг по данным",
+    "בדיקת זמינות לחיפוש הזה": "Проверить доступность для этого поиска",
+    "החיפוש שממנו הגעתם": "Поиск, из которого вы перешли",
+    "החיפוש שבחרתם": "Выбранный поиск",
+    "בודקים את החופשה שבחרתם": "Проверяем выбранное проживание",
+    "התאריכים והרכב האורחים נשמרו מהחיפוש. אפשר לשנות אותם או לשלוח בקשת זמינות מסודרת.": "Даты и состав гостей сохранены из поиска. Их можно изменить или отправить подробный запрос о наличии мест.",
+    "חדר": "номер"
   },
   "fr": {
     ", 2 יחידות": ", 2 unités",
@@ -14265,7 +14277,7 @@
     "גישה נוחה לציוד": "Accès facile aux équipements",
     "גלגל": "roue",
     "גלגל, בקעת הירדן": "Guilgal, vallée du Jourdain",
-    "גלגלת העכבר מגדילה ומקטינה את המפה": "La molette de la souris effectue un zoom avant et arrière sur la carte",
+    "השתמשו בכפתורי המפה כדי להגדיל ולהקטין": "Utilisez les boutons de la carte pour zoomer",
     "גליל": "rouler",
     "גליל מערבי": "Galilée occidentale",
     "גליל מערבי ירכא 4 יחידות לזוגות ומשפחות": "La Galilée occidentale proposera 4 unités pour les couples et les familles",
@@ -19569,6 +19581,12 @@
     "??? ?????? ??????? ??????? ?????": "Comment choisir une activit? adapt?e ? votre groupe",
     "???? ??? ??????? ?????": "Des avis qui vous aident ? choisir",
     "??????? ??????": "Recherches associ?es",
-    "דירוג מתוך": "Note issue de"
+    "דירוג מתוך": "Note issue de",
+    "בדיקת זמינות לחיפוש הזה": "Vérifier la disponibilité pour cette recherche",
+    "החיפוש שממנו הגעתם": "La recherche depuis laquelle vous êtes arrivé",
+    "החיפוש שבחרתם": "Votre recherche sélectionnée",
+    "בודקים את החופשה שבחרתם": "Vérification du séjour sélectionné",
+    "התאריכים והרכב האורחים נשמרו מהחיפוש. אפשר לשנות אותם או לשלוח בקשת זמינות מסודרת.": "Les dates et le nombre de voyageurs ont été conservés depuis la recherche. Vous pouvez les modifier ou envoyer une demande de disponibilité détaillée.",
+    "חדר": "chambre"
   }
 }
