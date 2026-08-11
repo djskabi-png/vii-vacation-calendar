@@ -3154,7 +3154,7 @@ h3 { font-size: 1.18rem; }
   background: #e9f8f8;
   color: var(--teal-dark);
 }
-.location-group--primary > div { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.location-group--primary > div { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .location-list .location-group--primary button {
   min-height: 82px;
   align-content: center;
@@ -4238,7 +4238,7 @@ body:has(.whatsapp-lead-layer) .smart-concierge { display: none; }
   .search-box-shell.mobile-expanded .location-nearby { min-height: 76px; grid-template-columns: 46px minmax(0, 1fr) auto; padding: 11px; }
   .search-box-shell.mobile-expanded .location-nearby__icon { width: 44px; height: 44px; border-radius: 13px; }
   .search-box-shell.mobile-expanded .location-discovery { gap: 18px; }
-  .search-box-shell.mobile-expanded .location-group--primary > div { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .search-box-shell.mobile-expanded .location-group--primary > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .search-box-shell.mobile-expanded .location-group--primary button { min-height: 72px; padding: 8px 5px; text-align: center; }
   .search-box-shell.mobile-expanded .location-group--regions > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .search-box-shell.mobile-expanded .location-group--settlements > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }

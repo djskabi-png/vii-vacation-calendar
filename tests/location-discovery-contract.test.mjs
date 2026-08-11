@@ -10,7 +10,7 @@ test("vacation destination picker preserves the complete legacy discovery set", 
   for (const heading of ["אזורים ראשיים מומלצים", "אזורים מומלצים", "יישובים מומלצים"]) {
     assert.match(taxonomy, new RegExp(heading));
   }
-  for (const destination of ["צפון", "מרכז", "דרום", "גליל מערבי", "גליל עליון", "אילת והערבה", "כנרת", "מישור החוף והשפלה", "ירושלים והרי יהודה", "שרון", "רמת הגולן", "אילת", "ירכא", "נוף כנרת", "מגדל", "דלתון", "נתניה", "יערה", "טבריה", "חדרה", "יבנאל", "חוסן", "פקיעין החדשה", "קיסריה", "אבן מנחם", "כלנית"]) {
+  for (const destination of ["כל הארץ", "צפון", "מרכז", "דרום", "גליל מערבי", "גליל עליון", "אילת והערבה", "כנרת", "מישור החוף והשפלה", "ירושלים והרי יהודה", "שרון", "רמת הגולן", "אילת", "ירכא", "נוף כנרת", "מגדל", "דלתון", "נתניה", "יערה", "טבריה", "חדרה", "יבנאל", "חוסן", "פקיעין החדשה", "קיסריה", "אבן מנחם", "כלנית"]) {
     assert.match(taxonomy, new RegExp(destination));
   }
 });
@@ -21,7 +21,8 @@ test("destination picker offers nearby search, grouped discovery and useful filt
   assert.match(search, /vacationLocationGroups\.map/);
   assert.match(search, /className="location-search-results"/);
   assert.match(search, /chooseLocation\(place\)/);
-  assert.match(css, /\.location-group--primary > div\s*\{[^}]*repeat\(3/s);
+  assert.match(css, /\.location-group--primary > div\s*\{[^}]*repeat\(4/s);
+  assert.match(css, /mobile-expanded \.location-group--primary > div\s*\{[^}]*repeat\(2/s);
   assert.match(css, /mobile-expanded \.location-group--regions > div\s*\{[^}]*repeat\(2/s);
   assert.match(css, /\.location-list\s*\{[^}]*overflow-y:\s*auto/s);
 });
