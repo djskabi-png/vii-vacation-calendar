@@ -5207,6 +5207,7 @@ body:has(.whatsapp-lead-layer) .smart-concierge { display: none; }
 .event-card-gallery { position: relative; padding: 0 !important; }
 .event-card-gallery > span { position: absolute; right: 12px; bottom: 12px; padding: 6px 9px; border-radius: 9px; background: rgba(255, 255, 255, .94); font-size: .72rem; font-weight: 700; }
 .event-list article > div:last-child > p:nth-of-type(2) { display: block; color: var(--ink-soft); line-height: 1.55; }
+.event-card__actions { margin-top: 14px; }
 .event-capacity { margin: 13px 0; color: var(--teal-dark); font-weight: 800; }
 .event-title { padding-top: 30px; }
 .event-suitable-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }

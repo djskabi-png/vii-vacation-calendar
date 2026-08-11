@@ -88,3 +88,18 @@ test("the lead modal looks and behaves like the start of a WhatsApp conversation
   assert.match(css, /\.whatsapp-lead-dialog \.booking-whatsapp\s*\{[^}]*#25d366/);
   assert.match(css, /\.whatsapp-lead-dialog__conversation\s*\{[^}]*#efeae2/);
 });
+
+test("event result cards expose the same tracked phone and WhatsApp actions as vacation cards", async () => {
+  const [events, actions] = await Promise.all([
+    read("app/events/search/page.tsx"),
+    read("app/components/event-card-contact-actions.tsx"),
+  ]);
+
+  assert.match(events, /EventCardContactActions/);
+  assert.match(events, /phone=\{place\.contact\?\.phone\}/);
+  assert.match(events, /whatsapp=\{place\.contact\?\.whatsapp\}/);
+  assert.match(actions, /trackPhoneReveal\(\{ placeId, placeName, world: "events", placement: "event_card" \}\)/);
+  assert.match(actions, /<WhatsAppLeadButton world="events"/);
+  assert.match(actions, /whatsapp \|\| phone/);
+  assert.match(actions, /stay-card__contact--revealed/);
+});
