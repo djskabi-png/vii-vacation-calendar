@@ -3923,6 +3923,7 @@ body:has(.whatsapp-lead-layer) .smart-concierge { display: none; }
 .spa-appointment__composition legend { padding: 0; font-size: .84rem; font-weight: 850; }
 .spa-appointment__composition p { margin: 3px 0 8px; }
 .spa-appointment__composition > div { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; }
+.spa-appointment__composition--single > div { grid-template-columns: repeat(2,minmax(0,1fr)); }
 .spa-appointment__composition label { position: relative; min-width: 0; cursor: pointer; }
 .spa-appointment__composition input { position: absolute; width: 1px; min-height: 1px; opacity: 0; pointer-events: none; }
 .spa-appointment__composition label span { min-height: 48px; display: grid; place-items: center; padding: 7px; border: 1px solid #cfdee1; border-radius: 13px; background: #f9fcfc; color: #31565e; font-size: .75rem; font-weight: 800; text-align: center; }

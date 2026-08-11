@@ -39,7 +39,7 @@ export default function BookingPageClient(props: Props) {
   const [phoneRevealed, setPhoneRevealed] = useState(false);
   const [arrival, setArrival] = useState(props.initialFrom || "");
   const [departure, setDeparture] = useState(props.initialTill || "");
-  const [guests, setGuests] = useState(props.initialGuests || "2");
+  const [guests, setGuests] = useState(() => props.world === "spa" ? props.offerAudience === "יחיד" ? "1" : props.offerAudience === "קבוצה" ? "3" : props.offerAudience === "זוג" ? "2" : props.initialGuests || "2" : props.initialGuests || "2");
   const [spaComposition, setSpaComposition] = useState("");
   const [spaTime, setSpaTime] = useState("");
   const [name, setName] = useState("");
@@ -238,7 +238,7 @@ export default function BookingPageClient(props: Props) {
         <section data-booking-step="1" hidden={step !== 1} aria-labelledby="booking-step-one-title">
           <header><span>שלב 1 מתוך 3</span><h2 id="booking-step-one-title">פרטי השהייה</h2></header>
           {isManage ? <label className="form-wide">מספר הזמנה<input name="bookingReference" required /></label> : <>
-            {props.world === "spa" ? <SpaAppointmentPicker initialDate={props.initialFrom} initialGuests={props.initialGuests} offerName={props.offerName} offerDuration={props.offerDuration} onSelectionChange={(selection) => {
+            {props.world === "spa" ? <SpaAppointmentPicker initialDate={props.initialFrom} initialGuests={props.initialGuests} offerName={props.offerName} offerAudience={props.offerAudience} offerDuration={props.offerDuration} onSelectionChange={(selection) => {
               setSpaAppointmentReady(selection.ready);
               setArrival(selection.date);
               setGuests(String(selection.guests));

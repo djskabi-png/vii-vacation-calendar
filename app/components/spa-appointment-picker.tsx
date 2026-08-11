@@ -6,6 +6,7 @@ type Props = {
   initialDate?: string;
   initialGuests?: string;
   offerName?: string;
+  offerAudience?: string;
   offerDuration?: string;
   onSelectionChange?: (selection: SpaAppointmentSelection) => void;
 };
@@ -24,11 +25,30 @@ const MORNING_SLOTS = ["09:00", "09:45", "10:30", "11:15"];
 const NOON_SLOTS = ["12:00", "12:45", "13:30", "14:15"];
 const EVENING_SLOTS = ["15:30", "16:15", "17:00", "18:00"];
 const PARTICIPANT_OPTIONS = [1, 2, 3, 4];
-const COMPOSITION_OPTIONS = [
+const SINGLE_COMPOSITION_OPTIONS = [
+  { id: "man", label: "גבר" },
+  { id: "woman", label: "אישה" },
+] as const;
+
+const COUPLE_COMPOSITION_OPTIONS = [
   { id: "mixed", label: "גבר ואישה" },
   { id: "men", label: "שני גברים" },
   { id: "women", label: "שתי נשים" },
 ] as const;
+
+const COMPOSITION_OPTIONS = [...SINGLE_COMPOSITION_OPTIONS, ...COUPLE_COMPOSITION_OPTIONS] as const;
+
+function compositionOptionsFor(participants: number) {
+  if (participants === 1) return SINGLE_COMPOSITION_OPTIONS;
+  if (participants === 2) return COUPLE_COMPOSITION_OPTIONS;
+  return [];
+}
+
+function initialParticipantCount(initialGuests?: string, offerAudience?: string) {
+  const audienceDefault = offerAudience === "יחיד" ? 1 : offerAudience === "זוג" ? 2 : offerAudience === "קבוצה" ? 3 : undefined;
+  const parsed = Number(audienceDefault ?? initialGuests ?? 2);
+  return Number.isFinite(parsed) ? Math.min(4, Math.max(1, Math.round(parsed))) : 2;
+}
 
 function startOfDay(date: Date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -57,21 +77,20 @@ function formatSelectedDate(date: Date | null) {
   return new Intl.DateTimeFormat("he-IL", { weekday: "long", day: "numeric", month: "long" }).format(date);
 }
 
-export function SpaAppointmentPicker({ initialDate, initialGuests, offerName, offerDuration, onSelectionChange }: Props) {
+export function SpaAppointmentPicker({ initialDate, initialGuests, offerName, offerAudience, offerDuration, onSelectionChange }: Props) {
   const today = useMemo(() => startOfDay(new Date()), []);
   const initial = useMemo(() => {
     const parsed = parseLocalDate(initialDate);
     return parsed && parsed >= today ? parsed : null;
   }, [initialDate, today]);
+  const initialParticipants = initialParticipantCount(initialGuests, offerAudience);
   const [selectedDate, setSelectedDate] = useState<Date | null>(initial);
   const [selectedTime, setSelectedTime] = useState("");
-  const [participants, setParticipants] = useState(() => {
-    const parsed = Number(initialGuests || 2);
-    return Number.isFinite(parsed) ? Math.min(4, Math.max(1, Math.round(parsed))) : 2;
-  });
-  const [composition, setComposition] = useState("mixed");
+  const [participants, setParticipants] = useState(initialParticipants);
+  const [composition, setComposition] = useState(() => initialParticipants === 2 ? "mixed" : "");
   const [month, setMonth] = useState(() => new Date((initial || today).getFullYear(), (initial || today).getMonth(), 1));
-  const participantsReady = participants !== 2 || Boolean(composition);
+  const compositionOptions = compositionOptionsFor(participants);
+  const participantsReady = participants > 2 || Boolean(composition);
   const compositionLabel = COMPOSITION_OPTIONS.find((option) => option.id === composition)?.label || "";
 
   function notify(next: { date?: Date | null; time?: string; guests?: number; composition?: string }) {
@@ -79,9 +98,9 @@ export function SpaAppointmentPicker({ initialDate, initialGuests, offerName, of
     const time = next.time === undefined ? selectedTime : next.time;
     const guests = next.guests === undefined ? participants : next.guests;
     const nextComposition = next.composition === undefined ? composition : next.composition;
-    const compositionLabel = COMPOSITION_OPTIONS.find((option) => option.id === nextComposition)?.label || "";
+    const compositionLabel = compositionOptionsFor(guests).find((option) => option.id === nextComposition)?.label || "";
     onSelectionChange?.({
-      ready: Boolean(date && time && (guests !== 2 || nextComposition)),
+      ready: Boolean(date && time && (guests > 2 || nextComposition)),
       date: date ? toInputDate(date) : "",
       time,
       guests,
@@ -108,7 +127,9 @@ export function SpaAppointmentPicker({ initialDate, initialGuests, offerName, of
   }, [participantsReady, selectedDate]);
 
   function chooseParticipants(value: number) {
-    const nextComposition = value === 2 ? composition : "";
+    const options = compositionOptionsFor(value);
+    const currentIsValid = options.some((option) => option.id === composition);
+    const nextComposition = value === 2 ? currentIsValid ? composition : "mixed" : currentIsValid ? composition : "";
     setParticipants(value);
     setComposition(nextComposition);
     setSelectedTime("");
@@ -145,7 +166,7 @@ export function SpaAppointmentPicker({ initialDate, initialGuests, offerName, of
     <input name="time" type="hidden" value={selectedTime} />
     <input name="guests" type="hidden" value={participants} />
     <input name="spaCompositionLabel" type="hidden" value={compositionLabel} />
-    {participants !== 2 ? <input name="spaComposition" type="hidden" value="not-applicable" /> : null}
+    {participants > 2 ? <input name="spaComposition" type="hidden" value="not-applicable" /> : null}
 
     <header className="spa-appointment__header">
       <div>
@@ -167,11 +188,11 @@ export function SpaAppointmentPicker({ initialDate, initialGuests, offerName, of
     </div> : null}
 
     <div className="spa-appointment__participants">
-      <div className="spa-appointment__participant-heading"><span>שלב ראשון</span><strong>כמה אנשים מגיעים?</strong><small>ברירת המחדל היא שני אנשים</small></div>
+      <div className="spa-appointment__participant-heading"><span>שלב ראשון</span><strong>כמה אנשים מגיעים?</strong><small>מספר המשתתפים הותאם לחבילה שבחרתם</small></div>
       <div className="spa-appointment__participant-count" role="group" aria-label="מספר משתתפים">
         {PARTICIPANT_OPTIONS.map((value) => <button key={value} type="button" aria-pressed={participants === value} onClick={() => chooseParticipants(value)}><b>{value}</b><span>{value === 1 ? "אדם אחד" : `${value} אנשים`}</span></button>)}
       </div>
-      {participants === 2 ? <fieldset className="spa-appointment__composition"><legend>מה הרכב המטופלים?</legend><p>המידע עוזר למקום להתאים את צוות המטפלים.</p><div>{COMPOSITION_OPTIONS.map((option) => <label key={option.id}><input type="radio" name="spaComposition" value={option.id} checked={composition === option.id} onChange={() => chooseComposition(option.id)} required /><span>{option.label}</span></label>)}</div></fieldset> : null}
+      {compositionOptions.length ? <fieldset className={"spa-appointment__composition" + (participants === 1 ? " spa-appointment__composition--single" : "")}><legend>מה הרכב המטופלים?</legend><p>המידע עוזר למקום להתאים את צוות המטפלים.</p><div>{compositionOptions.map((option) => <label key={option.id}><input type="radio" name="spaComposition" value={option.id} checked={composition === option.id} onChange={() => chooseComposition(option.id)} required /><span>{option.label}</span></label>)}</div></fieldset> : null}
     </div>
 
     <div className={`spa-appointment__body ${participantsReady ? "ready" : "locked"}`}>
