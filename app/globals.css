@@ -6766,3 +6766,44 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   .booking-payment-dialog > footer { flex-direction: column-reverse; }
   .booking-payment-dialog > footer .button { width: 100%; }
 }
+/* Frontend account access and form autofill */
+.account-header-button { min-height: 42px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 7px 13px; color: var(--ink); border: 1px solid #d2e3e5; border-radius: 999px; background: #fff; font: 800 .78rem/1 var(--font-sans); cursor: pointer; }
+.account-header-button svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+.account-header-button--connected { text-decoration: none; }
+.account-header-avatar,.account-dashboard-avatar { display: grid; place-items: center; flex: 0 0 auto; color: #fff; background: linear-gradient(135deg,#087e8b,#2f8ec2); font-weight: 900; }
+.account-header-avatar { width: 29px; height: 29px; border-radius: 50%; font-size: .78rem; }
+.account-auth-layer { position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; padding: 20px; background: rgba(4,31,37,.72); backdrop-filter: blur(8px); }
+.account-auth-dialog { position: relative; width: min(100%,510px); max-height: min(720px,calc(100dvh - 32px)); overflow-y: auto; padding: 30px; border: 1px solid rgba(255,255,255,.65); border-radius: 28px; background: #fff; box-shadow: 0 30px 90px rgba(2,36,43,.32); font-family: var(--font-sans); }
+.account-auth-dialog > .dialog-close { position: absolute; inset-block-start: 18px; inset-inline-end: 18px; }
+.account-auth-dialog__brand { display: flex; align-items: center; gap: 14px; padding-inline-end: 46px; }
+.account-auth-dialog__brand h2 { margin: 3px 0 0; font-size: clamp(1.55rem,4vw,2.05rem); }
+.account-auth-dialog__brand small { color: var(--teal); font-weight: 900; }
+.account-auth-dialog > p { margin: 16px 0; color: var(--ink-soft); line-height: 1.65; }
+.social-auth-icon--instagram { color: #fff; background: linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045); }
+.account-auth-form { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin-top: 18px; }
+.account-auth-form label { display: grid; gap: 6px; color: var(--ink); font-weight: 800; }
+.account-auth-form label:first-child { grid-column: 1 / -1; }
+.account-auth-form input { width: 100%; min-height: 50px; padding: 10px 13px; border: 1px solid #bdd6da; border-radius: 13px; background: #fff; color: var(--ink); font: inherit; }
+.account-auth-form .button { min-height: 48px; margin-top: 5px; }
+.account-auth-dialog__notice { display: block; margin-top: 15px; padding: 12px 14px; color: #526d73; border-radius: 13px; background: #f1f7f8; line-height: 1.55; }
+.account-form-prompt { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 16px; border: 1px solid #bfe0e3; border-radius: 16px; background: linear-gradient(135deg,#eefbfb,#f7fbff); }
+.account-form-prompt > span { display: grid; gap: 3px; }
+.account-form-prompt small { color: var(--ink-soft); font-weight: 500; }
+.account-form-prompt button { flex: 0 0 auto; padding: 10px 14px; color: #fff; border: 0; border-radius: 999px; background: var(--teal); font: 800 .78rem var(--font-sans); cursor: pointer; }
+.account-form-prompt--connected { justify-content: flex-start; color: #086c73; background: #effaf6; border-color: #b9dfcf; }
+.account-dashboard-identity { display: flex; align-items: center; gap: 20px; }
+.account-dashboard-avatar { width: 76px; height: 76px; border: 3px solid rgba(255,255,255,.72); border-radius: 50%; box-shadow: 0 12px 30px rgba(0,0,0,.18); font-size: 2rem; }
+.account-profile p { margin: 6px 0 0; color: var(--ink-soft); }
+@media (max-width: 760px) {
+  .account-header-button { width: 42px; padding: 0; }
+  .account-header-button > span:not(.account-header-avatar) { display: none; }
+  .account-auth-layer { align-items: end; padding: 0; }
+  .account-auth-dialog { width: 100%; max-height: calc(100dvh - 16px); padding: 25px 18px calc(22px + env(safe-area-inset-bottom)); border-radius: 26px 26px 0 0; }
+  .account-auth-form { grid-template-columns: 1fr; }
+  .account-auth-form label:first-child { grid-column: auto; }
+  .account-form-prompt { align-items: stretch; flex-direction: column; }
+  .account-form-prompt button { width: 100%; min-height: 44px; }
+  .account-form-prompt--connected { align-items: center; flex-direction: row; }
+  .account-dashboard-identity { align-items: flex-start; }
+  .account-dashboard-avatar { width: 58px; height: 58px; font-size: 1.45rem; }
+}

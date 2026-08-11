@@ -11,6 +11,7 @@ import { stripLanguagePrefix } from "./i18n/locale-routing";
 import { publicWorldNavigation, type WorldId } from "./data/world-data";
 import { AccessibilityWidget } from "./components/accessibility-widget";
 import { WorldSwitcher } from "./components/world-switcher";
+import { AccountHeaderButton } from "./components/account-access";
 
 const nav = publicWorldNavigation.map((world) => ({ id: world.id, href: world.href, label: world.shortLabel, description: world.description }));
 
@@ -141,6 +142,7 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
           </Link>
 
           <div className="header-actions">
+            <AccountHeaderButton />
             <Link className="icon-button" href="/favorites" aria-label="מקומות שאהבתי" data-loading-label={favoritesLoading}><HeartIcon /></Link>
             <LanguageSwitcher compact iconOnly />
             <Link className={`icon-button header-gift${pathname === "/gift-card" ? " active" : ""}`} href="/gift-card" aria-label="גיפט קארד" aria-current={pathname === "/gift-card" ? "page" : undefined}><GiftIcon /></Link>

@@ -2,7 +2,8 @@ export const ACCOUNT_KEY = "vii-local-account";
 export const BOOKINGS_KEY = "vii-bookings-v1";
 export const ACCOUNT_EVENT = "vii-account-change";
 
-export type LocalAccount = { name: string; email: string; phone?: string; createdAt: string };
+export type AccountProvider = "google" | "facebook" | "instagram";
+export type LocalAccount = { name: string; email: string; phone?: string; provider?: AccountProvider; createdAt: string };
 export type BookingRecord = {
   id: string;
   reference?: string;

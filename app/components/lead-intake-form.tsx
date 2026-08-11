@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { ModernSelect } from "./modern-select";
+import { AccountFormPrompt, useAccountAccess } from "./account-access";
 
 const endpoint = "/api/leads/";
 
@@ -20,6 +21,7 @@ type Purpose = "join" | "booking" | "accessibility";
 type SubmitState = "idle" | "submitting" | "success" | "error";
 
 export function LeadIntakeForm({ purpose, selectedPackage = "", billingCycle = "", fixedWorld = "", onSuccess, submitLabel = "", formVariant = "default" }: { purpose: Purpose; selectedPackage?: string; billingCycle?: "monthly" | "annual" | ""; fixedWorld?: string; onSuccess?: () => void; submitLabel?: string; formVariant?: "default" | "corporate" }) {
+  const { account } = useAccountAccess();
   const isJoin = purpose === "join";
   const isAccessibility = purpose === "accessibility";
   const requestedWorld = useSearchParams().get("world");
@@ -135,10 +137,11 @@ export function LeadIntakeForm({ purpose, selectedPackage = "", billingCycle = "
         ]} />
       )}
 
+      <div className="form-wide"><AccountFormPrompt /></div>
       {isJoin ? <label>שם העסק<input required name="organization" autoComplete="organization" minLength={2} /></label> : null}
-      <label>שם מלא<input required name="name" autoComplete="name" minLength={2} /></label>
-      <label>טלפון לחזרה<input required name="phone" type="tel" inputMode="tel" autoComplete="tel" minLength={7} /></label>
-      <label className={formVariant === "corporate" ? "form-wide" : undefined}>כתובת דוא״ל, לא חובה<input name="email" type="email" autoComplete="email" /></label>
+      <label>שם מלא<input key={`name-${account?.email || "guest"}`} required name="name" autoComplete="name" minLength={2} defaultValue={account?.name || ""} /></label>
+      <label>טלפון לחזרה<input key={`phone-${account?.email || "guest"}`} required name="phone" type="tel" inputMode="tel" autoComplete="tel" minLength={7} defaultValue={account?.phone || ""} /></label>
+      <label className={formVariant === "corporate" ? "form-wide" : undefined}>כתובת דוא״ל, לא חובה<input key={`email-${account?.email || "guest"}`} name="email" type="email" autoComplete="email" defaultValue={account?.email || ""} /></label>
       {formVariant === "corporate" ? <>
         <div className="lead-intake-form__divider form-wide"><span>על האירוע</span></div>
         <label>מועד משוער<input name="event_date" placeholder="לדוגמה, סוף ספטמבר" /></label>

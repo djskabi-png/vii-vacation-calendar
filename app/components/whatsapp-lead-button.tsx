@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useId, useRef, useState } from "react";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { trackWhatsAppLeadSaved } from "../lib/analytics";
+import { AccountFormPrompt, useAccountAccess } from "./account-access";
 
 type Copy = {
   button: string;
@@ -113,6 +114,7 @@ export type WhatsAppLeadButtonProps = {
 export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, serviceName = "", initialDate = "", initialGuests = "", buttonLabel, buttonClassName = "button primary" }: WhatsAppLeadButtonProps) {
   const { language } = useSiteLanguage();
   const labels = copy[language];
+  const { account } = useAccountAccess();
   const [open, setOpen] = useState(false);
   const [state, setState] = useState<"idle" | "submitting" | "error">("idle");
   const [submissionId, setSubmissionId] = useState("");
@@ -235,8 +237,9 @@ export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, s
         <div className="whatsapp-lead-dialog__intro"><h2 id={titleId}>{labels.title}</h2><p id={descriptionId}>{labels.description}</p></div>
         <form onSubmit={submit}>
           <div className="whatsapp-lead-dialog__fields">
-            <label>{labels.name}<input ref={firstInputRef} required name="name" autoComplete="name" minLength={2} /></label>
-            <label>{labels.phone}<input required name="phone" type="tel" inputMode="tel" autoComplete="tel" minLength={7} maxLength={20} pattern="[0-9+() -]{7,20}" /></label>
+            <div className="form-wide"><AccountFormPrompt /></div>
+            <label>{labels.name}<input key={`name-${account?.email || "guest"}`} ref={firstInputRef} required name="name" autoComplete="name" minLength={2} defaultValue={account?.name || ""} /></label>
+            <label>{labels.phone}<input key={`phone-${account?.email || "guest"}`} required name="phone" type="tel" inputMode="tel" autoComplete="tel" minLength={7} maxLength={20} pattern="[0-9+() -]{7,20}" defaultValue={account?.phone || ""} /></label>
             <label>{labels.date}<input required name="requested_date" type="date" defaultValue={initialDate} /></label>
             <label>{labels.guests}<input name="guests" type="number" inputMode="numeric" min="1" defaultValue={initialGuests} placeholder={labels.guestsHint} /></label>
             <label className="form-honey" aria-hidden="true">Company site<input name="company_site" tabIndex={-1} autoComplete="off" /></label>

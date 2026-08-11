@@ -6,6 +6,7 @@ import { CalendarIcon } from "../site-header";
 import { saveBooking } from "../lib/account";
 import { SpaAppointmentPicker } from "../components/spa-appointment-picker";
 import { useSiteLanguage } from "../i18n/locale-provider";
+import { AccountFormPrompt, useAccountAccess } from "../components/account-access";
 
 type Props = {
   world: string;
@@ -27,6 +28,7 @@ type Props = {
 
 export default function BookingPageClient(props: Props) {
   const { translate } = useSiteLanguage();
+  const { account } = useAccountAccess();
   const formRef = useRef<HTMLFormElement>(null);
   const paymentTriggerRef = useRef<HTMLButtonElement>(null);
   const paymentDialogRef = useRef<HTMLElement>(null);
@@ -54,6 +56,8 @@ export default function BookingPageClient(props: Props) {
   const usesSpaPayment = props.world === "spa" && !isManage;
   const localizedOfferIncludes = props.offerIncludes?.map((item) => translate(item));
   const paymentMethodLabel = paymentMethod === "pay_now" ? "תשלום בכרטיס עכשיו" : "תשלום במקום, כרטיס לביטחון";
+
+  useEffect(() => { if (!account) return; setName(account.name); setPhone(account.phone || ""); setEmail(account.email); }, [account]);
 
   const closePayment = useCallback(() => {
     if (state === "submitting") return;
@@ -255,6 +259,7 @@ export default function BookingPageClient(props: Props) {
 
         <section data-booking-step="2" hidden={step !== 2} aria-labelledby="booking-step-two-title">
           <header><span>שלב 2 מתוך 3</span><h2 id="booking-step-two-title">פרטי המזמין</h2></header>
+          <div className="form-wide"><AccountFormPrompt /></div>
           <label>שם מלא<input name="name" autoComplete="name" minLength={2} value={name} onChange={(event) => setName(event.target.value)} required /></label>
           <label>טלפון<input name="phone" type="tel" inputMode="tel" autoComplete="tel" minLength={7} value={phone} onChange={(event) => setPhone(event.target.value)} required /></label>
           <label>דואר אלקטרוני<input name="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} /></label>

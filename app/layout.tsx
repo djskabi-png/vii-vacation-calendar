@@ -4,6 +4,7 @@ import { LocaleProvider } from "./i18n/locale-provider";
 import { StructuredData } from "./components/structured-data";
 import { organizationSchema, websiteSchema } from "./lib/seo";
 import { headers } from "next/headers";
+import { AccountAccessProvider } from "./components/account-access";
 
 const baseMetadata: Metadata = {
   metadataBase: new URL("https://vii.spaplus.co/"),
@@ -78,6 +79,6 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return <html lang={locale} dir={direction} suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: localeBootstrap }} /></head><body>
     <StructuredData data={organizationSchema()} />
     <StructuredData data={websiteSchema()} />
-    <LocaleProvider>{children}</LocaleProvider>
+    <LocaleProvider><AccountAccessProvider>{children}</AccountAccessProvider></LocaleProvider>
   </body></html>;
 }
