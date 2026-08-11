@@ -41,12 +41,17 @@ export function SearchWorldTabs({ active, onNavigate }: { active: WorldId; onNav
   const iconByWorld = { vacation: "🏡", spa: "🧖", events: "🎈", hourly: "🕒" } as const;
   const moreWorlds = publicWorldNavigation.filter((world) => !primaryWorlds.includes(world.id as typeof primaryWorlds[number]));
 
+  const finishNavigation = () => {
+    if (!onNavigate) return;
+    window.setTimeout(onNavigate, 0);
+  };
+
   return <nav className="search-world-tabs" aria-label={translate("בחירת עולם לחיפוש")}>
     <span className="search-world-tabs__prompt">{translate("מה מחפשים?")}</span>
     <div className="search-world-tabs__options">
       {primaryWorlds.map((worldId) => {
         const world = worlds.find((item) => item.id === worldId)!;
-        return <Link key={world.id} href={localizedPath(world.href, language)} className={world.id === active ? "active" : ""} aria-current={world.id === active ? "page" : undefined} onClick={onNavigate}>
+        return <Link key={world.id} href={localizedPath(world.href, language)} className={world.id === active ? "active" : ""} aria-current={world.id === active ? "page" : undefined} onClick={finishNavigation}>
           <span className="search-world-tabs__icon" aria-hidden="true">{iconByWorld[worldId]}</span>
           <span>{translate(world.shortLabel)}</span>
         </Link>;
@@ -57,7 +62,7 @@ export function SearchWorldTabs({ active, onNavigate }: { active: WorldId; onNav
           <span>{translate("עוד")}</span>
         </summary>
         <div className="search-world-tabs__menu">
-          {moreWorlds.map((world) => <Link key={world.id} href={localizedPath(world.href, language)} onClick={() => { moreRef.current?.removeAttribute("open"); onNavigate?.(); }}>
+          {moreWorlds.map((world) => <Link key={world.id} href={localizedPath(world.href, language)} onClick={() => { window.setTimeout(() => { moreRef.current?.removeAttribute("open"); onNavigate?.(); }, 0); }}>
             <span className={`world-mark world-mark--${world.id}`} aria-hidden="true" />
             <span><strong>{translate(world.shortLabel)}</strong><small>{translate(world.description)}</small></span>
           </Link>)}
