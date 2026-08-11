@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import { useSiteLanguage } from "./i18n/locale-provider";
 
 export type CalendarMode = "home" | "business";
 export type BusinessKind = "multi" | "single";
@@ -90,22 +91,22 @@ function daysInMonth(month: Date) {
   return new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
 }
 
-function monthLabel(date: Date) {
-  return new Intl.DateTimeFormat("he-IL", { month: "long", year: "numeric" }).format(date);
+function monthLabel(date: Date, locale: string) {
+  return new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(date);
 }
 
-function compactMonth(date: Date) {
-  return new Intl.DateTimeFormat("he-IL", { month: "long" }).format(date);
+function compactMonth(date: Date, locale: string) {
+  return new Intl.DateTimeFormat(locale, { month: "long" }).format(date);
 }
 
-function shortDate(key: string | null) {
+function shortDate(key: string | null, locale: string) {
   if (!key) return "בחירת תאריך";
-  return new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "short" }).format(dateFromKey(key));
+  return new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" }).format(dateFromKey(key));
 }
 
-function longDate(key: string | null) {
+function longDate(key: string | null, locale: string) {
   if (!key) return "טרם נבחר";
-  return new Intl.DateTimeFormat("he-IL", {
+  return new Intl.DateTimeFormat(locale, {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -167,6 +168,7 @@ function CalendarMonth({
   onChoose,
   businessKind,
   secondary,
+  locale,
 }: {
   month: Date;
   mode: CalendarMode;
@@ -175,6 +177,7 @@ function CalendarMonth({
   onChoose: (date: Date) => void;
   businessKind: BusinessKind;
   secondary?: boolean;
+  locale: string;
 }) {
   const cells = useMemo(() => {
     const result: Array<Date | null> = [];
@@ -187,8 +190,8 @@ function CalendarMonth({
   }, [month]);
 
   return (
-    <section className={`demo-month${secondary ? " secondary-month" : ""}`} aria-label={monthLabel(month)}>
-      <h3>{monthLabel(month)}</h3>
+    <section className={`demo-month${secondary ? " secondary-month" : ""}`} aria-label={monthLabel(month, locale)}>
+      <h3>{monthLabel(month, locale)}</h3>
       <div className="demo-weekdays" aria-hidden="true">
         {WEEKDAYS.map((day) => <span key={day}>{day}</span>)}
       </div>
@@ -216,7 +219,7 @@ function CalendarMonth({
               ].filter(Boolean).join(" ")}
               disabled={disabled}
               aria-pressed={isStart || isEnd}
-              aria-label={`${date.getDate()} ${monthLabel(month)}, ${state.label}${mode === "business" && min > 1 ? `, מינימום ${min} לילות` : ""}`}
+              aria-label={`${date.getDate()} ${monthLabel(month, locale)}, ${state.label}${mode === "business" && min > 1 ? `, מינימום ${min} לילות` : ""}`}
               onClick={() => onChoose(date)}
             >
               <span className="demo-day-number">{date.getDate()}</span>
@@ -251,6 +254,8 @@ export function CalendarDemo({
   onCancel?: () => void;
   onConfirm: (result: CalendarResult) => void;
 }) {
+  const { language } = useSiteLanguage();
+  const dateLocale = { he: "he-IL", en: "en-GB", ru: "ru-RU", fr: "fr-FR" }[language];
   const cancel = onCancel ?? onClose;
   const [checkIn, setCheckIn] = useState<string | null>(null);
   const [checkOut, setCheckOut] = useState<string | null>(null);
@@ -326,8 +331,8 @@ export function CalendarDemo({
   function confirm() {
     const selectedStay = FLEX_STAYS.find((stay) => stay.id === flexStay) ?? FLEX_STAYS[0];
     const summary = flexible
-      ? `${selectedStay.label} ב${compactMonth(addMonths(START_MONTH, flexMonth))}, גמישות ${flexDays} ימים`
-      : `${shortDate(checkIn)} עד ${shortDate(checkOut)}`;
+      ? `${selectedStay.label} ב${compactMonth(addMonths(START_MONTH, flexMonth), dateLocale)}, גמישות ${flexDays} ימים`
+      : `${shortDate(checkIn, dateLocale)} עד ${shortDate(checkOut, dateLocale)}`;
     onConfirm({ checkIn, checkOut, flexible, summary });
     onClose();
   }
@@ -377,7 +382,7 @@ export function CalendarDemo({
               <div className="choice-row month-choice-row">
                 {Array.from({ length: 5 }, (_, index) => addMonths(START_MONTH, index)).map((month, index) => (
                   <button type="button" key={keyOf(month)} className={flexMonth === index ? "selected" : ""} onClick={() => setFlexMonth(index)}>
-                    <strong>{compactMonth(month)}</strong>
+                    <strong>{compactMonth(month, dateLocale)}</strong>
                     <small>{month.getFullYear()}</small>
                   </button>
                 ))}
@@ -405,7 +410,7 @@ export function CalendarDemo({
 
             <div className="dialog-months" aria-label="אופן בחירת תאריכים">
               {visibleMonths.map((month) => (
-                <CalendarMonth key={keyOf(month)} month={month} mode={mode} businessKind={businessKind} checkIn={checkIn} checkOut={checkOut} onChoose={chooseDate} />
+                <CalendarMonth key={keyOf(month)} month={month} mode={mode} businessKind={businessKind} checkIn={checkIn} checkOut={checkOut} onChoose={chooseDate} locale={dateLocale} />
               ))}
             </div>
 
@@ -428,7 +433,7 @@ export function CalendarDemo({
           <div className="dialog-status" aria-live="polite">
             <span className={ready ? "status-ready" : ""}>{ready ? "✓" : "i"}</span>
             <div>
-              <strong>{flexible ? "החיפוש הגמיש מוכן" : checkIn && checkOut ? `${longDate(checkIn)} עד ${longDate(checkOut)}` : checkIn ? `${longDate(checkIn)} · ${notice}` : notice}</strong>
+              <strong>{flexible ? "החיפוש הגמיש מוכן" : checkIn && checkOut ? `${longDate(checkIn, dateLocale)} עד ${longDate(checkOut, dateLocale)}` : checkIn ? `${longDate(checkIn, dateLocale)} · ${notice}` : notice}</strong>
               <small>{!flexible && checkIn && checkOut ? `${nights === 1 ? "לילה אחד" : `${nights} לילות`} · ` : ""}{mode === "home" ? "הבחירה תחול על כל תוצאות האתר" : businessKind === "single" ? `הבחירה תחול על כל המקום ב${businessName}` : `הבחירה תחול רק על יחידות ${businessName}`}</small>
             </div>
           </div>

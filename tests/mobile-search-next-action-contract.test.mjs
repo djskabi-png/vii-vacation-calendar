@@ -17,7 +17,7 @@ test("vacation calendar uses continuous complete months and one footer summary",
   assert.match(calendar, /visibleMonths\.map/);
   assert.doesNotMatch(calendar, /className="dialog-date-summary"/);
   assert.doesNotMatch(calendar, /className="month-nav"/);
-  assert.match(calendar, /longDate\(checkIn\).*longDate\(checkOut\)/);
+  assert.match(calendar, /longDate\(checkIn, dateLocale\).*longDate\(checkOut, dateLocale\)/);
   assert.doesNotMatch(css, /\.secondary-month\s*\{[^}]*display:\s*none/);
   assert.match(css, /scroll-snap-type:\s*y proximity/);
   assert.match(calendar, /calendar-dialog-close[^>]*>×<\/button>/);
