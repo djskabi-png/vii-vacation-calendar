@@ -38,5 +38,6 @@ test("grid and list layouts cover desktop and narrow mobile cards", () => {
   assert.match(styles, /\.discovery-grid\.results-view--list \.discovery-card \{ display: grid; grid-template-columns: 290px/);
   assert.match(styles, /@media \(max-width: 620px\)/);
   assert.match(styles, /\.result-cards\.results-view--list \.stay-card \{ grid-template-columns: 124px/);
+  assert.match(styles, /\.results-toolbar \{ position: relative; z-index: 20; \}/);
   assert.match(styles, /font-family: Rubik, Heebo, Assistant, Arial, sans-serif/);
 });

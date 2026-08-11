@@ -32,6 +32,9 @@
 .results-view-toggle button:focus-visible { outline: 3px solid rgba(10, 133, 148, .28); outline-offset: 2px; }
 .results-view-toggle svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
+/* Keep the view controls above the first result card on compact layouts. */
+.results-toolbar { position: relative; z-index: 20; }
+
 /* Vacation results default to complete card tiles. */
 .result-cards.results-view--grid { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; }
 .result-cards.results-view--grid .stay-card { display: block; }
