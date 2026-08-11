@@ -112,8 +112,9 @@ export type WhatsAppLeadButtonProps = {
 };
 
 export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, serviceName = "", initialDate = "", initialGuests = "", buttonLabel, buttonClassName = "button primary" }: WhatsAppLeadButtonProps) {
-  const { language } = useSiteLanguage();
+  const { language, translate } = useSiteLanguage();
   const labels = copy[language];
+  const localizedPlaceName = translate(placeName);
   const { account } = useAccountAccess();
   const [open, setOpen] = useState(false);
   const [state, setState] = useState<"idle" | "submitting" | "error">("idle");
@@ -206,7 +207,7 @@ export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, s
       if (!response.ok || !result.success) throw new Error("lead_not_saved");
       const reference = result.reference || id;
       const whatsappMessage = [
-        labels.messageIntro(placeName),
+        labels.messageIntro(localizedPlaceName),
         `${labels.messageName}: ${name}`,
         `${labels.messagePhone}: ${visitorPhone}`,
         `${labels.messageDate}: ${requestedDate}`,
@@ -230,9 +231,9 @@ export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, s
           <div className="whatsapp-lead-dialog__brand"><span aria-hidden="true"><WhatsAppIcon /></span><div><strong>{labels.appName}</strong><small>{labels.eyebrow}</small></div></div>
           <button className="dialog-close" type="button" onClick={closeDialog} aria-label={labels.close}>×</button>
         </header>
-        <div className="whatsapp-lead-dialog__conversation" aria-label={labels.conversationWith(placeName)}>
+        <div className="whatsapp-lead-dialog__conversation" aria-label={labels.conversationWith(localizedPlaceName)}>
           <span className="whatsapp-lead-dialog__avatar" aria-hidden="true"><WhatsAppIcon /></span>
-          <div className="whatsapp-lead-dialog__bubble"><strong>{placeName}</strong><p>{labels.previewMessage}</p></div>
+          <div className="whatsapp-lead-dialog__bubble"><strong>{localizedPlaceName}</strong><p>{labels.previewMessage}</p></div>
         </div>
         <div className="whatsapp-lead-dialog__intro"><h2 id={titleId}>{labels.title}</h2><p id={descriptionId} className="sr-only">{labels.description}</p></div>
         <form onSubmit={submit}>

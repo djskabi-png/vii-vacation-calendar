@@ -88,9 +88,11 @@ test("the lead modal looks and behaves like the start of a WhatsApp conversation
   assert.match(component, /whatsapp-lead-dialog__appbar/);
   assert.match(component, /whatsapp-lead-dialog__conversation/);
   assert.match(component, /<AccountFormPrompt compact \/>/);
+  assert.match(component, /const localizedPlaceName = translate\(placeName\)/);
+  assert.match(component, /conversationWith\(localizedPlaceName\)/);
   assert.doesNotMatch(component, /labels\.previewStatus\}<\/small>/);
   assert.match(css, /\.account-form-prompt--compact/);
-  assert.match(component, /labels\.conversationWith\(placeName\)/);
+  assert.match(component, /labels\.conversationWith\(localizedPlaceName\)/);
   assert.match(component, /className=\{`\$\{buttonClassName\} whatsapp-lead-trigger`\}/);
   assert.match(component, /className="button primary booking-whatsapp"[^>]*><WhatsAppIcon \/>/);
   assert.match(css, /\.whatsapp-lead-dialog__appbar\s*\{[^}]*#075e54[^}]*#128c7e/);
