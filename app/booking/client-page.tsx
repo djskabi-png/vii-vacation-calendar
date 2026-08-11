@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useId, useRef, useState } from "react";
 import { CalendarIcon } from "../site-header";
 import { saveBooking } from "../lib/account";
 import { SpaAppointmentPicker } from "../components/spa-appointment-picker";
@@ -26,6 +26,9 @@ type Props = {
 
 export default function BookingPageClient(props: Props) {
   const formRef = useRef<HTMLFormElement>(null);
+  const paymentTriggerRef = useRef<HTMLButtonElement>(null);
+  const paymentDialogRef = useRef<HTMLElement>(null);
+  const paymentTitleId = useId();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [state, setState] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [reference, setReference] = useState("");
@@ -41,9 +44,50 @@ export default function BookingPageClient(props: Props) {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<"pay_now" | "pay_at_venue" | "">("");
+  const [paymentOpen, setPaymentOpen] = useState(false);
+  const [successExplanationOpen, setSuccessExplanationOpen] = useState(false);
   const isManage = props.action === "manage";
   const onlineReady = props.world !== "vacation" || Boolean(props.onlineReady);
+  const usesSpaPayment = props.world === "spa" && !isManage;
+  const paymentMethodLabel = paymentMethod === "pay_now" ? "תשלום בכרטיס עכשיו" : "תשלום במקום, כרטיס לביטחון";
 
+  const closePayment = useCallback(() => {
+    if (state === "submitting") return;
+    setPaymentOpen(false);
+    requestAnimationFrame(() => paymentTriggerRef.current?.focus());
+  }, [state]);
+
+  useEffect(() => {
+    if (!paymentOpen && !successExplanationOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        if (paymentOpen) closePayment();
+        else setSuccessExplanationOpen(false);
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const focusable = Array.from(paymentDialogRef.current?.querySelectorAll<HTMLElement>("button:not([disabled]), a[href]") || []);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", onKeyDown);
+    requestAnimationFrame(() => paymentDialogRef.current?.querySelector<HTMLElement>("button:not([disabled])")?.focus());
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [closePayment, paymentOpen, successExplanationOpen]);
   function validateStep(currentStep: 1 | 2) {
     const section = formRef.current?.querySelector<HTMLElement>(`[data-booking-step="${currentStep}"]`);
     const controls = Array.from(section?.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>("input, textarea, select") || []);
@@ -63,6 +107,13 @@ export default function BookingPageClient(props: Props) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  function openPayment() {
+    if (!paymentMethod) {
+      formRef.current?.querySelector<HTMLInputElement>('input[name="paymentMethod"]')?.focus();
+      return;
+    }
+    setPaymentOpen(true);
+  }
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (step !== 3 || state === "submitting" || state === "success") return;
@@ -78,6 +129,7 @@ export default function BookingPageClient(props: Props) {
       values.get("time") ? `שעה: ${values.get("time")}` : "",
       values.get("guests") ? `כמות משתתפים: ${values.get("guests")}` : "",
       values.get("spaCompositionLabel") ? `הרכב המטופלים: ${values.get("spaCompositionLabel")}` : "",
+      usesSpaPayment ? `אופן התשלום שנבחר: ${paymentMethodLabel}` : "",
       props.offerDuration ? `משך הטיפול: ${props.offerDuration}` : "",
       props.offerIncludes?.length ? `מה כלול: ${props.offerIncludes.join(", ")}` : "",
       values.get("notes") ? `הערות: ${values.get("notes")}` : "",
@@ -106,7 +158,9 @@ export default function BookingPageClient(props: Props) {
       if (!response.ok || !result.success) throw new Error("booking failed");
       if (!isManage) saveBooking({ id, reference: result.reference, world: props.world, placeName: props.placeName, offerName: props.offerName, date: [values.get("date"), values.get("till")].filter(Boolean).join(" עד "), guests: String(values.get("guests") || ""), status: "pending", createdAt: new Date().toISOString() });
       setReference(result.reference || "");
+      setPaymentOpen(false);
       setState("success");
+      if (usesSpaPayment) setSuccessExplanationOpen(true);
     } catch {
       setState("error");
     }
@@ -122,26 +176,44 @@ export default function BookingPageClient(props: Props) {
     </section>
   </main>;
 
-  if (state === "success") return <main id="main-content" className="booking-page shell">
-    <section className="booking-success" role="status" aria-live="polite">
-      <span className="booking-success__mark" aria-hidden="true">✓</span>
-      <small>{isManage ? "בקשת שינוי" : "הזמנה שממתינה לאישור"}</small>
-      <h1>{isManage ? "בקשת השינוי התקבלה" : "בקשת ההזמנה נקלטה בהצלחה"}</h1>
-      <p>{isManage ? "הבקשה נשמרה ונציג יבדוק אותה." : "לא בוצע חיוב. המקום יקבל את הבקשה, יאמת זמינות ומחיר ויחזיר אישור סופי."}</p>
-      <div className="booking-success__summary"><strong>{props.placeName}</strong><span>{arrival}{departure ? ` עד ${departure}` : ""}</span><span>{props.world === "spa" ? `${guests} משתתפים${spaComposition ? `, ${spaComposition}` : ""}` : `${guests} אורחים`}</span><b>{props.price}</b>{reference ? <code dir="ltr">{reference}</code> : null}</div>
-      <div className="booking-success__actions"><button className="button secondary" type="button" onClick={() => window.print()}>הדפסת הסיכום</button><Link className="button primary" href="/account">לצפייה בהזמנות שלי</Link><Link className="button subtle" href="/">חזרה לדף הבית</Link></div>
-    </section>
-  </main>;
-
+  if (state === "success") return <>
+    <main id="main-content" className="booking-page shell">
+      <section className="booking-success" role="status" aria-live="polite">
+        <span className="booking-success__mark" aria-hidden="true">✓</span>
+        <small>{isManage ? "בקשת שינוי" : "הזמנה שממתינה לאישור"}</small>
+        <h1>{isManage ? "בקשת השינוי התקבלה" : "בקשת ההזמנה הושלמה"}</h1>
+        <p>{isManage ? "הבקשה נשמרה ונציג יבדוק אותה." : usesSpaPayment ? paymentMethod === "pay_now" ? "פרטי ההזמנה נשמרו. ספק הסליקה טרם חובר ולכן לא בוצע חיוב בכרטיס." : "פרטי ההזמנה נשמרו. לא בוצע חיוב, וכרטיס לביטחון לא נשמר עד לחיבור ספק סליקה מאובטח." : "לא בוצע חיוב. המקום יקבל את הבקשה, יאמת זמינות ומחיר ויחזיר אישור סופי."}</p>
+        <div className="booking-success__summary">
+          <strong>{props.placeName}</strong>
+          <span>{arrival}{departure ? " עד " + departure : ""}</span>
+          <span>{props.world === "spa" ? guests + " משתתפים" + (spaComposition ? ", " + spaComposition : "") : guests + " אורחים"}</span>
+          {usesSpaPayment ? <span>{paymentMethodLabel}</span> : null}
+          <b>{props.price}</b>
+          {reference ? <code dir="ltr">{reference}</code> : null}
+        </div>
+        <div className="booking-success__actions"><button className="button secondary" type="button" onClick={() => window.print()}>הדפסת הסיכום</button><Link className="button primary" href="/account">לצפייה בהזמנות שלי</Link><Link className="button subtle" href="/">חזרה לדף הבית</Link></div>
+      </section>
+    </main>
+    {successExplanationOpen ? <div className="booking-payment-layer" onMouseDown={(event) => event.target === event.currentTarget && setSuccessExplanationOpen(false)}>
+      <section ref={paymentDialogRef} className="booking-payment-dialog booking-payment-dialog--success" role="dialog" aria-modal="true" aria-labelledby={paymentTitleId}>
+        <span className="booking-payment-dialog__mark" aria-hidden="true">✓</span>
+        <small>סיכום הזמנה</small>
+        <h2 id={paymentTitleId}>הבקשה נשמרה בהצלחה</h2>
+        <p>{paymentMethod === "pay_now" ? "בחרתם לשלם בכרטיס עכשיו. בשלב ההמחשה לא בוצע חיוב, ופרטי כרטיס לא נאספו." : "בחרתם לשלם במקום ולהעמיד כרטיס לביטחון. בשלב ההמחשה לא נשמר כרטיס ולא בוצע חיוב."}</p>
+        <div className="booking-payment-dialog__summary"><span>{props.placeName}</span><strong>{props.price}</strong><small>{paymentMethodLabel}</small></div>
+        <button className="button primary wide" type="button" onClick={() => setSuccessExplanationOpen(false)}>הבנתי, לסיכום ההזמנה</button>
+      </section>
+    </div> : null}
+  </>;
   return <main id="main-content" className="booking-page shell">
     <div className="booking-page__intro">
-      <span className="eyebrow">{isManage ? "ניהול הזמנה" : "הזמנה אונליין ללא אשראי"}</span>
+      <span className="eyebrow">{isManage ? "ניהול הזמנה" : usesSpaPayment ? "הזמנת ספא אונליין" : "הזמנה אונליין"}</span>
       <h1>{isManage ? "עדכון או ביטול הזמנה" : props.placeName}</h1>
-      <p>{isManage ? "מוסרים את מספר ההזמנה ואת הבקשה המבוקשת." : "שלושה שלבים קצרים. הבקשה נשלחת לאישור המקום ורק לאחר מכן הופכת להזמנה מאושרת."}</p>
+      <p>{isManage ? "מוסרים את מספר ההזמנה ואת הבקשה המבוקשת." : usesSpaPayment ? "בוחרים מועד, ממלאים פרטים ובוחרים איך לשלם לפני סיכום ההזמנה." : "שלושה שלבים קצרים. הבקשה נשלחת לאישור המקום ורק לאחר מכן הופכת להזמנה מאושרת."}</p>
     </div>
 
     <nav className="booking-steps" aria-label="שלבי ההזמנה">
-      {[1, 2, 3].map((number) => <button key={number} type="button" className={step === number ? "active" : step > number ? "complete" : ""} aria-current={step === number ? "step" : undefined} onClick={() => number < step && setStep(number as 1 | 2 | 3)}><b>{number}</b><span>{number === 1 ? "פרטי השהייה" : number === 2 ? "פרטי המזמין" : "סיכום ושליחה"}</span></button>)}
+      {[1, 2, 3].map((number) => <button key={number} type="button" className={step === number ? "active" : step > number ? "complete" : ""} aria-current={step === number ? "step" : undefined} onClick={() => number < step && setStep(number as 1 | 2 | 3)}><b>{number}</b><span>{number === 1 ? "פרטי השהייה" : number === 2 ? "פרטי המזמין" : usesSpaPayment ? "תשלום וסיכום" : "סיכום ושליחה"}</span></button>)}
     </nav>
 
     <div className="booking-flow booking-flow--steps">
@@ -156,7 +228,7 @@ export default function BookingPageClient(props: Props) {
           {props.offerDuration ? <div><dt>משך הטיפול</dt><dd>{props.offerDuration}</dd></div> : null}
           {props.offerIncludes?.length ? <div><dt>מה כלול</dt><dd>{props.offerIncludes.join(" · ")}</dd></div> : null}
         </dl> : null}
-        <ul><li>אין הזנת כרטיס אשראי</li><li>הבקשה נשמרת בסטטוס ממתין</li><li>אישור סופי מתקבל לאחר בדיקת המקום</li></ul>
+        <ul>{usesSpaPayment ? <><li>בוחרים תשלום עכשיו או במקום</li><li>הכרטיס מוזן רק בחלון סליקה מאובטח</li><li>בשלב ההמחשה לא נאספים פרטי כרטיס</li></> : <><li>אין הזנת כרטיס אשראי</li><li>הבקשה נשמרת בסטטוס ממתין</li><li>אישור סופי מתקבל לאחר בדיקת המקום</li></>}</ul>
       </aside>
 
       <form ref={formRef} className="booking-form booking-form--steps" onSubmit={submit}>
@@ -190,13 +262,41 @@ export default function BookingPageClient(props: Props) {
         </section>
 
         <section data-booking-step="3" hidden={step !== 3} aria-labelledby="booking-step-three-title">
-          <header><span>שלב 3 מתוך 3</span><h2 id="booking-step-three-title">סיכום ושליחת הבקשה</h2></header>
-          <div className="booking-review form-wide"><article><span>מקום וחבילה</span><strong>{props.placeName}</strong><small>{props.offerName}{props.offerDuration ? ` · ${props.offerDuration}` : ""}</small></article><article><span>מועד והרכב</span><strong>{arrival || "לפי הבחירה"}{spaTime ? ` בשעה ${spaTime}` : departure ? ` עד ${departure}` : ""}</strong><small>{props.world === "spa" ? `${guests} משתתפים${spaComposition ? `, ${spaComposition}` : ""}` : `${guests} אורחים או משתתפים`}</small></article><article><span>פרטי המזמין</span><strong>{name}</strong><small>{phone}{email ? ` · ${email}` : ""}</small></article><article><span>מחיר הבקשה</span><strong>{props.price}</strong><small>ללא חיוב וללא אשראי בשלב זה</small></article></div>
-          <div className="booking-approval-note form-wide"><strong>מה קורה אחרי השליחה?</strong><p>הבקשה נשמרת ומועברת למקום. לאחר בדיקת הזמינות והמחיר יישלח אישור סופי. עד אז הסטטוס הוא ממתין לאישור.</p></div>
-          <div className="booking-form__actions form-wide"><button className="button secondary" type="button" onClick={() => setStep(2)}>עריכת הפרטים</button><button className="button primary" disabled={state === "submitting"} type="submit">{state === "submitting" ? "שולחים..." : isManage ? "שליחת בקשת שינוי" : "שליחת בקשת הזמנה"}</button></div>
+          <header><span>שלב 3 מתוך 3</span><h2 id="booking-step-three-title">{usesSpaPayment ? "סיכום ואופן התשלום" : "סיכום ושליחת הבקשה"}</h2></header>
+          <div className="booking-review form-wide">
+            <article><span>מקום וחבילה</span><strong>{props.placeName}</strong><small>{props.offerName}{props.offerDuration ? " · " + props.offerDuration : ""}</small></article>
+            <article><span>מועד והרכב</span><strong>{arrival || "לפי הבחירה"}{spaTime ? " בשעה " + spaTime : departure ? " עד " + departure : ""}</strong><small>{props.world === "spa" ? guests + " משתתפים" + (spaComposition ? ", " + spaComposition : "") : guests + " אורחים או משתתפים"}</small></article>
+            <article><span>פרטי המזמין</span><strong>{name}</strong><small>{phone}{email ? " · " + email : ""}</small></article>
+            <article><span>מחיר ההזמנה</span><strong>{props.price}</strong><small>{usesSpaPayment ? paymentMethod ? paymentMethodLabel : "אופן התשלום ייבחר כעת" : "ללא חיוב וללא אשראי בשלב זה"}</small></article>
+          </div>
+          {usesSpaPayment ? <fieldset className="booking-payment-choice form-wide">
+            <legend>איך תרצו לשלם?</legend>
+            <p>בחרו את אופן התשלום המתאים לכם.</p>
+            <div>
+              <label><input type="radio" name="paymentMethod" value="pay_now" checked={paymentMethod === "pay_now"} onChange={() => setPaymentMethod("pay_now")} required /><span><b>תשלום בכרטיס אשראי עכשיו</b><small>מעבר לחלון תשלום מאובטח עבור מלוא סכום ההזמנה.</small></span></label>
+              <label><input type="radio" name="paymentMethod" value="pay_at_venue" checked={paymentMethod === "pay_at_venue"} onChange={() => setPaymentMethod("pay_at_venue")} required /><span><b>תשלום במקום</b><small>הכרטיס משמש לביטחון ההזמנה בלבד ואינו מחויב עכשיו.</small></span></label>
+            </div>
+            <small className="booking-payment-choice__notice">ספק הסליקה טרם חובר. כרגע זהו תהליך המחשה, אין להזין או לשמור פרטי כרטיס אמיתי.</small>
+          </fieldset> : <div className="booking-approval-note form-wide"><strong>מה קורה אחרי השליחה?</strong><p>הבקשה נשמרת ומועברת למקום. לאחר בדיקת הזמינות והמחיר יישלח אישור סופי. עד אז הסטטוס הוא ממתין לאישור.</p></div>}
+          <div className="booking-form__actions form-wide">
+            <button className="button secondary" type="button" onClick={() => setStep(2)}>עריכת הפרטים</button>
+            {usesSpaPayment ? <button ref={paymentTriggerRef} className="button primary" type="button" onClick={openPayment}>המשך לתשלום</button> : <button className="button primary" disabled={state === "submitting"} type="submit">{state === "submitting" ? "שולחים..." : isManage ? "שליחת בקשת שינוי" : "שליחת בקשת הזמנה"}</button>}
+          </div>
           {state === "error" ? <p className="form-error form-wide" role="alert">השליחה לא הושלמה. הפרטים נשארו בטופס ואפשר לנסות שוב.</p> : null}
         </section>
       </form>
     </div>
-  </main>;
+    {paymentOpen ? <div className="booking-payment-layer" onMouseDown={(event) => event.target === event.currentTarget && closePayment()}>
+      <section ref={paymentDialogRef} className="booking-payment-dialog" role="dialog" aria-modal="true" aria-labelledby={paymentTitleId}>
+        <header><div><small>תשלום מאובטח</small><h2 id={paymentTitleId}>{paymentMethod === "pay_now" ? "תשלום בכרטיס אשראי" : "כרטיס לביטחון ההזמנה"}</h2></div><button className="dialog-close" type="button" onClick={closePayment} aria-label="סגירת חלון התשלום">×</button></header>
+        <p>{paymentMethod === "pay_now" ? "כאן יוזנו פרטי הכרטיס לצורך תשלום מלוא סכום ההזמנה." : "כאן יוזנו פרטי הכרטיס לביטחון בלבד. התשלום יתבצע במקום."}</p>
+        <div className="booking-payment-dialog__card" aria-label="המחשת טופס כרטיס אשראי">
+          <span>VII SECURE</span><b dir="ltr">•••• •••• •••• ••••</b><div><small>MM/YY</small><small>CVC</small></div>
+        </div>
+        <div className="booking-payment-dialog__notice" role="note"><strong>המחשה בלבד</strong><span>ספק סליקה מאובטח עדיין לא חובר. החלון אינו מבקש, שולח או שומר מספר כרטיס אמיתי.</span></div>
+        <div className="booking-payment-dialog__summary"><span>{paymentMethodLabel}</span><strong>{props.price}</strong><small>{props.placeName}</small></div>
+        <footer><button className="button secondary" type="button" onClick={closePayment}>חזרה</button><button className="button primary" type="button" aria-busy={state === "submitting"} disabled={state === "submitting"} onClick={() => formRef.current?.requestSubmit()}>{state === "submitting" ? "משלימים את ההזמנה..." : paymentMethod === "pay_now" ? "אישור תשלום והמשך" : "אישור כרטיס לביטחון והמשך"}</button></footer>
+        {state === "error" ? <p className="form-error" role="alert">ההזמנה לא נשמרה. אפשר לסגור ולנסות שוב בלי לאבד את הפרטים.</p> : null}
+      </section>
+    </div> : null}  </main>;
 }

@@ -3907,7 +3907,7 @@ body:has(.whatsapp-lead-layer) .smart-concierge { display: none; }
 .spa-appointment__offer span { color: var(--muted); font-size: .72rem; font-weight: 800; }
 .spa-appointment__offer strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .spa-appointment__offer small { color: var(--teal-dark); font-weight: 800; }
-.spa-appointment__participants { display: grid; grid-template-columns: minmax(170px,.72fr) minmax(260px,1fr) minmax(300px,1.25fr); gap: 16px; align-items: center; padding: 20px 24px; border-bottom: 1px solid #dcebed; background: #fff; }
+.spa-appointment__participants { display: grid; grid-template-columns: minmax(145px,.62fr) minmax(0,1.38fr); gap: 16px; align-items: center; min-width: 0; padding: 20px 24px; border-bottom: 1px solid #dcebed; background: #fff; }
 .spa-appointment__participant-heading { display: grid; gap: 3px; }
 .spa-appointment__participant-heading > span { color: var(--teal-dark); font-size: .72rem; font-weight: 850; }
 .spa-appointment__participant-heading > strong { font-size: 1rem; }
@@ -3919,6 +3919,7 @@ body:has(.whatsapp-lead-layer) .smart-concierge { display: none; }
 .spa-appointment__participant-count button:hover { border-color: #88c6cc; background: #effafa; }
 .spa-appointment__participant-count button[aria-pressed="true"] { color: #fff; border-color: #087e8b; background: linear-gradient(135deg,#087e8b,#2d8fc4); box-shadow: 0 8px 18px rgba(8,126,139,.2); }
 .spa-appointment__composition { min-width: 0; margin: 0; padding: 0; border: 0; }
+.spa-appointment__participants > .spa-appointment__composition { grid-column: 1 / -1; }
 .spa-appointment__composition legend { padding: 0; font-size: .84rem; font-weight: 850; }
 .spa-appointment__composition p { margin: 3px 0 8px; }
 .spa-appointment__composition > div { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; }
@@ -3928,7 +3929,7 @@ body:has(.whatsapp-lead-layer) .smart-concierge { display: none; }
 .spa-appointment__composition label:hover span { border-color: #88c6cc; background: #effafa; }
 .spa-appointment__composition input:checked + span { color: #fff; border-color: #087e8b; background: #087e8b; }
 .spa-appointment__composition input:focus-visible + span,.spa-appointment__participant-count button:focus-visible { outline: 3px solid rgba(8,126,139,.25); outline-offset: 2px; }
-.spa-appointment__body { display: grid; grid-template-columns: minmax(310px,1.05fr) minmax(250px,.95fr); gap: 18px; padding: 20px; }
+.spa-appointment__body { display: grid; grid-template-columns: minmax(0,1.05fr) minmax(0,.95fr); gap: 18px; min-width: 0; padding: 20px; }
 .spa-appointment__body.locked .spa-appointment__calendar { opacity: .58; }
 .spa-appointment__calendar,.spa-appointment__times { min-width: 0; padding: 18px; border: 1px solid #d8e8ea; border-radius: 20px; background: #fff; }
 .spa-appointment__month { display: grid; grid-template-columns: 42px 1fr 42px; align-items: center; gap: 8px; margin-bottom: 15px; text-align: center; }
@@ -6265,6 +6266,39 @@ button:not(:disabled):active,a[href]:active,[role="button"]:active,.is-action-pr
 .booking-approval-note p { margin: 5px 0 0; line-height: 1.65; }
 .booking-success__summary { width: 100%; display: grid; gap: 5px; padding: 18px; border-radius: 17px; background: #fff; }
 .booking-success__summary code { margin-top: 7px; color: var(--teal-dark); }
+.booking-payment-choice { min-width: 0; margin: 0; padding: 20px; border: 1px solid #c9e0e3; border-radius: 20px; background: linear-gradient(145deg,#f2fbfb,#fff); }
+.booking-payment-choice legend { padding-inline: 8px; color: var(--ink); font-size: 1.12rem; font-weight: 900; }
+.booking-payment-choice > p { margin: 0 0 13px; color: var(--muted); }
+.booking-payment-choice > div { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 11px; }
+.booking-payment-choice label { position: relative; min-width: 0; cursor: pointer; }
+.booking-payment-choice input { position: absolute; width: 1px; min-height: 1px; opacity: 0; pointer-events: none; }
+.booking-payment-choice label > span { min-height: 116px; display: grid; align-content: center; gap: 6px; padding: 17px; border: 2px solid #d2e3e5; border-radius: 17px; background: #fff; transition: border-color .18s ease,box-shadow .18s ease,background .18s ease; }
+.booking-payment-choice label b { color: var(--ink); font-size: .95rem; }
+.booking-payment-choice label small { color: var(--muted); line-height: 1.5; }
+.booking-payment-choice input:checked + span { border-color: var(--teal); background: #ecfafa; box-shadow: 0 10px 24px rgba(6,126,139,.12); }
+.booking-payment-choice input:focus-visible + span { outline: 3px solid rgba(8,126,139,.26); outline-offset: 3px; }
+.booking-payment-choice__notice { display: block; margin-top: 13px; padding: 11px 13px; color: #70530a; border-radius: 12px; background: #fff7df; line-height: 1.5; }
+
+.booking-payment-layer { position: fixed; z-index: 2500; inset: 0; display: grid; place-items: center; padding: max(18px,env(safe-area-inset-top)) 18px max(18px,env(safe-area-inset-bottom)); background: rgba(4,39,47,.68); backdrop-filter: blur(8px); }
+.booking-payment-dialog { width: min(560px,100%); max-height: calc(100dvh - 36px); overflow-y: auto; display: grid; gap: 17px; padding: 26px; border-radius: 28px; background: #fff; box-shadow: 0 30px 90px rgba(0,31,39,.34); font-family: Rubik,Heebo,Assistant,Arial,sans-serif; }
+.booking-payment-dialog > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+.booking-payment-dialog > header small,.booking-payment-dialog > small { color: var(--teal-dark); font-weight: 850; }
+.booking-payment-dialog h2 { margin: 4px 0 0; font-size: clamp(1.6rem,4vw,2.2rem); }
+.booking-payment-dialog > p { margin: 0; color: var(--muted); line-height: 1.65; }
+.booking-payment-dialog__card { min-height: 190px; display: grid; align-content: space-between; gap: 18px; padding: 25px; color: #fff; border-radius: 23px; background: radial-gradient(circle at 15% 10%,rgba(255,255,255,.2),transparent 35%),linear-gradient(135deg,#075461,#1495a2 62%,#2e8dc1); box-shadow: 0 18px 38px rgba(7,84,97,.22); direction: ltr; }
+.booking-payment-dialog__card > span { letter-spacing: .13em; font-size: .72rem; font-weight: 850; }
+.booking-payment-dialog__card > b { font-size: clamp(1.35rem,5vw,2rem); letter-spacing: .11em; }
+.booking-payment-dialog__card > div { display: flex; gap: 24px; }
+.booking-payment-dialog__notice { display: grid; gap: 3px; padding: 13px 15px; color: #70530a; border-radius: 14px; background: #fff7df; }
+.booking-payment-dialog__notice span { font-size: .8rem; line-height: 1.55; }
+.booking-payment-dialog__summary { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 4px 16px; padding: 15px; border: 1px solid #d5e5e7; border-radius: 15px; background: #f7fbfb; }
+.booking-payment-dialog__summary strong { grid-row: 1 / 3; grid-column: 2; align-self: center; color: var(--teal-dark); font-size: 1.15rem; }
+.booking-payment-dialog__summary small { color: var(--muted); }
+.booking-payment-dialog > footer { display: flex; justify-content: flex-end; gap: 10px; }
+.booking-payment-dialog > footer .button { min-height: 50px; }
+.booking-payment-dialog--success { justify-items: center; text-align: center; }
+.booking-payment-dialog__mark { width: 62px; height: 62px; display: grid; place-items: center; color: #fff; border-radius: 50%; background: var(--teal); font-size: 1.8rem; font-weight: 900; }
+.booking-payment-dialog--success .booking-payment-dialog__summary { width: 100%; text-align: start; }
 
 @media (max-width: 900px) {
   .favorites-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
@@ -6718,4 +6752,13 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   .search-depth__related { gap: 20px; padding: 22px 18px; border-radius: 20px; }
   .search-depth__related nav { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
   .search-depth__related a { justify-content: center; padding-inline: 10px; text-align: center; border-radius: 13px; }
+}
+@media (max-width: 640px) {
+  .booking-payment-choice > div { grid-template-columns: 1fr; }
+  .booking-payment-choice label > span { min-height: 96px; }
+  .booking-payment-layer { align-items: end; padding-inline: 0; padding-bottom: 0; }
+  .booking-payment-dialog { width: 100%; max-height: calc(100dvh - 16px); padding: 22px 17px max(22px,env(safe-area-inset-bottom)); border-radius: 25px 25px 0 0; }
+  .booking-payment-dialog__card { min-height: 160px; padding: 20px; }
+  .booking-payment-dialog > footer { flex-direction: column-reverse; }
+  .booking-payment-dialog > footer .button { width: 100%; }
 }

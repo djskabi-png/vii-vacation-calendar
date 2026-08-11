@@ -25,18 +25,24 @@ test("incomplete vacation data keeps availability date-first and preserves the b
   assert.match(booking, /setPhoneRevealed\(true\)/);
 });
 
-test("online booking is a three step pending approval flow without card collection", () => {
+test("spa booking adds payment choice, safe hosted-payment preview and thank-you summary", () => {
   assert.match(booking, /שלב 1 מתוך 3/);
   assert.match(booking, /שלב 2 מתוך 3/);
   assert.match(booking, /שלב 3 מתוך 3/);
-  assert.match(booking, /אין הזנת כרטיס אשראי/);
-  assert.match(booking, /הבקשה נשמרת בסטטוס ממתין/);
-  assert.match(booking, /לא בוצע חיוב/);
-  assert.doesNotMatch(booking, /cardNumber|expiry|cvv|cvc|מספר כרטיס/iu);
+  assert.match(booking, /תשלום בכרטיס אשראי עכשיו/);
+  assert.match(booking, /תשלום במקום/);
+  assert.match(booking, /כרטיס לביטחון/);
+  assert.match(booking, /booking-payment-dialog/);
+  assert.match(booking, /המחשה בלבד/);
+  assert.match(booking, /requestSubmit/);
+  assert.match(booking, /booking-payment-dialog--success/);
+  assert.match(booking, /בקשת ההזמנה הושלמה/);
+  assert.doesNotMatch(booking, /name="(?:cardNumber|expiry|cvv|cvc)"|autoComplete="cc-/iu);
 });
-
 test("booking UI has responsive step, review, phone and safe mobile rules", () => {
-  for (const selector of [".booking-steps", ".booking-form--steps", ".booking-review", ".phone-reveal", ".booking-unavailable"]) assert.match(css, new RegExp(selector.replace(".", "\\.")));
+  for (const selector of [".booking-steps", ".booking-form--steps", ".booking-review", ".phone-reveal", ".booking-unavailable", ".booking-payment-choice", ".booking-payment-dialog"]) assert.match(css, new RegExp(selector.replace(".", "\\.")));
   assert.match(css, /@media \(max-width: 640px\)[\s\S]*\.booking-flow--steps \{ grid-template-columns: 1fr/);
   assert.match(css, /safe-area-inset-bottom/);
+  assert.match(css, /\.spa-appointment__participants > \.spa-appointment__composition \{ grid-column: 1 \/ -1/);
+  assert.doesNotMatch(css, /\.spa-appointment__participants \{[^}]*minmax\(300px/);
 });
