@@ -215,7 +215,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
           const spiderPosition = map.layerPointToLatLng(spiderPoint);
           const useTextLabel = /\d/.test(entry.markerLabel);
           const markerContent = useTextLabel
-            ? `<span class="vii-map-marker__label">${safeMarkerLabel(entry.markerLabel)}</span>`
+            ? `<span class="vii-map-marker__icon">${markerIcon(tone)}</span><span class="vii-map-marker__label">${safeMarkerLabel(entry.markerLabel)}</span>`
             : `<span class="vii-map-marker__icon">${markerIcon(tone)}</span>`;
 
           L.polyline([center, spiderPosition], {
@@ -232,8 +232,8 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
             icon: L.divIcon({
               className: `vii-map-marker-wrap map-tone--${tone}${useTextLabel ? " is-text" : " is-icon"}${entry.id === selectedIdRef.current ? " is-active" : ""}`,
               html: `<span class="vii-map-marker">${markerContent}</span>`,
-              iconSize: useTextLabel ? [112, 54] : [54, 58],
-              iconAnchor: useTextLabel ? [56, 51] : [27, 54],
+              iconSize: useTextLabel ? [140, 54] : [54, 58],
+              iconAnchor: useTextLabel ? [70, 51] : [27, 54],
             }),
           }).addTo(markerLayer);
           spiderMarker.getElement()?.setAttribute("aria-label", entry.name);
@@ -283,17 +283,19 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
           // Clusters communicate result count. Numeric labels keep useful values,
           // such as price or capacity, visible without opening a result card.
           const useTextLabel = clustered || /\d/.test(place.markerLabel);
-          const markerContent = useTextLabel
+          const markerContent = clustered
             ? `<span class="vii-map-marker__label">${safeMarkerLabel(visibleLabel)}</span>`
-            : `<span class="vii-map-marker__icon">${markerIcon(tone)}</span>`;
+            : useTextLabel
+              ? `<span class="vii-map-marker__icon">${markerIcon(tone)}</span><span class="vii-map-marker__label">${safeMarkerLabel(visibleLabel)}</span>`
+              : `<span class="vii-map-marker__icon">${markerIcon(tone)}</span>`;
           const marker = L.marker(clusterCenter, {
             keyboard: true,
             alt: clustered ? clusterText : place.name,
             icon: L.divIcon({
               className: `vii-map-marker-wrap map-tone--${tone}${clustered ? " is-cluster" : ""}${useTextLabel ? " is-text" : " is-icon"}${cluster.entries.some((entry) => entry.id === selectedIdRef.current) ? " is-active" : ""}`,
               html: `<span class="vii-map-marker">${markerContent}</span>`,
-              iconSize: clustered ? [72, 58] : useTextLabel ? [112, 54] : [54, 58],
-              iconAnchor: clustered ? [36, 54] : useTextLabel ? [56, 51] : [27, 54],
+              iconSize: clustered ? [72, 58] : useTextLabel ? [140, 54] : [54, 58],
+              iconAnchor: clustered ? [36, 54] : useTextLabel ? [70, 51] : [27, 54],
             }),
           }).addTo(markerLayer);
 

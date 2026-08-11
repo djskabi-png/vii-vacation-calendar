@@ -4635,6 +4635,8 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .vii-map-marker__icon svg { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
 .vii-map-marker-wrap.is-icon .vii-map-marker { width: 50px; min-width: 50px; height: 50px; padding: 0; border-radius: 50%; }
 .vii-map-marker-wrap.is-icon .vii-map-marker::after { bottom: -7px; }
+.vii-map-marker-wrap.is-text:not(.is-cluster) .vii-map-marker { grid-auto-flow: column; grid-template-columns: 20px auto; align-items: center; gap: 6px; padding-inline: 10px 13px; }
+.vii-map-marker-wrap.is-text:not(.is-cluster) .vii-map-marker__icon svg { width: 18px; height: 18px; }
 .listing-map-shell .leaflet-control-layers { border: 0; border-radius: 12px; box-shadow: 0 8px 24px rgba(0, 35, 44, .2); font-family: inherit; }
 .listing-map-shell .leaflet-control-layers-expanded { padding: 10px 12px; color: var(--teal-dark); }
 .listing-map-shell .leaflet-control-layers label { margin: 4px 0; font-weight: 700; }
