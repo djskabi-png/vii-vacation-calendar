@@ -195,7 +195,7 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
             <div className="property-title__actions">
               <FavoriteButton compact={false} id={property.slug} world={activeWorld} name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={`/business?id=${property.slug}${activeWorld === offerings[0].world ? "" : `&mode=${activeWorld}`}`} meta={`${property.type} · עד ${property.guests} אורחים`} />
               <button type="button" onClick={() => void share()}>שיתוף</button>
-              {ownerWhatsapp && activeWorld !== "vacation" ? <WhatsAppLeadButton world={activeWorld} placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={activeOffering.label} initialDate={dateRange.from} initialGuests={guests} buttonClassName="property-whatsapp-action" /> : null}
+              {ownerWhatsapp ? <WhatsAppLeadButton world={activeWorld} placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={activeOffering.label} initialDate={dateRange.from} initialGuests={guests} buttonClassName="property-whatsapp-action" /> : null}
               {shareStatus && <span role="status">{shareStatus}</span>}
             </div>
             {activeWorld === "vacation" ? <Link className="button primary" href="#booking-summary">{hasSearchContext ? "בדיקת זמינות לחיפוש הזה" : "בדיקת זמינות"}</Link> : onlineBooking ? <Link className="button primary" href={bookingActionHref}>הזמנה אונליין</Link> : property.contact?.phone ? <Link className="button primary" href="#booking-summary">טלפון להזמנה</Link> : null}

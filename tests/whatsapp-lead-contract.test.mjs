@@ -103,3 +103,16 @@ test("event result cards expose the same tracked phone and WhatsApp actions as v
   assert.match(actions, /whatsapp \|\| phone/);
   assert.match(actions, /stay-card__contact--revealed/);
 });
+
+test("vacation and event detail pages expose WhatsApp in their primary action area", async () => {
+  const [business, eventPlace] = await Promise.all([
+    read("app/business/client-page.tsx"),
+    read("app/events/place/client-page.tsx"),
+  ]);
+
+  assert.match(business, /ownerWhatsapp \? <WhatsAppLeadButton world=\{activeWorld\}/);
+  assert.doesNotMatch(business, /ownerWhatsapp && activeWorld !== "vacation"/);
+  assert.match(eventPlace, /const ownerWhatsapp = place\.contact\?\.whatsapp \|\| place\.contact\?\.phone/);
+  assert.match(eventPlace, /ownerWhatsapp \? <WhatsAppLeadButton world="events"/);
+  assert.match(eventPlace, /buttonClassName="property-whatsapp-action"/);
+});
