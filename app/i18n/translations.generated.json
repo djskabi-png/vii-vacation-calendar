@@ -1,5 +1,10 @@
 {
   "en": {
+    "וואטסאפ": "WhatsApp",
+    "שיחה עם": "Chat with",
+    "שלום, אשמח לבדוק זמינות ולשמוע פרטים.": "Hello, I would like to check availability and receive more details.",
+    "ההודעה תיפתח אחרי שמירת הפרטים": "The message will open after your details are saved",
+    "שמירת הפרטים ופתיחת שיחה": "Save details and open chat",
     ", 2 יחידות": ", 2 units",
     ", 3 יחידות": ", 3 units",
     ", 4 יחידות": ", 4 units",
@@ -6530,6 +6535,11 @@
     "חדר": "room"
   },
   "ru": {
+    "וואטסאפ": "WhatsApp",
+    "שיחה עם": "Чат с",
+    "שלום, אשמח לבדוק זמינות ולשמוע פרטים.": "Здравствуйте, хочу уточнить наличие мест и получить подробности.",
+    "ההודעה תיפתח אחרי שמירת הפרטים": "Сообщение откроется после сохранения данных",
+    "שמירת הפרטים ופתיחת שיחה": "Сохранить данные и открыть чат",
     ", 2 יחידות": ", 2 единицы",
     ", 3 יחידות": ", 3 единицы",
     ", 4 יחידות": ", 4 единицы",
@@ -13060,6 +13070,11 @@
     "חדר": "номер"
   },
   "fr": {
+    "וואטסאפ": "WhatsApp",
+    "שיחה עם": "Discussion avec",
+    "שלום, אשמח לבדוק זמינות ולשמוע פרטים.": "Bonjour, je souhaite vérifier les disponibilités et recevoir plus de détails.",
+    "ההודעה תיפתח אחרי שמירת הפרטים": "Le message sera ouvert après enregistrement des coordonnées",
+    "שמירת הפרטים ופתיחת שיחה": "Enregistrer les coordonnées et ouvrir la discussion",
     ", 2 יחידות": ", 2 unités",
     ", 3 יחידות": ", 3 unités",
     ", 4 יחידות": ", 4 unités",

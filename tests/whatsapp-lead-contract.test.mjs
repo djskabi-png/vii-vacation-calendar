@@ -72,3 +72,19 @@ test("the tracked lead event is available to analytics without bypassing consent
   assert.match(source, /vii-cookie-choice/);
   assert.match(source, /lead_reference/);
 });
+test("the lead modal looks and behaves like the start of a WhatsApp conversation", async () => {
+  const [component, css] = await Promise.all([
+    read("app/components/whatsapp-lead-button.tsx"),
+    read("app/globals.css"),
+  ]);
+
+  assert.match(component, /function WhatsAppIcon\(\)/);
+  assert.match(component, /whatsapp-lead-dialog__appbar/);
+  assert.match(component, /whatsapp-lead-dialog__conversation/);
+  assert.match(component, /labels\.conversationWith\(placeName\)/);
+  assert.match(component, /className=\{`\$\{buttonClassName\} whatsapp-lead-trigger`\}/);
+  assert.match(component, /className="button primary booking-whatsapp"[^>]*><WhatsAppIcon \/>/);
+  assert.match(css, /\.whatsapp-lead-dialog__appbar\s*\{[^}]*#075e54[^}]*#128c7e/);
+  assert.match(css, /\.whatsapp-lead-dialog \.booking-whatsapp\s*\{[^}]*#25d366/);
+  assert.match(css, /\.whatsapp-lead-dialog__conversation\s*\{[^}]*#efeae2/);
+});
