@@ -7242,7 +7242,7 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   .search-box .search-submit { width: 54px; height: 54px; }
   .search-field-wrap:has(.search-popover) > .search-field { background: #fff; box-shadow: 0 5px 18px rgba(3,46,55,.12); }
   .location-list { width: min(460px, calc(100vw - 48px)); max-height: min(590px, calc(100dvh - 190px)); padding: 16px; gap: 10px; border-radius: 26px; }
-  .location-discovery { gap: 15px; }
+  .location-list > .location-discovery { grid-template-columns: 1fr; gap: 15px; }
   .location-list .location-nearby { min-height: 68px; grid-template-columns: 44px minmax(0,1fr) auto; padding: 10px 12px; border-radius: 16px; }
   .location-list .location-nearby__icon { width: 42px; height: 42px; border-radius: 13px; }
   .location-group { gap: 7px; }
