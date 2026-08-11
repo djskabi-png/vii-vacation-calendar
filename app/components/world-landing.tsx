@@ -11,6 +11,7 @@ import { WorldMapResults } from "./world-map-results";
 import type { BreadcrumbTrailItem } from "./breadcrumb-trail";
 import { WorldQuickSearches } from "./world-quick-searches";
 import { SemanticWorldHeading } from "./semantic-world-heading";
+import { SearchAfterResults } from "./search-after-results";
 
 const crossSellByWorld = {
   hourly: {
@@ -90,6 +91,7 @@ export function WorldLanding({
         {world !== "spa" && world !== "hourly" && <div className="section-head world-results-title"><div><h2>{collectionTitle}</h2></div>{sourceNote && <p className="source-note">{sourceNote}</p>}</div>}
         {world === "hourly" ? <HourlyResults items={items} initialLocation={initialSearchLocation} /> : world === "providers" ? <ProviderResults items={items} /> : world === "spa" ? <WorldMapResults items={items} world="spa" activeSpaFilter={activeSpaFilter} initialLocation={initialSearchLocation} initialSpaAudience={initialSpaAudience} initialSpaFilters={initialSpaFilters} /> : <div className="discovery-grid">{items.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>}
       </section>
+      {(world === "hourly" || world === "spa" || world === "providers" || world === "activities") ? <SearchAfterResults world={world} location={initialSearchLocation} reviewHighlights={items.filter((item) => typeof item.rating === "number").sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 3).map((item) => ({ name: item.name, href: `/discover/place/${item.id}`, rating: item.rating || 0, context: item.sourceName ? `דירוג מתוך ${item.sourceName}` : undefined }))} /> : null}
       {crossSell && <section className="section section-tint world-cross-sell"><div className="shell"><span className="eyebrow">{crossSell.eyebrow}</span><h2>{crossSell.title}</h2><p>{crossSell.description}</p><div>{crossSell.links.map((link, index) => <Link key={link.href} className={`button ${index === 0 ? "primary" : "secondary"}`} href={link.href}>{link.label}</Link>)}</div></div></section>}
     </main>
   </PageShell>;

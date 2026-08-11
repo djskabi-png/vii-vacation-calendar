@@ -84,7 +84,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
   const [pendingVisibleIds, setPendingVisibleIds] = useState<string[]>([]);
   const [viewportDirty, setViewportDirty] = useState(false);
   const preview = places[0] ?? null;
-  const effectiveSelectedId = selectedId === "" ? "" : places.some((place) => place.id === selectedId) ? selectedId : places[0]?.id ?? "";
+  const effectiveSelectedId = selectedId !== "" && places.some((place) => place.id === selectedId) ? selectedId : "";
   const selected = places.find((place) => place.id === effectiveSelectedId) ?? null;
   const focusKey = initialPlaceIds?.join("|") ?? "";
 
@@ -92,6 +92,10 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
     visibleCountCallback.current = onVisibleCountChange;
     visiblePlaceIdsCallback.current = onVisiblePlaceIdsChange;
   }, [onVisibleCountChange, onVisiblePlaceIdsChange]);
+
+  useEffect(() => {
+    if (selectedId && !places.some((place) => place.id === selectedId)) setSelectedId("");
+  }, [places, selectedId]);
 
   const selectPlace = useCallback((id: string) => {
     const place = places.find((entry) => entry.id === id);
@@ -200,8 +204,8 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
         entries.forEach((entry, index) => {
           const angle = -Math.PI / 2 + index * goldenAngle;
           const radius = entries.length <= 3
-            ? 52 + index * 18
-            : 42 + Math.sqrt(index + 1) * 36;
+            ? 44 + index * 14
+            : 34 + Math.sqrt(index + 1) * 24;
           const spiderPoint = centerPoint.add(L.point(Math.cos(angle) * radius, Math.sin(angle) * radius));
           const spiderPosition = map.layerPointToLatLng(spiderPoint);
           const useTextLabel = /\d/.test(entry.markerLabel);
@@ -259,16 +263,16 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
         });
 
         clusters.forEach((cluster) => {
-          const clusterCenter = L.latLng(
+          const averageCenter = L.latLng(
             cluster.entries.reduce((sum, place) => sum + place.lat, 0) / cluster.entries.length,
             cluster.entries.reduce((sum, place) => sum + place.lng, 0) / cluster.entries.length,
           );
+          const clusterAnchor = cluster.entries.reduce((closest, candidate) => (
+            averageCenter.distanceTo([candidate.lat, candidate.lng]) < averageCenter.distanceTo([closest.lat, closest.lng]) ? candidate : closest
+          ));
+          const clusterCenter = L.latLng(clusterAnchor.lat, clusterAnchor.lng);
           const place = cluster.entries[0];
           const clustered = cluster.entries.length > 1;
-          if (clustered && zoom >= 9) {
-            spiderfyCluster(cluster.entries, clusterCenter, false);
-            return;
-          }
           const clusterText = language === "he" ? `${cluster.entries.length} מקומות` : `${cluster.entries.length}`;
           const visibleLabel = clustered ? String(cluster.entries.length) : place.markerLabel;
           // Clusters communicate result count. Numeric labels keep useful values,
@@ -295,9 +299,15 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
               const clusterBounds = L.latLngBounds(cluster.entries.map((entry) => [entry.lat, entry.lng] as [number, number]));
               const clusterDistance = clusterBounds.getNorthEast().distanceTo(clusterBounds.getSouthWest());
               const paddedClusterBounds = clusterBounds.pad(0.65);
-              const targetZoom = Math.min(map.getBoundsZoom(paddedClusterBounds, false, L.point(140, 140)), map.getZoom() + 3, 17);
-              if (clusterDistance < 80 || map.getZoom() >= 9 || targetZoom <= map.getZoom()) spiderfyCluster(cluster.entries, clusterCenter);
-              else map.fitBounds(paddedClusterBounds, { maxZoom: targetZoom, padding: [70, 70] });
+              const currentZoom = map.getZoom();
+              const targetZoom = Math.min(map.getBoundsZoom(paddedClusterBounds, false, L.point(140, 140)), currentZoom + 3, 17);
+              if (currentZoom >= 13) {
+                spiderfyCluster(cluster.entries, clusterCenter);
+              } else if (clusterDistance < 80 || targetZoom <= currentZoom) {
+                map.setView(clusterCenter, Math.min(13, currentZoom + 2), { animate: true });
+              } else {
+                map.fitBounds(paddedClusterBounds, { maxZoom: targetZoom, padding: [70, 70] });
+              }
             });
           } else {
             marker.getElement()?.setAttribute("aria-label", place.name);

@@ -19,15 +19,29 @@ export async function POST(request: Request) {
   if (!payload.submissionId || !payload.name || !payload.phone || payload.privacyAccepted !== true) {
     return json({ success: false, error: "missing_required_fields" }, 400);
   }
+  const isWhatsAppEnquiry = payload.purpose === "whatsapp_enquiry";
+  if (isWhatsAppEnquiry && (!payload.placeId || !payload.placeName || !/^\d{4}-\d{2}-\d{2}$/.test(String(payload.requestedDate || "")))) {
+    return json({ success: false, error: "missing_whatsapp_enquiry_context" }, 400);
+  }
 
   try {
+    const forwardedPayload = { ...payload };
+    delete forwardedPayload.notificationRequest;
     const response = await fetch(upstream, {
       method: "POST",
       headers: { "Content-Type": "application/json", "Accept": "application/json" },
       body: JSON.stringify({
-        ...payload,
+        ...forwardedPayload,
         sourceSite: "vii.co.il",
         sourceHost: "vii.spaplus.co",
+        sourceBrand: "VII",
+        ...(isWhatsAppEnquiry ? {
+          notificationRequest: {
+            channel: "sms",
+            recipientSource: "verified_place_contact",
+            template: "vii_whatsapp_lead",
+          },
+        } : {}),
       }),
       signal: AbortSignal.timeout(12_000),
     });

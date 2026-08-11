@@ -143,7 +143,7 @@ export function HomeShowcase() {
   return <>
     <section className="section home-recommended" aria-labelledby="home-recommended-title">
       <div className="shell"><div className="section-head"><div><span className="eyebrow">המקומות שעושים חשק לארוז</span><h2 id="home-recommended-title">מומלצים שכדאי להכיר</h2><p>מקומות אמיתיים מתוך האתר, עם חדרים, מתקנים וכל המידע שצריך לפני שבוחרים.</p></div><div><Link href="/search">לכל המקומות</Link><SliderControls label="מקומות מומלצים" onPrevious={() => scroll("recommended", "previous")} onNext={() => scroll("recommended", "next")} /></div></div>
-        <div className="home-slider__track home-slider__track--properties" ref={(node) => { tracks.current.recommended = node; }}>{recommendedPlaces.map((property) => <div className="home-slider__item" key={property.slug}><PropertyCard property={property} /></div>)}</div>
+        <div className="home-slider__track home-slider__track--properties" ref={(node) => { tracks.current.recommended = node; }}>{recommendedPlaces.map((property) => <div className="home-slider__item" key={property.slug}><PropertyCard property={property} promotional /></div>)}</div>
       </div>
     </section>
 

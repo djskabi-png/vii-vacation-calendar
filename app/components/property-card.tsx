@@ -7,21 +7,26 @@ import { useRef, useState, type MouseEvent } from "react";
 import type { ListingAvailability, ListingDateQuote, Property } from "../data/site-data";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { PinIcon } from "../site-header";
+import { trackPhoneReveal } from "../lib/analytics";
 import { FavoriteButton } from "./favorite-button";
+import { WhatsAppLeadButton } from "./whatsapp-lead-button";
 
 function PhoneIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16.4v3a2 2 0 0 1-2.2 2 19.7 19.7 0 0 1-8.6-3.1 19.3 19.3 0 0 1-6-6A19.7 19.7 0 0 1 1.1 3.7 2 2 0 0 1 3.1 1.5h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.4 2.1L7.1 9.5a16 16 0 0 0 7.4 7.4l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2Z" /></svg>;
 }
 
-function WhatsAppIcon() {
-  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.7a8.5 8.5 0 0 1-12.6 7.5L3.5 20.5l1.3-4.3A8.5 8.5 0 1 1 20.5 11.7Z" /><path d="M8.7 7.7c.2-.4.4-.4.7-.4h.4c.2 0 .4.1.5.4l.8 1.8c.1.3.1.5-.1.7l-.6.8c-.2.2-.1.4 0 .6.6 1 1.5 1.8 2.5 2.4.3.2.5.2.7-.1l.8-1c.2-.3.5-.3.8-.2l1.8.9c.3.1.4.3.4.5 0 .5-.2 1.4-.8 1.9-.7.6-1.6.8-2.6.5-1-.3-2.3-.8-4-2.3-1.4-1.2-2.4-2.8-2.7-3.8-.3-1-.1-2 .4-2.7Z" /></svg>;
-}
-
 const cardCopy: Record<SiteLanguage, { call: string; whatsapp: string; reviews: string; outOfTen: string; details: string; datePrice: string; from: string; night: string; to: string; inquirePrice: string; includedGuests: (count: number) => string; availability: Record<ListingAvailability, string> }> = {
-  he: { call: "טלפון", whatsapp: "WhatsApp", reviews: "חוות דעת", outOfTen: "מתוך 10", details: "לפרטים וזמינות", datePrice: "מחיר לפי תאריך", from: "החל מ־", night: "ללילה", to: "עד", inquirePrice: "פנה למתחם לבירור מחיר", includedGuests: (count) => `המחיר כולל עד ${count} אורחים`, availability: { available: "פנוי בתאריכים שנבחרו", unavailable: "לא פנוי בתאריכים שנבחרו", unknown: "זמינות: לא עודכן" } },
-  en: { call: "Call", whatsapp: "WhatsApp", reviews: "reviews", outOfTen: "out of 10", details: "Details and availability", datePrice: "Price for selected dates", from: "From ", night: "per night", to: "to", inquirePrice: "Contact the property for a price", includedGuests: (count) => `Price includes up to ${count} guests`, availability: { available: "Available for the selected dates", unavailable: "Unavailable for the selected dates", unknown: "Availability not updated" } },
-  ru: { call: "Позвонить", whatsapp: "WhatsApp", reviews: "отзывов", outOfTen: "из 10", details: "Подробнее и наличие", datePrice: "Цена на выбранные даты", from: "От ", night: "за ночь", to: "по", inquirePrice: "Уточните цену у объекта", includedGuests: (count) => `Цена включает до ${count} гостей`, availability: { available: "Свободно на выбранные даты", unavailable: "Нет мест на выбранные даты", unknown: "Наличие не обновлено" } },
-  fr: { call: "Appeler", whatsapp: "WhatsApp", reviews: "avis", outOfTen: "sur 10", details: "Détails et disponibilités", datePrice: "Prix selon les dates", from: "À partir de ", night: "par nuit", to: "au", inquirePrice: "Contactez l'établissement pour connaître le prix", includedGuests: (count) => `Prix valable jusqu'à ${count} personnes`, availability: { available: "Disponible aux dates choisies", unavailable: "Indisponible aux dates choisies", unknown: "Disponibilité non mise à jour" } },
+  he: { call: "טלפון", whatsapp: "פנייה בוואטסאפ", reviews: "חוות דעת", outOfTen: "מתוך 10", details: "לפרטים וזמינות", datePrice: "מחיר לפי תאריך", from: "החל מ־", night: "ללילה", to: "עד", inquirePrice: "פנה למתחם לבירור מחיר", includedGuests: (count) => `המחיר כולל עד ${count} אורחים`, availability: { available: "פנוי בתאריכים שנבחרו", unavailable: "לא פנוי בתאריכים שנבחרו", unknown: "זמינות: לא עודכן" } },
+  en: { call: "Call", whatsapp: "WhatsApp enquiry", reviews: "reviews", outOfTen: "out of 10", details: "Details and availability", datePrice: "Price for selected dates", from: "From ", night: "per night", to: "to", inquirePrice: "Contact the property for a price", includedGuests: (count) => `Price includes up to ${count} guests`, availability: { available: "Available for the selected dates", unavailable: "Unavailable for the selected dates", unknown: "Availability not updated" } },
+  ru: { call: "Позвонить", whatsapp: "Запрос в WhatsApp", reviews: "отзывов", outOfTen: "из 10", details: "Подробнее и наличие", datePrice: "Цена на выбранные даты", from: "От ", night: "за ночь", to: "по", inquirePrice: "Уточните цену у объекта", includedGuests: (count) => `Цена включает до ${count} гостей`, availability: { available: "Свободно на выбранные даты", unavailable: "Нет мест на выбранные даты", unknown: "Наличие не обновлено" } },
+  fr: { call: "Appeler", whatsapp: "Demande par WhatsApp", reviews: "avis", outOfTen: "sur 10", details: "Détails et disponibilités", datePrice: "Prix selon les dates", from: "À partir de ", night: "par nuit", to: "au", inquirePrice: "Contactez l'établissement pour connaître le prix", includedGuests: (count) => `Prix valable jusqu'à ${count} personnes`, availability: { available: "Disponible aux dates choisies", unavailable: "Indisponible aux dates choisies", unknown: "Disponibilité non mise à jour" } },
+};
+
+const phoneCopy: Record<SiteLanguage, { reveal: string; call: string }> = {
+  he: { reveal: "הצגת מספר", call: "לחיוג" },
+  en: { reveal: "Show number", call: "Call now" },
+  ru: { reveal: "Показать номер", call: "Позвонить" },
+  fr: { reveal: "Afficher le numéro", call: "Appeler" },
 };
 
 type SelectedStay = { from: string; till: string };
@@ -40,18 +45,20 @@ function quoteForStay(property: Property, selectedStay: SelectedStay | null): Li
   };
 }
 
-export function PropertyCard({ property, selectedStay = null }: { property: Property; selectedStay?: SelectedStay | null }) {
+export function PropertyCard({ property, selectedStay = null, promotional = false }: { property: Property; selectedStay?: SelectedStay | null; promotional?: boolean }) {
   const { language } = useSiteLanguage();
   const copy = cardCopy[language];
   const galleryImages = [property.image, ...property.images].filter((src, index, all) => src && all.indexOf(src) === index).slice(0, 10);
   const [imageIndex, setImageIndex] = useState(0);
+  const [phoneVisible, setPhoneVisible] = useState(false);
   const touchStart = useRef<number | null>(null);
   const didSwipe = useRef(false);
   const swipeResetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const phone = property.contact?.phone?.replace(/[^\d+]/g, "");
-  const whatsapp = property.contact?.whatsapp?.replace(/\D/g, "");
+  const whatsapp = property.contact?.whatsapp;
   const selectedQuote = quoteForStay(property, selectedStay);
   const hasQuotedPrice = Boolean(selectedQuote?.nightlyPrice && selectedQuote?.includedGuests);
+  const cardMode = promotional ? "promotional" : selectedQuote ? "dated" : "result";
 
   function moveImage(event: MouseEvent<HTMLButtonElement>, direction: -1 | 1) {
     event.preventDefault();
@@ -60,7 +67,7 @@ export function PropertyCard({ property, selectedStay = null }: { property: Prop
   }
 
   return (
-    <article className="stay-card">
+    <article className={`stay-card stay-card--${cardMode}`}>
       <div className="stay-card__media" onTouchStart={(event) => { if (swipeResetTimer.current) clearTimeout(swipeResetTimer.current); didSwipe.current = false; touchStart.current = event.changedTouches[0].clientX; }} onTouchEnd={(event) => { if (touchStart.current === null || galleryImages.length < 2) return; const distance = event.changedTouches[0].clientX - touchStart.current; if (Math.abs(distance) > 45) { didSwipe.current = true; swipeResetTimer.current = setTimeout(() => { didSwipe.current = false; swipeResetTimer.current = null; }, 500); setImageIndex((current) => (current + (distance > 0 ? -1 : 1) + galleryImages.length) % galleryImages.length); } touchStart.current = null; }}>
         <Link href={`/business?id=${property.slug}`} aria-label={`פרטים על ${property.name}`} onClick={(event) => { if (!didSwipe.current) return; event.preventDefault(); event.stopPropagation(); didSwipe.current = false; if (swipeResetTimer.current) clearTimeout(swipeResetTimer.current); swipeResetTimer.current = null; }}>
           <img key={galleryImages[imageIndex]} src={galleryImages[imageIndex]} alt={`${property.name}, תמונה ${imageIndex + 1} מתוך ${galleryImages.length}`} loading="lazy" decoding="async" />
@@ -79,16 +86,21 @@ export function PropertyCard({ property, selectedStay = null }: { property: Prop
         </div>
         <p className="stay-card__meta">{property.type}{property.units && property.units > 1 ? `, ${property.units} יחידות` : ", מקום אירוח שלם"} · עד {property.guests} אורחים</p>
         <div className="feature-chips">{property.features.slice(0, 3).map((feature) => <span key={feature}>{feature}</span>)}</div>
-        {selectedQuote ? <div className="stay-card__date-status" aria-live="polite">
+        {!promotional && selectedQuote ? <div className="stay-card__date-status" aria-live="polite">
           <div className="stay-card__selected-dates"><span>{localizedDate(selectedQuote.from, language)}</span><small>{copy.to}</small><span>{localizedDate(selectedQuote.till, language)}</span></div>
           <strong className={`stay-card__availability stay-card__availability--${selectedQuote.availability}`}>{copy.availability[selectedQuote.availability]}</strong>
         </div> : null}
-        <div className="stay-card__footer">
-          {selectedQuote ? <span className={`stay-card__price stay-card__price--selected ${hasQuotedPrice ? "stay-card__price--known" : ""}`}>{hasQuotedPrice ? <><b><bdi>{selectedQuote.nightlyPrice?.toLocaleString()}</bdi> ₪</b><small>{copy.night}</small><em>{copy.includedGuests(selectedQuote.includedGuests || 0)}</em></> : <strong>{copy.inquirePrice}</strong>}</span> : <span className={`stay-card__price ${property.price ? "stay-card__price--known" : ""}`}>{property.price ? <><small>{copy.from}</small><b><bdi>{property.price.toLocaleString()}</bdi> ₪</b><small>{copy.night}</small></> : copy.datePrice}</span>}
+        <div className={`stay-card__footer stay-card__footer--${cardMode}`}>
+          {!promotional ? <div className="stay-card__commercial-summary">
+            {selectedQuote ? <span className={`stay-card__price stay-card__price--selected ${hasQuotedPrice ? "stay-card__price--known" : ""}`}>{hasQuotedPrice ? <><b><bdi dir="ltr">{selectedQuote.nightlyPrice?.toLocaleString()} ₪</bdi></b><small>{copy.night}</small><em>{copy.includedGuests(selectedQuote.includedGuests || 0)}</em></> : <strong>{copy.inquirePrice}</strong>}</span> : <span className={`stay-card__price ${property.price ? "stay-card__price--known" : ""}`}>{property.price ? <><small>{copy.from}</small><b><bdi dir="ltr">{property.price.toLocaleString()} ₪</bdi></b><small>{copy.night}</small></> : copy.datePrice}</span>}
+          </div> : null}
           <div className="stay-card__actions">
-            {phone ? <a className="stay-card__contact" href={`tel:${phone}`} aria-label={`${copy.call}: ${property.name}`}><PhoneIcon /><span>{copy.call}</span></a> : null}
-            {whatsapp ? <a className="stay-card__contact stay-card__contact--whatsapp" href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer" aria-label={`${copy.whatsapp}: ${property.name}`}><WhatsAppIcon /><span>{copy.whatsapp}</span></a> : null}
             <Link className="stay-card__details-link" href={`/business?id=${property.slug}`}>{copy.details}</Link>
+            {!promotional && phone ? phoneVisible
+              ? <a className="stay-card__contact stay-card__contact--phone stay-card__contact--revealed" href={`tel:${phone}`} aria-label={`${phoneCopy[language].call}: ${property.name}`}><PhoneIcon /><bdi>{property.contact?.phone}</bdi></a>
+              : <button className="stay-card__contact stay-card__contact--phone" type="button" aria-expanded={phoneVisible} onClick={() => { setPhoneVisible(true); trackPhoneReveal({ placeId: property.slug, placeName: property.name, world: "vacation", placement: "property_card" }); }}><PhoneIcon /><span>{phoneCopy[language].reveal}</span></button>
+            : null}
+            {!promotional && whatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={whatsapp} serviceName={property.type} initialDate={selectedStay?.from} buttonLabel={copy.whatsapp} buttonClassName="stay-card__contact stay-card__contact--whatsapp" /> : null}
           </div>
         </div>
       </div>

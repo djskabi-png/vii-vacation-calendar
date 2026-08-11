@@ -6,6 +6,7 @@ import Link from "next/link";
 import type { DiscoveryItem } from "../data/world-data";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { PinIcon } from "../site-header";
+import { trackPhoneReveal } from "../lib/analytics";
 import { FavoriteButton } from "./favorite-button";
 import { useState } from "react";
 
@@ -88,7 +89,7 @@ export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
         <div className="discovery-card__footer-actions">
           {item.world === "hourly" && item.phone ? phoneVisible
             ? <a className="discovery-card__quick-call" dir="ltr" href={`tel:${item.phone.replace(/[^\d+]/g, "")}`} aria-label={translate(`חיוג אל ${item.name}`)}><PhoneIcon /><bdi>{item.phone}</bdi></a>
-            : <button className="discovery-card__reveal-phone" type="button" onClick={() => setPhoneVisible(true)}><PhoneIcon /><span>הצגת מספר</span></button>
+            : <button className="discovery-card__reveal-phone" type="button" onClick={() => { setPhoneVisible(true); trackPhoneReveal({ placeId: item.id, placeName: item.name, world: item.world, placement: "discovery_card" }); }}><PhoneIcon /><span>הצגת מספר</span></button>
           : null}
           <Link href={`/discover/place/${item.id}`}>{details}</Link>
         </div>

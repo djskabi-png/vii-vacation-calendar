@@ -16,11 +16,12 @@ test("vacation online booking requires dates and a positive connected price", ()
   assert.doesNotMatch(booking, /onlineReady\s*=\s*isManage\s*\|\|/);
 });
 
-test("incomplete vacation data uses a click to reveal booking phone", () => {
+test("incomplete vacation data keeps availability date-first and preserves the booking phone fallback", () => {
   assert.match(business, /vacationPhoneFallback = activeWorld === "vacation" && !vacationOnlineReady/);
-  assert.match(business, /phoneRevealed \? <a className="phone-reveal phone-reveal--visible"/);
-  assert.match(business, /לחצו להצגת המספר/);
+  assert.match(business, /בחירת תאריכים ובדיקת זמינות/);
+  assert.doesNotMatch(business, /phoneRevealed \? <a className="phone-reveal phone-reveal--visible"/);
   assert.match(booking, /if \(!onlineReady\)/);
+  assert.match(booking, /phoneRevealed \? <a className="phone-reveal phone-reveal--visible"/);
   assert.match(booking, /setPhoneRevealed\(true\)/);
 });
 

@@ -27,7 +27,7 @@ test("gallery updates accessible image context and supports touch swiping", () =
 });
 
 test("home recommendations and search results both use the shared gallery card", () => {
-  assert.match(home, /<PropertyCard property=\{property\}/);
+  assert.match(home, /<PropertyCard property=\{property\} promotional/);
   assert.match(search, /<PropertyCard key=\{property\.slug\} property=\{property\}/);
   assert.match(css, /\.stay-card__gallery-arrow:focus-visible/);
   assert.match(css, /@media \(hover: none\), \(max-width: 820px\)/);

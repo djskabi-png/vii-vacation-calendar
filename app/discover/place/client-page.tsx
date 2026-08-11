@@ -6,7 +6,7 @@ import Link from "next/link";
 import { BreadcrumbTrail } from "../../components/breadcrumb-trail";
 import { worldBreadcrumb } from "../../lib/seo";
 import { FavoriteButton } from "../../components/favorite-button";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { DiscoveryCard } from "../../components/discovery-card";
 import { ListingAccessibility } from "../../components/listing-accessibility";
 import { PageShell } from "../../components/page-shell";
@@ -21,6 +21,7 @@ import { MasuExperience } from "../../components/masu-experience";
 import { GalleryExperience } from "../../components/gallery-experience";
 import { DetailStickyDock, type DetailSectionLink } from "../../components/detail-sticky-dock";
 import { GuestReviewStudio } from "../../components/guest-review-studio";
+import { WhatsAppLeadButton } from "../../components/whatsapp-lead-button";
 
 function SpaPackageCard({ itemId, pack }: { itemId: string; pack: SpaPackage }) {
   const requestHref = `/booking?world=spa&place=${encodeURIComponent(itemId)}&package=${encodeURIComponent(pack.id)}`;
@@ -58,7 +59,7 @@ const masuServiceLinks: Record<string, string> = {
   "event-massage": "https://masu.co.il/your-pamper-party/",
 };
 
-function ProviderServiceCard({ itemId, service, priceLabel, bookingMode, onWhatsApp }: { itemId: string; service: ProviderService; priceLabel: string; bookingMode: "full" | "whatsapp"; onWhatsApp: (service: ProviderService) => void }) {
+function ProviderServiceCard({ itemId, providerName, phone, service, priceLabel, bookingMode }: { itemId: string; providerName: string; phone?: string; service: ProviderService; priceLabel: string; bookingMode: "full" | "whatsapp" }) {
   const requestHref = `/booking?world=providers&place=${encodeURIComponent(itemId)}&service=${encodeURIComponent(service.id)}`;
   const masuServiceHref = itemId === "masu-home-wellness" ? masuServiceLinks[service.id] : undefined;
   return <article className="provider-service-card">
@@ -76,55 +77,13 @@ function ProviderServiceCard({ itemId, service, priceLabel, bookingMode, onWhats
           aria-label={`${service.title} באתר מאסו, נפתח בלשונית חדשה`}
         >בחירת השירות באתר מאסו</a>
       : bookingMode === "whatsapp"
-        ? <button className="button primary" type="button" onClick={() => onWhatsApp(service)}>הזמנה בוואטסאפ</button>
+        ? phone ? <WhatsAppLeadButton world="providers" placeId={itemId} placeName={providerName} businessPhone={phone} serviceName={service.title} buttonLabel="הזמנה בוואטסאפ" /> : null
         : <Link className="button primary" href={requestHref}>התחלת הזמנה</Link>}
   </article>;
 }
 
-function ProviderWhatsAppDialog({ providerName, phone, service, onClose }: { providerName: string; phone: string; service: ProviderService; onClose: () => void }) {
-  const [date, setDate] = useState("");
-  const [location, setLocation] = useState("");
-  const [guests, setGuests] = useState("2");
-  const whatsappNumber = phone.replace(/\D/g, "").replace(/^0/, "972");
-  const message = [
-    `היי ${providerName}, הגעתי דרך אתר VII ואשמח להזמין ${service.title}.`,
-    date ? `תאריך: ${date}` : "",
-    location ? `מיקום: ${location}` : "",
-    guests ? `מספר משתתפים: ${guests}` : "",
-    "אשמח לבדוק זמינות ומחיר.",
-  ].filter(Boolean).join("\n");
-  const whatsappHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => event.key === "Escape" && onClose();
-    document.addEventListener("keydown", onKeyDown);
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [onClose]);
-
-  return <div className="provider-whatsapp-layer" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
-    <section className="provider-whatsapp-dialog" role="dialog" aria-modal="true" aria-labelledby="provider-whatsapp-title">
-      <header>
-        <div><span>הזמנה מהירה בוואטסאפ</span><h2 id="provider-whatsapp-title">{service.title}</h2><p>ממלאים שלושה פרטים וממשיכים לשיחה ישירה עם {providerName}.</p></div>
-        <button className="dialog-close" type="button" onClick={onClose} aria-label="סגירת חלון ההזמנה">×</button>
-      </header>
-      <div className="provider-whatsapp-dialog__fields">
-        <label>תאריך רצוי<input type="date" value={date} onChange={(event) => setDate(event.target.value)} /></label>
-        <label>איפה מתקיים האירוע?<input type="text" value={location} onChange={(event) => setLocation(event.target.value)} placeholder="עיר או מקום האירוח" /></label>
-        <label>כמה משתתפים?<input type="number" min="1" value={guests} onChange={(event) => setGuests(event.target.value)} /></label>
-      </div>
-      <footer><button className="button secondary" type="button" onClick={onClose}>ביטול</button><a className="button primary" href={whatsappHref} target="_blank" rel="noopener noreferrer">מעבר לוואטסאפ</a></footer>
-    </section>
-  </div>;
-}
-
 function ProviderContent({ itemId, providerName, details, priceLabel }: { itemId: string; providerName: string; details: ProviderDetails; priceLabel: string }) {
   const [phoneVisible, setPhoneVisible] = useState(false);
-  const [whatsappService, setWhatsappService] = useState<ProviderService | null>(null);
   const bookingMode = details.bookingMode || "full";
   return <>
     <section className="section shell provider-about" id="provider-about">
@@ -138,13 +97,12 @@ function ProviderContent({ itemId, providerName, details, priceLabel }: { itemId
           : <button className="provider-phone-reveal" type="button" onClick={() => setPhoneVisible(true)}>הצגת מספר</button>}</> : null}
       </aside>
     </section>
-    <section className="section section-tint provider-services-section" id="provider-services"><div className="shell"><div className="section-head"><div><span className="eyebrow">בוחרים את השירות הנכון</span><h2>שירותים וחבילות להזמנה</h2><p>{bookingMode === "whatsapp" ? "בוחרים שירות, מוסיפים תאריך ומיקום וממשיכים לשיחה קצרה עם הספק." : "בוחרים שירות וממשיכים לעמוד הזמנה מלא ששומר את כל הפרטים במקום אחד."}</p></div></div><div className="provider-services-grid">{details.services.map((service) => <ProviderServiceCard key={service.id} itemId={itemId} service={service} priceLabel={priceLabel} bookingMode={bookingMode} onWhatsApp={setWhatsappService} />)}</div></div></section>
+    <section className="section section-tint provider-services-section" id="provider-services"><div className="shell"><div className="section-head"><div><span className="eyebrow">בוחרים את השירות הנכון</span><h2>שירותים וחבילות להזמנה</h2><p>{bookingMode === "whatsapp" ? "בוחרים שירות, ממלאים פרטים ושומרים את הפנייה לפני המעבר לשיחה עם הספק." : "בוחרים שירות וממשיכים לעמוד הזמנה מלא ששומר את כל הפרטים במקום אחד."}</p></div></div><div className="provider-services-grid">{details.services.map((service) => <ProviderServiceCard key={service.id} itemId={itemId} providerName={providerName} phone={details.phone} service={service} priceLabel={priceLabel} bookingMode={bookingMode} />)}</div></div></section>
     <section className="section shell provider-occasions"><div><span className="eyebrow">מתאים לחגיגה שלכם</span><h2>סוגי אירועים</h2></div><div>{details.occasions.map((occasion) => <span key={occasion}>{occasion}</span>)}</div></section>
     <section className="section section-soft provider-process-section" id="provider-process"><div className="shell"><div className="section-head"><div><span className="eyebrow">פשוט, ברור וללא ניחושים</span><h2>איך מזמינים</h2></div></div><ol className="provider-process">{details.process.map((step, index) => <li key={step}><span>{index + 1}</span><p>{step}</p></li>)}</ol></div></section>
     <section className="section shell provider-practical" id="provider-info"><div><span className="eyebrow">לפני שסוגרים</span><h2>חשוב לדעת</h2></div><ul>{details.practicalNotes.map((note) => <li key={note}>{note}</li>)}</ul></section>
     <section className="section shell provider-faq" id="provider-faq"><div className="section-head"><div><span className="eyebrow">שאלות נפוצות</span><h2>תשובות לפני ההזמנה</h2></div></div><div>{details.faq.map((entry) => <details key={entry.question}><summary>{entry.question}</summary><p>{entry.answer}</p></details>)}</div></section>
-    <section className="section provider-final-cta"><div className="shell"><div><span className="eyebrow">מוכנים להזמין?</span><h2>{bookingMode === "whatsapp" ? "בוחרים שירות וממשיכים ישירות לספק" : "ממשיכים להזמנה מלאה ומסודרת"}</h2><p>{bookingMode === "whatsapp" ? "הפרטים שמילאתם מוכנים מראש בתוך הודעת הוואטסאפ." : "התאריך, המקום, מספר המשתתפים והשירות המבוקש נשמרים יחד במערכת."}</p></div><div>{bookingMode === "whatsapp" ? <button className="button primary" type="button" onClick={() => setWhatsappService(details.services[0])}>הזמנה בוואטסאפ</button> : <Link className="button primary" href={`/booking?world=providers&place=${encodeURIComponent(itemId)}`}>התחלת הזמנה</Link>}</div></div></section>
-    {whatsappService && details.phone ? <ProviderWhatsAppDialog providerName={providerName} phone={details.phone} service={whatsappService} onClose={() => setWhatsappService(null)} /> : null}
+    <section className="section provider-final-cta"><div className="shell"><div><span className="eyebrow">מוכנים להזמין?</span><h2>{bookingMode === "whatsapp" ? "שומרים את הפנייה וממשיכים ישירות לספק" : "ממשיכים להזמנה מלאה ומסודרת"}</h2><p>{bookingMode === "whatsapp" ? "רק לאחר שהפרטים נשמרים נפתחת שיחת הוואטסאפ עם מזהה הפנייה." : "התאריך, המקום, מספר המשתתפים והשירות המבוקש נשמרים יחד במערכת."}</p></div><div>{bookingMode === "whatsapp" && details.phone ? <WhatsAppLeadButton world="providers" placeId={itemId} placeName={providerName} businessPhone={details.phone} serviceName={details.services[0]?.title} buttonLabel="הזמנה בוואטסאפ" /> : <Link className="button primary" href={`/booking?world=providers&place=${encodeURIComponent(itemId)}`}>התחלת הזמנה</Link>}</div></div></section>
   </>;
 }
 

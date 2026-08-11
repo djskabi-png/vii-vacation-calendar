@@ -19,6 +19,7 @@ import { FilterControlIcon } from "../../components/filter-control-icon";
 import { eventSearchHref } from "../../data/world-search-landings";
 import { localizedPath } from "../../i18n/locale-routing";
 import { useSiteLanguage } from "../../i18n/locale-provider";
+import { SearchAfterResults } from "../../components/search-after-results";
 
 export default function EventSearchPage({ initialArea }: { initialArea?: string }) {
   const router = useRouter();
@@ -129,6 +130,7 @@ export default function EventSearchPage({ initialArea }: { initialArea?: string 
             {displayed.length === 0 && <div className="empty-state"><h2>לא נמצאה התאמה</h2><p>אפשר להפחית את כמות המשתתפים או להסיר סינון.</p><button className="button primary" type="button" onClick={reset}>ניקוי סינונים</button></div>}
           </section>
         </div>
+        <SearchAfterResults world="events" location={area} />
         {filtersOpen && <button className="filter-backdrop" aria-label="סגירת סינון" onClick={() => setFiltersOpen(false)} />}
       </main>
     </PageShell>

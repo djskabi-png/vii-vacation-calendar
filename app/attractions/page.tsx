@@ -6,6 +6,7 @@ import { paidAttractions } from "../data/world-data";
 import { breadcrumbSchema, collectionSchema } from "../lib/seo";
 import { AttractionsExplorer } from "./attractions-explorer";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
+import { SearchAfterResults } from "../components/search-after-results";
 
 export const metadata: Metadata = {
   title: "אטרקציות בתשלום בישראל לפי אזור וסוג חוויה",
@@ -28,6 +29,7 @@ export default function AttractionsPage() {
       <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "אטרקציות" }]} />
       <section className="attraction-trust"><div className="shell"><div><strong>מידע מאומת</strong><span>מוצגים ספק, אזור, תנאים ודרך הזמנה ברורה.</span></div><div><strong>בלי הפתעות בהזמנה</strong><span>המגבלות, הביטוח, מדיניות הביטול ומה כלול מוצגים לפני אישור.</span></div><div><strong>הכל במקום אחד</strong><span>המידע ודרך ההזמנה נשארים בתוך VII, בהתאם לשיטת המכירה של הספק.</span></div></div></section>
       <section id="attraction-search" className="section shell trail-explorer attraction-explorer"><div className="section-head"><div><h2>אטרקציות בישראל</h2><p>מסננים לפי אזור וסוג פעילות ובוחרים חוויה שמתאימה לכם.</p></div></div><AttractionsExplorer /></section>
+      <SearchAfterResults world="activities" reviewHighlights={paidAttractions.filter((item) => typeof item.rating === "number").sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 3).map((item) => ({ name: item.name, href: `/discover/place/${item.id}`, rating: item.rating || 0, context: item.sourceName ? `דירוג מתוך ${item.sourceName}` : undefined }))} />
     </main>
   </PageShell>;
 }

@@ -549,9 +549,10 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(business, /world: activeWorld/);
   assert.match(business, /initialFrom/);
   assert.doesNotMatch(business, /contact-actions/);
-  assert.match(business, /wa\.me/);
+  assert.match(business, /<WhatsAppLeadButton/);
+  assert.doesNotMatch(business, /wa\.me/);
   assert.match(business, /booking-summary/);
-  assert.match(business, /שליחת בקשת הזמנה בוואטסאפ/);
+  assert.match(business, /שליחת בקשת זמינות בוואטסאפ/);
   assert.match(business, /<FavoriteButton compact=\{false\}/);
   assert.match(eventPlace, /<FavoriteButton compact=\{false\}/);
   assert.match(styles, /\.universal-favorite\.is-saved/);
@@ -1093,15 +1094,19 @@ test("spa results expose working place and amenity filters before the result lis
 
   const worldData = await readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8");
   assert.match(worldData, /function areaMapCoordinates/);
-  assert.match(worldData, /region\.includes\("ירושלים"\)/);
+  assert.match(worldData, /const spaAreaCoordinates/);
+  assert.match(worldData, /"חיפה": \{ lat: 32\.794, lng: 34\.989 \}/);
+  assert.match(worldData, /"טבריה": \{ lat: 32\.794, lng: 35\.532 \}/);
+  assert.match(worldData, /"ירושלים": \{ lat: 31\.778, lng: 35\.223 \}/);
   assert.match(worldData, /mapPrecision: "area"/);
 });
 
-test("provider pages demonstrate direct WhatsApp and full-site booking modes", async () => {
-  const [whatsappResponse, fullResponse, source, details, styles] = await Promise.all([
+test("provider pages demonstrate tracked WhatsApp and full-site booking modes", async () => {
+  const [whatsappResponse, fullResponse, source, leadFlow, details, styles] = await Promise.all([
     render("/discover/place/maor-natan"),
     render("/discover/place/nissan-mukhtar"),
     readFile(new URL("../app/discover/place/client-page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/whatsapp-lead-button.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/data/provider-details.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
@@ -1112,8 +1117,10 @@ test("provider pages demonstrate direct WhatsApp and full-site booking modes", a
   assert.doesNotMatch(whatsappHtml, />050-786-7711</);
   assert.match(fullHtml, /התחלת הזמנה/);
   assert.match(fullHtml, /\/booking\?world=providers&amp;place=nissan-mukhtar/);
-  assert.match(source, /https:\/\/wa\.me\/\$\{whatsappNumber\}/);
-  assert.match(source, /role="dialog" aria-modal="true"/);
+  assert.match(source, /<WhatsAppLeadButton/);
+  assert.doesNotMatch(source, /https:\/\/wa\.me/);
+  assert.match(leadFlow, /https:\/\/wa\.me\/\$\{whatsappNumber\(businessPhone\)\}/);
+  assert.match(leadFlow, /role="dialog" aria-modal="true"/);
   assert.match(details, /"maor-natan":[\s\S]*bookingMode: "whatsapp"/);
   assert.match(details, /"nissan-mukhtar":[\s\S]*bookingMode: "full"/);
   assert.match(styles, /\.discovery-detail--providers \.provider-occasions \{ padding-block: 44px 40px; \}/);

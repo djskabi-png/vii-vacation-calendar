@@ -22,3 +22,7 @@ test("mobile spa and event guest steps stay complete and hide persistent actions
   assert.match(css, /body:has\(\.search-box-shell\.mobile-expanded\) \.smart-concierge/);
   assert.match(css, /body:has\(\.search-box-shell\.mobile-expanded\) \.mobile-map-fab/);
 });
+test("mobile search releases page scrolling as soon as the sheet closes", () => {
+  assert.doesNotMatch(source, /document\.body\.style\.overflow/);
+  assert.match(css, /body:has\(\.search-box-shell\.mobile-expanded\) \{ overflow: hidden; \}/);
+});

@@ -81,27 +81,29 @@ const curatedHourlyPlaces: DiscoveryItem[] = [
   { id: "titanic-spa", world: "hourly", name: "סוויטות טיטאניק", location: "ראשון לציון", area: "מרכז", description: "מתחם של 17 סוויטות עם אפשרויות אירוח קצרות לפי שעה.", features: ["17 סוויטות", "שהייה קצרה", "ראשון לציון"], image: "/media/discovery/titanic-spa.jpg", images: ["/media/discovery/titanic-spa.jpg", "/media/discovery/titanic-spa-1.jpeg", "/media/discovery/titanic-spa-2.jpg", "/media/discovery/titanic-spa-3.jpg"], priceLabel: "שעה החל מ־120 ₪", phone: "055-4549882", lat: 31.9860, lng: 34.7955, mapPrecision: "area", sourceUrl: "https://roomsvip.com/Titanic_Spa", sourceName: "חדרים וי־איי־פי" },
 ];
 
-function areaMapCoordinates(item: { id: string; location: string; area: string; lat: number; lng: number }) {
-  const region = `${item.location} ${item.area}`;
-  let lat = item.lat;
-  let lng = item.lng;
+const spaAreaCoordinates: Record<string, { lat: number; lng: number }> = {
+  "נהריה": { lat: 33.006, lng: 35.095 },
+  "חיפה": { lat: 32.794, lng: 34.989 },
+  "רגבה": { lat: 32.977, lng: 35.099 },
+  "כמון": { lat: 32.913, lng: 35.36 },
+  "תל אביב": { lat: 32.085, lng: 34.781 },
+  "הרצליה": { lat: 32.166, lng: 34.843 },
+  "ירושלים": { lat: 31.778, lng: 35.223 },
+  "רמת גן": { lat: 32.082, lng: 34.814 },
+  "אילת": { lat: 29.558, lng: 34.948 },
+  "אשדוד": { lat: 31.8, lng: 34.65 },
+  "נווה אילן": { lat: 31.808, lng: 35.081 },
+  "מעלה החמישה": { lat: 31.817, lng: 35.11 },
+  "טבריה": { lat: 32.794, lng: 35.532 },
+};
 
-  if (region.includes("ירושלים") && (lat > 31.92 || lat < 31.62 || lng < 35.08 || lng > 35.36)) {
-    lat = 31.778;
-    lng = 35.223;
-  } else if (region.includes("תל אביב") && (lat < 31.95 || lat > 32.2 || lng < 34.68 || lng > 34.9)) {
-    lat = 32.085;
-    lng = 34.78;
-  }
-
-  const hash = Array.from(item.id).reduce((value, character) => ((value * 31) + character.charCodeAt(0)) >>> 0, 7);
-  const angle = (hash % 360) * Math.PI / 180;
-  const radius = 0.0035 + ((hash >>> 8) % 7) * 0.0011;
-  return { lat: lat + Math.sin(angle) * radius, lng: lng + Math.cos(angle) * radius };
+function areaMapCoordinates(item: { location: string; lat: number; lng: number }, world: "spa" | "hourly") {
+  if (world === "spa") return spaAreaCoordinates[item.location] ?? { lat: item.lat, lng: item.lng };
+  return { lat: item.lat, lng: item.lng };
 }
 
 const verifiedDiscoveryItems = (world: "spa" | "hourly"): DiscoveryItem[] => verifiedCatalog[world].map((item) => {
-  const coordinates = areaMapCoordinates(item);
+  const coordinates = areaMapCoordinates(item, world);
   return {
   id: item.id,
   world,

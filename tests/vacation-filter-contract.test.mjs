@@ -76,3 +76,20 @@ test("regional vacation pages never serialize the all-types default as an active
   assert.match(source, /const landingType = normalizedLandingType\(landing\)/);
   assert.doesNotMatch(source, /landing\?\.type \? \[normalizeAccommodationType\(landing\.type\)\] : \[\]/);
 });
+
+test("additional vacation filters replace duplicated search fields with a real price range", async () => {
+  const source = await readFile(new URL("app/search/page.tsx", root), "utf8");
+  const css = await readFile(new URL("app/globals.css", root), "utf8");
+  assert.doesNotMatch(source, /label="אזור" value=\{shownFilters\.area\}/);
+  assert.doesNotMatch(source, /<legend>כמות אורחים מינימלית<\/legend>/);
+  assert.match(source, /<legend>טווח מחיר ללילה<\/legend>/);
+  assert.match(source, /aria-label="מחיר מינימום ללילה"/);
+  assert.match(source, /aria-label="מחיר מקסימום ללילה"/);
+  assert.match(source, /typeof property\.price === "number"/);
+  assert.match(source, /minPrice: draftFilters\.minPrice === VACATION_PRICE_MIN/);
+  assert.match(source, /maxPrice: draftFilters\.maxPrice === VACATION_PRICE_MAX/);
+  assert.match(source, /params\.get\("minPrice"\)/);
+  assert.match(source, /params\.get\("maxPrice"\)/);
+  assert.match(css, /\.vacation-price-filter__inputs/);
+  assert.match(css, /\.vacation-price-input:focus-within/);
+});
