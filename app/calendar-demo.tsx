@@ -254,7 +254,7 @@ export function CalendarDemo({
   onCancel?: () => void;
   onConfirm: (result: CalendarResult) => void;
 }) {
-  const { language } = useSiteLanguage();
+  const { language, translate } = useSiteLanguage();
   const dateLocale = { he: "he-IL", en: "en-GB", ru: "ru-RU", fr: "fr-FR" }[language];
   const cancel = onCancel ?? onClose;
   const [checkIn, setCheckIn] = useState<string | null>(null);
@@ -342,16 +342,16 @@ export function CalendarDemo({
       <section className={`calendar-dialog mode-${mode}`} role="dialog" aria-modal="true" aria-labelledby="calendar-dialog-title">
         <header className="calendar-dialog-header">
           <div>
-            <span className="dialog-kicker">{mode === "home" ? "חיפוש בכל האתר" : "זמינות במקום אחד"}</span>
+            <span className="dialog-kicker">{translate(mode === "home" ? "חיפוש בכל האתר" : "זמינות במקום אחד")}</span>
             <h2 id="calendar-dialog-title">
-              {mode === "home" ? "מתי תרצו לצאת לחופשה?" : `בדיקת זמינות ב${businessName}`}
+              {translate(mode === "home" ? "מתי תרצו לצאת לחופשה?" : `בדיקת זמינות ב${businessName}`)}
             </h2>
             <p>
-              {mode === "home"
+              {translate(mode === "home"
                 ? "כל תאריך עתידי ניתן לחיפוש. הזמינות תיבדק מול כל המקומות בתוצאות."
                 : businessKind === "single"
                   ? "ימים תפוסים ומינימום הלילות משפיעים על הטווח שניתן לבחור. במקום יחיד אין צורך להציג כמות יחידות."
-                  : "ימים תפוסים, מספר היחידות ומינימום הלילות משפיעים על הטווח שניתן לבחור."}
+                  : "ימים תפוסים, מספר היחידות ומינימום הלילות משפיעים על הטווח שניתן לבחור.")}
             </p>
           </div>
           <button type="button" className="dialog-close calendar-dialog-close" onClick={cancel} aria-label="סגירת חלון התאריכים">×</button>
@@ -359,8 +359,8 @@ export function CalendarDemo({
 
         {mode === "home" && (
           <div className="date-mode-tabs" role="tablist" aria-label="אופן בחירת תאריכים">
-            <button type="button" role="tab" aria-selected={!flexible} className={!flexible ? "active" : ""} onClick={() => setFlexible(false)}>תאריכים מדויקים</button>
-            <button type="button" role="tab" aria-selected={flexible} className={flexible ? "active" : ""} onClick={() => setFlexible(true)}>אני גמיש</button>
+            <button type="button" role="tab" aria-selected={!flexible} className={!flexible ? "active" : ""} onClick={() => setFlexible(false)}>{translate("תאריכים מדויקים")}</button>
+            <button type="button" role="tab" aria-selected={flexible} className={flexible ? "active" : ""} onClick={() => setFlexible(true)}>{translate("אני גמיש")}</button>
           </div>
         )}
 
@@ -403,8 +403,8 @@ export function CalendarDemo({
           <div className="calendar-body">
             <div className="calendar-toolbar">
               <div className="quick-date-buttons" aria-label="בחירת טווח מהירה">
-                <span>{mode === "home" ? "חיפוש מהיר" : "מציאת טווח פנוי"}</span>
-                {QUICK_STAYS.map((stay) => <button type="button" key={stay.id} onClick={() => applyQuickStay(stay.id)}>{stay.label}</button>)}
+                <span>{translate(mode === "home" ? "חיפוש מהיר" : "מציאת טווח פנוי")}</span>
+                {QUICK_STAYS.map((stay) => <button type="button" key={stay.id} onClick={() => applyQuickStay(stay.id)}>{translate(stay.label)}</button>)}
               </div>
             </div>
 
