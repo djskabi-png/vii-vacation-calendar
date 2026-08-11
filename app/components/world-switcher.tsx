@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { type MouseEvent, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { publicWorldNavigation, worlds, type WorldId } from "../data/world-data";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
@@ -35,15 +36,21 @@ function WorldsIcon() {
 }
 
 export function SearchWorldTabs({ active, onNavigate }: { active: WorldId; onNavigate?: () => void }) {
+  const router = useRouter();
   const { language, translate } = useSiteLanguage();
   const moreRef = useRef<HTMLDetailsElement>(null);
   const primaryWorlds = ["vacation", "spa", "events", "hourly"] as const;
   const iconByWorld = { vacation: "🏡", spa: "🧖", events: "🎈", hourly: "🕒" } as const;
   const moreWorlds = publicWorldNavigation.filter((world) => !primaryWorlds.includes(world.id as typeof primaryWorlds[number]));
 
-  const finishNavigation = () => {
-    if (!onNavigate) return;
-    window.setTimeout(onNavigate, 0);
+  const navigateWithinSearch = (href: string, afterNavigate?: () => void) => (event: MouseEvent<HTMLAnchorElement>) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    router.push(href);
+    window.setTimeout(() => {
+      afterNavigate?.();
+      onNavigate?.();
+    }, 0);
   };
 
   return <nav className="search-world-tabs" aria-label={translate("בחירת עולם לחיפוש")}>
@@ -51,7 +58,8 @@ export function SearchWorldTabs({ active, onNavigate }: { active: WorldId; onNav
     <div className="search-world-tabs__options">
       {primaryWorlds.map((worldId) => {
         const world = worlds.find((item) => item.id === worldId)!;
-        return <Link key={world.id} href={localizedPath(world.href, language)} className={world.id === active ? "active" : ""} aria-current={world.id === active ? "page" : undefined} onClick={finishNavigation}>
+        const href = localizedPath(world.href, language);
+        return <Link key={world.id} href={href} className={world.id === active ? "active" : ""} aria-current={world.id === active ? "page" : undefined} onClick={navigateWithinSearch(href)}>
           <span className="search-world-tabs__icon" aria-hidden="true">{iconByWorld[worldId]}</span>
           <span>{translate(world.shortLabel)}</span>
         </Link>;
@@ -62,10 +70,10 @@ export function SearchWorldTabs({ active, onNavigate }: { active: WorldId; onNav
           <span>{translate("עוד")}</span>
         </summary>
         <div className="search-world-tabs__menu">
-          {moreWorlds.map((world) => <Link key={world.id} href={localizedPath(world.href, language)} onClick={() => { window.setTimeout(() => { moreRef.current?.removeAttribute("open"); onNavigate?.(); }, 0); }}>
+          {moreWorlds.map((world) => { const href = localizedPath(world.href, language); return <Link key={world.id} href={href} onClick={navigateWithinSearch(href, () => moreRef.current?.removeAttribute("open"))}>
             <span className={`world-mark world-mark--${world.id}`} aria-hidden="true" />
             <span><strong>{translate(world.shortLabel)}</strong><small>{translate(world.description)}</small></span>
-          </Link>)}
+          </Link>; })}
         </div>
       </details>
     </div>

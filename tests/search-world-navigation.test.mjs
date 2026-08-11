@@ -19,7 +19,8 @@ test("world navigation stays available throughout every public search flow", asy
   assert.doesNotMatch(searchBox, /mobileExpanded && showWorlds && !shouldCollapse/);
   assert.match(searchBox, /search-context-worlds/);
   assert.match(switcher, /onNavigate\?: \(\) => void/);
-  assert.match(switcher, /window\.setTimeout\(onNavigate, 0\)/);
+  assert.match(switcher, /router\.push\(href\)/);
+  assert.match(switcher, /event\.preventDefault\(\)/);
   assert.match(switcher, /primaryWorlds = \["vacation", "spa", "events", "hourly"\]/);
   assert.match(vacationDates, /SearchWorldTabs active="vacation" onNavigate=\{cancel\}/);
   assert.match(eventDates, /SearchWorldTabs active="events" onNavigate=\{cancel\}/);
