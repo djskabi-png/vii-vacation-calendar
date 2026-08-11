@@ -18,6 +18,9 @@ test("world navigation stays available throughout every public search flow", asy
   assert.match(searchBox, /mobileExpanded && showWorlds && <div className="search-mobile-worlds">/);
   assert.doesNotMatch(searchBox, /mobileExpanded && showWorlds && !shouldCollapse/);
   assert.match(searchBox, /search-context-worlds/);
+  assert.match(searchBox, /showWorlds && !shouldCollapse && !mobileExpanded/);
+  assert.match(styles, /search-mobile-worlds . position: relative; z-index: 40;/);
+  assert.match(styles, /mobile-expanded .location-list . top: 146px;/);
   assert.match(switcher, /onNavigate\?: \(\) => void/);
   assert.match(switcher, /router\.push\(href\)/);
   assert.match(switcher, /event\.preventDefault\(\)/);

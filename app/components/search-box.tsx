@@ -295,7 +295,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
 
   return (
     <>
-      {showWorlds && !shouldCollapse && <SearchWorldTabs active={activeWorld} />}
+      {showWorlds && !shouldCollapse && !mobileExpanded && <SearchWorldTabs active={activeWorld} />}
       {showWorlds && shouldCollapse && (locationOpen || guestOpen || priceOpen) && <div className="search-context-worlds"><SearchWorldTabs active={activeWorld} onNavigate={closeMobileSearch} /></div>}
       <div className={`search-box-shell ${shouldCollapse ? "search-box-shell--results" : ""} ${mobileExpanded ? "mobile-expanded" : "mobile-collapsed"}`}>
         {shouldCollapse && <button type="button" className="search-mobile-summary" onClick={() => { setMobileStep("location"); setMobileExpanded(true); setLocationOpen(true); }} aria-expanded={mobileExpanded} aria-label={`שינוי חיפוש. ${mobileSummary}`}>
