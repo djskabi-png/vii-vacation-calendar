@@ -6,7 +6,7 @@ import { CalendarDemo } from "../calendar-demo";
 import { EventDatePicker } from "./event-date-picker";
 import { SpaDatePicker } from "./spa-date-picker";
 import { type WorldId } from "../data/world-data";
-import { searchLocationOptions, type SearchMode } from "../data/search-taxonomy";
+import { searchLocationOptions, vacationLocationGroups, type SearchMode } from "../data/search-taxonomy";
 import { CalendarIcon, PeopleIcon, PinIcon, SearchIcon } from "../site-header";
 import { SearchWorldTabs } from "./world-switcher";
 import { useSiteLanguage } from "../i18n/locale-provider";
@@ -99,6 +99,8 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [locationOpen, setLocationOpen] = useState(false);
   const [locationQuery, setLocationQuery] = useState("");
+  const [locationStatus, setLocationStatus] = useState("");
+  const [locating, setLocating] = useState(false);
   const [guestOpen, setGuestOpen] = useState(false);
   const [priceOpen, setPriceOpen] = useState(false);
   const [maximumPrice, setMaximumPrice] = useState(() => normalizeHourlyPrice(searchParams.get("maxPrice")));
@@ -233,6 +235,47 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
     });
   }
 
+  function chooseLocation(place: string) {
+    setLocationValue(place);
+    setLocationOpen(false);
+    setLocationQuery("");
+    setLocationStatus("");
+    if (!isHourly && window.matchMedia("(max-width: 820px)").matches) {
+      setMobileStep("dates");
+      setCalendarOpen(true);
+    }
+  }
+
+  function chooseNearbyLocation() {
+    if (!navigator.geolocation || locating) {
+      setLocationStatus("לא הצלחנו לזהות את המיקום. אפשר לבחור יעד מהרשימה.");
+      return;
+    }
+    setLocating(true);
+    setLocationStatus("מאתרים את האזור הקרוב...");
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        const centers = [
+          { label: "צפון", lat: 32.96, lng: 35.5 },
+          { label: "מרכז", lat: 32.08, lng: 34.8 },
+          { label: "ירושלים והרי יהודה", lat: 31.78, lng: 35.21 },
+          { label: "דרום", lat: 31.25, lng: 34.79 },
+          { label: "אילת והערבה", lat: 29.56, lng: 34.95 },
+        ];
+        const nearest = centers.reduce((best, item) => {
+          const distance = (coords.latitude - item.lat) ** 2 + (coords.longitude - item.lng) ** 2;
+          return distance < best.distance ? { label: item.label, distance } : best;
+        }, { label: "מרכז", distance: Number.POSITIVE_INFINITY });
+        setLocating(false);
+        chooseLocation(nearest.label);
+      },
+      () => {
+        setLocating(false);
+        setLocationStatus("לא הצלחנו לזהות את המיקום. אפשר לבחור יעד מהרשימה.");
+      },
+      { enableHighAccuracy: false, timeout: 7000, maximumAge: 300000 },
+    );
+  }
   function expandMobileSearch() {
     if (window.matchMedia("(max-width: 820px)").matches) setMobileExpanded(true);
   }
@@ -264,7 +307,36 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = fal
         {mobileExpanded && <div className="search-mobile-sheet-head"><strong>{mobileSheetTitle}</strong><ol className="search-mobile-progress" aria-label={`שלב ${mobileStep === "location" ? 1 : mobileStep === "dates" ? 2 : 3} מתוך 3`}><li className={mobileStep === "location" ? "active" : "complete"} aria-current={mobileStep === "location" ? "step" : undefined}>1</li><li className={mobileStep === "dates" ? "active" : mobileStep === "guests" ? "complete" : ""} aria-current={mobileStep === "dates" ? "step" : undefined}>2</li><li className={mobileStep === "guests" ? "active" : ""} aria-current={mobileStep === "guests" ? "step" : undefined}>3</li></ol><button type="button" onClick={closeMobileSearch} aria-label="סגירת החיפוש">×</button></div>}
         <div className={`search-field-wrap search-step search-step--location ${mobileStep === "location" ? "active" : ""}`}>
           <button type="button" className="search-field" aria-expanded={locationOpen} onClick={() => { setMobileStep("location"); expandMobileSearch(); setLocationOpen((value) => !value); setGuestOpen(false); setPriceOpen(false); }}><PinIcon /><span><small>{mode === "events" ? "אזור או מקום" : isHourly ? "עיר או אזור" : "לאן נוסעים"}</small><strong>{locationValue}</strong></span></button>
-          {locationOpen && <div className="search-popover location-list"><label className="location-list__search"><span>חיפוש יעד</span><input value={locationQuery} onChange={(event) => setLocationQuery(event.target.value)} placeholder="הקלידו עיר או אזור" autoFocus /></label><div>{visiblePlaces.map((place) => <button type="button" key={place} className={place === locationValue ? "selected" : ""} onClick={() => { setLocationValue(place); setLocationOpen(false); setLocationQuery(""); if (!isHourly && window.matchMedia("(max-width: 820px)").matches) { setMobileStep("dates"); setCalendarOpen(true); } }}>{place}</button>)}</div>{visiblePlaces.length === 0 ? <p>לא מצאנו יעד מתאים.</p> : null}</div>}
+          {locationOpen && <div className="search-popover location-list">
+            <label className="location-list__search"><span>חיפוש יעד</span><input value={locationQuery} onChange={(event) => setLocationQuery(event.target.value)} placeholder="הקלידו עיר או אזור" autoFocus /></label>
+            {locationQuery.trim() ? (
+              <div className="location-search-results">
+                {visiblePlaces.map((place) => <button type="button" key={place} className={place === locationValue ? "selected" : ""} onClick={() => chooseLocation(place)}><PinIcon /><span>{place}</span></button>)}
+                {visiblePlaces.length === 0 ? <p>לא מצאנו יעד מתאים.</p> : null}
+              </div>
+            ) : mode === "vacation" ? (
+              <div className="location-discovery">
+                <button type="button" className="location-nearby" onClick={chooseNearbyLocation} disabled={locating}>
+                  <span className="location-nearby__icon"><PinIcon /></span>
+                  <span><strong>מקומות בסביבה הקרובה</strong><small>נמצא את האזור הקרוב לפי המיקום שלכם</small></span>
+                  <b aria-hidden="true">←</b>
+                </button>
+                {locationStatus ? <p className="location-status" role="status">{locationStatus}</p> : null}
+                {vacationLocationGroups.map((group) => (
+                  <section className={`location-group location-group--${group.id}`} key={group.id}>
+                    <h3>{group.title}</h3>
+                    <div>
+                      {group.options.map((place) => <button type="button" key={place} className={place === locationValue ? "selected" : ""} aria-pressed={place === locationValue} onClick={() => chooseLocation(place)}><PinIcon /><span>{place}</span></button>)}
+                    </div>
+                  </section>
+                ))}
+              </div>
+            ) : (
+              <div className="location-search-results">
+                {visiblePlaces.map((place) => <button type="button" key={place} className={place === locationValue ? "selected" : ""} onClick={() => chooseLocation(place)}><PinIcon /><span>{place}</span></button>)}
+              </div>
+            )}
+          </div>}
         </div>
         {isHourly && <div className="search-field-wrap search-field-wrap--price">
           <button type="button" className="search-field" aria-expanded={priceOpen} onClick={() => { setPriceOpen((value) => !value); setLocationOpen(false); }}><span><small>מחיר לשעתיים עד</small><strong>{maximumPrice ? `${maximumPrice} ₪` : "ללא הגבלת מחיר"}</strong></span></button>

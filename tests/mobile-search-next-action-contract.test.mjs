@@ -11,3 +11,14 @@ test("home date selection advances to guests instead of claiming to show results
   assert.match(search, /setMobileStep\("guests"\); setGuestOpen\(true\)/);
   assert.match(css, /\.mode-home \.confirm-dates\s*\{[^}]*background:\s*#222;/);
 });
+
+test("vacation calendar uses continuous complete months and one footer summary", () => {
+  assert.match(calendar, /visibleMonths = Array\.from\(\{ length: 12 \}/);
+  assert.match(calendar, /visibleMonths\.map/);
+  assert.doesNotMatch(calendar, /className="dialog-date-summary"/);
+  assert.doesNotMatch(calendar, /className="month-nav"/);
+  assert.match(calendar, /longDate\(checkIn\).*longDate\(checkOut\)/);
+  assert.doesNotMatch(css, /\.secondary-month\s*\{[^}]*display:\s*none/);
+  assert.match(css, /scroll-snap-type:\s*y proximity/);
+  assert.match(calendar, /calendar-dialog-close[^>]*>×<\/button>/);
+});

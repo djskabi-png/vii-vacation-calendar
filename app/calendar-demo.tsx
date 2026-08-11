@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { CloseIcon } from "./site-header";
 
 export type CalendarMode = "home" | "business";
 export type BusinessKind = "multi" | "single";
@@ -255,15 +254,13 @@ export function CalendarDemo({
   const cancel = onCancel ?? onClose;
   const [checkIn, setCheckIn] = useState<string | null>(null);
   const [checkOut, setCheckOut] = useState<string | null>(null);
-  const [monthOffset, setMonthOffset] = useState(0);
   const [flexible, setFlexible] = useState(false);
   const [flexStay, setFlexStay] = useState<(typeof FLEX_STAYS)[number]["id"]>("weekend");
   const [flexMonth, setFlexMonth] = useState(0);
   const [flexDays, setFlexDays] = useState(3);
   const [notice, setNotice] = useState("בחרו תאריך הגעה");
 
-  const firstMonth = addMonths(START_MONTH, monthOffset);
-  const secondMonth = addMonths(firstMonth, 1);
+  const visibleMonths = Array.from({ length: 12 }, (_, index) => addMonths(START_MONTH, index));
   const nights = checkIn && checkOut ? dateDiff(checkIn, checkOut) : 0;
   const selectedMin = mode === "business" && checkIn ? minimumNights(dateFromKey(checkIn)) : 1;
   const ready = flexible || Boolean(checkIn && checkOut && nights >= selectedMin);
@@ -338,9 +335,6 @@ export function CalendarDemo({
   return createPortal(
     <div className="calendar-overlay" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && cancel()}>
       <section className={`calendar-dialog mode-${mode}`} role="dialog" aria-modal="true" aria-labelledby="calendar-dialog-title">
-        <button type="button" className="dialog-close calendar-dialog-close" onClick={cancel} aria-label="סגירת חלון התאריכים">
-          <CloseIcon />
-        </button>
         <header className="calendar-dialog-header">
           <div>
             <span className="dialog-kicker">{mode === "home" ? "חיפוש בכל האתר" : "זמינות במקום אחד"}</span>
@@ -355,29 +349,13 @@ export function CalendarDemo({
                   : "ימים תפוסים, מספר היחידות ומינימום הלילות משפיעים על הטווח שניתן לבחור."}
             </p>
           </div>
+          <button type="button" className="dialog-close calendar-dialog-close" onClick={cancel} aria-label="סגירת חלון התאריכים">×</button>
         </header>
 
         {mode === "home" && (
           <div className="date-mode-tabs" role="tablist" aria-label="אופן בחירת תאריכים">
             <button type="button" role="tab" aria-selected={!flexible} className={!flexible ? "active" : ""} onClick={() => setFlexible(false)}>תאריכים מדויקים</button>
             <button type="button" role="tab" aria-selected={flexible} className={flexible ? "active" : ""} onClick={() => setFlexible(true)}>אני גמיש</button>
-          </div>
-        )}
-
-        {!flexible && (
-          <div className="dialog-date-summary">
-            <div className={checkIn ? "selected" : ""}>
-              <span>הגעה</span>
-              <strong>{shortDate(checkIn)}</strong>
-              <small>{longDate(checkIn)}</small>
-            </div>
-            <span className="date-arrow" aria-hidden="true">←</span>
-            <div className={checkOut ? "selected" : ""}>
-              <span>עזיבה</span>
-              <strong>{shortDate(checkOut)}</strong>
-              <small>{longDate(checkOut)}</small>
-            </div>
-            {checkIn && checkOut && <strong className="night-count">{nights === 1 ? "לילה אחד" : `${nights} לילות`}</strong>}
           </div>
         )}
 
@@ -423,16 +401,12 @@ export function CalendarDemo({
                 <span>{mode === "home" ? "חיפוש מהיר" : "מציאת טווח פנוי"}</span>
                 {QUICK_STAYS.map((stay) => <button type="button" key={stay.id} onClick={() => applyQuickStay(stay.id)}>{stay.label}</button>)}
               </div>
-              <div className="month-nav">
-                <button type="button" onClick={() => setMonthOffset((value) => Math.max(0, value - 1))} disabled={monthOffset === 0} aria-label="החודש הקודם">→</button>
-                <span>{monthLabel(firstMonth)}</span>
-                <button type="button" onClick={() => setMonthOffset((value) => Math.min(10, value + 1))} disabled={monthOffset === 10} aria-label="החודש הבא">←</button>
-              </div>
             </div>
 
-            <div className="dialog-months">
-              <CalendarMonth month={firstMonth} mode={mode} businessKind={businessKind} checkIn={checkIn} checkOut={checkOut} onChoose={chooseDate} />
-              <CalendarMonth month={secondMonth} mode={mode} businessKind={businessKind} checkIn={checkIn} checkOut={checkOut} onChoose={chooseDate} secondary />
+            <div className="dialog-months" aria-label="אופן בחירת תאריכים">
+              {visibleMonths.map((month) => (
+                <CalendarMonth key={keyOf(month)} month={month} mode={mode} businessKind={businessKind} checkIn={checkIn} checkOut={checkOut} onChoose={chooseDate} />
+              ))}
             </div>
 
             <div className="dialog-legend">
@@ -454,8 +428,8 @@ export function CalendarDemo({
           <div className="dialog-status" aria-live="polite">
             <span className={ready ? "status-ready" : ""}>{ready ? "✓" : "i"}</span>
             <div>
-              <strong>{flexible ? "החיפוש הגמיש מוכן" : notice}</strong>
-              <small>{mode === "home" ? "הבחירה תחול על כל תוצאות האתר" : businessKind === "single" ? `הבחירה תחול על כל המקום ב${businessName}` : `הבחירה תחול רק על יחידות ${businessName}`}</small>
+              <strong>{flexible ? "החיפוש הגמיש מוכן" : checkIn && checkOut ? `${longDate(checkIn)} עד ${longDate(checkOut)}` : checkIn ? `${longDate(checkIn)} · ${notice}` : notice}</strong>
+              <small>{!flexible && checkIn && checkOut ? `${nights === 1 ? "לילה אחד" : `${nights} לילות`} · ` : ""}{mode === "home" ? "הבחירה תחול על כל תוצאות האתר" : businessKind === "single" ? `הבחירה תחול על כל המקום ב${businessName}` : `הבחירה תחול רק על יחידות ${businessName}`}</small>
             </div>
           </div>
           <div className="dialog-actions">
