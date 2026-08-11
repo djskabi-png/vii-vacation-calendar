@@ -51,7 +51,7 @@ function markerIcon(tone: MapTone) {
   if (tone === "spa") return `<svg ${common}><path d="M12 20.5c4.3-2.3 6.8-5.3 6.8-8.6A3.6 3.6 0 0 0 12 10.3a3.6 3.6 0 0 0-6.8 1.6c0 3.3 2.5 6.3 6.8 8.6Z"/><path d="M12 6.5c-.1-1.7.6-3 2.1-4M8.4 8C7 6.8 6.5 5.4 6.8 3.7M15.6 8c1.4-1.2 1.9-2.6 1.6-4.3"/></svg>`;
   if (tone === "hourly") return `<svg ${common}><circle cx="12" cy="12" r="8.5"/><path d="M12 7.3v5l3.3 2M8.2 3.8l-1.6 2.1M15.8 3.8l1.6 2.1"/></svg>`;
   if (tone === "activities") return `<svg ${common}><path d="M4.5 7.4h15v9.2h-15V7.4Z"/><path d="M8.8 7.4v9.2M15.2 7.4v9.2M12 4.2v3.2M10.3 5.5 12 4l1.7 1.5"/></svg>`;
-  return `<svg ${common}><path d="m3.5 11 8.5-7 8.5 7v8.4a1.6 1.6 0 0 1-1.6 1.6H5.1a1.6 1.6 0 0 1-1.6-1.6V11Z"/><path d="M9.1 21v-5.7h5.8V21M7.2 11.5h2.3M14.5 11.5h2.3"/></svg>`;
+  return `<svg ${common}><path d="m3.5 11 8.5-7 8.5 7v8.4a1.6 1.6 0 0 1-1.6 1.6H5.1a1.6 1.6 0 0 1-1.6-1.6V11Z"/><circle cx="8.6" cy="12.1" r=".7"/><circle cx="15.4" cy="12.1" r=".7"/><path d="M8.6 14.8c.9 1.1 2 1.6 3.4 1.6s2.5-.5 3.4-1.6M10.3 21v-2.2h3.4V21"/></svg>`;
 }
 
 function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false, autoLoad = false, onClose, onVisibleCountChange, onVisiblePlaceIdsChange }: PlacesMapProps) {

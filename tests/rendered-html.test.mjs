@@ -356,11 +356,14 @@ test("map markers use the rich synchronized place card instead of legacy text to
 
 test("shared map markers use modern icon markers and visible active list controls", async () => {
   const mapSource = await readFile("app/components/listing-map.tsx", "utf8");
+  const worldSwitcherSource = await readFile("app/components/world-switcher.tsx", "utf8");
   const css = await readFile("app/globals.css", "utf8");
   assert.match(mapSource, /function markerIcon\(tone: MapTone\)/);
   assert.match(mapSource, /vii-map-marker__icon/);
   assert.match(mapSource, /const markerContent = clustered[\s\S]+vii-map-marker__icon[\s\S]+vii-map-marker__label/);
   assert.match(mapSource, /m3\.5 11 8\.5-7 8\.5 7/);
+  assert.match(mapSource, /M8\.6 14\.8c\.9 1\.1 2 1\.6 3\.4 1\.6s2\.5-\.5 3\.4-1\.6/);
+  assert.match(worldSwitcherSource, /M8\.6 14\.8c\.9 1\.1 2 1\.6 3\.4 1\.6s2\.5-\.5 3\.4-1\.6/);
   assert.match(mapSource, /M12 20\.5c4\.3-2\.3/);
   assert.match(mapSource, /M12 5\.2c\.7 3\.6/);
   assert.match(mapSource, /M12 7\.3v5l3\.3 2/);
