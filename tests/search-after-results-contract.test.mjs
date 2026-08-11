@@ -35,3 +35,11 @@ test("below-results content stays readable and complete on mobile", () => {
   assert.match(css, /@media \(max-width: 760px\)[\s\S]*\.search-depth__guide > div,\.search-depth__review-grid,\.search-depth__review-checklist,\.search-depth__faq > div,\.search-depth__related \{ grid-template-columns: 1fr; \}/);
   assert.match(css, /\.search-depth__related nav \{ display: grid; grid-template-columns: repeat\(2/);
 });
+
+test("dynamic location labels are localized and suppress whole-country aliases", () => {
+  assert.match(component, /useSiteLanguage/);
+  assert.match(component, /translatedLocation = location \? translate\(location\)/);
+  assert.match(component, /wholeCountryLabels/);
+  assert.match(component, /"all-country"/);
+  assert.match(component, /locationPrefixes\[language\]/);
+});
