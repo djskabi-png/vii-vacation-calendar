@@ -81,6 +81,13 @@ const copy: Record<SiteLanguage, Copy> = {
   },
 };
 
+const newTabLabel: Record<SiteLanguage, string> = {
+  he: "\u05e0\u05e4\u05ea\u05d7 \u05d1\u05dc\u05e9\u05d5\u05e0\u05d9\u05ea \u05d7\u05d3\u05e9\u05d4",
+  en: "opens in a new tab",
+  ru: "откроется в новой вкладке",
+  fr: "s’ouvre dans un nouvel onglet",
+};
+
 function WhatsAppIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20.5 11.7a8.5 8.5 0 0 1-12.6 7.4L3 20.4l1.3-4.7A8.5 8.5 0 1 1 20.5 11.7Z"/><path d="M8.2 7.7c.2-.4.4-.4.7-.4h.4c.2 0 .4.1.5.4l.8 1.9c.1.3 0 .5-.2.7l-.6.7c-.2.2-.2.4-.1.6.6 1.2 1.6 2.2 2.8 2.8.2.1.4.1.6-.1l.8-1c.2-.2.4-.3.7-.2l1.8.9c.3.1.4.3.4.5 0 .3-.1 1.4-.8 2-.6.5-1.4.8-2.3.6-1.2-.2-2.8-.8-4.5-2.3-2-1.8-3.3-4.1-3.4-5.5-.1-.8.2-1.6.6-2.1.4-.4.8-.5 1-.5"/></svg>;
 }
@@ -233,7 +240,7 @@ export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, s
             <label>{labels.date}<input required name="requested_date" type="date" defaultValue={initialDate} /></label>
             <label>{labels.guests}<input name="guests" type="number" inputMode="numeric" min="1" defaultValue={initialGuests} placeholder={labels.guestsHint} /></label>
             <label className="form-honey" aria-hidden="true">Company site<input name="company_site" tabIndex={-1} autoComplete="off" /></label>
-            <label className="whatsapp-lead-dialog__privacy"><input required name="privacy" type="checkbox" /><span>{labels.privacyPrefix} <Link href="/legal/privacy">{labels.privacyLink}</Link>.</span></label>
+            <label className="whatsapp-lead-dialog__privacy"><input required name="privacy" type="checkbox" /><span>{labels.privacyPrefix} <Link href="/legal/privacy" target="_blank" rel="noopener noreferrer">{labels.privacyLink}<span className="sr-only"> ({newTabLabel[language]})</span></Link>.</span></label>
           </div>
           <footer>
             <button className="button secondary" type="button" onClick={closeDialog}>{labels.close}</button>

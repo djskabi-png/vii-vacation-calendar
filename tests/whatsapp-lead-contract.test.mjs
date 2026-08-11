@@ -65,6 +65,12 @@ test("the lead modal is keyboard and mobile safe", async () => {
   assert.match(css, /@media \(max-height: 650px\)[\s\S]*\.whatsapp-lead-dialog\s*\{[^}]*max-height:\s*100dvh/s);
 });
 
+test("the privacy policy opens separately without discarding the lead modal", async () => {
+  const source = await read("app/components/whatsapp-lead-button.tsx");
+
+  assert.match(source, /href="\/legal\/privacy" target="_blank" rel="noopener noreferrer"/);
+  assert.match(source, /newTabLabel\[language\]/);
+});
 test("the tracked lead event is available to analytics without bypassing consent", async () => {
   const source = await read("app/lib/analytics.ts");
   assert.match(source, /event: "vii_whatsapp_lead_saved"/);
