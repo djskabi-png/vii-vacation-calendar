@@ -7029,16 +7029,19 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   text-align: center;
   cursor: pointer;
   list-style: none;
-  transition: color .16s ease, background .16s ease;
+  transition: color .18s ease, background .18s ease, transform .18s ease;
 }
 .search-world-tabs__more > summary::-webkit-details-marker { display: none; }
 .search-world-tabs__options > a:hover,
 .search-world-tabs__more > summary:hover,
-.search-world-tabs__more[open] > summary { color: var(--teal-dark); background: rgba(8,126,139,.055); }
-.search-world-tabs__options > a.active { color: var(--teal-dark); background: transparent; }
+.search-world-tabs__more[open] > summary { color: var(--teal-dark); background: rgba(8,126,139,.055); transform: translateY(-1px); }
+.search-world-tabs__options > a.active { color: var(--teal-dark); background: linear-gradient(180deg,rgba(255,255,255,.86),rgba(222,246,247,.48)); }
 .search-world-tabs__options > a.active::after,
 .search-world-tabs__more[open] > summary::after { content: ""; position: absolute; inset-inline: 12px; bottom: -1px; height: 3px; border-radius: 3px 3px 0 0; background: linear-gradient(90deg,var(--teal),var(--blue)); }
-.search-world-tabs__icon { min-height: 28px; display: grid; place-items: center; font-family: "Segoe UI Emoji", "Apple Color Emoji", sans-serif; font-size: 1.42rem; line-height: 1; filter: saturate(.86); }
+.search-world-tabs__icon { width: 31px; min-height: 31px; display: grid; place-items: center; margin: 0 auto; border: 1px solid rgba(10,87,102,.13); border-radius: 11px; color: #356978; background: rgba(255,255,255,.76); box-shadow: 0 3px 9px rgba(12,71,85,.06); line-height: 1; transition: color .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease; }
+.search-world-tabs__icon svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.search-world-tabs__options > a:hover .search-world-tabs__icon { border-color: rgba(8,126,139,.3); color: var(--teal-dark); background: #fff; box-shadow: 0 5px 12px rgba(12,91,103,.12); }
+.search-world-tabs__options > a.active .search-world-tabs__icon { border-color: transparent; color: #fff; background: linear-gradient(135deg,var(--teal),var(--blue)); box-shadow: 0 7px 15px rgba(8,126,139,.24); }
 .search-world-tabs__icon--more { grid-template-columns: repeat(3,4px); gap: 3px; }
 .search-world-tabs__icon--more i { width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
 .search-world-tabs__more { position: relative; min-width: 0; }
@@ -7095,7 +7098,8 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   .search-world-tabs__options { gap: 0; }
   .search-world-tabs__options > a,
   .search-world-tabs__more > summary { min-height: 59px; padding: 6px 1px 8px; border-radius: 11px 11px 0 0; font-size: .66rem; }
-  .search-world-tabs__icon { min-height: 25px; font-size: 1.24rem; }
+  .search-world-tabs__icon { width: 28px; min-height: 28px; border-radius: 10px; }
+  .search-world-tabs__icon svg { width: 16px; height: 16px; }
   .search-world-tabs__options > a.active::after,
   .search-world-tabs__more[open] > summary::after { inset-inline: 6px; }
   .search-world-tabs__menu { position: fixed; z-index: 1450; top: 82px; inset-inline: 12px; width: auto; }

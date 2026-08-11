@@ -40,7 +40,6 @@ export function SearchWorldTabs({ active, onNavigate }: { active: WorldId; onNav
   const { language, translate } = useSiteLanguage();
   const moreRef = useRef<HTMLDetailsElement>(null);
   const primaryWorlds = ["vacation", "spa", "events", "hourly"] as const;
-  const iconByWorld = { vacation: "🏡", spa: "🧖", events: "🎈", hourly: "🕒" } as const;
   const moreWorlds = publicWorldNavigation.filter((world) => !primaryWorlds.includes(world.id as typeof primaryWorlds[number]));
 
   const navigateWithinSearch = (href: string, afterNavigate?: () => void) => (event: MouseEvent<HTMLAnchorElement>) => {
@@ -60,7 +59,7 @@ export function SearchWorldTabs({ active, onNavigate }: { active: WorldId; onNav
         const world = worlds.find((item) => item.id === worldId)!;
         const href = localizedPath(world.href, language);
         return <Link key={world.id} href={href} className={world.id === active ? "active" : ""} aria-current={world.id === active ? "page" : undefined} onClick={navigateWithinSearch(href)}>
-          <span className="search-world-tabs__icon" aria-hidden="true">{iconByWorld[worldId]}</span>
+          <span className={`search-world-tabs__icon search-world-tabs__icon--${worldId}`} aria-hidden="true"><SearchWorldIcon world={worldId} /></span>
           <span>{translate(world.shortLabel)}</span>
         </Link>;
       })}
@@ -78,4 +77,11 @@ export function SearchWorldTabs({ active, onNavigate }: { active: WorldId; onNav
       </details>
     </div>
   </nav>;
+}
+
+function SearchWorldIcon({ world }: { world: "vacation" | "spa" | "events" | "hourly" }) {
+  if (world === "vacation") return <svg viewBox="0 0 24 24" fill="none"><path d="m3.5 11.2 8.5-7 8.5 7v8.3a1.5 1.5 0 0 1-1.5 1.5H5a1.5 1.5 0 0 1-1.5-1.5v-8.3Z" /><path d="M9 21v-5.5h6V21M8.2 10.8h.01M15.8 10.8h.01" /></svg>;
+  if (world === "spa") return <svg viewBox="0 0 24 24" fill="none"><path d="M12 20.5c4.3-2.3 6.8-5.3 6.8-8.6A3.6 3.6 0 0 0 12 10.3a3.6 3.6 0 0 0-6.8 1.6c0 3.3 2.5 6.3 6.8 8.6Z" /><path d="M12 6.5c-.1-1.7.6-3 2.1-4M8.4 8C7 6.8 6.5 5.4 6.8 3.7M15.6 8c1.4-1.2 1.9-2.6 1.6-4.3" /></svg>;
+  if (world === "events") return <svg viewBox="0 0 24 24" fill="none"><path d="M4.2 12.3 12 4.5l7.8 7.8-7.8 7.2-7.8-7.2Z" /><path d="M8.5 10.4h7M8.5 14h4.7M6.4 12.3h.01M17.6 12.3h.01" /></svg>;
+  return <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" /><path d="M12 7.3v5l3.3 2M8.2 3.8l-1.6 2.1M15.8 3.8l1.6 2.1" /></svg>;
 }
