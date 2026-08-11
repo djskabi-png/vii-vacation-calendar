@@ -10,6 +10,15 @@ test("provider search toolbar scrolls with the desktop page", async () => {
   assert.doesNotMatch(css, /\.provider-toolbar \{ position: sticky;/);
 });
 
+test("provider filters use the full toolbar width without an empty desktop grid cell", async () => {
+  const [css, component] = await Promise.all([
+    read("../app/globals.css"),
+    read("../app/components/provider-results.tsx"),
+  ]);
+  assert.match(component, /className="provider-filter-options"/);
+  assert.match(css, /\.provider-filter-options \{ grid-column: 1 \/ -1;/);
+  assert.match(css, /\.provider-categories \{ min-width: 0; display: flex; flex: 1 1 auto;/);
+});
 test("Amit Mitrani has a complete verified supplier profile", async () => {
   const [worldData, details, results] = await Promise.all([
     read("../app/data/world-data.ts"),

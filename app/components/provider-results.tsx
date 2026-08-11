@@ -66,10 +66,12 @@ export function ProviderResults({ items }: { items: DiscoveryItem[] }) {
     <div className="provider-toolbar">
       <label className="provider-search"><span>חיפוש ספק</span><input value={query} onChange={(event) => { const value = event.target.value; setQuery(value); updateUrl({ q: value.trim() }); }} placeholder="שם, שירות או תחום" /></label>
       <ModernSelect label="אזור שירות" value={region} onChange={(value) => { setRegion(value); updateUrl({ region: value }); }} options={regions.map((option) => ({ value: option, label: option }))} />
-      <div className="provider-categories" role="group" aria-label="סינון ספקים לפי תחום">
-        {categories.map((entry) => <button key={entry.id} type="button" aria-pressed={category === entry.id} onClick={() => { setCategory(entry.id); updateUrl({ category: entry.id }); }}>{entry.label}</button>)}
+      <div className="provider-filter-options">
+        <div className="provider-categories" role="group" aria-label="סינון ספקים לפי תחום">
+          {categories.map((entry) => <button key={entry.id} type="button" aria-pressed={category === entry.id} onClick={() => { setCategory(entry.id); updateUrl({ category: entry.id }); }}>{entry.label}</button>)}
+        </div>
+        {(category !== "all" || query || region !== "כל הארץ") ? <button type="button" className="provider-reset" onClick={resetFilters}>ניקוי סינונים</button> : null}
       </div>
-      {(category !== "all" || query || region !== "כל הארץ") ? <button type="button" className="provider-reset" onClick={resetFilters}>ניקוי סינונים</button> : null}
     </div>
     <p className="provider-results-count" aria-live="polite">{filtered.length === 1 ? "ספק אחד מתאים" : `${filtered.length} ספקים מתאימים`}</p>
     {filtered.length ? <div className="discovery-grid">{filtered.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div> : <div className="provider-empty"><h3>לא מצאנו התאמה מדויקת</h3><p>אפשר לנקות את החיפוש או לבחור תחום אחר.</p></div>}
