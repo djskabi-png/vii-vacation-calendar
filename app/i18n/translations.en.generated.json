@@ -6640,5 +6640,7 @@
   "פרטים לפתיחת שיחה": "Details to start the chat",
   "המחשת תצוגה בלבד": "Display example only",
   "תאריכים חלופיים לדוגמה": "Example alternative dates",
-  "מחיר לדוגמה": "Example price"
+  "מחיר לדוגמה": "Example price",
+  "אישור קבלת הבקשה נשלח לכתובת הדוא״ל שמילאתם.": "Confirmation of receipt was sent to the email address you provided.",
+  "כתובת דוא״ל": "Email address"
 }
