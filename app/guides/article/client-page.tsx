@@ -8,13 +8,13 @@ import { PageShell } from "../../components/page-shell";
 import { getMagazineArticle, magazineArticles } from "../../data/magazine-data";
 import { HeartIcon } from "../../site-header";
 import { BreadcrumbTrail } from "../../components/breadcrumb-trail";
+import { ShareButton } from "../../components/share-dialog";
 
 export function MagazineArticleView({ initialSlug = magazineArticles[0].slug, readQuery = true }: { initialSlug?: string; readQuery?: boolean }) {
   const [slug, setSlug] = useState(initialSlug);
   const [progress, setProgress] = useState(0);
   const [saved, setSaved] = useState(false);
   const [checked, setChecked] = useState<number[]>([]);
-  const [shareStatus, setShareStatus] = useState("");
   const article = getMagazineArticle(slug);
   const related = useMemo(() => magazineArticles.filter((item) => item.slug !== article.slug).sort((a, b) => Number(b.category === article.category) - Number(a.category === article.category)).slice(0, 3), [article]);
 
@@ -63,16 +63,6 @@ export function MagazineArticleView({ initialSlug = magazineArticles[0].slug, re
     localStorage.setItem(`vii-magazine-checklist-${article.slug}`, JSON.stringify(next));
   }
 
-  async function share() {
-    const shareData = { title: article.title, text: article.excerpt, url: location.href };
-    if (navigator.share) await navigator.share(shareData);
-    else {
-      await navigator.clipboard.writeText(location.href);
-      setShareStatus("הקישור הועתק");
-      window.setTimeout(() => setShareStatus(""), 1800);
-    }
-  }
-
   return <PageShell>
     <div className="reading-progress" aria-hidden="true"><span style={{ width: `${progress}%` }} /></div>
     <div
@@ -89,7 +79,7 @@ export function MagazineArticleView({ initialSlug = magazineArticles[0].slug, re
     <main id="main-content" className="magazine-article">
       <BreadcrumbTrail className="magazine-article__crumbs" items={[{ name: "ראשי", path: "/" }, { name: "מגזין ומדריכים", path: "/guides" }, { name: article.title }]} />
       <header className="shell magazine-article__hero">
-        <div className="magazine-article__headline"><span className="eyebrow">{article.category}</span><h1>{article.title}</h1><p>{article.excerpt}</p><div className="magazine-article__meta"><span>מאת מערכת מגזין וי</span><span>{article.dateLabel}</span><span>{article.readTime} דקות קריאה</span></div><div className="magazine-article__actions"><button type="button" aria-pressed={saved} onClick={toggleSaved}><HeartIcon filled={saved} />{saved ? "נשמר לקריאה" : "שמירה לקריאה"}</button><button type="button" onClick={() => void share()}>שיתוף</button>{shareStatus && <span role="status">{shareStatus}</span>}</div></div>
+        <div className="magazine-article__headline"><span className="eyebrow">{article.category}</span><h1>{article.title}</h1><p>{article.excerpt}</p><div className="magazine-article__meta"><span>מאת מערכת מגזין וי</span><span>{article.dateLabel}</span><span>{article.readTime} דקות קריאה</span></div><div className="magazine-article__actions"><button type="button" aria-pressed={saved} onClick={toggleSaved}><HeartIcon filled={saved} />{saved ? "נשמר לקריאה" : "שמירה לקריאה"}</button><ShareButton title={article.title} kind="article" /></div></div>
         <figure><img src={article.image} alt={article.imageAlt} /><figcaption>תמונה מעמוד מקום מאומת באתר וי, להמחשת נושא הכתבה.</figcaption></figure>
       </header>
 

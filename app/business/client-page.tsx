@@ -24,6 +24,7 @@ import { MasuExperience } from "../components/masu-experience";
 import { DetailStickyDock, type DetailSectionLink } from "../components/detail-sticky-dock";
 import { ModernSelect } from "../components/modern-select";
 import { FavoriteButton } from "../components/favorite-button";
+import { ShareButton } from "../components/share-dialog";
 import { CalendarIcon, PinIcon } from "../site-header";
 
 function complementaryItems(area: string, location: string): DiscoveryItem[] {
@@ -119,7 +120,6 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
   const [galleryTab, setGalleryTab] = useState<"all" | "guests">("all");
   const [reviewOpen, setReviewOpen] = useState(false);
   const [allFeaturesOpen, setAllFeaturesOpen] = useState(false);
-  const [shareStatus, setShareStatus] = useState("");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const property = useMemo(() => properties.find((item) => item.slug === initialSlug) || properties[0], [initialSlug]);
   const offerings = useMemo(() => getListingOfferings(property), [property]);
@@ -168,16 +168,6 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
     window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
   }
 
-  async function share() {
-    const data = { title: property.name, text: `מצאתי מקום ב־Vii: ${property.name}`, url: location.href };
-    if (navigator.share) await navigator.share(data);
-    else {
-      await navigator.clipboard.writeText(location.href);
-      setShareStatus("הקישור הועתק");
-      window.setTimeout(() => setShareStatus(""), 1800);
-    }
-  }
-
   return (
     <PageShell variant={activeWorld}>
       <main id="main-content" className="property-page">
@@ -194,9 +184,8 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
           <div className="property-title__side">
             <div className="property-title__actions">
               <FavoriteButton compact={false} id={property.slug} world={activeWorld} name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={`/business?id=${property.slug}${activeWorld === offerings[0].world ? "" : `&mode=${activeWorld}`}`} meta={`${property.type} · עד ${property.guests} אורחים`} />
-              <button type="button" onClick={() => void share()}>שיתוף</button>
+              <ShareButton title={property.name} />
               {ownerWhatsapp ? <WhatsAppLeadButton world={activeWorld} placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={activeOffering.label} initialDate={dateRange.from} initialGuests={guests} buttonClassName="property-whatsapp-action" /> : null}
-              {shareStatus && <span role="status">{shareStatus}</span>}
             </div>
             {activeWorld === "vacation" ? <Link className="button primary" href="#booking-summary">{hasSearchContext ? "בדיקת זמינות לחיפוש הזה" : "בדיקת זמינות"}</Link> : onlineBooking ? <Link className="button primary" href={bookingActionHref}>הזמנה אונליין</Link> : property.contact?.phone ? <Link className="button primary" href="#booking-summary">טלפון להזמנה</Link> : null}
           </div>

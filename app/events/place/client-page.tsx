@@ -19,6 +19,7 @@ import { DetailStickyDock, type DetailSectionLink } from "../../components/detai
 import { ModernSelect } from "../../components/modern-select";
 import { FavoriteButton } from "../../components/favorite-button";
 import { WhatsAppLeadButton } from "../../components/whatsapp-lead-button";
+import { ShareButton } from "../../components/share-dialog";
 
 export default function EventPlacePage({ initialSlug }: { initialSlug: string }) {
   const [galleryOpen, setGalleryOpen] = useState(false);
@@ -78,16 +79,11 @@ export default function EventPlacePage({ initialSlug }: { initialSlug: string })
     }
   }
 
-  async function share() {
-    if (navigator.share) await navigator.share({ title: place.name, text: `מצאתי מקום לאירוע: ${place.name}`, url: location.href });
-    else await navigator.clipboard.writeText(location.href);
-  }
-
   return (
     <PageShell variant="events">
       <main id="main-content" className="event-place-page">
         <BreadcrumbTrail items={[{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, { name: "מקומות לאירועים", path: "/events/search" }, { name: place.name }]} />
-        <section className="shell property-title event-title"><div><span className="eyebrow">{place.type}</span><h1>{place.name}</h1><p><PinIcon />{place.location}, {place.area}</p></div><div className="property-title__side"><div className="property-title__actions"><FavoriteButton compact={false} id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים`} /><button type="button" onClick={() => void share()}>שיתוף</button>{ownerWhatsapp ? <WhatsAppLeadButton world="events" placeId={place.slug} placeName={place.name} businessPhone={ownerWhatsapp} serviceName={place.type} buttonClassName="property-whatsapp-action" /> : null}</div><a className="button primary" href="#event-booking">הזמנה אונליין</a></div></section>
+        <section className="shell property-title event-title"><div><span className="eyebrow">{place.type}</span><h1>{place.name}</h1><p><PinIcon />{place.location}, {place.area}</p></div><div className="property-title__side"><div className="property-title__actions"><FavoriteButton compact={false} id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים`} /><ShareButton title={place.name} kind="event" />{ownerWhatsapp ? <WhatsAppLeadButton world="events" placeId={place.slug} placeName={place.name} businessPhone={ownerWhatsapp} serviceName={place.type} buttonClassName="property-whatsapp-action" /> : null}</div><a className="button primary" href="#event-booking">הזמנה אונליין</a></div></section>
         <section className="shell property-gallery">{place.images.map((image, index) => <button key={image} type="button" onClick={() => { setGalleryStart(index); setGalleryOpen(true); }} aria-label={`פתיחת תמונה ${index + 1} של ${place.name}`}><img src={image} alt={`${place.name}, תמונה ${index + 1}`} />{index === 4 && <span>לגלריה המלאה</span>}</button>)}</section>
 
         <DetailStickyDock name={place.name} location={`${place.location}, ${place.area}`} sections={sectionLinks} onlineHref="#event-booking" onlineLabel="בדיקת תאריך לאירוע" />
