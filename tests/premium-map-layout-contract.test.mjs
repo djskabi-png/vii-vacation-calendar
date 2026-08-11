@@ -56,7 +56,7 @@ test("mobile map remains full screen", () => {
 
 test("desktop search combines a synchronized result list, sticky map and quick filters", () => {
   assert.match(search, /className="airbnb-map-split"/);
-  assert.match(search, /className="airbnb-map-split__results result-cards"/);
+  assert.match(search, /className={`airbnb-map-split__results result-cards results-view results-view--\${viewMode}`}/);
   assert.match(search, /className="airbnb-map-split__map"/);
   assert.match(search, /className="search-quick-filters"/);
   assert.match(search, />טווח מחיר<\/button>/);

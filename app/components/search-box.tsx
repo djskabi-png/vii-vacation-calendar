@@ -106,7 +106,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const [maximumPrice, setMaximumPrice] = useState(() => normalizeHourlyPrice(searchParams.get("maxPrice")));
   const [isSearching, setIsSearching] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState(false);
-  const [mobileStep, setMobileStep] = useState<"location" | "dates" | "guests">("location");
+  const [mobileStep, setMobileStep] = useState<"overview" | "location" | "dates" | "guests">("overview");
 
   const closeMobileSearch = useCallback(() => {
     setCalendarOpen(false);
@@ -114,7 +114,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     setGuestOpen(false);
     setPriceOpen(false);
     setMobileExpanded(false);
-    setMobileStep("location");
+    setMobileStep("overview");
   }, []);
 
   useEffect(() => {
@@ -240,10 +240,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     setLocationOpen(false);
     setLocationQuery("");
     setLocationStatus("");
-    if (!isHourly && window.matchMedia("(max-width: 820px)").matches) {
-      setMobileStep("dates");
-      setCalendarOpen(true);
-    }
+    if (!isHourly && window.matchMedia("(max-width: 820px)").matches) setMobileStep("dates");
   }
 
   function chooseNearbyLocation() {
@@ -290,7 +287,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
       ? (SPA_AUDIENCES.find((option) => option.id === spaAudience)?.label ?? "יחיד")
       : `${vacationGuestCount} אורחים · ${vacationRoomLabel}`;
   const mobileSummary = [locationValue, !isHourly ? dates : "", !isHourly ? peopleValue : ""].filter(Boolean).join(" · ");
-  const mobileSheetTitle = mode === "events" ? "בונים את האירוע" : mode === "spa" ? "בונים את חוויית הספא" : isHourly ? "מדייקים את החיפוש" : "בונים את החופשה";
+  const mobileSheetTitle = "עריכת חיפוש";
   const visiblePlaces = places.filter((place) => place.includes(locationQuery.trim()));
 
   return (
@@ -298,14 +295,14 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
       {showWorlds && !shouldCollapse && !mobileExpanded && <SearchWorldTabs active={activeWorld} />}
       {showWorlds && shouldCollapse && (locationOpen || guestOpen || priceOpen) && <div className="search-context-worlds"><SearchWorldTabs active={activeWorld} onNavigate={closeMobileSearch} /></div>}
       <div className={`search-box-shell ${shouldCollapse ? "search-box-shell--results" : ""} ${mobileExpanded ? "mobile-expanded" : "mobile-collapsed"}`}>
-        {shouldCollapse && <button type="button" className="search-mobile-summary" onClick={() => { setMobileStep("location"); setMobileExpanded(true); setLocationOpen(true); }} aria-expanded={mobileExpanded} aria-label={`שינוי חיפוש. ${mobileSummary}`}>
+        {shouldCollapse && <button type="button" className="search-mobile-summary" onClick={() => { setMobileStep("overview"); setMobileExpanded(true); setLocationOpen(false); setCalendarOpen(false); setGuestOpen(false); }} aria-expanded={mobileExpanded} aria-label={`שינוי חיפוש. ${mobileSummary}`}>
           <span className="search-mobile-summary__copy"><strong>{translate(locationValue)}</strong><small>{!isHourly && <><span>{dates}</span><span aria-hidden="true"> · </span><span>{peopleValue}</span></>}</small></span>
           <span className="search-mobile-summary__action"><SearchIcon /><b>שינוי חיפוש</b></span>
         </button>}
         {mobileExpanded && <button type="button" className="search-mobile-backdrop" onClick={closeMobileSearch} aria-label="סגירת החיפוש" />}
         {(locationOpen || guestOpen || priceOpen) && <button type="button" className="search-option-backdrop" onClick={() => { setLocationOpen(false); setGuestOpen(false); setPriceOpen(false); }} aria-label="סגירת אפשרויות החיפוש" />}
         <div className={`search-box ${shouldCollapse ? "compact" : ""} ${isHourly ? "search-box--hourly" : ""} mobile-step-${mobileStep}`} role="search" aria-label={mode === "events" ? "חיפוש מקום לאירוע" : mode === "spa" ? "חיפוש מתחם ספא" : isHourly ? "חיפוש חדרים לפי שעה" : "חיפוש חופשה"}>
-        {mobileExpanded && <div className="search-mobile-sheet-head"><strong>{mobileSheetTitle}</strong><ol className="search-mobile-progress" aria-label={`שלב ${mobileStep === "location" ? 1 : mobileStep === "dates" ? 2 : 3} מתוך 3`}><li className={mobileStep === "location" ? "active" : "complete"} aria-current={mobileStep === "location" ? "step" : undefined}>1</li><li className={mobileStep === "dates" ? "active" : mobileStep === "guests" ? "complete" : ""} aria-current={mobileStep === "dates" ? "step" : undefined}>2</li><li className={mobileStep === "guests" ? "active" : ""} aria-current={mobileStep === "guests" ? "step" : undefined}>3</li></ol><button type="button" onClick={closeMobileSearch} aria-label="סגירת החיפוש">×</button></div>}
+        {mobileExpanded && <div className="search-mobile-sheet-head"><strong>{translate(mobileSheetTitle)}</strong><button type="button" onClick={closeMobileSearch} aria-label="סגירת החיפוש">×</button></div>}
         {mobileExpanded && showWorlds && <div className="search-mobile-worlds"><SearchWorldTabs active={activeWorld} onNavigate={closeMobileSearch} /></div>}
         <div className={`search-field-wrap search-step search-step--location ${mobileStep === "location" ? "active" : ""}`}>
           <button type="button" className="search-field" aria-expanded={locationOpen} onClick={() => { setMobileStep("location"); expandMobileSearch(); setLocationOpen((value) => !value); setGuestOpen(false); setPriceOpen(false); }}><PinIcon /><span><small>{mode === "events" ? "אזור או מקום" : isHourly ? "עיר או אזור" : "לאן נוסעים"}</small><strong>{translate(locationValue)}</strong></span></button>

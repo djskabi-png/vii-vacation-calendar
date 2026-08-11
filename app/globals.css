@@ -7227,3 +7227,56 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   .airbnb-map-split__results { display: none; }
   .airbnb-map-split__map { position: static; height: auto; min-height: 0; max-height: none; }
 }
+
+/* Unified search editor: calm desktop popover and scroll-safe mobile accordion. */
+.calendar-dialog.mode-home .calendar-dialog-header .dialog-kicker,
+.calendar-dialog.mode-home .calendar-dialog-header p { display: none; }
+.calendar-dialog.mode-home .calendar-dialog-header { padding-block: 17px; }
+.calendar-dialog.mode-home .calendar-dialog-header h2 { margin: 0; }
+.calendar-dialog .calendar-body,
+.calendar-dialog .flexible-content { touch-action: pan-y; -webkit-overflow-scrolling: touch; }
+
+@media (min-width: 821px) {
+  .search-box { width: min(100%, 1160px); max-width: 1160px; grid-template-columns: 1.18fr 1fr .92fr auto; min-height: 74px; }
+  .search-box .search-field { min-height: 62px; }
+  .search-box .search-submit { width: 54px; height: 54px; }
+  .search-field-wrap:has(.search-popover) > .search-field { background: #fff; box-shadow: 0 5px 18px rgba(3,46,55,.12); }
+  .location-list { width: min(460px, calc(100vw - 48px)); max-height: min(590px, calc(100dvh - 190px)); padding: 16px; gap: 10px; border-radius: 26px; }
+  .location-discovery { gap: 15px; }
+  .location-list .location-nearby { min-height: 68px; grid-template-columns: 44px minmax(0,1fr) auto; padding: 10px 12px; border-radius: 16px; }
+  .location-list .location-nearby__icon { width: 42px; height: 42px; border-radius: 13px; }
+  .location-group { gap: 7px; }
+  .location-group--primary > div { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .location-list .location-group--primary button { min-height: 54px; justify-content: flex-start; flex-direction: row; padding: 9px 12px; border-radius: 14px; font-size: .8rem; }
+  .location-list .location-group--primary button svg { width: 19px; height: 19px; }
+  .location-group--regions > div { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .location-list .location-group--regions button { min-height: 44px; }
+  .location-list .location-group--settlements button { min-height: 38px; }
+}
+
+@media (max-width: 820px) {
+  .search-box-shell.mobile-expanded .search-box,
+  .search-box-shell--results.mobile-expanded .search-box { inset: 0; width: 100vw; max-width: none; min-height: 100dvh; max-height: 100dvh; padding: 10px 12px calc(82px + env(safe-area-inset-bottom,0px)); border-radius: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior-y: contain; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
+  .search-box-shell .search-mobile-sheet-head { position: sticky; z-index: 50; top: -10px; min-height: 58px; padding: 8px 2px 10px; background: #f7f8f5; }
+  .search-mobile-sheet-head strong { font-size: 1.08rem; }
+  .search-mobile-progress { display: none; }
+  .search-mobile-worlds { position: relative; top: auto; }
+  .search-box-shell.mobile-expanded .search-step,
+  .search-box-shell.mobile-expanded .search-step:not(.active) { display: block; }
+  .search-box-shell.mobile-expanded .search-field { min-height: 66px; margin-top: 8px; border: 1px solid #dbe7e9; border-radius: 17px; background: #fff; box-shadow: 0 6px 20px rgba(13,47,57,.055); }
+  .search-box-shell.mobile-expanded .search-step.active > .search-field,
+  .search-box-shell.mobile-expanded .search-field[aria-expanded="true"] { border-color: #7fc8ce; box-shadow: 0 0 0 3px rgba(8,126,139,.09), 0 9px 25px rgba(13,47,57,.07); }
+  .search-box-shell.mobile-expanded .location-list { position: static; inset: auto; width: 100%; min-width: 0; max-height: 48svh; margin: 8px 0 2px; padding: 12px; overflow-y: auto; border-radius: 18px; box-shadow: 0 9px 25px rgba(13,47,57,.07); touch-action: pan-y; -webkit-overflow-scrolling: touch; }
+  .search-box-shell.mobile-expanded .location-list__search { top: -12px; padding-top: 12px; }
+  .search-box-shell.mobile-expanded .search-submit,
+  .search-box-shell.mobile-expanded .search-box.mobile-step-location .search-submit,
+  .search-box-shell.mobile-expanded .search-box.mobile-step-dates .search-submit,
+  .search-box-shell.mobile-expanded .search-box.mobile-step-overview .search-submit { display: flex; }
+  .calendar-overlay { padding: 0; }
+  .calendar-dialog.mode-home { width: 100vw; height: 100dvh; max-height: 100dvh; border: 0; border-radius: 0; }
+  .calendar-dialog.mode-home .calendar-dialog-header { min-height: 66px; max-height: none; padding: 11px 14px; align-items: center; }
+  .calendar-dialog.mode-home .calendar-dialog-header h2 { font-size: 1.22rem; }
+  .calendar-dialog.mode-home .calendar-body,
+  .calendar-dialog.mode-home .flexible-content { overflow-y: auto; overscroll-behavior-y: contain; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
+  .calendar-dialog.mode-home .calendar-dialog-footer { position: relative; z-index: 30; }
+}

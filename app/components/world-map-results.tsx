@@ -13,6 +13,7 @@ import { useMapViewState } from "./map-view-state";
 import { spaSearchHref, spaSearchStateFromValues, type SpaSearchAudienceId } from "../data/spa-search-landings";
 import { localizedPath } from "../i18n/locale-routing";
 import { useSiteLanguage } from "../i18n/locale-provider";
+import { ResultsViewToggle, useResultsViewMode } from "./results-view-toggle";
 
 const spaFilters = spaLandings;
 
@@ -59,6 +60,7 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
     return (requested.length ? requested : initialSpaFilters || []).filter((id) => spaFilters.some((filter) => filter.id === id));
   });
   const { mapOpen, openMap, closeMap } = useMapViewState();
+  const { viewMode, setViewMode } = useResultsViewMode("spa");
   const [visibleMapCount, setVisibleMapCount] = useState(0);
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
   const spaLandingContext = useMemo(() => {
@@ -152,7 +154,7 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
     <div className="spa-results__toolbar" aria-label="סינון תוצאות ספא">
       <div className="spa-results__heading">
         <div><h2 aria-live="polite">{resultLabel}</h2></div>
-        {filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onPointerDown={(event) => event.stopPropagation()} onPointerUp={(event) => event.stopPropagation()} onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (mapOpen) closeMap(); else openMap(); }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
+        <ResultsViewToggle value={viewMode} onChange={setViewMode} />{filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onPointerDown={(event) => event.stopPropagation()} onPointerUp={(event) => event.stopPropagation()} onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (mapOpen) closeMap(); else openMap(); }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
       </div>
       <div className="spa-results__filters">
         <div className="spa-results__location-card"><span className="spa-results__location-icon"><MapIcon /></span><ModernSelect className="spa-results__location" label="איפה תרצו להתפנק?" value={location} onChange={changeLocation} options={locations.map((option) => ({ value: option, label: option }))} /></div>
@@ -161,20 +163,21 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
       </div>
       {hasFilters && <div className="spa-results__active" aria-label="סינונים פעילים"><span>סינונים פעילים:</span>{location !== "כל הארץ" && <button type="button" onClick={() => changeLocation("כל הארץ")}>{location} ×</button>}{spaAudience && <button type="button" onClick={() => changeAudience("")}>{spaAudiences[spaAudience].label} ×</button>}{selectedFilters.map((id) => { const filter = spaFilters.find((entry) => entry.id === id); return filter ? <button type="button" key={id} onClick={() => toggleFilter(id)}>{filter.label} ×</button> : null; })}</div>}
     </div>
-    {filtered.length > 0 ? mapOpen ? <div className="airbnb-map-split world-map-split"><div className="airbnb-map-split__results discovery-grid">{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div><div className="airbnb-map-split__map"><DeferredDiscoveryMap items={amenityFiltered} initialItems={filtered} tone="spa" autoLoad onClose={closeMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} /></div></div> : <div className="discovery-grid">{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div> : <div className="spa-results__empty"><strong>לא נמצאו מתחמים שמתאימים לכל הסינונים</strong><p>אפשר להסיר מאפיין אחד או לבחור אזור רחב יותר.</p><button type="button" className="button secondary" onClick={resetFilters}>הצגת כל מתחמי הספא</button></div>}
+    {filtered.length > 0 ? mapOpen ? <div className="airbnb-map-split world-map-split"><div className={`airbnb-map-split__results discovery-grid results-view results-view--${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div><div className="airbnb-map-split__map"><DeferredDiscoveryMap items={amenityFiltered} initialItems={filtered} tone="spa" autoLoad onClose={closeMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} /></div></div> : <div className={`discovery-grid results-view results-view--${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div> : <div className="spa-results__empty"><strong>לא נמצאו מתחמים שמתאימים לכל הסינונים</strong><p>אפשר להסיר מאפיין אחד או לבחור אזור רחב יותר.</p><button type="button" className="button secondary" onClick={resetFilters}>הצגת כל מתחמי הספא</button></div>}
   </div>;
 }
 
 export function WorldMapResults({ items, world, activeSpaFilter, initialLocation, initialSpaAudience, initialSpaFilters }: { items: DiscoveryItem[]; world: "spa" | "hourly"; activeSpaFilter?: string; initialLocation?: string; initialSpaAudience?: string; initialSpaFilters?: string[] }) {
   const { mapOpen, openMap, closeMap } = useMapViewState();
+  const { viewMode, setViewMode } = useResultsViewMode(world);
 
   if (world === "spa") return <SpaResults items={items} activeSpaFilter={activeSpaFilter} initialLocation={initialLocation} initialSpaAudience={initialSpaAudience} initialSpaFilters={initialSpaFilters} />;
 
   return <div className={`world-map-results world-map-results--${world}`}>
     <div className="world-map-results__toolbar">
       <div><span className="eyebrow">בוחרים בדרך שנוחה לכם</span><strong>{mapOpen ? "המקומות מסומנים על מפה אינטראקטיבית" : `${items.length} מקומות ברשימה`}</strong></div>
-      {items.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onPointerDown={(event) => event.stopPropagation()} onPointerUp={(event) => event.stopPropagation()} onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (mapOpen) closeMap(); else openMap(); }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
+      <ResultsViewToggle value={viewMode} onChange={setViewMode} />{items.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onPointerDown={(event) => event.stopPropagation()} onPointerUp={(event) => event.stopPropagation()} onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (mapOpen) closeMap(); else openMap(); }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
     </div>
-    {mapOpen ? <div className="airbnb-map-split world-map-split"><div className="airbnb-map-split__results discovery-grid">{items.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div><div className="airbnb-map-split__map"><DeferredDiscoveryMap items={items} tone={world} autoLoad onClose={closeMap} /></div></div> : <div className="discovery-grid">{items.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>}
+    {mapOpen ? <div className="airbnb-map-split world-map-split"><div className={`airbnb-map-split__results discovery-grid results-view results-view--${viewMode}`}>{items.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div><div className="airbnb-map-split__map"><DeferredDiscoveryMap items={items} tone={world} autoLoad onClose={closeMap} /></div></div> : <div className={`discovery-grid results-view results-view--${viewMode}`}>{items.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>}
   </div>;
 }

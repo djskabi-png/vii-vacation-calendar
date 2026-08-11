@@ -12,6 +12,7 @@ import { verifiedHourlyPrice } from "../data/hourly-details";
 import { hourlySearchHref } from "../data/world-search-landings";
 import { localizedPath } from "../i18n/locale-routing";
 import { useSiteLanguage } from "../i18n/locale-provider";
+import { ResultsViewToggle, useResultsViewMode } from "./results-view-toggle";
 
 const featureFilters = [
   { id: "parking", label: "חניה", terms: ["חניה"] },
@@ -41,6 +42,7 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
   const [maximumPrice, setMaximumPrice] = useState(hourlyPriceOptions.includes(requestedPrice as typeof hourlyPriceOptions[number]) ? requestedPrice : 0);
   const [features, setFeatures] = useState<string[]>(requestedFeatures);
   const { mapOpen, closeMap, toggleMap } = useMapViewState();
+  const { viewMode, setViewMode } = useResultsViewMode("hourly");
   const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
 
@@ -103,7 +105,7 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
     <div className="hourly-results__toolbar" aria-label="סינון תוצאות של חדרים לפי שעה">
       <div className="hourly-results__heading">
         <div><h2 aria-live="polite">{resultLabel}</h2><span>אפשר לדייק את הרשימה לפי אזור, מחיר ומאפייני המקום.</span></div>
-        {filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={toggleMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
+        <ResultsViewToggle value={viewMode} onChange={setViewMode} />{filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={toggleMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
       </div>
       <div className="hourly-results__filters">
         <ModernSelect label="עיר או אזור" value={location} onChange={changeLocation} options={locations.map((option) => ({ value: option, label: option }))} />
@@ -113,6 +115,6 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
         <button type="button" className="hourly-results__reset" onClick={resetFilters} disabled={location === "כל הארץ" && maximumPrice === 0 && features.length === 0}>ניקוי סינונים</button>
       </div>
     </div>
-    {filtered.length > 0 ? mapOpen ? <div className="airbnb-map-split world-map-split"><div className="airbnb-map-split__results discovery-grid">{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div><div className="airbnb-map-split__map"><DeferredDiscoveryMap items={filtered} tone="hourly" autoLoad onClose={closeMap} onVisiblePlaceIdsChange={setMapVisibleIds} /></div></div> : <div className="discovery-grid">{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div> : <div className="hourly-results__empty"><strong>לא נמצאו מקומות שמתאימים לכל הסינונים</strong><p>אפשר להרחיב את האזור או להסיר אחד מהמאפיינים.</p><button type="button" className="button secondary" onClick={resetFilters}>הצגת כל המקומות</button></div>}
+    {filtered.length > 0 ? mapOpen ? <div className="airbnb-map-split world-map-split"><div className={`airbnb-map-split__results discovery-grid results-view results-view--${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div><div className="airbnb-map-split__map"><DeferredDiscoveryMap items={filtered} tone="hourly" autoLoad onClose={closeMap} onVisiblePlaceIdsChange={setMapVisibleIds} /></div></div> : <div className={`discovery-grid results-view results-view--${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div> : <div className="hourly-results__empty"><strong>לא נמצאו מקומות שמתאימים לכל הסינונים</strong><p>אפשר להרחיב את האזור או להסיר אחד מהמאפיינים.</p><button type="button" className="button secondary" onClick={resetFilters}>הצגת כל המקומות</button></div>}
   </div>;
 }
