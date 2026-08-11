@@ -19,9 +19,10 @@ test("place cards open only after marker activation and use a quiet modern basem
   assert.doesNotMatch(component, /\.on\("mouseover", \(\) => setSelectedId/);
   assert.doesNotMatch(component, /\.on\("focus", \(\) => setSelectedId/);
   assert.match(component, /marker\.on\("click", \(\) => selectPlace/);
+  assert.match(component, /element\?\.setAttribute\("aria-pressed", String\(active\)\)/);
   assert.match(component, /const selectionReadyAt = performance\.now\(\) \+ 300/);
   assert.match(component, /if \(performance\.now\(\) < selectionReadyAt\) return/);
-  assert.match(component, /if \(clustered\) \{[\s\S]*marker\.on\("click", \(\) => \{[\s\S]*setSelectedId\(""\)/);
+  assert.match(component, /if \(clustered\) \{[\s\S]*marker\.on\("click", \(\) => \{[\s\S]*selectPlace\(cluster\.entries\[0\]\.id\)/);
   assert.doesNotMatch(component, /title: entry\.name|title: clustered \?/);
   assert.match(component, /basemaps\.cartocdn\.com\/rastertiles\/voyager/);
   assert.match(styles, /\.listing-map-shell \.leaflet-tile-pane \{ filter: saturate\(1\.22\) contrast\(1\.04\) brightness\(\.99\); \}/);

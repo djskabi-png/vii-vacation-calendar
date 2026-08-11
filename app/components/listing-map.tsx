@@ -100,6 +100,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
   const selectPlace = useCallback((id: string) => {
     const place = places.find((entry) => entry.id === id);
     if (!place) return;
+    selectedIdRef.current = id;
     setSelectedId(id);
 
   }, [places]);
@@ -129,7 +130,10 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
   useEffect(() => {
     selectedIdRef.current = effectiveSelectedId;
     markerInstances.current.forEach((marker, id) => {
-      marker.getElement()?.classList.toggle("is-active", id === effectiveSelectedId);
+      const element = marker.getElement();
+      const active = id === effectiveSelectedId;
+      element?.classList.toggle("is-active", active);
+      element?.setAttribute("aria-pressed", String(active));
     });
   }, [effectiveSelectedId, mapReady]);
 
@@ -284,7 +288,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
             keyboard: true,
             alt: clustered ? clusterText : place.name,
             icon: L.divIcon({
-              className: `vii-map-marker-wrap map-tone--${tone}${clustered ? " is-cluster" : ""}${useTextLabel ? " is-text" : " is-icon"}${!clustered && place.id === selectedIdRef.current ? " is-active" : ""}`,
+              className: `vii-map-marker-wrap map-tone--${tone}${clustered ? " is-cluster" : ""}${useTextLabel ? " is-text" : " is-icon"}${cluster.entries.some((entry) => entry.id === selectedIdRef.current) ? " is-active" : ""}`,
               html: `<span class="vii-map-marker">${markerContent}</span>`,
               iconSize: clustered ? [72, 58] : useTextLabel ? [112, 54] : [54, 58],
               iconAnchor: clustered ? [36, 54] : useTextLabel ? [56, 51] : [27, 54],
@@ -293,8 +297,9 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
 
           if (clustered) {
             marker.getElement()?.setAttribute("aria-label", `${clusterText}, ${cardCopy.openCluster}`);
+            marker.getElement()?.setAttribute("aria-pressed", String(cluster.entries.some((entry) => entry.id === selectedIdRef.current)));
             marker.on("click", () => {
-              setSelectedId("");
+              selectPlace(cluster.entries[0].id);
               const clusterBounds = L.latLngBounds(cluster.entries.map((entry) => [entry.lat, entry.lng] as [number, number]));
               const clusterDistance = clusterBounds.getNorthEast().distanceTo(clusterBounds.getSouthWest());
               const paddedClusterBounds = clusterBounds.pad(0.65);
