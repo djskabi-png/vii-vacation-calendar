@@ -37,6 +37,10 @@ function localizedDate(value: string, language: SiteLanguage) {
   return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat(locales[language], { day: "numeric", month: "numeric" }).format(date);
 }
 
+function PriceValue({ amount, language }: { amount: string; language: SiteLanguage }) {
+  return <bdi className="stay-card__price-value" dir={language === "he" ? "rtl" : "ltr"} aria-label={`${amount} \u20AA`}><span className="stay-card__price-number">{amount}</span><span className="stay-card__currency" aria-hidden="true">{"\u20AA"}</span></bdi>;
+}
+
 function quoteForStay(property: Property, selectedStay: SelectedStay | null): ListingDateQuote | null {
   if (!selectedStay) return null;
   return property.dateQuotes?.find((quote) => quote.from === selectedStay.from && quote.till === selectedStay.till) || {
@@ -93,7 +97,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
         </div> : null}
         <div className={`stay-card__footer stay-card__footer--${cardMode}`}>
           {!promotional ? <div className="stay-card__commercial-summary">
-            {selectedQuote ? <span className={`stay-card__price stay-card__price--selected ${hasQuotedPrice ? "stay-card__price--known" : ""}`}>{hasQuotedPrice ? <><b><bdi dir="ltr">{selectedQuote.nightlyPrice?.toLocaleString()} ₪</bdi></b><small>{copy.night}</small><em>{copy.includedGuests(selectedQuote.includedGuests || 0)}</em></> : <strong>{copy.inquirePrice}</strong>}</span> : <span className={`stay-card__price ${property.price ? "stay-card__price--known" : ""}`}>{property.price ? <><small>{copy.from}</small><b><bdi dir="ltr">{property.price.toLocaleString()} ₪</bdi></b><small>{copy.night}</small></> : copy.datePrice}</span>}
+            {selectedQuote ? <span className={`stay-card__price stay-card__price--selected ${hasQuotedPrice ? "stay-card__price--known" : ""}`}>{hasQuotedPrice ? <><b><PriceValue amount={selectedQuote.nightlyPrice?.toLocaleString() || ""} language={language} /></b><small>{copy.night}</small><em>{copy.includedGuests(selectedQuote.includedGuests || 0)}</em></> : <strong>{copy.inquirePrice}</strong>}</span> : <span className={`stay-card__price ${property.price ? "stay-card__price--known" : ""}`}>{property.price ? <><small>{copy.from}</small><b><PriceValue amount={property.price.toLocaleString()} language={language} /></b><small>{copy.night}</small></> : copy.datePrice}</span>}
           </div> : null}
           <div className="stay-card__actions">
             <Link className="stay-card__details-link" href={propertyHref}>{copy.details}</Link>

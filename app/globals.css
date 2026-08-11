@@ -3273,6 +3273,9 @@ h3 { font-size: 1.18rem; }
 .stay-card__price { display: inline-flex; align-items: baseline; flex-wrap: wrap; gap: 4px 6px; max-width: 100%; line-height: 1.25; }
 .stay-card__price--known { color: var(--ink); }
 .stay-card__price b { color: var(--ink); font-size: 1.08rem; font-weight: 900; letter-spacing: -.015em; white-space: nowrap; }
+.stay-card__price-value { display: inline-flex; align-items: baseline; gap: 3px; unicode-bidi: isolate; white-space: nowrap; }
+.stay-card__price-number { font: inherit; }
+.stay-card__currency { color: currentColor; font-size: .68em; font-weight: 800; line-height: 1; letter-spacing: 0; }
 .stay-card__price small { color: var(--ink-soft); }
 .stay-card__price--selected { max-width: 210px; }
 .stay-card__price--selected strong { color: var(--ink); font-size: .84rem; }

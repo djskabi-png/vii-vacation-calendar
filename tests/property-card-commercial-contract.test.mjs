@@ -65,7 +65,9 @@ test("compact card actions remain usable on mobile and keyboard", () => {
   assert.match(css, /\.stay-card__details-link \{ grid-column: 1 \/ -1; width: 100%; min-height: 48px/);
   assert.match(card, /aria-label=\{`\$\{phoneCopy\[language\]\.call\}: \$\{property\.name\}`\}/);
   assert.doesNotMatch(card, /className="button secondary"/);
-  assert.match(card, /<bdi dir="ltr">\{property\.price\.toLocaleString\(\)\} ₪<\/bdi>/);
+  assert.match(card, /<PriceValue amount=\{property\.price\.toLocaleString\(\)\} language=\{language\} \/>/);
+  assert.match(card, /className="stay-card__price-value"/);
+  assert.match(css, /\.stay-card__currency \{[^}]*font-size: \.68em/);
 });
 
 test("rating accessibility copy is localized in every supported language", () => {
