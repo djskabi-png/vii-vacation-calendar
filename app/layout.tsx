@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./results-view.css";
+import "./mobile-stability.css";
 import { LocaleProvider } from "./i18n/locale-provider";
 import { StructuredData } from "./components/structured-data";
 import { organizationSchema, websiteSchema } from "./lib/seo";
