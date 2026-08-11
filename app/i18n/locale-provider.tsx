@@ -777,6 +777,13 @@ function translateDynamic(value: string, language: Exclude<SiteLanguage, "he">):
     || dictionary(language)[source]
     || source;
 
+  const separatedParts = value.split(/\s*[\u00b7\u2022]\s*/);
+  if (separatedParts.length > 1) {
+    return separatedParts
+      .map((part) => translateValue(part, language).trim())
+      .join(" · ");
+  }
+
   const spaSemanticMatch = value.match(/^ספא(?: (ליחיד|לזוג|לקבוצה|ליום כיף))? ב(.+?)(?: עם (.+?))?(, עם חבילות וטיפולים מאומתים, פרטי מקום ברורים ואפשרות להמשיך לבקשת הזמנה באתר\.)?$/);
   if (spaSemanticMatch) {
     const [, sourceAudience, sourceRegion, sourceFeatures, sourceDescription] = spaSemanticMatch;

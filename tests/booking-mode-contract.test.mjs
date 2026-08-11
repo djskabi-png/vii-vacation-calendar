@@ -5,6 +5,7 @@ import test from "node:test";
 const business = await readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8");
 const booking = await readFile(new URL("../app/booking/client-page.tsx", import.meta.url), "utf8");
 const bookingPage = await readFile(new URL("../app/booking/page.tsx", import.meta.url), "utf8");
+const localeProvider = await readFile(new URL("../app/i18n/locale-provider.tsx", import.meta.url), "utf8");
 const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
 
 test("vacation online booking requires dates and a positive connected price", () => {
@@ -51,4 +52,6 @@ test("spa package includes are localized item by item", () => {
   assert.match(booking, /const \{ translate \} = useSiteLanguage\(\)/);
   assert.match(booking, /props\.offerIncludes\?\.map\(\(item\) => translate\(item\)\)/);
   assert.match(booking, /localizedOfferIncludes\.join\(" · "\)/);
+  assert.match(localeProvider, /value\.split\(\/\\s\*\[\\u00b7\\u2022\]\\s\*\/\)/);
+  assert.match(localeProvider, /translateValue\(part, language\)\.trim\(\)/);
 });
