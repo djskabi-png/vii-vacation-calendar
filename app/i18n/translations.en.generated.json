@@ -6666,5 +6666,22 @@
   "??????? ??????? ????????": "Zoom in to grouped places",
   "הגדלת המפה": "Zoom in",
   "הקטנת המפה": "Zoom out",
-  "התקרבות למקומות המקובצים": "Zoom in to grouped places"
+  "התקרבות למקומות המקובצים": "Zoom in to grouped places",
+  "הזמנה מהירה": "Quick booking",
+  "המחשת הזמנה בלבד": "Booking preview only",
+  "המחשת ההזמנה הושלמה": "Booking preview completed",
+  "זו המחשת תצוגה בלבד. לא נשלחה הזמנה, לא נשמרו פרטים ולא בוצע חיוב.": "This is a display preview only. No booking was sent, no details were saved and no charge was made.",
+  "כך ייראה מסלול ההזמנה כאשר המחיר והזמינות יחוברו למערכת. ההמחשה אינה שולחת הזמנה.": "This is how booking will work once price and availability are connected. This preview does not send a booking.",
+  "סיום המחשת ההזמנה": "Finish booking preview",
+  ", מחיר לדוגמה": ", example price",
+  ", בכפוף לאישור זמינות": ", subject to availability confirmation",
+  "לא חובה": "Optional",
+  "ללא העדפה": "No preference",
+  "הציגו את כל בתי הספא": "Show all spas",
+  "קנה שובר מתנה": "Buy a gift voucher",
+  "בחרו תאריכי שהייה": "Choose your stay dates",
+  "תחילה הגעה, אחר כך עזיבה": "Select arrival first, then departure",
+  "בחרו יום פנוי בלוח": "Choose a date from the calendar",
+  "בחרו תאריך ושעה מועדפת.": "Choose a date and preferred time.",
+  "בחרו תאריך הגעה ועזיבה ושעה מועדפת.": "Choose arrival and departure dates and a preferred time."
 }

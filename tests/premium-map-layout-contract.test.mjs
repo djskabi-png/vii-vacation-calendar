@@ -26,6 +26,10 @@ test("place cards open only after marker activation and use a quiet modern basem
   assert.match(component, /marker\.on\("click", \(\) => \{[\s\S]*selectedIdRef\.current = "";[\s\S]*setSelectedId\(""/);
   assert.doesNotMatch(component, /title: entry\.name|title: clustered \?/);
   assert.match(component, /basemaps\.cartocdn\.com\/rastertiles\/voyager/);
+  assert.match(component, /subdomains: language === "he" \? "abc" : "abcd"/);
+  assert.match(component, /maxNativeZoom: language === "he" \? 19 : 20/);
+  assert.match(component, /streetTiles\.on\("tileerror"/);
+  assert.match(component, /tile\.dataset\.viiFallback/);
   assert.match(styles, /\.listing-map-shell \.leaflet-tile-pane \{ filter: saturate\(1\.22\) contrast\(1\.04\) brightness\(\.99\); \}/);
 });
 
@@ -35,8 +39,9 @@ test("useful numeric labels appear on markers while generic places keep icons", 
 
 test("tightly overlapping clusters expand into individually selectable spider markers", () => {
   assert.match(component, /const spiderfyCluster = \(entries: MapPlace\[\], center: import\("leaflet"\)\.LatLng, clearExisting = true\)/);
-  assert.match(component, /spiderfyCluster\(cluster\.entries, clusterCenter\)/);
-  assert.match(component, /const threshold = zoom < 8 \? 92 : zoom < 10 \? 66 : zoom < 12 \? 44 : 32/);
+  assert.match(component, /spiderfyCluster\(cluster\.entries, clusterCenter, false\)/);
+  assert.match(component, /const threshold = zoom < 8 \? 76 : zoom < 10 \? 52 : zoom < 12 \? 32 : 18/);
+  assert.match(component, /if \(clustered && zoom >= 12\)/);
   assert.doesNotMatch(component, /if \(clustered && zoom >= 9\)/);
   assert.match(component, /const clusterAnchor = cluster\.entries\.reduce/);
   assert.match(component, /const clusterCenter = L\.latLng\(clusterAnchor\.lat, clusterAnchor\.lng\)/);
@@ -45,9 +50,8 @@ test("tightly overlapping clusters expand into individually selectable spider ma
   assert.match(component, /L\.polyline\(\[center, spiderPosition\]/);
   assert.match(component, /setAttribute\("aria-label", `\$\{clusterText\}, \$\{mapControlCopy\.cluster\}`\)/);
   assert.match(component, /map\.getBoundsZoom\(paddedClusterBounds, false, L\.point\(140, 140\)\)/);
-  assert.match(component, /if \(currentZoom >= 13\)/);
-  assert.match(component, /clusterDistance < 80 \|\| targetZoom <= currentZoom/);
-  assert.match(component, /map\.setView\(clusterCenter, Math\.min\(13, currentZoom \+ 2\)/);
+  assert.match(component, /clusterDistance < 120 \|\| targetZoom <= currentZoom/);
+  assert.match(component, /map\.setView\(clusterCenter, Math\.min\(12, Math\.max\(10, currentZoom \+ 3\)\)/);
   assert.doesNotMatch(component, /distanceTo\(clusterBounds\.getSouthWest\(\)\) < 80\) map\.flyTo/);
 });
 

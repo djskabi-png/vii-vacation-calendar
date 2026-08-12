@@ -4,10 +4,11 @@ import { readFileSync } from "node:fs";
 
 const business = readFileSync(new URL("../app/business/client-page.tsx", import.meta.url), "utf8");
 
-test("vacation detail pages keep availability as the primary action", () => {
-  assert.match(business, /activeWorld === "vacation" \? <Link className="button primary" href="#booking-summary">\{hasSearchContext/);
-  assert.match(business, /hasSearchContext \? "בדיקת זמינות לחיפוש הזה" : "בדיקת זמינות"/);
-  assert.doesNotMatch(business, /vacationPhoneFallback \? <aside id="booking-summary"/);
+test("vacation detail keeps one contextual booking action", () => {
+  assert.match(business, /activeWorld === "vacation" \? null : onlineBooking/);
+  assert.match(business, /onlineHref={activeWorld === "vacation" \? undefined/);
+  assert.doesNotMatch(business, /בדיקת זמינות לחיפוש הזה/);
+  assert.match(business, />הזמנה מהירה<\/Link>/);
 });
 
 test("vacation availability starts with dates and only then offers an enquiry", () => {

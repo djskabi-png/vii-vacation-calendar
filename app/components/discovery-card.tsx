@@ -73,7 +73,7 @@ export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
   const imageFit = item.imageFit || "cover";
 
   return <article className={`discovery-card discovery-card--${item.world}`}>
-    <Link className={`discovery-card__visual discovery-card__visual--${imageFit}`} href={`/discover/place/${item.id}`} aria-label={`${details}: ${translate(item.name)}`}>
+    <Link className={`discovery-card__visual discovery-card__visual--${imageFit}`} href={`/discover/place/${item.id}`} target="_blank" rel="noopener noreferrer" aria-label={`${details}: ${translate(item.name)}`}>
       <img src={item.image} alt={item.imageLabel && ui ? ui.image : translate(item.name)} loading="lazy" decoding="async" style={item.imagePosition ? { objectPosition: item.imagePosition } : undefined} />
       {item.imageLabel && <span className="image-context-label">{ui?.image || item.imageLabel}</span>}
       {item.rating && <span className="rating-badge">★ {item.rating.toFixed(1)}</span>}
@@ -81,7 +81,7 @@ export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
     <FavoriteButton id={item.id} world={item.world} name={item.name} location={`${location}, ${area}`} image={item.image} href={`/discover/place/${item.id}`} meta={price} />
     <div className="discovery-card__body">
       <span className="discovery-card__meta"><PinIcon />{location}<small>{area}</small></span>
-      <h3><Link href={`/discover/place/${item.id}`}>{item.name}</Link></h3>
+      <h3><Link href={`/discover/place/${item.id}`} target="_blank" rel="noopener noreferrer">{item.name}<span className="sr-only"></span></Link></h3>
       <p>{description}</p>
       <div className="discovery-card__chips">{features.map((feature) => <span key={feature}>{feature}</span>)}</div>
       <footer className={item.world === "hourly" ? "discovery-card__hourly-footer" : undefined}>
@@ -91,7 +91,7 @@ export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
             ? <a className="discovery-card__quick-call" dir="ltr" href={`tel:${item.phone.replace(/[^\d+]/g, "")}`} aria-label={translate(`חיוג אל ${item.name}`)}><PhoneIcon /><bdi>{item.phone}</bdi></a>
             : <button className="discovery-card__reveal-phone" type="button" onClick={() => { setPhoneVisible(true); trackPhoneReveal({ placeId: item.id, placeName: item.name, world: item.world, placement: "discovery_card" }); }}><PhoneIcon /><span>הצגת מספר</span></button>
           : null}
-          <Link href={`/discover/place/${item.id}`}>{details}</Link>
+          <Link href={`/discover/place/${item.id}`} target="_blank" rel="noopener noreferrer">{details}<span className="sr-only"></span></Link>
         </div>
       </footer>
     </div>

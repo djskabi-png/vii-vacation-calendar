@@ -25,6 +25,7 @@ type Props = {
     till?: string;
     guests?: string;
     price?: string;
+    illustrative?: string;
   }>;
 };
 
@@ -37,9 +38,10 @@ function resolveBooking(params: Awaited<Props["searchParams"]>) {
     placeName: property.name,
     offerId,
     offerName: "הזמנת המקום",
-    price: params.price ? `${Number(params.price).toLocaleString("he-IL")} ₪, בכפוף לאישור זמינות` : "מחיר סופי לאחר בחירת תאריך",
+    price: params.price ? `${Number(params.price).toLocaleString("he-IL")} ₪${params.illustrative === "1" ? ", מחיר לדוגמה" : ", בכפוף לאישור זמינות"}` : "מחיר סופי לאחר בחירת תאריך",
     onlineReady: Boolean(params.from && params.till && params.price && Number(params.price) > 0),
     phone: property.contact?.phone,
+    illustrative: params.illustrative === "1",
   };
 
   const eventPlace = eventPlaces.find((item) => item.slug === params.place);

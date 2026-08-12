@@ -6666,5 +6666,22 @@
   "??????? ??????? ????????": "Agrandir les lieux regroup?s",
   "הגדלת המפה": "Agrandir la carte",
   "הקטנת המפה": "Réduire la carte",
-  "התקרבות למקומות המקובצים": "Agrandir les lieux regroupés"
+  "התקרבות למקומות המקובצים": "Agrandir les lieux regroupés",
+  "הזמנה מהירה": "Réservation rapide",
+  "המחשת הזמנה בלבד": "Aperçu de réservation uniquement",
+  "המחשת ההזמנה הושלמה": "Aperçu de réservation terminé",
+  "זו המחשת תצוגה בלבד. לא נשלחה הזמנה, לא נשמרו פרטים ולא בוצע חיוב.": "Ceci est uniquement un aperçu. Aucune réservation envoyée, aucune donnée enregistrée et aucun paiement effectué.",
+  "כך ייראה מסלול ההזמנה כאשר המחיר והזמינות יחוברו למערכת. ההמחשה אינה שולחת הזמנה.": "Voici comment fonctionnera la réservation une fois le prix et la disponibilité connectés. Cet aperçu ne transmet aucune réservation.",
+  "סיום המחשת ההזמנה": "Terminer aperçu réservation",
+  ", מחיר לדוגמה": ", prix exemple",
+  ", בכפוף לאישור זמינות": ", sous réserve de confirmation de disponibilité",
+  "לא חובה": "Facultatif",
+  "ללא העדפה": "Sans préférence",
+  "הציגו את כל בתי הספא": "Afficher tous les spas",
+  "קנה שובר מתנה": "Acheter un bon cadeau",
+  "בחרו תאריכי שהייה": "Choisissez vos dates de séjour",
+  "תחילה הגעה, אחר כך עזיבה": "Choisissez d’abord l’arrivée, puis le départ",
+  "בחרו יום פנוי בלוח": "Choisissez une date dans le calendrier",
+  "בחרו תאריך ושעה מועדפת.": "Choisissez une date et une heure.",
+  "בחרו תאריך הגעה ועזיבה ושעה מועדפת.": "Choisissez les dates d’arrivée et de départ, puis une heure."
 }

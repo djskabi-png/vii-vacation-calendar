@@ -185,7 +185,15 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
       const streetTiles = L.tileLayer(streetTileUrl, {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
         maxZoom: 20,
-        subdomains: "abcd",
+        maxNativeZoom: language === "he" ? 19 : 20,
+        subdomains: language === "he" ? "abc" : "abcd",
+      });
+      streetTiles.on("tileerror", (event) => {
+        const tile = event.tile as HTMLImageElement;
+        if (tile.dataset.viiFallback === "true") return;
+        tile.dataset.viiFallback = "true";
+        const { x, y, z } = event.coords;
+        tile.src = `https://a.basemaps.cartocdn.com/rastertiles/voyager/${Math.min(z, 20)}/${x}/${y}.png`;
       });
       const aerialTiles = L.tileLayer(
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
@@ -271,7 +279,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
         markerLayer.clearLayers();
         markerRegistry.clear();
         const zoom = map.getZoom();
-        const threshold = zoom < 8 ? 92 : zoom < 10 ? 66 : zoom < 12 ? 44 : 32;
+        const threshold = zoom < 8 ? 76 : zoom < 10 ? 52 : zoom < 12 ? 32 : 18;
         const clusters: Array<{ entries: MapPlace[]; point: import("leaflet").Point }> = [];
 
         places.forEach((place) => {
@@ -300,6 +308,10 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
           const clusterCenter = L.latLng(clusterAnchor.lat, clusterAnchor.lng);
           const place = cluster.entries[0];
           const clustered = cluster.entries.length > 1;
+          if (clustered && zoom >= 12) {
+            spiderfyCluster(cluster.entries, clusterCenter, false);
+            return;
+          }
           const clusterText = language === "he" ? `${cluster.entries.length} מקומות` : `${cluster.entries.length}`;
           const visibleLabel = clustered ? String(cluster.entries.length) : place.markerLabel;
           // Clusters communicate result count. Numeric labels keep useful values,
@@ -331,11 +343,9 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
               const clusterDistance = clusterBounds.getNorthEast().distanceTo(clusterBounds.getSouthWest());
               const paddedClusterBounds = clusterBounds.pad(0.65);
               const currentZoom = map.getZoom();
-              const targetZoom = Math.min(map.getBoundsZoom(paddedClusterBounds, false, L.point(140, 140)), currentZoom + 3, 17);
-              if (currentZoom >= 13) {
-                spiderfyCluster(cluster.entries, clusterCenter);
-              } else if (clusterDistance < 80 || targetZoom <= currentZoom) {
-                map.setView(clusterCenter, Math.min(13, currentZoom + 2), { animate: true });
+              const targetZoom = Math.min(map.getBoundsZoom(paddedClusterBounds, false, L.point(140, 140)), currentZoom + 3, 12);
+              if (clusterDistance < 120 || targetZoom <= currentZoom) {
+                map.setView(clusterCenter, Math.min(12, Math.max(10, currentZoom + 3)), { animate: true });
               } else {
                 map.fitBounds(paddedClusterBounds, { maxZoom: targetZoom, padding: [70, 70] });
               }

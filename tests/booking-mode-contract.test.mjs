@@ -10,7 +10,7 @@ const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8
 
 test("vacation online booking requires dates and a positive connected price", () => {
   assert.match(business, /hasSelectedDates = Boolean\(dateRange\.from && dateRange\.till\)/);
-  assert.match(business, /hasSelectedPrice = Boolean\(initialPrice && Number\(initialPrice\) > 0\)/);
+  assert.match(business, /hasSelectedPrice = Boolean\(selectedPrice && Number\(selectedPrice\) > 0\)/);
   assert.match(business, /vacationOnlineReady = activeWorld === "vacation" && hasSelectedDates && hasSelectedPrice/);
   assert.match(bookingPage, /onlineReady: Boolean\(params\.from && params\.till && params\.price && Number\(params\.price\) > 0\)/);
   assert.match(bookingPage, /if \(property\) return \{[\s\S]*?world: "vacation"/);
@@ -54,4 +54,13 @@ test("spa package includes are localized item by item", () => {
   assert.match(booking, /localizedOfferIncludes\.join\(" · "\)/);
   assert.match(localeProvider, /value\.split\(\/\\s\*\[\\u00b7\\u2022\]\\s\*\/\)/);
   assert.match(localeProvider, /translateValue\(part, language\)\.trim\(\)/);
+});
+
+
+test("bookable vacation uses one quick-book action while incomplete data keeps direct enquiry", () => {
+  assert.match(business, /vacationOnlineReady = activeWorld === "vacation" && hasSelectedDates && hasSelectedPrice/);
+  assert.match(business, />הזמנה מהירה<\/Link>/);
+  assert.match(business, /ownerWhatsapp && !\(activeWorld === "vacation" && vacationOnlineReady\)/);
+  assert.doesNotMatch(business, /בדיקת זמינות לחיפוש הזה/);
+  assert.match(business, /vacationRequest && phoneHref/);
 });
