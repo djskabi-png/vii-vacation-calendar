@@ -11,6 +11,7 @@ test("closing any mobile date flow returns to the unchanged page", () => {
   assert.equal((source.match(/onClose=\{\(\) => setCalendarOpen\(false\)\}/g) || []).length, 3);
   assert.match(source, /className="search-mobile-backdrop" onClick=\{closeMobileSearch\}/);
   assert.match(source, /event\.key === "Escape"\) closeMobileSearch\(\)/);
+  assert.match(source, /onClick=\{closeMobileSearch\} aria-label="סגירת בחירת האורחים"/);
 });
 
 test("submitting a search closes every open search layer before showing results", () => {

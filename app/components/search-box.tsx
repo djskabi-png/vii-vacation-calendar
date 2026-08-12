@@ -417,7 +417,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
             ? <div className="search-popover spa-audience-picker"><strong>למי מזמינים?<small>לא חובה</small></strong><button type="button" className={`spa-audience-clear ${spaAudience === null ? "selected" : ""}`} aria-pressed={spaAudience === null} onClick={() => { setSpaAudience(null); setGuests(0); if (!mobileExpanded) setGuestOpen(false); }}><span>ללא העדפה</span><small>הציגו את כל בתי הספא</small></button><div>{SPA_AUDIENCES.map((option) => <button type="button" key={option.id} className={spaAudience === option.id ? "selected" : ""} aria-pressed={spaAudience === option.id} onClick={() => { setSpaAudience(option.id); setGuests(option.guests); if (!mobileExpanded) setGuestOpen(false); }}><span>{option.label}</span><small>{option.description}</small></button>)}</div></div>
             : mode === "vacation"
               ? <div className="search-popover vacation-party-picker" aria-label="בחירת הרכב אורחים וחדרים">
-                  <header><div><strong>מי מגיע?</strong><small>התאימו את ההרכב למקום הנכון</small></div><button type="button" onClick={() => setGuestOpen(false)} aria-label="סגירת בחירת האורחים">×</button></header>
+                  <header><div><strong>מי מגיע?</strong><small>התאימו את ההרכב למקום הנכון</small></div><button type="button" onClick={closeMobileSearch} aria-label="סגירת בחירת האורחים">×</button></header>
                   <div className="vacation-party-picker__rows">
                     {VACATION_PARTY_ROWS.map((row) => <div className="vacation-party-row" key={row.id}>
                       <span><strong>{row.label}</strong><small>{row.description}</small></span>
