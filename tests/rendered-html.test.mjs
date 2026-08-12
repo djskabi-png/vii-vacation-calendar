@@ -361,8 +361,7 @@ test("shared map markers use modern icon markers and visible active list control
   assert.match(mapSource, /function markerIcon\(tone: MapTone\)/);
   assert.match(mapSource, /vii-map-marker__icon/);
   assert.match(mapSource, /const markerContent = clustered[\s\S]+vii-map-marker__icon[\s\S]+vii-map-marker__label/);
-  assert.match(mapSource, /m3\.5 11 8\.5-7 8\.5 7/);
-  assert.match(mapSource, /M8\.6 14\.8c\.9 1\.1 2 1\.6 3\.4 1\.6s2\.5-\.5 3\.4-1\.6/);
+  assert.match(mapSource, /m3\.5 10\.6 8\.5-6\.8 8\.5 6\.8/);
   assert.match(worldSwitcherSource, /M8\.6 14\.8c\.9 1\.1 2 1\.6 3\.4 1\.6s2\.5-\.5 3\.4-1\.6/);
   assert.match(mapSource, /M12 20\.5c4\.3-2\.3/);
   assert.match(mapSource, /M12 5\.2c\.7 3\.6/);
@@ -375,8 +374,8 @@ test("shared map markers use modern icon markers and visible active list control
   assert.match(css, /\.vii-map-marker-wrap\.is-text:not\(\.is-cluster\) \.vii-map-marker[^}]+grid-template-columns:\s*20px auto/);
   assert.match(css, /\.vii-map-marker-wrap\.is-text:not\(\.is-cluster\) \.vii-map-marker__icon svg[^}]+width:\s*18px/);
   assert.match(css, /\.vii-map-marker__icon svg[^}]+stroke-width:\s*1\.75/);
-  assert.match(css, /linear-gradient\(145deg,rgba\(224,250,249,\.98\),rgba\(226,244,255,\.98\)\)/);
-  assert.match(css, /\.vii-map-marker-wrap\.is-cluster \.vii-map-marker[^}]+#159ca6[^}]+#188bc0/);
+  assert.match(css, /\.vii-map-marker-wrap:not\(\.is-cluster\)\.is-active \.vii-map-marker[\s\S]+background: #0b5964/);
+  assert.match(css, /\.vii-map-marker-wrap\.is-cluster \.vii-map-marker[\s\S]+#087e8b[\s\S]+#168fbd/);
 });
 
 test("commercial discovery stays inside VII", async () => {

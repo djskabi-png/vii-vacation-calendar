@@ -43,7 +43,7 @@ test("map selection is keyboard-safe, localized, and responsive", () => {
   assert.match(map, /Carte interactive des lieux/);
   assert.match(styles, /inset-inline-start: 16px/);
   assert.match(styles, /inset-inline: 10px/);
-  assert.match(styles, /saturate\(1\.22\) contrast\(1\.04\) brightness\(\.99\)/);
+  assert.match(styles, /saturate\(\.76\) contrast\(\.94\) brightness\(1\.06\)/);
 });
 
 test("all map result worlds apply viewport ids to their list", () => {

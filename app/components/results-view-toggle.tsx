@@ -26,14 +26,12 @@ export function useResultsViewMode(world: string) {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const requested = params.get("view");
-    const saved = window.localStorage.getItem(`vii-results-view-${world}`);
-    const next = requested === "list" || requested === "grid" ? requested : saved === "list" ? "list" : "grid";
+    const next = requested === "list" ? "list" : "grid";
     setViewModeState(next);
   }, [world]);
 
   const setViewMode = useCallback((next: ResultsViewMode) => {
     setViewModeState(next);
-    window.localStorage.setItem(`vii-results-view-${world}`, next);
     const url = new URL(window.location.href);
     if (next === "list") url.searchParams.set("view", "list");
     else url.searchParams.delete("view");

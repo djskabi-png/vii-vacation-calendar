@@ -51,7 +51,7 @@ function markerIcon(tone: MapTone) {
   if (tone === "spa") return `<svg ${common}><path d="M12 20.5c4.3-2.3 6.8-5.3 6.8-8.6A3.6 3.6 0 0 0 12 10.3a3.6 3.6 0 0 0-6.8 1.6c0 3.3 2.5 6.3 6.8 8.6Z"/><path d="M12 6.5c-.1-1.7.6-3 2.1-4M8.4 8C7 6.8 6.5 5.4 6.8 3.7M15.6 8c1.4-1.2 1.9-2.6 1.6-4.3"/></svg>`;
   if (tone === "hourly") return `<svg ${common}><circle cx="12" cy="12" r="8.5"/><path d="M12 7.3v5l3.3 2M8.2 3.8l-1.6 2.1M15.8 3.8l1.6 2.1"/></svg>`;
   if (tone === "activities") return `<svg ${common}><path d="M4.5 7.4h15v9.2h-15V7.4Z"/><path d="M8.8 7.4v9.2M15.2 7.4v9.2M12 4.2v3.2M10.3 5.5 12 4l1.7 1.5"/></svg>`;
-  return `<svg ${common}><path d="m3.5 11 8.5-7 8.5 7v8.4a1.6 1.6 0 0 1-1.6 1.6H5.1a1.6 1.6 0 0 1-1.6-1.6V11Z"/><circle cx="8.6" cy="12.1" r=".7"/><circle cx="15.4" cy="12.1" r=".7"/><path d="M8.6 14.8c.9 1.1 2 1.6 3.4 1.6s2.5-.5 3.4-1.6M10.3 21v-2.2h3.4V21"/></svg>`;
+  return `<svg ${common}><path d="m3.5 10.6 8.5-6.8 8.5 6.8"/><path d="M5.6 9.4v10.8h12.8V9.4M9.5 20.2v-6.1h5v6.1M8 11.1h1.8M14.2 11.1H16"/></svg>`;
 }
 
 function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false, autoLoad = false, onClose, onVisibleCountChange, onVisiblePlaceIdsChange }: PlacesMapProps) {
@@ -64,12 +64,12 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
         ? { details: "Voir les détails", close: "Fermer la fiche du lieu", results: "Résultats sur la carte", visible: "lieux", list: "Liste des résultats", openCluster: "Ouvrir les lieux regroupés", searchArea: "Rechercher dans cette zone" }
       : { details: "לכל הפרטים", close: "סגירת פרטי המקום", results: "תוצאות על המפה", visible: "מקומות", list: "רשימת תוצאות במפה", openCluster: "פתיחת המקומות המקובצים", searchArea: "חיפוש באזור הזה" };
   const mapCopy = language === "en"
-    ? { preview: "Interactive map", label: "Interactive places map", back: "Back to list", hint: "Use the map controls to zoom in and out", loading: "Loading the map and markers" }
+    ? { preview: "Interactive map", label: "Interactive places map", back: "Back to list", hint: "Map zoom controls", loading: "Loading the map and markers" }
     : language === "ru"
-      ? { preview: "Интерактивная карта", label: "Интерактивная карта мест", back: "Вернуться к списку", hint: "Используйте кнопки карты для изменения масштаба", loading: "Загрузка карты и маркеров" }
+      ? { preview: "Интерактивная карта", label: "Интерактивная карта мест", back: "Вернуться к списку", hint: "Масштаб карты", loading: "Загрузка карты и маркеров" }
       : language === "fr"
-        ? { preview: "Carte interactive", label: "Carte interactive des lieux", back: "Retour à la liste", hint: "Utilisez les boutons de la carte pour zoomer", loading: "Chargement de la carte et des repères" }
-        : { preview: "מפה אינטראקטיבית", label: "מפה אינטראקטיבית של המקומות", back: "חזרה לרשימה", hint: "השתמשו בכפתורי המפה כדי להגדיל ולהקטין", loading: "טוענים את המפה ואת הסמנים" };
+        ? { preview: "Carte interactive", label: "Carte interactive des lieux", back: "Retour à la liste", hint: "Zoom de la carte", loading: "Chargement de la carte et des repères" }
+        : { preview: "מפה אינטראקטיבית", label: "מפה אינטראקטיבית של המקומות", back: "חזרה לרשימה", hint: "הגדלה והקטנה", loading: "טוענים את המפה ואת הסמנים" };
   const mapControlCopy = language === "en"
     ? { zoomIn: "Zoom in", zoomOut: "Zoom out", cluster: "Zoom in to grouped places" }
     : language === "ru"
@@ -201,12 +201,12 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
       );
       streetTiles.addTo(map);
       const layerNames = language === "he"
-        ? { street: "מפה בעברית", aerial: "תצלום אוויר" }
+        ? { street: "מפה בעברית", aerial: "תצלום אוויר", layers: "בחירת סוג מפה" }
         : language === "ru"
-          ? { street: "Карта", aerial: "Спутник" }
+          ? { street: "Карта", aerial: "Спутник", layers: "Выбрать вид карты" }
           : language === "fr"
-            ? { street: "Plan", aerial: "Satellite" }
-            : { street: "Map", aerial: "Satellite" };
+            ? { street: "Plan", aerial: "Satellite", layers: "Choisir le type de carte" }
+            : { street: "Map", aerial: "Satellite", layers: "Choose map style" };
       L.control.zoom({
         position: language === "he" ? "topleft" : "topright",
         zoomInTitle: mapControlCopy.zoomIn,
@@ -214,11 +214,14 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
         zoomInText: "+",
         zoomOutText: "\u2212",
       }).addTo(map);
-      L.control.layers(
+      const layersControl = L.control.layers(
         { [layerNames.street]: streetTiles, [layerNames.aerial]: aerialTiles },
         undefined,
         { position: "topright" },
       ).addTo(map);
+      const layersToggle = layersControl.getContainer()?.querySelector<HTMLAnchorElement>(".leaflet-control-layers-toggle");
+      layersToggle?.setAttribute("title", layerNames.layers);
+      layersToggle?.setAttribute("aria-label", layerNames.layers);
 
       const showMap = () => {
         if (!cancelled) setMapReady(true);
@@ -454,7 +457,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
   const mapCanvas = <div className={`listing-map-shell map-tone--${tone} ${single ? "single-map" : ""}`}>
     <div ref={mapElement} className={`listing-map ${mapReady ? "is-ready" : ""}`} aria-label={mapCopy.label} />
     {onClose && !single && <button className="map-mobile-close" type="button" onClick={onClose} aria-label={mapCopy.back}><span aria-hidden="true">×</span>{mapCopy.back}</button>}
-    {mapReady && <span className="map-zoom-hint">{mapCopy.hint}</span>}
+    {mapReady && !viewportDirty && <span className="map-zoom-hint">{mapCopy.hint}</span>}
     {mapReady && !single && viewportDirty && <button className="map-search-area" type="button" onClick={applyVisibleArea}><span>{cardCopy.searchArea}</span><small>{pendingVisibleIds.length} {cardCopy.visible}</small></button>}
     {!mapReady && (autoLoad ? <span className="map-live-loading" role="status">{mapCopy.loading}</span> : <div className="map-preview-card map-loading-preview">{previewContent}</div>)}
     {mapReady && !single && selected && <article className="map-selection-card" aria-live="polite">

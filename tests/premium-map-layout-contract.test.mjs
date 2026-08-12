@@ -30,7 +30,8 @@ test("place cards open only after marker activation and use a quiet modern basem
   assert.match(component, /maxNativeZoom: language === "he" \? 19 : 20/);
   assert.match(component, /streetTiles\.on\("tileerror"/);
   assert.match(component, /tile\.dataset\.viiFallback/);
-  assert.match(styles, /\.listing-map-shell \.leaflet-tile-pane \{ filter: saturate\(1\.22\) contrast\(1\.04\) brightness\(\.99\); \}/);
+  assert.match(styles, /\.listing-map-shell \.leaflet-tile-pane \{ filter: saturate\(\.76\) contrast\(\.94\) brightness\(1\.06\); \}/);
+  assert.match(component, /setAttribute\("aria-label", layerNames\.layers\)/);
 });
 
 test("useful numeric labels appear on markers while generic places keep icons", () => {

@@ -21,10 +21,11 @@ test("all commercial result worlds share a grid-first view toggle", () => {
   }
 });
 
-test("view preference is accessible, localized and restorable", () => {
+test("view choice is accessible, localized and grid-first on every fresh search", () => {
   assert.match(toggle, /aria-pressed=\{value === "grid"\}/);
   assert.match(toggle, /aria-pressed=\{value === "list"\}/);
-  assert.match(toggle, /localStorage\.setItem\(`vii-results-view-\$\{world\}`/);
+  assert.match(toggle, /const next = requested === "list" \? "list" : "grid"/);
+  assert.doesNotMatch(toggle, /localStorage\.(?:getItem|setItem)/);
   assert.match(toggle, /url\.searchParams\.set\("view", "list"\)/);
   assert.match(toggle, /he: \{ label: "בחירת תצוגת תוצאות", grid: "כרטיסים", list: "רשימה" \}/);
   assert.match(toggle, /en: \{ label: "Choose results view", grid: "Grid", list: "List" \}/);
