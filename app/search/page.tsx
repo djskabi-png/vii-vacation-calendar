@@ -324,6 +324,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       }
       if (requestedArea && requestedArea !== "כל הארץ") setArea(requestedArea);
       else if (landing?.area) setArea(landing.area);
+      else setArea("הכל");
       if (Number.isFinite(requestedGuests)) setGuests(Math.max(1, requestedGuests));
       setMinPrice(Math.min(requestedMinPrice, requestedMaxPrice));
       setMaxPrice(Math.max(requestedMinPrice, requestedMaxPrice));
@@ -460,7 +461,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   useEffect(() => {
     const timer = window.setTimeout(() => setMapVisibleIds(null), 0);
     return () => window.clearTimeout(timer);
-  }, [area, selectedTypes, guests, minPrice, maxPrice, pool, spa, whole, accessibleOnly, selectedExtras, sort]);
+  }, [area, selectedTypes, guests, minPrice, maxPrice, pool, spa, whole, accessibleOnly, selectedExtras, sort, searchQuery]);
 
   function openResultsMap() {
     setMapVisibleIds(null);

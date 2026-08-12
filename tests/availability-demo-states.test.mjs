@@ -27,6 +27,8 @@ test("all seven illustrative availability states are deterministic", () => {
   assert.match(card, /isAvailabilityDemoSearch\(selectedStay, requestedLocation\)/);
   assert.match(card, /"all-country"/);
   assert.match(search, /availabilityDemoSlugs\.indexOf\(a\.slug\)/);
+  assert.match(search, /else setArea\("\u05d4\u05db\u05dc"\)/, "an omitted whole-country location must clear a previously selected area");
+  assert.match(search, /selectedExtras, sort, searchQuery\]\)/, "a new date search must clear stale map viewport results");
   assert.match(search, /availability-demo-summary/);
 });
 
