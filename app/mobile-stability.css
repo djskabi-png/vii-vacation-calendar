@@ -78,6 +78,24 @@
     width: 100%;
     max-width: 100%;
   }
+
+  .filter-panel.open .filter-panel__scroll {
+    padding-inline-end: 12px;
+    scroll-padding-inline-end: 12px;
+    scrollbar-width: thin;
+    scrollbar-color: #b9ced1 transparent;
+  }
+
+  .filter-panel.open .filter-panel__scroll::-webkit-scrollbar {
+    width: 7px;
+  }
+
+  .filter-panel.open .filter-panel__scroll::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background: #b9ced1;
+    background-clip: content-box;
+  }
 }
 
 @media (max-width: 620px) {

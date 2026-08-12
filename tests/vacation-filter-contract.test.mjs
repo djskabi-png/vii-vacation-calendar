@@ -53,11 +53,14 @@ test("mobile vacation filters use a draft and apply contract", async () => {
 test("mobile vacation filter actions stay fixed across both filter sections", async () => {
   const source = await readFile(new URL("app/search/page.tsx", root), "utf8");
   const css = await readFile(new URL("app/globals.css", root), "utf8");
+  const mobileCss = await readFile(new URL("app/mobile-stability.css", root), "utf8");
   assert.match(source, /className="filter-panel__scroll"/);
   assert.match(source, /className="filter-panel__actions"/);
   assert.match(css, /\.filter-panel\.open \.filter-panel__scroll[^}]*overflow-y:\s*auto/);
   assert.match(css, /\.filter-panel\.open \.filter-panel__actions[^}]*flex:\s*none/);
   assert.match(css, /\.filter-panel\.open \.filter-panel__actions[^}]*border-top:/);
+  assert.match(mobileCss, /\.filter-panel\.open \.filter-panel__scroll \{[^}]*padding-inline-end:\s*12px;[^}]*scroll-padding-inline-end:\s*12px;[^}]*scrollbar-width:\s*thin/);
+  assert.match(mobileCss, /\.filter-panel\.open \.filter-panel__scroll::-webkit-scrollbar \{[^}]*width:\s*7px/);
 });
 
 test("vacation type choices are OR filters while additional choices are cumulative AND filters", async () => {
