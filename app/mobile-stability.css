@@ -42,6 +42,9 @@
   }
 
   .search-quick-filters {
+    position: static;
+    top: auto;
+    z-index: auto;
     max-width: calc(100vw - 14px);
     overscroll-behavior-inline: contain;
     scroll-padding-inline: 16px;

@@ -27,3 +27,8 @@ test("mobile vacation and event headings keep a compact filter beside the result
   assert.match(css, /\.results-toolbar > \.results-toolbar__sort \{ display: none; \}/);
   assert.match(css, /\.filter-panel__mobile-sort \{ display: block;/);
 });
+
+test("mobile quick filters scroll with the result page instead of covering cards", async () => {
+  const mobileCss = await readFile(new URL("app/mobile-stability.css", root), "utf8");
+  assert.match(mobileCss, /\.search-quick-filters \{[\s\S]*position: static;[\s\S]*top: auto;[\s\S]*z-index: auto;/);
+});

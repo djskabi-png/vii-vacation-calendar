@@ -5,6 +5,7 @@ import test from "node:test";
 const card = await readFile(new URL("../app/components/property-card.tsx", import.meta.url), "utf8");
 const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
 const search = await readFile(new URL("../app/search/page.tsx", import.meta.url), "utf8");
+const searchBox = await readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8");
 
 const scenarios = {
   "aqua-resort": "available-price",
@@ -26,6 +27,13 @@ test("all seven illustrative availability states are deterministic", () => {
   assert.match(card, /"all-country"/);
   assert.match(search, /availabilityDemoSlugs\.indexOf\(a\.slug\)/);
   assert.match(search, /availability-demo-summary/);
+});
+
+test("an ordinary whole-country search carries the selected stay without a demo-only query flag", () => {
+  assert.match(searchBox, /if \(vacationDateRange\.from\) params\.set\("from", vacationDateRange\.from\)/);
+  assert.match(searchBox, /if \(vacationDateRange\.till\) params\.set\("till", vacationDateRange\.till\)/);
+  assert.doesNotMatch(searchBox, /params\.set\("(?:demo|availabilityDemo)"/);
+  assert.match(card, /if \(!value\) return true;/);
 });
 
 test("illustrative data is visibly identified and localized", () => {
