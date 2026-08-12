@@ -106,8 +106,11 @@ const worldLabels: Record<BusinessWorld, string> = {
 
 function formatInitialStay(from?: string, till?: string) {
   if (!from || !till) return "בחרו תאריכים";
+  const arrival = new Date(`${from}T12:00:00`);
+  const departure = new Date(`${till}T12:00:00`);
+  if (Number.isNaN(arrival.getTime()) || Number.isNaN(departure.getTime())) return "בחרו תאריכים";
   const format = new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "numeric" });
-  return `${format.format(new Date(`${from}T12:00:00`))} עד ${format.format(new Date(`${till}T12:00:00`))}`;
+  return `${format.format(arrival)} עד ${format.format(departure)}`;
 }
 export default function BusinessPage({ initialSlug, initialWorld = "vacation", initialDates, initialFrom, initialTill, initialGuests = "2", initialRooms = "1", initialPrice, initialIllustrative = false, initialSource }: { initialSlug: string; initialWorld?: BusinessWorld; initialDates?: string; initialFrom?: string; initialTill?: string; initialGuests?: string; initialRooms?: string; initialPrice?: string; initialIllustrative?: boolean; initialSource?: string }) {
   const [calendarOpen, setCalendarOpen] = useState(false);

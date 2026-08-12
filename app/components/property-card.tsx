@@ -79,6 +79,18 @@ function quoteForStay(property: Property, selectedStay: SelectedStay | null): Li
   };
 }
 
+export function propertyDetailHref(baseHref: string, context: Record<string, string | undefined>) {
+  const [pathAndQuery, hash = ""] = baseHref.split("#", 2);
+  const [path, query = ""] = pathAndQuery.split("?", 2);
+  const params = new URLSearchParams(query);
+  for (const [key, value] of Object.entries(context)) {
+    if (value) params.set(key, value);
+    else params.delete(key);
+  }
+  const serialized = params.toString();
+  return `${path}${serialized ? `?${serialized}` : ""}${hash ? `#${hash}` : ""}`;
+}
+
 function shiftStayDate(value: string, days: number) {
   const date = new Date(value + "T12:00:00Z");
   if (Number.isNaN(date.getTime())) return value;
@@ -122,7 +134,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
   const quickBookingReady = Boolean(selectedStay && resolvedAvailability?.availability === "available" && resolvedAvailability.nightlyPrice && resolvedAvailability.nightlyPrice > 0);
   const cardMode = promotional ? "promotional" : resolvedAvailability ? "dated" : "result";
   const basePropertyHref = detailHref || `/business?id=${property.slug}`;
-  const propertyHref = quickBookingReady && selectedStay ? `${basePropertyHref}${basePropertyHref.includes("?") ? "&" : "?"}${new URLSearchParams({ source: "search", from: selectedStay.from, till: selectedStay.till, guests: searchParams.get("guests") || "2", price: String(resolvedAvailability?.nightlyPrice || ""), ...(resolvedAvailability?.illustrative ? { illustrative: "1" } : {}) }).toString()}` : basePropertyHref;
+  const propertyHref = quickBookingReady && selectedStay ? propertyDetailHref(basePropertyHref, { source: "search", from: selectedStay.from, till: selectedStay.till, guests: searchParams.get("guests") || "2", price: String(resolvedAvailability?.nightlyPrice || ""), illustrative: resolvedAvailability?.illustrative ? "1" : undefined }) : basePropertyHref;
   const quickBookingHref = quickBookingReady && selectedStay ? `/booking?${new URLSearchParams({ world: "vacation", place: property.slug, from: selectedStay.from, till: selectedStay.till, guests: searchParams.get("guests") || "2", price: String(resolvedAvailability?.nightlyPrice || ""), ...(resolvedAvailability?.illustrative ? { illustrative: "1" } : {}) }).toString()}` : "";
 
   function moveImage(event: MouseEvent<HTMLButtonElement>, direction: -1 | 1) {

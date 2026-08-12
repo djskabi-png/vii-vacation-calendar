@@ -6,7 +6,17 @@ import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, faqSchema, lodgingSchema } from "../lib/seo";
 import { vacationBreadcrumbForLocation } from "../data/vacation-landings";
 
-type Props = { searchParams: Promise<{ id?: string; mode?: string; dates?: string; from?: string; till?: string; guests?: string; rooms?: string; price?: string; illustrative?: string; source?: string }> };
+type QueryValue = string | string[] | undefined;
+type BusinessParams = { id?: QueryValue; mode?: QueryValue; dates?: QueryValue; from?: QueryValue; till?: QueryValue; guests?: QueryValue; rooms?: QueryValue; price?: QueryValue; illustrative?: QueryValue; source?: QueryValue };
+type Props = { searchParams: Promise<BusinessParams> };
+
+function queryValue(value: QueryValue) {
+  return Array.isArray(value) ? value.at(-1) : value;
+}
+
+function normalizedParams(params: BusinessParams) {
+  return Object.fromEntries(Object.entries(params).map(([key, value]) => [key, queryValue(value)])) as Record<keyof BusinessParams, string | undefined>;
+}
 
 function resolveProperty(id?: string) {
   if (!id) return properties[0];
@@ -14,7 +24,7 @@ function resolveProperty(id?: string) {
 }
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const property = resolveProperty((await searchParams).id);
+  const property = resolveProperty(queryValue((await searchParams).id));
   if (!property) return { title: "המקום אינו זמין", robots: { index: false, follow: false } };
   return {
     title: property.name,
@@ -26,7 +36,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 }
 
 export default async function Page({ searchParams }: Props) {
-  const params = await searchParams;
+  const params = normalizedParams(await searchParams);
   const property = resolveProperty(params.id);
   if (!property) notFound();
   const requestedWorld = params.mode as BusinessWorld | undefined;

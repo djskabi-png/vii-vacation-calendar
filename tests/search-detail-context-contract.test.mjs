@@ -16,7 +16,17 @@ test("search result links preserve the selected stay context", () => {
   assert.match(search, /detailHref=\{detailHref\(property\.slug\)\}/);
   assert.match(search, /detailQuery=\{detailQuery\}/);
   assert.match(card, /const basePropertyHref = detailHref \|\|/);
+  assert.match(card, /propertyDetailHref\(basePropertyHref/);
+  assert.match(card, /params\.set\(key, value\)/);
+  assert.doesNotMatch(card, /`\$\{basePropertyHref\}\$\{basePropertyHref\.includes\("\?"\)/);
   assert.match(map, /detailQuery \? `&\$\{detailQuery\}` : ""/);
+});
+
+test("business detail tolerates duplicate and malformed public query values", () => {
+  assert.match(businessPage, /type QueryValue = string \| string\[\] \| undefined/);
+  assert.match(businessPage, /Array\.isArray\(value\) \? value\.at\(-1\) : value/);
+  assert.match(businessPage, /normalizedParams\(await searchParams\)/);
+  assert.match(business, /Number\.isNaN\(arrival\.getTime\(\)\)/);
 });
 
 test("business detail shows the preserved search before availability", () => {
