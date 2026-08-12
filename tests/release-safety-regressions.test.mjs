@@ -14,7 +14,7 @@ test("homepage heading ids remain unique", () => {
 });
 
 test("site shell clips horizontal overflow at every viewport", () => {
-  assert.match(globalStyles, /html,\s*body\s*\{[^}]*overflow-x:\s*clip;/s);
+  assert.match(globalStyles, /html,\s*body\s*\{[^}]*width:\s*100%;[^}]*max-width:\s*100%;[^}]*overflow-x:\s*hidden;/s);
   assert.match(globalStyles, /\.site-page\s*\{[^}]*overflow:\s*clip;/s);
   assert.match(globalStyles, /\.site-page\s*>\s*main\s*\{[^}]*overflow-x:\s*clip;/s);
 });

@@ -2903,7 +2903,7 @@ a { color: inherit; text-decoration: none; }
 img { display: block; max-width: 100%; }
 svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .shell { width: min(1180px, calc(100% - 40px)); margin-inline: auto; }
-html, body { max-width: 100%; overflow-x: clip; }
+html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
 .site-page { min-height: 100vh; overflow: clip; }
 .site-page > main { max-width: 100%; overflow-x: clip; }
 .skip-link { position: fixed; z-index: 9999; inset-block-start: 10px; inset-inline-start: 10px; padding: 10px 16px; border-radius: 10px; background: var(--ink); color: white; transform: translateY(-150%); }
