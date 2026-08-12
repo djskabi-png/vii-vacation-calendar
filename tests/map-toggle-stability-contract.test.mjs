@@ -32,7 +32,7 @@ test("the full mobile map control is one stable hit target", () => {
 });
 
 test("the desktop map control toggles back to the list", () => {
-  assert.match(consumers[0], /if \(mapOpen\) closeMap\(\)/);
+  assert.match(consumers[0], /if \(mapOpen\) closeResultsMap\(\); else openResultsMap\(\)/);
 });
 
 test("map controls and markers use the site typography", () => {
