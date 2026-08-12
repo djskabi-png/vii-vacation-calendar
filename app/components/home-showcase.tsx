@@ -125,7 +125,7 @@ export function HomeShowcase() {
   const immediatePeriod = lastMinutePeriods.find((period) => period.group === "immediate")!;
   const upcomingPeriod = lastMinutePeriods.find((period) => period.group === "upcoming")!;
   const dealGroups = [
-    { id: "last-minute", title: "דילים ברגע האחרון", period: immediatePeriod, periods: lastMinutePeriods.filter((period) => period.group === "immediate") },
+    { id: "last-minute-deals", title: "דילים ברגע האחרון", period: immediatePeriod, periods: lastMinutePeriods.filter((period) => period.group === "immediate") },
     { id: "popular-periods", title: "דילים לתקופות מבוקשות", period: upcomingPeriod, periods: lastMinutePeriods.filter((period) => period.group === "upcoming") },
   ];
   const featuredTours = properties.flatMap((property) => (property.videos || []).map((video) => ({ property, video }))).slice(0, 7);
