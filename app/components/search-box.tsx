@@ -109,7 +109,9 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const places = useMemo(() => searchLocationOptions(mode), [mode]);
   const [locationValue, setLocationValue] = useState(() => {
     const requestedLocation = searchParams.get("location");
-    return isWholeCountrySelection(requestedLocation) ? "כל הארץ" : requestedLocation || initialLocation || "כל הארץ";
+    return requestedLocation
+      ? (isWholeCountrySelection(requestedLocation) ? "כל הארץ" : requestedLocation)
+      : initialLocation || "כל הארץ";
   });
   // Keep the initial client render identical to the server, then localize from
   // the actual route in the synchronization effect below.
@@ -144,7 +146,9 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   useEffect(() => {
     const timer = window.setTimeout(() => {
       const requestedLocation = searchParams.get("location");
-      setLocationValue(isWholeCountrySelection(requestedLocation) ? "כל הארץ" : requestedLocation || initialLocation || "כל הארץ");
+      setLocationValue(requestedLocation
+        ? (isWholeCountrySelection(requestedLocation) ? "כל הארץ" : requestedLocation)
+        : initialLocation || "כל הארץ");
       setDates(dateLabelFromSearch(searchParams, mode, activeRouteLanguage(language)));
       setVacationDateRange({ from: searchParams.get("from"), till: searchParams.get("till") });
       setGuests(Number(searchParams.get("guests")) || initialGuests || defaultGuestCount(mode));
