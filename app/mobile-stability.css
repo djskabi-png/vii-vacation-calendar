@@ -45,7 +45,9 @@
     position: static;
     top: auto;
     z-index: auto;
-    max-width: calc(100vw - 14px);
+    width: 100%;
+    max-width: 100%;
+    margin-inline: 0;
     overscroll-behavior-inline: contain;
     scroll-padding-inline: 16px;
   }
