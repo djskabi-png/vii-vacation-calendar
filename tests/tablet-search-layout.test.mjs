@@ -21,5 +21,5 @@ test("narrow tablets move filters into an accessible drawer instead of squeezing
   assert.match(page, /className="search-quick-filters"/);
   assert.match(page, /className=\{activeFilters\.length \? "primary-filter active" : "primary-filter"\}/);
   assert.match(page, /onClick=\{\(\) => openFiltersPanel\(\)\}/);
-  assert.match(css, /results-heading__meta \.mobile-filter[^}]+display:\s*none/s);
+  assert.doesNotMatch(page, /mobile-filter--compact/);
 });

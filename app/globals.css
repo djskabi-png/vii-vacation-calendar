@@ -4375,7 +4375,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
   .filter-panel.open .filter-panel__scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
   .filter-panel.open .filter-panel__actions { position: relative; z-index: 2; flex: none; min-height: 64px; padding: 10px 0 max(2px,env(safe-area-inset-bottom)); flex-direction: row; align-items: center; gap: 10px; border-top: 1px solid var(--line); background: #fff; box-shadow: 0 -12px 24px rgba(3,57,68,.07); }
   .filter-panel.open .filter-panel__actions .filter-apply { min-height: 46px; flex: 1; }
-  .filter-head button, .filter-apply, .mobile-filter { display: inline-flex; }
+  .filter-head button, .filter-apply { display: inline-flex; }
   .filter-panel__actions .filter-reset { width: auto; min-height: 40px; margin: 0; padding: 6px 12px; border: 0; color: var(--teal-dark); background: transparent; box-shadow: none; font-size: .8rem; text-decoration: underline; text-underline-offset: 3px; }
   .filter-panel__actions .filter-reset:hover { background: #eef8f9; }
   .filter-backdrop { position: fixed; z-index: 1100; inset: 0; border: 0; background: rgba(2,25,32,.48); animation: filter-backdrop-in .18s ease-out both; }
