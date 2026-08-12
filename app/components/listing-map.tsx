@@ -175,7 +175,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
         wheelPxPerZoomLevel: 80,
         zoomControl: false,
         attributionControl: true,
-        minZoom: 6,
+        minZoom: 7,
         maxBounds: [[28.65, 33.55], [34.15, 36.45]],
         maxBoundsViscosity: 0.72,
       });
@@ -227,6 +227,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
       readyTimer = window.setTimeout(showMap, 2200);
 
       const markerLayer = L.layerGroup().addTo(map);
+      let expandedPlaceIds = new Set<string>();
       const spiderfyCluster = (entries: MapPlace[], center: import("leaflet").LatLng, clearExisting = true) => {
         if (clearExisting) {
           markerLayer.clearLayers();
@@ -308,7 +309,8 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
           const clusterCenter = L.latLng(clusterAnchor.lat, clusterAnchor.lng);
           const place = cluster.entries[0];
           const clustered = cluster.entries.length > 1;
-          if (clustered && zoom >= 12) {
+          const explicitlyExpanded = clustered && cluster.entries.every((entry) => expandedPlaceIds.has(entry.id));
+          if (clustered && (zoom >= 12 || explicitlyExpanded)) {
             spiderfyCluster(cluster.entries, clusterCenter, false);
             return;
           }
@@ -339,6 +341,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
             marker.on("click", () => {
               selectedIdRef.current = "";
               setSelectedId("");
+              expandedPlaceIds = new Set(cluster.entries.map((entry) => entry.id));
               const clusterBounds = L.latLngBounds(cluster.entries.map((entry) => [entry.lat, entry.lng] as [number, number]));
               const clusterDistance = clusterBounds.getNorthEast().distanceTo(clusterBounds.getSouthWest());
               const paddedClusterBounds = clusterBounds.pad(0.65);

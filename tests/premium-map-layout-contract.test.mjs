@@ -41,7 +41,10 @@ test("tightly overlapping clusters expand into individually selectable spider ma
   assert.match(component, /const spiderfyCluster = \(entries: MapPlace\[\], center: import\("leaflet"\)\.LatLng, clearExisting = true\)/);
   assert.match(component, /spiderfyCluster\(cluster\.entries, clusterCenter, false\)/);
   assert.match(component, /const threshold = zoom < 8 \? 76 : zoom < 10 \? 52 : zoom < 12 \? 32 : 18/);
-  assert.match(component, /if \(clustered && zoom >= 12\)/);
+  assert.match(component, /let expandedPlaceIds = new Set<string>\(\)/);
+  assert.match(component, /const explicitlyExpanded = clustered && cluster\.entries\.every/);
+  assert.match(component, /if \(clustered && \(zoom >= 12 \|\| explicitlyExpanded\)\)/);
+  assert.match(component, /expandedPlaceIds = new Set\(cluster\.entries\.map\(\(entry\) => entry\.id\)\)/);
   assert.doesNotMatch(component, /if \(clustered && zoom >= 9\)/);
   assert.match(component, /const clusterAnchor = cluster\.entries\.reduce/);
   assert.match(component, /const clusterCenter = L\.latLng\(clusterAnchor\.lat, clusterAnchor\.lng\)/);
@@ -80,6 +83,7 @@ test("vacation markers prioritize verified price and map zoom is direct", () => 
   assert.match(component, /scrollWheelZoom: true/);
   assert.match(component, /wheelPxPerZoomLevel: 80/);
   assert.match(component, /maxBoundsViscosity: 0\.72/);
+  assert.match(component, /minZoom: 7/);
 });
 
 test("map controls and Hebrew basemap are localized", () => {
