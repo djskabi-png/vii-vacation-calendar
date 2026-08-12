@@ -4,10 +4,9 @@ import test from "node:test";
 
 const source = readFileSync(new URL("../app/components/search-box.tsx", import.meta.url), "utf8");
 
-test("calendar close returns to the mobile search while full close resets it", () => {
+test("closing any mobile date flow returns to the unchanged page", () => {
   assert.match(source, /const closeMobileSearch = useCallback\(\(\) => \{[\s\S]*?setCalendarOpen\(false\);[\s\S]*?setLocationOpen\(false\);[\s\S]*?setGuestOpen\(false\);[\s\S]*?setMobileExpanded\(false\);[\s\S]*?setMobileStep\("overview"\);/);
-  assert.match(source, /const returnFromCalendarToSearch = useCallback\(\(\) => \{[\s\S]*?setCalendarOpen\(false\);[\s\S]*?max-width: 820px[\s\S]*?setMobileExpanded\(true\);[\s\S]*?setMobileStep\("overview"\);/);
-  assert.equal((source.match(/onCancel=\{returnFromCalendarToSearch\}/g) || []).length, 3);
+  assert.equal((source.match(/onCancel=\{closeMobileSearch\}/g) || []).length, 3);
   assert.equal((source.match(/onClose=\{\(\) => setCalendarOpen\(false\)\}/g) || []).length, 3);
   assert.match(source, /className="search-mobile-backdrop" onClick=\{closeMobileSearch\}/);
   assert.match(source, /event\.key === "Escape"\) closeMobileSearch\(\)/);

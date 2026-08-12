@@ -143,14 +143,6 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     setMobileStep("overview");
   }, []);
 
-  const returnFromCalendarToSearch = useCallback(() => {
-    setCalendarOpen(false);
-    if (window.matchMedia("(max-width: 820px)").matches) {
-      setMobileExpanded(true);
-      setMobileStep("overview");
-    }
-  }, []);
-
   useEffect(() => {
     const timer = window.setTimeout(() => {
       const requestedLocation = searchParams.get("location");
@@ -435,7 +427,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
         </div>
         <span className="search-status" role="status" aria-live="polite">{isSearching ? "מחפשים" : ""}</span>
       </div>
-      {mode === "events" ? <EventDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={returnFromCalendarToSearch} onConfirm={(result) => { setDates(result.summary); setEventDateRange({ from: result.from, to: result.to }); setMobileStep("guests"); setGuestOpen(true); }} /> : mode === "spa" ? <SpaDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={returnFromCalendarToSearch} onConfirm={(result) => { setDates(result.summary); setSpaDate({ date: result.date, withoutDate: result.withoutDate }); setMobileStep("overview"); setGuestOpen(false); }} /> : !isHourly && <CalendarDemo mode="home" open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={returnFromCalendarToSearch} onConfirm={(result) => { setDates(result.summary); setVacationDateRange({ from: result.checkIn, till: result.checkOut }); setMobileStep("guests"); setGuestOpen(true); }} />}
+      {mode === "events" ? <EventDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={closeMobileSearch} onConfirm={(result) => { setDates(result.summary); setEventDateRange({ from: result.from, to: result.to }); setMobileStep("guests"); setGuestOpen(true); }} /> : mode === "spa" ? <SpaDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={closeMobileSearch} onConfirm={(result) => { setDates(result.summary); setSpaDate({ date: result.date, withoutDate: result.withoutDate }); setMobileStep("overview"); setGuestOpen(false); }} /> : !isHourly && <CalendarDemo mode="home" open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={closeMobileSearch} onConfirm={(result) => { setDates(result.summary); setVacationDateRange({ from: result.checkIn, till: result.checkOut }); setMobileStep("guests"); setGuestOpen(true); }} />}
     </>
   );
 }
