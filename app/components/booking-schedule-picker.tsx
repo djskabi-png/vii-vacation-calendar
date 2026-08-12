@@ -3,8 +3,15 @@
 import { useMemo, useState } from "react";
 import { CalendarIcon } from "../site-header";
 import { useSiteLanguage } from "../i18n/locale-provider";
+import { ModernSelect } from "./modern-select";
 
-const TIMES = ["09:00", "10:30", "12:00", "13:30", "15:00", "16:30", "18:00", "19:30"];
+const ARRIVAL_PREFERENCES = [
+  { value: "", label: "ללא העדפה" },
+  { value: "check_in", label: "בשעת הצ׳ק־אין" },
+  { value: "within_hour", label: "עד שעה אחרי הצ׳ק־אין" },
+  { value: "later", label: "שעה עד שלוש שעות אחרי הצ׳ק־אין" },
+  { value: "late", label: "הגעה מאוחרת יותר" },
+];
 
 function dateKey(date: Date) {
   return date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0") + "-" + String(date.getDate()).padStart(2, "0");
@@ -79,7 +86,16 @@ export function BookingSchedulePicker({ range, arrival, departure, time, onArriv
       <span><small>{translate("הגעה")}</small><strong>{arrival ? new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" }).format(fromKey(arrival)!) : translate("בחרו תאריך")}</strong></span>
       {range ? <span><small>{translate("עזיבה")}</small><strong>{departure ? new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" }).format(fromKey(departure)!) : translate("בחרו תאריך")}</strong></span> : null}
     </div>
-    <fieldset className="booking-schedule__times"><legend>{translate("שעה מועדפת")}</legend><div>{TIMES.map((slot) => <button type="button" key={slot} aria-pressed={time === slot} className={time === slot ? "selected" : ""} onClick={() => onTimeChange(slot)}>{slot}</button>)}</div></fieldset>
+    <div className="booking-schedule__time-optional">
+      <ModernSelect
+        compact
+        label={translate("שעת הגעה משוערת, לא חובה")}
+        value={time}
+        onChange={onTimeChange}
+        options={ARRIVAL_PREFERENCES.map((option) => ({ value: option.value, label: translate(option.label) }))}
+      />
+      <p>{translate("שעת הצ׳ק־אין המדויקת מופיעה באישור המקום. אין להגיע לפני השעה שאושרה.")}</p>
+    </div>
     <input type="hidden" name="date" value={arrival} />
     {range ? <input type="hidden" name="till" value={departure} /> : null}
     <input type="hidden" name="time" value={time} />

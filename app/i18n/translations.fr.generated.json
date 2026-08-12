@@ -6683,5 +6683,14 @@
   "תחילה הגעה, אחר כך עזיבה": "Choisissez d’abord l’arrivée, puis le départ",
   "בחרו יום פנוי בלוח": "Choisissez une date dans le calendrier",
   "בחרו תאריך ושעה מועדפת.": "Choisissez une date et une heure.",
-  "בחרו תאריך הגעה ועזיבה ושעה מועדפת.": "Choisissez les dates d’arrivée et de départ, puis une heure."
+  "בחרו תאריך הגעה ועזיבה ושעה מועדפת.": "Choisissez les dates d’arrivée et de départ, puis une heure.",
+  "שעת הגעה משוערת, לא חובה": "Heure d’arrivée estimée, facultatif",
+  "ללא העדפה": "Aucune préférence",
+  "בשעת הצ׳ק־אין": "À l’heure d’arrivée",
+  "עד שעה אחרי הצ׳ק־אין": "Dans l’heure suivant l’arrivée",
+  "שעה עד שלוש שעות אחרי הצ׳ק־אין": "Une à trois heures après l’arrivée",
+  "הגעה מאוחרת יותר": "Arrivée plus tardive",
+  "שעת הצ׳ק־אין המדויקת מופיעה באישור המקום. אין להגיע לפני השעה שאושרה.": "L’heure d’arrivée exacte figure dans la confirmation de l’établissement. N’arrivez pas avant l’heure confirmée.",
+  "בחרו תאריך הגעה ועזיבה.": "Choisissez les dates d’arrivée et de départ.",
+  "בחרו תאריך.": "Choisissez une date."
 }

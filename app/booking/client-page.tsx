@@ -109,8 +109,8 @@ export default function BookingPageClient(props: Props) {
       return false;
     }
     if (currentStep === 1 && props.world === "spa" && !spaAppointmentReady) return false;
-    if (currentStep === 1 && props.world !== "spa" && (!arrival || !preferredTime || (props.world === "vacation" && !departure))) {
-      setScheduleError(props.world === "vacation" && !departure ? "בחרו תאריך הגעה ועזיבה ושעה מועדפת." : "בחרו תאריך ושעה מועדפת.");
+    if (currentStep === 1 && props.world !== "spa" && (!arrival || (props.world === "vacation" && !departure))) {
+      setScheduleError(props.world === "vacation" ? "בחרו תאריך הגעה ועזיבה." : "בחרו תאריך.");
       return false;
     }
     if (currentStep === 1) setScheduleError("");

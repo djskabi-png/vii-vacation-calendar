@@ -6683,5 +6683,14 @@
   "תחילה הגעה, אחר כך עזיבה": "Select arrival first, then departure",
   "בחרו יום פנוי בלוח": "Choose a date from the calendar",
   "בחרו תאריך ושעה מועדפת.": "Choose a date and preferred time.",
-  "בחרו תאריך הגעה ועזיבה ושעה מועדפת.": "Choose arrival and departure dates and a preferred time."
+  "בחרו תאריך הגעה ועזיבה ושעה מועדפת.": "Choose arrival and departure dates and a preferred time.",
+  "שעת הגעה משוערת, לא חובה": "Estimated arrival time, optional",
+  "ללא העדפה": "No preference",
+  "בשעת הצ׳ק־אין": "At check-in time",
+  "עד שעה אחרי הצ׳ק־אין": "Within one hour after check-in",
+  "שעה עד שלוש שעות אחרי הצ׳ק־אין": "One to three hours after check-in",
+  "הגעה מאוחרת יותר": "Later arrival",
+  "שעת הצ׳ק־אין המדויקת מופיעה באישור המקום. אין להגיע לפני השעה שאושרה.": "The exact check-in time appears in the venue confirmation. Do not arrive before the confirmed time.",
+  "בחרו תאריך הגעה ועזיבה.": "Choose arrival and departure dates.",
+  "בחרו תאריך.": "Choose a date."
 }
