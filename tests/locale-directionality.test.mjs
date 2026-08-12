@@ -19,3 +19,11 @@ test("all non-Hebrew interfaces have an explicit LTR layout contract", () => {
   assert.match(css, /html\[data-locale="fr"\] body \{\s*direction: ltr;\s*text-align: start;/);
   assert.match(css, /:where\(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, legend, summary, input, textarea, select, button, a\)[\s\S]*?text-align: start;/);
 });
+
+test("locale bootstrapping cannot leave a restored mobile tab blank", () => {
+  assert.doesNotMatch(layout, /style\.visibility='hidden'/);
+  assert.match(layout, /setTimeout\(reveal,1400\)/);
+  assert.match(layout, /addEventListener\('pageshow',[\s\S]*?reveal/);
+  assert.match(css, /html\[data-locale-pending="true"\] body[\s\S]*?animation: locale-pending-failsafe 0s 1\.4s forwards/);
+  assert.match(css, /@keyframes locale-pending-failsafe[\s\S]*?opacity: 1/);
+});
