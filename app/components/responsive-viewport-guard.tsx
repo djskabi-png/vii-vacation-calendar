@@ -16,6 +16,20 @@ function resetHorizontalCollections() {
   });
 }
 
+function releaseStaleViewportLocks() {
+  if (!window.matchMedia("(min-width: 821px)").matches) return;
+  const body = document.body;
+  if (body.hasAttribute("data-map-overlay-lock")) {
+    body.style.position = "";
+    body.style.top = "";
+    body.style.insetInline = "";
+    body.style.width = "";
+    body.style.overflow = "";
+    body.removeAttribute("data-map-overlay-lock");
+  }
+  document.documentElement.style.scrollBehavior = "";
+}
+
 export function ResponsiveViewportGuard() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -25,6 +39,7 @@ export function ResponsiveViewportGuard() {
     let frame = window.requestAnimationFrame(resetHorizontalViewport);
     let timer = window.setTimeout(resetHorizontalViewport, 80);
     const reset = () => {
+      releaseStaleViewportLocks();
       resetHorizontalViewport();
       window.cancelAnimationFrame(frame);
       window.clearTimeout(timer);

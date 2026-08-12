@@ -78,5 +78,17 @@ export function useMapViewState() {
 
   useEffect(() => () => unlockPage(), [unlockPage]);
 
+  useEffect(() => {
+    if (!mapOpen) return;
+    const desktop = window.matchMedia("(min-width: 821px)");
+    const releaseMobileLock = (event: MediaQueryListEvent | MediaQueryList) => {
+      if (event.matches) unlockPage();
+    };
+
+    releaseMobileLock(desktop);
+    desktop.addEventListener("change", releaseMobileLock);
+    return () => desktop.removeEventListener("change", releaseMobileLock);
+  }, [mapOpen, unlockPage]);
+
   return { mapOpen, openMap, closeMap, toggleMap, setMapOpen };
 }

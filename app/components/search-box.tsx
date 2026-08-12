@@ -191,6 +191,17 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     };
   }, [closeMobileSearch, mobileExpanded]);
 
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 821px)");
+    const leaveMobileEditor = (event: MediaQueryListEvent | MediaQueryList) => {
+      if (event.matches) closeMobileSearch();
+    };
+
+    leaveMobileEditor(desktop);
+    desktop.addEventListener("change", leaveMobileEditor);
+    return () => desktop.removeEventListener("change", leaveMobileEditor);
+  }, [closeMobileSearch]);
+
   function search() {
     if (isSearching) return;
     setIsSearching(true);

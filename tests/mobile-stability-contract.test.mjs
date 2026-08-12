@@ -7,6 +7,7 @@ const css = await readFile(new URL("../app/mobile-stability.css", import.meta.ur
 const guard = await readFile(new URL("../app/components/responsive-viewport-guard.tsx", import.meta.url), "utf8");
 const search = await readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8");
 const showcase = await readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8");
+const mapViewState = await readFile(new URL("../app/components/map-view-state.ts", import.meta.url), "utf8");
 
 test("the shared mobile stability layer loads after the base and result styles", () => {
   const globalIndex = layout.indexOf('import "./globals.css"');
@@ -57,6 +58,17 @@ test("restored mobile tabs reset only declared horizontal rails", () => {
   assert.match(guard, /querySelectorAll<HTMLElement>\("\[data-horizontal-rail\]"\)/);
   assert.match(guard, /rail\.scrollLeft = 0/);
   assert.match(showcase, /data-horizontal-rail/);
+});
+
+test("desktop resize releases every mobile-only viewport lock", () => {
+  assert.match(search, /matchMedia\("\(min-width: 821px\)"\)/);
+  assert.match(search, /if \(event\.matches\) closeMobileSearch\(\)/);
+  assert.match(mapViewState, /matchMedia\("\(min-width: 821px\)"\)/);
+  assert.match(mapViewState, /if \(event\.matches\) unlockPage\(\)/);
+  assert.match(guard, /function releaseStaleViewportLocks/);
+  assert.match(guard, /body\.hasAttribute\("data-map-overlay-lock"\)/);
+  assert.match(guard, /window\.addEventListener\("resize", reset\)/);
+  assert.match(guard, /window\.visualViewport\?\.addEventListener\("resize", reset\)/);
 });
 
 test("search restores a readable vacation date label from the submitted range", () => {
