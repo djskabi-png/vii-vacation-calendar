@@ -7,7 +7,7 @@ import { CalendarDemo } from "../calendar-demo";
 import { EventDatePicker } from "./event-date-picker";
 import { SpaDatePicker } from "./spa-date-picker";
 import { type WorldId } from "../data/world-data";
-import { searchLocationOptions, vacationLocationGroups, type SearchMode } from "../data/search-taxonomy";
+import { isWholeCountrySelection, searchLocationOptions, vacationLocationGroups, type SearchMode } from "../data/search-taxonomy";
 import { CalendarIcon, GiftIcon, PeopleIcon, PinIcon, SearchIcon } from "../site-header";
 import { SearchWorldTabs } from "./world-switcher";
 import { useSiteLanguage } from "../i18n/locale-provider";
@@ -89,7 +89,10 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const isHourly = mode === "hourly";
   const shouldCollapse = compact || searchParams.has("location");
   const places = useMemo(() => searchLocationOptions(mode), [mode]);
-  const [locationValue, setLocationValue] = useState(() => searchParams.get("location") || initialLocation || "כל הארץ");
+  const [locationValue, setLocationValue] = useState(() => {
+    const requestedLocation = searchParams.get("location");
+    return isWholeCountrySelection(requestedLocation) ? "כל הארץ" : requestedLocation || initialLocation || "כל הארץ";
+  });
   const [dates, setDates] = useState(() => searchParams.get("dates") || defaultDateLabel(mode));
   const [vacationDateRange, setVacationDateRange] = useState<{ from: string | null; till: string | null }>(() => ({ from: searchParams.get("from"), till: searchParams.get("till") }));
   const [eventDateRange, setEventDateRange] = useState<{ from: string | null; to: string | null }>(() => ({ from: searchParams.get("from"), to: searchParams.get("to") }));
@@ -183,7 +186,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     } else {
       const params = new URLSearchParams();
       if (mode === "vacation" && !basePath) {
-        params.set("location", locationValue || "כל הארץ");
+        params.set("location", isWholeCountrySelection(locationValue) && language !== "he" ? "all-country" : locationValue || "כל הארץ");
       } else if (mode !== "events" && !(basePath && mode === "vacation" && locationValue === initialLocation) && locationValue !== "כל הארץ") {
         params.set("location", locationValue);
       }

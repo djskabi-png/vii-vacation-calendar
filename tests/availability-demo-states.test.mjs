@@ -6,6 +6,7 @@ const card = await readFile(new URL("../app/components/property-card.tsx", impor
 const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
 const search = await readFile(new URL("../app/search/page.tsx", import.meta.url), "utf8");
 const searchBox = await readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8");
+const taxonomy = await readFile(new URL("../app/data/search-taxonomy.ts", import.meta.url), "utf8");
 
 const scenarios = {
   "aqua-resort": "available-price",
@@ -25,7 +26,7 @@ test("all seven illustrative availability states are deterministic", () => {
   assert.match(card, /availabilityDemoStay = \{ from: "2026-09-04", till: "2026-09-06" \}/);
   assert.match(card, /replace\(\/\\\/\+\$\/, ""\)/, "demo scenarios should work on both /search and /search/");
   assert.match(card, /isAvailabilityDemoSearch\(selectedStay, requestedLocation\)/);
-  assert.match(card, /"all-country"/);
+  assert.match(card, /isWholeCountrySelection\(requestedLocation\)/);
   assert.match(search, /availabilityDemoSlugs\.indexOf\(a\.slug\)/);
   assert.match(search, /else setArea\("\u05d4\u05db\u05dc"\)/, "an omitted whole-country location must clear a previously selected area");
   assert.match(search, /selectedExtras, sort, searchQuery\]\)/, "a new date search must clear stale map viewport results");
@@ -35,10 +36,13 @@ test("all seven illustrative availability states are deterministic", () => {
 test("an ordinary whole-country search carries the selected stay without a demo-only query flag", () => {
   assert.match(searchBox, /if \(vacationDateRange\.from\) params\.set\("from", vacationDateRange\.from\)/);
   assert.match(searchBox, /if \(vacationDateRange\.till\) params\.set\("till", vacationDateRange\.till\)/);
-  assert.match(searchBox, /params\.set\("location", locationValue \|\| "כל הארץ"\)/);
+  assert.match(searchBox, /language !== "he" \? "all-country"/);
+  assert.match(taxonomy, /"all-country"/);
+  assert.match(taxonomy, /isWholeCountrySelection\(selection\)/);
+  assert.match(search, /!isWholeCountrySelection\(requestedArea\)/);
   assert.match(searchBox, /vacationParty\.adults === 2 && vacationParty\.children === 0\) params\.set\("guests", "2"\)/);
   assert.doesNotMatch(searchBox, /params\.set\("(?:demo|availabilityDemo)"/);
-  assert.match(card, /if \(!value\) return true;/);
+  assert.match(taxonomy, /if \(!selection\) return true;/);
 });
 
 test("illustrative data is visibly identified and localized", () => {

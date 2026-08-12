@@ -18,7 +18,7 @@ import { useSiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
 import { footerTopicForPropertyType } from "../data/footer-context";
 import { cleanAccommodationPath } from "../data/accommodation-landings";
-import { matchesSearchLocation } from "../data/search-taxonomy";
+import { isWholeCountrySelection, matchesSearchLocation } from "../data/search-taxonomy";
 import { cleanVacationPath } from "../data/vacation-landings";
 import { buildVacationSearchUrl } from "../lib/vacation-search-url";
 import { vacationInventorySummary } from "../lib/vacation-inventory";
@@ -322,7 +322,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
         router.replace(localizedPath(query ? `${requestedPath}?${query}` : requestedPath, language), { scroll: false });
         return;
       }
-      if (requestedArea && requestedArea !== "כל הארץ") setArea(requestedArea);
+      if (requestedArea && !isWholeCountrySelection(requestedArea)) setArea(requestedArea);
       else if (landing?.area) setArea(landing.area);
       else setArea("הכל");
       if (Number.isFinite(requestedGuests)) setGuests(Math.max(1, requestedGuests));

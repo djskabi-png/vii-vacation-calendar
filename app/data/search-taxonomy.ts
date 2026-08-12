@@ -47,8 +47,30 @@ export function searchLocationOptions(mode: SearchMode) {
   return OPTIONS[mode];
 }
 
+const WHOLE_COUNTRY_SELECTIONS = new Set([
+  "הכל",
+  "כל הארץ",
+  "all-country",
+  "all",
+  "all israel",
+  "whole country",
+  "the whole country",
+  "all haaretz",
+  "вся страна",
+  "вся израиль",
+  "по всей стране",
+  "tout le pays",
+  "tous",
+  "tout israël",
+]);
+
+export function isWholeCountrySelection(selection?: string | null) {
+  if (!selection) return true;
+  return WHOLE_COUNTRY_SELECTIONS.has(selection.trim().toLocaleLowerCase());
+}
+
 export function matchesSearchLocation(place: SearchablePlace, selection: string) {
-  if (!selection || selection === "הכל" || selection === "כל הארץ") return true;
+  if (isWholeCountrySelection(selection)) return true;
   const haystack = `${place.area ?? ""} ${place.location ?? ""}`;
   const terms = LOCATION_TERMS[selection] ?? [selection];
   return terms.some((term) => haystack.includes(term));

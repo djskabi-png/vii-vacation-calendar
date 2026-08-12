@@ -1,5 +1,5 @@
 import { properties } from "./site-data";
-import { matchesSearchLocation } from "./search-taxonomy";
+import { isWholeCountrySelection, matchesSearchLocation } from "./search-taxonomy";
 
 export type VacationRegion = {
   slug: string;
@@ -32,7 +32,7 @@ export function vacationRegionListings(region: VacationRegion) {
 }
 
 export function cleanVacationPath(location: string) {
-  if (!location || location === "הכל" || location === "כל הארץ") return null;
+  if (isWholeCountrySelection(location)) return null;
   const region = vacationRegionByLabel(location);
   return region && vacationRegionListings(region).length ? `/vacations/${region.slug}` : null;
 }

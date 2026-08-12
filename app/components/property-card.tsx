@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRef, useState, type MouseEvent } from "react";
 import type { ListingAvailability, ListingDateQuote, Property } from "../data/site-data";
+import { isWholeCountrySelection } from "../data/search-taxonomy";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { PinIcon } from "../site-header";
 import { trackPhoneReveal } from "../lib/analytics";
@@ -50,15 +51,10 @@ const demoAvailabilityScenarios: Record<string, DemoAvailabilityKind> = {
 
 export const availabilityDemoSlugs = Object.keys(demoAvailabilityScenarios);
 
-function isWholeCountryLocation(value: string | null) {
-  if (!value) return true;
-  return ["\u05db\u05dc \u05d4\u05d0\u05e8\u05e5", "\u05d4\u05db\u05dc", "all-country", "all", "all israel", "whole country"].includes(value.trim().toLocaleLowerCase());
-}
-
 export function isAvailabilityDemoSearch(selectedStay: SelectedStay | null, requestedLocation: string | null) {
   return selectedStay?.from === availabilityDemoStay.from
     && selectedStay.till === availabilityDemoStay.till
-    && isWholeCountryLocation(requestedLocation);
+    && isWholeCountrySelection(requestedLocation);
 }
 
 function localizedDate(value: string, language: SiteLanguage) {
