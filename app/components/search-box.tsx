@@ -134,6 +134,21 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const [mobileExpanded, setMobileExpanded] = useState(false);
   const [mobileStep, setMobileStep] = useState<"overview" | "location" | "dates" | "guests">("overview");
 
+  const restoreCommittedSearchState = useCallback(() => {
+    const requestedLocation = searchParams.get("location");
+    setLocationValue(requestedLocation
+      ? (isWholeCountrySelection(requestedLocation) ? "כל הארץ" : requestedLocation)
+      : initialLocation || "כל הארץ");
+    setDates(dateLabelFromSearch(searchParams, mode, activeRouteLanguage(language)));
+    setVacationDateRange({ from: searchParams.get("from"), till: searchParams.get("till") });
+    setEventDateRange({ from: searchParams.get("from"), to: searchParams.get("to") });
+    setSpaDate({ date: searchParams.get("date"), withoutDate: searchParams.get("withoutDate") === "1" });
+    setSpaAudience(parseSpaAudience(searchParams.get("spaFor") || initialSpaAudience || null));
+    setGuests(Number(searchParams.get("guests")) || initialGuests || defaultGuestCount(mode));
+    setVacationParty(initialVacationParty(searchParams, Number(searchParams.get("guests")) || initialGuests || 2));
+    setMaximumPrice(normalizeHourlyPrice(searchParams.get("maxPrice")));
+  }, [initialGuests, initialLocation, initialSpaAudience, language, mode, searchParams]);
+
   const closeMobileSearch = useCallback(() => {
     setCalendarOpen(false);
     setLocationOpen(false);
@@ -143,41 +158,18 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     setMobileStep("overview");
   }, []);
 
-  const cancelDateSearch = useCallback(() => {
-    setCalendarOpen(false);
-    setLocationOpen(false);
-    setGuestOpen(false);
-    setPriceOpen(false);
-    setMobileExpanded(false);
-    setMobileStep("overview");
-  }, []);
+  const cancelMobileSearch = useCallback(() => {
+    restoreCommittedSearchState();
+    closeMobileSearch();
+  }, [closeMobileSearch, restoreCommittedSearchState]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      const requestedLocation = searchParams.get("location");
-      setLocationValue(requestedLocation
-        ? (isWholeCountrySelection(requestedLocation) ? "כל הארץ" : requestedLocation)
-        : initialLocation || "כל הארץ");
-      setDates(dateLabelFromSearch(searchParams, mode, activeRouteLanguage(language)));
-      setVacationDateRange({ from: searchParams.get("from"), till: searchParams.get("till") });
-      setGuests(Number(searchParams.get("guests")) || initialGuests || defaultGuestCount(mode));
-      setMaximumPrice(normalizeHourlyPrice(searchParams.get("maxPrice")));
-      if (mode === "vacation") {
-        setVacationParty(initialVacationParty(searchParams, Number(searchParams.get("guests")) || initialGuests || 2));
-      }
-
-      if (mode === "events") {
-        setEventDateRange({ from: searchParams.get("from"), to: searchParams.get("to") });
-      }
-
-      if (mode === "spa") {
-        setSpaAudience(parseSpaAudience(searchParams.get("spaFor") || initialSpaAudience || null));
-        setSpaDate({ date: searchParams.get("date"), withoutDate: searchParams.get("withoutDate") === "1" });
-      }
+      restoreCommittedSearchState();
     }, 0);
 
     return () => window.clearTimeout(timer);
-  }, [initialGuests, initialLocation, initialSpaAudience, language, mode, searchParams]);
+  }, [restoreCommittedSearchState]);
 
   // The locale provider intentionally starts in Hebrew to keep hydration
   // stable. Run one route-aware pass after hydration so dynamic date labels
@@ -194,7 +186,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     document.body.style.overflow = "hidden";
     document.body.style.overscrollBehavior = "none";
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") closeMobileSearch();
+      if (event.key === "Escape") cancelMobileSearch();
     };
     window.addEventListener("keydown", closeOnEscape);
     return () => {
@@ -202,18 +194,18 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
       document.body.style.overscrollBehavior = previousOverscroll;
       window.removeEventListener("keydown", closeOnEscape);
     };
-  }, [closeMobileSearch, mobileExpanded]);
+  }, [cancelMobileSearch, mobileExpanded]);
 
   useEffect(() => {
     const desktop = window.matchMedia("(min-width: 821px)");
     const leaveMobileEditor = (event: MediaQueryListEvent | MediaQueryList) => {
-      if (event.matches) closeMobileSearch();
+      if (event.matches) cancelMobileSearch();
     };
 
     leaveMobileEditor(desktop);
     desktop.addEventListener("change", leaveMobileEditor);
     return () => desktop.removeEventListener("change", leaveMobileEditor);
-  }, [closeMobileSearch]);
+  }, [cancelMobileSearch]);
 
   function search() {
     if (isSearching) return;
@@ -368,10 +360,10 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
           <span className="search-mobile-summary__copy"><strong>{translate(locationValue)}</strong><small>{!isHourly && <><span>{dates}</span><span aria-hidden="true"> · </span><span>{peopleValue}</span></>}</small></span>
           <span className="search-mobile-summary__action"><SearchIcon /><b>שינוי חיפוש</b></span>
         </button>}
-        {mobileExpanded && <button type="button" className="search-mobile-backdrop" onClick={closeMobileSearch} aria-label="סגירת החיפוש" />}
-        {(locationOpen || guestOpen || priceOpen) && <button type="button" className="search-option-backdrop" onClick={() => { setLocationOpen(false); setGuestOpen(false); setPriceOpen(false); }} aria-label="סגירת אפשרויות החיפוש" />}
+        {mobileExpanded && <button type="button" className="search-mobile-backdrop" onClick={cancelMobileSearch} aria-label="סגירת החיפוש" />}
+        {(locationOpen || guestOpen || priceOpen) && <button type="button" className="search-option-backdrop" onClick={cancelMobileSearch} aria-label="סגירת אפשרויות החיפוש" />}
         <div className={`search-box ${shouldCollapse ? "compact" : ""} ${isHourly ? "search-box--hourly" : ""} mobile-step-${mobileStep}`} role="search" aria-label={mode === "events" ? "חיפוש מקום לאירוע" : mode === "spa" ? "חיפוש מתחם ספא" : isHourly ? "חיפוש חדרים לפי שעה" : "חיפוש חופשה"}>
-        {mobileExpanded && <div className="search-mobile-sheet-head"><strong>{translate(mobileSheetTitle)}</strong><div className="search-mobile-sheet-head__actions"><Link className="search-gift-card-link" href={localizedPath("/gift-card", language)} onClick={closeMobileSearch} aria-label={translate("קנה שובר מתנה")}><GiftIcon /><span>{translate("קנה שובר מתנה")}</span></Link><button type="button" onClick={closeMobileSearch} aria-label="סגירת החיפוש">×</button></div></div>}
+        {mobileExpanded && <div className="search-mobile-sheet-head"><strong>{translate(mobileSheetTitle)}</strong><div className="search-mobile-sheet-head__actions"><Link className="search-gift-card-link" href={localizedPath("/gift-card", language)} onClick={closeMobileSearch} aria-label={translate("קנה שובר מתנה")}><GiftIcon /><span>{translate("קנה שובר מתנה")}</span></Link><button type="button" onClick={cancelMobileSearch} aria-label="סגירת החיפוש">×</button></div></div>}
         {mobileExpanded && showWorlds && <div className="search-mobile-worlds"><SearchWorldTabs active={activeWorld} onNavigate={closeMobileSearch} /></div>}
         <div className={`search-field-wrap search-step search-step--location ${mobileStep === "location" ? "active" : ""}`}>
           <button type="button" className="search-field" aria-expanded={locationOpen} onClick={() => { setMobileStep("location"); expandMobileSearch(); setLocationOpen((value) => !value); setGuestOpen(false); setPriceOpen(false); }}><PinIcon /><span><small>{mode === "events" ? "אזור או מקום" : isHourly ? "עיר או אזור" : "לאן נוסעים"}</small><strong>{translate(locationValue)}</strong></span></button>
@@ -417,7 +409,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
             ? <div className="search-popover spa-audience-picker"><strong>למי מזמינים?<small>לא חובה</small></strong><button type="button" className={`spa-audience-clear ${spaAudience === null ? "selected" : ""}`} aria-pressed={spaAudience === null} onClick={() => { setSpaAudience(null); setGuests(0); if (!mobileExpanded) setGuestOpen(false); }}><span>ללא העדפה</span><small>הציגו את כל בתי הספא</small></button><div>{SPA_AUDIENCES.map((option) => <button type="button" key={option.id} className={spaAudience === option.id ? "selected" : ""} aria-pressed={spaAudience === option.id} onClick={() => { setSpaAudience(option.id); setGuests(option.guests); if (!mobileExpanded) setGuestOpen(false); }}><span>{option.label}</span><small>{option.description}</small></button>)}</div></div>
             : mode === "vacation"
               ? <div className="search-popover vacation-party-picker" aria-label="בחירת הרכב אורחים וחדרים">
-                  <header><div><strong>מי מגיע?</strong><small>התאימו את ההרכב למקום הנכון</small></div><button type="button" onClick={closeMobileSearch} aria-label="סגירת בחירת האורחים">×</button></header>
+                  <header><div><strong>מי מגיע?</strong><small>התאימו את ההרכב למקום הנכון</small></div><button type="button" onClick={cancelMobileSearch} aria-label="סגירת בחירת האורחים">×</button></header>
                   <div className="vacation-party-picker__rows">
                     {VACATION_PARTY_ROWS.map((row) => <div className="vacation-party-row" key={row.id}>
                       <span><strong>{row.label}</strong><small>{row.description}</small></span>
@@ -436,7 +428,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
         </div>
         <span className="search-status" role="status" aria-live="polite">{isSearching ? "מחפשים" : ""}</span>
       </div>
-      {mode === "events" ? <EventDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelDateSearch} onConfirm={(result) => { setDates(result.summary); setEventDateRange({ from: result.from, to: result.to }); setMobileStep("guests"); setGuestOpen(true); }} /> : mode === "spa" ? <SpaDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelDateSearch} onConfirm={(result) => { setDates(result.summary); setSpaDate({ date: result.date, withoutDate: result.withoutDate }); setMobileStep("overview"); setGuestOpen(false); }} /> : !isHourly && <CalendarDemo mode="home" open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelDateSearch} onConfirm={(result) => { setDates(result.summary); setVacationDateRange({ from: result.checkIn, till: result.checkOut }); setMobileStep("guests"); setGuestOpen(true); }} />}
+      {mode === "events" ? <EventDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelMobileSearch} onConfirm={(result) => { setDates(result.summary); setEventDateRange({ from: result.from, to: result.to }); setMobileStep("guests"); setGuestOpen(true); }} /> : mode === "spa" ? <SpaDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelMobileSearch} onConfirm={(result) => { setDates(result.summary); setSpaDate({ date: result.date, withoutDate: result.withoutDate }); setMobileStep("overview"); setGuestOpen(false); }} /> : !isHourly && <CalendarDemo mode="home" open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelMobileSearch} onConfirm={(result) => { setDates(result.summary); setVacationDateRange({ from: result.checkIn, till: result.checkOut }); setMobileStep("guests"); setGuestOpen(true); }} />}
     </>
   );
 }

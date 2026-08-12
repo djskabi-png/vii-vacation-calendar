@@ -62,7 +62,7 @@ test("restored mobile tabs reset only declared horizontal rails", () => {
 
 test("desktop resize releases every mobile-only viewport lock", () => {
   assert.match(search, /matchMedia\("\(min-width: 821px\)"\)/);
-  assert.match(search, /if \(event\.matches\) closeMobileSearch\(\)/);
+  assert.match(search, /if \(event\.matches\) cancelMobileSearch\(\)/);
   assert.match(mapViewState, /matchMedia\("\(min-width: 821px\)"\)/);
   assert.match(mapViewState, /if \(event\.matches\) unlockPage\(\)/);
   assert.match(guard, /function releaseStaleViewportLocks/);

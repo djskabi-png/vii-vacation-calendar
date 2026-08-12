@@ -6,12 +6,14 @@ const source = readFileSync(new URL("../app/components/search-box.tsx", import.m
 
 test("closing any mobile date flow returns to the unchanged page", () => {
   assert.match(source, /const closeMobileSearch = useCallback\(\(\) => \{[\s\S]*?setCalendarOpen\(false\);[\s\S]*?setLocationOpen\(false\);[\s\S]*?setGuestOpen\(false\);[\s\S]*?setMobileExpanded\(false\);[\s\S]*?setMobileStep\("overview"\);/);
-  assert.match(source, /const cancelDateSearch = useCallback\(\(\) => \{[\s\S]*?setCalendarOpen\(false\);[\s\S]*?setLocationOpen\(false\);[\s\S]*?setGuestOpen\(false\);[\s\S]*?setMobileExpanded\(false\);[\s\S]*?setMobileStep\("overview"\);/);
-  assert.equal((source.match(/onCancel=\{cancelDateSearch\}/g) || []).length, 3);
+  assert.match(source, /const restoreCommittedSearchState = useCallback\(\(\) => \{[\s\S]*?setLocationValue\([\s\S]*?setDates\([\s\S]*?setVacationDateRange\([\s\S]*?setVacationParty\(/);
+  assert.match(source, /const cancelMobileSearch = useCallback\(\(\) => \{[\s\S]*?restoreCommittedSearchState\(\);[\s\S]*?closeMobileSearch\(\);/);
+  assert.equal((source.match(/onCancel=\{cancelMobileSearch\}/g) || []).length, 3);
   assert.equal((source.match(/onClose=\{\(\) => setCalendarOpen\(false\)\}/g) || []).length, 3);
-  assert.match(source, /className="search-mobile-backdrop" onClick=\{closeMobileSearch\}/);
-  assert.match(source, /event\.key === "Escape"\) closeMobileSearch\(\)/);
-  assert.match(source, /onClick=\{closeMobileSearch\} aria-label="סגירת בחירת האורחים"/);
+  assert.match(source, /className="search-mobile-backdrop" onClick=\{cancelMobileSearch\}/);
+  assert.match(source, /className="search-option-backdrop" onClick=\{cancelMobileSearch\}/);
+  assert.match(source, /event\.key === "Escape"\) cancelMobileSearch\(\)/);
+  assert.match(source, /onClick=\{cancelMobileSearch\} aria-label="סגירת בחירת האורחים"/);
 });
 
 test("submitting a search closes every open search layer before showing results", () => {
