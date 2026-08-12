@@ -74,9 +74,12 @@
   }
 
   .results-page .filter-head button,
-  .results-page .filter-apply,
-  .results-page .mobile-filter {
+  .results-page .filter-apply {
     display: inline-flex;
+  }
+
+  .results-page .results-heading__meta .mobile-filter {
+    display: none;
   }
 
   .results-page .filter-panel__actions .filter-apply {

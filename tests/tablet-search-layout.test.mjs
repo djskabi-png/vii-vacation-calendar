@@ -18,5 +18,8 @@ test("narrow tablets move filters into an accessible drawer instead of squeezing
   assert.match(css, /results-layout\.with-map[^}]+grid-template-columns:\s*minmax\(0,\s*1fr\)/s);
   assert.match(css, /filter-panel:not\(\.static\)[^}]+position:\s*fixed/s);
   assert.match(css, /filter-panel\.open[^}]+display:\s*flex/s);
-  assert.match(css, /mobile-filter[^}]+display:\s*inline-flex/s);
+  assert.match(page, /className="search-quick-filters"/);
+  assert.match(page, /className=\{activeFilters\.length \? "primary-filter active" : "primary-filter"\}/);
+  assert.match(page, /onClick=\{\(\) => openFiltersPanel\(\)\}/);
+  assert.match(css, /results-heading__meta \.mobile-filter[^}]+display:\s*none/s);
 });
