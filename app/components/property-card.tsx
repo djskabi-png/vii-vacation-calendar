@@ -100,7 +100,7 @@ function shiftStayDate(value: string, days: number) {
 
 function demoAvailabilityFor(property: Property, selectedStay: SelectedStay | null, pathname: string, requestedLocation: string | null): ResolvedAvailability | null {
   if (!selectedStay || !isAvailabilityDemoSearch(selectedStay, requestedLocation)) return null;
-  const basePath = pathname.replace(/^\/(en|ru|fr)(?=\/|$)/, "") || "/";
+  const basePath = (pathname.replace(/^\/(en|ru|fr)(?=\/|$)/, "").replace(/\/+$/, "") || "/");
   if (basePath !== "/search" && basePath !== "/vacations") return null;
   const kind = demoAvailabilityScenarios[property.slug];
   if (!kind) return null;

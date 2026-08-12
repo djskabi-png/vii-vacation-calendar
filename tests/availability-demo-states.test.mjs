@@ -23,6 +23,7 @@ test("all seven illustrative availability states are deterministic", () => {
   }
   assert.match(card, /basePath !== "\/search" && basePath !== "\/vacations"/);
   assert.match(card, /availabilityDemoStay = \{ from: "2026-09-04", till: "2026-09-06" \}/);
+  assert.match(card, /replace\(\/\\\/\+\$\/, ""\)/, "demo scenarios should work on both /search and /search/");
   assert.match(card, /isAvailabilityDemoSearch\(selectedStay, requestedLocation\)/);
   assert.match(card, /"all-country"/);
   assert.match(search, /availabilityDemoSlugs\.indexOf\(a\.slug\)/);
