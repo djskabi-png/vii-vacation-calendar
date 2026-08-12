@@ -425,7 +425,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const draftResultLabel = draftResultCount === 1 ? "הצגת מקום אחד" : `הצגת ${draftResultCount} מקומות`;
 
   const displayedResults = useMemo(() => {
-    if (!mapVisibleIds) return filtered;
+    if (!mapOpen || !mapVisibleIds) return filtered;
     const visible = new Set(mapVisibleIds);
     return mapCandidates.filter((property) => visible.has(property.slug)).sort((a, b) => {
       if (sort === "capacity") return b.guests - a.guests;
@@ -433,7 +433,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       if (sort === "name") return a.name.localeCompare(b.name, "he");
       return properties.indexOf(a) - properties.indexOf(b);
     });
-  }, [filtered, mapCandidates, mapVisibleIds, sort]);
+  }, [filtered, mapCandidates, mapOpen, mapVisibleIds, sort]);
   const inventorySummary = useMemo(() => vacationInventorySummary(displayedResults, language), [displayedResults, language]);
   const selectedStay = useMemo(() => {
     const from = searchParams.get("from");
@@ -461,6 +461,17 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     const timer = window.setTimeout(() => setMapVisibleIds(null), 0);
     return () => window.clearTimeout(timer);
   }, [area, selectedTypes, guests, minPrice, maxPrice, pool, spa, whole, accessibleOnly, selectedExtras, sort]);
+
+  function openResultsMap() {
+    setMapVisibleIds(null);
+    setVisibleMapCount(filtered.length);
+    openMap();
+  }
+
+  function closeResultsMap() {
+    setMapVisibleIds(null);
+    closeMap();
+  }
 
   const activeFilters = [
     area !== "הכל" ? { id: "area", label: area, remove: () => changeArea("הכל") } : null,
@@ -595,14 +606,14 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
               <div><h1>{landing?.title || (area === "הכל" ? "נופש ברחבי הארץ" : `נופש ב${area}`)}</h1><div className="results-heading__meta"><p className="results-heading__inventory" aria-live="polite">{inventorySummary}</p><button type="button" className={`mobile-filter mobile-filter--compact ${activeFilters.length ? "has-filters" : ""}`} aria-label="סינון" aria-expanded={filtersOpen} onClick={(event) => { event.preventDefault(); event.stopPropagation(); openFiltersPanel(); }}><span className="mobile-filter__icon"><FilterControlIcon /></span><span className="mobile-filter__label">סינון</span>{activeFilters.length ? <b aria-label={`${activeFilters.length} סינונים פעילים`}>{activeFilters.length}</b> : null}</button></div></div>
             </section>
             {activeFilters.length > 0 && <div className="active-filter-row"><span>סינונים פעילים:</span>{activeFilters.map((filter) => <button key={filter.id} type="button" onClick={filter.remove} aria-label={`הסרת הסינון ${filter.label}`}>{filter.label} ×</button>)}<button type="button" className="clear-all" onClick={resetFilters}>ניקוי הכל</button></div>}
-            {availabilityDemoActive ? <div className="availability-demo-summary" role="status"><strong>{availabilityDemoCopy[language].title}</strong><span>{availabilityDemoCopy[language].text}</span><small>{availabilityDemoStay.from}{" ? "}{availabilityDemoStay.till}</small></div> : null}
-            <div className="results-toolbar"><div className="results-toolbar__actions"><ResultsViewToggle value={viewMode} onChange={setViewMode} />{filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתוצאות" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (mapOpen) closeMap(); else { setVisibleMapCount(filtered.length); openMap(); } }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לתוצאות" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect className="results-toolbar__sort" compact label="מיון לפי" value={sort} onChange={changeSort} options={[{ value: "recommended", label: "מומלצים" }, { value: "capacity", label: "קיבולת גבוהה" }, { value: "units", label: "מספר יחידות" }, { value: "name", label: "שם המקום" }]} /></div>
+            {availabilityDemoActive ? <div className="availability-demo-summary" role="status"><strong>{availabilityDemoCopy[language].title}</strong><span>{availabilityDemoCopy[language].text}</span><small>{availabilityDemoStay.from}{" "}{String.fromCharCode(183)}{" "}{availabilityDemoStay.till}</small></div> : null}
+            <div className="results-toolbar"><div className="results-toolbar__actions"><ResultsViewToggle value={viewMode} onChange={setViewMode} />{filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתוצאות" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (mapOpen) closeResultsMap(); else openResultsMap(); }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לתוצאות" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect className="results-toolbar__sort" compact label="מיון לפי" value={sort} onChange={changeSort} options={[{ value: "recommended", label: "מומלצים" }, { value: "capacity", label: "קיבולת גבוהה" }, { value: "units", label: "מספר יחידות" }, { value: "name", label: "שם המקום" }]} /></div>
             {!mapOpen && <div className={`result-cards results-view results-view--${viewMode}`}>{displayedResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStay} detailHref={detailHref(property.slug)} />)}</div>}
             {mapOpen && <div className="airbnb-map-split">
               <div className={`airbnb-map-split__results result-cards results-view results-view--${viewMode}`}>{displayedResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStay} detailHref={detailHref(property.slug)} />)}</div>
-              <div className="airbnb-map-split__map"><DeferredListingMap listings={mapCandidates} initialListings={filtered} autoLoad detailQuery={detailQuery} onClose={closeMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} /></div>
+              <div className="airbnb-map-split__map"><DeferredListingMap listings={mapCandidates} initialListings={filtered} autoLoad detailQuery={detailQuery} onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} /></div>
             </div>}
-            {(mapVisibleIds ? displayedResults.length === 0 : filtered.length === 0) && <div className="empty-state"><h2>לא נמצאה התאמה מדויקת</h2><p>אפשר לשנות אזור, להפחית את כמות האורחים או להסיר מאפיין.</p><button className="button primary" type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
+            {(mapOpen && mapVisibleIds ? displayedResults.length === 0 : filtered.length === 0) && <div className="empty-state"><h2>לא נמצאה התאמה מדויקת</h2><p>אפשר לשנות אזור, להפחית את כמות האורחים או להסיר מאפיין.</p><button className="button primary" type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
             {landing && filtered.length > 0 && <>
               <section className="accommodation-landing-copy" aria-labelledby="accommodation-guide-title"><div><span className="eyebrow">מידע שימושי לפני שמזמינים</span><h2 id="accommodation-guide-title">{landing.guideTitle || `איך בוחרים ${landing.breadcrumb}`}</h2><p>{landing.description}</p></div><nav className="accommodation-landing-copy__links" aria-label={`מידע על ${landing.breadcrumb}`}><a href="#accommodation-guide">המדריך של העמוד</a><a href="#accommodation-faq">שאלות ותשובות של העמוד</a><Link href="/gift-card">גיפט קארד לחופשה</Link></nav></section>
               <section id="accommodation-guide" className="accommodation-page-guide" aria-labelledby="accommodation-page-guide-title"><span className="eyebrow">המדריך של העמוד</span><h2 id="accommodation-page-guide-title">{landing.guideTitle || `איך בוחרים ${landing.breadcrumb}`}</h2><div>{(landing.guideParagraphs || [landing.description]).map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div></section>
