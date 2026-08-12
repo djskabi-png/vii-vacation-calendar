@@ -122,10 +122,7 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
           </button>
         )}
         <div className="menu-panel__intro">
-          <div className="menu-panel__intro-top">
-            <span>{translate("מתחילים מכאן")}</span>
-            <Link href="/join/providers" onClick={closeMenu}>{translate("פרסום והצטרפות לאתר")} <ArrowIcon /></Link>
-          </div>
+          <span className="menu-panel__eyebrow">{translate("מתחילים מכאן")}</span>
           <h2>{translate("לאן תרצו להגיע?")}</h2>
           <p>{translate("נופש, אירועים, ספא, ספקים וחוויות, במקום אחד.")}</p>
         </div>

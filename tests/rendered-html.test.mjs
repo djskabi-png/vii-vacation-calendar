@@ -797,13 +797,13 @@ test("ships a favicon, four languages and no dependency on the retired site", as
   assert.match(header, /<LanguageSwitcher compact/);
   assert.match(header, /<AccessibilityWidget placement="menu" \/>/);
   assert.match(header, /className="menu-panel__join" href="\/join\/providers"/);
-  assert.match(header, /className="menu-panel__intro-top"/);
-  assert.equal((header.match(/href="\/join\/providers"/g) || []).length, 2);
-  assert.equal((header.match(/translate\("פרסום והצטרפות לאתר"\)/g) || []).length, 2);
+  assert.match(header, /className="menu-panel__eyebrow"/);
+  assert.equal((header.match(/href="\/join\/providers"/g) || []).length, 1);
+  assert.equal((header.match(/translate\("פרסום והצטרפות לאתר"\)/g) || []).length, 1);
   assert.doesNotMatch(header, /הצטרפות כספק/);
-  assert.match(styles, /\.menu-panel__intro-top > a \{[^}]*background: linear-gradient/);
+  assert.match(styles, /\.menu-panel__main > a \{[^}]*border: 1px solid #d8e9eb/);
   assert.match(styles, /\.menu-panel__join \{[^}]*border: 2px solid/);
-  assert.match(styles, /scroll-padding-bottom:\s*calc\(118px \+ env\(safe-area-inset-bottom/);
+  assert.match(styles, /scroll-padding-bottom:\s*calc\(36px \+ env\(safe-area-inset-bottom/);
   assert.match(footer, /<LanguageSwitcher compact/);
   assert.match(footer, /<AccessibilityWidget placement="footer" \/>/);
   assert.doesNotMatch([header, footer, data, worldData].join("\n"), /https:\/\/www\.vii\.co\.il/);
