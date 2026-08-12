@@ -6798,17 +6798,6 @@ body:has(.menu-layer) .mobile-map-fab {
     display: none !important;
   }
 }
-html[data-locale-pending="true"] body {
-  opacity: 0;
-  animation: locale-pending-failsafe 0s 1.4s forwards;
-}
-html body { transition: opacity .12s ease; }
-
-/* A suspended tab or failed translation chunk must never leave a blank page. */
-@keyframes locale-pending-failsafe {
-  to { opacity: 1; }
-}
-
 /* Locale direction contract. Hebrew is the only RTL interface. */
 html[data-locale="en"] body,
 html[data-locale="ru"] body,

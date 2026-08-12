@@ -182,7 +182,9 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
       destination = query ? `${route}?${query}` : route;
     } else {
       const params = new URLSearchParams();
-      if (mode !== "events" && !(basePath && mode === "vacation" && locationValue === initialLocation) && locationValue !== "כל הארץ") {
+      if (mode === "vacation" && !basePath) {
+        params.set("location", locationValue || "כל הארץ");
+      } else if (mode !== "events" && !(basePath && mode === "vacation" && locationValue === initialLocation) && locationValue !== "כל הארץ") {
         params.set("location", locationValue);
       }
       if (mode === "events") {
@@ -196,6 +198,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
         if (dates !== defaultDateLabel(mode)) params.set("dates", dates);
         if (vacationDateRange.from) params.set("from", vacationDateRange.from);
         if (vacationDateRange.till) params.set("till", vacationDateRange.till);
+        if (mode === "vacation" && vacationParty.adults === 2 && vacationParty.children === 0) params.set("guests", "2");
         if (vacationParty.adults !== 2) params.set("adults", String(vacationParty.adults));
         if (vacationParty.children) params.set("children", String(vacationParty.children));
         if (vacationParty.infants) params.set("infants", String(vacationParty.infants));

@@ -77,7 +77,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const requestHeaders = await headers();
   const locale = requestHeaders.get("x-vii-locale") || "he";
   const direction = locale === "he" ? "rtl" : "ltr";
-  const localeBootstrap = `(function(){var d=document.documentElement;var reveal=function(){d.removeAttribute('data-locale-pending');};try{var p=location.pathname.match(/^\\/(en|ru|fr)(?:\\/|$)/);var l=p?p[1]:'he';localStorage.setItem('vii-site-language',l);d.lang=l;document.documentElement.dir=l==='he'?'rtl':'ltr';d.dataset.locale=l;if(l!=='he'){d.dataset.localePending='true';setTimeout(reveal,1400);}else{reveal();}addEventListener('pageshow',function(){setTimeout(reveal,0);});}catch(e){reveal();}})();`;
+  const localeBootstrap = `(function(){var d=document.documentElement;try{var p=location.pathname.match(/^\\/(en|ru|fr)(?:\\/|$)/);var l=p?p[1]:'he';d.lang=l;d.dir=l==='he'?'rtl':'ltr';d.dataset.locale=l;d.removeAttribute('data-locale-pending');try{localStorage.setItem('vii-site-language',l);}catch(_){}}catch(e){d.removeAttribute('data-locale-pending');}})();`;
   return <html lang={locale} dir={direction} suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: localeBootstrap }} /></head><body>
     <StructuredData data={organizationSchema()} />
     <StructuredData data={websiteSchema()} />

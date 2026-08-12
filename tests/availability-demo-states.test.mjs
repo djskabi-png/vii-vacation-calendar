@@ -35,6 +35,8 @@ test("all seven illustrative availability states are deterministic", () => {
 test("an ordinary whole-country search carries the selected stay without a demo-only query flag", () => {
   assert.match(searchBox, /if \(vacationDateRange\.from\) params\.set\("from", vacationDateRange\.from\)/);
   assert.match(searchBox, /if \(vacationDateRange\.till\) params\.set\("till", vacationDateRange\.till\)/);
+  assert.match(searchBox, /params\.set\("location", locationValue \|\| "כל הארץ"\)/);
+  assert.match(searchBox, /vacationParty\.adults === 2 && vacationParty\.children === 0\) params\.set\("guests", "2"\)/);
   assert.doesNotMatch(searchBox, /params\.set\("(?:demo|availabilityDemo)"/);
   assert.match(card, /if \(!value\) return true;/);
 });

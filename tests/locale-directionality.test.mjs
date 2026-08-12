@@ -7,7 +7,7 @@ const provider = readFileSync(new URL("../app/i18n/locale-provider.tsx", import.
 const layout = readFileSync(new URL("../app/layout.tsx", import.meta.url), "utf8");
 
 test("only Hebrew routes use RTL at bootstrap and after hydration", () => {
-  assert.match(layout, /document\.documentElement\.dir=l==='he'\?'rtl':'ltr'/);
+  assert.match(layout, /d\.dir=l==='he'\?'rtl':'ltr'/);
   assert.match(provider, /document\.documentElement\.dir = language === "he" \? "rtl" : "ltr"/);
 });
 
@@ -22,8 +22,9 @@ test("all non-Hebrew interfaces have an explicit LTR layout contract", () => {
 
 test("locale bootstrapping cannot leave a restored mobile tab blank", () => {
   assert.doesNotMatch(layout, /style\.visibility='hidden'/);
-  assert.match(layout, /setTimeout\(reveal,1400\)/);
-  assert.match(layout, /addEventListener\('pageshow',[\s\S]*?reveal/);
-  assert.match(css, /html\[data-locale-pending="true"\] body[\s\S]*?animation: locale-pending-failsafe 0s 1\.4s forwards/);
-  assert.match(css, /@keyframes locale-pending-failsafe[\s\S]*?opacity: 1/);
+  assert.doesNotMatch(layout, /data-locale-pending[^']*true|localePending='true'/);
+  assert.doesNotMatch(layout, /setTimeout\(reveal/);
+  assert.doesNotMatch(css, /html\[data-locale-pending="true"\] body/);
+  assert.doesNotMatch(css, /locale-pending-failsafe/);
+  assert.match(layout, /d\.removeAttribute\('data-locale-pending'\)/);
 });
