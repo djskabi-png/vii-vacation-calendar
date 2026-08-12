@@ -6,8 +6,44 @@
   body,
   .site-page,
   main {
+    width: 100%;
+    min-width: 0;
     max-width: 100%;
+    overflow-x: hidden;
     overflow-x: clip;
+    overscroll-behavior-x: none;
+  }
+
+  .search-box-shell.mobile-expanded .search-box,
+  .search-box-shell--results.mobile-expanded .search-box {
+    right: 0;
+    left: 0;
+    width: auto;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .calendar-overlay {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  .calendar-dialog.mode-home {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+    box-sizing: border-box;
+  }
+
+  .calendar-dialog.mode-home > *,
+  .search-box-shell.mobile-expanded .search-box > * {
+    min-width: 0;
+    max-width: 100%;
   }
 
   .results-layout,
@@ -49,7 +85,19 @@
     max-width: 100%;
     margin-inline: 0;
     overscroll-behavior-inline: contain;
+    touch-action: pan-x pan-y;
     scroll-padding-inline: 16px;
+  }
+
+  .home-slider__track,
+  .home-last-minute__cards,
+  .sleeping-track,
+  .quick-date-buttons,
+  .choice-row,
+  .month-choice-row {
+    min-width: 0;
+    max-width: 100%;
+    overscroll-behavior-inline: contain;
   }
 
   .search-box-shell.mobile-expanded button.search-step.search-step--dates {
@@ -177,6 +225,19 @@
   .search-box-shell.mobile-expanded .search-box,
   .search-box-shell--results.mobile-expanded .search-box {
     padding-inline: 12px;
+  }
+
+  .home-slider__item,
+  .home-slider__track--properties .home-slider__item,
+  .home-slider__track--discovery .home-slider__item,
+  .home-slider__track--trust .home-slider__item {
+    flex-basis: min(calc(100vw - 48px), calc(100% - 8px));
+    max-width: calc(100% - 8px);
+  }
+
+  .home-last-minute__cards > a {
+    flex-basis: min(calc(100vw - 58px), calc(100% - 18px));
+    max-width: calc(100% - 18px);
   }
 
   .search-box-shell.mobile-expanded .location-list {

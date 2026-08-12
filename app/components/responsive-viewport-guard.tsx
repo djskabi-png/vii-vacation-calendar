@@ -5,9 +5,9 @@ import { usePathname, useSearchParams } from "next/navigation";
 
 function resetHorizontalViewport() {
   const scrollingElement = document.scrollingElement as HTMLElement | null;
-  if (scrollingElement) scrollingElement.scrollLeft = 0;
-  document.documentElement.scrollLeft = 0;
-  document.body.scrollLeft = 0;
+  if (scrollingElement?.scrollLeft) scrollingElement.scrollLeft = 0;
+  if (document.documentElement.scrollLeft) document.documentElement.scrollLeft = 0;
+  if (document.body.scrollLeft) document.body.scrollLeft = 0;
 }
 
 export function ResponsiveViewportGuard() {
@@ -29,8 +29,10 @@ export function ResponsiveViewportGuard() {
     resetHorizontalViewport();
     window.addEventListener("pageshow", reset);
     window.addEventListener("popstate", reset);
+    window.addEventListener("scroll", reset, { passive: true });
     window.addEventListener("resize", reset);
     window.addEventListener("orientationchange", reset);
+    window.addEventListener("touchend", reset, { passive: true });
     window.visualViewport?.addEventListener("resize", reset);
 
     return () => {
@@ -38,8 +40,10 @@ export function ResponsiveViewportGuard() {
       window.clearTimeout(timer);
       window.removeEventListener("pageshow", reset);
       window.removeEventListener("popstate", reset);
+      window.removeEventListener("scroll", reset);
       window.removeEventListener("resize", reset);
       window.removeEventListener("orientationchange", reset);
+      window.removeEventListener("touchend", reset);
       window.visualViewport?.removeEventListener("resize", reset);
     };
   }, [pathname, searchKey]);

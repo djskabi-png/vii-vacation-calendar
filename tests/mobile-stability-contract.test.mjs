@@ -4,6 +4,8 @@ import test from "node:test";
 
 const layout = await readFile(new URL("../app/layout.tsx", import.meta.url), "utf8");
 const css = await readFile(new URL("../app/mobile-stability.css", import.meta.url), "utf8");
+const guard = await readFile(new URL("../app/components/responsive-viewport-guard.tsx", import.meta.url), "utf8");
+const search = await readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8");
 
 test("the shared mobile stability layer loads after the base and result styles", () => {
   const globalIndex = layout.indexOf('import "./globals.css"');
@@ -29,4 +31,23 @@ test("mobile search fields keep their intended flex layout and low-height action
 test("mobile floating actions do not stack over result cards", () => {
   assert.match(css, /body:has\(\.mobile-map-fab:not\(\.active\)\) \.smart-concierge\s*\{\s*display:\s*none/);
   assert.match(css, /\.results-page \.results-list\s*\{[\s\S]*?safe-area-inset-bottom/);
+});
+
+test("mobile overlays use the content viewport instead of scrollbar-inclusive viewport units", () => {
+  assert.match(css, /\.search-box-shell\.mobile-expanded \.search-box,[\s\S]*?width:\s*auto;[\s\S]*?max-width:\s*100%/);
+  assert.match(css, /\.calendar-dialog\.mode-home\s*\{[\s\S]*?width:\s*100%;[\s\S]*?max-width:\s*100%/);
+  assert.match(css, /overscroll-behavior-x:\s*none/);
+});
+
+test("the viewport guard continuously returns only the root viewport to its horizontal origin", () => {
+  assert.match(guard, /window\.addEventListener\("scroll", reset, \{ passive: true \}\)/);
+  assert.match(guard, /window\.addEventListener\("touchend", reset, \{ passive: true \}\)/);
+  assert.doesNotMatch(guard, /querySelectorAll/);
+});
+
+test("search restores a readable vacation date label from the submitted range", () => {
+  assert.match(search, /function dateLabelFromSearch/);
+  assert.match(search, /searchParams\.get\("from"\)/);
+  assert.match(search, /searchParams\.get\("till"\)/);
+  assert.match(search, /setDates\(dateLabelFromSearch\(searchParams, mode, language\)\)/);
 });

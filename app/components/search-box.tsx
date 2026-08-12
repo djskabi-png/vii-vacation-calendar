@@ -65,6 +65,20 @@ function defaultDateLabel(mode: SearchMode) {
   return "בחרו תאריכים";
 }
 
+function dateLabelFromSearch(searchParams: { get(name: string): string | null }, mode: SearchMode, language: "he" | "en" | "ru" | "fr") {
+  const explicitLabel = searchParams.get("dates");
+  if (explicitLabel) return explicitLabel;
+  if (mode !== "vacation") return defaultDateLabel(mode);
+  const from = searchParams.get("from");
+  const till = searchParams.get("till");
+  if (!from || !till) return defaultDateLabel(mode);
+  const locale = { he: "he-IL", en: "en-GB", ru: "ru-RU", fr: "fr-FR" }[language];
+  const separator = { he: "עד", en: "to", ru: "по", fr: "au" }[language];
+  const formatter = new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" });
+  const parse = (value: string) => new Date(`${value}T12:00:00`);
+  return `${formatter.format(parse(from))} ${separator} ${formatter.format(parse(till))}`;
+}
+
 function defaultGuestCount(mode: SearchMode) {
   if (mode === "events") return 0;
   if (mode === "spa") return 0;
@@ -93,7 +107,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     const requestedLocation = searchParams.get("location");
     return isWholeCountrySelection(requestedLocation) ? "כל הארץ" : requestedLocation || initialLocation || "כל הארץ";
   });
-  const [dates, setDates] = useState(() => searchParams.get("dates") || defaultDateLabel(mode));
+  const [dates, setDates] = useState(() => dateLabelFromSearch(searchParams, mode, language));
   const [vacationDateRange, setVacationDateRange] = useState<{ from: string | null; till: string | null }>(() => ({ from: searchParams.get("from"), till: searchParams.get("till") }));
   const [eventDateRange, setEventDateRange] = useState<{ from: string | null; to: string | null }>(() => ({ from: searchParams.get("from"), to: searchParams.get("to") }));
   const [spaDate, setSpaDate] = useState<{ date: string | null; withoutDate: boolean }>(() => ({ date: searchParams.get("date"), withoutDate: searchParams.get("withoutDate") === "1" }));
@@ -124,7 +138,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setLocationValue(searchParams.get("location") || initialLocation || "כל הארץ");
-      setDates(searchParams.get("dates") || defaultDateLabel(mode));
+      setDates(dateLabelFromSearch(searchParams, mode, language));
       setVacationDateRange({ from: searchParams.get("from"), till: searchParams.get("till") });
       setGuests(Number(searchParams.get("guests")) || initialGuests || defaultGuestCount(mode));
       setMaximumPrice(normalizeHourlyPrice(searchParams.get("maxPrice")));
@@ -143,15 +157,21 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     }, 0);
 
     return () => window.clearTimeout(timer);
-  }, [initialGuests, initialLocation, initialSpaAudience, mode, searchParams]);
+  }, [initialGuests, initialLocation, initialSpaAudience, language, mode, searchParams]);
 
   useEffect(() => {
     if (!mobileExpanded) return;
+    const previousOverflow = document.body.style.overflow;
+    const previousOverscroll = document.body.style.overscrollBehavior;
+    document.body.style.overflow = "hidden";
+    document.body.style.overscrollBehavior = "none";
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") closeMobileSearch();
     };
     window.addEventListener("keydown", closeOnEscape);
     return () => {
+      document.body.style.overflow = previousOverflow;
+      document.body.style.overscrollBehavior = previousOverscroll;
       window.removeEventListener("keydown", closeOnEscape);
     };
   }, [closeMobileSearch, mobileExpanded]);

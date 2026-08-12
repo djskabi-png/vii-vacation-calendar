@@ -137,7 +137,9 @@ export function HomeShowcase() {
     const firstItem = track.querySelector<HTMLElement>(".home-slider__item, .home-last-minute__cards > a");
     const gap = Number.parseFloat(window.getComputedStyle(track).columnGap || window.getComputedStyle(track).gap) || 0;
     const step = firstItem ? firstItem.getBoundingClientRect().width + gap : track.clientWidth;
-    track.scrollBy({ left: direction === "next" ? -step : step, behavior: "smooth" });
+    const isRtl = window.getComputedStyle(track).direction === "rtl";
+    const forward = isRtl ? -step : step;
+    track.scrollBy({ left: direction === "next" ? forward : -forward, behavior: "smooth" });
   }
 
   return <>
