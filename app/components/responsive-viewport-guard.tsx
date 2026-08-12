@@ -25,11 +25,16 @@ export function ResponsiveViewportGuard() {
       frame = window.requestAnimationFrame(resetHorizontalViewport);
       timer = window.setTimeout(resetHorizontalViewport, 80);
     };
+    const lockHorizontalScroll = () => {
+      const scrollingElement = document.scrollingElement as HTMLElement | null;
+      if (!scrollingElement?.scrollLeft && !document.documentElement.scrollLeft && !document.body.scrollLeft) return;
+      reset();
+    };
 
     resetHorizontalViewport();
     window.addEventListener("pageshow", reset);
     window.addEventListener("popstate", reset);
-    window.addEventListener("scroll", reset, { passive: true });
+    window.addEventListener("scroll", lockHorizontalScroll, { passive: true });
     window.addEventListener("resize", reset);
     window.addEventListener("orientationchange", reset);
     window.addEventListener("touchend", reset, { passive: true });
@@ -40,7 +45,7 @@ export function ResponsiveViewportGuard() {
       window.clearTimeout(timer);
       window.removeEventListener("pageshow", reset);
       window.removeEventListener("popstate", reset);
-      window.removeEventListener("scroll", reset);
+      window.removeEventListener("scroll", lockHorizontalScroll);
       window.removeEventListener("resize", reset);
       window.removeEventListener("orientationchange", reset);
       window.removeEventListener("touchend", reset);

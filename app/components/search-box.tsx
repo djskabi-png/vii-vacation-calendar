@@ -11,7 +11,7 @@ import { isWholeCountrySelection, searchLocationOptions, vacationLocationGroups,
 import { CalendarIcon, GiftIcon, PeopleIcon, PinIcon, SearchIcon } from "../site-header";
 import { SearchWorldTabs } from "./world-switcher";
 import { useSiteLanguage } from "../i18n/locale-provider";
-import { localizedPath } from "../i18n/locale-routing";
+import { languageFromPathname, localizedPath, type SiteLanguage } from "../i18n/locale-routing";
 import { cleanVacationPath } from "../data/vacation-landings";
 import { cleanAccommodationPath } from "../data/accommodation-landings";
 import { spaSearchHref, spaSearchStateFromValues } from "../data/spa-search-landings";
@@ -65,7 +65,7 @@ function defaultDateLabel(mode: SearchMode) {
   return "בחרו תאריכים";
 }
 
-function dateLabelFromSearch(searchParams: { get(name: string): string | null }, mode: SearchMode, language: "he" | "en" | "ru" | "fr") {
+function dateLabelFromSearch(searchParams: { get(name: string): string | null }, mode: SearchMode, language: SiteLanguage) {
   const explicitLabel = searchParams.get("dates");
   if (explicitLabel) return explicitLabel;
   if (mode !== "vacation") return defaultDateLabel(mode);
@@ -77,6 +77,10 @@ function dateLabelFromSearch(searchParams: { get(name: string): string | null },
   const formatter = new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" });
   const parse = (value: string) => new Date(`${value}T12:00:00`);
   return `${formatter.format(parse(from))} ${separator} ${formatter.format(parse(till))}`;
+}
+
+function activeRouteLanguage(fallback: SiteLanguage): SiteLanguage {
+  return typeof window === "undefined" ? fallback : languageFromPathname(window.location.pathname);
 }
 
 function defaultGuestCount(mode: SearchMode) {
@@ -107,6 +111,8 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     const requestedLocation = searchParams.get("location");
     return isWholeCountrySelection(requestedLocation) ? "כל הארץ" : requestedLocation || initialLocation || "כל הארץ";
   });
+  // Keep the initial client render identical to the server, then localize from
+  // the actual route in the synchronization effect below.
   const [dates, setDates] = useState(() => dateLabelFromSearch(searchParams, mode, language));
   const [vacationDateRange, setVacationDateRange] = useState<{ from: string | null; till: string | null }>(() => ({ from: searchParams.get("from"), till: searchParams.get("till") }));
   const [eventDateRange, setEventDateRange] = useState<{ from: string | null; to: string | null }>(() => ({ from: searchParams.get("from"), to: searchParams.get("to") }));
@@ -137,8 +143,9 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      setLocationValue(searchParams.get("location") || initialLocation || "כל הארץ");
-      setDates(dateLabelFromSearch(searchParams, mode, language));
+      const requestedLocation = searchParams.get("location");
+      setLocationValue(isWholeCountrySelection(requestedLocation) ? "כל הארץ" : requestedLocation || initialLocation || "כל הארץ");
+      setDates(dateLabelFromSearch(searchParams, mode, activeRouteLanguage(language)));
       setVacationDateRange({ from: searchParams.get("from"), till: searchParams.get("till") });
       setGuests(Number(searchParams.get("guests")) || initialGuests || defaultGuestCount(mode));
       setMaximumPrice(normalizeHourlyPrice(searchParams.get("maxPrice")));
@@ -158,6 +165,14 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
 
     return () => window.clearTimeout(timer);
   }, [initialGuests, initialLocation, initialSpaAudience, language, mode, searchParams]);
+
+  // The locale provider intentionally starts in Hebrew to keep hydration
+  // stable. Run one route-aware pass after hydration so dynamic date labels
+  // are localized even when the URL does not include the display-only
+  // `dates` parameter.
+  useEffect(() => {
+    setDates(dateLabelFromSearch(searchParams, mode, languageFromPathname(window.location.pathname)));
+  }, [mode, searchParams]);
 
   useEffect(() => {
     if (!mobileExpanded) return;

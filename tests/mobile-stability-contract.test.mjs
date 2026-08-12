@@ -40,7 +40,8 @@ test("mobile overlays use the content viewport instead of scrollbar-inclusive vi
 });
 
 test("the viewport guard continuously returns only the root viewport to its horizontal origin", () => {
-  assert.match(guard, /window\.addEventListener\("scroll", reset, \{ passive: true \}\)/);
+  assert.match(guard, /window\.addEventListener\("scroll", lockHorizontalScroll, \{ passive: true \}\)/);
+  assert.match(guard, /if \(!scrollingElement\?\.scrollLeft/);
   assert.match(guard, /window\.addEventListener\("touchend", reset, \{ passive: true \}\)/);
   assert.doesNotMatch(guard, /querySelectorAll/);
 });
@@ -49,5 +50,8 @@ test("search restores a readable vacation date label from the submitted range", 
   assert.match(search, /function dateLabelFromSearch/);
   assert.match(search, /searchParams\.get\("from"\)/);
   assert.match(search, /searchParams\.get\("till"\)/);
-  assert.match(search, /setDates\(dateLabelFromSearch\(searchParams, mode, language\)\)/);
+  assert.match(search, /activeRouteLanguage\(language\)/);
+  assert.match(search, /languageFromPathname\(window\.location\.pathname\)/);
+  assert.match(search, /setDates\(dateLabelFromSearch\(searchParams, mode, languageFromPathname\(window\.location\.pathname\)\)\)/);
+  assert.match(search, /setLocationValue\(isWholeCountrySelection\(requestedLocation\) \? "כל הארץ"/);
 });
