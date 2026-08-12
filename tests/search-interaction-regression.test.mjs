@@ -12,7 +12,8 @@ test("the results map supports natural zoom without jumping on marker selection"
   assert.doesNotMatch(mapSource, /map\.flyTo\(/);
   assert.match(mapSource, /touchZoom:\s*true/);
   assert.match(mapSource, /doubleClickZoom:\s*true/);
-  assert.match(mapSource, /zoomControl:\s*true/);
+  assert.match(mapSource, /zoomControl:\s*false/);
+  assert.match(mapSource, /L\.control\.zoom\(/);
 });
 
 test("the desktop search loader stays circular while preserving its spinner", () => {

@@ -1,12 +1,11 @@
 {
-  "\u05db\u05dc \u05de\u05e6\u05d1\u05d9 \u05d4\u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d1\u05de\u05e7\u05d5\u05dd \u05d0\u05d7\u05d3": "Every availability state in one search",
-  "7 \u05d4\u05db\u05e8\u05d8\u05d9\u05e1\u05d9\u05dd \u05d4\u05e8\u05d0\u05e9\u05d5\u05e0\u05d9\u05dd \u05de\u05d3\u05d2\u05d9\u05de\u05d9\u05dd \u05ea\u05d0\u05e8\u05d9\u05da, \u05de\u05d7\u05d9\u05e8 \u05d5\u05d6\u05de\u05d9\u05e0\u05d5\u05ea.": "The first 7 cards demonstrate dates, prices and availability.",
+  "כל מצבי הזמינות במקום אחד": "Every availability state in one search",
+  "7 הכרטיסים הראשונים מדגימים תאריך, מחיר וזמינות.": "The first 7 cards demonstrate dates, prices and availability.",
   "חזרה לתוצאות": "Back to results",
   "בחירת תצוגת תוצאות": "Choose results view",
   "כרטיסים": "Grid",
   "רשימה": "List",
   "עריכת חיפוש": "Edit search",
-
   "מסננים": "Filters",
   "סינון מהיר": "Quick filters",
   "ספא וג׳קוזי": "Spa and hot tub",
@@ -6662,5 +6661,10 @@
   "תאריכים חלופיים לדוגמה": "Example alternative dates",
   "מחיר לדוגמה": "Example price",
   "אישור קבלת הבקשה נשלח לכתובת הדוא״ל שמילאתם.": "Confirmation of receipt was sent to the email address you provided.",
-  "כתובת דוא״ל": "Email address"
+  "כתובת דוא״ל": "Email address",
+  "????? ????": "Zoom out",
+  "??????? ??????? ????????": "Zoom in to grouped places",
+  "הגדלת המפה": "Zoom in",
+  "הקטנת המפה": "Zoom out",
+  "התקרבות למקומות המקובצים": "Zoom in to grouped places"
 }

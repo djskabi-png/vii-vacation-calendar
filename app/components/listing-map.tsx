@@ -70,6 +70,13 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
       : language === "fr"
         ? { preview: "Carte interactive", label: "Carte interactive des lieux", back: "Retour à la liste", hint: "Utilisez les boutons de la carte pour zoomer", loading: "Chargement de la carte et des repères" }
         : { preview: "מפה אינטראקטיבית", label: "מפה אינטראקטיבית של המקומות", back: "חזרה לרשימה", hint: "השתמשו בכפתורי המפה כדי להגדיל ולהקטין", loading: "טוענים את המפה ואת הסמנים" };
+  const mapControlCopy = language === "en"
+    ? { zoomIn: "Zoom in", zoomOut: "Zoom out", cluster: "Zoom in to grouped places" }
+    : language === "ru"
+      ? { zoomIn: "\u0423\u0432\u0435\u043b\u0438\u0447\u0438\u0442\u044c \u043a\u0430\u0440\u0442\u0443", zoomOut: "\u0423\u043c\u0435\u043d\u044c\u0448\u0438\u0442\u044c \u043a\u0430\u0440\u0442\u0443", cluster: "\u041f\u0440\u0438\u0431\u043b\u0438\u0437\u0438\u0442\u044c \u0441\u0433\u0440\u0443\u043f\u043f\u0438\u0440\u043e\u0432\u0430\u043d\u043d\u044b\u0435 \u043c\u0435\u0441\u0442\u0430" }
+      : language === "fr"
+        ? { zoomIn: "Agrandir la carte", zoomOut: "R\u00e9duire la carte", cluster: "Agrandir les lieux regroup\u00e9s" }
+        : { zoomIn: "\u05d4\u05d2\u05d3\u05dc\u05ea \u05d4\u05de\u05e4\u05d4", zoomOut: "\u05d4\u05e7\u05d8\u05e0\u05ea \u05d4\u05de\u05e4\u05d4", cluster: "\u05d4\u05ea\u05e7\u05e8\u05d1\u05d5\u05ea \u05dc\u05de\u05e7\u05d5\u05de\u05d5\u05ea \u05d4\u05de\u05e7\u05d5\u05d1\u05e6\u05d9\u05dd" };
   const mapElement = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<import("leaflet").Map | null>(null);
   const markerInstances = useRef<Map<string, import("leaflet").Marker>>(new Map());
@@ -145,6 +152,11 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
     const markerRegistry = markerInstances.current;
     let cancelled = false;
     let readyTimer: number | undefined;
+    let layoutTimer: number | undefined;
+    let settleFrame: number | undefined;
+    suppressViewportPrompt.current = true;
+    setViewportDirty(false);
+    setPendingVisibleIds([]);
     setMapReady(false);
 
     void import("leaflet").then((L) => {
@@ -161,13 +173,16 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
         zoomSnap: 0.5,
         wheelDebounceTime: 40,
         wheelPxPerZoomLevel: 80,
-        zoomControl: true,
+        zoomControl: false,
         attributionControl: true,
         minZoom: 6,
         maxBounds: [[28.65, 33.55], [34.15, 36.45]],
         maxBoundsViscosity: 0.72,
       });
-      const streetTiles = L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+      const streetTileUrl = language === "he"
+        ? "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        : "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
+      const streetTiles = L.tileLayer(streetTileUrl, {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
         maxZoom: 20,
         subdomains: "abcd",
@@ -184,6 +199,13 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
           : language === "fr"
             ? { street: "Plan", aerial: "Satellite" }
             : { street: "Map", aerial: "Satellite" };
+      L.control.zoom({
+        position: language === "he" ? "topleft" : "topright",
+        zoomInTitle: mapControlCopy.zoomIn,
+        zoomOutTitle: mapControlCopy.zoomOut,
+        zoomInText: "+",
+        zoomOutText: "\u2212",
+      }).addTo(map);
       L.control.layers(
         { [layerNames.street]: streetTiles, [layerNames.aerial]: aerialTiles },
         undefined,
@@ -300,10 +322,11 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
           }).addTo(markerLayer);
 
           if (clustered) {
-            marker.getElement()?.setAttribute("aria-label", `${clusterText}, ${cardCopy.openCluster}`);
+            marker.getElement()?.setAttribute("aria-label", `${clusterText}, ${mapControlCopy.cluster}`);
             marker.getElement()?.setAttribute("aria-pressed", String(cluster.entries.some((entry) => entry.id === selectedIdRef.current)));
             marker.on("click", () => {
-              selectPlace(cluster.entries[0].id);
+              selectedIdRef.current = "";
+              setSelectedId("");
               const clusterBounds = L.latLngBounds(cluster.entries.map((entry) => [entry.lat, entry.lng] as [number, number]));
               const clusterDistance = clusterBounds.getNorthEast().distanceTo(clusterBounds.getSouthWest());
               const paddedClusterBounds = clusterBounds.pad(0.65);
@@ -341,17 +364,21 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
         : places;
       const targetPlaces = focusPlaces.length ? focusPlaces : places;
       const bounds = L.latLngBounds(targetPlaces.map((place) => [place.lat, place.lng] as [number, number]));
-      const compactViewport = container.clientWidth <= 640;
-      const boundsPadding: [number, number] = compactViewport ? [22, 22] : [56, 56];
-      const boundsExpansion = compactViewport ? 0.04 : 0.12;
-      if (targetPlaces.length === 1) map.setView([targetPlaces[0].lat, targetPlaces[0].lng], targetPlaces[0].precision === "area" ? 13 : 15);
-      else {
-        map.fitBounds(bounds.pad(boundsExpansion), { maxZoom: 13, padding: boundsPadding });
+      const focusInitialPlaces = () => {
+        const compactViewport = container.clientWidth <= 640;
+        const boundsPadding: [number, number] = compactViewport ? [22, 22] : [56, 56];
+        const boundsExpansion = compactViewport ? 0.04 : 0.12;
+        if (targetPlaces.length === 1) {
+          map.setView([targetPlaces[0].lat, targetPlaces[0].lng], targetPlaces[0].precision === "area" ? 13 : 15, { animate: false });
+          return;
+        }
+        map.fitBounds(bounds.pad(boundsExpansion), { animate: false, maxZoom: 13, padding: boundsPadding });
         // A tall mobile viewport can otherwise zoom out far beyond Israel just
         // to preserve generous horizontal padding. Keep the national overview
         // useful while retaining every relevant result inside the viewport.
         if (compactViewport && map.getZoom() < 7) map.setZoom(7, { animate: false });
-      }
+      };
+      focusInitialPlaces();
 
       map.on("moveend", () => {
         renderMarkers();
@@ -362,17 +389,30 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
       reportVisiblePlaces();
 
       mapInstance.current = map;
-      window.setTimeout(() => map.invalidateSize(), 80);
+      layoutTimer = window.setTimeout(() => {
+        if (cancelled) return;
+        map.invalidateSize({ animate: false });
+        focusInitialPlaces();
+        renderMarkers();
+        reportVisiblePlaces();
+        settleFrame = window.requestAnimationFrame(() => {
+          suppressViewportPrompt.current = false;
+          setViewportDirty(false);
+        });
+      }, 80);
     });
 
     return () => {
       cancelled = true;
       if (readyTimer) window.clearTimeout(readyTimer);
+      if (layoutTimer) window.clearTimeout(layoutTimer);
+      if (settleFrame) window.cancelAnimationFrame(settleFrame);
+      suppressViewportPrompt.current = false;
       markerRegistry.clear();
       mapInstance.current?.remove();
       mapInstance.current = null;
     };
-  }, [enabled, places, selectPlace, single, tone, language, focusKey, initialPlaceIds, cardCopy.openCluster]);
+  }, [enabled, places, selectPlace, single, tone, language, focusKey, initialPlaceIds, cardCopy.openCluster, mapControlCopy.cluster, mapControlCopy.zoomIn, mapControlCopy.zoomOut]);
 
   if (!preview) return null;
 

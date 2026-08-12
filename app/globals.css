@@ -7240,6 +7240,14 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   .airbnb-map-split__map { position: static; height: auto; min-height: 0; max-height: none; }
 }
 
+@media (min-width: 821px) and (max-width: 1100px) {
+  .airbnb-map-split__map,
+  .event-map-pane {
+    height: clamp(560px, calc(100dvh - 24px), 820px);
+    min-height: 560px;
+  }
+}
+
 /* Unified search editor: calm desktop popover and scroll-safe mobile accordion. */
 .calendar-dialog.mode-home .calendar-dialog-header .dialog-kicker,
 .calendar-dialog.mode-home .calendar-dialog-header p { display: none; }

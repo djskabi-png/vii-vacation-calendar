@@ -20,7 +20,7 @@ export function AttractionsExplorer() {
   const [query, setQuery] = useState(searchParams.get("q") || "");
   const [area, setArea] = useState(areas.includes(requestedArea) ? requestedArea : "הכל");
   const [type, setType] = useState(types.includes(requestedType) ? requestedType : "הכל");
-  const { mapOpen, closeMap, toggleMap } = useMapViewState();
+  const { mapOpen, openMap, closeMap } = useMapViewState();
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
 
   const filtered = useMemo(() => paidAttractions.filter((item) => {
@@ -47,15 +47,26 @@ export function AttractionsExplorer() {
   }
 
   const displayed = useMemo(() => {
-    if (!mapVisibleIds) return filtered;
+    if (!mapOpen || !mapVisibleIds) return filtered;
     const visible = new Set(mapVisibleIds);
     return filtered.filter((item) => visible.has(item.id));
-  }, [filtered, mapVisibleIds]);
+  }, [filtered, mapOpen, mapVisibleIds]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setMapVisibleIds(null), 0);
     return () => window.clearTimeout(timer);
   }, [area, query, type]);
+
+  function toggleResultsMap() {
+    setMapVisibleIds(null);
+    if (mapOpen) closeMap();
+    else openMap();
+  }
+
+  function closeResultsMap() {
+    setMapVisibleIds(null);
+    closeMap();
+  }
   useEffect(() => {
     const timer = window.setTimeout(() => {
       const params = new URLSearchParams(searchQuery);
@@ -76,11 +87,11 @@ export function AttractionsExplorer() {
     </form>
     <div className="trail-results-head attraction-results-head">
       <div><strong>{displayed.length === 1 ? "חוויה אחת מתאימה" : `${displayed.length} חוויות מתאימות`}</strong><span>הספק, הזמינות והמחיר מוצגים רק לאחר אימות.</span></div>
-      {filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת האטרקציות על המפה"} aria-pressed={mapOpen} onClick={toggleMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
+      {filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת האטרקציות על המפה"} aria-pressed={mapOpen} onClick={toggleResultsMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
     </div>
     {filtered.length
       ? mapOpen
-        ? <div className="airbnb-map-split world-map-split"><div className="airbnb-map-split__results discovery-grid attraction-grid">{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div><div className="airbnb-map-split__map"><DeferredDiscoveryMap items={filtered} tone="activities" autoLoad onClose={closeMap} onVisiblePlaceIdsChange={setMapVisibleIds} /></div></div>
+        ? <div className="airbnb-map-split world-map-split"><div className="airbnb-map-split__results discovery-grid attraction-grid">{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div><div className="airbnb-map-split__map"><DeferredDiscoveryMap items={filtered} tone="activities" autoLoad onClose={closeResultsMap} onVisiblePlaceIdsChange={setMapVisibleIds} /></div></div>
         : <div className="discovery-grid attraction-grid">{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>
       : <div className="trail-empty"><h2>לא מצאנו התאמה לסינון הזה</h2><p>אפשר להסיר סינון או לבחור אזור סמוך.</p><button type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
   </>;

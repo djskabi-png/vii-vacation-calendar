@@ -36,7 +36,7 @@ export default function EventSearchPage({ initialArea }: { initialArea?: string 
   const [guests, setGuests] = useState(Number.isFinite(initialGuests) && initialGuests > 0 ? Math.max(10, initialGuests) : 0);
   const [noNoiseLimit, setNoNoiseLimit] = useState(initialParams.get("noise") === "1");
   const [accessibleOnly, setAccessibleOnly] = useState(initialParams.get("accessible") === "1");
-  const { mapOpen, closeMap, toggleMap } = useMapViewState();
+  const { mapOpen, openMap, closeMap } = useMapViewState();
   const { viewMode, setViewMode } = useResultsViewMode("events");
   const [sort, setSort] = useState(["capacity", "name"].includes(initialParams.get("sort") || "") ? initialParams.get("sort") || "recommended" : "recommended");
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -89,15 +89,26 @@ export default function EventSearchPage({ initialArea }: { initialArea?: string 
   }, [accessibleOnly, area, eventType, guests, noNoiseLimit, sort, type]);
 
   const displayed = useMemo(() => {
-    if (!mapVisibleIds) return filtered;
+    if (!mapOpen || !mapVisibleIds) return filtered;
     const visible = new Set(mapVisibleIds);
     return filtered.filter((place) => visible.has(place.slug));
-  }, [filtered, mapVisibleIds]);
+  }, [filtered, mapOpen, mapVisibleIds]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setMapVisibleIds(null), 0);
     return () => window.clearTimeout(timer);
   }, [accessibleOnly, area, eventType, guests, noNoiseLimit, sort, type]);
+
+  function toggleResultsMap() {
+    setMapVisibleIds(null);
+    if (mapOpen) closeMap();
+    else openMap();
+  }
+
+  function closeResultsMap() {
+    setMapVisibleIds(null);
+    closeMap();
+  }
 
   function reset() { setArea("הכל"); setType("הכל"); setEventType("הכל"); setGuests(0); setNoNoiseLimit(false); setAccessibleOnly(false); setSort("recommended"); updateUrl({ location: null, type: null, eventType: null, guests: null, noise: null, accessible: null, sort: null }); }
 
@@ -128,8 +139,8 @@ export default function EventSearchPage({ initialArea }: { initialArea?: string 
           </aside>
           <section className={`event-list results-view results-view--${viewMode}${mapOpen ? " event-list--map-open" : ""}`}>
             <section className="results-heading"><div><h1>{eventHeading}</h1><div className="results-heading__meta"><p>{displayed.length} מקומות מתאימים לחיפוש</p><button type="button" className={`mobile-filter mobile-filter--compact ${activeFilterCount ? "has-filters" : ""}`} aria-label="סינון" aria-expanded={filtersOpen} onClick={() => setFiltersOpen(true)}><span className="mobile-filter__icon"><FilterControlIcon /></span><span className="mobile-filter__label">סינון</span>{activeFilterCount ? <b aria-label={`${activeFilterCount} סינונים פעילים`}>{activeFilterCount}</b> : null}</button></div></div></section>
-            <div className="results-toolbar"><div className="results-toolbar__actions"><ResultsViewToggle value={viewMode} onChange={setViewMode} />{filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתוצאות" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={toggleMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לתוצאות" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect className="results-toolbar__sort" compact label="מיון לפי" value={sort} onChange={(value) => changeFilter("sort", value)} options={sortOptions} /></div>
-            {mapOpen && <div className="event-map-pane"><DeferredListingMap listings={filtered} mode="events" autoLoad onClose={closeMap} onVisiblePlaceIdsChange={setMapVisibleIds} /></div>}{displayed.map((place) => <article key={place.slug}><div className="event-card-gallery"><img src={place.image} alt={place.name} loading="lazy" decoding="async" /><span>{place.images.length} תמונות</span><FavoriteButton id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים`} /></div><div><small>{place.type}</small><h2>{place.name}</h2><p><PinIcon />{place.location}, {place.area}</p><p>{place.description}</p><div className="feature-chips">{place.features.slice(0, 3).map((feature) => <span key={feature}>{feature}</span>)}</div><div className="event-capacity">עד {place.guests} אורחים</div><div className="stay-card__actions event-card__actions"><Link className="stay-card__details-link" href={eventPlaceHref(place)}>לפרטים על המקום</Link><EventCardContactActions placeId={place.slug} placeName={place.name} phone={place.contact?.phone} whatsapp={place.contact?.whatsapp} serviceName={place.type} /></div></div></article>)}
+            <div className="results-toolbar"><div className="results-toolbar__actions"><ResultsViewToggle value={viewMode} onChange={setViewMode} />{filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתוצאות" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={toggleResultsMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לתוצאות" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect className="results-toolbar__sort" compact label="מיון לפי" value={sort} onChange={(value) => changeFilter("sort", value)} options={sortOptions} /></div>
+            {mapOpen && <div className="event-map-pane"><DeferredListingMap listings={filtered} mode="events" autoLoad onClose={closeResultsMap} onVisiblePlaceIdsChange={setMapVisibleIds} /></div>}{displayed.map((place) => <article key={place.slug}><div className="event-card-gallery"><img src={place.image} alt={place.name} loading="lazy" decoding="async" /><span>{place.images.length} תמונות</span><FavoriteButton id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים`} /></div><div><small>{place.type}</small><h2>{place.name}</h2><p><PinIcon />{place.location}, {place.area}</p><p>{place.description}</p><div className="feature-chips">{place.features.slice(0, 3).map((feature) => <span key={feature}>{feature}</span>)}</div><div className="event-capacity">עד {place.guests} אורחים</div><div className="stay-card__actions event-card__actions"><Link className="stay-card__details-link" href={eventPlaceHref(place)}>לפרטים על המקום</Link><EventCardContactActions placeId={place.slug} placeName={place.name} phone={place.contact?.phone} whatsapp={place.contact?.whatsapp} serviceName={place.type} /></div></div></article>)}
             {displayed.length === 0 && <div className="empty-state"><h2>לא נמצאה התאמה</h2><p>אפשר להפחית את כמות המשתתפים או להסיר סינון.</p><button className="button primary" type="button" onClick={reset}>ניקוי סינונים</button></div>}
           </section>
         </div>

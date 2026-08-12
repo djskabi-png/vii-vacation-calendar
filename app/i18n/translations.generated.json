@@ -6574,7 +6574,12 @@
     "אישור תשלום והמשך": "Confirm payment and continue",
     "אישור כרטיס לביטחון והמשך": "Confirm security card and continue",
     "ההזמנה לא נשמרה. אפשר לסגור ולנסות שוב בלי לאבד את הפרטים.": "The booking was not saved. You can close this window and try again without losing your details.",
-    "פרטים לפתיחת שיחה": "Details to start the chat"
+    "פרטים לפתיחת שיחה": "Details to start the chat",
+    "????? ????": "Zoom out",
+    "??????? ??????? ????????": "Zoom in to grouped places",
+    "הגדלת המפה": "Zoom in",
+    "הקטנת המפה": "Zoom out",
+    "התקרבות למקומות המקובצים": "Zoom in to grouped places"
   },
   "ru": {
     "וואטסאפ": "WhatsApp",
@@ -13151,7 +13156,12 @@
     "אישור תשלום והמשך": "Подтвердить оплату и продолжить",
     "אישור כרטיס לביטחון והמשך": "Подтвердить карту для гарантии и продолжить",
     "ההזמנה לא נשמרה. אפשר לסגור ולנסות שוב בלי לאבד את הפרטים.": "Бронирование не сохранено. Закройте окно и повторите попытку, данные останутся заполненными.",
-    "פרטים לפתיחת שיחה": "Данные для начала разговора"
+    "פרטים לפתיחת שיחה": "Данные для начала разговора",
+    "????? ????": "????????? ?????",
+    "??????? ??????? ????????": "?????????? ??????????????? ?????",
+    "הגדלת המפה": "Увеличить карту",
+    "הקטנת המפה": "Уменьшить карту",
+    "התקרבות למקומות המקובצים": "Приблизить сгруппированные места"
   },
   "fr": {
     "וואטסאפ": "WhatsApp",
@@ -19728,6 +19738,11 @@
     "אישור תשלום והמשך": "Confirmer le paiement et continuer",
     "אישור כרטיס לביטחון והמשך": "Confirmer la carte de garantie et continuer",
     "ההזמנה לא נשמרה. אפשר לסגור ולנסות שוב בלי לאבד את הפרטים.": "La réservation n’a pas été enregistrée. Vous pouvez fermer cette fenêtre et réessayer sans perdre vos informations.",
-    "פרטים לפתיחת שיחה": "Informations pour démarrer la conversation"
+    "פרטים לפתיחת שיחה": "Informations pour démarrer la conversation",
+    "????? ????": "R?duire la carte",
+    "??????? ??????? ????????": "Agrandir les lieux regroup?s",
+    "הגדלת המפה": "Agrandir la carte",
+    "הקטנת המפה": "Réduire la carte",
+    "התקרבות למקומות המקובצים": "Agrandir les lieux regroupés"
   }
 }

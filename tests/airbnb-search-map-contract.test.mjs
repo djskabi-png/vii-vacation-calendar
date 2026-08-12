@@ -12,7 +12,25 @@ test("map changes results only after an explicit search-this-area action", () =>
   assert.match(map, /map\.on\("dragend", \(\) => reportVisiblePlaces\(true\)\)/);
   assert.match(map, /map\.on\("zoomend", \(\) => \{ renderMarkers\(\); reportVisiblePlaces\(true\); \}\)/);
   assert.match(map, /onClick=\{applyVisibleArea\}/);
+  assert.match(map, /suppressViewportPrompt\.current = true/);
+  assert.match(map, /map\.invalidateSize\(\{ animate: false \}\)/);
+  assert.match(map, /focusInitialPlaces\(\)/);
+  assert.match(map, /suppressViewportPrompt\.current = false/);
   assert.doesNotMatch(map, /marker\.on\("mouseover"/);
+});
+
+test("opening and closing a map clears stale viewport-only results", () => {
+  for (const path of [
+    "app/search/page.tsx",
+    "app/events/search/page.tsx",
+    "app/components/hourly-results.tsx",
+    "app/attractions/attractions-explorer.tsx",
+    "app/components/world-map-results.tsx",
+  ]) {
+    const source = read(path);
+    assert.match(source, /if \(!mapOpen \|\| !mapVisibleIds\) return filtered/);
+    assert.match(source, /setMapVisibleIds\(null\)/);
+  }
 });
 
 test("map selection is keyboard-safe, localized, and responsive", () => {
