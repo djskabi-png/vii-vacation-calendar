@@ -124,7 +124,7 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
         <div className="menu-panel__intro">
           <div className="menu-panel__intro-top">
             <span>{translate("מתחילים מכאן")}</span>
-            <Link href="/join/providers" onClick={closeMenu}>{translate("הצטרפות כספק")} <ArrowIcon /></Link>
+            <Link href="/join/providers" onClick={closeMenu}>{translate("פרסום והצטרפות לאתר")} <ArrowIcon /></Link>
           </div>
           <h2>{translate("לאן תרצו להגיע?")}</h2>
           <p>{translate("נופש, אירועים, ספא, ספקים וחוויות, במקום אחד.")}</p>
@@ -142,7 +142,7 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
         <Link className="menu-panel__join" href="/join/providers" onClick={closeMenu}>
           <ContactIcon />
           <span>
-            <strong>{translate("הצטרפות לאתר")}</strong>
+            <strong>{translate("פרסום והצטרפות לאתר")}</strong>
             <small>{translate("פרסום עסק, ספק, אטרקציה או מקום אירוח")}</small>
           </span>
           <ArrowIcon />

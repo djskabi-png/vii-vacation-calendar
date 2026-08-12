@@ -799,6 +799,10 @@ test("ships a favicon, four languages and no dependency on the retired site", as
   assert.match(header, /className="menu-panel__join" href="\/join\/providers"/);
   assert.match(header, /className="menu-panel__intro-top"/);
   assert.equal((header.match(/href="\/join\/providers"/g) || []).length, 2);
+  assert.equal((header.match(/translate\("פרסום והצטרפות לאתר"\)/g) || []).length, 2);
+  assert.doesNotMatch(header, /הצטרפות כספק/);
+  assert.match(styles, /\.menu-panel__intro-top > a \{[^}]*background: linear-gradient/);
+  assert.match(styles, /\.menu-panel__join \{[^}]*border: 2px solid/);
   assert.match(styles, /scroll-padding-bottom:\s*calc\(118px \+ env\(safe-area-inset-bottom/);
   assert.match(footer, /<LanguageSwitcher compact/);
   assert.match(footer, /<AccessibilityWidget placement="footer" \/>/);
