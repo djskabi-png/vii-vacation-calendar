@@ -282,7 +282,10 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     setLocationOpen(false);
     setLocationQuery("");
     setLocationStatus("");
-    if (!isHourly && window.matchMedia("(max-width: 820px)").matches) setMobileStep("dates");
+    if (!isHourly && window.matchMedia("(max-width: 820px)").matches) {
+      setMobileStep("dates");
+      setCalendarOpen(true);
+    }
   }
 
   function chooseNearbyLocation() {

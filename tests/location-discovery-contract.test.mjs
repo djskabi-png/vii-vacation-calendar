@@ -29,3 +29,10 @@ test("destination picker offers nearby search, grouped discovery and useful filt
   assert.match(css, /mobile-expanded \.location-group--regions > div\s*\{[^}]*repeat\(2/s);
   assert.match(css, /\.location-list\s*\{[^}]*overflow-y:\s*auto/s);
 });
+
+test("choosing a destination on mobile advances directly to the date picker", () => {
+  assert.match(
+    search,
+    /function chooseLocation\(place: string\)[\s\S]*?setLocationOpen\(false\);[\s\S]*?setMobileStep\("dates"\);[\s\S]*?setCalendarOpen\(true\);/,
+  );
+});
