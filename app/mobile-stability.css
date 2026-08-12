@@ -90,7 +90,10 @@
   }
 
   .home-slider__track,
+  .home-vacation-strip__track,
   .home-last-minute__cards,
+  .home-event-list,
+  .destination-grid,
   .sleeping-track,
   .quick-date-buttons,
   .choice-row,
@@ -98,6 +101,31 @@
     min-width: 0;
     max-width: 100%;
     overscroll-behavior-inline: contain;
+  }
+
+  /* Horizontal collections must own their overflow. In RTL Chromium, an
+     overflowing child can otherwise enlarge the root scrollable area and a
+     restored tab may reopen on a blank horizontal page. Isolating each rail
+     keeps swipe and arrow navigation intact without exposing it to the root. */
+  .home-slider__track,
+  .home-vacation-strip__track,
+  .home-last-minute__cards,
+  .home-event-list,
+  .destination-grid,
+  .sleeping-track {
+    width: 100%;
+    box-sizing: border-box;
+    contain: inline-size layout paint;
+    isolation: isolate;
+  }
+
+  .home-slider__track > *,
+  .home-vacation-strip__track > *,
+  .home-last-minute__cards > *,
+  .home-event-list > *,
+  .destination-grid > *,
+  .sleeping-track > * {
+    max-inline-size: calc(100% - 8px);
   }
 
   .search-box-shell.mobile-expanded button.search-step.search-step--dates {

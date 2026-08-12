@@ -6,6 +6,7 @@ const layout = await readFile(new URL("../app/layout.tsx", import.meta.url), "ut
 const css = await readFile(new URL("../app/mobile-stability.css", import.meta.url), "utf8");
 const guard = await readFile(new URL("../app/components/responsive-viewport-guard.tsx", import.meta.url), "utf8");
 const search = await readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8");
+const showcase = await readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8");
 
 test("the shared mobile stability layer loads after the base and result styles", () => {
   const globalIndex = layout.indexOf('import "./globals.css"');
@@ -39,11 +40,23 @@ test("mobile overlays use the content viewport instead of scrollbar-inclusive vi
   assert.match(css, /overscroll-behavior-x:\s*none/);
 });
 
+test("mobile horizontal collections contain their overflow without disabling sliders", () => {
+  assert.match(css, /\.home-slider__track,[\s\S]*?\.home-vacation-strip__track,[\s\S]*?\.home-last-minute__cards,[\s\S]*?contain:\s*inline-size layout paint/);
+  assert.match(css, /\.home-slider__track > \*,[\s\S]*?max-inline-size:\s*calc\(100% - 8px\)/);
+  assert.doesNotMatch(css, /\.home-slider__track[\s\S]{0,180}overflow-x:\s*hidden/);
+});
+
 test("the viewport guard continuously returns only the root viewport to its horizontal origin", () => {
   assert.match(guard, /window\.addEventListener\("scroll", lockHorizontalScroll, \{ passive: true \}\)/);
   assert.match(guard, /if \(!scrollingElement\?\.scrollLeft/);
   assert.match(guard, /window\.addEventListener\("touchend", reset, \{ passive: true \}\)/);
-  assert.doesNotMatch(guard, /querySelectorAll/);
+  assert.doesNotMatch(guard, /querySelectorAll<HTMLElement>\("(?!\[data-horizontal-rail\])/);
+});
+
+test("restored mobile tabs reset only declared horizontal rails", () => {
+  assert.match(guard, /querySelectorAll<HTMLElement>\("\[data-horizontal-rail\]"\)/);
+  assert.match(guard, /rail\.scrollLeft = 0/);
+  assert.match(showcase, /data-horizontal-rail/);
 });
 
 test("search restores a readable vacation date label from the submitted range", () => {

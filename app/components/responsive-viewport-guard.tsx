@@ -10,6 +10,12 @@ function resetHorizontalViewport() {
   if (document.body.scrollLeft) document.body.scrollLeft = 0;
 }
 
+function resetHorizontalCollections() {
+  document.querySelectorAll<HTMLElement>("[data-horizontal-rail]").forEach((rail) => {
+    rail.scrollLeft = 0;
+  });
+}
+
 export function ResponsiveViewportGuard() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -32,6 +38,7 @@ export function ResponsiveViewportGuard() {
     };
 
     resetHorizontalViewport();
+    resetHorizontalCollections();
     window.addEventListener("pageshow", reset);
     window.addEventListener("popstate", reset);
     window.addEventListener("scroll", lockHorizontalScroll, { passive: true });

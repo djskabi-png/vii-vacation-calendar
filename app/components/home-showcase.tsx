@@ -145,7 +145,7 @@ export function HomeShowcase() {
   return <>
     <section className="section home-recommended" aria-labelledby="home-recommended-title">
       <div className="shell"><div className="section-head"><div><span className="eyebrow">המקומות שעושים חשק לארוז</span><h2 id="home-recommended-title">מומלצים שכדאי להכיר</h2><p>מקומות אמיתיים מתוך האתר, עם חדרים, מתקנים וכל המידע שצריך לפני שבוחרים.</p></div><div><Link href="/search">לכל המקומות</Link><SliderControls label="מקומות מומלצים" onPrevious={() => scroll("recommended", "previous")} onNext={() => scroll("recommended", "next")} /></div></div>
-        <div className="home-slider__track home-slider__track--properties" ref={(node) => { tracks.current.recommended = node; }}>{recommendedPlaces.map((property) => <div className="home-slider__item" key={property.slug}><PropertyCard property={property} promotional /></div>)}</div>
+        <div className="home-slider__track home-slider__track--properties" data-horizontal-rail ref={(node) => { tracks.current.recommended = node; }}>{recommendedPlaces.map((property) => <div className="home-slider__item" key={property.slug}><PropertyCard property={property} promotional /></div>)}</div>
       </div>
     </section>
 
@@ -154,7 +154,7 @@ export function HomeShowcase() {
         <div className="home-last-minute__intro"><span className="eyebrow">הזמינות הקרובה באתר</span><h2 id="last-minute-title">כל הדילים במקום אחד</h2></div>
         {dealGroups.map((group) => <section className="home-last-minute__slider" key={group.id} aria-labelledby={`${group.id}-title`}>
           <div className="home-last-minute__slider-head"><div><h3 id={`${group.id}-title`}>{group.title}</h3><nav className="home-last-minute__tabs" aria-label={group.title}>{group.periods.map((period) => <Link key={period.id} href={lastMinuteHref(period)}>{period.label}</Link>)}</nav></div><div><Link href={lastMinuteHref(group.period)}>{group.period.cta}</Link><SliderControls label={group.title} onPrevious={() => scroll(group.id, "previous")} onNext={() => scroll(group.id, "next")} /></div></div>
-          <div className="home-last-minute__cards" ref={(node) => { tracks.current[group.id] = node; }}>{pickProperties(...group.period.slugs).map((property) => {
+          <div className="home-last-minute__cards" data-horizontal-rail ref={(node) => { tracks.current[group.id] = node; }}>{pickProperties(...group.period.slugs).map((property) => {
             const price = property.price || lastMinuteStartingPrices[property.slug] || 1200;
             const detailHref = `/business?id=${property.slug}&period=${encodeURIComponent(group.period.id)}&dates=${encodeURIComponent(group.period.dateSummary)}&from=${group.period.from}&till=${group.period.till}&guests=2&price=${price}`;
             return <Link key={property.slug} href={detailHref}><img src={property.image} alt={property.name} loading="lazy" decoding="async" /><span>{group.period.label}</span><div><small><PinIcon />{property.location}</small><h3>{property.name}</h3><div className="home-last-minute__deal"><b>{group.period.dateSummary}</b><strong>{price.toLocaleString("he-IL")} ₪</strong></div></div></Link>;
@@ -173,21 +173,21 @@ export function HomeShowcase() {
 
         <div className="home-vacation-strip">
           <div className="home-vacation-strip__head"><div><span>לפי אזור</span><h3>יעדים מומלצים לנופש</h3></div><SliderControls label="יעדי נופש" onPrevious={() => scroll("destinations", "previous")} onNext={() => scroll("destinations", "next")} /></div>
-          <div className="home-vacation-strip__track home-vacation-strip__track--destinations" ref={(node) => { tracks.current.destinations = node; }}>
+          <div className="home-vacation-strip__track home-vacation-strip__track--destinations" data-horizontal-rail ref={(node) => { tracks.current.destinations = node; }}>
             {vacationDestinations.map((item) => <Link className="home-vacation-card home-vacation-card--destination home-slider__item" href={item.href} key={item.label}><img src={item.image} alt="" loading="lazy" decoding="async" /><div><span>יעד מומלץ</span><h4>{item.label}</h4><p>{item.note}</p><b>לכל המקומות באזור</b></div></Link>)}
           </div>
         </div>
 
         <div className="home-vacation-strip">
           <div className="home-vacation-strip__head"><div><span>לפי מה שחשוב בחופשה</span><h3>חיפושים נפוצים</h3></div><SliderControls label="חיפושים נפוצים" onPrevious={() => scroll("popular-searches", "previous")} onNext={() => scroll("popular-searches", "next")} /></div>
-          <div className="home-vacation-strip__track" ref={(node) => { tracks.current["popular-searches"] = node; }}>
+          <div className="home-vacation-strip__track" data-horizontal-rail ref={(node) => { tracks.current["popular-searches"] = node; }}>
             {popularVacationSearches.map((item, index) => <Link className="home-vacation-card home-vacation-card--search home-slider__item" href={item.href} key={item.label}><span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><div><small>חיפוש פופולרי</small><h4>{item.label}</h4><p>{item.note}</p><b>לצפייה במקומות</b></div></Link>)}
           </div>
         </div>
 
         <div className="home-vacation-strip">
           <div className="home-vacation-strip__head"><div><span>סוגים וסגנונות אירוח</span><h3>מה אתם מחפשים?</h3></div><SliderControls label="סוגי אירוח" onPrevious={() => scroll("stay-types", "previous")} onNext={() => scroll("stay-types", "next")} /></div>
-          <div className="home-vacation-strip__track" ref={(node) => { tracks.current["stay-types"] = node; }}>
+          <div className="home-vacation-strip__track" data-horizontal-rail ref={(node) => { tracks.current["stay-types"] = node; }}>
             {accommodationStyles.map((item) => <Link className="home-vacation-card home-vacation-card--style home-slider__item" href={item.href} key={item.label}><img src={item.image} alt="" loading="lazy" decoding="async" /><div><span>סגנון אירוח</span><h4>{item.label}</h4><p>{item.note}</p><b>לכל המקומות</b></div></Link>)}
           </div>
         </div>
@@ -198,7 +198,7 @@ export function HomeShowcase() {
       <div className="shell">
         <div className="home-trust-strip">
           <div className="home-vacation-strip__head"><div><span>רואים לפני שבוחרים</span><h2 id="home-tours-title">סרטונים מובילים</h2></div><SliderControls label="סרטונים מובילים" onPrevious={() => scroll("tours", "previous")} onNext={() => scroll("tours", "next")} /></div>
-          <div className="home-slider__track home-slider__track--trust" ref={(node) => { tracks.current.tours = node; }}>
+          <div className="home-slider__track home-slider__track--trust" data-horizontal-rail ref={(node) => { tracks.current.tours = node; }}>
             {featuredTours.map(({ property, video }) => <article className="home-tour-card home-slider__item" key={`${property.slug}-${video.src}`}>
               <video controls playsInline preload="none" poster={video.poster} aria-label={`${video.title}, ${property.name}`}><source src={video.src} type="video/mp4" /></video>
               <div><span>{property.location}</span><h3>{property.name}</h3><p>{video.note}</p><Link href={`/business?id=${property.slug}`}>לפרטי המקום</Link></div>
@@ -208,7 +208,7 @@ export function HomeShowcase() {
 
         <div className="home-trust-strip">
           <div className="home-vacation-strip__head"><div><span>דירוגים ממקור המידע של המקום</span><h2 id="home-ratings-title">חוות דעת מובילות</h2></div><SliderControls label="חוות דעת מובילות" onPrevious={() => scroll("ratings", "previous")} onNext={() => scroll("ratings", "next")} /></div>
-          <div className="home-slider__track home-slider__track--trust home-slider__track--ratings" ref={(node) => { tracks.current.ratings = node; }} aria-labelledby="home-ratings-title">
+          <div className="home-slider__track home-slider__track--trust home-slider__track--ratings" data-horizontal-rail ref={(node) => { tracks.current.ratings = node; }} aria-labelledby="home-ratings-title">
             {topRatedPlaces.map((item) => {
               const localized = language === "he" ? null : ratingCardCopy[language][item.id as keyof (typeof ratingCardCopy)[typeof language]];
               return <Link className="home-rating-card home-slider__item" href={`/discover/place/${item.id}`} key={item.id}>
@@ -220,9 +220,9 @@ export function HomeShowcase() {
       </div>
     </section>
 
-    <section className="section home-spa-strip" aria-labelledby="home-spa-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">עוצרים לנשום</span><h2 id="home-spa-title">ספא ורוגע, כחלק מהחופשה</h2></div><div><Link href="/spas">לכל מתחמי הספא</Link><SliderControls label="מתחמי ספא" onPrevious={() => scroll("spa", "previous")} onNext={() => scroll("spa", "next")} /></div></div><div className="home-slider__track home-slider__track--discovery" ref={(node) => { tracks.current.spa = node; }}>{spaPlaces.slice(0,7).map((item) => <div className="home-slider__item" key={item.id}><DiscoveryCard item={item} /></div>)}</div></div></section>
+    <section className="section home-spa-strip" aria-labelledby="home-spa-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">עוצרים לנשום</span><h2 id="home-spa-title">ספא ורוגע, כחלק מהחופשה</h2></div><div><Link href="/spas">לכל מתחמי הספא</Link><SliderControls label="מתחמי ספא" onPrevious={() => scroll("spa", "previous")} onNext={() => scroll("spa", "next")} /></div></div><div className="home-slider__track home-slider__track--discovery" data-horizontal-rail ref={(node) => { tracks.current.spa = node; }}>{spaPlaces.slice(0,7).map((item) => <div className="home-slider__item" key={item.id}><DiscoveryCard item={item} /></div>)}</div></div></section>
 
-    <section className="section home-short-stay" aria-labelledby="home-short-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">כשלא צריך לילה שלם</span><h2 id="home-short-title">חדרים לכמה שעות</h2><p>שהייה קצרה, פרטית וגמישה. בוחרים מקום ובודקים את מסגרת הזמן והמחיר.</p></div><div><Link href="/hourly">לכל החדרים</Link><SliderControls label="חדרים לפי שעה" onPrevious={() => scroll("hourly", "previous")} onNext={() => scroll("hourly", "next")} /></div></div><div className="home-slider__track home-slider__track--discovery" ref={(node) => { tracks.current.hourly = node; }}>{hourlyPlaces.slice(0,7).map((item) => <div className="home-slider__item" key={item.id}><DiscoveryCard item={item} /></div>)}</div></div></section>
+    <section className="section home-short-stay" aria-labelledby="home-short-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">כשלא צריך לילה שלם</span><h2 id="home-short-title">חדרים לכמה שעות</h2><p>שהייה קצרה, פרטית וגמישה. בוחרים מקום ובודקים את מסגרת הזמן והמחיר.</p></div><div><Link href="/hourly">לכל החדרים</Link><SliderControls label="חדרים לפי שעה" onPrevious={() => scroll("hourly", "previous")} onNext={() => scroll("hourly", "next")} /></div></div><div className="home-slider__track home-slider__track--discovery" data-horizontal-rail ref={(node) => { tracks.current.hourly = node; }}>{hourlyPlaces.slice(0,7).map((item) => <div className="home-slider__item" key={item.id}><DiscoveryCard item={item} /></div>)}</div></div></section>
 
     <section className="home-events-world" aria-labelledby="home-events-title">
       <div className="shell home-events-world__head"><div><span className="eyebrow">עולם האירועים</span><h2 id="home-events-title">כל סיבה טובה הופכת כאן לאירוע</h2><p>לופטים ומתחמים לימי הולדת, מסיבות, אירועי חברה וחגיגות פרטיות, עם חיפוש לפי כמות ואופי האירוע.</p></div><Link className="button" href="/events">נכנסים לעולם האירועים</Link></div>
