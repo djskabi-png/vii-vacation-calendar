@@ -3273,6 +3273,11 @@ h3 { font-size: 1.18rem; }
 .stay-card__alternatives span { min-width: 0; padding: 8px; display: grid; gap: 4px; border: 1px solid rgba(8,126,139,.15); border-radius: 10px; background: #fff; }
 .stay-card__alternatives small { color: var(--ink-soft); white-space: normal; }
 .stay-card__alternatives b { font-size: .84rem; }
+.availability-demo-summary { margin: 0 0 14px; padding: 11px 14px; display: flex; align-items: center; gap: 8px 14px; border: 1px solid rgba(8,126,139,.18); border-radius: 14px; background: #effafa; color: var(--ink); font-family: var(--font-sans); }
+.availability-demo-summary strong { color: var(--teal-dark); }
+.availability-demo-summary span { flex: 1; color: var(--ink-soft); }
+.availability-demo-summary small { direction: ltr; unicode-bidi: isolate; color: var(--ink-soft); white-space: nowrap; }
+@media (max-width: 620px) { .availability-demo-summary { align-items: flex-start; flex-direction: column; gap: 3px; } }
 .stay-card__availability--available { color: #087d5a; }
 .stay-card__availability--unavailable { color: #a83d4a; }
 .stay-card__availability--unknown { color: var(--ink-soft); }

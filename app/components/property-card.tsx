@@ -41,10 +41,25 @@ const demoScenarioCopy: Record<SiteLanguage, { label: string; alternatives: stri
   ru: { label: "\u0422\u043e\u043b\u044c\u043a\u043e \u043f\u0440\u0438\u043c\u0435\u0440 \u043e\u0442\u043e\u0431\u0440\u0430\u0436\u0435\u043d\u0438\u044f", alternatives: "\u041f\u0440\u0438\u043c\u0435\u0440\u044b \u0430\u043b\u044c\u0442\u0435\u0440\u043d\u0430\u0442\u0438\u0432\u043d\u044b\u0445 \u0434\u0430\u0442", alternativePrice: "\u041f\u0440\u0438\u043c\u0435\u0440 \u0446\u0435\u043d\u044b" },
   fr: { label: "Exemple d\u2019affichage uniquement", alternatives: "Exemples de dates alternatives", alternativePrice: "Exemple de prix" },
 };
+export const availabilityDemoStay = { from: "2026-09-04", till: "2026-09-06" } as const;
+
 const demoAvailabilityScenarios: Record<string, DemoAvailabilityKind> = {
   "aqua-resort": "available-price", "kesem-harimon": "price-only", "ahuzat-or": "available-no-price", "sol-gilgal": "no-data",
   "anael-estate": "unavailable", "magic-garden-gefen": "unavailable-alternatives", "perfumes-villa": "unavailable-price",
 };
+
+export const availabilityDemoSlugs = Object.keys(demoAvailabilityScenarios);
+
+function isWholeCountryLocation(value: string | null) {
+  if (!value) return true;
+  return ["\u05db\u05dc \u05d4\u05d0\u05e8\u05e5", "\u05d4\u05db\u05dc", "all-country", "all", "all israel", "whole country"].includes(value.trim().toLocaleLowerCase());
+}
+
+export function isAvailabilityDemoSearch(selectedStay: SelectedStay | null, requestedLocation: string | null) {
+  return selectedStay?.from === availabilityDemoStay.from
+    && selectedStay.till === availabilityDemoStay.till
+    && isWholeCountryLocation(requestedLocation);
+}
 
 function localizedDate(value: string, language: SiteLanguage) {
   const locales: Record<SiteLanguage, string> = { he: "he-IL", en: "en-GB", ru: "ru-RU", fr: "fr-FR" };
@@ -72,10 +87,9 @@ function shiftStayDate(value: string, days: number) {
 }
 
 function demoAvailabilityFor(property: Property, selectedStay: SelectedStay | null, pathname: string, requestedLocation: string | null): ResolvedAvailability | null {
-  if (!selectedStay) return null;
+  if (!isAvailabilityDemoSearch(selectedStay, requestedLocation)) return null;
   const basePath = pathname.replace(/^\/(en|ru|fr)(?=\/|$)/, "") || "/";
   if (basePath !== "/search" && basePath !== "/vacations") return null;
-  if (requestedLocation && requestedLocation !== "\u05db\u05dc \u05d4\u05d0\u05e8\u05e5") return null;
   const kind = demoAvailabilityScenarios[property.slug];
   if (!kind) return null;
   const common = { ...selectedStay, illustrative: true };
