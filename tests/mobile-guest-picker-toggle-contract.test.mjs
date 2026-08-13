@@ -12,5 +12,6 @@ test("mobile guest picker closes independently and keeps search available", asyn
   assert.doesNotMatch(source, /onClick=\{cancelMobileSearch\} aria-label="סגירת בחירת האורחים"/);
   assert.match(source, /aria-expanded=\{guestOpen\}[\s\S]*?if \(guestOpen\) \{ closeGuestPicker\(\); return; \}[\s\S]*?setGuestOpen\(true\)/);
   assert.match(source, /className="popover-done" onClick=\{closeGuestPicker\}>שמירת ההרכב/);
+  assert.match(source, /!mobileExpanded && \(locationOpen \|\| guestOpen \|\| priceOpen\)/);
   assert.match(styles, /\.search-box-shell\.mobile-expanded \.search-submit,[\s\S]*?\.search-box\.mobile-step-overview \.search-submit \{ display: flex; \}/);
 });

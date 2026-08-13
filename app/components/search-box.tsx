@@ -367,7 +367,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
           <span className="search-mobile-summary__action"><SearchIcon /><b>שינוי חיפוש</b></span>
         </button>}
         {mobileExpanded && <button type="button" className="search-mobile-backdrop" onClick={cancelMobileSearch} aria-label="סגירת החיפוש" />}
-        {(locationOpen || guestOpen || priceOpen) && <button type="button" className="search-option-backdrop" onClick={cancelMobileSearch} aria-label="סגירת אפשרויות החיפוש" />}
+        {!mobileExpanded && (locationOpen || guestOpen || priceOpen) && <button type="button" className="search-option-backdrop" onClick={cancelMobileSearch} aria-label="סגירת אפשרויות החיפוש" />}
         <div className={`search-box ${shouldCollapse ? "compact" : ""} ${isHourly ? "search-box--hourly" : ""} mobile-step-${mobileStep}`} role="search" aria-label={mode === "events" ? "חיפוש מקום לאירוע" : mode === "spa" ? "חיפוש מתחם ספא" : isHourly ? "חיפוש חדרים לפי שעה" : "חיפוש חופשה"}>
         {mobileExpanded && <div className="search-mobile-sheet-head"><strong>{translate(mobileSheetTitle)}</strong><div className="search-mobile-sheet-head__actions"><Link className="search-gift-card-link" href={localizedPath("/gift-card", language)} onClick={closeMobileSearch} aria-label={translate("קנה שובר מתנה")}><GiftIcon /><span>{translate("קנה שובר מתנה")}</span></Link><button type="button" onClick={cancelMobileSearch} aria-label="סגירת החיפוש">×</button></div></div>}
         {mobileExpanded && showWorlds && <div className="search-mobile-worlds"><SearchWorldTabs active={activeWorld} onNavigate={closeMobileSearch} /></div>}

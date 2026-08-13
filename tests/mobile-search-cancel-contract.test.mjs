@@ -11,7 +11,7 @@ test("closing any mobile date flow returns to the unchanged page", () => {
   assert.equal((source.match(/onCancel=\{cancelMobileSearch\}/g) || []).length, 3);
   assert.equal((source.match(/onClose=\{\(\) => setCalendarOpen\(false\)\}/g) || []).length, 3);
   assert.match(source, /className="search-mobile-backdrop" onClick=\{cancelMobileSearch\}/);
-  assert.match(source, /className="search-option-backdrop" onClick=\{cancelMobileSearch\}/);
+  assert.match(source, /!mobileExpanded && \(locationOpen \|\| guestOpen \|\| priceOpen\)[\s\S]*?className="search-option-backdrop" onClick=\{cancelMobileSearch\}/);
   assert.match(source, /event\.key === "Escape"\) cancelMobileSearch\(\)/);
   assert.match(source, /const closeGuestPicker = useCallback\(\(\) => \{[\s\S]*?setGuestOpen\(false\);[\s\S]*?setMobileStep\("overview"\);[\s\S]*?setMobileExpanded\(true\);/);
   assert.match(source, /onClick=\{closeGuestPicker\} aria-label="סגירת בחירת האורחים"/);
