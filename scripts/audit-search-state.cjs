@@ -50,7 +50,7 @@ async function inspectHorizontalRails(page) {
 
     if (overflowing) {
       const before = overflowing.scrollLeft;
-      const distance = Math.min(160, overflowing.scrollWidth - overflowing.clientWidth);
+      const distance = overflowing.scrollWidth - overflowing.clientWidth;
       overflowing.scrollLeft = before <= 0 ? before - distance : before + distance;
       await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       scrollMoved = Math.abs(overflowing.scrollLeft - before) > 1;
