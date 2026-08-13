@@ -6,7 +6,6 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRef, useState, type MouseEvent } from "react";
 import type { ListingAvailability, ListingDateQuote, Property } from "../data/site-data";
-import { isWholeCountrySelection } from "../data/search-taxonomy";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { PinIcon } from "../site-header";
 import { trackPhoneReveal } from "../lib/analytics";
@@ -105,9 +104,13 @@ function stableDemoIndex(value: string) {
 export const availabilityDemoSlugs = Object.keys(demoAvailabilityScenarios[0]);
 
 export function isAvailabilityDemoSearch(selectedStay: SelectedStay | null, requestedLocation: string | null) {
-  return Boolean(selectedStay?.from.startsWith("2026-09-")
-    && selectedStay.till.startsWith("2026-09-"))
-    && isWholeCountrySelection(requestedLocation);
+  void requestedLocation;
+  if (!selectedStay) return false;
+  const arrival = new Date(`${selectedStay.from}T12:00:00Z`);
+  const departure = new Date(`${selectedStay.till}T12:00:00Z`);
+  return !Number.isNaN(arrival.getTime())
+    && !Number.isNaN(departure.getTime())
+    && arrival < departure;
 }
 
 function demoSeptemberPeriod(value: string) {
@@ -172,8 +175,7 @@ function shiftStayDate(value: string, days: number) {
 
 function demoAvailabilityFor(property: Property, selectedStay: SelectedStay | null, pathname: string, requestedLocation: string | null): ResolvedAvailability | null {
   if (!selectedStay || !isAvailabilityDemoSearch(selectedStay, requestedLocation)) return null;
-  const basePath = (pathname.replace(/^\/(en|ru|fr)(?=\/|$)/, "").replace(/\/+$/, "") || "/");
-  if (basePath !== "/search" && basePath !== "/vacations") return null;
+  void pathname;
   const period = demoSeptemberPeriod(selectedStay.from);
   const stableIndex = stableDemoIndex(property.slug);
   const kind = demoAvailabilityScenarios[period][property.slug] || demoAvailabilityKinds[(stableIndex + period) % demoAvailabilityKinds.length];

@@ -44,6 +44,8 @@ function loadTranslations(language: GeneratedLanguage) {
 
 const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, string>> = {
   en: {
+    "\u05d3\u05d5\u05d2\u05de\u05d0\u05d5\u05ea \u05dc\u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d5\u05dc\u05de\u05d7\u05d9\u05e8 \u05d1\u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd \u05e9\u05d1\u05d7\u05e8\u05ea\u05dd": "Availability and price examples for your dates",
+    "\u05d4\u05ea\u05d5\u05e6\u05d0\u05d5\u05ea \u05de\u05d3\u05d2\u05d9\u05de\u05d5\u05ea \u05d0\u05ea \u05db\u05dc \u05de\u05e6\u05d1\u05d9 \u05d4\u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d5\u05d4\u05de\u05d7\u05d9\u05e8 \u05dc\u05e4\u05d9 \u05de\u05d1\u05e0\u05d9 \u05d4\u05ea\u05e6\u05d5\u05d2\u05d4 \u05e9\u05dc VII \u05d4\u05d9\u05e9\u05df. \u05d6\u05d4\u05d5 \u05de\u05d9\u05d3\u05e2 \u05dc\u05d4\u05de\u05d7\u05e9\u05d4 \u05d5\u05dc\u05d0 \u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d7\u05d9\u05d4.": "The results demonstrate every availability and price state based on the old VII display patterns. This is illustrative information, not live availability.",
     "בונים את החופשה": "Plan your stay", "בונים את האירוע": "Plan your event", "בונים את חוויית הספא": "Plan your spa experience", "מדייקים את החיפוש": "Refine your search",
     "חיפוש יעד": "Search destinations",
     "הקלידו עיר או אזור": "Enter a city or region",
@@ -146,6 +148,8 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "These cards are search shortcuts. Availability and final pricing are confirmed after selecting dates and guests.",
   },
   ru: {
+    "\u05d3\u05d5\u05d2\u05de\u05d0\u05d5\u05ea \u05dc\u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d5\u05dc\u05de\u05d7\u05d9\u05e8 \u05d1\u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd \u05e9\u05d1\u05d7\u05e8\u05ea\u05dd": "\u041f\u0440\u0438\u043c\u0435\u0440\u044b \u043d\u0430\u043b\u0438\u0447\u0438\u044f \u0438 \u0446\u0435\u043d \u043d\u0430 \u0432\u044b\u0431\u0440\u0430\u043d\u043d\u044b\u0435 \u0434\u0430\u0442\u044b",
+    "\u05d4\u05ea\u05d5\u05e6\u05d0\u05d5\u05ea \u05de\u05d3\u05d2\u05d9\u05de\u05d5\u05ea \u05d0\u05ea \u05db\u05dc \u05de\u05e6\u05d1\u05d9 \u05d4\u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d5\u05d4\u05de\u05d7\u05d9\u05e8 \u05dc\u05e4\u05d9 \u05de\u05d1\u05e0\u05d9 \u05d4\u05ea\u05e6\u05d5\u05d2\u05d4 \u05e9\u05dc VII \u05d4\u05d9\u05e9\u05df. \u05d6\u05d4\u05d5 \u05de\u05d9\u05d3\u05e2 \u05dc\u05d4\u05de\u05d7\u05e9\u05d4 \u05d5\u05dc\u05d0 \u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d7\u05d9\u05d4.": "\u0420\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442\u044b \u0434\u0435\u043c\u043e\u043d\u0441\u0442\u0440\u0438\u0440\u0443\u044e\u0442 \u0432\u0441\u0435 \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u044f \u043d\u0430\u043b\u0438\u0447\u0438\u044f \u0438 \u0446\u0435\u043d \u043f\u043e \u043e\u0431\u0440\u0430\u0437\u0446\u0443 \u0441\u0442\u0430\u0440\u043e\u0433\u043e VII. \u042d\u0442\u043e \u0438\u043b\u043b\u044e\u0441\u0442\u0440\u0430\u0446\u0438\u044f, \u0430 \u043d\u0435 \u043d\u0430\u043b\u0438\u0447\u0438\u0435 \u0432 \u0440\u0435\u0430\u043b\u044c\u043d\u043e\u043c \u0432\u0440\u0435\u043c\u0435\u043d\u0438.",
     "בונים את החופשה": "Спланируйте поездку", "בונים את האירוע": "Организуйте мероприятие", "בונים את חוויית הספא": "Спланируйте спа-программу", "מדייקים את החיפוש": "Уточните поиск",
     "חיפוש יעד": "Поиск направления",
     "הקלידו עיר או אזור": "Введите город или регион",
@@ -248,6 +252,8 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "Карточки ведут к поиску. Наличие мест и итоговая цена подтверждаются после выбора дат и состава гостей.",
   },
   fr: {
+    "\u05d3\u05d5\u05d2\u05de\u05d0\u05d5\u05ea \u05dc\u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d5\u05dc\u05de\u05d7\u05d9\u05e8 \u05d1\u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd \u05e9\u05d1\u05d7\u05e8\u05ea\u05dd": "Exemples de disponibilit\u00e9 et de prix pour vos dates",
+    "\u05d4\u05ea\u05d5\u05e6\u05d0\u05d5\u05ea \u05de\u05d3\u05d2\u05d9\u05de\u05d5\u05ea \u05d0\u05ea \u05db\u05dc \u05de\u05e6\u05d1\u05d9 \u05d4\u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d5\u05d4\u05de\u05d7\u05d9\u05e8 \u05dc\u05e4\u05d9 \u05de\u05d1\u05e0\u05d9 \u05d4\u05ea\u05e6\u05d5\u05d2\u05d4 \u05e9\u05dc VII \u05d4\u05d9\u05e9\u05df. \u05d6\u05d4\u05d5 \u05de\u05d9\u05d3\u05e2 \u05dc\u05d4\u05de\u05d7\u05e9\u05d4 \u05d5\u05dc\u05d0 \u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d7\u05d9\u05d4.": "Les r\u00e9sultats pr\u00e9sentent tous les \u00e9tats de disponibilit\u00e9 et de prix inspir\u00e9s de l'ancien VII. Il s'agit d'une illustration, pas de disponibilit\u00e9s en direct.",
     "בונים את החופשה": "Planifiez votre séjour", "בונים את האירוע": "Organisez votre événement", "בונים את חוויית הספא": "Préparez votre expérience spa", "מדייקים את החיפוש": "Affinez votre recherche",
     "חיפוש יעד": "Rechercher une destination",
     "הקלידו עיר או אזור": "Saisissez une ville ou une région",

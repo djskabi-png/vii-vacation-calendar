@@ -28,13 +28,12 @@ test("all seven illustrative availability states are deterministic", () => {
   assert.match(card, /stableDemoIndex\(property\.slug\)/, "legacy catalog places must also receive deterministic September examples");
   assert.match(card, /demoAvailabilityKinds\[\(stableIndex \+ period\) % demoAvailabilityKinds\.length\]/);
   assert.match(card, /demoPriceRange\[stableIndex % demoPriceRange\.length\]/);
-  assert.match(card, /basePath !== "\/search" && basePath !== "\/vacations"/);
+  assert.doesNotMatch(card, /basePath !== "\/search" && basePath !== "\/vacations"/, "semantic result routes must not disable availability examples");
   assert.match(card, /availabilityDemoStay = \{ from: "2026-09-04", till: "2026-09-06" \}/);
-  assert.match(card, /replace\(\/\\\/\+\$\/, ""\)/, "demo scenarios should work on both /search and /search/");
+  assert.doesNotMatch(card, /basePath/, "availability examples must not depend on the result route shape");
   assert.match(card, /isAvailabilityDemoSearch\(selectedStay, requestedLocation\)/);
-  assert.match(card, /selectedStay\?\.from\.startsWith\("2026-09-"\)/);
-  assert.match(card, /selectedStay\.till\.startsWith\("2026-09-"\)/);
-  assert.match(card, /isWholeCountrySelection\(requestedLocation\)/);
+  assert.match(card, /arrival < departure/);
+  assert.match(card, /void requestedLocation/);
   assert.match(search, /availabilityDemoSlugs\.indexOf\(a\.slug\)/);
   assert.match(card, /export function hasAvailablePriceForSearch/);
   assert.match(card, /resolvedAvailability\?\.availability === "available"/);
