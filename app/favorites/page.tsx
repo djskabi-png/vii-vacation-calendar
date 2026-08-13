@@ -30,6 +30,10 @@ function localizeMeta(item: SavedItem, language: SiteLanguage) {
   return guestCount ? `${worldLabels[language][item.world]} · ${guestCount} ${pageCopy[language].guests}` : worldLabels[language][item.world];
 }
 
+function localizeLocation(location: string, translate: (value: string) => string) {
+  return location.split(",").map((part) => translate(part.trim())).join(", ");
+}
+
 function migrateLegacyFavorites() {
   const existing = readSavedItems();
   const known = new Set(existing.map((item) => item.key));
@@ -116,7 +120,7 @@ export default function FavoritesPage() {
             {visibleItems.map((item) => <article key={item.key} className="favorite-card">
               <Link className="favorite-card__media" href={item.href}>{item.image ? <img src={item.image} alt={translate(item.name)} /> : <span>{translate(item.name).slice(0, 1)}</span>}</Link>
               <FavoriteButton id={item.id} world={item.world} name={item.name} location={item.location} image={item.image} href={item.href} meta={item.meta} />
-              <div className="favorite-card__body"><small>{labels[item.world]}</small><h2><Link href={item.href}>{translate(item.name)}</Link></h2><p>{translate(item.location)}</p>{localizeMeta(item, language) ? <span>{translate(localizeMeta(item, language) || "")}</span> : null}<Link className="button secondary" href={item.href}>{copy.details}</Link></div>
+              <div className="favorite-card__body"><small>{labels[item.world]}</small><h2><Link href={item.href}>{translate(item.name)}</Link></h2><p>{localizeLocation(item.location, translate)}</p>{localizeMeta(item, language) ? <span>{translate(localizeMeta(item, language) || "")}</span> : null}<Link className="button secondary" href={item.href}>{copy.details}</Link></div>
             </article>)}
           </div>
         </> : <div className="favorites-empty">
