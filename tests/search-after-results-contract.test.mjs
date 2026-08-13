@@ -19,21 +19,36 @@ test("every main search world receives the shared below-results content", () => 
   for (const world of ["spa", "hourly", "providers", "activities"]) assert.match(worldLanding, new RegExp(`world === "${world}"`));
 });
 
-test("the shared content includes guide, verified review context, FAQ schema and related searches", () => {
+test("the shared content includes guide, verified review context, FAQ schema and contextual discovery", () => {
   assert.match(component, /search-depth__guide/);
   assert.match(component, /חוות דעת שעוזרות לבחור/);
   assert.match(component, /דירוגים ממקומות שמופיעים בתוצאות/);
   assert.match(component, /faqSchema\(content\.faqs\)/);
   assert.match(component, /search-depth__related/);
+  assert.match(component, /DiscoveryRail/);
+  assert.match(component, /destinationOptions/);
+  assert.match(component, /contextualHref/);
+  assert.match(component, /searchSuggestions/);
   assert.match(component, /hideGuideAndFaq/);
   assert.match(vacation, /hideGuideAndFaq=\{Boolean\(landing\)\}/);
+  assert.match(vacation, /searchSuggestions=\{contextualSearchSuggestions\}/);
+  assert.match(events, /searchSuggestions=\{contextualSearchSuggestions\}/);
 });
 
 test("below-results content stays readable and complete on mobile", () => {
   assert.match(css, /\.search-depth__review-grid \{[^}]*grid-template-columns: repeat\(3/);
   assert.match(css, /\.search-depth__faq > div \{[^}]*grid-template-columns: repeat\(3/);
-  assert.match(css, /@media \(max-width: 760px\)[\s\S]*\.search-depth__guide > div,\.search-depth__review-grid,\.search-depth__review-checklist,\.search-depth__faq > div,\.search-depth__related \{ grid-template-columns: 1fr; \}/);
-  assert.match(css, /\.search-depth__related nav \{ display: grid; grid-template-columns: repeat\(2/);
+  assert.match(css, /@media \(max-width: 760px\)[\s\S]*\.search-depth__rail \{[^}]*grid-auto-columns: minmax\(215px,78vw\)/);
+  assert.match(css, /\.search-depth__rail \{[^}]*overflow-x: auto/);
+  assert.match(css, /scroll-snap-type: inline mandatory/);
+});
+
+test("contextual discovery preserves filters while changing only the selected destination or suggestion", () => {
+  assert.match(component, /new URLSearchParams\(currentQuery\)/);
+  assert.match(component, /params\.set\(key, value\)/);
+  assert.match(component, /properties\.filter/);
+  assert.match(component, /matchesSearchLocation\(item, location\)/);
+  assert.match(component, /rail\.scrollBy/);
 });
 
 test("dynamic location labels are localized and suppress whole-country aliases", () => {

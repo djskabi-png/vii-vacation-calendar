@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { languageFromPathname, localizedPath, type SiteLanguage } from "./locale-routing";
+import legacyVacationUiTranslations from "../data/legacy-vacation-ui-translations.json";
 
 export type { SiteLanguage } from "./locale-routing";
 
@@ -121,7 +122,7 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "יצירת קשר": "Contact us", "פתיחת תפריט": "Open menu", "סגירת תפריט": "Close menu",
     "תצוגה על מפה": "Map view", "תצוגת רשימה": "List view", "פרטים וזמינות": "Details and availability",
     "גלגלת להגדלה ולהקטנה": "Scroll to zoom in and out",
-    "סינון": "Filter", "סינון מהיר": "Quick filters", "מסננים": "Filters", "טווח מחיר": "Price range", "ספא וג׳קוזי": "Spa and hot tub", "סינון תוצאות": "Filter results", "מיון לפי": "Sort by", "מומלצים": "Recommended",
+    "סינון": "Filter", "סינון מהיר": "Quick filters", "מסננים": "Filters", "טווח מחיר": "Price range", "ספא וג׳קוזי": "Spa and hot tub", "סינון תוצאות": "Filter results", "מיון לפי": "Sort by", "מומלצים": "Recommended", "מחיר מהנמוך לגבוה": "Price: low to high", "מחיר מהגבוה לנמוך": "Price: high to low", "דירוג מהגבוה לנמוך": "Rating: high to low", "דירוג מהנמוך לגבוה": "Rating: low to high",
     "מחיר לפי תאריך": "Price for selected dates", "מקום אירוח שלם": "Entire place",
     "בריכת שחייה": "Swimming pool", "משחקי שולחן": "Games tables", "מטבח מאובזר": "Fully equipped kitchen",
     "אילת והערבה": "Eilat and the Arava", "מישור החוף הדרומי": "Southern Coastal Plain", "סובב כנרת": "Sea of Galilee area",
@@ -223,7 +224,7 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "יצירת קשר": "Связаться с нами", "פתיחת תפריט": "Открыть меню", "סגירת תפריט": "Закрыть меню",
     "תצוגה על מפה": "На карте", "תצוגת רשימה": "Списком", "פרטים וזמינות": "Подробнее и проверить даты",
     "גלגלת להגדלה ולהקטנה": "Прокрутите для изменения масштаба",
-    "סינון": "Фильтры", "סינון מהיר": "Быстрые фильтры", "מסננים": "Фильтры", "טווח מחיר": "Диапазон цен", "ספא וג׳קוזי": "Спа и джакузи", "סינון תוצאות": "Фильтры", "מיון לפי": "Сортировать", "מומלצים": "Рекомендуемые",
+    "סינון": "Фильтры", "סינון מהיר": "Быстрые фильтры", "מסננים": "Фильтры", "טווח מחיר": "Диапазон цен", "ספא וג׳קוזי": "Спа и джакузи", "סינון תוצאות": "Фильтры", "מיון לפי": "Сортировать", "מומלצים": "Рекомендуемые", "מחיר מהנמוך לגבוה": "Цена: по возрастанию", "מחיר מהגבוה לנמוך": "Цена: по убыванию", "דירוג מהגבוה לנמוך": "Рейтинг: по убыванию", "דירוג מהנמוך לגבוה": "Рейтинг: по возрастанию",
     "מחיר לפי תאריך": "Цена на выбранные даты", "מקום אירוח שלם": "Отдельный объект целиком",
     "בריכת שחייה": "Бассейн", "משחקי שולחן": "Игровые столы", "מטבח מאובזר": "Полностью оборудованная кухня",
     "אילת והערבה": "Эйлат и Арава", "מישור החוף הדרומי": "Южная прибрежная равнина", "סובב כנרת": "Район Кинерета",
@@ -328,7 +329,7 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "מה עושים בסביבה": "À faire à proximité", "כל הרעיונות במקום אחד": "Toutes les idées au même endroit", "מסלולי טיול": "Itinéraires", "טיולים עצמאיים לפי אזור": "Itinéraires autonomes par région",
     "מגזין ומדריכים": "Magazine et guides", "רעיונות, תוכן ומדריכים": "Idées, articles et guides",
     "\u05db\u05dc \u05d4\u05d0\u05e8\u05e5": "Tout Israël", "\u05d9\u05e6\u05d9\u05e8\u05ea \u05e7\u05e9\u05e8": "Nous contacter",
-    "\u05e1\u05d9\u05e0\u05d5\u05df": "Filtres", "\u05e1\u05d9\u05e0\u05d5\u05df \u05ea\u05d5\u05e6\u05d0\u05d5\u05ea": "Filtrer les résultats", "\u05de\u05d5\u05de\u05dc\u05e6\u05d9\u05dd": "Recommandés",
+    "\u05e1\u05d9\u05e0\u05d5\u05df": "Filtres", "\u05e1\u05d9\u05e0\u05d5\u05df \u05ea\u05d5\u05e6\u05d0\u05d5\u05ea": "Filtrer les résultats", "\u05de\u05d5\u05de\u05dc\u05e6\u05d9\u05dd": "Recommandés", "מחיר מהנמוך לגבוה": "Prix croissant", "מחיר מהגבוה לנמוך": "Prix décroissant", "דירוג מהגבוה לנמוך": "Note décroissante", "דירוג מהנמוך לגבוה": "Note croissante",
     "\u05d1\u05d3\u05d9\u05e7\u05ea \u05d6\u05de\u05d9\u05e0\u05d5\u05ea": "Vérifier les disponibilités", "\u05e4\u05e8\u05d8\u05d9\u05dd \u05d5\u05d6\u05de\u05d9\u05e0\u05d5\u05ea": "Détails et disponibilités",
     "\u05de\u05d2\u05d6\u05d9\u05df": "Magazine", "\u05d7\u05d3\u05e9": "Nouveau", "\u05ea\u05e4\u05e8\u05d9\u05d8": "Menu", "\u05e9\u05e4\u05d4": "Langue",
     "\u05e0\u05d2\u05d9\u05e9\u05d5\u05ea \u05de\u05dc\u05d0\u05d4 \u05d5\u05de\u05d0\u05d5\u05de\u05ea\u05ea": "Accessibilité complète vérifiée",
@@ -1130,7 +1131,8 @@ function translateValue(value: string, language: SiteLanguage): string {
   const leading = value.match(/^\s*/)?.[0] || "";
   const trailing = value.match(/\s*$/)?.[0] || "";
   const core = value.trim().replace(/\s+/g, " ");
-  const exact = finalUiTranslations[language][core] || curatedTranslations[language][core] || dictionary(language)[core];
+  const legacyExact = (legacyVacationUiTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
+  const exact = legacyExact || finalUiTranslations[language][core] || curatedTranslations[language][core] || dictionary(language)[core];
   let translated: string = exact || translateDynamic(core, language);
   if (language === "en") {
     translated = translated

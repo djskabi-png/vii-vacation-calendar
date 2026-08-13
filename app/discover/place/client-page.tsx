@@ -179,7 +179,9 @@ export default function DiscoveryPlacePage({ initialId }: { initialId: string })
   }, [activityDetails, hourlyDetails, providerDetails, spaDetails]);
   const activityPhoneOnly = activityDetails?.booking?.mode === "phone";
   const phone = item.world === "hourly" ? item.phone : activityPhoneOnly ? activityDetails.booking?.phone : undefined;
-  const onlineHref = item.id === "masu-home-wellness" || item.world === "hourly" || activityPhoneOnly ? undefined : item.world === "spa" && spaDetails?.packages?.length
+  const onlineHref = item.id === "masu-home-wellness" || item.world === "hourly" || activityPhoneOnly ? undefined : item.world === "providers" && providerDetails?.bookingMode === "whatsapp"
+    ? "#provider-services"
+    : item.world === "spa" && spaDetails?.packages?.length
     ? "#spa-packages"
     : `/booking?world=${item.world}&place=${encodeURIComponent(item.id)}`;
   const onlineLabel = item.world === "spa" ? "בחירת חבילת ספא" : item.world === "providers" ? "בחירת שירות" : "הזמנה אונליין";

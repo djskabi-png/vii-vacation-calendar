@@ -19,7 +19,7 @@ import { FilterControlIcon } from "../../components/filter-control-icon";
 import { eventSearchHref } from "../../data/world-search-landings";
 import { localizedPath } from "../../i18n/locale-routing";
 import { useSiteLanguage } from "../../i18n/locale-provider";
-import { SearchAfterResults } from "../../components/search-after-results";
+import { SearchAfterResults, type ContextualSearchSuggestion } from "../../components/search-after-results";
 import { EventCardContactActions } from "../../components/event-card-contact-actions";
 import { ResultsViewToggle, useResultsViewMode } from "../../components/results-view-toggle";
 
@@ -116,6 +116,12 @@ export default function EventSearchPage({ initialArea }: { initialArea?: string 
 
   const eventBreadcrumbFilters = [area !== "הכל" ? area : null, type !== "הכל" ? type : null, eventType !== "הכל" ? eventType : null, guests ? `${guests} משתתפים ומעלה` : null].filter((item): item is string => Boolean(item));
   const eventHeading = `${type !== "הכל" ? type : "מקומות לאירועים"}${eventType !== "הכל" ? ` ל${eventType}` : ""}${area !== "הכל" ? ` ב${area}` : " בישראל"}`;
+  const contextualSearchSuggestions: ContextualSearchSuggestion[] = [
+    ...types.filter((item) => item !== "הכל" && item !== type).map((item) => ({ label: item, params: { type: item } })),
+    ...eventTypes.filter((item) => item !== "הכל" && item !== eventType).map((item) => ({ label: item, params: { eventType: item } })),
+    ...(!noNoiseLimit ? [{ label: "ללא הגבלת רעש", params: { noise: "1" } as Record<string, string | null> }] : []),
+    ...(!accessibleOnly ? [{ label: "מקומות נגישים", params: { accessible: "1" } as Record<string, string | null> }] : []),
+  ];
 
   return (
     <PageShell variant="events">
@@ -143,7 +149,7 @@ export default function EventSearchPage({ initialArea }: { initialArea?: string 
             {displayed.length === 0 && <div className="empty-state"><h2>לא נמצאה התאמה</h2><p>אפשר להפחית את כמות המשתתפים או להסיר סינון.</p><button className="button primary" type="button" onClick={reset}>ניקוי סינונים</button></div>}
           </section>
         </div>
-        <SearchAfterResults world="events" location={area} />
+        <SearchAfterResults world="events" location={area} searchSuggestions={contextualSearchSuggestions} />
         {filtersOpen && <button className="filter-backdrop" aria-label="סגירת סינון" onClick={() => setFiltersOpen(false)} />}
       </main>
     </PageShell>

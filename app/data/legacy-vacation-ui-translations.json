@@ -1,0 +1,682 @@
+{
+  "8 חדרי שינה עם חדרי רחצה פרטיים": {
+    "en": "8 bedrooms with private bathrooms",
+    "ru": "8 спален с отдельными ванными",
+    "fr": "8 chambres avec salles de bains privatives"
+  },
+  "2 מטבחים מאובזרים": {
+    "en": "2 equipped kitchens",
+    "ru": "2 оборудованные кухни",
+    "fr": "2 cuisines équipées"
+  },
+  "2 סלונים ופינות אוכל": {
+    "en": "2 lounges and dining areas",
+    "ru": "2 гостиные и обеденные зоны",
+    "fr": "2 salons et espaces repas"
+  },
+  "מתאים למשפחות ולציבור הדתי": {
+    "en": "Suitable for families and observant guests",
+    "ru": "Подходит для семей и религиозных гостей",
+    "fr": "Adapté aux familles et aux clients pratiquants"
+  },
+  "וילה עם 8 חדרי שינה": {
+    "en": "8-bedroom villa",
+    "ru": "Вилла с 8 спальнями",
+    "fr": "Villa de 8 chambres"
+  },
+  "בריכה מחוממת בגודל 10×4.5 מטר": {
+    "en": "10 × 4.5 metre heated pool",
+    "ru": "Подогреваемый бассейн 10 × 4,5 м",
+    "fr": "Piscine chauffée de 10 × 4,5 m"
+  },
+  "לינה עד 30 אורחים": {
+    "en": "Sleeps up to 30 guests",
+    "ru": "Размещение до 30 гостей",
+    "fr": "Hébergement jusqu’à 30 personnes"
+  },
+  "שני מטבחים מאובזרים": {
+    "en": "Two equipped kitchens",
+    "ru": "Две оборудованные кухни",
+    "fr": "Deux cuisines équipées"
+  },
+  "המתחם החיצוני": {
+    "en": "Outdoor area",
+    "ru": "Открытая зона",
+    "fr": "Espace extérieur"
+  },
+  "בריכה מחוממת, מגודרת ומוארת": {
+    "en": "Heated, fenced and illuminated pool",
+    "ru": "Подогреваемый, огороженный и освещённый бассейн",
+    "fr": "Piscine chauffée, clôturée et éclairée"
+  },
+  "ריהוט גן": {
+    "en": "Garden furniture",
+    "ru": "Садовая мебель",
+    "fr": "Mobilier de jardin"
+  },
+  "פינות ישיבה ואוכל": {
+    "en": "Seating and dining areas",
+    "ru": "Зоны отдыха и приёма пищи",
+    "fr": "Espaces détente et repas"
+  },
+  "עמדת מנגל": {
+    "en": "Barbecue station",
+    "ru": "Зона барбекю",
+    "fr": "Espace barbecue"
+  },
+  "המתחם הפנימי": {
+    "en": "Indoor area",
+    "ru": "Внутренняя зона",
+    "fr": "Espace intérieur"
+  },
+  "2 מסכי טלוויזיה": {
+    "en": "2 televisions",
+    "ru": "2 телевизора",
+    "fr": "2 téléviseurs"
+  },
+  "ערוצי yes": {
+    "en": "yes TV channels",
+    "ru": "Телеканалы yes",
+    "fr": "Chaînes de télévision yes"
+  },
+  "2 פינות אוכל": {
+    "en": "2 dining areas",
+    "ru": "2 обеденные зоны",
+    "fr": "2 espaces repas"
+  },
+  "קהל יעד": {
+    "en": "Suitable for",
+    "ru": "Подходит для",
+    "fr": "Adapté à"
+  },
+  "ללא מסיבות רועשות": {
+    "en": "No loud parties",
+    "ru": "Без шумных вечеринок",
+    "fr": "Pas de fêtes bruyantes"
+  },
+  "4 חדרי שינה ו-4 חדרי רחצה": {
+    "en": "4 bedrooms and 4 bathrooms",
+    "ru": "4 спальни и 4 ванные",
+    "fr": "4 chambres et 4 salles de bains"
+  },
+  "חצר משותפת": {
+    "en": "Shared courtyard",
+    "ru": "Общий двор",
+    "fr": "Cour commune"
+  },
+  "שולחנות משחק": {
+    "en": "Games tables",
+    "ru": "Игровые столы",
+    "fr": "Tables de jeux"
+  },
+  "לינה עד 14 אורחים": {
+    "en": "Sleeps up to 14 guests",
+    "ru": "Размещение до 14 гостей",
+    "fr": "Hébergement jusqu’à 14 personnes"
+  },
+  "מדשאה": {
+    "en": "Lawn",
+    "ru": "Газон",
+    "fr": "Pelouse"
+  },
+  "הסוויטות": {
+    "en": "The suites",
+    "ru": "Люксы",
+    "fr": "Les suites"
+  },
+  "4 חדרי שינה": {
+    "en": "4 bedrooms",
+    "ru": "4 спальни",
+    "fr": "4 chambres"
+  },
+  "4 חדרי רחצה": {
+    "en": "4 bathrooms",
+    "ru": "4 ванные",
+    "fr": "4 salles de bains"
+  },
+  "מטבחונים": {
+    "en": "Kitchenettes",
+    "ru": "Мини-кухни",
+    "fr": "Kitchenettes"
+  },
+  "מיזוג": {
+    "en": "Air conditioning",
+    "ru": "Кондиционер",
+    "fr": "Climatisation"
+  },
+  "פנאי": {
+    "en": "Leisure",
+    "ru": "Досуг",
+    "fr": "Loisirs"
+  },
+  "5 חדרי שינה ו-5 חדרי רחצה": {
+    "en": "5 bedrooms and 5 bathrooms",
+    "ru": "5 спален и 5 ванных",
+    "fr": "5 chambres et 5 salles de bains"
+  },
+  "לינה עד 20 אורחים": {
+    "en": "Sleeps up to 20 guests",
+    "ru": "Размещение до 20 гостей",
+    "fr": "Hébergement jusqu’à 20 personnes"
+  },
+  "אירועים עד 30 אורחים": {
+    "en": "Events for up to 30 guests",
+    "ru": "Мероприятия до 30 гостей",
+    "fr": "Événements jusqu’à 30 personnes"
+  },
+  "אירוח ואירועים": {
+    "en": "Stays and events",
+    "ru": "Проживание и мероприятия",
+    "fr": "Séjours et événements"
+  },
+  "שירותים בתוספת תשלום": {
+    "en": "Optional paid services",
+    "ru": "Дополнительные платные услуги",
+    "fr": "Services payants en option"
+  },
+  "שולחן שוק": {
+    "en": "Market-style food table",
+    "ru": "Фуршетный стол",
+    "fr": "Table buffet"
+  },
+  "צלם מגנטים": {
+    "en": "Magnet photographer",
+    "ru": "Фотограф с магнитами",
+    "fr": "Photographe avec magnets"
+  },
+  "עיצוב המקום": {
+    "en": "Venue styling",
+    "ru": "Оформление площадки",
+    "fr": "Décoration du lieu"
+  },
+  "לינה עד 11 אורחים": {
+    "en": "Sleeps up to 11 guests",
+    "ru": "Размещение до 11 гостей",
+    "fr": "Hébergement jusqu’à 11 personnes"
+  },
+  "המתחם": {
+    "en": "The property",
+    "ru": "Комплекс",
+    "fr": "L’établissement"
+  },
+  "בפנים": {
+    "en": "Indoors",
+    "ru": "В помещении",
+    "fr": "À l’intérieur"
+  },
+  "כללים": {
+    "en": "House rules",
+    "ru": "Правила",
+    "fr": "Règlement"
+  },
+  "3 וילות צמודות": {
+    "en": "3 adjoining villas",
+    "ru": "3 соседние виллы",
+    "fr": "3 villas mitoyennes"
+  },
+  "סאונה יבשה ורטובה": {
+    "en": "Dry and wet sauna",
+    "ru": "Сухая и влажная сауна",
+    "fr": "Sauna sec et humide"
+  },
+  "מתאים למשפחות ולקבוצות": {
+    "en": "Suitable for families and groups",
+    "ru": "Подходит для семей и групп",
+    "fr": "Adapté aux familles et aux groupes"
+  },
+  "בריכת שחייה בגודל 3.5×12 מטר": {
+    "en": "3.5 × 12 metre swimming pool",
+    "ru": "Бассейн 3,5 × 12 м",
+    "fr": "Piscine de 3,5 × 12 m"
+  },
+  "ג׳קוזי וסאונה": {
+    "en": "Hot tub and sauna",
+    "ru": "Джакузи и сауна",
+    "fr": "Jacuzzi et sauna"
+  },
+  "פינות שיזוף": {
+    "en": "Sunbathing areas",
+    "ru": "Зоны для загара",
+    "fr": "Espaces de bronzage"
+  },
+  "מסך 75 אינץ׳": {
+    "en": "75-inch television",
+    "ru": "Телевизор 75 дюймов",
+    "fr": "Téléviseur 75 pouces"
+  },
+  "סלון מעוצב": {
+    "en": "Designed lounge",
+    "ru": "Дизайнерская гостиная",
+    "fr": "Salon aménagé"
+  },
+  "ממ״ד": {
+    "en": "Protected room",
+    "ru": "Защищённая комната",
+    "fr": "Pièce protégée"
+  },
+  "פנאי וקהל יעד": {
+    "en": "Leisure and guest profile",
+    "ru": "Досуг и тип гостей",
+    "fr": "Loisirs et type de clientèle"
+  },
+  "פינג פונג": {
+    "en": "Table tennis",
+    "ru": "Настольный теннис",
+    "fr": "Tennis de table"
+  },
+  "כדורגל שולחן": {
+    "en": "Table football",
+    "ru": "Настольный футбол",
+    "fr": "Baby-foot"
+  },
+  "תמצית חוות דעת מאומתת מארכיון VII": {
+    "en": "Summary of a verified review from the VII archive",
+    "ru": "Краткое содержание проверенного отзыва из архива VII",
+    "fr": "Résumé d’un avis vérifié provenant des archives VII"
+  },
+  "תצוגה מקדימה בלבד": {
+    "en": "Preview only",
+    "ru": "Только предварительный просмотр",
+    "fr": "Aperçu uniquement"
+  },
+  "מה הלקוח ובעל המקום היו מקבלים": {
+    "en": "What the guest and property owner would receive",
+    "ru": "Что получили бы гость и владелец объекта",
+    "fr": "Ce que recevraient le client et le propriétaire"
+  },
+  "ההודעות הבאות לא נשלחו. הן מציגות את התוכן והיעדים הדרושים לפני חיבור ספקי מייל, מסרונים ווואטסאפ מאומתים.": {
+    "en": "The messages below were not sent. They preview the content and destinations required before verified email, SMS and WhatsApp providers are connected.",
+    "ru": "Сообщения ниже не отправлялись. Они показывают содержание и адресатов до подключения проверенных сервисов электронной почты, SMS и WhatsApp.",
+    "fr": "Les messages ci-dessous n’ont pas été envoyés. Ils présentent le contenu et les destinataires requis avant la connexion de services vérifiés d’e-mail, de SMS et de WhatsApp."
+  },
+  "לקוח, מייל": {
+    "en": "Guest email",
+    "ru": "Электронная почта гостя",
+    "fr": "E-mail du client"
+  },
+  "כתובת מלאה טרם נמסרה": {
+    "en": "Full address not provided yet",
+    "ru": "Полный адрес пока не указан",
+    "fr": "Adresse complète non fournie"
+  },
+  "התקבלה בקשת הזמנה לוילה פלומבו. התאריכים, האורחים והמחיר נשמרו בהמחשה, ללא חיוב.": {
+    "en": "A booking request for Villa Palumbo was received. The dates, guests and price were kept in this preview, with no charge.",
+    "ru": "Получен запрос на бронирование виллы Палумбо. Даты, гости и цена сохранены только в демонстрации, без оплаты.",
+    "fr": "Une demande de réservation pour la Villa Palumbo a été reçue. Les dates, les voyageurs et le prix sont conservés dans cet aperçu, sans débit."
+  },
+  "לא נשלח": {
+    "en": "Not sent",
+    "ru": "Не отправлено",
+    "fr": "Non envoyé"
+  },
+  "לקוח, מסרון": {
+    "en": "Guest SMS",
+    "ru": "SMS гостю",
+    "fr": "SMS au client"
+  },
+  "מספר טרם נמסר": {
+    "en": "Number not provided yet",
+    "ru": "Номер пока не указан",
+    "fr": "Numéro non fourni"
+  },
+  "בקשת ההזמנה התקבלה. מספר ההמחשה הוא PALUMBO-DEMO.": {
+    "en": "The booking request was received. The preview reference is PALUMBO-DEMO.",
+    "ru": "Запрос на бронирование получен. Демонстрационный номер: PALUMBO-DEMO.",
+    "fr": "La demande de réservation a été reçue. La référence de démonstration est PALUMBO-DEMO."
+  },
+  "לקוח, וואטסאפ": {
+    "en": "Guest WhatsApp",
+    "ru": "WhatsApp гостю",
+    "fr": "WhatsApp au client"
+  },
+  "סיכום קצר עם שם המקום, התאריכים, המחיר וקישור לצפייה בהזמנה.": {
+    "en": "A concise summary with the property name, dates, price and a link to view the booking.",
+    "ru": "Краткое резюме с названием объекта, датами, ценой и ссылкой на бронирование.",
+    "fr": "Un résumé concis avec le nom du lieu, les dates, le prix et un lien vers la réservation."
+  },
+  "בעל המקום, מייל": {
+    "en": "Property owner email",
+    "ru": "Электронная почта владельца",
+    "fr": "E-mail du propriétaire"
+  },
+  "התקבלה הזמנה חדשה עם פרטי הלקוח, התאריכים, ההרכב והמחיר שנבחר.": {
+    "en": "A new booking was received with the guest details, dates, party and selected price.",
+    "ru": "Получено новое бронирование с данными гостя, датами, составом группы и выбранной ценой.",
+    "fr": "Une nouvelle réservation a été reçue avec les coordonnées du client, les dates, la composition et le prix choisi."
+  },
+  "בעל המקום, מסרון": {
+    "en": "Property owner SMS",
+    "ru": "SMS владельцу",
+    "fr": "SMS au propriétaire"
+  },
+  "מספר בעל המקום טרם נמסר": {
+    "en": "Property owner number not provided yet",
+    "ru": "Номер владельца пока не указан",
+    "fr": "Numéro du propriétaire non fourni"
+  },
+  "התראה קצרה על הזמנה חדשה וקישור למערכת הניהול.": {
+    "en": "A short new-booking alert with a link to the management system.",
+    "ru": "Краткое уведомление о новом бронировании со ссылкой на систему управления.",
+    "fr": "Une courte alerte de nouvelle réservation avec un lien vers le système de gestion."
+  },
+  "בעל המקום, וואטסאפ": {
+    "en": "Property owner WhatsApp",
+    "ru": "WhatsApp владельцу",
+    "fr": "WhatsApp au propriétaire"
+  },
+  "כרטיס הזמנה מסודר עם אפשרות לצפות, לאשר או ליצור קשר עם הלקוח.": {
+    "en": "A clear booking card with options to view, approve or contact the guest.",
+    "ru": "Понятная карточка бронирования с возможностью просмотреть, подтвердить или связаться с гостем.",
+    "fr": "Une fiche de réservation claire permettant de consulter, confirmer ou contacter le client."
+  },
+  "פנוי, מחיר מחובר": {
+    "en": "Available, price connected",
+    "ru": "Свободно, цена подключена",
+    "fr": "Disponible, prix connecté"
+  },
+  "מתחם בדיקה בדיוני": {
+    "en": "Fictional test property",
+    "ru": "Вымышленный тестовый объект",
+    "fr": "Établissement de test fictif"
+  },
+  "השם, הכתובת וכל התמונות הומצאו לצורך בדיקת המוצר. התמונות הן הדמיות שנוצרו בבינה מלאכותית ואינן מתעדות מקום אמיתי. אין להגיע לכתובת.": {
+    "en": "The name, address and all images were invented for product testing. The images are AI-generated illustrations and do not depict a real property. Do not travel to this address.",
+    "ru": "Название, адрес и все изображения вымышлены для тестирования продукта. Изображения созданы ИИ и не показывают реальный объект. Не приезжайте по этому адресу.",
+    "fr": "Le nom, l’adresse et toutes les images ont été inventés pour tester le produit. Les images sont des illustrations générées par IA et ne représentent pas un lieu réel. Ne vous rendez pas à cette adresse."
+  },
+  "מתחם בדיקה בדיוני. התמונות הן הדמיות ואינן מתעדות מקום אמיתי.": {
+    "en": "Fictional test property. The images are illustrations and do not depict a real place.",
+    "ru": "Вымышленный тестовый объект. Изображения являются иллюстрациями и не показывают реальное место.",
+    "fr": "Établissement de test fictif. Les images sont des illustrations et ne représentent pas un lieu réel."
+  },
+  "וילה פלומבו": {
+    "en": "Villa Palumbo",
+    "ru": "Вилла Палумбо",
+    "fr": "Villa Palumbo"
+  },
+  "אזור קיסריה, כתובת בדיקה בדיונית": {
+    "en": "Caesarea area, fictional test address",
+    "ru": "Район Кесарии, вымышленный тестовый адрес",
+    "fr": "Région de Césarée, adresse de test fictive"
+  },
+  "מישור החוף והשרון": {
+    "en": "Coastal Plain and Sharon",
+    "ru": "Прибрежная равнина и Шарон",
+    "fr": "Plaine côtière et Sharon"
+  },
+  "וילת נופש": {
+    "en": "Holiday villa",
+    "ru": "Вилла для отдыха",
+    "fr": "Villa de vacances"
+  },
+  "מתחם בדיקה בדיוני שנבנה כדי לבחון יומן, מחיר מלא, הזמנה מהירה והודעות אישור. הווילה, הכתובת והתמונות אינן מתארות עסק או מקום אמיתי.": {
+    "en": "A fictional test property built to evaluate the calendar, complete pricing, quick booking and confirmation messages. The villa, address and images do not depict a real business or place.",
+    "ru": "Вымышленный тестовый объект для проверки календаря, полного ценообразования, быстрого бронирования и подтверждений. Вилла, адрес и изображения не относятся к реальному бизнесу или месту.",
+    "fr": "Un établissement de test fictif conçu pour évaluer le calendrier, la tarification complète, la réservation rapide et les messages de confirmation. La villa, l’adresse et les images ne représentent aucun commerce ou lieu réel."
+  },
+  "פינת אוכל חיצונית": {
+    "en": "Outdoor dining area",
+    "ru": "Обеденная зона на открытом воздухе",
+    "fr": "Espace repas extérieur"
+  },
+  "גינה ופינת אוכל": {
+    "en": "Garden and dining area",
+    "ru": "Сад и обеденная зона",
+    "fr": "Jardin et espace repas"
+  },
+  "במתחם": {
+    "en": "At the property",
+    "ru": "На территории",
+    "fr": "Dans l’établissement"
+  },
+  "גינה": {
+    "en": "Garden",
+    "ru": "Сад",
+    "fr": "Jardin"
+  },
+  "מטבח חוץ": {
+    "en": "Outdoor kitchen",
+    "ru": "Летняя кухня",
+    "fr": "Cuisine extérieure"
+  },
+  "בתוך הווילה": {
+    "en": "Inside the villa",
+    "ru": "Внутри виллы",
+    "fr": "À l’intérieur de la villa"
+  },
+  "תמונות המחשה שנוצרו בבינה מלאכותית": {
+    "en": "AI-generated illustrative images",
+    "ru": "Иллюстративные изображения, созданные ИИ",
+    "fr": "Images d’illustration générées par IA"
+  },
+  "אין להגיע לכתובת": {
+    "en": "Do not travel to this address",
+    "ru": "Не приезжайте по этому адресу",
+    "fr": "Ne vous rendez pas à cette adresse"
+  },
+  "תמונות המחשה": {
+    "en": "Illustrative images",
+    "ru": "Иллюстративные изображения",
+    "fr": "Images d’illustration"
+  },
+  "יומן בדיקה עם מחיר לכל לילה והזמנה מהירה בתאריכים הפנויים.": {
+    "en": "A test calendar with a price for every night and quick booking on available dates.",
+    "ru": "Тестовый календарь с ценой на каждую ночь и быстрым бронированием свободных дат.",
+    "fr": "Un calendrier de test avec un prix pour chaque nuit et une réservation rapide aux dates disponibles."
+  },
+  "מתחם בדיקה בדיוני. לא נשלחת הזמנה ולא מתבצע חיוב.": {
+    "en": "Fictional test property. No booking is sent and no charge is made.",
+    "ru": "Вымышленный тестовый объект. Бронирование не отправляется и оплата не списывается.",
+    "fr": "Établissement de test fictif. Aucune réservation n’est envoyée et aucun débit n’est effectué."
+  },
+  "וילה פלומבו, מתחם מלא": {
+    "en": "Villa Palumbo, entire property",
+    "ru": "Вилла Палумбо, весь объект",
+    "fr": "Villa Palumbo, propriété entière"
+  },
+  "3 חדרי רחצה": {
+    "en": "3 bathrooms",
+    "ru": "3 ванные комнаты",
+    "fr": "3 salles de bains"
+  },
+  "סלון ומטבח": {
+    "en": "Lounge and kitchen",
+    "ru": "Гостиная и кухня",
+    "fr": "Salon et cuisine"
+  },
+  "חדר הורים": {
+    "en": "Primary bedroom",
+    "ru": "Главная спальня",
+    "fr": "Chambre principale"
+  },
+  "יציאה למרפסת": {
+    "en": "Balcony access",
+    "ru": "Выход на балкон",
+    "fr": "Accès au balcon"
+  },
+  "שלושה חדרי שינה": {
+    "en": "Three bedrooms",
+    "ru": "Три спальни",
+    "fr": "Trois chambres"
+  },
+  "ארון": {
+    "en": "Wardrobe",
+    "ru": "Шкаф",
+    "fr": "Armoire"
+  },
+  "אפשרי כתאריך עזיבה": {
+    "en": "Available as a checkout date",
+    "ru": "Можно выбрать как дату выезда",
+    "fr": "Disponible comme date de départ"
+  },
+  "הסיפור המלא של המקום": {
+    "en": "The complete story of the property",
+    "ru": "Полная история объекта",
+    "fr": "Toute l’histoire du lieu"
+  },
+  "רואים את הווילה לפני שבוחרים": {
+    "en": "See the villa before choosing",
+    "ru": "Посмотрите виллу перед выбором",
+    "fr": "Découvrez la villa avant de choisir"
+  },
+  "סיור, חדרים ותמונות אורחים לדוגמה, כולם מסומנים כהמחשה בדיונית שנוצרה לצורך בדיקת העמוד.": {
+    "en": "A tour, bedrooms and sample guest photos, all clearly marked as fictional illustrations created to test the page.",
+    "ru": "Тур, спальни и примеры фотографий гостей, все ясно отмечено как вымышленные материалы для тестирования страницы.",
+    "fr": "Une visite, les chambres et des exemples de photos de clients, tous clairement signalés comme des illustrations fictives créées pour tester la page."
+  },
+  "פתיחת הגלריה המלאה": {
+    "en": "Open the full gallery",
+    "ru": "Открыть полную галерею",
+    "fr": "Ouvrir la galerie complète"
+  },
+  "סרטון המחשה": {
+    "en": "Illustrative video",
+    "ru": "Демонстрационное видео",
+    "fr": "Vidéo d’illustration"
+  },
+  "תמונות אורחים לדוגמה": {
+    "en": "Sample guest photos",
+    "ru": "Примеры фотографий гостей",
+    "fr": "Exemples de photos de clients"
+  },
+  "כך נראית חוויית התוכן של האורחים": {
+    "en": "This is how guest content is presented",
+    "ru": "Так выглядит контент гостей",
+    "fr": "Voici comment le contenu des clients est présenté"
+  },
+  "המצולמים, השמות והחוויות אינם אמיתיים. התמונות נועדו להמחיש גלריית אורחים לאחר אימות ומודרציה.": {
+    "en": "The people, names and experiences are fictional. These images illustrate a guest gallery after verification and moderation.",
+    "ru": "Люди, имена и впечатления вымышлены. Изображения демонстрируют галерею гостей после проверки и модерации.",
+    "fr": "Les personnes, les noms et les expériences sont fictifs. Ces images illustrent une galerie de clients après vérification et modération."
+  },
+  "מידע מעשי לדוגמה": {
+    "en": "Sample practical information",
+    "ru": "Пример практической информации",
+    "fr": "Exemple d’informations pratiques"
+  },
+  "כל מה שצריך לדעת לפני ההזמנה": {
+    "en": "Everything to know before booking",
+    "ru": "Всё, что нужно знать перед бронированием",
+    "fr": "Tout ce qu’il faut savoir avant de réserver"
+  },
+  "כניסה החל משעה זו": {
+    "en": "Check-in from this time",
+    "ru": "Заезд с этого времени",
+    "fr": "Arrivée à partir de cette heure"
+  },
+  "עזיבה עד שעה זו": {
+    "en": "Check-out by this time",
+    "ru": "Выезд до этого времени",
+    "fr": "Départ avant cette heure"
+  },
+  "2 לילות": {
+    "en": "2 nights",
+    "ru": "2 ночи",
+    "fr": "2 nuits"
+  },
+  "מינימום להזמנה": {
+    "en": "Minimum stay",
+    "ru": "Минимальный срок бронирования",
+    "fr": "Séjour minimum"
+  },
+  "8 אורחים": {
+    "en": "8 guests",
+    "ru": "8 гостей",
+    "fr": "8 personnes"
+  },
+  "תפוסה מרבית": {
+    "en": "Maximum occupancy",
+    "ru": "Максимальная вместимость",
+    "fr": "Capacité maximale"
+  },
+  "השעות, הכללים והמספרים בסעיף זה הם נתוני המחשה של מתחם הבדיקה ואינם תנאים של עסק אמיתי.": {
+    "en": "The times, rules and figures in this section are demonstration data for the test property and are not terms of a real business.",
+    "ru": "Время, правила и цифры в этом разделе являются демонстрационными данными тестового объекта, а не условиями реального бизнеса.",
+    "fr": "Les horaires, règles et chiffres de cette section sont des données de démonstration du lieu test et ne constituent pas les conditions d’une entreprise réelle."
+  },
+  "חוות הדעת בעמוד זה הן דוגמאות בדיוניות שממחישות את מבנה העמוד בלבד.": {
+    "en": "Reviews on this page are fictional examples used only to illustrate the page structure.",
+    "ru": "Отзывы на этой странице являются вымышленными примерами и служат только для демонстрации структуры страницы.",
+    "fr": "Les avis de cette page sont des exemples fictifs servant uniquement à illustrer la structure de la page."
+  },
+  "חוות דעת בדיונית להמחשת העיצוב, לא חוות דעת של אורח אמיתי": {
+    "en": "Fictional review for design illustration, not a real guest review",
+    "ru": "Вымышленный отзыв для демонстрации дизайна, не отзыв реального гостя",
+    "fr": "Avis fictif pour illustrer le design, pas l’avis d’un véritable client"
+  },
+  "סיור המחשה בוילה פלומבו": {
+    "en": "Illustrative tour of Villa Palumbo",
+    "ru": "Демонстрационный тур по Villa Palumbo",
+    "fr": "Visite d’illustration de la Villa Palumbo"
+  },
+  "סרטון המחשה שנבנה מתמונות שנוצרו בבינה מלאכותית. הוא אינו צילום של מקום אמיתי.": {
+    "en": "An illustrative video made from AI-generated images. It is not footage of a real place.",
+    "ru": "Демонстрационное видео создано из изображений, сгенерированных ИИ. Это не съёмка реального места.",
+    "fr": "Une vidéo d’illustration réalisée à partir d’images générées par IA. Il ne s’agit pas d’un lieu réel."
+  },
+  "ארוחת בוקר ליד הבריכה, תמונת אורח לדוגמה": {
+    "en": "Breakfast by the pool, sample guest photo",
+    "ru": "Завтрак у бассейна, пример фотографии гостя",
+    "fr": "Petit-déjeuner près de la piscine, exemple de photo client"
+  },
+  "משפחת לוי, דוגמה בדיונית": {
+    "en": "Levy family, fictional example",
+    "ru": "Семья Леви, вымышленный пример",
+    "fr": "Famille Levy, exemple fictif"
+  },
+  "הבריכה בשעת שקיעה, תמונת אורח לדוגמה": {
+    "en": "The pool at sunset, sample guest photo",
+    "ru": "Бассейн на закате, пример фотографии гостя",
+    "fr": "La piscine au coucher du soleil, exemple de photo client"
+  },
+  "נועה ודן, דוגמה בדיונית": {
+    "en": "Noa and Dan, fictional example",
+    "ru": "Ноа и Дэн, вымышленный пример",
+    "fr": "Noa et Dan, exemple fictif"
+  },
+  "משפחת כהן, דוגמה בדיונית": {
+    "en": "Cohen family, fictional example",
+    "ru": "Семья Коэн, вымышленный пример",
+    "fr": "Famille Cohen, exemple fictif"
+  },
+  "דוגמת חוות דעת: החלוקה בין החדרים נוחה, המטבח מרווח והבריכה נשארת במרכז החוויה המשפחתית.": {
+    "en": "Sample review: the bedroom layout is convenient, the kitchen is spacious and the pool anchors the family stay.",
+    "ru": "Пример отзыва: удобная планировка спален, просторная кухня, а бассейн стал центром семейного отдыха.",
+    "fr": "Avis d’exemple : la répartition des chambres est pratique, la cuisine spacieuse et la piscine au cœur du séjour familial."
+  },
+  "דוגמת חוות דעת: אהבנו במיוחד את אזור הישיבה בחוץ ואת הפרטיות סביב הבריכה.": {
+    "en": "Sample review: we especially liked the outdoor lounge and the privacy around the pool.",
+    "ru": "Пример отзыва: особенно понравилась зона отдыха на улице и приватность у бассейна.",
+    "fr": "Avis d’exemple : nous avons particulièrement aimé le salon extérieur et l’intimité autour de la piscine."
+  },
+  "קבוצת חברים, דוגמה בדיונית": {
+    "en": "Friends group, fictional example",
+    "ru": "Компания друзей, вымышленный пример",
+    "fr": "Groupe d’amis, exemple fictif"
+  },
+  "דוגמת חוות דעת: ארבעת החדרים אפשרו לכולם מרחב אישי, והסלון התאים לארוחה משותפת.": {
+    "en": "Sample review: four bedrooms gave everyone personal space and the lounge worked well for a shared meal.",
+    "ru": "Пример отзыва: четыре спальни дали всем личное пространство, а гостиная подошла для общего ужина.",
+    "fr": "Avis d’exemple : les quatre chambres ont offert de l’espace à chacun et le salon convenait au repas commun."
+  },
+  "חלון לגינה": {
+    "en": "Garden-facing window",
+    "ru": "Окно в сад",
+    "fr": "Fenêtre sur le jardin"
+  },
+  "מתאים לילדים": {
+    "en": "Suitable for children",
+    "ru": "Подходит для детей",
+    "fr": "Adapté aux enfants"
+  },
+  "פינת עבודה": {
+    "en": "Work desk",
+    "ru": "Рабочее место",
+    "fr": "Coin bureau"
+  },
+  "ציון וחוות דעת בדיוניים להמחשה": {
+    "en": "Fictional rating and reviews for illustration",
+    "ru": "Вымышленные рейтинг и отзывы для демонстрации",
+    "fr": "Note et avis fictifs à titre d’illustration"
+  }
+}

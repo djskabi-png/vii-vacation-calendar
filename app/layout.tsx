@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./results-view.css";
 import "./mobile-stability.css";
+import "./app-experience.css";
 import { LocaleProvider } from "./i18n/locale-provider";
 import { StructuredData } from "./components/structured-data";
 import { organizationSchema, websiteSchema } from "./lib/seo";
@@ -41,6 +42,11 @@ const baseMetadata: Metadata = {
     apple: "/vii-logo.png",
   },
   formatDetection: { email: false, address: false, telephone: false },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "VII",
+  },
   alternates: {
     types: { "application/rss+xml": "/feed.xml" },
   },
@@ -71,7 +77,13 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#087e8b" };
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  colorScheme: "light",
+  themeColor: "#087e8b",
+};
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const requestHeaders = await headers();

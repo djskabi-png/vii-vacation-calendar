@@ -22,6 +22,8 @@ test("result cards support verified price and all availability states", async ()
   assert.match(card, /quote\.from === selectedStay\.from && quote\.till === selectedStay\.till/);
   assert.match(card, /availability: "unknown"/);
   assert.match(card, /hasQuotedPrice = Boolean\(resolvedAvailability\?\.nightlyPrice\)/);
+  assert.match(card, /!promotional && \(resolvedAvailability \|\| property\.price\)/);
+  assert.doesNotMatch(card, /: copy\.datePrice/);
   assert.match(card, /פנה למתחם לבירור מחיר/);
   assert.match(card, /פנוי בתאריכים שנבחרו/);
   assert.match(card, /לא פנוי בתאריכים שנבחרו/);

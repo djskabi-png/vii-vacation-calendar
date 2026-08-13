@@ -1,9 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { StructuredData } from "./structured-data";
 import { faqSchema } from "../lib/seo";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
+import { localizedPath } from "../i18n/locale-routing";
+import { eventPlaces, properties } from "../data/site-data";
+import { isWholeCountrySelection, matchesSearchLocation, searchLocationOptions, type SearchMode } from "../data/search-taxonomy";
 
 export type SearchContentWorld = "vacation" | "events" | "spa" | "hourly" | "providers" | "activities";
 
@@ -14,6 +19,173 @@ export type SearchReviewHighlight = {
   reviews?: number;
   context?: string;
 };
+
+export type ContextualSearchSuggestion = {
+  label: string;
+  params: Record<string, string | null>;
+};
+
+type DiscoveryLink = {
+  label: string;
+  href: string;
+  meta: string;
+};
+
+const discoveryCopy: Record<SiteLanguage, {
+  eyebrow: string;
+  title: string;
+  intro: string;
+  regionPlaces: string;
+  nearbyPlaces: string;
+  countryAreas: string;
+  tailoredSearches: string;
+  generalSearches: string;
+  destinationMeta: string;
+  searchMeta: string;
+  previous: string;
+  next: string;
+}> = {
+  he: {
+    eyebrow: "ממשיכים לגלות",
+    title: "עוד רעיונות שמתאימים לחיפוש שלכם",
+    intro: "עוברים בקלות ליישובים קרובים, אזורים דומים ושילובי חיפוש רלוונטיים.",
+    regionPlaces: "יישובים שכדאי לבדוק באזור",
+    nearbyPlaces: "מקומות נוספים בסביבה",
+    countryAreas: "אזורים נוספים ברחבי הארץ",
+    tailoredSearches: "חיפושים לפי הבחירה שלכם",
+    generalSearches: "חיפושים קשורים",
+    destinationMeta: "לצפייה במקומות באזור",
+    searchMeta: "חיפוש ממוקד",
+    previous: "הצגת האפשרויות הקודמות",
+    next: "הצגת אפשרויות נוספות",
+  },
+  en: {
+    eyebrow: "Keep exploring",
+    title: "More ideas for your search",
+    intro: "Move easily between nearby places, similar areas and relevant search combinations.",
+    regionPlaces: "Places worth exploring in the area",
+    nearbyPlaces: "More places nearby",
+    countryAreas: "More areas across Israel",
+    tailoredSearches: "Searches based on your choices",
+    generalSearches: "Related searches",
+    destinationMeta: "Explore places in this area",
+    searchMeta: "Focused search",
+    previous: "Show previous options",
+    next: "Show more options",
+  },
+  ru: {
+    eyebrow: "Продолжайте поиск",
+    title: "Больше идей для вашего поиска",
+    intro: "Легко переходите к ближайшим местам, похожим районам и подходящим вариантам поиска.",
+    regionPlaces: "Места, которые стоит посмотреть в этом районе",
+    nearbyPlaces: "Другие места поблизости",
+    countryAreas: "Другие районы Израиля",
+    tailoredSearches: "Поиск по вашим критериям",
+    generalSearches: "Похожие запросы",
+    destinationMeta: "Посмотреть места в районе",
+    searchMeta: "Точный поиск",
+    previous: "Показать предыдущие варианты",
+    next: "Показать другие варианты",
+  },
+  fr: {
+    eyebrow: "Poursuivez votre recherche",
+    title: "D'autres idées adaptées à votre recherche",
+    intro: "Passez facilement aux lieux proches, aux régions similaires et aux recherches pertinentes.",
+    regionPlaces: "Lieux à découvrir dans la région",
+    nearbyPlaces: "D'autres lieux à proximité",
+    countryAreas: "D'autres régions en Israël",
+    tailoredSearches: "Recherches selon vos choix",
+    generalSearches: "Recherches associées",
+    destinationMeta: "Découvrir les lieux de la région",
+    searchMeta: "Recherche ciblée",
+    previous: "Afficher les options précédentes",
+    next: "Afficher plus d'options",
+  },
+};
+
+const worldSearchPaths: Record<SearchContentWorld, string> = {
+  vacation: "/search",
+  events: "/events/search",
+  spa: "/spas",
+  hourly: "/hourly",
+  providers: "/providers",
+  activities: "/attractions",
+};
+
+function contextualHref(
+  world: SearchContentWorld,
+  language: SiteLanguage,
+  currentQuery: string,
+  updates: Record<string, string | null>,
+) {
+  const params = new URLSearchParams(currentQuery);
+  params.delete("v");
+  params.delete("release");
+  Object.entries(updates).forEach(([key, value]) => {
+    if (value === null || value === "") params.delete(key);
+    else params.set(key, value);
+  });
+  const query = params.toString();
+  const path = localizedPath(worldSearchPaths[world], language);
+  return query ? `${path}?${query}` : path;
+}
+
+function destinationOptions(world: SearchContentWorld, location?: string) {
+  const mode: SearchMode | null = world === "vacation" || world === "events" || world === "spa" || world === "hourly" ? world : null;
+  if (!mode) return [];
+  const options = searchLocationOptions(mode);
+  if (!location || isWholeCountrySelection(location)) {
+    return options.filter((item) => !isWholeCountrySelection(item)).slice(0, 10);
+  }
+
+  const inventory = world === "events" ? eventPlaces : world === "vacation" ? properties.filter((item) => item.active !== false && !item.demoOperations?.fictional) : [];
+  if (!inventory.length) return options.filter((item) => item !== location && !isWholeCountrySelection(item)).slice(0, 10);
+
+  const exactPlaces = inventory.filter((item) => item.location === location);
+  const matchingAreas = new Set(exactPlaces.map((item) => item.area).filter(Boolean));
+  const nearby = inventory
+    .filter((item) => exactPlaces.length ? matchingAreas.has(item.area) : matchesSearchLocation(item, location))
+    .map((item) => item.location)
+    .filter((item): item is string => Boolean(item) && item !== location);
+  const uniqueNearby = [...new Set(nearby)];
+  if (uniqueNearby.length >= 3) return uniqueNearby.slice(0, 12);
+
+  const matchingOptions = options.filter((item) => item !== location && !isWholeCountrySelection(item));
+  return [...new Set([...uniqueNearby, ...matchingOptions])].slice(0, 10);
+}
+
+function DiscoveryRail({ title, links, previousLabel, nextLabel }: {
+  title: string;
+  links: DiscoveryLink[];
+  previousLabel: string;
+  nextLabel: string;
+}) {
+  const railRef = useRef<HTMLElement>(null);
+  const move = (direction: number) => {
+    const rail = railRef.current;
+    if (!rail) return;
+    rail.scrollBy({ left: direction * Math.max(260, rail.clientWidth * 0.72), behavior: "smooth" });
+  };
+
+  if (!links.length) return null;
+  return <div className="search-depth__rail-block">
+    <div className="search-depth__rail-head">
+      <h3>{title}</h3>
+      <div className="search-depth__rail-controls">
+        <button type="button" onClick={() => move(-1)} aria-label={previousLabel}>‹</button>
+        <button type="button" onClick={() => move(1)} aria-label={nextLabel}>›</button>
+      </div>
+    </div>
+    <nav ref={railRef} className="search-depth__rail" aria-label={title}>
+      {links.map((item) => <Link className="search-depth__discovery-card" key={`${item.href}-${item.label}`} href={item.href}>
+        <span className="search-depth__discovery-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21s7-5.2 7-12A7 7 0 1 0 5 9c0 6.8 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg></span>
+        <strong>{item.label}</strong>
+        <small>{item.meta}</small>
+        <span className="search-depth__discovery-arrow" aria-hidden="true">←</span>
+      </Link>)}
+    </nav>
+  </div>;
+}
 
 type SearchContent = {
   eyebrow: string;
@@ -134,20 +306,37 @@ export function SearchAfterResults({
   location,
   reviewHighlights = [],
   hideGuideAndFaq = false,
+  searchSuggestions = [],
 }: {
   world: SearchContentWorld;
   location?: string;
   reviewHighlights?: SearchReviewHighlight[];
   hideGuideAndFaq?: boolean;
+  searchSuggestions?: ContextualSearchSuggestion[];
 }) {
   const { language, translate } = useSiteLanguage();
+  const searchParams = useSearchParams();
   const content = contentByWorld[world];
+  const discovery = discoveryCopy[language];
   const reviews = reviewHighlights.filter((item) => Number.isFinite(item.rating) && item.rating > 0).slice(0, 3);
   const translatedLocation = location ? translate(location) : "";
   const normalizedLocation = translatedLocation.trim().toLocaleLowerCase();
   const wholeCountryLabels = ["\u05d4\u05db\u05dc", "\u05db\u05dc \u05d4\u05d0\u05e8\u05e5", "all-country", "all", "all israel", "whole country", "\u0432\u0441\u0435", "\u0432\u0441\u044f \u0441\u0442\u0440\u0430\u043d\u0430", "\u0432\u0435\u0441\u044c \u0438\u0437\u0440\u0430\u0438\u043b\u044c", "tous", "tout isra\u00ebl", "toute isra\u00ebl"];
   const locationPrefixes: Record<SiteLanguage, string> = { he: " \u05d1\u05d0\u05d6\u05d5\u05e8 ", en: " in ", ru: " \u0432 \u0440\u0435\u0433\u0438\u043e\u043d\u0435 ", fr: " dans la r\u00e9gion " };
   const locationLabel = location && !wholeCountryLabels.includes(normalizedLocation) ? `${locationPrefixes[language]}${translatedLocation}` : "";
+  const currentQuery = searchParams.toString();
+  const destinations = destinationOptions(world, location);
+  const locationParam = world === "activities" || world === "providers" ? "area" : "location";
+  const destinationLinks: DiscoveryLink[] = destinations.map((destination) => ({
+    label: translate(destination),
+    href: contextualHref(world, language, currentQuery, { [locationParam]: isWholeCountrySelection(destination) ? null : destination }),
+    meta: discovery.destinationMeta,
+  }));
+  const contextualLinks: DiscoveryLink[] = searchSuggestions.length
+    ? searchSuggestions.map((item) => ({ label: translate(item.label), href: contextualHref(world, language, currentQuery, item.params), meta: discovery.searchMeta }))
+    : content.related.map((item) => ({ label: translate(item.label), href: localizedPath(item.href, language), meta: discovery.searchMeta }));
+  const isExactPlace = Boolean(location && !isWholeCountrySelection(location) && (world === "vacation" ? properties : world === "events" ? eventPlaces : []).some((item) => item.location === location));
+  const destinationTitle = !location || isWholeCountrySelection(location) ? discovery.countryAreas : isExactPlace ? discovery.nearbyPlaces : discovery.regionPlaces;
 
   return <section className={`search-depth search-depth--${world}`} aria-label={`מידע נוסף לתכנון${locationLabel}`}>
     {!hideGuideAndFaq ? <StructuredData data={faqSchema(content.faqs)} /> : null}
@@ -169,9 +358,10 @@ export function SearchAfterResults({
         <div>{content.faqs.map((item) => <details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}</div>
       </section> : null}
 
-      <section className="search-depth__related" aria-labelledby={`search-related-${world}`}>
-        <div><span className="eyebrow">ממשיכים לחפש</span><h2 id={`search-related-${world}`}>חיפושים קשורים</h2><p>אפשר לעבור לחיפוש ממוקד נוסף בלי לאבד את הדרך חזרה לתוצאות.</p></div>
-        <nav aria-label="חיפושים קשורים">{content.related.map((item) => <Link key={`${item.href}-${item.label}`} href={item.href}>{item.label}</Link>)}</nav>
+      <section className="search-depth__related search-depth__discovery" aria-labelledby={`search-related-${world}`}>
+        <div className="search-depth__discovery-intro"><span className="eyebrow">{discovery.eyebrow}</span><h2 id={`search-related-${world}`}>{discovery.title}</h2><p>{discovery.intro}</p></div>
+        <DiscoveryRail title={destinationTitle} links={destinationLinks} previousLabel={discovery.previous} nextLabel={discovery.next} />
+        <DiscoveryRail title={searchSuggestions.length ? discovery.tailoredSearches : discovery.generalSearches} links={contextualLinks} previousLabel={discovery.previous} nextLabel={discovery.next} />
       </section>
     </div>
   </section>;

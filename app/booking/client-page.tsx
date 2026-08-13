@@ -26,6 +26,8 @@ type Props = {
   onlineReady?: boolean;
   phone?: string;
   illustrative?: boolean;
+  demoOwnerEmail?: string;
+  demoProperty?: boolean;
 };
 
 export default function BookingPageClient(props: Props) {
@@ -55,6 +57,7 @@ export default function BookingPageClient(props: Props) {
   const [paymentMethod, setPaymentMethod] = useState<"pay_now" | "pay_at_venue" | "">("");
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [successExplanationOpen, setSuccessExplanationOpen] = useState(false);
+  const demoReference = props.demoProperty ? "PALUMBO-DEMO" : "DEMO";
   const isManage = props.action === "manage";
   const onlineReady = props.world !== "vacation" || Boolean(props.onlineReady);
   const usesSpaPayment = props.world === "spa" && !isManage;
@@ -132,7 +135,7 @@ export default function BookingPageClient(props: Props) {
   }
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (props.illustrative) { setReference("DEMO"); setState("success"); return; }
+    if (props.illustrative) { setReference(demoReference); setState("success"); return; }
     if (step !== 3 || state === "submitting" || state === "success") return;
     setState("submitting");
     const values = new FormData(event.currentTarget);
@@ -210,6 +213,21 @@ export default function BookingPageClient(props: Props) {
         </div>
         <div className="booking-success__actions"><button className="button secondary" type="button" onClick={() => window.print()}>הדפסת הסיכום</button><Link className="button primary" href="/account">לצפייה בהזמנות שלי</Link><Link className="button subtle" href="/">חזרה לדף הבית</Link></div>
       </section>
+      {props.demoProperty ? <section className="booking-notification-preview" aria-labelledby="booking-notification-preview-title">
+        <header>
+          <span className="eyebrow">תצוגה מקדימה בלבד</span>
+          <h2 id="booking-notification-preview-title">מה הלקוח ובעל המקום היו מקבלים</h2>
+          <p>ההודעות הבאות לא נשלחו. הן מציגות את התוכן והיעדים הדרושים לפני חיבור ספקי מייל, מסרונים ווואטסאפ מאומתים.</p>
+        </header>
+        <div className="booking-notification-preview__grid">
+          <article><small>לקוח, מייל</small><strong>{email || "כתובת מלאה טרם נמסרה"}</strong><p>התקבלה בקשת הזמנה לוילה פלומבו. התאריכים, האורחים והמחיר נשמרו בהמחשה, ללא חיוב.</p><em>לא נשלח</em></article>
+          <article><small>לקוח, מסרון</small><strong dir="ltr">{phone || "מספר טרם נמסר"}</strong><p>בקשת ההזמנה התקבלה. מספר ההמחשה הוא PALUMBO-DEMO.</p><em>לא נשלח</em></article>
+          <article><small>לקוח, וואטסאפ</small><strong dir="ltr">{phone || "מספר טרם נמסר"}</strong><p>סיכום קצר עם שם המקום, התאריכים, המחיר וקישור לצפייה בהזמנה.</p><em>לא נשלח</em></article>
+          <article><small>בעל המקום, מייל</small><strong dir="ltr">{props.demoOwnerEmail || "adir@wplus.co.il"}</strong><p>התקבלה הזמנה חדשה עם פרטי הלקוח, התאריכים, ההרכב והמחיר שנבחר.</p><em>לא נשלח</em></article>
+          <article><small>בעל המקום, מסרון</small><strong>מספר בעל המקום טרם נמסר</strong><p>התראה קצרה על הזמנה חדשה וקישור למערכת הניהול.</p><em>לא נשלח</em></article>
+          <article><small>בעל המקום, וואטסאפ</small><strong>מספר בעל המקום טרם נמסר</strong><p>כרטיס הזמנה מסודר עם אפשרות לצפות, לאשר או ליצור קשר עם הלקוח.</p><em>לא נשלח</em></article>
+        </div>
+      </section> : null}
     </main>
     {successExplanationOpen ? <div className="booking-payment-layer" onMouseDown={(event) => event.target === event.currentTarget && setSuccessExplanationOpen(false)}>
       <section ref={paymentDialogRef} className="booking-payment-dialog booking-payment-dialog--success" role="dialog" aria-modal="true" aria-labelledby={paymentTitleId}>

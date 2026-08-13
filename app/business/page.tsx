@@ -32,6 +32,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     alternates: { canonical: `/business?id=${property.slug}` },
     openGraph: { type: "website", url: `/business?id=${property.slug}`, title: property.name, description: property.description, images: [{ url: property.image, alt: property.name }] },
     twitter: { card: "summary_large_image", title: property.name, description: property.description, images: [property.image] },
+    robots: property.demoOperations?.fictional ? { index: false, follow: false } : undefined,
   };
 }
 
@@ -53,7 +54,7 @@ export default async function Page({ searchParams }: Props) {
         ? [{ name: "ראשי", path: "/" }, { name: "חדרים לפי שעה", path: "/hourly" }]
         : [{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, vacationArea];
   return <>
-    <StructuredData data={lodgingSchema(property)} />
+    {!property.demoOperations?.fictional ? <StructuredData data={lodgingSchema(property)} /> : null}
     <StructuredData data={breadcrumbSchema([
       ...hierarchy,
       { name: property.name, path: `/business?id=${property.slug}` },

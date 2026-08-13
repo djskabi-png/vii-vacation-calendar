@@ -133,26 +133,26 @@ function availabilityFor(date: Date, mode: CalendarMode, businessKind: BusinessK
   return { kind: "open", units: 4, label: "4 יחידות פנויות" };
 }
 
-function rangeHasBusyDate(start: string, end: string, businessKind: BusinessKind = "multi") {
+function rangeHasBusyDate(start: string, end: string, businessKind: BusinessKind = "multi", resolver?: (date: Date) => Availability) {
   const cursor = addDays(dateFromKey(start), 1);
   const finish = dateFromKey(end);
   while (cursor < finish) {
-    if (availabilityFor(cursor, "business", businessKind).kind === "busy") return true;
+    if ((resolver ? resolver(cursor) : availabilityFor(cursor, "business", businessKind)).kind === "busy") return true;
     cursor.setDate(cursor.getDate() + 1);
   }
   return false;
 }
 
-function findQuickRange(mode: CalendarMode, nights: number, preferredDay: number, businessKind: BusinessKind = "multi") {
+function findQuickRange(mode: CalendarMode, nights: number, preferredDay: number, businessKind: BusinessKind = "multi", resolver?: (date: Date) => Availability) {
   let candidate = addDays(DEMO_TODAY, 1);
   for (let attempt = 0; attempt < 220; attempt += 1) {
     const stayLength = mode === "business" ? Math.max(nights, minimumNights(candidate)) : nights;
     const end = addDays(candidate, stayLength);
-    const startState = availabilityFor(candidate, mode, businessKind);
+    const startState = resolver ? resolver(candidate) : availabilityFor(candidate, mode, businessKind);
     if (
       candidate.getDay() === preferredDay &&
       startState.kind !== "busy" &&
-      (mode === "home" || !rangeHasBusyDate(keyOf(candidate), keyOf(end), businessKind))
+      (mode === "home" || !rangeHasBusyDate(keyOf(candidate), keyOf(end), businessKind, resolver))
     ) {
       return { start: keyOf(candidate), end: keyOf(end) };
     }
@@ -170,6 +170,8 @@ function CalendarMonth({
   businessKind,
   secondary,
   locale,
+  availabilityResolver,
+  priceResolver,
 }: {
   month: Date;
   mode: CalendarMode;
@@ -179,6 +181,8 @@ function CalendarMonth({
   businessKind: BusinessKind;
   secondary?: boolean;
   locale: string;
+  availabilityResolver?: (date: Date) => Availability;
+  priceResolver?: (date: Date) => number;
 }) {
   const weekdays = useMemo(() => Array.from({ length: 7 }, (_, index) => new Intl.DateTimeFormat(locale, { weekday: "narrow" }).format(new Date(2026, 7, 2 + index))), [locale]);
 
@@ -202,9 +206,16 @@ function CalendarMonth({
         {cells.map((date, index) => {
           if (!date) return <span className="demo-day-empty" key={`empty-${index}`} />;
           const key = keyOf(date);
-          const state = availabilityFor(date, mode, businessKind);
+          const state = availabilityResolver ? availabilityResolver(date) : availabilityFor(date, mode, businessKind);
           const min = mode === "business" ? minimumNights(date) : 1;
-          const disabled = state.kind === "past" || state.kind === "busy";
+          const canBeCheckout = Boolean(
+            checkIn &&
+            !checkOut &&
+            key > checkIn &&
+            state.kind === "busy" &&
+            !rangeHasBusyDate(checkIn, key, businessKind, availabilityResolver),
+          );
+          const disabled = state.kind === "past" || (state.kind === "busy" && !canBeCheckout);
           const isStart = key === checkIn;
           const isEnd = key === checkOut;
           const inRange = Boolean(checkIn && checkOut && key > checkIn && key < checkOut);
@@ -222,13 +233,14 @@ function CalendarMonth({
               ].filter(Boolean).join(" ")}
               disabled={disabled}
               aria-pressed={isStart || isEnd}
-              aria-label={`${date.getDate()} ${monthLabel(month, locale)}, ${state.label}${mode === "business" && min > 1 ? `, מינימום ${min} לילות` : ""}`}
+              aria-label={`${date.getDate()} ${monthLabel(month, locale)}, ${canBeCheckout ? "אפשרי כתאריך עזיבה" : state.label}${mode === "business" && min > 1 ? `, מינימום ${min} לילות` : ""}`}
               onClick={() => onChoose(date)}
             >
               <span className="demo-day-number">{date.getDate()}</span>
+              {priceResolver && state.kind !== "past" ? <span className="demo-day-price" dir="rtl">{priceResolver(date).toLocaleString("he-IL")} ₪</span> : null}
               {mode === "business" && state.kind !== "past" && (
                 <span className="demo-availability">
-                  {state.kind === "busy" ? "תפוס" : businessKind === "single" ? "פנוי" : state.units === 1 ? "1 פנויה" : `${state.units} פנויות`}
+                  {canBeCheckout ? "עזיבה" : state.kind === "busy" ? "תפוס" : businessKind === "single" ? "פנוי" : state.units === 1 ? "1 פנויה" : `${state.units} פנויות`}
                 </span>
               )}
               {mode === "business" && min > 1 && !disabled && <span className="demo-minimum">מינ׳ {min}</span>}
@@ -248,6 +260,8 @@ export function CalendarDemo({
   onClose,
   onCancel,
   onConfirm,
+  availabilityResolver,
+  priceResolver,
 }: {
   mode: CalendarMode;
   businessKind?: BusinessKind;
@@ -256,6 +270,8 @@ export function CalendarDemo({
   onClose: () => void;
   onCancel?: () => void;
   onConfirm: (result: CalendarResult) => void;
+  availabilityResolver?: (date: Date) => Availability;
+  priceResolver?: (date: Date) => number;
 }) {
   const { language, translate } = useSiteLanguage();
   const dateLocale = { he: "he-IL", en: "en-GB", ru: "ru-RU", fr: "fr-FR" }[language];
@@ -304,7 +320,7 @@ export function CalendarDemo({
       setNotice("תאריך ההגעה עודכן, עכשיו בחרו עזיבה");
       return;
     }
-    if (mode === "business" && rangeHasBusyDate(checkIn, key, businessKind)) {
+    if (mode === "business" && rangeHasBusyDate(checkIn, key, businessKind, availabilityResolver)) {
       setNotice("יש יום תפוס בתוך הטווח, בחרו טווח אחר");
       return;
     }
@@ -317,7 +333,7 @@ export function CalendarDemo({
   function applyQuickStay(id: (typeof QUICK_STAYS)[number]["id"]) {
     const quick = QUICK_STAYS.find((item) => item.id === id);
     if (!quick) return;
-    const range = findQuickRange(mode, quick.nights, quick.preferredDay, businessKind);
+    const range = findQuickRange(mode, quick.nights, quick.preferredDay, businessKind, availabilityResolver);
     if (!range) return;
     setCheckIn(range.start);
     setCheckOut(range.end);
@@ -425,7 +441,7 @@ export function CalendarDemo({
 
             <div className="dialog-months" aria-label="אופן בחירת תאריכים">
               {visibleMonths.map((month) => (
-                <CalendarMonth key={keyOf(month)} month={month} mode={mode} businessKind={businessKind} checkIn={checkIn} checkOut={checkOut} onChoose={chooseDate} locale={dateLocale} />
+                <CalendarMonth key={keyOf(month)} month={month} mode={mode} businessKind={businessKind} checkIn={checkIn} checkOut={checkOut} onChoose={chooseDate} locale={dateLocale} availabilityResolver={availabilityResolver} priceResolver={priceResolver} />
               ))}
             </div>
 

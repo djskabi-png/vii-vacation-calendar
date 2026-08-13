@@ -41,7 +41,9 @@ function resolveBooking(params: Awaited<Props["searchParams"]>) {
     price: params.price ? `${Number(params.price).toLocaleString("he-IL")} ₪${params.illustrative === "1" ? ", מחיר לדוגמה" : ", בכפוף לאישור זמינות"}` : "מחיר סופי לאחר בחירת תאריך",
     onlineReady: Boolean(params.from && params.till && params.price && Number(params.price) > 0),
     phone: property.contact?.phone,
-    illustrative: params.illustrative === "1",
+    illustrative: params.illustrative === "1" || property.demoOperations?.fictional === true,
+    demoOwnerEmail: property.demoOperations?.ownerEmail,
+    demoProperty: property.demoOperations?.fictional === true,
   };
 
   const eventPlace = eventPlaces.find((item) => item.slug === params.place);

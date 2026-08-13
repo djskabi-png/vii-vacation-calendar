@@ -1,8 +1,10 @@
 import verifiedCatalog from "./verified-catalog.json";
+import { legacyVacationProfiles, type LegacyReview } from "./legacy-vacation-profiles";
 
 export type Listing = {
   slug: string;
   active?: boolean;
+  indexable?: boolean;
   name: string;
   location: string;
   area: string;
@@ -23,6 +25,10 @@ export type Listing = {
   scenario: "single" | "multi";
   score?: number;
   reviews?: number;
+  reviewHighlights?: LegacyReview[];
+  reviewSource?: "legacy-verified" | "fictional-demo";
+  guestPhotos?: ListingGuestPhoto[];
+  legacySource?: { sourceUrl: string; checkedAt: string };
   price?: number;
   dateQuotes?: ListingDateQuote[];
   roomOptions?: StayOption[];
@@ -30,6 +36,16 @@ export type Listing = {
   videos?: ListingVideo[];
   contact?: ListingContact;
   offerings?: BusinessOffering[];
+  demoOperations?: ListingDemoOperations;
+};
+
+export type ListingDemoOperations = {
+  fictional: true;
+  ownerEmail: string;
+  availabilityPattern: "two-open-two-busy";
+  weekdayNightlyPrice: number;
+  weekendNightlyPrice: number;
+  disclosure: string;
 };
 
 export type ListingAvailability = "available" | "unavailable" | "unknown";
@@ -72,9 +88,17 @@ export type ListingVideo = {
   note: string;
 };
 
+export type ListingGuestPhoto = {
+  src: string;
+  alt: string;
+  author: string;
+  illustrative?: boolean;
+};
+
 export type ListingContact = {
   phone?: string;
   whatsapp?: string;
+  email?: string;
 };
 
 export type StayOption = {
@@ -120,6 +144,99 @@ const commonVacationFaq = [
 export const propertyFaq = commonVacationFaq;
 
 const propertyCatalog: Property[] = [
+  {
+    slug: "villa-palumbo-demo",
+    indexable: false,
+    name: "וילה פלומבו",
+    location: "אזור קיסריה, כתובת בדיקה בדיונית",
+    area: "מישור החוף והשרון",
+    type: "וילת נופש",
+    units: 1,
+    guests: 8,
+    bedrooms: 4,
+    image: "/media/villa-palumbo-demo/exterior.webp",
+    images: [
+      "/media/villa-palumbo-demo/exterior.webp",
+      "/media/villa-palumbo-demo/living-room.webp",
+      "/media/villa-palumbo-demo/kitchen.webp",
+      "/media/villa-palumbo-demo/master-bedroom.webp",
+      "/media/villa-palumbo-demo/bedroom-two.webp",
+      "/media/villa-palumbo-demo/bedroom-three.webp",
+      "/media/villa-palumbo-demo/bedroom-four.webp",
+      "/media/villa-palumbo-demo/outdoor-dining.webp",
+      "/media/villa-palumbo-demo/terrace-twilight.webp",
+    ],
+    videos: [{
+      title: "סיור המחשה בוילה פלומבו",
+      src: "/media/villa-palumbo-demo/tour.mp4",
+      poster: "/media/villa-palumbo-demo/exterior.webp",
+      note: "סרטון המחשה שנבנה מתמונות שנוצרו בבינה מלאכותית. הוא אינו צילום של מקום אמיתי.",
+    }],
+    guestPhotos: [
+      { src: "/media/villa-palumbo-demo/guest-breakfast.webp", alt: "ארוחת בוקר ליד הבריכה, תמונת אורח לדוגמה", author: "משפחת לוי, דוגמה בדיונית", illustrative: true },
+      { src: "/media/villa-palumbo-demo/guest-sunset.webp", alt: "הבריכה בשעת שקיעה, תמונת אורח לדוגמה", author: "נועה ודן, דוגמה בדיונית", illustrative: true },
+    ],
+    description: "מתחם בדיקה בדיוני שנבנה כדי לבחון יומן, מחיר מלא, הזמנה מהירה והודעות אישור. הווילה, הכתובת והתמונות אינן מתארות עסק או מקום אמיתי.",
+    features: ["בריכת שחייה פרטית", "4 חדרי שינה", "מטבח מאובזר", "פינת אוכל חיצונית", "חניה פרטית"],
+    highlights: [
+      { label: "בריכת שחייה פרטית", icon: "pool" },
+      { label: "4 חדרי שינה", icon: "units" },
+      { label: "מטבח מאובזר", icon: "kitchen" },
+      { label: "גינה ופינת אוכל", icon: "garden" },
+      { label: "חניה פרטית", icon: "parking" },
+    ],
+    featureGroups: [
+      { title: "במתחם", items: ["בריכת שחייה פרטית", "גינה", "פינת אוכל חיצונית", "מטבח חוץ"] },
+      { title: "בתוך הווילה", items: ["4 חדרי שינה", "סלון", "מטבח מאובזר", "מיזוג אוויר"] },
+      { title: "חשוב לדעת", items: ["מתחם בדיקה בדיוני", "תמונות המחשה שנוצרו בבינה מלאכותית", "אין להגיע לכתובת"] },
+    ],
+    audiences: ["משפחות", "זוגות", "קבוצות קטנות"],
+    badges: ["מתחם בדיקה בדיוני", "תמונות המחשה"],
+    lat: 32.5,
+    lng: 34.9,
+    scenario: "single",
+    score: 9.6,
+    reviews: 18,
+    reviewSource: "fictional-demo",
+    reviewHighlights: [
+      { author: { he: "משפחת כהן, דוגמה בדיונית", en: "Cohen family, fictional example", ru: "Семья Коэн, вымышленный пример", fr: "Famille Cohen, exemple fictif" }, visitedAt: "2026-07-18", rating: 10, summary: { he: "דוגמת חוות דעת: החלוקה בין החדרים נוחה, המטבח מרווח והבריכה נשארת במרכז החוויה המשפחתית.", en: "Sample review: the bedroom layout is convenient, the kitchen is spacious and the pool anchors the family stay.", ru: "Пример отзыва: удобная планировка спален, просторная кухня, а бассейн стал центром семейного отдыха.", fr: "Avis d’exemple : la répartition des chambres est pratique, la cuisine spacieuse et la piscine au cœur du séjour familial." } },
+      { author: { he: "נועה ודן, דוגמה בדיונית", en: "Noa and Dan, fictional example", ru: "Ноа и Дэн, вымышленный пример", fr: "Noa et Dan, exemple fictif" }, visitedAt: "2026-07-05", rating: 9, summary: { he: "דוגמת חוות דעת: אהבנו במיוחד את אזור הישיבה בחוץ ואת הפרטיות סביב הבריכה.", en: "Sample review: we especially liked the outdoor lounge and the privacy around the pool.", ru: "Пример отзыва: особенно понравилась зона отдыха на улице и приватность у бассейна.", fr: "Avis d’exemple : nous avons particulièrement aimé le salon extérieur et l’intimité autour de la piscine." } },
+      { author: { he: "קבוצת חברים, דוגמה בדיונית", en: "Friends group, fictional example", ru: "Компания друзей, вымышленный пример", fr: "Groupe d’amis, exemple fictif" }, visitedAt: "2026-06-26", rating: 10, summary: { he: "דוגמת חוות דעת: ארבעת החדרים אפשרו לכולם מרחב אישי, והסלון התאים לארוחה משותפת.", en: "Sample review: four bedrooms gave everyone personal space and the lounge worked well for a shared meal.", ru: "Пример отзыва: четыре спальни дали всем личное пространство, а гостиная подошла для общего ужина.", fr: "Avis d’exemple : les quatre chambres ont offert de l’espace à chacun et le salon convenait au repas commun." } },
+    ],
+    price: 2400,
+    contact: { email: "adir@wplus.co.il" },
+    offerings: [{
+      world: "vacation",
+      label: "נופש ולינה",
+      summary: "יומן בדיקה עם מחיר לכל לילה והזמנה מהירה בתאריכים הפנויים.",
+      bookingMode: "instant-book",
+      maxGuests: 8,
+      minimumNights: 2,
+    }],
+    demoOperations: {
+      fictional: true,
+      ownerEmail: "adir@wplus.co.il",
+      availabilityPattern: "two-open-two-busy",
+      weekdayNightlyPrice: 2400,
+      weekendNightlyPrice: 3200,
+      disclosure: "מתחם בדיקה בדיוני. לא נשלחת הזמנה ולא מתבצע חיוב.",
+    },
+    roomOptions: [{
+      name: "וילה פלומבו, מתחם מלא",
+      quantity: 1,
+      guests: 8,
+      bedrooms: 4,
+      area: 260,
+      image: "/media/villa-palumbo-demo/kitchen.webp",
+      features: ["4 חדרי שינה", "3 חדרי רחצה", "סלון ומטבח", "בריכה פרטית", "חצר"],
+    }],
+    sleepingArrangements: [
+      { name: "חדר הורים", beds: [{ type: "מיטה זוגית", count: 1 }], amenities: ["חדר רחצה", "יציאה למרפסת"], galleryImage: "/media/villa-palumbo-demo/master-bedroom.webp" },
+      { name: "חדר שינה 2", beds: [{ type: "מיטה זוגית", count: 1 }], amenities: ["מיזוג אוויר", "ארון", "חלון לגינה"], galleryImage: "/media/villa-palumbo-demo/bedroom-two.webp" },
+      { name: "חדר שינה 3", beds: [{ type: "מיטת יחיד", count: 2 }], amenities: ["מיזוג אוויר", "ארון", "מתאים לילדים"], galleryImage: "/media/villa-palumbo-demo/bedroom-three.webp" },
+      { name: "חדר שינה 4", beds: [{ type: "מיטה זוגית", count: 1 }], amenities: ["מיזוג אוויר", "פינת עבודה", "חלון לגינה"], galleryImage: "/media/villa-palumbo-demo/bedroom-four.webp" },
+    ],
+  },
   {
     slug: "aqua-resort",
     name: "אקווה ריזורט, וילת החוף",
@@ -415,6 +532,7 @@ const propertyCatalog: Property[] = [
 ];
 
 const activePropertyOrder = [
+  "villa-palumbo-demo",
   "aqua-resort",
   "kesem-harimon",
   "ahuzat-or",
@@ -431,7 +549,9 @@ function readVerifiedCount(value: string, pattern: RegExp) {
   return match ? Number(match[1]) : undefined;
 }
 
-const verifiedProperties: Property[] = verifiedCatalog.vacation.map((item) => ({
+const verifiedProperties: Property[] = verifiedCatalog.vacation.map((item) => {
+  const legacyProfile = legacyVacationProfiles[item.id];
+  return ({
   slug: item.id,
   name: item.name,
   location: item.location,
@@ -443,14 +563,21 @@ const verifiedProperties: Property[] = verifiedCatalog.vacation.map((item) => ({
   image: item.image,
   images: item.images,
   description: item.description,
-  features: item.features,
+  features: legacyProfile?.features || item.features,
+  highlights: legacyProfile?.highlights,
+  featureGroups: legacyProfile?.featureGroups,
   audiences: ["משפחות", "זוגות", "קבוצות"],
   badges: [item.area, "מידע ותמונות מאומתים"],
   lat: item.lat,
   lng: item.lng,
   scenario: "single",
-  price: "price" in item && typeof item.price === "number" ? item.price : undefined,
-}));
+  score: legacyProfile?.rating,
+  reviews: legacyProfile?.reviewCount,
+  reviewHighlights: legacyProfile?.reviews,
+  legacySource: legacyProfile ? { sourceUrl: legacyProfile.sourceUrl, checkedAt: legacyProfile.checkedAt } : undefined,
+  price: legacyProfile?.verifiedStartingPrice ?? ("price" in item && typeof item.price === "number" ? item.price : undefined),
+  });
+});
 
 const unavailablePropertyImages = new Set([
   "/media/c3a6274bfd08091a.jpeg",

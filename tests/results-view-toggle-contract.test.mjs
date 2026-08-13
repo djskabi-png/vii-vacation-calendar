@@ -24,7 +24,9 @@ test("all commercial result worlds share a grid-first view toggle", () => {
 test("view choice is accessible, localized and grid-first on every fresh search", () => {
   assert.match(toggle, /aria-pressed=\{value === "grid"\}/);
   assert.match(toggle, /aria-pressed=\{value === "list"\}/);
-  assert.match(toggle, /const next = requested === "list" \? "list" : "grid"/);
+  assert.match(toggle, /window\.matchMedia\("\(max-width: 820px\)"\)/);
+  assert.match(toggle, /if \(mobileQuery\.matches\)[\s\S]*?setViewModeState\("grid"\)/);
+  assert.match(toggle, /url\.searchParams\.delete\("view"\)/);
   assert.doesNotMatch(toggle, /localStorage\.(?:getItem|setItem)/);
   assert.match(toggle, /url\.searchParams\.set\("view", "list"\)/);
   assert.match(toggle, /he: \{ label: "בחירת תצוגת תוצאות", grid: "כרטיסים", list: "רשימה" \}/);
@@ -33,14 +35,16 @@ test("view choice is accessible, localized and grid-first on every fresh search"
   assert.match(toggle, /fr: \{ label: "Choisir l’affichage des résultats", grid: "Grille", list: "Liste" \}/);
 });
 
-test("grid and list layouts cover desktop and narrow mobile cards", () => {
+test("desktop supports both layouts while mobile is always a clean card grid", () => {
   assert.match(styles, /\.result-cards\.results-view--grid \{ grid-template-columns: repeat\(3/);
   assert.match(styles, /\.event-list\.results-view--grid \{ grid-template-columns: repeat\(3/);
   assert.match(styles, /\.discovery-grid\.results-view--list \.discovery-card \{ display: grid; grid-template-columns: 290px/);
   assert.match(styles, /@media \(max-width: 620px\)/);
-  assert.match(styles, /\.result-cards\.results-view--list \.stay-card \{ grid-template-columns: 124px/);
+  assert.match(styles, /@media \(max-width: 820px\)[\s\S]*?\.results-view-toggle \{ display: none !important; \}/);
+  assert.match(styles, /Defensive fallback for an old bookmarked URL/);
+  assert.match(styles, /\.result-cards\.results-view--list \.stay-card,[\s\S]*?display: block/);
   assert.match(styles, /\.results-toolbar \{ position: relative; z-index: 20; \}/);
   assert.match(styles, /font-family: Rubik, Heebo, Assistant, Arial, sans-serif/);
   assert.match(styles, /\.spa-results__heading,[\s\S]*?grid-template-columns: minmax\(0, 1fr\) auto/);
-  assert.match(styles, /\.spa-results__heading > \.results-view-toggle,[\s\S]*?display: inline-flex !important/);
+  assert.doesNotMatch(styles, /max-width: 620px[\s\S]*?\.results-view-toggle button \{ width: 42px/);
 });

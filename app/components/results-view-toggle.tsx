@@ -24,10 +24,25 @@ export function useResultsViewMode(world: string) {
   const [viewMode, setViewModeState] = useState<ResultsViewMode>("grid");
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const requested = params.get("view");
-    const next = requested === "list" ? "list" : "grid";
-    setViewModeState(next);
+    const mobileQuery = window.matchMedia("(max-width: 820px)");
+
+    const syncViewMode = () => {
+      const url = new URL(window.location.href);
+      const requested = url.searchParams.get("view");
+      if (mobileQuery.matches) {
+        setViewModeState("grid");
+        if (requested === "list") {
+          url.searchParams.delete("view");
+          window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+        }
+        return;
+      }
+      setViewModeState(requested === "list" ? "list" : "grid");
+    };
+
+    syncViewMode();
+    mobileQuery.addEventListener("change", syncViewMode);
+    return () => mobileQuery.removeEventListener("change", syncViewMode);
   }, [world]);
 
   const setViewMode = useCallback((next: ResultsViewMode) => {

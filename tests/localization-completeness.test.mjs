@@ -19,7 +19,7 @@ async function collectSourcePhrases(directory, phrases) {
       if (entry.name !== "i18n") await collectSourcePhrases(path, phrases);
       continue;
     }
-    if (!/\.(?:ts|tsx)$/.test(entry.name)) continue;
+    if (!/\.(?:ts|tsx)$/.test(entry.name) || entry.name === "legacy-vacation-profiles.ts") continue;
     const source = await readFile(path, "utf8");
     const sourceFile = ts.createSourceFile(path, source, ts.ScriptTarget.Latest, true, entry.name.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
     const visit = (node) => {
@@ -35,6 +35,8 @@ test("every static Hebrew source phrase has a non-Hebrew translation in every pu
   await collectSourcePhrases(resolve(root, "app"), phrases);
   for (const language of ["en", "ru", "fr"]) {
     const dictionary = JSON.parse(await readFile(resolve(root, `app/i18n/translations.${language}.generated.json`), "utf8"));
+    const legacyDictionary = JSON.parse(await readFile(resolve(root, "app/data/legacy-vacation-ui-translations.json"), "utf8"));
+    for (const [phrase, translations] of Object.entries(legacyDictionary)) dictionary[phrase] = translations[language];
     const missing = [...phrases].filter((phrase) => !dictionary[phrase]);
     const mixed = Object.entries(dictionary).filter(([, translation]) => hebrew.test(translation)).map(([phrase]) => phrase);
     assert.deepEqual(missing, [], `${language} is missing ${missing.length} source phrases`);

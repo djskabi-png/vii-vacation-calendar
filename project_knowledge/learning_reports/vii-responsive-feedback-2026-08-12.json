@@ -1,0 +1,753 @@
+{
+  "schema_version": 2,
+  "period": {
+    "start": "2026-08-11",
+    "end": "2026-08-13"
+  },
+  "mode": "full",
+  "explicit_threads": [
+    "019fed6b-96e9-72b3-9d2e-23fff1cee25a"
+  ],
+  "missing_explicit_threads": [],
+  "files_discovered": 1,
+  "files_scanned": 1,
+  "files_skipped_for_manual_review": [],
+  "excluded_subagent_sessions": 0,
+  "sessions_scanned": 1,
+  "messages_total": 88,
+  "messages_unique": 88,
+  "bytes_read": 697165401,
+  "candidate_lines": 109,
+  "parse_errors": 0,
+  "projects": {
+    "vii.co.il": 88
+  },
+  "themes": {
+    "search_filter_map": {
+      "occurrences": 24,
+      "unique_messages": 24,
+      "sessions": 1,
+      "projects": {
+        "vii.co.il": 24
+      },
+      "proposal_status": "candidate_project_or_skill",
+      "acceptance_check_seed": "Test search, filter, reset, URL state, map clusters, pins and result synchronization.",
+      "examples": [
+        {
+          "evidence_id": "2bd4202454eae799",
+          "timestamp": "2026-08-12T02:22:56.430Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "בבתי ספא חיפוש לא חובה לבחור למי מזמינים"
+        },
+        {
+          "evidence_id": "4347eb8ed19048a7",
+          "timestamp": "2026-08-12T02:51:21.711Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "למה האיקס בצד ימין מסתיר מילה? בכל החיפושים"
+        },
+        {
+          "evidence_id": "b46e877cf73c728e",
+          "timestamp": "2026-08-12T09:35:07.411Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "המפה עובדת טוב השאלה אם אפשר שהיא תהיה יותר יפה ?"
+        },
+        {
+          "evidence_id": "e607572699ee9084",
+          "timestamp": "2026-08-12T10:18:54.158Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "בכל תוצאות החיפוש אני רוצה שהדיפולט יהיה כרטיסים במחשב ובנייד"
+        },
+        {
+          "evidence_id": "b9cab9404c07ae16",
+          "timestamp": "2026-08-12T02:40:29.208Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "בכל עולם בחיפוש תשים אייקון למעלה ממה למעלה ליד האיקס - קנה שובר מתנה"
+        }
+      ]
+    },
+    "mobile_readability": {
+      "occurrences": 10,
+      "unique_messages": 10,
+      "sessions": 1,
+      "projects": {
+        "vii.co.il": 10
+      },
+      "proposal_status": "candidate_project_or_skill",
+      "acceptance_check_seed": "Verify readable type, controls, spacing, overflow and complete flows on mobile.",
+      "examples": [
+        {
+          "evidence_id": "e299df4780160122",
+          "timestamp": "2026-08-12T07:47:01.517Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "בנייד עכשיו זה ככה"
+        },
+        {
+          "evidence_id": "3941bfea60122ed3",
+          "timestamp": "2026-08-12T16:09:23.393Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "תעשה נעילת תזוזה של הנייד תבדוק סליידרים וקוד של האתר"
+        },
+        {
+          "evidence_id": "e607572699ee9084",
+          "timestamp": "2026-08-12T10:18:54.158Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "בכל תוצאות החיפוש אני רוצה שהדיפולט יהיה כרטיסים במחשב ובנייד"
+        },
+        {
+          "evidence_id": "223fb98879d9b4b2",
+          "timestamp": "2026-08-12T16:08:16.964Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "בנייד עדיין לא עובד דברים בחיפוש פתאום נעלם תאריכים פתאום מסך לבן עדיין ככה"
+        },
+        {
+          "evidence_id": "1283cc2ac4c1ef0f",
+          "timestamp": "2026-08-11T03:24:25.558Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "מקומות לאירועים - לשים שם גם הצג טלפון ואז מספר כמו בנופש, גם וואטסאפ כמו בנופש"
+        }
+      ]
+    },
+    "outbound_identity": {
+      "occurrences": 9,
+      "unique_messages": 9,
+      "sessions": 1,
+      "projects": {
+        "vii.co.il": 9
+      },
+      "proposal_status": "candidate_project_or_skill",
+      "acceptance_check_seed": "Verify the approved sender, recipient, content, idempotency key and delivery evidence.",
+      "examples": [
+        {
+          "evidence_id": "f7139bbc41d4045d",
+          "timestamp": "2026-08-11T18:41:32.431Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "שלחצתי שיתוף זה עמוד ממש לא יפה"
+        },
+        {
+          "evidence_id": "5ce5817574a55b72",
+          "timestamp": "2026-08-11T10:51:57.855Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "תטמיע כל מה שהצעת ושלחתי תכלה הכל לציבורי"
+        },
+        {
+          "evidence_id": "c8975d9800706210",
+          "timestamp": "2026-08-11T02:17:21.471Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "תקן את המסקנות שלך בכל המקרים ששלחתי ועוד לא עשית ועלה לאוויר אחרי בדיקה"
+        },
+        {
+          "evidence_id": "e076bc784b243660",
+          "timestamp": "2026-08-11T03:39:22.969Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "בדף מקום לנופש וגם באירועים חייב שיהיה כפתור וואטסאפ גם בתוך הדף שלהם שנכנסים"
+        },
+        {
+          "evidence_id": "1283cc2ac4c1ef0f",
+          "timestamp": "2026-08-11T03:24:25.558Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "מקומות לאירועים - לשים שם גם הצג טלפון ואז מספר כמו בנופש, גם וואטסאפ כמו בנופש"
+        }
+      ]
+    },
+    "interaction_regression": {
+      "occurrences": 9,
+      "unique_messages": 9,
+      "sessions": 1,
+      "projects": {
+        "vii.co.il": 9
+      },
+      "proposal_status": "candidate_project_or_skill",
+      "acceptance_check_seed": "Test default, action, error, reset, close, back and low-height viewport states.",
+      "examples": [
+        {
+          "evidence_id": "b442c5e7072799e0",
+          "timestamp": "2026-08-11T23:44:02.760Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "כמה פעמים אותו כפתור באותו עמוד ראית ?"
+        },
+        {
+          "evidence_id": "cceb4e9e8b4f21b7",
+          "timestamp": "2026-08-11T18:25:02.217Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "אחרי שלוחצים הצג מספר המספר לא יושב טוב בכפתור"
+        },
+        {
+          "evidence_id": "ad71c6dc2da2ed2e",
+          "timestamp": "2026-08-11T05:36:57.957Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "לחיצה על מדיניות זורקת אותך לעמוד ואתה לא יכול לחזור לחלון שהיית"
+        },
+        {
+          "evidence_id": "3ebef8268c242fd4",
+          "timestamp": "2026-08-12T08:50:10.297Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "באתר זה לא עובד לא רואים את כל המצבים רק שאני לוחץ על הקישור שלך"
+        },
+        {
+          "evidence_id": "223fb98879d9b4b2",
+          "timestamp": "2026-08-12T16:08:16.964Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "בנייד עדיין לא עובד דברים בחיפוש פתאום נעלם תאריכים פתאום מסך לבן עדיין ככה"
+        }
+      ]
+    },
+    "media_integrity": {
+      "occurrences": 7,
+      "unique_messages": 7,
+      "sessions": 1,
+      "projects": {
+        "vii.co.il": 7
+      },
+      "proposal_status": "candidate_project_or_skill",
+      "acceptance_check_seed": "Verify source, rights, identity, labeling and fidelity of every public visual.",
+      "examples": [
+        {
+          "evidence_id": "c03620e62ddf0ee1",
+          "timestamp": "2026-08-11T11:29:05.602Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "לא צריך בתפריט העליון שים בהמבורגר את כל החשבון והתחברות ותמונה"
+        },
+        {
+          "evidence_id": "f04c3f537650ffa6",
+          "timestamp": "2026-08-11T05:12:34.835Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "צריך שיהיה התחברות באתר התמונה תופיע חשבון גוגל או פייסבוק או אינטסגרם"
+        },
+        {
+          "evidence_id": "ad8ed263f2ec0a26",
+          "timestamp": "2026-08-11T02:46:46.223Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "תעתיק מה שעשינו באתר הישן שזה נראה כמו ריבוע ששייך לוואטסאפ ממש המחשה לפתיחת שיחה רק שמכניסים פרטים ומתחילים שיחה, בצבעים והלוגו של וואטסאפ"
+        },
+        {
+          "evidence_id": "7e2438ce28791251",
+          "timestamp": "2026-08-11T01:28:13.077Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "המחיר לא יושב טוב ואחרי שעשיתי חיפוש לסוף שבוע באוגוסט ומצאתי מקום משם התמונות מסך [https://vii.spaplus.co/business?id=ahuzat-or](https://vii.spaplus.co/business?id=ahuzat-or) הגעתי לקישור הזה, לא אמור להיות המחשה לסוף שבוע באוגוסט למה שחיפשתי - לא כל כך מובן"
+        },
+        {
+          "evidence_id": "6754644657f5413d",
+          "timestamp": "2026-08-11T03:51:22.491Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "בספא שנכנסים מה הבעיה? תמונה ראשונה תמונה שניה מסך שלב 3 שם חסר להנכיס שאלה אופן התשלום: בכרטיס אשראי עכשיו או תשלום במקום כרטיס לבטחון ואז המשך > ואז פופ אפ של הזנת כרטיס אשראי לפי אופן התשלום של הלקוח שהוא בחר ומחזיר לדף סיכום הזמנה שבוצע עם פופ אפ הסבר וזה גם תנקיו פייג יהיה"
+        }
+      ]
+    },
+    "testing_and_regression": {
+      "occurrences": 6,
+      "unique_messages": 6,
+      "sessions": 1,
+      "projects": {
+        "vii.co.il": 6
+      },
+      "proposal_status": "candidate_project_or_skill",
+      "acceptance_check_seed": "Run automated and live regression checks for every affected flow and breakpoint.",
+      "examples": [
+        {
+          "evidence_id": "c8975d9800706210",
+          "timestamp": "2026-08-11T02:17:21.471Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "תקן את המסקנות שלך בכל המקרים ששלחתי ועוד לא עשית ועלה לאוויר אחרי בדיקה"
+        },
+        {
+          "evidence_id": "35b89bfb7579c030",
+          "timestamp": "2026-08-12T13:22:42.819Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "האתר מושלם עכשיו ? אני רוצה לעשות אני בדיקות אבל רק אחרי שבטוח תגיד לי שהכל בוצע ועובד?"
+        },
+        {
+          "evidence_id": "b5eab69e8fa01770",
+          "timestamp": "2026-08-12T12:07:24.129Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "תקשיב, הכל נתקע. אני נכנסתי מהנייד, אני מגיע למסך לבן. אני יכול להיכנס לתוך המסך, ואז פתאום אני רואה, מגדיל את זה, כאילו משהו לא סגור בנייד. לא מתפקד טוב בכלל. תעשה רגע בדיקה מקיפה על הקטע הזה. מה קרה פה? וגם אני פתאום לא רואה זמינות בנייד לפחות, שאני עושה כל הארץ, את הרביעי עד השישי בספטמבר, לזוג, כמו שאמרת לי. אז אני לא יודע מה לעשות."
+        },
+        {
+          "evidence_id": "5be531255fbf8417",
+          "timestamp": "2026-08-12T01:17:14.726Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "כבר יש תאריך ויש מחיר למה לא ישר להזמין את זה אני לא מבין איך להזמין במקום זה שמת 3 פעמים כפתור בדיקת זמינות לחיפוש זה במקום כפתור להזמין וזהו ואולי כפתור לשינוי תאריך אם עברת על האתר הישן מקרה כזה שיש תאריך שנמצא פנוי ויש מחיר אז זה לא שליחת בקשה בוואטסאם זה הזמנה מהירה (כבר היה בגירסה אחרת ואני לא מבין למה הורדת) רק שאין את 2 אלו אפשר לשים שליחת בקשה בוואטסאפ"
+        },
+        {
+          "evidence_id": "103902783c2624b0",
+          "timestamp": "2026-08-12T18:55:27.945Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "משהו לא טוב, משהו לא טוב. אני באתר, בדסקטופ, ואז אני עושה רפרש, ופתאום זה הופך להיות קטן כזה מצד שמאל, כמו נייד, ואני מנסה לעשות רפרש וזה חוזר, פתאום נתקע כמו, כאילו עשיתי F12 נייד, אם עשיתי F12 וחזרתי בכלל זה נתקע. משהו מוזר. אני רוצה שתעבור על זה כמו שצריך. התפקוד של החיפוש הרבה יותר טוב אני אמשיך לסדוק אחרי שתסדר אחת ולתמיד את הבעיות של גדלי המסך והקפיצות בין מצבים ופתאום נייד במחשב וכו תעשה בדק בית בעצמך תגדיר את כל הבדיקות שאתה הולך לעשות מה אתה מצפה שיקרה תתקן עד שיקרה ואז תודיע לי שהכל תקין אחת ולתמיד"
+        }
+      ]
+    },
+    "team_roster": {
+      "occurrences": 5,
+      "unique_messages": 5,
+      "sessions": 1,
+      "projects": {
+        "vii.co.il": 5
+      },
+      "proposal_status": "candidate_project_or_skill",
+      "acceptance_check_seed": "Use the smallest capable unit and keep the canonical roster aligned with deployed roles.",
+      "examples": [
+        {
+          "evidence_id": "b46e877cf73c728e",
+          "timestamp": "2026-08-12T09:35:07.411Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "המפה עובדת טוב השאלה אם אפשר שהיא תהיה יותר יפה ?"
+        },
+        {
+          "evidence_id": "3ebef8268c242fd4",
+          "timestamp": "2026-08-12T08:50:10.297Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "באתר זה לא עובד לא רואים את כל המצבים רק שאני לוחץ על הקישור שלך"
+        },
+        {
+          "evidence_id": "223fb98879d9b4b2",
+          "timestamp": "2026-08-12T16:08:16.964Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "בנייד עדיין לא עובד דברים בחיפוש פתאום נעלם תאריכים פתאום מסך לבן עדיין ככה"
+        },
+        {
+          "evidence_id": "35b89bfb7579c030",
+          "timestamp": "2026-08-12T13:22:42.819Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "האתר מושלם עכשיו ? אני רוצה לעשות אני בדיקות אבל רק אחרי שבטוח תגיד לי שהכל בוצע ועובד?"
+        },
+        {
+          "evidence_id": "c02ba809868f6c89",
+          "timestamp": "2026-08-11T19:15:45.498Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "המפה ממש לא מתנהגת טוב תעשה פרוייקט מקיף תחקור את אירביאנד בי תלמד איך זה עובד שם את היופי הפשטות הזום אין זום האוט הכל שם פיקס שיהיה כמוהם תנסה להיות ממש כמוהן כולל להציג סינון כמו שהם עושים"
+        }
+      ]
+    },
+    "automation_reliability": {
+      "occurrences": 4,
+      "unique_messages": 4,
+      "sessions": 1,
+      "projects": {
+        "vii.co.il": 4
+      },
+      "proposal_status": "candidate_project_or_skill",
+      "acceptance_check_seed": "Verify the persistent runtime, trigger, delivery evidence, retries and failure handling.",
+      "examples": [
+        {
+          "evidence_id": "38d8b9aed7591155",
+          "timestamp": "2026-08-11T20:30:00.886Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "אם אני כבר בדף חיפוש ולוחץ על החיפוש מי אמר שאני רוצה לשנות את המיקום ? לכן אירביאנד בי עשו את זה הכי טוב שהם תמיד מראים את כל המצבים או שתעשה שלוחצים על חיפוש יפתח כמו בדף הבית"
+        },
+        {
+          "evidence_id": "126a8ea0e67a3229",
+          "timestamp": "2026-08-11T14:57:13.306Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "חלון הזה נכון ויפה רק גדול מדי צריך שיהיה יותר קצר יותר סולידי גם במחשב וגם בנייד (התחברות ומילוי אוטומטי בלי יותר מדי הסברים) עדין ונעים יותר שיראו ישר את הפרטים שהם צריכים להקליד והתחיל לשיחה"
+        },
+        {
+          "evidence_id": "d49eac55ff386c57",
+          "timestamp": "2026-08-11T16:36:10.269Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "[https://vii.spaplus.co/join/vacation#join-pricing](https://vii.spaplus.co/join/vacation#join-pricing) ליד צריך להגיע במייל לרונן פרץ וללקוח שקיבלנו ובלה בלה צריך לעצב את המיילים הנ\"ל וגם צריך להיכנס אוטומטית למערכת על שלנו הגלובלית spaplus.co ששם זה לידים וילה פור יו תחת אתר vii כמו שעשית עם החדרים לפי שעה, המקור זה האתר מובן ? פרוייקט מלא מ א-ת"
+        },
+        {
+          "evidence_id": "103902783c2624b0",
+          "timestamp": "2026-08-12T18:55:27.945Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "משהו לא טוב, משהו לא טוב. אני באתר, בדסקטופ, ואז אני עושה רפרש, ופתאום זה הופך להיות קטן כזה מצד שמאל, כמו נייד, ואני מנסה לעשות רפרש וזה חוזר, פתאום נתקע כמו, כאילו עשיתי F12 נייד, אם עשיתי F12 וחזרתי בכלל זה נתקע. משהו מוזר. אני רוצה שתעבור על זה כמו שצריך. התפקוד של החיפוש הרבה יותר טוב אני אמשיך לסדוק אחרי שתסדר אחת ולתמיד את הבעיות של גדלי המסך והקפיצות בין מצבים ופתאום נייד במחשב וכו תעשה בדק בית בעצמך תגדיר את כל הבדיקות שאתה הולך לעשות מה אתה מצפה שיקרה תתקן עד שיקרה ואז תודיע לי שהכל תקין אחת ולתמיד"
+        }
+      ]
+    },
+    "security_and_access": {
+      "occurrences": 4,
+      "unique_messages": 4,
+      "sessions": 1,
+      "projects": {
+        "vii.co.il": 4
+      },
+      "proposal_status": "candidate_project_or_skill",
+      "acceptance_check_seed": "Verify least privilege, allowed identities, expiry, audit log and secret handling.",
+      "examples": [
+        {
+          "evidence_id": "c03620e62ddf0ee1",
+          "timestamp": "2026-08-11T11:29:05.602Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "לא צריך בתפריט העליון שים בהמבורגר את כל החשבון והתחברות ותמונה"
+        },
+        {
+          "evidence_id": "f04c3f537650ffa6",
+          "timestamp": "2026-08-11T05:12:34.835Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "צריך שיהיה התחברות באתר התמונה תופיע חשבון גוגל או פייסבוק או אינטסגרם"
+        },
+        {
+          "evidence_id": "b098a33e4dd13657",
+          "timestamp": "2026-08-11T05:15:03.476Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "שיש התחברות לאתר אז כל טופס אם אני מחובר חייב להיות מלא כבר ואם אני לא מחובר הצעה להתחבר לפי ששמלאים פרטים חייב להיות ללקוח חשבון שמראה הזמנות בקשות וכו'"
+        },
+        {
+          "evidence_id": "126a8ea0e67a3229",
+          "timestamp": "2026-08-11T14:57:13.306Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "חלון הזה נכון ויפה רק גדול מדי צריך שיהיה יותר קצר יותר סולידי גם במחשב וגם בנייד (התחברות ומילוי אוטומטי בלי יותר מדי הסברים) עדין ונעים יותר שיראו ישר את הפרטים שהם צריכים להקליד והתחיל לשיחה"
+        }
+      ]
+    },
+    "legacy_parity": {
+      "occurrences": 4,
+      "unique_messages": 4,
+      "sessions": 1,
+      "projects": {
+        "vii.co.il": 4
+      },
+      "proposal_status": "candidate_project_or_skill",
+      "acceptance_check_seed": "Map every legacy capability and content item as preserved, replaced intentionally or blocked.",
+      "examples": [
+        {
+          "evidence_id": "b58d4366b579b9e6",
+          "timestamp": "2026-08-11T12:19:13.411Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "שלחצתי על החיפוש / לאן נוסעים תקח מהאתר הישן את כל מה שיש שם תראה אירביאנד בי עשו את זה הכי יפה"
+        },
+        {
+          "evidence_id": "ad8ed263f2ec0a26",
+          "timestamp": "2026-08-11T02:46:46.223Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "תעתיק מה שעשינו באתר הישן שזה נראה כמו ריבוע ששייך לוואטסאפ ממש המחשה לפתיחת שיחה רק שמכניסים פרטים ומתחילים שיחה, בצבעים והלוגו של וואטסאפ"
+        },
+        {
+          "evidence_id": "5be531255fbf8417",
+          "timestamp": "2026-08-12T01:17:14.726Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "כבר יש תאריך ויש מחיר למה לא ישר להזמין את זה אני לא מבין איך להזמין במקום זה שמת 3 פעמים כפתור בדיקת זמינות לחיפוש זה במקום כפתור להזמין וזהו ואולי כפתור לשינוי תאריך אם עברת על האתר הישן מקרה כזה שיש תאריך שנמצא פנוי ויש מחיר אז זה לא שליחת בקשה בוואטסאם זה הזמנה מהירה (כבר היה בגירסה אחרת ואני לא מבין למה הורדת) רק שאין את 2 אלו אפשר לשים שליחת בקשה בוואטסאפ"
+        },
+        {
+          "evidence_id": "933d2d99c2ded0a3",
+          "timestamp": "2026-08-11T23:44:10.611Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "חסר לי לראות התנהגות של מקומות שיש להם תאריכים פנויים ומחירים כאלו שיש מחיר ואין מידע וכאלו שאין כלום אם אני עושה חיפוש לתאריך ספציפי ויש זמינות ויש מחיר אז ככה כמו בתמונה ואם יש מחיר ואין תאריך אז ככה: ואם יש תאריך ואין מחיר אז ככה: ואם אין תאריך ואין מחיר אז ככה: ואם לא פנוי בתאריך אז ככה : ואם לא פנוי אבל יש מחיר ותאריך חלופי אז ככה: ואם לא פנוי אבל יש מחיר ואין תאריך חלופי אז ככה: על מנת שנראה את כל המצבים עליך לעשות מקומות שיהיו בכל המצבים האלו אתה יכול לקחת את הקישור הזה: משם לקחתי את כל תמונות המסך ותעשה שיהיו כל האופציות האלו כלומר תעשה כאילו , אתה פשוט יכול לקחת דוגמא מהאתר וי הישן ולשים זמינות מחירים בכאילו רק שנבין את כל המצבים שאני אעשה חיפוש בכל הארץ אז יהיה לי את כל המצבים Show"
+        }
+      ]
+    },
+    "simple_operation": {
+      "occurrences": 3,
+      "unique_messages": 3,
+      "sessions": 1,
+      "projects": {
+        "vii.co.il": 3
+      },
+      "proposal_status": "candidate_project_or_skill",
+      "acceptance_check_seed": "Keep the default path short while preserving advanced options on demand.",
+      "examples": [
+        {
+          "evidence_id": "f45ca9c11143fd97",
+          "timestamp": "2026-08-12T10:18:40.458Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "אני פשוט עושה עדכון והפעלה מחדש"
+        },
+        {
+          "evidence_id": "0ea72e7221b426b3",
+          "timestamp": "2026-08-11T15:35:06.040Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "חסר לי לראות התנהגות של מקומות שיש להם תאריכים פנויים ומחירים כאלו שיש מחיר ואין מידע וכאלו שאין כלום אם אני עושה חיפוש לתאריך ספציפי ויש זמינות ויש מחיר אז ככה כמו בתמונה ואם יש מחיר ואין תאריך אז ככה: ואם יש תאריך ואין מחיר אז ככה: ואם אין תאריך ואין מחיר אז ככה: ואם לא פנוי בתאריך אז ככה : ואם לא פנוי אבל יש מחיר ותאריך חלופי אז ככה: ואם לא פנוי אבל יש מחיר ואין תאריך חלופי אז ככה: על מנת שנראה את כל המצבים עליך לעשות מקומות שיהיו בכל המצבים האלו אתה יכול לקחת את הקישור הזה: [https://www.vii.co.il/s/?from=2026-08-20&till=2026-08-22&pax%5B0%5D=2-0](https://www.vii.co.il/s/?from=2026-08-20&till=2026-08-22&pax%5B0%5D=2-0) משם לקחתי את כל תמונות המסך ותעשה שיהיו כל האופציות האלו כלומר תעשה כא"
+        },
+        {
+          "evidence_id": "933d2d99c2ded0a3",
+          "timestamp": "2026-08-11T23:44:10.611Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "חסר לי לראות התנהגות של מקומות שיש להם תאריכים פנויים ומחירים כאלו שיש מחיר ואין מידע וכאלו שאין כלום אם אני עושה חיפוש לתאריך ספציפי ויש זמינות ויש מחיר אז ככה כמו בתמונה ואם יש מחיר ואין תאריך אז ככה: ואם יש תאריך ואין מחיר אז ככה: ואם אין תאריך ואין מחיר אז ככה: ואם לא פנוי בתאריך אז ככה : ואם לא פנוי אבל יש מחיר ותאריך חלופי אז ככה: ואם לא פנוי אבל יש מחיר ואין תאריך חלופי אז ככה: על מנת שנראה את כל המצבים עליך לעשות מקומות שיהיו בכל המצבים האלו אתה יכול לקחת את הקישור הזה: משם לקחתי את כל תמונות המסך ותעשה שיהיו כל האופציות האלו כלומר תעשה כאילו , אתה פשוט יכול לקחת דוגמא מהאתר וי הישן ולשים זמינות מחירים בכאילו רק שנבין את כל המצבים שאני אעשה חיפוש בכל הארץ אז יהיה לי את כל המצבים Show"
+        }
+      ]
+    },
+    "complete_product": {
+      "occurrences": 2,
+      "unique_messages": 2,
+      "sessions": 1,
+      "projects": {
+        "vii.co.il": 2
+      },
+      "proposal_status": "candidate_project_or_skill",
+      "acceptance_check_seed": "Test the full requested outcome, not only the implementation step.",
+      "examples": [
+        {
+          "evidence_id": "2e3c626a48e0e8f1",
+          "timestamp": "2026-08-11T20:29:51.707Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "במחשב הסרגל חיפוש ממש גרוע תבדוק גם האיבי אנד בי ותעשה שיפור שיהיה מושלם"
+        },
+        {
+          "evidence_id": "35b89bfb7579c030",
+          "timestamp": "2026-08-12T13:22:42.819Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "האתר מושלם עכשיו ? אני רוצה לעשות אני בדיקות אבל רק אחרי שבטוח תגיד לי שהכל בוצע ועובד?"
+        }
+      ]
+    },
+    "proof_and_status": {
+      "occurrences": 2,
+      "unique_messages": 2,
+      "sessions": 1,
+      "projects": {
+        "vii.co.il": 2
+      },
+      "proposal_status": "candidate_project_or_skill",
+      "acceptance_check_seed": "Require evidence from the real target before reporting success or status.",
+      "examples": [
+        {
+          "evidence_id": "3003343785c23e46",
+          "timestamp": "2026-08-12T08:04:35.033Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "תראה מה נצמד בחלק העליון חוץ מזה שאני חיפוש רגיל לתאריך שאמרת וכל הארץ אני לא רואה את כל המצבים רק שאני לוחץ על הקישור שנתת זה קורה"
+        },
+        {
+          "evidence_id": "b5eab69e8fa01770",
+          "timestamp": "2026-08-12T12:07:24.129Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "תקשיב, הכל נתקע. אני נכנסתי מהנייד, אני מגיע למסך לבן. אני יכול להיכנס לתוך המסך, ואז פתאום אני רואה, מגדיל את זה, כאילו משהו לא סגור בנייד. לא מתפקד טוב בכלל. תעשה רגע בדיקה מקיפה על הקטע הזה. מה קרה פה? וגם אני פתאום לא רואה זמינות בנייד לפחות, שאני עושה כל הארץ, את הרביעי עד השישי בספטמבר, לזוג, כמו שאמרת לי. אז אני לא יודע מה לעשות."
+        }
+      ]
+    },
+    "leads_and_campaigns": {
+      "occurrences": 2,
+      "unique_messages": 2,
+      "sessions": 1,
+      "projects": {
+        "vii.co.il": 2
+      },
+      "proposal_status": "candidate_project_or_skill",
+      "acceptance_check_seed": "Verify the full lead path from audience to measured handoff and follow-up.",
+      "examples": [
+        {
+          "evidence_id": "e22fa66f892cd845",
+          "timestamp": "2026-08-12T13:02:07.073Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "תשנה גם בכל המקומות הצטרפות כספק לפרסום והצטרפות לאתר ותדגיש את זה בולט יותר בכל המקומות שהוא נמצא כרגע"
+        },
+        {
+          "evidence_id": "d49eac55ff386c57",
+          "timestamp": "2026-08-11T16:36:10.269Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "[https://vii.spaplus.co/join/vacation#join-pricing](https://vii.spaplus.co/join/vacation#join-pricing) ליד צריך להגיע במייל לרונן פרץ וללקוח שקיבלנו ובלה בלה צריך לעצב את המיילים הנ\"ל וגם צריך להיכנס אוטומטית למערכת על שלנו הגלובלית spaplus.co ששם זה לידים וילה פור יו תחת אתר vii כמו שעשית עם החדרים לפי שעה, המקור זה האתר מובן ? פרוייקט מלא מ א-ת"
+        }
+      ]
+    },
+    "video_quality": {
+      "occurrences": 2,
+      "unique_messages": 2,
+      "sessions": 1,
+      "projects": {
+        "vii.co.il": 2
+      },
+      "proposal_status": "candidate_project_or_skill",
+      "acceptance_check_seed": "Inspect the rendered video for continuity, motion defects, text and brand accuracy.",
+      "examples": [
+        {
+          "evidence_id": "3941bfea60122ed3",
+          "timestamp": "2026-08-12T16:09:23.393Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "תעשה נעילת תזוזה של הנייד תבדוק סליידרים וקוד של האתר"
+        },
+        {
+          "evidence_id": "103902783c2624b0",
+          "timestamp": "2026-08-12T18:55:27.945Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "משהו לא טוב, משהו לא טוב. אני באתר, בדסקטופ, ואז אני עושה רפרש, ופתאום זה הופך להיות קטן כזה מצד שמאל, כמו נייד, ואני מנסה לעשות רפרש וזה חוזר, פתאום נתקע כמו, כאילו עשיתי F12 נייד, אם עשיתי F12 וחזרתי בכלל זה נתקע. משהו מוזר. אני רוצה שתעבור על זה כמו שצריך. התפקוד של החיפוש הרבה יותר טוב אני אמשיך לסדוק אחרי שתסדר אחת ולתמיד את הבעיות של גדלי המסך והקפיצות בין מצבים ופתאום נייד במחשב וכו תעשה בדק בית בעצמך תגדיר את כל הבדיקות שאתה הולך לעשות מה אתה מצפה שיקרה תתקן עד שיקרה ואז תודיע לי שהכל תקין אחת ולתמיד"
+        }
+      ]
+    },
+    "localization_direction": {
+      "occurrences": 1,
+      "unique_messages": 1,
+      "sessions": 1,
+      "projects": {
+        "vii.co.il": 1
+      },
+      "proposal_status": "observe",
+      "acceptance_check_seed": "Test every language route, direction, navigation, footer, URL and call to action.",
+      "examples": [
+        {
+          "evidence_id": "933d2d99c2ded0a3",
+          "timestamp": "2026-08-11T23:44:10.611Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "חסר לי לראות התנהגות של מקומות שיש להם תאריכים פנויים ומחירים כאלו שיש מחיר ואין מידע וכאלו שאין כלום אם אני עושה חיפוש לתאריך ספציפי ויש זמינות ויש מחיר אז ככה כמו בתמונה ואם יש מחיר ואין תאריך אז ככה: ואם יש תאריך ואין מחיר אז ככה: ואם אין תאריך ואין מחיר אז ככה: ואם לא פנוי בתאריך אז ככה : ואם לא פנוי אבל יש מחיר ותאריך חלופי אז ככה: ואם לא פנוי אבל יש מחיר ואין תאריך חלופי אז ככה: על מנת שנראה את כל המצבים עליך לעשות מקומות שיהיו בכל המצבים האלו אתה יכול לקחת את הקישור הזה: משם לקחתי את כל תמונות המסך ותעשה שיהיו כל האופציות האלו כלומר תעשה כאילו , אתה פשוט יכול לקחת דוגמא מהאתר וי הישן ולשים זמינות מחירים בכאילו רק שנבין את כל המצבים שאני אעשה חיפוש בכל הארץ אז יהיה לי את כל המצבים Show"
+        }
+      ]
+    },
+    "domain_and_deployment": {
+      "occurrences": 1,
+      "unique_messages": 1,
+      "sessions": 1,
+      "projects": {
+        "vii.co.il": 1
+      },
+      "proposal_status": "observe",
+      "acceptance_check_seed": "Verify DNS, TLS, deployment, rollback and the live canonical URL.",
+      "examples": [
+        {
+          "evidence_id": "933d2d99c2ded0a3",
+          "timestamp": "2026-08-11T23:44:10.611Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "חסר לי לראות התנהגות של מקומות שיש להם תאריכים פנויים ומחירים כאלו שיש מחיר ואין מידע וכאלו שאין כלום אם אני עושה חיפוש לתאריך ספציפי ויש זמינות ויש מחיר אז ככה כמו בתמונה ואם יש מחיר ואין תאריך אז ככה: ואם יש תאריך ואין מחיר אז ככה: ואם אין תאריך ואין מחיר אז ככה: ואם לא פנוי בתאריך אז ככה : ואם לא פנוי אבל יש מחיר ותאריך חלופי אז ככה: ואם לא פנוי אבל יש מחיר ואין תאריך חלופי אז ככה: על מנת שנראה את כל המצבים עליך לעשות מקומות שיהיו בכל המצבים האלו אתה יכול לקחת את הקישור הזה: משם לקחתי את כל תמונות המסך ותעשה שיהיו כל האופציות האלו כלומר תעשה כאילו , אתה פשוט יכול לקחת דוגמא מהאתר וי הישן ולשים זמינות מחירים בכאילו רק שנבין את כל המצבים שאני אעשה חיפוש בכל הארץ אז יהיה לי את כל המצבים Show"
+        }
+      ]
+    },
+    "accessibility_legal_privacy": {
+      "occurrences": 1,
+      "unique_messages": 1,
+      "sessions": 1,
+      "projects": {
+        "vii.co.il": 1
+      },
+      "proposal_status": "observe",
+      "acceptance_check_seed": "Run accessibility, consent, privacy and required legal checks on the live product.",
+      "examples": [
+        {
+          "evidence_id": "9d10794eff5a1fc0",
+          "timestamp": "2026-08-11T20:29:53.225Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "למה צריך את כל הטקסט הזה? מספיק משפט קצר וזהו למה 4 שורות של טקסט ?"
+        }
+      ]
+    },
+    "cost_efficiency": {
+      "occurrences": 1,
+      "unique_messages": 1,
+      "sessions": 1,
+      "projects": {
+        "vii.co.il": 1
+      },
+      "proposal_status": "observe",
+      "acceptance_check_seed": "Record expected cost and use event-driven or incremental processing where possible.",
+      "examples": [
+        {
+          "evidence_id": "57cd1bcb1fdc52ba",
+          "timestamp": "2026-08-11T12:03:11.633Z",
+          "session_id": "019fed6b-96e9-72b3-9d2e-23fff1cee25a",
+          "project": "vii.co.il",
+          "text": "יכול לסדר ולעלות לציבורי ?"
+        }
+      ]
+    },
+    "hebrew_typography": {
+      "occurrences": 0,
+      "unique_messages": 0,
+      "sessions": 0,
+      "projects": {},
+      "proposal_status": "observe",
+      "acceptance_check_seed": "Verify the computed Hebrew font on live desktop and mobile views.",
+      "examples": []
+    },
+    "goal_ownership": {
+      "occurrences": 0,
+      "unique_messages": 0,
+      "sessions": 0,
+      "projects": {},
+      "proposal_status": "observe",
+      "acceptance_check_seed": "Translate the business goal into measurable outcomes and continue until they are met or blocked.",
+      "examples": []
+    },
+    "natural_human_copy": {
+      "occurrences": 0,
+      "unique_messages": 0,
+      "sessions": 0,
+      "projects": {},
+      "proposal_status": "observe",
+      "acceptance_check_seed": "Read the final copy aloud and reject robotic patterns or forbidden punctuation.",
+      "examples": []
+    },
+    "deduplication": {
+      "occurrences": 0,
+      "unique_messages": 0,
+      "sessions": 0,
+      "projects": {},
+      "proposal_status": "observe",
+      "acceptance_check_seed": "Reserve an idempotency key before the action and verify uncertain attempts before retrying.",
+      "examples": []
+    },
+    "project_isolation": {
+      "occurrences": 0,
+      "unique_messages": 0,
+      "sessions": 0,
+      "projects": {},
+      "proposal_status": "observe",
+      "acceptance_check_seed": "Verify project, task, source and destination before using or moving information.",
+      "examples": []
+    },
+    "seo_geo_redirects": {
+      "occurrences": 0,
+      "unique_messages": 0,
+      "sessions": 0,
+      "projects": {},
+      "proposal_status": "observe",
+      "acceptance_check_seed": "Verify metadata, crawlability, canonicalization, structured data, redirects and localized routes.",
+      "examples": []
+    },
+    "backups_recovery": {
+      "occurrences": 0,
+      "unique_messages": 0,
+      "sessions": 0,
+      "projects": {},
+      "proposal_status": "observe",
+      "acceptance_check_seed": "Verify a restorable backup and a tested rollback path before risky changes.",
+      "examples": []
+    }
+  },
+  "promotion_note": "Proposal statuses are evidence routing only. Promote a lesson after source review and scope classification."
+}

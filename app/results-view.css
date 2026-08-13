@@ -85,7 +85,7 @@
 }
 
 @media (max-width: 820px) {
-  .results-view-toggle button { min-width: 44px; min-height: 44px; padding: 8px 10px; }
+  .results-view-toggle { display: none !important; }
   .result-cards.results-view--grid,
   .event-list.results-view--grid,
   .discovery-grid.results-view--grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -93,50 +93,32 @@
 }
 
 @media (max-width: 620px) {
-  .results-view-toggle button { width: 42px; min-width: 42px; padding: 0; }
-  .results-view-toggle button span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .result-cards.results-view--grid,
   .event-list.results-view--grid,
   .discovery-grid.results-view--grid { grid-template-columns: minmax(0, 1fr); }
 
-  .result-cards.results-view--list .stay-card { grid-template-columns: 124px minmax(0, 1fr); }
-  .result-cards.results-view--list .stay-card__media { min-height: 100%; }
-  .result-cards.results-view--list .stay-card__body { padding: 13px; }
-  .result-cards.results-view--list .stay-card__title { display: grid; gap: 7px; }
-  .result-cards.results-view--list .stay-card__rating { order: -1; }
-  .result-cards.results-view--list .stay-card__meta { font-size: .76rem; }
-  .result-cards.results-view--list .feature-chips { gap: 4px; }
-  .result-cards.results-view--list .feature-chips span:nth-child(n+3) { display: none; }
-  .result-cards.results-view--list .stay-card__date-status { margin-top: 9px; padding: 8px; }
-  .result-cards.results-view--list .stay-card__alternatives > div { grid-template-columns: 1fr; }
-  .result-cards.results-view--list .stay-card__footer { margin-top: 10px; padding-top: 10px; }
-  .result-cards.results-view--list .stay-card__actions { grid-template-columns: 1fr; }
-  .result-cards.results-view--list .stay-card__details-link { grid-column: auto; }
+  /* Defensive fallback for an old bookmarked URL that still contains view=list. */
+  .result-cards.results-view--list,
+  .event-list.results-view--list,
+  .discovery-grid.results-view--list { grid-template-columns: minmax(0, 1fr); }
+  .result-cards.results-view--list .stay-card,
+  .event-list.results-view--list > article,
+  .discovery-grid.results-view--list .discovery-card { display: block; }
 
-  .event-list.results-view--list > article { grid-template-columns: 124px minmax(0, 1fr); gap: 0; overflow: hidden; padding: 0; }
-  .event-list.results-view--list > article > .event-card-gallery { min-height: 100%; padding: 0; }
-  .event-list.results-view--list > article > .event-card-gallery img { height: 100%; min-height: 230px; border-radius: 0; }
-  .event-list.results-view--list > article > div:last-child { min-width: 0; padding: 13px; }
-  .event-list.results-view--list > article > div:last-child > p:nth-of-type(2),
-  .event-list.results-view--list .feature-chips span:nth-child(n+3) { display: none; }
-  .event-list.results-view--list .event-card__actions { grid-template-columns: 1fr; }
-
-  .discovery-grid.results-view--list .discovery-card { grid-template-columns: 118px minmax(0, 1fr); }
-  .discovery-grid.results-view--list .discovery-card__visual,
-  .discovery-grid.results-view--list .discovery-card__visual img { min-height: 240px; }
-  .discovery-grid.results-view--list .discovery-card__body { padding: 13px; }
-  .discovery-grid.results-view--list .discovery-card h3 { margin-block: 7px 5px; font-size: 1.02rem; }
-  .discovery-grid.results-view--list .discovery-card p { display: -webkit-box; overflow: hidden; margin-bottom: 9px; font-size: .77rem; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-  .discovery-grid.results-view--list .discovery-card__chips { gap: 4px; }
-  .discovery-grid.results-view--list .discovery-card__chips span:nth-child(n+3) { display: none; }
-  .discovery-grid.results-view--list .discovery-card footer { align-items: stretch; flex-direction: column; gap: 8px; }
-  .discovery-grid.results-view--list .discovery-card__footer-actions { justify-content: stretch; flex-direction: column; align-items: stretch; }
-  .discovery-grid.results-view--list .discovery-card__footer-actions > * { width: 100%; }
+  .result-cards.results-view--list .stay-card__media,
+  .event-list.results-view--list .event-card-gallery img,
+  .discovery-grid.results-view--list .discovery-card__visual {
+    min-height: 0;
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+  .discovery-grid.results-view--list .discovery-card__visual img {
+    min-height: 0;
+    height: 100%;
+  }
 }
 
-/* Spa and hourly headings contain the toggle and a fixed mobile map action.
-   Keep the toggle as one compact inline control instead of letting inherited
-   grid rules stretch it into a large empty panel. */
+/* Spa and hourly headings retain room for the compact map action on mobile. */
 @media (max-width: 760px) {
   .spa-results__heading,
   .world-map-results__toolbar,
@@ -147,16 +129,4 @@
     gap: 10px;
   }
 
-  .spa-results__heading > .results-view-toggle,
-  .world-map-results__toolbar > .results-view-toggle,
-  .hourly-results__heading > .results-view-toggle {
-    width: fit-content !important;
-    min-width: 0;
-    height: auto;
-    min-height: 0;
-    display: inline-flex !important;
-    grid-template-columns: none;
-    justify-self: end;
-    align-self: center;
-  }
 }

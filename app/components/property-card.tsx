@@ -17,11 +17,11 @@ function PhoneIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16.4v3a2 2 0 0 1-2.2 2 19.7 19.7 0 0 1-8.6-3.1 19.3 19.3 0 0 1-6-6A19.7 19.7 0 0 1 1.1 3.7 2 2 0 0 1 3.1 1.5h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.4 2.1L7.1 9.5a16 16 0 0 0 7.4 7.4l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2Z" /></svg>;
 }
 
-const cardCopy: Record<SiteLanguage, { call: string; whatsapp: string; reviews: string; outOfTen: string; details: string; quickBook: string; datePrice: string; from: string; night: string; to: string; inquirePrice: string; includedGuests: (count: number) => string; availability: Record<ListingAvailability, string> }> = {
-  he: { call: "טלפון", whatsapp: "פנייה בוואטסאפ", reviews: "חוות דעת", outOfTen: "מתוך 10", details: "לפרטים", quickBook: "הזמנה מהירה", datePrice: "מחיר לפי תאריך", from: "החל מ־", night: "ללילה", to: "עד", inquirePrice: "פנה למתחם לבירור מחיר", includedGuests: (count) => `המחיר כולל עד ${count} אורחים`, availability: { available: "פנוי בתאריכים שנבחרו", unavailable: "לא פנוי בתאריכים שנבחרו", unknown: "זמינות: לא עודכן" } },
-  en: { call: "Call", whatsapp: "WhatsApp enquiry", reviews: "reviews", outOfTen: "out of 10", details: "View details", quickBook: "Quick booking", datePrice: "Price for selected dates", from: "From ", night: "per night", to: "to", inquirePrice: "Contact the property for a price", includedGuests: (count) => `Price includes up to ${count} guests`, availability: { available: "Available for the selected dates", unavailable: "Unavailable for the selected dates", unknown: "Availability not updated" } },
-  ru: { call: "Позвонить", whatsapp: "Запрос в WhatsApp", reviews: "отзывов", outOfTen: "из 10", details: "Подробнее", quickBook: "Быстрое бронирование", datePrice: "Цена на выбранные даты", from: "От ", night: "за ночь", to: "по", inquirePrice: "Уточните цену у объекта", includedGuests: (count) => `Цена включает до ${count} гостей`, availability: { available: "Свободно на выбранные даты", unavailable: "Нет мест на выбранные даты", unknown: "Наличие не обновлено" } },
-  fr: { call: "Appeler", whatsapp: "Demande par WhatsApp", reviews: "avis", outOfTen: "sur 10", details: "Voir les détails", quickBook: "Réservation rapide", datePrice: "Prix selon les dates", from: "À partir de ", night: "par nuit", to: "au", inquirePrice: "Contactez l'établissement pour connaître le prix", includedGuests: (count) => `Prix valable jusqu'à ${count} personnes`, availability: { available: "Disponible aux dates choisies", unavailable: "Indisponible aux dates choisies", unknown: "Disponibilité non mise à jour" } },
+const cardCopy: Record<SiteLanguage, { call: string; whatsapp: string; reviews: string; outOfTen: string; details: string; quickBook: string; from: string; night: string; to: string; inquirePrice: string; includedGuests: (count: number) => string; availability: Record<ListingAvailability, string> }> = {
+  he: { call: "טלפון", whatsapp: "פנייה בוואטסאפ", reviews: "חוות דעת", outOfTen: "מתוך 10", details: "לפרטים", quickBook: "הזמנה מהירה", from: "החל מ־", night: "ללילה", to: "עד", inquirePrice: "פנה למתחם לבירור מחיר", includedGuests: (count) => `המחיר כולל עד ${count} אורחים`, availability: { available: "פנוי בתאריכים שנבחרו", unavailable: "לא פנוי בתאריכים שנבחרו", unknown: "זמינות: לא עודכן" } },
+  en: { call: "Call", whatsapp: "WhatsApp enquiry", reviews: "reviews", outOfTen: "out of 10", details: "View details", quickBook: "Quick booking", from: "From ", night: "per night", to: "to", inquirePrice: "Contact the property for a price", includedGuests: (count) => `Price includes up to ${count} guests`, availability: { available: "Available for the selected dates", unavailable: "Unavailable for the selected dates", unknown: "Availability not updated" } },
+  ru: { call: "Позвонить", whatsapp: "Запрос в WhatsApp", reviews: "отзывов", outOfTen: "из 10", details: "Подробнее", quickBook: "Быстрое бронирование", from: "От ", night: "за ночь", to: "по", inquirePrice: "Уточните цену у объекта", includedGuests: (count) => `Цена включает до ${count} гостей`, availability: { available: "Свободно на выбранные даты", unavailable: "Нет мест на выбранные даты", unknown: "Наличие не обновлено" } },
+  fr: { call: "Appeler", whatsapp: "Demande par WhatsApp", reviews: "avis", outOfTen: "sur 10", details: "Voir les détails", quickBook: "Réservation rapide", from: "À partir de ", night: "par nuit", to: "au", inquirePrice: "Contactez l'établissement pour connaître le prix", includedGuests: (count) => `Prix valable jusqu'à ${count} personnes`, availability: { available: "Disponible aux dates choisies", unavailable: "Indisponible aux dates choisies", unknown: "Disponibilité non mise à jour" } },
 };
 
 const phoneCopy: Record<SiteLanguage, { reveal: string; call: string }> = {
@@ -49,27 +49,37 @@ const demoAvailabilityScenarios: Array<Record<string, DemoAvailabilityKind>> = [
     "aqua-resort": "available-price", "kesem-harimon": "price-only", "ahuzat-or": "available-no-price", "sol-gilgal": "no-data",
     "anael-estate": "unavailable", "magic-garden-gefen": "unavailable-alternatives", "perfumes-villa": "unavailable-price",
     "ar-suites": "available-price", "infinity-suites": "available-price", "rose-estate": "unavailable-alternatives",
+    "vacation-villa-esem-harimon": "available-price", "vacation-gesthouse-royal": "price-only", "vacation-vila-harel": "available-no-price",
+    "vacation-villa-yotam": "no-data", "vacation-villa-circle": "unavailable",
   },
   {
     "aqua-resort": "unavailable-alternatives", "kesem-harimon": "available-price", "ahuzat-or": "price-only", "sol-gilgal": "available-no-price",
     "anael-estate": "no-data", "magic-garden-gefen": "unavailable", "perfumes-villa": "unavailable-price",
     "ar-suites": "available-price", "infinity-suites": "unavailable-alternatives", "rose-estate": "available-price",
+    "vacation-villa-esem-harimon": "available-price", "vacation-gesthouse-royal": "price-only", "vacation-vila-harel": "available-no-price",
+    "vacation-villa-yotam": "no-data", "vacation-villa-circle": "unavailable",
   },
   {
     "aqua-resort": "unavailable", "kesem-harimon": "unavailable-price", "ahuzat-or": "available-price", "sol-gilgal": "price-only",
     "anael-estate": "available-no-price", "magic-garden-gefen": "no-data", "perfumes-villa": "unavailable-alternatives",
     "ar-suites": "available-price", "infinity-suites": "available-price", "rose-estate": "unavailable",
+    "vacation-villa-esem-harimon": "available-price", "vacation-gesthouse-royal": "price-only", "vacation-vila-harel": "available-no-price",
+    "vacation-villa-yotam": "no-data", "vacation-villa-circle": "unavailable",
   },
   {
     "aqua-resort": "available-no-price", "kesem-harimon": "no-data", "ahuzat-or": "unavailable", "sol-gilgal": "unavailable-alternatives",
     "anael-estate": "unavailable-price", "magic-garden-gefen": "available-price", "perfumes-villa": "price-only",
     "ar-suites": "available-price", "infinity-suites": "unavailable", "rose-estate": "available-price",
+    "vacation-villa-esem-harimon": "available-price", "vacation-gesthouse-royal": "price-only", "vacation-vila-harel": "available-no-price",
+    "vacation-villa-yotam": "no-data", "vacation-villa-circle": "unavailable",
   },
 ];
 
 const demoNightlyPrices: Record<string, number> = {
   "aqua-resort": 1300, "kesem-harimon": 1100, "ahuzat-or": 1500, "ar-suites": 1200, "sol-gilgal": 700,
   "infinity-suites": 1600, "magic-garden-gefen": 2400, "anael-estate": 4000, "perfumes-villa": 4500, "rose-estate": 6000,
+  "vacation-villa-esem-harimon": 1100,
+  "vacation-gesthouse-royal": 3900,
 };
 
 const demoAvailabilityKinds: DemoAvailabilityKind[] = ["available-price", "price-only", "available-no-price", "no-data", "unavailable", "unavailable-alternatives", "unavailable-price"];
@@ -104,6 +114,24 @@ function PriceValue({ amount, language }: { amount: string; language: SiteLangua
 
 function quoteForStay(property: Property, selectedStay: SelectedStay | null): ListingDateQuote | null {
   if (!selectedStay) return null;
+  if (property.demoOperations?.fictional) {
+    const arrival = new Date(`${selectedStay.from}T12:00:00Z`);
+    const departure = new Date(`${selectedStay.till}T12:00:00Z`);
+    let available = arrival < departure;
+    const cursor = new Date(arrival);
+    while (available && cursor < departure) {
+      const epochDay = Math.floor(cursor.getTime() / 86_400_000);
+      if (Math.floor(epochDay / 2) % 2 !== 0) available = false;
+      cursor.setUTCDate(cursor.getUTCDate() + 1);
+    }
+    const weekend = arrival.getUTCDay() === 4 || arrival.getUTCDay() === 5;
+    return {
+      ...selectedStay,
+      availability: available ? "available" : "unavailable",
+      nightlyPrice: weekend ? property.demoOperations.weekendNightlyPrice : property.demoOperations.weekdayNightlyPrice,
+      includedGuests: property.guests,
+    };
+  }
   return property.dateQuotes?.find((quote) => quote.from === selectedStay.from && quote.till === selectedStay.till) || {
     ...selectedStay,
     availability: "unknown",
@@ -136,14 +164,14 @@ function demoAvailabilityFor(property: Property, selectedStay: SelectedStay | nu
   const period = demoSeptemberPeriod(selectedStay.from);
   const stableIndex = stableDemoIndex(property.slug);
   const kind = demoAvailabilityScenarios[period][property.slug] || demoAvailabilityKinds[(stableIndex + period) % demoAvailabilityKinds.length];
-  const nightlyPrice = demoNightlyPrices[property.slug] || demoPriceRange[stableIndex % demoPriceRange.length];
+  const nightlyPrice = demoNightlyPrices[property.slug] || property.price || demoPriceRange[stableIndex % demoPriceRange.length];
   const common = { ...selectedStay, illustrative: true };
-  if (kind === "available-price") return { ...common, availability: "available", nightlyPrice, includedGuests: property.maxGuests || 2, showSelectedDates: true };
-  if (kind === "price-only") return { ...common, availability: "unknown", nightlyPrice, includedGuests: property.maxGuests || 2, showSelectedDates: false };
+  if (kind === "available-price") return { ...common, availability: "available", nightlyPrice, includedGuests: property.guests || 2, showSelectedDates: true };
+  if (kind === "price-only") return { ...common, availability: "unknown", nightlyPrice, includedGuests: property.guests || 2, showSelectedDates: false };
   if (kind === "available-no-price") return { ...common, availability: "available", showSelectedDates: true };
   if (kind === "no-data") return { ...common, availability: "unknown", showSelectedDates: false };
   if (kind === "unavailable") return { ...common, availability: "unavailable", showSelectedDates: true };
-  if (kind === "unavailable-price") return { ...common, availability: "unavailable", nightlyPrice, includedGuests: property.maxGuests || 2, showSelectedDates: true };
+  if (kind === "unavailable-price") return { ...common, availability: "unavailable", nightlyPrice, includedGuests: property.guests || 2, showSelectedDates: true };
   const alternativeOffsets = period === 3 ? [-7, 2] : [3, 7];
   return { ...common, availability: "unavailable", showSelectedDates: true, alternatives: alternativeOffsets.map((days, index) => ({ from: shiftStayDate(selectedStay.from, days), till: shiftStayDate(selectedStay.till, days), nightlyPrice: nightlyPrice + (index * 200) })) };
 }
@@ -168,8 +196,8 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
   const quickBookingReady = Boolean(selectedStay && resolvedAvailability?.availability === "available" && resolvedAvailability.nightlyPrice && resolvedAvailability.nightlyPrice > 0);
   const cardMode = promotional ? "promotional" : resolvedAvailability ? "dated" : "result";
   const basePropertyHref = detailHref || `/business?id=${property.slug}`;
-  const propertyHref = quickBookingReady && selectedStay ? propertyDetailHref(basePropertyHref, { source: "search", from: selectedStay.from, till: selectedStay.till, guests: searchParams.get("guests") || "2", price: String(resolvedAvailability?.nightlyPrice || ""), illustrative: resolvedAvailability?.illustrative ? "1" : undefined }) : basePropertyHref;
-  const quickBookingHref = quickBookingReady && selectedStay ? `/booking?${new URLSearchParams({ world: "vacation", place: property.slug, from: selectedStay.from, till: selectedStay.till, guests: searchParams.get("guests") || "2", price: String(resolvedAvailability?.nightlyPrice || ""), ...(resolvedAvailability?.illustrative ? { illustrative: "1" } : {}) }).toString()}` : "";
+  const propertyHref = quickBookingReady && selectedStay ? propertyDetailHref(basePropertyHref, { source: "search", from: selectedStay.from, till: selectedStay.till, guests: searchParams.get("guests") || "2", price: String(resolvedAvailability?.nightlyPrice || ""), illustrative: resolvedAvailability?.illustrative || property.demoOperations?.fictional ? "1" : undefined }) : basePropertyHref;
+  const quickBookingHref = quickBookingReady && selectedStay ? `/booking?${new URLSearchParams({ world: "vacation", place: property.slug, from: selectedStay.from, till: selectedStay.till, guests: searchParams.get("guests") || "2", price: String(resolvedAvailability?.nightlyPrice || ""), ...(resolvedAvailability?.illustrative || property.demoOperations?.fictional ? { illustrative: "1" } : {}) }).toString()}` : "";
 
   function moveImage(event: MouseEvent<HTMLButtonElement>, direction: -1 | 1) {
     event.preventDefault();
@@ -188,6 +216,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
         <div className="stay-card__badges">{property.badges.slice(0, 2).map((badge) => <span key={badge}>{badge}</span>)}</div>
       </div>
       <div className="stay-card__body">
+        {property.demoOperations?.fictional ? <p className="stay-card__fictional-disclosure" role="note">מתחם בדיקה בדיוני. התמונות הן הדמיות ואינן מתעדות מקום אמיתי.</p> : null}
         <div className="stay-card__title">
           <div>
             <h3><Link href={propertyHref} target="_blank" rel="noopener noreferrer">{property.name}<span className="sr-only"></span></Link></h3>
@@ -209,8 +238,8 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
           </div> : null}
         </div> : null}
         <div className={`stay-card__footer stay-card__footer--${cardMode}`}>
-          {!promotional ? <div className="stay-card__commercial-summary">
-            {resolvedAvailability ? <span className={`stay-card__price stay-card__price--selected ${hasQuotedPrice ? "stay-card__price--known" : ""}`}>{hasQuotedPrice ? <><b><PriceValue amount={resolvedAvailability.nightlyPrice?.toLocaleString() || ""} language={language} /></b><small>{copy.night}</small>{resolvedAvailability.includedGuests ? <em>{copy.includedGuests(resolvedAvailability.includedGuests)}</em> : null}</> : resolvedAvailability.alternatives?.length ? <strong>{demoScenarioCopy[language].alternativePrice}</strong> : <strong>{copy.inquirePrice}</strong>}</span> : <span className={`stay-card__price ${property.price ? "stay-card__price--known" : ""}`}>{property.price ? <><small>{copy.from}</small><b><PriceValue amount={property.price.toLocaleString()} language={language} /></b><small>{copy.night}</small></> : copy.datePrice}</span>}
+          {!promotional && (resolvedAvailability || property.price) ? <div className="stay-card__commercial-summary">
+            {resolvedAvailability ? <span className={`stay-card__price stay-card__price--selected ${hasQuotedPrice ? "stay-card__price--known" : ""}`}>{hasQuotedPrice ? <><b><PriceValue amount={resolvedAvailability.nightlyPrice?.toLocaleString() || ""} language={language} /></b><small>{copy.night}</small>{resolvedAvailability.includedGuests ? <em>{copy.includedGuests(resolvedAvailability.includedGuests)}</em> : null}</> : resolvedAvailability.alternatives?.length ? <strong>{demoScenarioCopy[language].alternativePrice}</strong> : <strong>{copy.inquirePrice}</strong>}</span> : property.price ? <span className="stay-card__price stay-card__price--known"><small>{copy.from}</small><b><PriceValue amount={property.price.toLocaleString()} language={language} /></b><small>{copy.night}</small></span> : null}
           </div> : null}
           <div className="stay-card__actions">
             {quickBookingReady ? <Link className="stay-card__details-link stay-card__details-link--booking" href={quickBookingHref}>{copy.quickBook}</Link> : <Link className="stay-card__details-link" href={propertyHref}>{copy.details}</Link>}

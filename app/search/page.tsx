@@ -24,7 +24,7 @@ import { buildVacationSearchUrl } from "../lib/vacation-search-url";
 import { vacationInventorySummary } from "../lib/vacation-inventory";
 import { useMapViewState } from "../components/map-view-state";
 import { FilterControlIcon } from "../components/filter-control-icon";
-import { SearchAfterResults } from "../components/search-after-results";
+import { SearchAfterResults, type ContextualSearchSuggestion } from "../components/search-after-results";
 import { ResultsViewToggle, useResultsViewMode } from "../components/results-view-toggle";
 
 export type SearchLandingContext = {
@@ -143,6 +143,37 @@ const legacyExtraFilters = legacyExtraFilterGroups.reduce<LegacyExtraFilter[]>((
 
 const VACATION_PRICE_MIN = 0;
 const VACATION_PRICE_MAX = Math.max(5000, ...properties.map((property) => property.price || 0));
+const VACATION_SORT_VALUES = ["recommended", "price-asc", "price-desc", "rating-desc", "rating-asc", "capacity", "units", "name"] as const;
+const vacationSortOptions = [
+  { value: "recommended", label: "מומלצים" },
+  { value: "price-asc", label: "מחיר מהנמוך לגבוה" },
+  { value: "price-desc", label: "מחיר מהגבוה לנמוך" },
+  { value: "rating-desc", label: "דירוג מהגבוה לנמוך" },
+  { value: "rating-asc", label: "דירוג מהנמוך לגבוה" },
+  { value: "capacity", label: "קיבולת גבוהה" },
+  { value: "units", label: "מספר יחידות" },
+  { value: "name", label: "שם המקום" },
+];
+
+function compareOptionalNumber(first: number | undefined, second: number | undefined, direction: "asc" | "desc") {
+  const firstKnown = typeof first === "number" && Number.isFinite(first);
+  const secondKnown = typeof second === "number" && Number.isFinite(second);
+  if (!firstKnown && !secondKnown) return 0;
+  if (!firstKnown) return 1;
+  if (!secondKnown) return -1;
+  return direction === "asc" ? first - second : second - first;
+}
+
+function compareVacationProperties(a: (typeof properties)[number], b: (typeof properties)[number], sort: string) {
+  if (sort === "price-asc") return compareOptionalNumber(a.price, b.price, "asc") || properties.indexOf(a) - properties.indexOf(b);
+  if (sort === "price-desc") return compareOptionalNumber(a.price, b.price, "desc") || properties.indexOf(a) - properties.indexOf(b);
+  if (sort === "rating-desc") return compareOptionalNumber(a.score, b.score, "desc") || properties.indexOf(a) - properties.indexOf(b);
+  if (sort === "rating-asc") return compareOptionalNumber(a.score, b.score, "asc") || properties.indexOf(a) - properties.indexOf(b);
+  if (sort === "capacity") return b.guests - a.guests;
+  if (sort === "units") return (b.units || 1) - (a.units || 1);
+  if (sort === "name") return a.name.localeCompare(b.name, "he");
+  return properties.indexOf(a) - properties.indexOf(b);
+}
 const VACATION_PRICE_STEP = 50;
 
 const availabilityDemoCopy = {
@@ -336,7 +367,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       setWhole(params.get("whole") === "1");
       setAccessibleOnly(params.get("accessible") === "1");
       setSelectedExtras((params.get("features") || "").split(",").filter((id) => legacyExtraFilters.some((item) => item.id === id)));
-      setSort(["capacity", "units", "name"].includes(params.get("sort") || "") ? params.get("sort") || "recommended" : "recommended");
+      setSort(VACATION_SORT_VALUES.includes((params.get("sort") || "recommended") as (typeof VACATION_SORT_VALUES)[number]) ? params.get("sort") || "recommended" : "recommended");
     }, 0);
     return () => window.clearTimeout(timer);
   }, [landing, language, router, searchQuery]);
@@ -389,10 +420,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
           return aDemoIndex - bDemoIndex;
         }
       }
-      if (sort === "capacity") return b.guests - a.guests;
-      if (sort === "units") return (b.units || 1) - (a.units || 1);
-      if (sort === "name") return a.name.localeCompare(b.name, "he");
-      return properties.indexOf(a) - properties.indexOf(b);
+      return compareVacationProperties(a, b, sort);
     });
   }, [area, availabilityDemoActive, landing, mapCandidates, selectedTypes, sort]);
 
@@ -429,10 +457,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     if (!mapOpen || !mapVisibleIds) return filtered;
     const visible = new Set(mapVisibleIds);
     return mapCandidates.filter((property) => visible.has(property.slug)).sort((a, b) => {
-      if (sort === "capacity") return b.guests - a.guests;
-      if (sort === "units") return (b.units || 1) - (a.units || 1);
-      if (sort === "name") return a.name.localeCompare(b.name, "he");
-      return properties.indexOf(a) - properties.indexOf(b);
+      return compareVacationProperties(a, b, sort);
     });
   }, [filtered, mapCandidates, mapOpen, mapVisibleIds, sort]);
   const inventorySummary = useMemo(() => vacationInventorySummary(displayedResults, language), [displayedResults, language]);
@@ -488,6 +513,18 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       return option ? { id: `extra-${id}`, label: option.label, remove: () => toggleExtraFilter(id) } : null;
     }),
   ].filter((filter): filter is { id: string; label: string; remove: () => void } => Boolean(filter));
+
+  const contextualSearchSuggestions: ContextualSearchSuggestion[] = [
+    ...legacyAccommodationTypes
+      .filter((item) => !selectedTypes.includes(item.label))
+      .map((item) => ({ label: item.label, params: { type: null, types: item.label } })),
+    ...[
+      { label: "נופש עם בריכה", active: pool, params: { pool: "1" } as Record<string, string | null> },
+      { label: "נופש עם ספא וג'קוזי", active: spa, params: { spa: "1" } as Record<string, string | null> },
+      { label: "מקומות שלמים", active: whole, params: { whole: "1" } as Record<string, string | null> },
+      { label: "נופש נגיש", active: accessibleOnly, params: { accessible: "1" } as Record<string, string | null> },
+    ].filter((item) => !item.active).map(({ label, params }) => ({ label, params })),
+  ];
 
   const breadcrumbFilterLabels = [
     area !== "הכל" ? area : null,
@@ -567,7 +604,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
                 <button type="button" className={filterSection === "more" ? "active" : ""} aria-pressed={filterSection === "more"} onClick={() => setFilterSection("more")}>סינונים נוספים</button>
               </div>
               <div className="filter-panel__mobile-sort">
-                <ModernSelect label="מיון לפי" value={shownFilters.sort} onChange={changeSort} options={[{ value: "recommended", label: "מומלצים" }, { value: "capacity", label: "קיבולת גבוהה" }, { value: "units", label: "מספר יחידות" }, { value: "name", label: "שם המקום" }]} />
+                <ModernSelect label="מיון לפי" value={shownFilters.sort} onChange={changeSort} options={vacationSortOptions} />
               </div>
               {mapOpen && <div className="map-filter-status" aria-live="polite"><PinIcon /><span>האזור שמוצג במפה</span><strong>{area === "הכל" ? "כל הארץ" : area}</strong></div>}
               {filterSection === "types" ? <fieldset className="vacation-type-options"><legend>סוגי אירוח, אפשר לבחור כמה אפשרויות</legend>{legacyAccommodationTypes.map((item) => <label key={item.label}><input type="checkbox" checked={shownFilters.selectedTypes.includes(item.label)} onChange={() => toggleType(item.label)} /> {item.label}</label>)}</fieldset> : <div className="vacation-more-filters">
@@ -594,6 +631,9 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
           </aside>
 
           <section className="results-list" aria-label="תוצאות">
+            <section className="results-heading">
+              <div><h1>{landing?.title || (area === "הכל" ? "נופש ברחבי הארץ" : `נופש ב${area}`)}</h1><div className="results-heading__meta"><p className="results-heading__inventory" aria-live="polite">{inventorySummary}</p></div></div>
+            </section>
             <nav className="search-quick-filters" aria-label="סינון מהיר">
               <button type="button" className={activeFilters.length ? "primary-filter active" : "primary-filter"} onClick={() => openFiltersPanel()}><FilterControlIcon /><span>מסננים</span>{activeFilters.length ? <b>{activeFilters.length}</b> : null}</button>
               <button type="button" className={selectedTypes.length ? "active" : ""} onClick={() => openFiltersPanel("types")}>סוג מקום</button>
@@ -603,12 +643,9 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
               <button type="button" className={whole ? "active" : ""} aria-pressed={whole} onClick={() => changeBinaryFilter("whole", !whole)}>מקום שלם</button>
               <button type="button" className={accessibleOnly ? "active" : ""} aria-pressed={accessibleOnly} onClick={() => changeBinaryFilter("accessible", !accessibleOnly)}>נגישות</button>
             </nav>
-            <section className="results-heading">
-              <div><h1>{landing?.title || (area === "הכל" ? "נופש ברחבי הארץ" : `נופש ב${area}`)}</h1><div className="results-heading__meta"><p className="results-heading__inventory" aria-live="polite">{inventorySummary}</p></div></div>
-            </section>
             {activeFilters.length > 0 && <div className="active-filter-row"><span>סינונים פעילים:</span>{activeFilters.map((filter) => <button key={filter.id} type="button" onClick={filter.remove} aria-label={`הסרת הסינון ${filter.label}`}>{filter.label} ×</button>)}<button type="button" className="clear-all" onClick={resetFilters}>ניקוי הכל</button></div>}
             {availabilityDemoActive ? <div className="availability-demo-summary" role="status"><strong>{availabilityDemoCopy[language].title}</strong><span>{availabilityDemoCopy[language].text}</span><small>{selectedStay?.from}{" "}{String.fromCharCode(183)}{" "}{selectedStay?.till}</small></div> : null}
-            <div className="results-toolbar"><div className="results-toolbar__actions"><ResultsViewToggle value={viewMode} onChange={setViewMode} />{filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתוצאות" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (mapOpen) closeResultsMap(); else openResultsMap(); }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לתוצאות" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect className="results-toolbar__sort" compact label="מיון לפי" value={sort} onChange={changeSort} options={[{ value: "recommended", label: "מומלצים" }, { value: "capacity", label: "קיבולת גבוהה" }, { value: "units", label: "מספר יחידות" }, { value: "name", label: "שם המקום" }]} /></div>
+            <div className="results-toolbar"><div className="results-toolbar__actions"><ResultsViewToggle value={viewMode} onChange={setViewMode} />{filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתוצאות" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (mapOpen) closeResultsMap(); else openResultsMap(); }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לתוצאות" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect className="results-toolbar__sort" compact label="מיון לפי" value={sort} onChange={changeSort} options={vacationSortOptions} /></div>
             {!mapOpen && <div className={`result-cards results-view results-view--${viewMode}`}>{displayedResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStay} detailHref={detailHref(property.slug)} />)}</div>}
             {mapOpen && <div className="airbnb-map-split">
               <div className={`airbnb-map-split__results result-cards results-view results-view--${viewMode}`}>{displayedResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStay} detailHref={detailHref(property.slug)} />)}</div>
@@ -622,7 +659,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
             </>}
           </section>
         </div>
-        <SearchAfterResults world="vacation" location={area} hideGuideAndFaq={Boolean(landing)} reviewHighlights={filtered.filter((property) => typeof property.score === "number").sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 3).map((property) => ({ name: property.name, href: `/business?id=${property.slug}`, rating: property.score || 0, reviews: property.reviews }))} />
+        <SearchAfterResults world="vacation" location={area} searchSuggestions={contextualSearchSuggestions} hideGuideAndFaq={Boolean(landing)} reviewHighlights={filtered.filter((property) => typeof property.score === "number").sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 3).map((property) => ({ name: property.name, href: `/business?id=${property.slug}`, rating: property.score || 0, reviews: property.reviews }))} />
         {filtersOpen && <button className="filter-backdrop" aria-label="סגירת סינון" onClick={closeFiltersPanel} />}
       </main>
     </PageShell>

@@ -530,7 +530,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(search, /setPool/);
   assert.match(eventSearch, /setEventType/);
   assert.doesNotMatch(data, /liveUrl|https:\/\/www\.vii\.co\.il\//);
-  assert.equal((data.match(/roomOptions:/g) || []).length, 10);
+  assert.equal((data.match(/roomOptions:/g) || []).length, 11);
   assert.equal((data.match(/name: "(?:אקווה ריזורט, וילת החוף|יחידת סטודיו שני|יחידת סטודיו העמק|סוויטה משפחתית וואנדרפול|יחידת עכו|סוויטות 1\+2|סוויטה משפחתית"|א\.ר סוויטות|סוויטה [1-4]"|חדר שינה"|סוויטת (?:מירון|גאיה|אליה|נועה|יובל|חרמון)|וילת הבשמים|אחוזת השושנים בוטיק)/g) || []).length >= 20, true);
   assert.match(business, /property\.roomOptions\.map/);
   assert.match(business, /סוויטות ויחידות/);
@@ -552,7 +552,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(sleeping, /איפה ישנים\?/);
   assert.match(sleeping, /כל כרטיס מייצג חדר שינה ולא יחידת אירוח/);
   assert.match(sleeping, /alt=\{`\$\{arrangement\.name\} ב\$\{placeName\}`\}/);
-  assert.equal((data.match(/name: "חדר שינה [1-9]"/g) || []).length, 9);
+  assert.equal((data.match(/name: "חדר שינה [1-9]"/g) || []).length, 12);
   assert.equal((data.match(/galleryImage: "\/media\/[a-f0-9]{16}\.(?:jpe?g|png)"/g) || []).length, 9);
   assert.match(business, /מה אפשר לעשות מסביב/);
   assert.match(business, /complementaryItems/);
@@ -998,7 +998,7 @@ test("key page types emit matching structured data and private pages stay out of
 test("every discovery card has stable media and every new world has a full detail page", async () => {
   const worldData = await readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8");
   const itemLines = worldData.split("\n").filter((line) => line.includes("world:") && line.includes(" id: "));
-  assert.equal(itemLines.length, 48);
+  assert.equal(itemLines.length, 51);
   for (const line of itemLines) {
     assert.match(line, /image: "\/media\//);
     assert.doesNotMatch(line, /demo: true/);
@@ -1010,6 +1010,9 @@ test("every discovery card has stable media and every new world has a full detai
     ["/discover/place/kfar-blum-kayaks", /איך מזמינים את האטרקציה/],
     ["/discover/place/assemblage-spa", /חבילות הספא/],
     ["/discover/place/amit-mitrani-magic-man", /שירותים וחבילות להזמנה/],
+    ["/discover/place/hagit-designed-events", /שירותים וחבילות להזמנה/],
+    ["/discover/place/aae-event-design", /שירותים וחבילות להזמנה/],
+    ["/discover/place/argaman-events", /שירותים וחבילות להזמנה/],
   ]) {
     const response = await render(pathname);
     const html = await response.text();

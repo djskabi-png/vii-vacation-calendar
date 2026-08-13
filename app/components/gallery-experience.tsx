@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Property } from "../data/site-data";
 
-type GallerySubject = Pick<Property, "name" | "images"> & Partial<Pick<Property, "roomOptions" | "sleepingArrangements" | "videos">>;
+type GallerySubject = Pick<Property, "name" | "images"> & Partial<Pick<Property, "roomOptions" | "sleepingArrangements" | "videos" | "guestPhotos">>;
 
 type GalleryItem = {
   src: string;
@@ -39,14 +39,14 @@ function uniqueItems(items: GalleryItem[]) {
   });
 }
 
-export function GalleryExperience({ property, open, initialIndex = 0, initialTab = "all", guestPhotos = [], onAddGuestContent, onClose }: { property: GallerySubject; open: boolean; initialIndex?: number; initialTab?: GalleryTab; guestPhotos?: GuestPhoto[]; onAddGuestContent?: () => void; onClose: () => void }) {
+export function GalleryExperience({ property, open, initialIndex = 0, initialTab = "all", guestPhotos = property.guestPhotos || [], onAddGuestContent, onClose }: { property: GallerySubject; open: boolean; initialIndex?: number; initialTab?: GalleryTab; guestPhotos?: GuestPhoto[]; onAddGuestContent?: () => void; onClose: () => void }) {
   const closeButton = useRef<HTMLButtonElement>(null);
   const touchStart = useRef(0);
   const allItems = useMemo(() => uniqueItems([
     ...property.images.map((src, index) => ({ src, label: `${property.name}, תמונת המקום ${index + 1}`, category: "place" as const })),
     ...(property.roomOptions || []).map((room) => ({ src: room.image, label: `${room.name} ב${property.name}`, category: "units" as const })),
     ...(property.sleepingArrangements || []).map((room) => ({ src: room.galleryImage, label: `${room.name} ב${property.name}`, category: "bedrooms" as const })),
-    ...guestPhotos.map((photo) => ({ src: photo.src, label: `${photo.alt}, צילום של ${photo.author}`, category: "guests" as const })),
+    ...guestPhotos.map((photo) => ({ src: photo.src, label: `${photo.alt}, ${photo.author}`, category: "guests" as const })),
   ]), [guestPhotos, property]);
   const [tab, setTab] = useState<GalleryTab>(initialTab);
   const [selected, setSelected] = useState(initialIndex);

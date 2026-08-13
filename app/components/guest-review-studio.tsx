@@ -3,6 +3,8 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import type { LegacyReview } from "../data/legacy-vacation-profiles";
+import { useSiteLanguage } from "../i18n/locale-provider";
 
 type ReviewSubject = "place" | "trail";
 
@@ -30,19 +32,24 @@ export function GuestReviewStudio({
   subjectType = "place",
   rating: publishedRating,
   reviewCount = 0,
+  publishedReviews = [],
   open,
   onClose,
   onOpenGallery,
+  illustrative = false,
 }: {
   placeName: string;
   subjectId?: string;
   subjectType?: ReviewSubject;
   rating?: number;
   reviewCount?: number;
+  publishedReviews?: LegacyReview[];
   open?: boolean;
   onClose?: () => void;
   onOpenGallery?: () => void;
+  illustrative?: boolean;
 }) {
+  const { language } = useSiteLanguage();
   const [localOpen, setLocalOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const [previews, setPreviews] = useState<string[]>([]);
@@ -101,17 +108,23 @@ export function GuestReviewStudio({
       <div>
         <span className="eyebrow">{isTrail ? "מידע מהשטח" : "מה מספרים אחרי הביקור"}</span>
         <h2 id="reviews-title">{title}</h2>
-        <p>כל תוכן חדש עובר בדיקה לפני שהוא מוצג לציבור.</p>
+        <p>{illustrative ? "חוות הדעת בעמוד זה הן דוגמאות בדיוניות שממחישות את מבנה העמוד בלבד." : "כל תוכן חדש עובר בדיקה לפני שהוא מוצג לציבור."}</p>
       </div>
       <button className="button primary" type="button" onClick={openDialog}>{buttonLabel}</button>
     </div>
 
     <div className="review-experience__body">
       <aside className="review-experience__score">
-        {publishedRating ? <><strong>{publishedRating}</strong><span aria-label={`${publishedRating} מתוך 10`}>★★★★★</span><small>{reviewCount ? `${reviewCount} חוות דעת שפורסמו` : "ציון ממקור המידע של המקום"}</small></> : <><strong>חדש</strong><span>הקול שלכם חשוב</span><small>לא פורסמו עדיין חוות דעת מאושרות בעמוד הזה.</small></>}
+        {publishedRating ? <><strong>{publishedRating}</strong><span aria-label={`${publishedRating} מתוך 10`}>★★★★★</span><small>{illustrative ? "ציון וחוות דעת בדיוניים להמחשה" : reviewCount ? `${reviewCount} חוות דעת שפורסמו` : "ציון ממקור המידע של המקום"}</small></> : <><strong>חדש</strong><span>הקול שלכם חשוב</span><small>לא פורסמו עדיין חוות דעת מאושרות בעמוד הזה.</small></>}
       </aside>
       <div className="review-experience__list">
-        {pendingReview ? <article className="review-card review-card--pending">
+        {publishedReviews.length ? <div className="review-experience__published">
+          {publishedReviews.map((review) => <article className="review-card review-card--published" key={`${review.visitedAt}-${review.author.he}`}>
+            <header><div><strong>{review.author[language]}</strong><span aria-label={`${review.rating} מתוך 10`}>{review.rating}/10</span></div><time dateTime={review.visitedAt}>{new Intl.DateTimeFormat(language === "he" ? "he-IL" : language === "en" ? "en-GB" : language === "ru" ? "ru-RU" : "fr-FR").format(new Date(`${review.visitedAt}T12:00:00`))}</time></header>
+            <p>{review.summary[language]}</p>
+            <footer>{illustrative ? (language === "he" ? "חוות דעת בדיונית להמחשת העיצוב, לא חוות דעת של אורח אמיתי" : language === "en" ? "Fictional review for design illustration, not a real guest review" : language === "ru" ? "Вымышленный отзыв для демонстрации дизайна, не отзыв реального гостя" : "Avis fictif pour illustrer le design, pas l’avis d’un véritable client") : (language === "he" ? "תמצית חוות דעת מאומתת מארכיון VII" : language === "en" ? "Summary of a verified review from the VII archive" : language === "ru" ? "Краткое содержание проверенного отзыва из архива VII" : "Résumé d’un avis vérifié provenant des archives VII")}</footer>
+          </article>)}
+        </div> : pendingReview ? <article className="review-card review-card--pending">
           <header><div><strong>{pendingReview.author}</strong><span>{"★".repeat(pendingReview.rating)}{"☆".repeat(5 - pendingReview.rating)}</span></div><small>ממתינה לאישור</small></header>
           <p>{pendingReview.body}</p>
           <footer>התוכן שמור כרגע בדפדפן זה לצורך בדיקת הפרונט, ואינו מוצג לגולשים אחרים.</footer>
