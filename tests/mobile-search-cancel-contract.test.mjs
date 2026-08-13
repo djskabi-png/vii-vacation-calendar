@@ -22,3 +22,8 @@ test("submitting a search closes every open search layer before showing results"
   assert.match(source, /function search\(\) \{[\s\S]*?setIsSearching\(true\);[\s\S]*?closeMobileSearch\(\);/);
   assert.match(source, /const closeMobileSearch = useCallback\(\(\) => \{[\s\S]*?setPriceOpen\(false\);[\s\S]*?setMobileExpanded\(false\);/);
 });
+
+test("the mobile header closes the active guest section before cancelling the search", () => {
+  assert.match(source, /const closeActiveMobileSection = useCallback\(\(\) => \{[\s\S]*?if \(guestOpen\) \{[\s\S]*?closeGuestPicker\(\);[\s\S]*?return;[\s\S]*?cancelMobileSearch\(\);/);
+  assert.match(source, /onClick=\{closeActiveMobileSection\} aria-label=\{guestOpen \? /);
+});

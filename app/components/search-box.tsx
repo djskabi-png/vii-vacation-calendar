@@ -169,6 +169,26 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     if (window.matchMedia("(max-width: 820px)").matches) setMobileExpanded(true);
   }, []);
 
+  const closeActiveMobileSection = useCallback(() => {
+    if (guestOpen) {
+      closeGuestPicker();
+      return;
+    }
+    if (locationOpen) {
+      setLocationOpen(false);
+      setMobileStep("overview");
+      setMobileExpanded(true);
+      return;
+    }
+    if (priceOpen) {
+      setPriceOpen(false);
+      setMobileStep("overview");
+      setMobileExpanded(true);
+      return;
+    }
+    cancelMobileSearch();
+  }, [cancelMobileSearch, closeGuestPicker, guestOpen, locationOpen, priceOpen]);
+
   useEffect(() => {
     const timer = window.setTimeout(() => {
       restoreCommittedSearchState();
@@ -369,7 +389,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
         {mobileExpanded && <button type="button" className="search-mobile-backdrop" onClick={cancelMobileSearch} aria-label="סגירת החיפוש" />}
         {!mobileExpanded && (locationOpen || guestOpen || priceOpen) && <button type="button" className="search-option-backdrop" onClick={cancelMobileSearch} aria-label="סגירת אפשרויות החיפוש" />}
         <div className={`search-box ${shouldCollapse ? "compact" : ""} ${isHourly ? "search-box--hourly" : ""} mobile-step-${mobileStep}`} role="search" aria-label={mode === "events" ? "חיפוש מקום לאירוע" : mode === "spa" ? "חיפוש מתחם ספא" : isHourly ? "חיפוש חדרים לפי שעה" : "חיפוש חופשה"}>
-        {mobileExpanded && <div className="search-mobile-sheet-head"><strong>{translate(mobileSheetTitle)}</strong><div className="search-mobile-sheet-head__actions"><Link className="search-gift-card-link" href={localizedPath("/gift-card", language)} onClick={closeMobileSearch} aria-label={translate("קנה שובר מתנה")}><GiftIcon /><span>{translate("קנה שובר מתנה")}</span></Link><button type="button" onClick={cancelMobileSearch} aria-label="סגירת החיפוש">×</button></div></div>}
+        {mobileExpanded && <div className="search-mobile-sheet-head"><strong>{translate(mobileSheetTitle)}</strong><div className="search-mobile-sheet-head__actions"><Link className="search-gift-card-link" href={localizedPath("/gift-card", language)} onClick={closeMobileSearch} aria-label={translate("קנה שובר מתנה")}><GiftIcon /><span>{translate("קנה שובר מתנה")}</span></Link><button type="button" onClick={closeActiveMobileSection} aria-label={guestOpen ? "סגירת בחירת האורחים" : "סגירת אפשרויות החיפוש"}>×</button></div></div>}
         {mobileExpanded && showWorlds && <div className="search-mobile-worlds"><SearchWorldTabs active={activeWorld} onNavigate={closeMobileSearch} /></div>}
         <div className={`search-field-wrap search-step search-step--location ${mobileStep === "location" ? "active" : ""}`}>
           <button type="button" className="search-field" aria-expanded={locationOpen} onClick={() => { setMobileStep("location"); expandMobileSearch(); setLocationOpen((value) => !value); setGuestOpen(false); setPriceOpen(false); }}><PinIcon /><span><small>{mode === "events" ? "אזור או מקום" : isHourly ? "עיר או אזור" : "לאן נוסעים"}</small><strong>{translate(locationValue)}</strong></span></button>

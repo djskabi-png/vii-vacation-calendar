@@ -3036,6 +3036,11 @@ h3 { font-size: 1.18rem; }
 .results-search:has(.search-option-backdrop),
 .world-hero:has(.search-option-backdrop) { z-index: 1500; }
 .search-box-shell:has(.search-option-backdrop) { z-index: 1500; }
+.home-hero:has(.search-box-shell.mobile-expanded),
+.results-search:has(.search-box-shell.mobile-expanded),
+.world-hero:has(.search-box-shell.mobile-expanded),
+.sticky-property-search:has(.search-box-shell.mobile-expanded) { position: relative; z-index: 1600; }
+.search-box-shell.mobile-expanded { z-index: 1600; isolation: isolate; }
 .search-mobile-summary, .search-mobile-backdrop, .search-mobile-sheet-head, .search-option-backdrop { display: none; }
 .search-box { position: relative; z-index: 5; display: grid; grid-template-columns: 1.05fr .95fr .85fr auto; max-width: 1040px; margin: auto; background: white; border: 1px solid rgba(8,126,139,.17); border-radius: 20px; padding: 7px; box-shadow: var(--shadow); text-align: right; }
 .search-box--hourly { grid-template-columns: repeat(2,minmax(0,1fr)) auto; width: 100%; max-width: 1040px; }

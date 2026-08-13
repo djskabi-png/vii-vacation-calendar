@@ -16,5 +16,5 @@ test("an explicit whole-country query still overrides a regional default", () =>
 test("cancelling search edits restores the committed route state", () => {
   assert.match(source, /const restoreCommittedSearchState = useCallback\(\(\) => \{[\s\S]*?const requestedLocation = searchParams\.get\("location"\);[\s\S]*?: initialLocation \|\| "כל הארץ"/);
   assert.match(source, /const cancelMobileSearch = useCallback\(\(\) => \{[\s\S]*?restoreCommittedSearchState\(\);[\s\S]*?closeMobileSearch\(\);/);
-  assert.match(source, /onClick=\{cancelMobileSearch\} aria-label="סגירת החיפוש"/);
+  assert.match(source, /onClick=\{closeActiveMobileSection\} aria-label=\{guestOpen \? /);
 });
