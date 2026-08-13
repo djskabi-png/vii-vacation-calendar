@@ -88,14 +88,15 @@ test("additional vacation filters replace duplicated search fields with a real p
   const css = await readFile(new URL("app/globals.css", root), "utf8");
   assert.doesNotMatch(source, /label="אזור" value=\{shownFilters\.area\}/);
   assert.doesNotMatch(source, /<legend>כמות אורחים מינימלית<\/legend>/);
-  assert.match(source, /<legend>טווח מחיר ללילה<\/legend>/);
-  assert.match(source, /aria-label="מחיר מינימום ללילה"/);
-  assert.match(source, /aria-label="מחיר מקסימום ללילה"/);
+  assert.match(source, /<legend>מחיר ללילה<\/legend>/);
+  assert.doesNotMatch(source, /className="vacation-price-filter__range"/);
+  assert.match(source, /className="vacation-price-filter__summary"/);
   assert.match(source, /typeof property\.price === "number"/);
   assert.match(source, /minPrice: draftFilters\.minPrice === VACATION_PRICE_MIN/);
   assert.match(source, /maxPrice: draftFilters\.maxPrice === VACATION_PRICE_MAX/);
   assert.match(source, /params\.get\("minPrice"\)/);
   assert.match(source, /params\.get\("maxPrice"\)/);
   assert.match(css, /\.vacation-price-filter__inputs/);
+  assert.match(css, /\.vacation-price-filter__summary/);
   assert.match(css, /\.vacation-price-input:focus-within/);
 });

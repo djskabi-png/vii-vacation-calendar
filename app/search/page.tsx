@@ -618,16 +618,13 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
               {mapOpen && <div className="map-filter-status" aria-live="polite"><PinIcon /><span>האזור שמוצג במפה</span><strong>{area === "הכל" ? "כל הארץ" : area}</strong></div>}
               {filterSection === "types" ? <fieldset className="vacation-type-options"><legend>סוגי אירוח, אפשר לבחור כמה אפשרויות</legend>{legacyAccommodationTypes.map((item) => <label key={item.label}><input type="checkbox" checked={shownFilters.selectedTypes.includes(item.label)} onChange={() => toggleType(item.label)} /> {item.label}</label>)}</fieldset> : <div className="vacation-more-filters">
                 <fieldset className="vacation-price-filter">
-                  <legend>טווח מחיר ללילה</legend>
-                  <p>המחיר המוצג הוא מחיר התחלתי ללילה. מקומות ללא מחיר מאומת לא ייכללו לאחר בחירת טווח.</p>
-                  <div className="vacation-price-filter__range" dir="ltr">
-                    <input type="range" min={VACATION_PRICE_MIN} max={VACATION_PRICE_MAX} step={VACATION_PRICE_STEP} value={shownFilters.minPrice} aria-label="מחיר מינימום ללילה" onChange={(event) => changePriceRange(Number(event.target.value), shownFilters.maxPrice)} />
-                    <input type="range" min={VACATION_PRICE_MIN} max={VACATION_PRICE_MAX} step={VACATION_PRICE_STEP} value={shownFilters.maxPrice} aria-label="מחיר מקסימום ללילה" onChange={(event) => changePriceRange(shownFilters.minPrice, Number(event.target.value))} />
-                  </div>
+                  <legend>מחיר ללילה</legend>
+                  <p>בחרו את המחיר הנמוך והגבוה שמתאים לכם.</p>
+                  <output className="vacation-price-filter__summary" aria-live="polite"><span>מ־<bdi>{shownFilters.minPrice.toLocaleString("he-IL")}</bdi> ₪</span><i aria-hidden="true">עד</i><span><bdi>{shownFilters.maxPrice.toLocaleString("he-IL")}</bdi> ₪</span></output>
                   <div className="vacation-price-filter__inputs">
-                    <label><span>מינימום</span><span className="vacation-price-input"><input type="number" inputMode="numeric" min={VACATION_PRICE_MIN} max={shownFilters.maxPrice} step={VACATION_PRICE_STEP} value={shownFilters.minPrice} aria-label="מחיר מינימום בשקלים" onChange={(event) => changePriceRange(Number(event.target.value), shownFilters.maxPrice)} /><b aria-hidden="true">₪</b></span></label>
+                    <label><span>מחיר מינימלי</span><span className="vacation-price-input"><input type="number" inputMode="numeric" min={VACATION_PRICE_MIN} max={shownFilters.maxPrice} step={VACATION_PRICE_STEP} value={shownFilters.minPrice} aria-label="מחיר מינימום בשקלים" onChange={(event) => changePriceRange(Number(event.target.value), shownFilters.maxPrice)} /><b aria-hidden="true">₪</b></span></label>
                     <span aria-hidden="true">עד</span>
-                    <label><span>מקסימום</span><span className="vacation-price-input"><input type="number" inputMode="numeric" min={shownFilters.minPrice} max={VACATION_PRICE_MAX} step={VACATION_PRICE_STEP} value={shownFilters.maxPrice} aria-label="מחיר מקסימום בשקלים" onChange={(event) => changePriceRange(shownFilters.minPrice, Number(event.target.value))} /><b aria-hidden="true">₪</b></span></label>
+                    <label><span>מחיר מקסימלי</span><span className="vacation-price-input"><input type="number" inputMode="numeric" min={shownFilters.minPrice} max={VACATION_PRICE_MAX} step={VACATION_PRICE_STEP} value={shownFilters.maxPrice} aria-label="מחיר מקסימום בשקלים" onChange={(event) => changePriceRange(shownFilters.minPrice, Number(event.target.value))} /><b aria-hidden="true">₪</b></span></label>
                   </div>
                 </fieldset>
                 <div className="vacation-extra-groups">{legacyExtraFilterGroups.map((group) => <fieldset key={group.title}><legend>{group.title}</legend>{group.options.map((item) => <label key={item.id}><input type="checkbox" checked={shownFilters.selectedExtras.includes(item.id)} onChange={() => toggleExtraFilter(item.id)} /> {item.label}</label>)}</fieldset>)}</div>

@@ -3424,10 +3424,11 @@ h3 { font-size: 1.18rem; }
 .filter-panel .vacation-type-options label:has(input:focus-visible) { outline: 3px solid rgba(9,145,157,.2); outline-offset: 2px; }
 .vacation-more-filters { display: grid; }
 .filter-panel .vacation-price-filter { padding-top: 8px; }
-.vacation-price-filter > p { margin: -2px 0 6px; color: var(--ink-soft); font-size: .78rem; line-height: 1.55; }
-.vacation-price-filter__range { display: grid; gap: 10px; padding: 7px 2px 4px; }
-.filter-panel .vacation-price-filter__range input[type="range"] { min-height: 24px; margin: 0; cursor: pointer; }
-.vacation-price-filter__inputs { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: end; gap: 10px; margin-top: 2px; }
+.vacation-price-filter > p { margin: -2px 0 4px; color: var(--ink-soft); font-size: .78rem; line-height: 1.5; }
+.vacation-price-filter__summary { min-height: 50px; margin: 4px 0 8px; padding: 10px 14px; display: flex; align-items: center; justify-content: center; gap: 9px; border: 1px solid #c5e0e3; border-radius: 14px; background: #eff9fa; color: var(--teal-dark); font: 800 .9rem/1.2 var(--font-sans); }
+.vacation-price-filter__summary span { white-space: nowrap; }
+.vacation-price-filter__summary i { color: var(--ink-soft); font-size: .72rem; font-style: normal; font-weight: 600; }
+.vacation-price-filter__inputs { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: end; gap: 9px; margin-top: 2px; }
 .filter-panel .vacation-price-filter__inputs > label { min-width: 0; display: grid; align-items: stretch; gap: 5px; color: var(--ink-soft); font-size: .72rem; }
 .vacation-price-filter__inputs > span { align-self: end; padding-bottom: 13px; color: var(--ink-soft); font-size: .72rem; }
 .vacation-price-input { min-height: 48px; display: flex; align-items: center; gap: 5px; padding: 0 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff; transition: border-color .16s ease, box-shadow .16s ease; }
@@ -3443,6 +3444,7 @@ h3 { font-size: 1.18rem; }
 @media (max-width: 760px) {
   .filter-panel .vacation-type-options { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .filter-panel .vacation-extra-groups fieldset { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .vacation-price-filter__summary { min-height: 48px; }
 }
 .range-labels { display: flex; justify-content: space-between; font-size: .72rem; color: var(--ink-soft); }
 .filter-apply { display: none; }
