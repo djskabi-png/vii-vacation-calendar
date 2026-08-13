@@ -804,6 +804,7 @@ test("ships a favicon, four languages and no dependency on the retired site", as
   assert.match(styles, /\.menu-panel__main > a \{[^}]*border: 1px solid #d8e9eb/);
   assert.match(styles, /\.menu-panel__join \{[^}]*border: 2px solid/);
   assert.match(styles, /scroll-padding-bottom:\s*calc\(36px \+ env\(safe-area-inset-bottom/);
+  assert.match(styles, /\.menu-panel \{ width: 100%; max-width: 100%;/);
   assert.match(footer, /<LanguageSwitcher compact/);
   assert.match(footer, /<AccessibilityWidget placement="footer" \/>/);
   assert.doesNotMatch([header, footer, data, worldData].join("\n"), /https:\/\/www\.vii\.co\.il/);

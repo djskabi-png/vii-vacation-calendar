@@ -4424,7 +4424,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
   .home-hero .quick-links::-webkit-scrollbar { display: none; }
   .home-hero .quick-links > span { display: none; }
   .home-hero .quick-links a { flex: 0 0 auto; }
-  .menu-panel { width: 100vw; padding: 14px 16px calc(26px + env(safe-area-inset-bottom, 0px)); }
+  .menu-panel { width: 100%; max-width: 100%; padding: 14px 16px calc(26px + env(safe-area-inset-bottom, 0px)); }
   .menu-panel__head { margin-bottom: 12px; }
   .menu-panel__head img { width: 100px; height: 52px; }
   .menu-panel__account { min-height: 78px; grid-template-columns: auto minmax(0,1fr); padding: 12px; border-radius: 18px; }
