@@ -42,6 +42,7 @@ test("mobile overlays use the content viewport instead of scrollbar-inclusive vi
 });
 
 test("mobile horizontal collections contain their overflow without disabling sliders", () => {
+  assert.match(css, /\[data-horizontal-rail\]\s*\{[\s\S]*?contain:\s*inline-size layout paint/);
   assert.match(css, /\.home-slider__track,[\s\S]*?\.home-vacation-strip__track,[\s\S]*?\.home-last-minute__cards,[\s\S]*?contain:\s*inline-size layout paint/);
   assert.match(css, /\.home-slider__track > \*,[\s\S]*?max-inline-size:\s*calc\(100% - 8px\)/);
   assert.doesNotMatch(css, /\.home-slider__track[\s\S]{0,180}overflow-x:\s*hidden/);

@@ -1,6 +1,19 @@
 /* Shared mobile stability layer. Keep this file last so compact layouts cannot
    inherit desktop min-content widths or lose their intended control display. */
 
+/* RTL horizontal rails must own their complete scrollable area at every
+   breakpoint. Without containment Chromium can add the rail's off-screen
+   content to the root document width, which makes a desktop refresh appear
+   shifted or mobile-sized after device emulation is toggled. */
+[data-horizontal-rail] {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  contain: inline-size layout paint;
+  isolation: isolate;
+}
+
 @media (max-width: 820px) {
   html,
   body,
