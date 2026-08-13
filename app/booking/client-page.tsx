@@ -64,7 +64,15 @@ export default function BookingPageClient(props: Props) {
   const localizedOfferIncludes = props.offerIncludes?.map((item) => translate(item));
   const paymentMethodLabel = paymentMethod === "pay_now" ? "תשלום בכרטיס עכשיו" : "תשלום במקום, כרטיס לביטחון";
 
-  useEffect(() => { if (!account) return; setName(account.name); setPhone(account.phone || ""); setEmail(account.email); }, [account]);
+  useEffect(() => {
+    if (!account) return;
+    const timer = window.setTimeout(() => {
+      setName(account.name);
+      setPhone(account.phone || "");
+      setEmail(account.email);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [account]);
 
   const closePayment = useCallback(() => {
     if (state === "submitting") return;

@@ -383,7 +383,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       setSort(VACATION_SORT_VALUES.includes((params.get("sort") || "recommended") as (typeof VACATION_SORT_VALUES)[number]) ? params.get("sort") || "recommended" : "recommended");
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [landing, language, router, searchQuery]);
+  }, [landing, landingType, language, router, searchQuery]);
 
   useEffect(() => {
     if (!filtersOpen) return;
@@ -434,6 +434,9 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       }
       return compareVacationProperties(a, b, sort);
     });
+  // landingType is derived from the immutable landing prop. Keeping the prop in
+  // the dependency list lets the compiler preserve this memo across renders.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [area, availabilityDemoActive, landing, mapCandidates, pathname, requestedLocation, selectedStay, selectedTypes, sort]);
 
   const draftCandidates = properties.filter((property) => {

@@ -202,7 +202,10 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   // are localized even when the URL does not include the display-only
   // `dates` parameter.
   useEffect(() => {
-    setDates(dateLabelFromSearch(searchParams, mode, languageFromPathname(window.location.pathname)));
+    const timer = window.setTimeout(() => {
+      setDates(dateLabelFromSearch(searchParams, mode, languageFromPathname(window.location.pathname)));
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [mode, searchParams]);
 
   useEffect(() => {

@@ -15,7 +15,6 @@ import { FavoriteButton } from "../../components/favorite-button";
 import { BreadcrumbTrail } from "../../components/breadcrumb-trail";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMapViewState } from "../../components/map-view-state";
-import { FilterControlIcon } from "../../components/filter-control-icon";
 import { eventSearchHref } from "../../data/world-search-landings";
 import { localizedPath } from "../../i18n/locale-routing";
 import { useSiteLanguage } from "../../i18n/locale-provider";

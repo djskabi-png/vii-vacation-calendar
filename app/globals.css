@@ -4594,7 +4594,8 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
   .results-toolbar__actions .button { flex: 1; justify-content: center; }
   .results-toolbar label { width: 100%; display: grid; grid-template-columns: auto minmax(0,1fr); align-items: center; gap: 8px; }
   .results-toolbar select { width: 100%; margin-inline-start: 0; }
-  .property-gallery { display: flex; overflow: auto; border-radius: 18px; scroll-snap-type: x mandatory; }
+  .property-gallery { display: flex; overflow-x: auto; overflow-y: hidden; border-radius: 18px; scroll-snap-type: x mandatory; overscroll-behavior-inline: contain; scrollbar-width: none; }
+  .property-gallery::-webkit-scrollbar { display: none; }
   .multiworld-offerings { padding: 17px; border-radius: 20px; }
   .multiworld-offerings__options { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 4px; }
   .multiworld-offerings__options button { flex: 0 0 82%; min-height: 105px; scroll-snap-align: start; }

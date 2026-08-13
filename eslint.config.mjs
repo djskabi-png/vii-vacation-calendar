@@ -13,6 +13,9 @@ const eslintConfig = defineConfig([
     "build/**",
     "work/**",
     "outputs/**",
+    ".qa-hourly/**",
+    ".openai/**",
+    "scripts/*.cjs",
     "next-env.d.ts",
   ]),
 ]);

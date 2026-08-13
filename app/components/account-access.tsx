@@ -4,7 +4,6 @@ import { createContext, FormEvent, ReactNode, useCallback, useContext, useEffect
 import Link from "next/link";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { ACCOUNT_EVENT, readAccount, saveAccount, type AccountProvider, type LocalAccount } from "../lib/account";
-import { UserIcon } from "../site-header";
 
 type ContextValue = { account: LocalAccount | null; openLogin: () => void };
 const AccountContext = createContext<ContextValue>({ account: null, openLogin: () => undefined });

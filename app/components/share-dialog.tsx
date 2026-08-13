@@ -114,7 +114,10 @@ export function ShareButton({ title, kind = "place" }: { title: string; kind?: S
   const titleId = useId();
   const descriptionId = useId();
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setMounted(true), 0);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (!open) return;

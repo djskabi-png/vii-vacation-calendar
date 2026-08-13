@@ -21,6 +21,7 @@ function ListIcon() {
 }
 
 export function useResultsViewMode(world: string) {
+  void world;
   const [viewMode, setViewModeState] = useState<ResultsViewMode>("grid");
 
   useEffect(() => {
@@ -43,7 +44,7 @@ export function useResultsViewMode(world: string) {
     syncViewMode();
     mobileQuery.addEventListener("change", syncViewMode);
     return () => mobileQuery.removeEventListener("change", syncViewMode);
-  }, [world]);
+  }, []);
 
   const setViewMode = useCallback((next: ResultsViewMode) => {
     setViewModeState(next);
@@ -51,7 +52,7 @@ export function useResultsViewMode(world: string) {
     if (next === "list") url.searchParams.set("view", "list");
     else url.searchParams.delete("view");
     window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
-  }, [world]);
+  }, []);
 
   return { viewMode, setViewMode };
 }
