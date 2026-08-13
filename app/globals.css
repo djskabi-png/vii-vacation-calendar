@@ -4242,6 +4242,9 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .palumbo-media-story__video > div, .palumbo-media-story__guests > div:first-child { padding: 18px; }
 .palumbo-media-story__video span, .palumbo-media-story__guests span { color: var(--teal); font-size: .84rem; font-weight: 800; }
 .palumbo-media-story__video h3 { margin: 5px 0; }
+.palumbo-media-story__guests-heading { display: grid; align-content: start; gap: 6px; }
+.palumbo-media-story__guests-heading .eyebrow { display: block; position: static; margin: 0; line-height: 1.35; }
+.palumbo-media-story__guests-heading h3 { display: block; margin: 0; color: var(--ink); font: 800 1.16rem/1.35 var(--font-sans); }
 .palumbo-media-story__video p, .palumbo-media-story__guests p { margin: 0; color: var(--muted); }
 .palumbo-media-story__guests > div:last-child { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 12px 12px; }
 .palumbo-media-story__guests button { position: relative; min-width: 0; padding: 0; overflow: hidden; border: 0; border-radius: 16px; background: #edf6f7; cursor: pointer; }
@@ -7721,6 +7724,8 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   .palumbo-media-story > header { align-items: stretch; flex-direction: column; gap: 14px; }
   .palumbo-media-story > header .button { width: 100%; }
   .palumbo-media-story__grid { grid-template-columns: 1fr; }
+  .palumbo-media-story__guests-heading { padding: 16px; gap: 5px; }
+  .palumbo-media-story__guests-heading h3 { font-size: 1.08rem; }
   .palumbo-media-story__guests > div:last-child { grid-template-columns: 1fr 1fr; }
   .palumbo-practical { padding: 18px; }
   .palumbo-practical > div { grid-template-columns: 1fr 1fr; }
