@@ -4,11 +4,11 @@ import "./search-tablet.css";
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DeferredListingMap } from "../components/deferred-listing-map";
 import { ModernSelect } from "../components/modern-select";
 import { PageShell } from "../components/page-shell";
-import { availabilityDemoSlugs, isAvailabilityDemoSearch, PropertyCard } from "../components/property-card";
+import { availabilityDemoSlugs, hasAvailablePriceForSearch, isAvailabilityDemoSearch, PropertyCard } from "../components/property-card";
 import { SearchBox } from "../components/search-box";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 import { properties } from "../data/site-data";
@@ -206,6 +206,7 @@ function formatVacationPrice(value: number) {
 
 export function SearchExperience({ landing }: { landing?: SearchLandingContext }) {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const searchQuery = searchParams.toString();
   const { language, translate } = useSiteLanguage();
@@ -229,10 +230,13 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const [, setVisibleMapCount] = useState(0);
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
 
-  const availabilityDemoActive = isAvailabilityDemoSearch({
-    from: searchParams.get("from") || "",
-    till: searchParams.get("till") || "",
-  }, searchParams.get("location"));
+  const selectedStay = useMemo(() => {
+    const from = searchParams.get("from");
+    const till = searchParams.get("till");
+    return from && till ? { from, till } : null;
+  }, [searchParams]);
+  const requestedLocation = searchParams.get("location");
+  const availabilityDemoActive = isAvailabilityDemoSearch(selectedStay, requestedLocation);
 
   function updateSearchContext(updates: Record<string, string | null>, nextTypes = selectedTypes, nextArea = area) {
     const nextUrl = buildVacationSearchUrl(window.location.search, updates, nextTypes, nextArea);
@@ -416,6 +420,9 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       && (landing.area ? area === landing.area : area === "הכל"));
     const matches = mapCandidates.filter((property) => useLandingSet ? landing?.listingSlugs?.includes(property.slug) : matchesSearchLocation(property, area));
     return [...matches].sort((a, b) => {
+      const availabilityPriority = Number(hasAvailablePriceForSearch(b, selectedStay, pathname, requestedLocation))
+        - Number(hasAvailablePriceForSearch(a, selectedStay, pathname, requestedLocation));
+      if (availabilityPriority) return availabilityPriority;
       if (sort === "recommended" && availabilityDemoActive) {
         const aDemoIndex = availabilityDemoSlugs.indexOf(a.slug);
         const bDemoIndex = availabilityDemoSlugs.indexOf(b.slug);
@@ -427,7 +434,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       }
       return compareVacationProperties(a, b, sort);
     });
-  }, [area, availabilityDemoActive, landing, mapCandidates, selectedTypes, sort]);
+  }, [area, availabilityDemoActive, landing, mapCandidates, pathname, requestedLocation, selectedStay, selectedTypes, sort]);
 
   const draftCandidates = properties.filter((property) => {
     const matchesType = matchesAnyAccommodationType(property.type, shownFilters.selectedTypes, landing);
@@ -458,15 +465,13 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     if (!mapOpen || !mapVisibleIds) return filtered;
     const visible = new Set(mapVisibleIds);
     return mapCandidates.filter((property) => visible.has(property.slug)).sort((a, b) => {
+      const availabilityPriority = Number(hasAvailablePriceForSearch(b, selectedStay, pathname, requestedLocation))
+        - Number(hasAvailablePriceForSearch(a, selectedStay, pathname, requestedLocation));
+      if (availabilityPriority) return availabilityPriority;
       return compareVacationProperties(a, b, sort);
     });
-  }, [filtered, mapCandidates, mapOpen, mapVisibleIds, sort]);
+  }, [filtered, mapCandidates, mapOpen, mapVisibleIds, pathname, requestedLocation, selectedStay, sort]);
   const inventorySummary = useMemo(() => vacationInventorySummary(displayedResults, language), [displayedResults, language]);
-  const selectedStay = useMemo(() => {
-    const from = searchParams.get("from");
-    const till = searchParams.get("till");
-    return from && till ? { from, till } : null;
-  }, [searchParams]);
   const detailQuery = useMemo(() => {
     const params = new URLSearchParams();
     const dates = searchParams.get("dates");

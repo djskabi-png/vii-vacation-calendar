@@ -36,6 +36,12 @@ test("all seven illustrative availability states are deterministic", () => {
   assert.match(card, /selectedStay\.till\.startsWith\("2026-09-"\)/);
   assert.match(card, /isWholeCountrySelection\(requestedLocation\)/);
   assert.match(search, /availabilityDemoSlugs\.indexOf\(a\.slug\)/);
+  assert.match(card, /export function hasAvailablePriceForSearch/);
+  assert.match(card, /resolvedAvailability\?\.availability === "available"/);
+  assert.match(card, /resolvedAvailability\.nightlyPrice > 0/);
+  assert.equal(search.match(/const availabilityPriority = Number\(hasAvailablePriceForSearch\(b,/g)?.length, 2, "list and map-visible results must share the availability-first ranking");
+  assert.equal(search.match(/if \(availabilityPriority\) return availabilityPriority;/g)?.length, 2);
+  assert.ok(search.indexOf("if (availabilityPriority) return availabilityPriority;") < search.indexOf('if (sort === "recommended" && availabilityDemoActive)'), "availability with price must outrank the selected secondary sort");
   assert.match(search, /else setArea\("\u05d4\u05db\u05dc"\)/, "an omitted whole-country location must clear a previously selected area");
   assert.match(search, /selectedExtras, sort, searchQuery\]\)/, "a new date search must clear stale map viewport results");
   assert.match(search, /availability-demo-summary/);

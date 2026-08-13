@@ -189,6 +189,14 @@ function demoAvailabilityFor(property: Property, selectedStay: SelectedStay | nu
   return { ...common, availability: "unavailable", showSelectedDates: true, alternatives: alternativeOffsets.map((days, index) => ({ from: shiftStayDate(selectedStay.from, days), till: shiftStayDate(selectedStay.till, days), nightlyPrice: nightlyPrice + (index * 200) })) };
 }
 
+export function hasAvailablePriceForSearch(property: Property, selectedStay: SelectedStay | null, pathname: string, requestedLocation: string | null) {
+  if (!selectedStay) return false;
+  const resolvedAvailability = demoAvailabilityFor(property, selectedStay, pathname, requestedLocation) || quoteForStay(property, selectedStay);
+  return resolvedAvailability?.availability === "available"
+    && typeof resolvedAvailability.nightlyPrice === "number"
+    && resolvedAvailability.nightlyPrice > 0;
+}
+
 export function PropertyCard({ property, selectedStay = null, promotional = false, detailHref }: { property: Property; selectedStay?: SelectedStay | null; promotional?: boolean; detailHref?: string }) {
   const { language } = useSiteLanguage();
   const pathname = usePathname();
