@@ -1222,6 +1222,18 @@ test("favorites span every world and bookings continue into the personal account
   assert.match(bookingPage, /לצפייה בהזמנות שלי/);
 });
 
+test("saved favorites normalize legacy routes to canonical detail pages", async () => {
+  const savedItems = await readFile(new URL("../app/lib/saved-items.ts", import.meta.url), "utf8");
+  const legacyDiscoveryRoute = await readFile(new URL("../app/discover/place/legacy-place-redirect.tsx", import.meta.url), "utf8");
+
+  assert.match(savedItems, /canonicalSavedItemHref/);
+  assert.match(savedItems, /return `\/discover\/place\/\$\{encodeURIComponent\(item\.id\)\}`/);
+  assert.match(savedItems, /return `\/business\?id=\$\{encodeURIComponent\(item\.id\)\}`/);
+  assert.match(savedItems, /`\/events\/place\/\$\{encodeURIComponent\(item\.id\)\}`/);
+  assert.match(savedItems, /return `\/trails\/\$\{encodeURIComponent\(item\.id\)\}`/);
+  assert.match(legacyDiscoveryRoute, /router\.replace\(`\/discover\/place\/\$\{encodeURIComponent\(item\.id\)\}`\)/);
+});
+
 test("business depth pages always fill nearby experiences and trails", async () => {
   const response = await render("/business?id=perfumes-villa");
   const html = await response.text();
