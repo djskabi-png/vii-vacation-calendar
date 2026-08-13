@@ -80,6 +80,15 @@ function normalizedLandingType(landing?: SearchLandingContext) {
   return normalized === "הכל" ? null : normalized;
 }
 
+function matchesAnyAccommodationType(propertyType: string, selectedTypes: string[], landing?: SearchLandingContext) {
+  if (selectedTypes.length === 0) return true;
+  return selectedTypes.some((selectedType) => {
+    const legacyType = legacyAccommodationTypes.find((item) => item.label === selectedType);
+    const matchingTypes = landing?.types?.length && selectedType === landing.type ? landing.types : legacyType?.matches;
+    return matchingTypes ? matchingTypes.includes(propertyType) : propertyType === selectedType;
+  });
+}
+
 const legacyExtraFilterGroups = [
   { title: "כללי", options: [
     { id: "accessible", label: "נגישות לנכים", matches: ["נגיש"] },
@@ -384,11 +393,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const shownFilters = filtersOpen && draftFilters ? draftFilters : currentFilterState();
 
   const mapCandidates = useMemo(() => properties.filter((property) => {
-      const matchesType = selectedTypes.length === 0 || selectedTypes.some((selectedType) => {
-        const legacyType = legacyAccommodationTypes.find((item) => item.label === selectedType);
-        if (landing?.types?.length && selectedType === landing.type) return landing.types.includes(property.type);
-        return legacyType ? legacyType.matches.some((item) => item === property.type) : property.type === selectedType;
-      });
+      const matchesType = matchesAnyAccommodationType(property.type, selectedTypes, landing);
       const matchesGuests = property.guests >= guests;
       const priceFilterActive = minPrice > VACATION_PRICE_MIN || maxPrice < VACATION_PRICE_MAX;
       const matchesPrice = !priceFilterActive || (typeof property.price === "number" && property.price >= minPrice && property.price <= maxPrice);
@@ -425,11 +430,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   }, [area, availabilityDemoActive, landing, mapCandidates, selectedTypes, sort]);
 
   const draftCandidates = properties.filter((property) => {
-    const matchesType = shownFilters.selectedTypes.length === 0 || shownFilters.selectedTypes.some((selectedType) => {
-      const legacyType = legacyAccommodationTypes.find((item) => item.label === selectedType);
-      if (landing?.types?.length && selectedType === landing.type) return landing.types.includes(property.type);
-      return legacyType ? legacyType.matches.some((item) => item === property.type) : property.type === selectedType;
-    });
+    const matchesType = matchesAnyAccommodationType(property.type, shownFilters.selectedTypes, landing);
     const searchableFacts = [property.description, property.type, property.location, property.area, ...property.features].join(" ").toLocaleLowerCase("he");
     const matchesExtras = shownFilters.selectedExtras.every((id) => {
       if (id === "accessible") return getPlaceAccessibility(property.slug).status === "accessible";

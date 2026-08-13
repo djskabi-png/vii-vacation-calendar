@@ -13,7 +13,7 @@ test("vacation search preserves every legacy accommodation type", async () => {
   assert.match(source, />סינונים נוספים<\/button>/);
   assert.match(source, /type="checkbox" checked=\{shownFilters\.selectedTypes\.includes\(item\.label\)\}/);
   assert.match(source, /selectedTypes\.some/);
-  assert.match(source, /legacyType\.matches\.some/);
+  assert.match(source, /matchingTypes\.includes\(propertyType\)/);
   assert.match(source, /label: "בקתות עץ", matches: \["בקתת עץ", "בקתות עץ"\]/);
   assert.match(source, /label: "צימרים", matches: \["צימר", "צימרים"\]/);
 });
@@ -65,8 +65,11 @@ test("mobile vacation filter actions stay fixed across both filter sections", as
 
 test("vacation type choices are OR filters while additional choices are cumulative AND filters", async () => {
   const source = await readFile(new URL("app/search/page.tsx", root), "utf8");
-  assert.match(source, /selectedTypes\.length === 0 \|\| selectedTypes\.some/);
-  assert.match(source, /shownFilters\.selectedTypes\.length === 0 \|\| shownFilters\.selectedTypes\.some/);
+  assert.match(source, /function matchesAnyAccommodationType\(propertyType: string, selectedTypes: string\[\]/);
+  assert.match(source, /if \(selectedTypes\.length === 0\) return true/);
+  assert.match(source, /return selectedTypes\.some/);
+  assert.match(source, /matchesAnyAccommodationType\(property\.type, selectedTypes, landing\)/);
+  assert.match(source, /matchesAnyAccommodationType\(property\.type, shownFilters\.selectedTypes, landing\)/);
   assert.match(source, /selectedExtras\.every/);
   assert.match(source, /shownFilters\.selectedExtras\.every/);
   assert.match(source, /\.\.\.selectedTypes\.map\(\(selectedType\) => \(\{ id: `type-\$\{selectedType\}`/);
