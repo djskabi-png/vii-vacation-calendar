@@ -4536,7 +4536,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
   .result-cards .stay-card__media { min-height: 230px; }
   .results-heading { align-items: start; flex-direction: column; gap: 18px; }
   .results-page .breadcrumbs { padding-block: 9px; }
-  .results-page .results-heading { margin-bottom: 2px; padding: 6px 0 11px; }
+  .results-page .results-heading { margin-bottom: 2px; padding: 6px 12px 11px; }
   .results-page .results-heading,
   .results-page .results-heading > div { width: 100%; min-width: 0; }
   .results-page .results-heading h1 {
