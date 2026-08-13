@@ -23,6 +23,8 @@ For every applicable route, verify:
 - Refreshing on desktop preserves desktop geometry.
 - Switching back to mobile restores compact geometry without stale scroll locks.
 - Horizontal sliders own their overflow and never increase the root document width.
+- At 390 by 844 pixels, the first viewport must contain a real result card, an intentional loading skeleton, or an explicit empty state with an action. An unexplained empty band taller than one quarter of the viewport blocks release.
+- Save screenshots for mobile fresh load, desktop after mobile, and mobile return on every route. The independent checker must inspect the screenshots and the live public domain for the deployed commit.
 
 ## Approval rule
 
@@ -32,5 +34,6 @@ Do not approve or describe a release as stable until:
 2. The exact source commit is deployed.
 3. The public custom-domain state matrix passes with a versioned URL.
 4. No development server or browser tab created for QA is left running.
+5. A visual checker approves the captured public screenshots. DOM length, build output and overflow measurements are not visual approval.
 
 If any state fails, report the failing route and state. Do not replace the failure with a general assurance.

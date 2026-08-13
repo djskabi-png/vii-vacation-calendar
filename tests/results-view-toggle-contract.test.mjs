@@ -41,4 +41,6 @@ test("grid and list layouts cover desktop and narrow mobile cards", () => {
   assert.match(styles, /\.result-cards\.results-view--list \.stay-card \{ grid-template-columns: 124px/);
   assert.match(styles, /\.results-toolbar \{ position: relative; z-index: 20; \}/);
   assert.match(styles, /font-family: Rubik, Heebo, Assistant, Arial, sans-serif/);
+  assert.match(styles, /\.spa-results__heading,[\s\S]*?grid-template-columns: minmax\(0, 1fr\) auto/);
+  assert.match(styles, /\.spa-results__heading > \.results-view-toggle,[\s\S]*?display: inline-flex !important/);
 });

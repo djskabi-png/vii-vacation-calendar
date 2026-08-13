@@ -133,3 +133,30 @@
   .discovery-grid.results-view--list .discovery-card__footer-actions { justify-content: stretch; flex-direction: column; align-items: stretch; }
   .discovery-grid.results-view--list .discovery-card__footer-actions > * { width: 100%; }
 }
+
+/* Spa and hourly headings contain the toggle and a fixed mobile map action.
+   Keep the toggle as one compact inline control instead of letting inherited
+   grid rules stretch it into a large empty panel. */
+@media (max-width: 760px) {
+  .spa-results__heading,
+  .world-map-results__toolbar,
+  .hourly-results__heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .spa-results__heading > .results-view-toggle,
+  .world-map-results__toolbar > .results-view-toggle,
+  .hourly-results__heading > .results-view-toggle {
+    width: fit-content !important;
+    min-width: 0;
+    height: auto;
+    min-height: 0;
+    display: inline-flex !important;
+    grid-template-columns: none;
+    justify-self: end;
+    align-self: center;
+  }
+}

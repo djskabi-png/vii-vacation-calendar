@@ -2,6 +2,7 @@
 "use strict";
 
 const { chromium } = require("playwright");
+const { mkdirSync } = require("node:fs");
 
 function argument(name, fallback = "") {
   const index = process.argv.indexOf(`--${name}`);
@@ -11,11 +12,14 @@ function argument(name, fallback = "") {
 const baseUrl = argument("base-url", "https://vii.spaplus.co").replace(/\/$/, "");
 const executablePath = argument("executable-path", process.env.CHROME_PATH || "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe");
 const version = argument("version", String(Date.now()));
+const screenshotDirectory = argument("screenshot-dir", "");
+if (screenshotDirectory) mkdirSync(screenshotDirectory, { recursive: true });
 const routes = [
   ["home", "/"],
   ["vacation-results", "/search?location=%D7%9B%D7%9C+%D7%94%D7%90%D7%A8%D7%A5&from=2026-09-15&till=2026-09-17&adults=4"],
   ["vacation-region", "/vacations/north?from=2026-09-15&till=2026-09-17&adults=4"],
   ["spa", "/spas"],
+  ["spa-region", "/spas/search/north"],
   ["events", "/events"],
   ["hourly", "/hourly-rooms"],
 ];
@@ -40,6 +44,69 @@ async function inspect(page) {
       searchRect: searchButtons.find((button) => button.offsetWidth > 0 && button.offsetHeight > 0)?.getBoundingClientRect().toJSON() || null,
     };
   }, labels.search);
+}
+
+async function inspectVisibleContent(page, routeName) {
+  return page.evaluate((name) => {
+    const viewportHeight = window.innerHeight;
+    const selectorsByRoute = {
+      home: [".home-slider__item", ".home-last-minute__cards > *"],
+      "vacation-results": [".stay-card", ".empty-state"],
+      "vacation-region": [".stay-card", ".empty-state"],
+      spa: [".discovery-card", ".spa-results__empty"],
+      "spa-region": [".discovery-card", ".spa-results__empty"],
+      events: [".event-list article", ".empty-state"],
+      hourly: [".discovery-card", ".empty-state"],
+    };
+    const selectors = selectorsByRoute[name] || ["article", ".empty-state"];
+    const elements = [...document.querySelectorAll(selectors.join(","))]
+      .filter((element) => {
+        const rect = element.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+      });
+    const first = elements
+      .map((element) => element.getBoundingClientRect())
+      .sort((a, b) => a.top - b.top)[0] || null;
+    const anchor = document.querySelector(".results-heading, .spa-results__heading, .world-map-results__toolbar, .hero-search")?.getBoundingClientRect() || null;
+    const emptyBand = first && anchor ? Math.max(0, first.top - anchor.bottom) : 0;
+    return {
+      visibleMeaningfulElements: elements.filter((element) => {
+        const rect = element.getBoundingClientRect();
+        return rect.top < viewportHeight && rect.bottom > 0;
+      }).length,
+      meaningfulElements: elements.length,
+      firstMeaningfulTop: first?.top ?? null,
+      largestUnexplainedEmptyBand: emptyBand,
+      viewportHeight,
+    };
+  }, routeName);
+}
+
+async function focusResultsViewport(page, routeName) {
+  const selectors = {
+    "vacation-results": ".results-heading",
+    "vacation-region": ".results-heading",
+    spa: ".spa-results__heading",
+    "spa-region": ".spa-results__heading",
+    events: ".world-map-results__toolbar",
+    hourly: ".hourly-results__heading, .world-map-results__toolbar",
+  };
+  const selector = selectors[routeName];
+  if (!selector) return;
+  const anchor = page.locator(selector).first();
+  if (!(await anchor.count())) return;
+  await anchor.evaluate((element) => {
+    const top = Math.max(0, element.getBoundingClientRect().top + window.scrollY - 8);
+    window.scrollTo({ top, behavior: "instant" });
+  });
+  await page.waitForTimeout(150);
+}
+
+function visualFailures(state) {
+  const failures = [];
+  if (state.visibleMeaningfulElements === 0) failures.push("no-visible-results-state");
+  if (state.largestUnexplainedEmptyBand > state.viewportHeight * 0.25) failures.push("excessive-empty-band");
+  return failures;
 }
 
 async function inspectHorizontalRails(page) {
@@ -97,6 +164,15 @@ function failuresFor(state, { requireExpanded = false, requireSearch = false, re
       await page.goto(`${baseUrl}${route}${separator}v=${encodeURIComponent(version)}`, { waitUntil: "networkidle", timeout: 90000 });
       let state = await inspect(page);
       report.checks.push({ name: "mobile-fresh", state, failures: failuresFor(state, { requireUnlocked: true }) });
+      await focusResultsViewport(page, name);
+      const mobileVisual = await inspectVisibleContent(page, name);
+      report.checks.push({ name: "mobile-visual-content", state: mobileVisual, failures: visualFailures(mobileVisual) });
+
+      if (screenshotDirectory) {
+        const screenshot = `${screenshotDirectory}/${name}-mobile-fresh-v${version}.png`;
+        await page.screenshot({ path: screenshot, fullPage: false });
+        report.checks.at(-1).screenshot = screenshot;
+      }
 
       const summary = page.locator(".search-mobile-summary");
       if (await summary.isVisible().catch(() => false)) {
@@ -133,6 +209,11 @@ function failuresFor(state, { requireExpanded = false, requireSearch = false, re
       await page.waitForTimeout(400);
       state = await inspect(page);
       report.checks.push({ name: "desktop-after-mobile", state, failures: failuresFor(state, { requireUnlocked: true }) });
+      if (screenshotDirectory) {
+        const screenshot = `${screenshotDirectory}/${name}-desktop-after-mobile-v${version}.png`;
+        await page.screenshot({ path: screenshot, fullPage: false });
+        report.checks.at(-1).screenshot = screenshot;
+      }
 
       const horizontalRails = await inspectHorizontalRails(page);
       report.checks.push({
@@ -152,6 +233,11 @@ function failuresFor(state, { requireExpanded = false, requireSearch = false, re
       await page.waitForTimeout(300);
       state = await inspect(page);
       report.checks.push({ name: "mobile-return", state, failures: failuresFor(state, { requireUnlocked: true }) });
+      if (screenshotDirectory) {
+        const screenshot = `${screenshotDirectory}/${name}-mobile-return-v${version}.png`;
+        await page.screenshot({ path: screenshot, fullPage: false });
+        report.checks.at(-1).screenshot = screenshot;
+      }
     } catch (error) {
       report.checks.push({ name: "runtime", failures: [error.message] });
     }
