@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useMemo, useState } from "react";
+import { Fragment, FormEvent, useMemo, useState } from "react";
 import { LeadIntakeForm } from "../components/lead-intake-form";
+import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import type { JoinWorld } from "./worlds";
 
 type BillingCycle = "monthly" | "annual";
@@ -16,6 +17,13 @@ const worlds: Array<{ id: JoinWorld; label: string; description: string }> = [
   { id: "hourly", label: "חדרים לפי שעה", description: "חדרים וסוויטות לאירוח קצר" },
   { id: "activities", label: "אטרקציות וחוויות", description: "פעילויות, טיולים וחוויות בתשלום" },
 ];
+
+const worldContinueCopy: Record<SiteLanguage, { selected: string; provider: string; registration: string }> = {
+  he: { selected: "בחרתם", provider: "המשך לבחירת מסלול פרסום", registration: "המשך לרישום והשלמת הפרטים" },
+  en: { selected: "Selected", provider: "Continue to advertising plans", registration: "Continue to registration" },
+  ru: { selected: "Вы выбрали", provider: "Перейти к рекламным тарифам", registration: "Перейти к регистрации" },
+  fr: { selected: "Votre choix", provider: "Continuer vers les formules publicitaires", registration: "Continuer vers l’inscription" },
+};
 
 const plans = {
   standard: {
@@ -59,6 +67,7 @@ const launchSteps = [
 const managementCapabilities = ["עמוד העסק והתוכן", "תמונות, גלריות וסרטונים", "שירותים, חבילות ומחירים", "מבצעים והטבות", "יומן וזמינות", "פניות והזמנות", "חוות דעת", "נתוני צפייה וביצועים"] as const;
 
 export function PartnerOnboarding({ initialWorld = "providers" }: { initialWorld?: JoinWorld }) {
+  const { language, translate } = useSiteLanguage();
   const [selectedWorld, setSelectedWorld] = useState<JoinWorld>(initialWorld);
   const [billing, setBilling] = useState<BillingCycle>("annual");
   const [selectedPlan, setSelectedPlan] = useState<PlanId>("standard");
@@ -70,10 +79,14 @@ export function PartnerOnboarding({ initialWorld = "providers" }: { initialWorld
   const selectionLabel = useMemo(() => `${selected.name}, ${billing === "annual" ? "התחייבות שנתית" : "חודש בחודשו"}`, [billing, selected.name]);
   const world = worlds.find((item) => item.id === selectedWorld) ?? worlds[0];
   const isProvider = selectedWorld === "providers";
+  const continueCopy = worldContinueCopy[language];
 
   function chooseWorld(worldId: JoinWorld) {
     setSelectedWorld(worldId);
-    window.setTimeout(() => document.getElementById(worldId === "providers" ? "provider-pricing" : "expert-registration")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+  }
+
+  function continueWithWorld() {
+    document.getElementById(isProvider ? "provider-pricing" : "expert-registration")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   function choosePlan(plan: PlanId, cycle: BillingCycle) {
@@ -99,11 +112,23 @@ export function PartnerOnboarding({ initialWorld = "providers" }: { initialWorld
           </div>
         </div>
         <div className="join-world-grid">
-          {worlds.map((item) => <button key={item.id} type="button" className={selectedWorld === item.id ? "active" : ""} aria-pressed={selectedWorld === item.id} onClick={() => chooseWorld(item.id)}>
-            <strong>{item.label}</strong>
-            <small>{item.description}</small>
-            <span>{item.id === "providers" ? "מחירים והרשמה אונליין" : "רישום ראשוני לנציג מומחה"}</span>
-          </button>)}
+          {worlds.map((item) => <Fragment key={item.id}>
+            <button type="button" className={selectedWorld === item.id ? "active" : ""} aria-pressed={selectedWorld === item.id} onClick={() => chooseWorld(item.id)}>
+              <strong>{item.label}</strong>
+              <small>{item.description}</small>
+              <span>{item.id === "providers" ? "מחירים והרשמה אונליין" : "רישום ראשוני לנציג מומחה"}</span>
+            </button>
+            {selectedWorld === item.id ? <div className="join-world-continue" aria-live="polite">
+              <span className="join-world-continue__selection">
+                <small>{continueCopy.selected}</small>
+                <strong>{translate(world.label)}</strong>
+              </span>
+              <button type="button" className="join-world-continue__button" onClick={continueWithWorld}>
+                <span>{isProvider ? continueCopy.provider : continueCopy.registration}</span>
+                <b aria-hidden="true">←</b>
+              </button>
+            </div> : null}
+          </Fragment>)}
         </div>
       </div>
     </section>
