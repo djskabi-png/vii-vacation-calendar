@@ -6045,20 +6045,58 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .gift-worlds article > span { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 50%; color: #087682; background: #e7f8f7; font-weight: 850; }
 .gift-worlds h3 { margin: 21px 0 7px; font-size: 1.35rem; }
 .gift-worlds p { margin: 0; color: var(--muted); }
-.gift-builder { display: grid; grid-template-columns: .8fr 1.2fr; gap: clamp(28px,5vw,65px); align-items: start; }
+.gift-builder { display: grid; grid-template-columns: minmax(320px,.88fr) minmax(0,1.12fr); gap: clamp(28px,5vw,65px); align-items: start; }
 .gift-builder__preview { position: sticky; top: 110px; }
-.gift-builder__preview p { max-width: 480px; color: var(--muted); line-height: 1.7; }
-.gift-card-art { min-height: 250px; transform: none; }
+.gift-builder__preview > p { max-width: 480px; color: var(--muted); line-height: 1.7; }
+.gift-preview-label { display: flex; align-items: end; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.gift-preview-label span { color: var(--ink); font-size: 1.05rem; font-weight: 900; }
+.gift-preview-label small { color: var(--teal); font-weight: 750; }
+.gift-card-art { min-height: 315px; transform: none; }
 .gift-card-art b { font-size: clamp(2.7rem,6vw,4.6rem); }
+.gift-card-art b i { font-size: .42em; font-style: normal; vertical-align: .34em; }
+.gift-card-art > div { display: grid; gap: 4px; }
+.gift-card-art > div strong { font-size: clamp(1.35rem,3vw,2rem); }
+.gift-card-art > p { max-width: 29ch; margin: 0; color: rgba(255,255,255,.9); font-size: 1rem; line-height: 1.55; }
+.gift-card-art footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; }
+.gift-card-art footer em { padding: 6px 9px; border: 1px solid rgba(255,255,255,.38); border-radius: 999px; color: white; font-size: .68rem; font-style: normal; font-weight: 800; }
+.gift-delivery-preview { display: flex; gap: 12px; margin-top: 14px; padding: 15px; border: 1px solid #cfe4e5; border-radius: 18px; background: rgba(255,255,255,.78); box-shadow: 0 12px 32px rgba(5,68,78,.07); }
+.gift-delivery-preview > span { flex: 0 0 40px; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; color: white; background: var(--teal); font-size: 1.15rem; }
+.gift-delivery-preview b { display: block; margin-bottom: 3px; }
+.gift-delivery-preview p,.gift-builder__preview .gift-builder__truth { margin: 0; color: var(--muted); font-size: .82rem; line-height: 1.55; }
+.gift-builder__preview .gift-builder__truth { margin-top: 10px; padding-inline: 5px; }
 .gift-builder form { display: grid; gap: 22px; padding: clamp(24px,4vw,40px); border: 1px solid #d2e4e6; border-radius: 30px; background: white; box-shadow: 0 20px 55px rgba(5,68,78,.09); }
 .gift-builder fieldset { min-width: 0; padding: 0; border: 0; }
 .gift-builder legend { margin-bottom: 12px; font-size: 1.08rem; font-weight: 850; }
 .gift-choice-row { display: flex; flex-wrap: wrap; gap: 8px; }
 .gift-choice-row button { min-height: 44px; padding: 0 16px; border: 1px solid #cbdfe1; border-radius: 999px; background: white; cursor: pointer; }
 .gift-choice-row button[aria-pressed="true"] { color: white; border-color: #087f89; background: #087f89; box-shadow: 0 8px 20px rgba(8,127,137,.22); }
+.gift-amounts button { flex: 1 1 86px; min-height: 54px; font-size: 1rem; font-weight: 850; }
+.gift-form-section { display: flex; align-items: flex-start; gap: 12px; padding-top: 3px; }
+.gift-form-section:not(:first-child) { margin-top: 4px; padding-top: 24px; border-top: 1px solid #e0ecec; }
+.gift-form-section > span { flex: 0 0 34px; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; color: white; background: linear-gradient(135deg,#087f89,#2f93d2); font-weight: 900; }
+.gift-form-section h3 { margin: 1px 0 3px; font-size: 1.2rem; }
+.gift-form-section p { margin: 0; color: var(--muted); font-size: .83rem; }
 .gift-builder label { display: grid; gap: 7px; font-size: .88rem; font-weight: 750; }
 .gift-builder input,.gift-builder textarea { width: 100%; min-height: 48px; padding: 12px 14px; border: 1px solid #cbdcdf; border-radius: 13px; background: #fbfdfd; font: inherit; }
 .gift-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.gift-delivery-modes { display: grid; grid-template-columns: repeat(3,1fr); gap: 9px; }
+.gift-delivery-modes button { min-height: 104px; display: grid; align-content: center; gap: 6px; padding: 14px; border: 1px solid #cbdfe1; border-radius: 17px; color: var(--ink); background: #fbfdfd; font: inherit; text-align: start; cursor: pointer; }
+.gift-delivery-modes button small { color: var(--muted); line-height: 1.45; }
+.gift-delivery-modes button[aria-pressed="true"] { border-color: var(--teal); background: #eaf8f8; box-shadow: inset 0 0 0 1px var(--teal),0 10px 25px rgba(8,127,137,.11); }
+.gift-schedule-picker { display: grid; grid-template-columns: minmax(0,1.1fr) minmax(150px,.9fr); gap: 14px; padding: 16px; border: 1px solid #cfe1e3; border-radius: 21px; background: #f8fbfb; }
+.gift-schedule-picker__calendar header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.gift-schedule-picker__calendar header button { width: 38px; height: 38px; border: 1px solid #c8dcdf; border-radius: 50%; color: var(--teal-dark); background: white; font: inherit; cursor: pointer; }
+.gift-schedule-picker__calendar header button:disabled { opacity: .35; cursor: default; }
+.gift-schedule-picker__weekdays,.gift-schedule-picker__days { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 3px; text-align: center; }
+.gift-schedule-picker__weekdays span { padding-block: 5px; color: var(--muted); font-size: .7rem; font-weight: 750; }
+.gift-schedule-picker__days button { aspect-ratio: 1; min-width: 0; border: 0; border-radius: 50%; color: var(--ink); background: transparent; font: inherit; font-size: .78rem; cursor: pointer; }
+.gift-schedule-picker__days button:hover { background: #e4f5f5; }
+.gift-schedule-picker__days button[aria-pressed="true"] { color: white; background: var(--teal); box-shadow: 0 6px 15px rgba(8,127,137,.22); }
+.gift-schedule-picker__days button:disabled { color: #b7c2c3; cursor: default; }
+.gift-schedule-picker__times { display: grid; align-content: start; gap: 10px; }
+.gift-schedule-picker__times > div { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.gift-schedule-picker__times button { min-height: 44px; border: 1px solid #cbdfe1; border-radius: 12px; background: white; font: inherit; cursor: pointer; }
+.gift-schedule-picker__times button[aria-pressed="true"] { color: white; border-color: var(--teal); background: var(--teal); }
 .gift-success { max-width: 760px; margin: auto; padding: 48px; border: 1px solid #bae1d4; border-radius: 30px; background: #f2fbf7; text-align: center; }
 .gift-success > span { color: #128061; font-weight: 850; }
 .gift-success h2 { margin: 10px 0; font-size: 2.2rem; }
@@ -6626,11 +6664,13 @@ button:not(:disabled):active,a[href]:active,[role="button"]:active,.is-action-pr
 .gift-card-art--celebration,.gift-voucher--celebration { background: radial-gradient(circle at 18% 18%,#ffcf74,transparent 24%),linear-gradient(135deg,#6d43aa,#e06d8d 55%,#f0a24d); }
 .gift-card-art--calm,.gift-voucher--calm { background: radial-gradient(circle at 85% 15%,rgba(255,255,255,.36),transparent 28%),linear-gradient(135deg,#155d63,#56a690 58%,#9bc6ae); }
 .gift-card-art--sea,.gift-voucher--sea { background: linear-gradient(135deg,#064652 0%,#0d8d96 60%,#52a4c8 100%); }
-.gift-designs { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.gift-card-art--night,.gift-voucher--night { background: radial-gradient(circle at 14% 20%,rgba(238,194,109,.26),transparent 22%),linear-gradient(135deg,#111c31,#263d59 58%,#997543); }
+.gift-designs { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
 .gift-design { display: grid; justify-items: start; gap: 5px; padding: 13px; border: 2px solid transparent; border-radius: 17px; color: var(--ink); background: #f6f9fa; font: inherit; text-align: start; cursor: pointer; }
 .gift-design > span { width: 100%; height: 62px; border-radius: 12px; background: linear-gradient(135deg,#064652,#52a4c8); }
 .gift-design--celebration > span { background: linear-gradient(135deg,#6d43aa,#e06d8d,#f0a24d); }
 .gift-design--calm > span { background: linear-gradient(135deg,#155d63,#9bc6ae); }
+.gift-design--night > span { background: linear-gradient(135deg,#111c31,#997543); }
 .gift-design small { color: var(--muted); }
 .gift-design[aria-pressed="true"] { border-color: var(--teal); background: #eefafa; box-shadow: 0 10px 24px rgba(0,122,135,.12); }
 .gift-form-grid .form-wide { grid-column: 1 / -1; }
@@ -6666,7 +6706,21 @@ button:not(:disabled):active,a[href]:active,[role="button"]:active,.is-action-pr
   .demo-payment__grid,.gift-designs,.gift-thank-you { grid-template-columns: 1fr; }
   .gift-checkout__steps b { font-size: .74rem; }
   .gift-checkout__steps li:not(:last-child)::after { inset-inline-start: calc(50% + 21px); width: calc(100% - 42px); }
+  .gift-builder { gap: 20px; }
+  .gift-builder__preview { display: grid; }
+  .gift-preview-label { order: 0; }
+  .gift-card-art { min-height: 280px; padding: 25px; border-radius: 25px; }
+  .gift-delivery-preview { margin-top: 10px; }
   .gift-builder form { padding: 20px; border-radius: 23px; }
+  .gift-designs { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .gift-design { padding: 9px; }
+  .gift-design > span { height: 50px; }
+  .gift-delivery-modes { grid-template-columns: 1fr; }
+  .gift-delivery-modes button { min-height: 80px; }
+  .gift-schedule-picker { grid-template-columns: 1fr; padding: 12px; }
+  .gift-schedule-picker__days button { min-height: 40px; aspect-ratio: auto; }
+  .gift-schedule-picker__times > div { grid-template-columns: repeat(4,1fr); }
+  .gift-form-section:not(:first-child) { padding-top: 19px; }
   .gift-payment-actions .button { flex-basis: 100%; }
   .gift-voucher { min-height: 350px; padding: 27px; }
   .gift-voucher b { font-size: 3rem; }

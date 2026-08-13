@@ -454,8 +454,9 @@ test("checkout journeys include legal consent and requests without card collecti
   const [giftHtml, bookingHtml] = await Promise.all([giftResponse.text(), bookingResponse.text()]);
   assert.match(giftHtml, /gift-checkout__steps/);
   assert.match(giftHtml, /gift-designs/);
-  assert.match(giftSource, /type="date"/);
-  assert.match(giftSource, /type="time"/);
+  assert.doesNotMatch(giftSource, /type="date"/);
+  assert.doesNotMatch(giftSource, /type="time"/);
+  assert.match(giftSource, /gift-schedule-picker/);
   assert.match(giftSource, /gift-voucher/);
   assert.match(giftSource, /gift-notification-previews/);
   assert.doesNotMatch(giftSource, /<DemoPaymentFields/);
