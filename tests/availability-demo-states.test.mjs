@@ -8,7 +8,7 @@ const search = await readFile(new URL("../app/search/page.tsx", import.meta.url)
 const searchBox = await readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8");
 const taxonomy = await readFile(new URL("../app/data/search-taxonomy.ts", import.meta.url), "utf8");
 
-const scenarios = {
+const firstPeriodScenarios = {
   "aqua-resort": "available-price",
   "kesem-harimon": "price-only",
   "ahuzat-or": "available-no-price",
@@ -19,13 +19,18 @@ const scenarios = {
 };
 
 test("all seven illustrative availability states are deterministic", () => {
-  for (const [slug, kind] of Object.entries(scenarios)) {
+  for (const [slug, kind] of Object.entries(firstPeriodScenarios)) {
     assert.match(card, new RegExp(`"${slug}": "${kind}"`));
   }
+  for (const slug of ["ar-suites", "infinity-suites", "rose-estate"]) assert.match(card, new RegExp(`"${slug}"`));
+  assert.match(card, /demoAvailabilityScenarios: Array<Record<string, DemoAvailabilityKind>>/);
+  assert.match(card, /demoSeptemberPeriod\(selectedStay\.from\)/);
   assert.match(card, /basePath !== "\/search" && basePath !== "\/vacations"/);
   assert.match(card, /availabilityDemoStay = \{ from: "2026-09-04", till: "2026-09-06" \}/);
   assert.match(card, /replace\(\/\\\/\+\$\/, ""\)/, "demo scenarios should work on both /search and /search/");
   assert.match(card, /isAvailabilityDemoSearch\(selectedStay, requestedLocation\)/);
+  assert.match(card, /selectedStay\?\.from\.startsWith\("2026-09-"\)/);
+  assert.match(card, /selectedStay\.till\.startsWith\("2026-09-"\)/);
   assert.match(card, /isWholeCountrySelection\(requestedLocation\)/);
   assert.match(search, /availabilityDemoSlugs\.indexOf\(a\.slug\)/);
   assert.match(search, /else setArea\("\u05d4\u05db\u05dc"\)/, "an omitted whole-country location must clear a previously selected area");
@@ -56,11 +61,8 @@ test("illustrative data is visibly identified and localized", () => {
 
 test("availability states render dates, prices and alternatives independently", () => {
   assert.match(card, /showSelectedDates: false/);
-  assert.match(card, /nightlyPrice: 1300/);
-  assert.match(card, /nightlyPrice: 1100/);
-  assert.match(card, /nightlyPrice: 1600/);
-  assert.match(card, /nightlyPrice: 2400/);
-  assert.match(card, /alternatives: \[7, 14\]/);
+  for (const price of [700, 1100, 1200, 1300, 1500, 1600, 2400, 4000, 4500, 6000]) assert.match(card, new RegExp(`: ${price}`));
+  assert.match(card, /alternativeOffsets = period === 3 \? \[-7, 2\] : \[3, 7\]/);
   assert.match(card, /resolvedAvailability\.alternatives\?\.length/);
   assert.match(card, /resolvedAvailability\.showSelectedDates/);
 });

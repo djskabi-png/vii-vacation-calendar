@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { DeferredListingMap } from "../components/deferred-listing-map";
 import { ModernSelect } from "../components/modern-select";
 import { PageShell } from "../components/page-shell";
-import { availabilityDemoSlugs, availabilityDemoStay, isAvailabilityDemoSearch, PropertyCard } from "../components/property-card";
+import { availabilityDemoSlugs, isAvailabilityDemoSearch, PropertyCard } from "../components/property-card";
 import { SearchBox } from "../components/search-box";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 import { properties } from "../data/site-data";
@@ -146,10 +146,10 @@ const VACATION_PRICE_MAX = Math.max(5000, ...properties.map((property) => proper
 const VACATION_PRICE_STEP = 50;
 
 const availabilityDemoCopy = {
-  he: { title: "\u05db\u05dc \u05de\u05e6\u05d1\u05d9 \u05d4\u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d1\u05de\u05e7\u05d5\u05dd \u05d0\u05d7\u05d3", text: "7 \u05d4\u05db\u05e8\u05d8\u05d9\u05e1\u05d9\u05dd \u05d4\u05e8\u05d0\u05e9\u05d5\u05e0\u05d9\u05dd \u05de\u05d3\u05d2\u05d9\u05de\u05d9\u05dd \u05ea\u05d0\u05e8\u05d9\u05da, \u05de\u05d7\u05d9\u05e8 \u05d5\u05d6\u05de\u05d9\u05e0\u05d5\u05ea." },
-  en: { title: "Every availability state in one search", text: "The first 7 cards demonstrate dates, prices and availability." },
-  ru: { title: "\u0412\u0441\u0435 \u0441\u0442\u0430\u0442\u0443\u0441\u044b \u0434\u043e\u0441\u0442\u0443\u043f\u043d\u043e\u0441\u0442\u0438 \u0432 \u043e\u0434\u043d\u043e\u043c \u043f\u043e\u0438\u0441\u043a\u0435", text: "\u041f\u0435\u0440\u0432\u044b\u0435 7 \u043a\u0430\u0440\u0442\u043e\u0447\u0435\u043a \u043f\u043e\u043a\u0430\u0437\u044b\u0432\u0430\u044e\u0442 \u0434\u0430\u0442\u044b, \u0446\u0435\u043d\u044b \u0438 \u0434\u043e\u0441\u0442\u0443\u043f\u043d\u043e\u0441\u0442\u044c." },
-  fr: { title: "Tous les \u00e9tats de disponibilit\u00e9 en une recherche", text: "Les 7 premi\u00e8res fiches illustrent les dates, les prix et la disponibilit\u00e9." },
+  he: { title: "\u05d4\u05de\u05d7\u05e9\u05ea \u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d5\u05de\u05d7\u05d9\u05e8\u05d9\u05dd \u05dc\u05e1\u05e4\u05d8\u05de\u05d1\u05e8", text: "\u05db\u05dc \u05d4\u05de\u05e7\u05d5\u05de\u05d5\u05ea \u05de\u05e6\u05d9\u05d2\u05d9\u05dd \u05d3\u05d5\u05d2\u05de\u05d0\u05d5\u05ea \u05dc\u05db\u05dc \u05de\u05e6\u05d1\u05d9 \u05d4\u05d6\u05de\u05d9\u05e0\u05d5\u05ea. \u05d4\u05de\u05d9\u05d3\u05e2 \u05de\u05d1\u05d5\u05e1\u05e1 \u05e2\u05dc \u05de\u05d1\u05e0\u05d9 \u05d4\u05ea\u05e6\u05d5\u05d2\u05d4 \u05e9\u05dc VII \u05d4\u05d9\u05e9\u05df \u05d5\u05d0\u05d9\u05e0\u05d5 \u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d7\u05d9\u05d4." },
+  en: { title: "September availability and price demonstration", text: "Every property shows example availability states based on the old VII display patterns. This is not live availability." },
+  ru: { title: "\u0414\u0435\u043c\u043e\u043d\u0441\u0442\u0440\u0430\u0446\u0438\u044f \u0446\u0435\u043d \u0438 \u0434\u043e\u0441\u0442\u0443\u043f\u043d\u043e\u0441\u0442\u0438 \u043d\u0430 \u0441\u0435\u043d\u0442\u044f\u0431\u0440\u044c", text: "\u041a\u0430\u0436\u0434\u044b\u0439 \u043e\u0431\u044a\u0435\u043a\u0442 \u043f\u043e\u043a\u0430\u0437\u044b\u0432\u0430\u0435\u0442 \u043f\u0440\u0438\u043c\u0435\u0440\u044b \u043d\u0430 \u043e\u0441\u043d\u043e\u0432\u0435 \u0441\u0442\u0430\u0440\u043e\u0433\u043e VII. \u042d\u0442\u043e \u043d\u0435 \u0430\u043a\u0442\u0443\u0430\u043b\u044c\u043d\u0430\u044f \u0434\u043e\u0441\u0442\u0443\u043f\u043d\u043e\u0441\u0442\u044c." },
+  fr: { title: "D\u00e9monstration des prix et disponibilit\u00e9s de septembre", text: "Chaque lieu montre des exemples inspir\u00e9s des affichages de l'ancien VII. Il ne s'agit pas de disponibilit\u00e9s en temps r\u00e9el." },
 };
 
 
@@ -607,7 +607,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
               <div><h1>{landing?.title || (area === "הכל" ? "נופש ברחבי הארץ" : `נופש ב${area}`)}</h1><div className="results-heading__meta"><p className="results-heading__inventory" aria-live="polite">{inventorySummary}</p></div></div>
             </section>
             {activeFilters.length > 0 && <div className="active-filter-row"><span>סינונים פעילים:</span>{activeFilters.map((filter) => <button key={filter.id} type="button" onClick={filter.remove} aria-label={`הסרת הסינון ${filter.label}`}>{filter.label} ×</button>)}<button type="button" className="clear-all" onClick={resetFilters}>ניקוי הכל</button></div>}
-            {availabilityDemoActive ? <div className="availability-demo-summary" role="status"><strong>{availabilityDemoCopy[language].title}</strong><span>{availabilityDemoCopy[language].text}</span><small>{availabilityDemoStay.from}{" "}{String.fromCharCode(183)}{" "}{availabilityDemoStay.till}</small></div> : null}
+            {availabilityDemoActive ? <div className="availability-demo-summary" role="status"><strong>{availabilityDemoCopy[language].title}</strong><span>{availabilityDemoCopy[language].text}</span><small>{selectedStay?.from}{" "}{String.fromCharCode(183)}{" "}{selectedStay?.till}</small></div> : null}
             <div className="results-toolbar"><div className="results-toolbar__actions"><ResultsViewToggle value={viewMode} onChange={setViewMode} />{filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתוצאות" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (mapOpen) closeResultsMap(); else openResultsMap(); }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לתוצאות" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect className="results-toolbar__sort" compact label="מיון לפי" value={sort} onChange={changeSort} options={[{ value: "recommended", label: "מומלצים" }, { value: "capacity", label: "קיבולת גבוהה" }, { value: "units", label: "מספר יחידות" }, { value: "name", label: "שם המקום" }]} /></div>
             {!mapOpen && <div className={`result-cards results-view results-view--${viewMode}`}>{displayedResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStay} detailHref={detailHref(property.slug)} />)}</div>}
             {mapOpen && <div className="airbnb-map-split">

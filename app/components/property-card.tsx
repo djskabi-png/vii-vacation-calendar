@@ -44,17 +44,45 @@ const demoScenarioCopy: Record<SiteLanguage, { label: string; alternatives: stri
 };
 export const availabilityDemoStay = { from: "2026-09-04", till: "2026-09-06" } as const;
 
-const demoAvailabilityScenarios: Record<string, DemoAvailabilityKind> = {
-  "aqua-resort": "available-price", "kesem-harimon": "price-only", "ahuzat-or": "available-no-price", "sol-gilgal": "no-data",
-  "anael-estate": "unavailable", "magic-garden-gefen": "unavailable-alternatives", "perfumes-villa": "unavailable-price",
+const demoAvailabilityScenarios: Array<Record<string, DemoAvailabilityKind>> = [
+  {
+    "aqua-resort": "available-price", "kesem-harimon": "price-only", "ahuzat-or": "available-no-price", "sol-gilgal": "no-data",
+    "anael-estate": "unavailable", "magic-garden-gefen": "unavailable-alternatives", "perfumes-villa": "unavailable-price",
+    "ar-suites": "available-price", "infinity-suites": "available-price", "rose-estate": "unavailable-alternatives",
+  },
+  {
+    "aqua-resort": "unavailable-alternatives", "kesem-harimon": "available-price", "ahuzat-or": "price-only", "sol-gilgal": "available-no-price",
+    "anael-estate": "no-data", "magic-garden-gefen": "unavailable", "perfumes-villa": "unavailable-price",
+    "ar-suites": "available-price", "infinity-suites": "unavailable-alternatives", "rose-estate": "available-price",
+  },
+  {
+    "aqua-resort": "unavailable", "kesem-harimon": "unavailable-price", "ahuzat-or": "available-price", "sol-gilgal": "price-only",
+    "anael-estate": "available-no-price", "magic-garden-gefen": "no-data", "perfumes-villa": "unavailable-alternatives",
+    "ar-suites": "available-price", "infinity-suites": "available-price", "rose-estate": "unavailable",
+  },
+  {
+    "aqua-resort": "available-no-price", "kesem-harimon": "no-data", "ahuzat-or": "unavailable", "sol-gilgal": "unavailable-alternatives",
+    "anael-estate": "unavailable-price", "magic-garden-gefen": "available-price", "perfumes-villa": "price-only",
+    "ar-suites": "available-price", "infinity-suites": "unavailable", "rose-estate": "available-price",
+  },
+];
+
+const demoNightlyPrices: Record<string, number> = {
+  "aqua-resort": 1300, "kesem-harimon": 1100, "ahuzat-or": 1500, "ar-suites": 1200, "sol-gilgal": 700,
+  "infinity-suites": 1600, "magic-garden-gefen": 2400, "anael-estate": 4000, "perfumes-villa": 4500, "rose-estate": 6000,
 };
 
-export const availabilityDemoSlugs = Object.keys(demoAvailabilityScenarios);
+export const availabilityDemoSlugs = Object.keys(demoAvailabilityScenarios[0]);
 
 export function isAvailabilityDemoSearch(selectedStay: SelectedStay | null, requestedLocation: string | null) {
-  return selectedStay?.from === availabilityDemoStay.from
-    && selectedStay.till === availabilityDemoStay.till
+  return Boolean(selectedStay?.from.startsWith("2026-09-")
+    && selectedStay.till.startsWith("2026-09-"))
     && isWholeCountrySelection(requestedLocation);
+}
+
+function demoSeptemberPeriod(value: string) {
+  const day = Number(value.slice(-2));
+  return Number.isFinite(day) ? Math.min(3, Math.max(0, Math.floor((day - 1) / 7))) : 0;
 }
 
 function localizedDate(value: string, language: SiteLanguage) {
@@ -98,16 +126,19 @@ function demoAvailabilityFor(property: Property, selectedStay: SelectedStay | nu
   if (!selectedStay || !isAvailabilityDemoSearch(selectedStay, requestedLocation)) return null;
   const basePath = (pathname.replace(/^\/(en|ru|fr)(?=\/|$)/, "").replace(/\/+$/, "") || "/");
   if (basePath !== "/search" && basePath !== "/vacations") return null;
-  const kind = demoAvailabilityScenarios[property.slug];
+  const period = demoSeptemberPeriod(selectedStay.from);
+  const kind = demoAvailabilityScenarios[period][property.slug];
   if (!kind) return null;
+  const nightlyPrice = demoNightlyPrices[property.slug] || 1300;
   const common = { ...selectedStay, illustrative: true };
-  if (kind === "available-price") return { ...common, availability: "available", nightlyPrice: 1300, includedGuests: 2, showSelectedDates: true };
-  if (kind === "price-only") return { ...common, availability: "unknown", nightlyPrice: 1100, includedGuests: 4, showSelectedDates: false };
+  if (kind === "available-price") return { ...common, availability: "available", nightlyPrice, includedGuests: property.maxGuests || 2, showSelectedDates: true };
+  if (kind === "price-only") return { ...common, availability: "unknown", nightlyPrice, includedGuests: property.maxGuests || 2, showSelectedDates: false };
   if (kind === "available-no-price") return { ...common, availability: "available", showSelectedDates: true };
   if (kind === "no-data") return { ...common, availability: "unknown", showSelectedDates: false };
   if (kind === "unavailable") return { ...common, availability: "unavailable", showSelectedDates: true };
-  if (kind === "unavailable-price") return { ...common, availability: "unavailable", nightlyPrice: 1600, includedGuests: 2, showSelectedDates: true };
-  return { ...common, availability: "unavailable", showSelectedDates: true, alternatives: [7, 14].map((days) => ({ from: shiftStayDate(selectedStay.from, days), till: shiftStayDate(selectedStay.till, days), nightlyPrice: 2400 })) };
+  if (kind === "unavailable-price") return { ...common, availability: "unavailable", nightlyPrice, includedGuests: property.maxGuests || 2, showSelectedDates: true };
+  const alternativeOffsets = period === 3 ? [-7, 2] : [3, 7];
+  return { ...common, availability: "unavailable", showSelectedDates: true, alternatives: alternativeOffsets.map((days, index) => ({ from: shiftStayDate(selectedStay.from, days), till: shiftStayDate(selectedStay.till, days), nightlyPrice: nightlyPrice + (index * 200) })) };
 }
 
 export function PropertyCard({ property, selectedStay = null, promotional = false, detailHref }: { property: Property; selectedStay?: SelectedStay | null; promotional?: boolean; detailHref?: string }) {
