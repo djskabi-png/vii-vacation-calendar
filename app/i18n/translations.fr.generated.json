@@ -6073,7 +6073,7 @@
   "קבוצה שרוצה ערב פעיל צריכה לבדוק כללי רעש ושעות שימוש. משפחה שמחפשת שקט תעדיף הפרדה טובה בין אזור האירוח לחדרי השינה.": "Un groupe qui souhaite passer une soirée active doit vérifier les règles en matière de bruit et les heures d'utilisation. Une famille en quête de calme préférera une bonne séparation entre le séjour et les chambres.",
   "קבוצות": "groupes",
   "קבוצות וחגיגות": "Groupes et célébrations",
-  "קבוצות קטנות": "petits groupes",
+  "קבוצות קטנות": "Petits groupes",
   "קבוצות, חברות ואירועים פרטיים": "Groupes, entreprises et événements privés",
   "קבוצות, משפחות וימי גיבוש": "Groupes, familles et journées de formation",
   "קבוצת חברים, דוגמה בדיונית": "Un groupe d'amis, un exemple fictif",
@@ -6980,9 +6980,21 @@
   "מתאים במיוחד": "Particulièrement adaptée aux",
   "חופשה משפחתית": "Vacances en famille",
   "אירוח זוגות": "Couples",
-  "קבוצות קטנות": "Petits groupes"
-  ,"שהייה של שני לילות ומעלה": "Séjours de deux nuits ou plus"
-  ,"חוות דעת על וילה פלומבו": "Avis sur la Villa Palumbo"
-  ,"מידע מעשי": "Informations pratiques"
-  ,"גלריית אורחים": "Galerie des hôtes"
+  "שהייה של שני לילות ומעלה": "Séjours de deux nuits ou plus",
+  "חוות דעת על וילה פלומבו": "Avis sur la Villa Palumbo",
+  "מידע מעשי": "Informations pratiques",
+  "גלריית אורחים": "Galerie des hôtes",
+  "מספר לדוגמה": "Numéro d’exemple",
+  "סגירת חלון ההמחשה": "Fermer l’aperçu",
+  "תצוגת שיחה": "Aperçu de la conversation",
+  "פנייה אל": "Demande à",
+  "כך תיפתח פנייה בוואטסאפ לאחר חיבור פרטי העסק.": "Voici comment la demande WhatsApp s’ouvrira après la connexion des coordonnées de l’établissement.",
+  "שלום, אשמח לבדוק זמינות ולקבל פרטים נוספים.": "Bonjour, je souhaite vérifier les disponibilités et recevoir plus d’informations.",
+  "זוהי המחשת ממשק בלבד. לא נשמרו פרטים ולא נשלחה הודעה.": "Ceci est uniquement un aperçu de l’interface. Aucune donnée n’a été enregistrée et aucun message n’a été envoyé.",
+  "הבנתי": "J’ai compris",
+  "עמוד לדוגמה · הפרטים והתמונות ממחישים כרטיס עסק מלא": "Page d’exemple · Les informations et les images illustrent une fiche complète",
+  "עמוד לדוגמה · תמונות המחשה": "Page d’exemple · Images d’illustration",
+  "ימי גיבוש, רווחה ומתנות לעובדים": "Journées d’équipe, bien-être et cadeaux aux salariés",
+  "וילה שלמה": "Villa entière",
+  "יומן מסודר עם מחיר לכל לילה והזמנה מהירה בתאריכים הפנויים.": "Un calendrier complet avec les prix par nuit et la réservation rapide aux dates disponibles."
 }

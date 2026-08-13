@@ -125,7 +125,16 @@ export default function FavoritesPage() {
           </div>
         </> : <div className="favorites-empty">
           <div><span aria-hidden="true">♡</span><h2>{copy.emptyTitle}</h2><p>{copy.emptyText}</p></div>
-          <div className="favorites-empty__links"><Link href="/search">{labels.vacation}</Link><Link href="/events/search">{labels.events}</Link><Link href="/corporate">{labels.corporate}</Link><Link href="/spas">{labels.spa}</Link><Link href="/providers">{labels.providers}</Link><Link href="/hourly">{labels.hourly}</Link><Link href="/attractions">{labels.activities}</Link><Link href="/trails">{labels.trails}</Link></div>
+          <div className="favorites-empty__links">
+            <Link href="/search"><span>{labels.vacation}</span><span className="favorites-empty__link-arrow" aria-hidden="true">{language === "he" ? "\u2190" : "\u2192"}</span></Link>
+            <Link href="/events/search"><span>{labels.events}</span><span className="favorites-empty__link-arrow" aria-hidden="true">{language === "he" ? "\u2190" : "\u2192"}</span></Link>
+            <Link href="/corporate"><span>{labels.corporate}</span><span className="favorites-empty__link-arrow" aria-hidden="true">{language === "he" ? "\u2190" : "\u2192"}</span></Link>
+            <Link href="/spas"><span>{labels.spa}</span><span className="favorites-empty__link-arrow" aria-hidden="true">{language === "he" ? "\u2190" : "\u2192"}</span></Link>
+            <Link href="/providers"><span>{labels.providers}</span><span className="favorites-empty__link-arrow" aria-hidden="true">{language === "he" ? "\u2190" : "\u2192"}</span></Link>
+            <Link href="/hourly"><span>{labels.hourly}</span><span className="favorites-empty__link-arrow" aria-hidden="true">{language === "he" ? "\u2190" : "\u2192"}</span></Link>
+            <Link href="/attractions"><span>{labels.activities}</span><span className="favorites-empty__link-arrow" aria-hidden="true">{language === "he" ? "\u2190" : "\u2192"}</span></Link>
+            <Link href="/trails"><span>{labels.trails}</span><span className="favorites-empty__link-arrow" aria-hidden="true">{language === "he" ? "\u2190" : "\u2192"}</span></Link>
+          </div>
         </div>}
       </section>
       <section className="favorites-account-strip"><div className="shell"><div><span className="eyebrow">{copy.stripEyebrow}</span><h2>{copy.stripTitle}</h2><p>{copy.stripText}</p></div><Link className="button primary" href="/account">{copy.login}</Link></div></section>

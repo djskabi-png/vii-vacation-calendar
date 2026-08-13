@@ -1225,6 +1225,18 @@ test("favorites span every world and bookings continue into the personal account
   assert.match(bookingPage, /לצפייה בהזמנות שלי/);
 });
 
+test("favorites empty-state navigation uses encoding-safe symbols", async () => {
+  const styles = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const favoritesPage = await readFile(new URL("../app/favorites/page.tsx", import.meta.url), "utf8");
+  assert.match(styles, /\.favorites-empty__link-arrow\s*\{/);
+  assert.doesNotMatch(styles, /\.favorites-empty__links a::after/);
+  assert.match(favoritesPage, /className="favorites-empty__link-arrow" aria-hidden="true"/);
+  assert.match(favoritesPage, /language === "he" \? "\\u2190" : "\\u2192"/);
+  for (const broken of ["ג†", "ג“", "גˆ’", "ג™¿", "ג€÷", "ג€¹", "ֲ·"]) {
+    assert.doesNotMatch(`${styles}\n${favoritesPage}`, new RegExp(broken));
+  }
+});
+
 test("saved favorites normalize legacy routes to canonical detail pages", async () => {
   const savedItems = await readFile(new URL("../app/lib/saved-items.ts", import.meta.url), "utf8");
   const legacyDiscoveryRoute = await readFile(new URL("../app/discover/place/legacy-place-redirect.tsx", import.meta.url), "utf8");
