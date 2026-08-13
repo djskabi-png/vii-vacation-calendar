@@ -163,6 +163,11 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     closeMobileSearch();
   }, [closeMobileSearch, restoreCommittedSearchState]);
 
+  const closeGuestPicker = useCallback(() => {
+    setGuestOpen(false);
+    setMobileStep("overview");
+  }, []);
+
   useEffect(() => {
     const timer = window.setTimeout(() => {
       restoreCommittedSearchState();
@@ -404,12 +409,12 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
         </div>}
         {!isHourly && <button type="button" className={`search-field search-step search-step--dates ${mobileStep === "dates" ? "active" : ""}`} onClick={() => { setMobileStep("dates"); expandMobileSearch(); setCalendarOpen(true); setLocationOpen(false); setGuestOpen(false); }}><CalendarIcon /><span><small>{mode === "events" ? "מתי האירוע?" : mode === "spa" ? "מתי מגיעים?" : "מתי יוצאים"}</small><strong>{dates}</strong></span></button>}
         {!isHourly && <div className={`search-field-wrap search-step search-step--guests ${mobileStep === "guests" ? "active" : ""}`}>
-          <button type="button" className="search-field" aria-expanded={guestOpen} onClick={() => { setMobileStep("guests"); expandMobileSearch(); setGuestOpen((value) => mobileExpanded ? true : !value); setLocationOpen(false); }}><PeopleIcon /><span><small>{peopleLabel}</small><strong>{peopleValue}</strong></span></button>
+          <button type="button" className="search-field" aria-expanded={guestOpen} onClick={() => { if (guestOpen) { closeGuestPicker(); return; } setMobileStep("guests"); expandMobileSearch(); setGuestOpen(true); setLocationOpen(false); }}><PeopleIcon /><span><small>{peopleLabel}</small><strong>{peopleValue}</strong></span></button>
           {guestOpen && (mode === "spa"
             ? <div className="search-popover spa-audience-picker"><strong>למי מזמינים?<small>לא חובה</small></strong><button type="button" className={`spa-audience-clear ${spaAudience === null ? "selected" : ""}`} aria-pressed={spaAudience === null} onClick={() => { setSpaAudience(null); setGuests(0); if (!mobileExpanded) setGuestOpen(false); }}><span>ללא העדפה</span><small>הציגו את כל בתי הספא</small></button><div>{SPA_AUDIENCES.map((option) => <button type="button" key={option.id} className={spaAudience === option.id ? "selected" : ""} aria-pressed={spaAudience === option.id} onClick={() => { setSpaAudience(option.id); setGuests(option.guests); if (!mobileExpanded) setGuestOpen(false); }}><span>{option.label}</span><small>{option.description}</small></button>)}</div></div>
             : mode === "vacation"
               ? <div className="search-popover vacation-party-picker" aria-label="בחירת הרכב אורחים וחדרים">
-                  <header><div><strong>מי מגיע?</strong><small>התאימו את ההרכב למקום הנכון</small></div><button type="button" onClick={cancelMobileSearch} aria-label="סגירת בחירת האורחים">×</button></header>
+                  <header><div><strong>מי מגיע?</strong><small>התאימו את ההרכב למקום הנכון</small></div><button type="button" onClick={closeGuestPicker} aria-label="סגירת בחירת האורחים">×</button></header>
                   <div className="vacation-party-picker__rows">
                     {VACATION_PARTY_ROWS.map((row) => <div className="vacation-party-row" key={row.id}>
                       <span><strong>{row.label}</strong><small>{row.description}</small></span>
@@ -420,7 +425,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
                       </div>
                     </div>)}
                   </div>
-                  <button type="button" className="popover-done" onClick={() => setGuestOpen(false)}>שמירת ההרכב</button>
+                  <button type="button" className="popover-done" onClick={closeGuestPicker}>שמירת ההרכב</button>
                 </div>
               : <div className="search-popover guest-picker"><strong>משתתפים</strong><div><button type="button" disabled={guests <= 0} onClick={() => setGuests((value) => value - 10)}>−</button><span>{guests === 0 ? "לא נבחר" : guests}</span><button type="button" onClick={() => setGuests((value) => value + 10)}>+</button></div><button type="button" className="popover-done" onClick={() => setGuestOpen(false)}>סיום</button></div>)}
         </div>}

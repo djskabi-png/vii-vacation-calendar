@@ -13,7 +13,9 @@ test("closing any mobile date flow returns to the unchanged page", () => {
   assert.match(source, /className="search-mobile-backdrop" onClick=\{cancelMobileSearch\}/);
   assert.match(source, /className="search-option-backdrop" onClick=\{cancelMobileSearch\}/);
   assert.match(source, /event\.key === "Escape"\) cancelMobileSearch\(\)/);
-  assert.match(source, /onClick=\{cancelMobileSearch\} aria-label="סגירת בחירת האורחים"/);
+  assert.match(source, /const closeGuestPicker = useCallback\(\(\) => \{[\s\S]*?setGuestOpen\(false\);[\s\S]*?setMobileStep\("overview"\);/);
+  assert.match(source, /onClick=\{closeGuestPicker\} aria-label="סגירת בחירת האורחים"/);
+  assert.match(source, /if \(guestOpen\) \{ closeGuestPicker\(\); return; \}/);
 });
 
 test("submitting a search closes every open search layer before showing results", () => {
