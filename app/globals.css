@@ -4460,7 +4460,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 }
 
 @media (max-width: 560px) {
-  .shell { width: calc(100% - 24px); }
+  .shell { width: calc(100% - 32px); }
   .home-hero { padding: 24px 0 20px; }
   .home-hero h1 { margin-bottom: 6px; font-size: 1.95rem; line-height: 1.08; }
   .home-hero__content > p { margin-bottom: 14px; font-size: .92rem; }
