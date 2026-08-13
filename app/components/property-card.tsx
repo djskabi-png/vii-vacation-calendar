@@ -72,6 +72,13 @@ const demoNightlyPrices: Record<string, number> = {
   "infinity-suites": 1600, "magic-garden-gefen": 2400, "anael-estate": 4000, "perfumes-villa": 4500, "rose-estate": 6000,
 };
 
+const demoAvailabilityKinds: DemoAvailabilityKind[] = ["available-price", "price-only", "available-no-price", "no-data", "unavailable", "unavailable-alternatives", "unavailable-price"];
+const demoPriceRange = [700, 1100, 1200, 1300, 1500, 1600, 2400, 4000, 4500, 6000];
+
+function stableDemoIndex(value: string) {
+  return Array.from(value).reduce((total, character) => ((total * 31) + character.charCodeAt(0)) >>> 0, 0);
+}
+
 export const availabilityDemoSlugs = Object.keys(demoAvailabilityScenarios[0]);
 
 export function isAvailabilityDemoSearch(selectedStay: SelectedStay | null, requestedLocation: string | null) {
@@ -127,9 +134,9 @@ function demoAvailabilityFor(property: Property, selectedStay: SelectedStay | nu
   const basePath = (pathname.replace(/^\/(en|ru|fr)(?=\/|$)/, "").replace(/\/+$/, "") || "/");
   if (basePath !== "/search" && basePath !== "/vacations") return null;
   const period = demoSeptemberPeriod(selectedStay.from);
-  const kind = demoAvailabilityScenarios[period][property.slug];
-  if (!kind) return null;
-  const nightlyPrice = demoNightlyPrices[property.slug] || 1300;
+  const stableIndex = stableDemoIndex(property.slug);
+  const kind = demoAvailabilityScenarios[period][property.slug] || demoAvailabilityKinds[(stableIndex + period) % demoAvailabilityKinds.length];
+  const nightlyPrice = demoNightlyPrices[property.slug] || demoPriceRange[stableIndex % demoPriceRange.length];
   const common = { ...selectedStay, illustrative: true };
   if (kind === "available-price") return { ...common, availability: "available", nightlyPrice, includedGuests: property.maxGuests || 2, showSelectedDates: true };
   if (kind === "price-only") return { ...common, availability: "unknown", nightlyPrice, includedGuests: property.maxGuests || 2, showSelectedDates: false };

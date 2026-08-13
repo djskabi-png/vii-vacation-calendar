@@ -25,6 +25,9 @@ test("all seven illustrative availability states are deterministic", () => {
   for (const slug of ["ar-suites", "infinity-suites", "rose-estate"]) assert.match(card, new RegExp(`"${slug}"`));
   assert.match(card, /demoAvailabilityScenarios: Array<Record<string, DemoAvailabilityKind>>/);
   assert.match(card, /demoSeptemberPeriod\(selectedStay\.from\)/);
+  assert.match(card, /stableDemoIndex\(property\.slug\)/, "legacy catalog places must also receive deterministic September examples");
+  assert.match(card, /demoAvailabilityKinds\[\(stableIndex \+ period\) % demoAvailabilityKinds\.length\]/);
+  assert.match(card, /demoPriceRange\[stableIndex % demoPriceRange\.length\]/);
   assert.match(card, /basePath !== "\/search" && basePath !== "\/vacations"/);
   assert.match(card, /availabilityDemoStay = \{ from: "2026-09-04", till: "2026-09-06" \}/);
   assert.match(card, /replace\(\/\\\/\+\$\/, ""\)/, "demo scenarios should work on both /search and /search/");
