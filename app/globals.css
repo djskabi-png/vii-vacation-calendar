@@ -1,6 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap");
 
 :root {
+  --font-sans: Rubik, Heebo, Assistant, Arial, sans-serif;
   --orange: #fc6d00;
   --orange-dark: #de5c00;
   --orange-soft: #fff2e8;
@@ -3274,12 +3275,14 @@ h3 { font-size: 1.18rem; }
 .stay-card__meta { color: var(--ink-soft); font-size: .86rem; }
 .feature-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .feature-chips span { padding: 4px 9px; border-radius: 40px; background: var(--mist); color: var(--ink-soft); font-size: .75rem; }
-.stay-card__date-status { margin-top: 14px; padding: 10px 12px; display: grid; gap: 9px; border-radius: 13px; background: #f4fafb; color: var(--ink); font-size: .78rem; }
+.stay-card__date-status { margin-top: 14px; padding: 11px 12px; display: grid; gap: 9px; border: 1px solid rgba(8,126,139,.16); border-radius: 13px; background: #f4fafb; color: var(--ink); font-family: var(--font-sans); font-size: .78rem; }
 .stay-card__date-status-row { min-width: 0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; }
 .stay-card__demo-label { justify-self: start; padding: 4px 8px; border: 1px solid #e6c989; border-radius: 999px; color: #715315; background: #fff9e9; font: 800 .67rem/1.25 var(--font-sans); }
-.stay-card__selected-dates { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
-.stay-card__selected-dates small { color: var(--ink-soft); }
-.stay-card__availability { font-size: .76rem; text-align: end; }
+.stay-card__selected-dates { min-width: 0; display: grid; gap: 2px; }
+.stay-card__selected-dates > small { color: var(--ink-soft); font-size: .68rem; font-weight: 700; }
+.stay-card__selected-dates > span { display: inline-flex; align-items: center; gap: 5px; color: var(--ink); font-size: .82rem; font-weight: 850; white-space: nowrap; }
+.stay-card__selected-dates > span small { color: var(--ink-soft); font-size: .7rem; font-weight: 700; }
+.stay-card__availability { font-family: Rubik, Heebo, Assistant, Arial, sans-serif; font-size: .76rem; text-align: end; }
 .stay-card__alternatives { padding-top: 9px; border-top: 1px solid rgba(8,126,139,.13); display: grid; gap: 7px; }
 .stay-card__alternatives > strong { font-size: .74rem; }
 .stay-card__alternatives > div { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 7px; }

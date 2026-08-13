@@ -82,12 +82,13 @@ test("illustrative data is visibly identified and localized", () => {
   assert.match(card, /\\u0422\\u043e\\u043b\\u044c\\u043a\\u043e/);
 });
 
-test("availability states render dates, prices and alternatives independently", () => {
+test("availability states always show searched dates while prices and alternatives remain independent", () => {
   assert.match(card, /showSelectedDates: false/);
   for (const price of [700, 1100, 1200, 1300, 1500, 1600, 2400, 4000, 4500, 6000]) assert.match(card, new RegExp(`: ${price}`));
   assert.match(card, /alternativeOffsets = period === 3 \? \[-7, 2\] : \[3, 7\]/);
   assert.match(card, /resolvedAvailability\.alternatives\?\.length/);
-  assert.match(card, /resolvedAvailability\.showSelectedDates/);
+  assert.match(card, /copy\.searchedDates/);
+  assert.doesNotMatch(card, /resolvedAvailability\.showSelectedDates \?/);
 });
 
 test("availability presentation remains compact and responsive", () => {

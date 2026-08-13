@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { vacationStayFromSearch } from "../lib/vacation-date-range";
 import { CalendarDemo } from "../calendar-demo";
 import { EventDatePicker } from "./event-date-picker";
 import { SpaDatePicker } from "./spa-date-picker";
@@ -116,7 +117,10 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   // Keep the initial client render identical to the server, then localize from
   // the actual route in the synchronization effect below.
   const [dates, setDates] = useState(() => dateLabelFromSearch(searchParams, mode, language));
-  const [vacationDateRange, setVacationDateRange] = useState<{ from: string | null; till: string | null }>(() => ({ from: searchParams.get("from"), till: searchParams.get("till") }));
+  const [vacationDateRange, setVacationDateRange] = useState<{ from: string | null; till: string | null }>(() => {
+    const selectedStay = vacationStayFromSearch(searchParams, language);
+    return { from: selectedStay?.from || null, till: selectedStay?.till || null };
+  });
   const [eventDateRange, setEventDateRange] = useState<{ from: string | null; to: string | null }>(() => ({ from: searchParams.get("from"), to: searchParams.get("to") }));
   const [spaDate, setSpaDate] = useState<{ date: string | null; withoutDate: boolean }>(() => ({ date: searchParams.get("date"), withoutDate: searchParams.get("withoutDate") === "1" }));
   const [spaAudience, setSpaAudience] = useState<SpaAudience | null>(() => parseSpaAudience(searchParams.get("spaFor") || initialSpaAudience || null));
@@ -140,7 +144,8 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
       ? (isWholeCountrySelection(requestedLocation) ? "כל הארץ" : requestedLocation)
       : initialLocation || "כל הארץ");
     setDates(dateLabelFromSearch(searchParams, mode, activeRouteLanguage(language)));
-    setVacationDateRange({ from: searchParams.get("from"), till: searchParams.get("till") });
+    const selectedStay = vacationStayFromSearch(searchParams, activeRouteLanguage(language));
+    setVacationDateRange({ from: selectedStay?.from || null, till: selectedStay?.till || null });
     setEventDateRange({ from: searchParams.get("from"), to: searchParams.get("to") });
     setSpaDate({ date: searchParams.get("date"), withoutDate: searchParams.get("withoutDate") === "1" });
     setSpaAudience(parseSpaAudience(searchParams.get("spaFor") || initialSpaAudience || null));

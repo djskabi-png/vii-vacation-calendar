@@ -16,11 +16,11 @@ function PhoneIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16.4v3a2 2 0 0 1-2.2 2 19.7 19.7 0 0 1-8.6-3.1 19.3 19.3 0 0 1-6-6A19.7 19.7 0 0 1 1.1 3.7 2 2 0 0 1 3.1 1.5h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.4 2.1L7.1 9.5a16 16 0 0 0 7.4 7.4l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2Z" /></svg>;
 }
 
-const cardCopy: Record<SiteLanguage, { call: string; whatsapp: string; reviews: string; outOfTen: string; details: string; quickBook: string; from: string; night: string; to: string; inquirePrice: string; includedGuests: (count: number) => string; availability: Record<ListingAvailability, string> }> = {
-  he: { call: "טלפון", whatsapp: "פנייה בוואטסאפ", reviews: "חוות דעת", outOfTen: "מתוך 10", details: "לפרטים", quickBook: "הזמנה מהירה", from: "החל מ־", night: "ללילה", to: "עד", inquirePrice: "פנה למתחם לבירור מחיר", includedGuests: (count) => `המחיר כולל עד ${count} אורחים`, availability: { available: "פנוי בתאריכים שנבחרו", unavailable: "לא פנוי בתאריכים שנבחרו", unknown: "זמינות: לא עודכן" } },
-  en: { call: "Call", whatsapp: "WhatsApp enquiry", reviews: "reviews", outOfTen: "out of 10", details: "View details", quickBook: "Quick booking", from: "From ", night: "per night", to: "to", inquirePrice: "Contact the property for a price", includedGuests: (count) => `Price includes up to ${count} guests`, availability: { available: "Available for the selected dates", unavailable: "Unavailable for the selected dates", unknown: "Availability not updated" } },
-  ru: { call: "Позвонить", whatsapp: "Запрос в WhatsApp", reviews: "отзывов", outOfTen: "из 10", details: "Подробнее", quickBook: "Быстрое бронирование", from: "От ", night: "за ночь", to: "по", inquirePrice: "Уточните цену у объекта", includedGuests: (count) => `Цена включает до ${count} гостей`, availability: { available: "Свободно на выбранные даты", unavailable: "Нет мест на выбранные даты", unknown: "Наличие не обновлено" } },
-  fr: { call: "Appeler", whatsapp: "Demande par WhatsApp", reviews: "avis", outOfTen: "sur 10", details: "Voir les détails", quickBook: "Réservation rapide", from: "À partir de ", night: "par nuit", to: "au", inquirePrice: "Contactez l'établissement pour connaître le prix", includedGuests: (count) => `Prix valable jusqu'à ${count} personnes`, availability: { available: "Disponible aux dates choisies", unavailable: "Indisponible aux dates choisies", unknown: "Disponibilité non mise à jour" } },
+const cardCopy: Record<SiteLanguage, { call: string; whatsapp: string; reviews: string; outOfTen: string; details: string; quickBook: string; searchedDates: string; from: string; night: string; to: string; inquirePrice: string; includedGuests: (count: number) => string; availability: Record<ListingAvailability, string> }> = {
+  he: { call: "טלפון", whatsapp: "פנייה בוואטסאפ", reviews: "חוות דעת", outOfTen: "מתוך 10", details: "לפרטים", quickBook: "הזמנה מהירה", searchedDates: "התאריכים שחיפשת", from: "החל מ־", night: "ללילה", to: "עד", inquirePrice: "פנה למתחם לבירור מחיר", includedGuests: (count) => `המחיר כולל עד ${count} אורחים`, availability: { available: "פנוי בתאריכים שבחרת", unavailable: "לא פנוי בתאריכים שבחרת", unknown: "אין מידע על זמינות לתאריכים" } },
+  en: { call: "Call", whatsapp: "WhatsApp enquiry", reviews: "reviews", outOfTen: "out of 10", details: "View details", quickBook: "Quick booking", searchedDates: "Your searched dates", from: "From ", night: "per night", to: "to", inquirePrice: "Contact the property for a price", includedGuests: (count) => `Price includes up to ${count} guests`, availability: { available: "Available for your dates", unavailable: "Unavailable for your dates", unknown: "No availability information for these dates" } },
+  ru: { call: "Позвонить", whatsapp: "Запрос в WhatsApp", reviews: "отзывов", outOfTen: "из 10", details: "Подробнее", quickBook: "Быстрое бронирование", searchedDates: "Даты вашего поиска", from: "От ", night: "за ночь", to: "по", inquirePrice: "Уточните цену у объекта", includedGuests: (count) => `Цена включает до ${count} гостей`, availability: { available: "Свободно на ваши даты", unavailable: "Нет мест на ваши даты", unknown: "Нет данных о наличии на эти даты" } },
+  fr: { call: "Appeler", whatsapp: "Demande par WhatsApp", reviews: "avis", outOfTen: "sur 10", details: "Voir les détails", quickBook: "Réservation rapide", searchedDates: "Dates de votre recherche", from: "À partir de ", night: "par nuit", to: "au", inquirePrice: "Contactez l'établissement pour connaître le prix", includedGuests: (count) => `Prix valable jusqu'à ${count} personnes`, availability: { available: "Disponible à vos dates", unavailable: "Indisponible à vos dates", unknown: "Aucune information de disponibilité pour ces dates" } },
 };
 
 const phoneCopy: Record<SiteLanguage, { reveal: string; call: string }> = {
@@ -121,7 +121,7 @@ function demoSeptemberPeriod(value: string) {
 function localizedDate(value: string, language: SiteLanguage) {
   const locales: Record<SiteLanguage, string> = { he: "he-IL", en: "en-GB", ru: "ru-RU", fr: "fr-FR" };
   const date = new Date(`${value}T12:00:00`);
-  return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat(locales[language], { day: "numeric", month: "numeric" }).format(date);
+  return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat(locales[language], { day: "numeric", month: "short" }).format(date);
 }
 
 function PriceValue({ amount, language }: { amount: string; language: SiteLanguage }) {
@@ -252,7 +252,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
         {!promotional && resolvedAvailability ? <div className="stay-card__date-status" aria-live="polite">
           {resolvedAvailability.illustrative ? <span className="stay-card__demo-label">{demoScenarioCopy[language].label}</span> : null}
           <div className="stay-card__date-status-row">
-            {resolvedAvailability.showSelectedDates ? <div className="stay-card__selected-dates"><span>{localizedDate(resolvedAvailability.from, language)}</span><small>{copy.to}</small><span>{localizedDate(resolvedAvailability.till, language)}</span></div> : null}
+            <div className="stay-card__selected-dates"><small>{copy.searchedDates}</small><span>{localizedDate(resolvedAvailability.from, language)} <small>{copy.to}</small> {localizedDate(resolvedAvailability.till, language)}</span></div>
             <strong className={`stay-card__availability stay-card__availability--${resolvedAvailability.availability}`}>{copy.availability[resolvedAvailability.availability]}</strong>
           </div>
           {resolvedAvailability.alternatives?.length ? <div className="stay-card__alternatives">

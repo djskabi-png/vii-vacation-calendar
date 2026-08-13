@@ -22,6 +22,7 @@ import { isWholeCountrySelection, matchesSearchLocation } from "../data/search-t
 import { cleanVacationPath } from "../data/vacation-landings";
 import { buildVacationSearchUrl } from "../lib/vacation-search-url";
 import { vacationInventorySummary } from "../lib/vacation-inventory";
+import { vacationStayFromSearch } from "../lib/vacation-date-range";
 import { useMapViewState } from "../components/map-view-state";
 import { FilterControlIcon } from "../components/filter-control-icon";
 import { SearchAfterResults, type ContextualSearchSuggestion } from "../components/search-after-results";
@@ -230,13 +231,17 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const [, setVisibleMapCount] = useState(0);
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
 
-  const selectedStay = useMemo(() => {
-    const from = searchParams.get("from");
-    const till = searchParams.get("till");
-    return from && till ? { from, till } : null;
-  }, [searchParams]);
+  const selectedStay = useMemo(() => vacationStayFromSearch(searchParams, language), [language, searchParams]);
   const requestedLocation = searchParams.get("location");
   const availabilityDemoActive = isAvailabilityDemoSearch(selectedStay, requestedLocation);
+
+  useEffect(() => {
+    if (!selectedStay || searchParams.get("from") || searchParams.get("till")) return;
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("from", selectedStay.from);
+    params.set("till", selectedStay.till);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [pathname, router, searchParams, selectedStay]);
 
   function updateSearchContext(updates: Record<string, string | null>, nextTypes = selectedTypes, nextArea = area) {
     const nextUrl = buildVacationSearchUrl(window.location.search, updates, nextTypes, nextArea);
