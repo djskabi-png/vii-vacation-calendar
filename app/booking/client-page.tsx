@@ -6,6 +6,7 @@ import { CalendarIcon } from "../site-header";
 import { saveBooking } from "../lib/account";
 import { SpaAppointmentPicker } from "../components/spa-appointment-picker";
 import { useSiteLanguage } from "../i18n/locale-provider";
+import { localizedPath } from "../i18n/locale-routing";
 import { AccountFormPrompt, useAccountAccess } from "../components/account-access";
 import { BookingSchedulePicker } from "../components/booking-schedule-picker";
 
@@ -89,6 +90,28 @@ export default function BookingPageClient(props: Props) {
   const currentTotal = props.vacationPrice ? props.vacationPrice.nightlyPrice * currentNights : 0;
   const pricing = props.vacationPrice;
   const labels = priceCopy[language];
+  const returnCopy = {
+    he: { business: "חזרה לפרטי המקום", site: "חזרה לדף הבית", label: "חזרה לפרטי המקום" },
+    en: { business: "Back to", site: "Back to site", label: "Leave booking" },
+    ru: { business: "Вернуться к", site: "Вернуться на сайт", label: "Выйти из бронирования" },
+    fr: { business: "Retour à", site: "Retour au site", label: "Quitter la réservation" },
+  }[language];
+  const businessReturnParams = new URLSearchParams({ id: props.placeId });
+  if (props.world) businessReturnParams.set("world", props.world);
+  if (arrival) businessReturnParams.set("from", arrival);
+  if (departure) businessReturnParams.set("till", departure);
+  if (guests) businessReturnParams.set("guests", guests);
+  if (props.vacationPrice?.nightlyPrice) businessReturnParams.set("price", String(props.vacationPrice.nightlyPrice));
+  if (props.illustrative) businessReturnParams.set("illustrative", "1");
+  const businessReturnHref = localizedPath(`/business?${businessReturnParams.toString()}`, language);
+  const translatedPlaceName = translate(props.placeName);
+  const bookingReturnNavigation = <nav className="booking-return-nav" aria-label={returnCopy.label} data-keep-same-tab="true">
+    <Link className="booking-return-nav__business" href={businessReturnHref}>
+      <span aria-hidden="true">‹</span>
+      <strong>{returnCopy.business}<small>{translatedPlaceName}</small></strong>
+    </Link>
+    <Link className="booking-return-nav__site" href={localizedPath("/", language)}>{returnCopy.site}</Link>
+  </nav>;
   const vacationPriceSummary = pricing ? <div className="booking-price-breakdown" aria-label={labels.total}>
     <span>{labels.total}</span>
     <strong>{currentTotal.toLocaleString(language === "he" ? "he-IL" : language)} ₪</strong>
@@ -228,17 +251,19 @@ export default function BookingPageClient(props: Props) {
   }
 
   if (!onlineReady) return <main id="main-content" className="booking-page shell">
+    {bookingReturnNavigation}
     <section className="booking-unavailable" aria-labelledby="booking-phone-title">
       <span className="eyebrow">הזמנה בטלפון</span>
       <h1 id="booking-phone-title">חסר תאריך או מחיר להזמנה מקוונת</h1>
       <p>כדי לא להציג הזמנה חלקית, ממשיכים בשיחה ישירה עם המקום. לאחר חיבור המערכת נתוני התאריך והמחיר יגיעו אוטומטית.</p>
       {props.phone ? phoneRevealed ? <a className="phone-reveal phone-reveal--visible" href={`tel:${props.phone.replace(/[^\d+]/g, "")}`}><span>לחיוג עכשיו</span><strong dir="ltr">{props.phone}</strong></a> : <button className="phone-reveal" type="button" onClick={() => setPhoneRevealed(true)} aria-expanded={phoneRevealed}><span>טלפון להזמנה</span><strong>לחצו להצגת המספר</strong></button> : <p role="status">מספר ההזמנות טרם חובר למקום.</p>}
-      <span data-keep-same-tab="true"><Link className="button secondary" href={`/business?id=${encodeURIComponent(props.placeId)}`}>חזרה לפרטי המקום</Link></span>
+      <span data-keep-same-tab="true"><Link className="button secondary" href={businessReturnHref}>{returnCopy.business}</Link></span>
     </section>
   </main>;
 
   if (state === "success") return <>
     <main id="main-content" className="booking-page shell">
+      {bookingReturnNavigation}
       <section className="booking-success" role="status" aria-live="polite">
         <span className="booking-success__mark" aria-hidden="true">✓</span>
         <small>{props.illustrative ? "המחשת הזמנה בלבד" : isManage ? "בקשת שינוי" : "הזמנה שממתינה לאישור"}</small>
@@ -282,6 +307,7 @@ export default function BookingPageClient(props: Props) {
     </div> : null}
   </>;
   return <main id="main-content" className="booking-page shell">
+    {bookingReturnNavigation}
     <div className="booking-page__intro">
       <span className="eyebrow">{isManage ? "ניהול הזמנה" : usesSpaPayment ? "הזמנת ספא אונליין" : "הזמנה אונליין"}</span>
       <h1>{isManage ? "עדכון או ביטול הזמנה" : props.placeName}</h1>

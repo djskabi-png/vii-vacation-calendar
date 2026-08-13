@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-booking-return-navigation-20260814",
+  "project": "vii.co.il",
+  "task_type": "booking-navigation",
+  "goal": "Add clear same-tab exits from vacation booking back to the selected business and to the site",
+  "created_at": "2026-08-13T21:32:29.529676Z",
+  "updated_at": "2026-08-13T21:32:29.529676Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "bfb510856f225b3711ed2cdc231666ab0b64a4bd6dd5a7af9c2499a78ef73fbd"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "8b78183083f243b56265c257bfc492dafc0e30a21d50724419301fb4252126d4"
+    }
+  },
+  "applicable_lessons": [],
+  "no_applicable_lessons_reason": "No accepted lesson specifically governs booking exit navigation; project product standards cover it.",
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Add clear same-tab exits from vacation booking back to the selected business and to the site",
+      "acceptance_check": "Booking shows visible back-to-business and back-to-site actions; business return preserves world, dates, guests and price in one canonical URL",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:same-tab",
+      "source": "project_guidance",
+      "statement": "Back to business and back to site navigate in the same tab",
+      "acceptance_check": "Back to business and back to site navigate in the same tab",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:preserve-context",
+      "source": "project_guidance",
+      "statement": "Business return preserves world, dates, guests and price without duplicate query parameters",
+      "acceptance_check": "Business return preserves world, dates, guests and price without duplicate query parameters",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:responsive",
+      "source": "project_guidance",
+      "statement": "Both actions are visible, non-overlapping and usable on desktop and 390px mobile",
+      "acceptance_check": "Both actions are visible, non-overlapping and usable on desktop and 390px mobile",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:localization",
+      "source": "project_guidance",
+      "statement": "HE EN RU FR labels are localized with correct direction and no visible Hebrew on foreign routes",
+      "acceptance_check": "HE EN RU FR labels are localized with correct direction and no visible Hebrew on foreign routes",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:browser-back",
+      "source": "project_guidance",
+      "statement": "Browser back returns to the real previous page when history exists",
+      "acceptance_check": "Browser back returns to the real previous page when history exists",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    }
+  ],
+  "verification_status": "in_progress",
+  "verification_errors": []
+}

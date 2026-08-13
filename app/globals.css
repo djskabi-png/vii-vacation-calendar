@@ -4065,6 +4065,15 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .lead-intake-form .consent a { color: var(--teal-dark); text-decoration: underline; }
 .lead-intake-form button:disabled { opacity: .7; cursor: wait; }
 .booking-page { padding-block: clamp(48px, 7vw, 96px); }
+.booking-return-nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: 1040px; margin: 0 auto 28px; padding: 10px 12px; border: 1px solid #cfe3e5; border-radius: 18px; background: rgba(255,255,255,.94); box-shadow: 0 12px 34px rgba(5,65,75,.08); }
+.booking-return-nav a { min-height: 44px; display: inline-flex; align-items: center; border-radius: 13px; font: 750 .92rem/1.3 var(--font-sans); text-decoration: none; }
+.booking-return-nav__business { min-width: 0; gap: 9px; padding: 9px 13px; color: #fff; background: linear-gradient(135deg,var(--teal),#2b8fca); }
+.booking-return-nav__business span { flex: 0 0 auto; font-size: 1.55rem; line-height: .8; }
+.booking-return-nav__business strong { display: grid; min-width: 0; line-height: 1.2; }
+.booking-return-nav__business strong small { overflow: hidden; color: rgba(255,255,255,.82); font-size: .72rem; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+.booking-return-nav__site { padding: 9px 15px; color: var(--teal-dark); border: 1px solid #b9dfe2; background: #fff; }
+.booking-return-nav a:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(5,65,75,.1); }
+.booking-return-nav a:focus-visible { outline: 3px solid rgba(0,143,162,.25); outline-offset: 2px; }
 .booking-page__intro { max-width: 760px; margin-inline: auto; text-align: center; }
 .booking-page__intro h1 { margin: 10px 0 14px; font-size: clamp(2.2rem, 5vw, 4.5rem); line-height: 1; }
 .booking-page__intro p { margin: 0 auto; max-width: 680px; color: var(--muted); font-size: 1.08rem; line-height: 1.8; }
@@ -6717,6 +6726,9 @@ button:not(:disabled):active,a[href]:active,[role="button"]:active,.is-action-pr
 
 @media (max-width: 640px) {
   .booking-page { padding-block: 30px calc(60px + env(safe-area-inset-bottom)); }
+  .booking-return-nav { margin-bottom: 22px; padding: 8px; border-radius: 16px; }
+  .booking-return-nav__business { flex: 1 1 auto; }
+  .booking-return-nav__site { flex: 0 0 auto; padding-inline: 11px; font-size: .8rem; }
   .booking-page__intro h1 { font-size: 2.25rem; }
   .booking-steps { margin-top: 25px; }
   .booking-steps b { width: 36px; height: 36px; }
