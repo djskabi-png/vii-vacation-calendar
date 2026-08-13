@@ -166,6 +166,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const closeGuestPicker = useCallback(() => {
     setGuestOpen(false);
     setMobileStep("overview");
+    if (window.matchMedia("(max-width: 820px)").matches) setMobileExpanded(true);
   }, []);
 
   useEffect(() => {
