@@ -13,7 +13,7 @@ test("vacation online booking requires dates and a positive connected price", ()
   assert.match(business, /hasSelectedPrice = Boolean\(selectedPrice && Number\(selectedPrice\) > 0\)/);
   assert.match(business, /vacationOnlineReady = activeWorld === "vacation" && hasSelectedDates && hasSelectedPrice/);
   assert.match(bookingPage, /onlineReady: Boolean\(params\.from && params\.till && params\.price && Number\(params\.price\) > 0\)/);
-  assert.match(bookingPage, /if \(property\) return \{[\s\S]*?world: "vacation"/);
+  assert.match(bookingPage, /if \(property\) \{[\s\S]*?return \{[\s\S]*?world: "vacation"/);
   assert.doesNotMatch(booking, /onlineReady\s*=\s*isManage\s*\|\|/);
 });
 
@@ -49,7 +49,7 @@ test("booking UI has responsive step, review, phone and safe mobile rules", () =
 });
 
 test("spa package includes are localized item by item", () => {
-  assert.match(booking, /const \{ translate \} = useSiteLanguage\(\)/);
+  assert.match(booking, /const \{ language, translate \} = useSiteLanguage\(\)/);
   assert.match(booking, /props\.offerIncludes\?\.map\(\(item\) => translate\(item\)\)/);
   assert.match(booking, /localizedOfferIncludes\.join\(" · "\)/);
   assert.match(localeProvider, /value\.split\(\/\\s\*\[\\u00b7\\u2022\]\\s\*\/\)/);

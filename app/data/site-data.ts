@@ -45,6 +45,7 @@ export type ListingDemoOperations = {
   availabilityPattern: "two-open-two-busy";
   weekdayNightlyPrice: number;
   weekendNightlyPrice: number;
+  taxesIncluded: boolean;
   disclosure: string;
 };
 
@@ -219,6 +220,7 @@ const propertyCatalog: Property[] = [
       availabilityPattern: "two-open-two-busy",
       weekdayNightlyPrice: 2400,
       weekendNightlyPrice: 3200,
+      taxesIncluded: true,
       disclosure: "מתחם בדיקה בדיוני. לא נשלחת הזמנה ולא מתבצע חיוב.",
     },
     roomOptions: [{

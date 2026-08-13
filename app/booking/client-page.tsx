@@ -28,10 +28,32 @@ type Props = {
   illustrative?: boolean;
   demoOwnerEmail?: string;
   demoProperty?: boolean;
+  vacationPrice?: {
+    nightlyPrice: number;
+    nights: number;
+    totalPrice: number;
+    guests: number;
+    wholeProperty: boolean;
+    taxesIncluded: boolean;
+  };
 };
 
+const priceCopy = {
+  he: { total: "סה״כ לכל השהייה", night: "ללילה", nights: "לילות", oneNight: "לילה אחד", whole: "כל הווילה", guests: "אורחים", taxIncluded: "כולל מע״מ וכל מס חובה", taxPending: "מסים ותוספות יוצגו לפני האישור" },
+  en: { total: "Total for the entire stay", night: "per night", nights: "nights", oneNight: "one night", whole: "entire villa", guests: "guests", taxIncluded: "VAT and all mandatory taxes included", taxPending: "Taxes and fees will be shown before confirmation" },
+  ru: { total: "Итого за всё проживание", night: "за ночь", nights: "ночей", oneNight: "одна ночь", whole: "вся вилла", guests: "гостей", taxIncluded: "НДС и все обязательные налоги включены", taxPending: "Налоги и сборы будут показаны до подтверждения" },
+  fr: { total: "Total pour l’ensemble du séjour", night: "par nuit", nights: "nuits", oneNight: "une nuit", whole: "villa entière", guests: "voyageurs", taxIncluded: "TVA et toutes les taxes obligatoires incluses", taxPending: "Les taxes et frais seront affichés avant confirmation" },
+} as const;
+
+function countStayNights(from: string, till: string) {
+  const start = Date.parse(`${from}T00:00:00Z`);
+  const end = Date.parse(`${till}T00:00:00Z`);
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) return 0;
+  return Math.round((end - start) / 86_400_000);
+}
+
 export default function BookingPageClient(props: Props) {
-  const { translate } = useSiteLanguage();
+  const { language, translate } = useSiteLanguage();
   const { account } = useAccountAccess();
   const formRef = useRef<HTMLFormElement>(null);
   const paymentTriggerRef = useRef<HTMLButtonElement>(null);
@@ -63,6 +85,17 @@ export default function BookingPageClient(props: Props) {
   const usesSpaPayment = props.world === "spa" && !isManage;
   const localizedOfferIncludes = props.offerIncludes?.map((item) => translate(item));
   const paymentMethodLabel = paymentMethod === "pay_now" ? "תשלום בכרטיס עכשיו" : "תשלום במקום, כרטיס לביטחון";
+  const currentNights = props.vacationPrice ? countStayNights(arrival, departure) || props.vacationPrice.nights : 0;
+  const currentTotal = props.vacationPrice ? props.vacationPrice.nightlyPrice * currentNights : 0;
+  const pricing = props.vacationPrice;
+  const labels = priceCopy[language];
+  const vacationPriceSummary = pricing ? <div className="booking-price-breakdown" aria-label={labels.total}>
+    <span>{labels.total}</span>
+    <strong>{currentTotal.toLocaleString(language === "he" ? "he-IL" : language)} ₪</strong>
+    <small>{pricing.nightlyPrice.toLocaleString(language === "he" ? "he-IL" : language)} ₪ {labels.night} × {currentNights === 1 ? labels.oneNight : `${currentNights} ${labels.nights}`}</small>
+    <small>{pricing.wholeProperty ? `${labels.whole} · ` : ""}{guests} {labels.guests}</small>
+    <em>{pricing.taxesIncluded ? labels.taxIncluded : labels.taxPending}</em>
+  </div> : null;
 
   useEffect(() => {
     if (!account) return;
@@ -265,7 +298,7 @@ export default function BookingPageClient(props: Props) {
         <small>מה מזמינים</small>
         <h2>{props.offerName}</h2>
         <strong>{props.placeName}</strong>
-        <p>{props.price}</p>
+        {vacationPriceSummary || <p>{props.price}</p>}
         {props.world === "spa" ? <dl className="booking-summary__package">
           {props.offerAudience ? <div><dt>מתאים ל</dt><dd>{props.offerAudience}</dd></div> : null}
           {props.offerDuration ? <div><dt>משך הטיפול</dt><dd>{props.offerDuration}</dd></div> : null}
@@ -310,7 +343,7 @@ export default function BookingPageClient(props: Props) {
             <article><span>מקום וחבילה</span><strong>{props.placeName}</strong><small>{props.offerName}{props.offerDuration ? " · " + props.offerDuration : ""}</small></article>
             <article><span>מועד והרכב</span><strong>{arrival || "לפי הבחירה"}{spaTime ? " בשעה " + spaTime : departure ? " עד " + departure : ""}</strong><small>{props.world === "spa" ? guests + " משתתפים" + (spaComposition ? ", " + spaComposition : "") : guests + " אורחים או משתתפים"}</small></article>
             <article><span>פרטי המזמין</span><strong>{name}</strong><small>{phone}{email ? " · " + email : ""}</small></article>
-            <article><span>מחיר ההזמנה</span><strong>{props.price}</strong><small>{usesSpaPayment ? paymentMethod ? paymentMethodLabel : "אופן התשלום ייבחר כעת" : "ללא חיוב וללא אשראי בשלב זה"}</small></article>
+            <article className={pricing ? "booking-review__price" : undefined}><span>מחיר ההזמנה</span>{vacationPriceSummary || <strong>{props.price}</strong>}<small>{usesSpaPayment ? paymentMethod ? paymentMethodLabel : "אופן התשלום ייבחר כעת" : "ללא חיוב וללא אשראי בשלב זה"}</small></article>
           </div>
           {usesSpaPayment ? <fieldset className="booking-payment-choice form-wide">
             <legend>איך תרצו לשלם?</legend>

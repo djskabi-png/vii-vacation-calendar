@@ -29,22 +29,43 @@ type Props = {
   }>;
 };
 
+function countNights(from?: string, till?: string) {
+  if (!from || !till) return 0;
+  const arrival = Date.parse(`${from}T00:00:00Z`);
+  const departure = Date.parse(`${till}T00:00:00Z`);
+  if (!Number.isFinite(arrival) || !Number.isFinite(departure) || departure <= arrival) return 0;
+  return Math.round((departure - arrival) / 86_400_000);
+}
+
 function resolveBooking(params: Awaited<Props["searchParams"]>) {
   const offerId = params.package || params.service || params.offer || "";
   const property = properties.find((item) => item.slug === params.place);
-  if (property) return {
+  if (property) {
+    const nightlyPrice = Number(params.price) || 0;
+    const nights = countNights(params.from, params.till);
+    const totalPrice = nightlyPrice > 0 && nights > 0 ? nightlyPrice * nights : 0;
+    return {
     world: "vacation",
     placeId: property.slug,
     placeName: property.name,
     offerId,
     offerName: "הזמנת המקום",
-    price: params.price ? `${Number(params.price).toLocaleString("he-IL")} ₪${params.illustrative === "1" ? ", מחיר לדוגמה" : ", בכפוף לאישור זמינות"}` : "מחיר סופי לאחר בחירת תאריך",
+    price: totalPrice ? `${totalPrice.toLocaleString("he-IL")} ₪ לכל השהייה` : "מחיר סופי לאחר בחירת תאריך",
+    vacationPrice: nightlyPrice > 0 && nights > 0 ? {
+      nightlyPrice,
+      nights,
+      totalPrice,
+      guests: Math.max(1, Number(params.guests) || 1),
+      wholeProperty: property.scenario === "single",
+      taxesIncluded: property.demoOperations?.taxesIncluded === true,
+    } : undefined,
     onlineReady: Boolean(params.from && params.till && params.price && Number(params.price) > 0),
     phone: property.contact?.phone,
     illustrative: params.illustrative === "1" || property.demoOperations?.fictional === true,
     demoOwnerEmail: property.demoOperations?.ownerEmail,
     demoProperty: property.demoOperations?.fictional === true,
-  };
+    };
+  }
 
   const eventPlace = eventPlaces.find((item) => item.slug === params.place);
   if (eventPlace) return { world: "events", placeId: eventPlace.slug, placeName: eventPlace.name, offerId, offerName: "הזמנת אירוע", price: "מחיר לפי תאריך והרכב" };

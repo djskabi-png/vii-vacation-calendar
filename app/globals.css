@@ -4075,6 +4075,13 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .booking-summary h2 { margin: 0; font-size: 1.65rem; }
 .booking-summary > strong { font-size: 1.05rem; }
 .booking-summary > p { margin: 0; color: var(--teal-dark); font-weight: 750; }
+.booking-price-breakdown { display: grid; gap: 4px; padding: 14px 16px; border: 1px solid #b9dfe2; border-radius: 16px; background: rgba(255,255,255,.78); }
+.booking-price-breakdown > span { color: var(--muted); font-size: .78rem; font-weight: 750; }
+.booking-price-breakdown > strong { color: var(--teal-dark); font-size: 1.45rem; line-height: 1.15; }
+.booking-price-breakdown > small { color: var(--ink); font-size: .8rem; font-weight: 650; }
+.booking-price-breakdown > em { margin-top: 4px; color: var(--muted); font-size: .72rem; font-style: normal; }
+.booking-review__price { grid-column: 1 / -1; }
+.booking-review__price .booking-price-breakdown { background: #fff; }
 .booking-summary ul { display: grid; gap: 9px; margin: 8px 0 0; padding: 18px 20px 0 0; border-top: 1px solid var(--line); color: var(--muted); }
 .booking-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; padding: 30px; border: 1px solid var(--line); border-radius: 26px; background: #fff; box-shadow: var(--shadow-soft); }
 .booking-form label { display: grid; gap: 7px; font-weight: 700; }
