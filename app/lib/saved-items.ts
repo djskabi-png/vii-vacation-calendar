@@ -27,6 +27,7 @@ export function canonicalSavedItemHref(item: Pick<SavedItem, "world" | "id" | "h
       ? item.href
       : `/events/place/${encodeURIComponent(item.id)}`;
   }
+  if (item.world === "corporate") return "/corporate";
   if (item.world === "trails") return `/trails/${encodeURIComponent(item.id)}`;
   return `/discover/place/${encodeURIComponent(item.id)}`;
 }

@@ -1209,13 +1209,16 @@ test("favorites span every world and bookings continue into the personal account
   const discoveryCard = await readFile(new URL("../app/components/discovery-card.tsx", import.meta.url), "utf8");
   const trailCard = await readFile(new URL("../app/components/trail-card.tsx", import.meta.url), "utf8");
   const eventSearch = await readFile(new URL("../app/events/search/page.tsx", import.meta.url), "utf8");
+  const corporatePage = await readFile(new URL("../app/corporate/page.tsx", import.meta.url), "utf8");
 
-  for (const world of ["vacation", "events", "spa", "hourly", "providers", "activities", "trails"]) assert.match(favoritesPage, new RegExp(`${world}:`));
+  for (const world of ["vacation", "events", "corporate", "spa", "hourly", "providers", "activities", "trails"]) assert.match(favoritesPage, new RegExp(`${world}:`));
   assert.match(savedItems, /vii-saved-items-v2/);
   assert.match(favoriteButton, /readSavedItems/);
   assert.match(discoveryCard, /FavoriteButton/);
   assert.match(trailCard, /FavoriteButton/);
   assert.match(eventSearch, /FavoriteButton/);
+  assert.match(corporatePage, /world="corporate"/);
+  assert.match(corporatePage, /href="\/corporate"/);
   assert.match(accountPage, /ההזמנות שלי/);
   assert.match(accountPage, /פריטים שאהבתי/);
   assert.match(bookingPage, /saveBooking/);
@@ -1229,6 +1232,7 @@ test("saved favorites normalize legacy routes to canonical detail pages", async 
   assert.match(savedItems, /canonicalSavedItemHref/);
   assert.match(savedItems, /return `\/discover\/place\/\$\{encodeURIComponent\(item\.id\)\}`/);
   assert.match(savedItems, /return `\/business\?id=\$\{encodeURIComponent\(item\.id\)\}`/);
+  assert.match(savedItems, /if \(item\.world === "corporate"\) return "\/corporate"/);
   assert.match(savedItems, /`\/events\/place\/\$\{encodeURIComponent\(item\.id\)\}`/);
   assert.match(savedItems, /return `\/trails\/\$\{encodeURIComponent\(item\.id\)\}`/);
   assert.match(legacyDiscoveryRoute, /router\.replace\(`\/discover\/place\/\$\{encodeURIComponent\(item\.id\)\}`\)/);
