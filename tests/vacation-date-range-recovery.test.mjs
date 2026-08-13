@@ -17,6 +17,7 @@ test("search and result cards share the recovered structured date range", async 
   assert.match(searchBox, /vacationStayFromSearch\(searchParams, language\)/);
   assert.match(searchBox, /vacationStayFromSearch\(searchParams, activeRouteLanguage\(language\)\)/);
   assert.match(searchBox, /if \(!from \|\| !till\) return explicitLabel \|\| defaultDateLabel\(mode\)/);
+  assert.match(searchBox, /const visibleDates = mode === "vacation"/);
   assert.match(searchPage, /vacationStayFromSearch\(searchParams, language\)/);
   assert.match(searchPage, /params\.set\("from", selectedStay\.from\)/);
   assert.match(searchPage, /params\.set\("till", selectedStay\.till\)/);

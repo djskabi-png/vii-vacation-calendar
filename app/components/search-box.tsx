@@ -136,6 +136,9 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const [isSearching, setIsSearching] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState(false);
   const [mobileStep, setMobileStep] = useState<"overview" | "location" | "dates" | "guests">("overview");
+  const visibleDates = mode === "vacation" && vacationDateRange.from && vacationDateRange.till
+    ? dateLabelFromSearch({ get: (name) => name === "from" ? vacationDateRange.from : name === "till" ? vacationDateRange.till : null }, mode, activeRouteLanguage(language))
+    : dates;
 
   const restoreCommittedSearchState = useCallback(() => {
     const requestedLocation = searchParams.get("location");
@@ -390,7 +393,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
       {showWorlds && shouldCollapse && (locationOpen || guestOpen || priceOpen) && <div className="search-context-worlds"><SearchWorldTabs active={activeWorld} onNavigate={closeMobileSearch} /></div>}
       <div className={`search-box-shell ${shouldCollapse ? "search-box-shell--results" : ""} ${mobileExpanded ? "mobile-expanded" : "mobile-collapsed"}`}>
         {shouldCollapse && <button type="button" className="search-mobile-summary" onClick={() => { setMobileStep("overview"); setMobileExpanded(true); setLocationOpen(false); setCalendarOpen(false); setGuestOpen(false); }} aria-expanded={mobileExpanded} aria-label={`שינוי חיפוש. ${mobileSummary}`}>
-          <span className="search-mobile-summary__copy"><strong>{translate(locationValue)}</strong><small>{!isHourly && <><span>{dates}</span><span aria-hidden="true"> · </span><span>{peopleValue}</span></>}</small></span>
+          <span className="search-mobile-summary__copy"><strong>{translate(locationValue)}</strong><small>{!isHourly && <><span>{visibleDates}</span><span aria-hidden="true"> · </span><span>{peopleValue}</span></>}</small></span>
           <span className="search-mobile-summary__action"><SearchIcon /><b>שינוי חיפוש</b></span>
         </button>}
         {mobileExpanded && <button type="button" className="search-mobile-backdrop" onClick={cancelMobileSearch} aria-label="סגירת החיפוש" />}
@@ -435,7 +438,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
           <button type="button" className="search-field" aria-expanded={priceOpen} onClick={() => { setPriceOpen((value) => !value); setLocationOpen(false); }}><span><small>מחיר לשעתיים עד</small><strong>{maximumPrice ? `${maximumPrice} ₪` : "ללא הגבלת מחיר"}</strong></span></button>
           {priceOpen && <div className="search-popover search-price-list">{HOURLY_PRICE_OPTIONS.map((price) => <button type="button" key={price} className={price === maximumPrice ? "selected" : ""} onClick={() => { setMaximumPrice(price); setPriceOpen(false); }}>{price ? `עד ${price} ₪ לשעתיים` : "ללא הגבלת מחיר"}</button>)}</div>}
         </div>}
-        {!isHourly && <button type="button" className={`search-field search-step search-step--dates ${mobileStep === "dates" ? "active" : ""}`} onClick={() => { setMobileStep("dates"); expandMobileSearch(); setCalendarOpen(true); setLocationOpen(false); setGuestOpen(false); }}><CalendarIcon /><span><small>{mode === "events" ? "מתי האירוע?" : mode === "spa" ? "מתי מגיעים?" : "מתי יוצאים"}</small><strong>{dates}</strong></span></button>}
+        {!isHourly && <button type="button" className={`search-field search-step search-step--dates ${mobileStep === "dates" ? "active" : ""}`} onClick={() => { setMobileStep("dates"); expandMobileSearch(); setCalendarOpen(true); setLocationOpen(false); setGuestOpen(false); }}><CalendarIcon /><span><small>{mode === "events" ? "מתי האירוע?" : mode === "spa" ? "מתי מגיעים?" : "מתי יוצאים"}</small><strong>{visibleDates}</strong></span></button>}
         {!isHourly && <div className={`search-field-wrap search-step search-step--guests ${mobileStep === "guests" ? "active" : ""}`}>
           <button type="button" className="search-field" aria-expanded={guestOpen} onClick={() => { if (guestOpen) { closeGuestPicker(); return; } setMobileStep("guests"); expandMobileSearch(); setGuestOpen(true); setLocationOpen(false); }}><PeopleIcon /><span><small>{peopleLabel}</small><strong>{peopleValue}</strong></span></button>
           {guestOpen && (mode === "spa"
