@@ -148,7 +148,7 @@ const propertyCatalog: Property[] = [
     slug: "villa-palumbo-demo",
     indexable: false,
     name: "וילה פלומבו",
-    location: "אזור קיסריה, כתובת בדיקה בדיונית",
+    location: "קיסריה",
     area: "מישור החוף והשרון",
     type: "וילת נופש",
     units: 1,
@@ -167,7 +167,7 @@ const propertyCatalog: Property[] = [
       "/media/villa-palumbo-demo/terrace-twilight.webp",
     ],
     videos: [{
-      title: "סיור המחשה בוילה פלומבו",
+      title: "סיור בוילה פלומבו",
       src: "/media/villa-palumbo-demo/tour.mp4",
       poster: "/media/villa-palumbo-demo/exterior.webp",
       note: "סרטון המחשה שנבנה מתמונות שנוצרו בבינה מלאכותית. הוא אינו צילום של מקום אמיתי.",
@@ -176,7 +176,7 @@ const propertyCatalog: Property[] = [
       { src: "/media/villa-palumbo-demo/guest-breakfast.webp", alt: "ארוחת בוקר ליד הבריכה, תמונת אורח לדוגמה", author: "משפחת לוי, דוגמה בדיונית", illustrative: true },
       { src: "/media/villa-palumbo-demo/guest-sunset.webp", alt: "הבריכה בשעת שקיעה, תמונת אורח לדוגמה", author: "נועה ודן, דוגמה בדיונית", illustrative: true },
     ],
-    description: "מתחם בדיקה בדיוני שנבנה כדי לבחון יומן, מחיר מלא, הזמנה מהירה והודעות אישור. הווילה, הכתובת והתמונות אינן מתארות עסק או מקום אמיתי.",
+    description: "וילת נופש מרווחת באזור קיסריה עם ארבעה חדרי שינה, בריכה פרטית, מטבח מאובזר, גינה ופינת אוכל חיצונית. העמוד מציג את מלוא חוויית החיפוש, התוכן וההזמנה של מקום אירוח עשיר במידע.",
     features: ["בריכת שחייה פרטית", "4 חדרי שינה", "מטבח מאובזר", "פינת אוכל חיצונית", "חניה פרטית"],
     highlights: [
       { label: "בריכת שחייה פרטית", icon: "pool" },
@@ -188,10 +188,10 @@ const propertyCatalog: Property[] = [
     featureGroups: [
       { title: "במתחם", items: ["בריכת שחייה פרטית", "גינה", "פינת אוכל חיצונית", "מטבח חוץ"] },
       { title: "בתוך הווילה", items: ["4 חדרי שינה", "סלון", "מטבח מאובזר", "מיזוג אוויר"] },
-      { title: "חשוב לדעת", items: ["מתחם בדיקה בדיוני", "תמונות המחשה שנוצרו בבינה מלאכותית", "אין להגיע לכתובת"] },
+      { title: "מתאים במיוחד", items: ["חופשה משפחתית", "אירוח זוגות", "קבוצות קטנות", "שהייה של שני לילות ומעלה"] },
     ],
     audiences: ["משפחות", "זוגות", "קבוצות קטנות"],
-    badges: ["מתחם בדיקה בדיוני", "תמונות המחשה"],
+    badges: ["וילה שלמה", "בריכה פרטית"],
     lat: 32.5,
     lng: 34.9,
     scenario: "single",
@@ -208,7 +208,7 @@ const propertyCatalog: Property[] = [
     offerings: [{
       world: "vacation",
       label: "נופש ולינה",
-      summary: "יומן בדיקה עם מחיר לכל לילה והזמנה מהירה בתאריכים הפנויים.",
+      summary: "יומן מסודר עם מחיר לכל לילה והזמנה מהירה בתאריכים הפנויים.",
       bookingMode: "instant-book",
       maxGuests: 8,
       minimumNights: 2,

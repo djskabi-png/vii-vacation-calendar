@@ -3261,7 +3261,8 @@ h3 { font-size: 1.18rem; }
 .stay-card__badges { position: absolute; top: 15px; inset-inline-end: 14px; display: flex; flex-wrap: wrap; gap: 6px; }
 .stay-card__badges span { padding: 5px 9px; border-radius: 30px; background: rgba(4,51,62,.82); color: white; font-size: .72rem; }
 .stay-card__body { padding: 19px; }
-.stay-card__fictional-disclosure { margin: 0 0 12px; padding: 9px 11px; border: 1px solid #e6c989; border-radius: 12px; color: #624812; background: #fff9e9; font: 750 .76rem/1.45 var(--font-sans); }
+.sample-listing-disclosure { display: inline-flex; width: fit-content; margin-top: 9px; padding: 5px 10px; border: 1px solid #cfe1e4; border-radius: 999px; color: #547078; background: #f7fbfb; font: 750 .72rem/1.3 var(--font-sans); }
+.sample-listing-disclosure--card { margin: 0 0 10px; }
 .stay-card__title { display: flex; justify-content: space-between; gap: 12px; }
 .stay-card__title h3 { margin-bottom: 6px; }
 .stay-card__title p, .event-card p, .event-list p, .property-title p { display: flex; align-items: center; gap: 5px; color: var(--ink-soft); font-size: .88rem; }
@@ -4207,9 +4208,23 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .booking-notification-preview__grid strong { overflow-wrap: anywhere; }
 .booking-notification-preview__grid p { margin: 0; color: var(--ink-soft); font-size: .88rem; }
 .booking-notification-preview__grid em { justify-self: start; margin-top: 4px; padding: 4px 8px; border-radius: 999px; color: #7a4e09; background: #fff5d9; font: 800 .7rem/1.2 var(--font-sans); font-style: normal; }
-.fictional-property-notice { margin-block: 14px 24px; padding: 14px 18px; display: flex; align-items: flex-start; gap: 8px 14px; border: 1px solid #e6c989; border-radius: 16px; color: #624812; background: #fff9e9; font-family: var(--font-sans); }
-.fictional-property-notice strong { flex: 0 0 auto; }
-.fictional-property-notice span { color: #70571d; }
+.listing-contact-preview { display: flex; align-items: stretch; gap: 8px; }
+.listing-contact-preview > button { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 9px 13px; border: 1px solid #b8dce1; border-radius: 12px; color: #087987; background: #f1fafb; font: 800 .78rem/1.2 var(--font-sans); cursor: pointer; }
+.listing-contact-preview > button svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
+.listing-contact-preview__whatsapp { color: #147a47 !important; border-color: #b9ddc9 !important; background: #effaf4 !important; }
+.listing-contact-preview__phone span { display: grid; gap: 1px; }
+.listing-contact-preview__phone small { font-size: .58rem; font-weight: 700; }
+.listing-contact-preview--title, .listing-contact-preview--card { display: contents; }
+.listing-contact-preview--booking { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
+.listing-contact-preview__layer { position: fixed; inset: 0; z-index: 10050; display: grid; place-items: center; padding: 18px; background: rgba(7,35,42,.58); }
+.listing-contact-preview__dialog { position: relative; width: min(430px,100%); padding: 28px; border-radius: 26px; background: #fff; box-shadow: 0 28px 80px rgba(5,35,42,.28); text-align: center; font-family: var(--font-sans); }
+.listing-contact-preview__dialog .dialog-close { position: absolute; top: 14px; inset-inline-start: 14px; width: 40px; height: 40px; padding: 0; border-radius: 50%; }
+.listing-contact-preview__brand { width: 52px; height: 52px; margin: 0 auto 10px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: #25d366; }
+.listing-contact-preview__brand svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 2; }
+.listing-contact-preview__dialog h2 { margin: 5px 0 6px; }
+.listing-contact-preview__dialog p { margin: 0; color: var(--muted); }
+.listing-contact-preview__bubble { margin: 18px 0 12px; padding: 14px 16px; border-radius: 16px 16px 4px 16px; color: #173b35; background: #d9fdd3; text-align: start; }
+.listing-contact-preview__dialog .listing-contact-preview__note { margin-bottom: 18px; font-size: .78rem; }
 .palumbo-media-story { margin-top: 24px; padding: 24px; border: 1px solid #cfe4e8; border-radius: 28px; background: linear-gradient(135deg, #f4fbfb, #fffaf4); }
 .palumbo-media-story > header { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 20px; }
 .palumbo-media-story > header h2 { margin: 4px 0 6px; }
@@ -7693,7 +7708,8 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
 @media (max-width: 560px) {
   .booking-notification-preview { margin: 18px 0 42px; padding: 20px 14px; border-radius: 22px; }
   .booking-notification-preview__grid { grid-template-columns: 1fr; }
-  .fictional-property-notice { flex-direction: column; }
+  .listing-contact-preview--booking { grid-template-columns: 1fr; }
+  .listing-contact-preview__dialog { padding: 24px 18px; border-radius: 22px; }
   .palumbo-media-story { margin-top: 14px; padding: 14px; border-radius: 22px; }
   .palumbo-media-story > header { align-items: stretch; flex-direction: column; gap: 14px; }
   .palumbo-media-story > header .button { width: 100%; }
