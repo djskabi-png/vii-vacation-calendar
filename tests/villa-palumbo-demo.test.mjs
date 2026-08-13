@@ -48,11 +48,12 @@ test("Villa Palumbo presents like a normal listing with one restrained disclosur
   const business = await read("app/business/client-page.tsx");
   const card = await read("app/components/property-card.tsx");
   const contact = await read("app/components/listing-contact-preview.tsx");
-  assert.match(business, /sample-listing-disclosure/);
+  assert.match(business, /SampleListingDisclosure/);
   assert.match(business, /מידע מעשי/);
   assert.doesNotMatch(business, /fictional-property-notice/);
   assert.match(card, /ListingContactPreview/);
-  assert.match(card, /עמוד לדוגמה · תמונות המחשה/);
+  assert.match(card, /SampleListingDisclosure variant="card"/);
+  assert.match(contact, /sample-listing-disclosure/);
   assert.match(contact, /לא נשמרו פרטים ולא נשלחה הודעה/);
   assert.doesNotMatch(contact, /fetch\(/);
   assert.doesNotMatch(contact, /wa\.me/);

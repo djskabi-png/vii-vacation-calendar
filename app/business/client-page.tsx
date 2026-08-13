@@ -20,7 +20,7 @@ import { TrailCard } from "../components/trail-card";
 import { GalleryExperience } from "../components/gallery-experience";
 import { GuestReviewStudio } from "../components/guest-review-studio";
 import { WhatsAppLeadButton } from "../components/whatsapp-lead-button";
-import { ListingContactPreview } from "../components/listing-contact-preview";
+import { ListingContactPreview, SampleListingDisclosure } from "../components/listing-contact-preview";
 import { MasuExperience } from "../components/masu-experience";
 import { DetailStickyDock, type DetailSectionLink } from "../components/detail-sticky-dock";
 import { ModernSelect } from "../components/modern-select";
@@ -200,7 +200,7 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
               : [{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, vacationBreadcrumbForLocation(property.area), { name: property.name }]} />
 
         <section className="shell property-title">
-          <div><span className="eyebrow">{property.type} · {activeOffering.label}</span><h1>{property.name}</h1><p><PinIcon />{property.location}, {property.area}</p>{property.demoOperations?.fictional ? <small className="sample-listing-disclosure">עמוד לדוגמה · הפרטים והתמונות ממחישים כרטיס עסק מלא</small> : null}</div>
+          <div><span className="eyebrow">{property.type} · {activeOffering.label}</span><h1>{property.name}</h1><p><PinIcon />{property.location}, {property.area}</p>{property.demoOperations?.fictional ? <SampleListingDisclosure /> : null}</div>
           <div className="property-title__side">
             <div className="property-title__actions">
               <FavoriteButton compact={false} id={property.slug} world={activeWorld} name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={`/business?id=${property.slug}${activeWorld === offerings[0].world ? "" : `&mode=${activeWorld}`}`} meta={`${property.type} · עד ${property.guests} אורחים`} />

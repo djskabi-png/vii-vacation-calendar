@@ -10,6 +10,18 @@ const text: Record<SiteLanguage, { reveal: string; exampleNumber: string; whatsa
   fr: { reveal: "Afficher le numéro", exampleNumber: "Numéro d’exemple", whatsapp: "Demande WhatsApp", close: "Fermer l’aperçu", preview: "Aperçu de la conversation", title: (name) => `Demande à ${name}`, intro: "Voici comment la demande WhatsApp s’ouvrira une fois les coordonnées connectées.", bubble: "Bonjour, je souhaite vérifier les disponibilités et recevoir plus de détails.", note: "Aperçu de l’interface uniquement. Aucune donnée n’a été enregistrée et aucun message n’a été envoyé.", done: "Compris" },
 };
 
+const disclosureText: Record<SiteLanguage, { detail: string; card: string }> = {
+  he: { detail: "עמוד לדוגמה · הפרטים והתמונות ממחישים כרטיס עסק מלא", card: "עמוד לדוגמה · תמונות המחשה" },
+  en: { detail: "Sample page · Details and images demonstrate a complete listing", card: "Sample listing · Illustrative images" },
+  ru: { detail: "Демонстрационная страница · Полный пример карточки объекта", card: "Демонстрационный объект · Иллюстративные изображения" },
+  fr: { detail: "Page de démonstration · Exemple complet de fiche établissement", card: "Fiche de démonstration · Images d’illustration" },
+};
+
+export function SampleListingDisclosure({ variant = "detail" }: { variant?: "detail" | "card" }) {
+  const { language } = useSiteLanguage();
+  return <small className={`sample-listing-disclosure${variant === "card" ? " sample-listing-disclosure--card" : ""}`} role="note">{disclosureText[language][variant]}</small>;
+}
+
 function PhoneIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16.4v3a2 2 0 0 1-2.2 2 19.7 19.7 0 0 1-8.6-3.1 19.3 19.3 0 0 1-6-6A19.7 19.7 0 0 1 1.1 3.7 2 2 0 0 1 3.1 1.5h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.4 2.1L7.1 9.5a16 16 0 0 0 7.4 7.4l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2Z" /></svg>;
 }
