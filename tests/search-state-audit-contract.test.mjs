@@ -20,4 +20,6 @@ test("the release audit covers every search entry point and responsive transitio
   assert.match(audit, /no-visible-results-state/);
   assert.match(audit, /excessive-empty-band/);
   assert.match(audit, /page\.screenshot/);
+  assert.match(audit, /\["events", "\/events\/search"\]/);
+  assert.match(audit, /\["hourly", "\/hourly"\]/);
 });

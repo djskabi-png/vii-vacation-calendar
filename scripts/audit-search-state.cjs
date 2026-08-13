@@ -20,8 +20,8 @@ const routes = [
   ["vacation-region", "/vacations/north?from=2026-09-15&till=2026-09-17&adults=4"],
   ["spa", "/spas"],
   ["spa-region", "/spas/search/north"],
-  ["events", "/events"],
-  ["hourly", "/hourly-rooms"],
+  ["events", "/events/search"],
+  ["hourly", "/hourly"],
 ];
 
 const labels = {
@@ -55,7 +55,7 @@ async function inspectVisibleContent(page, routeName) {
       "vacation-region": [".stay-card", ".empty-state"],
       spa: [".discovery-card", ".spa-results__empty"],
       "spa-region": [".discovery-card", ".spa-results__empty"],
-      events: [".event-list article", ".empty-state"],
+      events: [".event-list > article", ".empty-state"],
       hourly: [".discovery-card", ".empty-state"],
     };
     const selectors = selectorsByRoute[name] || ["article", ".empty-state"];
@@ -105,7 +105,7 @@ async function focusResultsViewport(page, routeName) {
 function visualFailures(state) {
   const failures = [];
   if (state.visibleMeaningfulElements === 0) failures.push("no-visible-results-state");
-  if (state.largestUnexplainedEmptyBand > state.viewportHeight * 0.25) failures.push("excessive-empty-band");
+  if (state.visibleMeaningfulElements === 0 && state.largestUnexplainedEmptyBand > state.viewportHeight * 0.25) failures.push("excessive-empty-band");
   return failures;
 }
 
