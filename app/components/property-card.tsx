@@ -51,6 +51,8 @@ const demoAvailabilityScenarios: Array<Record<string, DemoAvailabilityKind>> = [
     "ar-suites": "available-price", "infinity-suites": "available-price", "rose-estate": "unavailable-alternatives",
     "vacation-villa-esem-harimon": "available-price", "vacation-gesthouse-royal": "price-only", "vacation-vila-harel": "available-no-price",
     "vacation-villa-yotam": "no-data", "vacation-villa-circle": "unavailable",
+    "vacation-hamata-begalil-primium": "available-price", "vacation-como-boutique": "available-price", "vacation-villa-exodus": "available-price",
+    "vacation-tepers-estate": "available-price", "vacation-daniel": "available-price",
   },
   {
     "aqua-resort": "unavailable-alternatives", "kesem-harimon": "available-price", "ahuzat-or": "price-only", "sol-gilgal": "available-no-price",
@@ -58,6 +60,8 @@ const demoAvailabilityScenarios: Array<Record<string, DemoAvailabilityKind>> = [
     "ar-suites": "available-price", "infinity-suites": "unavailable-alternatives", "rose-estate": "available-price",
     "vacation-villa-esem-harimon": "available-price", "vacation-gesthouse-royal": "price-only", "vacation-vila-harel": "available-no-price",
     "vacation-villa-yotam": "no-data", "vacation-villa-circle": "unavailable",
+    "vacation-hamata-begalil-primium": "available-price", "vacation-como-boutique": "available-price", "vacation-villa-exodus": "available-price",
+    "vacation-tepers-estate": "available-price", "vacation-daniel": "available-price",
   },
   {
     "aqua-resort": "unavailable", "kesem-harimon": "unavailable-price", "ahuzat-or": "available-price", "sol-gilgal": "price-only",
@@ -65,6 +69,8 @@ const demoAvailabilityScenarios: Array<Record<string, DemoAvailabilityKind>> = [
     "ar-suites": "available-price", "infinity-suites": "available-price", "rose-estate": "unavailable",
     "vacation-villa-esem-harimon": "available-price", "vacation-gesthouse-royal": "price-only", "vacation-vila-harel": "available-no-price",
     "vacation-villa-yotam": "no-data", "vacation-villa-circle": "unavailable",
+    "vacation-hamata-begalil-primium": "available-price", "vacation-como-boutique": "available-price", "vacation-villa-exodus": "available-price",
+    "vacation-tepers-estate": "available-price", "vacation-daniel": "available-price",
   },
   {
     "aqua-resort": "available-no-price", "kesem-harimon": "no-data", "ahuzat-or": "unavailable", "sol-gilgal": "unavailable-alternatives",
@@ -72,6 +78,8 @@ const demoAvailabilityScenarios: Array<Record<string, DemoAvailabilityKind>> = [
     "ar-suites": "available-price", "infinity-suites": "unavailable", "rose-estate": "available-price",
     "vacation-villa-esem-harimon": "available-price", "vacation-gesthouse-royal": "price-only", "vacation-vila-harel": "available-no-price",
     "vacation-villa-yotam": "no-data", "vacation-villa-circle": "unavailable",
+    "vacation-hamata-begalil-primium": "available-price", "vacation-como-boutique": "available-price", "vacation-villa-exodus": "available-price",
+    "vacation-tepers-estate": "available-price", "vacation-daniel": "available-price",
   },
 ];
 
@@ -80,6 +88,11 @@ const demoNightlyPrices: Record<string, number> = {
   "infinity-suites": 1600, "magic-garden-gefen": 2400, "anael-estate": 4000, "perfumes-villa": 4500, "rose-estate": 6000,
   "vacation-villa-esem-harimon": 1100,
   "vacation-gesthouse-royal": 3900,
+  "vacation-hamata-begalil-primium": 1800,
+  "vacation-como-boutique": 2200,
+  "vacation-villa-exodus": 2600,
+  "vacation-tepers-estate": 3200,
+  "vacation-daniel": 2800,
 };
 
 const demoAvailabilityKinds: DemoAvailabilityKind[] = ["available-price", "price-only", "available-no-price", "no-data", "unavailable", "unavailable-alternatives", "unavailable-price"];

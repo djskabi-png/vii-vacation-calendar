@@ -41,6 +41,21 @@ test("all seven illustrative availability states are deterministic", () => {
   assert.match(search, /availability-demo-summary/);
 });
 
+test("five additional verified catalog places always show available dates and an illustrative price", () => {
+  const addedPlaces = {
+    "vacation-hamata-begalil-primium": 1800,
+    "vacation-como-boutique": 2200,
+    "vacation-villa-exodus": 2600,
+    "vacation-tepers-estate": 3200,
+    "vacation-daniel": 2800,
+  };
+
+  for (const [slug, price] of Object.entries(addedPlaces)) {
+    assert.equal(card.match(new RegExp(`"${slug}": "available-price"`, "g"))?.length, 4);
+    assert.match(card, new RegExp(`"${slug}": ${price}`));
+  }
+});
+
 test("an ordinary whole-country search carries the selected stay without a demo-only query flag", () => {
   assert.match(searchBox, /if \(vacationDateRange\.from\) params\.set\("from", vacationDateRange\.from\)/);
   assert.match(searchBox, /if \(vacationDateRange\.till\) params\.set\("till", vacationDateRange\.till\)/);
