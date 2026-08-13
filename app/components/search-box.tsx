@@ -68,11 +68,10 @@ function defaultDateLabel(mode: SearchMode) {
 
 function dateLabelFromSearch(searchParams: { get(name: string): string | null }, mode: SearchMode, language: SiteLanguage) {
   const explicitLabel = searchParams.get("dates");
-  if (explicitLabel) return explicitLabel;
   if (mode !== "vacation") return defaultDateLabel(mode);
   const from = searchParams.get("from");
   const till = searchParams.get("till");
-  if (!from || !till) return defaultDateLabel(mode);
+  if (!from || !till) return explicitLabel || defaultDateLabel(mode);
   const locale = { he: "he-IL", en: "en-GB", ru: "ru-RU", fr: "fr-FR" }[language];
   const separator = { he: "עד", en: "to", ru: "по", fr: "au" }[language];
   const formatter = new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" });
