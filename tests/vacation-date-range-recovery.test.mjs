@@ -20,4 +20,5 @@ test("search and result cards share the recovered structured date range", async 
   assert.match(searchPage, /vacationStayFromSearch\(searchParams, language\)/);
   assert.match(searchPage, /params\.set\("from", selectedStay\.from\)/);
   assert.match(searchPage, /params\.set\("till", selectedStay\.till\)/);
+  assert.match(searchPage, /params\.delete\("dates"\)/);
 });

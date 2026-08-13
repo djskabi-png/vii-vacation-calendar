@@ -238,6 +238,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   useEffect(() => {
     if (!selectedStay || searchParams.get("from") || searchParams.get("till")) return;
     const params = new URLSearchParams(searchParams.toString());
+    params.delete("dates");
     params.set("from", selectedStay.from);
     params.set("till", selectedStay.till);
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
