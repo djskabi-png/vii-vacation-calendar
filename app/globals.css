@@ -4537,7 +4537,14 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
   .results-heading { align-items: start; flex-direction: column; gap: 18px; }
   .results-page .breadcrumbs { padding-block: 9px; }
   .results-page .results-heading { margin-bottom: 2px; padding: 6px 0 11px; }
-  .results-page .results-heading h1 { font-size: 2.15rem; }
+  .results-page .results-heading,
+  .results-page .results-heading > div { width: 100%; min-width: 0; }
+  .results-page .results-heading h1 {
+    max-width: 100%;
+    font-size: clamp(1.72rem, 8vw, 2.15rem);
+    line-height: 1.14;
+    overflow-wrap: anywhere;
+  }
   .results-toolbar { align-items: stretch; flex-wrap: wrap; gap: 8px; }
   .results-toolbar__actions { width: 100%; }
   .results-toolbar__actions .button { flex: 1; justify-content: center; }
