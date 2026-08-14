@@ -63,8 +63,12 @@ test("view tracking is committed before fast navigation and composite titles loc
 });
 
 test("the library supports two modes, world filters and pagination", async () => {
-  const page = await read("app/favorites/page.tsx");
+  const [page, css] = await Promise.all([
+    read("app/favorites/page.tsx"),
+    read("app/globals.css"),
+  ]);
   assert.match(page, /PAGE_SIZE\s*=\s*8/);
+  assert.match(css, /\.favorite-card > \.universal-favorite \{ top: 10px; inset-inline-start: 10px; inset-inline-end: auto; width: 44px/);
   assert.match(page, /LibraryMode\s*=\s*"saved"\s*\|\s*"viewed"/);
   assert.match(page, /role="tablist"/);
   assert.match(page, /availableWorlds/);
