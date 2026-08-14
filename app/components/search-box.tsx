@@ -151,6 +151,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const searchParams = useSearchParams();
   const searchParamsKey = searchParams.toString();
   const { language, translate } = useSiteLanguage();
+  const [dateDisplayLanguage, setDateDisplayLanguage] = useState<SiteLanguage>(language);
   const isHourly = mode === "hourly";
   const shouldCollapse = compact || searchParams.has("location");
   const destinationOptions = useMemo(() => searchLocationOptions(mode), [mode]);
@@ -195,8 +196,10 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const visibleDates = mode === "vacation" && vacationDateRange.from && vacationDateRange.till
     // Render with the provider language so the server and the first client render
     // stay identical. LocaleProvider synchronizes the route language after hydration.
-    ? dateLabelFromSearch({ get: (name) => name === "from" ? vacationDateRange.from : name === "till" ? vacationDateRange.till : null }, mode, language)
-    : dates;
+    ? dateLabelFromSearch({ get: (name) => name === "from" ? vacationDateRange.from : name === "till" ? vacationDateRange.till : null }, mode, dateDisplayLanguage)
+    : mode === "vacation" && vacationFlexibleSearch
+      ? flexibleDateLabel(vacationFlexibleSearch, dateDisplayLanguage)
+      : dates;
 
   const restoreCommittedSearchState = useCallback(() => {
     const committedParams = new URLSearchParams(searchParamsKey);
@@ -274,6 +277,13 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     }
     cancelMobileSearch();
   }, [cancelMobileSearch, closeGuestPicker, closeLocationPicker, guestOpen, locationOpen, priceOpen]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDateDisplayLanguage(languageFromPathname(window.location.pathname));
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [language]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
