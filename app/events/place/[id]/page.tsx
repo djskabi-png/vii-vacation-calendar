@@ -4,6 +4,7 @@ import EventPlacePage from "../client-page";
 import { eventPlaceHref, eventPlaces } from "../../../data/site-data";
 import { StructuredData } from "../../../components/structured-data";
 import { breadcrumbSchema, eventVenueSchema } from "../../../lib/seo";
+import { ViewedItemBootstrap } from "../../../components/viewed-item-bootstrap";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -28,6 +29,7 @@ export default async function Page({ params }: Props) {
   const place = resolvePlace((await params).id);
   if (place.sourcePropertySlug) redirect(eventPlaceHref(place));
   return <>
+    <ViewedItemBootstrap id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים`} />
     <StructuredData data={eventVenueSchema(place)} />
     <StructuredData data={breadcrumbSchema([
       { name: "ראשי", path: "/" },

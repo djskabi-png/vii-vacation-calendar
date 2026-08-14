@@ -5,6 +5,7 @@ import { getListingOfferings, properties, propertyFaq, type BusinessWorld } from
 import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, faqSchema, lodgingSchema } from "../lib/seo";
 import { vacationBreadcrumbForLocation } from "../data/vacation-landings";
+import { ViewedItemBootstrap } from "../components/viewed-item-bootstrap";
 
 type QueryValue = string | string[] | undefined;
 type BusinessParams = { id?: QueryValue; mode?: QueryValue; dates?: QueryValue; from?: QueryValue; till?: QueryValue; guests?: QueryValue; rooms?: QueryValue; price?: QueryValue; illustrative?: QueryValue; source?: QueryValue };
@@ -54,6 +55,7 @@ export default async function Page({ searchParams }: Props) {
         ? [{ name: "ראשי", path: "/" }, { name: "חדרים לפי שעה", path: "/hourly" }]
         : [{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, vacationArea];
   return <>
+    <ViewedItemBootstrap id={property.slug} world={initialWorld} name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={`/business?id=${property.slug}${initialWorld === primaryWorld ? "" : `&mode=${initialWorld}`}`} meta={`${property.type} · עד ${property.guests} אורחים`} />
     {!property.demoOperations?.fictional ? <StructuredData data={lodgingSchema(property)} /> : null}
     <StructuredData data={breadcrumbSchema([
       ...hierarchy,

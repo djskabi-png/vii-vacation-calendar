@@ -76,6 +76,6 @@ test("CMS-backed names stay localized in controls, favorites and accessible labe
   assert.match(provider, /if \(translatedRegion === sourceRegion\) return value/);
   assert.match(provider, /if \(translatedDestination === sourceDestination\) return value/);
   assert.match(favorite, /aria-label=\{`\$\{saved \? copy\.removeLabel : copy\.addLabel\}: \$\{translate\(name\)\}`\}/);
-  assert.match(favoritesPage, /translate\(item\.name\)/);
+  assert.match(favoritesPage, /localizeName\(item\.name, translate\)/);
   assert.match(discovery, /aria-label=\{`\$\{details\}: \$\{translate\(item\.name\)\}`\}/);
 });

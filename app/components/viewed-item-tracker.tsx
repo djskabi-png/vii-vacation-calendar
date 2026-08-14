@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import type { SavedWorld } from "../lib/saved-items";
 import { rememberViewedItem } from "../lib/viewed-items";
 
@@ -15,8 +15,11 @@ type Props = {
 };
 
 export function ViewedItemTracker({ id, world, name, location, image, href, meta }: Props) {
-  useEffect(() => {
-    rememberViewedItem({ id, world, name, location, image, href, meta });
+  useLayoutEffect(() => {
+    const remember = () => rememberViewedItem({ id, world, name, location, image, href, meta });
+    remember();
+    window.addEventListener("pageshow", remember);
+    return () => window.removeEventListener("pageshow", remember);
   }, [href, id, image, location, meta, name, world]);
 
   return null;
