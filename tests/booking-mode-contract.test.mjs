@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const business = await readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8");
+const vacationHub = await readFile(new URL("../app/components/vacation-booking-hub.tsx", import.meta.url), "utf8");
 const booking = await readFile(new URL("../app/booking/client-page.tsx", import.meta.url), "utf8");
 const bookingPage = await readFile(new URL("../app/booking/page.tsx", import.meta.url), "utf8");
 const localeProvider = await readFile(new URL("../app/i18n/locale-provider.tsx", import.meta.url), "utf8");
@@ -10,8 +11,8 @@ const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8
 
 test("vacation online booking requires dates and a positive connected price", () => {
   assert.match(business, /hasSelectedDates = Boolean\(dateRange\.from && dateRange\.till\)/);
-  assert.match(business, /hasSelectedPrice = Boolean\(selectedPrice && Number\(selectedPrice\) > 0\)/);
-  assert.match(business, /vacationOnlineReady = activeWorld === "vacation" && hasSelectedDates && hasSelectedPrice/);
+  assert.match(business, /hasSelectedPrice = Boolean\(resolvedSelectedPrice && Number\(resolvedSelectedPrice\) > 0\)/);
+  assert.match(business, /vacationOnlineReady = activeWorld === "vacation" && hasSelectedDates && resolvedAvailability\?\.availability === "available" && hasSelectedPrice/);
   assert.match(bookingPage, /onlineReady: Boolean\(params\.from && params\.till && params\.price && Number\(params\.price\) > 0\)/);
   assert.match(bookingPage, /if \(property\) \{[\s\S]*?return \{[\s\S]*?world: "vacation"/);
   assert.doesNotMatch(booking, /onlineReady\s*=\s*isManage\s*\|\|/);
@@ -19,7 +20,8 @@ test("vacation online booking requires dates and a positive connected price", ()
 
 test("incomplete vacation data keeps availability date-first and preserves the booking phone fallback", () => {
   assert.match(business, /vacationPhoneFallback = activeWorld === "vacation" && !vacationOnlineReady/);
-  assert.match(business, /בחירת תאריכים ובדיקת זמינות/);
+  assert.match(vacationHub, /בחרו תאריכים כדי לראות זמינות ומחיר/);
+  assert.match(vacationHub, /"בחירת תאריכים"/);
   assert.doesNotMatch(business, /phoneRevealed \? <a className="phone-reveal phone-reveal--visible"/);
   assert.match(booking, /if \(!onlineReady\)/);
   assert.match(booking, /phoneRevealed \? <a className="phone-reveal phone-reveal--visible"/);
@@ -58,9 +60,10 @@ test("spa package includes are localized item by item", () => {
 
 
 test("bookable vacation uses one quick-book action while incomplete data keeps direct enquiry", () => {
-  assert.match(business, /vacationOnlineReady = activeWorld === "vacation" && hasSelectedDates && hasSelectedPrice/);
-  assert.match(business, />הזמנה מהירה<\/Link>/);
-  assert.match(business, /ownerWhatsapp && !\(activeWorld === "vacation" && vacationOnlineReady\)/);
+  assert.match(business, /vacationOnlineReady = activeWorld === "vacation" && hasSelectedDates && resolvedAvailability\?\.availability === "available" && hasSelectedPrice/);
+  assert.match(vacationHub, />הזמנה מהירה<\/Link>/);
+  assert.match(business, /ownerWhatsapp && activeWorld !== "vacation"/);
   assert.doesNotMatch(business, /בדיקת זמינות לחיפוש הזה/);
-  assert.match(business, /vacationRequest && phoneHref/);
+  assert.match(vacationHub, /buttonLabel="בדיקת זמינות"/);
+  assert.match(vacationHub, /state === "available-price"/);
 });

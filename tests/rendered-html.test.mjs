@@ -543,8 +543,8 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(search, /setPool/);
   assert.match(eventSearch, /setEventType/);
   assert.doesNotMatch(data, /liveUrl|https:\/\/www\.vii\.co\.il\//);
-  assert.equal((data.match(/roomOptions:/g) || []).length, 11);
-  assert.equal((data.match(/name: "(?:אקווה ריזורט, וילת החוף|יחידת סטודיו שני|יחידת סטודיו העמק|סוויטה משפחתית וואנדרפול|יחידת עכו|סוויטות 1\+2|סוויטה משפחתית"|א\.ר סוויטות|סוויטה [1-4]"|חדר שינה"|סוויטת (?:מירון|גאיה|אליה|נועה|יובל|חרמון)|וילת הבשמים|אחוזת השושנים בוטיק)/g) || []).length >= 20, true);
+  assert.equal((data.match(/roomOptions:/g) || []).length, 12);
+  assert.equal((data.match(/name: "(?:אקווה ריזורט, וילת החוף|יחידת סטודיו שני|יחידת סטודיו העמק|סוויטה משפחתית וואנדרפול|יחידת עכו|סוויטות 1\+2|סוויטה משפחתית"|א\.ר סוויטות|בקתה [1-4]"|סוויטה [1-4]"|חדר שינה"|סוויטת (?:מירון|גאיה|אליה|נועה|יובל|חרמון)|וילת הבשמים|אחוזת השושנים בוטיק)/g) || []).length >= 24, true);
   assert.match(business, /property\.roomOptions\.map/);
   assert.match(business, /סוויטות ויחידות/);
   assert.match(business, /property\.sleepingArrangements/);
@@ -571,8 +571,8 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(business, /complementaryItems/);
   assert.match(eventPlace, /ספקים שיכולים להשלים את החגיגה/);
   assert.match(eventPlace, /הפרטים מבוססים על מידע ציבורי/);
-  assert.equal((data.match(/contact: \{ phone:/g) || []).length, 17);
-  assert.equal((data.match(/whatsapp:/g) || []).length, 8);
+  assert.equal((data.match(/contact: \{ phone:/g) || []).length, 18);
+  assert.equal((data.match(/whatsapp:/g) || []).length, 9);
   assert.match(business, /bookingQuery/);
   assert.match(business, /world: activeWorld/);
   assert.match(business, /initialFrom/);
@@ -580,7 +580,8 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(business, /<WhatsAppLeadButton/);
   assert.doesNotMatch(business, /wa\.me/);
   assert.match(business, /booking-summary/);
-  assert.match(business, /שליחת בקשת זמינות בוואטסאפ/);
+  const vacationHub = await readFile(new URL("../app/components/vacation-booking-hub.tsx", import.meta.url), "utf8");
+  assert.match(vacationHub, /buttonLabel="בדיקת זמינות"/);
   assert.match(business, /<FavoriteButton compact=\{false\}/);
   assert.match(eventPlace, /<FavoriteButton compact=\{false\}/);
   assert.match(styles, /\.universal-favorite\.is-saved/);

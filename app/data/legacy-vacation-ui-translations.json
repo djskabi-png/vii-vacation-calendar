@@ -678,5 +678,188 @@
     "en": "Fictional rating and reviews for illustration",
     "ru": "Вымышленные рейтинг и отзывы для демонстрации",
     "fr": "Note et avis fictifs à titre d’illustration"
+  },
+  "הילת הנוף": {
+    "en": "Hilat HaNof",
+    "ru": "Хилат ха-Ноф",
+    "fr": "Hilat HaNof"
+  },
+  "האזור הקודם": { "en": "Previous region", "ru": "Предыдущий регион", "fr": "Région précédente" },
+  "האזור הבא": { "en": "Next region", "ru": "Следующий регион", "fr": "Région suivante" },
+  "מקום": { "en": "Place", "ru": "Место", "fr": "Lieu" },
+  "מתחם בקתות עץ": {
+    "en": "Wooden cabin retreat",
+    "ru": "Комплекс деревянных домиков",
+    "fr": "Domaine de chalets en bois"
+  },
+  "הילת הנוף הוא מתחם נופש בכלנית, כחמש דקות מהכנרת, עם ארבע בקתות עץ, בריכת שחייה מול הנוף, מדשאות, פינות ישיבה, עמדת ברביקיו וחדר אוכל משותף. המתחם מתאים לזוגות, למשפחות ולקבוצות עד 25 אורחים.": {
+    "en": "Hilat HaNof is a retreat in Kalanit, about five minutes from the Sea of Galilee, with four wooden cabins, a scenic pool, lawns, seating areas, a barbecue station and a shared dining room. It accommodates couples, families and groups of up to 25 guests.",
+    "ru": "Hilat HaNof находится в Каланите, примерно в пяти минутах от Кинерета. Здесь четыре деревянных домика, бассейн с видом, газоны, зоны отдыха, мангал и общая столовая. Комплекс подходит парам, семьям и группам до 25 гостей.",
+    "fr": "Hilat HaNof se trouve à Kalanit, à environ cinq minutes du lac de Tibériade. Le domaine comprend quatre chalets en bois, une piscine avec vue, des pelouses, des espaces détente, un barbecue et une salle à manger commune. Il accueille les couples, les familles et les groupes jusqu’à 25 personnes."
+  },
+  "4 בקתות עץ": {
+    "en": "4 wooden cabins",
+    "ru": "4 деревянных домика",
+    "fr": "4 chalets en bois"
+  },
+  "בריכת שחייה מול הנוף": {
+    "en": "Scenic swimming pool",
+    "ru": "Бассейн с панорамным видом",
+    "fr": "Piscine avec vue"
+  },
+  "בריכה צלולה מול הנוף": {
+    "en": "Pool overlooking the landscape",
+    "ru": "Бассейн с видом на пейзаж",
+    "fr": "Piscine face au paysage"
+  },
+  "ג׳קוזי זוגי בכל בקתה": {
+    "en": "Double hot tub in every cabin",
+    "ru": "Двухместное джакузи в каждом домике",
+    "fr": "Jacuzzi double dans chaque chalet"
+  },
+  "ג׳קוזי זוגי": { "en": "Double hot tub", "ru": "Двухместное джакузи", "fr": "Jacuzzi double" },
+  "חדר אוכל ומטבח משותף": {
+    "en": "Shared dining room and kitchen",
+    "ru": "Общая столовая и кухня",
+    "fr": "Salle à manger et cuisine communes"
+  },
+  "מדשאות ופינות ישיבה": {
+    "en": "Lawns and seating areas",
+    "ru": "Газоны и зоны отдыха",
+    "fr": "Pelouses et espaces détente"
+  },
+  "עמדת ברביקיו": {
+    "en": "Barbecue station",
+    "ru": "Зона барбекю",
+    "fr": "Espace barbecue"
+  },
+  "נגישות לאנשים עם מוגבלות": {
+    "en": "Accessible for guests with disabilities",
+    "ru": "Доступно для гостей с инвалидностью",
+    "fr": "Accessible aux personnes en situation de handicap"
+  },
+  "בכל בקתה": {
+    "en": "In every cabin",
+    "ru": "В каждом домике",
+    "fr": "Dans chaque chalet"
+  },
+  "מיטה זוגית 160×200": {
+    "en": "160 × 200 double bed",
+    "ru": "Двуспальная кровать 160 × 200",
+    "fr": "Lit double 160 × 200"
+  },
+  "טלוויזיה חכמה 50 אינץ׳": {
+    "en": "50-inch smart TV",
+    "ru": "Смарт-телевизор 50 дюймов",
+    "fr": "Télévision connectée de 50 pouces"
+  },
+  "ערוצי yes": {
+    "en": "Yes TV channels",
+    "ru": "Телеканалы Yes",
+    "fr": "Chaînes de télévision Yes"
+  },
+  "במתחם המשותף": {
+    "en": "Shared grounds",
+    "ru": "Общая территория",
+    "fr": "Espaces communs"
+  },
+  "ריהוט גן": {
+    "en": "Garden furniture",
+    "ru": "Садовая мебель",
+    "fr": "Mobilier de jardin"
+  },
+  "פינות שיזוף": {
+    "en": "Sunbathing areas",
+    "ru": "Зоны для загара",
+    "fr": "Espaces bains de soleil"
+  },
+  "מדשאות": {
+    "en": "Lawns",
+    "ru": "Газоны",
+    "fr": "Pelouses"
+  },
+  "מטבח חוץ": {
+    "en": "Outdoor kitchen",
+    "ru": "Летняя кухня",
+    "fr": "Cuisine extérieure"
+  },
+  "במטבח": {
+    "en": "Kitchen equipment",
+    "ru": "На кухне",
+    "fr": "Dans la cuisine"
+  },
+  "מיקרוגל": { "en": "Microwave", "ru": "Микроволновая печь", "fr": "Micro-ondes" },
+  "מקרר": { "en": "Refrigerator", "ru": "Холодильник", "fr": "Réfrigérateur" },
+  "קומקום חשמלי": { "en": "Electric kettle", "ru": "Электрический чайник", "fr": "Bouilloire électrique" },
+  "כיריים חשמליות": {
+    "en": "Electric hob",
+    "ru": "Электрическая варочная панель",
+    "fr": "Plaque de cuisson électrique"
+  },
+  "מתקן מים": {
+    "en": "Water dispenser",
+    "ru": "Кулер для воды",
+    "fr": "Fontaine à eau"
+  },
+  "מכונת אספרסו": {
+    "en": "Espresso machine",
+    "ru": "Кофемашина эспрессо",
+    "fr": "Machine à expresso"
+  },
+  "צ׳ק־אין החל מ־15:00": {
+    "en": "Check-in from 15:00",
+    "ru": "Заезд с 15:00",
+    "fr": "Arrivée à partir de 15 h"
+  },
+  "צ׳ק־אאוט עד 11:00": {
+    "en": "Check-out by 11:00",
+    "ru": "Выезд до 11:00",
+    "fr": "Départ avant 11 h"
+  },
+  "מידע חשוב": { "en": "Important information", "ru": "Важная информация", "fr": "Informations importantes" },
+  "מתאים למשפחות, לזוגות ולקבוצות": {
+    "en": "Suitable for families, couples and groups",
+    "ru": "Подходит семьям, парам и группам",
+    "fr": "Adapté aux familles, aux couples et aux groupes"
+  },
+  "מתאים לציבור הדתי": {
+    "en": "Suitable for observant guests",
+    "ru": "Подходит религиозным гостям",
+    "fr": "Adapté aux clients pratiquants"
+  },
+  "5 דקות מהכנרת": {
+    "en": "5 minutes from the Sea of Galilee",
+    "ru": "В 5 минутах от Кинерета",
+    "fr": "À 5 minutes du lac de Tibériade"
+  },
+  "4 בקתות": { "en": "4 cabins", "ru": "4 домика", "fr": "4 chalets" },
+  "ארבע בקתות עץ שניתן להזמין לפי הרכב האורחים וזמינות היחידות.": {
+    "en": "Four wooden cabins, selected according to the guest group and unit availability.",
+    "ru": "Четыре деревянных домика, которые подбираются по составу гостей и наличию.",
+    "fr": "Quatre chalets en bois, choisis selon le nombre de voyageurs et les disponibilités."
+  },
+  "בקתה 1": { "en": "Cabin 1", "ru": "Домик 1", "fr": "Chalet 1" },
+  "בקתה 2": { "en": "Cabin 2", "ru": "Домик 2", "fr": "Chalet 2" },
+  "בקתה 3": { "en": "Cabin 3", "ru": "Домик 3", "fr": "Chalet 3" },
+  "בקתה 4": { "en": "Cabin 4", "ru": "Домик 4", "fr": "Chalet 4" },
+  "האורחת ציינה שהבקתות מרווחות ומאובזרות, ושיבחה במיוחד את הנוף.": {
+    "en": "The guest found the cabins spacious and well equipped, and especially praised the view.",
+    "ru": "Гостья отметила просторные и хорошо оборудованные домики и особенно похвалила вид.",
+    "fr": "La cliente a trouvé les chalets spacieux et bien équipés, et a particulièrement apprécié la vue."
+  },
+  "האורחת תיארה חוויית אירוח מושלמת ומקום שמתאים לחופשה מפנקת.": {
+    "en": "The guest described a perfect hosting experience and a place suited to a relaxing getaway.",
+    "ru": "Гостья описала прекрасный отдых и место, подходящее для приятного отпуска.",
+    "fr": "La cliente a décrit une expérience parfaite et un lieu idéal pour un séjour reposant."
+  },
+  "המשפחה ציינה מקום נקי ומרווח, שירות קשוב של לירון והתאמה טובה לילדים.": {
+    "en": "The family highlighted the clean, spacious setting, Liron’s attentive service and the suitability for children.",
+    "ru": "Семья отметила чистоту, простор, внимательное обслуживание Лирона и удобство для детей.",
+    "fr": "La famille a souligné la propreté, l’espace, l’accueil attentionné de Liron et l’adaptation aux enfants."
+  },
+  "האורח שיבח את הניקיון, את המרחב ואת המענה המהיר לכל בקשה.": {
+    "en": "The guest praised the cleanliness, the spacious grounds and the quick response to every request.",
+    "ru": "Гость похвалил чистоту, просторную территорию и быстрый ответ на каждую просьбу.",
+    "fr": "Le client a apprécié la propreté, les grands espaces et la réponse rapide à chaque demande."
   }
 }

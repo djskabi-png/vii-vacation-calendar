@@ -31,6 +31,25 @@ const copy = (he: string, en: string, ru: string, fr: string): LocalizedLegacyCo
 // Review text is a faithful summary, not a quotation. Availability and prices are
 // never treated as live inventory by the new site.
 export const legacyVacationProfiles: Record<string, LegacyVacationProfile> = {
+  "hilat-hanof": {
+    sourceUrl: "https://www.vii.co.il/hilat_hanof",
+    checkedAt: "2026-08-14",
+    rating: 10,
+    reviewCount: 180,
+    features: ["4 בקתות עץ", "בריכת שחייה מול הנוף", "ג׳קוזי זוגי בכל בקתה", "חדר אוכל ומטבח משותף", "מדשאות ופינות ישיבה", "עמדת ברביקיו", "נגישות לאנשים עם מוגבלות"],
+    highlights: [{ label: "4 בקתות עץ", icon: "units" }, { label: "בריכה צלולה מול הנוף", icon: "pool" }, { label: "ג׳קוזי זוגי בכל בקתה", icon: "spa" }, { label: "חדר אוכל ומטבח משותף", icon: "kitchen" }],
+    featureGroups: [
+      { title: "בכל בקתה", items: ["מיטה זוגית 160×200", "ג׳קוזי זוגי", "מטבחון מאובזר", "פינת אוכל", "מיזוג אוויר", "טלוויזיה חכמה 50 אינץ׳", "ערוצי yes", "אינטרנט אלחוטי"] },
+      { title: "במתחם המשותף", items: ["בריכת שחייה", "ריהוט גן", "פינות שיזוף", "מדשאות", "עמדת ברביקיו", "מטבח חוץ", "חדר אוכל ומטבח משותף"] },
+      { title: "מידע חשוב", items: ["צ׳ק־אין החל מ־15:00", "צ׳ק־אאוט עד 11:00", "מתאים למשפחות, לזוגות ולקבוצות", "מתאים לציבור הדתי", "ללא מסיבות רועשות"] },
+    ],
+    reviews: [
+      { author: guest("הודיה"), visitedAt: "2024-06-21", rating: 10, summary: copy("האורחת ציינה שהבקתות מרווחות ומאובזרות, ושיבחה במיוחד את הנוף.", "The guest found the cabins spacious and well equipped, and especially praised the view.", "Гостья отметила просторные и хорошо оборудованные домики и особенно похвалила вид.", "La cliente a trouvé les chalets spacieux et bien équipés, et a particulièrement apprécié la vue.") },
+      { author: guest("לינוי"), visitedAt: "2024-06-27", rating: 10, summary: copy("האורחת תיארה חוויית אירוח מושלמת ומקום שמתאים לחופשה מפנקת.", "The guest described a perfect hosting experience and a place suited to a relaxing getaway.", "Гостья описала прекрасный отдых и место, подходящее для приятного отпуска.", "La cliente a décrit une expérience parfaite et un lieu idéal pour un séjour reposant.") },
+      { author: guest("אורחת מאומתת"), visitedAt: "2024-05-16", rating: 10, summary: copy("המשפחה ציינה מקום נקי ומרווח, שירות קשוב של לירון והתאמה טובה לילדים.", "The family highlighted the clean, spacious setting, Liron’s attentive service and the suitability for children.", "Семья отметила чистоту, простор, внимательное обслуживание Лирона и удобство для детей.", "La famille a souligné la propreté, l’espace, l’accueil attentionné de Liron et l’adaptation aux enfants.") },
+      { author: guest("אורח מאומת"), visitedAt: "2024-04-25", rating: 10, summary: copy("האורח שיבח את הניקיון, את המרחב ואת המענה המהיר לכל בקשה.", "The guest praised the cleanliness, the spacious grounds and the quick response to every request.", "Гость похвалил чистоту, просторную территорию и быстрый ответ на каждую просьбу.", "Le client a apprécié la propreté, les grands espaces et la réponse rapide à chaque demande.") },
+    ],
+  },
   "vacation-vila-harel": {
     sourceUrl: "https://www.vii.co.il/vila_harel",
     checkedAt: "2026-08-13",

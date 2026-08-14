@@ -9,7 +9,7 @@ import { vacationBreadcrumbForLocation } from "../data/vacation-landings";
 import { CalendarDemo } from "../calendar-demo";
 import { ListingMap } from "../components/listing-map";
 import { PageShell } from "../components/page-shell";
-import { PropertyCard } from "../components/property-card";
+import { PropertyCard, resolveAvailabilityForStay } from "../components/property-card";
 import { DiscoveryCard } from "../components/discovery-card";
 import { ListingAccessibility } from "../components/listing-accessibility";
 import { SleepingArrangements } from "../components/sleeping-arrangements";
@@ -27,6 +27,7 @@ import { ModernSelect } from "../components/modern-select";
 import { FavoriteButton } from "../components/favorite-button";
 import { ShareButton } from "../components/share-dialog";
 import { CalendarIcon, PinIcon } from "../site-header";
+import { VacationBookingHub } from "../components/vacation-booking-hub";
 
 function complementaryItems(area: string, location: string): DiscoveryItem[] {
   const query = `${area} ${location}`.toLocaleLowerCase("he");
@@ -152,15 +153,17 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
   const activeOffering = offerings.find((offering) => offering.world === activeWorld) || offerings[0];
   const hasSelectedDates = Boolean(dateRange.from && dateRange.till);
   const hasSearchContext = initialSource === "search" && Boolean(initialDates || hasSelectedDates);
-  const hasSelectedPrice = Boolean(selectedPrice && Number(selectedPrice) > 0);
-  const vacationOnlineReady = activeWorld === "vacation" && hasSelectedDates && hasSelectedPrice;
+  const selectedStay = hasSelectedDates ? { from: dateRange.from, till: dateRange.till } : null;
+  const resolvedAvailability = resolveAvailabilityForStay(property, selectedStay, "/business", null);
+  const resolvedSelectedPrice = selectedPrice || (resolvedAvailability?.nightlyPrice ? String(resolvedAvailability.nightlyPrice) : "");
+  const hasSelectedPrice = Boolean(resolvedSelectedPrice && Number(resolvedSelectedPrice) > 0);
+  const vacationOnlineReady = activeWorld === "vacation" && hasSelectedDates && resolvedAvailability?.availability === "available" && hasSelectedPrice;
   const vacationPhoneFallback = activeWorld === "vacation" && !vacationOnlineReady;
   const vacationRequest = activeWorld === "vacation" && !vacationOnlineReady;
   const onlineBooking = activeWorld === "vacation" ? vacationOnlineReady : activeOffering.bookingMode !== "call-only";
-  const instantBooking = activeOffering.bookingMode === "instant-book" || vacationOnlineReady;
   const phoneBooking = activeOffering.bookingMode === "call-only" || activeOffering.bookingMode === "online-or-call";
   const phoneHref = property.contact?.phone ? `tel:${property.contact.phone.replace(/[^\d+]/g, "")}` : undefined;
-  const bookingQuery = new URLSearchParams({ world: activeWorld, place: property.slug, ...(dateRange.from ? { from: dateRange.from } : {}), ...(dateRange.till ? { till: dateRange.till } : {}), guests: String(guests), ...(selectedPrice ? { price: selectedPrice } : {}), ...(initialIllustrative ? { illustrative: "1" } : {}) }).toString();
+  const bookingQuery = new URLSearchParams({ world: activeWorld, place: property.slug, ...(dateRange.from ? { from: dateRange.from } : {}), ...(dateRange.till ? { till: dateRange.till } : {}), guests: String(guests), ...(resolvedSelectedPrice ? { price: resolvedSelectedPrice } : {}), ...(initialIllustrative || resolvedAvailability?.illustrative ? { illustrative: "1" } : {}) }).toString();
   const ownerWhatsapp = property.contact?.whatsapp || property.contact?.phone;
   const bookingActionHref = vacationPhoneFallback ? "#booking-summary" : `/booking?${bookingQuery}`;
   const sectionLinks = useMemo<DetailSectionLink[]>(() => [
@@ -206,7 +209,7 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
               <FavoriteButton compact={false} id={property.slug} world={activeWorld} name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={`/business?id=${property.slug}${activeWorld === offerings[0].world ? "" : `&mode=${activeWorld}`}`} meta={`${property.type} · עד ${property.guests} אורחים`} />
               <ShareButton title={property.name} />
               {property.demoOperations?.fictional && !vacationOnlineReady ? <ListingContactPreview placeName={property.name} className="listing-contact-preview--title" /> : null}
-              {ownerWhatsapp && !(activeWorld === "vacation" && vacationOnlineReady) ? <WhatsAppLeadButton world={activeWorld} placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={activeOffering.label} initialDate={dateRange.from} initialGuests={guests} buttonClassName="property-whatsapp-action" /> : null}
+              {ownerWhatsapp && activeWorld !== "vacation" ? <WhatsAppLeadButton world={activeWorld} placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={activeOffering.label} initialDate={dateRange.from} initialGuests={guests} buttonClassName="property-whatsapp-action" /> : null}
             </div>
             {activeWorld === "vacation" ? null : onlineBooking ? <Link className="button primary" href={bookingActionHref}>הזמנה אונליין</Link> : property.contact?.phone ? <Link className="button primary" href="#booking-summary">טלפון להזמנה</Link> : null}
           </div>
@@ -243,7 +246,23 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
           phone={phoneBooking ? property.contact?.phone : undefined}
         />
 
-        <div className="shell property-layout">
+        {activeWorld === "vacation" ? <VacationBookingHub
+          property={property}
+          dates={dates}
+          from={dateRange.from}
+          till={dateRange.till}
+          guests={guests}
+          selectedPrice={resolvedSelectedPrice}
+          availability={resolvedAvailability}
+          bookingHref={`/booking?${bookingQuery}`}
+          ownerWhatsapp={ownerWhatsapp}
+          phoneHref={phoneHref}
+          illustrative={initialIllustrative || Boolean(resolvedAvailability?.illustrative)}
+          onOpenCalendar={() => setCalendarOpen(true)}
+          onGuestsChange={setGuests}
+        /> : null}
+
+        <div className={`shell property-layout ${activeWorld === "vacation" ? "property-layout--vacation" : ""}`}>
           <div className="property-content">
             <section className="property-facts" aria-label="עיקרי המקום">
               <div><b>{property.guests}</b><span>אורחים לכל היותר</span></div>
@@ -290,7 +309,7 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
             {property.demoOperations?.fictional ? <section className="palumbo-practical" aria-labelledby="palumbo-practical-title"><span className="eyebrow">מידע מעשי</span><h2 id="palumbo-practical-title">כל מה שצריך לדעת לפני ההזמנה</h2><div><article><strong>15:00</strong><span>כניסה החל משעה זו</span></article><article><strong>11:00</strong><span>עזיבה עד שעה זו</span></article><article><strong>2 לילות</strong><span>מינימום להזמנה</span></article><article><strong>8 אורחים</strong><span>תפוסה מרבית</span></article></div></section> : null}
           </div>
 
-          {activeWorld !== "vacation" && !onlineBooking && phoneHref ? <aside className="booking-card booking-card--phone"><span className="eyebrow">הזמנה בטלפון</span><h2>מדברים ישירות עם המקום</h2><p>הצוות בודק את התאריך, ההרכב והמחיר בשיחה אחת.</p><a className="button primary wide" href={phoneHref}>חיוג להזמנה</a><small>ההזמנה סופית רק לאחר אישור המקום.</small></aside> : activeWorld === "events" ? <aside className="booking-card booking-card--event"><span className="eyebrow">הזמנת אירוע</span><h2>בוחרים תאריך והרכב</h2><label>תאריך האירוע<input type="date" /></label><label>כמות משתתפים<input type="number" min="1" max={activeOffering.maxGuests} placeholder="כמה משתתפים צפויים?" /></label>{activeOffering.eventTypes?.length ? <ModernSelect label="סוג האירוע" defaultValue={activeOffering.eventTypes[0]} options={activeOffering.eventTypes.map((eventType) => ({ value: eventType, label: eventType }))} /> : null}<div className="booking-facts"><span>ההזמנה נבדקת לפי סוג האירוע</span><span>האירוח והאירוע מנוהלים בנפרד</span></div><div className="booking-card__actions"><Link className="button primary wide" href={`/booking?${bookingQuery}`}>המשך להזמנה אונליין</Link>{phoneBooking && phoneHref ? <a className="button secondary wide" href={phoneHref}>או חיוג למקום</a> : null}</div><small>הזמינות, המחיר וכללי המקום לאירוע מאושרים לפני חיוב.</small></aside> : <aside id="booking-summary" className={`booking-card ${vacationRequest ? "booking-card--request" : "booking-card--instant"}`}><span className="eyebrow">{vacationRequest ? "בדיקת זמינות במתחם" : "הזמנה אונליין"}</span><h2>{vacationRequest ? hasSelectedDates ? "בודקים את החופשה שבחרתם" : "מתי תרצו להתארח?" : property.scenario === "single" ? "סיכום השהייה" : "תאריכים והרכב"}</h2><p className="booking-card__lead">{vacationRequest ? hasSelectedDates ? "התאריכים והרכב האורחים נשמרו מהחיפוש. אפשר לשנות אותם או לשלוח בקשת זמינות מסודרת." : "בחרו תאריכים וכמות אורחים. לאחר הבחירה תוכלו לשלוח למקום בקשת זמינות מסודרת." : "הזמינות והמחיר מחוברים למנוע ההזמנות של המקום."}</p><div className="booking-card__selection"><button type="button" className="date-choice" onClick={() => setCalendarOpen(true)}><CalendarIcon /><span><small>תאריכי השהייה</small><strong>{dates}</strong></span></button>{instantBooking && selectedPrice ? <div className="booking-card__illustrative-price"><small>מחיר לתקופה שנבחרה</small><strong>{Number(selectedPrice).toLocaleString("he-IL")} ₪</strong>{initialIllustrative ? <em>המחשת תצוגה בלבד</em> : null}</div> : null}</div><label className="booking-guests">כמות אורחים<input type="number" min="1" max={activeOffering.maxGuests || property.guests} value={guests} onChange={(event) => setGuests(Math.max(1, Number(event.target.value) || 1))} /></label><div className="booking-facts"><span>עד {activeOffering.maxGuests || property.guests} אורחים</span>{property.bedrooms && <span>{property.bedrooms} חדרי שינה</span>}</div><div className="booking-card__actions">{hasSelectedDates ? <button className="button secondary wide" type="button" onClick={() => setCalendarOpen(true)}>שינוי תאריכים</button> : null}{vacationRequest ? !hasSelectedDates ? <button className="button primary wide" type="button" onClick={() => setCalendarOpen(true)}>בחירת תאריכים ובדיקת זמינות</button> : ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName="בקשת זמינות" initialDate={dateRange.from} initialGuests={guests} buttonLabel="שליחת בקשת זמינות בוואטסאפ" buttonClassName="button primary wide booking-whatsapp" /> : <p className="booking-phone-unavailable" role="status">פרטי הקשר של המקום טרם חוברו לשליחת בקשת זמינות.</p> : <Link className="button primary wide" href={`/booking?${bookingQuery}`}>הזמנה מהירה</Link>}{vacationRequest && phoneHref ? <a className="button subtle wide" href={phoneHref}>העדפה לשיחה? חיוג למקום</a> : null}</div><small>{vacationRequest ? !hasSelectedDates ? "בחרו תאריכים כדי להתחיל. לאחר הבחירה תוכלו לשלוח בקשת זמינות ללא התחייבות." : ownerWhatsapp ? "הפרטים נשמרים במערכת לפני המעבר לשיחת הוואטסאפ. ההזמנה סופית רק לאחר אישור המקום." : "לא ניתן לשלוח בקשת זמינות עד לחיבור פרטי הקשר של המקום." : "המחיר ותנאי הביטול מוצגים לפני אישור התשלום."}</small></aside>}
+          {activeWorld === "vacation" ? null : activeWorld !== "vacation" && !onlineBooking && phoneHref ? <aside className="booking-card booking-card--phone"><span className="eyebrow">הזמנה בטלפון</span><h2>מדברים ישירות עם המקום</h2><p>הצוות בודק את התאריך, ההרכב והמחיר בשיחה אחת.</p><a className="button primary wide" href={phoneHref}>חיוג להזמנה</a><small>ההזמנה סופית רק לאחר אישור המקום.</small></aside> : activeWorld === "events" ? <aside className="booking-card booking-card--event"><span className="eyebrow">הזמנת אירוע</span><h2>בוחרים תאריך והרכב</h2><label>תאריך האירוע<input type="date" /></label><label>כמות משתתפים<input type="number" min="1" max={activeOffering.maxGuests} placeholder="כמה משתתפים צפויים?" /></label>{activeOffering.eventTypes?.length ? <ModernSelect label="סוג האירוע" defaultValue={activeOffering.eventTypes[0]} options={activeOffering.eventTypes.map((eventType) => ({ value: eventType, label: eventType }))} /> : null}<div className="booking-facts"><span>ההזמנה נבדקת לפי סוג האירוע</span><span>האירוח והאירוע מנוהלים בנפרד</span></div><div className="booking-card__actions"><Link className="button primary wide" href={`/booking?${bookingQuery}`}>המשך להזמנה אונליין</Link>{phoneBooking && phoneHref ? <a className="button secondary wide" href={phoneHref}>או חיוג למקום</a> : null}</div><small>הזמינות, המחיר וכללי המקום לאירוע מאושרים לפני חיוב.</small></aside> : <aside id="booking-summary" className={`booking-card ${vacationRequest ? "booking-card--request" : "booking-card--instant"}`}><span className="eyebrow">{vacationRequest ? "בדיקת זמינות במתחם" : "הזמנה אונליין"}</span><h2>{vacationRequest ? hasSelectedDates ? "בודקים את החופשה שבחרתם" : "מתי תרצו להתארח?" : property.scenario === "single" ? "סיכום השהייה" : "תאריכים והרכב"}</h2><p className="booking-card__lead">{vacationRequest ? hasSelectedDates ? "התאריכים והרכב האורחים נשמרו מהחיפוש. אפשר לשנות אותם או לשלוח בקשת זמינות מסודרת." : "בחרו תאריכים וכמות אורחים. לאחר הבחירה תוכלו לשלוח למקום בקשת זמינות מסודרת." : "הזמינות והמחיר מחוברים למנוע ההזמנות של המקום."}</p><div className="booking-card__selection"><button type="button" className="date-choice" onClick={() => setCalendarOpen(true)}><CalendarIcon /><span><small>תאריכי השהייה</small><strong>{dates}</strong></span></button></div><label className="booking-guests">כמות אורחים<input type="number" min="1" max={activeOffering.maxGuests || property.guests} value={guests} onChange={(event) => setGuests(Math.max(1, Number(event.target.value) || 1))} /></label><div className="booking-facts"><span>עד {activeOffering.maxGuests || property.guests} אורחים</span>{property.bedrooms && <span>{property.bedrooms} חדרי שינה</span>}</div><div className="booking-card__actions"><Link className="button primary wide" href={`/booking?${bookingQuery}`}>המשך להזמנה</Link></div></aside>}
         </div>
 
         <section className="section property-complements">

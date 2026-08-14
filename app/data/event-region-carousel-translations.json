@@ -1,0 +1,44 @@
+{
+  "previous": {
+    "he": "האזור הקודם",
+    "en": "Previous area",
+    "ru": "Предыдущий район",
+    "fr": "Zone précédente"
+  },
+  "next": {
+    "he": "האזור הבא",
+    "en": "Next area",
+    "ru": "Следующий район",
+    "fr": "Zone suivante"
+  },
+  "category": {
+    "he": "מקומות לאירועים",
+    "en": "Event venues",
+    "ru": "Площадки для событий",
+    "fr": "Lieux événementiels"
+  },
+  "venueOne": {
+    "he": "מקום",
+    "en": "venue",
+    "ru": "площадка",
+    "fr": "lieu"
+  },
+  "venueFew": {
+    "he": "מקומות",
+    "en": "venues",
+    "ru": "площадки",
+    "fr": "lieux"
+  },
+  "venueMany": {
+    "he": "מקומות",
+    "en": "venues",
+    "ru": "площадок",
+    "fr": "lieux"
+  },
+  "areaSuffix": {
+    "he": "באזור",
+    "en": "in this area",
+    "ru": "в районе",
+    "fr": "dans la zone"
+  }
+}

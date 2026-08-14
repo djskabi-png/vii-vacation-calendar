@@ -4,10 +4,13 @@ import test from "node:test";
 
 const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
 const business = readFileSync(new URL("../app/business/client-page.tsx", import.meta.url), "utf8");
+const vacationHub = readFileSync(new URL("../app/components/vacation-booking-hub.tsx", import.meta.url), "utf8");
 
-test("mobile WhatsApp booking action keeps a reachable safe-area footer", () => {
-  assert.match(business, /buttonClassName="button primary wide booking-whatsapp"/);
+test("mobile booking actions keep a reachable safe-area dialog footer", () => {
+  assert.match(business, /<VacationBookingHub/);
+  assert.match(vacationHub, /buttonClassName="button primary vacation-booking-dialog__whatsapp"/);
   assert.match(styles, /\.property-layout \{ padding-bottom: max\(56px, calc\(32px \+ env\(safe-area-inset-bottom\)\)\); \}/);
-  assert.match(styles, /\.booking-card--request \{ overflow: visible;[^}]*padding-bottom: max\(32px, calc\(24px \+ env\(safe-area-inset-bottom\)\)\)/);
-  assert.match(styles, /\.booking-card--request \.booking-whatsapp \{ min-height: 54px; margin-bottom: 8px; scroll-margin-bottom:/);
+  assert.match(styles, /\.vacation-booking-dialog__footer \{[\s\S]*env\(safe-area-inset-bottom\)/);
+  assert.match(styles, /\.vacation-booking-dialog__footer-actions \.button \{ width: 100%; min-width: 0; min-height: 48px; \}/);
+  assert.match(styles, /\.vacation-booking-hub \{ width: calc\(100% - 24px\)/);
 });

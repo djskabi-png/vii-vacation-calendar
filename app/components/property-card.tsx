@@ -31,10 +31,10 @@ const phoneCopy: Record<SiteLanguage, { reveal: string; call: string }> = {
   fr: { reveal: "Afficher le numéro", call: "Appeler" },
 };
 
-type SelectedStay = { from: string; till: string };
+export type SelectedStay = { from: string; till: string };
 
 type DemoAvailabilityKind = "available-price" | "price-only" | "available-no-price" | "no-data" | "unavailable" | "unavailable-alternatives" | "unavailable-price";
-type ResolvedAvailability = ListingDateQuote & { showSelectedDates: boolean; alternatives?: Array<{ from: string; till: string; nightlyPrice: number }>; illustrative?: boolean };
+export type ResolvedAvailability = ListingDateQuote & { showSelectedDates: boolean; alternatives?: Array<{ from: string; till: string; nightlyPrice: number }>; illustrative?: boolean };
 
 const demoScenarioCopy: Record<SiteLanguage, { label: string; alternatives: string; alternativePrice: string }> = {
   he: { label: "\u05d4\u05de\u05d7\u05e9\u05ea \u05ea\u05e6\u05d5\u05d2\u05d4 \u05d1\u05dc\u05d1\u05d3", alternatives: "\u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd \u05d7\u05dc\u05d5\u05e4\u05d9\u05d9\u05dd \u05dc\u05d3\u05d5\u05d2\u05de\u05d4", alternativePrice: "\u05de\u05d7\u05d9\u05e8 \u05dc\u05d3\u05d5\u05d2\u05de\u05d4" },
@@ -192,9 +192,15 @@ function demoAvailabilityFor(property: Property, selectedStay: SelectedStay | nu
   return { ...common, availability: "unavailable", showSelectedDates: true, alternatives: alternativeOffsets.map((days, index) => ({ from: shiftStayDate(selectedStay.from, days), till: shiftStayDate(selectedStay.till, days), nightlyPrice: nightlyPrice + (index * 200) })) };
 }
 
+export function resolveAvailabilityForStay(property: Property, selectedStay: SelectedStay | null, pathname = "", requestedLocation: string | null = null): ResolvedAvailability | null {
+  const demoAvailability = demoAvailabilityFor(property, selectedStay, pathname, requestedLocation);
+  const selectedQuote = quoteForStay(property, selectedStay);
+  return demoAvailability || (selectedQuote ? { ...selectedQuote, showSelectedDates: true } : null);
+}
+
 export function hasAvailablePriceForSearch(property: Property, selectedStay: SelectedStay | null, pathname: string, requestedLocation: string | null) {
   if (!selectedStay) return false;
-  const resolvedAvailability = demoAvailabilityFor(property, selectedStay, pathname, requestedLocation) || quoteForStay(property, selectedStay);
+  const resolvedAvailability = resolveAvailabilityForStay(property, selectedStay, pathname, requestedLocation);
   return resolvedAvailability?.availability === "available"
     && typeof resolvedAvailability.nightlyPrice === "number"
     && resolvedAvailability.nightlyPrice > 0;
@@ -213,9 +219,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
   const swipeResetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const phone = property.contact?.phone?.replace(/[^\d+]/g, "");
   const whatsapp = property.contact?.whatsapp;
-  const selectedQuote = quoteForStay(property, selectedStay);
-  const demoAvailability = promotional ? null : demoAvailabilityFor(property, selectedStay, pathname, searchParams.get("location"));
-  const resolvedAvailability: ResolvedAvailability | null = demoAvailability || (selectedQuote ? { ...selectedQuote, showSelectedDates: true } : null);
+  const resolvedAvailability = promotional ? null : resolveAvailabilityForStay(property, selectedStay, pathname, searchParams.get("location"));
   const hasQuotedPrice = Boolean(resolvedAvailability?.nightlyPrice);
   const quickBookingReady = Boolean(selectedStay && resolvedAvailability?.availability === "available" && resolvedAvailability.nightlyPrice && resolvedAvailability.nightlyPrice > 0);
   const cardMode = promotional ? "promotional" : resolvedAvailability ? "dated" : "result";
