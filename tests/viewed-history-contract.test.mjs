@@ -57,6 +57,7 @@ test("view tracking is committed before fast navigation and composite titles loc
   assert.match(bootstrap, /data-viewed-item-bootstrap/);
   for (const source of [business, discovery, events, trails]) assert.match(source, /ViewedItemBootstrap/);
   assert.match(page, /function localizeName/);
+  assert.match(page, /if \(translated !== name\) return translated/);
   assert.match(page, /name\.split\(","\)/);
   assert.match(page, /localizeName\(item\.name, translate\)/);
 });

@@ -51,6 +51,8 @@ function localizeLocation(location: string, translate: (value: string) => string
 }
 
 function localizeName(name: string, translate: (value: string) => string) {
+  const translated = translate(name);
+  if (translated !== name) return translated;
   return name.split(",").map((part) => translate(part.trim())).join(", ");
 }
 
