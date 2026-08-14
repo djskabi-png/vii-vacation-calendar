@@ -17,8 +17,19 @@ import { cleanVacationPath } from "../data/vacation-landings";
 import { cleanAccommodationPath } from "../data/accommodation-landings";
 import { spaSearchHref, spaSearchStateFromValues } from "../data/spa-search-landings";
 import { eventSearchHref, hourlySearchHref } from "../data/world-search-landings";
+import { eventPlaceHref, eventPlaces, properties } from "../data/site-data";
+import { hourlyPlaces, spaPlaces } from "../data/world-data";
 
 type SpaAudience = "single" | "couple" | "group" | "day-pass";
+
+type PlaceSearchResult = {
+  id: string;
+  name: string;
+  location: string;
+  area: string;
+  kind: string;
+  href: string;
+};
 
 type VacationParty = {
   adults: number;
@@ -106,7 +117,13 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const { language, translate } = useSiteLanguage();
   const isHourly = mode === "hourly";
   const shouldCollapse = compact || searchParams.has("location");
-  const places = useMemo(() => searchLocationOptions(mode), [mode]);
+  const destinationOptions = useMemo(() => searchLocationOptions(mode), [mode]);
+  const placeInventory = useMemo<PlaceSearchResult[]>(() => {
+    if (mode === "vacation") return properties.map((place) => ({ id: place.slug, name: place.name, location: place.location, area: place.area, kind: "מקום אירוח", href: `/business?id=${place.slug}` }));
+    if (mode === "events") return eventPlaces.map((place) => ({ id: place.slug, name: place.name, location: place.location, area: place.area, kind: "מתחם אירועים", href: eventPlaceHref(place) }));
+    const items = mode === "spa" ? spaPlaces : hourlyPlaces;
+    return items.map((place) => ({ id: place.id, name: place.name, location: place.location, area: place.area, kind: mode === "spa" ? "בית ספא" : "חדר לפי שעה", href: `/discover/place/${place.id}` }));
+  }, [mode]);
   const [locationValue, setLocationValue] = useState(() => {
     const requestedLocation = searchParams.get("location");
     return requestedLocation
@@ -128,6 +145,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [locationOpen, setLocationOpen] = useState(false);
   const [locationQuery, setLocationQuery] = useState("");
+  const [selectedPlace, setSelectedPlace] = useState<PlaceSearchResult | null>(null);
   const [locationStatus, setLocationStatus] = useState("");
   const [locating, setLocating] = useState(false);
   const [guestOpen, setGuestOpen] = useState(false);
@@ -145,6 +163,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     setLocationValue(requestedLocation
       ? (isWholeCountrySelection(requestedLocation) ? "כל הארץ" : requestedLocation)
       : initialLocation || "כל הארץ");
+    setSelectedPlace(null);
     setDates(dateLabelFromSearch(searchParams, mode, activeRouteLanguage(language)));
     const selectedStay = vacationStayFromSearch(searchParams, activeRouteLanguage(language));
     setVacationDateRange({ from: selectedStay?.from || null, till: selectedStay?.till || null });
@@ -253,7 +272,33 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     const cleanHourlyRoute = mode === "hourly" ? hourlySearchHref(locationValue) : null;
     const route = cleanVacationRoute || cleanSpaRoute || cleanEventRoute || cleanHourlyRoute || (basePath && mode === "vacation" ? basePath : "/search/");
     let destination: string;
-    if (isHourly) {
+    if (selectedPlace) {
+      const [selectedPath, selectedQuery = ""] = selectedPlace.href.split("?");
+      const params = new URLSearchParams(selectedQuery);
+      params.set("source", "search");
+      if (mode === "vacation") {
+        if (dates !== defaultDateLabel(mode)) params.set("dates", dates);
+        if (vacationDateRange.from) params.set("from", vacationDateRange.from);
+        if (vacationDateRange.till) params.set("till", vacationDateRange.till);
+        if (vacationParty.adults !== 2) params.set("adults", String(vacationParty.adults));
+        if (vacationParty.children) params.set("children", String(vacationParty.children));
+        if (vacationParty.infants) params.set("infants", String(vacationParty.infants));
+        if (vacationParty.pets) params.set("pets", String(vacationParty.pets));
+        if (vacationParty.rooms !== 1) params.set("rooms", String(vacationParty.rooms));
+        params.set("guests", String(vacationParty.adults + vacationParty.children));
+      } else if (mode === "events") {
+        if (eventDateRange.from) params.set("from", eventDateRange.from);
+        if (eventDateRange.to) params.set("to", eventDateRange.to);
+        if (guests > 0) params.set("guests", String(guests));
+      } else if (mode === "spa") {
+        if (spaDate.date) params.set("date", spaDate.date);
+        if (spaDate.withoutDate) params.set("withoutDate", "1");
+        if (spaAudience) params.set("spaFor", spaAudience);
+      } else if (maximumPrice > 0) {
+        params.set("maxPrice", String(maximumPrice));
+      }
+      destination = `${selectedPath}?${params.toString()}`;
+    } else if (isHourly) {
       const params = new URLSearchParams();
       if (maximumPrice > 0) params.set("maxPrice", String(maximumPrice));
       const query = params.toString();
@@ -330,7 +375,20 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   }
 
   function chooseLocation(place: string) {
+    setSelectedPlace(null);
     setLocationValue(place);
+    setLocationOpen(false);
+    setLocationQuery("");
+    setLocationStatus("");
+    if (!isHourly && window.matchMedia("(max-width: 820px)").matches) {
+      setMobileStep("dates");
+      setCalendarOpen(true);
+    }
+  }
+
+  function choosePlace(place: PlaceSearchResult) {
+    setSelectedPlace(place);
+    setLocationValue(place.name);
     setLocationOpen(false);
     setLocationQuery("");
     setLocationStatus("");
@@ -385,7 +443,11 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
       : `${vacationGuestCount} אורחים · ${vacationRoomLabel}`;
   const mobileSummary = [locationValue, !isHourly ? dates : "", !isHourly ? peopleValue : ""].filter(Boolean).join(" · ");
   const mobileSheetTitle = "עריכת חיפוש";
-  const visiblePlaces = places.filter((place) => place.includes(locationQuery.trim()));
+  const normalizedLocationQuery = locationQuery.trim().toLocaleLowerCase();
+  const visibleDestinations = destinationOptions.filter((place) => translate(place).toLocaleLowerCase().includes(normalizedLocationQuery));
+  const visibleNamedPlaces = normalizedLocationQuery
+    ? placeInventory.filter((place) => [place.name, place.location, place.area, translate(place.name), translate(place.location), translate(place.area)].some((value) => value.toLocaleLowerCase().includes(normalizedLocationQuery))).slice(0, 8)
+    : [];
 
   return (
     <>
@@ -404,11 +466,14 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
         <div className={`search-field-wrap search-step search-step--location ${mobileStep === "location" ? "active" : ""}`}>
           <button type="button" className="search-field" aria-expanded={locationOpen} onClick={() => { setMobileStep("location"); expandMobileSearch(); setLocationOpen((value) => !value); setGuestOpen(false); setPriceOpen(false); }}><PinIcon /><span><small>{mode === "events" ? "אזור או מקום" : isHourly ? "עיר או אזור" : "לאן נוסעים"}</small><strong>{translate(locationValue)}</strong></span></button>
           {locationOpen && <div className="search-popover location-list">
-            <label className="location-list__search"><span>{translate("חיפוש יעד")}</span><input value={locationQuery} onChange={(event) => setLocationQuery(event.target.value)} placeholder={translate("הקלידו עיר או אזור")} autoFocus /></label>
+            <label className="location-list__search"><span>{translate("חיפוש יעד")}</span><input value={locationQuery} onChange={(event) => { setLocationQuery(event.target.value); setSelectedPlace(null); }} placeholder={translate("הקלידו עיר, אזור או שם מקום")} autoFocus /></label>
             {locationQuery.trim() ? (
               <div className="location-search-results">
-                {visiblePlaces.map((place) => <button type="button" key={place} className={place === locationValue ? "selected" : ""} onClick={() => chooseLocation(place)}><PinIcon /><span>{translate(place)}</span></button>)}
-                {visiblePlaces.length === 0 ? <p>{translate("לא מצאנו יעד מתאים.")}</p> : null}
+                {visibleNamedPlaces.length > 0 ? <h3>{translate("מקומות מתאימים")}</h3> : null}
+                {visibleNamedPlaces.map((place) => <button type="button" key={`${mode}-${place.id}`} className={`location-place-result ${selectedPlace?.id === place.id ? "selected" : ""}`} onClick={() => choosePlace(place)}><PinIcon /><span><strong>{translate(place.name)}</strong><small>{translate(place.kind)} · {translate(place.location)}</small></span></button>)}
+                {visibleDestinations.length > 0 ? <h3>{translate("אזורים ויישובים")}</h3> : null}
+                {visibleDestinations.map((place) => <button type="button" key={place} className={place === locationValue && !selectedPlace ? "selected" : ""} onClick={() => chooseLocation(place)}><PinIcon /><span>{translate(place)}</span></button>)}
+                {visibleDestinations.length === 0 && visibleNamedPlaces.length === 0 ? <p>{translate("לא מצאנו יעד או מקום מתאים.")}</p> : null}
               </div>
             ) : mode === "vacation" ? (
               <div className="location-discovery">
@@ -429,7 +494,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
               </div>
             ) : (
               <div className="location-search-results">
-                {visiblePlaces.map((place) => <button type="button" key={place} className={place === locationValue ? "selected" : ""} onClick={() => chooseLocation(place)}><PinIcon /><span>{translate(place)}</span></button>)}
+                {visibleDestinations.map((place) => <button type="button" key={place} className={place === locationValue ? "selected" : ""} onClick={() => chooseLocation(place)}><PinIcon /><span>{translate(place)}</span></button>)}
               </div>
             )}
           </div>}

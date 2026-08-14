@@ -3185,6 +3185,11 @@ h3 { font-size: 1.18rem; }
 .location-group--settlements > div { display: flex; flex-wrap: wrap; }
 .location-list .location-group--settlements button { min-height: 42px; padding: 7px 11px; border-color: #e1ecee; border-radius: 999px; background: #fff; font-size: .72rem; }
 .location-search-results { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.location-search-results h3 { grid-column: 1 / -1; margin: 8px 2px 1px; color: var(--ink); font: 800 .78rem/1.4 var(--font-sans); }
+.location-list .location-search-results .location-place-result { align-items: center; min-height: 62px; border-color: #d7e8ea; background: #fff; }
+.location-search-results .location-place-result > span { min-width: 0; display: grid; gap: 2px; }
+.location-search-results .location-place-result strong { overflow: hidden; color: var(--ink); font-size: .86rem; text-overflow: ellipsis; white-space: nowrap; }
+.location-search-results .location-place-result small { overflow: hidden; color: var(--ink-soft); font-size: .7rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 .location-search-results p { grid-column: 1 / -1; margin: 12px 0; color: var(--ink-soft); text-align: center; }
 .search-price-list { min-width: 220px; display: grid; gap: 6px; }
 .search-price-list button { min-height: 42px; padding-inline: 12px; border: 0; border-radius: 10px; background: var(--mist); color: var(--ink); font: inherit; font-weight: 700; text-align: right; cursor: pointer; }
