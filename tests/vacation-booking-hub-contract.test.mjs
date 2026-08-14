@@ -30,11 +30,13 @@ test("the booking hub keeps dates guests availability units price and action in 
   assert.match(hub, /availability\?\.alternatives\?\.length/);
 });
 
-test("unknown multi-unit availability is not presented as verified per-unit availability", async () => {
+test("multi-unit pricing is accepted only from the verified availability resolver", async () => {
   const hub = await readFile(new URL("app/components/vacation-booking-hub.tsx", root), "utf8");
   assert.match(hub, /יש מחיר, הזמינות טרם אושרה/);
   assert.match(hub, /אין עדיין מידע לזמן הזה/);
-  assert.match(hub, /const nightlyPrice = property\.scenario === "single" \? rawNightlyPrice : 0/);
+  assert.match(hub, /const rawNightlyPrice = availability\?\.nightlyPrice \|\| \(illustrative \|\| property\.demoOperations\?\.fictional \? suppliedPrice : 0\)/);
+  assert.match(hub, /const nightlyPrice = rawNightlyPrice/);
+  assert.doesNotMatch(hub, /const nightlyPrice = property\.scenario === "single"/);
   assert.doesNotMatch(hub, /property\.scenario === "multi"[^\n]+quickBooking/);
 });
 

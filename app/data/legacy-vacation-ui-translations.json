@@ -684,6 +684,16 @@
     "ru": "Хилат ха-Ноф",
     "fr": "Hilat HaNof"
   },
+  "חוות דעת על הילת הנוף": {
+    "en": "Reviews of Hilat HaNof",
+    "ru": "Отзывы о Хилат ха-Ноф",
+    "fr": "Avis sur Hilat HaNof"
+  },
+  "180 חוות דעת שפורסמו": {
+    "en": "180 published reviews",
+    "ru": "Опубликовано 180 отзывов",
+    "fr": "180 avis publiés"
+  },
   "האזור הקודם": { "en": "Previous region", "ru": "Предыдущий регион", "fr": "Région précédente" },
   "האזור הבא": { "en": "Next region", "ru": "Следующий регион", "fr": "Région suivante" },
   "מקום": { "en": "Place", "ru": "Место", "fr": "Lieu" },

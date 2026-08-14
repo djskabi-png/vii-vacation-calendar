@@ -31,6 +31,8 @@ export type Listing = {
   legacySource?: { sourceUrl: string; checkedAt: string };
   price?: number;
   dateQuotes?: ListingDateQuote[];
+  dailyAvailability?: ListingDailyAvailability[];
+  inventorySource?: ListingInventorySource;
   roomOptions?: StayOption[];
   sleepingArrangements?: SleepingArrangement[];
   videos?: ListingVideo[];
@@ -57,6 +59,23 @@ export type ListingDateQuote = {
   availability: ListingAvailability;
   nightlyPrice?: number;
   includedGuests?: number;
+  minimumNights?: number;
+};
+
+export type ListingDailyAvailability = {
+  date: string;
+  availableUnits: number;
+  nightlyPrice?: number;
+  includedGuests?: number;
+  minimumNights?: number;
+};
+
+export type ListingInventorySource = {
+  sourceUrl: string;
+  checkedAt: string;
+  validFrom: string;
+  validThrough: string;
+  basis: string;
 };
 
 export type BusinessWorld = "vacation" | "events" | "hourly" | "spa";
@@ -135,6 +154,38 @@ export type SleepingArrangement = {
 };
 
 export type Property = Listing;
+
+const hilatHanofAvailabilitySnapshot: Array<[date: string, availableUnits: number, nightlyPrice: number, minimumNights: number]> = [
+  ["2026-08-14", 0, 1200, 1], ["2026-08-15", 0, 1200, 1], ["2026-08-16", 0, 1200, 2],
+  ["2026-08-17", 0, 1200, 2], ["2026-08-18", 0, 1200, 2], ["2026-08-19", 4, 1200, 2],
+  ["2026-08-20", 4, 1200, 2], ["2026-08-21", 0, 1200, 2], ["2026-08-22", 0, 1200, 1],
+  ["2026-08-23", 0, 1200, 2], ["2026-08-24", 0, 1200, 2], ["2026-08-25", 0, 1200, 2],
+  ["2026-08-26", 4, 1200, 2], ["2026-08-27", 4, 1200, 2], ["2026-08-28", 4, 1200, 2],
+  ["2026-08-29", 4, 1200, 1], ["2026-08-30", 4, 1200, 2], ["2026-08-31", 4, 1200, 2],
+  ["2026-09-01", 4, 850, 1], ["2026-09-02", 4, 850, 1], ["2026-09-03", 4, 1200, 2],
+  ["2026-09-04", 4, 1200, 2], ["2026-09-05", 4, 850, 1], ["2026-09-06", 4, 850, 1],
+  ["2026-09-07", 4, 850, 1], ["2026-09-08", 4, 850, 1], ["2026-09-09", 4, 850, 1],
+  ["2026-09-10", 4, 1200, 2], ["2026-09-11", 4, 1200, 2], ["2026-09-12", 4, 1200, 1],
+  ["2026-09-13", 4, 1200, 2], ["2026-09-14", 4, 850, 1], ["2026-09-15", 4, 850, 1],
+  ["2026-09-16", 4, 850, 1], ["2026-09-17", 4, 1200, 2], ["2026-09-18", 4, 1200, 2],
+  ["2026-09-19", 4, 850, 1], ["2026-09-20", 4, 850, 1], ["2026-09-21", 4, 850, 1],
+  ["2026-09-22", 4, 850, 1], ["2026-09-23", 4, 850, 1], ["2026-09-24", 4, 1200, 2],
+  ["2026-09-25", 4, 1200, 2], ["2026-09-26", 4, 1200, 1], ["2026-09-27", 4, 1200, 2],
+  ["2026-09-28", 4, 1200, 2], ["2026-09-29", 4, 1200, 2], ["2026-09-30", 4, 1200, 2],
+  ["2026-10-01", 4, 1200, 2], ["2026-10-02", 4, 1200, 2], ["2026-10-03", 4, 1200, 1],
+  ["2026-10-04", 4, 850, 1], ["2026-10-05", 4, 850, 1], ["2026-10-06", 4, 850, 1],
+  ["2026-10-07", 4, 850, 1], ["2026-10-08", 4, 1200, 2], ["2026-10-09", 4, 1200, 2],
+  ["2026-10-10", 4, 850, 1], ["2026-10-11", 4, 850, 1], ["2026-10-12", 4, 850, 1],
+  ["2026-10-13", 4, 850, 1], ["2026-10-14", 4, 850, 1],
+];
+
+const hilatHanofDailyAvailability: ListingDailyAvailability[] = hilatHanofAvailabilitySnapshot.map(([date, availableUnits, nightlyPrice, minimumNights]) => ({
+  date,
+  availableUnits,
+  nightlyPrice,
+  includedGuests: 2,
+  minimumNights,
+}));
 
 const commonVacationFaq = [
   { question: "איך בודקים זמינות?", answer: "בוחרים תאריכים והרכב אורחים. בשלב החיבור למערכת הניהול תוצג זמינות חיה לכל מקום ולכל יחידה." },
@@ -411,6 +462,23 @@ const propertyCatalog: Property[] = [
     reviews: 180,
     reviewHighlights: legacyVacationProfiles["hilat-hanof"].reviews,
     reviewSource: "legacy-verified",
+    legacySource: { sourceUrl: "https://www.vii.co.il/hilat_hanof", checkedAt: "2026-08-14" },
+    price: 850,
+    dateQuotes: [
+      { from: "2026-08-14", till: "2026-08-15", availability: "unavailable", includedGuests: 2 },
+      { from: "2026-09-04", till: "2026-09-06", availability: "available", nightlyPrice: 800, includedGuests: 2, minimumNights: 2 },
+      { from: "2026-09-07", till: "2026-09-08", availability: "available", nightlyPrice: 850, includedGuests: 2, minimumNights: 1 },
+      { from: "2026-10-02", till: "2026-10-04", availability: "available", nightlyPrice: 1200, includedGuests: 2, minimumNights: 2 },
+      { from: "2026-10-05", till: "2026-10-06", availability: "available", nightlyPrice: 850, includedGuests: 2, minimumNights: 1 },
+    ],
+    dailyAvailability: hilatHanofDailyAvailability,
+    inventorySource: {
+      sourceUrl: "https://www.vii.co.il/hilat_hanof",
+      checkedAt: "2026-08-14",
+      validFrom: "2026-08-14",
+      validThrough: "2026-10-14",
+      basis: "תמונת מצב יומית מהמקור הישן: זמינות לארבע בקתות, מחיר מוצג ללילה לבקתה ועד שני אורחים, ומינימום לילות לפי יום ההגעה. מחיר טווח מוצג רק כאשר לכל לילות הטווח אותו מחיר יומי.",
+    },
     contact: { phone: "052-9097258", whatsapp: "052-9097258" },
     offerings: [{
       world: "vacation",

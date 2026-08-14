@@ -92,15 +92,25 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
   const units = bookingUnits(property);
   const nights = countNights(from, till);
   const hasDates = Boolean(from && till && nights > 0);
-  const rawNightlyPrice = Number(selectedPrice) > 0 ? Number(selectedPrice) : availability?.nightlyPrice || 0;
-  const nightlyPrice = property.scenario === "single" ? rawNightlyPrice : 0;
+  const suppliedPrice = Number(selectedPrice) > 0 ? Number(selectedPrice) : 0;
+  const rawNightlyPrice = availability?.nightlyPrice || (illustrative || property.demoOperations?.fictional ? suppliedPrice : 0);
+  const nightlyPrice = rawNightlyPrice;
   const state = bookingState(hasDates, guests, property, availability, nightlyPrice);
-  const summary = stateCopy(state);
+  const minimumStayNotMet = Boolean(hasDates && availability?.minimumNights && nights < availability.minimumNights);
+  const summary = minimumStayNotMet
+    ? { title: `נדרשים לפחות ${availability?.minimumNights} לילות`, text: "הוסיפו לילה כדי לבדוק את ההזמנה" }
+    : stateCopy(state);
   const quickBooking = state === "available-price";
   const unavailable = state === "unavailable" || state === "unavailable-price" || state === "unavailable-alternatives" || state === "too-many-guests";
   const totalPrice = nightlyPrice > 0 && nights > 0 ? nightlyPrice * nights : 0;
   const displayDates = localizedDateRange(from, till, dates, language);
   const numberLocale = languageLocales[language];
+  const unitPriceCopy = {
+    he: { night: " ליחידה", stay: " ליחידה אחת" },
+    en: { night: " per unit", stay: " for one unit" },
+    ru: { night: " за единицу", stay: " за одну единицу" },
+    fr: { night: " par unité", stay: " pour une unité" },
+  }[language];
 
   useEffect(() => {
     if (!dialogOpen) return;
@@ -135,7 +145,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
       </span>
       <span className="vacation-booking-hub__launcher-meta">
         <small>{guests} אורחים</small>
-        {nightlyPrice > 0 ? <b>{nightlyPrice.toLocaleString(numberLocale)} ₪ ללילה</b> : <b>{summary.text}</b>}
+        {nightlyPrice > 0 ? <b>{nightlyPrice.toLocaleString(numberLocale)} ₪ ללילה{property.scenario === "multi" ? unitPriceCopy.night : ""}</b> : <b>{summary.text}</b>}
       </span>
       <span className="vacation-booking-hub__launcher-action"><span className="vacation-booking-hub__launcher-action-full">פתיחת פרטי ההזמנה</span><span className="vacation-booking-hub__launcher-action-short">לפרטים</span></span>
     </button>
@@ -195,7 +205,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
 
         <footer className="vacation-booking-dialog__footer">
           {nightlyPrice > 0 || illustrative ? <div className="vacation-booking-dialog__footer-copy">
-            {nightlyPrice > 0 ? <><strong>{nightlyPrice.toLocaleString(numberLocale)} ₪ ללילה</strong>{totalPrice ? <small>{totalPrice.toLocaleString(numberLocale)} ₪ לכל {nights} הלילות</small> : null}</> : null}
+            {nightlyPrice > 0 ? <><strong>{nightlyPrice.toLocaleString(numberLocale)} ₪ ללילה{property.scenario === "multi" ? unitPriceCopy.night : ""}</strong>{totalPrice ? <small>{totalPrice.toLocaleString(numberLocale)} ₪ לכל {nights} הלילות{property.scenario === "multi" ? unitPriceCopy.stay : ""}</small> : null}</> : null}
             {illustrative ? <em>המחשה בלבד, ללא חיוב</em> : null}
           </div> : null}
           <div className="vacation-booking-dialog__footer-actions">

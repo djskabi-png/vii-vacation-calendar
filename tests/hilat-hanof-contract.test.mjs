@@ -19,13 +19,67 @@ test("Hilat HaNof is a verified four-cabin legacy property", async () => {
   assert.match(listing, /scenario: "multi"/);
   assert.match(listing, /reviewSource: "legacy-verified"/);
   assert.match(listing, /contact: \{ phone: "052-9097258", whatsapp: "052-9097258" \}/);
-  assert.doesNotMatch(listing, /price:/, "the current legacy page does not expose a verified public price");
+  assert.match(listing, /price: 850/);
+  assert.match(listing, /dailyAvailability: hilatHanofDailyAvailability/);
+  assert.match(listing, /from: "2026-09-04", till: "2026-09-06", availability: "available", nightlyPrice: 800/);
+  assert.match(listing, /from: "2026-10-02", till: "2026-10-04", availability: "available", nightlyPrice: 1200/);
+  assert.match(listing, /validFrom: "2026-08-14"/);
+  assert.match(listing, /validThrough: "2026-10-14"/);
+  assert.match(listing, /תמונת מצב יומית מהמקור הישן/);
+  assert.match(listing, /מינימום לילות לפי יום ההגעה/);
   for (const cabin of [1, 2, 3, 4]) assert.match(listing, new RegExp(`name: "בקתה ${cabin}"`));
 
   assert.match(profiles, /"hilat-hanof": \{/);
   assert.match(profiles, /sourceUrl: "https:\/\/www\.vii\.co\.il\/hilat_hanof"/);
   assert.match(profiles, /reviewCount: 180/);
+  assert.match(profiles, /verifiedStartingPrice: 850/);
   assert.match(profiles, /checkedAt: "2026-08-14"/);
+});
+
+test("Hilat HaNof keeps the verified two-month availability snapshot and price basis", async () => {
+  const catalog = await readFile(resolve(root, "app/data/site-data.ts"), "utf8");
+  const snapshot = [...catalog.matchAll(/\["(2026-(?:08|09|10)-\d{2})", (\d+), (\d+), (\d+)\]/g)].map((match) => ({
+    date: match[1],
+    availableUnits: Number(match[2]),
+    nightlyPrice: Number(match[3]),
+    minimumNights: Number(match[4]),
+  }));
+
+  assert.equal(snapshot.length, 62);
+  assert.deepEqual(snapshot[0], { date: "2026-08-14", availableUnits: 0, nightlyPrice: 1200, minimumNights: 1 });
+  assert.deepEqual(snapshot.at(-1), { date: "2026-10-14", availableUnits: 4, nightlyPrice: 850, minimumNights: 1 });
+  assert.deepEqual(snapshot.find((day) => day.date === "2026-08-19"), { date: "2026-08-19", availableUnits: 4, nightlyPrice: 1200, minimumNights: 2 });
+  assert.deepEqual(snapshot.find((day) => day.date === "2026-09-05"), { date: "2026-09-05", availableUnits: 4, nightlyPrice: 850, minimumNights: 1 });
+  assert.equal(snapshot.filter((day) => day.availableUnits === 0).length, 10);
+  assert.deepEqual([...new Set(snapshot.map((day) => day.nightlyPrice))].sort((a, b) => a - b), [850, 1200]);
+  assert.match(catalog, /includedGuests: 2/);
+  assert.match(catalog, /minimumNights,/);
+});
+
+test("Hilat HaNof search and booking flow enforce source minimum stays and trusted prices", async () => {
+  const card = await readFile(resolve(root, "app/components/property-card.tsx"), "utf8");
+  const bookingHub = await readFile(resolve(root, "app/components/vacation-booking-hub.tsx"), "utf8");
+
+  assert.match(card, /selectedDays\.length >= minimumNights/);
+  assert.match(card, /minimumNights,/);
+  assert.match(card, /prices\.every\(\(price\) => price === prices\[0\]\)/);
+  assert.match(card, /if \(property\.dailyAvailability\?\.length \|\| property\.dateQuotes\?\.length\) return null/);
+  assert.match(bookingHub, /availability\?\.nightlyPrice \|\| \(illustrative \|\| property\.demoOperations\?\.fictional \? suppliedPrice : 0\)/);
+  assert.match(bookingHub, /nights < availability\.minimumNights/);
+  assert.match(bookingHub, /נדרשים לפחות/);
+});
+
+test("Hilat HaNof resolves exact legacy range prices in search and business details", async () => {
+  const route = await readFile(resolve(root, "app/api/legacy-availability/route.ts"), "utf8");
+  const hook = await readFile(resolve(root, "app/components/use-legacy-availability.ts"), "utf8");
+  const card = await readFile(resolve(root, "app/components/property-card.tsx"), "utf8");
+  const business = await readFile(resolve(root, "app/business/client-page.tsx"), "utf8");
+  assert.match(route, /https:\/\/www\.vii\.co\.il\/hilat_hanof/);
+  assert.match(route, /availableUnits/);
+  assert.match(route, /totalPrice/);
+  assert.match(hook, /hilat-calendar-data/);
+  assert.match(card, /liveLegacyAvailability \|\| resolveAvailabilityForStay/);
+  assert.match(business, /liveLegacyAvailability \|\| resolveAvailabilityForStay/);
 });
 
 test("Hilat HaNof keeps the complete verified legacy gallery locally", async () => {

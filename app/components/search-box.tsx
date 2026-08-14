@@ -199,15 +199,19 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     if (window.matchMedia("(max-width: 820px)").matches) setMobileExpanded(true);
   }, []);
 
+  const closeLocationPicker = useCallback(() => {
+    setLocationOpen(false);
+    setMobileStep("overview");
+    if (window.matchMedia("(max-width: 820px)").matches) setMobileExpanded(true);
+  }, []);
+
   const closeActiveMobileSection = useCallback(() => {
     if (guestOpen) {
       closeGuestPicker();
       return;
     }
     if (locationOpen) {
-      setLocationOpen(false);
-      setMobileStep("overview");
-      setMobileExpanded(true);
+      closeLocationPicker();
       return;
     }
     if (priceOpen) {
@@ -217,7 +221,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
       return;
     }
     cancelMobileSearch();
-  }, [cancelMobileSearch, closeGuestPicker, guestOpen, locationOpen, priceOpen]);
+  }, [cancelMobileSearch, closeGuestPicker, closeLocationPicker, guestOpen, locationOpen, priceOpen]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -254,6 +258,19 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
       window.removeEventListener("keydown", closeOnEscape);
     };
   }, [cancelMobileSearch, mobileExpanded]);
+
+  useEffect(() => {
+    if (mobileExpanded || (!locationOpen && !guestOpen && !priceOpen)) return;
+    const closeDesktopPopover = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setLocationOpen(false);
+      setGuestOpen(false);
+      setPriceOpen(false);
+      setMobileStep("overview");
+    };
+    window.addEventListener("keydown", closeDesktopPopover);
+    return () => window.removeEventListener("keydown", closeDesktopPopover);
+  }, [guestOpen, locationOpen, mobileExpanded, priceOpen]);
 
   useEffect(() => {
     const desktop = window.matchMedia("(min-width: 821px)");
@@ -477,7 +494,12 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
         {mobileExpanded && showWorlds && <div className="search-mobile-worlds"><SearchWorldTabs active={activeWorld} onNavigate={closeMobileSearch} /></div>}
         <div className={`search-field-wrap search-step search-step--location ${mobileStep === "location" ? "active" : ""}`}>
           <button type="button" className="search-field" aria-expanded={locationOpen} onClick={() => { setMobileStep("location"); expandMobileSearch(); setLocationOpen((value) => !value); setGuestOpen(false); setPriceOpen(false); }}><PinIcon /><span><small>{mode === "events" ? "אזור או מקום" : isHourly ? "עיר או אזור" : "לאן נוסעים"}</small><strong>{translate(locationValue)}</strong></span></button>
-          {locationOpen && <div className="search-popover location-list">
+          {locationOpen && <div className="search-popover location-list" role="dialog" aria-modal="true" aria-labelledby={`location-dialog-title-${mode}`}>
+            <header className="location-list__header">
+              <div><h2 id={`location-dialog-title-${mode}`}>{translate("חיפוש יעד")}</h2><small>{translate("הקלידו עיר, אזור או שם מקום")}</small></div>
+              <button type="button" className="location-list__close" onClick={closeLocationPicker} aria-label={translate("סגירת אפשרויות החיפוש")}>×</button>
+            </header>
+            <div className="location-list__body">
             <label className="location-list__search"><span>{translate("חיפוש יעד")}</span><input value={locationQuery} onChange={(event) => { setLocationQuery(event.target.value); setSelectedPlace(null); }} placeholder={translate("הקלידו עיר, אזור או שם מקום")} autoFocus /></label>
             {locationQuery.trim() ? (
               <div className="location-search-results">
@@ -509,6 +531,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
                 {visibleDestinations.map((place) => <button type="button" key={place} className={place === locationValue ? "selected" : ""} onClick={() => chooseLocation(place)}><PinIcon /><span>{translate(place)}</span></button>)}
               </div>
             )}
+            </div>
           </div>}
         </div>
         {isHourly && <div className="search-field-wrap search-field-wrap--price">

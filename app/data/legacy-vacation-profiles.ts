@@ -29,13 +29,14 @@ const copy = (he: string, en: string, ru: string, fr: string): LocalizedLegacyCo
 
 // Every value below was checked against the matching VII legacy property page.
 // Review text is a faithful summary, not a quotation. Availability and prices are
-// never treated as live inventory by the new site.
+// used only when a dated public inventory snapshot is stored with source provenance.
 export const legacyVacationProfiles: Record<string, LegacyVacationProfile> = {
   "hilat-hanof": {
     sourceUrl: "https://www.vii.co.il/hilat_hanof",
     checkedAt: "2026-08-14",
     rating: 10,
     reviewCount: 180,
+    verifiedStartingPrice: 850,
     features: ["4 בקתות עץ", "בריכת שחייה מול הנוף", "ג׳קוזי זוגי בכל בקתה", "חדר אוכל ומטבח משותף", "מדשאות ופינות ישיבה", "עמדת ברביקיו", "נגישות לאנשים עם מוגבלות"],
     highlights: [{ label: "4 בקתות עץ", icon: "units" }, { label: "בריכה צלולה מול הנוף", icon: "pool" }, { label: "ג׳קוזי זוגי בכל בקתה", icon: "spa" }, { label: "חדר אוכל ומטבח משותף", icon: "kitchen" }],
     featureGroups: [

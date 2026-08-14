@@ -86,4 +86,9 @@
   "מה כלול": { "en": "What is included", "ru": "Что включено", "fr": "Ce qui est inclus" },
   "אפשר לבחור תאריך אחר": { "en": "Choose a different date", "ru": "Выберите другую дату", "fr": "Choisissez une autre date" },
   "סוגי יחידות": { "en": "unit types", "ru": "типы номеров", "fr": "types d’unités" }
+  ,
+  "הוסיפו לילה כדי לבדוק את ההזמנה": { "en": "Add a night to check the booking", "ru": "Добавьте ночь, чтобы проверить бронирование", "fr": "Ajoutez une nuit pour vérifier la réservation" },
+  "ליחידה": { "en": "per unit", "ru": "за единицу", "fr": "par unité" },
+  "ליחידה אחת": { "en": "for one unit", "ru": "за одну единицу", "fr": "pour une unité" },
+  "תמונת מצב יומית מהמקור הישן: זמינות לארבע בקתות, מחיר מוצג ללילה לבקתה ועד שני אורחים, ומינימום לילות לפי יום ההגעה. מחיר טווח מוצג רק כאשר לכל לילות הטווח אותו מחיר יומי.": { "en": "Daily legacy-source snapshot: availability for four cabins, the displayed nightly price for one cabin and up to two guests, and the minimum stay by arrival date. A range price is shown only when every night has the same daily price.", "ru": "Ежедневный снимок из прежнего источника: доступность четырёх домиков, указанная цена за ночь для одного домика и двух гостей, а также минимальный срок проживания по дате заезда. Цена за период показывается только тогда, когда у всех ночей одинаковая суточная цена.", "fr": "Instantané quotidien de l’ancienne source : disponibilité de quatre cabanes, prix affiché par nuit pour une cabane et jusqu’à deux personnes, et séjour minimum selon la date d’arrivée. Le prix d’une période n’est affiché que si chaque nuit a le même tarif journalier." }
 }

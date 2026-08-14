@@ -542,7 +542,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.doesNotMatch(business, /URLSearchParams\(location\.search\)/);
   assert.match(search, /setPool/);
   assert.match(eventSearch, /setEventType/);
-  assert.doesNotMatch(data, /liveUrl|https:\/\/www\.vii\.co\.il\//);
+  assert.doesNotMatch(data, /liveUrl|href[^\n]+https:\/\/www\.vii\.co\.il\//);
   assert.equal((data.match(/roomOptions:/g) || []).length, 12);
   assert.equal((data.match(/name: "(?:אקווה ריזורט, וילת החוף|יחידת סטודיו שני|יחידת סטודיו העמק|סוויטה משפחתית וואנדרפול|יחידת עכו|סוויטות 1\+2|סוויטה משפחתית"|א\.ר סוויטות|בקתה [1-4]"|סוויטה [1-4]"|חדר שינה"|סוויטת (?:מירון|גאיה|אליה|נועה|יובל|חרמון)|וילת הבשמים|אחוזת השושנים בוטיק)/g) || []).length >= 24, true);
   assert.match(business, /property\.roomOptions\.map/);
@@ -822,7 +822,8 @@ test("ships a favicon, four languages and no dependency on the retired site", as
   assert.match(styles, /\.menu-panel \{ width: 100%; max-width: 100%;/);
   assert.match(footer, /<LanguageSwitcher compact/);
   assert.match(footer, /<AccessibilityWidget placement="footer" \/>/);
-  assert.doesNotMatch([header, footer, data, worldData].join("\n"), /https:\/\/www\.vii\.co\.il/);
+  assert.doesNotMatch([header, footer, worldData].join("\n"), /https:\/\/www\.vii\.co\.il/);
+  assert.doesNotMatch(data, /href[^\n]+https:\/\/www\.vii\.co\.il/);
   const response = await render("/");
   const html = await response.text();
   assert.match(html, /vii-logo\.png/);

@@ -172,6 +172,7 @@ function CalendarMonth({
   locale,
   availabilityResolver,
   priceResolver,
+  desktopVisible,
 }: {
   month: Date;
   mode: CalendarMode;
@@ -183,6 +184,7 @@ function CalendarMonth({
   locale: string;
   availabilityResolver?: (date: Date) => Availability;
   priceResolver?: (date: Date) => number;
+  desktopVisible?: boolean;
 }) {
   const weekdays = useMemo(() => Array.from({ length: 7 }, (_, index) => new Intl.DateTimeFormat(locale, { weekday: "narrow" }).format(new Date(2026, 7, 2 + index))), [locale]);
 
@@ -197,7 +199,7 @@ function CalendarMonth({
   }, [month]);
 
   return (
-    <section className={`demo-month${secondary ? " secondary-month" : ""}`} aria-label={monthLabel(month, locale)}>
+    <section className={`demo-month${secondary ? " secondary-month" : ""}${desktopVisible ? " desktop-visible" : ""}`} aria-label={monthLabel(month, locale)}>
       <h3>{monthLabel(month, locale)}</h3>
       <div className="demo-weekdays" aria-hidden="true">
         {weekdays.map((day, index) => <span key={`${day}-${index}`}>{day}</span>)}
@@ -282,6 +284,7 @@ export function CalendarDemo({
   const [flexStay, setFlexStay] = useState<(typeof FLEX_STAYS)[number]["id"]>("weekend");
   const [flexMonth, setFlexMonth] = useState(0);
   const [flexDays, setFlexDays] = useState(3);
+  const [visibleMonthIndex, setVisibleMonthIndex] = useState(0);
   const [notice, setNotice] = useState("בחרו תאריך הגעה");
 
   const visibleMonths = Array.from({ length: 12 }, (_, index) => addMonths(START_MONTH, index));
@@ -437,11 +440,16 @@ export function CalendarDemo({
                 <span>{translate(mode === "home" ? "חיפוש מהיר" : "מציאת טווח פנוי")}</span>
                 {QUICK_STAYS.map((stay) => <button type="button" key={stay.id} onClick={() => applyQuickStay(stay.id)}>{translate(stay.label)}</button>)}
               </div>
+              {mode === "home" && <div className="month-nav calendar-month-nav" aria-label={translate("ניווט בין חודשים")}>
+                <button type="button" onClick={() => setVisibleMonthIndex((index) => Math.max(0, index - 1))} disabled={visibleMonthIndex === 0} aria-label={translate("הצגת החודשים הקודמים")}>‹</button>
+                <span>{monthLabel(visibleMonths[visibleMonthIndex], dateLocale)} · {monthLabel(visibleMonths[Math.min(visibleMonthIndex + 1, visibleMonths.length - 1)], dateLocale)}</span>
+                <button type="button" onClick={() => setVisibleMonthIndex((index) => Math.min(visibleMonths.length - 2, index + 1))} disabled={visibleMonthIndex >= visibleMonths.length - 2} aria-label={translate("הצגת החודשים הבאים")}>›</button>
+              </div>}
             </div>
 
             <div className="dialog-months" aria-label="אופן בחירת תאריכים">
-              {visibleMonths.map((month) => (
-                <CalendarMonth key={keyOf(month)} month={month} mode={mode} businessKind={businessKind} checkIn={checkIn} checkOut={checkOut} onChoose={chooseDate} locale={dateLocale} availabilityResolver={availabilityResolver} priceResolver={priceResolver} />
+              {visibleMonths.map((month, index) => (
+                <CalendarMonth key={keyOf(month)} month={month} mode={mode} businessKind={businessKind} checkIn={checkIn} checkOut={checkOut} onChoose={chooseDate} locale={dateLocale} availabilityResolver={availabilityResolver} priceResolver={priceResolver} desktopVisible={index === visibleMonthIndex || index === visibleMonthIndex + 1} />
               ))}
             </div>
 

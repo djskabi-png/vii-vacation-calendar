@@ -28,6 +28,7 @@ import { FavoriteButton } from "../components/favorite-button";
 import { ShareButton } from "../components/share-dialog";
 import { CalendarIcon, PinIcon } from "../site-header";
 import { VacationBookingHub } from "../components/vacation-booking-hub";
+import { useLegacyAvailability } from "../components/use-legacy-availability";
 
 function complementaryItems(area: string, location: string): DiscoveryItem[] {
   const query = `${area} ${location}`.toLocaleLowerCase("he");
@@ -154,7 +155,8 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
   const hasSelectedDates = Boolean(dateRange.from && dateRange.till);
   const hasSearchContext = initialSource === "search" && Boolean(initialDates || hasSelectedDates);
   const selectedStay = hasSelectedDates ? { from: dateRange.from, till: dateRange.till } : null;
-  const resolvedAvailability = resolveAvailabilityForStay(property, selectedStay, "/business", null);
+  const liveLegacyAvailability = useLegacyAvailability(property, selectedStay);
+  const resolvedAvailability = liveLegacyAvailability || resolveAvailabilityForStay(property, selectedStay, "/business", null);
   const resolvedSelectedPrice = selectedPrice || (resolvedAvailability?.nightlyPrice ? String(resolvedAvailability.nightlyPrice) : "");
   const hasSelectedPrice = Boolean(resolvedSelectedPrice && Number(resolvedSelectedPrice) > 0);
   const vacationOnlineReady = activeWorld === "vacation" && hasSelectedDates && resolvedAvailability?.availability === "available" && hasSelectedPrice;
