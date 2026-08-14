@@ -7398,7 +7398,8 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   .search-world-tabs__icon svg { width: 20px; height: 20px; }
   .search-world-tabs__options > a.active::after,
   .search-world-tabs__more[open] > summary::after { inset-inline: 6px; }
-  .search-world-tabs__menu { position: fixed; z-index: 1450; top: 82px; inset-inline: 12px; width: auto; max-height: calc(100dvh - 96px); overflow-y: auto; overscroll-behavior: contain; }
+  .search-world-tabs__menu { max-height: calc(100dvh - 96px); overflow-y: auto; overscroll-behavior: contain; }
+  .search-mobile-worlds .search-world-tabs__menu { position: fixed; z-index: 1450; top: 144px; inset-inline: 12px; width: auto; max-height: calc(100dvh - 158px); }
   .search-world-tabs__menu-head { position: sticky; z-index: 2; top: -8px; margin: -1px -1px 3px; padding: 7px 8px 8px 12px; background: rgba(255,255,255,.98); }
   .calendar-dialog.mode-home:has(.flexible-content) { height: min(100dvh,860px); }
   .flexible-content { margin: 12px; padding: 0; border-radius: 18px; }
