@@ -142,6 +142,7 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
   const [galleryTab, setGalleryTab] = useState<"all" | "guests">("all");
   const [reviewOpen, setReviewOpen] = useState(false);
   const [allFeaturesOpen, setAllFeaturesOpen] = useState(false);
+  const [mobileFeaturesOpen, setMobileFeaturesOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const property = useMemo(() => properties.find((item) => item.slug === initialSlug) || properties[0], [initialSlug]);
   const offerings = useMemo(() => getListingOfferings(property), [property]);
@@ -305,10 +306,10 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
                 {mobileFeaturePreview.map((feature) => <span key={feature}><b aria-hidden="true">✓</b>{feature}</span>)}
               </div>
               <div className="property-feature-groups">{featureGroups.map((group) => <article key={group.title}><h3>{group.title}</h3><div className="feature-list">{group.items.map((feature) => <span key={feature}>✓ {feature}</span>)}</div></article>)}</div>
-              <details className="feature-section__mobile-details">
-                <summary>כל המידע על המתקנים</summary>
-                <div className="feature-section__mobile-groups">{featureGroups.map((group) => <section key={group.title}><h3>{group.title}</h3><div>{group.items.map((feature) => <span key={feature}>✓ {feature}</span>)}</div></section>)}</div>
-              </details>
+              <div className={`feature-section__mobile-details ${mobileFeaturesOpen ? "is-open" : ""}`}>
+                <button className="feature-section__mobile-toggle" type="button" aria-expanded={mobileFeaturesOpen} aria-controls="mobile-feature-groups" onClick={() => setMobileFeaturesOpen((open) => !open)}>כל המידע על המתקנים</button>
+                <div id="mobile-feature-groups" className="feature-section__mobile-groups" hidden={!mobileFeaturesOpen}>{featureGroups.map((group) => <section key={group.title}><h3>{group.title}</h3><div>{group.items.map((feature) => <span key={feature}>✓ {feature}</span>)}</div></section>)}</div>
+              </div>
               <button className="button subtle feature-section__desktop-more" type="button" onClick={() => setAllFeaturesOpen(true)}>כל המידע על המתקנים</button>
             </section>
 
