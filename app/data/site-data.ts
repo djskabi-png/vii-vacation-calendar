@@ -198,6 +198,7 @@ export const propertyFaq = commonVacationFaq;
 const propertyCatalog: Property[] = [
   {
     slug: "villa-palumbo-demo",
+    active: false,
     indexable: false,
     name: "וילה פלומבו",
     location: "קיסריה",
@@ -700,7 +701,6 @@ const propertyCatalog: Property[] = [
 ];
 
 const activePropertyOrder = [
-  "villa-palumbo-demo",
   "aqua-resort",
   "kesem-harimon",
   "ahuzat-or",

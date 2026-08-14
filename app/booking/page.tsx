@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { PageShell } from "../components/page-shell";
 import { properties, eventPlaces } from "../data/site-data";
 import { discoveryItems } from "../data/world-data";
@@ -71,7 +72,10 @@ function resolveBooking(params: Awaited<Props["searchParams"]>) {
   if (eventPlace) return { world: "events", placeId: eventPlace.slug, placeName: eventPlace.name, offerId, offerName: "הזמנת אירוע", price: "מחיר לפי תאריך והרכב" };
 
   const item = discoveryItems.find((entry) => entry.id === params.place);
-  if (!item) return { world: params.world || "vacation", placeId: params.place || "", placeName: "הזמנה באתר", offerId, offerName: "בחירת שירות", price: "מחיר יוצג לפני אישור" };
+  if (!item) {
+    if (params.place) notFound();
+    return { world: params.world || "vacation", placeId: "", placeName: "הזמנה באתר", offerId, offerName: "בחירת שירות", price: "מחיר יוצג לפני אישור" };
+  }
 
   if (item.world === "spa") {
     const pack = getSpaDetails(item.id)?.packages?.find((entry) => entry.id === offerId);
