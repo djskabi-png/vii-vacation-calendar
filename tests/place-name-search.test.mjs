@@ -28,6 +28,8 @@ test("opening a named place preserves the committed search context", () => {
   assert.match(searchBox, /const searchParamsKey = searchParams\.toString\(\)/);
   assert.match(searchBox, /new URLSearchParams\(searchParamsKey\)/);
   assert.doesNotMatch(searchBox, /\[initialGuests, initialLocation, initialSpaAudience, language, mode, searchParams\]/);
+  assert.match(searchBox, /const hasSelectedDates = mode === "vacation"/);
+  assert.match(searchBox, /setCalendarOpen\(!hasSelectedDates\)/);
 });
 
 test("new place-search copy is localized in English, Russian and French", () => {

@@ -395,8 +395,13 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     setLocationQuery("");
     setLocationStatus("");
     if (!isHourly && window.matchMedia("(max-width: 820px)").matches) {
-      setMobileStep("dates");
-      setCalendarOpen(true);
+      const hasSelectedDates = mode === "vacation"
+        ? Boolean(vacationDateRange.from && vacationDateRange.till)
+        : mode === "events"
+          ? Boolean(eventDateRange.from && eventDateRange.to)
+          : Boolean(spaDate.date || spaDate.withoutDate);
+      setMobileStep(hasSelectedDates ? "overview" : "dates");
+      setCalendarOpen(!hasSelectedDates);
     }
   }
 
