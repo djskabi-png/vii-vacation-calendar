@@ -114,6 +114,7 @@ function normalizeHourlyPrice(value: string | null) {
 export function SearchBox({ mode = "vacation", compact = false, showWorlds = true, initialLocation, initialGuests, basePath, vacationType, initialSpaAudience, initialSpaFeatures = [] }: { mode?: SearchMode; compact?: boolean; showWorlds?: boolean; initialLocation?: string; initialGuests?: number; basePath?: string; vacationType?: string; initialSpaAudience?: string; initialSpaFeatures?: string[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const searchParamsKey = searchParams.toString();
   const { language, translate } = useSiteLanguage();
   const isHourly = mode === "hourly";
   const shouldCollapse = compact || searchParams.has("location");
@@ -159,21 +160,22 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     : dates;
 
   const restoreCommittedSearchState = useCallback(() => {
-    const requestedLocation = searchParams.get("location");
+    const committedParams = new URLSearchParams(searchParamsKey);
+    const requestedLocation = committedParams.get("location");
     setLocationValue(requestedLocation
       ? (isWholeCountrySelection(requestedLocation) ? "כל הארץ" : requestedLocation)
       : initialLocation || "כל הארץ");
     setSelectedPlace(null);
-    setDates(dateLabelFromSearch(searchParams, mode, activeRouteLanguage(language)));
-    const selectedStay = vacationStayFromSearch(searchParams, activeRouteLanguage(language));
+    setDates(dateLabelFromSearch(committedParams, mode, activeRouteLanguage(language)));
+    const selectedStay = vacationStayFromSearch(committedParams, activeRouteLanguage(language));
     setVacationDateRange({ from: selectedStay?.from || null, till: selectedStay?.till || null });
-    setEventDateRange({ from: searchParams.get("from"), to: searchParams.get("to") });
-    setSpaDate({ date: searchParams.get("date"), withoutDate: searchParams.get("withoutDate") === "1" });
-    setSpaAudience(parseSpaAudience(searchParams.get("spaFor") || initialSpaAudience || null));
-    setGuests(Number(searchParams.get("guests")) || initialGuests || defaultGuestCount(mode));
-    setVacationParty(initialVacationParty(searchParams, Number(searchParams.get("guests")) || initialGuests || 2));
-    setMaximumPrice(normalizeHourlyPrice(searchParams.get("maxPrice")));
-  }, [initialGuests, initialLocation, initialSpaAudience, language, mode, searchParams]);
+    setEventDateRange({ from: committedParams.get("from"), to: committedParams.get("to") });
+    setSpaDate({ date: committedParams.get("date"), withoutDate: committedParams.get("withoutDate") === "1" });
+    setSpaAudience(parseSpaAudience(committedParams.get("spaFor") || initialSpaAudience || null));
+    setGuests(Number(committedParams.get("guests")) || initialGuests || defaultGuestCount(mode));
+    setVacationParty(initialVacationParty(committedParams, Number(committedParams.get("guests")) || initialGuests || 2));
+    setMaximumPrice(normalizeHourlyPrice(committedParams.get("maxPrice")));
+  }, [initialGuests, initialLocation, initialSpaAudience, language, mode, searchParamsKey]);
 
   const closeMobileSearch = useCallback(() => {
     setCalendarOpen(false);

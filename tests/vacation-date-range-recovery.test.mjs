@@ -15,7 +15,7 @@ test("search and result cards share the recovered structured date range", async 
   const searchBox = await fs.readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8");
   const searchPage = await fs.readFile(new URL("../app/search/page.tsx", import.meta.url), "utf8");
   assert.match(searchBox, /vacationStayFromSearch\(searchParams, language\)/);
-  assert.match(searchBox, /vacationStayFromSearch\(searchParams, activeRouteLanguage\(language\)\)/);
+  assert.match(searchBox, /vacationStayFromSearch\(committedParams, activeRouteLanguage\(language\)\)/);
   assert.match(searchBox, /if \(!from \|\| !till\) return explicitLabel \|\| defaultDateLabel\(mode\)/);
   assert.match(searchBox, /const visibleDates = mode === "vacation"/);
   assert.match(searchPage, /vacationStayFromSearch\(searchParams, language\)/);
