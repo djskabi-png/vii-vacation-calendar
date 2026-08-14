@@ -6565,10 +6565,12 @@ button:not(:disabled):active,a[href]:active,[role="button"]:active,.is-action-pr
 .favorites-hero__inner { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 42px; }
 .favorites-hero h1 { margin: 6px 0 12px; font-size: clamp(2.4rem,5vw,4.7rem); line-height: 1; }
 .favorites-hero p { max-width: 760px; margin: 0; color: var(--ink-soft); font-size: 1.06rem; }
-.favorites-hero aside { min-width: 190px; display: grid; justify-items: center; gap: 3px; padding: 23px; border: 1px solid rgba(8,129,143,.14); border-radius: 25px; background: rgba(255,255,255,.82); box-shadow: 0 15px 38px rgba(4,71,82,.08); }
-.favorites-hero aside strong { color: var(--teal-dark); font-size: 2.6rem; line-height: 1; }
-.favorites-hero aside span { color: var(--ink-soft); font-size: .78rem; }
-.favorites-hero aside a { margin-top: 8px; color: var(--teal-dark); font-size: .82rem; font-weight: 850; text-decoration: underline; }
+.favorites-hero aside { min-width: 270px; min-height: 76px; display: flex; align-items: center; gap: 11px; padding: 14px 16px; border: 1px solid rgba(8,129,143,.14); border-radius: 22px; background: rgba(255,255,255,.88); box-shadow: 0 12px 30px rgba(4,71,82,.07); }
+.favorites-hero aside strong { width: 42px; height: 42px; flex: 0 0 42px; display: grid; place-items: center; color: #fff; border-radius: 50%; background: linear-gradient(135deg,#087e8b,#2d8fc6); font-size: 1.08rem; line-height: 1; box-shadow: 0 7px 16px rgba(7,119,137,.18); }
+.favorites-hero aside span { color: var(--ink-soft); font-size: .78rem; font-weight: 750; white-space: nowrap; }
+.favorites-hero aside a { margin-inline-start: auto; padding: 9px 11px; color: var(--teal-dark); border-radius: 10px; background: #eef8f9; font-size: .78rem; font-weight: 850; text-decoration: none; white-space: nowrap; }
+.favorites-hero aside a:hover { background: #e2f3f4; }
+.favorites-hero aside a:focus-visible { outline: 3px solid rgba(8,126,139,.24); outline-offset: 2px; }
 .favorites-content { min-height: 330px; padding-block: 20px 72px; }
 .favorites-tabs { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 25px; padding: 5px 2px 10px; scrollbar-width: none; }
 .favorites-tabs button { flex: 0 0 auto; min-height: 44px; display: flex; align-items: center; gap: 8px; padding: 0 16px; color: #4a6970; border: 1px solid #d5e5e7; border-radius: 999px; background: #fff; font: inherit; font-size: .82rem; font-weight: 800; cursor: pointer; }
@@ -6749,9 +6751,10 @@ button:not(:disabled):active,a[href]:active,[role="button"]:active,.is-action-pr
   .account-icon-button { display: none; }
   .favorites-hero { padding: 34px 0 18px; }
   .favorites-hero__inner { grid-template-columns: 1fr; gap: 18px; }
-  .favorites-hero aside { grid-template-columns: auto 1fr auto; justify-items: start; min-width: 0; padding: 16px; }
-  .favorites-hero aside strong { grid-row: 1 / 3; font-size: 2rem; }
-  .favorites-hero aside a { margin: 0; }
+  .favorites-hero aside { width: 100%; min-width: 0; min-height: 70px; gap: 9px; padding: 13px 14px; border-radius: 20px; }
+  .favorites-hero aside strong { width: 38px; height: 38px; flex-basis: 38px; font-size: 1rem; }
+  .favorites-hero aside span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .favorites-hero aside a { flex: 0 0 auto; margin-inline-start: auto; padding: 8px 10px; }
   .favorites-content { padding-block: 12px 42px; }
   .favorites-grid { grid-template-columns: 1fr; gap: 15px; }
   .favorite-card { display: grid; grid-template-columns: 126px minmax(0,1fr); }

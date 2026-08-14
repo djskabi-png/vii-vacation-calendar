@@ -1237,6 +1237,14 @@ test("favorites empty-state navigation uses encoding-safe symbols", async () => 
   }
 });
 
+test("favorites saved-count summary stays compact on mobile", async () => {
+  const styles = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(styles, /\.favorites-hero aside strong\s*\{[^}]*width:\s*42px;[^}]*height:\s*42px;/s);
+  assert.match(styles, /@media \(max-width:\s*640px\)[\s\S]*?\.favorites-hero aside\s*\{[^}]*width:\s*100%;[^}]*min-height:\s*70px;/);
+  assert.match(styles, /@media \(max-width:\s*640px\)[\s\S]*?\.favorites-hero aside strong\s*\{[^}]*width:\s*38px;[^}]*height:\s*38px;/);
+  assert.doesNotMatch(styles, /\.favorites-hero aside strong\s*\{[^}]*font-size:\s*2\.6rem/);
+});
+
 test("saved favorites normalize legacy routes to canonical detail pages", async () => {
   const savedItems = await readFile(new URL("../app/lib/saved-items.ts", import.meta.url), "utf8");
   const legacyDiscoveryRoute = await readFile(new URL("../app/discover/place/legacy-place-redirect.tsx", import.meta.url), "utf8");
