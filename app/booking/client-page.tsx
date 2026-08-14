@@ -9,6 +9,7 @@ import { useSiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
 import { AccountFormPrompt, useAccountAccess } from "../components/account-access";
 import { BookingSchedulePicker } from "../components/booking-schedule-picker";
+import { ViewedItemTracker } from "../components/viewed-item-tracker";
 
 type Props = {
   world: string;
@@ -29,6 +30,7 @@ type Props = {
   illustrative?: boolean;
   demoOwnerEmail?: string;
   demoProperty?: boolean;
+  placeImage?: string;
   vacationPrice?: {
     nightlyPrice: number;
     nights: number;
@@ -104,6 +106,15 @@ export default function BookingPageClient(props: Props) {
   if (props.vacationPrice?.nightlyPrice) businessReturnParams.set("price", String(props.vacationPrice.nightlyPrice));
   if (props.illustrative) businessReturnParams.set("illustrative", "1");
   const businessReturnHref = localizedPath(`/business?${businessReturnParams.toString()}`, language);
+  const viewedOfferParams = new URLSearchParams({ world: props.world, place: props.placeId });
+  if (props.offerId) viewedOfferParams.set("package", props.offerId);
+  if (props.initialFrom) viewedOfferParams.set("from", props.initialFrom);
+  if (props.initialTill) viewedOfferParams.set("till", props.initialTill);
+  if (props.initialGuests) viewedOfferParams.set("guests", String(props.initialGuests));
+  const viewedOfferHref = `/booking?${viewedOfferParams.toString()}`;
+  const viewedOfferTracker = props.world === "spa" && props.offerId
+    ? <ViewedItemTracker id={`${props.placeId}:${props.offerId}`} world="spa" name={`${props.offerName}, ${props.placeName}`} location={props.placeName} image={props.placeImage} href={viewedOfferHref} meta={props.price} />
+    : null;
   const translatedPlaceName = translate(props.placeName);
   const bookingReturnNavigation = <nav className="booking-return-nav" aria-label={returnCopy.label} data-keep-same-tab="true">
     <Link className="booking-return-nav__business" href={businessReturnHref}>
@@ -251,6 +262,7 @@ export default function BookingPageClient(props: Props) {
   }
 
   if (!onlineReady) return <main id="main-content" className="booking-page shell">
+    {viewedOfferTracker}
     {bookingReturnNavigation}
     <section className="booking-unavailable" aria-labelledby="booking-phone-title">
       <span className="eyebrow">הזמנה בטלפון</span>
@@ -263,6 +275,7 @@ export default function BookingPageClient(props: Props) {
 
   if (state === "success") return <>
     <main id="main-content" className="booking-page shell">
+      {viewedOfferTracker}
       {bookingReturnNavigation}
       <section className="booking-success" role="status" aria-live="polite">
         <span className="booking-success__mark" aria-hidden="true">✓</span>
@@ -307,6 +320,7 @@ export default function BookingPageClient(props: Props) {
     </div> : null}
   </>;
   return <main id="main-content" className="booking-page shell">
+    {viewedOfferTracker}
     {bookingReturnNavigation}
     <div className="booking-page__intro">
       <span className="eyebrow">{isManage ? "ניהול הזמנה" : usesSpaPayment ? "הזמנת ספא אונליין" : "הזמנה אונליין"}</span>

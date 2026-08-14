@@ -20,6 +20,7 @@ import { ModernSelect } from "../../components/modern-select";
 import { FavoriteButton } from "../../components/favorite-button";
 import { WhatsAppLeadButton } from "../../components/whatsapp-lead-button";
 import { ShareButton } from "../../components/share-dialog";
+import { ViewedItemTracker } from "../../components/viewed-item-tracker";
 
 export default function EventPlacePage({ initialSlug }: { initialSlug: string }) {
   const [galleryOpen, setGalleryOpen] = useState(false);
@@ -81,6 +82,7 @@ export default function EventPlacePage({ initialSlug }: { initialSlug: string })
 
   return (
     <PageShell variant="events">
+      <ViewedItemTracker id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים`} />
       <main id="main-content" className="event-place-page">
         <BreadcrumbTrail items={[{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, { name: "מקומות לאירועים", path: "/events/search" }, { name: place.name }]} />
         <section className="shell property-title event-title"><div><span className="eyebrow">{place.type}</span><h1>{place.name}</h1><p><PinIcon />{place.location}, {place.area}</p></div><div className="property-title__side"><div className="property-title__actions"><FavoriteButton compact={false} id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים`} /><ShareButton title={place.name} kind="event" />{ownerWhatsapp ? <WhatsAppLeadButton world="events" placeId={place.slug} placeName={place.name} businessPhone={ownerWhatsapp} serviceName={place.type} buttonClassName="property-whatsapp-action" /> : null}</div><a className="button primary" href="#event-booking">הזמנה אונליין</a></div></section>

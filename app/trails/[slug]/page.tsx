@@ -8,6 +8,7 @@ import { breadcrumbSchema, trailSchema } from "../../lib/seo";
 import { FavoriteButton } from "../../components/favorite-button";
 import { GuestReviewStudio } from "../../components/guest-review-studio";
 import { BreadcrumbTrail } from "../../components/breadcrumb-trail";
+import { ViewedItemTracker } from "../../components/viewed-item-tracker";
 
 export function generateStaticParams() {
   return trails.map((trail) => ({ slug: trail.slug }));
@@ -31,6 +32,7 @@ export default async function TrailPage({ params }: { params: Promise<{ slug: st
   const related = nearbyTrails(trail.mainArea, trail.region, 7).filter((item) => item.slug !== trail.slug).slice(0, 6);
 
   return <PageShell variant="activities">
+    <ViewedItemTracker id={trail.slug} world="trails" name={trail.name} location={`${trail.mainArea}, ${trail.region}`} href={`/trails/${trail.slug}`} meta={`${trail.duration} · ${trail.difficulty}`} />
     <main id="main-content" className="trail-detail">
       <StructuredData data={trailSchema(trail)} />
       <StructuredData data={breadcrumbSchema([

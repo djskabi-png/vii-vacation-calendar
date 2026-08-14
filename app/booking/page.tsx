@@ -65,6 +65,7 @@ function resolveBooking(params: Awaited<Props["searchParams"]>) {
     illustrative: params.illustrative === "1" || property.demoOperations?.fictional === true,
     demoOwnerEmail: property.demoOperations?.ownerEmail,
     demoProperty: property.demoOperations?.fictional === true,
+    placeImage: property.image,
     };
   }
 
@@ -89,15 +90,16 @@ function resolveBooking(params: Awaited<Props["searchParams"]>) {
       offerDuration: pack?.duration,
       offerIncludes: pack?.includes || [],
       price: pack?.price || item.priceLabel || "מחיר יוצג לפני אישור",
+      placeImage: item.image,
     };
   }
 
   if (item.world === "providers") {
     const service = getProviderDetails(item.id)?.services.find((entry) => entry.id === offerId);
-    return { world: item.world, placeId: item.id, placeName: item.name, offerId, offerName: service?.title || "שירות לבחירה", price: item.priceLabel || "מחיר יוצג לפני אישור" };
+    return { world: item.world, placeId: item.id, placeName: item.name, offerId, offerName: service?.title || "שירות לבחירה", price: item.priceLabel || "מחיר יוצג לפני אישור", placeImage: item.image };
   }
 
-  return { world: item.world, placeId: item.id, placeName: item.name, offerId, offerName: item.world === "hourly" ? "שהייה לפי שעה" : "הזמנת הפעילות", price: item.priceLabel || "מחיר יוצג לפני אישור" };
+  return { world: item.world, placeId: item.id, placeName: item.name, offerId, offerName: item.world === "hourly" ? "שהייה לפי שעה" : "הזמנת הפעילות", price: item.priceLabel || "מחיר יוצג לפני אישור", placeImage: item.image };
 }
 
 export default async function BookingPage({ searchParams }: Props) {
