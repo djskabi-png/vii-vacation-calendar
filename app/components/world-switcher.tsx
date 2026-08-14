@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { type MouseEvent, useEffect, useState } from "react";
+import { type MouseEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { publicWorldNavigation, worlds, type WorldId } from "../data/world-data";
 import { useSiteLanguage } from "../i18n/locale-provider";
@@ -38,8 +38,29 @@ function WorldsIcon() {
 export function SearchWorldTabs({ active, onNavigate }: { active: WorldId; onNavigate?: () => void }) {
   const router = useRouter();
   const { language, translate } = useSiteLanguage();
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDetailsElement>(null);
+  const moreSummaryRef = useRef<HTMLElement>(null);
   const primaryWorlds = ["vacation", "spa", "events", "hourly"] as const;
   const moreWorlds = publicWorldNavigation.filter((world) => !primaryWorlds.includes(world.id as typeof primaryWorlds[number]));
+
+  useEffect(() => {
+    if (!moreOpen) return;
+    const closeOnOutsidePress = (event: PointerEvent) => {
+      if (!moreRef.current?.contains(event.target as Node)) setMoreOpen(false);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setMoreOpen(false);
+      moreSummaryRef.current?.focus();
+    };
+    document.addEventListener("pointerdown", closeOnOutsidePress);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsidePress);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [moreOpen]);
 
   const navigateWithinSearch = (href: string, afterNavigate?: (event: MouseEvent<HTMLAnchorElement>) => void) => (event: MouseEvent<HTMLAnchorElement>) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -50,7 +71,11 @@ export function SearchWorldTabs({ active, onNavigate }: { active: WorldId; onNav
       onNavigate?.();
     }, 0);
   };
-  const closeMoreMenu = (event: MouseEvent<HTMLAnchorElement>) => event.currentTarget.closest("details")?.removeAttribute("open");
+  const closeMoreMenu = () => setMoreOpen(false);
+  const closeMoreAndRestoreFocus = () => {
+    setMoreOpen(false);
+    moreSummaryRef.current?.focus();
+  };
 
   return <nav className="search-world-tabs" aria-label={translate("בחירת עולם לחיפוש")}>
     <span className="search-world-tabs__prompt">{translate("מה מחפשים?")}</span>
@@ -63,12 +88,13 @@ export function SearchWorldTabs({ active, onNavigate }: { active: WorldId; onNav
           <span>{translate(world.shortLabel)}</span>
         </Link>;
       })}
-      <details className="search-world-tabs__more">
-        <summary aria-label={translate("עולמות נוספים")}>
+      <details ref={moreRef} className="search-world-tabs__more" open={moreOpen}>
+        <summary ref={moreSummaryRef} aria-label={translate("עולמות נוספים")} aria-expanded={moreOpen} onClick={(event) => { event.preventDefault(); setMoreOpen((value) => !value); }}>
           <span className="search-world-tabs__icon search-world-tabs__icon--more" aria-hidden="true"><i /><i /><i /></span>
           <span>{translate("עוד")}</span>
         </summary>
         <div className="search-world-tabs__menu">
+          <header className="search-world-tabs__menu-head"><strong>{translate("עולמות נוספים")}</strong><button type="button" aria-label={translate("סגירת בחירת העולמות")} onClick={closeMoreAndRestoreFocus}>×</button></header>
           {moreWorlds.map((world) => { const href = localizedPath(world.href, language); return <Link key={world.id} href={href} onClick={navigateWithinSearch(href, closeMoreMenu)}>
             <span className={`world-mark world-mark--${world.id}`} aria-hidden="true" />
             <span><strong>{translate(world.shortLabel)}</strong><small>{translate(world.description)}</small></span>

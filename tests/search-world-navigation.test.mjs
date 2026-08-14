@@ -25,6 +25,13 @@ test("world navigation stays available throughout every public search flow", asy
   assert.match(switcher, /router\.push\(href\)/);
   assert.match(switcher, /event\.preventDefault\(\)/);
   assert.match(switcher, /primaryWorlds = \["vacation", "spa", "events", "hourly"\]/);
+  assert.match(switcher, /search-world-tabs__menu-head/);
+  assert.match(switcher, /closeMoreAndRestoreFocus/);
+  assert.match(switcher, /closeOnOutsidePress/);
+  assert.match(switcher, /closeOnEscape/);
+  assert.match(switcher, /aria-expanded=\{moreOpen\}/);
+  assert.match(styles, /search-world-tabs__menu-head/);
+  assert.match(styles, /max-height: calc\(100dvh - 96px\)/);
   assert.match(vacationDates, /SearchWorldTabs active="vacation" onNavigate=\{cancel\}/);
   assert.match(eventDates, /SearchWorldTabs active="events" onNavigate=\{cancel\}/);
   assert.match(spaDates, /SearchWorldTabs active="spa" onNavigate=\{cancel\}/);

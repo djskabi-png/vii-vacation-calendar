@@ -7338,6 +7338,10 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
 .search-world-tabs__icon--more i { width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
 .search-world-tabs__more { position: relative; min-width: 0; }
 .search-world-tabs__menu { position: absolute; z-index: 90; top: calc(100% + 10px); inset-inline-end: 0; width: min(330px, calc(100vw - 30px)); padding: 8px; display: grid; gap: 3px; border: 1px solid rgba(8,126,139,.18); border-radius: 18px; background: #fff; box-shadow: 0 22px 55px rgba(3,46,56,.2); }
+.search-world-tabs__menu-head { min-height: 42px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 2px 4px 6px 10px; border-bottom: 1px solid #e1eded; }
+.search-world-tabs__menu-head > strong { font-size: .86rem; }
+.search-world-tabs__menu-head > button { width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid #cce0e3; border-radius: 50%; color: var(--ink); background: #fff; font: 500 1.35rem/1 var(--font-sans); cursor: pointer; }
+.search-world-tabs__menu-head > button:hover,.search-world-tabs__menu-head > button:focus-visible { border-color: var(--teal); color: var(--teal-dark); background: #edfafa; outline: 3px solid rgba(8,126,139,.12); }
 .search-world-tabs__menu a { min-width: 0; min-height: 58px; padding: 9px 11px; display: grid; grid-template-columns: 18px minmax(0,1fr); align-items: center; justify-content: stretch; gap: 10px; border-radius: 12px; color: var(--ink); text-align: start; }
 .search-world-tabs__menu a:hover { background: var(--mist); }
 .search-world-tabs__menu a > span:last-child { min-width: 0; display: grid; gap: 2px; }
@@ -7394,7 +7398,8 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   .search-world-tabs__icon svg { width: 20px; height: 20px; }
   .search-world-tabs__options > a.active::after,
   .search-world-tabs__more[open] > summary::after { inset-inline: 6px; }
-  .search-world-tabs__menu { position: fixed; z-index: 1450; top: 82px; inset-inline: 12px; width: auto; }
+  .search-world-tabs__menu { position: fixed; z-index: 1450; top: 82px; inset-inline: 12px; width: auto; max-height: calc(100dvh - 96px); overflow-y: auto; overscroll-behavior: contain; }
+  .search-world-tabs__menu-head { position: sticky; z-index: 2; top: -8px; margin: -1px -1px 3px; padding: 7px 8px 8px 12px; background: rgba(255,255,255,.98); }
   .calendar-dialog.mode-home:has(.flexible-content) { height: min(100dvh,860px); }
   .flexible-content { margin: 12px; padding: 0; border-radius: 18px; }
   .flexible-section { padding: 15px 14px; grid-template-columns: 1fr; gap: 10px; }
