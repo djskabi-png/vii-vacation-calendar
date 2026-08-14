@@ -151,7 +151,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const searchParams = useSearchParams();
   const searchParamsKey = searchParams.toString();
   const { language, translate } = useSiteLanguage();
-  const [dateDisplayLanguage, setDateDisplayLanguage] = useState<SiteLanguage>(language);
+  const dateDisplayLanguage = language;
   const isHourly = mode === "hourly";
   const shouldCollapse = compact || searchParams.has("location");
   const destinationOptions = useMemo(() => searchLocationOptions(mode), [mode]);
@@ -277,13 +277,6 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     }
     cancelMobileSearch();
   }, [cancelMobileSearch, closeGuestPicker, closeLocationPicker, guestOpen, locationOpen, priceOpen]);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setDateDisplayLanguage(languageFromPathname(window.location.pathname));
-    }, 0);
-    return () => window.clearTimeout(timer);
-  }, [language]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {

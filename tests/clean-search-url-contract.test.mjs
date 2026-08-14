@@ -28,7 +28,7 @@ test("calendar returns flexible IDs separately from localized summary text", () 
 });
 
 test("flexible date labels use the active route language after hydration", () => {
-  assert.match(searchBox, /setDateDisplayLanguage\(languageFromPathname\(window\.location\.pathname\)\)/);
+  assert.match(searchBox, /const dateDisplayLanguage = language/);
   assert.match(searchBox, /flexibleDateLabel\(vacationFlexibleSearch, dateDisplayLanguage\)/);
   assert.match(searchBox, /dateLabelFromSearch\([\s\S]*dateDisplayLanguage\)/);
 });
