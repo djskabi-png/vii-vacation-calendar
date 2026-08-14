@@ -26,6 +26,7 @@ type Props = {
     till?: string;
     guests?: string;
     price?: string;
+    unitIndex?: string;
     illustrative?: string;
   }>;
 };
@@ -42,6 +43,8 @@ function resolveBooking(params: Awaited<Props["searchParams"]>) {
   const offerId = params.package || params.service || params.offer || "";
   const property = properties.find((item) => item.slug === params.place);
   if (property) {
+    const selectedUnitIndex = Math.max(0, Number(params.unitIndex || "0") - 1);
+    const selectedUnit = params.unitIndex ? property.roomOptions?.[selectedUnitIndex] : undefined;
     const nightlyPrice = Number(params.price) || 0;
     const nights = countNights(params.from, params.till);
     const totalPrice = nightlyPrice > 0 && nights > 0 ? nightlyPrice * nights : 0;
@@ -49,15 +52,15 @@ function resolveBooking(params: Awaited<Props["searchParams"]>) {
     world: "vacation",
     placeId: property.slug,
     placeName: property.name,
-    offerId,
-    offerName: "הזמנת המקום",
+    offerId: selectedUnit ? `unit-${selectedUnitIndex + 1}` : offerId,
+    offerName: selectedUnit ? `הזמנת ${selectedUnit.name}` : "הזמנת המקום",
     price: totalPrice ? `${totalPrice.toLocaleString("he-IL")} ₪ לכל השהייה` : "מחיר סופי לאחר בחירת תאריך",
     vacationPrice: nightlyPrice > 0 && nights > 0 ? {
       nightlyPrice,
       nights,
       totalPrice,
       guests: Math.max(1, Number(params.guests) || 1),
-      wholeProperty: property.scenario === "single",
+      wholeProperty: property.scenario === "single" && !selectedUnit,
       taxesIncluded: property.demoOperations?.taxesIncluded === true,
     } : undefined,
     onlineReady: Boolean(params.from && params.till && params.price && Number(params.price) > 0),

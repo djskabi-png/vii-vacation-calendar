@@ -54,10 +54,25 @@ test("the booking entry opens one calm responsive dialog with a reachable primar
   assert.match(css, /body:has\(\.vacation-booking-dialog-layer\) \.detail-sticky-wrap \{ display: none; \}/);
 });
 
-test("secondary unit information stays behind disclosure and large repeated media is omitted", async () => {
+test("each multi-unit card exposes its own status price and direct booking action", async () => {
   const hub = await readFile(new URL("app/components/vacation-booking-hub.tsx", root), "utf8");
   assert.match(hub, /<details><summary>מה כלול<\/summary>/);
   assert.match(hub, /room\.features\.slice\(0, 5\)\.join/);
-  assert.doesNotMatch(hub, /<img/);
+  assert.match(hub, /availability\?\.units\?\.find\(\(unit\) => unit\.index === index\)/);
+  assert.match(hub, /unitBookingHref\(bookingHref, index, unitNightlyPrice\)/);
+  assert.doesNotMatch(hub, /params\.set\("unit", room\.name\)/);
+  assert.match(hub, /vacation-booking-dialog__unit-image/);
+  assert.match(hub, /vacation-booking-dialog__unit-availability/);
   assert.doesNotMatch(hub, /vacation-booking-unit__features/);
+});
+
+test("the selected cabin is preserved in the booking summary", async () => {
+  const page = await readFile(new URL("app/booking/page.tsx", root), "utf8");
+  const client = await readFile(new URL("app/booking/client-page.tsx", root), "utf8");
+  assert.match(page, /unitIndex\?: string/);
+  assert.match(page, /const selectedUnit = params\.unitIndex \? property\.roomOptions\?\.\[selectedUnitIndex\] : undefined/);
+  assert.match(page, /offerId: selectedUnit \? `unit-\$\{selectedUnitIndex \+ 1\}` : offerId/);
+  assert.match(page, /offerName: selectedUnit \? `הזמנת \$\{selectedUnit\.name\}`/);
+  assert.doesNotMatch(page, /unit\?: string/);
+  assert.match(client, /translate\(props\.offerName\)/);
 });

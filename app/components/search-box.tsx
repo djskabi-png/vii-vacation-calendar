@@ -301,7 +301,6 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
       const params = new URLSearchParams(selectedQuery);
       params.set("source", "search");
       if (mode === "vacation") {
-        if (dates !== defaultDateLabel(mode)) params.set("dates", dates);
         if (vacationDateRange.from) params.set("from", vacationDateRange.from);
         if (vacationDateRange.till) params.set("till", vacationDateRange.till);
         if (vacationParty.adults !== 2) params.set("adults", String(vacationParty.adults));
@@ -329,7 +328,6 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
       destination = query ? `${route}?${query}` : route;
     } else if (mode === "vacation" && cleanVacationRoute) {
       const params = new URLSearchParams();
-      if (dates !== defaultDateLabel(mode)) params.set("dates", dates);
       if (vacationDateRange.from) params.set("from", vacationDateRange.from);
       if (vacationDateRange.till) params.set("till", vacationDateRange.till);
       if (vacationParty.adults !== 2) params.set("adults", String(vacationParty.adults));
@@ -354,7 +352,6 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
         if (spaDate.date) params.set("date", spaDate.date);
         if (spaDate.withoutDate) params.set("withoutDate", "1");
       } else {
-        if (dates !== defaultDateLabel(mode)) params.set("dates", dates);
         if (vacationDateRange.from) params.set("from", vacationDateRange.from);
         if (vacationDateRange.till) params.set("till", vacationDateRange.till);
         if (mode === "vacation" && vacationParty.adults === 2 && vacationParty.children === 0) params.set("guests", "2");

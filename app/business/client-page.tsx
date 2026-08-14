@@ -30,6 +30,7 @@ import { CalendarIcon, PinIcon } from "../site-header";
 import { VacationBookingHub } from "../components/vacation-booking-hub";
 import { useLegacyAvailability } from "../components/use-legacy-availability";
 import { ViewedItemTracker } from "../components/viewed-item-tracker";
+import { useSiteLanguage } from "../i18n/locale-provider";
 
 function complementaryItems(area: string, location: string): DiscoveryItem[] {
   const query = `${area} ${location}`.toLocaleLowerCase("he");
@@ -131,7 +132,15 @@ function demoNightlyPrice(from: string, weekday: number, weekend: number) {
   const date = new Date(`${from}T12:00:00`);
   return date.getDay() === 4 || date.getDay() === 5 ? weekend : weekday;
 }
+
+function roomBookingHref(bookingQuery: string, index: number, nightlyPrice: number) {
+  const params = new URLSearchParams(bookingQuery);
+  params.set("unitIndex", String(index + 1));
+  params.set("price", String(nightlyPrice));
+  return `/booking?${params.toString()}`;
+}
 export default function BusinessPage({ initialSlug, initialWorld = "vacation", initialDates, initialFrom, initialTill, initialGuests = "2", initialRooms = "1", initialPrice, initialIllustrative = false, initialSource }: { initialSlug: string; initialWorld?: BusinessWorld; initialDates?: string; initialFrom?: string; initialTill?: string; initialGuests?: string; initialRooms?: string; initialPrice?: string; initialIllustrative?: boolean; initialSource?: string }) {
+  const { language, translate } = useSiteLanguage();
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [dates, setDates] = useState(initialDates || formatInitialStay(initialFrom, initialTill));
   const [dateRange, setDateRange] = useState({ from: initialFrom || "", till: initialTill || "" });
@@ -187,6 +196,13 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
   const mobileFeaturePreview = featureGroups.flatMap((group) => group.items).slice(0, 4);
   const complements = useMemo(() => complementaryItems(property.area, property.location), [property.area, property.location]);
   const localTrails = useMemo(() => nearbyTrails(property.area, property.location, 6), [property.area, property.location]);
+  const unitCopy = {
+    he: { available: "פנויה בתאריכים שבחרתם", unavailable: "לא פנויה בתאריכים שבחרתם", confirm: "הזמינות תאושר מול המקום", quick: "הזמנה מהירה של", otherDate: "בדיקת תאריך אחר", check: "בדיקת זמינות", dates: "בדיקת תאריכים ל", perNight: "ללילה", total: "לכל השהייה" },
+    en: { available: "Available for your selected dates", unavailable: "Unavailable for your selected dates", confirm: "Availability will be confirmed with the property", quick: "Quick book", otherDate: "Check another date", check: "Check availability for", dates: "Check dates for", perNight: "per night", total: "for the entire stay" },
+    ru: { available: "Доступна на выбранные даты", unavailable: "Недоступна на выбранные даты", confirm: "Доступность подтвердит объект", quick: "Быстро забронировать", otherDate: "Проверить другую дату", check: "Проверить доступность", dates: "Проверить даты для", perNight: "за ночь", total: "за всё проживание" },
+    fr: { available: "Disponible aux dates choisies", unavailable: "Indisponible aux dates choisies", confirm: "La disponibilité sera confirmée par l’établissement", quick: "Réservation rapide", otherDate: "Vérifier une autre date", check: "Vérifier la disponibilité de", dates: "Vérifier les dates pour", perNight: "par nuit", total: "pour tout le séjour" },
+  }[language];
+  const numberLocale = language === "he" ? "he-IL" : language === "en" ? "en-GB" : language === "ru" ? "ru-RU" : "fr-FR";
 
   function chooseWorld(world: BusinessWorld) {
     setWorldSelection({ slug: property.slug, world });
@@ -286,16 +302,28 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
               </div>
               <p>{property.scenario === "single" ? "זהו מקום אירוח שמוזמן בשלמותו. פירוט חדרי השינה מוצג בנפרד ואינו נחשב ליחידות אירוח נוספות." : "כל כרטיס מייצג יחידת אירוח נפרדת. בתוך כל יחידה מוצג בנפרד מספר חדרי השינה וסידור המיטות שנמסר עבורה."}</p>
               <div className="room-card-list">
-                {property.roomOptions.map((room) => <article className="room-card" key={room.name}>
+                {property.roomOptions.map((room, roomIndex) => {
+                  const roomAvailability = resolvedAvailability?.units?.find((unit) => unit.index === roomIndex);
+                  const roomAvailable = roomAvailability?.availability === "available";
+                  const roomUnavailable = roomAvailability?.availability === "unavailable";
+                  const roomNightlyPrice = roomAvailability?.nightlyPrice || 0;
+                  const roomTotalPrice = roomAvailability?.totalPrice || (roomNightlyPrice && dateRange.from && dateRange.till ? roomNightlyPrice * Math.max(1, Math.round((Date.parse(`${dateRange.till}T12:00:00`) - Date.parse(`${dateRange.from}T12:00:00`)) / 86_400_000)) : 0);
+                  return <article className={`room-card${roomAvailable ? " room-card--available" : roomUnavailable ? " room-card--unavailable" : ""}`} key={room.name}>
                   <div className="room-card__image"><img src={room.image} alt={`${room.name} ב${property.name}`} loading="lazy" /><span>{property.scenario === "single" ? "המקום כולו" : room.quantity === 1 ? "יחידה אחת" : `${room.quantity} יחידות`}</span></div>
                   <div className="room-card__body">
                     <div className="room-card__title"><div><span>{property.type}</span><h3>{room.name}</h3></div><b>עד {room.guests} אורחים</b></div>
                     <div className="room-card__facts"><span>{bedroomLabel(room.bedrooms)}</span>{room.area ? <span>{room.area} מ״ר</span> : null}</div>
                     <div className="room-card__features">{room.features.map((feature) => <span key={feature}>{feature}</span>)}</div>
                     {property.sleepingArrangements?.length ? <div className="room-card__sleeping room-card__sleeping--linked"><div><strong>חדרי השינה במקום</strong><span>{bedroomLabel(room.bedrooms)}</span></div><a href="#sleeping">לצפייה בפירוט החדרים, המיטות והתמונות</a></div> : <div className="room-card__sleeping"><div><strong>חדרי השינה בתוך היחידה</strong><span>{bedroomLabel(room.bedrooms)}</span></div>{bedDetails(room.features).length ? <div className="room-card__bed-list">{bedDetails(room.features).map((detail) => <span key={detail}>{detail}</span>)}</div> : <small>סוג המיטה טרם פורט במידע שנמסר על היחידה.</small>}</div>}
-                    <div className="room-card__actions">{activeWorld === "vacation" ? null : onlineBooking ? <Link className="button primary" href={bookingActionHref}>הזמנה אונליין</Link> : phoneHref ? <Link className="button primary" href="#booking-summary">טלפון להזמנה</Link> : null}</div>
+                    {activeWorld === "vacation" && hasSelectedDates ? <div className="room-card__availability" role="status"><strong>{roomAvailable ? unitCopy.available : roomUnavailable ? unitCopy.unavailable : unitCopy.confirm}</strong>{roomNightlyPrice ? <span>{roomNightlyPrice.toLocaleString(numberLocale)} ₪ {unitCopy.perNight}{roomTotalPrice ? ` · ${roomTotalPrice.toLocaleString(numberLocale)} ₪ ${unitCopy.total}` : ""}</span> : null}</div> : null}
+                    <div className="room-card__actions">{activeWorld === "vacation"
+                      ? roomAvailable && roomNightlyPrice ? <Link className="button primary" href={roomBookingHref(bookingQuery, roomIndex, roomNightlyPrice)}>{unitCopy.quick} {translate(room.name)}</Link>
+                        : roomUnavailable ? <button className="button secondary" type="button" onClick={() => setCalendarOpen(true)}>{unitCopy.otherDate}</button>
+                          : <button className="button secondary" type="button" onClick={() => setCalendarOpen(true)}>{hasSelectedDates ? `${unitCopy.check} ${translate(room.name)}` : `${unitCopy.dates} ${translate(room.name)}`}</button>
+                      : onlineBooking ? <Link className="button primary" href={bookingActionHref}>הזמנה אונליין</Link> : phoneHref ? <Link className="button primary" href="#booking-summary">טלפון להזמנה</Link> : null}</div>
                   </div>
-                </article>)}
+                </article>;
+                })}
               </div>
             </section> : null}
 

@@ -1,4 +1,5 @@
 const HILAT_SOURCE = "https://www.vii.co.il/hilat_hanof";
+const HILAT_AVAILABILITY_SOURCE = "https://www.vii.co.il/ajax_order.php";
 const FIRST_DATE = "2026-08-14";
 const LAST_DATE = "2026-10-14";
 
@@ -13,6 +14,13 @@ type LegacyQuote = {
   totalPrice: number;
   nightlyPrice: number;
   includedGuests: number;
+  units: Array<{
+    index: number;
+    availability: "available" | "unavailable";
+    availableCount: number;
+    totalPrice: number;
+    nightlyPrice: number;
+  }>;
   source: string;
   checkedAt: string;
 };
@@ -37,10 +45,6 @@ function nightsBetween(from: string, till: string) {
   return Math.round((departure - arrival) / 86_400_000);
 }
 
-function decodeText(value: string) {
-  return value.replace(/<[^>]+>/g, " ").replace(/&nbsp;|&#160;/g, " ").replace(/\s+/g, " ").trim();
-}
-
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const place = url.searchParams.get("place") || "";
@@ -52,22 +56,31 @@ export async function GET(request: Request) {
   const nights = nightsBetween(selectedFrom, selectedTill);
   if (selectedFrom < FIRST_DATE || selectedTill > LAST_DATE || nights < 1 || nights > 62) return json({ success: false, error: "outside_verified_window" }, 422);
 
-  const sourceUrl = new URL(HILAT_SOURCE);
-  sourceUrl.searchParams.set("from", selectedFrom);
-  sourceUrl.searchParams.set("till", selectedTill);
   try {
-    const response = await fetch(sourceUrl, {
-      headers: { Accept: "text/html", "User-Agent": "VII availability verifier/1.0" },
+    const sourceRequest = new URLSearchParams({
+      act: "roomList",
+      sid: "11",
+      from: selectedFrom,
+      till: selectedTill,
+    });
+    const response = await fetch(HILAT_AVAILABILITY_SOURCE, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "User-Agent": "VII availability verifier/1.0",
+      },
+      body: sourceRequest.toString(),
       signal: AbortSignal.timeout(10_000),
     });
     if (!response.ok) return json({ success: false, error: "legacy_source_unavailable" }, 502);
-    const html = await response.text();
-    const availabilityMatches = [...html.matchAll(/class=["']free-of["'][^>]*>([\s\S]*?)<\/strong>/gi)].slice(0, 4);
-    const priceMatches = [...html.matchAll(/class=["']curr-room-price["'][^>]*>([\s\S]*?)<\/div>/gi)].slice(0, 4);
-    if (availabilityMatches.length !== 4 || priceMatches.length !== 4) return json({ success: false, error: "legacy_response_changed" }, 502);
+    const payload = (await response.json()) as { rooms?: unknown; availablesOf?: unknown };
+    const rooms = typeof payload.rooms === "string" ? payload.rooms : "";
+    const roomMatches = [...rooms.matchAll(/<div class="room[^>]*data-id="([^"]+)"[^>]*data-price="([^"]+)"[^>]*data-available="([^"]+)"/gi)].slice(0, 4);
+    if (roomMatches.length !== 4 || Number(payload.availablesOf) !== 4) return json({ success: false, error: "legacy_response_changed" }, 502);
 
-    const availableByUnit = availabilityMatches.map((match) => Number(decodeText(match[1]).match(/\d+/)?.[0] || 0));
-    const prices = priceMatches.map((match) => Number(decodeText(match[1]).replace(/[^\d]/g, "")) || 0);
+    const availableByUnit = roomMatches.map((match) => Number(match[3]) || 0);
+    const prices = roomMatches.map((match) => Number(match[2]) || 0);
     const availableUnits = availableByUnit.filter((count) => count > 0).length;
     const availablePrices = prices.filter((price, index) => availableByUnit[index] > 0 && price > 0);
     const totalPrice = availablePrices.length ? Math.min(...availablePrices) : Math.max(0, ...prices);
@@ -82,7 +95,14 @@ export async function GET(request: Request) {
       totalPrice,
       nightlyPrice: totalPrice > 0 ? totalPrice / nights : 0,
       includedGuests: 2,
-      source: sourceUrl.toString(),
+      units: availableByUnit.map((availableCount, index) => ({
+        index,
+        availability: availableCount > 0 ? "available" : "unavailable",
+        availableCount,
+        totalPrice: prices[index] || 0,
+        nightlyPrice: prices[index] > 0 ? prices[index] / nights : 0,
+      })),
+      source: HILAT_SOURCE,
       checkedAt: new Date().toISOString(),
     };
     return json(result);

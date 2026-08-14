@@ -72,7 +72,7 @@ const accommodationStyles = [
 ] as const;
 
 function lastMinuteHref(period: (typeof lastMinutePeriods)[number]) {
-  return `/search?period=${encodeURIComponent(period.id)}&dates=${encodeURIComponent(period.dateSummary)}&from=${period.from}&till=${period.till}&guests=2`;
+  return `/search?period=${encodeURIComponent(period.id)}&from=${period.from}&till=${period.till}&guests=2`;
 }
 
 function SliderControls({ onPrevious, onNext, label }: { onPrevious: () => void; onNext: () => void; label: string }) {
@@ -156,7 +156,7 @@ export function HomeShowcase() {
           <div className="home-last-minute__slider-head"><div><h3 id={`${group.id}-title`}>{group.title}</h3><nav className="home-last-minute__tabs" aria-label={group.title}>{group.periods.map((period) => <Link key={period.id} href={lastMinuteHref(period)}>{period.label}</Link>)}</nav></div><div><Link href={lastMinuteHref(group.period)}>{group.period.cta}</Link><SliderControls label={group.title} onPrevious={() => scroll(group.id, "previous")} onNext={() => scroll(group.id, "next")} /></div></div>
           <div className="home-last-minute__cards" data-horizontal-rail ref={(node) => { tracks.current[group.id] = node; }}>{pickProperties(...group.period.slugs).map((property) => {
             const price = property.price || lastMinuteStartingPrices[property.slug] || 1200;
-            const detailHref = `/business?id=${property.slug}&period=${encodeURIComponent(group.period.id)}&dates=${encodeURIComponent(group.period.dateSummary)}&from=${group.period.from}&till=${group.period.till}&guests=2&price=${price}`;
+            const detailHref = `/business?id=${property.slug}&period=${encodeURIComponent(group.period.id)}&from=${group.period.from}&till=${group.period.till}&guests=2&price=${price}`;
             return <Link key={property.slug} href={detailHref}><img src={property.image} alt={property.name} loading="lazy" decoding="async" /><span>{group.period.label}</span><div><small><PinIcon />{property.location}</small><h3>{property.name}</h3><div className="home-last-minute__deal"><b>{group.period.dateSummary}</b><strong>{price.toLocaleString("he-IL")} ₪</strong></div></div></Link>;
           })}</div>
         </section>)}

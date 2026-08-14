@@ -75,11 +75,26 @@ test("Hilat HaNof resolves exact legacy range prices in search and business deta
   const card = await readFile(resolve(root, "app/components/property-card.tsx"), "utf8");
   const business = await readFile(resolve(root, "app/business/client-page.tsx"), "utf8");
   assert.match(route, /https:\/\/www\.vii\.co\.il\/hilat_hanof/);
+  assert.match(route, /https:\/\/www\.vii\.co\.il\/ajax_order\.php/);
+  assert.match(route, /act: "roomList"/);
+  assert.match(route, /sid: "11"/);
+  assert.match(route, /from: selectedFrom/);
+  assert.match(route, /till: selectedTill/);
+  assert.match(route, /method: "POST"/);
+  assert.match(route, /data-available/);
   assert.match(route, /availableUnits/);
   assert.match(route, /totalPrice/);
+  assert.match(route, /units: availableByUnit\.map/);
+  assert.match(route, /availability: availableCount > 0 \? "available" : "unavailable"/);
+  assert.match(route, /nightlyPrice: prices\[index\] > 0 \? prices\[index\] \/ nights : 0/);
   assert.match(hook, /hilat-calendar-data/);
+  assert.match(hook, /units: \(Array\.isArray\(result\.units\) \? result\.units : \[\]\)\.map/);
   assert.match(card, /liveLegacyAvailability \|\| resolveAvailabilityForStay/);
   assert.match(business, /liveLegacyAvailability \|\| resolveAvailabilityForStay/);
+  assert.match(business, /roomAvailability = resolvedAvailability\?\.units\?\.find/);
+  assert.match(business, /roomBookingHref\(bookingQuery, roomIndex, roomNightlyPrice\)/);
+  assert.match(card, /allUnitsAvailable/);
+  assert.match(card, /units: property\.roomOptions\.map/);
 });
 
 test("Hilat HaNof keeps the complete verified legacy gallery locally", async () => {

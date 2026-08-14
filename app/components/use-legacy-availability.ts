@@ -14,6 +14,13 @@ type LegacyAvailabilityResponse = {
   totalPrice: number;
   nightlyPrice: number;
   includedGuests: number;
+  units: Array<{
+    index: number;
+    availability: "available" | "unavailable";
+    availableCount: number;
+    totalPrice: number;
+    nightlyPrice: number;
+  }>;
 };
 
 export function useLegacyAvailability(property: Property, selectedStay: SelectedStay | null) {
@@ -46,6 +53,13 @@ export function useLegacyAvailability(property: Property, selectedStay: Selected
             nightlyPrice: result.nightlyPrice > 0 ? result.nightlyPrice : undefined,
             includedGuests: result.includedGuests,
             showSelectedDates: true,
+            units: (Array.isArray(result.units) ? result.units : []).map((unit) => ({
+              index: unit.index,
+              availability: unit.availability,
+              availableCount: unit.availableCount,
+              totalPrice: unit.totalPrice > 0 ? unit.totalPrice : undefined,
+              nightlyPrice: unit.nightlyPrice > 0 ? unit.nightlyPrice : undefined,
+            })),
           },
         });
       })

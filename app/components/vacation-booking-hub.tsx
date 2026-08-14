@@ -84,8 +84,16 @@ function bedroomsCopy(bedrooms: number) {
   return bedrooms === 1 ? "חדר שינה אחד" : `${bedrooms} חדרי שינה`;
 }
 
+function unitBookingHref(baseHref: string, index: number, nightlyPrice?: number) {
+  const [pathname, query = ""] = baseHref.split("?");
+  const params = new URLSearchParams(query);
+  params.set("unitIndex", String(index + 1));
+  if (nightlyPrice && nightlyPrice > 0) params.set("price", String(nightlyPrice));
+  return `${pathname}?${params.toString()}`;
+}
+
 export function VacationBookingHub({ property, dates, from, till, guests, selectedPrice, availability, bookingHref, ownerWhatsapp, phoneHref, illustrative = false, onOpenCalendar, onGuestsChange }: VacationBookingHubProps) {
-  const { language } = useSiteLanguage();
+  const { language, translate } = useSiteLanguage();
   const [dialogOpen, setDialogOpen] = useState(false);
   const launchRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLElement>(null);
@@ -110,6 +118,19 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
     en: { night: " per unit", stay: " for one unit" },
     ru: { night: " за единицу", stay: " за одну единицу" },
     fr: { night: " par unité", stay: " pour une unité" },
+  }[language];
+  const unitAvailability = units.map((room, index) => ({
+    room,
+    index,
+    quote: availability?.units?.find((unit) => unit.index === index),
+  }));
+  const availableUnitCount = unitAvailability.filter(({ quote }) => quote?.availability === "available").length;
+  const hasUnitAvailability = property.scenario === "multi" && Boolean(availability?.units?.length);
+  const unitCopy = {
+    he: { available: "פנויה בתאריכים שבחרתם", unavailable: "לא פנויה בתאריכים שבחרתם", confirm: "הזמינות תאושר מול המקום", confirmPrice: "המחיר דורש אישור", otherDate: "אפשר לבדוק תאריך אחר", quick: "הזמנה מהירה של", checkOther: "בדיקת תאריך אחר", check: "בדיקת זמינות", checkDates: "בדיקת תאריכים ל", choose: "בחרו יחידה פנויה מהרשימה", availableCount: (count: number, total: number) => `${count} מתוך ${total} יחידות פנויות`, perNight: "ללילה", totalStay: "לכל השהייה" },
+    en: { available: "Available for your selected dates", unavailable: "Unavailable for your selected dates", confirm: "Availability will be confirmed with the property", confirmPrice: "Price needs confirmation", otherDate: "You can check another date", quick: "Quick book", checkOther: "Check another date", check: "Check availability for", checkDates: "Check dates for", choose: "Choose an available unit from the list", availableCount: (count: number, total: number) => `${count} of ${total} units available`, perNight: "per night", totalStay: "for the entire stay" },
+    ru: { available: "Доступна на выбранные даты", unavailable: "Недоступна на выбранные даты", confirm: "Доступность подтвердит объект", confirmPrice: "Цена требует подтверждения", otherDate: "Можно проверить другую дату", quick: "Быстро забронировать", checkOther: "Проверить другую дату", check: "Проверить доступность", checkDates: "Проверить даты для", choose: "Выберите доступный вариант из списка", availableCount: (count: number, total: number) => `Доступно ${count} из ${total}`, perNight: "за ночь", totalStay: "за всё проживание" },
+    fr: { available: "Disponible aux dates choisies", unavailable: "Indisponible aux dates choisies", confirm: "La disponibilité sera confirmée par l’établissement", confirmPrice: "Prix à confirmer", otherDate: "Vous pouvez vérifier une autre date", quick: "Réservation rapide", checkOther: "Vérifier une autre date", check: "Vérifier la disponibilité de", checkDates: "Vérifier les dates pour", choose: "Choisissez une unité disponible dans la liste", availableCount: (count: number, total: number) => `${count} unité(s) disponible(s) sur ${total}`, perNight: "par nuit", totalStay: "pour tout le séjour" },
   }[language];
 
   useEffect(() => {
@@ -141,7 +162,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
       <span className="vacation-booking-hub__launcher-icon"><CalendarIcon /></span>
       <span className="vacation-booking-hub__launcher-copy">
         <small>{hasDates ? displayDates : "פרטי החופשה"}</small>
-        <strong>{summary.title}</strong>
+        <strong>{hasUnitAvailability && hasDates ? unitCopy.availableCount(availableUnitCount, units.length) : summary.title}</strong>
       </span>
       <span className="vacation-booking-hub__launcher-meta">
         <small>{guests} אורחים</small>
@@ -191,14 +212,32 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
               <span>{property.scenario === "single" ? `עד ${property.guests} אורחים` : "הפרטים המלאים לפי צורך"}</span>
             </div>
             <div className="vacation-booking-dialog__unit-list">
-              {units.map((room) => <article className="vacation-booking-dialog__unit" key={room.name}>
-                <div className="vacation-booking-dialog__unit-main">
-                  <span className="vacation-booking-dialog__unit-mark" aria-hidden="true"></span>
-                  <div><h4>{room.name}</h4><p>עד {room.guests} אורחים · {bedroomsCopy(room.bedrooms)}{room.area ? ` · ${room.area} מ״ר` : ""}</p></div>
-                  {property.scenario === "multi" && room.quantity > 1 ? <b>{`${room.quantity} יחידות`}</b> : null}
-                </div>
-                {room.features.length ? <details><summary>מה כלול</summary><p>{room.features.slice(0, 5).join(" · ")}</p></details> : null}
-              </article>)}
+              {unitAvailability.map(({ room, index, quote }) => {
+                const isAvailable = quote?.availability === "available";
+                const isUnavailable = quote?.availability === "unavailable";
+                const unitNightlyPrice = quote?.nightlyPrice;
+                const unitTotalPrice = quote?.totalPrice || (unitNightlyPrice && nights > 0 ? unitNightlyPrice * nights : 0);
+                return <article className={`vacation-booking-dialog__unit${isAvailable ? " is-available" : isUnavailable ? " is-unavailable" : ""}`} key={room.name}>
+                  <img className="vacation-booking-dialog__unit-image" src={room.image} alt="" loading="lazy" />
+                  <div className="vacation-booking-dialog__unit-content">
+                    <div className="vacation-booking-dialog__unit-main">
+                      <span className="vacation-booking-dialog__unit-mark" aria-hidden="true"></span>
+                      <div><h4>{room.name}</h4><p>עד {room.guests} אורחים · {bedroomsCopy(room.bedrooms)}{room.area ? ` · ${room.area} מ״ר` : ""}</p></div>
+                      {property.scenario === "multi" && room.quantity > 1 ? <b>{`${room.quantity} יחידות`}</b> : null}
+                    </div>
+                    {hasDates ? <div className="vacation-booking-dialog__unit-availability" role="status">
+                      <div>
+                        <strong>{isAvailable ? unitCopy.available : isUnavailable ? unitCopy.unavailable : unitCopy.confirm}</strong>
+                        {unitNightlyPrice ? <small>{unitNightlyPrice.toLocaleString(numberLocale)} ₪ {unitCopy.perNight}{unitTotalPrice ? ` · ${unitTotalPrice.toLocaleString(numberLocale)} ₪ ${unitCopy.totalStay}` : ""}</small> : <small>{isAvailable ? unitCopy.confirmPrice : unitCopy.otherDate}</small>}
+                      </div>
+                    {isAvailable && unitNightlyPrice ? <Link className="button primary vacation-booking-dialog__unit-action" href={unitBookingHref(bookingHref, index, unitNightlyPrice)}>{unitCopy.quick} {translate(room.name)}</Link>
+                        : isUnavailable ? <button className="button secondary vacation-booking-dialog__unit-action" type="button" onClick={openCalendar}>{unitCopy.checkOther}</button>
+                          : ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={`${unitCopy.check} ${translate(room.name)}`} initialDate={from} initialGuests={guests} buttonLabel={`${unitCopy.check} ${translate(room.name)}`} buttonClassName="button secondary vacation-booking-dialog__unit-action" /> : null}
+                    </div> : <button className="button secondary vacation-booking-dialog__unit-action vacation-booking-dialog__unit-action--dates" type="button" onClick={openCalendar}>{unitCopy.checkDates} {translate(room.name)}</button>}
+                    {room.features.length ? <details><summary>מה כלול</summary><p>{room.features.slice(0, 5).join(" · ")}</p></details> : null}
+                  </div>
+                </article>;
+              })}
             </div>
           </div>
         </div>
@@ -209,7 +248,8 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
             {illustrative ? <em>המחשה בלבד, ללא חיוב</em> : null}
           </div> : null}
           <div className="vacation-booking-dialog__footer-actions">
-            {quickBooking ? <Link className="button primary" href={bookingHref}>הזמנה מהירה</Link>
+            {quickBooking && !hasUnitAvailability ? <Link className="button primary" href={bookingHref}>הזמנה מהירה</Link>
+              : hasUnitAvailability && availableUnitCount > 0 ? <span className="vacation-booking-dialog__unit-guidance">{unitCopy.choose}</span>
               : unavailable || !hasDates ? <button className="button primary" type="button" onClick={openCalendar}>{hasDates ? "שינוי תאריכים" : "בחירת תאריכים"}</button>
                 : ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName="בקשת זמינות" initialDate={from} initialGuests={guests} buttonLabel="בדיקת זמינות" buttonClassName="button primary vacation-booking-dialog__whatsapp" />
                   : phoneHref ? <a className="button primary" href={phoneHref}>חיוג למקום</a> : null}

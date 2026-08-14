@@ -10,9 +10,10 @@ const business = readFileSync(new URL("../app/business/client-page.tsx", import.
 const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
 
 test("search result links preserve the selected stay context", () => {
-  for (const key of ["source", "dates", "from", "till", "guests", "rooms"]) {
+  for (const key of ["source", "from", "till", "guests", "rooms"]) {
     assert.match(search, new RegExp(`params\\.set\\("${key}"`));
   }
+  assert.doesNotMatch(search, /params\.set\("dates"/);
   assert.match(search, /detailHref=\{detailHref\(property\.slug\)\}/);
   assert.match(search, /detailQuery=\{detailQuery\}/);
   assert.match(card, /const basePropertyHref = detailHref \|\|/);

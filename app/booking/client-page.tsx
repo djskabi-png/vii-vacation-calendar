@@ -127,7 +127,7 @@ export default function BookingPageClient(props: Props) {
     <span>{labels.total}</span>
     <strong>{currentTotal.toLocaleString(language === "he" ? "he-IL" : language)} ₪</strong>
     <small>{pricing.nightlyPrice.toLocaleString(language === "he" ? "he-IL" : language)} ₪ {labels.night} × {currentNights === 1 ? labels.oneNight : `${currentNights} ${labels.nights}`}</small>
-    <small>{pricing.wholeProperty ? `${labels.whole} · ` : ""}{guests} {labels.guests}</small>
+    <small>{pricing.wholeProperty ? `${labels.whole} · ` : props.offerName ? `${translate(props.offerName)} · ` : ""}{guests} {labels.guests}</small>
     <em>{pricing.taxesIncluded ? labels.taxIncluded : labels.taxPending}</em>
   </div> : null;
 

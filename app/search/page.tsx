@@ -236,11 +236,11 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const availabilityDemoActive = isAvailabilityDemoSearch(selectedStay, requestedLocation);
 
   useEffect(() => {
-    if (!selectedStay || searchParams.get("from") || searchParams.get("till")) return;
+    if (!selectedStay || (!searchParams.get("dates") && searchParams.get("from") && searchParams.get("till"))) return;
     const params = new URLSearchParams(searchParams.toString());
     params.delete("dates");
-    params.set("from", selectedStay.from);
-    params.set("till", selectedStay.till);
+    if (!params.get("from")) params.set("from", selectedStay.from);
+    if (!params.get("till")) params.set("till", selectedStay.till);
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }, [pathname, router, searchParams, selectedStay]);
 
@@ -483,13 +483,11 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const inventorySummary = useMemo(() => vacationInventorySummary(displayedResults, language), [displayedResults, language]);
   const detailQuery = useMemo(() => {
     const params = new URLSearchParams();
-    const dates = searchParams.get("dates");
     const from = searchParams.get("from");
     const till = searchParams.get("till");
     const rooms = searchParams.get("rooms");
-    if (!dates && !(from && till)) return "";
+    if (!(from && till)) return "";
     params.set("source", "search");
-    if (dates) params.set("dates", dates);
     if (from) params.set("from", from);
     if (till) params.set("till", till);
     params.set("guests", String(guests));

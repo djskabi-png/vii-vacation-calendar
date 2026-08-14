@@ -35,7 +35,18 @@ const phoneCopy: Record<SiteLanguage, { reveal: string; call: string }> = {
 export type SelectedStay = { from: string; till: string };
 
 type DemoAvailabilityKind = "available-price" | "price-only" | "available-no-price" | "no-data" | "unavailable" | "unavailable-alternatives" | "unavailable-price";
-export type ResolvedAvailability = ListingDateQuote & { showSelectedDates: boolean; alternatives?: Array<{ from: string; till: string; nightlyPrice: number }>; illustrative?: boolean };
+export type ResolvedAvailability = ListingDateQuote & {
+  showSelectedDates: boolean;
+  alternatives?: Array<{ from: string; till: string; nightlyPrice: number }>;
+  illustrative?: boolean;
+  units?: Array<{
+    index: number;
+    availability: "available" | "unavailable";
+    availableCount: number;
+    totalPrice?: number;
+    nightlyPrice?: number;
+  }>;
+};
 
 const demoScenarioCopy: Record<SiteLanguage, { label: string; alternatives: string; alternativePrice: string }> = {
   he: { label: "\u05d4\u05de\u05d7\u05e9\u05ea \u05ea\u05e6\u05d5\u05d2\u05d4 \u05d1\u05dc\u05d1\u05d3", alternatives: "\u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd \u05d7\u05dc\u05d5\u05e4\u05d9\u05d9\u05dd \u05dc\u05d3\u05d5\u05d2\u05de\u05d4", alternativePrice: "\u05de\u05d7\u05d9\u05e8 \u05dc\u05d3\u05d5\u05d2\u05de\u05d4" },
@@ -225,7 +236,34 @@ function demoAvailabilityFor(property: Property, selectedStay: SelectedStay | nu
 export function resolveAvailabilityForStay(property: Property, selectedStay: SelectedStay | null, pathname = "", requestedLocation: string | null = null): ResolvedAvailability | null {
   const demoAvailability = demoAvailabilityFor(property, selectedStay, pathname, requestedLocation);
   const selectedQuote = quoteForStay(property, selectedStay);
-  return demoAvailability || (selectedQuote ? { ...selectedQuote, showSelectedDates: true } : null);
+  const resolved = demoAvailability || (selectedQuote ? { ...selectedQuote, showSelectedDates: true } : null);
+  if (!resolved || !selectedStay || property.slug !== "hilat-hanof" || !property.roomOptions?.length || !property.dailyAvailability?.length) return resolved;
+
+  const byDate = new Map(property.dailyAvailability.map((day) => [day.date, day]));
+  const cursor = new Date(`${selectedStay.from}T12:00:00Z`);
+  const departure = new Date(`${selectedStay.till}T12:00:00Z`);
+  const selectedDays: NonNullable<Property["dailyAvailability"]> = [];
+  while (cursor < departure) {
+    const day = byDate.get(cursor.toISOString().slice(0, 10));
+    if (!day) return resolved;
+    selectedDays.push(day);
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+  const totalUnits = property.roomOptions.length;
+  const allUnitsAvailable = selectedDays.length > 0 && selectedDays.every((day) => day.availableUnits === totalUnits);
+  const allUnitsUnavailable = selectedDays.length > 0 && selectedDays.every((day) => day.availableUnits === 0);
+  if (!allUnitsAvailable && !allUnitsUnavailable) return resolved;
+  const nightlyPrice = resolved.nightlyPrice;
+  return {
+    ...resolved,
+    units: property.roomOptions.map((_, index) => ({
+      index,
+      availability: allUnitsAvailable ? "available" : "unavailable",
+      availableCount: allUnitsAvailable ? 1 : 0,
+      nightlyPrice,
+      totalPrice: nightlyPrice ? nightlyPrice * selectedDays.length : undefined,
+    })),
+  };
 }
 
 export function hasAvailablePriceForSearch(property: Property, selectedStay: SelectedStay | null, pathname: string, requestedLocation: string | null) {

@@ -90,5 +90,16 @@
   "הוסיפו לילה כדי לבדוק את ההזמנה": { "en": "Add a night to check the booking", "ru": "Добавьте ночь, чтобы проверить бронирование", "fr": "Ajoutez une nuit pour vérifier la réservation" },
   "ליחידה": { "en": "per unit", "ru": "за единицу", "fr": "par unité" },
   "ליחידה אחת": { "en": "for one unit", "ru": "за одну единицу", "fr": "pour une unité" },
+  "הזמנת": { "en": "Booking", "ru": "Бронирование", "fr": "Réservation" },
+  "פנויה בתאריכים שבחרתם": { "en": "Available for your selected dates", "ru": "Доступна на выбранные даты", "fr": "Disponible aux dates choisies" },
+  "לא פנויה בתאריכים שבחרתם": { "en": "Unavailable for your selected dates", "ru": "Недоступна на выбранные даты", "fr": "Indisponible aux dates choisies" },
+  "הזמנה מהירה של": { "en": "Quick book", "ru": "Быстро забронировать", "fr": "Réservation rapide" },
+  "בדיקת תאריך אחר": { "en": "Check another date", "ru": "Проверить другую дату", "fr": "Vérifier une autre date" },
+  "בדיקת תאריכים ל": { "en": "Check dates for", "ru": "Проверить даты для", "fr": "Vérifier les dates pour" },
+  "לכל השהייה": { "en": "for the entire stay", "ru": "за всё проживание", "fr": "pour tout le séjour" },
+  "המחיר דורש אישור": { "en": "Price needs confirmation", "ru": "Цена требует подтверждения", "fr": "Prix à confirmer" },
+  "אפשר לבדוק תאריך אחר": { "en": "You can check another date", "ru": "Можно проверить другую дату", "fr": "Vous pouvez vérifier une autre date" },
+  "בחרו יחידה פנויה מהרשימה": { "en": "Choose an available unit from the list", "ru": "Выберите доступный вариант из списка", "fr": "Choisissez une unité disponible dans la liste" },
+  "יחידות פנויות": { "en": "units available", "ru": "доступных вариантов", "fr": "unités disponibles" },
   "תמונת מצב יומית מהמקור הישן: זמינות לארבע בקתות, מחיר מוצג ללילה לבקתה ועד שני אורחים, ומינימום לילות לפי יום ההגעה. מחיר טווח מוצג רק כאשר לכל לילות הטווח אותו מחיר יומי.": { "en": "Daily legacy-source snapshot: availability for four cabins, the displayed nightly price for one cabin and up to two guests, and the minimum stay by arrival date. A range price is shown only when every night has the same daily price.", "ru": "Ежедневный снимок из прежнего источника: доступность четырёх домиков, указанная цена за ночь для одного домика и двух гостей, а также минимальный срок проживания по дате заезда. Цена за период показывается только тогда, когда у всех ночей одинаковая суточная цена.", "fr": "Instantané quotidien de l’ancienne source : disponibilité de quatre cabanes, prix affiché par nuit pour une cabane et jusqu’à deux personnes, et séjour minimum selon la date d’arrivée. Le prix d’une période n’est affiché que si chaque nuit a le même tarif journalier." }
 }
