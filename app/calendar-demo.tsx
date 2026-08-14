@@ -20,6 +20,9 @@ type CalendarResult = {
   checkOut: string | null;
   flexible: boolean;
   summary: string;
+  flexibleStay: "weekend" | "long-weekend" | "week" | "month" | null;
+  flexibleMonth: string | null;
+  flexibleDays: number | null;
 };
 
 const DAY_MS = 86_400_000;
@@ -352,10 +355,19 @@ export function CalendarDemo({
 
   function confirm() {
     const selectedStay = FLEX_STAYS.find((stay) => stay.id === flexStay) ?? FLEX_STAYS[0];
+    const selectedMonth = addMonths(START_MONTH, flexMonth);
     const summary = flexible
-      ? `${translate(selectedStay.label)} · ${compactMonth(addMonths(START_MONTH, flexMonth), dateLocale)} · ${flexDays === 0 ? translate("ללא גמישות") : `±${flexDays} ${translate(flexDays === 1 ? "יום" : "ימים")}`}`
+      ? `${translate(selectedStay.label)} · ${compactMonth(selectedMonth, dateLocale)} · ${flexDays === 0 ? translate("ללא גמישות") : `±${flexDays} ${translate(flexDays === 1 ? "יום" : "ימים")}`}`
       : `${shortDate(checkIn, dateLocale)} ${translate("עד")} ${shortDate(checkOut, dateLocale)}`;
-    onConfirm({ checkIn, checkOut, flexible, summary });
+    onConfirm({
+      checkIn,
+      checkOut,
+      flexible,
+      summary,
+      flexibleStay: flexible ? selectedStay.id : null,
+      flexibleMonth: flexible ? keyOf(selectedMonth).slice(0, 7) : null,
+      flexibleDays: flexible ? flexDays : null,
+    });
     onClose();
   }
 

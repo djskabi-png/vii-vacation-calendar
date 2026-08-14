@@ -5,6 +5,10 @@ type SearchUpdate = Record<string, string | null>;
 
 export function buildVacationSearchUrl(currentSearch: string, updates: SearchUpdate, nextTypes: string[], nextArea: string) {
   const params = new URLSearchParams(currentSearch);
+  // `dates` was a localized display label in legacy URLs. It must never be
+  // propagated into a shareable URL; exact and flexible searches use stable
+  // machine-readable parameters instead.
+  params.delete("dates");
   Object.entries(updates).forEach(([key, value]) => {
     if (value === null) params.delete(key);
     else params.set(key, value);
