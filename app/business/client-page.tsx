@@ -30,7 +30,7 @@ import { CalendarIcon, PinIcon } from "../site-header";
 import { VacationBookingHub } from "../components/vacation-booking-hub";
 import { useLegacyAvailability } from "../components/use-legacy-availability";
 import { ViewedItemTracker } from "../components/viewed-item-tracker";
-import { useSiteLanguage } from "../i18n/locale-provider";
+import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 
 function complementaryItems(area: string, location: string): DiscoveryItem[] {
   const query = `${area} ${location}`.toLocaleLowerCase("he");
@@ -109,13 +109,15 @@ const worldLabels: Record<BusinessWorld, string> = {
   spa: "ספא",
 };
 
-function formatInitialStay(from?: string, till?: string) {
+function formatInitialStay(from: string | undefined, till: string | undefined, language: SiteLanguage) {
   if (!from || !till) return "בחרו תאריכים";
   const arrival = new Date(`${from}T12:00:00`);
   const departure = new Date(`${till}T12:00:00`);
   if (Number.isNaN(arrival.getTime()) || Number.isNaN(departure.getTime())) return "בחרו תאריכים";
-  const format = new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "numeric" });
-  return `${format.format(arrival)} עד ${format.format(departure)}`;
+  const locale: Record<SiteLanguage, string> = { he: "he-IL", en: "en-GB", ru: "ru-RU", fr: "fr-FR" };
+  const separator: Record<SiteLanguage, string> = { he: " עד ", en: " to ", ru: " – ", fr: " au " };
+  const format = new Intl.DateTimeFormat(locale[language], { day: "numeric", month: "numeric" });
+  return `${format.format(arrival)}${separator[language]}${format.format(departure)}`;
 }
 
 function demoAvailabilityForDate(date: Date) {
@@ -142,7 +144,8 @@ function roomBookingHref(bookingQuery: string, index: number, nightlyPrice: numb
 export default function BusinessPage({ initialSlug, initialWorld = "vacation", initialDates, initialFrom, initialTill, initialGuests = "2", initialRooms = "1", initialPrice, initialIllustrative = false, initialSource }: { initialSlug: string; initialWorld?: BusinessWorld; initialDates?: string; initialFrom?: string; initialTill?: string; initialGuests?: string; initialRooms?: string; initialPrice?: string; initialIllustrative?: boolean; initialSource?: string }) {
   const { language, translate } = useSiteLanguage();
   const [calendarOpen, setCalendarOpen] = useState(false);
-  const [dates, setDates] = useState(initialDates || formatInitialStay(initialFrom, initialTill));
+  const [dates, setDates] = useState(initialDates || "");
+  const displayDates = dates || formatInitialStay(initialFrom, initialTill, language);
   const [dateRange, setDateRange] = useState({ from: initialFrom || "", till: initialTill || "" });
   const [guests, setGuests] = useState(Math.max(1, Number(initialGuests) || 2));
   const [selectedPrice, setSelectedPrice] = useState(initialPrice || "");
@@ -238,7 +241,7 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
         </section>
 
         {hasSearchContext && activeWorld === "vacation" ? <section className="search-context-summary shell" aria-label="החיפוש שממנו הגעתם">
-          <div><span>החיפוש שבחרתם</span><strong>{dates}</strong><small>{guests} אורחים · {rooms} {rooms === 1 ? "חדר" : "חדרים"}</small></div>
+          <div><span>החיפוש שבחרתם</span><strong>{displayDates}</strong><small>{guests} אורחים · {rooms} {rooms === 1 ? "חדר" : "חדרים"}</small></div>
 
         </section> : null}
 
@@ -270,7 +273,7 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
 
         {activeWorld === "vacation" ? <VacationBookingHub
           property={property}
-          dates={dates}
+          dates={displayDates}
           from={dateRange.from}
           till={dateRange.till}
           guests={guests}
@@ -355,7 +358,7 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
             {property.demoOperations?.fictional ? <section className="palumbo-practical" aria-labelledby="palumbo-practical-title"><span className="eyebrow">מידע מעשי</span><h2 id="palumbo-practical-title">כל מה שצריך לדעת לפני ההזמנה</h2><div><article><strong>15:00</strong><span>כניסה החל משעה זו</span></article><article><strong>11:00</strong><span>עזיבה עד שעה זו</span></article><article><strong>2 לילות</strong><span>מינימום להזמנה</span></article><article><strong>8 אורחים</strong><span>תפוסה מרבית</span></article></div></section> : null}
           </div>
 
-          {activeWorld === "vacation" ? null : activeWorld !== "vacation" && !onlineBooking && phoneHref ? <aside className="booking-card booking-card--phone"><span className="eyebrow">הזמנה בטלפון</span><h2>מדברים ישירות עם המקום</h2><p>הצוות בודק את התאריך, ההרכב והמחיר בשיחה אחת.</p><a className="button primary wide" href={phoneHref}>חיוג להזמנה</a><small>ההזמנה סופית רק לאחר אישור המקום.</small></aside> : activeWorld === "events" ? <aside className="booking-card booking-card--event"><span className="eyebrow">הזמנת אירוע</span><h2>בוחרים תאריך והרכב</h2><label>תאריך האירוע<input type="date" /></label><label>כמות משתתפים<input type="number" min="1" max={activeOffering.maxGuests} placeholder="כמה משתתפים צפויים?" /></label>{activeOffering.eventTypes?.length ? <ModernSelect label="סוג האירוע" defaultValue={activeOffering.eventTypes[0]} options={activeOffering.eventTypes.map((eventType) => ({ value: eventType, label: eventType }))} /> : null}<div className="booking-facts"><span>ההזמנה נבדקת לפי סוג האירוע</span><span>האירוח והאירוע מנוהלים בנפרד</span></div><div className="booking-card__actions"><Link className="button primary wide" href={`/booking?${bookingQuery}`}>המשך להזמנה אונליין</Link>{phoneBooking && phoneHref ? <a className="button secondary wide" href={phoneHref}>או חיוג למקום</a> : null}</div><small>הזמינות, המחיר וכללי המקום לאירוע מאושרים לפני חיוב.</small></aside> : <aside id="booking-summary" className={`booking-card ${vacationRequest ? "booking-card--request" : "booking-card--instant"}`}><span className="eyebrow">{vacationRequest ? "בדיקת זמינות במתחם" : "הזמנה אונליין"}</span><h2>{vacationRequest ? hasSelectedDates ? "בודקים את החופשה שבחרתם" : "מתי תרצו להתארח?" : property.scenario === "single" ? "סיכום השהייה" : "תאריכים והרכב"}</h2><p className="booking-card__lead">{vacationRequest ? hasSelectedDates ? "התאריכים והרכב האורחים נשמרו מהחיפוש. אפשר לשנות אותם או לשלוח בקשת זמינות מסודרת." : "בחרו תאריכים וכמות אורחים. לאחר הבחירה תוכלו לשלוח למקום בקשת זמינות מסודרת." : "הזמינות והמחיר מחוברים למנוע ההזמנות של המקום."}</p><div className="booking-card__selection"><button type="button" className="date-choice" onClick={() => setCalendarOpen(true)}><CalendarIcon /><span><small>תאריכי השהייה</small><strong>{dates}</strong></span></button></div><label className="booking-guests">כמות אורחים<input type="number" min="1" max={activeOffering.maxGuests || property.guests} value={guests} onChange={(event) => setGuests(Math.max(1, Number(event.target.value) || 1))} /></label><div className="booking-facts"><span>עד {activeOffering.maxGuests || property.guests} אורחים</span>{property.bedrooms && <span>{property.bedrooms} חדרי שינה</span>}</div><div className="booking-card__actions"><Link className="button primary wide" href={`/booking?${bookingQuery}`}>המשך להזמנה</Link></div></aside>}
+        {activeWorld === "vacation" ? null : activeWorld !== "vacation" && !onlineBooking && phoneHref ? <aside className="booking-card booking-card--phone"><span className="eyebrow">הזמנה בטלפון</span><h2>מדברים ישירות עם המקום</h2><p>הצוות בודק את התאריך, ההרכב והמחיר בשיחה אחת.</p><a className="button primary wide" href={phoneHref}>חיוג להזמנה</a><small>ההזמנה סופית רק לאחר אישור המקום.</small></aside> : activeWorld === "events" ? <aside className="booking-card booking-card--event"><span className="eyebrow">הזמנת אירוע</span><h2>בוחרים תאריך והרכב</h2><label>תאריך האירוע<input type="date" /></label><label>כמות משתתפים<input type="number" min="1" max={activeOffering.maxGuests} placeholder="כמה משתתפים צפויים?" /></label>{activeOffering.eventTypes?.length ? <ModernSelect label="סוג האירוע" defaultValue={activeOffering.eventTypes[0]} options={activeOffering.eventTypes.map((eventType) => ({ value: eventType, label: eventType }))} /> : null}<div className="booking-facts"><span>ההזמנה נבדקת לפי סוג האירוע</span><span>האירוח והאירוע מנוהלים בנפרד</span></div><div className="booking-card__actions"><Link className="button primary wide" href={`/booking?${bookingQuery}`}>המשך להזמנה אונליין</Link>{phoneBooking && phoneHref ? <a className="button secondary wide" href={phoneHref}>או חיוג למקום</a> : null}</div><small>הזמינות, המחיר וכללי המקום לאירוע מאושרים לפני חיוב.</small></aside> : <aside id="booking-summary" className={`booking-card ${vacationRequest ? "booking-card--request" : "booking-card--instant"}`}><span className="eyebrow">{vacationRequest ? "בדיקת זמינות במתחם" : "הזמנה אונליין"}</span><h2>{vacationRequest ? hasSelectedDates ? "בודקים את החופשה שבחרתם" : "מתי תרצו להתארח?" : property.scenario === "single" ? "סיכום השהייה" : "תאריכים והרכב"}</h2><p className="booking-card__lead">{vacationRequest ? hasSelectedDates ? "התאריכים והרכב האורחים נשמרו מהחיפוש. אפשר לשנות אותם או לשלוח בקשת זמינות מסודרת." : "בחרו תאריכים וכמות אורחים. לאחר הבחירה תוכלו לשלוח למקום בקשת זמינות מסודרת." : "הזמינות והמחיר מחוברים למנוע ההזמנות של המקום."}</p><div className="booking-card__selection"><button type="button" className="date-choice" onClick={() => setCalendarOpen(true)}><CalendarIcon /><span><small>תאריכי השהייה</small><strong>{displayDates}</strong></span></button></div><label className="booking-guests">כמות אורחים<input type="number" min="1" max={activeOffering.maxGuests || property.guests} value={guests} onChange={(event) => setGuests(Math.max(1, Number(event.target.value) || 1))} /></label><div className="booking-facts"><span>עד {activeOffering.maxGuests || property.guests} אורחים</span>{property.bedrooms && <span>{property.bedrooms} חדרי שינה</span>}</div><div className="booking-card__actions"><Link className="button primary wide" href={`/booking?${bookingQuery}`}>המשך להזמנה</Link></div></aside>}
         </div>
 
         <section className="section property-complements">

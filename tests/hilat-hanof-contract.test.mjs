@@ -97,6 +97,15 @@ test("Hilat HaNof resolves exact legacy range prices in search and business deta
   assert.match(card, /units: property\.roomOptions\.map/);
 });
 
+test("business stay dates localize after hydration without Hebrew leaking into foreign pages", async () => {
+  const business = await readFile(resolve(root, "app/business/client-page.tsx"), "utf8");
+  assert.match(business, /function formatInitialStay\(from: string \| undefined, till: string \| undefined, language: SiteLanguage\)/);
+  assert.match(business, /const separator: Record<SiteLanguage, string> = \{ he: " עד ", en: " to ", ru: " – ", fr: " au " \}/);
+  assert.match(business, /const \[dates, setDates\] = useState\(initialDates \|\| ""\)/);
+  assert.match(business, /const displayDates = dates \|\| formatInitialStay\(initialFrom, initialTill, language\)/);
+  assert.doesNotMatch(business, /formatInitialStay\(initialFrom, initialTill\)\)/);
+});
+
 test("Hilat HaNof keeps the complete verified legacy gallery locally", async () => {
   const media = await readdir(resolve(root, "public/media/hilat-hanof"));
   assert.equal(media.length, 46);
