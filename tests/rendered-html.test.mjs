@@ -444,6 +444,19 @@ test("gift cards, corporate experiences and MASU form one internal journey", asy
   }
 });
 
+test("gift card mobile flow keeps the preview first and collapses long form sections", async () => {
+  const pageSource = await readFile(new URL("../app/gift-card/page.tsx", import.meta.url), "utf8");
+  const builderSource = await readFile(new URL("../app/gift-card/gift-card-builder.tsx", import.meta.url), "utf8");
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.ok(pageSource.indexOf('id="gift-builder"') < pageSource.indexOf('className="section shell gift-worlds"'));
+  assert.match(builderSource, /activeFormSection/);
+  assert.match(builderSource, /gift-form-panel__body/);
+  assert.match(css, /\.gift-builder__preview \{ order: -1; display: grid; position: sticky;/);
+  assert.match(css, /\.gift-form-panel__body \{ display: none;/);
+  assert.match(css, /\.gift-form-panel\.active \.gift-form-panel__body \{ display: grid;/);
+  assert.match(css, /\.gift-worlds > div:last-child \{ display: flex;[^}]*overflow-x: auto;/s);
+});
+
 test("checkout journeys include legal consent and requests without card collection", async () => {
   const [giftResponse, bookingResponse, giftSource, bookingSource] = await Promise.all([
     render("/gift-card"),

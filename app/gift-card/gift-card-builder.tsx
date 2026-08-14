@@ -72,6 +72,7 @@ export function GiftCardBuilder() {
   const [deliveryTime, setDeliveryTime] = useState("09:00");
   const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>("after-approval");
   const [detailsError, setDetailsError] = useState("");
+  const [activeFormSection, setActiveFormSection] = useState(1);
 
   const finalAmount = amount === "custom" ? customAmount : amount;
   const selectedDesign = designs.find((item) => item.id === design) || designs[0];
@@ -151,14 +152,18 @@ export function GiftCardBuilder() {
         <p className="gift-builder__truth">זוהי המחשה חיה של העיצוב. לא מתבצע חיוב ולא נשלח שובר לפני אימות הפרטים ואישור התשלום.</p>
       </div>
 
-      {step === "details" ? <form onSubmit={continueToPayment}>
-        <div className="gift-form-section"><span>1</span><div><h3>מה הסכום?</h3><p>אפשר לבחור סכום מוכן או סכום אישי.</p></div></div>
-        <fieldset><legend className="sr-only">בוחרים סכום</legend><div className="gift-choice-row gift-amounts">{amounts.map((value) => <button type="button" key={value} aria-pressed={amount === value} onClick={() => setAmount(value)}>{value} ₪</button>)}<button type="button" aria-pressed={amount === "custom"} onClick={() => setAmount("custom")}>סכום אחר</button></div>{amount === "custom" ? <label>סכום לבחירה<input type="number" min="100" step="50" value={customAmount} onChange={(event) => setCustomAmount(Number(event.target.value))} /></label> : null}</fieldset>
-        <div className="gift-form-section"><span>2</span><div><h3>איך המתנה תיראה?</h3><p>בחרו עיצוב, כל שינוי מופיע מיד בתצוגה.</p></div></div>
-        <fieldset><legend className="sr-only">בוחרים עיצוב</legend><div className="gift-designs">{designs.map((item) => <button type="button" key={item.id} className={`gift-design gift-design--${item.id}`} aria-pressed={design === item.id} onClick={() => setDesign(item.id)}><span aria-hidden="true" /><b>{item.label}</b><small>{item.note}</small></button>)}</div></fieldset>
-        <fieldset><legend>לאיזו הזדמנות?</legend><div className="gift-choice-row">{occasions.map((value) => <button type="button" key={value} aria-pressed={occasion === value} onClick={() => setOccasion(value)}>{value}</button>)}</div></fieldset>
-        <div className="gift-form-section"><span>3</span><div><h3>למי כותבים?</h3><p>הוסיפו שמות וברכה אישית.</p></div></div>
-        <div className="gift-form-grid">
+      {step === "details" ? <form onSubmit={continueToPayment} className="gift-details-form">
+        <section className={`gift-form-panel${activeFormSection === 1 ? " active" : ""}`}>
+          <button className="gift-form-section" type="button" onClick={() => setActiveFormSection(1)} aria-expanded={activeFormSection === 1}><span>1</span><div><h3>מה הסכום?</h3><p>{finalAmount.toLocaleString("he-IL")} ₪</p></div><b aria-hidden="true">⌄</b></button>
+          <div className="gift-form-panel__body"><fieldset><legend className="sr-only">בוחרים סכום</legend><div className="gift-choice-row gift-amounts">{amounts.map((value) => <button type="button" key={value} aria-pressed={amount === value} onClick={() => setAmount(value)}>{value} ₪</button>)}<button type="button" aria-pressed={amount === "custom"} onClick={() => setAmount("custom")}>סכום אחר</button></div>{amount === "custom" ? <label>סכום לבחירה<input type="number" min="100" step="50" value={customAmount} onChange={(event) => setCustomAmount(Number(event.target.value))} /></label> : null}</fieldset><button className="button secondary wide gift-panel-next" type="button" onClick={() => setActiveFormSection(2)}>המשך לעיצוב</button></div>
+        </section>
+        <section className={`gift-form-panel${activeFormSection === 2 ? " active" : ""}`}>
+          <button className="gift-form-section" type="button" onClick={() => setActiveFormSection(2)} aria-expanded={activeFormSection === 2}><span>2</span><div><h3>איך המתנה תיראה?</h3><p>{selectedDesign.label}</p></div><b aria-hidden="true">⌄</b></button>
+          <div className="gift-form-panel__body"><fieldset><legend className="sr-only">בוחרים עיצוב</legend><div className="gift-designs">{designs.map((item) => <button type="button" key={item.id} className={`gift-design gift-design--${item.id}`} aria-pressed={design === item.id} onClick={() => setDesign(item.id)}><span aria-hidden="true" /><b>{item.label}</b><small>{item.note}</small></button>)}</div></fieldset><fieldset><legend>לאיזו הזדמנות?</legend><div className="gift-choice-row">{occasions.map((value) => <button type="button" key={value} aria-pressed={occasion === value} onClick={() => setOccasion(value)}>{value}</button>)}</div></fieldset><button className="button secondary wide gift-panel-next" type="button" onClick={() => setActiveFormSection(3)}>המשך לפרטים</button></div>
+        </section>
+        <section className={`gift-form-panel${activeFormSection === 3 ? " active" : ""}`}>
+          <button className="gift-form-section" type="button" onClick={() => setActiveFormSection(3)} aria-expanded={activeFormSection === 3}><span>3</span><div><h3>למי כותבים?</h3><p>{recipient || "שמות וברכה אישית"}</p></div><b aria-hidden="true">⌄</b></button>
+          <div className="gift-form-panel__body"><div className="gift-form-grid">
           <label>השם שלכם<input value={sender} onChange={(event) => setSender(event.target.value)} required minLength={2} autoComplete="name" /></label>
           <label>טלפון שלכם<input value={phone} onChange={(event) => setPhone(event.target.value)} required minLength={7} type="tel" inputMode="tel" autoComplete="tel" /></label>
           <label className="form-wide">דואר אלקטרוני לקבלת אישור<input value={email} onChange={(event) => setEmail(event.target.value)} required type="email" autoComplete="email" /></label>
@@ -166,13 +171,16 @@ export function GiftCardBuilder() {
           <label>טלפון המקבל או המקבלת, לא חובה<input value={recipientPhone} onChange={(event) => setRecipientPhone(event.target.value)} minLength={7} type="tel" inputMode="tel" /></label>
           <label className="form-wide">דואר אלקטרוני של המקבל או המקבלת, לא חובה<input value={recipientEmail} onChange={(event) => setRecipientEmail(event.target.value)} type="email" /></label>
           <label className="form-wide">ברכה אישית, לא חובה<textarea value={message} onChange={(event) => setMessage(event.target.value)} rows={3} maxLength={300} /></label>
-        </div>
-        <div className="gift-form-section"><span>4</span><div><h3>איך מוסרים?</h3><p>בחרו את דרך המסירה המועדפת.</p></div></div>
-        <fieldset><legend className="sr-only">אופן מסירת השובר</legend><div className="gift-delivery-modes"><button type="button" aria-pressed={deliveryMode === "after-approval"} onClick={() => setDeliveryMode("after-approval")}><b>בהקדם לאחר האישור</b><small>מכינים ושולחים לאחר אימות ותשלום</small></button><button type="button" aria-pressed={deliveryMode === "scheduled"} onClick={() => setDeliveryMode("scheduled")}><b>בתאריך שאבחר</b><small>מתאים ליום הולדת או לאירוע</small></button><button type="button" aria-pressed={deliveryMode === "self"} onClick={() => setDeliveryMode("self")}><b>שליחה אליי</b><small>כדי למסור את המתנה בעצמי</small></button></div></fieldset>
-        {deliveryMode === "scheduled" ? <GiftDeliveryPicker date={deliveryDate} time={deliveryTime} onDateChange={setDeliveryDate} onTimeChange={setDeliveryTime} /> : null}
-        {deliveryMode === "scheduled" ? <input type="hidden" value={deliveryDate} required /> : null}
-        {detailsError ? <p className="form-error" role="alert">{detailsError}</p> : null}
-        <button className="button primary wide" type="submit">המשך לבדיקה ואישור</button>
+          </div><button className="button secondary wide gift-panel-next" type="button" onClick={() => setActiveFormSection(4)}>המשך למסירה</button></div>
+        </section>
+        <section className={`gift-form-panel${activeFormSection === 4 ? " active" : ""}`}>
+          <button className="gift-form-section" type="button" onClick={() => setActiveFormSection(4)} aria-expanded={activeFormSection === 4}><span>4</span><div><h3>איך מוסרים?</h3><p>{deliveryMode === "self" ? "שליחה אליי" : deliveryMode === "scheduled" ? "בתאריך שאבחר" : "בהקדם לאחר האישור"}</p></div><b aria-hidden="true">⌄</b></button>
+          <div className="gift-form-panel__body"><fieldset><legend className="sr-only">אופן מסירת השובר</legend><div className="gift-delivery-modes"><button type="button" aria-pressed={deliveryMode === "after-approval"} onClick={() => setDeliveryMode("after-approval")}><b>בהקדם לאחר האישור</b><small>מכינים ושולחים לאחר אימות ותשלום</small></button><button type="button" aria-pressed={deliveryMode === "scheduled"} onClick={() => setDeliveryMode("scheduled")}><b>בתאריך שאבחר</b><small>מתאים ליום הולדת או לאירוע</small></button><button type="button" aria-pressed={deliveryMode === "self"} onClick={() => setDeliveryMode("self")}><b>שליחה אליי</b><small>כדי למסור את המתנה בעצמי</small></button></div></fieldset>
+          {deliveryMode === "scheduled" ? <GiftDeliveryPicker date={deliveryDate} time={deliveryTime} onDateChange={setDeliveryDate} onTimeChange={setDeliveryTime} /> : null}
+          {deliveryMode === "scheduled" ? <input type="hidden" value={deliveryDate} required /> : null}
+          {detailsError ? <p className="form-error" role="alert">{detailsError}</p> : null}
+          <button className="button primary wide" type="submit">המשך לבדיקה ואישור</button></div>
+        </section>
       </form> : <form onSubmit={submitPayment}>
         <div className="gift-payment-summary"><span>המתנה שלכם</span><h3>{selectedDesign.label}</h3><p>לכבוד {recipient}. {deliveryMode === "self" ? "השובר יימסר אליכם." : deliveryMode === "scheduled" ? `המסירה המבוקשת היא בתאריך ${deliveryDate} בשעה ${deliveryTime}.` : "השובר יוכן למסירה לאחר האישור והתשלום."}</p><strong>{finalAmount.toLocaleString("he-IL")} ₪</strong></div>
         <div className="gift-payment-summary"><span>לתשומת לבכם</span><p>הבקשה תישלח לאימות לפני חיוב. לאחר האישור תקבלו קישור מאובטח לתשלום ולהפקת השובר.</p></div>
