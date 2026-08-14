@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { vacationStayFromSearch } from "../lib/vacation-date-range";
@@ -147,6 +147,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const [locationOpen, setLocationOpen] = useState(false);
   const [locationQuery, setLocationQuery] = useState("");
   const [selectedPlace, setSelectedPlace] = useState<PlaceSearchResult | null>(null);
+  const selectedPlaceRef = useRef<PlaceSearchResult | null>(null);
   const [locationStatus, setLocationStatus] = useState("");
   const [locating, setLocating] = useState(false);
   const [guestOpen, setGuestOpen] = useState(false);
@@ -187,6 +188,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   }, []);
 
   const cancelMobileSearch = useCallback(() => {
+    selectedPlaceRef.current = null;
     restoreCommittedSearchState();
     closeMobileSearch();
   }, [closeMobileSearch, restoreCommittedSearchState]);
@@ -274,8 +276,9 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     const cleanHourlyRoute = mode === "hourly" ? hourlySearchHref(locationValue) : null;
     const route = cleanVacationRoute || cleanSpaRoute || cleanEventRoute || cleanHourlyRoute || (basePath && mode === "vacation" ? basePath : "/search/");
     let destination: string;
-    if (selectedPlace) {
-      const [selectedPath, selectedQuery = ""] = selectedPlace.href.split("?");
+    const chosenPlace = selectedPlaceRef.current || selectedPlace;
+    if (chosenPlace) {
+      const [selectedPath, selectedQuery = ""] = chosenPlace.href.split("?");
       const params = new URLSearchParams(selectedQuery);
       params.set("source", "search");
       if (mode === "vacation") {
@@ -377,6 +380,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   }
 
   function chooseLocation(place: string) {
+    selectedPlaceRef.current = null;
     setSelectedPlace(null);
     setLocationValue(place);
     setLocationOpen(false);
@@ -389,6 +393,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   }
 
   function choosePlace(place: PlaceSearchResult) {
+    selectedPlaceRef.current = place;
     setSelectedPlace(place);
     setLocationValue(place.name);
     setLocationOpen(false);

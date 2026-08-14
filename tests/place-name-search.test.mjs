@@ -20,12 +20,15 @@ test("named place results are distinct from region and town suggestions", () => 
 });
 
 test("opening a named place preserves the committed search context", () => {
-  assert.match(searchBox, /if \(selectedPlace\)/);
+  assert.match(searchBox, /if \(chosenPlace\)/);
   assert.match(searchBox, /params\.set\("source", "search"\)/);
   assert.match(searchBox, /params\.set\("from", vacationDateRange\.from\)/);
   assert.match(searchBox, /params\.set\("till", vacationDateRange\.till\)/);
   assert.match(searchBox, /params\.set\("guests", String\(vacationParty\.adults \+ vacationParty\.children\)\)/);
   assert.match(searchBox, /const searchParamsKey = searchParams\.toString\(\)/);
+  assert.match(searchBox, /const selectedPlaceRef = useRef<PlaceSearchResult \| null>\(null\)/);
+  assert.match(searchBox, /const chosenPlace = selectedPlaceRef\.current \|\| selectedPlace/);
+  assert.match(searchBox, /selectedPlaceRef\.current = place/);
   assert.match(searchBox, /new URLSearchParams\(searchParamsKey\)/);
   assert.doesNotMatch(searchBox, /\[initialGuests, initialLocation, initialSpaAudience, language, mode, searchParams\]/);
   assert.match(searchBox, /const hasSelectedDates = mode === "vacation"/);
