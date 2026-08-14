@@ -62,8 +62,7 @@ test("five additional verified catalog places always show available dates and an
 });
 
 test("an ordinary whole-country search carries the selected stay without a demo-only query flag", () => {
-  assert.match(searchBox, /if \(vacationDateRange\.from\) params\.set\("from", vacationDateRange\.from\)/);
-  assert.match(searchBox, /if \(vacationDateRange\.till\) params\.set\("till", vacationDateRange\.till\)/);
+  assert.match(searchBox, /if \(vacationDateRange\.from && vacationDateRange\.till\) \{\s*params\.set\("from", vacationDateRange\.from\);\s*params\.set\("till", vacationDateRange\.till\);/);
   assert.match(searchBox, /language !== "he" \? "all-country"/);
   assert.match(taxonomy, /"all-country"/);
   assert.match(taxonomy, /isWholeCountrySelection\(selection\)/);

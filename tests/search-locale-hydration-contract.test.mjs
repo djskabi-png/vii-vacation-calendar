@@ -7,6 +7,7 @@ const source = await readFile(new URL("../app/components/search-box.tsx", import
 test("search date label keeps the server and first client render locale-stable", () => {
   const visibleDatesBlock = source.match(/const visibleDates =[\s\S]*?: dates;/)?.[0] || "";
 
-  assert.match(visibleDatesBlock, /dateLabelFromSearch\([\s\S]*?, mode, language\)/);
+  assert.match(visibleDatesBlock, /dateLabelFromSearch\([\s\S]*?, mode, dateDisplayLanguage\)/);
+  assert.match(source, /const dateDisplayLanguage = language;/);
   assert.doesNotMatch(visibleDatesBlock, /activeRouteLanguage\(language\)/);
 });
