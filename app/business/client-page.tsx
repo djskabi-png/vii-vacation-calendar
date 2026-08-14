@@ -182,6 +182,7 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
   const roomQuantity = property.roomOptions?.reduce((total, room) => total + room.quantity, 0) || 0;
   const highlights = (property.highlights?.length ? property.highlights : property.features.map((label) => ({ label, icon: highlightIconFor(label) }))).slice(0, 5);
   const featureGroups = property.featureGroups?.length ? property.featureGroups : derivedFeatureGroups(property.features);
+  const mobileFeaturePreview = featureGroups.flatMap((group) => group.items).slice(0, 4);
   const complements = useMemo(() => complementaryItems(property.area, property.location), [property.area, property.location]);
   const localTrails = useMemo(() => nearbyTrails(property.area, property.location, 6), [property.area, property.location]);
 
@@ -275,8 +276,6 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
 
             <section id="about" className="property-about"><span className="eyebrow">תיאור מקום האירוח</span><h2>על {property.name}</h2><p>{property.description}</p><div className="feature-chips audience-chips">{property.audiences.map((audience) => <span key={audience}>מתאים ל{audience}</span>)}</div>{highlights.length ? <div className="property-highlights" aria-label="הדברים הבולטים במקום">{highlights.map((highlight) => <article key={highlight.label}><PropertyHighlightIcon icon={highlight.icon} /><strong>{highlight.label}</strong></article>)}</div> : null}</section>
 
-            <section id="features" className="feature-section"><span className="eyebrow">מאפייני המתחם</span><h2>מה מחכה לכם במקום</h2><div className="property-feature-groups">{featureGroups.map((group) => <article key={group.title}><h3>{group.title}</h3><div className="feature-list">{group.items.map((feature) => <span key={feature}>✓ {feature}</span>)}</div></article>)}</div><button className="button subtle" type="button" onClick={() => setAllFeaturesOpen(true)}>כל המידע על המתקנים</button></section>
-
             {property.roomOptions?.length ? <section id="rooms" className="units-section">
               <div className="units-heading">
                 <div><span className="eyebrow">מבנה מקום האירוח</span><h2>{property.scenario === "single" ? "המקום שמזמינים" : "הסוויטות והיחידות"}</h2></div>
@@ -298,6 +297,20 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
             </section> : null}
 
             {property.sleepingArrangements?.length ? <SleepingArrangements placeName={property.name} arrangements={property.sleepingArrangements} /> : property.bedrooms ? <section id="sleeping" className="sleeping-summary" aria-labelledby="sleeping-summary-title"><span className="eyebrow">חדרי שינה אינם יחידות אירוח</span><h2 id="sleeping-summary-title">איפה ישנים?</h2><p>{property.scenario === "multi" ? `במתחם יש ${property.units || roomQuantity} יחידות אירוח ובהן ${property.bedrooms} חדרי שינה בסך הכול. פירוט השינה מופיע בתוך כל כרטיס יחידה.` : `במקום יש ${property.bedrooms} חדרי שינה. סוגי המיטות ותמונות החדרים יוצגו כאן לאחר שיוך ואימות מול נתוני המקום.`}</p></section> : null}
+
+            <section id="features" className="feature-section">
+              <span className="eyebrow">מאפייני המתחם</span>
+              <h2>מה מחכה לכם במקום</h2>
+              <div className="feature-section__mobile-preview" aria-label="הדברים הבולטים במקום">
+                {mobileFeaturePreview.map((feature) => <span key={feature}><b aria-hidden="true">✓</b>{feature}</span>)}
+              </div>
+              <div className="property-feature-groups">{featureGroups.map((group) => <article key={group.title}><h3>{group.title}</h3><div className="feature-list">{group.items.map((feature) => <span key={feature}>✓ {feature}</span>)}</div></article>)}</div>
+              <details className="feature-section__mobile-details">
+                <summary>כל המידע על המתקנים</summary>
+                <div className="feature-section__mobile-groups">{featureGroups.map((group) => <section key={group.title}><h3>{group.title}</h3><div>{group.items.map((feature) => <span key={feature}>✓ {feature}</span>)}</div></section>)}</div>
+              </details>
+              <button className="button subtle feature-section__desktop-more" type="button" onClick={() => setAllFeaturesOpen(true)}>כל המידע על המתקנים</button>
+            </section>
 
             <ListingAccessibility slug={property.slug} />
 
