@@ -29,6 +29,7 @@ import { ShareButton } from "../components/share-dialog";
 import { CalendarIcon, PinIcon } from "../site-header";
 import { VacationBookingHub } from "../components/vacation-booking-hub";
 import { useLegacyAvailability } from "../components/use-legacy-availability";
+import { ViewedItemTracker } from "../components/viewed-item-tracker";
 
 function complementaryItems(area: string, location: string): DiscoveryItem[] {
   const query = `${area} ${location}`.toLocaleLowerCase("he");
@@ -198,6 +199,7 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
   return (
     <PageShell variant={activeWorld}>
       <main id="main-content" className="property-page">
+        <ViewedItemTracker id={property.slug} world={activeWorld} name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={`/business?id=${property.slug}${activeWorld === offerings[0].world ? "" : `&mode=${activeWorld}`}`} meta={`${property.type} · עד ${property.guests} אורחים`} />
         <BreadcrumbTrail items={activeWorld === "events"
           ? [{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, { name: "מקומות לאירועים", path: "/events/search" }, { name: property.name }]
           : activeWorld === "spa"

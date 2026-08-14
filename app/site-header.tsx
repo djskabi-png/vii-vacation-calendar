@@ -12,6 +12,7 @@ import { publicWorldNavigation, type WorldId } from "./data/world-data";
 import { AccessibilityWidget } from "./components/accessibility-widget";
 import { WorldSwitcher } from "./components/world-switcher";
 import { useAccountAccess } from "./components/account-access";
+import { SavedViewedMenu } from "./components/saved-viewed-menu";
 
 const nav = publicWorldNavigation.map((world) => ({ id: world.id, href: world.href, label: world.shortLabel, description: world.description }));
 
@@ -146,7 +147,8 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
         </Link>
 
         <div className="menu-panel__secondary">
-          <Link href="/favorites" data-loading-label={favoritesLoading} onClick={closeMenu}><HeartIcon /><span>{translate("מקומות שאהבתי")}</span></Link>
+          <Link href="/favorites?view=saved" data-loading-label={favoritesLoading} onClick={closeMenu}><HeartIcon /><span>{translate("מקומות שאהבתי")}</span></Link>
+          <Link href="/favorites?view=viewed" onClick={closeMenu}><EyeIcon /><span>{translate("מקומות שראיתי")}</span></Link>
           <Link href="/gift-card" onClick={closeMenu}><GiftIcon /><span>{translate("גיפט קארד")}</span></Link>
           <Link href="/destinations" onClick={closeMenu}><PinIcon /><span>{translate("יעדים")}</span></Link>
           <Link href="/guides" onClick={closeMenu} aria-current={magazineActive ? "page" : undefined}><InfoIcon /><span>{magazineCopy.menuLabel}</span></Link>
@@ -174,7 +176,7 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
           </Link>
 
           <div className="header-actions">
-            <Link className="icon-button" href="/favorites" aria-label={translate("מקומות שאהבתי")} data-loading-label={favoritesLoading}><HeartIcon /></Link>
+            <SavedViewedMenu />
             <LanguageSwitcher compact iconOnly />
             <Link className={`icon-button header-gift${pathname === "/gift-card" ? " active" : ""}`} href="/gift-card" aria-label={translate("גיפט קארד")} aria-current={pathname === "/gift-card" ? "page" : undefined}><GiftIcon /></Link>
             {showWorldSwitcher ? <WorldSwitcher active={variant} /> : null}
@@ -190,6 +192,7 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
 export function MenuIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>; }
 export function CloseIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>; }
 export function HeartIcon({ filled = false }: { filled?: boolean }) { return <svg viewBox="0 0 24 24" aria-hidden="true" className={filled ? "filled" : ""}><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" /></svg>; }
+export function EyeIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.6-6 9.5-6 9.5 6 9.5 6-3.6 6-9.5 6-9.5-6-9.5-6Z" /><circle cx="12" cy="12" r="2.8" /></svg>; }
 export function AccessibilityIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4" r="2" /><path d="M5 8h14M12 6v7m0 0-4 7m4-7 4 7" /></svg>; }
 export function ArrowIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" /></svg>; }
 export function SearchIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg>; }

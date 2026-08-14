@@ -21,6 +21,7 @@ export type SavedItem = {
  * every saved destination from the stable world and id before rendering it.
  */
 export function canonicalSavedItemHref(item: Pick<SavedItem, "world" | "id" | "href">) {
+  if (item.href.startsWith("/business?") || item.href.startsWith("/booking?")) return item.href;
   if (item.world === "vacation") return `/business?id=${encodeURIComponent(item.id)}`;
   if (item.world === "events") {
     return item.href.startsWith("/business?")

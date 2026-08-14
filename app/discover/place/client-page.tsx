@@ -6,6 +6,7 @@ import Link from "next/link";
 import { BreadcrumbTrail } from "../../components/breadcrumb-trail";
 import { worldBreadcrumb } from "../../lib/seo";
 import { FavoriteButton } from "../../components/favorite-button";
+import { ViewedItemTracker } from "../../components/viewed-item-tracker";
 import { useMemo, useState } from "react";
 import { DiscoveryCard } from "../../components/discovery-card";
 import { ListingAccessibility } from "../../components/listing-accessibility";
@@ -187,6 +188,7 @@ export default function DiscoveryPlacePage({ initialId }: { initialId: string })
   const onlineLabel = item.world === "spa" ? "בחירת חבילת ספא" : item.world === "providers" ? "בחירת שירות" : "הזמנה אונליין";
 
   return <PageShell variant={item.world as WorldId}>
+    <ViewedItemTracker id={item.id} world={item.world} name={item.name} location={`${item.location}, ${item.area}`} image={item.image} href={`/discover/place/${item.id}`} meta={item.priceLabel || item.duration} />
     <main id="main-content" className={`discovery-detail discovery-detail--${item.world}`}>
       <BreadcrumbTrail items={[{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), { name: item.name }]} />
       <section className="shell discovery-detail__hero">
