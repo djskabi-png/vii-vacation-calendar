@@ -157,7 +157,9 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const [mobileExpanded, setMobileExpanded] = useState(false);
   const [mobileStep, setMobileStep] = useState<"overview" | "location" | "dates" | "guests">("overview");
   const visibleDates = mode === "vacation" && vacationDateRange.from && vacationDateRange.till
-    ? dateLabelFromSearch({ get: (name) => name === "from" ? vacationDateRange.from : name === "till" ? vacationDateRange.till : null }, mode, activeRouteLanguage(language))
+    // Render with the provider language so the server and the first client render
+    // stay identical. LocaleProvider synchronizes the route language after hydration.
+    ? dateLabelFromSearch({ get: (name) => name === "from" ? vacationDateRange.from : name === "till" ? vacationDateRange.till : null }, mode, language)
     : dates;
 
   const restoreCommittedSearchState = useCallback(() => {
