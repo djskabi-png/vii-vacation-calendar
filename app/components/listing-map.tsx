@@ -154,6 +154,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
     let readyTimer: number | undefined;
     let layoutTimer: number | undefined;
     let settleFrame: number | undefined;
+    let createdMap: import("leaflet").Map | null = null;
     suppressViewportPrompt.current = true;
     setViewportDirty(false);
     setPendingVisibleIds([]);
@@ -162,6 +163,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
     void import("leaflet").then((L) => {
       if (cancelled) return;
       mapInstance.current?.remove();
+      mapInstance.current = null;
       markerRegistry.clear();
 
       const map = L.map(container, {
@@ -179,6 +181,8 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
         maxBounds: [[28.65, 33.55], [34.15, 36.45]],
         maxBoundsViscosity: 0.72,
       });
+      createdMap = map;
+      mapInstance.current = map;
       const streetTileUrl = language === "he"
         ? "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         : "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
@@ -397,16 +401,23 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
       focusInitialPlaces();
 
       map.on("moveend", () => {
+        if (cancelled || mapInstance.current !== map) return;
         renderMarkers();
       });
-      map.on("zoomend", () => { renderMarkers(); reportVisiblePlaces(true); });
-      map.on("dragend", () => reportVisiblePlaces(true));
+      map.on("zoomend", () => {
+        if (cancelled || mapInstance.current !== map) return;
+        renderMarkers();
+        reportVisiblePlaces(true);
+      });
+      map.on("dragend", () => {
+        if (cancelled || mapInstance.current !== map) return;
+        reportVisiblePlaces(true);
+      });
       renderMarkers();
       reportVisiblePlaces();
 
-      mapInstance.current = map;
       layoutTimer = window.setTimeout(() => {
-        if (cancelled) return;
+        if (cancelled || mapInstance.current !== map || !container.isConnected) return;
         map.invalidateSize({ animate: false });
         focusInitialPlaces();
         renderMarkers();
@@ -425,8 +436,9 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
       if (settleFrame) window.cancelAnimationFrame(settleFrame);
       suppressViewportPrompt.current = false;
       markerRegistry.clear();
-      mapInstance.current?.remove();
-      mapInstance.current = null;
+      createdMap?.off();
+      createdMap?.remove();
+      if (mapInstance.current === createdMap) mapInstance.current = null;
     };
   }, [enabled, places, selectPlace, single, tone, language, focusKey, initialPlaceIds, cardCopy.openCluster, mapControlCopy.cluster, mapControlCopy.zoomIn, mapControlCopy.zoomOut]);
 
