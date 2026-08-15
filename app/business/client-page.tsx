@@ -251,13 +251,13 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
           </div>
         </section> : null}
 
-        <section className="shell property-gallery">{property.images.slice(0, 5).map((image, index) => <button key={image} type="button" aria-label={`פתיחת גלריית ${property.name}, תמונה ${index + 1}`} onClick={() => openGallery("all", index)}><img src={image} alt={`${property.name}, תמונת המקום ${index + 1}`} title={`${property.name}, תמונת המקום ${index + 1}`} />{index === 4 && <span>לגלריה המלאה</span>}</button>)}</section>
+        <section className="shell property-gallery">{property.images.slice(0, 5).map((image, index) => <button key={image} type="button" data-gallery-trigger aria-label={`פתיחת גלריית ${property.name}, תמונה ${index + 1}`} onClick={() => openGallery("all", index)}><img src={image} alt={`${property.name}, תמונת המקום ${index + 1}`} title={`${property.name}, תמונת המקום ${index + 1}`} />{index === 4 && <span>לגלריה המלאה</span>}</button>)}</section>
 
         {property.demoOperations?.fictional && property.videos?.[0] ? <section className="shell palumbo-media-story" aria-labelledby="palumbo-media-title">
-          <header><div><span className="eyebrow">הסיפור המלא של המקום</span><h2 id="palumbo-media-title">רואים את הווילה לפני שבוחרים</h2><p>סיור מלא, חדרים, חללים ותמונות אורחים במקום אחד.</p></div><button type="button" className="button secondary" onClick={() => openGallery("all", 0)}>פתיחת הגלריה המלאה</button></header>
+          <header><div><span className="eyebrow">הסיפור המלא של המקום</span><h2 id="palumbo-media-title">רואים את הווילה לפני שבוחרים</h2><p>סיור מלא, חדרים, חללים ותמונות אורחים במקום אחד.</p></div><button type="button" data-gallery-trigger className="button secondary" onClick={() => openGallery("all", 0)}>פתיחת הגלריה המלאה</button></header>
           <div className="palumbo-media-story__grid">
             <article className="palumbo-media-story__video"><video controls playsInline preload="metadata" poster={property.videos[0].poster} aria-label={property.videos[0].title}><source src={property.videos[0].src} type="video/mp4" /></video><div><span>סיור בווידאו</span><h3>{property.videos[0].title}</h3><p>עוברים בין החללים ומכירים את מבנה הווילה לפני הבחירה.</p></div></article>
-            <aside className="palumbo-media-story__guests"><div className="palumbo-media-story__guests-heading"><span className="eyebrow">גלריית אורחים</span><h3>רגעים מהאירוח</h3><p>תמונות אורחים מוצגות לאחר אימות ואישור לפרסום.</p></div><div>{property.guestPhotos?.map((photo) => <button type="button" key={photo.src} onClick={() => openGallery("guests", 0)}><img src={photo.src} alt={photo.alt} title={photo.alt} /><span>{photo.author}</span></button>)}</div></aside>
+            <aside className="palumbo-media-story__guests"><div className="palumbo-media-story__guests-heading"><span className="eyebrow">גלריית אורחים</span><h3>רגעים מהאירוח</h3><p>תמונות אורחים מוצגות לאחר אימות ואישור לפרסום.</p></div><div>{property.guestPhotos?.map((photo) => <button type="button" data-gallery-trigger key={photo.src} onClick={() => openGallery("guests", 0)}><img src={photo.src} alt={photo.alt} title={photo.alt} /><span>{photo.author}</span></button>)}</div></aside>
           </div>
         </section> : null}
 

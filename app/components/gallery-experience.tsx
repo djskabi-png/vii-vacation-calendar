@@ -42,7 +42,6 @@ function uniqueItems(items: GalleryItem[]) {
 export function GalleryExperience({ property, open, initialIndex = 0, initialTab = "all", guestPhotos = property.guestPhotos || [], onAddGuestContent, onSelectionChange, onClose }: { property: GallerySubject; open: boolean; initialIndex?: number; initialTab?: GalleryTab; guestPhotos?: GuestPhoto[]; onAddGuestContent?: () => void; onSelectionChange?: (tab: GalleryTab, index: number) => void; onClose: () => void }) {
   const closeButton = useRef<HTMLButtonElement>(null);
   const dialog = useRef<HTMLDivElement>(null);
-  const returnFocus = useRef<HTMLElement | null>(null);
   const touchStart = useRef(0);
   const allItems = useMemo(() => uniqueItems([
     ...property.images.map((src, index) => ({ src, label: `${property.name}, תמונת המקום ${index + 1}`, category: "place" as const })),
@@ -70,7 +69,6 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
   useEffect(() => {
     if (!open) return;
     const previousOverflow = document.body.style.overflow;
-    returnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     document.body.style.overflow = "hidden";
     window.setTimeout(() => closeButton.current?.focus(), 0);
     const keydown = (event: KeyboardEvent) => {
@@ -105,7 +103,6 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", keydown);
-      window.setTimeout(() => returnFocus.current?.focus(), 0);
     };
   }, [move, onClose, open]);
 

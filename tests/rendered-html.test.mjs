@@ -1147,9 +1147,11 @@ test("gallery sharing uses a fragment and every meaningful gallery image has tex
   assert.match(hook, /window\.history\.replaceState/);
   assert.match(hook, /url\.hash = `gallery=\$\{tab\}&photo=/);
   assert.match(hook, /url\.hash = ""/);
+  assert.match(hook, /\[data-gallery-trigger\]/);
   for (const source of [business, eventPlace, discoveryPlace]) {
     assert.match(source, /title=\{/);
     assert.match(source, /openGallery\(/);
+    assert.match(source, /data-gallery-trigger/);
   }
 });
 

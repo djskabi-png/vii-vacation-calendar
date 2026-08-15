@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { GalleryTab } from "./gallery-experience";
 
 const allowedTabs = new Set<GalleryTab>(["all", "place", "units", "bedrooms", "guests", "videos"]);
@@ -40,6 +40,7 @@ export function useGalleryDeepLink() {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryStart, setGalleryStart] = useState(0);
   const [galleryTab, setGalleryTab] = useState<GalleryTab>("all");
+  const returnFocus = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const syncFromHash = () => {
@@ -58,6 +59,7 @@ export function useGalleryDeepLink() {
   }, []);
 
   const openGallery = useCallback((tab: GalleryTab = "all", index = 0) => {
+    returnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setGalleryTab(tab);
     setGalleryStart(index);
     setGalleryOpen(true);
@@ -67,6 +69,10 @@ export function useGalleryDeepLink() {
   const closeGallery = useCallback(() => {
     setGalleryOpen(false);
     clearGalleryHash();
+    window.setTimeout(() => {
+      const fallback = document.querySelector<HTMLElement>("[data-gallery-trigger]");
+      (returnFocus.current?.isConnected ? returnFocus.current : fallback)?.focus();
+    }, 0);
   }, []);
 
   const updateGallerySelection = useCallback((tab: GalleryTab, index: number) => {
