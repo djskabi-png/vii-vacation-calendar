@@ -18,6 +18,7 @@ import { discoveryItems, type DiscoveryItem } from "../data/world-data";
 import { nearbyTrails } from "../data/trail-data";
 import { TrailCard } from "../components/trail-card";
 import { GalleryExperience } from "../components/gallery-experience";
+import { useGalleryDeepLink } from "../components/use-gallery-deep-link";
 import { GuestReviewStudio } from "../components/guest-review-studio";
 import { WhatsAppLeadButton } from "../components/whatsapp-lead-button";
 import { ListingContactPreview, SampleListingDisclosure } from "../components/listing-contact-preview";
@@ -150,9 +151,7 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
   const [guests, setGuests] = useState(Math.max(1, Number(initialGuests) || 2));
   const [selectedPrice, setSelectedPrice] = useState(initialPrice || "");
   const rooms = Math.max(1, Number(initialRooms) || 1);
-  const [galleryOpen, setGalleryOpen] = useState(false);
-  const [galleryStart, setGalleryStart] = useState(0);
-  const [galleryTab, setGalleryTab] = useState<"all" | "guests">("all");
+  const { galleryOpen, galleryStart, galleryTab, openGallery, closeGallery, updateGallerySelection } = useGalleryDeepLink();
   const [reviewOpen, setReviewOpen] = useState(false);
   const [allFeaturesOpen, setAllFeaturesOpen] = useState(false);
   const [mobileFeaturesOpen, setMobileFeaturesOpen] = useState(false);
@@ -252,13 +251,13 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
           </div>
         </section> : null}
 
-        <section className="shell property-gallery">{property.images.slice(0, 5).map((image, index) => <button key={image} type="button" aria-label={`פתיחת גלריית ${property.name}, תמונה ${index + 1}`} onClick={() => { setGalleryTab("all"); setGalleryStart(index); setGalleryOpen(true); }}><img src={image} alt={`${property.name}, תמונה ${index + 1}`} />{index === 4 && <span>לגלריה המלאה</span>}</button>)}</section>
+        <section className="shell property-gallery">{property.images.slice(0, 5).map((image, index) => <button key={image} type="button" aria-label={`פתיחת גלריית ${property.name}, תמונה ${index + 1}`} onClick={() => openGallery("all", index)}><img src={image} alt={`${property.name}, תמונת המקום ${index + 1}`} title={`${property.name}, תמונת המקום ${index + 1}`} />{index === 4 && <span>לגלריה המלאה</span>}</button>)}</section>
 
         {property.demoOperations?.fictional && property.videos?.[0] ? <section className="shell palumbo-media-story" aria-labelledby="palumbo-media-title">
-          <header><div><span className="eyebrow">הסיפור המלא של המקום</span><h2 id="palumbo-media-title">רואים את הווילה לפני שבוחרים</h2><p>סיור מלא, חדרים, חללים ותמונות אורחים במקום אחד.</p></div><button type="button" className="button secondary" onClick={() => { setGalleryTab("all"); setGalleryStart(0); setGalleryOpen(true); }}>פתיחת הגלריה המלאה</button></header>
+          <header><div><span className="eyebrow">הסיפור המלא של המקום</span><h2 id="palumbo-media-title">רואים את הווילה לפני שבוחרים</h2><p>סיור מלא, חדרים, חללים ותמונות אורחים במקום אחד.</p></div><button type="button" className="button secondary" onClick={() => openGallery("all", 0)}>פתיחת הגלריה המלאה</button></header>
           <div className="palumbo-media-story__grid">
             <article className="palumbo-media-story__video"><video controls playsInline preload="metadata" poster={property.videos[0].poster} aria-label={property.videos[0].title}><source src={property.videos[0].src} type="video/mp4" /></video><div><span>סיור בווידאו</span><h3>{property.videos[0].title}</h3><p>עוברים בין החללים ומכירים את מבנה הווילה לפני הבחירה.</p></div></article>
-            <aside className="palumbo-media-story__guests"><div className="palumbo-media-story__guests-heading"><span className="eyebrow">גלריית אורחים</span><h3>רגעים מהאירוח</h3><p>תמונות אורחים מוצגות לאחר אימות ואישור לפרסום.</p></div><div>{property.guestPhotos?.map((photo) => <button type="button" key={photo.src} onClick={() => { setGalleryTab("guests"); setGalleryStart(0); setGalleryOpen(true); }}><img src={photo.src} alt={photo.alt} /><span>{photo.author}</span></button>)}</div></aside>
+            <aside className="palumbo-media-story__guests"><div className="palumbo-media-story__guests-heading"><span className="eyebrow">גלריית אורחים</span><h3>רגעים מהאירוח</h3><p>תמונות אורחים מוצגות לאחר אימות ואישור לפרסום.</p></div><div>{property.guestPhotos?.map((photo) => <button type="button" key={photo.src} onClick={() => openGallery("guests", 0)}><img src={photo.src} alt={photo.alt} title={photo.alt} /><span>{photo.author}</span></button>)}</div></aside>
           </div>
         </section> : null}
 
@@ -352,7 +351,7 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
 
             <section id="faq" className="faq-section"><span className="eyebrow">כל מה שחשוב לפני שמזמינים</span><h2>שאלות ותשובות</h2>{propertyFaq.map((item, index) => <article key={item.question} className={openFaq === index ? "open" : ""}><button type="button" aria-expanded={openFaq === index} onClick={() => setOpenFaq(openFaq === index ? null : index)}><span>{item.question}</span><b>{openFaq === index ? "−" : "+"}</b></button>{openFaq === index && <p>{item.answer}</p>}</article>)}</section>
 
-            <GuestReviewStudio placeName={property.name} subjectId={property.slug} rating={property.score} reviewCount={property.reviews} publishedReviews={property.reviewHighlights} illustrative={property.reviewSource === "fictional-demo"} open={reviewOpen} onClose={() => setReviewOpen(false)} onOpenGallery={() => { setGalleryTab("guests"); setGalleryStart(0); setGalleryOpen(true); }} />
+            <GuestReviewStudio placeName={property.name} subjectId={property.slug} rating={property.score} reviewCount={property.reviews} publishedReviews={property.reviewHighlights} illustrative={property.reviewSource === "fictional-demo"} open={reviewOpen} onClose={() => setReviewOpen(false)} onOpenGallery={() => openGallery("guests", 0)} />
 
             <section id="policies" className="policies-section"><span className="eyebrow">חשוב לדעת</span><h2>כללים ותנאי הזמנה</h2><div><article><b>כניסה ויציאה</b><p>שעות הכניסה והיציאה יוצגו לפי המקום והתאריך במנוע ההזמנות.</p></article><article><b>מחיר ותשלום</b><p>המחיר הסופי תלוי בתאריכים, בהרכב וביחידה שנבחרה.</p></article><article><b>ביטול ושינויים</b><p>התנאים המחייבים יוצגו לפני השלמת ההזמנה.</p></article><article><b>מידע על המקום</b><p>פרטי המקום והתמונות נבדקו כחלק מהכנת העמוד.</p></article></div></section>
             {property.demoOperations?.fictional ? <section className="palumbo-practical" aria-labelledby="palumbo-practical-title"><span className="eyebrow">מידע מעשי</span><h2 id="palumbo-practical-title">כל מה שצריך לדעת לפני ההזמנה</h2><div><article><strong>15:00</strong><span>כניסה החל משעה זו</span></article><article><strong>11:00</strong><span>עזיבה עד שעה זו</span></article><article><strong>2 לילות</strong><span>מינימום להזמנה</span></article><article><strong>8 אורחים</strong><span>תפוסה מרבית</span></article></div></section> : null}
@@ -380,7 +379,7 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
 
       <CalendarDemo mode="business" businessKind={property.scenario} businessName={property.name} open={calendarOpen && activeWorld === "vacation"} onClose={() => setCalendarOpen(false)} availabilityResolver={property.demoOperations?.fictional ? demoAvailabilityForDate : undefined} priceResolver={property.demoOperations?.fictional ? (date) => demoNightlyPrice(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`, property.demoOperations!.weekdayNightlyPrice, property.demoOperations!.weekendNightlyPrice) : undefined} onConfirm={(result) => { const from = result.checkIn || ""; setDates(result.summary); setDateRange({ from, till: result.checkOut || "" }); setSelectedPrice(property.demoOperations?.fictional && from ? String(demoNightlyPrice(from, property.demoOperations.weekdayNightlyPrice, property.demoOperations.weekendNightlyPrice)) : ""); }} />
 
-      <GalleryExperience key={`${property.slug}-${galleryOpen ? `${galleryTab}-${galleryStart}` : "closed"}`} property={property} guestPhotos={property.guestPhotos} open={galleryOpen} initialIndex={galleryStart} initialTab={galleryTab} onAddGuestContent={() => { setGalleryOpen(false); setReviewOpen(true); }} onClose={() => setGalleryOpen(false)} />
+      <GalleryExperience key={`${property.slug}-${galleryOpen ? `${galleryTab}-${galleryStart}` : "closed"}`} property={property} guestPhotos={property.guestPhotos} open={galleryOpen} initialIndex={galleryStart} initialTab={galleryTab} onAddGuestContent={() => { closeGallery(); setReviewOpen(true); }} onSelectionChange={updateGallerySelection} onClose={closeGallery} />
 
       {allFeaturesOpen && <div className="simple-modal" onMouseDown={(event) => event.target === event.currentTarget && setAllFeaturesOpen(false)}><section role="dialog" aria-modal="true" aria-labelledby="features-title"><header><h2 id="features-title">המתקנים של {property.name}</h2><button type="button" onClick={() => setAllFeaturesOpen(false)}>סגירה</button></header><div className="modal-feature-groups">{featureGroups.map((group) => <section key={group.title}><h3>{group.title}</h3><div className="feature-list modal-features">{group.items.map((feature) => <span key={feature}>✓ {feature}</span>)}</div></section>)}</div><p>המידע המוצג נבדק כחלק מהכנת עמוד המקום.</p></section></div>}
     </PageShell>

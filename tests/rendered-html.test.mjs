@@ -880,6 +880,9 @@ test("ships the immersive media, review and concierge experiences", async () => 
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
   assert.match(gallery, /המקום והמתקנים/);
+  assert.match(gallery, /title=\{current\.label\}/);
+  assert.match(gallery, /onSelectionChange/);
+  assert.match(gallery, /alt="" title=\{item\.label\}/);
   assert.match(gallery, /יחידות האירוח/);
   assert.match(gallery, /חדרי השינה/);
   assert.match(gallery, /onTouchStart/);
@@ -1128,6 +1131,47 @@ test("every business depth template exposes an internal gallery", async () => {
   const discoveryClient = await readFile(new URL("../app/discover/place/client-page.tsx", import.meta.url), "utf8");
   assert.match(discoveryClient, /<GalleryExperience/);
   assert.match(discoveryClient, /discovery-detail__gallery-launch/);
+  assert.match(discoveryClient, /useGalleryDeepLink/);
+  assert.match(business, /useGalleryDeepLink/);
+  assert.match(eventPlace, /useGalleryDeepLink/);
+});
+
+test("gallery sharing uses a fragment and every meaningful gallery image has text", async () => {
+  const [hook, business, eventPlace, discoveryPlace] = await Promise.all([
+    readFile(new URL("../app/components/use-gallery-deep-link.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/events/place/client-page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/discover/place/client-page.tsx", import.meta.url), "utf8"),
+  ]);
+  assert.match(hook, /#gallery=all&photo=2/);
+  assert.match(hook, /window\.history\.replaceState/);
+  assert.match(hook, /url\.hash = `gallery=\$\{tab\}&photo=/);
+  assert.match(hook, /url\.hash = ""/);
+  for (const source of [business, eventPlace, discoveryPlace]) {
+    assert.match(source, /title=\{/);
+    assert.match(source, /openGallery\(/);
+  }
+});
+
+test("all authored image elements declare an intentional alt value", async () => {
+  const { readdir, readFile: read } = await import("node:fs/promises");
+  const { join } = await import("node:path");
+  async function imageSources(directory) {
+    const entries = await readdir(directory, { withFileTypes: true });
+    const nested = await Promise.all(entries.map(async (entry) => {
+      const path = join(directory, entry.name);
+      if (entry.isDirectory()) return imageSources(path);
+      return entry.name.endsWith(".tsx") ? [path] : [];
+    }));
+    return nested.flat();
+  }
+  const sourceFiles = await imageSources(new URL("../app/", import.meta.url));
+  for (const sourceFile of sourceFiles) {
+    const source = await read(sourceFile, "utf8");
+    for (const image of source.matchAll(/<img\b[\s\S]*?>/g)) {
+      assert.match(image[0], /\balt\s*=/, `missing alt in ${sourceFile.pathname}`);
+    }
+  }
 });
 
 test("spa results expose working place and amenity filters before the result list", async () => {

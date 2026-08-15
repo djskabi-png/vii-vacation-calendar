@@ -13,6 +13,7 @@ import { providerProfiles } from "../../data/world-data";
 import { MasuExperience } from "../../components/masu-experience";
 import { CalendarIcon, PinIcon } from "../../site-header";
 import { GalleryExperience } from "../../components/gallery-experience";
+import { useGalleryDeepLink } from "../../components/use-gallery-deep-link";
 import { GuestReviewStudio } from "../../components/guest-review-studio";
 import { BreadcrumbTrail } from "../../components/breadcrumb-trail";
 import { DetailStickyDock, type DetailSectionLink } from "../../components/detail-sticky-dock";
@@ -23,8 +24,7 @@ import { ShareButton } from "../../components/share-dialog";
 import { ViewedItemTracker } from "../../components/viewed-item-tracker";
 
 export default function EventPlacePage({ initialSlug }: { initialSlug: string }) {
-  const [galleryOpen, setGalleryOpen] = useState(false);
-  const [galleryStart, setGalleryStart] = useState(0);
+  const { galleryOpen, galleryStart, galleryTab, openGallery, closeGallery, updateGallerySelection } = useGalleryDeepLink();
   const [submitState, setSubmitState] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [reference, setReference] = useState("");
   const [submissionId, setSubmissionId] = useState("");
@@ -86,7 +86,7 @@ export default function EventPlacePage({ initialSlug }: { initialSlug: string })
       <main id="main-content" className="event-place-page">
         <BreadcrumbTrail items={[{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, { name: "מקומות לאירועים", path: "/events/search" }, { name: place.name }]} />
         <section className="shell property-title event-title"><div><span className="eyebrow">{place.type}</span><h1>{place.name}</h1><p><PinIcon />{place.location}, {place.area}</p></div><div className="property-title__side"><div className="property-title__actions"><FavoriteButton compact={false} id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים`} /><ShareButton title={place.name} kind="event" />{ownerWhatsapp ? <WhatsAppLeadButton world="events" placeId={place.slug} placeName={place.name} businessPhone={ownerWhatsapp} serviceName={place.type} buttonClassName="property-whatsapp-action" /> : null}</div><a className="button primary" href="#event-booking">הזמנה אונליין</a></div></section>
-        <section className="shell property-gallery">{place.images.map((image, index) => <button key={image} type="button" onClick={() => { setGalleryStart(index); setGalleryOpen(true); }} aria-label={`פתיחת תמונה ${index + 1} של ${place.name}`}><img src={image} alt={`${place.name}, תמונה ${index + 1}`} />{index === 4 && <span>לגלריה המלאה</span>}</button>)}</section>
+        <section className="shell property-gallery">{place.images.map((image, index) => <button key={image} type="button" onClick={() => openGallery("all", index)} aria-label={`פתיחת תמונה ${index + 1} של ${place.name}`}><img src={image} alt={`${place.name}, תמונת המקום ${index + 1}`} title={`${place.name}, תמונת המקום ${index + 1}`} />{index === 4 && <span>לגלריה המלאה</span>}</button>)}</section>
 
         <DetailStickyDock name={place.name} location={`${place.location}, ${place.area}`} sections={sectionLinks} onlineHref="#event-booking" onlineLabel="בדיקת תאריך לאירוע" />
 
@@ -118,7 +118,7 @@ export default function EventPlacePage({ initialSlug }: { initialSlug: string })
         <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים לאירוע</h2></div><div className="event-more-grid">{eventPlaces.filter((item) => item.slug !== place.slug).slice(0, 3).map((item) => <Link key={item.slug} href={eventPlaceHref(item)}><img src={item.image} alt={item.name} /><div><b>{item.name}</b><span>{item.location} · עד {item.guests} אורחים</span></div></Link>)}</div></div></section>
       </main>
 
-      <GalleryExperience key={`${place.slug}-${galleryOpen ? galleryStart : "closed"}`} property={place} open={galleryOpen} initialIndex={galleryStart} onClose={() => setGalleryOpen(false)} />
+      <GalleryExperience key={`${place.slug}-${galleryOpen ? `${galleryTab}-${galleryStart}` : "closed"}`} property={place} open={galleryOpen} initialIndex={galleryStart} initialTab={galleryTab} onSelectionChange={updateGallerySelection} onClose={closeGallery} />
     </PageShell>
   );
 }

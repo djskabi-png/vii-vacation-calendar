@@ -20,6 +20,7 @@ import { PinIcon } from "../../site-header";
 import { DiscoveryMap } from "../../components/listing-map";
 import { MasuExperience } from "../../components/masu-experience";
 import { GalleryExperience } from "../../components/gallery-experience";
+import { useGalleryDeepLink } from "../../components/use-gallery-deep-link";
 import { DetailStickyDock, type DetailSectionLink } from "../../components/detail-sticky-dock";
 import { GuestReviewStudio } from "../../components/guest-review-studio";
 import { WhatsAppLeadButton } from "../../components/whatsapp-lead-button";
@@ -137,7 +138,7 @@ function ActivityContent({ itemId, details }: { itemId: string; details: Activit
 }
 
 export default function DiscoveryPlacePage({ initialId }: { initialId: string }) {
-  const [galleryOpen, setGalleryOpen] = useState(false);
+  const { galleryOpen, galleryStart, galleryTab, openGallery, closeGallery, updateGallerySelection } = useGalleryDeepLink();
   const item = useMemo(() => discoveryItems.find((entry) => entry.id === initialId) || discoveryItems[0], [initialId]);
   const world = worlds.find((entry) => entry.id === item.world) || worlds[2];
   const related = discoveryItems
@@ -193,7 +194,7 @@ export default function DiscoveryPlacePage({ initialId }: { initialId: string })
       <BreadcrumbTrail items={[{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), { name: item.name }]} />
       <section className="shell discovery-detail__hero">
         <div className="discovery-detail__copy"><span className="eyebrow">{world.label}</span><h1>{item.name}</h1><p className="discovery-detail__location"><PinIcon />{item.location}, {item.area}</p><p>{item.description}</p><div className="discovery-card__chips">{item.features.map((feature) => <span key={feature}>{feature}</span>)}</div><div className="discovery-detail__actions">{spaDetails ? <a className="button primary" href="#spa-packages">לבחירת חבילה</a> : providerDetails ? <a className="button primary" href="#provider-services">לבחירת שירות</a> : hourlyDetails ? <a className="button primary" href="#hourly-contact">הצגת מספר וחיוג</a> : activityDetails?.booking ? <a className="button primary" href="#activity-booking">איך מזמינים</a> : activityDetails ? <a className="button primary" href="#activity-plan">לתכנון המלא</a> : <Link className="button primary" href={world.href}>לכל האפשרויות</Link>}<FavoriteButton id={item.id} world={item.world} name={item.name} location={`${item.location}, ${item.area}`} image={item.image} href={`/discover/place/${item.id}`} meta={item.priceLabel || item.duration} compact={false} /><Link className="button secondary" href={world.href}>חזרה לרשימה</Link></div></div>
-        <div className={`discovery-detail__media discovery-card__placeholder--${item.world}`}>{item.image ? <><button className="discovery-detail__gallery-media" type="button" onClick={() => setGalleryOpen(true)} aria-label={`פתיחת הגלריה של ${item.name}`}><img src={item.image} alt={item.imageLabel ? `תמונת אווירה לתחום ${item.features[0]}` : item.name} /></button>{item.imageLabel && <span className="image-context-label image-context-label--detail">{item.imageLabel}</span>}<button className="discovery-detail__gallery-launch" type="button" onClick={() => setGalleryOpen(true)}><span aria-hidden="true">▦</span>לגלריה <small>{galleryImages.length} {galleryImages.length === 1 ? "תמונה" : "תמונות"}</small></button></> : null}</div>
+        <div className={`discovery-detail__media discovery-card__placeholder--${item.world}`}>{item.image ? <><button className="discovery-detail__gallery-media" type="button" onClick={() => openGallery("all", 0)} aria-label={`פתיחת הגלריה של ${item.name}`}><img src={item.image} alt={item.imageLabel ? `תמונת אווירה לתחום ${item.features[0]}` : item.name} title={item.imageLabel || item.name} /></button>{item.imageLabel && <span className="image-context-label image-context-label--detail">{item.imageLabel}</span>}<button className="discovery-detail__gallery-launch" type="button" onClick={() => openGallery("all", 0)}><span aria-hidden="true">▦</span>לגלריה <small>{galleryImages.length} {galleryImages.length === 1 ? "תמונה" : "תמונות"}</small></button></> : null}</div>
       </section>
       <DetailStickyDock name={item.name} location={`${item.location}, ${item.area}`} sections={sections} onlineHref={onlineHref} onlineLabel={onlineLabel} phone={phone} />
       {spaDetails ? <SpaContent itemId={item.id} details={spaDetails} /> : null}
@@ -206,6 +207,6 @@ export default function DiscoveryPlacePage({ initialId }: { initialId: string })
       <div className="section shell"><GuestReviewStudio placeName={item.name} subjectId={item.id} rating={item.rating} /></div>
       <section className="section section-tint"><div className="shell"><div className="section-head"><div><span className="eyebrow">באותו עולם</span><h2>עוד אפשרויות שכדאי לראות</h2></div></div><div className="discovery-grid">{related.map((entry) => <DiscoveryCard key={entry.id} item={entry} />)}</div></div></section>
     </main>
-    <GalleryExperience key={`${item.id}-${galleryOpen ? "open" : "closed"}`} property={gallerySubject} open={galleryOpen} onClose={() => setGalleryOpen(false)} />
+    <GalleryExperience key={`${item.id}-${galleryOpen ? `${galleryTab}-${galleryStart}` : "closed"}`} property={gallerySubject} open={galleryOpen} initialIndex={galleryStart} initialTab={galleryTab} onSelectionChange={updateGallerySelection} onClose={closeGallery} />
   </PageShell>;
 }

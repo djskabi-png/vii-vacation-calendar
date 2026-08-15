@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Property } from "../data/site-data";
 
 type GallerySubject = Pick<Property, "name" | "images"> & Partial<Pick<Property, "roomOptions" | "sleepingArrangements" | "videos" | "guestPhotos">>;
@@ -13,7 +13,7 @@ type GalleryItem = {
   category: "place" | "units" | "bedrooms" | "guests";
 };
 
-type GalleryTab = "all" | GalleryItem["category"] | "videos";
+export type GalleryTab = "all" | GalleryItem["category"] | "videos";
 
 export type GuestPhoto = {
   src: string;
@@ -39,7 +39,7 @@ function uniqueItems(items: GalleryItem[]) {
   });
 }
 
-export function GalleryExperience({ property, open, initialIndex = 0, initialTab = "all", guestPhotos = property.guestPhotos || [], onAddGuestContent, onClose }: { property: GallerySubject; open: boolean; initialIndex?: number; initialTab?: GalleryTab; guestPhotos?: GuestPhoto[]; onAddGuestContent?: () => void; onClose: () => void }) {
+export function GalleryExperience({ property, open, initialIndex = 0, initialTab = "all", guestPhotos = property.guestPhotos || [], onAddGuestContent, onSelectionChange, onClose }: { property: GallerySubject; open: boolean; initialIndex?: number; initialTab?: GalleryTab; guestPhotos?: GuestPhoto[]; onAddGuestContent?: () => void; onSelectionChange?: (tab: GalleryTab, index: number) => void; onClose: () => void }) {
   const closeButton = useRef<HTMLButtonElement>(null);
   const dialog = useRef<HTMLDivElement>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
@@ -58,6 +58,14 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
   const tabs = (["all", "place", "units", "bedrooms", "guests", "videos"] as GalleryTab[]).filter((item) => item === "all" || item === "guests"
     || item === "videos" && Boolean(property.videos?.length)
     || item !== "videos" && allItems.some((media) => media.category === item));
+  const move = useCallback((direction: -1 | 1) => {
+    if (!visibleItems.length) return;
+    setSelected((value) => (value + direction + visibleItems.length) % visibleItems.length);
+  }, [visibleItems.length]);
+
+  useEffect(() => {
+    if (open) onSelectionChange?.(tab, selected);
+  }, [onSelectionChange, open, selected, tab]);
 
   useEffect(() => {
     if (!open) return;
@@ -99,18 +107,13 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
       window.removeEventListener("keydown", keydown);
       window.setTimeout(() => returnFocus.current?.focus(), 0);
     };
-  }, [onClose, open, visibleItems.length]);
+  }, [move, onClose, open]);
 
   if (!open) return null;
 
   function selectTab(next: GalleryTab) {
     setTab(next);
     setSelected(0);
-  }
-
-  function move(direction: -1 | 1) {
-    if (!visibleItems.length) return;
-    setSelected((value) => (value + direction + visibleItems.length) % visibleItems.length);
   }
 
   return <div ref={dialog} className="story-gallery" role="dialog" aria-modal="true" aria-labelledby="story-gallery-title">
@@ -140,7 +143,7 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
         if (Math.abs(distance) > 45) move(distance > 0 ? -1 : 1);
       }}>
         <div className="story-gallery__progress" aria-hidden="true">{visibleItems.map((item, index) => <i key={`mobile-${item.src}`} className={index <= selected ? "active" : ""} />)}</div>
-        {current ? <img className="story-gallery__mobile-image" src={current.src} alt={current.label} /> : null}
+        {current ? <img className="story-gallery__mobile-image" src={current.src} alt={current.label} title={current.label} /> : null}
         {visibleItems.length > 1 ? <><button className="story-gallery__tap story-gallery__tap--previous" type="button" onClick={() => move(-1)} aria-label="התמונה הקודמת" />
         <button className="story-gallery__tap story-gallery__tap--next" type="button" onClick={() => move(1)} aria-label="התמונה הבאה" /></> : null}
         <div className="story-gallery__caption"><span>{tabLabels[current?.category || "place"]}</span><strong>{current?.label}</strong></div>
@@ -150,14 +153,14 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
         if (Math.abs(distance) > 45) move(distance > 0 ? -1 : 1);
       }}>
         <div className="story-gallery__progress" aria-hidden="true">{visibleItems.map((item, index) => <i key={item.src} className={index <= selected ? "active" : ""} />)}</div>
-        {current ? <img className="story-gallery__image" src={current.src} alt={current.label} /> : null}
+        {current ? <img className="story-gallery__image" src={current.src} alt={current.label} title={current.label} /> : null}
         {visibleItems.length > 1 ? <><button className="story-gallery__tap story-gallery__tap--previous" type="button" onClick={() => move(-1)} aria-label="התמונה הקודמת" />
         <button className="story-gallery__tap story-gallery__tap--next" type="button" onClick={() => move(1)} aria-label="התמונה הבאה" /></> : null}
         <div className="story-gallery__caption"><span>{tabLabels[current?.category || "place"]}</span><strong>{current?.label}</strong></div>
       </div>
 
       <div className="story-gallery__grid" aria-label="כל התמונות בנושא">
-        {visibleItems.map((item, index) => <button key={item.src} className={index === selected ? "selected" : ""} type="button" onClick={() => setSelected(index)} aria-label={`הצגת ${item.label}`}><img src={item.src} alt="" /><span>{item.label}</span></button>)}
+        {visibleItems.map((item, index) => <button key={item.src} className={index === selected ? "selected" : ""} type="button" onClick={() => setSelected(index)} aria-label={`הצגת ${item.label}`}><img src={item.src} alt="" title={item.label} /><span>{item.label}</span></button>)}
       </div>
     </div>}
   </div>;
