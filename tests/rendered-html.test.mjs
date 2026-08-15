@@ -923,6 +923,7 @@ test("ships the immersive media, review and concierge experiences", async () => 
   assert.match(styles, /\.story-gallery__story,.story-gallery__grid \{ display: none !important; \}/);
   assert.match(styles, /\.story-gallery__mobile-stage \{ position: relative; display: block; width: 100%; min-height: 0; background: #02090c; \}/);
   assert.match(styles, /\.story-gallery__mobile-image \{ display: block; width: 100%; min-width: 0; height: auto; max-width: 100%; background: #02090c; object-fit: contain; filter: none !important; transform: none !important; \}/);
+  assert.match(styles, /\.story-gallery__mobile-stage \.story-gallery__tap \{ top: 0; bottom: 0; width: 30%; height: auto; border: 0; border-radius: 0; background: transparent; box-shadow: none; backdrop-filter: none; transform: none; \}/);
   assert.doesNotMatch(styles, /\.property-gallery button \{ flex: 0 0 90%; height: 300px; scroll-snap-align: center; \}/);
   assert.match(styles, /\.smart-concierge__trigger \{ position: relative; width: 72px/);
   assert.match(styles, /smart-concierge__panel/);
