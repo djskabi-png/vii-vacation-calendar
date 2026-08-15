@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { Property } from "../data/site-data";
 import type { ResolvedAvailability, SelectedStay } from "./property-card";
+import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
 
 type LegacyAvailabilityResponse = {
   success: true;
@@ -20,22 +21,31 @@ type LegacyAvailabilityResponse = {
     availableCount: number;
     totalPrice: number;
     nightlyPrice: number;
+    maxGuests: number;
   }>;
+};
+
+export type LegacyAvailabilityState = {
+  quote: ResolvedAvailability | null;
+  status: "idle" | "loading" | "ready" | "error";
 };
 
 export function useLegacyAvailability(property: Property, selectedStay: SelectedStay | null) {
   const [resolved, setResolved] = useState<{ key: string; quote: ResolvedAvailability } | null>(null);
+  const [failedKey, setFailedKey] = useState<string | null>(null);
   const slug = property.slug;
-  const enabled = slug === "hilat-hanof" && Boolean(property.inventorySource);
+  const enabled = Boolean(legacyAvailabilitySourceFor(slug));
   const from = selectedStay?.from || "";
   const till = selectedStay?.till || "";
-  const requestKey = `${slug}|${from}|${till}`;
+  const guests = Math.max(1, selectedStay?.guests || 2);
+  const requestKey = `${slug}|${from}|${till}|${guests}`;
 
   useEffect(() => {
     if (!enabled || !from || !till) return;
+    setFailedKey(null);
     const controller = new AbortController();
-    const params = new URLSearchParams({ place: slug, from, till });
-    fetch(`/hilat-calendar-data?${params.toString()}`, {
+    const params = new URLSearchParams({ place: slug, from, till, guests: String(guests) });
+    fetch(`/api/legacy-availability?${params.toString()}`, {
       cache: "no-store",
       credentials: "same-origin",
       headers: { Accept: "application/json" },
@@ -43,7 +53,10 @@ export function useLegacyAvailability(property: Property, selectedStay: Selected
     })
       .then((response) => response.ok ? response.json() as Promise<LegacyAvailabilityResponse> : null)
       .then((result) => {
-        if (!result?.success || result.from !== from || result.till !== till) return;
+        if (!result?.success || result.from !== from || result.till !== till) {
+          if (!controller.signal.aborted) setFailedKey(requestKey);
+          return;
+        }
         setResolved({
           key: requestKey,
           quote: {
@@ -59,13 +72,19 @@ export function useLegacyAvailability(property: Property, selectedStay: Selected
               availableCount: unit.availableCount,
               totalPrice: unit.totalPrice > 0 ? unit.totalPrice : undefined,
               nightlyPrice: unit.nightlyPrice > 0 ? unit.nightlyPrice : undefined,
+              maxGuests: unit.maxGuests,
             })),
           },
         });
       })
-      .catch(() => undefined);
+      .catch(() => {
+        if (!controller.signal.aborted) setFailedKey(requestKey);
+      });
     return () => controller.abort();
-  }, [enabled, from, requestKey, slug, till]);
+  }, [enabled, from, guests, requestKey, slug, till]);
 
-  return resolved?.key === requestKey ? resolved.quote : null;
+  if (!enabled || !from || !till) return { quote: null, status: "idle" } satisfies LegacyAvailabilityState;
+  if (resolved?.key === requestKey) return { quote: resolved.quote, status: "ready" } satisfies LegacyAvailabilityState;
+  if (failedKey === requestKey) return { quote: null, status: "error" } satisfies LegacyAvailabilityState;
+  return { quote: null, status: "loading" } satisfies LegacyAvailabilityState;
 }

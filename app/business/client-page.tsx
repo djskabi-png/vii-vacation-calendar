@@ -167,9 +167,9 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
   const activeOffering = offerings.find((offering) => offering.world === activeWorld) || offerings[0];
   const hasSelectedDates = Boolean(dateRange.from && dateRange.till);
   const hasSearchContext = initialSource === "search" && Boolean(initialDates || hasSelectedDates);
-  const selectedStay = hasSelectedDates ? { from: dateRange.from, till: dateRange.till } : null;
+  const selectedStay = hasSelectedDates ? { from: dateRange.from, till: dateRange.till, guests } : null;
   const liveLegacyAvailability = useLegacyAvailability(property, selectedStay);
-  const resolvedAvailability = liveLegacyAvailability || resolveAvailabilityForStay(property, selectedStay, "/business", null);
+  const resolvedAvailability = liveLegacyAvailability.quote || resolveAvailabilityForStay(property, selectedStay, "/business", null);
   const resolvedSelectedPrice = selectedPrice || (resolvedAvailability?.nightlyPrice ? String(resolvedAvailability.nightlyPrice) : "");
   const hasSelectedPrice = Boolean(resolvedSelectedPrice && Number(resolvedSelectedPrice) > 0);
   const vacationOnlineReady = activeWorld === "vacation" && hasSelectedDates && resolvedAvailability?.availability === "available" && hasSelectedPrice;

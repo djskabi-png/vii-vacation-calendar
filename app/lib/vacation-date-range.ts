@@ -1,6 +1,6 @@
 import type { SiteLanguage } from "../i18n/locale-routing";
 
-export type VacationStay = { from: string; till: string };
+export type VacationStay = { from: string; till: string; guests?: number };
 
 type SearchParamsReader = { get(name: string): string | null };
 
@@ -65,8 +65,10 @@ function parseDisplayLabel(value: string, preferredLanguage: SiteLanguage, year:
 export function vacationStayFromSearch(searchParams: SearchParamsReader, language: SiteLanguage, year = new Date().getFullYear()): VacationStay | null {
   const from = searchParams.get("from");
   const till = searchParams.get("till");
-  if (validIsoDate(from) && validIsoDate(till) && from! < till!) return { from: from!, till: till! };
+  const requestedGuests = Math.max(1, Number(searchParams.get("guests") || searchParams.get("adults") || 2) || 2);
+  if (validIsoDate(from) && validIsoDate(till) && from! < till!) return { from: from!, till: till!, guests: requestedGuests };
 
   const displayLabel = searchParams.get("dates");
-  return displayLabel ? parseDisplayLabel(displayLabel, language, year) : null;
+  const parsed = displayLabel ? parseDisplayLabel(displayLabel, language, year) : null;
+  return parsed ? { ...parsed, guests: requestedGuests } : null;
 }

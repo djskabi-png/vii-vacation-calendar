@@ -1,11 +1,10 @@
-const HILAT_SOURCE = "https://www.vii.co.il/hilat_hanof";
-const HILAT_AVAILABILITY_SOURCE = "https://www.vii.co.il/ajax_order.php";
-const FIRST_DATE = "2026-08-14";
-const LAST_DATE = "2026-10-14";
+import { legacyAvailabilitySourceFor } from "../../lib/legacy-availability-sources";
+
+const LEGACY_AVAILABILITY_ENDPOINT = "https://www.vii.co.il/ajax_order.php";
 
 type LegacyQuote = {
   success: true;
-  place: "hilat-hanof";
+  place: string;
   from: string;
   till: string;
   availability: "available" | "unavailable";
@@ -20,6 +19,7 @@ type LegacyQuote = {
     availableCount: number;
     totalPrice: number;
     nightlyPrice: number;
+    maxGuests: number;
   }>;
   source: string;
   checkedAt: string;
@@ -30,7 +30,7 @@ function json(body: unknown, status = 200) {
     status,
     headers: {
       "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "public, max-age=300, s-maxage=300",
+      "Cache-Control": "public, max-age=60, s-maxage=60",
     },
   });
 }
@@ -48,22 +48,24 @@ function nightsBetween(from: string, till: string) {
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const place = url.searchParams.get("place") || "";
+  const source = legacyAvailabilitySourceFor(place);
   const from = url.searchParams.get("from");
   const till = url.searchParams.get("till");
-  if (place !== "hilat-hanof" || !validDate(from) || !validDate(till)) return json({ success: false, error: "invalid_request" }, 400);
+  const guests = Math.max(1, Number(url.searchParams.get("guests") || 2) || 2);
+  if (!source || !validDate(from) || !validDate(till)) return json({ success: false, error: "invalid_request" }, 400);
   const selectedFrom = from as string;
   const selectedTill = till as string;
   const nights = nightsBetween(selectedFrom, selectedTill);
-  if (selectedFrom < FIRST_DATE || selectedTill > LAST_DATE || nights < 1 || nights > 62) return json({ success: false, error: "outside_verified_window" }, 422);
+  if (nights < 1 || nights > 90) return json({ success: false, error: "invalid_stay_length" }, 422);
 
   try {
     const sourceRequest = new URLSearchParams({
       act: "roomList",
-      sid: "11",
+      sid: source.siteId,
       from: selectedFrom,
       till: selectedTill,
     });
-    const response = await fetch(HILAT_AVAILABILITY_SOURCE, {
+    const response = await fetch(LEGACY_AVAILABILITY_ENDPOINT, {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -76,33 +78,38 @@ export async function GET(request: Request) {
     if (!response.ok) return json({ success: false, error: "legacy_source_unavailable" }, 502);
     const payload = (await response.json()) as { rooms?: unknown; availablesOf?: unknown };
     const rooms = typeof payload.rooms === "string" ? payload.rooms : "";
-    const roomMatches = [...rooms.matchAll(/<div class="room[^>]*data-id="([^"]+)"[^>]*data-price="([^"]+)"[^>]*data-available="([^"]+)"/gi)].slice(0, 4);
-    if (roomMatches.length !== 4 || Number(payload.availablesOf) !== 4) return json({ success: false, error: "legacy_response_changed" }, 502);
+    const roomMatches = [...rooms.matchAll(/<div class="room\b([^>]*)>/gi)].map((match) => {
+      const attributes = match[1];
+      const attribute = (name: string) => attributes.match(new RegExp(`${name}="([^"]*)"`, "i"))?.[1] || "";
+      return { id: attribute("data-id"), price: Number(attribute("data-price")) || 0, available: Number(attribute("data-available")) || 0, maxGuests: Number(attribute("data-maxguests")) || 0 };
+    }).filter((room) => room.id);
+    if (!roomMatches.length || Number(payload.availablesOf) !== roomMatches.length) return json({ success: false, error: "legacy_response_changed" }, 502);
 
-    const availableByUnit = roomMatches.map((match) => Number(match[3]) || 0);
-    const prices = roomMatches.map((match) => Number(match[2]) || 0);
-    const availableUnits = availableByUnit.filter((count) => count > 0).length;
-    const availablePrices = prices.filter((price, index) => availableByUnit[index] > 0 && price > 0);
+    const availableByUnit = roomMatches.map((room) => room.available);
+    const prices = roomMatches.map((room) => room.price);
+    const availableUnits = roomMatches.filter((room) => room.available > 0 && (!room.maxGuests || guests <= room.maxGuests)).length;
+    const availablePrices = prices.filter((price, index) => availableByUnit[index] > 0 && (!roomMatches[index].maxGuests || guests <= roomMatches[index].maxGuests) && price > 0);
     const totalPrice = availablePrices.length ? Math.min(...availablePrices) : Math.max(0, ...prices);
     const result: LegacyQuote = {
       success: true,
-      place: "hilat-hanof",
+      place,
       from: selectedFrom,
       till: selectedTill,
       availability: availableUnits > 0 ? "available" : "unavailable",
       availableUnits,
-      totalUnits: 4,
+      totalUnits: roomMatches.length,
       totalPrice,
       nightlyPrice: totalPrice > 0 ? totalPrice / nights : 0,
       includedGuests: 2,
       units: availableByUnit.map((availableCount, index) => ({
         index,
-        availability: availableCount > 0 ? "available" : "unavailable",
+        availability: availableCount > 0 && (!roomMatches[index].maxGuests || guests <= roomMatches[index].maxGuests) ? "available" : "unavailable",
         availableCount,
         totalPrice: prices[index] || 0,
         nightlyPrice: prices[index] > 0 ? prices[index] / nights : 0,
+        maxGuests: roomMatches[index].maxGuests,
       })),
-      source: HILAT_SOURCE,
+      source: source.sourceUrl,
       checkedAt: new Date().toISOString(),
     };
     return json(result);
