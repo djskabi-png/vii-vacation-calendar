@@ -12,14 +12,35 @@ import { indexableSpaSearchStates, spaSearchHref } from "./data/spa-search-landi
 import { matchesSearchLocation, searchLocationOptions } from "./data/search-taxonomy";
 import { eventSearchHref, hourlySearchHref } from "./data/world-search-landings";
 
-const updated = new Date("2026-08-06T00:00:00+03:00");
+/**
+ * Every indexable page has one canonical Hebrew URL and reciprocal language
+ * alternatives. Keeping the alternate cluster in the sitemap makes the
+ * language relationship discoverable without adding duplicate canonical URLs.
+ *
+ * We intentionally omit `lastModified` here. The catalog does not yet expose
+ * a verified per-record edit timestamp, and an invented shared timestamp is a
+ * less reliable crawl signal than no timestamp at all.
+ */
+function languageAlternates(path: string) {
+  const canonical = absoluteUrl(path);
+  const normalizedPath = path === "/" ? "" : path.replace(/\/$/, "");
+  return {
+    languages: {
+      "he-IL": canonical,
+      en: absoluteUrl(`/en${normalizedPath}` || "/en"),
+      ru: absoluteUrl(`/ru${normalizedPath}` || "/ru"),
+      fr: absoluteUrl(`/fr${normalizedPath}` || "/fr"),
+      "x-default": canonical,
+    },
+  };
+}
 
 function item(path: string, priority: number, changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"] = "weekly", images?: string[]): MetadataRoute.Sitemap[number] {
   return {
     url: absoluteUrl(path),
-    lastModified: updated,
     changeFrequency,
     priority,
+    alternates: languageAlternates(path),
     ...(images?.length ? { images: Array.from(new Set(images)).map(absoluteUrl) } : {}),
   };
 }

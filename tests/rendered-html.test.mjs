@@ -993,6 +993,18 @@ test("every canonical URL in the sitemap has complete crawlable HTML", async () 
   }
 });
 
+test("sitemap exposes reciprocal language alternatives without synthetic update dates", async () => {
+  const response = await render("/sitemap.xml", { headers: { accept: "application/xml" } });
+  const xml = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(xml, /hreflang="he-IL" href="https:\/\/vii\.spaplus\.co\//);
+  assert.match(xml, /hreflang="en" href="https:\/\/vii\.spaplus\.co\/en/);
+  assert.match(xml, /hreflang="ru" href="https:\/\/vii\.spaplus\.co\/ru/);
+  assert.match(xml, /hreflang="fr" href="https:\/\/vii\.spaplus\.co\/fr/);
+  assert.match(xml, /hreflang="x-default" href="https:\/\/vii\.spaplus\.co\//);
+  assert.doesNotMatch(xml, /<lastmod>/);
+});
+
 test("key page types emit matching structured data and private pages stay out of the index", async () => {
   for (const [pathname, expectedTypes] of [
     ["/", ["Organization", "WebSite", "SearchAction"]],
