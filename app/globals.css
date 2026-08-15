@@ -4685,13 +4685,13 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
   .results-toolbar__actions .button { flex: 1; justify-content: center; }
   .results-toolbar label { width: 100%; display: grid; grid-template-columns: auto minmax(0,1fr); align-items: center; gap: 8px; }
   .results-toolbar select { width: 100%; margin-inline-start: 0; }
-  .property-gallery { display: flex; gap: 0; overflow-x: auto; overflow-y: hidden; border-radius: 18px; background: #edf5f5; scroll-snap-type: x mandatory; overscroll-behavior-inline: contain; scrollbar-width: none; }
+  .property-gallery { display: block; overflow: hidden; border-radius: 18px; background: #edf5f5; }
   .property-gallery::-webkit-scrollbar { display: none; }
   .multiworld-offerings { padding: 17px; border-radius: 20px; }
   .multiworld-offerings__options { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 4px; }
   .multiworld-offerings__options button { flex: 0 0 82%; min-height: 105px; scroll-snap-align: start; }
-  .property-gallery button { flex: 0 0 100%; height: auto; aspect-ratio: 3 / 2; scroll-snap-align: start; }
-  .property-gallery.single button { flex-basis: 100%; }
+  .property-gallery button { display: none; width: 100%; height: auto; aspect-ratio: 3 / 2; }
+  .property-gallery button:first-child { display: block; }
   .property-gallery img { object-fit: contain; background: #edf5f5; }
   .property-title__actions { width: 100%; }
   .property-title__actions button { flex: 1; justify-content: center; }

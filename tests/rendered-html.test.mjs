@@ -915,7 +915,9 @@ test("ships the immersive media, review and concierge experiences", async () => 
   assert.match(home, /דילים לתקופות מבוקשות/);
   assert.equal((data.match(/src: "\/media\/tours\//g) || []).length, 11);
   assert.match(styles, /story-gallery__progress/);
-  assert.match(styles, /\.property-gallery button \{ flex: 0 0 100%; height: auto; aspect-ratio: 3 \/ 2; scroll-snap-align: start; \}/);
+  assert.match(styles, /\.property-gallery \{ display: block; overflow: hidden; border-radius: 18px; background: #edf5f5; \}/);
+  assert.match(styles, /\.property-gallery button \{ display: none; width: 100%; height: auto; aspect-ratio: 3 \/ 2; \}/);
+  assert.match(styles, /\.property-gallery button:first-child \{ display: block; \}/);
   assert.match(styles, /\.property-gallery img \{ object-fit: contain; background: #edf5f5; \}/);
   assert.match(styles, /\.story-gallery__story > img \{ object-fit: contain; \}/);
   assert.doesNotMatch(styles, /\.property-gallery button \{ flex: 0 0 90%; height: 300px; scroll-snap-align: center; \}/);
