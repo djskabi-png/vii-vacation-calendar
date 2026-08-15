@@ -39,7 +39,7 @@ function localizeStructuredUrl(value: string, locale: Exclude<PublicLocale, "he"
 function localizeStructuredData(value: unknown, locale: Exclude<PublicLocale, "he">, key?: string, parentType?: string): unknown {
   if (key === "inLanguage") return locale;
   if (typeof value === "string") {
-    const isPageUrl = ["mainEntityOfPage", "item", "urlTemplate"].includes(key || "")
+    const isPageUrl = ["@id", "mainEntityOfPage", "item", "urlTemplate"].includes(key || "")
       || (key === "url" && !["Organization", "WebSite", "ImageObject"].includes(parentType || ""));
     return translateServerText(isPageUrl ? localizeStructuredUrl(value, locale) : value, locale);
   }

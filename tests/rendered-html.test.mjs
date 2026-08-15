@@ -1242,7 +1242,7 @@ test("translated structured data keeps entity URLs on the matching locale withou
 
   assert.match(worker, /function localizeStructuredUrl/);
   assert.match(worker, /url\.pathname = `\/\$\{locale\}\$\{basePath === "\/" \? "" : basePath\}`/);
-  assert.match(worker, /\["mainEntityOfPage", "item", "urlTemplate"\]/);
+  assert.match(worker, /\["@id", "mainEntityOfPage", "item", "urlTemplate"\]/);
   assert.match(worker, /\["Organization", "WebSite", "ImageObject"\]/);
   assert.match(worker, /assets\|media/);
 });
