@@ -96,7 +96,7 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
       <nav className="menu-panel" aria-label={translate("ניווט מלא")}>
         <div className="menu-panel__head">
           <Link href="/" onClick={closeMenu} aria-label={translate("וי פור ויקיישן, דף הבית")}>
-            <img src="/vii-logo.png" alt={translate("וי פור ויקיישן")} />
+            <img src="/vii-logo.png" alt={translate("וי פור ויקיישן")} title={translate("וי פור ויקיישן")} />
           </Link>
           <button ref={closeButtonRef} type="button" onClick={closeMenu} aria-label={translate("סגירת תפריט")}><CloseIcon /></button>
         </div>
@@ -172,7 +172,7 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
       <header className="site-header">
         <div className="site-header__inner shell">
           <Link className="brand" href="/" aria-label={translate("וי פור ויקיישן, דף הבית")}>
-            <img src="/vii-logo.png" alt={translate("וי פור ויקיישן")} />
+            <img src="/vii-logo.png" alt={translate("וי פור ויקיישן")} title={translate("וי פור ויקיישן")} />
           </Link>
 
           <div className="header-actions">

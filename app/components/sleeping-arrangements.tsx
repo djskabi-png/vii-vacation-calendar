@@ -43,7 +43,7 @@ export function SleepingArrangements({ placeName, arrangements }: Props) {
       <div className="sleeping-track" ref={track} tabIndex={0} aria-label={`חדרי השינה של ${placeName}`}>
         {arrangements.map((arrangement) => (
           <article className="sleeping-card" key={arrangement.name}>
-            <img src={arrangement.galleryImage} alt={`${arrangement.name} ב${placeName}`} loading="lazy" />
+            <img src={arrangement.galleryImage} alt={`${arrangement.name} ב${placeName}`} title={`${arrangement.name} ב${placeName}`} loading="lazy" />
             <div className="sleeping-card__body">
               <span>{arrangement.floor || "הקומה לא צוינה בפרטי המקום"}</span>
               <h3>{arrangement.name}</h3>

@@ -448,7 +448,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
   const previewContent = (
     <>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="map-preview-image" src={preview.image} alt={`מבט על ${preview.name}`} />
+      <img className="map-preview-image" src={preview.image} alt={`מבט על ${preview.name}`} title={`מבט על ${preview.name}`} />
       <span className="map-preview-shade" aria-hidden="true" />
       <div className="map-preview-content">
         <span className="map-preview-label">{mapCopy.preview}</span>
@@ -475,7 +475,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
     {mapReady && !single && selected && <article className="map-selection-card" aria-live="polite">
       <div className="map-selection-card__media">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={selected.image} alt={selected.name} />
+        <img src={selected.image} alt={selected.name} title={selected.name} />
         <small>{selected.category}</small>
       </div>
       <div className="map-selection-card__body">

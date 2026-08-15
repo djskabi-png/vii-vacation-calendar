@@ -23,12 +23,30 @@ function translateServerText(value: string, locale: PublicLocale) {
   return `${leading}${serverTranslations[locale][core] || core}${trailing}`;
 }
 
-function localizeStructuredData(value: unknown, locale: Exclude<PublicLocale, "he">, key?: string): unknown {
+function localizeStructuredUrl(value: string, locale: Exclude<PublicLocale, "he">) {
+  try {
+    const url = new URL(value);
+    if (url.origin !== "https://vii.spaplus.co") return value;
+    if (/^\/(?:api|_next|assets|media)(?:\/|$)|^\/(?:favicon\.ico|robots\.txt|sitemap\.xml|feed\.xml|vii-logo\.png|og-v2\.png)$/.test(url.pathname)) return value;
+    const basePath = url.pathname.replace(/^\/(en|ru|fr)(?=\/|$)/, "") || "/";
+    url.pathname = `/${locale}${basePath === "/" ? "" : basePath}`;
+    return url.toString();
+  } catch {
+    return value;
+  }
+}
+
+function localizeStructuredData(value: unknown, locale: Exclude<PublicLocale, "he">, key?: string, parentType?: string): unknown {
   if (key === "inLanguage") return locale;
-  if (typeof value === "string") return translateServerText(value, locale);
-  if (Array.isArray(value)) return value.map((item) => localizeStructuredData(item, locale));
+  if (typeof value === "string") {
+    const isPageUrl = ["mainEntityOfPage", "item", "urlTemplate"].includes(key || "")
+      || (key === "url" && !["Organization", "WebSite", "ImageObject"].includes(parentType || ""));
+    return translateServerText(isPageUrl ? localizeStructuredUrl(value, locale) : value, locale);
+  }
+  if (Array.isArray(value)) return value.map((item) => localizeStructuredData(item, locale, key, parentType));
   if (value && typeof value === "object") {
-    return Object.fromEntries(Object.entries(value).map(([entryKey, entryValue]) => [entryKey, localizeStructuredData(entryValue, locale, entryKey)]));
+    const type = typeof (value as Record<string, unknown>)["@type"] === "string" ? (value as Record<string, string>)["@type"] : parentType;
+    return Object.fromEntries(Object.entries(value).map(([entryKey, entryValue]) => [entryKey, localizeStructuredData(entryValue, locale, entryKey, type)]));
   }
   return value;
 }

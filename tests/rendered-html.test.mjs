@@ -1141,6 +1141,10 @@ test("every business depth template exposes an internal gallery", async () => {
   }
 
   const discoveryClient = await readFile(new URL("../app/discover/place/client-page.tsx", import.meta.url), "utf8");
+  const [business, eventPlace] = await Promise.all([
+    readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/events/place/client-page.tsx", import.meta.url), "utf8"),
+  ]);
   assert.match(discoveryClient, /<GalleryExperience/);
   assert.match(discoveryClient, /discovery-detail__gallery-launch/);
   assert.match(discoveryClient, /useGalleryDeepLink/);
@@ -1170,6 +1174,7 @@ test("gallery sharing uses a fragment and every meaningful gallery image has tex
 test("all authored image elements declare an intentional alt value", async () => {
   const { readdir, readFile: read } = await import("node:fs/promises");
   const { join } = await import("node:path");
+  const { fileURLToPath } = await import("node:url");
   async function imageSources(directory) {
     const entries = await readdir(directory, { withFileTypes: true });
     const nested = await Promise.all(entries.map(async (entry) => {
@@ -1179,13 +1184,67 @@ test("all authored image elements declare an intentional alt value", async () =>
     }));
     return nested.flat();
   }
-  const sourceFiles = await imageSources(new URL("../app/", import.meta.url));
+  const sourceFiles = await imageSources(fileURLToPath(new URL("../app/", import.meta.url)));
   for (const sourceFile of sourceFiles) {
     const source = await read(sourceFile, "utf8");
     for (const image of source.matchAll(/<img\b[\s\S]*?>/g)) {
       assert.match(image[0], /\balt\s*=/, `missing alt in ${sourceFile.pathname}`);
     }
   }
+});
+
+test("indexable place schemas expose page-bound image metadata without invented dates", async () => {
+  const seo = await readFile(new URL("../app/lib/seo.ts", import.meta.url), "utf8");
+
+  assert.match(seo, /function imageObjects\(images: string\[\], subject: string, description: string\)/);
+  assert.match(seo, /"@type": "ImageObject"/);
+  assert.match(seo, /contentUrl: absoluteUrl\(src\)/);
+  assert.match(seo, /caption: name/);
+  assert.match(seo, /image: imageObjects\(\[listing\.image, \.\.\.listing\.images\], listing\.name, listing\.description\)/);
+  assert.match(seo, /image: imageObjects\(\[place\.image, \.\.\.place\.images\], place\.name, place\.description\)/);
+  assert.match(seo, /image: imageObject\(item\.image, item\.name, item\.description\)/);
+  assert.doesNotMatch(seo, /uploadDate: "2026-08-05"/);
+  assert.doesNotMatch(seo, /dateModified: "2026-08-05"/);
+});
+
+test("content card images pair descriptive alt text with matching title metadata", async () => {
+  const [propertyCard, business, discoveryCard, eventsSearch] = await Promise.all([
+    readFile(new URL("../app/components/property-card.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/discovery-card.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/events/search/page.tsx", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(propertyCard, /alt=\{`\$\{property\.name\}, תמונה \$\{imageIndex \+ 1\} מתוך \$\{galleryImages\.length\}`\} title=\{`\$\{property\.name\}, תמונה \$\{imageIndex \+ 1\} מתוך \$\{galleryImages\.length\}`\}/);
+  assert.match(business, /alt=\{`\$\{room\.name\} ב\$\{property\.name\}`\} title=\{`\$\{room\.name\} ב\$\{property\.name\}`\}/);
+  assert.match(discoveryCard, /title=\{item\.imageLabel && ui \? ui\.image : translate\(item\.name\)\}/);
+  assert.match(eventsSearch, /alt=\{place\.name\} title=\{place\.name\}/);
+});
+
+test("discovery depth pages expose only their visible verified FAQs as FAQPage data", async () => {
+  const [spaResponse, hourlyResponse, discoveryPage] = await Promise.all([
+    render("/discover/place/spa-butik-tlv"),
+    render("/discover/place/gentleman-haifa"),
+    readFile(new URL("../app/discover/place/[id]/page.tsx", import.meta.url), "utf8"),
+  ]);
+  const [spaHtml, hourlyHtml] = await Promise.all([spaResponse.text(), hourlyResponse.text()]);
+
+  assert.match(discoveryPage, /function itemFaq/);
+  assert.match(discoveryPage, /getSpaDetails/);
+  assert.match(discoveryPage, /getHourlyDetails/);
+  assert.match(discoveryPage, /<StructuredData data=\{faqSchema\(itemFaq\(item\)\)\}/);
+  assert.match(spaHtml, /"@type":"FAQPage"/);
+  assert.match(hourlyHtml, /"@type":"FAQPage"/);
+});
+
+test("translated structured data keeps entity URLs on the matching locale without relabeling media", async () => {
+  const worker = await readFile(new URL("../worker/index.ts", import.meta.url), "utf8");
+
+  assert.match(worker, /function localizeStructuredUrl/);
+  assert.match(worker, /url\.pathname = `\/\$\{locale\}\$\{basePath === "\/" \? "" : basePath\}`/);
+  assert.match(worker, /\["mainEntityOfPage", "item", "urlTemplate"\]/);
+  assert.match(worker, /\["Organization", "WebSite", "ImageObject"\]/);
+  assert.match(worker, /assets\|media/);
 });
 
 test("spa results expose working place and amenity filters before the result list", async () => {

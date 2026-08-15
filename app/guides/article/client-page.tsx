@@ -80,7 +80,7 @@ export function MagazineArticleView({ initialSlug = magazineArticles[0].slug, re
       <BreadcrumbTrail className="magazine-article__crumbs" items={[{ name: "ראשי", path: "/" }, { name: "מגזין ומדריכים", path: "/guides" }, { name: article.title }]} />
       <header className="shell magazine-article__hero">
         <div className="magazine-article__headline"><span className="eyebrow">{article.category}</span><h1>{article.title}</h1><p>{article.excerpt}</p><div className="magazine-article__meta"><span>מאת מערכת מגזין וי</span><span>{article.dateLabel}</span><span>{article.readTime} דקות קריאה</span></div><div className="magazine-article__actions"><button type="button" aria-pressed={saved} onClick={toggleSaved}><HeartIcon filled={saved} />{saved ? "נשמר לקריאה" : "שמירה לקריאה"}</button><ShareButton title={article.title} kind="article" /></div></div>
-        <figure><img src={article.image} alt={article.imageAlt} /><figcaption>תמונה מעמוד מקום מאומת באתר וי, להמחשת נושא הכתבה.</figcaption></figure>
+        <figure><img src={article.image} alt={article.imageAlt} title={article.imageAlt} /><figcaption>תמונה מעמוד מקום מאומת באתר וי, להמחשת נושא הכתבה.</figcaption></figure>
       </header>
 
       <div className="shell magazine-article__layout">
@@ -97,7 +97,7 @@ export function MagazineArticleView({ initialSlug = magazineArticles[0].slug, re
         </article>
       </div>
 
-      <section className="section magazine-related"><div className="shell"><div className="section-head"><div><span className="eyebrow">ממשיכים לקרוא</span><h2>עוד רעיונות לחופשה הבאה</h2></div><Link href="/guides">לכל הכתבות</Link></div><div className="magazine-related__grid">{related.map((item) => <article key={item.slug}><Link href={`/guides/${item.slug}`}><img src={item.image} alt={item.imageAlt} /><span>{item.category}</span><h3>{item.title}</h3><small>{item.readTime} דקות קריאה</small></Link></article>)}</div></div></section>
+      <section className="section magazine-related"><div className="shell"><div className="section-head"><div><span className="eyebrow">ממשיכים לקרוא</span><h2>עוד רעיונות לחופשה הבאה</h2></div><Link href="/guides">לכל הכתבות</Link></div><div className="magazine-related__grid">{related.map((item) => <article key={item.slug}><Link href={`/guides/${item.slug}`}><img src={item.image} alt={item.imageAlt} title={item.imageAlt} /><span>{item.category}</span><h3>{item.title}</h3><small>{item.readTime} דקות קריאה</small></Link></article>)}</div></div></section>
     </main>
   </PageShell>;
 }

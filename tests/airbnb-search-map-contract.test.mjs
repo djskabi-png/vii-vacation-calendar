@@ -9,8 +9,8 @@ test("map changes results only after an explicit search-this-area action", () =>
   assert.match(map, /searchArea: "חיפוש באזור הזה"/);
   assert.match(map, /onVisiblePlaceIdsChange\?: \(ids: string\[\]\) => void/);
   assert.match(map, /visiblePlaceIdsCallback\.current\?\.\(pendingVisibleIds\)/);
-  assert.match(map, /map\.on\("dragend", \(\) => reportVisiblePlaces\(true\)\)/);
-  assert.match(map, /map\.on\("zoomend", \(\) => \{ renderMarkers\(\); reportVisiblePlaces\(true\); \}\)/);
+  assert.match(map, /map\.on\("dragend", \(\) => \{[\s\S]*?reportVisiblePlaces\(true\);[\s\S]*?\}\)/);
+  assert.match(map, /map\.on\("zoomend", \(\) => \{[\s\S]*?renderMarkers\(\);[\s\S]*?reportVisiblePlaces\(true\);[\s\S]*?\}\)/);
   assert.match(map, /onClick=\{applyVisibleArea\}/);
   assert.match(map, /suppressViewportPrompt\.current = true/);
   assert.match(map, /map\.invalidateSize\(\{ animate: false \}\)/);

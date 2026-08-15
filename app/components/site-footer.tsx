@@ -14,7 +14,7 @@ export function SiteFooter({ variant = "vacation", topic }: { variant?: WorldId;
       <div className="shell footer-grid">
         <section className="footer-about">
           <Link href="/" aria-label="וי פור ויקיישן, דף הבית">
-            <img src="/vii-logo.png" alt="וי פור ויקיישן" />
+            <img src="/vii-logo.png" alt="וי פור ויקיישן" title="וי פור ויקיישן" />
           </Link>
           <p>נופש, אירועים, ספא, ספקים וחוויות, עם חיפוש אחד שמחבר את כל מה שצריך.</p>
           <Link className="footer-join-link" href={`/join/${variant}`}>פרסום והצטרפות בתחום זה</Link>

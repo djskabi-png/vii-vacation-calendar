@@ -28,6 +28,6 @@ test("sharing uses one branded accessible dialog instead of the operating system
   assert.match(dialog, /mailto:\?subject=/);
   assert.match(dialog, /const copy: Record<SiteLanguage, ShareCopy>/);
   assert.match(css, /\.share-dialog-layer \{ position: fixed; z-index: 2100/);
-  assert.match(css, /@media \(max-width: 560px\)[\s\S]*\.share-dialog-layer \{ align-items: end/);
+  assert.match(css, /@media \(max-width: 767px\)[\s\S]*\.share-dialog-layer \{ align-items: end/);
   assert.match(css, /font-family: var\(--font-sans\)/);
 });

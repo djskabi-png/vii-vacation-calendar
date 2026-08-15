@@ -59,7 +59,7 @@ export default function GuidesPage() {
             <Link className="button primary" href={`/guides/${featured.slug}`}>לכתבה הראשית</Link>
           </div>
           <Link className="magazine-feature__story" href={`/guides/${featured.slug}`}>
-            <img src={featured.image} alt={featured.imageAlt} />
+            <img src={featured.image} alt={featured.imageAlt} title={featured.imageAlt} />
             <span>{featured.category}</span>
             <div><small>{featured.readTime} דקות קריאה</small><h2>{featured.title}</h2><p>{featured.excerpt}</p></div>
           </Link>
@@ -74,7 +74,7 @@ export default function GuidesPage() {
       <section className="section shell magazine-feed">
         <div className="section-head"><div><span className="eyebrow">חדש במגזין</span><h2>{category === "הכל" ? "קוראים, שומרים ויוצאים לדרך" : category}</h2></div>{saved.length > 0 && <span className="magazine-saved-count"><HeartIcon filled />{saved.length} כתבות שמורות</span>}</div>
         {filtered.length ? <div className="magazine-grid">{filtered.map((article, index) => <article key={article.slug} className={index === 0 && category === "הכל" && !query ? "magazine-card magazine-card--wide" : "magazine-card"}>
-          <Link className="magazine-card__image" href={`/guides/${article.slug}`}><img src={article.image} alt={article.imageAlt} /><span>{article.category}</span></Link>
+          <Link className="magazine-card__image" href={`/guides/${article.slug}`}><img src={article.image} alt={article.imageAlt} title={article.imageAlt} /><span>{article.category}</span></Link>
           <div className="magazine-card__body"><div className="magazine-card__meta"><span>{article.dateLabel}</span><span>{article.readTime} דקות קריאה</span></div><h3><Link href={`/guides/${article.slug}`}>{article.title}</Link></h3><p>{article.excerpt}</p><div className="magazine-card__footer"><Link href={`/guides/${article.slug}`}>לקריאת הכתבה</Link><button type="button" aria-label={saved.includes(article.slug) ? `הסרת ${article.title} מהשמורים` : `שמירת ${article.title}`} aria-pressed={saved.includes(article.slug)} onClick={() => toggleSaved(article.slug)}><HeartIcon filled={saved.includes(article.slug)} /></button></div></div>
         </article>)}</div> : <div className="magazine-empty"><b>לא מצאנו כתבה מתאימה</b><p>נסו מילה אחרת או עברו לקטגוריה אחרת.</p><button className="button subtle" type="button" onClick={() => { setQuery(""); setCategory("הכל"); }}>איפוס החיפוש</button></div>}
       </section>

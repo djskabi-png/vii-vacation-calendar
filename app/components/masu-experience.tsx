@@ -17,8 +17,8 @@ export function MasuExperience({ context = "stay" }: { context?: MasuContext }) 
   const content = copy[context];
   return <section className={`masu-experience masu-experience--${context}`} aria-labelledby={`masu-title-${context}`}>
     <div className="masu-experience__media">
-      <img src="/media/providers/masu/masu-home.jpg" alt="טיפול עיסוי של מאסו בבית הלקוח" />
-      <span><img src="/media/providers/masu/masu-logo.png" alt="מאסו" /></span>
+      <img src="/media/providers/masu/masu-home.jpg" alt="טיפול עיסוי של מאסו בבית הלקוח" title="טיפול עיסוי של מאסו בבית הלקוח" />
+      <span><img src="/media/providers/masu/masu-logo.png" alt="מאסו" title="מאסו" /></span>
     </div>
     <div className="masu-experience__copy">
       <span className="eyebrow">{content.eyebrow}</span>

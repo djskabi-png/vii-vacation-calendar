@@ -89,6 +89,29 @@ export function faqSchema(items: Array<{ question: string; answer: string }>) {
   };
 }
 
+/**
+ * Images are first-class content on place and discovery pages. Keep the
+ * metadata tied to the exact page and avoid guessing at details that are not
+ * in the verified catalogue. The ordinal is intentionally descriptive rather
+ * than a fabricated description of what the camera captured.
+ */
+export function imageObject(src: string, subject: string, description: string, index = 0) {
+  const suffix = index > 0 ? `, תמונה ${index}` : "";
+  const name = `${subject}${suffix}`;
+  return {
+    "@type": "ImageObject",
+    contentUrl: absoluteUrl(src),
+    url: absoluteUrl(src),
+    name,
+    caption: name,
+    description,
+  };
+}
+
+function imageObjects(images: string[], subject: string, description: string) {
+  return Array.from(new Set(images)).map((src, index) => imageObject(src, subject, description, index + 1));
+}
+
 export function collectionSchema(
   name: string,
   description: string,
@@ -154,7 +177,7 @@ export function lodgingSchema(listing: Listing) {
     description: listing.description,
     url,
     mainEntityOfPage: url,
-    image: Array.from(new Set([listing.image, ...listing.images])).map(absoluteUrl),
+    image: imageObjects([listing.image, ...listing.images], listing.name, listing.description),
     address: address(listing.location, listing.area),
     geo: {
       "@type": "GeoCoordinates",
@@ -171,6 +194,15 @@ export function lodgingSchema(listing: Listing) {
       ...(listing.units ? { numberOfRooms: listing.units } : {}),
     },
     hasMap: `https://www.openstreetmap.org/?mlat=${listing.lat}&mlon=${listing.lng}#map=15/${listing.lat}/${listing.lng}`,
+    ...(listing.reviewSource === "legacy-verified" && listing.score && listing.reviews ? {
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: listing.score,
+        reviewCount: listing.reviews,
+        bestRating: 10,
+        worstRating: 1,
+      },
+    } : {}),
     ...(listing.videos?.length ? {
       subjectOf: listing.videos.map((video) => ({
         "@type": "VideoObject",
@@ -178,8 +210,6 @@ export function lodgingSchema(listing: Listing) {
         description: video.note,
         thumbnailUrl: absoluteUrl(video.poster),
         contentUrl: absoluteUrl(video.src),
-        uploadDate: "2026-08-05",
-        duration: video.src.includes("bedrooms") ? "PT15S" : "PT8S",
       })),
     } : {}),
   };
@@ -194,7 +224,7 @@ export function eventVenueSchema(place: EventPlace) {
     name: place.name,
     description: place.description,
     url,
-    image: Array.from(new Set([place.image, ...place.images])).map(absoluteUrl),
+    image: imageObjects([place.image, ...place.images], place.name, place.description),
     address: address(place.location, place.area),
     geo: { "@type": "GeoCoordinates", latitude: place.lat, longitude: place.lng },
     maximumAttendeeCapacity: place.guests,
@@ -213,7 +243,7 @@ export function discoverySchema(item: DiscoveryItem) {
     name: item.name,
     description: item.description,
     url,
-    ...(item.image ? { image: absoluteUrl(item.image) } : {}),
+    ...(item.image ? { image: imageObject(item.image, item.name, item.description) } : {}),
     address: address(item.location, item.area),
     amenityFeature: amenityFeature(item.features),
   };
@@ -240,7 +270,6 @@ export function articleSchema(article: MagazineArticle) {
     description: article.excerpt,
     image: absoluteUrl(article.image),
     datePublished: articlePublishedDate(article.dateLabel),
-    dateModified: "2026-08-05",
     inLanguage: "he-IL",
     mainEntityOfPage: url,
     author: { "@id": ORGANIZATION_ID },
@@ -266,7 +295,6 @@ export function trailSchema(trail: Trail) {
         publisher: { "@id": ORGANIZATION_ID },
         about: trail.nature,
         citation: trail.officialSource,
-        dateModified: "2026-08-05",
       },
       {
         "@type": "TouristTrip",
