@@ -919,11 +919,10 @@ test("ships the immersive media, review and concierge experiences", async () => 
   assert.match(styles, /\.property-gallery button \{ display: none; width: 100%; height: auto; aspect-ratio: 3 \/ 2; \}/);
   assert.match(styles, /\.property-gallery button:first-child \{ display: block; \}/);
   assert.match(styles, /\.property-gallery img \{ object-fit: contain; background: #edf5f5; \}/);
-  assert.match(styles, /The mobile stage deliberately has one image only/);
-  assert.match(styles, /\.story-gallery__workspace::before,.story-gallery__workspace::after,.story-gallery__story::before,.story-gallery__story::after \{ content: none !important/);
-  assert.match(styles, /\.story-gallery__workspace \{ min-height: 0; display: flex; align-items: flex-start; justify-content: center; padding: 0; overflow: hidden; \}/);
-  assert.match(styles, /\.story-gallery__story \{ width: 100%; min-height: 0; height: auto; aspect-ratio: auto; max-height: none; display: grid; place-items: start stretch;/);
-  assert.match(styles, /\.story-gallery__story > img\.story-gallery__image \{ position: relative; z-index: 1; inline-size: 100% !important; width: 100% !important; max-inline-size: 100% !important; max-width: 100% !important; block-size: auto !important; height: auto !important; max-block-size: calc\(100dvh - 130px\) !important; max-height: calc\(100dvh - 130px\) !important; display: block; object-fit: contain/);
+  assert.match(styles, /The mobile stage is separate from the desktop viewer/);
+  assert.match(styles, /\.story-gallery__story,.story-gallery__grid \{ display: none !important; \}/);
+  assert.match(styles, /\.story-gallery__mobile-stage \{ position: relative; display: block; width: 100%; min-height: 0; background: #02090c; \}/);
+  assert.match(styles, /\.story-gallery__mobile-image \{ display: block; width: 100%; min-width: 0; height: auto; max-width: 100%; background: #02090c; object-fit: contain; filter: none !important; transform: none !important; \}/);
   assert.doesNotMatch(styles, /\.property-gallery button \{ flex: 0 0 90%; height: 300px; scroll-snap-align: center; \}/);
   assert.match(styles, /\.smart-concierge__trigger \{ position: relative; width: 72px/);
   assert.match(styles, /smart-concierge__panel/);
