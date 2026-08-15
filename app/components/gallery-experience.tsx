@@ -41,6 +41,8 @@ function uniqueItems(items: GalleryItem[]) {
 
 export function GalleryExperience({ property, open, initialIndex = 0, initialTab = "all", guestPhotos = property.guestPhotos || [], onAddGuestContent, onClose }: { property: GallerySubject; open: boolean; initialIndex?: number; initialTab?: GalleryTab; guestPhotos?: GuestPhoto[]; onAddGuestContent?: () => void; onClose: () => void }) {
   const closeButton = useRef<HTMLButtonElement>(null);
+  const dialog = useRef<HTMLDivElement>(null);
+  const returnFocus = useRef<HTMLElement | null>(null);
   const touchStart = useRef(0);
   const allItems = useMemo(() => uniqueItems([
     ...property.images.map((src, index) => ({ src, label: `${property.name}, תמונת המקום ${index + 1}`, category: "place" as const })),
@@ -60,15 +62,44 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
   useEffect(() => {
     if (!open) return;
     const previousOverflow = document.body.style.overflow;
+    returnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     document.body.style.overflow = "hidden";
     window.setTimeout(() => closeButton.current?.focus(), 0);
-    const escape = (event: KeyboardEvent) => event.key === "Escape" && onClose();
-    window.addEventListener("keydown", escape);
+    const keydown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        move(-1);
+        return;
+      }
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        move(1);
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const focusable = dialog.current?.querySelectorAll<HTMLElement>('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (!focusable?.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    window.addEventListener("keydown", keydown);
     return () => {
       document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", escape);
+      window.removeEventListener("keydown", keydown);
+      window.setTimeout(() => returnFocus.current?.focus(), 0);
     };
-  }, [onClose, open]);
+  }, [onClose, open, visibleItems.length]);
 
   if (!open) return null;
 
@@ -82,7 +113,7 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
     setSelected((value) => (value + direction + visibleItems.length) % visibleItems.length);
   }
 
-  return <div className="story-gallery" role="dialog" aria-modal="true" aria-labelledby="story-gallery-title">
+  return <div ref={dialog} className="story-gallery" role="dialog" aria-modal="true" aria-labelledby="story-gallery-title">
     <header className="story-gallery__header">
       <div><span>הגלריה של</span><h2 id="story-gallery-title">{property.name}</h2></div>
       <div className="story-gallery__count" aria-live="polite">{tab === "videos" ? `${property.videos?.length || 0} סרטונים` : tab === "guests" && !guestPhotos.length ? "עדיין אין תמונות אורחים" : `${selected + 1} מתוך ${visibleItems.length}`}</div>
@@ -109,7 +140,7 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
         if (Math.abs(distance) > 45) move(distance > 0 ? -1 : 1);
       }}>
         <div className="story-gallery__progress" aria-hidden="true">{visibleItems.map((item, index) => <i key={item.src} className={index <= selected ? "active" : ""} />)}</div>
-        {current ? <img src={current.src} alt={current.label} /> : null}
+        {current ? <img className="story-gallery__image" src={current.src} alt={current.label} /> : null}
         {visibleItems.length > 1 ? <><button className="story-gallery__tap story-gallery__tap--previous" type="button" onClick={() => move(-1)} aria-label="התמונה הקודמת" />
         <button className="story-gallery__tap story-gallery__tap--next" type="button" onClick={() => move(1)} aria-label="התמונה הבאה" /></> : null}
         <div className="story-gallery__caption"><span>{tabLabels[current?.category || "place"]}</span><strong>{current?.label}</strong></div>

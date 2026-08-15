@@ -919,8 +919,9 @@ test("ships the immersive media, review and concierge experiences", async () => 
   assert.match(styles, /\.property-gallery button \{ display: none; width: 100%; height: auto; aspect-ratio: 3 \/ 2; \}/);
   assert.match(styles, /\.property-gallery button:first-child \{ display: block; \}/);
   assert.match(styles, /\.property-gallery img \{ object-fit: contain; background: #edf5f5; \}/);
-  assert.match(styles, /\.story-gallery__workspace \{ min-height: 0; display: grid; grid-template-rows: minmax\(0,1fr\); padding: 0; \}/);
-  assert.match(styles, /\.story-gallery__story > img \{ width: 100%; height: 100%; object-fit: contain; background: #02090c; \}/);
+  assert.match(styles, /The mobile stage deliberately has one image only/);
+  assert.match(styles, /\.story-gallery__workspace::before,.story-gallery__workspace::after,.story-gallery__story::before,.story-gallery__story::after \{ content: none !important/);
+  assert.match(styles, /\.story-gallery__story > img\.story-gallery__image \{ position: relative; z-index: 1; width: 100%; height: 100%; display: block; object-fit: contain/);
   assert.doesNotMatch(styles, /\.property-gallery button \{ flex: 0 0 90%; height: 300px; scroll-snap-align: center; \}/);
   assert.match(styles, /\.smart-concierge__trigger \{ position: relative; width: 72px/);
   assert.match(styles, /smart-concierge__panel/);
