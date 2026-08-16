@@ -9,6 +9,8 @@ import { DeferredListingMap } from "../components/deferred-listing-map";
 import { ModernSelect } from "../components/modern-select";
 import { PageShell } from "../components/page-shell";
 import { availabilityDemoSlugs, hasAvailablePriceForSearch, isAvailabilityDemoSearch, PropertyCard } from "../components/property-card";
+import { type LegacyAvailabilityState, useLegacyAvailabilityBatch } from "../components/use-legacy-availability";
+import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
 import { SearchBox } from "../components/search-box";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 import { properties } from "../data/site-data";
@@ -420,14 +422,24 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       return matchesType && matchesGuests && matchesPrice && matchesPool && matchesSpa && matchesWhole && matchesAccessibility && matchesExtras;
     }), [accessibleOnly, guests, landing, maxPrice, minPrice, pool, selectedExtras, selectedTypes, spa, whole]);
 
+  const liveAvailabilityBySlug = useLegacyAvailabilityBatch(mapCandidates, selectedStay);
+  const liveAvailabilityFor = (slug: string): LegacyAvailabilityState | undefined => {
+    if (!selectedStay || !legacyAvailabilitySourceFor(slug)) return undefined;
+    return liveAvailabilityBySlug[slug] || { quote: null, status: "loading" };
+  };
+  const hasVerifiedAvailablePrice = (property: typeof properties[number]) => {
+    const quote = liveAvailabilityFor(property.slug)?.quote;
+    return quote?.availability === "available" && typeof quote.nightlyPrice === "number" && quote.nightlyPrice > 0;
+  };
+
   const filtered = useMemo(() => {
     const useLandingSet = Boolean(landing?.listingSlugs?.length
       && (!landingType || (selectedTypes.length === 1 && selectedTypes[0] === landingType))
       && (landing.area ? area === landing.area : area === "הכל"));
     const matches = mapCandidates.filter((property) => useLandingSet ? landing?.listingSlugs?.includes(property.slug) : matchesSearchLocation(property, area));
     return [...matches].sort((a, b) => {
-      const availabilityPriority = Number(hasAvailablePriceForSearch(b, selectedStay, pathname, requestedLocation))
-        - Number(hasAvailablePriceForSearch(a, selectedStay, pathname, requestedLocation));
+      const availabilityPriority = Number(hasVerifiedAvailablePrice(b) || hasAvailablePriceForSearch(b, selectedStay, pathname, requestedLocation))
+        - Number(hasVerifiedAvailablePrice(a) || hasAvailablePriceForSearch(a, selectedStay, pathname, requestedLocation));
       if (availabilityPriority) return availabilityPriority;
       if (sort === "recommended" && availabilityDemoActive) {
         const aDemoIndex = availabilityDemoSlugs.indexOf(a.slug);
@@ -443,7 +455,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   // landingType is derived from the immutable landing prop. Keeping the prop in
   // the dependency list lets the compiler preserve this memo across renders.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [area, availabilityDemoActive, landing, mapCandidates, pathname, requestedLocation, selectedStay, selectedTypes, sort]);
+  }, [area, availabilityDemoActive, landing, liveAvailabilityBySlug, mapCandidates, pathname, requestedLocation, selectedStay, selectedTypes, sort]);
 
   const draftCandidates = properties.filter((property) => {
     const matchesType = matchesAnyAccommodationType(property.type, shownFilters.selectedTypes, landing);
@@ -474,12 +486,12 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     if (!mapOpen || !mapVisibleIds) return filtered;
     const visible = new Set(mapVisibleIds);
     return mapCandidates.filter((property) => visible.has(property.slug)).sort((a, b) => {
-      const availabilityPriority = Number(hasAvailablePriceForSearch(b, selectedStay, pathname, requestedLocation))
-        - Number(hasAvailablePriceForSearch(a, selectedStay, pathname, requestedLocation));
+      const availabilityPriority = Number(hasVerifiedAvailablePrice(b) || hasAvailablePriceForSearch(b, selectedStay, pathname, requestedLocation))
+        - Number(hasVerifiedAvailablePrice(a) || hasAvailablePriceForSearch(a, selectedStay, pathname, requestedLocation));
       if (availabilityPriority) return availabilityPriority;
       return compareVacationProperties(a, b, sort);
     });
-  }, [filtered, mapCandidates, mapOpen, mapVisibleIds, pathname, requestedLocation, selectedStay, sort]);
+  }, [filtered, liveAvailabilityBySlug, mapCandidates, mapOpen, mapVisibleIds, pathname, requestedLocation, selectedStay, sort]);
   const inventorySummary = useMemo(() => vacationInventorySummary(displayedResults, language), [displayedResults, language]);
   const detailQuery = useMemo(() => {
     const params = new URLSearchParams();
@@ -656,9 +668,9 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
             {activeFilters.length > 0 && <div className="active-filter-row"><span>סינונים פעילים:</span>{activeFilters.map((filter) => <button key={filter.id} type="button" onClick={filter.remove} aria-label={`הסרת הסינון ${filter.label}`}>{filter.label} ×</button>)}<button type="button" className="clear-all" onClick={resetFilters}>ניקוי הכל</button></div>}
             {availabilityDemoActive ? <div className="availability-demo-summary" role="status"><strong>{availabilityDemoCopy[language].title}</strong><span>{availabilityDemoCopy[language].text}</span><small>{selectedStay?.from}{" "}{String.fromCharCode(183)}{" "}{selectedStay?.till}</small></div> : null}
             <div className="results-toolbar"><div className="results-toolbar__actions"><ResultsViewToggle value={viewMode} onChange={setViewMode} />{filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתוצאות" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (mapOpen) closeResultsMap(); else openResultsMap(); }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לתוצאות" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect className="results-toolbar__sort" compact label="מיון לפי" value={sort} onChange={changeSort} options={vacationSortOptions} /></div>
-            {!mapOpen && <div className={`result-cards results-view results-view--${viewMode}`}>{displayedResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStay} detailHref={detailHref(property.slug)} />)}</div>}
+            {!mapOpen && <div className={`result-cards results-view results-view--${viewMode}`}>{displayedResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStay} liveAvailabilityState={liveAvailabilityFor(property.slug)} detailHref={detailHref(property.slug)} />)}</div>}
             {mapOpen && <div className="airbnb-map-split">
-              <div className={`airbnb-map-split__results result-cards results-view results-view--${viewMode}`}>{displayedResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStay} detailHref={detailHref(property.slug)} />)}</div>
+              <div className={`airbnb-map-split__results result-cards results-view results-view--${viewMode}`}>{displayedResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStay} liveAvailabilityState={liveAvailabilityFor(property.slug)} detailHref={detailHref(property.slug)} />)}</div>
               <div className="airbnb-map-split__map"><DeferredListingMap listings={mapCandidates} initialListings={filtered} autoLoad detailQuery={detailQuery} onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} /></div>
             </div>}
             {(mapOpen && mapVisibleIds ? displayedResults.length === 0 : filtered.length === 0) && <div className="empty-state"><h2>לא נמצאה התאמה מדויקת</h2><p>אפשר לשנות אזור, להפחית את כמות האורחים או להסיר מאפיין.</p><button className="button primary" type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}

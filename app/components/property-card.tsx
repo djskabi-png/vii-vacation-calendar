@@ -12,7 +12,7 @@ import { trackPhoneReveal } from "../lib/analytics";
 import { FavoriteButton } from "./favorite-button";
 import { WhatsAppLeadButton } from "./whatsapp-lead-button";
 import { ListingContactPreview, SampleListingDisclosure } from "./listing-contact-preview";
-import { useLegacyAvailability } from "./use-legacy-availability";
+import { type LegacyAvailabilityState, useLegacyAvailability } from "./use-legacy-availability";
 import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
 
 function PhoneIcon() {
@@ -274,7 +274,7 @@ export function hasAvailablePriceForSearch(property: Property, selectedStay: Sel
     && resolvedAvailability.nightlyPrice > 0;
 }
 
-export function PropertyCard({ property, selectedStay = null, promotional = false, detailHref }: { property: Property; selectedStay?: SelectedStay | null; promotional?: boolean; detailHref?: string }) {
+export function PropertyCard({ property, selectedStay = null, promotional = false, detailHref, liveAvailabilityState }: { property: Property; selectedStay?: SelectedStay | null; promotional?: boolean; detailHref?: string; liveAvailabilityState?: LegacyAvailabilityState }) {
   const { language } = useSiteLanguage();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -287,7 +287,8 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
   const swipeResetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const phone = property.contact?.phone?.replace(/[^\d+]/g, "");
   const whatsapp = property.contact?.whatsapp;
-  const liveLegacyAvailability = useLegacyAvailability(property, promotional ? null : selectedStay);
+  const ownLegacyAvailability = useLegacyAvailability(property, promotional || liveAvailabilityState ? null : selectedStay);
+  const liveLegacyAvailability = liveAvailabilityState || ownLegacyAvailability;
   const resolvedAvailability = promotional ? null : liveLegacyAvailability.quote || resolveAvailabilityForStay(property, selectedStay, pathname, searchParams.get("location"));
   const isLiveAvailabilityLoading = !promotional && selectedStay && liveLegacyAvailability.status === "loading";
   const isLiveAvailabilityError = !promotional && selectedStay && liveLegacyAvailability.status === "error";
