@@ -56,6 +56,18 @@ test("homepage period offers preserve the verified legacy dates and prices", asy
   assert.match(deals, /publishedLastMinuteDeal[\s\S]*candidate\.nightlyPrice === nightlyPrice/);
 });
 
+test("stale period business links canonicalize to the current verified offer", async () => {
+  const page = await readFile(new URL("../app/business/page.tsx", import.meta.url), "utf8");
+  const deals = await readFile(new URL("../app/data/last-minute-deals.ts", import.meta.url), "utf8");
+  assert.match(deals, /function currentPeriodOffer[\s\S]*candidate\.id === period[\s\S]*offer\.slug === slug/);
+  assert.match(page, /currentPeriodOffer\(property\.slug, params\.period\)/);
+  assert.match(page, /params\.from !== currentOffer\.from/);
+  assert.match(page, /params\.till !== currentOffer\.till/);
+  assert.match(page, /Number\(params\.price\) !== currentOffer\.nightlyPrice/);
+  assert.match(page, /source: params\.source \|\| "last-minute"/);
+  assert.match(page, /redirect\(`\$\{prefix\}\/business\?\$\{canonical\.toString\(\)\}`\)/);
+});
+
 test("homepage commercial cards include visible semantic artwork", async () => {
   const page = await readFile(new URL("app/page.tsx", root), "utf8");
   assert.match(page, /GiftIcon/);

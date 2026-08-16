@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { headers } from "next/headers";
+import { notFound, redirect } from "next/navigation";
 import BusinessPage from "./client-page";
 import { getListingOfferings, properties, propertyFaq, type BusinessWorld } from "../data/site-data";
 import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, faqSchema, lodgingSchema } from "../lib/seo";
 import { vacationBreadcrumbForLocation } from "../data/vacation-landings";
 import { ViewedItemBootstrap } from "../components/viewed-item-bootstrap";
+import { currentPeriodOffer } from "../data/last-minute-deals";
 
 type QueryValue = string | string[] | undefined;
 type BusinessParams = { id?: QueryValue; mode?: QueryValue; dates?: QueryValue; from?: QueryValue; till?: QueryValue; guests?: QueryValue; rooms?: QueryValue; price?: QueryValue; illustrative?: QueryValue; source?: QueryValue; period?: QueryValue };
@@ -41,6 +43,21 @@ export default async function Page({ searchParams }: Props) {
   const params = normalizedParams(await searchParams);
   const property = resolveProperty(params.id);
   if (!property) notFound();
+  const currentOffer = currentPeriodOffer(property.slug, params.period);
+  if (currentOffer && (params.from !== currentOffer.from || params.till !== currentOffer.till || Number(params.price) !== currentOffer.nightlyPrice)) {
+    const locale = (await headers()).get("x-vii-locale");
+    const prefix = locale && locale !== "he" ? `/${locale}` : "";
+    const canonical = new URLSearchParams({
+      id: property.slug,
+      period: params.period!,
+      from: currentOffer.from,
+      till: currentOffer.till,
+      guests: String(Math.max(1, Number(params.guests) || 2)),
+      price: String(currentOffer.nightlyPrice),
+      source: params.source || "last-minute",
+    });
+    redirect(`${prefix}/business?${canonical.toString()}`);
+  }
   const requestedWorld = params.mode as BusinessWorld | undefined;
   const initialWorld: BusinessWorld = getListingOfferings(property).some((offering) => offering.world === requestedWorld)
     ? requestedWorld as BusinessWorld

@@ -95,6 +95,11 @@ export const lastMinuteStartingPrices: Record<string, number> = Object.fromEntri
   lastMinutePeriods.flatMap((period) => period.offers.map((offer) => [offer.slug, offer.nightlyPrice])),
 );
 
+export function currentPeriodOffer(slug: string, period?: string): LegacyPeriodOffer | null {
+  if (!period) return null;
+  return lastMinutePeriods.find((candidate) => candidate.id === period)?.offers.find((offer) => offer.slug === slug) || null;
+}
+
 export function publishedLastMinuteDeal({ slug, period, from, till, guests, nightlyPrice }: { slug: string; period?: string; from: string; till: string; guests: number; nightlyPrice: number }): ResolvedAvailability | null {
   const deal = lastMinutePeriods.find((candidate) => candidate.id === period);
   const offer = deal?.offers.find((candidate) => candidate.slug === slug && candidate.from === from && candidate.till === till && candidate.nightlyPrice === nightlyPrice);
