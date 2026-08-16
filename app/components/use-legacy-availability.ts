@@ -137,3 +137,76 @@ export function useLegacyAvailabilityBatch(properties: Property[], selectedStay:
   if (state?.key === requestKey) return state.values;
   return Object.fromEntries(sourceSlugs.map((slug) => [slug, { quote: null, status: "loading" } satisfies LegacyAvailabilityState]));
 }
+
+/**
+ * Flexible searches deliberately query the preferred weekend first, then the
+ * smallest allowed deviations. A property stops querying as soon as it has a
+ * verified available price, so results can be ordered around a real bookable
+ * stay without manufacturing a date or a quote.
+ */
+export function useLegacyFlexibleAvailabilityBatch(properties: Property[], candidates: SelectedStay[]) {
+  const sourceSlugs = properties
+    .map((property) => property.slug)
+    .filter((slug) => Boolean(legacyAvailabilitySourceFor(slug)))
+    .sort();
+  const candidateKey = candidates.map((candidate) => `${candidate.from}|${candidate.till}|${candidate.guests || 2}`).join(",");
+  const requestKey = `${sourceSlugs.join(",")}|${candidateKey}`;
+  const [state, setState] = useState<{ key: string; values: Record<string, LegacyAvailabilityState> } | null>(null);
+
+  useEffect(() => {
+    const requestCandidates = candidateKey.split(",").map((value) => {
+      const [from, till, guests] = value.split("|");
+      return { from, till, guests: Math.max(1, Number(guests) || 2) } satisfies SelectedStay;
+    }).filter((candidate) => candidate.from && candidate.till);
+    if (!sourceSlugs.length || !requestCandidates.length) {
+      setState(null);
+      return;
+    }
+    const controller = new AbortController();
+    const loading = Object.fromEntries(sourceSlugs.map((slug) => [slug, { quote: null, status: "loading" } satisfies LegacyAvailabilityState]));
+    setState({ key: requestKey, values: loading });
+
+    async function quoteFor(slug: string, candidate: SelectedStay) {
+      const from = candidate.from;
+      const till = candidate.till;
+      const guests = Math.max(1, candidate.guests || 2);
+      const params = new URLSearchParams({ place: slug, from, till, guests: String(guests) });
+      const response = await fetch(`/api/legacy-availability?${params.toString()}`, { cache: "no-store", credentials: "same-origin", headers: { Accept: "application/json" }, signal: controller.signal });
+      const result = response.ok ? await response.json() as LegacyAvailabilityResponse : null;
+      if (!result?.success || result.from !== from || result.till !== till) return null;
+      return toResolvedAvailability(result, from, till);
+    }
+
+    void Promise.all(sourceSlugs.map(async (slug) => {
+      let firstKnown: ResolvedAvailability | null = null;
+      let firstAvailable: ResolvedAvailability | null = null;
+      for (const candidate of requestCandidates) {
+        try {
+          const quote = await quoteFor(slug, candidate);
+          if (!quote) continue;
+          if (!firstKnown) firstKnown = quote;
+          if (quote.availability === "available" && !firstAvailable) firstAvailable = quote;
+          if (quote.availability === "available" && typeof quote.nightlyPrice === "number" && quote.nightlyPrice > 0) {
+            return [slug, { quote, status: "ready" } satisfies LegacyAvailabilityState] as const;
+          }
+        } catch {
+          if (controller.signal.aborted) return [slug, { quote: null, status: "error" } satisfies LegacyAvailabilityState] as const;
+        }
+      }
+      if (firstAvailable) return [slug, { quote: firstAvailable, status: "ready" } satisfies LegacyAvailabilityState] as const;
+      if (firstKnown) return [slug, { quote: firstKnown, status: "ready" } satisfies LegacyAvailabilityState] as const;
+      return [slug, { quote: null, status: "error" } satisfies LegacyAvailabilityState] as const;
+    })).then((entries) => {
+      if (controller.signal.aborted) return;
+      setState((current) => {
+        if (current?.key !== requestKey) return current;
+        return { key: requestKey, values: { ...current.values, ...Object.fromEntries(entries) } };
+      });
+    });
+    return () => controller.abort();
+  }, [candidateKey, requestKey, sourceSlugs.join(",")]);
+
+  if (!sourceSlugs.length || !candidates.length) return {} as Record<string, LegacyAvailabilityState>;
+  if (state?.key === requestKey) return state.values;
+  return Object.fromEntries(sourceSlugs.map((slug) => [slug, { quote: null, status: "loading" } satisfies LegacyAvailabilityState]));
+}

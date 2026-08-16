@@ -9,7 +9,7 @@ import { DeferredListingMap } from "../components/deferred-listing-map";
 import { ModernSelect } from "../components/modern-select";
 import { PageShell } from "../components/page-shell";
 import { availabilityDemoSlugs, hasAvailablePriceForSearch, isAvailabilityDemoSearch, PropertyCard } from "../components/property-card";
-import { type LegacyAvailabilityState, useLegacyAvailabilityBatch } from "../components/use-legacy-availability";
+import { type LegacyAvailabilityState, useLegacyAvailabilityBatch, useLegacyFlexibleAvailabilityBatch } from "../components/use-legacy-availability";
 import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
 import { SearchBox } from "../components/search-box";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
@@ -25,6 +25,7 @@ import { cleanVacationPath } from "../data/vacation-landings";
 import { buildVacationSearchUrl } from "../lib/vacation-search-url";
 import { vacationInventorySummary } from "../lib/vacation-inventory";
 import { vacationStayFromSearch } from "../lib/vacation-date-range";
+import { flexibleVacationCandidates, flexibleVacationSearchFromParams } from "../lib/flexible-vacation-search";
 import { useMapViewState } from "../components/map-view-state";
 import { FilterControlIcon } from "../components/filter-control-icon";
 import { SearchAfterResults, type ContextualSearchSuggestion } from "../components/search-after-results";
@@ -195,6 +196,13 @@ const availabilityDemoCopy = {
   fr: { title: "Exemples de disponibilit\u00e9 et de prix pour vos dates", text: "Les r\u00e9sultats pr\u00e9sentent tous les \u00e9tats de disponibilit\u00e9 et de prix inspir\u00e9s de l'ancien VII. Il s'agit d'une illustration, pas de disponibilit\u00e9s en direct." },
 };
 
+const flexibleAvailabilityCopy = {
+  he: { title: "קודם מוצגים סופי שבוע פנויים עם מחיר", text: "בדקנו קודם את סופי השבוע בחודש שבחרתם, ואז תאריכים בטווח הגמישות שבחרתם." },
+  en: { title: "Available weekends with a price appear first", text: "We check the weekends in your selected month first, then dates within your flexibility range." },
+  ru: { title: "Сначала показываем свободные выходные с ценой", text: "Сначала проверяем выходные в выбранном месяце, затем даты в пределах выбранной гибкости." },
+  fr: { title: "Les week-ends disponibles avec un prix s'affichent d'abord", text: "Nous vérifions d'abord les week-ends du mois sélectionné, puis les dates dans votre marge de flexibilité." },
+};
+
 
 function normalizeVacationPrice(value: string | null, fallback: number) {
   if (value === null || value === "") return fallback;
@@ -234,6 +242,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
 
   const selectedStay = useMemo(() => vacationStayFromSearch(searchParams, language), [language, searchParams]);
+  const flexibleSearch = useMemo(() => flexibleVacationSearchFromParams(searchParams), [searchParams]);
   const requestedLocation = searchParams.get("location");
   const availabilityDemoActive = isAvailabilityDemoSearch(selectedStay, requestedLocation);
 
@@ -422,10 +431,22 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       return matchesType && matchesGuests && matchesPrice && matchesPool && matchesSpa && matchesWhole && matchesAccessibility && matchesExtras;
     }), [accessibleOnly, guests, landing, maxPrice, minPrice, pool, selectedExtras, selectedTypes, spa, whole]);
 
+  const flexibleCandidates = useMemo(
+    () => flexibleVacationCandidates(flexibleSearch, guests),
+    [flexibleSearch, guests],
+  );
   const liveAvailabilityBySlug = useLegacyAvailabilityBatch(mapCandidates, selectedStay);
+  const flexibleAvailabilityBySlug = useLegacyFlexibleAvailabilityBatch(mapCandidates, flexibleCandidates);
   const liveAvailabilityFor = (slug: string): LegacyAvailabilityState | undefined => {
-    if (!selectedStay || !legacyAvailabilitySourceFor(slug)) return undefined;
-    return liveAvailabilityBySlug[slug] || { quote: null, status: "loading" };
+    if (!legacyAvailabilitySourceFor(slug)) return undefined;
+    if (selectedStay) return liveAvailabilityBySlug[slug] || { quote: null, status: "loading" };
+    if (flexibleSearch) return flexibleAvailabilityBySlug[slug] || { quote: null, status: "loading" };
+    return undefined;
+  };
+  const selectedStayFor = (slug: string) => {
+    const quote = flexibleSearch ? liveAvailabilityFor(slug)?.quote : null;
+    if (!quote) return selectedStay;
+    return { from: quote.from, till: quote.till, guests };
   };
   const hasVerifiedAvailablePrice = (property: typeof properties[number]) => {
     const quote = liveAvailabilityFor(property.slug)?.quote;
@@ -438,8 +459,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       && (landing.area ? area === landing.area : area === "הכל"));
     const matches = mapCandidates.filter((property) => useLandingSet ? landing?.listingSlugs?.includes(property.slug) : matchesSearchLocation(property, area));
     return [...matches].sort((a, b) => {
-      const availabilityPriority = Number(hasVerifiedAvailablePrice(b) || hasAvailablePriceForSearch(b, selectedStay, pathname, requestedLocation))
-        - Number(hasVerifiedAvailablePrice(a) || hasAvailablePriceForSearch(a, selectedStay, pathname, requestedLocation));
+      const availabilityPriority = Number(hasVerifiedAvailablePrice(b) || hasAvailablePriceForSearch(b, selectedStayFor(b.slug), pathname, requestedLocation))
+        - Number(hasVerifiedAvailablePrice(a) || hasAvailablePriceForSearch(a, selectedStayFor(a.slug), pathname, requestedLocation));
       if (availabilityPriority) return availabilityPriority;
       if (sort === "recommended" && availabilityDemoActive) {
         const aDemoIndex = availabilityDemoSlugs.indexOf(a.slug);
@@ -455,7 +476,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   // landingType is derived from the immutable landing prop. Keeping the prop in
   // the dependency list lets the compiler preserve this memo across renders.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [area, availabilityDemoActive, landing, liveAvailabilityBySlug, mapCandidates, pathname, requestedLocation, selectedStay, selectedTypes, sort]);
+  }, [area, availabilityDemoActive, flexibleAvailabilityBySlug, flexibleSearch, guests, landing, liveAvailabilityBySlug, mapCandidates, pathname, requestedLocation, selectedStay, selectedTypes, sort]);
 
   const draftCandidates = properties.filter((property) => {
     const matchesType = matchesAnyAccommodationType(property.type, shownFilters.selectedTypes, landing);
@@ -486,12 +507,12 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     if (!mapOpen || !mapVisibleIds) return filtered;
     const visible = new Set(mapVisibleIds);
     return mapCandidates.filter((property) => visible.has(property.slug)).sort((a, b) => {
-      const availabilityPriority = Number(hasVerifiedAvailablePrice(b) || hasAvailablePriceForSearch(b, selectedStay, pathname, requestedLocation))
-        - Number(hasVerifiedAvailablePrice(a) || hasAvailablePriceForSearch(a, selectedStay, pathname, requestedLocation));
+      const availabilityPriority = Number(hasVerifiedAvailablePrice(b) || hasAvailablePriceForSearch(b, selectedStayFor(b.slug), pathname, requestedLocation))
+        - Number(hasVerifiedAvailablePrice(a) || hasAvailablePriceForSearch(a, selectedStayFor(a.slug), pathname, requestedLocation));
       if (availabilityPriority) return availabilityPriority;
       return compareVacationProperties(a, b, sort);
     });
-  }, [filtered, liveAvailabilityBySlug, mapCandidates, mapOpen, mapVisibleIds, pathname, requestedLocation, selectedStay, sort]);
+  }, [filtered, flexibleAvailabilityBySlug, flexibleSearch, guests, liveAvailabilityBySlug, mapCandidates, mapOpen, mapVisibleIds, pathname, requestedLocation, selectedStay, sort]);
   const inventorySummary = useMemo(() => vacationInventorySummary(displayedResults, language), [displayedResults, language]);
   const detailQuery = useMemo(() => {
     const params = new URLSearchParams();
@@ -667,10 +688,11 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
             </nav>
             {activeFilters.length > 0 && <div className="active-filter-row"><span>סינונים פעילים:</span>{activeFilters.map((filter) => <button key={filter.id} type="button" onClick={filter.remove} aria-label={`הסרת הסינון ${filter.label}`}>{filter.label} ×</button>)}<button type="button" className="clear-all" onClick={resetFilters}>ניקוי הכל</button></div>}
             {availabilityDemoActive ? <div className="availability-demo-summary" role="status"><strong>{availabilityDemoCopy[language].title}</strong><span>{availabilityDemoCopy[language].text}</span><small>{selectedStay?.from}{" "}{String.fromCharCode(183)}{" "}{selectedStay?.till}</small></div> : null}
+            {flexibleSearch ? <div className="availability-demo-summary availability-demo-summary--live" role="status"><strong>{flexibleAvailabilityCopy[language].title}</strong><span>{flexibleAvailabilityCopy[language].text}</span></div> : null}
             <div className="results-toolbar"><div className="results-toolbar__actions"><ResultsViewToggle value={viewMode} onChange={setViewMode} />{filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתוצאות" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (mapOpen) closeResultsMap(); else openResultsMap(); }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לתוצאות" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect className="results-toolbar__sort" compact label="מיון לפי" value={sort} onChange={changeSort} options={vacationSortOptions} /></div>
-            {!mapOpen && <div className={`result-cards results-view results-view--${viewMode}`}>{displayedResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStay} liveAvailabilityState={liveAvailabilityFor(property.slug)} detailHref={detailHref(property.slug)} />)}</div>}
+            {!mapOpen && <div className={`result-cards results-view results-view--${viewMode}`}>{displayedResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStayFor(property.slug)} liveAvailabilityState={liveAvailabilityFor(property.slug)} detailHref={detailHref(property.slug)} />)}</div>}
             {mapOpen && <div className="airbnb-map-split">
-              <div className={`airbnb-map-split__results result-cards results-view results-view--${viewMode}`}>{displayedResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStay} liveAvailabilityState={liveAvailabilityFor(property.slug)} detailHref={detailHref(property.slug)} />)}</div>
+              <div className={`airbnb-map-split__results result-cards results-view results-view--${viewMode}`}>{displayedResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStayFor(property.slug)} liveAvailabilityState={liveAvailabilityFor(property.slug)} detailHref={detailHref(property.slug)} />)}</div>
               <div className="airbnb-map-split__map"><DeferredListingMap listings={mapCandidates} initialListings={filtered} autoLoad detailQuery={detailQuery} onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} /></div>
             </div>}
             {(mapOpen && mapVisibleIds ? displayedResults.length === 0 : filtered.length === 0) && <div className="empty-state"><h2>לא נמצאה התאמה מדויקת</h2><p>אפשר לשנות אזור, להפחית את כמות האורחים או להסיר מאפיין.</p><button className="button primary" type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
