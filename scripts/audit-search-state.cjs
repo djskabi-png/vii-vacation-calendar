@@ -2,7 +2,7 @@
 "use strict";
 
 const { chromium } = require("playwright");
-const { mkdirSync } = require("node:fs");
+const { mkdirSync, writeFileSync } = require("node:fs");
 
 function argument(name, fallback = "") {
   const index = process.argv.indexOf(`--${name}`);
@@ -13,6 +13,7 @@ const baseUrl = argument("base-url", "https://vii.spaplus.co").replace(/\/$/, ""
 const executablePath = argument("executable-path", process.env.CHROME_PATH || "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe");
 const version = argument("version", String(Date.now()));
 const screenshotDirectory = argument("screenshot-dir", "");
+const reportFile = argument("report-file", "");
 if (screenshotDirectory) mkdirSync(screenshotDirectory, { recursive: true });
 const routes = [
   ["home", "/"],
@@ -249,7 +250,9 @@ function failuresFor(state, { requireExpanded = false, requireSearch = false, re
 
   await browser.close();
   const failures = reports.flatMap((report) => report.checks.flatMap((check) => check.failures.map((failure) => `${report.name}:${check.name}:${failure}`)));
-  console.log(JSON.stringify({ baseUrl, version, passed: failures.length === 0, failures, reports }, null, 2));
+  const report = { baseUrl, version, passed: failures.length === 0, failures, reports };
+  if (reportFile) writeFileSync(reportFile, `${JSON.stringify(report, null, 2)}\n`);
+  console.log(JSON.stringify(report, null, 2));
   process.exit(failures.length ? 1 : 0);
 })().catch((error) => {
   console.error(error);

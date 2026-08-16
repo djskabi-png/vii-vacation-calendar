@@ -21,4 +21,6 @@ test("the matrix covers every search world and critical responsive search state"
   assert.match(audit, /horizontal-viewport-drift/);
   assert.match(audit, /stale-mobile-scroll-lock/);
   assert.match(audit, /search-action-not-visible/);
+  assert.match(audit, /argument\("report-file"/);
+  assert.match(audit, /writeFileSync\(reportFile/);
 });
