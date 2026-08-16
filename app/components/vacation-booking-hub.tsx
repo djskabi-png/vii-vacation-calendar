@@ -7,6 +7,7 @@ import type { ResolvedAvailability } from "./property-card";
 import { CalendarIcon } from "../site-header";
 import { WhatsAppLeadButton } from "./whatsapp-lead-button";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
+import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
 
 type VacationBookingHubProps = {
   property: Property;
@@ -125,7 +126,14 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
     quote: availability?.units?.find((unit) => unit.index === index),
   }));
   const availableUnitCount = unitAvailability.filter(({ quote }) => quote?.availability === "available").length;
-  const hasUnitAvailability = property.scenario === "multi" && Boolean(availability?.units?.length);
+  // A legacy quote describes sellable units only when the property model and the
+  // source response have the same unit catalog. Never mix a live whole-property
+  // quote with older editorial room prices, because that creates two prices for
+  // what appears to be the same booking.
+  const usesLiveLegacyAvailability = Boolean(legacyAvailabilitySourceFor(property.slug));
+  const hasUnitAvailability = property.scenario === "multi"
+    && Boolean(availability?.units?.length)
+    && (!usesLiveLegacyAvailability || availability!.units!.length === units.length);
   const unitCopy = {
     he: { available: "פנויה בתאריכים שבחרתם", unavailable: "לא פנויה בתאריכים שבחרתם", confirm: "הזמינות תאושר מול המקום", confirmPrice: "המחיר דורש אישור", otherDate: "אפשר לבדוק תאריך אחר", quick: "הזמנה מהירה של", checkOther: "בדיקת תאריך אחר", check: "בדיקת זמינות", checkDates: "בדיקת תאריכים ל", choose: "בחרו יחידה פנויה מהרשימה", availableCount: (count: number, total: number) => `${count} מתוך ${total} יחידות פנויות`, perNight: "ללילה", totalStay: "לכל השהייה" },
     en: { available: "Available for your selected dates", unavailable: "Unavailable for your selected dates", confirm: "Availability will be confirmed with the property", confirmPrice: "Price needs confirmation", otherDate: "You can check another date", quick: "Quick book", checkOther: "Check another date", check: "Check availability for", checkDates: "Check dates for", choose: "Choose an available unit from the list", availableCount: (count: number, total: number) => `${count} of ${total} units available`, perNight: "per night", totalStay: "for the entire stay" },
@@ -206,7 +214,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
 
           {availability?.alternatives?.length ? <div className="vacation-booking-dialog__alternatives"><strong>תאריכים חלופיים</strong><div>{availability.alternatives.map((alternative) => <button type="button" key={`${alternative.from}-${alternative.till}`} onClick={openCalendar}><span>{localizedDateRange(alternative.from, alternative.till, "", language)}</span><b>{alternative.nightlyPrice.toLocaleString(numberLocale)} ₪</b></button>)}</div></div> : null}
 
-          <div className="vacation-booking-dialog__units">
+          {hasUnitAvailability ? <div className="vacation-booking-dialog__units">
             <div className="vacation-booking-dialog__units-heading">
               <div><small>{property.scenario === "single" ? "המקום כולו" : `${units.length} סוגי יחידות`}</small><h3>{property.scenario === "single" ? property.name : "יחידות אירוח לבחירה"}</h3></div>
               <span>{property.scenario === "single" ? `עד ${property.guests} אורחים` : "הפרטים המלאים לפי צורך"}</span>
@@ -239,7 +247,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
                 </article>;
               })}
             </div>
-          </div>
+          </div> : null}
         </div>
 
         <footer className="vacation-booking-dialog__footer">

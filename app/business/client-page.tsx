@@ -305,7 +305,12 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
               <p>{property.scenario === "single" ? "זהו מקום אירוח שמוזמן בשלמותו. פירוט חדרי השינה מוצג בנפרד ואינו נחשב ליחידות אירוח נוספות." : "כל כרטיס מייצג יחידת אירוח נפרדת. בתוך כל יחידה מוצג בנפרד מספר חדרי השינה וסידור המיטות שנמסר עבורה."}</p>
               <div className="room-card-list">
                 {property.roomOptions.map((room, roomIndex) => {
-                  const roomAvailability = resolvedAvailability?.units?.find((unit) => unit.index === roomIndex);
+                  // A place sold as one whole property has one live quote. Its
+                  // editorial room entry is descriptive, not a separately priced
+                  // inventory unit, so it must reuse that quote.
+                  const roomAvailability = property.scenario === "single" && usesLiveLegacyAvailability
+                    ? resolvedAvailability
+                    : resolvedAvailability?.units?.find((unit) => unit.index === roomIndex);
                   const roomAvailable = roomAvailability?.availability === "available";
                   const roomUnavailable = roomAvailability?.availability === "unavailable";
                   const roomNightlyPrice = roomAvailability?.nightlyPrice || 0;
