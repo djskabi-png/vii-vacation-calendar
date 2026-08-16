@@ -8,7 +8,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DeferredListingMap } from "../components/deferred-listing-map";
 import { ModernSelect } from "../components/modern-select";
 import { PageShell } from "../components/page-shell";
-import { availabilityDemoSlugs, hasAvailablePriceForSearch, isAvailabilityDemoSearch, PropertyCard } from "../components/property-card";
+import { availabilityDemoSlugs, hasAvailablePriceForSearch, isAvailabilityDemoSearch, PropertyCard, resolveAvailabilityForStay } from "../components/property-card";
 import { type LegacyAvailabilityState, useLegacyAvailabilityBatch, useLegacyFlexibleAvailabilityBatch } from "../components/use-legacy-availability";
 import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
 import { SearchBox } from "../components/search-box";
@@ -437,7 +437,25 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   );
   const liveAvailabilityBySlug = useLegacyAvailabilityBatch(mapCandidates, selectedStay);
   const flexibleAvailabilityBySlug = useLegacyFlexibleAvailabilityBatch(mapCandidates, flexibleCandidates);
+  const flexibleLocalAvailabilityBySlug = useMemo(() => Object.fromEntries(mapCandidates
+    .filter((property) => !legacyAvailabilitySourceFor(property.slug))
+    .map((property) => {
+      let firstKnown: ReturnType<typeof resolveAvailabilityForStay> = null;
+      let firstAvailable: ReturnType<typeof resolveAvailabilityForStay> = null;
+      for (const candidate of flexibleCandidates) {
+        const quote = resolveAvailabilityForStay(property, candidate, pathname, requestedLocation);
+        if (!quote) continue;
+        if (!firstKnown) firstKnown = quote;
+        if (quote.availability === "available" && !firstAvailable) firstAvailable = quote;
+        if (quote.availability === "available" && typeof quote.nightlyPrice === "number" && quote.nightlyPrice > 0) {
+          return [property.slug, { quote, status: "ready" } satisfies LegacyAvailabilityState] as const;
+        }
+      }
+      const quote = firstAvailable || firstKnown;
+      return [property.slug, quote ? { quote, status: "ready" } satisfies LegacyAvailabilityState : { quote: null, status: "idle" } satisfies LegacyAvailabilityState] as const;
+    })), [flexibleCandidates, mapCandidates, pathname, requestedLocation]);
   const liveAvailabilityFor = (slug: string): LegacyAvailabilityState | undefined => {
+    if (flexibleSearch && !legacyAvailabilitySourceFor(slug)) return flexibleLocalAvailabilityBySlug[slug];
     if (!legacyAvailabilitySourceFor(slug)) return undefined;
     if (selectedStay) return liveAvailabilityBySlug[slug] || { quote: null, status: "loading" };
     if (flexibleSearch) return flexibleAvailabilityBySlug[slug] || { quote: null, status: "loading" };
@@ -476,7 +494,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   // landingType is derived from the immutable landing prop. Keeping the prop in
   // the dependency list lets the compiler preserve this memo across renders.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [area, availabilityDemoActive, flexibleAvailabilityBySlug, flexibleSearch, guests, landing, liveAvailabilityBySlug, mapCandidates, pathname, requestedLocation, selectedStay, selectedTypes, sort]);
+  }, [area, availabilityDemoActive, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, guests, landing, liveAvailabilityBySlug, mapCandidates, pathname, requestedLocation, selectedStay, selectedTypes, sort]);
 
   const draftCandidates = properties.filter((property) => {
     const matchesType = matchesAnyAccommodationType(property.type, shownFilters.selectedTypes, landing);
@@ -512,7 +530,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       if (availabilityPriority) return availabilityPriority;
       return compareVacationProperties(a, b, sort);
     });
-  }, [filtered, flexibleAvailabilityBySlug, flexibleSearch, guests, liveAvailabilityBySlug, mapCandidates, mapOpen, mapVisibleIds, pathname, requestedLocation, selectedStay, sort]);
+  }, [filtered, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, guests, liveAvailabilityBySlug, mapCandidates, mapOpen, mapVisibleIds, pathname, requestedLocation, selectedStay, sort]);
   const inventorySummary = useMemo(() => vacationInventorySummary(displayedResults, language), [displayedResults, language]);
   const detailQuery = useMemo(() => {
     const params = new URLSearchParams();
