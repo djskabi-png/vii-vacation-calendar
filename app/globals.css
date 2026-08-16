@@ -8073,6 +8073,8 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   cursor: pointer;
   transition: border-color .2s ease, box-shadow .2s ease, translate .2s ease;
 }
+.vacation-booking-hub__launcher-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: stretch; gap: 10px; }
+.vacation-booking-hub__quick-book { min-width: 146px; min-height: 86px; text-decoration: none; }
 .vacation-booking-hub__launcher:hover {
   border-color: #86c7ce;
   box-shadow: 0 16px 38px rgba(4, 64, 75, .12);
@@ -8323,6 +8325,8 @@ body:has(.vacation-booking-dialog-layer) .detail-sticky-wrap { display: none; }
 
 @media (max-width: 760px) {
   .vacation-booking-hub { width: calc(100% - 24px); margin-top: 18px; }
+  .vacation-booking-hub__launcher-row { grid-template-columns: 1fr; gap: 8px; }
+  .vacation-booking-hub__quick-book { min-height: 48px; width: 100%; }
   .vacation-booking-hub__launcher { min-height: 80px; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; padding: 10px 11px; border-radius: 18px; }
   .vacation-booking-hub__launcher-icon { width: 44px; height: 44px; border-radius: 13px; }
   .vacation-booking-hub__launcher-copy small { font-size: .68rem; }

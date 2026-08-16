@@ -166,6 +166,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
   return <section id="booking-summary" className={`shell vacation-booking-hub vacation-booking-hub--${state}`} aria-labelledby="vacation-booking-title">
     <h2 id="vacation-booking-title" className="sr-only">בדיקת תאריכים והזמנה</h2>
 
+    <div className="vacation-booking-hub__launcher-row">
     <button ref={launchRef} type="button" className="vacation-booking-hub__launcher" onClick={() => setDialogOpen(true)} aria-haspopup="dialog">
       <span className="vacation-booking-hub__launcher-icon"><CalendarIcon /></span>
       <span className="vacation-booking-hub__launcher-copy">
@@ -176,8 +177,10 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
         <small>{guests} אורחים</small>
         {nightlyPrice > 0 ? <b>{nightlyPrice.toLocaleString(numberLocale)} ₪ ללילה{property.scenario === "multi" ? unitPriceCopy.night : ""}</b> : <b>{summary.text}</b>}
       </span>
-      <span className="vacation-booking-hub__launcher-action"><span className="vacation-booking-hub__launcher-action-full">פתיחת פרטי ההזמנה</span><span className="vacation-booking-hub__launcher-action-short">לפרטים</span></span>
+      <span className="vacation-booking-hub__launcher-action"><span className="vacation-booking-hub__launcher-action-full">פירוט החופשה</span><span className="vacation-booking-hub__launcher-action-short">פירוט</span></span>
     </button>
+    {quickBooking ? <Link className="button primary vacation-booking-hub__quick-book" href={bookingHref}>הזמנה מהירה</Link> : null}
+    </div>
 
     {dialogOpen ? <div className="vacation-booking-dialog-layer" onMouseDown={(event) => { if (event.target === event.currentTarget) setDialogOpen(false); }}>
       <section ref={dialogRef} tabIndex={-1} className="vacation-booking-dialog" role="dialog" aria-modal="true" aria-labelledby="vacation-booking-dialog-title" aria-describedby="vacation-booking-dialog-description">
