@@ -51,6 +51,18 @@ test("contextual discovery preserves filters while changing only the selected de
   assert.match(component, /rail\.scrollBy/);
 });
 
+test("spa discovery cards lead to unique canonical landing pages", () => {
+  assert.match(component, /spaSearchRegions\.find\(\(entry\) => entry\.label === destination\)/);
+  assert.match(component, /spaSearchHref\(\{ region, features: \[\] \}\)/);
+  assert.match(component, /href: "\/spas\/search\/couples"/);
+  assert.match(component, /href: "\/spas\/search\/single"/);
+  assert.match(component, /href: "\/spas\/spa-day"/);
+  assert.match(component, /href: "\/spas\/spa-with-pool"/);
+  assert.match(component, /href: "\/spas\/spa-with-jacuzzi"/);
+  assert.match(component, /href: "\/spas\/hotel-spa"/);
+  assert.doesNotMatch(component, /href: "\/spas\/(?:day-pass|pool|jacuzzi|hotel)"/);
+});
+
 test("dynamic location labels are localized and suppress whole-country aliases", () => {
   assert.match(component, /useSiteLanguage/);
   assert.match(component, /translatedLocation = location \? translate\(location\)/);

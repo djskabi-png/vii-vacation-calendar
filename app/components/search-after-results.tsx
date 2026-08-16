@@ -9,6 +9,7 @@ import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
 import { eventPlaces, properties } from "../data/site-data";
 import { isWholeCountrySelection, matchesSearchLocation, searchLocationOptions, type SearchMode } from "../data/search-taxonomy";
+import { spaSearchHref, spaSearchRegions } from "../data/spa-search-landings";
 
 export type SearchContentWorld = "vacation" | "events" | "spa" | "hourly" | "providers" | "activities";
 
@@ -154,6 +155,20 @@ function destinationOptions(world: SearchContentWorld, location?: string) {
   return [...new Set([...uniqueNearby, ...matchingOptions])].slice(0, 10);
 }
 
+function destinationHref(
+  world: SearchContentWorld,
+  language: SiteLanguage,
+  currentQuery: string,
+  locationParam: string,
+  destination: string,
+) {
+  if (world === "spa") {
+    const region = spaSearchRegions.find((entry) => entry.label === destination);
+    if (region) return localizedPath(spaSearchHref({ region, features: [] }), language);
+  }
+  return contextualHref(world, language, currentQuery, { [locationParam]: isWholeCountrySelection(destination) ? null : destination });
+}
+
 function DiscoveryRail({ title, links, previousLabel, nextLabel }: {
   title: string;
   links: DiscoveryLink[];
@@ -245,7 +260,7 @@ const contentByWorld: Record<SearchContentWorld, SearchContent> = {
       { question: "האם המחיר כולל שימוש במתקנים?", answer: "רק אם הדבר מצוין בפרטי החבילה. כדאי לבדוק אילו מתקנים פעילים בתאריך הביקור ולכמה זמן ניתן להשתמש בהם." },
     ],
     related: [
-      { label: "ספא זוגי", href: "/spas?spaFor=couple" }, { label: "ספא ליחיד", href: "/spas?spaFor=single" }, { label: "יום כיף בספא", href: "/spas/day-pass" }, { label: "ספא עם בריכה", href: "/spas/pool" }, { label: "ספא עם ג׳קוזי", href: "/spas/jacuzzi" }, { label: "ספא במלון", href: "/spas/hotel" },
+      { label: "ספא זוגי", href: "/spas/search/couples" }, { label: "ספא ליחיד", href: "/spas/search/single" }, { label: "יום כיף בספא", href: "/spas/spa-day" }, { label: "ספא עם בריכה", href: "/spas/spa-with-pool" }, { label: "ספא עם ג׳קוזי", href: "/spas/spa-with-jacuzzi" }, { label: "ספא במלון", href: "/spas/hotel-spa" },
     ],
   },
   hourly: {
@@ -329,7 +344,7 @@ export function SearchAfterResults({
   const locationParam = world === "activities" || world === "providers" ? "area" : "location";
   const destinationLinks: DiscoveryLink[] = destinations.map((destination) => ({
     label: translate(destination),
-    href: contextualHref(world, language, currentQuery, { [locationParam]: isWholeCountrySelection(destination) ? null : destination }),
+    href: destinationHref(world, language, currentQuery, locationParam, destination),
     meta: discovery.destinationMeta,
   }));
   const contextualLinks: DiscoveryLink[] = searchSuggestions.length
