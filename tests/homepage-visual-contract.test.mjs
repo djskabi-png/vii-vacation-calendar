@@ -34,13 +34,26 @@ test("homepage preserves every legacy deal period and swaps the visible cards in
   assert.match(source, /aria-labelledby=\{\x60\$\{group\.id\}-\$\{activePeriod\.id\}-tab\x60\}/);
   assert.match(source, /pendingDealFocus\.current = \{ groupId, periodId: nextPeriod\.id \}/);
   assert.match(source, /document\.getElementById\(\x60\$\{pending\.groupId\}-\$\{pending\.periodId\}-tab\x60\)\?\.focus\(\)/);
-  assert.match(source, /pickProperties\(\.\.\.activePeriod\.slugs\)/);
+  assert.match(source, /activePeriod\.offers\.map/);
+  assert.match(source, /offer\.nightlyPrice\.toLocaleString/);
+  assert.match(source, /offer\.from/);
+  assert.match(source, /offer\.till/);
   assert.match(source, /period=\$\{encodeURIComponent\(activePeriod\.id\)\}/);
   assert.match(source, /href=\{lastMinuteHref\(activePeriod\)\}/);
   assert.match(source, /דילים ברגע האחרון/);
   assert.match(source, /דילים לתקופות מבוקשות/);
   assert.match(source, /dealGroups\.map/);
   assert.match(css, /home-last-minute__tabs button\.is-active/);
+});
+
+test("homepage period offers preserve the verified legacy dates and prices", async () => {
+  const deals = await readFile(new URL("../app/data/last-minute-deals.ts", import.meta.url), "utf8");
+  assert.match(deals, /legacyTab: "lastminute"[\s\S]*from: "2026-08-16"[\s\S]*nightlyPrice: 3500/);
+  assert.match(deals, /legacyTab: "weekend"[\s\S]*nightlyPrice: 3250[\s\S]*nightlyPrice: 1200[\s\S]*nightlyPrice: 900/);
+  assert.match(deals, /legacyTab: "weekend2"[\s\S]*nightlyPrice: 3250[\s\S]*nightlyPrice: 1200[\s\S]*nightlyPrice: 850/);
+  assert.match(deals, /legacyTab: "holiday111"[\s\S]*nightlyPrice: 4000[\s\S]*nightlyPrice: 5000/);
+  assert.match(deals, /legacyTab: "holiday114"[\s\S]*nightlyPrice: 6000[\s\S]*nightlyPrice: 3500/);
+  assert.match(deals, /publishedLastMinuteDeal[\s\S]*candidate\.nightlyPrice === nightlyPrice/);
 });
 
 test("homepage commercial cards include visible semantic artwork", async () => {

@@ -33,9 +33,11 @@ test("business detail tolerates duplicate and malformed public query values", ()
 test("business detail shows the preserved search before availability", () => {
   assert.match(businessPage, /initialRooms=\{params\.rooms\}/);
   assert.match(businessPage, /initialSource=\{params\.source\}/);
-  assert.match(business, /initialSource === "search"/);
-  assert.match(business, /className="search-context-summary shell"/);
-  assert.match(business, /החיפוש שבחרתם/);
+  assert.match(business, /const hasSelectedDates = Boolean\(dateRange\.from && dateRange\.till\)/);
+  assert.match(business, /<VacationBookingHub/);
+  assert.match(business, /from=\{dateRange\.from\}/);
+  assert.match(business, /till=\{dateRange\.till\}/);
+  assert.match(business, /selectedPrice=\{resolvedSelectedPrice\}/);
   assert.doesNotMatch(business, /בדיקת זמינות לחיפוש הזה/);
   assert.match(business, /onlineHref={activeWorld === "vacation" \? undefined/);
 });

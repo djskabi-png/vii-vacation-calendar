@@ -12,7 +12,7 @@ import { trails } from "../data/trail-data";
 import { TrailCard } from "./trail-card";
 import { PinIcon } from "../site-header";
 import { useSiteLanguage } from "../i18n/locale-provider";
-import { lastMinutePeriods, lastMinuteStartingPrices } from "../data/last-minute-deals";
+import { lastMinutePeriods } from "../data/last-minute-deals";
 
 function pickProperties(...slugs: string[]) {
   return slugs
@@ -168,10 +168,11 @@ export function HomeShowcase() {
           const panelId = `${group.id}-cards`;
           return <section className="home-last-minute__slider" key={group.id} aria-labelledby={`${group.id}-title`}>
           <div className="home-last-minute__slider-head"><div><h3 id={`${group.id}-title`}>{group.title}</h3><div className="home-last-minute__tabs" role="tablist" aria-label={group.title}>{group.periods.map((period, index) => <button key={period.id} type="button" role="tab" id={`${group.id}-${period.id}-tab`} aria-selected={period.id === activePeriod.id} aria-controls={panelId} className={period.id === activePeriod.id ? "is-active" : undefined} onClick={() => selectDealPeriod(group.id, period.id)} onKeyDown={(event) => handleDealPeriodKeyDown(event, group.id, group.periods, index)}>{period.label}</button>)}</div></div><div><Link href={lastMinuteHref(activePeriod)}>{activePeriod.cta}</Link><SliderControls label={group.title} onPrevious={() => scroll(group.id, "previous")} onNext={() => scroll(group.id, "next")} /></div></div>
-          <div id={panelId} className="home-last-minute__cards" role="tabpanel" aria-labelledby={`${group.id}-${activePeriod.id}-tab`} data-horizontal-rail ref={(node) => { tracks.current[group.id] = node; }}>{pickProperties(...activePeriod.slugs).map((property) => {
-            const price = property.price || lastMinuteStartingPrices[property.slug] || 1200;
-            const detailHref = `/business?id=${property.slug}&period=${encodeURIComponent(activePeriod.id)}&from=${activePeriod.from}&till=${activePeriod.till}&guests=2&price=${price}`;
-            return <Link key={property.slug} href={detailHref}><img src={property.image} alt={property.name} title={property.name} loading="lazy" decoding="async" /><span>{activePeriod.label}</span><div><small><PinIcon />{property.location}</small><h3>{property.name}</h3><div className="home-last-minute__deal"><b>{activePeriod.dateSummary}</b><strong>{price.toLocaleString("he-IL")} ₪</strong></div></div></Link>;
+          <div id={panelId} className="home-last-minute__cards" role="tabpanel" aria-labelledby={`${group.id}-${activePeriod.id}-tab`} data-horizontal-rail ref={(node) => { tracks.current[group.id] = node; }}>{activePeriod.offers.map((offer) => {
+            const property = properties.find((candidate) => candidate.slug === offer.slug);
+            if (!property) return null;
+            const detailHref = `/business?id=${property.slug}&period=${encodeURIComponent(activePeriod.id)}&from=${offer.from}&till=${offer.till}&guests=2&price=${offer.nightlyPrice}`;
+            return <Link key={`${activePeriod.id}-${property.slug}`} href={detailHref}><img src={property.image} alt={property.name} title={property.name} loading="lazy" decoding="async" /><span>{activePeriod.label}</span><div><small><PinIcon />{property.location}</small><h3>{property.name}</h3><div className="home-last-minute__deal"><b>פנוי, {offer.dateSummary}</b><strong><span>{offer.nightlyPrice.toLocaleString("he-IL")} ₪</span><small>ללילה</small></strong></div></div></Link>;
           })}</div>
         </section>;
         })}

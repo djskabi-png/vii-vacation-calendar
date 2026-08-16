@@ -7,7 +7,8 @@ test("a visible Hebrew date label recovers the structured stay used by result ca
   const source = await (await import("node:fs/promises")).readFile(moduleUrl, "utf8");
   assert.match(source, /parseDisplayLabel/);
   assert.match(source, /he: \/\\s\+עד\\s\+\//);
-  assert.match(source, /return displayLabel \? parseDisplayLabel/);
+  assert.match(source, /const parsed = displayLabel \? parseDisplayLabel/);
+  assert.match(source, /return parsed \? \{ \.\.\.parsed, guests: requestedGuests \} : null/);
 });
 
 test("search and result cards share the recovered structured date range", async () => {

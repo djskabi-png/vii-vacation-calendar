@@ -5589,7 +5589,9 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .home-last-minute__slider-head .home-last-minute__tabs { margin: 11px 0 0; }
 .home-last-minute__cards > a > span { display: inline-flex; align-items: center; min-height: 34px; }
 .home-last-minute__deal > b { display: block; color: rgba(255,255,255,.82); }
-.home-last-minute__deal > strong { display: block; color: white; font-size: 1.05rem; }
+.home-last-minute__deal > strong { display: grid; justify-items: end; color: white; font-size: 1.05rem; line-height: 1; }
+.home-last-minute__deal > strong > span { white-space: nowrap; }
+.home-last-minute__deal > strong > small { margin-top: 4px; }
 .booking-card__illustrative-price { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 3px 12px; padding: 13px 14px; border: 1px solid #c9e1e4; border-radius: 14px; background: #effafa; }
 .booking-card__illustrative-price small { color: var(--ink-soft); }
 .booking-card__illustrative-price strong { direction: rtl; unicode-bidi: isolate; color: var(--teal-dark); font-size: 1.15rem; white-space: nowrap; }

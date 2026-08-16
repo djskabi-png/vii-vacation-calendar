@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-legacy-live-tabs-20260816",
+  "project": "vii.co.il",
+  "task_type": "legacy-data-parity-and-public-release",
+  "goal": "Synchronize all last-minute and popular-period tabs with current verified availability, dates and prices from the old VII site, and present each period clearly on desktop and mobile.",
+  "created_at": "2026-08-16T04:27:57.887335Z",
+  "updated_at": "2026-08-16T04:27:57.887335Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "918b17a5868877324ce7050ba65fdfa8ef441e7b8aa1e7e66a8d10232500661e"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "f23b71755266b9084eb1f1247ee9651bb3819c47b08e7c20506ca9227f5b6866"
+    }
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-WEB-001",
+      "title": "מפת התאמה לפני החלפת מוצר קיים",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "ADIR-WEB-002",
+      "title": "מטריצת מצבי אינטראקציה",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "ADIR-WEB-004",
+      "title": "סמל שקל אחיד",
+      "scope": "account_rule_and_shared_skill"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Synchronize all last-minute and popular-period tabs with current verified availability, dates and prices from the old VII site, and present each period clearly on desktop and mobile.",
+      "acceptance_check": "Every tab changes the visible properties in place and every card date, price and deep link matches the old VII source at verification time.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-001",
+      "source": "lesson:ADIR-WEB-001",
+      "statement": "לפני עיצוב מחדש ממפים כל יכולת ותוכן ומסמנים אותם כנשמרו, הוחלפו במכוון או חסומים.",
+      "acceptance_check": "אין פריט ישן ללא סיווג, מקור והכרעה לפני אישור המוצר החדש.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-002",
+      "source": "lesson:ADIR-WEB-002",
+      "statement": "שינוי אינטראקטיבי נבדק בכל המצבים הרלוונטיים במחשב, בנייד ובגובה מסך נמוך.",
+      "acceptance_check": "לכל אינטראקציה שהשתנתה יש ראיית מעבר לכל המצבים החלים עליה.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-004",
+      "source": "lesson:ADIR-WEB-004",
+      "statement": "בכל תוצר קריא לאדם מציגים שקל חדש באמצעות הסמל ₪ בלבד ולא באמצעות הקיצורים ש״ח או ש\"ח.",
+      "acceptance_check": "סריקת המקור אינה מוצאת קיצורי שקל ישנים בתוכן הפונה למשתמש, וכל מחיר שקלי מייצג מוצג בדפדפן באמצעות ₪ בכיווניות תקינה.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:source-truth",
+      "source": "project_guidance",
+      "statement": "Record old-site evidence for every period, property, date and price before publishing.",
+      "acceptance_check": "Record old-site evidence for every period, property, date and price before publishing.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:responsive",
+      "source": "project_guidance",
+      "statement": "Verify the complete tab and card behavior at desktop and 390x844 mobile.",
+      "acceptance_check": "Verify the complete tab and card behavior at desktop and 390x844 mobile.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:release",
+      "source": "project_guidance",
+      "statement": "Lint, build, tests, exact public checks and an independent checker must pass before completion.",
+      "acceptance_check": "Lint, build, tests, exact public checks and an independent checker must pass before completion.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    }
+  ],
+  "verification_status": "in_progress",
+  "verification_errors": []
+}

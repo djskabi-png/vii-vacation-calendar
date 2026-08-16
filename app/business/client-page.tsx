@@ -33,7 +33,7 @@ import { useLegacyAvailability } from "../components/use-legacy-availability";
 import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
 import { ViewedItemTracker } from "../components/viewed-item-tracker";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
-import { lastMinuteStartingPrices, publishedLastMinuteDeal } from "../data/last-minute-deals";
+import { publishedLastMinuteDeal } from "../data/last-minute-deals";
 
 function complementaryItems(area: string, location: string): DiscoveryItem[] {
   const query = `${area} ${location}`.toLocaleLowerCase("he");
@@ -170,7 +170,7 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
   const selectedStay = hasSelectedDates ? { from: dateRange.from, till: dateRange.till, guests } : null;
   const liveLegacyAvailability = useLegacyAvailability(property, selectedStay);
   const verifiedLastMinuteDeal = activeWorld === "vacation" && selectedStay
-    ? publishedLastMinuteDeal({ slug: property.slug, period: initialPeriod, from: selectedStay.from, till: selectedStay.till, guests, nightlyPrice: lastMinuteStartingPrices[property.slug] || property.price || 0 })
+    ? publishedLastMinuteDeal({ slug: property.slug, period: initialPeriod, from: selectedStay.from, till: selectedStay.till, guests, nightlyPrice: Number(selectedPrice) || 0 })
     : null;
   const resolvedAvailability = verifiedLastMinuteDeal || liveLegacyAvailability.quote || resolveAvailabilityForStay(property, selectedStay, "/business", null);
   const usesLiveLegacyAvailability = Boolean(legacyAvailabilitySourceFor(property.slug));
