@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "task_id": "vii-mobile-breadcrumb-single-row-20260816",
+  "task_id": "vii-hilat-units-gallery-recovery-20260816",
   "project": "calendar-airbnb",
   "task_type": "website-ui-release",
-  "goal": "Keep all public mobile breadcrumbs on one horizontally scrollable line and publish the verified fix",
-  "created_at": "2026-08-16T12:27:26.659564Z",
-  "updated_at": "2026-08-16T12:45:48.701817Z",
+  "goal": "Rebuild the place booking placement, direct contact actions, Hilat Hanof unit details and mobile topic gallery, then publish only after verification",
+  "created_at": "2026-08-16T14:06:52.673261Z",
+  "updated_at": "2026-08-16T14:06:52.673261Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -44,74 +44,76 @@
     {
       "id": "goal",
       "source": "user_request",
-      "statement": "Keep all public mobile breadcrumbs on one horizontally scrollable line and publish the verified fix",
-      "acceptance_check": "At 390px breadcrumbs remain one line, horizontally scroll within their own region, preserve keyboard focus and do not create page-level overflow",
-      "status": "passed",
-      "evidence": [
-        "Public Sites version 303 deployed. Shared mobile CSS sets breadcrumb rail overflow-x:auto, list flex-wrap:nowrap and items white-space:nowrap. Live public route confirmed no page-level horizontal overflow and no console errors."
-      ],
-      "reason": null,
-      "updated_at": "2026-08-16T12:45:47.685232Z"
+      "statement": "Rebuild the place booking placement, direct contact actions, Hilat Hanof unit details and mobile topic gallery, then publish only after verification",
+      "acceptance_check": "Public Hilat Hanof desktop and 390px mobile show the date launcher immediately above units, direct phone and WhatsApp, four detailed unit dialogs and per-unit galleries; the mobile gallery provides topic scrolling and full-image viewing without overflow",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
     },
     {
       "id": "lesson:ADIR-WEB-005",
       "source": "lesson:ADIR-WEB-005",
       "statement": "Every responsive website must remain correct through mobile-to-desktop and desktop-to-mobile transitions, reloads, orientation changes and browser device-emulation changes, including while overlays and scroll locks are active.",
       "acceptance_check": "A real public route passes fresh desktop, desktop reload, fresh 390-pixel mobile, mobile overlay open followed by desktop resize, desktop reload, breakpoint boundary, orientation change and return to mobile. At every step the page has meaningful visible content, scrollX is zero, document width does not exceed viewport width and desktop has no stale mobile lock, backdrop or expanded state.",
-      "status": "blocked",
+      "status": "pending",
       "evidence": [],
-      "reason": "The external mobile viewport controller did not apply 390px and the screenshot API timed out, so the required full transition matrix cannot be honestly verified in this run.",
-      "updated_at": "2026-08-16T12:45:48.016767Z"
+      "reason": null
     },
     {
       "id": "lesson:ADIR-WEB-006",
       "source": "lesson:ADIR-WEB-006",
       "statement": "A mobile search product is not visually approved until meaningful content is visible in the viewport and an independent checker inspects both a public-domain screenshot and the live page. DOM presence, text length, build output and overflow measurements alone are insufficient.",
       "acceptance_check": "A public Spa results route with an artificially empty results control must fail with no-visible-results-state or excessive-empty-band, and the report must contain a screenshot path inspected by the independent checker.",
-      "status": "blocked",
+      "status": "pending",
       "evidence": [],
-      "reason": "Public mobile screenshot evidence could not be captured because the browser screenshot call timed out.",
-      "updated_at": "2026-08-16T12:45:48.184208Z"
+      "reason": null
     },
     {
       "id": "lesson:ADIR-MOBILE-001",
       "source": "lesson:ADIR-MOBILE-001",
       "statement": "מסלול נייד מלא נבנה ונבדק בפני עצמו, לרבות המסך הראשון, צפיפות, קריאות, גלילה, חלונות, פעולות ומעברי רוחב.",
       "acceptance_check": "שער הראיות נכשל ללא צילום חי של המסך הראשון והמסלול המלא, בדיקת גובה נמוך, מדידת גלישה ומטריצת מעברי רוחב.",
-      "status": "blocked",
+      "status": "pending",
       "evidence": [],
-      "reason": "The verification browser did not apply its requested 390px viewport and screenshot capture timed out.",
-      "updated_at": "2026-08-16T12:45:48.346571Z"
+      "reason": null
     },
     {
       "id": "lesson:ADIR-CONTROL-001",
       "source": "lesson:ADIR-CONTROL-001",
       "statement": "כל כפתור, קישור, לשונית, חץ, תגית, מסנן, תפריט ובקר נראה מבטיח פעולה ולכן חייב להיבדק בכל המצבים החלים עליו וביעד הטבעי של התוצאה.",
       "acceptance_check": "שער הראיות נכשל אם חסר רכיב נראה במלאי, אם התוצאה אינה נצפית ביעד הטבעי, או אם לא נבדקו כל המופעים במשפחה שנכשלה.",
-      "status": "passed",
-      "evidence": [
-        "The scrollable breadcrumb rail remains an accessible nav with anchor controls. Shared component contract confirms all rendered breadcrumbs use the shared accessible implementation."
-      ],
-      "reason": null,
-      "updated_at": "2026-08-16T12:45:48.518710Z"
+      "status": "pending",
+      "evidence": [],
+      "reason": null
     },
     {
-      "id": "project:shared-breadcrumb",
+      "id": "project:source-truth",
       "source": "project_guidance",
-      "statement": "Apply the shared breadcrumb component across all page families",
-      "acceptance_check": "Apply the shared breadcrumb component across all page families",
-      "status": "passed",
-      "evidence": [
-        "Shared BreadcrumbTrail uses .breadcrumbs, .breadcrumbs__list and .breadcrumbs__item across all rendered breadcrumb routes; focused contract test passed 5/5."
-      ],
-      "reason": null,
-      "updated_at": "2026-08-16T12:45:47.858490Z"
+      "statement": "Hilat Hanof unit details and images match the verified legacy page already cited in listing data",
+      "acceptance_check": "Hilat Hanof unit details and images match the verified legacy page already cited in listing data",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:type-safety",
+      "source": "project_guidance",
+      "statement": "TypeScript and focused ESLint complete with zero errors",
+      "acceptance_check": "TypeScript and focused ESLint complete with zero errors",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:release",
+      "source": "project_guidance",
+      "statement": "Production build and deployed public version pass desktop and mobile browser checks",
+      "acceptance_check": "Production build and deployed public version pass desktop and mobile browser checks",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
     }
   ],
-  "verification_status": "not_verified",
-  "verification_errors": [
-    "lesson:ADIR-WEB-005: blocked: The external mobile viewport controller did not apply 390px and the screenshot API timed out, so the required full transition matrix cannot be honestly verified in this run.",
-    "lesson:ADIR-WEB-006: blocked: Public mobile screenshot evidence could not be captured because the browser screenshot call timed out.",
-    "lesson:ADIR-MOBILE-001: blocked: The verification browser did not apply its requested 390px viewport and screenshot capture timed out."
-  ]
+  "verification_status": "in_progress",
+  "verification_errors": []
 }

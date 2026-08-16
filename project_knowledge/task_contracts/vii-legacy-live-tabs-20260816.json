@@ -5,8 +5,8 @@
   "task_type": "legacy-data-parity-and-public-release",
   "goal": "Synchronize all last-minute and popular-period tabs with current verified availability, dates and prices from the old VII site, and present each period clearly on desktop and mobile.",
   "created_at": "2026-08-16T04:27:57.887335Z",
-  "updated_at": "2026-08-16T04:27:57.887335Z",
-  "completed_at": null,
+  "updated_at": "2026-08-16T05:23:26.036563Z",
+  "completed_at": "2026-08-16T05:23:26.036563Z",
   "source_hashes": {
     "working_profile": {
       "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
@@ -14,7 +14,7 @@
     },
     "lesson_register": {
       "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
-      "sha256": "f23b71755266b9084eb1f1247ee9651bb3819c47b08e7c20506ca9227f5b6866"
+      "sha256": "32dcbdf2873772275719bfe424b002a4bfc33eb68737dc4333f225874e1708b9"
     }
   },
   "applicable_lessons": [
@@ -41,65 +41,86 @@
       "source": "user_request",
       "statement": "Synchronize all last-minute and popular-period tabs with current verified availability, dates and prices from the old VII site, and present each period clearly on desktop and mobile.",
       "acceptance_check": "Every tab changes the visible properties in place and every card date, price and deep link matches the old VII source at verification time.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "Public v297 exposes all ten legacy period tabs; browser audit verified exact dates, nightly prices, and deep links for every visible card."
+      ],
+      "reason": null,
+      "updated_at": "2026-08-16T05:04:31.864356Z"
     },
     {
       "id": "lesson:ADIR-WEB-001",
       "source": "lesson:ADIR-WEB-001",
       "statement": "לפני עיצוב מחדש ממפים כל יכולת ותוכן ומסמנים אותם כנשמרו, הוחלפו במכוון או חסומים.",
       "acceptance_check": "אין פריט ישן ללא סיווג, מקור והכרעה לפני אישור המוצר החדש.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "Old-site period inventory mapped in project_knowledge/legacy-parity/vii-current-period-tabs-20260816.md with source URL and verified timestamp."
+      ],
+      "reason": null,
+      "updated_at": "2026-08-16T05:04:31.980891Z"
     },
     {
       "id": "lesson:ADIR-WEB-002",
       "source": "lesson:ADIR-WEB-002",
       "statement": "שינוי אינטראקטיבי נבדק בכל המצבים הרלוונטיים במחשב, בנייד ובגובה מסך נמוך.",
       "acceptance_check": "לכל אינטראקציה שהשתנתה יש ראיית מעבר לכל המצבים החלים עליה.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "All ten tab transitions and linked detail state were exercised publicly; independent responsive seal requested for desktop and 390x844."
+      ],
+      "reason": null,
+      "updated_at": "2026-08-16T05:04:32.115717Z"
     },
     {
       "id": "lesson:ADIR-WEB-004",
       "source": "lesson:ADIR-WEB-004",
       "statement": "בכל תוצר קריא לאדם מציגים שקל חדש באמצעות הסמל ₪ בלבד ולא באמצעות הקיצורים ש״ח או ש\"ח.",
       "acceptance_check": "סריקת המקור אינה מוצאת קיצורי שקל ישנים בתוכן הפונה למשתמש, וכל מחיר שקלי מייצג מוצג בדפדפן באמצעות ₪ בכיווניות תקינה.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "Rendered cards show the ₪ symbol with a separate per-night label; source and public UI contain no old shekel abbreviations in this component."
+      ],
+      "reason": null,
+      "updated_at": "2026-08-16T05:04:32.247670Z"
     },
     {
       "id": "project:source-truth",
       "source": "project_guidance",
       "statement": "Record old-site evidence for every period, property, date and price before publishing.",
       "acceptance_check": "Record old-site evidence for every period, property, date and price before publishing.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "Official old site https://www.vii.co.il/ inspected on 2026-08-16; exact period/property/date/price snapshot committed at 3be39dc."
+      ],
+      "reason": null,
+      "updated_at": "2026-08-16T05:04:32.381012Z"
     },
     {
       "id": "project:responsive",
       "source": "project_guidance",
       "statement": "Verify the complete tab and card behavior at desktop and 390x844 mobile.",
       "acceptance_check": "Verify the complete tab and card behavior at desktop and 390x844 mobile.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "Public v298 verified at actual 390x844 by calibrated browser run: main visible, no blank screen, clientWidth equals scrollWidth, all 10 tabs present, modern Hebrew font; independent Seal also passed a narrower mobile viewport."
+      ],
+      "reason": null,
+      "updated_at": "2026-08-16T05:22:18.475529Z"
     },
     {
       "id": "project:release",
       "source": "project_guidance",
       "statement": "Lint, build, tests, exact public checks and an independent checker must pass before completion.",
       "acceptance_check": "Lint, build, tests, exact public checks and an independent checker must pass before completion.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "pnpm test: 360/360 passed including production build; public Sites version 298 succeeded; public desktop, HE/EN/RU/FR, keyboard, links, dates, prices, quick booking and console checks passed; independent AUDIT_VERDICT v298 PASS."
+      ],
+      "reason": null,
+      "updated_at": "2026-08-16T05:22:18.569991Z"
     }
   ],
-  "verification_status": "in_progress",
+  "verification_status": "verified",
   "verification_errors": []
 }

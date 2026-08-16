@@ -11,6 +11,7 @@ type GalleryItem = {
   src: string;
   label: string;
   category: "place" | "units" | "bedrooms" | "guests";
+  topic: string;
 };
 
 export type GalleryTab = "all" | GalleryItem["category"] | "videos";
@@ -44,16 +45,22 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
   const dialog = useRef<HTMLDivElement>(null);
   const touchStart = useRef(0);
   const allItems = useMemo(() => uniqueItems([
-    ...property.images.map((src, index) => ({ src, label: `${property.name}, תמונת המקום ${index + 1}`, category: "place" as const })),
-    ...(property.roomOptions || []).map((room) => ({ src: room.image, label: `${room.name} ב${property.name}`, category: "units" as const })),
-    ...(property.sleepingArrangements || []).map((room) => ({ src: room.galleryImage, label: `${room.name} ב${property.name}`, category: "bedrooms" as const })),
-    ...guestPhotos.map((photo) => ({ src: photo.src, label: `${photo.alt}, ${photo.author}`, category: "guests" as const })),
+    ...(property.roomOptions || []).flatMap((room) => (room.images?.length ? room.images : [room.image]).map((src, index) => ({ src, label: `${room.name} ב${property.name}, תמונה ${index + 1}`, category: "units" as const, topic: room.name }))),
+    ...property.images.map((src, index) => ({ src, label: `${property.name}, תמונת המקום ${index + 1}`, category: "place" as const, topic: "המקום והמתקנים" })),
+    ...(property.sleepingArrangements || []).map((room) => ({ src: room.galleryImage, label: `${room.name} ב${property.name}`, category: "bedrooms" as const, topic: "חדרי השינה" })),
+    ...guestPhotos.map((photo) => ({ src: photo.src, label: `${photo.alt}, ${photo.author}`, category: "guests" as const, topic: "תמונות אורחים" })),
   ]), [guestPhotos, property]);
   const [tab, setTab] = useState<GalleryTab>(initialTab);
   const [selected, setSelected] = useState(initialIndex);
+  const [mobileViewer, setMobileViewer] = useState(initialIndex > 0 || initialTab !== "all");
 
-  const visibleItems = tab === "all" ? allItems : tab === "videos" ? [] : allItems.filter((item) => item.category === tab);
+  const visibleItems = useMemo(() => tab === "all" ? allItems : tab === "videos" ? [] : allItems.filter((item) => item.category === tab), [allItems, tab]);
   const current = visibleItems[Math.min(selected, Math.max(visibleItems.length - 1, 0))];
+  const mobileGroups = useMemo(() => {
+    const groups = new Map<string, Array<{ item: GalleryItem; index: number }>>();
+    visibleItems.forEach((item, index) => groups.set(item.topic, [...(groups.get(item.topic) || []), { item, index }]));
+    return [...groups.entries()];
+  }, [visibleItems]);
   const tabs = (["all", "place", "units", "bedrooms", "guests", "videos"] as GalleryTab[]).filter((item) => item === "all" || item === "guests"
     || item === "videos" && Boolean(property.videos?.length)
     || item !== "videos" && allItems.some((media) => media.category === item));
@@ -111,12 +118,13 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
   function selectTab(next: GalleryTab) {
     setTab(next);
     setSelected(0);
+    setMobileViewer(false);
   }
 
   return <div ref={dialog} className="story-gallery" role="dialog" aria-modal="true" aria-labelledby="story-gallery-title">
     <header className="story-gallery__header">
       <div><span>הגלריה של</span><h2 id="story-gallery-title">{property.name}</h2></div>
-      <div className="story-gallery__count" aria-live="polite">{tab === "videos" ? `${property.videos?.length || 0} סרטונים` : tab === "guests" && !guestPhotos.length ? "עדיין אין תמונות אורחים" : `${selected + 1} מתוך ${visibleItems.length}`}</div>
+      <div className="story-gallery__count" aria-live="polite">{tab === "videos" ? `${property.videos?.length || 0} סרטונים` : tab === "guests" && !guestPhotos.length ? "עדיין אין תמונות אורחים" : mobileViewer ? `${selected + 1} מתוך ${visibleItems.length}` : `${visibleItems.length} תמונות`}</div>
       <button ref={closeButton} className="story-gallery__close" type="button" onClick={onClose} aria-label="סגירת הגלריה">סגירה</button>
     </header>
 
@@ -135,10 +143,14 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
         <div><h3>{video.title}</h3><p>{video.note}</p></div>
       </article>)}
     </div> : <div className="story-gallery__workspace">
-      <div className="story-gallery__mobile-stage" onTouchStart={(event) => { touchStart.current = event.changedTouches[0].clientX; }} onTouchEnd={(event) => {
+      <div className={`story-gallery__mobile-tour${mobileViewer ? " is-hidden" : ""}`} aria-label="סיור תמונות לפי נושאים">
+        {mobileGroups.map(([topic, items]) => <section key={topic}><h3>{topic}</h3><div>{items.map(({ item, index }) => <button key={item.src} type="button" onClick={() => { setSelected(index); setMobileViewer(true); }} aria-label={`פתיחת ${item.label}`}><img src={item.src} alt={item.label} title={item.label} loading="lazy" /></button>)}</div></section>)}
+      </div>
+      <div className={`story-gallery__mobile-stage${mobileViewer ? " is-viewer" : ""}`} onTouchStart={(event) => { touchStart.current = event.changedTouches[0].clientX; }} onTouchEnd={(event) => {
         const distance = event.changedTouches[0].clientX - touchStart.current;
         if (Math.abs(distance) > 45) move(distance > 0 ? -1 : 1);
       }}>
+        <button className="story-gallery__mobile-back" type="button" onClick={() => setMobileViewer(false)}>חזרה לכל התמונות</button>
         <div className="story-gallery__progress" aria-hidden="true">{visibleItems.map((item, index) => <i key={`mobile-${item.src}`} className={index <= selected ? "active" : ""} />)}</div>
         {current ? <img className="story-gallery__mobile-image" src={current.src} alt={current.label} title={current.label} /> : null}
         {visibleItems.length > 1 ? <><button className="story-gallery__tap story-gallery__tap--previous" type="button" onClick={() => move(-1)} aria-label="התמונה הקודמת" />

@@ -62,7 +62,8 @@ test("spa package includes are localized item by item", () => {
 test("bookable vacation uses one quick-book action while incomplete data keeps direct enquiry", () => {
   assert.match(business, /vacationOnlineReady = activeWorld === "vacation" && hasSelectedDates && resolvedAvailability\?\.availability === "available" && hasSelectedPrice/);
   assert.match(vacationHub, />הזמנה מהירה<\/Link>/);
-  assert.match(business, /ownerWhatsapp && activeWorld !== "vacation"/);
+  assert.match(business, /ownerWhatsapp \? <WhatsAppLeadButton world=\{activeWorld\}/);
+  assert.match(business, /phoneHref \? <a className="property-phone-action"/);
   assert.doesNotMatch(business, /בדיקת זמינות לחיפוש הזה/);
   assert.match(vacationHub, /buttonLabel="בדיקת זמינות"/);
   assert.match(vacationHub, /state === "available-price"/);

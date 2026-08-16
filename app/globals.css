@@ -3542,6 +3542,7 @@ h3 { font-size: 1.18rem; }
 .property-title__actions .property-whatsapp-action { color: #087553; border-color: #a8dfca; background: #f2fff9; font-family: inherit; font-weight: 800; cursor: pointer; }
 .property-title__actions .property-whatsapp-action:hover { border-color: #5dc49e; background: #e7fbf2; }
 .property-title__actions .property-whatsapp-action:focus-visible { outline: 3px solid rgba(8,117,83,.2); outline-offset: 2px; }
+.property-title__actions .property-phone-action { min-height: 44px; display: inline-flex; align-items: center; gap: 7px; padding: 9px 12px; border: 1px solid #a9d8df; border-radius: 12px; background: #f4fcfd; color: var(--teal-dark); font-size: .82rem; font-weight: 850; text-decoration: none; }
 .property-title__actions button[aria-pressed="true"] { color: #fff; border-color: #c52d4c; background: linear-gradient(135deg,#e94f69,#c52d4c); }
 .property-title__actions button[aria-pressed="true"] svg { fill: currentColor; stroke: currentColor; }
 .multiworld-offerings { display: grid; grid-template-columns: minmax(240px,.8fr) minmax(0,1.7fr); gap: 24px; align-items: center; margin-bottom: 26px; padding: 22px; border: 1px solid #cfe7eb; border-radius: 24px; background: linear-gradient(135deg,#f6fcfc,#edf8fb); }
@@ -5018,6 +5019,31 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .room-card--unavailable .room-card__availability strong { color: #687578; }
 .room-card__availability span { color: var(--ink); font-size: .78rem; font-weight: 800; }
 .room-card__actions .button { text-decoration: none; }
+.room-card__image { padding: 0; border: 0; font: inherit; cursor: pointer; }
+.room-card__image:focus-visible { outline: 3px solid #1d7fdb; outline-offset: 3px; }
+.room-card__more { color: var(--teal-dark); border-color: #b9dce1; background: #fff; }
+
+.unit-details-layer { position: fixed; z-index: 10050; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(2,18,23,.72); }
+.unit-details-dialog { width: min(760px,100%); max-height: min(820px,calc(100dvh - 40px)); overflow: auto; border: 1px solid #cce1e4; border-radius: 28px; background: #fff; box-shadow: 0 28px 90px rgba(0,35,43,.28); font-family: var(--font-sans); }
+.unit-details-dialog > header { position: sticky; z-index: 3; top: 0; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px; border-bottom: 1px solid #dcebed; background: rgba(255,255,255,.96); }
+.unit-details-dialog > header span { color: var(--teal); font-size: .74rem; font-weight: 850; }
+.unit-details-dialog > header h2 { margin: 2px 0 0; color: var(--ink); font-size: 1.5rem; }
+.unit-details-dialog > header button { width: 44px; height: 44px; border: 1px solid #c9dfe2; border-radius: 50%; background: #fff; color: var(--ink); font-size: 1.55rem; cursor: pointer; }
+.unit-details-dialog__image { position: relative; width: calc(100% - 40px); height: min(360px,42vh); margin: 20px; overflow: hidden; padding: 0; border: 0; border-radius: 22px; background: #eef6f7; cursor: pointer; }
+.unit-details-dialog__image img { width: 100%; height: 100%; object-fit: cover; }
+.unit-details-dialog__image span { position: absolute; right: 14px; bottom: 14px; padding: 10px 14px; border-radius: 12px; background: rgba(255,255,255,.95); color: var(--ink); font-size: .8rem; font-weight: 850; }
+.unit-details-dialog__intro { display: grid; gap: 13px; padding: 0 20px 20px; }
+.unit-details-dialog__intro p { margin: 0; color: var(--ink-soft); line-height: 1.75; }
+.unit-details-dialog__intro > div { display: flex; flex-wrap: wrap; gap: 8px; }
+.unit-details-dialog__intro span { padding: 8px 11px; border-radius: 999px; background: #eef8f9; color: var(--teal-dark); font-size: .76rem; font-weight: 800; }
+.unit-details-dialog__groups { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; padding: 0 20px 22px; }
+.unit-details-dialog__groups section { padding: 16px; border: 1px solid #d6e7e9; border-radius: 18px; background: #fbfdfd; }
+.unit-details-dialog__groups h3 { margin: 0 0 11px; font-size: 1rem; }
+.unit-details-dialog__groups section > div { display: grid; gap: 8px; }
+.unit-details-dialog__groups span { color: var(--ink-soft); font-size: .8rem; line-height: 1.5; }
+
+.story-gallery__mobile-tour { display: none; }
+.story-gallery__mobile-back { display: none; }
 .vacation-booking-hub { scroll-margin-top: 100px; margin-top: 42px; padding: clamp(24px,3vw,38px); border: 1px solid #b9dce1; border-radius: 30px; background: linear-gradient(145deg,#f8fdfd 0%,#edf8f9 48%,#f7fbfa 100%); box-shadow: 0 22px 55px rgba(3,70,82,.1); }
 .vacation-booking-hub__heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 28px; }
 .vacation-booking-hub__heading h2 { max-width: 760px; margin: 6px 0 8px; font-size: clamp(1.75rem,3vw,2.6rem); line-height: 1.15; }
@@ -8100,6 +8126,36 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   text-align: start;
   cursor: pointer;
   transition: border-color .2s ease, box-shadow .2s ease, translate .2s ease;
+}
+
+/* Place booking and photo-tour final mobile layout. */
+@media (max-width: 760px) {
+  .property-title__actions { flex-wrap: wrap; }
+  .property-title__actions .property-phone-action,
+  .property-title__actions .property-whatsapp-action { flex: 1 1 calc(50% - 4px); justify-content: center; min-height: 44px; }
+  .property-content > .vacation-booking-hub { width: 100%; margin: 2px 0 18px; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+  .property-content > .vacation-booking-hub .vacation-booking-hub__launcher-row { gap: 8px; }
+  .property-content > .vacation-booking-hub .vacation-booking-hub__launcher { border-radius: 16px; box-shadow: 0 8px 22px rgba(0,88,101,.08); }
+  .units-section { margin-top: 0; }
+  .unit-details-layer { align-items: end; padding: 0; }
+  .unit-details-dialog { max-height: 92dvh; border-radius: 24px 24px 0 0; }
+  .unit-details-dialog__image { width: calc(100% - 28px); height: 250px; margin: 14px; border-radius: 18px; }
+  .unit-details-dialog__intro { padding: 0 14px 16px; }
+  .unit-details-dialog__groups { grid-template-columns: 1fr; padding: 0 14px 20px; }
+
+  .story-gallery__workspace { overflow-y: auto; }
+  .story-gallery__mobile-tour { display: grid; gap: 28px; padding: 14px 14px 36px; background: #fff; color: var(--ink); }
+  .story-gallery__mobile-tour.is-hidden { display: none; }
+  .story-gallery__mobile-tour section { display: grid; gap: 12px; }
+  .story-gallery__mobile-tour h3 { margin: 0; font-size: 1.15rem; }
+  .story-gallery__mobile-tour section > div { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 7px; }
+  .story-gallery__mobile-tour button { min-width: 0; overflow: hidden; padding: 0; border: 0; border-radius: 15px; background: #e9f2f3; cursor: pointer; aspect-ratio: 1 / .78; }
+  .story-gallery__mobile-tour button:first-child:nth-last-child(odd) { grid-column: 1 / -1; aspect-ratio: 16 / 10; }
+  .story-gallery__mobile-tour img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .story-gallery__mobile-stage { display: none; min-height: calc(100dvh - 122px); align-content: center; }
+  .story-gallery__mobile-stage.is-viewer { display: grid; }
+  .story-gallery__mobile-stage.is-viewer .story-gallery__mobile-image { max-height: calc(100dvh - 122px); }
+  .story-gallery__mobile-back { position: absolute; z-index: 4; top: 14px; right: 14px; display: inline-flex; min-height: 42px; align-items: center; padding: 0 13px; border: 1px solid rgba(255,255,255,.5); border-radius: 999px; background: rgba(2,9,12,.78); color: #fff; font: inherit; font-size: .74rem; font-weight: 850; cursor: pointer; }
 }
 .vacation-booking-hub__launcher-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: stretch; gap: 10px; }
 .vacation-booking-hub__quick-book { min-width: 146px; min-height: 86px; text-decoration: none; }

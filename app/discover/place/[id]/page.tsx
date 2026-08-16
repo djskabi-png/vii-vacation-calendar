@@ -19,7 +19,7 @@ function resolveItem(id: string) {
 }
 
 function itemFaq(item: ReturnType<typeof resolveItem>) {
-  if (item.world === "spa") return getSpaDetails(item.id).faq || [];
+  if (item.world === "spa") return getSpaDetails(item.id)?.faq || [];
   if (item.world === "providers") return getProviderDetails(item.id)?.faq || [];
   if (item.world === "hourly") return getHourlyDetails(item).faq;
   if (item.world === "activities") return getActivityDetails(item).faq;

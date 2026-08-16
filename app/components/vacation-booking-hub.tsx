@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
+
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { Property, StayOption } from "../data/site-data";
@@ -163,7 +165,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
     onOpenCalendar();
   };
 
-  return <section id="booking-summary" className={`shell vacation-booking-hub vacation-booking-hub--${state}`} aria-labelledby="vacation-booking-title">
+  return <section id="booking-summary" className={`vacation-booking-hub vacation-booking-hub--${state}`} aria-labelledby="vacation-booking-title">
     <h2 id="vacation-booking-title" className="sr-only">בדיקת תאריכים והזמנה</h2>
 
     <div className="vacation-booking-hub__launcher-row">

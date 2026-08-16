@@ -88,7 +88,7 @@ function matchesAnyAccommodationType(propertyType: string, selectedTypes: string
   if (selectedTypes.length === 0) return true;
   return selectedTypes.some((selectedType) => {
     const legacyType = legacyAccommodationTypes.find((item) => item.label === selectedType);
-    const matchingTypes = landing?.types?.length && selectedType === landing.type ? landing.types : legacyType?.matches;
+    const matchingTypes: readonly string[] | undefined = landing?.types?.length && selectedType === landing.type ? landing.types : legacyType?.matches;
     return matchingTypes ? matchingTypes.includes(propertyType) : propertyType === selectedType;
   });
 }
@@ -530,6 +530,9 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       if (availabilityPriority) return availabilityPriority;
       return compareVacationProperties(a, b, sort);
     });
+  // The availability helpers close over the same primitive query inputs listed
+  // below. Listing them directly would invalidate this memo on every render.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtered, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, guests, liveAvailabilityBySlug, mapCandidates, mapOpen, mapVisibleIds, pathname, requestedLocation, selectedStay, sort]);
   const inventorySummary = useMemo(() => vacationInventorySummary(displayedResults, language), [displayedResults, language]);
   const detailQuery = useMemo(() => {
