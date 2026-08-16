@@ -107,5 +107,12 @@
   "התאריכים שבחרתם": { "en": "Your selected dates", "ru": "Выбранные даты", "fr": "Vos dates sélectionnées" },
   "תאריכים ואורחים": { "en": "Dates and guests", "ru": "Даты и гости", "fr": "Dates et voyageurs" },
   "שינוי": { "en": "Change", "ru": "Изменить", "fr": "Modifier" },
-  "בחירה": { "en": "Choose", "ru": "Выбрать", "fr": "Choisir" }
+  "בחירה": { "en": "Choose", "ru": "Выбрать", "fr": "Choisir" },
+  "משתפים דרך VII": { "en": "Share from VII", "ru": "Поделиться через VII", "fr": "Partager via VII" },
+  "שיתוף המקום": { "en": "Share this place", "ru": "Поделиться местом", "fr": "Partager ce lieu" },
+  "בחרו איך לשתף.": { "en": "Choose how to share.", "ru": "Выберите способ отправки.", "fr": "Choisissez comment le partager." },
+  "מומלץ ב־VII": { "en": "Recommended on VII", "ru": "Рекомендовано на VII", "fr": "Recommandé sur VII" },
+  "מצאתי ב־VII כתבה שכדאי לקרוא:": { "en": "I found an article worth reading on VII:", "ru": "Я нашёл на VII статью, которую стоит прочитать:", "fr": "J’ai trouvé sur VII un article qui vaut la peine d’être lu :" },
+  "מצאתי ב־VII מקום לאירוע שיכול להתאים לנו:": { "en": "I found an event venue on VII that could suit us:", "ru": "Я нашёл на VII площадку для мероприятия, которая может нам подойти:", "fr": "J’ai trouvé sur VII un lieu pour un événement qui pourrait nous convenir :" },
+  "מצאתי ב־VII מקום שיכול להתאים לנו:": { "en": "I found a place on VII that could suit us:", "ru": "Я нашёл на VII место, которое может нам подойти:", "fr": "J’ai trouvé sur VII un lieu qui pourrait nous convenir :" }
 }

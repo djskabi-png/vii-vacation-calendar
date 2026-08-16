@@ -169,7 +169,13 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
     <h2 id="vacation-booking-title" className="sr-only">בדיקת תאריכים והזמנה</h2>
 
     <div className="vacation-booking-hub__launcher-row">
-    <button ref={launchRef} type="button" className="vacation-booking-hub__launcher" onClick={() => setDialogOpen(true)} aria-haspopup="dialog">
+    <button
+      ref={launchRef}
+      type="button"
+      className="vacation-booking-hub__launcher"
+      onClick={() => hasDates ? setDialogOpen(true) : onOpenCalendar()}
+      aria-haspopup={hasDates ? "dialog" : undefined}
+    >
       <span className="vacation-booking-hub__launcher-icon"><CalendarIcon /></span>
       <span className="vacation-booking-hub__launcher-copy">
         <small>{hasDates ? "התאריכים שבחרתם" : "תאריכים ואורחים"}</small>
@@ -179,7 +185,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
         <small>{guests} אורחים</small>
         {nightlyPrice > 0 ? <b>{nightlyPrice.toLocaleString(numberLocale)} ₪ ללילה{property.scenario === "multi" ? unitPriceCopy.night : ""}</b> : hasDates ? <b>{hasUnitAvailability ? unitCopy.availableCount(availableUnitCount, units.length) : summary.title}</b> : null}
       </span>
-      <span className="vacation-booking-hub__launcher-action">{hasDates ? "שינוי" : "בחירה"}</span>
+      {hasDates ? <span className="vacation-booking-hub__launcher-action">שינוי</span> : null}
     </button>
     {quickBooking ? <Link className="button primary vacation-booking-hub__quick-book" href={bookingHref}>הזמנה מהירה</Link> : null}
     </div>
@@ -211,11 +217,11 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
             </div>
           </div>
 
-          <div className={`vacation-booking-dialog__status vacation-booking-dialog__status--${unavailable ? "unavailable" : quickBooking || state === "available-no-price" ? "available" : "confirm"}`} role="status" aria-live="polite">
+          {state !== "no-data" ? <div className={`vacation-booking-dialog__status vacation-booking-dialog__status--${unavailable ? "unavailable" : quickBooking || state === "available-no-price" ? "available" : "confirm"}`} role="status" aria-live="polite">
             <span aria-hidden="true"></span>
             <div><strong>{summary.title}</strong><small>{summary.text}</small></div>
             {nightlyPrice > 0 ? <b>{totalPrice ? `${totalPrice.toLocaleString(numberLocale)} ₪` : `${nightlyPrice.toLocaleString(numberLocale)} ₪`}</b> : null}
-          </div>
+          </div> : null}
 
           {availability?.alternatives?.length ? <div className="vacation-booking-dialog__alternatives"><strong>תאריכים חלופיים</strong><div>{availability.alternatives.map((alternative) => <button type="button" key={`${alternative.from}-${alternative.till}`} onClick={openCalendar}><span>{localizedDateRange(alternative.from, alternative.till, "", language)}</span><b>{alternative.nightlyPrice.toLocaleString(numberLocale)} ₪</b></button>)}</div></div> : null}
 

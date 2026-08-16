@@ -43,7 +43,7 @@ test("multi-unit pricing is accepted only from the verified availability resolve
 test("the booking entry opens one calm responsive dialog with a reachable primary action", async () => {
   const hub = await readFile(new URL("app/components/vacation-booking-hub.tsx", root), "utf8");
   const css = await readFile(new URL("app/globals.css", root), "utf8");
-  assert.match(hub, /aria-haspopup="dialog"/);
+  assert.match(hub, /aria-haspopup=\{hasDates \? "dialog" : undefined\}/);
   assert.match(hub, /role="dialog" aria-modal="true"/);
   assert.match(hub, /document\.body\.style\.overflow = "hidden"/);
   assert.match(hub, /window\.removeEventListener\("keydown", closeOnEscape\)/);
@@ -52,6 +52,12 @@ test("the booking entry opens one calm responsive dialog with a reachable primar
   assert.match(css, /\.vacation-booking-dialog__footer-actions \.button \{[^}]*min-height: 50px/s);
   assert.match(css, /\.vacation-booking-dialog summary:focus-visible/);
   assert.match(css, /body:has\(\.vacation-booking-dialog-layer\) \.detail-sticky-wrap \{ display: none; \}/);
+});
+
+test("the availability launcher opens date selection directly when no dates exist", async () => {
+  const hub = await readFile(new URL("app/components/vacation-booking-hub.tsx", root), "utf8");
+  assert.match(hub, /onClick=\{\(\) => hasDates \? setDialogOpen\(true\) : onOpenCalendar\(\)\}/);
+  assert.doesNotMatch(hub, /\{hasDates \? "שינוי" : "בחירה"\}/);
 });
 
 test("each multi-unit card exposes its own status price and direct booking action", async () => {

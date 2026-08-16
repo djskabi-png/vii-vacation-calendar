@@ -24,24 +24,24 @@ type ShareCopy = {
 const copy: Record<SiteLanguage, ShareCopy> = {
   he: {
     trigger: "שיתוף",
-    eyebrow: "משתפים מהאתר",
-    heading: "שולחים למי שתרצו",
-    description: "בחרו דרך שיתוף, והקישור לעמוד יצורף אוטומטית.",
-    preview: "העמוד שבחרתם",
+    eyebrow: "משתפים דרך VII",
+    heading: "שיתוף המקום",
+    description: "בחרו איך לשתף.",
+    preview: "מומלץ ב־VII",
     copy: "העתקת קישור",
     copied: "הקישור הועתק",
     whatsapp: "וואטסאפ",
     facebook: "פייסבוק",
     email: "דואר אלקטרוני",
     close: "סגירת חלון השיתוף",
-    message: (title, kind) => kind === "article" ? `כתבה שכדאי לקרוא: ${title}` : kind === "event" ? `מצאתי מקום לאירוע: ${title}` : `מצאתי מקום ב־Vii: ${title}`,
+    message: (title, kind) => kind === "article" ? `מצאתי ב־VII כתבה שכדאי לקרוא: ${title}` : kind === "event" ? `מצאתי ב־VII מקום לאירוע שיכול להתאים לנו: ${title}` : `מצאתי ב־VII מקום שיכול להתאים לנו: ${title}`,
   },
   en: {
     trigger: "Share",
     eyebrow: "Share from VII",
-    heading: "Send it your way",
-    description: "Choose how to share and we will include the page link.",
-    preview: "Selected page",
+    heading: "Share this place",
+    description: "Choose how to share.",
+    preview: "Recommended on VII",
     copy: "Copy link",
     copied: "Link copied",
     whatsapp: "WhatsApp",
@@ -53,9 +53,9 @@ const copy: Record<SiteLanguage, ShareCopy> = {
   ru: {
     trigger: "Поделиться",
     eyebrow: "Поделиться с VII",
-    heading: "Отправьте удобным способом",
-    description: "Выберите способ, и ссылка на страницу добавится автоматически.",
-    preview: "Выбранная страница",
+    heading: "Поделиться местом",
+    description: "Выберите способ отправки.",
+    preview: "Рекомендовано на VII",
     copy: "Копировать ссылку",
     copied: "Ссылка скопирована",
     whatsapp: "WhatsApp",
@@ -67,9 +67,9 @@ const copy: Record<SiteLanguage, ShareCopy> = {
   fr: {
     trigger: "Partager",
     eyebrow: "Partager depuis VII",
-    heading: "Envoyez-le simplement",
-    description: "Choisissez un moyen de partage, le lien sera ajouté automatiquement.",
-    preview: "Page sélectionnée",
+    heading: "Partager ce lieu",
+    description: "Choisissez comment le partager.",
+    preview: "Recommandé sur VII",
     copy: "Copier le lien",
     copied: "Lien copié",
     whatsapp: "WhatsApp",
@@ -113,6 +113,18 @@ export function ShareButton({ title, kind = "place" }: { title: string; kind?: S
   const closeRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
   const descriptionId = useId();
+
+  const cleanShareUrl = (value: string) => {
+    const current = new URL(value);
+    current.hash = "";
+    const essential = new URLSearchParams();
+    const id = current.searchParams.get("id");
+    const world = current.searchParams.get("world");
+    if (id) essential.set("id", id);
+    if (world && world !== "vacation") essential.set("world", world);
+    current.search = essential.toString();
+    return current.toString();
+  };
 
   useEffect(() => {
     const timer = window.setTimeout(() => setMounted(true), 0);
@@ -158,7 +170,7 @@ export function ShareButton({ title, kind = "place" }: { title: string; kind?: S
   };
 
   const show = () => {
-    setUrl(window.location.href);
+    setUrl(cleanShareUrl(window.location.href));
     setCopied(false);
     setOpen(true);
   };
@@ -194,8 +206,8 @@ export function ShareButton({ title, kind = "place" }: { title: string; kind?: S
           </header>
           <p id={descriptionId} className="share-dialog__description">{labels.description}</p>
           <div className="share-dialog__preview">
-            <span aria-hidden="true">V</span>
-            <div><small>{labels.preview}</small><strong>{translatedTitle}</strong><bdi>{url.replace(/^https?:\/\//, "")}</bdi></div>
+            <span aria-hidden="true">VII</span>
+            <div><small>{labels.preview}</small><strong>{translatedTitle}</strong></div>
           </div>
           <div className="share-dialog__options">
             <button className={copied ? "share-option share-option--copied" : "share-option"} type="button" onClick={() => void copyLink()}><span><LinkIcon /></span><strong>{copied ? labels.copied : labels.copy}</strong></button>

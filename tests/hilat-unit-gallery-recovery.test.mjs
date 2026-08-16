@@ -34,6 +34,8 @@ test("Hilat Hanof has four detailed unit galleries and full-detail controls", as
   assert.equal((hilat.match(/featureGroups:/g) || []).length, 5);
   assert.match(business, /כל פרטי היחידה \+/);
   assert.match(business, /openGallery\("units", unitGalleryStart\)/);
+  assert.match(business, /setGalleryTopic\(room\.name\); openGallery\("units", unitGalleryStart\)/);
+  assert.match(business, /setGalleryTopic\(room\.name\); closeUnitDetails\(\); window\.setTimeout\(\(\) => openGallery\("units", start\), 0\)/);
   assert.match(dialog, /לכל תמונות היחידה/);
   assert.match(dialog, /aria-modal="true"/);
 });

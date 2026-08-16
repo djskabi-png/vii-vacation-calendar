@@ -40,21 +40,30 @@ function uniqueItems(items: GalleryItem[]) {
   });
 }
 
-export function GalleryExperience({ property, open, initialIndex = 0, initialTab = "all", guestPhotos = property.guestPhotos || [], onAddGuestContent, onSelectionChange, onClose }: { property: GallerySubject; open: boolean; initialIndex?: number; initialTab?: GalleryTab; guestPhotos?: GuestPhoto[]; onAddGuestContent?: () => void; onSelectionChange?: (tab: GalleryTab, index: number) => void; onClose: () => void }) {
+export function GalleryExperience({ property, open, initialIndex = 0, initialTab = "all", initialTopic, guestPhotos = property.guestPhotos || [], onAddGuestContent, onSelectionChange, onClose }: { property: GallerySubject; open: boolean; initialIndex?: number; initialTab?: GalleryTab; initialTopic?: string | null; guestPhotos?: GuestPhoto[]; onAddGuestContent?: () => void; onSelectionChange?: (tab: GalleryTab, index: number) => void; onClose: () => void }) {
   const closeButton = useRef<HTMLButtonElement>(null);
   const dialog = useRef<HTMLDivElement>(null);
   const touchStart = useRef(0);
-  const allItems = useMemo(() => uniqueItems([
-    ...(property.roomOptions || []).flatMap((room) => (room.images?.length ? room.images : [room.image]).map((src, index) => ({ src, label: `${room.name} ב${property.name}, תמונה ${index + 1}`, category: "units" as const, topic: room.name }))),
-    ...property.images.map((src, index) => ({ src, label: `${property.name}, תמונת המקום ${index + 1}`, category: "place" as const, topic: "המקום והמתקנים" })),
-    ...(property.sleepingArrangements || []).map((room) => ({ src: room.galleryImage, label: `${room.name} ב${property.name}`, category: "bedrooms" as const, topic: "חדרי השינה" })),
-    ...guestPhotos.map((photo) => ({ src: photo.src, label: `${photo.alt}, ${photo.author}`, category: "guests" as const, topic: "תמונות אורחים" })),
-  ]), [guestPhotos, property]);
+  const allItems = useMemo(() => {
+    const unitItems = (property.roomOptions || []).flatMap((room) => (room.images?.length ? room.images : [room.image]).map((src, index) => ({ src, label: `${room.name} ב${property.name}, תמונה ${index + 1}`, category: "units" as const, topic: room.name })));
+    const unitSources = new Set(unitItems.map((item) => item.src));
+    const placeItems = property.images.filter((src) => !unitSources.has(src)).map((src, index) => ({ src, label: `${property.name}, תמונת המקום ${index + 1}`, category: "place" as const, topic: "המקום והמתקנים" }));
+    return uniqueItems([
+      ...placeItems,
+      ...unitItems,
+      ...(property.sleepingArrangements || []).map((room) => ({ src: room.galleryImage, label: `${room.name} ב${property.name}`, category: "bedrooms" as const, topic: "חדרי השינה" })),
+      ...guestPhotos.map((photo) => ({ src: photo.src, label: `${photo.alt}, ${photo.author}`, category: "guests" as const, topic: "תמונות אורחים" })),
+    ]);
+  }, [guestPhotos, property]);
   const [tab, setTab] = useState<GalleryTab>(initialTab);
-  const [selected, setSelected] = useState(initialIndex);
+  const [topic, setTopic] = useState<string | null>(initialTopic || null);
+  const [selected, setSelected] = useState(initialTopic ? 0 : initialIndex);
   const [mobileViewer, setMobileViewer] = useState(initialIndex > 0 || initialTab !== "all");
 
-  const visibleItems = useMemo(() => tab === "all" ? allItems : tab === "videos" ? [] : allItems.filter((item) => item.category === tab), [allItems, tab]);
+  const visibleItems = useMemo(() => {
+    const items = tab === "all" ? allItems : tab === "videos" ? [] : allItems.filter((item) => item.category === tab);
+    return topic ? items.filter((item) => item.topic === topic) : items;
+  }, [allItems, tab, topic]);
   const current = visibleItems[Math.min(selected, Math.max(visibleItems.length - 1, 0))];
   const mobileGroups = useMemo(() => {
     const groups = new Map<string, Array<{ item: GalleryItem; index: number }>>();
@@ -117,13 +126,14 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
 
   function selectTab(next: GalleryTab) {
     setTab(next);
+    setTopic(null);
     setSelected(0);
     setMobileViewer(false);
   }
 
   return <div ref={dialog} className="story-gallery" role="dialog" aria-modal="true" aria-labelledby="story-gallery-title">
     <header className="story-gallery__header">
-      <div><span>הגלריה של</span><h2 id="story-gallery-title">{property.name}</h2></div>
+      <div><span>{topic || "הגלריה של"}</span><h2 id="story-gallery-title">{property.name}</h2></div>
       <div className="story-gallery__count" aria-live="polite">{tab === "videos" ? `${property.videos?.length || 0} סרטונים` : tab === "guests" && !guestPhotos.length ? "עדיין אין תמונות אורחים" : mobileViewer ? `${selected + 1} מתוך ${visibleItems.length}` : `${visibleItems.length} תמונות`}</div>
       <button ref={closeButton} className="story-gallery__close" type="button" onClick={onClose} aria-label="סגירת הגלריה">סגירה</button>
     </header>

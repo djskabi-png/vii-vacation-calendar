@@ -23,6 +23,11 @@ test("sharing uses one branded accessible dialog instead of the operating system
   assert.match(dialog, /event\.key === "Escape"/);
   assert.match(dialog, /triggerRef\.current\?\.focus/);
   assert.match(dialog, /navigator\.clipboard\.writeText/);
+  assert.match(dialog, /cleanShareUrl/);
+  assert.match(dialog, /if \(id\) essential\.set\("id", id\)/);
+  assert.match(dialog, /current\.hash = ""/);
+  assert.match(dialog, /מצאתי ב־VII מקום שיכול להתאים לנו/);
+  assert.doesNotMatch(dialog, /<bdi>/);
   assert.match(dialog, /https:\/\/wa\.me\/\?text=/);
   assert.match(dialog, /facebook\.com\/sharer\/sharer\.php/);
   assert.match(dialog, /mailto:\?subject=/);

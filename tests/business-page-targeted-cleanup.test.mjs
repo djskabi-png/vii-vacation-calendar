@@ -17,7 +17,8 @@ test("business phone stays private until the visitor asks to reveal it", () => {
 test("date launcher uses one clear mobile hierarchy", () => {
   assert.match(bookingHub, /"תאריכים ואורחים"/);
   assert.match(bookingHub, /"בדיקת זמינות"/);
-  assert.match(bookingHub, /\{hasDates \? "שינוי" : "בחירה"\}/);
+  assert.match(bookingHub, /\{hasDates \? <span className="vacation-booking-hub__launcher-action">שינוי<\/span> : null\}/);
+  assert.doesNotMatch(bookingHub, />בחירה<\/span>/);
   assert.doesNotMatch(bookingHub, /vacation-booking-hub__launcher-action-short/);
   assert.doesNotMatch(bookingHub, />פירוט<\/span>/);
 });
