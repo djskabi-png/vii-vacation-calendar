@@ -157,6 +157,7 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
   const [reviewOpen, setReviewOpen] = useState(false);
   const [allFeaturesOpen, setAllFeaturesOpen] = useState(false);
   const [mobileFeaturesOpen, setMobileFeaturesOpen] = useState(false);
+  const [phoneRevealed, setPhoneRevealed] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [selectedRoomIndex, setSelectedRoomIndex] = useState<number | null>(null);
   const closeUnitDetails = useCallback(() => setSelectedRoomIndex(null), []);
@@ -245,7 +246,10 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
               <FavoriteButton compact={false} id={property.slug} world={activeWorld} name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={`/business?id=${property.slug}${activeWorld === offerings[0].world ? "" : `&mode=${activeWorld}`}`} meta={`${property.type} · עד ${property.guests} אורחים`} />
               <ShareButton title={property.name} />
               {property.demoOperations?.fictional && !vacationOnlineReady ? <ListingContactPreview placeName={property.name} className="listing-contact-preview--title" /> : null}
-              {phoneHref ? <a className="property-phone-action" href={phoneHref}>{translate("טלפון")} <span dir="ltr">{property.contact?.phone}</span></a> : null}
+              {phoneHref ? phoneRevealed
+                ? <a className="property-phone-action property-phone-action--revealed" href={phoneHref} aria-label={`חיוג אל ${property.name}, ${property.contact?.phone}`}><span dir="ltr">{property.contact?.phone}</span></a>
+                : <button className="property-phone-action" type="button" onClick={() => setPhoneRevealed(true)} aria-expanded="false">הצגת מספר</button>
+                : null}
               {ownerWhatsapp ? <WhatsAppLeadButton world={activeWorld} placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={activeOffering.label} initialDate={dateRange.from} initialGuests={guests} buttonClassName="property-whatsapp-action" /> : null}
             </div>
             {activeWorld === "vacation" ? null : onlineBooking ? <Link className="button primary" href={bookingActionHref}>הזמנה אונליין</Link> : property.contact?.phone ? <Link className="button primary" href="#booking-summary">טלפון להזמנה</Link> : null}
@@ -307,7 +311,7 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
 
             {property.roomOptions?.length ? <section id="rooms" className="units-section">
               <div className="units-heading">
-                <div><span className="eyebrow">מבנה מקום האירוח</span><h2>{property.scenario === "single" ? "המקום שמזמינים" : "הסוויטות והיחידות"}</h2></div>
+                <div><span className="eyebrow">מבנה מקום האירוח</span><h2>{property.scenario === "single" ? "פרטי המקום" : "הסוויטות והיחידות"}</h2></div>
                 <span className="units-total">{property.scenario === "single" ? "מקום אירוח שלם" : roomQuantity === 1 ? "יחידת אירוח אחת" : `${roomQuantity} יחידות אירוח`}</span>
               </div>
               <div className="room-card-list">
@@ -345,17 +349,17 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
             {property.sleepingArrangements?.length ? <SleepingArrangements placeName={property.name} arrangements={property.sleepingArrangements} /> : property.bedrooms ? <section id="sleeping" className="sleeping-summary" aria-labelledby="sleeping-summary-title"><span className="eyebrow">חדרי שינה אינם יחידות אירוח</span><h2 id="sleeping-summary-title">איפה ישנים?</h2><p>{property.scenario === "multi" ? `במתחם יש ${property.units || roomQuantity} יחידות אירוח ובהן ${property.bedrooms} חדרי שינה בסך הכול. פירוט השינה מופיע בתוך כל כרטיס יחידה.` : `במקום יש ${property.bedrooms} חדרי שינה. סוגי המיטות ותמונות החדרים יוצגו כאן לאחר שיוך ואימות מול נתוני המקום.`}</p></section> : null}
 
             <section id="features" className="feature-section">
-              <span className="eyebrow">מאפייני המתחם</span>
-              <h2>מה מחכה לכם במקום</h2>
+              <span className="eyebrow">עיקרי המקום</span>
+              <h2>מתקנים ושירותים</h2>
               <div className="feature-section__mobile-preview" aria-label="הדברים הבולטים במקום">
                 {mobileFeaturePreview.map((feature) => <span key={feature}><b aria-hidden="true">✓</b>{feature}</span>)}
               </div>
               <div className="property-feature-groups">{featureGroups.map((group) => <article key={group.title}><h3>{group.title}</h3><div className="feature-list">{group.items.map((feature) => <span key={feature}>✓ {feature}</span>)}</div></article>)}</div>
               <div className={`feature-section__mobile-details ${mobileFeaturesOpen ? "is-open" : ""}`}>
-                <button className="feature-section__mobile-toggle" type="button" aria-expanded={mobileFeaturesOpen} aria-controls="mobile-feature-groups" onClick={() => setMobileFeaturesOpen((open) => !open)}>כל המידע על המתקנים</button>
+                <button className="feature-section__mobile-toggle" type="button" aria-expanded={mobileFeaturesOpen} aria-controls="mobile-feature-groups" onClick={() => setMobileFeaturesOpen((open) => !open)}>{mobileFeaturesOpen ? "הסתרת כל המתקנים" : "הצגת כל המתקנים"}</button>
                 <div id="mobile-feature-groups" className="feature-section__mobile-groups" hidden={!mobileFeaturesOpen}>{featureGroups.map((group) => <section key={group.title}><h3>{group.title}</h3><div>{group.items.map((feature) => <span key={feature}>✓ {feature}</span>)}</div></section>)}</div>
               </div>
-              <button className="button subtle feature-section__desktop-more" type="button" onClick={() => setAllFeaturesOpen(true)}>כל המידע על המתקנים</button>
+              <button className="button subtle feature-section__desktop-more" type="button" onClick={() => setAllFeaturesOpen(true)}>הצגת כל המתקנים</button>
             </section>
 
             <ListingAccessibility slug={property.slug} />

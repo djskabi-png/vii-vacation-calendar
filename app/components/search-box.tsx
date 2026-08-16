@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { vacationStayFromSearch } from "../lib/vacation-date-range";
@@ -183,8 +183,6 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [locationOpen, setLocationOpen] = useState(false);
   const [locationQuery, setLocationQuery] = useState("");
-  const [selectedPlace, setSelectedPlace] = useState<PlaceSearchResult | null>(null);
-  const selectedPlaceRef = useRef<PlaceSearchResult | null>(null);
   const [locationStatus, setLocationStatus] = useState("");
   const [locating, setLocating] = useState(false);
   const [guestOpen, setGuestOpen] = useState(false);
@@ -207,7 +205,6 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     setLocationValue(requestedLocation
       ? (isWholeCountrySelection(requestedLocation) ? "כל הארץ" : requestedLocation)
       : initialLocation || "כל הארץ");
-    setSelectedPlace(null);
     setDates(dateLabelFromSearch(committedParams, mode, activeRouteLanguage(language)));
     const selectedStay = vacationStayFromSearch(committedParams, activeRouteLanguage(language));
     setVacationDateRange({ from: selectedStay?.from || null, till: selectedStay?.till || null });
@@ -243,7 +240,6 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   }, []);
 
   const cancelMobileSearch = useCallback(() => {
-    selectedPlaceRef.current = null;
     restoreCommittedSearchState();
     closeMobileSearch();
   }, [closeMobileSearch, restoreCommittedSearchState]);
@@ -348,7 +344,6 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     const cleanHourlyRoute = mode === "hourly" ? hourlySearchHref(locationValue) : null;
     const route = cleanVacationRoute || cleanSpaRoute || cleanEventRoute || cleanHourlyRoute || (basePath && mode === "vacation" ? basePath : "/search/");
     let destination: string;
-    const chosenPlace = selectedPlaceRef.current || selectedPlace;
     const applyVacationDates = (params: URLSearchParams) => {
       params.delete("dates");
       params.delete("dateMode");
@@ -369,31 +364,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
         }
       }
     };
-    if (chosenPlace) {
-      const [selectedPath, selectedQuery = ""] = chosenPlace.href.split("?");
-      const params = new URLSearchParams(selectedQuery);
-      params.set("source", "search");
-      if (mode === "vacation") {
-        applyVacationDates(params);
-        if (vacationParty.adults !== 2) params.set("adults", String(vacationParty.adults));
-        if (vacationParty.children) params.set("children", String(vacationParty.children));
-        if (vacationParty.infants) params.set("infants", String(vacationParty.infants));
-        if (vacationParty.pets) params.set("pets", String(vacationParty.pets));
-        if (vacationParty.rooms !== 1) params.set("rooms", String(vacationParty.rooms));
-        params.set("guests", String(vacationParty.adults + vacationParty.children));
-      } else if (mode === "events") {
-        if (eventDateRange.from) params.set("from", eventDateRange.from);
-        if (eventDateRange.to) params.set("to", eventDateRange.to);
-        if (guests > 0) params.set("guests", String(guests));
-      } else if (mode === "spa") {
-        if (spaDate.date) params.set("date", spaDate.date);
-        if (spaDate.withoutDate) params.set("withoutDate", "1");
-        if (spaAudience) params.set("spaFor", spaAudience);
-      } else if (maximumPrice > 0) {
-        params.set("maxPrice", String(maximumPrice));
-      }
-      destination = `${selectedPath}?${params.toString()}`;
-    } else if (isHourly) {
+    if (isHourly) {
       const params = new URLSearchParams();
       if (maximumPrice > 0) params.set("maxPrice", String(maximumPrice));
       const query = params.toString();
@@ -466,8 +437,6 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   }
 
   function chooseLocation(place: string) {
-    selectedPlaceRef.current = null;
-    setSelectedPlace(null);
     setLocationValue(place);
     setLocationOpen(false);
     setLocationQuery("");
@@ -475,24 +444,6 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     if (!isHourly && window.matchMedia("(max-width: 820px)").matches) {
       setMobileStep("dates");
       setCalendarOpen(true);
-    }
-  }
-
-  function choosePlace(place: PlaceSearchResult) {
-    selectedPlaceRef.current = place;
-    setSelectedPlace(place);
-    setLocationValue(place.name);
-    setLocationOpen(false);
-    setLocationQuery("");
-    setLocationStatus("");
-    if (!isHourly && window.matchMedia("(max-width: 820px)").matches) {
-      const hasSelectedDates = mode === "vacation"
-        ? Boolean(vacationDateRange.from && vacationDateRange.till)
-        : mode === "events"
-          ? Boolean(eventDateRange.from && eventDateRange.to)
-          : Boolean(spaDate.date || spaDate.withoutDate);
-      setMobileStep(hasSelectedDates ? "overview" : "dates");
-      setCalendarOpen(!hasSelectedDates);
     }
   }
 
@@ -569,13 +520,13 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
               <button type="button" className="location-list__close" onClick={closeLocationPicker} aria-label={translate("סגירת אפשרויות החיפוש")}>×</button>
             </header>
             <div className="location-list__body">
-            <label className="location-list__search"><span>{translate("חיפוש יעד")}</span><input value={locationQuery} onChange={(event) => { setLocationQuery(event.target.value); setSelectedPlace(null); }} placeholder={translate("הקלידו עיר, אזור או שם מקום")} autoFocus /></label>
+            <label className="location-list__search"><span>{translate("חיפוש יעד")}</span><input value={locationQuery} onChange={(event) => setLocationQuery(event.target.value)} placeholder={translate("הקלידו עיר, אזור או שם מקום")} autoFocus /></label>
             {locationQuery.trim() ? (
               <div className="location-search-results">
                 {visibleNamedPlaces.length > 0 ? <h3>{translate("מקומות מתאימים")}</h3> : null}
-                {visibleNamedPlaces.map((place) => <button type="button" key={`${mode}-${place.id}`} className={`location-place-result ${selectedPlace?.id === place.id ? "selected" : ""}`} onClick={() => choosePlace(place)}><PinIcon /><span><strong>{translate(place.name)}</strong><small>{translate(place.kind)} · {translate(place.location)}</small></span></button>)}
+                {visibleNamedPlaces.map((place) => <Link key={`${mode}-${place.id}`} className="location-place-result" href={localizedPath(place.href, language)}><PinIcon /><span><strong>{translate(place.name)}</strong><small>{translate(place.kind)} · {translate(place.location)}</small></span></Link>)}
                 {visibleDestinations.length > 0 ? <h3>{translate("אזורים ויישובים")}</h3> : null}
-                {visibleDestinations.map((place) => <button type="button" key={place} className={place === locationValue && !selectedPlace ? "selected" : ""} onClick={() => chooseLocation(place)}><PinIcon /><span>{translate(place)}</span></button>)}
+                {visibleDestinations.map((place) => <button type="button" key={place} className={place === locationValue ? "selected" : ""} onClick={() => chooseLocation(place)}><PinIcon /><span>{translate(place)}</span></button>)}
                 {visibleDestinations.length === 0 && visibleNamedPlaces.length === 0 ? <p>{translate("לא מצאנו יעד או מקום מתאים.")}</p> : null}
               </div>
             ) : mode === "vacation" ? (

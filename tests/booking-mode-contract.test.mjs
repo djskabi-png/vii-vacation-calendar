@@ -63,7 +63,9 @@ test("bookable vacation uses one quick-book action while incomplete data keeps d
   assert.match(business, /vacationOnlineReady = activeWorld === "vacation" && hasSelectedDates && resolvedAvailability\?\.availability === "available" && hasSelectedPrice/);
   assert.match(vacationHub, />הזמנה מהירה<\/Link>/);
   assert.match(business, /ownerWhatsapp \? <WhatsAppLeadButton world=\{activeWorld\}/);
-  assert.match(business, /phoneHref \? <a className="property-phone-action"/);
+  assert.match(business, /phoneHref \? phoneRevealed/);
+  assert.match(business, /setPhoneRevealed\(true\)/);
+  assert.match(business, /<a className="property-phone-action property-phone-action--revealed" href=\{phoneHref\}/);
   assert.doesNotMatch(business, /בדיקת זמינות לחיפוש הזה/);
   assert.match(vacationHub, /buttonLabel="בדיקת זמינות"/);
   assert.match(vacationHub, /state === "available-price"/);

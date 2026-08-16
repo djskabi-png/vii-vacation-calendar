@@ -123,7 +123,8 @@ test("vacation and event detail pages expose WhatsApp in their primary action ar
   ]);
 
   assert.match(business, /ownerWhatsapp \? <WhatsAppLeadButton world=\{activeWorld\}/);
-  assert.match(business, /phoneHref \? <a className="property-phone-action"/);
+  assert.match(business, /phoneHref \? phoneRevealed/);
+  assert.match(business, /<a className="property-phone-action property-phone-action--revealed" href=\{phoneHref\}/);
   assert.match(business, /<VacationBookingHub/);
   assert.match(vacationHub, /<WhatsAppLeadButton world="vacation"/);
   assert.match(vacationHub, /unavailable \|\| !hasDates/);
