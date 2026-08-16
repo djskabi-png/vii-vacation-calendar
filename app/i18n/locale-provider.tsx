@@ -861,6 +861,7 @@ const spaBookingTranslations: Record<Exclude<SiteLanguage, "he">, Record<string,
     "בחרו תאריך הגעה ועזיבה ושעה מועדפת.": "Выберите даты заезда и выезда и желаемое время.",    "מועד והרכב": "Время и состав гостей",
   },
   fr: {
+    "אקווה ריזורט, וילת החוף": "Aqua Resort, Villa sur la plage",
     "הרכב ומועד": "Participants et horaire",
     "מי מגיע ומתי?": "Qui vient, et quand ?",
     "קודם בוחרים את הרכב המטופלים, אחר כך תאריך, ורק אז שעה לבקשת זמינות.": "Choisissez d’abord les participants, puis la date, et enfin l’heure souhaitée.",
