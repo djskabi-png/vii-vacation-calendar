@@ -26,6 +26,9 @@ test("all rendered breadcrumbs use the shared accessible component", () => {
   assert.match(styles, /\.breadcrumbs__item \[aria-current="page"\]/);
   assert.match(styles, /\.breadcrumbs__item a:focus-visible/);
   assert.match(styles, /:dir\(ltr\) \.breadcrumbs__separator svg/);
+  assert.match(styles, /@media \(max-width: 560px\)[\s\S]*?\.breadcrumbs \{[\s\S]*?overflow-x: auto;/);
+  assert.match(styles, /@media \(max-width: 560px\)[\s\S]*?\.breadcrumbs__list \{[\s\S]*?flex-wrap: nowrap;/);
+  assert.match(styles, /@media \(max-width: 560px\)[\s\S]*?\.breadcrumbs__item \{[\s\S]*?white-space: nowrap;/);
 });
 
 test("vacation and event filters serialize and restore their complete state", () => {

@@ -4556,6 +4556,27 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 
 @media (max-width: 560px) {
   .shell { width: calc(100% - 32px); }
+  /* Breadcrumbs stay a single predictable rail on phones. Long trails scroll
+     inside the trail itself instead of wrapping the page heading onto another line. */
+  .breadcrumbs {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .breadcrumbs::-webkit-scrollbar { display: none; }
+  .breadcrumbs__list {
+    width: max-content;
+    min-width: 100%;
+    flex-wrap: nowrap;
+    padding-inline: 2px;
+  }
+  .breadcrumbs__item {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
   .home-hero { padding: 24px 0 20px; }
   .home-hero h1 { margin-bottom: 6px; font-size: 1.95rem; line-height: 1.08; }
   .home-hero__content > p { margin-bottom: 14px; font-size: .92rem; }

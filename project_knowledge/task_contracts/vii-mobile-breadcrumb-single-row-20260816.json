@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-mobile-breadcrumb-single-row-20260816",
+  "project": "calendar-airbnb",
+  "task_type": "website-ui-release",
+  "goal": "Keep all public mobile breadcrumbs on one horizontally scrollable line and publish the verified fix",
+  "created_at": "2026-08-16T12:27:26.659564Z",
+  "updated_at": "2026-08-16T12:27:26.659564Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "918b17a5868877324ce7050ba65fdfa8ef441e7b8aa1e7e66a8d10232500661e"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "32dcbdf2873772275719bfe424b002a4bfc33eb68737dc4333f225874e1708b9"
+    }
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-WEB-005",
+      "title": "Responsive transitions are release-critical state changes",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "ADIR-WEB-006",
+      "title": "Public mobile screenshots are required release evidence",
+      "scope": "shared_skill_and_acceptance_check"
+    },
+    {
+      "lesson_id": "ADIR-MOBILE-001",
+      "title": "נייד הוא משטח מוצר ראשי",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-CONTROL-001",
+      "title": "כל רכיב נראה חייב לעבוד",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Keep all public mobile breadcrumbs on one horizontally scrollable line and publish the verified fix",
+      "acceptance_check": "At 390px breadcrumbs remain one line, horizontally scroll within their own region, preserve keyboard focus and do not create page-level overflow",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-005",
+      "source": "lesson:ADIR-WEB-005",
+      "statement": "Every responsive website must remain correct through mobile-to-desktop and desktop-to-mobile transitions, reloads, orientation changes and browser device-emulation changes, including while overlays and scroll locks are active.",
+      "acceptance_check": "A real public route passes fresh desktop, desktop reload, fresh 390-pixel mobile, mobile overlay open followed by desktop resize, desktop reload, breakpoint boundary, orientation change and return to mobile. At every step the page has meaningful visible content, scrollX is zero, document width does not exceed viewport width and desktop has no stale mobile lock, backdrop or expanded state.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-006",
+      "source": "lesson:ADIR-WEB-006",
+      "statement": "A mobile search product is not visually approved until meaningful content is visible in the viewport and an independent checker inspects both a public-domain screenshot and the live page. DOM presence, text length, build output and overflow measurements alone are insufficient.",
+      "acceptance_check": "A public Spa results route with an artificially empty results control must fail with no-visible-results-state or excessive-empty-band, and the report must contain a screenshot path inspected by the independent checker.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-MOBILE-001",
+      "source": "lesson:ADIR-MOBILE-001",
+      "statement": "מסלול נייד מלא נבנה ונבדק בפני עצמו, לרבות המסך הראשון, צפיפות, קריאות, גלילה, חלונות, פעולות ומעברי רוחב.",
+      "acceptance_check": "שער הראיות נכשל ללא צילום חי של המסך הראשון והמסלול המלא, בדיקת גובה נמוך, מדידת גלישה ומטריצת מעברי רוחב.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-CONTROL-001",
+      "source": "lesson:ADIR-CONTROL-001",
+      "statement": "כל כפתור, קישור, לשונית, חץ, תגית, מסנן, תפריט ובקר נראה מבטיח פעולה ולכן חייב להיבדק בכל המצבים החלים עליו וביעד הטבעי של התוצאה.",
+      "acceptance_check": "שער הראיות נכשל אם חסר רכיב נראה במלאי, אם התוצאה אינה נצפית ביעד הטבעי, או אם לא נבדקו כל המופעים במשפחה שנכשלה.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:shared-breadcrumb",
+      "source": "project_guidance",
+      "statement": "Apply the shared breadcrumb component across all page families",
+      "acceptance_check": "Apply the shared breadcrumb component across all page families",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    }
+  ],
+  "verification_status": "in_progress",
+  "verification_errors": []
+}
