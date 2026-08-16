@@ -60,7 +60,7 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
     return (requested.length ? requested : initialSpaFilters || []).filter((id) => spaFilters.some((filter) => filter.id === id));
   });
   const { mapOpen, openMap, closeMap } = useMapViewState();
-  const { viewMode, setViewMode } = useResultsViewMode("spa");
+  const { viewMode } = useResultsViewMode("spa");
   const [visibleMapCount, setVisibleMapCount] = useState(0);
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
   const spaLandingContext = useMemo(() => {
@@ -177,7 +177,6 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
     <div className="spa-results__heading">
       <h2 aria-live="polite">{resultLabel}</h2>
       <div className="spa-results__view-actions">
-        <ResultsViewToggle value={viewMode} onChange={setViewMode} />
         {filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onPointerDown={(event) => event.stopPropagation()} onPointerUp={(event) => event.stopPropagation()} onClick={(event) => { event.preventDefault(); event.stopPropagation(); toggleResultsMap(); }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
       </div>
     </div>

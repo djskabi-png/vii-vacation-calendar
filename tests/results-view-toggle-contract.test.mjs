@@ -9,16 +9,20 @@ const spa = readFileSync(new URL("../app/components/world-map-results.tsx", impo
 const hourly = readFileSync(new URL("../app/components/hourly-results.tsx", import.meta.url), "utf8");
 const styles = readFileSync(new URL("../app/results-view.css", import.meta.url), "utf8");
 
-test("all commercial result worlds share a grid-first view toggle", () => {
+test("commercial result worlds are grid-first and spa keeps one clear map action", () => {
   assert.match(toggle, /useState<ResultsViewMode>\("grid"\)/);
   assert.match(vacation, /useResultsViewMode\("vacation"\)/);
   assert.match(events, /useResultsViewMode\("events"\)/);
   assert.match(spa, /useResultsViewMode\("spa"\)/);
   assert.match(hourly, /useResultsViewMode\("hourly"\)/);
-  for (const source of [vacation, events, spa, hourly]) {
+  for (const source of [vacation, events, hourly]) {
     assert.match(source, /<ResultsViewToggle value=\{viewMode\} onChange=\{setViewMode\}/);
     assert.match(source, /results-view--\$\{viewMode\}/);
   }
+  const spaResultsBlock = spa.match(/function SpaResults[\s\S]*?export function WorldMapResults/)?.[0] ?? "";
+  assert.match(spa, /const \{ viewMode \} = useResultsViewMode\("spa"\)/);
+  assert.doesNotMatch(spaResultsBlock, /<ResultsViewToggle/);
+  assert.match(spaResultsBlock, /results-view--\$\{viewMode\}/);
 });
 
 test("view choice is accessible, localized and grid-first on every fresh search", () => {
