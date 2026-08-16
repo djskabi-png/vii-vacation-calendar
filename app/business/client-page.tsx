@@ -30,6 +30,7 @@ import { ShareButton } from "../components/share-dialog";
 import { CalendarIcon, PinIcon } from "../site-header";
 import { VacationBookingHub } from "../components/vacation-booking-hub";
 import { useLegacyAvailability } from "../components/use-legacy-availability";
+import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
 import { ViewedItemTracker } from "../components/viewed-item-tracker";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 
@@ -142,7 +143,7 @@ function roomBookingHref(bookingQuery: string, index: number, nightlyPrice: numb
   params.set("price", String(nightlyPrice));
   return `/booking?${params.toString()}`;
 }
-export default function BusinessPage({ initialSlug, initialWorld = "vacation", initialDates, initialFrom, initialTill, initialGuests = "2", initialRooms = "1", initialPrice, initialIllustrative = false, initialSource }: { initialSlug: string; initialWorld?: BusinessWorld; initialDates?: string; initialFrom?: string; initialTill?: string; initialGuests?: string; initialRooms?: string; initialPrice?: string; initialIllustrative?: boolean; initialSource?: string }) {
+export default function BusinessPage({ initialSlug, initialWorld = "vacation", initialDates, initialFrom, initialTill, initialGuests = "2", initialPrice, initialIllustrative = false }: { initialSlug: string; initialWorld?: BusinessWorld; initialDates?: string; initialFrom?: string; initialTill?: string; initialGuests?: string; initialRooms?: string; initialPrice?: string; initialIllustrative?: boolean; initialSource?: string }) {
   const { language, translate } = useSiteLanguage();
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [dates, setDates] = useState(initialDates || "");
@@ -150,7 +151,6 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
   const [dateRange, setDateRange] = useState({ from: initialFrom || "", till: initialTill || "" });
   const [guests, setGuests] = useState(Math.max(1, Number(initialGuests) || 2));
   const [selectedPrice, setSelectedPrice] = useState(initialPrice || "");
-  const rooms = Math.max(1, Number(initialRooms) || 1);
   const { galleryOpen, galleryStart, galleryTab, openGallery, closeGallery, updateGallerySelection } = useGalleryDeepLink();
   const [reviewOpen, setReviewOpen] = useState(false);
   const [allFeaturesOpen, setAllFeaturesOpen] = useState(false);
@@ -166,11 +166,16 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
     : initialActiveWorld;
   const activeOffering = offerings.find((offering) => offering.world === activeWorld) || offerings[0];
   const hasSelectedDates = Boolean(dateRange.from && dateRange.till);
-  const hasSearchContext = initialSource === "search" && Boolean(initialDates || hasSelectedDates);
   const selectedStay = hasSelectedDates ? { from: dateRange.from, till: dateRange.till, guests } : null;
   const liveLegacyAvailability = useLegacyAvailability(property, selectedStay);
   const resolvedAvailability = liveLegacyAvailability.quote || resolveAvailabilityForStay(property, selectedStay, "/business", null);
-  const resolvedSelectedPrice = selectedPrice || (resolvedAvailability?.nightlyPrice ? String(resolvedAvailability.nightlyPrice) : "");
+  const usesLiveLegacyAvailability = Boolean(legacyAvailabilitySourceFor(property.slug));
+  // A quote supplied in a link is useful only for properties without a live source.
+  // For migrated listings the source response always wins, so an old shared link
+  // cannot display a stale or manipulated amount as a current price.
+  const resolvedSelectedPrice = resolvedAvailability?.nightlyPrice
+    ? String(resolvedAvailability.nightlyPrice)
+    : usesLiveLegacyAvailability ? "" : selectedPrice;
   const hasSelectedPrice = Boolean(resolvedSelectedPrice && Number(resolvedSelectedPrice) > 0);
   const vacationOnlineReady = activeWorld === "vacation" && hasSelectedDates && resolvedAvailability?.availability === "available" && hasSelectedPrice;
   const vacationPhoneFallback = activeWorld === "vacation" && !vacationOnlineReady;
@@ -239,10 +244,21 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
           </div>
         </section>
 
-        {hasSearchContext && activeWorld === "vacation" ? <section className="search-context-summary shell" aria-label="החיפוש שממנו הגעתם">
-          <div><span>החיפוש שבחרתם</span><strong>{displayDates}</strong><small>{guests} אורחים · {rooms} {rooms === 1 ? "חדר" : "חדרים"}</small></div>
-
-        </section> : null}
+        {activeWorld === "vacation" ? <VacationBookingHub
+          property={property}
+          dates={displayDates}
+          from={dateRange.from}
+          till={dateRange.till}
+          guests={guests}
+          selectedPrice={resolvedSelectedPrice}
+          availability={resolvedAvailability}
+          bookingHref={`/booking?${bookingQuery}`}
+          ownerWhatsapp={ownerWhatsapp}
+          phoneHref={phoneHref}
+          illustrative={initialIllustrative || Boolean(resolvedAvailability?.illustrative)}
+          onOpenCalendar={() => setCalendarOpen(true)}
+          onGuestsChange={setGuests}
+        /> : null}
 
         {offerings.length > 1 ? <section className="shell multiworld-offerings" aria-labelledby="multiworld-title">
           <div><span className="eyebrow">מקום אחד, כמה אפשרויות</span><h2 id="multiworld-title">מה תרצו לעשות במקום?</h2><p>המידע על המקום נשאר זהה. הזמינות, המחיר ותהליך ההזמנה משתנים לפי הבחירה.</p></div>
@@ -269,22 +285,6 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
           onlineLabel={activeWorld === "events" ? "בדיקת תאריך לאירוע" : "הזמנה אונליין"}
           phone={phoneBooking ? property.contact?.phone : undefined}
         />
-
-        {activeWorld === "vacation" ? <VacationBookingHub
-          property={property}
-          dates={displayDates}
-          from={dateRange.from}
-          till={dateRange.till}
-          guests={guests}
-          selectedPrice={resolvedSelectedPrice}
-          availability={resolvedAvailability}
-          bookingHref={`/booking?${bookingQuery}`}
-          ownerWhatsapp={ownerWhatsapp}
-          phoneHref={phoneHref}
-          illustrative={initialIllustrative || Boolean(resolvedAvailability?.illustrative)}
-          onOpenCalendar={() => setCalendarOpen(true)}
-          onGuestsChange={setGuests}
-        /> : null}
 
         <div className={`shell property-layout ${activeWorld === "vacation" ? "property-layout--vacation" : ""}`}>
           <div className="property-content">

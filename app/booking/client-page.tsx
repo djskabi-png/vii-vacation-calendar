@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useCallback, useEffect, useId, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { CalendarIcon } from "../site-header";
 import { saveBooking } from "../lib/account";
 import { SpaAppointmentPicker } from "../components/spa-appointment-picker";
@@ -10,6 +10,9 @@ import { localizedPath } from "../i18n/locale-routing";
 import { AccountFormPrompt, useAccountAccess } from "../components/account-access";
 import { BookingSchedulePicker } from "../components/booking-schedule-picker";
 import { ViewedItemTracker } from "../components/viewed-item-tracker";
+import { useLegacyAvailability } from "../components/use-legacy-availability";
+import { properties } from "../data/site-data";
+import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
 
 type Props = {
   world: string;
@@ -84,13 +87,31 @@ export default function BookingPageClient(props: Props) {
   const [successExplanationOpen, setSuccessExplanationOpen] = useState(false);
   const demoReference = props.demoProperty ? "PALUMBO-DEMO" : "DEMO";
   const isManage = props.action === "manage";
-  const onlineReady = props.world !== "vacation" || Boolean(props.onlineReady);
+  const vacationProperty = useMemo(() => props.world === "vacation" ? properties.find((property) => property.slug === props.placeId) || null : null, [props.placeId, props.world]);
+  const liveSourceEnabled = Boolean(vacationProperty && legacyAvailabilitySourceFor(vacationProperty.slug));
+  const liveAvailability = useLegacyAvailability(vacationProperty, props.world === "vacation" && props.initialFrom && props.initialTill
+    ? { from: props.initialFrom, till: props.initialTill, guests: Math.max(1, Number(props.initialGuests) || 2) }
+    : null);
+  const selectedUnitIndex = props.offerId.startsWith("unit-") ? Math.max(0, Number(props.offerId.slice(5)) - 1) : null;
+  const liveUnitQuote = selectedUnitIndex === null ? undefined : liveAvailability.quote?.units?.find((unit) => unit.index === selectedUnitIndex);
+  const liveNightlyPrice = liveUnitQuote?.nightlyPrice || liveAvailability.quote?.nightlyPrice || 0;
+  const liveBookingReady = liveAvailability.quote?.availability === "available" && liveNightlyPrice > 0 && (selectedUnitIndex === null || liveUnitQuote?.availability === "available");
+  const onlineReady = props.world !== "vacation" || (liveSourceEnabled ? liveBookingReady : Boolean(props.onlineReady));
   const usesSpaPayment = props.world === "spa" && !isManage;
   const localizedOfferIncludes = props.offerIncludes?.map((item) => translate(item));
   const paymentMethodLabel = paymentMethod === "pay_now" ? "תשלום בכרטיס עכשיו" : "תשלום במקום, כרטיס לביטחון";
-  const currentNights = props.vacationPrice ? countStayNights(arrival, departure) || props.vacationPrice.nights : 0;
-  const currentTotal = props.vacationPrice ? props.vacationPrice.nightlyPrice * currentNights : 0;
-  const pricing = props.vacationPrice;
+  const currentNights = countStayNights(arrival, departure) || props.vacationPrice?.nights || 0;
+  const pricing = liveSourceEnabled
+    ? liveBookingReady && currentNights > 0 ? {
+      nightlyPrice: liveNightlyPrice,
+      nights: currentNights,
+      totalPrice: liveNightlyPrice * currentNights,
+      guests: Math.max(1, Number(props.initialGuests) || 2),
+      wholeProperty: vacationProperty?.scenario === "single" && selectedUnitIndex === null,
+      taxesIncluded: vacationProperty?.demoOperations?.taxesIncluded === true,
+    } : undefined
+    : props.vacationPrice;
+  const currentTotal = pricing ? pricing.nightlyPrice * currentNights : 0;
   const labels = priceCopy[language];
   const returnCopy = {
     he: { business: "חזרה לפרטי המקום", site: "חזרה לדף הבית", label: "חזרה לפרטי המקום" },
@@ -103,7 +124,7 @@ export default function BookingPageClient(props: Props) {
   if (arrival) businessReturnParams.set("from", arrival);
   if (departure) businessReturnParams.set("till", departure);
   if (guests) businessReturnParams.set("guests", guests);
-  if (props.vacationPrice?.nightlyPrice) businessReturnParams.set("price", String(props.vacationPrice.nightlyPrice));
+  if (pricing?.nightlyPrice) businessReturnParams.set("price", String(pricing.nightlyPrice));
   if (props.illustrative) businessReturnParams.set("illustrative", "1");
   const businessReturnHref = localizedPath(`/business?${businessReturnParams.toString()}`, language);
   const viewedOfferParams = new URLSearchParams({ world: props.world, place: props.placeId });
@@ -261,13 +282,25 @@ export default function BookingPageClient(props: Props) {
     }
   }
 
+  if (liveSourceEnabled && liveAvailability.status === "loading") return <main id="main-content" className="booking-page shell">
+    {viewedOfferTracker}
+    {bookingReturnNavigation}
+    <section className="booking-unavailable booking-unavailable--checking" aria-live="polite" aria-labelledby="booking-check-title">
+      <span className="eyebrow">בדיקה מול יומן המקום</span>
+      <h1 id="booking-check-title">בודקים זמינות ומחיר עדכניים</h1>
+      <p>ההזמנה המהירה תיפתח רק אם התאריכים והמחיר יאומתו מול מקור המקום.</p>
+      <span className="booking-unavailable__loading" aria-hidden="true"></span>
+      <span data-keep-same-tab="true"><Link className="button secondary" href={businessReturnHref}>{returnCopy.business}</Link></span>
+    </section>
+  </main>;
+
   if (!onlineReady) return <main id="main-content" className="booking-page shell">
     {viewedOfferTracker}
     {bookingReturnNavigation}
     <section className="booking-unavailable" aria-labelledby="booking-phone-title">
       <span className="eyebrow">הזמנה בטלפון</span>
-      <h1 id="booking-phone-title">חסר תאריך או מחיר להזמנה מקוונת</h1>
-      <p>כדי לא להציג הזמנה חלקית, ממשיכים בשיחה ישירה עם המקום. לאחר חיבור המערכת נתוני התאריך והמחיר יגיעו אוטומטית.</p>
+      <h1 id="booking-phone-title">{liveSourceEnabled ? "התאריכים או היחידה כבר אינם זמינים להזמנה מהירה" : "חסר תאריך או מחיר להזמנה מקוונת"}</h1>
+      <p>{liveSourceEnabled ? "לא המשכנו עם המחיר שהיה בקישור. אפשר לחזור למקום, לבחור תאריך אחר או לפנות אליו ישירות." : "כדי לא להציג הזמנה חלקית, ממשיכים בשיחה ישירה עם המקום. לאחר חיבור המערכת נתוני התאריך והמחיר יגיעו אוטומטית."}</p>
       {props.phone ? phoneRevealed ? <a className="phone-reveal phone-reveal--visible" href={`tel:${props.phone.replace(/[^\d+]/g, "")}`}><span>לחיוג עכשיו</span><strong dir="ltr">{props.phone}</strong></a> : <button className="phone-reveal" type="button" onClick={() => setPhoneRevealed(true)} aria-expanded={phoneRevealed}><span>טלפון להזמנה</span><strong>לחצו להצגת המספר</strong></button> : <p role="status">מספר ההזמנות טרם חובר למקום.</p>}
       <span data-keep-same-tab="true"><Link className="button secondary" href={businessReturnHref}>{returnCopy.business}</Link></span>
     </section>

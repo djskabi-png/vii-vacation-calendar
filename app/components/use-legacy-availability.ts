@@ -49,10 +49,10 @@ function toResolvedAvailability(result: LegacyAvailabilityResponse, from: string
   };
 }
 
-export function useLegacyAvailability(property: Property, selectedStay: SelectedStay | null) {
+export function useLegacyAvailability(property: Property | null, selectedStay: SelectedStay | null) {
   const [resolved, setResolved] = useState<{ key: string; quote: ResolvedAvailability } | null>(null);
   const [failedKey, setFailedKey] = useState<string | null>(null);
-  const slug = property.slug;
+  const slug = property?.slug || "";
   const enabled = Boolean(legacyAvailabilitySourceFor(slug));
   const from = selectedStay?.from || "";
   const till = selectedStay?.till || "";

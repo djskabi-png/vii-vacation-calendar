@@ -6881,6 +6881,9 @@ button:not(:disabled):active,a[href]:active,[role="button"]:active,.is-action-pr
 .booking-unavailable { max-width: 680px; display: grid; gap: 16px; margin: 30px auto; padding: clamp(24px,5vw,48px); border: 1px solid var(--line); border-radius: 28px; background: linear-gradient(145deg,#eefafa,#fff); box-shadow: var(--shadow-soft); }
 .booking-unavailable h1,.booking-unavailable p { margin: 0; }
 .booking-unavailable .button { width: fit-content; }
+.booking-unavailable--checking { place-items: start; }
+.booking-unavailable__loading { width: 34px; height: 34px; border: 3px solid #d7ecee; border-top-color: var(--teal); border-radius: 50%; animation: booking-live-check .8s linear infinite; }
+@keyframes booking-live-check { to { transform: rotate(1turn); } }
 .booking-steps { max-width: 760px; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); margin: 36px auto 0; }
 .booking-steps button { position: relative; display: grid; justify-items: center; gap: 7px; border: 0; color: var(--muted); background: transparent; font: inherit; cursor: default; }
 .booking-steps button:not(:last-child)::after { content: ""; position: absolute; z-index: -1; top: 20px; inset-inline-start: calc(50% + 25px); width: calc(100% - 50px); height: 2px; background: #ccdee1; }

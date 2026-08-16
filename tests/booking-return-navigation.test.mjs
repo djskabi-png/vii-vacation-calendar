@@ -8,7 +8,8 @@ const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8")
 test("booking always exposes same-tab exits to the business and site", () => {
   assert.match(client, /const bookingReturnNavigation = <nav className="booking-return-nav"/);
   assert.match(client, /data-keep-same-tab="true"/);
-  assert.equal((client.match(/\{bookingReturnNavigation\}/g) || []).length, 3);
+  // The live-availability loading state also keeps the same-tab return visible.
+  assert.ok((client.match(/\{bookingReturnNavigation\}/g) || []).length >= 3);
   assert.match(client, /localizedPath\("\/", language\)/);
 });
 
