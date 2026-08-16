@@ -7037,5 +7037,16 @@
   "טוענים את היסטוריית הצפייה": "Loading viewing history",
   "ההיסטוריה נשמרת במכשיר הזה בלבד.": "History is stored on this device only.",
   "אהובים, צפיות והזמנות בחשבון אחד": "Favorites, views and bookings in one account",
-  "החשבון האישי מרכז את הבחירות וההזמנות שלכם. היסטוריית הצפייה נשארת פרטית במכשיר.": "Your account keeps choices and bookings together. Viewing history stays private on this device."
+  "החשבון האישי מרכז את הבחירות וההזמנות שלכם. היסטוריית הצפייה נשארת פרטית במכשיר.": "Your account keeps choices and bookings together. Viewing history stays private on this device.",
+  "בדיקה מול יומן המקום": "Checking the property calendar",
+  "בודקים זמינות ומחיר עדכניים": "Checking current availability and price",
+  "ההזמנה המהירה תיפתח רק אם התאריכים והמחיר יאומתו מול מקור המקום.": "Quick booking opens only after the dates and price are verified with the property source.",
+  "התאריכים או היחידה כבר אינם זמינים להזמנה מהירה": "These dates or this unit are no longer available for quick booking",
+  "לא המשכנו עם המחיר שהיה בקישור. אפשר לחזור למקום, לבחור תאריך אחר או לפנות אליו ישירות.": "We did not proceed with the price in the link. Return to the property, choose other dates or contact it directly.",
+  "בודקים זמינות ומחיר מול מערכת המקום": "Checking availability and price with the property system",
+  "לא הצלחנו לאמת זמינות ומחיר כרגע": "We could not verify availability and price right now",
+  "פירוט החופשה": "Stay details",
+  "פירוט": "Details",
+  "קודם מוצגים סופי שבוע פנויים עם מחיר": "Available weekends with a price appear first",
+  "בדקנו קודם את סופי השבוע בחודש שבחרתם, ואז תאריכים בטווח הגמישות שבחרתם.": "We checked weekends in your selected month first, then dates within your selected flexibility range."
 }

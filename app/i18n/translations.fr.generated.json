@@ -7037,5 +7037,16 @@
   "טוענים את היסטוריית הצפייה": "Chargement de l’historique",
   "ההיסטוריה נשמרת במכשיר הזה בלבד.": "L’historique est conservé uniquement sur cet appareil.",
   "אהובים, צפיות והזמנות בחשבון אחד": "Favoris, consultations et réservations dans un seul compte",
-  "החשבון האישי מרכז את הבחירות וההזמנות שלכם. היסטוריית הצפייה נשארת פרטית במכשיר.": "Votre compte rassemble vos choix et réservations. L’historique reste privé sur cet appareil."
+  "החשבון האישי מרכז את הבחירות וההזמנות שלכם. היסטוריית הצפייה נשארת פרטית במכשיר.": "Votre compte rassemble vos choix et réservations. L’historique reste privé sur cet appareil.",
+  "בדיקה מול יומן המקום": "Vérification du calendrier de l’établissement",
+  "בודקים זמינות ומחיר עדכניים": "Vérification des disponibilités et du prix actuels",
+  "ההזמנה המהירה תיפתח רק אם התאריכים והמחיר יאומתו מול מקור המקום.": "La réservation rapide s’ouvre uniquement après vérification des dates et du prix auprès de la source de l’établissement.",
+  "התאריכים או היחידה כבר אינם זמינים להזמנה מהירה": "Ces dates ou cette unité ne sont plus disponibles pour une réservation rapide",
+  "לא המשכנו עם המחיר שהיה בקישור. אפשר לחזור למקום, לבחור תאריך אחר או לפנות אליו ישירות.": "Nous n’avons pas poursuivi avec le prix du lien. Revenez à l’établissement, choisissez d’autres dates ou contactez-le directement.",
+  "בודקים זמינות ומחיר מול מערכת המקום": "Vérification des disponibilités et du prix auprès du système de l’établissement",
+  "לא הצלחנו לאמת זמינות ומחיר כרגע": "Nous ne pouvons pas vérifier la disponibilité et le prix pour le moment",
+  "פירוט החופשה": "Détails du séjour",
+  "פירוט": "Détails",
+  "קודם מוצגים סופי שבוע פנויים עם מחיר": "Les week-ends disponibles avec prix sont affichés en premier",
+  "בדקנו קודם את סופי השבוע בחודש שבחרתם, ואז תאריכים בטווח הגמישות שבחרתם.": "Nous avons d’abord vérifié les week-ends du mois choisi, puis les dates de votre plage de flexibilité."
 }

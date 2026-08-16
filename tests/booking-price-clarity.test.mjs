@@ -16,5 +16,5 @@ test("booking price summary states nightly rate, nights, party scope, and tax st
   assert.match(bookingClient, /ללילה/);
   assert.match(bookingClient, /כל הווילה/);
   assert.match(bookingClient, /כולל מע״מ וכל מס חובה/);
-  assert.match(bookingClient, /props\.vacationPrice\.nightlyPrice \* currentNights/);
+  assert.match(bookingClient, /pricing\.nightlyPrice \* currentNights/);
 });

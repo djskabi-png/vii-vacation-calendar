@@ -909,7 +909,8 @@ test("ships the immersive media, review and concierge experiences", async () => 
   assert.match(discoveryPlace, /<GuestReviewStudio/);
   assert.match(trailPlace, /subjectType="trail"/);
   assert.match(home, /home-last-minute__tabs/);
-  assert.match(home, /href=\{lastMinuteHref\(period\)\}/);
+  assert.match(home, /role="tablist"/);
+  assert.match(home, /selectDealPeriod\(group\.id, period\.id\)/);
   assert.match(home, /tracks\.current\[group\.id\]/);
   assert.match(styles, /\.home-last-minute__cards \{[^}]*direction: rtl/);
   assert.doesNotMatch(home, /home-last-minute__selection/);

@@ -5565,8 +5565,9 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 
 /* Last-minute tabs */
 .home-last-minute__tabs { display: flex; gap: 8px; overflow-x: auto; margin: 30px 0 18px; scrollbar-width: none; }
-.home-last-minute__tabs a { flex: 0 0 auto; min-height: 44px; display: inline-flex; align-items: center; padding: 0 17px; color: #315f68; border: 1px solid #c6dfe1; border-radius: 999px; background: rgba(255,255,255,.76); font: inherit; font-size: .82rem; font-weight: 800; text-decoration: none; cursor: pointer; }
-.home-last-minute__tabs a:focus-visible { outline: 3px solid #0b7f8b; outline-offset: 3px; }
+.home-last-minute__tabs :is(a,button) { flex: 0 0 auto; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 0 17px; color: #315f68; border: 1px solid #c6dfe1; border-radius: 999px; background: rgba(255,255,255,.76); font: inherit; font-size: .82rem; font-weight: 800; text-decoration: none; cursor: pointer; }
+.home-last-minute__tabs button.is-active { color: #fff; border-color: var(--teal-dark); background: var(--teal-dark); box-shadow: 0 7px 18px rgba(5,92,102,.2); }
+.home-last-minute__tabs :is(a,button):focus-visible { outline: 3px solid #0b7f8b; outline-offset: 3px; }
 .home-last-minute__cards { grid-template-columns: repeat(5,minmax(0,1fr)); overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
 .home-last-minute__cards > a { min-width: 230px; min-height: 360px; scroll-snap-align: start; }
 .home-last-minute__cards > a > span { display: grid; gap: 1px; }

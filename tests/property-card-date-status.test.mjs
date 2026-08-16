@@ -22,14 +22,14 @@ test("result cards support verified price and all availability states", async ()
   assert.match(card, /quote\.from === selectedStay\.from && quote\.till === selectedStay\.till/);
   assert.match(card, /availability: "unknown"/);
   assert.match(card, /hasQuotedPrice = Boolean\(resolvedAvailability\?\.nightlyPrice\)/);
-  assert.match(card, /!promotional && \(resolvedAvailability \|\| property\.price\)/);
+  assert.match(card, /!promotional && \(resolvedAvailability \|\| \(!selectedStay && property\.price\)\)/);
   assert.doesNotMatch(card, /: copy\.datePrice/);
   assert.match(card, /פנה למתחם לבירור מחיר/);
   assert.match(card, /פנוי בתאריכים שבחרת/);
   assert.match(card, /לא פנוי בתאריכים שבחרת/);
   assert.match(card, /אין מידע על זמינות לתאריכים/);
   assert.doesNotMatch(card, /includedGuests\s*\|\|\s*property\.guests/);
-  assert.match(search, /selectedStay=\{selectedStay\}/);
+  assert.match(search, /selectedStay=\{selectedStayFor\(property\.slug\)\}/);
 });
 
 test("selected-date card copy is localized in every supported language", async () => {

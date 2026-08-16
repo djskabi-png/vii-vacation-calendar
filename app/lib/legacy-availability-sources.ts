@@ -12,6 +12,7 @@ export const legacyAvailabilitySources: Record<string, LegacyAvailabilitySource>
   "vacation-villa-esem-harimon": { slug: "vacation-villa-esem-harimon", siteId: "296", sourceUrl: "https://www.vii.co.il/villa_esem_harimon" },
   "vacation-gesthouse-royal": { slug: "vacation-gesthouse-royal", siteId: "1406", sourceUrl: "https://www.vii.co.il/gesthouse_royal" },
   "vacation-villa-yotam": { slug: "vacation-villa-yotam", siteId: "470", sourceUrl: "https://www.vii.co.il/villa_yotam" },
+  "vacation-villa-circle": { slug: "vacation-villa-circle", siteId: "1772", sourceUrl: "https://www.vii.co.il/Villa_Circle" },
 };
 
 export function legacyAvailabilitySourceFor(slug: string) {

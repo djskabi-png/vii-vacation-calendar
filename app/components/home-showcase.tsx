@@ -3,7 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { useRef } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { DiscoveryCard } from "./discovery-card";
 import { PropertyCard } from "./property-card";
 import { eventPlaceHref, eventPlaces, properties } from "../data/site-data";
@@ -51,6 +51,8 @@ function lastMinuteHref(period: (typeof lastMinutePeriods)[number]) {
   return `/search?period=${encodeURIComponent(period.id)}&from=${period.from}&till=${period.till}&guests=2`;
 }
 
+type DealPeriod = (typeof lastMinutePeriods)[number];
+
 function SliderControls({ onPrevious, onNext, label }: { onPrevious: () => void; onNext: () => void; label: string }) {
   return <div className="home-slider__controls" aria-label={`דפדוף ${label}`}><button type="button" onClick={onPrevious} aria-label={`הקודם, ${label}`}>הקודם</button><button type="button" onClick={onNext} aria-label={`הבא, ${label}`}>הבא</button></div>;
 }
@@ -95,6 +97,7 @@ const ratingCardCopy = {
 
 export function HomeShowcase() {
   const tracks = useRef<Record<string, HTMLDivElement | null>>({});
+  const pendingDealFocus = useRef<{ groupId: string; periodId: string } | null>(null);
   const { language } = useSiteLanguage();
   const worldCards = publicWorldNavigation.filter((world) => !["vacation", "events", "spa", "hourly"].includes(world.id));
   const recommendedPlaces = pickProperties("aqua-resort", "kesem-harimon", "ahuzat-or", "anael-estate", "magic-garden-gefen", "perfumes-villa", "rose-estate");
@@ -104,8 +107,19 @@ export function HomeShowcase() {
     { id: "last-minute-deals", title: "דילים ברגע האחרון", period: immediatePeriod, periods: lastMinutePeriods.filter((period) => period.group === "immediate") },
     { id: "popular-periods", title: "דילים לתקופות מבוקשות", period: upcomingPeriod, periods: lastMinutePeriods.filter((period) => period.group === "upcoming") },
   ];
+  const [activeDealPeriods, setActiveDealPeriods] = useState<Record<string, string>>({
+    "last-minute-deals": immediatePeriod.id,
+    "popular-periods": upcomingPeriod.id,
+  });
   const featuredTours = properties.flatMap((property) => (property.videos || []).map((video) => ({ property, video }))).slice(0, 7);
   const topRatedPlaces = [...spaPlaces].filter((item) => item.rating).sort((first, second) => (second.rating || 0) - (first.rating || 0)).slice(0, 7);
+
+  useEffect(() => {
+    const pending = pendingDealFocus.current;
+    if (!pending) return;
+    pendingDealFocus.current = null;
+    document.getElementById(`${pending.groupId}-${pending.periodId}-tab`)?.focus();
+  }, [activeDealPeriods]);
 
   function scroll(id: string, direction: "previous" | "next") {
     const track = tracks.current[id];
@@ -118,6 +132,27 @@ export function HomeShowcase() {
     track.scrollBy({ left: direction === "next" ? forward : -forward, behavior: "smooth" });
   }
 
+  function selectDealPeriod(groupId: string, periodId: string) {
+    setActiveDealPeriods((current) => ({ ...current, [groupId]: periodId }));
+    const track = tracks.current[groupId];
+    if (!track) return;
+    track.scrollTo({ left: 0, behavior: "smooth" });
+  }
+
+  function handleDealPeriodKeyDown(event: KeyboardEvent<HTMLButtonElement>, groupId: string, periods: DealPeriod[], index: number) {
+    let nextIndex: number | null = null;
+    if (event.key === "Home") nextIndex = 0;
+    if (event.key === "End") nextIndex = periods.length - 1;
+    if (event.key === "ArrowRight") nextIndex = (index - 1 + periods.length) % periods.length;
+    if (event.key === "ArrowLeft") nextIndex = (index + 1) % periods.length;
+    if (nextIndex === null) return;
+
+    event.preventDefault();
+    const nextPeriod = periods[nextIndex];
+    pendingDealFocus.current = { groupId, periodId: nextPeriod.id };
+    selectDealPeriod(groupId, nextPeriod.id);
+  }
+
   return <>
     <section className="section home-recommended" aria-labelledby="home-recommended-title">
       <div className="shell"><div className="section-head"><div><span className="eyebrow">המקומות שעושים חשק לארוז</span><h2 id="home-recommended-title">מומלצים שכדאי להכיר</h2><p>מקומות אמיתיים מתוך האתר, עם חדרים, מתקנים וכל המידע שצריך לפני שבוחרים.</p></div><div><Link href="/search">לכל המקומות</Link><SliderControls label="מקומות מומלצים" onPrevious={() => scroll("recommended", "previous")} onNext={() => scroll("recommended", "next")} /></div></div>
@@ -128,14 +163,18 @@ export function HomeShowcase() {
     <section className="section home-last-minute" aria-labelledby="last-minute-title">
       <div className="shell">
         <div className="home-last-minute__intro"><span className="eyebrow">הזמינות הקרובה באתר</span><h2 id="last-minute-title">כל הדילים במקום אחד</h2></div>
-        {dealGroups.map((group) => <section className="home-last-minute__slider" key={group.id} aria-labelledby={`${group.id}-title`}>
-          <div className="home-last-minute__slider-head"><div><h3 id={`${group.id}-title`}>{group.title}</h3><nav className="home-last-minute__tabs" aria-label={group.title}>{group.periods.map((period) => <Link key={period.id} href={lastMinuteHref(period)}>{period.label}</Link>)}</nav></div><div><Link href={lastMinuteHref(group.period)}>{group.period.cta}</Link><SliderControls label={group.title} onPrevious={() => scroll(group.id, "previous")} onNext={() => scroll(group.id, "next")} /></div></div>
-          <div className="home-last-minute__cards" data-horizontal-rail ref={(node) => { tracks.current[group.id] = node; }}>{pickProperties(...group.period.slugs).map((property) => {
+        {dealGroups.map((group) => {
+          const activePeriod = group.periods.find((period) => period.id === activeDealPeriods[group.id]) ?? group.period;
+          const panelId = `${group.id}-cards`;
+          return <section className="home-last-minute__slider" key={group.id} aria-labelledby={`${group.id}-title`}>
+          <div className="home-last-minute__slider-head"><div><h3 id={`${group.id}-title`}>{group.title}</h3><div className="home-last-minute__tabs" role="tablist" aria-label={group.title}>{group.periods.map((period, index) => <button key={period.id} type="button" role="tab" id={`${group.id}-${period.id}-tab`} aria-selected={period.id === activePeriod.id} aria-controls={panelId} className={period.id === activePeriod.id ? "is-active" : undefined} onClick={() => selectDealPeriod(group.id, period.id)} onKeyDown={(event) => handleDealPeriodKeyDown(event, group.id, group.periods, index)}>{period.label}</button>)}</div></div><div><Link href={lastMinuteHref(activePeriod)}>{activePeriod.cta}</Link><SliderControls label={group.title} onPrevious={() => scroll(group.id, "previous")} onNext={() => scroll(group.id, "next")} /></div></div>
+          <div id={panelId} className="home-last-minute__cards" role="tabpanel" aria-labelledby={`${group.id}-${activePeriod.id}-tab`} data-horizontal-rail ref={(node) => { tracks.current[group.id] = node; }}>{pickProperties(...activePeriod.slugs).map((property) => {
             const price = property.price || lastMinuteStartingPrices[property.slug] || 1200;
-            const detailHref = `/business?id=${property.slug}&period=${encodeURIComponent(group.period.id)}&from=${group.period.from}&till=${group.period.till}&guests=2&price=${price}`;
-            return <Link key={property.slug} href={detailHref}><img src={property.image} alt={property.name} title={property.name} loading="lazy" decoding="async" /><span>{group.period.label}</span><div><small><PinIcon />{property.location}</small><h3>{property.name}</h3><div className="home-last-minute__deal"><b>{group.period.dateSummary}</b><strong>{price.toLocaleString("he-IL")} ₪</strong></div></div></Link>;
+            const detailHref = `/business?id=${property.slug}&period=${encodeURIComponent(activePeriod.id)}&from=${activePeriod.from}&till=${activePeriod.till}&guests=2&price=${price}`;
+            return <Link key={property.slug} href={detailHref}><img src={property.image} alt={property.name} title={property.name} loading="lazy" decoding="async" /><span>{activePeriod.label}</span><div><small><PinIcon />{property.location}</small><h3>{property.name}</h3><div className="home-last-minute__deal"><b>{activePeriod.dateSummary}</b><strong>{price.toLocaleString("he-IL")} ₪</strong></div></div></Link>;
           })}</div>
-        </section>)}
+        </section>;
+        })}
       </div>
     </section>
 

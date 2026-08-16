@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import test from "node:test";
 
 const root = resolve(import.meta.dirname, "..");
+const sources = await readFile(resolve(root, "app/lib/legacy-availability-sources.ts"), "utf8");
 
 test("Hilat HaNof is a verified four-cabin legacy property", async () => {
   const catalog = await readFile(resolve(root, "app/data/site-data.ts"), "utf8");
@@ -74,10 +75,11 @@ test("Hilat HaNof resolves exact legacy range prices in search and business deta
   const hook = await readFile(resolve(root, "app/components/use-legacy-availability.ts"), "utf8");
   const card = await readFile(resolve(root, "app/components/property-card.tsx"), "utf8");
   const business = await readFile(resolve(root, "app/business/client-page.tsx"), "utf8");
-  assert.match(route, /https:\/\/www\.vii\.co\.il\/hilat_hanof/);
+  assert.match(route, /legacyAvailabilitySourceFor\(place\)/);
+  assert.match(sources, /"hilat-hanof"[\s\S]*https:\/\/www\.vii\.co\.il\/hilat_hanof/);
   assert.match(route, /https:\/\/www\.vii\.co\.il\/ajax_order\.php/);
   assert.match(route, /act: "roomList"/);
-  assert.match(route, /sid: "11"/);
+  assert.match(route, /sid: source\.siteId/);
   assert.match(route, /from: selectedFrom/);
   assert.match(route, /till: selectedTill/);
   assert.match(route, /method: "POST"/);
@@ -85,9 +87,10 @@ test("Hilat HaNof resolves exact legacy range prices in search and business deta
   assert.match(route, /availableUnits/);
   assert.match(route, /totalPrice/);
   assert.match(route, /units: availableByUnit\.map/);
-  assert.match(route, /availability: availableCount > 0 \? "available" : "unavailable"/);
+  assert.match(route, /availability: availableCount > 0 && \(!roomMatches\[index\]\.maxGuests \|\| guests <= roomMatches\[index\]\.maxGuests\) \? "available" : "unavailable"/);
   assert.match(route, /nightlyPrice: prices\[index\] > 0 \? prices\[index\] \/ nights : 0/);
-  assert.match(hook, /hilat-calendar-data/);
+  assert.match(hook, /api\/legacy-availability/);
+  assert.match(hook, /legacyAvailabilitySourceFor\(slug\)/);
   assert.match(hook, /units: \(Array\.isArray\(result\.units\) \? result\.units : \[\]\)\.map/);
   assert.match(card, /liveLegacyAvailability \|\| resolveAvailabilityForStay/);
   assert.match(business, /liveLegacyAvailability \|\| resolveAvailabilityForStay/);

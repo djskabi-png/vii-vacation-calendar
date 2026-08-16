@@ -18,21 +18,29 @@ test("homepage discovery uses complete card compositions", async () => {
   assert.match(component, /home-vacation-card--style/);
 });
 
-test("homepage preserves every legacy deal period with a dedicated live search link", async () => {
+test("homepage preserves every legacy deal period and swaps the visible cards in place", async () => {
   const source = await readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8");
+  const deals = await readFile(new URL("../app/data/last-minute-deals.ts", import.meta.url), "utf8");
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   for (const label of ["ברגע האחרון", "2 לילות חמישי עד שבת", "2 לילות שישי עד ראשון", "פנוי לחמישי", "פנוי לשישי", "אוגוסט", "ראש השנה", "סוכות", "שמחת תורה", "חג הסיגד"]) {
-    assert.match(source, new RegExp(label));
+    assert.match(deals, new RegExp(label));
   }
   assert.match(source, /function lastMinuteHref/);
-  assert.match(source, /<nav className="home-last-minute__tabs"/);
-  assert.match(source, /<Link key=\{period\.id\} href=\{lastMinuteHref\(period\)\}>/);
-  assert.doesNotMatch(source, /href=\{lastMinuteHref\(period\)\}[^>]*preventDefault/);
+  assert.match(source, /function selectDealPeriod/);
+  assert.match(source, /role="tablist"/);
+  assert.match(source, /role="tab"/);
+  assert.match(source, /aria-selected=\{period\.id === activePeriod\.id\}/);
+  assert.match(source, /onKeyDown=\{\(event\) => handleDealPeriodKeyDown/);
+  assert.match(source, /aria-labelledby=\{\x60\$\{group\.id\}-\$\{activePeriod\.id\}-tab\x60\}/);
+  assert.match(source, /pendingDealFocus\.current = \{ groupId, periodId: nextPeriod\.id \}/);
+  assert.match(source, /document\.getElementById\(\x60\$\{pending\.groupId\}-\$\{pending\.periodId\}-tab\x60\)\?\.focus\(\)/);
+  assert.match(source, /pickProperties\(\.\.\.activePeriod\.slugs\)/);
+  assert.match(source, /period=\$\{encodeURIComponent\(activePeriod\.id\)\}/);
+  assert.match(source, /href=\{lastMinuteHref\(activePeriod\)\}/);
   assert.match(source, /דילים ברגע האחרון/);
   assert.match(source, /דילים לתקופות מבוקשות/);
   assert.match(source, /dealGroups\.map/);
-  assert.doesNotMatch(source, /home-last-minute__selection/);
-  assert.doesNotMatch(css, /home-last-minute__(?:selection|period-picker|period-group|top)/);
+  assert.match(css, /home-last-minute__tabs button\.is-active/);
 });
 
 test("homepage commercial cards include visible semantic artwork", async () => {
