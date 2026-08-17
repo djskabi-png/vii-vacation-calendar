@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-google-auth-temp-20260817",
+  "project": "vii.co.il",
+  "task_type": "oauth-integration-and-public-deployment",
+  "goal": "Real Google sign-in on vii.spaplus.co using an isolated Google Cloud project and secure secrets",
+  "created_at": "2026-08-17T12:13:01.168302Z",
+  "updated_at": "2026-08-17T12:13:01.168302Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "918b17a5868877324ce7050ba65fdfa8ef441e7b8aa1e7e66a8d10232500661e"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "27e5bb00b514200646bd23b9e5d42028c557b02716e8c2392bc2ba6c3e6b4492"
+    }
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "title": "מסירה דורשת תוצאה מלאה ובדיקת רגרסיה",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Real Google sign-in on vii.spaplus.co using an isolated Google Cloud project and secure secrets",
+      "acceptance_check": "A real Google account completes OAuth on vii.spaplus.co, returns to the site with a secure authenticated session, survives refresh, supports logout, and no credential is committed to Git",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-QA-001",
+      "source": "lesson:ADIR-QA-001",
+      "statement": "מוצר או אתר אינם גמורים כאשר קיימים כפתורים מתים, מצבים מזויפים, מסלולים קטועים או חיבורים שלא נבדקו מקצה לקצה.",
+      "acceptance_check": "A release checklist fails when a requested flow has a dead control, fabricated state, unverified integration or missing responsive evidence, and passes only after the complete flow is retested.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:isolated-project",
+      "source": "project_guidance",
+      "statement": "Only Google Cloud project vii-website-auth is changed",
+      "acceptance_check": "Only Google Cloud project vii-website-auth is changed",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:secure-secrets",
+      "source": "project_guidance",
+      "statement": "Client secret is stored only in the hosting secret store and never in source or test output",
+      "acceptance_check": "Client secret is stored only in the hosting secret store and never in source or test output",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:responsive-live",
+      "source": "project_guidance",
+      "statement": "Login success, cancellation, failure, refresh and logout are verified on the deployed temporary domain on desktop and 390px mobile",
+      "acceptance_check": "Login success, cancellation, failure, refresh and logout are verified on the deployed temporary domain on desktop and 390px mobile",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    }
+  ],
+  "verification_status": "in_progress",
+  "verification_errors": []
+}

@@ -4,12 +4,12 @@ import { readFile } from "node:fs/promises";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("frontend account access is shared, explicit and never claims real OAuth", async () => {
+test("Google account access is shared and backed by real server OAuth routes", async () => {
   const [access, layout, header, account] = await Promise.all([read("app/components/account-access.tsx"), read("app/layout.tsx"), read("app/site-header.tsx"), read("app/account/page.tsx")]);
-  assert.match(access, /google.*facebook.*instagram/s);
-  assert.match(access, /Frontend preview only/);
-  assert.match(access, /localStorage|stored only in this browser/);
-  assert.doesNotMatch(access, /signInWith|oauth|accounts\.google\.com|graph\.facebook/iu);
+  assert.match(access, /\/api\/auth\/google/);
+  assert.match(access, /\/api\/auth\/session/);
+  assert.match(access, /\/api\/auth\/logout/);
+  assert.doesNotMatch(access, /Frontend preview only|תצוגת פרונט בלבד/);
   assert.match(layout, /AccountAccessProvider/);
   assert.doesNotMatch(header, /<AccountHeaderButton/);
   assert.match(header, /className="menu-panel__account"/);
