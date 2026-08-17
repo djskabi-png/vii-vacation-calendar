@@ -5,7 +5,7 @@
   "task_type": "production-feature-completion",
   "goal": "Complete permanent search access and real authenticated guest review photo uploads across all place worlds",
   "created_at": "2026-08-17T14:47:42.442456Z",
-  "updated_at": "2026-08-17T14:47:42.442456Z",
+  "updated_at": "2026-08-17T14:56:39.286228Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -100,6 +100,15 @@
       "source": "project_guidance",
       "statement": "Guest content is stored in D1 and R2 and remains pending until approved",
       "acceptance_check": "Guest content is stored in D1 and R2 and remains pending until approved",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "brand-auth-dialog",
+      "source": "user_correction",
+      "statement": "The sign-in dialog must use the real VII brand logo and look intentional rather than a placeholder",
+      "acceptance_check": "The deployed dialog shows the real VII logo, no fake VII avatar or duplicated VII label, and remains balanced without overflow on desktop and 390px mobile",
       "status": "pending",
       "evidence": [],
       "reason": null

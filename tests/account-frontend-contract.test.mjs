@@ -7,6 +7,8 @@ const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 test("Google account access is shared and backed by real server OAuth routes", async () => {
   const [access, layout, header, account] = await Promise.all([read("app/components/account-access.tsx"), read("app/layout.tsx"), read("app/site-header.tsx"), read("app/account/page.tsx")]);
   assert.match(access, /\/api\/auth\/google/);
+  assert.match(access, /src="\/vii-logo\.png"/);
+  assert.doesNotMatch(access, /account-avatar[^>]*>VII</);
   assert.match(access, /\/api\/auth\/session/);
   assert.match(access, /\/api\/auth\/logout/);
   assert.doesNotMatch(access, /Frontend preview only|תצוגת פרונט בלבד/);
