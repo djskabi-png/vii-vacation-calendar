@@ -8314,6 +8314,98 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   .story-gallery__mobile-stage.is-viewer .story-gallery__mobile-image { max-height: calc(100dvh - 122px); }
   .story-gallery__mobile-back { position: absolute; z-index: 4; top: 14px; right: 14px; display: inline-flex; min-height: 42px; align-items: center; padding: 0 13px; border: 1px solid rgba(255,255,255,.5); border-radius: 999px; background: rgba(2,9,12,.78); color: #fff; font: inherit; font-size: .74rem; font-weight: 850; cursor: pointer; }
 }
+
+@media (max-width: 560px) {
+  .story-gallery {
+    grid-template-rows: 64px auto minmax(0, 1fr);
+    overscroll-behavior: contain;
+  }
+  .story-gallery__header {
+    position: relative;
+    z-index: 6;
+    min-height: 64px;
+    padding: 9px 14px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    background: #061014;
+  }
+  .story-gallery__header > div:first-child {
+    min-width: 0;
+  }
+  .story-gallery__header span {
+    font-size: .65rem;
+    line-height: 1.25;
+  }
+  .story-gallery__header h2 {
+    overflow: hidden;
+    font-size: .98rem;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .story-gallery__close {
+    min-width: 62px;
+    min-height: 40px;
+    padding-inline: 14px;
+  }
+  .story-gallery__tabs {
+    position: relative;
+    z-index: 5;
+    gap: 7px;
+    padding: 9px 12px 10px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    background: #061014;
+    scroll-padding-inline: 12px;
+    scroll-snap-type: inline proximity;
+  }
+  .story-gallery__tabs button {
+    min-height: 40px;
+    gap: 7px;
+    padding-inline: 13px;
+    border-color: rgba(255,255,255,.14);
+    border-radius: 12px;
+    background: rgba(255,255,255,.06);
+    scroll-snap-align: start;
+  }
+  .story-gallery__tabs button[aria-pressed="true"] {
+    color: white;
+    border-color: #25a9b8;
+    background: #087f8e;
+    box-shadow: 0 7px 18px rgba(0,127,142,.22);
+  }
+  .story-gallery__tabs small {
+    min-width: 21px;
+    height: 21px;
+    padding-inline: 4px;
+    background: rgba(255,255,255,.1);
+  }
+  .story-gallery__tabs button[aria-pressed="true"] small {
+    background: rgba(255,255,255,.18);
+  }
+  .story-gallery__workspace {
+    background: #02090c;
+  }
+  .story-gallery__mobile-stage,
+  .story-gallery__mobile-stage.is-viewer {
+    display: block;
+    min-height: 0;
+    align-content: initial;
+  }
+  .story-gallery__mobile-stage.is-viewer .story-gallery__mobile-image {
+    width: 100%;
+    max-height: none;
+    margin: 0;
+  }
+  .story-gallery__mobile-back {
+    top: 14px;
+    right: 14px;
+    min-height: 40px;
+    padding-inline: 12px;
+    border-color: rgba(255,255,255,.34);
+    background: rgba(2,9,12,.82);
+    box-shadow: 0 8px 22px rgba(0,0,0,.22);
+    backdrop-filter: blur(10px);
+  }
+}
 .vacation-booking-hub__launcher-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: stretch; gap: 10px; }
 .vacation-booking-hub__quick-book { min-width: 146px; min-height: 86px; text-decoration: none; }
 .vacation-booking-hub__launcher:hover {

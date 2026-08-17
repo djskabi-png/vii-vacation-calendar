@@ -15,9 +15,9 @@ test("accommodation landing passes page-specific guide and FAQ content to the vi
   assert.match(search, /שאלות ותשובות על \{landing\.breadcrumb\}/);
 });
 
-test("landing information buttons stay in the current page except the gift-card journey", () => {
-  assert.match(search, /href="#accommodation-guide"/);
-  assert.match(search, /href="#accommodation-faq"/);
+test("landing content avoids a duplicate guide navigation block", () => {
+  assert.doesNotMatch(search, /href="#accommodation-guide"/);
+  assert.doesNotMatch(search, /href="#accommodation-faq"/);
   assert.doesNotMatch(search, /<Link href="\/questions">שאלות ותשובות<\/Link>/);
   assert.doesNotMatch(search, /<Link href="\/guides">מדריכי נופש<\/Link>/);
 });
