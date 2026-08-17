@@ -711,7 +711,7 @@ test("independent trails are sourced, filterable and connected to stays", async 
   assert.match(listing, /setSelectedNatures/);
   assert.match(detail, /המידע אינו אישור שהמסלול פתוח כרגע/);
   assert.match(detail, /sourceName/);
-  assert.match(detail, /נקודת התחלה לחיפוש במפה/);
+  assert.doesNotMatch(detail, /נקודת התחלה לחיפוש במפה/);
   assert.match(detail, /href=\{trail\.officialSource\}/);
   assert.match(activities, /מסלולי טיול עצמאיים/);
   assert.match(activities, /אטרקציות בתשלום/);
@@ -735,7 +735,9 @@ test("all trail guides render as public pages", async () => {
     assert.equal(response.status, 200, slug);
     const html = await response.text();
     assert.match(html, /מקור המידע שנבדק/, slug);
-    assert.match(html, /נקודת התחלה לחיפוש במפה/, slug);
+    assert.doesNotMatch(html, /נקודת התחלה לחיפוש במפה/, slug);
+    assert.match(html, /פתיחה במפה/, slug);
+    assert.match(html, /ממשיכים לטייל/, slug);
     assert.match(html, /application\/ld\+json/, slug);
   }
 });

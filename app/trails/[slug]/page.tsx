@@ -62,7 +62,7 @@ export default async function TrailPage({ params }: { params: Promise<{ slug: st
           <section className="trail-faq" aria-labelledby="trail-faq"><h2 id="trail-faq">שאלות חשובות לפני שיוצאים</h2>{trailFaqs.map((item) => <details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}</section>
         </article>
 
-        <aside className="trail-detail__aside"><div><span className="eyebrow">כרטיס מסלול</span><dl><div><dt>אזור</dt><dd>{trail.region}</dd></div><div><dt>קושי</dt><dd>{trail.difficulty}</dd></div><div><dt>משך</dt><dd>{trail.duration}</dd></div><div><dt>מרחק</dt><dd>{trail.distance}</dd></div><div><dt>אופי</dt><dd>{trail.routeType}</dd></div><div><dt>עונה מומלצת</dt><dd>{trail.bestSeason}</dd></div></dl><div className="trail-source-link"><strong>נקודת התחלה לחיפוש במפה</strong><span>{trail.mapQuery}</span><small>המידע נשאר בתוך VII. לפני היציאה מאמתים פתיחה והנחיות בטיחות מול הגורם הרשמי.</small></div></div></aside>
+        <aside className="trail-detail__aside"><div><span className="eyebrow">כרטיס מסלול</span><dl><div><dt>אזור</dt><dd>{trail.region}</dd></div><div><dt>קושי</dt><dd>{trail.difficulty}</dd></div><div><dt>משך</dt><dd>{trail.duration}</dd></div><div><dt>מרחק</dt><dd>{trail.distance}</dd></div><div><dt>אופי</dt><dd>{trail.routeType}</dd></div><div><dt>עונה מומלצת</dt><dd>{trail.bestSeason}</dd></div></dl></div></aside>
       </div>
 
       <div className="section shell"><GuestReviewStudio placeName={trail.name} subjectId={trail.slug} subjectType="trail" /></div>
