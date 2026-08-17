@@ -143,7 +143,7 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
     </nav>
 
     {tab === "guests" && !guestPhotos.length ? <div className="story-gallery__guest-empty">
-      <span aria-hidden="true">+</span>
+      {onAddGuestContent ? <button className="story-gallery__guest-add" type="button" onClick={onAddGuestContent} aria-label="הוספת תמונות וחוות דעת">+</button> : <span aria-hidden="true">+</span>}
       <strong>הגלריה מחכה לתמונה הראשונה שלכם</strong>
       <p>תמונות אורחים יופיעו כאן עם שם המעלה רק לאחר הוכחת ביקור ואישור. כך ברור מה צולם על ידי העסק ומה שותף על ידי אורחים.</p>
       {onAddGuestContent ? <button type="button" onClick={onAddGuestContent}>הוספת תמונות וחוות דעת</button> : null}

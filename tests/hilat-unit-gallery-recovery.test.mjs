@@ -53,3 +53,28 @@ test("mobile gallery is a topic tour that opens a focused full-image viewer", as
   assert.match(css, /\.story-gallery__mobile-stage,\s*\.story-gallery__mobile-stage\.is-viewer \{\s*display: block;\s*min-height: 0;/);
   assert.match(css, /\.story-gallery__tabs button\[aria-pressed="true"\] \{\s*color: white;\s*border-color: #25a9b8;\s*background: #087f8e;/);
 });
+
+test("guest gallery plus opens the accessible review and photo studio", async () => {
+  const [gallery, studio] = await Promise.all([
+    read("app/components/gallery-experience.tsx"),
+    read("app/components/guest-review-studio.tsx"),
+  ]);
+  assert.match(gallery, /className="story-gallery__guest-add"[^>]*onClick=\{onAddGuestContent\}/);
+  assert.match(studio, /className="review-studio" role="dialog" aria-modal="true"/);
+  assert.match(studio, /className="review-upload review-upload--photos"/);
+});
+
+test("review display and add-review flow cover every public place family", async () => {
+  const [business, eventPlace, discoveryPlace, trailPlace, discoveryCard] = await Promise.all([
+    read("app/business/client-page.tsx"),
+    read("app/events/place/client-page.tsx"),
+    read("app/discover/place/client-page.tsx"),
+    read("app/trails/[slug]/page.tsx"),
+    read("app/components/discovery-card.tsx"),
+  ]);
+  assert.match(business, /<GuestReviewStudio[^>]*open=\{reviewOpen\}/);
+  assert.match(eventPlace, /<GuestReviewStudio/);
+  assert.match(discoveryPlace, /<GuestReviewStudio/);
+  assert.match(trailPlace, /<GuestReviewStudio[^>]*subjectType="trail"/);
+  assert.match(discoveryCard, /href=\{`\/discover\/place\/\$\{item\.id\}`\}/);
+});

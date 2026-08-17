@@ -138,7 +138,7 @@ export function GuestReviewStudio({
 
     {!isTrail && onOpenGallery ? <button className="review-experience__gallery-link" type="button" onClick={onOpenGallery}>צפייה בתמונות אורחים מאומתות</button> : null}
 
-    {isOpen ? <div className="review-studio" onMouseDown={(event) => event.target === event.currentTarget && closeDialog()}>
+    {isOpen ? <div className="review-studio" role="dialog" aria-modal="true" aria-label={buttonLabel} onMouseDown={(event) => event.target === event.currentTarget && closeDialog()}>
       <form className="review-studio__panel" onSubmit={submitReview}>
         <header><div><span>{isTrail ? "תגובה שמסייעת למטיילים" : "חוות דעת לאחר ביקור"}</span><h2>{placeName}</h2></div><button type="button" onClick={closeDialog} aria-label="סגירת החלון">סגירה</button></header>
         {finished ? <div className="review-studio__success" role="status"><span>✓</span><h3>התוכן מוכן לבדיקה</h3><p>הוא נשמר בדפדפן הזה כדי להמחיש את מצב ההמתנה. בחיבור למערכת הניהול הוא יועבר לבדיקה, ורק לאחר אישור יוצג באתר.</p><button className="button secondary" type="button" onClick={closeDialog}>סיום</button></div> : <>

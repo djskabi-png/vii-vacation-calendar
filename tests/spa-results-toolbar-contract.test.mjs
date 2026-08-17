@@ -23,5 +23,5 @@ test("spa filters use a compact unboxed strip on desktop and mobile", () => {
   assert.match(styles, /\.spa-results__landing-links a \{[^}]*min-height:\s*82px/);
   assert.doesNotMatch(styles, /\.spa-results__toolbar \{[^}]*border-radius:\s*28px/);
   assert.match(styles, /@media \(max-width: 560px\) \{[\s\S]*?\.spa-results__location-card \{[^}]*min-height:\s*62px/);
-  assert.match(styles, /@media \(max-width: 560px\) \{[\s\S]*?\.spa-results__landing-links a \{[^}]*min-height:\s*64px/);
+  assert.match(styles, /@media \(max-width: 560px\) \{[\s\S]*?\.spa-results__landing-links a \{[^}]*min-height:\s*72px/);
 });

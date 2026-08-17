@@ -58,6 +58,7 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
     const requested = (searchParams.get("features") || "").split(",").filter(Boolean);
     return (requested.length ? requested : initialSpaFilters || []).filter((id) => spaFilters.some((filter) => filter.id === id));
   });
+  const [filtersOpen, setFiltersOpen] = useState(true);
   const { mapOpen, openMap, closeMap } = useMapViewState();
   const { viewMode } = useResultsViewMode("spa");
   const [visibleMapCount, setVisibleMapCount] = useState(0);
@@ -161,7 +162,7 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
     : `${displayed.length} בתי ספא${mapVisibleIds ? " באזור שבחרתם במפה" : location === "כל הארץ" ? " בישראל" : ` ב${location}`}`;
 
   return <div className="world-map-results world-map-results--spa spa-results">
-    <section className="spa-results__filter-strip" aria-label="סינון תוצאות ספא">
+    <section id="spa-result-filters" className="spa-results__filter-strip" aria-label="סינון תוצאות ספא" hidden={!filtersOpen}>
       <div className="spa-results__filters">
         <nav className="spa-results__landing-links" aria-label="עמודי ספא לפי מאפיין"><strong>מה תרצו שיהיה במקום?</strong><div>{spaFilters.map((filter) => { const selected = selectedFilters.includes(filter.id) || activeSpaFilter === filter.id; return <Link key={filter.id} href={spaLandingContext(filter.id)} scroll={false} aria-current={selected ? "page" : undefined} className={selected ? "selected" : ""}><span className="spa-results__filter-icon"><SpaFilterIcon id={filter.id} /></span><span className="spa-results__filter-label">{filter.label}</span></Link>; })}</div><small className="spa-results__swipe-hint">החליקו לעוד אפשרויות</small></nav>
         <button type="button" className="spa-results__reset" onClick={resetFilters} disabled={!hasFilters}>ניקוי סינונים</button>
@@ -171,6 +172,7 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
     <div className="spa-results__heading">
       <h2 aria-live="polite">{resultLabel}</h2>
       <div className="spa-results__view-actions">
+        <button className="spa-results__filter-toggle" type="button" aria-controls="spa-result-filters" aria-expanded={filtersOpen} onClick={() => setFiltersOpen((open) => !open)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M7 12h10M10 17h4" /></svg><span>סינון</span></button>
         {filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onPointerDown={(event) => event.stopPropagation()} onPointerUp={(event) => event.stopPropagation()} onClick={(event) => { event.preventDefault(); event.stopPropagation(); toggleResultsMap(); }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
       </div>
     </div>
