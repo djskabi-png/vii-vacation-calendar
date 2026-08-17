@@ -71,6 +71,7 @@ function translateSeoHtml(html: string, locale: PublicLocale) {
 interface Env {
   ASSETS: Fetcher;
   DB: D1Database;
+  UPLOADS: R2Bucket;
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {

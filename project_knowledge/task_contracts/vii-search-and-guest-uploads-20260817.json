@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-search-and-guest-uploads-20260817",
+  "project": "vii.co.il",
+  "task_type": "production-feature-completion",
+  "goal": "Complete permanent search access and real authenticated guest review photo uploads across all place worlds",
+  "created_at": "2026-08-17T14:47:42.442456Z",
+  "updated_at": "2026-08-17T14:47:42.442456Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "918b17a5868877324ce7050ba65fdfa8ef441e7b8aa1e7e66a8d10232500661e"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "27e5bb00b514200646bd23b9e5d42028c557b02716e8c2392bc2ba6c3e6b4492"
+    }
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "title": "מסירה דורשת תוצאה מלאה ובדיקת רגרסיה",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-MOBILE-001",
+      "title": "נייד הוא משטח מוצר ראשי",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-CONTROL-001",
+      "title": "כל רכיב נראה חייב לעבוד",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-WEB-005",
+      "title": "Responsive transitions are release-critical state changes",
+      "scope": "account_rule_and_shared_skill"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Complete permanent search access and real authenticated guest review photo uploads across all place worlds",
+      "acceptance_check": "Public desktop and 390px mobile pages expose a working search action, and a Google-authenticated visitor can submit a review with photos that persists after refresh in pending moderation state without public auto-publication",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-QA-001",
+      "source": "lesson:ADIR-QA-001",
+      "statement": "מוצר או אתר אינם גמורים כאשר קיימים כפתורים מתים, מצבים מזויפים, מסלולים קטועים או חיבורים שלא נבדקו מקצה לקצה.",
+      "acceptance_check": "A release checklist fails when a requested flow has a dead control, fabricated state, unverified integration or missing responsive evidence, and passes only after the complete flow is retested.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-MOBILE-001",
+      "source": "lesson:ADIR-MOBILE-001",
+      "statement": "מסלול נייד מלא נבנה ונבדק בפני עצמו, לרבות המסך הראשון, צפיפות, קריאות, גלילה, חלונות, פעולות ומעברי רוחב.",
+      "acceptance_check": "שער הראיות נכשל ללא צילום חי של המסך הראשון והמסלול המלא, בדיקת גובה נמוך, מדידת גלישה ומטריצת מעברי רוחב.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-CONTROL-001",
+      "source": "lesson:ADIR-CONTROL-001",
+      "statement": "כל כפתור, קישור, לשונית, חץ, תגית, מסנן, תפריט ובקר נראה מבטיח פעולה ולכן חייב להיבדק בכל המצבים החלים עליו וביעד הטבעי של התוצאה.",
+      "acceptance_check": "שער הראיות נכשל אם חסר רכיב נראה במלאי, אם התוצאה אינה נצפית ביעד הטבעי, או אם לא נבדקו כל המופעים במשפחה שנכשלה.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-005",
+      "source": "lesson:ADIR-WEB-005",
+      "statement": "Every responsive website must remain correct through mobile-to-desktop and desktop-to-mobile transitions, reloads, orientation changes and browser device-emulation changes, including while overlays and scroll locks are active.",
+      "acceptance_check": "A real public route passes fresh desktop, desktop reload, fresh 390-pixel mobile, mobile overlay open followed by desktop resize, desktop reload, breakpoint boundary, orientation change and return to mobile. At every step the page has meaningful visible content, scrollX is zero, document width does not exceed viewport width and desktop has no stale mobile lock, backdrop or expanded state.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:public-target",
+      "source": "project_guidance",
+      "statement": "All changed functionality is verified on vii.spaplus.co before completion",
+      "acceptance_check": "All changed functionality is verified on vii.spaplus.co before completion",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:durable-moderation",
+      "source": "project_guidance",
+      "statement": "Guest content is stored in D1 and R2 and remains pending until approved",
+      "acceptance_check": "Guest content is stored in D1 and R2 and remains pending until approved",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    }
+  ],
+  "verification_status": "in_progress",
+  "verification_errors": []
+}

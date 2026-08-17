@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import { LanguageSwitcher, useSiteLanguage } from "./i18n/locale-provider";
-import { stripLanguagePrefix } from "./i18n/locale-routing";
+import { localizedPath, stripLanguagePrefix } from "./i18n/locale-routing";
 import { publicWorldNavigation, type WorldId } from "./data/world-data";
 import { AccessibilityWidget } from "./components/accessibility-widget";
 import { WorldSwitcher } from "./components/world-switcher";
@@ -166,6 +166,7 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
           <div className="header-actions">
             <SavedViewedMenu />
             <LanguageSwitcher compact iconOnly />
+            <Link className={`icon-button header-search${pathname === "/search" ? " active" : ""}`} href={localizedPath("/search", language)} aria-label={translate("חיפוש באתר")} aria-current={pathname === "/search" ? "page" : undefined}><SearchIcon /></Link>
             <Link className={`icon-button header-gift${pathname === "/gift-card" ? " active" : ""}`} href="/gift-card" aria-label={translate("גיפט קארד")} aria-current={pathname === "/gift-card" ? "page" : undefined}><GiftIcon /></Link>
             {showWorldSwitcher ? <WorldSwitcher active={variant} /> : null}
             <button ref={menuButtonRef} className="menu-button" type="button" aria-expanded={menuOpen} aria-haspopup="dialog" aria-label={translate("פתיחת תפריט")} onClick={() => setMenuOpen(true)}><MenuIcon /><span>{translate("תפריט")}</span></button>

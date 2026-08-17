@@ -2982,6 +2982,7 @@ h3 { font-size: 1.18rem; }
 .icon-button { width: 44px; }
 .icon-button svg { width: 20px; height: 20px; }
 .header-gift.active { color: var(--teal-dark); border-color: rgba(8,126,139,.35); background: var(--mist); }
+.header-search.active { color: var(--teal-dark); border-color: rgba(8,126,139,.35); background: var(--mist); }
 .menu-button { gap: 8px; padding: 0 15px; }
 .icon-button[aria-pressed="true"] { background: var(--sky); color: var(--teal-dark); }
 .saved-viewed-menu { position: relative; display: inline-flex; }
@@ -4578,6 +4579,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 }
 
 @media (max-width: 560px) {
+  .header-actions .header-gift { display: none; }
   .shell { width: calc(100% - 32px); }
   /* Breadcrumbs stay a single predictable rail on phones. Long trails scroll
      inside the trail itself instead of wrapping the page heading onto another line. */
@@ -8201,6 +8203,17 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   text-align: start;
   cursor: pointer;
   transition: border-color .2s ease, box-shadow .2s ease, translate .2s ease;
+}
+
+.review-studio__error {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid #d98787;
+  border-radius: 14px;
+  color: #8b2020;
+  background: #fff4f4;
+  font-weight: 750;
+  line-height: 1.5;
 }
 
 /* Hourly result-page finish: align the supporting bands and keep controls legible. */

@@ -2,29 +2,19 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import type { LegacyReview } from "../data/legacy-vacation-profiles";
 import { useSiteLanguage } from "../i18n/locale-provider";
 
 type ReviewSubject = "place" | "trail";
 
 type PendingReview = {
+  id?: string;
   author: string;
   body: string;
   rating: number;
+  photoCount?: number;
 };
-
-function readPendingReview(key: string): PendingReview | null {
-  if (typeof window === "undefined") return null;
-  const stored = window.localStorage.getItem(key);
-  if (!stored) return null;
-  try {
-    return JSON.parse(stored) as PendingReview;
-  } catch {
-    window.localStorage.removeItem(key);
-    return null;
-  }
-}
 
 export function GuestReviewStudio({
   placeName,
@@ -54,8 +44,11 @@ export function GuestReviewStudio({
   const [rating, setRating] = useState(0);
   const [previews, setPreviews] = useState<string[]>([]);
   const [finished, setFinished] = useState(false);
-  const storageKey = useMemo(() => `vii-pending-review:${subjectType}:${subjectId || placeName}`, [placeName, subjectId, subjectType]);
-  const [pendingReview, setPendingReview] = useState<PendingReview | null>(() => readPendingReview(storageKey));
+  const [pendingReview, setPendingReview] = useState<PendingReview | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const resolvedSubjectId = useMemo(() => subjectId || placeName, [placeName, subjectId]);
   const isOpen = Boolean(open) || localOpen;
   const isTrail = subjectType === "trail";
 
@@ -76,8 +69,18 @@ export function GuestReviewStudio({
     return () => previews.forEach((url) => URL.revokeObjectURL(url));
   }, [previews]);
 
+  useEffect(() => {
+    let active = true;
+    fetch(`/api/reviews?subjectType=${encodeURIComponent(subjectType)}&subjectId=${encodeURIComponent(resolvedSubjectId)}`, { credentials: "same-origin" })
+      .then(async (response) => response.ok ? response.json() : null)
+      .then((payload) => { if (active && payload?.review) setPendingReview(payload.review); })
+      .catch(() => undefined);
+    return () => { active = false; };
+  }, [resolvedSubjectId, subjectType]);
+
   function openDialog() {
     setFinished(false);
+    setSubmitError("");
     setLocalOpen(true);
   }
 
@@ -86,18 +89,44 @@ export function GuestReviewStudio({
     if (onClose) onClose();
   }
 
-  function submitReview(event: FormEvent<HTMLFormElement>) {
+  async function submitReview(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!rating) return;
-    const values = new FormData(event.currentTarget);
-    const draft = {
-      author: String(values.get("author") || "אורח או מטייל"),
-      body: String(values.get("review") || ""),
-      rating,
-    };
-    window.localStorage.setItem(storageKey, JSON.stringify(draft));
-    setPendingReview(draft);
-    setFinished(true);
+    if (!rating || submitting) return;
+    const form = event.currentTarget;
+    setSubmitting(true);
+    setSubmitError("");
+    const values = new FormData(form);
+    values.set("rating", String(rating));
+    values.set("subjectId", resolvedSubjectId);
+    values.set("subjectType", subjectType);
+    values.set("placeName", placeName);
+    try {
+      const response = await fetch("/api/reviews", { method: "POST", body: values, credentials: "same-origin" });
+      const payload = await response.json().catch(() => ({}));
+      if (response.status === 401) {
+        window.location.href = `/api/auth/google?return_to=${encodeURIComponent(`${window.location.pathname}${window.location.search}#reviews`)}`;
+        return;
+      }
+      if (!response.ok) throw new Error(payload.error || "השליחה לא הושלמה");
+      setPendingReview(payload.review);
+      setFinished(true);
+      form.reset();
+      setRating(0);
+      previews.forEach((url) => URL.revokeObjectURL(url));
+      setPreviews([]);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "השליחה לא הושלמה. אפשר לנסות שוב.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  function selectPhotos(event: ChangeEvent<HTMLInputElement>) {
+    previews.forEach((url) => URL.revokeObjectURL(url));
+    const files = Array.from(event.target.files || []).filter((file) => file.type.startsWith("image/")).slice(0, 8);
+    if (event.target.files && event.target.files.length > 8) setSubmitError("אפשר לצרף עד 8 תמונות");
+    else setSubmitError("");
+    setPreviews(files.map((file) => URL.createObjectURL(file)));
   }
 
   const title = isTrail ? "תגובות מטיילים על המסלול" : `חוות דעת על ${placeName}`;
@@ -127,7 +156,7 @@ export function GuestReviewStudio({
         </div> : pendingReview ? <article className="review-card review-card--pending">
           <header><div><strong>{pendingReview.author}</strong><span>{"★".repeat(pendingReview.rating)}{"☆".repeat(5 - pendingReview.rating)}</span></div><small>ממתינה לאישור</small></header>
           <p>{pendingReview.body}</p>
-          <footer>התוכן שמור כרגע בדפדפן זה לצורך בדיקת הפרונט, ואינו מוצג לגולשים אחרים.</footer>
+          <footer>{pendingReview.photoCount ? `${pendingReview.photoCount} תמונות צורפו. ` : ""}התוכן התקבל וממתין לבדיקה. הוא אינו מוצג לגולשים אחרים לפני אישור.</footer>
         </article> : <div className="review-experience__empty">
           <strong>{isTrail ? "היו הראשונים לשתף מידע מהשטח" : "היו הראשונים לכתוב חוות דעת"}</strong>
           <p>{isTrail ? "אפשר לספר על מצב המסלול, דרגת הקושי, עומס, מים ופרטים שיעזרו למטיילים הבאים." : "לאחר בדיקה ואישור, חוות הדעת תופיע כאן עם הציון והשם שבחרתם להציג."}</p>
@@ -141,13 +170,14 @@ export function GuestReviewStudio({
     {isOpen ? <div className="review-studio" role="dialog" aria-modal="true" aria-label={buttonLabel} onMouseDown={(event) => event.target === event.currentTarget && closeDialog()}>
       <form className="review-studio__panel" onSubmit={submitReview}>
         <header><div><span>{isTrail ? "תגובה שמסייעת למטיילים" : "חוות דעת לאחר ביקור"}</span><h2>{placeName}</h2></div><button type="button" onClick={closeDialog} aria-label="סגירת החלון">סגירה</button></header>
-        {finished ? <div className="review-studio__success" role="status"><span>✓</span><h3>התוכן מוכן לבדיקה</h3><p>הוא נשמר בדפדפן הזה כדי להמחיש את מצב ההמתנה. בחיבור למערכת הניהול הוא יועבר לבדיקה, ורק לאחר אישור יוצג באתר.</p><button className="button secondary" type="button" onClick={closeDialog}>סיום</button></div> : <>
-          <section><span className="review-studio__step">1</span><div><h3>{isTrail ? "מי כותב ומה מצב המסלול?" : "מי ביקר במקום?"}</h3><label>השם שיוצג באתר<input name="author" type="text" minLength={2} required /></label><label>{isTrail ? "מתי טיילתם?" : "מתי ביקרתם?"}<input name="visitDate" type="date" required /></label>{!isTrail ? <><p>אפשר לצרף מספר הזמנה או אסמכתה. הקובץ משמש לאימות בלבד ולא יוצג באתר.</p><label>מספר הזמנה, אם קיים<input name="booking" inputMode="numeric" /></label><label className="review-upload"><input type="file" accept="image/*,.pdf" /><span>צירוף אסמכתה לביקור</span><small>תמונה או מסמך עד 10 מגה</small></label></> : null}</div></section>
+        {finished ? <div className="review-studio__success" role="status"><span>✓</span><h3>התוכן התקבל וממתין לבדיקה</h3><p>חוות הדעת והתמונות נשמרו בהצלחה. רק תוכן שנבדק ואושר יוצג באתר.</p><button className="button secondary" type="button" onClick={closeDialog}>סיום</button></div> : <>
+          <section><span className="review-studio__step">1</span><div><h3>{isTrail ? "מי כותב ומה מצב המסלול?" : "מי ביקר במקום?"}</h3><label>השם שיוצג באתר<input name="author" type="text" minLength={2} required /></label><label>{isTrail ? "מתי טיילתם?" : "מתי ביקרתם?"}<input name="visitDate" type="date" max={new Date().toISOString().slice(0, 10)} required /></label>{!isTrail ? <><p>אפשר לצרף מספר הזמנה או אסמכתה. הקובץ משמש לאימות בלבד ולא יוצג באתר.</p><label>מספר הזמנה, אם קיים<input name="booking" /></label><label className="review-upload"><input name="receipt" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf" /><span>צירוף אסמכתה לביקור</span><small>תמונה או מסמך עד 10 מגה</small></label></> : null}</div></section>
           <section><span className="review-studio__step">2</span><div><h3>{isTrail ? "איך היה המסלול?" : "מה הציון שלכם?"}</h3><div className="rating-picker" role="radiogroup" aria-label={isTrail ? "ציון המסלול" : "ציון המקום"}>{[1,2,3,4,5].map((score) => <button key={score} type="button" role="radio" aria-checked={rating === score} onClick={() => setRating(score)} aria-label={`${score} מתוך 5`}>{score}</button>)}</div><label>{isTrail ? "מה חשוב שמטיילים אחרים ידעו?" : "מה חשוב שאורחים אחרים ידעו?"}<textarea name="review" required rows={5} minLength={20} /></label></div></section>
-          <section><span className="review-studio__step">3</span><div><h3>{isTrail ? "מוסיפים תמונות מהשטח" : "מוסיפים תמונות מהביקור"}</h3><p>התמונות יופיעו רק לאחר בדיקה ואישור.</p><label className="review-upload review-upload--photos"><input type="file" accept="image/*" multiple onChange={(event) => { previews.forEach((url) => URL.revokeObjectURL(url)); setPreviews(Array.from(event.target.files || []).filter((file) => file.type.startsWith("image/")).slice(0, 8).map((file) => URL.createObjectURL(file))); }} /><span>בחירת תמונות</span><small>עד 8 תמונות</small></label>{previews.length ? <div className="review-preview">{previews.map((url, index) => <img key={url} src={url} alt={`תמונה שנבחרה ${index + 1}`} title={`תמונה שנבחרה ${index + 1}`} />)}</div> : null}</div></section>
-          <label className="review-consent"><input required type="checkbox" /><span>אני מאשר או מאשרת שהתוכן שייך לי ושאפשר להעביר אותו לבדיקה לפני פרסום.</span></label>
-          <button className="button primary wide" type="submit" disabled={!rating}>שליחה לבדיקה</button>
-          <p className="review-studio__notice">בגרסת הפרונט התוכן נשמר בדפדפן לצורך בדיקת החוויה. שמירת קבצים, אימות ואישור לפרסום יחוברו למערכת הניהול לפני העלייה לאוויר.</p>
+          <section><span className="review-studio__step">3</span><div><h3>{isTrail ? "מוסיפים תמונות מהשטח" : "מוסיפים תמונות מהביקור"}</h3><p>התמונות יישמרו ויופיעו רק לאחר בדיקה ואישור.</p><label className="review-upload review-upload--photos"><input ref={photoInputRef} name="photos" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple onChange={selectPhotos} /><span>בחירת תמונות</span><small>עד 8 תמונות, עד 8 מגה לתמונה</small></label>{previews.length ? <div className="review-preview">{previews.map((url, index) => <img key={url} src={url} alt={`תמונה שנבחרה ${index + 1}`} title={`תמונה שנבחרה ${index + 1}`} />)}</div> : null}</div></section>
+          <label className="review-consent"><input name="consent" value="yes" required type="checkbox" /><span>אני מאשר או מאשרת שהתוכן שייך לי ושאפשר להעביר אותו לבדיקה לפני פרסום.</span></label>
+          {submitError ? <p className="review-studio__error" role="alert">{submitError}</p> : null}
+          <button className="button primary wide" type="submit" disabled={!rating || submitting} aria-busy={submitting}>{submitting ? "שולחים ומעלים את התמונות..." : "שליחה לבדיקה"}</button>
+          <p className="review-studio__notice">התוכן והקבצים נשמרים באופן מאובטח ומועברים לבדיקה. הם לא יוצגו באתר לפני אישור.</p>
         </>}
       </form>
     </div> : null}
