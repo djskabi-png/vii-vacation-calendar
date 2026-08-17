@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { eventPlaceHref, type EventPlace, type Listing } from "../data/site-data";
 import type { DiscoveryItem } from "../data/world-data";
+import type { Trail } from "../data/trail-data";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import "leaflet/dist/leaflet.css";
 
@@ -553,4 +554,42 @@ export function DiscoveryMap({ items, initialItems, tone, single = false, autoLo
   }), [items, tone, localized]);
   const initialPlaceIds = useMemo(() => initialItems?.map((item) => item.id), [initialItems]);
   return <PlacesMap key={initialPlaceIds?.join("|") || "all"} places={places} initialPlaceIds={initialPlaceIds} tone={tone} single={single} autoLoad={autoLoad} onClose={onClose} onVisibleCountChange={onVisibleCountChange} onVisiblePlaceIdsChange={onVisiblePlaceIdsChange} />;
+}
+
+const trailAreaCenters: Record<Trail["mainArea"], { lat: number; lng: number }> = {
+  "צפון": { lat: 33.02, lng: 35.38 },
+  "כנרת": { lat: 32.79, lng: 35.54 },
+  "חיפה": { lat: 32.79, lng: 35.02 },
+  "מרכז": { lat: 32.12, lng: 34.93 },
+  "תל אביב": { lat: 32.08, lng: 34.78 },
+  "דרום ונגב": { lat: 30.82, lng: 34.79 },
+  "ירושלים": { lat: 31.78, lng: 35.17 },
+  "אילת והסביבה": { lat: 29.56, lng: 34.95 },
+};
+
+export function TrailMap({ trails, autoLoad = false, onClose }: { trails: Trail[]; autoLoad?: boolean; onClose?: () => void }) {
+  const places = useMemo<MapPlace[]>(() => Object.entries(
+    trails.reduce<Record<string, Trail[]>>((groups, trail) => {
+      (groups[trail.mainArea] ||= []).push(trail);
+      return groups;
+    }, {}),
+  ).map(([area, areaTrails]) => {
+    const center = trailAreaCenters[area as Trail["mainArea"]];
+    return {
+      id: `trails-${area}`,
+      name: `מסלולי טיול ב${area}`,
+      location: area,
+      area,
+      category: "טיולים",
+      meta: `${areaTrails.length} מסלולים באזור`,
+      image: "/vii-logo.png",
+      lat: center.lat,
+      lng: center.lng,
+      href: `/trails?area=${encodeURIComponent(area)}`,
+      markerLabel: `${areaTrails.length} מסלולים`,
+      precision: "area" as const,
+    };
+  }), [trails]);
+
+  return <PlacesMap places={places} tone="activities" autoLoad={autoLoad} onClose={onClose} />;
 }

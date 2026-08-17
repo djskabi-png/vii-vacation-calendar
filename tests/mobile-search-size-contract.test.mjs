@@ -24,6 +24,7 @@ test("hourly price filtering uses verified two-hour rates", () => {
 test("hourly mobile search fields share one equal grid and control height", () => {
   assert.match(styles, /\.search-box--hourly \{ grid-template-columns: repeat\(2,minmax\(0,1fr\)\)/);
   assert.match(styles, /\.search-box--hourly \.search-submit \{ grid-column: 1 \/ -1; width: 100%; \}/);
+  assert.match(styles, /\.search-box-shell\.mobile-expanded \.search-submit \{[^}]*inset-inline: 14px;[^}]*width: auto;[^}]*max-width: none;[^}]*box-sizing: border-box;/);
   assert.match(styles, /\.search-box--hourly \.search-field,\.search-box--hourly \.search-submit \{ min-height: 52px; \}/);
   assert.match(styles, /\.world-hero__inner > \.search-box-shell \{ width: min\(100%,1040px\); \}/);
 });

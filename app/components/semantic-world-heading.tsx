@@ -40,7 +40,8 @@ export function SemanticWorldHeading({ mode, title, description }: { mode?: Sear
   if (mode === "hourly") {
     const parts = pathname.split("/").filter(Boolean);
     const hourlyIndex = parts.indexOf("hourly");
-    const location = hourlyIndex >= 0 && parts[hourlyIndex + 1] === "search" ? searchLocationFromSlug("hourly", parts[hourlyIndex + 2]) : undefined;
+    const queryLocation = searchParams.get("location") || undefined;
+    const location = queryLocation || (hourlyIndex >= 0 && parts[hourlyIndex + 1] === "search" ? searchLocationFromSlug("hourly", parts[hourlyIndex + 2]) : undefined);
     if (location) {
       liveTitle = `חדרים לפי שעה ב${location}`;
       liveDescription = `חדרים וסוויטות לשהייה קצרה ב${location}, עם סינון לפי מחיר ומאפייני המקום.`;

@@ -74,11 +74,13 @@ export function EventDatePicker({
   open,
   onClose,
   onCancel,
+  onSkip,
   onConfirm,
 }: {
   open: boolean;
   onClose: () => void;
   onCancel?: () => void;
+  onSkip?: () => void;
   onConfirm: (result: EventDateResult) => void;
 }) {
   const cancel = onCancel ?? onClose;
@@ -232,7 +234,7 @@ export function EventDatePicker({
             <span>{mode === "exact" ? "תאריך אחד" : mode === "around" ? "חיפוש גמיש" : "חלון זמן"}</span>
             <strong>{mode === "period" ? (specificMonthOffset !== null ? `במהלך ${monthOnlyLabel(addMonths(firstMonth, specificMonthOffset))}` : (PERIOD_OPTIONS.find((option) => option.id === period)?.label ?? "בחודש הקרוב")) : selectedDate ? dateLabel(selectedDate) : "בחרו תאריך כדי להמשיך"}</strong>
           </div>
-          <button type="button" className="event-date-confirm" disabled={!ready} onClick={confirm}>הצגת מקומות לאירוע</button>
+          <div className="event-date-dialog__actions">{onSkip && <button type="button" className="mobile-date-skip" onClick={onSkip}>דלגו על התאריך</button>}<button type="button" className="event-date-confirm" disabled={!ready} onClick={confirm}>הצגת מקומות לאירוע</button></div>
         </footer>
       </section>
     </div>,

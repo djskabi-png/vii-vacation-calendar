@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps -- request state is intentionally reset when an availability query key changes */
+
 import { useEffect, useState } from "react";
 import type { Property } from "../data/site-data";
 import type { ResolvedAvailability, SelectedStay } from "./property-card";

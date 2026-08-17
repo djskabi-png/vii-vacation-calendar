@@ -19,9 +19,9 @@ test("spa result actions sit in a clean toolbar immediately above the results", 
 
 test("spa filters use a compact unboxed strip on desktop and mobile", () => {
   assert.match(styles, /\.spa-results__filter-strip \{[^}]*border-block:[^}]*background:\s*transparent/);
-  assert.match(styles, /\.spa-results__filters \{[^}]*grid-template-columns:\s*minmax\(180px,220px\) minmax\(0,1fr\) auto/);
+  assert.match(styles, /\.spa-results__filters \{[^}]*grid-template-columns:\s*minmax\(0,1fr\) auto/);
   assert.match(styles, /\.spa-results__landing-links a \{[^}]*min-height:\s*82px/);
   assert.doesNotMatch(styles, /\.spa-results__toolbar \{[^}]*border-radius:\s*28px/);
   assert.match(styles, /@media \(max-width: 560px\) \{[\s\S]*?\.spa-results__location-card \{[^}]*min-height:\s*62px/);
-  assert.match(styles, /@media \(max-width: 560px\) \{[\s\S]*?\.spa-results__landing-links a \{[^}]*min-height:\s*90px/);
+  assert.match(styles, /@media \(max-width: 560px\) \{[\s\S]*?\.spa-results__landing-links a \{[^}]*min-height:\s*64px/);
 });

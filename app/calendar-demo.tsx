@@ -264,6 +264,7 @@ export function CalendarDemo({
   open,
   onClose,
   onCancel,
+  onSkip,
   onConfirm,
   availabilityResolver,
   priceResolver,
@@ -274,6 +275,7 @@ export function CalendarDemo({
   open: boolean;
   onClose: () => void;
   onCancel?: () => void;
+  onSkip?: () => void;
   onConfirm: (result: CalendarResult) => void;
   availabilityResolver?: (date: Date) => Availability;
   priceResolver?: (date: Date) => number;
@@ -489,6 +491,7 @@ export function CalendarDemo({
             </div>
           </div>
           <div className="dialog-actions">
+            {mode === "home" && onSkip && <button type="button" className="mobile-date-skip" onClick={onSkip}>דלגו על התאריך</button>}
             {!flexible && <button type="button" className="clear-dates" onClick={reset} disabled={!checkIn && !checkOut}>ניקוי</button>}
             <button type="button" className="confirm-dates" onClick={confirm} disabled={!ready}>
               {mode === "home" ? "הבא" : businessKind === "single" ? "בדיקת מחיר וזמינות" : "בדיקת יחידות ומחירים"}

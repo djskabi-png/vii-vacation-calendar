@@ -30,12 +30,6 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
     ru: { badge: "Новое", label: "Журнал", menuLabel: "Журнал и путеводители" },
     fr: { badge: "Nouveau", label: "Magazine", menuLabel: "Magazine et guides" },
   }[language];
-  const favoritesLoading = {
-    he: "פותחים את המקומות שאהבתי...",
-    en: "Opening your favorites...",
-    ru: "Открываем избранное...",
-    fr: "Ouverture de vos favoris...",
-  }[language];
   const accountCopy = {
     he: { connected: "מחוברים לחשבון", title: "החשבון האישי שלי", summary: "אהובים, הזמנות ובקשות במקום אחד", login: "התחברות או פתיחת חשבון", enter: "כניסה לאזור האישי" },
     en: { connected: "Signed in", title: "My account", summary: "Favorites, bookings and requests in one place", login: "Sign in or create an account", enter: "Open my account" },
@@ -119,13 +113,10 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
               <strong>{accountCopy.title}</strong>
               <span>{accountCopy.summary}</span>
             </span>
-            <span className="menu-panel__account-action">{accountCopy.login}<ArrowIcon /></span>
           </button>
         )}
         <div className="menu-panel__intro">
-          <span className="menu-panel__eyebrow">{translate("מתחילים מכאן")}</span>
           <h2>{translate("לאן תרצו להגיע?")}</h2>
-          <p>{translate("נופש, אירועים, ספא, ספקים וחוויות, במקום אחד.")}</p>
         </div>
 
         <div className="menu-panel__main">
@@ -146,9 +137,8 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
           <ArrowIcon />
         </Link>
 
+        <span className="menu-panel__section-title">{translate("עוד באתר")}</span>
         <div className="menu-panel__secondary">
-          <Link href="/favorites?view=saved" data-loading-label={favoritesLoading} onClick={closeMenu}><HeartIcon /><span>{translate("מקומות שאהבתי")}</span></Link>
-          <Link href="/favorites?view=viewed" onClick={closeMenu}><EyeIcon /><span>{translate("מקומות שראיתי")}</span></Link>
           <Link href="/gift-card" onClick={closeMenu}><GiftIcon /><span>{translate("גיפט קארד")}</span></Link>
           <Link href="/destinations" onClick={closeMenu}><PinIcon /><span>{translate("יעדים")}</span></Link>
           <Link href="/guides" onClick={closeMenu} aria-current={magazineActive ? "page" : undefined}><InfoIcon /><span>{magazineCopy.menuLabel}</span></Link>
@@ -158,8 +148,6 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
         </div>
 
         <div className="menu-panel__footer">
-          <span>VII</span>
-          <p>{translate("כל מה שכיף לעשות, בדיוק בדרך שלכם.")}</p>
           <LanguageSwitcher compact />
         </div>
       </nav>

@@ -144,7 +144,7 @@ test("hourly search starts with location and exposes filters only with the resul
   assert.equal(response.status, 200);
   assert.match(html, /חיפוש חדרים לפי שעה/);
   assert.match(html, /עיר או אזור/);
-  assert.match(html, /מקומות נמצאו/);
+  assert.match(html, /נמצאו \d+ מקומות/);
   assert.match(html, /מחיר לשעתיים עד/);
   assert.match(html, /כניסה עצמאית/);
   assert.match(html, /הצגת תוצאות על המפה/);
@@ -311,8 +311,7 @@ test("spa, hourly, event and attraction worlds expose interactive maps", async (
   assert.match(hourlyResults, /<DeferredDiscoveryMap items=\{filtered\} tone="hourly" autoLoad onClose=/);
   assert.match(worldResults, /<DeferredDiscoveryMap items=\{items\} tone=\{world\} autoLoad onClose=/);
   assert.match(attractionResults, /<DeferredDiscoveryMap items=\{filtered\} tone="activities" autoLoad onClose=/);
-  assert.doesNotMatch(hourlyResults, /mobile-map-fab/);
-  for (const source of [worldResults, attractionResults, searchResults, eventResults]) assert.match(source, /mobile-map-fab/);
+  for (const source of [hourlyResults, worldResults, attractionResults, searchResults, eventResults]) assert.match(source, /mobile-map-fab/);
   assert.match(styles, /\.mobile-map-fab \{/);
   assert.match(styles, /bottom: calc\(18px \+ env\(safe-area-inset-bottom\)\)/);
   assert.match(styles, /min-height: 44px !important/);
@@ -599,7 +598,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(searchBox, /SearchWorldTabs/);
   assert.match(searchBox, /בחרו כמות משתתפים/);
   assert.doesNotMatch(searchBox, /mode === "events" \? 40/);
-  assert.match(eventsPage, /<SearchBox mode="events" showWorlds \/>/);
+  assert.match(eventsPage, /<SearchBox mode="events" compact showWorlds \/>/);
   assert.match(map, /basemaps\.cartocdn\.com/);
   assert.match(map, /World_Imagery/);
   assert.match(map, /map-preview-image/);
@@ -708,12 +707,12 @@ test("independent trails are sourced, filterable and connected to stays", async 
   assert.equal((data.match(/duration: "/g) || []).length, 48);
   assert.equal((data.match(/safety: \[/g) || []).length, 23);
   assert.match(listing, /סינון מסלולי טיול/);
-  assert.match(listing, /setDifficulty/);
-  assert.match(listing, /setNature/);
+  assert.match(listing, /setSelectedDifficulties/);
+  assert.match(listing, /setSelectedNatures/);
   assert.match(detail, /המידע אינו אישור שהמסלול פתוח כרגע/);
   assert.match(detail, /sourceName/);
   assert.match(detail, /נקודת התחלה לחיפוש במפה/);
-  assert.doesNotMatch(detail, /href=\{trail\.officialSource\}/);
+  assert.match(detail, /href=\{trail\.officialSource\}/);
   assert.match(activities, /מסלולי טיול עצמאיים/);
   assert.match(activities, /אטרקציות בתשלום/);
   assert.match(home, /מסלולים ליד החופשה/);
@@ -813,7 +812,7 @@ test("ships a favicon, four languages and no dependency on the retired site", as
   assert.match(header, /<LanguageSwitcher compact/);
   assert.match(header, /<AccessibilityWidget placement="menu" \/>/);
   assert.match(header, /className="menu-panel__join" href="\/join\/providers"/);
-  assert.match(header, /className="menu-panel__eyebrow"/);
+  assert.doesNotMatch(header, /className="menu-panel__eyebrow"/);
   assert.equal((header.match(/href="\/join\/providers"/g) || []).length, 1);
   assert.equal((header.match(/translate\("פרסום והצטרפות לאתר"\)/g) || []).length, 1);
   assert.doesNotMatch(header, /הצטרפות כספק/);

@@ -52,11 +52,13 @@ export function SpaDatePicker({
   open,
   onClose,
   onCancel,
+  onSkip,
   onConfirm,
 }: {
   open: boolean;
   onClose: () => void;
   onCancel?: () => void;
+  onSkip?: () => void;
   onConfirm: (result: SpaDateResult) => void;
 }) {
   const cancel = onCancel ?? onClose;
@@ -144,7 +146,7 @@ export function SpaDatePicker({
 
         <footer className="spa-date-dialog__footer">
           <div><span>{withoutDate ? "חיפוש פתוח" : "התאריך שנבחר"}</span><strong>{withoutDate ? "בלי תאריך כרגע" : selectedDate ? dateLabel(selectedDate) : "בחרו יום אחד"}</strong></div>
-          <button type="button" className="spa-date-confirm" disabled={!ready} onClick={confirm}>המשך לחיפוש</button>
+          <div className="spa-date-dialog__actions">{onSkip && <button type="button" className="mobile-date-skip" onClick={onSkip}>דלגו על התאריך</button>}<button type="button" className="spa-date-confirm" disabled={!ready} onClick={confirm}>המשך לחיפוש</button></div>
         </footer>
       </section>
     </div>,

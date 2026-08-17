@@ -6,7 +6,6 @@ import type { DiscoveryItem } from "../data/world-data";
 import { MapIcon } from "../site-header";
 import { DiscoveryCard } from "./discovery-card";
 import { DeferredDiscoveryMap } from "./deferred-listing-map";
-import { ModernSelect } from "./modern-select";
 import Link from "next/link";
 import { spaLandings } from "../data/spa-landings";
 import { useMapViewState } from "./map-view-state";
@@ -76,10 +75,6 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
     };
   }, [location, searchParams, selectedFilters, spaAudience]);
 
-  const locations = useMemo(
-    () => ["כל הארץ", ...Array.from(new Set(items.flatMap((item) => [item.area, item.location])))],
-    [items],
-  );
 
   const amenityFiltered = useMemo(() => items.filter((item) => {
     const text = searchableText(item);
@@ -168,7 +163,6 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
   return <div className="world-map-results world-map-results--spa spa-results">
     <section className="spa-results__filter-strip" aria-label="סינון תוצאות ספא">
       <div className="spa-results__filters">
-        <div className="spa-results__location-card"><span className="spa-results__location-icon"><MapIcon /></span><ModernSelect className="spa-results__location" label="איפה תרצו להתפנק?" value={location} onChange={changeLocation} options={locations.map((option) => ({ value: option, label: option }))} /></div>
         <nav className="spa-results__landing-links" aria-label="עמודי ספא לפי מאפיין"><strong>מה תרצו שיהיה במקום?</strong><div>{spaFilters.map((filter) => { const selected = selectedFilters.includes(filter.id) || activeSpaFilter === filter.id; return <Link key={filter.id} href={spaLandingContext(filter.id)} scroll={false} aria-current={selected ? "page" : undefined} className={selected ? "selected" : ""}><span className="spa-results__filter-icon"><SpaFilterIcon id={filter.id} /></span><span className="spa-results__filter-label">{filter.label}</span></Link>; })}</div><small className="spa-results__swipe-hint">החליקו לעוד אפשרויות</small></nav>
         <button type="button" className="spa-results__reset" onClick={resetFilters} disabled={!hasFilters}>ניקוי סינונים</button>
       </div>

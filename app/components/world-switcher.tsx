@@ -6,6 +6,17 @@ import { useRouter } from "next/navigation";
 import { publicWorldNavigation, worlds, type WorldId } from "../data/world-data";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
+import { cleanVacationPath } from "../data/vacation-landings";
+import { spaSearchHref, spaSearchStateFromValues } from "../data/spa-search-landings";
+import { eventSearchHref, hourlySearchHref } from "../data/world-search-landings";
+
+function searchWorldHref(world: "vacation" | "spa" | "events" | "hourly", location?: string) {
+  if (!location || location === "כל הארץ") return worlds.find((item) => item.id === world)!.href;
+  if (world === "vacation") return cleanVacationPath(location);
+  if (world === "spa") return spaSearchHref(spaSearchStateFromValues(location));
+  if (world === "events") return eventSearchHref(location);
+  return hourlySearchHref(location);
+}
 
 export function WorldSwitcher({ active = "vacation" }: { active?: WorldId }) {
   const [open, setOpen] = useState(false);
@@ -35,7 +46,7 @@ function WorldsIcon() {
   return <svg className="worlds-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="6.5" height="6.5" rx="2" /><rect x="14" y="3.5" width="6.5" height="6.5" rx="2" /><rect x="3.5" y="14" width="6.5" height="6.5" rx="2" /><rect x="14" y="14" width="6.5" height="6.5" rx="2" /><path d="M10 6.75h4M6.75 10v4m10.5-4v4M10 17.25h4" /></svg>;
 }
 
-export function SearchWorldTabs({ active, onNavigate }: { active: WorldId; onNavigate?: () => void }) {
+export function SearchWorldTabs({ active, location, onNavigate }: { active: WorldId; location?: string; onNavigate?: () => void }) {
   const router = useRouter();
   const { language, translate } = useSiteLanguage();
   const [moreOpen, setMoreOpen] = useState(false);
@@ -66,7 +77,7 @@ export function SearchWorldTabs({ active, onNavigate }: { active: WorldId; onNav
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     afterNavigate?.(event);
-    router.push(href);
+    router.push(href, { scroll: false });
     window.setTimeout(() => {
       onNavigate?.();
     }, 0);
@@ -82,8 +93,8 @@ export function SearchWorldTabs({ active, onNavigate }: { active: WorldId; onNav
     <div className="search-world-tabs__options">
       {primaryWorlds.map((worldId) => {
         const world = worlds.find((item) => item.id === worldId)!;
-        const href = localizedPath(world.href, language);
-        return <Link key={world.id} href={href} className={world.id === active ? "active" : ""} aria-current={world.id === active ? "page" : undefined} onClick={navigateWithinSearch(href)}>
+        const href = localizedPath(searchWorldHref(worldId, location), language);
+        return <Link key={world.id} href={href} scroll={false} className={world.id === active ? "active" : ""} aria-current={world.id === active ? "page" : undefined} onClick={navigateWithinSearch(href)}>
           <span className={`search-world-tabs__icon search-world-tabs__icon--${worldId}`} aria-hidden="true"><SearchWorldIcon world={worldId} /></span>
           <span>{translate(world.shortLabel)}</span>
         </Link>;

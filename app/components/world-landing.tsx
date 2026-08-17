@@ -85,8 +85,12 @@ export function WorldLanding({
 
   return <PageShell variant={world}>
     <main id="main-content" className={`world-page world-page--${world}`}>
-      <section className="world-hero"><div className="shell world-hero__inner"><SemanticWorldHeading mode={searchMode} title={title} description={description} />{searchMode && <><SearchBox mode={searchMode} showWorlds initialLocation={initialSearchLocation} initialSpaAudience={initialSpaAudience} initialSpaFeatures={initialSpaFilters} /><WorldQuickSearches mode={searchMode} initialLocation={initialSearchLocation} initialSpaAudience={initialSpaAudience} /></>}</div></section>
+      {searchMode && <section className="world-hero"><div className="shell world-hero__inner"><SearchBox mode={searchMode} compact showWorlds initialLocation={initialSearchLocation} initialSpaAudience={initialSpaAudience} initialSpaFeatures={initialSpaFilters} /></div></section>}
       <BreadcrumbTrail className="world-breadcrumbs" items={breadcrumbItems || [{ name: "ראשי", path: "/" }, { name: worldLabel }]} />
+      <section className="world-page-heading shell">
+        <SemanticWorldHeading mode={searchMode} title={title} description={description} />
+        {searchMode && world !== "spa" && world !== "hourly" && <WorldQuickSearches mode={searchMode} initialLocation={initialSearchLocation} initialSpaAudience={initialSpaAudience} />}
+      </section>
       <section className="section shell">
         {world !== "spa" && world !== "hourly" && <div className="section-head world-results-title"><div><h2>{collectionTitle}</h2></div>{sourceNote && <p className="source-note">{sourceNote}</p>}</div>}
         {world === "hourly" ? <HourlyResults items={items} initialLocation={initialSearchLocation} /> : world === "providers" ? <ProviderResults items={items} /> : world === "spa" ? <WorldMapResults items={items} world="spa" activeSpaFilter={activeSpaFilter} initialLocation={initialSearchLocation} initialSpaAudience={initialSpaAudience} initialSpaFilters={initialSpaFilters} /> : <div className="discovery-grid">{items.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>}

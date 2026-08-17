@@ -43,8 +43,9 @@ export default function EventsPage() {
       <main id="main-content" className="events-page">
         <StructuredData data={collectionSchema("מקומות לאירועים פרטיים", "מקומות לאירועים לפי אזור, כמות משתתפים וסוג האירוע.", "/events", eventPlaces.map((place) => ({ name: place.name, path: eventPlaceHref(place), image: place.image })))} />
         <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }])} />
-        <section className="events-hero"><div className="shell"><h1>מוצאים מקום לחגוג בו</h1><p>מחפשים לפי אזור, תאריך וכמות משתתפים ומשווים בין מקומות אמיתיים.</p><SearchBox mode="events" showWorlds /><WorldQuickSearches mode="events" /></div></section>
+        <section className="events-hero"><div className="shell"><SearchBox mode="events" compact showWorlds /></div></section>
         <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "אירועים" }]} />
+        <section className="world-page-heading shell"><h1>מוצאים מקום לחגוג בו</h1><p>מחפשים לפי אזור, תאריך וכמות משתתפים ומשווים בין מקומות אמיתיים.</p><WorldQuickSearches mode="events" /></section>
         <section className="section shell event-region-section">
           <div className="section-head">
             <div>

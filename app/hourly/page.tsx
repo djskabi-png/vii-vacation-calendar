@@ -35,7 +35,15 @@ export function HourlyLanding({ initialLocation }: { initialLocation?: string })
       ...(initialLocation ? [{ name: title, path }] : []),
     ])} />
     <StructuredData data={collectionSchema(title, description, path, matchingItems.map((place) => ({ name: place.name, path: `/discover/place/${place.id}`, image: place.image })))} />
-    <WorldLanding world="hourly" title={title} description={description} items={hourlyPlaces} searchMode="hourly" initialSearchLocation={initialLocation} />
+    <WorldLanding
+      world="hourly"
+      title={title}
+      description={description}
+      items={hourlyPlaces}
+      searchMode="hourly"
+      initialSearchLocation={initialLocation}
+      collectionTitle={initialLocation ? `חדרים וסוויטות לפי שעה ב${initialLocation}` : "חדרים וסוויטות לפי שעה בישראל"}
+    />
   </>;
 }
 

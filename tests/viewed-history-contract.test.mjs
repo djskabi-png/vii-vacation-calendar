@@ -19,8 +19,8 @@ test("the heart menu exposes saved and viewed destinations with counts", async (
     read("app/components/saved-viewed-menu.tsx"),
   ]);
   assert.match(header, /<SavedViewedMenu\s*\/>/);
-  assert.match(header, /favorites\?view=saved/);
-  assert.match(header, /favorites\?view=viewed/);
+  assert.match(menu, /favorites\?view=saved/);
+  assert.match(menu, /favorites\?view=viewed/);
   assert.match(menu, /readSavedItems/);
   assert.match(menu, /readViewedItems/);
   assert.match(menu, /aria-haspopup="menu"/);

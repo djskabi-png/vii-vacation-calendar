@@ -9,7 +9,8 @@ test("world landing intros share one compact vertical rhythm", async () => {
   const events = await readFile(new URL("app/events/page.tsx", root), "utf8");
   const worldLanding = await readFile(new URL("app/components/world-landing.tsx", root), "utf8");
   assert.match(events, /className="events-page"/);
-  assert.match(css, /\.events-hero \{ padding: 46px 0 48px/);
+  assert.match(css, /\.events-hero \{ padding: 26px 0/);
+  assert.match(css, /\.world-page-heading \{ padding-block: 22px 14px/);
   assert.match(css, /\.world-page > \.section,\s*\.events-page > \.section \{ padding-block: 64px/);
   assert.match(css, /\.world-hero > \.shell > \.eyebrow,\s*\.events-hero > \.shell > \.eyebrow \{ display: none/);
   assert.doesNotMatch(events.match(/<section className="events-hero">[\s\S]*?<\/section>/)?.[0] || "", /className="eyebrow"/);

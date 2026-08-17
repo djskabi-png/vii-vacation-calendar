@@ -1039,9 +1039,9 @@ function translateDynamic(value: string, language: Exclude<SiteLanguage, "he">):
         : placesInListMatch[1] + " \u043c\u0435\u0441\u0442 \u0432 \u0441\u043f\u0438\u0441\u043a\u0435";
   }
 
-  const hourlyResultsMatch = value.match(/^(\d+) מקומות נמצאו$/);
+  const hourlyResultsMatch = value.match(/^(?:נמצאו (\d+) מקומות|(\d+) מקומות נמצאו)$/);
   if (hourlyResultsMatch) {
-    const count = Number(hourlyResultsMatch[1]);
+    const count = Number(hourlyResultsMatch[1] || hourlyResultsMatch[2]);
     if (language === "en") return count === 1 ? "One place found" : `${count} places found`;
     if (language === "fr") return count === 1 ? "Un lieu trouvé" : `${count} lieux trouvés`;
     const noun = count % 10 === 1 && count % 100 !== 11 ? "место" : count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 12 || count % 100 > 14) ? "места" : "мест";

@@ -4,12 +4,13 @@ import test from "node:test";
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("world landing breadcrumbs follow the hero and precede page content", () => {
+test("world landing breadcrumbs follow the search rail and precede the page heading", () => {
   for (const path of ["app/components/world-landing.tsx", "app/events/page.tsx", "app/attractions/page.tsx", "app/trails/page.tsx"]) {
     const source = read(path);
-    const hero = Math.min(...["world-hero", "events-hero", "attractions-hero", "trails-hero"].map((token) => source.indexOf(token)).filter((index) => index >= 0));
+    const search = Math.min(...["world-hero", "events-hero", "special-search-rail"].map((token) => source.indexOf(token)).filter((index) => index >= 0));
     const breadcrumb = source.indexOf("<BreadcrumbTrail className=\"world-breadcrumbs\"");
-    assert.ok(hero >= 0 && breadcrumb > hero, `${path} must place breadcrumbs after its hero`);
+    const heading = Math.min(...["world-page-heading", "attractions-hero", "trails-hero"].map((token) => source.indexOf(token)).filter((index) => index >= 0));
+    assert.ok(search >= 0 && breadcrumb > search && heading > breadcrumb, `${path} must place search, breadcrumbs, then heading`);
   }
 });
 
@@ -36,13 +37,13 @@ test("desktop map controls use the shared branded pill instead of the legacy gre
   assert.match(css, /\.map-button:focus-visible \{[^}]*outline: 3px solid/);
 });
 
-test("spa and hourly results keep their result heading inside the filter toolbar", () => {
+test("spa and hourly expose one concise live results heading", () => {
   const landing = read("app/components/world-landing.tsx");
   const spa = read("app/components/world-map-results.tsx");
   const hourly = read("app/components/hourly-results.tsx");
-  assert.match(landing, /world !== "spa" && world !== "hourly"/);
+  assert.match(landing, /world !== "spa" && world !== "hourly" && <div className="section-head world-results-title"/);
   assert.match(spa, /<h2 aria-live="polite">\{resultLabel\}<\/h2>/);
-  assert.match(hourly, /filtered\.length === 1 \? "מקום אחד נמצא"/);
+  assert.match(hourly, /filtered\.length === 1 \? "נמצא מקום אחד"/);
   assert.match(hourly, /<h2 aria-live="polite">\{resultLabel\}<\/h2>/);
 });
 

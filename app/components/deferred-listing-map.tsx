@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
 import type { Listing } from "../data/site-data";
 import type { DiscoveryItem } from "../data/world-data";
+import type { Trail } from "../data/trail-data";
 
 const loadingMap = () => <div className="map-deferred-loading" role="status">טוענים את המפה</div>;
 
@@ -34,4 +35,13 @@ export const DeferredDiscoveryMap = dynamic(
   onClose?: () => void;
   onVisibleCountChange?: (count: number) => void;
   onVisiblePlaceIdsChange?: (ids: string[]) => void;
+}>;
+
+export const DeferredTrailMap = dynamic(
+  () => import("./listing-map").then((module) => module.TrailMap),
+  { ssr: false, loading: loadingMap },
+) as ComponentType<{
+  trails: Trail[];
+  autoLoad?: boolean;
+  onClose?: () => void;
 }>;
