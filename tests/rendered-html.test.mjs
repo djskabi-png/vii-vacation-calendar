@@ -147,7 +147,7 @@ test("hourly search starts with location and exposes filters only with the resul
   assert.match(html, /מקומות נמצאו/);
   assert.match(html, /מחיר לשעתיים עד/);
   assert.match(html, /כניסה עצמאית/);
-  assert.match(html, /תצוגה על מפה/);
+  assert.match(html, /הצגת תוצאות על המפה/);
   assert.doesNotMatch(html, /בחרו תאריכים/);
 });
 
@@ -277,7 +277,7 @@ test("spa, hourly, event and attraction worlds expose interactive maps", async (
   ]);
   for (const response of [spaResponse, hourlyResponse, eventResponse, attractionResponse, spaDetailResponse]) assert.equal(response.status, 200);
   assert.match(await spaResponse.text(), /תצוגה על מפה/);
-  assert.match(await hourlyResponse.text(), /תצוגה על מפה/);
+  assert.match(await hourlyResponse.text(), /הצגת תוצאות על המפה/);
   assert.match(await eventResponse.text(), /תצוגה על מפה/);
   assert.match(await attractionResponse.text(), /תצוגה על מפה/);
   const detail = await spaDetailResponse.text();
@@ -311,7 +311,8 @@ test("spa, hourly, event and attraction worlds expose interactive maps", async (
   assert.match(hourlyResults, /<DeferredDiscoveryMap items=\{filtered\} tone="hourly" autoLoad onClose=/);
   assert.match(worldResults, /<DeferredDiscoveryMap items=\{items\} tone=\{world\} autoLoad onClose=/);
   assert.match(attractionResults, /<DeferredDiscoveryMap items=\{filtered\} tone="activities" autoLoad onClose=/);
-  for (const source of [hourlyResults, worldResults, attractionResults, searchResults, eventResults]) assert.match(source, /mobile-map-fab/);
+  assert.doesNotMatch(hourlyResults, /mobile-map-fab/);
+  for (const source of [worldResults, attractionResults, searchResults, eventResults]) assert.match(source, /mobile-map-fab/);
   assert.match(styles, /\.mobile-map-fab \{/);
   assert.match(styles, /bottom: calc\(18px \+ env\(safe-area-inset-bottom\)\)/);
   assert.match(styles, /min-height: 44px !important/);

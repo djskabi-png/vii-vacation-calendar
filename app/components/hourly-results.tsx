@@ -115,14 +115,17 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
   return <div className="hourly-results">
     <div className="hourly-results__toolbar" aria-label="סינון תוצאות של חדרים לפי שעה">
       <div className="hourly-results__heading">
-        <div><h2 aria-live="polite">{resultLabel}</h2><span>אפשר לדייק את הרשימה לפי אזור, מחיר ומאפייני המקום.</span></div>
-        <ResultsViewToggle value={viewMode} onChange={setViewMode} />{filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={toggleResultsMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
+        <div><h2 aria-live="polite">{resultLabel}</h2></div>
+        <div className="hourly-results__actions">
+          <ResultsViewToggle value={viewMode} onChange={setViewMode} />
+          <button type="button" className={`hourly-filter-toggle ${moreFiltersOpen ? "active" : ""}`} aria-expanded={moreFiltersOpen} aria-controls="hourly-result-filters" onClick={() => setMoreFiltersOpen((value) => !value)}>סינון{features.length ? ` (${features.length})` : ""}</button>
+          {filtered.length > 0 && <button className={`button map-button ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={toggleResultsMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
+        </div>
       </div>
-      <div className="hourly-results__filters">
+      <div id="hourly-result-filters" className={`hourly-results__filters ${moreFiltersOpen ? "open" : ""}`}>
         <ModernSelect label="עיר או אזור" value={location} onChange={changeLocation} options={locations.map((option) => ({ value: option, label: option }))} />
         <ModernSelect label="מחיר לשעתיים עד" value={String(maximumPrice)} onChange={changePrice} options={[{ value: "0", label: "ללא הגבלת מחיר" }, { value: "250", label: "עד 250 ₪ לשעתיים" }, { value: "400", label: "עד 400 ₪ לשעתיים" }, { value: "600", label: "עד 600 ₪ לשעתיים" }]} />
-        <button type="button" className="hourly-more-filters" aria-expanded={moreFiltersOpen} onClick={() => setMoreFiltersOpen((value) => !value)}>סינון נוסף{features.length ? ` (${features.length})` : ""}</button>
-        <fieldset className={moreFiltersOpen ? "open" : ""}><legend>מאפייני המקום</legend><div>{featureFilters.map((filter) => <label key={filter.id} className={features.includes(filter.id) ? "selected" : ""}><input type="checkbox" checked={features.includes(filter.id)} onChange={() => toggleFeature(filter.id)} /><span>{filter.label}</span></label>)}</div></fieldset>
+        <fieldset><legend>מאפייני המקום</legend><div>{featureFilters.map((filter) => <label key={filter.id} className={features.includes(filter.id) ? "selected" : ""}><input type="checkbox" checked={features.includes(filter.id)} onChange={() => toggleFeature(filter.id)} /><span>{filter.label}</span></label>)}</div></fieldset>
         <button type="button" className="hourly-results__reset" onClick={resetFilters} disabled={location === "כל הארץ" && maximumPrice === 0 && features.length === 0}>ניקוי סינונים</button>
       </div>
     </div>
