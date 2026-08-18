@@ -76,6 +76,98 @@
 .architectureFigure figcaption { padding: 17px 22px; color: #91aab6; border-top: 1px solid var(--line); background: rgba(5, 18, 29, .94); font-size: .82rem; line-height: 1.55; }
 .architectureTextFlow { display: none; }
 
+.interactiveArchitecture { position: relative; background: #020913; }
+.architectureConsole { min-height: 96px; display: flex; align-items: center; justify-content: space-between; gap: 22px; padding: 18px 22px; border-bottom: 1px solid rgba(102, 231, 243, .18); background: radial-gradient(circle at 18% 50%, rgba(39, 186, 216, .12), transparent 32%), rgba(3, 15, 26, .96); }
+.architectureConsole > div { display: flex; align-items: center; flex-wrap: wrap; gap: 9px 13px; }
+.architectureConsoleTitle { color: #eafdff; font-size: .74rem; font-weight: 950; letter-spacing: .16em; }
+.architectureDemoBadge { min-height: 30px; display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px; border: 1px solid rgba(102, 231, 243, .32); border-radius: 999px; color: #9cecf4; background: rgba(11, 67, 82, .35); font-size: .68rem; font-weight: 850; }
+.architectureDemoBadge i { width: 8px; height: 8px; border-radius: 50%; background: #63e8f4; box-shadow: 0 0 14px rgba(99, 232, 244, .8); }
+.architectureConsole p { flex-basis: 100%; margin: 0; color: #91aab6; font-size: .76rem; line-height: 1.55; }
+.architectureConsole > button { min-width: 132px; min-height: 44px; flex: 0 0 auto; padding: 9px 14px; border: 1px solid rgba(102, 231, 243, .32); border-radius: 13px; color: #d9fbff; background: rgba(5, 35, 49, .86); cursor: pointer; font: inherit; font-size: .75rem; font-weight: 850; transition: color .18s ease, border-color .18s ease, background .18s ease, transform .18s ease; }
+.architectureConsole > button:hover, .architectureConsole > button:focus-visible { color: #001018; border-color: #fff; background: var(--cyan); transform: translateY(-2px); }
+.architectureConsole > button:disabled { opacity: .78; cursor: default; }
+.architectureConsole > button:disabled:hover { color: #d9fbff; border-color: rgba(102, 231, 243, .32); background: rgba(5, 35, 49, .86); transform: none; }
+
+.architectureViewport { position: relative; overflow: hidden; direction: ltr; background: #020913; outline: none; scrollbar-color: rgba(102, 231, 243, .65) rgba(2, 13, 23, .8); scrollbar-width: thin; }
+.architectureViewport:focus-visible { box-shadow: inset 0 0 0 3px rgba(102, 231, 243, .78); }
+.architectureStage { aspect-ratio: 1672 / 941; width: 100%; min-width: 0; position: relative; overflow: hidden; isolation: isolate; direction: ltr; background: #020913; }
+.architectureStage picture { position: absolute; z-index: 0; inset: 0; }
+.architectureStage img { width: 100%; height: 100%; object-fit: contain; }
+.architectureScan { position: absolute; z-index: 1; inset: -30%; pointer-events: none; opacity: .32; background: linear-gradient(112deg, transparent 36%, rgba(113, 241, 255, .18) 47%, rgba(113, 241, 255, .34) 50%, rgba(113, 241, 255, .12) 53%, transparent 64%); mix-blend-mode: screen; animation: architectureScan 9s linear infinite; }
+.architectureCorePulse { width: 18%; aspect-ratio: 1; position: absolute; z-index: 2; left: 49.2%; top: 47.7%; pointer-events: none; border: 1px solid rgba(101, 236, 255, .28); border-radius: 50%; box-shadow: 0 0 26px rgba(60, 225, 255, .18), inset 0 0 26px rgba(60, 225, 255, .12); transform: translate(-50%, -50%); animation: architectureCorePulse 3.4s ease-in-out infinite; }
+.architectureFlowLayer, .architectureHotspotLayer { position: absolute; z-index: 3; inset: 0; pointer-events: none; }
+.architectureHotspotLayer { z-index: 4; }
+.architectureFlowBeam { height: 2px; position: absolute; display: block; transform: rotate(var(--beam-angle)); transform-origin: 0 50%; pointer-events: none; opacity: .27; background: linear-gradient(90deg, transparent, rgba(92, 226, 255, .8) 18%, rgba(92, 226, 255, .34) 82%, transparent); filter: drop-shadow(0 0 5px rgba(77, 224, 255, .66)); transition: height .25s ease, opacity .25s ease, filter .25s ease; }
+.architectureFlowBeam[data-active="true"] { height: 4px; opacity: .96; filter: drop-shadow(0 0 9px rgba(90, 234, 255, .96)); }
+.architectureBeamParticle, .architectureReturnParticle { width: 10px; height: 10px; position: absolute; top: 50%; left: 0; display: block; border-radius: 50%; background: #dffeff; box-shadow: 0 0 6px #fff, 0 0 16px #48ddff, 0 0 28px rgba(72, 221, 255, .72); transform: translateY(-50%); animation: architectureBeamTravel 7.4s linear infinite; animation-delay: var(--beam-delay); }
+.architectureReturnParticle { width: 8px; height: 8px; left: calc(100% - 8px); opacity: .16; background: #d9a1ff; box-shadow: 0 0 7px #fff, 0 0 18px #aa66ff; animation-name: architectureReturnTravel; animation-duration: 8.8s; }
+.architectureStage[data-scenario="availability"] .architectureReturnParticle { opacity: .95; }
+.architectureStage[data-scenario="outage"] .architectureFlowBeam[data-active="true"] { background: linear-gradient(90deg, transparent, #ffb45e 20%, #ff7e68 80%, transparent); filter: drop-shadow(0 0 10px rgba(255, 141, 84, .92)); }
+.architectureStage[data-motion="paused"] .architectureScan,
+.architectureStage[data-motion="paused"] .architectureCorePulse,
+.architectureStage[data-motion="paused"] .architectureBeamParticle,
+.architectureStage[data-motion="paused"] .architectureReturnParticle,
+.architectureStage[data-motion="paused"] .architectureHotspot[data-active="true"]::before { animation-play-state: paused; }
+
+.architectureHotspot { min-width: 44px; min-height: 44px; position: absolute; pointer-events: auto; display: block; padding: 0; border: 1px solid rgba(115, 233, 250, .13); border-radius: 12px; color: #eaffff; background: rgba(10, 65, 83, .015); cursor: pointer; font: inherit; outline: none; transition: border-color .2s ease, background .2s ease, box-shadow .2s ease, transform .2s ease; }
+.architectureHotspot::before { content: ""; width: 9px; height: 9px; position: absolute; top: 6px; right: 6px; border: 1px solid rgba(224, 253, 255, .86); border-radius: 50%; opacity: .58; background: #56e7f7; box-shadow: 0 0 9px rgba(86, 231, 247, .92), 0 0 18px rgba(86, 231, 247, .48); }
+.architectureHotspot > span { max-width: 210px; position: absolute; right: 50%; bottom: calc(100% + 7px); opacity: 0; padding: 7px 9px; border: 1px solid rgba(112, 228, 247, .5); border-radius: 9px; color: #ecfdff; background: rgba(1, 14, 24, .96); box-shadow: 0 12px 28px rgba(0, 0, 0, .42); transform: translate(50%, 6px); pointer-events: none; font-size: .64rem; font-weight: 900; letter-spacing: .05em; line-height: 1.2; white-space: nowrap; transition: opacity .16s ease, transform .16s ease; }
+.architectureHotspot:hover, .architectureHotspot:focus-visible, .architectureHotspot[data-active="true"] { z-index: 5; border-color: rgba(125, 239, 255, .94); background: rgba(36, 205, 231, .12); box-shadow: 0 0 0 2px rgba(64, 215, 238, .18), inset 0 0 24px rgba(55, 215, 239, .14), 0 0 28px rgba(55, 215, 239, .28); transform: scale(1.025); }
+.architectureHotspot:hover > span, .architectureHotspot:focus-visible > span, .architectureHotspot[data-active="true"] > span { opacity: 1; transform: translate(50%, 0); }
+.architectureHotspot[data-active="true"]::before { opacity: 1; animation: architectureHotspotPulse 1.35s ease-in-out infinite; }
+.architectureStage[data-scenario="outage"] .architectureHotspot[data-active="true"] { border-color: #ffb45e; background: rgba(255, 126, 104, .15); box-shadow: 0 0 0 2px rgba(255, 180, 94, .18), inset 0 0 24px rgba(255, 126, 104, .16), 0 0 28px rgba(255, 126, 104, .3); }
+.architectureStage[data-scenario="outage"] .architectureHotspot[data-active="true"]::before { background: #ffb45e; box-shadow: 0 0 10px #ffb45e, 0 0 22px rgba(255, 126, 104, .72); }
+.architectureMobileHint { display: none; }
+
+.architectureScenarioPanel { display: grid; grid-template-columns: minmax(250px, .8fr) minmax(360px, 1.15fr) minmax(330px, 1fr); gap: 14px; padding: 18px; border-top: 1px solid rgba(102, 231, 243, .2); background: radial-gradient(circle at 82% 20%, rgba(72, 88, 221, .13), transparent 30%), rgba(3, 15, 26, .98); }
+.architectureScenarioIntro, .architectureScenarioStatus { min-height: 174px; padding: 18px; border: 1px solid rgba(105, 219, 239, .18); border-radius: 18px; background: rgba(7, 31, 46, .7); }
+.architectureScenarioIntro > span, .architectureScenarioStatus > span { color: var(--cyan); font-size: .62rem; font-weight: 950; letter-spacing: .13em; }
+.architectureScenarioIntro h3 { margin: 18px 0 8px; color: #f1fdff; font-size: 1.15rem; line-height: 1.25; }
+.architectureScenarioIntro p, .architectureScenarioStatus p { margin: 0; color: #91aeba; font-size: .76rem; line-height: 1.6; }
+.architectureScenarioChoices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.architectureScenarioChoices button { min-height: 174px; display: grid; align-content: center; gap: 12px; padding: 14px; border: 1px solid rgba(102, 231, 243, .18); border-radius: 18px; color: #dffbff; background: rgba(7, 29, 44, .72); cursor: pointer; font: inherit; text-align: right; transition: color .18s ease, border-color .18s ease, background .18s ease, transform .18s ease; }
+.architectureScenarioChoices button > span { color: #79cfdc; font-size: .54rem; font-weight: 900; letter-spacing: .08em; }
+.architectureScenarioChoices button > b { font-size: .84rem; line-height: 1.35; }
+.architectureScenarioChoices button:hover, .architectureScenarioChoices button:focus-visible, .architectureScenarioChoices button[aria-pressed="true"] { color: #fff; border-color: rgba(102, 231, 243, .78); background: linear-gradient(145deg, rgba(13, 95, 114, .86), rgba(10, 44, 66, .92)); transform: translateY(-2px); }
+.architectureScenarioStatus { display: flex; flex-direction: column; }
+.architectureScenarioStatus > b { display: block; margin: 12px 0 7px; color: #f1fdff; font-size: 1rem; }
+.architectureScenarioStatus > div { display: flex; gap: 8px; margin-top: auto; padding-top: 13px; }
+.architectureRunButton, .architectureResetButton { min-height: 44px; padding: 8px 13px; border-radius: 12px; cursor: pointer; font: inherit; font-size: .72rem; font-weight: 900; }
+.architectureRunButton { flex: 1; border: 1px solid var(--cyan); color: #001117; background: var(--cyan); }
+.architectureResetButton { border: 1px solid rgba(121, 212, 229, .26); color: #c3eef2; background: rgba(4, 23, 35, .8); }
+.architectureRunButton:hover, .architectureRunButton:focus-visible { color: #fff; border-color: #fff; background: #0d7f95; }
+.architectureResetButton:hover, .architectureResetButton:focus-visible { border-color: var(--cyan); color: #fff; }
+.architectureResetButton:disabled { opacity: .42; cursor: not-allowed; }
+
+@keyframes architectureScan {
+  from { transform: translateX(-46%); }
+  to { transform: translateX(46%); }
+}
+
+@keyframes architectureCorePulse {
+  0%, 100% { opacity: .24; transform: translate(-50%, -50%) scale(.82); }
+  50% { opacity: .82; transform: translate(-50%, -50%) scale(1.08); }
+}
+
+@keyframes architectureBeamTravel {
+  0% { left: 0; opacity: 0; }
+  12% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { left: calc(100% - 10px); opacity: 0; }
+}
+
+@keyframes architectureReturnTravel {
+  0% { left: calc(100% - 8px); opacity: 0; }
+  12% { opacity: .95; }
+  88% { opacity: .95; }
+  100% { left: 0; opacity: 0; }
+}
+
+@keyframes architectureHotspotPulse {
+  0%, 100% { transform: scale(.82); }
+  50% { transform: scale(1.22); }
+}
+
 .hilatCaseStudy { width: min(1440px, calc(100% - 40px)); margin-inline: auto; padding-block: clamp(78px, 10vw, 145px); border-top: 1px solid var(--line); }
 .hilatCaseStudy > .sectionHeading { max-width: 980px; }
 .hilatTruthStrip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 20px; }
@@ -464,6 +556,9 @@
 .footer img { width: 108px; height: 83px; filter: none; }
 
 @media (max-width: 1050px) {
+  .architectureScenarioPanel { grid-template-columns: 1fr; }
+  .architectureScenarioIntro, .architectureScenarioStatus { min-height: 150px; }
+  .architectureScenarioChoices button { min-height: 136px; }
   .storageGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .techGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .insightGrid, .adminModuleGrid, .pipelineGrid, .openGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -505,6 +600,21 @@
   .statusLegend { width: min(100% - 28px, 1320px); align-items: flex-start; flex-direction: column; }
   .statusLegend > div { justify-content: flex-start; }
   .architectureFigure img { width: 100%; max-width: 100%; transform: none; }
+  .architectureConsole { align-items: stretch; flex-direction: column; gap: 14px; padding: 16px; }
+  .architectureConsole > button { width: 100%; }
+  .architectureViewport { overflow-x: auto; overflow-y: hidden; overscroll-behavior-inline: contain; -webkit-overflow-scrolling: touch; }
+  .architectureStage { width: 980px; min-width: 980px; }
+  .architectureHotspot { min-width: 44px; min-height: 44px; }
+  .architectureHotspot > span { display: none; }
+  .architectureMobileHint { display: block; margin: 0; padding: 11px 15px; border-top: 1px solid rgba(102, 231, 243, .16); color: #9bc4ce; background: rgba(3, 18, 29, .96); font-size: .72rem; line-height: 1.5; text-align: center; }
+  .architectureScenarioPanel { padding: 12px; }
+  .architectureScenarioIntro, .architectureScenarioStatus { min-height: 0; padding: 16px; }
+  .architectureScenarioChoices { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .architectureScenarioChoices button { min-height: 116px; padding: 10px; }
+  .architectureScenarioChoices button > span { font-size: .48rem; line-height: 1.35; }
+  .architectureScenarioChoices button > b { font-size: .75rem; }
+  .architectureScenarioStatus > div { flex-wrap: wrap; }
+  .architectureRunButton { flex-basis: 100%; }
   .architectureTextFlow { display: grid; gap: 7px; padding: 14px; border-top: 1px solid var(--line); background: rgba(4, 17, 28, .92); }
   .architectureTextFlow > span { min-height: 76px; display: grid; align-content: center; gap: 3px; padding: 12px; border: 1px solid rgba(102, 231, 243, .18); border-radius: 12px; background: rgba(10, 39, 54, .68); }
   .architectureTextFlow b { color: #eefcff; }
@@ -562,4 +672,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   .page *, .page *::before, .page *::after { scroll-behavior: auto !important; transition-duration: .001ms !important; animation-duration: .001ms !important; animation-iteration-count: 1 !important; }
+  .architectureScan, .architectureBeamParticle, .architectureReturnParticle { display: none; }
 }

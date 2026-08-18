@@ -118,3 +118,29 @@ test("Hilat Hanof visual uses source-backed local media and a responsive mobile 
   assert.match(css, /@media \(max-width: 760px\)[\s\S]*?\.hilatComponentGrid \{ grid-template-columns: 1fr; \}/s);
   assert.match(css, /\.hilatLiveLink \{[^}]*min-height: 46px;/s);
 });
+
+test("architecture artwork is a real interactive system simulator", async () => {
+  const source = await readFile(sourceUrl, "utf8");
+  const css = await readFile(cssUrl, "utf8");
+  const hotspotBlock = source.match(/const architectureHotspots:[\s\S]*?const architectureBeams/);
+  assert.ok(hotspotBlock, "interactive hotspot map should exist");
+  assert.ok((hotspotBlock[0].match(/target: \{ type:/g) ?? []).length >= 28, "the complete architecture should be clickable");
+
+  for (const required of [
+    "VII INTERACTIVE SYSTEM",
+    "הדמיית ארכיטקטורה",
+    "עדכון תמונה",
+    "בדיקת זמינות",
+    "ספק לא מגיב",
+    "זהו אבטיפוס לחיץ של המערכת שנבנה, לא נתוני ייצור חיים",
+    "aria-label={`פתיחת הסבר על ${hotspot.label}`}",
+    "window.matchMedia(\"(prefers-reduced-motion: reduce)\")",
+    "orientationchange",
+  ]) assert.match(source, new RegExp(required.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+
+  assert.match(css, /\.architectureHotspot \{[^}]*min-width: 44px;[^}]*min-height: 44px;/s);
+  assert.match(css, /\.architectureFlowBeam\[data-active="true"\]/);
+  assert.match(css, /@media \(max-width: 760px\)[\s\S]*?\.architectureStage \{ width: 980px; min-width: 980px; \}/s);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.architectureScan, \.architectureBeamParticle, \.architectureReturnParticle \{ display: none; \}/s);
+  assert.match(source, /function selectHotspot[\s\S]*?setSimulationStep\(-1\);[\s\S]*?const allNodes/s, "manual exploration should leave the running scenario state");
+});

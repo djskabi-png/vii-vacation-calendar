@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { type CSSProperties, useEffect, useRef, useState } from "react";
 import styles from "./platform.module.css";
 
 /* eslint-disable @next/next/no-img-element */
@@ -44,6 +44,30 @@ type InsightCard = {
   status: string;
   bullets: string[];
   technical?: string;
+};
+
+type ArchitectureTarget =
+  | { type: "node"; id: string }
+  | { type: "tech"; id: string }
+  | { type: "insight"; id: string };
+
+type ArchitectureHotspot = {
+  id: string;
+  label: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  target: ArchitectureTarget;
+  direction?: "ltr" | "rtl";
+};
+
+type ArchitectureScenarioId = "sync" | "availability" | "outage";
+
+type ArchitectureScenarioStep = {
+  hotspotId: string;
+  title: string;
+  detail: string;
 };
 
 const decisionLabels: Record<DecisionStatus, string> = {
@@ -333,6 +357,98 @@ const openDecisionGroups = [
   { title: "שרידות ופרטיות", items: "יעדי זמן ואובדן מידע, אזור משני, מועד מסד גלובלי, שמירת נתונים ודרישות בכל מדינת יעד." },
 ];
 
+const ARCHITECTURE_WIDTH = 1672;
+const ARCHITECTURE_HEIGHT = 941;
+const architecturePercent = (value: number, total: number) => `${((value / total) * 100).toFixed(4)}%`;
+const architectureAngle = (deltaY: number, deltaX: number) => `${(Math.atan2(deltaY, deltaX) * (180 / Math.PI)).toFixed(4)}deg`;
+
+const architectureHotspots: ArchitectureHotspot[] = [
+  { id: "sergey", label: "SERGEY API", x: 108, y: 24, width: 205, height: 126, target: { type: "node", id: "sergey" } },
+  { id: "spaplus", label: "SPA PLUS API", x: 435, y: 22, width: 205, height: 128, target: { type: "node", id: "spaplus" } },
+  { id: "attractions-api", label: "ATTRACTIONS API", x: 980, y: 22, width: 214, height: 128, target: { type: "node", id: "attractions-api" } },
+  { id: "future", label: "FUTURE APIs", x: 1327, y: 24, width: 206, height: 126, target: { type: "node", id: "future" } },
+  { id: "vii-core", label: "VII CORE", x: 735, y: 184, width: 193, height: 108, target: { type: "insight", id: "decision-owner" } },
+  { id: "edge", label: "EDGE + CDN", x: 450, y: 282, width: 109, height: 91, target: { type: "node", id: "edge" } },
+  { id: "typescript", label: "TYPESCRIPT", x: 559, y: 282, width: 109, height: 91, target: { type: "tech", id: "typescript" } },
+  { id: "gateway", label: "API GATEWAY", x: 669, y: 282, width: 117, height: 91, target: { type: "node", id: "gateway" } },
+  { id: "database", label: "AURORA DB", x: 790, y: 282, width: 118, height: 91, target: { type: "node", id: "database" } },
+  { id: "cache", label: "SMART CACHE", x: 910, y: 282, width: 108, height: 91, target: { type: "node", id: "cache" } },
+  { id: "search", label: "SEARCH", x: 1021, y: 282, width: 118, height: 91, target: { type: "node", id: "search" } },
+  { id: "canonical", label: "CANONICAL DATA HUB", x: 669, y: 383, width: 307, height: 131, target: { type: "insight", id: "infra-data-layers" } },
+  { id: "cms", label: "CMS + ADMIN", x: 389, y: 377, width: 139, height: 80, target: { type: "node", id: "cms" } },
+  { id: "media", label: "MEDIA PIPELINE", x: 389, y: 457, width: 139, height: 84, target: { type: "node", id: "media" } },
+  { id: "queues", label: "QUEUES + WORKERS", x: 1078, y: 377, width: 142, height: 80, target: { type: "node", id: "queues" } },
+  { id: "security", label: "SECURITY", x: 1078, y: 457, width: 142, height: 84, target: { type: "node", id: "security" } },
+  { id: "analytics", label: "EVENT STREAM", x: 494, y: 509, width: 139, height: 89, target: { type: "node", id: "analytics" } },
+  { id: "replicas", label: "REDUNDANT REPLICAS", x: 632, y: 508, width: 300, height: 99, target: { type: "insight", id: "decision-topology" } },
+  { id: "seo", label: "SEO + REDIRECTS", x: 973, y: 509, width: 142, height: 89, target: { type: "node", id: "seo" } },
+  { id: "monitoring", label: "MONITORING + OBSERVABILITY", x: 478, y: 610, width: 443, height: 46, target: { type: "insight", id: "monitor-release" } },
+  { id: "security-layer", label: "SECURITY LAYER", x: 918, y: 610, width: 236, height: 46, target: { type: "node", id: "security" } },
+  { id: "suppliers", label: "SUPPLIERS", x: 563, y: 666, width: 126, height: 101, target: { type: "node", id: "suppliers" } },
+  { id: "trips", label: "TRIPS", x: 686, y: 666, width: 122, height: 101, target: { type: "node", id: "trips" } },
+  { id: "magazine", label: "MAGAZINE", x: 806, y: 666, width: 129, height: 101, target: { type: "node", id: "magazine" } },
+  { id: "content", label: "CONTENT", x: 928, y: 666, width: 130, height: 101, target: { type: "node", id: "shared-surfaces" } },
+  { id: "web", label: "FAST WEB", x: 377, y: 792, width: 177, height: 118, target: { type: "node", id: "web" } },
+  { id: "ios", label: "iOS APP", x: 748, y: 792, width: 177, height: 118, target: { type: "node", id: "ios" } },
+  { id: "android", label: "ANDROID APP", x: 1107, y: 792, width: 177, height: 118, target: { type: "node", id: "android" } },
+  { id: "legend", label: "LEGEND", x: 14, y: 483, width: 196, height: 387, target: { type: "insight", id: "decision-current" } },
+  { id: "vii-owns", label: "VII OWNS", x: 1407, y: 482, width: 252, height: 370, target: { type: "insight", id: "decision-owner" } },
+];
+
+const architectureBeams = [
+  { id: "sergey-hub", from: [207, 180], to: [818, 448], delay: "-1.4s", returnable: true, nodes: ["sergey", "typescript", "gateway", "canonical"] },
+  { id: "spa-hub", from: [538, 160], to: [818, 448], delay: "-3.1s", returnable: true, nodes: ["spaplus", "gateway", "canonical"] },
+  { id: "attractions-hub", from: [1088, 160], to: [844, 448], delay: "-4.6s", returnable: true, nodes: ["attractions-api", "gateway", "canonical"] },
+  { id: "future-hub", from: [1430, 180], to: [844, 448], delay: "-6.2s", returnable: true, nodes: ["future", "gateway", "canonical"] },
+  { id: "hub-web", from: [810, 506], to: [467, 830], delay: "-2.3s", returnable: false, nodes: ["canonical", "media", "search", "web"] },
+  { id: "hub-ios", from: [824, 506], to: [838, 830], delay: "-4.2s", returnable: false, nodes: ["canonical", "ios"] },
+  { id: "hub-android", from: [838, 506], to: [1195, 830], delay: "-5.4s", returnable: false, nodes: ["canonical", "android"] },
+];
+
+const architectureScenarios: Record<ArchitectureScenarioId, { label: string; eyebrow: string; description: string; complete: string; steps: ArchitectureScenarioStep[] }> = {
+  sync: {
+    label: "עדכון תמונה",
+    eyebrow: "SUPPLIER UPDATE",
+    description: "הדמיה של שינוי תמונה אצל סרגיי עד לרענון הדף באתר.",
+    complete: "ההדמיה הסתיימה. במערכת האמיתית נדרש חיבור ספק פעיל, מאומת ומנוטר.",
+    steps: [
+      { hotspotId: "sergey", title: "הספק מדווח על שינוי", detail: "מטען הדגמה התקבל מסרגיי. הוא עדיין לא נחשב מידע תקין או מאושר לפרסום." },
+      { hotspotId: "typescript", title: "מתאם הספק מתרגם את המבנה", detail: "המזהים, זכויות המדיה, סדר התמונות וגרסת המקור ממופים לחוזה האחיד של VII." },
+      { hotspotId: "gateway", title: "שער הכניסה מאמת ומגביל", detail: "חתימה, גרסת סכימה, גודל קובץ והרשאת הספק נבדקים לפני המשך התהליך." },
+      { hotspotId: "canonical", title: "המודל הקנוני מתעדכן", detail: "המקור הגולמי נשמר, השדה המשותף מתעדכן ושכבת העריכה של VII נשארת מוגנת." },
+      { hotspotId: "media", title: "המדיה עוברת עיבוד בטוח", detail: "בדיקת קובץ, גיבוב, גדלים מותאמים, פורמטים מהירים ותיעוד זכויות." },
+      { hotspotId: "search", title: "החיפוש והמטמון מתרעננים", detail: "האינדקס מקבל את הגרסה החדשה ורק המפתחות שנפגעו מפונים מהמטמון." },
+      { hotspotId: "web", title: "העמוד החדש מוגש לגולש", detail: "האתר נשאר מהיר ומציג את הגרסה שאושרה, בלי להמתין בכל צפייה לספק החיצוני." },
+    ],
+  },
+  availability: {
+    label: "בדיקת זמינות",
+    eyebrow: "FRESH AVAILABILITY",
+    description: "הדמיה של בדיקה טרייה שאינה הופכת מטמון לאישור הזמנה.",
+    complete: "ההדמיה הסתיימה. אישור סופי יתקבל רק מתשובה טרייה ומחוזה ספק שנבדק מקצה לקצה.",
+    steps: [
+      { hotspotId: "web", title: "הגולש בוחר תאריכים", detail: "האתר שולח מזהה מקום, יחידה, תאריכים והרכב אורחים, בלי מידע עודף." },
+      { hotspotId: "gateway", title: "הבקשה עוברת במסלול טרי", detail: "המערכת מאמתת הרשאה, מאחדת בקשות זהות לזמן קצר ומונעת הצפה." },
+      { hotspotId: "sergey", title: "סרגיי נשאל על הזמינות", detail: "ההדמיה מחכה לתשובה טרייה. נתון ישן יכול לסייע לגילוי, אך אינו מאשר הזמנה." },
+      { hotspotId: "gateway", title: "המחיר והתנאים נבדקים", detail: "המטבע, העמלות, מגבלת הלילות ותוקף ההצעה עוברים אימות חוזה." },
+      { hotspotId: "web", title: "מוצגת תשובה מפורשת", detail: "זמין, לא זמין או לא ניתן לאישור. המערכת לעולם אינה ממציאה הצלחה." },
+    ],
+  },
+  outage: {
+    label: "ספק לא מגיב",
+    eyebrow: "SAFE FAILURE",
+    description: "הדמיה של תקלה אצל ספק בלי להפיל את הקטלוג ואת שאר העולמות.",
+    complete: "ההדמיה הסתיימה. הקטלוג נשאר זמין לפי מדיניות, אך זמינות והזמנה אינן מאושרות בלי הספק.",
+    steps: [
+      { hotspotId: "sergey", title: "הספק חורג מזמן התגובה", detail: "הבקשה נעצרת בזמן קצוב ואינה משאירה את הגולש מול מסך ממתין ללא סוף." },
+      { hotspotId: "security", title: "הניטור מזהה ומקבץ", detail: "הכשל מקושר לעולם, לספק ולגרסה ונשלחת התראה אחת שימושית במקום סערת הודעות." },
+      { hotspotId: "queues", title: "פעולות כתיבה נשמרות בבטחה", detail: "פעולה מורשית מקבלת מזהה קבוע ותור כשל. אין ניסיון עיוור שעלול ליצור כפילות." },
+      { hotspotId: "canonical", title: "הקטלוג המקומי נשאר פעיל", detail: "השם, התמונות והתוכן המאושרים מוגשים מהמקור המקומי בלי לפגוע בעולמות אחרים." },
+      { hotspotId: "web", title: "האתר מסביר מה אפשר לעשות", detail: "הקטלוג זמין, אך זמינות חדשה מסומנת כלא ניתנת לאישור ומוצע מסלול בטוח להמשך." },
+    ],
+  },
+};
+
 function NodeButton({ node, selected, onSelect }: { node: PlatformNode; selected: boolean; onSelect: (node: PlatformNode) => void }) {
   return (
     <button
@@ -369,6 +485,234 @@ function InsightButton({ item, onSelect }: { item: InsightCard; onSelect: (item:
       <p>{item.summary}</p>
       <i aria-hidden="true">פתחו הסבר ודוגמה טכנית ←</i>
     </button>
+  );
+}
+
+function InteractiveArchitecture({
+  onSelectNode,
+  onSelectTech,
+  onSelectInsight,
+}: {
+  onSelectNode: (node: PlatformNode) => void;
+  onSelectTech: (tech: TechChoice) => void;
+  onSelectInsight: (item: InsightCard) => void;
+}) {
+  const [selectedHotspotId, setSelectedHotspotId] = useState("canonical");
+  const [simulationMode, setSimulationMode] = useState<ArchitectureScenarioId>("sync");
+  const [simulationStep, setSimulationStep] = useState(-1);
+  const [simulationRunning, setSimulationRunning] = useState(false);
+  const [simulationComplete, setSimulationComplete] = useState(false);
+  const [motionPaused, setMotionPaused] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const scenario = architectureScenarios[simulationMode];
+  const activeStep = simulationStep >= 0 ? scenario.steps[simulationStep] : null;
+  const activeHotspotId = activeStep?.hotspotId ?? selectedHotspotId;
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updateMotionPreference = () => setPrefersReducedMotion(mediaQuery.matches);
+    updateMotionPreference();
+    mediaQuery.addEventListener("change", updateMotionPreference);
+    return () => mediaQuery.removeEventListener("change", updateMotionPreference);
+  }, []);
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    const mobileQuery = window.matchMedia("(max-width: 760px)");
+    let frame = 0;
+    const alignViewport = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        viewport.scrollLeft = mobileQuery.matches ? Math.max(0, (viewport.scrollWidth - viewport.clientWidth) / 2) : 0;
+      });
+    };
+    alignViewport();
+    mobileQuery.addEventListener("change", alignViewport);
+    window.addEventListener("orientationchange", alignViewport);
+    return () => {
+      cancelAnimationFrame(frame);
+      mobileQuery.removeEventListener("change", alignViewport);
+      window.removeEventListener("orientationchange", alignViewport);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!simulationRunning || simulationStep < 0) return;
+    const timer = window.setTimeout(() => {
+      if (simulationStep >= scenario.steps.length - 1) {
+        setSimulationRunning(false);
+        setSimulationComplete(true);
+        return;
+      }
+      setSimulationStep((step) => step + 1);
+    }, prefersReducedMotion ? 850 : 1350);
+    return () => window.clearTimeout(timer);
+  }, [prefersReducedMotion, scenario.steps.length, simulationRunning, simulationStep]);
+
+  function chooseScenario(nextMode: ArchitectureScenarioId) {
+    setSimulationMode(nextMode);
+    setSimulationStep(-1);
+    setSimulationRunning(false);
+    setSimulationComplete(false);
+    setSelectedHotspotId(architectureScenarios[nextMode].steps[0].hotspotId);
+  }
+
+  function toggleSimulation() {
+    if (simulationRunning) {
+      setSimulationRunning(false);
+      return;
+    }
+    if (simulationStep < 0 || simulationComplete) {
+      setSimulationStep(0);
+      setSimulationComplete(false);
+    }
+    setSimulationRunning(true);
+  }
+
+  function resetSimulation() {
+    setSimulationStep(-1);
+    setSimulationRunning(false);
+    setSimulationComplete(false);
+    setSelectedHotspotId(scenario.steps[0].hotspotId);
+  }
+
+  function selectHotspot(hotspot: ArchitectureHotspot) {
+    setSelectedHotspotId(hotspot.id);
+    setSimulationRunning(false);
+    setSimulationStep(-1);
+    setSimulationComplete(false);
+    const allNodes = [...worlds, ...providers, ...core, ...outputs];
+    const allInsights = [...decisionSnapshot, ...infrastructureInsights, ...monitoringInsights, ...failureInsights, ...hilatInsights];
+    if (hotspot.target.type === "node") {
+      const node = allNodes.find((item) => item.id === hotspot.target.id);
+      if (node) onSelectNode(node);
+      return;
+    }
+    if (hotspot.target.type === "tech") {
+      const tech = techStack.find((item) => item.id === hotspot.target.id);
+      if (tech) onSelectTech(tech);
+      return;
+    }
+    const insight = allInsights.find((item) => item.id === hotspot.target.id);
+    if (insight) onSelectInsight(insight);
+  }
+
+  const currentStatusTitle = activeStep?.title ?? (simulationComplete ? "התרחיש הסתיים" : "המערכת מוכנה להדגמה");
+  const currentStatusDetail = activeStep?.detail ?? (simulationComplete ? scenario.complete : scenario.description);
+  const simulationButtonLabel = simulationRunning
+    ? "עצירת התרחיש"
+    : simulationComplete
+      ? "הרצה מחדש"
+      : simulationStep >= 0
+        ? "המשך התרחיש"
+        : "הפעלת התרחיש";
+
+  return (
+    <div className={styles.interactiveArchitecture}>
+      <div className={styles.architectureConsole}>
+        <div>
+          <span className={styles.architectureConsoleTitle} dir="ltr">VII INTERACTIVE SYSTEM</span>
+          <span className={styles.architectureDemoBadge}><i aria-hidden="true" />הדמיית ארכיטקטורה</span>
+          <p>זהו אבטיפוס לחיץ של המערכת שנבנה, לא נתוני ייצור חיים ולא הוכחה שחיבור ספק כבר פעיל.</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setMotionPaused((paused) => !paused)}
+          aria-pressed={motionPaused || prefersReducedMotion}
+          disabled={prefersReducedMotion}
+        >
+          {prefersReducedMotion ? "התנועה מושהית לפי הגדרות המכשיר" : motionPaused ? "הפעלת התנועה" : "עצירת התנועה"}
+        </button>
+      </div>
+
+      <div ref={viewportRef} className={styles.architectureViewport} tabIndex={0} aria-label="תרשים ארכיטקטורה אינטראקטיבי. בנייד אפשר להחליק לצדדים וללחוץ על כל אזור זוהר.">
+        <div
+          className={styles.architectureStage}
+          data-motion={motionPaused || prefersReducedMotion ? "paused" : "running"}
+          data-scenario={simulationStep >= 0 ? simulationMode : "idle"}
+        >
+          <picture>
+            <source srcSet="/platform-architecture-overview.avif" type="image/avif" />
+            <source srcSet="/platform-architecture-overview.webp" type="image/webp" />
+            <img src="/platform-architecture-overview.png" alt="המחשה של ארכיטקטורת היעד של VII, מידע מלא נכנס מספקים ולפי החוזה הזמנות וחוות דעת חוזרות לספק המתאים" width="1672" height="941" loading="lazy" decoding="async" />
+          </picture>
+          <span className={styles.architectureScan} aria-hidden="true" />
+          <span className={styles.architectureCorePulse} aria-hidden="true" />
+          <div className={styles.architectureFlowLayer} aria-hidden="true">
+            {architectureBeams.map((beam) => {
+              const deltaX = beam.to[0] - beam.from[0];
+              const deltaY = beam.to[1] - beam.from[1];
+              const beamStyle = {
+                left: architecturePercent(beam.from[0], ARCHITECTURE_WIDTH),
+                top: architecturePercent(beam.from[1], ARCHITECTURE_HEIGHT),
+                width: architecturePercent(Math.hypot(deltaX, deltaY), ARCHITECTURE_WIDTH),
+                "--beam-angle": architectureAngle(deltaY, deltaX),
+                "--beam-delay": beam.delay,
+              } as CSSProperties;
+              return (
+                <span key={beam.id} className={styles.architectureFlowBeam} style={beamStyle} data-active={beam.nodes.includes(activeHotspotId) ? "true" : "false"}>
+                  <span className={styles.architectureBeamParticle} />
+                  {beam.returnable && <span className={styles.architectureReturnParticle} />}
+                </span>
+              );
+            })}
+          </div>
+          <div className={styles.architectureHotspotLayer}>
+            {architectureHotspots.map((hotspot) => {
+              const hotspotStyle = {
+                left: architecturePercent(hotspot.x, ARCHITECTURE_WIDTH),
+                top: architecturePercent(hotspot.y, ARCHITECTURE_HEIGHT),
+                width: architecturePercent(hotspot.width, ARCHITECTURE_WIDTH),
+                height: architecturePercent(hotspot.height, ARCHITECTURE_HEIGHT),
+              } as CSSProperties;
+              return (
+                <button
+                  key={hotspot.id}
+                  type="button"
+                  className={styles.architectureHotspot}
+                  style={hotspotStyle}
+                  data-active={activeHotspotId === hotspot.id ? "true" : "false"}
+                  onClick={() => selectHotspot(hotspot)}
+                  aria-label={`פתיחת הסבר על ${hotspot.label}`}
+                  aria-haspopup="dialog"
+                  aria-controls="platform-detail-dialog"
+                >
+                  <span dir={hotspot.direction ?? "ltr"}>{hotspot.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+      <p className={styles.architectureMobileHint}>החליקו לצדדים על התרשים, ואז לחצו על אזור זוהר לקבלת הסבר.</p>
+
+      <div className={styles.architectureScenarioPanel}>
+        <div className={styles.architectureScenarioIntro}>
+          <span dir="ltr">LIVE FLOW LAB</span>
+          <h3>הפעילו תרחיש וראו את המערכת חושבת</h3>
+          <p>כל שלב מדגיש את האזור הרלוונטי ומסביר מה אמור לקרות בליבה האמיתית.</p>
+        </div>
+        <div className={styles.architectureScenarioChoices} role="group" aria-label="בחירת תרחיש הדמיה">
+          {(Object.entries(architectureScenarios) as [ArchitectureScenarioId, typeof architectureScenarios[ArchitectureScenarioId]][]).map(([id, item]) => (
+            <button key={id} type="button" onClick={() => chooseScenario(id)} aria-pressed={simulationMode === id}>
+              <span dir="ltr">{item.eyebrow}</span>
+              <b>{item.label}</b>
+            </button>
+          ))}
+        </div>
+        <div className={styles.architectureScenarioStatus} aria-live="polite" aria-atomic="true">
+          <span>{simulationStep >= 0 ? `שלב ${simulationStep + 1} מתוך ${scenario.steps.length}` : "מוכן"}</span>
+          <b>{currentStatusTitle}</b>
+          <p>{currentStatusDetail}</p>
+          <div>
+            <button type="button" className={styles.architectureRunButton} onClick={toggleSimulation}>{simulationButtonLabel}</button>
+            <button type="button" className={styles.architectureResetButton} onClick={resetSimulation} disabled={simulationStep < 0 && !simulationComplete}>איפוס</button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -506,11 +850,7 @@ export function PlatformExplorer() {
           <p>המידע נכנס מהספקים ונשמר אצל VII. זמינות נבדקת בזמן אמת, והזמנות וחוות דעת חוזרות לספק הנכון דרך מנגנון כתיבה בטוח.</p>
         </div>
         <figure className={styles.architectureFigure}>
-          <picture>
-            <source srcSet="/platform-architecture-overview.avif" type="image/avif" />
-            <source srcSet="/platform-architecture-overview.webp" type="image/webp" />
-            <img src="/platform-architecture-overview.png" alt="המחשה של ארכיטקטורת היעד של VII, מידע מלא נכנס מספקים ולפי החוזה הזמנות וחוות דעת חוזרות לספק המתאים" width="1672" height="941" loading="lazy" decoding="async" />
-          </picture>
+          <InteractiveArchitecture onSelectNode={selectNode} onSelectTech={selectTech} onSelectInsight={selectInsight} />
           <div className={styles.architectureTextFlow} aria-label="חלופה טקסטואלית מקוצרת לתרשים">
             <span><b>ספקים</b><small>סרגיי · ספא פלוס · אטרקציות בעתיד</small></span>
             <i aria-hidden="true">↓</i>
@@ -518,7 +858,7 @@ export function PlatformExplorer() {
             <i aria-hidden="true">↓</i>
             <span><b>מוצרי VII</b><small>אתר מהיר · ניהול · אפליקציות בעתיד</small></span>
           </div>
-          <figcaption>המחשת ארכיטקטורת יעד כללית. המפה הלחיצה שבהמשך היא הרשימה המלאה והעדכנית של שמונת העולמות. זהו תרשים תכנוני, לא צילום של תשתית פעילה ולא אישור שחיבורי הספקים כבר עלו לאוויר.</figcaption>
+          <figcaption>המחשת ארכיטקטורת יעד אינטראקטיבית. לחצו על כל אזור או הפעילו תרחיש כדי להבין את הזרימה. המפה הלחיצה שבהמשך היא הרשימה המלאה והעדכנית של שמונת העולמות. זהו תרשים תכנוני, לא צילום של תשתית פעילה ולא אישור שחיבורי הספקים כבר עלו לאוויר.</figcaption>
         </figure>
       </section>
 
