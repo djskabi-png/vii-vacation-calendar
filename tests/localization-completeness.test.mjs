@@ -6,6 +6,7 @@ import ts from "typescript";
 
 const root = resolve(import.meta.dirname, "..");
 const hebrew = /[\u0590-\u05ff]/;
+const sourceScanExcludedDirectories = new Set(["i18n", "platform"]);
 
 function addPhrase(phrases, value) {
   const normalized = value.replace(/\s+/g, " ").trim();
@@ -16,7 +17,8 @@ async function collectSourcePhrases(directory, phrases) {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
     const path = resolve(directory, entry.name);
     if (entry.isDirectory()) {
-      if (entry.name !== "i18n") await collectSourcePhrases(path, phrases);
+      // /platform is a noindex Hebrew stakeholder document, not a localized public-product route.
+      if (!sourceScanExcludedDirectories.has(entry.name)) await collectSourcePhrases(path, phrases);
       continue;
     }
     if (!/\.(?:ts|tsx)$/.test(entry.name) || entry.name === "legacy-vacation-profiles.ts") continue;
