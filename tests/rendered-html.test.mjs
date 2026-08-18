@@ -510,12 +510,13 @@ test("lead proxy handles bot submissions locally without contacting the lead sys
 });
 
 test("keeps calendar contexts, real listing ids and maps", async () => {
-  const [calendar, searchBox, business, detailDock, sleeping, search, eventsPage, eventSearch, eventPlace, data, worldData, worldSwitcher, map, homeShowcase, magazineData, magazinePage, articlePage, styles] = await Promise.all([
+  const [calendar, searchBox, business, detailDock, sleeping, unitDetails, search, eventsPage, eventSearch, eventPlace, data, worldData, worldSwitcher, map, homeShowcase, magazineData, magazinePage, articlePage, styles] = await Promise.all([
     readFile(new URL("../app/calendar-demo.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/detail-sticky-dock.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/sleeping-arrangements.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/unit-details-dialog.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/search/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/events/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/events/search/page.tsx", import.meta.url), "utf8"),
@@ -550,9 +551,12 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(business, /סוויטות ויחידות/);
   assert.match(business, /property\.sleepingArrangements/);
   assert.doesNotMatch(business, /property\.roomOptions\?\.length && !property\.sleepingArrangements/);
-  assert.match(business, /room-card__sleeping/);
+  assert.match(business, /room-card__facts/);
+  assert.match(business, /className="room-card__more"/);
+  assert.match(business, />פרטי היחידה<\/button>/);
   assert.match(business, /<SleepingArrangements/);
-  assert.match(business, /לצפייה בפירוט החדרים, המיטות והתמונות/);
+  assert.match(unitDetails, /לכל תמונות היחידה/);
+  assert.match(unitDetails, /עד \{room\.guests\} אורחים/);
   assert.doesNotMatch(business, /www\.vii\.co\.il/);
   assert.doesNotMatch(eventPlace, /www\.vii\.co\.il/);
   assert.doesNotMatch(business, /לכל פרטי המקום|לצפייה בעמוד המקור/);

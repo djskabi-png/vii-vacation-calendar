@@ -34,5 +34,8 @@ test("mobile amenities stay short until the visitor expands them", () => {
 
 test("single-property room section no longer uses the redundant heading", () => {
   assert.doesNotMatch(business, /"המקום שמזמינים"/);
-  assert.match(business, /property\.scenario === "single" \? "פרטי המקום"/);
+  assert.doesNotMatch(business, /property\.scenario === "single" \? "פרטי המקום"/);
+  assert.doesNotMatch(business, /property\.scenario === "single" \? "מקום אירוח שלם"/);
+  assert.match(business, /property\.scenario === "multi" \? <div className="units-heading units-heading--overview">/);
+  assert.match(business, /<h2>הסוויטות והיחידות<\/h2>/);
 });

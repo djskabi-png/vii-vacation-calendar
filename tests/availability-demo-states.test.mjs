@@ -29,7 +29,8 @@ test("verified legacy inventory is selected by place, dates and guests", () => {
     assert.match(sources, new RegExp(`"${slug}"[\\s\\S]*siteId: "${siteId}"`));
   }
   assert.match(route, /const guests = Math\.max\(1, Number\(url\.searchParams\.get\("guests"\)/);
-  assert.match(route, /guests <= room\.maxGuests/);
+  assert.match(route, /recommendVacationUnits\(unitQuotes, guests\)/);
+  assert.match(route, /availability: recommendation \? "available" : "unavailable"/);
   assert.match(route, /maxGuests: roomMatches\[index\]\.maxGuests/);
   assert.match(route, /Cache-Control": "public, max-age=60, s-maxage=60"/);
   assert.match(hook, /guests: String\(guests\)/);

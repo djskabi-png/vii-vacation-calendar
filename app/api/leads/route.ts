@@ -33,7 +33,8 @@ export async function POST(request: Request) {
     isWhatsAppEnquiry &&
     (!payload.placeId ||
       !payload.placeName ||
-      !/^\d{4}-\d{2}-\d{2}$/.test(String(payload.requestedDate || "")))
+      !/^\d{4}-\d{2}-\d{2}$/.test(String(payload.requestedDate || "")) ||
+      (payload.requestedTill && !/^\d{4}-\d{2}-\d{2}$/.test(String(payload.requestedTill))))
   ) {
     return json({ success: false, error: "missing_whatsapp_enquiry_context" }, 400);
   }

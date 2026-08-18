@@ -48,6 +48,20 @@ export type ResolvedAvailability = ListingDateQuote & {
     nightlyPrice?: number;
     maxGuests?: number;
   }>;
+  recommendation?: {
+    guests: number;
+    unitCount: number;
+    totalCapacity: number;
+    totalPrice?: number;
+    nightlyPrice?: number;
+    items: Array<{
+      index: number;
+      quantity: number;
+      maxGuests: number;
+      totalPrice?: number;
+      nightlyPrice?: number;
+    }>;
+  } | null;
 };
 
 const demoScenarioCopy: Record<SiteLanguage, { label: string; alternatives: string; alternativePrice: string }> = {
@@ -155,6 +169,7 @@ function quoteForStay(property: Property, selectedStay: SelectedStay | null): Li
     const weekend = arrival.getUTCDay() === 4 || arrival.getUTCDay() === 5;
     return {
       ...selectedStay,
+      illustrative: true,
       availability: available ? "available" : "unavailable",
       nightlyPrice: weekend ? property.demoOperations.weekendNightlyPrice : property.demoOperations.weekdayNightlyPrice,
       includedGuests: property.guests,

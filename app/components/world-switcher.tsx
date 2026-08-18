@@ -22,6 +22,7 @@ export function WorldSwitcher({ active = "vacation" }: { active?: WorldId }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const { language, translate } = useSiteLanguage();
 
   useEffect(() => {
     if (!open) return;
@@ -43,17 +44,18 @@ export function WorldSwitcher({ active = "vacation" }: { active?: WorldId }) {
 
   return (
     <div ref={rootRef} className={`world-dock ${open ? "open" : ""}`}>
-      {open && <nav className="world-dock__panel" aria-label="מעבר בין עולמות">
-        <header><span>כל מה שכיף לעשות</span><strong>לאיזה עולם עוברים?</strong></header>
-        {publicWorldNavigation.map((world) => <Link key={world.id} className={world.id === active ? "active" : ""} href={world.href} onClick={() => setOpen(false)}><span className={`world-mark world-mark--${world.id}`} aria-hidden="true" /><span><b>{world.label}</b><small>{world.description}</small></span></Link>)}
+      {open && <nav className="world-dock__panel" aria-label={translate("חיפוש ומעבר בין עולמות")}>
+        <header><span>{translate("כל מה שכיף לעשות")}</span><strong>{translate("מה תרצו לחפש?")}</strong></header>
+        <Link className="world-dock__global-search" href={localizedPath("/search", language)} onClick={() => setOpen(false)}><WorldSearchIcon /><span><b>{translate("חיפוש כללי")}</b><small>{translate("חפשו מקום, עסק או יעד בכל האתר")}</small></span></Link>
+        {publicWorldNavigation.map((world) => <Link key={world.id} className={world.id === active ? "active" : ""} href={localizedPath(world.href, language)} onClick={() => setOpen(false)}><span className={`world-mark world-mark--${world.id}`} aria-hidden="true" /><span><b>{translate(world.label)}</b><small>{translate(world.description)}</small></span></Link>)}
       </nav>}
-      <button ref={triggerRef} type="button" aria-label={open ? "סגירת בחירת עולם" : "בחירת עולם"} aria-expanded={open} aria-haspopup="true" onClick={() => setOpen((value) => !value)}><WorldsIcon /><span><strong>{open ? "סגירה" : "בחירת עולם"}</strong></span></button>
+      <button ref={triggerRef} type="button" aria-label={translate(open ? "סגירת חיפוש ובחירת עולם" : "חיפוש ובחירת עולם")} aria-expanded={open} aria-haspopup="true" onClick={() => setOpen((value) => !value)}><WorldSearchIcon /><span><strong>{translate(open ? "סגירה" : "חיפוש")}</strong></span></button>
     </div>
   );
 }
 
-function WorldsIcon() {
-  return <svg className="worlds-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="6.5" height="6.5" rx="2" /><rect x="14" y="3.5" width="6.5" height="6.5" rx="2" /><rect x="3.5" y="14" width="6.5" height="6.5" rx="2" /><rect x="14" y="14" width="6.5" height="6.5" rx="2" /><path d="M10 6.75h4M6.75 10v4m10.5-4v4M10 17.25h4" /></svg>;
+function WorldSearchIcon() {
+  return <svg className="world-search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg>;
 }
 
 export function SearchWorldTabs({ active, location, onNavigate }: { active: WorldId; location?: string; onNavigate?: () => void }) {
@@ -103,7 +105,7 @@ export function SearchWorldTabs({ active, location, onNavigate }: { active: Worl
     <div className="search-world-tabs__options">
       {primaryWorlds.map((worldId) => {
         const world = worlds.find((item) => item.id === worldId)!;
-        const href = localizedPath(searchWorldHref(worldId, location), language);
+        const href = localizedPath(searchWorldHref(worldId, location || undefined), language);
         return <Link key={world.id} href={href} scroll={false} className={world.id === active ? "active" : ""} aria-current={world.id === active ? "page" : undefined} onClick={navigateWithinSearch(href)}>
           <span className={`search-world-tabs__icon search-world-tabs__icon--${worldId}`} aria-hidden="true"><SearchWorldIcon world={worldId} /></span>
           <span>{translate(world.shortLabel)}</span>

@@ -65,8 +65,8 @@ test("Hilat HaNof search and booking flow enforce source minimum stays and trust
   assert.match(card, /minimumNights,/);
   assert.match(card, /prices\.every\(\(price\) => price === prices\[0\]\)/);
   assert.match(card, /if \(property\.dailyAvailability\?\.length \|\| property\.dateQuotes\?\.length\) return null/);
-  assert.match(bookingHub, /availability\?\.nightlyPrice \|\| \(illustrative \|\| property\.demoOperations\?\.fictional \? suppliedPrice : 0\)/);
-  assert.match(bookingHub, /nights < availability\.minimumNights/);
+  assert.match(bookingHub, /displayedAvailability\?\.nightlyPrice \|\| \(illustrative \|\| property\.demoOperations\?\.fictional \? suppliedPrice : 0\)/);
+  assert.match(bookingHub, /nights < displayedAvailability\.minimumNights/);
   assert.match(bookingHub, /נדרשים לפחות/);
 });
 
@@ -86,15 +86,16 @@ test("Hilat HaNof resolves exact legacy range prices in search and business deta
   assert.match(route, /data-available/);
   assert.match(route, /availableUnits/);
   assert.match(route, /totalPrice/);
-  assert.match(route, /units: availableByUnit\.map/);
-  assert.match(route, /availability: availableCount > 0 && \(!roomMatches\[index\]\.maxGuests \|\| guests <= roomMatches\[index\]\.maxGuests\) \? "available" : "unavailable"/);
+  assert.match(route, /const unitQuotes = availableByUnit\.map/);
+  assert.match(route, /recommendVacationUnits\(unitQuotes, guests\)/);
+  assert.match(route, /availability: availableCount > 0 \? "available" as const : "unavailable" as const/);
   assert.match(route, /nightlyPrice: prices\[index\] > 0 \? prices\[index\] \/ nights : 0/);
   assert.match(hook, /api\/legacy-availability/);
   assert.match(hook, /legacyAvailabilitySourceFor\(slug\)/);
   assert.match(hook, /units: \(Array\.isArray\(result\.units\) \? result\.units : \[\]\)\.map/);
   assert.match(card, /liveLegacyAvailability\.quote \|\| resolveAvailabilityForStay/);
   assert.match(business, /liveLegacyAvailability\.quote \|\| resolveAvailabilityForStay/);
-  assert.match(business, /resolvedAvailability\?\.units\?\.find\(\(unit\) => unit\.index === roomIndex\)/);
+  assert.match(business, /effectiveVacationAvailability\?\.units\?\.find\(\(unit\) => unit\.index === roomIndex\)/);
   assert.match(business, /roomBookingHref\(bookingQuery, roomIndex, roomNightlyPrice\)/);
   assert.match(card, /allUnitsAvailable/);
   assert.match(card, /units: property\.roomOptions\.map/);

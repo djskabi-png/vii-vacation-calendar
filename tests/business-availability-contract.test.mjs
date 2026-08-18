@@ -13,7 +13,7 @@ test("search cards and business details share the same seven-state availability 
   assert.match(propertyCard, /liveLegacyAvailability\.quote \|\| resolveAvailabilityForStay/);
   assert.match(business, /resolveAvailabilityForStay\(property, selectedStay/);
   for (const state of ["available-price", "price-only", "available-no-price", "no-data", "unavailable", "unavailable-alternatives", "unavailable-price"]) assert.match(vacationHub, new RegExp(state));
-  assert.match(business, /resolvedAvailability\?\.availability === "available"/);
+  assert.match(business, /effectiveVacationAvailability\?\.availability === "available"/);
 });
 
 test("vacation detail keeps one contextual booking action", () => {

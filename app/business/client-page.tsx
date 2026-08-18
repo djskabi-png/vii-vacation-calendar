@@ -62,10 +62,6 @@ function bedroomLabel(count: number) {
   return count === 1 ? "חדר שינה אחד" : `${count} חדרי שינה`;
 }
 
-function bedDetails(features: string[]) {
-  return features.filter((feature) => /מיטה|מיטות|ספה נפתחת|מזרן|מזרנים|מזרני|לול|עריסה/.test(feature));
-}
-
 function PhoneIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.7 3.5 9 3a1.6 1.6 0 0 1 1.8 1l1 3a1.6 1.6 0 0 1-.5 1.7L9.7 10a14 14 0 0 0 4.3 4.3l1.3-1.6a1.6 1.6 0 0 1 1.7-.5l3 1a1.6 1.6 0 0 1 1 1.8l-.5 2.3a3 3 0 0 1-3 2.4A15.5 15.5 0 0 1 4.3 6.5a3 3 0 0 1 2.4-3Z" /></svg>;
 }
@@ -182,20 +178,22 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
     : null;
   const resolvedAvailability = verifiedLastMinuteDeal || liveLegacyAvailability.quote || resolveAvailabilityForStay(property, selectedStay, "/business", null);
   const usesLiveLegacyAvailability = Boolean(legacyAvailabilitySourceFor(property.slug));
+  const vacationAvailabilityMode: "live" | "demo" | "inquiry" = usesLiveLegacyAvailability ? "live" : property.demoOperations?.fictional ? "demo" : "inquiry";
+  const effectiveVacationAvailability = vacationAvailabilityMode !== "inquiry" ? resolvedAvailability : null;
   // A quote supplied in a link is useful only for properties without a live source.
   // For migrated listings the source response always wins, so an old shared link
   // cannot display a stale or manipulated amount as a current price.
-  const resolvedSelectedPrice = resolvedAvailability?.nightlyPrice
-    ? String(resolvedAvailability.nightlyPrice)
-    : usesLiveLegacyAvailability ? "" : selectedPrice;
+  const resolvedSelectedPrice = effectiveVacationAvailability?.nightlyPrice
+    ? String(effectiveVacationAvailability.nightlyPrice)
+    : vacationAvailabilityMode === "demo" ? selectedPrice : "";
   const hasSelectedPrice = Boolean(resolvedSelectedPrice && Number(resolvedSelectedPrice) > 0);
-  const vacationOnlineReady = activeWorld === "vacation" && hasSelectedDates && resolvedAvailability?.availability === "available" && hasSelectedPrice;
+  const vacationOnlineReady = activeWorld === "vacation" && vacationAvailabilityMode !== "inquiry" && hasSelectedDates && effectiveVacationAvailability?.availability === "available" && hasSelectedPrice;
   const vacationPhoneFallback = activeWorld === "vacation" && !vacationOnlineReady;
   const vacationRequest = activeWorld === "vacation" && !vacationOnlineReady;
   const onlineBooking = activeWorld === "vacation" ? vacationOnlineReady : activeOffering.bookingMode !== "call-only";
   const phoneBooking = activeOffering.bookingMode === "call-only" || activeOffering.bookingMode === "online-or-call";
   const phoneHref = property.contact?.phone ? `tel:${property.contact.phone.replace(/[^\d+]/g, "")}` : undefined;
-  const bookingQuery = new URLSearchParams({ world: activeWorld, place: property.slug, ...(dateRange.from ? { from: dateRange.from } : {}), ...(dateRange.till ? { till: dateRange.till } : {}), guests: String(guests), ...(resolvedSelectedPrice ? { price: resolvedSelectedPrice } : {}), ...(verifiedLastMinuteDeal ? { period: initialPeriod || "last-minute", source: initialSource || "last-minute" } : {}), ...(initialIllustrative || resolvedAvailability?.illustrative ? { illustrative: "1" } : {}) }).toString();
+  const bookingQuery = new URLSearchParams({ world: activeWorld, place: property.slug, ...(dateRange.from ? { from: dateRange.from } : {}), ...(dateRange.till ? { till: dateRange.till } : {}), guests: String(guests), ...(resolvedSelectedPrice ? { price: resolvedSelectedPrice } : {}), ...(verifiedLastMinuteDeal ? { period: initialPeriod || "last-minute", source: initialSource || "last-minute" } : {}), ...(initialIllustrative || property.demoOperations?.fictional || effectiveVacationAvailability?.illustrative ? { illustrative: "1" } : {}) }).toString();
   const ownerWhatsapp = property.contact?.whatsapp || property.contact?.phone;
   const bookingActionHref = vacationPhoneFallback ? "#booking-summary" : `/booking?${bookingQuery}`;
   const sectionLinks = useMemo<DetailSectionLink[]>(() => [
@@ -226,10 +224,10 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
     return [...providers.filter((item) => item.id === "masu-home-wellness"), ...providers.filter((item) => item.id !== "masu-home-wellness")].slice(0, 6);
   }, []);
   const unitCopy = {
-    he: { available: "פנויה בתאריכים שבחרתם", unavailable: "לא פנויה בתאריכים שבחרתם", confirm: "הזמינות תאושר מול המקום", quick: "הזמנה מהירה של", otherDate: "בדיקת תאריך אחר", check: "בדיקת זמינות", dates: "בדיקת תאריכים ל", perNight: "ללילה", total: "לכל השהייה" },
-    en: { available: "Available for your selected dates", unavailable: "Unavailable for your selected dates", confirm: "Availability will be confirmed with the property", quick: "Quick book", otherDate: "Check another date", check: "Check availability for", dates: "Check dates for", perNight: "per night", total: "for the entire stay" },
-    ru: { available: "Доступна на выбранные даты", unavailable: "Недоступна на выбранные даты", confirm: "Доступность подтвердит объект", quick: "Быстро забронировать", otherDate: "Проверить другую дату", check: "Проверить доступность", dates: "Проверить даты для", perNight: "за ночь", total: "за всё проживание" },
-    fr: { available: "Disponible aux dates choisies", unavailable: "Indisponible aux dates choisies", confirm: "La disponibilité sera confirmée par l’établissement", quick: "Réservation rapide", otherDate: "Vérifier une autre date", check: "Vérifier la disponibilité de", dates: "Vérifier les dates pour", perNight: "par nuit", total: "pour tout le séjour" },
+    he: { available: "פנויה בתאריכים שבחרתם", unavailable: "לא פנויה בתאריכים שבחרתם", inquiry: "זמינות ומחיר באישור המקום", error: "לא הצלחנו לבדוק כרגע", combination: "פנויה כחלק מהשילוב המומלץ", tooSmall: "אינה מספיקה לבדה להרכב", quick: "הזמנה מהירה של", otherDate: "בדיקת תאריך אחר", enquire: "פנייה לבירור זמינות", retry: "בדיקה חוזרת", check: "בדיקת זמינות", dates: "בדיקת תאריכים ל", perNight: "ללילה", total: "לכל השהייה" },
+    en: { available: "Available for your selected dates", unavailable: "Unavailable for your selected dates", inquiry: "Availability and price confirmed by the property", error: "We could not check right now", combination: "Available in the recommended combination", tooSmall: "Cannot host the whole party alone", quick: "Quick book", otherDate: "Check another date", enquire: "Enquire about availability", retry: "Try again", check: "Check availability for", dates: "Check dates for", perNight: "per night", total: "for the entire stay" },
+    ru: { available: "Доступна на выбранные даты", unavailable: "Недоступна на выбранные даты", inquiry: "Наличие и цену подтвердит объект", error: "Не удалось проверить сейчас", combination: "Доступна в рекомендуемой комбинации", tooSmall: "Не вмещает всю группу", quick: "Быстро забронировать", otherDate: "Проверить другую дату", enquire: "Уточнить наличие", retry: "Повторить проверку", check: "Проверить доступность", dates: "Проверить даты для", perNight: "за ночь", total: "за всё проживание" },
+    fr: { available: "Disponible aux dates choisies", unavailable: "Indisponible aux dates choisies", inquiry: "Disponibilité et prix confirmés par l’établissement", error: "Vérification impossible pour le moment", combination: "Disponible dans la combinaison recommandée", tooSmall: "Ne suffit pas seule pour le groupe", quick: "Réservation rapide", otherDate: "Vérifier une autre date", enquire: "Demander la disponibilité", retry: "Réessayer", check: "Vérifier la disponibilité de", dates: "Vérifier les dates pour", perNight: "par nuit", total: "pour tout le séjour" },
   }[language];
   const numberLocale = language === "he" ? "he-IL" : language === "en" ? "en-GB" : language === "ru" ? "ru-RU" : "fr-FR";
 
@@ -263,7 +261,7 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
                 : <button className="property-phone-action" type="button" onClick={() => setPhoneRevealed(true)} aria-expanded="false"><PhoneIcon /><span>הצגת מספר</span></button>
                 : null}
               <ShareButton title={property.name} />
-              {ownerWhatsapp ? <WhatsAppLeadButton world={activeWorld} placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={activeOffering.label} initialDate={dateRange.from} initialGuests={guests} buttonClassName="property-whatsapp-action" /> : null}
+              {ownerWhatsapp ? <WhatsAppLeadButton world={activeWorld} placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={activeOffering.label} initialDate={dateRange.from} initialTill={dateRange.till} initialGuests={guests} buttonClassName="property-whatsapp-action" /> : null}
             </div>
             {activeWorld === "vacation" ? null : onlineBooking ? <Link className="button primary" href={bookingActionHref}>הזמנה אונליין</Link> : property.contact?.phone ? <Link className="button primary" href="#booking-summary">טלפון להזמנה</Link> : null}
           </div>
@@ -316,48 +314,65 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
               till={dateRange.till}
               guests={guests}
               selectedPrice={resolvedSelectedPrice}
-              availability={resolvedAvailability}
+              availability={effectiveVacationAvailability}
+              availabilityStatus={vacationAvailabilityMode === "live" ? liveLegacyAvailability.status : vacationAvailabilityMode === "demo" ? "ready" : "idle"}
+              availabilityMode={vacationAvailabilityMode}
               bookingHref={`/booking?${bookingQuery}`}
               ownerWhatsapp={ownerWhatsapp}
               phoneHref={phoneHref}
-              illustrative={initialIllustrative || Boolean(resolvedAvailability?.illustrative)}
+              illustrative={initialIllustrative || vacationAvailabilityMode === "demo" || Boolean(effectiveVacationAvailability?.illustrative)}
               onOpenCalendar={() => setCalendarOpen(true)}
               onGuestsChange={setGuests}
+              onRetryAvailability={liveLegacyAvailability.retry}
             /> : null}
 
             {property.roomOptions?.length ? <section id="rooms" className="units-section">
-              <div className="units-heading units-heading--overview">
-                <h2>{property.scenario === "single" ? "פרטי המקום" : "הסוויטות והיחידות"}</h2>
-                <span className="units-total">{property.scenario === "single" ? "מקום אירוח שלם" : roomQuantity === 1 ? "יחידת אירוח אחת" : `${roomQuantity} יחידות אירוח`}</span>
-              </div>
+              {property.scenario === "multi" ? <div className="units-heading units-heading--overview">
+                <h2>הסוויטות והיחידות</h2>
+                <span className="units-total">{roomQuantity === 1 ? "יחידת אירוח אחת" : `${roomQuantity} יחידות אירוח`}</span>
+              </div> : null}
               <div className="room-card-list">
                 {property.roomOptions.map((room, roomIndex) => {
                   // A place sold as one whole property has one live quote. Its
                   // editorial room entry is descriptive, not a separately priced
                   // inventory unit, so it must reuse that quote.
                   const roomAvailability = property.scenario === "single" && usesLiveLegacyAvailability
-                    ? resolvedAvailability
-                    : resolvedAvailability?.units?.find((unit) => unit.index === roomIndex);
+                    ? effectiveVacationAvailability
+                    : effectiveVacationAvailability?.units?.find((unit) => unit.index === roomIndex);
                   const roomAvailable = roomAvailability?.availability === "available";
                   const roomUnavailable = roomAvailability?.availability === "unavailable";
+                  const roomCapacity = roomAvailability && "maxGuests" in roomAvailability ? roomAvailability.maxGuests || room.guests : room.guests;
+                  const roomFitsParty = guests <= roomCapacity;
+                  const roomInRecommendation = Boolean(effectiveVacationAvailability?.recommendation?.items.some((item) => item.index === roomIndex));
                   const roomNightlyPrice = roomAvailability?.nightlyPrice || 0;
                   const roomTotalPrice = (roomAvailability && "totalPrice" in roomAvailability ? roomAvailability.totalPrice : undefined) || (roomNightlyPrice && dateRange.from && dateRange.till ? roomNightlyPrice * Math.max(1, Math.round((Date.parse(`${dateRange.till}T12:00:00`) - Date.parse(`${dateRange.from}T12:00:00`)) / 86_400_000)) : 0);
                   const unitGalleryStart = property.roomOptions!.slice(0, roomIndex).reduce((total, option) => total + (option.images?.length || 1), 0);
-                  const roomBedDetails = bedDetails(room.features);
-                  const roomGeneralFeatures = room.features.filter((feature) => !roomBedDetails.includes(feature));
-                  return <article className={`room-card${roomAvailable ? " room-card--available" : roomUnavailable ? " room-card--unavailable" : ""}`} key={room.name}>
+                  const roomStatus = vacationAvailabilityMode === "inquiry"
+                    ? unitCopy.inquiry
+                    : liveLegacyAvailability.status === "error"
+                      ? unitCopy.error
+                      : roomAvailable && roomFitsParty
+                        ? unitCopy.available
+                        : roomAvailable && roomInRecommendation
+                          ? unitCopy.combination
+                          : roomAvailable
+                            ? unitCopy.tooSmall
+                            : roomUnavailable ? unitCopy.unavailable : unitCopy.error;
+                  const canBookRoom = vacationAvailabilityMode === "live" && liveLegacyAvailability.status !== "error" && roomAvailable && roomFitsParty && roomNightlyPrice > 0;
+                  return <article className={`room-card${roomAvailable ? " room-card--available" : roomUnavailable ? " room-card--unavailable" : ""}${vacationAvailabilityMode === "inquiry" ? " room-card--inquiry" : ""}`} key={room.name}>
                   <div className="room-card__identity"><span>{property.type}</span><h3>{room.name}</h3></div>
                   <button className="room-card__image" type="button" data-gallery-trigger onClick={() => { setGalleryTopic(room.name); openGallery("units", unitGalleryStart); }} aria-label={`פתיחת גלריית ${room.name}`}><img src={room.image} alt={`${room.name} ב${property.name}`} title={`${room.name} ב${property.name}`} loading="lazy" /><span>{property.scenario === "single" ? "המקום כולו" : room.images?.length ? `${room.images.length} תמונות` : room.quantity === 1 ? "יחידה אחת" : `${room.quantity} יחידות`}</span></button>
                   <div className="room-card__body">
-                    <div className="room-card__title"><b>עד {room.guests} אורחים</b></div>
-                    {room.area ? <div className="room-card__facts"><span>{room.area} מ״ר</span></div> : null}
-                    {roomGeneralFeatures.length ? <div className="room-card__features">{roomGeneralFeatures.map((feature) => <span key={feature}>{feature}</span>)}</div> : null}
-                    {property.sleepingArrangements?.length ? <div className="room-card__sleeping room-card__sleeping--linked"><div><strong>סידורי שינה</strong><span>{bedroomLabel(room.bedrooms)}</span></div><a href="#sleeping">לצפייה בפירוט החדרים, המיטות והתמונות</a></div> : <div className="room-card__sleeping"><div><strong>סידורי שינה</strong><span>{bedroomLabel(room.bedrooms)}</span></div>{roomBedDetails.length ? <div className="room-card__bed-list">{roomBedDetails.map((detail) => <span key={detail}>{detail}</span>)}</div> : <small>סוג המיטה טרם פורט במידע שנמסר על היחידה.</small>}</div>}
-                    {activeWorld === "vacation" && hasSelectedDates ? <div className="room-card__availability" role="status"><strong>{roomAvailable ? unitCopy.available : roomUnavailable ? unitCopy.unavailable : unitCopy.confirm}</strong>{roomNightlyPrice ? <span>{roomNightlyPrice.toLocaleString(numberLocale)} ₪ {unitCopy.perNight}{roomTotalPrice ? ` · ${roomTotalPrice.toLocaleString(numberLocale)} ₪ ${unitCopy.total}` : ""}</span> : null}</div> : null}
-                    <div className="room-card__actions"><button className="button subtle room-card__more" type="button" onClick={() => setSelectedRoomIndex(roomIndex)}>כל פרטי היחידה +</button>{activeWorld === "vacation"
-                      ? roomAvailable && roomNightlyPrice ? <Link className="button primary" href={roomBookingHref(bookingQuery, roomIndex, roomNightlyPrice)}>{unitCopy.quick} {translate(room.name)}</Link>
-                        : roomUnavailable ? <button className="button secondary" type="button" onClick={() => setCalendarOpen(true)}>{unitCopy.otherDate}</button>
-                          : <button className="button secondary" type="button" onClick={() => setCalendarOpen(true)}>{hasSelectedDates ? `${unitCopy.check} ${translate(room.name)}` : `${unitCopy.dates} ${translate(room.name)}`}</button>
+                    <div className="room-card__facts"><span>עד {room.guests} אורחים</span><span>{bedroomLabel(room.bedrooms)}</span>{room.area ? <span>{room.area} מ״ר</span> : null}<button className="room-card__more" type="button" onClick={() => setSelectedRoomIndex(roomIndex)}>פרטי היחידה</button></div>
+                    {activeWorld === "vacation" && hasSelectedDates ? <div className="room-card__availability" role="status"><strong>{roomStatus}</strong>{vacationAvailabilityMode === "live" && roomNightlyPrice ? <span>{roomNightlyPrice.toLocaleString(numberLocale)} ₪ {unitCopy.perNight}{roomTotalPrice ? ` · ${roomTotalPrice.toLocaleString(numberLocale)} ₪ ${unitCopy.total}` : ""}</span> : null}</div> : null}
+                    <div className="room-card__actions">{activeWorld === "vacation"
+                      ? canBookRoom ? <Link className="button primary" href={roomBookingHref(bookingQuery, roomIndex, roomNightlyPrice)}>{unitCopy.quick} {translate(room.name)}</Link>
+                        : vacationAvailabilityMode === "inquiry" && ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={`${unitCopy.check} ${translate(room.name)}`} initialDate={dateRange.from} initialTill={dateRange.till} initialGuests={guests} buttonLabel={unitCopy.enquire} buttonClassName="button primary" />
+                          : vacationAvailabilityMode === "inquiry" && phoneHref ? <a className="button primary" href={phoneHref}>{unitCopy.enquire}</a>
+                            : liveLegacyAvailability.status === "error" ? <button className="button secondary" type="button" onClick={liveLegacyAvailability.retry}>{unitCopy.retry}</button>
+                              : roomUnavailable ? <button className="button secondary" type="button" onClick={() => setCalendarOpen(true)}>{unitCopy.otherDate}</button>
+                                : roomAvailable && !roomFitsParty && ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={`בדיקת שילוב יחידות עם ${translate(room.name)}`} initialDate={dateRange.from} initialTill={dateRange.till} initialGuests={guests} buttonLabel="בדיקת שילוב יחידות" buttonClassName="button secondary" />
+                                  : <button className="button secondary" type="button" onClick={() => setCalendarOpen(true)}>{hasSelectedDates ? `${unitCopy.check} ${translate(room.name)}` : `${unitCopy.dates} ${translate(room.name)}`}</button>
                       : onlineBooking ? <Link className="button primary" href={bookingActionHref}>הזמנה אונליין</Link> : phoneHref ? <Link className="button primary" href="#booking-summary">טלפון להזמנה</Link> : null}</div>
                   </div>
                 </article>;

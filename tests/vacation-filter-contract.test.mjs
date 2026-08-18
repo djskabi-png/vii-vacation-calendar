@@ -100,3 +100,18 @@ test("additional vacation filters replace duplicated search fields with a real p
   assert.match(css, /\.vacation-price-filter__summary/);
   assert.match(css, /\.vacation-price-input:focus-within/);
 });
+
+test("vacation price fields support natural mobile editing without per-keystroke rounding", async () => {
+  const source = await readFile(new URL("app/search/page.tsx", root), "utf8");
+  assert.match(source, /function VacationPriceInput\(/);
+  assert.match(source, /type="text"\s+inputMode="numeric"\s+pattern="\[0-9\]\*"/);
+  assert.match(source, /window\.requestAnimationFrame\(\(\) => input\.select\(\)\)/);
+  assert.match(source, /selectOnNextClickRef\.current = false;\s+event\.currentTarget\.select\(\)/);
+  assert.match(source, /event\.currentTarget\.value\.replace\(\/\\D\/g, ""\)/);
+  assert.match(source, /if \(digitsOnly === ""\) return/);
+  assert.match(source, /onBlur=\{commitDraft\}/);
+  assert.match(source, /event\.key === "Escape"/);
+  assert.match(source, /event\.stopPropagation\(\)/);
+  assert.doesNotMatch(source, /Math\.round\(parsed \/ VACATION_PRICE_STEP\)/);
+  assert.doesNotMatch(source, /type="number" inputMode="numeric"[^>]*aria-label="מחיר (?:מינימום|מקסימום) בשקלים"/);
+});

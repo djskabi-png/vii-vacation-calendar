@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const source = await readFile(new URL("../app/search/page.tsx", import.meta.url), "utf8");
+const styles = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
 
 test("vacation results introduce the result set before filters and sorting", () => {
   const heading = source.indexOf('<section className="results-heading">');
@@ -18,4 +19,12 @@ test("vacation results introduce the result set before filters and sorting", () 
   assert.ok(quickFilters < activeFilters, "quick filters must precede the active-filter summary");
   assert.ok(activeFilters < toolbar, "active filters must precede sorting and view controls");
   assert.ok(toolbar < cards, "all result controls must precede the cards");
+});
+
+test("selected vacation filters keep a protected gap below the quick-filter divider", () => {
+  assert.match(
+    styles,
+    /\.active-filter-row\s*\{[^}]*margin-top:\s*12px;/s,
+    "active filter chips must never sit directly on the preceding divider",
+  );
 });

@@ -32,7 +32,8 @@ test("Hilat Hanof has four detailed unit galleries and full-detail controls", as
   assert.equal((hilat.match(/name: "בקתה [1-4]"/g) || []).length, 4);
   assert.equal((hilat.match(/images: \["\/media\/hilat-hanof\//g) || []).length, 4);
   assert.equal((hilat.match(/featureGroups:/g) || []).length, 5);
-  assert.match(business, /כל פרטי היחידה \+/);
+  assert.match(business, /className="room-card__more"/);
+  assert.match(business, />פרטי היחידה<\/button>/);
   assert.match(business, /openGallery\("units", unitGalleryStart\)/);
   assert.match(business, /setGalleryTopic\(room\.name\); openGallery\("units", unitGalleryStart\)/);
   assert.match(business, /setGalleryTopic\(room\.name\); closeUnitDetails\(\); window\.setTimeout\(\(\) => openGallery\("units", start\), 0\)/);

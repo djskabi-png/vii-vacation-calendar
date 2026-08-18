@@ -16,10 +16,13 @@ test("desktop navigation has no duplicate more menu or gift-card text link", () 
   assert.match(css, /\.site-header__inner \{ min-height: 74px; display: grid; grid-template-columns: minmax\(0,1fr\) max-content;/);
 });
 
-test("world selection uses a descriptive icon and accessible label", () => {
-  assert.match(switcher, /function WorldsIcon/);
-  assert.match(switcher, /className="worlds-icon"/);
-  assert.match(switcher, /aria-label=\{open \? "סגירת בחירת עולם" : "בחירת עולם"\}/);
+test("global search and world selection use one magnifying-glass trigger with an accessible label", () => {
+  assert.match(switcher, /function WorldSearchIcon/);
+  assert.match(switcher, /className="world-search-icon"/);
+  assert.match(switcher, /<circle cx="11" cy="11" r="7" \/>/);
+  assert.match(switcher, /aria-label=\{translate\(open \? "סגירת חיפוש ובחירת עולם" : "חיפוש ובחירת עולם"\)\}/);
+  assert.match(switcher, /localizedPath\("\/search", language\)/);
+  assert.match(switcher, /חיפוש כללי/);
   assert.doesNotMatch(switcher, /current\.shortLabel/);
 });
 
@@ -27,17 +30,17 @@ test("header utility actions share sizing and world selection is not fixed", () 
   assert.match(css, /\.icon-button \{ width: 44px; \}/);
   assert.match(css, /\.header-actions \.world-dock \{\s*position: relative;\s*inset: auto !important;/);
   assert.match(css, /width: 40px;\s*min-width: 40px;\s*min-height: 40px;/);
-  assert.match(css, /\.world-dock > button \.worlds-icon \{ width: 20px; height: 20px;/);
+  assert.match(css, /\.world-dock > button \.world-search-icon \{ width: 20px; height: 20px;/);
 });
 
-test("global search remains actionable while the world selector closes around it", () => {
-  const worldSwitcherComponent = switcher.match(/export function WorldSwitcher[\s\S]*?(?=function WorldsIcon)/)?.[0] ?? "";
-  assert.match(header, /className=\{`icon-button header-search/);
-  assert.match(header, /href=\{localizedPath\("\/search", language\)\}/);
+test("the header has one combined search and worlds action plus direct accessibility", () => {
+  const worldSwitcherComponent = switcher.match(/export function WorldSwitcher[\s\S]*?(?=function WorldSearchIcon)/)?.[0] ?? "";
+  assert.doesNotMatch(header, /header-search/);
+  assert.match(header, /<AccessibilityWidget placement="icon" \/>/);
+  assert.match(header, /<WorldSwitcher active=\{variant\} \/>/);
+  assert.match(worldSwitcherComponent, /localizedPath\("\/search", language\)/);
   assert.match(worldSwitcherComponent, /document\.addEventListener\("click", closeOnOutsideClick\)/);
   assert.doesNotMatch(worldSwitcherComponent, /document\.addEventListener\("pointerdown"/);
   assert.doesNotMatch(switcher, /world-dock__backdrop/);
-  assert.match(css, /\.header-search \{ touch-action: manipulation; \}/);
-  assert.match(css, /\.header-search > \* \{ pointer-events: none; \}/);
   assert.match(css, /\.header-actions \.world-dock \{[\s\S]*?inset: auto !important;[\s\S]*?display: block !important;/);
 });

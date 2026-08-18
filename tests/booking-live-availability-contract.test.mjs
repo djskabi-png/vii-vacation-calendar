@@ -23,7 +23,7 @@ test("the booking total identifies the stay, nightly rate, guest party and taxes
 
 test("a live whole-property quote is never mixed with editorial unit prices", () => {
   assert.match(hub, /legacyAvailabilitySourceFor\(property\.slug\)/);
-  assert.match(hub, /availability!\.units!\.length === units\.length/);
-  assert.match(hub, /\{hasUnitAvailability \? <div className="vacation-booking-dialog__units">/);
+  assert.match(hub, /displayedAvailability!\.units!\.length === units\.length/);
+  assert.match(hub, /\{showUnitChoices \? <div className=\{`vacation-booking-dialog__units/);
   assert.match(business, /property\.scenario === "single" && usesLiveLegacyAvailability/);
 });

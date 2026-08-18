@@ -2982,9 +2982,6 @@ h3 { font-size: 1.18rem; }
 .icon-button { width: 44px; }
 .icon-button svg { width: 20px; height: 20px; }
 .header-gift.active { color: var(--teal-dark); border-color: rgba(8,126,139,.35); background: var(--mist); }
-.header-search.active { color: var(--teal-dark); border-color: rgba(8,126,139,.35); background: var(--mist); }
-.header-search { touch-action: manipulation; }
-.header-search > * { pointer-events: none; }
 .menu-button { gap: 8px; padding: 0 15px; }
 .icon-button[aria-pressed="true"] { background: var(--sky); color: var(--teal-dark); }
 .saved-viewed-menu { position: relative; display: inline-flex; }
@@ -3611,6 +3608,8 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
 .world-dock__panel a:hover, .world-dock__panel a.active { background: var(--mist); }
 .world-dock__panel a span:last-child { display: grid; }
 .world-dock__panel small { color: var(--ink-soft); }
+.world-dock__panel .world-dock__global-search { margin-bottom: 3px; border: 1px solid rgba(8,126,139,.18); background: rgba(235,248,249,.72); }
+.world-dock__global-search .world-search-icon { width: 18px; height: 18px; fill: none; stroke: var(--teal); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .world-hero { padding: 26px 0; text-align: center; background: radial-gradient(circle at 14% 12%, rgba(36,182,188,.17), transparent 28%), linear-gradient(145deg,#f5fbfc,#e9f6f8); }
 .world-hero__inner { display: grid; justify-items: center; }
 .world-page-heading { padding-block: 22px 14px; text-align: right; }
@@ -4825,7 +4824,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .map-button.active { background: #056a75; color: #fff !important; border-color: #056a75; }
 .map-button.active .map-button__desktop-label,.map-button.active .map-button__mobile-label { color: #fff !important; opacity: 1; }
 .map-button.active svg { color: #fff !important; stroke: currentColor; }
-.active-filter-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+.active-filter-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 12px; margin-bottom: 18px; }
 .results-list .active-filter-row { margin-bottom: 10px; }
 .active-filter-row > span { color: var(--ink-soft); font-size: .82rem; }
 .active-filter-row button { padding: 7px 11px; border: 1px solid #bfe1e5; border-radius: 999px; background: var(--sky); color: var(--teal-dark); cursor: pointer; }
@@ -5028,10 +5027,10 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .room-card__image img { width: 100%; height: 100%; display: block; object-fit: cover; transition: transform .35s ease; }
 .room-card:hover .room-card__image img { transform: scale(1.035); }
 .room-card__image > span { position: absolute; top: 14px; right: 14px; padding: 7px 10px; border-radius: 999px; background: rgba(255, 255, 255, .94); color: var(--teal-dark); font-size: .72rem; font-weight: 800; box-shadow: 0 5px 16px rgba(0, 35, 44, .13); }
-.room-card__body { grid-area: body; min-width: 0; display: grid; align-content: start; gap: 14px; padding: 12px 21px 21px; }
+.room-card__body { grid-area: body; min-width: 0; display: grid; align-content: start; gap: 12px; padding: 12px 21px 21px; }
 .room-card__title { display: flex; align-items: flex-start; justify-content: flex-start; gap: 14px; }
 .room-card__title > b { flex: 0 0 auto; color: var(--teal-dark); font-size: .85rem; }
-.room-card__facts { display: flex; flex-wrap: wrap; gap: 8px; }
+.room-card__facts { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .room-card__facts span { padding: 6px 9px; border-radius: 8px; background: var(--mist); color: var(--ink-soft); font-size: .76rem; font-weight: 700; }
 .room-card__features { display: flex; flex-wrap: wrap; gap: 7px; }
 .room-card__features span { color: var(--ink-soft); font-size: .76rem; }
@@ -5060,7 +5059,11 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .room-card__actions .button { text-decoration: none; }
 .room-card__image { padding: 0; border: 0; font: inherit; cursor: pointer; }
 .room-card__image:focus-visible { outline: 3px solid #1d7fdb; outline-offset: 3px; }
-.room-card__more { color: var(--teal-dark); border-color: #b9dce1; background: #fff; }
+.room-card__more { min-height: 34px; margin-inline-start: auto; padding: 4px 2px; border: 0; border-bottom: 1px solid #a7cfd4; color: var(--teal-dark); background: transparent; font: 800 .76rem/1.2 var(--font-sans); cursor: pointer; }
+.room-card__more:hover { border-color: var(--teal-dark); }
+.room-card__more:focus-visible { outline: 3px solid #1d7fdb; outline-offset: 3px; border-radius: 4px; }
+.room-card--inquiry { border-color: rgba(18, 106, 120, .16); box-shadow: 0 10px 30px rgba(0, 64, 77, .07); }
+.room-card--inquiry .room-card__availability { border-color: #d7e7e9; background: #f7fbfb; }
 
 .unit-details-layer { position: fixed; z-index: 10050; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(2,18,23,.72); }
 .unit-details-dialog { width: min(760px,100%); max-height: min(820px,calc(100dvh - 40px)); overflow: auto; border: 1px solid #cce1e4; border-radius: 28px; background: #fff; box-shadow: 0 28px 90px rgba(0,35,43,.28); font-family: var(--font-sans); }
@@ -7646,7 +7649,7 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   border-color: rgba(8,126,139,.35);
   background: var(--mist);
 }
-.world-dock > button .worlds-icon { width: 20px; height: 20px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.world-dock > button .world-search-icon { width: 20px; height: 20px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .world-dock > button strong { font-size: .82rem; }
 .world-dock__panel {
   position: fixed;
@@ -7669,7 +7672,7 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
     border-radius: 50%;
   }
   .world-dock > button > span:last-child { display: none; }
-  .world-dock > button .worlds-icon { width: 20px; height: 20px; }
+  .world-dock > button .world-search-icon { width: 20px; height: 20px; }
   .world-dock__panel {
     top: 76px;
     right: 12px;
@@ -8762,6 +8765,26 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
 .vacation-booking-dialog__status--available > span { background: #198359; box-shadow: 0 0 0 5px #dff2e8; }
 .vacation-booking-dialog__status--unavailable { border-color: #ebcec8; background: #fff8f6; }
 .vacation-booking-dialog__status--unavailable > span { background: #b65749; box-shadow: 0 0 0 5px #f8e2de; }
+.vacation-booking-dialog__status--loading > span {
+  border: 2px solid #b7d9de;
+  border-top-color: var(--teal-dark);
+  background: transparent;
+  box-shadow: none;
+  animation: vacation-booking-spin .7s linear infinite;
+}
+.vacation-booking-dialog__recommendation { display: grid; gap: 10px; padding: 14px 15px; border: 1px solid #bcdfe2; border-radius: 16px; background: linear-gradient(135deg, #f2fbfb, #fff); }
+.vacation-booking-dialog__recommendation-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+.vacation-booking-dialog__recommendation-heading > div { min-width: 0; }
+.vacation-booking-dialog__recommendation-heading small { color: var(--teal); font-size: .7rem; font-weight: 850; }
+.vacation-booking-dialog__recommendation-heading h3 { margin: 3px 0 0; color: var(--ink); font-size: 1rem; line-height: 1.35; }
+.vacation-booking-dialog__recommendation-heading > span { flex: 0 0 auto; padding: 6px 8px; border-radius: 999px; color: var(--teal-dark); background: #e4f5f6; font-size: .66rem; font-weight: 800; white-space: nowrap; }
+.vacation-booking-dialog__recommendation ul { display: flex; flex-wrap: wrap; gap: 7px; margin: 0; padding: 0; list-style: none; }
+.vacation-booking-dialog__recommendation li { display: inline-flex; align-items: baseline; gap: 6px; padding: 7px 9px; border-radius: 10px; background: #fff; box-shadow: inset 0 0 0 1px #dcebed; }
+.vacation-booking-dialog__recommendation li span { color: var(--ink); font-size: .76rem; font-weight: 800; }
+.vacation-booking-dialog__recommendation li small { color: var(--ink-soft); font-size: .66rem; }
+.vacation-booking-dialog__recommendation-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.vacation-booking-dialog__recommendation-footer p { margin: 0; color: var(--ink-soft); font-size: .72rem; }
+.vacation-booking-dialog__recommendation-footer strong { color: var(--teal-dark); font-size: .9rem; }
 .vacation-booking-dialog__alternatives { display: grid; gap: 7px; }
 .vacation-booking-dialog__alternatives > strong { font-size: .8rem; }
 .vacation-booking-dialog__alternatives > div { display: flex; flex-wrap: wrap; gap: 7px; }
@@ -8780,7 +8803,8 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
 }
 .vacation-booking-dialog__alternatives button span,
 .vacation-booking-dialog__alternatives button b { font-size: .73rem; }
-.vacation-booking-dialog__units { display: grid; gap: 10px; }
+.vacation-booking-dialog__units { display: grid; gap: 10px; transition: opacity .18s ease; }
+.vacation-booking-dialog__units.is-updating { opacity: .46; }
 .vacation-booking-dialog__units-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; padding: 2px 2px 0; }
 .vacation-booking-dialog__units-heading small { color: var(--teal); font-size: .7rem; font-weight: 850; }
 .vacation-booking-dialog__units-heading h3 { margin: 2px 0 0; font-size: 1.05rem; }
@@ -8815,6 +8839,19 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
 .vacation-booking-dialog__unit-action.button { min-height: 42px; margin: 0; padding: 0 14px; border-radius: 11px; font-size: .72rem; white-space: nowrap; }
 .vacation-booking-dialog__unit-action--dates { justify-self: start; }
 .vacation-booking-dialog__unit-guidance { color: var(--teal-dark); font-size: .78rem; font-weight: 850; }
+.vacation-booking-dialog__loading-note {
+  min-width: 168px;
+  min-height: 50px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  border-radius: 12px;
+  color: var(--teal-dark);
+  background: #f3f9f9;
+  font-size: .78rem;
+  font-weight: 850;
+}
 .vacation-booking-dialog__footer {
   min-height: 88px;
   display: flex;
@@ -8845,6 +8882,7 @@ body:has(.vacation-booking-dialog-layer) .accessibility-trigger,
 body:has(.vacation-booking-dialog-layer) .detail-sticky-wrap { display: none; }
 @keyframes vacation-booking-layer-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes vacation-booking-dialog-in { from { opacity: 0; transform: translateY(12px) scale(.985); } to { opacity: 1; transform: none; } }
+@keyframes vacation-booking-spin { to { transform: rotate(360deg); } }
 
 @media (max-width: 760px) {
   .vacation-booking-hub { width: calc(100% - 24px); margin-top: 18px; }
@@ -8863,7 +8901,8 @@ body:has(.vacation-booking-dialog-layer) .detail-sticky-wrap { display: none; }
   .vacation-booking-hub__launcher-meta b { max-width: 150px; font-size: .7rem; }
   .vacation-booking-hub__launcher-action { grid-column: 3; grid-row: 1 / 3; min-width: 62px; min-height: 42px; padding: 0 10px; border-radius: 12px; font-size: .72rem; }
   .vacation-booking-dialog-layer { place-items: end center; padding: 0; }
-  .vacation-booking-dialog { width: 100%; max-height: 92dvh; border-width: 1px 0 0; border-radius: 24px 24px 0 0; }
+  .vacation-booking-dialog { width: 100%; height: auto; max-height: 92dvh; border-width: 1px 0 0; border-radius: 24px 24px 0 0; }
+  .vacation-booking-dialog__body { max-height: calc(92dvh - 172px); }
   .vacation-booking-dialog__header { min-height: 80px; align-items: center; padding: 15px 16px 13px; }
   .vacation-booking-dialog__header h2 { font-size: 1.25rem; }
   .vacation-booking-dialog__header p { display: none; }
@@ -8874,6 +8913,11 @@ body:has(.vacation-booking-dialog-layer) .detail-sticky-wrap { display: none; }
   .vacation-booking-dialog__guests { min-height: 64px; border-radius: 14px; }
   .vacation-booking-dialog__status { min-height: 58px; padding: 10px 12px; }
   .vacation-booking-dialog__status small { display: none; }
+  .vacation-booking-dialog__recommendation { gap: 9px; padding: 12px; }
+  .vacation-booking-dialog__recommendation-heading { display: grid; gap: 7px; }
+  .vacation-booking-dialog__recommendation-heading > span { justify-self: start; }
+  .vacation-booking-dialog__recommendation ul { display: grid; grid-template-columns: 1fr; }
+  .vacation-booking-dialog__recommendation li { justify-content: space-between; }
   .vacation-booking-dialog__units-heading { align-items: flex-start; }
   .vacation-booking-dialog__units-heading > span { display: none; }
   .vacation-booking-dialog__unit { grid-template-columns: 88px minmax(0, 1fr); gap: 10px; padding: 9px; border-radius: 14px; }
@@ -8889,12 +8933,13 @@ body:has(.vacation-booking-dialog-layer) .detail-sticky-wrap { display: none; }
   .vacation-booking-dialog__footer-copy em { grid-column: 1 / -1; }
   .vacation-booking-dialog__footer-actions { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
   .vacation-booking-dialog__unit-guidance { align-self: center; padding-block: 8px; }
+  .vacation-booking-dialog__loading-note { width: 100%; min-width: 0; min-height: 48px; }
   .vacation-booking-dialog__footer-actions .button { width: 100%; min-width: 0; min-height: 48px; }
   .vacation-booking-dialog__change-date { min-width: 78px; }
 }
 
 @media (max-height: 620px) {
-  .vacation-booking-dialog { max-height: 100dvh; border-radius: 18px 18px 0 0; }
+  .vacation-booking-dialog { height: 100dvh; max-height: 100dvh; border-radius: 18px 18px 0 0; }
   .vacation-booking-dialog__header { min-height: 68px; padding-block: 11px; }
   .vacation-booking-dialog__body { padding-block: 10px; }
 }
@@ -8960,6 +9005,8 @@ body:has(.vacation-booking-dialog-layer) .detail-sticky-wrap { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .vacation-booking-dialog-layer,
   .vacation-booking-dialog,
+  .vacation-booking-dialog__status--loading > span,
+  .vacation-booking-dialog__units,
   .vacation-booking-hub__launcher,
   .event-region-carousel__controls button,
   .event-region-carousel__card img,

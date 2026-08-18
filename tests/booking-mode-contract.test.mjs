@@ -12,7 +12,8 @@ const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8
 test("vacation online booking requires dates and a positive connected price", () => {
   assert.match(business, /hasSelectedDates = Boolean\(dateRange\.from && dateRange\.till\)/);
   assert.match(business, /hasSelectedPrice = Boolean\(resolvedSelectedPrice && Number\(resolvedSelectedPrice\) > 0\)/);
-  assert.match(business, /vacationOnlineReady = activeWorld === "vacation" && hasSelectedDates && resolvedAvailability\?\.availability === "available" && hasSelectedPrice/);
+  assert.match(business, /vacationOnlineReady = activeWorld === "vacation" && vacationAvailabilityMode !== "inquiry" && hasSelectedDates && effectiveVacationAvailability\?\.availability === "available" && hasSelectedPrice/);
+  assert.match(business, /property\.demoOperations\?\.fictional \|\| effectiveVacationAvailability\?\.illustrative \? \{ illustrative: "1" \} : \{\}/);
   assert.match(bookingPage, /onlineReady: Boolean\(params\.from && params\.till && params\.price && Number\(params\.price\) > 0\)/);
   assert.match(bookingPage, /if \(property\) \{[\s\S]*?return \{[\s\S]*?world: "vacation"/);
   assert.doesNotMatch(booking, /onlineReady\s*=\s*isManage\s*\|\|/);
@@ -60,7 +61,7 @@ test("spa package includes are localized item by item", () => {
 
 
 test("bookable vacation uses one quick-book action while incomplete data keeps direct enquiry", () => {
-  assert.match(business, /vacationOnlineReady = activeWorld === "vacation" && hasSelectedDates && resolvedAvailability\?\.availability === "available" && hasSelectedPrice/);
+  assert.match(business, /vacationOnlineReady = activeWorld === "vacation" && vacationAvailabilityMode !== "inquiry" && hasSelectedDates && effectiveVacationAvailability\?\.availability === "available" && hasSelectedPrice/);
   assert.match(vacationHub, />הזמנה מהירה<\/Link>/);
   assert.match(business, /ownerWhatsapp \? <WhatsAppLeadButton world=\{activeWorld\}/);
   assert.match(business, /phoneHref \? phoneRevealed/);

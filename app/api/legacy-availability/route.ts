@@ -1,4 +1,5 @@
 import { legacyAvailabilitySourceFor } from "../../lib/legacy-availability-sources";
+import { recommendVacationUnits } from "../../lib/vacation-party-recommendation.mjs";
 
 const LEGACY_AVAILABILITY_ENDPOINT = "https://www.vii.co.il/ajax_order.php";
 
@@ -21,6 +22,20 @@ type LegacyQuote = {
     nightlyPrice: number;
     maxGuests: number;
   }>;
+  recommendation: {
+    guests: number;
+    unitCount: number;
+    totalCapacity: number;
+    totalPrice?: number;
+    nightlyPrice?: number;
+    items: Array<{
+      index: number;
+      quantity: number;
+      maxGuests: number;
+      totalPrice?: number;
+      nightlyPrice?: number;
+    }>;
+  } | null;
   source: string;
   checkedAt: string;
 };
@@ -87,28 +102,30 @@ export async function GET(request: Request) {
 
     const availableByUnit = roomMatches.map((room) => room.available);
     const prices = roomMatches.map((room) => room.price);
-    const availableUnits = roomMatches.filter((room) => room.available > 0 && (!room.maxGuests || guests <= room.maxGuests)).length;
-    const availablePrices = prices.filter((price, index) => availableByUnit[index] > 0 && (!roomMatches[index].maxGuests || guests <= roomMatches[index].maxGuests) && price > 0);
-    const totalPrice = availablePrices.length ? Math.min(...availablePrices) : Math.max(0, ...prices);
+    const unitQuotes = availableByUnit.map((availableCount, index) => ({
+      index,
+      availability: availableCount > 0 ? "available" as const : "unavailable" as const,
+      availableCount,
+      totalPrice: prices[index] || 0,
+      nightlyPrice: prices[index] > 0 ? prices[index] / nights : 0,
+      maxGuests: roomMatches[index].maxGuests,
+    }));
+    const recommendation = recommendVacationUnits(unitQuotes, guests);
+    const availableUnits = availableByUnit.reduce((total, count) => total + count, 0);
+    const totalPrice = recommendation?.totalPrice || 0;
     const result: LegacyQuote = {
       success: true,
       place,
       from: selectedFrom,
       till: selectedTill,
-      availability: availableUnits > 0 ? "available" : "unavailable",
+      availability: recommendation ? "available" : "unavailable",
       availableUnits,
       totalUnits: roomMatches.length,
       totalPrice,
-      nightlyPrice: totalPrice > 0 ? totalPrice / nights : 0,
+      nightlyPrice: recommendation?.nightlyPrice || (totalPrice > 0 ? totalPrice / nights : 0),
       includedGuests: 2,
-      units: availableByUnit.map((availableCount, index) => ({
-        index,
-        availability: availableCount > 0 && (!roomMatches[index].maxGuests || guests <= roomMatches[index].maxGuests) ? "available" : "unavailable",
-        availableCount,
-        totalPrice: prices[index] || 0,
-        nightlyPrice: prices[index] > 0 ? prices[index] / nights : 0,
-        maxGuests: roomMatches[index].maxGuests,
-      })),
+      units: unitQuotes,
+      recommendation,
       source: source.sourceUrl,
       checkedAt: new Date().toISOString(),
     };

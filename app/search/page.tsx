@@ -2,7 +2,7 @@
 
 import "./search-tablet.css";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DeferredListingMap } from "../components/deferred-listing-map";
 import { ModernSelect } from "../components/modern-select";
@@ -187,8 +187,6 @@ function compareVacationProperties(a: (typeof properties)[number], b: (typeof pr
   if (sort === "name") return a.name.localeCompare(b.name, "he");
   return properties.indexOf(a) - properties.indexOf(b);
 }
-const VACATION_PRICE_STEP = 50;
-
 const availabilityDemoCopy = {
   he: { title: "\u05d3\u05d5\u05d2\u05de\u05d0\u05d5\u05ea \u05dc\u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d5\u05dc\u05de\u05d7\u05d9\u05e8 \u05d1\u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd \u05e9\u05d1\u05d7\u05e8\u05ea\u05dd", text: "\u05d4\u05ea\u05d5\u05e6\u05d0\u05d5\u05ea \u05de\u05d3\u05d2\u05d9\u05de\u05d5\u05ea \u05d0\u05ea \u05db\u05dc \u05de\u05e6\u05d1\u05d9 \u05d4\u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d5\u05d4\u05de\u05d7\u05d9\u05e8 \u05dc\u05e4\u05d9 \u05de\u05d1\u05e0\u05d9 \u05d4\u05ea\u05e6\u05d5\u05d2\u05d4 \u05e9\u05dc VII \u05d4\u05d9\u05e9\u05df. \u05d6\u05d4\u05d5 \u05de\u05d9\u05d3\u05e2 \u05dc\u05d4\u05de\u05d7\u05e9\u05d4 \u05d5\u05dc\u05d0 \u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d7\u05d9\u05d4." },
   en: { title: "Availability and price examples for your dates", text: "The results demonstrate every availability and price state based on the old VII display patterns. This is illustrative information, not live availability." },
@@ -208,11 +206,101 @@ function normalizeVacationPrice(value: string | null, fallback: number) {
   if (value === null || value === "") return fallback;
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) return fallback;
-  return Math.min(VACATION_PRICE_MAX, Math.max(VACATION_PRICE_MIN, Math.round(parsed / VACATION_PRICE_STEP) * VACATION_PRICE_STEP));
+  return Math.min(VACATION_PRICE_MAX, Math.max(VACATION_PRICE_MIN, Math.round(parsed)));
 }
 
 function formatVacationPrice(value: number) {
   return `${value.toLocaleString("he-IL")} ₪`;
+}
+
+type VacationPriceInputProps = {
+  value: number;
+  minimum: number;
+  maximum: number;
+  emptyValue: number;
+  ariaLabel: string;
+  onValueChange: (value: number) => void;
+};
+
+function VacationPriceInput({ value, minimum, maximum, emptyValue, ariaLabel, onValueChange }: VacationPriceInputProps) {
+  const [draftValue, setDraftValue] = useState(String(value));
+  const editingRef = useRef(false);
+  const initialValueRef = useRef(value);
+  const cancelNextBlurRef = useRef(false);
+  const selectOnNextClickRef = useRef(false);
+
+  useEffect(() => {
+    if (!editingRef.current) setDraftValue(String(value));
+  }, [value]);
+
+  function commitDraft() {
+    if (cancelNextBlurRef.current) {
+      cancelNextBlurRef.current = false;
+      editingRef.current = false;
+      setDraftValue(String(initialValueRef.current));
+      return;
+    }
+    const requestedValue = draftValue === "" ? emptyValue : Number(draftValue);
+    const committedValue = Math.min(maximum, Math.max(minimum, normalizeVacationPrice(String(requestedValue), emptyValue)));
+    editingRef.current = false;
+    setDraftValue(String(committedValue));
+    onValueChange(committedValue);
+  }
+
+  return (
+    <span className="vacation-price-input">
+      <input
+        type="text"
+        inputMode="numeric"
+        pattern="[0-9]*"
+        autoComplete="off"
+        enterKeyHint="done"
+        maxLength={String(VACATION_PRICE_MAX).length}
+        role="spinbutton"
+        aria-label={ariaLabel}
+        aria-valuemin={minimum}
+        aria-valuemax={maximum}
+        aria-valuenow={draftValue === "" ? undefined : Number(draftValue)}
+        aria-valuetext={draftValue === "" ? undefined : formatVacationPrice(Number(draftValue))}
+        value={draftValue}
+        onFocus={(event) => {
+          editingRef.current = true;
+          initialValueRef.current = value;
+          selectOnNextClickRef.current = true;
+          const input = event.currentTarget;
+          window.requestAnimationFrame(() => input.select());
+        }}
+        onClick={(event) => {
+          if (!selectOnNextClickRef.current) return;
+          selectOnNextClickRef.current = false;
+          event.currentTarget.select();
+        }}
+        onChange={(event) => {
+          const digitsOnly = event.currentTarget.value.replace(/\D/g, "").replace(/^0+(?=\d)/, "");
+          setDraftValue(digitsOnly);
+          if (digitsOnly === "") return;
+          const nextValue = Number(digitsOnly);
+          if (nextValue >= minimum && nextValue <= maximum) onValueChange(nextValue);
+        }}
+        onBlur={commitDraft}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            event.currentTarget.blur();
+          }
+          if (event.key === "Escape") {
+            event.preventDefault();
+            event.stopPropagation();
+            cancelNextBlurRef.current = true;
+            setDraftValue(String(initialValueRef.current));
+            onValueChange(initialValueRef.current);
+            event.currentTarget.blur();
+          }
+        }}
+      />
+      <b aria-hidden="true">₪</b>
+    </span>
+  );
 }
 
 export function SearchExperience({ landing }: { landing?: SearchLandingContext }) {
@@ -680,9 +768,9 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
                   <p>בחרו את המחיר הנמוך והגבוה שמתאים לכם.</p>
                   <output className="vacation-price-filter__summary" aria-live="polite"><span>מ־<bdi>{shownFilters.minPrice.toLocaleString("he-IL")}</bdi> ₪</span><i aria-hidden="true">עד</i><span><bdi>{shownFilters.maxPrice.toLocaleString("he-IL")}</bdi> ₪</span></output>
                   <div className="vacation-price-filter__inputs">
-                    <label><span>מחיר מינימלי</span><span className="vacation-price-input"><input type="number" inputMode="numeric" min={VACATION_PRICE_MIN} max={shownFilters.maxPrice} step={VACATION_PRICE_STEP} value={shownFilters.minPrice} aria-label="מחיר מינימום בשקלים" onChange={(event) => changePriceRange(Number(event.target.value), shownFilters.maxPrice)} /><b aria-hidden="true">₪</b></span></label>
+                    <label><span>מחיר מינימלי</span><VacationPriceInput value={shownFilters.minPrice} minimum={VACATION_PRICE_MIN} maximum={shownFilters.maxPrice} emptyValue={VACATION_PRICE_MIN} ariaLabel="מחיר מינימום בשקלים" onValueChange={(nextValue) => changePriceRange(nextValue, shownFilters.maxPrice)} /></label>
                     <span aria-hidden="true">עד</span>
-                    <label><span>מחיר מקסימלי</span><span className="vacation-price-input"><input type="number" inputMode="numeric" min={shownFilters.minPrice} max={VACATION_PRICE_MAX} step={VACATION_PRICE_STEP} value={shownFilters.maxPrice} aria-label="מחיר מקסימום בשקלים" onChange={(event) => changePriceRange(shownFilters.minPrice, Number(event.target.value))} /><b aria-hidden="true">₪</b></span></label>
+                    <label><span>מחיר מקסימלי</span><VacationPriceInput value={shownFilters.maxPrice} minimum={shownFilters.minPrice} maximum={VACATION_PRICE_MAX} emptyValue={VACATION_PRICE_MAX} ariaLabel="מחיר מקסימום בשקלים" onValueChange={(nextValue) => changePriceRange(shownFilters.minPrice, nextValue)} /></label>
                   </div>
                 </fieldset>
                 <div className="vacation-extra-groups">{legacyExtraFilterGroups.map((group) => <fieldset key={group.title}><legend>{group.title}</legend>{group.options.map((item) => <label key={item.id}><input type="checkbox" checked={shownFilters.selectedExtras.includes(item.id)} onChange={() => toggleExtraFilter(item.id)} /> {item.label}</label>)}</fieldset>)}</div>

@@ -2,7 +2,7 @@
 
 /* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps -- request state is intentionally reset when an availability query key changes */
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { Property } from "../data/site-data";
 import type { ResolvedAvailability, SelectedStay } from "./property-card";
 import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
@@ -25,6 +25,7 @@ type LegacyAvailabilityResponse = {
     nightlyPrice: number;
     maxGuests: number;
   }>;
+  recommendation: NonNullable<ResolvedAvailability["recommendation"]> | null;
 };
 
 export type LegacyAvailabilityState = {
@@ -48,12 +49,14 @@ function toResolvedAvailability(result: LegacyAvailabilityResponse, from: string
       nightlyPrice: unit.nightlyPrice > 0 ? unit.nightlyPrice : undefined,
       maxGuests: unit.maxGuests,
     })),
+    recommendation: result.recommendation || null,
   };
 }
 
-export function useLegacyAvailability(property: Property | null, selectedStay: SelectedStay | null) {
+export function useLegacyAvailability(property: Property | null, selectedStay: SelectedStay | null): LegacyAvailabilityState & { retry: () => void } {
   const [resolved, setResolved] = useState<{ key: string; quote: ResolvedAvailability } | null>(null);
   const [failedKey, setFailedKey] = useState<string | null>(null);
+  const [retryNonce, setRetryNonce] = useState(0);
   const slug = property?.slug || "";
   const enabled = Boolean(legacyAvailabilitySourceFor(slug));
   const from = selectedStay?.from || "";
@@ -87,12 +90,17 @@ export function useLegacyAvailability(property: Property | null, selectedStay: S
         if (!controller.signal.aborted) setFailedKey(requestKey);
       });
     return () => controller.abort();
-  }, [enabled, from, guests, requestKey, slug, till]);
+  }, [enabled, from, guests, requestKey, retryNonce, slug, till]);
 
-  if (!enabled || !from || !till) return { quote: null, status: "idle" } satisfies LegacyAvailabilityState;
-  if (resolved?.key === requestKey) return { quote: resolved.quote, status: "ready" } satisfies LegacyAvailabilityState;
-  if (failedKey === requestKey) return { quote: null, status: "error" } satisfies LegacyAvailabilityState;
-  return { quote: null, status: "loading" } satisfies LegacyAvailabilityState;
+  const retry = useCallback(() => {
+    setFailedKey(null);
+    setRetryNonce((value) => value + 1);
+  }, []);
+
+  if (!enabled || !from || !till) return { quote: null, status: "idle", retry };
+  if (resolved?.key === requestKey) return { quote: resolved.quote, status: "ready", retry };
+  if (failedKey === requestKey) return { quote: null, status: "error", retry };
+  return { quote: null, status: "loading", retry };
 }
 
 /**

@@ -31,10 +31,10 @@ test("guest reviews use authenticated D1 and R2 persistence with pending moderat
   assert.match(studio, /name="photos"/);
 });
 
-test("the shared header keeps search visible and localized while mobile removes the redundant gift shortcut", async () => {
+test("the shared header keeps one worlds trigger and restores accessibility while mobile removes the redundant gift shortcut", async () => {
   const [header, styles] = await Promise.all([read("app/site-header.tsx"), read("app/globals.css")]);
-  assert.match(header, /header-search/);
-  assert.match(header, /localizedPath\("\/search", language\)/);
-  assert.match(header, /translate\("חיפוש באתר"\)/);
+  assert.doesNotMatch(header, /header-search/);
+  assert.match(header, /<AccessibilityWidget placement="icon" \/>/);
+  assert.match(header, /<WorldSwitcher active=\{variant\} \/>/);
   assert.match(styles, /\.header-actions \.header-gift \{ display: none; \}/);
 });
