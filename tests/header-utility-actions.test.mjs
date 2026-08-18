@@ -29,3 +29,12 @@ test("header utility actions share sizing and world selection is not fixed", () 
   assert.match(css, /width: 40px;\s*min-width: 40px;\s*min-height: 40px;/);
   assert.match(css, /\.world-dock > button \.worlds-icon \{ width: 20px; height: 20px;/);
 });
+
+test("global search remains actionable while the world selector closes around it", () => {
+  assert.match(header, /className=\{`icon-button header-search/);
+  assert.match(header, /href=\{localizedPath\("\/search", language\)\}/);
+  assert.match(switcher, /document\.addEventListener\("pointerdown", closeOnOutsidePress\)/);
+  assert.doesNotMatch(switcher, /world-dock__backdrop/);
+  assert.match(css, /\.header-search \{ touch-action: manipulation; \}/);
+  assert.match(css, /\.header-search > \* \{ pointer-events: none; \}/);
+});

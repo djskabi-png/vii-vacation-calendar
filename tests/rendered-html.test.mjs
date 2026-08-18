@@ -1123,9 +1123,11 @@ test("world selection stays in the header and no longer competes with floating a
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../app/components/world-switcher.tsx", import.meta.url), "utf8"),
   ]);
-  assert.match(css, /\.world-dock__backdrop \{ position: fixed/);
-  assert.match(worldSwitcher, /className="world-dock__backdrop"/);
-  assert.match(worldSwitcher, /event\.key === "Escape"/);
+  assert.doesNotMatch(css, /\.world-dock__backdrop/);
+  assert.doesNotMatch(worldSwitcher, /className="world-dock__backdrop"/);
+  assert.match(worldSwitcher, /document\.addEventListener\("pointerdown", closeOnOutsidePress\)/);
+  assert.match(worldSwitcher, /rootRef\.current\?\.contains\(event\.target as Node\)/);
+  assert.match(worldSwitcher, /event\.key !== "Escape"/);
   assert.match(css, /\/\* Compact world selector in the global header zone \*\/[\s\S]*\.header-actions \.world-dock \{[\s\S]*position: relative;[\s\S]*inset: auto;/);
   assert.match(css, /@media \(max-width: 960px\) \{[\s\S]*\.world-dock > button \{[\s\S]*width: 40px;[\s\S]*border-radius: 50%;/);
 });
