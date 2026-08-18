@@ -80,3 +80,39 @@ test("platform route remains deliberately excluded from indexing", async () => {
   assert.match(page, /robots: \{ index: false, follow: false/);
   assert.match(page, /canonical: "\/platform"/);
 });
+
+test("Hilat Hanof case study maps verified VII data to a proposed Sergey contract", async () => {
+  const source = await readFile(sourceUrl, "utf8");
+  for (const required of [
+    "הילת הנוף, ממקור נתונים לעמוד אמיתי ב־VII",
+    "חוזה סרגיי מוצע",
+    "החיבור לסרגיי עדיין אינו פעיל",
+    "46 קובצי מדיה",
+    "ארבע בקתות ומבנה חדרים",
+    "מידע הנגישות עצמו מוצג כיום כטרם אומת",
+    "בדיקת עקביות אמיתית",
+    "פירוט ארבע היחידות מכיל אחד, אחד, אחד ושניים",
+    "/business?id=hilat-hanof",
+    "https://www.vii.co.il/hilat_hanof",
+    "Idempotency-Key: vii_booking_<stable-id>",
+    "מקורם בעמוד ובמאגר VII הנוכחיים",
+  ]) assert.match(source, new RegExp(required.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+
+  assert.match(source, /supplierVenueId: '<Sergey ID to confirm>'/);
+  assert.doesNotMatch(source, /supplierVenueId: ['"]11['"]/);
+  assert.doesNotMatch(source, /\/discover\/place\/hilat-hanof/);
+  assert.match(source, /hilatPageComponents\.map/);
+  assert.match(source, /selectInsight\(insight\).*aria-haspopup="dialog" aria-controls="platform-detail-dialog"/s);
+});
+
+test("Hilat Hanof visual uses source-backed local media and a responsive mobile composition", async () => {
+  const source = await readFile(sourceUrl, "utf8");
+  const css = await readFile(cssUrl, "utf8");
+  assert.match(source, /\/media\/hilat-hanof\/87686399e3d2342\.jpg/);
+  assert.match(source, /\/media\/hilat-hanof\/495f7c268eb4431\.jpeg/);
+  assert.match(source, /\/media\/hilat-hanof\/845f7c268dc8ca2\.jpeg/);
+  assert.match(css, /\.hilatJourney \{[^}]*grid-template-columns:/s);
+  assert.match(css, /@media \(max-width: 1050px\)[\s\S]*?\.hilatJourney \{ grid-template-columns: 1fr; \}/s);
+  assert.match(css, /@media \(max-width: 760px\)[\s\S]*?\.hilatComponentGrid \{ grid-template-columns: 1fr; \}/s);
+  assert.match(css, /\.hilatLiveLink \{[^}]*min-height: 46px;/s);
+});

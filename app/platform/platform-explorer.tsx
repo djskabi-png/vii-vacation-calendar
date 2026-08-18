@@ -180,6 +180,97 @@ const providerExamples = [
   { provider: "FUTURE PROVIDER", world: "ATTRACTIONS", code: "provider_id: pending", title: "אטרקציית הדגמה בצפון", fields: "שם, מזהה, תיאור, מיקום, תמונות, סוגי כרטיסים, גילאים, מגבלות, שעות, מחירים וזמינות", meta: "משפחות · 90 דקות · החל מ־85 ₪" },
 ];
 
+const hilatInsights: InsightCard[] = [
+  {
+    id: "hilat-identity",
+    eyebrow: "01 IDENTITY + CONTENT",
+    title: "זהות, שם ותוכן מלא",
+    summary: "סרגיי צריך לספק מזהה יציב, סטטוס, שם, סוג מקום, תיאור קצר ותיאור מלא. VII שומרת את המקור וממפה אותו לזהות קנונית משלה.",
+    decision: "target",
+    status: "חוזה מוצע לאישור סרגיי. השמות הטכניים אינם ממשק פעיל.",
+    bullets: ["המקור הנוכחי שנבדק כולל את השם הילת הנוף, מתחם בקתות עץ בכלנית.", "מזהה הספק לעולם אינו משמש ככתובת הציבורית של VII.", "שינוי שם או תיאור מעדכן רק שדות שבבעלות הספק ואינו מוחק עריכת VII."],
+    technical: "GET /v1/venues/{supplierVenueId}\ninclude=content,units,media,policies\n\n{\n  schemaVersion: '1.0',\n  supplierVenueId: '<Sergey ID to confirm>',\n  sourceUpdatedAt: '<ISO-8601>',\n  status: 'active',\n  name: 'הילת הנוף',\n  type: 'cabin_complex',\n  descriptions: { short, full }\n}",
+  },
+  {
+    id: "hilat-location",
+    eyebrow: "02 LOCATION + CONTACT",
+    title: "מיקום, מפה ודרכי קשר",
+    summary: "היישוב, האזור, הכתובת, הקואורדינטות ודרכי הקשר המורשות מגיעים כמבנה נתונים, ולא כטקסט אחד שאי אפשר לבדוק.",
+    decision: "target",
+    status: "המיקום והקשר קיימים במקור הנוכחי. חוזה סרגיי והרשאות השימוש עדיין פתוחים.",
+    bullets: ["המקור הנוכחי מציב את המקום בכלנית, באזור סובב כנרת.", "המערכת בודקת קואורדינטות מול היישוב והאזור לפני פרסום.", "טלפון ו־WhatsApp נשמרים עם הרשאת הצגה וניתוב, בלי לחשוף מידע פנימי."],
+    technical: "location: {\n  locality: 'כלנית',\n  region: 'סובב כנרת',\n  latitude: 32.8764309,\n  longitude: 35.4552075,\n  geocodeSource: '<to confirm>'\n}\ncontact: { publicPhone, whatsapp, displayAllowed }",
+  },
+  {
+    id: "hilat-media",
+    eyebrow: "03 MEDIA + RIGHTS",
+    title: "גלריה, סדר תמונות וזכויות",
+    summary: "לא מספיק לקבל כתובות תמונה. לכל נכס מדיה נדרשים מזהה, מקור, סדר, שיוך למתחם או ליחידה, זכויות, checksum ומידע חלופי.",
+    decision: "target",
+    status: "במאגר המקומי קיימים 46 קובצי מדיה של הילת הנוף. מקור CDN וזכויות מסרגיי טרם אומתו.",
+    bullets: ["VII שומרת מקור או עותק בר־שחזור ומפיקה גרסאות מהירות למסכים שונים.", "לכל תמונה יש סדר, נושא, יחידה, מקור וזכויות שימוש.", "VII רשאית להוסיף חיתוך, בחירת תמונת שער, כיתוב ו־alt מקומי בלי לשנות את קובץ המקור."],
+    technical: "media: [{\n  supplierAssetId: '<asset id>',\n  sourceUrl: 'https://...',\n  sortOrder: 1,\n  scope: 'venue | unit',\n  unitId: '<optional>',\n  rights: { publishAllowed, credit },\n  checksum: 'sha256:...',\n  sourceAlt: '<optional>'\n}]",
+  },
+  {
+    id: "hilat-units",
+    eyebrow: "04 UNITS + ROOMS",
+    title: "ארבע בקתות ומבנה חדרים",
+    summary: "כל בקתה היא יחידה נפרדת עם מזהה יציב, קיבולת, חדרי שינה, מיטות, שטח, תמונות ומתקנים. יחידה אינה חדר שינה.",
+    decision: "target",
+    status: "פירוט ארבע היחידות קיים במקור הנוכחי. מזהי היחידות ומחירן בממשק סרגיי אינם מאומתים.",
+    bullets: ["בקתות 1 עד 3: עד שישה אורחים, חדר שינה אחד ו־45 מ״ר לכל יחידה.", "בקתה 4: עד שבעה אורחים, שני חדרי שינה ו־45 מ״ר.", "כל סתירה בין סיכום המקום לסכום היחידות נעצרת לבדיקה במקום להתפרסם אוטומטית."],
+    technical: "units: [{\n  supplierUnitId: '<Sergey unit id>',\n  name: 'בקתה 1',\n  quantity: 1,\n  maxGuests: 6,\n  bedrooms: 1,\n  areaSqm: 45,\n  beds: [{ type, quantity }],\n  amenities: [], media: []\n}]\nvalidateAggregate(units) -> pass | quarantine",
+  },
+  {
+    id: "hilat-features",
+    eyebrow: "05 AMENITIES + POLICIES",
+    title: "מתקנים, קהלים, מדיניות ונגישות",
+    summary: "מתקנים ומדיניות מתקבלים כשדות מובנים שאפשר לסנן, לתרגם ולאמת. נגישות אינה תג כללי, אלא מידע מפורט שדורש מקור ואישור.",
+    decision: "target",
+    status: "המתקנים והמדיניות קיימים במקור המקומי. מידע הנגישות עצמו מוצג כיום כטרם אומת.",
+    bullets: ["המקור כולל בריכה, ג׳קוזי בכל בקתה, מטבח משותף, מדשאות, ברביקיו וציוד ביחידות.", "שעות כניסה ויציאה, קהלים וכללי רעש נשמרים בנפרד.", "פרסום נגישות דורש שדות מפורטים ובדיקה, לא סימון כן או לא בלבד."],
+    technical: "amenityCodes: ['pool', 'private_jacuzzi', 'shared_kitchen']\npolicies: { checkInFrom, checkOutUntil, noise, parties }\naccessibility: {\n  status: 'unverified | verified',\n  parking, route, entrance, bathroom, facilities,\n  checkedAt, verifiedBy\n}",
+  },
+  {
+    id: "hilat-commerce",
+    eyebrow: "06 LIVE AVAILABILITY",
+    title: "מחיר, זמינות והזמנה טרייה",
+    summary: "קטלוג המקום נטען מ־VII. רק אחרי בחירת תאריכים, אורחים ויחידה נשלחת בדיקה ממוקדת לסרגיי. אישור הזמנה לעולם אינו מגיע ממטמון.",
+    decision: "target",
+    status: "בדף הנוכחי יש תמונת מצב מקומית. זמינות יחידתית והזמנה מול סרגיי טרם חוברו.",
+    bullets: ["מענה חייב להחזיר מצב מפורש: זמין, לא זמין, לא ידוע או שגיאה.", "המחיר כולל מטבע, לילות מינימום, מיסים, עמלות, תוקף הצעה ומזהה בקשה.", "יצירת הזמנה משתמשת במפתח מניעת כפילות ובבדיקה טרייה לפני התחייבות."],
+    technical: "POST /v1/integrations/sergey/availability\n{ supplierVenueId, unitIds, from, till, adults, children }\n\n-> {\n  status: 'available | unavailable | unknown | error',\n  units: [{ supplierUnitId, quantity, totalPrice }],\n  currency: 'ILS', quoteId, validUntil, supplierRequestId\n}\n\nPOST /bookings\nIdempotency-Key: vii_booking_<stable-id>",
+  },
+  {
+    id: "hilat-overlay",
+    eyebrow: "07 VII OWNED OVERLAY",
+    title: "מה VII מוסיפה ושומרת לעצמה",
+    summary: "VII קובעת את הכתובת, מבנה העמוד, עריכת התוכן, התרגומים, סדר המדיה, קידום, קישורים, פרסום ודוחות. עדכון ספק אינו מוחק אותם.",
+    decision: "approved",
+    status: "עקרון הבעלות מאושר. מערכת הניהול והמודל הקנוני המלאים טרם נבנו ואומתו.",
+    bullets: ["כתובת ציבורית, canonical, metadata, schema, breadcrumbs וקישורים פנימיים.", "תרגומים, כותרות ערוכות, בחירת תמונת שער, FAQ, מקומות קרובים וכללי פרסום.", "מקור ובעלות לכל שדה, גרסה, תצוגה מקדימה, אישור, יומן וחזרה לאחור."],
+    technical: "canonicalPlace: { id: 'vii_place_hilat_hanof', supplierRefs: [...] }\noverlay: {\n  slug: 'business?id=hilat-hanof',\n  heroAssetId, localizedCopy, seo, faq, relatedItems,\n  publicationStatus, version, approvedBy\n}\nmergeRule: supplier fields + preserved VII overlay",
+  },
+  {
+    id: "hilat-reviews-sync",
+    eyebrow: "08 REVIEWS + SYNC",
+    title: "חוות דעת ועדכון דו־כיווני",
+    summary: "העמוד מציג 180 חוות דעת ממקור legacy מאומת. חוות דעת חדשות והזמנות יוחזרו לסרגיי רק בחוזה מאושר, עם מצב, מתינות ומניעת כפילות.",
+    decision: "target",
+    status: "המקור המקומי קיים. חוזה הכתיבה, Webhook, מגבלות הקצב וה־SLA של סרגיי עדיין פתוחים.",
+    bullets: ["שומרים מזהה VII ומזהה ספק, שיוך למקום וליחידה, שפה, אימות ביקור ומצב ביקורת.", "שינוי תמונה או חדר עובר דרך מקור גולמי, אימות, מיזוג, אינדוקס ופינוי מטמון.", "כשל נשמר בתור כשל עם סיבה. ניסיון חוזר אינו יוצר הזמנה או חוות דעת כפולה."],
+    technical: "place.updated v38\n-> raw snapshot\n-> schema + media + aggregate validation\n-> field-owner diff\n-> canonical upsert\n-> preserve VII overlay\n-> reindex + purge cache\n-> audit + alert\n\nPOST /reviews\nIdempotency-Key: sergey:<review-id>",
+  },
+];
+
+const hilatPageComponents = [
+  ["שם, סוג ומיקום", "hilat-identity"], ["גלריה ותמונת שער", "hilat-media"], ["שמירה, שיתוף ויצירת קשר", "hilat-location"],
+  ["תיאור וקהלי יעד", "hilat-identity"], ["נתוני על של המקום", "hilat-units"], ["בדיקת תאריכים והזמנה", "hilat-commerce"],
+  ["יחידות ומבנה שינה", "hilat-units"], ["מתקנים ושירותים", "hilat-features"], ["מידע נגישות", "hilat-features"],
+  ["מפה ומיקום", "hilat-location"], ["שאלות, מדיניות ותנאים", "hilat-features"], ["חוות דעת", "hilat-reviews-sync"],
+  ["חוויות ומקומות קרובים", "hilat-overlay"], ["קידום, כתובת ונתונים מובנים", "hilat-overlay"],
+] as const;
+
 const decisionSnapshot: InsightCard[] = [
   { id: "decision-owner", eyebrow: "PLATFORM OWNERSHIP", title: "VII מחזיקה במוצר ובאמת המקומית", summary: "הספקים מספקים מידע ופעולות לעולם שלהם. הם אינם מרנדרים את VII ואינם מכתיבים את המודל שלה.", decision: "approved", status: "עקרון בעלות מאושר.", bullets: ["VII: אתר, שרת, ממשק, נתונים, חיפוש, ניהול, תוכן, קידום, מדידה והרשאות.", "ספק: מקור נתונים וזמינות לפי חוזה עולם מאומת.", "מתאם מבודד לכל ספק מאפשר החלפה בלי לפרק את המוצר."], technical: "provider payload -> VII adapter -> raw snapshot\n-> canonical model -> VII overlay -> public API" },
   { id: "decision-database", eyebrow: "CENTRAL DATABASE", title: "Aurora PostgreSQL בישראל", summary: "המסד הטרנזקציוני נבחר. VII תשתמש ב־Aurora Serverless v2 באזור תל אביב.", decision: "approved", status: "בחירת הטכנולוגיה והאזור מאושרת. ההקמה עדיין לא בוצעה.", bullets: ["PostgreSQL 16.x, גרסת משנה נתמכת שנבדקה.", "אזור AWS תל אביב.", "מסד פרטי, מוצפן וללא גישה ציבורית."], technical: "engine = aurora-postgresql\nregion = il-central-1\npublic_access = false\nencryption = enabled" },
@@ -429,6 +520,106 @@ export function PlatformExplorer() {
           </div>
           <figcaption>המחשת ארכיטקטורת יעד כללית. המפה הלחיצה שבהמשך היא הרשימה המלאה והעדכנית של שמונת העולמות. זהו תרשים תכנוני, לא צילום של תשתית פעילה ולא אישור שחיבורי הספקים כבר עלו לאוויר.</figcaption>
         </figure>
+      </section>
+
+      <section className={styles.hilatCaseStudy} aria-labelledby="hilat-case-title">
+        <div className={styles.sectionHeading}>
+          <span>REAL VII CASE STUDY</span>
+          <h2 id="hilat-case-title">הילת הנוף, ממקור נתונים לעמוד אמיתי ב־VII</h2>
+          <p>זו אינה וילת הדגמה. הנתונים והתמונות שבתצוגה נבדקו בדף הילת הנוף ובמקור ההגירה הקיים. החיבור לסרגיי עדיין אינו פעיל, ולכן מבנה הממשק שמוצג כאן הוא חוזה מוצע לאישורו.</p>
+        </div>
+
+        <div className={styles.hilatTruthStrip} aria-label="מקורות ומצב הדוגמה">
+          <article><DecisionBadge decision="current" /><div><b>עמוד VII חי</b><p>הדף החדש קיים ופועל באתר שאנו בונים.</p></div></article>
+          <article><span className={styles.hilatSourceMark}>V</span><div><b>מקור שנבדק</b><p>המקור הישן, הקוד המקומי והעמוד החי.</p></div></article>
+          <article><DecisionBadge decision="target" /><div><b>חוזה סרגיי מוצע</b><p>שדות, כתובות ופעולות שמחכים לדוגמה ולאישור.</p></div></article>
+        </div>
+
+        <div className={styles.hilatJourney} aria-label="מסלול הילת הנוף ממערכת סרגיי לעמוד VII">
+          <article className={styles.hilatSupplierPanel}>
+            <div className={styles.hilatPanelTopline}><span dir="ltr">SERGEY SYSTEM</span><DecisionBadge decision="target" /></div>
+            <h3>רשומת המקום שנדרוש מסרגיי</h3>
+            <p>משיכה מלאה ראשונה, אחריה עדכוני דלתא או Webhook והשלמה מחזורית.</p>
+            <pre dir="ltr"><code>{`GET /v1/venues/{supplierVenueId}
+?include=content,media,units,policies
+
+{
+  "name": "הילת הנוף",
+  "status": "active",
+  "location": { ... },
+  "media": [ ... ],
+  "units": [ ... ],
+  "amenities": [ ... ],
+  "policies": { ... },
+  "sourceUpdatedAt": "..."
+}`}</code></pre>
+            <button type="button" onClick={() => selectInsight(hilatInsights[0])} aria-haspopup="dialog" aria-controls="platform-detail-dialog">פתחו את חוזה הזהות והתוכן</button>
+            <a href="https://www.vii.co.il/hilat_hanof" target="_blank" rel="noopener noreferrer" aria-label="פתיחת מקור ההגירה של הילת הנוף בחלון חדש">מקור ההגירה שנבדק, בחלון חדש</a>
+          </article>
+
+          <i className={styles.hilatJourneyArrow} aria-hidden="true">←</i>
+
+          <article className={styles.hilatCorePanel}>
+            <div className={styles.hilatPanelTopline}><span dir="ltr">VII DATA CORE</span><DecisionBadge decision="approved" /></div>
+            <h3>VII שומרת, בודקת ומחליטה מה לפרסם</h3>
+            <ol>
+              <li><span>01</span><div><b dir="ltr">RAW SNAPSHOT</b><p>המקור המדויק שקיבלנו, כולל גרסה וזמן.</p></div></li>
+              <li><span>02</span><div><b dir="ltr">CANONICAL PLACE</b><p>מקום, יחידות, מדיה ומדיניות במבנה אחיד.</p></div></li>
+              <li><span>03</span><div><b dir="ltr">VII OVERLAY</b><p>עריכה, שפות, קידום, סדר מדיה ופרסום.</p></div></li>
+            </ol>
+            <div className={styles.hilatValidation}>
+              <strong>בדיקת עקביות אמיתית</strong>
+              <p>הסיכום הנוכחי מציג ארבעה חדרי שינה, אך פירוט ארבע היחידות מכיל אחד, אחד, אחד ושניים. מערכת הקליטה לא מפרסמת סתירה כזאת אוטומטית, אלא מחשבת מחדש או מעבירה לבדיקה.</p>
+            </div>
+            <button type="button" onClick={() => selectInsight(hilatInsights[6])} aria-haspopup="dialog" aria-controls="platform-detail-dialog">מה נשמר בבעלות VII</button>
+          </article>
+
+          <i className={styles.hilatJourneyArrow} aria-hidden="true">←</i>
+
+          <article className={styles.hilatPagePanel}>
+            <div className={styles.hilatBrowserBar}><span aria-hidden="true"><i /><i /><i /></span><b dir="ltr">vii.spaplus.co</b></div>
+            <div className={styles.hilatMiniHeader}><img src="/vii-logo.png" alt="וי פור ויקיישן" width="160" height="122" /><span>נופש</span><span>בחירת עולם</span></div>
+            <div className={styles.hilatMiniTitle}><small>מתחם בקתות עץ · נופש ולינה</small><h3>הילת הנוף</h3><p>כלנית, סובב כנרת</p></div>
+            <div className={styles.hilatMiniActions}><span>שמירה</span><span>שיתוף</span><span>הצגת מספר</span><span>פנייה בוואטסאפ</span></div>
+            <div className={styles.hilatMiniGallery}>
+              <img src="/media/hilat-hanof/87686399e3d2342.jpg" alt="בריכת השחייה והנוף בהילת הנוף" width="1027" height="687" />
+              <img src="/media/hilat-hanof/495f7c268eb4431.jpeg" alt="ג׳קוזי ביחידת אירוח בהילת הנוף" width="1024" height="683" />
+              <img src="/media/hilat-hanof/845f7c268dc8ca2.jpeg" alt="יחידת אירוח בהילת הנוף" width="1024" height="683" />
+              <span>לגלריה המלאה</span>
+            </div>
+            <div className={styles.hilatMiniStats}><span><b>25</b> אורחים</span><span><b>4</b> יחידות</span><span><b>4</b> בקתות</span><span><b>180</b> חוות דעת</span></div>
+            <div className={styles.hilatMiniUnits}><span>בקתה 1 · עד 6</span><span>בקתה 2 · עד 6</span><span>בקתה 3 · עד 6</span><span>בקתה 4 · עד 7</span></div>
+            <a className={styles.hilatLiveLink} href="/business?id=hilat-hanof" target="_blank" rel="noopener noreferrer" aria-label="פתיחת עמוד הילת הנוף החי באתר VII בחלון חדש">פתחו את עמוד הילת הנוף החי</a>
+            <small className={styles.hilatPreviewCaption}>שחזור מוקטן מתוך רכיבי העמוד החי, עם מדיה ונתונים ממקור VII הקיים.</small>
+          </article>
+        </div>
+
+        <div className={styles.hilatFieldHeading}>
+          <div><span dir="ltr">FIELD BY FIELD</span><h3>כל מה שמופיע בעמוד, ומאיפה הוא מגיע</h3></div>
+          <p>לחצו על כל רכיב כדי לראות את השדות, דרך השמירה והדוגמה הטכנית.</p>
+        </div>
+        <div className={styles.hilatComponentGrid}>
+          {hilatPageComponents.map(([label, insightId], index) => {
+            const insight = hilatInsights.find((item) => item.id === insightId)!;
+            return <button type="button" key={label} onClick={() => selectInsight(insight)} aria-haspopup="dialog" aria-controls="platform-detail-dialog">
+              <span>{String(index + 1).padStart(2, "0")}</span><b>{label}</b><small>{insight.eyebrow}</small><i aria-hidden="true">←</i>
+            </button>;
+          })}
+        </div>
+
+        <div className={styles.hilatUpdateStory}>
+          <div className={styles.hilatUpdateIntro}><DecisionBadge decision="target" /><h3>מה קורה כשסרגיי מחליף תמונה או משנה מבנה חדרים?</h3><p>הגולש אינו מחכה לסרגיי בכל פתיחת עמוד. השינוי עובר מסלול מבוקר ורק אז מגיע לאתר.</p></div>
+          <ol>
+            <li><span>1</span><b>שינוי בסרגיי</b><p>אירוע, דלתא או זיהוי בהשלמה.</p></li>
+            <li><span>2</span><b>שמירת המקור</b><p>גרסה גולמית שאפשר לשחזר.</p></li>
+            <li><span>3</span><b>אימות והשוואה</b><p>סכימה, מדיה, יחידות וסתירות.</p></li>
+            <li><span>4</span><b>מיזוג לפי בעלות</b><p>שדות ספק מתעדכנים, עריכת VII נשמרת.</p></li>
+            <li><span>5</span><b>רענון האתר</b><p>אינדקס, מטמון, מדיה ויומן שינוי.</p></li>
+          </ol>
+          <button type="button" onClick={() => selectInsight(hilatInsights[7])} aria-haspopup="dialog" aria-controls="platform-detail-dialog">פתחו את מסלול הסנכרון והכתיבה החוזרת</button>
+        </div>
+
+        <p className={styles.sectionNote}><DecisionBadge decision="current" /> הנתונים בדוגמה מקורם בעמוד ובמאגר VII הנוכחיים. הם אינם מוכיחים שהם הגיעו מסרגיי. רק דוגמת ממשק מאושרת ובדיקת קצה לקצה ישנו את הסטטוס לחיבור פעיל.</p>
       </section>
 
       <section className={styles.dataContract} aria-labelledby="data-contract-title">
