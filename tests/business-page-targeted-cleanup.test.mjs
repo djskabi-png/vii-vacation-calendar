@@ -8,16 +8,16 @@ const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf
 
 test("business phone stays private until the visitor asks to reveal it", () => {
   assert.match(business, /const \[phoneRevealed, setPhoneRevealed\] = useState\(false\)/);
-  assert.match(business, />הצגת מספר<\/button>/);
+  assert.match(business, /<span>הצגת מספר<\/span><\/button>/);
   assert.match(business, /onClick=\{\(\) => setPhoneRevealed\(true\)\}/);
   assert.match(business, /<a className="property-phone-action property-phone-action--revealed" href=\{phoneHref\}/);
   assert.match(business, /<span dir="ltr">\{property\.contact\?\.phone\}<\/span>/);
 });
 
 test("date launcher uses one clear mobile hierarchy", () => {
-  assert.match(bookingHub, /"תאריכים ואורחים"/);
+  assert.match(bookingHub, />בחרו תאריכים<\/strong>/);
   assert.match(bookingHub, /"בדיקת זמינות"/);
-  assert.match(bookingHub, /\{hasDates \? <span className="vacation-booking-hub__launcher-action">שינוי<\/span> : null\}/);
+  assert.match(bookingHub, /\{hasDates \? <span className="vacation-booking-hub__launcher-action">עריכה<\/span> : null\}/);
   assert.doesNotMatch(bookingHub, />בחירה<\/span>/);
   assert.doesNotMatch(bookingHub, /vacation-booking-hub__launcher-action-short/);
   assert.doesNotMatch(bookingHub, />פירוט<\/span>/);

@@ -65,7 +65,7 @@ export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
   const area = language === "he" ? item.area : placeNames[language][item.area] || ui!.israel;
   const description = localized?.description || item.description;
   const features = localized?.chips || item.features.slice(0, 3);
-  const details = ui?.details || (item.world === "hourly" ? "פרטי המקום" : "לפרטים");
+  const details = ui?.details || (item.world === "hourly" ? "פרטי המקום" : "צפייה במקום");
   const price = language === "he" ? item.priceLabel || item.duration || details : localizedPrice(item.priceLabel || item.duration, language, details);
 
   if (!item.image) return null;
@@ -91,7 +91,7 @@ export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
             ? <a className="discovery-card__quick-call" dir="ltr" href={`tel:${item.phone.replace(/[^\d+]/g, "")}`} aria-label={translate(`חיוג אל ${item.name}`)}><PhoneIcon /><bdi>{item.phone}</bdi></a>
             : <button className="discovery-card__reveal-phone" type="button" onClick={() => { setPhoneVisible(true); trackPhoneReveal({ placeId: item.id, placeName: item.name, world: item.world, placement: "discovery_card" }); }}><PhoneIcon /><span>הצגת מספר</span></button>
           : null}
-          <Link href={`/discover/place/${item.id}`} target="_blank" rel="noopener noreferrer">{details}<span className="sr-only"></span></Link>
+          <Link className="discovery-card__details" href={`/discover/place/${item.id}`} target="_blank" rel="noopener noreferrer">{details}<span aria-hidden="true">←</span><span className="sr-only"></span></Link>
         </div>
       </footer>
     </div>

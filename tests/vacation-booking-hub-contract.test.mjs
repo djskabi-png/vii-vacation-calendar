@@ -17,7 +17,7 @@ test("vacation detail pages keep booking connected while showing the verified un
 test("the booking hub keeps dates guests availability units price and action in one section", async () => {
   const hub = await readFile(new URL("app/components/vacation-booking-hub.tsx", root), "utf8");
   for (const contract of [
-    "תאריכי השהייה",
+    "בחרו תאריכים",
     "כמות אורחים",
     "יחידות אירוח לבחירה",
     "פנוי ויש מחיר",
@@ -43,7 +43,7 @@ test("multi-unit pricing is accepted only from the verified availability resolve
 test("the booking entry opens one calm responsive dialog with a reachable primary action", async () => {
   const hub = await readFile(new URL("app/components/vacation-booking-hub.tsx", root), "utf8");
   const css = await readFile(new URL("app/globals.css", root), "utf8");
-  assert.match(hub, /aria-haspopup=\{hasDates \? "dialog" : undefined\}/);
+  assert.match(hub, /aria-haspopup="dialog"/);
   assert.match(hub, /role="dialog" aria-modal="true"/);
   assert.match(hub, /document\.body\.style\.overflow = "hidden"/);
   assert.match(hub, /window\.removeEventListener\("keydown", closeOnEscape\)/);

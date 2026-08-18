@@ -434,7 +434,8 @@ test("gift cards, corporate experiences and MASU form one internal journey", asy
   assert.match(sitemapXml, /masu-home-wellness/);
   assert.match(worldData, /id: "masu-home-wellness"/);
   assert.doesNotMatch(worldData, /id: "masu-home-wellness"[^\n]*rating:/);
-  assert.match(businessSource, /<MasuExperience/);
+  assert.match(businessSource, /property-provider-strip/);
+  assert.match(businessSource, /item\.id === "masu-home-wellness"/);
   assert.match(eventSource, /<MasuExperience context="event"/);
   assert.match(discoverySource, /<MasuExperience context=/);
   const dictionaries = JSON.parse(translations);
@@ -550,7 +551,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(business, /property\.sleepingArrangements/);
   assert.doesNotMatch(business, /property\.roomOptions\?\.length && !property\.sleepingArrangements/);
   assert.match(business, /room-card__sleeping/);
-  assert.match(business, /חדרי השינה בתוך היחידה/);
+  assert.match(business, /<SleepingArrangements/);
   assert.match(business, /לצפייה בפירוט החדרים, המיטות והתמונות/);
   assert.doesNotMatch(business, /www\.vii\.co\.il/);
   assert.doesNotMatch(eventPlace, /www\.vii\.co\.il/);
@@ -567,7 +568,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(sleeping, /alt=\{`\$\{arrangement\.name\} ב\$\{placeName\}`\}/);
   assert.equal((data.match(/name: "חדר שינה [1-9]"/g) || []).length, 12);
   assert.equal((data.match(/galleryImage: "\/media\/[a-f0-9]{16}\.(?:jpe?g|png)"/g) || []).length, 9);
-  assert.match(business, /מה אפשר לעשות מסביב/);
+  assert.match(business, /מה יש ליד \{property\.name\}\?/);
   assert.match(business, /complementaryItems/);
   assert.match(eventPlace, /ספקים שיכולים להשלים את החגיגה/);
   assert.match(eventPlace, /הפרטים מבוססים על מידע ציבורי/);
@@ -582,7 +583,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(business, /booking-summary/);
   const vacationHub = await readFile(new URL("../app/components/vacation-booking-hub.tsx", import.meta.url), "utf8");
   assert.match(vacationHub, /buttonLabel="בדיקת זמינות"/);
-  assert.match(business, /<FavoriteButton compact=\{false\}/);
+  assert.match(business, /<FavoriteButton compact className="property-gallery__favorite"/);
   assert.match(eventPlace, /<FavoriteButton compact=\{false\}/);
   assert.match(styles, /\.universal-favorite\.is-saved/);
   assert.equal((worldData.match(/sourceName: "ספא פלוס"/g) || []).length, 10);
@@ -772,7 +773,8 @@ test("includes the accessibility system and honest place disclosures", async () 
   assert.match(statement, /נמצאת בתהליך השלמה/);
   assert.equal((data.match(/"(?:aqua-resort|kesem-harimon|ahuzat-or|ar-suites|sol-gilgal|magic-garden-gefen|anael-estate|perfumes-villa|rose-estate|party-time|black-loft|sani-loft|360-events|loft-117|fiesta|details-events|star-loft|puzzle-club|paphos-events)"/g) || []).length, 19);
   assert.match(data, /status: "unknown"/);
-  assert.match(listing, /האם המקום נגיש/);
+  assert.match(data, /מידע הנגישות טרם אומת/);
+  assert.match(listing, /נגישות במקום/);
   assert.match(header, /<AccessibilityWidget placement="menu" \/>/);
   assert.match(header, /<LanguageSwitcher compact/);
   assert.match(footer, /href="\/accessibility"/);
@@ -863,7 +865,7 @@ test("keeps the footer foundation fixed while adapting discovery links to each w
   assert.match(footer, /AccessibilityWidget/);
   assert.match(shell, /<SiteFooter variant=\{variant\} topic=\{footerTopic\} \/>/);
   assert.match(search, /footerTopicForPropertyType\(selectedTypes\[0\] \|\| "הכל"\)/);
-  assert.match(providers, /searchParams\.get\("category"\)/);
+  assert.match(providers, /providerCategoryHref/);
   assert.match(trails, /searchParams\.get\("area"\)/);
 });
 

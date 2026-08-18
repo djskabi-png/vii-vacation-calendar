@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 750" role="img" aria-labelledby="title desc">
+  <title id="title">המחשה של מסלול טבע לצד נחל בצפון</title>
+  <desc id="desc">איור עריכתי של שביל עץ, נחל וצמחייה ירוקה באור אחר הצהריים</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#93d8e5"/><stop offset="1" stop-color="#f8e5b3"/></linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#2aaeba"/><stop offset="1" stop-color="#075c6c"/></linearGradient>
+    <linearGradient id="path" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d2aa72"/><stop offset="1" stop-color="#775235"/></linearGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="18"/></filter>
+  </defs>
+  <rect width="1200" height="750" fill="url(#sky)"/>
+  <circle cx="940" cy="125" r="76" fill="#ffe7a3" opacity=".9" filter="url(#soft)"/>
+  <path d="M0 260 160 160l130 75 165-145 180 170 140-98 190 115 235-100v573H0Z" fill="#356b50"/>
+  <path d="M0 330c160-95 270-65 410-10 170 67 300 7 430-38 155-54 250-25 360 33v435H0Z" fill="#1d4e3c"/>
+  <path d="M80 750c190-195 308-298 477-335 169-38 355 26 643-42v377Z" fill="url(#water)"/>
+  <path d="M0 750h325c85-145 191-242 344-314l-93-45C381 468 221 575 0 620Z" fill="url(#path)"/>
+  <g stroke="#563f2e" stroke-width="12" opacity=".8"><path d="M175 750 526 417"/><path d="M37 674 451 375"/></g>
+  <g fill="#74a95f"><circle cx="88" cy="410" r="105"/><circle cx="255" cy="355" r="90"/><circle cx="1020" cy="350" r="125"/><circle cx="1155" cy="410" r="95"/></g>
+  <g fill="#153f31"><circle cx="80" cy="500" r="82"/><circle cx="1110" cy="510" r="110"/><circle cx="965" cy="470" r="74"/></g>
+  <g fill="#163e3a"><circle cx="604" cy="405" r="16"/><path d="M590 430h29l17 79h-18l-10-45-8 45h-18Z"/><circle cx="660" cy="425" r="14"/><path d="M647 447h26l14 68h-17l-8-38-8 38h-17Z"/></g>
+  <path d="M610 520c175 22 350 7 542-68" fill="none" stroke="#8fe4df" stroke-width="7" opacity=".45"/>
+</svg>

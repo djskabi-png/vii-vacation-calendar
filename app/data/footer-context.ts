@@ -53,12 +53,12 @@ export const worldFooterContexts: Record<WorldId, FooterContext> = {
   providers: {
     label: "שירותים לאירוח ולאירועים",
     links: [
-      { href: "/providers?category=food", label: "שפים ואוכל" },
-      { href: "/providers?category=music", label: "מוזיקה" },
-      { href: "/providers?category=photo", label: "צילום" },
-      { href: "/providers?category=design", label: "עיצוב" },
-      { href: "/providers?category=bar", label: "ברים" },
-      { href: "/providers?category=wellness", label: "רווחה ותנועה" },
+      { href: "/providers/food", label: "שפים ואוכל" },
+      { href: "/providers/music", label: "מוזיקה" },
+      { href: "/providers/photo", label: "צילום" },
+      { href: "/providers/design", label: "עיצוב" },
+      { href: "/providers/bar", label: "ברים" },
+      { href: "/providers/wellness", label: "רווחה ותנועה" },
     ],
   },
   activities: {

@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import Image from "next/image";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 
 type ShareKind = "place" | "event" | "article";
@@ -206,7 +207,7 @@ export function ShareButton({ title, kind = "place" }: { title: string; kind?: S
           </header>
           <p id={descriptionId} className="share-dialog__description">{labels.description}</p>
           <div className="share-dialog__preview">
-            <span aria-hidden="true">VII</span>
+            <span aria-hidden="true"><Image src="/vii-logo.png" width={160} height={122} alt="" /></span>
             <div><small>{labels.preview}</small><strong>{translatedTitle}</strong></div>
           </div>
           <div className="share-dialog__options">

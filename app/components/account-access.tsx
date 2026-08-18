@@ -2,6 +2,7 @@
 
 import { createContext, ReactNode, useCallback, useContext, useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { ACCOUNT_EVENT, readAccount, saveAccount, type LocalAccount } from "../lib/account";
 
@@ -53,7 +54,7 @@ export function AccountAccessProvider({ children }: { children: ReactNode }) {
     {children}
     {open ? <div className="account-auth-layer" onMouseDown={(event) => event.target === event.currentTarget && close()}><section className="account-auth-dialog" role="dialog" aria-modal="true" aria-labelledby={titleId} dir={language === "he" ? "rtl" : "ltr"}>
       <button ref={closeRef} className="dialog-close" type="button" onClick={close} aria-label={labels.close}>×</button>
-      <div className="account-auth-dialog__brand"><img src="/vii-logo.png" alt={language === "he" ? "וי פור ויקיישן" : "VII For Vacation"} title={language === "he" ? "וי פור ויקיישן" : "VII For Vacation"} /><h2 id={titleId}>{labels.title}</h2></div><p>{labels.body}</p>
+      <div className="account-auth-dialog__brand"><Image src="/vii-logo.png" width={160} height={122} alt={language === "he" ? "וי פור ויקיישן" : "VII For Vacation"} title={language === "he" ? "וי פור ויקיישן" : "VII For Vacation"} /><h2 id={titleId}>{labels.title}</h2></div><p>{labels.body}</p>
       <div className="social-auth-actions"><button type="button" onClick={startGoogleLogin}><span className="social-auth-icon social-auth-icon--google" aria-hidden="true">G</span><strong>{labels.google}</strong></button></div>
     </section></div> : null}
   </AccountContext.Provider>;

@@ -34,6 +34,6 @@ test("vacation availability starts with dates and only then offers an enquiry", 
 });
 
 test("nearby recommendations explain their purpose in plain Hebrew", () => {
-  assert.match(business, /רעיונות לבילוי ולטיול באזור מקום האירוח/);
+  assert.match(business, /מסלולים ואטרקציות באזור \{property\.location\}, עם כל הפרטים במקום אחד/);
   assert.doesNotMatch(business, /אימות התאמה, פרטים ואופן הזמנה/);
 });

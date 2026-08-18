@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { ChangeEvent, FormEvent, KeyboardEvent as ReactKeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import type { LegacyReview } from "../data/legacy-vacation-profiles";
 import { useSiteLanguage } from "../i18n/locale-provider";
 
@@ -131,15 +131,27 @@ export function GuestReviewStudio({
 
   const title = isTrail ? "תגובות מטיילים על המסלול" : `חוות דעת על ${placeName}`;
   const buttonLabel = isTrail ? "כתיבת תגובה על המסלול" : "כתיבת חוות דעת";
+  const ratingFeedback = rating === 5 ? "מצוין" : rating === 4 ? "טוב מאוד" : rating === 3 ? "טוב" : rating === 2 ? "טעון שיפור" : rating === 1 ? "לא טוב" : "בחרו דירוג";
+
+  function handleRatingKeyDown(event: ReactKeyboardEvent<HTMLButtonElement>, score: number) {
+    if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
+    event.preventDefault();
+    const nextScore = event.key === "ArrowUp" || event.key === "ArrowRight" ? Math.min(5, score + 1) : Math.max(1, score - 1);
+    setRating(nextScore);
+    document.querySelector<HTMLButtonElement>(`.rating-picker button[data-score="${nextScore}"]`)?.focus();
+  }
 
   return <section className="review-experience" id="reviews" aria-labelledby="reviews-title">
     <div className="review-experience__head">
       <div>
-        <span className="eyebrow">{isTrail ? "מידע מהשטח" : "מה מספרים אחרי הביקור"}</span>
+        {isTrail ? <span className="eyebrow">מידע מהשטח</span> : null}
         <h2 id="reviews-title">{title}</h2>
         <p>{illustrative ? "חוות הדעת בעמוד זה הן דוגמאות בדיוניות שממחישות את מבנה העמוד בלבד." : "כל תוכן חדש עובר בדיקה לפני שהוא מוצג לציבור."}</p>
       </div>
-      <button className="button primary" type="button" onClick={openDialog}>{buttonLabel}</button>
+      <div className="review-experience__actions">
+        <button className="button primary" type="button" onClick={openDialog}>{buttonLabel}</button>
+        {!isTrail && onOpenGallery ? <button className="button secondary" type="button" onClick={onOpenGallery}>תמונות אורחים</button> : null}
+      </div>
     </div>
 
     <div className="review-experience__body">
@@ -165,15 +177,12 @@ export function GuestReviewStudio({
       </div>
     </div>
 
-    {!isTrail && onOpenGallery ? <button className="review-experience__gallery-link" type="button" onClick={onOpenGallery}>צפייה בתמונות אורחים מאומתות</button> : null}
-
     {isOpen ? <div className="review-studio" role="dialog" aria-modal="true" aria-label={buttonLabel} onMouseDown={(event) => event.target === event.currentTarget && closeDialog()}>
       <form className="review-studio__panel" onSubmit={submitReview}>
         <header><div><span>{isTrail ? "תגובה שמסייעת למטיילים" : "חוות דעת לאחר ביקור"}</span><h2>{placeName}</h2></div><button type="button" onClick={closeDialog} aria-label="סגירת החלון">סגירה</button></header>
         {finished ? <div className="review-studio__success" role="status"><span>✓</span><h3>התוכן התקבל וממתין לבדיקה</h3><p>חוות הדעת והתמונות נשמרו בהצלחה. רק תוכן שנבדק ואושר יוצג באתר.</p><button className="button secondary" type="button" onClick={closeDialog}>סיום</button></div> : <>
-          <section><span className="review-studio__step">1</span><div><h3>{isTrail ? "מי כותב ומה מצב המסלול?" : "מי ביקר במקום?"}</h3><label>השם שיוצג באתר<input name="author" type="text" minLength={2} required /></label><label>{isTrail ? "מתי טיילתם?" : "מתי ביקרתם?"}<input name="visitDate" type="date" max={new Date().toISOString().slice(0, 10)} required /></label>{!isTrail ? <><p>אפשר לצרף מספר הזמנה או אסמכתה. הקובץ משמש לאימות בלבד ולא יוצג באתר.</p><label>מספר הזמנה, אם קיים<input name="booking" /></label><label className="review-upload"><input name="receipt" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf" /><span>צירוף אסמכתה לביקור</span><small>תמונה או מסמך עד 10 מגה</small></label></> : null}</div></section>
-          <section><span className="review-studio__step">2</span><div><h3>{isTrail ? "איך היה המסלול?" : "מה הציון שלכם?"}</h3><div className="rating-picker" role="radiogroup" aria-label={isTrail ? "ציון המסלול" : "ציון המקום"}>{[1,2,3,4,5].map((score) => <button key={score} type="button" role="radio" aria-checked={rating === score} onClick={() => setRating(score)} aria-label={`${score} מתוך 5`}>{score}</button>)}</div><label>{isTrail ? "מה חשוב שמטיילים אחרים ידעו?" : "מה חשוב שאורחים אחרים ידעו?"}<textarea name="review" required rows={5} minLength={20} /></label></div></section>
-          <section><span className="review-studio__step">3</span><div><h3>{isTrail ? "מוסיפים תמונות מהשטח" : "מוסיפים תמונות מהביקור"}</h3><p>התמונות יישמרו ויופיעו רק לאחר בדיקה ואישור.</p><label className="review-upload review-upload--photos"><input ref={photoInputRef} name="photos" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple onChange={selectPhotos} /><span>בחירת תמונות</span><small>עד 8 תמונות, עד 8 מגה לתמונה</small></label>{previews.length ? <div className="review-preview">{previews.map((url, index) => <img key={url} src={url} alt={`תמונה שנבחרה ${index + 1}`} title={`תמונה שנבחרה ${index + 1}`} />)}</div> : null}</div></section>
+          <section className="review-studio__main"><span className="review-studio__step">1</span><div><h3>{isTrail ? "משתפים מידע מהמסלול" : "משתפים חוויה בקצרה"}</h3><div className="review-studio__identity"><label>השם שיוצג<input name="author" type="text" minLength={2} required /></label><label>{isTrail ? "תאריך הטיול" : "תאריך הביקור"}<input name="visitDate" type="date" max={new Date().toISOString().slice(0, 10)} required /></label></div><div className="review-rating-field"><span className="review-rating-field__label">הדירוג שלכם</span><div className="rating-picker" role="radiogroup" aria-label={isTrail ? "ציון המסלול" : "ציון המקום"}>{[1,2,3,4,5].map((score) => <button key={score} data-score={score} className={score <= rating ? "is-filled" : ""} type="button" role="radio" aria-checked={rating === score} tabIndex={rating === score || (!rating && score === 1) ? 0 : -1} onClick={() => setRating(score)} onKeyDown={(event) => handleRatingKeyDown(event, score)} aria-label={`${score} מתוך 5 כוכבים`}><span aria-hidden="true">★</span></button>)}</div><output className={rating ? "is-selected" : ""} aria-live="polite">{rating ? `${rating} מתוך 5, ${ratingFeedback}` : ratingFeedback}</output></div><label>{isTrail ? "מה חשוב שמטיילים ידעו?" : "מה חשוב שאורחים ידעו?"}<textarea name="review" required rows={4} minLength={20} /></label></div></section>
+          <details className="review-studio__optional"><summary>הוספת תמונות או אסמכתה, לא חובה</summary><div>{!isTrail ? <><label>מספר הזמנה, אם קיים<input name="booking" /></label><label className="review-upload"><input name="receipt" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf" /><span>צירוף אסמכתה לביקור</span><small>משמשת לאימות בלבד</small></label></> : null}<label className="review-upload review-upload--photos"><input ref={photoInputRef} name="photos" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple onChange={selectPhotos} /><span>בחירת תמונות</span><small>עד 8 תמונות</small></label>{previews.length ? <div className="review-preview">{previews.map((url, index) => <img key={url} src={url} alt={`תמונה שנבחרה ${index + 1}`} title={`תמונה שנבחרה ${index + 1}`} />)}</div> : null}</div></details>
           <label className="review-consent"><input name="consent" value="yes" required type="checkbox" /><span>אני מאשר או מאשרת שהתוכן שייך לי ושאפשר להעביר אותו לבדיקה לפני פרסום.</span></label>
           {submitError ? <p className="review-studio__error" role="alert">{submitError}</p> : null}
           <button className="button primary wide" type="submit" disabled={!rating || submitting} aria-busy={submitting}>{submitting ? "שולחים ומעלים את התמונות..." : "שליחה לבדיקה"}</button>

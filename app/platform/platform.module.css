@@ -288,9 +288,10 @@
 @media (max-width: 760px) {
   .topbar { min-height: 92px; }
   .brand img { width: 92px; height: 70px; }
-  .heroGrid { padding-top: 44px; }
+  .heroGrid { min-width: 0; padding-top: 44px; }
+  .heroCopy { min-width: 0; max-width: 100%; }
   .hero h1 { font-size: clamp(3.9rem, 20vw, 5.5rem); }
-  .orbit { width: min(370px, 96vw); margin-block: 12px 22px; }
+  .orbit { width: min(100%, 370px); margin-block: 12px 22px; }
   .orbitWorld { min-height: 31px; max-width: 112px; padding: 4px 7px; font-size: .49rem; letter-spacing: .045em; }
   .orbitWorld1 { top: 0; left: 37%; }
   .orbitWorld2 { top: 14%; right: 4%; }

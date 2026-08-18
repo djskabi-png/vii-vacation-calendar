@@ -12,6 +12,7 @@ import type { BreadcrumbTrailItem } from "./breadcrumb-trail";
 import { WorldQuickSearches } from "./world-quick-searches";
 import { SemanticWorldHeading } from "./semantic-world-heading";
 import { SearchAfterResults } from "./search-after-results";
+import type { ProviderCategoryId } from "../data/provider-categories";
 
 const crossSellByWorld = {
   hourly: {
@@ -57,6 +58,7 @@ export function WorldLanding({
   initialSpaFilters,
   breadcrumbItems,
   collectionTitle: customCollectionTitle,
+  providerCategory,
 }: {
   world: WorldId;
   title: string;
@@ -70,6 +72,7 @@ export function WorldLanding({
   initialSpaFilters?: string[];
   breadcrumbItems?: BreadcrumbTrailItem[];
   collectionTitle?: string;
+  providerCategory?: ProviderCategoryId;
 }) {
   const crossSell = world === "hourly" || world === "spa" || world === "providers"
     ? crossSellByWorld[world]
@@ -84,7 +87,7 @@ export function WorldLanding({
         : `${items.length} ${worldLabel}`);
 
   return <PageShell variant={world}>
-    <main id="main-content" className={`world-page world-page--${world}`}>
+    <main id="main-content" className={`world-page world-page--${world}${crossSell ? " world-page--with-cross-sell" : ""}`}>
       {searchMode && <section className="world-hero"><div className="shell world-hero__inner"><SearchBox mode={searchMode} compact showWorlds initialLocation={initialSearchLocation} initialSpaAudience={initialSpaAudience} initialSpaFeatures={initialSpaFilters} /></div></section>}
       <BreadcrumbTrail className="world-breadcrumbs" items={breadcrumbItems || [{ name: "ראשי", path: "/" }, { name: worldLabel }]} />
       <section className="world-page-heading shell">
@@ -92,8 +95,8 @@ export function WorldLanding({
         {searchMode && world !== "spa" && world !== "hourly" && <WorldQuickSearches mode={searchMode} initialLocation={initialSearchLocation} initialSpaAudience={initialSpaAudience} />}
       </section>
       <section className="section shell">
-        {world !== "spa" && world !== "hourly" && <div className="section-head world-results-title"><div><h2>{collectionTitle}</h2></div>{sourceNote && <p className="source-note">{sourceNote}</p>}</div>}
-        {world === "hourly" ? <HourlyResults items={items} initialLocation={initialSearchLocation} /> : world === "providers" ? <ProviderResults items={items} /> : world === "spa" ? <WorldMapResults items={items} world="spa" activeSpaFilter={activeSpaFilter} initialLocation={initialSearchLocation} initialSpaAudience={initialSpaAudience} initialSpaFilters={initialSpaFilters} /> : <div className="discovery-grid">{items.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>}
+        {world !== "providers" && (world !== "spa" && world !== "hourly" && <div className="section-head world-results-title"><div><h2>{collectionTitle}</h2></div>{sourceNote && <p className="source-note">{sourceNote}</p>}</div>)}
+        {world === "hourly" ? <HourlyResults items={items} initialLocation={initialSearchLocation} /> : world === "providers" ? <ProviderResults items={items} category={providerCategory} /> : world === "spa" ? <WorldMapResults items={items} world="spa" activeSpaFilter={activeSpaFilter} initialLocation={initialSearchLocation} initialSpaAudience={initialSpaAudience} initialSpaFilters={initialSpaFilters} /> : <div className="discovery-grid">{items.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>}
       </section>
       {(world === "hourly" || world === "spa" || world === "providers" || world === "activities") ? <SearchAfterResults world={world} location={initialSearchLocation} reviewHighlights={items.filter((item) => typeof item.rating === "number").sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 3).map((item) => ({ name: item.name, href: `/discover/place/${item.id}`, rating: item.rating || 0, context: item.sourceName ? `דירוג מתוך ${item.sourceName}` : undefined }))} /> : null}
       {crossSell && <section className="section section-tint world-cross-sell"><div className="shell"><span className="eyebrow">{crossSell.eyebrow}</span><h2>{crossSell.title}</h2><p>{crossSell.description}</p><div>{crossSell.links.map((link, index) => <Link key={link.href} className={`button ${index === 0 ? "primary" : "secondary"}`} href={link.href}>{link.label}</Link>)}</div></div></section>}

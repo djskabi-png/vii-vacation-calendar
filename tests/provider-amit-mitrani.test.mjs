@@ -20,10 +20,10 @@ test("provider filters use the full toolbar width without an empty desktop grid 
   assert.match(css, /\.provider-categories \{ min-width: 0; display: flex; flex: 1 1 auto;/);
 });
 test("Amit Mitrani has a complete verified supplier profile", async () => {
-  const [worldData, details, results] = await Promise.all([
+  const [worldData, details, categories] = await Promise.all([
     read("../app/data/world-data.ts"),
     read("../app/data/provider-details.ts"),
-    read("../app/components/provider-results.tsx"),
+    read("../app/data/provider-categories.ts"),
   ]);
   assert.match(worldData, /id: "amit-mitrani-magic-man"/);
   assert.match(worldData, /sourceUrl: "https:\/\/amitgic\.co\.il\/"/);
@@ -31,7 +31,8 @@ test("Amit Mitrani has a complete verified supplier profile", async () => {
   assert.match(details, /"amit-mitrani-magic-man": \{/);
   assert.match(details, /phone: "052-341-6151"/);
   assert.match(details, /bookingMode: "whatsapp"/);
-  assert.match(results, /id: "entertainment", label: "מופעים ואמנים"/);
+  assert.match(categories, /id: "entertainment"[\s\S]*?label: "מופעים ואמנים"/);
+  assert.match(categories, /"amit-mitrani-magic-man": \["entertainment"\]/);
 });
 
 test("Amit Mitrani uses three local official photographs", async () => {
