@@ -25,16 +25,19 @@ test("world selection uses a descriptive icon and accessible label", () => {
 
 test("header utility actions share sizing and world selection is not fixed", () => {
   assert.match(css, /\.icon-button \{ width: 44px; \}/);
-  assert.match(css, /\.header-actions \.world-dock \{\s*position: relative;\s*inset: auto;/);
+  assert.match(css, /\.header-actions \.world-dock \{\s*position: relative;\s*inset: auto !important;/);
   assert.match(css, /width: 40px;\s*min-width: 40px;\s*min-height: 40px;/);
   assert.match(css, /\.world-dock > button \.worlds-icon \{ width: 20px; height: 20px;/);
 });
 
 test("global search remains actionable while the world selector closes around it", () => {
+  const worldSwitcherComponent = switcher.match(/export function WorldSwitcher[\s\S]*?(?=function WorldsIcon)/)?.[0] ?? "";
   assert.match(header, /className=\{`icon-button header-search/);
   assert.match(header, /href=\{localizedPath\("\/search", language\)\}/);
-  assert.match(switcher, /document\.addEventListener\("pointerdown", closeOnOutsidePress\)/);
+  assert.match(worldSwitcherComponent, /document\.addEventListener\("click", closeOnOutsideClick\)/);
+  assert.doesNotMatch(worldSwitcherComponent, /document\.addEventListener\("pointerdown"/);
   assert.doesNotMatch(switcher, /world-dock__backdrop/);
   assert.match(css, /\.header-search \{ touch-action: manipulation; \}/);
   assert.match(css, /\.header-search > \* \{ pointer-events: none; \}/);
+  assert.match(css, /\.header-actions \.world-dock \{[\s\S]*?inset: auto !important;[\s\S]*?display: block !important;/);
 });

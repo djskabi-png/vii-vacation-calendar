@@ -14,12 +14,12 @@ function safeSegment(value: string) { return value.toLowerCase().replace(/[^a-z0
 
 export async function GET(request: Request) {
   const session = await readSession(request);
-  if (!session) return invalid("נדרשת התחברות לחשבון", 401);
+  if (!session) return Response.json({ review: null, authenticated: false }, { headers: { "Cache-Control": "no-store" } });
   const url = new URL(request.url);
   const subjectType = url.searchParams.get("subjectType") === "trail" ? "trail" : "place";
   const subjectId = (url.searchParams.get("subjectId") || "").trim().slice(0, 160);
   if (!subjectId) return invalid("חסר מזהה מקום");
-  return Response.json({ review: await latestPendingReview(session.sub, subjectType, subjectId) }, { headers: { "Cache-Control": "no-store" } });
+  return Response.json({ review: await latestPendingReview(session.sub, subjectType, subjectId), authenticated: true }, { headers: { "Cache-Control": "no-store" } });
 }
 
 export async function POST(request: Request) {

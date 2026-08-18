@@ -7625,7 +7625,7 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
 /* Compact world selector in the global header zone */
 .header-actions .world-dock {
   position: relative;
-  inset: auto;
+  inset: auto !important;
   z-index: 55;
   display: block !important;
 }

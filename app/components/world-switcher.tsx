@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { type MouseEvent, useEffect, useRef, useState } from "react";
+import { type MouseEvent as ReactMouseEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { publicWorldNavigation, worlds, type WorldId } from "../data/world-data";
 import { useSiteLanguage } from "../i18n/locale-provider";
@@ -25,7 +25,7 @@ export function WorldSwitcher({ active = "vacation" }: { active?: WorldId }) {
 
   useEffect(() => {
     if (!open) return;
-    const closeOnOutsidePress = (event: PointerEvent) => {
+    const closeOnOutsideClick = (event: globalThis.MouseEvent) => {
       if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
     };
     const closeOnEscape = (event: KeyboardEvent) => {
@@ -33,10 +33,10 @@ export function WorldSwitcher({ active = "vacation" }: { active?: WorldId }) {
       setOpen(false);
       triggerRef.current?.focus();
     };
-    document.addEventListener("pointerdown", closeOnOutsidePress);
+    document.addEventListener("click", closeOnOutsideClick);
     document.addEventListener("keydown", closeOnEscape);
     return () => {
-      document.removeEventListener("pointerdown", closeOnOutsidePress);
+      document.removeEventListener("click", closeOnOutsideClick);
       document.removeEventListener("keydown", closeOnEscape);
     };
   }, [open]);
@@ -83,7 +83,7 @@ export function SearchWorldTabs({ active, location, onNavigate }: { active: Worl
     };
   }, [moreOpen]);
 
-  const navigateWithinSearch = (href: string, afterNavigate?: (event: MouseEvent<HTMLAnchorElement>) => void) => (event: MouseEvent<HTMLAnchorElement>) => {
+  const navigateWithinSearch = (href: string, afterNavigate?: (event: ReactMouseEvent<HTMLAnchorElement>) => void) => (event: ReactMouseEvent<HTMLAnchorElement>) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     afterNavigate?.(event);

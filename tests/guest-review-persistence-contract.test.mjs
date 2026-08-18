@@ -13,6 +13,9 @@ test("guest reviews use authenticated D1 and R2 persistence with pending moderat
     read(".openai/hosting.json"),
   ]);
   assert.match(route, /readSession\(request\)/);
+  assert.match(route, /review: null, authenticated: false/);
+  assert.match(route, /if \(!session\) return Response\.json/);
+  assert.match(route, /export async function POST\(request: Request\)[\s\S]*if \(!session\) return invalid\("כדי לשלוח חוות דעת ותמונות יש להתחבר עם גוגל", 401\)/);
   assert.match(route, /status: 201/);
   assert.match(route, /status = 'pending'|status, created_at/);
   assert.match(route, /MAX_PHOTOS = 8/);
