@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "release": "v322",
+  "task_id": "vii-worlds-button-click-reliability-20260818",
+  "recorded_at": "2026-08-18T15:04:58.3979579+03:00",
+  "authorization": "Adir explicitly approved production publication in the active task.",
+  "source": {
+    "commit_sha": "49ed15f201d7fc43f81142e82d18939eb5f327a0",
+    "branch": "release/vii-public-all-20260818",
+    "remote_branch": "main"
+  },
+  "package": {
+    "local_sha256": "e3d1ff5c238484ac5c02682bca05d5d060029d533ce1e7a282c8d33abbe207c8",
+    "sites_content_hash": "sha256:79816b25ab7e2c1a510a54c5ad602da92310610a64c4e7d4a013bc82b83898aa",
+    "sites_file_count": 1742,
+    "sites_size_bytes": 253552640
+  },
+  "sites": {
+    "project_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21",
+    "version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_53c358722ff48191ae441332c2c8a70a",
+    "version_number": 322,
+    "deployment_id": "appgdep_6a84488abec48191a893db5403aabc80",
+    "deployment_status": "succeeded",
+    "site_status": "active",
+    "access_mode": "public",
+    "live_url": "https://vii.spaplus.co",
+    "custom_domain_status": "active"
+  },
+  "public_verification": {
+    "target_url": "https://vii.spaplus.co/business?id=hilat-hanof",
+    "exact_first_action_matrix": {
+      "status": "passed",
+      "checks": 40,
+      "passed": 40,
+      "failed": 0,
+      "profiles": [
+        "mobile-touch 390x844",
+        "mobile-low-height 390x568",
+        "desktop-pointer 1440x900",
+        "desktop-keyboard 1440x900"
+      ],
+      "evidence": "project_knowledge/release_evidence/vii-worlds-button-first-click-public-v322.json"
+    },
+    "sitewide_release_gate": {
+      "status": "passed-automated-gates",
+      "build_and_source_tests": "passed, 418 of 418",
+      "shared_header_first_action_matrix": "passed",
+      "search_and_responsive_state_matrix": "passed",
+      "public_seo_and_structured_data": "passed",
+      "evidence": "project_knowledge/release_evidence/qa-site-v322-public/sitewide-1787054559034.json"
+    },
+    "live_in_app_browser": {
+      "status": "passed",
+      "observations": [
+        "The world selector opened on the first click on the public Hilat Hanof page.",
+        "The global search control navigated on its first click to https://vii.spaplus.co/search.",
+        "The open selector remained visually contained in the mobile header and viewport.",
+        "Escape closed the selector and returned the page to its normal state."
+      ]
+    }
+  },
+  "independent_seal": {
+    "checker": "/root/vii_worlds_public_v322_seal",
+    "status": "passed",
+    "verdict": "SEAL_VERDICT vii-worlds-button-click-reliability-20260818-public-v322 PASS"
+  },
+  "rollback": {
+    "recommended_version_number": 320,
+    "version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_84ba579f44f48191aed1b32bc15ae5f2",
+    "commit_sha": "0e9b337ac6b65e6113992a1f2cccf4b247c51d68",
+    "reason": "Version 321 was an intermediate partial repair that did not pass the exact first-click scenario."
+  }
+}

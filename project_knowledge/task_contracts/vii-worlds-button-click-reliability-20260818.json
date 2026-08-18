@@ -1,0 +1,314 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-worlds-button-click-reliability-20260818",
+  "project": "VII",
+  "task_type": "shared-navigation-control-repair",
+  "goal": "Make the shared worlds or global-search header button reliably clickable on every VII route and responsive state without changing its approved design.",
+  "created_at": "2026-08-18T10:29:18.872866Z",
+  "updated_at": "2026-08-18T12:10:32.969582Z",
+  "completed_at": "2026-08-18T12:10:32.969582Z",
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "918b17a5868877324ce7050ba65fdfa8ef441e7b8aa1e7e66a8d10232500661e"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "73bc8ee33c8c2fc97bbe5606271f43cf80e1209441f0437db6e1ea3a50200961"
+    }
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-CONTROL-001",
+      "title": "כל רכיב נראה חייב לעבוד",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-CONSISTENCY-001",
+      "title": "אחידות מחייבת במשפחות עמודים ורכיבים",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-MOBILE-001",
+      "title": "נייד הוא משטח מוצר ראשי",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "title": "מסירה דורשת תוצאה מלאה ובדיקת רגרסיה",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-WEB-002",
+      "title": "מטריצת מצבי אינטראקציה",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "ADIR-WEB-005",
+      "title": "Responsive transitions are release-critical state changes",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "ADIR-TYPE-001",
+      "title": "גופן עברי נבדק בכל משטח חי",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-SCOPE-001",
+      "title": "תיקון ממוקד שומר על העיצוב המאושר",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "title": "פריסה ודומיין דורשים אימות חי וחזרה לאחור",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Make the shared worlds or global-search header button reliably clickable on every VII route and responsive state without changing its approved design.",
+      "acceptance_check": "On every representative shared-header route, pointer, touch and keyboard activation always open the expected worlds or global-search surface at 390px, low-height mobile and desktop, including after reload, scroll, navigation, overlay close and responsive transitions.",
+      "status": "passed",
+      "evidence": [
+        "project_knowledge/release_evidence/vii-worlds-button-click-reliability-20260818.json",
+        "project_knowledge/release_evidence/v322/deployment-evidence.json",
+        "project_knowledge/release_evidence/vii-worlds-button-first-click-public-v322.json"
+      ],
+      "reason": null,
+      "updated_at": "2026-08-18T12:06:23.621465Z"
+    },
+    {
+      "id": "lesson:ADIR-CONTROL-001",
+      "source": "lesson:ADIR-CONTROL-001",
+      "statement": "כל כפתור, קישור, לשונית, חץ, תגית, מסנן, תפריט ובקר נראה מבטיח פעולה ולכן חייב להיבדק בכל המצבים החלים עליו וביעד הטבעי של התוצאה.",
+      "acceptance_check": "שער הראיות נכשל אם חסר רכיב נראה במלאי, אם התוצאה אינה נצפית ביעד הטבעי, או אם לא נבדקו כל המופעים במשפחה שנכשלה.",
+      "status": "passed",
+      "evidence": [
+        "project_knowledge/release_evidence/vii-worlds-button-click-reliability-20260818.json",
+        "project_knowledge/release_evidence/v322/deployment-evidence.json",
+        "project_knowledge/release_evidence/vii-worlds-button-first-click-public-v322.json"
+      ],
+      "reason": null,
+      "updated_at": "2026-08-18T12:06:23.747376Z"
+    },
+    {
+      "id": "lesson:ADIR-CONSISTENCY-001",
+      "source": "lesson:ADIR-CONSISTENCY-001",
+      "statement": "רכיבים ועמודים מאותה משפחה שומרים על היררכיה, סדר, צורה, מיקום והתנהגות אחידים במחשב ובנייד. צבע ותוכן מאומת יכולים להשתנות, אך חריגה מבנית או התנהגותית דורשת סיבה ובדיקה ייעודית.",
+      "acceptance_check": "שער הראיות נכשל ללא נקודת ייחוס מאושרת, מטריצת משפחה, השוואות מחשב ונייד ורשימת חריגים. בקר ששינה מיקום, צורה, משמעות או התנהגות ללא חריג מאושר חוסם את כל המשפחה.",
+      "status": "passed",
+      "evidence": [
+        "project_knowledge/release_evidence/vii-worlds-button-click-reliability-20260818.json"
+      ],
+      "reason": null,
+      "updated_at": "2026-08-18T10:56:11.337684Z"
+    },
+    {
+      "id": "lesson:ADIR-MOBILE-001",
+      "source": "lesson:ADIR-MOBILE-001",
+      "statement": "מסלול נייד מלא נבנה ונבדק בפני עצמו, לרבות המסך הראשון, צפיפות, קריאות, גלילה, חלונות, פעולות ומעברי רוחב.",
+      "acceptance_check": "שער הראיות נכשל ללא צילום חי של המסך הראשון והמסלול המלא, בדיקת גובה נמוך, מדידת גלישה ומטריצת מעברי רוחב.",
+      "status": "passed",
+      "evidence": [
+        "project_knowledge/release_evidence/vii-worlds-button-click-reliability-20260818.json"
+      ],
+      "reason": null,
+      "updated_at": "2026-08-18T10:56:11.450479Z"
+    },
+    {
+      "id": "lesson:ADIR-QA-001",
+      "source": "lesson:ADIR-QA-001",
+      "statement": "מוצר, אתר, אינטגרציה או אוטומציה אינם גמורים כאשר היעד הטבעי אינו מציג את התוצאה המבוקשת, כאשר מצב שנשמר לא שרד רענון, או כאשר קיימים כפתורים מתים, מצבים מזויפים, מסלולים קטועים וחיבורים שלא נבדקו מקצה לקצה.",
+      "acceptance_check": "A release or task checklist fails when the requested result is absent from its natural destination, a persisted state fails after reload, an affected family remains untested, or a requested flow has a dead control, fabricated state, unverified integration or missing responsive evidence. A deliberately incomplete review or task must be blocked.",
+      "status": "passed",
+      "evidence": [
+        "project_knowledge/release_evidence/vii-worlds-button-click-reliability-20260818.json",
+        "project_knowledge/release_evidence/v322/deployment-evidence.json",
+        "project_knowledge/release_evidence/vii-worlds-button-first-click-public-v322.json"
+      ],
+      "reason": null,
+      "updated_at": "2026-08-18T12:06:23.856963Z"
+    },
+    {
+      "id": "lesson:ADIR-WEB-002",
+      "source": "lesson:ADIR-WEB-002",
+      "statement": "שינוי אינטראקטיבי נבדק בכל המצבים הרלוונטיים במחשב, בנייד ובגובה מסך נמוך.",
+      "acceptance_check": "לכל אינטראקציה שהשתנתה יש ראיית מעבר לכל המצבים החלים עליה.",
+      "status": "passed",
+      "evidence": [
+        "project_knowledge/release_evidence/vii-worlds-button-click-reliability-20260818.json"
+      ],
+      "reason": null,
+      "updated_at": "2026-08-18T10:56:11.548893Z"
+    },
+    {
+      "id": "lesson:ADIR-WEB-005",
+      "source": "lesson:ADIR-WEB-005",
+      "statement": "Every responsive website must remain correct through mobile-to-desktop and desktop-to-mobile transitions, reloads, orientation changes and browser device-emulation changes, including while overlays and scroll locks are active.",
+      "acceptance_check": "A real public route passes fresh desktop, desktop reload, fresh 390-pixel mobile, mobile overlay open followed by desktop resize, desktop reload, breakpoint boundary, orientation change and return to mobile. At every step the page has meaningful visible content, scrollX is zero, document width does not exceed viewport width and desktop has no stale mobile lock, backdrop or expanded state.",
+      "status": "passed",
+      "evidence": [
+        "project_knowledge/release_evidence/vii-worlds-button-click-reliability-20260818.json"
+      ],
+      "reason": null,
+      "updated_at": "2026-08-18T10:56:11.637749Z"
+    },
+    {
+      "id": "lesson:ADIR-TYPE-001",
+      "source": "lesson:ADIR-TYPE-001",
+      "statement": "כל תוצר עברי משתמש בגופן מודרני ועקבי מן הפריים הראשון שנראה למשתמש, וכשל אחד או הבהוב קצר של גופן חלופי מרחיבים את הבדיקה לכל המסלולים והרכיבים שחולקים את אותו מקור גופן או משפחת רכיבים.",
+      "acceptance_check": "שער הראיות נכשל ללא מלאי משטחים, טעינת גופן תקינה, בדיקת גליפים חיה, משפחת גופן וערימת גיבוי מאושרות, וראיות נפרדות לפריים הראשון ברענון קר וחם במחשב ובנייד ברוחב 390 פיקסלים, לצד בדיקת רגרסיה לכל משפחת הרכיבים.",
+      "status": "passed",
+      "evidence": [
+        "project_knowledge/release_evidence/vii-worlds-button-click-reliability-20260818.json"
+      ],
+      "reason": null,
+      "updated_at": "2026-08-18T10:56:11.732543Z"
+    },
+    {
+      "id": "lesson:ADIR-SCOPE-001",
+      "source": "lesson:ADIR-SCOPE-001",
+      "statement": "כאשר אדיר מבקש להזיז, לנקות או לתקן רכיב, שומרים על העיצוב, התוכן והיכולות שלא התבקשו להשתנות. אין להפוך תיקון ממוקד לעיצוב מחדש ללא בקשה מפורשת.",
+      "acceptance_check": "שער הראיות נכשל ללא תיאור שינוי, רשימת קבועים, השוואת לפני ואחרי ומלאי רכיבים שהשתנו, או כאשר נמצאה השתנות לא מבוקשת בעיצוב, בתוכן, בנתונים, במיקום או בהתנהגות.",
+      "status": "passed",
+      "evidence": [
+        "project_knowledge/release_evidence/vii-worlds-button-click-reliability-20260818.json"
+      ],
+      "reason": null,
+      "updated_at": "2026-08-18T10:56:11.827715Z"
+    },
+    {
+      "id": "lesson:ADIR-DEPLOY-001",
+      "source": "lesson:ADIR-DEPLOY-001",
+      "statement": "פריסה או שינוי דומיין דורשים גרסה שמורה, כתובת יעד מאומתת, בדיקת מסלולים, metadata ותוכנית חזרה לאחור.",
+      "acceptance_check": "A release cannot pass without live URL, route, status, metadata and rollback evidence; a mismatch blocks publication.",
+      "status": "passed",
+      "evidence": [
+        "project_knowledge/release_evidence/vii-worlds-button-click-reliability-20260818.json",
+        "project_knowledge/release_evidence/v322/deployment-evidence.json",
+        "project_knowledge/release_evidence/vii-worlds-button-first-click-public-v322.json"
+      ],
+      "reason": null,
+      "updated_at": "2026-08-18T12:06:23.981062Z"
+    },
+    {
+      "id": "project:WORLD-BUTTON-001",
+      "source": "project_guidance",
+      "statement": "Repair the actual shared control cause, not only the Hilat Hanof example.",
+      "acceptance_check": "Repair the actual shared control cause, not only the Hilat Hanof example.",
+      "status": "passed",
+      "evidence": [
+        "project_knowledge/release_evidence/vii-worlds-button-click-reliability-20260818.json"
+      ],
+      "reason": null,
+      "updated_at": "2026-08-18T10:56:11.934969Z"
+    },
+    {
+      "id": "project:FAMILY-001",
+      "source": "project_guidance",
+      "statement": "Test the control on representative vacation, spa, hourly, events, trips, suppliers, search and detail routes where the shared header is present.",
+      "acceptance_check": "Test the control on representative vacation, spa, hourly, events, trips, suppliers, search and detail routes where the shared header is present.",
+      "status": "passed",
+      "evidence": [
+        "project_knowledge/release_evidence/vii-worlds-button-click-reliability-20260818.json"
+      ],
+      "reason": null,
+      "updated_at": "2026-08-18T10:56:12.035806Z"
+    },
+    {
+      "id": "project:STATE-001",
+      "source": "project_guidance",
+      "statement": "Test default, scrolled, post-navigation, post-overlay-close, reload, keyboard, pointer, touch and responsive transition states.",
+      "acceptance_check": "Test default, scrolled, post-navigation, post-overlay-close, reload, keyboard, pointer, touch and responsive transition states.",
+      "status": "passed",
+      "evidence": [
+        "project_knowledge/release_evidence/vii-worlds-button-click-reliability-20260818.json"
+      ],
+      "reason": null,
+      "updated_at": "2026-08-18T10:56:12.123827Z"
+    },
+    {
+      "id": "project:INVARIANT-001",
+      "source": "project_guidance",
+      "statement": "Preserve the approved icon, header geometry, labels, routes, data and every unaffected action.",
+      "acceptance_check": "Preserve the approved icon, header geometry, labels, routes, data and every unaffected action.",
+      "status": "passed",
+      "evidence": [
+        "project_knowledge/release_evidence/vii-worlds-button-click-reliability-20260818.json"
+      ],
+      "reason": null,
+      "updated_at": "2026-08-18T10:56:12.219119Z"
+    },
+    {
+      "id": "project:MOBILE-001",
+      "source": "project_guidance",
+      "statement": "At 390px and low height the approved shared-header touch target remains 40x40px, while desktop remains 44x44px; both stay visible, unobscured and free of horizontal overflow.",
+      "acceptance_check": "At 390px and low height the approved shared-header touch target remains 40x40px, while desktop remains 44x44px; both stay visible, unobscured and free of horizontal overflow.",
+      "status": "passed",
+      "evidence": [
+        "project_knowledge/release_evidence/vii-worlds-button-click-reliability-20260818.json"
+      ],
+      "reason": null,
+      "updated_at": "2026-08-18T10:56:12.313710Z"
+    },
+    {
+      "id": "project:TYPOGRAPHY-001",
+      "source": "project_guidance",
+      "statement": "Hebrew typography and first-paint behavior remain unchanged and modern on desktop and 390px mobile.",
+      "acceptance_check": "Hebrew typography and first-paint behavior remain unchanged and modern on desktop and 390px mobile.",
+      "status": "passed",
+      "evidence": [
+        "project_knowledge/release_evidence/vii-worlds-button-click-reliability-20260818.json"
+      ],
+      "reason": null,
+      "updated_at": "2026-08-18T10:56:12.427073Z"
+    },
+    {
+      "id": "project:PUBLIC-001",
+      "source": "project_guidance",
+      "statement": "Production is changed only after explicit deployment approval, with rollback and verification on the exact public URL.",
+      "acceptance_check": "Production is changed only after explicit deployment approval, with rollback and verification on the exact public URL.",
+      "status": "passed",
+      "evidence": [
+        "project_knowledge/release_evidence/vii-worlds-button-click-reliability-20260818.json",
+        "project_knowledge/release_evidence/v322/deployment-evidence.json",
+        "project_knowledge/release_evidence/vii-worlds-button-first-click-public-v322.json"
+      ],
+      "reason": null,
+      "updated_at": "2026-08-18T12:06:24.099744Z"
+    },
+    {
+      "id": "feedback:ADIR-FB-93c2956cd31bc98c0d2e",
+      "source": "feedback_event:ADIR-FB-93c2956cd31bc98c0d2e",
+      "statement": "The shared VII worlds or global-search header control is intermittently unreachable and must remain clickable in every route and responsive state.",
+      "acceptance_check": "Every representative shared-header route opens the expected worlds or global-search surface by pointer, touch and keyboard at 390px, low height and desktop, including after reload, scroll, navigation, overlay close and responsive transitions, without an intercepting layer or geometry regression.",
+      "status": "passed",
+      "evidence": [
+        "project_knowledge/release_evidence/vii-worlds-button-click-reliability-20260818.json",
+        "project_knowledge/release_evidence/v322/deployment-evidence.json",
+        "project_knowledge/release_evidence/vii-worlds-button-first-click-public-v322.json"
+      ],
+      "reason": null,
+      "updated_at": "2026-08-18T12:06:24.218800Z"
+    },
+    {
+      "id": "feedback:ADIR-FB-c775ff24a565efded0c4",
+      "source": "feedback_event:ADIR-FB-c775ff24a565efded0c4",
+      "statement": "Adir approved the verified header-control fix for production and requires a proactive whole-site QA operating method so defects are discovered before he has to report them manually.",
+      "acceptance_check": "The exact verified fix is deployed and confirmed on the reported public URL with rollback evidence, and VII receives a durable proactive QA method that inventories every public template and visible control, runs scheduled and change-triggered mobile, desktop, low-height, visual, functional and responsive checks, expands shared defects across their entire family, records prioritized findings and blocks release until independent verification passes.",
+      "status": "passed",
+      "evidence": [
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\calendar-airbnb\\project_knowledge\\VII_PROACTIVE_QA_METHOD.md",
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\calendar-airbnb\\project_knowledge\\release_evidence\\qa-site-v322-public\\sitewide-1787054559034.json",
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\calendar-airbnb\\project_knowledge\\release_evidence\\v322\\deployment-evidence.json"
+      ],
+      "reason": null,
+      "updated_at": "2026-08-18T12:09:19.763393Z"
+    }
+  ],
+  "verification_status": "verified",
+  "verification_errors": []
+}

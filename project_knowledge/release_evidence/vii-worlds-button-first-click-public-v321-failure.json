@@ -1,0 +1,58 @@
+{
+  "baseUrl": "https://vii.spaplus.co",
+  "passed": false,
+  "checkedAt": "2026-08-18T11:36:33.296Z",
+  "total": 1,
+  "passedCount": 0,
+  "failedCount": 1,
+  "failures": [
+    {
+      "profile": "mobile-touch",
+      "routeName": "vacation-place",
+      "route": "/business?id=hilat-hanof",
+      "passed": false,
+      "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'בחירת עולם' })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" aria-haspopup=\"true\" aria-expanded=\"false\" aria-label=\"בחירת עולם\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    58 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - element is outside of the viewport\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 ()"
+      ],
+      "httpErrors": [
+        {
+          "status": 401,
+          "url": "https://vii.spaplus.co/api/reviews?subjectType=place&subjectId=hilat-hanof"
+        }
+      ],
+      "debug": {
+        "url": "https://vii.spaplus.co/business?id=hilat-hanof",
+        "triggerExpanded": "false",
+        "panelCount": 0,
+        "backdropCount": 0,
+        "searchHref": "/search"
+      }
+    }
+  ],
+  "checks": [
+    {
+      "profile": "mobile-touch",
+      "routeName": "vacation-place",
+      "route": "/business?id=hilat-hanof",
+      "passed": false,
+      "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'בחירת עולם' })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" aria-haspopup=\"true\" aria-expanded=\"false\" aria-label=\"בחירת עולם\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    58 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - element is outside of the viewport\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 ()"
+      ],
+      "httpErrors": [
+        {
+          "status": 401,
+          "url": "https://vii.spaplus.co/api/reviews?subjectType=place&subjectId=hilat-hanof"
+        }
+      ],
+      "debug": {
+        "url": "https://vii.spaplus.co/business?id=hilat-hanof",
+        "triggerExpanded": "false",
+        "panelCount": 0,
+        "backdropCount": 0,
+        "searchHref": "/search"
+      }
+    }
+  ]
+}

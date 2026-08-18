@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-worlds-button-click-reliability-20260818",
+  "recorded_at": "2026-08-18T15:04:58.3979579+03:00",
+  "scope": "Shared VII header world selector and global-search action",
+  "reported_public_url": "https://vii.spaplus.co/business?id=hilat-hanof",
+  "local_verification_url": "http://localhost:4688/business?id=hilat-hanof",
+  "production_changed": true,
+  "root_cause": {
+    "finding": "Two shared-state regressions combined. An invisible fixed backdrop intercepted the first search click while the selector was open, and the legacy cookie-banner rule body:has(.cookie-card) .world-dock moved the header-owned world control 215 CSS pixels upward when consent UI was present. The second defect made the control intermittently disappear according to each visitor's cookie state.",
+    "public_reproduction": "On version 321 with the cookie card present, the world trigger had a top coordinate of -203 CSS pixels and computed inset equivalent to a 215-pixel floating-dock offset. The search anchor remained at y=12, which explained why the problem varied between visitors."
+  },
+  "implementation": [
+    "Removed the invisible full-screen world-selector backdrop.",
+    "Changed outside closing to a document click so pointerdown cannot remove interactive state before the destination control activates.",
+    "Neutralized the legacy cookie-banner offset inside the header with inset: auto !important so the world control remains in the header for every consent state.",
+    "Kept Escape closing and restored focus to the world-selector trigger.",
+    "Made the search anchor itself the complete pointer target and enabled touch-action manipulation."
+  ],
+  "preserved_invariants": [
+    "No icon, copy, route, color, spacing, header order or world data changed.",
+    "Mobile search geometry remains the approved 40x40 CSS pixels; desktop remains 44x44 CSS pixels.",
+    "Account and join routes, which intentionally omit the world selector, retain the same working global-search link."
+  ],
+  "verification": {
+    "build": {
+      "command": "pnpm build",
+      "status": "passed",
+      "notes": "All routes built successfully; only the pre-existing chunk-size warning remained."
+    },
+    "full_test_suite": {
+      "command": "pnpm test",
+      "tests": 418,
+      "passed": 418,
+      "failed": 0,
+      "duration_ms": 57373.5176
+    },
+    "targeted_tests": {
+      "status": "passed",
+      "checks": [
+        "Shared header search href remains localized to /search.",
+        "No world-dock backdrop remains in source or styles.",
+        "Outside pointer closing is installed and contained by the selector root.",
+        "Search touch target rules remain attached to the anchor."
+      ]
+    },
+    "browser_family_matrix": {
+      "status": "passed",
+      "checks": 40,
+      "mobile_touch_viewport": "390x844",
+      "low_height_touch_viewport": "390x568",
+      "desktop_pointer_viewport": "1440x900",
+      "desktop_keyboard_viewport": "1440x900",
+      "routes": [
+        "/business?id=hilat-hanof",
+        "/discover/place/spa-butik-tlv",
+        "/discover/place/gentleman-haifa",
+        "/events/place/black-loft",
+        "/trails/snir-hatzbani",
+        "/discover/place/masu-home-wellness",
+        "/discover/place/timna-park",
+        "/",
+        "/account",
+        "/join"
+      ],
+      "observations": [
+        "The search anchor was the top hit target in every checked route.",
+        "The first touch or pointer activation navigated to /search.",
+        "Backdrop count was zero in every checked route.",
+        "No checked viewport had horizontal overflow.",
+        "The public version passed all 40 checks after deployment."
+      ]
+    },
+    "interaction_state_matrix": {
+      "status": "passed",
+      "states": [
+        "default",
+        "world selector open",
+        "scrolled with selector open",
+        "outside close then first touch",
+        "Escape close with focus restored",
+        "keyboard Enter while selector open",
+        "open then reload",
+        "back navigation and repeated first touch",
+        "mobile to desktop transition",
+        "landscape transition",
+        "return to mobile",
+        "low-height mobile"
+      ]
+    },
+    "typography_and_console": {
+      "source_audit": "passed for app and components; repository-root findings were limited to third-party browser-extension CSS stored inside prior QA browser profiles",
+      "first_paint": "Cold and warm checks at 390px and 1440px kept Rubik, Heebo, Assistant, Arial, sans-serif from the first animation frame through document.fonts.ready.",
+      "direction": "rtl",
+      "console_errors": 0,
+      "horizontal_overflow": false
+    },
+    "diff_integrity": {
+      "git_diff_check": "passed",
+      "changed_product_files": [
+        "app/components/world-switcher.tsx",
+        "app/globals.css"
+      ],
+      "changed_test_files": [
+        "tests/header-utility-actions.test.mjs",
+        "tests/rendered-html.test.mjs"
+      ]
+    }
+  },
+  "independent_seal": {
+    "status": "passed",
+    "checker": "/root/vii_worlds_public_v322_seal",
+    "verdict": "SEAL_VERDICT vii-worlds-button-click-reliability-20260818-public-v322 PASS",
+    "notes": "The independent checker reviewed the exact public release, commit, HTTP response, public CSS fix and the 40-check public first-action matrix."
+  },
+  "production_gate": {
+    "status": "passed",
+    "version_number": 322,
+    "version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_53c358722ff48191ae441332c2c8a70a",
+    "deployment_id": "appgdep_6a84488abec48191a893db5403aabc80",
+    "commit_sha": "49ed15f201d7fc43f81142e82d18939eb5f327a0",
+    "live_url": "https://vii.spaplus.co",
+    "deployment_status": "succeeded",
+    "public_checks": "40 of 40 exact first-action checks passed; the full sitewide automated release gate passed all four stages.",
+    "rollback_version": 320,
+    "deployment_evidence": "project_knowledge/release_evidence/v322/deployment-evidence.json"
+  }
+}

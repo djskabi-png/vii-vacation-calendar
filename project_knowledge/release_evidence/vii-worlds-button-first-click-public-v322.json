@@ -1,0 +1,931 @@
+{
+  "baseUrl": "https://vii.spaplus.co",
+  "passed": true,
+  "checkedAt": "2026-08-18T11:58:55.855Z",
+  "total": 40,
+  "passedCount": 40,
+  "failedCount": 0,
+  "failures": [],
+  "checks": [
+    {
+      "profile": "mobile-touch",
+      "routeName": "home",
+      "route": "/",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 129,
+          "y": 32
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "mobile-touch",
+      "routeName": "vacation-place",
+      "route": "/business?id=hilat-hanof",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 129,
+          "y": 32
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "mobile-touch",
+      "routeName": "spa-place",
+      "route": "/discover/place/spa-butik-tlv",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 129,
+          "y": 32
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "mobile-touch",
+      "routeName": "hourly-place",
+      "route": "/discover/place/gentleman-haifa",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 129,
+          "y": 32
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "mobile-touch",
+      "routeName": "event-place",
+      "route": "/events/place/black-loft",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 129,
+          "y": 32
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "mobile-touch",
+      "routeName": "trail-place",
+      "route": "/trails/snir-hatzbani",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 129,
+          "y": 32
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "mobile-touch",
+      "routeName": "provider-place",
+      "route": "/discover/place/masu-home-wellness",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 129,
+          "y": 32
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "mobile-touch",
+      "routeName": "attraction-place",
+      "route": "/discover/place/timna-park",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 129,
+          "y": 32
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "mobile-touch",
+      "routeName": "account",
+      "route": "/account",
+      "passed": true,
+      "selectorPresent": false,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 83,
+          "y": 32
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "mobile-touch",
+      "routeName": "join",
+      "route": "/join",
+      "passed": true,
+      "selectorPresent": false,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 83,
+          "y": 32
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "mobile-low-height",
+      "routeName": "home",
+      "route": "/",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 129,
+          "y": 32
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "mobile-low-height",
+      "routeName": "vacation-place",
+      "route": "/business?id=hilat-hanof",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 129,
+          "y": 32
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "mobile-low-height",
+      "routeName": "spa-place",
+      "route": "/discover/place/spa-butik-tlv",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 129,
+          "y": 32
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "mobile-low-height",
+      "routeName": "hourly-place",
+      "route": "/discover/place/gentleman-haifa",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 129,
+          "y": 32
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "mobile-low-height",
+      "routeName": "event-place",
+      "route": "/events/place/black-loft",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 129,
+          "y": 32
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "mobile-low-height",
+      "routeName": "trail-place",
+      "route": "/trails/snir-hatzbani",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 129,
+          "y": 32
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "mobile-low-height",
+      "routeName": "provider-place",
+      "route": "/discover/place/masu-home-wellness",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 129,
+          "y": 32
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "mobile-low-height",
+      "routeName": "attraction-place",
+      "route": "/discover/place/timna-park",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 129,
+          "y": 32
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "mobile-low-height",
+      "routeName": "account",
+      "route": "/account",
+      "passed": true,
+      "selectorPresent": false,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 83,
+          "y": 32
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "mobile-low-height",
+      "routeName": "join",
+      "route": "/join",
+      "passed": true,
+      "selectorPresent": false,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 83,
+          "y": 32
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "desktop-pointer",
+      "routeName": "home",
+      "route": "/",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 448.5625,
+          "y": 37
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "desktop-pointer",
+      "routeName": "vacation-place",
+      "route": "/business?id=hilat-hanof",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 448.5625,
+          "y": 37
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "desktop-pointer",
+      "routeName": "spa-place",
+      "route": "/discover/place/spa-butik-tlv",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 448.5625,
+          "y": 37
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "desktop-pointer",
+      "routeName": "hourly-place",
+      "route": "/discover/place/gentleman-haifa",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 448.5625,
+          "y": 37
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "desktop-pointer",
+      "routeName": "event-place",
+      "route": "/events/place/black-loft",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 448.5625,
+          "y": 37
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "desktop-pointer",
+      "routeName": "trail-place",
+      "route": "/trails/snir-hatzbani",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 448.5625,
+          "y": 37
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "desktop-pointer",
+      "routeName": "provider-place",
+      "route": "/discover/place/masu-home-wellness",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 448.5625,
+          "y": 37
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "desktop-pointer",
+      "routeName": "attraction-place",
+      "route": "/discover/place/timna-park",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 448.5625,
+          "y": 37
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "desktop-pointer",
+      "routeName": "account",
+      "route": "/account",
+      "passed": true,
+      "selectorPresent": false,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 308.5625,
+          "y": 37
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "desktop-pointer",
+      "routeName": "join",
+      "route": "/join",
+      "passed": true,
+      "selectorPresent": false,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 308.5625,
+          "y": 37
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "desktop-keyboard",
+      "routeName": "home",
+      "route": "/",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 448.5625,
+          "y": 37
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "desktop-keyboard",
+      "routeName": "vacation-place",
+      "route": "/business?id=hilat-hanof",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 448.5625,
+          "y": 37
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "desktop-keyboard",
+      "routeName": "spa-place",
+      "route": "/discover/place/spa-butik-tlv",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 448.5625,
+          "y": 37
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "desktop-keyboard",
+      "routeName": "hourly-place",
+      "route": "/discover/place/gentleman-haifa",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 448.5625,
+          "y": 37
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "desktop-keyboard",
+      "routeName": "event-place",
+      "route": "/events/place/black-loft",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 448.5625,
+          "y": 37
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "desktop-keyboard",
+      "routeName": "trail-place",
+      "route": "/trails/snir-hatzbani",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 448.5625,
+          "y": 37
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "desktop-keyboard",
+      "routeName": "provider-place",
+      "route": "/discover/place/masu-home-wellness",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 448.5625,
+          "y": 37
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "desktop-keyboard",
+      "routeName": "attraction-place",
+      "route": "/discover/place/timna-park",
+      "passed": true,
+      "selectorPresent": true,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 448.5625,
+          "y": 37
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "desktop-keyboard",
+      "routeName": "account",
+      "route": "/account",
+      "passed": true,
+      "selectorPresent": false,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 308.5625,
+          "y": 37
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    },
+    {
+      "profile": "desktop-keyboard",
+      "routeName": "join",
+      "route": "/join",
+      "passed": true,
+      "selectorPresent": false,
+      "hitTarget": {
+        "href": "/search",
+        "center": {
+          "x": 308.5625,
+          "y": 37
+        },
+        "topTag": "A",
+        "topClass": "icon-button header-search",
+        "searchIsTopTarget": true,
+        "backdropCount": 0
+      },
+      "destination": "/search",
+      "firstActionNavigated": true,
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "httpErrors": []
+    }
+  ]
+}
