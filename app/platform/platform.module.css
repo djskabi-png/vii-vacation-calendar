@@ -583,11 +583,12 @@
 @media (max-width: 760px) {
   .topbar { min-height: 92px; }
   .brand img { width: 92px; height: 70px; }
-  .heroGrid { padding-top: 44px; }
+  .heroGrid { min-width: 0; padding-top: 44px; }
+  .heroCopy { min-width: 0; max-width: 100%; }
   .hero h1 { font-size: clamp(3.9rem, 20vw, 5.5rem); }
   .heroTruth { grid-template-columns: 1fr; }
-  .orbit { width: min(342px, 100%); margin-block: 12px 22px; }
-  .orbitWorld { min-height: 44px; max-width: 108px; padding: 5px 7px; font-size: .56rem; letter-spacing: .035em; }
+  .orbit { width: min(100%, 370px); margin-block: 12px 22px; }
+  .orbitWorld { min-height: 44px; max-width: 112px; padding: 5px 7px; font-size: .49rem; letter-spacing: .045em; }
   .orbitWorld1 { top: 0; left: 37%; }
   .orbitWorld2 { top: 14%; right: 4%; }
   .orbitWorld3 { top: 44%; right: -1%; }

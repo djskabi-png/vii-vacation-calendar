@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 
 const STORAGE_KEY = "vii-cookie-choice";
@@ -62,7 +62,12 @@ export function CookieConsent() {
     const timer = window.setTimeout(() => {
       const choice = localStorage.getItem(STORAGE_KEY);
       setAnalytics(choice === "all");
-      setVisible(!choice);
+      if (window.location.hash === SETTINGS_HASH) {
+        setSettings(true);
+        setVisible(true);
+      } else {
+        setVisible(!choice);
+      }
     }, 0);
 
     const openSettings = () => {
@@ -94,10 +99,18 @@ export function CookieConsent() {
     }
   }
 
+  function closeSettings() {
+    setSettings(false);
+    if (localStorage.getItem(STORAGE_KEY)) setVisible(false);
+    if (window.location.hash === SETTINGS_HASH) {
+      window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+    }
+  }
+
   if (!visible) return null;
 
   return (
-    <aside id="privacy-settings" className="cookie-card" aria-label={labels.aria}>
+    <aside id="privacy-settings" className={`cookie-card ${settings ? "cookie-card--settings" : "cookie-card--notice"}`} aria-label={labels.aria}>
       <div><strong>{labels.title}</strong><p>{labels.description}</p></div>
       {settings && (
         <div className="cookie-settings">
@@ -112,12 +125,18 @@ export function CookieConsent() {
           <button type="button" className="button primary" onClick={() => choose("all")}>{labels.allowAll}</button>
         )}
         <button type="button" className="button subtle" onClick={() => choose("essential")}>{labels.essentialsOnly}</button>
-        <button type="button" className="text-button" aria-expanded={settings} onClick={() => setSettings((value) => !value)}>{settings ? labels.back : labels.preferences}</button>
+        <button type="button" className="text-button" aria-expanded={settings} onClick={settings ? closeSettings : () => setSettings(true)}>{settings ? labels.back : labels.preferences}</button>
       </div>
     </aside>
   );
 }
 
 export function CookiePreferencesButton() {
-  return <a className="footer-privacy-button" href={SETTINGS_HASH}>העדפות פרטיות</a>;
+  function openPreferences(event: MouseEvent<HTMLAnchorElement>) {
+    event.preventDefault();
+    window.dispatchEvent(new Event(OPEN_EVENT));
+    window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}${SETTINGS_HASH}`);
+  }
+
+  return <a href={SETTINGS_HASH} className="footer-privacy-button" onClick={openPreferences}>העדפות פרטיות</a>;
 }

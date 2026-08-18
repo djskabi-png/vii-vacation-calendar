@@ -9,10 +9,12 @@ test("the smart WhatsApp concierge is part of the shared public page shell", () 
   assert.match(pageShell, /<SmartConcierge\s*\/>/);
 });
 
-test("mobile detail and corporate pages keep the concierge available", () => {
+test("mobile detail pages remove the redundant dock and keep the concierge available", () => {
+  assert.match(css, /@media \(max-width: 820px\)[\s\S]*?\.detail-sticky-wrap \{ display: none; \}/);
+  assert.doesNotMatch(css, /\.property-page, \.event-place-page, \.discovery-detail \{ padding-bottom: calc\(96px/);
   assert.doesNotMatch(css, /body:has\(\.detail-sticky-wrap\) \.smart-concierge[^}]*display:\s*none/);
   assert.doesNotMatch(css, /body:has\(\.corporate-builder\) \.smart-concierge[^}]*display:\s*none/);
-  assert.match(css, /body:has\(\.detail-sticky-wrap\) \.smart-concierge \{ bottom:\s*calc\(94px/);
+  assert.doesNotMatch(css, /body:has\(\.detail-sticky-wrap\) \.(?:smart-concierge|world-dock) \{ bottom:\s*calc\(94px/);
 });
 
 test("the concierge only yields to active overlays that would cover it", () => {

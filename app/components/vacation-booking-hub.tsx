@@ -172,20 +172,20 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
     <button
       ref={launchRef}
       type="button"
-      className="vacation-booking-hub__launcher"
+      className={`vacation-booking-hub__launcher vacation-booking-hub__launcher--${hasDates ? "selected" : "empty"}`}
       onClick={() => hasDates ? setDialogOpen(true) : onOpenCalendar()}
-      aria-haspopup={hasDates ? "dialog" : undefined}
+      aria-haspopup="dialog"
+      aria-label={hasDates ? `עריכת תאריכים וכמות אורחים, ${displayDates}, ${guests} אורחים` : "בחירת תאריכי צ׳ק-אין וצ׳ק-אאוט"}
     >
       <span className="vacation-booking-hub__launcher-icon"><CalendarIcon /></span>
       <span className="vacation-booking-hub__launcher-copy">
-        <small>{hasDates ? "התאריכים שבחרתם" : "תאריכים ואורחים"}</small>
-        <strong>{hasDates ? displayDates : "בדיקת זמינות"}</strong>
+        {hasDates ? <><small>צ׳ק-אין וצ׳ק-אאוט</small><strong>{displayDates}</strong></> : <strong>בחרו תאריכים</strong>}
       </span>
-      <span className="vacation-booking-hub__launcher-meta">
+      {hasDates ? <span className="vacation-booking-hub__launcher-meta">
         <small>{guests} אורחים</small>
-        {nightlyPrice > 0 ? <b>{nightlyPrice.toLocaleString(numberLocale)} ₪ ללילה{property.scenario === "multi" ? unitPriceCopy.night : ""}</b> : hasDates ? <b>{hasUnitAvailability ? unitCopy.availableCount(availableUnitCount, units.length) : summary.title}</b> : null}
-      </span>
-      {hasDates ? <span className="vacation-booking-hub__launcher-action">שינוי</span> : null}
+        {nightlyPrice > 0 ? <b>{nightlyPrice.toLocaleString(numberLocale)} ₪ ללילה{property.scenario === "multi" ? unitPriceCopy.night : ""}</b> : <b>{hasUnitAvailability ? unitCopy.availableCount(availableUnitCount, units.length) : summary.title}</b>}
+      </span> : null}
+        {hasDates ? <span className="vacation-booking-hub__launcher-action">עריכה</span> : null}
     </button>
     {quickBooking ? <Link className="button primary vacation-booking-hub__quick-book" href={bookingHref}>הזמנה מהירה</Link> : null}
     </div>
@@ -205,8 +205,8 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
           <div className="vacation-booking-dialog__selection" aria-label="פרטי השהייה">
             <button type="button" className="vacation-booking-dialog__date" onClick={openCalendar} aria-label={`בחירת תאריכי שהייה, ${displayDates}`}>
               <CalendarIcon />
-              <span><small>תאריכי השהייה</small><strong>{displayDates}</strong></span>
-              <b>עריכה</b>
+              <span><small>צ׳ק-אין וצ׳ק-אאוט</small><strong>{hasDates ? displayDates : "בחירת תאריכים"}</strong></span>
+              <b>{hasDates ? "עריכה" : "בחירה"}</b>
             </button>
             <div className="vacation-booking-dialog__guests" role="group" aria-label="כמות אורחים">
               <span><small>כמות אורחים</small><strong aria-live="polite">{guests} אורחים</strong></span>

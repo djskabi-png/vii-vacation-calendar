@@ -43,6 +43,13 @@ test("below-results content stays readable and complete on mobile", () => {
   assert.match(css, /scroll-snap-type: inline mandatory/);
 });
 
+test("a following cross-sell uses one measured section rhythm instead of stacked empty space", () => {
+  assert.match(worldLanding, /world-page--with-cross-sell/);
+  assert.match(css, /\.world-page--with-cross-sell > \.search-depth \{[^}]*padding-bottom: 0/);
+  assert.match(css, /\.world-page--with-cross-sell > \.world-cross-sell \{[^}]*padding-top: 18px/);
+  assert.match(css, /@media \(max-width: 760px\) \{\s*\.world-page--with-cross-sell > \.world-cross-sell \{ padding-top: 15px; \}\s*\}/);
+});
+
 test("contextual discovery preserves filters while changing only the selected destination or suggestion", () => {
   assert.match(component, /new URLSearchParams\(currentQuery\)/);
   assert.match(component, /params\.set\(key, value\)/);

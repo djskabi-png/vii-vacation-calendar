@@ -294,7 +294,7 @@ const contentByWorld: Record<SearchContentWorld, SearchContent> = {
       { question: "האם כל ספק עובד בכל הארץ?", answer: "לא. אזורי השירות משתנים בין ספקים ולעיתים כרוכים בעלות נסיעה, לכן בודקים זאת לפני אישור." },
     ],
     related: [
-      { label: "שפים וקייטרינג", href: "/providers?category=food" }, { label: "מוזיקה ותקליטנים", href: "/providers?category=music" }, { label: "מופעים ואמנים", href: "/providers?category=entertainment" }, { label: "צילום לאירועים", href: "/providers?category=photo" }, { label: "עיצוב ובלונים", href: "/providers?category=design" }, { label: "מקומות לאירועים", href: "/events/search" },
+      { label: "שפים וקייטרינג", href: "/providers/food" }, { label: "מוזיקה ותקליטנים", href: "/providers/music" }, { label: "מופעים ואמנים", href: "/providers/entertainment" }, { label: "צילום לאירועים", href: "/providers/photo" }, { label: "עיצוב ובלונים", href: "/providers/design" }, { label: "מקומות לאירועים", href: "/events/search" },
     ],
   },
   activities: {

@@ -7,6 +7,7 @@ import { natureTypes, regions, trails, type TrailDifficulty } from "../data/trai
 import { DeferredTrailMap } from "../components/deferred-listing-map";
 import { useMapViewState } from "../components/map-view-state";
 import { MapIcon } from "../site-header";
+import { ProgressiveResults } from "../components/progressive-results";
 
 const difficulties: Array<"הכל" | TrailDifficulty> = ["הכל", "קל", "בינוני", "למיטיבי לכת"];
 const regionOptions = regions.filter((item) => item !== "הכל");
@@ -77,6 +78,6 @@ export function TrailsExplorer() {
       <MultiChoice label="דרגת קושי" options={difficultyOptions} selected={selectedDifficulties} onToggle={(value) => toggleValue(value, selectedDifficulties, setSelectedDifficulties, "difficulty")} />
     </form>
     <div className="trail-results-head"><div><strong>{filtered.length} מסלולים מתאימים</strong><span>הנתונים נערכו ממקורות רשמיים. מצב המסלול נבדק שוב ביום הטיול.</span></div>{filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לרשימת המסלולים" : "הצגת המסלולים על המפה"} aria-pressed={mapOpen} onClick={() => mapOpen ? closeMap() : openMap()}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לרשימה" : "מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div>
-    {filtered.length ? mapOpen ? <div className="airbnb-map-split trail-map-split"><div className="airbnb-map-split__results trail-grid">{filtered.map((trail) => <TrailCard key={trail.slug} trail={trail} />)}</div><div className="airbnb-map-split__map"><DeferredTrailMap trails={filtered} autoLoad onClose={closeMap} /></div></div> : <div className="trail-grid">{filtered.map((trail) => <TrailCard key={trail.slug} trail={trail} />)}</div> : <div className="trail-empty"><h2>לא מצאנו התאמה לסינון הזה</h2><p>אפשר להסיר אחד מהסינונים או לחפש אזור סמוך.</p><button type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
+    {filtered.length ? mapOpen ? <div className="airbnb-map-split trail-map-split"><div className="airbnb-map-split__results trail-grid">{filtered.map((trail) => <TrailCard key={trail.slug} trail={trail} />)}</div><div className="airbnb-map-split__map"><DeferredTrailMap trails={filtered} autoLoad onClose={closeMap} /></div></div> : <ProgressiveResults className="trail-grid" kind="trails" resetKey={`${selectedRegions.join(",")}|${selectedNatures.join(",")}|${selectedDifficulties.join(",")}|${query}`}>{filtered.map((trail) => <TrailCard key={trail.slug} trail={trail} />)}</ProgressiveResults> : <div className="trail-empty"><h2>לא מצאנו התאמה לסינון הזה</h2><p>אפשר להסיר אחד מהסינונים או לחפש אזור סמוך.</p><button type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
   </>;
 }

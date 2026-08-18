@@ -48,10 +48,11 @@ export async function createSignedValue(payload: Record<string, unknown>, secret
   return `${encoded}.${await signature(encoded, secret)}`;
 }
 
-export async function readSignedValue<T>(value: string | undefined, secret = authSecret()): Promise<T | null> {
+export async function readSignedValue<T>(value: string | undefined, secret?: string): Promise<T | null> {
   if (!value) return null;
+  const resolvedSecret = secret || authSecret();
   const [encoded, supplied, extra] = value.split(".");
-  if (!encoded || !supplied || extra || !safeEqual(supplied, await signature(encoded, secret))) return null;
+  if (!encoded || !supplied || extra || !safeEqual(supplied, await signature(encoded, resolvedSecret))) return null;
   try { return JSON.parse(new TextDecoder().decode(base64UrlDecode(encoded))) as T; } catch { return null; }
 }
 

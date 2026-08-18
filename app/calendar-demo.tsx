@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useSiteLanguage } from "./i18n/locale-provider";
 import { CalendarIcon } from "./site-header";
@@ -26,8 +26,21 @@ type CalendarResult = {
 };
 
 const DAY_MS = 86_400_000;
-const DEMO_TODAY = new Date(2026, 7, 4);
-const START_MONTH = new Date(2026, 7, 1);
+const SITE_TIME_ZONE = "Asia/Jerusalem";
+
+export function currentSiteDay(reference = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: SITE_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(reference);
+  const value = (type: "year" | "month" | "day") => Number(parts.find((part) => part.type === type)?.value);
+  return new Date(value("year"), value("month") - 1, value("day"));
+}
+
+const DEMO_TODAY = currentSiteDay();
+const START_MONTH = new Date(DEMO_TODAY.getFullYear(), DEMO_TODAY.getMonth(), 1);
 const BUSINESS_BUSY_DATES = new Set([
   "2026-08-10",
   "2026-08-11",
@@ -266,6 +279,9 @@ export function CalendarDemo({
   onCancel,
   onSkip,
   onConfirm,
+  guests = 2,
+  maxGuests = 20,
+  onGuestsChange,
   availabilityResolver,
   priceResolver,
 }: {
@@ -277,6 +293,9 @@ export function CalendarDemo({
   onCancel?: () => void;
   onSkip?: () => void;
   onConfirm: (result: CalendarResult) => void;
+  guests?: number;
+  maxGuests?: number;
+  onGuestsChange?: (guests: number) => void;
   availabilityResolver?: (date: Date) => Availability;
   priceResolver?: (date: Date) => number;
 }) {
@@ -291,6 +310,7 @@ export function CalendarDemo({
   const [flexDays, setFlexDays] = useState(3);
   const [visibleMonthIndex, setVisibleMonthIndex] = useState(0);
   const [notice, setNotice] = useState("בחרו תאריך הגעה");
+  const calendarBodyRef = useRef<HTMLDivElement>(null);
 
   const visibleMonths = Array.from({ length: 12 }, (_, index) => addMonths(START_MONTH, index));
   const nights = checkIn && checkOut ? dateDiff(checkIn, checkOut) : 0;
@@ -310,6 +330,14 @@ export function CalendarDemo({
       window.removeEventListener("keydown", onKeyDown);
     };
   }, [cancel, open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const frame = window.requestAnimationFrame(() => {
+      if (calendarBodyRef.current) calendarBodyRef.current.scrollTop = 0;
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [open]);
 
   if (!open) return null;
 
@@ -448,7 +476,7 @@ export function CalendarDemo({
             </section>
           </div>
         ) : (
-          <div className="calendar-body">
+          <div ref={calendarBodyRef} className="calendar-body">
             <div className="calendar-toolbar">
               <div className="quick-date-buttons" aria-label="בחירת טווח מהירה">
                 <span>{translate(mode === "home" ? "חיפוש מהיר" : "מציאת טווח פנוי")}</span>
@@ -481,6 +509,11 @@ export function CalendarDemo({
             </div>
           </div>
         )}
+
+        {mode === "business" && ready && onGuestsChange ? <div className="calendar-dialog-guests" role="group" aria-label="כמות אורחים">
+          <div><span>כמות אורחים</span><strong aria-live="polite">{guests} אורחים</strong></div>
+          <div><button type="button" onClick={() => onGuestsChange(Math.max(1, guests - 1))} disabled={guests <= 1} aria-label="הפחתת אורח">−</button><button type="button" onClick={() => onGuestsChange(Math.min(maxGuests, guests + 1))} disabled={guests >= maxGuests} aria-label="הוספת אורח">+</button></div>
+        </div> : null}
 
         <footer className="calendar-dialog-footer">
           <div className="dialog-status" aria-live="polite">

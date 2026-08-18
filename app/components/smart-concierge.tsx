@@ -145,6 +145,7 @@ export function SmartConcierge() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([openingMessage(language)]);
   const [unread, setUnread] = useState(false);
+  const [footerVisible, setFooterVisible] = useState(false);
   const nextId = useRef(2);
   const activeLanguage = useRef(language);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -174,6 +175,14 @@ export function SmartConcierge() {
     messagesRef.current?.scrollTo({ top: messagesRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    const footer = document.querySelector(".site-footer");
+    if (!footer || !("IntersectionObserver" in window)) return;
+    const observer = new IntersectionObserver(([entry]) => setFooterVisible(entry.isIntersecting), { threshold: 0.01 });
+    observer.observe(footer);
+    return () => observer.disconnect();
+  }, []);
+
   function ask(value: string) {
     const cleanValue = value.trim();
     if (!cleanValue) return;
@@ -202,7 +211,7 @@ export function SmartConcierge() {
   const whatsappText = conversationSummary ? `${copy.whatsappWith}${conversationSummary}` : copy.whatsappEmpty;
   const whatsappHref = `https://wa.me/${serviceWhatsappNumber}?text=${encodeURIComponent(whatsappText)}`;
 
-  return <aside className={`smart-concierge ${open ? "open" : ""}`} aria-label={copy.aria}>
+  return <aside className={`smart-concierge ${open ? "open" : ""} ${footerVisible ? "is-over-footer" : ""}`} aria-label={copy.aria}>
     {open ? <section id="smart-concierge-panel" className="smart-concierge__panel" role="dialog" aria-modal="false" aria-labelledby="smart-concierge-title">
       <header className="smart-concierge__header">
         <div className="smart-concierge__identity"><span className="smart-concierge__avatar" aria-hidden="true">VII<i /></span><div><strong id="smart-concierge-title">{copy.title}</strong><small><i /> {copy.status}</small></div></div>

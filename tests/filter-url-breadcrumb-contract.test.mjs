@@ -52,12 +52,20 @@ test("vacation and event filters serialize and restore their complete state", ()
   assert.match(events, /function changeFilter/);
 });
 
-test("provider filters serialize, restore and reset their complete state", () => {
+test("provider topic routes and in-topic filters restore and reset their complete state", () => {
   const providers = read("app/components/provider-results.tsx");
-  ["q", "region", "category"].forEach((key) => assert.match(providers, new RegExp(`searchParams\\.get\\(\"${key}\"\\)`)));
+  const categories = read("app/data/provider-categories.ts");
+  const topicPage = read("app/providers/[category]/page.tsx");
+  ["q", "region"].forEach((key) => assert.match(providers, new RegExp(`searchParams\\.get\\(\"${key}\"\\)`)));
+  assert.doesNotMatch(providers, /searchParams\.get\("category"\)/);
   assert.match(providers, /new URLSearchParams\(window\.location\.search\)/);
   assert.match(providers, /window\.history\.pushState/);
+  assert.match(providers, /<Link key=\{entry\.id\} href=\{providerCategoryHref\(entry\)\}/);
   assert.match(providers, /function resetFilters/);
+  assert.match(categories, /return id === "all" \? "\/providers" : `\/providers\/\$\{id\}`/);
+  assert.match(topicPage, /generateMetadata/);
+  assert.match(topicPage, /alternates: \{ canonical: path \}/);
+  assert.match(topicPage, /providerMatchesCategory/);
 });
 
 test("attractions, trails, spa and hourly filters have shareable URL state", () => {
