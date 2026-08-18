@@ -175,8 +175,8 @@ const techStack: TechChoice[] = [
 ];
 
 const providerExamples = [
-  { provider: "SERGEY", world: "VACATIONS", code: "provider_id: 1042", title: "וילת הדגמה בגליל", fields: "שם, מזהה, אודות, כתובת, מיקום, תמונות, מתקנים, יחידות, מבנה חדרים, מחירים, מדיניות וזמינות", meta: "3 יחידות · בריכה · החל מ־1,900 ₪" },
-  { provider: "SPA PLUS", world: "SPA", code: "provider_id: 310", title: "ספא הדגמה בתל אביב", fields: "שם, מזהה, אודות, כתובת, תמונות, טיפולים, משכים, מטפלים, חבילות, מחירים, שעות ותורים", meta: "12 טיפולים · פתוח היום · החל מ־260 ₪" },
+  { provider: "SERGEY", world: "VACATIONS", code: "provider_id: <placeholder, unverified>", title: "וילת הדגמה בגליל", fields: "שם, מזהה, אודות, כתובת, מיקום, תמונות, מתקנים, יחידות, מבנה חדרים, מחירים, מדיניות וזמינות", meta: "3 יחידות · בריכה · החל מ־1,900 ₪" },
+  { provider: "SPA PLUS", world: "SPA", code: "provider_id: <placeholder, unverified>", title: "ספא הדגמה בתל אביב", fields: "שם, מזהה, אודות, כתובת, תמונות, טיפולים, משכים, מטפלים, חבילות, מחירים, שעות ותורים", meta: "12 טיפולים · פתוח היום · החל מ־260 ₪" },
   { provider: "FUTURE PROVIDER", world: "ATTRACTIONS", code: "provider_id: pending", title: "אטרקציית הדגמה בצפון", fields: "שם, מזהה, תיאור, מיקום, תמונות, סוגי כרטיסים, גילאים, מגבלות, שעות, מחירים וזמינות", meta: "משפחות · 90 דקות · החל מ־85 ₪" },
 ];
 
@@ -304,7 +304,7 @@ const translationInsights: InsightCard[] = [
 ];
 
 const monitoringInsights: InsightCard[] = [
-  { id: "monitor-release", eyebrow: "RELEASE MARKERS", title: "כל שגיאה יודעת באיזו גרסה התחילה", summary: "פריסה מסומנת בלוגים, במדדים ובעקבות כדי לקשור שינוי לתקלה.", decision: "target", status: "יכולת יעד, ספק טרם נבחר.", bullets: ["גרסת קוד ותשתית על כל אירוע.", "קיבוץ שגיאות לפי מקור והשפעה.", "השוואה לפני ואחרי שחרור."], technical: "release=v316\ntraceId + route + world + provider\nerror group -> first_seen + affected_sessions" },
+  { id: "monitor-release", eyebrow: "RELEASE MARKERS", title: "כל שגיאה יודעת באיזו גרסה התחילה", summary: "פריסה מסומנת בלוגים, במדדים ובעקבות כדי לקשור שינוי לתקלה.", decision: "target", status: "יכולת יעד, ספק טרם נבחר.", bullets: ["גרסת קוד ותשתית על כל אירוע.", "קיבוץ שגיאות לפי מקור והשפעה.", "השוואה לפני ואחרי שחרור."], technical: "release=<deployment-version>\ntraceId + route + world + provider\nerror group -> first_seen + affected_sessions" },
   { id: "monitor-synthetic", eyebrow: "AUTOMATIC CHECKS", title: "רובוטים בודקים את המסלולים הקריטיים כל הזמן", summary: "בדיקת דף בלבד אינה מספיקה. בודקים חיפוש, ספק, התחלת הזמנה וממשק ניהול.", decision: "target", status: "תרחישי הבדיקה והספים ייקבעו לפי שלב ההשקה.", bullets: ["בדיקות סינתטיות ממיקומים מוסכמים.", "בדיקת טריות, זמני ספק, תור ומסד.", "בדיקה שמתריעה בלי ליצור הזמנה כפולה או אמיתית."], technical: "GET catalog -> expected 200 + freshness\nsearch golden query -> expected result\nbooking sandbox -> idempotent dry run" },
   { id: "monitor-alert", eyebrow: "ALERT ROUTING", title: "ההתראה מגיעה לאדם הנכון עם הקשר", summary: "התראה שימושית כוללת חומרה, עולם, ספק, גרסה, השפעה ופעולה ראשונה.", decision: "target", status: "ספק וערוצי ההתראה עדיין פתוחים.", bullets: ["ספים שונים לזמינות, כשלי ספק, שגיאות הזמנה ופיגור תור.", "מניעת סערת התראות וכפילויות.", "הסלמה לפי חומרה ושעות כוננות."], technical: "alert = { severity, world, provider, release, impact }\ndedupe window -> owner -> escalation policy" },
   { id: "monitor-incident", eyebrow: "INCIDENT HISTORY", title: "מתקלה לתיקון ולמניעת חזרה", summary: "המערכת שומרת מה קרה, מה הושפע, מי טיפל ואיזו בדיקה נוספה.", decision: "target", status: "נדרש לפני מוכנות תפעולית.", bullets: ["ציר זמן של זיהוי, תגובה והתאוששות.", "הוכחת תיקון ובדיקת חזרה.", "מעקב אחרי כשל חוזר ויעד סגירה."], technical: "detect -> contain -> recover -> verify\npost-incident: cause + fix + regression + owner" },
@@ -507,9 +507,9 @@ export function PlatformExplorer() {
         </div>
         <figure className={styles.architectureFigure}>
           <picture>
-            <source srcSet="/platform-architecture-v316.avif" type="image/avif" />
-            <source srcSet="/platform-architecture-v316.webp" type="image/webp" />
-            <img src="/platform-architecture-v316.png" alt="המחשה של ארכיטקטורת היעד של VII, מידע מלא נכנס מספקים ולפי החוזה הזמנות וחוות דעת חוזרות לספק המתאים" width="1672" height="941" loading="lazy" decoding="async" />
+            <source srcSet="/platform-architecture-overview.avif" type="image/avif" />
+            <source srcSet="/platform-architecture-overview.webp" type="image/webp" />
+            <img src="/platform-architecture-overview.png" alt="המחשה של ארכיטקטורת היעד של VII, מידע מלא נכנס מספקים ולפי החוזה הזמנות וחוות דעת חוזרות לספק המתאים" width="1672" height="941" loading="lazy" decoding="async" />
           </picture>
           <div className={styles.architectureTextFlow} aria-label="חלופה טקסטואלית מקוצרת לתרשים">
             <span><b>ספקים</b><small>סרגיי · ספא פלוס · אטרקציות בעתיד</small></span>

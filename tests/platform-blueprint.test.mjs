@@ -45,13 +45,15 @@ test("platform source preserves decision truth and every required operational la
     "מערכת הניהול של אדיר",
     "אלה דוגמאות סינתטיות ומדומות, לא נתוני ספק.",
     "$0.14 / GB-MONTH",
-    "platform-architecture-v316.avif",
+    "platform-architecture-overview.avif",
   ]) assert.match(source, new RegExp(required.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
 
   assert.match(source, /name: "REDIS"[\s\S]*?decision: "open"/);
   assert.match(source, /name: "SEARCH VENDOR"[\s\S]*?decision: "open"/);
   assert.doesNotMatch(source, /name: "POSTGRESQL \+ SQL"/);
   assert.doesNotMatch(source, /name: "OPENSEARCH"/);
+  assert.doesNotMatch(source, /provider_id:\s*\d+/);
+  assert.doesNotMatch(source, /platform-architecture-v\d+/);
 });
 
 test("all explanation controls use the no-jump accessible dialog family", async () => {
