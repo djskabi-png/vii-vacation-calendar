@@ -21,7 +21,7 @@ export default function AccessibilityPage() {
           <span className="eyebrow">שירות שווה לכולם</span>
           <h1>הצהרת נגישות</h1>
           <p className="lead">אנחנו פועלים כדי לאפשר לכל אדם להשתמש באתר, למצוא מקום מתאים ולקבל מידע ברור לפני הזמנה.</p>
-          <p className="accessibility-statement__date">נוסח עבודה מעודכן ליום 5 באוגוסט 2026</p>
+          <p className="accessibility-statement__date">עודכן ביום 19 באוגוסט 2026</p>
         </header>
 
         <aside className="accessibility-statement__notice" aria-label="עדכון בנוגע להצהרת הנגישות">
@@ -66,6 +66,11 @@ export default function AccessibilityPage() {
         </section>
 
         <section>
+          <h2>מפעילת האתר ויצירת קשר</h2>
+          <p>האתר מופעל בידי ספא פלוס אתרים בע״מ, ח.פ. 514301837. אפשר לפנות לשירות הלקוחות גם בנושא נגישות בטלפון <a dir="ltr" href="tel:036338080">03-6338080</a> או בדוא״ל <a dir="ltr" href="mailto:spaplus100@gmail.com">spaplus100@gmail.com</a>.</p>
+        </section>
+
+        <section>
           <h2>תוכן ושירותים של צד שלישי</h2>
           <p>בחלק מהעמודים עשויים להופיע מפות, קישורים, מערכות תשלום או רכיבים שמופעלים בידי ספקים חיצוניים. אנחנו פועלים לבחור פתרונות נגישים, אך השליטה המלאה ברכיבים אלה נמצאת לעיתים בידי הספק החיצוני. אם נתקלתם בקושי, נשמח לסייע במציאת חלופה נגישה.</p>
         </section>
@@ -89,9 +94,9 @@ export default function AccessibilityPage() {
         <section className="accessibility-statement__sources">
           <h2>מקורות רשמיים</h2>
           <ul>
-            <li>מדריך ממשלתי להצהרת נגישות ולפרסום הסדרים</li>
-            <li>מדריך ממשלתי לנגישות אתרי אינטרנט</li>
-            <li>תקנות שוויון זכויות לאנשים עם מוגבלות, התאמות נגישות לשירות</li>
+            <li><a href="https://www.gov.il/he/pages/declaration_website_accessibility?chapterIndex=1" target="_blank" rel="noreferrer">מדריך ממשלתי להצהרת נגישות ולפרסום הסדרים</a></li>
+            <li><a href="https://www.gov.il/he/pages/website_accessibility?chapterIndex=1" target="_blank" rel="noreferrer">מדריך ממשלתי לנגישות אתרי אינטרנט</a></li>
+            <li><a href="https://www.gov.il/BlobFolder/guide/accommodating_service_providing_rules/he/sitedocs_service_acessibility_regulations.pdf" target="_blank" rel="noreferrer">תקנות שוויון זכויות לאנשים עם מוגבלות, התאמות נגישות לשירות</a></li>
           </ul>
         </section>
       </article>

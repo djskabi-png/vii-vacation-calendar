@@ -21,7 +21,9 @@ test("large result families use one restrained progressive-results pattern", asy
 
 test("mobile controls keep modern visuals without undersized hit targets", async () => {
   const css = await read("app/globals.css");
-  assert.match(css, /\.stay-card__gallery-dots button,[\s\S]*?width: 30px;[\s\S]*?height: 30px;/);
+  assert.match(css, /\.stay-card__gallery-dots button,[\s\S]*?width: 44px;[\s\S]*?height: 44px;/);
+  assert.match(css, /\.home-slider__controls button \{[^}]*min-height: 44px;/);
+  assert.match(css, /\.room-card__more \{[^}]*min-height: 44px;/);
   assert.match(css, /\.search-world-tabs__menu-head > button \{ width: 44px; height: 44px; \}/);
   assert.match(css, /\.provider-faq summary \{ min-height: 60px;/);
   assert.match(css, /\.cookie-actions \.text-button \{ min-height: 44px; \}/);

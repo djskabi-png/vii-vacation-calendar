@@ -5059,7 +5059,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .room-card__actions .button { text-decoration: none; }
 .room-card__image { padding: 0; border: 0; font: inherit; cursor: pointer; }
 .room-card__image:focus-visible { outline: 3px solid #1d7fdb; outline-offset: 3px; }
-.room-card__more { min-height: 34px; margin-inline-start: auto; padding: 4px 2px; border: 0; border-bottom: 1px solid #a7cfd4; color: var(--teal-dark); background: transparent; font: 800 .76rem/1.2 var(--font-sans); cursor: pointer; }
+.room-card__more { min-height: 44px; margin-inline-start: auto; padding: 9px 2px; border: 0; border-bottom: 1px solid #a7cfd4; color: var(--teal-dark); background: transparent; font: 800 .76rem/1.2 var(--font-sans); cursor: pointer; }
 .room-card__more:hover { border-color: var(--teal-dark); }
 .room-card__more:focus-visible { outline: 3px solid #1d7fdb; outline-offset: 3px; border-radius: 4px; }
 .room-card--inquiry { border-color: rgba(18, 106, 120, .16); box-shadow: 0 10px 30px rgba(0, 64, 77, .07); }
@@ -5252,7 +5252,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .home-recommended .section-head > div:first-child p, .home-worlds .section-head p, .home-spa-strip .section-head p, .home-short-stay .section-head p { max-width: 720px; margin: 8px 0 0; color: var(--ink-soft); }
 .home-recommended .section-head > div:last-child, .home-spa-strip .section-head > div:last-child, .home-short-stay .section-head > div:last-child { display: flex; align-items: center; gap: 14px; }
 .home-slider__controls { display: inline-flex; direction: rtl; gap: 6px; }
-.home-slider__controls button { min-width: 58px; min-height: 38px; padding: 6px 11px; border: 1px solid var(--line); border-radius: 12px; background: white; color: var(--teal-dark); font: inherit; font-size: .75rem; font-weight: 800; cursor: pointer; }
+.home-slider__controls button { min-width: 58px; min-height: 44px; padding: 8px 11px; border: 1px solid var(--line); border-radius: 12px; background: white; color: var(--teal-dark); font: inherit; font-size: .75rem; font-weight: 800; cursor: pointer; }
 .home-slider__controls button:hover { border-color: var(--teal); background: var(--mist); }
 .home-slider__track { display: flex; gap: 20px; overflow-x: auto; padding: 5px 3px 22px; scroll-snap-type: x mandatory; scroll-padding-inline: 3px; overscroll-behavior-inline: contain; scrollbar-width: none; }
 .home-slider__track::-webkit-scrollbar { display: none; }
@@ -9420,8 +9420,8 @@ body:has(.vacation-booking-dialog-layer) .detail-sticky-wrap { display: none; }
 .stay-card__gallery-dots button,
 .stay-card__gallery-dots button.active {
   position: relative;
-  width: 30px;
-  height: 30px;
+  width: 44px;
+  height: 44px;
   border: 0;
   background: transparent;
   box-shadow: none;

@@ -773,6 +773,9 @@ test("includes the accessibility system and honest place disclosures", async () 
   assert.match(widget, /a11y-visible-focus/);
   assert.match(statement, /תקן הישראלי 5568/);
   assert.match(statement, /WCAG 2\.0/);
+  assert.match(statement, /ספא פלוס אתרים בע״מ, ח\.פ\. 514301837/);
+  assert.match(statement, /href="tel:036338080"/);
+  assert.match(statement, /href="mailto:spaplus100@gmail\.com"/);
   assert.match(statement, /פרטי רכז הנגישות טרם נמסרו/);
   assert.match(statement, /נמצאת בתהליך השלמה/);
   assert.equal((data.match(/"(?:aqua-resort|kesem-harimon|ahuzat-or|ar-suites|sol-gilgal|magic-garden-gefen|anael-estate|perfumes-villa|rose-estate|party-time|black-loft|sani-loft|360-events|loft-117|fiesta|details-events|star-loft|puzzle-club|paphos-events)"/g) || []).length, 19);
