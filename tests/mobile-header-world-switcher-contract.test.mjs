@@ -13,9 +13,9 @@ test("the world switcher belongs to the header action row beside the menu", () =
   assert.doesNotMatch(shell, /<WorldSwitcher/);
 });
 
-test("the mobile world switcher is a compact forty pixel header control", () => {
-  assert.match(styles, /\.header-actions \.world-dock \{ position: relative; inset: auto; z-index: auto; flex: 0 0 40px; \}/);
-  assert.match(styles, /\.world-dock > button \{[\s\S]*width: 40px;[\s\S]*min-height: 40px/);
+test("the mobile world switcher is a compact forty-four pixel touch target", () => {
+  assert.match(styles, /\.header-actions \.world-dock \{ position: relative; inset: auto; z-index: auto; flex: 0 0 44px; \}/);
+  assert.match(styles, /\.world-dock > button \{[\s\S]*width: 44px;[\s\S]*min-height: 44px/);
   assert.match(styles, /\.world-dock > button > span:last-child \{ display: none; \}/);
   assert.match(switcher, /aria-label=\{translate\(open \? "סגירת חיפוש ובחירת עולם" : "חיפוש ובחירת עולם"\)\}/);
   assert.match(switcher, /<WorldSearchIcon \/>/);

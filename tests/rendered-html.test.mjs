@@ -1136,7 +1136,7 @@ test("world selection stays in the header and no longer competes with floating a
   assert.match(worldSwitcher, /rootRef\.current\?\.contains\(event\.target as Node\)/);
   assert.match(worldSwitcher, /event\.key !== "Escape"/);
   assert.match(css, /\/\* Compact world selector in the global header zone \*\/[\s\S]*\.header-actions \.world-dock \{[\s\S]*position: relative;[\s\S]*inset: auto !important;/);
-  assert.match(css, /@media \(max-width: 960px\) \{[\s\S]*\.world-dock > button \{[\s\S]*width: 40px;[\s\S]*border-radius: 50%;/);
+  assert.match(css, /@media \(max-width: 960px\) \{[\s\S]*\.world-dock > button \{[\s\S]*width: 44px;[\s\S]*border-radius: 50%;/);
 });
 
 test("every business depth template exposes an internal gallery", async () => {

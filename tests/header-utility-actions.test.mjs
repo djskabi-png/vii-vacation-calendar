@@ -42,8 +42,10 @@ test("the combined trigger handles touch, pointer and keyboard activation withou
 
 test("header utility actions share sizing and world selection is not fixed", () => {
   assert.match(css, /\.icon-button \{ width: 44px; \}/);
+  assert.match(css, /\.header-actions \.world-dock \{ position: relative; inset: auto; z-index: auto; flex: 0 0 44px; \}/);
+  assert.match(css, /\.world-dock > button \{\s*width: 44px;\s*min-width: 44px;\s*min-height: 44px;/);
   assert.match(css, /\.header-actions \.world-dock \{\s*position: relative;\s*inset: auto !important;/);
-  assert.match(css, /width: 40px;\s*min-width: 40px;\s*min-height: 40px;/);
+  assert.doesNotMatch(css, /\.world-dock > button \{\s*width: 40px;\s*min-width: 40px;\s*min-height: 40px;/);
   assert.match(css, /\.world-dock > button \.world-search-icon \{ width: 20px; height: 20px;/);
 });
 

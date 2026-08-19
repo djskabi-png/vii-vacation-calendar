@@ -7662,11 +7662,11 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
 }
 
 @media (max-width: 960px) {
-  .header-actions .world-dock { position: relative; inset: auto; z-index: auto; flex: 0 0 40px; }
+  .header-actions .world-dock { position: relative; inset: auto; z-index: auto; flex: 0 0 44px; }
   .world-dock > button {
-    width: 40px;
-    min-width: 40px;
-    min-height: 40px;
+    width: 44px;
+    min-width: 44px;
+    min-height: 44px;
     padding: 0;
     justify-content: center;
     border-radius: 50%;
