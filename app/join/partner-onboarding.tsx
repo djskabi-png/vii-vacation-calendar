@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Fragment, FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { LeadIntakeForm } from "../components/lead-intake-form";
-import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
+import { useSiteLanguage } from "../i18n/locale-provider";
+import { localizedPath } from "../i18n/locale-routing";
 import type { JoinWorld } from "./worlds";
 
-type BillingCycle = "monthly" | "annual";
-type PlanId = "standard" | "premium";
+export type BillingCycle = "monthly" | "annual";
+export type PlanId = "standard" | "premium";
 
 const worlds: Array<{ id: JoinWorld; label: string; description: string }> = [
   { id: "providers", label: "ספקים ונותני שירות", description: "הרשמה מלאה אונליין ובחירת חבילת פרסום" },
@@ -17,13 +18,6 @@ const worlds: Array<{ id: JoinWorld; label: string; description: string }> = [
   { id: "hourly", label: "חדרים לפי שעה", description: "חדרים וסוויטות לאירוח קצר" },
   { id: "activities", label: "אטרקציות וחוויות", description: "פעילויות, טיולים וחוויות בתשלום" },
 ];
-
-const worldContinueCopy: Record<SiteLanguage, { selected: string; provider: string; registration: string }> = {
-  he: { selected: "בחרתם", provider: "המשך לבחירת מסלול פרסום", registration: "המשך לרישום והשלמת הפרטים" },
-  en: { selected: "Selected", provider: "Continue to advertising plans", registration: "Continue to registration" },
-  ru: { selected: "Вы выбрали", provider: "Перейти к рекламным тарифам", registration: "Перейти к регистрации" },
-  fr: { selected: "Votre choix", provider: "Continuer vers les formules publicitaires", registration: "Continuer vers l’inscription" },
-};
 
 const plans = {
   standard: {
@@ -66,33 +60,57 @@ const launchSteps = [
 
 const managementCapabilities = ["עמוד העסק והתוכן", "תמונות, גלריות וסרטונים", "שירותים, חבילות ומחירים", "מבצעים והטבות", "יומן וזמינות", "פניות והזמנות", "חוות דעת", "נתוני צפייה וביצועים"] as const;
 
-export function PartnerOnboarding({ initialWorld = "providers" }: { initialWorld?: JoinWorld }) {
+export function PartnerOnboarding({ initialWorld, initialPlan, initialBilling = "annual" }: { initialWorld?: JoinWorld; initialPlan?: PlanId; initialBilling?: BillingCycle }) {
   const { language, translate } = useSiteLanguage();
-  const [selectedWorld, setSelectedWorld] = useState<JoinWorld>(initialWorld);
-  const [billing, setBilling] = useState<BillingCycle>("annual");
-  const [selectedPlan, setSelectedPlan] = useState<PlanId>("standard");
-  const [planBilling, setPlanBilling] = useState<Record<PlanId, BillingCycle>>({ standard: "annual", premium: "annual" });
+  const selectedWorld = initialWorld;
+  const [selectedPlan, setSelectedPlan] = useState<PlanId | null>(initialWorld === "providers" ? initialPlan ?? null : null);
+  const [planBilling, setPlanBilling] = useState<Record<PlanId, BillingCycle>>({
+    standard: initialPlan === "standard" ? initialBilling : "annual",
+    premium: initialPlan === "premium" ? initialBilling : "annual",
+  });
   const [providerStep, setProviderStep] = useState<"details" | "payment" | "success">("details");
-  const selected = plans[selectedPlan];
-  const selectedPrice = billing === "annual" ? selected.annual : selected.monthly;
-  const priceLabel = billing === "annual" ? `${selectedPrice.toLocaleString("he-IL")} ₪ לשנה` : `${selectedPrice} ₪ לחודש`;
-  const selectionLabel = useMemo(() => `${selected.name}, ${billing === "annual" ? "התחייבות שנתית" : "חודש בחודשו"}`, [billing, selected.name]);
-  const world = worlds.find((item) => item.id === selectedWorld) ?? worlds[0];
+  const selected = selectedPlan ? plans[selectedPlan] : null;
+  const billing = selectedPlan ? planBilling[selectedPlan] : "annual";
+  const selectedPrice = selected ? billing === "annual" ? selected.annual : selected.monthly : 0;
+  const priceLabel = selected ? billing === "annual" ? `${selectedPrice.toLocaleString("he-IL")} ₪ לשנה` : `${selectedPrice} ₪ לחודש` : "";
+  const selectionLabel = selected ? `${selected.name}, ${billing === "annual" ? "התחייבות שנתית" : "חודש בחודשו"}` : "";
+  const world = worlds.find((item) => item.id === selectedWorld);
   const isProvider = selectedWorld === "providers";
-  const continueCopy = worldContinueCopy[language];
 
-  function chooseWorld(worldId: JoinWorld) {
-    setSelectedWorld(worldId);
+  useEffect(() => {
+    const targetId = window.location.hash.slice(1);
+    if (!targetId) return;
+    let secondFrame = 0;
+    const firstFrame = window.requestAnimationFrame(() => {
+      secondFrame = window.requestAnimationFrame(() => document.getElementById(targetId)?.scrollIntoView({ block: "start" }));
+    });
+    return () => {
+      window.cancelAnimationFrame(firstFrame);
+      window.cancelAnimationFrame(secondFrame);
+    };
+  }, []);
+
+  function persistPlanSelection(plan: PlanId, cycle: BillingCycle) {
+    const url = new URL(window.location.href);
+    url.searchParams.set("plan", plan);
+    url.searchParams.set("billing", cycle);
+    url.hash = "join-form";
+    window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
   }
 
-  function continueWithWorld() {
-    document.getElementById(isProvider ? "provider-pricing" : "expert-registration")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  function chooseBilling(plan: PlanId, cycle: BillingCycle) {
+    setPlanBilling((current) => ({ ...current, [plan]: cycle }));
+    if (selectedPlan === plan) {
+      persistPlanSelection(plan, cycle);
+      setProviderStep("details");
+    }
   }
 
-  function choosePlan(plan: PlanId, cycle: BillingCycle) {
+  function choosePlan(plan: PlanId) {
+    const cycle = planBilling[plan];
     setSelectedPlan(plan);
-    setBilling(cycle);
     setProviderStep("details");
+    persistPlanSelection(plan, cycle);
     window.setTimeout(() => document.getElementById("join-form")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
   }
 
@@ -112,23 +130,19 @@ export function PartnerOnboarding({ initialWorld = "providers" }: { initialWorld
           </div>
         </div>
         <div className="join-world-grid">
-          {worlds.map((item) => <Fragment key={item.id}>
-            <button type="button" className={selectedWorld === item.id ? "active" : ""} aria-pressed={selectedWorld === item.id} onClick={() => chooseWorld(item.id)}>
-              <strong>{item.label}</strong>
-              <small>{item.description}</small>
-              <span>{item.id === "providers" ? "מחירים והרשמה אונליין" : "רישום ראשוני לנציג מומחה"}</span>
-            </button>
-            {selectedWorld === item.id ? <div className="join-world-continue" aria-live="polite">
-              <span className="join-world-continue__selection">
-                <small>{continueCopy.selected}</small>
-                <strong>{translate(world.label)}</strong>
-              </span>
-              <button type="button" className="join-world-continue__button" onClick={continueWithWorld}>
-                <span>{isProvider ? continueCopy.provider : continueCopy.registration}</span>
-                <b aria-hidden="true">←</b>
-              </button>
-            </div> : null}
-          </Fragment>)}
+          {worlds.map((item) => {
+            const target = item.id === "providers" ? "provider-pricing" : "expert-registration";
+            return <Link
+              key={item.id}
+              className={`join-world-card${selectedWorld === item.id ? " active" : ""}`}
+              href={localizedPath(`/join/${item.id}#${target}`, language)}
+              aria-current={selectedWorld === item.id ? "page" : undefined}
+            >
+              <strong>{translate(item.label)}</strong>
+              <small>{translate(item.description)}</small>
+              <span>{translate(item.id === "providers" ? "המשך לבחירת מסלול פרסום" : "המשך לרישום והשלמת הפרטים")}<b aria-hidden="true">←</b></span>
+            </Link>;
+          })}
         </div>
       </div>
     </section>
@@ -155,10 +169,10 @@ export function PartnerOnboarding({ initialWorld = "providers" }: { initialWorld
               <h3>{plan.name}</h3>
               <p>{plan.description}</p>
               <div className="pricing-cycle-toggle" role="group" aria-label={`בחירת אופן חיוב לחבילת ${plan.name}`}>
-                <button type="button" className={isAnnual ? "active" : ""} aria-pressed={isAnnual} onClick={() => setPlanBilling((current) => ({ ...current, [planId]: "annual" }))}>
+                <button type="button" className={isAnnual ? "active" : ""} aria-pressed={isAnnual} onClick={() => chooseBilling(planId, "annual")}>
                   <strong>שנתי</strong><small>הכי משתלם</small>
                 </button>
-                <button type="button" className={!isAnnual ? "active" : ""} aria-pressed={!isAnnual} onClick={() => setPlanBilling((current) => ({ ...current, [planId]: "monthly" }))}>
+                <button type="button" className={!isAnnual ? "active" : ""} aria-pressed={!isAnnual} onClick={() => chooseBilling(planId, "monthly")}>
                   <strong>חודשי</strong><small>ללא התחייבות</small>
                 </button>
               </div>
@@ -168,14 +182,14 @@ export function PartnerOnboarding({ initialWorld = "providers" }: { initialWorld
                 <p>{isAnnual ? `חיוב שנתי בסך ${plan.annual.toLocaleString("he-IL")} ₪` : "חיוב חודשי מתחדש, ניתן להפסיק לפי תנאי המסלול"}</p>
                 {isAnnual ? <mark>חיסכון של {annualSaving.toLocaleString("he-IL")} ₪ בשנה</mark> : null}
               </div>
-              <button className="button primary pricing-card__select" type="button" onClick={() => choosePlan(planId, activeBilling)}>בחירת חבילת {plan.name}</button>
+              <button className="button primary pricing-card__select" type="button" aria-pressed={selectedPlan === planId} onClick={() => choosePlan(planId)}>בחירת חבילת {plan.name}</button>
               <ul>{plan.features.map((feature) => <li key={feature}>{feature}</li>)}</ul>
             </article>;
           })}
         </div>
         <p className="pricing-note">המחירים הם מחירי היכרות ואינם כוללים מע״מ. חשיפה בעמודי הסושיאל ובקהילות כפופה להתאמת התוכן, ללוח הפרסום ולכללי הפלטפורמות.</p>
       </div>
-    </section> : <section id="expert-registration" className="section shell expert-partnership" aria-labelledby="expert-registration-title">
+    </section> : world ? <section id="expert-registration" className="section shell expert-partnership" aria-labelledby="expert-registration-title">
       <div className="expert-partnership__intro">
         <span className="eyebrow">{world.label}</span>
         <h2 id="expert-registration-title">מתחילים ברישום קצר וממשיכים עם נציג מומחה</h2>
@@ -188,9 +202,9 @@ export function PartnerOnboarding({ initialWorld = "providers" }: { initialWorld
         </ul>
       </div>
       <LeadIntakeForm purpose="join" fixedWorld={selectedWorld} selectedPackage={`שיתוף פעולה מותאם, ${world.label}`} />
-    </section>}
+    </section> : null}
 
-    {isProvider ? <section id="join-form" className="section shell join-onboarding" aria-labelledby="join-form-title">
+    {isProvider && selected ? <section id="join-form" className="section shell join-onboarding" aria-labelledby="join-form-title">
       <div className="join-onboarding__intro">
         <span className="eyebrow">העסק שלכם, השליטה שלכם</span>
         <h2 id="join-form-title">מקבלים מערכת ניהול מלאה לעסק</h2>

@@ -128,7 +128,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
           ))}
         </div>
 
-        <Link className="menu-panel__join" href="/join/providers" onClick={closeMenu}>
+        <Link className="menu-panel__join" href="/join#join-pricing" onClick={closeMenu}>
           <ContactIcon />
           <span>
             <strong>{translate("פרסום והצטרפות לאתר")}</strong>

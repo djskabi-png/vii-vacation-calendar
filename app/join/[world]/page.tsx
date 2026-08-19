@@ -3,7 +3,10 @@ import { notFound } from "next/navigation";
 import JoinPage from "../page";
 import { joinWorlds, type JoinWorld } from "../worlds";
 
-type Props = { params: Promise<{ world: string }> };
+type Props = {
+  params: Promise<{ world: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
 
 function isJoinWorld(value: string): value is JoinWorld {
   return joinWorlds.includes(value as JoinWorld);
@@ -28,8 +31,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function JoinWorldPage({ params }: Props) {
+export default async function JoinWorldPage({ params, searchParams }: Props) {
   const { world } = await params;
   if (!isJoinWorld(world)) notFound();
-  return <JoinPage initialWorld={world} />;
+  return <JoinPage initialWorld={world} searchParams={searchParams} />;
 }

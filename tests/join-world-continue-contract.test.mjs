@@ -2,19 +2,32 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-test("world selection uses a dedicated, accessible continuation action", async () => {
+test("world selection is one stable, accessible action with no intermediate continuation card", async () => {
   const [component, styles] = await Promise.all([
     readFile(new URL("../app/join/partner-onboarding.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
 
-  assert.match(component, /function chooseWorld\(worldId: JoinWorld\) \{\s*setSelectedWorld\(worldId\);\s*\}/);
-  const chooseWorldBody = component.match(/function chooseWorld\(worldId: JoinWorld\) \{([\s\S]*?)\n  \}/)?.[1] ?? "";
-  assert.doesNotMatch(chooseWorldBody, /scrollIntoView/);
-  assert.match(component, /className="join-world-continue" aria-live="polite"/);
-  assert.match(component, /selectedWorld === item\.id \? <div className="join-world-continue"/);
-  assert.match(component, /type="button" className="join-world-continue__button" onClick=\{continueWithWorld\}/);
-  assert.match(component, /isProvider \? "provider-pricing" : "expert-registration"/);
-  assert.match(styles, /\.join-world-continue__button \{[^}]*min-height: 56px/);
-  assert.match(styles, /@media \(max-width: 650px\)[\s\S]*?\.join-world-continue__button \{[^}]*width: 100%[^}]*min-height: 58px/);
+  assert.match(component, /className=\{`join-world-card\$\{selectedWorld === item\.id \? " active" : ""\}`\}/);
+  assert.match(component, /localizedPath\(`\/join\/\$\{item\.id\}#\$\{target\}`, language\)/);
+  assert.match(component, /const target = item\.id === "providers" \? "provider-pricing" : "expert-registration"/);
+  assert.match(component, /aria-current=\{selectedWorld === item\.id \? "page" : undefined\}/);
+  assert.doesNotMatch(component, /join-world-continue/);
+  assert.doesNotMatch(component, /function chooseWorld/);
+  assert.doesNotMatch(component, /function continueWithWorld/);
+  assert.match(styles, /\.join-world-card \{[^}]*min-height: 150px/);
+  assert.match(styles, /\.join-world-card:focus-visible/);
+  assert.doesNotMatch(styles, /\.join-world-continue/);
+});
+
+test("provider plans start unselected, persist one selection and reveal one form", async () => {
+  const component = await readFile(new URL("../app/join/partner-onboarding.tsx", import.meta.url), "utf8");
+
+  assert.match(component, /useState<PlanId \| null>\(initialWorld === "providers" \? initialPlan \?\? null : null\)/);
+  assert.match(component, /window\.history\.replaceState/);
+  assert.match(component, /url\.searchParams\.set\("plan", plan\)/);
+  assert.match(component, /url\.searchParams\.set\("billing", cycle\)/);
+  assert.match(component, /isProvider && selected \? <section id="join-form"/);
+  assert.match(component, /aria-pressed=\{selectedPlan === planId\}/);
+  assert.doesNotMatch(component, /useState<PlanId>\("standard"\)/);
 });

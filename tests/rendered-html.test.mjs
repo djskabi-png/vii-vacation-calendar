@@ -669,7 +669,7 @@ test("footer destinations and booking forms have real destinations", async () =>
   for (const href of ["/search", "/events", "/spas", "/hourly", "/providers", "/trails", "/attractions", "/booking", "/guides", "/accessibility", "/legal/terms", "/legal/privacy", "/legal/cancellation"]) {
     assert.match(footer, new RegExp(`href=["']${href.replaceAll("/", "\\/")}`));
   }
-  assert.match(footer, /href=\{`\/join\/\$\{variant\}`\}/);
+  assert.match(footer, /href=\{`\/join\/\$\{variant\}#\$\{joinTarget\}`\}/);
   assert.match(form, /const endpoint = "\/api\/leads\/"/);
   const leadRoute = await readFile(new URL("../app/api/leads/route.ts", import.meta.url), "utf8");
   assert.match(leadRoute, /https:\/\/app\.spaplus\.co\/api\/integrations\/vii-leads/);
@@ -822,9 +822,9 @@ test("ships a favicon, four languages and no dependency on the retired site", as
   assert.equal(Object.keys(dictionaries.fr).length >= 2000, true);
   assert.match(header, /<LanguageSwitcher compact/);
   assert.match(header, /<AccessibilityWidget placement="menu" \/>/);
-  assert.match(header, /className="menu-panel__join" href="\/join\/providers"/);
+  assert.match(header, /className="menu-panel__join" href="\/join#join-pricing"/);
   assert.doesNotMatch(header, /className="menu-panel__eyebrow"/);
-  assert.equal((header.match(/href="\/join\/providers"/g) || []).length, 1);
+  assert.equal((header.match(/href="\/join#join-pricing"/g) || []).length, 1);
   assert.equal((header.match(/translate\("פרסום והצטרפות לאתר"\)/g) || []).length, 1);
   assert.doesNotMatch(header, /הצטרפות כספק/);
   assert.match(styles, /\.menu-panel__main > a \{[^}]*border: 1px solid #d8e9eb/);

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageShell } from "../components/page-shell";
-import { PartnerOnboarding } from "./partner-onboarding";
+import { PartnerOnboarding, type BillingCycle, type PlanId } from "./partner-onboarding";
 import type { JoinWorld } from "./worlds";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 import { StructuredData } from "../components/structured-data";
@@ -57,7 +57,19 @@ const joinFaqs = [
   },
 ];
 
-export default function JoinPage({ initialWorld }: { initialWorld?: JoinWorld }) {
+type JoinSearchParams = Record<string, string | string[] | undefined>;
+
+function firstValue(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export default async function JoinPage({ initialWorld, searchParams }: { initialWorld?: JoinWorld; searchParams?: Promise<JoinSearchParams> }) {
+  const query = searchParams ? await searchParams : {};
+  const requestedPlan = firstValue(query.plan);
+  const requestedBilling = firstValue(query.billing);
+  const initialPlan: PlanId | undefined = initialWorld === "providers" && (requestedPlan === "standard" || requestedPlan === "premium") ? requestedPlan : undefined;
+  const initialBilling: BillingCycle = requestedBilling === "monthly" ? "monthly" : "annual";
+
   return (
     <PageShell>
       <main id="main-content">
@@ -70,7 +82,7 @@ export default function JoinPage({ initialWorld }: { initialWorld?: JoinWorld })
             <h1>מצטרפים בדרך שמתאימה בדיוק לעסק שלכם</h1>
             <p>ספקים בוחרים חבילת פרסום ומתחילים אונליין. מקומות אירוח, אירועים, ספא, חדרים לפי שעה ואטרקציות מתחילים ברישום קצר וממשיכים עם נציג מומחה.</p>
             <div className="join-hero__actions">
-              <Link className="button primary" href="#join-pricing">לבחירת מסלול</Link>
+              <Link className="button primary" href="#join-pricing">בחירת עולם</Link>
               <Link className="button subtle" href="#join-benefits">מה מקבלים?</Link>
             </div>
             <ul className="join-hero__trust" aria-label="יתרונות מרכזיים">
@@ -100,7 +112,7 @@ export default function JoinPage({ initialWorld }: { initialWorld?: JoinWorld })
           </div>
         </section>
 
-        <PartnerOnboarding initialWorld={initialWorld} />
+        <PartnerOnboarding key={`${initialWorld ?? "choose"}-${initialPlan ?? "none"}-${initialBilling}`} initialWorld={initialWorld} initialPlan={initialPlan} initialBilling={initialBilling} />
 
         <section className="section shell join-faq" aria-labelledby="join-faq-title">
           <div className="join-faq__intro">

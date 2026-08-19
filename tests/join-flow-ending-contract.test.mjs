@@ -8,7 +8,7 @@ test("join flow ends with its real form action instead of a duplicate restart ba
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
 
-  assert.match(page, /<PartnerOnboarding initialWorld=\{initialWorld\} \/>/);
+  assert.match(page, /<PartnerOnboarding key=\{`\$\{initialWorld \?\? "choose"\}-\$\{initialPlan \?\? "none"\}-\$\{initialBilling\}`\} initialWorld=\{initialWorld\} initialPlan=\{initialPlan\} initialBilling=\{initialBilling\} \/>/);
   assert.doesNotMatch(page, /מוכנים לפתוח את העסק באתר\?/);
   assert.doesNotMatch(page, /href="#join-form">מתחילים עכשיו/);
   assert.doesNotMatch(styles, /\.join-final-cta/);

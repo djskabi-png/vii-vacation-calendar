@@ -9,6 +9,7 @@ import { footerContextFor, type FooterTopicId } from "../data/footer-context";
 
 export function SiteFooter({ variant = "vacation", topic }: { variant?: WorldId; topic?: FooterTopicId }) {
   const contextual = footerContextFor(variant, topic);
+  const joinTarget = variant === "providers" ? "provider-pricing" : "expert-registration";
   return (
     <footer className="site-footer">
       <div className="shell footer-grid">
@@ -17,7 +18,7 @@ export function SiteFooter({ variant = "vacation", topic }: { variant?: WorldId;
             <img src="/vii-logo.png" alt="וי פור ויקיישן" title="וי פור ויקיישן" />
           </Link>
           <p>נופש, אירועים, ספא, ספקים וחוויות, עם חיפוש אחד שמחבר את כל מה שצריך.</p>
-          <Link className="footer-join-link" href={`/join/${variant}`}>פרסום והצטרפות בתחום זה</Link>
+          <Link className="footer-join-link" href={`/join/${variant}#${joinTarget}`}>פרסום והצטרפות בתחום זה</Link>
         </section>
         <nav aria-label={contextual.label}><strong>{contextual.label}</strong>{contextual.links.map((item) => <Link key={`${item.href}-${item.label}`} href={item.href}>{item.label}</Link>)}</nav>
         <nav aria-label="שירותים"><strong>העולמות שלנו</strong><Link href="/search">נופש</Link><Link href="/events">אירועים</Link><Link href="/corporate">אירועי חברה ורווחה</Link><Link href="/spas">ספא</Link><Link href="/hourly">חדרים לכמה שעות</Link><Link href="/providers">ספקים</Link><Link href="/trails">מסלולי טיולים</Link><Link href="/attractions">אטרקציות</Link></nav>
