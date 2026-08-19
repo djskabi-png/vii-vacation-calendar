@@ -46,6 +46,8 @@ test("world links use immediate browser navigation so repeated activation cannot
   assert.match(switcher, /event\.currentTarget\.getAttribute\("href"\)/);
   assert.match(switcher, /window\.location\.assign\(href\)/);
   assert.doesNotMatch(switcher, /navigationCloseTimerRef/);
+  assert.match(switcher, /const navigateFromSwitcherPointer = \(event: ReactPointerEvent<HTMLAnchorElement>\)/);
+  assert.match(switcher, /onPointerDown=\{navigateFromSwitcherPointer\}/);
   assert.match(switcher, /onClick=\{navigateFromSwitcher\}/);
   assert.doesNotMatch(switcher, /onClick=\{\(\) => setOpen\(false\)\}/);
 });
