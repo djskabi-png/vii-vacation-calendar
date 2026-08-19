@@ -20,19 +20,11 @@ function searchWorldHref(world: "vacation" | "spa" | "events" | "hourly", locati
 
 export function WorldSwitcher({ active = "vacation" }: { active?: WorldId }) {
   const [open, setOpen] = useState(false);
-  const router = useRouter();
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const navigationCloseTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
   const pointerStartRef = useRef<{ id: number; x: number; y: number } | null>(null);
   const ignoreClickUntilRef = useRef(0);
   const { language, translate } = useSiteLanguage();
-
-  useEffect(() => {
-    return () => {
-      if (navigationCloseTimerRef.current !== null) window.clearTimeout(navigationCloseTimerRef.current);
-    };
-  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -74,12 +66,7 @@ export function WorldSwitcher({ active = "vacation" }: { active?: WorldId }) {
     event.preventDefault();
     const href = event.currentTarget.getAttribute("href");
     if (!href) return;
-    if (navigationCloseTimerRef.current !== null) window.clearTimeout(navigationCloseTimerRef.current);
-    navigationCloseTimerRef.current = window.setTimeout(() => {
-      navigationCloseTimerRef.current = null;
-      setOpen(false);
-      router.push(href);
-    }, 320);
+    window.location.assign(href);
   };
 
   const globalSearchHref = localizedPath("/search", language);
