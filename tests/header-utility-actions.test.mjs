@@ -72,9 +72,12 @@ test("the combined search and worlds action cannot be disabled by a page", () =>
 
 test("an open mobile menu releases its lock when the viewport becomes desktop", () => {
   assert.match(header, /const handleViewportChange = \(\) =>/);
-  assert.match(header, /matchMedia\("\(min-width: 821px\)"\)\.matches/);
+  assert.match(header, /const desktopViewport = window\.matchMedia\("\(min-width: 821px\)"\)/);
+  assert.match(header, /desktopViewport\.matches/);
   assert.match(header, /window\.addEventListener\("resize", handleViewportChange\)/);
   assert.match(header, /window\.addEventListener\("orientationchange", handleViewportChange\)/);
+  assert.match(header, /desktopViewport\.addEventListener\("change", handleViewportChange\)/);
   assert.match(header, /window\.removeEventListener\("resize", handleViewportChange\)/);
   assert.match(header, /window\.removeEventListener\("orientationchange", handleViewportChange\)/);
+  assert.match(header, /desktopViewport\.removeEventListener\("change", handleViewportChange\)/);
 });

@@ -65,18 +65,21 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
       }
     };
 
+    const desktopViewport = window.matchMedia("(min-width: 821px)");
     const handleViewportChange = () => {
-      if (window.matchMedia("(min-width: 821px)").matches) setMenuOpen(false);
+      if (desktopViewport.matches) setMenuOpen(false);
     };
 
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("resize", handleViewportChange);
     window.addEventListener("orientationchange", handleViewportChange);
+    desktopViewport.addEventListener("change", handleViewportChange);
     return () => {
       document.body.style.overflow = previous;
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("resize", handleViewportChange);
       window.removeEventListener("orientationchange", handleViewportChange);
+      desktopViewport.removeEventListener("change", handleViewportChange);
     };
   }, [menuOpen]);
 
