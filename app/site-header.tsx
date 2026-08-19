@@ -65,10 +65,18 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
       }
     };
 
+    const handleViewportChange = () => {
+      if (window.matchMedia("(min-width: 821px)").matches) setMenuOpen(false);
+    };
+
     window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("resize", handleViewportChange);
+    window.addEventListener("orientationchange", handleViewportChange);
     return () => {
       document.body.style.overflow = previous;
       window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("resize", handleViewportChange);
+      window.removeEventListener("orientationchange", handleViewportChange);
     };
   }, [menuOpen]);
 

@@ -71,7 +71,7 @@ export default async function JoinPage({ initialWorld, searchParams }: { initial
   const initialBilling: BillingCycle = requestedBilling === "monthly" ? "monthly" : "annual";
 
   return (
-    <PageShell>
+    <PageShell variant={initialWorld ?? "vacation"}>
       <main id="main-content">
         <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "הצטרפות ופרסום", path: "/join" }])} />
         <StructuredData data={faqSchema(joinFaqs)} />

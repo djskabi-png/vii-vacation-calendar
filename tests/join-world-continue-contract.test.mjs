@@ -31,3 +31,14 @@ test("provider plans start unselected, persist one selection and reveal one form
   assert.match(component, /aria-pressed=\{selectedPlan === planId\}/);
   assert.doesNotMatch(component, /useState<PlanId>\("standard"\)/);
 });
+
+test("join world pages pass their current world to the shared footer", async () => {
+  const [joinPage, footer] = await Promise.all([
+    readFile(new URL("../app/join/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/site-footer.tsx", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(joinPage, /<PageShell variant=\{initialWorld \?\? "vacation"\}>/);
+  assert.match(footer, /variant === "providers" \? "provider-pricing" : "expert-registration"/);
+  assert.match(footer, /href=\{`\/join\/\$\{variant\}#\$\{joinTarget\}`\}/);
+});
