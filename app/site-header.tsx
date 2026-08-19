@@ -66,9 +66,11 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
     };
 
     const desktopViewport = window.matchMedia("(min-width: 821px)");
+    const openedFromMobile = !desktopViewport.matches;
     const handleViewportChange = () => {
       if (desktopViewport.matches) setMenuOpen(false);
     };
+    const viewportFallback = openedFromMobile ? window.setInterval(handleViewportChange, 120) : undefined;
 
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("resize", handleViewportChange);
@@ -80,6 +82,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
       window.removeEventListener("resize", handleViewportChange);
       window.removeEventListener("orientationchange", handleViewportChange);
       desktopViewport.removeEventListener("change", handleViewportChange);
+      if (viewportFallback !== undefined) window.clearInterval(viewportFallback);
     };
   }, [menuOpen]);
 
