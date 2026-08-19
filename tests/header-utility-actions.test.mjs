@@ -41,9 +41,11 @@ test("the combined trigger handles touch, pointer and keyboard activation withou
 });
 
 test("world links remain mounted through a double click before the selector closes", () => {
-  assert.match(switcher, /const closeAfterNavigationActivation = \(\) =>/);
-  assert.match(switcher, /window\.setTimeout\(\(\) => \{[\s\S]*?setOpen\(false\);[\s\S]*?\}, 360\)/);
-  assert.match(switcher, /onClick=\{closeAfterNavigationActivation\}/);
+  assert.match(switcher, /const navigateFromSwitcher = \(event: ReactMouseEvent<HTMLAnchorElement>\)/);
+  assert.match(switcher, /event\.preventDefault\(\)/);
+  assert.match(switcher, /event\.currentTarget\.getAttribute\("href"\)/);
+  assert.match(switcher, /window\.setTimeout\(\(\) => \{[\s\S]*?setOpen\(false\);[\s\S]*?router\.push\(href\);[\s\S]*?\}, 320\)/);
+  assert.match(switcher, /onClick=\{navigateFromSwitcher\}/);
   assert.doesNotMatch(switcher, /onClick=\{\(\) => setOpen\(false\)\}/);
 });
 
