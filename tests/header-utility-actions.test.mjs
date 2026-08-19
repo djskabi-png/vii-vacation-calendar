@@ -40,6 +40,13 @@ test("the combined trigger handles touch, pointer and keyboard activation withou
   assert.match(switcher, /Math\.hypot/);
 });
 
+test("world links remain mounted through a double click before the selector closes", () => {
+  assert.match(switcher, /const closeAfterNavigationActivation = \(\) =>/);
+  assert.match(switcher, /window\.setTimeout\(\(\) => \{[\s\S]*?setOpen\(false\);[\s\S]*?\}, 360\)/);
+  assert.match(switcher, /onClick=\{closeAfterNavigationActivation\}/);
+  assert.doesNotMatch(switcher, /onClick=\{\(\) => setOpen\(false\)\}/);
+});
+
 test("header utility actions share sizing and world selection is not fixed", () => {
   assert.match(css, /\.icon-button \{ width: 44px; \}/);
   assert.match(css, /\.header-actions \.world-dock \{ position: relative; inset: auto; z-index: auto; flex: 0 0 44px; \}/);

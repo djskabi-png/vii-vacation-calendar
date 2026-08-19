@@ -22,9 +22,16 @@ export function WorldSwitcher({ active = "vacation" }: { active?: WorldId }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const navigationCloseTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
   const pointerStartRef = useRef<{ id: number; x: number; y: number } | null>(null);
   const ignoreClickUntilRef = useRef(0);
   const { language, translate } = useSiteLanguage();
+
+  useEffect(() => {
+    return () => {
+      if (navigationCloseTimerRef.current !== null) window.clearTimeout(navigationCloseTimerRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -61,13 +68,20 @@ export function WorldSwitcher({ active = "vacation" }: { active?: WorldId }) {
     if (event.detail > 0 && performance.now() < ignoreClickUntilRef.current) return;
     setOpen((value) => !value);
   };
+  const closeAfterNavigationActivation = () => {
+    if (navigationCloseTimerRef.current !== null) window.clearTimeout(navigationCloseTimerRef.current);
+    navigationCloseTimerRef.current = window.setTimeout(() => {
+      navigationCloseTimerRef.current = null;
+      setOpen(false);
+    }, 360);
+  };
 
   return (
     <div ref={rootRef} className={`world-dock ${open ? "open" : ""}`}>
       {open && <nav className="world-dock__panel" aria-label={translate("חיפוש ומעבר בין עולמות")}>
         <header><span>{translate("כל מה שכיף לעשות")}</span><strong>{translate("מה תרצו לחפש?")}</strong></header>
-        <Link className="world-dock__global-search" href={localizedPath("/search", language)} onClick={() => setOpen(false)}><WorldSearchIcon /><span><b>{translate("חיפוש כללי")}</b><small>{translate("חפשו מקום, עסק או יעד בכל האתר")}</small></span></Link>
-        {publicWorldNavigation.map((world) => <Link key={world.id} className={world.id === active ? "active" : ""} href={localizedPath(world.href, language)} onClick={() => setOpen(false)}><span className={`world-mark world-mark--${world.id}`} aria-hidden="true" /><span><b>{translate(world.label)}</b><small>{translate(world.description)}</small></span></Link>)}
+        <Link className="world-dock__global-search" href={localizedPath("/search", language)} onClick={closeAfterNavigationActivation}><WorldSearchIcon /><span><b>{translate("חיפוש כללי")}</b><small>{translate("חפשו מקום, עסק או יעד בכל האתר")}</small></span></Link>
+        {publicWorldNavigation.map((world) => <Link key={world.id} className={world.id === active ? "active" : ""} href={localizedPath(world.href, language)} onClick={closeAfterNavigationActivation}><span className={`world-mark world-mark--${world.id}`} aria-hidden="true" /><span><b>{translate(world.label)}</b><small>{translate(world.description)}</small></span></Link>)}
       </nav>}
       <button ref={triggerRef} type="button" aria-label={translate(open ? "סגירת חיפוש ובחירת עולם" : "חיפוש ובחירת עולם")} aria-expanded={open} aria-haspopup="true" onPointerDown={rememberPointerStart} onPointerUp={finishPointerActivation} onPointerCancel={cancelPointerActivation} onClick={finishClickActivation}><WorldSearchIcon /><span><strong>{translate(open ? "סגירה" : "חיפוש")}</strong></span></button>
     </div>
