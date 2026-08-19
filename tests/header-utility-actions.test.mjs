@@ -29,6 +29,17 @@ test("global search and world selection use one magnifying-glass trigger with an
   assert.doesNotMatch(switcher, /current\.shortLabel/);
 });
 
+test("the combined trigger handles touch, pointer and keyboard activation without a double toggle", () => {
+  assert.match(switcher, /pointerStartRef/);
+  assert.match(switcher, /ignoreClickUntilRef/);
+  assert.match(switcher, /onPointerDown=\{rememberPointerStart\}/);
+  assert.match(switcher, /onPointerUp=\{finishPointerActivation\}/);
+  assert.match(switcher, /onPointerCancel=\{cancelPointerActivation\}/);
+  assert.match(switcher, /onClick=\{finishClickActivation\}/);
+  assert.match(switcher, /event\.detail > 0/);
+  assert.match(switcher, /Math\.hypot/);
+});
+
 test("header utility actions share sizing and world selection is not fixed", () => {
   assert.match(css, /\.icon-button \{ width: 44px; \}/);
   assert.match(css, /\.header-actions \.world-dock \{\s*position: relative;\s*inset: auto !important;/);
