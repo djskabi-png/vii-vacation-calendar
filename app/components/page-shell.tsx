@@ -9,6 +9,6 @@ import type { FooterTopicId } from "../data/footer-context";
 import { NewTabNavigation } from "./new-tab-navigation";
 import { ResponsiveViewportGuard } from "./responsive-viewport-guard";
 
-export function PageShell({ children, variant = "vacation", showWorldSwitcher = true, footerTopic }: { children: ReactNode; variant?: WorldId; showWorldSwitcher?: boolean; footerTopic?: FooterTopicId }) {
-  return <div className="site-page"><NewTabNavigation /><ResponsiveViewportGuard /><a className="skip-link" href="#main-content">דילוג לתוכן</a><GlobalActionFeedback /><SiteHeader variant={variant} showWorldSwitcher={showWorldSwitcher} /><CookieConsent />{children}<SiteFooter variant={variant} topic={footerTopic} /><SmartConcierge /></div>;
+export function PageShell({ children, variant = "vacation", footerTopic }: { children: ReactNode; variant?: WorldId; footerTopic?: FooterTopicId }) {
+  return <div className="site-page"><NewTabNavigation /><ResponsiveViewportGuard /><a className="skip-link" href="#main-content">דילוג לתוכן</a><GlobalActionFeedback /><SiteHeader variant={variant} /><CookieConsent />{children}<SiteFooter variant={variant} topic={footerTopic} /><SmartConcierge /></div>;
 }

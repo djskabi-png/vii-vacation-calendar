@@ -16,7 +16,7 @@ import { SavedViewedMenu } from "./components/saved-viewed-menu";
 
 const nav = publicWorldNavigation.map((world) => ({ id: world.id, href: world.href, label: world.shortLabel, description: world.description }));
 
-export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: { variant?: WorldId; showWorldSwitcher?: boolean }) {
+export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -168,7 +168,7 @@ export function SiteHeader({ variant = "vacation", showWorldSwitcher = true }: {
             <LanguageSwitcher compact iconOnly />
             <AccessibilityWidget placement="icon" />
             <Link className={`icon-button header-gift${pathname === "/gift-card" ? " active" : ""}`} href="/gift-card" aria-label={translate("גיפט קארד")} aria-current={pathname === "/gift-card" ? "page" : undefined}><GiftIcon /></Link>
-            {showWorldSwitcher ? <WorldSwitcher active={variant} /> : null}
+            <WorldSwitcher active={variant} />
             <button ref={menuButtonRef} className="menu-button" type="button" aria-expanded={menuOpen} aria-haspopup="dialog" aria-label={translate("פתיחת תפריט")} onClick={() => setMenuOpen(true)}><MenuIcon /><span>{translate("תפריט")}</span></button>
           </div>
         </div>

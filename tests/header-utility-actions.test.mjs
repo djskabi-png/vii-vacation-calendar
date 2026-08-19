@@ -4,6 +4,9 @@ import test from "node:test";
 
 const header = await readFile(new URL("../app/site-header.tsx", import.meta.url), "utf8");
 const switcher = await readFile(new URL("../app/components/world-switcher.tsx", import.meta.url), "utf8");
+const pageShell = await readFile(new URL("../app/components/page-shell.tsx", import.meta.url), "utf8");
+const accountPage = await readFile(new URL("../app/account/page.tsx", import.meta.url), "utf8");
+const joinPage = await readFile(new URL("../app/join/page.tsx", import.meta.url), "utf8");
 const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
 
 test("desktop navigation has no duplicate more menu or gift-card text link", () => {
@@ -43,4 +46,13 @@ test("the header has one combined search and worlds action plus direct accessibi
   assert.doesNotMatch(worldSwitcherComponent, /document\.addEventListener\("pointerdown"/);
   assert.doesNotMatch(switcher, /world-dock__backdrop/);
   assert.match(css, /\.header-actions \.world-dock \{[\s\S]*?inset: auto !important;[\s\S]*?display: block !important;/);
+});
+
+test("the combined search and worlds action cannot be disabled by a page", () => {
+  assert.doesNotMatch(header, /showWorldSwitcher/);
+  assert.doesNotMatch(pageShell, /showWorldSwitcher/);
+  assert.doesNotMatch(accountPage, /showWorldSwitcher/);
+  assert.doesNotMatch(joinPage, /showWorldSwitcher/);
+  assert.match(header, /<WorldSwitcher active=\{variant\} \/>/);
+  assert.match(pageShell, /<SiteHeader variant=\{variant\} \/>/);
 });

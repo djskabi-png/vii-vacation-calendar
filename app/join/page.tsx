@@ -59,7 +59,7 @@ const joinFaqs = [
 
 export default function JoinPage({ initialWorld }: { initialWorld?: JoinWorld }) {
   return (
-    <PageShell showWorldSwitcher={false}>
+    <PageShell>
       <main id="main-content">
         <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "הצטרפות ופרסום", path: "/join" }])} />
         <StructuredData data={faqSchema(joinFaqs)} />
