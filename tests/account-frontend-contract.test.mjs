@@ -19,6 +19,8 @@ test("Google account access is shared and backed by real server OAuth routes", a
   assert.match(header, /account\.name\.trim\(\)\.slice\(0, 1\)/);
   assert.match(header, /openAccountLogin/);
   assert.equal(header.split('href="/account"').length - 1, 1);
+  assert.doesNotMatch(header, /menu-panel__account-action/);
+  assert.doesNotMatch(header, /accountCopy\.enter/);
   assert.match(header, /translate\(item\.label\)/);
   assert.match(header, /translate\("לאן תרצו להגיע\?"\)/);
   assert.doesNotMatch(header, /translate\("התחברות או פתיחת חשבון"\)/);

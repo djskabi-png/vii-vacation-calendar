@@ -31,10 +31,10 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
     fr: { badge: "Nouveau", label: "Magazine", menuLabel: "Magazine et guides" },
   }[language];
   const accountCopy = {
-    he: { connected: "מחוברים לחשבון", title: "החשבון האישי שלי", summary: "אהובים, הזמנות ובקשות במקום אחד", login: "התחברות או פתיחת חשבון", enter: "כניסה לאזור האישי" },
-    en: { connected: "Signed in", title: "My account", summary: "Favorites, bookings and requests in one place", login: "Sign in or create an account", enter: "Open my account" },
-    ru: { connected: "Вы вошли", title: "Мой аккаунт", summary: "Избранное, бронирования и запросы в одном месте", login: "Войти или создать аккаунт", enter: "Открыть аккаунт" },
-    fr: { connected: "Connecté", title: "Mon compte", summary: "Favoris, réservations et demandes au même endroit", login: "Se connecter ou créer un compte", enter: "Ouvrir mon compte" },
+    he: { connected: "מחוברים לחשבון", title: "החשבון האישי שלי", summary: "אהובים, הזמנות ובקשות במקום אחד" },
+    en: { connected: "Signed in", title: "My account", summary: "Favorites, bookings and requests in one place" },
+    ru: { connected: "Вы вошли", title: "Мой аккаунт", summary: "Избранное, бронирования и запросы в одном месте" },
+    fr: { connected: "Connecté", title: "Mon compte", summary: "Favoris, réservations et demandes au même endroit" },
   }[language];
 
   useEffect(() => {
@@ -118,7 +118,6 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
               <strong>{account.name}</strong>
               <span>{account.email}</span>
             </span>
-            <span className="menu-panel__account-action">{accountCopy.enter}<ArrowIcon /></span>
           </Link>
         ) : (
           <button className="menu-panel__account" type="button" onClick={openAccountLogin}>
