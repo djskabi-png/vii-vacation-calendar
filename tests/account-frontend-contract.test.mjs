@@ -5,7 +5,7 @@ import { readFile } from "node:fs/promises";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("Google account access is shared and backed by real server OAuth routes", async () => {
-  const [access, layout, header, account] = await Promise.all([read("app/components/account-access.tsx"), read("app/layout.tsx"), read("app/site-header.tsx"), read("app/account/page.tsx")]);
+  const [access, layout, header, account, styles] = await Promise.all([read("app/components/account-access.tsx"), read("app/layout.tsx"), read("app/site-header.tsx"), read("app/account/page.tsx"), read("app/globals.css")]);
   assert.match(access, /\/api\/auth\/google/);
   assert.match(access, /src="\/vii-logo\.png"/);
   assert.doesNotMatch(access, /account-avatar[^>]*>VII</);
@@ -25,6 +25,10 @@ test("Google account access is shared and backed by real server OAuth routes", a
   assert.match(header, /translate\("לאן תרצו להגיע\?"\)/);
   assert.doesNotMatch(header, /translate\("התחברות או פתיחת חשבון"\)/);
   assert.match(header, /translate\("שאלות ותשובות"\)/);
+  assert.match(styles, /\.menu-panel__account-copy small[^}]*line-height:\s*1\.3/);
+  assert.match(styles, /\.menu-panel__account-copy strong[^}]*line-height:\s*1\.25/);
+  assert.match(styles, /\.menu-panel__account-copy span[^}]*line-height:\s*1\.35/);
+  assert.match(styles, /\.menu-panel__account\s*\{[^}]*min-height:\s*92px[^}]*padding:\s*12px/);
   assert.match(access, /aria-label=\{copy\[language\]\.login\}/);
   assert.match(account, /הזמנות ובקשות/);
 });
