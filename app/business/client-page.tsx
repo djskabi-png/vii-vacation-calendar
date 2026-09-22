@@ -34,6 +34,7 @@ import { ViewedItemTracker } from "../components/viewed-item-tracker";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { publishedLastMinuteDeal } from "../data/last-minute-deals";
 import { UnitDetailsDialog } from "../components/unit-details-dialog";
+import { PropertyGallery } from "../components/property-gallery";
 
 function complementaryItems(area: string, location: string): DiscoveryItem[] {
   const query = `${area} ${location}`.toLocaleLowerCase("he");
@@ -275,7 +276,7 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
         </section> : null}
 
         <div className="shell property-gallery-wrap">
-          <section className="property-gallery">{placeGalleryImages.slice(0, 5).map((image, index) => <button key={image} type="button" data-gallery-trigger aria-label={`פתיחת גלריית ${property.name}, תמונה ${index + 1}`} onClick={() => { setGalleryTopic(null); openGallery("all", index); }}><img src={image} alt={`${property.name}, תמונת המקום ${index + 1}`} title={`${property.name}, תמונת המקום ${index + 1}`} />{index === 4 && <span>לגלריה המלאה</span>}</button>)}</section>
+          <PropertyGallery images={placeGalleryImages} name={property.name} onOpen={(index) => { setGalleryTopic(null); openGallery("all", index); }} />
           <FavoriteButton compact className="property-gallery__favorite" id={property.slug} world={activeWorld} name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={`/business?id=${property.slug}${activeWorld === offerings[0].world ? "" : `&mode=${activeWorld}`}`} meta={`${property.type} · עד ${property.guests} אורחים`} />
         </div>
 
