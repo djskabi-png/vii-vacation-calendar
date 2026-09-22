@@ -14,6 +14,8 @@ test("place pages share mobile gallery arrows, position dots and touch navigatio
   assert.match(gallery, /onTouchEnd=/);
   assert.match(gallery, /property-gallery__mobile-arrow--previous/);
   assert.match(gallery, /property-gallery__mobile-arrow--next/);
+  assert.match(gallery, /property-gallery__mobile-arrow--previous[^>]*>[\s\S]*?‹<\/span>/);
+  assert.match(gallery, /property-gallery__mobile-arrow--next[^>]*>[\s\S]*?›<\/span>/);
   assert.match(gallery, /property-gallery__mobile-dots/);
   assert.match(gallery, /aria-live="polite"/);
   assert.match(css, /\.property-gallery button\.property-gallery__mobile-arrow/);
