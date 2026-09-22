@@ -52,8 +52,8 @@ export function PropertyGallery({ images, name, onOpen, className = "" }: Proper
     </button>)}
 
     {galleryImages.length > 1 ? <>
-      <button className="property-gallery__mobile-arrow property-gallery__mobile-arrow--previous" type="button" onClick={() => move(-1)} aria-label="התמונה הקודמת"><span aria-hidden="true">›</span></button>
-      <button className="property-gallery__mobile-arrow property-gallery__mobile-arrow--next" type="button" onClick={() => move(1)} aria-label="התמונה הבאה"><span aria-hidden="true">‹</span></button>
+      <button className="property-gallery__mobile-arrow property-gallery__mobile-arrow--previous" type="button" onClick={() => move(-1)} aria-label="התמונה הקודמת"><span aria-hidden="true">‹</span></button>
+      <button className="property-gallery__mobile-arrow property-gallery__mobile-arrow--next" type="button" onClick={() => move(1)} aria-label="התמונה הבאה"><span aria-hidden="true">›</span></button>
       <div className="property-gallery__mobile-position" aria-label={`תמונה ${selected + 1} מתוך ${galleryImages.length}`}>
         <div className="property-gallery__mobile-dots" aria-hidden="true">
           {Array.from({ length: dotCount }, (_, index) => <i key={index} className={activeDot === index ? "is-active" : ""} />)}
