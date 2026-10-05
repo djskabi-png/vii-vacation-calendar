@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const location = locationFor(region);
   if (!location) return {};
   const title = `מקומות לאירועים ב${location}`;
-  const description = `מקומות לאירועים ב${location}, עם סינון לפי סוג המקום, סוג האירוע וכמות המשתתפים.`;
+  const description = `מקומות לאירועים ב${location}, עם תמונות, מתקנים ופנייה ישירה למקום.`;
   const url = eventSearchHref(location);
   return {
     title,
@@ -35,7 +35,7 @@ export default async function EventRegionPage({ params }: PageProps) {
   const matching = eventPlaces.filter((place) => matchesSearchLocation(place, location));
   if (!matching.length) notFound();
   const title = `מקומות לאירועים ב${location}`;
-  const description = `מקומות לאירועים ב${location}, עם סינון לפי סוג המקום, סוג האירוע וכמות המשתתפים.`;
+  const description = `מקומות לאירועים ב${location}, עם תמונות, מתקנים ופנייה ישירה למקום.`;
   const path = eventSearchHref(location);
   return <>
     <StructuredData data={breadcrumbSchema([

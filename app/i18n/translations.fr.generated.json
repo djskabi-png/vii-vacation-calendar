@@ -8108,5 +8108,12 @@
   "מסננים לפי אזור, הרכב ומאפיינים שקיימים בנתוני הספק.": "Filtrez par région, groupe et équipements présents dans les données du fournisseur.",
   "רואים תמונות, מתקנים ופרטי אירוח שהתקבלו מהספק.": "Consultez les photos, équipements et détails d’hébergement fournis par le prestataire.",
   "בדיקה לפני הזמנה": "Vérification avant réservation",
-  "מבררים תאריך, מחיר ותנאים לפני שמתחייבים.": "Vérifiez les dates, le prix et les conditions avant de vous engager."
+  "מבררים תאריך, מחיר ותנאים לפני שמתחייבים.": "Vérifiez les dates, le prix et les conditions avant de vous engager.",
+  "המקום אינו זמין בקטלוג הנוכחי. אפשר לחפש מקומות אחרים באזור.": "Ce lieu est indisponible dans le catalogue actuel. Vous pouvez rechercher d’autres lieux dans la région.",
+  "ביחידה הגדולה": "dans la plus grande unité",
+  "מתחילים באזור ובהרכב האורחים ומשווים את פרטי המקומות.": "Choisissez une région et le nombre de voyageurs, puis comparez les détails des lieux.",
+  "התאמה לכמות האורחים המבוקשת תיבדק מול המקום. נתון הקיבולת בקטלוג מתייחס ליחידה הגדולה בלבד.": "Le lieu doit confirmer qu’il peut accueillir le nombre de personnes demandé. La capacité du catalogue concerne uniquement la plus grande unité.",
+  "מקומות נופש עם תמונות, יחידות ומתקנים. התאמה להרכב האורחים נבדקת מול המקום.": "Lieux de vacances avec photos, unités et équipements. Le lieu confirme les conditions adaptées à votre groupe.",
+  "מקומות לאירועים עם תמונות ומתקנים. התאמה לכמות המשתתפים נבדקת מול המקום.": "Lieux événementiels avec photos et équipements. Le lieu confirme qu’il peut accueillir le nombre de participants demandé.",
+  ", עם תמונות, מתקנים ופנייה ישירה למקום.": ", avec photos, équipements et demandes directes au lieu."
 }

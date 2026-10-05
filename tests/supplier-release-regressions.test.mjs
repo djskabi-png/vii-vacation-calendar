@@ -55,3 +55,77 @@ test("regional event search returns actual supplier records", async () => {
   const html = await (await render(`/events/search?location=${encodeURIComponent("צפון")}`)).text();
   assert.match(html, /href="\/events\/place\/event-\d+"/);
 });
+
+test("all verified source URL identities redirect to the identical supplier record", async () => {
+  for (const world of ["vacations", "events"]) {
+    for (const old of world === "vacations" ? legacy.vacation : legacy.events) {
+      const target = catalog.places.find((place) => place.world === world && place.sourceUrl === old.sourceUrl);
+      if (!target) continue;
+      const response = await render(world === "vacations" ? `/business?id=${old.id}` : `/events/place/${old.id}`);
+      assert.equal(response.status, 307, old.id);
+      const url = new URL(response.headers.get("location"), "https://vii.spaplus.co");
+      assert.equal(world === "vacations" ? url.searchParams.get("id") : url.pathname.split("/").at(-1), target.slug, old.id);
+    }
+  }
+});
+
+test("missing legacy vacation records explain absence through relevant search without invented aliases", async () => {
+  for (const id of ["vacation-tepers-estate", "vacation-aqua-sol-dreamy-rent", "vacation-ahuzat-shaked"]) {
+    const old = legacy.vacation.find((place) => place.id === id);
+    const response = await render(`/business?id=${id}&from=2026-10-10&guests=4&price=9999`);
+    assert.equal(response.status, 307);
+    const url = new URL(response.headers.get("location"), "https://vii.spaplus.co");
+    assert.equal(url.pathname, "/search");
+    assert.equal(url.searchParams.get("unavailable"), id);
+    assert.equal(url.searchParams.get("location"), old.area);
+    assert.equal(url.searchParams.get("from"), "2026-10-10");
+    assert.equal(url.searchParams.get("guests"), "4");
+    assert.equal(url.searchParams.has("price"), false);
+    const search = await render(url.pathname + url.search);
+    assert.equal(search.status, 200);
+    const html = await search.text();
+    assert.ok(html.includes(old.name));
+    assert.match(html, /המקום אינו זמין בקטלוג הנוכחי/);
+    assert.doesNotMatch(html, /business\?id=vacation-(?:tepers-estate|aqua-sol-dreamy-rent|ahuzat-shaked)/);
+  }
+});
+
+test("unverified old aliases use search instead of silently adopting a supplier identity", async () => {
+  for (const path of ["/business?id=aqua-resort", "/business?id=sol-gilgal", "/events/place/black-loft", "/events/place/fiesta", "/events/place/details-events"]) {
+    const response = await render(path);
+    assert.equal(response.status, 307, path);
+    assert.match(response.headers.get("location"), /search\?unavailable=/);
+  }
+  assert.equal((await render("/business?id=not-a-known-record")).status, 404);
+  assert.equal((await render("/events/place/not-a-known-record")).status, 404);
+});
+
+test("supplier event legacy redirects preserve locale", async () => {
+  const old = legacy.events.find((old) => catalog.places.some((place) => place.world === "events" && place.sourceUrl === old.sourceUrl));
+  const response = await render(`/en/events/place/${old.id}`);
+  assert.equal(response.status, 307);
+  assert.match(new URL(response.headers.get("location"), "https://vii.spaplus.co").pathname, /^\/en\/events\/place\/event-\d+$/);
+});
+
+test("vacation SSR honors region before hydration and old unsupported filters do not empty the catalog", async () => {
+  const center = await (await render(`/search?location=${encodeURIComponent("מרכז")}`)).text();
+  assert.doesNotMatch(center, /href="\/business\?id=vacation-1(?:["&])/);
+  assert.match(center, /business\?id=vacation-\d+/);
+  const normal = await (await render("/search")).text();
+  const large = await (await render("/search?guests=1000&minPrice=9999&whole=1&types=villa")).text();
+  const cards = (html) => [...html.matchAll(/href="\/business\?id=vacation-\d+"/g)].length;
+  assert.ok(cards(normal) >= 15);
+  assert.equal(cards(large), cards(normal));
+  assert.match(large, /התאמה לכמות האורחים המבוקשת תיבדק מול המקום/);
+  assert.doesNotMatch(large, />טווח מחיר<|>סוג מקום<|>מקום שלם<|>קיבולת גבוהה</);
+});
+
+test("unsupported taxonomy and missing-place booking preserve locale without old prices", async () => {
+  for (const path of ["/en/villas/center", "/en/booking?world=vacation&place=vacation-tepers-estate&price=9999"]) {
+    const response = await render(path);
+    assert.equal(response.status, 307);
+    const url = new URL(response.headers.get("location"), "https://vii.spaplus.co");
+    assert.equal(url.pathname, "/en/search");
+    assert.equal(url.searchParams.has("price"), false);
+  }
+});

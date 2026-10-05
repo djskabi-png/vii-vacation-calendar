@@ -1,23 +1,28 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import EventPlacePage from "./client-page";
 import { eventPlaceHref, eventPlaces } from "../../data/site-data";
 import { StructuredData } from "../../components/structured-data";
 import { breadcrumbSchema, eventVenueSchema } from "../../lib/seo";
-import { supplierLegacySlug } from "../../data/supplier-legacy-links";
+import { supplierLegacySlug, unavailableLegacySearchHref } from "../../data/supplier-legacy-links";
 
 type Props = { searchParams: Promise<{ id?: string }> };
 
-function resolvePlace(id?: string) {
+async function resolvePlace(id?: string) {
   const mappedSlug = supplierLegacySlug(id, "events");
-  if (mappedSlug) redirect(`/events/place/${mappedSlug}`);
+  const locale = (await headers()).get("x-vii-locale");
+  const prefix = locale && locale !== "he" ? `/${locale}` : "";
+  if (mappedSlug) redirect(`${prefix}/events/place/${mappedSlug}`);
+  const unavailable = unavailableLegacySearchHref(id, "events");
+  if (unavailable) redirect(`${prefix}${unavailable}`);
   const place = id ? eventPlaces.find((item) => item.slug === id) : undefined;
   if (!place) notFound();
   return place;
 }
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const place = resolvePlace((await searchParams).id);
+  const place = await resolvePlace((await searchParams).id);
   return {
     title: place.name,
     description: place.description,
@@ -28,7 +33,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 }
 
 export default async function Page({ searchParams }: Props) {
-  const place = resolvePlace((await searchParams).id);
+  const place = await resolvePlace((await searchParams).id);
   if (place.sourcePropertySlug) redirect(eventPlaceHref(place));
   return <>
     <StructuredData data={eventVenueSchema(place)} />

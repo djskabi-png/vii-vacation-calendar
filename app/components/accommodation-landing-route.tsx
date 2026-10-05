@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { StructuredData } from "./structured-data";
 import { SearchExperience } from "../search/page";
@@ -23,10 +24,14 @@ export function accommodationLandingMetadata(categoryId: AccommodationCategoryId
   };
 }
 
-export function AccommodationLandingRoute({ categoryId, regionSlug }: { categoryId: AccommodationCategoryId; regionSlug?: string | null }) {
+export async function AccommodationLandingRoute({ categoryId, regionSlug }: { categoryId: AccommodationCategoryId; regionSlug?: string | null }) {
   const landing = accommodationLandingForPath(categoryId, regionSlug);
   if (!landing) notFound();
-  if (!landing.listings.length) redirect(landing.region ? `/search?location=${encodeURIComponent(landing.region.label)}` : "/search");
+  if (!landing.listings.length) {
+    const locale = (await headers()).get("x-vii-locale");
+    const prefix = locale && locale !== "he" ? `/${locale}` : "";
+    redirect(landing.region ? `${prefix}/search?location=${encodeURIComponent(landing.region.label)}` : `${prefix}/search`);
+  }
 
   const breadcrumbs = [
     { name: "ראשי", path: "/" },

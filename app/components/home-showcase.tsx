@@ -105,7 +105,7 @@ export function HomeShowcase() {
         <div className="home-vacation-discovery__intro">
           <span className="eyebrow">מכאן קל יותר לבחור</span>
           <h2 id="vacation-discovery-title">מוצאים את הנופש בדרך שמתאימה לכם</h2>
-          <p>מתחילים באזור, בהרכב או בסגנון האירוח, ומגיעים ישר לתוצאות המתאימות.</p>
+          <p>מתחילים באזור ובהרכב האורחים ומשווים את פרטי המקומות.</p>
         </div>
 
         <div className="home-vacation-strip">

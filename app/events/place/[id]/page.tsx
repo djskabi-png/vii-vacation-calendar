@@ -1,24 +1,29 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import EventPlacePage from "../client-page";
 import { eventPlaceHref, eventPlaces } from "../../../data/site-data";
 import { StructuredData } from "../../../components/structured-data";
 import { breadcrumbSchema, eventVenueSchema } from "../../../lib/seo";
 import { ViewedItemBootstrap } from "../../../components/viewed-item-bootstrap";
-import { supplierLegacySlug } from "../../../data/supplier-legacy-links";
+import { supplierLegacySlug, unavailableLegacySearchHref } from "../../../data/supplier-legacy-links";
 
 type Props = { params: Promise<{ id: string }> };
 
-function resolvePlace(id: string) {
+async function resolvePlace(id: string) {
   const mappedSlug = supplierLegacySlug(id, "events");
-  if (mappedSlug) redirect(`/events/place/${mappedSlug}`);
+  const locale = (await headers()).get("x-vii-locale");
+  const prefix = locale && locale !== "he" ? `/${locale}` : "";
+  if (mappedSlug) redirect(`${prefix}/events/place/${mappedSlug}`);
+  const unavailable = unavailableLegacySearchHref(id, "events");
+  if (unavailable) redirect(`${prefix}${unavailable}`);
   const place = eventPlaces.find((item) => item.slug === id);
   if (!place) notFound();
   return place;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const place = resolvePlace((await params).id);
+  const place = await resolvePlace((await params).id);
   return {
     title: place.name,
     description: place.description,
@@ -29,10 +34,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function Page({ params }: Props) {
-  const place = resolvePlace((await params).id);
+  const place = await resolvePlace((await params).id);
   if (place.sourcePropertySlug) redirect(eventPlaceHref(place));
   return <>
-    <ViewedItemBootstrap id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים`} />
+    <ViewedItemBootstrap id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים${place.capacityScope === "unit" ? " ביחידה הגדולה" : ""}`} />
     <StructuredData data={eventVenueSchema(place)} />
     <StructuredData data={breadcrumbSchema([
       { name: "ראשי", path: "/" },

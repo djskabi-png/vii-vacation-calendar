@@ -61,7 +61,7 @@ export async function POST(request: Request) {
       const fileId = crypto.randomUUID();
       const extension = file.name.includes(".") ? `.${safeSegment(file.name.split(".").pop() || "file")}` : "";
       const key = `guest-reviews/${safeSegment(subjectType)}/${safeSegment(subjectId)}/${reviewId}/${fileId}${extension}`;
-      await bucket.put(key, file.stream(), { httpMetadata: { contentType: file.type }, customMetadata: { reviewId, kind, owner: session.sub } });
+      await bucket.put(key, file.stream() as unknown as Parameters<typeof bucket.put>[1], { httpMetadata: { contentType: file.type }, customMetadata: { reviewId, kind, owner: session.sub } });
       storedKeys.push(key);
       fileRows.push({ id: fileId, key, kind, file });
     }

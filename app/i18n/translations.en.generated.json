@@ -8108,5 +8108,12 @@
   "מסננים לפי אזור, הרכב ומאפיינים שקיימים בנתוני הספק.": "Filter by area, party and features present in supplier data.",
   "רואים תמונות, מתקנים ופרטי אירוח שהתקבלו מהספק.": "View photos, facilities and accommodation details supplied by the provider.",
   "בדיקה לפני הזמנה": "Check before booking",
-  "מבררים תאריך, מחיר ותנאים לפני שמתחייבים.": "Check dates, prices and terms before committing."
+  "מבררים תאריך, מחיר ותנאים לפני שמתחייבים.": "Check dates, prices and terms before committing.",
+  "המקום אינו זמין בקטלוג הנוכחי. אפשר לחפש מקומות אחרים באזור.": "This place is unavailable in the current catalog. You can search for other places in the area.",
+  "ביחידה הגדולה": "in the largest unit",
+  "מתחילים באזור ובהרכב האורחים ומשווים את פרטי המקומות.": "Start with an area and your guest group, then compare the details of each place.",
+  "התאמה לכמות האורחים המבוקשת תיבדק מול המקום. נתון הקיבולת בקטלוג מתייחס ליחידה הגדולה בלבד.": "The place must confirm suitability for your requested guest count. The catalog capacity refers only to the largest unit.",
+  "מקומות נופש עם תמונות, יחידות ומתקנים. התאמה להרכב האורחים נבדקת מול המקום.": "Vacation places with photos, units and amenities. The place must confirm suitability for your guest group.",
+  "מקומות לאירועים עם תמונות ומתקנים. התאמה לכמות המשתתפים נבדקת מול המקום.": "Event venues with photos and amenities. The venue must confirm suitability for your guest count.",
+  ", עם תמונות, מתקנים ופנייה ישירה למקום.": ", with photos, amenities and direct inquiries to the venue."
 }

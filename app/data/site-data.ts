@@ -765,7 +765,7 @@ export function isPublicProperty(property: Property) {
 
 export const properties: Property[] = sergeyPublicCatalog.places
   .filter((place) => place.world === "vacations")
-  .map((place) => ({ ...place, description: place.description || `${place.name}, ${place.location}, ${place.area}.` })) as unknown as Property[];
+  .map((place) => ({ ...place, description: place.description.replace(/^תיאור שיווקי לעמוד בגוגל:\s*/, "").trim() || `${place.name}, ${place.location}, ${place.area}.` })) as unknown as Property[];
 
 export type EventPlace = Listing & { eventTypes: string[]; sourcePropertySlug?: string };
 
@@ -884,7 +884,7 @@ const verifiedEventPlaces: EventPlace[] = verifiedCatalog.events.map((item) => (
 
 export const eventPlaces: EventPlace[] = sergeyPublicCatalog.places
   .filter((place) => place.world === "events")
-  .map((place) => ({ ...place, description: place.description || `${place.name}, ${place.location}, ${place.area}.` })) as unknown as EventPlace[];
+  .map((place) => ({ ...place, description: place.description.replace(/^תיאור שיווקי לעמוד בגוגל:\s*/, "").trim() || `${place.name}, ${place.location}, ${place.area}.` })) as unknown as EventPlace[];
 
 export function eventPlaceHref(place: EventPlace) {
   return place.sourcePropertySlug

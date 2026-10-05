@@ -8,7 +8,7 @@ import { breadcrumbSchema, faqSchema, lodgingSchema } from "../lib/seo";
 import { vacationBreadcrumbForLocation } from "../data/vacation-landings";
 import { ViewedItemBootstrap } from "../components/viewed-item-bootstrap";
 import { currentPeriodOffer } from "../data/last-minute-deals";
-import { supplierLegacySlug } from "../data/supplier-legacy-links";
+import { supplierLegacySlug, unavailableLegacySearchHref } from "../data/supplier-legacy-links";
 
 type QueryValue = string | string[] | undefined;
 type BusinessParams = { id?: QueryValue; mode?: QueryValue; dates?: QueryValue; from?: QueryValue; till?: QueryValue; guests?: QueryValue; rooms?: QueryValue; price?: QueryValue; illustrative?: QueryValue; source?: QueryValue; period?: QueryValue };
@@ -49,9 +49,16 @@ export default async function Page({ searchParams }: Props) {
     const locale = (await headers()).get("x-vii-locale");
     redirect(`${locale && locale !== "he" ? `/${locale}` : ""}/business?${query}`);
   }
+  const unavailable = unavailableLegacySearchHref(params.id, "vacations");
+  if (unavailable) {
+    const url = new URL(unavailable, "https://vii.spaplus.co");
+    for (const key of ["from", "till", "guests"] as const) if (params[key]) url.searchParams.set(key, params[key]!);
+    const locale = (await headers()).get("x-vii-locale");
+    redirect(`${locale && locale !== "he" ? `/${locale}` : ""}${url.pathname}${url.search}`);
+  }
   const property = resolveProperty(params.id);
   if (!property) notFound();
-  const currentOffer = currentPeriodOffer(property.slug, params.period);
+  const currentOffer = property.capacityScope === "unit" ? undefined : currentPeriodOffer(property.slug, params.period);
   if (currentOffer && (params.from !== currentOffer.from || params.till !== currentOffer.till || Number(params.price) !== currentOffer.nightlyPrice)) {
     const locale = (await headers()).get("x-vii-locale");
     const prefix = locale && locale !== "he" ? `/${locale}` : "";
@@ -80,7 +87,7 @@ export default async function Page({ searchParams }: Props) {
         ? [{ name: "ראשי", path: "/" }, { name: "חדרים לפי שעה", path: "/hourly" }]
         : [{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, vacationArea];
   return <>
-    <ViewedItemBootstrap id={property.slug} world={initialWorld} name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={`/business?id=${property.slug}${initialWorld === primaryWorld ? "" : `&mode=${initialWorld}`}`} meta={`${property.type} · עד ${property.guests} אורחים`} />
+    <ViewedItemBootstrap id={property.slug} world={initialWorld} name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={`/business?id=${property.slug}${initialWorld === primaryWorld ? "" : `&mode=${initialWorld}`}`} meta={`${property.type} · עד ${property.guests} אורחים${property.capacityScope === "unit" ? " ביחידה הגדולה" : ""}`} />
     {!property.demoOperations?.fictional ? <StructuredData data={lodgingSchema(property)} /> : null}
     <StructuredData data={breadcrumbSchema([
       ...hierarchy,

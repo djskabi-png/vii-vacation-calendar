@@ -23,10 +23,10 @@ async function render(pathname = "/", init = {}) {
 for (const [pathname, expected] of [
   ["/", /כל החופשה, במקום אחד/],
   ["/search", /נופש ברחבי הארץ/],
-  ["/business", /אקווה ריזורט/],
+  ["/business", /אחוזת דוריאל/],
   ["/events", /מוצאים מקום לחגוג בו/],
   ["/events/search", /מקומות לאירועים/],
-  ["/events/place/black-loft", /בלאק לופט/],
+  ["/events/place/event-2", /סטאר לופט/],
   ["/favorites", /המקומות שאהבתי/],
   ["/guides", /החופשה הטובה מתחילה ברעיון טוב/],
   ["/guides/choose-the-right-place", /איך בוחרים מקום שבאמת מתאים/],
@@ -115,8 +115,8 @@ test("language routes use real path prefixes and keep the Hebrew homepage canoni
 
 test("query-driven detail pages render the requested content on the server", async () => {
   for (const [pathname, expected, unexpected] of [
-    ["/business?id=perfumes-villa", /וילת הבשמים/, /אקווה ריזורט/],
-    ["/events/place/black-loft", /בלאק לופט/, /לופט פארטי טיים/],
+    ["/business?id=vacation-1", /אחוזת דוריאל/, /אקווה ריזורט/],
+    ["/events/place/event-2", /סטאר לופט/, /לופט פארטי טיים/],
     ["/discover/place/cassia-jerusalem", /קסיה וולנס וספא/, /ספא בוטיק תל אביב/],
   ]) {
     const response = await render(pathname);
@@ -146,7 +146,8 @@ test("removed places stay out of the public catalogs and magazine", async () => 
   assert.doesNotMatch(eventSearchHtml, /party-time|לופט פארטי טיים|95d6a4d598adae11/i);
   assert.doesNotMatch(guidesHtml, /e65d757e686fda64/i);
   assert.doesNotMatch(sitemapXml, /infinity-suites/i);
-  assert.equal(removedResponse.status, 404);
+  assert.equal(removedResponse.status, 307);
+  assert.match(removedResponse.headers.get("location"), /search\?unavailable=infinity-suites/);
 });
 
 test("hourly search starts with location and exposes filters only with the results", async () => {
@@ -250,32 +251,19 @@ test("search submissions navigate to the selected result set without a document 
   assert.match(styles, /\.search-submit__icon > i/);
 });
 
-test("one business can serve several worlds without duplicate public pages", async () => {
-  const [businessResponse, eventSearchResponse, sitemapResponse, legacyEventResponse, businessSource] = await Promise.all([
-    render("/business?id=sol-gilgal&mode=events"),
-    render("/events/search"),
-    render("/sitemap.xml", { headers: { accept: "application/xml" } }),
-    render("/events/place/sol-gilgal"),
-    readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8"),
-  ]);
-  const [businessHtml, eventSearchHtml, sitemapXml] = await Promise.all([
-    businessResponse.text(),
-    eventSearchResponse.text(),
-    sitemapResponse.text(),
-  ]);
-
-  assert.match(businessHtml, /מה תרצו לעשות במקום/);
-  assert.match(businessHtml, /בדיקת התאמה לאירוע/);
-  assert.match(businessHtml, /אירועים קטנים/);
-  assert.match(businessHtml, /rel="canonical" href="https:\/\/vii\.spaplus\.co\/business\?id=sol-gilgal"/);
-  assert.match(businessHtml, /"maximumAttendeeCapacity":26/);
-  assert.match(eventSearchHtml, /business\?id=sol-gilgal(?:&amp;|&)mode=events/);
-  assert.match(sitemapXml, /business\?id=sol-gilgal/);
-  assert.doesNotMatch(sitemapXml, /events\/place\/sol-gilgal/);
-  assert.ok([307, 308].includes(legacyEventResponse.status));
-  assert.match(legacyEventResponse.headers.get("location") || "", /\/business\?id=sol-gilgal(?:&|%26)mode=events/);
-  assert.match(businessSource, /worldSelection\?\.slug === property\.slug/);
-  assert.match(businessSource, /setWorldSelection\(\{ slug: property\.slug, world \}\)/);
+test("supplier records remain scoped to their source world without inferred shared capacity", async () => {
+  const catalog = JSON.parse(await readFile(new URL("../app/data/sergey-public-catalog.json", import.meta.url)));
+  for (const world of ["vacations", "events"]) {
+    const place = catalog.places.find((place) => place.world === world);
+    const path = world === "vacations" ? `/business?id=${place.slug}&mode=events` : `/events/place/${place.slug}`;
+    const response = await render(path);
+    assert.equal(response.status, 200);
+    const html = await response.text();
+    assert.ok(html.includes(place.name));
+    assert.doesNotMatch(html, /"maximumAttendeeCapacity":/);
+    const wrongWorld = await render(world === "vacations" ? `/events/place/${place.slug}` : `/business?id=${place.slug}`);
+    assert.equal(wrongWorld.status, 404);
+  }
 });
 
 test("spa, hourly, event and attraction worlds expose interactive maps", async () => {
@@ -393,8 +381,8 @@ test("commercial discovery stays inside VII", async () => {
   const responses = await Promise.all([
     render("/discover/place/spa-butik-tlv"),
     render("/discover/place/gentleman-haifa"),
-    render("/business?id=perfumes-villa"),
-    render("/events/place/black-loft"),
+    render("/business?id=vacation-1"),
+    render("/events/place/event-2"),
   ]);
   const pages = (await Promise.all(responses.map((response) => response.text()))).join("\n");
   assert.doesNotMatch(pages.replaceAll('href="https://www.spaplus.co.il/club/?src=vii"', ""), /href=["'][^"']*(?:roomsvip\.com|spaplus\.co\.il)/i);
@@ -556,8 +544,6 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(search, /setPool/);
   assert.match(eventSearch, /setEventType/);
   assert.doesNotMatch(data, /liveUrl|href[^\n]+https:\/\/www\.vii\.co\.il\//);
-  assert.equal((data.match(/roomOptions:/g) || []).length, 12);
-  assert.equal((data.match(/name: "(?:אקווה ריזורט, וילת החוף|יחידת סטודיו שני|יחידת סטודיו העמק|סוויטה משפחתית וואנדרפול|יחידת עכו|סוויטות 1\+2|סוויטה משפחתית"|א\.ר סוויטות|בקתה [1-4]"|סוויטה [1-4]"|חדר שינה"|סוויטת (?:מירון|גאיה|אליה|נועה|יובל|חרמון)|וילת הבשמים|אחוזת השושנים בוטיק)/g) || []).length >= 24, true);
   assert.match(business, /property\.roomOptions\.map/);
   assert.match(business, /סוויטות ויחידות/);
   assert.match(business, /property\.sleepingArrangements/);
@@ -581,14 +567,10 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(sleeping, /איפה ישנים\?/);
   assert.match(sleeping, /כל כרטיס מייצג חדר שינה ולא יחידת אירוח/);
   assert.match(sleeping, /alt=\{`\$\{arrangement\.name\} ב\$\{placeName\}`\}/);
-  assert.equal((data.match(/name: "חדר שינה [1-9]"/g) || []).length, 12);
-  assert.equal((data.match(/galleryImage: "\/media\/[a-f0-9]{16}\.(?:jpe?g|png)"/g) || []).length, 9);
   assert.match(business, /מה יש ליד \{property\.name\}\?/);
   assert.match(business, /complementaryItems/);
   assert.match(eventPlace, /ספקים שיכולים להשלים את החגיגה/);
   assert.match(eventPlace, /הפרטים מבוססים על מידע ציבורי/);
-  assert.equal((data.match(/contact: \{ phone:/g) || []).length, 18);
-  assert.equal((data.match(/whatsapp:/g) || []).length, 9);
   assert.match(business, /bookingQuery/);
   assert.match(business, /world: activeWorld/);
   assert.match(business, /initialFrom/);
@@ -630,7 +612,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(eventSearch, /mode="events" autoLoad/);
   assert.match(eventSearch, /const \[guests, setGuests\] = useState\(/);
   assert.match(eventSearch, /initialGuests/);
-  assert.match(eventSearch, /ללא סינון לפי כמות/);
+  assert.match(eventSearch, /place.capacityScope === "unit" \|\| place.guests >= guests/);
   assert.match(eventPlace, /fetch\("\/api\/leads\/"/);
   assert.match(eventPlace, /privacyAccepted/);
   assert.doesNotMatch(eventPlace, /defaultValue=\{Math\.min\(40/);
@@ -640,10 +622,8 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(magazinePage, /quizOptions/);
   assert.match(articlePage, /reading-progress/);
   assert.match(articlePage, /vii-magazine-checklist/);
-  assert.match(homeShowcase, /מומלצים שכדאי להכיר/);
-  assert.match(homeShowcase, /כל הדילים במקום אחד/);
-  assert.match(homeShowcase, /דילים ברגע האחרון/);
-  assert.match(homeShowcase, /דילים לתקופות מבוקשות/);
+  assert.match(homeShowcase, /מקומות נופש/);
+  assert.doesNotMatch(homeShowcase, /nightlyPrice/);
   assert.match(homeShowcase, /כל סיבה טובה הופכת כאן לאירוע/);
   assert.match(homeShowcase, /spaPlaces\.slice/);
   assert.match(homeShowcase, /hourlyPlaces\.slice/);
@@ -930,20 +910,13 @@ test("ships the immersive media, review and concierge experiences", async () => 
   assert.match(eventPlace, /<GuestReviewStudio/);
   assert.match(discoveryPlace, /<GuestReviewStudio/);
   assert.match(trailPlace, /subjectType="trail"/);
-  assert.match(home, /home-last-minute__tabs/);
-  assert.match(home, /role="tablist"/);
-  assert.match(home, /selectDealPeriod\(group\.id, period\.id\)/);
-  assert.match(home, /tracks\.current\[group\.id\]/);
-  assert.match(styles, /\.home-last-minute__cards \{[^}]*direction: rtl/);
-  assert.doesNotMatch(home, /home-last-minute__selection/);
-  assert.match(home, /from=/);
-  assert.match(home, /till=/);
-  assert.match(home, /דילים לתקופות מבוקשות/);
-  assert.equal((data.match(/src: "\/media\/tours\//g) || []).length, 11);
+  assert.match(home, /featuredTours.length/);
+  assert.match(home, /properties.flatMap/);
+  assert.doesNotMatch(home, /nightlyPrice|role="tablist"/);
   assert.match(styles, /story-gallery__progress/);
   assert.match(styles, /\.property-gallery \{ display: block; overflow: hidden; border-radius: 18px; background: #edf5f5; \}/);
-  assert.match(styles, /\.property-gallery button \{ display: none; width: 100%; height: auto; aspect-ratio: 3 \/ 2; \}/);
-  assert.match(styles, /\.property-gallery button:first-child \{ display: block; \}/);
+  assert.match(styles, /\.property-gallery button\.property-gallery__image \{ display: none; width: 100%; height: auto; aspect-ratio: 3 \/ 2; \}/);
+  assert.match(styles, /\.property-gallery button\.property-gallery__image\.is-active \{ display: block; \}/);
   assert.match(styles, /\.property-gallery img \{ object-fit: contain; background: #edf5f5; \}/);
   assert.match(styles, /The mobile stage is separate from the desktop viewer/);
   assert.match(styles, /\.story-gallery__story,.story-gallery__grid \{ display: none !important; \}/);
@@ -1035,8 +1008,8 @@ test("key page types emit matching structured data and private pages stay out of
     ["/spas", ["CollectionPage", "ItemList", "BreadcrumbList"]],
     ["/hourly", ["CollectionPage", "ItemList", "BreadcrumbList"]],
     ["/attractions", ["CollectionPage", "ItemList", "BreadcrumbList"]],
-    ["/business?id=perfumes-villa", ["LodgingBusiness", "BreadcrumbList", "FAQPage"]],
-    ["/events/place/black-loft", ["EventVenue", "BreadcrumbList"]],
+    ["/business?id=vacation-1", ["LodgingBusiness", "BreadcrumbList", "FAQPage"]],
+    ["/events/place/event-2", ["EventVenue", "BreadcrumbList"]],
     ["/guides/private-event-checklist", ["Article", "BreadcrumbList"]],
     ["/trails/snir-hatzbani", ["Article", "TouristTrip", "BreadcrumbList"]],
     ["/questions", ["FAQPage", "BreadcrumbList"]],
@@ -1152,8 +1125,8 @@ test("world selection stays in the header and no longer competes with floating a
 
 test("every business depth template exposes an internal gallery", async () => {
   for (const [pathname, name] of [
-    ["/business?id=perfumes-villa", "וילת הבשמים"],
-    ["/events/place/black-loft", "בלאק לופט"],
+    ["/business?id=vacation-1", "אחוזת דוריאל"],
+    ["/events/place/event-2", "סטאר לופט"],
     ["/discover/place/spa-butik-tlv", "ספא בוטיק תל אביב"],
     ["/discover/place/gentleman-haifa", "ג׳נטלמן חיפה"],
     ["/discover/place/masu-home-wellness", "מאסו"],
@@ -1189,9 +1162,12 @@ test("gallery sharing uses a fragment and every meaningful gallery image has tex
   assert.match(hook, /url\.hash = `gallery=\$\{tab\}&photo=/);
   assert.match(hook, /url\.hash = ""/);
   assert.match(hook, /\[data-gallery-trigger\]/);
-  for (const source of [business, eventPlace, discoveryPlace]) {
+  const propertyGallery = await readFile(new URL("../app/components/property-gallery.tsx", import.meta.url), "utf8");
+  assert.match(business, /<PropertyGallery/);
+  assert.match(eventPlace, /<PropertyGallery/);
+  for (const source of [business + propertyGallery, eventPlace + propertyGallery, discoveryPlace]) {
     assert.match(source, /title=\{/);
-    assert.match(source, /openGallery\(/);
+    assert.match(source, /openGallery(?:\(|\})/);
     assert.match(source, /data-gallery-trigger/);
   }
 });
@@ -1426,7 +1402,7 @@ test("saved favorites normalize legacy routes to canonical detail pages", async 
 });
 
 test("business depth pages always fill nearby experiences and trails", async () => {
-  const response = await render("/business?id=perfumes-villa");
+  const response = await render("/business?id=vacation-1");
   const html = await response.text();
   const discoveryCards = html.match(/class="discovery-card discovery-card--/g) || [];
   const trailCards = html.match(/class="trail-card trail-card--compact"/g) || [];
@@ -1468,7 +1444,10 @@ test("unavailable vacation places and unavailable-image cards never reach public
 
   assert.match(siteData, /slug: "ar-suites",\s*active: false/);
   assert.match(siteData, /unavailablePropertyImages/);
-  assert.match(siteData, /\.filter\(isPublicProperty\)/);
+  const catalog = JSON.parse(await readFile(new URL("../app/data/sergey-public-catalog.json", import.meta.url)));
+  assert.equal(catalog.places.filter((place) => place.world === "vacations").length, 581);
+  assert.ok(catalog.places.every((place) => place.image && place.images.length >= 1));
+  assert.ok(!catalog.places.some((place) => place.slug === "ar-suites"));
   for (const output of [searchHtml, businessHtml, sitemapXml]) {
     assert.doesNotMatch(output, /c3a6274bfd08091a\.jpeg/);
     assert.doesNotMatch(output, /business\?id=ar-suites/);
@@ -1485,19 +1464,15 @@ test("vacation results heading stays concise without a redundant status eyebrow"
   assert.match(source, /<p>/);
 });
 
-test("homepage keeps vacation discovery strips between last minute deals and spa", async () => {
+test("homepage keeps factual vacation discovery before spa without unsupported offers", async () => {
   const source = await readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8");
-  const lastMinute = source.indexOf('className="section home-last-minute"');
-  const vacationDiscovery = source.indexOf('className="section home-vacation-discovery"');
+  const recommended = source.indexOf('className="section home-recommended"');
+  const discovery = source.indexOf('className="section home-vacation-discovery"');
   const spa = source.indexOf('className="section home-spa-strip"');
-
-  assert.ok(lastMinute >= 0 && vacationDiscovery > lastMinute && spa > vacationDiscovery);
+  assert.ok(recommended >= 0 && discovery > recommended && spa > discovery);
   assert.match(source, /יעדים מומלצים לנופש/);
-  assert.match(source, /חיפושים נפוצים/);
-  assert.match(source, /סוגים וסגנונות אירוח/);
-  assert.match(source, /\/search\?location=/);
-  assert.match(source, /pool=1/);
-  assert.match(source, /href: "\/villas"/);
+  assert.match(source, /\/vacations\/north\?guests=2/);
+  assert.doesNotMatch(source, /nightlyPrice|home-vacation-card--style/);
 });
 
 test("villa discovery uses a clean landing route and delayed navigation feedback", async () => {
@@ -1507,27 +1482,22 @@ test("villa discovery uses a clean landing route and delayed navigation feedback
     readFile(new URL("../app/components/global-action-feedback.tsx", import.meta.url), "utf8"),
   ]);
 
-  assert.match(home, /href="\/villas"[^>]*data-global-feedback="true"/);
-  assert.match(showcase, /href: "\/villas"/);
+  assert.match(home, /href="\/search"[^>]*data-global-feedback="true"/);
+  assert.match(showcase, /href="\/search"/);
   assert.match(feedback, /showIfStillWaiting\(element\.dataset\.loadingLabel[^,]*, 320\)/);
 });
 
-test("regional villa filters resolve to a clean landing with inventory counts", async () => {
-  const [response, searchBox, landings] = await Promise.all([
-    render("/villas/center"),
-    readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/data/accommodation-landings.ts", import.meta.url), "utf8"),
-  ]);
-  const html = await response.text();
-
-  assert.equal(response.status, 200);
-  assert.match(html, /וילות נופש במרכז/);
-  assert.match(html, /(?:מתחם אחד|\d+ מתחמים), (?:יחידת נופש אחת|\d+ יחידות נופש)/);
-  assert.match(html, /BreadcrumbList/);
-  assert.match(html, /canonical[^>]+\/villas\/center/);
-  assert.match(searchBox, /mode === "vacation" && cleanVacationRoute/);
-  assert.match(searchBox, /destination = query \? `\$\{route\}\?\$\{query\}` : route/);
-  assert.match(landings, /const minimumRegionalListings = 1/);
+test("unverified accommodation taxonomy redirects to regional search and stays out of the sitemap", async () => {
+  const response = await render("/villas/center");
+  assert.ok([307, 308].includes(response.status));
+  const destination = new URL(response.headers.get("location"), "https://vii.spaplus.co");
+  assert.equal(destination.pathname, "/search");
+  assert.equal(destination.searchParams.get("location"), "מרכז");
+  const search = await render(destination.pathname + destination.search);
+  assert.equal(search.status, 200);
+  assert.match(await search.text(), /business\?id=vacation-\d+/);
+  const sitemap = await (await render("/sitemap.xml")).text();
+  assert.doesNotMatch(sitemap, /<loc>[^<]*\/villas/);
 });
 
 test("discovery rating and favorite controls use opposite logical corners", async () => {

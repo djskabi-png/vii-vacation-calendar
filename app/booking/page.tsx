@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { PageShell } from "../components/page-shell";
 import { properties, eventPlaces } from "../data/site-data";
@@ -6,7 +7,7 @@ import { discoveryItems } from "../data/world-data";
 import { getSpaDetails } from "../data/spa-details";
 import { getProviderDetails } from "../data/provider-details";
 import BookingPageClient from "./client-page";
-import { supplierLegacySlug } from "../data/supplier-legacy-links";
+import { supplierLegacySlug, unavailableLegacySearchHref } from "../data/supplier-legacy-links";
 
 export const metadata: Metadata = {
   title: "הזמנה אונליין",
@@ -40,12 +41,16 @@ function countNights(from?: string, till?: string) {
   return Math.round((departure - arrival) / 86_400_000);
 }
 
-function resolveBooking(params: Awaited<Props["searchParams"]>) {
+async function resolveBooking(params: Awaited<Props["searchParams"]>) {
+  const locale = (await headers()).get("x-vii-locale");
+  const prefix = locale && locale !== "he" ? `/${locale}` : "";
+  const unavailable = unavailableLegacySearchHref(params.place, params.world === "events" ? "events" : "vacations");
+  if (unavailable) redirect(`${prefix}${unavailable}`);
   const mappedSlug = supplierLegacySlug(params.place, params.world === "events" ? "events" : "vacations");
   if (mappedSlug) {
     const query = new URLSearchParams({ place: mappedSlug });
     for (const key of ["world", "from", "till", "guests"] as const) if (params[key]) query.set(key, params[key]!);
-    redirect(`/booking?${query}`);
+    redirect(`${prefix}/booking?${query}`);
   }
   const offerId = params.package || params.service || params.offer || "";
   const property = properties.find((item) => item.slug === params.place);
@@ -115,7 +120,7 @@ function resolveBooking(params: Awaited<Props["searchParams"]>) {
 
 export default async function BookingPage({ searchParams }: Props) {
   const params = await searchParams;
-  const booking = resolveBooking(params);
+  const booking = await resolveBooking(params);
   return <PageShell variant={booking.world as "vacation" | "events" | "spa" | "hourly" | "providers" | "activities"}>
     <BookingPageClient {...booking} action={params.action || "new"} initialFrom={params.from} initialTill={params.till} initialGuests={params.guests} />
   </PageShell>;
