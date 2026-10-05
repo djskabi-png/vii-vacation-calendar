@@ -179,7 +179,7 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
       </div>
 
       <div className="story-gallery__grid" aria-label="כל התמונות בנושא">
-        {visibleItems.map((item, index) => <button key={item.src} className={index === selected ? "selected" : ""} type="button" onClick={() => setSelected(index)} aria-label={`הצגת ${item.label}`}><img src={item.src} alt="" title={item.label} /><span>{item.label}</span></button>)}
+        {visibleItems.map((item, index) => <button key={item.src} className={index === selected ? "selected" : ""} type="button" onClick={() => setSelected(index)} aria-label={`הצגת ${item.label}`}><img src={item.src} alt="" title={item.label} loading="lazy" /><span>{item.label}</span></button>)}
       </div>
     </div>}
   </div>;

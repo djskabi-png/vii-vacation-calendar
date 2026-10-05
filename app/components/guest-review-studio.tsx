@@ -4,6 +4,7 @@
 
 import { ChangeEvent, FormEvent, KeyboardEvent as ReactKeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import type { LegacyReview } from "../data/legacy-vacation-profiles";
+import type { SupplierPlaceDetail } from "../data/supplier-place-detail";
 import { useSiteLanguage } from "../i18n/locale-provider";
 
 type ReviewSubject = "place" | "trail";
@@ -23,6 +24,7 @@ export function GuestReviewStudio({
   rating: publishedRating,
   reviewCount = 0,
   publishedReviews = [],
+  supplierReviews = [],
   open,
   onClose,
   onOpenGallery,
@@ -34,6 +36,7 @@ export function GuestReviewStudio({
   rating?: number;
   reviewCount?: number;
   publishedReviews?: LegacyReview[];
+  supplierReviews?: SupplierPlaceDetail["reviews"];
   open?: boolean;
   onClose?: () => void;
   onOpenGallery?: () => void;
@@ -41,6 +44,7 @@ export function GuestReviewStudio({
 }) {
   const { language } = useSiteLanguage();
   const [localOpen, setLocalOpen] = useState(false);
+  const [visibleSupplierReviews, setVisibleSupplierReviews] = useState(10);
   const [rating, setRating] = useState(0);
   const [previews, setPreviews] = useState<string[]>([]);
   const [finished, setFinished] = useState(false);
@@ -159,7 +163,13 @@ export function GuestReviewStudio({
         {publishedRating ? <><strong>{publishedRating}</strong><span aria-label={`${publishedRating} מתוך 10`}>★★★★★</span><small>{illustrative ? "ציון וחוות דעת בדיוניים להמחשה" : reviewCount ? `${reviewCount} חוות דעת שפורסמו` : "ציון ממקור המידע של המקום"}</small></> : <><strong>חדש</strong><span>הקול שלכם חשוב</span><small>לא פורסמו עדיין חוות דעת מאושרות בעמוד הזה.</small></>}
       </aside>
       <div className="review-experience__list">
-        {publishedReviews.length ? <div className="review-experience__published">
+        {supplierReviews.length ? <div className="review-experience__published" lang="he" dir="rtl">
+          {supplierReviews.slice(0, visibleSupplierReviews).map((review) => <article className="review-card review-card--published" key={review.id}>
+            <header><div><strong>{review.author}</strong>{review.score ? <span aria-label={`${review.score} מתוך 10`}>{review.score}/10</span> : null}</div>{/^\d{4}-\d{2}-\d{2}$/.test(review.date) ? <time dateTime={review.date}>{new Intl.DateTimeFormat("he-IL").format(new Date(`${review.date}T12:00:00`))}</time> : null}</header>
+            {review.title ? <strong>{review.title}</strong> : null}<p>{review.text}</p><footer>חוות דעת מארכיון VII</footer>
+          </article>)}
+          {visibleSupplierReviews < supplierReviews.length ? <button className="button secondary" type="button" onClick={() => setVisibleSupplierReviews((count) => Math.min(count + 10, supplierReviews.length))}>עוד חוות דעת ({supplierReviews.length - visibleSupplierReviews})</button> : null}
+        </div> : publishedReviews.length ? <div className="review-experience__published">
           {publishedReviews.map((review) => <article className="review-card review-card--published" key={`${review.visitedAt}-${review.author.he}`}>
             <header><div><strong>{review.author[language]}</strong><span aria-label={`${review.rating} מתוך 10`}>{review.rating}/10</span></div><time dateTime={review.visitedAt}>{new Intl.DateTimeFormat(language === "he" ? "he-IL" : language === "en" ? "en-GB" : language === "ru" ? "ru-RU" : "fr-FR").format(new Date(`${review.visitedAt}T12:00:00`))}</time></header>
             <p>{review.summary[language]}</p>
@@ -169,7 +179,7 @@ export function GuestReviewStudio({
           <header><div><strong>{pendingReview.author}</strong><span>{"★".repeat(pendingReview.rating)}{"☆".repeat(5 - pendingReview.rating)}</span></div><small>ממתינה לאישור</small></header>
           <p>{pendingReview.body}</p>
           <footer>{pendingReview.photoCount ? `${pendingReview.photoCount} תמונות צורפו. ` : ""}התוכן התקבל וממתין לבדיקה. הוא אינו מוצג לגולשים אחרים לפני אישור.</footer>
-        </article> : <div className="review-experience__empty">
+        </article> : reviewCount ? <div className="review-experience__empty"><strong>{reviewCount} חוות דעת בארכיון המקום</strong><p>טקסט חוות הדעת אינו זמין במקור הנתונים הנוכחי.</p></div> : <div className="review-experience__empty">
           <strong>{isTrail ? "היו הראשונים לשתף מידע מהשטח" : "היו הראשונים לכתוב חוות דעת"}</strong>
           <p>{isTrail ? "אפשר לספר על מצב המסלול, דרגת הקושי, עומס, מים ופרטים שיעזרו למטיילים הבאים." : "לאחר בדיקה ואישור, חוות הדעת תופיע כאן עם הציון והשם שבחרתם להציג."}</p>
           <button type="button" onClick={openDialog}>{buttonLabel}</button>

@@ -3939,6 +3939,11 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .property-gallery button { position: relative; border: 0; padding: 0; overflow: hidden; background: var(--mist); cursor: pointer; }
 .property-gallery button:first-child { grid-row: 1/3; }
 .property-gallery button.property-gallery__image.is-desktop-extra { display: none; }
+.supplier-rooms { margin: 32px 0; }
+.supplier-rooms > div { display: grid; gap: 16px; }
+.supplier-rooms article { padding: 18px 0; border-top: 1px solid var(--border, #ddd); }
+.supplier-rooms h3 { margin: 0 0 8px; font-size: 1.125rem; }
+.supplier-rooms p { margin: 0 0 12px; }
 .property-gallery img { width: 100%; height: 100%; object-fit: cover; }
 .property-gallery button span { position: absolute; bottom: 16px; inset-inline-start: 16px; background: white; padding: 8px 12px; border-radius: 10px; font-weight: 700; }
 .property-gallery button.property-gallery__mobile-arrow,.property-gallery .property-gallery__mobile-position { display: none; }

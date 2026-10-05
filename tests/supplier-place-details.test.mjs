@@ -1,0 +1,29 @@
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import test from "node:test";
+
+const catalog = JSON.parse(await readFile(new URL("../app/data/sergey-public-catalog.json", import.meta.url)));
+const detailFile = JSON.parse(await readFile(new URL("../app/data/sergey-place-details.json", import.meta.url)));
+
+test("every accepted supplier place has full detail data without broadening the search catalog", () => {
+  assert.equal(Object.keys(detailFile.details).length, catalog.places.length);
+  for (const place of catalog.places) {
+    const detail = detailFile.details[place.slug];
+    assert.ok(detail, place.slug);
+    assert.ok(detail.images.length >= place.images.length, place.slug);
+    assert.deepEqual(detail.images.slice(0, place.images.length), place.images);
+    assert.ok(detail.rooms.length);
+    assert.ok(detail.images.every((src) => src.startsWith("https://www.vii.co.il/gallery/")));
+    assert.ok(detail.reviews.every((review) => review.author && review.text));
+  }
+});
+
+test("representative vacation and event pages retain their complete source galleries and facts", () => {
+  assert.equal(detailFile.details["vacation-1"].images.length, 62);
+  assert.equal(detailFile.details["vacation-1"].rooms.length, 2);
+  assert.equal(detailFile.details["vacation-1"].policy.checkIn, "15:00:00");
+  assert.equal(detailFile.details["vacation-1"].reviews.length, 19);
+  assert.equal(catalog.places.find((place) => place.slug === "vacation-1").reviews, 20);
+  assert.equal(detailFile.details["event-2"].images.length, 22);
+  assert.doesNotMatch(detailFile.details["event-711"].summary, /1,999|מבצע חורף/);
+});
