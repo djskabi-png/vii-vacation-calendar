@@ -3,14 +3,16 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const catalog = JSON.parse(await readFile(new URL("../app/data/sergey-public-catalog.json", import.meta.url)));
-const report = JSON.parse(await readFile(new URL("../tmp/vii-sergey-stage-20261005/public-catalog-report.json", import.meta.url)));
 
 test("public catalog contains only accepted supplier places", () => {
   assert.equal(catalog.source, "sergey-vii-api");
-  assert.equal(catalog.fetchedAt, report.fetchedAt);
+  assert.equal(catalog.fetchedAt, "2026-10-05T10:29:43.514Z");
   assert.equal(catalog.places.length, 711);
-  assert.deepEqual(report.accepted, { vacations: 581, events: 130 });
-  assert.equal(report.rejected.length, 6);
+  assert.equal(catalog.places.filter((place) => place.world === "vacations").length, 581);
+  assert.equal(catalog.places.filter((place) => place.world === "events").length, 130);
+  for (const [world, ids] of [["vacations", [927, 1156, 2234, 2434]], ["events", [2148, 2684]]]) {
+    assert.ok(!catalog.places.some((place) => place.world === world && ids.includes(place.supplierId)));
+  }
   assert.equal(new Set(catalog.places.map((place) => `${place.world}:${place.supplierId}`)).size, 711);
   assert.ok(catalog.places.every((place) =>
     place.slug === `${place.world === "vacations" ? "vacation" : "event"}-${place.supplierId}`

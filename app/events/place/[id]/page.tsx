@@ -5,10 +5,13 @@ import { eventPlaceHref, eventPlaces } from "../../../data/site-data";
 import { StructuredData } from "../../../components/structured-data";
 import { breadcrumbSchema, eventVenueSchema } from "../../../lib/seo";
 import { ViewedItemBootstrap } from "../../../components/viewed-item-bootstrap";
+import { supplierLegacySlug } from "../../../data/supplier-legacy-links";
 
 type Props = { params: Promise<{ id: string }> };
 
 function resolvePlace(id: string) {
+  const mappedSlug = supplierLegacySlug(id, "events");
+  if (mappedSlug) redirect(`/events/place/${mappedSlug}`);
   const place = eventPlaces.find((item) => item.slug === id);
   if (!place) notFound();
   return place;

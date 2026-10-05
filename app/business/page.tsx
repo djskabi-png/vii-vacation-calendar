@@ -8,6 +8,7 @@ import { breadcrumbSchema, faqSchema, lodgingSchema } from "../lib/seo";
 import { vacationBreadcrumbForLocation } from "../data/vacation-landings";
 import { ViewedItemBootstrap } from "../components/viewed-item-bootstrap";
 import { currentPeriodOffer } from "../data/last-minute-deals";
+import { supplierLegacySlug } from "../data/supplier-legacy-links";
 
 type QueryValue = string | string[] | undefined;
 type BusinessParams = { id?: QueryValue; mode?: QueryValue; dates?: QueryValue; from?: QueryValue; till?: QueryValue; guests?: QueryValue; rooms?: QueryValue; price?: QueryValue; illustrative?: QueryValue; source?: QueryValue; period?: QueryValue };
@@ -23,7 +24,7 @@ function normalizedParams(params: BusinessParams) {
 
 function resolveProperty(id?: string) {
   if (!id) return properties[0];
-  return properties.find((item) => item.slug === id);
+  return properties.find((item) => item.slug === (supplierLegacySlug(id, "vacations") || id));
 }
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
@@ -41,6 +42,13 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 
 export default async function Page({ searchParams }: Props) {
   const params = normalizedParams(await searchParams);
+  const mappedSlug = supplierLegacySlug(params.id, "vacations");
+  if (mappedSlug) {
+    const query = new URLSearchParams({ id: mappedSlug });
+    for (const key of ["from", "till", "guests"] as const) if (params[key]) query.set(key, params[key]!);
+    const locale = (await headers()).get("x-vii-locale");
+    redirect(`${locale && locale !== "he" ? `/${locale}` : ""}/business?${query}`);
+  }
   const property = resolveProperty(params.id);
   if (!property) notFound();
   const currentOffer = currentPeriodOffer(property.slug, params.period);

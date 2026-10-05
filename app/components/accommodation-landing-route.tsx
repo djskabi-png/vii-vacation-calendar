@@ -26,7 +26,7 @@ export function accommodationLandingMetadata(categoryId: AccommodationCategoryId
 export function AccommodationLandingRoute({ categoryId, regionSlug }: { categoryId: AccommodationCategoryId; regionSlug?: string | null }) {
   const landing = accommodationLandingForPath(categoryId, regionSlug);
   if (!landing) notFound();
-  if (!landing.listings.length) redirect("/search");
+  if (!landing.listings.length) redirect(landing.region ? `/search?location=${encodeURIComponent(landing.region.label)}` : "/search");
 
   const breadcrumbs = [
     { name: "ראשי", path: "/" },

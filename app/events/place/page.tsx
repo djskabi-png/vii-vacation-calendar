@@ -4,10 +4,13 @@ import EventPlacePage from "./client-page";
 import { eventPlaceHref, eventPlaces } from "../../data/site-data";
 import { StructuredData } from "../../components/structured-data";
 import { breadcrumbSchema, eventVenueSchema } from "../../lib/seo";
+import { supplierLegacySlug } from "../../data/supplier-legacy-links";
 
 type Props = { searchParams: Promise<{ id?: string }> };
 
 function resolvePlace(id?: string) {
+  const mappedSlug = supplierLegacySlug(id, "events");
+  if (mappedSlug) redirect(`/events/place/${mappedSlug}`);
   const place = id ? eventPlaces.find((item) => item.slug === id) : undefined;
   if (!place) notFound();
   return place;

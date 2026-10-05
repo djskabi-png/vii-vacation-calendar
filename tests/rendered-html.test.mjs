@@ -2,11 +2,22 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
+const workerPromise = import(new URL("../dist/server/index.js", import.meta.url).href);
+
+async function withDeadline(promise, label) {
+  let timer;
+  try {
+    return await Promise.race([promise, new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error(`Rendering did not finish within 20 seconds: ${label}`)), 20_000);
+    })]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function render(pathname = "/", init = {}) {
-  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
-  workerUrl.searchParams.set("test", `${pathname}-${process.pid}-${Date.now()}`);
-  const { default: worker } = await import(workerUrl.href);
-  return worker.fetch(new Request(`http://localhost${pathname}`, { ...init, headers: { accept: "text/html", ...(init.headers || {}) } }), { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } }, { waitUntil() {}, passThroughOnException() {} });
+  const { default: worker } = await workerPromise;
+  return withDeadline(worker.fetch(new Request(`http://localhost${pathname}`, { ...init, headers: { accept: "text/html", ...(init.headers || {}) } }), { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } }, { waitUntil() {}, passThroughOnException() {} }), pathname);
 }
 
 for (const [pathname, expected] of [
@@ -992,7 +1003,7 @@ test("every canonical URL in the sitemap has complete crawlable HTML", async () 
   for (const absolute of urls) {
     const target = new URL(absolute);
     const response = await render(`${target.pathname}${target.search}`);
-    const html = await response.text();
+    const html = await withDeadline(response.text(), absolute);
     assert.equal(response.status, 200, absolute);
     assert.match(html, /<title>[^<]+<\/title>/, absolute);
     assert.match(html, /<meta name="description" content="[^"]+"\s*\/?>/, absolute);

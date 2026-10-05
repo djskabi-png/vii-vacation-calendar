@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { PageShell } from "../components/page-shell";
 import { properties, eventPlaces } from "../data/site-data";
 import { discoveryItems } from "../data/world-data";
 import { getSpaDetails } from "../data/spa-details";
 import { getProviderDetails } from "../data/provider-details";
 import BookingPageClient from "./client-page";
+import { supplierLegacySlug } from "../data/supplier-legacy-links";
 
 export const metadata: Metadata = {
   title: "הזמנה אונליין",
@@ -40,12 +41,19 @@ function countNights(from?: string, till?: string) {
 }
 
 function resolveBooking(params: Awaited<Props["searchParams"]>) {
+  const mappedSlug = supplierLegacySlug(params.place, params.world === "events" ? "events" : "vacations");
+  if (mappedSlug) {
+    const query = new URLSearchParams({ place: mappedSlug });
+    for (const key of ["world", "from", "till", "guests"] as const) if (params[key]) query.set(key, params[key]!);
+    redirect(`/booking?${query}`);
+  }
   const offerId = params.package || params.service || params.offer || "";
   const property = properties.find((item) => item.slug === params.place);
   if (property) {
     const selectedUnitIndex = Math.max(0, Number(params.unitIndex || "0") - 1);
     const selectedUnit = params.unitIndex ? property.roomOptions?.[selectedUnitIndex] : undefined;
-    const nightlyPrice = Number(params.price) || 0;
+    // Catalog records do not authorize prices supplied in a URL.
+    const nightlyPrice = property.capacityScope === "unit" ? 0 : Number(params.price) || 0;
     const nights = countNights(params.from, params.till);
     const totalPrice = nightlyPrice > 0 && nights > 0 ? nightlyPrice * nights : 0;
     return {
@@ -63,9 +71,9 @@ function resolveBooking(params: Awaited<Props["searchParams"]>) {
       wholeProperty: property.scenario === "single" && !selectedUnit,
       taxesIncluded: property.demoOperations?.taxesIncluded === true,
     } : undefined,
-    onlineReady: Boolean(params.from && params.till && params.price && Number(params.price) > 0),
+    onlineReady: property.capacityScope !== "unit" && Boolean(params.from && params.till && nightlyPrice > 0),
     phone: property.contact?.phone,
-    illustrative: params.illustrative === "1" || property.demoOperations?.fictional === true,
+    illustrative: property.capacityScope !== "unit" && (params.illustrative === "1" || property.demoOperations?.fictional === true),
     demoOwnerEmail: property.demoOperations?.ownerEmail,
     demoProperty: property.demoOperations?.fictional === true,
     placeImage: property.image,
