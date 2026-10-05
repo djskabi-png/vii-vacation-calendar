@@ -1,0 +1,128 @@
+[
+  {
+    "world": "vacations",
+    "slug": "aqua-resort",
+    "name": "אקווה ריזורט, וילת החוף",
+    "area": "אילת והערבה"
+  },
+  {
+    "world": "vacations",
+    "slug": "kesem-harimon",
+    "name": "קסם הרימון",
+    "area": "מישור החוף הדרומי"
+  },
+  {
+    "world": "vacations",
+    "slug": "ahuzat-or",
+    "name": "אחוזת האור",
+    "area": "סובב כנרת"
+  },
+  {
+    "world": "vacations",
+    "slug": "hilat-hanof",
+    "name": "הילת הנוף",
+    "area": "סובב כנרת"
+  },
+  {
+    "world": "vacations",
+    "slug": "ar-suites",
+    "name": "א.ר סוויטות",
+    "area": "אילת והערבה"
+  },
+  {
+    "world": "vacations",
+    "slug": "sol-gilgal",
+    "name": "סול, מתחם אירוח ואירועים",
+    "area": "בקעת הירדן"
+  },
+  {
+    "world": "vacations",
+    "slug": "infinity-suites",
+    "name": "סוויטות אינסוף",
+    "area": "גליל עליון"
+  },
+  {
+    "world": "vacations",
+    "slug": "magic-garden-gefen",
+    "name": "סוויטות הגן הקסום גפן",
+    "area": "ירושלים והרי יהודה"
+  },
+  {
+    "world": "vacations",
+    "slug": "anael-estate",
+    "name": "אחוזת אנאאל בגליל",
+    "area": "צפון"
+  },
+  {
+    "world": "vacations",
+    "slug": "perfumes-villa",
+    "name": "וילת הבשמים",
+    "area": "אילת והערבה"
+  },
+  {
+    "world": "vacations",
+    "slug": "rose-estate",
+    "name": "אחוזת השושנים בוטיק",
+    "area": "גליל מערבי"
+  },
+  {
+    "world": "events",
+    "slug": "party-time",
+    "name": "לופט פארטי טיים",
+    "area": "מישור החוף והשפלה"
+  },
+  {
+    "world": "events",
+    "slug": "black-loft",
+    "name": "בלאק לופט",
+    "area": "חיפה וחוף הכרמל"
+  },
+  {
+    "world": "events",
+    "slug": "sani-loft",
+    "name": "סאני לופט",
+    "area": "מישור החוף והשפלה"
+  },
+  {
+    "world": "events",
+    "slug": "360-events",
+    "name": "360 איוונטס",
+    "area": "מישור החוף והשפלה"
+  },
+  {
+    "world": "events",
+    "slug": "loft-117",
+    "name": "לופט 117",
+    "area": "מישור החוף והשפלה"
+  },
+  {
+    "world": "events",
+    "slug": "fiesta",
+    "name": "פיאסטה",
+    "area": "מישור החוף והשפלה"
+  },
+  {
+    "world": "events",
+    "slug": "details-events",
+    "name": "דיטלס איוונטס",
+    "area": "מישור החוף הדרומי"
+  },
+  {
+    "world": "events",
+    "slug": "star-loft",
+    "name": "סטאר לופט",
+    "area": "חיפה וחוף הכרמל"
+  },
+  {
+    "world": "events",
+    "slug": "puzzle-club",
+    "name": "לופט מועדון הפאזל",
+    "area": "מישור החוף והשפלה"
+  },
+  {
+    "world": "events",
+    "slug": "paphos-events",
+    "name": "פאפוס איוונטס",
+    "area": "מישור החוף והשפלה"
+  }
+]

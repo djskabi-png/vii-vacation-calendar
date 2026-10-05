@@ -6,8 +6,9 @@ const source = readFileSync(new URL("../app/components/home-showcase.tsx", impor
 const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
 
 test("homepage keeps the requested discovery sliders before the next world", () => {
-  assert.match(source, />חיפושים נפוצים</);
-  assert.match(source, />מה אתם מחפשים\?</);
+  assert.match(source, /יעדים מומלצים לנופש/);
+  assert.match(source, /properties.find/);
+  assert.match(source, /featuredTours.length \?/);
   assert.match(source, />סרטונים מובילים</);
   assert.match(source, />חוות דעת מובילות</);
   assert.ok(source.indexOf("home-trust-discovery") < source.indexOf("home-spa-strip"));

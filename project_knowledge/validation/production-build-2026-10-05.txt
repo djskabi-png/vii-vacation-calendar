@@ -1,0 +1,109 @@
+$ vinext build
+
+  vinext build  (Vite 8.0.13)
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+[1/5] analyze client references...
+[2Ktransforming...✓ 277 modules transformed.
+rendering chunks...
+✓ built in 2.09s
+[2/5] analyze server references...
+[2Ktransforming...✓ 226 modules transformed.
+rendering chunks...
+✓ built in 1.78s
+[3/5] build rsc environment...
+[2Ktransforming...✓ 283 modules transformed.
+rendering chunks...
+computing gzip size...
+[33m[PLUGIN_TIMINGS] [0mYour build spent significant time in plugins. Here is a breakdown:
+  - rsc:virtual-client-package (26%)
+  - vite-plugin-commonjs (16%)
+  - rsc:scan-strip (12%)
+  - rsc:use-client (9%)
+  - vinext:react-canary (8%)
+See https://rolldown.rs/options/checks#plugintimings for more details.
+
+✓ built in 4.12s
+[4/5] build client environment...
+[2Ktransforming...✓ 233 modules transformed.
+rendering chunks...
+computing gzip size...
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 2.87s
+[5/5] build ssr environment...
+[2Ktransforming...✓ 232 modules transformed.
+rendering chunks...
+computing gzip size...
+✓ built in 1.75s
+[0m
+  Route (app)
+  ┌ ? /                            
+  ├ ? /accessibility               
+  ├ ? /account                     
+  ├ ? /activities                  
+  ├ λ /api/auth/google             
+  ├ λ /api/auth/google/callback    
+  ├ λ /api/auth/logout             
+  ├ λ /api/auth/session            
+  ├ λ /api/hilat-calendar          
+  ├ λ /api/leads                   
+  ├ λ /api/legacy-availability     
+  ├ λ /api/reviews                 
+  ├ ? /attractions                 
+  ├ ? /booking                     
+  ├ ? /business                    
+  ├ ? /contact                     
+  ├ ? /corporate                   
+  ├ ? /destinations                
+  ├ ? /discover/place              
+  ├ ƒ /discover/place/:id          
+  ├ ? /events                      
+  ├ ? /events/place                
+  ├ ƒ /events/place/:id            
+  ├ ? /events/search               
+  ├ ƒ /events/search/:region       
+  ├ ? /favorites                   
+  ├ λ /feed.xml                    
+  ├ ? /gift-card                   
+  ├ ? /guides                      
+  ├ ƒ /guides/:slug                
+  ├ ? /guides/article              
+  ├ ? /handoff                     
+  ├ λ /hilat-calendar-data         
+  ├ ? /hourly                      
+  ├ ƒ /hourly/search/:region       
+  ├ ? /join                        
+  ├ ƒ /join/:world                 
+  ├ ? /legal/cancellation          
+  ├ ? /legal/privacy               
+  ├ ? /legal/terms                 
+  ├ ƒ /luxury-suites/:region*      
+  ├ ? /platform                    
+  ├ ? /providers                   
+  ├ ƒ /providers/:category         
+  ├ ? /questions                   
+  ├ ? /search                      
+  ├ ? /spas                        
+  ├ ƒ /spas/:slug                  
+  ├ ƒ /spas/search/:segments+      
+  ├ ƒ /suite-complexes/:region*    
+  ├ ? /trails                      
+  ├ ƒ /trails/:slug                
+  ├ ƒ /vacation-apartments/:region*
+  ├ ƒ /vacations/:region           
+  └ ƒ /villas/:region*             
+
+  λ API  ƒ Dynamic  ? Unknown
+
+  ? Some routes could not be classified. vinext currently uses static analysis
+    and cannot detect dynamic API usage (headers(), cookies(), etc.) at build time.
+    Automatic classification will be improved in a future release.
+
+  Build complete. Run `vinext start` to start the production server.
+

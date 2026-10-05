@@ -1,3 +1,5 @@
+import type { D1Database, R2Bucket } from "../../types/cloudflare-runtime";
+
 export type PendingReviewRecord = { id: string; author: string; body: string; rating: number; createdAt: string; photoCount: number };
 
 export async function reviewRuntimeEnv() {

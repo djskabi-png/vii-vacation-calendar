@@ -14,36 +14,16 @@ test("homepage cards reserve separate zones for labels and content", async () =>
 test("homepage discovery uses complete card compositions", async () => {
   const component = await readFile(new URL("app/components/home-showcase.tsx", root), "utf8");
   assert.doesNotMatch(component, /home-vacation-card--compact/);
-  assert.match(component, /home-vacation-card--search/);
-  assert.match(component, /home-vacation-card--style/);
+  assert.match(component, /home-vacation-card--destination/);
+  assert.match(component, /src=\{place.image\}/);
 });
 
-test("homepage preserves every legacy deal period and swaps the visible cards in place", async () => {
+test("supplier homepage contains factual discovery without unsupported offers or taxonomy", async () => {
   const source = await readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8");
-  const deals = await readFile(new URL("../app/data/last-minute-deals.ts", import.meta.url), "utf8");
-  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
-  for (const label of ["ברגע האחרון", "2 לילות חמישי עד שבת", "2 לילות שישי עד ראשון", "פנוי לחמישי", "פנוי לשישי", "אוגוסט", "ראש השנה", "סוכות", "שמחת תורה", "חג הסיגד"]) {
-    assert.match(deals, new RegExp(label));
-  }
-  assert.match(source, /function lastMinuteHref/);
-  assert.match(source, /function selectDealPeriod/);
-  assert.match(source, /role="tablist"/);
-  assert.match(source, /role="tab"/);
-  assert.match(source, /aria-selected=\{period\.id === activePeriod\.id\}/);
-  assert.match(source, /onKeyDown=\{\(event\) => handleDealPeriodKeyDown/);
-  assert.match(source, /aria-labelledby=\{\x60\$\{group\.id\}-\$\{activePeriod\.id\}-tab\x60\}/);
-  assert.match(source, /pendingDealFocus\.current = \{ groupId, periodId: nextPeriod\.id \}/);
-  assert.match(source, /document\.getElementById\(\x60\$\{pending\.groupId\}-\$\{pending\.periodId\}-tab\x60\)\?\.focus\(\)/);
-  assert.match(source, /activePeriod\.offers\.map/);
-  assert.match(source, /offer\.nightlyPrice\.toLocaleString/);
-  assert.match(source, /offer\.from/);
-  assert.match(source, /offer\.till/);
-  assert.match(source, /period=\$\{encodeURIComponent\(activePeriod\.id\)\}/);
-  assert.match(source, /href=\{lastMinuteHref\(activePeriod\)\}/);
-  assert.match(source, /דילים ברגע האחרון/);
-  assert.match(source, /דילים לתקופות מבוקשות/);
-  assert.match(source, /dealGroups\.map/);
-  assert.match(css, /home-last-minute__tabs button\.is-active/);
+  assert.match(source, /properties.slice\(0, 7\)/);
+  assert.match(source, /PropertyCard property=\{property\}/);
+  assert.match(source, /properties.find/);
+  assert.doesNotMatch(source, /nightlyPrice|lastMinuteHref|selectDealPeriod|home-vacation-card--style/);
 });
 
 test("homepage period offers preserve the verified legacy dates and prices", async () => {

@@ -154,7 +154,7 @@ function PriceValue({ amount, language }: { amount: string; language: SiteLangua
   return <bdi className="stay-card__price-value" dir={language === "he" ? "rtl" : "ltr"} aria-label={`${amount} \u20AA`}><span className="stay-card__price-number">{amount}</span><span className="stay-card__currency" aria-hidden="true">{"\u20AA"}</span></bdi>;
 }
 
-function quoteForStay(property: Property, selectedStay: SelectedStay | null): ListingDateQuote | null {
+function quoteForStay(property: Property, selectedStay: SelectedStay | null): (ListingDateQuote & { illustrative?: boolean }) | null {
   if (!selectedStay) return null;
   if (property.demoOperations?.fictional) {
     const arrival = new Date(`${selectedStay.from}T12:00:00Z`);
@@ -340,7 +340,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
           </div>
           {property.score && property.reviews ? <span className="stay-card__rating" aria-label={`${property.score} ${copy.outOfTen}, ${property.reviews} ${copy.reviews}`}><b aria-hidden="true">★</b><strong>{property.score}</strong><small>({property.reviews})</small></span> : null}
         </div>
-        <p className="stay-card__meta">{property.type}{property.units && property.units > 1 ? `, ${property.units} יחידות` : ", מקום אירוח שלם"} · עד {property.guests} אורחים</p>
+        <p className="stay-card__meta">{property.type}{property.units && property.units > 1 ? `, ${property.units} יחידות` : property.capacityScope === "unit" ? "" : ", מקום אירוח שלם"} · עד {property.guests} אורחים{property.capacityScope === "unit" ? " ביחידה" : ""}</p>
         <div className="feature-chips">{property.features.slice(0, 3).map((feature) => <span key={feature}>{feature}</span>)}</div>
         {isLiveAvailabilityLoading ? <div className="stay-card__date-status stay-card__date-status--checking" aria-live="polite"><strong>{copy.checking}</strong></div> : null}
         {isLiveAvailabilityError ? <div className="stay-card__date-status stay-card__date-status--error" aria-live="polite"><strong>{copy.unavailableSource}</strong></div> : null}

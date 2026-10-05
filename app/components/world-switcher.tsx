@@ -141,7 +141,9 @@ export function SearchWorldTabs({ active, location, onNavigate }: { active: Worl
     <div className="search-world-tabs__options">
       {primaryWorlds.map((worldId) => {
         const world = worlds.find((item) => item.id === worldId)!;
-        const href = localizedPath(searchWorldHref(worldId, location || undefined), language);
+        const destination = searchWorldHref(worldId, location || undefined);
+        if (!destination) return null;
+        const href = localizedPath(destination, language);
         return <Link key={world.id} href={href} scroll={false} className={world.id === active ? "active" : ""} aria-current={world.id === active ? "page" : undefined} onClick={navigateWithinSearch(href)}>
           <span className={`search-world-tabs__icon search-world-tabs__icon--${worldId}`} aria-hidden="true"><SearchWorldIcon world={worldId} /></span>
           <span>{translate(world.shortLabel)}</span>
