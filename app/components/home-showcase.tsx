@@ -5,13 +5,13 @@
 import Link from "next/link";
 import { useRef } from "react";
 import { DiscoveryCard } from "./discovery-card";
-import { PropertyCard } from "./property-card";
 import { eventPlaceHref, eventPlaces, properties } from "../data/site-data";
 import { hourlyPlaces, paidAttractions, providerProfiles, publicWorldNavigation, spaPlaces } from "../data/world-data";
 import { trails } from "../data/trail-data";
 import { TrailCard } from "./trail-card";
 import { PinIcon } from "../site-header";
 import { useSiteLanguage } from "../i18n/locale-provider";
+import { HomeLiveDeals } from "./home-live-deals";
 
 const vacationDestinations = [
   { label: "נופש בצפון", note: "גליל, גולן ונוף ירוק", href: "/vacations/north?guests=2", image: "/media/f18d7c0469633ca0.jpeg" },
@@ -78,7 +78,6 @@ export function HomeShowcase() {
   const tracks = useRef<Record<string, HTMLDivElement | null>>({});
   const { language } = useSiteLanguage();
   const worldCards = publicWorldNavigation.filter((world) => !["vacation", "events", "spa", "hourly"].includes(world.id));
-  const recommendedPlaces = properties.slice(0, 7);
   const featuredTours = properties.flatMap((property) => (property.videos || []).map((video) => ({ property, video }))).slice(0, 7);
   const topRatedPlaces = [...spaPlaces].filter((item) => item.rating).sort((first, second) => (second.rating || 0) - (first.rating || 0)).slice(0, 7);
 
@@ -94,11 +93,7 @@ export function HomeShowcase() {
   }
 
   return <>
-    <section className="section home-recommended" aria-labelledby="home-recommended-title">
-      <div className="shell"><div className="section-head"><div><h2 id="home-recommended-title">מקומות נופש</h2><p>מקומות מתוך קטלוג הספק.</p></div><div><Link href="/search">לכל המקומות</Link><SliderControls label="מקומות נופש" onPrevious={() => scroll("recommended", "previous")} onNext={() => scroll("recommended", "next")} /></div></div>
-        <div className="home-slider__track home-slider__track--properties" data-horizontal-rail ref={(node) => { tracks.current.recommended = node; }}>{recommendedPlaces.map((property) => <div className="home-slider__item" key={property.slug}><PropertyCard property={property} promotional /></div>)}</div>
-      </div>
-    </section>
+    <HomeLiveDeals />
 
     <section className="section home-vacation-discovery" aria-labelledby="vacation-discovery-title">
       <div className="shell">

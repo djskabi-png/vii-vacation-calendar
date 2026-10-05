@@ -18,12 +18,18 @@ test("homepage discovery uses complete card compositions", async () => {
   assert.match(component, /src=\{place.image\}/);
 });
 
-test("supplier homepage contains factual discovery without unsupported offers or taxonomy", async () => {
-  const source = await readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8");
-  assert.match(source, /properties.slice\(0, 7\)/);
-  assert.match(source, /PropertyCard property=\{property\}/);
-  assert.match(source, /properties.find/);
-  assert.doesNotMatch(source, /nightlyPrice|lastMinuteHref|selectDealPeriod|home-vacation-card--style/);
+test("supplier homepage searches live dates without unsupported static offers", async () => {
+  const [showcase, deals, route] = await Promise.all([
+    readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/home-live-deals.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/vii/home-deals/route.ts", import.meta.url), "utf8"),
+  ]);
+  assert.match(showcase, /<HomeLiveDeals \/>/);
+  assert.match(showcase, /properties.find/);
+  assert.match(deals, /fetch\(`\/api\/vii\/home-deals\?period=\$\{period\}`/);
+  assert.match(deals, /data\.deals\.map/);
+  assert.match(route, /SERGEY_VII_API_TOKEN/);
+  assert.doesNotMatch(showcase, /nightlyPrice|lastMinuteHref|selectDealPeriod|home-vacation-card--style/);
 });
 
 test("homepage period offers preserve the verified legacy dates and prices", async () => {

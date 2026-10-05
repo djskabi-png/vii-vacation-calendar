@@ -26,8 +26,10 @@ test("gallery updates accessible image context and supports touch swiping", () =
   assert.match(card, /setTimeout\(\(\) => \{ didSwipe\.current = false/);
 });
 
-test("home recommendations and search results both use the shared gallery card", () => {
-  assert.match(home, /<PropertyCard property=\{property\} promotional/);
+test("live home deals and search results keep their respective card interactions", async () => {
+  const liveHome = await readFile(new URL("../app/components/home-live-deals.tsx", import.meta.url), "utf8");
+  assert.match(home, /<HomeLiveDeals \/>/);
+  assert.match(liveHome, /home-live-deals__card/);
   assert.match(search, /<PropertyCard key=\{property\.slug\} property=\{property\}/);
   assert.match(css, /\.stay-card__gallery-arrow:focus-visible/);
   assert.match(css, /@media \(hover: none\), \(max-width: 820px\)/);
