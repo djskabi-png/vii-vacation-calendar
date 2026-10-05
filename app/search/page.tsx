@@ -73,6 +73,9 @@ const legacyAccommodationTypes = [
   { label: "אוהלים אינדיאנים", matches: ["אוהל אינדיאני", "אוהלים אינדיאנים"] },
 ] as const;
 
+const supplierTypeFilterAvailable = properties.some((property) => property.type !== "מקום אירוח");
+const supplierPriceFilterAvailable = properties.some((property) => typeof property.price === "number");
+
 function normalizeAccommodationType(value: string) {
   const option = legacyAccommodationTypes.find((item) => item.label === value || item.matches.some((match) => match === value));
   return option?.label || value;
@@ -158,7 +161,7 @@ const VACATION_PRICE_MIN = 0;
 const VACATION_PRICE_MAX = Math.max(5000, ...properties.map((property) => property.price || 0));
 const VACATION_SORT_VALUES = ["recommended", "price-asc", "price-desc", "rating-desc", "rating-asc", "capacity", "units", "name"] as const;
 const vacationSortOptions = [
-  { value: "recommended", label: "מומלצים" },
+  { value: "recommended", label: "סדר הקטלוג" },
   { value: "price-asc", label: "מחיר מהנמוך לגבוה" },
   { value: "price-desc", label: "מחיר מהגבוה לנמוך" },
   { value: "rating-desc", label: "דירוג מהגבוה לנמוך" },
@@ -312,7 +315,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const landingType = normalizedLandingType(landing);
   const [sort, setSort] = useState("recommended");
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [filterSection, setFilterSection] = useState<"types" | "more">("types");
+  const [filterSection, setFilterSection] = useState<"types" | "more">(supplierTypeFilterAvailable ? "types" : "more");
   const { mapOpen, openMap, closeMap } = useMapViewState();
   const { viewMode, setViewMode } = useResultsViewMode("vacation");
   const [area, setArea] = useState(landing?.area || "הכל");
@@ -755,7 +758,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
             <div className="filter-panel__scroll">
               <div className="filter-head"><h2>סינון תוצאות</h2><button type="button" onClick={closeFiltersPanel} aria-label="סגירה"><CloseIcon /></button></div>
               <div className="vacation-filter-sections" aria-label="קטגוריות סינון">
-                <button type="button" className={filterSection === "types" ? "active" : ""} aria-pressed={filterSection === "types"} onClick={() => setFilterSection("types")}>סוגי אירוח</button>
+                {supplierTypeFilterAvailable ? <button type="button" className={filterSection === "types" ? "active" : ""} aria-pressed={filterSection === "types"} onClick={() => setFilterSection("types")}>סוגי אירוח</button> : null}
                 <button type="button" className={filterSection === "more" ? "active" : ""} aria-pressed={filterSection === "more"} onClick={() => setFilterSection("more")}>סינונים נוספים</button>
               </div>
               <div className="filter-panel__mobile-sort">
@@ -763,7 +766,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
               </div>
               {mapOpen && <div className="map-filter-status" aria-live="polite"><PinIcon /><span>האזור שמוצג במפה</span><strong>{area === "הכל" ? "כל הארץ" : area}</strong></div>}
               {filterSection === "types" ? <fieldset className="vacation-type-options"><legend>סוגי אירוח, אפשר לבחור כמה אפשרויות</legend>{legacyAccommodationTypes.map((item) => <label key={item.label}><input type="checkbox" checked={shownFilters.selectedTypes.includes(item.label)} onChange={() => toggleType(item.label)} /> {item.label}</label>)}</fieldset> : <div className="vacation-more-filters">
-                <fieldset className="vacation-price-filter">
+                {supplierPriceFilterAvailable ? <fieldset className="vacation-price-filter">
                   <legend>מחיר ללילה</legend>
                   <p>בחרו את המחיר הנמוך והגבוה שמתאים לכם.</p>
                   <output className="vacation-price-filter__summary" aria-live="polite"><span>מ־<bdi>{shownFilters.minPrice.toLocaleString("he-IL")}</bdi> ₪</span><i aria-hidden="true">עד</i><span><bdi>{shownFilters.maxPrice.toLocaleString("he-IL")}</bdi> ₪</span></output>
@@ -772,7 +775,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
                     <span aria-hidden="true">עד</span>
                     <label><span>מחיר מקסימלי</span><VacationPriceInput value={shownFilters.maxPrice} minimum={shownFilters.minPrice} maximum={VACATION_PRICE_MAX} emptyValue={VACATION_PRICE_MAX} ariaLabel="מחיר מקסימום בשקלים" onValueChange={(nextValue) => changePriceRange(shownFilters.minPrice, nextValue)} /></label>
                   </div>
-                </fieldset>
+                </fieldset> : null}
                 <div className="vacation-extra-groups">{legacyExtraFilterGroups.map((group) => <fieldset key={group.title}><legend>{group.title}</legend>{group.options.map((item) => <label key={item.id}><input type="checkbox" checked={shownFilters.selectedExtras.includes(item.id)} onChange={() => toggleExtraFilter(item.id)} /> {item.label}</label>)}</fieldset>)}</div>
               </div>}
             </div>
@@ -788,8 +791,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
             </section>
             <nav className="search-quick-filters" aria-label="סינון מהיר">
               <button type="button" className={activeFilters.length ? "primary-filter active" : "primary-filter"} onClick={() => openFiltersPanel()}><FilterControlIcon /><span>מסננים</span>{activeFilters.length ? <b>{activeFilters.length}</b> : null}</button>
-              <button type="button" className={selectedTypes.length ? "active" : ""} onClick={() => openFiltersPanel("types")}>סוג מקום</button>
-              <button type="button" className={minPrice > VACATION_PRICE_MIN || maxPrice < VACATION_PRICE_MAX ? "active" : ""} onClick={() => openFiltersPanel("more")}>טווח מחיר</button>
+              {supplierTypeFilterAvailable ? <button type="button" className={selectedTypes.length ? "active" : ""} onClick={() => openFiltersPanel("types")}>סוג מקום</button> : null}
+              {supplierPriceFilterAvailable ? <button type="button" className={minPrice > VACATION_PRICE_MIN || maxPrice < VACATION_PRICE_MAX ? "active" : ""} onClick={() => openFiltersPanel("more")}>טווח מחיר</button> : null}
               <button type="button" className={pool ? "active" : ""} aria-pressed={pool} onClick={() => changeBinaryFilter("pool", !pool)}>בריכה</button>
               <button type="button" className={spa ? "active" : ""} aria-pressed={spa} onClick={() => changeBinaryFilter("spa", !spa)}>ספא וג׳קוזי</button>
               <button type="button" className={whole ? "active" : ""} aria-pressed={whole} onClick={() => changeBinaryFilter("whole", !whole)}>מקום שלם</button>

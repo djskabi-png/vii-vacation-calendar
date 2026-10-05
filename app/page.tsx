@@ -23,7 +23,7 @@ export default function HomePage() {
             <h1>כל החופשה, במקום אחד</h1>
             <p>נופש, ספא, אירועים וכל מה שעושים מסביב.</p>
             <SearchBox showWorlds />
-            <div className="quick-links" aria-label="חיפושים מהירים"><span>חיפושים מהירים:</span><Link href="/villas" data-global-feedback="true" data-loading-label="פותחים וילות נופש...">וילות</Link><Link href="/search?feature=בריכה" data-global-feedback="true" data-loading-label="מחפשים מקומות עם בריכה...">עם בריכה</Link><Link href="/search?audience=משפחות" data-global-feedback="true" data-loading-label="מחפשים מקומות למשפחות...">למשפחות</Link><Link href="/vacations/north" data-global-feedback="true" data-loading-label="מחפשים נופש בצפון...">בצפון</Link></div>
+            <div className="quick-links" aria-label="חיפושים מהירים"><span>חיפושים מהירים:</span><Link href="/search" data-global-feedback="true" data-loading-label="פותחים מקומות נופש...">מקומות נופש</Link><Link href="/search?feature=בריכה" data-global-feedback="true" data-loading-label="מחפשים מקומות עם בריכה...">עם בריכה</Link><Link href="/events/search" data-global-feedback="true" data-loading-label="מחפשים מקומות לאירועים...">אירועים</Link><Link href="/vacations/north" data-global-feedback="true" data-loading-label="מחפשים נופש בצפון...">בצפון</Link></div>
           </div>
           <div className="hero-orb hero-orb--one" /><div className="hero-orb hero-orb--two" />
         </section>
@@ -40,8 +40,8 @@ export default function HomePage() {
         </section>
 
         <section className="section shell why-section home-page-section" aria-labelledby="why-title">
-          <div><span className="eyebrow">פשוט לבחור נכון</span><h2 id="why-title">כל המידע, בלי ללכת לאיבוד</h2><p>החיפוש, הזמינות, פרטי המקום והמדיניות נמצאים במסלול אחד ברור, בכל מסך ובכל מכשיר.</p><Link className="button primary" href="/search">מתחילים לחפש</Link></div>
-          <div className="benefit-grid"><article><b>01</b><h3>חיפוש מדויק</h3><p>מסננים לפי אזור, תאריך, הרכב ומאפיינים.</p></article><article><b>02</b><h3>תמונה מלאה</h3><p>רואים מה כלול, למי המקום מתאים ומה זמין.</p></article><article><b>03</b><h3>בחירה רגועה</h3><p>שומרים מקומות ומשווים בקצב שלכם.</p></article></div>
+          <div><span className="eyebrow">פשוט לבחור נכון</span><h2 id="why-title">פרטי המקום, בלי ללכת לאיבוד</h2><p>מחפשים מקום לפי אזור ומאפיינים, רואים את הפרטים שהתקבלו מהספק, ומבררים מחיר וזמינות לפני הזמנה.</p><Link className="button primary" href="/search">מתחילים לחפש</Link></div>
+          <div className="benefit-grid"><article><b>01</b><h3>חיפוש ממוקד</h3><p>מסננים לפי אזור, הרכב ומאפיינים שקיימים בנתוני הספק.</p></article><article><b>02</b><h3>מידע על המקום</h3><p>רואים תמונות, מתקנים ופרטי אירוח שהתקבלו מהספק.</p></article><article><b>03</b><h3>בדיקה לפני הזמנה</h3><p>מבררים תאריך, מחיר ותנאים לפני שמתחייבים.</p></article></div>
         </section>
 
         <section className="section home-magazine" aria-labelledby="home-magazine-title">

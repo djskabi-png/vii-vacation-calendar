@@ -3,7 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useRef } from "react";
 import { DiscoveryCard } from "./discovery-card";
 import { PropertyCard } from "./property-card";
 import { eventPlaceHref, eventPlaces, properties } from "../data/site-data";
@@ -12,13 +12,6 @@ import { trails } from "../data/trail-data";
 import { TrailCard } from "./trail-card";
 import { PinIcon } from "../site-header";
 import { useSiteLanguage } from "../i18n/locale-provider";
-import { lastMinutePeriods } from "../data/last-minute-deals";
-
-function pickProperties(...slugs: string[]) {
-  return slugs
-    .map((slug) => properties.find((property) => property.slug === slug))
-    .filter((property): property is (typeof properties)[number] => Boolean(property));
-}
 
 const vacationDestinations = [
   { label: "נופש בצפון", note: "גליל, גולן ונוף ירוק", href: "/vacations/north?guests=2", image: "/media/f18d7c0469633ca0.jpeg" },
@@ -29,29 +22,15 @@ const vacationDestinations = [
   { label: "נופש באילת", note: "שמש, ים ומקומות שלמים", href: "/vacations/eilat?guests=2", image: "/media/322de460abbda5c6.jpg" },
 ] as const;
 
-const popularVacationSearches = [
-  { label: "נופש למשפחה עם בריכה מחוממת", note: "מקומות שמתאימים לארבעה אורחים ומעלה", href: "/search?location=כל הארץ&guests=4&pool=1", image: "/media/cf58dc69af40c772.jpg" },
-  { label: "נופש לזוג עם בריכה פרטית", note: "חופשה שקטה לשניים", href: "/search?location=כל הארץ&guests=2&pool=1", image: "/media/69e3820a7e10bc39.jpeg" },
-  { label: "נופש עם ג׳קוזי וספא", note: "רוגע ופינוק בתוך מקום האירוח", href: "/search?location=כל הארץ&guests=2&spa=1", image: "/media/f18d7c0469633ca0.jpeg" },
-  { label: "מקום שלם למשפחה", note: "פרטיות מלאה ומרחב משותף", href: "/search?location=כל הארץ&guests=4&whole=1", image: "/media/978e5fd5134b0831.jpeg" },
-  { label: "נופש בצפון למשפחות", note: "מקומות מרווחים לארבעה אורחים ומעלה", href: "/search?location=צפון&guests=4", image: "/media/verified/vacation/vacation-villa-circle-1.jpg" },
-  { label: "חופשה לקבוצה גדולה", note: "מתחמים שמתאימים ל־12 אורחים ומעלה", href: "/search?location=כל הארץ&guests=12", image: "/media/bc85b10f1d64d6db.jpeg" },
-] as const;
+const destinationMatchers = [
+  (area: string, location: string) => /גליל|גולן/.test(area) && location !== "",
+  (area: string) => /כנרת/.test(area),
+  (area: string) => /ירושלים|יהודה/.test(area),
+  (area: string) => /מישור החוף|שרון|מרכז/.test(area),
+  (area: string) => /נגב|דרום|ערבה/.test(area),
+  (_area: string, location: string) => location === "אילת",
+];
 
-const accommodationStyles = [
-  { label: "וילות נופש", note: "בית שלם, פרטיות ומרחב", href: "/villas", image: "/media/322de460abbda5c6.jpg" },
-  { label: "מתחמי סוויטות", note: "כמה יחידות סביב מתחם משותף", href: "/search?location=כל הארץ&type=מתחם סוויטות&guests=2", image: "/media/9a403cb4d9d1cbde.jpg" },
-  { label: "סוויטות יוקרה", note: "עיצוב מוקפד וחופשה מפנקת", href: "/search?location=כל הארץ&type=סוויטות יוקרה&guests=2", image: "/media/f18d7c0469633ca0.jpeg" },
-  { label: "מתחמי נופש", note: "אפשרויות אירוח לקבוצות ומשפחות", href: "/search?location=כל הארץ&type=מתחם נופש&guests=4", image: "/media/verified/vacation/vacation-como-boutique-1.jpeg" },
-  { label: "אירוח רומנטי לזוגות", note: "מקומות אינטימיים לחופשה בשניים", href: "/search?location=כל הארץ&guests=2", image: "/media/231b0e706cc61cc1.jpg" },
-  { label: "אירוח למשפחות", note: "מרחב, בריכה וחדרים לכולם", href: "/search?location=כל הארץ&guests=5", image: "/media/cf58dc69af40c772.jpg" },
-] as const;
-
-function lastMinuteHref(period: (typeof lastMinutePeriods)[number]) {
-  return `/search?period=${encodeURIComponent(period.id)}&from=${period.from}&till=${period.till}&guests=2`;
-}
-
-type DealPeriod = (typeof lastMinutePeriods)[number];
 
 function SliderControls({ onPrevious, onNext, label }: { onPrevious: () => void; onNext: () => void; label: string }) {
   return <div className="home-slider__controls" aria-label={`דפדוף ${label}`}><button type="button" onClick={onPrevious} aria-label={`הקודם, ${label}`}>הקודם</button><button type="button" onClick={onNext} aria-label={`הבא, ${label}`}>הבא</button></div>;
@@ -97,29 +76,11 @@ const ratingCardCopy = {
 
 export function HomeShowcase() {
   const tracks = useRef<Record<string, HTMLDivElement | null>>({});
-  const pendingDealFocus = useRef<{ groupId: string; periodId: string } | null>(null);
   const { language } = useSiteLanguage();
   const worldCards = publicWorldNavigation.filter((world) => !["vacation", "events", "spa", "hourly"].includes(world.id));
-  const recommendedPlaces = pickProperties("aqua-resort", "kesem-harimon", "ahuzat-or", "anael-estate", "magic-garden-gefen", "perfumes-villa", "rose-estate");
-  const immediatePeriod = lastMinutePeriods.find((period) => period.group === "immediate")!;
-  const upcomingPeriod = lastMinutePeriods.find((period) => period.group === "upcoming")!;
-  const dealGroups = [
-    { id: "last-minute-deals", title: "דילים ברגע האחרון", period: immediatePeriod, periods: lastMinutePeriods.filter((period) => period.group === "immediate") },
-    { id: "popular-periods", title: "דילים לתקופות מבוקשות", period: upcomingPeriod, periods: lastMinutePeriods.filter((period) => period.group === "upcoming") },
-  ];
-  const [activeDealPeriods, setActiveDealPeriods] = useState<Record<string, string>>({
-    "last-minute-deals": immediatePeriod.id,
-    "popular-periods": upcomingPeriod.id,
-  });
+  const recommendedPlaces = properties.slice(0, 7);
   const featuredTours = properties.flatMap((property) => (property.videos || []).map((video) => ({ property, video }))).slice(0, 7);
   const topRatedPlaces = [...spaPlaces].filter((item) => item.rating).sort((first, second) => (second.rating || 0) - (first.rating || 0)).slice(0, 7);
-
-  useEffect(() => {
-    const pending = pendingDealFocus.current;
-    if (!pending) return;
-    pendingDealFocus.current = null;
-    document.getElementById(`${pending.groupId}-${pending.periodId}-tab`)?.focus();
-  }, [activeDealPeriods]);
 
   function scroll(id: string, direction: "previous" | "next") {
     const track = tracks.current[id];
@@ -132,50 +93,10 @@ export function HomeShowcase() {
     track.scrollBy({ left: direction === "next" ? forward : -forward, behavior: "smooth" });
   }
 
-  function selectDealPeriod(groupId: string, periodId: string) {
-    setActiveDealPeriods((current) => ({ ...current, [groupId]: periodId }));
-    const track = tracks.current[groupId];
-    if (!track) return;
-    track.scrollTo({ left: 0, behavior: "smooth" });
-  }
-
-  function handleDealPeriodKeyDown(event: KeyboardEvent<HTMLButtonElement>, groupId: string, periods: DealPeriod[], index: number) {
-    let nextIndex: number | null = null;
-    if (event.key === "Home") nextIndex = 0;
-    if (event.key === "End") nextIndex = periods.length - 1;
-    if (event.key === "ArrowRight") nextIndex = (index - 1 + periods.length) % periods.length;
-    if (event.key === "ArrowLeft") nextIndex = (index + 1) % periods.length;
-    if (nextIndex === null) return;
-
-    event.preventDefault();
-    const nextPeriod = periods[nextIndex];
-    pendingDealFocus.current = { groupId, periodId: nextPeriod.id };
-    selectDealPeriod(groupId, nextPeriod.id);
-  }
-
   return <>
     <section className="section home-recommended" aria-labelledby="home-recommended-title">
-      <div className="shell"><div className="section-head"><div><span className="eyebrow">המקומות שעושים חשק לארוז</span><h2 id="home-recommended-title">מומלצים שכדאי להכיר</h2><p>מקומות אמיתיים מתוך האתר, עם חדרים, מתקנים וכל המידע שצריך לפני שבוחרים.</p></div><div><Link href="/search">לכל המקומות</Link><SliderControls label="מקומות מומלצים" onPrevious={() => scroll("recommended", "previous")} onNext={() => scroll("recommended", "next")} /></div></div>
+      <div className="shell"><div className="section-head"><div><h2 id="home-recommended-title">מקומות נופש</h2><p>מקומות מתוך קטלוג הספק.</p></div><div><Link href="/search">לכל המקומות</Link><SliderControls label="מקומות נופש" onPrevious={() => scroll("recommended", "previous")} onNext={() => scroll("recommended", "next")} /></div></div>
         <div className="home-slider__track home-slider__track--properties" data-horizontal-rail ref={(node) => { tracks.current.recommended = node; }}>{recommendedPlaces.map((property) => <div className="home-slider__item" key={property.slug}><PropertyCard property={property} promotional /></div>)}</div>
-      </div>
-    </section>
-
-    <section className="section home-last-minute" aria-labelledby="last-minute-title">
-      <div className="shell">
-        <div className="home-last-minute__intro"><span className="eyebrow">הזמינות הקרובה באתר</span><h2 id="last-minute-title">כל הדילים במקום אחד</h2></div>
-        {dealGroups.map((group) => {
-          const activePeriod = group.periods.find((period) => period.id === activeDealPeriods[group.id]) ?? group.period;
-          const panelId = `${group.id}-cards`;
-          return <section className="home-last-minute__slider" key={group.id} aria-labelledby={`${group.id}-title`}>
-          <div className="home-last-minute__slider-head"><div><h3 id={`${group.id}-title`}>{group.title}</h3><div className="home-last-minute__tabs" role="tablist" aria-label={group.title}>{group.periods.map((period, index) => <button key={period.id} type="button" role="tab" id={`${group.id}-${period.id}-tab`} aria-selected={period.id === activePeriod.id} aria-controls={panelId} className={period.id === activePeriod.id ? "is-active" : undefined} onClick={() => selectDealPeriod(group.id, period.id)} onKeyDown={(event) => handleDealPeriodKeyDown(event, group.id, group.periods, index)}>{period.label}</button>)}</div></div><div><Link href={lastMinuteHref(activePeriod)}>{activePeriod.cta}</Link><SliderControls label={group.title} onPrevious={() => scroll(group.id, "previous")} onNext={() => scroll(group.id, "next")} /></div></div>
-          <div id={panelId} className="home-last-minute__cards" role="tabpanel" aria-labelledby={`${group.id}-${activePeriod.id}-tab`} data-horizontal-rail ref={(node) => { tracks.current[group.id] = node; }}>{activePeriod.offers.map((offer) => {
-            const property = properties.find((candidate) => candidate.slug === offer.slug);
-            if (!property) return null;
-            const detailHref = `/business?id=${property.slug}&period=${encodeURIComponent(activePeriod.id)}&from=${offer.from}&till=${offer.till}&guests=2&price=${offer.nightlyPrice}`;
-            return <Link key={`${activePeriod.id}-${property.slug}`} href={detailHref}><img src={property.image} alt={property.name} title={property.name} loading="lazy" decoding="async" /><span>{activePeriod.label}</span><div><small><PinIcon />{property.location}</small><h3>{property.name}</h3><div className="home-last-minute__deal"><b>פנוי, {offer.dateSummary}</b><strong><span>{offer.nightlyPrice.toLocaleString("he-IL")} ₪</span><small>ללילה</small></strong></div></div></Link>;
-          })}</div>
-        </section>;
-        })}
       </div>
     </section>
 
@@ -190,29 +111,19 @@ export function HomeShowcase() {
         <div className="home-vacation-strip">
           <div className="home-vacation-strip__head"><div><span>לפי אזור</span><h3>יעדים מומלצים לנופש</h3></div><SliderControls label="יעדי נופש" onPrevious={() => scroll("destinations", "previous")} onNext={() => scroll("destinations", "next")} /></div>
           <div className="home-vacation-strip__track home-vacation-strip__track--destinations" data-horizontal-rail ref={(node) => { tracks.current.destinations = node; }}>
-            {vacationDestinations.map((item) => <Link className="home-vacation-card home-vacation-card--destination home-slider__item" href={item.href} key={item.label}><img src={item.image} alt="" loading="lazy" decoding="async" /><div><span>יעד מומלץ</span><h4>{item.label}</h4><p>{item.note}</p><b>לכל המקומות באזור</b></div></Link>)}
+            {vacationDestinations.map((item, index) => {
+              const place = properties.find((candidate) => destinationMatchers[index](candidate.area, candidate.location));
+              return place ? <Link className="home-vacation-card home-vacation-card--destination home-slider__item" href={item.href} key={item.label}><img src={place.image} alt="" loading="lazy" decoding="async" /><div><span>יעד מומלץ</span><h4>{item.label}</h4><p>{item.note}</p><b>לכל המקומות באזור</b></div></Link> : null;
+            })}
           </div>
         </div>
 
-        <div className="home-vacation-strip">
-          <div className="home-vacation-strip__head"><div><span>לפי מה שחשוב בחופשה</span><h3>חיפושים נפוצים</h3></div><SliderControls label="חיפושים נפוצים" onPrevious={() => scroll("popular-searches", "previous")} onNext={() => scroll("popular-searches", "next")} /></div>
-          <div className="home-vacation-strip__track" data-horizontal-rail ref={(node) => { tracks.current["popular-searches"] = node; }}>
-            {popularVacationSearches.map((item, index) => <Link className="home-vacation-card home-vacation-card--search home-slider__item" href={item.href} key={item.label}><span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><div><small>חיפוש פופולרי</small><h4>{item.label}</h4><p>{item.note}</p><b>לצפייה במקומות</b></div></Link>)}
-          </div>
-        </div>
-
-        <div className="home-vacation-strip">
-          <div className="home-vacation-strip__head"><div><span>סוגים וסגנונות אירוח</span><h3>מה אתם מחפשים?</h3></div><SliderControls label="סוגי אירוח" onPrevious={() => scroll("stay-types", "previous")} onNext={() => scroll("stay-types", "next")} /></div>
-          <div className="home-vacation-strip__track" data-horizontal-rail ref={(node) => { tracks.current["stay-types"] = node; }}>
-            {accommodationStyles.map((item) => <Link className="home-vacation-card home-vacation-card--style home-slider__item" href={item.href} key={item.label}><img src={item.image} alt="" loading="lazy" decoding="async" /><div><span>סגנון אירוח</span><h4>{item.label}</h4><p>{item.note}</p><b>לכל המקומות</b></div></Link>)}
-          </div>
-        </div>
       </div>
     </section>
 
-    <section className="section home-trust-discovery" aria-labelledby="home-tours-title">
+    <section className="section home-trust-discovery" aria-labelledby={featuredTours.length ? "home-tours-title" : "home-ratings-title"}>
       <div className="shell">
-        <div className="home-trust-strip">
+        {featuredTours.length ? <div className="home-trust-strip">
           <div className="home-vacation-strip__head"><div><span>רואים לפני שבוחרים</span><h2 id="home-tours-title">סרטונים מובילים</h2></div><SliderControls label="סרטונים מובילים" onPrevious={() => scroll("tours", "previous")} onNext={() => scroll("tours", "next")} /></div>
           <div className="home-slider__track home-slider__track--trust" data-horizontal-rail ref={(node) => { tracks.current.tours = node; }}>
             {featuredTours.map(({ property, video }) => <article className="home-tour-card home-slider__item" key={`${property.slug}-${video.src}`}>
@@ -220,7 +131,7 @@ export function HomeShowcase() {
               <div><span>{property.location}</span><h3>{property.name}</h3><p>{video.note}</p><Link href={`/business?id=${property.slug}`}>לפרטי המקום</Link></div>
             </article>)}
           </div>
-        </div>
+        </div> : null}
 
         <div className="home-trust-strip">
           <div className="home-vacation-strip__head"><div><span>דירוגים ממקור המידע של המקום</span><h2 id="home-ratings-title">חוות דעת מובילות</h2></div><SliderControls label="חוות דעת מובילות" onPrevious={() => scroll("ratings", "previous")} onNext={() => scroll("ratings", "next")} /></div>
@@ -243,8 +154,8 @@ export function HomeShowcase() {
     <section className="home-events-world" aria-labelledby="home-events-title">
       <div className="shell home-events-world__head"><div><span className="eyebrow">עולם האירועים</span><h2 id="home-events-title">כל סיבה טובה הופכת כאן לאירוע</h2><p>לופטים ומתחמים לימי הולדת, מסיבות, אירועי חברה וחגיגות פרטיות, עם חיפוש לפי כמות ואופי האירוע.</p></div><Link className="button" href="/events">נכנסים לעולם האירועים</Link></div>
       <div className="shell home-events-world__layout">
-        <Link className="home-event-feature" href={eventPlaceHref(eventPlaces[3])}><img src={eventPlaces[3].image} alt={eventPlaces[3].name} title={eventPlaces[3].name} loading="lazy" decoding="async" /><span>{eventPlaces[3].type}</span><div><small><PinIcon />{eventPlaces[3].location}</small><h3>{eventPlaces[3].name}</h3><p>{eventPlaces[3].description}</p><b>עד {eventPlaces[3].guests} אורחים</b></div></Link>
-        <div className="home-event-list">{eventPlaces.filter((place) => ![eventPlaces[0].slug,eventPlaces[3].slug].includes(place.slug)).slice(0,4).map((place) => <Link key={place.slug} href={eventPlaceHref(place)}><img src={place.image} alt={place.name} title={place.name} loading="lazy" decoding="async" /><div><span>{place.type}</span><h3>{place.name}</h3><small>{place.location}, עד {place.guests} אורחים</small></div></Link>)}</div>
+        <Link className="home-event-feature" href={eventPlaceHref(eventPlaces[3])}><img src={eventPlaces[3].image} alt={eventPlaces[3].name} title={eventPlaces[3].name} loading="lazy" decoding="async" /><span>{eventPlaces[3].type}</span><div><small><PinIcon />{eventPlaces[3].location}</small><h3>{eventPlaces[3].name}</h3>{eventPlaces[3].description ? <p>{eventPlaces[3].description}</p> : null}<b>עד {eventPlaces[3].guests} אורחים ביחידה הגדולה</b></div></Link>
+        <div className="home-event-list">{eventPlaces.filter((place) => ![eventPlaces[0].slug,eventPlaces[3].slug].includes(place.slug)).slice(0,4).map((place) => <Link key={place.slug} href={eventPlaceHref(place)}><img src={place.image} alt={place.name} title={place.name} loading="lazy" decoding="async" /><div><span>{place.type}</span><h3>{place.name}</h3><small>{place.location}, עד {place.guests} אורחים ביחידה הגדולה</small></div></Link>)}</div>
       </div>
     </section>
 

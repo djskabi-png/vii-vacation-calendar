@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { StructuredData } from "./structured-data";
 import { SearchExperience } from "../search/page";
 import { accommodationLandingForPath, type AccommodationCategoryId } from "../data/accommodation-landings";
@@ -26,6 +26,7 @@ export function accommodationLandingMetadata(categoryId: AccommodationCategoryId
 export function AccommodationLandingRoute({ categoryId, regionSlug }: { categoryId: AccommodationCategoryId; regionSlug?: string | null }) {
   const landing = accommodationLandingForPath(categoryId, regionSlug);
   if (!landing) notFound();
+  if (!landing.listings.length) redirect("/search");
 
   const breadcrumbs = [
     { name: "ראשי", path: "/" },

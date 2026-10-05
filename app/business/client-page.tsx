@@ -300,7 +300,7 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
         <div className={`shell property-layout ${activeWorld === "vacation" ? "property-layout--vacation" : ""}`}>
           <div className="property-content">
             <section className="property-facts" aria-label="עיקרי המקום">
-              <div><b>{property.guests}</b><span>אורחים לכל היותר</span></div>
+              <div><b>{property.guests}</b><span>{property.capacityScope === "unit" ? "אורחים ביחידה הגדולה" : "אורחים לכל היותר"}</span></div>
               {property.bedrooms && <div><b>{property.bedrooms}</b><span>חדרי שינה</span></div>}
               {property.scenario === "multi" && property.units ? <div><b>{property.units}</b><span>יחידות אירוח</span></div> : <div><b>שלם</b><span>המקום כולו</span></div>}
               <div><b>{property.features.length}</b><span>מאפיינים מרכזיים</span></div>

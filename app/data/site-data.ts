@@ -1,4 +1,5 @@
 import verifiedCatalog from "./verified-catalog.json";
+import sergeyPublicCatalog from "./sergey-public-catalog.json";
 import { legacyVacationProfiles, type LegacyReview } from "./legacy-vacation-profiles";
 
 export type Listing = {
@@ -11,6 +12,7 @@ export type Listing = {
   type: string;
   units?: number;
   guests: number;
+  capacityScope?: "unit";
   bedrooms?: number;
   image: string;
   images: string[];
@@ -190,9 +192,9 @@ const hilatHanofDailyAvailability: ListingDailyAvailability[] = hilatHanofAvaila
 }));
 
 const commonVacationFaq = [
-  { question: "איך בודקים זמינות?", answer: "בוחרים תאריכים והרכב אורחים כדי לראות את האפשרויות המתאימות. האישור הסופי מתקבל מהמקום." },
-  { question: "האם המיקום במפה מדויק?", answer: "המפה מבוססת על נקודת המיקום שנמסרה עבור המקום. לפני ההגעה יוצגו פרטי הניווט המלאים." },
-  { question: "איפה רואים מחיר סופי?", answer: "המחיר הסופי תלוי בתאריכים, בהרכב האורחים וביחידה שנבחרה. לפני ההזמנה מקבלים מהמקום מחיר ותנאים מלאים." },
+  { question: "איך בודקים זמינות?", answer: "בוחרים תאריכים והרכב אורחים ושולחים בקשה למקום. הזמינות אינה מאושרת עד לקבלת תשובה מהמקום." },
+  { question: "האם המיקום במפה מדויק?", answer: "המפה מבוססת על נקודת המיקום שנמסרה בנתוני המקום. יש לאמת את פרטי ההגעה מול המקום לפני הנסיעה." },
+  { question: "איפה רואים מחיר סופי?", answer: "הקטלוג אינו מספק מחיר סופי לתאריכים ולהרכב שבחרתם. יש לקבל מהמקום מחיר ותנאים מלאים לפני אישור הזמנה." },
 ];
 
 export const propertyFaq = commonVacationFaq;
@@ -761,9 +763,8 @@ export function isPublicProperty(property: Property) {
     && !unavailablePropertyImages.has(property.image);
 }
 
-export const properties = [...propertyCatalog
-  .filter(isPublicProperty)
-  .sort((first, second) => activePropertyOrder.indexOf(first.slug) - activePropertyOrder.indexOf(second.slug)), ...verifiedProperties.filter(isPublicProperty)];
+export const properties: Property[] = sergeyPublicCatalog.places
+  .filter((place) => place.world === "vacations") as unknown as Property[];
 
 export type EventPlace = Listing & { eventTypes: string[]; sourcePropertySlug?: string };
 
@@ -880,11 +881,8 @@ const verifiedEventPlaces: EventPlace[] = verifiedCatalog.events.map((item) => (
   price: "price" in item && typeof item.price === "number" ? item.price : undefined,
 }));
 
-export const eventPlaces = [
-  ...eventPlaceCatalog.filter(isPublicProperty),
-  ...sharedEventPlaces.filter((shared) => isPublicProperty(shared) && !eventPlaceCatalog.some((place) => place.slug === shared.slug)),
-  ...verifiedEventPlaces.filter(isPublicProperty),
-];
+export const eventPlaces: EventPlace[] = sergeyPublicCatalog.places
+  .filter((place) => place.world === "events") as unknown as EventPlace[];
 
 export function eventPlaceHref(place: EventPlace) {
   return place.sourcePropertySlug
