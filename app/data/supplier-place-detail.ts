@@ -5,7 +5,7 @@ export type SupplierPlaceDetail = {
   summary: string;
   policy: { checkIn: string; checkOut: string; checkOutSat: string; remarks: string };
   rooms: Array<{ name: string; quantity: number; guests: number; bedrooms: number; features: string[] }>;
-  reviews: Array<{ id: number; author: string; title: string; text: string; date: string; score?: number }>;
+  reviews: Array<{ id: number; author: string; title: string; text: string; date: string; score?: number; response: string; pictureFiles: string[] }>;
   sourceUrl: string;
 };
 
