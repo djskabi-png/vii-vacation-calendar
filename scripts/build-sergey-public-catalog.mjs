@@ -94,13 +94,15 @@ const places = source.details.flatMap(({ world, supplierId, raw }) => {
       bedrooms: Number.isSafeInteger(room.bedrooms) && room.bedrooms > 0 ? room.bedrooms : 0,
       features: unique((room.spaces || []).flatMap((space) => (space.features || []).map((feature) => feature.description?.trim()))),
     })),
-    reviews: (raw.reviews?.list || []).filter((review) => typeof review.text === "string" && review.text.trim()).map((review) => ({
+    reviews: (raw.reviews?.list || []).filter((review) => Number.isSafeInteger(review.id) && (typeof review.text === "string" || typeof review.score === "number")).map((review) => ({
       id: review.id,
       author: typeof review.author === "string" ? review.author.trim() : "אורח",
       title: typeof review.title === "string" ? review.title.trim() : "",
-      text: review.text.trim(),
+      text: typeof review.text === "string" ? review.text.trim() : "",
       date: review.added || "",
       score: typeof review.score === "number" ? review.score : undefined,
+      response: typeof review.response === "string" ? review.response.trim() : "",
+      pictureFiles: Array.isArray(review.pictures) ? review.pictures.filter((picture) => typeof picture === "string" && /^[a-zA-Z0-9_.-]+\.(?:jpe?g|png|webp)$/i.test(picture)) : [],
     })),
     sourceUrl: raw.page_url,
   };

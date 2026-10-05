@@ -166,7 +166,9 @@ export function GuestReviewStudio({
         {supplierReviews.length ? <div className="review-experience__published" lang="he" dir="rtl">
           {supplierReviews.slice(0, visibleSupplierReviews).map((review) => <article className="review-card review-card--published" key={review.id}>
             <header><div><strong>{review.author}</strong>{review.score ? <span aria-label={`${review.score} מתוך 10`}>{review.score}/10</span> : null}</div>{/^\d{4}-\d{2}-\d{2}$/.test(review.date) ? <time dateTime={review.date}>{new Intl.DateTimeFormat("he-IL").format(new Date(`${review.date}T12:00:00`))}</time> : null}</header>
-            {review.title ? <strong>{review.title}</strong> : null}<p>{review.text}</p><footer>חוות דעת מארכיון VII</footer>
+            {review.title ? <strong>{review.title}</strong> : null}{review.text ? <p>{review.text}</p> : <p>דירוג ללא חוות דעת כתובה.</p>}
+            {review.response ? <div className="review-card__response"><strong>תגובת המקום</strong><p>{review.response}</p></div> : null}
+            <footer>חוות דעת מארכיון VII</footer>
           </article>)}
           {visibleSupplierReviews < supplierReviews.length ? <button className="button secondary" type="button" onClick={() => setVisibleSupplierReviews((count) => Math.min(count + 10, supplierReviews.length))}>עוד חוות דעת ({supplierReviews.length - visibleSupplierReviews})</button> : null}
         </div> : publishedReviews.length ? <div className="review-experience__published">
