@@ -1,0 +1,39 @@
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import { getHomeDeals, homeDealDates } from "../app/lib/vii-home-deals.ts";
+
+test("home deal periods follow Israel dates and the upcoming weekend", () => {
+  const monday = new Date("2026-10-05T12:00:00Z");
+  assert.deepEqual(homeDealDates("tomorrow", monday), { from: "2026-10-06", till: "2026-10-07", nights: 1 });
+  assert.deepEqual(homeDealDates("weekend", monday), { from: "2026-10-08", till: "2026-10-10", nights: 2 });
+  assert.deepEqual(homeDealDates("friday-weekend", monday), { from: "2026-10-09", till: "2026-10-11", nights: 2 });
+  assert.deepEqual(homeDealDates("tomorrow", new Date("2026-10-05T22:00:00Z")), { from: "2026-10-07", till: "2026-10-08", nights: 1 });
+});
+
+test("home deals use only supplier-confirmed availability and live totals", async () => {
+  const requested = [];
+  const fetchImpl = async (url, init) => {
+    assert.equal(init.headers.Authorization, "Bearer test-token");
+    requested.push({ url, init });
+    if (url.endsWith("/vacations")) return Response.json({ places: [
+      { siteID: 11, active: true, siteName: "הילת הנוף", galleries: [{ pictures: ["/gallery/hilat.jpg"] }] },
+      { siteID: 12, active: true, siteName: "לא פנוי", galleries: [{ pictures: ["/gallery/other.jpg"] }] },
+      { siteID: 13, active: true, siteName: "מחוץ לאתר", galleries: [{ pictures: ["/gallery/third.jpg"] }] },
+    ] });
+    assert.equal(init.method, "POST");
+    assert.deepEqual(JSON.parse(init.body), { from: "2026-10-06", nights: 1, rooms: [{ adults: 2 }] });
+    return Response.json({ created: "2026-10-05T20:00:00+03:00", sites: [
+      { siteID: 11, available: true, minTotal: 850, cheapest: { from: "2026-10-06", till: "2026-10-07" } },
+      { siteID: 12, available: false, minTotal: 700 },
+      { siteID: 13, available: true, minTotal: 900, cheapest: { from: "2026-10-06", till: "2026-10-07" } },
+    ] });
+  };
+  const result = await getHomeDeals({ period: "tomorrow", now: new Date("2026-10-05T12:00:00Z"), token: "test-token", publicSiteIds: new Set([11, 12]), fetchImpl });
+  assert.equal(requested.length, 2);
+  assert.deepEqual(result.deals, [{ siteID: 11, name: "הילת הנוף", image: "https://www.vii.co.il/gallery/hilat.jpg", from: "2026-10-06", till: "2026-10-07", total: 850, nights: 1 }]);
+});
+
+test("supplier failure is not replaced with invented deals", async () => {
+  await assert.rejects(getHomeDeals({ period: "tomorrow", token: "", publicSiteIds: new Set() }), /missing_token/);
+  await assert.rejects(getHomeDeals({ period: "tomorrow", token: "test-token", publicSiteIds: new Set(), fetchImpl: async () => new Response(null, { status: 503 }) }), /supplier_unavailable/);
+});

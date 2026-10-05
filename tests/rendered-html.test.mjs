@@ -622,7 +622,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(magazinePage, /quizOptions/);
   assert.match(articlePage, /reading-progress/);
   assert.match(articlePage, /vii-magazine-checklist/);
-  assert.match(homeShowcase, /מקומות נופש/);
+  assert.match(homeShowcase, /<HomeLiveDeals \/>/);
   assert.doesNotMatch(homeShowcase, /nightlyPrice/);
   assert.match(homeShowcase, /כל סיבה טובה הופכת כאן לאירוע/);
   assert.match(homeShowcase, /spaPlaces\.slice/);
@@ -1466,7 +1466,7 @@ test("vacation results heading stays concise without a redundant status eyebrow"
 
 test("homepage keeps factual vacation discovery before spa without unsupported offers", async () => {
   const source = await readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8");
-  const recommended = source.indexOf('className="section home-recommended"');
+  const recommended = source.indexOf("<HomeLiveDeals />");
   const discovery = source.indexOf('className="section home-vacation-discovery"');
   const spa = source.indexOf('className="section home-spa-strip"');
   assert.ok(recommended >= 0 && discovery > recommended && spa > discovery);
@@ -1476,14 +1476,16 @@ test("homepage keeps factual vacation discovery before spa without unsupported o
 });
 
 test("villa discovery uses a clean landing route and delayed navigation feedback", async () => {
-  const [home, showcase, feedback] = await Promise.all([
+  const [home, showcase, liveDeals, feedback] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/home-live-deals.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/global-action-feedback.tsx", import.meta.url), "utf8"),
   ]);
 
   assert.match(home, /href="\/search"[^>]*data-global-feedback="true"/);
-  assert.match(showcase, /href="\/search"/);
+  assert.match(showcase, /<HomeLiveDeals \/>/);
+  assert.match(liveDeals, /href="\/search"/);
   assert.match(feedback, /showIfStillWaiting\(element\.dataset\.loadingLabel[^,]*, 320\)/);
 });
 
