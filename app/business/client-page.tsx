@@ -35,6 +35,7 @@ import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { publishedLastMinuteDeal } from "../data/last-minute-deals";
 import { UnitDetailsDialog } from "../components/unit-details-dialog";
 import { PropertyGallery } from "../components/property-gallery";
+import type { SupplierPlaceDetail } from "../data/supplier-place-detail";
 
 function complementaryItems(area: string, location: string): DiscoveryItem[] {
   const query = `${area} ${location}`.toLocaleLowerCase("he");
@@ -145,7 +146,7 @@ function roomBookingHref(bookingQuery: string, index: number, nightlyPrice: numb
   params.set("price", String(nightlyPrice));
   return `/booking?${params.toString()}`;
 }
-export default function BusinessPage({ initialSlug, initialWorld = "vacation", initialDates, initialFrom, initialTill, initialGuests = "2", initialPrice, initialIllustrative = false, initialSource, initialPeriod }: { initialSlug: string; initialWorld?: BusinessWorld; initialDates?: string; initialFrom?: string; initialTill?: string; initialGuests?: string; initialRooms?: string; initialPrice?: string; initialIllustrative?: boolean; initialSource?: string; initialPeriod?: string }) {
+export default function BusinessPage({ initialSlug, supplierDetail, initialWorld = "vacation", initialDates, initialFrom, initialTill, initialGuests = "2", initialPrice, initialIllustrative = false, initialSource, initialPeriod }: { initialSlug: string; supplierDetail?: SupplierPlaceDetail; initialWorld?: BusinessWorld; initialDates?: string; initialFrom?: string; initialTill?: string; initialGuests?: string; initialRooms?: string; initialPrice?: string; initialIllustrative?: boolean; initialSource?: string; initialPeriod?: string }) {
   const { language, translate } = useSiteLanguage();
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [dates, setDates] = useState(initialDates || "");
@@ -162,7 +163,11 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [selectedRoomIndex, setSelectedRoomIndex] = useState<number | null>(null);
   const closeUnitDetails = useCallback(() => setSelectedRoomIndex(null), []);
-  const property = useMemo(() => properties.find((item) => item.slug === initialSlug) || properties[0], [initialSlug]);
+  const property = useMemo(() => {
+    const base = properties.find((item) => item.slug === initialSlug) || properties[0];
+    return supplierDetail ? { ...base, images: supplierDetail.images, description: supplierDetail.summary || base.description,
+      features: [...new Set([...base.features, ...supplierDetail.rooms.flatMap((room) => room.features)])] } : base;
+  }, [initialSlug, supplierDetail]);
   const offerings = useMemo(() => getListingOfferings(property), [property]);
   const [worldSelection, setWorldSelection] = useState<{ slug: string; world: BusinessWorld } | null>(null);
   const initialActiveWorld = offerings.some((offering) => offering.world === initialWorld) ? initialWorld : offerings[0].world;
@@ -397,7 +402,8 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
               <button className="button subtle feature-section__desktop-more" type="button" onClick={() => setAllFeaturesOpen(true)}>הצגת כל המתקנים</button>
             </section>
 
-            <GuestReviewStudio placeName={property.name} subjectId={property.slug} rating={property.score} reviewCount={property.reviews} publishedReviews={property.reviewHighlights} illustrative={property.reviewSource === "fictional-demo"} open={reviewOpen} onClose={() => setReviewOpen(false)} onOpenGallery={() => { setGalleryTopic(null); openGallery("guests", 0); }} />
+            {supplierDetail?.rooms.length ? <section className="supplier-rooms" aria-labelledby="supplier-rooms-title"><h2 id="supplier-rooms-title">יחידות לפי נתוני המקום</h2><div>{supplierDetail.rooms.map((room, index) => <article key={`${room.name}-${index}`}><h3>{room.name}</h3><p>{room.quantity} {room.quantity === 1 ? "יחידה" : "יחידות"} · עד {room.guests} אורחים ביחידה{room.bedrooms ? ` · ${room.bedrooms} חדרי שינה` : ""}</p>{room.features.length ? <div className="feature-list">{room.features.map((feature) => <span key={feature}>✓ {feature}</span>)}</div> : null}</article>)}</div></section> : null}
+            <GuestReviewStudio placeName={property.name} subjectId={property.slug} rating={property.score} reviewCount={property.reviews} publishedReviews={property.reviewHighlights} supplierReviews={supplierDetail?.reviews} illustrative={property.reviewSource === "fictional-demo"} open={reviewOpen} onClose={() => setReviewOpen(false)} onOpenGallery={() => { setGalleryTopic(null); openGallery("guests", 0); }} />
 
             <ListingAccessibility slug={property.slug} />
 
@@ -405,7 +411,7 @@ export default function BusinessPage({ initialSlug, initialWorld = "vacation", i
 
             <section id="faq" className="faq-section"><span className="eyebrow">כל מה שחשוב לפני שמזמינים</span><h2>שאלות ותשובות</h2>{propertyFaq.map((item, index) => <article key={item.question} className={openFaq === index ? "open" : ""}><button type="button" aria-expanded={openFaq === index} onClick={() => setOpenFaq(openFaq === index ? null : index)}><span>{item.question}</span><b>{openFaq === index ? "−" : "+"}</b></button>{openFaq === index && <p>{item.answer}</p>}</article>)}</section>
 
-            <section id="policies" className="policies-section"><h2>כללים ותנאי הזמנה</h2><div><article><b>צ׳ק-אין וצ׳ק-אאוט</b><p>השעות המדויקות נקבעות באישור ההזמנה מול מקום האירוח.</p></article><article><b>מחיר ותשלום</b><p>המחיר הסופי תלוי בתאריכים, בהרכב וביחידה שנבחרה.</p></article><article><b>ביטול ושינויים</b><p>תנאי הביטול נמסרים לפני אישור ההזמנה והתשלום.</p></article></div></section>
+            <section id="policies" className="policies-section"><h2>כללים ותנאי הזמנה</h2><div><article><b>צ׳ק-אין וצ׳ק-אאוט</b><p>{supplierDetail?.policy.checkIn ? `כניסה: ${supplierDetail.policy.checkIn.slice(0, 5)}` : "שעת הכניסה נקבעת באישור ההזמנה"}{supplierDetail?.policy.checkOut ? ` · עזיבה: ${supplierDetail.policy.checkOut.slice(0, 5)}` : ""}{supplierDetail?.policy.checkOutSat ? ` · עזיבה בשבת: ${supplierDetail.policy.checkOutSat.slice(0, 5)}` : ""}. יש לאשר את השעות מול המקום.</p></article><article><b>מחיר ותשלום</b><p>המחיר הסופי תלוי בתאריכים, בהרכב וביחידה שנבחרה.</p></article><article><b>ביטול ושינויים</b><p>{supplierDetail?.policy.remarks || "תנאי הביטול נמסרים לפני אישור ההזמנה והתשלום."}</p></article></div></section>
             {property.demoOperations?.fictional ? <section className="palumbo-practical" aria-labelledby="palumbo-practical-title"><span className="eyebrow">מידע מעשי</span><h2 id="palumbo-practical-title">כל מה שצריך לדעת לפני ההזמנה</h2><div><article><strong>15:00</strong><span>כניסה החל משעה זו</span></article><article><strong>11:00</strong><span>עזיבה עד שעה זו</span></article><article><strong>2 לילות</strong><span>מינימום להזמנה</span></article><article><strong>8 אורחים</strong><span>תפוסה מרבית</span></article></div></section> : null}
           </div>
 

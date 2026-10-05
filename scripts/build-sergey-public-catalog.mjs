@@ -1,14 +1,24 @@
-import { readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { gunzipSync } from "node:zlib";
+import { parseFragment } from "parse5";
+import { supplierDisplayDescription } from "../app/data/supplier-display-text.ts";
 
 const root = new URL("../", import.meta.url);
-const input = new URL("tmp/vii-sergey-stage-20261005/raw.json.gz", root);
+const input = process.env.VII_SERGEY_RAW_PATH || new URL("tmp/vii-sergey-stage-20261005/raw.json.gz", root);
 const output = new URL("app/data/sergey-public-catalog.json", root);
+const detailOutput = new URL("app/data/sergey-place-details.json", root);
 const report = new URL("tmp/vii-sergey-stage-20261005/public-catalog-report.json", root);
 const source = JSON.parse(gunzipSync(await readFile(input)));
 const cities = new Map(source.locations.cities.map((city) => [city.id, city]));
 const areas = new Map(source.locations.areas.map((area) => [area.id, area.title]));
 const rejected = [];
+const details = {};
+
+function plainText(html) {
+  if (typeof html !== "string") return "";
+  const walk = (node) => node.nodeName === "#text" ? node.value : (node.childNodes || []).map(walk).join(["p", "br", "li"].includes(node.nodeName) ? "\n" : " ");
+  return walk(parseFragment(html)).replace(/\u00a0/g, " ").replace(/[ \t]+/g, " ").replace(/\n\s*\n+/g, "\n\n").trim();
+}
 
 function imageUrl(value) {
   if (typeof value !== "string" || !value.startsWith("/gallery/")) return null;
@@ -67,11 +77,38 @@ const places = source.details.flatMap(({ world, supplierId, raw }) => {
     rejected.push({ world, supplierId, reason: "missing_name" });
     return [];
   }
+  const slug = `${world === "vacations" ? "vacation" : "event"}-${supplierId}`;
+  details[slug] = {
+    images,
+    summary: supplierDisplayDescription({ description: plainText(raw.summary), name, location: city.title, area: areas.get(city.area) || "" }),
+    policy: {
+      checkIn: raw.policy?.checkIn || "",
+      checkOut: raw.policy?.checkOut || "",
+      checkOutSat: raw.policy?.checkOutSat || "",
+      remarks: plainText(raw.policy?.remarks),
+    },
+    rooms: rooms.map((room) => ({
+      name: room.roomName?.trim() || "יחידת אירוח",
+      quantity: Number.isSafeInteger(room.roomCount) && room.roomCount > 0 ? room.roomCount : 1,
+      guests: Number.isSafeInteger(room.maxGuests) && room.maxGuests > 0 ? room.maxGuests : 0,
+      bedrooms: Number.isSafeInteger(room.bedrooms) && room.bedrooms > 0 ? room.bedrooms : 0,
+      features: unique((room.spaces || []).flatMap((space) => (space.features || []).map((feature) => feature.description?.trim()))),
+    })),
+    reviews: (raw.reviews?.list || []).filter((review) => typeof review.text === "string" && review.text.trim()).map((review) => ({
+      id: review.id,
+      author: typeof review.author === "string" ? review.author.trim() : "אורח",
+      title: typeof review.title === "string" ? review.title.trim() : "",
+      text: review.text.trim(),
+      date: review.added || "",
+      score: typeof review.score === "number" ? review.score : undefined,
+    })),
+    sourceUrl: raw.page_url,
+  };
   return [{
     supplierId,
     world,
     sourceUrl: raw.page_url,
-    slug: `${world === "vacations" ? "vacation" : "event"}-${supplierId}`,
+    slug,
     name,
     location: city.title,
     area: areas.get(city.area) || "",
@@ -96,7 +133,9 @@ const places = source.details.flatMap(({ world, supplierId, raw }) => {
 });
 
 const result = { source: "sergey-vii-api", fetchedAt: source.fetchedAt, places };
+await mkdir(new URL("tmp/vii-sergey-stage-20261005/", root), { recursive: true });
 await writeFile(output, `${JSON.stringify(result)}\n`);
+await writeFile(detailOutput, `${JSON.stringify({ source: "sergey-vii-api", fetchedAt: source.fetchedAt, details })}\n`);
 await writeFile(report, `${JSON.stringify({ fetchedAt: source.fetchedAt, accepted: {
   vacations: places.filter((place) => place.world === "vacations").length,
   events: places.filter((place) => place.world === "events").length,

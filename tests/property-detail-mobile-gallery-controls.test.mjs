@@ -23,7 +23,7 @@ test("place pages share mobile gallery arrows, position dots and touch navigatio
 });
 
 test("desktop gallery remains a five-image composition", () => {
-  assert.match(gallery, /index >= 5 \? " is-desktop-extra"/);
-  assert.match(css, /button\.property-gallery__image\.is-desktop-extra \{ display: none; \}/);
+  assert.match(gallery, /galleryImages\.slice\(0, 5\)\.map/);
+  assert.match(gallery, /galleryImages\[selected\]/);
   assert.match(css, /@media \(max-width: 760px\)/);
 });

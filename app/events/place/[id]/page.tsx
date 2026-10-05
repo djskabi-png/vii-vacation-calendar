@@ -7,6 +7,7 @@ import { StructuredData } from "../../../components/structured-data";
 import { breadcrumbSchema, eventVenueSchema } from "../../../lib/seo";
 import { ViewedItemBootstrap } from "../../../components/viewed-item-bootstrap";
 import { supplierLegacySlug, unavailableLegacySearchHref } from "../../../data/supplier-legacy-links";
+import { supplierPlaceDetail } from "../../../data/supplier-place-detail";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -45,6 +46,6 @@ export default async function Page({ params }: Props) {
       { name: "מקומות לאירועים", path: "/events/search/" },
       { name: place.name, path: eventPlaceHref(place) },
     ])} />
-    <EventPlacePage initialSlug={place.slug} />
+    <EventPlacePage initialSlug={place.slug} supplierDetail={supplierPlaceDetail(place.slug)} />
   </>;
 }

@@ -39,15 +39,15 @@ export function PropertyGallery({ images, name, onOpen, className = "" }: Proper
       move(distance > 0 ? -1 : 1);
     }}
   >
-    {galleryImages.map((image, index) => <button
+    {galleryImages.slice(0, 5).map((image, index) => <button
       key={`${image}-${index}`}
       type="button"
-      className={`property-gallery__image${index >= 5 ? " is-desktop-extra" : ""}${selected === index ? " is-active" : ""}`}
+      className={`property-gallery__image${selected === index || index === 0 && selected >= 5 ? " is-active" : ""}`}
       data-gallery-trigger
       aria-label={`פתיחת גלריית ${name}, תמונה ${index + 1}`}
       onClick={() => onOpen(index)}
     >
-      <img src={image} alt={`${name}, תמונת המקום ${index + 1}`} title={`${name}, תמונת המקום ${index + 1}`} />
+      <img alt={`${name}, תמונת המקום ${index === 0 && selected >= 5 ? selected + 1 : index + 1}`} src={index === 0 && selected >= 5 ? galleryImages[selected] : image} title={`${name}, תמונת המקום ${index === 0 && selected >= 5 ? selected + 1 : index + 1}`} loading={index === 0 ? "eager" : "lazy"} />
       {index === 4 && <span>לגלריה המלאה</span>}
     </button>)}
 
