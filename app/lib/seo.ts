@@ -185,14 +185,14 @@ export function lodgingSchema(listing: Listing) {
       longitude: listing.lng,
     },
     amenityFeature: amenityFeature(listing.features),
-    ...(worlds.includes("events") ? { maximumAttendeeCapacity: getListingOfferings(listing).find((offering) => offering.world === "events")?.maxGuests } : {}),
-    containsPlace: {
+    ...(worlds.includes("events") && listing.capacityScope !== "unit" ? { maximumAttendeeCapacity: getListingOfferings(listing).find((offering) => offering.world === "events")?.maxGuests } : {}),
+    ...(listing.capacityScope !== "unit" ? { containsPlace: {
       "@type": "Accommodation",
       additionalType: listing.scenario === "single" ? "EntirePlace" : "Suite",
       occupancy: { "@type": "QuantitativeValue", value: listing.guests },
       ...(listing.bedrooms ? { numberOfBedrooms: listing.bedrooms } : {}),
       ...(listing.units ? { numberOfRooms: listing.units } : {}),
-    },
+    } } : {}),
     hasMap: `https://www.openstreetmap.org/?mlat=${listing.lat}&mlon=${listing.lng}#map=15/${listing.lat}/${listing.lng}`,
     ...(listing.reviewSource === "legacy-verified" && listing.score && listing.reviews ? {
       aggregateRating: {
@@ -227,7 +227,7 @@ export function eventVenueSchema(place: EventPlace) {
     image: imageObjects([place.image, ...place.images], place.name, place.description),
     address: address(place.location, place.area),
     geo: { "@type": "GeoCoordinates", latitude: place.lat, longitude: place.lng },
-    maximumAttendeeCapacity: place.guests,
+    ...(place.capacityScope !== "unit" ? { maximumAttendeeCapacity: place.guests } : {}),
     amenityFeature: amenityFeature(place.features),
     hasMap: `https://www.openstreetmap.org/?mlat=${place.lat}&mlon=${place.lng}#map=15/${place.lat}/${place.lng}`,
   };

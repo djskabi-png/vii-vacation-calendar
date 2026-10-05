@@ -65,7 +65,7 @@ function localizedDateRange(from: string, till: string, fallback: string, langua
 
 function bookingState(hasDates: boolean, guests: number, property: Property, availability: ResolvedAvailability | null, nightlyPrice: number, availabilityMode: "live" | "demo" | "inquiry", availabilityStatus: VacationBookingHubProps["availabilityStatus"]): BookingState {
   if (!hasDates) return "choose-dates";
-  if (guests > property.guests) return "too-many-guests";
+  if (property.capacityScope !== "unit" && guests > property.guests) return "too-many-guests";
   if (availabilityMode === "inquiry") return "inquiry-only";
   if (availabilityStatus === "error") return "check-error";
   if (!availability) return "no-data";
@@ -252,7 +252,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
               <span><small>כמות אורחים</small><strong aria-live="polite">{guests} אורחים</strong></span>
               <div>
                 <button type="button" onClick={() => changeGuests(Math.max(1, guests - 1))} disabled={guests <= 1} aria-label="הפחתת אורח">−</button>
-                <button type="button" onClick={() => changeGuests(Math.min(property.guests, guests + 1))} disabled={guests >= property.guests} aria-label="הוספת אורח">+</button>
+                <button type="button" onClick={() => changeGuests(property.capacityScope === "unit" ? guests + 1 : Math.min(property.guests, guests + 1))} disabled={property.capacityScope !== "unit" && guests >= property.guests} aria-label="הוספת אורח">+</button>
               </div>
             </div>
           </div>
