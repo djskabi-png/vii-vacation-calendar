@@ -22,6 +22,7 @@ export function PropertyGallery({ images, name, onOpen, className = "" }: Proper
   const activeDot = galleryImages.length <= dotCount
     ? selected
     : Math.round((selected / (galleryImages.length - 1)) * (dotCount - 1));
+  const imageIndex = (index: number) => index === 0 && selected >= 5 ? selected : index;
 
   const move = (direction: -1 | 1) => {
     setSelected((current) => (current + direction + galleryImages.length) % galleryImages.length);
@@ -44,10 +45,10 @@ export function PropertyGallery({ images, name, onOpen, className = "" }: Proper
       type="button"
       className={`property-gallery__image${selected === index || index === 0 && selected >= 5 ? " is-active" : ""}`}
       data-gallery-trigger
-      aria-label={`פתיחת גלריית ${name}, תמונה ${index + 1}`}
-      onClick={() => onOpen(index)}
+      aria-label={`פתיחת גלריית ${name}, תמונה ${imageIndex(index) + 1}`}
+      onClick={() => onOpen(imageIndex(index))}
     >
-      <img alt={`${name}, תמונת המקום ${index === 0 && selected >= 5 ? selected + 1 : index + 1}`} src={index === 0 && selected >= 5 ? galleryImages[selected] : image} title={`${name}, תמונת המקום ${index === 0 && selected >= 5 ? selected + 1 : index + 1}`} loading={index === 0 ? "eager" : "lazy"} />
+      <img alt={`${name}, תמונת המקום ${imageIndex(index) + 1}`} src={galleryImages[imageIndex(index)]} title={`${name}, תמונת המקום ${imageIndex(index) + 1}`} loading={index === 0 ? "eager" : "lazy"} />
       {index === 4 && <span>לגלריה המלאה</span>}
     </button>)}
 
