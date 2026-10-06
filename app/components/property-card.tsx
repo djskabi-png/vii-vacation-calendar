@@ -304,11 +304,11 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
   const whatsapp = property.contact?.whatsapp;
   const ownLegacyAvailability = useLegacyAvailability(property, promotional || liveAvailabilityState ? null : selectedStay);
   const liveLegacyAvailability = liveAvailabilityState || ownLegacyAvailability;
-  const resolvedAvailability = promotional ? null : liveLegacyAvailability.quote || resolveAvailabilityForStay(property, selectedStay, pathname, searchParams.get("location"));
+  const resolvedAvailability = promotional ? null : liveLegacyAvailability.quote || (liveAvailabilityState ? null : resolveAvailabilityForStay(property, selectedStay, pathname, searchParams.get("location")));
   const isLiveAvailabilityLoading = !promotional && selectedStay && liveLegacyAvailability.status === "loading";
   const isLiveAvailabilityError = !promotional && selectedStay && liveLegacyAvailability.status === "error";
   const hasQuotedPrice = Boolean(resolvedAvailability?.nightlyPrice);
-  const quickBookingReady = Boolean(selectedStay && resolvedAvailability?.availability === "available" && resolvedAvailability.nightlyPrice && resolvedAvailability.nightlyPrice > 0);
+  const quickBookingReady = Boolean(!/^vacation-\d+$/.test(property.slug) && selectedStay && resolvedAvailability?.availability === "available" && resolvedAvailability.nightlyPrice && resolvedAvailability.nightlyPrice > 0);
   const cardMode = promotional ? "promotional" : resolvedAvailability ? "dated" : "result";
   const basePropertyHref = detailHref || `/business?id=${property.slug}`;
   const selectedGuests = String(selectedStay?.guests || searchParams.get("guests") || searchParams.get("adults") || 2);

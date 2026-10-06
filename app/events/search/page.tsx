@@ -26,11 +26,14 @@ import { SearchAfterResults, type ContextualSearchSuggestion } from "../../compo
 import { EventCardContactActions } from "../../components/event-card-contact-actions";
 import { ResultsViewToggle, useResultsViewMode } from "../../components/results-view-toggle";
 import { matchesSearchLocation } from "../../data/search-taxonomy";
+import { useViiLiveSearch } from "../../components/use-vii-live-search";
+import { eventLiveCopy } from "../../i18n/vii-live-search-copy";
 
 export default function EventSearchPage({ initialArea }: { initialArea?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { language } = useSiteLanguage();
+  const liveCopy = eventLiveCopy[language];
   const searchQuery = searchParams.toString();
   const initialParams = typeof window === "undefined" ? searchParams : new URLSearchParams(window.location.search);
   const initialGuests = Number(initialParams.get("guests") || 0);
@@ -43,6 +46,7 @@ export default function EventSearchPage({ initialArea }: { initialArea?: string 
   const { mapOpen, openMap, closeMap } = useMapViewState();
   const { viewMode, setViewMode } = useResultsViewMode("events");
   const [sort, setSort] = useState(["capacity", "name"].includes(initialParams.get("sort") || "") ? initialParams.get("sort") || "recommended" : "recommended");
+  const [hours, setHours] = useState([2, 3, 4, 5, 6].includes(Number(initialParams.get("hours"))) ? Number(initialParams.get("hours")) : 3);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
 
@@ -57,7 +61,7 @@ export default function EventSearchPage({ initialArea }: { initialArea?: string 
     router.push(localizedPath(`${path}${query ? `?${query}` : ""}`, language));
   }
 
-  function changeFilter(key: "location" | "type" | "eventType" | "guests" | "noise" | "accessible" | "sort", value: string | boolean | number) {
+  function changeFilter(key: "location" | "type" | "eventType" | "guests" | "noise" | "accessible" | "sort" | "hours", value: string | boolean | number) {
     if (key === "location") setArea(String(value));
     if (key === "type") setType(String(value));
     if (key === "eventType") setEventType(String(value));
@@ -65,6 +69,7 @@ export default function EventSearchPage({ initialArea }: { initialArea?: string 
     if (key === "noise") setNoNoiseLimit(Boolean(value));
     if (key === "accessible") setAccessibleOnly(Boolean(value));
     if (key === "sort") setSort(String(value));
+    if (key === "hours") setHours(Number(value));
     const isDefault = value === false || value === 0 || value === "הכל" || value === "recommended";
     updateUrl({ [key]: isDefault ? null : String(value === true ? 1 : value) });
   }
@@ -81,17 +86,33 @@ export default function EventSearchPage({ initialArea }: { initialArea?: string 
       setNoNoiseLimit(params.get("noise") === "1");
       setAccessibleOnly(params.get("accessible") === "1");
       setSort(["capacity", "name"].includes(params.get("sort") || "") ? params.get("sort") || "recommended" : "recommended");
+      setHours([2, 3, 4, 5, 6].includes(Number(params.get("hours"))) ? Number(params.get("hours")) : 3);
     }, 0);
     return () => window.clearTimeout(timer);
   }, [initialArea, searchQuery]);
 
   const areas = useMemo(() => ["הכל", ...Array.from(new Set(eventPlaces.map((place) => place.area)))], []);
+  const eventFrom = searchParams.get("from");
+  const eventTo = searchParams.get("to") || eventFrom;
+  const supplierSearch = useViiLiveSearch("events", guests > 0 ? eventFrom : null, guests > 0 ? eventTo : null, guests, hours);
+  const supplierStatus = (slug: string) => {
+    if (!eventFrom || !eventTo || !guests || !/^event-\d+$/.test(slug)) return null;
+    if (supplierSearch.status === "loading") return liveCopy.checking;
+    if (supplierSearch.status === "error") return liveCopy.error;
+    const result = supplierSearch.results[Number(slug.slice(6))];
+    if (result?.available === false) return liveCopy.unavailable;
+    if (result?.available === true && result.total && result.from && result.start) return liveCopy.available(result.total, hours, result.from, result.start);
+    return liveCopy.unknown;
+  };
+  const detailHref = (place: (typeof eventPlaces)[number]) => eventFrom && guests > 0
+    ? `${eventPlaceHref(place)}?${new URLSearchParams({ from: eventFrom, guests: String(guests), hours: String(hours) })}`
+    : eventPlaceHref(place);
   const types = useMemo(() => ["הכל", ...Array.from(new Set(eventPlaces.map((place) => place.type)))], []);
   const eventTypes = useMemo(() => ["הכל", ...Array.from(new Set(eventPlaces.flatMap((place) => place.eventTypes)))], []);
   const filtered = useMemo(() => {
     const result = eventPlaces.filter((place) => matchesSearchLocation(place, area) && (!types.includes(type) || type === "הכל" || place.type === type) && (!eventTypes.includes(eventType) || eventType === "הכל" || place.eventTypes.includes(eventType)) && (!guests || place.capacityScope === "unit" || place.guests >= guests) && (!noNoiseLimit || place.features.some((feature) => feature.includes("ללא הגבלת רעש"))) && (!accessibleOnly || getPlaceAccessibility(place.slug).status === "accessible"));
     return [...result].sort((a, b) => sort === "capacity" && eventPlaces.some((place) => place.capacityScope !== "unit") ? b.guests - a.guests : sort === "name" ? a.name.localeCompare(b.name, "he") : eventPlaces.indexOf(a) - eventPlaces.indexOf(b));
-  }, [accessibleOnly, area, eventType, guests, noNoiseLimit, sort, type]);
+  }, [accessibleOnly, area, eventType, eventTypes, guests, noNoiseLimit, sort, type, types]);
 
   const displayed = useMemo(() => {
     if (!mapOpen || !mapVisibleIds) return filtered;
@@ -115,7 +136,7 @@ export default function EventSearchPage({ initialArea }: { initialArea?: string 
     closeMap();
   }
 
-  function reset() { setArea("הכל"); setType("הכל"); setEventType("הכל"); setGuests(0); setNoNoiseLimit(false); setAccessibleOnly(false); setSort("recommended"); updateUrl({ location: null, type: null, eventType: null, guests: null, noise: null, accessible: null, sort: null }); }
+  function reset() { setArea("הכל"); setType("הכל"); setEventType("הכל"); setGuests(0); setNoNoiseLimit(false); setAccessibleOnly(false); setSort("recommended"); setHours(3); updateUrl({ location: null, type: null, eventType: null, guests: null, noise: null, accessible: null, sort: null, hours: null }); }
 
   const sortOptions = [{ value: "recommended", label: "סדר הקטלוג" }, ...(eventPlaces.some((place) => place.capacityScope !== "unit") ? [{ value: "capacity", label: "קיבולת גבוהה" }] : []), { value: "name", label: "שם המקום" }];
 
@@ -140,6 +161,7 @@ export default function EventSearchPage({ initialArea }: { initialArea?: string 
             <ModernSelect label="אזור" value={area} onChange={(value) => changeFilter("location", value)} options={areas.map((item) => ({ value: item, label: item }))} />
             <ModernSelect label="סוג מקום" value={type} onChange={(value) => changeFilter("type", value)} options={types.map((item) => ({ value: item, label: item }))} />
             <ModernSelect label="סוג אירוע" value={eventType} onChange={(value) => changeFilter("eventType", value)} options={eventTypes.map((item) => ({ value: item, label: item }))} />
+            <ModernSelect label={liveCopy.duration} value={String(hours)} onChange={(value) => changeFilter("hours", Number(value))} options={[2, 3, 4, 5, 6].map((value) => ({ value: String(value), label: liveCopy.hours(value) }))} />
             {eventPlaces.some((place) => place.capacityScope !== "unit") && <fieldset><legend>כמות משתתפים</legend><input type="range" min="0" max="300" step="10" value={guests} aria-label="כמות משתתפים" onChange={(event) => changeFilter("guests", Number(event.target.value))} /></fieldset>}
             <label><input type="checkbox" checked={noNoiseLimit} onChange={(event) => changeFilter("noise", event.target.checked)} /> ללא הגבלת רעש</label>
             <label><input type="checkbox" checked={accessibleOnly} onChange={(event) => changeFilter("accessible", event.target.checked)} /> נגישות מלאה ומאומתת</label>
@@ -153,7 +175,7 @@ export default function EventSearchPage({ initialArea }: { initialArea?: string 
             <section className="results-heading"><div><h1>{eventHeading}</h1><div className="results-heading__meta"><p>{displayed.length} מקומות מתאימים לחיפוש</p></div></div></section>
             {guests > 0 && eventPlaces.some((place) => place.capacityScope === "unit") ? <SupplierCapacityNotice /> : null}
             <div className="results-toolbar"><div className="results-toolbar__actions"><ResultsViewToggle value={viewMode} onChange={setViewMode} />{filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתוצאות" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={toggleResultsMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לתוצאות" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect className="results-toolbar__sort" compact label="מיון לפי" value={sort} onChange={(value) => changeFilter("sort", value)} options={sortOptions} /></div>
-            {mapOpen && <div className="event-map-pane"><DeferredListingMap listings={filtered} mode="events" autoLoad onClose={closeResultsMap} onVisiblePlaceIdsChange={setMapVisibleIds} /></div>}{displayed.map((place) => <article key={place.slug}><div className="event-card-gallery"><img src={place.image} alt={place.name} title={place.name} loading="lazy" decoding="async" /><span>{place.images.length} תמונות</span><FavoriteButton id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים ביחידה הגדולה`} /></div><div><small>{place.type}</small><h2>{place.name}</h2><p><PinIcon />{place.location}, {place.area}</p><p>{place.description}</p><div className="feature-chips">{place.features.slice(0, 3).map((feature) => <span key={feature}>{feature}</span>)}</div><div className="event-capacity">עד {place.guests} אורחים ביחידה הגדולה</div><div className="stay-card__actions event-card__actions"><Link className="stay-card__details-link" href={eventPlaceHref(place)} target="_blank" rel="noopener noreferrer">לפרטים על המקום<span className="sr-only"></span></Link><EventCardContactActions placeId={place.slug} placeName={place.name} phone={place.contact?.phone} whatsapp={place.contact?.whatsapp} serviceName={place.type} /></div></div></article>)}
+            {mapOpen && <div className="event-map-pane"><DeferredListingMap listings={filtered} mode="events" autoLoad onClose={closeResultsMap} onVisiblePlaceIdsChange={setMapVisibleIds} /></div>}{displayed.map((place) => <article key={place.slug}><div className="event-card-gallery"><img src={place.image} alt={place.name} title={place.name} loading="lazy" decoding="async" /><span>{place.images.length} תמונות</span><FavoriteButton id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={detailHref(place)} meta={`${place.type} · עד ${place.guests} אורחים ביחידה הגדולה`} /></div><div><small>{place.type}</small><h2>{place.name}</h2><p><PinIcon />{place.location}, {place.area}</p><p>{place.description}</p><div className="feature-chips">{place.features.slice(0, 3).map((feature) => <span key={feature}>{feature}</span>)}</div><div className="event-capacity">עד {place.guests} אורחים ביחידה הגדולה</div>{supplierStatus(place.slug) ? <p className="event-live-status" role="status">{supplierStatus(place.slug)}</p> : null}<div className="stay-card__actions event-card__actions"><Link className="stay-card__details-link" href={detailHref(place)} target="_blank" rel="noopener noreferrer">לפרטים על המקום<span className="sr-only"></span></Link><EventCardContactActions placeId={place.slug} placeName={place.name} phone={place.contact?.phone} whatsapp={place.contact?.whatsapp} serviceName={place.type} /></div></div></article>)}
             {displayed.length === 0 && <div className="empty-state"><h2>לא נמצאה התאמה</h2><p>אפשר להפחית את כמות המשתתפים או להסיר סינון.</p><button className="button primary" type="button" onClick={reset}>ניקוי סינונים</button></div>}
           </section>
         </div>
