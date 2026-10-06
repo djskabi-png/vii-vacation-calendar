@@ -10,7 +10,7 @@ export const homeDealPeriods = [
 ] as const;
 
 export type HomeDealPeriod = (typeof homeDealPeriods)[number]["id"];
-export type HomeDeal = { siteID: number; name: string; image: string; from: string; till: string; total: number; nights: number };
+export type HomeDeal = { siteID: number; name: string; image: string; city: string; area: string; score: number | null; reviewCount: number; from: string; till: string; total: number; nights: number };
 
 function israelToday(now: Date) {
   const parts = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Jerusalem", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(now);
@@ -58,18 +58,31 @@ export async function getHomeDeals(options: {
   const dates = homeDealDates(options.period, options.now);
   const fetchImpl = options.fetchImpl ?? fetch;
   const headers = { Authorization: `Bearer ${options.token}`, Accept: "application/json" };
-  const [catalogResponse, searchResponse] = await Promise.all([
+  const [catalogResponse, searchResponse, locationsResponse] = await Promise.all([
     fetchImpl(`${API_ROOT}/vacations`, { headers, cache: "no-store", signal: AbortSignal.timeout(20_000) }),
     fetchImpl(`${API_ROOT}/vacations/search`, {
       method: "POST", headers: { ...headers, "Content-Type": "application/json" },
       body: JSON.stringify({ from: dates.from, nights: dates.nights, rooms: [{ adults: 2 }] }),
       cache: "no-store", signal: AbortSignal.timeout(20_000),
     }),
+    fetchImpl(`${API_ROOT}/locations`, { headers, cache: "no-store", signal: AbortSignal.timeout(5_000) }).catch(() => null),
   ]);
   if (!catalogResponse.ok || !searchResponse.ok) throw new Error("supplier_unavailable");
   const catalog = record(await catalogResponse.json());
   const search = record(await searchResponse.json());
+  const locations = locationsResponse?.ok ? record(await locationsResponse.json().catch(() => ({}))) : {};
   if (!Array.isArray(catalog.places) || !Array.isArray(search.sites)) throw new Error("invalid_supplier_response");
+
+  const areas = new Map<number, string>();
+  for (const value of Array.isArray(locations.areas) ? locations.areas : []) {
+    const area = record(value);
+    if (Number.isSafeInteger(area.id) && typeof area.title === "string") areas.set(area.id as number, area.title);
+  }
+  const cities = new Map<number, { city: string; area: string }>();
+  for (const value of Array.isArray(locations.cities) ? locations.cities : []) {
+    const city = record(value);
+    if (Number.isSafeInteger(city.id) && typeof city.title === "string") cities.set(city.id as number, { city: city.title, area: areas.get(city.area as number) || "" });
+  }
 
   const places = new Map<number, Record<string, unknown>>();
   for (const value of catalog.places) {
@@ -89,7 +102,11 @@ export async function getHomeDeals(options: {
     const image = mediaUrl(Array.isArray(gallery.pictures) ? gallery.pictures[0] : null);
     const name = typeof place?.siteName === "string" ? place.siteName.trim() : "";
     if (!image || !name || typeof cheapest.from !== "string" || typeof cheapest.till !== "string") continue;
-    deals.push({ siteID: siteID as number, name, image, from: cheapest.from, till: cheapest.till, total, nights: dates.nights });
+    const location = cities.get(record(place?.location).cityID as number);
+    const reviews = record(place?.reviews);
+    const score = typeof reviews.score === "number" && Number.isFinite(reviews.score) && reviews.score > 0 && reviews.score <= 10 ? reviews.score : null;
+    const reviewCount = Number.isSafeInteger(reviews.count) && (reviews.count as number) > 0 ? reviews.count as number : 0;
+    deals.push({ siteID: siteID as number, name, image, city: location?.city || "", area: location?.area || "", score, reviewCount, from: cheapest.from, till: cheapest.till, total, nights: dates.nights });
   }
   return { period: options.period, dates, checkedAt: typeof search.created === "string" ? search.created : null, deals };
 }

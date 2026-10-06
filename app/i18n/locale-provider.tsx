@@ -45,6 +45,12 @@ function loadTranslations(language: GeneratedLanguage) {
 
 const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, string>> = {
   en: {
+    "הדיל שבחרתם": "Your selected deal",
+    "בודקים שוב את המחיר והזמינות": "Rechecking price and availability",
+    "ה־API מחזיר כעת ₪": "The API currently returns ₪",
+    "לכל השהייה שבחרתם, לשני מבוגרים. המחיר וההזמנה יאושרו מול המקום.": "for your selected stay, for two adults. The property must confirm the final price and booking.",
+    "הדיל אינו זמין עוד בתאריכים שנבחרו. אפשר לבדוק תאריך אחר או לפנות למקום.": "This deal is no longer available for the selected dates. Try other dates or contact the property.",
+    "לא הצלחנו לאמת את הדיל כרגע. אין להסתמך על המחיר שהופיע קודם.": "We could not verify this deal now. Do not rely on the earlier price.",
     "\u05d3\u05d5\u05d2\u05de\u05d0\u05d5\u05ea \u05dc\u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d5\u05dc\u05de\u05d7\u05d9\u05e8 \u05d1\u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd \u05e9\u05d1\u05d7\u05e8\u05ea\u05dd": "Availability and price examples for your dates",
     "\u05d4\u05ea\u05d5\u05e6\u05d0\u05d5\u05ea \u05de\u05d3\u05d2\u05d9\u05de\u05d5\u05ea \u05d0\u05ea \u05db\u05dc \u05de\u05e6\u05d1\u05d9 \u05d4\u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d5\u05d4\u05de\u05d7\u05d9\u05e8 \u05dc\u05e4\u05d9 \u05de\u05d1\u05e0\u05d9 \u05d4\u05ea\u05e6\u05d5\u05d2\u05d4 \u05e9\u05dc VII \u05d4\u05d9\u05e9\u05df. \u05d6\u05d4\u05d5 \u05de\u05d9\u05d3\u05e2 \u05dc\u05d4\u05de\u05d7\u05e9\u05d4 \u05d5\u05dc\u05d0 \u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d7\u05d9\u05d4.": "The results demonstrate every availability and price state based on the old VII display patterns. This is illustrative information, not live availability.",
     "בונים את החופשה": "Plan your stay", "בונים את האירוע": "Plan your event", "בונים את חוויית הספא": "Plan your spa experience", "מדייקים את החיפוש": "Refine your search",
@@ -160,6 +166,12 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "These cards are search shortcuts. Availability and final pricing are confirmed after selecting dates and guests.",
   },
   ru: {
+    "הדיל שבחרתם": "Выбранное предложение",
+    "בודקים שוב את המחיר והזמינות": "Повторно проверяем цену и наличие",
+    "ה־API מחזיר כעת ₪": "API сейчас возвращает ₪",
+    "לכל השהייה שבחרתם, לשני מבוגרים. המחיר וההזמנה יאושרו מול המקום.": "за всё выбранное проживание для двух взрослых. Окончательную цену и бронирование подтвердит объект.",
+    "הדיל אינו זמין עוד בתאריכים שנבחרו. אפשר לבדוק תאריך אחר או לפנות למקום.": "Предложение больше недоступно на эти даты. Выберите другие даты или свяжитесь с объектом.",
+    "לא הצלחנו לאמת את הדיל כרגע. אין להסתמך על המחיר שהופיע קודם.": "Сейчас не удалось подтвердить предложение. Не полагайтесь на прежнюю цену.",
     "ברגע האחרון": "Горящие предложения",
     "2 לילות חמישי עד שבת": "2 ночи, с четверга по субботу",
     "2 לילות שישי עד ראשון": "2 ночи, с пятницы по воскресенье",
@@ -285,6 +297,12 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "Карточки ведут к поиску. Наличие мест и итоговая цена подтверждаются после выбора дат и состава гостей.",
   },
   fr: {
+    "הדיל שבחרתם": "Votre offre",
+    "בודקים שוב את המחיר והזמינות": "Nouvelle vérification du prix et de la disponibilité",
+    "ה־API מחזיר כעת ₪": "L'API indique actuellement ₪",
+    "לכל השהייה שבחרתם, לשני מבוגרים. המחיר וההזמנה יאושרו מול המקום.": "pour tout le séjour choisi de deux adultes. Le lieu doit confirmer le prix final et la réservation.",
+    "הדיל אינו זמין עוד בתאריכים שנבחרו. אפשר לבדוק תאריך אחר או לפנות למקום.": "Cette offre n'est plus disponible pour ces dates. Choisissez d'autres dates ou contactez le lieu.",
+    "לא הצלחנו לאמת את הדיל כרגע. אין להסתמך על המחיר שהופיע קודם.": "Impossible de vérifier cette offre maintenant. Ne vous fiez pas au prix précédent.",
     "ברגע האחרון": "Dernière minute",
     "2 לילות חמישי עד שבת": "2 nuits, du jeudi au samedi",
     "2 לילות שישי עד ראשון": "2 nuits, du vendredi au dimanche",

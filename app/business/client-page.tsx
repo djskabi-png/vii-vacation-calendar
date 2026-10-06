@@ -28,6 +28,7 @@ import { FavoriteButton } from "../components/favorite-button";
 import { ShareButton } from "../components/share-dialog";
 import { CalendarIcon, PinIcon } from "../site-header";
 import { VacationBookingHub } from "../components/vacation-booking-hub";
+import { HomeDealDetailStatus } from "../components/home-deal-detail-status";
 import { useLegacyAvailability } from "../components/use-legacy-availability";
 import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
 import { ViewedItemTracker } from "../components/viewed-item-tracker";
@@ -312,6 +313,8 @@ export default function BusinessPage({ initialSlug, supplierDetail, initialWorld
             </section>
 
             <section id="about" className="property-about"><span className="eyebrow">תיאור מקום האירוח</span><h2>על {property.name}</h2><p>{property.description}</p><div className="feature-chips audience-chips">{property.audiences.map((audience) => <span key={audience}>מתאים ל{audience}</span>)}</div>{highlights.length ? <div className="property-highlights" aria-label="הדברים הבולטים במקום">{highlights.map((highlight) => <article key={highlight.label}><PropertyHighlightIcon icon={highlight.icon} /><strong>{highlight.label}</strong></article>)}</div> : null}</section>
+
+            {activeWorld === "vacation" && initialSource === "home-deals" && /^vacation-\d+$/.test(property.slug) ? <HomeDealDetailStatus siteID={Number(property.slug.slice(9))} period={initialPeriod} from={dateRange.from} till={dateRange.till} guests={guests} /> : null}
 
             {activeWorld === "vacation" ? <VacationBookingHub
               property={property}
