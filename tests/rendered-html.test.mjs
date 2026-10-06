@@ -579,7 +579,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.doesNotMatch(business, /wa\.me/);
   assert.match(business, /booking-summary/);
   const vacationHub = await readFile(new URL("../app/components/vacation-booking-hub.tsx", import.meta.url), "utf8");
-  assert.match(vacationHub, /buttonLabel="בדיקת זמינות"/);
+  assert.match(vacationHub, /buttonLabel=\{bookingEnabled \? "בדיקת זמינות" : "פנייה להזמנה"\}/);
   assert.match(business, /<FavoriteButton compact className="property-gallery__favorite"/);
   assert.match(eventPlace, /<FavoriteButton compact=\{false\}/);
   assert.match(styles, /\.universal-favorite\.is-saved/);

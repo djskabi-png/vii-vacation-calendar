@@ -350,7 +350,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
               : directQuickBooking && !showUnitChoices ? <Link className="button primary" href={bookingHref}>הזמנה מהירה</Link>
               : showUnitChoices && availableUnitCount > 0 ? <span className="vacation-booking-dialog__unit-guidance">{unitCopy.choose}</span>
               : unavailable || !hasDates ? <button className="button primary" type="button" onClick={openCalendar}>{hasDates ? "שינוי תאריכים" : "בחירת תאריכים"}</button>
-                : ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName="בקשת זמינות" initialDate={from} initialTill={till} initialGuests={guests} buttonLabel="בדיקת זמינות" buttonClassName="button primary vacation-booking-dialog__whatsapp" />
+                : ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={bookingEnabled ? "בקשת זמינות" : "בקשת הזמנה"} initialDate={from} initialTill={till} initialGuests={guests} buttonLabel={bookingEnabled ? "בדיקת זמינות" : "פנייה להזמנה"} buttonClassName="button primary vacation-booking-dialog__whatsapp" />
                   : phoneHref ? <a className="button primary" href={phoneHref}>חיוג למקום</a> : null}
             {hasDates && !unavailable ? <button className="vacation-booking-dialog__change-date" type="button" onClick={openCalendar}>שינוי תאריכים</button> : null}
           </div>

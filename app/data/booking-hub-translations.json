@@ -170,5 +170,7 @@
   "בחרו תאריך וכמות משתתפים לבדיקה": { "en": "Choose a date and guest count to check", "ru": "Выберите дату и количество гостей для проверки", "fr": "Choisissez une date et le nombre de participants" },
   "משך:": { "en": "Duration:", "ru": "Продолжительность:", "fr": "Durée :" },
   ". משך:": { "en": ". Duration:", "ru": ". Продолжительность:", "fr": ". Durée :" },
-  "שעות. סוג אירוע:": { "en": "hours. Event type:", "ru": "часов. Тип мероприятия:", "fr": "heures. Type d’événement :" }
+  "שעות. סוג אירוע:": { "en": "hours. Event type:", "ru": "часов. Тип мероприятия:", "fr": "heures. Type d’événement :" },
+  "בקשת הזמנה": { "en": "Booking request", "ru": "Запрос на бронирование", "fr": "Demande de réservation" },
+  "פנייה להזמנה": { "en": "Request a booking", "ru": "Отправить запрос на бронирование", "fr": "Demander une réservation" }
 }

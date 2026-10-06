@@ -70,6 +70,6 @@ test("bookable vacation uses one quick-book action while incomplete data keeps d
   assert.match(business, /setPhoneRevealed\(true\)/);
   assert.match(business, /<a className="property-phone-action property-phone-action--revealed" href=\{phoneHref\}/);
   assert.doesNotMatch(business, /בדיקת זמינות לחיפוש הזה/);
-  assert.match(vacationHub, /buttonLabel="בדיקת זמינות"/);
+  assert.match(vacationHub, /buttonLabel=\{bookingEnabled \? "בדיקת זמינות" : "פנייה להזמנה"\}/);
   assert.match(vacationHub, /state === "available-price"/);
 });
