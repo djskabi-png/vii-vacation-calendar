@@ -66,13 +66,13 @@ test("changing the guest count keeps the mobile booking sheet stable while live 
   const page = await readFile(new URL("app/business/client-page.tsx", root), "utf8");
   const hub = await readFile(new URL("app/components/vacation-booking-hub.tsx", root), "utf8");
   const css = await readFile(new URL("app/globals.css", root), "utf8");
-  assert.match(page, /availabilityStatus=\{vacationAvailabilityMode === "live" \? liveLegacyAvailability\.status : vacationAvailabilityMode === "demo" \? "ready" : "idle"\}/);
+  assert.match(page, /availabilityStatus=\{supplierSiteID \? supplierQuote\.status : vacationAvailabilityMode === "live" \? liveLegacyAvailability\.status : vacationAvailabilityMode === "demo" \? "ready" : "idle"\}/);
   assert.match(hub, /aria-busy=\{availabilityLoading\}/);
   assert.match(hub, /availabilityLoading \? <div className="vacation-booking-dialog__status vacation-booking-dialog__status--loading"/);
   assert.match(hub, /מעדכנים זמינות/);
   assert.match(hub, /pendingAvailability/);
   assert.match(hub, /setPendingAvailability\(\{ dateKey, value: availability \}\)/);
-  assert.match(hub, /displayedAvailability = availabilityLoading/);
+  assert.match(hub, /displayedAvailability = bookingEnabled && availabilityLoading/);
   assert.match(hub, /vacation-booking-dialog__units\$\{availabilityLoading \? " is-updating"/);
   assert.match(hub, /inert=\{availabilityLoading \|\| undefined\}/);
   assert.match(css, /\.vacation-booking-dialog__status--loading > span/);

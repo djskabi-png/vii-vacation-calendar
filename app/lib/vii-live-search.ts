@@ -100,7 +100,8 @@ export async function liveSupplierSearch(options: {
     const available = answers.filter((item): item is LiveSearchResult => item?.available === true);
     if (available.length) return [...available].sort((a, b) => (a.total ?? Infinity) - (b.total ?? Infinity))[0];
     if (answers.every((item) => item?.available === false)) return answers[0]!;
-    return { siteID, available: null, onlineBooking: false, total: null, from: null, till: null, start: null, reason: "unknown" };
+    const reason = answers.find((item) => item?.reason)?.reason || "unknown";
+    return { siteID, available: null, onlineBooking: false, total: null, from: null, till: null, start: null, reason };
   });
   return { checkedAt: typeof payloads[0].created === "string" ? payloads[0].created : null, world, results };
 }
