@@ -30,8 +30,18 @@ test("home deals use only supplier-confirmed availability and live totals", asyn
     ] });
   };
   const result = await getHomeDeals({ period: "tomorrow", now: new Date("2026-10-05T12:00:00Z"), token: "test-token", publicSiteIds: new Set([11, 12]), fetchImpl });
+  assert.equal(result.period, "tomorrow");
   assert.equal(requested.length, 3);
-  assert.deepEqual(result.deals, [{ siteID: 11, name: "הילת הנוף", image: "https://www.vii.co.il/gallery/hilat.jpg", city: "כלנית", area: "כנרת", score: 9.8, reviewCount: 182, from: "2026-10-06", till: "2026-10-07", total: 850, nights: 1 }]);
+  assert.deepEqual(result.deals, [{ siteID: 11, name: "הילת הנוף", image: "https://www.vii.co.il/gallery/hilat.jpg", city: "כלנית", area: "כנרת", score: 9.9, reviewCount: 182, from: "2026-10-06", till: "2026-10-07", total: 850, nights: 1 }]);
+});
+
+test("catalog placeholder ratings never override real site reviews", async () => {
+  const fetchImpl = async (url) => url.endsWith("/locations") ? Response.json({}) : url.endsWith("/vacations")
+    ? Response.json({ places: [{ siteID: 2662, active: true, siteName: "נעם בגלבוע", reviews: { score: 10, count: 10 }, galleries: [{ pictures: ["/gallery/a.jpg"] }] }] })
+    : Response.json({ sites: [{ siteID: 2662, available: true, minTotal: 900, cheapest: { from: "2026-10-06", till: "2026-10-07" } }] });
+  const result = await getHomeDeals({ period: "tomorrow", now: new Date("2026-10-05T12:00:00Z"), token: "test-token", publicSiteIds: new Set([2662]), fetchImpl });
+  assert.equal(result.deals[0].reviewCount, 0);
+  assert.equal(result.deals[0].score, null);
 });
 
 test("a locations outage does not hide valid supplier deals", async () => {
@@ -42,8 +52,8 @@ test("a locations outage does not hide valid supplier deals", async () => {
   };
   const result = await getHomeDeals({ period: "tomorrow", now: new Date("2026-10-05T12:00:00Z"), token: "test-token", publicSiteIds: new Set([11]), fetchImpl });
   assert.equal(result.deals.length, 1);
-  assert.equal(result.deals[0].score, null);
-  assert.equal(result.deals[0].reviewCount, 0);
+  assert.equal(result.deals[0].score, 9.9);
+  assert.equal(result.deals[0].reviewCount, 182);
   assert.equal(result.deals[0].city, "");
 });
 

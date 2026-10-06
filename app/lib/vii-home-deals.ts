@@ -1,5 +1,6 @@
 const API_ROOT = "https://bizonline.co.il/api/ai/vii";
 const MEDIA_ROOT = "https://www.vii.co.il";
+import siteDetails from "../data/sergey-place-details.json" with { type: "json" };
 
 export const homeDealPeriods = [
   { id: "tomorrow", label: "ברגע האחרון", weekday: null, nights: 1 },
@@ -54,8 +55,18 @@ export async function getHomeDeals(options: {
   now?: Date;
   fetchImpl?: typeof fetch;
 }) {
-  if (!options.token) throw new Error("missing_token");
   const dates = homeDealDates(options.period, options.now);
+  return { period: options.period, ...await getHomeDealsForDates({ ...options, dates }) };
+}
+
+export async function getHomeDealsForDates(options: {
+  dates: { from: string; till: string; nights: number };
+  token: string;
+  publicSiteIds: ReadonlySet<number>;
+  fetchImpl?: typeof fetch;
+}) {
+  if (!options.token) throw new Error("missing_token");
+  const dates = options.dates;
   const fetchImpl = options.fetchImpl ?? fetch;
   const headers = { Authorization: `Bearer ${options.token}`, Accept: "application/json" };
   const [catalogResponse, searchResponse, locationsResponse] = await Promise.all([
@@ -101,12 +112,13 @@ export async function getHomeDeals(options: {
     const gallery = Array.isArray(place?.galleries) ? record(place.galleries[0]) : {};
     const image = mediaUrl(Array.isArray(gallery.pictures) ? gallery.pictures[0] : null);
     const name = typeof place?.siteName === "string" ? place.siteName.trim() : "";
-    if (!image || !name || typeof cheapest.from !== "string" || typeof cheapest.till !== "string") continue;
+    if (!image || !name || cheapest.from !== dates.from || cheapest.till !== dates.till) continue;
     const location = cities.get(record(place?.location).cityID as number);
-    const reviews = record(place?.reviews);
-    const score = typeof reviews.score === "number" && Number.isFinite(reviews.score) && reviews.score > 0 && reviews.score <= 10 ? reviews.score : null;
-    const reviewCount = Number.isSafeInteger(reviews.count) && (reviews.count as number) > 0 ? reviews.count as number : 0;
+    const reviews = (siteDetails.details as Record<string, { reviews?: Array<{ score?: number }> }>)[`vacation-${siteID}`]?.reviews || [];
+    const scores = reviews.map((review) => review.score).filter((score): score is number => typeof score === "number" && Number.isFinite(score) && score > 0 && score <= 10);
+    const score = scores.length ? Math.round(scores.reduce((sum, value) => sum + value, 0) / scores.length * 10) / 10 : null;
+    const reviewCount = reviews.length;
     deals.push({ siteID: siteID as number, name, image, city: location?.city || "", area: location?.area || "", score, reviewCount, from: cheapest.from, till: cheapest.till, total, nights: dates.nights });
   }
-  return { period: options.period, dates, checkedAt: typeof search.created === "string" ? search.created : null, deals };
+  return { dates, checkedAt: typeof search.created === "string" ? search.created : null, deals };
 }

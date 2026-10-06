@@ -5,10 +5,11 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { homeDealPeriods, type HomeDeal, type HomeDealPeriod } from "../lib/vii-home-deals";
+import type { HomeHoliday } from "../lib/vii-home-holidays";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { FavoriteButton } from "./favorite-button";
 
-type ResponseData = { period: HomeDealPeriod; dates: { from: string; till: string; nights: number }; deals: HomeDeal[] };
+type ResponseData = { period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[] };
 
 const copy = {
   he: { title: "נופש פנוי בתאריכים הקרובים", all: "לכל מקומות הנופש", loading: "בודקים זמינות ומחירים", empty: "לא נמצאו מקומות פנויים לתאריכים האלה", error: "לא הצלחנו לבדוק זמינות כרגע", retry: "לנסות שוב", total: "מחיר כולל", details: "לפרטי המקום", night: "לילה", nights: "לילות", reviews: "חוות דעת", tabs: ["ברגע האחרון", "חמישי עד שבת", "שישי עד ראשון", "לילה בחמישי", "לילה בשישי"] },
@@ -21,37 +22,64 @@ function dateLabel(date: string, locale: string) {
   return new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" }).format(new Date(`${date}T12:00:00Z`));
 }
 
-export function HomeLiveDeals() {
+export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" }) {
   const { language } = useSiteLanguage();
   const [period, setPeriod] = useState<HomeDealPeriod>("tomorrow");
   const [retry, setRetry] = useState(0);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [data, setData] = useState<ResponseData | null>(null);
+  const [holidays, setHolidays] = useState<HomeHoliday[]>([]);
+  const [holidayId, setHolidayId] = useState<number | null>(null);
+  const [holidayState, setHolidayState] = useState<"loading" | "ready" | "error">("loading");
   const track = useRef<HTMLDivElement>(null);
   const text = copy[language];
+  const title = mode === "holidays" ? { he: "נופש פנוי בחגים", en: "Available stays for holidays", ru: "Отдых в праздники", fr: "Séjours disponibles pendant les fêtes" }[language] : text.title;
   const locale = { he: "he-IL", en: "en-GB", ru: "ru-RU", fr: "fr-FR" }[language];
   const searchHref = data ? `/search?${new URLSearchParams({ from: data.dates.from, till: data.dates.till, guests: "2" })}` : "/search";
 
   useEffect(() => {
+    if (mode !== "holidays") return;
+    const controller = new AbortController();
+    setHolidayState("loading");
+    fetch("/api/vii/home-holidays", { signal: controller.signal, cache: "no-store" })
+      .then(async (response) => { if (!response.ok) throw new Error("supplier_unavailable"); return response.json() as Promise<{ holidays: HomeHoliday[] }>; })
+      .then((result) => {
+        if (!Array.isArray(result.holidays)) throw new Error("invalid_result");
+        setHolidays(result.holidays);
+        setHolidayId(result.holidays[0]?.id ?? null);
+        setHolidayState("ready");
+      })
+      .catch((error) => { if (error?.name !== "AbortError") setHolidayState("error"); });
+    return () => controller.abort();
+  }, [mode, retry]);
+
+  useEffect(() => {
+    if (mode === "holidays" && (holidayState !== "ready" || holidayId === null)) return;
     const controller = new AbortController();
     setState("loading");
     setData(null);
-    fetch(`/api/vii/home-deals?period=${period}`, { signal: controller.signal, cache: "no-store", headers: { Accept: "application/json" } })
+    const url = mode === "holidays" ? `/api/vii/home-holiday-deals?id=${holidayId}` : `/api/vii/home-deals?period=${period}`;
+    fetch(url, { signal: controller.signal, cache: "no-store", headers: { Accept: "application/json" } })
       .then(async (response) => {
         if (!response.ok) throw new Error("supplier_unavailable");
         return response.json() as Promise<ResponseData>;
       })
       .then((result) => {
-        if (!Array.isArray(result.deals) || result.period !== period) throw new Error("invalid_result");
+        if (!Array.isArray(result.deals) || (mode === "near" && result.period !== period) || (mode === "holidays" && result.holiday?.id !== holidayId)) throw new Error("invalid_result");
         setData(result);
         setState("ready");
       })
       .catch((error) => { if (error?.name !== "AbortError") setState("error"); });
     return () => controller.abort();
-  }, [period, retry]);
+  }, [period, holidayId, holidayState, mode, retry]);
 
   function choose(value: HomeDealPeriod) {
     setPeriod(value);
+    track.current?.scrollTo({ left: 0, behavior: "instant" });
+  }
+
+  function chooseHoliday(value: number) {
+    setHolidayId(value);
     track.current?.scrollTo({ left: 0, behavior: "instant" });
   }
 
@@ -63,25 +91,34 @@ export function HomeLiveDeals() {
     node.scrollBy({ left: direction * step * (getComputedStyle(node).direction === "rtl" ? -1 : 1), behavior: "smooth" });
   }
 
-  return <section className="section home-recommended home-live-deals" aria-labelledby="home-live-deals-title">
+  const sectionId = mode === "holidays" ? "home-holiday-deals" : "home-live-deals";
+  const currentHoliday = holidays.find((item) => item.id === holidayId);
+  const displayState = mode === "holidays" && holidayState !== "ready" ? holidayState : state;
+  return <section className={`section home-recommended home-live-deals ${sectionId}`} aria-labelledby={`${sectionId}-title`}>
     <div className="shell">
-      <div className="section-head"><div><h2 id="home-live-deals-title">{text.title}</h2></div><div><Link href={searchHref}>{text.all}</Link><div className="home-slider__controls" aria-label={text.title}><button type="button" onClick={() => scroll(-1)} aria-label={language === "he" ? "הקודם" : "Previous"} disabled={state !== "ready" || !data?.deals.length}>‹</button><button type="button" onClick={() => scroll(1)} aria-label={language === "he" ? "הבא" : "Next"} disabled={state !== "ready" || !data?.deals.length}>›</button></div></div></div>
-      <div className="home-live-deals__tabs" role="tablist" aria-label={text.title}>
-        {homeDealPeriods.map((item, index) => <button key={item.id} type="button" role="tab" aria-controls="home-live-deals-results" aria-selected={period === item.id} tabIndex={period === item.id ? 0 : -1} onClick={() => choose(item.id)} onKeyDown={(event) => {
+      <div className="section-head"><div><h2 id={`${sectionId}-title`}>{title}</h2></div><div><Link href={searchHref}>{text.all}</Link><div className="home-slider__controls" aria-label={title}><button type="button" onClick={() => scroll(-1)} aria-label={language === "he" ? "הקודם" : "Previous"} disabled={displayState !== "ready" || !data?.deals.length}>‹</button><button type="button" onClick={() => scroll(1)} aria-label={language === "he" ? "הבא" : "Next"} disabled={displayState !== "ready" || !data?.deals.length}>›</button></div></div></div>
+      <div className="home-live-deals__tabs" role="tablist" aria-label={title}>
+        {mode === "near" ? homeDealPeriods.map((item, index) => <button key={item.id} type="button" role="tab" aria-controls={`${sectionId}-results`} aria-selected={period === item.id} tabIndex={period === item.id ? 0 : -1} onClick={() => choose(item.id)} onKeyDown={(event) => {
           const next = event.key === "Home" ? 0 : event.key === "End" ? homeDealPeriods.length - 1 : event.key === "ArrowRight" ? (index + (language === "he" ? -1 : 1) + homeDealPeriods.length) % homeDealPeriods.length : event.key === "ArrowLeft" ? (index + (language === "he" ? 1 : -1) + homeDealPeriods.length) % homeDealPeriods.length : -1;
           if (next < 0) return;
           event.preventDefault();
           choose(homeDealPeriods[next].id);
           event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();
-        }}>{text.tabs[index]}</button>)}
+        }}>{text.tabs[index]}</button>) : holidays.map((item, index) => <button key={item.id} type="button" role="tab" aria-controls={`${sectionId}-results`} aria-selected={holidayId === item.id} tabIndex={holidayId === item.id ? 0 : -1} onClick={() => chooseHoliday(item.id)} onKeyDown={(event) => {
+          const next = event.key === "Home" ? 0 : event.key === "End" ? holidays.length - 1 : event.key === "ArrowRight" ? (index + (language === "he" ? -1 : 1) + holidays.length) % holidays.length : event.key === "ArrowLeft" ? (index + (language === "he" ? 1 : -1) + holidays.length) % holidays.length : -1;
+          if (next < 0) return;
+          event.preventDefault();
+          chooseHoliday(holidays[next].id);
+          event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();
+        }}>{item.name} · {dateLabel(item.from, locale)}</button>)}
       </div>
-      <div className="home-live-deals__results" id="home-live-deals-results" role="tabpanel" aria-live="polite" aria-busy={state === "loading"}>
-        {state === "loading" ? <p className="home-live-deals__status">{text.loading}</p> : null}
-        {state === "error" ? <div className="home-live-deals__status"><p>{text.error}</p><button type="button" onClick={() => setRetry((value) => value + 1)}>{text.retry}</button></div> : null}
-        {state === "ready" && data?.deals.length === 0 ? <p className="home-live-deals__status">{text.empty}</p> : null}
-        {state === "ready" && data?.deals.length ? <div className="home-live-deals__track" ref={track} data-horizontal-rail>
+      <div className="home-live-deals__results" id={`${sectionId}-results`} role="tabpanel" aria-live="polite" aria-busy={displayState === "loading"}>
+        {displayState === "loading" ? <p className="home-live-deals__status">{text.loading}</p> : null}
+        {displayState === "error" ? <div className="home-live-deals__status"><p>{text.error}</p><button type="button" onClick={() => setRetry((value) => value + 1)}>{text.retry}</button></div> : null}
+        {displayState === "ready" && (mode === "holidays" && !holidays.length || data?.deals.length === 0) ? <p className="home-live-deals__status">{text.empty}</p> : null}
+        {displayState === "ready" && data?.deals.length ? <div className="home-live-deals__track" ref={track} data-horizontal-rail>
           {data.deals.map((deal) => {
-            const href = `/business?${new URLSearchParams({ id: `vacation-${deal.siteID}`, from: deal.from, till: deal.till, guests: "2", source: "home-deals", period }).toString()}`;
+            const href = `/business?${new URLSearchParams({ id: `vacation-${deal.siteID}`, from: deal.from, till: deal.till, guests: "2", source: mode === "holidays" ? "home-holidays" : "home-deals", period: mode === "holidays" ? String(currentHoliday?.id ?? "") : period }).toString()}`;
             const placeLocation = [deal.city, deal.area].filter(Boolean).join(" · ");
             return <article className="home-live-deals__card" key={`${deal.siteID}-${deal.from}`}>
               <Link className="home-live-deals__card-link" href={href}>

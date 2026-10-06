@@ -6,27 +6,27 @@ import { useEffect, useState } from "react";
 import { homeDealPeriods, type HomeDeal, type HomeDealPeriod } from "../lib/vii-home-deals";
 import { useSiteLanguage } from "../i18n/locale-provider";
 
-type ResponseData = { period: HomeDealPeriod; dates: { from: string; till: string }; deals: HomeDeal[] };
+type ResponseData = { period?: HomeDealPeriod; holiday?: { id: number }; dates: { from: string; till: string }; deals: HomeDeal[] };
 
-export function HomeDealDetailStatus({ siteID, period, from, till, guests }: { siteID: number; period?: string; from?: string; till?: string; guests: number }) {
+export function HomeDealDetailStatus({ siteID, period, source, from, till, guests }: { siteID: number; period?: string; source: "home-deals" | "home-holidays"; from?: string; till?: string; guests: number }) {
   const { language } = useSiteLanguage();
   const [retry, setRetry] = useState(0);
   const [state, setState] = useState<"loading" | "available" | "unavailable" | "error">("loading");
   const [total, setTotal] = useState(0);
-  const validPeriod = homeDealPeriods.some((item) => item.id === period);
+  const validPeriod = source === "home-holidays" ? /^\d+$/.test(period || "") : homeDealPeriods.some((item) => item.id === period);
 
   useEffect(() => {
     if (!validPeriod || !from || !till || guests !== 2) return;
     const controller = new AbortController();
     setState("loading");
     setTotal(0);
-    fetch(`/api/vii/home-deals?period=${period}`, { cache: "no-store", signal: controller.signal, headers: { Accept: "application/json" } })
+    fetch(source === "home-holidays" ? `/api/vii/home-holiday-deals?id=${period}` : `/api/vii/home-deals?period=${period}`, { cache: "no-store", signal: controller.signal, headers: { Accept: "application/json" } })
       .then(async (response) => {
         if (!response.ok) throw new Error("supplier_unavailable");
         return response.json() as Promise<ResponseData>;
       })
       .then((result) => {
-        if (result.period !== period || !Array.isArray(result.deals)) throw new Error("invalid_result");
+        if ((source === "home-holidays" ? result.holiday?.id !== Number(period) : result.period !== period) || !Array.isArray(result.deals)) throw new Error("invalid_result");
         const deal = result.dates.from === from && result.dates.till === till
           ? result.deals.find((item) => item.siteID === siteID && item.from === from && item.till === till)
           : undefined;
@@ -37,7 +37,7 @@ export function HomeDealDetailStatus({ siteID, period, from, till, guests }: { s
       })
       .catch((error) => { if (error?.name !== "AbortError") setState("error"); });
     return () => controller.abort();
-  }, [from, guests, period, retry, siteID, till, validPeriod]);
+  }, [from, guests, period, retry, siteID, source, till, validPeriod]);
 
   if (!validPeriod || !from || !till || guests !== 2) return null;
   const copy = {
