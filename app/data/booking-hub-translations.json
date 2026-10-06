@@ -155,5 +155,20 @@
   "חיפוש כללי": { "en": "Search the whole site", "ru": "Поиск по всему сайту", "fr": "Rechercher sur tout le site" },
   "חפשו מקום, עסק או יעד בכל האתר": { "en": "Find a place, business or destination across the site", "ru": "Найдите место, компанию или направление на всём сайте", "fr": "Recherchez un lieu, un établissement ou une destination sur tout le site" },
   "סגירת חיפוש ובחירת עולם": { "en": "Close search and category selection", "ru": "Закрыть поиск и выбор раздела", "fr": "Fermer la recherche et le choix d’univers" },
-  "חיפוש ובחירת עולם": { "en": "Search and choose a category", "ru": "Поиск и выбор раздела", "fr": "Rechercher et choisir un univers" }
+  "חיפוש ובחירת עולם": { "en": "Search and choose a category", "ru": "Поиск и выбор раздела", "fr": "Rechercher et choisir un univers" },
+  "פנוי ויש מחיר מאומת": { "en": "Available with a verified price", "ru": "Доступно, цена подтверждена", "fr": "Disponible avec un prix vérifié" },
+  "לשליחת בקשת הזמנה פנו למקום": { "en": "Contact the property to request a booking", "ru": "Свяжитесь с объектом, чтобы запросить бронирование", "fr": "Contactez l’établissement pour demander une réservation" },
+  "בודקים זמינות ומחיר מול מערכת האירועים": { "en": "Checking availability and price with the event system", "ru": "Проверяем наличие и цену в системе мероприятий", "fr": "Vérification des disponibilités et du prix dans le système événementiel" },
+  "לא הצלחנו לבדוק כעת מול מערכת האירועים": { "en": "We could not check the event system right now", "ru": "Сейчас не удалось проверить систему мероприятий", "fr": "Impossible de vérifier le système événementiel pour le moment" },
+  "פנוי החל מ־": { "en": "Available from ", "ru": "Доступно с ", "fr": "Disponible à partir de " },
+  "₪ לאירוע": { "en": "₪ for the event", "ru": "₪ за мероприятие", "fr": "₪ pour l’événement" },
+  "אין מחיר מאומת לתאריך ולהרכב שבחרתם": { "en": "No verified price for your date and party", "ru": "Нет подтверждённой цены для выбранной даты и группы", "fr": "Aucun prix vérifié pour votre date et votre groupe" },
+  "אין זמינות מאומתת לתאריך ולהרכב שבחרתם": { "en": "No verified availability for your date and party", "ru": "Нет подтверждённой доступности для выбранной даты и группы", "fr": "Aucune disponibilité vérifiée pour votre date et votre groupe" },
+  "הזמינות והמחיר יאושרו מול המקום": { "en": "The property will confirm availability and price", "ru": "Объект подтвердит наличие и цену", "fr": "Le lieu confirmera la disponibilité et le prix" },
+  "משך האירוע": { "en": "Event duration", "ru": "Продолжительность мероприятия", "fr": "Durée de l’événement" },
+  "שעות": { "en": "hours", "ru": "часов", "fr": "heures" },
+  "בחרו תאריך וכמות משתתפים לבדיקה": { "en": "Choose a date and guest count to check", "ru": "Выберите дату и количество гостей для проверки", "fr": "Choisissez une date et le nombre de participants" },
+  "משך:": { "en": "Duration:", "ru": "Продолжительность:", "fr": "Durée :" },
+  ". משך:": { "en": ". Duration:", "ru": ". Продолжительность:", "fr": ". Durée :" },
+  "שעות. סוג אירוע:": { "en": "hours. Event type:", "ru": "часов. Тип мероприятия:", "fr": "heures. Type d’événement :" }
 }

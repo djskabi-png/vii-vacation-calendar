@@ -30,6 +30,7 @@ import { CalendarIcon, PinIcon } from "../site-header";
 import { VacationBookingHub } from "../components/vacation-booking-hub";
 import { HomeDealDetailStatus } from "../components/home-deal-detail-status";
 import { useLegacyAvailability } from "../components/use-legacy-availability";
+import { useViiStayQuote } from "../components/use-vii-stay-quote";
 import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
 import { ViewedItemTracker } from "../components/viewed-item-tracker";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
@@ -183,13 +184,15 @@ export default function BusinessPage({ initialSlug, supplierDetail, initialWorld
   const activeOffering = offerings.find((offering) => offering.world === activeWorld) || offerings[0];
   const hasSelectedDates = Boolean(dateRange.from && dateRange.till);
   const selectedStay = hasSelectedDates ? { from: dateRange.from, till: dateRange.till, guests } : null;
+  const supplierSiteID = /^vacation-(\d+)$/.exec(property.slug)?.[1];
+  const supplierQuote = useViiStayQuote(supplierSiteID ? Number(supplierSiteID) : null, dateRange.from, dateRange.till, guests);
   const liveLegacyAvailability = useLegacyAvailability(property, selectedStay);
   const verifiedLastMinuteDeal = activeWorld === "vacation" && selectedStay
     ? publishedLastMinuteDeal({ slug: property.slug, period: initialPeriod, from: selectedStay.from, till: selectedStay.till, guests, nightlyPrice: Number(selectedPrice) || 0 })
     : null;
-  const resolvedAvailability = verifiedLastMinuteDeal || liveLegacyAvailability.quote || resolveAvailabilityForStay(property, selectedStay, "/business", null);
+  const resolvedAvailability = supplierSiteID ? supplierQuote.quote : verifiedLastMinuteDeal || liveLegacyAvailability.quote || resolveAvailabilityForStay(property, selectedStay, "/business", null);
   const usesLiveLegacyAvailability = Boolean(legacyAvailabilitySourceFor(property.slug));
-  const vacationAvailabilityMode: "live" | "demo" | "inquiry" = usesLiveLegacyAvailability ? "live" : property.demoOperations?.fictional ? "demo" : "inquiry";
+  const vacationAvailabilityMode: "live" | "demo" | "inquiry" = supplierSiteID || usesLiveLegacyAvailability ? "live" : property.demoOperations?.fictional ? "demo" : "inquiry";
   const effectiveVacationAvailability = vacationAvailabilityMode !== "inquiry" ? resolvedAvailability : null;
   // A quote supplied in a link is useful only for properties without a live source.
   // For migrated listings the source response always wins, so an old shared link
@@ -198,7 +201,7 @@ export default function BusinessPage({ initialSlug, supplierDetail, initialWorld
     ? String(effectiveVacationAvailability.nightlyPrice)
     : vacationAvailabilityMode === "demo" ? selectedPrice : "";
   const hasSelectedPrice = Boolean(resolvedSelectedPrice && Number(resolvedSelectedPrice) > 0);
-  const vacationOnlineReady = activeWorld === "vacation" && vacationAvailabilityMode !== "inquiry" && hasSelectedDates && effectiveVacationAvailability?.availability === "available" && hasSelectedPrice;
+  const vacationOnlineReady = activeWorld === "vacation" && !supplierSiteID && vacationAvailabilityMode !== "inquiry" && hasSelectedDates && effectiveVacationAvailability?.availability === "available" && hasSelectedPrice;
   const vacationPhoneFallback = activeWorld === "vacation" && !vacationOnlineReady;
   const vacationRequest = activeWorld === "vacation" && !vacationOnlineReady;
   const onlineBooking = activeWorld === "vacation" ? vacationOnlineReady : activeOffering.bookingMode !== "call-only";
@@ -328,15 +331,16 @@ export default function BusinessPage({ initialSlug, supplierDetail, initialWorld
               guests={guests}
               selectedPrice={resolvedSelectedPrice}
               availability={effectiveVacationAvailability}
-              availabilityStatus={vacationAvailabilityMode === "live" ? liveLegacyAvailability.status : vacationAvailabilityMode === "demo" ? "ready" : "idle"}
+              availabilityStatus={supplierSiteID ? supplierQuote.status : vacationAvailabilityMode === "live" ? liveLegacyAvailability.status : vacationAvailabilityMode === "demo" ? "ready" : "idle"}
               availabilityMode={vacationAvailabilityMode}
+              bookingEnabled={!supplierSiteID}
               bookingHref={`/booking?${bookingQuery}`}
               ownerWhatsapp={ownerWhatsapp}
               phoneHref={phoneHref}
               illustrative={initialIllustrative || vacationAvailabilityMode === "demo" || Boolean(effectiveVacationAvailability?.illustrative)}
               onOpenCalendar={() => setCalendarOpen(true)}
               onGuestsChange={setGuests}
-              onRetryAvailability={liveLegacyAvailability.retry}
+              onRetryAvailability={supplierSiteID ? supplierQuote.retry : liveLegacyAvailability.retry}
             /> : null}
 
             {property.roomOptions?.length ? <section id="rooms" className="units-section">

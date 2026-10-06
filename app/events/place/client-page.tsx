@@ -25,11 +25,25 @@ import { ViewedItemTracker } from "../../components/viewed-item-tracker";
 import { PropertyGallery } from "../../components/property-gallery";
 import type { SupplierPlaceDetail } from "../../data/supplier-place-detail";
 import { useSearchParams } from "next/navigation";
+import { useViiLiveSearch } from "../../components/use-vii-live-search";
 
 export default function EventPlacePage({ initialSlug, supplierDetail }: { initialSlug: string; supplierDetail?: SupplierPlaceDetail }) {
   const searchParams = useSearchParams();
   const selectedDate = /^\d{4}-\d{2}-\d{2}$/.test(searchParams.get("from") || "") ? searchParams.get("from") || "" : "";
   const selectedGuests = /^\d+$/.test(searchParams.get("guests") || "") ? searchParams.get("guests") || "" : "";
+  const selectedHours = [2, 3, 4, 5, 6].includes(Number(searchParams.get("hours"))) ? Number(searchParams.get("hours")) : 3;
+  const [eventDate, setEventDate] = useState(selectedDate);
+  const [eventGuests, setEventGuests] = useState(selectedGuests);
+  const [eventHours, setEventHours] = useState(selectedHours);
+  const supplierSearch = useViiLiveSearch("events", eventDate && Number(eventGuests) > 0 ? eventDate : null, eventDate && Number(eventGuests) > 0 ? eventDate : null, Number(eventGuests), eventHours);
+  const supplierResult = /^event-\d+$/.test(initialSlug) ? supplierSearch.results[Number(initialSlug.slice(6))] : undefined;
+  const eventQuote = supplierSearch.status === "loading" ? "בודקים זמינות ומחיר מול מערכת האירועים"
+    : supplierSearch.status === "error" ? "לא הצלחנו לבדוק כעת מול מערכת האירועים"
+    : supplierResult?.available === true && supplierResult.total && supplierResult.start
+      ? `פנוי החל מ־${supplierResult.start} · ${supplierResult.total.toLocaleString("he-IL")} ₪ לאירוע`
+      : supplierResult?.reason === "no_prices" ? "אין מחיר מאומת לתאריך ולהרכב שבחרתם"
+      : supplierResult?.reason === "no_availability" || supplierResult?.available === false ? "אין זמינות מאומתת לתאריך ולהרכב שבחרתם"
+      : "הזמינות והמחיר יאושרו מול המקום";
   const { galleryOpen, galleryStart, galleryTab, openGallery, closeGallery, updateGallerySelection } = useGalleryDeepLink();
   const [submitState, setSubmitState] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [reference, setReference] = useState("");
@@ -79,7 +93,7 @@ export default function EventPlacePage({ initialSlug, supplierDetail }: { initia
           phone: values.get("phone"),
           organization: place.name,
           location: `${place.location}, ${place.area}`,
-          message: `בקשת התאמה ל${place.name}. תאריך: ${values.get("date")}. משתתפים: ${values.get("guests")}. סוג אירוע: ${values.get("eventType")}.`,
+          message: `בקשת התאמה ל${place.name}. תאריך: ${values.get("date")}. משתתפים: ${values.get("guests")}. משך: ${eventHours} שעות. סוג אירוע: ${values.get("eventType")}.`,
           honey: values.get("company_site"),
           privacyAccepted: values.get("privacy") === "on",
           sourcePage: window.location.href,
@@ -116,7 +130,7 @@ export default function EventPlacePage({ initialSlug, supplierDetail }: { initia
             <GuestReviewStudio placeName={place.name} subjectId={place.slug} rating={supplierDetail?.reviewScore ?? place.score} reviewCount={supplierDetail?.reviewCount ?? place.reviews} supplierReviews={supplierDetail?.reviews} />
           </div>
 
-          <aside id="event-booking" className="booking-card event-inquiry"><CalendarIcon /><span className="eyebrow">בדיקת אירוע</span><h2>שולחים בקשה למקום</h2>{submitState === "success" ? <div className="inquiry-success" role="status"><b>הבקשה נקלטה</b><p>הפרטים נשמרו במערכת. האירוע אינו מאושר עד לבדיקת זמינות ומחיר.</p>{reference ? <strong dir="ltr">{reference}</strong> : null}</div> : <form onSubmit={submitInquiry}><label>תאריך מבוקש<input name="date" type="date" defaultValue={selectedDate} required /></label><label>כמות משתתפים<input name="guests" type="number" min="1" defaultValue={selectedGuests} placeholder="הקלידו כמות" required /></label>{place.eventTypes.length ? <ModernSelect name="eventType" label="סוג האירוע" defaultValue={place.eventTypes[0]} options={place.eventTypes.map((item) => ({ value: item, label: item }))} /> : null}<label>שם מלא<input name="name" type="text" autoComplete="name" minLength={2} required /></label><label>טלפון<input name="phone" type="tel" inputMode="tel" autoComplete="tel" minLength={7} required /></label><label className="form-honey" aria-hidden="true">אתר החברה<input name="company_site" tabIndex={-1} autoComplete="off" /></label><label className="consent legal-consent"><input name="privacy" type="checkbox" required /><span>קראתי והסכמתי ל<Link href="/legal/terms">תקנון האתר</Link> ול<Link href="/legal/privacy">מדיניות הפרטיות</Link>, ואני מאשר או מאשרת טיפול בפרטים לצורך הבקשה.</span></label><button className="button primary wide" type="submit" disabled={submitState === "submitting"}>{submitState === "submitting" ? "שולחים..." : "שליחת בקשה"}</button>{submitState === "error" ? <p className="form-error" role="alert">השליחה לא הושלמה. הפרטים נשארו בטופס ואפשר לנסות שוב.</p> : null}<small>זו בקשת בירור בלבד. אין חיוב או אישור הזמנה.</small></form>}</aside>
+          <aside id="event-booking" className="booking-card event-inquiry"><CalendarIcon /><span className="eyebrow">בדיקת אירוע</span><h2>שולחים בקשה למקום</h2>{submitState === "success" ? <div className="inquiry-success" role="status"><b>הבקשה נקלטה</b><p>הפרטים נשמרו במערכת. האירוע אינו מאושר עד לבדיקת זמינות ומחיר.</p>{reference ? <strong dir="ltr">{reference}</strong> : null}</div> : <form onSubmit={submitInquiry}><label>תאריך מבוקש<input name="date" type="date" value={eventDate} onChange={(event) => setEventDate(event.target.value)} required /></label><label>כמות משתתפים<input name="guests" type="number" min="1" value={eventGuests} onChange={(event) => setEventGuests(event.target.value)} placeholder="הקלידו כמות" required /></label><ModernSelect label="משך האירוע" value={String(eventHours)} onChange={(value) => setEventHours(Number(value))} options={[2, 3, 4, 5, 6].map((hours) => ({ value: String(hours), label: `${hours} שעות` }))} /><p role="status" aria-live="polite">{eventDate && Number(eventGuests) > 0 ? eventQuote : "בחרו תאריך וכמות משתתפים לבדיקה"}</p>{place.eventTypes.length ? <ModernSelect name="eventType" label="סוג האירוע" defaultValue={place.eventTypes[0]} options={place.eventTypes.map((item) => ({ value: item, label: item }))} /> : null}<label>שם מלא<input name="name" type="text" autoComplete="name" minLength={2} required /></label><label>טלפון<input name="phone" type="tel" inputMode="tel" autoComplete="tel" minLength={7} required /></label><label className="form-honey" aria-hidden="true">אתר החברה<input name="company_site" tabIndex={-1} autoComplete="off" /></label><label className="consent legal-consent"><input name="privacy" type="checkbox" required /><span>קראתי והסכמתי ל<Link href="/legal/terms">תקנון האתר</Link> ול<Link href="/legal/privacy">מדיניות הפרטיות</Link>, ואני מאשר או מאשרת טיפול בפרטים לצורך הבקשה.</span></label><button className="button primary wide" type="submit" disabled={submitState === "submitting"}>{submitState === "submitting" ? "שולחים..." : "שליחת בקשה"}</button>{submitState === "error" ? <p className="form-error" role="alert">השליחה לא הושלמה. הפרטים נשארו בטופס ואפשר לנסות שוב.</p> : null}<small>זו בקשת בירור בלבד. אין חיוב או אישור הזמנה.</small></form>}</aside>
         </div>
 
         <section className="section property-complements">

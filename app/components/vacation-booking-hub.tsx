@@ -22,6 +22,7 @@ type VacationBookingHubProps = {
   availability: ResolvedAvailability | null;
   availabilityStatus?: "idle" | "loading" | "ready" | "error";
   availabilityMode: "live" | "demo" | "inquiry";
+  bookingEnabled?: boolean;
   bookingHref: string;
   ownerWhatsapp?: string;
   phoneHref?: string;
@@ -103,7 +104,7 @@ function unitBookingHref(baseHref: string, index: number, nightlyPrice?: number)
   return `${pathname}?${params.toString()}`;
 }
 
-export function VacationBookingHub({ property, dates, from, till, guests, selectedPrice, availability, availabilityStatus = "idle", availabilityMode, bookingHref, ownerWhatsapp, phoneHref, illustrative = false, onOpenCalendar, onGuestsChange, onRetryAvailability }: VacationBookingHubProps) {
+export function VacationBookingHub({ property, dates, from, till, guests, selectedPrice, availability, availabilityStatus = "idle", availabilityMode, bookingEnabled = true, bookingHref, ownerWhatsapp, phoneHref, illustrative = false, onOpenCalendar, onGuestsChange, onRetryAvailability }: VacationBookingHubProps) {
   const { language, translate } = useSiteLanguage();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [pendingAvailability, setPendingAvailability] = useState<{ dateKey: string; value: ResolvedAvailability } | null>(null);
@@ -114,7 +115,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
   const hasDates = Boolean(from && till && nights > 0);
   const availabilityLoading = hasDates && availabilityStatus === "loading";
   const dateKey = `${from}|${till}`;
-  const displayedAvailability = availabilityLoading && pendingAvailability?.dateKey === dateKey
+  const displayedAvailability = bookingEnabled && availabilityLoading && pendingAvailability?.dateKey === dateKey
     ? pendingAvailability.value
     : availability;
   const suppliedPrice = Number(selectedPrice) > 0 ? Number(selectedPrice) : 0;
@@ -125,7 +126,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
   const summary = minimumStayNotMet
     ? { title: `נדרשים לפחות ${displayedAvailability?.minimumNights} לילות`, text: "הוסיפו לילה כדי לבדוק את ההזמנה" }
     : stateCopy(state);
-  const quickBooking = state === "available-price";
+  const quickBooking = state === "available-price" && bookingEnabled;
   const unavailable = state === "unavailable" || state === "unavailable-price" || state === "unavailable-alternatives" || state === "too-many-guests";
   const totalPrice = nightlyPrice > 0 && nights > 0 ? nightlyPrice * nights : 0;
   const displayDates = localizedDateRange(from, till, dates, language);
@@ -165,7 +166,9 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
     name: units[item.index]?.name || `יחידה ${item.index + 1}`,
   })) || [];
   const recommendationNeedsEnquiry = Boolean(recommendation && (availabilityMode === "inquiry" || recommendation.unitCount > 1));
-  const statusSummary = state === "available-price" && recommendation && recommendation.unitCount > 1
+  const statusSummary = state === "available-price" && !bookingEnabled
+    ? { title: "פנוי ויש מחיר מאומת", text: "לשליחת בקשת הזמנה פנו למקום" }
+    : state === "available-price" && recommendation && recommendation.unitCount > 1
     ? { title: "פנוי בהרכב המומלץ", text: availabilityMode === "demo" ? "המחיר והזמינות מוצגים להמחשה בלבד" : "המחיר המאומת כולל את היחידות שבהמלצה" }
     : summary;
   const directQuickBooking = quickBooking && (!recommendation || recommendation.unitCount === 1);
@@ -292,7 +295,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
                 const includedInRecommendation = Boolean(recommendation?.items.some((item) => item.index === index));
                 const unitNightlyPrice = quote?.nightlyPrice;
                 const unitTotalPrice = quote?.totalPrice || (unitNightlyPrice && nights > 0 ? unitNightlyPrice * nights : 0);
-                const canBookUnit = availabilityMode !== "inquiry" && availabilityStatus === "ready" && isAvailable && unitFitsParty && Boolean(unitNightlyPrice);
+                const canBookUnit = bookingEnabled && availabilityMode !== "inquiry" && availabilityStatus === "ready" && isAvailable && unitFitsParty && Boolean(unitNightlyPrice);
                 const statusTitle = availabilityMode === "inquiry"
                   ? unitCopy.inquiry
                   : availabilityStatus === "error"
