@@ -15,8 +15,9 @@ test("home deals use only supplier-confirmed availability and live totals", asyn
   const fetchImpl = async (url, init) => {
     assert.equal(init.headers.Authorization, "Bearer test-token");
     requested.push({ url, init });
+    if (url.endsWith("/locations")) return Response.json({ areas: [{ id: 2, title: "כנרת" }], cities: [{ id: 3, area: 2, title: "כלנית" }] });
     if (url.endsWith("/vacations")) return Response.json({ places: [
-      { siteID: 11, active: true, siteName: "הילת הנוף", galleries: [{ pictures: ["/gallery/hilat.jpg"] }] },
+      { siteID: 11, active: true, siteName: "הילת הנוף", location: { cityID: 3 }, reviews: { score: 9.8, count: 182 }, galleries: [{ pictures: ["/gallery/hilat.jpg"] }] },
       { siteID: 12, active: true, siteName: "לא פנוי", galleries: [{ pictures: ["/gallery/other.jpg"] }] },
       { siteID: 13, active: true, siteName: "מחוץ לאתר", galleries: [{ pictures: ["/gallery/third.jpg"] }] },
     ] });
@@ -29,8 +30,21 @@ test("home deals use only supplier-confirmed availability and live totals", asyn
     ] });
   };
   const result = await getHomeDeals({ period: "tomorrow", now: new Date("2026-10-05T12:00:00Z"), token: "test-token", publicSiteIds: new Set([11, 12]), fetchImpl });
-  assert.equal(requested.length, 2);
-  assert.deepEqual(result.deals, [{ siteID: 11, name: "הילת הנוף", image: "https://www.vii.co.il/gallery/hilat.jpg", from: "2026-10-06", till: "2026-10-07", total: 850, nights: 1 }]);
+  assert.equal(requested.length, 3);
+  assert.deepEqual(result.deals, [{ siteID: 11, name: "הילת הנוף", image: "https://www.vii.co.il/gallery/hilat.jpg", city: "כלנית", area: "כנרת", score: 9.8, reviewCount: 182, from: "2026-10-06", till: "2026-10-07", total: 850, nights: 1 }]);
+});
+
+test("a locations outage does not hide valid supplier deals", async () => {
+  const fetchImpl = async (url) => {
+    if (url.endsWith("/locations")) return new Response(null, { status: 503 });
+    if (url.endsWith("/vacations")) return Response.json({ places: [{ siteID: 11, active: true, siteName: "הילת הנוף", reviews: { score: 11, count: -1 }, galleries: [{ pictures: ["/gallery/hilat.jpg"] }] }] });
+    return Response.json({ sites: [{ siteID: 11, available: true, minTotal: 850, cheapest: { from: "2026-10-06", till: "2026-10-07" } }] });
+  };
+  const result = await getHomeDeals({ period: "tomorrow", now: new Date("2026-10-05T12:00:00Z"), token: "test-token", publicSiteIds: new Set([11]), fetchImpl });
+  assert.equal(result.deals.length, 1);
+  assert.equal(result.deals[0].score, null);
+  assert.equal(result.deals[0].reviewCount, 0);
+  assert.equal(result.deals[0].city, "");
 });
 
 test("supplier failure is not replaced with invented deals", async () => {

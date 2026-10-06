@@ -1485,7 +1485,8 @@ test("villa discovery uses a clean landing route and delayed navigation feedback
 
   assert.match(home, /href="\/search"[^>]*data-global-feedback="true"/);
   assert.match(showcase, /<HomeLiveDeals \/>/);
-  assert.match(liveDeals, /href="\/search"/);
+  assert.match(liveDeals, /new URLSearchParams\(\{ from: data\.dates\.from, till: data\.dates\.till, guests: "2" \}\)/);
+  assert.match(liveDeals, /<Link href=\{searchHref\}>/);
   assert.match(feedback, /showIfStillWaiting\(element\.dataset\.loadingLabel[^,]*, 320\)/);
 });
 
