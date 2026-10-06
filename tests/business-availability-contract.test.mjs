@@ -29,7 +29,7 @@ test("vacation availability starts with dates and only then offers an enquiry", 
   assert.match(vacationHub, /בחרו תאריכים כדי לראות זמינות ומחיר/);
   assert.match(vacationHub, /unavailable \|\| !hasDates/);
   assert.match(vacationHub, /"בחירת תאריכים"/);
-  assert.match(vacationHub, /buttonLabel="בדיקת זמינות"/);
+  assert.match(vacationHub, /buttonLabel=\{bookingEnabled \? "בדיקת זמינות" : "פנייה להזמנה"\}/);
   assert.match(vacationHub, /availability\.availability === "available"/);
 });
 
