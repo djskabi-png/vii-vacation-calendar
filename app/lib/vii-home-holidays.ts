@@ -37,23 +37,35 @@ export async function getHomeHolidays(options: { token: string; now?: Date; fetc
     const end = date(item.dateEnd);
     const id = item.holidayID;
     const name = typeof item.holidayName === "string" ? item.holidayName.trim() : "";
-    if (!Number.isSafeInteger(id) || (id as number) <= 0 || !name || item.shown !== 1 || !start || !end || end < today) continue;
-    const nights = Math.max(1, Math.round((end.valueOf() - start.valueOf()) / 86_400_000));
-    if (nights > 30 || start < today) continue;
+    if (!Number.isSafeInteger(id) || (id as number) <= 0 || !name || item.shown !== 1 || !start || !end || end < start || end < today) continue;
+    const arrival = start < today ? today : start;
+    const windowDays = Math.round((end.valueOf() - arrival.valueOf()) / 86_400_000);
+    if (windowDays > 30) continue;
+    const nights = Math.min(2, Math.max(1, windowDays));
     const windowSearch = item.windowSearch === 1 || item.isWindowSearch === 1;
-    const till = new Date(start);
-    till.setUTCDate(till.getUTCDate() + nights);
-    holidays.push({ id: id as number, name, from: item.dateStart as string, till: till.toISOString().slice(0, 10), nights, windowSearch });
+    const checkout = new Date(arrival);
+    checkout.setUTCDate(checkout.getUTCDate() + nights);
+    const windowTill = end > arrival ? end : checkout;
+    holidays.push({ id: id as number, name, from: arrival.toISOString().slice(0, 10), till: windowTill.toISOString().slice(0, 10), nights, windowSearch });
   }
   return holidays.sort((a, b) => a.from.localeCompare(b.from) || a.id - b.id);
 }
 
 export async function getHomeHolidayDeals(options: {
-  id: number; token: string; publicSiteIds: ReadonlySet<number>; now?: Date; fetchImpl?: typeof fetch;
+  id: number; token: string; publicSiteIds: ReadonlySet<number>; now?: Date; fetchImpl?: typeof fetch; from?: string; till?: string;
 }) {
   const holidays = await getHomeHolidays(options);
   const holiday = holidays.find((item) => item.id === options.id);
   if (!holiday) throw new Error("invalid_holiday");
-  if (holiday.windowSearch) throw new Error("unsupported_holiday_window");
-  return { holiday, ...await getHomeDealsForDates({ ...options, dates: { from: holiday.from, till: holiday.till, nights: holiday.nights } }) };
+  if (options.from !== undefined || options.till !== undefined) {
+    const from = date(options.from);
+    const till = date(options.till);
+    if (!from || !till || options.from! < holiday.from || options.till! > holiday.till
+      || Math.round((till.valueOf() - from.valueOf()) / 86_400_000) !== holiday.nights) throw new Error("invalid_stay");
+    return { holiday, ...await getHomeDealsForDates({ ...options, dates: { from: options.from!, till: options.till!, nights: holiday.nights } }) };
+  }
+  const checkout = new Date(`${holiday.from}T00:00:00Z`);
+  checkout.setUTCDate(checkout.getUTCDate() + holiday.nights);
+  const dates = { from: holiday.from, till: checkout.toISOString().slice(0, 10), nights: holiday.nights };
+  return { holiday, ...await getHomeDealsForDates({ ...options, dates, window: { from: holiday.from, till: holiday.till } }) };
 }
