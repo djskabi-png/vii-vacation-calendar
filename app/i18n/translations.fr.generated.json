@@ -1,6 +1,9 @@
 {
   "הדיל שבחרתם": "Votre offre",
   "בודקים שוב את המחיר והזמינות": "Nouvelle vérification du prix et de la disponibilité",
+  "בדיקת הזמינות מאשרת כעת ₪": "La vérification confirme actuellement ₪",
+  "לכל השהייה לשני מבוגרים. הבדיקה אינה שומרת חדר; המחיר וההזמנה יאושרו בשלב הבא.": "pour le séjour de deux adultes. Aucune chambre n'est réservée ; le prix et la réservation restent à confirmer.",
+  "הספק לא אישר מחיר וזמינות סופיים לדיל זה. אין להסתמך על המחיר שהופיע קודם.": "Le fournisseur n'a pas confirmé le prix final et la disponibilité. Ne vous fiez pas au prix précédent.",
   "ה־API מחזיר כעת ₪": "L'API indique actuellement ₪",
   "לכל השהייה שבחרתם, לשני מבוגרים. המחיר וההזמנה יאושרו מול המקום.": "pour tout le séjour choisi de deux adultes. Le lieu doit confirmer le prix final et la réservation.",
   "הדיל אינו זמין עוד בתאריכים שנבחרו. אפשר לבדוק תאריך אחר או לפנות למקום.": "Cette offre n'est plus disponible pour ces dates. Choisissez d'autres dates ou contactez le lieu.",

@@ -11,7 +11,7 @@ export const homeDealPeriods = [
 ] as const;
 
 export type HomeDealPeriod = (typeof homeDealPeriods)[number]["id"];
-export type HomeDeal = { siteID: number; name: string; image: string; city: string; area: string; score: number | null; reviewCount: number; from: string; till: string; total: number; nights: number };
+export type HomeDeal = { siteID: number; name: string; image: string; city: string; area: string; score: number | null; reviewCount: number; from: string; till: string; total: number; nights: number; roomID?: number };
 
 function israelToday(now: Date) {
   const parts = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Jerusalem", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(now);
@@ -131,7 +131,10 @@ export async function getHomeDealsForDates(options: {
     const scores = reviews.map((review) => review.score).filter((score): score is number => typeof score === "number" && Number.isFinite(score) && score > 0 && score <= 10);
     const score = scores.length ? Math.round(scores.reduce((sum, value) => sum + value, 0) / scores.length * 10) / 10 : null;
     const reviewCount = reviews.length;
-    deals.push({ siteID: siteID as number, name, image, city: location?.city || "", area: location?.area || "", score, reviewCount, from: cheapest.from as string, till: cheapest.till as string, total, nights: dates.nights });
+    const rooms = Array.isArray(cheapest.rooms) ? cheapest.rooms : [];
+    const room = rooms.length === 1 ? record(rooms[0]) : {};
+    const roomID = Number.isSafeInteger(room.roomID) && (room.roomID as number) > 0 ? room.roomID as number : undefined;
+    deals.push({ siteID: siteID as number, name, image, city: location?.city || "", area: location?.area || "", score, reviewCount, from: cheapest.from as string, till: cheapest.till as string, total, nights: dates.nights, ...(roomID ? { roomID } : {}) });
   }
   return { dates, checkedAt: typeof search.created === "string" ? search.created : null, deals };
 }
