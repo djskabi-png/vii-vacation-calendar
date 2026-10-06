@@ -20,7 +20,7 @@ export function HomeDealDetailStatus({ siteID, period, source, from, till, guest
     const controller = new AbortController();
     setState("loading");
     setTotal(0);
-    fetch(source === "home-holidays" ? `/api/vii/home-holiday-deals?id=${period}` : `/api/vii/home-deals?period=${period}`, { cache: "no-store", signal: controller.signal, headers: { Accept: "application/json" } })
+    fetch(source === "home-holidays" ? `/api/vii/home-holiday-deals?${new URLSearchParams({ id: period || "", from, till })}` : `/api/vii/home-deals?period=${period}`, { cache: "no-store", signal: controller.signal, headers: { Accept: "application/json" } })
       .then(async (response) => {
         if (!response.ok) throw new Error("supplier_unavailable");
         return response.json() as Promise<ResponseData>;

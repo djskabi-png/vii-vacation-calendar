@@ -27,6 +27,13 @@ function addDays(date: Date, count: number) {
 
 function dateString(date: Date) { return date.toISOString().slice(0, 10); }
 
+function checkoutDate(from: unknown, nights: number) {
+  if (typeof from !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(from)) return null;
+  const arrival = new Date(`${from}T00:00:00Z`);
+  if (Number.isNaN(arrival.valueOf()) || dateString(arrival) !== from) return null;
+  return dateString(addDays(arrival, nights));
+}
+
 export function homeDealDates(periodId: HomeDealPeriod, now = new Date()) {
   const period = homeDealPeriods.find((item) => item.id === periodId);
   if (!period) throw new Error("invalid_period");
@@ -61,6 +68,7 @@ export async function getHomeDeals(options: {
 
 export async function getHomeDealsForDates(options: {
   dates: { from: string; till: string; nights: number };
+  window?: { from: string; till: string };
   token: string;
   publicSiteIds: ReadonlySet<number>;
   fetchImpl?: typeof fetch;
@@ -73,7 +81,7 @@ export async function getHomeDealsForDates(options: {
     fetchImpl(`${API_ROOT}/vacations`, { headers, cache: "no-store", signal: AbortSignal.timeout(20_000) }),
     fetchImpl(`${API_ROOT}/vacations/search`, {
       method: "POST", headers: { ...headers, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: dates.from, nights: dates.nights, rooms: [{ adults: 2 }] }),
+      body: JSON.stringify({ ...(options.window ? { window: options.window } : { from: dates.from }), nights: dates.nights, rooms: [{ adults: 2 }] }),
       cache: "no-store", signal: AbortSignal.timeout(20_000),
     }),
     fetchImpl(`${API_ROOT}/locations`, { headers, cache: "no-store", signal: AbortSignal.timeout(5_000) }).catch(() => null),
@@ -112,13 +120,18 @@ export async function getHomeDealsForDates(options: {
     const gallery = Array.isArray(place?.galleries) ? record(place.galleries[0]) : {};
     const image = mediaUrl(Array.isArray(gallery.pictures) ? gallery.pictures[0] : null);
     const name = typeof place?.siteName === "string" ? place.siteName.trim() : "";
-    if (!image || !name || cheapest.from !== dates.from || cheapest.till !== dates.till) continue;
+    const validStay = options.window
+      ? typeof cheapest.from === "string" && typeof cheapest.till === "string"
+        && cheapest.from >= options.window.from && cheapest.till <= options.window.till
+        && checkoutDate(cheapest.from, dates.nights) === cheapest.till
+      : cheapest.from === dates.from && cheapest.till === dates.till;
+    if (!image || !name || !validStay || (typeof cheapest.total === "number" && cheapest.total !== total)) continue;
     const location = cities.get(record(place?.location).cityID as number);
     const reviews = (siteDetails.details as Record<string, { reviews?: Array<{ score?: number }> }>)[`vacation-${siteID}`]?.reviews || [];
     const scores = reviews.map((review) => review.score).filter((score): score is number => typeof score === "number" && Number.isFinite(score) && score > 0 && score <= 10);
     const score = scores.length ? Math.round(scores.reduce((sum, value) => sum + value, 0) / scores.length * 10) / 10 : null;
     const reviewCount = reviews.length;
-    deals.push({ siteID: siteID as number, name, image, city: location?.city || "", area: location?.area || "", score, reviewCount, from: cheapest.from, till: cheapest.till, total, nights: dates.nights });
+    deals.push({ siteID: siteID as number, name, image, city: location?.city || "", area: location?.area || "", score, reviewCount, from: cheapest.from as string, till: cheapest.till as string, total, nights: dates.nights });
   }
   return { dates, checkedAt: typeof search.created === "string" ? search.created : null, deals };
 }

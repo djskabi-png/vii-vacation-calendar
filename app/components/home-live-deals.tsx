@@ -35,7 +35,8 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
   const text = copy[language];
   const title = mode === "holidays" ? { he: "נופש פנוי בחגים", en: "Available stays for holidays", ru: "Отдых в праздники", fr: "Séjours disponibles pendant les fêtes" }[language] : text.title;
   const locale = { he: "he-IL", en: "en-GB", ru: "ru-RU", fr: "fr-FR" }[language];
-  const searchHref = data ? `/search?${new URLSearchParams({ from: data.dates.from, till: data.dates.till, guests: "2" })}` : "/search";
+  const searchDates = mode === "holidays" ? data?.deals[0] ?? data?.dates : data?.dates;
+  const searchHref = searchDates ? `/search?${new URLSearchParams({ from: searchDates.from, till: searchDates.till, guests: "2" })}` : "/search";
 
   useEffect(() => {
     if (mode !== "holidays") return;
