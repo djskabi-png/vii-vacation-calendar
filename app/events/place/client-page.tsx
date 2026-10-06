@@ -24,16 +24,24 @@ import { ShareButton } from "../../components/share-dialog";
 import { ViewedItemTracker } from "../../components/viewed-item-tracker";
 import { PropertyGallery } from "../../components/property-gallery";
 import type { SupplierPlaceDetail } from "../../data/supplier-place-detail";
+import { useSearchParams } from "next/navigation";
 
 export default function EventPlacePage({ initialSlug, supplierDetail }: { initialSlug: string; supplierDetail?: SupplierPlaceDetail }) {
+  const searchParams = useSearchParams();
+  const selectedDate = /^\d{4}-\d{2}-\d{2}$/.test(searchParams.get("from") || "") ? searchParams.get("from") || "" : "";
+  const selectedGuests = /^\d+$/.test(searchParams.get("guests") || "") ? searchParams.get("guests") || "" : "";
   const { galleryOpen, galleryStart, galleryTab, openGallery, closeGallery, updateGallerySelection } = useGalleryDeepLink();
   const [submitState, setSubmitState] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [reference, setReference] = useState("");
   const [submissionId, setSubmissionId] = useState("");
   const place = useMemo(() => {
     const base = eventPlaces.find((item) => item.slug === initialSlug) || eventPlaces[0];
-    return supplierDetail ? { ...base, images: supplierDetail.images, description: supplierDetail.summary || base.description,
-      features: [...new Set([...base.features, ...supplierDetail.rooms.flatMap((room) => room.features)])] } : base;
+    return supplierDetail ? { ...base, name: supplierDetail.name || base.name, image: supplierDetail.images[0] || base.image,
+      images: supplierDetail.images, location: supplierDetail.location || base.location, area: supplierDetail.area || base.area,
+      lat: supplierDetail.lat ?? base.lat, lng: supplierDetail.lng ?? base.lng, guests: supplierDetail.guests || base.guests,
+      units: supplierDetail.units || base.units, contact: supplierDetail.phone ? { ...base.contact, phone: supplierDetail.phone } : base.contact,
+      description: supplierDetail.summary || base.description,
+      features: [...new Set([...(supplierDetail.highlights || []), ...base.features, ...supplierDetail.rooms.flatMap((room) => room.features)])] } : base;
   }, [initialSlug, supplierDetail]);
   const ownerWhatsapp = place.contact?.whatsapp || place.contact?.phone;
   const sectionLinks = useMemo<DetailSectionLink[]>(() => [
@@ -105,10 +113,10 @@ export default function EventPlacePage({ initialSlug, supplierDetail }: { initia
             <ListingAccessibility slug={place.slug} />
             <section id="event-map" className="location-card"><div><span className="eyebrow">המיקום</span><h2>{place.location}</h2><p>{place.area}</p><span className="location-card__inline-note">מגדילים, מקטינים ומזיזים את המפה כאן בעמוד.</span></div><ListingMap listings={[place]} mode="events" single autoLoad /></section>
             <section className="policies-section"><h2>חשוב לדעת</h2><div><article><b>קיבולת</b><p>עד {place.guests} אורחים ביחידה הגדולה לפי נתוני הספק. קיבולת האירוע כולו תיבדק מול המקום.</p></article><article><b>זמינות</b><p>הזמינות הסופית נבדקת מול צוות המקום לאחר שליחת הבקשה.</p></article><article><b>מחיר</b><p>המחיר תלוי בתאריך, במספר המשתתפים ובאופי האירוע.</p></article><article><b>בקשת התאמה</b><p>הטופס מועבר למערכת הלידים עם פרטי המקום והאירוע שבחרתם.</p></article>{supplierDetail?.policy.remarks ? <article><b>הערות המקום</b><p>{supplierDetail.policy.remarks}</p></article> : null}</div></section>
-            <GuestReviewStudio placeName={place.name} subjectId={place.slug} rating={place.score} reviewCount={place.reviews} supplierReviews={supplierDetail?.reviews} />
+            <GuestReviewStudio placeName={place.name} subjectId={place.slug} rating={supplierDetail?.reviewScore ?? place.score} reviewCount={supplierDetail?.reviewCount ?? place.reviews} supplierReviews={supplierDetail?.reviews} />
           </div>
 
-          <aside id="event-booking" className="booking-card event-inquiry"><CalendarIcon /><span className="eyebrow">בדיקת אירוע</span><h2>שולחים בקשה למקום</h2>{submitState === "success" ? <div className="inquiry-success" role="status"><b>הבקשה נקלטה</b><p>הפרטים נשמרו במערכת. האירוע אינו מאושר עד לבדיקת זמינות ומחיר.</p>{reference ? <strong dir="ltr">{reference}</strong> : null}</div> : <form onSubmit={submitInquiry}><label>תאריך מבוקש<input name="date" type="date" required /></label><label>כמות משתתפים<input name="guests" type="number" min="1" placeholder="הקלידו כמות" required /></label>{place.eventTypes.length ? <ModernSelect name="eventType" label="סוג האירוע" defaultValue={place.eventTypes[0]} options={place.eventTypes.map((item) => ({ value: item, label: item }))} /> : null}<label>שם מלא<input name="name" type="text" autoComplete="name" minLength={2} required /></label><label>טלפון<input name="phone" type="tel" inputMode="tel" autoComplete="tel" minLength={7} required /></label><label className="form-honey" aria-hidden="true">אתר החברה<input name="company_site" tabIndex={-1} autoComplete="off" /></label><label className="consent legal-consent"><input name="privacy" type="checkbox" required /><span>קראתי והסכמתי ל<Link href="/legal/terms">תקנון האתר</Link> ול<Link href="/legal/privacy">מדיניות הפרטיות</Link>, ואני מאשר או מאשרת טיפול בפרטים לצורך הבקשה.</span></label><button className="button primary wide" type="submit" disabled={submitState === "submitting"}>{submitState === "submitting" ? "שולחים..." : "שליחת בקשה"}</button>{submitState === "error" ? <p className="form-error" role="alert">השליחה לא הושלמה. הפרטים נשארו בטופס ואפשר לנסות שוב.</p> : null}<small>זו בקשת בירור בלבד. אין חיוב או אישור הזמנה.</small></form>}</aside>
+          <aside id="event-booking" className="booking-card event-inquiry"><CalendarIcon /><span className="eyebrow">בדיקת אירוע</span><h2>שולחים בקשה למקום</h2>{submitState === "success" ? <div className="inquiry-success" role="status"><b>הבקשה נקלטה</b><p>הפרטים נשמרו במערכת. האירוע אינו מאושר עד לבדיקת זמינות ומחיר.</p>{reference ? <strong dir="ltr">{reference}</strong> : null}</div> : <form onSubmit={submitInquiry}><label>תאריך מבוקש<input name="date" type="date" defaultValue={selectedDate} required /></label><label>כמות משתתפים<input name="guests" type="number" min="1" defaultValue={selectedGuests} placeholder="הקלידו כמות" required /></label>{place.eventTypes.length ? <ModernSelect name="eventType" label="סוג האירוע" defaultValue={place.eventTypes[0]} options={place.eventTypes.map((item) => ({ value: item, label: item }))} /> : null}<label>שם מלא<input name="name" type="text" autoComplete="name" minLength={2} required /></label><label>טלפון<input name="phone" type="tel" inputMode="tel" autoComplete="tel" minLength={7} required /></label><label className="form-honey" aria-hidden="true">אתר החברה<input name="company_site" tabIndex={-1} autoComplete="off" /></label><label className="consent legal-consent"><input name="privacy" type="checkbox" required /><span>קראתי והסכמתי ל<Link href="/legal/terms">תקנון האתר</Link> ול<Link href="/legal/privacy">מדיניות הפרטיות</Link>, ואני מאשר או מאשרת טיפול בפרטים לצורך הבקשה.</span></label><button className="button primary wide" type="submit" disabled={submitState === "submitting"}>{submitState === "submitting" ? "שולחים..." : "שליחת בקשה"}</button>{submitState === "error" ? <p className="form-error" role="alert">השליחה לא הושלמה. הפרטים נשארו בטופס ואפשר לנסות שוב.</p> : null}<small>זו בקשת בירור בלבד. אין חיוב או אישור הזמנה.</small></form>}</aside>
         </div>
 
         <section className="section property-complements">

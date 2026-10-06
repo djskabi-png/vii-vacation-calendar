@@ -30,6 +30,7 @@ import { vacationInventorySummary } from "../lib/vacation-inventory";
 import { vacationStayFromSearch } from "../lib/vacation-date-range";
 import { flexibleVacationCandidates, flexibleVacationSearchFromParams } from "../lib/flexible-vacation-search";
 import { useMapViewState } from "../components/map-view-state";
+import { useViiLiveSearch } from "../components/use-vii-live-search";
 import { FilterControlIcon } from "../components/filter-control-icon";
 import { SearchAfterResults, type ContextualSearchSuggestion } from "../components/search-after-results";
 import { ResultsViewToggle, useResultsViewMode } from "../components/results-view-toggle";
@@ -340,6 +341,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
 
   const selectedStay = useMemo(() => vacationStayFromSearch(searchParams, language), [language, searchParams]);
   const flexibleSearch = useMemo(() => flexibleVacationSearchFromParams(searchParams), [searchParams]);
+  const supplierSearch = useViiLiveSearch("vacations", selectedStay?.from || null, selectedStay?.till || null, guests);
   const requestedLocation = searchParams.get("location");
   const availabilityDemoActive = isAvailabilityDemoSearch(selectedStay, requestedLocation);
 
@@ -552,6 +554,16 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       return [property.slug, quote ? { quote, status: "ready" } satisfies LegacyAvailabilityState : { quote: null, status: "idle" } satisfies LegacyAvailabilityState] as const;
     })), [flexibleCandidates, mapCandidates, pathname, requestedLocation]);
   const liveAvailabilityFor = (slug: string): LegacyAvailabilityState | undefined => {
+    if (selectedStay && /^vacation-\d+$/.test(slug)) {
+      if (supplierSearch.status === "loading") return { quote: null, status: "loading" };
+      if (supplierSearch.status === "error") return { quote: null, status: "error" };
+      const result = supplierSearch.results[Number(slug.slice("vacation-".length))];
+      if (!result) return { quote: { from: selectedStay.from, till: selectedStay.till, availability: "unknown", showSelectedDates: true }, status: "ready" };
+      const from = result.from || selectedStay.from;
+      const till = result.till || selectedStay.till;
+      const nights = Math.max(1, Math.round((Date.parse(`${till}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000));
+      return { quote: { from, till, availability: result.available === true ? "available" : result.available === false ? "unavailable" : "unknown", showSelectedDates: true, ...(result.total ? { nightlyPrice: Math.round(result.total / nights) } : {}) }, status: "ready" };
+    }
     if (flexibleSearch && !legacyAvailabilitySourceFor(slug)) return flexibleLocalAvailabilityBySlug[slug];
     if (!legacyAvailabilitySourceFor(slug)) return undefined;
     if (selectedStay) return liveAvailabilityBySlug[slug] || { quote: null, status: "loading" };
@@ -591,7 +603,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   // landingType is derived from the immutable landing prop. Keeping the prop in
   // the dependency list lets the compiler preserve this memo across renders.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [area, availabilityDemoActive, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, guests, landing, liveAvailabilityBySlug, mapCandidates, pathname, requestedLocation, selectedStay, selectedTypes, sort]);
+  }, [area, availabilityDemoActive, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, guests, landing, liveAvailabilityBySlug, supplierSearch, mapCandidates, pathname, requestedLocation, selectedStay, selectedTypes, sort]);
 
   const draftCandidates = properties.filter((property) => {
     const matchesType = !supplierTypeFilterAvailable || matchesAnyAccommodationType(property.type, shownFilters.selectedTypes, landing);
@@ -630,7 +642,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   // The availability helpers close over the same primitive query inputs listed
   // below. Listing them directly would invalidate this memo on every render.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtered, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, guests, liveAvailabilityBySlug, mapCandidates, mapOpen, mapVisibleIds, pathname, requestedLocation, selectedStay, sort]);
+  }, [filtered, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, guests, liveAvailabilityBySlug, supplierSearch, mapCandidates, mapOpen, mapVisibleIds, pathname, requestedLocation, selectedStay, sort]);
   const inventorySummary = useMemo(() => vacationInventorySummary(displayedResults, language), [displayedResults, language]);
   const detailQuery = useMemo(() => {
     const params = new URLSearchParams();

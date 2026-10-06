@@ -58,7 +58,7 @@ async function resolveBooking(params: Awaited<Props["searchParams"]>) {
     const selectedUnitIndex = Math.max(0, Number(params.unitIndex || "0") - 1);
     const selectedUnit = params.unitIndex ? property.roomOptions?.[selectedUnitIndex] : undefined;
     // Catalog records do not authorize prices supplied in a URL.
-    const nightlyPrice = property.capacityScope === "unit" ? 0 : Number(params.price) || 0;
+    const nightlyPrice = property.capacityScope === "unit" || /^vacation-\d+$/.test(property.slug) ? 0 : Number(params.price) || 0;
     const nights = countNights(params.from, params.till);
     const totalPrice = nightlyPrice > 0 && nights > 0 ? nightlyPrice * nights : 0;
     return {

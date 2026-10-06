@@ -15,7 +15,7 @@ test("vacation online booking requires dates and a positive connected price", ()
   assert.match(business, /vacationOnlineReady = activeWorld === "vacation" && vacationAvailabilityMode !== "inquiry" && hasSelectedDates && effectiveVacationAvailability\?\.availability === "available" && hasSelectedPrice/);
   assert.match(business, /property\.demoOperations\?\.fictional \|\| effectiveVacationAvailability\?\.illustrative \? \{ illustrative: "1" \} : \{\}/);
   assert.match(bookingPage, /onlineReady: property\.capacityScope !== "unit" && Boolean\(params\.from && params\.till && nightlyPrice > 0\)/);
-  assert.match(bookingPage, /nightlyPrice = property\.capacityScope === "unit" \? 0 : Number\(params\.price\) \|\| 0/);
+  assert.match(bookingPage, /nightlyPrice = property\.capacityScope === "unit" \|\| \/\^vacation-\\d\+\$\/\.test\(property\.slug\) \? 0 : Number\(params\.price\) \|\| 0/);
   assert.match(bookingPage, /if \(property\) \{[\s\S]*?return \{[\s\S]*?world: "vacation"/);
   assert.doesNotMatch(booking, /onlineReady\s*=\s*isManage\s*\|\|/);
 });

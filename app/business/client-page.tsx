@@ -166,8 +166,12 @@ export default function BusinessPage({ initialSlug, supplierDetail, initialWorld
   const closeUnitDetails = useCallback(() => setSelectedRoomIndex(null), []);
   const property = useMemo(() => {
     const base = properties.find((item) => item.slug === initialSlug) || properties[0];
-    return supplierDetail ? { ...base, images: supplierDetail.images, description: supplierDetail.summary || base.description,
-      features: [...new Set([...base.features, ...supplierDetail.rooms.flatMap((room) => room.features)])] } : base;
+    return supplierDetail ? { ...base, name: supplierDetail.name || base.name, image: supplierDetail.images[0] || base.image,
+      images: supplierDetail.images, location: supplierDetail.location || base.location, area: supplierDetail.area || base.area,
+      lat: supplierDetail.lat ?? base.lat, lng: supplierDetail.lng ?? base.lng, guests: supplierDetail.guests || base.guests,
+      units: supplierDetail.units || base.units, contact: supplierDetail.phone ? { ...base.contact, phone: supplierDetail.phone } : base.contact,
+      description: supplierDetail.summary || base.description,
+      features: [...new Set([...(supplierDetail.highlights || []), ...base.features, ...supplierDetail.rooms.flatMap((room) => room.features)])] } : base;
   }, [initialSlug, supplierDetail]);
   const offerings = useMemo(() => getListingOfferings(property), [property]);
   const [worldSelection, setWorldSelection] = useState<{ slug: string; world: BusinessWorld } | null>(null);
@@ -406,7 +410,7 @@ export default function BusinessPage({ initialSlug, supplierDetail, initialWorld
             </section>
 
             {supplierDetail?.rooms.length ? <section className="supplier-rooms" aria-labelledby="supplier-rooms-title"><h2 id="supplier-rooms-title">יחידות לפי נתוני המקום</h2><div>{supplierDetail.rooms.map((room, index) => <article key={`${room.name}-${index}`}><h3>{room.name}</h3><p>{room.quantity} {room.quantity === 1 ? "יחידה" : "יחידות"} · עד {room.guests} אורחים ביחידה{room.bedrooms ? ` · ${room.bedrooms} חדרי שינה` : ""}</p>{room.features.length ? <div className="feature-list">{room.features.map((feature) => <span key={feature}>✓ {feature}</span>)}</div> : null}</article>)}</div></section> : null}
-            <GuestReviewStudio placeName={property.name} subjectId={property.slug} rating={property.score} reviewCount={property.reviews} publishedReviews={property.reviewHighlights} supplierReviews={supplierDetail?.reviews} illustrative={property.reviewSource === "fictional-demo"} open={reviewOpen} onClose={() => setReviewOpen(false)} onOpenGallery={() => { setGalleryTopic(null); openGallery("guests", 0); }} />
+            <GuestReviewStudio placeName={property.name} subjectId={property.slug} rating={supplierDetail?.reviewScore ?? property.score} reviewCount={supplierDetail?.reviewCount ?? property.reviews} publishedReviews={property.reviewHighlights} supplierReviews={supplierDetail?.reviews} illustrative={property.reviewSource === "fictional-demo"} open={reviewOpen} onClose={() => setReviewOpen(false)} onOpenGallery={() => { setGalleryTopic(null); openGallery("guests", 0); }} />
 
             <ListingAccessibility slug={property.slug} />
 

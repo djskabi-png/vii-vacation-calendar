@@ -93,7 +93,7 @@ test("Hilat HaNof resolves exact legacy range prices in search and business deta
   assert.match(hook, /api\/legacy-availability/);
   assert.match(hook, /legacyAvailabilitySourceFor\(slug\)/);
   assert.match(hook, /units: \(Array\.isArray\(result\.units\) \? result\.units : \[\]\)\.map/);
-  assert.match(card, /liveLegacyAvailability\.quote \|\| resolveAvailabilityForStay/);
+  assert.match(card, /liveLegacyAvailability\.quote \|\| \(liveAvailabilityState \? null : resolveAvailabilityForStay/);
   assert.match(business, /liveLegacyAvailability\.quote \|\| resolveAvailabilityForStay/);
   assert.match(business, /effectiveVacationAvailability\?\.units\?\.find\(\(unit\) => unit\.index === roomIndex\)/);
   assert.match(business, /roomBookingHref\(bookingQuery, roomIndex, roomNightlyPrice\)/);
