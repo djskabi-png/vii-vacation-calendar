@@ -5276,6 +5276,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .home-slider__track--properties .home-slider__item { flex-basis: calc((100% - 40px) / 3); }
 .home-slider__item > * { height: 100%; }
 .home-recommended { overflow: hidden; padding-block: 64px; background: white; }
+.home-holiday-deals { background: #f4f8f7; }
 .home-live-deals__tabs { display: flex; gap: 8px; margin: 20px 0 18px; overflow-x: auto; scrollbar-width: thin; }
 .home-live-deals__tabs button { flex: 0 0 auto; min-height: 40px; padding: 0 15px; border: 1px solid #b5c9c8; border-radius: 6px; background: #fff; color: #284747; font: inherit; font-size: .85rem; cursor: pointer; }
 .home-live-deals__tabs button[aria-selected="true"] { background: #176762; border-color: #176762; color: #fff; }

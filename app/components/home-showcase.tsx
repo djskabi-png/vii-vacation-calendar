@@ -94,6 +94,7 @@ export function HomeShowcase() {
 
   return <>
     <HomeLiveDeals />
+    <HomeLiveDeals mode="holidays" />
 
     <section className="section home-vacation-discovery" aria-labelledby="vacation-discovery-title">
       <div className="shell">

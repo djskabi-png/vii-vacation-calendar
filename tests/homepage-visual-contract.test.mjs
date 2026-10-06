@@ -19,16 +19,20 @@ test("homepage discovery uses complete card compositions", async () => {
 });
 
 test("supplier homepage searches live dates without unsupported static offers", async () => {
-  const [showcase, deals, route] = await Promise.all([
+  const [showcase, deals, route, token] = await Promise.all([
     readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/home-live-deals.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/api/vii/home-deals/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/lib/vii-supplier-token.ts", import.meta.url), "utf8"),
   ]);
   assert.match(showcase, /<HomeLiveDeals \/>/);
+  assert.match(showcase, /<HomeLiveDeals mode="holidays" \/>/);
   assert.match(showcase, /properties.find/);
-  assert.match(deals, /fetch\(`\/api\/vii\/home-deals\?period=\$\{period\}`/);
+  assert.match(deals, /`\/api\/vii\/home-deals\?period=\$\{period\}`/);
+  assert.match(deals, /`\/api\/vii\/home-holiday-deals\?id=\$\{holidayId\}`/);
   assert.match(deals, /data\.deals\.map/);
-  assert.match(route, /SERGEY_VII_API_TOKEN/);
+  assert.match(route, /supplierToken\(\)/);
+  assert.match(token, /SERGEY_VII_API_TOKEN/);
   assert.doesNotMatch(showcase, /nightlyPrice|lastMinuteHref|selectDealPeriod|home-vacation-card--style/);
 });
 
