@@ -111,7 +111,8 @@ test("event result cards expose the same tracked phone and WhatsApp actions as v
   assert.match(events, /whatsapp=\{place\.contact\?\.whatsapp\}/);
   assert.match(actions, /trackPhoneReveal\(\{ placeId, placeName, world: "events", placement: "event_card" \}\)/);
   assert.match(actions, /<WhatsAppLeadButton world="events"/);
-  assert.match(actions, /whatsapp \|\| phone/);
+  assert.match(actions, /const whatsappNumber = whatsapp;/);
+  assert.doesNotMatch(actions, /whatsapp \|\| phone/);
   assert.match(actions, /stay-card__contact--revealed/);
 });
 
@@ -128,7 +129,8 @@ test("vacation and event detail pages expose WhatsApp in their primary action ar
   assert.match(business, /<VacationBookingHub/);
   assert.match(vacationHub, /<WhatsAppLeadButton world="vacation"/);
   assert.match(vacationHub, /unavailable \|\| !hasDates/);
-  assert.match(eventPlace, /const ownerWhatsapp = place\.contact\?\.whatsapp \|\| place\.contact\?\.phone/);
+  assert.match(eventPlace, /const ownerWhatsapp = place\.contact\?\.whatsapp;/);
+  assert.match(business, /const ownerWhatsapp = property\.contact\?\.whatsapp;/);
   assert.match(eventPlace, /ownerWhatsapp \? <WhatsAppLeadButton world="events"/);
   assert.match(eventPlace, /buttonClassName="property-whatsapp-action"/);
 });

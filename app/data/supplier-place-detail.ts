@@ -13,6 +13,7 @@ export type SupplierPlaceDetail = {
   guests?: number;
   units?: number;
   phone?: string;
+  whatsapp?: string;
   highlights?: string[];
   images: string[];
   summary: string;
@@ -82,6 +83,7 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
     const gps = record(detail.gps);
     const contact = record(detail.contact);
     const validPhone = typeof contact.phone === "string" && /^[+\d()\s-]{7,24}$/.test(contact.phone);
+    const validWhatsApp = typeof contact.whatsapp === "string" && /^[+\d()\s-]{7,24}$/.test(contact.whatsapp);
     const counts = rooms.map((value) => record(value));
     return {
       name: typeof detail.name === "string" && detail.name.trim() ? detail.name.trim() : listing.name,
@@ -92,6 +94,7 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
       guests: Math.max(0, ...counts.map((room) => typeof room.maxGuests === "number" ? room.maxGuests : 0)),
       units: counts.reduce((sum, room) => sum + (typeof room.roomCount === "number" && room.roomCount > 0 ? room.roomCount : 1), 0),
       ...(validPhone ? { phone: contact.phone as string } : {}),
+      ...(validWhatsApp ? { whatsapp: contact.whatsapp as string } : {}),
       highlights: Array.isArray(detail.highlights) ? detail.highlights.map(plain).filter(Boolean) : [],
       images,
       summary: supplierDisplayDescription({ description: plain(detail.summary), name: typeof detail.name === "string" ? detail.name : listing.name, location: typeof city.title === "string" ? city.title : listing.location, area: typeof area.title === "string" ? area.title : listing.area }),
