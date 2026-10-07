@@ -116,9 +116,16 @@ async function inspectHitTarget(page) {
           } else await globalSearch.click();
 
           await page.waitForURL((url) => url.pathname === "/search", { timeout: 10000 });
+          await page.waitForLoadState("domcontentloaded");
           result.destination = new URL(page.url()).pathname;
           result.firstActionNavigated = result.destination === "/search";
-          result.horizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
+          try {
+            result.horizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
+          } catch (error) {
+            if (!/Execution context was destroyed/.test(String(error))) throw error;
+            await page.waitForLoadState("domcontentloaded");
+            result.horizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
+          }
           result.consoleErrors = consoleErrors;
           result.httpErrors = httpErrors;
           result.passed = result.firstActionNavigated && !result.horizontalOverflow && consoleErrors.length === 0;
