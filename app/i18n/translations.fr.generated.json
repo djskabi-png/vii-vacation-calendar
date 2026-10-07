@@ -8138,5 +8138,17 @@
   "מקומות נופש עם תמונות, יחידות ומתקנים. התאמה להרכב האורחים נבדקת מול המקום.": "Lieux de vacances avec photos, unités et équipements. Le lieu confirme les conditions adaptées à votre groupe.",
   "מקומות לאירועים עם תמונות ומתקנים. התאמה לכמות המשתתפים נבדקת מול המקום.": "Lieux événementiels avec photos et équipements. Le lieu confirme qu’il peut accueillir le nombre de participants demandé.",
   ", עם תמונות, מתקנים ופנייה ישירה למקום.": ", avec photos, équipements et demandes directes au lieu.",
-  "נופש פנוי בחגים": "Séjours disponibles pendant les fêtes"
+  "נופש פנוי בחגים": "Séjours disponibles pendant les fêtes",
+  "אין הרשאה לצפות בפניות. יש להתחבר לחשבון מנהל מורשה.": "Accès refusé. Connectez-vous avec un compte administrateur autorisé.",
+  "לא ניתן לטעון את הפניות כרגע.": "Impossible de charger les demandes pour le moment.",
+  "פניות וואטסאפ": "Demandes WhatsApp",
+  "פניות שנשמרו לפני המעבר לשיחה. אין אפשרות לדעת מכאן אם ההודעה נשלחה בוואטסאפ.": "Demandes enregistrées avant l'ouverture de WhatsApp. Cela ne confirme pas l'envoi d'un message.",
+  "רענון": "Actualiser",
+  "טוענים פניות...": "Chargement des demandes...",
+  "סיכום פניות": "Résumé des demandes",
+  "סך פניות:": "Total des demandes :",
+  "אסמכתה": "Référence",
+  "עדיין לא נשמרו פניות וואטסאפ.": "Aucune demande WhatsApp enregistrée pour le moment.",
+  "מוצגות 100 הפניות האחרונות.": "Affichage des 100 dernières demandes.",
+  "בפנייה דרך כפתור וואטסאפ, הפרטים שמולאו בחלון המקדים נשמרים אצלנו לצורך טיפול, מעקב וספירת פניות לפני פתיחת וואטסאפ. אין בכך אישור שהודעה נשלחה בפועל מתוך וואטסאפ.": "Lorsque vous utilisez un bouton WhatsApp, les informations saisies dans le formulaire préalable sont enregistrées chez nous pour traiter, suivre et comptabiliser les demandes avant l'ouverture de WhatsApp. Cela ne confirme pas l'envoi effectif d'un message dans WhatsApp."
 }

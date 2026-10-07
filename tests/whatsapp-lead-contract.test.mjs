@@ -31,6 +31,22 @@ test("the server owns the verified SMS notification request", async () => {
   assert.match(source, /recipientSource: "verified_place_contact"/);
   assert.match(source, /template: "vii_whatsapp_lead"/);
   assert.match(source, /sourceBrand: "VII"/);
+  assert.match(source, /if \(isWhatsAppEnquiry\) await saveWhatsAppLead\(payload, reference\)/);
+});
+
+test("completed WhatsApp popups are counted once and visible only to approved admins", async () => {
+  const [storage, report, page] = await Promise.all([
+    read("app/lib/whatsapp-lead-storage.ts"),
+    read("app/api/admin/whatsapp-leads/route.ts"),
+    read("app/admin/whatsapp-leads/page.tsx"),
+  ]);
+  assert.match(storage, /submission_id TEXT PRIMARY KEY/);
+  assert.match(storage, /INSERT OR IGNORE INTO whatsapp_leads/);
+  assert.match(report, /readSession\(request\)/);
+  assert.match(report, /VII_ADMIN_EMAILS/);
+  assert.match(report, /allowedEmails\.includes\(session\.email\.toLowerCase\(\)\)/);
+  assert.match(report, /SELECT COUNT\(\*\) AS count FROM whatsapp_leads/);
+  assert.match(page, /אין אפשרות לדעת מכאן אם ההודעה נשלחה בוואטסאפ/);
 });
 
 test("all current business WhatsApp entry points use the shared tracked flow", async () => {

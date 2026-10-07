@@ -8138,5 +8138,17 @@
   "מקומות נופש עם תמונות, יחידות ומתקנים. התאמה להרכב האורחים נבדקת מול המקום.": "Vacation places with photos, units and amenities. The place must confirm suitability for your guest group.",
   "מקומות לאירועים עם תמונות ומתקנים. התאמה לכמות המשתתפים נבדקת מול המקום.": "Event venues with photos and amenities. The venue must confirm suitability for your guest count.",
   ", עם תמונות, מתקנים ופנייה ישירה למקום.": ", with photos, amenities and direct inquiries to the venue.",
-  "נופש פנוי בחגים": "Available stays for holidays"
+  "נופש פנוי בחגים": "Available stays for holidays",
+  "אין הרשאה לצפות בפניות. יש להתחבר לחשבון מנהל מורשה.": "Access denied. Sign in with an authorized administrator account.",
+  "לא ניתן לטעון את הפניות כרגע.": "Enquiries cannot be loaded right now.",
+  "פניות וואטסאפ": "WhatsApp enquiries",
+  "פניות שנשמרו לפני המעבר לשיחה. אין אפשרות לדעת מכאן אם ההודעה נשלחה בוואטסאפ.": "Enquiries saved before opening WhatsApp. This does not confirm that a message was sent.",
+  "רענון": "Refresh",
+  "טוענים פניות...": "Loading enquiries...",
+  "סיכום פניות": "Enquiry summary",
+  "סך פניות:": "Total enquiries:",
+  "אסמכתה": "Reference",
+  "עדיין לא נשמרו פניות וואטסאפ.": "No WhatsApp enquiries have been saved yet.",
+  "מוצגות 100 הפניות האחרונות.": "Showing the latest 100 enquiries.",
+  "בפנייה דרך כפתור וואטסאפ, הפרטים שמולאו בחלון המקדים נשמרים אצלנו לצורך טיפול, מעקב וספירת פניות לפני פתיחת וואטסאפ. אין בכך אישור שהודעה נשלחה בפועל מתוך וואטסאפ.": "When you use a WhatsApp button, the details entered in the preceding form are stored by us to handle, track and count enquiries before WhatsApp opens. This does not confirm that a message was actually sent in WhatsApp."
 }
