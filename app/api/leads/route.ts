@@ -1,3 +1,5 @@
+import { saveWhatsAppLead } from "../../lib/whatsapp-lead-storage";
+
 const upstream = "https://app.spaplus.co/api/integrations/vii-leads";
 
 function json(body: unknown, status = 200) {
@@ -75,9 +77,11 @@ export async function POST(request: Request) {
     if (!response.ok || !result?.success) {
       return json({ success: false, error: "upstream_rejected" }, 502);
     }
+    const reference = String(result.reference || payload.submissionId);
+    if (isWhatsAppEnquiry) await saveWhatsAppLead(payload, reference);
     return json({
       success: true,
-      reference: result.reference || "",
+      reference,
       emailDelivered: result.emailDelivered === true,
     });
   } catch {
