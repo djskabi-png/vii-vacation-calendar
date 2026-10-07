@@ -29,7 +29,7 @@ export function EventCardContactActions({ placeId, placeName, phone, whatsapp, s
   const labels = copy[language];
   const [phoneVisible, setPhoneVisible] = useState(false);
   const callablePhone = phone?.replace(/[^\d+]/g, "");
-  const whatsappNumber = whatsapp || phone;
+  const whatsappNumber = whatsapp;
 
   return <>
     {callablePhone ? phoneVisible

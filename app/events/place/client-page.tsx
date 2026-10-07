@@ -53,11 +53,11 @@ export default function EventPlacePage({ initialSlug, supplierDetail }: { initia
     return supplierDetail ? { ...base, name: supplierDetail.name || base.name, image: supplierDetail.images[0] || base.image,
       images: supplierDetail.images, location: supplierDetail.location || base.location, area: supplierDetail.area || base.area,
       lat: supplierDetail.lat ?? base.lat, lng: supplierDetail.lng ?? base.lng, guests: supplierDetail.guests || base.guests,
-      units: supplierDetail.units || base.units, contact: supplierDetail.phone ? { ...base.contact, phone: supplierDetail.phone } : base.contact,
+      units: supplierDetail.units || base.units, contact: { ...base.contact, ...(supplierDetail.phone ? { phone: supplierDetail.phone } : {}), whatsapp: supplierDetail.whatsapp },
       description: supplierDetail.summary || base.description,
       features: [...new Set([...(supplierDetail.highlights || []), ...base.features, ...supplierDetail.rooms.flatMap((room) => room.features)])] } : base;
   }, [initialSlug, supplierDetail]);
-  const ownerWhatsapp = place.contact?.whatsapp || place.contact?.phone;
+  const ownerWhatsapp = place.contact?.whatsapp;
   const sectionLinks = useMemo<DetailSectionLink[]>(() => [
     ...(place.description ? [{ href: "#event-about" as const, label: "על המקום" }] : []),
     ...(place.features.length ? [{ href: "#event-features" as const, label: "מתקנים" }] : []),
