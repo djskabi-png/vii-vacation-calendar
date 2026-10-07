@@ -1,10 +1,14 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { resolve, sep } from "node:path";
+import { pathToFileURL } from "node:url";
 import { gzipSync } from "node:zlib";
 import { assertCatalogCoverage } from "./sergey-catalog-coverage.mjs";
 
 const API_ROOT = "https://bizonline.co.il/api/ai/vii";
-const OUTPUT_DIR = new URL("../tmp/vii-sergey-stage-20261005/", import.meta.url);
+const OUTPUT_DIR = process.env.VII_SERGEY_STAGE_DIR
+  ? pathToFileURL(`${resolve(process.env.VII_SERGEY_STAGE_DIR)}${sep}`)
+  : new URL("../tmp/vii-sergey-stage-20261005/", import.meta.url);
 const WORLDS = ["vacations", "events"];
 const MAX_CONCURRENT = 6;
 const DEADLINE_MS = 8 * 60_000;
