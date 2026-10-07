@@ -141,12 +141,17 @@ test("catalog refresh preserves only the explicit supplier WhatsApp field", asyn
 });
 
 test("event detail keeps calling separate from supplier WhatsApp", async () => {
-  const source = await read("app/events/place/client-page.tsx");
+  const [source, css] = await Promise.all([
+    read("app/events/place/client-page.tsx"),
+    read("app/globals.css"),
+  ]);
   assert.match(source, /const ownerPhone = place\.contact\?\.phone/);
   assert.match(source, /href=\{phoneHref\}/);
   assert.match(source, /placement: "event_detail"/);
   assert.match(source, /ownerWhatsapp \? <WhatsAppLeadButton/);
   assert.doesNotMatch(source, /whatsapp:\s*supplierDetail\.whatsapp\s*\|\|\s*supplierDetail\.phone/);
+  assert.match(css, /\.event-title \.property-title__actions--contact\s*\{[^}]*display: flex;[^}]*flex-wrap: wrap;/);
+  assert.match(css, /\.event-title \.property-title__actions--contact \.property-phone-action\s*\{[^}]*white-space: nowrap;/);
 });
 
 test("vacation and event detail pages expose WhatsApp in their primary action area", async () => {
