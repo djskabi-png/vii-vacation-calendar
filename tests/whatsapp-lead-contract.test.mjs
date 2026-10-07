@@ -47,6 +47,7 @@ test("completed WhatsApp popups are counted once and visible only to approved ad
   assert.match(report, /allowedEmails\.includes\(session\.email\.toLowerCase\(\)\)/);
   assert.match(report, /SELECT COUNT\(\*\) AS count FROM whatsapp_leads/);
   assert.match(page, /אין אפשרות לדעת מכאן אם ההודעה נשלחה בוואטסאפ/);
+  assert.match(page, /\/api\/auth\/google\?returnTo=%2Fadmin%2Fwhatsapp-leads/);
 });
 
 test("all current business WhatsApp entry points use the shared tracked flow", async () => {
