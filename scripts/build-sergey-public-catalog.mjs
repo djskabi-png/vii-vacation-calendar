@@ -69,6 +69,8 @@ const places = source.details.flatMap(({ world, supplierId, raw }) => {
   }
   const phone = typeof raw.contact?.phone === "string" && /^[+\d()\s-]{7,24}$/.test(raw.contact.phone)
     ? raw.contact.phone : undefined;
+  const whatsapp = typeof raw.contact?.whatsapp === "string" && /^[+\d()\s-]{7,24}$/.test(raw.contact.whatsapp)
+    ? raw.contact.whatsapp : undefined;
   const score = typeof raw.reviews?.score === "number" && raw.reviews.score > 0 ? raw.reviews.score : undefined;
   const reviews = Number.isSafeInteger(raw.reviews?.count) && raw.reviews.count > 0 ? raw.reviews.count : undefined;
   const description = typeof raw.meta?.description === "string" ? raw.meta.description.trim() : "";
@@ -129,7 +131,7 @@ const places = source.details.flatMap(({ world, supplierId, raw }) => {
     scenario: units > 1 ? "multi" : "single",
     ...(score ? { score } : {}),
     ...(reviews ? { reviews } : {}),
-    ...(phone ? { contact: { phone } } : {}),
+    ...(phone || whatsapp ? { contact: { ...(phone ? { phone } : {}), ...(whatsapp ? { whatsapp } : {}) } } : {}),
     ...(world === "events" ? { eventTypes: [] } : {}),
   }];
 });

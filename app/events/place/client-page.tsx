@@ -26,6 +26,11 @@ import { PropertyGallery } from "../../components/property-gallery";
 import type { SupplierPlaceDetail } from "../../data/supplier-place-detail";
 import { useSearchParams } from "next/navigation";
 import { useViiLiveSearch } from "../../components/use-vii-live-search";
+import { trackPhoneReveal } from "../../lib/analytics";
+
+function PhoneIcon() {
+  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.7 3.5 9 3a1.6 1.6 0 0 1 1.8 1l1 3a1.6 1.6 0 0 1-.5 1.7L9.7 10a14 14 0 0 0 4.3 4.3l1.3-1.6a1.6 1.6 0 0 1 1.7-.5l3 1a1.6 1.6 0 0 1 1 1.8l-.5 2.3a3 3 0 0 1-3 2.4A15.5 15.5 0 0 1 4.3 6.5a3 3 0 0 1 2.4-3Z" /></svg>;
+}
 
 export default function EventPlacePage({ initialSlug, supplierDetail }: { initialSlug: string; supplierDetail?: SupplierPlaceDetail }) {
   const searchParams = useSearchParams();
@@ -48,6 +53,7 @@ export default function EventPlacePage({ initialSlug, supplierDetail }: { initia
   const [submitState, setSubmitState] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [reference, setReference] = useState("");
   const [submissionId, setSubmissionId] = useState("");
+  const [phoneRevealed, setPhoneRevealed] = useState(false);
   const place = useMemo(() => {
     const base = eventPlaces.find((item) => item.slug === initialSlug) || eventPlaces[0];
     return supplierDetail ? { ...base, name: supplierDetail.name || base.name, image: supplierDetail.images[0] || base.image,
@@ -58,6 +64,8 @@ export default function EventPlacePage({ initialSlug, supplierDetail }: { initia
       features: [...new Set([...(supplierDetail.highlights || []), ...base.features, ...supplierDetail.rooms.flatMap((room) => room.features)])] } : base;
   }, [initialSlug, supplierDetail]);
   const ownerWhatsapp = place.contact?.whatsapp;
+  const ownerPhone = place.contact?.phone;
+  const phoneHref = ownerPhone ? `tel:${ownerPhone.replace(/[^\d+]/g, "")}` : undefined;
   const sectionLinks = useMemo<DetailSectionLink[]>(() => [
     ...(place.description ? [{ href: "#event-about" as const, label: "על המקום" }] : []),
     ...(place.features.length ? [{ href: "#event-features" as const, label: "מתקנים" }] : []),
@@ -113,7 +121,7 @@ export default function EventPlacePage({ initialSlug, supplierDetail }: { initia
       <ViewedItemTracker id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים ביחידה הגדולה`} />
       <main id="main-content" className="event-place-page">
         <BreadcrumbTrail items={[{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, { name: "מקומות לאירועים", path: "/events/search" }, { name: place.name }]} />
-        <section className="shell property-title event-title"><div><span className="eyebrow">{place.type}</span><h1>{place.name}</h1><p><PinIcon />{place.location}, {place.area}</p></div><div className="property-title__side"><div className="property-title__actions"><FavoriteButton compact={false} id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים ביחידה הגדולה`} /><ShareButton title={place.name} kind="event" />{ownerWhatsapp ? <WhatsAppLeadButton world="events" placeId={place.slug} placeName={place.name} businessPhone={ownerWhatsapp} serviceName={place.type} buttonClassName="property-whatsapp-action" /> : null}</div><a className="button primary" href="#event-booking">בדיקת אירוע</a></div></section>
+        <section className="shell property-title event-title"><div><span className="eyebrow">{place.type}</span><h1>{place.name}</h1><p><PinIcon />{place.location}, {place.area}</p></div><div className="property-title__side"><div className="property-title__actions property-title__actions--contact"><FavoriteButton compact={false} id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים ביחידה הגדולה`} />{phoneHref ? phoneRevealed ? <a className="property-phone-action property-phone-action--revealed" href={phoneHref} aria-label={`חיוג אל ${place.name}, ${ownerPhone}`}><PhoneIcon /><span dir="ltr">{ownerPhone}</span></a> : <button className="property-phone-action" type="button" onClick={() => { setPhoneRevealed(true); trackPhoneReveal({ placeId: place.slug, placeName: place.name, world: "events", placement: "event_detail" }); }} aria-expanded="false"><PhoneIcon /><span>הצגת מספר</span></button> : null}<ShareButton title={place.name} kind="event" />{ownerWhatsapp ? <WhatsAppLeadButton world="events" placeId={place.slug} placeName={place.name} businessPhone={ownerWhatsapp} serviceName={place.type} buttonClassName="property-whatsapp-action" /> : null}</div><a className="button primary" href="#event-booking">בדיקת אירוע</a></div></section>
         <PropertyGallery className="shell" images={place.images} name={place.name} onOpen={(index) => openGallery("all", index)} />
 
         <DetailStickyDock name={place.name} location={`${place.location}, ${place.area}`} sections={sectionLinks} onlineHref="#event-booking" onlineLabel="בדיקת תאריך לאירוע" />
