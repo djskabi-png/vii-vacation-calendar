@@ -3,6 +3,7 @@ import { supplierToken } from "../lib/vii-supplier-token.ts";
 import { supplierDisplayDescription } from "./supplier-display-text.ts";
 import catalog from "./sergey-public-catalog.json" with { type: "json" };
 import { unknownReviewer } from "../i18n/vii-live-search-copy.ts";
+import { supplierContactNumber } from "../lib/supplier-contact.ts";
 
 export type SupplierPlaceDetail = {
   name?: string;
@@ -82,8 +83,8 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
     const area = record(areas.find((value) => record(value).id === city.area));
     const gps = record(detail.gps);
     const contact = record(detail.contact);
-    const validPhone = typeof contact.phone === "string" && /^[+\d()\s-]{7,24}$/.test(contact.phone);
-    const validWhatsApp = typeof contact.whatsapp === "string" && /^[+\d()\s-]{7,24}$/.test(contact.whatsapp);
+    const phone = supplierContactNumber(contact.phone);
+    const whatsapp = supplierContactNumber(contact.whatsapp);
     const counts = rooms.map((value) => record(value));
     return {
       name: typeof detail.name === "string" && detail.name.trim() ? detail.name.trim() : listing.name,
@@ -93,8 +94,8 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
       ...(typeof gps.long === "number" && gps.long >= 34 && gps.long <= 36 ? { lng: gps.long } : {}),
       guests: Math.max(0, ...counts.map((room) => typeof room.maxGuests === "number" ? room.maxGuests : 0)),
       units: counts.reduce((sum, room) => sum + (typeof room.roomCount === "number" && room.roomCount > 0 ? room.roomCount : 1), 0),
-      ...(validPhone ? { phone: contact.phone as string } : {}),
-      ...(validWhatsApp ? { whatsapp: contact.whatsapp as string } : {}),
+      ...(phone ? { phone } : {}),
+      ...(whatsapp ? { whatsapp } : {}),
       highlights: Array.isArray(detail.highlights) ? detail.highlights.map(plain).filter(Boolean) : [],
       images,
       summary: supplierDisplayDescription({ description: plain(detail.summary), name: typeof detail.name === "string" ? detail.name : listing.name, location: typeof city.title === "string" ? city.title : listing.location, area: typeof area.title === "string" ? area.title : listing.area }),

@@ -51,7 +51,7 @@ async function inspectVisibleContent(page, routeName) {
   return page.evaluate((name) => {
     const viewportHeight = window.innerHeight;
     const selectorsByRoute = {
-      home: [".home-slider__item", ".home-last-minute__cards > *"],
+      home: [".home-live-deals__card", ".home-live-deals__empty", ".home-slider__item"],
       "vacation-results": [".stay-card", ".empty-state"],
       "vacation-region": [".stay-card", ".empty-state"],
       spa: [".discovery-card", ".spa-results__empty"],
@@ -163,7 +163,10 @@ function failuresFor(state, { requireExpanded = false, requireSearch = false, re
     const report = { name, route, checks: [] };
 
     try {
-      await page.goto(`${baseUrl}${route}${separator}v=${encodeURIComponent(version)}`, { waitUntil: "networkidle", timeout: 90000 });
+      await page.goto(`${baseUrl}${route}${separator}v=${encodeURIComponent(version)}`, { waitUntil: "domcontentloaded", timeout: 45000 });
+      if (name === "home") {
+        await page.waitForFunction(() => document.querySelector("#home-live-deals-results")?.getAttribute("aria-busy") === "false", undefined, { timeout: 30000 });
+      }
       let state = await inspect(page);
       report.checks.push({ name: "mobile-fresh", state, failures: failuresFor(state, { requireUnlocked: true }) });
       await focusResultsViewport(page, name);
@@ -227,7 +230,7 @@ function failuresFor(state, { requireExpanded = false, requireSearch = false, re
         ],
       });
 
-      await page.reload({ waitUntil: "networkidle", timeout: 90000 });
+      await page.reload({ waitUntil: "domcontentloaded", timeout: 45000 });
       state = await inspect(page);
       report.checks.push({ name: "desktop-reload", state, failures: failuresFor(state, { requireUnlocked: true }) });
 
