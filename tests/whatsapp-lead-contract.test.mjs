@@ -132,6 +132,22 @@ test("event result cards expose the same tracked phone and WhatsApp actions as v
   assert.match(actions, /stay-card__contact--revealed/);
 });
 
+test("catalog refresh preserves only the explicit supplier WhatsApp field", async () => {
+  const source = await read("scripts/build-sergey-public-catalog.mjs");
+  assert.match(source, /raw\.contact\?\.whatsapp/);
+  assert.match(source, /contact: \{ \.\.\.\(phone \? \{ phone \} : \{\}\), \.\.\.\(whatsapp \? \{ whatsapp \} : \{\}\) \}/);
+  assert.doesNotMatch(source, /whatsapp\s*\|\|\s*phone/);
+});
+
+test("event detail keeps calling separate from supplier WhatsApp", async () => {
+  const source = await read("app/events/place/client-page.tsx");
+  assert.match(source, /const ownerPhone = place\.contact\?\.phone/);
+  assert.match(source, /href=\{phoneHref\}/);
+  assert.match(source, /placement: "event_detail"/);
+  assert.match(source, /ownerWhatsapp \? <WhatsAppLeadButton/);
+  assert.doesNotMatch(source, /whatsapp:\s*supplierDetail\.whatsapp\s*\|\|\s*supplierDetail\.phone/);
+});
+
 test("vacation and event detail pages expose WhatsApp in their primary action area", async () => {
   const [business, vacationHub, eventPlace] = await Promise.all([
     read("app/business/client-page.tsx"),
