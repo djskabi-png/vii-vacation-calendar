@@ -21,7 +21,7 @@ test("trail details answer the critical visit questions in the first screen", ()
   assert.match(page, /faqSchema\(trailFaqs\)/);
 });
 
-test("all trail illustrations expose accurate text and distinct matching WebP files", async () => {
+test("all trail illustrations expose accurate text and distinct matching JPEG files", async () => {
   const data = await readFile(new URL("../app/data/trail-data.ts", import.meta.url), "utf8");
   const compile = (source) => ts.transpileModule(source, { compilerOptions: {
     module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.React,
@@ -31,14 +31,14 @@ test("all trail illustrations expose accurate text and distinct matching WebP fi
   const visual = compile(visualSource).replace("export function TrailVisual", "return function TrailVisual");
   const TrailVisual = new Function("React", "Image", visual)(React, NextImage.default || NextImage);
   const directory = new URL("../public/images/trails/", import.meta.url);
-  const files = (await readdir(directory)).filter((name) => name.endsWith(".webp")).sort();
+  const files = (await readdir(directory)).filter((name) => name.endsWith(".jpg")).sort();
   assert.equal(trails.length, 48);
-  assert.deepEqual(files, trails.map((trail) => `${trail.slug}.webp`).sort());
+  assert.deepEqual(files, trails.map((trail) => `${trail.slug}.jpg`).sort());
   const hashes = new Set();
   for (const trail of trails) {
-    const bytes = await readFile(new URL(`${trail.slug}.webp`, directory));
-    assert.equal(bytes.toString("ascii", 0, 4), "RIFF");
-    assert.equal(bytes.toString("ascii", 8, 12), "WEBP");
+    const bytes = await readFile(new URL(`${trail.slug}.jpg`, directory));
+    assert.equal(bytes.readUInt16BE(0), 0xffd8);
+    assert.equal(bytes.readUInt16BE(bytes.length - 2), 0xffd9);
     hashes.add(createHash("sha256").update(bytes).digest("hex"));
     const html = renderToStaticMarkup(React.createElement(TrailVisual, { trail }));
     assert.ok(html.includes(`title="תמונת המחשה למסלול ${trail.name}"`));

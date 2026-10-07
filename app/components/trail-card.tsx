@@ -8,7 +8,7 @@ export function TrailVisual({ trail, compact = false }: { trail: Trail; compact?
   const imageAlt = `${imageTitle}: ${trail.highlights.slice(0, 2).join(" ו")}.`;
 
   return <div className={`trail-visual trail-visual--${trail.tone}${compact ? " trail-visual--compact" : ""}`}>
-    <Image src={`/images/trails/${trail.slug}.webp`} width={1200} height={800} alt={imageAlt} title={imageTitle} />
+    <Image src={`/images/trails/${trail.slug}.jpg`} width={1200} height={800} alt={imageAlt} title={imageTitle} />
     <span className="image-context-label">תמונת המחשה</span>
   </div>;
 }
