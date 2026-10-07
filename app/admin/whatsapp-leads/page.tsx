@@ -21,14 +21,19 @@ type Report = { total: number; byWorld: { world: string; count: number }[]; lead
 export default function WhatsAppLeadsPage() {
   const [report, setReport] = useState<Report | null>(null);
   const [error, setError] = useState("");
+  const [needsAuth, setNeedsAuth] = useState(false);
   const [loading, setLoading] = useState(true);
 
   async function refresh() {
     setLoading(true);
     setError("");
+    setNeedsAuth(false);
     try {
       const response = await fetch("/api/admin/whatsapp-leads/", { cache: "no-store" });
-      if (!response.ok) throw new Error(response.status === 403 ? "אין הרשאה לצפות בפניות. יש להתחבר לחשבון מנהל מורשה." : "לא ניתן לטעון את הפניות כרגע.");
+      if (!response.ok) {
+        if (response.status === 403) setNeedsAuth(true);
+        throw new Error(response.status === 403 ? "אין הרשאה לצפות בפניות. יש להתחבר לחשבון מנהל מורשה." : "לא ניתן לטעון את הפניות כרגע.");
+      }
       setReport(await response.json() as Report);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "לא ניתן לטעון את הפניות כרגע.");
@@ -44,7 +49,7 @@ export default function WhatsAppLeadsPage() {
       <div><h1 style={{ margin: 0, fontSize: "1.8rem" }}>פניות וואטסאפ</h1><p>פניות שנשמרו לפני המעבר לשיחה. אין אפשרות לדעת מכאן אם ההודעה נשלחה בוואטסאפ.</p></div>
       <button type="button" onClick={() => void refresh()} disabled={loading}>רענון</button>
     </header>
-    {loading ? <p role="status">טוענים פניות...</p> : error ? <p role="alert">{error}</p> : report ? <>
+    {loading ? <p role="status">טוענים פניות...</p> : error ? <div><p role="alert">{error}</p>{needsAuth ? <a href="/api/auth/google?returnTo=%2Fadmin%2Fwhatsapp-leads">כניסה עם Google</a> : null}</div> : report ? <>
       <section aria-label="סיכום פניות" style={{ display: "flex", gap: 24, flexWrap: "wrap", borderBlock: "1px solid #dce4e2", padding: "18px 0" }}>
         <strong>סך פניות: {report.total}</strong>
         {report.byWorld.map((item) => <span key={item.world}>{item.world}: {item.count}</span>)}

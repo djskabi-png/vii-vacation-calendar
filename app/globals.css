@@ -9296,6 +9296,18 @@ body:has(.vacation-booking-dialog-layer) .detail-sticky-wrap { display: none; }
   background: #eaf7f1;
 }
 
+.event-title .property-title__actions--contact {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  max-width: min(100%, 560px);
+}
+.event-title .property-title__actions--contact > * { flex: 0 0 auto; }
+.event-title .property-title__actions--contact .property-phone-action {
+  min-width: 136px;
+  white-space: nowrap;
+}
+
 @media (max-width: 760px) {
   .property-title__actions.property-title__actions--contact {
     grid-template-columns: minmax(92px,.9fr) 44px minmax(124px,1.16fr);
