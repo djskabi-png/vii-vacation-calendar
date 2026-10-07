@@ -3,6 +3,7 @@ import { gunzipSync } from "node:zlib";
 import { parseFragment } from "parse5";
 import { supplierDisplayDescription } from "../app/data/supplier-display-text.ts";
 import { supplierContactNumber } from "../app/lib/supplier-contact.ts";
+import { assertCatalogCoverage } from "./sergey-catalog-coverage.mjs";
 
 const root = new URL("../", import.meta.url);
 const input = process.env.VII_SERGEY_RAW_PATH || new URL("tmp/vii-sergey-stage-20261005/raw.json.gz", root);
@@ -136,6 +137,11 @@ const places = source.details.flatMap(({ world, supplierId, raw }) => {
 });
 
 const result = { source: "sergey-vii-api", fetchedAt: source.fetchedAt, places };
+const previousCatalog = JSON.parse(await readFile(output));
+assertCatalogCoverage(
+  Object.fromEntries(["vacations", "events"].map((world) => [world, previousCatalog.places.filter((place) => place.world === world).length])),
+  Object.fromEntries(["vacations", "events"].map((world) => [world, places.filter((place) => place.world === world).length])),
+);
 await mkdir(new URL("tmp/vii-sergey-stage-20261005/", root), { recursive: true });
 await writeFile(output, `${JSON.stringify(result)}\n`);
 await writeFile(detailOutput, `${JSON.stringify({ source: "sergey-vii-api", fetchedAt: source.fetchedAt, details })}\n`);

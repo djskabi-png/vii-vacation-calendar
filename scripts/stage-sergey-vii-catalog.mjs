@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
-import { mkdir, rename, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { gzipSync } from "node:zlib";
+import { assertCatalogCoverage } from "./sergey-catalog-coverage.mjs";
 
 const API_ROOT = "https://bizonline.co.il/api/ai/vii";
 const OUTPUT_DIR = new URL("../tmp/vii-sergey-stage-20261005/", import.meta.url);
@@ -43,6 +44,10 @@ async function main() {
 
   const [locations, ...worldLists] = await Promise.all([get("/locations"), ...WORLDS.map((world) => get(`/${world}`))]);
   if (!Array.isArray(locations.cities) || !Array.isArray(locations.areas)) throw new Error("Invalid location lookup");
+  const previousCatalog = JSON.parse(await readFile(new URL("../app/data/sergey-public-catalog.json", import.meta.url)));
+  const previous = Object.fromEntries(WORLDS.map((world) => [world, previousCatalog.places.filter((place) => place.world === world).length]));
+  const incoming = Object.fromEntries(WORLDS.map((world, index) => [world, worldLists[index]?.places?.filter((place) => place.active === true).length]));
+  assertCatalogCoverage(previous, incoming);
   const cityById = new Map(locations.cities.map((city) => [city.id, city]));
   const areaById = new Map(locations.areas.map((area) => [area.id, area]));
   const tasks = WORLDS.flatMap((world, index) => {
