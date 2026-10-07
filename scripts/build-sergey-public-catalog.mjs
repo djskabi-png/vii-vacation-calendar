@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { gunzipSync } from "node:zlib";
 import { parseFragment } from "parse5";
 import { supplierDisplayDescription } from "../app/data/supplier-display-text.ts";
+import { supplierContactNumber } from "../app/lib/supplier-contact.ts";
 
 const root = new URL("../", import.meta.url);
 const input = process.env.VII_SERGEY_RAW_PATH || new URL("tmp/vii-sergey-stage-20261005/raw.json.gz", root);
@@ -67,10 +68,8 @@ const places = source.details.flatMap(({ world, supplierId, raw }) => {
     rejected.push({ world, supplierId, reason: "missing_capacity" });
     return [];
   }
-  const phone = typeof raw.contact?.phone === "string" && /^[+\d()\s-]{7,24}$/.test(raw.contact.phone)
-    ? raw.contact.phone : undefined;
-  const whatsapp = typeof raw.contact?.whatsapp === "string" && /^[+\d()\s-]{7,24}$/.test(raw.contact.whatsapp)
-    ? raw.contact.whatsapp : undefined;
+  const phone = supplierContactNumber(raw.contact?.phone);
+  const whatsapp = supplierContactNumber(raw.contact?.whatsapp);
   const score = typeof raw.reviews?.score === "number" && raw.reviews.score > 0 ? raw.reviews.score : undefined;
   const reviews = Number.isSafeInteger(raw.reviews?.count) && raw.reviews.count > 0 ? raw.reviews.count : undefined;
   const description = typeof raw.meta?.description === "string" ? raw.meta.description.trim() : "";

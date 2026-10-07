@@ -47,7 +47,7 @@ test("event attendance requests do not exclude places using lodging unit capacit
   const normal = await (await render("/events/search")).text();
   const large = await (await render("/events/search?guests=1000&type=unverified&eventType=unverified")).text();
   const cards = (html) => [...html.matchAll(/href="\/events\/place\/event-\d+"/g)].length;
-  assert.ok(cards(normal) >= 130);
+  assert.equal(cards(normal), catalog.places.filter((place) => place.world === "events").length);
   assert.equal(cards(large), cards(normal));
 });
 
