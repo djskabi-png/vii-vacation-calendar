@@ -90,11 +90,13 @@ const places = source.details.flatMap(({ world, supplierId, raw }) => {
       remarks: plainText(raw.policy?.remarks),
     },
     rooms: rooms.map((room) => ({
+      id: Number.isSafeInteger(room.roomID) && room.roomID > 0 ? room.roomID : 0,
       name: room.roomName?.trim() || "יחידת אירוח",
       quantity: Number.isSafeInteger(room.roomCount) && room.roomCount > 0 ? room.roomCount : 1,
       guests: Number.isSafeInteger(room.maxGuests) && room.maxGuests > 0 ? room.maxGuests : 0,
       bedrooms: Number.isSafeInteger(room.bedrooms) && room.bedrooms > 0 ? room.bedrooms : 0,
       features: unique((room.spaces || []).flatMap((space) => (space.features || []).map((feature) => feature.description?.trim()))),
+      images: unique(Object.values(raw.galleries || {}).filter((gallery) => gallery?.title?.trim() === room.roomName?.trim()).flatMap((gallery) => Array.isArray(gallery.pictures) ? gallery.pictures.map(imageUrl) : [])),
     })),
     reviews: (raw.reviews?.list || []).filter((review) => Number.isSafeInteger(review.id) && (typeof review.text === "string" || typeof review.score === "number")).map((review) => ({
       id: review.id,

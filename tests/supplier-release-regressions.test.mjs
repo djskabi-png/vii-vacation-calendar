@@ -27,7 +27,7 @@ test("an arbitrary URL price cannot authorize supplier booking", async () => {
   const html = await (await render(`/booking?place=${place.slug}&from=2026-10-10&till=2026-10-12&price=987654&illustrative=1`)).text();
   assert.ok(!html.includes("987,654"));
   assert.ok(!html.includes("1,975,308"));
-  assert.match(html, /חסר תאריך או מחיר להזמנה מקוונת/);
+  assert.match(html, /בודקים זמינות ומחיר עדכניים/);
   assert.ok(!html.includes('id="booking-step-three-title"'));
 });
 

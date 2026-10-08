@@ -12,8 +12,10 @@ const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8
 test("vacation online booking requires dates and a positive connected price", () => {
   assert.match(business, /hasSelectedDates = Boolean\(dateRange\.from && dateRange\.till\)/);
   assert.match(business, /hasSelectedPrice = Boolean\(resolvedSelectedPrice && Number\(resolvedSelectedPrice\) > 0\)/);
-  assert.match(business, /vacationOnlineReady = activeWorld === "vacation" && !supplierSiteID && vacationAvailabilityMode !== "inquiry" && hasSelectedDates && effectiveVacationAvailability\?\.availability === "available" && hasSelectedPrice/);
-  assert.match(business, /bookingEnabled=\{!supplierSiteID\}/);
+  assert.match(business, /vacationOnlineReady = activeWorld === "vacation" && vacationAvailabilityMode !== "inquiry" && hasSelectedDates && effectiveVacationAvailability\?\.availability === "available" && hasSelectedPrice && \(!supplierSiteID \|\| supplierQuote\.roomIDs\.length === 1\)/);
+  assert.match(business, /bookingEnabled=\{!supplierSiteID \|\| supplierQuote\.roomIDs\.length === 1\}/);
+  assert.match(booking, /supplierBookingReady = Boolean\(supplierSiteID && supplierQuote\.status === "ready" && supplierQuote\.roomIDs\.length === 1/);
+  assert.match(booking, /supplierQuote\.roomIDs\.includes\(props\.supplierRoomID\)/);
   assert.match(business, /property\.demoOperations\?\.fictional \|\| effectiveVacationAvailability\?\.illustrative \? \{ illustrative: "1" \} : \{\}/);
   assert.match(bookingPage, /onlineReady: property\.capacityScope !== "unit" && Boolean\(params\.from && params\.till && nightlyPrice > 0\)/);
   assert.match(bookingPage, /nightlyPrice = property\.capacityScope === "unit" \|\| \/\^vacation-\\d\+\$\/\.test\(property\.slug\) \? 0 : Number\(params\.price\) \|\| 0/);
@@ -63,7 +65,7 @@ test("spa package includes are localized item by item", () => {
 
 
 test("bookable vacation uses one quick-book action while incomplete data keeps direct enquiry", () => {
-  assert.match(business, /vacationOnlineReady = activeWorld === "vacation" && !supplierSiteID && vacationAvailabilityMode !== "inquiry" && hasSelectedDates && effectiveVacationAvailability\?\.availability === "available" && hasSelectedPrice/);
+  assert.match(business, /vacationOnlineReady = activeWorld === "vacation" && vacationAvailabilityMode !== "inquiry" && hasSelectedDates && effectiveVacationAvailability\?\.availability === "available" && hasSelectedPrice/);
   assert.match(vacationHub, />הזמנה מהירה<\/Link>/);
   assert.match(business, /ownerWhatsapp \? <WhatsAppLeadButton world=\{activeWorld\}/);
   assert.match(business, /phoneHref \? phoneRevealed/);

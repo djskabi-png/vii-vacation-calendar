@@ -13,7 +13,7 @@ import { PropertyCard, resolveAvailabilityForStay } from "../components/property
 import { DiscoveryCard } from "../components/discovery-card";
 import { ListingAccessibility } from "../components/listing-accessibility";
 import { SleepingArrangements } from "../components/sleeping-arrangements";
-import { getListingOfferings, properties, propertyFaq, type BusinessWorld, type ListingFeatureGroup, type ListingHighlightIcon } from "../data/site-data";
+import { getListingOfferings, properties, propertyFaq, type BusinessWorld, type ListingFeatureGroup, type ListingHighlightIcon, type Property } from "../data/site-data";
 import { discoveryItems, type DiscoveryItem } from "../data/world-data";
 import { nearbyTrails } from "../data/trail-data";
 import { TrailCard } from "../components/trail-card";
@@ -165,13 +165,16 @@ export default function BusinessPage({ initialSlug, supplierDetail, initialWorld
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [selectedRoomIndex, setSelectedRoomIndex] = useState<number | null>(null);
   const closeUnitDetails = useCallback(() => setSelectedRoomIndex(null), []);
-  const property = useMemo(() => {
+  const property = useMemo<Property>(() => {
     const base = properties.find((item) => item.slug === initialSlug) || properties[0];
     return supplierDetail ? { ...base, name: supplierDetail.name || base.name, image: supplierDetail.images[0] || base.image,
       images: supplierDetail.images, location: supplierDetail.location || base.location, area: supplierDetail.area || base.area,
       lat: supplierDetail.lat ?? base.lat, lng: supplierDetail.lng ?? base.lng, guests: supplierDetail.guests || base.guests,
       units: supplierDetail.units || base.units, contact: { ...base.contact, ...(supplierDetail.phone ? { phone: supplierDetail.phone } : {}), whatsapp: supplierDetail.whatsapp },
       description: supplierDetail.summary || base.description,
+      roomOptions: supplierDetail.rooms.map((room) => ({ name: room.name, quantity: room.quantity, guests: room.guests,
+        bedrooms: room.bedrooms, image: room.images?.[0] || "", images: room.images || [], features: room.features,
+        ...(room.id ? { supplierRoomID: room.id } : {}) })),
       features: [...new Set([...(supplierDetail.highlights || []), ...base.features, ...supplierDetail.rooms.flatMap((room) => room.features)])] } : base;
   }, [initialSlug, supplierDetail]);
   const offerings = useMemo(() => getListingOfferings(property), [property]);
@@ -201,13 +204,13 @@ export default function BusinessPage({ initialSlug, supplierDetail, initialWorld
     ? String(effectiveVacationAvailability.nightlyPrice)
     : vacationAvailabilityMode === "demo" ? selectedPrice : "";
   const hasSelectedPrice = Boolean(resolvedSelectedPrice && Number(resolvedSelectedPrice) > 0);
-  const vacationOnlineReady = activeWorld === "vacation" && !supplierSiteID && vacationAvailabilityMode !== "inquiry" && hasSelectedDates && effectiveVacationAvailability?.availability === "available" && hasSelectedPrice;
+  const vacationOnlineReady = activeWorld === "vacation" && vacationAvailabilityMode !== "inquiry" && hasSelectedDates && effectiveVacationAvailability?.availability === "available" && hasSelectedPrice && (!supplierSiteID || supplierQuote.roomIDs.length === 1);
   const vacationPhoneFallback = activeWorld === "vacation" && !vacationOnlineReady;
   const vacationRequest = activeWorld === "vacation" && !vacationOnlineReady;
   const onlineBooking = activeWorld === "vacation" ? vacationOnlineReady : activeOffering.bookingMode !== "call-only";
   const phoneBooking = activeOffering.bookingMode === "call-only" || activeOffering.bookingMode === "online-or-call";
   const phoneHref = property.contact?.phone ? `tel:${property.contact.phone.replace(/[^\d+]/g, "")}` : undefined;
-  const bookingQuery = new URLSearchParams({ world: activeWorld, place: property.slug, ...(dateRange.from ? { from: dateRange.from } : {}), ...(dateRange.till ? { till: dateRange.till } : {}), guests: String(guests), ...(resolvedSelectedPrice ? { price: resolvedSelectedPrice } : {}), ...(verifiedLastMinuteDeal ? { period: initialPeriod || "last-minute", source: initialSource || "last-minute" } : {}), ...(initialIllustrative || property.demoOperations?.fictional || effectiveVacationAvailability?.illustrative ? { illustrative: "1" } : {}) }).toString();
+  const bookingQuery = new URLSearchParams({ world: activeWorld, place: property.slug, ...(dateRange.from ? { from: dateRange.from } : {}), ...(dateRange.till ? { till: dateRange.till } : {}), guests: String(guests), ...(resolvedSelectedPrice ? { price: resolvedSelectedPrice } : {}), ...(supplierSiteID && supplierQuote.roomIDs.length === 1 ? { roomID: String(supplierQuote.roomIDs[0]) } : {}), ...(verifiedLastMinuteDeal ? { period: initialPeriod || "last-minute", source: initialSource || "last-minute" } : {}), ...(initialIllustrative || property.demoOperations?.fictional || effectiveVacationAvailability?.illustrative ? { illustrative: "1" } : {}) }).toString();
   const ownerWhatsapp = property.contact?.whatsapp;
   const bookingActionHref = vacationPhoneFallback ? "#booking-summary" : `/booking?${bookingQuery}`;
   const sectionLinks = useMemo<DetailSectionLink[]>(() => [
@@ -333,7 +336,7 @@ export default function BusinessPage({ initialSlug, supplierDetail, initialWorld
               availability={effectiveVacationAvailability}
               availabilityStatus={supplierSiteID ? supplierQuote.status : vacationAvailabilityMode === "live" ? liveLegacyAvailability.status : vacationAvailabilityMode === "demo" ? "ready" : "idle"}
               availabilityMode={vacationAvailabilityMode}
-              bookingEnabled={!supplierSiteID}
+              bookingEnabled={!supplierSiteID || supplierQuote.roomIDs.length === 1}
               bookingHref={`/booking?${bookingQuery}`}
               ownerWhatsapp={ownerWhatsapp}
               phoneHref={phoneHref}
@@ -353,7 +356,9 @@ export default function BusinessPage({ initialSlug, supplierDetail, initialWorld
                   // A place sold as one whole property has one live quote. Its
                   // editorial room entry is descriptive, not a separately priced
                   // inventory unit, so it must reuse that quote.
-                  const roomAvailability = property.scenario === "single" && usesLiveLegacyAvailability
+                  const roomAvailability = supplierSiteID
+                    ? supplierQuote.roomIDs?.includes(room.supplierRoomID || 0) ? effectiveVacationAvailability : undefined
+                    : property.scenario === "single" && usesLiveLegacyAvailability
                     ? effectiveVacationAvailability
                     : effectiveVacationAvailability?.units?.find((unit) => unit.index === roomIndex);
                   const roomAvailable = roomAvailability?.availability === "available";
@@ -366,7 +371,13 @@ export default function BusinessPage({ initialSlug, supplierDetail, initialWorld
                   const unitGalleryStart = property.roomOptions!.slice(0, roomIndex).reduce((total, option) => total + (option.images?.length || 1), 0);
                   const roomStatus = vacationAvailabilityMode === "inquiry"
                     ? unitCopy.inquiry
-                    : liveLegacyAvailability.status === "error"
+                    : supplierSiteID && supplierQuote.status === "loading"
+                      ? "מעדכנים זמינות ומחיר"
+                    : supplierSiteID && supplierQuote.status === "ready" && effectiveVacationAvailability?.availability === "available" && !roomAvailable
+                      ? "ליחידה זו נדרשת בדיקת זמינות נפרדת"
+                    : supplierSiteID && supplierQuote.status === "ready" && !roomAvailable
+                      ? "לא התקבל אישור זמינות ליחידה זו"
+                    : (supplierSiteID ? supplierQuote.status : liveLegacyAvailability.status) === "error"
                       ? unitCopy.error
                       : roomAvailable && roomFitsParty
                         ? unitCopy.available
@@ -375,18 +386,18 @@ export default function BusinessPage({ initialSlug, supplierDetail, initialWorld
                           : roomAvailable
                             ? unitCopy.tooSmall
                             : roomUnavailable ? unitCopy.unavailable : unitCopy.error;
-                  const canBookRoom = vacationAvailabilityMode === "live" && liveLegacyAvailability.status !== "error" && roomAvailable && roomFitsParty && roomNightlyPrice > 0;
+                  const canBookRoom = vacationAvailabilityMode === "live" && (supplierSiteID ? supplierQuote.status : liveLegacyAvailability.status) === "ready" && roomAvailable && roomFitsParty && roomNightlyPrice > 0;
                   return <article className={`room-card${roomAvailable ? " room-card--available" : roomUnavailable ? " room-card--unavailable" : ""}${vacationAvailabilityMode === "inquiry" ? " room-card--inquiry" : ""}`} key={room.name}>
                   <div className="room-card__identity"><span>{property.type}</span><h3>{room.name}</h3></div>
-                  <button className="room-card__image" type="button" data-gallery-trigger onClick={() => { setGalleryTopic(room.name); openGallery("units", unitGalleryStart); }} aria-label={`פתיחת גלריית ${room.name}`}><img src={room.image} alt={`${room.name} ב${property.name}`} title={`${room.name} ב${property.name}`} loading="lazy" /><span>{property.scenario === "single" ? "המקום כולו" : room.images?.length ? `${room.images.length} תמונות` : room.quantity === 1 ? "יחידה אחת" : `${room.quantity} יחידות`}</span></button>
+                  {room.image ? <button className="room-card__image" type="button" data-gallery-trigger onClick={() => { setGalleryTopic(room.name); openGallery("units", unitGalleryStart); }} aria-label={`פתיחת גלריית ${room.name}`}><img src={room.image} alt={`${room.name} ב${property.name}`} title={`${room.name} ב${property.name}`} loading="lazy" /><span>{room.images?.length ? `${room.images.length} תמונות` : "תמונת היחידה"}</span></button> : <div className="room-card__image room-card__image--missing"><img src={property.image} alt={`תמונת מקום האירוח ${property.name}, אינה משויכת ל${room.name}`} loading="lazy" /><span>תמונת המתחם, לא היחידה</span></div>}
                   <div className="room-card__body">
-                    <div className="room-card__facts"><span>עד {room.guests} אורחים</span><span>{bedroomLabel(room.bedrooms)}</span>{room.area ? <span>{room.area} מ״ר</span> : null}<button className="room-card__more" type="button" onClick={() => setSelectedRoomIndex(roomIndex)}>פרטי היחידה</button></div>
+                    <div className="room-card__facts"><span>עד {room.guests} אורחים</span>{room.bedrooms > 0 ? <span>{bedroomLabel(room.bedrooms)}</span> : null}{room.area ? <span>{room.area} מ״ר</span> : null}<button className="room-card__more" type="button" onClick={() => setSelectedRoomIndex(roomIndex)}>פרטי היחידה</button></div>
                     {activeWorld === "vacation" && hasSelectedDates ? <div className="room-card__availability" role="status"><strong>{roomStatus}</strong>{vacationAvailabilityMode === "live" && roomNightlyPrice ? <span>{roomNightlyPrice.toLocaleString(numberLocale)} ₪ {unitCopy.perNight}{roomTotalPrice ? ` · ${roomTotalPrice.toLocaleString(numberLocale)} ₪ ${unitCopy.total}` : ""}</span> : null}</div> : null}
                     <div className="room-card__actions">{activeWorld === "vacation"
-                      ? canBookRoom ? <Link className="button primary" href={roomBookingHref(bookingQuery, roomIndex, roomNightlyPrice)}>{unitCopy.quick} {translate(room.name)}</Link>
+                      ? canBookRoom ? <Link className="button primary" href={supplierSiteID ? `/booking?${bookingQuery}` : roomBookingHref(bookingQuery, roomIndex, roomNightlyPrice)}>{unitCopy.quick} {translate(room.name)}</Link>
                         : vacationAvailabilityMode === "inquiry" && ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={`${unitCopy.check} ${translate(room.name)}`} initialDate={dateRange.from} initialTill={dateRange.till} initialGuests={guests} buttonLabel={unitCopy.enquire} buttonClassName="button primary" />
                           : vacationAvailabilityMode === "inquiry" && phoneHref ? <a className="button primary" href={phoneHref}>{unitCopy.enquire}</a>
-                            : liveLegacyAvailability.status === "error" ? <button className="button secondary" type="button" onClick={liveLegacyAvailability.retry}>{unitCopy.retry}</button>
+                            : (supplierSiteID ? supplierQuote.status : liveLegacyAvailability.status) === "error" ? <button className="button secondary" type="button" onClick={supplierSiteID ? supplierQuote.retry : liveLegacyAvailability.retry}>{unitCopy.retry}</button>
                               : roomUnavailable ? <button className="button secondary" type="button" onClick={() => setCalendarOpen(true)}>{unitCopy.otherDate}</button>
                                 : roomAvailable && !roomFitsParty && ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={`בדיקת שילוב יחידות עם ${translate(room.name)}`} initialDate={dateRange.from} initialTill={dateRange.till} initialGuests={guests} buttonLabel="בדיקת שילוב יחידות" buttonClassName="button secondary" />
                                   : <button className="button secondary" type="button" onClick={() => setCalendarOpen(true)}>{hasSelectedDates ? `${unitCopy.check} ${translate(room.name)}` : `${unitCopy.dates} ${translate(room.name)}`}</button>
@@ -413,7 +424,6 @@ export default function BusinessPage({ initialSlug, supplierDetail, initialWorld
               <button className="button subtle feature-section__desktop-more" type="button" onClick={() => setAllFeaturesOpen(true)}>הצגת כל המתקנים</button>
             </section>
 
-            {supplierDetail?.rooms.length ? <section className="supplier-rooms" aria-labelledby="supplier-rooms-title"><h2 id="supplier-rooms-title">יחידות לפי נתוני המקום</h2><div>{supplierDetail.rooms.map((room, index) => <article key={`${room.name}-${index}`}><h3>{room.name}</h3><p>{room.quantity} {room.quantity === 1 ? "יחידה" : "יחידות"} · עד {room.guests} אורחים ביחידה{room.bedrooms ? ` · ${room.bedrooms} חדרי שינה` : ""}</p>{room.features.length ? <div className="feature-list">{room.features.map((feature) => <span key={feature}>✓ {feature}</span>)}</div> : null}</article>)}</div></section> : null}
             <GuestReviewStudio placeName={property.name} subjectId={property.slug} rating={supplierDetail?.reviewScore ?? property.score} reviewCount={supplierDetail?.reviewCount ?? property.reviews} publishedReviews={property.reviewHighlights} supplierReviews={supplierDetail?.reviews} illustrative={property.reviewSource === "fictional-demo"} open={reviewOpen} onClose={() => setReviewOpen(false)} onOpenGallery={() => { setGalleryTopic(null); openGallery("guests", 0); }} />
 
             <ListingAccessibility slug={property.slug} />

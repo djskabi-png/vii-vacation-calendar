@@ -308,11 +308,11 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
                           ? unitCopy.tooSmall
                           : isUnavailable ? unitCopy.unavailable : unitCopy.confirm;
                 return <article className={`vacation-booking-dialog__unit${isAvailable ? " is-available" : isUnavailable ? " is-unavailable" : ""}`} key={room.name}>
-                  <img className="vacation-booking-dialog__unit-image" src={room.image} alt="" loading="lazy" />
+                  {room.image ? <img className="vacation-booking-dialog__unit-image" src={room.image} alt="" loading="lazy" /> : <div className="vacation-booking-dialog__unit-image vacation-booking-dialog__unit-image--missing" aria-hidden="true" />}
                   <div className="vacation-booking-dialog__unit-content">
                     <div className="vacation-booking-dialog__unit-main">
                       <span className="vacation-booking-dialog__unit-mark" aria-hidden="true"></span>
-                      <div><h4>{room.name}</h4><p>עד {room.guests} אורחים · {bedroomsCopy(room.bedrooms)}{room.area ? ` · ${room.area} מ״ר` : ""}</p></div>
+                      <div><h4>{room.name}</h4><p>עד {room.guests} אורחים{room.bedrooms > 0 ? ` · ${bedroomsCopy(room.bedrooms)}` : ""}{room.area ? ` · ${room.area} מ״ר` : ""}</p></div>
                       {property.scenario === "multi" && room.quantity > 1 ? <b>{`${room.quantity} יחידות`}</b> : null}
                     </div>
                     {hasDates ? <div className="vacation-booking-dialog__unit-availability" role="status">

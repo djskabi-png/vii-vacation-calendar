@@ -19,7 +19,7 @@ export type SupplierPlaceDetail = {
   images: string[];
   summary: string;
   policy: { checkIn: string; checkOut: string; checkOutSat: string; remarks: string };
-  rooms: Array<{ name: string; quantity: number; guests: number; bedrooms: number; features: string[] }>;
+  rooms: Array<{ id?: number; name: string; quantity: number; guests: number; bedrooms: number; features: string[]; images?: string[] }>;
   reviews: Array<{ id: number; author: string; title: string; text: string; date: string; score?: number; response: string; pictureFiles: string[] }>;
   sourceUrl: string;
   reviewCount?: number;
@@ -108,8 +108,14 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
       rooms: rooms.map((value) => {
         const room = record(value);
         const spaces = Array.isArray(room.spaces) ? room.spaces : [];
+        const roomName = typeof room.roomName === "string" ? room.roomName.trim() : "";
+        const roomImages = [...new Set(groups.filter((group) => record(group).title === roomName).flatMap((group) => {
+          const pictures = record(group).pictures;
+          return Array.isArray(pictures) ? pictures.map(supplierMedia).filter((url): url is string => Boolean(url)) : [];
+        }))];
         return {
-          name: typeof room.roomName === "string" ? room.roomName : "יחידת אירוח",
+          ...(Number.isSafeInteger(room.roomID) && (room.roomID as number) > 0 ? { id: room.roomID as number } : {}),
+          name: roomName || "יחידת אירוח",
           quantity: typeof room.roomCount === "number" && room.roomCount > 0 ? room.roomCount : 1,
           guests: typeof room.maxGuests === "number" && room.maxGuests > 0 ? room.maxGuests : 0,
           bedrooms: typeof room.bedrooms === "number" && room.bedrooms > 0 ? room.bedrooms : 0,
@@ -117,6 +123,7 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
             const features = record(value).features;
             return Array.isArray(features) ? features.map((feature) => plain(record(feature).description)).filter(Boolean) : [];
           }))],
+          images: roomImages,
         };
       }),
       reviews: reviewList.flatMap((value) => {

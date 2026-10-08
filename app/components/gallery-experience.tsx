@@ -45,7 +45,7 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
   const dialog = useRef<HTMLDivElement>(null);
   const touchStart = useRef(0);
   const allItems = useMemo(() => {
-    const unitItems = (property.roomOptions || []).flatMap((room) => (room.images?.length ? room.images : [room.image]).map((src, index) => ({ src, label: `${room.name} ב${property.name}, תמונה ${index + 1}`, category: "units" as const, topic: room.name })));
+    const unitItems = (property.roomOptions || []).flatMap((room) => (room.images?.length ? room.images : room.image ? [room.image] : []).map((src, index) => ({ src, label: `${room.name} ב${property.name}, תמונה ${index + 1}`, category: "units" as const, topic: room.name })));
     const unitSources = new Set(unitItems.map((item) => item.src));
     const placeItems = property.images.filter((src) => !unitSources.has(src)).map((src, index) => ({ src, label: `${property.name}, תמונת המקום ${index + 1}`, category: "place" as const, topic: "המקום והמתקנים" }));
     return uniqueItems([

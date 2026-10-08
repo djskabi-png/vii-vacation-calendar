@@ -11,6 +11,7 @@ import { AccountFormPrompt, useAccountAccess } from "../components/account-acces
 import { BookingSchedulePicker } from "../components/booking-schedule-picker";
 import { ViewedItemTracker } from "../components/viewed-item-tracker";
 import { useLegacyAvailability } from "../components/use-legacy-availability";
+import { useViiStayQuote } from "../components/use-vii-stay-quote";
 import { properties } from "../data/site-data";
 import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
 
@@ -42,6 +43,7 @@ type Props = {
     wholeProperty: boolean;
     taxesIncluded: boolean;
   };
+  supplierRoomID?: number;
 };
 
 const priceCopy = {
@@ -89,6 +91,8 @@ export default function BookingPageClient(props: Props) {
   const isManage = props.action === "manage";
   const vacationProperty = useMemo(() => props.world === "vacation" ? properties.find((property) => property.slug === props.placeId) || null : null, [props.placeId, props.world]);
   const liveSourceEnabled = Boolean(vacationProperty && legacyAvailabilitySourceFor(vacationProperty.slug));
+  const supplierSiteID = /^vacation-(\d+)$/.exec(props.placeId)?.[1];
+  const supplierQuote = useViiStayQuote(supplierSiteID ? Number(supplierSiteID) : null, arrival, departure, Math.max(1, Number(guests) || 2));
   const liveAvailability = useLegacyAvailability(vacationProperty, props.world === "vacation" && props.initialFrom && props.initialTill
     ? { from: props.initialFrom, till: props.initialTill, guests: Math.max(1, Number(props.initialGuests) || 2) }
     : null);
@@ -96,12 +100,20 @@ export default function BookingPageClient(props: Props) {
   const liveUnitQuote = selectedUnitIndex === null ? undefined : liveAvailability.quote?.units?.find((unit) => unit.index === selectedUnitIndex);
   const liveNightlyPrice = liveUnitQuote?.nightlyPrice || liveAvailability.quote?.nightlyPrice || 0;
   const liveBookingReady = liveAvailability.quote?.availability === "available" && liveNightlyPrice > 0 && (selectedUnitIndex === null || liveUnitQuote?.availability === "available");
-  const onlineReady = props.world !== "vacation" || (liveSourceEnabled ? liveBookingReady : Boolean(props.onlineReady));
+  const supplierBookingReady = Boolean(supplierSiteID && supplierQuote.status === "ready" && supplierQuote.roomIDs.length === 1 && supplierQuote.quote?.availability === "available"
+    && supplierQuote.quote.nightlyPrice && (!props.supplierRoomID || supplierQuote.roomIDs.includes(props.supplierRoomID)));
+  const onlineReady = props.world !== "vacation" || (supplierSiteID ? supplierBookingReady : liveSourceEnabled ? liveBookingReady : Boolean(props.onlineReady));
   const usesSpaPayment = props.world === "spa" && !isManage;
   const localizedOfferIncludes = props.offerIncludes?.map((item) => translate(item));
   const paymentMethodLabel = paymentMethod === "pay_now" ? "תשלום בכרטיס עכשיו" : "תשלום במקום, כרטיס לביטחון";
   const currentNights = countStayNights(arrival, departure) || props.vacationPrice?.nights || 0;
-  const pricing = liveSourceEnabled
+  const pricing = supplierSiteID
+    ? supplierBookingReady && currentNights > 0 ? {
+      nightlyPrice: supplierQuote.quote!.nightlyPrice!, nights: currentNights,
+      totalPrice: supplierQuote.quote!.nightlyPrice! * currentNights,
+      guests: Math.max(1, Number(guests) || 2), wholeProperty: false, taxesIncluded: false,
+    } : undefined
+    : liveSourceEnabled
     ? liveBookingReady && currentNights > 0 ? {
       nightlyPrice: liveNightlyPrice,
       nights: currentNights,
@@ -263,7 +275,7 @@ export default function BookingPageClient(props: Props) {
           phone: values.get("phone"),
           email: values.get("email"),
           organization: props.placeName,
-          package: props.offerId || undefined,
+          package: supplierSiteID ? `room-${supplierQuote.roomIDs[0] || props.supplierRoomID || ""}` : props.offerId || undefined,
           message: details,
           honey: values.get("company_site"),
           privacyAccepted: values.get("privacy") === "on",
@@ -282,7 +294,7 @@ export default function BookingPageClient(props: Props) {
     }
   }
 
-  if (liveSourceEnabled && liveAvailability.status === "loading") return <main id="main-content" className="booking-page shell">
+  if ((supplierSiteID && supplierQuote.status === "loading") || (liveSourceEnabled && liveAvailability.status === "loading")) return <main id="main-content" className="booking-page shell">
     {viewedOfferTracker}
     {bookingReturnNavigation}
     <section className="booking-unavailable booking-unavailable--checking" aria-live="polite" aria-labelledby="booking-check-title">
@@ -299,8 +311,8 @@ export default function BookingPageClient(props: Props) {
     {bookingReturnNavigation}
     <section className="booking-unavailable" aria-labelledby="booking-phone-title">
       <span className="eyebrow">הזמנה בטלפון</span>
-      <h1 id="booking-phone-title">{liveSourceEnabled ? "התאריכים או היחידה כבר אינם זמינים להזמנה מהירה" : "חסר תאריך או מחיר להזמנה מקוונת"}</h1>
-      <p>{liveSourceEnabled ? "לא המשכנו עם המחיר שהיה בקישור. אפשר לחזור למקום, לבחור תאריך אחר או לפנות אליו ישירות." : "כדי לא להציג הזמנה חלקית, ממשיכים בשיחה ישירה עם המקום. לאחר חיבור המערכת נתוני התאריך והמחיר יגיעו אוטומטית."}</p>
+      <h1 id="booking-phone-title">{supplierSiteID || liveSourceEnabled ? "התאריכים או היחידה כבר אינם זמינים להזמנה מהירה" : "חסר תאריך או מחיר להזמנה מקוונת"}</h1>
+      <p>{supplierSiteID || liveSourceEnabled ? "לא המשכנו עם המחיר שהיה בקישור. אפשר לחזור למקום, לבחור תאריך אחר או לפנות אליו ישירות." : "כדי לא להציג הזמנה חלקית, ממשיכים בשיחה ישירה עם המקום. לאחר חיבור המערכת נתוני התאריך והמחיר יגיעו אוטומטית."}</p>
       {props.phone ? phoneRevealed ? <a className="phone-reveal phone-reveal--visible" href={`tel:${props.phone.replace(/[^\d+]/g, "")}`}><span>לחיוג עכשיו</span><strong dir="ltr">{props.phone}</strong></a> : <button className="phone-reveal" type="button" onClick={() => setPhoneRevealed(true)} aria-expanded={phoneRevealed}><span>טלפון להזמנה</span><strong>לחצו להצגת המספר</strong></button> : <p role="status">מספר ההזמנות טרם חובר למקום.</p>}
       <span data-keep-same-tab="true"><Link className="button secondary" href={businessReturnHref}>{returnCopy.business}</Link></span>
     </section>
@@ -314,7 +326,7 @@ export default function BookingPageClient(props: Props) {
         <span className="booking-success__mark" aria-hidden="true">✓</span>
         <small>{props.illustrative ? "המחשת הזמנה בלבד" : isManage ? "בקשת שינוי" : "הזמנה שממתינה לאישור"}</small>
         <h1>{props.illustrative ? "המחשת ההזמנה הושלמה" : isManage ? "בקשת השינוי התקבלה" : "בקשת ההזמנה הושלמה"}</h1>
-        <p>{props.illustrative ? "זו המחשת תצוגה בלבד. לא נשלחה הזמנה, לא נשמרו פרטים ולא בוצע חיוב." : isManage ? "הבקשה נשמרה ונציג יבדוק אותה." : usesSpaPayment ? paymentMethod === "pay_now" ? "פרטי ההזמנה נשמרו. ספק הסליקה טרם חובר ולכן לא בוצע חיוב בכרטיס." : "פרטי ההזמנה נשמרו. לא בוצע חיוב, וכרטיס לביטחון לא נשמר עד לחיבור ספק סליקה מאובטח." : "לא בוצע חיוב. המקום יקבל את הבקשה, יאמת זמינות ומחיר ויחזיר אישור סופי."}</p>
+        <p>{props.illustrative ? "זו המחשת תצוגה בלבד. לא נשלחה הזמנה, לא נשמרו פרטים ולא בוצע חיוב." : isManage ? "הבקשה נשמרה ונציג יבדוק אותה." : usesSpaPayment ? paymentMethod === "pay_now" ? "פרטי ההזמנה נשמרו. ספק הסליקה טרם חובר ולכן לא בוצע חיוב בכרטיס." : "פרטי ההזמנה נשמרו. לא בוצע חיוב, וכרטיס לביטחון לא נשמר עד לחיבור ספק סליקה מאובטח." : supplierSiteID ? "בקשת ההזמנה נקלטה בצוות VII. לא בוצע חיוב, וההזמנה תושלם רק לאחר אישור המקום." : "לא בוצע חיוב. המקום יקבל את הבקשה, יאמת זמינות ומחיר ויחזיר אישור סופי."}</p>
         <div className="booking-success__summary">
           <strong>{props.placeName}</strong>
           <span>{arrival}{departure ? " עד " + departure : ""}</span>
@@ -358,7 +370,7 @@ export default function BookingPageClient(props: Props) {
     <div className="booking-page__intro">
       <span className="eyebrow">{isManage ? "ניהול הזמנה" : usesSpaPayment ? "הזמנת ספא אונליין" : "הזמנה אונליין"}</span>
       <h1>{isManage ? "עדכון או ביטול הזמנה" : props.placeName}</h1>
-      <p>{props.illustrative ? "כך ייראה מסלול ההזמנה כאשר המחיר והזמינות יחוברו למערכת. ההמחשה אינה שולחת הזמנה." : isManage ? "מוסרים את מספר ההזמנה ואת הבקשה המבוקשת." : usesSpaPayment ? "בוחרים מועד, ממלאים פרטים ובוחרים איך לשלם לפני סיכום ההזמנה." : "שלושה שלבים קצרים. הבקשה נשלחת לאישור המקום ורק לאחר מכן הופכת להזמנה מאושרת."}</p>
+      <p>{props.illustrative ? "כך ייראה מסלול ההזמנה כאשר המחיר והזמינות יחוברו למערכת. ההמחשה אינה שולחת הזמנה." : isManage ? "מוסרים את מספר ההזמנה ואת הבקשה המבוקשת." : usesSpaPayment ? "בוחרים מועד, ממלאים פרטים ובוחרים איך לשלם לפני סיכום ההזמנה." : supplierSiteID ? "שלושה שלבים קצרים לשליחת בקשת הזמנה לצוות VII. אישור סופי יינתן רק לאחר בדיקת המקום." : "שלושה שלבים קצרים. הבקשה נשלחת לאישור המקום ורק לאחר מכן הופכת להזמנה מאושרת."}</p>
     </div>
 
     <nav className="booking-steps" aria-label="שלבי ההזמנה">
@@ -426,7 +438,7 @@ export default function BookingPageClient(props: Props) {
               <label><input type="radio" name="paymentMethod" value="pay_at_venue" checked={paymentMethod === "pay_at_venue"} onChange={() => setPaymentMethod("pay_at_venue")} required /><span><b>תשלום במקום</b><small>הכרטיס משמש לביטחון ההזמנה בלבד ואינו מחויב עכשיו.</small></span></label>
             </div>
             <small className="booking-payment-choice__notice">ספק הסליקה טרם חובר. כרגע זהו תהליך המחשה, אין להזין או לשמור פרטי כרטיס אמיתי.</small>
-          </fieldset> : <div className="booking-approval-note form-wide"><strong>מה קורה אחרי השליחה?</strong><p>הבקשה נשמרת ומועברת למקום. לאחר בדיקת הזמינות והמחיר יישלח אישור סופי. עד אז הסטטוס הוא ממתין לאישור.</p></div>}
+          </fieldset> : <div className="booking-approval-note form-wide"><strong>מה קורה אחרי השליחה?</strong><p>{supplierSiteID ? "הבקשה נקלטת בצוות VII לטיפול מול המקום. עד שיתקבל אישור סופי, הסטטוס הוא ממתין לאישור." : "הבקשה נשמרת ומועברת למקום. לאחר בדיקת הזמינות והמחיר יישלח אישור סופי. עד אז הסטטוס הוא ממתין לאישור."}</p></div>}
           <div className="booking-form__actions form-wide">
             <button className="button secondary" type="button" onClick={() => setStep(2)}>עריכת הפרטים</button>
             {usesSpaPayment ? <button ref={paymentTriggerRef} className="button primary" type="button" onClick={openPayment}>המשך לתשלום</button> : <button className="button primary" disabled={state === "submitting"} type="submit">{state === "submitting" ? "שולחים..." : props.illustrative ? "סיום המחשת ההזמנה" : isManage ? "שליחת בקשת שינוי" : "שליחת בקשת הזמנה"}</button>}

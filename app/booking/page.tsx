@@ -8,6 +8,7 @@ import { getSpaDetails } from "../data/spa-details";
 import { getProviderDetails } from "../data/provider-details";
 import BookingPageClient from "./client-page";
 import { supplierLegacySlug, unavailableLegacySearchHref } from "../data/supplier-legacy-links";
+import { supplierPlaceDetail } from "../data/supplier-place-detail";
 
 export const metadata: Metadata = {
   title: "הזמנה אונליין",
@@ -29,6 +30,7 @@ type Props = {
     guests?: string;
     price?: string;
     unitIndex?: string;
+    roomID?: string;
     illustrative?: string;
   }>;
 };
@@ -56,7 +58,10 @@ async function resolveBooking(params: Awaited<Props["searchParams"]>) {
   const property = properties.find((item) => item.slug === params.place);
   if (property) {
     const selectedUnitIndex = Math.max(0, Number(params.unitIndex || "0") - 1);
-    const selectedUnit = params.unitIndex ? property.roomOptions?.[selectedUnitIndex] : undefined;
+    const supplierRoomID = /^vacation-\d+$/.test(property.slug) && Number.isSafeInteger(Number(params.roomID)) && Number(params.roomID) > 0 ? Number(params.roomID) : undefined;
+    const selectedUnit = supplierRoomID
+      ? supplierPlaceDetail(property.slug)?.rooms.find((room) => room.id === supplierRoomID)
+      : params.unitIndex ? property.roomOptions?.[selectedUnitIndex] : undefined;
     // Catalog records do not authorize prices supplied in a URL.
     const nightlyPrice = property.capacityScope === "unit" || /^vacation-\d+$/.test(property.slug) ? 0 : Number(params.price) || 0;
     const nights = countNights(params.from, params.till);
@@ -65,8 +70,8 @@ async function resolveBooking(params: Awaited<Props["searchParams"]>) {
     world: "vacation",
     placeId: property.slug,
     placeName: property.name,
-    offerId: selectedUnit ? `unit-${selectedUnitIndex + 1}` : offerId,
-    offerName: selectedUnit ? `הזמנת ${selectedUnit.name}` : "הזמנת המקום",
+    offerId: supplierRoomID ? `room-${supplierRoomID}` : selectedUnit ? `unit-${selectedUnitIndex + 1}` : offerId,
+    offerName: selectedUnit ? `בקשת הזמנה ל${selectedUnit.name}` : "בקשת הזמנה למקום",
     price: totalPrice ? `${totalPrice.toLocaleString("he-IL")} ₪ לכל השהייה` : "מחיר סופי לאחר בחירת תאריך",
     vacationPrice: nightlyPrice > 0 && nights > 0 ? {
       nightlyPrice,
@@ -77,6 +82,7 @@ async function resolveBooking(params: Awaited<Props["searchParams"]>) {
       taxesIncluded: property.demoOperations?.taxesIncluded === true,
     } : undefined,
     onlineReady: property.capacityScope !== "unit" && Boolean(params.from && params.till && nightlyPrice > 0),
+    supplierRoomID,
     phone: property.contact?.phone,
     illustrative: property.capacityScope !== "unit" && (params.illustrative === "1" || property.demoOperations?.fictional === true),
     demoOwnerEmail: property.demoOperations?.ownerEmail,
