@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useId, useMemo, useRef, useState,
 import { languageFromPathname, localizedPath, type SiteLanguage } from "./locale-routing";
 import legacyVacationUiTranslations from "../data/legacy-vacation-ui-translations.json";
 import bookingHubTranslations from "../data/booking-hub-translations.json";
+import hourlyUiTranslations from "../data/hourly-ui-translations.json";
 
 export type { SiteLanguage } from "./locale-routing";
 
@@ -1211,8 +1212,9 @@ function translateValue(value: string, language: SiteLanguage): string {
   const trailing = value.match(/\s*$/)?.[0] || "";
   const core = value.trim().replace(/\s+/g, " ");
   const bookingHubExact = (bookingHubTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
+  const hourlyExact = (hourlyUiTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
   const legacyExact = (legacyVacationUiTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
-  const exact = bookingHubExact || legacyExact || finalUiTranslations[language][core] || curatedTranslations[language][core] || dictionary(language)[core];
+  const exact = bookingHubExact || hourlyExact || legacyExact || finalUiTranslations[language][core] || curatedTranslations[language][core] || dictionary(language)[core];
   let translated: string = exact || translateDynamic(core, language);
   if (language === "en") {
     translated = translated

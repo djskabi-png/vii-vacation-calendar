@@ -306,7 +306,8 @@ test("spa, hourly, event and attraction worlds expose interactive maps", async (
   assert.match(mapSource, /initialPlaceIds/);
   assert.match(mapSource, /MapTone = "vacation" \| "events" \| "spa" \| "hourly" \| "activities"/);
   assert.match(mapSource, /map-tone--\$\{tone\}/);
-  assert.ok((worldData.match(/mapPrecision: "area"/g) || []).length >= 20);
+  assert.ok((worldData.match(/mapPrecision: "area"/g) || []).length >= 10);
+  assert.match(worldData, /mapPrecision: "exact"/);
   assert.match(hourlyResults, /<DeferredDiscoveryMap items=\{filtered\} tone="hourly" autoLoad onClose=/);
   assert.match(worldResults, /<DeferredDiscoveryMap items=\{items\} tone=\{world\} autoLoad onClose=/);
   assert.match(attractionResults, /<DeferredDiscoveryMap items=\{filtered\} tone="activities" autoLoad onClose=/);
@@ -380,14 +381,14 @@ test("shared map markers use modern icon markers and visible active list control
 test("commercial discovery stays inside VII", async () => {
   const responses = await Promise.all([
     render("/discover/place/spa-butik-tlv"),
-    render("/discover/place/gentleman-haifa"),
+    render("/discover/place/hourly-1915"),
     render("/business?id=vacation-1"),
     render("/events/place/event-2"),
   ]);
   const pages = (await Promise.all(responses.map((response) => response.text()))).join("\n");
   assert.doesNotMatch(pages.replaceAll('href="https://www.spaplus.co.il/club/?src=vii"', ""), /href=["'][^"']*(?:roomsvip\.com|spaplus\.co\.il)/i);
   assert.doesNotMatch(pages, /פתיחה במפה מלאה/);
-  assert.match(pages, /לכל פרטי השהייה/);
+  assert.match(pages, /לפרטי החדרים והמחירים/);
   assert.match(pages, /מגדילים, מקטינים ומזיזים את המפה כאן בעמוד/);
 });
 
@@ -584,7 +585,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(eventPlace, /<FavoriteButton compact=\{false\}/);
   assert.match(styles, /\.universal-favorite\.is-saved/);
   assert.equal((worldData.match(/sourceName: "ספא פלוס"/g) || []).length, 10);
-  assert.equal((worldData.match(/sourceName: "חדרים וי־איי־פי"/g) || []).length, 10);
+  assert.match(worldData, /hourlyPlaces: DiscoveryItem\[\] = hourlyCatalog\.places\.map/);
   assert.match(worldSwitcher, /בחירת עולם/);
   assert.match(worldSwitcher, /מה מחפשים\?/);
   assert.match(worldSwitcher, /aria-current/);
@@ -1034,14 +1035,14 @@ test("key page types emit matching structured data and private pages stay out of
 test("every discovery card has stable media and every new world has a full detail page", async () => {
   const worldData = await readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8");
   const itemLines = worldData.split("\n").filter((line) => line.includes("world:") && line.includes(" id: "));
-  assert.equal(itemLines.length, 51);
+  assert.equal(itemLines.length, 41);
   for (const line of itemLines) {
     assert.match(line, /image: "\/media\//);
     assert.doesNotMatch(line, /demo: true/);
   }
 
   for (const [pathname, expected] of [
-    ["/discover/place/gentleman-haifa", /אפשרויות שהייה/],
+    ["/discover/place/hourly-1915", /חדרים ומחירי בסיס/],
     ["/discover/place/timna-park", /איך מזמינים את האטרקציה/],
     ["/discover/place/kfar-blum-kayaks", /איך מזמינים את האטרקציה/],
     ["/discover/place/assemblage-spa", /חבילות הספא/],
@@ -1128,7 +1129,7 @@ test("every business depth template exposes an internal gallery", async () => {
     ["/business?id=vacation-1", "אחוזת דוריאל"],
     ["/events/place/event-2", "סטאר לופט"],
     ["/discover/place/spa-butik-tlv", "ספא בוטיק תל אביב"],
-    ["/discover/place/gentleman-haifa", "ג׳נטלמן חיפה"],
+    ["/discover/place/hourly-1915", "אסקייפ לאב"],
     ["/discover/place/masu-home-wellness", "מאסו"],
     ["/discover/place/timna-park", "פארק תמנע"],
   ]) {
@@ -1225,7 +1226,7 @@ test("content card images pair descriptive alt text with matching title metadata
 test("discovery depth pages expose only their visible verified FAQs as FAQPage data", async () => {
   const [spaResponse, hourlyResponse, discoveryPage] = await Promise.all([
     render("/discover/place/spa-butik-tlv"),
-    render("/discover/place/gentleman-haifa"),
+    render("/discover/place/hourly-1915"),
     readFile(new URL("../app/discover/place/[id]/page.tsx", import.meta.url), "utf8"),
   ]);
   const [spaHtml, hourlyHtml] = await Promise.all([spaResponse.text(), hourlyResponse.text()]);

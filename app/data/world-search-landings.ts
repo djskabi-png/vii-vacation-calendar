@@ -8,6 +8,7 @@ const locationSlugs: Record<string, string> = {
   "כנרת": "kinneret",
   "גליל מערבי": "western-galilee",
   "השרון": "sharon",
+  "מישור החוף והשפלה": "coastal-plain",
   "מרכז": "center",
   "תל אביב": "tel-aviv",
   "ירושלים והסביבה": "jerusalem",

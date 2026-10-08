@@ -1,0 +1,204 @@
+{
+  "source": "sergey-vii-api/rooms",
+  "fetchedAt": "2026-10-08T13:15:05.788Z",
+  "places": [
+    {
+      "id": "hourly-1891",
+      "supplierId": 1891,
+      "name": "אהבה בשניים",
+      "sourceUrl": "https://www.vii.co.il/rooms/ahava_beshanim",
+      "location": "ראשון לציון",
+      "area": "מישור החוף והשפלה",
+      "description": "",
+      "images": [],
+      "phone": "055-4360860",
+      "whatsapp": "",
+      "lat": 31.9890412,
+      "lng": 34.7739095,
+      "score": null,
+      "reviewCount": 0,
+      "rooms": []
+    },
+    {
+      "id": "hourly-1915",
+      "supplierId": 1915,
+      "name": "אסקייפ לאב",
+      "sourceUrl": "https://www.vii.co.il/rooms/ascape_room",
+      "location": "הרצליה",
+      "area": "מישור החוף והשפלה",
+      "description": "",
+      "images": [
+        "https://www.vii.co.il/gallery/956751a02ae1e08.jpg",
+        "https://www.vii.co.il/gallery/106751a02ae6283.jpg",
+        "https://www.vii.co.il/gallery/166751a02aedcdb.jpg",
+        "https://www.vii.co.il/gallery/986751a02aa3489.jpg",
+        "https://www.vii.co.il/gallery/666751a02b0199a.jpg",
+        "https://www.vii.co.il/gallery/56751a02af196a.jpg",
+        "https://www.vii.co.il/gallery/176751a02acffbb.jpg",
+        "https://www.vii.co.il/gallery/926751a02ab812a.jpg",
+        "https://www.vii.co.il/gallery/996751a02aafcfe.jpg",
+        "https://www.vii.co.il/gallery/476751a02a8bd62.jpg",
+        "https://www.vii.co.il/gallery/916751a02a9f62f.jpg",
+        "https://www.vii.co.il/gallery/476751a02acacdd.jpg",
+        "https://www.vii.co.il/gallery/86751a02ac152a.jpg",
+        "https://www.vii.co.il/gallery/506751a02a9aac2.jpg",
+        "https://www.vii.co.il/gallery/66751a02b1cb05.jpg",
+        "https://www.vii.co.il/gallery/856751a02b05956.jpg",
+        "https://www.vii.co.il/gallery/486751a02b14e55.jpg",
+        "https://www.vii.co.il/gallery/746751a02b18a83.jpg",
+        "https://www.vii.co.il/gallery/346751a02aaba12.jpg",
+        "https://www.vii.co.il/gallery/216751a02aa763b.jpg",
+        "https://www.vii.co.il/gallery/846751a02b30598.jpg",
+        "https://www.vii.co.il/gallery/486751a02b2c83d.jpg",
+        "https://www.vii.co.il/gallery/356751a02ae9fbe.jpg",
+        "https://www.vii.co.il/gallery/446751a02b24ba0.jpg",
+        "https://www.vii.co.il/gallery/16751a02b28d5c.jpg",
+        "https://www.vii.co.il/gallery/436751a02b454b0.jpg",
+        "https://www.vii.co.il/gallery/376751a02b35594.jpg",
+        "https://www.vii.co.il/gallery/376751a02b392d5.jpg",
+        "https://www.vii.co.il/gallery/126751a02b0d71a.jpg",
+        "https://www.vii.co.il/gallery/416751a02b11056.jpg",
+        "https://www.vii.co.il/gallery/926751a02b20a7c.jpg",
+        "https://www.vii.co.il/gallery/86751a02ad982f.jpg",
+        "https://www.vii.co.il/gallery/146751a02b097a7.jpg",
+        "https://www.vii.co.il/gallery/476751a02addbe2.jpg",
+        "https://www.vii.co.il/gallery/916751a02ab42cd.jpg",
+        "https://www.vii.co.il/gallery/306751a02abd2a5.jpg",
+        "https://www.vii.co.il/gallery/816751a02ac5894.jpg",
+        "https://www.vii.co.il/gallery/316751a02ad4e01.jpg",
+        "https://www.vii.co.il/gallery/166751a02b3d453.jpg",
+        "https://www.vii.co.il/gallery/816751a02b41314.jpg"
+      ],
+      "phone": "055-4336823",
+      "whatsapp": "053-9590009",
+      "lat": 32.1673827,
+      "lng": 34.8549909,
+      "score": null,
+      "reviewCount": 0,
+      "rooms": [
+        {
+          "id": 3276,
+          "name": "סוויטה",
+          "count": 4,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "ג'קוזי זוגי מפנק",
+            "מטבחון מאובזר",
+            "פינת אוכל",
+            "חניה פרטית",
+            "מרפסת",
+            "מסך LCD",
+            "מזגן",
+            "פינת ישיבה",
+            "מגבות רחצה",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 200,
+              "weekend": 200
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 200,
+              "weekend": 200
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 250,
+              "weekend": 250
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hourly-2380",
+      "supplierId": 2380,
+      "name": "אהבה ביער",
+      "sourceUrl": "https://www.vii.co.il/rooms/Forest_Love",
+      "location": "עבדון",
+      "area": "גליל מערבי",
+      "description": "",
+      "images": [
+        "https://www.vii.co.il/gallery/216992d090a36e0.jpg",
+        "https://www.vii.co.il/gallery/386992d090a9bd5.JPG",
+        "https://www.vii.co.il/gallery/206992d0909eae8.jpg",
+        "https://www.vii.co.il/gallery/166992d090b4f0f.JPG",
+        "https://www.vii.co.il/gallery/816992d090b85f4.JPG",
+        "https://www.vii.co.il/gallery/546992d090bf561.JPG",
+        "https://www.vii.co.il/gallery/956992d09093c95.jpg",
+        "https://www.vii.co.il/gallery/556992d090a6c83.JPG",
+        "https://www.vii.co.il/gallery/936992d090adbe0.JPG",
+        "https://www.vii.co.il/gallery/16992d090b173f.JPG",
+        "https://www.vii.co.il/gallery/256992d090bbaa2.JPG",
+        "https://www.vii.co.il/gallery/296992d090c9da9.JPG",
+        "https://www.vii.co.il/gallery/06992d090c4423.JPG",
+        "https://www.vii.co.il/gallery/66992d090d77e5.JPG"
+      ],
+      "phone": "055-4315384",
+      "whatsapp": "052-3549141",
+      "lat": 33.048792,
+      "lng": 35.179128,
+      "score": null,
+      "reviewCount": 0,
+      "rooms": [
+        {
+          "id": 4086,
+          "name": "אהבה ביער",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "מטבחון מאובזר",
+            "פינת קפה",
+            "סלון",
+            "מקרר קטן",
+            "מרפסת",
+            "מסך LCD",
+            "מזגן",
+            "ארונות לאחסון",
+            "מגבות רחצה",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 150,
+              "weekend": 150
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 200,
+              "weekend": 200
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 300,
+              "weekend": 300
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hourly-2716",
+      "supplierId": 2716,
+      "name": "וילה מארה - קו ראשון לים בהרצליה פיתוח",
+      "sourceUrl": "https://www.vii.co.il/rooms/Villa_Mare_Herzliya",
+      "location": "הרצליה",
+      "area": "מישור החוף והשפלה",
+      "description": "וילה מארה מציעה חופשה מול הים בהרצליה פיתוח עם 4 חדרי שינה, בריכה פרטית, חצר עם מדשאות ומיטות שיזוף, חדר מאסטר עם מרפסת מול הים ואפשרות להוספת יחידת אירוח",
+      "images": [],
+      "phone": "055-4310081",
+      "whatsapp": "",
+      "lat": 32.1694834,
+      "lng": 34.8031596,
+      "score": null,
+      "reviewCount": 0,
+      "rooms": []
+    }
+  ]
+}

@@ -1,4 +1,6 @@
 import verifiedCatalog from "./verified-catalog.json";
+import hourlyCatalog from "./sergey-hourly-catalog.json";
+import { supplierContactNumber } from "../lib/supplier-contact";
 
 export type WorldId = "vacation" | "events" | "corporate" | "spa" | "hourly" | "providers" | "activities";
 
@@ -68,19 +70,6 @@ const curatedSpaPlaces: DiscoveryItem[] = [
   { id: "playa-spa", world: "spa", name: "פלאיה ספא במלון פליי ווסט", location: "תל אביב", area: "מרכז", description: "ספא בצפון תל אביב ליד חוף הצוק עם סאונות, חדר כושר ומלתחות.", features: ["ליד הים", "סאונות", "חדר כושר"], image: "/media/discovery/playa-spa.jpg", images: ["/media/discovery/playa-spa.jpg", "/media/discovery/playa-spa-1.jpg", "/media/discovery/playa-spa-2.png", "/media/discovery/playa-spa-3.png"], priceLabel: "החל מ־415 ₪", rating: 9.6, lat: 32.1388, lng: 34.7919, mapPrecision: "area", sourceUrl: "https://www.spaplus.co.il/spa_OpolSky", sourceName: "ספא פלוס" },
 ];
 
-const curatedHourlyPlaces: DiscoveryItem[] = [
-  { id: "gentleman-haifa", world: "hourly", name: "ג׳נטלמן חיפה", location: "חיפה", area: "צפון", description: "שני חדרי סטודיו לשהייה קצרה עם כניסה עצמאית, מטבחון וחניה פרטית.", features: ["2 חדרים", "כניסה עצמאית", "מטבחון"], image: "/media/discovery/gentleman-haifa.jpg", images: ["/media/discovery/gentleman-haifa.jpg", "/media/discovery/gentleman-haifa-1.jpg", "/media/discovery/gentleman-haifa-2.jpg", "/media/discovery/gentleman-haifa-3.jpg"], priceLabel: "שעה החל מ־200 ₪", phone: "055-4576591", contactName: "מרכז הזמנות", lat: 32.7940, lng: 34.9896, mapPrecision: "area", sourceUrl: "https://roomsvip.com/Gentleman_Haifa", sourceName: "חדרים וי־איי־פי" },
-  { id: "lago-suite", world: "hourly", name: "לאגו סוויט", location: "ירושלים", area: "ירושלים והסביבה", description: "מתחם סוויטות ויחידות אירוח עם אפשרויות לפי שעה או ללילה.", features: ["סוויטות", "ג׳קוזי", "אפשרות לבריכה"], image: "/media/discovery/lago-suite.jpg", images: ["/media/discovery/lago-suite.jpg", "/media/discovery/lago-suite-1.jpg", "/media/discovery/lago-suite-2.jpg", "/media/discovery/lago-suite-3.jpeg"], priceLabel: "שעה החל מ־250 ₪", phone: "055-4339686", contactName: "אלי", lat: 31.7683, lng: 35.2137, mapPrecision: "area", sourceUrl: "https://roomsvip.com/Lago_Suite", sourceName: "חדרים וי־איי־פי" },
-  { id: "kinki-rooms", world: "hourly", name: "קינקי רומס", location: "ראשון לציון", area: "מרכז", description: "שלוש סוויטות מעוצבות לשהייה של כמה שעות או ללילה.", features: ["3 סוויטות", "חניה פרטית", "פינות ישיבה"], image: "/media/discovery/kinki-rooms.jpg", images: ["/media/discovery/kinki-rooms.jpg", "/media/discovery/kinki-rooms-1.jpg", "/media/discovery/kinki-rooms-2.jpg", "/media/discovery/kinki-rooms-3.jpg"], priceLabel: "שעה החל מ־330 ₪", phone: "055-4353721", contactName: "ברוך", lat: 31.9730, lng: 34.7925, mapPrecision: "area", sourceUrl: "https://roomsvip.com/Kinki_rooms", sourceName: "חדרים וי־איי־פי" },
-  { id: "escape-love", world: "hourly", name: "אסקייפ לאב", location: "הרצליה", area: "מרכז", description: "ארבע סוויטות עם ג׳קוזי, חדר רחצה פרטי, חניה וכניסה עצמאית.", features: ["4 סוויטות", "ג׳קוזי", "כניסה עצמאית"], image: "/media/discovery/escape-love.jpg", images: ["/media/discovery/escape-love.jpg", "/media/discovery/escape-love-1.jpg", "/media/discovery/escape-love-2.jpg", "/media/discovery/escape-love-3.jpg"], priceLabel: "שעה החל מ־200 ₪", phone: "055-4336823", contactName: "רוני", lat: 32.1663, lng: 34.8433, mapPrecision: "area", sourceUrl: "https://roomsvip.com/ascape_room", sourceName: "חדרים וי־איי־פי" },
-  { id: "pninat-miel", world: "hourly", name: "פנינת מיאל", location: "אבן יהודה", area: "השרון", description: "שני צימרים עם ג׳קוזי, חצר, מטבח וחניה פרטית.", features: ["2 צימרים", "ג׳קוזי", "חצר פרטית"], image: "/media/discovery/pninat-miel.jpg", images: ["/media/discovery/pninat-miel.jpg", "/media/discovery/pninat-miel-1.jpg", "/media/discovery/pninat-miel-2.jpeg", "/media/discovery/pninat-miel-3.jpg"], priceLabel: "שעה החל מ־300 ₪", phone: "055-4549885", lat: 32.2695, lng: 34.8870, mapPrecision: "area", sourceUrl: "https://roomsvip.com/Pninat_Miel_Rooms", sourceName: "חדרים וי־איי־פי" },
-  { id: "shanti-suites", world: "hourly", name: "שאנטי סוויט", location: "תל אביב", area: "מרכז", description: "מתחם של שמונה חדרים וסוויטות לשהייה לפי שעה או ללינה.", features: ["8 חדרים", "חניה", "לפי שעה או לילה"], image: "/media/discovery/shanti-suites.jpg", images: ["/media/discovery/shanti-suites.jpg", "/media/discovery/shanti-suites-1.jpg", "/media/discovery/shanti-suites-2.jpeg", "/media/discovery/shanti-suites-3.jpeg"], priceLabel: "שעה החל מ־200 ₪", phone: "055-4520575", contactName: "אלירן", lat: 32.0853, lng: 34.7818, mapPrecision: "area", sourceUrl: "https://roomsvip.com/shanti_suites", sourceName: "חדרים וי־איי־פי" },
-  { id: "ahava-beshnaim", world: "hourly", name: "אהבה בשניים", location: "ראשון לציון", area: "מרכז", description: "חדר בוטיק לשהייה קצרה עם שירות עצמאי וללא מפגש.", features: ["חדר בוטיק", "ללא מפגש", "לפי שעה או לילה"], image: "/media/discovery/ahava-beshnaim.jpg", images: ["/media/discovery/ahava-beshnaim.jpg", "/media/discovery/ahava-beshnaim-1.jpg", "/media/discovery/ahava-beshnaim-2.jpeg", "/media/discovery/ahava-beshnaim-3.jpg"], priceLabel: "שעה החל מ־300 ₪", phone: "055-4360860", contactName: "יהודה", lat: 31.9790, lng: 34.7890, mapPrecision: "area", sourceUrl: "https://roomsvip.com/ahava_beshanim", sourceName: "חדרים וי־איי־פי" },
-  { id: "herzliya-suite", world: "hourly", name: "הרצליה סוויט", location: "הרצליה", area: "השרון", description: "סוויטה בגודל 40 מ״ר לשהייה של שעה, מספר שעות או לילה.", features: ["40 מ״ר", "פינת ישיבה", "לפי שעה או לילה"], image: "/media/discovery/herzliya-suite.jpg", images: ["/media/discovery/herzliya-suite.jpg", "/media/discovery/herzliya-suite-1.jpg", "/media/discovery/herzliya-suite-2.jpg", "/media/discovery/herzliya-suite-3.jpg"], priceLabel: "שעה החל מ־400 ₪", phone: "055-4310744", contactName: "שרלי", lat: 32.1692, lng: 34.8517, mapPrecision: "area", sourceUrl: "https://roomsvip.com/Herzliya_Suite", sourceName: "חדרים וי־איי־פי" },
-  { id: "graf-suites", world: "hourly", name: "סוויטות גראף", location: "ראשון לציון", area: "מרכז", description: "מלון סוויטות עם 13 חדרים בעיצובים שונים ואפשרות לשהייה קצרה או לילה.", features: ["13 סוויטות", "חניה", "חדרים בעיצובים שונים"], image: "/media/discovery/graf-suites.jpg", images: ["/media/discovery/graf-suites.jpg", "/media/discovery/graf-suites-1.jpg", "/media/discovery/graf-suites-2.jpg", "/media/discovery/graf-suites-3.jpg"], priceLabel: "שעה החל מ־180 ₪", phone: "055-4357174", contactName: "ברוך", lat: 31.9675, lng: 34.7830, mapPrecision: "area", sourceUrl: "https://roomsvip.com/Graf_suite", sourceName: "חדרים וי־איי־פי" },
-  { id: "titanic-spa", world: "hourly", name: "סוויטות טיטאניק", location: "ראשון לציון", area: "מרכז", description: "מתחם של 17 סוויטות עם אפשרויות אירוח קצרות לפי שעה.", features: ["17 סוויטות", "שהייה קצרה", "ראשון לציון"], image: "/media/discovery/titanic-spa.jpg", images: ["/media/discovery/titanic-spa.jpg", "/media/discovery/titanic-spa-1.jpeg", "/media/discovery/titanic-spa-2.jpg", "/media/discovery/titanic-spa-3.jpg"], priceLabel: "שעה החל מ־120 ₪", phone: "055-4549882", lat: 31.9860, lng: 34.7955, mapPrecision: "area", sourceUrl: "https://roomsvip.com/Titanic_Spa", sourceName: "חדרים וי־איי־פי" },
-];
-
 const spaAreaCoordinates: Record<string, { lat: number; lng: number }> = {
   "נהריה": { lat: 33.006, lng: 35.095 },
   "חיפה": { lat: 32.794, lng: 34.989 },
@@ -126,7 +115,32 @@ const verifiedDiscoveryItems = (world: "spa" | "hourly"): DiscoveryItem[] => ver
 });
 
 export const spaPlaces: DiscoveryItem[] = [...curatedSpaPlaces, ...verifiedDiscoveryItems("spa").filter((item) => !curatedSpaPlaces.some((existing) => existing.sourceUrl === item.sourceUrl))];
-export const hourlyPlaces: DiscoveryItem[] = [...curatedHourlyPlaces, ...verifiedDiscoveryItems("hourly").filter((item) => !curatedHourlyPlaces.some((existing) => existing.sourceUrl === item.sourceUrl))];
+export const hourlyPlaces: DiscoveryItem[] = hourlyCatalog.places.map((place) => {
+  const features = [...new Set(place.rooms.flatMap((room) => room.features))];
+  const oneHourPrices = place.rooms.flatMap((room) => room.rates.filter((rate) => rate.duration === "שעה")
+    .flatMap((rate) => [rate.weekday, rate.weekend]).filter((price): price is number => typeof price === "number" && price > 0));
+  const startingPrice = oneHourPrices.length ? Math.min(...oneHourPrices) : null;
+  return {
+    id: place.id,
+    world: "hourly",
+    name: place.name,
+    location: place.location,
+    area: place.area,
+    description: place.description || "לא נמסר תיאור מקום ב־API.",
+    features: features.slice(0, 12),
+    image: place.images[0],
+    images: place.images,
+    priceLabel: startingPrice ? `שעה החל מ־${startingPrice} ₪` : undefined,
+    phone: supplierContactNumber(place.phone),
+    rating: typeof place.score === "number" && place.score > 0 ? place.score : undefined,
+    lat: typeof place.lat === "number" ? place.lat : undefined,
+    lng: typeof place.lng === "number" ? place.lng : undefined,
+    mapPrecision: "exact",
+    sourceUrl: place.sourceUrl,
+    sourceName: "VII",
+    indexable: Boolean(place.images.length && place.rooms.length),
+  };
+});
 
 const curatedProviderProfiles: DiscoveryItem[] = [
   { id: "masu-home-wellness", world: "providers", name: "מאסו", searchTerms: ["מאסו", "Masu", "עיסוי עד הבית", "טיפול פנים עד הבית", "עיסוי במשרד"], location: "בכל הארץ", area: "עיסויים וטיפולי פנים עד הבית", description: "מטפלים מוסמכים שמגיעים לבית, למלון, לווילה, למשרד או לאירוע עם ציוד מתאים. ניתן להזמין עיסוי אישי, טיפול פנים, עמדות עיסוי ופעילות רווחה לצוותים.", features: ["עיסוי עד הבית", "טיפולי פנים", "אירועי חברה"], image: "/media/providers/masu/masu-home.jpg", images: ["/media/providers/masu/masu-home.jpg", "/media/providers/masu/masu-office.png", "/media/providers/masu/masu-logo.png"], priceLabel: "החל מ-340 ₪", sourceUrl: "https://masu.co.il/", sourceName: "מאסו", indexable: true },
@@ -240,4 +254,4 @@ const verifiedAttractions: DiscoveryItem[] = verifiedCatalog.attractions.flatMap
 export const paidAttractions: DiscoveryItem[] = verifiedAttractions;
 
 export const discoveryItems = [...spaPlaces, ...hourlyPlaces, ...providerProfiles, ...activityIdeas, ...paidAttractions]
-  .filter((item) => item.indexable !== false && (item.images?.length || 0) >= 3);
+  .filter((item) => item.world === "hourly" || (item.indexable !== false && (item.images?.length || 0) >= 3));
