@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import { FavoriteButton } from "../components/favorite-button";
 import { PageShell } from "../components/page-shell";
 import { eventPlaceHref, eventPlaces, properties } from "../data/site-data";
+import { trails } from "../data/trail-data";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { readSavedItems, savedItemKey, SAVED_ITEMS_EVENT, type SavedItem, type SavedWorld, writeSavedItems } from "../lib/saved-items";
 import { clearViewedItems, readViewedItems, VIEWED_ITEMS_EVENT, type ViewedItem } from "../lib/viewed-items";
@@ -14,6 +15,10 @@ import { clearViewedItems, readViewedItems, VIEWED_ITEMS_EVENT, type ViewedItem 
 type LibraryMode = "saved" | "viewed";
 type LibraryItem = SavedItem | ViewedItem;
 const PAGE_SIZE = 8;
+const trailBySlug = new Map(trails.map((trail) => [trail.slug, trail]));
+const illustrationLabel: Record<SiteLanguage, string> = {
+  he: "תמונת המחשה", en: "Illustrative image", ru: "Иллюстрация", fr: "Image d’illustration",
+};
 
 const worldLabels: Record<SiteLanguage, Record<SavedWorld, string>> = {
   he: { vacation: "נופש", events: "אירועים ולופטים", corporate: "אירועי חברה", spa: "ספא וטיפולים", hourly: "חדרים לפי שעה", providers: "ספקים", activities: "אטרקציות", trails: "מסלולי טיול" },
@@ -182,11 +187,16 @@ export default function FavoritesPage() {
           </div>
           {filtering ? <div className="favorites-filtering" role="status"><span aria-hidden="true" />{copy.filtering}</div> : null}
           <div className="favorites-grid">
-            {visibleItems.map((item) => <article key={item.key} className="favorite-card">
-              <Link className="favorite-card__media" href={item.href}>{item.image ? <img src={item.image} alt={localizeName(item.name, translate)} title={localizeName(item.name, translate)} /> : <span>{localizeName(item.name, translate).slice(0, 1)}</span>}</Link>
+            {visibleItems.map((item) => {
+              const trail = item.world === "trails" ? trailBySlug.get(item.id) : undefined;
+              const image = trail ? `/images/trails/${trail.slug}.jpg` : item.image;
+              const imageTitle = trail ? `${illustrationLabel[language]}: ${localizeName(item.name, translate)}` : localizeName(item.name, translate);
+              const imageAlt = trail ? `${imageTitle}: ${trail.highlights.slice(0, 2).map((highlight) => translate(highlight)).join(language === "he" ? " ו" : " · ")}.` : imageTitle;
+              return <article key={item.key} className="favorite-card">
+              <Link className="favorite-card__media" href={item.href}>{image ? <img src={image} alt={imageAlt} title={imageTitle} /> : <span>{localizeName(item.name, translate).slice(0, 1)}</span>}{trail ? <em className="favorite-card__media-label">{illustrationLabel[language]}</em> : null}</Link>
               <FavoriteButton id={item.id} world={item.world} name={item.name} location={item.location} image={item.image} href={item.href} meta={item.meta} />
               <div className="favorite-card__body"><small>{labels[item.world]}</small><h2><Link href={item.href}>{localizeName(item.name, translate)}</Link></h2><p>{localizeLocation(item.location, translate)}</p>{localizeMeta(item, language) ? <span>{translate(localizeMeta(item, language) || "")}</span> : null}{mode === "viewed" && "viewedAt" in item ? <time dateTime={item.viewedAt}>{copy.viewedAt} {new Intl.DateTimeFormat(language === "he" ? "he-IL" : language, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(item.viewedAt))}</time> : null}<Link className="button secondary" href={item.href}>{copy.details}</Link></div>
-            </article>)}
+            </article>; })}
           </div>
           {totalPages > 1 ? <nav className="favorites-pagination" aria-label={`${copy.page} ${page}`}>
             <button type="button" disabled={page === 1} onClick={() => setPage((value) => Math.max(1, value - 1))}>{copy.previous}</button>
