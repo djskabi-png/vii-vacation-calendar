@@ -11,10 +11,10 @@ import { ProgressiveResults } from "./progressive-results";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 
 const joinCopy: Record<SiteLanguage, { slot: string; title: string; description: string; action: string }> = {
-  he: { slot: "מקום פנוי לפרסום", title: "כאן יכול להופיע הספק שלכם", description: "גלו איך להציג את השירות שלכם לצד ספקים שכבר מופיעים באתר.", action: "לפרטי ההצטרפות" },
-  en: { slot: "Available listing", title: "Your business could be here", description: "Explore how to list your service alongside providers on VII.", action: "Explore listing options" },
-  ru: { slot: "Место для размещения", title: "Здесь может быть ваш бизнес", description: "Узнайте, как представить свои услуги рядом с другими специалистами на VII.", action: "Условия размещения" },
-  fr: { slot: "Emplacement disponible", title: "Votre activité pourrait être ici", description: "Découvrez comment présenter vos services aux côtés des prestataires sur VII.", action: "Voir les offres" },
+  he: { slot: "מקום לספק הבא", title: "העסק שלכם יכול להיות כאן", description: "נותנים שירות לנופש או לאירועים? הציגו את העסק שלכם למי שמחפש ספק מתאים.", action: "פרטי הצטרפות כספק" },
+  en: { slot: "A spot for the next provider", title: "Your business could be here", description: "Offer services for stays or events? Show your business to people looking for the right provider.", action: "Provider joining details" },
+  ru: { slot: "Место для нового поставщика", title: "Здесь может быть ваш бизнес", description: "Предлагаете услуги для отдыха или мероприятий? Представьте свой бизнес тем, кто ищет подходящего поставщика.", action: "Условия для поставщиков" },
+  fr: { slot: "Une place pour le prochain prestataire", title: "Votre activité pourrait être ici", description: "Vous proposez des services pour les séjours ou les événements ? Présentez votre activité aux personnes qui cherchent un prestataire adapté.", action: "Modalités pour les prestataires" },
 };
 
 function ProviderJoinCard() {

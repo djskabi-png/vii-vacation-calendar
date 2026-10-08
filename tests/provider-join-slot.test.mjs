@@ -11,6 +11,8 @@ test("provider join slot is visible among results without counting as a provider
   ]);
   assert.match(providers, /featuredItem=\{<ProviderJoinCard \/>\}/);
   assert.match(providers, /href="\/join\/providers#provider-pricing"/);
+  assert.match(providers, /העסק שלכם יכול להיות כאן/);
+  assert.match(providers, /פרטי הצטרפות כספק/);
   assert.match(providers, /filtered\.length} ספקים מתאימים/);
   assert.match(progressive, /visibleItems\.slice\(0, featuredAfter\)\}\{featuredItem\}\{visibleItems\.slice\(featuredAfter\)/);
   assert.match(progressive, /items\.length - visibleItems\.length/);
