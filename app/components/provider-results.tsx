@@ -8,6 +8,28 @@ import { providerCategories, providerCategoryHref, type ProviderCategoryId } fro
 import { DiscoveryCard } from "./discovery-card";
 import { ModernSelect } from "./modern-select";
 import { ProgressiveResults } from "./progressive-results";
+import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
+
+const joinCopy: Record<SiteLanguage, { slot: string; title: string; description: string; action: string }> = {
+  he: { slot: "מקום פנוי לפרסום", title: "כאן יכול להופיע הספק שלכם", description: "גלו איך להציג את השירות שלכם לצד ספקים שכבר מופיעים באתר.", action: "לפרטי ההצטרפות" },
+  en: { slot: "Available listing", title: "Your business could be here", description: "Explore how to list your service alongside providers on VII.", action: "Explore listing options" },
+  ru: { slot: "Место для размещения", title: "Здесь может быть ваш бизнес", description: "Узнайте, как представить свои услуги рядом с другими специалистами на VII.", action: "Условия размещения" },
+  fr: { slot: "Emplacement disponible", title: "Votre activité pourrait être ici", description: "Découvrez comment présenter vos services aux côtés des prestataires sur VII.", action: "Voir les offres" },
+};
+
+function ProviderJoinCard() {
+  const { language } = useSiteLanguage();
+  const copy = joinCopy[language];
+  return <article className="provider-join-card">
+    <div className="provider-join-card__visual" aria-hidden="true"><span>+</span></div>
+    <div className="provider-join-card__body">
+      <span className="provider-join-card__eyebrow">{copy.slot}</span>
+      <h3>{copy.title}</h3>
+      <p>{copy.description}</p>
+      <Link href="/join/providers#provider-pricing">{copy.action}<span aria-hidden="true">←</span></Link>
+    </div>
+  </article>;
+}
 
 export function ProviderResults({ items, category = "all" }: { items: DiscoveryItem[]; category?: ProviderCategoryId }) {
   const searchParams = useSearchParams();
@@ -66,6 +88,6 @@ export function ProviderResults({ items, category = "all" }: { items: DiscoveryI
       </div>
     </div>
     <p className="provider-results-count" aria-live="polite">{filtered.length === 1 ? "ספק אחד מתאים" : `${filtered.length} ספקים מתאימים`}</p>
-    {filtered.length ? <ProgressiveResults className="discovery-grid" kind="providers" resetKey={`${category}|${query}|${region}`}>{filtered.map((item) => <DiscoveryCard key={item.id} item={item} />)}</ProgressiveResults> : <div className="provider-empty"><h3>לא מצאנו התאמה מדויקת</h3><p>אפשר לנקות את החיפוש או לבחור תחום אחר.</p></div>}
+    {filtered.length ? <ProgressiveResults className="discovery-grid" kind="providers" featuredItem={<ProviderJoinCard />} resetKey={`${category}|${query}|${region}`}>{filtered.map((item) => <DiscoveryCard key={item.id} item={item} />)}</ProgressiveResults> : <div className="provider-empty"><h3>לא מצאנו התאמה מדויקת</h3><p>אפשר לנקות את החיפוש או לבחור תחום אחר.</p><Link href="/join/providers#provider-pricing">לפרטי הצטרפות כספק</Link></div>}
   </div>;
 }

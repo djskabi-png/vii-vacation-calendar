@@ -3743,6 +3743,16 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
 .provider-categories a[aria-current="page"] { border-color: #18846f; color: white; background: #18846f; box-shadow: 0 8px 20px rgba(24,132,111,.2); }
 .provider-reset { flex: 0 0 auto; min-height: 40px; padding-inline: 13px; border: 1px solid var(--line); border-radius: 12px; color: var(--teal-dark); background: white; font: 750 .78rem/1 var(--font-sans); cursor: pointer; }
 .provider-results-count { margin: 0; color: var(--ink-soft); font-weight: 700; }
+.provider-join-card { min-width: 0; display: flex; flex-direction: column; overflow: hidden; border: 1px dashed #91aea8; border-radius: 8px; background: #f7faf9; }
+.provider-join-card__visual { height: 225px; display: grid; place-items: center; margin: 10px; border: 1px dashed #aac0bb; border-radius: 4px; background: #edf4f1; color: #247a69; }
+.provider-join-card__visual span { width: 60px; height: 60px; display: grid; place-items: center; border: 1px solid #9fbab3; border-radius: 50%; background: #fff; font-size: 2rem; font-weight: 400; line-height: 1; }
+.provider-join-card__body { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 10px 20px 20px; }
+.provider-join-card__eyebrow { color: #426a60; font-size: .78rem; font-weight: 800; }
+.provider-join-card h3 { margin: 0; color: var(--ink); font-size: 1.16rem; line-height: 1.35; }
+.provider-join-card p { margin: 0; color: var(--ink-soft); font-size: .9rem; line-height: 1.55; }
+.provider-join-card a { min-height: 44px; display: inline-flex; align-items: center; gap: 8px; margin-top: auto; color: #136f61; font-weight: 800; text-decoration: none; }
+.provider-join-card a:hover { text-decoration: underline; }
+.provider-join-card a:focus-visible { outline: 3px solid #63b6a6; outline-offset: 3px; }
 .provider-empty { padding: 44px 20px; text-align: center; border: 1px dashed var(--line); border-radius: 24px; background: var(--surface); }
 .provider-empty p { margin: 8px 0 0; color: var(--ink-soft); }
 .provider-detail-nav { position: sticky; top: 78px; z-index: 18; display: flex; gap: 8px; padding-block: 10px; overflow-x: auto; scrollbar-width: none; background: color-mix(in srgb, var(--background) 92%, transparent); backdrop-filter: blur(18px); }

@@ -40,9 +40,11 @@ test("every static Hebrew source phrase has a non-Hebrew translation in every pu
     const legacyDictionary = JSON.parse(await readFile(resolve(root, "app/data/legacy-vacation-ui-translations.json"), "utf8"));
     const bookingHubDictionary = JSON.parse(await readFile(resolve(root, "app/data/booking-hub-translations.json"), "utf8"));
     const hourlyDictionary = JSON.parse(await readFile(resolve(root, "app/data/hourly-ui-translations.json"), "utf8"));
+    const providerJoinDictionary = JSON.parse(await readFile(resolve(root, "app/data/provider-join-translations.json"), "utf8"));
     for (const [phrase, translations] of Object.entries(legacyDictionary)) dictionary[phrase] = translations[language];
     for (const [phrase, translations] of Object.entries(bookingHubDictionary)) dictionary[phrase] = translations[language];
     for (const [phrase, translations] of Object.entries(hourlyDictionary)) dictionary[phrase] = translations[language];
+    for (const [phrase, translations] of Object.entries(providerJoinDictionary)) dictionary[phrase] = translations[language];
     const missing = [...phrases].filter((phrase) => !dictionary[phrase]);
     const mixed = Object.entries(dictionary).filter(([, translation]) => hebrew.test(translation)).map(([phrase]) => phrase);
     assert.deepEqual(missing, [], `${language} is missing ${missing.length} source phrases`);

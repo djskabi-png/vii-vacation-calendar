@@ -5,6 +5,7 @@ import { languageFromPathname, localizedPath, type SiteLanguage } from "./locale
 import legacyVacationUiTranslations from "../data/legacy-vacation-ui-translations.json";
 import bookingHubTranslations from "../data/booking-hub-translations.json";
 import hourlyUiTranslations from "../data/hourly-ui-translations.json";
+import providerJoinTranslations from "../data/provider-join-translations.json";
 
 export type { SiteLanguage } from "./locale-routing";
 
@@ -1213,8 +1214,9 @@ function translateValue(value: string, language: SiteLanguage): string {
   const core = value.trim().replace(/\s+/g, " ");
   const bookingHubExact = (bookingHubTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
   const hourlyExact = (hourlyUiTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
+  const providerJoinExact = (providerJoinTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
   const legacyExact = (legacyVacationUiTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
-  const exact = bookingHubExact || hourlyExact || legacyExact || finalUiTranslations[language][core] || curatedTranslations[language][core] || dictionary(language)[core];
+  const exact = bookingHubExact || hourlyExact || providerJoinExact || legacyExact || finalUiTranslations[language][core] || curatedTranslations[language][core] || dictionary(language)[core];
   let translated: string = exact || translateDynamic(core, language);
   if (language === "en") {
     translated = translated
