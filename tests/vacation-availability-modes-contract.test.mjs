@@ -32,6 +32,7 @@ test("the legacy API returns an honest multi-unit recommendation and inventory s
 
 test("unit cards keep only compact facts and place status and price above the action", async () => {
   const page = await readFile(new URL("app/business/client-page.tsx", root), "utf8");
+  const css = await readFile(new URL("app/globals.css", root), "utf8");
   const statusPosition = page.indexOf("room-card__availability");
   const actionPosition = page.indexOf("room-card__actions", statusPosition);
   assert.ok(statusPosition > 0 && actionPosition > statusPosition);
@@ -39,6 +40,8 @@ test("unit cards keep only compact facts and place status and price above the ac
   assert.doesNotMatch(page, /כל פרטי היחידה \+/);
   assert.doesNotMatch(page, /room-card__features/);
   assert.doesNotMatch(page, /room-card__sleeping/);
+  assert.match(css, /grid-template-areas: "identity identity" "image body"/);
+  assert.match(css, /\.room-card__actions \{[^}]*margin-top: auto/);
 });
 
 test("the party recommendation is shown before the unit list", async () => {

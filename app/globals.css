@@ -5029,8 +5029,8 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .units-total { flex: 0 0 auto; padding: 9px 13px; border: 1px solid #b9dfe4; border-radius: 999px; background: white; color: var(--teal-dark); font-size: .78rem; font-weight: 800; }
 .units-section > p { max-width: 700px; margin-block: 12px 24px; color: var(--ink-soft); }
 .room-card-list { display: grid; gap: 16px; padding: 0; border: 0; border-radius: 0; background: transparent; }
-.room-card { min-height: 230px; display: grid; grid-template-columns: minmax(210px, 34%) 1fr; grid-template-rows: auto 1fr; grid-template-areas: "image identity" "image body"; overflow: hidden; border: 1px solid rgba(18, 106, 120, .16); border-radius: 20px; background: white; box-shadow: 0 10px 30px rgba(0, 64, 77, .07); }
-.room-card__identity { grid-area: identity; padding: 21px 21px 0; }
+.room-card { display: grid; grid-template-columns: minmax(210px, 34%) minmax(0, 1fr); grid-template-rows: auto minmax(230px, auto); grid-template-areas: "identity identity" "image body"; overflow: hidden; border: 1px solid rgba(18, 106, 120, .16); border-radius: 20px; background: white; box-shadow: 0 10px 30px rgba(0, 64, 77, .07); }
+.room-card__identity { grid-area: identity; padding: 16px 21px 13px; border-bottom: 1px solid var(--line); }
 .room-card__identity h3 { margin: 3px 0 0; color: var(--ink); font-size: 1.28rem; }
 .room-card__identity span { color: var(--teal); font-size: .72rem; font-weight: 800; }
 .room-card__image { grid-area: image; position: relative; min-height: 230px; overflow: hidden; background: #dceef1; }
@@ -5056,13 +5056,13 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .room-card:hover .room-card__image img { transform: scale(1.035); }
 .room-card__image > span { position: absolute; top: 14px; right: 14px; padding: 7px 10px; border-radius: 999px; background: rgba(255, 255, 255, .94); color: var(--teal-dark); font-size: .72rem; font-weight: 800; box-shadow: 0 5px 16px rgba(0, 35, 44, .13); }
 .room-card__image--missing > span { top: auto; right: 14px; bottom: 14px; max-width: calc(100% - 28px); line-height: 1.5; }
-.room-card__body { grid-area: body; min-width: 0; display: grid; align-content: start; gap: 12px; padding: 12px 21px 21px; }
+.room-card__body { grid-area: body; min-width: 0; display: flex; flex-direction: column; gap: 12px; padding: 17px 21px; }
 .room-card__title { display: flex; align-items: flex-start; justify-content: flex-start; gap: 14px; }
 .room-card__title > b { flex: 0 0 auto; color: var(--teal-dark); font-size: .85rem; }
 .room-card__facts { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .room-card__facts span { padding: 6px 9px; border-radius: 8px; background: var(--mist); color: var(--ink-soft); font-size: .76rem; font-weight: 700; }
 .room-card__features { display: flex; flex-wrap: wrap; gap: 7px; }
-.room-card__features span { color: var(--ink-soft); font-size: .76rem; }
+.room-card__features span { color: var(--ink-soft); font-size: .76rem; line-height: 1.5; }
 .room-card__features span:not(:last-child)::after { content: "\00B7"; margin-inline-start: 7px; color: #9bb6bb; }
 .room-card__sleeping { display: grid; gap: 9px; padding: 14px; border: 1px solid #cfe3e7; border-radius: 14px; background: #f4fafb; }
 .room-card__sleeping > div:first-child { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
@@ -5075,7 +5075,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .sleeping-summary { scroll-margin-top: 90px; padding: 28px !important; border: 1px solid #cfe3e7 !important; border-radius: 22px; background: #fff; }
 .sleeping-summary h2 { margin: 5px 0 8px; }
 .sleeping-summary p { margin: 0; color: var(--ink-soft); line-height: 1.75; }
-.room-card__actions { align-self: end; display: flex; align-items: center; gap: 16px; padding-top: 2px; }
+.room-card__actions { display: flex; align-items: center; gap: 16px; margin-top: auto; padding-top: 2px; }
 .room-card__actions .button { min-height: 44px; padding: 10px 17px; }
 .room-card__actions a { color: var(--teal-dark); font-size: .8rem; font-weight: 800; text-decoration: underline; text-underline-offset: 4px; }
 .room-card--available { border-color: #91d9c0; box-shadow: 0 12px 32px rgba(10, 125, 105, .1); }
