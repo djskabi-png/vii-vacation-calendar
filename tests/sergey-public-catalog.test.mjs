@@ -14,6 +14,7 @@ test("public catalog contains only accepted supplier places", () => {
     assert.ok(!catalog.places.some((place) => place.world === world && ids.includes(place.supplierId)));
   }
   assert.ok(catalog.places.some((place) => place.world === "events" && place.supplierId === 2684));
+  assert.ok(catalog.places.some((place) => place.world === "vacations" && place.supplierId === 389));
   assert.equal(new Set(catalog.places.map((place) => `${place.world}:${place.supplierId}`)).size, catalog.places.length);
   assert.ok(catalog.places.filter((place) => place.world === "vacations" && place.contact?.whatsapp).length >= 572);
   assert.ok(catalog.places.filter((place) => place.world === "events" && place.contact?.whatsapp).length >= 127);

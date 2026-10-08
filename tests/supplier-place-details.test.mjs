@@ -20,6 +20,9 @@ test("every accepted supplier place has full detail data without broadening the 
 });
 
 test("representative vacation and event pages retain their complete source galleries and facts", () => {
+  assert.ok(detailFile.details["vacation-389"].rooms.length >= 3);
+  assert.ok(detailFile.details["vacation-389"].reviews.length >= 1);
+  assert.ok(detailFile.details["vacation-389"].images.length >= 23);
   assert.equal(detailFile.details["vacation-1"].images.length, 62);
   assert.equal(detailFile.details["vacation-1"].rooms.length, 2);
   assert.equal(detailFile.details["vacation-1"].policy.checkIn, "15:00:00");
