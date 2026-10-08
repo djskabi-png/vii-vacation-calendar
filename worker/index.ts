@@ -5,14 +5,15 @@ import enTranslations from "../app/i18n/translations.en.generated.json";
 import ruTranslations from "../app/i18n/translations.ru.generated.json";
 import frTranslations from "../app/i18n/translations.fr.generated.json";
 import hourlyUiTranslations from "../app/data/hourly-ui-translations.json";
+import providerJoinTranslations from "../app/data/provider-join-translations.json";
 
 type PublicLocale = "he" | "en" | "ru" | "fr";
 type TranslationDictionary = Record<string, string>;
 
 const serverTranslations: Record<Exclude<PublicLocale, "he">, TranslationDictionary> = {
-  en: { ...enTranslations, ...Object.fromEntries(Object.entries(hourlyUiTranslations).map(([key, value]) => [key, value.en])) },
-  ru: { ...ruTranslations, ...Object.fromEntries(Object.entries(hourlyUiTranslations).map(([key, value]) => [key, value.ru])) },
-  fr: { ...frTranslations, ...Object.fromEntries(Object.entries(hourlyUiTranslations).map(([key, value]) => [key, value.fr])) },
+  en: { ...enTranslations, ...Object.fromEntries(Object.entries(hourlyUiTranslations).map(([key, value]) => [key, value.en])), ...Object.fromEntries(Object.entries(providerJoinTranslations).map(([key, value]) => [key, value.en])) },
+  ru: { ...ruTranslations, ...Object.fromEntries(Object.entries(hourlyUiTranslations).map(([key, value]) => [key, value.ru])), ...Object.fromEntries(Object.entries(providerJoinTranslations).map(([key, value]) => [key, value.ru])) },
+  fr: { ...frTranslations, ...Object.fromEntries(Object.entries(hourlyUiTranslations).map(([key, value]) => [key, value.fr])), ...Object.fromEntries(Object.entries(providerJoinTranslations).map(([key, value]) => [key, value.fr])) },
 };
 
 function translateServerText(value: string, locale: PublicLocale) {

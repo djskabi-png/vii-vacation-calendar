@@ -31,6 +31,8 @@ const copy: Record<SiteLanguage, Record<ResultKind, { more: (count: number) => s
 type ProgressiveResultsProps = {
   children: ReactNode;
   className: string;
+  featuredItem?: ReactNode;
+  featuredAfter?: number;
   kind?: ResultKind;
   initialCount?: number;
   increment?: number;
@@ -46,6 +48,8 @@ export function ProgressiveResults(props: ProgressiveResultsProps) {
 function ProgressiveResultsWindow({
   children,
   className,
+  featuredItem,
+  featuredAfter = 2,
   kind = "places",
   initialCount = 9,
   increment = 9,
@@ -60,7 +64,9 @@ function ProgressiveResultsWindow({
   const labels = copy[language][kind];
 
   return <>
-    <div className={className}>{visibleItems}</div>
+    <div className={className}>
+      {featuredItem ? <>{visibleItems.slice(0, featuredAfter)}{featuredItem}{visibleItems.slice(featuredAfter)}</> : visibleItems}
+    </div>
     {remaining > 0 ? <div className="progressive-results">
       <button type="button" onClick={() => setVisibleCount((current) => Math.min(items.length, current + increment))}>
         <span>{labels.more(nextCount)}</span>

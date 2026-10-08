@@ -172,5 +172,17 @@
   ". משך:": { "en": ". Duration:", "ru": ". Продолжительность:", "fr": ". Durée :" },
   "שעות. סוג אירוע:": { "en": "hours. Event type:", "ru": "часов. Тип мероприятия:", "fr": "heures. Type d’événement :" },
   "בקשת הזמנה": { "en": "Booking request", "ru": "Запрос на бронирование", "fr": "Demande de réservation" },
-  "פנייה להזמנה": { "en": "Request a booking", "ru": "Отправить запрос на бронирование", "fr": "Demander une réservation" }
+  "פנייה להזמנה": { "en": "Request a booking", "ru": "Отправить запрос на бронирование", "fr": "Demander une réservation" },
+  "בקשת ההזמנה נקלטה בצוות VII. לא בוצע חיוב, וההזמנה תושלם רק לאחר אישור המקום.": { "en": "The VII team received your booking request. No payment was taken; the booking is complete only after the property confirms it.", "ru": "Команда VII получила запрос на бронирование. Оплата не взималась; бронирование завершится только после подтверждения объекта.", "fr": "L’équipe VII a reçu votre demande de réservation. Aucun paiement n’a été prélevé ; la réservation ne sera finalisée qu’après confirmation du lieu." },
+  "שלושה שלבים קצרים לשליחת בקשת הזמנה לצוות VII. אישור סופי יינתן רק לאחר בדיקת המקום.": { "en": "Three short steps to send a booking request to the VII team. Final confirmation follows the property’s review.", "ru": "Три коротких шага, чтобы отправить запрос на бронирование команде VII. Окончательное подтверждение возможно только после проверки объекта.", "fr": "Trois étapes pour envoyer une demande de réservation à l’équipe VII. La confirmation finale suivra la vérification du lieu." },
+  "הבקשה נקלטת בצוות VII לטיפול מול המקום. עד שיתקבל אישור סופי, הסטטוס הוא ממתין לאישור.": { "en": "The VII team receives the request and coordinates with the property. Its status remains pending until final confirmation.", "ru": "Команда VII получает запрос и связывается с объектом. До окончательного подтверждения статус остаётся в ожидании.", "fr": "L’équipe VII reçoit la demande et la traite avec le lieu. Elle reste en attente jusqu’à la confirmation finale." },
+  "בקשת הזמנה ל": { "en": "Booking request for ", "ru": "Запрос на бронирование: ", "fr": "Demande de réservation pour " },
+  "בקשת הזמנה למקום": { "en": "Booking request for this property", "ru": "Запрос на бронирование объекта", "fr": "Demande de réservation pour ce lieu" },
+  "מעדכנים זמינות ומחיר": { "en": "Updating availability and price", "ru": "Обновляем наличие и цену", "fr": "Mise à jour des disponibilités et du prix" },
+  "ליחידה זו נדרשת בדיקת זמינות נפרדת": { "en": "This unit needs a separate availability check", "ru": "Для этого номера нужна отдельная проверка наличия", "fr": "Cette unité nécessite une vérification de disponibilité distincte" },
+  "לא התקבל אישור זמינות ליחידה זו": { "en": "Availability was not confirmed for this unit", "ru": "Наличие этого номера не подтверждено", "fr": "La disponibilité de cette unité n’a pas été confirmée" },
+  "תמונת היחידה": { "en": "Unit photo", "ru": "Фото номера", "fr": "Photo de l’unité" },
+  "תמונת מקום האירוח": { "en": "Accommodation photo", "ru": "Фото места проживания", "fr": "Photo de l’hébergement" },
+  ", אינה משויכת ל": { "en": ", not assigned to ", "ru": ", не относится к ", "fr": ", non attribuée à " },
+  "תמונת המתחם, לא היחידה": { "en": "Property photo, not this unit", "ru": "Фото объекта, не этого номера", "fr": "Photo du lieu, pas de cette unité" }
 }

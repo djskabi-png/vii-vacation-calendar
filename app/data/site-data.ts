@@ -125,6 +125,7 @@ export type ListingContact = {
 };
 
 export type StayOption = {
+  supplierRoomID?: number;
   name: string;
   quantity: number;
   guests: number;

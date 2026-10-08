@@ -44,11 +44,11 @@ export function UnitDetailsDialog({ propertyName, room, open, onClose, onOpenGal
   return <div className="unit-details-layer" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
     <section ref={dialog} className="unit-details-dialog" role="dialog" aria-modal="true" aria-labelledby="unit-details-title">
       <header><div><span>{propertyName}</span><h2 id="unit-details-title">{room.name}</h2></div><button ref={closeButton} type="button" onClick={onClose} aria-label="סגירת פרטי היחידה">×</button></header>
-      <button className="unit-details-dialog__image" type="button" onClick={onOpenGallery} aria-label={`פתיחת גלריית ${room.name}`}>
+      {room.image ? <button className="unit-details-dialog__image" type="button" onClick={onOpenGallery} aria-label={`פתיחת גלריית ${room.name}`}>
         <img src={room.image} alt={`${room.name} ב${propertyName}`} title={`${room.name} ב${propertyName}`} />
         <span>לכל תמונות היחידה</span>
-      </button>
-      <div className="unit-details-dialog__intro"><p>{room.description || `${room.name} היא יחידת אירוח נפרדת ב${propertyName}.`}</p><div><span>{room.bedrooms === 1 ? "חדר שינה אחד" : `${room.bedrooms} חדרי שינה`}</span><span>עד {room.guests} אורחים</span>{room.area ? <span>{room.area} מ״ר</span> : null}</div></div>
+      </button> : null}
+      <div className="unit-details-dialog__intro">{room.description || !room.supplierRoomID ? <p>{room.description || `${room.name} היא יחידת אירוח נפרדת ב${propertyName}.`}</p> : null}<div>{room.bedrooms > 0 ? <span>{room.bedrooms === 1 ? "חדר שינה אחד" : `${room.bedrooms} חדרי שינה`}</span> : null}<span>עד {room.guests} אורחים</span>{room.area ? <span>{room.area} מ״ר</span> : null}</div></div>
       <div className="unit-details-dialog__groups">{groups.map((group) => <section key={group.title}><h3>{group.title}</h3><div>{group.items.map((item) => <span key={item}>✓ {item}</span>)}</div></section>)}</div>
     </section>
   </div>;
