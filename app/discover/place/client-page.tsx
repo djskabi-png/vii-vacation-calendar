@@ -24,6 +24,23 @@ import { useGalleryDeepLink } from "../../components/use-gallery-deep-link";
 import { DetailStickyDock, type DetailSectionLink } from "../../components/detail-sticky-dock";
 import { GuestReviewStudio } from "../../components/guest-review-studio";
 import { WhatsAppLeadButton } from "../../components/whatsapp-lead-button";
+import { useSiteLanguage } from "../../i18n/locale-provider";
+
+function hourlyRateLabel(value: string, language: "he" | "en" | "ru" | "fr", translate: (value: string) => string) {
+  const [room, duration, day] = value.split(" · ");
+  if (language === "he" || !room || !duration || !day) return value;
+  const durations = {
+    en: { "שעה": "1 hour", "שעתיים": "2 hours", "3 שעות": "3 hours" },
+    ru: { "שעה": "1 час", "שעתיים": "2 часа", "3 שעות": "3 часа" },
+    fr: { "שעה": "1 heure", "שעתיים": "2 heures", "3 שעות": "3 heures" },
+  };
+  const days = {
+    en: { "יום חול": "weekday", "סוף שבוע": "weekend" },
+    ru: { "יום חול": "будний день", "סוף שבוע": "выходные" },
+    fr: { "יום חול": "en semaine", "סוף שבוע": "week-end" },
+  };
+  return `${translate(room)} · ${durations[language][duration as keyof typeof durations.en] || duration} · ${days[language][day as keyof typeof days.en] || day}`;
+}
 
 function SpaPackageCard({ itemId, pack }: { itemId: string; pack: SpaPackage }) {
   const requestHref = `/booking?world=spa&place=${encodeURIComponent(itemId)}&package=${encodeURIComponent(pack.id)}`;
@@ -109,18 +126,29 @@ function ProviderContent({ itemId, providerName, details, priceLabel }: { itemId
 }
 
 function HourlyContent({ item, details }: { item: (typeof discoveryItems)[number]; details: HourlyDetails }) {
+  const { language, translate } = useSiteLanguage();
   const [phoneVisible, setPhoneVisible] = useState(false);
-  const [selectedDuration, setSelectedDuration] = useState(details.rates[0]?.duration || "שעה");
-  const selectedRate = details.rates.find((rate) => rate.duration === selectedDuration) || details.rates[0];
+  const [selectedDuration, setSelectedDuration] = useState(details.rates[0]?.duration || "");
+  const selectedRate = details.rates.find((rate) => rate.duration === selectedDuration);
   const phoneHref = item.phone ? `tel:${item.phone.replace(/[^\d+]/g, "")}` : undefined;
 
   return <>
-    <section className="section shell depth-about" id="hourly-about"><div><span className="eyebrow">כל המידע במקום אחד</span><h2>על המקום</h2>{details.about.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div><aside><small>איך מזמינים</small><strong>בוחרים משך ומחייגים למקום</strong><small>מתי ההזמנה סופית</small><strong>רק לאחר אישור בעל המקום</strong><a className="text-link" href="#hourly-options">לכל פרטי השהייה</a></aside></section>
-    <section className="section section-tint hourly-direct-booking" id="hourly-options"><div className="shell"><div className="section-head"><div><span className="eyebrow">בלי טופס ובלי תשלום באתר</span><h2>בוחרים משך ומחייגים</h2><p>המחירים הם מחירי התחלה שנבדקו מול פרטי המקום. השעה והחדר הפנוי מאושרים בשיחה.</p></div></div><div className="hourly-rate-grid" role="list" aria-label="מחירים לפי משך שהייה">{details.rates.map((rate) => <button key={rate.duration} type="button" className={selectedDuration === rate.duration ? "selected" : ""} onClick={() => setSelectedDuration(rate.duration)} aria-pressed={selectedDuration === rate.duration}><span>{rate.duration}</span><strong>{rate.price}</strong></button>)}</div><div className="hourly-call-panel" id="hourly-contact"><div><span className="eyebrow">שיחה קצרה ודיסקרטית</span><h3>מה אומרים בשיחה?</h3><p>שלום, ראיתי את {item.name} באתר וי. רציתי לבדוק זמינות ל{selectedDuration}{selectedRate ? ` במחיר שמתחיל ב־${selectedRate.price}` : ""}.</p><ul><li>מאשרים שעה רצויה וחדר פנוי</li><li>בודקים כניסה עצמאית או תשלום ללא מפגש</li><li>מקבלים הנחיות הגעה ישירות מהמקום</li></ul></div><aside><small>נציג המקום</small><strong>{item.contactName || "מרכז ההזמנות"}</strong>{phoneHref ? phoneVisible ? <><a className="hourly-phone-number" dir="ltr" href={phoneHref}>{item.phone}</a><a className="button primary wide hourly-call-now" href={phoneHref}>חיוג עכשיו</a></> : <button className="button primary wide" type="button" onClick={() => setPhoneVisible(true)}>הצגת מספר וחיוג</button> : <span className="hourly-phone-missing">המספר יוצג לאחר אימות המקום</span>}<small>אין חיוב באתר. ההזמנה נסגרת ישירות מול המקום.</small></aside></div></div></section>
-    <section className="section shell hourly-stay-notes"><div className="section-head"><div><span className="eyebrow">מתאימים את הביקור</span><h2>אפשרויות שהייה</h2></div></div><div className="depth-card-grid">{details.stayOptions.map((option) => <article key={option.title}><h3>{option.title}</h3><p>{option.description}</p><a className="text-link" href="#hourly-contact">לשיחה עם המקום</a></article>)}</div></section>
-    <section className="section shell depth-columns"><div id="hourly-amenities"><span className="eyebrow">מה ידוע על המקום</span><h2>מתקנים ומאפיינים</h2><ul>{details.amenities.map((entry) => <li key={entry}>{entry}</li>)}</ul></div><div id="hourly-info"><span className="eyebrow">לפני שמגיעים</span><h2>פרטים שימושיים</h2><ul>{details.arrivalNotes.map((entry) => <li key={entry}>{entry}</li>)}</ul></div></section>
+    <section className="section shell depth-about" id="hourly-about">
+      <div><span className="eyebrow">מידע ממקור המקום</span><h2>על המקום</h2>{details.about.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div>
+      <aside><small>איך מתאמים</small><strong>מאשרים שעה וחדר מול המקום</strong><small>מתי ההזמנה סופית</small><strong>רק לאחר אישור המקום</strong><a className="text-link" href="#hourly-options">לפרטי החדרים והמחירים</a></aside>
+    </section>
+    <section className="section section-tint hourly-direct-booking" id="hourly-options"><div className="shell">
+      <div className="section-head"><div><span className="eyebrow">מחירים מה־API של VII</span><h2>חדרים ומחירי בסיס</h2><p>המחירים מוצגים לפי חדר, משך וסוג יום. השעה הפנויה והמחיר הסופי מחייבים אישור של המקום.</p></div></div>
+      {details.rates.length ? <div className="hourly-rate-grid" role="group" aria-label="מחירי בסיס לפי חדר ומשך שהייה">{details.rates.map((rate) => <button key={rate.duration} type="button" className={selectedDuration === rate.duration ? "selected" : ""} onClick={() => setSelectedDuration(rate.duration)} aria-pressed={selectedDuration === rate.duration}><span data-no-translate>{hourlyRateLabel(rate.duration, language, translate)}</span><strong>{rate.price}</strong></button>)}</div> : <p>המקום מופיע ב־API, אך לא נמסרו בו כרגע מחירי חדרים.</p>}
+      <div className="hourly-call-panel" id="hourly-contact"><div><span className="eyebrow">בירור ישיר</span><h3>מה אומרים בשיחה?</h3><p>שלום, ראיתי את {item.name} באתר VII. רציתי לבדוק שעה פנויה{selectedRate ? ` עבור ${selectedRate.duration}, שמחיר הבסיס שלה ${selectedRate.price}` : ""}.</p><ul><li>מאשרים תאריך, שעה וחדר פנוי</li><li>מאשרים את המחיר הסופי ותנאי ההגעה</li></ul></div><aside><small>טלפון המקום</small>{phoneHref ? phoneVisible ? <><a className="hourly-phone-number" dir="ltr" href={phoneHref}>{item.phone}</a><a className="button primary wide hourly-call-now" href={phoneHref}>חיוג עכשיו</a></> : <button className="button primary wide" type="button" onClick={() => setPhoneVisible(true)}>הצגת מספר וחיוג</button> : <span className="hourly-phone-missing">לא נמסר מספר טלפון ב־API</span>}<small>אין חיוב באתר. ההזמנה מתואמת ישירות מול המקום.</small></aside></div>
+    </div></section>
+    {details.stayOptions.length ? <section className="section shell hourly-stay-notes"><div className="section-head"><div><span className="eyebrow">היחידות במקור הנתונים</span><h2>חדרים במקום</h2></div></div><div className="depth-card-grid">{details.stayOptions.map((option) => <article key={option.title}><h3>{option.title}</h3><p>{option.description}</p><a className="text-link" href="#hourly-contact">בירור זמינות</a></article>)}</div></section> : null}
+    <section className="section shell depth-columns">
+      {details.amenities.length ? <div id="hourly-amenities"><span className="eyebrow">מתוך פרטי החדרים</span><h2>מתקנים ומאפיינים</h2><ul>{details.amenities.map((entry) => <li key={entry}>{entry}</li>)}</ul></div> : null}
+      <div id="hourly-info"><span className="eyebrow">לפני שמתאמים</span><h2>פרטים שימושיים</h2><ul>{details.arrivalNotes.map((entry) => <li key={entry}>{entry}</li>)}</ul></div>
+    </section>
     <section className="section shell depth-faq" id="hourly-faq"><div className="section-head"><div><span className="eyebrow">תשובות ברורות</span><h2>שאלות נפוצות</h2></div></div>{details.faq.map((entry) => <details key={entry.question}><summary>{entry.question}</summary><p>{entry.answer}</p></details>)}</section>
-    <section className="section depth-final-cta"><div className="shell"><div><span className="eyebrow">רוצים לסגור מקום?</span><h2>שיחה אחת ומקבלים תשובה</h2><p>מתאמים שעה, משך, מחיר והנחיות כניסה ישירות עם המקום.</p></div>{phoneHref ? <a className="button primary" href={phoneHref}>חיוג מהיר למקום</a> : <a className="button primary" href="#hourly-contact">לפרטי החיוג</a>}</div></section>
+    <section className="section depth-final-cta"><div className="shell"><div><span className="eyebrow">רוצים לתאם?</span><h2>מאשרים שעה ישירות מול המקום</h2><p>בודקים חדר, שעה, מחיר והנחיות הגעה בשיחה.</p></div>{phoneHref ? <a className="button primary" href={phoneHref}>חיוג למקום</a> : <a className="button primary" href="#hourly-contact">לפרטי הקשר</a>}</div></section>
   </>;
 }
 

@@ -45,9 +45,9 @@ const worldCopy: Record<Exclude<SiteLanguage, "he">, Record<DiscoveryItem["world
 };
 
 const interfaceCopy = {
-  en: { details: "View details", from: "From", israel: "Israel", demo: "Demo profile", system: "Curated suggestion", image: "Illustrative image" },
-  ru: { details: "Подробнее", from: "От", israel: "Израиль", demo: "Демо-профиль", system: "Рекомендация VII", image: "Иллюстрация" },
-  fr: { details: "Voir les détails", from: "À partir de", israel: "Israël", demo: "Profil de démonstration", system: "Suggestion VII", image: "Image d'illustration" },
+  en: { details: "View details", from: "From", israel: "Israel", demo: "Demo profile", system: "Curated suggestion", image: "Illustrative image", noPrice: "Price not supplied" },
+  ru: { details: "Подробнее", from: "От", israel: "Израиль", demo: "Демо-профиль", system: "Рекомендация VII", image: "Иллюстрация", noPrice: "Цена не указана" },
+  fr: { details: "Voir les détails", from: "À partir de", israel: "Israël", demo: "Profil de démonstration", system: "Suggestion VII", image: "Image d'illustration", noPrice: "Prix non fourni" },
 } satisfies Record<Exclude<SiteLanguage, "he">, Record<string, string>>;
 
 function localizedPrice(label: string | undefined, language: Exclude<SiteLanguage, "he">, details: string) {
@@ -66,15 +66,17 @@ export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
   const description = localized?.description || item.description;
   const features = localized?.chips || item.features.slice(0, 3);
   const details = ui?.details || (item.world === "hourly" ? "פרטי המקום" : "צפייה במקום");
-  const price = language === "he" ? item.priceLabel || item.duration || details : localizedPrice(item.priceLabel || item.duration, language, details);
+  const price = item.world === "hourly" && !item.priceLabel
+    ? language === "he" ? "מחיר לא נמסר ב־API" : ui!.noPrice
+    : language === "he" ? item.priceLabel || item.duration || details : localizedPrice(item.priceLabel || item.duration, language, details);
 
-  if (!item.image) return null;
+  if (!item.image && item.world !== "hourly") return null;
 
   const imageFit = item.imageFit || "cover";
 
   return <article className={`discovery-card discovery-card--${item.world}`}>
     <Link className={`discovery-card__visual discovery-card__visual--${imageFit}`} href={`/discover/place/${item.id}`} target="_blank" rel="noopener noreferrer" aria-label={`${details}: ${translate(item.name)}`}>
-      <img src={item.image} alt={item.imageLabel && ui ? ui.image : translate(item.name)} title={item.imageLabel && ui ? ui.image : translate(item.name)} loading="lazy" decoding="async" style={item.imagePosition ? { objectPosition: item.imagePosition } : undefined} />
+      {item.image ? <img src={item.image} alt={item.imageLabel && ui ? ui.image : translate(item.name)} title={item.imageLabel && ui ? ui.image : translate(item.name)} loading="lazy" decoding="async" style={item.imagePosition ? { objectPosition: item.imagePosition } : undefined} /> : <span className="discovery-card__missing-image">לא נמסרה תמונה ב־API</span>}
       {item.imageLabel && <span className="image-context-label">{ui?.image || item.imageLabel}</span>}
       {item.rating && <span className="rating-badge">★ {item.rating.toFixed(1)}</span>}
     </Link>

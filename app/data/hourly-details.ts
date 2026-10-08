@@ -1,4 +1,5 @@
 import type { DiscoveryItem } from "./world-data";
+import hourlyCatalog from "./sergey-hourly-catalog.json";
 
 export type HourlyDetails = {
   about: string[];
@@ -9,50 +10,43 @@ export type HourlyDetails = {
   faq: { question: string; answer: string }[];
 };
 
-const verifiedHourlyRates: Record<string, HourlyDetails["rates"]> = {
-  "gentleman-haifa": [{ duration: "שעה", price: "200 ₪" }, { duration: "שעתיים", price: "250 ₪" }, { duration: "3 שעות", price: "300 ₪" }, { duration: "לילה", price: "650 ₪" }],
-  "lago-suite": [{ duration: "שעה", price: "250 ₪" }, { duration: "שעתיים", price: "250 ₪" }, { duration: "3 שעות", price: "300 ₪" }, { duration: "לילה", price: "450 ₪" }],
-  "kinki-rooms": [{ duration: "שעה", price: "330 ₪" }, { duration: "שעתיים", price: "330 ₪" }, { duration: "3 שעות", price: "370 ₪" }, { duration: "לילה", price: "700 ₪" }],
-  "escape-love": [{ duration: "שעה", price: "200 ₪" }, { duration: "שעתיים", price: "200 ₪" }, { duration: "3 שעות", price: "250 ₪" }, { duration: "לילה", price: "450 ₪" }],
-  "pninat-miel": [{ duration: "שעה", price: "300 ₪" }, { duration: "שעתיים", price: "300 ₪" }, { duration: "3 שעות", price: "300 ₪" }, { duration: "לילה", price: "600 ₪" }],
-  "shanti-suites": [{ duration: "שעה", price: "200 ₪" }, { duration: "שעתיים", price: "200 ₪" }, { duration: "3 שעות", price: "250 ₪" }, { duration: "לילה", price: "400 ₪" }],
-  "ahava-beshnaim": [{ duration: "שעה", price: "300 ₪" }, { duration: "שעתיים", price: "300 ₪" }, { duration: "3 שעות", price: "400 ₪" }, { duration: "לילה", price: "800 ₪" }],
-  "herzliya-suite": [{ duration: "שעה", price: "400 ₪" }, { duration: "שעתיים", price: "400 ₪" }, { duration: "3 שעות", price: "400 ₪" }, { duration: "לילה", price: "650 ₪" }],
-  "graf-suites": [{ duration: "שעה", price: "180 ₪" }, { duration: "שעתיים", price: "230 ₪" }, { duration: "3 שעות", price: "270 ₪" }, { duration: "לילה", price: "500 ₪" }],
-  "titanic-spa": [{ duration: "שעה", price: "120 ₪" }, { duration: "שעתיים", price: "120 ₪" }, { duration: "3 שעות", price: "170 ₪" }],
-};
+function sourcePlace(itemId: string) {
+  return hourlyCatalog.places.find((place) => place.id === itemId);
+}
 
 export function verifiedHourlyPrice(itemId: string, duration: string): number | undefined {
-  const rate = verifiedHourlyRates[itemId]?.find((option) => option.duration === duration);
-  const amount = rate?.price.match(/\d[\d,]*/)?.[0];
-  return amount ? Number(amount.replaceAll(",", "")) : undefined;
+  const prices = sourcePlace(itemId)?.rooms.flatMap((room) => room.rates
+    .filter((rate) => rate.duration === duration)
+    .flatMap((rate) => [rate.weekday, rate.weekend])
+    .filter((price): price is number => typeof price === "number" && price > 0)) || [];
+  return prices.length ? Math.min(...prices) : undefined;
 }
 
 export function getHourlyDetails(item: DiscoveryItem): HourlyDetails {
-  const placeName = item.name;
-  const location = item.location;
+  const place = sourcePlace(item.id);
+  const rates = place?.rooms.flatMap((room) => room.rates.flatMap((rate) => [
+    ...(rate.weekday ? [{ duration: `${room.name || "חדר"} · ${rate.duration} · יום חול`, price: `${rate.weekday} ₪` }] : []),
+    ...(rate.weekend ? [{ duration: `${room.name || "חדר"} · ${rate.duration} · סוף שבוע`, price: `${rate.weekend} ₪` }] : []),
+  ])) || [];
   return {
-    about: [
-      `${placeName} הוא מקום אירוח ב${location} לשהייה קצרה ודיסקרטית. בוחרים את משך השהייה, רואים את המחיר הידוע ומחייגים ישירות למקום לבדיקת שעה פנויה.`,
-      `${item.description} השיחה עם המקום קצרה וממוקדת: מאשרים שעה, משך, סוג חדר ומחיר. אין תשלום באתר ואין טופס ארוך.`,
-    ],
-    stayOptions: [
-      { title: "שהייה של שעה עד שלוש", description: "בוחרים משך ומחייגים כדי לקבל אישור מיידי לשעה הרצויה ולחדר הפנוי." },
-      { title: "לילה או זמן ארוך יותר", description: "כאשר המקום מציע לינה, המחיר ושעות הכניסה והיציאה נסגרים ישירות בשיחה." },
-    ],
-    rates: verifiedHourlyRates[item.id] || [{ duration: "שעה", price: item.priceLabel || "מחיר בשיחה" }],
+    about: [item.description],
+    stayOptions: place?.rooms.map((room) => ({
+      title: room.name || "יחידת אירוח",
+      description: [
+        room.count ? `${room.count} יחידות` : "",
+        room.maxGuests ? `עד ${room.maxGuests} אורחים ביחידה` : "",
+        ...room.features,
+      ].filter(Boolean).join(" · ") || "פרטי החדר טרם נמסרו ב־API.",
+    })) || [],
+    rates,
     amenities: item.features,
     arrivalNotes: [
-      "הכתובת המדויקת והנחיות הכניסה נמסרות לאחר אישור ההזמנה.",
-      "בשיחה מציינים שעה רצויה, משך שהייה וכל בקשה מיוחדת.",
-      "התמונות מתארות את המקום, אך החדר הספציפי נקבע לפי המלאי הזמין בעת האישור.",
-      "אופן התשלום, מדיניות הביטול והנחיות הכניסה נמסרים ישירות על ידי המקום.",
+      "מחירי הבסיס מגיעים מה־API של VII. יש לאשר את המחיר הסופי ואת השעה הפנויה מול המקום.",
+      "ב־API עדיין אין בדיקת זמינות או אפשרות להזמנה מקוונת לחדרים לפי שעה.",
     ],
     faq: [
-      { question: "איך יודעים אם יש חדר פנוי?", answer: "מחייגים למקום ומציינים שעה ומשך. בעל המקום או מרכז ההזמנות מאשרים מיד איזה חדר פנוי ומה המחיר." },
-      { question: "האם המחיר המוצג הוא המחיר הסופי?", answer: "זהו מחיר התחלה כאשר הוא מופיע. המחיר הסופי תלוי במשך השהייה, ביום, בשעה ובחדר שנבחר." },
-      { question: "אפשר לבקש כניסה עצמאית?", answer: `אם ${placeName} מציע כניסה עצמאית, ההנחיות נמסרות לאחר האישור. כאשר האפשרות אינה מצוינת, הצוות בודק אותה מול המקום.` },
-      { question: "מה כדאי לומר בשיחה?", answer: "מציינים שעה רצויה, מספר שעות ומספר אורחים. אם חשובה כניסה ללא מפגש, חניה פרטית או חדר מסוים, מבקשים לאשר זאת בשיחה." },
+      { question: "איך יודעים אם החדר פנוי?", answer: "מתקשרים למקום ומאשרים את התאריך, השעה, משך השהייה והחדר הרצוי." },
+      { question: "האם המחיר שמוצג הוא סופי?", answer: "אלה מחירי בסיס מה־API. המקום מאשר בשיחה את המחיר הסופי לשעה ולחדר המבוקשים." },
     ],
   };
 }

@@ -10,6 +10,7 @@ import { ModernSelect } from "./modern-select";
 import { useMapViewState } from "./map-view-state";
 import { verifiedHourlyPrice } from "../data/hourly-details";
 import { hourlySearchHref } from "../data/world-search-landings";
+import { matchesSearchLocation } from "../data/search-taxonomy";
 import { localizedPath } from "../i18n/locale-routing";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { ResultsViewToggle, useResultsViewMode } from "./results-view-toggle";
@@ -53,7 +54,7 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
   );
 
   const filtered = useMemo(() => items.filter((item) => {
-    const locationMatches = location === "כל הארץ" || item.area === location || item.location === location;
+    const locationMatches = location === "כל הארץ" || matchesSearchLocation(item, location);
     const priceMatches = maximumPrice === 0 || twoHourPrice(item) <= maximumPrice;
     const searchable = `${item.description} ${item.features.join(" ")}`;
     const featuresMatch = features.every((featureId) => {
