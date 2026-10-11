@@ -27,6 +27,13 @@ export type SpaDetails = {
 
 const weekdays = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
 
+export function publicSpaBookingUrl(value: string): string {
+  const url = new URL(value);
+  url.searchParams.delete("isFrame");
+  url.searchParams.delete("ispackFrame");
+  return url.toString();
+}
+
 export function getSpaDetails(id: string): SpaDetails | undefined {
   const site = spaPlusSiteById(id);
   if (!site) return undefined;
@@ -38,7 +45,7 @@ export function getSpaDetails(id: string): SpaDetails | undefined {
     duration: pack.durationMinutes ? `${pack.durationMinutes} דקות` : undefined,
     includes: [],
     image: pack.image || undefined,
-    bookingUrl: pack.bookingUrl || site.bookingUrl!,
+    bookingUrl: publicSpaBookingUrl(pack.bookingUrl || site.bookingUrl!),
   }));
   const suitableFor = [...new Set(packages.map((pack) => pack.audience).filter((value) => value !== "לא צוין"))];
   const hours = site.opening.map((time, index) => `${weekdays[index] || `יום ${index + 1}`}: ${time === "closed" ? "סגור" : time}`);
@@ -50,6 +57,6 @@ export function getSpaDetails(id: string): SpaDetails | undefined {
     address: [site.address, site.city].filter(Boolean).join(", "),
     phone: site.phone || undefined,
     hours,
-    bookingUrl: site.bookingUrl!,
+    bookingUrl: publicSpaBookingUrl(site.bookingUrl!),
   };
 }
