@@ -8,6 +8,7 @@ const pageShell = await readFile(new URL("../app/components/page-shell.tsx", imp
 const accountPage = await readFile(new URL("../app/account/page.tsx", import.meta.url), "utf8");
 const joinPage = await readFile(new URL("../app/join/page.tsx", import.meta.url), "utf8");
 const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+const polishCss = await readFile(new URL("../app/site-polish.css", import.meta.url), "utf8");
 
 test("desktop navigation has no duplicate more menu or gift-card text link", () => {
   assert.doesNotMatch(header, /primaryNavigation/);
@@ -38,6 +39,12 @@ test("the combined trigger handles touch, pointer and keyboard activation withou
   assert.match(switcher, /onClick=\{finishClickActivation\}/);
   assert.match(switcher, /performance\.now\(\) < ignoreClickUntilRef\.current/);
   assert.match(switcher, /Math\.hypot/);
+});
+
+test("search remains a real link until the world switcher is interactive", () => {
+  assert.match(switcher, /useSyncExternalStore\(\(\) => \(\) => \{\}, \(\) => true, \(\) => false\)/);
+  assert.match(switcher, /<Link className="world-dock__prehydrate" href=\{globalSearchHref\}/);
+  assert.match(polishCss, /\.world-dock > \.world-dock__prehydrate/);
 });
 
 test("world links use immediate browser navigation so repeated activation cannot fall through", () => {
