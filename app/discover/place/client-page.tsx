@@ -42,30 +42,30 @@ function hourlyRateLabel(value: string, language: "he" | "en" | "ru" | "fr", tra
   return `${translate(room)} · ${durations[language][duration as keyof typeof durations.en] || duration} · ${days[language][day as keyof typeof days.en] || day}`;
 }
 
-function SpaPackageCard({ itemId, pack }: { itemId: string; pack: SpaPackage }) {
-  const requestHref = `/booking?world=spa&place=${encodeURIComponent(itemId)}&package=${encodeURIComponent(pack.id)}`;
+function SpaPackageCard({ pack }: { pack: SpaPackage }) {
   return <article className="spa-package-card">
-    <header><span>{pack.audience}</span>{pack.duration && <small>{pack.duration}</small>}</header>
+    {pack.image && <img className="spa-package-card__image" src={pack.image} alt={pack.title} loading="lazy" decoding="async" />}
+    <header><span>{pack.audience === "לא צוין" ? "חבילת ספא" : pack.audience}</span>{pack.duration && <small>{pack.duration}</small>}</header>
     <h3>{pack.title}</h3>
-    <ul>{pack.includes.map((entry) => <li key={entry}>{entry}</li>)}</ul>
-    <footer><strong>{pack.price}</strong><Link className="button primary" href={requestHref}>הזמנה אונליין</Link></footer>
+    {pack.includes.length > 0 && <ul>{pack.includes.map((entry) => <li key={entry}>{entry}</li>)}</ul>}
+    <footer><strong>{pack.price}</strong><a className="button primary" href={pack.bookingUrl} target="_blank" rel="noopener noreferrer">בדיקת זמינות והזמנה</a></footer>
   </article>;
 }
 
-function SpaContent({ itemId, details }: { itemId: string; details: SpaDetails }) {
+function SpaContent({ details }: { details: SpaDetails }) {
   return <>
     <section className="section shell spa-about" id="spa-about">
       <div><span className="eyebrow">כל מה שחשוב לפני שמזמינים</span><h2>על המקום</h2>{details.about.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div>
       <aside>
         {details.address && <div><small>כתובת</small><strong>{details.address}</strong></div>}
-        {details.suitableFor?.length && <div><small>מתאים עבור</small><strong>{details.suitableFor.join(" · ")}</strong></div>}
+        {details.suitableFor.length > 0 && <div><small>מתאים עבור</small><strong>{details.suitableFor.join(" · ")}</strong></div>}
       </aside>
     </section>
-    {details.packages?.length ? <section className="section section-tint" id="spa-packages"><div className="shell"><div className="section-head"><div><span className="eyebrow">בוחרים לפי החוויה</span><h2>חבילות הספא</h2><p>רואים מראש מה כלול, למי החבילה מתאימה וכמה זמן כדאי להקדיש לביקור.</p></div></div><div className="spa-packages-grid">{details.packages.map((pack) => <SpaPackageCard key={pack.id} itemId={itemId} pack={pack} />)}</div><p className="spa-price-note">המחירים המוצגים הם מחירי התחלה. הזמינות והמחיר הסופי נקבעים לפי התאריך, ההרכב והאפשרויות שנבחרו.</p></div></section> : <section className="section section-tint" id="spa-packages"><div className="shell depth-final-cta"><div><span className="eyebrow">הזמנה מלאה באתר</span><h2>בוחרים תאריך וממשיכים להזמנה</h2><p>החבילות הזמינות והמחיר הסופי מוצגים בתהליך ההזמנה לפני אישור.</p></div><Link className="button primary" href={`/booking?world=spa&place=${encodeURIComponent(itemId)}`}>הזמנה אונליין</Link></div></section>}
-    <section className="section shell spa-details-grid">
+    {details.packages.length ? <section className="section section-tint" id="spa-packages"><div className="shell"><div className="section-head"><div><span className="eyebrow">בוחרים לפי החוויה</span><h2>חבילות הספא</h2><p>כל החבילות והמחירים שנמסרו מספא פלוס.</p></div></div><div className="spa-packages-grid">{details.packages.map((pack) => <SpaPackageCard key={pack.id} pack={pack} />)}</div><p className="spa-price-note">הזמינות והמחיר הסופי נבדקים בתהליך ההזמנה של ספא פלוס.</p></div></section> : <section className="section section-tint" id="spa-packages"><div className="shell depth-final-cta"><div><span className="eyebrow">חבילות ספא</span><h2>לא נמסרו חבילות למקום זה</h2><p>אפשר לבדוק אפשרויות עדכניות אצל ספא פלוס.</p></div><a className="button primary" href={details.bookingUrl} target="_blank" rel="noopener noreferrer">בדיקת אפשרויות</a></div></section>}
+    {(details.treatments?.length || details.facilities.length) ? <section className="section shell spa-details-grid">
       {details.treatments?.length ? <div id="spa-treatments" className="spa-detail-panel"><span className="eyebrow">לבחירה במקום</span><h2>טיפולים</h2><div className="spa-treatment-list">{details.treatments.map((treatment) => <article key={treatment.name}><strong>{treatment.name}</strong>{treatment.durations?.length ? <span>{treatment.durations.join(" · ")}</span> : null}{treatment.priceNote ? <small>{treatment.priceNote}</small> : null}</article>)}</div></div> : null}
-      <div id="spa-facilities" className="spa-detail-panel"><span className="eyebrow">בתוך המתחם</span><h2>מתקנים ושירותים</h2><ul className="spa-facility-list">{details.facilities.map((facility) => <li key={facility}>{facility}</li>)}</ul></div>
-    </section>
+      {details.facilities.length > 0 && <div id="spa-facilities" className="spa-detail-panel"><span className="eyebrow">בתוך המתחם</span><h2>מתקנים ושירותים</h2><ul className="spa-facility-list">{details.facilities.map((facility) => <li key={facility}>{facility}</li>)}</ul></div>}
+    </section> : null}
     {(details.hours?.length || details.arrivalNotes?.length) ? <section className="section section-soft" id="spa-info"><div className="shell spa-visit-info"><div><span className="eyebrow">מתכננים את הביקור</span><h2>שעות ופרטים שימושיים</h2>{details.hours?.map((entry) => <p key={entry}>{entry}</p>)}</div>{details.arrivalNotes?.length ? <ul>{details.arrivalNotes.map((note) => <li key={note}>{note}</li>)}</ul> : null}</div></section> : null}
     {details.faq?.length ? <section className="section shell spa-faq"><div className="section-head"><div><span className="eyebrow">שאלות נפוצות</span><h2>כל מה שרציתם לדעת</h2></div></div><div>{details.faq.map((entry) => <details key={entry.question}><summary>{entry.question}</summary><p>{entry.answer}</p></details>)}</div></section> : null}
   </>;
@@ -185,9 +185,9 @@ export default function DiscoveryPlacePage({ initialId }: { initialId: string })
       { href: "#spa-about", label: "על המקום" },
       { href: "#spa-packages", label: spaDetails.packages?.length ? "חבילות" : "הזמנה" },
       ...(spaDetails.treatments?.length ? [{ href: "#spa-treatments" as const, label: "טיפולים" }] : []),
-      { href: "#spa-facilities", label: "מתקנים" },
+      ...(spaDetails.facilities.length ? [{ href: "#spa-facilities" as const, label: "מתקנים" }] : []),
       ...(spaDetails.hours?.length ? [{ href: "#spa-info" as const, label: "שעות ופרטים" }] : []),
-      { href: "#location", label: "מפה" },
+      ...(item.lat && item.lng ? [{ href: "#location" as const, label: "מפה" }] : []),
       { href: "#reviews", label: "חוות דעת" },
     ];
     if (providerDetails) return [
@@ -206,9 +206,9 @@ export default function DiscoveryPlacePage({ initialId }: { initialId: string })
       ...(activityDetails?.booking ? [{ href: "#activity-booking" as const, label: "איך מזמינים" }] : []),
       { href: "#activity-faq", label: "שאלות נפוצות" }, { href: "#reviews", label: "חוות דעת" },
     ];
-  }, [activityDetails, hourlyDetails, providerDetails, spaDetails]);
+  }, [activityDetails, hourlyDetails, providerDetails, spaDetails, item.lat, item.lng]);
   const activityPhoneOnly = activityDetails?.booking?.mode === "phone";
-  const phone = item.world === "hourly" ? item.phone : activityPhoneOnly ? activityDetails.booking?.phone : undefined;
+  const phone = item.world === "hourly" || item.world === "spa" ? item.phone : activityPhoneOnly ? activityDetails.booking?.phone : undefined;
   const onlineHref = item.id === "masu-home-wellness" || item.world === "hourly" || activityPhoneOnly ? undefined : item.world === "providers" && providerDetails?.bookingMode === "whatsapp"
     ? "#provider-services"
     : item.world === "spa" && spaDetails?.packages?.length
@@ -225,11 +225,11 @@ export default function DiscoveryPlacePage({ initialId }: { initialId: string })
         <div className={`discovery-detail__media discovery-card__placeholder--${item.world}`}>{item.image ? <><button className="discovery-detail__gallery-media" type="button" data-gallery-trigger onClick={() => openGallery("all", 0)} aria-label={`פתיחת הגלריה של ${item.name}`}><img src={item.image} alt={item.imageLabel ? `תמונת אווירה לתחום ${item.features[0]}` : item.name} title={item.imageLabel || item.name} /></button>{item.imageLabel && <span className="image-context-label image-context-label--detail">{item.imageLabel}</span>}<button className="discovery-detail__gallery-launch" type="button" data-gallery-trigger onClick={() => openGallery("all", 0)}><span aria-hidden="true">▦</span>לגלריה <small>{galleryImages.length} {galleryImages.length === 1 ? "תמונה" : "תמונות"}</small></button></> : null}</div>
       </section>
       <DetailStickyDock name={item.name} location={`${item.location}, ${item.area}`} sections={sections} onlineHref={onlineHref} onlineLabel={onlineLabel} phone={phone} />
-      {spaDetails ? <SpaContent itemId={item.id} details={spaDetails} /> : null}
+      {spaDetails ? <SpaContent details={spaDetails} /> : null}
       {providerDetails ? <ProviderContent itemId={item.id} providerName={item.name} details={providerDetails} priceLabel={item.priceLabel || "מחיר ייקבע לפני אישור"} /> : null}
       {hourlyDetails ? <HourlyContent item={item} details={hourlyDetails} /> : null}
       {activityDetails ? <ActivityContent itemId={item.id} details={activityDetails} /> : null}
-      {(spaDetails || hourlyDetails) ? <section className={`section shell discovery-location discovery-location--${item.world}`} id="location"><div className="discovery-location__intro"><span className="eyebrow">מכירים את האזור לפני שמגיעים</span><h2>המקום על המפה</h2><p>{item.world === "spa" ? "בודקים את האזור, המרחקים והדרך הנוחה להגיע לחוויית הספא." : "רואים את אזור המקום ושומרים על פרטיות מלאה. פרטי ההגעה המדויקים נמסרים לאחר אישור."}</p></div><DiscoveryMap items={[item]} tone={item.world === "spa" ? "spa" : "hourly"} single autoLoad /></section> : null}
+      {((spaDetails && item.lat && item.lng) || hourlyDetails) ? <section className={`section shell discovery-location discovery-location--${item.world}`} id="location"><div className="discovery-location__intro"><span className="eyebrow">מכירים את האזור לפני שמגיעים</span><h2>המקום על המפה</h2><p>{item.world === "spa" ? "המיקום במפה הוא אזורי. הכתובת המדויקת מופיעה בפרטי המקום." : "רואים את אזור המקום ושומרים על פרטיות מלאה. פרטי ההגעה המדויקים נמסרים לאחר אישור."}</p></div><DiscoveryMap items={[item]} tone={item.world === "spa" ? "spa" : "hourly"} single autoLoad /></section> : null}
       {(item.world === "spa" || item.world === "hourly") && <div className="shell discovery-detail__accessibility"><ListingAccessibility slug={item.id} /></div>}
       {(item.world === "spa" || item.world === "hourly") && item.id !== "masu-home-wellness" ? <div className="section shell"><MasuExperience context={item.world === "spa" ? "spa" : "hourly"} /></div> : null}
       <div className="section shell"><GuestReviewStudio placeName={item.name} subjectId={item.id} rating={item.rating} /></div>

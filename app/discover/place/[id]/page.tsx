@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import DiscoveryPlacePage from "../client-page";
 import { discoveryItems } from "../../../data/world-data";
 import { StructuredData } from "../../../components/structured-data";
@@ -9,10 +9,13 @@ import { getSpaDetails } from "../../../data/spa-details";
 import { getProviderDetails } from "../../../data/provider-details";
 import { getHourlyDetails } from "../../../data/hourly-details";
 import { getActivityDetails } from "../../../data/activity-details";
+import spaLegacyAliases from "../../../data/spaplus-legacy-aliases.json";
 
 type Props = { params: Promise<{ id: string }> };
 
 function resolveItem(id: string) {
+  const spaAlias = (spaLegacyAliases as Record<string, string>)[id];
+  if (spaAlias) redirect(`/discover/place/${spaAlias}`);
   const item = discoveryItems.find((entry) => entry.id === id);
   if (!item) notFound();
   return item;

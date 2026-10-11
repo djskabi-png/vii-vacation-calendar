@@ -3919,6 +3919,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .spa-about aside small { color: var(--ink-soft); }
 .spa-packages-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; }
 .spa-package-card { min-height: 100%; display: flex; flex-direction: column; padding: 24px; border: 1px solid color-mix(in srgb,var(--spa) 22%,var(--line)); border-radius: 26px; background: white; box-shadow: 0 16px 45px rgba(24,52,66,.07); }
+.spa-package-card__image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin-bottom: 16px; border-radius: 8px; }
 .spa-package-card header { display: flex; justify-content: space-between; gap: 12px; color: var(--ink-soft); }
 .spa-package-card header span { color: var(--spa); font-weight: 800; }
 .spa-package-card h3 { margin: 18px 0 12px; font-size: 1.35rem; }

@@ -9,6 +9,7 @@ import { getProviderDetails } from "../data/provider-details";
 import BookingPageClient from "./client-page";
 import { supplierLegacySlug, unavailableLegacySearchHref } from "../data/supplier-legacy-links";
 import { liveSupplierPlaceDetail } from "../data/supplier-place-detail";
+import spaLegacyAliases from "../data/spaplus-legacy-aliases.json";
 
 export const metadata: Metadata = {
   title: "הזמנה אונליין",
@@ -128,6 +129,13 @@ async function resolveBooking(params: Awaited<Props["searchParams"]>) {
 
 export default async function BookingPage({ searchParams }: Props) {
   const params = await searchParams;
+  if (params.place?.startsWith("spa-") || params.world === "spa") {
+    const placeId = (spaLegacyAliases as Record<string, string>)[params.place || ""] || params.place || "";
+    const details = getSpaDetails(placeId);
+    if (!details) notFound();
+    const pack = details.packages.find((entry) => entry.id === params.package);
+    redirect(pack?.bookingUrl || details.bookingUrl);
+  }
   const booking = await resolveBooking(params);
   return <PageShell variant={booking.world as "vacation" | "events" | "spa" | "hourly" | "providers" | "activities"}>
     <BookingPageClient {...booking} action={params.action || "new"} initialFrom={params.from} initialTill={params.till} initialGuests={params.guests} />

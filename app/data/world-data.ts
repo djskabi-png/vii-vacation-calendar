@@ -1,5 +1,6 @@
 import verifiedCatalog from "./verified-catalog.json";
 import hourlyCatalog from "./sergey-hourly-catalog.json";
+import { spaPlusArea, spaPlusAudience, spaPlusSites } from "./spaplus";
 import { supplierContactNumber } from "../lib/supplier-contact";
 
 export type WorldId = "vacation" | "events" | "corporate" | "spa" | "hourly" | "providers" | "activities";
@@ -57,18 +58,6 @@ export const publicWorldNavigation = [
   { id: "attractions", label: "אטרקציות", shortLabel: "אטרקציות", description: "אטרקציות פעילות עם מידע מאומת ואפשרויות הזמנה", href: "/attractions" },
 ] as const;
 
-const curatedSpaPlaces: DiscoveryItem[] = [
-  { id: "spa-butik-tlv", world: "spa", name: "ספא בוטיק תל אביב", location: "תל אביב", area: "מרכז", description: "מתחם ספא זוגי עם סוויטות פרטיות, ג׳קוזי ומבחר חבילות טיפול.", features: ["עיסוי זוגי", "סוויטה פרטית", "ג׳קוזי"], image: "/media/discovery/spa-butik-tlv.jpg", images: ["/media/discovery/spa-butik-tlv.jpg", "/media/discovery/spa-butik-tlv-1.jpg", "/media/discovery/spa-butik-tlv-2.jpg", "/media/discovery/spa-butik-tlv-3.jpg"], priceLabel: "החל מ־399 ₪", rating: 8.9, lat: 32.0805, lng: 34.7692, mapPrecision: "area", sourceUrl: "https://www.spaplus.co.il/spa_butik_tlv", sourceName: "ספא פלוס" },
-  { id: "cassia-jerusalem", world: "spa", name: "קסיה וולנס וספא", location: "ירושלים", area: "ירושלים והסביבה", description: "מרכז וולנס במלון קסיה, סמוך לממילא, עם בריכה על הגג ומתקני ספא.", features: ["וולנס", "בריכה", "ג׳קוזי"], image: "/media/discovery/cassia-jerusalem.jpg", images: ["/media/discovery/cassia-jerusalem.jpg", "/media/discovery/cassia-jerusalem-1.jpg", "/media/discovery/cassia-jerusalem-2.jpg", "/media/discovery/cassia-jerusalem-3.jpg"], rating: 9.8, lat: 31.7703, lng: 35.2226, mapPrecision: "area", sourceUrl: "https://www.spaplus.co.il/spa_Cassia_Jerusalem", sourceName: "ספא פלוס" },
-  { id: "assemblage-spa", world: "spa", name: "אסמבלאז׳ ספא", location: "תל אביב", area: "מרכז", description: "ספא במלון הבוטיק אסמבלאז׳ עם חדרי טיפולים וחבילות יחיד וזוג.", features: ["מלון בוטיק", "עיסוי", "חבילות זוגיות"], image: "/media/discovery/assemblage-spa.jpg", images: ["/media/discovery/assemblage-spa.jpg", "/media/discovery/assemblage-spa-1.jpg", "/media/discovery/assemblage-spa-2.jpg", "/media/discovery/assemblage-spa-3.jpg"], priceLabel: "החל מ־680 ₪ לזוג", lat: 32.0635, lng: 34.7694, mapPrecision: "area", sourceUrl: "https://www.spaplus.co.il/assemblage_spa", sourceName: "ספא פלוס" },
-  { id: "urban-spa-tlv", world: "spa", name: "אורבן ספא תל אביב", location: "תל אביב", area: "מרכז", description: "מתחם ספא אורבני בצפון תל אביב עם טיפולי גוף, סאונות וחדר מנוחה.", features: ["סאונה יבשה", "סאונה רטובה", "חדר מנוחה"], image: "/media/discovery/urban-spa-tlv.jpg", images: ["/media/discovery/urban-spa-tlv.jpg", "/media/discovery/urban-spa-tlv-1.jpg", "/media/discovery/urban-spa-tlv-2.jpg", "/media/discovery/urban-spa-tlv-3.jpg"], priceLabel: "החל מ־355 ₪", rating: 9.0, lat: 32.1018, lng: 34.7881, mapPrecision: "area", sourceUrl: "https://www.spaplus.co.il/urban_spa_tlv", sourceName: "ספא פלוס" },
-  { id: "david-intercontinental", world: "spa", name: "הספא במלון דיוויד אינטרקונטיננטל", location: "תל אביב", area: "מרכז", description: "מתחם ספא במלון עם חבילות טיפול, ארוחת בוקר ושימוש במתקנים.", features: ["מלון", "בריכה", "חבילות עם ארוחה"], image: "/media/discovery/david-intercontinental.jpg", images: ["/media/discovery/david-intercontinental.jpg", "/media/discovery/david-intercontinental-1.jpg", "/media/discovery/david-intercontinental-2.jpg", "/media/discovery/david-intercontinental-3.jpg"], priceLabel: "החל מ־555 ₪", rating: 9.0, lat: 32.0620, lng: 34.7619, mapPrecision: "area", sourceUrl: "https://www.spaplus.co.il/the_spa", sourceName: "ספא פלוס" },
-  { id: "horizon-spa", world: "spa", name: "הוריזון ספא במלון שרתון", location: "תל אביב", area: "מרכז", description: "ספא מול הים עם 13 חדרי טיפולים, סאונת מלח, סאונה יבשה ורטובה.", features: ["מול הים", "סאונת מלח", "13 חדרי טיפול"], image: "/media/discovery/horizon-spa.jpg", images: ["/media/discovery/horizon-spa.jpg", "/media/discovery/horizon-spa-1.jpg", "/media/discovery/horizon-spa-2.jpg", "/media/discovery/horizon-spa-3.jpg"], priceLabel: "החל מ־420 ₪", rating: 8.9, lat: 32.0797, lng: 34.7672, mapPrecision: "area", sourceUrl: "https://www.spaplus.co.il/horizon_spa", sourceName: "ספא פלוס" },
-  { id: "debrah-spa", world: "spa", name: "ספא דברה מרשת אדמה", location: "תל אביב", area: "מרכז", description: "ספא במלון דברה עם חדרי טיפול וחבילות יחיד וזוג בהזמנה מקוונת.", features: ["מלון בוטיק", "טיפול זוגי", "גג המלון"], image: "/media/discovery/debrah-spa.jpg", images: ["/media/discovery/debrah-spa.jpg", "/media/discovery/debrah-spa-1.jpg", "/media/discovery/debrah-spa-2.jpg", "/media/discovery/debrah-spa-3.jpg"], rating: 9.9, lat: 32.0876, lng: 34.7731, mapPrecision: "area", sourceUrl: "https://www.spaplus.co.il/Debrah_hotel_spa", sourceName: "ספא פלוס" },
-  { id: "bobo-spa", world: "spa", name: "ספא בובו מרשת אדמה", location: "תל אביב", area: "מרכז", description: "חדרי טיפולים מרווחים ופינות מנוחה במלון בובו ברחוב יבנה.", features: ["חדרי טיפול", "פינות מנוחה", "חבילות זוגיות"], image: "/media/discovery/bobo-spa.jpg", images: ["/media/discovery/bobo-spa.jpg", "/media/discovery/bobo-spa-1.jpg", "/media/discovery/bobo-spa-2.jpg", "/media/discovery/bobo-spa-3.jpg"], priceLabel: "החל מ־300 ₪", rating: 9.9, lat: 32.0638, lng: 34.7748, mapPrecision: "area", sourceUrl: "https://www.spaplus.co.il/bobo_tlv_spa", sourceName: "ספא פלוס" },
-  { id: "leonardo-plaza-jerusalem", world: "spa", name: "ספא לאונרדו פלאזה ירושלים", location: "ירושלים", area: "ירושלים והסביבה", description: "ספא במלון לאונרדו פלאזה עם טיפולים ואפשרות לשלב ארוחת בוקר או יום כיף.", features: ["מלון", "בריכה", "יום כיף"], image: "/media/discovery/leonardo-plaza-jerusalem.jpg", images: ["/media/discovery/leonardo-plaza-jerusalem.jpg", "/media/discovery/leonardo-plaza-jerusalem-1.jpg", "/media/discovery/leonardo-plaza-jerusalem-2.jpg", "/media/discovery/leonardo-plaza-jerusalem-3.jpg"], lat: 31.7787, lng: 35.2152, mapPrecision: "area", sourceUrl: "https://www.spaplus.co.il/leonardo_plaza_jerusalem_spa", sourceName: "ספא פלוס" },
-  { id: "playa-spa", world: "spa", name: "פלאיה ספא במלון פליי ווסט", location: "תל אביב", area: "מרכז", description: "ספא בצפון תל אביב ליד חוף הצוק עם סאונות, חדר כושר ומלתחות.", features: ["ליד הים", "סאונות", "חדר כושר"], image: "/media/discovery/playa-spa.jpg", images: ["/media/discovery/playa-spa.jpg", "/media/discovery/playa-spa-1.jpg", "/media/discovery/playa-spa-2.png", "/media/discovery/playa-spa-3.png"], priceLabel: "החל מ־415 ₪", rating: 9.6, lat: 32.1388, lng: 34.7919, mapPrecision: "area", sourceUrl: "https://www.spaplus.co.il/spa_OpolSky", sourceName: "ספא פלוס" },
-];
 
 const spaAreaCoordinates: Record<string, { lat: number; lng: number }> = {
   "נהריה": { lat: 33.006, lng: 35.095 },
@@ -114,7 +103,31 @@ const verifiedDiscoveryItems = (world: "spa" | "hourly"): DiscoveryItem[] => ver
   };
 });
 
-export const spaPlaces: DiscoveryItem[] = [...curatedSpaPlaces, ...verifiedDiscoveryItems("spa").filter((item) => !curatedSpaPlaces.some((existing) => existing.sourceUrl === item.sourceUrl))];
+export const spaPlaces: DiscoveryItem[] = spaPlusSites.map((site) => {
+  const audiences = [...new Set(site.packages.map(spaPlusAudience).filter((value) => value !== "לא צוין"))];
+  const prices = site.packages.map((pack) => pack.price);
+  const coordinates = spaAreaCoordinates[site.city];
+  return {
+    id: `spa-${site.id}`,
+    world: "spa",
+    name: site.title,
+    location: site.city || "מיקום לא נמסר",
+    area: spaPlusArea(site.city),
+    description: site.shortDescription || site.about[0] || "",
+    features: audiences.map((audience) => `חבילות ${audience === "זוג" ? "זוגיות" : audience === "יחיד" ? "ליחיד" : audience === "קבוצה" ? "לקבוצות" : "יום כיף"}`),
+    searchTerms: site.packages.map((pack) => pack.title),
+    image: site.image || undefined,
+    images: site.image ? [site.image] : [],
+    priceLabel: prices.length ? `החל מ־${Math.min(...prices).toLocaleString("he-IL")} ₪` : undefined,
+    phone: site.phone || undefined,
+    sourceUrl: site.bookingUrl || undefined,
+    sourceName: "ספא פלוס",
+    lat: coordinates?.lat,
+    lng: coordinates?.lng,
+    mapPrecision: coordinates ? "area" : undefined,
+    indexable: true,
+  };
+});
 export const hourlyPlaces: DiscoveryItem[] = hourlyCatalog.places.map((place) => {
   const features = [...new Set(place.rooms.flatMap((room) => room.features))];
   const oneHourPrices = place.rooms.flatMap((room) => room.rates.filter((rate) => rate.duration === "שעה")
@@ -254,4 +267,4 @@ const verifiedAttractions: DiscoveryItem[] = verifiedCatalog.attractions.flatMap
 export const paidAttractions: DiscoveryItem[] = verifiedAttractions;
 
 export const discoveryItems = [...spaPlaces, ...hourlyPlaces, ...providerProfiles, ...activityIdeas, ...paidAttractions]
-  .filter((item) => item.world === "hourly" || (item.indexable !== false && (item.images?.length || 0) >= 3));
+  .filter((item) => item.world === "hourly" || (item.indexable !== false && (item.world === "spa" ? Boolean(item.image) : (item.images?.length || 0) >= 3)));

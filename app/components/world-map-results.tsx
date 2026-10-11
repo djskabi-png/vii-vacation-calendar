@@ -41,7 +41,7 @@ function SpaFilterIcon({ id }: { id: string }) {
 }
 
 function searchableText(item: DiscoveryItem) {
-  return `${item.name} ${item.description} ${item.features.join(" ")}`;
+  return `${item.name} ${item.description} ${item.features.join(" ")} ${(item.searchTerms || []).join(" ")}`;
 }
 
 function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudience, initialSpaFilters }: { items: DiscoveryItem[]; activeSpaFilter?: string; initialLocation?: string; initialSpaAudience?: string; initialSpaFilters?: string[] }) {
