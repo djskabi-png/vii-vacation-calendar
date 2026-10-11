@@ -55,19 +55,19 @@ const places = source.details.flatMap(({ world, supplierId, raw }) => {
   }
   const city = cities.get(raw.location?.city);
   const images = galleryImages(raw.galleries);
-  const lat = raw.gps?.lat;
-  const lng = raw.gps?.long;
+  const sourceLat = raw.gps?.lat;
+  const sourceLng = raw.gps?.long;
+  const swapped = !validIsraelCoordinates(sourceLat, sourceLng) && validIsraelCoordinates(sourceLng, sourceLat);
+  const lat = swapped ? sourceLng : sourceLat;
+  const lng = swapped ? sourceLat : sourceLng;
+  const hasCoordinates = validIsraelCoordinates(lat, lng);
   const rooms = Array.isArray(raw.rooms) ? raw.rooms : [];
-  if (!city?.title || !images.length || !rooms.length || !validIsraelCoordinates(lat, lng)) {
-    rejected.push({ world, supplierId, reason: !validIsraelCoordinates(lat, lng) ? "invalid_coordinates" : "missing_required_field" });
+  if (!city?.title || !images.length) {
+    rejected.push({ world, supplierId, reason: "missing_required_field" });
     return [];
   }
   const units = rooms.reduce((total, room) => total + (Number.isSafeInteger(room.roomCount) && room.roomCount > 0 ? room.roomCount : 1), 0);
-  const capacity = Math.max(...rooms.map((room) => Number.isSafeInteger(room.maxGuests) && room.maxGuests > 0 ? room.maxGuests : 0));
-  if (!capacity) {
-    rejected.push({ world, supplierId, reason: "missing_capacity" });
-    return [];
-  }
+  const capacity = rooms.length ? Math.max(...rooms.map((room) => Number.isSafeInteger(room.maxGuests) && room.maxGuests > 0 ? room.maxGuests : 0)) : 0;
   const phone = supplierContactNumber(raw.contact?.phone);
   const whatsapp = supplierContactNumber(raw.contact?.whatsapp);
   const score = typeof raw.reviews?.score === "number" && raw.reviews.score > 0 ? raw.reviews.score : undefined;
@@ -125,8 +125,7 @@ const places = source.details.flatMap(({ world, supplierId, raw }) => {
     features: featuresFor(raw),
     audiences: [],
     badges: [],
-    lat,
-    lng,
+    ...(hasCoordinates ? { lat, lng } : {}),
     scenario: units > 1 ? "multi" : "single",
     ...(score ? { score } : {}),
     ...(reviews ? { reviews } : {}),

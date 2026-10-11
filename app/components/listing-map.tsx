@@ -498,7 +498,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
 
 export function ListingMap({ listings, initialListings, mode = "vacation", single = false, autoLoad = false, detailQuery, onClose, onVisibleCountChange, onVisiblePlaceIdsChange }: { listings: Listing[]; initialListings?: Listing[]; mode?: "vacation" | "events"; single?: boolean; autoLoad?: boolean; detailQuery?: string; onClose?: () => void; onVisibleCountChange?: (count: number) => void; onVisiblePlaceIdsChange?: (ids: string[]) => void }) {
   const { language } = useSiteLanguage();
-  const places = useMemo<MapPlace[]>(() => listings.map((listing) => ({
+  const places = useMemo<MapPlace[]>(() => listings.filter((listing) => typeof listing.lat === "number" && typeof listing.lng === "number").map((listing) => ({
     id: listing.slug,
     name: listing.name,
     location: listing.location,
@@ -507,14 +507,14 @@ export function ListingMap({ listings, initialListings, mode = "vacation", singl
     meta: [
       listing.bedrooms ? `${listing.bedrooms} חדרי שינה` : null,
       listing.units && listing.units > 1 ? `${listing.units} יחידות` : null,
-      `עד ${listing.guests} אורחים`,
+      listing.guests > 0 ? `עד ${listing.guests} אורחים` : null,
     ].filter(Boolean).join(" · "),
     image: listing.image,
-    lat: listing.lat,
-    lng: listing.lng,
+    lat: listing.lat!,
+    lng: listing.lng!,
     href: mode === "events" ? eventPlaceHref(listing as EventPlace) : `/business?id=${listing.slug}${detailQuery ? `&${detailQuery}` : ""}`,
     markerLabel: mode === "events"
-      ? `${listing.guests} אורחים`
+      ? listing.guests > 0 ? `${listing.guests} אורחים` : listing.type
       : typeof listing.price === "number"
         ? language === "he"
           ? `${listing.price.toLocaleString("he-IL")} ₪`

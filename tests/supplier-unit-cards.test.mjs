@@ -27,16 +27,18 @@ test("unit gallery association requires a current positive supplier room identif
   }
 });
 
-test("active catalog retains current room names and bedroom counts without restoring excluded listings", async () => {
+test("active catalog retains the verified October 11 supplier room identities and counts", async () => {
   const catalog = JSON.parse(await readFile(new URL("../app/data/sergey-public-catalog.json", import.meta.url)));
-  assert.equal(catalog.places.length, 703);
-  assert.ok(!catalog.places.some((place) => place.slug === "vacation-389"));
+  assert.equal(catalog.places.length, 702);
+  assert.ok(catalog.places.some((place) => place.slug === "vacation-389"));
   for (const slug of ["vacation-464", "event-464"]) {
-    assert.deepEqual(supplierPlaceDetail(slug).rooms.map((room) => [room.name, room.quantity, room.bedrooms]), [
-      ["לופט בית האצילים", 1, 1], ["לופט מוצדת דוד", 1, 1], ["לופט מצודת לונדון", 1, 1],
+    assert.deepEqual(supplierPlaceDetail(slug).rooms.map((room) => [room.id, room.name, room.quantity, room.bedrooms]), [
+      [1131, "בית האצילים", 1, 1], [4574, "מצודת דוד", 1, 1], [4575, "מצודת לונדון", 1, 1],
     ]);
   }
-  assert.equal(supplierPlaceDetail("vacation-2528").rooms[0].bedrooms, 8);
+  assert.deepEqual(supplierPlaceDetail("vacation-2528").rooms.map((room) => [room.id, room.name, room.quantity, room.bedrooms, room.images]), [
+    [4328, "הוילה בוטיק בספסופה", 1, 10, []],
+  ]);
 });
 
 test("supplier request requires a verified detail room as well as the exact vacancy quote", async () => {
