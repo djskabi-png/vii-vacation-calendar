@@ -31,19 +31,15 @@ test("spa discovery and detail read only the supplier catalog", async () => {
   assert.match(page, /href=\{pack\.bookingUrl\}/);
   assert.doesNotMatch(page, /booking\?world=spa&place=/);
   assert.match(booking, /redirect\(pack\?\.bookingUrl \|\| details\.bookingUrl\)/);
+  const oldCatalog = JSON.parse(await read("app/data/verified-catalog.json"));
+  assert.equal(Object.hasOwn(oldCatalog, "spa"), false);
+  assert.doesNotMatch(await read("scripts/build-verified-catalog.mjs"), /spaPages|parseSpaCards|catalog\.spa/);
 });
 
-test("only exact supplier URL matches receive legacy spa redirects", async () => {
+test("old spa URLs redirect only to present supplier records without retaining old listings", async () => {
   const aliases = JSON.parse(await read("app/data/spaplus-legacy-aliases.json"));
   const catalog = JSON.parse(await read("app/data/spaplus-catalog.json"));
-  const old = JSON.parse(await read("app/data/verified-catalog.json"));
   assert.equal(Object.keys(aliases).length, 42);
   assert.ok(Object.values(aliases).every((id) => catalog.sites.some((site) => `spa-${site.id}` === id)));
-  for (const place of old.spa) {
-    const target = aliases[place.id];
-    if (!target) continue;
-    const sourcePath = new URL(place.sourceUrl).pathname.toLowerCase().replace(/\/$/, "") + "/";
-    const site = catalog.sites.find((entry) => `spa-${entry.id}` === target);
-    assert.ok(site.packages.some((pack) => new URL(pack.bookingUrl).pathname.toLowerCase().startsWith(sourcePath)), place.id);
-  }
+  assert.equal(aliases["assemblage-spa"], "spa-365");
 });

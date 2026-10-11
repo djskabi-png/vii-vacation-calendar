@@ -1288,12 +1288,12 @@ test("spa results expose working place and amenity filters before the result lis
   assert.match(source, /displayed\.map\(\(item\)/);
 
   const worldData = await readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8");
-  assert.match(worldData, /function areaMapCoordinates/);
+  assert.match(worldData, /const coordinates = spaAreaCoordinates\[site\.city\]/);
   assert.match(worldData, /const spaAreaCoordinates/);
   assert.match(worldData, /"חיפה": \{ lat: 32\.794, lng: 34\.989 \}/);
   assert.match(worldData, /"טבריה": \{ lat: 32\.794, lng: 35\.532 \}/);
   assert.match(worldData, /"ירושלים": \{ lat: 31\.778, lng: 35\.223 \}/);
-  assert.match(worldData, /mapPrecision: "area"/);
+  assert.match(worldData, /mapPrecision: coordinates \? "area" : undefined/);
 });
 
 test("provider pages demonstrate tracked WhatsApp and full-site booking modes", async () => {

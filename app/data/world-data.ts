@@ -75,34 +75,6 @@ const spaAreaCoordinates: Record<string, { lat: number; lng: number }> = {
   "טבריה": { lat: 32.794, lng: 35.532 },
 };
 
-function areaMapCoordinates(item: { location: string; lat: number; lng: number }, world: "spa" | "hourly") {
-  if (world === "spa") return spaAreaCoordinates[item.location] ?? { lat: item.lat, lng: item.lng };
-  return { lat: item.lat, lng: item.lng };
-}
-
-const verifiedDiscoveryItems = (world: "spa" | "hourly"): DiscoveryItem[] => verifiedCatalog[world].map((item) => {
-  const coordinates = areaMapCoordinates(item, world);
-  return {
-  id: item.id,
-  world,
-  name: item.name,
-  location: item.location,
-  area: item.area,
-  description: item.description,
-  features: item.features,
-  image: item.image,
-  images: item.images,
-  priceLabel: item.price ? `החל מ-${item.price} ₪` : undefined,
-  rating: "rating" in item ? item.rating : undefined,
-  sourceUrl: item.sourceUrl,
-  sourceName: item.sourceName,
-  lat: coordinates.lat,
-  lng: coordinates.lng,
-  mapPrecision: "area",
-  indexable: true,
-  };
-});
-
 export const spaPlaces: DiscoveryItem[] = spaPlusSites.map((site) => {
   const audiences = [...new Set(site.packages.map(spaPlusAudience).filter((value) => value !== "לא צוין"))];
   const prices = site.packages.map((pack) => pack.price);

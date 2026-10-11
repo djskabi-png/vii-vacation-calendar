@@ -16,17 +16,6 @@ const regions = {
   telaviv: { label: "תל אביב", lat: 32.08, lng: 34.78 },
 };
 
-const spaPages = [
-  ["north", "https://www.spaplus.co.il/north"],
-  ["center", "https://www.spaplus.co.il/Center"],
-  ["south", "https://www.spaplus.co.il/South"],
-  ["jerusalem", "https://www.spaplus.co.il/Jerusalem"],
-  ["eilat", "https://www.spaplus.co.il/Eilat"],
-  ["haifa", "https://www.spaplus.co.il/Haifa"],
-  ["kinneret", "https://www.spaplus.co.il/Tiberias"],
-  ["telaviv", "https://www.spaplus.co.il/Tel_Aviv"],
-];
-
 const roomPages = {
   hourly: [
     ["north", "https://roomsvip.com/search/North/100038521"],
@@ -144,23 +133,6 @@ function parseRoomCards(html, baseUrl, world, regionKey) {
   return [...new Map(found.map((item) => [item.sourceUrl, item])).values()].slice(0, 12);
 }
 
-function parseSpaCards(html, regionKey) {
-  const chunks = html.split(/(?=<div\s+class=["']spa-box)/i);
-  const found = [];
-  for (const chunk of chunks) {
-    const sourceUrl = chunk.match(/data-link=["'](https:\/\/www\.spaplus\.co\.il\/[^"']+)/i)?.[1];
-    const name = decode(chunk.match(/<span class=["']title["']>([\s\S]*?)<\/span>/i)?.[1]);
-    if (!sourceUrl || !name) continue;
-    const remoteImages = extractImages(chunk, sourceUrl);
-    if (remoteImages.length < 4) continue;
-    const location = decode(chunk.match(/<span class=["']area["']>([\s\S]*?)<\/span>/i)?.[1]) || regions[regionKey].label;
-    const price = Number(chunk.match(/<strong>₪\s*([\d,]+)/i)?.[1]?.replaceAll(",", "") || 0) || undefined;
-    const rating = Number(chunk.match(/<span class=["']rank["'][^>]*>[\s\S]*?<\/i>\s*([\d.]+)/i)?.[1] || 0) || undefined;
-    found.push({ id: `spa-${slugify(sourceUrl)}`, sourceUrl, sourceName: "Spa Plus", name, location, area: regions[regionKey].label, regionKey, price, rating, lat: regions[regionKey].lat, lng: regions[regionKey].lng, remoteImages });
-  }
-  return [...new Map(found.map((item) => [item.sourceUrl, item])).values()].slice(0, 15);
-}
-
 async function enrich(item, world) {
   const html = await fetchText(item.sourceUrl);
   const description = decode(html.match(/<meta[^>]+name=["']description["'][^>]+content="([^"]+)/i)?.[1] || html.match(/<meta[^>]+content="([^"]+)"[^>]+name=["']description/i)?.[1] || html.match(/<meta[^>]+name=["']description["'][^>]+content='([^']+)/i)?.[1]);
@@ -181,9 +153,7 @@ async function enrich(item, world) {
     await writeFile(target, Buffer.from(await response.arrayBuffer()));
     localImages.push(`/media/verified/${world}/${filename}`);
   }
-  const defaultFeatures = world === "spa"
-    ? ["טיפולי ספא", "חבילות ליחיד ולזוג", "הזמנה מקוונת"]
-    : world === "hourly"
+  const defaultFeatures = world === "hourly"
       ? ["שהייה לפי שעה", "פרטיות", "בחירת משך שהייה"]
       : world === "events"
         ? ["אירועים פרטיים", "בדיקת זמינות", `עד ${item.guests} אורחים`]
@@ -202,13 +172,8 @@ async function enrich(item, world) {
   };
 }
 
-const catalog = { spa: [], hourly: [], vacation: [], events: [], attractions: [] };
-const seenByWorld = { spa: new Set(), hourly: new Set(), vacation: new Set(), events: new Set(), attractions: new Set() };
-for (const [regionKey, url] of spaPages) {
-  const selected = parseSpaCards(await fetchText(url), regionKey).filter((item) => !seenByWorld.spa.has(item.sourceUrl)).slice(0, 5);
-  selected.forEach((item) => seenByWorld.spa.add(item.sourceUrl));
-  catalog.spa.push(...selected);
-}
+const catalog = { hourly: [], vacation: [], events: [], attractions: [] };
+const seenByWorld = { hourly: new Set(), vacation: new Set(), events: new Set(), attractions: new Set() };
 for (const [world, pages] of Object.entries(roomPages)) for (const [regionKey, url] of pages) {
   const selected = parseRoomCards(await fetchText(url), url, world, regionKey).filter((item) => !seenByWorld[world].has(item.sourceUrl)).slice(0, 5);
   selected.forEach((item) => seenByWorld[world].add(item.sourceUrl));
