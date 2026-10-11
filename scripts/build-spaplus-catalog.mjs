@@ -75,29 +75,9 @@ const packageCount = sites.reduce((sum, site) => sum + site.packages.length, 0);
 if (sites.length < 100 || packageCount < 500 || new Set(sites.map((site) => site.id)).size !== sites.length) {
   throw new Error(`Incomplete Spa Plus catalog: ${sites.length} sites, ${packageCount} packages`);
 }
-const previous = JSON.parse(await readFile(new URL("../app/data/verified-catalog.json", import.meta.url), "utf8"));
-const curatedLegacyPaths = {
-  "spa-butik-tlv": "spa_butik_tlv",
-  "cassia-jerusalem": "spa_Cassia_Jerusalem",
-  "assemblage-spa": "assemblage_spa",
-  "urban-spa-tlv": "urban_spa_tlv",
-  "david-intercontinental": "the_spa",
-  "horizon-spa": "horizon_spa",
-  "debrah-spa": "Debrah_hotel_spa",
-  "bobo-spa": "bobo_tlv_spa",
-  "leonardo-plaza-jerusalem": "leonardo_plaza_jerusalem_spa",
-  "playa-spa": "spa_OpolSky",
-};
-const legacySources = [
-  ...previous.spa.map((place) => [place.id, new URL(place.sourceUrl).pathname]),
-  ...Object.entries(curatedLegacyPaths).map(([id, path]) => [id, `/${path}`]),
-];
-const aliases = {};
-for (const [oldId, oldPath] of legacySources) {
-  const prefix = `${oldPath.replace(/\/$/, "").toLowerCase()}/`;
-  const matches = sites.filter((site) => site.packages.some((pack) => pack.bookingUrl && new URL(pack.bookingUrl).pathname.toLowerCase().startsWith(prefix)));
-  if (matches.length === 1) aliases[oldId] = `spa-${matches[0].id}`;
-}
+const previousAliases = JSON.parse(await readFile(legacyDestination, "utf8"));
+const liveIds = new Set(sites.map((site) => `spa-${site.id}`));
+const aliases = Object.fromEntries(Object.entries(previousAliases).filter(([, target]) => liveIds.has(target)));
 await writeFile(destination, `${JSON.stringify({ generatedAt: new Date().toISOString(), sites }, null, 2)}\n`, "utf8");
 await writeFile(legacyDestination, `${JSON.stringify(aliases, null, 2)}\n`, "utf8");
 process.stdout.write(`Spa Plus catalog: ${sites.length} sites, ${packageCount} packages, ${Object.keys(aliases).length} verified legacy redirects\n`);
