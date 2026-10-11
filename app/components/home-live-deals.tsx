@@ -8,6 +8,7 @@ import { homeDealPeriods, type HomeDeal, type HomeDealPeriod } from "../lib/vii-
 import type { HomeHoliday } from "../lib/vii-home-holidays";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { FavoriteButton } from "./favorite-button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 type ResponseData = { period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[] };
 
@@ -95,9 +96,13 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
   const sectionId = mode === "holidays" ? "home-holiday-deals" : "home-live-deals";
   const currentHoliday = holidays.find((item) => item.id === holidayId);
   const displayState = mode === "holidays" && holidayState !== "ready" ? holidayState : state;
+  const previousLabel = { he: "הקודם", en: "Previous", ru: "Назад", fr: "Précédent" }[language];
+  const nextLabel = { he: "הבא", en: "Next", ru: "Далее", fr: "Suivant" }[language];
+  const PreviousIcon = language === "he" ? ChevronRight : ChevronLeft;
+  const NextIcon = language === "he" ? ChevronLeft : ChevronRight;
   return <section className={`section home-recommended home-live-deals ${sectionId}`} aria-labelledby={`${sectionId}-title`}>
     <div className="shell">
-      <div className="section-head"><div><h2 id={`${sectionId}-title`}>{title}</h2></div><div><Link href={searchHref}>{text.all}</Link><div className="home-slider__controls" aria-label={title}><button type="button" onClick={() => scroll(-1)} aria-label={language === "he" ? "הקודם" : "Previous"} disabled={displayState !== "ready" || !data?.deals.length}>‹</button><button type="button" onClick={() => scroll(1)} aria-label={language === "he" ? "הבא" : "Next"} disabled={displayState !== "ready" || !data?.deals.length}>›</button></div></div></div>
+      <div className="section-head"><div><h2 id={`${sectionId}-title`}>{title}</h2></div><div><Link href={searchHref}>{text.all}</Link><div className="home-slider__controls" role="group" aria-label={title}><button type="button" onClick={() => scroll(-1)} aria-label={`${previousLabel}, ${title}`} title={previousLabel} disabled={displayState !== "ready" || !data?.deals.length}><PreviousIcon aria-hidden="true" /></button><button type="button" onClick={() => scroll(1)} aria-label={`${nextLabel}, ${title}`} title={nextLabel} disabled={displayState !== "ready" || !data?.deals.length}><NextIcon aria-hidden="true" /></button></div></div></div>
       <div className="home-live-deals__tabs" role="tablist" aria-label={title}>
         {mode === "near" ? homeDealPeriods.map((item, index) => <button key={item.id} type="button" role="tab" aria-controls={`${sectionId}-results`} aria-selected={period === item.id} tabIndex={period === item.id ? 0 : -1} onClick={() => choose(item.id)} onKeyDown={(event) => {
           const next = event.key === "Home" ? 0 : event.key === "End" ? homeDealPeriods.length - 1 : event.key === "ArrowRight" ? (index + (language === "he" ? -1 : 1) + homeDealPeriods.length) % homeDealPeriods.length : event.key === "ArrowLeft" ? (index + (language === "he" ? 1 : -1) + homeDealPeriods.length) % homeDealPeriods.length : -1;

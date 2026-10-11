@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { publicWorldNavigation, worlds, type WorldId } from "../data/world-data";
+import { publicWorldNavigation, worlds, type WorldId } from "../data/world-navigation";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
 import { cleanVacationPath } from "../data/vacation-landings";
@@ -57,8 +57,8 @@ export function WorldSwitcher({ active = "vacation" }: { active?: WorldId }) {
     setOpen((value) => !value);
   };
   const cancelPointerActivation = () => { pointerStartRef.current = null; };
-  const finishClickActivation = (event: ReactMouseEvent<HTMLButtonElement>) => {
-    if (event.detail > 0 && performance.now() < ignoreClickUntilRef.current) return;
+  const finishClickActivation = () => {
+    if (performance.now() < ignoreClickUntilRef.current) return;
     setOpen((value) => !value);
   };
   const navigateFromSwitcher = (event: ReactMouseEvent<HTMLAnchorElement>) => {

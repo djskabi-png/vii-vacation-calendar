@@ -36,7 +36,7 @@ test("the combined trigger handles touch, pointer and keyboard activation withou
   assert.match(switcher, /onPointerUp=\{finishPointerActivation\}/);
   assert.match(switcher, /onPointerCancel=\{cancelPointerActivation\}/);
   assert.match(switcher, /onClick=\{finishClickActivation\}/);
-  assert.match(switcher, /event\.detail > 0/);
+  assert.match(switcher, /performance\.now\(\) < ignoreClickUntilRef\.current/);
   assert.match(switcher, /Math\.hypot/);
 });
 

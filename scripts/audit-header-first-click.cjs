@@ -18,8 +18,8 @@ const profileFilter = argument("profile", "");
 const allRoutes = [
   ["home", "/"],
   ["vacation-place", "/business?id=hilat-hanof"],
-  ["spa-place", "/discover/place/spa-butik-tlv"],
-  ["hourly-place", "/discover/place/gentleman-haifa"],
+  ["spa-place", "/discover/place/spa-6"],
+  ["hourly-place", "/discover/place/hourly-1915"],
   ["event-place", "/events/place/black-loft"],
   ["trail-place", "/trails/snir-hatzbani"],
   ["provider-place", "/discover/place/masu-home-wellness"],

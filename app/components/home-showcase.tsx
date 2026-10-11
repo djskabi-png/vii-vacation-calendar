@@ -6,12 +6,14 @@ import Link from "next/link";
 import { useRef } from "react";
 import { DiscoveryCard } from "./discovery-card";
 import { eventPlaceHref, eventPlaces, properties } from "../data/site-data";
-import { hourlyPlaces, paidAttractions, providerProfiles, publicWorldNavigation, spaPlaces } from "../data/world-data";
+import { hourlyPlaces, paidAttractions, providerProfiles, spaPlaces } from "../data/world-data";
+import { publicWorldNavigation } from "../data/world-navigation";
 import { trails } from "../data/trail-data";
 import { TrailCard } from "./trail-card";
 import { PinIcon } from "../site-header";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { HomeLiveDeals } from "./home-live-deals";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const vacationDestinations = [
   { label: "נופש בצפון", note: "גליל, גולן ונוף ירוק", href: "/vacations/north?guests=2", image: "/media/f18d7c0469633ca0.jpeg" },
@@ -33,7 +35,15 @@ const destinationMatchers = [
 
 
 function SliderControls({ onPrevious, onNext, label }: { onPrevious: () => void; onNext: () => void; label: string }) {
-  return <div className="home-slider__controls" aria-label={`דפדוף ${label}`}><button type="button" onClick={onPrevious} aria-label={`הקודם, ${label}`}>הקודם</button><button type="button" onClick={onNext} aria-label={`הבא, ${label}`}>הבא</button></div>;
+  const { language } = useSiteLanguage();
+  const previous = { he: "הקודם", en: "Previous", ru: "Назад", fr: "Précédent" }[language];
+  const next = { he: "הבא", en: "Next", ru: "Далее", fr: "Suivant" }[language];
+  const PreviousIcon = language === "he" ? ChevronRight : ChevronLeft;
+  const NextIcon = language === "he" ? ChevronLeft : ChevronRight;
+  return <div className="home-slider__controls" role="group" aria-label={label}>
+    <button type="button" onClick={onPrevious} aria-label={`${previous}, ${label}`} title={previous}><PreviousIcon aria-hidden="true" /></button>
+    <button type="button" onClick={onNext} aria-label={`${next}, ${label}`} title={next}><NextIcon aria-hidden="true" /></button>
+  </div>;
 }
 
 function reviewExcerpt(value: string) {

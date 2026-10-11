@@ -25,7 +25,6 @@ export default function HomePage() {
             <SearchBox showWorlds />
             <div className="quick-links" aria-label="חיפושים מהירים"><span>חיפושים מהירים:</span><Link href="/search" data-global-feedback="true" data-loading-label="פותחים מקומות נופש...">מקומות נופש</Link><Link href="/search?feature=בריכה" data-global-feedback="true" data-loading-label="מחפשים מקומות עם בריכה...">עם בריכה</Link><Link href="/events/search" data-global-feedback="true" data-loading-label="מחפשים מקומות לאירועים...">אירועים</Link><Link href="/vacations/north" data-global-feedback="true" data-loading-label="מחפשים נופש בצפון...">בצפון</Link></div>
           </div>
-          <div className="hero-orb hero-orb--one" /><div className="hero-orb hero-orb--two" />
         </section>
 
         <HomeShowcase />
