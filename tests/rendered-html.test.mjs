@@ -37,7 +37,7 @@ for (const [pathname, expected] of [
   ["/activities", /בוחרים איך לבלות את היום/],
   ["/trails", /יוצאים מהצימר. נכנסים לישראל היפה/],
   ["/trails/snir-hatzbani", /נחל שניר, חצבאני/],
-  ["/discover/place/spa-butik-tlv", /ספא בוטיק תל אביב/],
+  ["/discover/place/spa-6", /ספא במלון דיוויד אינטרקונטיננטל/],
   ["/join", /מצטרפים בדרך שמתאימה בדיוק לעסק שלכם/],
   ["/gift-card", /גיפט קארד אחד/],
   ["/corporate", /כל מה שצריך כדי לעשות טוב לאנשים שלכם/],
@@ -117,7 +117,7 @@ test("query-driven detail pages render the requested content on the server", asy
   for (const [pathname, expected, unexpected] of [
     ["/business?id=vacation-1", /אחוזת דוריאל/, /אקווה ריזורט/],
     ["/events/place/event-2", /סטאר לופט/, /לופט פארטי טיים/],
-    ["/discover/place/cassia-jerusalem", /קסיה וולנס וספא/, /ספא בוטיק תל אביב/],
+    ["/discover/place/spa-442", /קסיה מרכז וולנס וספא/, /ספא במלון דיוויד/],
   ]) {
     const response = await render(pathname);
     const html = await response.text();
@@ -126,6 +126,25 @@ test("query-driven detail pages render the requested content on the server", asy
     assert.match(firstHeading, expected, pathname);
     assert.doesNotMatch(firstHeading, unexpected, pathname);
   }
+});
+
+test("spa pages use the supplier catalog and preserve only verified legacy routes", async () => {
+  const [current, noPackages, oldMatch, oldMissing, booking] = await Promise.all([
+    render("/discover/place/spa-6"),
+    render("/discover/place/spa-68"),
+    render("/discover/place/assemblage-spa"),
+    render("/discover/place/spa-butik-tlv"),
+    render("/booking?world=spa&place=spa-6&package=2054"),
+  ]);
+  assert.equal(current.status, 200);
+  assert.match(await current.text(), /בדיקת זמינות והזמנה/);
+  assert.equal(noPackages.status, 200);
+  assert.match(await noPackages.text(), /לא נמסרו חבילות למקום זה/);
+  assert.equal(oldMatch.status, 307);
+  assert.match(oldMatch.headers.get("location") || "", /\/discover\/place\/spa-365$/);
+  assert.equal(oldMissing.status, 404);
+  assert.equal(booking.status, 307);
+  assert.match(booking.headers.get("location") || "", /^https:\/\/www\.spaplus\.co\.il\//);
 });
 
 test("removed places stay out of the public catalogs and magazine", async () => {
@@ -272,7 +291,7 @@ test("spa, hourly, event and attraction worlds expose interactive maps", async (
     render("/hourly"),
     render("/events/search"),
     render("/attractions"),
-    render("/discover/place/spa-butik-tlv"),
+    render("/discover/place/spa-6"),
   ]);
   for (const response of [spaResponse, hourlyResponse, eventResponse, attractionResponse, spaDetailResponse]) assert.equal(response.status, 200);
   assert.match(await spaResponse.text(), /תצוגה על מפה/);
@@ -306,7 +325,7 @@ test("spa, hourly, event and attraction worlds expose interactive maps", async (
   assert.match(mapSource, /initialPlaceIds/);
   assert.match(mapSource, /MapTone = "vacation" \| "events" \| "spa" \| "hourly" \| "activities"/);
   assert.match(mapSource, /map-tone--\$\{tone\}/);
-  assert.ok((worldData.match(/mapPrecision: "area"/g) || []).length >= 10);
+  assert.match(worldData, /mapPrecision: coordinates \? "area" : undefined/);
   assert.match(worldData, /mapPrecision: "exact"/);
   assert.match(hourlyResults, /<DeferredDiscoveryMap items=\{filtered\} tone="hourly" autoLoad onClose=/);
   assert.match(worldResults, /<DeferredDiscoveryMap items=\{items\} tone=\{world\} autoLoad onClose=/);
@@ -378,15 +397,17 @@ test("shared map markers use modern icon markers and visible active list control
   assert.match(css, /\.vii-map-marker-wrap\.is-cluster \.vii-map-marker[\s\S]+#087e8b[\s\S]+#168fbd/);
 });
 
-test("commercial discovery stays inside VII", async () => {
+test("spa booking uses only the supplier handoff while other discovery stays in VII", async () => {
   const responses = await Promise.all([
-    render("/discover/place/spa-butik-tlv"),
+    render("/discover/place/spa-6"),
     render("/discover/place/hourly-1915"),
     render("/business?id=vacation-1"),
     render("/events/place/event-2"),
   ]);
-  const pages = (await Promise.all(responses.map((response) => response.text()))).join("\n");
-  assert.doesNotMatch(pages.replaceAll('href="https://www.spaplus.co.il/club/?src=vii"', ""), /href=["'][^"']*(?:roomsvip\.com|spaplus\.co\.il)/i);
+  const [spaPage, ...otherPages] = await Promise.all(responses.map((response) => response.text()));
+  const pages = [spaPage, ...otherPages].join("\n");
+  assert.match(spaPage, /href="https:\/\/www\.spaplus\.co\.il\/[^"']+domainSrc=vii/);
+  assert.doesNotMatch(otherPages.join("\n").replaceAll('href="https://www.spaplus.co.il/club/?src=vii"', ""), /href=["'][^"']*(?:roomsvip\.com|spaplus\.co\.il)/i);
   assert.doesNotMatch(pages, /פתיחה במפה מלאה/);
   assert.match(pages, /לפרטי החדרים והמחירים/);
   assert.match(pages, /מגדילים, מקטינים ומזיזים את המפה כאן בעמוד/);
@@ -584,7 +605,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(business, /<FavoriteButton compact className="property-gallery__favorite"/);
   assert.match(eventPlace, /<FavoriteButton compact=\{false\}/);
   assert.match(styles, /\.universal-favorite\.is-saved/);
-  assert.equal((worldData.match(/sourceName: "ספא פלוס"/g) || []).length, 10);
+  assert.match(worldData, /spaPlaces: DiscoveryItem\[\] = spaPlusSites\.map/);
   assert.match(worldData, /hourlyPlaces: DiscoveryItem\[\] = hourlyCatalog\.places\.map/);
   assert.match(worldSwitcher, /בחירת עולם/);
   assert.match(worldSwitcher, /מה מחפשים\?/);
@@ -1035,17 +1056,19 @@ test("key page types emit matching structured data and private pages stay out of
 test("every discovery card has stable media and every new world has a full detail page", async () => {
   const worldData = await readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8");
   const itemLines = worldData.split("\n").filter((line) => line.includes("world:") && line.includes(" id: "));
-  assert.equal(itemLines.length, 41);
+  assert.equal(itemLines.length, 31);
+  const spaCatalog = JSON.parse(await readFile(new URL("../app/data/spaplus-catalog.json", import.meta.url), "utf8"));
+  assert.equal(spaCatalog.sites.length, 159);
   for (const line of itemLines) {
     assert.match(line, /image: "\/media\//);
     assert.doesNotMatch(line, /demo: true/);
   }
 
-  for (const [pathname, expected] of [
+  for (const [pathname, expected, hasFaq = true] of [
     ["/discover/place/hourly-1915", /חדרים ומחירי בסיס/],
     ["/discover/place/timna-park", /איך מזמינים את האטרקציה/],
     ["/discover/place/kfar-blum-kayaks", /איך מזמינים את האטרקציה/],
-    ["/discover/place/assemblage-spa", /חבילות הספא/],
+    ["/discover/place/spa-365", /חבילות הספא/, false],
     ["/discover/place/amit-mitrani-magic-man", /שירותים וחבילות להזמנה/],
     ["/discover/place/hagit-designed-events", /שירותים וחבילות להזמנה/],
     ["/discover/place/aae-event-design", /שירותים וחבילות להזמנה/],
@@ -1055,7 +1078,7 @@ test("every discovery card has stable media and every new world has a full detai
     const html = await response.text();
     assert.equal(response.status, 200);
     assert.match(html, expected);
-    assert.match(html, /שאלות נפוצות/);
+    if (hasFaq) assert.match(html, /שאלות נפוצות/);
     assert.doesNotMatch(html, /פרופיל הדגמה/);
   }
 });
@@ -1128,7 +1151,7 @@ test("every business depth template exposes an internal gallery", async () => {
   for (const [pathname, name] of [
     ["/business?id=vacation-1", "אחוזת דוריאל"],
     ["/events/place/event-2", "סטאר לופט"],
-    ["/discover/place/spa-butik-tlv", "ספא בוטיק תל אביב"],
+    ["/discover/place/spa-6", "ספא במלון דיוויד אינטרקונטיננטל תל אביב - THE SPA"],
     ["/discover/place/hourly-1915", "אסקייפ לאב"],
     ["/discover/place/masu-home-wellness", "מאסו"],
     ["/discover/place/timna-park", "פארק תמנע"],
@@ -1225,7 +1248,7 @@ test("content card images pair descriptive alt text with matching title metadata
 
 test("discovery depth pages expose only their visible verified FAQs as FAQPage data", async () => {
   const [spaResponse, hourlyResponse, discoveryPage] = await Promise.all([
-    render("/discover/place/spa-butik-tlv"),
+    render("/discover/place/spa-6"),
     render("/discover/place/hourly-1915"),
     readFile(new URL("../app/discover/place/[id]/page.tsx", import.meta.url), "utf8"),
   ]);
@@ -1235,7 +1258,7 @@ test("discovery depth pages expose only their visible verified FAQs as FAQPage d
   assert.match(discoveryPage, /getSpaDetails/);
   assert.match(discoveryPage, /getHourlyDetails/);
   assert.match(discoveryPage, /<StructuredData data=\{faqSchema\(itemFaq\(item\)\)\}/);
-  assert.match(spaHtml, /"@type":"FAQPage"/);
+  assert.doesNotMatch(spaHtml, /"@type":"FAQPage"/);
   assert.match(hourlyHtml, /"@type":"FAQPage"/);
 });
 
@@ -1419,7 +1442,7 @@ test("business depth pages always fill nearby experiences and trails", async () 
 
 test("all depth recommendation sections stay full", async () => {
   const [discoveryResponse, trailResponse] = await Promise.all([
-    render("/discover/place/cassia-jerusalem"),
+    render("/discover/place/spa-442"),
     render("/trails/snir-hatzbani"),
   ]);
   const [discoveryHtml, trailHtml] = await Promise.all([discoveryResponse.text(), trailResponse.text()]);
