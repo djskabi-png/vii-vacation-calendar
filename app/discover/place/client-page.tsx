@@ -7,7 +7,7 @@ import { BreadcrumbTrail } from "../../components/breadcrumb-trail";
 import { worldBreadcrumb } from "../../lib/seo";
 import { FavoriteButton } from "../../components/favorite-button";
 import { ViewedItemTracker } from "../../components/viewed-item-tracker";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { DiscoveryCard } from "../../components/discovery-card";
 import { ListingAccessibility } from "../../components/listing-accessibility";
 import { PageShell } from "../../components/page-shell";
@@ -42,17 +42,27 @@ function hourlyRateLabel(value: string, language: "he" | "en" | "ru" | "fr", tra
   return `${translate(room)} · ${durations[language][duration as keyof typeof durations.en] || duration} · ${days[language][day as keyof typeof days.en] || day}`;
 }
 
-function SpaPackageCard({ pack }: { pack: SpaPackage }) {
+function SpaPackageCard({ pack, onBook }: { pack: SpaPackage; onBook: (pack: SpaPackage) => void }) {
   return <article className="spa-package-card">
     {pack.image && <img className="spa-package-card__image" src={pack.image} alt={pack.title} loading="lazy" decoding="async" />}
     <header><span>{pack.audience === "לא צוין" ? "חבילת ספא" : pack.audience}</span>{pack.duration && <small>{pack.duration}</small>}</header>
     <h3>{pack.title}</h3>
     {pack.includes.length > 0 && <ul>{pack.includes.map((entry) => <li key={entry}>{entry}</li>)}</ul>}
-    <footer><strong>{pack.price}</strong><a className="button primary" href={pack.bookingUrl} target="_blank" rel="noopener noreferrer">בדיקת זמינות והזמנה</a></footer>
+    <footer><strong>{pack.price}</strong><button className="button primary" type="button" onClick={() => onBook(pack)}>בדיקת זמינות והזמנה</button></footer>
   </article>;
 }
 
 function SpaContent({ details }: { details: SpaDetails }) {
+  const [booking, setBooking] = useState<{ title: string; url: string } | null>(null);
+  const bookingDialog = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    if (booking && !bookingDialog.current?.open) bookingDialog.current?.showModal();
+    if (!booking && bookingDialog.current?.open) bookingDialog.current.close();
+  }, [booking]);
+
+  const closeBooking = () => bookingDialog.current?.close();
+
   return <>
     <section className="section shell spa-about" id="spa-about">
       <div><span className="eyebrow">כל מה שחשוב לפני שמזמינים</span><h2>על המקום</h2>{details.about.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div>
@@ -61,7 +71,15 @@ function SpaContent({ details }: { details: SpaDetails }) {
         {details.suitableFor.length > 0 && <div><small>מתאים עבור</small><strong>{details.suitableFor.join(" · ")}</strong></div>}
       </aside>
     </section>
-    {details.packages.length ? <section className="section section-tint" id="spa-packages"><div className="shell"><div className="section-head"><div><span className="eyebrow">בוחרים לפי החוויה</span><h2>חבילות הספא</h2><p>כל החבילות והמחירים שנמסרו מספא פלוס.</p></div></div><div className="spa-packages-grid">{details.packages.map((pack) => <SpaPackageCard key={pack.id} pack={pack} />)}</div><p className="spa-price-note">הזמינות והמחיר הסופי נבדקים בתהליך ההזמנה של ספא פלוס.</p></div></section> : <section className="section section-tint" id="spa-packages"><div className="shell depth-final-cta"><div><span className="eyebrow">חבילות ספא</span><h2>לא נמסרו חבילות למקום זה</h2><p>אפשר לבדוק אפשרויות עדכניות אצל ספא פלוס.</p></div><a className="button primary" href={details.bookingUrl} target="_blank" rel="noopener noreferrer">בדיקת אפשרויות</a></div></section>}
+    {details.packages.length ? <section className="section section-tint" id="spa-packages"><div className="shell"><div className="section-head"><div><span className="eyebrow">בוחרים לפי החוויה</span><h2>חבילות הספא</h2><p>כל החבילות והמחירים שנמסרו מספא פלוס.</p></div></div><div className="spa-packages-grid">{details.packages.map((pack) => <SpaPackageCard key={pack.id} pack={pack} onBook={() => setBooking({ title: pack.title, url: pack.bookingUrl })} />)}</div><p className="spa-price-note">הזמינות והמחיר הסופי נבדקים בתהליך ההזמנה של ספא פלוס.</p></div></section> : <section className="section section-tint" id="spa-packages"><div className="shell depth-final-cta"><div><span className="eyebrow">חבילות ספא</span><h2>לא נמסרו חבילות למקום זה</h2><p>אפשר לבדוק אפשרויות עדכניות אצל ספא פלוס.</p></div><button className="button primary" type="button" onClick={() => setBooking({ title: "אפשרויות לספא", url: details.bookingUrl })}>בדיקת אפשרויות</button></div></section>}
+    <dialog className="spa-booking-dialog" ref={bookingDialog} onClose={() => setBooking(null)} onClick={(event) => { if (event.target === event.currentTarget) closeBooking(); }} aria-label="הזמנת חבילת ספא">
+      <div className="spa-booking-dialog__header" dir="rtl">
+        <div><span>הזמנת ספא</span><strong>{booking?.title}</strong></div>
+        <button type="button" className="spa-booking-dialog__close" onClick={closeBooking} aria-label="סגירת חלון ההזמנה" title="סגירה">×</button>
+      </div>
+      {booking && <iframe className="spa-booking-dialog__frame" src={booking.url} title={`הזמנה: ${booking.title}`} referrerPolicy="strict-origin-when-cross-origin" />}
+      {booking && <div className="spa-booking-dialog__fallback" dir="rtl"><span>לא רואים את תהליך ההזמנה?</span><a href={booking.url} target="_blank" rel="noopener noreferrer">פתיחה בחלון נפרד</a></div>}
+    </dialog>
     {(details.treatments?.length || details.facilities.length) ? <section className="section shell spa-details-grid">
       {details.treatments?.length ? <div id="spa-treatments" className="spa-detail-panel"><span className="eyebrow">לבחירה במקום</span><h2>טיפולים</h2><div className="spa-treatment-list">{details.treatments.map((treatment) => <article key={treatment.name}><strong>{treatment.name}</strong>{treatment.durations?.length ? <span>{treatment.durations.join(" · ")}</span> : null}{treatment.priceNote ? <small>{treatment.priceNote}</small> : null}</article>)}</div></div> : null}
       {details.facilities.length > 0 && <div id="spa-facilities" className="spa-detail-panel"><span className="eyebrow">בתוך המתחם</span><h2>מתקנים ושירותים</h2><ul className="spa-facility-list">{details.facilities.map((facility) => <li key={facility}>{facility}</li>)}</ul></div>}
