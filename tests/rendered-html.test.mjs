@@ -408,9 +408,9 @@ test("spa booking uses only the supplier handoff while other discovery stays in 
   const pages = [spaPage, ...otherPages].join("\n");
   const spaSource = await readFile(new URL("../app/discover/place/client-page.tsx", import.meta.url), "utf8");
   assert.match(spaPage, /בדיקת זמינות והזמנה/);
-  assert.match(spaSource, /<dialog className="spa-booking-dialog"/);
-  assert.match(spaSource, /<iframe className="spa-booking-dialog__frame" src=\{booking\.url\}/);
-  assert.match(spaSource, /url: pack\.bookingUrl/);
+  assert.match(spaSource, /href=\{pack\.bookingUrl\} target="_blank" rel="noopener noreferrer"/);
+  assert.doesNotMatch(spaSource, /spa-booking-dialog|<iframe/);
+  assert.doesNotMatch(spaPage, /isFrame=1|ispackFrame=1/);
   assert.doesNotMatch(otherPages.join("\n").replaceAll('href="https://www.spaplus.co.il/club/?src=vii"', ""), /href=["'][^"']*(?:roomsvip\.com|spaplus\.co\.il)/i);
   assert.doesNotMatch(pages, /פתיחה במפה מלאה/);
   assert.match(pages, /לפרטי החדרים והמחירים/);

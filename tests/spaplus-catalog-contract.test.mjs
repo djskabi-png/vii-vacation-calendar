@@ -28,10 +28,10 @@ test("spa discovery and detail read only the supplier catalog", async () => {
   assert.match(world, /spaPlaces: DiscoveryItem\[\] = spaPlusSites\.map/);
   assert.doesNotMatch(world, /curatedSpaPlaces|verifiedDiscoveryItems\("spa"\)/);
   assert.match(details, /spaPlusSiteById\(id\)/);
-  assert.match(page, /onClick=\{\(\) => onBook\(pack\)\}/);
-  assert.match(page, /<dialog className="spa-booking-dialog"/);
-  assert.match(page, /<iframe className="spa-booking-dialog__frame" src=\{booking\.url\}/);
-  assert.match(page, /href=\{booking\.url\} target="_blank"/);
+  assert.match(page, /href=\{pack\.bookingUrl\} target="_blank" rel="noopener noreferrer"/);
+  assert.doesNotMatch(page, /spa-booking-dialog|<iframe/);
+  assert.match(details, /url\.searchParams\.delete\("isFrame"\)/);
+  assert.match(details, /url\.searchParams\.delete\("ispackFrame"\)/);
   assert.doesNotMatch(page, /booking\?world=spa&place=/);
   assert.match(booking, /redirect\(pack\?\.bookingUrl \|\| details\.bookingUrl\)/);
   const oldCatalog = JSON.parse(await read("app/data/verified-catalog.json"));
