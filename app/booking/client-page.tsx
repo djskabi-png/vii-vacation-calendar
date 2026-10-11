@@ -71,6 +71,9 @@ export default function BookingPageClient(props: Props) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [state, setState] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [reference, setReference] = useState("");
+  const [supplierBookingStatus, setSupplierBookingStatus] = useState<"confirmed" | "pending_approval" | null>(null);
+  const [bookingError, setBookingError] = useState("");
+  const [unknownReference, setUnknownReference] = useState("");
   const [submissionId, setSubmissionId] = useState("");
   const [spaAppointmentReady, setSpaAppointmentReady] = useState(false);
   const [phoneRevealed, setPhoneRevealed] = useState(false);
@@ -102,7 +105,7 @@ export default function BookingPageClient(props: Props) {
   const liveNightlyPrice = liveUnitQuote?.nightlyPrice || liveAvailability.quote?.nightlyPrice || 0;
   const liveBookingReady = liveAvailability.quote?.availability === "available" && liveNightlyPrice > 0 && (selectedUnitIndex === null || liveUnitQuote?.availability === "available");
   const supplierBookingReady = Boolean(supplierSiteID && supplierQuote.status === "ready" && supplierQuote.roomIDs.length === 1 && supplierQuote.quote?.availability === "available"
-    && supplierQuote.quote.nightlyPrice && props.supplierRoomVerified && props.supplierRoomID && supplierQuote.roomIDs.includes(props.supplierRoomID));
+    && supplierQuote.quote.nightlyPrice && supplierQuote.onlineBooking && props.supplierRoomVerified && props.supplierRoomID && supplierQuote.roomIDs.includes(props.supplierRoomID));
   const onlineReady = props.world !== "vacation" || (supplierSiteID ? supplierBookingReady : liveSourceEnabled ? liveBookingReady : Boolean(props.onlineReady));
   const usesSpaPayment = props.world === "spa" && !isManage;
   const localizedOfferIncludes = props.offerIncludes?.map((item) => translate(item));
@@ -246,10 +249,21 @@ export default function BookingPageClient(props: Props) {
     event.preventDefault();
     if (props.illustrative) { setReference(demoReference); setState("success"); return; }
     if (step !== 3 || state === "submitting" || state === "success") return;
-    setState("submitting");
     const values = new FormData(event.currentTarget);
-    const id = submissionId || crypto.randomUUID();
-    if (!submissionId) setSubmissionId(id);
+    const nameParts = String(values.get("name") || "").trim().split(/\s+/);
+    if (supplierSiteID && nameParts.length < 2) {
+      setBookingError("יש להזין שם פרטי ושם משפחה כדי להעביר את ההזמנה למקום.");
+      setState("error");
+      return;
+    }
+    setBookingError("");
+    setState("submitting");
+    const roomID = supplierQuote.roomIDs[0];
+    const storageKey = supplierSiteID ? `vii-booking:${supplierSiteID}:${roomID}:${arrival}:${departure}:${guests}` : "";
+    const storedId = storageKey ? window.sessionStorage.getItem(storageKey) : null;
+    const id = supplierSiteID ? storedId || crypto.randomUUID() : submissionId || crypto.randomUUID();
+    if (!supplierSiteID && !submissionId) setSubmissionId(id);
+    if (storageKey && !storedId) window.sessionStorage.setItem(storageKey, id);
     const details = [
       `מקום או ספק: ${props.placeName}`,
       `שירות או חבילה: ${props.offerName}`,
@@ -265,6 +279,30 @@ export default function BookingPageClient(props: Props) {
     ].filter(Boolean).join("\n");
 
     try {
+      if (supplierSiteID && !isManage) {
+        const response = await fetch("/api/vii/booking", {
+          method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store",
+          body: JSON.stringify({
+            partnerRef: `VII-${id}`, siteID: Number(supplierSiteID), roomID,
+            from: arrival, till: departure, guests: Number(guests), expectedTotal: currentTotal,
+            guest: { firstName: nameParts[0], lastName: nameParts.slice(1).join(" "), phone: String(values.get("phone") || ""), email: String(values.get("email") || ""), remarks: String(values.get("notes") || "") },
+            privacyAccepted: values.get("privacy") === "on", honey: values.get("company_site"),
+          }),
+        });
+        const result = await response.json() as { success?: boolean; reference?: string; status?: "confirmed" | "pending_approval"; error?: string };
+        if (!response.ok || !result.success || !result.reference || !result.status) {
+          if (result.error === "booking_status_unknown") throw new Error("booking_status_unknown");
+          if (result.error === "price_changed") throw new Error("price_changed");
+          if (result.error === "not_available") throw new Error("not_available");
+          throw new Error("supplier_unavailable");
+        }
+        saveBooking({ id, reference: result.reference, world: props.world, placeName: props.placeName, offerName: props.offerName,
+          date: `${arrival} עד ${departure}`, guests, status: result.status === "confirmed" ? "confirmed" : "pending", createdAt: new Date().toISOString() });
+        setReference(result.reference);
+        setSupplierBookingStatus(result.status);
+        setState("success");
+        return;
+      }
       const response = await fetch("/api/leads/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -290,7 +328,13 @@ export default function BookingPageClient(props: Props) {
       setPaymentOpen(false);
       setState("success");
       if (usesSpaPayment) setSuccessExplanationOpen(true);
-    } catch {
+    } catch (error) {
+      if (supplierSiteID && error instanceof Error && error.message === "booking_status_unknown") setUnknownReference(`VII-${id}`);
+      if (supplierSiteID) setBookingError(error instanceof Error && error.message === "booking_status_unknown"
+        ? "status_unknown"
+        : error instanceof Error && error.message === "price_changed" ? "המחיר השתנה אצל המקום. חזרו לבחירת התאריכים כדי לראות מחיר מעודכן."
+        : error instanceof Error && error.message === "not_available" ? "היחידה כבר אינה זמינה בתאריכים האלה. בחרו תאריך אחר."
+        : "ההזמנה לא אושרה מול המקום. הפרטים נשארו בטופס; אפשר לנסות שוב עם אותו מספר פנייה.");
       setState("error");
     }
   }
@@ -325,15 +369,15 @@ export default function BookingPageClient(props: Props) {
       {bookingReturnNavigation}
       <section className="booking-success" role="status" aria-live="polite">
         <span className="booking-success__mark" aria-hidden="true">✓</span>
-        <small>{props.illustrative ? "המחשת הזמנה בלבד" : isManage ? "בקשת שינוי" : "הזמנה שממתינה לאישור"}</small>
-        <h1>{props.illustrative ? "המחשת ההזמנה הושלמה" : isManage ? "בקשת השינוי התקבלה" : "בקשת ההזמנה הושלמה"}</h1>
-        <p>{props.illustrative ? "זו המחשת תצוגה בלבד. לא נשלחה הזמנה, לא נשמרו פרטים ולא בוצע חיוב." : isManage ? "הבקשה נשמרה ונציג יבדוק אותה." : usesSpaPayment ? paymentMethod === "pay_now" ? "פרטי ההזמנה נשמרו. ספק הסליקה טרם חובר ולכן לא בוצע חיוב בכרטיס." : "פרטי ההזמנה נשמרו. לא בוצע חיוב, וכרטיס לביטחון לא נשמר עד לחיבור ספק סליקה מאובטח." : supplierSiteID ? "בקשת ההזמנה נקלטה בצוות VII. לא בוצע חיוב, וההזמנה תושלם רק לאחר אישור המקום." : "לא בוצע חיוב. המקום יקבל את הבקשה, יאמת זמינות ומחיר ויחזיר אישור סופי."}</p>
+        <small>{props.illustrative ? "המחשת הזמנה בלבד" : isManage ? "בקשת שינוי" : supplierBookingStatus === "confirmed" ? "הזמנה אושרה על ידי מערכת המקום" : "הזמנה שממתינה לאישור"}</small>
+        <h1>{props.illustrative ? "המחשת ההזמנה הושלמה" : isManage ? "בקשת השינוי התקבלה" : supplierBookingStatus === "confirmed" ? "ההזמנה אושרה" : "בקשת ההזמנה הושלמה"}</h1>
+        <p>{props.illustrative ? "זו המחשת תצוגה בלבד. לא נשלחה הזמנה, לא נשמרו פרטים ולא בוצע חיוב." : isManage ? "הבקשה נשמרה ונציג יבדוק אותה." : usesSpaPayment ? paymentMethod === "pay_now" ? "פרטי ההזמנה נשמרו. ספק הסליקה טרם חובר ולכן לא בוצע חיוב בכרטיס." : "פרטי ההזמנה נשמרו. לא בוצע חיוב, וכרטיס לביטחון לא נשמר עד לחיבור ספק סליקה מאובטח." : supplierBookingStatus === "confirmed" ? "ההזמנה נוצרה ואושרה במערכת המקום. לא בוצע חיוב דרך VII." : supplierSiteID ? "הבקשה נוצרה במערכת המקום וממתינה לאישורו. לא בוצע חיוב דרך VII." : "לא בוצע חיוב. המקום יקבל את הבקשה, יאמת זמינות ומחיר ויחזיר אישור סופי."}</p>
         <div className="booking-success__summary">
           <strong>{props.placeName}</strong>
           <span>{arrival}{departure ? " עד " + departure : ""}</span>
           <span>{props.world === "spa" ? guests + " משתתפים" + (spaComposition ? ", " + spaComposition : "") : guests + " אורחים"}</span>
           {usesSpaPayment ? <span>{paymentMethodLabel}</span> : null}
-          <b>{props.price}</b>
+          <b>{supplierSiteID && currentTotal ? `${currentTotal.toLocaleString("he-IL")} ₪` : props.price}</b>
           {reference ? <code dir="ltr">{reference}</code> : null}
         </div>
         <div className="booking-success__actions"><button className="button secondary" type="button" onClick={() => window.print()}>הדפסת הסיכום</button><Link className="button primary" href="/account">לצפייה בהזמנות שלי</Link><Link className="button subtle" href="/">חזרה לדף הבית</Link></div>
@@ -416,7 +460,7 @@ export default function BookingPageClient(props: Props) {
           <div className="form-wide"><AccountFormPrompt /></div>
           <label>שם מלא<input name="name" autoComplete="name" minLength={2} value={name} onChange={(event) => setName(event.target.value)} required /></label>
           <label>טלפון<input name="phone" type="tel" inputMode="tel" autoComplete="tel" minLength={7} value={phone} onChange={(event) => setPhone(event.target.value)} required /></label>
-          <label>דואר אלקטרוני<input name="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} /></label>
+          <label>דואר אלקטרוני<input name="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required={Boolean(supplierSiteID)} /></label>
           <label className="form-wide">{isManage ? "מה תרצו לעדכן?" : "בקשות מיוחדות"}<textarea name="notes" rows={4} maxLength={1500} value={notes} onChange={(event) => setNotes(event.target.value)} /></label>
           <label className="form-honey" aria-hidden="true">אתר החברה<input name="company_site" tabIndex={-1} autoComplete="off" /></label>
           <label className="consent legal-consent form-wide"><input name="privacy" type="checkbox" required /><span>קראתי והסכמתי ל<Link href="/legal/terms">תקנון האתר</Link> ול<Link href="/legal/privacy">מדיניות הפרטיות</Link>, ואני מאשר או מאשרת שימוש בפרטים לצורך הטיפול בהזמנה.</span></label>
@@ -439,12 +483,12 @@ export default function BookingPageClient(props: Props) {
               <label><input type="radio" name="paymentMethod" value="pay_at_venue" checked={paymentMethod === "pay_at_venue"} onChange={() => setPaymentMethod("pay_at_venue")} required /><span><b>תשלום במקום</b><small>הכרטיס משמש לביטחון ההזמנה בלבד ואינו מחויב עכשיו.</small></span></label>
             </div>
             <small className="booking-payment-choice__notice">ספק הסליקה טרם חובר. כרגע זהו תהליך המחשה, אין להזין או לשמור פרטי כרטיס אמיתי.</small>
-          </fieldset> : <div className="booking-approval-note form-wide"><strong>מה קורה אחרי השליחה?</strong><p>{supplierSiteID ? "הבקשה נקלטת בצוות VII לטיפול מול המקום. עד שיתקבל אישור סופי, הסטטוס הוא ממתין לאישור." : "הבקשה נשמרת ומועברת למקום. לאחר בדיקת הזמינות והמחיר יישלח אישור סופי. עד אז הסטטוס הוא ממתין לאישור."}</p></div>}
+          </fieldset> : <div className="booking-approval-note form-wide"><strong>מה קורה אחרי השליחה?</strong><p>{supplierSiteID ? "המחיר והזמינות ייבדקו שוב, וההזמנה תישלח ישירות למערכת המקום. לפי הגדרות המקום היא עשויה להיות מאושרת מיד או להמתין לאישורו. לא יבוצע חיוב דרך VII." : "הבקשה נשמרת ומועברת למקום. לאחר בדיקת הזמינות והמחיר יישלח אישור סופי. עד אז הסטטוס הוא ממתין לאישור."}</p></div>}
           <div className="booking-form__actions form-wide">
             <button className="button secondary" type="button" onClick={() => setStep(2)}>עריכת הפרטים</button>
             {usesSpaPayment ? <button ref={paymentTriggerRef} className="button primary" type="button" onClick={openPayment}>המשך לתשלום</button> : <button className="button primary" disabled={state === "submitting"} type="submit">{state === "submitting" ? "שולחים..." : props.illustrative ? "סיום המחשת ההזמנה" : isManage ? "שליחת בקשת שינוי" : "שליחת בקשת הזמנה"}</button>}
           </div>
-          {state === "error" ? <p className="form-error form-wide" role="alert">השליחה לא הושלמה. הפרטים נשארו בטופס ואפשר לנסות שוב.</p> : null}
+          {state === "error" ? <p className="form-error form-wide" role="alert">{bookingError === "status_unknown" ? <>{translate("לא התקבלה תשובה סופית מהספק. מספר הבדיקה הוא")} <code dir="ltr">{unknownReference}</code>. {translate("ניסיון נוסף ישתמש באותו מספר ויבדוק תחילה אם ההזמנה כבר נוצרה.")}</> : bookingError || "השליחה לא הושלמה. הפרטים נשארו בטופס ואפשר לנסות שוב."}</p> : null}
         </section>
       </form>
     </div>

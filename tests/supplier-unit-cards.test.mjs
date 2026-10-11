@@ -50,5 +50,7 @@ test("supplier request requires a verified detail room as well as the exact vaca
   assert.match(page, /await liveSupplierPlaceDetail\(property\.slug\)/);
   assert.match(page, /supplierRoomVerified: Boolean\(supplierRoomID && selectedUnit\)/);
   assert.match(booking, /props\.supplierRoomVerified && props\.supplierRoomID && supplierQuote\.roomIDs\.includes\(props\.supplierRoomID\)/);
-  assert.match(booking, /בקשת ההזמנה נקלטה בצוות VII\. לא בוצע חיוב/);
+  assert.match(booking, /ההזמנה נוצרה ואושרה במערכת המקום\. לא בוצע חיוב דרך VII\./);
+  assert.match(booking, /הבקשה נוצרה במערכת המקום וממתינה לאישורו\./);
+  assert.match(booking, /if \(supplierSiteID && !isManage\) \{\s*const response = await fetch\("\/api\/vii\/booking"/);
 });
