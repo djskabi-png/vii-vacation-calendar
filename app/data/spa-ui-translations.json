@@ -29,5 +29,12 @@
   "לא נמסרו חבילות למקום זה": { "en": "No packages were provided for this venue", "ru": "Для этого места пакеты не предоставлены", "fr": "Aucune formule n'a été fournie pour cet établissement" },
   "אפשר לבדוק אפשרויות עדכניות אצל ספא פלוס.": { "en": "Check current options with Spa Plus.", "ru": "Уточните актуальные варианты в Spa Plus.", "fr": "Consultez les options actuelles sur Spa Plus." },
   "בדיקת אפשרויות": { "en": "Check options", "ru": "Посмотреть варианты", "fr": "Voir les options" },
-  "המיקום במפה הוא אזורי. הכתובת המדויקת מופיעה בפרטי המקום.": { "en": "The map shows the general area. The exact address appears in the venue details.", "ru": "Карта показывает общий район. Точный адрес указан в информации о месте.", "fr": "La carte indique le secteur général. L'adresse exacte figure dans les détails de l'établissement." }
+  "המיקום במפה הוא אזורי. הכתובת המדויקת מופיעה בפרטי המקום.": { "en": "The map shows the general area. The exact address appears in the venue details.", "ru": "Карта показывает общий район. Точный адрес указан в информации о месте.", "fr": "La carte indique le secteur général. L'adresse exacte figure dans les détails de l'établissement." },
+  "אפשרויות לספא": {"en": "Spa options", "ru": "Варианты спа", "fr": "Options spa"},
+  "הזמנת חבילת ספא": {"en": "Book a spa package", "ru": "Бронирование спа-пакета", "fr": "Réserver une formule spa"},
+  "הזמנת ספא": {"en": "Spa booking", "ru": "Бронирование спа", "fr": "Réservation spa"},
+  "סגירת חלון ההזמנה": {"en": "Close booking window", "ru": "Закрыть окно бронирования", "fr": "Fermer la fenêtre de réservation"},
+  "הזמנה:": {"en": "Booking:", "ru": "Бронирование:", "fr": "Réservation :"},
+  "לא רואים את תהליך ההזמנה?": {"en": "Can't see the booking process?", "ru": "Не видите форму бронирования?", "fr": "Le formulaire de réservation ne s’affiche pas ?"},
+  "פתיחה בחלון נפרד": {"en": "Open in a separate window", "ru": "Открыть в отдельном окне", "fr": "Ouvrir dans une fenêtre séparée"}
 }

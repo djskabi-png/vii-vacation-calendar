@@ -406,7 +406,9 @@ test("spa booking uses only the supplier handoff while other discovery stays in 
   ]);
   const [spaPage, ...otherPages] = await Promise.all(responses.map((response) => response.text()));
   const pages = [spaPage, ...otherPages].join("\n");
-  assert.match(spaPage, /href="https:\/\/www\.spaplus\.co\.il\/[^"']+domainSrc=vii/);
+  assert.match(spaPage, /<button[^>]+type="button"[^>]*>בדיקת זמינות והזמנה<\/button>/);
+  assert.match(spaPage, /<dialog[^>]+class="spa-booking-dialog"[^>]+aria-label="הזמנת חבילת ספא"/);
+  assert.doesNotMatch(spaPage, /<iframe class="spa-booking-dialog__frame"/);
   assert.doesNotMatch(otherPages.join("\n").replaceAll('href="https://www.spaplus.co.il/club/?src=vii"', ""), /href=["'][^"']*(?:roomsvip\.com|spaplus\.co\.il)/i);
   assert.doesNotMatch(pages, /פתיחה במפה מלאה/);
   assert.match(pages, /לפרטי החדרים והמחירים/);
