@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { StructuredData } from "./structured-data";
@@ -187,8 +188,8 @@ function DiscoveryRail({ title, links, previousLabel, nextLabel }: {
     <div className="search-depth__rail-head">
       <h3>{title}</h3>
       <div className="search-depth__rail-controls">
-        <button type="button" onClick={() => move(-1)} aria-label={previousLabel}>‹</button>
-        <button type="button" onClick={() => move(1)} aria-label={nextLabel}>›</button>
+        <button type="button" onClick={() => move(-1)} aria-label={previousLabel} title={previousLabel}><ChevronLeft aria-hidden="true" /></button>
+        <button type="button" onClick={() => move(1)} aria-label={nextLabel} title={nextLabel}><ChevronRight aria-hidden="true" /></button>
       </div>
     </div>
     <nav ref={railRef} className="search-depth__rail" aria-label={title}>

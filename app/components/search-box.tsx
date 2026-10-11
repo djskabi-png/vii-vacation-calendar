@@ -17,19 +17,9 @@ import { cleanVacationPath } from "../data/vacation-landings";
 import { cleanAccommodationPath } from "../data/accommodation-landings";
 import { spaSearchHref, spaSearchStateFromValues } from "../data/spa-search-landings";
 import { eventSearchHref, hourlySearchHref } from "../data/world-search-landings";
-import { eventPlaceHref, eventPlaces, properties } from "../data/site-data";
-import { hourlyPlaces, spaPlaces } from "../data/world-data";
+import type { PlaceSearchResult } from "../data/search-place-inventory";
 
 type SpaAudience = "single" | "couple" | "group" | "day-pass";
-
-type PlaceSearchResult = {
-  id: string;
-  name: string;
-  location: string;
-  area: string;
-  kind: string;
-  href: string;
-};
 
 type VacationParty = {
   adults: number;
@@ -156,12 +146,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const [searchCommitted, setSearchCommitted] = useState(() => compact || Boolean(searchParamsKey) || Boolean(initialLocation) || Boolean(initialSpaAudience) || initialSpaFeatures.length > 0);
   const shouldCollapse = compact || searchCommitted;
   const destinationOptions = useMemo(() => searchLocationOptions(mode), [mode]);
-  const placeInventory = useMemo<PlaceSearchResult[]>(() => {
-    if (mode === "vacation") return properties.map((place) => ({ id: place.slug, name: place.name, location: place.location, area: place.area, kind: "מקום אירוח", href: `/business?id=${place.slug}` }));
-    if (mode === "events") return eventPlaces.map((place) => ({ id: place.slug, name: place.name, location: place.location, area: place.area, kind: "מתחם אירועים", href: eventPlaceHref(place) }));
-    const items = mode === "spa" ? spaPlaces : hourlyPlaces;
-    return items.map((place) => ({ id: place.id, name: place.name, location: place.location, area: place.area, kind: mode === "spa" ? "בית ספא" : "חדר לפי שעה", href: `/discover/place/${place.id}` }));
-  }, [mode]);
+  const [placeInventoryResult, setPlaceInventoryResult] = useState<{ mode: SearchMode; places: PlaceSearchResult[] } | null>(null);
   const [locationValue, setLocationValue] = useState(() => {
     const requestedLocation = searchParams.get("location");
     return requestedLocation
@@ -184,6 +169,21 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [locationOpen, setLocationOpen] = useState(false);
   const [locationQuery, setLocationQuery] = useState("");
+  const hasLocationQuery = locationQuery.trim().length > 0;
+  const placeInventoryLoading = hasLocationQuery && placeInventoryResult?.mode !== mode;
+  const placeInventory = placeInventoryResult?.mode === mode ? placeInventoryResult.places : [];
+  useEffect(() => {
+    if (!hasLocationQuery) return;
+    let cancelled = false;
+    import("../data/search-place-inventory")
+      .then(({ searchPlaceInventory }) => {
+        if (!cancelled) setPlaceInventoryResult({ mode, places: searchPlaceInventory(mode) });
+      })
+      .catch(() => {
+        if (!cancelled) setPlaceInventoryResult({ mode, places: [] });
+      });
+    return () => { cancelled = true; };
+  }, [hasLocationQuery, mode]);
   const [locationStatus, setLocationStatus] = useState("");
   const [locating, setLocating] = useState(false);
   const [guestOpen, setGuestOpen] = useState(false);
@@ -526,11 +526,12 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
             <label className="location-list__search"><input aria-label={translate("חיפוש יעד")} value={locationQuery} onChange={(event) => setLocationQuery(event.target.value)} placeholder={translate("הקלידו עיר, אזור או שם מקום")} autoFocus /></label>
             {locationQuery.trim() ? (
               <div className="location-search-results">
+                {placeInventoryLoading ? <p role="status">{translate("מחפשים מקומות...")}</p> : null}
                 {visibleNamedPlaces.length > 0 ? <h3>{translate("מקומות מתאימים")}</h3> : null}
                 {visibleNamedPlaces.map((place) => <Link key={`${mode}-${place.id}`} className="location-place-result" href={localizedPath(place.href, language)}><PinIcon /><span><strong>{translate(place.name)}</strong><small>{translate(place.kind)} · {translate(place.location)}</small></span></Link>)}
                 {visibleDestinations.length > 0 ? <h3>{translate("אזורים ויישובים")}</h3> : null}
                 {visibleDestinations.map((place) => <button type="button" key={place} className={place === locationValue ? "selected" : ""} onClick={() => chooseLocation(place)}><PinIcon /><span>{translate(place)}</span></button>)}
-                {visibleDestinations.length === 0 && visibleNamedPlaces.length === 0 ? <p>{translate("לא מצאנו יעד או מקום מתאים.")}</p> : null}
+                {!placeInventoryLoading && visibleDestinations.length === 0 && visibleNamedPlaces.length === 0 ? <p>{translate("לא מצאנו יעד או מקום מתאים.")}</p> : null}
               </div>
             ) : mode === "vacation" ? (
               <div className="location-discovery">

@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent, useEffect, useRef, useState } from "react";
+import { type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
-import { publicWorldNavigation, worlds, type WorldId } from "../data/world-data";
+import { publicWorldNavigation, worlds, type WorldId } from "../data/world-navigation";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
 import { cleanVacationPath } from "../data/vacation-landings";
@@ -19,6 +19,7 @@ function searchWorldHref(world: "vacation" | "spa" | "events" | "hourly", locati
 }
 
 export function WorldSwitcher({ active = "vacation" }: { active?: WorldId }) {
+  const hydrated = useSyncExternalStore(() => () => {}, () => true, () => false);
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -57,8 +58,8 @@ export function WorldSwitcher({ active = "vacation" }: { active?: WorldId }) {
     setOpen((value) => !value);
   };
   const cancelPointerActivation = () => { pointerStartRef.current = null; };
-  const finishClickActivation = (event: ReactMouseEvent<HTMLButtonElement>) => {
-    if (event.detail > 0 && performance.now() < ignoreClickUntilRef.current) return;
+  const finishClickActivation = () => {
+    if (performance.now() < ignoreClickUntilRef.current) return;
     setOpen((value) => !value);
   };
   const navigateFromSwitcher = (event: ReactMouseEvent<HTMLAnchorElement>) => {
@@ -85,7 +86,7 @@ export function WorldSwitcher({ active = "vacation" }: { active?: WorldId }) {
         <Link className="world-dock__global-search" href={globalSearchHref} onPointerDown={navigateFromSwitcherPointer} onClick={navigateFromSwitcher}><WorldSearchIcon /><span><b>{translate("חיפוש כללי")}</b><small>{translate("חפשו מקום, עסק או יעד בכל האתר")}</small></span></Link>
         {publicWorldNavigation.map((world) => { const href = localizedPath(world.href, language); return <Link key={world.id} className={world.id === active ? "active" : ""} href={href} onPointerDown={navigateFromSwitcherPointer} onClick={navigateFromSwitcher}><span className={`world-mark world-mark--${world.id}`} aria-hidden="true" /><span><b>{translate(world.label)}</b><small>{translate(world.description)}</small></span></Link>; })}
       </nav>}
-      <button ref={triggerRef} type="button" aria-label={translate(open ? "סגירת חיפוש ובחירת עולם" : "חיפוש ובחירת עולם")} aria-expanded={open} aria-haspopup="true" onPointerDown={rememberPointerStart} onPointerUp={finishPointerActivation} onPointerCancel={cancelPointerActivation} onClick={finishClickActivation}><WorldSearchIcon /><span><strong>{translate(open ? "סגירה" : "חיפוש")}</strong></span></button>
+      {hydrated ? <button ref={triggerRef} type="button" aria-label={translate(open ? "סגירת חיפוש ובחירת עולם" : "חיפוש ובחירת עולם")} aria-expanded={open} aria-haspopup="true" onPointerDown={rememberPointerStart} onPointerUp={finishPointerActivation} onPointerCancel={cancelPointerActivation} onClick={finishClickActivation}><WorldSearchIcon /><span><strong>{translate(open ? "סגירה" : "חיפוש")}</strong></span></button> : <Link className="world-dock__prehydrate" href={globalSearchHref} aria-label={translate("חיפוש ובחירת עולם")}><WorldSearchIcon /><span><strong>{translate("חיפוש")}</strong></span></Link>}
     </div>
   );
 }

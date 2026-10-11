@@ -3,6 +3,7 @@ import "./globals.css";
 import "./results-view.css";
 import "./mobile-stability.css";
 import "./app-experience.css";
+import "./site-polish.css";
 import { LocaleProvider } from "./i18n/locale-provider";
 import { StructuredData } from "./components/structured-data";
 import { organizationSchema, websiteSchema } from "./lib/seo";
@@ -90,7 +91,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const locale = requestHeaders.get("x-vii-locale") || "he";
   const direction = locale === "he" ? "rtl" : "ltr";
   const localeBootstrap = `(function(){var d=document.documentElement;try{var p=location.pathname.match(/^\\/(en|ru|fr)(?:\\/|$)/);var l=p?p[1]:'he';d.lang=l;d.dir=l==='he'?'rtl':'ltr';d.dataset.locale=l;d.removeAttribute('data-locale-pending');try{localStorage.setItem('vii-site-language',l);}catch(_){}}catch(e){d.removeAttribute('data-locale-pending');}})();`;
-  return <html lang={locale} dir={direction} suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: localeBootstrap }} /></head><body>
+  return <html lang={locale} dir={direction} suppressHydrationWarning><head><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" /><script dangerouslySetInnerHTML={{ __html: localeBootstrap }} /></head><body>
     <StructuredData data={organizationSchema()} />
     <StructuredData data={websiteSchema()} />
     <LocaleProvider><AccountAccessProvider>{children}</AccountAccessProvider></LocaleProvider>

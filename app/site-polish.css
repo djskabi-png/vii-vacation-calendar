@@ -1,0 +1,338 @@
+/* Shared finishing layer: text links remain recognizable; controls and cards keep their own affordance. */
+:where(main p, main li, .breadcrumbs__item) a:not([class]):not(:has(img, svg)),
+.section-head a:not(.button),
+.footer-grid nav a,
+.footer-bottom a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .2em;
+  text-decoration-skip-ink: auto;
+}
+
+.quick-links a,
+.search-world-tabs a,
+.home-live-deals__tabs a,
+.home-last-minute__tabs a,
+.site-header a,
+.site-footer .footer-join-link {
+  text-decoration: none;
+}
+
+:where(main p, main li, .breadcrumbs__item) a:not([class]):not(:has(img, svg)):hover,
+.section-head a:not(.button):hover,
+.footer-grid nav a:hover {
+  text-decoration-thickness: 2px;
+}
+
+h1, h2, h3, h4 { letter-spacing: 0; }
+
+.world-dock > .world-dock__prehydrate {
+  position: relative;
+  z-index: 1;
+  width: 132px;
+  min-width: 132px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink);
+  background: #fff;
+  text-decoration: none;
+  font-size: .82rem;
+  text-align: right;
+}
+.world-dock__prehydrate .world-search-icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.property-title h1,
+.discovery-detail__copy h1 {
+  max-width: 26ch;
+  font-size: 2.7rem;
+  font-weight: 700;
+  line-height: 1.17;
+}
+
+.discovery-detail__hero { padding-bottom: 52px; }
+.discovery-detail > .section { padding-block: 64px; }
+.property-page > .section.section-tint { padding-block: 64px; }
+.property-page-endcap { padding-block: 64px; }
+.search-depth { padding-top: 60px; }
+
+.search-depth__rail-controls { gap: 8px; }
+.search-depth__rail-controls button {
+  width: 44px;
+  height: 44px;
+  font-size: inherit;
+}
+.search-depth__rail-controls button svg { width: 21px; height: 21px; }
+.search-depth__rail-controls button:focus-visible {
+  outline: 3px solid #6fc2c9;
+  outline-offset: 3px;
+}
+
+.home-hero {
+  min-height: 0;
+  padding-block: 50px 54px;
+  border-bottom: 1px solid #dcebed;
+  background: #eaf6f7;
+}
+
+.home-hero h1 {
+  max-width: 24ch;
+  font-size: 3.25rem;
+  font-weight: 800;
+  line-height: 1.16;
+}
+
+.home-hero__content > p {
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.home-recommended,
+.home-vacation-discovery,
+.home-trust-discovery,
+.home-spa-strip,
+.home-short-stay,
+.home-events-world,
+.home-worlds,
+.home-magazine,
+.home-trails,
+.home-corporate-gift,
+.home-page-section {
+  padding-block: 58px;
+}
+
+.home-recommended .section-head,
+.home-spa-strip .section-head,
+.home-short-stay .section-head,
+.home-worlds .section-head,
+.home-trails .section-head,
+.home-magazine .section-head,
+.home-page-section .section-head,
+.home-vacation-strip__head {
+  margin-bottom: 20px;
+}
+
+.home-recommended h2,
+.home-vacation-discovery__intro h2,
+.home-trust-discovery h2,
+.home-spa-strip h2,
+.home-short-stay h2,
+.home-events-world__head h2,
+.home-worlds h2,
+.home-magazine h2,
+.home-trails h2,
+.home-page-section h2 {
+  font-size: 2.05rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.home-vacation-discovery__intro {
+  margin-bottom: 26px;
+}
+
+.home-vacation-discovery__intro h2,
+.home-events-world__head h2 {
+  margin-block: 6px 10px;
+}
+
+.home-vacation-strip__head h3,
+.home-last-minute__slider-head h3 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.home-trust-discovery > .shell { gap: 40px; }
+.home-trust-strip { gap: 14px; }
+
+.home-hero__content > p,
+.home-vacation-discovery__intro p,
+.home-events-world__head p,
+.home-worlds .section-head p,
+.home-short-stay .section-head p,
+.home-trails .section-head p {
+  max-width: 68ch;
+  line-height: 1.65;
+}
+
+.home-slider__controls {
+  gap: 8px;
+}
+
+.home-slider__controls button,
+.home-vacation-strip__head .home-slider__controls button {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #bfd6d8;
+  border-radius: 50%;
+  color: #145c66;
+  background: #fff;
+  box-shadow: 0 3px 12px rgba(11, 71, 79, .07);
+  transition: border-color .18s ease, background-color .18s ease, transform .18s ease;
+}
+
+.home-slider__controls button svg {
+  width: 21px;
+  height: 21px;
+  stroke-width: 2;
+}
+
+.home-slider__controls button:hover:not(:disabled) {
+  border-color: #087e8b;
+  background: #ecf8f8;
+  transform: translateY(-1px);
+}
+
+.home-slider__controls button:focus-visible {
+  outline: 3px solid #6fc2c9;
+  outline-offset: 3px;
+}
+
+.home-slider__controls button:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.home-live-deals__tabs { margin-block: 14px 18px; }
+.home-live-deals__track { scroll-padding-inline: 3px; }
+.home-live-deals__card-body { line-height: 1.5; }
+.home-live-deals__card h3 { font-weight: 700; }
+.home-live-deals__card-body > b { width: fit-content; }
+
+.stay-card__gallery-arrow {
+  opacity: 1;
+}
+.stay-card__gallery-arrow svg { width: 21px; height: 21px; }
+
+/* The long lower half of the homepage need not render before it approaches the viewport. */
+.home-worlds,
+.home-magazine,
+.home-trails,
+.home-corporate-gift {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 540px;
+}
+
+@media (max-width: 820px) {
+  .world-dock > .world-dock__prehydrate {
+    width: 44px;
+    min-width: 44px;
+    padding: 0;
+    justify-content: center;
+  }
+  .world-dock__prehydrate > span:last-child { display: none; }
+  .property-title h1,
+  .discovery-detail__copy h1 { font-size: 2rem; }
+  .discovery-detail__hero { padding-bottom: 42px; }
+  .discovery-detail > .section,
+  .property-page > .section.section-tint,
+  .property-page-endcap { padding-block: 48px; }
+  .search-depth { padding-top: 48px; }
+  .home-hero { padding-block: 30px 34px; }
+  .home-hero h1 { font-size: 2.15rem; }
+  .home-hero__content > p { font-size: .92rem; }
+  .home-recommended,
+  .home-vacation-discovery,
+  .home-trust-discovery,
+  .home-spa-strip,
+  .home-short-stay,
+  .home-events-world,
+  .home-worlds,
+  .home-magazine,
+  .home-trails,
+  .home-corporate-gift,
+  .home-page-section { padding-block: 42px; }
+  .home-recommended h2,
+  .home-vacation-discovery__intro h2,
+  .home-trust-discovery h2,
+  .home-spa-strip h2,
+  .home-short-stay h2,
+  .home-events-world__head h2,
+  .home-worlds h2,
+  .home-magazine h2,
+  .home-trails h2,
+  .home-page-section h2 { font-size: 1.6rem; }
+  .home-vacation-strip__head h3,
+  .home-last-minute__slider-head h3 { font-size: 1.28rem; }
+  .home-trust-discovery > .shell { gap: 30px; }
+  .home-slider__controls button,
+  .home-vacation-strip__head .home-slider__controls button {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+  }
+}
+
+@media (max-width: 560px) {
+  .property-title h1,
+  .discovery-detail__copy h1 { font-size: 1.8rem; }
+  .discovery-detail > .section,
+  .property-page > .section.section-tint,
+  .property-page-endcap { padding-block: 40px; }
+  .search-depth { padding-top: 40px; }
+  .smart-concierge__trigger {
+    width: 56px;
+    height: 56px;
+    min-width: 56px;
+    min-height: 56px;
+  }
+  .smart-concierge__trigger-icon,
+  .smart-concierge__trigger-icon svg { width: 32px; height: 32px; }
+  .smart-concierge__panel { bottom: 72px; }
+  .home-hero { padding-block: 24px 28px; }
+  .home-hero h1 { font-size: 1.9rem; }
+  .home-recommended,
+  .home-vacation-discovery,
+  .home-trust-discovery,
+  .home-spa-strip,
+  .home-short-stay,
+  .home-events-world,
+  .home-worlds,
+  .home-magazine,
+  .home-trails,
+  .home-corporate-gift,
+  .home-page-section { padding-block: 36px; }
+  .home-recommended .section-head,
+  .home-spa-strip .section-head,
+  .home-short-stay .section-head,
+  .home-worlds .section-head,
+  .home-trails .section-head,
+  .home-magazine .section-head,
+  .home-page-section .section-head,
+  .home-vacation-strip__head { margin-bottom: 16px; }
+  .home-recommended h2,
+  .home-vacation-discovery__intro h2,
+  .home-trust-discovery h2,
+  .home-spa-strip h2,
+  .home-short-stay h2,
+  .home-events-world__head h2,
+  .home-worlds h2,
+  .home-magazine h2,
+  .home-trails h2,
+  .home-page-section h2 { font-size: 1.42rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-slider__controls button { transition: none; }
+}

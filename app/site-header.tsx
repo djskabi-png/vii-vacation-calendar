@@ -8,7 +8,7 @@ import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import { LanguageSwitcher, useSiteLanguage } from "./i18n/locale-provider";
 import { stripLanguagePrefix } from "./i18n/locale-routing";
-import { publicWorldNavigation, type WorldId } from "./data/world-data";
+import { publicWorldNavigation, type WorldId } from "./data/world-navigation";
 import { AccessibilityWidget } from "./components/accessibility-widget";
 import { WorldSwitcher } from "./components/world-switcher";
 import { useAccountAccess } from "./components/account-access";
