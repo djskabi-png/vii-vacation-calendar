@@ -259,7 +259,7 @@ export default function BusinessPage({ initialSlug, supplierDetail, initialWorld
   return (
     <PageShell variant={activeWorld}>
       <main id="main-content" className="property-page">
-        <ViewedItemTracker id={property.slug} world={activeWorld} name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={`/business?id=${property.slug}${activeWorld === offerings[0].world ? "" : `&mode=${activeWorld}`}`} meta={`${property.type} · עד ${property.guests} אורחים`} />
+        <ViewedItemTracker id={property.slug} world={activeWorld} name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={`/business?id=${property.slug}${activeWorld === offerings[0].world ? "" : `&mode=${activeWorld}`}`} meta={property.guests > 0 ? `${property.type} · עד ${property.guests} אורחים` : property.type} />
         <BreadcrumbTrail items={activeWorld === "events"
           ? [{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, { name: "מקומות לאירועים", path: "/events/search" }, { name: property.name }]
           : activeWorld === "spa"
@@ -293,7 +293,7 @@ export default function BusinessPage({ initialSlug, supplierDetail, initialWorld
 
         <div className="shell property-gallery-wrap">
           <PropertyGallery images={placeGalleryImages} name={property.name} onOpen={(index) => { setGalleryTopic(null); openGallery("all", index); }} />
-          <FavoriteButton compact className="property-gallery__favorite" id={property.slug} world={activeWorld} name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={`/business?id=${property.slug}${activeWorld === offerings[0].world ? "" : `&mode=${activeWorld}`}`} meta={`${property.type} · עד ${property.guests} אורחים`} />
+          <FavoriteButton compact className="property-gallery__favorite" id={property.slug} world={activeWorld} name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={`/business?id=${property.slug}${activeWorld === offerings[0].world ? "" : `&mode=${activeWorld}`}`} meta={property.guests > 0 ? `${property.type} · עד ${property.guests} אורחים` : property.type} />
         </div>
 
         {property.demoOperations?.fictional && property.videos?.[0] ? <section className="shell palumbo-media-story" aria-labelledby="palumbo-media-title">
@@ -316,7 +316,7 @@ export default function BusinessPage({ initialSlug, supplierDetail, initialWorld
         <div className={`shell property-layout ${activeWorld === "vacation" ? "property-layout--vacation" : ""}`}>
           <div className="property-content">
             <section className="property-facts" aria-label="עיקרי המקום">
-              <div><b>{property.guests}</b><span>{property.capacityScope === "unit" ? "אורחים ביחידה הגדולה" : "אורחים לכל היותר"}</span></div>
+              <div><b>{property.guests > 0 ? property.guests : "בבירור"}</b><span>{property.guests > 0 ? property.capacityScope === "unit" ? "אורחים ביחידה הגדולה" : "אורחים לכל היותר" : "קיבולת מול המקום"}</span></div>
               {property.bedrooms && <div><b>{property.bedrooms}</b><span>חדרי שינה</span></div>}
               {property.units ? <div><b>{property.units}</b><span>יחידות אירוח</span></div> : property.capacityScope !== "unit" ? <div><b>שלם</b><span>המקום כולו</span></div> : null}
               <div><b>{property.features.length}</b><span>מאפיינים מרכזיים</span></div>
@@ -326,7 +326,7 @@ export default function BusinessPage({ initialSlug, supplierDetail, initialWorld
 
             {activeWorld === "vacation" && (initialSource === "home-deals" || initialSource === "home-holidays") && /^vacation-\d+$/.test(property.slug) ? <HomeDealDetailStatus siteID={Number(property.slug.slice(9))} period={initialPeriod} source={initialSource} from={dateRange.from} till={dateRange.till} guests={guests} /> : null}
 
-            {activeWorld === "vacation" ? <VacationBookingHub
+            {activeWorld === "vacation" && property.guests > 0 ? <VacationBookingHub
               property={property}
               dates={displayDates}
               from={dateRange.from}
@@ -344,7 +344,7 @@ export default function BusinessPage({ initialSlug, supplierDetail, initialWorld
               onOpenCalendar={() => setCalendarOpen(true)}
               onGuestsChange={setGuests}
               onRetryAvailability={supplierSiteID ? supplierQuote.retry : liveLegacyAvailability.retry}
-            /> : null}
+            /> : activeWorld === "vacation" ? <section id="booking-summary" className="property-about"><h2>בירור אירוח</h2><p>פרטי היחידות והקיבולת עדיין לא נמסרו. אפשר לפנות למקום לבירור.</p>{phoneHref ? <a className="button primary" href={phoneHref}>שיחה עם המקום</a> : null}</section> : null}
 
             {property.roomOptions?.length ? <section id="rooms" className="units-section">
               {property.scenario === "multi" ? <div className="units-heading units-heading--overview">
@@ -428,7 +428,7 @@ export default function BusinessPage({ initialSlug, supplierDetail, initialWorld
 
             <ListingAccessibility slug={property.slug} />
 
-            <section id="location" className="location-card location-card--map-only" aria-labelledby="property-location-title"><h2 id="property-location-title" className="sr-only">המיקום של {property.name} ב{property.location}, {property.area}</h2><ListingMap listings={[property]} single /></section>
+            <section id="location" className="location-card location-card--map-only" aria-labelledby="property-location-title"><h2 id="property-location-title" className="sr-only">המיקום של {property.name} ב{property.location}, {property.area}</h2>{typeof property.lat === "number" && typeof property.lng === "number" ? <ListingMap listings={[property]} single /> : <p>המיקום המדויק טרם נמסר על ידי המקום. המתחם נמצא ב{property.location}, {property.area}.</p>}</section>
 
             <section id="faq" className="faq-section"><span className="eyebrow">כל מה שחשוב לפני שמזמינים</span><h2>שאלות ותשובות</h2>{propertyFaq.map((item, index) => <article key={item.question} className={openFaq === index ? "open" : ""}><button type="button" aria-expanded={openFaq === index} onClick={() => setOpenFaq(openFaq === index ? null : index)}><span>{item.question}</span><b>{openFaq === index ? "−" : "+"}</b></button>{openFaq === index && <p>{item.answer}</p>}</article>)}</section>
 

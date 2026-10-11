@@ -179,11 +179,11 @@ export function lodgingSchema(listing: Listing) {
     mainEntityOfPage: url,
     image: imageObjects([listing.image, ...listing.images], listing.name, listing.description),
     address: address(listing.location, listing.area),
-    geo: {
+    ...(typeof listing.lat === "number" && typeof listing.lng === "number" ? { geo: {
       "@type": "GeoCoordinates",
       latitude: listing.lat,
       longitude: listing.lng,
-    },
+    } } : {}),
     amenityFeature: amenityFeature(listing.features),
     ...(worlds.includes("events") && listing.capacityScope !== "unit" ? { maximumAttendeeCapacity: getListingOfferings(listing).find((offering) => offering.world === "events")?.maxGuests } : {}),
     ...(listing.capacityScope !== "unit" ? { containsPlace: {
@@ -193,7 +193,7 @@ export function lodgingSchema(listing: Listing) {
       ...(listing.bedrooms ? { numberOfBedrooms: listing.bedrooms } : {}),
       ...(listing.units ? { numberOfRooms: listing.units } : {}),
     } } : {}),
-    hasMap: `https://www.openstreetmap.org/?mlat=${listing.lat}&mlon=${listing.lng}#map=15/${listing.lat}/${listing.lng}`,
+    ...(typeof listing.lat === "number" && typeof listing.lng === "number" ? { hasMap: `https://www.openstreetmap.org/?mlat=${listing.lat}&mlon=${listing.lng}#map=15/${listing.lat}/${listing.lng}` } : {}),
     ...(listing.reviewSource === "legacy-verified" && listing.score && listing.reviews ? {
       aggregateRating: {
         "@type": "AggregateRating",
@@ -226,10 +226,10 @@ export function eventVenueSchema(place: EventPlace) {
     url,
     image: imageObjects([place.image, ...place.images], place.name, place.description),
     address: address(place.location, place.area),
-    geo: { "@type": "GeoCoordinates", latitude: place.lat, longitude: place.lng },
+    ...(typeof place.lat === "number" && typeof place.lng === "number" ? { geo: { "@type": "GeoCoordinates", latitude: place.lat, longitude: place.lng } } : {}),
     ...(place.capacityScope !== "unit" ? { maximumAttendeeCapacity: place.guests } : {}),
     amenityFeature: amenityFeature(place.features),
-    hasMap: `https://www.openstreetmap.org/?mlat=${place.lat}&mlon=${place.lng}#map=15/${place.lat}/${place.lng}`,
+    ...(typeof place.lat === "number" && typeof place.lng === "number" ? { hasMap: `https://www.openstreetmap.org/?mlat=${place.lat}&mlon=${place.lng}#map=15/${place.lat}/${place.lng}` } : {}),
   };
 }
 

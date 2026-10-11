@@ -23,8 +23,8 @@ export type Listing = {
   featureGroups?: ListingFeatureGroup[];
   audiences: string[];
   badges: string[];
-  lat: number;
-  lng: number;
+  lat?: number;
+  lng?: number;
   scenario: "single" | "multi";
   score?: number;
   reviews?: number;
