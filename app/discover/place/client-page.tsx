@@ -210,7 +210,7 @@ export default function DiscoveryPlacePage({ initialId, initialItem, relatedItem
     ];
   }, [activityDetails, hourlyDetails, providerDetails, spaDetails, item.lat, item.lng]);
   const activityPhoneOnly = activityDetails?.booking?.mode === "phone";
-  const phone = item.world === "hourly" || item.world === "spa" ? item.phone : activityPhoneOnly ? activityDetails.booking?.phone : undefined;
+  const phone = item.world === "hourly" ? item.phone : activityPhoneOnly ? activityDetails.booking?.phone : undefined;
   const onlineHref = item.id === "masu-home-wellness" || item.world === "hourly" || activityPhoneOnly ? undefined : item.world === "providers" && providerDetails?.bookingMode === "whatsapp"
     ? "#provider-services"
     : item.world === "spa" && spaDetails?.packages?.length
