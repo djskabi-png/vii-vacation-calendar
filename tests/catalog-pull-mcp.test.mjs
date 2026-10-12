@@ -21,6 +21,50 @@ function dependencies() {
     counts: () => ({ pulls, databases }) };
 }
 
+function modernRequest(method, params = {}, headers = {}) {
+  const meta = { "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+    "io.modelcontextprotocol/clientInfo": { name: "fixture-cloud-task", version: "1.0" },
+    "io.modelcontextprotocol/clientCapabilities": {} };
+  return new Request("https://vii.spaplus.co/mcp", { method: "POST", headers: { "Content-Type": "application/json",
+    "MCP-Protocol-Version": "2026-07-28", "Mcp-Method": method,
+    ...(method === "tools/call" ? { "Mcp-Name": params.name } : {}), ...headers },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params: { _meta: meta, ...params } }) });
+}
+
+test("modern platform discovery supports the observed protocol without private reads", async () => {
+  const deps = dependencies();
+  deps.adminEmails = async () => { throw new Error("Discovery must not inspect administrator secrets"); };
+  const discover = await (await catalogStatusMcp(modernRequest("server/discover"), deps)).json();
+  assert.equal(discover.result.resultType, "complete");
+  assert.equal(discover.result.supportedVersions[0], "2026-07-28");
+  assert.equal(discover.result._meta["io.modelcontextprotocol/serverInfo"].version, "1.1.0");
+  assert.equal(discover.result.cacheScope, "public");
+  const list = await (await catalogStatusMcp(modernRequest("tools/list"), deps)).json();
+  assert.deepEqual(list.result.tools.map((t) => t.name), ["vii_catalog_status", "vii_catalog_pull"]);
+  assert.equal(list.result.resultType, "complete"); assert.equal(list.result.ttlMs, 0);
+  assert.deepEqual(deps.counts(), { pulls: 0, databases: 0 });
+});
+
+test("modern metadata supplies protocol context, never administrator identity", async () => {
+  const deps = dependencies();
+  const response = await catalogStatusMcp(modernRequest("tools/call", { name: "vii_catalog_pull",
+    arguments: { world: "spa" }, _meta: { "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+      "io.modelcontextprotocol/clientInfo": { name: "owner@example.test", version: "1", userId: "fixture-owner" },
+      "io.modelcontextprotocol/clientCapabilities": {} } }), deps);
+  assert.equal(response.status, 401); assert.deepEqual(deps.counts(), { pulls: 0, databases: 0 });
+  const value = await (await catalogStatusMcp(modernRequest("tools/call", { name: "vii_catalog_pull", arguments: { world: "spa" } }, identity), deps)).json();
+  assert.equal(value.result.resultType, "complete"); assert.equal(deps.counts().pulls, 1);
+});
+
+test("modern header mismatches and missing per-request metadata fail before a pull", async () => {
+  for (const [params, headers] of [[{ _meta: {} }, identity], [{}, { ...identity, "Mcp-Method": "server/discover" }],
+    [{}, { ...identity, "Mcp-Name": "different-tool" }]]) {
+    const deps = dependencies();
+    const response = await catalogStatusMcp(modernRequest("tools/call", { name: "vii_catalog_pull", arguments: { world: "spa" }, ...params }, headers), deps);
+    assert.equal(response.status, 400); assert.deepEqual(deps.counts(), { pulls: 0, databases: 0 });
+  }
+});
+
 test("anonymous, service-only, partial identity and forged body/cookie identities cannot fetch or write", async () => {
   for (const headers of [{}, { Authorization: "Bearer fixture-service", "OAI-Sites-Authorization": "Bearer fixture-service" },
     { Cookie: "vii_session=fixture-owner", "X-User-Email": "owner@example.test" },

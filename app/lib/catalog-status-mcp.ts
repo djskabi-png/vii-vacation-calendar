@@ -3,6 +3,9 @@ import type { SupplierCatalogWorld } from "./supplier-catalog-store.ts";
 import { readSupplierCatalogState } from "./supplier-catalog-store.ts";
 
 const versions = ["2025-11-25", "2025-06-18", "2025-03-26"];
+const modernVersion = "2026-07-28";
+const supportedVersions = [modernVersion, ...versions];
+const serverInfo = { name: "vii-catalog-status", title: "VII catalog status", version: "1.1.0" };
 const worlds: SupplierCatalogWorld[] = ["vacations", "events", "rooms", "spa"];
 const responseHeaders = { "Cache-Control": "no-store" };
 const statusTool = {
@@ -36,7 +39,7 @@ export async function catalogStatusMcp(request: Request, dependencies: {
     return error(null, -32000, "Invalid origin", 403);
   }
   const protocol = request.headers.get("mcp-protocol-version");
-  if (protocol && !versions.includes(protocol)) return error(null, -32600, "Unsupported protocol version", 400);
+  if (protocol && !supportedVersions.includes(protocol)) return error(null, -32022, "Unsupported protocol version", 400);
   if (!request.headers.get("content-type")?.toLowerCase().startsWith("application/json")) {
     return error(null, -32600, "JSON required", 415);
   }
@@ -46,20 +49,41 @@ export async function catalogStatusMcp(request: Request, dependencies: {
     || (message.id !== undefined && typeof message.id !== "string" && typeof message.id !== "number")) {
     return error(null, -32600, "Invalid request", 400);
   }
+  const paramsMeta = object(object(message.params)?._meta);
+  const modern = protocol === modernVersion || paramsMeta?.["io.modelcontextprotocol/protocolVersion"] === modernVersion;
+  if (modern) {
+    const clientInfo = object(paramsMeta?.["io.modelcontextprotocol/clientInfo"]);
+    if (!paramsMeta || typeof paramsMeta["io.modelcontextprotocol/protocolVersion"] !== "string"
+      || !clientInfo || typeof clientInfo.name !== "string" || !clientInfo.name
+      || typeof clientInfo.version !== "string" || !clientInfo.version
+      || !object(paramsMeta["io.modelcontextprotocol/clientCapabilities"])) {
+      return error(message.id, -32602, "Required protocol metadata missing", 400);
+    }
+    if (protocol !== paramsMeta["io.modelcontextprotocol/protocolVersion"]
+      || request.headers.get("mcp-method") !== message.method
+      || (message.method === "tools/call" && request.headers.get("mcp-name") !== object(message.params)?.name)) {
+      return error(message.id, -32020, "Protocol header mismatch", 400);
+    }
+  }
   if (message.id === undefined) {
     if (message.method === "notifications/initialized") return new Response(null, { status: 202, headers: responseHeaders });
     return error(null, -32600, "Unsupported notification", 400);
   }
-  const result = (value: unknown) => Response.json({ jsonrpc: "2.0", id: message.id, result: value }, { headers: responseHeaders });
+  const result = (value: Record<string, unknown>) => Response.json({ jsonrpc: "2.0", id: message.id,
+    result: modern ? { ...value, resultType: "complete", _meta: { "io.modelcontextprotocol/serverInfo": serverInfo } } : value },
+    { headers: responseHeaders });
   // Discovery contains no catalog data, identity, environment values or private records.
+  if (message.method === "server/discover") return result({ supportedVersions, capabilities: { tools: { listChanged: false } },
+    ttlMs: 0, cacheScope: "public", _meta: { "io.modelcontextprotocol/serverInfo": serverInfo } });
   if (message.method === "initialize") {
     const requested = object(message.params)?.protocolVersion;
     return result({ protocolVersion: typeof requested === "string" && versions.includes(requested) ? requested : versions[0],
       capabilities: { tools: { listChanged: false } },
-      serverInfo: { name: "vii-catalog-status", title: "VII catalog status", version: "1.0.0" } });
+      serverInfo });
   }
   if (message.method === "ping") return result({});
-  if (message.method === "tools/list") return result({ tools: dependencies.pull ? [statusTool, pullTool] : [statusTool] });
+  if (message.method === "tools/list") return result({ tools: dependencies.pull ? [statusTool, pullTool] : [statusTool],
+    ...(modern ? { ttlMs: 0, cacheScope: "public" } : {}) });
   if (message.method !== "tools/call") return error(message.id, -32601, "Method not found");
 
   // Sites dispatch supplies these authenticated identity headers. Service access alone is insufficient.
