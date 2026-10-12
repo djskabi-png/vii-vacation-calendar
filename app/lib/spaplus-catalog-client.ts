@@ -100,10 +100,11 @@ export function createSpaPlusCatalogClient(options: { apiKey: string; fetchImpl?
       url.searchParams.set("action", "sites");
       let response: Response;
       try {
-        response = await fetchImpl(url, { signal: AbortSignal.timeout(30_000), redirect: "error", cache: "no-store" });
+        response = await fetchImpl(url, { signal: AbortSignal.timeout(30_000), redirect: "manual", cache: "no-store" });
       } catch {
         throw new Error("spa_transport_error");
       }
+      if (response.status >= 300 && response.status < 400) throw new Error("spa_redirect_not_allowed");
       if (!response.ok) throw new Error(response.status === 401 || response.status === 403 ? "spa_not_authorized" : "spa_provider_error");
       let body: unknown;
       try { body = await response.json(); } catch { throw new Error("invalid_spa_response"); }
