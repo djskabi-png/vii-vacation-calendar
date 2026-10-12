@@ -1,4 +1,5 @@
 import { spaPlusAudience } from "./spa-audience.ts";
+import { spaViiCopy } from "./spa-vii-copy.ts";
 import type { SpaPlusSite } from "./spaplus";
 
 function audienceText(site: SpaPlusSite) {
@@ -12,13 +13,7 @@ function audienceText(site: SpaPlusSite) {
 }
 
 export function spaEditorialSummary(site: SpaPlusSite) {
-  const location = site.city ? ` ב${site.city}` : "";
-  const count = site.packages.length;
-  const audiences = audienceText(site);
-  const packageText = count
-    ? `${count} ${count === 1 ? "חבילת ספא" : "חבילות ספא"}${audiences ? ` ${audiences}` : ""}`
-    : "פרטי ספא";
-  return `${site.title}${location} מופיע בקטלוג וי עם ${packageText}. ${count ? "כאן אפשר לעיין בחבילות ובמחירים שנמסרו ולבדוק זמינות בתהליך ההזמנה." : "כאן אפשר לעיין בפרטי המקום ובשעות הפעילות שנמסרו."}`;
+  return spaViiCopy(site.id).cardSummary;
 }
 
 export function spaEditorialTitle(site: SpaPlusSite) {

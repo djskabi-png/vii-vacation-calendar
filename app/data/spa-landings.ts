@@ -23,6 +23,6 @@ export function spaLandingHref(landing: SpaLanding) {
 }
 
 export function spaItemMatches(item: DiscoveryItem, landing: SpaLanding) {
-  const text = `${item.name} ${item.description} ${item.features.join(" ")} ${(item.searchTerms || []).join(" ")}`;
+  const text = `${item.name} ${item.filterText ?? item.description} ${item.features.join(" ")} ${(item.searchTerms || []).join(" ")}`;
   return landing.terms.some((term) => text.includes(term));
 }

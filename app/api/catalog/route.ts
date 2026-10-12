@@ -5,6 +5,8 @@ import spa from "../../data/spaplus-catalog.json" with { type: "json" };
 import { readSupplierCatalogEntry, readSupplierCatalogState, readSupplierCatalogSummaries, type SupplierCatalogWorld } from "../../lib/supplier-catalog-store.ts";
 import type { D1Database } from "../../../types/cloudflare-runtime";
 import { searchPlaceInventory } from "../../data/search-place-inventory.ts";
+import { projectSpaCatalogEntries } from "../../lib/spa-editorial-policy.ts";
+import type { SupplierCatalogEntry } from "../../lib/supplier-catalog-store.ts";
 
 const noStore = { "Cache-Control": "no-store" };
 
@@ -54,23 +56,28 @@ export async function catalogResponse(request: Request, db: D1Database | null) {
         if (supplierId !== null) {
           const entry = await readSupplierCatalogEntry(db, world, supplierId);
           if (!entry) return Response.json({ error: "not_found" }, { status: 404, headers: noStore });
-          return Response.json({ world, source: "runtime", fetchedAt: entry.acceptedAt, entry }, { headers: noStore });
+          const publicEntry = world === "spa" ? (await projectSpaCatalogEntries([entry]))[0] : entry;
+          return Response.json({ world, source: "runtime", fetchedAt: entry.acceptedAt, entry: publicEntry }, { headers: noStore });
         }
         const catalog = await readSupplierCatalogSummaries(db, world);
         if (!catalog) throw new Error("catalog_active_generation_missing");
+        const entries = world === "spa" ? await projectSpaCatalogEntries(catalog.entries) : catalog.entries;
         if (view === "lookup") return Response.json({ world, source: "runtime", fetchedAt: catalog.acceptedAt,
           places: searchPlaceInventory(world === "vacations" ? "vacation" : world === "rooms" ? "hourly" : world,
-            catalog.entries.map((entry) => entry.summary)) }, { headers: noStore });
-        return Response.json({ world, source: "runtime", fetchedAt: catalog.acceptedAt, entries: catalog.entries }, { headers: noStore });
+            entries.map((entry) => entry.summary)) }, { headers: noStore });
+        return Response.json({ world, source: "runtime", fetchedAt: catalog.acceptedAt, entries }, { headers: noStore });
       }
     } catch (error) {
-      console.error("VII runtime catalog unavailable", world, error);
+      console.error("VII runtime catalog unavailable", world);
       return Response.json({ error: "catalog_unavailable" }, { status: 503, headers: noStore });
     }
   }
 
   const fetchedAt = world === "spa" ? spa.generatedAt : world === "rooms" ? hourly.fetchedAt : sergey.fetchedAt;
-  const entries = bundledEntries(world);
+  const rawEntries = bundledEntries(world);
+  let entries: typeof rawEntries;
+  try { entries = world === "spa" ? await projectSpaCatalogEntries(rawEntries as SupplierCatalogEntry[]) as typeof rawEntries : rawEntries; }
+  catch { return Response.json({ error: "catalog_unavailable" }, { status: 503, headers: noStore }); }
   if (view === "lookup") return Response.json({ world, source: "bundled-fallback", fetchedAt,
     places: searchPlaceInventory(world === "vacations" ? "vacation" : world === "rooms" ? "hourly" : world,
       entries.map((entry) => entry.summary)) }, { headers: noStore });

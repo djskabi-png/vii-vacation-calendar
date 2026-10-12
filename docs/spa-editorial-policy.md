@@ -1,0 +1,15 @@
+# VII Spa editorial policy
+
+All 159 reviewed active Spa sites have an individually authored Hebrew card summary and extended article in `app/data/spa-vii/copy.json`. The source text remains unchanged in the supplier catalog and D1. Public catalog responses and the expanded place description expose the reviewed VII projection instead of supplier prose. Titles and metadata use the existing factual per-place generation.
+
+`docs/spa-editorial-review.json` records the source SHA-256, every source paragraph's factual disposition, short-description facts, and explicit source artifacts/uncertainties. Every article was compared against the source by its author and independently reviewed; a second deep sample and corpus-wide identity, number, coverage and originality checks were performed. Promotional assertions are attributed or recorded as unsupported puffery; concrete restrictions, names, facilities and numbers are retained. Contradictions remain explicit. Package-specific inclusions are not promoted to universal venue features. Packages and opening times remain separately rendered from the current catalog.
+
+## Supplier changes
+
+The SHA-256 covers the normalized original ID, title, English title, address, city, short description, all original about paragraphs, opening times and package terms (ID, title, duration, people and group classification). Whitespace-only changes are normalized and package terms are sorted by ID. Images, package prices and date availability remain independently updatable; no article states a fixed package price. Opening times and package semantics require review because some articles explicitly discuss them. The separate generated client catalog contains only VII narrative and preserves the accepted media/booking data; the original supplier snapshot is imported by server modules only.
+
+Production Spa sync validates every candidate's editorial source hash after the unchanged 5% removal guard and media guard, before staging or activating a generation. A new Spa, changed narrative, renamed place or changed address without matching reviewed copy produces `catalog_editorial_requires_review`, records a rejected run and leaves the accepted D1 generation intact. No raw text or provider keys enter the diagnostic error. Public reads also fail closed for unmatched input; supplier prose is never a public fallback.
+
+To approve a changed narrative, compare the complete new source against the current article and card; update the facts, original wording, coverage ledger and source hash together. Test the whole active family, publish that reviewed source, then perform an authorized pull. Do not override removal/media/editorial guards or automatically copy new provider prose into VII. Unchanged existing Spa records continue to sync idempotently through the existing administrator-only runner.
+
+The public description endpoint is read-only. No scheduler, authorization, secret binding, booking handoff, date-availability API or D1 schema is changed by this editorial release.
