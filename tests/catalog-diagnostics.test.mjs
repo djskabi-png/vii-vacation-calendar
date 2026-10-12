@@ -41,3 +41,18 @@ test("missing or malformed Location cannot expose the supplier URL or key", () =
     assert.doesNotMatch(JSON.stringify(error), /private|\?/);
   }
 });
+
+test("spa JSON metadata sanitizer never retains headers, body, secrets or error text", () => {
+  const diagnostics = sanitizeCatalogDiagnostics({ spaJsonFailure: { httpStatus: 200,
+    contentType: "text/html; key=private-key", responseBytes: 1234,
+    firstCharacterKind: "html-like", parseErrorKind: "syntax_error", body: "private-body", prefix: "private-prefix",
+    headers: { Authorization: "private-token" }, Location: "https://private.invalid/?key=private-key", message: "private-error" } });
+  assert.deepEqual(diagnostics, { spaJsonFailure: { httpStatus: 200, contentType: "text/html", responseBytes: 1234,
+    firstCharacterKind: "html-like", parseErrorKind: "syntax_error" } });
+  assert.doesNotMatch(JSON.stringify(diagnostics), /private|prefix|headers|Authorization|Location|message/);
+  assert.deepEqual(sanitizeCatalogDiagnostics({ spaJsonFailure: { httpStatus: 200, contentType: "private-content-type",
+    responseBytes: -1, firstCharacterKind: "private-char", parseErrorKind: "private-error" } }),
+  { spaJsonFailure: { httpStatus: 200, contentType: "other", responseBytes: null,
+    firstCharacterKind: "other", parseErrorKind: "other" } });
+  assert.equal(sanitizeCatalogDiagnostics({ spaJsonFailure: { httpStatus: 999 } }), undefined);
+});

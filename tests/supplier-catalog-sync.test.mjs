@@ -6,6 +6,7 @@ import { runSupplierCatalogSync, compareSupplierCatalogEntries } from "../app/li
 import { readSupplierCatalog, readSupplierCatalogDashboard } from "../app/lib/supplier-catalog-store.ts";
 import { SupplierCatalogRedirectError } from "../app/lib/supplier-catalog-diagnostics.ts";
 import { catalogResponse } from "../app/api/catalog/route.ts";
+import { createSpaPlusCatalogClient } from "../app/lib/spaplus-catalog-client.ts";
 
 async function database() {
   const sqlite = new DatabaseSync(":memory:");
@@ -107,6 +108,33 @@ test("redirect diagnostics store only status and hostname, never credentials or 
     assert.deepEqual(run.diagnostics, result.diagnostics);
     assert.doesNotMatch(JSON.stringify(run.diagnostics), /private|https|\?|#/);
     assert.equal(await readSupplierCatalog(db, "spa"), null);
+  } finally { db.close(); }
+});
+
+test("spa parse failures persist private metadata without staging or changing the active generation", async () => {
+  const db = await database();
+  try {
+    await runSupplierCatalogSync(db, { id: "json-good", world: "spa", source: "test", baseline, now: at,
+      fetchCandidate: async () => ({ fetchedAt: at().toISOString(), entries: baseline }) });
+    const before = await readSupplierCatalog(db, "spa");
+    const client = createSpaPlusCatalogClient({ apiKey: "private-test-key", fetchImpl: async () =>
+      new Response(" <html>private-body private-contact</html>", { headers: { "Content-Type": "text/html" } }) });
+    const result = await runSupplierCatalogSync(db, { id: "json-failed", world: "spa", source: "test", baseline, now: at,
+      fetchCandidate: () => client.fetchCandidate() });
+    assert.equal(result.status, "failed");
+    assert.equal(result.errorCode, "invalid_spa_response");
+    assert.deepEqual(await readSupplierCatalog(db, "spa"), before);
+    const run = (await readSupplierCatalogDashboard(db)).runs.find((item) => item.id === "json-failed");
+    assert.deepEqual(run.diagnostics, result.diagnostics);
+    assert.equal(run.diagnostics.spaJsonFailure.firstCharacterKind, "html-like");
+    const stored = await db.prepare("SELECT diagnostics_json FROM supplier_catalog_runs WHERE id = ?").bind("json-failed").first();
+    assert.doesNotMatch(stored.diagnostics_json, /private|contact|body|prefix|Location/);
+    assert.equal((await db.prepare("SELECT COUNT(*) AS n FROM supplier_catalog_entries WHERE run_id = ?").bind("json-failed").first()).n, 0);
+    const publicDB = { prepare(sql) { assert.doesNotMatch(sql, /supplier_catalog_runs|diagnostics_json/); return db.prepare(sql); } };
+    const response = await catalogResponse(new Request("https://vii.spaplus.co/api/catalog?world=spa"), publicDB);
+    const publicPayload = await response.json();
+    assert.deepEqual(publicPayload.entries.map((entry) => entry.supplierId), [1, 2]);
+    assert.doesNotMatch(JSON.stringify(publicPayload), /spaJsonFailure|diagnostics|private|json-failed/);
   } finally { db.close(); }
 });
 

@@ -48,5 +48,9 @@
   "יחידה/חדר:": {"en": "Unit/room:", "ru": "Объект/номер:", "fr": "Unité/chambre :"},
   "המקום נגרע": {"en": "Venue removed", "ru": "Объект удалён", "fr": "Établissement retiré"},
   "הרשימה קוצרה; מוצגים עד 100 מזהים בכל רשימה": {"en": "List truncated; up to 100 IDs are shown per list", "ru": "Список сокращён; отображается до 100 ID в каждом списке", "fr": "Liste tronquée ; jusqu’à 100 identifiants sont affichés par liste"},
-  "הפניית ספק:": {"en": "Supplier redirect:", "ru": "Перенаправление поставщика:", "fr": "Redirection du fournisseur :"}
+  "הפניית ספק:": {"en": "Supplier redirect:", "ru": "Перенаправление поставщика:", "fr": "Redirection du fournisseur :"},
+  "אבחון פענוח ספא:": {"en": "Spa parsing diagnostics:", "ru": "Диагностика разбора спа:", "fr": "Diagnostic du décodage spa :"},
+  "אורך גוף התשובה בבתים:": {"en": "Response body length in bytes:", "ru": "Длина тела ответа в байтах:", "fr": "Taille du corps de la réponse en octets :"},
+  "סיווג תו ראשון:": {"en": "First character category:", "ru": "Категория первого символа:", "fr": "Catégorie du premier caractère :"},
+  "סוג כשל:": {"en": "Failure type:", "ru": "Тип ошибки:", "fr": "Type d’erreur :"}
 }

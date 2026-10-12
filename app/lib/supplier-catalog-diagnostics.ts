@@ -18,7 +18,22 @@ export type CatalogSyncDiagnostics = {
     truncated: boolean;
   };
   redirect?: { status: number; hostname: string | null };
+  spaJsonFailure?: {
+    httpStatus: number; contentType: string | null; responseBytes: number | null;
+    firstCharacterKind: "json-like" | "html-like" | "other";
+    parseErrorKind: "syntax_error" | "body_read_error" | "other";
+  };
 };
+
+const diagnosticContentTypes = new Set(["application/json", "application/problem+json", "text/json",
+  "text/html", "application/xhtml+xml", "text/plain", "application/octet-stream", "other"]);
+
+function contentType(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  // Only a known media type, never arbitrary header parameters or values.
+  const mediaType = value.split(";", 1)[0].trim().toLowerCase();
+  return diagnosticContentTypes.has(mediaType) ? mediaType : "other";
+}
 
 function count(value: unknown): value is number {
   return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
@@ -60,6 +75,17 @@ export function sanitizeCatalogDiagnostics(value: unknown): CatalogSyncDiagnosti
   const redirect = object(input.redirect);
   if (count(redirect.status) && redirect.status >= 300 && redirect.status < 400) {
     output.redirect = { status: redirect.status, hostname: hostname(redirect.hostname) };
+  }
+  const spa = object(input.spaJsonFailure);
+  if (count(spa.httpStatus) && spa.httpStatus >= 100 && spa.httpStatus <= 599) {
+    output.spaJsonFailure = {
+      httpStatus: spa.httpStatus, contentType: contentType(spa.contentType),
+      responseBytes: count(spa.responseBytes) ? spa.responseBytes : null,
+      firstCharacterKind: spa.firstCharacterKind === "json-like" || spa.firstCharacterKind === "html-like"
+        ? spa.firstCharacterKind : "other",
+      parseErrorKind: spa.parseErrorKind === "syntax_error" || spa.parseErrorKind === "body_read_error"
+        ? spa.parseErrorKind : "other",
+    };
   }
   return Object.keys(output).length ? output : undefined;
 }
@@ -105,5 +131,13 @@ export class SupplierCatalogRedirectError extends Error {
     let host: string | null = null;
     try { host = hostname(new URL(location || "", base).hostname); } catch { /* Malformed Location: omit it. */ }
     this.diagnostics = { redirect: { status, hostname: location ? host : null } };
+  }
+}
+
+export class SpaCatalogJsonError extends Error {
+  readonly diagnostics: CatalogSyncDiagnostics;
+  constructor(metadata: NonNullable<CatalogSyncDiagnostics["spaJsonFailure"]>) {
+    super("invalid_spa_response");
+    this.diagnostics = sanitizeCatalogDiagnostics({ spaJsonFailure: metadata })!;
   }
 }

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createSpaPlusCatalogClient, normalizeSpaPlusCatalog } from "../app/lib/spaplus-catalog-client.ts";
+import { SpaCatalogJsonError } from "../app/lib/supplier-catalog-diagnostics.ts";
 
 const imageField = "CONCAT('https://www.spaplus.co.il/gallery/',picture)";
 const payload = { status: "ok", sites: {
@@ -45,4 +46,43 @@ test("rejects malformed sites, packages and off-domain booking links", () => {
   const changed = structuredClone(payload);
   changed.sites[42].packages.a.iframeurl = "https://example.com/order";
   assert.throws(() => normalizeSpaPlusCatalog(changed), /invalid_spa_url/);
+});
+
+test("valid JSON with an incorrect HTML content type or UTF-8 BOM still normalizes", async () => {
+  for (const prefix of ["", "\ufeff"]) {
+    const client = createSpaPlusCatalogClient({ apiKey: "private-test-key", fetchImpl: async () =>
+      new Response(prefix + JSON.stringify(payload), { headers: { "Content-Type": "text/html; charset=utf-8" } }) });
+    assert.equal((await client.fetchCandidate()).entries[0].supplierId, 42);
+  }
+});
+
+test("JSON failures report only measured bytes, allowlisted media type and fixed categories", async () => {
+  for (const [text, kind] of [[" \n<html>private-key owner@example.test https://private.invalid</html>", "html-like"],
+    [" \n{\"private\":", "json-like"], ["  [private", "json-like"], ["private-body שלום", "other"], ["", "other"]]) {
+    const client = createSpaPlusCatalogClient({ apiKey: "private-test-key", fetchImpl: async () =>
+      new Response(text, { status: 200, headers: { "Content-Type": "text/html; key=private-key",
+        Location: "https://private.invalid/?key=private-key" } }) });
+    await assert.rejects(() => client.fetchCandidate(), (error) => {
+      assert.ok(error instanceof SpaCatalogJsonError);
+      assert.equal(error.message, "invalid_spa_response");
+      assert.deepEqual(error.diagnostics, { spaJsonFailure: { httpStatus: 200, contentType: "text/html",
+        responseBytes: new TextEncoder().encode(text).byteLength, firstCharacterKind: kind, parseErrorKind: "syntax_error" } });
+      assert.doesNotMatch(JSON.stringify(error), /private|owner|https|Location|body|cause/);
+      return true;
+    });
+  }
+});
+
+test("a failed body read cannot persist the partial body or exception message", async () => {
+  const client = createSpaPlusCatalogClient({ apiKey: "private-test-key", fetchImpl: async () =>
+    new Response(new ReadableStream({ start(controller) {
+      controller.enqueue(new TextEncoder().encode("private-partial-body"));
+      controller.error(new Error("private-key private-contact"));
+    } }), { headers: { "Content-Type": "application/json" } }) });
+  await assert.rejects(() => client.fetchCandidate(), (error) => {
+    assert.deepEqual(error.diagnostics, { spaJsonFailure: { httpStatus: 200, contentType: "application/json",
+      responseBytes: null, firstCharacterKind: "other", parseErrorKind: "body_read_error" } });
+    assert.doesNotMatch(JSON.stringify(error), /private|partial|contact/);
+    return true;
+  });
 });

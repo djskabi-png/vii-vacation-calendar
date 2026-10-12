@@ -37,6 +37,11 @@ function RunDiagnostics({ value }: { value?: CatalogSyncDiagnostics }) {
     </> : null}
     {value.addedIdsTruncated || value.removedIdsTruncated || value.units?.truncated ? <p>הרשימה קוצרה; מוצגים עד 100 מזהים בכל רשימה</p> : null}
     {value.redirect ? <p><span>הפניית ספק:</span> <span dir="ltr">{value.redirect.status} · {value.redirect.hostname || "—"}</span></p> : null}
+    {value.spaJsonFailure ? <>
+      <p><span>אבחון פענוח ספא:</span> <span dir="ltr">HTTP {value.spaJsonFailure.httpStatus} · {value.spaJsonFailure.contentType || "—"}</span></p>
+      <p><span>אורך גוף התשובה בבתים:</span> {value.spaJsonFailure.responseBytes ?? "—"}</p>
+      <p><span>סיווג תו ראשון:</span> <code dir="ltr">{value.spaJsonFailure.firstCharacterKind}</code> · <span>סוג כשל:</span> <code dir="ltr">{value.spaJsonFailure.parseErrorKind}</code></p>
+    </> : null}
   </details>;
 }
 

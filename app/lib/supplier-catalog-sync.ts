@@ -1,5 +1,5 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
-import { catalogInventoryDiagnostics, SupplierCatalogRedirectError, type CatalogSyncDiagnostics } from "./supplier-catalog-diagnostics.ts";
+import { catalogInventoryDiagnostics, SupplierCatalogRedirectError, SpaCatalogJsonError, type CatalogSyncDiagnostics } from "./supplier-catalog-diagnostics.ts";
 import {
   acceptSupplierCatalogRun, beginSupplierCatalogRun, finishSupplierCatalogRun,
   readSupplierCatalog, stageSupplierCatalogEntries,
@@ -89,7 +89,7 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
       removed: diff.removed.length, finishedAt: now().toISOString(), baseline: input.baseline });
     return { status: "accepted" as const, world: input.world, id: input.id, diff, fetchedAt: candidate.fetchedAt };
   } catch (error) {
-    if (error instanceof SupplierCatalogRedirectError) diagnostics = error.diagnostics;
+    if (error instanceof SupplierCatalogRedirectError || error instanceof SpaCatalogJsonError) diagnostics = error.diagnostics;
     const code = errorCode(error);
     const status = code.includes("removal") || code.startsWith("invalid_catalog") ? "rejected" : "failed";
     await finishSupplierCatalogRun(db, { id: input.id, world: input.world,
