@@ -13,7 +13,7 @@ import { hourlyPlacesFromCatalog, spaPlacesFromSites } from "./data/world-data";
 import type { SpaPlusSite } from "./data/spaplus";
 import hourlyCatalog from "./data/sergey-hourly-catalog.json";
 import { publicCatalogDetail, publicCatalogSummaries } from "./lib/public-catalog-read.ts";
-import { dailyRotationCompare } from "./lib/daily-rotation";
+import { dailyRotationCompare, rotateDaily, rotateWithinTiers } from "./lib/daily-rotation";
 import { GiftIcon, PeopleIcon } from "./site-header";
 
 export const metadata: Metadata = {
@@ -45,6 +45,14 @@ export default async function HomePage() {
     publicCatalogSummaries<(typeof hourlyCatalog.places)[number]>("rooms"),
   ]);
   const ratedPlaces = await homeRatedPlaces(properties);
+  const showcaseProperties = properties.map(({ slug, name, location, area, image, videos }) =>
+    ({ slug, name, location, area, image, videos }));
+  const showcaseEvents = rotateDaily(eventPlaces.filter((place) => place.image),
+    (place) => place.slug, "home-events").slice(0, 5);
+  const showcaseSpas = rotateWithinTiers(spaPlacesFromSites(spaSites),
+    (item) => item.image && item.priceLabel ? 0 : item.image ? 1 : 2,
+    (item) => item.id, "home-spa").slice(0, 7);
+  const showcaseHourly = hourlyPlacesFromCatalog(hourlyCatalogPlaces);
   return (
     <PageShell>
       <main id="main-content">
@@ -57,8 +65,8 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <HomeShowcase properties={properties} eventPlaces={eventPlaces} ratedPlaces={ratedPlaces}
-          spaPlaces={spaPlacesFromSites(spaSites)} hourlyPlaces={hourlyPlacesFromCatalog(hourlyCatalogPlaces)} />
+        <HomeShowcase properties={showcaseProperties} eventPlaces={showcaseEvents} ratedPlaces={ratedPlaces}
+          spaPlaces={showcaseSpas} hourlyPlaces={showcaseHourly} />
 
         <section className="section home-corporate-gift"><div className="shell"><Link className="home-corporate-gift__card home-corporate-gift__card--gift" href="/gift-card"><span className="home-corporate-gift__visual"><GiftIcon /></span><div><span className="eyebrow">מתנה שמשאירה את הבחירה אצלם</span><h2>גיפט קארד לכל העולמות של וי</h2><p>נופש, ספא, אירועים, אטרקציות ושירותים, במתנה אחת.</p><strong>יוצרים גיפט קארד</strong></div></Link><Link className="home-corporate-gift__card home-corporate-gift__card--corporate" href="/corporate"><span className="home-corporate-gift__visual"><PeopleIcon /></span><div><span className="eyebrow">למנהלות רווחה ולעסקים</span><h2>אירועי חברה, רווחה ומתנות לעובדים</h2><p>מקום, תוכן, ספקים וגיפט קארד במסלול אחד.</p><strong>למרכז הארגוני</strong></div></Link></div></section>
 

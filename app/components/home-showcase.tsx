@@ -63,7 +63,7 @@ export type HomeRatedPlace = {
 };
 
 export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces, ratedPlaces }: {
-  properties: Property[];
+  properties: Pick<Property, "slug" | "name" | "location" | "area" | "image" | "videos">[];
   eventPlaces: EventPlace[];
   spaPlaces: DiscoveryItem[];
   hourlyPlaces: DiscoveryItem[];
