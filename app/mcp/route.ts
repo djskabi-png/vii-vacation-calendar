@@ -8,6 +8,19 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   return catalogStatusMcp(request, {
+    async pull(world) {
+      // This callback is invoked only after Sites identity, administrator and input checks.
+      const runtime = await import("cloudflare:workers");
+      const db = (runtime.env as unknown as { DB?: D1Database }).DB;
+      if (!db) throw new Error("catalog_database_unavailable");
+      const { pullCatalogSlot } = await import("../lib/catalog-pull-mcp.ts");
+      const { syncSupplierCatalogWorld } = await import("../lib/supplier-catalog-runtime.ts");
+      const value = await pullCatalogSlot(db, world, {
+        sync: (runId, selectedWorld) => syncSupplierCatalogWorld(db, selectedWorld, "scheduled", { runId }),
+      });
+      console.info("VII authenticated catalog MCP result", { world: value.world, status: value.status });
+      return value;
+    },
     async adminEmails() {
       try {
         const runtime = await import("cloudflare:workers");

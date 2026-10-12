@@ -11,6 +11,12 @@ const statusTool = {
   inputSchema: { type: "object", properties: {}, additionalProperties: false },
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
 };
+const pullTool = {
+  name: "vii_catalog_pull",
+  description: "Administrator-only guarded catalog pull for today's latest approved Israel-time slot. Each world/slot runs at most once, including failures. Preserves removal and media guards. Returns persisted run metadata only. No booking operations.",
+  inputSchema: { type: "object", properties: { world: { type: "string", enum: worlds } }, required: ["world"], additionalProperties: false },
+  annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: true },
+};
 
 function object(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
@@ -23,6 +29,7 @@ export async function catalogStatusMcp(request: Request, dependencies: {
   adminEmails: () => Promise<string>;
   database: () => Promise<D1Database>;
   fallbackCounts: Record<SupplierCatalogWorld, number>;
+  pull?: (world: SupplierCatalogWorld) => Promise<unknown>;
 }) {
   const origin = request.headers.get("origin");
   if (origin && origin !== new URL(request.url).origin && origin !== "https://chatgpt.com") {
@@ -52,7 +59,7 @@ export async function catalogStatusMcp(request: Request, dependencies: {
       serverInfo: { name: "vii-catalog-status", title: "VII catalog status", version: "1.0.0" } });
   }
   if (message.method === "ping") return result({});
-  if (message.method === "tools/list") return result({ tools: [statusTool] });
+  if (message.method === "tools/list") return result({ tools: dependencies.pull ? [statusTool, pullTool] : [statusTool] });
   if (message.method !== "tools/call") return error(message.id, -32601, "Method not found");
 
   // Sites dispatch supplies these authenticated identity headers. Service access alone is insufficient.
@@ -64,6 +71,17 @@ export async function catalogStatusMcp(request: Request, dependencies: {
   catch { return error(message.id, -32003, "Authorization unavailable", 403); }
   if (!allowed.includes(email)) return error(message.id, -32003, "Forbidden", 403);
   const params = object(message.params);
+  if (params?.name === pullTool.name && dependencies.pull) {
+    const args = object(params.arguments);
+    if (!args || Object.keys(args).length !== 1 || typeof args.world !== "string"
+      || !worlds.includes(args.world as SupplierCatalogWorld)) return error(message.id, -32602, "One catalog world required");
+    try {
+      const value = await dependencies.pull(args.world as SupplierCatalogWorld);
+      return result({ content: [{ type: "text", text: JSON.stringify(value) }], structuredContent: value, isError: false });
+    } catch {
+      return result({ content: [{ type: "text", text: "Catalog pull unavailable" }], isError: true });
+    }
+  }
   if (params?.name !== statusTool.name) return error(message.id, -32602, "Unknown tool");
   const args = params.arguments === undefined ? {} : object(params.arguments);
   if (!args || Object.keys(args).length) return error(message.id, -32602, "This tool takes no arguments");
