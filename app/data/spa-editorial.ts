@@ -30,7 +30,7 @@ export function spaEditorialDescription(site: SpaPlusSite) {
   const count = site.packages.length;
   const location = site.city ? ` ב${site.city}` : "";
   const details = count
-    ? `${count} ${count === 1 ? "חבילת ספא" : "חבילות ספא"}${audiences ? ` ${audiences}` : ""}. מחירים ובדיקת זמינות באתר וי.`
+    ? `${count} ${count === 1 ? "חבילת ספא" : "חבילות ספא"}${audiences ? ` ${audiences}` : ""}. מחירים; זמינות סופית בהזמנה.`
     : "פרטי המקום ושעות הפעילות באתר וי.";
   const full = `${site.title}${location}: ${details}`;
   return full.length <= 160 || !site.city ? full : `${site.title}: ${details}`;
