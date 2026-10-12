@@ -46,5 +46,22 @@
   "מוצגים רק מקומות שביז דיווח להם על משבצת פנויה. הנתון משוער, ומקומות ללא דיווח אינם מוצגים. זמינות החבילה הזוגית תאושר במהלך ההזמנה.": {"en": "Only spas with a reported open slot are shown. This is an estimate; spas without a report are hidden. Couple-package availability is confirmed during booking.", "ru": "Показаны только спа, для которых сообщено о свободном времени. Данные приблизительные; спа без данных скрыты. Доступность пакета для пары подтверждается при бронировании.", "fr": "Seuls les spas ayant signalé un créneau libre sont affichés. Ces données sont approximatives; les spas sans données sont masqués. La disponibilité de la formule duo est confirmée lors de la réservation."},
   "בודקים מקומות פנויים לתאריך שבחרתם...": {"en": "Checking open slots for your date...", "ru": "Проверяем свободное время на выбранную дату...", "fr": "Recherche de créneaux libres pour votre date..."},
   "לא נמצאו מתחמים שמתאימים לתאריך ולסינונים": {"en": "No spas match this date and your filters", "ru": "Нет спа, подходящих для этой даты и выбранных фильтров", "fr": "Aucun spa ne correspond à cette date et à vos filtres"},
-  "אפשר לבחור תאריך או אזור אחר.": {"en": "Try another date or area.", "ru": "Попробуйте другую дату или регион.", "fr": "Essayez une autre date ou une autre région."}
+  "אפשר לבחור תאריך או אזור אחר.": {"en": "Try another date or area.", "ru": "Попробуйте другую дату или регион.", "fr": "Essayez une autre date ou une autre région."},
+  "לזוגות": {"en": "for couples", "ru": "для пар", "fr": "pour les couples"},
+  "ליחידים": {"en": "for individuals", "ru": "для одного гостя", "fr": "pour une personne"},
+  "פרטי ספא": {"en": "spa details", "ru": "информация о спа", "fr": "informations sur le spa"},
+  "מופיע בקטלוג וי עם": {"en": "appears in the VII catalog with", "ru": "представлен в каталоге VII с", "fr": "figure dans le catalogue VII avec"},
+  ". בעמוד אפשר לראות את החבילות, המחירים ושעות הפעילות שנמסרו על המקום, ולבדוק זמינות בתהליך ההזמנה.": {"en": ". This page shows the supplied packages, prices and opening hours; availability is checked during booking.", "ru": ". Здесь указаны предоставленные пакеты, цены и часы работы; наличие мест проверяется при бронировании.", "fr": ". Cette page présente les formules, tarifs et horaires communiqués; la disponibilité est vérifiée lors de la réservation."},
+  "| חבילות ספא | וי פור ויקיישן": {"en": "| Spa packages | VII", "ru": "| Спа-пакеты | VII", "fr": "| Formules spa | VII"},
+  ". צפו במחירים ובשעות שנמסרו ובדקו זמינות לפני הזמנה באתר וי.": {"en": ". See the supplied prices and opening hours, and check availability before booking on VII.", "ru": ". Посмотрите предоставленные цены и часы работы и проверьте наличие мест перед бронированием на VII.", "fr": ". Consultez les tarifs et horaires communiqués et vérifiez la disponibilité avant de réserver sur VII."},
+  "הצג פחות": {"en": "Show less", "ru": "Свернуть", "fr": "Afficher moins"},
+  "קרא עוד": {"en": "Read more", "ru": "Читать далее", "fr": "Lire la suite"},
+  "מידע נוסף שנמסר מספא פלוס": {"en": "More details supplied by Spa Plus", "ru": "Дополнительная информация от Spa Plus", "fr": "Informations complémentaires fournies par Spa Plus"},
+  "טוענים את המידע הנוסף...": {"en": "Loading more details...", "ru": "Загружаем дополнительные сведения...", "fr": "Chargement des informations complémentaires..."},
+  "לא הצלחנו לטעון את המידע.": {"en": "We could not load the details.", "ru": "Не удалось загрузить сведения.", "fr": "Impossible de charger les informations."},
+  "נסו שוב": {"en": "Try again", "ru": "Попробовать снова", "fr": "Réessayer"},
+  "כאן אפשר לעיין בחבילות ובמחירים שנמסרו ולבדוק זמינות בתהליך ההזמנה.": {"en": "Explore the supplied packages and prices, then check availability during booking.", "ru": "Посмотрите предоставленные пакеты и цены, затем проверьте доступность при бронировании.", "fr": "Consultez les formules et tarifs communiqués, puis vérifiez les disponibilités lors de la réservation."},
+  "כאן אפשר לעיין בפרטי המקום ובשעות הפעילות שנמסרו.": {"en": "Explore the venue details and supplied opening hours.", "ru": "Посмотрите информацию о месте и предоставленные часы работы.", "fr": "Consultez les détails du lieu et les horaires communiqués."},
+  ". מחירים ובדיקת זמינות באתר וי.": {"en": ". Prices and availability checks on VII.", "ru": ". Цены и проверка доступности на VII.", "fr": ". Tarifs et vérification des disponibilités sur VII."},
+  "פרטי המקום ושעות הפעילות באתר וי.": {"en": "Venue details and opening hours on VII.", "ru": "Информация о месте и часы работы на VII.", "fr": "Détails du lieu et horaires sur VII."}
 }

@@ -7,7 +7,7 @@ import { BreadcrumbTrail } from "../../components/breadcrumb-trail";
 import { worldBreadcrumb } from "../../lib/seo";
 import { FavoriteButton } from "../../components/favorite-button";
 import { ViewedItemTracker } from "../../components/viewed-item-tracker";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DiscoveryCard } from "../../components/discovery-card";
 import { ListingAccessibility } from "../../components/listing-accessibility";
 import { PageShell } from "../../components/page-shell";
@@ -53,9 +53,34 @@ function SpaPackageCard({ pack }: { pack: SpaPackage }) {
 }
 
 function SpaContent({ details }: { details: SpaDetails }) {
+  const [expanded, setExpanded] = useState(false);
+  const [sourceAbout, setSourceAbout] = useState<string[] | null>(null);
+  const [sourceError, setSourceError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    if (!expanded || sourceAbout) return;
+    const controller = new AbortController();
+    fetch(`/api/spa/source-description?id=${details.siteId}`, { signal: controller.signal })
+      .then((response) => { if (!response.ok) throw new Error("source_unavailable"); return response.json(); })
+      .then((body: { about?: unknown }) => {
+        if (!controller.signal.aborted && Array.isArray(body.about)) {
+          setSourceAbout(body.about.filter((value): value is string => typeof value === "string"));
+          setSourceError(false);
+        }
+      })
+      .catch(() => { if (!controller.signal.aborted) setSourceError(true); });
+    return () => controller.abort();
+  }, [expanded, details.siteId, sourceAbout, attempt]);
+
   return <>
     <section className="section shell spa-about" id="spa-about">
-      <div><span className="eyebrow">כל מה שחשוב לפני שמזמינים</span><h2>על המקום</h2>{details.about.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div>
+      <div><span className="eyebrow">כל מה שחשוב לפני שמזמינים</span><h2>על המקום</h2><p className="spa-about__summary">{details.editorialSummary}</p>
+        <button type="button" className="spa-about__more" aria-expanded={expanded} aria-controls="spa-source-description" onClick={() => setExpanded((value) => !value)}>{expanded ? "הצג פחות" : "קרא עוד"}</button>
+        <div id="spa-source-description" hidden={!expanded}>
+          {expanded && <><h3>מידע נוסף שנמסר מספא פלוס</h3>{sourceAbout?.map((paragraph, index) => <p key={`${index}-${paragraph}`}>{paragraph}</p>)}{!sourceAbout && !sourceError && <p role="status">טוענים את המידע הנוסף...</p>}{sourceError && <p role="alert">לא הצלחנו לטעון את המידע. <button type="button" className="spa-about__more" onClick={() => { setSourceError(false); setAttempt((value) => value + 1); }}>נסו שוב</button></p>}</>}
+        </div>
+      </div>
       <aside>
         {details.address && <div><small>כתובת</small><strong>{details.address}</strong></div>}
         {details.suitableFor.length > 0 && <div><small>מתאים עבור</small><strong>{details.suitableFor.join(" · ")}</strong></div>}

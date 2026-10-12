@@ -3914,6 +3914,26 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .spa-about { display: grid; grid-template-columns: minmax(0,1.4fr) minmax(280px,.6fr); gap: 42px; align-items: start; }
 .spa-about h2,.spa-detail-panel h2,.spa-visit-info h2 { margin: 5px 0 14px; }
 .spa-about p { max-width: 760px; color: var(--ink-soft); line-height: 1.85; }
+.spa-about__summary {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+.spa-about__more {
+  border: 0;
+  padding: 4px 0;
+  background: none;
+  color: var(--teal, #078d98);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.spa-about__more:hover { color: var(--ink); }
+.spa-about__more:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.spa-about__more[aria-expanded="true"] + #spa-source-description { margin-top: 16px; }
 .spa-about aside { display: grid; gap: 1px; border: 1px solid var(--line); border-radius: 24px; overflow: hidden; background: var(--line); }
 .spa-about aside div { display: grid; gap: 4px; padding: 18px 20px; background: white; }
 .spa-about aside small { color: var(--ink-soft); }

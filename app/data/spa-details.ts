@@ -1,4 +1,5 @@
 import { spaPlusAudience, spaPlusSiteById, type SpaPlusSite } from "./spaplus";
+import { spaEditorialSummary } from "./spa-editorial";
 
 export type SpaPackage = {
   id: string;
@@ -12,7 +13,8 @@ export type SpaPackage = {
 };
 
 export type SpaDetails = {
-  about: string[];
+  siteId: number;
+  editorialSummary: string;
   packages: SpaPackage[];
   facilities: string[];
   treatments?: { name: string; durations?: string[]; priceNote?: string }[];
@@ -50,7 +52,8 @@ export function getSpaDetails(id: string, suppliedSite?: SpaPlusSite): SpaDetail
   const suitableFor = [...new Set(packages.map((pack) => pack.audience).filter((value) => value !== "לא צוין"))];
   const hours = site.opening.map((time, index) => `${weekdays[index] || `יום ${index + 1}`}: ${time === "closed" ? "סגור" : time}`);
   return {
-    about: site.about,
+    siteId: site.id,
+    editorialSummary: spaEditorialSummary(site),
     packages,
     facilities: [],
     suitableFor,

@@ -75,6 +75,15 @@ test("uses the live production subdomain for public metadata", async () => {
   assert.doesNotMatch(layout, /new\.vii\.co\.il/);
 });
 
+test("spa detail exposes VII metadata and a short original introduction", async () => {
+  const response = await render("/discover/place/spa-6");
+  const html = await response.text();
+  assert.match(html, /<title>ספא במלון דיוויד אינטרקונטיננטל[^<]*\| וי פור ויקיישן<\/title>/);
+  assert.match(html, /class="spa-about__summary"/);
+  assert.match(html, /aria-expanded="false" aria-controls="spa-source-description"[^>]*>קרא עוד<\/button>/);
+  assert.doesNotMatch(html, /מידע נוסף שנמסר מספא פלוס<\/h3>/);
+});
+
 test("language control uses the branded accessible menu instead of a native select", async () => {
   const response = await render("/");
   const html = await response.text();

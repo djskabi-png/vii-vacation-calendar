@@ -12,6 +12,7 @@ import { getActivityDetails } from "../../../data/activity-details";
 import spaLegacyAliases from "../../../data/spaplus-legacy-aliases.json";
 import { publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
 import type { SpaPlusSite } from "../../../data/spaplus";
+import { spaEditorialDescription, spaEditorialTitle } from "../../../data/spa-editorial";
 import hourlyCatalog from "../../../data/sergey-hourly-catalog.json";
 
 type Props = { params: Promise<{ id: string }> };
@@ -33,7 +34,7 @@ async function resolveItem(id: string) {
   }
   const item = items.find((entry) => entry.id === id);
   if (!item) notFound();
-  return { item, items, spaSite, hourlyPlace };
+  return { item: spaSite ? { ...item, description: spaEditorialDescription(spaSite) } : item, items, spaSite, hourlyPlace };
 }
 
 function itemFaq(item: DiscoveryItem, spaSite?: SpaPlusSite, hourlyPlace?: (typeof hourlyCatalog.places)[number]) {
@@ -45,13 +46,15 @@ function itemFaq(item: DiscoveryItem, spaSite?: SpaPlusSite, hourlyPlace?: (type
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { item } = await resolveItem((await params).id);
+  const { item, spaSite } = await resolveItem((await params).id);
   const indexable = item.indexable === true || (item.indexable !== false && (item.world === "spa" || item.world === "hourly" || item.world === "activities"));
+  const title = spaSite ? spaEditorialTitle(spaSite) : item.name;
+  const description = spaSite ? spaEditorialDescription(spaSite) : item.description;
   return {
-    title: item.name,
-    description: item.description,
+    title,
+    description,
     alternates: { canonical: `/discover/place/${item.id}` },
-    openGraph: item.image ? { title: item.name, description: item.description, images: [{ url: item.image }] } : undefined,
+    openGraph: item.image ? { title, description, images: [{ url: item.image }] } : undefined,
     robots: indexable ? { index: true, follow: true } : { index: false, follow: true },
   };
 }
