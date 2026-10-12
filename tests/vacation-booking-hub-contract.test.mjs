@@ -102,7 +102,8 @@ test("the selected cabin is preserved in the booking summary", async () => {
   const page = await readFile(new URL("app/booking/page.tsx", root), "utf8");
   const client = await readFile(new URL("app/booking/client-page.tsx", root), "utf8");
   assert.match(page, /unitIndex\?: string/);
-  assert.match(page, /const currentSupplierDetail = supplierRoomID \? await liveSupplierPlaceDetail\(property\.slug\)[\s\S]*?currentSupplierDetail\?\.rooms\.find/);
+  assert.match(page, /const currentSupplierDetail = supplierRoomID \? await liveSupplierPlaceDetail\(property\.slug\)[\s\S]*?\(currentSupplierDetail \|\| acceptedDetail\)\?\.rooms\.find/);
+  assert.match(page, /const acceptedDetail = supplierRoomID \? await publicCatalogDetail/);
   assert.match(page, /params\.unitIndex \? property\.roomOptions\?\.\[selectedUnitIndex\] : undefined/);
   assert.match(page, /offerId: supplierRoomID \? `room-\$\{supplierRoomID\}` : selectedUnit \? `unit-\$\{selectedUnitIndex \+ 1\}` : offerId/);
   assert.match(page, /offerName: selectedUnit \? `בקשת הזמנה ל\$\{selectedUnit\.name\}`/);

@@ -1,26 +1,9 @@
-import type { Metadata } from "next";
-import { StructuredData } from "../../components/structured-data";
-import { breadcrumbSchema } from "../../lib/seo";
+import type { ReactNode } from "react";
+import { publicCatalogSummaries } from "../../lib/public-catalog-read.ts";
+import { PublishedCatalogSeed } from "../../lib/published-catalog-seed";
+import type { EventPlace } from "../../data/site-data";
 
-export const metadata: Metadata = {
-  title: "מקומות לאירועים פרטיים בישראל",
-  description: "מקומות לאירועים עם תמונות ומתקנים. התאמה לכמות המשתתפים נבדקת מול המקום.",
-  alternates: { canonical: "/events/search" },
-  openGraph: {
-    type: "website",
-    url: "/events/search/",
-    title: "מקומות לאירועים בישראל",
-    description: "מקומות לאירועים עם תמונות ומתקנים. התאמה לכמות המשתתפים נבדקת מול המקום.",
-  },
-};
-
-export default function EventSearchLayout({ children }: { children: React.ReactNode }) {
-  return <>
-    <StructuredData data={breadcrumbSchema([
-      { name: "ראשי", path: "/" },
-      { name: "אירועים", path: "/events/" },
-      { name: "מקומות לאירועים", path: "/events/search/" },
-    ])} />
-    {children}
-  </>;
+export default async function EventSearchLayout({ children }: { children: ReactNode }) {
+  const entries = await publicCatalogSummaries<EventPlace>("events");
+  return <PublishedCatalogSeed world="events" entries={entries}>{children}</PublishedCatalogSeed>;
 }

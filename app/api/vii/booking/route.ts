@@ -1,9 +1,8 @@
-import catalog from "../../../data/sergey-public-catalog.json";
+import { publishedSupplierIds } from "../../../lib/published-supplier-ids.ts";
 import { BookingError, createSupplierBooking } from "../../../lib/vii-supplier-booking";
 import { supplierToken } from "../../../lib/vii-supplier-token";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
 
-const publishedIds = new Set(catalog.places.filter((place) => place.world === "vacations").map((place) => place.supplierId));
 const headers = { "Cache-Control": "no-store" };
 
 async function limitBookingRequests(request: Request) {
@@ -40,7 +39,7 @@ export async function POST(request: Request) {
         phone: String(guest.phone || "").trim(), email: String(guest.email || "").trim(),
         remarks: String(guest.remarks || "").trim().slice(0, 1500),
       },
-      token: await supplierToken(), publishedIds,
+      token: await supplierToken(), publishedIds: await publishedSupplierIds("vacations"),
     });
     return Response.json(receipt, { headers });
   } catch (error) {

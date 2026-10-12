@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import EventSearchPage from "../page";
-import { eventPlaces } from "../../../data/site-data";
+import type { EventPlace } from "../../../data/site-data";
+import { publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
 import { matchesSearchLocation } from "../../../data/search-taxonomy";
 import { eventSearchHref, searchLocationFromSlug } from "../../../data/world-search-landings";
 import { StructuredData } from "../../../components/structured-data";
@@ -32,7 +33,8 @@ export default async function EventRegionPage({ params }: PageProps) {
   const { region } = await params;
   const location = locationFor(region);
   if (!location) notFound();
-  const matching = eventPlaces.filter((place) => matchesSearchLocation(place, location));
+  const matching = (await publicCatalogSummaries<EventPlace>("events"))
+    .filter((place) => matchesSearchLocation(place, location));
   if (!matching.length) notFound();
   const title = `מקומות לאירועים ב${location}`;
   const description = `מקומות לאירועים ב${location}, עם תמונות, מתקנים ופנייה ישירה למקום.`;

@@ -1,4 +1,4 @@
-import { spaPlusAudience, spaPlusSiteById } from "./spaplus";
+import { spaPlusAudience, spaPlusSiteById, type SpaPlusSite } from "./spaplus";
 
 export type SpaPackage = {
   id: string;
@@ -34,8 +34,8 @@ export function publicSpaBookingUrl(value: string): string {
   return url.toString();
 }
 
-export function getSpaDetails(id: string): SpaDetails | undefined {
-  const site = spaPlusSiteById(id);
+export function getSpaDetails(id: string, suppliedSite?: SpaPlusSite): SpaDetails | undefined {
+  const site = suppliedSite || spaPlusSiteById(id);
   if (!site) return undefined;
   const packages: SpaPackage[] = site.packages.map((pack) => ({
     id: String(pack.id),

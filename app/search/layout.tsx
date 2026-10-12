@@ -1,25 +1,9 @@
-import type { Metadata } from "next";
-import { StructuredData } from "../components/structured-data";
-import { breadcrumbSchema } from "../lib/seo";
+import type { ReactNode } from "react";
+import { publicCatalogSummaries } from "../lib/public-catalog-read.ts";
+import { PublishedCatalogSeed } from "../lib/published-catalog-seed";
+import type { Property } from "../data/site-data";
 
-export const metadata: Metadata = {
-  title: "מקומות נופש בישראל",
-  description: "מקומות נופש עם תמונות, יחידות ומתקנים. התאמה להרכב האורחים נבדקת מול המקום.",
-  alternates: { canonical: "/search" },
-  openGraph: {
-    type: "website",
-    url: "/search/",
-    title: "מקומות נופש בישראל",
-    description: "מקומות נופש עם מידע על חדרים, יחידות, מתקנים והתאמה להרכב האורחים.",
-  },
-};
-
-export default function SearchLayout({ children }: { children: React.ReactNode }) {
-  return <>
-    <StructuredData data={breadcrumbSchema([
-      { name: "ראשי", path: "/" },
-      { name: "נופש", path: "/search/" },
-    ])} />
-    {children}
-  </>;
+export default async function SearchLayout({ children }: { children: ReactNode }) {
+  const entries = await publicCatalogSummaries<Property>("vacations");
+  return <PublishedCatalogSeed world="vacations" entries={entries}>{children}</PublishedCatalogSeed>;
 }

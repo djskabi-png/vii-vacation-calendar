@@ -1,12 +1,8 @@
-import catalog from "../../../data/sergey-public-catalog.json";
+import { publishedSupplierIds } from "../../../lib/published-supplier-ids.ts";
 import { liveSupplierSearch, validDate, type LiveSearchWorld } from "../../../lib/vii-live-search";
 import { supplierToken } from "../../../lib/vii-supplier-token";
 
 const noStore = { "Cache-Control": "no-store" };
-const published = {
-  vacations: new Set(catalog.places.filter((place) => place.world === "vacations").map((place) => place.supplierId)),
-  events: new Set(catalog.places.filter((place) => place.world === "events").map((place) => place.supplierId)),
-};
 
 export async function POST(request: Request) {
   let body: Record<string, unknown>;
@@ -29,7 +25,7 @@ export async function POST(request: Request) {
       guests: Number(body.guests),
       hours: world === "events" ? Number(body.hours) : undefined,
       token: await supplierToken(),
-      publishedIds: published[world],
+      publishedIds: await publishedSupplierIds(world),
     });
     return Response.json(result, { headers: noStore });
   } catch (error) {

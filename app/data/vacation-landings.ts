@@ -1,4 +1,4 @@
-import { properties } from "./site-data";
+import { properties, type Property } from "./site-data";
 import { isWholeCountrySelection, matchesSearchLocation } from "./search-taxonomy";
 
 export type VacationRegion = {
@@ -27,14 +27,14 @@ export function vacationRegionByLabel(label?: string | null) {
   return label ? vacationRegions.find((region) => region.label === label) : undefined;
 }
 
-export function vacationRegionListings(region: VacationRegion) {
-  return properties.filter((property) => matchesSearchLocation(property, region.label));
+export function vacationRegionListings(region: VacationRegion, inventory: Property[] = properties) {
+  return inventory.filter((property) => matchesSearchLocation(property, region.label));
 }
 
-export function cleanVacationPath(location: string) {
+export function cleanVacationPath(location: string, inventory: Property[] = properties) {
   if (isWholeCountrySelection(location)) return null;
   const region = vacationRegionByLabel(location);
-  return region && vacationRegionListings(region).length ? `/vacations/${region.slug}` : null;
+  return region && vacationRegionListings(region, inventory).length ? `/vacations/${region.slug}` : null;
 }
 
 export function vacationBreadcrumbForLocation(location: string) {
@@ -54,8 +54,8 @@ export function vacationBreadcrumbForLocation(location: string) {
     : { name: `נופש ב${normalized}`, path: `/search?location=${encodeURIComponent(normalized)}` };
 }
 
-export function indexableVacationLandings() {
+export function indexableVacationLandings(inventory: Property[] = properties) {
   return vacationRegions
-    .map((region) => ({ region, listings: vacationRegionListings(region), path: `/vacations/${region.slug}` }))
+    .map((region) => ({ region, listings: vacationRegionListings(region, inventory), path: `/vacations/${region.slug}` }))
     .filter((landing) => landing.listings.length > 0);
 }

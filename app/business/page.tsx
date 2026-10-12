@@ -2,14 +2,16 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import BusinessPage from "./client-page";
-import { getListingOfferings, properties, propertyFaq, type BusinessWorld } from "../data/site-data";
+import { getListingOfferings, propertyFaq, type BusinessWorld, type Property } from "../data/site-data";
+import { supplierDisplayDescription } from "../data/supplier-display-text";
+import { publicCatalogDetail, publicCatalogSummaries } from "../lib/public-catalog-read.ts";
 import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, faqSchema, lodgingSchema } from "../lib/seo";
 import { vacationBreadcrumbForLocation } from "../data/vacation-landings";
 import { ViewedItemBootstrap } from "../components/viewed-item-bootstrap";
 import { currentPeriodOffer } from "../data/last-minute-deals";
 import { supplierLegacySlug, unavailableLegacySearchHref } from "../data/supplier-legacy-links";
-import { liveSupplierPlaceDetail } from "../data/supplier-place-detail";
+import { liveSupplierPlaceDetail, type SupplierPlaceDetail } from "../data/supplier-place-detail";
 
 type QueryValue = string | string[] | undefined;
 type BusinessParams = { id?: QueryValue; mode?: QueryValue; dates?: QueryValue; from?: QueryValue; till?: QueryValue; guests?: QueryValue; rooms?: QueryValue; price?: QueryValue; illustrative?: QueryValue; source?: QueryValue; period?: QueryValue };
@@ -23,13 +25,15 @@ function normalizedParams(params: BusinessParams) {
   return Object.fromEntries(Object.entries(params).map(([key, value]) => [key, queryValue(value)])) as Record<keyof BusinessParams, string | undefined>;
 }
 
-function resolveProperty(id?: string) {
-  if (!id) return properties[0];
-  return properties.find((item) => item.slug === (supplierLegacySlug(id, "vacations") || id));
+async function resolveProperty(id?: string) {
+  const properties = (await publicCatalogSummaries<Property>("vacations"))
+    .map((item) => ({ ...item, description: supplierDisplayDescription(item) }));
+  const property = id ? properties.find((item) => item.slug === (supplierLegacySlug(id, "vacations") || id)) : properties[0];
+  return { property, properties };
 }
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const property = resolveProperty(queryValue((await searchParams).id));
+  const { property } = await resolveProperty(queryValue((await searchParams).id));
   if (!property) return { title: "המקום אינו זמין", robots: { index: false, follow: false } };
   return {
     title: property.name,
@@ -57,8 +61,11 @@ export default async function Page({ searchParams }: Props) {
     const locale = (await headers()).get("x-vii-locale");
     redirect(`${locale && locale !== "he" ? `/${locale}` : ""}${url.pathname}${url.search}`);
   }
-  const property = resolveProperty(params.id);
+  const { property, properties } = await resolveProperty(params.id);
   if (!property) notFound();
+  const supplierId = /^vacation-(\d+)$/.exec(property.slug)?.[1];
+  const acceptedDetail = supplierId ? await publicCatalogDetail<SupplierPlaceDetail>("vacations", Number(supplierId)) : null;
+  const supplierDetail = await liveSupplierPlaceDetail(property.slug, { fallback: acceptedDetail, listing: property });
   const currentOffer = property.capacityScope === "unit" ? undefined : currentPeriodOffer(property.slug, params.period);
   if (currentOffer && (params.from !== currentOffer.from || params.till !== currentOffer.till || Number(params.price) !== currentOffer.nightlyPrice)) {
     const locale = (await headers()).get("x-vii-locale");
@@ -95,6 +102,6 @@ export default async function Page({ searchParams }: Props) {
       { name: property.name, path: `/business?id=${property.slug}` },
     ])} />
     <StructuredData data={faqSchema(propertyFaq)} />
-    <BusinessPage initialSlug={property.slug} supplierDetail={await liveSupplierPlaceDetail(property.slug)} initialWorld={initialWorld} initialDates={params.dates} initialFrom={params.from} initialTill={params.till} initialGuests={params.guests} initialRooms={params.rooms} initialPrice={params.price} initialIllustrative={params.illustrative === "1"} initialSource={params.source} initialPeriod={params.period} />
+    <BusinessPage initialSlug={property.slug} initialProperty={property} relatedProperties={properties} supplierDetail={supplierDetail} initialWorld={initialWorld} initialDates={params.dates} initialFrom={params.from} initialTill={params.till} initialGuests={params.guests} initialRooms={params.rooms} initialPrice={params.price} initialIllustrative={params.illustrative === "1"} initialSource={params.source} initialPeriod={params.period} />
   </>;
 }

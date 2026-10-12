@@ -5,8 +5,8 @@
 import Link from "next/link";
 import { useRef } from "react";
 import { DiscoveryCard } from "./discovery-card";
-import { eventPlaceHref, eventPlaces, properties } from "../data/site-data";
-import { hourlyPlaces, paidAttractions, providerProfiles, spaPlaces } from "../data/world-data";
+import { eventPlaceHref, type EventPlace, type Property } from "../data/site-data";
+import { paidAttractions, providerProfiles, type DiscoveryItem } from "../data/world-data";
 import { publicWorldNavigation } from "../data/world-navigation";
 import { trails } from "../data/trail-data";
 import { TrailCard } from "./trail-card";
@@ -84,7 +84,12 @@ const ratingCardCopy = {
   },
 } as const;
 
-export function HomeShowcase() {
+export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces }: {
+  properties: Property[];
+  eventPlaces: EventPlace[];
+  spaPlaces: DiscoveryItem[];
+  hourlyPlaces: DiscoveryItem[];
+}) {
   const tracks = useRef<Record<string, HTMLDivElement | null>>({});
   const { language } = useSiteLanguage();
   const worldCards = publicWorldNavigation.filter((world) => !["vacation", "events", "spa", "hourly"].includes(world.id));
@@ -160,8 +165,8 @@ export function HomeShowcase() {
     <section className="home-events-world" aria-labelledby="home-events-title">
       <div className="shell home-events-world__head"><div><span className="eyebrow">עולם האירועים</span><h2 id="home-events-title">כל סיבה טובה הופכת כאן לאירוע</h2><p>לופטים ומתחמים לימי הולדת, מסיבות, אירועי חברה וחגיגות פרטיות, עם חיפוש לפי כמות ואופי האירוע.</p></div><Link className="button" href="/events">נכנסים לעולם האירועים</Link></div>
       <div className="shell home-events-world__layout">
-        <Link className="home-event-feature" href={eventPlaceHref(eventPlaces[3])}><img src={eventPlaces[3].image} alt={eventPlaces[3].name} title={eventPlaces[3].name} loading="lazy" decoding="async" /><span>{eventPlaces[3].type}</span><div><small><PinIcon />{eventPlaces[3].location}</small><h3>{eventPlaces[3].name}</h3>{eventPlaces[3].description ? <p>{eventPlaces[3].description}</p> : null}<b>עד {eventPlaces[3].guests} אורחים ביחידה הגדולה</b></div></Link>
-        <div className="home-event-list">{eventPlaces.filter((place) => ![eventPlaces[0].slug,eventPlaces[3].slug].includes(place.slug)).slice(0,4).map((place) => <Link key={place.slug} href={eventPlaceHref(place)}><img src={place.image} alt={place.name} title={place.name} loading="lazy" decoding="async" /><div><span>{place.type}</span><h3>{place.name}</h3><small>{place.location}, עד {place.guests} אורחים ביחידה הגדולה</small></div></Link>)}</div>
+        {eventPlaces[3] || eventPlaces[0] ? <Link className="home-event-feature" href={eventPlaceHref(eventPlaces[3] || eventPlaces[0])}><img src={(eventPlaces[3] || eventPlaces[0]).image} alt={(eventPlaces[3] || eventPlaces[0]).name} title={(eventPlaces[3] || eventPlaces[0]).name} loading="lazy" decoding="async" /><span>{(eventPlaces[3] || eventPlaces[0]).type}</span><div><small><PinIcon />{(eventPlaces[3] || eventPlaces[0]).location}</small><h3>{(eventPlaces[3] || eventPlaces[0]).name}</h3>{(eventPlaces[3] || eventPlaces[0]).description ? <p>{(eventPlaces[3] || eventPlaces[0]).description}</p> : null}<b>עד {(eventPlaces[3] || eventPlaces[0]).guests} אורחים ביחידה הגדולה</b></div></Link> : null}
+        <div className="home-event-list">{eventPlaces.filter((place) => place.slug !== (eventPlaces[3] || eventPlaces[0])?.slug).slice(0,4).map((place) => <Link key={place.slug} href={eventPlaceHref(place)}><img src={place.image} alt={place.name} title={place.name} loading="lazy" decoding="async" /><div><span>{place.type}</span><h3>{place.name}</h3><small>{place.location}, עד {place.guests} אורחים ביחידה הגדולה</small></div></Link>)}</div>
       </div>
     </section>
 

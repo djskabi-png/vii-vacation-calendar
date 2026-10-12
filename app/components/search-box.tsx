@@ -147,6 +147,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const shouldCollapse = compact || searchCommitted;
   const destinationOptions = useMemo(() => searchLocationOptions(mode), [mode]);
   const [placeInventoryResult, setPlaceInventoryResult] = useState<{ mode: SearchMode; places: PlaceSearchResult[] } | null>(null);
+  const [placeInventoryError, setPlaceInventoryError] = useState(false);
   const [locationValue, setLocationValue] = useState(() => {
     const requestedLocation = searchParams.get("location");
     return requestedLocation
@@ -174,15 +175,21 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const placeInventory = placeInventoryResult?.mode === mode ? placeInventoryResult.places : [];
   useEffect(() => {
     if (!hasLocationQuery) return;
-    let cancelled = false;
-    import("../data/search-place-inventory")
-      .then(({ searchPlaceInventory }) => {
-        if (!cancelled) setPlaceInventoryResult({ mode, places: searchPlaceInventory(mode) });
+    const controller = new AbortController();
+    const world = { vacation: "vacations", events: "events", spa: "spa", hourly: "rooms" }[mode];
+    setPlaceInventoryResult(null);
+    setPlaceInventoryError(false);
+    void fetch(`/api/catalog?world=${world}&view=lookup`, { cache: "no-store", signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("catalog_unavailable");
+        const payload = await response.json() as { places?: PlaceSearchResult[] };
+        if (!Array.isArray(payload.places)) throw new Error("catalog_unavailable");
+        if (!controller.signal.aborted) setPlaceInventoryResult({ mode, places: payload.places });
       })
       .catch(() => {
-        if (!cancelled) setPlaceInventoryResult({ mode, places: [] });
+        if (!controller.signal.aborted) { setPlaceInventoryResult({ mode, places: [] }); setPlaceInventoryError(true); }
       });
-    return () => { cancelled = true; };
+    return () => controller.abort();
   }, [hasLocationQuery, mode]);
   const [locationStatus, setLocationStatus] = useState("");
   const [locating, setLocating] = useState(false);
@@ -531,7 +538,8 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
                 {visibleNamedPlaces.map((place) => <Link key={`${mode}-${place.id}`} className="location-place-result" href={localizedPath(place.href, language)}><PinIcon /><span><strong>{translate(place.name)}</strong><small>{translate(place.kind)} · {translate(place.location)}</small></span></Link>)}
                 {visibleDestinations.length > 0 ? <h3>{translate("אזורים ויישובים")}</h3> : null}
                 {visibleDestinations.map((place) => <button type="button" key={place} className={place === locationValue ? "selected" : ""} onClick={() => chooseLocation(place)}><PinIcon /><span>{translate(place)}</span></button>)}
-                {!placeInventoryLoading && visibleDestinations.length === 0 && visibleNamedPlaces.length === 0 ? <p>{translate("לא מצאנו יעד או מקום מתאים.")}</p> : null}
+                {placeInventoryError ? <p role="alert">{translate("לא ניתן לטעון את המקומות כרגע.")}</p> : null}
+                {!placeInventoryLoading && !placeInventoryError && visibleDestinations.length === 0 && visibleNamedPlaces.length === 0 ? <p>{translate("לא מצאנו יעד או מקום מתאים.")}</p> : null}
               </div>
             ) : mode === "vacation" ? (
               <div className="location-discovery">

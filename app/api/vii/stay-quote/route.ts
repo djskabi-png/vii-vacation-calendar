@@ -1,8 +1,7 @@
-import catalog from "../../../data/sergey-public-catalog.json";
+import { publishedSupplierIds } from "../../../lib/published-supplier-ids.ts";
 import { supplierStayQuote } from "../../../lib/vii-stay-quote";
 import { supplierToken } from "../../../lib/vii-supplier-token";
 
-const publishedIds = new Set(catalog.places.filter((place) => place.world === "vacations").map((place) => place.supplierId));
 const headers = { "Cache-Control": "no-store" };
 
 export async function POST(request: Request) {
@@ -17,7 +16,7 @@ export async function POST(request: Request) {
   try {
     const quote = await supplierStayQuote({
       siteID: Number(body.siteID), from: String(body.from || ""), till: String(body.till || ""),
-      guests: Number(body.guests), token: await supplierToken(), publishedIds,
+      guests: Number(body.guests), token: await supplierToken(), publishedIds: await publishedSupplierIds("vacations"),
     });
     return Response.json(quote, { headers });
   } catch (error) {

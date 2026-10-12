@@ -8,7 +8,6 @@ import { StructuredData } from "./structured-data";
 import { faqSchema } from "../lib/seo";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
-import { eventPlaces, properties } from "../data/site-data";
 import { isWholeCountrySelection, matchesSearchLocation, searchLocationOptions, type SearchMode } from "../data/search-taxonomy";
 import { spaSearchHref, spaSearchRegions } from "../data/spa-search-landings";
 
@@ -132,7 +131,9 @@ function contextualHref(
   return query ? `${path}?${query}` : path;
 }
 
-function destinationOptions(world: SearchContentWorld, location?: string) {
+type SearchInventoryPlace = { location: string; area: string };
+
+function destinationOptions(world: SearchContentWorld, location?: string, inventory: SearchInventoryPlace[] = []) {
   const mode: SearchMode | null = world === "vacation" || world === "events" || world === "spa" || world === "hourly" ? world : null;
   if (!mode) return [];
   const options = searchLocationOptions(mode);
@@ -140,7 +141,6 @@ function destinationOptions(world: SearchContentWorld, location?: string) {
     return options.filter((item) => !isWholeCountrySelection(item)).slice(0, 10);
   }
 
-  const inventory = world === "events" ? eventPlaces : world === "vacation" ? properties.filter((item) => item.active !== false && !item.demoOperations?.fictional) : [];
   if (!inventory.length) return options.filter((item) => item !== location && !isWholeCountrySelection(item)).slice(0, 10);
 
   const exactPlaces = inventory.filter((item) => item.location === location);
@@ -323,12 +323,14 @@ export function SearchAfterResults({
   reviewHighlights = [],
   hideGuideAndFaq = false,
   searchSuggestions = [],
+  inventory = [],
 }: {
   world: SearchContentWorld;
   location?: string;
   reviewHighlights?: SearchReviewHighlight[];
   hideGuideAndFaq?: boolean;
   searchSuggestions?: ContextualSearchSuggestion[];
+  inventory?: SearchInventoryPlace[];
 }) {
   const { language, translate } = useSiteLanguage();
   const searchParams = useSearchParams();
@@ -341,7 +343,7 @@ export function SearchAfterResults({
   const locationPrefixes: Record<SiteLanguage, string> = { he: " \u05d1\u05d0\u05d6\u05d5\u05e8 ", en: " in ", ru: " \u0432 \u0440\u0435\u0433\u0438\u043e\u043d\u0435 ", fr: " dans la r\u00e9gion " };
   const locationLabel = location && !wholeCountryLabels.includes(normalizedLocation) ? `${locationPrefixes[language]}${translatedLocation}` : "";
   const currentQuery = searchParams.toString();
-  const destinations = destinationOptions(world, location);
+  const destinations = destinationOptions(world, location, inventory);
   const locationParam = world === "activities" || world === "providers" ? "area" : "location";
   const destinationLinks: DiscoveryLink[] = destinations.map((destination) => ({
     label: translate(destination),
@@ -351,7 +353,7 @@ export function SearchAfterResults({
   const contextualLinks: DiscoveryLink[] = searchSuggestions.length
     ? searchSuggestions.map((item) => ({ label: translate(item.label), href: contextualHref(world, language, currentQuery, item.params), meta: discovery.searchMeta }))
     : content.related.map((item) => ({ label: translate(item.label), href: localizedPath(item.href, language), meta: discovery.searchMeta }));
-  const isExactPlace = Boolean(location && !isWholeCountrySelection(location) && (world === "vacation" ? properties : world === "events" ? eventPlaces : []).some((item) => item.location === location));
+  const isExactPlace = Boolean(location && !isWholeCountrySelection(location) && inventory.some((item) => item.location === location));
   const destinationTitle = !location || isWholeCountrySelection(location) ? discovery.countryAreas : isExactPlace ? discovery.nearbyPlaces : discovery.regionPlaces;
 
   return <section className={`search-depth search-depth--${world}`} aria-label={`מידע נוסף לתכנון${locationLabel}`}>

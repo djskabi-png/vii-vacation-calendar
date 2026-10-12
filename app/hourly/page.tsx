@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { WorldLanding } from "../components/world-landing";
-import { hourlyPlaces } from "../data/world-data";
+import { hourlyPlacesFromCatalog } from "../data/world-data";
+import { publicCatalogSummaries } from "../lib/public-catalog-read.ts";
+import hourlyCatalog from "../data/sergey-hourly-catalog.json";
 import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, collectionSchema } from "../lib/seo";
 import { matchesSearchLocation } from "../data/search-taxonomy";
@@ -18,7 +20,8 @@ export const metadata: Metadata = {
   },
 };
 
-export function HourlyLanding({ initialLocation }: { initialLocation?: string }) {
+export async function HourlyLanding({ initialLocation }: { initialLocation?: string }) {
+  const hourlyPlaces = hourlyPlacesFromCatalog(await publicCatalogSummaries<(typeof hourlyCatalog.places)[number]>("rooms"));
   const title = initialLocation ? `חדרים לפי שעה ב${initialLocation}` : "חדרים לפי שעה";
   const description = initialLocation
     ? `חדרים וסוויטות לשהייה קצרה ב${initialLocation}, עם סינון לפי מחיר ומאפייני המקום.`

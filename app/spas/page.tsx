@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { WorldLanding } from "../components/world-landing";
-import { spaPlaces } from "../data/world-data";
+import { spaPlacesFromSites } from "../data/world-data";
+import { publicCatalogSummaries } from "../lib/public-catalog-read.ts";
+import type { SpaPlusSite } from "../data/spaplus";
 import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, collectionSchema } from "../lib/seo";
 
@@ -16,7 +18,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function SpasPage() {
+export default async function SpasPage() {
+  const spaPlaces = spaPlacesFromSites(await publicCatalogSummaries<SpaPlusSite>("spa"));
   return <>
     <StructuredData data={breadcrumbSchema([
       { name: "ראשי", path: "/" },

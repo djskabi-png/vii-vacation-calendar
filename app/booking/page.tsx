@@ -2,13 +2,16 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { PageShell } from "../components/page-shell";
-import { properties, eventPlaces } from "../data/site-data";
-import { discoveryItems } from "../data/world-data";
+import type { EventPlace, Property } from "../data/site-data";
+import { hourlyPlacesFromCatalog, spaPlacesFromSites, discoveryItems } from "../data/world-data";
 import { getSpaDetails } from "../data/spa-details";
+import type { SpaPlusSite } from "../data/spaplus";
+import hourlyCatalog from "../data/sergey-hourly-catalog.json";
 import { getProviderDetails } from "../data/provider-details";
 import BookingPageClient from "./client-page";
 import { supplierLegacySlug, unavailableLegacySearchHref } from "../data/supplier-legacy-links";
-import { liveSupplierPlaceDetail } from "../data/supplier-place-detail";
+import { liveSupplierPlaceDetail, type SupplierPlaceDetail } from "../data/supplier-place-detail";
+import { publicCatalogDetail, publicCatalogSummaries } from "../lib/public-catalog-read.ts";
 import spaLegacyAliases from "../data/spaplus-legacy-aliases.json";
 
 export const metadata: Metadata = {
@@ -56,13 +59,16 @@ async function resolveBooking(params: Awaited<Props["searchParams"]>) {
     redirect(`${prefix}/booking?${query}`);
   }
   const offerId = params.package || params.service || params.offer || "";
+  const properties = params.place?.startsWith("vacation-") || params.world === "vacation"
+    ? await publicCatalogSummaries<Property>("vacations") : [];
   const property = properties.find((item) => item.slug === params.place);
   if (property) {
     const selectedUnitIndex = Math.max(0, Number(params.unitIndex || "0") - 1);
     const supplierRoomID = /^vacation-\d+$/.test(property.slug) && Number.isSafeInteger(Number(params.roomID)) && Number(params.roomID) > 0 ? Number(params.roomID) : undefined;
     const currentSupplierDetail = supplierRoomID ? await liveSupplierPlaceDetail(property.slug) : undefined;
+    const acceptedDetail = supplierRoomID ? await publicCatalogDetail<SupplierPlaceDetail>("vacations", Number(property.slug.slice(9))) : null;
     const selectedUnit = supplierRoomID
-      ? currentSupplierDetail?.rooms.find((room) => room.id === supplierRoomID)
+      ? (currentSupplierDetail || acceptedDetail)?.rooms.find((room) => room.id === supplierRoomID)
       : params.unitIndex ? property.roomOptions?.[selectedUnitIndex] : undefined;
     // Catalog records do not authorize prices supplied in a URL.
     const nightlyPrice = property.capacityScope === "unit" || /^vacation-\d+$/.test(property.slug) ? 0 : Number(params.price) || 0;
@@ -91,20 +97,30 @@ async function resolveBooking(params: Awaited<Props["searchParams"]>) {
     demoOwnerEmail: property.demoOperations?.ownerEmail,
     demoProperty: property.demoOperations?.fictional === true,
     placeImage: property.image,
+    vacationProperty: property,
     };
   }
 
+  const eventPlaces = params.place?.startsWith("event-") || params.world === "events"
+    ? await publicCatalogSummaries<EventPlace>("events") : [];
   const eventPlace = eventPlaces.find((item) => item.slug === params.place);
   if (eventPlace) return { world: "events", placeId: eventPlace.slug, placeName: eventPlace.name, offerId, offerName: "הזמנת אירוע", price: "מחיר לפי תאריך והרכב" };
 
-  const item = discoveryItems.find((entry) => entry.id === params.place);
+  const spaSites = params.place?.startsWith("spa-") || params.world === "spa"
+    ? await publicCatalogSummaries<SpaPlusSite>("spa") : [];
+  const hourlyPlaces = params.place?.startsWith("hourly-") || params.world === "hourly"
+    ? await publicCatalogSummaries<(typeof hourlyCatalog.places)[number]>("rooms") : [];
+  const item = [...spaPlacesFromSites(spaSites), ...hourlyPlacesFromCatalog(hourlyPlaces),
+    ...discoveryItems.filter((entry) => entry.world !== "spa" && entry.world !== "hourly")]
+    .find((entry) => entry.id === params.place);
   if (!item) {
     if (params.place) notFound();
     return { world: params.world || "vacation", placeId: "", placeName: "הזמנה באתר", offerId, offerName: "בחירת שירות", price: "מחיר יוצג לפני אישור" };
   }
 
   if (item.world === "spa") {
-    const pack = getSpaDetails(item.id)?.packages?.find((entry) => entry.id === offerId);
+    const site = spaSites.find((entry) => `spa-${entry.id}` === item.id);
+    const pack = getSpaDetails(item.id, site)?.packages?.find((entry) => entry.id === offerId);
     return {
       world: item.world,
       placeId: item.id,
@@ -131,7 +147,10 @@ export default async function BookingPage({ searchParams }: Props) {
   const params = await searchParams;
   if (params.place?.startsWith("spa-") || params.world === "spa") {
     const placeId = (spaLegacyAliases as Record<string, string>)[params.place || ""] || params.place || "";
-    const details = getSpaDetails(placeId);
+    const sites = await publicCatalogSummaries<SpaPlusSite>("spa");
+    const site = sites.find((entry) => `spa-${entry.id}` === placeId);
+    if (!site) notFound();
+    const details = getSpaDetails(placeId, site);
     if (!details) notFound();
     const pack = details.packages.find((entry) => entry.id === params.package);
     redirect(pack?.bookingUrl || details.bookingUrl);

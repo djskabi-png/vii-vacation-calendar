@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { StructuredData } from "../../../components/structured-data";
 import { WorldLanding } from "../../../components/world-landing";
-import { spaPlaces } from "../../../data/world-data";
+import { spaPlacesFromSites } from "../../../data/world-data";
+import type { SpaPlusSite } from "../../../data/spaplus";
+import { publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
 import {
   spaItemMatchesSearch,
   spaSearchDescription,
@@ -31,6 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function SpaSearchLandingPage({ params }: Props) {
   const state = spaSearchStateFromSegments((await params).segments);
   if (!state) notFound();
+  const spaPlaces = spaPlacesFromSites(await publicCatalogSummaries<SpaPlusSite>("spa"));
   const path = spaSearchHref(state);
   const title = spaSearchTitle(state);
   const description = spaSearchDescription(state);

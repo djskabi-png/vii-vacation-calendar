@@ -1,6 +1,6 @@
 import verifiedCatalog from "./verified-catalog.json";
 import hourlyCatalog from "./sergey-hourly-catalog.json";
-import { spaPlusArea, spaPlusAudience, spaPlusSites } from "./spaplus";
+import { spaPlusArea, spaPlusAudience, spaPlusSites, type SpaPlusSite } from "./spaplus";
 import { supplierContactNumber } from "../lib/supplier-contact";
 import type { WorldId } from "./world-navigation";
 export { worlds, publicWorldNavigation } from "./world-navigation";
@@ -51,7 +51,7 @@ const spaAreaCoordinates: Record<string, { lat: number; lng: number }> = {
   "טבריה": { lat: 32.794, lng: 35.532 },
 };
 
-export const spaPlaces: DiscoveryItem[] = spaPlusSites.map((site) => {
+export const spaPlacesFromSites = (sites: SpaPlusSite[]): DiscoveryItem[] => sites.map((site) => {
   const audiences = [...new Set(site.packages.map(spaPlusAudience).filter((value) => value !== "לא צוין"))];
   const prices = site.packages.map((pack) => pack.price);
   const coordinates = spaAreaCoordinates[site.city];
@@ -76,7 +76,9 @@ export const spaPlaces: DiscoveryItem[] = spaPlusSites.map((site) => {
     indexable: true,
   };
 });
-export const hourlyPlaces: DiscoveryItem[] = hourlyCatalog.places.map((place) => {
+export const spaPlaces: DiscoveryItem[] = spaPlacesFromSites(spaPlusSites);
+
+export const hourlyPlacesFromCatalog = (places: typeof hourlyCatalog.places): DiscoveryItem[] => places.map((place) => {
   const features = [...new Set(place.rooms.flatMap((room) => room.features))];
   const oneHourPrices = place.rooms.flatMap((room) => room.rates.filter((rate) => rate.duration === "שעה")
     .flatMap((rate) => [rate.weekday, rate.weekend]).filter((price): price is number => typeof price === "number" && price > 0));
@@ -102,6 +104,7 @@ export const hourlyPlaces: DiscoveryItem[] = hourlyCatalog.places.map((place) =>
     indexable: Boolean(place.images.length && place.rooms.length),
   };
 });
+export const hourlyPlaces: DiscoveryItem[] = hourlyPlacesFromCatalog(hourlyCatalog.places);
 
 const curatedProviderProfiles: DiscoveryItem[] = [
   { id: "masu-home-wellness", world: "providers", name: "מאסו", searchTerms: ["מאסו", "Masu", "עיסוי עד הבית", "טיפול פנים עד הבית", "עיסוי במשרד"], location: "בכל הארץ", area: "עיסויים וטיפולי פנים עד הבית", description: "מטפלים מוסמכים שמגיעים לבית, למלון, לווילה, למשרד או לאירוע עם ציוד מתאים. ניתן להזמין עיסוי אישי, טיפול פנים, עמדות עיסוי ופעילות רווחה לצוותים.", features: ["עיסוי עד הבית", "טיפולי פנים", "אירועי חברה"], image: "/media/providers/masu/masu-home.jpg", images: ["/media/providers/masu/masu-home.jpg", "/media/providers/masu/masu-office.png", "/media/providers/masu/masu-logo.png"], priceLabel: "החל מ-340 ₪", sourceUrl: "https://masu.co.il/", sourceName: "מאסו", indexable: true },

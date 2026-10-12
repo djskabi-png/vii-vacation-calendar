@@ -4,7 +4,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageShell } from "../components/page-shell";
 import { SearchBox } from "../components/search-box";
-import { eventPlaceHref, eventPlaces } from "../data/site-data";
+import { eventPlaceHref, type EventPlace } from "../data/site-data";
+import { publicCatalogSummaries } from "../lib/public-catalog-read.ts";
 import { PinIcon } from "../site-header";
 import { StructuredData } from "../components/structured-data";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
 
 const eventRegionLabels = ["מישור החוף והשפלה", "חיפה וחוף הכרמל", "מישור החוף הדרומי", "תל אביב", "ראשון לציון", "נשר"];
 
-function eventRegionItems(): EventRegionCarouselItem[] {
+function eventRegionItems(eventPlaces: EventPlace[]): EventRegionCarouselItem[] {
   const usedImages = new Set<string>();
   return eventRegionLabels.flatMap((label) => {
     const matchingPlaces = eventPlaces.filter((place) => place.area === label || place.location === label);
@@ -36,8 +37,9 @@ function eventRegionItems(): EventRegionCarouselItem[] {
   });
 }
 
-export default function EventsPage() {
-  const regions = eventRegionItems();
+export default async function EventsPage() {
+  const eventPlaces = await publicCatalogSummaries<EventPlace>("events");
+  const regions = eventRegionItems(eventPlaces);
   return (
     <PageShell variant="events">
       <main id="main-content" className="events-page">

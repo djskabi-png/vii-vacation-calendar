@@ -1,7 +1,9 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { parseFragment } from "parse5";
+import { assertNoUnreviewedRemovals, compareCatalogCandidate, stageCatalogCandidate } from "./catalog-candidate-guard.mjs";
 
 const root = "https://bizonline.co.il/api/ai/vii";
+const stageOnly = process.argv.includes("--stage-only");
 const token = process.env.SERGEY_VII_API_TOKEN;
 if (!token) throw new Error("SERGEY_VII_API_TOKEN is required");
 
@@ -96,5 +98,9 @@ for (const entry of active) {
 }
 
 const output = { source: "sergey-vii-api/rooms", fetchedAt: new Date().toISOString(), places };
-await writeFile(outputPath, `${JSON.stringify(output, null, 2)}\n`);
-console.log(JSON.stringify({ fetchedAt: output.fetchedAt, active: places.length, withRooms: places.filter((place) => place.rooms.length).length, withImages: places.filter((place) => place.images.length).length, withRates: places.filter((place) => place.rooms.some((room) => room.rates.length)).length }));
+const previous = JSON.parse(await readFile(outputPath, "utf8"));
+const changes = compareCatalogCandidate("rooms", previous.places, places);
+const staged = await stageCatalogCandidate("rooms", places, changes);
+assertNoUnreviewedRemovals(changes, staged);
+if (!stageOnly) await writeFile(outputPath, `${JSON.stringify(output, null, 2)}\n`);
+console.log(JSON.stringify({ stageOnly, fetchedAt: output.fetchedAt, active: places.length, changes, staged, withRooms: places.filter((place) => place.rooms.length).length, withImages: places.filter((place) => place.images.length).length, withRates: places.filter((place) => place.rooms.some((room) => room.rates.length)).length }));

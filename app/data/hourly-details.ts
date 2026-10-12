@@ -10,8 +10,10 @@ export type HourlyDetails = {
   faq: { question: string; answer: string }[];
 };
 
-function sourcePlace(itemId: string) {
-  return hourlyCatalog.places.find((place) => place.id === itemId);
+type HourlyPlace = (typeof hourlyCatalog.places)[number];
+
+function sourcePlace(itemId: string, suppliedPlace?: HourlyPlace) {
+  return suppliedPlace || hourlyCatalog.places.find((place) => place.id === itemId);
 }
 
 export function verifiedHourlyPrice(itemId: string, duration: string): number | undefined {
@@ -22,8 +24,8 @@ export function verifiedHourlyPrice(itemId: string, duration: string): number | 
   return prices.length ? Math.min(...prices) : undefined;
 }
 
-export function getHourlyDetails(item: DiscoveryItem): HourlyDetails {
-  const place = sourcePlace(item.id);
+export function getHourlyDetails(item: DiscoveryItem, suppliedPlace?: HourlyPlace): HourlyDetails {
+  const place = sourcePlace(item.id, suppliedPlace);
   const rates = place?.rooms.flatMap((room) => room.rates.flatMap((rate) => [
     ...(rate.weekday ? [{ duration: `${room.name || "חדר"} · ${rate.duration} · יום חול`, price: `${rate.weekday} ₪` }] : []),
     ...(rate.weekend ? [{ duration: `${room.name || "חדר"} · ${rate.duration} · סוף שבוע`, price: `${rate.weekend} ₪` }] : []),

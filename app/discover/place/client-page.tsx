@@ -15,7 +15,7 @@ import { getSpaDetails, type SpaDetails, type SpaPackage } from "../../data/spa-
 import { getProviderDetails, type ProviderDetails, type ProviderService } from "../../data/provider-details";
 import { getHourlyDetails, type HourlyDetails } from "../../data/hourly-details";
 import { getActivityDetails, type ActivityDetails } from "../../data/activity-details";
-import { discoveryItems, worlds, type WorldId } from "../../data/world-data";
+import { discoveryItems, worlds, type DiscoveryItem, type WorldId } from "../../data/world-data";
 import { PinIcon } from "../../site-header";
 import { DiscoveryMap } from "../../components/listing-map";
 import { MasuExperience } from "../../components/masu-experience";
@@ -165,18 +165,20 @@ function ActivityContent({ itemId, details }: { itemId: string; details: Activit
   </>;
 }
 
-export default function DiscoveryPlacePage({ initialId }: { initialId: string }) {
+export default function DiscoveryPlacePage({ initialId, initialItem, relatedItems, initialSpaDetails, initialHourlyDetails }:
+  { initialId: string; initialItem?: DiscoveryItem; relatedItems?: DiscoveryItem[];
+    initialSpaDetails?: SpaDetails; initialHourlyDetails?: HourlyDetails }) {
   const { galleryOpen, galleryStart, galleryTab, openGallery, closeGallery, updateGallerySelection } = useGalleryDeepLink();
-  const item = useMemo(() => discoveryItems.find((entry) => entry.id === initialId) || discoveryItems[0], [initialId]);
+  const item = useMemo(() => initialItem || discoveryItems.find((entry) => entry.id === initialId) || discoveryItems[0], [initialId, initialItem]);
   const world = worlds.find((entry) => entry.id === item.world) || worlds[2];
-  const related = discoveryItems
+  const related = (relatedItems || discoveryItems)
     .filter((entry) => entry.world === item.world && entry.id !== item.id)
     .sort((a, b) => Number(b.location === item.location) - Number(a.location === item.location)
       || Number(b.area === item.area) - Number(a.area === item.area))
     .slice(0, 6);
-  const spaDetails = item.world === "spa" ? getSpaDetails(item.id) : undefined;
+  const spaDetails = item.world === "spa" ? initialSpaDetails || getSpaDetails(item.id) : undefined;
   const providerDetails = item.world === "providers" ? getProviderDetails(item.id) : undefined;
-  const hourlyDetails = item.world === "hourly" ? getHourlyDetails(item) : undefined;
+  const hourlyDetails = item.world === "hourly" ? initialHourlyDetails || getHourlyDetails(item) : undefined;
   const activityDetails = item.world === "activities" ? getActivityDetails(item) : undefined;
   const galleryImages = item.images?.length ? item.images : item.image ? [item.image] : [];
   const gallerySubject = { name: item.name, images: galleryImages };

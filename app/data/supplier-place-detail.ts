@@ -46,11 +46,12 @@ function supplierMedia(value: unknown) {
   } catch { return null; }
 }
 
-export async function liveSupplierPlaceDetail(slug: string, options: { token?: string; fetchImpl?: typeof fetch } = {}): Promise<SupplierPlaceDetail | undefined> {
+export async function liveSupplierPlaceDetail(slug: string, options: { token?: string; fetchImpl?: typeof fetch;
+  fallback?: SupplierPlaceDetail | null; listing?: { name: string; location: string; area: string } } = {}): Promise<SupplierPlaceDetail | undefined> {
   const match = /^(vacation|event)-(\d+)$/.exec(slug);
-  const fallback = supplierPlaceDetail(slug);
+  const fallback = options.fallback === undefined ? supplierPlaceDetail(slug) : options.fallback || undefined;
   if (!match || !fallback) return fallback;
-  const listing = catalog.places.find((item) => item.slug === slug);
+  const listing = options.listing || catalog.places.find((item) => item.slug === slug);
   if (!listing) return fallback;
   try {
     const token = options.token ?? await supplierToken();

@@ -12,7 +12,9 @@ import { SupplierCapacityNotice } from "../../components/supplier-capacity-notic
 import { UnavailablePlaceNotice } from "../../components/unavailable-place-notice";
 import { PageShell } from "../../components/page-shell";
 import { SearchBox } from "../../components/search-box";
-import { eventPlaceHref, eventPlaces } from "../../data/site-data";
+import { eventPlaceHref, type EventPlace } from "../../data/site-data";
+import { supplierDisplayDescription } from "../../data/supplier-display-text";
+import { usePublishedCatalog } from "../../lib/use-published-catalog";
 import { getPlaceAccessibility } from "../../data/accessibility-data";
 import { CloseIcon, MapIcon, PinIcon } from "../../site-header";
 import { FavoriteButton } from "../../components/favorite-button";
@@ -29,7 +31,13 @@ import { matchesSearchLocation } from "../../data/search-taxonomy";
 import { useViiLiveSearch } from "../../components/use-vii-live-search";
 import { eventLiveCopy } from "../../i18n/vii-live-search-copy";
 
+function runtimeEventPlace(value: unknown): EventPlace {
+  const place = value as EventPlace;
+  return { ...place, description: supplierDisplayDescription(place) };
+}
+
 export default function EventSearchPage({ initialArea }: { initialArea?: string }) {
+  const { items: eventPlaces, error: catalogError, loading: catalogLoading } = usePublishedCatalog("events", runtimeEventPlace);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { language } = useSiteLanguage();
@@ -91,7 +99,7 @@ export default function EventSearchPage({ initialArea }: { initialArea?: string 
     return () => window.clearTimeout(timer);
   }, [initialArea, searchQuery]);
 
-  const areas = useMemo(() => ["הכל", ...Array.from(new Set(eventPlaces.map((place) => place.area)))], []);
+  const areas = useMemo(() => ["הכל", ...Array.from(new Set(eventPlaces.map((place) => place.area)))], [eventPlaces]);
   const eventFrom = searchParams.get("from");
   const eventTo = searchParams.get("to") || eventFrom;
   const supplierSearch = useViiLiveSearch("events", guests > 0 ? eventFrom : null, guests > 0 ? eventTo : null, guests, hours);
@@ -107,12 +115,12 @@ export default function EventSearchPage({ initialArea }: { initialArea?: string 
   const detailHref = (place: (typeof eventPlaces)[number]) => eventFrom && guests > 0
     ? `${eventPlaceHref(place)}?${new URLSearchParams({ from: eventFrom, guests: String(guests), hours: String(hours) })}`
     : eventPlaceHref(place);
-  const types = useMemo(() => ["הכל", ...Array.from(new Set(eventPlaces.map((place) => place.type)))], []);
-  const eventTypes = useMemo(() => ["הכל", ...Array.from(new Set(eventPlaces.flatMap((place) => place.eventTypes)))], []);
+  const types = useMemo(() => ["הכל", ...Array.from(new Set(eventPlaces.map((place) => place.type)))], [eventPlaces]);
+  const eventTypes = useMemo(() => ["הכל", ...Array.from(new Set(eventPlaces.flatMap((place) => place.eventTypes)))], [eventPlaces]);
   const filtered = useMemo(() => {
     const result = eventPlaces.filter((place) => matchesSearchLocation(place, area) && (!types.includes(type) || type === "הכל" || place.type === type) && (!eventTypes.includes(eventType) || eventType === "הכל" || place.eventTypes.includes(eventType)) && (!guests || place.capacityScope === "unit" || place.guests >= guests) && (!noNoiseLimit || place.features.some((feature) => feature.includes("ללא הגבלת רעש"))) && (!accessibleOnly || getPlaceAccessibility(place.slug).status === "accessible"));
     return [...result].sort((a, b) => sort === "capacity" && eventPlaces.some((place) => place.capacityScope !== "unit") ? b.guests - a.guests : sort === "name" ? a.name.localeCompare(b.name, "he") : eventPlaces.indexOf(a) - eventPlaces.indexOf(b));
-  }, [accessibleOnly, area, eventType, eventTypes, guests, noNoiseLimit, sort, type, types]);
+  }, [accessibleOnly, area, eventPlaces, eventType, eventTypes, guests, noNoiseLimit, sort, type, types]);
 
   const displayed = useMemo(() => {
     if (!mapOpen || !mapVisibleIds) return filtered;
@@ -154,6 +162,8 @@ export default function EventSearchPage({ initialArea }: { initialArea?: string 
       <main id="main-content" className="results-page events-results-page">
         {!initialArea ? <StructuredData data={collectionSchema("מקומות לאירועים בישראל", "מקומות לאירועים עם תמונות ומתקנים. התאמה לכמות המשתתפים נבדקת מול המקום.", "/events/search", filtered.map((place) => ({ name: place.name, path: eventPlaceHref(place), image: place.image })))} /> : null}
         <UnavailablePlaceNotice world="events" />
+        {catalogLoading ? <p className="shell" role="status">טוענים מקומות...</p> : null}
+        {catalogError ? <p className="shell" role="alert">לא ניתן לטעון את המקומות כרגע.</p> : null}
         <div className="results-search shell"><SearchBox mode="events" compact initialLocation={area === "הכל" ? undefined : area} initialGuests={guests || undefined} /></div>
         <BreadcrumbTrail items={[{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, { name: "מקומות לאירועים", path: eventBreadcrumbFilters.length ? "/events/search" : undefined }, ...(eventBreadcrumbFilters.length ? [{ name: eventBreadcrumbFilters.join(" · ") }] : [])]} />
         <div className="shell event-results-layout">
@@ -176,10 +186,10 @@ export default function EventSearchPage({ initialArea }: { initialArea?: string 
             {guests > 0 && eventPlaces.some((place) => place.capacityScope === "unit") ? <SupplierCapacityNotice /> : null}
             <div className="results-toolbar"><div className="results-toolbar__actions"><ResultsViewToggle value={viewMode} onChange={setViewMode} />{filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתוצאות" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={toggleResultsMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לתוצאות" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect className="results-toolbar__sort" compact label="מיון לפי" value={sort} onChange={(value) => changeFilter("sort", value)} options={sortOptions} /></div>
             {mapOpen && <div className="event-map-pane"><DeferredListingMap listings={filtered} mode="events" autoLoad onClose={closeResultsMap} onVisiblePlaceIdsChange={setMapVisibleIds} /></div>}{displayed.map((place) => <article key={place.slug}><div className="event-card-gallery"><img src={place.image} alt={place.name} title={place.name} loading="lazy" decoding="async" /><span>{place.images.length} תמונות</span><FavoriteButton id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={detailHref(place)} meta={`${place.type} · עד ${place.guests} אורחים ביחידה הגדולה`} /></div><div><small>{place.type}</small><h2>{place.name}</h2><p><PinIcon />{place.location}, {place.area}</p><p>{place.description}</p><div className="feature-chips">{place.features.slice(0, 3).map((feature) => <span key={feature}>{feature}</span>)}</div><div className="event-capacity">עד {place.guests} אורחים ביחידה הגדולה</div>{supplierStatus(place.slug) ? <p className="event-live-status" role="status">{supplierStatus(place.slug)}</p> : null}<div className="stay-card__actions event-card__actions"><Link className="stay-card__details-link" href={detailHref(place)} target="_blank" rel="noopener noreferrer">לפרטים על המקום<span className="sr-only"></span></Link><EventCardContactActions placeId={place.slug} placeName={place.name} phone={place.contact?.phone} whatsapp={place.contact?.whatsapp} serviceName={place.type} /></div></div></article>)}
-            {displayed.length === 0 && <div className="empty-state"><h2>לא נמצאה התאמה</h2><p>אפשר להפחית את כמות המשתתפים או להסיר סינון.</p><button className="button primary" type="button" onClick={reset}>ניקוי סינונים</button></div>}
+            {!catalogLoading && !catalogError && displayed.length === 0 && <div className="empty-state"><h2>לא נמצאה התאמה</h2><p>אפשר להפחית את כמות המשתתפים או להסיר סינון.</p><button className="button primary" type="button" onClick={reset}>ניקוי סינונים</button></div>}
           </section>
         </div>
-        <SearchAfterResults world="events" location={area} searchSuggestions={contextualSearchSuggestions} />
+        {!catalogLoading && !catalogError ? <SearchAfterResults world="events" location={area} inventory={eventPlaces} searchSuggestions={contextualSearchSuggestions} /> : null}
         {filtersOpen && <button className="filter-backdrop" aria-label="סגירת סינון" onClick={() => setFiltersOpen(false)} />}
       </main>
     </PageShell>

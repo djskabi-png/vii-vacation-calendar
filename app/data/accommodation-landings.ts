@@ -85,8 +85,8 @@ export function getAccommodationRegion(slug?: string | null) {
   return slug ? accommodationRegions.find((region) => region.slug === slug) : undefined;
 }
 
-export function accommodationListings(category: AccommodationCategory, region?: AccommodationRegion) {
-  return properties.filter((property) => category.propertyTypes.includes(property.type) && (!region || region.matches(property)));
+export function accommodationListings(category: AccommodationCategory, region?: AccommodationRegion, inventory: Property[] = properties) {
+  return inventory.filter((property) => category.propertyTypes.includes(property.type) && (!region || region.matches(property)));
 }
 
 export function accommodationLandingPath(category: AccommodationCategory, region?: AccommodationRegion) {
@@ -125,22 +125,22 @@ export function cleanAccommodationPath(type: string, area: string) {
   return accommodationLandingPath(category, region);
 }
 
-export function indexableAccommodationLandings() {
+export function indexableAccommodationLandings(inventory: Property[] = properties) {
   return accommodationCategories.flatMap((category) => {
-    if (!accommodationListings(category).length) return [];
+    if (!accommodationListings(category, undefined, inventory).length) return [];
     const regional = accommodationRegions
-      .filter((region) => accommodationListings(category, region).length >= minimumRegionalListings)
+      .filter((region) => accommodationListings(category, region, inventory).length >= minimumRegionalListings)
       .map((region) => ({ category, region, path: accommodationLandingPath(category, region) }));
     return [{ category, region: undefined, path: category.path }, ...regional];
   });
 }
 
-export function accommodationLandingForPath(categoryId: AccommodationCategoryId, regionSlug?: string | null) {
+export function accommodationLandingForPath(categoryId: AccommodationCategoryId, regionSlug?: string | null, inventory: Property[] = properties) {
   const category = getAccommodationCategory(categoryId);
   if (!category) return null;
   const region = getAccommodationRegion(regionSlug);
   if (regionSlug && !region) return null;
-  const listings = accommodationListings(category, region);
+  const listings = accommodationListings(category, region, inventory);
   const path = accommodationLandingPath(category, region);
   const title = region ? `${category.title} ב${region.label}` : `${category.title} בישראל`;
   const description = region

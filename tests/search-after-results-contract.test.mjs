@@ -53,7 +53,7 @@ test("a following cross-sell uses one measured section rhythm instead of stacked
 test("contextual discovery preserves filters while changing only the selected destination or suggestion", () => {
   assert.match(component, /new URLSearchParams\(currentQuery\)/);
   assert.match(component, /params\.set\(key, value\)/);
-  assert.match(component, /properties\.filter/);
+  assert.match(component, /inventory\.filter/);
   assert.match(component, /matchesSearchLocation\(item, location\)/);
   assert.match(component, /rail\.scrollBy/);
 });

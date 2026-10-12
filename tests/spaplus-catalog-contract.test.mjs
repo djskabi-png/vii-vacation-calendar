@@ -25,7 +25,7 @@ test("spa discovery and detail read only the supplier catalog", async () => {
     read("app/discover/place/client-page.tsx"),
     read("app/booking/page.tsx"),
   ]);
-  assert.match(world, /spaPlaces: DiscoveryItem\[\] = spaPlusSites\.map/);
+  assert.match(world, /spaPlaces: DiscoveryItem\[\] = spaPlacesFromSites\(spaPlusSites\)/);
   assert.doesNotMatch(world, /curatedSpaPlaces|verifiedDiscoveryItems\("spa"\)/);
   assert.match(details, /spaPlusSiteById\(id\)/);
   assert.match(page, /href=\{pack\.bookingUrl\} target="_blank" rel="noopener noreferrer"/);
