@@ -24,7 +24,7 @@ test("guest reviews use authenticated D1 and R2 persistence with pending moderat
   assert.match(storage, /env\.DB\.prepare/);
   assert.match(schema, /guestReviews/);
   assert.match(schema, /guestReviewFiles/);
-  assert.deepEqual(JSON.parse(hosting), { project_id: "appgprj_6a71ccdca27481918bf04dd329d3eb21", d1: "DB", r2: "UPLOADS" });
+  assert.deepEqual(JSON.parse(hosting), { project_id: "appgprj_6a71ccdca27481918bf04dd329d3eb21", d1: "DB", r2: "UPLOADS", capabilities: ["mcp"] });
   assert.doesNotMatch(studio, /localStorage/);
   assert.match(studio, /fetch\("\/api\/reviews"/);
   assert.match(studio, /aria-busy=\{submitting\}/);
