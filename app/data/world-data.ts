@@ -1,4 +1,5 @@
 import verifiedCatalog from "./verified-catalog.json";
+import { spaViiCopy } from "./spa-vii-copy";
 import hourlyCatalog from "./sergey-hourly-catalog.json";
 import { spaPlusArea, spaPlusAudience, spaPlusSites, type SpaPlusSite } from "./spaplus";
 import { supplierContactNumber } from "../lib/supplier-contact";
@@ -13,6 +14,7 @@ export type DiscoveryItem = {
   location: string;
   area: string;
   description: string;
+  filterText?: string;
   features: string[];
   image?: string;
   images?: string[];
@@ -61,7 +63,8 @@ export const spaPlacesFromSites = (sites: SpaPlusSite[]): DiscoveryItem[] => sit
     name: site.title,
     location: site.city || "מיקום לא נמסר",
     area: spaPlusArea(site.city),
-    description: site.shortDescription || site.about[0] || "",
+    description: spaViiCopy(site.id).cardSummary,
+    filterText: spaViiCopy(site.id).filterText,
     features: audiences.map((audience) => `חבילות ${audience === "זוג" ? "זוגיות" : audience === "יחיד" ? "ליחיד" : audience === "קבוצה" ? "לקבוצות" : "יום כיף"}`),
     searchTerms: site.packages.map((pack) => pack.title),
     image: site.image || undefined,

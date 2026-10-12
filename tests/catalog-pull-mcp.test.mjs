@@ -150,9 +150,8 @@ async function database() {
   }, close: () => sqlite.close() };
 }
 const now = () => new Date("2026-10-12T15:35:00Z");
-const baseline = Array.from({ length: 20 }, (_, index) => ({ supplierId: index + 1,
-  summary: { id: index + 1, title: `Fixture ${index}`, image: `https://www.spaplus.co.il/gallery/${index}.jpg`,
-    gallery: [`https://www.spaplus.co.il/gallery/${index}.jpg`], packages: [] } }));
+const spaCatalog = (await import("../app/data/spaplus-catalog.json", { with: { type: "json" } })).default;
+const baseline = spaCatalog.sites.slice(0, 20).map((summary) => ({ supplierId: summary.id, summary }));
 
 test("a safe Spa slot persists one guarded generation and is visible through the public catalog", async () => {
   const db = await database(); let fetches = 0;

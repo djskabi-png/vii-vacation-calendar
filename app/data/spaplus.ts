@@ -1,4 +1,4 @@
-import catalog from "./spaplus-catalog.json";
+import catalog from "./spaplus-public-catalog.json";
 export { spaPlusArea } from "./spa-regions";
 export { spaPlusAudience } from "./spa-audience";
 

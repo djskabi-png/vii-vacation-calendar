@@ -59,6 +59,7 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
   source: string;
   baseline: SupplierCatalogEntry[];
   fetchCandidate: () => Promise<CatalogCandidate>;
+  validateCandidate?: (entries: SupplierCatalogEntry[]) => Promise<void>;
   now?: () => Date;
 }) {
   const now = input.now || (() => new Date());
@@ -85,6 +86,7 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
     if (input.world === "spa" && !spaMediaWithinGuard(previous, candidate.entries)) {
       throw new Error("catalog_media_requires_review");
     }
+    await input.validateCandidate?.(candidate.entries);
     for (let index = 0; index < candidate.entries.length; index += 40) {
       await stageSupplierCatalogEntries(db, input.id, input.world, candidate.entries.slice(index, index + 40));
     }
@@ -95,7 +97,7 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
   } catch (error) {
     if (error instanceof SupplierCatalogRedirectError || error instanceof SpaCatalogJsonError) diagnostics = error.diagnostics;
     const code = errorCode(error);
-    const status = code.includes("removal") || code === "catalog_media_requires_review"
+    const status = code.includes("removal") || code === "catalog_media_requires_review" || code === "catalog_editorial_requires_review"
       || code.startsWith("invalid_catalog") ? "rejected" : "failed";
     await finishSupplierCatalogRun(db, { id: input.id, world: input.world,
       status,

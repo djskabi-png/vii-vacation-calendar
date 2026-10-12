@@ -7,6 +7,8 @@ import { readSupplierCatalog, readSupplierCatalogDashboard } from "../app/lib/su
 import { SupplierCatalogRedirectError } from "../app/lib/supplier-catalog-diagnostics.ts";
 import { catalogResponse } from "../app/api/catalog/route.ts";
 import { createSpaPlusCatalogClient } from "../app/lib/spaplus-catalog-client.ts";
+import spaCatalog from "../app/data/spaplus-catalog.json" with { type: "json" };
+import { validateSpaEditorialCandidate } from "../app/lib/spa-editorial-policy.ts";
 
 async function database() {
   const sqlite = new DatabaseSync(":memory:");
@@ -40,6 +42,27 @@ async function database() {
 }
 
 const at = () => new Date("2026-10-12T12:00:00Z");
+test("changed Spa prose is rejected before staging and cannot replace reviewed public text", async () => {
+  const db = await database();
+  const site = spaCatalog.sites.find(x => x.id === 6);
+  const reviewed = [{ supplierId: 6, summary: site }];
+  try {
+    const accepted = await runSupplierCatalogSync(db, { id: "editorial-approved", world: "spa", source: "test", baseline: reviewed, now: at,
+      validateCandidate: validateSpaEditorialCandidate, fetchCandidate: async () => ({ fetchedAt: at().toISOString(), entries: reviewed }) });
+    assert.equal(accepted.status, "accepted");
+    const before = await readSupplierCatalog(db, "spa");
+    const rejected = await runSupplierCatalogSync(db, { id: "editorial-changed", world: "spa", source: "test", baseline: reviewed, now: at,
+      validateCandidate: validateSpaEditorialCandidate, fetchCandidate: async () => ({ fetchedAt: at().toISOString(), entries: [{supplierId:6, summary:{...site,about:[...site.about,"new unreviewed supplier words"]}}] }) });
+    assert.equal(rejected.status, "rejected");
+    assert.equal(rejected.errorCode, "catalog_editorial_requires_review");
+    assert.deepEqual(await readSupplierCatalog(db, "spa"), before);
+    assert.equal((await db.prepare("SELECT COUNT(*) AS n FROM supplier_catalog_entries WHERE run_id = ?").bind("editorial-changed").first()).n, 0);
+    const publicBody = await (await catalogResponse(new Request("https://vii.spaplus.co/api/catalog?world=spa&id=6"), db)).json();
+    assert.notDeepEqual(publicBody.entry.summary.about, site.about);
+    assert.doesNotMatch(JSON.stringify(publicBody), /new unreviewed supplier words/);
+    assert.deepEqual(publicBody.entry.summary.packages, site.packages);
+  } finally { db.close(); }
+});
 const baseline = [
   { supplierId: 1, summary: { id: 1, packages: [{ id: 10 }] } },
   { supplierId: 2, summary: { id: 2, packages: [{ id: 20 }] } },
@@ -74,7 +97,8 @@ test("rejection diagnostics persist counts and IDs privately without changing th
     } };
     const response = await catalogResponse(new Request("https://vii.spaplus.co/api/catalog?world=spa"), publicDB);
     const payload = await response.json();
-    assert.deepEqual(payload.entries.map((item) => item.supplierId), [1, 2]);
+    assert.equal(response.status, 503); // Synthetic, unreviewed Spa text is never made public.
+    assert.deepEqual(payload, { error: "catalog_unavailable" });
     assert.doesNotMatch(JSON.stringify(payload), /diagnostics|must-not-be-stored|private-reject/);
   } finally { db.close(); }
 });
@@ -133,7 +157,8 @@ test("spa parse failures persist private metadata without staging or changing th
     const publicDB = { prepare(sql) { assert.doesNotMatch(sql, /supplier_catalog_runs|diagnostics_json/); return db.prepare(sql); } };
     const response = await catalogResponse(new Request("https://vii.spaplus.co/api/catalog?world=spa"), publicDB);
     const publicPayload = await response.json();
-    assert.deepEqual(publicPayload.entries.map((entry) => entry.supplierId), [1, 2]);
+    assert.equal(response.status, 503);
+    assert.deepEqual(publicPayload, { error: "catalog_unavailable" });
     assert.doesNotMatch(JSON.stringify(publicPayload), /spaJsonFailure|diagnostics|private|json-failed/);
   } finally { db.close(); }
 });

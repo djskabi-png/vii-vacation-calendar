@@ -3,6 +3,8 @@ import hourly from "../data/sergey-hourly-catalog.json" with { type: "json" };
 import spa from "../data/spaplus-catalog.json" with { type: "json" };
 import sergeyDetails from "../data/sergey-place-details.json" with { type: "json" };
 import { supplierDisplayDescription } from "../data/supplier-display-text.ts";
+import { projectSpaViiSite } from "./spa-editorial-policy.ts";
+import type { SpaPlusSite } from "../data/spaplus";
 import { readSupplierCatalogEntry, readSupplierCatalogState, readSupplierCatalogSummaries, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
 import { runtimeCatalogDatabase } from "./published-supplier-ids.ts";
 
@@ -14,15 +16,16 @@ function bundled(world: SupplierCatalogWorld): unknown[] {
 
 export async function publicCatalogSummaries<T>(world: SupplierCatalogWorld): Promise<T[]> {
   const db = await runtimeCatalogDatabase();
-  if (!db) return publicSummaries(world, bundled(world)) as T[];
+  if (!db) return await publicSummaries(world, bundled(world)) as T[];
   const state = await readSupplierCatalogState(db, world);
-  if (!state?.activeRunId) return publicSummaries(world, bundled(world)) as T[];
+  if (!state?.activeRunId) return await publicSummaries(world, bundled(world)) as T[];
   const accepted = await readSupplierCatalogSummaries(db, world);
   if (!accepted) throw new Error("catalog_active_generation_missing");
-  return publicSummaries(world, accepted.entries.map((entry) => entry.summary)) as T[];
+  return await publicSummaries(world, accepted.entries.map((entry) => entry.summary)) as T[];
 }
 
-function publicSummaries(world: SupplierCatalogWorld, entries: unknown[]): unknown[] {
+async function publicSummaries(world: SupplierCatalogWorld, entries: unknown[]): Promise<unknown[]> {
+  if (world === "spa") return Promise.all(entries.map((site) => projectSpaViiSite(site as SpaPlusSite)));
   if (world !== "vacations" && world !== "events") return entries;
   return entries.map((value) => {
     const place = value as { description: string; name: string; location: string; area: string };

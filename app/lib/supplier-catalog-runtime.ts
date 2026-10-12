@@ -7,6 +7,7 @@ import { createSergeyPublicCatalogClient } from "./sergey-public-catalog-client.
 import { createSergeyRoomsCatalogClient } from "./sergey-rooms-catalog-client.ts";
 import { createSpaPlusCatalogClient } from "./spaplus-catalog-client.ts";
 import { runSupplierCatalogSync } from "./supplier-catalog-sync.ts";
+import { validateSpaEditorialCandidate } from "./spa-editorial-policy.ts";
 import type { SupplierCatalogEntry, SupplierCatalogWorld } from "./supplier-catalog-store.ts";
 
 export const catalogWorlds: SupplierCatalogWorld[] = ["vacations", "events", "rooms", "spa"];
@@ -45,6 +46,7 @@ export async function syncSupplierCatalogWorld(db: D1Database, world: SupplierCa
   return runSupplierCatalogSync(db, {
     id: options?.runId || crypto.randomUUID(), world, source,
     baseline: bundledCatalogBaseline(world),
+    validateCandidate: world === "spa" ? validateSpaEditorialCandidate : undefined,
     fetchCandidate: () => world === "vacations" || world === "events"
       ? (client as ReturnType<typeof createSergeyPublicCatalogClient>).fetchCandidate(world)
       : (client as ReturnType<typeof createSpaPlusCatalogClient> | ReturnType<typeof createSergeyRoomsCatalogClient>).fetchCandidate(),

@@ -61,10 +61,11 @@ function SpaContent({ details }: { details: SpaDetails }) {
   useEffect(() => {
     if (!expanded || sourceAbout) return;
     const controller = new AbortController();
-    fetch(`/api/spa/source-description?id=${details.siteId}`, { signal: controller.signal })
+    fetch(`/api/spa/description?id=${details.siteId}`, { signal: controller.signal, cache: "no-store" })
       .then((response) => { if (!response.ok) throw new Error("source_unavailable"); return response.json(); })
-      .then((body: { about?: unknown }) => {
-        if (!controller.signal.aborted && Array.isArray(body.about)) {
+      .then((body: { about?: unknown; editorial?: unknown }) => {
+        if (body.editorial !== "vii" || !Array.isArray(body.about) || !body.about.length || body.about.some((value) => typeof value !== "string")) throw new Error("editorial_unavailable");
+        if (!controller.signal.aborted) {
           setSourceAbout(body.about.filter((value): value is string => typeof value === "string"));
           setSourceError(false);
         }
@@ -78,7 +79,7 @@ function SpaContent({ details }: { details: SpaDetails }) {
       <div><span className="eyebrow">כל מה שחשוב לפני שמזמינים</span><h2>על המקום</h2><p className="spa-about__summary">{details.editorialSummary}</p>
         <button type="button" className="spa-about__more" aria-expanded={expanded} aria-controls="spa-source-description" onClick={() => setExpanded((value) => !value)}>{expanded ? "הצג פחות" : "קרא עוד"}</button>
         <div id="spa-source-description" hidden={!expanded}>
-          {expanded && <><h3>מידע נוסף שנמסר מספא פלוס</h3>{sourceAbout?.map((paragraph, index) => <p key={`${index}-${paragraph}`}>{paragraph}</p>)}{!sourceAbout && !sourceError && <p role="status">טוענים את המידע הנוסף...</p>}{sourceError && <p role="alert">לא הצלחנו לטעון את המידע. <button type="button" className="spa-about__more" onClick={() => { setSourceError(false); setAttempt((value) => value + 1); }}>נסו שוב</button></p>}</>}
+          {expanded && <><h3>עוד על המקום</h3>{sourceAbout?.map((paragraph, index) => <p key={`${index}-${paragraph}`}>{paragraph}</p>)}{!sourceAbout && !sourceError && <p role="status">טוענים את המידע הנוסף...</p>}{sourceError && <p role="alert">לא הצלחנו לטעון את המידע. <button type="button" className="spa-about__more" onClick={() => { setSourceError(false); setAttempt((value) => value + 1); }}>נסו שוב</button></p>}</>}
         </div>
       </div>
       <aside>
@@ -252,7 +253,7 @@ export default function DiscoveryPlacePage({ initialId, initialItem, relatedItem
         <div className={`discovery-detail__media discovery-card__placeholder--${item.world}`}>{item.image ? <><button className="discovery-detail__gallery-media" type="button" data-gallery-trigger onClick={() => openGallery("all", 0)} aria-label={`פתיחת הגלריה של ${item.name}`}><img src={item.image} alt={item.imageLabel ? `תמונת אווירה לתחום ${item.features[0]}` : item.name} title={item.imageLabel || item.name} /></button>{item.imageLabel && <span className="image-context-label image-context-label--detail">{item.imageLabel}</span>}<button className="discovery-detail__gallery-launch" type="button" data-gallery-trigger onClick={() => openGallery("all", 0)}><span aria-hidden="true">▦</span>לגלריה <small>{galleryImages.length} {galleryImages.length === 1 ? "תמונה" : "תמונות"}</small></button></> : null}</div>
       </section>
       <DetailStickyDock name={item.name} location={`${item.location}, ${item.area}`} sections={sections} onlineHref={onlineHref} onlineLabel={onlineLabel} phone={phone} />
-      {spaDetails ? <SpaContent details={spaDetails} /> : null}
+      {spaDetails ? <SpaContent key={spaDetails.siteId} details={spaDetails} /> : null}
       {providerDetails ? <ProviderContent itemId={item.id} providerName={item.name} details={providerDetails} priceLabel={item.priceLabel || "מחיר ייקבע לפני אישור"} /> : null}
       {hourlyDetails ? <HourlyContent item={item} details={hourlyDetails} /> : null}
       {activityDetails ? <ActivityContent itemId={item.id} details={activityDetails} /> : null}

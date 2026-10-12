@@ -64,5 +64,6 @@
   "כאן אפשר לעיין בפרטי המקום ובשעות הפעילות שנמסרו.": {"en": "Explore the venue details and supplied opening hours.", "ru": "Посмотрите информацию о месте и предоставленные часы работы.", "fr": "Consultez les détails du lieu et les horaires communiqués."},
   ". מחירים ובדיקת זמינות באתר וי.": {"en": ". Prices and availability checks on VII.", "ru": ". Цены и проверка доступности на VII.", "fr": ". Tarifs et vérification des disponibilités sur VII."},
   "פרטי המקום ושעות הפעילות באתר וי.": {"en": "Venue details and opening hours on VII.", "ru": "Информация о месте и часы работы на VII.", "fr": "Détails du lieu et horaires sur VII."},
-  ". מחירים; זמינות סופית בהזמנה.": {"en": ". Prices; final availability is confirmed during booking.", "ru": ". Цены; окончательная доступность подтверждается при бронировании.", "fr": ". Tarifs ; disponibilité définitive confirmée lors de la réservation."}
+  ". מחירים; זמינות סופית בהזמנה.": {"en": ". Prices; final availability is confirmed during booking.", "ru": ". Цены; окончательная доступность подтверждается при бронировании.", "fr": ". Tarifs ; disponibilité définitive confirmée lors de la réservation."},
+  "עוד על המקום": {"en": "More about this spa", "ru": "Подробнее об этом спа", "fr": "En savoir plus sur ce spa"}
 }

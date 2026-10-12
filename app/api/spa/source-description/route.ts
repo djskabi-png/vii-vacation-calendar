@@ -8,7 +8,7 @@ export async function GET(request: Request) {
     const sites = await publicCatalogSummaries<SpaPlusSite>("spa");
     const site = sites.find((entry) => entry.id === id);
     if (!site) return Response.json({ error: "not_found" }, { status: 404 });
-    return Response.json({ about: site.about }, { headers: { "Cache-Control": "public, max-age=300, s-maxage=300" } });
+    return Response.json({ about: site.about, editorial: "vii" }, { headers: { "Cache-Control": "no-store" } });
   } catch {
     return Response.json({ error: "temporarily_unavailable" }, { status: 503, headers: { "Cache-Control": "no-store" } });
   }
