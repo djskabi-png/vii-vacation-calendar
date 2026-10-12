@@ -14,6 +14,7 @@ import { localizedPath } from "../i18n/locale-routing";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { ResultsViewToggle, useResultsViewMode } from "./results-view-toggle";
 import { ProgressiveResults } from "./progressive-results";
+import { rotateWithinTiers } from "../lib/daily-rotation";
 
 const spaFilters = spaLandings;
 
@@ -108,11 +109,12 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
 
   const dateCovered = availability.status === "ready" && availability.checkedDate === requestedDate && availability.dates.includes(requestedDate);
   const checkingDate = Boolean(requestedDate) && (availability.checkedDate !== requestedDate || availability.status === "idle" || availability.status === "loading");
-  const filtered = useMemo(() => amenityFiltered.filter((item) => (
+  const filtered = useMemo(() => rotateWithinTiers(amenityFiltered.filter((item) => (
     !checkingDate &&
     (location === "כל הארץ" || item.area === location || item.location === location)
     && (!requestedDate || !dateCovered || availability.sites.has(Number(item.id.replace("spa-", ""))))
-  )), [amenityFiltered, location, requestedDate, dateCovered, checkingDate, availability.sites]);
+  )), (item) => item.image && item.priceLabel ? 0 : item.image ? 1 : 2,
+  (item) => item.id, "spa-search"), [amenityFiltered, location, requestedDate, dateCovered, checkingDate, availability.sites]);
 
   function updateUrl(nextLocation: string, nextAudience: SpaAudienceId | "", nextFilters: string[]) {
     const params = new URLSearchParams(window.location.search);
@@ -146,8 +148,8 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
   const displayed = useMemo(() => {
     if (!mapOpen || !mapVisibleIds) return filtered;
     const visible = new Set(mapVisibleIds);
-    return amenityFiltered.filter((item) => visible.has(item.id));
-  }, [amenityFiltered, filtered, mapOpen, mapVisibleIds]);
+    return filtered.filter((item) => visible.has(item.id));
+  }, [filtered, mapOpen, mapVisibleIds]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setMapVisibleIds(null), 0);

@@ -662,8 +662,9 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(homeShowcase, /<HomeLiveDeals \/>/);
   assert.doesNotMatch(homeShowcase, /nightlyPrice/);
   assert.match(homeShowcase, /כל סיבה טובה הופכת כאן לאירוע/);
-  assert.match(homeShowcase, /spaPlaces\.slice/);
-  assert.match(homeShowcase, /hourlyPlaces\.slice/);
+  assert.match(homeShowcase, /rotateWithinTiers\(spaPlaces/);
+  assert.match(homeShowcase, /rotateWithinTiers\(hourlyPlaces/);
+  assert.match(homeShowcase, /featuredHourly\.map/);
   assert.doesNotMatch(homeShowcase, /המחיר והזמינות הסופיים יאומתו/);
 });
 

@@ -8,6 +8,7 @@ import { ModernSelect } from "../components/modern-select";
 import { paidAttractions } from "../data/world-data";
 import { MapIcon } from "../site-header";
 import { useMapViewState } from "../components/map-view-state";
+import { rotateWithinTiers } from "../lib/daily-rotation";
 
 const areas = ["הכל", "צפון", "כנרת", "מרכז ותל אביב", "ירושלים", "דרום ונגב", "אילת והסביבה"];
 const types = ["הכל", "שטח ואדרנלין", "טבע ורכיבה", "ים ושיט", "מים ומשפחה", "נחלים ומים", "אוכל ותרבות", "מדבר ושטח", "יצירה וקבוצות"];
@@ -23,11 +24,12 @@ export function AttractionsExplorer() {
   const { mapOpen, openMap, closeMap } = useMapViewState();
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
 
-  const filtered = useMemo(() => paidAttractions.filter((item) => {
+  const filtered = useMemo(() => rotateWithinTiers(paidAttractions.filter((item) => {
     const searchable = `${item.name} ${item.location} ${item.area} ${item.description} ${item.features.join(" ")}`;
     const areaMatch = area === "הכל" || item.location.includes(area) || (area === "מרכז ותל אביב" && (item.location.includes("מרכז") || item.location.includes("תל אביב")));
     return areaMatch && (type === "הכל" || item.area === type) && (!query.trim() || searchable.includes(query.trim()));
-  }), [area, query, type]);
+  }), (item) => query.trim() && !item.name.includes(query.trim()) ? 1 : 0,
+  (item) => item.id, "attraction-search"), [area, query, type]);
 
   function updateUrl(updates: Record<string, string>) {
     const params = new URLSearchParams(window.location.search);

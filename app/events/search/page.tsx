@@ -24,6 +24,7 @@ import { useMapViewState } from "../../components/map-view-state";
 import { eventSearchHref } from "../../data/world-search-landings";
 import { localizedPath } from "../../i18n/locale-routing";
 import { useSiteLanguage } from "../../i18n/locale-provider";
+import { dailyRotationCompare } from "../../lib/daily-rotation";
 import { SearchAfterResults, type ContextualSearchSuggestion } from "../../components/search-after-results";
 import { EventCardContactActions } from "../../components/event-card-contact-actions";
 import { ResultsViewToggle, useResultsViewMode } from "../../components/results-view-toggle";
@@ -119,7 +120,11 @@ export default function EventSearchPage({ initialArea }: { initialArea?: string 
   const eventTypes = useMemo(() => ["הכל", ...Array.from(new Set(eventPlaces.flatMap((place) => place.eventTypes)))], [eventPlaces]);
   const filtered = useMemo(() => {
     const result = eventPlaces.filter((place) => matchesSearchLocation(place, area) && (!types.includes(type) || type === "הכל" || place.type === type) && (!eventTypes.includes(eventType) || eventType === "הכל" || place.eventTypes.includes(eventType)) && (!guests || place.capacityScope === "unit" || place.guests >= guests) && (!noNoiseLimit || place.features.some((feature) => feature.includes("ללא הגבלת רעש"))) && (!accessibleOnly || getPlaceAccessibility(place.slug).status === "accessible"));
-    return [...result].sort((a, b) => sort === "capacity" && eventPlaces.some((place) => place.capacityScope !== "unit") ? b.guests - a.guests : sort === "name" ? a.name.localeCompare(b.name, "he") : eventPlaces.indexOf(a) - eventPlaces.indexOf(b));
+    return [...result].sort((a, b) => {
+      if (sort === "capacity") return b.guests - a.guests;
+      if (sort === "name") return a.name.localeCompare(b.name, "he");
+      return dailyRotationCompare(a.slug, b.slug, "event-search");
+    });
   }, [accessibleOnly, area, eventPlaces, eventType, eventTypes, guests, noNoiseLimit, sort, type, types]);
 
   const displayed = useMemo(() => {
@@ -146,7 +151,7 @@ export default function EventSearchPage({ initialArea }: { initialArea?: string 
 
   function reset() { setArea("הכל"); setType("הכל"); setEventType("הכל"); setGuests(0); setNoNoiseLimit(false); setAccessibleOnly(false); setSort("recommended"); setHours(3); updateUrl({ location: null, type: null, eventType: null, guests: null, noise: null, accessible: null, sort: null, hours: null }); }
 
-  const sortOptions = [{ value: "recommended", label: "סדר הקטלוג" }, ...(eventPlaces.some((place) => place.capacityScope !== "unit") ? [{ value: "capacity", label: "קיבולת גבוהה" }] : []), { value: "name", label: "שם המקום" }];
+  const sortOptions = [{ value: "recommended", label: "התאמה מומלצת" }, ...(eventPlaces.some((place) => place.capacityScope !== "unit") ? [{ value: "capacity", label: "קיבולת גבוהה" }] : []), { value: "name", label: "שם המקום" }];
 
   const eventBreadcrumbFilters = [area !== "הכל" ? area : null, types.includes(type) && type !== "הכל" ? type : null, eventTypes.includes(eventType) && eventType !== "הכל" ? eventType : null].filter((item): item is string => Boolean(item));
   const eventHeading = `${types.includes(type) && type !== "הכל" ? type : "מקומות לאירועים"}${eventTypes.includes(eventType) && eventType !== "הכל" ? ` ל${eventType}` : ""}${area !== "הכל" ? ` ב${area}` : " בישראל"}`;

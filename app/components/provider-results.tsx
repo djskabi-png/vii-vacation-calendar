@@ -9,6 +9,7 @@ import { DiscoveryCard } from "./discovery-card";
 import { ModernSelect } from "./modern-select";
 import { ProgressiveResults } from "./progressive-results";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
+import { rotateWithinTiers } from "../lib/daily-rotation";
 
 const joinCopy: Record<SiteLanguage, { slot: string; title: string; description: string; action: string }> = {
   he: { slot: "מקום לספק הבא", title: "העסק שלכם יכול להיות כאן", description: "נותנים שירות לנופש או לאירועים? הציגו את העסק שלכם למי שמחפש ספק מתאים.", action: "פרטי הצטרפות כספק" },
@@ -40,13 +41,14 @@ export function ProviderResults({ items, category = "all" }: { items: DiscoveryI
   const regions = useMemo(() => ["כל הארץ", ...Array.from(new Set(items.flatMap((item) => item.serviceAreas || [item.area])))], [items]);
   const filtered = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase("he");
-    return items.filter((item) => {
+    return rotateWithinTiers(items.filter((item) => {
       const text = `${item.name} ${(item.searchTerms || []).join(" ")} ${item.area} ${item.description} ${item.features.join(" ")}`;
       const matchesQuery = !normalized || text.toLocaleLowerCase("he").includes(normalized);
       const matchesRegion = region === "כל הארץ" || (item.serviceAreas || [item.area]).includes(region);
       return matchesQuery && matchesRegion;
-    });
-  }, [items, query, region]);
+    }), (item) => (normalized && !item.name.toLocaleLowerCase("he").includes(normalized) ? 2 : 0) + (item.image ? 0 : 1),
+    (item) => item.id, `provider-search:${category}`);
+  }, [category, items, query, region]);
 
   function updateUrl(updates: Record<string, string>) {
     const params = new URLSearchParams(window.location.search);
