@@ -1,8 +1,10 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { createInterface } from "node:readline";
 import { parseFragment } from "parse5";
+import { assertNoUnreviewedRemovals, compareCatalogCandidate, stageCatalogCandidate } from "./catalog-candidate-guard.mjs";
 
 const destination = new URL("../app/data/spaplus-catalog.json", import.meta.url);
+const stageOnly = process.argv.includes("--stage-only");
 const legacyDestination = new URL("../app/data/spaplus-legacy-aliases.json", import.meta.url);
 const imageField = "CONCAT('https://www.spaplus.co.il/gallery/',picture)";
 
@@ -75,9 +77,15 @@ const packageCount = sites.reduce((sum, site) => sum + site.packages.length, 0);
 if (sites.length < 100 || packageCount < 500 || new Set(sites.map((site) => site.id)).size !== sites.length) {
   throw new Error(`Incomplete Spa Plus catalog: ${sites.length} sites, ${packageCount} packages`);
 }
+const previousCatalog = JSON.parse(await readFile(destination, "utf8"));
+const changes = compareCatalogCandidate("spa", previousCatalog.sites, sites);
+const staged = await stageCatalogCandidate("spa", sites, changes);
+assertNoUnreviewedRemovals(changes, staged);
 const previousAliases = JSON.parse(await readFile(legacyDestination, "utf8"));
 const liveIds = new Set(sites.map((site) => `spa-${site.id}`));
 const aliases = Object.fromEntries(Object.entries(previousAliases).filter(([, target]) => liveIds.has(target)));
-await writeFile(destination, `${JSON.stringify({ generatedAt: new Date().toISOString(), sites }, null, 2)}\n`, "utf8");
-await writeFile(legacyDestination, `${JSON.stringify(aliases, null, 2)}\n`, "utf8");
-process.stdout.write(`Spa Plus catalog: ${sites.length} sites, ${packageCount} packages, ${Object.keys(aliases).length} verified legacy redirects\n`);
+if (!stageOnly) {
+  await writeFile(destination, `${JSON.stringify({ generatedAt: new Date().toISOString(), sites }, null, 2)}\n`, "utf8");
+  await writeFile(legacyDestination, `${JSON.stringify(aliases, null, 2)}\n`, "utf8");
+}
+process.stdout.write(`${JSON.stringify({ stageOnly, sites: sites.length, packages: packageCount, aliases: Object.keys(aliases).length, changes, staged })}\n`);

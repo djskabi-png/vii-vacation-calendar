@@ -7,7 +7,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { DeferredListingMap } from "../components/deferred-listing-map";
 import { ModernSelect } from "../components/modern-select";
 import { StructuredData } from "../components/structured-data";
-import { collectionSchema } from "../lib/seo";
+import { breadcrumbSchema, collectionSchema } from "../lib/seo";
 import { SupplierCapacityNotice } from "../components/supplier-capacity-notice";
 import { UnavailablePlaceNotice } from "../components/unavailable-place-notice";
 import { PageShell } from "../components/page-shell";
@@ -16,7 +16,9 @@ import { type LegacyAvailabilityState, useLegacyAvailabilityBatch, useLegacyFlex
 import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
 import { SearchBox } from "../components/search-box";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
-import { properties } from "../data/site-data";
+import { properties as bundledProperties, type Property } from "../data/site-data";
+import { supplierDisplayDescription } from "../data/supplier-display-text";
+import { usePublishedCatalog } from "../lib/use-published-catalog";
 import { getPlaceAccessibility } from "../data/accessibility-data";
 import { CloseIcon, MapIcon, PinIcon } from "../site-header";
 import { useSiteLanguage } from "../i18n/locale-provider";
@@ -78,6 +80,7 @@ const legacyAccommodationTypes = [
   { label: "אוהלים אינדיאנים", matches: ["אוהל אינדיאני", "אוהלים אינדיאנים"] },
 ] as const;
 
+const properties = bundledProperties;
 const supplierTypeFilterAvailable = properties.some((property) => property.type !== "מקום אירוח");
 const supplierPriceFilterAvailable = properties.some((property) => typeof property.price === "number");
 
@@ -184,15 +187,15 @@ function compareOptionalNumber(first: number | undefined, second: number | undef
   return direction === "asc" ? first - second : second - first;
 }
 
-function compareVacationProperties(a: (typeof properties)[number], b: (typeof properties)[number], sort: string) {
-  if (sort === "price-asc") return compareOptionalNumber(a.price, b.price, "asc") || properties.indexOf(a) - properties.indexOf(b);
-  if (sort === "price-desc") return compareOptionalNumber(a.price, b.price, "desc") || properties.indexOf(a) - properties.indexOf(b);
-  if (sort === "rating-desc") return compareOptionalNumber(a.score, b.score, "desc") || properties.indexOf(a) - properties.indexOf(b);
-  if (sort === "rating-asc") return compareOptionalNumber(a.score, b.score, "asc") || properties.indexOf(a) - properties.indexOf(b);
-  if (sort === "capacity" && properties.some((property) => property.capacityScope !== "unit")) return b.guests - a.guests;
+function compareVacationProperties(a: (typeof properties)[number], b: (typeof properties)[number], sort: string, order = properties) {
+  if (sort === "price-asc") return compareOptionalNumber(a.price, b.price, "asc") || order.indexOf(a) - order.indexOf(b);
+  if (sort === "price-desc") return compareOptionalNumber(a.price, b.price, "desc") || order.indexOf(a) - order.indexOf(b);
+  if (sort === "rating-desc") return compareOptionalNumber(a.score, b.score, "desc") || order.indexOf(a) - order.indexOf(b);
+  if (sort === "rating-asc") return compareOptionalNumber(a.score, b.score, "asc") || order.indexOf(a) - order.indexOf(b);
+  if (sort === "capacity" && order.some((property) => property.capacityScope !== "unit")) return b.guests - a.guests;
   if (sort === "units") return (b.units || 1) - (a.units || 1);
   if (sort === "name") return a.name.localeCompare(b.name, "he");
-  return properties.indexOf(a) - properties.indexOf(b);
+  return order.indexOf(a) - order.indexOf(b);
 }
 const availabilityDemoCopy = {
   he: { title: "\u05d3\u05d5\u05d2\u05de\u05d0\u05d5\u05ea \u05dc\u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d5\u05dc\u05de\u05d7\u05d9\u05e8 \u05d1\u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd \u05e9\u05d1\u05d7\u05e8\u05ea\u05dd", text: "\u05d4\u05ea\u05d5\u05e6\u05d0\u05d5\u05ea \u05de\u05d3\u05d2\u05d9\u05de\u05d5\u05ea \u05d0\u05ea \u05db\u05dc \u05de\u05e6\u05d1\u05d9 \u05d4\u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d5\u05d4\u05de\u05d7\u05d9\u05e8 \u05dc\u05e4\u05d9 \u05de\u05d1\u05e0\u05d9 \u05d4\u05ea\u05e6\u05d5\u05d2\u05d4 \u05e9\u05dc VII \u05d4\u05d9\u05e9\u05df. \u05d6\u05d4\u05d5 \u05de\u05d9\u05d3\u05e2 \u05dc\u05d4\u05de\u05d7\u05e9\u05d4 \u05d5\u05dc\u05d0 \u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d7\u05d9\u05d4." },
@@ -310,7 +313,13 @@ function VacationPriceInput({ value, minimum, maximum, emptyValue, ariaLabel, on
   );
 }
 
+function runtimeProperty(value: unknown): Property {
+  const property = value as Property;
+  return { ...property, description: supplierDisplayDescription(property) };
+}
+
 export function SearchExperience({ landing }: { landing?: SearchLandingContext }) {
+  const { items: properties, error: catalogError, loading: catalogLoading } = usePublishedCatalog("vacations", runtimeProperty);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -472,7 +481,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
         .filter((label) => legacyAccommodationTypes.some((item) => item.label === label));
       const requestedPath = requestedTypes.length === 1
         ? cleanAccommodationPath(requestedTypes[0], requestedArea || "כל הארץ")
-        : cleanVacationPath(requestedArea || "כל הארץ");
+        : cleanVacationPath(requestedArea || "כל הארץ", properties);
       if (!landing && requestedPath) {
         params.delete("location");
         params.delete("type");
@@ -528,7 +537,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
         return option ? option.matches.some((term) => searchableFacts.includes(term.toLocaleLowerCase("he"))) : false;
       });
       return matchesType && matchesGuests && matchesPrice && matchesPool && matchesSpa && matchesWhole && matchesAccessibility && matchesExtras;
-    }), [accessibleOnly, guests, landing, maxPrice, minPrice, pool, selectedExtras, selectedTypes, spa, whole]);
+    }), [accessibleOnly, guests, landing, maxPrice, minPrice, pool, properties, selectedExtras, selectedTypes, spa, whole]);
 
   const flexibleCandidates = useMemo(
     () => flexibleVacationCandidates(flexibleSearch, guests),
@@ -598,7 +607,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
           return aDemoIndex - bDemoIndex;
         }
       }
-      return compareVacationProperties(a, b, sort);
+      return compareVacationProperties(a, b, sort, properties);
     });
   // landingType is derived from the immutable landing prop. Keeping the prop in
   // the dependency list lets the compiler preserve this memo across renders.
@@ -637,7 +646,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       const availabilityPriority = Number(hasVerifiedAvailablePrice(b) || hasAvailablePriceForSearch(b, selectedStayFor(b.slug), pathname, requestedLocation))
         - Number(hasVerifiedAvailablePrice(a) || hasAvailablePriceForSearch(a, selectedStayFor(a.slug), pathname, requestedLocation));
       if (availabilityPriority) return availabilityPriority;
-      return compareVacationProperties(a, b, sort);
+      return compareVacationProperties(a, b, sort, properties);
     });
   // The availability helpers close over the same primitive query inputs listed
   // below. Listing them directly would invalidate this memo on every render.
@@ -769,7 +778,10 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   return (
     <PageShell footerTopic={footerTopicForPropertyType(selectedTypes[0] || "הכל")}>
       <main id="main-content" className="results-page">
+        {catalogLoading ? <p className="shell" role="status">טוענים מקומות...</p> : null}
+        {catalogError ? <p className="shell" role="alert">לא ניתן לטעון את המקומות כרגע.</p> : null}
         {!landing ? <StructuredData data={collectionSchema("מקומות נופש בישראל", "מקומות נופש עם תמונות, יחידות ומתקנים. התאמה להרכב האורחים נבדקת מול המקום.", "/search", filtered.map((property) => ({ name: property.name, path: `/business?id=${property.slug}`, image: property.image })))} /> : null}
+        {!landing ? <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }])} /> : null}
         <UnavailablePlaceNotice world="vacations" />
         <div className="results-search shell"><SearchBox compact initialLocation={area === "הכל" ? "כל הארץ" : area} initialGuests={guests} basePath={selectedTypes.length <= 1 ? landing?.path : undefined} vacationType={selectedTypes.length === 1 ? selectedTypes[0] : undefined} /></div>
         <BreadcrumbTrail items={breadcrumbItems} />
@@ -828,14 +840,14 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
               <div className={`airbnb-map-split__results result-cards results-view results-view--${viewMode}`}>{displayedResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStayFor(property.slug)} liveAvailabilityState={liveAvailabilityFor(property.slug)} detailHref={detailHref(property.slug)} />)}</div>
               <div className="airbnb-map-split__map"><DeferredListingMap listings={mapCandidates} initialListings={filtered} autoLoad detailQuery={detailQuery} onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} /></div>
             </div>}
-            {(mapOpen && mapVisibleIds ? displayedResults.length === 0 : filtered.length === 0) && <div className="empty-state"><h2>לא נמצאה התאמה מדויקת</h2><p>אפשר לשנות אזור, להפחית את כמות האורחים או להסיר מאפיין.</p><button className="button primary" type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
+            {!catalogLoading && !catalogError && (mapOpen && mapVisibleIds ? displayedResults.length === 0 : filtered.length === 0) && <div className="empty-state"><h2>לא נמצאה התאמה מדויקת</h2><p>אפשר לשנות אזור, להפחית את כמות האורחים או להסיר מאפיין.</p><button className="button primary" type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
             {landing && filtered.length > 0 && <>
               <section id="accommodation-guide" className="accommodation-page-guide" aria-labelledby="accommodation-page-guide-title"><span className="eyebrow">המדריך של העמוד</span><h2 id="accommodation-page-guide-title">{landing.guideTitle || `איך בוחרים ${landing.breadcrumb}`}</h2><div>{(landing.guideParagraphs || [landing.description]).map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div></section>
               {landing.faqs?.length ? <section id="accommodation-faq" className="accommodation-page-faq" aria-labelledby="accommodation-page-faq-title"><span className="eyebrow">תשובות ממוקדות לעמוד הזה</span><h2 id="accommodation-page-faq-title">שאלות ותשובות על {landing.breadcrumb}</h2><div>{landing.faqs.map((item) => <details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}</div></section> : null}
             </>}
           </section>
         </div>
-        <SearchAfterResults world="vacation" location={area} searchSuggestions={contextualSearchSuggestions} hideGuideAndFaq={Boolean(landing)} reviewHighlights={filtered.filter((property) => typeof property.score === "number").sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 3).map((property) => ({ name: property.name, href: `/business?id=${property.slug}`, rating: property.score || 0, reviews: property.reviews }))} />
+        {!catalogLoading && !catalogError ? <SearchAfterResults world="vacation" location={area} inventory={properties} searchSuggestions={contextualSearchSuggestions} hideGuideAndFaq={Boolean(landing)} reviewHighlights={filtered.filter((property) => typeof property.score === "number").sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 3).map((property) => ({ name: property.name, href: `/business?id=${property.slug}`, rating: property.score || 0, reviews: property.reviews }))} /> : null}
         {filtersOpen && <button className="filter-backdrop" aria-label="סגירת סינון" onClick={closeFiltersPanel} />}
       </main>
     </PageShell>

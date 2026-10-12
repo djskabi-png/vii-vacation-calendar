@@ -1,6 +1,9 @@
 import type { MetadataRoute } from "next";
-import { eventPlaces, properties } from "./data/site-data";
-import { discoveryItems, spaPlaces } from "./data/world-data";
+import type { EventPlace, Property } from "./data/site-data";
+import { discoveryItems, hourlyPlacesFromCatalog, spaPlacesFromSites } from "./data/world-data";
+import type { SpaPlusSite } from "./data/spaplus";
+import hourlyCatalog from "./data/sergey-hourly-catalog.json";
+import { publicCatalogSummaries } from "./lib/public-catalog-read.ts";
 import { magazineArticles } from "./data/magazine-data";
 import { trails } from "./data/trail-data";
 import { absoluteUrl } from "./lib/seo";
@@ -11,6 +14,8 @@ import { spaLandings, spaLandingHref } from "./data/spa-landings";
 import { indexableSpaSearchStates, spaSearchHref } from "./data/spa-search-landings";
 import { matchesSearchLocation, searchLocationOptions } from "./data/search-taxonomy";
 import { eventSearchHref, hourlySearchHref } from "./data/world-search-landings";
+
+export const dynamic = "force-dynamic";
 
 /**
  * Every indexable page has one canonical Hebrew URL and reciprocal language
@@ -45,7 +50,15 @@ function item(path: string, priority: number, changeFrequency: MetadataRoute.Sit
   };
 }
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const [properties, eventPlaces, spaSites, hourlyCatalogPlaces] = await Promise.all([
+    publicCatalogSummaries<Property>("vacations"),
+    publicCatalogSummaries<EventPlace>("events"),
+    publicCatalogSummaries<SpaPlusSite>("spa"),
+    publicCatalogSummaries<(typeof hourlyCatalog.places)[number]>("rooms"),
+  ]);
+  const spaPlaces = spaPlacesFromSites(spaSites);
+  const hourlyPlaces = hourlyPlacesFromCatalog(hourlyCatalogPlaces);
   const staticPages = [
     item("/", 1, "daily"),
     item("/search/", 0.9, "daily"),
@@ -56,7 +69,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...spaLandings.map((landing) => item(spaLandingHref(landing), 0.82, "weekly")),
     ...Array.from(new Set(indexableSpaSearchStates(spaPlaces).map(spaSearchHref))).map((path) => item(path, 0.84, "weekly")),
     item("/hourly/", 0.8),
-    ...searchLocationOptions("hourly").filter((location) => location !== "כל הארץ" && discoveryItems.filter((place) => place.world === "hourly").some((place) => matchesSearchLocation(place, location))).map((location) => item(hourlySearchHref(location), 0.82, "weekly")),
+    ...searchLocationOptions("hourly").filter((location) => location !== "כל הארץ" && hourlyPlaces.some((place) => matchesSearchLocation(place, location))).map((location) => item(hourlySearchHref(location), 0.82, "weekly")),
     item("/trails/", 0.8),
     item("/attractions/", 0.8),
     item("/gift-card/", 0.85, "weekly"),
@@ -74,11 +87,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     ...staticPages,
-    ...indexableAccommodationLandings().map(({ path }) => item(path, 0.88, "weekly")),
-    ...indexableVacationLandings().map(({ path }) => item(path, 0.9, "daily")),
+    ...indexableAccommodationLandings(properties).map(({ path }) => item(path, 0.88, "weekly")),
+    ...indexableVacationLandings(properties).map(({ path }) => item(path, 0.9, "daily")),
     ...properties.filter((place) => place.indexable !== false).map((place) => item(`/business?id=${place.slug}`, 0.9, "weekly", [place.image, ...place.images])),
     ...eventPlaces.filter((place) => !place.sourcePropertySlug).map((place) => item(`/events/place/${place.slug}`, 0.85, "weekly", [place.image, ...place.images])),
-    ...discoveryItems.filter((place) => place.indexable === true || (place.indexable !== false && (place.world === "spa" || place.world === "hourly" || place.world === "activities"))).map((place) => item(`/discover/place/${place.id}`, 0.7, "weekly", place.image ? [place.image] : undefined)),
+    ...[...spaPlaces, ...hourlyPlaces, ...discoveryItems.filter((place) => place.world !== "spa" && place.world !== "hourly")]
+      .filter((place) => place.indexable === true || (place.indexable !== false && (place.world === "spa" || place.world === "hourly" || place.world === "activities")))
+      .map((place) => item(`/discover/place/${place.id}`, 0.7, "weekly", place.image ? [place.image] : undefined)),
     ...magazineArticles.map((article) => item(`/guides/${article.slug}/`, 0.75, "monthly", [article.image])),
     ...trails.map((trail) => item(`/trails/${trail.slug}/`, 0.75, "monthly")),
   ];

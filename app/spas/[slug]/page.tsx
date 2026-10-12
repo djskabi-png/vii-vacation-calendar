@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { StructuredData } from "../../components/structured-data";
 import { WorldLanding } from "../../components/world-landing";
-import { spaPlaces } from "../../data/world-data";
+import { spaPlacesFromSites } from "../../data/world-data";
+import type { SpaPlusSite } from "../../data/spaplus";
+import { publicCatalogSummaries } from "../../lib/public-catalog-read.ts";
 import { getSpaLanding, spaItemMatches, spaLandingHref, spaLandings } from "../../data/spa-landings";
 import { breadcrumbSchema, collectionSchema } from "../../lib/seo";
 
@@ -20,6 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function SpaLandingPage({ params }: { params: Promise<{ slug: string }> }) {
   const landing = getSpaLanding((await params).slug);
   if (!landing) notFound();
+  const spaPlaces = spaPlacesFromSites(await publicCatalogSummaries<SpaPlusSite>("spa"));
   const path = spaLandingHref(landing);
   const items = spaPlaces.filter((item) => spaItemMatches(item, landing));
   return <>

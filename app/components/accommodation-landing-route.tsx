@@ -3,11 +3,15 @@ import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { StructuredData } from "./structured-data";
 import { SearchExperience } from "../search/page";
+import { publicCatalogSummaries } from "../lib/public-catalog-read.ts";
+import { PublishedCatalogSeed } from "../lib/published-catalog-seed";
+import type { Property } from "../data/site-data";
 import { accommodationLandingForPath, type AccommodationCategoryId } from "../data/accommodation-landings";
 import { breadcrumbSchema, collectionSchema, faqSchema } from "../lib/seo";
 
-export function accommodationLandingMetadata(categoryId: AccommodationCategoryId, regionSlug?: string | null): Metadata {
-  const landing = accommodationLandingForPath(categoryId, regionSlug);
+export async function accommodationLandingMetadata(categoryId: AccommodationCategoryId, regionSlug?: string | null): Promise<Metadata> {
+  const publishedProperties = await publicCatalogSummaries<Property>("vacations");
+  const landing = accommodationLandingForPath(categoryId, regionSlug, publishedProperties);
   if (!landing) return { robots: { index: false, follow: true } };
   return {
     title: `${landing.title}, מקומות פעילים להזמנה`,
@@ -25,7 +29,8 @@ export function accommodationLandingMetadata(categoryId: AccommodationCategoryId
 }
 
 export async function AccommodationLandingRoute({ categoryId, regionSlug }: { categoryId: AccommodationCategoryId; regionSlug?: string | null }) {
-  const landing = accommodationLandingForPath(categoryId, regionSlug);
+  const publishedProperties = await publicCatalogSummaries<Property>("vacations");
+  const landing = accommodationLandingForPath(categoryId, regionSlug, publishedProperties);
   if (!landing) notFound();
   if (!landing.listings.length) {
     const locale = (await headers()).get("x-vii-locale");
@@ -70,7 +75,7 @@ export async function AccommodationLandingRoute({ categoryId, regionSlug }: { ca
     )} />
     <StructuredData data={breadcrumbSchema(breadcrumbs)} />
     <StructuredData data={faqSchema(faqs)} />
-    <SearchExperience landing={{
+    <PublishedCatalogSeed world="vacations" entries={publishedProperties}><SearchExperience landing={{
       path: landing.path,
       title: landing.title,
       description: landing.description,
@@ -84,6 +89,6 @@ export async function AccommodationLandingRoute({ categoryId, regionSlug }: { ca
       guideTitle,
       guideParagraphs,
       faqs,
-    }} />
+    }} /></PublishedCatalogSeed>
   </>;
 }

@@ -1,8 +1,7 @@
-import publicCatalog from "../../../data/sergey-public-catalog.json";
+import { publishedSupplierIds } from "../../../lib/published-supplier-ids.ts";
 import { getHomeDeals, homeDealPeriods, type HomeDealPeriod } from "../../../lib/vii-home-deals";
 import { supplierToken } from "../../../lib/vii-supplier-token";
 
-const publicSiteIds = new Set(publicCatalog.places.filter((place) => place.world === "vacations").map((place) => place.supplierId));
 const noStore = { "Cache-Control": "no-store" };
 
 export async function GET(request: Request) {
@@ -11,7 +10,7 @@ export async function GET(request: Request) {
     return Response.json({ error: "invalid_period" }, { status: 400, headers: noStore });
   }
   try {
-    const result = await getHomeDeals({ period: period as HomeDealPeriod, token: await supplierToken(), publicSiteIds });
+    const result = await getHomeDeals({ period: period as HomeDealPeriod, token: await supplierToken(), publicSiteIds: await publishedSupplierIds("vacations") });
     return Response.json(result, { headers: noStore });
   } catch {
     return Response.json({ error: "supplier_unavailable" }, { status: 503, headers: noStore });

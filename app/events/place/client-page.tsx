@@ -32,7 +32,7 @@ function PhoneIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.7 3.5 9 3a1.6 1.6 0 0 1 1.8 1l1 3a1.6 1.6 0 0 1-.5 1.7L9.7 10a14 14 0 0 0 4.3 4.3l1.3-1.6a1.6 1.6 0 0 1 1.7-.5l3 1a1.6 1.6 0 0 1 1 1.8l-.5 2.3a3 3 0 0 1-3 2.4A15.5 15.5 0 0 1 4.3 6.5a3 3 0 0 1 2.4-3Z" /></svg>;
 }
 
-export default function EventPlacePage({ initialSlug, supplierDetail }: { initialSlug: string; supplierDetail?: SupplierPlaceDetail }) {
+export default function EventPlacePage({ initialSlug, initialPlace, relatedPlaces, supplierDetail }: { initialSlug: string; initialPlace?: (typeof eventPlaces)[number]; relatedPlaces?: typeof eventPlaces; supplierDetail?: SupplierPlaceDetail }) {
   const searchParams = useSearchParams();
   const selectedDate = /^\d{4}-\d{2}-\d{2}$/.test(searchParams.get("from") || "") ? searchParams.get("from") || "" : "";
   const selectedGuests = /^\d+$/.test(searchParams.get("guests") || "") ? searchParams.get("guests") || "" : "";
@@ -55,14 +55,14 @@ export default function EventPlacePage({ initialSlug, supplierDetail }: { initia
   const [submissionId, setSubmissionId] = useState("");
   const [phoneRevealed, setPhoneRevealed] = useState(false);
   const place = useMemo(() => {
-    const base = eventPlaces.find((item) => item.slug === initialSlug) || eventPlaces[0];
+    const base = initialPlace || eventPlaces.find((item) => item.slug === initialSlug) || eventPlaces[0];
     return supplierDetail ? { ...base, name: supplierDetail.name || base.name, image: supplierDetail.images[0] || base.image,
       images: supplierDetail.images, location: supplierDetail.location || base.location, area: supplierDetail.area || base.area,
       lat: supplierDetail.lat ?? base.lat, lng: supplierDetail.lng ?? base.lng, guests: supplierDetail.guests || base.guests,
       units: supplierDetail.units || base.units, contact: { ...base.contact, ...(supplierDetail.phone ? { phone: supplierDetail.phone } : {}), whatsapp: supplierDetail.whatsapp },
       description: supplierDetail.summary || base.description,
       features: [...new Set([...(supplierDetail.highlights || []), ...base.features, ...supplierDetail.rooms.flatMap((room) => room.features)])] } : base;
-  }, [initialSlug, supplierDetail]);
+  }, [initialPlace, initialSlug, supplierDetail]);
   const ownerWhatsapp = place.contact?.whatsapp;
   const ownerPhone = place.contact?.phone;
   const phoneHref = ownerPhone ? `tel:${ownerPhone.replace(/[^\d+]/g, "")}` : undefined;
@@ -151,7 +151,7 @@ export default function EventPlacePage({ initialSlug, supplierDetail }: { initia
 
         <div className="section shell"><MasuExperience context="event" /></div>
 
-        <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים לאירוע</h2></div><div className="event-more-grid">{eventPlaces.filter((item) => item.slug !== place.slug).slice(0, 3).map((item) => <Link key={item.slug} href={eventPlaceHref(item)}><img src={item.image} alt={item.name} title={item.name} /><div><b>{item.name}</b><span>{item.location} · עד {item.guests} אורחים ביחידה הגדולה</span></div></Link>)}</div></div></section>
+        <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים לאירוע</h2></div><div className="event-more-grid">{(relatedPlaces || eventPlaces).filter((item) => item.slug !== place.slug).slice(0, 3).map((item) => <Link key={item.slug} href={eventPlaceHref(item)}><img src={item.image} alt={item.name} title={item.name} /><div><b>{item.name}</b><span>{item.location} · עד {item.guests} אורחים ביחידה הגדולה</span></div></Link>)}</div></div></section>
       </main>
 
       <GalleryExperience key={`${place.slug}-${galleryOpen ? `${galleryTab}-${galleryStart}` : "closed"}`} property={place} open={galleryOpen} initialIndex={galleryStart} initialTab={galleryTab} onSelectionChange={updateGallerySelection} onClose={closeGallery} />

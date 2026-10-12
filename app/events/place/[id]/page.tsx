@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import EventPlacePage from "../client-page";
-import { eventPlaceHref, eventPlaces } from "../../../data/site-data";
+import { eventPlaceHref, type EventPlace } from "../../../data/site-data";
+import { publicCatalogDetail, publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
 import { StructuredData } from "../../../components/structured-data";
 import { breadcrumbSchema, eventVenueSchema } from "../../../lib/seo";
 import { ViewedItemBootstrap } from "../../../components/viewed-item-bootstrap";
 import { supplierLegacySlug, unavailableLegacySearchHref } from "../../../data/supplier-legacy-links";
-import { liveSupplierPlaceDetail } from "../../../data/supplier-place-detail";
+import { liveSupplierPlaceDetail, type SupplierPlaceDetail } from "../../../data/supplier-place-detail";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -18,7 +19,7 @@ async function resolvePlace(id: string) {
   if (mappedSlug) redirect(`${prefix}/events/place/${mappedSlug}`);
   const unavailable = unavailableLegacySearchHref(id, "events");
   if (unavailable) redirect(`${prefix}${unavailable}`);
-  const place = eventPlaces.find((item) => item.slug === id);
+  const place = (await publicCatalogSummaries<EventPlace>("events")).find((item) => item.slug === id);
   if (!place) notFound();
   return place;
 }
@@ -37,6 +38,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function Page({ params }: Props) {
   const place = await resolvePlace((await params).id);
   if (place.sourcePropertySlug) redirect(eventPlaceHref(place));
+  const places = await publicCatalogSummaries<EventPlace>("events");
+  const supplierId = /^event-(\d+)$/.exec(place.slug)?.[1];
+  const acceptedDetail = supplierId ? await publicCatalogDetail<SupplierPlaceDetail>("events", Number(supplierId)) : null;
   return <>
     <ViewedItemBootstrap id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים${place.capacityScope === "unit" ? " ביחידה הגדולה" : ""}`} />
     <StructuredData data={eventVenueSchema(place)} />
@@ -46,6 +50,7 @@ export default async function Page({ params }: Props) {
       { name: "מקומות לאירועים", path: "/events/search/" },
       { name: place.name, path: eventPlaceHref(place) },
     ])} />
-    <EventPlacePage initialSlug={place.slug} supplierDetail={await liveSupplierPlaceDetail(place.slug)} />
+    <EventPlacePage initialSlug={place.slug} initialPlace={place} relatedPlaces={places}
+      supplierDetail={await liveSupplierPlaceDetail(place.slug, { fallback: acceptedDetail, listing: place })} />
   </>;
 }

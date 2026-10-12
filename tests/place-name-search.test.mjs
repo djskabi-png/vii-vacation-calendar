@@ -7,9 +7,12 @@ const placeInventory = await readFile(new URL("../app/data/search-place-inventor
 const localeProvider = await readFile(new URL("../app/i18n/locale-provider.tsx", import.meta.url), "utf8");
 
 test("destination search indexes named places in every bookable world", () => {
-  assert.match(placeInventory, /properties\.map/);
-  assert.match(placeInventory, /eventPlaces\.map/);
-  assert.match(placeInventory, /mode === "spa" \? spaPlaces : hourlyPlaces/);
+  assert.match(searchBox, /fetch\(`\/api\/catalog\?world=\$\{world\}&view=lookup`/);
+  assert.match(searchBox, /cache: "no-store"/);
+  assert.match(placeInventory, /mode === "vacation"/);
+  assert.match(placeInventory, /mode === "events"/);
+  assert.match(placeInventory, /mode === "spa"/);
+  assert.match(placeInventory, /mode === "hourly"/);
   assert.match(searchBox, /place\.name, place\.location, place\.area/);
 });
 
@@ -21,10 +24,11 @@ test("named place results are distinct from region and town suggestions", () => 
 });
 
 test("opening a named place navigates directly in every world", () => {
-  assert.match(placeInventory, /href: `\/business\?id=\$\{place\.slug\}`/);
-  assert.match(placeInventory, /href: eventPlaceHref\(place\)/);
-  assert.match(placeInventory, /href: `\/discover\/place\/\$\{place\.id\}`/);
+  assert.match(placeInventory, /`\/business\?id=\$\{id\}`/);
+  assert.match(placeInventory, /`\/events\/place\/\$\{id\}`/);
+  assert.match(placeInventory, /`\/discover\/place\/\$\{id\}`/);
   assert.match(searchBox, /localizedPath\(place\.href, language\)/);
+  assert.match(searchBox, /placeInventoryError \? <p role="alert">/);
   assert.doesNotMatch(searchBox, /choosePlace/);
   assert.doesNotMatch(searchBox, /selectedPlaceRef/);
 });

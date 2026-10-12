@@ -8,13 +8,24 @@ import { MasuExperience } from "./components/masu-experience";
 import { SearchBox } from "./components/search-box";
 import { magazineArticles } from "./data/magazine-data";
 import { destinations } from "./data/site-data";
+import type { EventPlace, Property } from "./data/site-data";
+import { hourlyPlacesFromCatalog, spaPlacesFromSites } from "./data/world-data";
+import type { SpaPlusSite } from "./data/spaplus";
+import hourlyCatalog from "./data/sergey-hourly-catalog.json";
+import { publicCatalogSummaries } from "./lib/public-catalog-read.ts";
 import { GiftIcon, PeopleIcon } from "./site-header";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [properties, eventPlaces, spaSites, hourlyCatalogPlaces] = await Promise.all([
+    publicCatalogSummaries<Property>("vacations"),
+    publicCatalogSummaries<EventPlace>("events"),
+    publicCatalogSummaries<SpaPlusSite>("spa"),
+    publicCatalogSummaries<(typeof hourlyCatalog.places)[number]>("rooms"),
+  ]);
   return (
     <PageShell>
       <main id="main-content">
@@ -27,7 +38,8 @@ export default function HomePage() {
           </div>
         </section>
 
-        <HomeShowcase />
+        <HomeShowcase properties={properties} eventPlaces={eventPlaces}
+          spaPlaces={spaPlacesFromSites(spaSites)} hourlyPlaces={hourlyPlacesFromCatalog(hourlyCatalogPlaces)} />
 
         <section className="section home-corporate-gift"><div className="shell"><Link className="home-corporate-gift__card home-corporate-gift__card--gift" href="/gift-card"><span className="home-corporate-gift__visual"><GiftIcon /></span><div><span className="eyebrow">מתנה שמשאירה את הבחירה אצלם</span><h2>גיפט קארד לכל העולמות של וי</h2><p>נופש, ספא, אירועים, אטרקציות ושירותים, במתנה אחת.</p><strong>יוצרים גיפט קארד</strong></div></Link><Link className="home-corporate-gift__card home-corporate-gift__card--corporate" href="/corporate"><span className="home-corporate-gift__visual"><PeopleIcon /></span><div><span className="eyebrow">למנהלות רווחה ולעסקים</span><h2>אירועי חברה, רווחה ומתנות לעובדים</h2><p>מקום, תוכן, ספקים וגיפט קארד במסלול אחד.</p><strong>למרכז הארגוני</strong></div></Link></div></section>
 

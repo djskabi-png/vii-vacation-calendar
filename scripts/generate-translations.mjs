@@ -74,6 +74,7 @@ while (queue.length && visited.size < 260) {
 
 const manual = {
   en: {
+    "אורח": "Guest", "מקום לאירועים": "Event venue",
     "וי פור ויקיישן": "VII Vacation",
     "מקומות לאירועים פרטיים בישראל | וי פור ויקיישן": "Private Event Venues in Israel | VII Vacation",
     "עין אפק, גשרים מעל הביצה, מדריך מסלול | וי פור ויקיישן": "Ein Afek Wetland Bridges Trail Guide | VII Vacation",
@@ -106,6 +107,7 @@ const manual = {
     "\u05d4\u05ea\u05e7\u05e8\u05d1\u05d5\u05ea \u05dc\u05de\u05e7\u05d5\u05de\u05d5\u05ea \u05d4\u05de\u05e7\u05d5\u05d1\u05e6\u05d9\u05dd": "Zoom in to grouped places",
   },
   ru: {
+    "אורח": "Гость", "מקום לאירועים": "Место для мероприятий",
     "וי פור ויקיישן": "VII Vacation",
     "כל החופשה, במקום אחד": "Весь отдых в одном месте",
     "מוצאים את החופשה שמתאימה לכם": "Найдите отдых, который подходит именно вам",
@@ -133,6 +135,7 @@ const manual = {
     "לאירועי חברה": "Корпоративные мероприятия",
   },
   fr: {
+    "אורח": "Voyageur", "מקום לאירועים": "Lieu de réception",
     "וי פור ויקיישן": "VII Vacation",
     "כל החופשה, במקום אחד": "Toutes vos vacances, au même endroit",
     "מוצאים את החופשה שמתאימה לכם": "Trouvez le séjour qui vous correspond",

@@ -12,7 +12,7 @@ import { BookingSchedulePicker } from "../components/booking-schedule-picker";
 import { ViewedItemTracker } from "../components/viewed-item-tracker";
 import { useLegacyAvailability } from "../components/use-legacy-availability";
 import { useViiStayQuote } from "../components/use-vii-stay-quote";
-import { properties } from "../data/site-data";
+import type { Property } from "../data/site-data";
 import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
 
 type Props = {
@@ -44,6 +44,7 @@ type Props = {
     taxesIncluded: boolean;
   };
   supplierRoomID?: number;
+  vacationProperty?: Property;
 };
 
 const priceCopy = {
@@ -92,7 +93,7 @@ export default function BookingPageClient(props: Props) {
   const [successExplanationOpen, setSuccessExplanationOpen] = useState(false);
   const demoReference = props.demoProperty ? "PALUMBO-DEMO" : "DEMO";
   const isManage = props.action === "manage";
-  const vacationProperty = useMemo(() => props.world === "vacation" ? properties.find((property) => property.slug === props.placeId) || null : null, [props.placeId, props.world]);
+  const vacationProperty = props.world === "vacation" ? props.vacationProperty || null : null;
   const liveSourceEnabled = Boolean(vacationProperty && legacyAvailabilitySourceFor(vacationProperty.slug));
   const supplierSiteID = /^vacation-(\d+)$/.exec(props.placeId)?.[1];
   const supplierQuote = useViiStayQuote(supplierSiteID ? Number(supplierSiteID) : null, arrival, departure, Math.max(1, Number(guests) || 2));

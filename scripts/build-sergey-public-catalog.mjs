@@ -4,8 +4,10 @@ import { parseFragment } from "parse5";
 import { supplierDisplayDescription } from "../app/data/supplier-display-text.ts";
 import { supplierContactNumber } from "../app/lib/supplier-contact.ts";
 import { assertCatalogCoverage } from "./sergey-catalog-coverage.mjs";
+import { assertNoUnreviewedRemovals, compareCatalogCandidate, stageCatalogCandidate } from "./catalog-candidate-guard.mjs";
 
 const root = new URL("../", import.meta.url);
+const stageOnly = process.argv.includes("--stage-only");
 const input = process.env.VII_SERGEY_RAW_PATH || new URL("tmp/vii-sergey-stage-20261005/raw.json.gz", root);
 const output = new URL("app/data/sergey-public-catalog.json", root);
 const detailOutput = new URL("app/data/sergey-place-details.json", root);
@@ -143,11 +145,24 @@ assertCatalogCoverage(
   Object.fromEntries(["vacations", "events"].map((world) => [world, previousCatalog.places.filter((place) => place.world === world).length])),
   Object.fromEntries(["vacations", "events"].map((world) => [world, places.filter((place) => place.world === world).length])),
 );
-await mkdir(new URL("tmp/vii-sergey-stage-20261005/", root), { recursive: true });
-await writeFile(output, `${JSON.stringify(result)}\n`);
-await writeFile(detailOutput, `${JSON.stringify({ source: "sergey-vii-api", fetchedAt: source.fetchedAt, details })}\n`);
-await writeFile(report, `${JSON.stringify({ fetchedAt: source.fetchedAt, accepted: {
-  vacations: places.filter((place) => place.world === "vacations").length,
-  events: places.filter((place) => place.world === "events").length,
-}, galleryImageLimit: 12, rejected }, null, 2)}\n`);
-console.log(JSON.stringify({ accepted: places.length, rejected }));
+const changes = ["vacations", "events"].map((world) => compareCatalogCandidate(
+  world,
+  previousCatalog.places.filter((place) => place.world === world),
+  places.filter((place) => place.world === world),
+));
+const staged = await Promise.all(changes.map((change) => stageCatalogCandidate(
+  change.world,
+  places.filter((place) => place.world === change.world),
+  change,
+)));
+for (const [index, change] of changes.entries()) assertNoUnreviewedRemovals(change, staged[index]);
+if (!stageOnly) {
+  await mkdir(new URL("tmp/vii-sergey-stage-20261005/", root), { recursive: true });
+  await writeFile(output, `${JSON.stringify(result)}\n`);
+  await writeFile(detailOutput, `${JSON.stringify({ source: "sergey-vii-api", fetchedAt: source.fetchedAt, details })}\n`);
+  await writeFile(report, `${JSON.stringify({ fetchedAt: source.fetchedAt, accepted: {
+    vacations: places.filter((place) => place.world === "vacations").length,
+    events: places.filter((place) => place.world === "events").length,
+  }, galleryImageLimit: 12, rejected }, null, 2)}\n`);
+}
+console.log(JSON.stringify({ stageOnly, accepted: places.length, changes, staged, rejected }));

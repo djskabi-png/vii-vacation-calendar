@@ -33,3 +33,41 @@ export const guestReviewFiles = sqliteTable("guest_review_files", {
 }, (table) => [
   index("idx_guest_review_files_review").on(table.reviewId),
 ]);
+
+export const supplierCatalogRuns = sqliteTable("supplier_catalog_runs", {
+  id: text("id").primaryKey(),
+  world: text("world").notNull(),
+  source: text("source").notNull(),
+  status: text("status").notNull(),
+  startedAt: text("started_at").notNull(),
+  finishedAt: text("finished_at"),
+  beforeCount: integer("before_count"),
+  candidateCount: integer("candidate_count"),
+  addedCount: integer("added_count"),
+  changedCount: integer("changed_count"),
+  removedCount: integer("removed_count"),
+  errorCode: text("error_code"),
+}, (table) => [
+  index("idx_supplier_catalog_runs_world_started").on(table.world, table.startedAt),
+]);
+
+export const supplierCatalogEntries = sqliteTable("supplier_catalog_entries", {
+  id: text("id").primaryKey(),
+  runId: text("run_id").notNull().references(() => supplierCatalogRuns.id),
+  world: text("world").notNull(),
+  supplierId: integer("supplier_id").notNull(),
+  summaryJson: text("summary_json").notNull(),
+  detailJson: text("detail_json"),
+}, (table) => [
+  index("idx_supplier_catalog_entries_run_world").on(table.runId, table.world),
+  index("idx_supplier_catalog_entries_world_supplier").on(table.world, table.supplierId),
+]);
+
+export const supplierCatalogState = sqliteTable("supplier_catalog_state", {
+  world: text("world").primaryKey(),
+  activeRunId: text("active_run_id").references(() => supplierCatalogRuns.id),
+  acceptedAt: text("accepted_at"),
+  activeCount: integer("active_count").notNull().default(0),
+  lockRunId: text("lock_run_id"),
+  lockUntil: text("lock_until"),
+});

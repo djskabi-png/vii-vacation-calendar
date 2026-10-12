@@ -148,7 +148,7 @@ function roomBookingHref(bookingQuery: string, index: number, nightlyPrice: numb
   params.set("price", String(nightlyPrice));
   return `/booking?${params.toString()}`;
 }
-export default function BusinessPage({ initialSlug, supplierDetail, initialWorld = "vacation", initialDates, initialFrom, initialTill, initialGuests = "2", initialPrice, initialIllustrative = false, initialSource, initialPeriod }: { initialSlug: string; supplierDetail?: SupplierPlaceDetail; initialWorld?: BusinessWorld; initialDates?: string; initialFrom?: string; initialTill?: string; initialGuests?: string; initialRooms?: string; initialPrice?: string; initialIllustrative?: boolean; initialSource?: string; initialPeriod?: string }) {
+export default function BusinessPage({ initialSlug, initialProperty, relatedProperties, supplierDetail, initialWorld = "vacation", initialDates, initialFrom, initialTill, initialGuests = "2", initialPrice, initialIllustrative = false, initialSource, initialPeriod }: { initialSlug: string; initialProperty?: Property; relatedProperties?: Property[]; supplierDetail?: SupplierPlaceDetail; initialWorld?: BusinessWorld; initialDates?: string; initialFrom?: string; initialTill?: string; initialGuests?: string; initialRooms?: string; initialPrice?: string; initialIllustrative?: boolean; initialSource?: string; initialPeriod?: string }) {
   const { language, translate } = useSiteLanguage();
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [dates, setDates] = useState(initialDates || "");
@@ -166,7 +166,7 @@ export default function BusinessPage({ initialSlug, supplierDetail, initialWorld
   const [selectedRoomIndex, setSelectedRoomIndex] = useState<number | null>(null);
   const closeUnitDetails = useCallback(() => setSelectedRoomIndex(null), []);
   const property = useMemo<Property>(() => {
-    const base = properties.find((item) => item.slug === initialSlug) || properties[0];
+    const base = initialProperty || properties.find((item) => item.slug === initialSlug) || properties[0];
     return supplierDetail ? { ...base, name: supplierDetail.name || base.name, image: supplierDetail.images[0] || base.image,
       images: supplierDetail.images, location: supplierDetail.location || base.location, area: supplierDetail.area || base.area,
       lat: supplierDetail.lat ?? base.lat, lng: supplierDetail.lng ?? base.lng, guests: supplierDetail.guests || base.guests,
@@ -176,7 +176,7 @@ export default function BusinessPage({ initialSlug, supplierDetail, initialWorld
         bedrooms: room.bedrooms, image: room.images?.[0] || "", images: room.images || [], features: room.features,
         ...(room.id ? { supplierRoomID: room.id } : {}) })),
       features: [...new Set([...(supplierDetail.highlights || []), ...base.features, ...supplierDetail.rooms.flatMap((room) => room.features)])] } : base;
-  }, [initialSlug, supplierDetail]);
+  }, [initialProperty, initialSlug, supplierDetail]);
   const offerings = useMemo(() => getListingOfferings(property), [property]);
   const [worldSelection, setWorldSelection] = useState<{ slug: string; world: BusinessWorld } | null>(null);
   const initialActiveWorld = offerings.some((offering) => offering.world === initialWorld) ? initialWorld : offerings[0].world;
@@ -454,7 +454,7 @@ export default function BusinessPage({ initialSlug, supplierDetail, initialWorld
           </div>
         </section>
 
-        <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים שיכולים להתאים</h2></div><div className="card-grid">{properties.filter((item) => item.slug !== property.slug).slice(0, 3).map((item) => <PropertyCard key={item.slug} property={item} promotional />)}</div></div></section>
+        <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים שיכולים להתאים</h2></div><div className="card-grid">{(relatedProperties || properties).filter((item) => item.slug !== property.slug).slice(0, 3).map((item) => <PropertyCard key={item.slug} property={item} promotional />)}</div></div></section>
 
         <section className="property-page-endcap" aria-labelledby="property-endcap-title">
           <div className="shell property-page-endcap__inner">

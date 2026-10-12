@@ -7,14 +7,17 @@ import frTranslations from "../app/i18n/translations.fr.generated.json";
 import hourlyUiTranslations from "../app/data/hourly-ui-translations.json";
 import providerJoinTranslations from "../app/data/provider-join-translations.json";
 import spaUiTranslations from "../app/data/spa-ui-translations.json";
+import catalogAdminTranslations from "../app/data/catalog-admin-translations.json";
+import { scheduledCatalogWorld } from "../app/lib/supplier-catalog-schedule.ts";
+import { syncSupplierCatalogWorld } from "../app/lib/supplier-catalog-runtime.ts";
 
 type PublicLocale = "he" | "en" | "ru" | "fr";
 type TranslationDictionary = Record<string, string>;
 
 const serverTranslations: Record<Exclude<PublicLocale, "he">, TranslationDictionary> = {
-  en: { ...enTranslations, ...Object.fromEntries(Object.entries(hourlyUiTranslations).map(([key, value]) => [key, value.en])), ...Object.fromEntries(Object.entries(providerJoinTranslations).map(([key, value]) => [key, value.en])), ...Object.fromEntries(Object.entries(spaUiTranslations).map(([key, value]) => [key, value.en])) },
-  ru: { ...ruTranslations, ...Object.fromEntries(Object.entries(hourlyUiTranslations).map(([key, value]) => [key, value.ru])), ...Object.fromEntries(Object.entries(providerJoinTranslations).map(([key, value]) => [key, value.ru])), ...Object.fromEntries(Object.entries(spaUiTranslations).map(([key, value]) => [key, value.ru])) },
-  fr: { ...frTranslations, ...Object.fromEntries(Object.entries(hourlyUiTranslations).map(([key, value]) => [key, value.fr])), ...Object.fromEntries(Object.entries(providerJoinTranslations).map(([key, value]) => [key, value.fr])), ...Object.fromEntries(Object.entries(spaUiTranslations).map(([key, value]) => [key, value.fr])) },
+  en: { ...enTranslations, ...Object.fromEntries(Object.entries(hourlyUiTranslations).map(([key, value]) => [key, value.en])), ...Object.fromEntries(Object.entries(providerJoinTranslations).map(([key, value]) => [key, value.en])), ...Object.fromEntries(Object.entries(spaUiTranslations).map(([key, value]) => [key, value.en])), ...Object.fromEntries(Object.entries(catalogAdminTranslations).map(([key, value]) => [key, value.en])) },
+  ru: { ...ruTranslations, ...Object.fromEntries(Object.entries(hourlyUiTranslations).map(([key, value]) => [key, value.ru])), ...Object.fromEntries(Object.entries(providerJoinTranslations).map(([key, value]) => [key, value.ru])), ...Object.fromEntries(Object.entries(spaUiTranslations).map(([key, value]) => [key, value.ru])), ...Object.fromEntries(Object.entries(catalogAdminTranslations).map(([key, value]) => [key, value.ru])) },
+  fr: { ...frTranslations, ...Object.fromEntries(Object.entries(hourlyUiTranslations).map(([key, value]) => [key, value.fr])), ...Object.fromEntries(Object.entries(providerJoinTranslations).map(([key, value]) => [key, value.fr])), ...Object.fromEntries(Object.entries(spaUiTranslations).map(([key, value]) => [key, value.fr])), ...Object.fromEntries(Object.entries(catalogAdminTranslations).map(([key, value]) => [key, value.fr])) },
 };
 
 function translateServerText(value: string, locale: PublicLocale) {
@@ -96,6 +99,15 @@ interface ExecutionContext {
 // const imageConfig: ImageConfig = { dangerouslyAllowSVG: true };
 
 const worker = {
+  scheduled(controller: { scheduledTime: number }, env: Env, ctx: ExecutionContext) {
+    const world = scheduledCatalogWorld(new Date(controller.scheduledTime));
+    if (!world) return;
+    ctx.waitUntil(syncSupplierCatalogWorld(env.DB, world, "scheduled").then((result) => {
+      if (result.status !== "accepted" && result.status !== "skipped") {
+        console.error("VII scheduled catalog sync did not publish", world, result.errorCode);
+      }
+    }));
+  },
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
 

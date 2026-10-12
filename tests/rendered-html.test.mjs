@@ -609,8 +609,8 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(business, /<FavoriteButton compact className="property-gallery__favorite"/);
   assert.match(eventPlace, /<FavoriteButton compact=\{false\}/);
   assert.match(styles, /\.universal-favorite\.is-saved/);
-  assert.match(worldData, /spaPlaces: DiscoveryItem\[\] = spaPlusSites\.map/);
-  assert.match(worldData, /hourlyPlaces: DiscoveryItem\[\] = hourlyCatalog\.places\.map/);
+  assert.match(worldData, /spaPlaces: DiscoveryItem\[\] = spaPlacesFromSites\(spaPlusSites\)/);
+  assert.match(worldData, /hourlyPlaces: DiscoveryItem\[\] = hourlyPlacesFromCatalog\(hourlyCatalog\.places\)/);
   assert.match(worldSwitcher, /בחירת עולם/);
   assert.match(worldSwitcher, /מה מחפשים\?/);
   assert.match(worldSwitcher, /aria-current/);
@@ -1261,7 +1261,7 @@ test("discovery depth pages expose only their visible verified FAQs as FAQPage d
   assert.match(discoveryPage, /function itemFaq/);
   assert.match(discoveryPage, /getSpaDetails/);
   assert.match(discoveryPage, /getHourlyDetails/);
-  assert.match(discoveryPage, /<StructuredData data=\{faqSchema\(itemFaq\(item\)\)\}/);
+  assert.match(discoveryPage, /<StructuredData data=\{faqSchema\(itemFaq\(item, spaSite, hourlyPlace\)\)\}/);
   assert.doesNotMatch(spaHtml, /"@type":"FAQPage"/);
   assert.match(hourlyHtml, /"@type":"FAQPage"/);
 });

@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import EventPlacePage from "./client-page";
-import { eventPlaceHref, eventPlaces } from "../../data/site-data";
+import { eventPlaceHref, type EventPlace } from "../../data/site-data";
+import { supplierDisplayDescription } from "../../data/supplier-display-text";
+import { publicCatalogDetail, publicCatalogSummaries } from "../../lib/public-catalog-read.ts";
 import { StructuredData } from "../../components/structured-data";
 import { breadcrumbSchema, eventVenueSchema } from "../../lib/seo";
 import { supplierLegacySlug, unavailableLegacySearchHref } from "../../data/supplier-legacy-links";
-import { liveSupplierPlaceDetail } from "../../data/supplier-place-detail";
+import { liveSupplierPlaceDetail, type SupplierPlaceDetail } from "../../data/supplier-place-detail";
 
 type Props = { searchParams: Promise<{ id?: string }> };
 
@@ -17,13 +19,15 @@ async function resolvePlace(id?: string) {
   if (mappedSlug) redirect(`${prefix}/events/place/${mappedSlug}`);
   const unavailable = unavailableLegacySearchHref(id, "events");
   if (unavailable) redirect(`${prefix}${unavailable}`);
-  const place = id ? eventPlaces.find((item) => item.slug === id) : undefined;
+  const places = (await publicCatalogSummaries<EventPlace>("events"))
+    .map((item) => ({ ...item, description: supplierDisplayDescription(item) }));
+  const place = id ? places.find((item) => item.slug === id) : undefined;
   if (!place) notFound();
-  return place;
+  return { place, places };
 }
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const place = await resolvePlace((await searchParams).id);
+  const { place } = await resolvePlace((await searchParams).id);
   return {
     title: place.name,
     description: place.description,
@@ -34,8 +38,11 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 }
 
 export default async function Page({ searchParams }: Props) {
-  const place = await resolvePlace((await searchParams).id);
+  const { place, places } = await resolvePlace((await searchParams).id);
   if (place.sourcePropertySlug) redirect(eventPlaceHref(place));
+  const supplierId = /^event-(\d+)$/.exec(place.slug)?.[1];
+  const acceptedDetail = supplierId ? await publicCatalogDetail<SupplierPlaceDetail>("events", Number(supplierId)) : null;
+  const supplierDetail = await liveSupplierPlaceDetail(place.slug, { fallback: acceptedDetail, listing: place });
   return <>
     <StructuredData data={eventVenueSchema(place)} />
     <StructuredData data={breadcrumbSchema([
@@ -44,6 +51,6 @@ export default async function Page({ searchParams }: Props) {
       { name: "מקומות לאירועים", path: "/events/search/" },
       { name: place.name, path: eventPlaceHref(place) },
     ])} />
-    <EventPlacePage initialSlug={place.slug} supplierDetail={await liveSupplierPlaceDetail(place.slug)} />
+    <EventPlacePage initialSlug={place.slug} initialPlace={place} relatedPlaces={places} supplierDetail={supplierDetail} />
   </>;
 }

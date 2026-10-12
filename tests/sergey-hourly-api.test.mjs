@@ -12,7 +12,7 @@ test("hourly discovery uses every imported supplier place and no old local inven
   assert.equal(catalog.source, "sergey-vii-api/rooms");
   assert.equal(catalog.places.length, 4);
   assert.equal(new Set(catalog.places.map((place) => place.id)).size, 4);
-  assert.match(worldData, /hourlyPlaces: DiscoveryItem\[\] = hourlyCatalog\.places\.map/);
+  assert.match(worldData, /hourlyPlaces: DiscoveryItem\[\] = hourlyPlacesFromCatalog\(hourlyCatalog\.places\)/);
   assert.doesNotMatch(worldData, /curatedHourlyPlaces|verifiedDiscoveryItems\("hourly"\)/);
 });
 
