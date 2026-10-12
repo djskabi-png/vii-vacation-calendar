@@ -54,8 +54,8 @@ export async function catalogStatusMcp(request: Request, dependencies: {
   if (modern) {
     const clientInfo = object(paramsMeta?.["io.modelcontextprotocol/clientInfo"]);
     if (!paramsMeta || typeof paramsMeta["io.modelcontextprotocol/protocolVersion"] !== "string"
-      || !clientInfo || typeof clientInfo.name !== "string" || !clientInfo.name
-      || typeof clientInfo.version !== "string" || !clientInfo.version
+      || (paramsMeta["io.modelcontextprotocol/clientInfo"] !== undefined
+        && (!clientInfo || typeof clientInfo.name !== "string" || typeof clientInfo.version !== "string"))
       || !object(paramsMeta["io.modelcontextprotocol/clientCapabilities"])) {
       return error(message.id, -32602, "Required protocol metadata missing", 400);
     }

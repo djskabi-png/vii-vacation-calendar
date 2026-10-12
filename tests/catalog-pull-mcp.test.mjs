@@ -42,6 +42,9 @@ test("modern platform discovery supports the observed protocol without private r
   const list = await (await catalogStatusMcp(modernRequest("tools/list"), deps)).json();
   assert.deepEqual(list.result.tools.map((t) => t.name), ["vii_catalog_status", "vii_catalog_pull"]);
   assert.equal(list.result.resultType, "complete"); assert.equal(list.result.ttlMs, 0);
+  const noClientInfo = await catalogStatusMcp(modernRequest("server/discover", { _meta: {
+    "io.modelcontextprotocol/protocolVersion": "2026-07-28", "io.modelcontextprotocol/clientCapabilities": {} } }), deps);
+  assert.equal(noClientInfo.status, 200);
   assert.deepEqual(deps.counts(), { pulls: 0, databases: 0 });
 });
 
