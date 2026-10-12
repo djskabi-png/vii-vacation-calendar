@@ -54,47 +54,23 @@ function reviewExcerpt(value: string) {
   return `${candidate.slice(0, lastWord > 82 ? lastWord : 118).trim()}...`;
 }
 
-const ratingCardCopy = {
-  en: {
-    "spa-head-spa-nahariya": { name: "Lorensa Head Spa, Nahariya", summary: "A women-only Japanese head spa and deep healing experience designed for calm, release and genuine personal renewal..." },
-    "spa-spa-nucha": { name: "Adama Spa at Nucha Hotel", summary: "A quiet Jerusalem hotel spa with aromatic treatments, a rooftop pool and an intimate atmosphere for a complete break..." },
-    "spa-salt-rooms": { name: "Salt Rooms, Breathing and Touch Center", summary: "A calming salt-room experience complemented by massages and energy treatments for breathing, relaxation and renewal..." },
-    "spa-prince-spa-tiberias": { name: "Prince Spa Tiberias", summary: "A peaceful spa retreat in Tiberias for slowing down, reconnecting and enjoying a naturally relaxing experience..." },
-    "debrah-spa": { name: "Debrah Spa by Adama", summary: "Hotel treatment rooms with individual and couples packages available through convenient online booking..." },
-    "bobo-spa": { name: "Bobo Spa by Adama", summary: "Spacious treatment rooms and comfortable relaxation areas at the Bobo Hotel on Yavne Street..." },
-    "spa-villa-brown-jerusalem-spa": { name: "Villa Brown Jerusalem Spa", summary: "A boutique hotel spa with an equipped treatment room, rooftop terrace, city views and an outdoor relaxation area..." },
-  },
-  ru: {
-    "spa-head-spa-nahariya": { name: "Lorensa Head Spa, Нагария", summary: "Японский спа для головы и глубокое расслабление в пространстве только для женщин, созданном для спокойствия и обновления..." },
-    "spa-spa-nucha": { name: "Adama Spa в отеле Nucha", summary: "Тихий спа в Иерусалиме с ароматическими процедурами, бассейном на крыше и уютной атмосферой для полноценного отдыха..." },
-    "spa-salt-rooms": { name: "Соляные комнаты, центр дыхания и прикосновения", summary: "Спокойная соляная комната, массажи и дополнительные энергетические процедуры для дыхания, расслабления и восстановления..." },
-    "spa-prince-spa-tiberias": { name: "Prince Spa Тверия", summary: "Спокойный спа в Тверии, где можно отвлечься от рутины, восстановить силы и насладиться естественным расслаблением..." },
-    "debrah-spa": { name: "Debrah Spa от сети Adama", summary: "Процедурные кабинеты в отеле и пакеты для одного или пары с удобным онлайн-бронированием..." },
-    "bobo-spa": { name: "Bobo Spa от сети Adama", summary: "Просторные процедурные кабинеты и комфортные зоны отдыха в отеле Bobo на улице Явне..." },
-    "spa-villa-brown-jerusalem-spa": { name: "Villa Brown Spa, Иерусалим", summary: "Спа бутик-отеля с оборудованным кабинетом, террасой на крыше, видом на город и открытой зоной отдыха..." },
-  },
-  fr: {
-    "spa-head-spa-nahariya": { name: "Lorensa Head Spa, Nahariya", summary: "Un spa japonais du cuir chevelu réservé aux femmes, pensé pour la détente profonde, le lâcher-prise et le renouveau..." },
-    "spa-spa-nucha": { name: "Adama Spa à l’hôtel Nucha", summary: "Un spa paisible à Jérusalem avec soins aromatiques, piscine sur le toit et ambiance intime pour une vraie pause..." },
-    "spa-salt-rooms": { name: "Salles de sel, centre de respiration et de toucher", summary: "Une expérience apaisante en salle de sel, complétée par des massages et des soins énergétiques pour se ressourcer..." },
-    "spa-prince-spa-tiberias": { name: "Prince Spa Tibériade", summary: "Une parenthèse paisible à Tibériade pour ralentir, se reconnecter et profiter d’une expérience naturellement relaxante..." },
-    "debrah-spa": { name: "Debrah Spa par Adama", summary: "Des salles de soins à l’hôtel et des formules individuelles ou en duo avec réservation en ligne..." },
-    "bobo-spa": { name: "Bobo Spa par Adama", summary: "Des salles de soins spacieuses et des espaces de repos confortables à l’hôtel Bobo, rue Yavne..." },
-    "spa-villa-brown-jerusalem-spa": { name: "Villa Brown Spa, Jérusalem", summary: "Un spa d’hôtel boutique avec salle de soins, terrasse sur le toit, vue sur la ville et espace détente extérieur..." },
-  },
-} as const;
+export type HomeRatedPlace = {
+  place: Property;
+  reviewText: string;
+  reviewAuthor: string;
+  reviewDate: string;
+};
 
-export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces }: {
+export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces, ratedPlaces }: {
   properties: Property[];
   eventPlaces: EventPlace[];
   spaPlaces: DiscoveryItem[];
   hourlyPlaces: DiscoveryItem[];
+  ratedPlaces: HomeRatedPlace[];
 }) {
   const tracks = useRef<Record<string, HTMLDivElement | null>>({});
-  const { language } = useSiteLanguage();
   const worldCards = publicWorldNavigation.filter((world) => !["vacation", "events", "spa", "hourly"].includes(world.id));
   const featuredTours = properties.flatMap((property) => (property.videos || []).map((video) => ({ property, video }))).slice(0, 7);
-  const topRatedPlaces = [...spaPlaces].filter((item) => item.rating).sort((first, second) => (second.rating || 0) - (first.rating || 0)).slice(0, 7);
 
   function scroll(id: string, direction: "previous" | "next") {
     const track = tracks.current[id];
@@ -132,7 +108,7 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces 
       </div>
     </section>
 
-    <section className="section home-trust-discovery" aria-labelledby={featuredTours.length ? "home-tours-title" : "home-ratings-title"}>
+    {featuredTours.length || ratedPlaces.length ? <section className="section home-trust-discovery" aria-labelledby={featuredTours.length ? "home-tours-title" : "home-ratings-title"}>
       <div className="shell">
         {featuredTours.length ? <div className="home-trust-strip">
           <div className="home-vacation-strip__head"><div><span>רואים לפני שבוחרים</span><h2 id="home-tours-title">סרטונים מובילים</h2></div><SliderControls label="סרטונים מובילים" onPrevious={() => scroll("tours", "previous")} onNext={() => scroll("tours", "next")} /></div>
@@ -144,19 +120,16 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces 
           </div>
         </div> : null}
 
-        <div className="home-trust-strip">
+        {ratedPlaces.length ? <div className="home-trust-strip">
           <div className="home-vacation-strip__head"><div><span>דירוגים ממקור המידע של המקום</span><h2 id="home-ratings-title">חוות דעת מובילות</h2></div><SliderControls label="חוות דעת מובילות" onPrevious={() => scroll("ratings", "previous")} onNext={() => scroll("ratings", "next")} /></div>
           <div className="home-slider__track home-slider__track--trust home-slider__track--ratings" data-horizontal-rail ref={(node) => { tracks.current.ratings = node; }} aria-labelledby="home-ratings-title">
-            {topRatedPlaces.map((item) => {
-              const localized = language === "he" ? null : ratingCardCopy[language][item.id as keyof (typeof ratingCardCopy)[typeof language]];
-              return <Link className="home-rating-card home-slider__item" href={`/discover/place/${item.id}`} key={item.id}>
-                <div className="home-rating-card__top"><img src={item.image} alt="" loading="lazy" decoding="async" /><div><span>{item.location}</span><h3>{localized?.name || item.name}</h3><strong aria-label={`${item.rating} מתוך 10`}><b>{item.rating}</b><i aria-hidden="true">★★★★★</i></strong></div></div><p>{localized?.summary || reviewExcerpt(item.description)}</p><b className="home-rating-card__cta">לפרטי המקום</b>
-              </Link>;
-            })}
+            {ratedPlaces.map(({ place, reviewText, reviewAuthor, reviewDate }) => <Link className="home-rating-card home-slider__item" href={`/business?id=${place.slug}`} key={place.slug}>
+              <div className="home-rating-card__top"><img src={place.image} alt="" loading="lazy" decoding="async" /><div><span>{place.location}</span><h3>{place.name}</h3><strong aria-label={`ציון ${place.score} מתוך 10, ${place.reviews} חוות דעת`}><b>{place.score}</b><small>{place.reviews} חוות דעת</small></strong></div></div><p lang="he" dir="rtl">{reviewExcerpt(reviewText)}</p><small className="home-rating-card__byline">{reviewAuthor}{reviewDate ? ` · ${reviewDate}` : ""}</small><b className="home-rating-card__cta">לפרטי המקום</b>
+            </Link>)}
           </div>
-        </div>
+        </div> : null}
       </div>
-    </section>
+    </section> : null}
 
     <section className="section home-spa-strip" aria-labelledby="home-spa-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">עוצרים לנשום</span><h2 id="home-spa-title">ספא ורוגע, כחלק מהחופשה</h2></div><div><Link href="/spas">לכל מתחמי הספא</Link><SliderControls label="מתחמי ספא" onPrevious={() => scroll("spa", "previous")} onNext={() => scroll("spa", "next")} /></div></div><div className="home-slider__track home-slider__track--discovery" data-horizontal-rail ref={(node) => { tracks.current.spa = node; }}>{spaPlaces.slice(0,7).map((item) => <div className="home-slider__item" key={item.id}><DiscoveryCard item={item} /></div>)}</div></div></section>
 

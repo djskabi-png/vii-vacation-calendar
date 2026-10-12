@@ -3,7 +3,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageShell } from "./components/page-shell";
-import { HomeShowcase, HomeTrails } from "./components/home-showcase";
+import { HomeShowcase, HomeTrails, type HomeRatedPlace } from "./components/home-showcase";
 import { MasuExperience } from "./components/masu-experience";
 import { SearchBox } from "./components/search-box";
 import { magazineArticles } from "./data/magazine-data";
@@ -12,12 +12,29 @@ import type { EventPlace, Property } from "./data/site-data";
 import { hourlyPlacesFromCatalog, spaPlacesFromSites } from "./data/world-data";
 import type { SpaPlusSite } from "./data/spaplus";
 import hourlyCatalog from "./data/sergey-hourly-catalog.json";
-import { publicCatalogSummaries } from "./lib/public-catalog-read.ts";
+import { publicCatalogDetail, publicCatalogSummaries } from "./lib/public-catalog-read.ts";
 import { GiftIcon, PeopleIcon } from "./site-header";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
+
+type SupplierReview = { author?: string; text?: string; date?: string };
+type SupplierReviewDetail = { reviews?: SupplierReview[] };
+
+async function homeRatedPlaces(properties: Property[]): Promise<HomeRatedPlace[]> {
+  const candidates = properties
+    .filter((place) => place.image && Number(place.score) > 0 && Number(place.reviews) >= 5 && /^vacation-\d+$/.test(place.slug))
+    .sort((a, b) => Number(b.score) - Number(a.score) || Number(b.reviews) - Number(a.reviews))
+    .slice(0, 14);
+  const withReviews = await Promise.all(candidates.map(async (place) => {
+    const supplierId = Number(place.slug.slice("vacation-".length));
+    const detail = await publicCatalogDetail<SupplierReviewDetail>("vacations", supplierId);
+    const review = detail?.reviews?.find((entry) => typeof entry.text === "string" && entry.text.trim().length >= 30);
+    return review ? { place, reviewText: review.text!.trim(), reviewAuthor: review.author?.trim() || "אורח", reviewDate: review.date || "" } : null;
+  }));
+  return withReviews.filter((entry): entry is HomeRatedPlace => entry !== null).slice(0, 7);
+}
 
 export default async function HomePage() {
   const [properties, eventPlaces, spaSites, hourlyCatalogPlaces] = await Promise.all([
@@ -26,6 +43,7 @@ export default async function HomePage() {
     publicCatalogSummaries<SpaPlusSite>("spa"),
     publicCatalogSummaries<(typeof hourlyCatalog.places)[number]>("rooms"),
   ]);
+  const ratedPlaces = await homeRatedPlaces(properties);
   return (
     <PageShell>
       <main id="main-content">
@@ -38,7 +56,7 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <HomeShowcase properties={properties} eventPlaces={eventPlaces}
+        <HomeShowcase properties={properties} eventPlaces={eventPlaces} ratedPlaces={ratedPlaces}
           spaPlaces={spaPlacesFromSites(spaSites)} hourlyPlaces={hourlyPlacesFromCatalog(hourlyCatalogPlaces)} />
 
         <section className="section home-corporate-gift"><div className="shell"><Link className="home-corporate-gift__card home-corporate-gift__card--gift" href="/gift-card"><span className="home-corporate-gift__visual"><GiftIcon /></span><div><span className="eyebrow">מתנה שמשאירה את הבחירה אצלם</span><h2>גיפט קארד לכל העולמות של וי</h2><p>נופש, ספא, אירועים, אטרקציות ושירותים, במתנה אחת.</p><strong>יוצרים גיפט קארד</strong></div></Link><Link className="home-corporate-gift__card home-corporate-gift__card--corporate" href="/corporate"><span className="home-corporate-gift__visual"><PeopleIcon /></span><div><span className="eyebrow">למנהלות רווחה ולעסקים</span><h2>אירועי חברה, רווחה ומתנות לעובדים</h2><p>מקום, תוכן, ספקים וגיפט קארד במסלול אחד.</p><strong>למרכז הארגוני</strong></div></Link></div></section>
