@@ -30,6 +30,7 @@ import { cleanVacationPath } from "../data/vacation-landings";
 import { buildVacationSearchUrl } from "../lib/vacation-search-url";
 import { vacationInventorySummary } from "../lib/vacation-inventory";
 import { vacationStayFromSearch } from "../lib/vacation-date-range";
+import { dailyRotationCompare } from "../lib/daily-rotation";
 import { flexibleVacationCandidates, flexibleVacationSearchFromParams } from "../lib/flexible-vacation-search";
 import { useMapViewState } from "../components/map-view-state";
 import { useViiLiveSearch } from "../components/use-vii-live-search";
@@ -169,7 +170,7 @@ const VACATION_PRICE_MIN = 0;
 const VACATION_PRICE_MAX = Math.max(5000, ...properties.map((property) => property.price || 0));
 const VACATION_SORT_VALUES = ["recommended", "price-asc", "price-desc", "rating-desc", "rating-asc", "capacity", "units", "name"] as const;
 const vacationSortOptions = [
-  { value: "recommended", label: "סדר הקטלוג" },
+  { value: "recommended", label: "התאמה מומלצת" },
   ...(supplierPriceFilterAvailable ? [{ value: "price-asc", label: "מחיר מהנמוך לגבוה" }, { value: "price-desc", label: "מחיר מהגבוה לנמוך" }] : []),
   { value: "rating-desc", label: "דירוג מהגבוה לנמוך" },
   { value: "rating-asc", label: "דירוג מהנמוך לגבוה" },
@@ -188,6 +189,7 @@ function compareOptionalNumber(first: number | undefined, second: number | undef
 }
 
 function compareVacationProperties(a: (typeof properties)[number], b: (typeof properties)[number], sort: string, order = properties) {
+  if (sort === "recommended") return dailyRotationCompare(a.slug, b.slug, "vacation-search");
   if (sort === "price-asc") return compareOptionalNumber(a.price, b.price, "asc") || order.indexOf(a) - order.indexOf(b);
   if (sort === "price-desc") return compareOptionalNumber(a.price, b.price, "desc") || order.indexOf(a) - order.indexOf(b);
   if (sort === "rating-desc") return compareOptionalNumber(a.score, b.score, "desc") || order.indexOf(a) - order.indexOf(b);

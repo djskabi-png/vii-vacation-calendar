@@ -9,6 +9,7 @@ import type { HomeHoliday } from "../lib/vii-home-holidays";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { FavoriteButton } from "./favorite-button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { rotateWithinTiers } from "../lib/daily-rotation";
 
 type ResponseData = { period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[] };
 
@@ -95,6 +96,9 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
 
   const sectionId = mode === "holidays" ? "home-holiday-deals" : "home-live-deals";
   const currentHoliday = holidays.find((item) => item.id === holidayId);
+  const displayedDeals = data?.deals ? rotateWithinTiers(data.deals,
+    (deal) => Math.floor(deal.total / 500), (deal) => deal.siteID,
+    `home-deals:${mode}:${mode === "holidays" ? holidayId : period}`) : [];
   const displayState = mode === "holidays" && holidayState !== "ready" ? holidayState : state;
   const previousLabel = { he: "הקודם", en: "Previous", ru: "Назад", fr: "Précédent" }[language];
   const nextLabel = { he: "הבא", en: "Next", ru: "Далее", fr: "Suivant" }[language];
@@ -123,7 +127,7 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
         {displayState === "error" ? <div className="home-live-deals__status"><p>{text.error}</p><button type="button" onClick={() => setRetry((value) => value + 1)}>{text.retry}</button></div> : null}
         {displayState === "ready" && (mode === "holidays" && !holidays.length || data?.deals.length === 0) ? <p className="home-live-deals__status">{text.empty}</p> : null}
         {displayState === "ready" && data?.deals.length ? <div className="home-live-deals__track" ref={track} data-horizontal-rail>
-          {data.deals.map((deal) => {
+          {displayedDeals.map((deal) => {
             const href = `/business?${new URLSearchParams({ id: `vacation-${deal.siteID}`, from: deal.from, till: deal.till, guests: "2", source: mode === "holidays" ? "home-holidays" : "home-deals", period: mode === "holidays" ? String(currentHoliday?.id ?? "") : period }).toString()}`;
             const placeLocation = [deal.city, deal.area].filter(Boolean).join(" · ");
             return <article className="home-live-deals__card" key={`${deal.siteID}-${deal.from}`}>

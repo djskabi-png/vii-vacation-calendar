@@ -13,6 +13,7 @@ import { hourlyPlacesFromCatalog, spaPlacesFromSites } from "./data/world-data";
 import type { SpaPlusSite } from "./data/spaplus";
 import hourlyCatalog from "./data/sergey-hourly-catalog.json";
 import { publicCatalogDetail, publicCatalogSummaries } from "./lib/public-catalog-read.ts";
+import { dailyRotationCompare } from "./lib/daily-rotation";
 import { GiftIcon, PeopleIcon } from "./site-header";
 
 export const metadata: Metadata = {
@@ -25,7 +26,7 @@ type SupplierReviewDetail = { reviews?: SupplierReview[] };
 async function homeRatedPlaces(properties: Property[]): Promise<HomeRatedPlace[]> {
   const candidates = properties
     .filter((place) => place.image && Number(place.score) > 0 && Number(place.reviews) >= 5 && /^vacation-\d+$/.test(place.slug))
-    .sort((a, b) => Number(b.score) - Number(a.score) || Number(b.reviews) - Number(a.reviews))
+    .sort((a, b) => Number(b.score) - Number(a.score) || dailyRotationCompare(a.slug, b.slug, "home-reviews"))
     .slice(0, 14);
   const withReviews = await Promise.all(candidates.map(async (place) => {
     const supplierId = Number(place.slug.slice("vacation-".length));

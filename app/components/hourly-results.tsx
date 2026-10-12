@@ -15,6 +15,7 @@ import { localizedPath } from "../i18n/locale-routing";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { ResultsViewToggle, useResultsViewMode } from "./results-view-toggle";
 import { ProgressiveResults } from "./progressive-results";
+import { rotateWithinTiers } from "../lib/daily-rotation";
 
 const featureFilters = [
   { id: "parking", label: "חניה", terms: ["חניה"] },
@@ -53,7 +54,7 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
     [items],
   );
 
-  const filtered = useMemo(() => items.filter((item) => {
+  const filtered = useMemo(() => rotateWithinTiers(items.filter((item) => {
     const locationMatches = location === "כל הארץ" || matchesSearchLocation(item, location);
     const priceMatches = maximumPrice === 0 || twoHourPrice(item) <= maximumPrice;
     const searchable = `${item.description} ${item.features.join(" ")}`;
@@ -62,7 +63,8 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
       return filter ? filter.terms.some((term) => searchable.includes(term)) : true;
     });
     return locationMatches && priceMatches && featuresMatch;
-  }), [features, items, location, maximumPrice]);
+  }), (item) => Number.isFinite(twoHourPrice(item)) && item.image ? 0 : Number.isFinite(twoHourPrice(item)) ? 1 : 2,
+  (item) => item.id, "hourly-search"), [features, items, location, maximumPrice]);
 
   function updateUrl(updates: Record<string, string>) {
     const params = new URLSearchParams(window.location.search);

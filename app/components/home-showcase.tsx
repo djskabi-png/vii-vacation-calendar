@@ -14,6 +14,7 @@ import { PinIcon } from "../site-header";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { HomeLiveDeals } from "./home-live-deals";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { rotateDaily, rotateWithinTiers } from "../lib/daily-rotation";
 
 const vacationDestinations = [
   { label: "נופש בצפון", note: "גליל, גולן ונוף ירוק", href: "/vacations/north?guests=2", image: "/media/f18d7c0469633ca0.jpeg" },
@@ -29,7 +30,7 @@ const destinationMatchers = [
   (area: string) => /כנרת/.test(area),
   (area: string) => /ירושלים|יהודה/.test(area),
   (area: string) => /מישור החוף|שרון|מרכז/.test(area),
-  (area: string) => /נגב|דרום|ערבה/.test(area),
+  (area: string, location: string) => /נגב|דרום|ערבה/.test(area) && location !== "אילת",
   (_area: string, location: string) => location === "אילת",
 ];
 
@@ -70,7 +71,21 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
 }) {
   const tracks = useRef<Record<string, HTMLDivElement | null>>({});
   const worldCards = publicWorldNavigation.filter((world) => !["vacation", "events", "spa", "hourly"].includes(world.id));
-  const featuredTours = properties.flatMap((property) => (property.videos || []).map((video) => ({ property, video }))).slice(0, 7);
+  const featuredTours = rotateDaily(properties.flatMap((property) => (property.videos || []).map((video) => ({ property, video }))),
+    ({ property, video }) => `${property.slug}:${video.src}`, "home-tours").slice(0, 7);
+  const destinationImages = rotateDaily(properties.filter((property) => property.image), (property) => property.slug, "home-destination-images");
+  const usedDestinationImages = new Set<string>();
+  const destinationPlaces = vacationDestinations.map((_destination, index) => {
+    const matches = destinationImages.filter((candidate) => destinationMatchers[index](candidate.area, candidate.location));
+    const place = matches.find((candidate) => !usedDestinationImages.has(candidate.image)) || matches[0];
+    if (place) usedDestinationImages.add(place.image);
+    return place;
+  });
+  const featuredSpas = rotateWithinTiers(spaPlaces, (item) => item.image && item.priceLabel ? 0 : item.image ? 1 : 2,
+    (item) => item.id, "home-spa").slice(0, 7);
+  const featuredHourly = rotateWithinTiers(hourlyPlaces, (item) => item.image && item.priceLabel ? 0 : 1,
+    (item) => item.id, "home-hourly");
+  const featuredEvents = rotateDaily(eventPlaces.filter((place) => place.image), (place) => place.slug, "home-events");
 
   function scroll(id: string, direction: "previous" | "next") {
     const track = tracks.current[id];
@@ -99,7 +114,7 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
           <div className="home-vacation-strip__head"><div><span>לפי אזור</span><h3>יעדים מומלצים לנופש</h3></div><SliderControls label="יעדי נופש" onPrevious={() => scroll("destinations", "previous")} onNext={() => scroll("destinations", "next")} /></div>
           <div className="home-vacation-strip__track home-vacation-strip__track--destinations" data-horizontal-rail ref={(node) => { tracks.current.destinations = node; }}>
             {vacationDestinations.map((item, index) => {
-              const place = properties.find((candidate) => destinationMatchers[index](candidate.area, candidate.location));
+              const place = destinationPlaces[index];
               return place ? <Link className="home-vacation-card home-vacation-card--destination home-slider__item" href={item.href} key={item.label}><img src={place.image} alt="" loading="lazy" decoding="async" /><div><span>יעד מומלץ</span><h4>{item.label}</h4><p>{item.note}</p><b>לכל המקומות באזור</b></div></Link> : null;
             })}
           </div>
@@ -131,15 +146,15 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
       </div>
     </section> : null}
 
-    <section className="section home-spa-strip" aria-labelledby="home-spa-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">עוצרים לנשום</span><h2 id="home-spa-title">ספא ורוגע, כחלק מהחופשה</h2></div><div><Link href="/spas">לכל מתחמי הספא</Link><SliderControls label="מתחמי ספא" onPrevious={() => scroll("spa", "previous")} onNext={() => scroll("spa", "next")} /></div></div><div className="home-slider__track home-slider__track--discovery" data-horizontal-rail ref={(node) => { tracks.current.spa = node; }}>{spaPlaces.slice(0,7).map((item) => <div className="home-slider__item" key={item.id}><DiscoveryCard item={item} /></div>)}</div></div></section>
+    <section className="section home-spa-strip" aria-labelledby="home-spa-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">עוצרים לנשום</span><h2 id="home-spa-title">ספא ורוגע, כחלק מהחופשה</h2></div><div><Link href="/spas">לכל מתחמי הספא</Link><SliderControls label="מתחמי ספא" onPrevious={() => scroll("spa", "previous")} onNext={() => scroll("spa", "next")} /></div></div><div className="home-slider__track home-slider__track--discovery" data-horizontal-rail ref={(node) => { tracks.current.spa = node; }}>{featuredSpas.map((item) => <div className="home-slider__item" key={item.id}><DiscoveryCard item={item} /></div>)}</div></div></section>
 
-    <section className="section home-short-stay" aria-labelledby="home-short-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">כשלא צריך לילה שלם</span><h2 id="home-short-title">חדרים לכמה שעות</h2><p>שהייה קצרה, פרטית וגמישה. בוחרים מקום ובודקים את מסגרת הזמן והמחיר.</p></div><div><Link href="/hourly">לכל החדרים</Link><SliderControls label="חדרים לפי שעה" onPrevious={() => scroll("hourly", "previous")} onNext={() => scroll("hourly", "next")} /></div></div><div className="home-slider__track home-slider__track--discovery" data-horizontal-rail ref={(node) => { tracks.current.hourly = node; }}>{hourlyPlaces.slice(0,7).map((item) => <div className="home-slider__item" key={item.id}><DiscoveryCard item={item} /></div>)}</div></div></section>
+    <section className="section home-short-stay" aria-labelledby="home-short-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">כשלא צריך לילה שלם</span><h2 id="home-short-title">חדרים לכמה שעות</h2><p>שהייה קצרה, פרטית וגמישה. בוחרים מקום ובודקים את מסגרת הזמן והמחיר.</p></div><div><Link href="/hourly">לכל החדרים</Link><SliderControls label="חדרים לפי שעה" onPrevious={() => scroll("hourly", "previous")} onNext={() => scroll("hourly", "next")} /></div></div><div className="home-slider__track home-slider__track--discovery" data-horizontal-rail ref={(node) => { tracks.current.hourly = node; }}>{featuredHourly.map((item) => <div className="home-slider__item" key={item.id}><DiscoveryCard item={item} /></div>)}</div></div></section>
 
     <section className="home-events-world" aria-labelledby="home-events-title">
       <div className="shell home-events-world__head"><div><span className="eyebrow">עולם האירועים</span><h2 id="home-events-title">כל סיבה טובה הופכת כאן לאירוע</h2><p>לופטים ומתחמים לימי הולדת, מסיבות, אירועי חברה וחגיגות פרטיות, עם חיפוש לפי כמות ואופי האירוע.</p></div><Link className="button" href="/events">נכנסים לעולם האירועים</Link></div>
       <div className="shell home-events-world__layout">
-        {eventPlaces[3] || eventPlaces[0] ? <Link className="home-event-feature" href={eventPlaceHref(eventPlaces[3] || eventPlaces[0])}><img src={(eventPlaces[3] || eventPlaces[0]).image} alt={(eventPlaces[3] || eventPlaces[0]).name} title={(eventPlaces[3] || eventPlaces[0]).name} loading="lazy" decoding="async" /><span>{(eventPlaces[3] || eventPlaces[0]).type}</span><div><small><PinIcon />{(eventPlaces[3] || eventPlaces[0]).location}</small><h3>{(eventPlaces[3] || eventPlaces[0]).name}</h3>{(eventPlaces[3] || eventPlaces[0]).description ? <p>{(eventPlaces[3] || eventPlaces[0]).description}</p> : null}<b>עד {(eventPlaces[3] || eventPlaces[0]).guests} אורחים ביחידה הגדולה</b></div></Link> : null}
-        <div className="home-event-list">{eventPlaces.filter((place) => place.slug !== (eventPlaces[3] || eventPlaces[0])?.slug).slice(0,4).map((place) => <Link key={place.slug} href={eventPlaceHref(place)}><img src={place.image} alt={place.name} title={place.name} loading="lazy" decoding="async" /><div><span>{place.type}</span><h3>{place.name}</h3><small>{place.location}, עד {place.guests} אורחים ביחידה הגדולה</small></div></Link>)}</div>
+        {featuredEvents[0] ? <Link className="home-event-feature" href={eventPlaceHref(featuredEvents[0])}><img src={featuredEvents[0].image} alt={featuredEvents[0].name} title={featuredEvents[0].name} loading="lazy" decoding="async" /><span>{featuredEvents[0].type}</span><div><small><PinIcon />{featuredEvents[0].location}</small><h3>{featuredEvents[0].name}</h3>{featuredEvents[0].description ? <p>{featuredEvents[0].description}</p> : null}<b>עד {featuredEvents[0].guests} אורחים ביחידה הגדולה</b></div></Link> : null}
+        <div className="home-event-list">{featuredEvents.slice(1, 5).map((place) => <Link key={place.slug} href={eventPlaceHref(place)}><img src={place.image} alt={place.name} title={place.name} loading="lazy" decoding="async" /><div><span>{place.type}</span><h3>{place.name}</h3><small>{place.location}, עד {place.guests} אורחים ביחידה הגדולה</small></div></Link>)}</div>
       </div>
     </section>
 
@@ -160,7 +175,7 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
 export function HomeTrails() {
   return <section className="section home-trails" aria-labelledby="home-trails-title">
     <div className="shell"><div className="section-head"><div><span className="eyebrow">יוצאים מהצימר אל הטבע</span><h2 id="home-trails-title">מסלולים ליד החופשה</h2><p>מדריכי טיול עצמאיים עם זמן, קושי, עונה, בטיחות ומקור רשמי לבדיקה ביום היציאה.</p></div><Link href="/trails">לכל המסלולים</Link></div>
-      <div className="trail-grid trail-grid--home">{trails.slice(0, 4).map((trail) => <TrailCard key={trail.slug} trail={trail} compact />)}</div>
+      <div className="trail-grid trail-grid--home">{rotateDaily(trails, (trail) => trail.slug, "home-trails").slice(0, 4).map((trail) => <TrailCard key={trail.slug} trail={trail} compact />)}</div>
     </div>
   </section>;
 }
