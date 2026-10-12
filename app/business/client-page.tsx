@@ -204,7 +204,8 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
     ? String(effectiveVacationAvailability.nightlyPrice)
     : vacationAvailabilityMode === "demo" ? selectedPrice : "";
   const hasSelectedPrice = Boolean(resolvedSelectedPrice && Number(resolvedSelectedPrice) > 0);
-  const vacationOnlineReady = activeWorld === "vacation" && vacationAvailabilityMode !== "inquiry" && hasSelectedDates && effectiveVacationAvailability?.availability === "available" && hasSelectedPrice && (!supplierSiteID || supplierQuote.roomIDs.length === 1);
+  const verifiedSupplierRoomID = supplierQuote.roomIDs.length === 1 && property.roomOptions?.some((room) => room.supplierRoomID === supplierQuote.roomIDs[0]) ? supplierQuote.roomIDs[0] : undefined;
+  const vacationOnlineReady = activeWorld === "vacation" && vacationAvailabilityMode !== "inquiry" && hasSelectedDates && effectiveVacationAvailability?.availability === "available" && hasSelectedPrice && (!supplierSiteID || supplierQuote.roomIDs.length === 1) && (!supplierSiteID || Boolean(verifiedSupplierRoomID));
   const vacationPhoneFallback = activeWorld === "vacation" && !vacationOnlineReady;
   const vacationRequest = activeWorld === "vacation" && !vacationOnlineReady;
   const onlineBooking = activeWorld === "vacation" ? vacationOnlineReady : activeOffering.bookingMode !== "call-only";
@@ -336,7 +337,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
               availability={effectiveVacationAvailability}
               availabilityStatus={supplierSiteID ? supplierQuote.status : vacationAvailabilityMode === "live" ? liveLegacyAvailability.status : vacationAvailabilityMode === "demo" ? "ready" : "idle"}
               availabilityMode={vacationAvailabilityMode}
-              bookingEnabled={!supplierSiteID || supplierQuote.roomIDs.length === 1}
+              bookingEnabled={!supplierSiteID || Boolean(verifiedSupplierRoomID)}
               bookingHref={`/booking?${bookingQuery}`}
               ownerWhatsapp={ownerWhatsapp}
               phoneHref={phoneHref}

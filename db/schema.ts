@@ -47,6 +47,7 @@ export const supplierCatalogRuns = sqliteTable("supplier_catalog_runs", {
   changedCount: integer("changed_count"),
   removedCount: integer("removed_count"),
   errorCode: text("error_code"),
+  diagnosticsJson: text("diagnostics_json"),
 }, (table) => [
   index("idx_supplier_catalog_runs_world_started").on(table.world, table.startedAt),
 ]);

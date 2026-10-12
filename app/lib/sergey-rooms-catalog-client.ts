@@ -1,5 +1,6 @@
 import { parseFragment } from "parse5";
 import type { SupplierCatalogEntry } from "./supplier-catalog-store.ts";
+import { SupplierCatalogRedirectError } from "./supplier-catalog-diagnostics.ts";
 
 const root = "https://bizonline.co.il/api/ai/vii";
 
@@ -45,9 +46,10 @@ export function createSergeyRoomsCatalogClient(options: { apiKey: string; fetchI
     try {
       response = await fetchImpl(`${root}${path}`, {
         headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" },
-        signal: AbortSignal.timeout(20_000), redirect: "error", cache: "no-store",
+        signal: AbortSignal.timeout(20_000), redirect: "manual", cache: "no-store",
       });
     } catch { throw new Error("sergey_transport_error"); }
+    if (response.status >= 300 && response.status < 400) throw new SupplierCatalogRedirectError("sergey_redirect_not_allowed", response.status, response.headers.get("Location"), `${root}${path}`);
     if (!response.ok) throw new Error(response.status === 401 || response.status === 403 ? "sergey_not_authorized" : "sergey_provider_error");
     try { return record(await response.json()); } catch { throw new Error("invalid_sergey_response"); }
   }

@@ -10,7 +10,7 @@ import {
 async function database() {
   const sqlite = new DatabaseSync(":memory:");
   sqlite.exec("PRAGMA foreign_keys = ON");
-  for (const name of ["0000_groovy_boomerang", "0001_brief_pixie", "0002_sour_tigra"]) {
+  for (const name of ["0000_groovy_boomerang", "0001_brief_pixie", "0002_sour_tigra", "0003_catalog_diagnostics"]) {
     const source = await readFile(new URL(`../drizzle/${name}.sql`, import.meta.url), "utf8");
     for (const sql of source.split("--> statement-breakpoint").map((part) => part.trim()).filter(Boolean)) sqlite.exec(sql);
   }
@@ -44,6 +44,35 @@ async function database() {
 function run(id, startedAt = "2026-10-12T12:00:00Z") {
   return { id, world: "spa", source: "spaplus-api", startedAt, lockUntil: "2026-10-12T12:15:00Z" };
 }
+
+test("first generation compares allowed removals with the bundled baseline", async () => {
+  const db = await database();
+  try {
+    const baseline = Array.from({ length: 40 }, (_, index) => ({ supplierId: index + 1, summary: { id: index + 1, packages: [] } }));
+    await beginSupplierCatalogRun(db, run("baseline-first"));
+    await stageSupplierCatalogEntries(db, "baseline-first", "spa", baseline.slice(0, 39));
+    await acceptSupplierCatalogRun(db, {
+      id: "baseline-first", world: "spa", expectedCount: 39, added: 0, changed: 0, removed: 1,
+      finishedAt: "2026-10-12T12:03:00Z", baseline,
+    });
+    assert.equal((await readSupplierCatalog(db, "spa")).entries.length, 39);
+    assert.equal((await db.prepare("SELECT before_count FROM supplier_catalog_runs WHERE id = ?").bind("baseline-first").first()).before_count, 40);
+  } finally { db.close(); }
+});
+
+test("first generation still rejects excessive removals from the bundled baseline", async () => {
+  const db = await database();
+  try {
+    const baseline = Array.from({ length: 40 }, (_, index) => ({ supplierId: index + 1, summary: { id: index + 1, packages: [] } }));
+    await beginSupplierCatalogRun(db, run("baseline-reject"));
+    await stageSupplierCatalogEntries(db, "baseline-reject", "spa", baseline.slice(0, 37));
+    await assert.rejects(() => acceptSupplierCatalogRun(db, {
+      id: "baseline-reject", world: "spa", expectedCount: 37, added: 0, changed: 0, removed: 3,
+      finishedAt: "2026-10-12T12:03:00Z", baseline,
+    }), /catalog_removal_requires_review/);
+    assert.equal(await readSupplierCatalog(db, "spa"), null);
+  } finally { db.close(); }
+});
 
 test("publishes a complete generation and keeps it active when a later candidate is rejected", async () => {
   const db = await database();

@@ -10,7 +10,7 @@ import hourlyCatalog from "../data/sergey-hourly-catalog.json";
 import { getProviderDetails } from "../data/provider-details";
 import BookingPageClient from "./client-page";
 import { supplierLegacySlug, unavailableLegacySearchHref } from "../data/supplier-legacy-links";
-import type { SupplierPlaceDetail } from "../data/supplier-place-detail";
+import { liveSupplierPlaceDetail, type SupplierPlaceDetail } from "../data/supplier-place-detail";
 import { publicCatalogDetail, publicCatalogSummaries } from "../lib/public-catalog-read.ts";
 import spaLegacyAliases from "../data/spaplus-legacy-aliases.json";
 
@@ -65,9 +65,10 @@ async function resolveBooking(params: Awaited<Props["searchParams"]>) {
   if (property) {
     const selectedUnitIndex = Math.max(0, Number(params.unitIndex || "0") - 1);
     const supplierRoomID = /^vacation-\d+$/.test(property.slug) && Number.isSafeInteger(Number(params.roomID)) && Number(params.roomID) > 0 ? Number(params.roomID) : undefined;
+    const currentSupplierDetail = supplierRoomID ? await liveSupplierPlaceDetail(property.slug) : undefined;
     const acceptedDetail = supplierRoomID ? await publicCatalogDetail<SupplierPlaceDetail>("vacations", Number(property.slug.slice(9))) : null;
     const selectedUnit = supplierRoomID
-      ? acceptedDetail?.rooms.find((room) => room.id === supplierRoomID)
+      ? (currentSupplierDetail || acceptedDetail)?.rooms.find((room) => room.id === supplierRoomID)
       : params.unitIndex ? property.roomOptions?.[selectedUnitIndex] : undefined;
     // Catalog records do not authorize prices supplied in a URL.
     const nightlyPrice = property.capacityScope === "unit" || /^vacation-\d+$/.test(property.slug) ? 0 : Number(params.price) || 0;
@@ -90,6 +91,7 @@ async function resolveBooking(params: Awaited<Props["searchParams"]>) {
     } : undefined,
     onlineReady: property.capacityScope !== "unit" && Boolean(params.from && params.till && nightlyPrice > 0),
     supplierRoomID,
+    supplierRoomVerified: Boolean(supplierRoomID && selectedUnit),
     phone: property.contact?.phone,
     illustrative: property.capacityScope !== "unit" && (params.illustrative === "1" || property.demoOperations?.fictional === true),
     demoOwnerEmail: property.demoOperations?.ownerEmail,

@@ -13,7 +13,7 @@ test("vacation online booking requires dates and a positive connected price", ()
   assert.match(business, /hasSelectedDates = Boolean\(dateRange\.from && dateRange\.till\)/);
   assert.match(business, /hasSelectedPrice = Boolean\(resolvedSelectedPrice && Number\(resolvedSelectedPrice\) > 0\)/);
   assert.match(business, /vacationOnlineReady = activeWorld === "vacation" && vacationAvailabilityMode !== "inquiry" && hasSelectedDates && effectiveVacationAvailability\?\.availability === "available" && hasSelectedPrice && \(!supplierSiteID \|\| supplierQuote\.roomIDs\.length === 1\)/);
-  assert.match(business, /bookingEnabled=\{!supplierSiteID \|\| supplierQuote\.roomIDs\.length === 1\}/);
+  assert.match(business, /bookingEnabled=\{!supplierSiteID \|\| Boolean\(verifiedSupplierRoomID\)\}/);
   assert.match(booking, /supplierBookingReady = Boolean\(supplierSiteID && supplierQuote\.status === "ready" && supplierQuote\.roomIDs\.length === 1/);
   assert.match(booking, /supplierQuote\.roomIDs\.includes\(props\.supplierRoomID\)/);
   assert.match(business, /property\.demoOperations\?\.fictional \|\| effectiveVacationAvailability\?\.illustrative \? \{ illustrative: "1" \} : \{\}/);

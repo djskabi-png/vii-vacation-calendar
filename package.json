@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vinext build",
+    "build": "vinext build && node scripts/prune-server-css-duplicates.mjs",
     "start": "vinext start",
     "test": "pnpm build && node --test tests/*.test.mjs",
     "audit:search": "node scripts/audit-search-state.cjs",

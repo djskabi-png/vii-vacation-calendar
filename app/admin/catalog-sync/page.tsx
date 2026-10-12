@@ -2,12 +2,13 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { RefreshCw } from "lucide-react";
+import type { CatalogSyncDiagnostics } from "../../lib/supplier-catalog-diagnostics.ts";
 
 type World = "vacations" | "events" | "rooms" | "spa";
 type State = { world: World; activeCount: number; acceptedAt: string | null; lockRunId: string | null; lockUntil: string | null };
 type Run = { id: string; world: World; source: string; status: string; startedAt: string;
   finishedAt: string | null; beforeCount: number | null; candidateCount: number | null;
-  addedCount: number | null; changedCount: number | null; errorCode: string | null };
+  addedCount: number | null; changedCount: number | null; errorCode: string | null; diagnostics?: CatalogSyncDiagnostics };
 type Dashboard = { states: State[]; runs: Run[] };
 
 const worlds: { id: World; name: string }[] = [
@@ -17,6 +18,31 @@ const worlds: { id: World; name: string }[] = [
 
 function date(value: string | null | undefined) {
   return value ? new Date(value).toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" }) : "טרם עודכן";
+}
+
+function RunDiagnostics({ value }: { value?: CatalogSyncDiagnostics }) {
+  if (!value) return <small>לא נשמר אבחון במשיכה זו</small>;
+  return <details>
+    <summary>פרטי אבחון</summary>
+    {value.before !== undefined ? <p><span>לפני:</span> {value.before} · <span>מועמד:</span> {value.candidate}</p> : null}
+    {value.addedIds ? <p><span>נוספו:</span> {value.addedCount} · <span dir="ltr" style={{ overflowWrap: "anywhere" }}>{value.addedIds.join(", ") || "—"}</span></p> : null}
+    {value.removedIds ? <p><span>נגרעו:</span> {value.removedCount} · <span dir="ltr" style={{ overflowWrap: "anywhere" }}>{value.removedIds.join(", ") || "—"}</span></p> : null}
+    {value.units ? <>
+      <p><span>מזהי יחידות/חדרים לפני:</span> {value.units.before} · <span>מועמד:</span> {value.units.candidate}</p>
+      <p><span>מזהי יחידות/חדרים שנגרעו:</span> {value.units.removedTotal} · <span>עם מקום שנגרע:</span> {value.units.removedWithPlaces} · <span>במקומות שנותרו:</span> {value.units.removedFromRetainedPlaces}</p>
+      <ul>{value.units.removed.map((row, index) => <li key={`${row.supplierId}-${row.childId}-${index}`}>
+        <span>מקום:</span> <span dir="ltr">{row.supplierId}</span> · <span>יחידה/חדר:</span> <span dir="ltr">{row.childId}</span>
+        {row.placeRemoved ? <> · <span>המקום נגרע</span></> : null}
+      </li>)}</ul>
+    </> : null}
+    {value.addedIdsTruncated || value.removedIdsTruncated || value.units?.truncated ? <p>הרשימה קוצרה; מוצגים עד 100 מזהים בכל רשימה</p> : null}
+    {value.redirect ? <p><span>הפניית ספק:</span> <span dir="ltr">{value.redirect.status} · {value.redirect.hostname || "—"}</span></p> : null}
+    {value.spaJsonFailure ? <>
+      <p><span>אבחון פענוח ספא:</span> <span dir="ltr">HTTP {value.spaJsonFailure.httpStatus} · {value.spaJsonFailure.contentType || "—"}</span></p>
+      <p><span>אורך גוף התשובה בבתים:</span> {value.spaJsonFailure.responseBytes ?? "—"}</p>
+      <p><span>סיווג תו ראשון:</span> <code dir="ltr">{value.spaJsonFailure.firstCharacterKind}</code> · <span>סוג כשל:</span> <code dir="ltr">{value.spaJsonFailure.parseErrorKind}</code></p>
+    </> : null}
+  </details>;
 }
 
 export default function CatalogSyncPage() {
@@ -81,6 +107,7 @@ export default function CatalogSyncPage() {
             <p>עדכון אחרון: {date(state?.acceptedAt)}</p>
             <p>משיכה אחרונה: {run?.status || "אין עדיין"}</p>
             {run?.errorCode ? <p>סיבת כשל: <code dir="ltr">{run.errorCode}</code></p> : null}
+            {run?.status === "failed" || run?.status === "rejected" ? <RunDiagnostics value={run.diagnostics} /> : null}
             <button type="button" disabled={!!busy || running} onClick={() => void pull(id)}>
               <RefreshCw size={17} aria-hidden="true" /> {running ? "מושכים נתונים..." : "משוך עכשיו"}
             </button>
@@ -90,13 +117,16 @@ export default function CatalogSyncPage() {
       <section aria-label="יומן משיכות">
         <h2 style={{ fontSize: "1.25rem" }}>יומן משיכות</h2>
         <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse", textAlign: "right" }}>
-          <thead><tr>{["זמן", "תחום", "מקור", "מצב", "לפני", "אחרי", "נוספו", "השתנו", "סיבה"].map((label) =>
+          <thead><tr>{["זמן", "תחום", "מקור", "מצב", "לפני", "אחרי", "נוספו", "השתנו", "סיבה", "אבחון"].map((label) =>
             <th key={label} scope="col" style={{ padding: 10, borderBottom: "1px solid #dce4e2" }}>{label}</th>)}</tr></thead>
           <tbody>{dashboard.runs.map((run) => <tr key={run.id}>
             {[date(run.startedAt), worlds.find((item) => item.id === run.world)?.name || run.world,
               run.source, run.status, run.beforeCount, run.candidateCount, run.addedCount,
               run.changedCount, run.errorCode].map((value, index) =>
               <td key={index} style={{ padding: 10, borderBottom: "1px solid #edf0ef" }}>{value ?? ""}</td>)}
+            <td style={{ padding: 10, borderBottom: "1px solid #edf0ef", minWidth: 200 }}>
+              {run.status === "failed" || run.status === "rejected" ? <RunDiagnostics value={run.diagnostics} /> : "—"}
+            </td>
           </tr>)}</tbody>
         </table></div>
       </section>

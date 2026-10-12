@@ -110,12 +110,13 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
         const room = record(value);
         const spaces = Array.isArray(room.spaces) ? room.spaces : [];
         const roomName = typeof room.roomName === "string" ? room.roomName.trim() : "";
-        const roomImages = [...new Set(groups.filter((group) => record(group).title === roomName).flatMap((group) => {
+        const verifiedRoomID = Number.isSafeInteger(room.roomID) && (room.roomID as number) > 0 ? room.roomID as number : undefined;
+        const roomImages = verifiedRoomID ? [...new Set(groups.filter((group) => record(group).title === roomName).flatMap((group) => {
           const pictures = record(group).pictures;
           return Array.isArray(pictures) ? pictures.map(supplierMedia).filter((url): url is string => Boolean(url)) : [];
-        }))];
+        }))] : [];
         return {
-          ...(Number.isSafeInteger(room.roomID) && (room.roomID as number) > 0 ? { id: room.roomID as number } : {}),
+          ...(verifiedRoomID ? { id: verifiedRoomID } : {}),
           name: roomName || "יחידת אירוח",
           quantity: typeof room.roomCount === "number" && room.roomCount > 0 ? room.roomCount : 1,
           guests: typeof room.maxGuests === "number" && room.maxGuests > 0 ? room.maxGuests : 0,

@@ -4,17 +4,12 @@ import type { Trail } from "../data/trail-data";
 import { FavoriteButton } from "./favorite-button";
 
 export function TrailVisual({ trail, compact = false }: { trail: Trail; compact?: boolean }) {
+  const imageTitle = `תמונת המחשה למסלול ${trail.name}`;
+  const imageAlt = `${imageTitle}: ${trail.highlights.slice(0, 2).join(" ו")}.`;
+
   return <div className={`trail-visual trail-visual--${trail.tone}${compact ? " trail-visual--compact" : ""}`}>
-    <Image src="/images/trails/northern-stream-editorial.svg" width={1200} height={800} alt="המחשה של מסלול טבע לצד נחל בצפון" />
+    <Image src={`/images/trails/${trail.slug}.jpg`} width={1200} height={800} alt={imageAlt} title={imageTitle} />
     <span className="image-context-label">תמונת המחשה</span>
-    <div className="trail-visual__art" aria-hidden="true">
-    <span className="trail-visual__sun" />
-    <span className="trail-visual__line trail-visual__line--one" />
-    <span className="trail-visual__line trail-visual__line--two" />
-    <span className="trail-visual__line trail-visual__line--three" />
-    <span className="trail-visual__pin" />
-    <strong>{trail.mainArea}</strong>
-    <small>{trail.region} · {trail.nature.slice(0, 2).join(" · ")}</small></div>
   </div>;
 }
 

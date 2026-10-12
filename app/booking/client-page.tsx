@@ -44,6 +44,7 @@ type Props = {
     taxesIncluded: boolean;
   };
   supplierRoomID?: number;
+  supplierRoomVerified?: boolean;
   vacationProperty?: Property;
 };
 
@@ -105,7 +106,7 @@ export default function BookingPageClient(props: Props) {
   const liveNightlyPrice = liveUnitQuote?.nightlyPrice || liveAvailability.quote?.nightlyPrice || 0;
   const liveBookingReady = liveAvailability.quote?.availability === "available" && liveNightlyPrice > 0 && (selectedUnitIndex === null || liveUnitQuote?.availability === "available");
   const supplierBookingReady = Boolean(supplierSiteID && supplierQuote.status === "ready" && supplierQuote.roomIDs.length === 1 && supplierQuote.quote?.availability === "available"
-    && supplierQuote.quote.nightlyPrice && supplierQuote.onlineBooking && (!props.supplierRoomID || supplierQuote.roomIDs.includes(props.supplierRoomID)));
+    && supplierQuote.quote.nightlyPrice && supplierQuote.onlineBooking && props.supplierRoomVerified && props.supplierRoomID && supplierQuote.roomIDs.includes(props.supplierRoomID));
   const onlineReady = props.world !== "vacation" || (supplierSiteID ? supplierBookingReady : liveSourceEnabled ? liveBookingReady : Boolean(props.onlineReady));
   const usesSpaPayment = props.world === "spa" && !isManage;
   const localizedOfferIncludes = props.offerIncludes?.map((item) => translate(item));
@@ -279,7 +280,7 @@ export default function BookingPageClient(props: Props) {
     ].filter(Boolean).join("\n");
 
     try {
-      if (supplierSiteID) {
+      if (supplierSiteID && !isManage) {
         const response = await fetch("/api/vii/booking", {
           method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store",
           body: JSON.stringify({

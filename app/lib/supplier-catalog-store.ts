@@ -1,4 +1,5 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
+import { sanitizeCatalogDiagnostics, type CatalogSyncDiagnostics } from "./supplier-catalog-diagnostics.ts";
 
 export type SupplierCatalogWorld = "vacations" | "events" | "rooms" | "spa";
 
@@ -99,6 +100,7 @@ export async function acceptSupplierCatalogRun(db: D1Database, input: {
   changed: number;
   removed: number;
   finishedAt: string;
+  baseline?: SupplierCatalogEntry[];
 }) {
   const state = await db.prepare(`SELECT active_run_id AS activeRunId, active_count AS activeCount,
     accepted_at AS acceptedAt FROM supplier_catalog_state WHERE world = ? AND lock_run_id = ?`)
@@ -115,7 +117,10 @@ export async function acceptSupplierCatalogRun(db: D1Database, input: {
     ? await db.prepare(`SELECT supplier_id AS supplierId, summary_json AS summaryJson, detail_json AS detailJson
       FROM supplier_catalog_entries WHERE run_id = ? AND world = ?`)
       .bind(state.activeRunId, input.world).all<EntryRow>()
-    : { results: [] as EntryRow[] };
+    : { results: (input.baseline || []).map((entry): EntryRow => ({
+      supplierId: entry.supplierId, summaryJson: JSON.stringify(entry.summary),
+      detailJson: entry.detail === undefined ? null : JSON.stringify(entry.detail),
+    })) };
   const nextRows = await db.prepare(`SELECT supplier_id AS supplierId, summary_json AS summaryJson,
     detail_json AS detailJson FROM supplier_catalog_entries WHERE run_id = ? AND world = ?`)
     .bind(input.id, input.world).all<EntryRow>();
@@ -143,7 +148,7 @@ export async function acceptSupplierCatalogRun(db: D1Database, input: {
       before_count = ?, candidate_count = ?, added_count = ?, changed_count = ?, removed_count = ?
       WHERE id = ? AND world = ? AND status = 'running'
       AND EXISTS (SELECT 1 FROM supplier_catalog_state WHERE world = ? AND active_run_id = ?)`)
-      .bind(input.finishedAt, state.activeCount, input.expectedCount, input.added, input.changed, removed, input.id, input.world, input.world, input.id),
+      .bind(input.finishedAt, oldRows.results.length, input.expectedCount, input.added, input.changed, removed, input.id, input.world, input.world, input.id),
   ]);
   if (results[0].meta.changes !== 1 || results[1].meta.changes !== 1) throw new Error("catalog_publish_race");
 }
@@ -154,11 +159,17 @@ export async function finishSupplierCatalogRun(db: D1Database, input: {
   status: "failed" | "rejected";
   errorCode: string;
   finishedAt: string;
+  diagnostics?: CatalogSyncDiagnostics;
 }) {
+  const diagnostics = sanitizeCatalogDiagnostics(input.diagnostics);
   await db.batch([
-    db.prepare(`UPDATE supplier_catalog_runs SET status = ?, error_code = ?, finished_at = ?
+    db.prepare(`UPDATE supplier_catalog_runs SET status = ?, error_code = ?, finished_at = ?,
+      before_count = ?, candidate_count = ?, added_count = ?, changed_count = ?, removed_count = ?, diagnostics_json = ?
       WHERE id = ? AND world = ? AND status IN ('requested', 'running')`)
-      .bind(input.status, input.errorCode.slice(0, 100), input.finishedAt, input.id, input.world),
+      .bind(input.status, input.errorCode.slice(0, 100), input.finishedAt,
+        diagnostics?.before ?? null, diagnostics?.candidate ?? null, diagnostics?.addedCount ?? null,
+        diagnostics?.changedCount ?? null, diagnostics?.removedCount ?? null,
+        diagnostics ? JSON.stringify(diagnostics) : null, input.id, input.world),
     db.prepare(`UPDATE supplier_catalog_state SET lock_run_id = NULL, lock_until = NULL
       WHERE world = ? AND lock_run_id = ?`).bind(input.world, input.id),
   ]);
@@ -207,9 +218,14 @@ export async function readSupplierCatalogDashboard(db: D1Database) {
     db.prepare(`SELECT id, world, source, status, started_at AS startedAt,
       finished_at AS finishedAt, before_count AS beforeCount, candidate_count AS candidateCount,
       added_count AS addedCount, changed_count AS changedCount, removed_count AS removedCount,
-      error_code AS errorCode FROM supplier_catalog_runs ORDER BY started_at DESC LIMIT 40`).all(),
+      error_code AS errorCode, diagnostics_json AS diagnosticsJson
+      FROM supplier_catalog_runs ORDER BY started_at DESC LIMIT 40`).all<Record<string, unknown>>(),
   ]);
-  return { states: states.results, runs: runs.results };
+  return { states: states.results, runs: runs.results.map(({ diagnosticsJson, ...run }) => {
+    let diagnostics: CatalogSyncDiagnostics | undefined;
+    try { diagnostics = sanitizeCatalogDiagnostics(JSON.parse(String(diagnosticsJson))); } catch { /* Old runs have no diagnostics. */ }
+    return { ...run, ...(diagnostics ? { diagnostics } : {}) };
+  }) };
 }
 
 export async function readSupplierCatalogSummaries(db: D1Database, world: SupplierCatalogWorld) {

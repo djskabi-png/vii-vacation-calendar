@@ -1,5 +1,6 @@
 import { parseFragment } from "parse5";
 import type { SupplierCatalogEntry } from "./supplier-catalog-store.ts";
+import { SupplierCatalogRedirectError, SpaCatalogJsonError } from "./supplier-catalog-diagnostics.ts";
 
 type ParseNode = { nodeName: string; value?: string; childNodes?: ParseNode[] };
 
@@ -100,13 +101,27 @@ export function createSpaPlusCatalogClient(options: { apiKey: string; fetchImpl?
       url.searchParams.set("action", "sites");
       let response: Response;
       try {
-        response = await fetchImpl(url, { signal: AbortSignal.timeout(30_000), redirect: "error", cache: "no-store" });
+        response = await fetchImpl(url, { signal: AbortSignal.timeout(30_000), redirect: "manual", cache: "no-store" });
       } catch {
         throw new Error("spa_transport_error");
       }
+      if (response.status >= 300 && response.status < 400) throw new SupplierCatalogRedirectError("spa_redirect_not_allowed", response.status, response.headers.get("Location"), url.href);
       if (!response.ok) throw new Error(response.status === 401 || response.status === 403 ? "spa_not_authorized" : "spa_provider_error");
+      let bytes: ArrayBuffer;
+      try { bytes = await response.arrayBuffer(); } catch {
+        throw new SpaCatalogJsonError({ httpStatus: response.status, contentType: response.headers.get("Content-Type"),
+          responseBytes: null, firstCharacterKind: "other", parseErrorKind: "body_read_error" });
+      }
+      // Decode once as response.json() does, including UTF-8 BOM handling. Body stays in memory only.
+      const text = new TextDecoder().decode(bytes);
       let body: unknown;
-      try { body = await response.json(); } catch { throw new Error("invalid_spa_response"); }
+      try { body = JSON.parse(text); } catch (error) {
+        const first = text.trimStart()[0];
+        throw new SpaCatalogJsonError({ httpStatus: response.status, contentType: response.headers.get("Content-Type"),
+          responseBytes: bytes.byteLength,
+          firstCharacterKind: first === "{" || first === "[" ? "json-like" : first === "<" ? "html-like" : "other",
+          parseErrorKind: error instanceof SyntaxError ? "syntax_error" : "other" });
+      }
       return { fetchedAt: new Date().toISOString(), entries: normalizeSpaPlusCatalog(body) };
     },
   };

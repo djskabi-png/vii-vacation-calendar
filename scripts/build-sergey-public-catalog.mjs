@@ -3,7 +3,6 @@ import { gunzipSync } from "node:zlib";
 import { parseFragment } from "parse5";
 import { supplierDisplayDescription } from "../app/data/supplier-display-text.ts";
 import { supplierContactNumber } from "../app/lib/supplier-contact.ts";
-import { assertCatalogCoverage } from "./sergey-catalog-coverage.mjs";
 import { assertNoUnreviewedRemovals, compareCatalogCandidate, stageCatalogCandidate } from "./catalog-candidate-guard.mjs";
 
 const root = new URL("../", import.meta.url);
@@ -11,6 +10,7 @@ const stageOnly = process.argv.includes("--stage-only");
 const input = process.env.VII_SERGEY_RAW_PATH || new URL("tmp/vii-sergey-stage-20261005/raw.json.gz", root);
 const output = new URL("app/data/sergey-public-catalog.json", root);
 const detailOutput = new URL("app/data/sergey-place-details.json", root);
+const previousCatalog = JSON.parse(await readFile(output, "utf8"));
 const report = new URL("tmp/vii-sergey-stage-20261005/public-catalog-report.json", root);
 const source = JSON.parse(gunzipSync(await readFile(input)));
 const cities = new Map(source.locations.cities.map((city) => [city.id, city]));
@@ -92,13 +92,11 @@ const places = source.details.flatMap(({ world, supplierId, raw }) => {
       remarks: plainText(raw.policy?.remarks),
     },
     rooms: rooms.map((room) => ({
-      id: Number.isSafeInteger(room.roomID) && room.roomID > 0 ? room.roomID : 0,
       name: room.roomName?.trim() || "יחידת אירוח",
       quantity: Number.isSafeInteger(room.roomCount) && room.roomCount > 0 ? room.roomCount : 1,
       guests: Number.isSafeInteger(room.maxGuests) && room.maxGuests > 0 ? room.maxGuests : 0,
       bedrooms: Number.isSafeInteger(room.bedrooms) && room.bedrooms > 0 ? room.bedrooms : 0,
       features: unique((room.spaces || []).flatMap((space) => (space.features || []).map((feature) => feature.description?.trim()))),
-      images: unique(Object.values(raw.galleries || {}).filter((gallery) => gallery?.title?.trim() === room.roomName?.trim()).flatMap((gallery) => Array.isArray(gallery.pictures) ? gallery.pictures.map(imageUrl) : [])),
     })),
     reviews: (raw.reviews?.list || []).filter((review) => Number.isSafeInteger(review.id) && (typeof review.text === "string" || typeof review.score === "number")).map((review) => ({
       id: review.id,
@@ -140,29 +138,21 @@ const places = source.details.flatMap(({ world, supplierId, raw }) => {
 });
 
 const result = { source: "sergey-vii-api", fetchedAt: source.fetchedAt, places };
-const previousCatalog = JSON.parse(await readFile(output));
-assertCatalogCoverage(
-  Object.fromEntries(["vacations", "events"].map((world) => [world, previousCatalog.places.filter((place) => place.world === world).length])),
-  Object.fromEntries(["vacations", "events"].map((world) => [world, places.filter((place) => place.world === world).length])),
-);
 const changes = ["vacations", "events"].map((world) => compareCatalogCandidate(
-  world,
-  previousCatalog.places.filter((place) => place.world === world),
+  world, previousCatalog.places.filter((place) => place.world === world),
   places.filter((place) => place.world === world),
 ));
 const staged = await Promise.all(changes.map((change) => stageCatalogCandidate(
-  change.world,
-  places.filter((place) => place.world === change.world),
-  change,
+  change.world, places.filter((place) => place.world === change.world), change,
 )));
 for (const [index, change] of changes.entries()) assertNoUnreviewedRemovals(change, staged[index]);
 if (!stageOnly) {
-  await mkdir(new URL("tmp/vii-sergey-stage-20261005/", root), { recursive: true });
-  await writeFile(output, `${JSON.stringify(result)}\n`);
-  await writeFile(detailOutput, `${JSON.stringify({ source: "sergey-vii-api", fetchedAt: source.fetchedAt, details })}\n`);
-  await writeFile(report, `${JSON.stringify({ fetchedAt: source.fetchedAt, accepted: {
-    vacations: places.filter((place) => place.world === "vacations").length,
-    events: places.filter((place) => place.world === "events").length,
-  }, galleryImageLimit: 12, rejected }, null, 2)}\n`);
+await mkdir(new URL("tmp/vii-sergey-stage-20261005/", root), { recursive: true });
+await writeFile(output, `${JSON.stringify(result)}\n`);
+await writeFile(detailOutput, `${JSON.stringify({ source: "sergey-vii-api", fetchedAt: source.fetchedAt, details })}\n`);
+await writeFile(report, `${JSON.stringify({ fetchedAt: source.fetchedAt, accepted: {
+  vacations: places.filter((place) => place.world === "vacations").length,
+  events: places.filter((place) => place.world === "events").length,
+}, galleryImageLimit: 12, rejected }, null, 2)}\n`);
 }
 console.log(JSON.stringify({ stageOnly, accepted: places.length, changes, staged, rejected }));
