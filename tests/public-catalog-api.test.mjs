@@ -82,7 +82,9 @@ test("search does not flash bundled supplier places before the accepted catalog 
     readFile(new URL("app/search/layout.tsx", root), "utf8"),
     readFile(new URL("app/events/search/layout.tsx", root), "utf8"),
   ]);
-  assert.match(hook, /useState<T\[\]>\(\(\) => seed\.map\(map\)\)/);
+  assert.match(hook, /useState<T\[\]>\(\(\) => \(seed \|\| \[\]\)\.map\(map\)\)/);
+  assert.match(hook, /if \(seed === null\) void load\(\)/);
+  assert.match(hook, /visibilitychange/);
   assert.match(vacationLayout, /publicCatalogSummaries<Property>\("vacations"\)/);
   assert.match(eventLayout, /publicCatalogSummaries<EventPlace>\("events"\)/);
   assert.match(hook, /setItems\(\[\]\);\s*setError\(true\)/);

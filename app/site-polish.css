@@ -1,8 +1,6 @@
 /* Shared finishing layer: text links remain recognizable; controls and cards keep their own affordance. */
 :where(main p, main li, .breadcrumbs__item) a:not([class]):not(:has(img, svg)),
-.section-head a:not(.button),
-.footer-grid nav a,
-.footer-bottom a {
+.section-head a:not(.button) {
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: .2em;
@@ -19,8 +17,7 @@
 }
 
 :where(main p, main li, .breadcrumbs__item) a:not([class]):not(:has(img, svg)):hover,
-.section-head a:not(.button):hover,
-.footer-grid nav a:hover {
+.section-head a:not(.button):hover {
   text-decoration-thickness: 2px;
 }
 

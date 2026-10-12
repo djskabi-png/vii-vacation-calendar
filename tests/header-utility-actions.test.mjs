@@ -10,6 +10,12 @@ const joinPage = await readFile(new URL("../app/join/page.tsx", import.meta.url)
 const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
 const polishCss = await readFile(new URL("../app/site-polish.css", import.meta.url), "utf8");
 
+test("footer links stay unadorned without disabling the accessibility underline option", () => {
+  assert.match(css, /\.site-footer a, \.site-footer \.footer-privacy-button \{ text-decoration: none; \}/);
+  assert.doesNotMatch(polishCss, /\.footer-grid nav a|\.footer-bottom a/);
+  assert.match(css, /\.a11y-underline-links a \{ text-decoration: underline !important;/);
+});
+
 test("desktop navigation has no duplicate more menu or gift-card text link", () => {
   assert.doesNotMatch(header, /primaryNavigation/);
   assert.doesNotMatch(header, /className="desktop-nav"/);
@@ -47,11 +53,13 @@ test("search remains a real link until the world switcher is interactive", () =>
   assert.match(polishCss, /\.world-dock > \.world-dock__prehydrate/);
 });
 
-test("world links use immediate browser navigation so repeated activation cannot fall through", () => {
+test("world links navigate on pointer activation without a full document reload or duplicate click", () => {
   assert.match(switcher, /const navigateFromSwitcher = \(event: ReactMouseEvent<HTMLAnchorElement>\)/);
   assert.match(switcher, /event\.preventDefault\(\)/);
   assert.match(switcher, /event\.currentTarget\.getAttribute\("href"\)/);
-  assert.match(switcher, /window\.location\.assign\(href\)/);
+  assert.match(switcher, /lastNavigationRef\.current = \{ href, until: performance\.now\(\) \+ 650 \}/);
+  assert.match(switcher, /router\.push\(href\)/);
+  assert.doesNotMatch(switcher, /window\.location\.assign\(href\)/);
   assert.doesNotMatch(switcher, /navigationCloseTimerRef/);
   assert.match(switcher, /const navigateFromSwitcherPointer = \(event: ReactPointerEvent<HTMLAnchorElement>\)/);
   assert.match(switcher, /onPointerDown=\{navigateFromSwitcherPointer\}/);

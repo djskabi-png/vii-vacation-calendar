@@ -12,5 +12,5 @@ export function PublishedCatalogSeed({ world, entries, children }: Seed & { chil
 
 export function usePublishedCatalogSeed(world: SupplierCatalogWorld) {
   const seed = useContext(Context);
-  return seed?.world === world ? seed.entries : [];
+  return seed?.world === world ? seed.entries : null;
 }
