@@ -1,4 +1,4 @@
-import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 export const guestReviews = sqliteTable("guest_reviews", {
   id: text("id").primaryKey(),
@@ -72,3 +72,25 @@ export const supplierCatalogState = sqliteTable("supplier_catalog_state", {
   lockRunId: text("lock_run_id"),
   lockUntil: text("lock_until"),
 });
+
+export const discoveryPromotionDraftEvents = sqliteTable("discovery_promotion_draft_events", {
+  eventId: text("event_id").primaryKey(),
+  campaignId: text("campaign_id").notNull(),
+  version: integer("version").notNull(),
+  world: text("world").notNull(),
+  supplierId: integer("supplier_id").notNull(),
+  placeName: text("place_name").notNull(),
+  kind: text("kind").notNull(),
+  weight: integer("weight").notNull(),
+  startsOn: text("starts_on").notNull(),
+  endsOn: text("ends_on").notNull(),
+  contractEndsOn: text("contract_ends_on"),
+  contractSource: text("contract_source"),
+  note: text("note").notNull(),
+  status: text("status").notNull(),
+  actorEmail: text("actor_email").notNull(),
+  savedAt: text("saved_at").notNull(),
+}, (table) => [
+  uniqueIndex("idx_discovery_promotion_draft_version").on(table.campaignId, table.version),
+  index("idx_discovery_promotion_draft_saved").on(table.savedAt),
+]);

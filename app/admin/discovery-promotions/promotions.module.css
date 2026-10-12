@@ -1,0 +1,99 @@
+.page {
+  max-width: 1320px;
+  min-height: 80vh;
+  margin: 0 auto;
+  padding: 34px 24px 80px;
+  color: #17333a;
+}
+
+.header, .sectionHeading, .statusBar, .actions, .fieldRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header, .sectionHeading { justify-content: space-between; }
+.header { align-items: flex-start; }
+.header h1 { margin: 0; font-size: 1.8rem; line-height: 1.25; }
+.header p { margin: 6px 0 0; color: #536b72; }
+.eyebrow { color: #117d83 !important; font-weight: 700; font-size: .82rem; }
+.iconButton, .actions button {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #cbdcdd;
+  border-radius: 6px;
+  background: #fff;
+  color: #155d65;
+  cursor: pointer;
+}
+.iconButton:disabled, .actions button:disabled { opacity: .5; cursor: default; }
+.statusBar {
+  flex-wrap: wrap;
+  margin-block: 24px;
+  padding-block: 12px;
+  border-block: 1px solid #d9e4e5;
+  font-weight: 650;
+  font-size: .9rem;
+}
+.statusBar a { margin-inline-start: auto; color: #126d75; text-decoration: underline; }
+.statusDot { width: 9px; height: 9px; border-radius: 50%; background: #9faeb0; }
+.layout { display: grid; grid-template-columns: minmax(300px, 370px) minmax(0, 1fr); gap: 34px; align-items: start; }
+.editor { border: 1px solid #d9e4e5; border-radius: 8px; padding: 22px; background: #fff; }
+.sectionHeading { margin-bottom: 16px; }
+.sectionHeading h2 { margin: 0; font-size: 1.15rem; line-height: 1.35; }
+.sectionHeading button { padding: 0; border: 0; background: none; color: #126d75; text-decoration: underline; cursor: pointer; }
+.sectionHeading span { color: #577077; font-variant-numeric: tabular-nums; }
+.form { display: grid; gap: 17px; }
+.form label { display: grid; min-width: 0; gap: 7px; font-size: .88rem; font-weight: 650; }
+.form input, .form select, .form textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #b9ced0;
+  border-radius: 5px;
+  padding: 10px;
+  background: #fff;
+  color: #17333a;
+  font: inherit;
+  font-weight: 400;
+}
+.form input[type="range"] { padding-inline: 0; accent-color: #118a8b; }
+.form input:disabled, .form select:disabled { background: #f1f5f5; }
+.fieldRow { align-items: start; }
+.fieldRow label { flex: 1; }
+.lookup { display: inline-flex; align-items: center; gap: 7px; justify-self: start; padding: 0; border: 0; background: none; color: #126d75; font: inherit; font-weight: 700; cursor: pointer; }
+.lookup:disabled { opacity: .5; cursor: default; }
+.resolved { margin: -5px 0 0; font-size: .86rem; color: #216358; }
+.primary { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 45px; border: 0; border-radius: 6px; color: #fff; background: #087b80; font: inherit; font-weight: 700; cursor: pointer; }
+.primary:disabled { opacity: .5; cursor: default; }
+.records { display: grid; gap: 42px; min-width: 0; }
+.tableWrap { overflow-x: auto; border-block: 1px solid #d9e4e5; }
+.tableWrap table { width: 100%; border-collapse: collapse; text-align: right; font-size: .87rem; }
+.tableWrap th, .tableWrap td { padding: 13px 9px; border-bottom: 1px solid #e7eeee; vertical-align: middle; }
+.tableWrap th { color: #557077; white-space: nowrap; font-weight: 700; }
+.tableWrap tr:last-child td { border-bottom: 0; }
+.tableWrap td strong, .tableWrap td small { display: block; }
+.tableWrap td small { margin-top: 3px; color: #5b7479; }
+.tableWrap td[dir="ltr"] { text-align: right; overflow-wrap: anywhere; }
+.actions { gap: 7px; }
+.error, .notice { padding: 12px 15px; border-radius: 5px; }
+.error { color: #8f2828; background: #fff0ef; }
+.notice { color: #176353; background: #e9f6f0; }
+.error a { text-decoration: underline; }
+.empty { padding: 25px 0; color: #617980; }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .editor { max-width: 560px; }
+}
+
+@media (max-width: 520px) {
+  .page { padding: 22px 16px 55px; }
+  .header h1 { font-size: 1.55rem; }
+  .statusBar a { margin-inline-start: 0; }
+  .editor { padding: 18px; }
+  .fieldRow { flex-wrap: wrap; }
+  .fieldRow label { flex-basis: 100%; }
+  .tableWrap table { min-width: 640px; }
+}
