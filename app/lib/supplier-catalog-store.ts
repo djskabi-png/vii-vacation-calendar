@@ -47,6 +47,8 @@ export function spaMediaWithinGuard(previous: SupplierCatalogEntry[], candidate:
   let lostSites = 0;
   let beforePackages = 0;
   let lostPackages = 0;
+  let beforeGalleries = 0;
+  let lostGalleries = 0;
   for (const oldEntry of previous) {
     const updated = next.get(oldEntry.supplierId);
     if (!updated) continue;
@@ -55,6 +57,10 @@ export function spaMediaWithinGuard(previous: SupplierCatalogEntry[], candidate:
     if (hasImage(oldSite.image)) {
       beforeSites += 1;
       if (!hasImage(nextSite.image)) lostSites += 1;
+    }
+    if (Array.isArray(oldSite.gallery) && oldSite.gallery.length > 0) {
+      beforeGalleries += 1;
+      if (!Array.isArray(nextSite.gallery) || nextSite.gallery.length === 0) lostGalleries += 1;
     }
     const oldPackages = Array.isArray(oldSite.packages) ? oldSite.packages : [];
     const nextPackages = Array.isArray(nextSite.packages) ? nextSite.packages : [];
@@ -67,7 +73,8 @@ export function spaMediaWithinGuard(previous: SupplierCatalogEntry[], candidate:
     }
   }
   return lostSites <= Math.floor(beforeSites * 0.05)
-    && lostPackages <= Math.floor(beforePackages * 0.05);
+    && lostPackages <= Math.floor(beforePackages * 0.05)
+    && lostGalleries <= Math.floor(beforeGalleries * 0.05);
 }
 
 export async function beginSupplierCatalogRun(db: D1Database, input: {

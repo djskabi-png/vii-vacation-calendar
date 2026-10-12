@@ -204,6 +204,7 @@ test("spa media loss cannot replace an accepted catalog", async () => {
   const pictured = Array.from({ length: 20 }, (_, index) => ({
     supplierId: index + 1,
     summary: { id: index + 1, image: `https://www.spaplus.co.il/gallery/site-${index}.jpg`,
+      gallery: [`https://www.spaplus.co.il/gallery/extra-${index}.jpg`],
       packages: [{ id: index + 1001, image: `https://www.spaplus.co.il/gallery/pack-${index}.jpg` }] },
   }));
   try {
@@ -214,6 +215,7 @@ test("spa media loss cannot replace an accepted catalog", async () => {
       ["media-sites-lost", pictured.map((entry) => ({ ...entry, summary: { ...entry.summary, image: null } }))],
       ["media-packages-lost", pictured.map((entry) => ({ ...entry, summary: { ...entry.summary,
         packages: entry.summary.packages.map((pack) => ({ ...pack, image: null })) } }))],
+      ["media-galleries-lost", pictured.map((entry) => ({ ...entry, summary: { ...entry.summary, gallery: [] } }))],
     ]) {
       const result = await runSupplierCatalogSync(db, { id, world: "spa", source: "test",
         baseline: pictured, now: at, fetchCandidate: async () => ({ fetchedAt: at().toISOString(), entries }) });
