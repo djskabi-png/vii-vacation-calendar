@@ -117,12 +117,14 @@ test("invalid origin, unsupported protocol, batches and malformed JSON are rejec
   assert.equal(deps.queries.length, 0);
 });
 
-test("runtime failures return no secret messages and the route declares no writer or scheduler", async () => {
+test("status runtime failures return no secret messages and pulls stay behind the shared MCP authorization", async () => {
   const deps = dependencies();
   deps.database = async () => { throw new Error("private-token https://private.invalid user@example.test"); };
   const value = await (await catalogStatusMcp(request("tools/call", { name: "vii_catalog_status" }, identity), deps)).json();
   assert.equal(value.result.isError, true);
   assert.doesNotMatch(JSON.stringify(value), /private|user@example|https/);
   const route = await readFile(new URL("../app/mcp/route.ts", import.meta.url), "utf8");
-  assert.doesNotMatch(route, /syncSupplier|fetchCandidate|scheduled|\.run\(|\.batch\(/);
+  assert.match(route, /async pull\(world\)/);
+  assert.match(route, /catalogStatusMcp\(request/);
+  assert.doesNotMatch(route, /fetchCandidate|\.run\(|\.batch\(/);
 });

@@ -35,7 +35,7 @@ async function secret(name: "SERGEY_VII_API_TOKEN" | "SPAPLUS_VII_API_KEY") {
 }
 
 export async function syncSupplierCatalogWorld(db: D1Database, world: SupplierCatalogWorld,
-  source: "manual" | "scheduled", options?: { fetchImpl?: typeof fetch; now?: () => Date }) {
+  source: "manual" | "scheduled", options?: { fetchImpl?: typeof fetch; now?: () => Date; runId?: string }) {
   const apiKey = await secret(world === "spa" ? "SPAPLUS_VII_API_KEY" : "SERGEY_VII_API_TOKEN");
   const client = world === "spa"
     ? createSpaPlusCatalogClient({ apiKey, fetchImpl: options?.fetchImpl })
@@ -43,7 +43,7 @@ export async function syncSupplierCatalogWorld(db: D1Database, world: SupplierCa
       ? createSergeyRoomsCatalogClient({ apiKey, fetchImpl: options?.fetchImpl })
       : createSergeyPublicCatalogClient({ apiKey, fetchImpl: options?.fetchImpl });
   return runSupplierCatalogSync(db, {
-    id: crypto.randomUUID(), world, source,
+    id: options?.runId || crypto.randomUUID(), world, source,
     baseline: bundledCatalogBaseline(world),
     fetchCandidate: () => world === "vacations" || world === "events"
       ? (client as ReturnType<typeof createSergeyPublicCatalogClient>).fetchCandidate(world)
