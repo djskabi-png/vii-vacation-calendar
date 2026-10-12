@@ -65,7 +65,7 @@ export const spaPlacesFromSites = (sites: SpaPlusSite[]): DiscoveryItem[] => sit
     features: audiences.map((audience) => `חבילות ${audience === "זוג" ? "זוגיות" : audience === "יחיד" ? "ליחיד" : audience === "קבוצה" ? "לקבוצות" : "יום כיף"}`),
     searchTerms: site.packages.map((pack) => pack.title),
     image: site.image || undefined,
-    images: site.image ? [site.image] : [],
+    images: [...new Set([site.image, ...(site.gallery || [])].filter((image): image is string => Boolean(image)))],
     priceLabel: prices.length ? `החל מ־${Math.min(...prices).toLocaleString("he-IL")} ₪` : undefined,
     phone: site.phone || undefined,
     sourceUrl: site.bookingUrl || undefined,

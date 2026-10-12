@@ -2,18 +2,20 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createSpaPlusCatalogClient, normalizeSpaPlusCatalog } from "../app/lib/spaplus-catalog-client.ts";
 import { SpaCatalogJsonError } from "../app/lib/supplier-catalog-diagnostics.ts";
+import { spaPlacesFromSites } from "../app/data/world-data.ts";
 
 const imageField = "CONCAT('https://www.spaplus.co.il/gallery/',picture)";
 const payload = { status: "ok", sites: {
   42: {
     siteid: 42, title: "ספא בדיקה", titleEN: "Test Spa", city: "חיפה", address: "כתובת",
     about: "<p>שורה ראשונה</p><p>שורה שנייה</p>", phone: "03-1234567",
-    [imageField]: "https://www.spaplus.co.il/gallery/place.jpg",
+    spa_picture: "https://www.spaplus.co.il/gallery/place.jpg",
+    gallery: ["https://www.spaplus.co.il/gallery/one.jpg", "https://www.spaplus.co.il/gallery/two.jpg", "https://www.spaplus.co.il/gallery/one.jpg"],
     iframeurl: "https://www.spaplus.co.il/order/42", opening: ["יום א"],
     packages: { a: {
       MainPageID: 7, idPack: 8, MainPageTitle: "חבילה זוגית", price: "399.5",
       treatmentDuration: "60", packPeoples: "2", isGroupPackage: "0",
-      [imageField]: "https://www.spaplus.co.il/gallery/package.jpg",
+      pack_picture: "https://www.spaplus.co.il/gallery/package.jpg",
       iframeurl: "https://www.spaplus.co.il/order/7",
     } },
   },
@@ -25,7 +27,30 @@ test("normalizes a real-shaped spa site and package without inventing a dated of
   assert.deepEqual(entry.summary.about, ["שורה ראשונה", "שורה שנייה"]);
   assert.equal(entry.summary.packages[0].price, 399.5);
   assert.equal(entry.summary.packages[0].people, 2);
+  assert.equal(entry.summary.image, "https://www.spaplus.co.il/gallery/place.jpg");
+  assert.deepEqual(entry.summary.gallery, ["https://www.spaplus.co.il/gallery/one.jpg", "https://www.spaplus.co.il/gallery/two.jpg"]);
+  assert.equal(entry.summary.packages[0].image, "https://www.spaplus.co.il/gallery/package.jpg");
   assert.equal(Object.hasOwn(entry.summary, "availability"), false);
+});
+
+test("accepts the previous supplier image field as a compatibility fallback", () => {
+  const legacy = structuredClone(payload);
+  legacy.sites[42][imageField] = legacy.sites[42].spa_picture;
+  delete legacy.sites[42].spa_picture;
+  legacy.sites[42].packages.a[imageField] = legacy.sites[42].packages.a.pack_picture;
+  delete legacy.sites[42].packages.a.pack_picture;
+  const [entry] = normalizeSpaPlusCatalog(legacy);
+  assert.equal(entry.summary.image, "https://www.spaplus.co.il/gallery/place.jpg");
+  assert.equal(entry.summary.packages[0].image, "https://www.spaplus.co.il/gallery/package.jpg");
+});
+
+test("passes every supplier gallery image to the spa detail page", () => {
+  const expanded = structuredClone(payload);
+  expanded.sites[42].gallery = Array.from({ length: 40 }, (_, index) => `https://www.spaplus.co.il/gallery/${index}.jpg`);
+  const [site] = normalizeSpaPlusCatalog(expanded).map((entry) => entry.summary);
+  const [place] = spaPlacesFromSites([site]);
+  assert.equal(place.images.length, 41);
+  assert.equal(place.images.at(-1), "https://www.spaplus.co.il/gallery/39.jpg");
 });
 
 test("fetches the supplier catalog with the provided key without exposing it in errors", async () => {
@@ -45,6 +70,9 @@ test("rejects malformed sites, packages and off-domain booking links", () => {
   assert.throws(() => normalizeSpaPlusCatalog({ ...payload, sites: [] }), /invalid_spa_catalog/);
   const changed = structuredClone(payload);
   changed.sites[42].packages.a.iframeurl = "https://example.com/order";
+  assert.throws(() => normalizeSpaPlusCatalog(changed), /invalid_spa_url/);
+  changed.sites[42].packages.a.iframeurl = payload.sites[42].packages.a.iframeurl;
+  changed.sites[42].gallery = ["https://example.com/image.jpg"];
   assert.throws(() => normalizeSpaPlusCatalog(changed), /invalid_spa_url/);
 });
 

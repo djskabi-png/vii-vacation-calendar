@@ -48,6 +48,8 @@ export function normalizeSpaPlusCatalog(payload: unknown): SupplierCatalogEntry[
     const id = positive(site.siteid);
     const title = typeof site.title === "string" ? site.title.trim() : "";
     if (!id || Number(key) !== id || !title) throw new Error("invalid_spa_site");
+    if (site.gallery !== undefined && !Array.isArray(site.gallery)) throw new Error("invalid_spa_gallery");
+    const gallery = [...new Set((site.gallery || []).map((value) => safeUrl(value)).filter((url): url is string => Boolean(url)))];
     const packages = Object.values(record(site.packages)).map((value) => {
       const pack = record(value);
       const packageId = positive(pack.MainPageID);
@@ -65,7 +67,7 @@ export function normalizeSpaPlusCatalog(payload: unknown): SupplierCatalogEntry[
         durationMinutes: positive(pack.treatmentDuration),
         people: positive(pack.packPeoples),
         group: Boolean(Number(pack.isGroupPackage)),
-        image: safeUrl(pack[imageField]),
+        image: safeUrl(pack.pack_picture ?? pack[imageField]),
         bookingUrl: safeUrl(pack.iframeurl),
       };
     });
@@ -78,7 +80,8 @@ export function normalizeSpaPlusCatalog(payload: unknown): SupplierCatalogEntry[
       shortDescription: String(site.short_desc || "").trim(),
       about: plainText(site.about),
       phone: String(site.phone || "").trim(),
-      image: safeUrl(site[imageField]),
+      image: safeUrl(site.spa_picture ?? site[imageField]),
+      gallery,
       opening: Array.isArray(site.opening) ? site.opening.map(String) : [],
       bookingUrl: safeUrl(site.iframeurl),
       packages,
