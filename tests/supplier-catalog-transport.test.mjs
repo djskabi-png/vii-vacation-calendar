@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createRequire } from "node:module";
+import { pathToFileURL } from "node:url";
 import { createSergeyPublicCatalogClient } from "../app/lib/sergey-public-catalog-client.ts";
 import { createSergeyRoomsCatalogClient } from "../app/lib/sergey-rooms-catalog-client.ts";
 import { createSpaPlusCatalogClient } from "../app/lib/spaplus-catalog-client.ts";
@@ -30,7 +31,7 @@ for (const [world, create, pull, code] of clients) {
 test("workerd rejects error mode before transport but accepts manual mode without following", async () => {
   const require = createRequire(import.meta.url);
   const wranglerRequire = createRequire(require.resolve("wrangler/package.json"));
-  const { Miniflare } = await import(wranglerRequire.resolve("miniflare"));
+  const { Miniflare } = await import(pathToFileURL(wranglerRequire.resolve("miniflare")).href);
   const mf = new Miniflare({
     modules: true, compatibilityDate: "2026-05-15", compatibilityFlags: ["nodejs_compat"],
     script: `export default {async fetch(request) {
