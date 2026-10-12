@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createSpaPlusCatalogClient, normalizeSpaPlusCatalog } from "../app/lib/spaplus-catalog-client.ts";
 import { SpaCatalogJsonError } from "../app/lib/supplier-catalog-diagnostics.ts";
+import { spaPlacesFromSites } from "../app/data/world-data.ts";
 
 const imageField = "CONCAT('https://www.spaplus.co.il/gallery/',picture)";
 const payload = { status: "ok", sites: {
@@ -41,6 +42,15 @@ test("accepts the previous supplier image field as a compatibility fallback", ()
   const [entry] = normalizeSpaPlusCatalog(legacy);
   assert.equal(entry.summary.image, "https://www.spaplus.co.il/gallery/place.jpg");
   assert.equal(entry.summary.packages[0].image, "https://www.spaplus.co.il/gallery/package.jpg");
+});
+
+test("passes every supplier gallery image to the spa detail page", () => {
+  const expanded = structuredClone(payload);
+  expanded.sites[42].gallery = Array.from({ length: 40 }, (_, index) => `https://www.spaplus.co.il/gallery/${index}.jpg`);
+  const [site] = normalizeSpaPlusCatalog(expanded).map((entry) => entry.summary);
+  const [place] = spaPlacesFromSites([site]);
+  assert.equal(place.images.length, 41);
+  assert.equal(place.images.at(-1), "https://www.spaplus.co.il/gallery/39.jpg");
 });
 
 test("fetches the supplier catalog with the provided key without exposing it in errors", async () => {
