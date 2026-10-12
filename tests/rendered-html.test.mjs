@@ -407,6 +407,8 @@ test("spa booking uses only the supplier handoff while other discovery stays in 
   const [spaPage, ...otherPages] = await Promise.all(responses.map((response) => response.text()));
   const pages = [spaPage, ...otherPages].join("\n");
   assert.match(spaPage, /בדיקת זמינות והזמנה/);
+  assert.doesNotMatch(spaPage, /detail-sticky-dock__phone|aria-label="חיוג להזמנה אצל/);
+  assert.match(otherPages[0], /detail-sticky-dock__phone/);
   const spaSource = await readFile(new URL("../app/discover/place/client-page.tsx", import.meta.url), "utf8");
   assert.match(spaSource, /href=\{pack\.bookingUrl\} target="_blank" rel="noopener noreferrer"/);
   assert.doesNotMatch(spaSource, /spa-booking-dialog|<iframe/);
