@@ -1289,7 +1289,7 @@ test("spa results expose working place and amenity filters before the result lis
 
   const source = await readFile(new URL("../app/components/world-map-results.tsx", import.meta.url), "utf8");
   assert.match(source, /selectedFilters\.every/);
-  assert.match(source, /<DeferredDiscoveryMap items=\{amenityFiltered\} initialItems=\{filtered\}/);
+  assert.match(source, /<DeferredDiscoveryMap items=\{filtered\} initialItems=\{filtered\}/);
   assert.match(source, /onVisibleCountChange=\{setVisibleMapCount\}/);
   assert.match(source, /displayed\.map\(\(item\)/);
 
