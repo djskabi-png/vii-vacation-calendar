@@ -65,7 +65,7 @@ export function normalizeSpaPlusCatalog(payload: unknown): SupplierCatalogEntry[
         durationMinutes: positive(pack.treatmentDuration),
         people: positive(pack.packPeoples),
         group: Boolean(Number(pack.isGroupPackage)),
-        image: safeUrl(pack[imageField]),
+        image: safeUrl(pack.pack_picture ?? pack[imageField]),
         bookingUrl: safeUrl(pack.iframeurl),
       };
     });
@@ -78,7 +78,7 @@ export function normalizeSpaPlusCatalog(payload: unknown): SupplierCatalogEntry[
       shortDescription: String(site.short_desc || "").trim(),
       about: plainText(site.about),
       phone: String(site.phone || "").trim(),
-      image: safeUrl(site[imageField]),
+      image: safeUrl(site.spa_picture ?? site[imageField]),
       opening: Array.isArray(site.opening) ? site.opening.map(String) : [],
       bookingUrl: safeUrl(site.iframeurl),
       packages,

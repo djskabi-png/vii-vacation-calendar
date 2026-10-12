@@ -8,12 +8,12 @@ const payload = { status: "ok", sites: {
   42: {
     siteid: 42, title: "ספא בדיקה", titleEN: "Test Spa", city: "חיפה", address: "כתובת",
     about: "<p>שורה ראשונה</p><p>שורה שנייה</p>", phone: "03-1234567",
-    [imageField]: "https://www.spaplus.co.il/gallery/place.jpg",
+    spa_picture: "https://www.spaplus.co.il/gallery/place.jpg",
     iframeurl: "https://www.spaplus.co.il/order/42", opening: ["יום א"],
     packages: { a: {
       MainPageID: 7, idPack: 8, MainPageTitle: "חבילה זוגית", price: "399.5",
       treatmentDuration: "60", packPeoples: "2", isGroupPackage: "0",
-      [imageField]: "https://www.spaplus.co.il/gallery/package.jpg",
+      pack_picture: "https://www.spaplus.co.il/gallery/package.jpg",
       iframeurl: "https://www.spaplus.co.il/order/7",
     } },
   },
@@ -25,7 +25,20 @@ test("normalizes a real-shaped spa site and package without inventing a dated of
   assert.deepEqual(entry.summary.about, ["שורה ראשונה", "שורה שנייה"]);
   assert.equal(entry.summary.packages[0].price, 399.5);
   assert.equal(entry.summary.packages[0].people, 2);
+  assert.equal(entry.summary.image, "https://www.spaplus.co.il/gallery/place.jpg");
+  assert.equal(entry.summary.packages[0].image, "https://www.spaplus.co.il/gallery/package.jpg");
   assert.equal(Object.hasOwn(entry.summary, "availability"), false);
+});
+
+test("accepts the previous supplier image field as a compatibility fallback", () => {
+  const legacy = structuredClone(payload);
+  legacy.sites[42][imageField] = legacy.sites[42].spa_picture;
+  delete legacy.sites[42].spa_picture;
+  legacy.sites[42].packages.a[imageField] = legacy.sites[42].packages.a.pack_picture;
+  delete legacy.sites[42].packages.a.pack_picture;
+  const [entry] = normalizeSpaPlusCatalog(legacy);
+  assert.equal(entry.summary.image, "https://www.spaplus.co.il/gallery/place.jpg");
+  assert.equal(entry.summary.packages[0].image, "https://www.spaplus.co.il/gallery/package.jpg");
 });
 
 test("fetches the supplier catalog with the provided key without exposing it in errors", async () => {

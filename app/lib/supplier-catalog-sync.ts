@@ -3,6 +3,7 @@ import { catalogInventoryDiagnostics, SupplierCatalogRedirectError, SpaCatalogJs
 import {
   acceptSupplierCatalogRun, beginSupplierCatalogRun, finishSupplierCatalogRun,
   readSupplierCatalog, stageSupplierCatalogEntries,
+  spaMediaWithinGuard,
   type SupplierCatalogEntry, type SupplierCatalogWorld,
 } from "./supplier-catalog-store.ts";
 
@@ -81,6 +82,9 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
     if (!catalogRemovalWithinGuard(diff.before, diff.removed.length, previousChildCount, diff.removedChildren.length)) {
       throw new Error("catalog_removal_requires_review");
     }
+    if (input.world === "spa" && !spaMediaWithinGuard(previous, candidate.entries)) {
+      throw new Error("catalog_media_requires_review");
+    }
     for (let index = 0; index < candidate.entries.length; index += 40) {
       await stageSupplierCatalogEntries(db, input.id, input.world, candidate.entries.slice(index, index + 40));
     }
@@ -91,7 +95,8 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
   } catch (error) {
     if (error instanceof SupplierCatalogRedirectError || error instanceof SpaCatalogJsonError) diagnostics = error.diagnostics;
     const code = errorCode(error);
-    const status = code.includes("removal") || code.startsWith("invalid_catalog") ? "rejected" : "failed";
+    const status = code.includes("removal") || code === "catalog_media_requires_review"
+      || code.startsWith("invalid_catalog") ? "rejected" : "failed";
     await finishSupplierCatalogRun(db, { id: input.id, world: input.world,
       status,
       errorCode: code, finishedAt: now().toISOString(), diagnostics });

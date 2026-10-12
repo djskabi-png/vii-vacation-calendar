@@ -198,3 +198,28 @@ test("a small withdrawal is published, while a catalog collapse stays blocked", 
     db.close();
   }
 });
+
+test("spa media loss cannot replace an accepted catalog", async () => {
+  const db = await database();
+  const pictured = Array.from({ length: 20 }, (_, index) => ({
+    supplierId: index + 1,
+    summary: { id: index + 1, image: `https://www.spaplus.co.il/gallery/site-${index}.jpg`,
+      packages: [{ id: index + 1001, image: `https://www.spaplus.co.il/gallery/pack-${index}.jpg` }] },
+  }));
+  try {
+    const accepted = await runSupplierCatalogSync(db, { id: "media-initial", world: "spa", source: "test",
+      baseline: pictured, now: at, fetchCandidate: async () => ({ fetchedAt: at().toISOString(), entries: pictured }) });
+    assert.equal(accepted.status, "accepted");
+    for (const [id, entries] of [
+      ["media-sites-lost", pictured.map((entry) => ({ ...entry, summary: { ...entry.summary, image: null } }))],
+      ["media-packages-lost", pictured.map((entry) => ({ ...entry, summary: { ...entry.summary,
+        packages: entry.summary.packages.map((pack) => ({ ...pack, image: null })) } }))],
+    ]) {
+      const result = await runSupplierCatalogSync(db, { id, world: "spa", source: "test",
+        baseline: pictured, now: at, fetchCandidate: async () => ({ fetchedAt: at().toISOString(), entries }) });
+      assert.equal(result.status, "rejected");
+      assert.equal(result.errorCode, "catalog_media_requires_review");
+      assert.equal((await readSupplierCatalog(db, "spa")).entries.filter((entry) => entry.summary.image).length, 20);
+    }
+  } finally { db.close(); }
+});

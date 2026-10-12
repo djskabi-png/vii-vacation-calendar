@@ -37,6 +37,39 @@ function removalWithinGuard(before: number, removed: number, beforeChildren: num
     && removedChildren <= Math.floor(beforeChildren * 0.05);
 }
 
+function hasImage(value: unknown) {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+export function spaMediaWithinGuard(previous: SupplierCatalogEntry[], candidate: SupplierCatalogEntry[]) {
+  const next = new Map(candidate.map((entry) => [entry.supplierId, entry]));
+  let beforeSites = 0;
+  let lostSites = 0;
+  let beforePackages = 0;
+  let lostPackages = 0;
+  for (const oldEntry of previous) {
+    const updated = next.get(oldEntry.supplierId);
+    if (!updated) continue;
+    const oldSite = oldEntry.summary as Record<string, unknown>;
+    const nextSite = updated.summary as Record<string, unknown>;
+    if (hasImage(oldSite.image)) {
+      beforeSites += 1;
+      if (!hasImage(nextSite.image)) lostSites += 1;
+    }
+    const oldPackages = Array.isArray(oldSite.packages) ? oldSite.packages : [];
+    const nextPackages = Array.isArray(nextSite.packages) ? nextSite.packages : [];
+    const nextById = new Map(nextPackages.map((pack) => [pack.id, pack]));
+    for (const oldPack of oldPackages) {
+      const nextPack = nextById.get(oldPack.id);
+      if (!nextPack || !hasImage(oldPack.image)) continue;
+      beforePackages += 1;
+      if (!hasImage(nextPack.image)) lostPackages += 1;
+    }
+  }
+  return lostSites <= Math.floor(beforeSites * 0.05)
+    && lostPackages <= Math.floor(beforePackages * 0.05);
+}
+
 export async function beginSupplierCatalogRun(db: D1Database, input: {
   id: string;
   world: SupplierCatalogWorld;
@@ -140,6 +173,10 @@ export async function acceptSupplierCatalogRun(db: D1Database, input: {
   if (removed !== input.removed || !removalWithinGuard(oldRows.results.length, removed, beforeChildren, removedChildren)) {
     throw new Error("catalog_removal_requires_review");
   }
+  if (input.world === "spa" && !spaMediaWithinGuard(
+    oldRows.results.map((row) => ({ supplierId: row.supplierId, summary: JSON.parse(row.summaryJson) })),
+    nextRows.results.map((row) => ({ supplierId: row.supplierId, summary: JSON.parse(row.summaryJson) })),
+  )) throw new Error("catalog_media_requires_review");
   const results = await db.batch([
     db.prepare(`UPDATE supplier_catalog_state SET active_run_id = ?, accepted_at = ?, active_count = ?,
       lock_run_id = NULL, lock_until = NULL WHERE world = ? AND lock_run_id = ?`)
