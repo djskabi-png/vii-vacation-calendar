@@ -25,6 +25,8 @@ export function WorldSwitcher({ active = "vacation" }: { active?: WorldId }) {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const pointerStartRef = useRef<{ id: number; x: number; y: number } | null>(null);
   const ignoreClickUntilRef = useRef(0);
+  const lastNavigationRef = useRef<{ href: string; until: number } | null>(null);
+  const router = useRouter();
   const { language, translate } = useSiteLanguage();
 
   useEffect(() => {
@@ -67,14 +69,16 @@ export function WorldSwitcher({ active = "vacation" }: { active?: WorldId }) {
     event.preventDefault();
     const href = event.currentTarget.getAttribute("href");
     if (!href) return;
-    window.location.assign(href);
+    if (lastNavigationRef.current?.href === href && performance.now() < lastNavigationRef.current.until) return;
+    router.push(href);
   };
   const navigateFromSwitcherPointer = (event: ReactPointerEvent<HTMLAnchorElement>) => {
     if (!event.isPrimary || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const href = event.currentTarget.getAttribute("href");
     if (!href) return;
     event.preventDefault();
-    window.location.assign(href);
+    lastNavigationRef.current = { href, until: performance.now() + 650 };
+    router.push(href);
   };
 
   const globalSearchHref = localizedPath("/search", language);

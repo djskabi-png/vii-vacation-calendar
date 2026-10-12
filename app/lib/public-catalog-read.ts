@@ -8,6 +8,8 @@ import type { SpaPlusSite } from "../data/spaplus";
 import { readSupplierCatalogEntry, readSupplierCatalogState, readSupplierCatalogSummaries, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
 import { runtimeCatalogDatabase } from "./published-supplier-ids.ts";
 
+const catalogCache = new Map<SupplierCatalogWorld, { runId: string; expiresAt: number; items: Promise<unknown[]> }>();
+
 function bundled(world: SupplierCatalogWorld): unknown[] {
   if (world === "spa") return spa.sites;
   if (world === "rooms") return hourly.places;
@@ -19,9 +21,21 @@ export async function publicCatalogSummaries<T>(world: SupplierCatalogWorld): Pr
   if (!db) return await publicSummaries(world, bundled(world)) as T[];
   const state = await readSupplierCatalogState(db, world);
   if (!state?.activeRunId) return await publicSummaries(world, bundled(world)) as T[];
-  const accepted = await readSupplierCatalogSummaries(db, world);
-  if (!accepted) throw new Error("catalog_active_generation_missing");
-  return await publicSummaries(world, accepted.entries.map((entry) => entry.summary)) as T[];
+  const cached = catalogCache.get(world);
+  if (cached?.runId === state.activeRunId && cached.expiresAt > Date.now()) return await cached.items as T[];
+  const runId = state.activeRunId;
+  const items = (async () => {
+    const accepted = await readSupplierCatalogSummaries(db, world);
+    if (!accepted) throw new Error("catalog_active_generation_missing");
+    return publicSummaries(world, accepted.entries.map((entry) => entry.summary));
+  })();
+  catalogCache.set(world, { runId, expiresAt: Date.now() + 5 * 60_000, items });
+  try {
+    return await items as T[];
+  } catch (error) {
+    if (catalogCache.get(world)?.items === items) catalogCache.delete(world);
+    throw error;
+  }
 }
 
 async function publicSummaries(world: SupplierCatalogWorld, entries: unknown[]): Promise<unknown[]> {

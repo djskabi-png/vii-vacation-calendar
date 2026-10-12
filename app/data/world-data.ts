@@ -53,7 +53,7 @@ const spaAreaCoordinates: Record<string, { lat: number; lng: number }> = {
   "טבריה": { lat: 32.794, lng: 35.532 },
 };
 
-export const spaPlacesFromSites = (sites: SpaPlusSite[]): DiscoveryItem[] => sites.map((site) => {
+export const spaPlacesFromSites = (sites: SpaPlusSite[], galleryForId?: number): DiscoveryItem[] => sites.map((site) => {
   const audiences = [...new Set(site.packages.map(spaPlusAudience).filter((value) => value !== "לא צוין"))];
   const prices = site.packages.map((pack) => pack.price);
   const coordinates = spaAreaCoordinates[site.city];
@@ -68,7 +68,7 @@ export const spaPlacesFromSites = (sites: SpaPlusSite[]): DiscoveryItem[] => sit
     features: audiences.map((audience) => `חבילות ${audience === "זוג" ? "זוגיות" : audience === "יחיד" ? "ליחיד" : audience === "קבוצה" ? "לקבוצות" : "יום כיף"}`),
     searchTerms: site.packages.map((pack) => pack.title),
     image: site.image || undefined,
-    images: [...new Set([site.image, ...(site.gallery || [])].filter((image): image is string => Boolean(image)))],
+    ...(site.id === galleryForId ? { images: [...new Set([site.image, ...(site.gallery || [])].filter((image): image is string => Boolean(image)))] } : {}),
     priceLabel: prices.length ? `החל מ־${Math.min(...prices).toLocaleString("he-IL")} ₪` : undefined,
     phone: site.phone || undefined,
     sourceUrl: site.bookingUrl || undefined,

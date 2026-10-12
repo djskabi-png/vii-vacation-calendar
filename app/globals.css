@@ -4415,6 +4415,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .site-footer .language-menu, .menu-panel__footer .language-menu { inset-block-start: auto; inset-block-end: calc(100% + 10px); }
 .footer-privacy-button { border: 0; padding: 0; background: none; color: #b9cdd1; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .footer-privacy-button:hover { color: white; }
+.site-footer a, .site-footer .footer-privacy-button { text-decoration: none; }
 .accessibility-footer-trigger { display: inline-flex; align-items: center; gap: 5px; font: inherit; }
 .cookie-card { position: fixed; z-index: 900; inset-inline: 22px; bottom: 20px; max-width: 760px; margin: auto; display: grid; grid-template-columns: 1fr auto; gap: 15px; align-items: center; padding: 18px; border: 1px solid var(--line); border-radius: 18px; background: white; box-shadow: var(--shadow); }
 .cookie-card p { margin: 3px 0 0; color: var(--ink-soft); font-size: .8rem; }
