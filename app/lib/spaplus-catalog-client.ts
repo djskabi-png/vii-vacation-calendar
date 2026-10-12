@@ -1,5 +1,6 @@
 import { parseFragment } from "parse5";
 import type { SupplierCatalogEntry } from "./supplier-catalog-store.ts";
+import { SupplierCatalogRedirectError } from "./supplier-catalog-diagnostics.ts";
 
 type ParseNode = { nodeName: string; value?: string; childNodes?: ParseNode[] };
 
@@ -104,7 +105,7 @@ export function createSpaPlusCatalogClient(options: { apiKey: string; fetchImpl?
       } catch {
         throw new Error("spa_transport_error");
       }
-      if (response.status >= 300 && response.status < 400) throw new Error("spa_redirect_not_allowed");
+      if (response.status >= 300 && response.status < 400) throw new SupplierCatalogRedirectError("spa_redirect_not_allowed", response.status, response.headers.get("Location"), url.href);
       if (!response.ok) throw new Error(response.status === 401 || response.status === 403 ? "spa_not_authorized" : "spa_provider_error");
       let body: unknown;
       try { body = await response.json(); } catch { throw new Error("invalid_spa_response"); }

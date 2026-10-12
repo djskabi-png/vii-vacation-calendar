@@ -1,0 +1,1 @@
+ALTER TABLE `supplier_catalog_runs` ADD `diagnostics_json` text;

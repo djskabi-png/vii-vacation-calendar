@@ -32,5 +32,21 @@
   "נוספו": { "en": "Added", "ru": "Добавлено", "fr": "Ajoutés" },
   "השתנו": { "en": "Changed", "ru": "Изменено", "fr": "Modifiés" },
   "סיבה": { "en": "Reason", "ru": "Причина", "fr": "Motif" },
-  "לא ניתן לטעון את המקומות כרגע.": { "en": "Places are unavailable right now.", "ru": "Сейчас не удалось загрузить объекты.", "fr": "Les établissements sont indisponibles pour le moment." }
+  "לא ניתן לטעון את המקומות כרגע.": { "en": "Places are unavailable right now.", "ru": "Сейчас не удалось загрузить объекты.", "fr": "Les établissements sont indisponibles pour le moment." },
+  "לא נשמר אבחון במשיכה זו": {"en": "No diagnostics were recorded for this refresh", "ru": "Диагностика для этого обновления не сохранена", "fr": "Aucun diagnostic enregistré pour cette synchronisation"},
+  "פרטי אבחון": {"en": "Diagnostic details", "ru": "Подробности диагностики", "fr": "Détails du diagnostic"},
+  "אבחון": {"en": "Diagnostics", "ru": "Диагностика", "fr": "Diagnostic"},
+  "לפני:": {"en": "Before:", "ru": "До:", "fr": "Avant :"},
+  "מועמד:": {"en": "Candidate:", "ru": "Кандидат:", "fr": "Candidat :"},
+  "נוספו:": {"en": "Added:", "ru": "Добавлено:", "fr": "Ajoutés :"},
+  "נגרעו:": {"en": "Removed:", "ru": "Удалено:", "fr": "Retirés :"},
+  "מזהי יחידות/חדרים לפני:": {"en": "Unit/room IDs before:", "ru": "ID объектов/номеров до:", "fr": "Identifiants des unités/chambres avant :"},
+  "מזהי יחידות/חדרים שנגרעו:": {"en": "Removed unit/room IDs:", "ru": "Удалённые ID объектов/номеров:", "fr": "Identifiants des unités/chambres retirés :"},
+  "עם מקום שנגרע:": {"en": "With removed venues:", "ru": "С удалёнными объектами:", "fr": "Avec les établissements retirés :"},
+  "במקומות שנותרו:": {"en": "In retained venues:", "ru": "В сохранённых объектах:", "fr": "Dans les établissements conservés :"},
+  "מקום:": {"en": "Venue:", "ru": "Объект:", "fr": "Établissement :"},
+  "יחידה/חדר:": {"en": "Unit/room:", "ru": "Объект/номер:", "fr": "Unité/chambre :"},
+  "המקום נגרע": {"en": "Venue removed", "ru": "Объект удалён", "fr": "Établissement retiré"},
+  "הרשימה קוצרה; מוצגים עד 100 מזהים בכל רשימה": {"en": "List truncated; up to 100 IDs are shown per list", "ru": "Список сокращён; отображается до 100 ID в каждом списке", "fr": "Liste tronquée ; jusqu’à 100 identifiants sont affichés par liste"},
+  "הפניית ספק:": {"en": "Supplier redirect:", "ru": "Перенаправление поставщика:", "fr": "Redirection du fournisseur :"}
 }

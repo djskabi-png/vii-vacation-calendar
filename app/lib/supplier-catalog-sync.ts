@@ -1,4 +1,5 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
+import { catalogInventoryDiagnostics, SupplierCatalogRedirectError, type CatalogSyncDiagnostics } from "./supplier-catalog-diagnostics.ts";
 import {
   acceptSupplierCatalogRun, beginSupplierCatalogRun, finishSupplierCatalogRun,
   readSupplierCatalog, stageSupplierCatalogEntries,
@@ -65,6 +66,7 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
   const acquired = await beginSupplierCatalogRun(db, { id: input.id, world: input.world,
     source: input.source, startedAt, lockUntil });
   if (!acquired) return { status: "skipped" as const, world: input.world, id: input.id };
+  let diagnostics: CatalogSyncDiagnostics | undefined;
   try {
     const candidate = await input.fetchCandidate();
     if (!Number.isFinite(Date.parse(candidate.fetchedAt)) || Date.parse(candidate.fetchedAt) > now().getTime()) {
@@ -74,6 +76,7 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
     if (!active && !input.baseline.length) throw new Error("missing_catalog_baseline");
     const previous = active?.entries || input.baseline;
     const diff = compareSupplierCatalogEntries(input.world, previous, candidate.entries);
+    diagnostics = catalogInventoryDiagnostics(input.world, previous, candidate.entries, diff.changed);
     const previousChildCount = previous.reduce((count, entry) => count + children(input.world, entry).length, 0);
     if (!catalogRemovalWithinGuard(diff.before, diff.removed.length, previousChildCount, diff.removedChildren.length)) {
       throw new Error("catalog_removal_requires_review");
@@ -86,11 +89,12 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
       removed: diff.removed.length, finishedAt: now().toISOString(), baseline: input.baseline });
     return { status: "accepted" as const, world: input.world, id: input.id, diff, fetchedAt: candidate.fetchedAt };
   } catch (error) {
+    if (error instanceof SupplierCatalogRedirectError) diagnostics = error.diagnostics;
     const code = errorCode(error);
     const status = code.includes("removal") || code.startsWith("invalid_catalog") ? "rejected" : "failed";
     await finishSupplierCatalogRun(db, { id: input.id, world: input.world,
       status,
-      errorCode: code, finishedAt: now().toISOString() });
-    return { status, world: input.world, id: input.id, errorCode: code };
+      errorCode: code, finishedAt: now().toISOString(), diagnostics });
+    return { status, world: input.world, id: input.id, errorCode: code, ...(diagnostics ? { diagnostics } : {}) };
   }
 }

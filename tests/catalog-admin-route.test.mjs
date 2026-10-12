@@ -20,6 +20,26 @@ test("catalog administration rejects unauthenticated reads and writes", async ()
   }
 });
 
+test("signed-in non-admin users cannot read or trigger diagnostic catalog runs", async () => {
+  const oldEmails = process.env.VII_ADMIN_EMAILS;
+  const oldSecret = process.env.VII_AUTH_SECRET;
+  process.env.VII_ADMIN_EMAILS = "owner@example.test";
+  process.env.VII_AUTH_SECRET = "test-catalog-admin-secret-of-32-characters";
+  try {
+    const token = await createSignedValue({ sub: "visitor", name: "Visitor", email: "visitor@example.test",
+      provider: "google", exp: Math.floor(Date.now() / 1000) + 60 });
+    const headers = { Cookie: `vii_session=${encodeURIComponent(token)}`, Origin: origin, "Content-Type": "application/json" };
+    for (const response of [await GET(new Request(`${origin}/api/admin/catalog-sync`, { headers })),
+      await POST(new Request(`${origin}/api/admin/catalog-sync`, { method: "POST", headers, body: JSON.stringify({ world: "spa" }) }))]) {
+      assert.equal(response.status, 403);
+      assert.deepEqual(await response.json(), { error: "forbidden" });
+    }
+  } finally {
+    if (oldEmails === undefined) delete process.env.VII_ADMIN_EMAILS; else process.env.VII_ADMIN_EMAILS = oldEmails;
+    if (oldSecret === undefined) delete process.env.VII_AUTH_SECRET; else process.env.VII_AUTH_SECRET = oldSecret;
+  }
+});
+
 test("catalog administration blocks cross-origin and invalid manual actions before touching D1", async () => {
   const oldEmails = process.env.VII_ADMIN_EMAILS;
   const oldSecret = process.env.VII_AUTH_SECRET;

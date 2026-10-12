@@ -6,7 +6,7 @@ import { test } from "node:test";
 test("catalog migrations add versioned generations without changing review indexes", async () => {
   const db = new DatabaseSync(":memory:");
   try {
-    for (const name of ["0000_groovy_boomerang", "0001_brief_pixie", "0002_sour_tigra"]) {
+    for (const name of ["0000_groovy_boomerang", "0001_brief_pixie", "0002_sour_tigra", "0003_catalog_diagnostics"]) {
       const source = await readFile(new URL(`../drizzle/${name}.sql`, import.meta.url), "utf8");
       for (const statement of source.split("--> statement-breakpoint").map((sql) => sql.trim()).filter(Boolean)) {
         db.exec(statement);
@@ -25,6 +25,10 @@ test("catalog migrations add versioned generations without changing review index
     db.prepare("INSERT INTO supplier_catalog_state (world, active_run_id, accepted_at, active_count) VALUES (?, ?, ?, ?)")
       .run("spa", "run-1", "2026-10-12T00:00:00Z", 1);
     assert.equal(db.prepare("SELECT active_count FROM supplier_catalog_state WHERE world = ?").get("spa").active_count, 1);
+    const column = db.prepare("PRAGMA table_info(supplier_catalog_runs)").all().find((row) => row.name === "diagnostics_json");
+    assert.equal(column.notnull, 0);
+    assert.equal(column.dflt_value, null);
+    assert.equal(db.prepare("SELECT diagnostics_json FROM supplier_catalog_runs WHERE id = 'run-1'").get().diagnostics_json, null);
   } finally {
     db.close();
   }
