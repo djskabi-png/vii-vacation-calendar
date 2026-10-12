@@ -51,6 +51,8 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
   const searchQuery = searchParams.toString();
   const requestedLocation = searchParams.get("location") || initialLocation || "כל הארץ";
   const requestedAudience = searchParams.get("spaFor") || initialSpaAudience;
+  const requestedDate = searchParams.get("date") || "";
+  const [availability, setAvailability] = useState<{ status: "idle" | "loading" | "ready" | "unavailable"; checkedDate: string; dates: string[]; sites: Map<number, number> }>({ status: "idle", checkedDate: "", dates: [], sites: new Map() });
   const [location, setLocation] = useState(requestedLocation);
   const [spaAudience, setSpaAudience] = useState<SpaAudienceId | "">(
     requestedAudience && requestedAudience in spaAudiences ? requestedAudience as SpaAudienceId : "",
@@ -62,6 +64,21 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
   const [filtersOpen, setFiltersOpen] = useState(true);
   const { mapOpen, openMap, closeMap } = useMapViewState();
   const { viewMode } = useResultsViewMode("spa");
+  useEffect(() => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(requestedDate)) return;
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => setAvailability({ status: "loading", checkedDate: requestedDate, dates: [], sites: new Map() }), 0);
+    fetch("/api/spa/availability", { signal: controller.signal })
+      .then((response) => { if (!response.ok) throw new Error("availability_unavailable"); return response.json(); })
+      .then((body: { availability?: Array<{ siteID: number; date: string; available: number }> }) => {
+        if (controller.signal.aborted || !Array.isArray(body.availability)) return;
+        const dates = [...new Set(body.availability.map((row) => row.date))];
+        const sites = new Map(body.availability.filter((row) => row.date === requestedDate && row.available > 0).map((row) => [row.siteID, row.available]));
+        setAvailability({ status: "ready", checkedDate: requestedDate, dates, sites });
+      })
+      .catch(() => { if (!controller.signal.aborted) setAvailability({ status: "unavailable", checkedDate: requestedDate, dates: [], sites: new Map() }); });
+    return () => { window.clearTimeout(timer); controller.abort(); };
+  }, [requestedDate]);
   const [visibleMapCount, setVisibleMapCount] = useState(0);
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
   const spaLandingContext = useMemo(() => {
@@ -85,13 +102,17 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
       return filter ? filter.terms.some((term) => text.includes(term)) : true;
     });
     const audience = spaAudience ? spaAudiences[spaAudience] : null;
-    const audienceMatch = audience ? audience.terms.some((term) => text.includes(term)) : true;
+    const audienceMatch = spaAudience === "couple" ? item.features.includes("חבילות זוגיות") : audience ? audience.terms.some((term) => text.includes(term)) : true;
     return featuresMatch && audienceMatch;
   }), [items, selectedFilters, spaAudience]);
 
+  const dateCovered = availability.status === "ready" && availability.checkedDate === requestedDate && availability.dates.includes(requestedDate);
+  const checkingDate = Boolean(requestedDate) && (availability.checkedDate !== requestedDate || availability.status === "idle" || availability.status === "loading");
   const filtered = useMemo(() => amenityFiltered.filter((item) => (
-    location === "כל הארץ" || item.area === location || item.location === location
-  )), [amenityFiltered, location]);
+    !checkingDate &&
+    (location === "כל הארץ" || item.area === location || item.location === location)
+    && (!requestedDate || !dateCovered || availability.sites.has(Number(item.id.replace("spa-", ""))))
+  )), [amenityFiltered, location, requestedDate, dateCovered, checkingDate, availability.sites]);
 
   function updateUrl(nextLocation: string, nextAudience: SpaAudienceId | "", nextFilters: string[]) {
     const params = new URLSearchParams(window.location.search);
@@ -131,7 +152,7 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
   useEffect(() => {
     const timer = window.setTimeout(() => setMapVisibleIds(null), 0);
     return () => window.clearTimeout(timer);
-  }, [location, selectedFilters, spaAudience]);
+  }, [location, selectedFilters, spaAudience, requestedDate]);
 
   function toggleResultsMap() {
     setMapVisibleIds(null);
@@ -163,6 +184,7 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
     : `${displayed.length} בתי ספא${mapVisibleIds ? " באזור שבחרתם במפה" : location === "כל הארץ" ? " בישראל" : ` ב${location}`}`;
 
   return <div className="world-map-results world-map-results--spa spa-results">
+    {requestedDate && <p className="source-note" role="status">{availability.status === "loading" || availability.status === "idle" ? "בודקים זמינות מול ביז און ליין..." : availability.status === "unavailable" ? "בדיקת הזמינות אינה זמינה כרגע. מוצגים כל המקומות ללא אישור זמינות." : !dateCovered ? "לתאריך הזה אין עדיין נתוני זמינות מביז. מוצגים כל המקומות ללא אישור זמינות." : "מוצגים רק מקומות שביז דיווח להם על משבצת פנויה. הנתון משוער, ומקומות ללא דיווח אינם מוצגים. זמינות החבילה הזוגית תאושר במהלך ההזמנה."}</p>}
     <section id="spa-result-filters" className="spa-results__filter-strip" aria-label="סינון תוצאות ספא" hidden={!filtersOpen}>
       <div className="spa-results__filters">
         <nav className="spa-results__landing-links" aria-label="עמודי ספא לפי מאפיין"><strong>מה תרצו שיהיה במקום?</strong><div>{spaFilters.map((filter) => { const selected = selectedFilters.includes(filter.id) || activeSpaFilter === filter.id; return <Link key={filter.id} href={spaLandingContext(filter.id)} scroll={false} aria-current={selected ? "page" : undefined} className={selected ? "selected" : ""}><span className="spa-results__filter-icon"><SpaFilterIcon id={filter.id} /></span><span className="spa-results__filter-label">{filter.label}</span></Link>; })}</div><small className="spa-results__swipe-hint">החליקו לעוד אפשרויות</small></nav>
@@ -177,7 +199,7 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
         {filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onPointerDown={(event) => event.stopPropagation()} onPointerUp={(event) => event.stopPropagation()} onClick={(event) => { event.preventDefault(); event.stopPropagation(); toggleResultsMap(); }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
       </div>
     </div>
-    {filtered.length > 0 ? mapOpen ? <div className="airbnb-map-split world-map-split"><div className={`airbnb-map-split__results discovery-grid results-view results-view--${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div><div className="airbnb-map-split__map"><DeferredDiscoveryMap items={amenityFiltered} initialItems={filtered} tone="spa" autoLoad onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} /></div></div> : <ProgressiveResults className={`discovery-grid results-view results-view--${viewMode}`} resetKey={`${location}|${spaAudience}|${selectedFilters.join(",")}|${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</ProgressiveResults> : <div className="spa-results__empty"><strong>לא נמצאו מתחמים שמתאימים לכל הסינונים</strong><p>אפשר להסיר מאפיין אחד או לבחור אזור רחב יותר.</p><button type="button" className="button secondary" onClick={resetFilters}>הצגת כל מתחמי הספא</button></div>}
+    {checkingDate ? <div className="spa-results__empty" role="status">בודקים מקומות פנויים לתאריך שבחרתם...</div> : filtered.length > 0 ? mapOpen ? <div className="airbnb-map-split world-map-split"><div className={`airbnb-map-split__results discovery-grid results-view results-view--${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div><div className="airbnb-map-split__map"><DeferredDiscoveryMap items={filtered} initialItems={filtered} tone="spa" autoLoad onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} /></div></div> : <ProgressiveResults className={`discovery-grid results-view results-view--${viewMode}`} resetKey={`${location}|${spaAudience}|${requestedDate}|${availability.status}|${selectedFilters.join(",")}|${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</ProgressiveResults> : <div className="spa-results__empty"><strong>לא נמצאו מתחמים שמתאימים לתאריך ולסינונים</strong><p>אפשר לבחור תאריך או אזור אחר.</p><button type="button" className="button secondary" onClick={resetFilters}>הצגת כל מתחמי הספא</button></div>}
   </div>;
 }
 
