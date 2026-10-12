@@ -22,12 +22,14 @@ test("home tours use verified media with an honest disclosure", () => {
 });
 
 test("home ratings use sourced values, clean excerpts and responsive cards", () => {
-  assert.match(source, /filter\(\(item\) => item\.rating\)/);
-  assert.match(source, /localized\?\.summary \|\| reviewExcerpt\(item\.description\)/);
-  assert.match(source, /ratingCardCopy/);
+  const home = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
+  assert.match(home, /publicCatalogDetail<SupplierReviewDetail>\("vacations", supplierId\)/);
+  assert.match(home, /Number\(place\.reviews\) >= 5/);
+  assert.match(source, /reviewExcerpt\(reviewText\)/);
+  assert.match(source, /ratedPlaces\.length \?/);
   assert.doesNotMatch(source, /הדירוג מוצג לפי מקור המידע המאומת של המקום/);
   assert.doesNotMatch(styles, /\.home-rating-card > p[^}]*-webkit-line-clamp/);
-  assert.match(source, /href=\{`\/discover\/place\/\$\{item\.id\}`\}/);
+  assert.match(source, /href=\{`\/business\?id=\$\{place\.slug\}`\}/);
   assert.match(source, /home-rating-card__top/);
   assert.match(source, />לפרטי המקום</);
   assert.match(styles, /\.home-slider__track--trust \.home-slider__item \{ flex-basis: clamp/);
