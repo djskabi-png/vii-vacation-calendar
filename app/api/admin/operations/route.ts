@@ -34,6 +34,8 @@ export async function GET(request: Request) {
         WHERE (? = '' OR id LIKE ? ESCAPE '\\' OR place_name LIKE ? ESCAPE '\\')`).bind(query, pattern, pattern).first<{ count: number }>(),
     ]);
     return Response.json({ bookings: bookings.results, reviews: reviews.results,
+      manualChecks: [{ id: "supplier-delivery-2026-10-13", date: "2026-10-13", reporter: "Adir",
+        bookingDelivered: true, reviewDelivered: true, linkedToReferences: false }],
       bookingTotal: bookingTotal?.count || 0, reviewTotal: reviewTotal?.count || 0, offset }, { headers });
   } catch (error) {
     console.error("VII operations report unavailable", error);
