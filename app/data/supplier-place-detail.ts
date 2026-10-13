@@ -94,7 +94,7 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
         checkOutSat: typeof policy.checkOutSat === "string" ? policy.checkOutSat : "",
         remarks: plain(policy.remarks),
       },
-      rooms: rooms.map((value) => {
+      rooms: rooms.length ? rooms.map((value) => {
         const room = record(value);
         const spaces = Array.isArray(room.spaces) ? room.spaces : [];
         const roomName = typeof room.roomName === "string" ? room.roomName.trim() : "";
@@ -113,6 +113,9 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
           featureGroups: sergeyRoomFeatureGroups(room),
           images: roomImages,
         };
+      }) : fallback.rooms.map((room) => {
+        const currentImages = room.id ? sergeyRoomImages({ roomID: room.id, roomName: room.name }, detail.galleries) : [];
+        return { ...room, images: currentImages.length ? currentImages : room.images || [] };
       }),
       reviews: reviewList.flatMap((value) => {
         const review = record(value);
