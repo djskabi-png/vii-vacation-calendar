@@ -7943,6 +7943,9 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   margin: 0 auto 18px;
   display: block;
 }
+.search-world-tabs:has(.search-world-tabs__more[open]) {
+  z-index: 1600;
+}
 .search-world-tabs__prompt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .search-world-tabs__options {
   width: 100%;

@@ -1,0 +1,75 @@
+{
+  "status": "fixed_locally",
+  "symptom": "On the hourly rooms page, opening More while the price picker is active renders the world menu behind the main search bar.",
+  "expected_behavior": "The More menu must remain completely visible and interactive above every search field and backdrop on desktop, tablet and mobile layouts.",
+  "environment": "Local release candidate for https://vii.co.il on 2026-10-14, reproduced at a 1080 by 475 viewport from /hourly.",
+  "reproduction": {
+    "steps": [
+      "Open /hourly at desktop width.",
+      "Open the hourly price picker so the compact world rail appears.",
+      "Open More in the world rail and inspect the overlapping area with the search bar."
+    ],
+    "evidence": "Before the repair, document.elementsFromPoint at two points inside the menu returned the search field above the menu. The search shell had z-index 1500 while the open world rail had z-index 6."
+  },
+  "observations": [
+    {
+      "observation": "The menu's own z-index 90 could not escape the z-index 6 stacking context created by its positioned world rail.",
+      "evidence": "Computed styles and hit-testing in the local browser at 1080 by 475."
+    },
+    {
+      "observation": "Opening an hourly price option adds search-option-backdrop, which raises the sibling search shell to z-index 1500.",
+      "evidence": "Computed .search-box-shell z-index changed to 1500 while the world rail remained at 6."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "The menu is clipped by an overflow boundary.",
+      "prediction": "An ancestor will have hidden or clipped overflow at the overlap.",
+      "discriminating_test": "Inspect computed overflow on the hero, rail, menu and search ancestors.",
+      "result": "Rejected. The relevant desktop ancestors all reported visible overflow.",
+      "status": "rejected"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The sibling search shell is promoted above the world rail while a filter backdrop is open.",
+      "prediction": "Hit-testing inside the visually overlapping menu will return the search field before the menu, and elevating the open rail above 1500 will reverse that order.",
+      "discriminating_test": "Compare computed stacking values and document.elementsFromPoint before and after conditionally elevating the open world rail.",
+      "result": "Supported. Before the repair the search field was first. After the repair the menu or its header was first at every sampled overlap point.",
+      "status": "supported"
+    }
+  ],
+  "root_cause_hypothesis_id": "H2",
+  "fix": {
+    "change": "Raise the entire world rail to z-index 1600 only while its More details element is open.",
+    "evidence": "Desktop hit-testing placed the menu above the search field, and a 390 by 480 mobile check kept the fixed menu visible and first in the hit-test stack."
+  },
+  "affected_family": [
+    "Hourly compact search",
+    "Vacation, spa and event world rails",
+    "Desktop and mobile More menus",
+    "Search filter backdrops and popovers"
+  ],
+  "regression_checks": [
+    {
+      "check": "World navigation contract",
+      "status": "passed",
+      "evidence": "tests/search-world-navigation.test.mjs passed with an assertion for the open-rail stacking rule."
+    },
+    {
+      "check": "Desktop overlap hit-testing",
+      "status": "passed",
+      "evidence": "At 1080 by 475, the menu was the top element in the area overlapping the search field."
+    },
+    {
+      "check": "Small mobile viewport",
+      "status": "passed",
+      "evidence": "At 390 by 480, the fixed menu remained visible, scrollable and above the expanded search interface."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "The exact public-site interaction remains pending until the prepared release is deployed."
+  ],
+  "authorization_boundary": "Repair, test and prepare the existing VII release for publication without changing catalog data, domains, credentials or unrelated behavior."
+}

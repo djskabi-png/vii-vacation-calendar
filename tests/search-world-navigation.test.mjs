@@ -41,6 +41,7 @@ test("world navigation stays available throughout every public search flow", asy
   assert.match(styles, /search-world-tabs__menu-head/);
   assert.match(styles, /max-height: calc\(100dvh - 96px\)/);
   assert.match(styles, /search-mobile-worlds \.search-world-tabs__menu \{ position: fixed; z-index: 1450; top: 144px/);
+  assert.match(styles, /\.search-world-tabs:has\(\.search-world-tabs__more\[open\]\) \{\s*z-index: 1600;\s*\}/);
   assert.match(vacationDates, /SearchWorldTabs active="vacation" onNavigate=\{cancel\}/);
   assert.match(eventDates, /SearchWorldTabs active="events" onNavigate=\{cancel\}/);
   assert.match(eventDates, /mobile-date-skip/);
