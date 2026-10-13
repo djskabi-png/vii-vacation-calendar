@@ -1,7 +1,1226 @@
 {
   "source": "sergey-vii-api/rooms",
-  "fetchedAt": "2026-10-08T13:15:05.788Z",
+  "fetchedAt": "2026-10-13T15:00:16.436Z",
   "places": [
+    {
+      "id": "hourly-475",
+      "supplierId": 475,
+      "name": "טיטאניק ספא",
+      "sourceUrl": "https://www.vii.co.il/rooms/Titanic_Spa",
+      "location": "ראשון לציון",
+      "area": "מישור החוף והשפלה",
+      "description": "טיטניק חדרים לפי שעה בראשון לציון מציע חדרי סטנדרט, סוויטת דה לוקס וסוויטת VIP לאירוח זוגי מפנק, בקרבת חופי הים, קניונים ומקומות בילוי. החל מ120 ש\"ח לשעה, כנסו והזמינו.",
+      "images": [
+        "https://www.vii.co.il/gallery/46673b29b3edff5.JPG",
+        "https://www.vii.co.il/gallery/40673b29b3d70df.JPG",
+        "https://www.vii.co.il/gallery/35673b29b3cf384.JPG",
+        "https://www.vii.co.il/gallery/50673b2a21e30e8.JPG",
+        "https://www.vii.co.il/gallery/15673b2a21bf20b.JPG",
+        "https://www.vii.co.il/gallery/98673b2a2209cbd.JPG",
+        "https://www.vii.co.il/gallery/19673b2a366aaf0.JPG",
+        "https://www.vii.co.il/gallery/33673b2a2229785.JPG",
+        "https://www.vii.co.il/gallery/77673b2a4bb3a68.JPG",
+        "https://www.vii.co.il/gallery/77673b2a4c4ab50.JPG",
+        "https://www.vii.co.il/gallery/71673b2a4c36748.JPG",
+        "https://www.vii.co.il/gallery/51673b29b42d2f7.JPG",
+        "https://www.vii.co.il/gallery/58673b2a21bab92.JPG",
+        "https://www.vii.co.il/gallery/29673b2a362e639.JPG",
+        "https://www.vii.co.il/gallery/30673b2a363fbd9.JPG",
+        "https://www.vii.co.il/gallery/92673b2a3643052.JPG",
+        "https://www.vii.co.il/gallery/12673b29b4070b7.JPG",
+        "https://www.vii.co.il/gallery/99673b29b44411e.JPG",
+        "https://www.vii.co.il/gallery/65673b2a221c02b.JPG",
+        "https://www.vii.co.il/gallery/52673b2a36367c6.JPG",
+        "https://www.vii.co.il/gallery/92673b2a4c15d75.JPG",
+        "https://www.vii.co.il/gallery/26673b2a4bd895a.JPG",
+        "https://www.vii.co.il/gallery/60673b2a365f94a.JPG",
+        "https://www.vii.co.il/gallery/2673b2a4bd0cd3.JPG",
+        "https://www.vii.co.il/gallery/83673b2a4c50d39.JPG",
+        "https://www.vii.co.il/gallery/28673b29b42919c.JPG",
+        "https://www.vii.co.il/gallery/11673b29b3e4635.JPG",
+        "https://www.vii.co.il/gallery/30673b29b38eb4c.JPG",
+        "https://www.vii.co.il/gallery/31673b29b3bddb5.JPG",
+        "https://www.vii.co.il/gallery/71673b29b40e65b.JPG",
+        "https://www.vii.co.il/gallery/91673b29b43b990.JPG",
+        "https://www.vii.co.il/gallery/10673b2a220f4f7.JPG",
+        "https://www.vii.co.il/gallery/0673b2a21ed761.JPG",
+        "https://www.vii.co.il/gallery/14673b2a21daefb.JPG",
+        "https://www.vii.co.il/gallery/76673b2a21abd44.JPG",
+        "https://www.vii.co.il/gallery/84673b2a21d380c.JPG",
+        "https://www.vii.co.il/gallery/56673b2a4c5d8f2.JPG",
+        "https://www.vii.co.il/gallery/81673b2a363251c.JPG",
+        "https://www.vii.co.il/gallery/28673b2a366e665.JPG",
+        "https://www.vii.co.il/gallery/33673b2a361fbcf.JPG",
+        "https://www.vii.co.il/gallery/68673b2a3663766.JPG",
+        "https://www.vii.co.il/gallery/64673b2a364fa96.JPG",
+        "https://www.vii.co.il/gallery/24674d9407ad339.jpeg",
+        "https://www.vii.co.il/gallery/53674dc71a21a7a.jpeg",
+        "https://www.vii.co.il/gallery/19674dc71a2bf93.jpeg",
+        "https://www.vii.co.il/gallery/61674dc73f8a800.jpg",
+        "https://www.vii.co.il/gallery/59674dc73f94fa9.jpg",
+        "https://www.vii.co.il/gallery/46674dc7565f46d.jpg",
+        "https://www.vii.co.il/gallery/63674dc765d917b.jpg",
+        "https://www.vii.co.il/gallery/27674dc765ded8b.jpg"
+      ],
+      "phone": "055-4549882",
+      "whatsapp": "",
+      "lat": 31.9925699,
+      "lng": 34.7667397,
+      "score": null,
+      "reviewCount": 0,
+      "rooms": [
+        {
+          "id": 1143,
+          "name": "סוויטה VIP",
+          "count": 3,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "מטבחון",
+            "מסך LCD",
+            "מזגן",
+            "חדר רחצה פרטי",
+            "ג'קוזי גדול",
+            "סאונה",
+            "סלון",
+            "פינת ישיבה"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 350,
+              "weekend": 350
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 350,
+              "weekend": 350
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 500,
+              "weekend": 500
+            }
+          ]
+        },
+        {
+          "id": 1155,
+          "name": "חדר סטנדרטי",
+          "count": 6,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "מסך LCD",
+            "מזגן",
+            "שידות לאחסון",
+            "חדר רחצה פרטי",
+            "אמבטיה"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 120,
+              "weekend": 120
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 120,
+              "weekend": 120
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 170,
+              "weekend": 170
+            }
+          ]
+        },
+        {
+          "id": 1699,
+          "name": "סוויטה",
+          "count": 5,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "ג'קוזי זוגי מפנק",
+            "מזגן",
+            "שידות לאחסון",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 200,
+              "weekend": 200
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 200,
+              "weekend": 200
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 300,
+              "weekend": 300
+            }
+          ]
+        },
+        {
+          "id": 1700,
+          "name": "סוויטה דלוקס",
+          "count": 3,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "ג'קוזי גדול",
+            "סאונה",
+            "מזגן",
+            "חדר רחצה פרטי",
+            "סלון",
+            "פינת ישיבה"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 300,
+              "weekend": 300
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 300,
+              "weekend": 300
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 400,
+              "weekend": 400
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hourly-680",
+      "supplierId": 680,
+      "name": "קסם בבוסתן",
+      "sourceUrl": "https://www.vii.co.il/rooms/peer_bbustan",
+      "location": "בוסתן הגליל",
+      "area": "גליל מערבי",
+      "description": "סוויטה זוגית לפי שעה בגליל המערבי המציעה אירוח רומנטי ודיסקרטי עם חדר שינה מפנק, חדר רחצה פרטי, מטבחון מאובזר ופינת ישיבה נעימה. כנס עכשיו לכל הפרטים והזמינו.",
+      "images": [
+        "https://www.vii.co.il/gallery/2461a5de83befc2.jpg",
+        "https://www.vii.co.il/gallery/4361a5de8473e35.JPG",
+        "https://www.vii.co.il/gallery/2761a5de84812c8.JPG",
+        "https://www.vii.co.il/gallery/4161a5de848def4.JPG",
+        "https://www.vii.co.il/gallery/1961a5de84a8d71.JPG",
+        "https://www.vii.co.il/gallery/4161a5de84bb3c6.JPG",
+        "https://www.vii.co.il/gallery/561a5de84ca1a7.JPG",
+        "https://www.vii.co.il/gallery/7061a5de84db22c.JPG",
+        "https://www.vii.co.il/gallery/061a5de853ecc8.JPG",
+        "https://www.vii.co.il/gallery/4161a5de850758b.JPG",
+        "https://www.vii.co.il/gallery/7261a5de83c5c6c.JPG",
+        "https://www.vii.co.il/gallery/3661a5de83d60e5.JPG",
+        "https://www.vii.co.il/gallery/9661a5de83e7b59.JPG",
+        "https://www.vii.co.il/gallery/1661a5de8402956.JPG",
+        "https://www.vii.co.il/gallery/5761a5de8416e0b.JPG",
+        "https://www.vii.co.il/gallery/2761a5de849d506.JPG",
+        "https://www.vii.co.il/gallery/3661a5de842d66d.JPG",
+        "https://www.vii.co.il/gallery/3361a5de843bb5c.JPG",
+        "https://www.vii.co.il/gallery/9061a5de8449084.JPG",
+        "https://www.vii.co.il/gallery/4661a5de8455d4a.JPG",
+        "https://www.vii.co.il/gallery/3761a5de8463ad4.JPG",
+        "https://www.vii.co.il/gallery/5761a5e1643b4ab.JPG",
+        "https://www.vii.co.il/gallery/2661a5e1644ab77.JPG",
+        "https://www.vii.co.il/gallery/4761a5ea9012a96.JPG",
+        "https://www.vii.co.il/gallery/2961a5ea902ef20.JPG",
+        "https://www.vii.co.il/gallery/8861a5ea8f9b0b7.JPG",
+        "https://www.vii.co.il/gallery/7161a5ea8fb7ea3.JPG",
+        "https://www.vii.co.il/gallery/7461a5ea8f74356.JPG",
+        "https://www.vii.co.il/gallery/8661a5ea8f86c71.JPG",
+        "https://www.vii.co.il/gallery/4761a5ea8faad77.JPG",
+        "https://www.vii.co.il/gallery/7561a5ea8fc74a8.JPG",
+        "https://www.vii.co.il/gallery/5361a5ea8fd7770.JPG",
+        "https://www.vii.co.il/gallery/9261a5ea8fef8e5.JPG",
+        "https://www.vii.co.il/gallery/5861a5ea90073a1.JPG",
+        "https://www.vii.co.il/gallery/3961a5ea9022969.JPG",
+        "https://www.vii.co.il/gallery/3061a5ea903c583.JPG",
+        "https://www.vii.co.il/gallery/6561a5ea9048fd5.JPG",
+        "https://www.vii.co.il/gallery/561a5ea9055b97.JPG",
+        "https://www.vii.co.il/gallery/98603f386f7e2e0.jpg",
+        "https://www.vii.co.il/gallery/6761a5e1642c20b.JPG",
+        "https://www.vii.co.il/gallery/7861a5e16457e48.JPG",
+        "https://www.vii.co.il/gallery/58603f386f9ebc3.jpg",
+        "https://www.vii.co.il/gallery/21603f386f99cb8.jpg",
+        "https://www.vii.co.il/gallery/32603f386f71615.jpg",
+        "https://www.vii.co.il/gallery/34603f386f78b6e.jpg",
+        "https://www.vii.co.il/gallery/12603f386f831d1.jpg",
+        "https://www.vii.co.il/gallery/14603f386f88194.jpg",
+        "https://www.vii.co.il/gallery/37603f386f9534d.jpg"
+      ],
+      "phone": "055-4549893",
+      "whatsapp": "052-4579000",
+      "lat": 32.9536575,
+      "lng": 35.0826627,
+      "score": null,
+      "reviewCount": 0,
+      "rooms": [
+        {
+          "id": 1500,
+          "name": "קסם בבוסתן",
+          "count": 1,
+          "maxGuests": 8,
+          "features": [
+            "מיטה זוגית",
+            "ספה נפתחת",
+            "מטבחון",
+            "מכונת אספרסו",
+            "מסך LCD",
+            "מזגן"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 300,
+              "weekend": 300
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 400,
+              "weekend": 400
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hourly-1011",
+      "supplierId": 1011,
+      "name": "רום קלאס",
+      "sourceUrl": "https://www.vii.co.il/rooms/Room_Class",
+      "location": "ראשון לציון",
+      "area": "מישור החוף והשפלה",
+      "description": "מתחם אירוח זוגי לפי שעה עם 4 סוויטות פרטיות ומאובזרות, מיטה זוגית, חדר רחצה, טלוויזיה, חניה פרטית וכניסה דיסקרטית לחוויית בילוי רומנטית. כנסו עכשיו לפרטים והזמינו.",
+      "images": [
+        "https://www.vii.co.il/gallery/9672c6a4c26523.jpeg",
+        "https://www.vii.co.il/gallery/3061b60b70b0990.jpg",
+        "https://www.vii.co.il/gallery/6661b60b70a9c90.jpg",
+        "https://www.vii.co.il/gallery/17672c6abc8a6a2.jpeg",
+        "https://www.vii.co.il/gallery/8461b60b7099325.jpg",
+        "https://www.vii.co.il/gallery/6661b60b70a2de4.jpg",
+        "https://www.vii.co.il/gallery/661b60b70ab762.jpg",
+        "https://www.vii.co.il/gallery/061b60b70a131d.jpg",
+        "https://www.vii.co.il/gallery/5261b60b70a481f.jpg",
+        "https://www.vii.co.il/gallery/76672c6a20c0e86.jpeg",
+        "https://www.vii.co.il/gallery/82672c6a4c59caf.jpeg",
+        "https://www.vii.co.il/gallery/6561b60b70ad3a5.jpg",
+        "https://www.vii.co.il/gallery/9361b60b70aeffa.jpg",
+        "https://www.vii.co.il/gallery/1161b60b70a61fe.jpg",
+        "https://www.vii.co.il/gallery/3061b60b70a7e65.jpg",
+        "https://www.vii.co.il/gallery/3261b60b709ebf9.jpg",
+        "https://www.vii.co.il/gallery/51672c6c6096434.jpeg",
+        "https://www.vii.co.il/gallery/74672c6a20b5df9.jpeg",
+        "https://www.vii.co.il/gallery/52672c6a20a32d1.jpeg",
+        "https://www.vii.co.il/gallery/90672c6a20cab22.jpeg",
+        "https://www.vii.co.il/gallery/31672c6a4c60e26.jpeg",
+        "https://www.vii.co.il/gallery/79672c6a4c376b2.jpeg",
+        "https://www.vii.co.il/gallery/91672c6a4c40d81.jpeg",
+        "https://www.vii.co.il/gallery/50672c6a4c49c64.jpeg",
+        "https://www.vii.co.il/gallery/52672c6a4c51d7f.jpeg",
+        "https://www.vii.co.il/gallery/94672c6abc9636b.jpeg",
+        "https://www.vii.co.il/gallery/89672c6abc7d2e2.jpeg",
+        "https://www.vii.co.il/gallery/14672c6c608300c.jpeg"
+      ],
+      "phone": "055-4364843",
+      "whatsapp": "054-3900066",
+      "lat": 31.962122,
+      "lng": 34.818051,
+      "score": null,
+      "reviewCount": 0,
+      "rooms": [
+        {
+          "id": 1936,
+          "name": "רום קלאס 1",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "ג'קוזי זוגי",
+            "מטבחון מאובזר",
+            "מסך LCD",
+            "מזגן",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 200,
+              "weekend": 200
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 300,
+              "weekend": 300
+            }
+          ]
+        },
+        {
+          "id": 1938,
+          "name": "רום קלאס 2",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "ג'קוזי זוגי מפנק",
+            "מטבחון מאובזר",
+            "מטבחון",
+            "מסך LCD",
+            "מזגן",
+            "מגבות רחצה",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 200,
+              "weekend": 200
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 300,
+              "weekend": 300
+            }
+          ]
+        },
+        {
+          "id": 3234,
+          "name": "רום קלאס 3",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "ג'קוזי זוגי מפנק",
+            "מטבחון",
+            "מסך LCD",
+            "מזגן",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 200,
+              "weekend": 200
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 200,
+              "weekend": 200
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 250,
+              "weekend": 250
+            }
+          ]
+        },
+        {
+          "id": 3235,
+          "name": "רום קלאס 4",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "ג'קוזי זוגי מפנק",
+            "מטבחון",
+            "מסך LCD",
+            "מזגן",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 200,
+              "weekend": 200
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 300,
+              "weekend": 300
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hourly-1024",
+      "supplierId": 1024,
+      "name": "צימרים רימונים",
+      "sourceUrl": "https://www.vii.co.il/rooms/zimerim_rimonim",
+      "location": "חוסן",
+      "area": "גליל מערבי",
+      "description": "מתחם אירוח כפרי במושב חוסן שבגליל המערבי מציע שתי בקתות עץ רומנטיות ודיסקרטיות עם אמבט מפנק, מטבחון מאובזר, פינת אוכל ומרפסת ישיבה פרטית. החל מ199 ש\"ח כנסו לפרטים.",
+      "images": [
+        "https://www.vii.co.il/gallery/7561c1cebc7d085.jpg",
+        "https://www.vii.co.il/gallery/5461c1cebc7798a.jpg",
+        "https://www.vii.co.il/gallery/761c1cebc70d6f.jpg",
+        "https://www.vii.co.il/gallery/7661c1cebc6b77f.jpg",
+        "https://www.vii.co.il/gallery/6861c1cebc757cf.jpg",
+        "https://www.vii.co.il/gallery/4361c1cebc6e6f0.jpg",
+        "https://www.vii.co.il/gallery/6861c1cebc73285.jpg",
+        "https://www.vii.co.il/gallery/6861c1cebc66946.jpg",
+        "https://www.vii.co.il/gallery/5761c1cebc79c64.jpg",
+        "https://www.vii.co.il/gallery/3961c1ced12ba60.jpg",
+        "https://www.vii.co.il/gallery/9161c1ced12f28b.jpg",
+        "https://www.vii.co.il/gallery/461c1ced132003.jpg",
+        "https://www.vii.co.il/gallery/5761c1ced1345fd.jpg",
+        "https://www.vii.co.il/gallery/9461c1ced136bd0.jpg",
+        "https://www.vii.co.il/gallery/6061c1ced138cd0.jpg"
+      ],
+      "phone": "055-4549867",
+      "whatsapp": "050-5437810",
+      "lat": 32.997699,
+      "lng": 35.298723,
+      "score": null,
+      "reviewCount": 0,
+      "rooms": [
+        {
+          "id": 1965,
+          "name": "רימון 1",
+          "count": 1,
+          "maxGuests": 4,
+          "features": [
+            "חדר שינה",
+            "מיטה זוגית",
+            "ספה נפתחת",
+            "ג'קוזי גדול",
+            "סלון",
+            "נוף לחצר",
+            "מקרר קטן",
+            "מרפסת",
+            "מיקרוגל",
+            "קומקום חשמלי",
+            "מסך LCD",
+            "פינת ישיבה",
+            "ארונות לאחסון",
+            "קומודה",
+            "מגבות רחצה",
+            "חדר אמבט"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 200,
+              "weekend": 200
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 200,
+              "weekend": 200
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 250,
+              "weekend": 250
+            }
+          ]
+        },
+        {
+          "id": 1966,
+          "name": "רימון 2",
+          "count": 1,
+          "maxGuests": 4,
+          "features": [
+            "חדר שינה",
+            "מיטה זוגית",
+            "ספה נפתחת",
+            "סלון",
+            "מקרר קטן",
+            "מרפסת",
+            "מיקרוגל",
+            "מסך LCD",
+            "מזגן",
+            "פינת ישיבה",
+            "חדר אמבט"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 200,
+              "weekend": 200
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 200,
+              "weekend": 200
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 250,
+              "weekend": 250
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hourly-1111",
+      "supplierId": 1111,
+      "name": "קצפת בראשון",
+      "sourceUrl": "https://www.vii.co.il/rooms/Katzefet",
+      "location": "ראשון לציון",
+      "area": "מישור החוף והשפלה",
+      "description": "קצפת בראשון לציון מציע 2 סוויטות זוגיות פרטיות לפי שעה, עם כניסה נפרדת לכל סוויטה ואפשרות לתשלום ללא מפגש, לחוויית אירוח רומנטית ודיסקרטית. כנסו לפרטים והזמינו עכשיו.",
+      "images": [
+        "https://www.vii.co.il/gallery/2562387d3b560d5.jpg",
+        "https://www.vii.co.il/gallery/4762387d3b57b54.jpg",
+        "https://www.vii.co.il/gallery/6962387d3b595c4.jpg",
+        "https://www.vii.co.il/gallery/562387d3b4f109.jpg",
+        "https://www.vii.co.il/gallery/2662387d3b4ccbc.jpg",
+        "https://www.vii.co.il/gallery/6862387d3b487f5.jpg",
+        "https://www.vii.co.il/gallery/5462387d3b50a79.jpg",
+        "https://www.vii.co.il/gallery/7862387d3b5272e.jpg",
+        "https://www.vii.co.il/gallery/8262387d3b54701.jpg",
+        "https://www.vii.co.il/gallery/1662387d3b5ae54.jpg",
+        "https://www.vii.co.il/gallery/4262387d3b5c94d.jpg",
+        "https://www.vii.co.il/gallery/5362387d3b5e325.jpg"
+      ],
+      "phone": "055-4549880",
+      "whatsapp": "054-3900066",
+      "lat": 31.962122,
+      "lng": 34.8180513,
+      "score": null,
+      "reviewCount": 0,
+      "rooms": [
+        {
+          "id": 2116,
+          "name": "קצפת - ג'קוזי",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "ג'קוזי זוגי",
+            "מטבחון",
+            "מסך LCD",
+            "מזגן",
+            "מגבות רחצה",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 200,
+              "weekend": 200
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 200,
+              "weekend": 200
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 300,
+              "weekend": 300
+            }
+          ]
+        },
+        {
+          "id": 2117,
+          "name": "קצפת",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "מטבחון",
+            "מסך LCD",
+            "מזגן",
+            "מגבות רחצה",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 200,
+              "weekend": 200
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 200,
+              "weekend": 200
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 250,
+              "weekend": 250
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hourly-1181",
+      "supplierId": 1181,
+      "name": "שקיעה בזכרון",
+      "sourceUrl": "https://www.vii.co.il/rooms/S_Be_Zichron",
+      "location": "זכרון יעקב",
+      "area": "מישור החוף הצפוני",
+      "description": "שדה נסתר בתל מונד מציע יחידות אירוח זוגיות ודיסקרטיות עם מיטה אורטופדית, נטפליקס, מטבחון, חצר וחניה פרטית, ואפשרות להזמנת יין בתוספת תשלום. כנסו לפרטים והזמינו.",
+      "images": [
+        "https://www.vii.co.il/gallery/686a0c45003dd05.jpg",
+        "https://www.vii.co.il/gallery/196a0c45006be3c.jpg",
+        "https://www.vii.co.il/gallery/306a0c450042b65.jpg",
+        "https://www.vii.co.il/gallery/546a0c4500663e4.jpg",
+        "https://www.vii.co.il/gallery/616a0c45007e050.jpg",
+        "https://www.vii.co.il/gallery/506a0c450070b0c.jpg",
+        "https://www.vii.co.il/gallery/846a0c44ffde8a3.jpg",
+        "https://www.vii.co.il/gallery/256a0c450061a9d.jpg",
+        "https://www.vii.co.il/gallery/816a0c45004dadf.jpg"
+      ],
+      "phone": "055-4549883",
+      "whatsapp": "052-7415175",
+      "lat": 32.5773696,
+      "lng": 34.9464553,
+      "score": null,
+      "reviewCount": 0,
+      "rooms": [
+        {
+          "id": 2223,
+          "name": "שקיעה בזכרון",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "ג'קוזי זוגי מפנק",
+            "מטבחון מאובזר",
+            "נוף לים",
+            "מרפסת",
+            "מסך LCD",
+            "מזגן",
+            "שידות לאחסון",
+            "מגבות רחצה",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 300,
+              "weekend": 300
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 300,
+              "weekend": 300
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 300,
+              "weekend": 300
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hourly-1633",
+      "supplierId": 1633,
+      "name": "יוקרה בצפון",
+      "sourceUrl": "https://www.vii.co.il/rooms/Yokra_Ba_Tzafon",
+      "location": "ראש פינה",
+      "area": "גליל עליון",
+      "description": "יוקרה בצפון מציע סוויטות יוקרתיות ודיסקרטיות לזוגות עם ג'קוזי ספא, בריכת שחייה פרטית, מיטה זוגית ומטבחון מאובזר לחוויית אירוח רומנטית ומפנקת. כנסו לפרטים.",
+      "images": [
+        "https://www.vii.co.il/gallery/91699ad6303593b.jpg",
+        "https://www.vii.co.il/gallery/22699ad625bbb62.jpg",
+        "https://www.vii.co.il/gallery/47699ad6300c9ff.jpg",
+        "https://www.vii.co.il/gallery/67699ad625e3adc.jpg",
+        "https://www.vii.co.il/gallery/64699ad625f23cb.jpg",
+        "https://www.vii.co.il/gallery/35699ad625de276.jpg",
+        "https://www.vii.co.il/gallery/17699ad625c7a65.jpg",
+        "https://www.vii.co.il/gallery/31699ad625cd938.jpg",
+        "https://www.vii.co.il/gallery/22699ad625af381.jpg",
+        "https://www.vii.co.il/gallery/45699ad63019416.jpg",
+        "https://www.vii.co.il/gallery/54699ad6303d840.jpg",
+        "https://www.vii.co.il/gallery/21699ad625b487a.jpg",
+        "https://www.vii.co.il/gallery/67699ad625d3147.jpg",
+        "https://www.vii.co.il/gallery/32699ad625e855f.jpg",
+        "https://www.vii.co.il/gallery/0699ad625d878a.jpg",
+        "https://www.vii.co.il/gallery/92699ad6260bf82.jpg",
+        "https://www.vii.co.il/gallery/98699ad625ed87a.jpg",
+        "https://www.vii.co.il/gallery/0699ad62607153.jpg",
+        "https://www.vii.co.il/gallery/27699ad62602b66.jpg",
+        "https://www.vii.co.il/gallery/50699ad625c1a59.jpg",
+        "https://www.vii.co.il/gallery/36699ad63013483.jpg",
+        "https://www.vii.co.il/gallery/49699ad62599efe.jpg",
+        "https://www.vii.co.il/gallery/19699ad624a8f49.jpg",
+        "https://www.vii.co.il/gallery/62699ad625a309d.jpg",
+        "https://www.vii.co.il/gallery/51699ad625a9845.jpg",
+        "https://www.vii.co.il/gallery/82699ad6301f108.jpg",
+        "https://www.vii.co.il/gallery/41699ad63024d9b.jpg"
+      ],
+      "phone": "055-4338579",
+      "whatsapp": "050-5272738",
+      "lat": 32.9574577,
+      "lng": 35.5403307,
+      "score": null,
+      "reviewCount": 0,
+      "rooms": [
+        {
+          "id": 2925,
+          "name": "סוויטת כינר",
+          "count": 2,
+          "maxGuests": 10,
+          "features": [
+            "מיטה זוגית",
+            "מטבחון",
+            "מסך LCD",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 500,
+              "weekend": 500
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 500,
+              "weekend": 500
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 500,
+              "weekend": 500
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hourly-1839",
+      "supplierId": 1839,
+      "name": "קינקי רומס",
+      "sourceUrl": "https://www.vii.co.il/rooms/Kinki_rooms",
+      "location": "ראשון לציון",
+      "area": "מישור החוף והשפלה",
+      "description": "קינקי רומס מציע 3 סוויטות זוגיות יוקרתיות ומעוצבות לאירוח לפי שעה או ללינה, עם מיטות מרווחות, חדרי רחצה פרטיים ופינות ישיבה באווירה רומנטית ואינטימית.",
+      "images": [
+        "https://www.vii.co.il/gallery/5566a63b4bbd258.jpg",
+        "https://www.vii.co.il/gallery/9466a63b4c660a0.jpg",
+        "https://www.vii.co.il/gallery/3966a63b4ee99cc.jpg",
+        "https://www.vii.co.il/gallery/1966a63b4daba3f.jpg",
+        "https://www.vii.co.il/gallery/9366a63b4d0cc62.jpg",
+        "https://www.vii.co.il/gallery/166a63b4e260d5.jpg",
+        "https://www.vii.co.il/gallery/366a63b7754754.jpg",
+        "https://www.vii.co.il/gallery/4166a63b7801faa.jpg",
+        "https://www.vii.co.il/gallery/5266a63b78982db.jpg",
+        "https://www.vii.co.il/gallery/5866a63b79bdc84.jpg",
+        "https://www.vii.co.il/gallery/466a63b792b455.jpg",
+        "https://www.vii.co.il/gallery/5966a63bc2aafe4.jpg",
+        "https://www.vii.co.il/gallery/3466a63bc49fcbf.jpg",
+        "https://www.vii.co.il/gallery/5466a63bc3dfc68.jpg",
+        "https://www.vii.co.il/gallery/9566a63bc33f08a.jpg"
+      ],
+      "phone": "055-4353721",
+      "whatsapp": "050-3122269",
+      "lat": 31.9918241,
+      "lng": 34.7565245,
+      "score": null,
+      "reviewCount": 0,
+      "rooms": [
+        {
+          "id": 3142,
+          "name": "חדר 105",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "מראות",
+            "מיטת תנוחות",
+            "ג'קוזי זוגי",
+            "מערכת תאורה",
+            "פינת קפה",
+            "מסך LCD",
+            "מזגן",
+            "חלוקים",
+            "מגבות רחצה",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 350,
+              "weekend": 350
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 350,
+              "weekend": 350
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 400,
+              "weekend": 400
+            }
+          ]
+        },
+        {
+          "id": 3143,
+          "name": "חדר 106",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "ג'קוזי זוגי",
+            "מסך LCD",
+            "מזגן",
+            "פינת ישיבה",
+            "מגבות רחצה",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 330,
+              "weekend": 330
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 330,
+              "weekend": 330
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 370,
+              "weekend": 370
+            }
+          ]
+        },
+        {
+          "id": 3144,
+          "name": "חדר 110",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "מראות",
+            "ספה",
+            "ג'קוזי זוגי",
+            "מערכת תאורה",
+            "פינת קפה",
+            "מסך LCD",
+            "מזגן",
+            "חלוקים",
+            "מגבות רחצה",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 400,
+              "weekend": 400
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 400,
+              "weekend": 400
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 550,
+              "weekend": 550
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hourly-1840",
+      "supplierId": 1840,
+      "name": "בלו טופז איטלי",
+      "sourceUrl": "https://www.vii.co.il/rooms/Blue_topaz",
+      "location": "ראשון לציון",
+      "area": "מישור החוף והשפלה",
+      "description": "בלו טופז מציע סוויטות יוקרתיות לפי שעה או ללינה במרכז הארץ, במיקום מבודד ודיסקרטי. חוויית אירוח זוגית ורומנטית עם עיצוב מרשים ופרטיות מלאה. כנסו עכשיו לכל הפרטים.",
+      "images": [
+        "https://www.vii.co.il/gallery/366a73a11e4abd.jpg",
+        "https://www.vii.co.il/gallery/1166a73a12a4682.jpg",
+        "https://www.vii.co.il/gallery/466a73a10b3914.jpg",
+        "https://www.vii.co.il/gallery/766a73a1309c75.jpg",
+        "https://www.vii.co.il/gallery/8266a73a124ec13.jpg",
+        "https://www.vii.co.il/gallery/2666a73a1157b73.jpg",
+        "https://www.vii.co.il/gallery/1866a73a72293c2.jpg",
+        "https://www.vii.co.il/gallery/1266a73a7373167.jpg",
+        "https://www.vii.co.il/gallery/1266a73a7494247.jpg",
+        "https://www.vii.co.il/gallery/066a73a7419369.jpg",
+        "https://www.vii.co.il/gallery/7666a73a72c6086.jpg",
+        "https://www.vii.co.il/gallery/1466a73a75675e0.jpg",
+        "https://www.vii.co.il/gallery/4366a73aa1b64d8.jpg",
+        "https://www.vii.co.il/gallery/2866a73aa26309b.jpg",
+        "https://www.vii.co.il/gallery/5366a73aa303854.jpg",
+        "https://www.vii.co.il/gallery/4366a73aa433135.jpg",
+        "https://www.vii.co.il/gallery/1166a73aa38b515.jpg",
+        "https://www.vii.co.il/gallery/9866a73a4ab6cd8.jpg",
+        "https://www.vii.co.il/gallery/7466a73a4b20b3b.jpg",
+        "https://www.vii.co.il/gallery/6866a73a498ce68.jpg",
+        "https://www.vii.co.il/gallery/3566a73a4b75810.jpg",
+        "https://www.vii.co.il/gallery/8066a73a4a19f9e.jpg",
+        "https://www.vii.co.il/gallery/9866a73a4ce3646.jpg",
+        "https://www.vii.co.il/gallery/8966a7584d04bdc.jpg",
+        "https://www.vii.co.il/gallery/6766a7584c8ba9b.jpg",
+        "https://www.vii.co.il/gallery/6266a7584d5cb8c.jpg",
+        "https://www.vii.co.il/gallery/9766a7584dbb8cc.jpg"
+      ],
+      "phone": "055-4354812",
+      "whatsapp": "050-3122269",
+      "lat": 31.9918241,
+      "lng": 34.7565245,
+      "score": null,
+      "reviewCount": 0,
+      "rooms": [
+        {
+          "id": 3145,
+          "name": "חדר 104 בלו טופז",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "מראות",
+            "מיטת תנוחות",
+            "ג'קוזי זוגי",
+            "פינת קפה",
+            "מקרר קטן",
+            "מסך LCD",
+            "מזגן",
+            "פינת ישיבה",
+            "שידות לאחסון",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 350,
+              "weekend": 350
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 350,
+              "weekend": 350
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 400,
+              "weekend": 400
+            }
+          ]
+        },
+        {
+          "id": 3146,
+          "name": "חדר 105",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "מראות",
+            "מיטת תנוחות",
+            "פינת קפה",
+            "מקרר קטן",
+            "מזגן",
+            "פינת ישיבה",
+            "מגבות רחצה",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 350,
+              "weekend": 350
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 350,
+              "weekend": 350
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 400,
+              "weekend": 400
+            }
+          ]
+        },
+        {
+          "id": 3147,
+          "name": "חדר 106",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "מראות",
+            "פינת קפה",
+            "כורסא",
+            "מסך LCD",
+            "מזגן",
+            "פינת ישיבה",
+            "שידות לאחסון",
+            "מגבות רחצה",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 330,
+              "weekend": 330
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 330,
+              "weekend": 330
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 370,
+              "weekend": 370
+            }
+          ]
+        },
+        {
+          "id": 3148,
+          "name": "חדר 107",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מראות",
+            "מקרר קטן",
+            "מסך LCD",
+            "מזגן",
+            "פינת ישיבה",
+            "מגבות רחצה",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 330,
+              "weekend": 330
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 330,
+              "weekend": 330
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 370,
+              "weekend": 370
+            }
+          ]
+        },
+        {
+          "id": 3149,
+          "name": "חדר איטלי",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מראות",
+            "פינת קפה",
+            "מקרר קטן",
+            "מסך LCD",
+            "מגבות רחצה",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 330,
+              "weekend": 330
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 330,
+              "weekend": 330
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 370,
+              "weekend": 370
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hourly-1882",
+      "supplierId": 1882,
+      "name": "הסוויטה הסודית",
+      "sourceUrl": "https://www.vii.co.il/rooms/haswita_hasodit",
+      "location": "נתניה",
+      "area": "שרון",
+      "description": "הסוויטה הסודית בנתניה מציעה אירוח זוגי רומנטי ופרטי במרכז הארץ, עם סוויטה מאובזרת, חצר עם בריכה וספא מפנק לחוויית בילוי אינטימית ומיוחדת. כנסו עכשיו לפרטים.",
+      "images": [
+        "https://www.vii.co.il/gallery/506703b8a479c37.jpeg",
+        "https://www.vii.co.il/gallery/526703b8a49f501.jpeg",
+        "https://www.vii.co.il/gallery/186703b8a4987e1.jpeg",
+        "https://www.vii.co.il/gallery/156703b8a49c21a.jpeg",
+        "https://www.vii.co.il/gallery/136703b8a4a2e5f.jpeg"
+      ],
+      "phone": "055-4336881",
+      "whatsapp": "052-5304883",
+      "lat": 32.321458,
+      "lng": 34.853196,
+      "score": null,
+      "reviewCount": 0,
+      "rooms": [
+        {
+          "id": 3205,
+          "name": "הסוויטה הסודית",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "סלון",
+            "נוף לבריכה",
+            "מטבחון",
+            "מזגן",
+            "שידות לאחסון",
+            "מגבות רחצה",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 350,
+              "weekend": 350
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 400,
+              "weekend": 400
+            }
+          ]
+        }
+      ]
+    },
     {
       "id": "hourly-1891",
       "supplierId": 1891,
@@ -9,24 +1228,566 @@
       "sourceUrl": "https://www.vii.co.il/rooms/ahava_beshanim",
       "location": "ראשון לציון",
       "area": "מישור החוף והשפלה",
-      "description": "",
-      "images": [],
+      "description": "אהבה בשניים מציע חדר בוטיק רומנטי ומעוצב לזוגות עם מיטה מפנקת, חדר רחצה פרטי, מכונת קפה ואפשרות לחבילת ספא זוגית עם עיסויים בתיאום מראש. כנסו עכשיו לפרטים",
+      "images": [
+        "https://www.vii.co.il/gallery/97672c6915de5a5.jpg",
+        "https://www.vii.co.il/gallery/53672c6915922bc.jpg",
+        "https://www.vii.co.il/gallery/4669844c33c7dcd.jpeg",
+        "https://www.vii.co.il/gallery/74672c6915a5622.jpg",
+        "https://www.vii.co.il/gallery/356984521c81913.jpg",
+        "https://www.vii.co.il/gallery/45672c6915b0995.jpg",
+        "https://www.vii.co.il/gallery/42672c6915bbffc.jpg",
+        "https://www.vii.co.il/gallery/9969844c33dd877.jpeg",
+        "https://www.vii.co.il/gallery/62672c6915c03ee.jpg",
+        "https://www.vii.co.il/gallery/1672c6915c4809.jpg",
+        "https://www.vii.co.il/gallery/90672c6915c85c9.jpg",
+        "https://www.vii.co.il/gallery/8969844c33cbed3.jpeg",
+        "https://www.vii.co.il/gallery/30672c6916141d0.jpg",
+        "https://www.vii.co.il/gallery/9969844c33e6d4f.jpeg",
+        "https://www.vii.co.il/gallery/9969844c3399957.jpeg",
+        "https://www.vii.co.il/gallery/7669844c33c2b3e.jpeg",
+        "https://www.vii.co.il/gallery/5969844c33d5175.jpeg",
+        "https://www.vii.co.il/gallery/7269844c33d9795.jpeg",
+        "https://www.vii.co.il/gallery/46672c69159c39d.jpg"
+      ],
       "phone": "055-4360860",
-      "whatsapp": "",
+      "whatsapp": "054-8080090",
       "lat": 31.9890412,
       "lng": 34.7739095,
       "score": null,
       "reviewCount": 0,
-      "rooms": []
+      "rooms": [
+        {
+          "id": 3230,
+          "name": "אהבה בשניים",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מראות",
+            "פינת קפה",
+            "מכונת אספרסו",
+            "מסך LCD",
+            "מזגן",
+            "פינת ישיבה",
+            "שידות לאחסון",
+            "מגבות רחצה",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 300,
+              "weekend": 300
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 300,
+              "weekend": 300
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 400,
+              "weekend": 400
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hourly-1899",
+      "supplierId": 1899,
+      "name": "ספא האוס - פתח תקווה",
+      "sourceUrl": "https://www.vii.co.il/rooms/Spa_House_Petah_Tikva",
+      "location": "פתח תקווה",
+      "area": "מישור החוף והשפלה",
+      "description": "ספא האוס בפתח תקווה מציע חדרים וסוויטות רומנטיות ודיסקרטיות, חלקן עם ג'קוזי, מתחם ספא עם סאונה רטובה ומגוון חבילות ספא לחוויה זוגית מפנקת. כנסו עכשיו לכל הפרטים והזמינו.",
+      "images": [
+        "https://www.vii.co.il/gallery/476735a2d0b8602.jpg",
+        "https://www.vii.co.il/gallery/726735a2d0bf53b.jpg",
+        "https://www.vii.co.il/gallery/186735a2d06a69e.jpg",
+        "https://www.vii.co.il/gallery/546735a2d081571.jpg",
+        "https://www.vii.co.il/gallery/926735a2d06db79.jpg",
+        "https://www.vii.co.il/gallery/866735a2d070526.jpg",
+        "https://www.vii.co.il/gallery/926735a2d0731b8.jpg",
+        "https://www.vii.co.il/gallery/896735a2d0850a2.jpg",
+        "https://www.vii.co.il/gallery/746735a2d07657a.jpg",
+        "https://www.vii.co.il/gallery/586735a2d079bd4.jpg",
+        "https://www.vii.co.il/gallery/206735a2d07d35e.jpg",
+        "https://www.vii.co.il/gallery/746735a2d089367.jpg",
+        "https://www.vii.co.il/gallery/616735a2d08c9f5.jpg",
+        "https://www.vii.co.il/gallery/646735a2d090ba6.jpg",
+        "https://www.vii.co.il/gallery/196735a2d093f88.jpg",
+        "https://www.vii.co.il/gallery/946735a2d0977c6.jpg",
+        "https://www.vii.co.il/gallery/476735a2d09cd7a.jpg",
+        "https://www.vii.co.il/gallery/486735a2d0a2878.jpg",
+        "https://www.vii.co.il/gallery/146735a2d0a9fcb.jpg",
+        "https://www.vii.co.il/gallery/176735a2d0ad600.jpg",
+        "https://www.vii.co.il/gallery/16735a2d0b0fc0.jpg",
+        "https://www.vii.co.il/gallery/246735a2d0b4185.jpg",
+        "https://www.vii.co.il/gallery/646735a36ac09a1.jpg",
+        "https://www.vii.co.il/gallery/906735a36ab93e2.jpg",
+        "https://www.vii.co.il/gallery/616735a36ac497a.jpg",
+        "https://www.vii.co.il/gallery/416735a36ac71a3.jpg",
+        "https://www.vii.co.il/gallery/66735a36acbe33.jpg",
+        "https://www.vii.co.il/gallery/886735a36ad28a0.jpg",
+        "https://www.vii.co.il/gallery/446735a36ad558b.jpg",
+        "https://www.vii.co.il/gallery/596735a4319909b.jpg",
+        "https://www.vii.co.il/gallery/396735a4319d4b7.jpg",
+        "https://www.vii.co.il/gallery/656735a431907e8.jpg",
+        "https://www.vii.co.il/gallery/466735a4318a342.jpg",
+        "https://www.vii.co.il/gallery/376735a431932e8.jpg",
+        "https://www.vii.co.il/gallery/836735a44cd67ca.jpg",
+        "https://www.vii.co.il/gallery/116735a44cdbc35.jpg",
+        "https://www.vii.co.il/gallery/116735a44ce48d4.jpg",
+        "https://www.vii.co.il/gallery/996735a44ce8baa.jpg",
+        "https://www.vii.co.il/gallery/356735a5ef48b1d.jpg",
+        "https://www.vii.co.il/gallery/656735a5ef5139b.jpg",
+        "https://www.vii.co.il/gallery/476735a5ef58951.jpg",
+        "https://www.vii.co.il/gallery/566735a5ef5bb0f.jpg"
+      ],
+      "phone": "055-4549862",
+      "whatsapp": "",
+      "lat": 32.0992866,
+      "lng": 34.8955654,
+      "score": null,
+      "reviewCount": 0,
+      "rooms": [
+        {
+          "id": 3247,
+          "name": "Royalty Suite",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "ג'קוזי זוגי מפנק",
+            "סלון",
+            "מסך LCD",
+            "מזגן",
+            "פינת ישיבה",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 300,
+              "weekend": 300
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 300,
+              "weekend": 300
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 390,
+              "weekend": 390
+            }
+          ]
+        },
+        {
+          "id": 3248,
+          "name": "Classic Suite",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "סלון",
+            "מסך LCD",
+            "מזגן",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 300,
+              "weekend": 300
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 300,
+              "weekend": 300
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 400,
+              "weekend": 400
+            }
+          ]
+        },
+        {
+          "id": 3249,
+          "name": "Deluxe room",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "מסך LCD",
+            "מזגן",
+            "פינת ישיבה",
+            "שידות לאחסון",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 230,
+              "weekend": 230
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 230,
+              "weekend": 230
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 300,
+              "weekend": 300
+            }
+          ]
+        },
+        {
+          "id": 3250,
+          "name": "Standard room",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "מסך LCD",
+            "מזגן",
+            "פינת ישיבה",
+            "שידות לאחסון",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 200,
+              "weekend": 200
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 200,
+              "weekend": 200
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 270,
+              "weekend": 270
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hourly-1902",
+      "supplierId": 1902,
+      "name": "לאגו סוויט",
+      "sourceUrl": "https://www.vii.co.il/rooms/Lago_Suite",
+      "location": "ירושלים",
+      "area": "ירושלים והרי יהודה",
+      "description": "לאגו סוויט מציע 4 סוויטות ו 6 יחידות אירוח זוגיות ומאובזרות, עם אפשרות לסוויטה עם בריכה או ג'קוזי רומנטי, לחוויית אירוח אינטימית ומפנקת. כנסו עכשיו לכל הפרטים.",
+      "images": [
+        "https://www.vii.co.il/gallery/46695ba53962ffb.jpeg",
+        "https://www.vii.co.il/gallery/39673ddef830d33.jpg",
+        "https://www.vii.co.il/gallery/44673ddef7bce62.jpg",
+        "https://www.vii.co.il/gallery/34695ba5395efe4.jpeg",
+        "https://www.vii.co.il/gallery/54673ddef846c4a.jpg",
+        "https://www.vii.co.il/gallery/53673ddef84abdc.jpg",
+        "https://www.vii.co.il/gallery/90673ddef827436.jpg",
+        "https://www.vii.co.il/gallery/30673ddef82de7e.jpg",
+        "https://www.vii.co.il/gallery/96673ddef837158.jpg",
+        "https://www.vii.co.il/gallery/23673ddef83accf.jpg",
+        "https://www.vii.co.il/gallery/39673ddef83eb79.jpg",
+        "https://www.vii.co.il/gallery/40673ddef842871.jpg",
+        "https://www.vii.co.il/gallery/76695ba538c64f3.jpeg",
+        "https://www.vii.co.il/gallery/92695ba5396ac68.jpeg",
+        "https://www.vii.co.il/gallery/97695ba53952033.jpeg",
+        "https://www.vii.co.il/gallery/66695ba53966dc6.jpeg",
+        "https://www.vii.co.il/gallery/38695ba5395614e.jpeg",
+        "https://www.vii.co.il/gallery/43695ba5395aceb.jpeg",
+        "https://www.vii.co.il/gallery/24695ba5394d326.jpeg",
+        "https://www.vii.co.il/gallery/27673ddf6c5068f.jpg",
+        "https://www.vii.co.il/gallery/97673ddf6c67488.jpg",
+        "https://www.vii.co.il/gallery/46673ddf6c3e0c2.jpg",
+        "https://www.vii.co.il/gallery/38673ddf6c43d84.jpg",
+        "https://www.vii.co.il/gallery/90673ddf6c48daf.jpg",
+        "https://www.vii.co.il/gallery/40673ddf6c5d5ec.jpg",
+        "https://www.vii.co.il/gallery/31673ddf6c6d0c5.jpg",
+        "https://www.vii.co.il/gallery/29673ddf6c4ceae.jpg",
+        "https://www.vii.co.il/gallery/63673ddf6c53908.jpg",
+        "https://www.vii.co.il/gallery/48673ddf6c56ad9.jpg",
+        "https://www.vii.co.il/gallery/30673ddf6c59b5d.jpg",
+        "https://www.vii.co.il/gallery/89673ddf6c60dd7.jpg",
+        "https://www.vii.co.il/gallery/4673ddf6c64218.jpg",
+        "https://www.vii.co.il/gallery/55673ddf6c6a0ea.jpg",
+        "https://www.vii.co.il/gallery/13673ddf6c70422.jpg",
+        "https://www.vii.co.il/gallery/29673ddf9db5899.jpg",
+        "https://www.vii.co.il/gallery/14673ddf9dc0bd7.jpg",
+        "https://www.vii.co.il/gallery/65673ddf9dad0d5.jpg",
+        "https://www.vii.co.il/gallery/21673ddf9dc81cd.jpg",
+        "https://www.vii.co.il/gallery/49673ddf9dcf75b.jpg",
+        "https://www.vii.co.il/gallery/48673ddf9dcba96.jpg",
+        "https://www.vii.co.il/gallery/84673ddf9db1a30.jpg",
+        "https://www.vii.co.il/gallery/54673ddf9db9188.jpg",
+        "https://www.vii.co.il/gallery/83673ddf9dbd104.jpg",
+        "https://www.vii.co.il/gallery/54673ddf9dc45fd.jpg",
+        "https://www.vii.co.il/gallery/84673ddfc32efc5.jpg",
+        "https://www.vii.co.il/gallery/62673ddfc337a3b.jpg",
+        "https://www.vii.co.il/gallery/24673ddfc345005.jpg",
+        "https://www.vii.co.il/gallery/28673ddfc34c17a.jpg",
+        "https://www.vii.co.il/gallery/82673ddfc352cf7.jpg",
+        "https://www.vii.co.il/gallery/56673ddfc355e38.jpg",
+        "https://www.vii.co.il/gallery/91673ddfc358b86.jpg",
+        "https://www.vii.co.il/gallery/76673ddfc35b9d2.jpg",
+        "https://www.vii.co.il/gallery/64673ddfc35e8bf.jpg",
+        "https://www.vii.co.il/gallery/95673ddfc36222c.jpg",
+        "https://www.vii.co.il/gallery/61673ddfe9c2aed.jpg",
+        "https://www.vii.co.il/gallery/39673ddfe9c8087.jpg",
+        "https://www.vii.co.il/gallery/47673ddfe9cc681.jpg",
+        "https://www.vii.co.il/gallery/57673ddfe9d01e5.jpg",
+        "https://www.vii.co.il/gallery/44673ddfe9d3ad9.jpg",
+        "https://www.vii.co.il/gallery/63673ddfe9d6c4b.jpg",
+        "https://www.vii.co.il/gallery/186936934221209.jpeg",
+        "https://www.vii.co.il/gallery/496936933fe3dc5.jpeg",
+        "https://www.vii.co.il/gallery/3769369342243fd.jpeg",
+        "https://www.vii.co.il/gallery/586936934229292.jpeg",
+        "https://www.vii.co.il/gallery/89693693421cc73.jpeg",
+        "https://www.vii.co.il/gallery/36693693422d088.jpeg",
+        "https://www.vii.co.il/gallery/4269369342301f5.jpeg"
+      ],
+      "phone": "055-4339686",
+      "whatsapp": "050-3535830",
+      "lat": 31.768319,
+      "lng": 35.21371,
+      "score": null,
+      "reviewCount": 0,
+      "rooms": [
+        {
+          "id": 3253,
+          "name": "הסוויטה נשיאותית",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "ג'קוזי גדול",
+            "מערכת הגברה",
+            "בריכה",
+            "מקרר קטן",
+            "מכונת אספרסו",
+            "מיקרוגל",
+            "קומקום חשמלי",
+            "מסך LCD",
+            "מזגן",
+            "מגבות רחצה",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 350,
+              "weekend": null
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 400,
+              "weekend": null
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 650,
+              "weekend": null
+            }
+          ]
+        },
+        {
+          "id": 3254,
+          "name": "סוויטת בלאק רום 203",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "ג'קוזי זוגי מפנק",
+            "מקרר קטן",
+            "מיקרוגל",
+            "קומקום חשמלי",
+            "מסך LCD",
+            "מזגן",
+            "פינת ישיבה",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 300,
+              "weekend": 400
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 350,
+              "weekend": 450
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 400,
+              "weekend": 500
+            }
+          ]
+        },
+        {
+          "id": 3255,
+          "name": "סוויטת 205",
+          "count": 1,
+          "maxGuests": null,
+          "features": [
+            "מיטה זוגית",
+            "מקרר קטן",
+            "מיקרוגל",
+            "מסך LCD",
+            "מזגן",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 250,
+              "weekend": 350
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 300,
+              "weekend": 400
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 350,
+              "weekend": 450
+            }
+          ]
+        },
+        {
+          "id": 3256,
+          "name": "סוויטת 201",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "ג'קוזי זוגי מפנק",
+            "מקרר קטן",
+            "מיקרוגל",
+            "קומקום חשמלי",
+            "מסך LCD",
+            "מזגן",
+            "פינת ישיבה",
+            "שידות לאחסון",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 250,
+              "weekend": 350
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 250,
+              "weekend": 350
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 300,
+              "weekend": 400
+            }
+          ]
+        },
+        {
+          "id": 3257,
+          "name": "יחידת אירוח",
+          "count": 6,
+          "maxGuests": null,
+          "features": [
+            "מיטה זוגית",
+            "מיטת יחיד",
+            "מקרר קטן",
+            "קומקום חשמלי",
+            "מסך LCD",
+            "מזגן",
+            "פינת ישיבה",
+            "שידות לאחסון"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 150,
+              "weekend": 250
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 200,
+              "weekend": 300
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 250,
+              "weekend": 350
+            }
+          ]
+        },
+        {
+          "id": 3259,
+          "name": "סוויטת 204",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [],
+          "rates": []
+        },
+        {
+          "id": 3260,
+          "name": "לופט גדול",
+          "count": 1,
+          "maxGuests": null,
+          "features": [],
+          "rates": []
+        },
+        {
+          "id": 3952,
+          "name": "סוויטה 102",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "ג'קוזי זוגי מפנק",
+            "מסך LCD",
+            "מזגן",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 300,
+              "weekend": 300
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "hourly-1915",
       "supplierId": 1915,
       "name": "אסקייפ לאב",
-      "sourceUrl": "https://www.vii.co.il/rooms/ascape_room",
+      "sourceUrl": "https://www.vii.co.il/rooms/ascape_love",
       "location": "הרצליה",
       "area": "מישור החוף והשפלה",
-      "description": "",
+      "description": "אסקייב לאב הרצליה מציע 4 סוויטות יוקרתיות לפי שעה עם ג'קוזי פרטי, חדר רחצה, חניה וכניסה דיסקרטית. אירוח זוגי מפנק בהרצליה החל מ 199 ש\"ח לשעתיים. כנסו לפרטים",
       "images": [
         "https://www.vii.co.il/gallery/956751a02ae1e08.jpg",
         "https://www.vii.co.il/gallery/106751a02ae6283.jpg",
@@ -115,13 +1876,585 @@
       ]
     },
     {
+      "id": "hourly-1916",
+      "supplierId": 1916,
+      "name": "תיק תק רומס",
+      "sourceUrl": "https://www.vii.co.il/rooms/tiktak_rooms",
+      "location": "הרצליה",
+      "area": "מישור החוף והשפלה",
+      "description": "תיק תק רומס בהרצליה מציע 4 דירות אירוח זוגיות ומפנקות עם ג'קוזי פינתי, מיטה אורטופדית, מיזוג אוויר, פינת ישיבה וטלוויזיה בכבלים לבילוי רומנטי. כנסו לפרטים",
+      "images": [
+        "https://www.vii.co.il/gallery/646751aaeef0950.jpg",
+        "https://www.vii.co.il/gallery/56751aaeead614.jpg",
+        "https://www.vii.co.il/gallery/126751aaeee71b2.jpg",
+        "https://www.vii.co.il/gallery/656751aaeecf8bc.jpg",
+        "https://www.vii.co.il/gallery/966751aaeecb1dd.jpg",
+        "https://www.vii.co.il/gallery/336751aaeec5b77.jpg",
+        "https://www.vii.co.il/gallery/766751aaeedd945.jpg",
+        "https://www.vii.co.il/gallery/76751aaeeebea9.jpg",
+        "https://www.vii.co.il/gallery/216751aaeed8b5b.jpg",
+        "https://www.vii.co.il/gallery/356751aaeed46f1.jpg",
+        "https://www.vii.co.il/gallery/286751aaeee29a9.jpg",
+        "https://www.vii.co.il/gallery/566751aafec8912.jpg",
+        "https://www.vii.co.il/gallery/06751aafec4807.jpg",
+        "https://www.vii.co.il/gallery/406751aafec0501.jpg",
+        "https://www.vii.co.il/gallery/186751aafeb493d.jpg",
+        "https://www.vii.co.il/gallery/256751aafebaaf8.jpg",
+        "https://www.vii.co.il/gallery/496751ab10e7951.jpg",
+        "https://www.vii.co.il/gallery/856751ab10ebb9d.jpg",
+        "https://www.vii.co.il/gallery/766751ab10daca7.jpg",
+        "https://www.vii.co.il/gallery/546751ab10f3eb8.jpg",
+        "https://www.vii.co.il/gallery/606751ab10d53f5.jpg",
+        "https://www.vii.co.il/gallery/96751ab10efeed.jpg",
+        "https://www.vii.co.il/gallery/236751ab10df864.jpg",
+        "https://www.vii.co.il/gallery/516751ab10e3ce1.jpg",
+        "https://www.vii.co.il/gallery/156751ab20ee13d.jpg",
+        "https://www.vii.co.il/gallery/776751ab20e9d14.jpg",
+        "https://www.vii.co.il/gallery/536751ab20e114c.jpg",
+        "https://www.vii.co.il/gallery/106751ab20e56df.jpg",
+        "https://www.vii.co.il/gallery/596751ab20d867b.jpg",
+        "https://www.vii.co.il/gallery/526751ab20cec9f.jpg",
+        "https://www.vii.co.il/gallery/716751ab20dc635.jpg",
+        "https://www.vii.co.il/gallery/86751ab20d3e2e.jpg",
+        "https://www.vii.co.il/gallery/706751ab301d14b.jpg",
+        "https://www.vii.co.il/gallery/986751ab2ff0f80.jpg",
+        "https://www.vii.co.il/gallery/486751ab301122c.jpg",
+        "https://www.vii.co.il/gallery/446751ab3014fb4.jpg",
+        "https://www.vii.co.il/gallery/626751ab3001d74.jpg",
+        "https://www.vii.co.il/gallery/546751ab30195ff.jpg",
+        "https://www.vii.co.il/gallery/716751ab3020d4d.jpg"
+      ],
+      "phone": "055-4317214",
+      "whatsapp": "053-9590009",
+      "lat": 32.1678807,
+      "lng": 34.8519867,
+      "score": null,
+      "reviewCount": 0,
+      "rooms": [
+        {
+          "id": 3277,
+          "name": "סוויטה 5",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "מטבחון מאובזר",
+            "מסך LCD",
+            "מזגן",
+            "פינת ישיבה",
+            "מגבות רחצה",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 350,
+              "weekend": 350
+            }
+          ]
+        },
+        {
+          "id": 3278,
+          "name": "סוויטה 6",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "ג'קוזי זוגי מפנק",
+            "מטבחון מאובזר",
+            "מרפסת",
+            "מסך LCD",
+            "מזגן",
+            "פינת ישיבה",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 350,
+              "weekend": 350
+            }
+          ]
+        },
+        {
+          "id": 3279,
+          "name": "סוויטה 7",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "ג'קוזי זוגי מפנק",
+            "מטבחון",
+            "מסך LCD",
+            "מזגן",
+            "פינת ישיבה",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 350,
+              "weekend": 350
+            }
+          ]
+        },
+        {
+          "id": 3280,
+          "name": "סוויטה 8",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "ג'קוזי זוגי מפנק",
+            "מטבחון מאובזר",
+            "מסך LCD",
+            "מזגן",
+            "פינת ישיבה",
+            "מגבות רחצה",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 450,
+              "weekend": 450
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 450,
+              "weekend": 450
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 450,
+              "weekend": 450
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hourly-1917",
+      "supplierId": 1917,
+      "name": "קסם של רגע",
+      "sourceUrl": "https://www.vii.co.il/rooms/KESEM_SHEL_REGA",
+      "location": "הרצליה",
+      "area": "מישור החוף והשפלה",
+      "description": "קסם של רגע מציע 4 סוויטות זוגיות יוקרתיות עם ג'קוזי פרטי, מיטה אורטופדית, חדר רחצה ופינת קפה, באווירה רומנטית עם תשלום ללא מפגש ודיסקרטיות מלאה. כנסו לכל הפרטים.",
+      "images": [
+        "https://www.vii.co.il/gallery/886756c62861070.jpg",
+        "https://www.vii.co.il/gallery/76756c6282c0dc.jpg",
+        "https://www.vii.co.il/gallery/256756c628438e1.jpg",
+        "https://www.vii.co.il/gallery/296756c628676f9.jpg",
+        "https://www.vii.co.il/gallery/696756c6286f54c.jpg",
+        "https://www.vii.co.il/gallery/886756c62859992.jpg",
+        "https://www.vii.co.il/gallery/806756c6286b742.jpg",
+        "https://www.vii.co.il/gallery/766756c6283f54c.jpg",
+        "https://www.vii.co.il/gallery/106756c62847b62.jpg",
+        "https://www.vii.co.il/gallery/76756c6285cbc1.jpg",
+        "https://www.vii.co.il/gallery/546756c6284b422.jpg",
+        "https://www.vii.co.il/gallery/946756c63789f8d.jpg",
+        "https://www.vii.co.il/gallery/706756c637799bf.jpg",
+        "https://www.vii.co.il/gallery/446756c637862e6.jpg",
+        "https://www.vii.co.il/gallery/286756c6377db93.jpg",
+        "https://www.vii.co.il/gallery/706756c637826d3.jpg",
+        "https://www.vii.co.il/gallery/556756c644ed05b.jpg",
+        "https://www.vii.co.il/gallery/916756c6450bcd7.jpg",
+        "https://www.vii.co.il/gallery/866756c645084dc.jpg",
+        "https://www.vii.co.il/gallery/136756c64500924.jpg",
+        "https://www.vii.co.il/gallery/346756c6450461b.jpg",
+        "https://www.vii.co.il/gallery/586756c644e3813.jpg",
+        "https://www.vii.co.il/gallery/736756c644e86d5.jpg",
+        "https://www.vii.co.il/gallery/596756c644f0ea4.jpg",
+        "https://www.vii.co.il/gallery/376756c6557c64c.jpg",
+        "https://www.vii.co.il/gallery/186756c6558f69f.jpg",
+        "https://www.vii.co.il/gallery/456756c65584691.jpg",
+        "https://www.vii.co.il/gallery/176756c65578611.jpg",
+        "https://www.vii.co.il/gallery/96756c65588332.jpg",
+        "https://www.vii.co.il/gallery/86756c6557f846.jpg",
+        "https://www.vii.co.il/gallery/666756c6556e0fd.jpg",
+        "https://www.vii.co.il/gallery/296756c6558bda2.jpg",
+        "https://www.vii.co.il/gallery/366756c6633b52d.jpg",
+        "https://www.vii.co.il/gallery/236756c66329fea.jpg",
+        "https://www.vii.co.il/gallery/736756c663422cf.jpg",
+        "https://www.vii.co.il/gallery/376756c6632f948.jpg",
+        "https://www.vii.co.il/gallery/786756c66337bea.jpg",
+        "https://www.vii.co.il/gallery/406756c66334367.jpg",
+        "https://www.vii.co.il/gallery/286756c6633ee8c.jpg"
+      ],
+      "phone": "055-4317214",
+      "whatsapp": "053-9590009",
+      "lat": 32.1678807,
+      "lng": 34.8519867,
+      "score": null,
+      "reviewCount": 0,
+      "rooms": [
+        {
+          "id": 3281,
+          "name": "סוויטה 5",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מטבחון מאובזר",
+            "מסך LCD",
+            "מזגן",
+            "פינת ישיבה",
+            "מגבות רחצה",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 350,
+              "weekend": 350
+            }
+          ]
+        },
+        {
+          "id": 3283,
+          "name": "סוויטה 6",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "ג'קוזי זוגי מפנק",
+            "מטבחון מאובזר",
+            "מרפסת",
+            "מסך LCD",
+            "מזגן",
+            "פינת ישיבה",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 350,
+              "weekend": 350
+            }
+          ]
+        },
+        {
+          "id": 3284,
+          "name": "סוויטה 7",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "ג'קוזי זוגי מפנק",
+            "מטבחון",
+            "מסך LCD",
+            "מזגן",
+            "פינת ישיבה",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 350,
+              "weekend": 350
+            }
+          ]
+        },
+        {
+          "id": 3285,
+          "name": "סוויטה 8",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "ג'קוזי זוגי מפנק",
+            "מטבחון מאובזר",
+            "מסך LCD",
+            "מזגן",
+            "פינת ישיבה",
+            "מגבות רחצה",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 450,
+              "weekend": 450
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 450,
+              "weekend": 450
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 450,
+              "weekend": 450
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hourly-1969",
+      "supplierId": 1969,
+      "name": "פנטהאוז הים",
+      "sourceUrl": "https://www.vii.co.il/rooms/Penthouse_Sea",
+      "location": "נהריה",
+      "area": "גליל מערבי",
+      "description": "פנטהאוז הים בנהריה מציע אירוח יוקרתי לפי שעה עם בריכה פרטית, סאונה, מתחם ספא ושולחן סנוקר מקצועי, בקרבת חופי הים ובאווירה רומנטית ודיסקרטית. כנסו לפרטים והזמינו.",
+      "images": [
+        "https://www.vii.co.il/gallery/2267a20938826af.jpeg",
+        "https://www.vii.co.il/gallery/2867a20938445e5.jpeg",
+        "https://www.vii.co.il/gallery/2267a209388c00f.jpeg",
+        "https://www.vii.co.il/gallery/4167a2093877ead.jpeg",
+        "https://www.vii.co.il/gallery/9367a20938216e7.jpeg",
+        "https://www.vii.co.il/gallery/5067a209385c6f3.jpeg",
+        "https://www.vii.co.il/gallery/7367a2093858c2b.jpeg",
+        "https://www.vii.co.il/gallery/7667a2093840ba9.jpeg",
+        "https://www.vii.co.il/gallery/9667a209387ee58.jpeg",
+        "https://www.vii.co.il/gallery/9367a2093885caa.jpeg",
+        "https://www.vii.co.il/gallery/5167a2093888d55.jpeg",
+        "https://www.vii.co.il/gallery/8667a209386b3d1.jpeg",
+        "https://www.vii.co.il/gallery/2667a209386f09e.jpeg",
+        "https://www.vii.co.il/gallery/8367a20938540ca.jpeg",
+        "https://www.vii.co.il/gallery/2767a209386029f.jpeg",
+        "https://www.vii.co.il/gallery/1367a209386425e.jpeg",
+        "https://www.vii.co.il/gallery/8367a2093867a1d.jpeg",
+        "https://www.vii.co.il/gallery/1867a2093872e7d.jpeg",
+        "https://www.vii.co.il/gallery/7667a209387baec.jpeg"
+      ],
+      "phone": "055-4310906",
+      "whatsapp": "052-5554323",
+      "lat": 33.0085361,
+      "lng": 35.0980514,
+      "score": null,
+      "reviewCount": 0,
+      "rooms": [
+        {
+          "id": 3374,
+          "name": "פנטהאוז הים",
+          "count": 1,
+          "maxGuests": 6,
+          "features": [
+            "מיטה זוגית קינג סייז",
+            "נוף לבריכה",
+            "מרפסת",
+            "מסך LCD",
+            "מזגן",
+            "פינת ישיבה",
+            "שידות לאחסון",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 500,
+              "weekend": 500
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 500,
+              "weekend": 500
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 500,
+              "weekend": 500
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hourly-2114",
+      "supplierId": 2114,
+      "name": "ויליג' קומפלקס",
+      "sourceUrl": "https://www.vii.co.il/rooms/Village_Complex",
+      "location": "ניר בנים",
+      "area": "מישור החוף הדרומי",
+      "description": "וויליג' קומפלקס בניר בנים מציע סוויטות זוגיות לפי שעה עם ג'קוזי פרטי, בריכה מחוממת, מטבחון ופינות ישיבה רומנטיות באווירה כפרית ועם דיסקרטיות מלאה. כנסו לכל הפרטים.",
+      "images": [
+        "https://www.vii.co.il/gallery/8680df42b2a7b1.jpeg",
+        "https://www.vii.co.il/gallery/66680df42b2573b.jpeg",
+        "https://www.vii.co.il/gallery/26680df42b5eb3f.jpeg",
+        "https://www.vii.co.il/gallery/91680df42b3b210.jpeg",
+        "https://www.vii.co.il/gallery/55680df42b30556.jpeg",
+        "https://www.vii.co.il/gallery/59680df42b35b29.jpeg",
+        "https://www.vii.co.il/gallery/64680df43a7ff05.jpeg",
+        "https://www.vii.co.il/gallery/91680df42b164eb.jpeg",
+        "https://www.vii.co.il/gallery/73680df42ad9bc5.jpeg",
+        "https://www.vii.co.il/gallery/13680df42b20383.jpeg",
+        "https://www.vii.co.il/gallery/13680df42b0d597.jpeg",
+        "https://www.vii.co.il/gallery/84680df42b4ba3a.jpeg",
+        "https://www.vii.co.il/gallery/79680df42b47153.jpeg",
+        "https://www.vii.co.il/gallery/83680df42b4f86a.jpeg",
+        "https://www.vii.co.il/gallery/56680df42b544a7.jpeg",
+        "https://www.vii.co.il/gallery/85680df42b5940d.jpeg",
+        "https://www.vii.co.il/gallery/65680df42b11b10.jpeg",
+        "https://www.vii.co.il/gallery/61680df42b1b6ce.jpeg",
+        "https://www.vii.co.il/gallery/43680df42b02188.jpeg",
+        "https://www.vii.co.il/gallery/67680df43a86472.jpeg",
+        "https://www.vii.co.il/gallery/53680df42b07fb7.jpeg",
+        "https://www.vii.co.il/gallery/96680df42b40946.jpeg",
+        "https://www.vii.co.il/gallery/30680df452ac661.jpeg",
+        "https://www.vii.co.il/gallery/31680df452b1998.jpeg",
+        "https://www.vii.co.il/gallery/90680df452b619b.jpeg",
+        "https://www.vii.co.il/gallery/61680df452ba2d4.jpeg",
+        "https://www.vii.co.il/gallery/90680df452bd11d.jpeg",
+        "https://www.vii.co.il/gallery/43680df452c1043.jpeg",
+        "https://www.vii.co.il/gallery/96680df4675dd59.jpeg",
+        "https://www.vii.co.il/gallery/6680df46770c00.jpeg",
+        "https://www.vii.co.il/gallery/54680df4675801e.jpeg",
+        "https://www.vii.co.il/gallery/12680df4676c1b5.jpeg",
+        "https://www.vii.co.il/gallery/54680df46762e3d.jpeg",
+        "https://www.vii.co.il/gallery/74680df467676af.jpeg",
+        "https://www.vii.co.il/gallery/84680df4804e3e7.jpeg",
+        "https://www.vii.co.il/gallery/62680df48034e1d.jpeg",
+        "https://www.vii.co.il/gallery/37680df48042ee6.jpeg",
+        "https://www.vii.co.il/gallery/40680df48048c4c.jpeg",
+        "https://www.vii.co.il/gallery/38680df4802e9ae.jpeg",
+        "https://www.vii.co.il/gallery/80680df4803a61d.jpeg",
+        "https://www.vii.co.il/gallery/99680df48028797.jpeg",
+        "https://www.vii.co.il/gallery/40680df48052d1a.jpeg"
+      ],
+      "phone": "055-4518443",
+      "whatsapp": "052-5111093",
+      "lat": 31.6705011,
+      "lng": 34.7527234,
+      "score": null,
+      "reviewCount": 0,
+      "rooms": [
+        {
+          "id": 3538,
+          "name": "היחידות הזוגיות",
+          "count": 4,
+          "maxGuests": 5,
+          "features": [
+            "מיטה זוגית",
+            "ג'קוזי זוגי מפנק",
+            "מטבחון מאובזר",
+            "סלון",
+            "מרפסת",
+            "מסך LCD",
+            "מזגן",
+            "שידות לאחסון",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 250,
+              "weekend": 250
+            }
+          ]
+        },
+        {
+          "id": 3542,
+          "name": "הסוויטה",
+          "count": 1,
+          "maxGuests": 6,
+          "features": [
+            "2 חדרי שינה",
+            "2 מיטות זוגיות",
+            "סלון",
+            "מרפסת",
+            "מסך LCD",
+            "מזגן",
+            "שידות לאחסון"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 250,
+              "weekend": 250
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "hourly-2380",
       "supplierId": 2380,
       "name": "אהבה ביער",
       "sourceUrl": "https://www.vii.co.il/rooms/Forest_Love",
       "location": "עבדון",
       "area": "גליל מערבי",
-      "description": "",
+      "description": "סוויטת אהבה ביער בעבדון מזמינה אתכם לאירוח זוגי פרטי בגליל עם סוויטה מעוצבת, חצר צמודה, מיטה זוגית מפנקת, מטבחון מאובזר ונטפליקס לחופשה רומנטית. כנסו לפרטים.",
       "images": [
         "https://www.vii.co.il/gallery/216992d090a36e0.jpg",
         "https://www.vii.co.il/gallery/386992d090a9bd5.JPG",
@@ -184,6 +2517,224 @@
       ]
     },
     {
+      "id": "hourly-2417",
+      "supplierId": 2417,
+      "name": "כפר הים",
+      "sourceUrl": "https://www.vii.co.il/rooms/Kfar_HaYam",
+      "location": "נתניה",
+      "area": "שרון",
+      "description": "כפר הים צימרים על הים בנתניה מציע 12 יחידות אירוח זוגיות לפי שעה, חלקן עם ג'קוזי ספא פרטי, במרחק הליכה מהים. אירוח רומנטי ודיסקרטי באמצע השבוע. כנסו לכל הפרטים והזמינו.",
+      "images": [
+        "https://www.vii.co.il/gallery/476a7ad0c759cf2.jpg",
+        "https://www.vii.co.il/gallery/726a4f7b6bd50a6.jpeg",
+        "https://www.vii.co.il/gallery/5469cb726097ae1.jpeg",
+        "https://www.vii.co.il/gallery/986a7ad0c7608f2.jpg",
+        "https://www.vii.co.il/gallery/796a7ad0c752f05.jpg",
+        "https://www.vii.co.il/gallery/8169cb72606f219.jpeg",
+        "https://www.vii.co.il/gallery/646a7ad0c7447c0.jpg",
+        "https://www.vii.co.il/gallery/8669cb72608d196.jpeg",
+        "https://www.vii.co.il/gallery/5169cb733a66182.jpg",
+        "https://www.vii.co.il/gallery/426a7ad0c76e0f9.jpg",
+        "https://www.vii.co.il/gallery/2669cb733a6eaca.jpg",
+        "https://www.vii.co.il/gallery/7169cb733a46414.jpg",
+        "https://www.vii.co.il/gallery/969cb733a6180f.jpg",
+        "https://www.vii.co.il/gallery/176a7ad0c74bc0e.jpg",
+        "https://www.vii.co.il/gallery/4669cb7260c19d8.jpeg",
+        "https://www.vii.co.il/gallery/8069cb726090510.jpeg",
+        "https://www.vii.co.il/gallery/7569cb726088c1d.jpeg",
+        "https://www.vii.co.il/gallery/3969cb7260a289f.jpeg",
+        "https://www.vii.co.il/gallery/3969cb7260b4ff4.jpeg",
+        "https://www.vii.co.il/gallery/5469cb7260bb8ea.jpeg",
+        "https://www.vii.co.il/gallery/8669cb7260b8355.jpeg",
+        "https://www.vii.co.il/gallery/169cb7260bec7b.jpeg",
+        "https://www.vii.co.il/gallery/3169cb7260af4ca.jpeg",
+        "https://www.vii.co.il/gallery/4369cb7260b1d87.jpeg",
+        "https://www.vii.co.il/gallery/6369cb733a52d95.jpg",
+        "https://www.vii.co.il/gallery/6469cb733a587ab.jpg",
+        "https://www.vii.co.il/gallery/7069cb733a6ac9c.jpg",
+        "https://www.vii.co.il/gallery/3369cb7260c5117.jpeg",
+        "https://www.vii.co.il/gallery/9169cb726093560.jpeg",
+        "https://www.vii.co.il/gallery/4269cb6ff99adc6.jpeg",
+        "https://www.vii.co.il/gallery/916a7ad0c768f21.jpg",
+        "https://www.vii.co.il/gallery/7269cb6ff9a7f0f.jpeg",
+        "https://www.vii.co.il/gallery/3569cb6ff9ac271.jpeg",
+        "https://www.vii.co.il/gallery/269cb6ff9afadf.jpeg",
+        "https://www.vii.co.il/gallery/269cb6ff9b36b3.jpeg",
+        "https://www.vii.co.il/gallery/8469cb6ff9b6b39.jpeg",
+        "https://www.vii.co.il/gallery/736a7ad0c6a1783.jpg",
+        "https://www.vii.co.il/gallery/669cb701fba235.jpeg",
+        "https://www.vii.co.il/gallery/3569cb701fbebe1.jpeg",
+        "https://www.vii.co.il/gallery/069cb701fc2aaa.jpeg",
+        "https://www.vii.co.il/gallery/2869cb701fc5ec7.jpeg",
+        "https://www.vii.co.il/gallery/3569cb701fc98c4.jpeg",
+        "https://www.vii.co.il/gallery/3069cb701fccefe.jpeg",
+        "https://www.vii.co.il/gallery/1669cb701fd05e7.jpeg",
+        "https://www.vii.co.il/gallery/2069cb701fd32b7.jpeg",
+        "https://www.vii.co.il/gallery/26a7ad0c73c11c.jpg",
+        "https://www.vii.co.il/gallery/969bbc4c098913.jpg",
+        "https://www.vii.co.il/gallery/4169bbc4c0c9dfb.jpg",
+        "https://www.vii.co.il/gallery/8369bbc7144e1f2.jpg",
+        "https://www.vii.co.il/gallery/1869e7272b07138.jpeg",
+        "https://www.vii.co.il/gallery/7869bbc4c0879eb.jpg",
+        "https://www.vii.co.il/gallery/2669bbc4c0a0828.jpg",
+        "https://www.vii.co.il/gallery/8069bbc4c0a4220.jpg",
+        "https://www.vii.co.il/gallery/7569bbc4c0abd1b.jpg",
+        "https://www.vii.co.il/gallery/1569bbc4c0d457f.jpg",
+        "https://www.vii.co.il/gallery/1169bbc4c09cf3e.jpg",
+        "https://www.vii.co.il/gallery/069bbc4c0d1271.jpg",
+        "https://www.vii.co.il/gallery/8469bbc4c0af53a.jpg",
+        "https://www.vii.co.il/gallery/8869bbc4c0a7a8e.jpg",
+        "https://www.vii.co.il/gallery/7169bbc4c0cddef.jpg",
+        "https://www.vii.co.il/gallery/3869bbc4c0b9c5b.jpg",
+        "https://www.vii.co.il/gallery/4869bbc4c0c6db0.jpg",
+        "https://www.vii.co.il/gallery/3769bbc4d23e9ff.jpg"
+      ],
+      "phone": "055-4316337",
+      "whatsapp": "053-8853858",
+      "lat": 32.2694432,
+      "lng": 34.8373242,
+      "score": null,
+      "reviewCount": 0,
+      "rooms": [
+        {
+          "id": 4146,
+          "name": "יחידות עם ג'קוזי",
+          "count": 5,
+          "maxGuests": 5,
+          "features": [
+            "מיטה יהודית",
+            "2 מיטות יחיד",
+            "פינת קפה",
+            "מסך LCD",
+            "מזגן",
+            "ארונות לאחסון",
+            "שידות לאחסון",
+            "כספת",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 300,
+              "weekend": 450
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 300,
+              "weekend": 450
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 350,
+              "weekend": 450
+            }
+          ]
+        },
+        {
+          "id": 4147,
+          "name": "יחידות אירוח",
+          "count": 7,
+          "maxGuests": 3,
+          "features": [
+            "מיטה יהודית",
+            "מיטת יחיד",
+            "פינת קפה",
+            "מסך LCD",
+            "מזגן",
+            "ארונות לאחסון",
+            "שידות לאחסון",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 250,
+              "weekend": 400
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 250,
+              "weekend": 400
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 300,
+              "weekend": 350
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hourly-2662",
+      "supplierId": 2662,
+      "name": "נעם בגלבוע",
+      "sourceUrl": "https://www.vii.co.il/rooms/noam_bgilboa",
+      "location": "עפולה",
+      "area": "עמק יזרעאל",
+      "description": "צימר נעם בגלבוע מציע אירוח זוגי לפי שעה בעמק יזרעאל עם חדר מאובזר, מטבחון, חצר ירוקה, ערסלים, פינות ישיבה ובריכת נוי לחוויה רומנטית ופרטית. היכנסו עכשיו לפרטים והזמינו.",
+      "images": [
+        "https://www.vii.co.il/gallery/536a859f5c8e5de.jpeg",
+        "https://www.vii.co.il/gallery/136a859f5c66027.jpeg",
+        "https://www.vii.co.il/gallery/176a85a15b9303f.jpeg",
+        "https://www.vii.co.il/gallery/226a85a15b0e140.jpeg",
+        "https://www.vii.co.il/gallery/166a859f69a13b4.png",
+        "https://www.vii.co.il/gallery/656a859f6b4d370.png",
+        "https://www.vii.co.il/gallery/386a859f6943139.png",
+        "https://www.vii.co.il/gallery/746a859f69e78f1.png",
+        "https://www.vii.co.il/gallery/766a859f6aa8082.png",
+        "https://www.vii.co.il/gallery/326a859f6a424e1.png",
+        "https://www.vii.co.il/gallery/356a85a26fe106d.jpeg",
+        "https://www.vii.co.il/gallery/06a85a15a4a1e2.jpeg",
+        "https://www.vii.co.il/gallery/806a85a15aabcf8.jpeg",
+        "https://www.vii.co.il/gallery/536a85a15b67f98.jpeg",
+        "https://www.vii.co.il/gallery/96a85a2bdb7754.png",
+        "https://www.vii.co.il/gallery/206a859f6aed026.png",
+        "https://www.vii.co.il/gallery/376a85a15a18a35.jpeg",
+        "https://www.vii.co.il/gallery/416a85a15ad762b.jpeg",
+        "https://www.vii.co.il/gallery/516a85a15b3d57d.jpeg"
+      ],
+      "phone": "055-4314299",
+      "whatsapp": "054-5310005",
+      "lat": 32.6075821,
+      "lng": 35.2282003,
+      "score": null,
+      "reviewCount": 0,
+      "rooms": [
+        {
+          "id": 4487,
+          "name": "נעם בגלבוע",
+          "count": 1,
+          "maxGuests": 2,
+          "features": [
+            "מיטה זוגית",
+            "כורסא",
+            "מזגן",
+            "ארונות לאחסון",
+            "שידות לאחסון",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 350,
+              "weekend": 350
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "hourly-2716",
       "supplierId": 2716,
       "name": "וילה מארה - קו ראשון לים בהרצליה פיתוח",
@@ -199,6 +2750,137 @@
       "score": null,
       "reviewCount": 0,
       "rooms": []
+    },
+    {
+      "id": "hourly-2717",
+      "supplierId": 2717,
+      "name": "שדה נסתר",
+      "sourceUrl": "https://www.vii.co.il/rooms/sade_nistar",
+      "location": "תל מונד",
+      "area": "מישור החוף והשפלה",
+      "description": "שדה נסתר בתל מונד מציע יחידות אירוח זוגיות ודיסקרטיות עם מיטה אורטופדית, נטפליקס, מטבחון, חצר וחניה פרטית, ואפשרות להזמנת יין בתוספת תשלום. כנסו לפרטים והזמינו.",
+      "images": [
+        "https://www.vii.co.il/gallery/516ac770476abd1.jpeg",
+        "https://www.vii.co.il/gallery/116ac7704720f54.jpeg",
+        "https://www.vii.co.il/gallery/926ac7704829a02.jpeg",
+        "https://www.vii.co.il/gallery/326ac770480ad88.jpeg",
+        "https://www.vii.co.il/gallery/496ac770485b0b5.jpeg",
+        "https://www.vii.co.il/gallery/406ac770463cba8.jpeg",
+        "https://www.vii.co.il/gallery/136ac77046ed6fc.jpeg",
+        "https://www.vii.co.il/gallery/926ac770479541d.jpeg",
+        "https://www.vii.co.il/gallery/776ac770486f6a3.jpeg",
+        "https://www.vii.co.il/gallery/956ac770486656d.jpeg",
+        "https://www.vii.co.il/gallery/966ac77048340e4.jpeg",
+        "https://www.vii.co.il/gallery/996ac7704742104.jpeg",
+        "https://www.vii.co.il/gallery/146ac77047d9547.jpeg",
+        "https://www.vii.co.il/gallery/736ac770483e35d.jpeg"
+      ],
+      "phone": "055-4550411",
+      "whatsapp": "055-9425084",
+      "lat": 32.2292442,
+      "lng": 34.8966475,
+      "score": null,
+      "reviewCount": 0,
+      "rooms": [
+        {
+          "id": 4576,
+          "name": "שדה נסתר - יחידות אירוח",
+          "count": 6,
+          "maxGuests": 2,
+          "features": [
+            "מטבחון",
+            "מסך LCD",
+            "מזגן",
+            "פינת ישיבה",
+            "ארונות לאחסון",
+            "שידות לאחסון",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 300,
+              "weekend": 300
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hourly-2718",
+      "supplierId": 2718,
+      "name": "סיקרט ספוט",
+      "sourceUrl": "https://www.vii.co.il/rooms/Secret_Spot",
+      "location": "תל מונד",
+      "area": "מישור החוף והשפלה",
+      "description": "סיקרט ספוט בתל מונד מציע חדרים זוגיים לפי שעה בשרון עם כניסה עצמאית ודיסקרטית, מיטה מפנקת, מטבחון, מיני בר וטלוויזיה חכמה, החל מ 250 ש\"ח. כנסו והזמינו.",
+      "images": [
+        "https://www.vii.co.il/gallery/316ac780714de7b.jpeg",
+        "https://www.vii.co.il/gallery/596ac78071721ca.jpeg",
+        "https://www.vii.co.il/gallery/516ac780721b0bf.jpeg",
+        "https://www.vii.co.il/gallery/966ac7807225b6b.jpeg",
+        "https://www.vii.co.il/gallery/336ac780724b7e4.jpeg",
+        "https://www.vii.co.il/gallery/266ac7807125c5b.jpeg",
+        "https://www.vii.co.il/gallery/386ac78070ccbf9.jpeg",
+        "https://www.vii.co.il/gallery/146ac78070d2ca9.jpeg",
+        "https://www.vii.co.il/gallery/586ac7807103dde.jpeg",
+        "https://www.vii.co.il/gallery/176ac780725e451.jpeg",
+        "https://www.vii.co.il/gallery/866ac7807256b89.jpeg",
+        "https://www.vii.co.il/gallery/146ac780722eca2.jpeg",
+        "https://www.vii.co.il/gallery/726ac7807199550.jpeg",
+        "https://www.vii.co.il/gallery/226ac78071c2c30.jpeg",
+        "https://www.vii.co.il/gallery/446ac78071edee6.jpeg"
+      ],
+      "phone": "055-4550411",
+      "whatsapp": "0559425084‎",
+      "lat": 32.2292442,
+      "lng": 34.8966475,
+      "score": null,
+      "reviewCount": 0,
+      "rooms": [
+        {
+          "id": 4577,
+          "name": "סיקרט ספוט - יחידות האירוח",
+          "count": 6,
+          "maxGuests": 2,
+          "features": [
+            "מטבחון",
+            "מסך LCD",
+            "מזגן",
+            "פינת ישיבה",
+            "ארונות לאחסון",
+            "שידות לאחסון",
+            "חדר רחצה פרטי"
+          ],
+          "rates": [
+            {
+              "duration": "שעה",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "שעתיים",
+              "weekday": 250,
+              "weekend": 250
+            },
+            {
+              "duration": "3 שעות",
+              "weekday": 300,
+              "weekend": 300
+            }
+          ]
+        }
+      ]
     }
   ]
 }
