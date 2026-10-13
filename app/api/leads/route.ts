@@ -1,4 +1,5 @@
 import { saveWhatsAppLead } from "../../lib/whatsapp-lead-storage";
+import { recordBookingAudit } from "../../lib/operations-audit";
 
 const upstream = "https://app.spaplus.co/api/integrations/vii-leads";
 
@@ -79,6 +80,13 @@ export async function POST(request: Request) {
     }
     const reference = String(result.reference || payload.submissionId);
     if (isWhatsAppEnquiry) await saveWhatsAppLead(payload, reference);
+    if (payload.purpose === "booking" || payload.purpose === "booking-management") {
+      try {
+        await recordBookingAudit({ id: reference, world: String(payload.world || "unknown"),
+          placeId: String(payload.placeId || payload.organization || "unknown"),
+          placeName: String(payload.organization || ""), destination: "vii_leads", status: "lead_service_accepted" });
+      } catch (error) { console.error("VII lead booking audit unavailable after acceptance", error); }
+    }
     return json({
       success: true,
       reference,
