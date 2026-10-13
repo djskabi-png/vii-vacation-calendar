@@ -57,3 +57,12 @@ export function trackWhatsAppLeadSaved(details: WhatsAppLeadDetails) {
     window.dataLayer.push(eventDetails);
   }
 }
+
+export function trackSearchSubmitted(details: { world: "vacation" | "events" | "spa" | "hourly"; location: string; hasDate: boolean }) {
+  if (typeof window === "undefined" || window.localStorage.getItem("vii-cookie-choice") !== "all") return;
+  const event = { eventId: crypto.randomUUID(), world: details.world, location: details.location.slice(0, 80), hasDate: details.hasDate };
+  const body = new Blob([JSON.stringify(event)], { type: "application/json" });
+  if (!navigator.sendBeacon?.("/api/analytics/search", body)) {
+    void fetch("/api/analytics/search", { method: "POST", body, keepalive: true, credentials: "same-origin" }).catch(() => undefined);
+  }
+}

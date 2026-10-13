@@ -6,7 +6,8 @@ import ts from "typescript";
 
 const root = resolve(import.meta.dirname, "..");
 const hebrew = /[\u0590-\u05ff]/;
-const sourceScanExcludedDirectories = new Set(["i18n", "platform"]);
+// The administrator console and platform explainer are noindex, Hebrew-only surfaces.
+const sourceScanExcludedDirectories = new Set(["i18n", "platform", "admin"]);
 
 function addPhrase(phrases, value) {
   const normalized = value.replace(/\s+/g, " ").trim();

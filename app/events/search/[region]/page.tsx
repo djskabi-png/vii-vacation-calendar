@@ -7,6 +7,9 @@ import { matchesSearchLocation } from "../../../data/search-taxonomy";
 import { eventSearchHref, searchLocationFromSlug } from "../../../data/world-search-landings";
 import { StructuredData } from "../../../components/structured-data";
 import { breadcrumbSchema, collectionSchema } from "../../../lib/seo";
+import { publishedSearchPage } from "../../../lib/search-page-content.ts";
+
+export const dynamic = "force-dynamic";
 
 type PageProps = { params: Promise<{ region: string }> };
 
@@ -21,11 +24,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = `מקומות לאירועים ב${location}`;
   const description = `מקומות לאירועים ב${location}, עם תמונות, מתקנים ופנייה ישירה למקום.`;
   const url = eventSearchHref(location);
+  const page = await publishedSearchPage(url);
   return {
-    title,
-    description,
+    title: page?.title || title,
+    description: page?.description || description,
     alternates: { canonical: url },
-    openGraph: { type: "website", url, title, description },
+    openGraph: { type: "website", url, title: page?.title || title, description: page?.description || description },
   };
 }
 
@@ -39,13 +43,16 @@ export default async function EventRegionPage({ params }: PageProps) {
   const title = `מקומות לאירועים ב${location}`;
   const description = `מקומות לאירועים ב${location}, עם תמונות, מתקנים ופנייה ישירה למקום.`;
   const path = eventSearchHref(location);
+  const page = await publishedSearchPage(path);
+  const displayTitle = page?.title || title;
+  const displayDescription = page?.description || description;
   return <>
     <StructuredData data={breadcrumbSchema([
       { name: "ראשי", path: "/" },
       { name: "אירועים", path: "/events/" },
-      { name: title, path },
+      { name: displayTitle, path },
     ])} />
-    <StructuredData data={collectionSchema(title, description, path, matching.map((place) => ({ name: place.name, path: `/events/place/${place.slug}`, image: place.image })))} />
-    <EventSearchPage initialArea={location} />
+    <StructuredData data={collectionSchema(displayTitle, displayDescription, path, matching.map((place) => ({ name: place.name, path: `/events/place/${place.slug}`, image: place.image })))} />
+    <EventSearchPage initialArea={location} landingTitle={displayTitle} landingDescription={displayDescription} />
   </>;
 }

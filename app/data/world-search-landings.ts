@@ -1,5 +1,5 @@
 import type { SearchMode } from "./search-taxonomy";
-import { searchLocationOptions } from "./search-taxonomy";
+import { searchLocationOptions } from "./search-taxonomy.ts";
 
 const locationSlugs: Record<string, string> = {
   "צפון": "north",

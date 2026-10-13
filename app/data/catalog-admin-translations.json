@@ -1,4 +1,5 @@
 {
+  "אחר": { "en": "Other", "ru": "Другое", "fr": "Autre" },
   "טוענים מקומות...": { "en": "Loading places...", "ru": "Загружаем места...", "fr": "Chargement des lieux..." },
   "טרם עודכן": { "en": "Not updated yet", "ru": "Пока не обновлялось", "fr": "Pas encore mis à jour" },
   "אין הרשאת מנהל": { "en": "Administrator access required", "ru": "Требуются права администратора", "fr": "Accès administrateur requis" },
