@@ -59,7 +59,10 @@ export async function publishedSearchPage(path: string): Promise<SearchPageDefin
   const definition = searchPageDefinition(path);
   if (!definition) return null;
   try {
-    const row = await (await db()).prepare("SELECT title, description FROM vii_search_page_content WHERE path = ? AND (status = 'published' OR (status = 'scheduled' AND scheduled_at <= ?))").bind(path, new Date().toISOString()).first<{ title: string; description: string }>();
+    // The editable row is the latest draft.  Public content must instead be
+    // resolved from the latest version eligible at this instant, otherwise a
+    // future version would hide an already-published page until its date.
+    const row = await (await db()).prepare("SELECT title, description FROM vii_search_page_versions WHERE path = ? AND (status = 'published' OR (status = 'scheduled' AND scheduled_at <= ?)) ORDER BY version DESC LIMIT 1").bind(path, new Date().toISOString()).first<{ title: string; description: string }>();
     return row ? { ...definition, title: row.title, description: row.description } : definition;
   } catch { return definition; }
 }

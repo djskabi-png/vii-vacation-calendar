@@ -52,7 +52,10 @@ export default function SearchPagesAdmin() {
     if (!selected) return;
     setSaving(true); setError(""); setMessage("");
     try {
-      const response = await fetch("/api/admin/search-pages", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ path: selected, title, description, status, scheduledAt: status === "scheduled" ? scheduledAt : null, expectedVersion: current?.override?.version || 0 }) });
+      // datetime-local has no offset. Convert in the administrator's browser
+      // so the API always receives an unambiguous UTC instant.
+      const scheduledInstant = status === "scheduled" && scheduledAt ? new Date(scheduledAt).toISOString() : null;
+      const response = await fetch("/api/admin/search-pages", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ path: selected, title, description, status, scheduledAt: scheduledInstant, expectedVersion: current?.override?.version || 0 }) });
       if (!response.ok) throw new Error(response.status === 409 ? "העמוד השתנה אצל מנהל אחר. רעננו ובדקו לפני שמירה מחדש." : response.status === 400 ? "הכותרת או התיאור קצרים מדי, ארוכים מדי או מכילים תווים לא נתמכים." : "השמירה נכשלה.");
       setMessage(status === "published" ? "העמוד פורסם. בדקו את הקישור הציבורי." : status === "scheduled" ? "העמוד אושר לתזמון. הוא יופיע אוטומטית במועד שנבחר." : "הטיוטה נשמרה. העמוד הציבורי לא השתנה.");
       const refreshed = await load(); if (refreshed) await selectPage(selected, refreshed);

@@ -14,6 +14,7 @@ import { useLegacyAvailability } from "../components/use-legacy-availability";
 import { useViiStayQuote } from "../components/use-vii-stay-quote";
 import type { Property } from "../data/site-data";
 import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
+import { trackBusinessEvent } from "../lib/analytics";
 
 type Props = {
   world: string;
@@ -303,6 +304,7 @@ export default function BookingPageClient(props: Props) {
         setReference(result.reference);
         setSupplierBookingStatus(result.status);
         setState("success");
+        trackBusinessEvent("booking_request", { placeId: props.placeId, placeName: props.placeName, world: props.world });
         return;
       }
       const response = await fetch("/api/leads/", {
@@ -329,6 +331,7 @@ export default function BookingPageClient(props: Props) {
       setReference(result.reference || "");
       setPaymentOpen(false);
       setState("success");
+      if (!isManage) trackBusinessEvent("booking_request", { placeId: props.placeId, placeName: props.placeName, world: props.world });
       if (usesSpaPayment) setSuccessExplanationOpen(true);
     } catch (error) {
       if (supplierSiteID && error instanceof Error && error.message === "booking_status_unknown") setUnknownReference(`VII-${id}`);
