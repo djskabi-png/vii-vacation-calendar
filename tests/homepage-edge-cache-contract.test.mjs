@@ -12,7 +12,8 @@ test("homepage HTML has a bounded edge cache while RSC and query responses bypas
   assert.match(worker, /request\.headers\.get\("RSC"\).*Next-Router-State-Tree/);
   assert.match(worker, /Cache-Control", "public, max-age=60, s-maxage=60, stale-while-revalidate=30"/);
   assert.match(worker, /X-VII-Home-Cache-Until/);
-  assert.match(worker, /typeof caches === "undefined" \? null : caches\.default/);
-  assert.match(worker, /cache\.match\(cacheKey\)/);
-  assert.match(worker, /cache\.put\(cacheKey, cacheable\.clone\(\)\)/);
+  assert.match(worker, /runtime-cache\/homepage\/v1/);
+  assert.match(worker, /env\.UPLOADS\.get\(cacheKey\)/);
+  assert.match(worker, /env\.UPLOADS\.put\(cacheKey, cacheable\.clone\(\)\.body/);
+  assert.match(worker, /customMetadata: \{ expiresAt \}/);
 });
