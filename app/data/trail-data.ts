@@ -405,13 +405,15 @@ export function getTrail(slug: string) {
 }
 
 export function nearbyTrails(area: string, location: string, limit = 6) {
-  const exact = trails.filter((trail) => trail.areaTags.some((tag) => area.includes(tag) || location.includes(tag)));
-  const fallback = area.includes("צפון") || area.includes("גליל") || area.includes("כנרת")
-    ? trails.filter((trail) => trail.mainArea === "צפון" || trail.mainArea === "כנרת")
-    : area.includes("ירושלים") || area.includes("ים המלח")
-      ? trails.filter((trail) => trail.mainArea === "ירושלים" || trail.mainArea === "דרום ונגב")
-      : area.includes("אילת") || area.includes("ערבה")
-        ? trails.filter((trail) => trail.mainArea === "אילת והסביבה")
-        : trails.filter((trail) => trail.mainArea === "מרכז" || trail.mainArea === "תל אביב" || trail.mainArea === "חיפה");
-  return [...exact, ...fallback, ...trails].filter((trail, index, all) => all.findIndex((item) => item.slug === trail.slug) === index).slice(0, limit);
+  return trails
+    .map((trail) => ({ trail, score: trail.areaTags.reduce((score, tag) => {
+      if (tag.length < 3) return score;
+      if (location === tag || location.includes(tag)) return Math.max(score, 2);
+      if (area === tag || area.includes(tag)) return Math.max(score, 1);
+      return score;
+    }, 0) }))
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map(({ trail }) => trail);
 }

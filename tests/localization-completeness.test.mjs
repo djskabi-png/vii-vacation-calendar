@@ -43,12 +43,14 @@ test("every static Hebrew source phrase has a non-Hebrew translation in every pu
     const providerJoinDictionary = JSON.parse(await readFile(resolve(root, "app/data/provider-join-translations.json"), "utf8"));
     const spaUiDictionary = JSON.parse(await readFile(resolve(root, "app/data/spa-ui-translations.json"), "utf8"));
     const catalogAdminDictionary = JSON.parse(await readFile(resolve(root, "app/data/catalog-admin-translations.json"), "utf8"));
+    const emailPolishDictionary = JSON.parse(await readFile(resolve(root, "app/data/email-polish-translations.json"), "utf8"));
     for (const [phrase, translations] of Object.entries(legacyDictionary)) dictionary[phrase] = translations[language];
     for (const [phrase, translations] of Object.entries(bookingHubDictionary)) dictionary[phrase] = translations[language];
     for (const [phrase, translations] of Object.entries(hourlyDictionary)) dictionary[phrase] = translations[language];
     for (const [phrase, translations] of Object.entries(providerJoinDictionary)) dictionary[phrase] = translations[language];
     for (const [phrase, translations] of Object.entries(spaUiDictionary)) dictionary[phrase] = translations[language];
     for (const [phrase, translations] of Object.entries(catalogAdminDictionary)) dictionary[phrase] = translations[language];
+    for (const [phrase, translations] of Object.entries(emailPolishDictionary)) dictionary[phrase] = translations[language];
     const missing = [...phrases].filter((phrase) => !dictionary[phrase]);
     const mixed = Object.entries(dictionary).filter(([, translation]) => hebrew.test(translation)).map(([phrase]) => phrase);
     assert.deepEqual(missing, [], `${language} is missing ${missing.length} source phrases`);

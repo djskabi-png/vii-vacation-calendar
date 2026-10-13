@@ -24,6 +24,7 @@ export type DiscoveryItem = {
   searchTerms?: string[];
   priceLabel?: string;
   phone?: string;
+  whatsapp?: string;
   contactName?: string;
   rating?: number;
   duration?: string;
@@ -98,6 +99,7 @@ export const hourlyPlacesFromCatalog = (places: typeof hourlyCatalog.places): Di
     images: place.images,
     priceLabel: startingPrice ? `שעה החל מ־${startingPrice} ₪` : undefined,
     phone: supplierContactNumber(place.phone),
+    whatsapp: supplierContactNumber(place.whatsapp),
     rating: typeof place.score === "number" && place.score > 0 ? place.score : undefined,
     lat: typeof place.lat === "number" ? place.lat : undefined,
     lng: typeof place.lng === "number" ? place.lng : undefined,

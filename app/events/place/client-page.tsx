@@ -23,6 +23,7 @@ import { WhatsAppLeadButton } from "../../components/whatsapp-lead-button";
 import { ShareButton } from "../../components/share-dialog";
 import { ViewedItemTracker } from "../../components/viewed-item-tracker";
 import { PropertyGallery } from "../../components/property-gallery";
+import { FloatingContactActions } from "../../components/floating-contact-actions";
 import type { SupplierPlaceDetail } from "../../data/supplier-place-detail";
 import { useSearchParams } from "next/navigation";
 import { useViiLiveSearch } from "../../components/use-vii-live-search";
@@ -128,7 +129,6 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
 
         <div className="shell event-place-layout">
           <div>
-            <section className="property-facts"><div><b>{place.guests}</b><span>קיבולת יחידה מרבית</span></div><div><b>{place.units || 1}</b><span>{(place.units || 1) > 1 ? "יחידות" : "יחידה"}</span></div>{place.features.length ? <div><b>{place.features.length}</b><span>מאפיינים מרכזיים</span></div> : null}</section>
             {place.description ? <section id="event-about"><span className="eyebrow">כל מה שחשוב לדעת</span><h2>על המקום</h2><p>{place.description}</p></section> : null}
             {place.features.length ? <section id="event-features"><h2>מתקנים ואפשרויות</h2><div className="feature-list">{place.features.map((feature) => <span key={feature}>✓ {feature}</span>)}</div></section> : null}
             {supplierDetail?.rooms.length ? <section className="supplier-rooms"><h2>מתחמים לפי נתוני המקום</h2><div>{supplierDetail.rooms.map((room, index) => <article key={`${room.name}-${index}`}><h3>{room.name}</h3><p>{room.quantity} {room.quantity === 1 ? "מתחם" : "מתחמים"} · עד {room.guests} משתתפים ביחידה</p>{room.features.length ? <div className="feature-list">{room.features.map((feature) => <span key={feature}>✓ {feature}</span>)}</div> : null}</article>)}</div></section> : null}
@@ -152,6 +152,7 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
         <div className="section shell"><MasuExperience context="event" /></div>
 
         <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים לאירוע</h2></div><div className="event-more-grid">{(relatedPlaces || eventPlaces).filter((item) => item.slug !== place.slug).slice(0, 3).map((item) => <Link key={item.slug} href={eventPlaceHref(item)}><img src={item.image} alt={item.name} title={item.name} /><div><b>{item.name}</b><span>{item.location} · עד {item.guests} אורחים ביחידה הגדולה</span></div></Link>)}</div></div></section>
+        <FloatingContactActions world="events" placeId={place.slug} placeName={place.name} phone={ownerPhone} whatsapp={ownerWhatsapp} serviceName={place.type} from={eventDate} guests={Number(eventGuests) || undefined} />
       </main>
 
       <GalleryExperience key={`${place.slug}-${galleryOpen ? `${galleryTab}-${galleryStart}` : "closed"}`} property={place} open={galleryOpen} initialIndex={galleryStart} initialTab={galleryTab} onSelectionChange={updateGallerySelection} onClose={closeGallery} />

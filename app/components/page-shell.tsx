@@ -8,7 +8,8 @@ import { GlobalActionFeedback } from "./global-action-feedback";
 import type { FooterTopicId } from "../data/footer-context";
 import { NewTabNavigation } from "./new-tab-navigation";
 import { ResponsiveViewportGuard } from "./responsive-viewport-guard";
+import { BackToTop } from "./back-to-top";
 
 export function PageShell({ children, variant = "vacation", footerTopic }: { children: ReactNode; variant?: WorldId; footerTopic?: FooterTopicId }) {
-  return <div className="site-page"><NewTabNavigation /><ResponsiveViewportGuard /><a className="skip-link" href="#main-content">דילוג לתוכן</a><GlobalActionFeedback /><SiteHeader variant={variant} /><CookieConsent />{children}<SiteFooter variant={variant} topic={footerTopic} /><SmartConcierge /></div>;
+  return <div className="site-page"><NewTabNavigation /><ResponsiveViewportGuard /><a className="skip-link" href="#main-content">דילוג לתוכן</a><GlobalActionFeedback /><SiteHeader variant={variant} /><CookieConsent />{children}<SiteFooter variant={variant} topic={footerTopic} /><SmartConcierge /><BackToTop /></div>;
 }

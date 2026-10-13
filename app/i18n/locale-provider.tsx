@@ -8,6 +8,7 @@ import hourlyUiTranslations from "../data/hourly-ui-translations.json";
 import providerJoinTranslations from "../data/provider-join-translations.json";
 import spaUiTranslations from "../data/spa-ui-translations.json";
 import catalogAdminTranslations from "../data/catalog-admin-translations.json";
+import emailPolishTranslations from "../data/email-polish-translations.json";
 
 export type { SiteLanguage } from "./locale-routing";
 
@@ -1222,8 +1223,9 @@ function translateValue(value: string, language: SiteLanguage): string {
   const providerJoinExact = (providerJoinTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
   const spaUiExact = (spaUiTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
   const catalogAdminExact = (catalogAdminTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
+  const emailPolishExact = (emailPolishTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
   const legacyExact = (legacyVacationUiTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
-  const exact = bookingHubExact || hourlyExact || providerJoinExact || spaUiExact || catalogAdminExact || legacyExact || finalUiTranslations[language][core] || curatedTranslations[language][core] || dictionary(language)[core];
+  const exact = bookingHubExact || hourlyExact || providerJoinExact || spaUiExact || catalogAdminExact || emailPolishExact || legacyExact || finalUiTranslations[language][core] || curatedTranslations[language][core] || dictionary(language)[core];
   let translated: string = exact || translateDynamic(core, language);
   if (language === "en") {
     translated = translated

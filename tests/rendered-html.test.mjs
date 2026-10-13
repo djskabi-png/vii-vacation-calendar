@@ -604,14 +604,14 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(sleeping, /איפה ישנים\?/);
   assert.match(sleeping, /כל כרטיס מייצג חדר שינה ולא יחידת אירוח/);
   assert.match(sleeping, /alt=\{`\$\{arrangement\.name\} ב\$\{placeName\}`\}/);
-  assert.match(business, /מה יש ליד \{property\.name\}\?/);
+  assert.match(business, /מה יש בסביבה של \{property\.name\}\?/);
   assert.match(business, /complementaryItems/);
   assert.match(eventPlace, /ספקים שיכולים להשלים את החגיגה/);
   assert.match(eventPlace, /הפרטים מבוססים על מידע ציבורי/);
   assert.match(business, /bookingQuery/);
   assert.match(business, /world: activeWorld/);
   assert.match(business, /initialFrom/);
-  assert.doesNotMatch(business, /contact-actions/);
+  assert.match(business, /FloatingContactActions/);
   assert.match(business, /<WhatsAppLeadButton/);
   assert.doesNotMatch(business, /wa\.me/);
   assert.match(business, /booking-summary/);
@@ -1441,18 +1441,17 @@ test("saved favorites normalize legacy routes to canonical detail pages", async 
   assert.match(legacyDiscoveryRoute, /router\.replace\(`\/discover\/place\/\$\{encodeURIComponent\(item\.id\)\}`\)/);
 });
 
-test("business depth pages always fill nearby experiences and trails", async () => {
+test("business depth pages do not fill nearby sections with unverified places", async () => {
   const response = await render("/business?id=vacation-1");
   const html = await response.text();
   const discoveryCards = html.match(/class="discovery-card discovery-card--/g) || [];
-  const trailCards = html.match(/class="trail-card trail-card--compact"/g) || [];
   const trailData = await readFile(new URL("../app/data/trail-data.ts", import.meta.url), "utf8");
   const businessPage = await readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8");
 
-  assert.ok(discoveryCards.length >= 6, `expected at least 6 nearby experiences, received ${discoveryCards.length}`);
-  assert.ok(trailCards.length >= 6, `expected at least 6 nearby trails, received ${trailCards.length}`);
+  assert.ok(discoveryCards.length > 0, "other relevant discovery sections remain visible");
+  assert.match(businessPage, /localTrails\.length \?/);
   assert.match(trailData, /limit = 6/);
-  assert.match(trailData, /\.\.\.exact, \.\.\.fallback, \.\.\.trails/);
+  assert.doesNotMatch(trailData, /\.\.\.exact, \.\.\.fallback, \.\.\.trails/);
   assert.match(businessPage, /\.slice\(0, 6\)/);
 });
 
