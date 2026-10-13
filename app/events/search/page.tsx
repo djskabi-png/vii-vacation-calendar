@@ -12,7 +12,8 @@ import { SupplierCapacityNotice } from "../../components/supplier-capacity-notic
 import { UnavailablePlaceNotice } from "../../components/unavailable-place-notice";
 import { PageShell } from "../../components/page-shell";
 import { SearchBox } from "../../components/search-box";
-import { eventPlaceHref, type EventPlace } from "../../data/site-data";
+import type { EventPlace } from "../../data/site-data";
+import { eventPlaceHref } from "../../lib/event-place-href";
 import { supplierDisplayDescription } from "../../data/supplier-display-text";
 import { usePublishedCatalog } from "../../lib/use-published-catalog";
 import { getPlaceAccessibility } from "../../data/accessibility-data";

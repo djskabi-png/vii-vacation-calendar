@@ -41,3 +41,14 @@ test("hashed assets receive a long immutable browser cache", async () => {
   assert.match(worker, /url\.pathname\.startsWith\("\/assets\/"\)/);
   assert.match(worker, /public, max-age=31536000, immutable/);
 });
+
+test("shared navigation paths do not bundle the vacation catalog", async () => {
+  const [vacation, accommodation, spa] = await Promise.all([
+    readFile(new URL("app/data/vacation-landings.ts", root), "utf8"),
+    readFile(new URL("app/data/accommodation-landings.ts", root), "utf8"),
+    readFile(new URL("app/data/spa-search-landings.ts", root), "utf8"),
+  ]);
+  assert.doesNotMatch(vacation, /import \{ properties/);
+  assert.doesNotMatch(accommodation, /import \{ properties/);
+  assert.doesNotMatch(spa, /from "\.\/spa-details"/);
+});

@@ -16,7 +16,7 @@ import { type LegacyAvailabilityState, useLegacyAvailabilityBatch, useLegacyFlex
 import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
 import { SearchBox } from "../components/search-box";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
-import { properties as bundledProperties, type Property } from "../data/site-data";
+import type { Property } from "../data/site-data";
 import { supplierDisplayDescription } from "../data/supplier-display-text";
 import { usePublishedCatalog } from "../lib/use-published-catalog";
 import { getPlaceAccessibility } from "../data/accessibility-data";
@@ -80,10 +80,6 @@ const legacyAccommodationTypes = [
   { label: "מתחמי אירוח", matches: ["מתחם אירוח", "מתחמי אירוח", "מתחם נופש", "מתחם סוויטות"] },
   { label: "אוהלים אינדיאנים", matches: ["אוהל אינדיאני", "אוהלים אינדיאנים"] },
 ] as const;
-
-const properties = bundledProperties;
-const supplierTypeFilterAvailable = properties.some((property) => property.type !== "מקום אירוח");
-const supplierPriceFilterAvailable = properties.some((property) => typeof property.price === "number");
 
 function normalizeAccommodationType(value: string) {
   const option = legacyAccommodationTypes.find((item) => item.label === value || item.matches.some((match) => match === value));
@@ -167,17 +163,7 @@ type LegacyExtraFilter = { id: string; label: string; matches: readonly string[]
 const legacyExtraFilters = legacyExtraFilterGroups.reduce<LegacyExtraFilter[]>((items, group) => [...items, ...group.options], []);
 
 const VACATION_PRICE_MIN = 0;
-const VACATION_PRICE_MAX = Math.max(5000, ...properties.map((property) => property.price || 0));
 const VACATION_SORT_VALUES = ["recommended", "price-asc", "price-desc", "rating-desc", "rating-asc", "capacity", "units", "name"] as const;
-const vacationSortOptions = [
-  { value: "recommended", label: "התאמה מומלצת" },
-  ...(supplierPriceFilterAvailable ? [{ value: "price-asc", label: "מחיר מהנמוך לגבוה" }, { value: "price-desc", label: "מחיר מהגבוה לנמוך" }] : []),
-  { value: "rating-desc", label: "דירוג מהגבוה לנמוך" },
-  { value: "rating-asc", label: "דירוג מהנמוך לגבוה" },
-  ...(properties.some((property) => property.capacityScope !== "unit") ? [{ value: "capacity", label: "קיבולת גבוהה" }] : []),
-  { value: "units", label: "מספר יחידות" },
-  { value: "name", label: "שם המקום" },
-];
 
 function compareOptionalNumber(first: number | undefined, second: number | undefined, direction: "asc" | "desc") {
   const firstKnown = typeof first === "number" && Number.isFinite(first);
@@ -188,7 +174,7 @@ function compareOptionalNumber(first: number | undefined, second: number | undef
   return direction === "asc" ? first - second : second - first;
 }
 
-function compareVacationProperties(a: (typeof properties)[number], b: (typeof properties)[number], sort: string, order = properties) {
+function compareVacationProperties(a: Property, b: Property, sort: string, order: Property[]) {
   if (sort === "recommended") return dailyRotationCompare(a.slug, b.slug, "vacation-search");
   if (sort === "price-asc") return compareOptionalNumber(a.price, b.price, "asc") || order.indexOf(a) - order.indexOf(b);
   if (sort === "price-desc") return compareOptionalNumber(a.price, b.price, "desc") || order.indexOf(a) - order.indexOf(b);
@@ -214,11 +200,11 @@ const flexibleAvailabilityCopy = {
 };
 
 
-function normalizeVacationPrice(value: string | null, fallback: number) {
+function normalizeVacationPrice(value: string | null, fallback: number, maximum: number) {
   if (value === null || value === "") return fallback;
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) return fallback;
-  return Math.min(VACATION_PRICE_MAX, Math.max(VACATION_PRICE_MIN, Math.round(parsed)));
+  return Math.min(maximum, Math.max(VACATION_PRICE_MIN, Math.round(parsed)));
 }
 
 function formatVacationPrice(value: number) {
@@ -253,7 +239,7 @@ function VacationPriceInput({ value, minimum, maximum, emptyValue, ariaLabel, on
       return;
     }
     const requestedValue = draftValue === "" ? emptyValue : Number(draftValue);
-    const committedValue = Math.min(maximum, Math.max(minimum, normalizeVacationPrice(String(requestedValue), emptyValue)));
+    const committedValue = Math.min(maximum, Math.max(minimum, normalizeVacationPrice(String(requestedValue), emptyValue, maximum)));
     editingRef.current = false;
     setDraftValue(String(committedValue));
     onValueChange(committedValue);
@@ -267,7 +253,7 @@ function VacationPriceInput({ value, minimum, maximum, emptyValue, ariaLabel, on
         pattern="[0-9]*"
         autoComplete="off"
         enterKeyHint="done"
-        maxLength={String(VACATION_PRICE_MAX).length}
+        maxLength={String(maximum).length}
         role="spinbutton"
         aria-label={ariaLabel}
         aria-valuemin={minimum}
@@ -322,6 +308,18 @@ function runtimeProperty(value: unknown): Property {
 
 export function SearchExperience({ landing }: { landing?: SearchLandingContext }) {
   const { items: properties, error: catalogError, loading: catalogLoading } = usePublishedCatalog("vacations", runtimeProperty);
+  const supplierTypeFilterAvailable = properties.some((property) => property.type !== "מקום אירוח");
+  const supplierPriceFilterAvailable = properties.some((property) => typeof property.price === "number");
+  const VACATION_PRICE_MAX = Math.max(5000, ...properties.map((property) => property.price || 0));
+  const vacationSortOptions = [
+    { value: "recommended", label: "התאמה מומלצת" },
+    ...(supplierPriceFilterAvailable ? [{ value: "price-asc", label: "מחיר מהנמוך לגבוה" }, { value: "price-desc", label: "מחיר מהגבוה לנמוך" }] : []),
+    { value: "rating-desc", label: "דירוג מהגבוה לנמוך" },
+    { value: "rating-asc", label: "דירוג מהנמוך לגבוה" },
+    ...(properties.some((property) => property.capacityScope !== "unit") ? [{ value: "capacity", label: "קיבולת גבוהה" }] : []),
+    { value: "units", label: "מספר יחידות" },
+    { value: "name", label: "שם המקום" },
+  ];
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -404,8 +402,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   }
 
   function changePriceRange(nextMinimum: number, nextMaximum: number) {
-    const normalizedMinimum = Math.min(normalizeVacationPrice(String(nextMinimum), VACATION_PRICE_MIN), nextMaximum);
-    const normalizedMaximum = Math.max(normalizeVacationPrice(String(nextMaximum), VACATION_PRICE_MAX), normalizedMinimum);
+    const normalizedMinimum = Math.min(normalizeVacationPrice(String(nextMinimum), VACATION_PRICE_MIN, VACATION_PRICE_MAX), nextMaximum);
+    const normalizedMaximum = Math.max(normalizeVacationPrice(String(nextMaximum), VACATION_PRICE_MAX, VACATION_PRICE_MAX), normalizedMinimum);
     if (filtersOpen && draftFilters) {
       setDraftFilters({ ...draftFilters, minPrice: normalizedMinimum, maxPrice: normalizedMaximum });
       return;
@@ -474,8 +472,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       const params = new URLSearchParams(searchQuery);
       const requestedArea = params.get("location");
       const requestedGuests = Number(params.get("guests") || (Number(params.get("adults") || 2) + Number(params.get("children") || 0)));
-      const requestedMinPrice = normalizeVacationPrice(params.get("minPrice"), VACATION_PRICE_MIN);
-      const requestedMaxPrice = normalizeVacationPrice(params.get("maxPrice"), VACATION_PRICE_MAX);
+      const requestedMinPrice = normalizeVacationPrice(params.get("minPrice"), VACATION_PRICE_MIN, VACATION_PRICE_MAX);
+      const requestedMaxPrice = normalizeVacationPrice(params.get("maxPrice"), VACATION_PRICE_MAX, VACATION_PRICE_MAX);
       const requestedType = params.get("type");
       const requestedTypes = (supplierTypeFilterAvailable ? (params.get("types") || requestedType || "") : "")
         .split(",")

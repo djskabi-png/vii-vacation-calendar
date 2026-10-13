@@ -1,5 +1,8 @@
 {
   "לא צוין": { "en": "Not specified", "ru": "Не указано", "fr": "Non précisé" },
+  "חבילות ליחיד": { "en": "Packages for one", "ru": "Пакеты для одного", "fr": "Forfaits pour une personne" },
+  "חבילות לקבוצות": { "en": "Group packages", "ru": "Пакеты для групп", "fr": "Forfaits de groupe" },
+  "חבילות יום כיף": { "en": "Spa day packages", "ru": "Пакеты спа-дня", "fr": "Forfaits journée spa" },
   "ראשון": { "en": "Sunday", "ru": "Воскресенье", "fr": "Dimanche" },
   "שני": { "en": "Monday", "ru": "Понедельник", "fr": "Lundi" },
   "שלישי": { "en": "Tuesday", "ru": "Вторник", "fr": "Mardi" },

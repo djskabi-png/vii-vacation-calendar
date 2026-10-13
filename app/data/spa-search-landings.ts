@@ -1,5 +1,4 @@
 import type { DiscoveryItem } from "./world-data";
-import { getSpaDetails } from "./spa-details";
 import { matchesSearchLocation } from "./search-taxonomy";
 import { getSpaLanding, spaItemMatches, spaLandingHref, spaLandings, type SpaLanding } from "./spa-landings";
 
@@ -104,8 +103,10 @@ export function spaItemMatchesSearch(item: DiscoveryItem, state: SpaSearchState)
   if (state.region && !matchesSearchLocation(item, state.region.label)) return false;
   if (state.features.some((feature) => !spaItemMatches(item, feature))) return false;
   if (state.audience) {
-    const packages = getSpaDetails(item.id)?.packages || [];
-    if (!packages.some((entry) => entry.audience === state.audience?.sourceAudience)) return false;
+    const audienceFeature = state.audience.sourceAudience === "זוג" ? "חבילות זוגיות"
+      : state.audience.sourceAudience === "יחיד" ? "חבילות ליחיד"
+      : state.audience.sourceAudience === "קבוצה" ? "חבילות לקבוצות" : "חבילות יום כיף";
+    if (!item.features.includes(audienceFeature)) return false;
   }
   return true;
 }

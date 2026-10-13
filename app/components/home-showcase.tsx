@@ -5,7 +5,8 @@
 import Link from "next/link";
 import { useRef } from "react";
 import { DiscoveryCard } from "./discovery-card";
-import { eventPlaceHref, type EventPlace, type Property } from "../data/site-data";
+import type { EventPlace, Property } from "../data/site-data";
+import { eventPlaceHref } from "../lib/event-place-href";
 import { paidAttractions, providerProfiles, type DiscoveryItem } from "../data/world-data";
 import { publicWorldNavigation } from "../data/world-navigation";
 import { trails } from "../data/trail-data";

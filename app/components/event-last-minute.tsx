@@ -5,7 +5,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { EventPlace } from "../data/site-data";
-import { eventPlaceHref } from "../data/site-data";
+import { eventPlaceHref } from "../lib/event-place-href";
 import { useViiLiveSearch } from "./use-vii-live-search";
 import { EventRail } from "./event-rail";
 
