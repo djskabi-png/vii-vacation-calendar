@@ -1,0 +1,266 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-search-command-center-20261014",
+  "project": "VII",
+  "task_type": "admin-product-search-intelligence",
+  "goal": "Turn real searches into manageable page opportunities in a premium VII administration command center, publish approved pages and verify their public and sitemap effect.",
+  "created_at": "2026-10-13T21:26:13.875542Z",
+  "updated_at": "2026-10-13T21:32:06.174018Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "73ac19ae8d64098ef290eaefe79a77f4d3e205c05c2b1fcd6288685464e276b1"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "57d19d7c2c285b4811dd9c0724e201aab03fdf3d3a7275b61c28d20ec9de6ff0"
+    },
+    "cognitive_model": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md",
+      "sha256": "4157f9ca7b58ba094dd84e819534a2c5aad6dd03a665818445fab4127c9f5c48"
+    },
+    "rulebook": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md",
+      "sha256": "8f63088b389a868ffbac567cc45b919a33edd7856d2093eaa3163c7b8e27aa4f"
+    },
+    "predictive_preflight": {
+      "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\project_knowledge\\task_contracts\\vii-search-command-center-20261014.preflight.json",
+      "sha256": "a1e131d74d392ebc09cd556d45411d811dd911feda36bebebc5fcb5915b92d02"
+    }
+  },
+  "predictive_preflight": {
+    "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\project_knowledge\\task_contracts\\vii-search-command-center-20261014.preflight.json",
+    "sha256": "a1e131d74d392ebc09cd556d45411d811dd911feda36bebebc5fcb5915b92d02",
+    "predicted_rejection_count": 6,
+    "affected_family_count": 13,
+    "lesson_bundle_count": 8,
+    "midpoint_required": true,
+    "effectiveness_measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ]
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-WEB-001",
+      "title": "מפת התאמה לפני החלפת מוצר קיים",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "ADIR-ADMIN-001",
+      "title": "מערכת ניהול היא מוצר תפעולי מלא",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-SEARCH-001",
+      "title": "חיפוש הוא מוצר מדורג, מדיד ומנוהל",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-SEO-001",
+      "title": "כל אתר יוצא עם תשתית קידום ומדידה מלאה",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-WEB-CMS-001",
+      "title": "מערכת הניהול שולטת בכל שכבות האתר בבטחה",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-DATA-001",
+      "title": "כל מדד גלוי הוא חוזה נתונים אמיתי",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-SIMPLICITY-001",
+      "title": "פשטות מורידה חיכוך ואינה מוחקת יכולת",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "title": "פריסה ודומיין דורשים אימות חי וחזרה לאחור",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Turn real searches into manageable page opportunities in a premium VII administration command center, publish approved pages and verify their public and sitemap effect.",
+      "acceptance_check": "An authenticated editor can follow one recorded search from pending opportunity through persisted content, preview, publication, public reflection and sitemap inclusion.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:prediction",
+      "source": "predictive_preflight",
+      "statement": "Predict likely Adir rejection reasons and bind prevention to observable evidence before implementation.",
+      "acceptance_check": "The bounded predictive manifest matches the task identity and selected lessons and passes deterministic validation.",
+      "status": "passed",
+      "evidence": [
+        "Predictive preflight C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\project_knowledge\\task_contracts\\vii-search-command-center-20261014.preflight.json validated with sha256 a1e131d74d392ebc09cd556d45411d811dd911feda36bebebc5fcb5915b92d02"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-13T21:26:13.875542Z"
+    },
+    {
+      "id": "preflight:midpoint",
+      "source": "predictive_preflight.midpoint_gate",
+      "statement": "The first end-to-end slice can ingest the supplied search shape and return it as a pending opportunity in the admin API.",
+      "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
+      "status": "passed",
+      "evidence": [
+        "Targeted midpoint suite passed 10/10 and TypeScript passed. The supplied eventType plus Haifa/Carmel shape normalizes to /find/events-haifa-carmel-family-event, persists one pending opportunity, and duplicate event replay keeps search_count at 1."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-13T21:32:06.062595Z"
+    },
+    {
+      "id": "preflight:adversarial",
+      "source": "predictive_preflight.adversarial_close",
+      "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
+      "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:effectiveness",
+      "source": "predictive_preflight.effectiveness",
+      "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
+      "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-001",
+      "source": "lesson:ADIR-WEB-001",
+      "statement": "לפני עיצוב מחדש ממפים כל יכולת ותוכן ומסמנים אותם כנשמרו, הוחלפו במכוון או חסומים.",
+      "acceptance_check": "אין פריט ישן ללא סיווג, מקור והכרעה לפני אישור המוצר החדש.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-ADMIN-001",
+      "source": "lesson:ADIR-ADMIN-001",
+      "statement": "מערכת ניהול מיועדת לעבודה יומיומית קצרה וברורה, ומנהלת בהרשאה הנכונה תוכן, חיפוש, SEO ו־GEO, סכמה, רובוטים, מפות אתר, מדידה, ניווט, פוטר, תמונות, כתובות והפניות, עם שמירה, גרסה, תצוגה מקדימה, השתקפות וחזרה לאחור. שינוי הרשאה נחשב תקין רק לאחר שהרשומה המתמידה הוחזרה מהשרת, נשמרה במקור האמת, שרדה רענון ללא מטמון ונבדקה במסלול הכניסה של תפקיד היעד בלי לפתוח אזורים שלא אושרו.",
+      "acceptance_check": "מערכת ניהול אינה עוברת בלי מטריצת יכולות והרשאות, עריכה ותצוגה מקדימה של כל משפחת אתר מחייבת, שמירה ששרדה רענון, השתקפות ביעד הטבעי, יומן שינוי וחזרה לאחור לפעולות כלל־אתר. שינוי הרשאה נכשל אם חסרים הרשומה המתמידה במקור האמת, תגובת שרת עם המשתמש שנשמר, רענון ללא מטמון, אירוע ביקורת, כניסה מוצלחת של תפקיד היעד או הוכחה שאזור לא מורשה נשאר חסום.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-SEARCH-001",
+      "source": "lesson:ADIR-SEARCH-001",
+      "statement": "חיפוש מגדיר קורפוס, שדות, דירוג, שפות, שגיאות כתיב, מילים נרדפות, תעתיקים, מצבי אפס ומגבלת מהירות, וכל משטחי הגילוי מתארים ושומרים את אותו מצב.",
+      "acceptance_check": "חבילת הזהב נכשלת על תוצאה עליונה לא קשורה, רשומה לא זמינה, שאילתת אפס ללא התאוששות, פער מצב, מסנן מת, אינדקס לא טרי, חריגה מתקציב המהירות או יכולת ניהול שלא השתקפה בחיפוש החי.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-SEO-001",
+      "source": "lesson:ADIR-SEO-001",
+      "statement": "כל אתר ציבורי כולל כברירת מחדל SEO, GEO, נתונים מובנים, robots, sitemap, canonical, תוכנית מדידה, מילון אירועים, שכבת נתונים, ניהול תגיות והסכמה שנבדקו בגרסה החיה.",
+      "acceptance_check": "שער השחרור נכשל אם חסרה אחת ממשפחות הקידום או המדידה, אם קיימת סתירה באינדוקס, אם נתונים מובנים אינם תואמים לתוכן, אם אירוע לא נראה בדיבוג ובזמן אמת, או אם נשלח מידע אישי.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-CMS-001",
+      "source": "lesson:ADIR-WEB-CMS-001",
+      "statement": "כל אתר מנהל תוכן ושפות, חיפוש, SEO ו־GEO, סכמה, רובוטים, מפות אתר, מדידה, תפריטים, פוטר, מטא־נתוני תמונות, כתובות והפניות דרך מודולים מאובטחים ומבוקרים.",
+      "acceptance_check": "שער הראיות דורש לכל מודול עריכה, ולידציה, הרשאה, שמירה, רענון, תצוגה מקדימה, השתקפות חיה ודרך חזרה; חסר באחת השכבות חוסם אישור.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-DATA-001",
+      "source": "lesson:ADIR-DATA-001",
+      "statement": "כל מספר, מונה, דירוג וסטטוס שמוצגים למשתמש או למנהל מגיעים ממקור שמור ומתועד, עם נוסחה, ישות, היקף, תקופה, אזור זמן והגדרת הכול או ייחודי. פעולת כוונה אינה מוצגת כתוצאה שהושלמה, ונתוני דמה אינם מתערבבים בייצור.",
+      "acceptance_check": "שער הראיות נכשל כאשר למדד חסרים מקור, נוסחה, ישות, תקופה או מצב ייחודיות; כאשר המספר אינו מתיישב עם רשומות המקור; כאשר ערך דמה מופיע בייצור; או כאשר חשיפה, לחיצה או מעבר לאפליקציה מוצגים כשיחה, הודעה או ליד שהושלמו.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-SIMPLICITY-001",
+      "source": "lesson:ADIR-SIMPLICITY-001",
+      "statement": "בכל פרויקט, נושא, תחום ותוצר, פשטות פירושה להפריד בין עומק המערכת לבין מה שהאדם צריך להבין ולעשות עכשיו. בכל מצב, מסמך, שיחה, תכנית, דוח, תהליך או ממשק מציגים שכבה נוכחית אחת, החלטה אחת או קבוצת השוואה מוגבלת, ופעולה הבאה אחת. מידע, שלבים ואפשרויות שאינם דרושים עכשיו נחשפים בהדרגה בלבד, בלי למחוק תוצאות, נתונים, התאוששות או עומק מקצועי.",
+      "acceptance_check": "כל חוזה קבלה מהותי נכשל ללא cognitive_flow שמגדיר שכבה נוכחית, החלטה אחת או השוואה מוגבלת, פעולה הבאה, מורכבות שנדחית ועומק שנשמר. בעבודת ממשק חל בנוסף שער friction_without_loss. תוצר שמציג כמה כיוונים מתחרים יחד, מציף עומק לפני זמנו או מוחק יכולת בשם פשטות חוסם מסירה.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-DEPLOY-001",
+      "source": "lesson:ADIR-DEPLOY-001",
+      "statement": "פריסה או שינוי דומיין דורשים גרסה שמורה, כתובת יעד מאומתת, בדיקת מסלולים, metadata ותוכנית חזרה לאחור. כאשר כמה מקורות יכולים לפרוס לאותו יעד, חייבים לזהות אותם, לאחד את קו הבסיס ולחסום פריסה ממקור מיושן שעלולה למחוק יכולות שכבר אושרו.",
+      "acceptance_check": "A release cannot pass without live URL, route, status, metadata and rollback evidence. If multiple deploy sources share a destination, the chosen source must contain the complete approved baseline and a stale-source overwrite test must be blocked. Visual evidence from a release that was later replaced is invalid.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:acceptance-contract",
+      "source": "project_guidance",
+      "statement": "The validated acceptance manifest remains the implementation and verification source.",
+      "acceptance_check": "The validated acceptance manifest remains the implementation and verification source.",
+      "status": "passed",
+      "evidence": [
+        "Validated project_knowledge/task_contracts/vii-search-command-center-20261014.acceptance.json with ACCEPTANCE_CONTRACT_VERIFIED."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-13T21:32:06.174018Z"
+    },
+    {
+      "id": "project:legacy-parity",
+      "source": "project_guidance",
+      "statement": "Capture, pending review, editing, demand evidence, publication and sitemap behavior are all classified and tested.",
+      "acceptance_check": "Capture, pending review, editing, demand evidence, publication and sitemap behavior are all classified and tested.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:privacy",
+      "source": "project_guidance",
+      "statement": "Only bounded normalized search intent is stored; personal free text is rejected or reduced to Other.",
+      "acceptance_check": "Only bounded normalized search intent is stored; personal free text is rejected or reduced to Other.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:natural-destination",
+      "source": "project_guidance",
+      "statement": "The exact authenticated admin, public page and sitemap are exercised after release.",
+      "acceptance_check": "The exact authenticated admin, public page and sitemap are exercised after release.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    }
+  ],
+  "verification_status": "in_progress",
+  "verification_errors": [],
+  "predictive_results": {
+    "midpoint": {
+      "observed_at": "2026-10-13T21:32:06.062595Z",
+      "evidence": [
+        "Targeted midpoint suite passed 10/10 and TypeScript passed. The supplied eventType plus Haifa/Carmel shape normalizes to /find/events-haifa-carmel-family-event, persists one pending opportunity, and duplicate event replay keeps search_count at 1."
+      ],
+      "findings": [
+        "The previous implementation only queued predefined location pages and could not represent the supplied filter combination; the new canonical intent model closes that gap."
+      ]
+    }
+  }
+}

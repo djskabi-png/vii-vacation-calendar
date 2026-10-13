@@ -1,30 +1,36 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { ExternalLink } from "lucide-react";
+import { Activity, BarChart3, Building2, CalendarSync, ExternalLink, FileSearch, Gauge, MessageCircle, Route, Search, Sparkles, Star, TrendingUp } from "lucide-react";
 import styles from "./admin.module.css";
 
-const links = [
-  { href: "/admin", label: "תמונת מצב" },
-  { href: "/admin/catalog-sync", label: "קטלוגים" },
-  { href: "/admin/search-analytics", label: "חיפושים" },
-  { href: "/admin/business-performance", label: "ביצועי עסקים" },
-  { href: "/admin/content-queue", label: "תור אישורים" },
-  { href: "/admin/search-pages", label: "עמודי חיפוש" },
-  { href: "/admin/redirects", label: "הפניות 301" },
-  { href: "/admin/operations", label: "הזמנות וחוות דעת" },
-  { href: "/admin/whatsapp-leads", label: "פניות וואטסאפ" },
-  { href: "/admin/discovery-promotions", label: "קידום מקומות" },
+const groups = [
+  { label: "מרכז שליטה", links: [
+    { href: "/admin", label: "תמונת מצב", icon: Gauge },
+    { href: "/admin/search-pages", label: "מרכז עמודי חיפוש", icon: FileSearch },
+    { href: "/admin/business-performance", label: "ביצועי עסקים", icon: BarChart3 },
+  ] },
+  { label: "תוכן וגילוי", links: [
+    { href: "/admin/search-analytics", label: "מודיעין חיפושים", icon: Search },
+    { href: "/admin/content-queue", label: "תור אישורים", icon: Activity },
+    { href: "/admin/discovery-promotions", label: "קידום מקומות", icon: TrendingUp },
+    { href: "/admin/redirects", label: "כתובות והפניות", icon: Route },
+  ] },
+  { label: "תפעול", links: [
+    { href: "/admin/catalog-sync", label: "קטלוגים וספקים", icon: CalendarSync },
+    { href: "/admin/operations", label: "הזמנות וחוות דעת", icon: Star },
+    { href: "/admin/whatsapp-leads", label: "פניות וואטסאפ", icon: MessageCircle },
+  ] },
 ];
 
 export default function AdminNav() {
   const pathname = usePathname();
-  return <div className={styles.navigation} dir="rtl">
-    <div className={styles.navigationInner}>
-      <a href="/admin" className={styles.brand}><span className={styles.mark}>VII</span><span><strong>מרכז הניהול</strong><small>וי פור ויקיישן</small></span></a>
-      <nav aria-label="ניווט מערכת הניהול">{links.map((entry) =>
-        <a key={entry.href} href={entry.href} aria-current={pathname === entry.href ? "page" : undefined}>{entry.label}</a>)}</nav>
-      <a href="/" className={styles.siteLink}>לאתר <ExternalLink size={15} aria-hidden="true" /></a>
-    </div>
-  </div>;
+  return <aside className={styles.navigation} dir="rtl">
+    <a href="/admin" className={styles.brand}><span className={styles.mark}><Sparkles size={18} aria-hidden="true" /></span><span><strong>VII Control</strong><small>מערכת הניהול</small></span></a>
+    <nav aria-label="ניווט מערכת הניהול">{groups.map((group) => <section key={group.label}><h2>{group.label}</h2>{group.links.map(({ href, label, icon: Icon }) => {
+      const active = href === "/admin" ? pathname === href : pathname.startsWith(href);
+      return <a key={href} href={href} aria-current={active ? "page" : undefined}><Icon size={18} aria-hidden="true" /><span>{label}</span></a>;
+    })}</section>)}</nav>
+    <div className={styles.navFooter}><div><Building2 size={16} aria-hidden="true" /><span><strong>VII</strong><small>סביבת ייצור</small></span></div><a href="/">פתיחת האתר <ExternalLink size={14} aria-hidden="true" /></a></div>
+  </aside>;
 }

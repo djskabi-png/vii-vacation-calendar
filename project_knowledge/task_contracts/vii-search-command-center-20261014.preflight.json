@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-search-command-center-20261014",
+  "project": "VII",
+  "task_type": "admin-product-search-intelligence",
+  "requested_outcome": "Turn every privacy-safe real search into a manageable page opportunity and provide a premium, task-oriented administration command center for reviewing demand, editing complete SEO/GEO content, previewing, scheduling, publishing, auditing and sitemap inclusion.",
+  "natural_destination": "The authenticated VII administration at /admin/search-pages and the corresponding public search page and sitemap on vii.spaplus.co.",
+  "authorization_boundary": "Local implementation, tests, repository commit and previously authorized production publication are in scope. No paid service, infrastructure purchase, arbitrary script injection, supplier mutation or fabricated analytics is authorized.",
+  "lesson_bundle": [
+    { "lesson_id": "ADIR-WEB-001", "reason": "The old search-page workflow is the parity source.", "acceptance_impact": "Inventory and preserve capture, pending review, editing, publication, traffic evidence and sitemap behavior." },
+    { "lesson_id": "ADIR-ADMIN-001", "reason": "The request is for a daily operating system, not a decorative dashboard.", "acceptance_impact": "Require short task paths, persistence, audit history, preview, publication and natural-destination reflection." },
+    { "lesson_id": "ADIR-SEARCH-001", "reason": "The core entity is normalized search intent and result quality.", "acceptance_impact": "Capture world, filters, results and zero-result state without personal free text and expose diagnostics." },
+    { "lesson_id": "ADIR-SEO-001", "reason": "Published opportunities must become intentional indexable search pages.", "acceptance_impact": "Require canonical, robots, metadata, sitemap state and measured demand before publication." },
+    { "lesson_id": "ADIR-WEB-CMS-001", "reason": "Search content, SEO fields and lifecycle must be safely editable.", "acceptance_impact": "Require validation, versions, scheduling, publication status and rollback path." },
+    { "lesson_id": "ADIR-DATA-001", "reason": "Demand and conversion numbers must be real data contracts.", "acceptance_impact": "Define period, source, uniqueness, result count and intent-versus-outcome semantics." },
+    { "lesson_id": "ADIR-SIMPLICITY-001", "reason": "The system must be deep but immediately understandable.", "acceptance_impact": "Present one work queue, one selected opportunity and one dominant next action with progressive disclosure." },
+    { "lesson_id": "ADIR-DEPLOY-001", "reason": "The final result must be published and verified on the exact live destination.", "acceptance_impact": "Require saved version, rollback identity, live route checks and sitemap verification." }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    { "rejection": "The screen looks better but searches still do not create real pending records.", "prevention": "Persist an idempotent opportunity for each normalized search event.", "acceptance_check": "A new event creates one pending opportunity; replaying the same event does not increment it twice." },
+    { "rejection": "Only location is recorded and the event type shown in the supplied example is lost.", "prevention": "Normalize a bounded filter dictionary and stable intent key.", "acceptance_check": "The example location plus event type appears as one distinct opportunity with its filters visible." },
+    { "rejection": "The editor only changes a title and description and is still a toy.", "prevention": "Add workflow, slug, H1, metadata, editorial body, FAQ, indexability, canonical, preview, history and publish controls.", "acceptance_check": "A manager can save, reload, preview and publish all required fields from one workspace." },
+    { "rejection": "Published content does not control the real public page or sitemap.", "prevention": "Resolve published content from the authoritative version and include only eligible published paths in sitemap generation.", "acceptance_check": "The public page reflects the version after reload and its canonical path appears in sitemap only when publishable." },
+    { "rejection": "The interface is dense, generic and still feels like ten percent of a real system.", "prevention": "Replace the flat navigation and table-like editor with a responsive command-center shell, prioritized queue and contextual inspector.", "acceptance_check": "Desktop and 390px mobile show a clear current task, status, metrics and next action without hidden required capability." },
+    { "rejection": "Metrics are impressive-looking but unsupported.", "prevention": "Show only persisted search counts, unique sessions, zero-result counts and current result inventory with explicit period and source.", "acceptance_check": "Displayed figures reconcile with database queries and missing data is shown as unavailable, not zero." }
+  ],
+  "affected_family": [
+    "public search submission analytics",
+    "events search filters and result counts",
+    "vacation, spa and hourly search tracking compatibility",
+    "D1 search events and page opportunities",
+    "admin shell and navigation",
+    "admin search page command center",
+    "content queue and search analytics entry points",
+    "search-page versions and audit history",
+    "public event search landing metadata and content",
+    "XML sitemap inclusion",
+    "administrator authentication and unauthorized states",
+    "desktop, 390px mobile and low-height administration layouts",
+    "Hebrew typography, loading, empty, validation, conflict and service-failure states"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      { "label": "Old VII search-result page and requested workflow", "source": "C:/Users/Adir/AppData/Local/Temp/codex-clipboard-993ac707-3bc9-47c2-a788-f737b0e2d529.png" },
+      { "label": "Approved search intelligence workflow", "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md#search-intelligence-and-automatic-page-opportunities" },
+      { "label": "VII management and search acceptance standard", "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md" }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "The first end-to-end slice can ingest the supplied search shape and return it as a pending opportunity in the admin API.",
+    "checks": [
+      "event and filter normalization is privacy-safe",
+      "duplicate event ingestion is idempotent",
+      "pending opportunity includes demand, result count and proposed public path",
+      "unauthorized admin access remains denied"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a search combination with a type and location disappear or merge into the wrong opportunity?",
+      "Can a draft or archived page leak into the sitemap or public metadata?",
+      "Can a save claim success without surviving reload and adding an audit version?",
+      "Does the 390px layout hide the queue, primary action or validation state?",
+      "Can replay, conflict, expired session or database failure produce a false success?"
+    ],
+    "natural_destination_evidence": "Authenticated live admin flow plus the exact published public page and live sitemap response.",
+    "affected_family_evidence": "Automated contracts, build, desktop/mobile browser interaction matrix and live regression of existing search and admin routes."
+  },
+  "effectiveness": {
+    "baseline": "Current admin has separate basic screens; content queue only matches existing location pages, search events omit full filter intent, and the editor exposes title and description only.",
+    "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"],
+    "target": "One authenticated workspace exposes every recorded search opportunity and completes draft-to-public workflow with no missing required field or separate hidden screen."
+  },
+  "privacy": { "raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true },
+  "ready_to_start": true
+}

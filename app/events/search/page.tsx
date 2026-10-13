@@ -32,6 +32,7 @@ import { ResultsViewToggle, useResultsViewMode } from "../../components/results-
 import { matchesSearchLocation } from "../../data/search-taxonomy";
 import { useViiLiveSearch } from "../../components/use-vii-live-search";
 import { eventLiveCopy } from "../../i18n/vii-live-search-copy";
+import { trackSearchResults } from "../../lib/analytics";
 
 function runtimeEventPlace(value: unknown): EventPlace {
   const place = value as EventPlace;
@@ -133,6 +134,25 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
     const visible = new Set(mapVisibleIds);
     return filtered.filter((place) => visible.has(place.slug));
   }, [filtered, mapOpen, mapVisibleIds]);
+
+  useEffect(() => {
+    if (catalogLoading || catalogError) return;
+    const timer = window.setTimeout(() => trackSearchResults({
+      world: "events",
+      location: area,
+      hasDate: Boolean(eventFrom),
+      resultCount: filtered.length,
+      filters: {
+        ...(type !== "הכל" ? { type } : {}),
+        ...(eventType !== "הכל" ? { eventType } : {}),
+        ...(guests ? { guests } : {}),
+        ...(noNoiseLimit ? { noise: true } : {}),
+        ...(accessibleOnly ? { accessible: true } : {}),
+        ...(hours !== 3 ? { hours } : {}),
+      },
+    }), 650);
+    return () => window.clearTimeout(timer);
+  }, [accessibleOnly, area, catalogError, catalogLoading, eventFrom, eventType, filtered.length, guests, hours, noNoiseLimit, type]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setMapVisibleIds(null), 0);
