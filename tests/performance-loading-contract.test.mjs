@@ -101,7 +101,23 @@ test("homepage does not prefetch heavyweight search result documents before inte
   ]);
   assert.match(page, /href="\/search" prefetch=\{false\}/);
   assert.match(page, /href=\{`\/search\?location=.*?prefetch=\{false\}/s);
-  assert.match(showcase, /href=\{item\.href\} prefetch=\{false\}/);
+  assert.match(showcase, /href=\{item\.href\}[\s\S]*?prefetch=\{false\}/);
   assert.match(deals, /href=\{searchHref\} prefetch=\{false\}/);
   assert.match(switcher, /world-dock__prehydrate[^>]+prefetch=\{false\}/);
+});
+
+test("homepage destination cards acknowledge the click and warm only on intent", async () => {
+  const [showcase, styles, loading] = await Promise.all([
+    readFile(new URL("app/components/home-showcase.tsx", root), "utf8"),
+    readFile(new URL("app/globals.css", root), "utf8"),
+    readFile(new URL("app/vacations/[region]/loading.tsx", root), "utf8"),
+  ]);
+  assert.match(showcase, /onPointerEnter=\{\(\) => warmDestination\(item\.href\)\}/);
+  assert.match(showcase, /router\.prefetch\(href\)/);
+  assert.match(showcase, /aria-busy=\{isPending\}/);
+  assert.match(showcase, /data-global-feedback="true"/);
+  assert.match(showcase, /waiting: "רק רגע, כבר נכנסים"/);
+  assert.match(styles, /\.home-vacation-card__pending/);
+  assert.match(loading, /aria-busy="true"/);
+  assert.match(loading, /title: "מכינים לכם את המקומות באזור"/);
 });

@@ -1,0 +1,92 @@
+{
+  "status": "fixed",
+  "symptom": "Clicking a recommended vacation destination card gave no immediate confirmation, no waiting state and felt much slower than the eventual response.",
+  "expected_behavior": "The selected card acknowledges the click immediately, prevents duplicate navigation, shows an accessible waiting state, and reaches the selected regional results as quickly as the connection permits.",
+  "environment": "Production https://vii.co.il and local release candidate on 2026-10-14.",
+  "reproduction": {
+    "steps": [
+      "Open the VII homepage.",
+      "Scroll to recommended vacation destinations.",
+      "Activate the north destination card and observe the card before the route changes."
+    ],
+    "evidence": "Before the repair, the card was a Link with prefetch=false, no click state and no global feedback attributes. Direct production requests measured 0.604s TTFB and 0.809s total for /vacations/north?guests=2, showing that the missing browser feedback amplified the perceived wait."
+  },
+  "observations": [
+    {
+      "observation": "The destination cards explicitly disabled automatic prefetch and had neither a selected-card state nor global navigation feedback attributes.",
+      "evidence": "Pre-fix source inspection of app/components/home-showcase.tsx."
+    },
+    {
+      "observation": "The production destination document itself responded in less than one second during direct probes.",
+      "evidence": "https://vii.co.il/vacations/north?guests=2 returned 200 with 0.604s TTFB and 0.809s total; Kinneret returned 200 in 0.832s total."
+    },
+    {
+      "observation": "The repaired card exposes its pending state before the URL changes.",
+      "evidence": "Local browser click observed aria-busy=true and 'רק רגע, כבר נכנסים' while the browser was still on the homepage."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "The destination cards opt out of automatic prefetch and do not perform intent-based prefetch, so route work starts only after activation.",
+      "prediction": "Source inspection will show prefetch=false without router.prefetch, and adding intent-only warming will preserve the homepage payload policy while starting the chosen route earlier.",
+      "discriminating_test": "Compare the destination-card source with the homepage payload contract, then verify router.prefetch runs only from pointer or keyboard intent handlers.",
+      "result": "Supported. The pre-fix component had prefetch=false and no manual warmup. The repair keeps automatic bulk prefetch disabled and calls router.prefetch only on pointer intent, focus or pointer down.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The route itself always requires more than ten seconds on the production server.",
+      "prediction": "A direct production request will also exceed ten seconds.",
+      "discriminating_test": "Measure direct production TTFB and total transfer time for at least two regional vacation routes.",
+      "result": "Rejected. Direct production requests completed in about 0.8 seconds total for two representative regional routes.",
+      "status": "rejected"
+    },
+    {
+      "id": "H3",
+      "mechanism": "No selected-card state and no route loading boundary make any real delay appear like a dead click.",
+      "prediction": "Source inspection will find neither aria-busy nor an in-card loader, and a controlled local click will remain visibly unchanged.",
+      "discriminating_test": "Hold the navigation long enough to inspect the selected card immediately after click and verify aria-busy, visible pending copy and duplicate-click protection.",
+      "result": "Supported. The repaired browser check observed aria-busy=true and the text 'רק רגע, כבר נכנסים' before navigation, then reached the requested regional heading.",
+      "status": "supported"
+    }
+  ],
+  "root_cause_hypothesis_id": "H3",
+  "fix": {
+    "change": "Add intent-only route warming, immediate pressed and pending feedback inside the selected card, duplicate-click protection, delayed global progress feedback, and a localized accessible route loading boundary.",
+    "evidence": "TypeScript, production build, 643 tests and a real local browser click passed. The selected card exposed aria-busy=true before the URL changed and the destination completed at /vacations/north?guests=2."
+  },
+  "affected_family": [
+    "All six recommended vacation destination cards",
+    "Regional vacation loading boundary",
+    "Hebrew, English, Russian and French loading copy",
+    "Keyboard focus, pointer activation and reduced-motion states"
+  ],
+  "regression_checks": [
+    {
+      "check": "Production build and complete automated suite",
+      "status": "passed",
+      "evidence": "vinext production build passed and 643 of 643 tests passed."
+    },
+    {
+      "check": "Crawlable regional pages retain a single H1",
+      "status": "passed",
+      "evidence": "Every canonical sitemap URL passed the complete crawlable HTML test after the loading heading was changed to H2."
+    },
+    {
+      "check": "Public-language loading copy",
+      "status": "passed",
+      "evidence": "Localization completeness passed for English, Russian and French."
+    },
+    {
+      "check": "Immediate browser feedback and completed route",
+      "status": "passed",
+      "evidence": "Local browser observed the pending state before navigation and then reached the north regional H1."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "Production interaction timing remains pending until the new release is deployed and measured on the public URL."
+  ],
+  "authorization_boundary": "Implement, test and prepare the existing VII site for the user-authorized publication; preserve domain, supplier truth, credentials and unrelated product behavior."
+}

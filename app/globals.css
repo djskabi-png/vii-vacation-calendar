@@ -5405,6 +5405,13 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .home-vacation-card p { margin: 0; color: var(--ink-soft); font-size: .77rem; line-height: 1.55; }
 .home-vacation-card--destination p { color: rgba(255,255,255,.76); }
 .home-vacation-card--destination b { display: inline-block; margin-top: 13px; color: #a9e8ec; font-size: .74rem; }
+.home-vacation-card--destination:active { transform: translateY(-1px) scale(.985); }
+.home-vacation-card--destination[aria-disabled="true"]:not(.is-destination-pending) { pointer-events: none; }
+.home-vacation-card--destination.is-destination-pending { transform: translateY(-3px) scale(.985); border-color: rgba(169,232,236,.78); box-shadow: 0 0 0 4px rgba(169,232,236,.2),0 22px 45px rgba(3,59,71,.18); }
+.home-vacation-card__pending { position: absolute; z-index: 3; inset: 0; display: grid; place-content: center; justify-items: center; gap: 12px; background: rgba(1,27,35,.66); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.home-vacation-card__pending i { width: 42px; height: 42px; border: 3px solid rgba(255,255,255,.35); border-top-color: #fff; border-radius: 50%; animation: destination-card-spin .72s linear infinite; }
+.home-vacation-card__pending small { padding: 7px 11px; border-radius: 999px; background: rgba(255,255,255,.94); color: var(--teal-dark); font-size: .75rem; font-weight: 850; }
+@keyframes destination-card-spin { to { transform: rotate(360deg); } }
 .home-vacation-card--compact { min-height: 132px; display: grid; grid-template-columns: 112px 1fr auto; align-items: center; }
 .home-vacation-card--compact > img { height: 100%; min-height: 132px; }
 .home-vacation-card--compact > div { min-width: 0; padding: 15px 16px; }
@@ -6919,6 +6926,19 @@ button:not(:disabled):active,a[href]:active,[role="button"]:active,.is-action-pr
 .global-action-feedback.is-visible { opacity: 1; }
 .global-action-feedback.is-visible > span { width: 72%; animation: global-action-progress 1.1s ease-in-out infinite; }
 @keyframes global-action-progress { 0% { transform: translateX(-100%); } 100% { transform: translateX(145%); } }
+.vacation-route-loading { min-height: 72vh; display: grid; place-content: center; justify-items: center; padding: 110px 24px 64px; text-align: center; background: radial-gradient(circle at 50% 28%,rgba(15,163,166,.12),transparent 32rem),#f8fbfb; }
+.vacation-route-loading__mark { position: relative; width: 72px; height: 38px; margin-bottom: 18px; }
+.vacation-route-loading__mark span { position: absolute; top: 14px; width: 10px; height: 10px; border-radius: 50%; background: var(--teal); animation: vacation-route-pulse 1s ease-in-out infinite; }
+.vacation-route-loading__mark span:nth-child(1) { inset-inline-start: 4px; animation-delay: -.2s; }
+.vacation-route-loading__mark span:nth-child(2) { inset-inline-start: 31px; }
+.vacation-route-loading__mark span:nth-child(3) { inset-inline-end: 4px; animation-delay: .2s; }
+.vacation-route-loading__mark::before { content: ""; position: absolute; inset: 18px 9px auto; height: 1px; background: rgba(6,105,119,.32); }
+.vacation-route-loading h2 { margin: 0; color: var(--ink); font-size: clamp(1.55rem,4vw,2.35rem); }
+.vacation-route-loading p { margin: 8px 0 24px; color: var(--ink-soft); }
+.vacation-route-loading__cards { display: grid; width: min(680px,84vw); grid-template-columns: repeat(3,1fr); gap: 12px; }
+.vacation-route-loading__cards span { height: 92px; border: 1px solid rgba(6,105,119,.1); border-radius: 18px; background: linear-gradient(105deg,#e9f1f1 20%,#f8fbfb 38%,#e9f1f1 56%); background-size: 220% 100%; animation: vacation-route-shimmer 1.2s ease-in-out infinite; }
+@keyframes vacation-route-pulse { 0%,100% { transform: translateY(0) scale(.8); opacity: .45; } 50% { transform: translateY(-7px) scale(1); opacity: 1; } }
+@keyframes vacation-route-shimmer { to { background-position-x: -220%; } }
 
 .universal-favorite__icon { display: inline-grid; place-items: center; position: relative; }
 .universal-favorite.is-loading .universal-favorite__icon::after { content: ""; position: absolute; width: 1.75em; height: 1.75em; border: 2px solid rgba(10,139,151,.2); border-top-color: #0a8b97; border-radius: 50%; animation: favorite-spin .7s linear infinite; }
@@ -6952,7 +6972,8 @@ button:not(:disabled):active,a[href]:active,[role="button"]:active,.is-action-pr
 .search-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @keyframes search-submit-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) {
-  .global-action-feedback.is-visible > span,.search-submit__icon > i { animation-duration: 1.8s; }
+  .global-action-feedback.is-visible > span,.search-submit__icon > i,.home-vacation-card__pending i { animation-duration: 1.8s; }
+  .vacation-route-loading__mark span,.vacation-route-loading__cards span { animation: none; }
   button:not(:disabled):active,a[href]:active,[role="button"]:active,.is-action-pressed { transform: none; }
 }
 

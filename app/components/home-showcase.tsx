@@ -3,7 +3,8 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { DiscoveryCard } from "./discovery-card";
 import type { EventPlace, Property } from "../data/site-data";
 import { eventPlaceHref } from "../lib/event-place-href";
@@ -34,6 +35,13 @@ const destinationMatchers = [
   (area: string, location: string) => /נגב|דרום|ערבה/.test(area) && location !== "אילת",
   (_area: string, location: string) => location === "אילת",
 ];
+
+const destinationLoadingCopy = {
+  he: { opening: "פותחים את המקומות...", waiting: "רק רגע, כבר נכנסים", prefix: "פותחים את" },
+  en: { opening: "Opening places...", waiting: "Just a moment, we’re almost there", prefix: "Opening" },
+  ru: { opening: "Открываем места...", waiting: "Ещё мгновение", prefix: "Открываем" },
+  fr: { opening: "Ouverture des lieux...", waiting: "Encore un instant", prefix: "Ouverture de" },
+} as const;
 
 
 function SliderControls({ onPrevious, onNext, label }: { onPrevious: () => void; onNext: () => void; label: string }) {
@@ -73,6 +81,10 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
   attractionPreview: DiscoveryItem;
 }) {
   const tracks = useRef<Record<string, HTMLDivElement | null>>({});
+  const router = useRouter();
+  const { language } = useSiteLanguage();
+  const destinationLoading = destinationLoadingCopy[language];
+  const [pendingDestination, setPendingDestination] = useState<string | null>(null);
   const worldCards = publicWorldNavigation.filter((world) => !["vacation", "events", "spa", "hourly"].includes(world.id));
   const featuredTours = rotateDaily(properties.flatMap((property) => (property.videos || []).map((video) => ({ property, video }))),
     ({ property, video }) => `${property.slug}:${video.src}`, "home-tours").slice(0, 7);
@@ -101,6 +113,19 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
     track.scrollBy({ left: direction === "next" ? forward : -forward, behavior: "smooth" });
   }
 
+  function warmDestination(href: string) {
+    router.prefetch(href);
+  }
+
+  function selectDestination(event: ReactMouseEvent<HTMLAnchorElement>, href: string) {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (pendingDestination) {
+      event.preventDefault();
+      return;
+    }
+    setPendingDestination(href);
+  }
+
   return <>
     <HomeLiveDeals />
     <HomeLiveDeals mode="holidays" />
@@ -118,7 +143,21 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
           <div className="home-vacation-strip__track home-vacation-strip__track--destinations" data-horizontal-rail ref={(node) => { tracks.current.destinations = node; }}>
             {vacationDestinations.map((item, index) => {
               const place = destinationPlaces[index];
-              return place ? <Link className="home-vacation-card home-vacation-card--destination home-slider__item" href={item.href} prefetch={false} key={item.label}><img src={place.image} alt="" loading="lazy" decoding="async" /><div><span>יעד מומלץ</span><h4>{item.label}</h4><p>{item.note}</p><b>לכל המקומות באזור</b></div></Link> : null;
+              const isPending = pendingDestination === item.href;
+              return place ? <Link
+                className={`home-vacation-card home-vacation-card--destination home-slider__item${isPending ? " is-destination-pending" : ""}`}
+                href={item.href}
+                prefetch={false}
+                key={item.label}
+                onPointerEnter={() => warmDestination(item.href)}
+                onFocus={() => warmDestination(item.href)}
+                onPointerDown={() => warmDestination(item.href)}
+                onClick={(event) => selectDestination(event, item.href)}
+                aria-busy={isPending}
+                aria-disabled={pendingDestination !== null}
+                data-global-feedback="true"
+                data-loading-label={`${destinationLoading.prefix} ${item.label}...`}
+              ><img src={place.image} alt="" loading="lazy" decoding="async" /><div><span>יעד מומלץ</span><h4>{item.label}</h4><p>{item.note}</p><b>{isPending ? destinationLoading.opening : "לכל המקומות באזור"}</b></div>{isPending ? <span className="home-vacation-card__pending" aria-hidden="true"><i /><small>{destinationLoading.waiting}</small></span> : null}</Link> : null;
             })}
           </div>
         </div>
