@@ -67,6 +67,6 @@ test("a temporarily empty supplier room list does not erase accepted units", asy
   assert.equal(detail.images[0], "https://www.vii.co.il/gallery/cover.jpg");
   assert.deepEqual(detail.rooms.map((room) => room.id), [85, 86, 87]);
   assert.deepEqual(detail.rooms[2].images, ["https://www.vii.co.il/gallery/tohar.jpg"]);
-  assert.equal(detail.units, accepted.units);
-  assert.equal(detail.guests, accepted.guests);
+  assert.equal(detail.units, 3);
+  assert.equal(detail.guests, 7);
 });
