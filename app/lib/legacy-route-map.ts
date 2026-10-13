@@ -20,6 +20,8 @@ for (const place of supplierCatalog.places) {
   if (place.world === "events") add(place.sourceUrl, `/events/place/${place.slug}`);
 }
 for (const place of hourlyCatalog.places) add(place.sourceUrl, `/discover/place/${place.id}`);
+// This verified supplier URL was replaced in the refreshed hourly catalog.
+add("https://www.vii.co.il/rooms/ascape_room", "/discover/place/hourly-1915");
 
 export function legacyPlaceDestination(pathname: string) {
   return destinations.get(pathname.toLowerCase().replace(/\/$/, "") || "/") || null;
