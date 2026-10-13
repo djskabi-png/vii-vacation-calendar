@@ -4,16 +4,20 @@ import test from "node:test";
 
 const worker = await readFile(new URL("../worker/index.ts", import.meta.url), "utf8");
 
-test("homepage HTML has a bounded edge cache while RSC and query responses bypass it", () => {
-  assert.match(worker, /const homeCacheTtlMs = 60_000/);
-  assert.match(worker, /if \(request\.method !== "GET" \|\| url\.search\) return false/);
-  assert.match(worker, /if \(!\/\^\\\/\(\?:en\|ru\|fr\)\?\$\//);
+test("public HTML and catalog reads have bounded host-aware caches with private exclusions", () => {
+  assert.match(worker, /const publicCacheVersion = "v2"/);
+  assert.match(worker, /publicDocumentTtl/);
+  assert.match(worker, /url\.hostname/);
+  assert.match(worker, /admin\|account\|favorites\|booking/);
   assert.match(worker, /request\.headers\.has\("Cookie"\).*request\.headers\.has\("Authorization"\)/);
   assert.match(worker, /request\.headers\.get\("RSC"\).*Next-Router-State-Tree/);
-  assert.match(worker, /Cache-Control", "public, max-age=60, s-maxage=60, stale-while-revalidate=30"/);
+  assert.match(worker, /url\.pathname === "\/api\/catalog"/);
+  assert.match(worker, /X-VII-Page-Cache/);
+  assert.match(worker, /X-VII-Data-Cache/);
   assert.match(worker, /X-VII-Home-Cache-Until/);
-  assert.match(worker, /runtime-cache\/homepage\/v1/);
-  assert.match(worker, /env\.UPLOADS\.get\(cacheKey\)/);
-  assert.match(worker, /cacheable\.clone\(\)\.arrayBuffer\(\)\.then\(\(body\) => env\.UPLOADS\.put\(cacheKey, body/);
+  assert.match(worker, /runtime-cache\/public\/\$\{publicCacheVersion\}/);
+  assert.match(worker, /env\.UPLOADS\.get\(policy\.key\)/);
+  assert.match(worker, /cacheable\.clone\(\)\.arrayBuffer\(\)\.then\(\(body\) => env\.UPLOADS\.put\(policy\.key, body/);
   assert.match(worker, /customMetadata: \{ expiresAt \}/);
+  assert.match(worker, /if \(!allowed\.has\(key\) \|\| seen\.has\(key\)\) return null/);
 });

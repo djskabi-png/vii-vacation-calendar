@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import { LanguageSwitcher, useSiteLanguage } from "./i18n/locale-provider";
-import { stripLanguagePrefix } from "./i18n/locale-routing";
+import { localizedPath, stripLanguagePrefix } from "./i18n/locale-routing";
 import { publicWorldNavigation, type WorldId } from "./data/world-navigation";
 import { AccessibilityWidget } from "./components/accessibility-widget";
 import { WorldSwitcher } from "./components/world-switcher";
@@ -22,6 +22,8 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const pathname = stripLanguagePrefix(usePathname());
   const { language, translate } = useSiteLanguage();
+  const homeHref = localizedPath("/", language);
+  const homeLoadingLabel = translate("פותחים את דף הבית...");
   const { account, openLogin } = useAccountAccess();
   const magazineActive = pathname === "/guides" || pathname.startsWith("/guides/");
   const magazineCopy = {
@@ -103,7 +105,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
     <div className="menu-layer" role="dialog" aria-modal="true" aria-label={translate("תפריט האתר")} onMouseDown={(event) => event.target === event.currentTarget && closeMenu()}>
       <nav className="menu-panel" aria-label={translate("ניווט מלא")}>
         <div className="menu-panel__head">
-          <Link href="/" onClick={closeMenu} aria-label={translate("וי פור ויקיישן, דף הבית")}>
+          <Link href={homeHref} prefetch onClick={closeMenu} aria-label={translate("וי פור ויקיישן, דף הבית")} data-global-feedback="true" data-loading-label={homeLoadingLabel}>
             <img src="/vii-logo.png" alt={translate("וי פור ויקיישן")} title={translate("וי פור ויקיישן")} />
           </Link>
           <button ref={closeButtonRef} type="button" onClick={closeMenu} aria-label={translate("סגירת תפריט")}><CloseIcon /></button>
@@ -172,7 +174,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
     <>
       <header className="site-header">
         <div className="site-header__inner shell">
-          <Link className="brand" href="/" aria-label={translate("וי פור ויקיישן, דף הבית")}>
+          <Link className="brand" href={homeHref} prefetch aria-label={translate("וי פור ויקיישן, דף הבית")} data-global-feedback="true" data-loading-label={homeLoadingLabel}>
             <img src="/vii-logo.png" alt={translate("וי פור ויקיישן")} title={translate("וי פור ויקיישן")} />
           </Link>
 

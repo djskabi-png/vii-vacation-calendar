@@ -6,11 +6,12 @@ import { SearchExperience } from "../search/page";
 import { publicCatalogSummaries } from "../lib/public-catalog-read.ts";
 import { PublishedCatalogSeed } from "../lib/published-catalog-seed";
 import type { Property } from "../data/site-data";
+import { publicVacationSearchProperties } from "../lib/public-vacation-search";
 import { accommodationLandingForPath, type AccommodationCategoryId } from "../data/accommodation-landings";
 import { breadcrumbSchema, collectionSchema, faqSchema } from "../lib/seo";
 
 export async function accommodationLandingMetadata(categoryId: AccommodationCategoryId, regionSlug?: string | null): Promise<Metadata> {
-  const publishedProperties = await publicCatalogSummaries<Property>("vacations");
+  const publishedProperties = publicVacationSearchProperties(await publicCatalogSummaries<Property>("vacations"));
   const landing = accommodationLandingForPath(categoryId, regionSlug, publishedProperties);
   if (!landing) return { robots: { index: false, follow: true } };
   return {

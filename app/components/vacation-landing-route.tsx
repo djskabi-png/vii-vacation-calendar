@@ -4,6 +4,7 @@ import { SearchExperience } from "../search/page";
 import { publicCatalogSummaries } from "../lib/public-catalog-read.ts";
 import { PublishedCatalogSeed } from "../lib/published-catalog-seed";
 import type { Property } from "../data/site-data";
+import { publicVacationSearchProperties } from "../lib/public-vacation-search";
 import { StructuredData } from "./structured-data";
 import { breadcrumbSchema, collectionSchema } from "../lib/seo";
 import { vacationRegionBySlug, vacationRegionListings } from "../data/vacation-landings";
@@ -18,7 +19,7 @@ export async function vacationLandingMetadata(regionSlug?: string | null): Promi
 }
 
 export async function VacationLandingRoute({ regionSlug }: { regionSlug?: string | null }) {
-  const publishedProperties = await publicCatalogSummaries<Property>("vacations");
+  const publishedProperties = publicVacationSearchProperties(await publicCatalogSummaries<Property>("vacations"));
   const region = vacationRegionBySlug(regionSlug);
   if (!region) notFound();
   const listings = vacationRegionListings(region, publishedProperties);

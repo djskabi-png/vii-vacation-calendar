@@ -14,37 +14,78 @@ import { legacyPlaceDestination } from "../app/lib/legacy-route-map.ts";
 
 const temporaryOrigin = "https://vii.spaplus.co";
 const primaryOrigin = "https://www.vii.co.il";
-const homeCacheTtlMs = 60_000;
+const publicCacheVersion = "v2";
+type PublicCachePolicy = { key: string; kind: "document" | "data"; ttlSeconds: number; home: boolean };
 
-function cacheableHomeRequest(request: Request, url: URL) {
-  if (request.method !== "GET" || url.search) return false;
-  if (!/^\/(?:en|ru|fr)?$/.test(url.pathname)) return false;
-  if (request.headers.has("Cookie") || request.headers.has("Authorization")) return false;
-  // RSC responses are shaped by the current router tree and must remain
-  // request-specific. Only cache complete anonymous HTML documents.
-  if (request.headers.get("RSC") || request.headers.get("Next-Router-State-Tree")) return false;
-  return (request.headers.get("Accept") || "").includes("text/html");
+const publicDocumentQueryKeys = new Set([
+  "accessible", "area", "features", "flex", "from", "guests", "id", "location", "maxPrice", "minPrice",
+  "months", "period", "pool", "sort", "source", "spa", "till", "to", "type", "types", "whole",
+]);
+
+function normalizedPublicQuery(url: URL, allowed: ReadonlySet<string>) {
+  const entries: Array<[string, string]> = [];
+  const seen = new Set<string>();
+  for (const [key, value] of url.searchParams.entries()) {
+    if (/^utm_(?:source|medium|campaign|term|content)$/.test(key)) continue;
+    if (!allowed.has(key) || seen.has(key)) return null;
+    seen.add(key);
+    entries.push([key, value]);
+  }
+  entries.sort(([firstKey], [secondKey]) => firstKey.localeCompare(secondKey));
+  const query = new URLSearchParams(entries).toString();
+  return query ? `?${query}` : "";
 }
 
-function homeCacheKey(url: URL) {
-  // The Sites deployment does not permit Workers Cache API access. UPLOADS is
-  // the already-bound R2 bucket and gives this tiny, short-lived document
-  // cache the same shared scope without exposing a visitor-specific key.
-  return `runtime-cache/homepage/v1${url.pathname === "/" ? "/he" : url.pathname}`;
+function publicDocumentTtl(pathname: string) {
+  const path = pathname.replace(/^\/(?:en|ru|fr)(?=\/|$)/, "") || "/";
+  if (path === "/") return 60;
+  if (/^\/(?:admin|account|favorites|booking|handoff|join)(?:\/|$)/.test(path)) return null;
+  if (/^\/(?:business|search|hourly|events|spas|providers|attractions|activities|trails|destinations|guides|questions|corporate|gift-card|contact|accessibility)(?:\/|$)/.test(path)) return 180;
+  if (/^\/(?:vacations|villas|luxury-suites|suite-complexes|vacation-apartments|discover\/place)(?:\/|$)/.test(path)) return 180;
+  if (/^\/legal(?:\/|$)/.test(path)) return 900;
+  return null;
 }
 
-function homeCacheHeaders(response: Response, state: "HIT" | "MISS", expiresAt = Date.now() + homeCacheTtlMs) {
+function publicCachePolicy(request: Request, url: URL): PublicCachePolicy | null {
+  if (request.method !== "GET") return null;
+  if (request.headers.has("Cookie") || request.headers.has("Authorization")) return null;
+  if (request.headers.get("RSC") || request.headers.get("Next-Router-State-Tree")) return null;
+  if (url.pathname === "/api/catalog") {
+    const query = normalizedPublicQuery(url, new Set(["id", "view", "world"]));
+    if (query === null || !url.searchParams.get("world")) return null;
+    return { key: `runtime-cache/public/${publicCacheVersion}/${url.hostname}/data${url.pathname}${query}`, kind: "data", ttlSeconds: 300, home: false };
+  }
+  if (!(request.headers.get("Accept") || "").includes("text/html")) return null;
+  const ttlSeconds = publicDocumentTtl(url.pathname);
+  if (!ttlSeconds) return null;
+  const query = normalizedPublicQuery(url, publicDocumentQueryKeys);
+  if (query === null || query.length > 600) return null;
+  const home = /^\/(?:en|ru|fr)?$/.test(url.pathname);
+  return {
+    key: `runtime-cache/public/${publicCacheVersion}/${url.hostname}/document${url.pathname}${query}`,
+    kind: "document",
+    ttlSeconds,
+    home,
+  };
+}
+
+function publicCacheHeaders(response: Response, policy: PublicCachePolicy, state: "HIT" | "MISS", expiresAt = Date.now() + policy.ttlSeconds * 1000) {
   const headers = new Headers(response.headers);
   headers.delete("content-length");
-  headers.set("Cache-Control", "public, max-age=60, s-maxage=60, stale-while-revalidate=30");
-  headers.set("X-VII-Home-Cache", state);
-  headers.set("X-VII-Home-Cache-Until", String(expiresAt));
+  const browserTtl = Math.min(60, policy.ttlSeconds);
+  headers.set("Cache-Control", `public, max-age=${browserTtl}, s-maxage=${policy.ttlSeconds}, stale-while-revalidate=${Math.min(120, policy.ttlSeconds)}`);
+  headers.set(policy.kind === "document" ? "X-VII-Page-Cache" : "X-VII-Data-Cache", state);
+  headers.set("X-VII-Cache-Until", String(expiresAt));
+  if (policy.home) {
+    headers.set("X-VII-Home-Cache", state);
+    headers.set("X-VII-Home-Cache-Until", String(expiresAt));
+  }
   return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
 }
 
-async function readCachedHome(cacheKey: string, env: Env) {
-  if (!env.UPLOADS) return null;
-  const cached = await env.UPLOADS.get(cacheKey);
+async function readPublicCache(policy: PublicCachePolicy, env: Env | undefined) {
+  if (!env?.UPLOADS) return null;
+  const cached = await env.UPLOADS.get(policy.key);
   if (!cached) return null;
   const expiresAt = Number(cached.customMetadata?.expiresAt);
   if (!Number.isFinite(expiresAt) || expiresAt <= Date.now()) return null;
@@ -52,26 +93,29 @@ async function readCachedHome(cacheKey: string, env: Env) {
     "Content-Type": cached.httpMetadata?.contentType || "text/html; charset=utf-8",
   });
   if (cached.httpMetadata?.contentLanguage === "staging") headers.set("X-Robots-Tag", "noindex");
-  return homeCacheHeaders(new Response(cached.body, {
+  return publicCacheHeaders(new Response(cached.body, {
     headers,
-  }), "HIT", expiresAt);
+  }), policy, "HIT", expiresAt);
 }
 
-function storeCachedHome(response: Response, cacheKey: string | null, env: Env, ctx: ExecutionContext) {
-  if (!cacheKey || !env.UPLOADS || response.status !== 200 || response.headers.has("Set-Cookie")) return response;
-  const cacheable = homeCacheHeaders(response, "MISS");
-  const expiresAt = cacheable.headers.get("X-VII-Home-Cache-Until")!;
+function storePublicCache(response: Response, policy: PublicCachePolicy | null, env: Env | undefined, ctx: ExecutionContext) {
+  if (!policy || !env?.UPLOADS || response.status !== 200 || response.headers.has("Set-Cookie")) return response;
+  const contentType = response.headers.get("Content-Type") || "";
+  if (policy.kind === "document" && !contentType.includes("text/html")) return response;
+  if (policy.kind === "data" && !contentType.includes("application/json")) return response;
+  const cacheable = publicCacheHeaders(response, policy, "MISS");
+  const expiresAt = cacheable.headers.get("X-VII-Cache-Until")!;
   const isStaging = cacheable.headers.get("X-Robots-Tag") === "noindex";
-  // HTMLRewriter emits a stream without a known length. R2 accepts it only
-  // after materializing the small, bounded homepage document.
-  ctx.waitUntil(cacheable.clone().arrayBuffer().then((body) => env.UPLOADS.put(cacheKey, body, {
+  // HTMLRewriter emits a stream without a known length. Materializing the
+  // bounded public response also gives R2 a deterministic content length.
+  ctx.waitUntil(cacheable.clone().arrayBuffer().then((body) => env.UPLOADS.put(policy.key, body, {
     httpMetadata: {
       contentType: cacheable.headers.get("Content-Type") || "text/html; charset=utf-8",
       contentLanguage: isStaging ? "staging" : undefined,
     },
     customMetadata: { expiresAt },
   })).catch((error) => {
-    console.error("VII homepage cache write failed", error);
+    console.error("VII public cache write failed", policy.kind, error);
   }));
   return cacheable;
 }
@@ -201,13 +245,13 @@ const worker = {
       if (legacyDestination) return Response.redirect(new URL(legacyDestination, primary ? primaryOrigin : temporaryOrigin), 308);
     }
 
-    const cacheKey = cacheableHomeRequest(request, url) ? homeCacheKey(url) : null;
-    if (cacheKey) {
+    const cachePolicy = publicCachePolicy(request, url);
+    if (cachePolicy) {
       try {
-        const cached = await readCachedHome(cacheKey, env);
+        const cached = await readPublicCache(cachePolicy, env);
         if (cached) return cached;
       } catch (error) {
-        console.error("VII homepage cache read failed", error);
+        console.error("VII public cache read failed", cachePolicy.kind, error);
       }
     }
 
@@ -243,7 +287,8 @@ const worker = {
         headers.set("Cache-Control", "public, max-age=31536000, immutable");
         return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
       }
-      return withLaunchSeo(response, url, primary);
+      const output = await withLaunchSeo(response, url, primary);
+      return storePublicCache(output, cachePolicy?.kind === "data" ? cachePolicy : null, env, ctx);
     }
 
     const locale = (localeMatch?.[1] || "he") as PublicLocale;
@@ -313,11 +358,11 @@ const worker = {
       }
 
       const transformed = rewriter.transform(response);
-      if (!primary) return storeCachedHome(await withLaunchSeo(transformed, url, false), cacheKey, env, ctx);
+      if (!primary) return storePublicCache(await withLaunchSeo(transformed, url, false), cachePolicy, env, ctx);
       const headers = new Headers(transformed.headers);
       headers.delete("content-length");
       const html = (await transformed.text()).replaceAll(temporaryOrigin, primaryOrigin);
-      return storeCachedHome(new Response(html, { status: transformed.status, statusText: transformed.statusText, headers }), cacheKey, env, ctx);
+      return storePublicCache(new Response(html, { status: transformed.status, statusText: transformed.statusText, headers }), cachePolicy, env, ctx);
     }
 
     // The standalone Vinext production server used by local QA does not
@@ -335,9 +380,9 @@ const worker = {
     const headers = new Headers(response.headers);
     headers.delete("content-length");
     if (!primary) headers.set("X-Robots-Tag", "noindex");
-    return storeCachedHome(new Response(primary ? output.replaceAll(temporaryOrigin, primaryOrigin) : output, {
+    return storePublicCache(new Response(primary ? output.replaceAll(temporaryOrigin, primaryOrigin) : output, {
       status: response.status, statusText: response.statusText, headers,
-    }), cacheKey, env, ctx);
+    }), cachePolicy, env, ctx);
   },
 };
 
