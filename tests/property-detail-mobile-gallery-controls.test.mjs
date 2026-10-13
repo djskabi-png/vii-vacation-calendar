@@ -5,6 +5,7 @@ import ts from "typescript";
 import { createRequire } from "node:module";
 
 const gallery = await readFile(new URL("../app/components/property-gallery.tsx", import.meta.url), "utf8");
+const galleryExperience = await readFile(new URL("../app/components/gallery-experience.tsx", import.meta.url), "utf8");
 const business = await readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8");
 const events = await readFile(new URL("../app/events/place/client-page.tsx", import.meta.url), "utf8");
 const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
@@ -22,6 +23,11 @@ test("place pages share mobile gallery arrows, position dots and touch navigatio
   assert.match(gallery, /aria-live="polite"/);
   assert.match(css, /\.property-gallery button\.property-gallery__mobile-arrow/);
   assert.match(css, /\.property-gallery__mobile-dots i\.is-active/);
+});
+
+test("supplier cover remains first even when a unit gallery repeats it", () => {
+  assert.match(business, /const placeGalleryImages = property\.images;/);
+  assert.match(galleryExperience, /property\.images\.map\(\(src, index\) => index > 0 && unitBySource\.has\(src\)/);
 });
 
 test("desktop gallery remains a five-image composition", () => {
