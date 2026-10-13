@@ -10,6 +10,25 @@ import spaUiTranslations from "../app/data/spa-ui-translations.json";
 import catalogAdminTranslations from "../app/data/catalog-admin-translations.json";
 import { scheduledCatalogWorld } from "../app/lib/supplier-catalog-schedule.ts";
 import { syncSupplierCatalogWorld } from "../app/lib/supplier-catalog-runtime.ts";
+import { legacyPlaceDestination } from "../app/lib/legacy-route-map.ts";
+
+const temporaryOrigin = "https://vii.spaplus.co";
+const primaryOrigin = "https://www.vii.co.il";
+
+function withLaunchSeo(response: Response, url: URL, primary: boolean) {
+  const headers = new Headers(response.headers);
+  if (!primary && url.pathname === "/sitemap.xml") headers.set("X-Robots-Tag", "noindex");
+  const type = headers.get("content-type") || "";
+  if (primary && (url.pathname === "/robots.txt" || url.pathname === "/sitemap.xml") &&
+      (type.includes("text/plain") || type.includes("xml"))) {
+    headers.delete("content-length");
+    return response.text().then((body) => new Response(body.replaceAll(temporaryOrigin, primaryOrigin), {
+      status: response.status, statusText: response.statusText, headers,
+    }));
+  }
+  const body = [204, 205, 304].includes(response.status) ? null : response.body;
+  return Promise.resolve(new Response(body, { status: response.status, statusText: response.statusText, headers }));
+}
 
 type PublicLocale = "he" | "en" | "ru" | "fr";
 type TranslationDictionary = Record<string, string>;
@@ -110,6 +129,14 @@ const worker = {
   },
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
+    const primary = url.hostname === "www.vii.co.il" || url.hostname === "vii.co.il";
+    if (url.hostname === "vii.co.il") {
+      return Response.redirect(`${primaryOrigin}${url.pathname}${url.search}`, 308);
+    }
+    if (request.method === "GET" || request.method === "HEAD") {
+      const legacyDestination = legacyPlaceDestination(url.pathname);
+      if (legacyDestination) return Response.redirect(new URL(legacyDestination, primary ? primaryOrigin : temporaryOrigin), 308);
+    }
 
     if (url.pathname === "/_vinext/image") {
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];
@@ -143,7 +170,7 @@ const worker = {
         headers.set("Cache-Control", "public, max-age=31536000, immutable");
         return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
       }
-      return response;
+      return withLaunchSeo(response, url, primary);
     }
 
     const locale = (localeMatch?.[1] || "he") as PublicLocale;
@@ -154,7 +181,7 @@ const worker = {
       const localizedPath = locale === "he"
         ? basePath
         : `/${locale}${basePathname === "/" ? "" : basePathname}${canonicalUrl.search}`;
-      const publicOrigin = "https://vii.spaplus.co";
+      const publicOrigin = primary ? primaryOrigin : temporaryOrigin;
       const canonical = new URL(localizedPath, publicOrigin).toString();
       const alternatePaths: Record<string, string> = {
         "he-IL": basePath,
@@ -212,7 +239,12 @@ const worker = {
           });
       }
 
-      return rewriter.transform(response);
+      const transformed = rewriter.transform(response);
+      if (!primary) return withLaunchSeo(transformed, url, false);
+      const headers = new Headers(transformed.headers);
+      headers.delete("content-length");
+      const html = (await transformed.text()).replaceAll(temporaryOrigin, primaryOrigin);
+      return new Response(html, { status: transformed.status, statusText: transformed.statusText, headers });
     }
 
     // The standalone Vinext production server used by local QA does not
@@ -226,7 +258,13 @@ const worker = {
         return `<link rel="canonical" href="${links.canonical}">${links.alternates}`;
       },
     );
-    return new Response(translateSeoHtml(rewritten, locale), response);
+    const output = translateSeoHtml(rewritten, locale);
+    const headers = new Headers(response.headers);
+    headers.delete("content-length");
+    if (!primary) headers.set("X-Robots-Tag", "noindex");
+    return new Response(primary ? output.replaceAll(temporaryOrigin, primaryOrigin) : output, {
+      status: response.status, statusText: response.statusText, headers,
+    });
   },
 };
 
