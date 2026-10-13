@@ -167,7 +167,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
   })) || [];
   const recommendationNeedsEnquiry = Boolean(recommendation && (availabilityMode === "inquiry" || recommendation.unitCount > 1));
   const statusSummary = state === "available-price" && !bookingEnabled
-    ? { title: "פנוי ויש מחיר מאומת", text: "לשליחת בקשת הזמנה פנו למקום" }
+    ? { title: "פנוי ויש מחיר", text: "הזמנה לתאריכים האלה נעשית בטלפון מול המקום" }
     : state === "available-price" && recommendation && recommendation.unitCount > 1
     ? { title: "פנוי בהרכב המומלץ", text: availabilityMode === "demo" ? "המחיר והזמינות מוצגים להמחשה בלבד" : "המחיר המאומת כולל את היחידות שבהמלצה" }
     : summary;
@@ -321,6 +321,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
                         {availabilityMode !== "inquiry" && unitNightlyPrice ? <small>{unitNightlyPrice.toLocaleString(numberLocale)} ₪ {unitCopy.perNight}{unitTotalPrice ? ` · ${unitTotalPrice.toLocaleString(numberLocale)} ₪ ${unitCopy.totalStay}` : ""}</small> : <small>{availabilityMode === "inquiry" ? unitCopy.inquiryHint : availabilityStatus === "error" ? unitCopy.errorHint : isAvailable ? unitCopy.confirmPrice : unitCopy.otherDate}</small>}
                       </div>
                     {canBookUnit ? <Link className="button primary vacation-booking-dialog__unit-action" href={unitBookingHref(bookingHref, index, unitNightlyPrice)}>{unitCopy.quick} {translate(room.name)}</Link>
+                        : isAvailable && unitFitsParty && Boolean(unitNightlyPrice) && !bookingEnabled && phoneHref ? <a className="button primary vacation-booking-dialog__unit-action" href={phoneHref}>הזמנה בטלפון</a>
                         : availabilityMode === "inquiry" && ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={`${unitCopy.check} ${translate(room.name)}`} initialDate={from} initialTill={till} initialGuests={guests} buttonLabel={unitCopy.enquire} buttonClassName="button secondary vacation-booking-dialog__unit-action" />
                           : availabilityMode === "inquiry" && phoneHref ? <a className="button secondary vacation-booking-dialog__unit-action" href={phoneHref}>{unitCopy.call}</a>
                             : availabilityStatus === "error" && onRetryAvailability ? <button className="button secondary vacation-booking-dialog__unit-action" type="button" onClick={onRetryAvailability}>{unitCopy.retry}</button>
@@ -348,6 +349,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
               : recommendationNeedsEnquiry && ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={`בדיקת ההרכב המומלץ: ${recommendationNames.map((item) => `${item.quantity} ${translate(item.name)}`).join(", ")}`} initialDate={from} initialTill={till} initialGuests={guests} buttonLabel="פנייה לבדיקת ההרכב" buttonClassName="button primary vacation-booking-dialog__whatsapp" />
               : recommendationNeedsEnquiry && phoneHref ? <a className="button primary" href={phoneHref}>חיוג לבדיקת ההרכב</a>
               : directQuickBooking && !showUnitChoices ? <Link className="button primary" href={bookingHref}>הזמנה מהירה</Link>
+              : state === "available-price" && !bookingEnabled && phoneHref ? <a className="button primary" href={phoneHref}>הזמנה בטלפון</a>
               : showUnitChoices && availableUnitCount > 0 ? <span className="vacation-booking-dialog__unit-guidance">{unitCopy.choose}</span>
               : unavailable || !hasDates ? <button className="button primary" type="button" onClick={openCalendar}>{hasDates ? "שינוי תאריכים" : "בחירת תאריכים"}</button>
                 : ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={bookingEnabled ? "בקשת זמינות" : "בקשת הזמנה"} initialDate={from} initialTill={till} initialGuests={guests} buttonLabel={bookingEnabled ? "בדיקת זמינות" : "פנייה להזמנה"} buttonClassName="button primary vacation-booking-dialog__whatsapp" />

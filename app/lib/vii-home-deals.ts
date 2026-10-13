@@ -11,7 +11,7 @@ export const homeDealPeriods = [
 ] as const;
 
 export type HomeDealPeriod = (typeof homeDealPeriods)[number]["id"];
-export type HomeDeal = { siteID: number; name: string; image: string; city: string; area: string; score: number | null; reviewCount: number; from: string; till: string; total: number; nights: number; roomID?: number };
+export type HomeDeal = { siteID: number; name: string; image: string; city: string; area: string; score: number | null; reviewCount: number; from: string; till: string; total: number; nights: number; roomID?: number; onlineBooking?: boolean };
 
 function israelToday(now: Date) {
   const parts = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Jerusalem", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(now);
@@ -59,6 +59,7 @@ export async function getHomeDeals(options: {
   period: HomeDealPeriod;
   token: string;
   publicSiteIds: ReadonlySet<number>;
+  publicNames?: ReadonlyMap<number, string>;
   now?: Date;
   fetchImpl?: typeof fetch;
 }) {
@@ -71,6 +72,7 @@ export async function getHomeDealsForDates(options: {
   window?: { from: string; till: string };
   token: string;
   publicSiteIds: ReadonlySet<number>;
+  publicNames?: ReadonlyMap<number, string>;
   fetchImpl?: typeof fetch;
 }) {
   if (!options.token) throw new Error("missing_token");
@@ -119,7 +121,7 @@ export async function getHomeDealsForDates(options: {
     const place = places.get(siteID as number);
     const gallery = Array.isArray(place?.galleries) ? record(place.galleries[0]) : {};
     const image = mediaUrl(Array.isArray(gallery.pictures) ? gallery.pictures[0] : null);
-    const name = typeof place?.siteName === "string" ? place.siteName.trim() : "";
+    const name = options.publicNames?.get(siteID as number) || (typeof place?.siteName === "string" ? place.siteName.trim() : "");
     const validStay = options.window
       ? typeof cheapest.from === "string" && typeof cheapest.till === "string"
         && cheapest.from >= options.window.from && cheapest.till <= options.window.till
@@ -134,7 +136,7 @@ export async function getHomeDealsForDates(options: {
     const rooms = Array.isArray(cheapest.rooms) ? cheapest.rooms : [];
     const room = rooms.length === 1 ? record(rooms[0]) : {};
     const roomID = Number.isSafeInteger(room.roomID) && (room.roomID as number) > 0 ? room.roomID as number : undefined;
-    deals.push({ siteID: siteID as number, name, image, city: location?.city || "", area: location?.area || "", score, reviewCount, from: cheapest.from as string, till: cheapest.till as string, total, nights: dates.nights, ...(roomID ? { roomID } : {}) });
+    deals.push({ siteID: siteID as number, name, image, city: location?.city || "", area: location?.area || "", score, reviewCount, from: cheapest.from as string, till: cheapest.till as string, total, nights: dates.nights, ...(roomID ? { roomID } : {}), onlineBooking: result.onlineBooking === true });
   }
   return { dates, checkedAt: typeof search.created === "string" ? search.created : null, deals };
 }

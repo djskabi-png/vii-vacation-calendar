@@ -24,15 +24,15 @@ test("home deals use only supplier-confirmed availability and live totals", asyn
     assert.equal(init.method, "POST");
     assert.deepEqual(JSON.parse(init.body), { from: "2026-10-06", nights: 1, rooms: [{ adults: 2 }] });
     return Response.json({ created: "2026-10-05T20:00:00+03:00", sites: [
-      { siteID: 11, available: true, minTotal: 850, cheapest: { from: "2026-10-06", till: "2026-10-07" } },
+      { siteID: 11, available: true, onlineBooking: false, minTotal: 850, cheapest: { from: "2026-10-06", till: "2026-10-07" } },
       { siteID: 12, available: false, minTotal: 700 },
       { siteID: 13, available: true, minTotal: 900, cheapest: { from: "2026-10-06", till: "2026-10-07" } },
     ] });
   };
-  const result = await getHomeDeals({ period: "tomorrow", now: new Date("2026-10-05T12:00:00Z"), token: "test-token", publicSiteIds: new Set([11, 12]), fetchImpl });
+  const result = await getHomeDeals({ period: "tomorrow", now: new Date("2026-10-05T12:00:00Z"), token: "test-token", publicSiteIds: new Set([11, 12]), publicNames: new Map([[11, "שם עמוד המקום"]]), fetchImpl });
   assert.equal(result.period, "tomorrow");
   assert.equal(requested.length, 3);
-  assert.deepEqual(result.deals, [{ siteID: 11, name: "הילת הנוף", image: "https://www.vii.co.il/gallery/hilat.jpg", city: "כלנית", area: "כנרת", score: 9.9, reviewCount: 182, from: "2026-10-06", till: "2026-10-07", total: 850, nights: 1 }]);
+  assert.deepEqual(result.deals, [{ siteID: 11, name: "שם עמוד המקום", image: "https://www.vii.co.il/gallery/hilat.jpg", city: "כלנית", area: "כנרת", score: 9.9, reviewCount: 182, from: "2026-10-06", till: "2026-10-07", total: 850, nights: 1, onlineBooking: false }]);
 });
 
 test("catalog placeholder ratings never override real site reviews", async () => {

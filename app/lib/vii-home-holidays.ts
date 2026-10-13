@@ -52,7 +52,7 @@ export async function getHomeHolidays(options: { token: string; now?: Date; fetc
 }
 
 export async function getHomeHolidayDeals(options: {
-  id: number; token: string; publicSiteIds: ReadonlySet<number>; now?: Date; fetchImpl?: typeof fetch; from?: string; till?: string;
+  id: number; token: string; publicSiteIds: ReadonlySet<number>; publicNames?: ReadonlyMap<number, string>; now?: Date; fetchImpl?: typeof fetch; from?: string; till?: string;
 }) {
   const holidays = await getHomeHolidays(options);
   const holiday = holidays.find((item) => item.id === options.id);
