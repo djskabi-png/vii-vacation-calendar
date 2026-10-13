@@ -247,6 +247,18 @@ export async function readSupplierCatalogEntry(db: D1Database, world: SupplierCa
     detail: row.detailJson ? JSON.parse(row.detailJson) : null };
 }
 
+export async function readSupplierCatalogDetails(db: D1Database, world: Extract<SupplierCatalogWorld, "vacations" | "events">, supplierIds: readonly number[]) {
+  const ids = [...new Set(supplierIds)].filter((supplierId) => Number.isSafeInteger(supplierId) && supplierId > 0);
+  if (!ids.length) return new Map<number, unknown>();
+  const placeholders = ids.map(() => "?").join(", ");
+  const rows = await db.prepare(`SELECT e.supplier_id AS supplierId, e.detail_json AS detailJson
+    FROM supplier_catalog_state s
+    JOIN supplier_catalog_entries e ON e.run_id = s.active_run_id AND e.world = s.world
+    WHERE s.world = ? AND e.supplier_id IN (${placeholders})`)
+    .bind(world, ...ids).all<{ supplierId: number; detailJson: string | null }>();
+  return new Map(rows.results.map((row) => [row.supplierId, row.detailJson ? JSON.parse(row.detailJson) : null]));
+}
+
 export async function readSupplierCatalogState(db: D1Database, world: SupplierCatalogWorld) {
   if (!validWorld(world)) return null;
   return db.prepare(`SELECT active_run_id AS activeRunId, active_count AS activeCount,

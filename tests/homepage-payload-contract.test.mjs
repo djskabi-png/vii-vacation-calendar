@@ -6,7 +6,9 @@ const page = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
 const showcase = readFileSync(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8");
 
 test("homepage sends only slider data to its hydrated showcase", () => {
-  assert.match(page, /properties\.map\(\(\{ slug, name, location, area, image, videos \}\) =>/);
+  assert.match(page, /function homeShowcaseProperties\(properties: Property\[\]\)/);
+  assert.match(page, /return \[\.\.\.selected\.values\(\)\]\.map\(\(\{ slug, name, location, area, image, videos \}\) =>/);
+  assert.doesNotMatch(page, /const showcaseProperties = properties\.map/);
   assert.match(page, /"home-events"\)\.slice\(0, 5\)/);
   assert.match(page, /"home-spa"\)\.slice\(0, 7\)/);
   assert.match(page, /<HomeShowcase properties=\{showcaseProperties\} eventPlaces=\{showcaseEvents\}/);

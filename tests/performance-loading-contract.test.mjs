@@ -59,4 +59,6 @@ test("home cards receive only their featured world previews", async () => {
   assert.doesNotMatch(home, /import \{ paidAttractions, providerProfiles/);
   assert.match(page, /providerPreview=\{providerProfiles\[0\]\}/);
   assert.match(page, /attractionPreview=\{paidAttractions\[0\]\}/);
+  assert.match(page, /function homeShowcaseProperties\(properties: Property\[\]\)/);
+  assert.doesNotMatch(page, /const showcaseProperties = properties\.map/);
 });

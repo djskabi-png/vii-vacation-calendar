@@ -5,7 +5,7 @@ import sergeyDetails from "../data/sergey-place-details.json" with { type: "json
 import { supplierDisplayDescription } from "../data/supplier-display-text.ts";
 import { projectSpaViiSite } from "./spa-editorial-policy.ts";
 import type { SpaPlusSite } from "../data/spaplus";
-import { readSupplierCatalogEntry, readSupplierCatalogState, readSupplierCatalogSummaries, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
+import { readSupplierCatalogDetails, readSupplierCatalogEntry, readSupplierCatalogState, readSupplierCatalogSummaries, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
 import { runtimeCatalogDatabase } from "./published-supplier-ids.ts";
 
 const catalogCache = new Map<SupplierCatalogWorld, { runId: string; expiresAt: number; items: Promise<unknown[]> }>();
@@ -56,4 +56,18 @@ export async function publicCatalogDetail<T>(world: "vacations" | "events", supp
   if (!state?.activeRunId) return bundledDetail;
   const entry = await readSupplierCatalogEntry(db, world, supplierId);
   return (entry?.detail as T | null) || null;
+}
+
+export async function publicCatalogDetails<T>(world: "vacations" | "events", supplierIds: readonly number[]): Promise<Map<number, T | null>> {
+  const ids = [...new Set(supplierIds)].filter((supplierId) => Number.isSafeInteger(supplierId) && supplierId > 0);
+  const fallback = new Map(ids.map((supplierId) => {
+    const slug = `${world === "vacations" ? "vacation" : "event"}-${supplierId}`;
+    return [supplierId, ((sergeyDetails.details as unknown as Record<string, T>)[slug] || null) as T | null];
+  }));
+  const db = await runtimeCatalogDatabase();
+  if (!db) return fallback;
+  const state = await readSupplierCatalogState(db, world);
+  if (!state?.activeRunId) return fallback;
+  const details = await readSupplierCatalogDetails(db, world, ids);
+  return new Map(ids.map((supplierId) => [supplierId, (details.get(supplierId) as T | null) || null]));
 }

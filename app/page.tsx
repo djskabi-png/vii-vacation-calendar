@@ -12,7 +12,7 @@ import type { EventPlace, Property } from "./data/site-data";
 import { hourlyPlacesFromCatalog, paidAttractions, providerProfiles, spaPlacesFromSites } from "./data/world-data";
 import type { SpaPlusSite } from "./data/spaplus";
 import hourlyCatalog from "./data/sergey-hourly-catalog.json";
-import { publicCatalogDetail, publicCatalogSummaries } from "./lib/public-catalog-read.ts";
+import { publicCatalogDetails, publicCatalogSummaries } from "./lib/public-catalog-read.ts";
 import { dailyRotationCompare, rotateDaily, rotateWithinTiers } from "./lib/daily-rotation";
 import { GiftIcon, PeopleIcon } from "./site-header";
 
@@ -28,13 +28,39 @@ async function homeRatedPlaces(properties: Property[]): Promise<HomeRatedPlace[]
     .filter((place) => place.image && Number(place.score) > 0 && Number(place.reviews) >= 5 && /^vacation-\d+$/.test(place.slug))
     .sort((a, b) => Number(b.score) - Number(a.score) || dailyRotationCompare(a.slug, b.slug, "home-reviews"))
     .slice(0, 14);
-  const withReviews = await Promise.all(candidates.map(async (place) => {
+  const details = await publicCatalogDetails<SupplierReviewDetail>("vacations", candidates.map((place) => Number(place.slug.slice("vacation-".length))));
+  const withReviews = candidates.map((place) => {
     const supplierId = Number(place.slug.slice("vacation-".length));
-    const detail = await publicCatalogDetail<SupplierReviewDetail>("vacations", supplierId);
+    const detail = details.get(supplierId);
     const review = detail?.reviews?.find((entry) => typeof entry.text === "string" && entry.text.trim().length >= 30);
     return review ? { place, reviewText: review.text!.trim(), reviewAuthor: review.author?.trim() || "אורח", reviewDate: review.date || "" } : null;
-  }));
+  });
   return withReviews.filter((entry): entry is HomeRatedPlace => entry !== null).slice(0, 7);
+}
+
+const destinationMatchers = [
+  (area: string, location: string) => /גליל|גולן/.test(area) && location !== "",
+  (area: string) => /כנרת/.test(area),
+  (area: string) => /ירושלים|יהודה/.test(area),
+  (area: string) => /מישור החוף|שרון|מרכז/.test(area),
+  (area: string, location: string) => /נגב|דרום|ערבה/.test(area) && location !== "אילת",
+  (_area: string, location: string) => location === "אילת",
+];
+
+function homeShowcaseProperties(properties: Property[]) {
+  const destinationCandidates = rotateDaily(properties.filter((place) => place.image), (place) => place.slug, "home-destination-images");
+  const usedImages = new Set<string>();
+  const destinationPlaces = destinationMatchers.map((matches) => {
+    const candidates = destinationCandidates.filter((place) => matches(place.area, place.location));
+    const place = candidates.find((candidate) => !usedImages.has(candidate.image)) || candidates[0];
+    if (place?.image) usedImages.add(place.image);
+    return place;
+  }).filter((place): place is Property => Boolean(place));
+  const tourPlaces = rotateDaily(properties.filter((place) => place.videos?.length), (place) => place.slug, "home-tours")
+    .flatMap((place) => (place.videos || []).map(() => place)).slice(0, 7);
+  const selected = new Map<string, Property>();
+  [...destinationPlaces, ...tourPlaces].forEach((place) => selected.set(place.slug, place));
+  return [...selected.values()].map(({ slug, name, location, area, image, videos }) => ({ slug, name, location, area, image, videos }));
 }
 
 export default async function HomePage() {
@@ -45,8 +71,7 @@ export default async function HomePage() {
     publicCatalogSummaries<(typeof hourlyCatalog.places)[number]>("rooms"),
   ]);
   const ratedPlaces = await homeRatedPlaces(properties);
-  const showcaseProperties = properties.map(({ slug, name, location, area, image, videos }) =>
-    ({ slug, name, location, area, image, videos }));
+  const showcaseProperties = homeShowcaseProperties(properties);
   const showcaseEvents = rotateDaily(eventPlaces.filter((place) => place.image),
     (place) => place.slug, "home-events").slice(0, 5);
   const showcaseSpas = rotateWithinTiers(spaPlacesFromSites(spaSites),
