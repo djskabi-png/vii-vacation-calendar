@@ -27,30 +27,50 @@ function cacheableHomeRequest(request: Request, url: URL) {
 }
 
 function homeCacheKey(url: URL) {
-  return new Request(url.toString(), { method: "GET" });
+  // The Sites deployment does not permit Workers Cache API access. UPLOADS is
+  // the already-bound R2 bucket and gives this tiny, short-lived document
+  // cache the same shared scope without exposing a visitor-specific key.
+  return `runtime-cache/homepage/v1${url.pathname === "/" ? "/he" : url.pathname}`;
 }
 
-function homeCacheHeaders(response: Response, state: "HIT" | "MISS") {
+function homeCacheHeaders(response: Response, state: "HIT" | "MISS", expiresAt = Date.now() + homeCacheTtlMs) {
   const headers = new Headers(response.headers);
   headers.delete("content-length");
   headers.set("Cache-Control", "public, max-age=60, s-maxage=60, stale-while-revalidate=30");
   headers.set("X-VII-Home-Cache", state);
-  headers.set("X-VII-Home-Cache-Until", String(Date.now() + homeCacheTtlMs));
+  headers.set("X-VII-Home-Cache-Until", String(expiresAt));
   return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
 }
 
-async function readCachedHome(cacheKey: Request) {
-  const cached = await caches.default.match(cacheKey);
+async function readCachedHome(cacheKey: string, env: Env) {
+  if (!env.UPLOADS) return null;
+  const cached = await env.UPLOADS.get(cacheKey);
   if (!cached) return null;
-  const expiresAt = Number(cached.headers.get("X-VII-Home-Cache-Until"));
+  const expiresAt = Number(cached.customMetadata?.expiresAt);
   if (!Number.isFinite(expiresAt) || expiresAt <= Date.now()) return null;
-  return homeCacheHeaders(cached, "HIT");
+  const headers = new Headers({
+    "Content-Type": cached.httpMetadata?.contentType || "text/html; charset=utf-8",
+  });
+  if (cached.httpMetadata?.contentLanguage === "staging") headers.set("X-Robots-Tag", "noindex");
+  return homeCacheHeaders(new Response(cached.body, {
+    headers,
+  }), "HIT", expiresAt);
 }
 
-function storeCachedHome(response: Response, cacheKey: Request | null, ctx: ExecutionContext) {
-  if (!cacheKey || response.status !== 200 || response.headers.has("Set-Cookie")) return response;
+function storeCachedHome(response: Response, cacheKey: string | null, env: Env, ctx: ExecutionContext) {
+  if (!cacheKey || !env.UPLOADS || response.status !== 200 || response.headers.has("Set-Cookie")) return response;
   const cacheable = homeCacheHeaders(response, "MISS");
-  ctx.waitUntil(caches.default.put(cacheKey, cacheable.clone()).catch((error) => {
+  const expiresAt = cacheable.headers.get("X-VII-Home-Cache-Until")!;
+  const isStaging = cacheable.headers.get("X-Robots-Tag") === "noindex";
+  // HTMLRewriter emits a stream without a known length. R2 accepts it only
+  // after materializing the small, bounded homepage document.
+  ctx.waitUntil(cacheable.clone().arrayBuffer().then((body) => env.UPLOADS.put(cacheKey, body, {
+    httpMetadata: {
+      contentType: cacheable.headers.get("Content-Type") || "text/html; charset=utf-8",
+      contentLanguage: isStaging ? "staging" : undefined,
+    },
+    customMetadata: { expiresAt },
+  })).catch((error) => {
     console.error("VII homepage cache write failed", error);
   }));
   return cacheable;
@@ -184,7 +204,7 @@ const worker = {
     const cacheKey = cacheableHomeRequest(request, url) ? homeCacheKey(url) : null;
     if (cacheKey) {
       try {
-        const cached = await readCachedHome(cacheKey);
+        const cached = await readCachedHome(cacheKey, env);
         if (cached) return cached;
       } catch (error) {
         console.error("VII homepage cache read failed", error);
@@ -293,11 +313,11 @@ const worker = {
       }
 
       const transformed = rewriter.transform(response);
-      if (!primary) return storeCachedHome(await withLaunchSeo(transformed, url, false), cacheKey, ctx);
+      if (!primary) return storeCachedHome(await withLaunchSeo(transformed, url, false), cacheKey, env, ctx);
       const headers = new Headers(transformed.headers);
       headers.delete("content-length");
       const html = (await transformed.text()).replaceAll(temporaryOrigin, primaryOrigin);
-      return storeCachedHome(new Response(html, { status: transformed.status, statusText: transformed.statusText, headers }), cacheKey, ctx);
+      return storeCachedHome(new Response(html, { status: transformed.status, statusText: transformed.statusText, headers }), cacheKey, env, ctx);
     }
 
     // The standalone Vinext production server used by local QA does not
@@ -317,7 +337,7 @@ const worker = {
     if (!primary) headers.set("X-Robots-Tag", "noindex");
     return storeCachedHome(new Response(primary ? output.replaceAll(temporaryOrigin, primaryOrigin) : output, {
       status: response.status, statusText: response.statusText, headers,
-    }), cacheKey, ctx);
+    }), cacheKey, env, ctx);
   },
 };
 
