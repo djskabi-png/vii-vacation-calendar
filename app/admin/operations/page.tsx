@@ -53,6 +53,10 @@ export default function OperationsPage() {
       <input id="operation-query" value={query} onChange={(event) => setQuery(event.target.value)} style={{ minWidth: 240 }} />
       <button type="submit" disabled={loading}>חיפוש</button>
     </form>
+    {report && !loading && !forbidden && !error ? <aside aria-label="בדיקה ידנית קודמת" style={{ borderInlineStart: "3px solid #167b78", paddingInlineStart: 14, marginBlock: 20 }}>
+      <strong>בדיקה ידנית, 13.10.2026</strong>
+      <p>אדיר אישר שהזמנת הבדיקה וחוות הדעת הגיעו לספק. לא נמסרו מזהי הרשומות, ולכן האישור אינו משויך לשורות היומן ואינו מחליף בדיקת מסירה לכל פעולה חדשה.</p>
+    </aside> : null}
     {loading ? <p role="status">טוענים נתונים...</p> : error ? <div><p role="alert">{error}</p>{forbidden ? <a href="/api/auth/google?returnTo=%2Fadmin%2Foperations">כניסה עם Google</a> : null}</div> : report ? <>
       <section aria-labelledby="bookings-title"><h2 id="bookings-title">בקשות הזמנה</h2>
         <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse", textAlign: "right" }}><thead><tr>

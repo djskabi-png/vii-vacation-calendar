@@ -28,6 +28,7 @@ test("operations report distinguishes supplier receipt, lead acceptance and loca
   assert.match(leads, /status: "lead_service_accepted"/);
   assert.match(page, /מסירה לספק לא אומתה/);
   assert.match(page, /אין ביומן הזה אישור מסירה לספק/);
+  assert.match(page, /לא נמסרו מזהי הרשומות/);
   assert.match(reviews, /VII_ADMIN_EMAILS/);
   assert.doesNotMatch(reviews, /user_email|visitor_phone/);
 });

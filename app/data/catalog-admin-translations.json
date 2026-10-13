@@ -143,5 +143,8 @@
   "לא נמצאו בקשות הזמנה.": {"en": "No booking requests found.", "ru": "Запросы на бронирование не найдены.", "fr": "Aucune demande de réservation trouvée."},
   "לא נמצאו חוות דעת.": {"en": "No reviews found.", "ru": "Отзывы не найдены.", "fr": "Aucun avis trouvé."},
   "עוד רשומות": {"en": "More records", "ru": "Еще записи", "fr": "Plus d'entrées"},
-  "מסכי ניהול": {"en": "Administration pages", "ru": "Страницы управления", "fr": "Pages d'administration"}
+  "מסכי ניהול": {"en": "Administration pages", "ru": "Страницы управления", "fr": "Pages d'administration"},
+  "בדיקה ידנית קודמת": {"en": "Previous manual check", "ru": "Предыдущая ручная проверка", "fr": "Vérification manuelle précédente"},
+  "בדיקה ידנית, 13.10.2026": {"en": "Manual check, 13 October 2026", "ru": "Ручная проверка, 13 октября 2026 г.", "fr": "Vérification manuelle, 13 octobre 2026"},
+  "אדיר אישר שהזמנת הבדיקה וחוות הדעת הגיעו לספק. לא נמסרו מזהי הרשומות, ולכן האישור אינו משויך לשורות היומן ואינו מחליף בדיקת מסירה לכל פעולה חדשה.": {"en": "Adir confirmed that the test booking and review reached the supplier. Record IDs were not provided, so this confirmation is not linked to the log and does not replace delivery checks for new actions.", "ru": "Адир подтвердил, что тестовое бронирование и отзыв дошли до поставщика. Номера записей не предоставлены, поэтому подтверждение не связано с журналом и не заменяет проверку доставки новых действий.", "fr": "Adir a confirmé que la réservation et l'avis de test sont parvenus au fournisseur. Aucun identifiant n'a été fourni ; cette confirmation n'est donc pas liée au journal et ne remplace pas la vérification des nouveaux envois."}
 }
