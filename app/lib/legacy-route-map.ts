@@ -21,6 +21,11 @@ for (const place of supplierCatalog.places) {
 }
 for (const place of hourlyCatalog.places) add(place.sourceUrl, `/discover/place/${place.id}`);
 
+// Retain the verified pre-refresh URL after the supplier renamed its current slug.
+if (hourlyCatalog.places.some((place) => place.id === "hourly-1915")) {
+  add("https://www.vii.co.il/rooms/ascape_room", "/discover/place/hourly-1915");
+}
+
 export function legacyPlaceDestination(pathname: string) {
   return destinations.get(pathname.toLowerCase().replace(/\/$/, "") || "/") || null;
 }

@@ -7,6 +7,7 @@ test("known legacy place paths map directly to equivalent new detail pages", () 
   assert.equal(legacyPlaceDestination("/Azulat_Anof"), "/business?id=vacation-1");
   assert.equal(legacyPlaceDestination("/events/Enrico_Events"), "/events/place/event-2684");
   assert.equal(legacyPlaceDestination("/rooms/ascape_room"), "/discover/place/hourly-1915");
+  assert.equal(legacyPlaceDestination("/rooms/ascape_love"), "/discover/place/hourly-1915");
   assert.equal(legacyPlaceDestination("/unverified-place"), null);
 });
 

@@ -10,8 +10,8 @@ const card = await readFile(new URL("app/components/discovery-card.tsx", root), 
 
 test("hourly discovery uses every imported supplier place and no old local inventory", () => {
   assert.equal(catalog.source, "sergey-vii-api/rooms");
-  assert.equal(catalog.places.length, 4);
-  assert.equal(new Set(catalog.places.map((place) => place.id)).size, 4);
+  assert.equal(catalog.places.length, 24);
+  assert.equal(new Set(catalog.places.map((place) => place.id)).size, 24);
   assert.match(worldData, /hourlyPlaces: DiscoveryItem\[\] = hourlyPlacesFromCatalog\(hourlyCatalog\.places\)/);
   assert.doesNotMatch(worldData, /curatedHourlyPlaces|verifiedDiscoveryItems\("hourly"\)/);
 });
@@ -28,7 +28,7 @@ test("hourly prices retain duration and weekday/weekend source distinction", () 
 
 test("supplier places without photos or rooms remain visible without invented content", () => {
   const incomplete = catalog.places.filter((place) => !place.images.length || !place.rooms.length);
-  assert.equal(incomplete.length, 2);
+  assert.deepEqual(incomplete.map((place) => place.supplierId), [2716]);
   assert.ok(incomplete.every((place) => !place.rooms.length && !place.images.length));
   assert.match(card, /item\.world !== "hourly"/);
   assert.match(card, /לא נמסרה תמונה ב־API/);

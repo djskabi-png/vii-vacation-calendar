@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createSergeyPublicCatalogClient } from "../app/lib/sergey-public-catalog-client.ts";
 
-function client(override = {}) {
+function client(override = {}, extraPlace = false) {
   const pictures = Array.from({ length: 14 }, (_, index) => `/gallery/photo-${index}.jpg`);
   const detail = {
     id: 17, active: true, name: "מתחם בדיקה", location: { city: 1 },
@@ -18,8 +18,9 @@ function client(override = {}) {
     assert.equal(options.headers.Authorization, "Bearer test-key");
     const path = new URL(url).pathname.replace("/api/ai/vii", "");
     if (path === "/locations") return Response.json({ cities: [{ id: 1, title: "חיפה", area: 2 }], areas: [{ id: 2, title: "חיפה והקריות" }] });
-    if (path === "/vacations") return Response.json({ places: [{ siteID: 17, active: true }] });
+    if (path === "/vacations") return Response.json({ places: [{ siteID: 17, active: true }, ...(extraPlace ? [{ siteID: 18, active: true }] : [])] });
     if (path === "/vacations/17") return Response.json(detail);
+    if (path === "/vacations/18") return Response.json({ ...detail, id: 18, galleries: { main: { title: "סוויטה", pictures } } });
     return new Response("", { status: 404 });
   };
   return createSergeyPublicCatalogClient({ apiKey: "test-key", fetchImpl });
@@ -42,3 +43,9 @@ test("rejects inactive or mismatched place details", async () => {
   await assert.rejects(() => client({ id: 18 }).fetchCandidate("vacations"), /invalid_sergey_place/);
   await assert.rejects(() => client({ active: false }).fetchCandidate("vacations"), /invalid_sergey_place/);
 });
+
+test("withholds a place without photos without discarding the rest of the catalog", async () => {
+  const result = await client({ galleries: [] }, true).fetchCandidate("vacations");
+  assert.deepEqual(result.entries.map((entry) => entry.supplierId), [18]);
+});
+
