@@ -175,6 +175,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
       description: supplierDetail.summary || base.description,
       roomOptions: supplierDetail.rooms.map((room) => ({ name: room.name, quantity: room.quantity, guests: room.guests,
         bedrooms: room.bedrooms, image: room.images?.[0] || "", images: room.images || [], features: room.features,
+        featureGroups: room.featureGroups,
         ...(room.id ? { supplierRoomID: room.id } : {}) })),
       features: [...new Set([...(supplierDetail.highlights || []), ...base.features, ...supplierDetail.rooms.flatMap((room) => room.features)])] } : base;
   }, [initialProperty, initialSlug, supplierDetail]);
@@ -230,11 +231,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
   const highlights = (property.highlights?.length ? property.highlights : property.features.map((label) => ({ label, icon: highlightIconFor(label) }))).slice(0, 5);
   const featureGroups = property.featureGroups?.length ? property.featureGroups : derivedFeatureGroups(property.features);
   const mobileFeaturePreview = featureGroups.flatMap((group) => group.items).slice(0, 4);
-  const placeGalleryImages = useMemo(() => {
-    const unitSources = new Set((property.roomOptions || []).flatMap((room) => room.images?.length ? room.images : [room.image]));
-    const images = property.images.filter((image) => !unitSources.has(image));
-    return images.length ? images : property.images;
-  }, [property]);
+  const placeGalleryImages = property.images;
   const complements = useMemo(() => complementaryItems(property.area, property.location, property.lat, property.lng), [property.area, property.location, property.lat, property.lng]);
   const localTrails = useMemo(() => nearbyTrails(property.area, property.location, 6), [property.area, property.location]);
   const regionalVacationLanding = useMemo(() => vacationBreadcrumbForLocation(property.area), [property.area]);
@@ -474,3 +471,4 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
     </PageShell>
   );
 }
+

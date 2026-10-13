@@ -4,6 +4,7 @@ import { supplierDisplayDescription } from "./supplier-display-text.ts";
 import catalog from "./sergey-public-catalog.json" with { type: "json" };
 import { unknownReviewer } from "../i18n/vii-live-search-copy.ts";
 import { supplierContactNumber } from "../lib/supplier-contact.ts";
+import { sergeyPlaceImages, sergeyRoomImages, sergeyRoomFeatureGroups } from "../lib/sergey-gallery.ts";
 
 export type SupplierPlaceDetail = {
   name?: string;
@@ -19,7 +20,7 @@ export type SupplierPlaceDetail = {
   images: string[];
   summary: string;
   policy: { checkIn: string; checkOut: string; checkOutSat: string; remarks: string };
-  rooms: Array<{ id?: number; name: string; quantity: number; guests: number; bedrooms: number; features: string[]; images?: string[] }>;
+  rooms: Array<{ id?: number; name: string; quantity: number; guests: number; bedrooms: number; features: string[]; featureGroups?: Array<{ title: string; items: string[] }>; images?: string[] }>;
   reviews: Array<{ id: number; author: string; title: string; text: string; date: string; score?: number; response: string; pictureFiles: string[] }>;
   sourceUrl: string;
   reviewCount?: number;
@@ -36,14 +37,6 @@ function record(value: unknown): Record<string, unknown> {
 
 function plain(value: unknown) {
   return typeof value === "string" ? value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() : "";
-}
-
-function supplierMedia(value: unknown) {
-  if (typeof value !== "string") return null;
-  try {
-    const url = new URL(value, "https://www.vii.co.il");
-    return url.protocol === "https:" && ["www.vii.co.il", "vii.co.il"].includes(url.hostname) ? url.href : null;
-  } catch { return null; }
 }
 
 export async function liveSupplierPlaceDetail(slug: string, options: { token?: string; fetchImpl?: typeof fetch;
@@ -66,12 +59,7 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
     if (!response.ok) return fallback;
     const detail = record(await response.json());
     if (detail.active !== true || detail.id !== Number(match[2])) return fallback;
-    const galleries = record(detail.galleries);
-    const groups = Array.isArray(detail.galleries) ? detail.galleries : Object.values(galleries);
-    const images = [...new Set(groups.flatMap((group) => {
-      const pictures = record(group).pictures;
-      return Array.isArray(pictures) ? pictures.map(supplierMedia).filter((value): value is string => Boolean(value)) : [];
-    }))];
+    const images = sergeyPlaceImages(detail.galleries);
     if (!images.length) return fallback;
     const policy = record(detail.policy);
     const reviews = record(detail.reviews);
@@ -111,10 +99,7 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
         const spaces = Array.isArray(room.spaces) ? room.spaces : [];
         const roomName = typeof room.roomName === "string" ? room.roomName.trim() : "";
         const verifiedRoomID = Number.isSafeInteger(room.roomID) && (room.roomID as number) > 0 ? room.roomID as number : undefined;
-        const roomImages = verifiedRoomID ? [...new Set(groups.filter((group) => record(group).title === roomName).flatMap((group) => {
-          const pictures = record(group).pictures;
-          return Array.isArray(pictures) ? pictures.map(supplierMedia).filter((url): url is string => Boolean(url)) : [];
-        }))] : [];
+        const roomImages = verifiedRoomID ? sergeyRoomImages(room, detail.galleries) : [];
         return {
           ...(verifiedRoomID ? { id: verifiedRoomID } : {}),
           name: roomName || "יחידת אירוח",
@@ -125,6 +110,7 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
             const features = record(value).features;
             return Array.isArray(features) ? features.map((feature) => plain(record(feature).description)).filter(Boolean) : [];
           }))],
+          featureGroups: sergeyRoomFeatureGroups(room),
           images: roomImages,
         };
       }),
@@ -151,3 +137,4 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
     return fallback;
   }
 }
+
