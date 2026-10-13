@@ -39,6 +39,7 @@ export type SelectedStay = { from: string; till: string; guests?: number };
 type DemoAvailabilityKind = "available-price" | "price-only" | "available-no-price" | "no-data" | "unavailable" | "unavailable-alternatives" | "unavailable-price";
 export type ResolvedAvailability = ListingDateQuote & {
   showSelectedDates: boolean;
+  onlineBooking?: boolean;
   alternatives?: Array<{ from: string; till: string; nightlyPrice: number }>;
   illustrative?: boolean;
   units?: Array<{
@@ -351,6 +352,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
             <div className="stay-card__selected-dates"><small>{copy.searchedDates}</small><span>{localizedDate(resolvedAvailability.from, language)} <small>{copy.to}</small> {localizedDate(resolvedAvailability.till, language)}</span></div>
             <span className="stay-card__availability-group"><strong className={`stay-card__availability stay-card__availability--${resolvedAvailability.availability}`}>{copy.availability[resolvedAvailability.availability]}</strong>{resolvedAvailability.minimumNights && resolvedAvailability.minimumNights > 1 ? <small>{copy.minimumNights(resolvedAvailability.minimumNights)}</small> : null}</span>
           </div>
+          {resolvedAvailability.availability === "available" && typeof resolvedAvailability.onlineBooking === "boolean" ? <small>{resolvedAvailability.onlineBooking ? { he: "אפשר להזמין באתר", en: "Book online", ru: "Бронирование на сайте", fr: "Réservation en ligne" }[language] : { he: "להזמנה מתקשרים למקום", en: "Call the property to book", ru: "Для бронирования позвоните", fr: "Réservation par téléphone" }[language]}</small> : null}
           {resolvedAvailability.alternatives?.length ? <div className="stay-card__alternatives">
             <strong>{demoScenarioCopy[language].alternatives}</strong>
             <div>{resolvedAvailability.alternatives.map((alternative) => <span key={alternative.from}><small>{localizedDate(alternative.from, language)} {copy.to} {localizedDate(alternative.till, language)}</small><b><PriceValue amount={alternative.nightlyPrice.toLocaleString()} language={language} /></b></span>)}</div>

@@ -107,6 +107,7 @@ export default function BookingPageClient(props: Props) {
   const liveBookingReady = liveAvailability.quote?.availability === "available" && liveNightlyPrice > 0 && (selectedUnitIndex === null || liveUnitQuote?.availability === "available");
   const supplierBookingReady = Boolean(supplierSiteID && supplierQuote.status === "ready" && supplierQuote.roomIDs.length === 1 && supplierQuote.quote?.availability === "available"
     && supplierQuote.quote.nightlyPrice && supplierQuote.onlineBooking && props.supplierRoomVerified && props.supplierRoomID && supplierQuote.roomIDs.includes(props.supplierRoomID));
+  const supplierPhoneOnly = Boolean(supplierSiteID && supplierQuote.status === "ready" && supplierQuote.quote?.availability === "available" && supplierQuote.quote.nightlyPrice && !supplierQuote.onlineBooking);
   const onlineReady = props.world !== "vacation" || (supplierSiteID ? supplierBookingReady : liveSourceEnabled ? liveBookingReady : Boolean(props.onlineReady));
   const usesSpaPayment = props.world === "spa" && !isManage;
   const localizedOfferIncludes = props.offerIncludes?.map((item) => translate(item));
@@ -357,8 +358,8 @@ export default function BookingPageClient(props: Props) {
     {bookingReturnNavigation}
     <section className="booking-unavailable" aria-labelledby="booking-phone-title">
       <span className="eyebrow">הזמנה בטלפון</span>
-      <h1 id="booking-phone-title">{supplierSiteID || liveSourceEnabled ? "התאריכים או היחידה כבר אינם זמינים להזמנה מהירה" : "חסר תאריך או מחיר להזמנה מקוונת"}</h1>
-      <p>{supplierSiteID || liveSourceEnabled ? "לא המשכנו עם המחיר שהיה בקישור. אפשר לחזור למקום, לבחור תאריך אחר או לפנות אליו ישירות." : "כדי לא להציג הזמנה חלקית, ממשיכים בשיחה ישירה עם המקום. לאחר חיבור המערכת נתוני התאריך והמחיר יגיעו אוטומטית."}</p>
+      <h1 id="booking-phone-title">{supplierPhoneOnly ? "התאריכים פנויים, ההזמנה בטלפון" : supplierSiteID || liveSourceEnabled ? "התאריכים או היחידה כבר אינם זמינים להזמנה מהירה" : "חסר תאריך או מחיר להזמנה מקוונת"}</h1>
+      <p>{supplierPhoneOnly ? `המחיר שנבדק כעת הוא ${supplierQuote.quote!.nightlyPrice!.toLocaleString("he-IL")} ₪ ללילה. המקום אינו מקבל הזמנות אונליין; התקשרו כדי להשלים את ההזמנה.` : supplierSiteID || liveSourceEnabled ? "לא המשכנו עם המחיר שהיה בקישור. אפשר לחזור למקום, לבחור תאריך אחר או לפנות אליו ישירות." : "כדי לא להציג הזמנה חלקית, ממשיכים בשיחה ישירה עם המקום. לאחר חיבור המערכת נתוני התאריך והמחיר יגיעו אוטומטית."}</p>
       {props.phone ? phoneRevealed ? <a className="phone-reveal phone-reveal--visible" href={`tel:${props.phone.replace(/[^\d+]/g, "")}`}><span>לחיוג עכשיו</span><strong dir="ltr">{props.phone}</strong></a> : <button className="phone-reveal" type="button" onClick={() => setPhoneRevealed(true)} aria-expanded={phoneRevealed}><span>טלפון להזמנה</span><strong>לחצו להצגת המספר</strong></button> : <p role="status">מספר ההזמנות טרם חובר למקום.</p>}
       <span data-keep-same-tab="true"><Link className="button secondary" href={businessReturnHref}>{returnCopy.business}</Link></span>
     </section>

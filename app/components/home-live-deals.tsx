@@ -20,6 +20,13 @@ const copy = {
   fr: { title: "Séjours disponibles prochainement", all: "Tous les séjours", loading: "Vérification des disponibilités", empty: "Aucun séjour disponible à ces dates", error: "Disponibilité indisponible", retry: "Réessayer", total: "Prix total", details: "Voir le lieu", night: "nuit", nights: "nuits", reviews: "avis", tabs: ["Dernière minute", "Jeudi à samedi", "Vendredi à dimanche", "Nuit de jeudi", "Nuit de vendredi"] },
 } as const;
 
+const bookingModeCopy = {
+  he: { online: "אפשר להזמין באתר", phone: "להזמנה מתקשרים למקום" },
+  en: { online: "Book online", phone: "Call the property to book" },
+  ru: { online: "Бронирование на сайте", phone: "Для бронирования позвоните" },
+  fr: { online: "Réservation en ligne", phone: "Réservation par téléphone" },
+} as const;
+
 function dateLabel(date: string, locale: string) {
   return new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" }).format(new Date(`${date}T12:00:00Z`));
 }
@@ -139,6 +146,7 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
                   {deal.score !== null && deal.reviewCount > 0 ? <p className="home-live-deals__rating"><span aria-hidden="true">★</span> {deal.score.toLocaleString(locale)} <span>({deal.reviewCount.toLocaleString(locale)} {text.reviews})</span></p> : null}
                   <p>{dateLabel(deal.from, locale)} – {dateLabel(deal.till, locale)} · {deal.nights} {deal.nights === 1 ? text.night : text.nights}</p>
                   <div className="home-live-deals__price"><span>{text.total}</span><strong>₪{deal.total.toLocaleString(locale)}</strong></div>
+                  {typeof deal.onlineBooking === "boolean" ? <small>{deal.onlineBooking ? bookingModeCopy[language].online : bookingModeCopy[language].phone}</small> : null}
                   <b>{text.details}</b>
                 </div>
               </Link>

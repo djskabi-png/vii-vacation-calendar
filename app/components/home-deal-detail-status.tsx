@@ -13,6 +13,7 @@ export function HomeDealDetailStatus({ siteID, period, source, from, till, guest
   const [retry, setRetry] = useState(0);
   const [state, setState] = useState<"loading" | "available" | "unavailable" | "unverified" | "error">("loading");
   const [total, setTotal] = useState(0);
+  const [onlineBooking, setOnlineBooking] = useState(false);
   const validPeriod = source === "home-holidays" ? /^\d+$/.test(period || "") : homeDealPeriods.some((item) => item.id === period);
 
   useEffect(() => {
@@ -20,6 +21,7 @@ export function HomeDealDetailStatus({ siteID, period, source, from, till, guest
     const controller = new AbortController();
     setState("loading");
     setTotal(0);
+    setOnlineBooking(false);
     fetch(`/api/vii/confirm-home-deal?${new URLSearchParams({ source, period: period || "", siteID: String(siteID), from, till })}`, { cache: "no-store", signal: controller.signal, headers: { Accept: "application/json" } })
       .then(async (response) => {
         if (!response.ok) throw new Error("supplier_unavailable");
@@ -28,6 +30,7 @@ export function HomeDealDetailStatus({ siteID, period, source, from, till, guest
       .then((result) => {
         if (result.status === "available" && Number.isFinite(result.total) && (result.total || 0) > 0) {
           setTotal(result.total || 0);
+          setOnlineBooking(result.onlineBooking === true);
           setState("available");
         } else if (result.status === "unavailable" || result.status === "unverified") setState(result.status);
         else throw new Error("invalid_result");
@@ -38,10 +41,10 @@ export function HomeDealDetailStatus({ siteID, period, source, from, till, guest
 
   if (!validPeriod || !from || !till || guests !== 2) return null;
   const copy = {
-    he: { title: "הדיל שבחרתם", loading: "בודקים שוב את המחיר והזמינות", available: `בדיקת הזמינות מאשרת כעת ₪${total.toLocaleString("he-IL")} לכל השהייה לשני מבוגרים. הבדיקה אינה שומרת חדר; המחיר וההזמנה יאושרו בשלב הבא.`, unavailable: "הדיל אינו זמין עוד בתאריכים שנבחרו. אפשר לבדוק תאריך אחר או לפנות למקום.", unverified: "הספק לא אישר מחיר וזמינות סופיים לדיל זה. אין להסתמך על המחיר שהופיע קודם.", error: "לא הצלחנו לאמת את הדיל כרגע. אין להסתמך על המחיר שהופיע קודם.", retry: "בדיקה חוזרת" },
-    en: { title: "Your selected deal", loading: "Rechecking price and availability", available: `The availability check currently confirms ₪${total.toLocaleString("en-GB")} for the stay for two adults. No room is held; price and booking must be confirmed at the next step.`, unavailable: "This deal is no longer available for the selected dates. Try other dates or contact the property.", unverified: "The supplier did not confirm the final price and availability. Do not rely on the earlier price.", error: "We could not verify this deal now. Do not rely on the earlier price.", retry: "Check again" },
-    ru: { title: "Выбранное предложение", loading: "Повторно проверяем цену и наличие", available: `Проверка наличия подтверждает ₪${total.toLocaleString("ru-RU")} за проживание двух взрослых. Номер не удерживается; цену и бронь нужно подтвердить далее.`, unavailable: "Предложение больше недоступно на эти даты. Выберите другие даты или свяжитесь с объектом.", unverified: "Поставщик не подтвердил итоговую цену и наличие. Не полагайтесь на прежнюю цену.", error: "Сейчас не удалось подтвердить предложение. Не полагайтесь на прежнюю цену.", retry: "Проверить снова" },
-    fr: { title: "Votre offre", loading: "Nouvelle vérification du prix et de la disponibilité", available: `La vérification confirme actuellement ₪${total.toLocaleString("fr-FR")} pour le séjour de deux adultes. Aucune chambre n'est réservée ; le prix et la réservation restent à confirmer.`, unavailable: "Cette offre n'est plus disponible pour ces dates. Choisissez d'autres dates ou contactez le lieu.", unverified: "Le fournisseur n'a pas confirmé le prix final et la disponibilité. Ne vous fiez pas au prix précédent.", error: "Impossible de vérifier cette offre maintenant. Ne vous fiez pas au prix précédent.", retry: "Vérifier à nouveau" },
+    he: { title: "הדיל שבחרתם", loading: "בודקים שוב את המחיר והזמינות", available: `בדיקת הזמינות מאשרת כעת ₪${total.toLocaleString("he-IL")} לכל השהייה לשני מבוגרים. ${onlineBooking ? "אפשר להמשיך להזמנה באתר לאחר בדיקה נוספת." : "המקום מקבל הזמנות לתאריכים האלה בטלפון."} הבדיקה אינה שומרת חדר.`, unavailable: "הדיל אינו זמין עוד בתאריכים שנבחרו. אפשר לבדוק תאריך אחר או לפנות למקום.", unverified: "הספק לא אישר מחיר וזמינות סופיים לדיל זה. אין להסתמך על המחיר שהופיע קודם.", error: "לא הצלחנו לאמת את הדיל כרגע. אין להסתמך על המחיר שהופיע קודם.", retry: "בדיקה חוזרת" },
+    en: { title: "Your selected deal", loading: "Rechecking price and availability", available: `The availability check currently confirms ₪${total.toLocaleString("en-GB")} for two adults. ${onlineBooking ? "You can continue to booking after another check." : "Call the property to book these dates."} No room is held.`, unavailable: "This deal is no longer available for the selected dates. Try other dates or contact the property.", unverified: "The supplier did not confirm the final price and availability. Do not rely on the earlier price.", error: "We could not verify this deal now. Do not rely on the earlier price.", retry: "Check again" },
+    ru: { title: "Выбранное предложение", loading: "Повторно проверяем цену и наличие", available: `Проверка подтверждает ₪${total.toLocaleString("ru-RU")} за проживание двух взрослых. ${onlineBooking ? "Можно перейти к бронированию после повторной проверки." : "Для бронирования на эти даты позвоните объекту."} Номер не удерживается.`, unavailable: "Предложение больше недоступно на эти даты. Выберите другие даты или свяжитесь с объектом.", unverified: "Поставщик не подтвердил итоговую цену и наличие. Не полагайтесь на прежнюю цену.", error: "Сейчас не удалось подтвердить предложение. Не полагайтесь на прежнюю цену.", retry: "Проверить снова" },
+    fr: { title: "Votre offre", loading: "Nouvelle vérification du prix et de la disponibilité", available: `La vérification confirme actuellement ₪${total.toLocaleString("fr-FR")} pour deux adultes. ${onlineBooking ? "Vous pouvez poursuivre la réservation après une nouvelle vérification." : "Appelez l'établissement pour réserver ces dates."} Aucune chambre n'est réservée.`, unavailable: "Cette offre n'est plus disponible pour ces dates. Choisissez d'autres dates ou contactez le lieu.", unverified: "Le fournisseur n'a pas confirmé le prix final et la disponibilité. Ne vous fiez pas au prix précédent.", error: "Impossible de vérifier cette offre maintenant. Ne vous fiez pas au prix précédent.", retry: "Vérifier à nouveau" },
   }[language];
 
   return <section className="home-deal-detail-status" aria-live="polite" aria-busy={state === "loading"}>

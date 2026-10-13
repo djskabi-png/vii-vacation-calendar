@@ -205,7 +205,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
     : vacationAvailabilityMode === "demo" ? selectedPrice : "";
   const hasSelectedPrice = Boolean(resolvedSelectedPrice && Number(resolvedSelectedPrice) > 0);
   const verifiedSupplierRoomID = supplierQuote.roomIDs.length === 1 && property.roomOptions?.some((room) => room.supplierRoomID === supplierQuote.roomIDs[0]) ? supplierQuote.roomIDs[0] : undefined;
-  const vacationOnlineReady = activeWorld === "vacation" && vacationAvailabilityMode !== "inquiry" && hasSelectedDates && effectiveVacationAvailability?.availability === "available" && hasSelectedPrice && (!supplierSiteID || supplierQuote.roomIDs.length === 1) && (!supplierSiteID || Boolean(verifiedSupplierRoomID));
+  const vacationOnlineReady = activeWorld === "vacation" && vacationAvailabilityMode !== "inquiry" && hasSelectedDates && effectiveVacationAvailability?.availability === "available" && hasSelectedPrice && (!supplierSiteID || supplierQuote.onlineBooking && supplierQuote.roomIDs.length === 1 && Boolean(verifiedSupplierRoomID));
   const vacationPhoneFallback = activeWorld === "vacation" && !vacationOnlineReady;
   const vacationRequest = activeWorld === "vacation" && !vacationOnlineReady;
   const onlineBooking = activeWorld === "vacation" ? vacationOnlineReady : activeOffering.bookingMode !== "call-only";
@@ -337,7 +337,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
               availability={effectiveVacationAvailability}
               availabilityStatus={supplierSiteID ? supplierQuote.status : vacationAvailabilityMode === "live" ? liveLegacyAvailability.status : vacationAvailabilityMode === "demo" ? "ready" : "idle"}
               availabilityMode={vacationAvailabilityMode}
-              bookingEnabled={!supplierSiteID || Boolean(verifiedSupplierRoomID)}
+              bookingEnabled={!supplierSiteID || supplierQuote.onlineBooking && Boolean(verifiedSupplierRoomID)}
               bookingHref={`/booking?${bookingQuery}`}
               ownerWhatsapp={ownerWhatsapp}
               phoneHref={phoneHref}
@@ -387,7 +387,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
                           : roomAvailable
                             ? unitCopy.tooSmall
                             : roomUnavailable ? unitCopy.unavailable : unitCopy.error;
-                  const canBookRoom = vacationAvailabilityMode === "live" && (supplierSiteID ? supplierQuote.status : liveLegacyAvailability.status) === "ready" && roomAvailable && roomFitsParty && roomNightlyPrice > 0;
+                  const canBookRoom = vacationAvailabilityMode === "live" && (supplierSiteID ? supplierQuote.status : liveLegacyAvailability.status) === "ready" && roomAvailable && roomFitsParty && roomNightlyPrice > 0 && (!supplierSiteID || supplierQuote.onlineBooking && Boolean(verifiedSupplierRoomID));
                   return <article className={`room-card${roomAvailable ? " room-card--available" : roomUnavailable ? " room-card--unavailable" : ""}${vacationAvailabilityMode === "inquiry" ? " room-card--inquiry" : ""}`} key={room.name}>
                   <div className="room-card__identity"><span>{property.type}</span><h3>{room.name}</h3></div>
                   {room.image ? <button className="room-card__image" type="button" data-gallery-trigger onClick={() => { setGalleryTopic(room.name); openGallery("units", unitGalleryStart); }} aria-label={`פתיחת גלריית ${room.name}`}><img src={room.image} alt={`${room.name} ב${property.name}`} title={`${room.name} ב${property.name}`} loading="lazy" /><span>{room.images?.length ? `${room.images.length} תמונות` : "תמונת היחידה"}</span></button> : <div className="room-card__image room-card__image--missing"><img src={property.image} alt={`תמונת מקום האירוח ${property.name}, אינה משויכת ל${room.name}`} loading="lazy" /><span>תמונת המתחם, לא היחידה</span></div>}
@@ -396,6 +396,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
                     {activeWorld === "vacation" && hasSelectedDates ? <div className="room-card__availability" role="status"><strong>{roomStatus}</strong>{vacationAvailabilityMode === "live" && roomNightlyPrice ? <span>{roomNightlyPrice.toLocaleString(numberLocale)} ₪ {unitCopy.perNight}{roomTotalPrice ? ` · ${roomTotalPrice.toLocaleString(numberLocale)} ₪ ${unitCopy.total}` : ""}</span> : null}</div> : null}
                     <div className="room-card__actions">{activeWorld === "vacation"
                       ? canBookRoom ? <Link className="button primary" href={supplierSiteID ? `/booking?${bookingQuery}` : roomBookingHref(bookingQuery, roomIndex, roomNightlyPrice)}>{unitCopy.quick} {translate(room.name)}</Link>
+                        : supplierSiteID && roomAvailable && roomFitsParty && roomNightlyPrice > 0 && phoneHref ? <a className="button primary" href={phoneHref}>הזמנה בטלפון</a>
                         : vacationAvailabilityMode === "inquiry" && ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={`${unitCopy.check} ${translate(room.name)}`} initialDate={dateRange.from} initialTill={dateRange.till} initialGuests={guests} buttonLabel={unitCopy.enquire} buttonClassName="button primary" />
                           : vacationAvailabilityMode === "inquiry" && phoneHref ? <a className="button primary" href={phoneHref}>{unitCopy.enquire}</a>
                             : (supplierSiteID ? supplierQuote.status : liveLegacyAvailability.status) === "error" ? <button className="button secondary" type="button" onClick={supplierSiteID ? supplierQuote.retry : liveLegacyAvailability.retry}>{unitCopy.retry}</button>

@@ -1,6 +1,7 @@
 import { publishedSupplierIds } from "../../../lib/published-supplier-ids.ts";
 import { getHomeHolidayDeals } from "../../../lib/vii-home-holidays";
 import { supplierToken } from "../../../lib/vii-supplier-token";
+import { publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
 
 const headers = { "Cache-Control": "no-store" };
 
@@ -10,7 +11,8 @@ export async function GET(request: Request) {
   const id = raw && /^\d+$/.test(raw) ? Number(raw) : NaN;
   if (!Number.isSafeInteger(id) || id <= 0) return Response.json({ error: "invalid_holiday" }, { status: 400, headers });
   try {
-    const result = await getHomeHolidayDeals({ id, token: await supplierToken(), publicSiteIds: await publishedSupplierIds("vacations"), from: params.get("from") ?? undefined, till: params.get("till") ?? undefined });
+    const names = await publicCatalogSummaries<{ supplierId: number; name: string }>("vacations");
+    const result = await getHomeHolidayDeals({ id, token: await supplierToken(), publicSiteIds: await publishedSupplierIds("vacations"), publicNames: new Map(names.map((place) => [place.supplierId, place.name])), from: params.get("from") ?? undefined, till: params.get("till") ?? undefined });
     return Response.json(result, { headers });
   } catch (error) {
     const reason = error instanceof Error ? error.message : "supplier_unavailable";
