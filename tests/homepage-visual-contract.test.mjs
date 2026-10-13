@@ -38,6 +38,19 @@ test("supplier homepage searches live dates without unsupported static offers", 
   assert.doesNotMatch(showcase, /nightlyPrice|lastMinuteHref|selectDealPeriod|home-vacation-card--style/);
 });
 
+test("both live deal rails show branded, accessible loading placeholders", async () => {
+  const [deals, css] = await Promise.all([
+    readFile(new URL("../app/components/home-live-deals.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+  assert.match(deals, /displayState === "loading"[\s\S]*home-live-deals__loading/);
+  assert.match(deals, /role="status" aria-label=\{text\.loading\}/);
+  assert.match(deals, /src="\/vii-logo\.png"/);
+  assert.match(deals, /home-live-deals__loading-cards/);
+  assert.match(css, /@keyframes home-deal-logo-trip/);
+  assert.match(css, /prefers-reduced-motion: reduce\)[^\n]*home-live-deals__loading-route img/);
+});
+
 test("homepage period offers preserve the verified legacy dates and prices", async () => {
   const deals = await readFile(new URL("../app/data/last-minute-deals.ts", import.meta.url), "utf8");
   assert.match(deals, /legacyTab: "lastminute"[\s\S]*from: "2026-08-16"[\s\S]*nightlyPrice: 3500/);
