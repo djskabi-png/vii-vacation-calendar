@@ -17,8 +17,10 @@ const primaryOrigin = "https://www.vii.co.il";
 
 function withLaunchSeo(response: Response, url: URL, primary: boolean) {
   const headers = new Headers(response.headers);
-  if (!primary && url.pathname === "/sitemap.xml") headers.set("X-Robots-Tag", "noindex");
   const type = headers.get("content-type") || "";
+  if (!primary && (type.includes("text/html") || url.pathname === "/sitemap.xml")) {
+    headers.set("X-Robots-Tag", "noindex");
+  }
   if (primary && (url.pathname === "/robots.txt" || url.pathname === "/sitemap.xml") &&
       (type.includes("text/plain") || type.includes("xml"))) {
     headers.delete("content-length");

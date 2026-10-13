@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { readFile } from "node:fs/promises";
 import { legacyPlaceDestination } from "../app/lib/legacy-route-map.ts";
 
 test("known legacy place paths map directly to equivalent new detail pages", () => {
@@ -7,6 +8,12 @@ test("known legacy place paths map directly to equivalent new detail pages", () 
   assert.equal(legacyPlaceDestination("/events/Enrico_Events"), "/events/place/event-2684");
   assert.equal(legacyPlaceDestination("/rooms/ascape_room"), "/discover/place/hourly-1915");
   assert.equal(legacyPlaceDestination("/unverified-place"), null);
+});
+
+test("Cloudflare HTMLRewriter path applies staging noindex to HTML responses", async () => {
+  const workerSource = await readFile(new URL("../worker/index.ts", import.meta.url), "utf8");
+  assert.match(workerSource, /if \(!primary\) return withLaunchSeo\(transformed, url, false\)/);
+  assert.match(workerSource, /type\.includes\("text\/html"\)/);
 });
 
 test("temporary host stays out of the index and primary host gets its own canonicals", async () => {
