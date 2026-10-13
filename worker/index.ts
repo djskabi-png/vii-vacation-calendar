@@ -14,6 +14,46 @@ import { legacyPlaceDestination } from "../app/lib/legacy-route-map.ts";
 
 const temporaryOrigin = "https://vii.spaplus.co";
 const primaryOrigin = "https://www.vii.co.il";
+const homeCacheTtlMs = 60_000;
+
+function cacheableHomeRequest(request: Request, url: URL) {
+  if (request.method !== "GET" || url.search) return false;
+  if (!/^\/(?:en|ru|fr)?$/.test(url.pathname)) return false;
+  // RSC responses are shaped by the current router tree and must remain
+  // request-specific. Only cache complete anonymous HTML documents.
+  if (request.headers.get("RSC") || request.headers.get("Next-Router-State-Tree")) return false;
+  return (request.headers.get("Accept") || "").includes("text/html");
+}
+
+function homeCacheKey(url: URL) {
+  return new Request(url.toString(), { method: "GET" });
+}
+
+function homeCacheHeaders(response: Response, state: "HIT" | "MISS") {
+  const headers = new Headers(response.headers);
+  headers.delete("content-length");
+  headers.set("Cache-Control", "public, max-age=60, s-maxage=60, stale-while-revalidate=30");
+  headers.set("X-VII-Home-Cache", state);
+  headers.set("X-VII-Home-Cache-Until", String(Date.now() + homeCacheTtlMs));
+  return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+}
+
+async function readCachedHome(cacheKey: Request) {
+  const cached = await caches.default.match(cacheKey);
+  if (!cached) return null;
+  const expiresAt = Number(cached.headers.get("X-VII-Home-Cache-Until"));
+  if (!Number.isFinite(expiresAt) || expiresAt <= Date.now()) return null;
+  return homeCacheHeaders(cached, "HIT");
+}
+
+function storeCachedHome(response: Response, cacheKey: Request | null, ctx: ExecutionContext) {
+  if (!cacheKey || response.status !== 200 || response.headers.has("Set-Cookie")) return response;
+  const cacheable = homeCacheHeaders(response, "MISS");
+  ctx.waitUntil(caches.default.put(cacheKey, cacheable.clone()).catch((error) => {
+    console.error("VII homepage cache write failed", error);
+  }));
+  return cacheable;
+}
 
 function withLaunchSeo(response: Response, url: URL, primary: boolean) {
   const headers = new Headers(response.headers);
@@ -140,6 +180,16 @@ const worker = {
       if (legacyDestination) return Response.redirect(new URL(legacyDestination, primary ? primaryOrigin : temporaryOrigin), 308);
     }
 
+    const cacheKey = cacheableHomeRequest(request, url) ? homeCacheKey(url) : null;
+    if (cacheKey) {
+      try {
+        const cached = await readCachedHome(cacheKey);
+        if (cached) return cached;
+      } catch (error) {
+        console.error("VII homepage cache read failed", error);
+      }
+    }
+
     if (url.pathname === "/_vinext/image") {
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];
       return handleImageOptimization(request, {
@@ -242,11 +292,11 @@ const worker = {
       }
 
       const transformed = rewriter.transform(response);
-      if (!primary) return withLaunchSeo(transformed, url, false);
+      if (!primary) return storeCachedHome(await withLaunchSeo(transformed, url, false), cacheKey, ctx);
       const headers = new Headers(transformed.headers);
       headers.delete("content-length");
       const html = (await transformed.text()).replaceAll(temporaryOrigin, primaryOrigin);
-      return new Response(html, { status: transformed.status, statusText: transformed.statusText, headers });
+      return storeCachedHome(new Response(html, { status: transformed.status, statusText: transformed.statusText, headers }), cacheKey, ctx);
     }
 
     // The standalone Vinext production server used by local QA does not
@@ -264,9 +314,9 @@ const worker = {
     const headers = new Headers(response.headers);
     headers.delete("content-length");
     if (!primary) headers.set("X-Robots-Tag", "noindex");
-    return new Response(primary ? output.replaceAll(temporaryOrigin, primaryOrigin) : output, {
+    return storeCachedHome(new Response(primary ? output.replaceAll(temporaryOrigin, primaryOrigin) : output, {
       status: response.status, statusText: response.statusText, headers,
-    });
+    }), cacheKey, ctx);
   },
 };
 
