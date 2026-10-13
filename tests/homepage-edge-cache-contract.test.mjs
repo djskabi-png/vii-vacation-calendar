@@ -19,4 +19,5 @@ test("public HTML and catalog reads have bounded host-aware caches with private 
   assert.match(worker, /env\.UPLOADS\.get\(policy\.key\)/);
   assert.match(worker, /cacheable\.clone\(\)\.arrayBuffer\(\)\.then\(\(body\) => env\.UPLOADS\.put\(policy\.key, body/);
   assert.match(worker, /customMetadata: \{ expiresAt \}/);
+  assert.match(worker, /if \(!allowed\.has\(key\) \|\| seen\.has\(key\)\) return null/);
 });

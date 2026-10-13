@@ -23,10 +23,15 @@ const publicDocumentQueryKeys = new Set([
 ]);
 
 function normalizedPublicQuery(url: URL, allowed: ReadonlySet<string>) {
-  const entries = [...url.searchParams.entries()]
-    .filter(([key]) => allowed.has(key))
-    .sort(([firstKey, firstValue], [secondKey, secondValue]) => firstKey.localeCompare(secondKey) || firstValue.localeCompare(secondValue));
-  if ([...url.searchParams.keys()].some((key) => !allowed.has(key) && !/^utm_(?:source|medium|campaign|term|content)$/.test(key))) return null;
+  const entries: Array<[string, string]> = [];
+  const seen = new Set<string>();
+  for (const [key, value] of url.searchParams.entries()) {
+    if (/^utm_(?:source|medium|campaign|term|content)$/.test(key)) continue;
+    if (!allowed.has(key) || seen.has(key)) return null;
+    seen.add(key);
+    entries.push([key, value]);
+  }
+  entries.sort(([firstKey], [secondKey]) => firstKey.localeCompare(secondKey));
   const query = new URLSearchParams(entries).toString();
   return query ? `?${query}` : "";
 }
