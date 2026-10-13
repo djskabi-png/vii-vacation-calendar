@@ -14,6 +14,6 @@ test("homepage HTML has a bounded edge cache while RSC and query responses bypas
   assert.match(worker, /X-VII-Home-Cache-Until/);
   assert.match(worker, /runtime-cache\/homepage\/v1/);
   assert.match(worker, /env\.UPLOADS\.get\(cacheKey\)/);
-  assert.match(worker, /env\.UPLOADS\.put\(cacheKey, cacheable\.clone\(\)\.body/);
+  assert.match(worker, /cacheable\.clone\(\)\.arrayBuffer\(\)\.then\(\(body\) => env\.UPLOADS\.put\(cacheKey, body/);
   assert.match(worker, /customMetadata: \{ expiresAt \}/);
 });

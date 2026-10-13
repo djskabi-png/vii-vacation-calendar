@@ -62,13 +62,15 @@ function storeCachedHome(response: Response, cacheKey: string | null, env: Env, 
   const cacheable = homeCacheHeaders(response, "MISS");
   const expiresAt = cacheable.headers.get("X-VII-Home-Cache-Until")!;
   const isStaging = cacheable.headers.get("X-Robots-Tag") === "noindex";
-  ctx.waitUntil(env.UPLOADS.put(cacheKey, cacheable.clone().body, {
+  // HTMLRewriter emits a stream without a known length. R2 accepts it only
+  // after materializing the small, bounded homepage document.
+  ctx.waitUntil(cacheable.clone().arrayBuffer().then((body) => env.UPLOADS.put(cacheKey, body, {
     httpMetadata: {
       contentType: cacheable.headers.get("Content-Type") || "text/html; charset=utf-8",
       contentLanguage: isStaging ? "staging" : undefined,
     },
     customMetadata: { expiresAt },
-  }).catch((error) => {
+  })).catch((error) => {
     console.error("VII homepage cache write failed", error);
   }));
   return cacheable;
