@@ -44,6 +44,22 @@ test("rejects inactive or mismatched place details", async () => {
   await assert.rejects(() => client({ active: false }).fetchCandidate("vacations"), /invalid_sergey_place/);
 });
 
+test("keeps supplier gallery order and resolves the Suite Tohar naming difference", async () => {
+  const result = await client({
+    galleries: {
+      first: { title: "גלריה ראשית", pictures: ["/gallery/cover.jpg", "/gallery/second.jpg"] },
+      second: { title: "סוויטה טוהר", pictures: ["/gallery/tohar.jpg"] },
+    },
+    rooms: [{ roomID: 87, roomName: "סוויטת טוהר", maxGuests: 2, roomCount: 1,
+      spaces: [{ title: "סוויטת טוהר", features: [{ description: "ג׳קוזי זוגי" }] }] }],
+  }).fetchCandidate("vacations");
+  const { summary, detail } = result.entries[0];
+  assert.equal(summary.image, "https://www.vii.co.il/gallery/cover.jpg");
+  assert.deepEqual(detail.images.slice(0, 2), ["https://www.vii.co.il/gallery/cover.jpg", "https://www.vii.co.il/gallery/second.jpg"]);
+  assert.deepEqual(detail.rooms[0].images, ["https://www.vii.co.il/gallery/tohar.jpg"]);
+  assert.deepEqual(detail.rooms[0].featureGroups, [{ title: "סוויטת טוהר", items: ["ג׳קוזי זוגי"] }]);
+});
+
 test("withholds a place without photos without discarding the rest of the catalog", async () => {
   const result = await client({ galleries: [] }, true).fetchCandidate("vacations");
   assert.deepEqual(result.entries.map((entry) => entry.supplierId), [18]);

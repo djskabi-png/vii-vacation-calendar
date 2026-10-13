@@ -33,3 +33,20 @@ test("supplier outage retains the last verified detail rather than fabricating a
   const detail = await liveSupplierPlaceDetail("vacation-1", { token: "test-token", fetchImpl: async () => new Response(null, { status: 503 }) });
   assert.deepEqual(detail, supplierPlaceDetail("vacation-1"));
 });
+
+test("live room detail keeps supplier ordering and matches the verified room gallery", async () => {
+  const detail = await liveSupplierPlaceDetail("vacation-41", {
+    token: "test-token",
+    fetchImpl: async (url) => Response.json(url.endsWith("/locations") ? {} : {
+      id: 41, active: true, galleries: {
+        main: { title: "גלריה ראשית", pictures: ["/gallery/cover.jpg"] },
+        unit: { title: "סוויטה טוהר", pictures: ["/gallery/tohar.jpg"] },
+      },
+      rooms: [{ roomID: 87, roomName: "סוויטת טוהר", roomCount: 1, maxGuests: 2,
+        spaces: [{ title: "סוויטת טוהר", features: [{ description: "מיטה זוגית" }] }] }],
+    }),
+  });
+  assert.equal(detail.images[0], "https://www.vii.co.il/gallery/cover.jpg");
+  assert.deepEqual(detail.rooms[0].images, ["https://www.vii.co.il/gallery/tohar.jpg"]);
+  assert.deepEqual(detail.rooms[0].featureGroups, [{ title: "סוויטת טוהר", items: ["מיטה זוגית"] }]);
+});

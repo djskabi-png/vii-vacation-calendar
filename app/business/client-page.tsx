@@ -175,6 +175,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
       description: supplierDetail.summary || base.description,
       roomOptions: supplierDetail.rooms.map((room) => ({ name: room.name, quantity: room.quantity, guests: room.guests,
         bedrooms: room.bedrooms, image: room.images?.[0] || "", images: room.images || [], features: room.features,
+        featureGroups: room.featureGroups,
         ...(room.id ? { supplierRoomID: room.id } : {}) })),
       features: [...new Set([...(supplierDetail.highlights || []), ...base.features, ...supplierDetail.rooms.flatMap((room) => room.features)])] } : base;
   }, [initialProperty, initialSlug, supplierDetail]);

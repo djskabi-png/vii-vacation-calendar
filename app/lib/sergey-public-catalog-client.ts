@@ -3,6 +3,7 @@ import { supplierContactNumber } from "./supplier-contact.ts";
 import { supplierDisplayDescription } from "../data/supplier-display-text.ts";
 import type { SupplierCatalogEntry } from "./supplier-catalog-store.ts";
 import { SupplierCatalogRedirectError } from "./supplier-catalog-diagnostics.ts";
+import { sergeyPlaceImages, sergeyRoomImages, sergeyRoomFeatureGroups } from "./sergey-gallery.ts";
 
 type World = "vacations" | "events";
 const root = "https://bizonline.co.il/api/ai/vii";
@@ -28,19 +29,6 @@ function unique(values: unknown[]) {
   return [...new Set(values.filter((value): value is string => typeof value === "string" && Boolean(value.trim())))];
 }
 
-function imageUrl(path: unknown) {
-  return typeof path === "string" && /^\/gallery\/[\w.-]+$/.test(path)
-    ? new URL(path, "https://www.vii.co.il").href : null;
-}
-
-function galleryImages(value: unknown) {
-  const galleries = Array.isArray(value) ? value : Object.values(record(value));
-  return unique(galleries.flatMap((gallery) => {
-    const pictures = record(gallery).pictures;
-    return Array.isArray(pictures) ? pictures.map(imageUrl) : [];
-  }));
-}
-
 function positive(value: unknown) {
   return Number.isSafeInteger(value) && (value as number) > 0 ? value as number : 0;
 }
@@ -60,7 +48,7 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
   cityById: Map<number, Record<string, unknown>>, areaById: Map<number, string>): SupplierCatalogEntry {
   const raw = record(rawValue);
   const name = text(raw.name);
-  const images = galleryImages(raw.galleries);
+  const images = sergeyPlaceImages(raw.galleries);
   const city = cityById.get(Number(record(raw.location).city));
   if (raw.active !== true || raw.id !== supplierId || !name || !text(city?.title)) {
     throw new Error("invalid_sergey_place");
@@ -68,7 +56,6 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
   if (!images.length) throw new Error("sergey_place_missing_media");
   const area = areaById.get(Number(city?.area)) || "";
   const rooms = Array.isArray(raw.rooms) ? raw.rooms.map(record) : [];
-  const galleries = Object.values(record(raw.galleries));
   const features = unique(rooms.flatMap((room) => {
     const spaces = Array.isArray(room.spaces) ? room.spaces : [];
     return spaces.flatMap((space) => {
@@ -105,10 +92,8 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
           const values = record(space).features;
           return Array.isArray(values) ? values.map((value) => text(record(value).description)) : [];
         })),
-        images: unique(galleries.filter((gallery) => text(record(gallery).title) === roomName).flatMap((gallery) => {
-          const values = record(gallery).pictures;
-          return Array.isArray(values) ? values.map(imageUrl) : [];
-        })),
+        featureGroups: sergeyRoomFeatureGroups(room),
+        images: positive(room.roomID) ? sergeyRoomImages(room, raw.galleries) : [],
       };
     }),
     reviews: (Array.isArray(reviews.list) ? reviews.list : []).map(record)
