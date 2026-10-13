@@ -31,11 +31,24 @@ test("events landing follows the same page hierarchy", async () => {
 test("trails and attractions expose a working search entry before breadcrumbs and heading", async () => {
   for (const file of ["trails/page.tsx", "attractions/page.tsx"]) {
     const source = await readFile(new URL(`../app/${file}`, import.meta.url), "utf8");
-    const search = source.indexOf('className="special-search-rail"');
+    const search = source.indexOf("<SpecialWorldSearch");
     const breadcrumbs = source.indexOf('className="world-breadcrumbs"');
     const heading = Math.min(...[source.indexOf('className="trails-hero"'), source.indexOf('className="attractions-hero"')].filter((index) => index >= 0));
     assert.ok(search >= 0 && search < breadcrumbs);
     assert.ok(breadcrumbs < heading);
-    assert.match(source, /className="special-search-summary" href="#(?:trail|attraction)-search"/);
+    assert.match(source, /<SpecialWorldSearch active="(?:trails|attractions)" targetId="(?:trail|attraction)-search"/);
+    assert.doesNotMatch(source, /className="special-search-summary" href="#/);
   }
+});
+
+test("special world search opens in place before offering an explicit local-filter jump", async () => {
+  const source = await readFile(new URL("../app/components/special-world-search.tsx", import.meta.url), "utf8");
+  const styles = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.doesNotMatch(source, /^"use client";/);
+  assert.match(source, /<details className="special-search-disclosure">/);
+  assert.match(source, /<summary className="special-search-summary"/);
+  assert.match(source, /<SearchWorldTabs active=\{active\} \/>/);
+  assert.match(source, /className="special-search-local" href=\{`#\$\{targetId\}`\}/);
+  assert.match(styles, /\.special-search-panel/);
+  assert.match(styles, /\.special-search-disclosure > summary:focus-visible/);
 });

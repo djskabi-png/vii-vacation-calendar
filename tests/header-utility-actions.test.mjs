@@ -26,31 +26,28 @@ test("desktop navigation has no duplicate more menu or gift-card text link", () 
   assert.match(css, /\.site-header__inner \{ min-height: 74px; display: grid; grid-template-columns: minmax\(0,1fr\) max-content;/);
 });
 
-test("global search and world selection use one magnifying-glass trigger with an accessible label", () => {
+test("world selection uses one immediately interactive magnifying-glass trigger", () => {
   assert.match(switcher, /function WorldSearchIcon/);
   assert.match(switcher, /className="world-search-icon"/);
   assert.match(switcher, /<circle cx="11" cy="11" r="7" \/>/);
-  assert.match(switcher, /aria-label=\{translate\(open \? "סגירת חיפוש ובחירת עולם" : "חיפוש ובחירת עולם"\)\}/);
-  assert.match(switcher, /localizedPath\("\/search", language\)/);
-  assert.match(switcher, /חיפוש כללי/);
+  assert.match(switcher, /<details ref=\{rootRef\} className="world-dock" suppressHydrationWarning>/);
+  assert.match(switcher, /<summary ref=\{triggerRef\} aria-label=\{translate\("חיפוש ובחירת עולם"\)\}>/);
+  assert.doesNotMatch(switcher, /localizedPath\("\/search", language\)/);
+  assert.doesNotMatch(switcher, /חיפוש כללי|חפשו מקום, עסק או יעד בכל האתר/);
   assert.doesNotMatch(switcher, /current\.shortLabel/);
 });
 
-test("the combined trigger handles touch, pointer and keyboard activation without a double toggle", () => {
-  assert.match(switcher, /pointerStartRef/);
-  assert.match(switcher, /ignoreClickUntilRef/);
-  assert.match(switcher, /onPointerDown=\{rememberPointerStart\}/);
-  assert.match(switcher, /onPointerUp=\{finishPointerActivation\}/);
-  assert.match(switcher, /onPointerCancel=\{cancelPointerActivation\}/);
-  assert.match(switcher, /onClick=\{finishClickActivation\}/);
-  assert.match(switcher, /performance\.now\(\) < ignoreClickUntilRef\.current/);
-  assert.match(switcher, /Math\.hypot/);
+test("the chooser works natively before hydration and closes accessibly after hydration", () => {
+  assert.match(switcher, /useRef<HTMLDetailsElement>/);
+  assert.match(switcher, /rootRef\.current\.open = false/);
+  assert.match(switcher, /triggerRef\.current\?\.focus\(\)/);
+  assert.doesNotMatch(switcher, /pointerStartRef|ignoreClickUntilRef|useSyncExternalStore/);
 });
 
-test("search remains a real link until the world switcher is interactive", () => {
-  assert.match(switcher, /useSyncExternalStore\(\(\) => \(\) => \{\}, \(\) => true, \(\) => false\)/);
-  assert.match(switcher, /<Link className="world-dock__prehydrate" href=\{globalSearchHref\}/);
-  assert.match(polishCss, /\.world-dock > \.world-dock__prehydrate/);
+test("the server-rendered chooser never falls back to vacation search", () => {
+  assert.match(switcher, /<nav className="world-dock__panel"/);
+  assert.doesNotMatch(switcher, /world-dock__prehydrate|globalSearchHref/);
+  assert.doesNotMatch(polishCss, /world-dock__prehydrate/);
 });
 
 test("world links navigate on pointer activation without a full document reload or duplicate click", () => {
@@ -70,22 +67,23 @@ test("world links navigate on pointer activation without a full document reload 
 test("header utility actions share sizing and world selection is not fixed", () => {
   assert.match(css, /\.icon-button \{ width: 44px; \}/);
   assert.match(css, /\.header-actions \.world-dock \{ position: relative; inset: auto; z-index: auto; flex: 0 0 44px; \}/);
-  assert.match(css, /\.world-dock > button \{\s*width: 44px;\s*min-width: 44px;\s*min-height: 44px;/);
+  assert.match(css, /\.world-dock > summary \{\s*width: 44px;\s*min-width: 44px;\s*min-height: 44px;/);
   assert.match(css, /\.header-actions \.world-dock \{\s*position: relative;\s*inset: auto !important;/);
-  assert.doesNotMatch(css, /\.world-dock > button \{\s*width: 40px;\s*min-width: 40px;\s*min-height: 40px;/);
-  assert.match(css, /\.world-dock > button \.world-search-icon \{ width: 20px; height: 20px;/);
+  assert.doesNotMatch(css, /\.world-dock > summary \{\s*width: 40px;\s*min-width: 40px;\s*min-height: 40px;/);
+  assert.match(css, /\.world-dock > summary \.world-search-icon \{ width: 20px; height: 20px;/);
 });
 
 test("the header has one combined search and worlds action plus direct accessibility", () => {
   const worldSwitcherComponent = switcher.match(/export function WorldSwitcher[\s\S]*?(?=function WorldSearchIcon)/)?.[0] ?? "";
   assert.doesNotMatch(header, /header-search/);
   assert.match(header, /<AccessibilityWidget placement="icon" \/>/);
-  assert.match(header, /<WorldSwitcher active=\{variant\} \/>/);
-  assert.match(worldSwitcherComponent, /localizedPath\("\/search", language\)/);
+  assert.match(header, /<WorldSwitcher active=\{activeWorld\} \/>/);
   assert.match(worldSwitcherComponent, /document\.addEventListener\("click", closeOnOutsideClick\)/);
   assert.doesNotMatch(worldSwitcherComponent, /document\.addEventListener\("pointerdown"/);
   assert.doesNotMatch(switcher, /world-dock__backdrop/);
   assert.match(css, /\.header-actions \.world-dock \{[\s\S]*?inset: auto !important;[\s\S]*?display: block !important;/);
+  assert.match(header, /pathname === "\/trails"[\s\S]*\? "trails"[\s\S]*pathname === "\/attractions"[\s\S]*\? "attractions"/);
+  assert.match(header, /<WorldSwitcher active=\{activeWorld\} \/>/);
 });
 
 test("the combined search and worlds action cannot be disabled by a page", () => {
@@ -93,7 +91,7 @@ test("the combined search and worlds action cannot be disabled by a page", () =>
   assert.doesNotMatch(pageShell, /showWorldSwitcher/);
   assert.doesNotMatch(accountPage, /showWorldSwitcher/);
   assert.doesNotMatch(joinPage, /showWorldSwitcher/);
-  assert.match(header, /<WorldSwitcher active=\{variant\} \/>/);
+  assert.match(header, /<WorldSwitcher active=\{activeWorld\} \/>/);
   assert.match(pageShell, /<SiteHeader variant=\{variant\} \/>/);
 });
 

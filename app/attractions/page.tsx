@@ -7,6 +7,7 @@ import { breadcrumbSchema, collectionSchema } from "../lib/seo";
 import { AttractionsExplorer } from "./attractions-explorer";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 import { SearchAfterResults } from "../components/search-after-results";
+import { SpecialWorldSearch } from "../components/special-world-search";
 
 export const metadata: Metadata = {
   title: "אטרקציות בתשלום בישראל לפי אזור וסוג חוויה",
@@ -25,7 +26,7 @@ export default function AttractionsPage() {
     <main id="main-content" className="attractions-page">
       <StructuredData data={collectionSchema("אטרקציות בתשלום בישראל", "אטרקציות, סיורים וחוויות לפי אזור וסוג פעילות.", "/attractions/", paidAttractions.map((item) => ({ name: item.name, path: `/discover/place/${item.id}` })))} />
       <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "אטרקציות", path: "/attractions/" }])} />
-      <section className="special-search-rail"><div className="shell"><a className="special-search-summary" href="#attraction-search"><span><strong>כל הארץ</strong><small>בחרו אזור וסוג חוויה</small></span><b>שינוי חיפוש</b></a></div></section>
+      <SpecialWorldSearch active="attractions" targetId="attraction-search" description="בחרו אזור וסוג חוויה" />
       <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "אטרקציות" }]} />
       <section className="attractions-hero"><div className="shell"><h1>אטרקציות בישראל</h1><p>בוחרים אזור וסוג פעילות ומוצאים חוויה שמתאימה בדיוק להרכב שלכם.</p></div></section>
       <section id="attraction-search" className="section shell trail-explorer attraction-explorer"><AttractionsExplorer /></section>

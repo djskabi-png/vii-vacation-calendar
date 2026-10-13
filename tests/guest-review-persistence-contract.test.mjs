@@ -35,6 +35,6 @@ test("the shared header keeps one worlds trigger and restores accessibility whil
   const [header, styles] = await Promise.all([read("app/site-header.tsx"), read("app/globals.css")]);
   assert.doesNotMatch(header, /header-search/);
   assert.match(header, /<AccessibilityWidget placement="icon" \/>/);
-  assert.match(header, /<WorldSwitcher active=\{variant\} \/>/);
+  assert.match(header, /<WorldSwitcher active=\{activeWorld\} \/>/);
   assert.match(styles, /\.header-actions \.header-gift \{ display: none; \}/);
 });

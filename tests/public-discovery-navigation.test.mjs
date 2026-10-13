@@ -21,11 +21,13 @@ test("public navigation replaces the generic activities hub with trails and attr
   assert.match(data, /id: "attractions"[\s\S]*href: "\/attractions"/);
   assert.match(data, /world\.id !== "activities"/);
   assert.match(switcher, /publicWorldNavigation\.map/);
+  assert.match(switcher, /export type PublicWorldId = WorldId \| "trails" \| "attractions"/);
+  assert.match(switcher, /aria-current=\{world\.id === active \? "page" : undefined\}[\s\S]*href=\{href\}/);
 });
 
 test("header world controls, footer and homepage expose both dedicated pages", () => {
   assert.match(header, /publicWorldNavigation\.map/);
-  assert.match(header, /<WorldSwitcher active=\{variant\}/);
+  assert.match(header, /<WorldSwitcher active=\{activeWorld\}/);
   assert.doesNotMatch(footer, /href="\/activities"/);
   assert.match(footer, /href="\/trails">מסלולי טיולים/);
   assert.match(footer, /href="\/attractions">אטרקציות/);
