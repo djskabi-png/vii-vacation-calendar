@@ -90,7 +90,11 @@ export default function CatalogSyncPage() {
   return <main dir="rtl" style={{ maxWidth: 1120, minHeight: "80vh", margin: "0 auto", padding: "32px 20px" }}>
     <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
       <div><h1 style={{ margin: 0, fontSize: "1.8rem" }}>סנכרון קטלוגים</h1><p>מקומות, חדרים וחבילות לפי הנתונים שהתקבלו מהספקים.</p>
-        <a href="/admin/discovery-promotions" style={{ color: "#126d75", textDecoration: "underline" }}>ניהול חשיפה</a></div>
+        <nav aria-label="מסכי ניהול" style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+          <a href="/admin/discovery-promotions" style={{ color: "#126d75", textDecoration: "underline" }}>ניהול חשיפה</a>
+          <a href="/admin/operations" style={{ color: "#126d75", textDecoration: "underline" }}>הזמנות וחוות דעת</a>
+          <a href="/admin/whatsapp-leads" style={{ color: "#126d75", textDecoration: "underline" }}>פניות וואטסאפ</a>
+        </nav></div>
       <button type="button" onClick={() => void refresh()} disabled={loading || !!busy} title="רענון מצב" aria-label="רענון מצב"><RefreshCw size={18} aria-hidden="true" /></button>
     </header>
     {error ? <p role="alert">{error} {forbidden ? <a href="/api/auth/google?returnTo=%2Fadmin%2Fcatalog-sync">כניסה עם Google</a> : null}</p> : null}
