@@ -133,7 +133,7 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
 
   return <div ref={dialog} className="story-gallery" role="dialog" aria-modal="true" aria-labelledby="story-gallery-title">
     <header className="story-gallery__header">
-      <div><span>{topic || "הגלריה של"}</span><h2 id="story-gallery-title">{property.name}</h2></div>
+      <div><span>{topic ? `גלריית ${topic}` : "גלריית תמונות"}</span><h2 id="story-gallery-title">{topic ? `${topic} · ${property.name}` : property.name}</h2></div>
       <div className="story-gallery__count" aria-live="polite">{tab === "videos" ? `${property.videos?.length || 0} סרטונים` : tab === "guests" && !guestPhotos.length ? "עדיין אין תמונות אורחים" : mobileViewer ? `${selected + 1} מתוך ${visibleItems.length}` : `${visibleItems.length} תמונות`}</div>
       <button ref={closeButton} className="story-gallery__close" type="button" onClick={onClose} aria-label="סגירת הגלריה">סגירה</button>
     </header>

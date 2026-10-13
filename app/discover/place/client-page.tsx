@@ -24,6 +24,7 @@ import { useGalleryDeepLink } from "../../components/use-gallery-deep-link";
 import { DetailStickyDock, type DetailSectionLink } from "../../components/detail-sticky-dock";
 import { GuestReviewStudio } from "../../components/guest-review-studio";
 import { WhatsAppLeadButton } from "../../components/whatsapp-lead-button";
+import { FloatingContactActions } from "../../components/floating-contact-actions";
 import { useSiteLanguage } from "../../i18n/locale-provider";
 
 function hourlyRateLabel(value: string, language: "he" | "en" | "ru" | "fr", translate: (value: string) => string) {
@@ -262,6 +263,7 @@ export default function DiscoveryPlacePage({ initialId, initialItem, relatedItem
       {(item.world === "spa" || item.world === "hourly") && item.id !== "masu-home-wellness" ? <div className="section shell"><MasuExperience context={item.world === "spa" ? "spa" : "hourly"} /></div> : null}
       <div className="section shell"><GuestReviewStudio placeName={item.name} subjectId={item.id} rating={item.rating} /></div>
       <section className="section section-tint"><div className="shell"><div className="section-head"><div><span className="eyebrow">באותו עולם</span><h2>עוד אפשרויות שכדאי לראות</h2></div></div><div className="discovery-grid">{related.map((entry) => <DiscoveryCard key={entry.id} item={entry} />)}</div></div></section>
+      {item.world === "hourly" ? <FloatingContactActions world="hourly" placeId={item.id} placeName={item.name} phone={item.phone} whatsapp={item.whatsapp} serviceName="חדרים לפי שעה" /> : null}
     </main>
     <GalleryExperience key={`${item.id}-${galleryOpen ? `${galleryTab}-${galleryStart}` : "closed"}`} property={gallerySubject} open={galleryOpen} initialIndex={galleryStart} initialTab={galleryTab} onSelectionChange={updateGallerySelection} onClose={closeGallery} />
   </PageShell>;

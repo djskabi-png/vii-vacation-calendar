@@ -2,7 +2,7 @@ type PhoneRevealDetails = {
   placeId: string;
   placeName: string;
   world: string;
-  placement: "property_card" | "discovery_card" | "event_card" | "event_detail";
+  placement: "property_card" | "discovery_card" | "event_card" | "event_detail" | "floating_detail";
 };
 
 type WhatsAppLeadDetails = {

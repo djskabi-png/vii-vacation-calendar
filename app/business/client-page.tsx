@@ -37,28 +37,29 @@ import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { publishedLastMinuteDeal } from "../data/last-minute-deals";
 import { UnitDetailsDialog } from "../components/unit-details-dialog";
 import { PropertyGallery } from "../components/property-gallery";
+import { FloatingContactActions } from "../components/floating-contact-actions";
 import type { SupplierPlaceDetail } from "../data/supplier-place-detail";
 
-function complementaryItems(area: string, location: string): DiscoveryItem[] {
-  const query = `${area} ${location}`.toLocaleLowerCase("he");
-  const queryTerms = new Set(query.split(/\s+/).filter((term) => term.length > 2));
+function distanceKm(lat: number, lng: number, targetLat: number, targetLng: number) {
+  const radians = Math.PI / 180;
+  const difference = (targetLng - lng) * radians;
+  return 6371 * Math.acos(Math.min(1, Math.max(-1,
+    Math.sin(lat * radians) * Math.sin(targetLat * radians)
+      + Math.cos(lat * radians) * Math.cos(targetLat * radians) * Math.cos(difference),
+  )));
+}
 
+function complementaryItems(area: string, location: string, lat?: number, lng?: number): DiscoveryItem[] {
   return discoveryItems
-    .filter((item) => item.world !== "hourly" && item.world !== "providers")
-    .map((item, index) => {
-      const candidate = `${item.area} ${item.location}`.toLocaleLowerCase("he");
-      const candidateTerms = new Set(candidate.split(/\s+/).filter((term) => term.length > 2));
-      const overlap = [...queryTerms].filter((term) => candidateTerms.has(term)).length;
-      const score = (item.location === location ? 80 : 0)
-        + (item.area === area ? 60 : 0)
-        + (candidate.includes(location.toLocaleLowerCase("he")) ? 35 : 0)
-        + (candidate.includes(area.toLocaleLowerCase("he")) ? 25 : 0)
-        + overlap * 12;
-      return { item, index, score };
+    .filter((item) => item.world === "spa" || item.world === "activities")
+    .map((item) => {
+      const distance = typeof lat === "number" && typeof lng === "number" && typeof item.lat === "number" && typeof item.lng === "number"
+        ? distanceKm(lat, lng, item.lat, item.lng) : null;
+      return { item, distance };
     })
-    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .filter(({ item, distance }) => distance !== null ? distance <= 35 : item.location === location)
+    .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity) || Number(b.item.location === location) - Number(a.item.location === location))
     .map(({ item }) => item)
-    .filter((item, index, all) => all.findIndex((candidate) => candidate.id === item.id) === index)
     .slice(0, 6);
 }
 
@@ -234,7 +235,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
     const images = property.images.filter((image) => !unitSources.has(image));
     return images.length ? images : property.images;
   }, [property]);
-  const complements = useMemo(() => complementaryItems(property.area, property.location), [property.area, property.location]);
+  const complements = useMemo(() => complementaryItems(property.area, property.location, property.lat, property.lng), [property.area, property.location, property.lat, property.lng]);
   const localTrails = useMemo(() => nearbyTrails(property.area, property.location, 6), [property.area, property.location]);
   const regionalVacationLanding = useMemo(() => vacationBreadcrumbForLocation(property.area), [property.area]);
   const matchingProviders = useMemo(() => {
@@ -316,13 +317,6 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
 
         <div className={`shell property-layout ${activeWorld === "vacation" ? "property-layout--vacation" : ""}`}>
           <div className="property-content">
-            <section className="property-facts" aria-label="עיקרי המקום">
-              <div><b>{property.guests > 0 ? property.guests : "בבירור"}</b><span>{property.guests > 0 ? property.capacityScope === "unit" ? "אורחים ביחידה הגדולה" : "אורחים לכל היותר" : "קיבולת מול המקום"}</span></div>
-              {property.bedrooms && <div><b>{property.bedrooms}</b><span>חדרי שינה</span></div>}
-              {property.units ? <div><b>{property.units}</b><span>יחידות אירוח</span></div> : property.capacityScope !== "unit" ? <div><b>שלם</b><span>המקום כולו</span></div> : null}
-              <div><b>{property.features.length}</b><span>מאפיינים מרכזיים</span></div>
-            </section>
-
             <section id="about" className="property-about"><span className="eyebrow">תיאור מקום האירוח</span><h2>על {property.name}</h2><p>{property.description}</p><div className="feature-chips audience-chips">{property.audiences.map((audience) => <span key={audience}>מתאים ל{audience}</span>)}</div>{highlights.length ? <div className="property-highlights" aria-label="הדברים הבולטים במקום">{highlights.map((highlight) => <article key={highlight.label}><PropertyHighlightIcon icon={highlight.icon} /><strong>{highlight.label}</strong></article>)}</div> : null}</section>
 
             {activeWorld === "vacation" && (initialSource === "home-deals" || initialSource === "home-holidays") && /^vacation-\d+$/.test(property.slug) ? <HomeDealDetailStatus siteID={Number(property.slug.slice(9))} period={initialPeriod} source={initialSource} from={dateRange.from} till={dateRange.till} guests={guests} /> : null}
@@ -446,13 +440,13 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
             <section className="property-provider-strip" aria-labelledby="matching-providers-title"><div className="section-head"><div><h2 id="matching-providers-title">ספקים שמגיעים אליכם</h2></div><Link href="/providers">לכל הספקים</Link></div><div className="property-provider-strip__rail">{matchingProviders.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div></section>
             <div className="property-complements__intro">
               <div className="section-head">
-                <div><h2>מה יש ליד {property.name}?</h2></div>
+                <div><h2>מה יש בסביבה של {property.name}?</h2></div>
                 <span className="section-head__links property-complements__nav"><Link href="/trails"><b aria-hidden="true">↗</b> מסלולי טיול</Link><Link href="/attractions"><b aria-hidden="true">✦</b> אטרקציות</Link></span>
               </div>
-              <p className="property-complements__note">מסלולים ואטרקציות באזור {property.location}, עם כל הפרטים במקום אחד.</p>
+              <p className="property-complements__note">{typeof property.lat === "number" && typeof property.lng === "number" ? "מקומות במרחק משוער של עד 35 ק״מ, מהקרוב לרחוק. נקודת המיקום עשויה לייצג את מרכז היישוב." : `מקומות שאומתו ביישוב ${property.location}. לא זמין כרגע מרחק מדויק למקומות אחרים.`}</p>
             </div>
-            <div className="discovery-grid discovery-grid--compact">{complements.map((item) => <DiscoveryCard key={`${item.world}-${item.id}`} item={item} />)}</div>
-            <div className="property-nearby-trails"><div className="section-head"><div><span className="eyebrow">טיול עצמאי ליד מקום האירוח</span><h2>מסלולים באזור</h2><p>ההתאמה נעשית לפי אזור כללי. המרחק המדויק והמצב בשטח נבדקים לפני היציאה.</p></div><Link href="/trails">לכל המסלולים</Link></div><div className="trail-grid trail-grid--business">{localTrails.map((trail) => <TrailCard key={trail.slug} trail={trail} compact />)}</div></div>
+            {complements.length ? <div className="discovery-grid discovery-grid--compact">{complements.map((item) => <DiscoveryCard key={`${item.world}-${item.id}`} item={item} />)}</div> : <p>לא נמצאו כרגע מקומות עם מיקום מתאים שאפשר לאמת בסביבה הקרובה.</p>}
+            {localTrails.length ? <div className="property-nearby-trails"><div className="section-head"><div><span className="eyebrow">טיול עצמאי באזור</span><h2>מסלולים באזור</h2><p>המסלולים מותאמים לשם היישוב או האזור. אין כרגע נקודות מיקום מאומתות לחישוב מרחק מדויק ביניהם.</p></div><Link href="/trails">לכל המסלולים</Link></div><div className="trail-grid trail-grid--business">{localTrails.map((trail) => <TrailCard key={trail.slug} trail={trail} compact />)}</div></div> : null}
           </div>
         </section>
 
@@ -468,6 +462,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
             </nav>
           </div>
         </section>
+        {(activeWorld === "vacation" || activeWorld === "events" || activeWorld === "hourly") ? <FloatingContactActions world={activeWorld} placeId={property.slug} placeName={property.name} phone={property.contact?.phone} whatsapp={ownerWhatsapp} serviceName={activeOffering.label} from={dateRange.from} till={dateRange.till} guests={guests} /> : null}
       </main>
 
       <CalendarDemo mode="business" businessKind={property.scenario} businessName={property.name} open={calendarOpen && activeWorld === "vacation"} onClose={() => setCalendarOpen(false)} guests={guests} maxGuests={activeOffering.maxGuests || property.guests} onGuestsChange={setGuests} availabilityResolver={property.demoOperations?.fictional ? demoAvailabilityForDate : undefined} priceResolver={property.demoOperations?.fictional ? (date) => demoNightlyPrice(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`, property.demoOperations!.weekdayNightlyPrice, property.demoOperations!.weekendNightlyPrice) : undefined} onConfirm={(result) => { const from = result.checkIn || ""; setDates(result.summary); setDateRange({ from, till: result.checkOut || "" }); setSelectedPrice(property.demoOperations?.fictional && from ? String(demoNightlyPrice(from, property.demoOperations.weekdayNightlyPrice, property.demoOperations.weekendNightlyPrice)) : ""); }} />
