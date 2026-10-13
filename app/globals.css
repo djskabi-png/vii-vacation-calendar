@@ -5316,6 +5316,25 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .home-live-deals__tabs button[aria-selected="true"] { background: #176762; border-color: #176762; color: #fff; }
 .home-live-deals__tabs button:focus-visible, .home-live-deals__status button:focus-visible { outline: 3px solid #117a71; outline-offset: 2px; }
 .home-live-deals__results { min-height: 345px; }
+.home-live-deals__loading { min-height: 320px; padding-block: 2px 12px; }
+.home-live-deals__loading-head { display: grid; justify-items: center; gap: 3px; margin-bottom: 18px; color: #375b58; font-size: .9rem; font-weight: 600; }
+.home-live-deals__loading-route { position: relative; width: 178px; height: 76px; }
+.home-live-deals__loading-route::before { position: absolute; top: 67px; right: 22px; left: 22px; border-top: 2px dashed #a8c8c3; content: ""; }
+.home-live-deals__loading-route > span { position: absolute; top: 63px; width: 9px; height: 9px; border: 2px solid #5b9d96; border-radius: 50%; background: #fff; }
+.home-live-deals__loading-route > span:nth-child(1) { right: 20px; }
+.home-live-deals__loading-route > span:nth-child(2) { right: calc(50% - 4px); }
+.home-live-deals__loading-route > span:nth-child(3) { left: 20px; }
+.home-live-deals__loading-route img { position: absolute; z-index: 1; top: 0; right: 0; width: 62px; height: 62px; object-fit: contain; animation: home-deal-logo-trip 2.4s ease-in-out infinite alternate; }
+@keyframes home-deal-logo-trip { 0% { transform: translate(0, 0) rotate(0); } 50% { transform: translate(-58px, -7px) rotate(-5deg); } 100% { transform: translate(-116px, 0) rotate(0); } }
+.home-live-deals__loading-cards { display: flex; gap: 16px; overflow: hidden; }
+.home-live-deals__loading-card { flex: 0 0 calc((100% - 32px) / 3); min-width: 0; overflow: hidden; border: 1px solid #d8e2df; border-radius: 8px; background: #fff; }
+.home-live-deals__loading-image { height: 132px; background: #e6efed; animation: home-deal-loading-pulse 1.5s ease-in-out infinite alternate; }
+.home-live-deals__loading-lines { display: grid; gap: 10px; padding: 15px; }
+.home-live-deals__loading-lines span { height: 11px; border-radius: 3px; background: #e6efed; animation: home-deal-loading-pulse 1.5s ease-in-out infinite alternate; }
+.home-live-deals__loading-lines span:nth-child(1) { width: 64%; }
+.home-live-deals__loading-lines span:nth-child(2) { width: 88%; animation-delay: .2s; }
+.home-live-deals__loading-lines span:nth-child(3) { width: 42%; animation-delay: .4s; }
+@keyframes home-deal-loading-pulse { from { opacity: .5; } to { opacity: 1; } }
 .home-live-deals__status { display: grid; place-content: center; justify-items: center; gap: 12px; min-height: 300px; margin: 0; color: #3c5554; text-align: center; }
 .home-live-deals__status p { margin: 0; }
 .home-live-deals__status button { padding: 8px 14px; border: 1px solid #176762; border-radius: 6px; background: #fff; color: #176762; font: inherit; cursor: pointer; }
@@ -5339,8 +5358,9 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .home-deal-detail-status p { margin: 6px 0 0; line-height: 1.5; }
 .home-deal-detail-status button { margin-top: 10px; padding: 8px 12px; border: 1px solid #176762; border-radius: 6px; background: #fff; color: #176762; font: inherit; cursor: pointer; }
 .home-deal-detail-status button:focus-visible { outline: 3px solid #117a71; outline-offset: 2px; }
-@media (max-width: 900px) { .home-live-deals__card { flex-basis: calc((100% - 16px) / 2); } }
-@media (max-width: 600px) { .home-live-deals__card { flex-basis: min(84vw, 350px); } .home-live-deals__results { min-height: 320px; } }
+@media (max-width: 900px) { .home-live-deals__card, .home-live-deals__loading-card { flex-basis: calc((100% - 16px) / 2); } }
+@media (max-width: 600px) { .home-live-deals__card, .home-live-deals__loading-card { flex-basis: min(84vw, 350px); } .home-live-deals__results { min-height: 320px; } }
+@media (prefers-reduced-motion: reduce) { .home-live-deals__loading-route img, .home-live-deals__loading-image, .home-live-deals__loading-lines span { animation: none; } }
 .home-last-minute { padding-block: 64px; color: var(--ink); background: radial-gradient(circle at 14% 18%,rgba(100,205,210,.22),transparent 32%),linear-gradient(135deg,#eef9f8 0%,#f8fbfb 55%,#fff8f2 100%); }
 .home-last-minute__layout { display: grid; grid-template-columns: .58fr 1.42fr; gap: clamp(35px,5vw,70px); align-items: center; }
 .home-last-minute__intro h2 { margin: 10px 0 18px; color: var(--ink); font-size: clamp(2.5rem,4.5vw,4.4rem); line-height: .98; }

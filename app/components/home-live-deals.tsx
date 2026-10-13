@@ -130,7 +130,13 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
         }}>{item.name} · {dateLabel(item.from, locale)}</button>)}
       </div>
       <div className="home-live-deals__results" id={`${sectionId}-results`} role="tabpanel" aria-live="polite" aria-busy={displayState === "loading"}>
-        {displayState === "loading" ? <p className="home-live-deals__status">{text.loading}</p> : null}
+        {displayState === "loading" ? <div className="home-live-deals__loading" role="status" aria-label={text.loading}>
+          <div className="home-live-deals__loading-head" aria-hidden="true">
+            <div className="home-live-deals__loading-route"><span /><span /><span /><img src="/vii-logo.png" alt="" /></div>
+            <span>{text.loading}</span>
+          </div>
+          <div className="home-live-deals__loading-cards" aria-hidden="true">{[0, 1, 2].map((index) => <div className="home-live-deals__loading-card" key={index}><div className="home-live-deals__loading-image" /><div className="home-live-deals__loading-lines"><span /><span /><span /></div></div>)}</div>
+        </div> : null}
         {displayState === "error" ? <div className="home-live-deals__status"><p>{text.error}</p><button type="button" onClick={() => setRetry((value) => value + 1)}>{text.retry}</button></div> : null}
         {displayState === "ready" && (mode === "holidays" && !holidays.length || data?.deals.length === 0) ? <p className="home-live-deals__status">{text.empty}</p> : null}
         {displayState === "ready" && data?.deals.length ? <div className="home-live-deals__track" ref={track} data-horizontal-rail>
