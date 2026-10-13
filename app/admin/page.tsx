@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Activity, ArrowLeft, BarChart3, CalendarSync, MessageCircle, RefreshCw, ShieldCheck, Star, TrendingUp, Route, FilePenLine } from "lucide-react";
+import { Activity, ArrowLeft, BarChart3, CalendarSync, MessageCircle, RefreshCw, ShieldCheck, Star, TrendingUp, Route, FilePenLine, ListChecks } from "lucide-react";
 import styles from "./admin.module.css";
 
 type Overview = {
@@ -19,6 +19,8 @@ const date = (value: string | null) => value ? new Date(value).toLocaleString("h
 const modules = [
   { title: "קטלוג וספקים", description: "משיכות נתונים, מצב ארבעת התחומים ושגיאות.", href: "/admin/catalog-sync", icon: CalendarSync },
   { title: "חיפושים באתר", description: "מדידה בהסכמה לפי תחום, יעד ותקופה.", href: "/admin/search-analytics", icon: BarChart3 },
+  { title: "ביצועי עסקים", description: "חשיפות, כניסות, פעולות והמרות לפי עסק.", href: "/admin/business-performance", icon: BarChart3 },
+  { title: "תור אישורי תוכן", description: "עמודים לבדיקה מתוך חיפושים אמיתיים, עם מעבר לעריכה ותזמון.", href: "/admin/content-queue", icon: ListChecks },
   { title: "עמודי חיפוש", description: "עריכת כותרת ותיאור לעמודי נחיתה קבועים, עם טיוטות וגרסאות.", href: "/admin/search-pages", icon: FilePenLine },
   { title: "הפניות וכתובות", description: "ניהול 301 ו־410 לכתובות ישנות, עם תיעוד שינויים.", href: "/admin/redirects", icon: Route },
   { title: "הזמנות וחוות דעת", description: "בקשות הזמנה, חוות דעת ומצב המסירה הידוע.", href: "/admin/operations", icon: Star },

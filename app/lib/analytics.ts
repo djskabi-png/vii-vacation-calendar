@@ -18,6 +18,13 @@ declare global {
   }
 }
 
+const businessSession = () => { const key = "vii-business-session"; let id = sessionStorage.getItem(key); if (!id) { id = crypto.randomUUID(); sessionStorage.setItem(key, id); } return id; };
+export function trackBusinessEvent(name: "impression" | "page_view" | "phone_reveal" | "whatsapp_lead" | "booking_request", details: { placeId: string; placeName: string; world: string }) {
+  if (typeof window === "undefined" || window.localStorage.getItem("vii-cookie-choice") !== "all") return;
+  const event = { eventId: crypto.randomUUID(), name, ...details, pagePath: `${window.location.pathname}${window.location.search}`, sessionId: businessSession() };
+  void fetch("/api/analytics/business", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(event), keepalive: true, credentials: "same-origin" }).catch(() => undefined);
+}
+
 export function trackPhoneReveal(details: PhoneRevealDetails) {
   if (typeof window === "undefined") return;
 
@@ -35,6 +42,7 @@ export function trackPhoneReveal(details: PhoneRevealDetails) {
   if (window.localStorage.getItem("vii-cookie-choice") === "all") {
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push(eventDetails);
+    trackBusinessEvent("phone_reveal", details);
   }
 }
 
@@ -55,6 +63,7 @@ export function trackWhatsAppLeadSaved(details: WhatsAppLeadDetails) {
   if (window.localStorage.getItem("vii-cookie-choice") === "all") {
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push(eventDetails);
+    trackBusinessEvent("whatsapp_lead", details);
   }
 }
 

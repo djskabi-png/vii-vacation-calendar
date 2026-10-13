@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 import { vacationBreadcrumbForLocation } from "../data/vacation-landings";
@@ -39,6 +39,7 @@ import { UnitDetailsDialog } from "../components/unit-details-dialog";
 import { PropertyGallery } from "../components/property-gallery";
 import { FloatingContactActions } from "../components/floating-contact-actions";
 import type { SupplierPlaceDetail } from "../data/supplier-place-detail";
+import { trackBusinessEvent } from "../lib/analytics";
 
 function distanceKm(lat: number, lng: number, targetLat: number, targetLng: number) {
   const radians = Math.PI / 180;
@@ -179,6 +180,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
         ...(room.id ? { supplierRoomID: room.id } : {}) })),
       features: [...new Set([...(supplierDetail.highlights || []), ...base.features, ...supplierDetail.rooms.flatMap((room) => room.features)])] } : base;
   }, [initialProperty, initialSlug, supplierDetail]);
+  useEffect(() => { trackBusinessEvent("page_view", { placeId: property.slug, placeName: property.name, world: initialWorld }); }, [initialWorld, property.name, property.slug]);
   const offerings = useMemo(() => getListingOfferings(property), [property]);
   const [worldSelection, setWorldSelection] = useState<{ slug: string; world: BusinessWorld } | null>(null);
   const initialActiveWorld = offerings.some((offering) => offering.world === initialWorld) ? initialWorld : offerings[0].world;
