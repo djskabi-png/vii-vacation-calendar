@@ -51,3 +51,21 @@ test("live room detail keeps supplier ordering and matches the verified room gal
   assert.deepEqual(detail.rooms[0].featureGroups, [{ title: "סוויטת טוהר", items: ["מיטה זוגית"] }]);
 });
 
+test("a temporarily empty supplier room list does not erase accepted units", async () => {
+  const accepted = supplierPlaceDetail("vacation-41");
+  const detail = await liveSupplierPlaceDetail("vacation-41", {
+    token: "test-token",
+    fallback: accepted,
+    fetchImpl: async (url) => Response.json(url.endsWith("/locations") ? {} : {
+      id: 41, active: true, galleries: {
+        main: { title: "גלריה ראשית", pictures: ["/gallery/cover.jpg"] },
+        unit: { title: "סוויטה טוהר", pictures: ["/gallery/tohar.jpg"] },
+      },
+      rooms: [],
+    }),
+  });
+  assert.equal(detail.images[0], "https://www.vii.co.il/gallery/cover.jpg");
+  assert.deepEqual(detail.rooms.map((room) => room.id), [85, 86, 87]);
+  assert.deepEqual(detail.rooms[2].images, ["https://www.vii.co.il/gallery/tohar.jpg"]);
+});
+
