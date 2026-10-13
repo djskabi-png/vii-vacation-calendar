@@ -8,6 +8,8 @@ const links = [
   { href: "/admin", label: "תמונת מצב" },
   { href: "/admin/catalog-sync", label: "קטלוגים" },
   { href: "/admin/search-analytics", label: "חיפושים" },
+  { href: "/admin/business-performance", label: "ביצועי עסקים" },
+  { href: "/admin/content-queue", label: "תור אישורים" },
   { href: "/admin/search-pages", label: "עמודי חיפוש" },
   { href: "/admin/redirects", label: "הפניות 301" },
   { href: "/admin/operations", label: "הזמנות וחוות דעת" },

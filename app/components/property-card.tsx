@@ -5,11 +5,11 @@
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useRef, useState, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import type { ListingAvailability, ListingDateQuote, Property } from "../data/site-data";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { PinIcon } from "../site-header";
-import { trackPhoneReveal } from "../lib/analytics";
+import { trackBusinessEvent, trackPhoneReveal } from "../lib/analytics";
 import { FavoriteButton } from "./favorite-button";
 import { WhatsAppLeadButton } from "./whatsapp-lead-button";
 import { ListingContactPreview, SampleListingDisclosure } from "./listing-contact-preview";
@@ -300,6 +300,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
   const [imageIndex, setImageIndex] = useState(0);
   const [phoneVisible, setPhoneVisible] = useState(false);
   const touchStart = useRef<number | null>(null);
+  const cardRef = useRef<HTMLElement>(null);
   const didSwipe = useRef(false);
   const swipeResetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const phone = property.contact?.phone?.replace(/[^\d+]/g, "");
@@ -316,6 +317,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
   const selectedGuests = String(selectedStay?.guests || searchParams.get("guests") || searchParams.get("adults") || 2);
   const propertyHref = quickBookingReady && selectedStay ? propertyDetailHref(basePropertyHref, { source: "search", from: selectedStay.from, till: selectedStay.till, guests: selectedGuests, price: String(resolvedAvailability?.nightlyPrice || ""), illustrative: resolvedAvailability?.illustrative || property.demoOperations?.fictional ? "1" : undefined }) : basePropertyHref;
   const quickBookingHref = quickBookingReady && selectedStay ? `/booking?${new URLSearchParams({ world: "vacation", place: property.slug, from: selectedStay.from, till: selectedStay.till, guests: selectedGuests, price: String(resolvedAvailability?.nightlyPrice || ""), ...(resolvedAvailability?.illustrative || property.demoOperations?.fictional ? { illustrative: "1" } : {}) }).toString()}` : "";
+  useEffect(() => { const node = cardRef.current; if (!node || !window.IntersectionObserver) return; let sent = false; const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting && entry.intersectionRatio >= .5 && !sent) { sent = true; trackBusinessEvent("impression", { placeId: property.slug, placeName: property.name, world: "vacation" }); observer.disconnect(); } }, { threshold: .5 }); observer.observe(node); return () => observer.disconnect(); }, [property.name, property.slug]);
 
   function moveImage(event: MouseEvent<HTMLButtonElement>, direction: -1 | 1) {
     event.preventDefault();
@@ -324,7 +326,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
   }
 
   return (
-    <article className={`stay-card stay-card--${cardMode}`}>
+    <article ref={cardRef} className={`stay-card stay-card--${cardMode}`}>
       <div className="stay-card__media" onTouchStart={(event) => { if (swipeResetTimer.current) clearTimeout(swipeResetTimer.current); didSwipe.current = false; touchStart.current = event.changedTouches[0].clientX; }} onTouchEnd={(event) => { if (touchStart.current === null || galleryImages.length < 2) return; const distance = event.changedTouches[0].clientX - touchStart.current; if (Math.abs(distance) > 45) { didSwipe.current = true; swipeResetTimer.current = setTimeout(() => { didSwipe.current = false; swipeResetTimer.current = null; }, 500); setImageIndex((current) => (current + (distance > 0 ? -1 : 1) + galleryImages.length) % galleryImages.length); } touchStart.current = null; }}>
         <Link href={propertyHref} target="_blank" rel="noopener noreferrer" aria-label={`פרטים על ${property.name}`} onClick={(event) => { if (!didSwipe.current) return; event.preventDefault(); event.stopPropagation(); didSwipe.current = false; if (swipeResetTimer.current) clearTimeout(swipeResetTimer.current); swipeResetTimer.current = null; }}>
           <img key={galleryImages[imageIndex]} src={galleryImages[imageIndex]} alt={`${property.name}, תמונה ${imageIndex + 1} מתוך ${galleryImages.length}`} title={`${property.name}, תמונה ${imageIndex + 1} מתוך ${galleryImages.length}`} loading="lazy" decoding="async" />
