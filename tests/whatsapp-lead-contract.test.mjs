@@ -9,10 +9,13 @@ test("place WhatsApp actions save a complete lead before opening the conversatio
 
   assert.match(source, /name="name"[^>]*required|required[^>]*name="name"/);
   assert.match(source, /name="phone"[^>]*required|required[^>]*name="phone"/);
-  assert.match(source, /name="requested_date"[^>]*required|required[^>]*name="requested_date"/);
+  assert.match(source, /name="requested_date"/);
+  assert.doesNotMatch(source, /<input[^>]*name="requested_date"[^>]*required|<input[^>]*required[^>]*name="requested_date"/);
+  assert.doesNotMatch(source, /<input[^>]*name="requested_till"[^>]*required|<input[^>]*required[^>]*name="requested_till"/);
   assert.match(source, /name="guests"/);
   assert.doesNotMatch(source, /<input[^>]*name="guests"[^>]*required/);
-  assert.match(source, /name="privacy"[^>]*required|required[^>]*name="privacy"/);
+  assert.doesNotMatch(source, /name="privacy"[^>]*required|required[^>]*name="privacy"/);
+  assert.match(source, /privacyAccepted: true/);
   assert.match(source, /fetch\("\/api\/leads\/"/);
   assert.match(source, /purpose: "whatsapp_enquiry"/);
   assert.match(source, /sourceChannel: "detail_whatsapp"/);
@@ -26,6 +29,7 @@ test("the server owns the verified SMS notification request", async () => {
   const source = await read("app/api/leads/route.ts");
 
   assert.match(source, /missing_whatsapp_enquiry_context/);
+  assert.match(source, /payload\.requestedDate && !\/\^\\d\{4\}-\\d\{2\}-\\d\{2\}\$\//);
   assert.match(source, /delete forwardedPayload\.notificationRequest/);
   assert.match(source, /channel: "sms"/);
   assert.match(source, /recipientSource: "verified_place_contact"/);
