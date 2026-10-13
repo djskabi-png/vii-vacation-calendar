@@ -62,9 +62,10 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
   const name = text(raw.name);
   const images = galleryImages(raw.galleries);
   const city = cityById.get(Number(record(raw.location).city));
-  if (raw.active !== true || raw.id !== supplierId || !name || !text(city?.title) || !images.length) {
+  if (raw.active !== true || raw.id !== supplierId || !name || !text(city?.title)) {
     throw new Error("invalid_sergey_place");
   }
+  if (!images.length) throw new Error("sergey_place_missing_media");
   const area = areaById.get(Number(city?.area)) || "";
   const rooms = Array.isArray(raw.rooms) ? raw.rooms.map(record) : [];
   const galleries = Object.values(record(raw.galleries));
@@ -179,18 +180,27 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
       if (!active.length || ids.some((id) => !id) || new Set(ids).size !== ids.length) {
         throw new Error("invalid_sergey_catalog");
       }
-      const entries = new Array<SupplierCatalogEntry>(active.length);
+      const entries = new Array<SupplierCatalogEntry | null>(active.length);
+      const excludedMediaIds: number[] = [];
       let cursor = 0;
       async function worker() {
         while (cursor < active.length) {
           const index = cursor++;
           const id = ids[index];
-          entries[index] = normalizePlace(world, id, await get(`/${world}/${id}`), cities, areas);
+          try {
+            entries[index] = normalizePlace(world, id, await get(`/${world}/${id}`), cities, areas);
+          } catch (error) {
+            if (error instanceof Error && error.message === "sergey_place_missing_media") {
+              entries[index] = null;
+              excludedMediaIds.push(id);
+            } else throw error;
+          }
         }
       }
       await Promise.all(Array.from({ length: Math.min(6, active.length) }, worker));
-      if (entries.some((entry) => !entry)) throw new Error("invalid_sergey_catalog");
-      return { fetchedAt: new Date().toISOString(), entries };
+      if (entries.some((entry) => entry === undefined)) throw new Error("invalid_sergey_catalog");
+      if (excludedMediaIds.length) console.warn("VII supplier places withheld without media", { world, siteIDs: excludedMediaIds.sort((a, b) => a - b) });
+      return { fetchedAt: new Date().toISOString(), entries: entries.filter((entry): entry is SupplierCatalogEntry => entry !== null) };
     },
   };
 }
