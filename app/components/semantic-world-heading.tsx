@@ -2,7 +2,6 @@
 
 import { usePathname, useSearchParams } from "next/navigation";
 import type { SearchMode } from "../data/search-taxonomy";
-import { searchLocationFromSlug } from "../data/world-search-landings";
 import { spaSearchDescription, spaSearchStateFromSegments, spaSearchTitle } from "../data/spa-search-landings";
 import { spaLandings } from "../data/spa-landings";
 import { useSiteLanguage } from "../i18n/locale-provider";
@@ -38,15 +37,13 @@ export function SemanticWorldHeading({ mode, title, description }: { mode?: Sear
   }
 
   if (mode === "hourly") {
-    const parts = pathname.split("/").filter(Boolean);
-    const hourlyIndex = parts.indexOf("hourly");
     const queryLocation = searchParams.get("location") || undefined;
-    const location = queryLocation || (hourlyIndex >= 0 && parts[hourlyIndex + 1] === "search" ? searchLocationFromSlug("hourly", parts[hourlyIndex + 2]) : undefined);
-    if (location) {
-      liveTitle = `חדרים לפי שעה ב${location}`;
-      liveDescription = `חדרים וסוויטות לשהייה קצרה ב${location}, עם סינון לפי מחיר ומאפייני המקום.`;
+    if (queryLocation) {
+      liveTitle = `חדרים לפי שעה ב${queryLocation}`;
+      liveDescription = `חדרים וסוויטות לשהייה קצרה ב${queryLocation}, עם סינון לפי מחיר ומאפייני המקום.`;
     }
   }
 
   return <><h1>{liveTitle}</h1><p>{liveDescription}</p></>;
 }
+
