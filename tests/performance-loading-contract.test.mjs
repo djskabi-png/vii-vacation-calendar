@@ -91,3 +91,17 @@ test("shared navigation deliberately warms the localized homepage on capable con
   assert.match(header, /href=\{homeHref\} prefetch/);
   assert.match(header, /data-global-feedback="true"/);
 });
+
+test("homepage does not prefetch heavyweight search result documents before intent", async () => {
+  const [page, showcase, deals, switcher] = await Promise.all([
+    readFile(new URL("app/page.tsx", root), "utf8"),
+    readFile(new URL("app/components/home-showcase.tsx", root), "utf8"),
+    readFile(new URL("app/components/home-live-deals.tsx", root), "utf8"),
+    readFile(new URL("app/components/world-switcher.tsx", root), "utf8"),
+  ]);
+  assert.match(page, /href="\/search" prefetch=\{false\}/);
+  assert.match(page, /href=\{`\/search\?location=.*?prefetch=\{false\}/s);
+  assert.match(showcase, /href=\{item\.href\} prefetch=\{false\}/);
+  assert.match(deals, /href=\{searchHref\} prefetch=\{false\}/);
+  assert.match(switcher, /world-dock__prehydrate[^>]+prefetch=\{false\}/);
+});

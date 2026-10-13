@@ -22,6 +22,7 @@ export type Listing = {
   images: string[];
   description: string;
   features: string[];
+  searchFilterIds?: string[];
   highlights?: ListingHighlight[];
   featureGroups?: ListingFeatureGroup[];
   audiences: string[];

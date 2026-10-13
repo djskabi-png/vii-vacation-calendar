@@ -118,7 +118,7 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
           <div className="home-vacation-strip__track home-vacation-strip__track--destinations" data-horizontal-rail ref={(node) => { tracks.current.destinations = node; }}>
             {vacationDestinations.map((item, index) => {
               const place = destinationPlaces[index];
-              return place ? <Link className="home-vacation-card home-vacation-card--destination home-slider__item" href={item.href} key={item.label}><img src={place.image} alt="" loading="lazy" decoding="async" /><div><span>יעד מומלץ</span><h4>{item.label}</h4><p>{item.note}</p><b>לכל המקומות באזור</b></div></Link> : null;
+              return place ? <Link className="home-vacation-card home-vacation-card--destination home-slider__item" href={item.href} prefetch={false} key={item.label}><img src={place.image} alt="" loading="lazy" decoding="async" /><div><span>יעד מומלץ</span><h4>{item.label}</h4><p>{item.note}</p><b>לכל המקומות באזור</b></div></Link> : null;
             })}
           </div>
         </div>

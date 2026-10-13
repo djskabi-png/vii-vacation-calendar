@@ -38,6 +38,7 @@ import { FilterControlIcon } from "../components/filter-control-icon";
 import { SearchAfterResults, type ContextualSearchSuggestion } from "../components/search-after-results";
 import { ResultsViewToggle, useResultsViewMode } from "../components/results-view-toggle";
 import { ProgressiveResults } from "../components/progressive-results";
+import { matchesVacationSearchFilter } from "../lib/vacation-search-filter-index";
 
 export type SearchLandingContext = {
   path: string;
@@ -527,15 +528,13 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       const matchesGuests = property.capacityScope === "unit" || property.guests >= guests;
       const priceFilterActive = minPrice > VACATION_PRICE_MIN || maxPrice < VACATION_PRICE_MAX;
       const matchesPrice = !supplierPriceFilterAvailable || !priceFilterActive || (typeof property.price === "number" && property.price >= minPrice && property.price <= maxPrice);
-      const matchesPool = !pool || property.features.some((feature) => feature.includes("בריכ"));
-      const matchesSpa = !spa || property.features.some((feature) => feature.includes("ג'קוזי") || feature.includes("ספא") || feature.includes("סאונה"));
+      const matchesPool = !pool || matchesVacationSearchFilter(property, "pool");
+      const matchesSpa = !spa || ["spa", "jacuzzi", "sauna"].some((id) => matchesVacationSearchFilter(property, id));
       const matchesWhole = !whole || (property.capacityScope !== "unit" && property.scenario === "single");
       const matchesAccessibility = !accessibleOnly || getPlaceAccessibility(property.slug).status === "accessible";
-      const searchableFacts = [property.description, property.type, property.location, property.area, ...property.features].join(" ").toLocaleLowerCase("he");
       const matchesExtras = selectedExtras.every((id) => {
         if (id === "accessible") return getPlaceAccessibility(property.slug).status === "accessible";
-        const option = legacyExtraFilters.find((item) => item.id === id);
-        return option ? option.matches.some((term) => searchableFacts.includes(term.toLocaleLowerCase("he"))) : false;
+        return matchesVacationSearchFilter(property, id);
       });
       return matchesType && matchesGuests && matchesPrice && matchesPool && matchesSpa && matchesWhole && matchesAccessibility && matchesExtras;
     }), [accessibleOnly, guests, landing, maxPrice, minPrice, pool, properties, selectedExtras, selectedTypes, spa, whole]);
@@ -617,19 +616,17 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
 
   const draftCandidates = properties.filter((property) => {
     const matchesType = !supplierTypeFilterAvailable || matchesAnyAccommodationType(property.type, shownFilters.selectedTypes, landing);
-    const searchableFacts = [property.description, property.type, property.location, property.area, ...property.features].join(" ").toLocaleLowerCase("he");
     const matchesExtras = shownFilters.selectedExtras.every((id) => {
       if (id === "accessible") return getPlaceAccessibility(property.slug).status === "accessible";
-      const option = legacyExtraFilters.find((item) => item.id === id);
-      return option ? option.matches.some((term) => searchableFacts.includes(term.toLocaleLowerCase("he"))) : false;
+      return matchesVacationSearchFilter(property, id);
     });
     const priceFilterActive = shownFilters.minPrice > VACATION_PRICE_MIN || shownFilters.maxPrice < VACATION_PRICE_MAX;
     const matchesPrice = !supplierPriceFilterAvailable || !priceFilterActive || (typeof property.price === "number" && property.price >= shownFilters.minPrice && property.price <= shownFilters.maxPrice);
     return matchesType
       && (property.capacityScope === "unit" || property.guests >= shownFilters.guests)
       && matchesPrice
-      && (!shownFilters.pool || property.features.some((feature) => feature.includes("בריכ")))
-      && (!shownFilters.spa || property.features.some((feature) => feature.includes("ג'קוזי") || feature.includes("ספא") || feature.includes("סאונה")))
+      && (!shownFilters.pool || matchesVacationSearchFilter(property, "pool"))
+      && (!shownFilters.spa || ["spa", "jacuzzi", "sauna"].some((id) => matchesVacationSearchFilter(property, id)))
       && (!shownFilters.whole || (property.capacityScope !== "unit" && property.scenario === "single"))
       && (!shownFilters.accessibleOnly || getPlaceAccessibility(property.slug).status === "accessible")
       && matchesExtras;
