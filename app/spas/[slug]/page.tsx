@@ -7,6 +7,9 @@ import type { SpaPlusSite } from "../../data/spaplus";
 import { publicCatalogSummaries } from "../../lib/public-catalog-read.ts";
 import { getSpaLanding, spaItemMatches, spaLandingHref, spaLandings } from "../../data/spa-landings";
 import { breadcrumbSchema, collectionSchema } from "../../lib/seo";
+import { publishedSearchPage } from "../../lib/search-page-content.ts";
+
+export const dynamic = "force-dynamic";
 
 export function generateStaticParams() {
   return spaLandings.map(({ slug }) => ({ slug }));
@@ -16,7 +19,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const landing = getSpaLanding((await params).slug);
   if (!landing) return {};
   const path = spaLandingHref(landing);
-  return { title: landing.title, description: landing.description, alternates: { canonical: path }, openGraph: { type: "website", url: path, title: landing.title, description: landing.description } };
+  const page = await publishedSearchPage(path);
+  return { title: page?.title || landing.title, description: page?.description || landing.description, alternates: { canonical: path }, openGraph: { type: "website", url: path, title: page?.title || landing.title, description: page?.description || landing.description } };
 }
 
 export default async function SpaLandingPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -24,10 +28,14 @@ export default async function SpaLandingPage({ params }: { params: Promise<{ slu
   if (!landing) notFound();
   const spaPlaces = spaPlacesFromSites(await publicCatalogSummaries<SpaPlusSite>("spa"));
   const path = spaLandingHref(landing);
+  const page = await publishedSearchPage(path);
+  const title = page?.title || landing.title;
+  const description = page?.description || landing.description;
   const items = spaPlaces.filter((item) => spaItemMatches(item, landing));
   return <>
-    <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "בתי ספא", path: "/spas" }, { name: landing.title, path }])} />
-    <StructuredData data={collectionSchema(landing.title, landing.description, path, items.map((item) => ({ name: item.name, path: `/discover/place/${item.id}`, image: item.image })))} />
-    <WorldLanding world="spa" title={landing.title} description={landing.description} items={spaPlaces} searchMode="spa" activeSpaFilter={landing.id} initialSpaFilters={[landing.id]} breadcrumbItems={[{ name: "ראשי", path: "/" }, { name: "בתי ספא", path: "/spas" }, { name: landing.title }]} collectionTitle={`${landing.title}, ${items.length} מקומות מתאימים`} />
+    <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "בתי ספא", path: "/spas" }, { name: title, path }])} />
+    <StructuredData data={collectionSchema(title, description, path, items.map((item) => ({ name: item.name, path: `/discover/place/${item.id}`, image: item.image })))} />
+    <WorldLanding world="spa" title={title} description={description} items={spaPlaces} searchMode="spa" activeSpaFilter={landing.id} initialSpaFilters={[landing.id]} breadcrumbItems={[{ name: "ראשי", path: "/" }, { name: "בתי ספא", path: "/spas" }, { name: title }]} collectionTitle={`${title}, ${items.length} מקומות מתאימים`} />
   </>;
 }
+

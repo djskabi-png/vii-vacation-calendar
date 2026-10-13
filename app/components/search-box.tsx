@@ -17,6 +17,7 @@ import { cleanVacationPath } from "../data/vacation-landings";
 import { cleanAccommodationPath } from "../data/accommodation-landings";
 import { spaSearchHref, spaSearchStateFromValues } from "../data/spa-search-landings";
 import { eventSearchHref, hourlySearchHref } from "../data/world-search-landings";
+import { trackSearchSubmitted } from "../lib/analytics";
 import type { PlaceSearchResult } from "../data/search-place-inventory";
 
 type SpaAudience = "single" | "couple" | "group" | "day-pass";
@@ -415,6 +416,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
       destination = query ? `${route}?${query}` : route;
     }
     try {
+      trackSearchSubmitted({ world: mode, location: locationValue, hasDate: Boolean(mode === "spa" ? spaDate.date : mode === "events" ? eventDateRange.from : vacationDateRange.from) });
       const target = localizedPath(destination, language);
       const current = `${window.location.pathname}${window.location.search}`;
       if (current === target || `${current}/` === target || current === `${target}/`) {
@@ -600,3 +602,4 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     </>
   );
 }
+

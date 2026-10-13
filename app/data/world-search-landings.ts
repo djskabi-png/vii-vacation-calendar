@@ -1,5 +1,5 @@
 import type { SearchMode } from "./search-taxonomy";
-import { searchLocationOptions } from "./search-taxonomy";
+import { searchLocationOptions } from "./search-taxonomy.ts";
 
 const locationSlugs: Record<string, string> = {
   "צפון": "north",
@@ -36,3 +36,4 @@ export function hourlySearchHref(location?: string) {
   const slug = location && location !== "הכל" && location !== "כל הארץ" ? searchLocationSlug(location) : undefined;
   return slug ? `/hourly/search/${slug}` : "/hourly";
 }
+

@@ -37,7 +37,7 @@ function runtimeEventPlace(value: unknown): EventPlace {
   return { ...place, description: supplierDisplayDescription(place) };
 }
 
-export default function EventSearchPage({ initialArea }: { initialArea?: string }) {
+export default function EventSearchPage({ initialArea, landingTitle, landingDescription }: { initialArea?: string; landingTitle?: string; landingDescription?: string }) {
   const { items: eventPlaces, error: catalogError, loading: catalogLoading } = usePublishedCatalog("events", runtimeEventPlace);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -187,7 +187,7 @@ export default function EventSearchPage({ initialArea }: { initialArea?: string 
             <button className="button subtle wide" type="button" onClick={reset}>ניקוי סינונים</button>
           </aside>
           <section className={`event-list results-view results-view--${viewMode}${mapOpen ? " event-list--map-open" : ""}`}>
-            <section className="results-heading"><div><h1>{eventHeading}</h1><div className="results-heading__meta"><p>{displayed.length} מקומות מתאימים לחיפוש</p></div></div></section>
+            <section className="results-heading"><div><h1>{landingTitle && area === initialArea && type === "הכל" && eventType === "הכל" ? landingTitle : eventHeading}</h1><div className="results-heading__meta"><p>{displayed.length} מקומות מתאימים לחיפוש</p>{landingDescription && area === initialArea && type === "הכל" && eventType === "הכל" ? <p>{landingDescription}</p> : null}</div></div></section>
             {guests > 0 && eventPlaces.some((place) => place.capacityScope === "unit") ? <SupplierCapacityNotice /> : null}
             <div className="results-toolbar"><div className="results-toolbar__actions"><ResultsViewToggle value={viewMode} onChange={setViewMode} />{filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתוצאות" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={toggleResultsMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לתוצאות" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect className="results-toolbar__sort" compact label="מיון לפי" value={sort} onChange={(value) => changeFilter("sort", value)} options={sortOptions} /></div>
             {mapOpen && <div className="event-map-pane"><DeferredListingMap listings={filtered} mode="events" autoLoad onClose={closeResultsMap} onVisiblePlaceIdsChange={setMapVisibleIds} /></div>}{displayed.map((place) => <article key={place.slug}><div className="event-card-gallery"><img src={place.image} alt={place.name} title={place.name} loading="lazy" decoding="async" /><span>{place.images.length} תמונות</span><FavoriteButton id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={detailHref(place)} meta={`${place.type} · עד ${place.guests} אורחים ביחידה הגדולה`} /></div><div><small>{place.type}</small><h2>{place.name}</h2><p><PinIcon />{place.location}, {place.area}</p><p>{place.description}</p><div className="feature-chips">{place.features.slice(0, 3).map((feature) => <span key={feature}>{feature}</span>)}</div><div className="event-capacity">עד {place.guests} אורחים ביחידה הגדולה</div>{supplierStatus(place.slug) ? <p className="event-live-status" role="status">{supplierStatus(place.slug)}</p> : null}<div className="stay-card__actions event-card__actions"><Link className="stay-card__details-link" href={detailHref(place)} target="_blank" rel="noopener noreferrer">לפרטים על המקום<span className="sr-only"></span></Link><EventCardContactActions placeId={place.slug} placeName={place.name} phone={place.contact?.phone} whatsapp={place.contact?.whatsapp} serviceName={place.type} /></div></div></article>)}
@@ -200,3 +200,4 @@ export default function EventSearchPage({ initialArea }: { initialArea?: string 
     </PageShell>
   );
 }
+

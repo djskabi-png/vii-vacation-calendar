@@ -1,4 +1,5 @@
 {
+  "אחר": { "en": "Other", "ru": "Другое", "fr": "Autre" },
   "טוענים מקומות...": { "en": "Loading places...", "ru": "Загружаем места...", "fr": "Chargement des lieux..." },
   "טרם עודכן": { "en": "Not updated yet", "ru": "Пока не обновлялось", "fr": "Pas encore mis à jour" },
   "אין הרשאת מנהל": { "en": "Administrator access required", "ru": "Требуются права администратора", "fr": "Accès administrateur requis" },
@@ -149,3 +150,4 @@
   "דיווח שהזמנת הבדיקה וחוות הדעת הגיעו לספק.": {"en": "reported that the test booking and review reached the supplier.", "ru": "сообщил, что тестовое бронирование и отзыв дошли до поставщика.", "fr": "a signalé que la réservation et l'avis de test sont parvenus au fournisseur."},
   "לא נמסרו מזהי רשומות, ולכן הבדיקה אינה משויכת להזמנה או לחוות דעת מסוימות.": {"en": "Record IDs were not provided, so this check is not linked to a specific booking or review.", "ru": "Номера записей не предоставлены, поэтому эта проверка не связана с конкретным бронированием или отзывом.", "fr": "Aucun identifiant n'a été fourni ; cette vérification n'est donc liée à aucune réservation ni à aucun avis précis."}
 }
+
