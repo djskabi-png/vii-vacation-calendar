@@ -5,21 +5,11 @@ import { readFile } from "node:fs/promises";
 const pageShell = await readFile(new URL("../app/components/page-shell.tsx", import.meta.url), "utf8");
 const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
 
-test("the smart WhatsApp concierge is part of the shared public page shell", () => {
-  assert.match(pageShell, /<SmartConcierge\s*\/>/);
+test("the floating WhatsApp concierge is absent from the shared public page shell", () => {
+  assert.doesNotMatch(pageShell, /SmartConcierge/);
 });
 
-test("mobile detail pages remove the redundant dock and keep the concierge available", () => {
+test("mobile detail pages keep their own contextual actions", () => {
   assert.match(css, /@media \(max-width: 820px\)[\s\S]*?\.detail-sticky-wrap \{ display: none; \}/);
   assert.doesNotMatch(css, /\.property-page, \.event-place-page, \.discovery-detail \{ padding-bottom: calc\(96px/);
-  assert.doesNotMatch(css, /body:has\(\.detail-sticky-wrap\) \.smart-concierge[^}]*display:\s*none/);
-  assert.doesNotMatch(css, /body:has\(\.corporate-builder\) \.smart-concierge[^}]*display:\s*none/);
-  assert.doesNotMatch(css, /body:has\(\.detail-sticky-wrap\) \.(?:smart-concierge|world-dock) \{ bottom:\s*calc\(94px/);
-});
-
-test("the concierge only yields to active overlays that would cover it", () => {
-  assert.match(css, /body:has\(\.filter-panel\.open\) \.smart-concierge/);
-  assert.match(css, /body:has\(\.menu-layer\) \.smart-concierge/);
-  assert.match(css, /body:has\(\.search-box-shell\.mobile-expanded\) \.smart-concierge/);
-  assert.match(css, /body:has\(\.map-results-experience\) \.smart-concierge/);
 });

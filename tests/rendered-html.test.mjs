@@ -941,7 +941,7 @@ test("ships the immersive media, review and concierge experiences", async () => 
   assert.match(concierge, /אירוע או חגיגה/);
   assert.match(concierge, /מעבר לוואטסאפ/);
   assert.doesNotMatch(concierge, /המחשה מקומית/);
-  assert.match(shell, /<SmartConcierge/);
+  assert.doesNotMatch(shell, /<SmartConcierge/);
   assert.match(business, /<GalleryExperience/);
   assert.match(business, /<GuestReviewStudio/);
   assert.match(eventPlace, /<GalleryExperience/);

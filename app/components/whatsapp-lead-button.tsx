@@ -55,7 +55,7 @@ const copy: Record<SiteLanguage, Copy> = {
     checkout: "\u05e6\u05f3\u05e7-\u05d0\u05d0\u05d5\u05d8",
     guests: "\u05db\u05de\u05d5\u05ea \u05d0\u05d5\u05e8\u05d7\u05d9\u05dd, \u05dc\u05d0 \u05d7\u05d5\u05d1\u05d4",
     guestsHint: "\u05d0\u05e4\u05e9\u05e8 \u05dc\u05d4\u05e9\u05d0\u05d9\u05e8 \u05e8\u05d9\u05e7",
-    privacyPrefix: "\u05d0\u05e0\u05d9 \u05de\u05d0\u05e9\u05e8\u05ea \u05d0\u05d5 \u05de\u05d0\u05e9\u05e8 \u05e9\u05d9\u05de\u05d5\u05e9 \u05d1\u05e4\u05e8\u05d8\u05d9\u05dd \u05dc\u05e6\u05d5\u05e8\u05da \u05d4\u05d8\u05d9\u05e4\u05d5\u05dc \u05d1\u05e4\u05e0\u05d9\u05d9\u05d4 \u05dc\u05e4\u05d9",
+    privacyPrefix: "\u05d1\u05dc\u05d7\u05d9\u05e6\u05d4 \u05e2\u05dc \u05d4\u05db\u05e4\u05ea\u05d5\u05e8 \u05d4\u05e4\u05e8\u05d8\u05d9\u05dd \u05d9\u05d9\u05e9\u05de\u05e8\u05d5 \u05dc\u05e6\u05d5\u05e8\u05da \u05d8\u05d9\u05e4\u05d5\u05dc \u05d1\u05e4\u05e0\u05d9\u05d9\u05d4, \u05d1\u05d4\u05ea\u05d0\u05dd \u05dc",
     privacyLink: "\u05de\u05d3\u05d9\u05e0\u05d9\u05d5\u05ea \u05d4\u05e4\u05e8\u05d8\u05d9\u05d5\u05ea",
     submit: "\u05e9\u05de\u05d9\u05e8\u05ea \u05d4\u05e4\u05e8\u05d8\u05d9\u05dd \u05d5\u05e4\u05ea\u05d9\u05d7\u05ea \u05e9\u05d9\u05d7\u05d4",
     submitting: "\u05e9\u05d5\u05de\u05e8\u05d9\u05dd \u05d0\u05ea \u05d4\u05e4\u05e0\u05d9\u05d9\u05d4...",
@@ -74,15 +74,15 @@ const copy: Record<SiteLanguage, Copy> = {
   },
   en: {
     appName: "WhatsApp", conversationWith: (placeName) => `Chat with ${placeName}`, previewMessage: "Hello, I would like to check availability and receive more details.", previewStatus: "The message will open after your details are saved",
-    button: "WhatsApp enquiry", eyebrow: "A tracked enquiry to the business", title: "Details to start the chat", description: "We save the enquiry before opening WhatsApp so the business and our team can follow it up.", name: "Full name", phone: "Phone", date: "Check-in", checkout: "Check-out", guests: "Number of guests, optional", guestsHint: "You can leave this blank", privacyPrefix: "I agree to the use of my details to handle this enquiry under the", privacyLink: "privacy policy", submit: "Save details and open chat", submitting: "Saving your enquiry...", close: "Close enquiry dialog", errorTitle: "Your details have not been saved yet", errorBody: "We did not open WhatsApp. Check your connection and try again.", messageIntro: (placeName) => `Hello ${placeName}, I came through the VII website and would like to check availability.`, messageName: "Full name", messagePhone: "Phone", messageDate: "Check-in", messageCheckout: "Check-out", messageGuests: "Guests", messageService: "Requested service", messageReference: "Enquiry reference", messageOutro: "I would be happy to receive more information.",
+    button: "WhatsApp enquiry", eyebrow: "A tracked enquiry to the business", title: "Details to start the chat", description: "We save the enquiry before opening WhatsApp so the business and our team can follow it up.", name: "Full name", phone: "Phone", date: "Check-in", checkout: "Check-out", guests: "Number of guests, optional", guestsHint: "You can leave this blank", privacyPrefix: "By submitting, your details will be saved to handle this enquiry under the", privacyLink: "privacy policy", submit: "Save details and open chat", submitting: "Saving your enquiry...", close: "Close enquiry dialog", errorTitle: "Your details have not been saved yet", errorBody: "We did not open WhatsApp. Check your connection and try again.", messageIntro: (placeName) => `Hello ${placeName}, I came through the VII website and would like to check availability.`, messageName: "Full name", messagePhone: "Phone", messageDate: "Check-in", messageCheckout: "Check-out", messageGuests: "Guests", messageService: "Requested service", messageReference: "Enquiry reference", messageOutro: "I would be happy to receive more information.",
   },
   ru: {
     appName: "WhatsApp", conversationWith: (placeName) => `Чат с ${placeName}`, previewMessage: "Здравствуйте, хочу уточнить наличие мест и получить подробности.", previewStatus: "Сообщение откроется после сохранения данных",
-    button: "Запрос в WhatsApp", eyebrow: "Отслеживаемый запрос объекту", title: "Заполните данные и начните разговор", description: "Мы сохраняем запрос до перехода в WhatsApp, чтобы объект и наша команда могли его обработать.", name: "Имя и фамилия", phone: "Телефон", date: "Заезд", checkout: "Выезд", guests: "Количество гостей, необязательно", guestsHint: "Поле можно оставить пустым", privacyPrefix: "Я согласен на использование моих данных для обработки запроса в соответствии с", privacyLink: "политикой конфиденциальности", submit: "Сохранить данные и открыть чат", submitting: "Сохраняем запрос...", close: "Закрыть окно запроса", errorTitle: "Данные пока не сохранены", errorBody: "WhatsApp не был открыт. Проверьте соединение и попробуйте снова.", messageIntro: (placeName) => `Здравствуйте, ${placeName}. Я пришёл с сайта VII и хочу уточнить наличие мест.`, messageName: "Имя", messagePhone: "Телефон", messageDate: "Заезд", messageCheckout: "Выезд", messageGuests: "Гости", messageService: "Услуга", messageReference: "Номер запроса", messageOutro: "Буду рад получить подробную информацию.",
+    button: "Запрос в WhatsApp", eyebrow: "Отслеживаемый запрос объекту", title: "Заполните данные и начните разговор", description: "Мы сохраняем запрос до перехода в WhatsApp, чтобы объект и наша команда могли его обработать.", name: "Имя и фамилия", phone: "Телефон", date: "Заезд", checkout: "Выезд", guests: "Количество гостей, необязательно", guestsHint: "Поле можно оставить пустым", privacyPrefix: "Отправляя данные, вы соглашаетесь на их сохранение для обработки запроса согласно", privacyLink: "политике конфиденциальности", submit: "Сохранить данные и открыть чат", submitting: "Сохраняем запрос...", close: "Закрыть окно запроса", errorTitle: "Данные пока не сохранены", errorBody: "WhatsApp не был открыт. Проверьте соединение и попробуйте снова.", messageIntro: (placeName) => `Здравствуйте, ${placeName}. Я пришёл с сайта VII и хочу уточнить наличие мест.`, messageName: "Имя", messagePhone: "Телефон", messageDate: "Заезд", messageCheckout: "Выезд", messageGuests: "Гости", messageService: "Услуга", messageReference: "Номер запроса", messageOutro: "Буду рад получить подробную информацию.",
   },
   fr: {
     appName: "WhatsApp", conversationWith: (placeName) => `Discussion avec ${placeName}`, previewMessage: "Bonjour, je souhaite vérifier les disponibilités et recevoir plus de détails.", previewStatus: "Le message sera ouvert après enregistrement de vos coordonnées",
-    button: "Demande par WhatsApp", eyebrow: "Une demande suivie auprès de l'établissement", title: "Renseignez vos coordonnées et démarrez la conversation", description: "Nous enregistrons la demande avant d'ouvrir WhatsApp afin que l'établissement et notre équipe puissent la suivre.", name: "Nom complet", phone: "Téléphone", date: "Arrivée", checkout: "Départ", guests: "Nombre de personnes, facultatif", guestsHint: "Vous pouvez laisser ce champ vide", privacyPrefix: "J'accepte l'utilisation de mes données pour traiter cette demande conformément à la", privacyLink: "politique de confidentialité", submit: "Enregistrer les coordonnées et ouvrir la discussion", submitting: "Enregistrement de la demande...", close: "Fermer la fenêtre de demande", errorTitle: "Vos informations ne sont pas encore enregistrées", errorBody: "WhatsApp n'a pas été ouvert. Vérifiez votre connexion et réessayez.", messageIntro: (placeName) => `Bonjour ${placeName}, je viens du site VII et je souhaite vérifier les disponibilités.`, messageName: "Nom complet", messagePhone: "Téléphone", messageDate: "Arrivée", messageCheckout: "Départ", messageGuests: "Personnes", messageService: "Service souhaité", messageReference: "Référence de la demande", messageOutro: "Je souhaite recevoir plus d'informations.",
+    button: "Demande par WhatsApp", eyebrow: "Une demande suivie auprès de l'établissement", title: "Renseignez vos coordonnées et démarrez la conversation", description: "Nous enregistrons la demande avant d'ouvrir WhatsApp afin que l'établissement et notre équipe puissent la suivre.", name: "Nom complet", phone: "Téléphone", date: "Arrivée", checkout: "Départ", guests: "Nombre de personnes, facultatif", guestsHint: "Vous pouvez laisser ce champ vide", privacyPrefix: "En envoyant vos coordonnées, vous acceptez leur enregistrement pour traiter cette demande selon la", privacyLink: "politique de confidentialité", submit: "Enregistrer les coordonnées et ouvrir la discussion", submitting: "Enregistrement de la demande...", close: "Fermer la fenêtre de demande", errorTitle: "Vos informations ne sont pas encore enregistrées", errorBody: "WhatsApp n'a pas été ouvert. Vérifiez votre connexion et réessayez.", messageIntro: (placeName) => `Bonjour ${placeName}, je viens du site VII et je souhaite vérifier les disponibilités.`, messageName: "Nom complet", messagePhone: "Téléphone", messageDate: "Arrivée", messageCheckout: "Départ", messageGuests: "Personnes", messageService: "Service souhaité", messageReference: "Référence de la demande", messageOutro: "Je souhaite recevoir plus d'informations.",
   },
 };
 
@@ -182,7 +182,7 @@ export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, s
     const message = [
       `${labels.messageName}: ${name}`,
       `${labels.messagePhone}: ${visitorPhone}`,
-      `${labels.messageDate}: ${requestedDate}`,
+      requestedDate ? `${labels.messageDate}: ${requestedDate}` : "",
       requestedTill ? `${labels.messageCheckout}: ${requestedTill}` : "",
       guests ? `${labels.messageGuests}: ${guests}` : "",
       serviceName ? `${labels.messageService}: ${serviceName}` : "",
@@ -206,7 +206,7 @@ export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, s
           guests: guests || undefined,
           message,
           honey: values.get("company_site"),
-          privacyAccepted: values.get("privacy") === "on",
+          privacyAccepted: true,
           sourcePage: window.location.href,
           sourceChannel: "detail_whatsapp",
         }),
@@ -218,7 +218,7 @@ export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, s
         labels.messageIntro(localizedPlaceName),
         `${labels.messageName}: ${name}`,
         `${labels.messagePhone}: ${visitorPhone}`,
-        `${labels.messageDate}: ${requestedDate}`,
+        requestedDate ? `${labels.messageDate}: ${requestedDate}` : "",
         requestedTill ? `${labels.messageCheckout}: ${requestedTill}` : "",
         guests ? `${labels.messageGuests}: ${guests}` : "",
         serviceName ? `${labels.messageService}: ${serviceName}` : "",
@@ -250,11 +250,11 @@ export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, s
             <div className="form-wide"><AccountFormPrompt compact /></div>
             <label>{labels.name}<input key={`name-${account?.email || "guest"}`} ref={firstInputRef} required name="name" autoComplete="name" minLength={2} defaultValue={account?.name || ""} /></label>
             <label>{labels.phone}<input key={`phone-${account?.email || "guest"}`} required name="phone" type="tel" inputMode="tel" autoComplete="tel" minLength={7} maxLength={20} pattern="[0-9+() -]{7,20}" defaultValue={account?.phone || ""} /></label>
-            <label>{labels.date}<input required name="requested_date" type="date" defaultValue={initialDate} /></label>
-            {initialTill ? <label>{labels.checkout}<input required name="requested_till" type="date" min={initialDate || undefined} defaultValue={initialTill} /></label> : null}
+            <label>{labels.date}<input name="requested_date" type="date" defaultValue={initialDate} /></label>
+            {initialTill ? <label>{labels.checkout}<input name="requested_till" type="date" min={initialDate || undefined} defaultValue={initialTill} /></label> : null}
             <label>{labels.guests}<input name="guests" type="number" inputMode="numeric" min="1" defaultValue={initialGuests} placeholder={labels.guestsHint} /></label>
             <label className="form-honey" aria-hidden="true">Company site<input name="company_site" tabIndex={-1} autoComplete="off" /></label>
-            <label className="whatsapp-lead-dialog__privacy"><input required name="privacy" type="checkbox" /><span>{labels.privacyPrefix} <Link href="/legal/privacy" target="_blank" rel="noopener noreferrer">{labels.privacyLink}<span className="sr-only"> ({newTabLabel[language]})</span></Link>.</span></label>
+            <p className="whatsapp-lead-dialog__privacy"><span>{labels.privacyPrefix} <Link href="/legal/privacy" target="_blank" rel="noopener noreferrer">{labels.privacyLink}<span className="sr-only"> ({newTabLabel[language]})</span></Link>.</span></p>
           </div>
           <footer>
             <button className="button primary booking-whatsapp" type="submit" disabled={state === "submitting"}><WhatsAppIcon /><span>{state === "submitting" ? labels.submitting : labels.submit}</span></button>
