@@ -7,8 +7,11 @@ import type { D1Database } from "../../../types/cloudflare-runtime";
 import { searchPlaceInventory } from "../../data/search-place-inventory.ts";
 import { projectSpaCatalogEntries } from "../../lib/spa-editorial-policy.ts";
 import type { SupplierCatalogEntry } from "../../lib/supplier-catalog-store.ts";
+import { publicVacationSearchProperties } from "../../lib/public-vacation-search.ts";
+import type { Property } from "../../data/site-data.ts";
 
 const noStore = { "Cache-Control": "no-store" };
+const publicCatalogCache = { "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=300" };
 
 function worldFrom(value: string | null): SupplierCatalogWorld | null {
   return value === "vacations" || value === "events" || value === "rooms" || value === "spa" ? value : null;
@@ -41,9 +44,10 @@ export async function catalogResponse(request: Request, db: D1Database | null) {
   const world = worldFrom(url.searchParams.get("world"));
   if (!world) return Response.json({ error: "invalid_world" }, { status: 400, headers: noStore });
   const view = url.searchParams.get("view");
-  if (view !== null && view !== "lookup") return Response.json({ error: "invalid_view" }, { status: 400, headers: noStore });
+  if (view !== null && view !== "lookup" && view !== "search") return Response.json({ error: "invalid_view" }, { status: 400, headers: noStore });
   const rawId = url.searchParams.get("id");
-  if (view === "lookup" && rawId !== null) return Response.json({ error: "invalid_request" }, { status: 400, headers: noStore });
+  if ((view === "lookup" || view === "search") && rawId !== null) return Response.json({ error: "invalid_request" }, { status: 400, headers: noStore });
+  if (view === "search" && world !== "vacations") return Response.json({ error: "invalid_request" }, { status: 400, headers: noStore });
   const supplierId = rawId === null ? null : Number(rawId);
   if (rawId !== null && (!Number.isSafeInteger(supplierId) || supplierId! < 1)) {
     return Response.json({ error: "invalid_id" }, { status: 400, headers: noStore });
@@ -57,15 +61,17 @@ export async function catalogResponse(request: Request, db: D1Database | null) {
           const entry = await readSupplierCatalogEntry(db, world, supplierId);
           if (!entry) return Response.json({ error: "not_found" }, { status: 404, headers: noStore });
           const publicEntry = world === "spa" ? (await projectSpaCatalogEntries([entry]))[0] : entry;
-          return Response.json({ world, source: "runtime", fetchedAt: entry.acceptedAt, entry: publicEntry }, { headers: noStore });
+          return Response.json({ world, source: "runtime", fetchedAt: entry.acceptedAt, entry: publicEntry }, { headers: publicCatalogCache });
         }
         const catalog = await readSupplierCatalogSummaries(db, world);
         if (!catalog) throw new Error("catalog_active_generation_missing");
         const entries = world === "spa" ? await projectSpaCatalogEntries(catalog.entries) : catalog.entries;
         if (view === "lookup") return Response.json({ world, source: "runtime", fetchedAt: catalog.acceptedAt,
           places: searchPlaceInventory(world === "vacations" ? "vacation" : world === "rooms" ? "hourly" : world,
-            entries.map((entry) => entry.summary)) }, { headers: noStore });
-        return Response.json({ world, source: "runtime", fetchedAt: catalog.acceptedAt, entries }, { headers: noStore });
+            entries.map((entry) => entry.summary)) }, { headers: publicCatalogCache });
+        if (view === "search") return Response.json({ world, source: "runtime", fetchedAt: catalog.acceptedAt,
+          entries: publicVacationSearchProperties(entries.map((entry) => entry.summary) as Property[]).map((summary, index) => ({ ...entries[index], summary })) }, { headers: publicCatalogCache });
+        return Response.json({ world, source: "runtime", fetchedAt: catalog.acceptedAt, entries }, { headers: publicCatalogCache });
       }
     } catch (error) {
       console.error("VII runtime catalog unavailable", world);
@@ -80,14 +86,16 @@ export async function catalogResponse(request: Request, db: D1Database | null) {
   catch { return Response.json({ error: "catalog_unavailable" }, { status: 503, headers: noStore }); }
   if (view === "lookup") return Response.json({ world, source: "bundled-fallback", fetchedAt,
     places: searchPlaceInventory(world === "vacations" ? "vacation" : world === "rooms" ? "hourly" : world,
-      entries.map((entry) => entry.summary)) }, { headers: noStore });
+      entries.map((entry) => entry.summary)) }, { headers: publicCatalogCache });
+  if (view === "search") return Response.json({ world, source: "bundled-fallback", fetchedAt,
+    entries: publicVacationSearchProperties(entries.map((entry) => entry.summary) as Property[]).map((summary, index) => ({ ...entries[index], summary })) }, { headers: publicCatalogCache });
   if (supplierId !== null) {
     const entry = entries.find((item) => item.supplierId === supplierId);
     if (!entry) return Response.json({ error: "not_found" }, { status: 404, headers: noStore });
     return Response.json({ world, source: "bundled-fallback", fetchedAt,
-      entry: { ...entry, detail: bundledDetail(world, supplierId) } }, { headers: noStore });
+      entry: { ...entry, detail: bundledDetail(world, supplierId) } }, { headers: publicCatalogCache });
   }
-  return Response.json({ world, source: "bundled-fallback", fetchedAt, entries }, { headers: noStore });
+  return Response.json({ world, source: "bundled-fallback", fetchedAt, entries }, { headers: publicCatalogCache });
 }
 
 export async function GET(request: Request) {

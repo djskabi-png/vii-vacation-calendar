@@ -19,7 +19,7 @@ export function usePublishedCatalog<T>(world: SupplierCatalogWorld, map: (value:
       seededAt.current = Date.now();
       if (seed === null) setLoading(true);
       try {
-        const response = await fetch(`/api/catalog?world=${world}`, { cache: "no-store", signal: controller.signal });
+        const response = await fetch(`/api/catalog?world=${world}${world === "vacations" ? "&view=search" : ""}`, { signal: controller.signal });
         if (!response.ok) throw new Error("catalog_unavailable");
         const body = await response.json() as { entries?: Array<{ summary: unknown }> };
         if (!Array.isArray(body.entries)) throw new Error("catalog_unavailable");

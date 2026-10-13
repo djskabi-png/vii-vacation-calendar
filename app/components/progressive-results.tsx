@@ -37,6 +37,9 @@ type ProgressiveResultsProps = {
   initialCount?: number;
   increment?: number;
   resetKey?: string;
+  totalCount?: number;
+  visibleCount?: number;
+  onShowMore?: () => void;
 };
 
 export function ProgressiveResults(props: ProgressiveResultsProps) {
@@ -53,13 +56,20 @@ function ProgressiveResultsWindow({
   kind = "places",
   initialCount = 9,
   increment = 9,
+  totalCount,
+  visibleCount: controlledVisibleCount,
+  onShowMore,
 }: ProgressiveResultsProps) {
   const { language } = useSiteLanguage();
   const items = useMemo(() => Children.toArray(children), [children]);
   const [visibleCount, setVisibleCount] = useState(initialCount);
 
-  const visibleItems = items.slice(0, visibleCount);
-  const remaining = Math.max(0, items.length - visibleItems.length);
+  const controlled = typeof totalCount === "number" && typeof controlledVisibleCount === "number" && Boolean(onShowMore);
+  const visibleItems = controlled ? items : items.slice(0, visibleCount);
+  const effectiveVisibleCount = controlled ? controlledVisibleCount : visibleItems.length;
+  const effectiveTotalCount = controlled ? totalCount : items.length;
+  const uncontrolledRemaining = items.length - visibleItems.length;
+  const remaining = Math.max(0, controlled ? effectiveTotalCount - effectiveVisibleCount : uncontrolledRemaining);
   const nextCount = Math.min(increment, remaining);
   const labels = copy[language][kind];
 
@@ -68,9 +78,9 @@ function ProgressiveResultsWindow({
       {featuredItem ? <>{visibleItems.slice(0, featuredAfter)}{featuredItem}{visibleItems.slice(featuredAfter)}</> : visibleItems}
     </div>
     {remaining > 0 ? <div className="progressive-results">
-      <button type="button" onClick={() => setVisibleCount((current) => Math.min(items.length, current + increment))}>
+      <button type="button" onClick={() => controlled ? onShowMore?.() : setVisibleCount((current) => Math.min(items.length, current + increment))}>
         <span>{labels.more(nextCount)}</span>
-        <small aria-live="polite">{labels.progress(visibleItems.length, items.length)}</small>
+        <small aria-live="polite">{labels.progress(effectiveVisibleCount, effectiveTotalCount)}</small>
       </button>
     </div> : null}
   </>;

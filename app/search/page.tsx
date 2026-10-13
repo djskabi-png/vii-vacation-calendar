@@ -308,6 +308,7 @@ function runtimeProperty(value: unknown): Property {
 
 export function SearchExperience({ landing }: { landing?: SearchLandingContext }) {
   const { items: properties, error: catalogError, loading: catalogLoading } = usePublishedCatalog("vacations", runtimeProperty);
+  const [visibleResultCount, setVisibleResultCount] = useState(9);
   const supplierTypeFilterAvailable = properties.some((property) => property.type !== "מקום אירוח");
   const supplierPriceFilterAvailable = properties.some((property) => typeof property.price === "number");
   const VACATION_PRICE_MAX = Math.max(5000, ...properties.map((property) => property.price || 0));
@@ -652,6 +653,9 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   // below. Listing them directly would invalidate this memo on every render.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtered, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, guests, liveAvailabilityBySlug, supplierSearch, mapCandidates, mapOpen, mapVisibleIds, pathname, requestedLocation, selectedStay, sort]);
+  const resultWindowKey = [area, selectedTypes.join(","), minPrice, maxPrice, pool, spa, whole, accessibleOnly, selectedExtras.join(","), sort, searchQuery, mapOpen ? "map" : "list"].join("|");
+  useEffect(() => { setVisibleResultCount(9); }, [resultWindowKey]);
+  const visibleResults = mapOpen ? displayedResults : displayedResults.slice(0, visibleResultCount);
   const inventorySummary = useMemo(() => vacationInventorySummary(displayedResults, language), [displayedResults, language]);
   const detailQuery = useMemo(() => {
     const params = new URLSearchParams();
@@ -835,7 +839,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
             {flexibleSearch ? <div className="availability-demo-summary availability-demo-summary--live" role="status"><strong>{flexibleAvailabilityCopy[language].title}</strong><span>{flexibleAvailabilityCopy[language].text}</span></div> : null}
             <div className="results-toolbar"><div className="results-toolbar__actions"><ResultsViewToggle value={viewMode} onChange={setViewMode} />{filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתוצאות" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (mapOpen) closeResultsMap(); else openResultsMap(); }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לתוצאות" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect className="results-toolbar__sort" compact label="מיון לפי" value={sort} onChange={changeSort} options={vacationSortOptions} /></div>
             {guests > 2 && properties.some((property) => property.capacityScope === "unit") ? <SupplierCapacityNotice /> : null}
-            {!mapOpen && <ProgressiveResults className={`result-cards results-view results-view--${viewMode}`} resetKey={displayedResults.map((property) => property.slug).join("|")}>{displayedResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStayFor(property.slug)} liveAvailabilityState={liveAvailabilityFor(property.slug)} detailHref={detailHref(property.slug)} />)}</ProgressiveResults>}
+            {!mapOpen && <ProgressiveResults className={`result-cards results-view results-view--${viewMode}`} resetKey={resultWindowKey} totalCount={displayedResults.length} visibleCount={visibleResults.length} onShowMore={() => setVisibleResultCount((current) => Math.min(displayedResults.length, current + 9))}>{visibleResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStayFor(property.slug)} liveAvailabilityState={liveAvailabilityFor(property.slug)} detailHref={detailHref(property.slug)} />)}</ProgressiveResults>}
             {mapOpen && <div className="airbnb-map-split">
               <div className={`airbnb-map-split__results result-cards results-view results-view--${viewMode}`}>{displayedResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStayFor(property.slug)} liveAvailabilityState={liveAvailabilityFor(property.slug)} detailHref={detailHref(property.slug)} />)}</div>
               <div className="airbnb-map-split__map"><DeferredListingMap listings={mapCandidates} initialListings={filtered} autoLoad detailQuery={detailQuery} onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} /></div>

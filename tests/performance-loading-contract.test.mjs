@@ -62,3 +62,32 @@ test("home cards receive only their featured world previews", async () => {
   assert.match(page, /function homeShowcaseProperties\(properties: Property\[\]\)/);
   assert.doesNotMatch(page, /const showcaseProperties = properties\.map/);
 });
+
+test("vacation search serializes a compact catalog and only the visible card window", async () => {
+  const [layout, projection, search, progressive] = await Promise.all([
+    readFile(new URL("app/search/layout.tsx", root), "utf8"),
+    readFile(new URL("app/lib/public-vacation-search.ts", root), "utf8"),
+    readFile(new URL("app/search/page.tsx", root), "utf8"),
+    readFile(new URL("app/components/progressive-results.tsx", root), "utf8"),
+  ]);
+  assert.match(layout, /publicVacationSearchProperties/);
+  assert.match(projection, /\.slice\(0, 5\)/);
+  assert.doesNotMatch(projection, /sourceUrl/);
+  assert.match(search, /displayedResults\.slice\(0, visibleResultCount\)/);
+  assert.match(search, /totalCount=\{displayedResults\.length\}/);
+  assert.match(progressive, /onShowMore/);
+});
+
+test("shared navigation deliberately warms the localized homepage on capable connections", async () => {
+  const [warmup, shell, header] = await Promise.all([
+    readFile(new URL("app/components/smart-navigation-warmup.tsx", root), "utf8"),
+    readFile(new URL("app/components/page-shell.tsx", root), "utf8"),
+    readFile(new URL("app/site-header.tsx", root), "utf8"),
+  ]);
+  assert.match(warmup, /router\.prefetch\(home\)/);
+  assert.match(warmup, /saveData/);
+  assert.match(warmup, /slow-2g/);
+  assert.match(shell, /<SmartNavigationWarmup/);
+  assert.match(header, /href=\{homeHref\} prefetch/);
+  assert.match(header, /data-global-feedback="true"/);
+});
