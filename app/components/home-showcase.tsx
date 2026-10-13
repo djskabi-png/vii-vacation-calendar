@@ -7,7 +7,7 @@ import { useRef } from "react";
 import { DiscoveryCard } from "./discovery-card";
 import type { EventPlace, Property } from "../data/site-data";
 import { eventPlaceHref } from "../lib/event-place-href";
-import { paidAttractions, providerProfiles, type DiscoveryItem } from "../data/world-data";
+import type { DiscoveryItem } from "../data/world-data";
 import { publicWorldNavigation } from "../data/world-navigation";
 import { trails } from "../data/trail-data";
 import { TrailCard } from "./trail-card";
@@ -63,12 +63,14 @@ export type HomeRatedPlace = {
   reviewDate: string;
 };
 
-export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces, ratedPlaces }: {
+export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces, ratedPlaces, providerPreview, attractionPreview }: {
   properties: Pick<Property, "slug" | "name" | "location" | "area" | "image" | "videos">[];
   eventPlaces: EventPlace[];
   spaPlaces: DiscoveryItem[];
   hourlyPlaces: DiscoveryItem[];
   ratedPlaces: HomeRatedPlace[];
+  providerPreview: DiscoveryItem;
+  attractionPreview: DiscoveryItem;
 }) {
   const tracks = useRef<Record<string, HTMLDivElement | null>>({});
   const worldCards = publicWorldNavigation.filter((world) => !["vacation", "events", "spa", "hourly"].includes(world.id));
@@ -162,7 +164,7 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
     <section className="section home-worlds" aria-labelledby="home-worlds-title">
       <div className="shell"><div className="section-head"><div><span className="eyebrow">אתר אחד, הרבה דרכים ליהנות</span><h2 id="home-worlds-title">ממשיכים לכל העולמות</h2><p>לא רק מקום לישון. בונים את כל החופשה, הטיפול, השהייה הקצרה, הספקים והיום שמסביב.</p></div></div>
         <div className="home-world-gates">{worldCards.map((world) => {
-          const item = world.id === "providers" ? providerProfiles[0] : world.id === "trails" ? trails[0] : paidAttractions[0];
+          const item = world.id === "providers" ? providerPreview : world.id === "trails" ? trails[0] : attractionPreview;
           const image = "image" in item ? item.image : undefined;
           const description = "description" in item ? item.description : item.summary;
           return <Link key={world.id} className={`home-world-gate home-world-gate--${world.id}`} href={world.href}>{image ? <img src={image} alt={item.name} title={item.name} loading="lazy" decoding="async" /> : <span className="home-world-gate__visual">{world.shortLabel.slice(0,1)}</span>}<div><span>{world.label}</span><h3>{world.description}</h3><p>{"demo" in item && item.demo ? "פרופילים לדוגמה שממחישים איך השירות יעבוד באתר." : description}</p><b>לגלות את העולם</b></div></Link>;

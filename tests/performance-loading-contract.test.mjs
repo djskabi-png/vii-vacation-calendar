@@ -52,3 +52,11 @@ test("shared navigation paths do not bundle the vacation catalog", async () => {
   assert.doesNotMatch(accommodation, /import \{ properties/);
   assert.doesNotMatch(spa, /from "\.\/spa-details"/);
 });
+
+test("home cards receive only their featured world previews", async () => {
+  const home = await readFile(new URL("app/components/home-showcase.tsx", root), "utf8");
+  const page = await readFile(new URL("app/page.tsx", root), "utf8");
+  assert.doesNotMatch(home, /import \{ paidAttractions, providerProfiles/);
+  assert.match(page, /providerPreview=\{providerProfiles\[0\]\}/);
+  assert.match(page, /attractionPreview=\{paidAttractions\[0\]\}/);
+});
