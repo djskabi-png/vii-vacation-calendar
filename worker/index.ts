@@ -19,6 +19,7 @@ const homeCacheTtlMs = 60_000;
 function cacheableHomeRequest(request: Request, url: URL) {
   if (request.method !== "GET" || url.search) return false;
   if (!/^\/(?:en|ru|fr)?$/.test(url.pathname)) return false;
+  if (request.headers.has("Cookie") || request.headers.has("Authorization")) return false;
   // RSC responses are shaped by the current router tree and must remain
   // request-specific. Only cache complete anonymous HTML documents.
   if (request.headers.get("RSC") || request.headers.get("Next-Router-State-Tree")) return false;
