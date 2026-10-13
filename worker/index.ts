@@ -29,6 +29,10 @@ function homeCacheKey(url: URL) {
   return new Request(url.toString(), { method: "GET" });
 }
 
+function homeCacheStorage() {
+  return typeof caches === "undefined" ? null : caches.default;
+}
+
 function homeCacheHeaders(response: Response, state: "HIT" | "MISS") {
   const headers = new Headers(response.headers);
   headers.delete("content-length");
@@ -39,7 +43,9 @@ function homeCacheHeaders(response: Response, state: "HIT" | "MISS") {
 }
 
 async function readCachedHome(cacheKey: Request) {
-  const cached = await caches.default.match(cacheKey);
+  const cache = homeCacheStorage();
+  if (!cache) return null;
+  const cached = await cache.match(cacheKey);
   if (!cached) return null;
   const expiresAt = Number(cached.headers.get("X-VII-Home-Cache-Until"));
   if (!Number.isFinite(expiresAt) || expiresAt <= Date.now()) return null;
@@ -47,9 +53,10 @@ async function readCachedHome(cacheKey: Request) {
 }
 
 function storeCachedHome(response: Response, cacheKey: Request | null, ctx: ExecutionContext) {
-  if (!cacheKey || response.status !== 200 || response.headers.has("Set-Cookie")) return response;
+  const cache = homeCacheStorage();
+  if (!cacheKey || !cache || response.status !== 200 || response.headers.has("Set-Cookie")) return response;
   const cacheable = homeCacheHeaders(response, "MISS");
-  ctx.waitUntil(caches.default.put(cacheKey, cacheable.clone()).catch((error) => {
+  ctx.waitUntil(cache.put(cacheKey, cacheable.clone()).catch((error) => {
     console.error("VII homepage cache write failed", error);
   }));
   return cacheable;
