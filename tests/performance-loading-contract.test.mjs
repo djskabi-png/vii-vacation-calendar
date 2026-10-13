@@ -33,6 +33,8 @@ test("below-fold media does not compete with the first screen", async () => {
     readFile(new URL("app/components/discovery-card.tsx", root), "utf8"),
   ]);
   assert.match(home, /preload="none"/);
+  assert.match(page, /function homeShowcaseProperties\(properties: Property\[\]\)/);
+  assert.doesNotMatch(page, /const showcaseProperties = properties\.map/);
   for (const source of [home, page, property, discovery]) assert.match(source, /loading="lazy"/);
 });
 
