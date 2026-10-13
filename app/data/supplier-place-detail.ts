@@ -75,14 +75,16 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
     const phone = supplierContactNumber(contact.phone);
     const whatsapp = supplierContactNumber(contact.whatsapp);
     const counts = rooms.map((value) => record(value));
+    const acceptedGuests = Math.max(0, ...fallback.rooms.map((room) => room.guests));
+    const acceptedUnits = fallback.rooms.reduce((sum, room) => sum + room.quantity, 0);
     return {
       name: typeof detail.name === "string" && detail.name.trim() ? detail.name.trim() : listing.name,
       location: typeof city.title === "string" ? city.title : listing.location,
       area: typeof area.title === "string" ? area.title : listing.area,
       ...(typeof gps.lat === "number" && gps.lat >= 29 && gps.lat <= 34 ? { lat: gps.lat } : {}),
       ...(typeof gps.long === "number" && gps.long >= 34 && gps.long <= 36 ? { lng: gps.long } : {}),
-      guests: Math.max(0, ...counts.map((room) => typeof room.maxGuests === "number" ? room.maxGuests : 0)),
-      units: counts.reduce((sum, room) => sum + (typeof room.roomCount === "number" && room.roomCount > 0 ? room.roomCount : 1), 0),
+      guests: rooms.length ? Math.max(0, ...counts.map((room) => typeof room.maxGuests === "number" ? room.maxGuests : 0)) : fallback.guests ?? acceptedGuests,
+      units: rooms.length ? counts.reduce((sum, room) => sum + (typeof room.roomCount === "number" && room.roomCount > 0 ? room.roomCount : 1), 0) : fallback.units ?? acceptedUnits,
       ...(phone ? { phone } : {}),
       ...(whatsapp ? { whatsapp } : {}),
       highlights: Array.isArray(detail.highlights) ? detail.highlights.map(plain).filter(Boolean) : [],
