@@ -2,6 +2,7 @@ import { readSession } from "../../../lib/google-auth.ts";
 import { contentStudioSources, publicContentPath } from "../../../lib/content-studio-inventory.ts";
 import { contentItemId, createContentItem, ensureContentItems, isContentLocale, isContentType, parseContentChange, parseContentCreate, readContentItem, readContentVersions, readOriginalContentItems, saveContentItem } from "../../../lib/content-studio.ts";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
+import { validEventLandingAttributes } from "../../../lib/event-landing-presentation.ts";
 
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 async function actor(request: Request) {
@@ -46,7 +47,7 @@ export async function POST(request: Request) {
     const raw = await request.text(); if (raw.length > 80_000) return Response.json({ error: "too_large" }, { status: 413, headers });
     const payload = JSON.parse(raw) as unknown; const db = await database(); const create = parseContentCreate(payload);
     const result = create ? await createContentItem(db, create, email) : await (async () => {
-      const change = parseContentChange(payload); if (!change) return { error: "invalid_content" as const };
+      const change = parseContentChange(payload); if (!change || (change.id.startsWith("events:landing:") && !validEventLandingAttributes(change.content.attributes))) return { error: "invalid_content" as const };
       return saveContentItem(db, change, email);
     })();
     if ("error" in result) return Response.json(result, { status: result.error === "not_found" ? 404 : result.error === "invalid_content" ? 400 : 409, headers });

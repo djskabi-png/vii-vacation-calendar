@@ -7,6 +7,7 @@ export type HomeDiscoveryItem = {
   note: string;
   href: string;
   image: string;
+  imageAlt?: string;
   visible: boolean;
 };
 

@@ -17,14 +17,17 @@ test("shared world pages follow search, breadcrumbs, heading, results order", as
 
 test("events landing follows the same page hierarchy", async () => {
   const source = await readFile(new URL("../app/events/page.tsx", import.meta.url), "utf8");
-  const search = source.indexOf('className="events-hero"');
-  const breadcrumbs = source.indexOf('className="world-breadcrumbs"');
-  const heading = source.indexOf('className="world-page-heading shell"');
+  const hero = source.indexOf('className="events-hero"');
+  const breadcrumbs = source.indexOf('className="events-hero__breadcrumbs"');
+  const heading = source.indexOf("<h1>{presentation.title}</h1>");
+  const search = source.indexOf('<SearchBox mode="events" compact showWorlds');
+  const quickSearches = source.indexOf("<EventQuickSearches");
   const results = source.indexOf('className="section shell event-region-section"');
 
-  assert.ok(search >= 0 && search < breadcrumbs);
+  assert.ok(hero >= 0 && hero < breadcrumbs);
   assert.ok(breadcrumbs < heading);
-  assert.ok(heading < results);
+  assert.ok(heading < search);
+  assert.ok(search < quickSearches && quickSearches < results);
   assert.match(source, /<SearchBox mode="events" compact showWorlds/);
 });
 

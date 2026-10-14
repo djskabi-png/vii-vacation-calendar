@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-events-landing-20261015",
+  "project": "VII",
+  "task_type": "public landing and managed discovery",
+  "requested_outcome": "Give the events world a distinctive image-led landing like the spa reference and replace its first quick-search row with a visual slider managed from the VII content studio.",
+  "natural_destination": "https://vii.spaplus.co/events",
+  "authorization_boundary": "Implementation, verification and the already-authorized VII publication path are in scope. No supplier facts, unverified images, permissions or unrelated production settings may be invented or changed.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-QA-001","reason":"The public page and the administration reflection both need end-to-end evidence.","acceptance_impact":"Require public desktop and mobile evidence plus save, reload, publish and reflection evidence."},
+    {"lesson_id":"ADIR-ADMIN-001","reason":"The user explicitly requires operational back-office control.","acceptance_impact":"Require versioned fields, publish state, persistence, preview path and public reflection."},
+    {"lesson_id":"ADIR-WEB-CMS-001","reason":"The quick-search content must remain managed rather than hard-coded only.","acceptance_impact":"Require editable labels, copy, images, targets, visibility and order."},
+    {"lesson_id":"ADIR-MOBILE-001","reason":"The event hero and horizontal rail materially change mobile layout.","acceptance_impact":"Require 390-pixel, low-height and responsive-transition checks."},
+    {"lesson_id":"ADIR-CONTROL-001","reason":"The slider introduces visible links and arrows.","acceptance_impact":"Require truthful enabled and disabled arrow states and working card destinations."},
+    {"lesson_id":"ADIR-SCOPE-001","reason":"Existing event catalog, search and lower sections must be preserved.","acceptance_impact":"Compare the changed top section while regression-testing the unchanged event family."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"The page gets a large banner but still feels generic or the search is cut off.","prevention":"Use the approved spa composition as structural precedent, reserve explicit space for search and inspect desktop and mobile geometry.","acceptance_check":"Hero title, description, images, proof points and complete search are visible without overlap at desktop and 390 pixels."},
+    {"rejection":"The quick searches remain plain pills rather than a visual discovery slider.","prevention":"Build image-led cards with the shared slider controls and boundary states.","acceptance_check":"The first event discovery section visibly uses image cards and only actionable arrows are enabled."},
+    {"rejection":"Management controls exist but do not affect the public page after reload.","prevention":"Read the published version from the same D1 content source used by the public event page.","acceptance_check":"A managed edit survives admin reload and the published values appear on /events while drafts do not."},
+    {"rejection":"The change damages event search, catalog sections or mobile spacing.","prevention":"Preserve all lower sections and run the event family plus full build and focused regressions.","acceptance_check":"Search submission, breadcrumbs, event sections, card links and responsive page flow remain functional."},
+    {"rejection":"Images or Hebrew typography look wrong or unverified.","prevention":"Use current verified event catalog media and the existing self-hosted modern Hebrew stack.","acceptance_check":"Every changed image resolves from approved catalog assets with editable alt text and visible Hebrew uses Heebo without fallback."}
+  ],
+  "affected_family": [
+    "public /events landing",
+    "event hero and search placement",
+    "event quick-search slider",
+    "shared slider arrow states",
+    "content studio events inventory and editor",
+    "published D1 content read path",
+    "Hebrew desktop and 390-pixel mobile"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label":"VII spa landing hero","source":"app/components/world-landing.tsx"},
+      {"label":"VII homepage managed discovery cards","source":"app/components/home-discovery-sections.tsx"},
+      {"label":"VII content studio versioned publishing","source":"app/admin/content-studio/page.tsx"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the event presentation model, hero and visual quick-search component render locally from default content",
+    "checks": [
+      "Desktop event hero is complete and search is not clipped",
+      "Visual quick-search rail renders working links and correct arrow boundaries",
+      "The events landing management item exposes the required fields"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a draft accidentally change the public page?",
+      "Can a malformed or empty managed slider make the landing unusable?",
+      "Do slider arrows misrepresent whether movement is possible?",
+      "Does the hero or search overlap at 390 pixels or low height?",
+      "Did any existing event section or destination disappear?"
+    ],
+    "natural_destination_evidence": "Open the exact public /events route and authenticated /admin/content-studio events item, then exercise save, reload, publish and public reflection.",
+    "affected_family_evidence": "Run focused event, content-studio, slider, typography and responsive checks plus the production build."
+  },
+  "effectiveness": {
+    "baseline": "Current /events has a generic search band, title section and text-chip quick searches with no page-level visual management.",
+    "measurements": ["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],
+    "target": "One coherent event entry screen and one operational content item controlling its visible discovery content."
+  },
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

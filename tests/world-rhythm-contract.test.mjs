@@ -9,16 +9,16 @@ test("world landing intros share one compact vertical rhythm", async () => {
   const events = await readFile(new URL("app/events/page.tsx", root), "utf8");
   const worldLanding = await readFile(new URL("app/components/world-landing.tsx", root), "utf8");
   assert.match(events, /className="events-page"/);
-  assert.match(css, /\.events-hero \{ padding: 26px 0/);
+  assert.match(css, /\.events-hero \{ position: relative; isolation: isolate; padding: 28px 0 58px/);
   assert.match(css, /\.world-page-heading \{ padding-block: 22px 14px/);
   assert.match(css, /\.world-page > \.section,\s*\.events-page > \.section \{ padding-block: 64px/);
-  assert.match(css, /\.world-hero > \.shell > \.eyebrow,\s*\.events-hero > \.shell > \.eyebrow \{ display: none/);
-  assert.doesNotMatch(events.match(/<section className="events-hero">[\s\S]*?<\/section>/)?.[0] || "", /className="eyebrow"/);
+  assert.match(css, /\.events-hero__eyebrow/);
+  assert.match(events, /className="events-hero__eyebrow"/);
   assert.doesNotMatch(worldLanding.match(/<section className="world-hero">[\s\S]*?<\/section>/)?.[0] || "", /className="eyebrow"/);
 });
 
 test("world landing spacing stays equal on mobile", async () => {
   const css = await readFile(new URL("app/globals.css", root), "utf8");
-  assert.match(css, /@media \(max-width: 760px\)[\s\S]*\.events-hero \{ padding: 26px 0 24px/);
+  assert.match(css, /@media \(max-width: 760px\)[\s\S]*\.events-hero \{ padding: 10px 0 45px/);
   assert.match(css, /@media \(max-width: 760px\)[\s\S]*\.world-page > \.section,\s*\.events-page > \.section \{ padding-block: 48px/);
 });

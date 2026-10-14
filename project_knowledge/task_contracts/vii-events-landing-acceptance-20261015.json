@@ -1,0 +1,59 @@
+{
+  "goal": "Create a distinctive events landing with a complete image-led hero and a visual, manageable quick-search slider.",
+  "intent_model": {
+    "literal_request": "Make a unique events page like spa with a title and image, and make the first quick-search slider like the homepage with images and back-office control.",
+    "implied_outcome": "The events world should feel like a mature product entry point while Adir can change its visible discovery content without code.",
+    "likely_rejections": ["generic hero", "plain text chips", "search overlap", "fake CMS control", "mobile clipping", "unrelated event sections removed"],
+    "interpretation_rules": [{"phrase":"כמו בספא וכמו בדף הבית","operational_meaning":"Reuse approved structural behavior and quality, not identical colors or event-inappropriate copy.","acceptance_impact":"Compare the hero component inventory with spa and the card-slider behavior with homepage on desktop and mobile."}]
+  },
+  "cognitive_flow": {
+    "current_layer": "Understand the events world and start from one relevant visual shortcut or the main search.",
+    "current_decision": "Choose a quick event intent or refine the full event search.",
+    "next_action": "Open the selected event results page.",
+    "deferred_complexity": ["detailed filtering", "venue comparison", "suppliers and planning guidance"],
+    "preserved_depth": ["all existing event sections", "catalog search", "CMS versions", "scheduled publication", "rollback history"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "C:/Users/Adir/Documents/vii.co.il/vii-api-release-20261008/project_knowledge/process_manifests/vii-events-landing-preflight-20261015.json",
+    "lesson_bundle_ids": ["ADIR-QA-001","ADIR-ADMIN-001","ADIR-WEB-CMS-001","ADIR-MOBILE-001","ADIR-CONTROL-001","ADIR-SCOPE-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["visitor looking for an event venue", "VII administrator"],
+  "natural_destination": "Public /events and authenticated /admin/content-studio",
+  "facts": [
+    {"claim":"The spa route already has an image-led hero with title, proof points and integrated search.","evidence":"app/components/world-landing.tsx"},
+    {"claim":"The homepage already has managed image-led discovery cards and slider controls.","evidence":"app/components/home-discovery-sections.tsx and app/lib/homepage-presentation.ts"},
+    {"claim":"The content studio persists versioned published overlays in D1.","evidence":"app/lib/content-studio.ts and app/api/admin/content-studio/route.ts"}
+  ],
+  "assumptions": [{"claim":"Current event catalog images are the approved source for the initial hero and quick-search defaults.","validation":"Use only images already present in the active event catalog and inspect their rendered crops."}],
+  "in_scope": [
+    "event-specific hero with title, description, image composition, proof points and complete search",
+    "first event quick-search area as image cards in a horizontal slider",
+    "content-studio fields for hero copy, hero images and quick-search label, note, image, destination, visibility and order",
+    "versioned draft, review, schedule, publish, archive and history behavior through the existing content-studio model",
+    "desktop and mobile responsive states"
+  ],
+  "out_of_scope": ["new supplier data", "new event inventory", "booking changes", "new roles or authentication providers", "changes to unrelated worlds"],
+  "invariants": ["event catalog and lower sections remain", "main event search behavior remains", "breadcrumbs and SEO remain", "existing content-studio permissions and audit/version flow remain"],
+  "affected_family": ["public events landing route", "event search entry", "event quick-search links", "shared slider controls", "events content-studio inventory", "published content read path", "desktop and mobile"],
+  "characteristics": {"stateful":true},
+  "requirements": [
+    {"id":"REQ-1","statement":"The events landing presents a unique image-led hero with a complete usable event search.","source":"user_request"},
+    {"id":"REQ-2","statement":"The first quick-search area uses visual image cards and clear slider controls.","source":"user_request"},
+    {"id":"REQ-3","statement":"An administrator can edit and version the hero and quick-search presentation and publish it to the public route.","source":"user_request"},
+    {"id":"REQ-4","statement":"Existing event content, search, SEO and responsive behavior are preserved.","source":"project_guidance"}
+  ],
+  "acceptance_checks": [
+    {"id":"AC-1","requirement_ids":["REQ-1"],"kind":"success","setup":"Open /events on desktop and 390-pixel mobile.","action":"Inspect the first screen and operate the main search.","observable_result":"Title, description, event imagery, proof points and complete search are visible without clipping or overlap and search reaches event results."},
+    {"id":"AC-2","requirement_ids":["REQ-2"],"kind":"success","setup":"Open the first quick-search section with more items than the visible viewport.","action":"Use cards, keyboard focus and both arrows.","observable_result":"Cards open meaningful event URLs, arrows reflect real boundaries semantically and visually, and horizontal use works without page overflow."},
+    {"id":"AC-3","requirement_ids":["REQ-3"],"kind":"persistence","setup":"Authenticate as an allowed VII administrator and select the events landing item.","action":"Edit presentation fields, save a draft, reload, then publish.","observable_result":"The draft survives reload without changing public output; publishing creates a version and the same values appear on /events."},
+    {"id":"AC-4","requirement_ids":["REQ-3"],"kind":"failure","setup":"Submit malformed image or destination data or a stale version.","action":"Attempt to save or publish.","observable_result":"The server rejects unsafe data or version conflict and the editor preserves a recoverable state."},
+    {"id":"AC-5","requirement_ids":["REQ-4"],"kind":"recovery","setup":"Open the changed event landing and representative downstream routes.","action":"Reload, navigate back, resize between mobile and desktop and open existing event sections.","observable_result":"No event section disappears, no stale overlay remains, and the page has no horizontal overflow or broken navigation."}
+  ],
+  "open_questions": [],
+  "authorization_boundary": "Implementation, test and the previously authorized VII production publication flow are allowed; no unrelated production or supplier mutation is allowed.",
+  "ready_for_implementation": true
+}
