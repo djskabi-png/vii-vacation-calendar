@@ -15,6 +15,7 @@ import { useSiteLanguage } from "../i18n/locale-provider";
 import { ResultsViewToggle, useResultsViewMode } from "./results-view-toggle";
 import { ProgressiveResults } from "./progressive-results";
 import { rotateWithinTiers } from "../lib/daily-rotation";
+import { trackSearchResults } from "../lib/analytics";
 
 const spaFilters = spaLandings;
 
@@ -63,6 +64,7 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
     return (requested.length ? requested : initialSpaFilters || []).filter((id) => spaFilters.some((filter) => filter.id === id));
   });
   const [filtersOpen, setFiltersOpen] = useState(true);
+  const [pendingFilterId, setPendingFilterId] = useState<string | null>(null);
   const { mapOpen, openMap, closeMap } = useMapViewState();
   const { viewMode } = useResultsViewMode("spa");
   useEffect(() => {
@@ -115,6 +117,21 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
     && (!requestedDate || !dateCovered || availability.sites.has(Number(item.id.replace("spa-", ""))))
   )), (item) => item.image && item.priceLabel ? 0 : item.image ? 1 : 2,
   (item) => item.id, "spa-search"), [amenityFiltered, location, requestedDate, dateCovered, checkingDate, availability.sites]);
+
+  useEffect(() => {
+    if (checkingDate) return;
+    const timer = window.setTimeout(() => trackSearchResults({
+      world: "spa",
+      location,
+      hasDate: Boolean(requestedDate),
+      resultCount: filtered.length,
+      filters: {
+        ...(spaAudience ? { package: spaAudiences[spaAudience].label } : {}),
+        ...(selectedFilters.length ? { experience: selectedFilters.join(",") } : {}),
+      },
+    }), 650);
+    return () => window.clearTimeout(timer);
+  }, [checkingDate, filtered.length, location, requestedDate, selectedFilters, spaAudience]);
 
   function updateUrl(nextLocation: string, nextAudience: SpaAudienceId | "", nextFilters: string[]) {
     const params = new URLSearchParams(window.location.search);
@@ -178,6 +195,7 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
       setSpaAudience(nextAudience && nextAudience in spaAudiences ? nextAudience as SpaAudienceId : "");
       const requestedFilters = (params.get("features") || "").split(",").filter(Boolean);
       setSelectedFilters((requestedFilters.length ? requestedFilters : initialSpaFilters || []).filter((id) => spaFilters.some((filter) => filter.id === id)));
+      setPendingFilterId(null);
     }, 0);
     return () => window.clearTimeout(timer);
   }, [initialLocation, initialSpaAudience, initialSpaFilters, searchQuery]);
@@ -189,7 +207,7 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
     {requestedDate && <p className="source-note" role="status">{availability.status === "loading" || availability.status === "idle" ? "בודקים זמינות מול ביז און ליין..." : availability.status === "unavailable" ? "בדיקת הזמינות אינה זמינה כרגע. מוצגים כל המקומות ללא אישור זמינות." : !dateCovered ? "לתאריך הזה אין עדיין נתוני זמינות מביז. מוצגים כל המקומות ללא אישור זמינות." : "מוצגים רק מקומות שביז דיווח להם על משבצת פנויה. הנתון משוער, ומקומות ללא דיווח אינם מוצגים. זמינות החבילה הזוגית תאושר במהלך ההזמנה."}</p>}
     <section id="spa-result-filters" className="spa-results__filter-strip" aria-label="סינון תוצאות ספא" hidden={!filtersOpen}>
       <div className="spa-results__filters">
-        <nav className="spa-results__landing-links" aria-label="עמודי ספא לפי מאפיין"><strong>מה תרצו שיהיה במקום?</strong><div>{spaFilters.map((filter) => { const selected = selectedFilters.includes(filter.id); return <Link key={filter.id} href={spaLandingContext(filter.id)} scroll={false} aria-current={selected ? "page" : undefined} className={selected ? "selected" : ""} onClick={(event) => { if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) setSelectedFilters((current) => current.includes(filter.id) ? current.filter((id) => id !== filter.id) : [...current, filter.id]); }}><span className="spa-results__filter-icon"><SpaFilterIcon id={filter.id} /></span><span className="spa-results__filter-label">{filter.label}</span></Link>; })}</div><small className="spa-results__swipe-hint">החליקו לעוד אפשרויות</small></nav>
+        <nav className="spa-results__landing-links" aria-label="עמודי ספא לפי מאפיין"><header><div><strong>איך בא לכם להתפנק?</strong><span>בחרו מה חשוב לכם ונציג רק מקומות מתאימים</span></div><small>החליקו לעוד אפשרויות</small></header><div>{spaFilters.map((filter) => { const selected = selectedFilters.includes(filter.id); const pending = pendingFilterId === filter.id; return <Link key={filter.id} href={spaLandingContext(filter.id)} scroll={false} aria-current={selected ? "page" : undefined} aria-busy={pending} className={`${selected ? "selected" : ""}${pending ? " is-loading" : ""}`} onClick={(event) => { if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { setPendingFilterId(filter.id); setSelectedFilters((current) => current.includes(filter.id) ? current.filter((id) => id !== filter.id) : [...current, filter.id]); } }}><span className="spa-results__filter-icon">{pending ? <span className="spa-results__filter-spinner" aria-hidden="true" /> : <SpaFilterIcon id={filter.id} />}</span><span className="spa-results__filter-label">{pending ? "מעדכנים..." : filter.label}</span><span className="spa-results__filter-check" aria-hidden="true">✓</span></Link>; })}</div></nav>
         <button type="button" className="spa-results__reset" onClick={resetFilters} disabled={!hasFilters}>ניקוי סינונים</button>
       </div>
       {hasFilters && <div className="spa-results__active" aria-label="סינונים פעילים"><span>סינונים פעילים:</span>{location !== "כל הארץ" && <button type="button" onClick={() => changeLocation("כל הארץ")}>{location} ×</button>}{spaAudience && <button type="button" onClick={() => changeAudience("")}>{spaAudiences[spaAudience].label} ×</button>}{selectedFilters.map((id) => { const filter = spaFilters.find((entry) => entry.id === id); return filter ? <button type="button" key={id} onClick={() => toggleFilter(id)}>{filter.label} ×</button> : null; })}</div>}

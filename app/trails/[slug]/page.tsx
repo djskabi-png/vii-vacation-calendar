@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageShell } from "../../components/page-shell";
 import { TrailCard, TrailVisual } from "../../components/trail-card";
-import { getTrail, nearbyTrails, trails } from "../../data/trail-data";
+import { nearbyTrails, trails } from "../../data/trail-data";
 import { StructuredData } from "../../components/structured-data";
 import { breadcrumbSchema, faqSchema, trailSchema } from "../../lib/seo";
 import { FavoriteButton } from "../../components/favorite-button";
@@ -10,6 +10,8 @@ import { GuestReviewStudio } from "../../components/guest-review-studio";
 import { BreadcrumbTrail } from "../../components/breadcrumb-trail";
 import { ViewedItemTracker } from "../../components/viewed-item-tracker";
 import { ViewedItemBootstrap } from "../../components/viewed-item-bootstrap";
+import { managedTrails } from "../../lib/managed-public-content";
+import { notFound } from "next/navigation";
 
 export function generateStaticParams() {
   return trails.map((trail) => ({ slug: trail.slug }));
@@ -17,7 +19,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const trail = getTrail(slug);
+  const trail = (await managedTrails(trails)).find((item) => item.slug === slug); if (!trail) notFound();
   return {
     title: `${trail.name}, מדריך מסלול`,
     description: trail.summary,
@@ -29,8 +31,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function TrailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const trail = getTrail(slug);
-  const related = nearbyTrails(trail.mainArea, trail.region, 7).filter((item) => item.slug !== trail.slug).slice(0, 6);
+  const publishedTrails = await managedTrails(trails); const trail = publishedTrails.find((item) => item.slug === slug); if (!trail) notFound();
+  const managedBySlug = new Map(publishedTrails.map((item) => [item.slug, item]));
+  const related = nearbyTrails(trail.mainArea, trail.region, 7).filter((item) => item.slug !== trail.slug).map((item) => managedBySlug.get(item.slug) || item).slice(0, 6);
   const trailFaqs = [
     { question: `האם ${trail.name} מתאים למשפחות?`, answer: trail.familyFit },
     { question: `מה רמת הנגישות ב${trail.name}?`, answer: trail.accessibility },

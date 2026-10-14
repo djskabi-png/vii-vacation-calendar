@@ -5,6 +5,7 @@ import { WorldLanding } from "../../components/world-landing";
 import { providerProfiles } from "../../data/world-data";
 import { getProviderCategory, providerCategoryHref, providerMatchesCategory, providerTopicCategories } from "../../data/provider-categories";
 import { breadcrumbSchema, collectionSchema } from "../../lib/seo";
+import { managedDiscoveryItems } from "../../lib/managed-public-content";
 
 type ProviderCategoryPageProps = { params: Promise<{ category: string }> };
 
@@ -29,7 +30,7 @@ export default async function ProviderCategoryPage({ params }: ProviderCategoryP
   const category = getProviderCategory((await params).category);
   if (!category || category.id === "all") notFound();
   const path = providerCategoryHref(category);
-  const items = providerProfiles.filter((item) => providerMatchesCategory(item, category));
+  const items = (await managedDiscoveryItems(providerProfiles, "providers")).filter((item) => providerMatchesCategory(item, category));
   const breadcrumbs = [{ name: "ראשי", path: "/" }, { name: "ספקים", path: "/providers" }, { name: category.label }];
 
   return <>

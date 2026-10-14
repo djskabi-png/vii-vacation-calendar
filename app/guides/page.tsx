@@ -22,22 +22,29 @@ export default function GuidesPage() {
   const [category, setCategory] = useState("הכל");
   const [query, setQuery] = useState("");
   const [saved, setSaved] = useState<string[]>([]);
+  const [articles, setArticles] = useState(magazineArticles);
   const [quizResult, setQuizResult] = useState<(typeof quizOptions)[number] | null>(null);
-  const featured = magazineArticles[0];
+  const featured = articles[0];
 
   useEffect(() => {
     const timer = window.setTimeout(() => setSaved(JSON.parse(localStorage.getItem("vii-magazine-saved") || "[]")), 0);
     return () => window.clearTimeout(timer);
   }, []);
+  useEffect(() => {
+    const controller = new AbortController();
+    void fetch("/api/content/magazine", { signal: controller.signal }).then((response) => response.ok ? response.json() : null)
+      .then((payload: { articles?: typeof magazineArticles } | null) => { if (payload?.articles?.length) setArticles(payload.articles); }).catch(() => undefined);
+    return () => controller.abort();
+  }, []);
 
   const filtered = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    return magazineArticles.filter((article) => {
+    return articles.filter((article) => {
       const inCategory = category === "הכל" || article.category === category;
       const inSearch = !normalized || `${article.title} ${article.excerpt} ${article.tags.join(" ")}`.toLowerCase().includes(normalized);
       return inCategory && inSearch;
     });
-  }, [category, query]);
+  }, [articles, category, query]);
 
   function toggleSaved(slug: string) {
     const next = saved.includes(slug) ? saved.filter((item) => item !== slug) : [...saved, slug];
@@ -50,7 +57,7 @@ export default function GuidesPage() {
       <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "מגזין ומדריכים", path: "/guides" }])} />
       <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "מגזין ומדריכים" }]} />
       <section className="magazine-masthead">
-        <div className="shell magazine-masthead__bar"><span>מגזין וי</span><p>רעיונות טובים לחופשה שמתחילה עוד לפני שיוצאים</p><strong>{magazineArticles.length} כתבות לקריאה</strong></div>
+        <div className="shell magazine-masthead__bar"><span>מגזין וי</span><p>רעיונות טובים לחופשה שמתחילה עוד לפני שיוצאים</p><strong>{articles.length} כתבות לקריאה</strong></div>
         <div className="shell magazine-feature">
           <div className="magazine-feature__copy">
             <span className="eyebrow">בחירת המערכת</span>
@@ -83,7 +90,7 @@ export default function GuidesPage() {
         <div className="shell magazine-quiz">
           <div><span className="eyebrow">מוצאים את הכתבה שלכם</span><h2>מה בא לכם מהחופשה הבאה?</h2><p>בחרו תחושה וניקח אתכם למדריך שמתאים להתחלה.</p></div>
           <div className="magazine-quiz__options">{quizOptions.map((option) => <button type="button" key={option.slug} className={quizResult?.slug === option.slug ? "active" : ""} onClick={() => setQuizResult(option)}><strong>{option.label}</strong><span>{option.note}</span></button>)}</div>
-          {quizResult && <div className="magazine-quiz__result" role="status"><span>מצאנו לכם התחלה טובה</span><strong>{magazineArticles.find((article) => article.slug === quizResult.slug)?.title}</strong><Link className="button primary" href={`/guides/${quizResult.slug}`}>קחו אותי לכתבה</Link></div>}
+          {quizResult && <div className="magazine-quiz__result" role="status"><span>מצאנו לכם התחלה טובה</span><strong>{articles.find((article) => article.slug === quizResult.slug)?.title}</strong><Link className="button primary" href={`/guides/${quizResult.slug}`}>קחו אותי לכתבה</Link></div>}
         </div>
       </section>
 

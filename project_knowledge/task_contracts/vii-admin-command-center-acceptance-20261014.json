@@ -1,0 +1,57 @@
+{
+  "goal": "Deliver a premium, comprehensive and easy VII administration product rather than a collection of technical reports.",
+  "intent_model": {
+    "literal_request": "Improve the appearance and functionality of the management system by an order of magnitude.",
+    "implied_outcome": "A daily operating cockpit that feels comparable to a mature marketplace back office, keeps advanced depth reachable and turns real site activity into obvious actions.",
+    "likely_rejections": ["Only the dashboard was restyled", "metrics are decorative or ambiguous", "mobile is a compressed desktop", "advanced tools are scattered", "existing capabilities disappeared"],
+    "interpretation_rules": [{"phrase": "לשפר פי 100", "operational_meaning": "A material system-level transformation, not a cosmetic color change.", "acceptance_impact": "Requires shared-shell, dashboard, representative workflow and growth-tool improvements with live visual proof."}]
+  },
+  "cognitive_flow": {
+    "current_layer": "What needs attention now and whether the system is healthy.",
+    "current_decision": "Choose the one priority task or one bounded operational module.",
+    "next_action": "Open the relevant workflow directly from the priority or command surface.",
+    "deferred_complexity": ["Detailed diagnostics", "historical versions", "technical identifiers", "advanced SEO controls"],
+    "preserved_depth": ["Search-page editing and scheduling", "catalog diagnostics", "business funnel detail", "redirect history", "operations and lead records"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/task_contracts/vii-admin-command-center-preflight-20261014.json",
+    "lesson_bundle_ids": ["ADIR-ADMIN-001", "ADIR-WEB-CMS-001", "ADIR-DATA-001", "ADIR-SIMPLICITY-001", "ADIR-VISUAL-001", "ADIR-MOBILE-001", "ADIR-TYPE-001", "ADIR-QA-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["VII administrator", "authorized content editor"],
+  "natural_destination": "Authenticated VII administration at https://vii.spaplus.co/admin",
+  "facts": [
+    {"claim": "The live system currently exposes nine administration modules.", "evidence": "Authenticated production /admin inspection on 2026-10-14."},
+    {"claim": "Business events, search opportunities, catalog runs, bookings, reviews and saved WhatsApp leads have existing D1-backed APIs.", "evidence": "Existing app/api/admin routes and D1 storage modules."}
+  ],
+  "assumptions": [{"claim": "The existing Google administrator allowlist remains the correct authorization boundary.", "validation": "Keep the current session and allowlist checks unchanged and rerun unauthorized route tests."}],
+  "in_scope": ["Shared administration shell and command navigation", "overview dashboard", "business funnel dashboard", "content approval queue", "growth and technical promotion center", "responsive loading, error, empty and authorization states", "tests and production publication"],
+  "out_of_scope": ["Creating or changing external GA4, Search Console or Tag Manager accounts", "Supplier pulls", "Changing administrator permissions", "Purchases or outbound communications", "Inventing unavailable business data"],
+  "invariants": ["All current administration URLs remain reachable", "Existing Google allowlist authorization remains enforced", "No supplier data is pulled by the redesign", "Search-page save, scheduling and version behavior is unchanged", "Public catalog and booking behavior are unchanged"],
+  "affected_family": ["admin overview route", "admin business performance route", "admin content queue route", "admin growth center route", "shared administration navigation", "administration API summaries", "desktop and 390px mobile layouts"],
+  "characteristics": {"stateful": true},
+  "requirements": [
+    {"id": "REQ-1", "statement": "The administration home must present real operational health, priority work and measurable site activity with clear next actions.", "source": "User request and ADIR-ADMIN-001"},
+    {"id": "REQ-2", "statement": "Business performance must show impressions, page entries, unique browsers, calls, saved WhatsApp leads and booking requests with visible funnel ratios, filtering and export.", "source": "User's earlier explicit dashboard requirements and ADIR-DATA-001"},
+    {"id": "REQ-3", "statement": "Search-derived page opportunities must remain visible as an actionable review queue that leads directly to editing and publishing.", "source": "User's explicit legacy parity requirement"},
+    {"id": "REQ-4", "statement": "Promotion tooling must be collected in a growth center that distinguishes working VII capabilities from unverified external integrations.", "source": "User's explicit promotion-area request and ADIR-WEB-CMS-001"},
+    {"id": "REQ-5", "statement": "The shared administration experience must be coherent, modern, keyboard accessible and responsive at 390px without losing capabilities.", "source": "Current request, VII feedback standard and applicable lessons"},
+    {"id": "REQ-6", "statement": "Existing data, routes, permissions and public behavior must not regress, and publication must have a rollback identity.", "source": "Project release rules and ADIR-QA-001"}
+  ],
+  "acceptance_checks": [
+    {"id": "AC-1", "requirement_ids": ["REQ-1"], "kind": "success", "setup": "Authorized account opens /admin with existing data.", "action": "Wait for the dashboard to load.", "observable_result": "Health, priorities, KPIs, catalog state and recent activity appear with direct task actions and explicit data periods."},
+    {"id": "AC-2", "requirement_ids": ["REQ-2"], "kind": "success", "setup": "Authorized account opens business performance.", "action": "Change period, search, filter and export.", "observable_result": "The same filtered rows and funnel totals remain internally consistent and a CSV export is generated locally."},
+    {"id": "AC-3", "requirement_ids": ["REQ-3"], "kind": "success", "setup": "Search opportunities exist or the queue is empty.", "action": "Open the queue and choose an item or inspect the empty state.", "observable_result": "Each item shows demand, results, readiness, priority and a direct editing action; the empty state explains how data appears."},
+    {"id": "AC-4", "requirement_ids": ["REQ-4"], "kind": "success", "setup": "Authorized account opens the growth center.", "action": "Inspect technical and editorial growth modules.", "observable_result": "Sitemap, robots, first-party measurement, search content, redirects and promotion tools show truthful status and direct destinations; external systems are not falsely shown as connected."},
+    {"id": "AC-5", "requirement_ids": ["REQ-5"], "kind": "success", "setup": "Open representative routes on desktop and 390x844 mobile.", "action": "Use global navigation, command search and primary controls.", "observable_result": "The current location is clear, controls are reachable, Hebrew typography is modern and there is no page-level horizontal overflow."},
+    {"id": "AC-6", "requirement_ids": ["REQ-5"], "kind": "failure", "setup": "Simulate API error or unauthorized access.", "action": "Load the affected screen.", "observable_result": "A branded actionable state appears without exposing management data."},
+    {"id": "AC-7", "requirement_ids": ["REQ-6"], "kind": "persistence", "setup": "Use existing stateful search-page workflow.", "action": "Load and reload existing saved data without changing it.", "observable_result": "Data and route behavior remain intact after the shared-shell redesign."},
+    {"id": "AC-8", "requirement_ids": ["REQ-6"], "kind": "rollback", "setup": "Release candidate is ready.", "action": "Publish through the versioned Site workflow.", "observable_result": "The new version and prior public version are both identified and the live routes are verified after publication."}
+  ],
+  "open_questions": [],
+  "authorization_boundary": "Implementation, tests and rollback-safe publication are authorized by the active VII instructions; no supplier pull, external account change, message or purchase is authorized.",
+  "ready_for_implementation": true
+}

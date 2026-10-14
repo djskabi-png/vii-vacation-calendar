@@ -1,0 +1,90 @@
+{
+  "status": "diagnosed",
+  "symptom": "A search performed on the live VII site did not appear in the authenticated /admin/search-pages work queue, whose live dashboard showed zero recorded searches and zero pending opportunities.",
+  "expected_behavior": "A consented public search in every supported commercial world creates or updates an editable search-page opportunity; an authenticated administrator test search remains visible in a clearly separate test lane without contributing to public demand metrics.",
+  "environment": "VII production Site version 412 at https://vii.spaplus.co on 2026-10-14, authenticated administrator session, /admin/search-pages.",
+  "reproduction": {
+    "steps": [
+      "Open the live authenticated /admin/search-pages route after performing a public-site search.",
+      "Observe the 30-day search metrics and the active work queue."
+    ],
+    "evidence": "The live route displayed 0 searches, 0 unique visitors and 0 pending opportunities while listing only 22 seeded published pages."
+  },
+  "observations": [
+    {
+      "observation": "Detailed result tracking was wired only in the events result route.",
+      "evidence": "Repository search before the fix found trackSearchResults in app/events/search/page.tsx but not in vacation, spa or hourly result components."
+    },
+    {
+      "observation": "Authenticated administrator search demand was stored as internal and then stopped before opportunity creation.",
+      "evidence": "saveSearchEvent returned on `!inserted || internal` immediately before the opportunity upsert."
+    },
+    {
+      "observation": "The production opportunity database and admin read path were available.",
+      "evidence": "The live authenticated dashboard successfully returned and rendered 22 managed published opportunities rather than an availability error."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "Vacation, spa and hourly result pages never send the detailed event required to create an opportunity.",
+      "prediction": "Only the events result page imports and calls trackSearchResults.",
+      "discriminating_test": "Search all public result-family source files for trackSearchResults.",
+      "result": "The call existed only in the events result page before the repair.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "Administrator searches are deliberately excluded before the opportunity upsert.",
+      "prediction": "An internal detailed event is inserted into demand storage but produces no opportunity row.",
+      "discriminating_test": "Inspect the save boundary and exercise it against an in-memory migrated database.",
+      "result": "The pre-fix branch returned when internal was true; the new regression fixture proves the repaired path retains an internal opportunity with public count zero.",
+      "status": "supported"
+    },
+    {
+      "id": "H3",
+      "mechanism": "The production database or authenticated admin API is unavailable.",
+      "prediction": "The live page would show an availability error and fail to load seeded managed opportunities.",
+      "discriminating_test": "Open the authenticated live dashboard and inspect its returned inventory.",
+      "result": "The dashboard loaded 22 managed opportunities successfully, so the database and admin read path were available.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Emit detailed search-result events from vacation, events, spa and hourly families, and upsert administrator searches as separate internal-test opportunities while keeping all public metrics filtered to internal=0.",
+    "evidence": "Focused search analytics, opportunity studio and command-center tests pass, including a migrated in-memory internal-search fixture and static coverage for all four worlds."
+  },
+  "affected_family": [
+    "vacation search results",
+    "event search results",
+    "spa search results",
+    "hourly search results",
+    "search analytics ingestion",
+    "search-page administration queue",
+    "growth center navigation and metrics"
+  ],
+  "regression_checks": [
+    {
+      "check": "Detailed demand event validation and opportunity idempotency",
+      "status": "passed",
+      "evidence": "tests/search-analytics.test.mjs passed."
+    },
+    {
+      "check": "Administrator search stays separate from public demand",
+      "status": "passed",
+      "evidence": "In-memory fixture stored internal=1, created the opportunity, kept search_count at 0 and retained result count."
+    },
+    {
+      "check": "All four commercial result families call trackSearchResults",
+      "status": "passed",
+      "evidence": "Static family coverage test passed for vacation, events, spa and hourly."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "The exact consent state and exact search world used in Adir's original browser action were not directly observable; demand tracking continues to require measurement consent.",
+    "Production proof remains pending until the repaired commit is deployed and a fresh consented administrator test search is observed in the internal-test lane."
+  ],
+  "authorization_boundary": "Read-only production diagnosis, in-scope local repair and previously authorized VII publication; no supplier pull, catalog mutation, permission change or destructive action."
+}

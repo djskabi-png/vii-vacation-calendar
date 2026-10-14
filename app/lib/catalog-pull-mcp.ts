@@ -2,6 +2,7 @@ import type { D1Database } from "../../types/cloudflare-runtime";
 import type { SupplierCatalogWorld } from "./supplier-catalog-store.ts";
 import { readSupplierCatalogState } from "./supplier-catalog-store.ts";
 import { catalogPullSlot } from "./supplier-catalog-schedule.ts";
+import { CATALOG_RETRY_DELAY_MS, cancelPendingCatalogRetries, scheduleCatalogRetry } from "./supplier-catalog-retry.ts";
 
 type Run = { id: string; world: SupplierCatalogWorld; source: string; status: string;
   candidateCount: number | null; errorCode: string | null };
@@ -21,7 +22,12 @@ export async function pullCatalogSlot(db: D1Database, world: SupplierCatalogWorl
   if (!slot) return { world, status: "no_due_slot", source: "scheduled" };
   const previous = await readRun(db, slot.id, world);
   // The guarded runner's INSERT OR IGNORE supplies the atomic concurrency boundary.
-  if (!previous) await dependencies.sync(slot.id, world);
+  if (!previous) {
+    const now = (dependencies.now || (() => new Date()))();
+    await scheduleCatalogRetry(db, { rootRunId: slot.id, world, attempt: 1,
+      dueAt: new Date(now.getTime() + CATALOG_RETRY_DELAY_MS).toISOString(), createdAt: now.toISOString() });
+    await dependencies.sync(slot.id, world);
+  }
   const run = await readRun(db, slot.id, world);
   if (!run || run.source !== "scheduled") throw new Error("catalog_result_unavailable");
   const state = await readSupplierCatalogState(db, world);
@@ -29,6 +35,8 @@ export async function pullCatalogSlot(db: D1Database, world: SupplierCatalogWorl
     ? run.status : "unknown";
   const errorCode = run.errorCode === "catalog_removal_requires_review" || run.errorCode === "catalog_media_requires_review"
     ? run.errorCode : run.errorCode ? "catalog_pull_failed" : null;
+  if (run.status === "accepted" || run.status === "rejected") await cancelPendingCatalogRetries(db, slot.id,
+    (dependencies.now || (() => new Date()))().toISOString(), run.status, run.id, run.errorCode || undefined);
   return { ...slot, source: "scheduled", status, repeated: !!previous, persisted: true,
     candidateCount: run.candidateCount, activeCount: state?.activeCount || 0,
     activeGenerationMatchesRun: state?.activeRunId === slot.id, errorCode,

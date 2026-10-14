@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { scheduledCatalogWorld } from "../app/lib/supplier-catalog-schedule.ts";
+import { scheduledCatalogRunId, scheduledCatalogWorld } from "../app/lib/supplier-catalog-schedule.ts";
 
 test("catalog schedule keeps the approved Israel slots in winter and summer", () => {
   const slots = [
@@ -13,8 +13,10 @@ test("catalog schedule keeps the approved Israel slots in winter and summer", ()
       const [hour, minute] = time.split(":").map(Number);
       const utc = new Date(Date.UTC(2026, Number(month) - 1, 15, hour - offset, minute));
       assert.equal(scheduledCatalogWorld(utc), world, `${month} ${time}`);
+      assert.match(scheduledCatalogRunId(utc, world), new RegExp(`^scheduled_2026${month}15_${world}_`));
     }
     assert.equal(scheduledCatalogWorld(new Date(Date.UTC(2026, Number(month) - 1, 15, 7, 0))), null);
   }
   assert.equal(scheduledCatalogWorld(new Date(NaN)), null);
+  assert.throws(() => scheduledCatalogRunId(new Date("2026-01-15T07:00:00Z"), "spa"), /catalog_slot_not_due/);
 });

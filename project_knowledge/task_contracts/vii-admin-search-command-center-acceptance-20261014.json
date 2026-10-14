@@ -1,0 +1,113 @@
+{
+  "goal": "Make VII search intelligence reliable and turn the administration system into a coherent operational path from observed demand to approved public page.",
+  "intent_model": {
+    "literal_request": "Improve everything, make performed searches appear, and add the many missing administration capabilities.",
+    "implied_outcome": "A premium but easy management system that operators can trust every day, with complete search evidence and direct next actions.",
+    "likely_rejections": [
+      "The latest administrator search is absent.",
+      "Only summary cards exist without actionable detail.",
+      "Internal tests distort real visitor demand.",
+      "The workflow ends before editing, approval, publication or sitemap inclusion."
+    ],
+    "interpretation_rules": [
+      {
+        "phrase": "everything and many missing things",
+        "operational_meaning": "Inventory and connect the full affected administration family rather than polishing one card.",
+        "acceptance_impact": "All connected search-intelligence routes and states receive explicit coverage."
+      }
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "What people searched and what requires action now.",
+    "current_decision": "Choose one demand signal or administrator test to inspect.",
+    "next_action": "Open the matching page opportunity for editing or review.",
+    "deferred_complexity": ["Detailed SEO and GEO metadata fields", "Frequently asked question editing", "Future publication scheduling", "Historical version recovery", "External analytics integration setup"],
+    "preserved_depth": ["Complete editorial review workflow", "Sitemap publication controls", "Audited content versions", "Internal administrator test separation", "Technical crawl-health reporting"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/task_contracts/vii-admin-search-command-center-preflight-20261014.json",
+    "lesson_bundle_ids": ["ADIR-MIND-001", "ADIR-WEB-005", "ADIR-WEB-006", "ADIR-QA-001", "ADIR-DEPLOY-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["VII super administrator", "public visitor", "search analytics ingestion service"],
+  "natural_destination": "The live VII administration routes and their D1-backed search records.",
+  "facts": [
+    {
+      "claim": "The current client returns before sending any search event unless the browser consent value is all.",
+      "evidence": "app/lib/analytics.ts"
+    },
+    {
+      "claim": "The current administrator analytics report excludes internal events and returns aggregate groups only.",
+      "evidence": "app/lib/search-analytics.ts and app/admin/search-analytics/page.tsx"
+    },
+    {
+      "claim": "The search-page studio already separates internal tests from public demand in the release branch.",
+      "evidence": "app/lib/search-opportunities.ts and app/admin/search-pages/page.tsx"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "The user's browser is signed in as an address listed in VII_ADMIN_EMAILS.",
+      "validation": "Verify the authenticated production route and returned administrator account after deployment."
+    }
+  ],
+  "in_scope": [
+    "Authenticated administrator test capture without public analytics consent",
+    "No-consent discard for non-admin visitors",
+    "Recent public and internal search inventories",
+    "Top intent ranking and zero-result signals",
+    "Direct transition from intelligence to the matching editing workspace",
+    "Responsive management UI",
+    "Full route and permission regression for the search administration family"
+  ],
+  "out_of_scope": [
+    "Connecting unverified external GA4, Search Console or Tag Manager accounts",
+    "Publishing pages automatically without editorial approval",
+    "Provisioning the future Aurora and high-volume analytics target architecture",
+    "Changing supplier catalogs or triggering supplier pulls"
+  ],
+  "invariants": [
+    "Public analytics is stored only after explicit measurement consent.",
+    "Administrator tests never increase public demand, unique visitor or zero-result metrics.",
+    "Robots remain blocked for drafts and internal-only opportunities.",
+    "Unauthorized administration requests return 403 and no sensitive data.",
+    "The existing page editor, version history and sitemap publication flow remain available."
+  ],
+  "affected_family": [
+    "app/lib/analytics.ts",
+    "app/api/analytics/search/route.ts",
+    "app/lib/search-analytics.ts",
+    "app/api/admin/search-analytics/route.ts",
+    "app/admin/search-analytics",
+    "app/admin/search-pages",
+    "app/admin/content-queue",
+    "app/admin/growth",
+    "vacation, events, spa and hourly result producers"
+  ],
+  "characteristics": {"stateful": true},
+  "requirements": [
+    {"id": "REQ-1", "statement": "A signed-in administrator search is persisted and visible as an internal test even without public analytics consent.", "source": "User correction"},
+    {"id": "REQ-2", "statement": "Internal tests are separated from public demand and cannot inflate public metrics or approval priority.", "source": "Project analytics requirement"},
+    {"id": "REQ-3", "statement": "Search intelligence shows recent actionable detail, not only aggregates.", "source": "User request"},
+    {"id": "REQ-4", "statement": "The operator can open the matching page opportunity and continue the content workflow.", "source": "VII master plan"},
+    {"id": "REQ-5", "statement": "The flow works across all four commercial search families and protected administration states.", "source": "Affected-family requirement"}
+  ],
+  "acceptance_checks": [
+    {"id": "AC-1", "requirement_ids": ["REQ-1"], "kind": "success", "setup": "Signed-in administrator with no public analytics consent", "action": "Perform a filtered search and allow results to settle", "observable_result": "A recent internal test row appears with world, location, filters, result count, route and time."},
+    {"id": "AC-2", "requirement_ids": ["REQ-2"], "kind": "persistence", "setup": "One internal test and one consented public search exist", "action": "Reload the management report", "observable_result": "The internal test remains in its own total and row list while public demand totals count only the public search."},
+    {"id": "AC-3", "requirement_ids": ["REQ-1", "REQ-2"], "kind": "permission", "setup": "Signed-out visitor with no consent", "action": "Submit the same candidate event and request the report", "observable_result": "The candidate is not stored and the administration report returns 403."},
+    {"id": "AC-4", "requirement_ids": ["REQ-3", "REQ-4"], "kind": "success", "setup": "An opportunity exists", "action": "Inspect the intelligence row and choose its action", "observable_result": "The UI explains the intent and opens /admin/search-pages?id=<opportunity> directly."},
+    {"id": "AC-5", "requirement_ids": ["REQ-3"], "kind": "empty", "setup": "No events exist in the selected period", "action": "Open the report", "observable_result": "An explicit useful empty state appears without fake data."},
+    {"id": "AC-6", "requirement_ids": ["REQ-5"], "kind": "failure", "setup": "The report request or event save fails", "action": "Load or retry", "observable_result": "The interface shows a recoverable error and does not claim data was saved."},
+    {"id": "AC-7", "requirement_ids": ["REQ-5"], "kind": "success", "setup": "Representative search state in each commercial world", "action": "Let the result page settle", "observable_result": "Each world emits the same bounded detailed event contract."},
+    {"id": "AC-8", "requirement_ids": ["REQ-3", "REQ-4"], "kind": "success", "setup": "Desktop and 390px mobile", "action": "Open intelligence and page studio", "observable_result": "The current task and primary next action remain visible and usable without overflow."}
+  ],
+  "open_questions": [
+    {"question": "Which external analytics and search accounts will ultimately be connected?", "blocking": false, "resolution": "Keep them explicitly unverified until Adir supplies the account and scope."}
+  ],
+  "authorization_boundary": "Implement, test, commit and push the repair. Do not connect external accounts, mutate supplier catalogs or claim production completion before verified deployment.",
+  "ready_for_implementation": true
+}

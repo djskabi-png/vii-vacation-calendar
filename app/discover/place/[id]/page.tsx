@@ -14,6 +14,7 @@ import { publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
 import type { SpaPlusSite } from "../../../data/spaplus";
 import { spaEditorialDescription, spaEditorialTitle } from "../../../data/spa-editorial";
 import hourlyCatalog from "../../../data/sergey-hourly-catalog.json";
+import { managedDiscoveryItems } from "../../../lib/managed-public-content";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -31,10 +32,17 @@ async function resolveItem(id: string) {
     const places = await publicCatalogSummaries<(typeof hourlyCatalog.places)[number]>("rooms");
     items = hourlyPlacesFromCatalog(places);
     hourlyPlace = places.find((place) => place.id === id);
+  } else {
+    const [providers, attractions] = await Promise.all([
+      managedDiscoveryItems(discoveryItems.filter((entry) => entry.world === "providers"), "providers"),
+      managedDiscoveryItems(discoveryItems.filter((entry) => entry.world === "activities"), "attractions"),
+    ]);
+    const managed = new Map([...providers, ...attractions].map((entry) => [entry.id, entry]));
+    items = discoveryItems.map((entry) => managed.get(entry.id) || entry);
   }
   const item = items.find((entry) => entry.id === id);
   if (!item) notFound();
-  return { item: spaSite ? { ...item, description: spaEditorialDescription(spaSite) } : item, items, spaSite, hourlyPlace };
+  return { item: spaSite ? { ...item, description: spaSite.shortDescription || spaEditorialDescription(spaSite) } : item, items, spaSite, hourlyPlace };
 }
 
 function itemFaq(item: DiscoveryItem, spaSite?: SpaPlusSite, hourlyPlace?: (typeof hourlyCatalog.places)[number]) {
@@ -49,7 +57,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { item, spaSite } = await resolveItem((await params).id);
   const indexable = item.indexable === true || (item.indexable !== false && (item.world === "spa" || item.world === "hourly" || item.world === "activities"));
   const title = spaSite ? spaEditorialTitle(spaSite) : item.name;
-  const description = spaSite ? spaEditorialDescription(spaSite) : item.description;
+  const description = spaSite ? spaSite.shortDescription || spaEditorialDescription(spaSite) : item.description;
   return {
     title,
     description,

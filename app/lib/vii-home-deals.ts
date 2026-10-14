@@ -1,6 +1,7 @@
 const API_ROOT = "https://bizonline.co.il/api/ai/vii";
 const MEDIA_ROOT = "https://www.vii.co.il";
 import siteDetails from "../data/sergey-place-details.json" with { type: "json" };
+import { supplierContactNumber } from "./supplier-contact.ts";
 
 export const homeDealPeriods = [
   { id: "tomorrow", label: "ברגע האחרון", weekday: null, nights: 1 },
@@ -11,7 +12,11 @@ export const homeDealPeriods = [
 ] as const;
 
 export type HomeDealPeriod = (typeof homeDealPeriods)[number]["id"];
-export type HomeDeal = { siteID: number; name: string; image: string; city: string; area: string; score: number | null; reviewCount: number; from: string; till: string; total: number; nights: number; roomID?: number; onlineBooking?: boolean };
+export type HomeDeal = {
+  siteID: number; name: string; image: string; city: string; area: string; score: number | null; reviewCount: number;
+  from: string; till: string; total: number; nights: number; priceGuests: number; roomID?: number; roomName?: string;
+  bedrooms?: number; maxGuests?: number; phone?: string; onlineBooking?: boolean; curatedRank?: number;
+};
 
 function israelToday(now: Date) {
   const parts = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Jerusalem", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(now);
@@ -136,7 +141,17 @@ export async function getHomeDealsForDates(options: {
     const rooms = Array.isArray(cheapest.rooms) ? cheapest.rooms : [];
     const room = rooms.length === 1 ? record(rooms[0]) : {};
     const roomID = Number.isSafeInteger(room.roomID) && (room.roomID as number) > 0 ? room.roomID as number : undefined;
-    deals.push({ siteID: siteID as number, name, image, city: location?.city || "", area: location?.area || "", score, reviewCount, from: cheapest.from as string, till: cheapest.till as string, total, nights: dates.nights, ...(roomID ? { roomID } : {}), onlineBooking: result.onlineBooking === true });
+    const catalogRooms = Array.isArray(place?.rooms) ? place.rooms.map(record) : [];
+    const catalogRoom = roomID ? catalogRooms.find((candidate) => candidate.roomID === roomID) : undefined;
+    const selectedRoom = catalogRoom || room;
+    const roomName = typeof selectedRoom.roomName === "string" ? selectedRoom.roomName.trim() : "";
+    const bedrooms = Number.isSafeInteger(selectedRoom.bedrooms) && Number(selectedRoom.bedrooms) > 0 ? Number(selectedRoom.bedrooms) : undefined;
+    const maxGuests = Number.isSafeInteger(selectedRoom.maxGuests) && Number(selectedRoom.maxGuests) > 0 ? Number(selectedRoom.maxGuests) : undefined;
+    const phone = supplierContactNumber(record(place?.contact).phone);
+    deals.push({ siteID: siteID as number, name, image, city: location?.city || "", area: location?.area || "", score, reviewCount,
+      from: cheapest.from as string, till: cheapest.till as string, total, nights: dates.nights, priceGuests: 2,
+      ...(roomID ? { roomID } : {}), ...(roomName ? { roomName } : {}), ...(bedrooms ? { bedrooms } : {}),
+      ...(maxGuests ? { maxGuests } : {}), ...(phone ? { phone } : {}), onlineBooking: result.onlineBooking === true });
   }
   return { dates, checkedAt: typeof search.created === "string" ? search.created : null, deals };
 }

@@ -32,7 +32,19 @@ test("home deals use only supplier-confirmed availability and live totals", asyn
   const result = await getHomeDeals({ period: "tomorrow", now: new Date("2026-10-05T12:00:00Z"), token: "test-token", publicSiteIds: new Set([11, 12]), publicNames: new Map([[11, "שם עמוד המקום"]]), fetchImpl });
   assert.equal(result.period, "tomorrow");
   assert.equal(requested.length, 3);
-  assert.deepEqual(result.deals, [{ siteID: 11, name: "שם עמוד המקום", image: "https://www.vii.co.il/gallery/hilat.jpg", city: "כלנית", area: "כנרת", score: 9.9, reviewCount: 182, from: "2026-10-06", till: "2026-10-07", total: 850, nights: 1, onlineBooking: false }]);
+  assert.deepEqual(result.deals, [{ siteID: 11, name: "שם עמוד המקום", image: "https://www.vii.co.il/gallery/hilat.jpg", city: "כלנית", area: "כנרת", score: 9.9, reviewCount: 182, from: "2026-10-06", till: "2026-10-07", total: 850, nights: 1, priceGuests: 2, onlineBooking: false }]);
+});
+
+test("home deals expose only verified room facts, guest basis and safe supplier phone", async () => {
+  const fetchImpl = async (url) => {
+    if (url.endsWith("/locations")) return Response.json({});
+    if (url.endsWith("/vacations")) return Response.json({ places: [{ siteID: 11, active: true, siteName: "מקום", galleries: [{ pictures: ["/gallery/place.jpg"] }],
+      rooms: [{ roomID: 77, roomName: "וילה פרטית", bedrooms: 4, maxGuests: 12 }], contact: { phone: "050-1234567" } }] });
+    return Response.json({ sites: [{ siteID: 11, available: true, minTotal: 1800, cheapest: { from: "2026-10-06", till: "2026-10-07", rooms: [{ roomID: 77 }] } }] });
+  };
+  const result = await getHomeDeals({ period: "tomorrow", now: new Date("2026-10-05T12:00:00Z"), token: "test-token", publicSiteIds: new Set([11]), fetchImpl });
+  assert.deepEqual({ roomName: result.deals[0].roomName, bedrooms: result.deals[0].bedrooms, maxGuests: result.deals[0].maxGuests, phone: result.deals[0].phone, priceGuests: result.deals[0].priceGuests },
+    { roomName: "וילה פרטית", bedrooms: 4, maxGuests: 12, phone: "050-1234567", priceGuests: 2 });
 });
 
 test("catalog placeholder ratings never override real site reviews", async () => {

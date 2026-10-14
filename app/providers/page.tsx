@@ -5,6 +5,7 @@ import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, collectionSchema } from "../lib/seo";
 import { redirect } from "next/navigation";
 import { getProviderCategory, providerCategoryHref } from "../data/provider-categories";
+import { managedDiscoveryItems } from "../lib/managed-public-content";
 
 export const metadata: Metadata = {
   title: "ספקים לחופשה ולאירוע במקום אחד",
@@ -26,9 +27,10 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
     }
     redirect(`${providerCategoryHref(legacyCategory)}${nextParams.size ? `?${nextParams}` : ""}`);
   }
+  const providers = await managedDiscoveryItems(providerProfiles, "providers");
   return <>
     <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "ספקים", path: "/providers" }])} />
-    <StructuredData data={collectionSchema("ספקים לאירוח ולאירועים", "שפים, מוזיקה, צילום, עיצוב ופעילויות במקום אחד.", "/providers", providerProfiles.map((item) => ({ name: item.name, path: `/discover/place/${item.id}`, image: item.image })))} />
-    <WorldLanding world="providers" title="ספקים לאירוח ולאירועים" description="שפים, מוזיקה, צילום, עיצוב ופעילויות במקום אחד." items={providerProfiles} providerCategory="all" />
+    <StructuredData data={collectionSchema("ספקים לאירוח ולאירועים", "שפים, מוזיקה, צילום, עיצוב ופעילויות במקום אחד.", "/providers", providers.map((item) => ({ name: item.name, path: `/discover/place/${item.id}`, image: item.image })))} />
+    <WorldLanding world="providers" title="ספקים לאירוח ולאירועים" description="שפים, מוזיקה, צילום, עיצוב ופעילויות במקום אחד." items={providers} providerCategory="all" />
   </>;
 }

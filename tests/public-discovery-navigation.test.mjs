@@ -9,7 +9,7 @@ const footer = await readFile(new URL("../app/components/site-footer.tsx", impor
 const home = await readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8");
 const business = await readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8");
 const worldLanding = await readFile(new URL("../app/components/world-landing.tsx", import.meta.url), "utf8");
-const sitemap = await readFile(new URL("../app/sitemap.ts", import.meta.url), "utf8");
+const sitemap = await readFile(new URL("../app/lib/sitemap-inventory.ts", import.meta.url), "utf8");
 const attractions = await readFile(new URL("../app/attractions/page.tsx", import.meta.url), "utf8");
 const trails = await readFile(new URL("../app/trails/page.tsx", import.meta.url), "utf8");
 const trailDetail = await readFile(new URL("../app/trails/[slug]/page.tsx", import.meta.url), "utf8");
@@ -29,8 +29,8 @@ test("header world controls, footer and homepage expose both dedicated pages", (
   assert.match(header, /publicWorldNavigation\.map/);
   assert.match(header, /<WorldSwitcher active=\{activeWorld\}/);
   assert.doesNotMatch(footer, /href="\/activities"/);
-  assert.match(footer, /href="\/trails">מסלולי טיולים/);
-  assert.match(footer, /href="\/attractions">אטרקציות/);
+  assert.match(footer, /href="\/trails">\{translate\("מסלולי טיולים"\)\}/);
+  assert.match(footer, /href="\/attractions">\{translate\("אטרקציות"\)\}/);
   assert.match(home, /publicWorldNavigation\.filter/);
 });
 

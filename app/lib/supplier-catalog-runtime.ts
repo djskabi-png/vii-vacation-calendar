@@ -36,7 +36,7 @@ async function secret(name: "SERGEY_VII_API_TOKEN" | "SPAPLUS_VII_API_KEY") {
 }
 
 export async function syncSupplierCatalogWorld(db: D1Database, world: SupplierCatalogWorld,
-  source: "manual" | "scheduled", options?: { fetchImpl?: typeof fetch; now?: () => Date; runId?: string }) {
+  source: "manual" | "scheduled" | "retry", options?: { fetchImpl?: typeof fetch; now?: () => Date; runId?: string }) {
   const apiKey = await secret(world === "spa" ? "SPAPLUS_VII_API_KEY" : "SERGEY_VII_API_TOKEN");
   const client = world === "spa"
     ? createSpaPlusCatalogClient({ apiKey, fetchImpl: options?.fetchImpl })

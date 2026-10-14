@@ -1,0 +1,75 @@
+import type { D1Database } from "../../types/cloudflare-runtime";
+import { scheduledCatalogRunId, scheduledCatalogWorld } from "./supplier-catalog-schedule.ts";
+import { syncSupplierCatalogWorld } from "./supplier-catalog-runtime.ts";
+import { CATALOG_MAX_RETRIES, CATALOG_RETRY_DELAY_MS, cancelPendingCatalogRetries,
+  claimDueCatalogRetries, finishCatalogRetry, scheduleCatalogRetry } from "./supplier-catalog-retry.ts";
+import type { SupplierCatalogWorld } from "./supplier-catalog-store.ts";
+
+type SyncResult = { status: "accepted" | "rejected" | "failed" | "skipped"; id: string; errorCode?: string };
+type Sync = (world: SupplierCatalogWorld, source: "manual" | "scheduled" | "retry", runId: string) => Promise<SyncResult>;
+
+function runtimeSync(db: D1Database): Sync {
+  return async (world, source, runId) => {
+    const result = await syncSupplierCatalogWorld(db, world, source, { runId });
+    return { status: result.status as SyncResult["status"], id: result.id,
+      ...("errorCode" in result && result.errorCode ? { errorCode: result.errorCode } : {}) };
+  };
+}
+
+function after(date: Date, milliseconds: number) {
+  return new Date(date.getTime() + milliseconds).toISOString();
+}
+
+async function settleInitial(db: D1Database, rootRunId: string, result: SyncResult, now: string) {
+  if (result.status === "accepted" || result.status === "rejected") {
+    await cancelPendingCatalogRetries(db, rootRunId, now, result.status, result.id, result.errorCode);
+  }
+}
+
+export async function runCatalogPullWithRetryPlan(db: D1Database, input: {
+  world: SupplierCatalogWorld;
+  source: "manual" | "scheduled";
+  runId: string;
+  now?: Date;
+  sync?: Sync;
+}) {
+  const now = input.now || new Date();
+  const sync = input.sync || runtimeSync(db);
+  await scheduleCatalogRetry(db, { rootRunId: input.runId, world: input.world, attempt: 1,
+    dueAt: after(now, CATALOG_RETRY_DELAY_MS), createdAt: now.toISOString() });
+  const result = await sync(input.world, input.source, input.runId);
+  await settleInitial(db, input.runId, result, now.toISOString());
+  return result;
+}
+
+export async function runDueCatalogRetries(db: D1Database, input: { now?: Date; sync?: Sync; limit?: number } = {}) {
+  const now = input.now || new Date();
+  const sync = input.sync || runtimeSync(db);
+  const jobs = await claimDueCatalogRetries(db, now.toISOString(), input.limit);
+  const results: SyncResult[] = [];
+  for (const job of jobs) {
+    if (job.attempt < CATALOG_MAX_RETRIES) await scheduleCatalogRetry(db, { rootRunId: job.rootRunId,
+      world: job.world, attempt: job.attempt + 1, dueAt: after(now, CATALOG_RETRY_DELAY_MS), createdAt: now.toISOString() });
+    const runId = `${job.rootRunId}_retry_${job.attempt}`;
+    const result = await sync(job.world, "retry", runId);
+    const terminalStatus = result.status === "failed" && job.attempt === CATALOG_MAX_RETRIES ? "exhausted" :
+      result.status === "rejected" ? "cancelled" : "completed";
+    await finishCatalogRetry(db, { id: job.id, status: terminalStatus, finishedAt: now.toISOString(),
+      resultStatus: result.status, resultRunId: result.id, errorCode: result.errorCode });
+    if (result.status === "accepted" || result.status === "rejected") {
+      await cancelPendingCatalogRetries(db, job.rootRunId, now.toISOString(), result.status, result.id, result.errorCode);
+    }
+    results.push(result);
+  }
+  return results;
+}
+
+export async function runSupplierCatalogScheduleTick(db: D1Database, input: { now?: Date; sync?: Sync } = {}) {
+  const now = input.now || new Date();
+  const retries = await runDueCatalogRetries(db, { now, sync: input.sync });
+  const world = scheduledCatalogWorld(now);
+  if (!world) return { primary: null, retries };
+  const runId = scheduledCatalogRunId(now, world);
+  const primary = await runCatalogPullWithRetryPlan(db, { world, source: "scheduled", runId, now, sync: input.sync });
+  return { primary, retries };
+}

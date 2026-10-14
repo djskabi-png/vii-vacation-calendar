@@ -8,8 +8,7 @@ import hourlyUiTranslations from "../app/data/hourly-ui-translations.json";
 import providerJoinTranslations from "../app/data/provider-join-translations.json";
 import spaUiTranslations from "../app/data/spa-ui-translations.json";
 import catalogAdminTranslations from "../app/data/catalog-admin-translations.json";
-import { scheduledCatalogWorld } from "../app/lib/supplier-catalog-schedule.ts";
-import { syncSupplierCatalogWorld } from "../app/lib/supplier-catalog-runtime.ts";
+import { runSupplierCatalogScheduleTick } from "../app/lib/supplier-catalog-retry-runner.ts";
 import { legacyPlaceDestination } from "../app/lib/legacy-route-map.ts";
 
 const temporaryOrigin = "https://vii.spaplus.co";
@@ -123,10 +122,11 @@ function storePublicCache(response: Response, policy: PublicCachePolicy | null, 
 function withLaunchSeo(response: Response, url: URL, primary: boolean) {
   const headers = new Headers(response.headers);
   const type = headers.get("content-type") || "";
-  if (!primary && (type.includes("text/html") || url.pathname === "/sitemap.xml")) {
+  const sitemapDocument = url.pathname === "/sitemap.xml" || url.pathname.startsWith("/sitemaps/");
+  if (!primary && (type.includes("text/html") || sitemapDocument)) {
     headers.set("X-Robots-Tag", "noindex");
   }
-  if (primary && (url.pathname === "/robots.txt" || url.pathname === "/sitemap.xml") &&
+  if (primary && (url.pathname === "/robots.txt" || sitemapDocument) &&
       (type.includes("text/plain") || type.includes("xml"))) {
     headers.delete("content-length");
     return response.text().then((body) => new Response(body.replaceAll(temporaryOrigin, primaryOrigin), {
@@ -159,7 +159,7 @@ function localizeStructuredUrl(value: string, locale: Exclude<PublicLocale, "he"
   try {
     const url = new URL(value);
     if (url.origin !== "https://vii.spaplus.co") return value;
-    if (/^\/(?:api|_next|assets|media)(?:\/|$)|^\/(?:favicon\.ico|robots\.txt|sitemap\.xml|feed\.xml|vii-logo\.png|og-v2\.png)$/.test(url.pathname)) return value;
+    if (/^\/(?:api|_next|assets|media|sitemaps)(?:\/|$)|^\/(?:favicon\.ico|robots\.txt|sitemap\.xml|feed\.xml|vii-logo\.png|og-v2\.png)$/.test(url.pathname)) return value;
     const basePath = url.pathname.replace(/^\/(en|ru|fr)(?=\/|$)/, "") || "/";
     url.pathname = `/${locale}${basePath === "/" ? "" : basePath}`;
     return url.toString();
@@ -226,11 +226,9 @@ interface ExecutionContext {
 
 const worker = {
   scheduled(controller: { scheduledTime: number }, env: Env, ctx: ExecutionContext) {
-    const world = scheduledCatalogWorld(new Date(controller.scheduledTime));
-    if (!world) return;
-    ctx.waitUntil(syncSupplierCatalogWorld(env.DB, world, "scheduled").then((result) => {
-      if (result.status !== "accepted" && result.status !== "skipped") {
-        console.error("VII scheduled catalog sync did not publish", world, result.errorCode);
+    ctx.waitUntil(runSupplierCatalogScheduleTick(env.DB, { now: new Date(controller.scheduledTime) }).then(({ primary, retries }) => {
+      for (const result of [...retries, ...(primary ? [primary] : [])]) if (result.status !== "accepted" && result.status !== "skipped") {
+        console.error("VII scheduled catalog sync did not publish", result.id, result.errorCode);
       }
     }));
   },

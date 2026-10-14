@@ -86,7 +86,7 @@ export default async function HomePage() {
             <h1>כל החופשה, במקום אחד</h1>
             <p>נופש, ספא, אירועים וכל מה שעושים מסביב.</p>
             <SearchBox showWorlds />
-            <div className="quick-links" aria-label="חיפושים מהירים"><span>חיפושים מהירים:</span><Link href="/search" prefetch={false} data-global-feedback="true" data-loading-label="פותחים מקומות נופש...">מקומות נופש</Link><Link href="/search?feature=בריכה" prefetch={false} data-global-feedback="true" data-loading-label="מחפשים מקומות עם בריכה...">עם בריכה</Link><Link href="/events/search" prefetch={false} data-global-feedback="true" data-loading-label="מחפשים מקומות לאירועים...">אירועים</Link><Link href="/vacations/north" prefetch={false} data-global-feedback="true" data-loading-label="מחפשים נופש בצפון...">בצפון</Link></div>
+            <div className="quick-links home-hero__quick-links" aria-label="חיפושים פופולריים"><span>פופולרי עכשיו</span><Link href="/search" prefetch={false} data-global-feedback="true" data-loading-label="פותחים מקומות נופש...">מקומות נופש</Link><Link href="/search?feature=בריכה" prefetch={false} data-global-feedback="true" data-loading-label="מחפשים מקומות עם בריכה...">נופש עם בריכה</Link><Link href="/events/search" prefetch={false} data-global-feedback="true" data-loading-label="מחפשים מקומות לאירועים...">מקומות לאירועים</Link><Link href="/vacations/north" prefetch={false} data-global-feedback="true" data-loading-label="מחפשים נופש בצפון...">נופש בצפון</Link></div>
           </div>
         </section>
 

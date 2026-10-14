@@ -67,13 +67,38 @@ export function trackWhatsAppLeadSaved(details: WhatsAppLeadDetails) {
   }
 }
 
-export function trackSearchSubmitted(details: { world: "vacation" | "events" | "spa" | "hourly"; location: string; hasDate: boolean }) {
-  if (typeof window === "undefined" || window.localStorage.getItem("vii-cookie-choice") !== "all") return;
-  const event = { eventId: crypto.randomUUID(), world: details.world, location: details.location.slice(0, 80), hasDate: details.hasDate };
-  const body = new Blob([JSON.stringify(event)], { type: "application/json" });
-  if (!navigator.sendBeacon?.("/api/analytics/search", body)) {
-    void fetch("/api/analytics/search", { method: "POST", body, keepalive: true, credentials: "same-origin" }).catch(() => undefined);
+let adminSearchCaptureCheck: Promise<boolean> | null = null;
+
+async function searchCapturePrivacy() {
+  if (window.localStorage.getItem("vii-cookie-choice") === "all") {
+    return { consentState: "granted" as const, adminTestOnly: false };
   }
+  adminSearchCaptureCheck ||= fetch("/api/analytics/search", {
+    method: "GET",
+    cache: "no-store",
+    credentials: "same-origin",
+    headers: { Accept: "application/json" },
+  }).then((response) => response.status === 204).catch(() => false);
+  return await adminSearchCaptureCheck
+    ? { consentState: "denied_or_unset" as const, adminTestOnly: true }
+    : null;
+}
+
+async function captureSearchEvent(event: Record<string, unknown>) {
+  const privacy = await searchCapturePrivacy();
+  if (!privacy) return;
+  await fetch("/api/analytics/search", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...event, ...privacy }),
+    keepalive: true,
+    credentials: "same-origin",
+  }).catch(() => undefined);
+}
+
+export function trackSearchSubmitted(details: { world: "vacation" | "events" | "spa" | "hourly"; location: string; hasDate: boolean }) {
+  if (typeof window === "undefined") return;
+  void captureSearchEvent({ eventId: crypto.randomUUID(), world: details.world, location: details.location.slice(0, 80), hasDate: details.hasDate });
 }
 
 const trackedSearchResults = new Set<string>();
@@ -85,20 +110,14 @@ export function trackSearchResults(details: {
   resultCount: number;
   filters: Record<string, string | number | boolean>;
 }) {
-  if (typeof window === "undefined" || window.localStorage.getItem("vii-cookie-choice") !== "all") return;
+  if (typeof window === "undefined") return;
   const pagePath = `${window.location.pathname}${window.location.search}`;
-  const signature = JSON.stringify({ pagePath, resultCount: details.resultCount, filters: details.filters });
+  const signature = JSON.stringify({ pagePath, resultCount: details.resultCount, filters: details.filters, consent: window.localStorage.getItem("vii-cookie-choice") });
   if (trackedSearchResults.has(signature)) return;
   trackedSearchResults.add(signature);
   const key = "vii-search-session";
   let sessionId = window.sessionStorage.getItem(key);
   if (!sessionId) { sessionId = crypto.randomUUID(); window.sessionStorage.setItem(key, sessionId); }
   const event = { eventId: crypto.randomUUID(), sessionId, pagePath, ...details };
-  void fetch("/api/analytics/search", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(event),
-    keepalive: true,
-    credentials: "same-origin",
-  }).catch(() => undefined);
+  void captureSearchEvent(event);
 }

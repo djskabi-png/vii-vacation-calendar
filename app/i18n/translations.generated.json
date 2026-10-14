@@ -1,5 +1,9 @@
 {
   "en": {
+    "סליידרים של נופש בעמוד הבית": "Homepage stay sliders",
+    "שליטה בלשוניות התאריכים, ברירת המחדל, מספר החגים והתאריכים שיוצגו בעמוד הבית.": "Control the date tabs, default selection, number of holidays and dates shown on the homepage.",
+    "חיפושים פופולריים": "Popular searches",
+    "פופולרי עכשיו": "Popular now",
     "מתחברים באופן מאובטח עם חשבון Google וממשיכים מיד.": "Sign in securely with your Google account and continue right away.",
     "התחברות עם Google": "Sign in with Google",
     "התחברו לחשבון Google שלכם. השם וכתובת הדואר ישמשו לזיהוי ולמילוי מהיר של טפסים באתר.": "Sign in with your Google account. Your name and email will be used to identify you and quickly fill in forms on the site.",
@@ -8077,6 +8081,10 @@
     "Webhook מיידי, ובנוסף סנכרון השלמה מחזורי.": "Instant webhook, plus periodic completion sync."
   },
   "ru": {
+    "סליידרים של נופש בעמוד הבית": "Слайдеры жилья на главной странице",
+    "שליטה בלשוניות התאריכים, ברירת המחדל, מספר החגים והתאריכים שיוצגו בעמוד הבית.": "Управление вкладками дат, выбором по умолчанию, количеством праздников и датами на главной странице.",
+    "חיפושים פופולריים": "Популярные запросы",
+    "פופולרי עכשיו": "Сейчас популярно",
     "מתחברים באופן מאובטח עם חשבון Google וממשיכים מיד.": "Войдите безопасно через Google и сразу продолжайте.",
     "התחברות עם Google": "Войти через Google",
     "התחברו לחשבון Google שלכם. השם וכתובת הדואר ישמשו לזיהוי ולמילוי מהיר של טפסים באתר.": "Войдите через Google. Имя и электронная почта будут использоваться для идентификации и быстрого заполнения форм на сайте.",
@@ -16154,6 +16162,10 @@
     "Webhook מיידי, ובנוסף סנכרון השלמה מחזורי.": "Мгновенный вебхук и периодическая синхронизация завершения."
   },
   "fr": {
+    "סליידרים של נופש בעמוד הבית": "Carrousels de séjours de la page d’accueil",
+    "שליטה בלשוניות התאריכים, ברירת המחדל, מספר החגים והתאריכים שיוצגו בעמוד הבית.": "Gérez les onglets de dates, la sélection par défaut, le nombre de fêtes et les dates affichées sur la page d’accueil.",
+    "חיפושים פופולריים": "Recherches populaires",
+    "פופולרי עכשיו": "Populaire en ce moment",
     "מתחברים באופן מאובטח עם חשבון Google וממשיכים מיד.": "Connectez-vous en toute sécurité avec Google et poursuivez immédiatement.",
     "התחברות עם Google": "Se connecter avec Google",
     "התחברו לחשבון Google שלכם. השם וכתובת הדואר ישמשו לזיהוי ולמילוי מהיר של טפסים באתר.": "Connectez-vous avec Google. Votre nom et votre adresse e-mail serviront à vous identifier et à remplir rapidement les formulaires du site.",

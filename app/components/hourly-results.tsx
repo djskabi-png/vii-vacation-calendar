@@ -16,6 +16,7 @@ import { useSiteLanguage } from "../i18n/locale-provider";
 import { ResultsViewToggle, useResultsViewMode } from "./results-view-toggle";
 import { ProgressiveResults } from "./progressive-results";
 import { rotateWithinTiers } from "../lib/daily-rotation";
+import { trackSearchResults } from "../lib/analytics";
 
 const featureFilters = [
   { id: "parking", label: "חניה", terms: ["חניה"] },
@@ -65,6 +66,20 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
     return locationMatches && priceMatches && featuresMatch;
   }), (item) => Number.isFinite(twoHourPrice(item)) && item.image ? 0 : Number.isFinite(twoHourPrice(item)) ? 1 : 2,
   (item) => item.id, "hourly-search"), [features, items, location, maximumPrice]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => trackSearchResults({
+      world: "hourly",
+      location,
+      hasDate: false,
+      resultCount: filtered.length,
+      filters: {
+        ...(maximumPrice ? { maxPrice: maximumPrice } : {}),
+        ...(features.length ? { features: features.join(",") } : {}),
+      },
+    }), 650);
+    return () => window.clearTimeout(timer);
+  }, [features, filtered.length, location, maximumPrice]);
 
   function updateUrl(updates: Record<string, string>) {
     const params = new URLSearchParams(window.location.search);

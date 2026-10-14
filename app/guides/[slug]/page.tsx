@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { MagazineArticleView } from "../article/client-page";
-import { getMagazineArticle, magazineArticles } from "../../data/magazine-data";
+import { magazineArticles } from "../../data/magazine-data";
 import { StructuredData } from "../../components/structured-data";
 import { articleSchema, breadcrumbSchema } from "../../lib/seo";
+import { managedMagazineArticles } from "../../lib/managed-public-content";
+import { notFound } from "next/navigation";
 
 export function generateStaticParams() {
   return magazineArticles.map((article) => ({ slug: article.slug }));
@@ -10,7 +12,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const article = getMagazineArticle(slug);
+  const article = (await managedMagazineArticles(magazineArticles)).find((item) => item.slug === slug); if (!article) notFound();
   return {
     title: article.title,
     description: article.excerpt,
@@ -22,7 +24,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function MagazineArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const article = getMagazineArticle(slug);
+  const articles = await managedMagazineArticles(magazineArticles);
+  const article = articles.find((item) => item.slug === slug); if (!article) notFound();
   return <>
     <StructuredData data={articleSchema(article)} />
     <StructuredData data={breadcrumbSchema([
@@ -30,6 +33,6 @@ export default async function MagazineArticlePage({ params }: { params: Promise<
       { name: "מגזין ומדריכים", path: "/guides/" },
       { name: article.title, path: `/guides/${article.slug}/` },
     ])} />
-    <MagazineArticleView initialSlug={article.slug} readQuery={false} />
+    <MagazineArticleView initialSlug={article.slug} readQuery={false} initialArticles={articles} />
   </>;
 }

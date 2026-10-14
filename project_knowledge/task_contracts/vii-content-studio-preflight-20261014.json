@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-content-studio-20261014",
+  "project": "VII",
+  "task_type": "administration CMS and editorial control",
+  "requested_outcome": "A single simple administration studio controls supplier-backed and VII-owned content for every world plus magazine, header, hamburger and footer, with preview, publication, versions and rollback.",
+  "natural_destination": "The authenticated VII administration system and the corresponding public VII routes.",
+  "authorization_boundary": "Local repository implementation, tests, commit and branch push are allowed. Production deployment and production data mutation require an explicit release action and live verification.",
+  "lesson_bundle": [
+    { "lesson_id": "ADIR-ADMIN-001", "reason": "The correction is specifically about an incomplete administration product.", "acceptance_impact": "Require a capability and permission matrix, persisted save, reload, public reflection, audit and rollback." },
+    { "lesson_id": "ADIR-WEB-CMS-001", "reason": "The requested controls span content, navigation, footer, URLs and site-wide presentation.", "acceptance_impact": "Require edit, validation, permission, preview, publication and recovery for each CMS module." },
+    { "lesson_id": "ADIR-CONTROL-001", "reason": "The studio will introduce visible tabs, filters, editors and actions.", "acceptance_impact": "Inventory and exercise every visible control in default, loading, success and failure states." },
+    { "lesson_id": "ADIR-QA-001", "reason": "The user explicitly identified a broad family gap, not one isolated screen.", "acceptance_impact": "Map every requested world and global surface to evidence or a precise blocker." },
+    { "lesson_id": "ADIR-INTENT-001", "reason": "The request uses examples and 'etc.' to indicate a complete family.", "acceptance_impact": "Treat examples as an affected-family inventory, not as permission to implement only spa." },
+    { "lesson_id": "ADIR-TYPE-001", "reason": "The administration interface is Hebrew.", "acceptance_impact": "Require Heebo or approved sans-serif coverage on the complete private surface." },
+    { "lesson_id": "ADIR-CONSISTENCY-001", "reason": "All content worlds must share one operational pattern.", "acceptance_impact": "Require the same hierarchy and lifecycle across worlds, with documented field differences." },
+    { "lesson_id": "ADIR-SEO-001", "reason": "Published content, magazine, navigation and footer affect discoverability and indexation.", "acceptance_impact": "Require managed metadata, slug and indexability fields where the content type is public and indexable." }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    { "rejection": "Only spa is editable while suppliers, trails, magazine, header and footer remain hard-coded.", "prevention": "Build one canonical entity model with an explicit complete type inventory.", "acceptance_check": "Every requested content family appears in the studio and can open an entity editor." },
+    { "rejection": "The editor changes a local form but the public page still renders supplier or static text.", "prevention": "Resolve published VII overrides in the server-rendered public data path.", "acceptance_check": "A published override survives reload and replaces the source text at its natural public route." },
+    { "rejection": "A supplier refresh overwrites editorial content written by VII.", "prevention": "Store provider source and VII editorial overlay separately with field-level precedence.", "acceptance_check": "A refreshed source snapshot changes the source view while the published VII override remains active." },
+    { "rejection": "The CMS looks powerful but has dead controls, no history or no safe recovery.", "prevention": "Implement optimistic concurrency, version snapshots, preview and rollback as real persisted actions.", "acceptance_check": "Save, conflict, publish, reload and rollback tests pass and the UI explains the current state." },
+    { "rejection": "The system is comprehensive but confusing and slow to operate.", "prevention": "Use one current layer: choose content family, choose item, edit one focused panel, then preview or publish.", "acceptance_check": "Desktop and mobile show one primary action and defer technical fields into secondary panels." }
+  ],
+  "affected_family": [
+    "vacation business records", "event business records", "hourly business records", "spa business records", "supplier business records", "paid attraction records", "independent trail records", "magazine article records",
+    "desktop header navigation", "mobile hamburger navigation", "footer groups", "Hebrew, English, Russian and French content variants",
+    "administrator and unauthorized states", "draft, review, scheduled, published and archived states", "D1 content and version records", "public page rendering and cache invalidation"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      { "label": "VII project architecture and verified current-truth boundary", "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md" },
+      { "label": "VII accepted product and administration expectations", "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md" },
+      { "label": "Existing search-page editorial lifecycle", "source": "app/admin/search-pages/page.tsx and app/lib/search-opportunities.ts" }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After a single spa entity completes source, override, save, reload, preview and publish before expanding the family.",
+    "checks": ["Provider source remains visible and immutable", "VII override persists with a version", "Published text resolves on the public spa route", "Unauthorized requests remain blocked"],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a supplier refresh erase a VII-written description?",
+      "Can two editors silently overwrite each other?",
+      "Can an unauthorized user read or change draft content?",
+      "Does a rollback create a new audited version instead of deleting history?",
+      "Do header, hamburger and footer resolve from one canonical published model?"
+    ],
+    "natural_destination_evidence": "Authenticated administration save and reload plus the exact public route rendering the published result.",
+    "affected_family_evidence": "Representative entity and global-surface tests across all listed content types, languages, lifecycle states and permission paths."
+  },
+  "effectiveness": {
+    "baseline": "Current content is split across supplier payloads, static data files and specialized admin tools, with no single complete CMS family.",
+    "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"],
+    "target": "One reusable lifecycle replaces per-world hard-coded editing and prevents the previously reported missing-family correction."
+  },
+  "privacy": { "raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true },
+  "ready_to_start": true
+}

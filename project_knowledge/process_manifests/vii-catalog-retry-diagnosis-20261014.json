@@ -1,0 +1,81 @@
+{
+  "status": "fixed",
+  "symptom": "A temporary supplier catalog pull failure was recorded as failed, but no automatic follow-up pull occurred ten minutes later.",
+  "expected_behavior": "A temporary failure should retry after ten minutes, retry once more after another ten minutes if needed, stop after two retries, preserve the last accepted catalog, and expose the retry state to administrators.",
+  "environment": "VII Cloudflare Worker and D1 catalog synchronization on branch review/vii-api-refresh-20261008, inspected 2026-10-14 before production deployment.",
+  "reproduction": {
+    "steps": [
+      "Inspect the catalog scheduler and sync runtime before the change.",
+      "Force a supplier pull to return a temporary failed result.",
+      "Advance the scheduler by ten minutes."
+    ],
+    "evidence": "The former scheduler only selected fixed daily world slots and had no durable retry queue; existing tests confirmed that a failed slot call was not fetched again automatically."
+  },
+  "observations": [
+    {
+      "observation": "The previous cron tick ran every thirty minutes and only invoked a fixed scheduled world slot.",
+      "evidence": "Pre-change vite.config.ts and worker/index.ts."
+    },
+    {
+      "observation": "No retry job table, due-time claim, retry budget, or administrator retry status existed.",
+      "evidence": "Pre-change migrations, catalog runtime, and admin catalog sync API/UI."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "The catalog scheduler had no durable retry state and therefore could only run at its fixed daily slots.",
+      "prediction": "A failed pull remains failed until a later manual action or fixed daily slot, with no ten-minute follow-up job.",
+      "discriminating_test": "Inspect scheduler code, migrations, and execute a failed sync followed by a tick ten minutes later.",
+      "result": "No retry storage or due-job execution existed before the fix; the new integration test reproduces the missing path and verifies the repaired timeline.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "A hidden retry already existed but was delayed or invisible in the administration UI.",
+      "prediction": "Retry code or persisted retry records would be present even though the UI did not show them.",
+      "discriminating_test": "Search the catalog scheduler, runtime, database migrations, API responses, and tests for retry handling.",
+      "result": "No automatic retry implementation or persisted retry record existed.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Add a durable D1 retry queue, run due jobs on a ten-minute Worker schedule, cap retries at two, avoid retrying safety rejections, retain the accepted catalog, and show pending, running, and exhausted states in the admin UI.",
+    "evidence": "Targeted retry tests pass for success after retry, safety rejection, and exhausted budget; TypeScript, production build, and the complete 668-test suite pass."
+  },
+  "affected_family": [
+    "Scheduled supplier catalog pulls",
+    "Manual supplier catalog pulls",
+    "MCP-triggered scheduled catalog pulls",
+    "Catalog sync administration dashboard",
+    "D1 catalog schema and migration sequence"
+  ],
+  "regression_checks": [
+    {
+      "check": "Temporary failure retries at plus ten and plus twenty minutes and stops after acceptance.",
+      "status": "passed",
+      "evidence": "tests/supplier-catalog-retry.test.mjs"
+    },
+    {
+      "check": "Safety-rejected supplier data never receives an automatic retry.",
+      "status": "passed",
+      "evidence": "tests/supplier-catalog-retry.test.mjs"
+    },
+    {
+      "check": "Two failed retries exhaust the bounded budget without a loop.",
+      "status": "passed",
+      "evidence": "tests/supplier-catalog-retry.test.mjs"
+    },
+    {
+      "check": "Full product regression suite and production build.",
+      "status": "passed",
+      "evidence": "668 of 668 tests passed; production build passed."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "The exact ten-minute production timing remains unverified until the changed Worker schedule and D1 migration are deployed and a real scheduled tick is observed."
+  ],
+  "authorization_boundary": "User requested a smart automatic retry mechanism for supplier data pulls. Code, tests, commit, and branch push are in scope; production truth requires a separate observed deployment."
+}

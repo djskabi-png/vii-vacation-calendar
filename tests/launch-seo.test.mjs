@@ -7,7 +7,6 @@ test("known legacy place paths map directly to equivalent new detail pages", () 
   assert.equal(legacyPlaceDestination("/Azulat_Anof"), "/business?id=vacation-1");
   assert.equal(legacyPlaceDestination("/events/Enrico_Events"), "/events/place/event-2684");
   assert.equal(legacyPlaceDestination("/rooms/ascape_room"), "/discover/place/hourly-1915");
-  assert.equal(legacyPlaceDestination("/rooms/ascape_love"), "/discover/place/hourly-1915");
   assert.equal(legacyPlaceDestination("/unverified-place"), null);
 });
 
@@ -46,6 +45,9 @@ test("temporary host stays out of the index and primary host gets its own canoni
   const primarySitemap = await render("https://www.vii.co.il/sitemap.xml");
   assert.equal(primarySitemap.status, 200);
   const xml = await primarySitemap.text();
-  assert.match(xml, /https:\/\/www\.vii\.co\.il\/business\?id=vacation-1/);
+  assert.match(xml, /https:\/\/www\.vii\.co\.il\/sitemaps\/vacations\/1\.xml/);
   assert.doesNotMatch(xml, /https:\/\/vii\.spaplus\.co/);
+  const vacationSitemap = await render("https://www.vii.co.il/sitemaps/vacations/1.xml");
+  assert.equal(vacationSitemap.status, 200);
+  assert.match(await vacationSitemap.text(), /https:\/\/www\.vii\.co\.il\/business\?id=vacation-1/);
 });

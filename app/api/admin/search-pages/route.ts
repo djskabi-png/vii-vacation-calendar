@@ -42,7 +42,7 @@ export async function POST(request: Request) {
   if (!change) return Response.json({ error: "invalid_page" }, { status: 400, headers });
   try {
     const result = await saveOpportunity(await opportunityDatabase(), change, actor);
-    if ("error" in result) return Response.json({ error: result.error }, { status: result.error === "not_found" ? 404 : 409, headers });
+    if ("error" in result) return Response.json({ error: result.error }, { status: result.error === "not_found" ? 404 : result.error === "invalid_identity" || result.error === "indexing_required" ? 400 : 409, headers });
     return Response.json(result, { headers });
   } catch (error) {
     console.error("VII search opportunity save unavailable", error);

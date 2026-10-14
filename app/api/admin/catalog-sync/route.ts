@@ -1,5 +1,7 @@
 import { readSession } from "../../../lib/google-auth.ts";
-import { isCatalogWorld, syncSupplierCatalogWorld } from "../../../lib/supplier-catalog-runtime.ts";
+import { isCatalogWorld } from "../../../lib/supplier-catalog-runtime.ts";
+import { runCatalogPullWithRetryPlan } from "../../../lib/supplier-catalog-retry-runner.ts";
+import { readCatalogRetryJobs } from "../../../lib/supplier-catalog-retry.ts";
 import { readSupplierCatalogDashboard } from "../../../lib/supplier-catalog-store.ts";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
 
@@ -23,7 +25,11 @@ async function database(): Promise<D1Database> {
 
 export async function GET(request: Request) {
   if (!await authorized(request)) return Response.json({ error: "forbidden" }, { status: 403, headers });
-  try { return Response.json(await readSupplierCatalogDashboard(await database()), { headers }); }
+  try {
+    const db = await database();
+    const [dashboard, retryJobs] = await Promise.all([readSupplierCatalogDashboard(db), readCatalogRetryJobs(db)]);
+    return Response.json({ ...dashboard, retryJobs }, { headers });
+  }
   catch (error) {
     console.error("VII catalog dashboard unavailable", error);
     return Response.json({ error: "catalog_dashboard_unavailable" }, { status: 503, headers });
@@ -40,7 +46,8 @@ export async function POST(request: Request) {
   const world = payload && typeof payload === "object" && "world" in payload ? payload.world : null;
   if (!isCatalogWorld(world)) return Response.json({ error: "invalid_world" }, { status: 400, headers });
   try {
-    const result = await syncSupplierCatalogWorld(await database(), world, "manual");
+    const runId = `manual_${Date.now()}_${world}_${crypto.randomUUID().replaceAll("-", "")}`;
+    const result = await runCatalogPullWithRetryPlan(await database(), { world, source: "manual", runId });
     return Response.json(result, { status: result.status === "accepted" ? 200 : 409, headers });
   } catch (error) {
     console.error("VII catalog sync unavailable", world, error);
