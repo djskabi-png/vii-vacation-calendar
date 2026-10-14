@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-palumbo-search-map-20261014",
+  "project": "VII",
+  "task_type": "vacation search, card and map repair",
+  "requested_outcome": "Apply every product correction Palumbo sent after 15:10 to VII vacation search, verify the complete affected family, and publish the exact verified result.",
+  "natural_destination": "https://vii.spaplus.co/search",
+  "authorization_boundary": "Read the named WhatsApp conversation, implement the listed VII search, card, map and administrator controls, test and publish to the existing VII Site. Do not send WhatsApp messages, change credentials, domains, catalog truth or unrelated worlds.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-SEARCH-001",
+      "reason": "The request changes filters, result cards and map coordination in one search journey.",
+      "acceptance_impact": "URL state, result count, filters, map viewport and selected listing must remain coherent."
+    },
+    {
+      "lesson_id": "ADIR-WEB-005",
+      "reason": "The card and map layout changes at desktop and mobile breakpoints.",
+      "acceptance_impact": "Desktop split view, tablet and phone layouts require direct verification."
+    },
+    {
+      "lesson_id": "ADIR-WEB-006",
+      "reason": "A responsive source review cannot prove the visible phone result.",
+      "acceptance_impact": "The exact deployed phone-width route must be visually inspected."
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "The user requested implementation and publication, not a local patch.",
+      "acceptance_impact": "The complete live flow and affected family require release evidence."
+    },
+    {
+      "lesson_id": "ADIR-LEARN-003",
+      "reason": "This is a substantive multi-requirement production task based on direct user feedback.",
+      "acceptance_impact": "Each correction is mapped to a visible check or a precise blocker."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "Price range and accommodation type remain hidden when supplier data is partial.",
+      "prevention": "Keep both controls visible, describe unavailable pricing truthfully, and preserve URL state.",
+      "acceptance_check": "The live vacation search visibly exposes both controls and applying each updates the results or explains unavailable source data."
+    },
+    {
+      "rejection": "The map looks fixed but does not remain in view or react to the card being inspected.",
+      "prevention": "Use a real sticky desktop map and an explicit active-listing contract from cards to markers.",
+      "acceptance_check": "Scrolling the desktop result column keeps the map visible and hovering or focusing a card visibly emphasizes its marker."
+    },
+    {
+      "rejection": "Cards are still bulky or only a small link opens the property.",
+      "prevention": "Compact the map-result card, make its non-interactive surface a property link and remove the redundant details button while preserving contact actions.",
+      "acceptance_check": "The card is visibly shorter, blank card areas open the correct property, and gallery, favorite, phone and WhatsApp remain independently operable."
+    },
+    {
+      "rejection": "Gallery direction, favorite position, note overlay or three key features still contradict the approved RTL behavior.",
+      "prevention": "Bind direction to locale, place the heart on the visual left, render a verified public note on the image, and use the first three ordered administrator-selected highlights.",
+      "acceptance_check": "Hebrew arrows advance in the expected visual direction, the heart is left, the note appears only when data exists, and exactly three ordered highlights appear in one row."
+    },
+    {
+      "rejection": "The local patch passes but the public desktop or phone route regresses after publication.",
+      "prevention": "Run focused and full checks, use an independent release checker, publish once and inspect the exact live version on desktop and phone.",
+      "acceptance_check": "The exact deployed route passes desktop, phone, loading, filter, card and map regression checks."
+    }
+  ],
+  "affected_family": [
+    "vacation search filters and URL state",
+    "vacation result cards in grid, list and map split modes",
+    "desktop sticky map and card-to-marker active state",
+    "Hebrew and non-Hebrew gallery direction",
+    "administrator-selected ordered property highlights",
+    "desktop, tablet and phone responsive states",
+    "property detail, phone, WhatsApp, favorite and booking actions"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII platform master plan",
+        "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\calendar-airbnb\\project_knowledge\\VII_PLATFORM_MASTER_PLAN.md"
+      },
+      {
+        "label": "VII accepted feedback standard",
+        "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\calendar-airbnb\\project_knowledge\\VII_FEEDBACK_STANDARD.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the first complete local desktop search slice, before broad responsive or release work.",
+    "checks": [
+      "Open the exact vacation search and verify visible type and price controls.",
+      "Exercise card click, contact actions, image arrows, sticky map and card-to-marker focus without relying only on source tests."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can an interactive child accidentally open the property page or cause double navigation?",
+      "Does the active marker disappear or select the wrong property after the map viewport changes?",
+      "Are price and type controls still missing for current supplier records?",
+      "Do Hebrew arrows, the heart, highlight row or note overlay break at phone width?",
+      "Is the public URL still serving an older release?"
+    ],
+    "natural_destination_evidence": "Direct desktop and phone interaction evidence from the exact deployed vacation search URL.",
+    "affected_family_evidence": "Focused contracts, production build, full suite, independent checker and post-deploy route checks."
+  },
+  "effectiveness": {
+    "baseline": "Palumbo reported the missing controls and seven card/map interaction defects on the current public search.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "All reported items work together in one compact, understandable public search experience without responsive or conversion regressions."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

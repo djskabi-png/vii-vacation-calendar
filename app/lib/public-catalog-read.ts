@@ -56,6 +56,13 @@ function applyEditorial(world: SupplierCatalogWorld, value: unknown, content: Ed
   const row = value as Record<string, unknown>;
   if (world === "spa") return { ...row, title: content.title, shortDescription: content.summary,
     ...(content.body ? { about: content.body.split(/\n\s*\n/).map((paragraph) => paragraph.trim()).filter(Boolean) } : {}) };
+  if (world === "vacations") {
+    const selectedHighlights = content.attributes.highlights?.split(",").map((item) => item.trim()).filter(Boolean).slice(0, 5) || [];
+    return { ...row, name: content.title, description: content.summary,
+      ...(content.attributes.accommodationType ? { type: content.attributes.accommodationType } : {}),
+      ...(selectedHighlights.length ? { highlights: selectedHighlights.map((label) => ({ label, icon: "default" })), features: [...new Set([...selectedHighlights, ...(Array.isArray(row.features) ? row.features.filter((item): item is string => typeof item === "string") : [])])] } : {}),
+      ...(content.attributes.cardNote ? { cardNote: content.attributes.cardNote } : {}) };
+  }
   return { ...row, name: content.title, description: content.summary };
 }
 

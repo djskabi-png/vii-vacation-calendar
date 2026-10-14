@@ -16,6 +16,7 @@ const statusLabel: Record<string, string> = { draft: "טיוטה", review: "ממ
 const homeDealPlacements = [["tomorrow", "ברגע האחרון"], ["weekend", "חמישי עד שבת"], ["friday-weekend", "שישי עד ראשון"], ["thursday", "לילה בחמישי"], ["friday", "לילה בשישי"], ["holidays", "חגים"]] as const;
 const homePeriodDefaults = homeDealPlacements.slice(0, 5);
 const attributeFields: Record<string, Array<[string, string]>> = {
+  vacation: [["accommodationType", "סוג מקום האירוח"], ["highlights", "5 מאפיינים מרכזיים, לפי הסדר ובפסיקים"], ["cardNote", "הערה ציבורית על תמונת הכרטיס"]],
   trails: [["mainArea", "אזור ראשי"], ["region", "אזור מדויק"], ["nature", "סוגי טבע, מופרדים בפסיק"], ["distance", "מרחק"], ["duration", "משך"], ["difficulty", "דרגת קושי"], ["routeType", "סוג מסלול"], ["bestSeason", "עונה מומלצת"], ["familyFit", "התאמה למשפחות"], ["accessibility", "נגישות"], ["officialSource", "קישור למקור רשמי"], ["sourceName", "שם המקור"], ["mapQuery", "חיפוש במפה"]],
   providers: [["location", "מיקום"], ["area", "תחום"], ["features", "שירותים, מופרדים בפסיק"], ["image", "כתובת תמונה"], ["priceLabel", "תיאור מחיר"], ["phone", "טלפון"], ["sourceUrl", "אתר מקור"], ["sourceName", "שם המקור"]],
   attractions: [["location", "מיקום"], ["area", "סוג חוויה"], ["features", "מאפיינים, מופרדים בפסיק"], ["image", "כתובת תמונה"], ["priceLabel", "תיאור מחיר"], ["phone", "טלפון"], ["sourceUrl", "אתר מקור"], ["sourceName", "שם המקור"]],

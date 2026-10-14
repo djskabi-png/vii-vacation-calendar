@@ -33,6 +33,16 @@ function positive(value: unknown) {
   return Number.isSafeInteger(value) && (value as number) > 0 ? value as number : 0;
 }
 
+function accommodationType(name: string, rooms: Record<string, unknown>[], highlights: string[], features: string[]) {
+  const searchable = `${name} ${rooms.map((room) => text(room.roomName)).join(" ")} ${highlights.join(" ")} ${features.slice(0, 8).join(" ")}`;
+  if (/וילה/.test(searchable)) return "וילה";
+  if (/בקת/.test(searchable)) return "בקתות עץ";
+  if (/סוויט/.test(searchable)) return "סוויטות";
+  if (/דיר/.test(searchable)) return "דירות נופש";
+  if (/צימר/.test(searchable)) return "צימרים";
+  return "מתחם אירוח";
+}
+
 function coordinates(gps: unknown) {
   const source = record(gps);
   const lat = source.lat;
@@ -115,7 +125,7 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
     name,
     location: text(city?.title),
     area,
-    type: world === "vacations" ? "מקום אירוח" : "מקום לאירועים",
+    type: world === "vacations" ? accommodationType(name, rooms, highlights, features) : "מקום לאירועים",
     units,
     guests,
     capacityScope: "unit",
@@ -123,6 +133,7 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
     images,
     description: text(record(raw.meta).description),
     features: unique([...highlights, ...features]).slice(0, 24),
+    ...(world === "vacations" && highlights.length ? { highlights: highlights.slice(0, 5).map((label) => ({ label, icon: "default" })) } : {}),
     audiences: [],
     badges: [],
     ...coordinates(raw.gps),

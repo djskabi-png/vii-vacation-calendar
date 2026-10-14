@@ -21,6 +21,7 @@ export const DeferredListingMap = dynamic(
   onClose?: () => void;
   onVisibleCountChange?: (count: number) => void;
   onVisiblePlaceIdsChange?: (ids: string[]) => void;
+  activePlaceId?: string | null;
 }>;
 
 export const DeferredDiscoveryMap = dynamic(

@@ -117,7 +117,9 @@ test("vacation SSR honors region before hydration and old unsupported filters do
   assert.ok(cards(normal) >= 15);
   assert.equal(cards(large), cards(normal));
   assert.match(large, /התאמה לכמות האורחים המבוקשת תיבדק מול המקום/);
-  assert.doesNotMatch(large, />טווח מחיר<|>סוג מקום<|>מקום שלם<|>קיבולת גבוהה</);
+  assert.match(large, />טווח מחיר</);
+  assert.match(large, />סוג מקום</);
+  assert.doesNotMatch(large, />מקום שלם<|>קיבולת גבוהה</);
 });
 
 test("unsupported taxonomy and missing-place booking preserve locale without old prices", async () => {

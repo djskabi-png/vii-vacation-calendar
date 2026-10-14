@@ -14,8 +14,10 @@ type UnknownRow = Record<string, unknown>;
 const text = (value: unknown) => typeof value === "string" ? value : "";
 const numeric = (value: unknown) => Number.isSafeInteger(Number(value)) ? Number(value) : 0;
 const list = (value: unknown) => Array.isArray(value) ? value.filter((item): item is string => typeof item === "string").join(", ") : "";
+const highlightList = (value: unknown) => Array.isArray(value) ? value.map((item) => typeof item === "string" ? item : text((item as UnknownRow)?.label)).filter(Boolean).slice(0, 5).join(", ") : "";
 
 function sourceAttributes(type: ContentType, row: UnknownRow): Record<string, string> {
+  if (type === "vacation") return { accommodationType: text(row.type), highlights: highlightList(row.highlights) || (Array.isArray(row.features) ? row.features.filter((item): item is string => typeof item === "string").slice(0, 5).join(", ") : ""), cardNote: text(row.cardNote) };
   if (type === "trails") return { mainArea: text(row.mainArea), region: text(row.region), nature: list(row.nature), distance: text(row.distance),
     duration: text(row.duration), difficulty: text(row.difficulty), routeType: text(row.routeType), bestSeason: text(row.bestSeason),
     familyFit: text(row.familyFit), accessibility: text(row.accessibility), officialSource: text(row.officialSource), sourceName: text(row.sourceName), mapQuery: text(row.mapQuery) };

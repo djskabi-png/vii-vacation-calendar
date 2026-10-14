@@ -35,6 +35,7 @@ type PlacesMapProps = {
   onClose?: () => void;
   onVisibleCountChange?: (count: number) => void;
   onVisiblePlaceIdsChange?: (ids: string[]) => void;
+  activePlaceId?: string | null;
 };
 
 function safeMarkerLabel(value: string) {
@@ -56,7 +57,7 @@ function markerIcon(tone: MapTone) {
   return `<svg ${common}><path d="m3.5 10.6 8.5-6.8 8.5 6.8"/><path d="M5.6 9.4v10.8h12.8V9.4M9.5 20.2v-6.1h5v6.1M8 11.1h1.8M14.2 11.1H16"/></svg>`;
 }
 
-function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false, autoLoad = false, onClose, onVisibleCountChange, onVisiblePlaceIdsChange }: PlacesMapProps) {
+function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false, autoLoad = false, onClose, onVisibleCountChange, onVisiblePlaceIdsChange, activePlaceId = null }: PlacesMapProps) {
   const { language } = useSiteLanguage();
   const cardCopy = language === "en"
     ? { details: "View details", close: "Close place details", results: "Results on the map", visible: "places", list: "Result list", openCluster: "Open grouped places", searchArea: "Search this area" }
@@ -147,6 +148,15 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
       element?.setAttribute("aria-pressed", String(active));
     });
   }, [effectiveSelectedId, mapReady]);
+
+  useEffect(() => {
+    const activeMarker = activePlaceId ? markerInstances.current.get(activePlaceId) : undefined;
+    new Set(markerInstances.current.values()).forEach((marker) => {
+      const active = marker === activeMarker;
+      marker.getElement()?.classList.toggle("is-card-active", active);
+      marker.setZIndexOffset(active ? 1000 : 0);
+    });
+  }, [activePlaceId, mapReady]);
 
   useEffect(() => {
     if (!enabled || !mapElement.current || places.length === 0) return;
@@ -345,6 +355,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
           }).addTo(markerLayer);
 
           if (clustered) {
+            cluster.entries.forEach((entry) => markerRegistry.set(entry.id, marker));
             marker.getElement()?.setAttribute("aria-label", `${clusterText}, ${mapControlCopy.cluster}`);
             marker.getElement()?.setAttribute("aria-pressed", String(cluster.entries.some((entry) => entry.id === selectedIdRef.current)));
             marker.on("click", () => {
@@ -497,7 +508,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
   </div>;
 }
 
-export function ListingMap({ listings, initialListings, mode = "vacation", single = false, autoLoad = false, detailQuery, onClose, onVisibleCountChange, onVisiblePlaceIdsChange }: { listings: Listing[]; initialListings?: Listing[]; mode?: "vacation" | "events"; single?: boolean; autoLoad?: boolean; detailQuery?: string; onClose?: () => void; onVisibleCountChange?: (count: number) => void; onVisiblePlaceIdsChange?: (ids: string[]) => void }) {
+export function ListingMap({ listings, initialListings, mode = "vacation", single = false, autoLoad = false, detailQuery, onClose, onVisibleCountChange, onVisiblePlaceIdsChange, activePlaceId }: { listings: Listing[]; initialListings?: Listing[]; mode?: "vacation" | "events"; single?: boolean; autoLoad?: boolean; detailQuery?: string; onClose?: () => void; onVisibleCountChange?: (count: number) => void; onVisiblePlaceIdsChange?: (ids: string[]) => void; activePlaceId?: string | null }) {
   const { language } = useSiteLanguage();
   const places = useMemo<MapPlace[]>(() => listings.filter((listing) => typeof listing.lat === "number" && typeof listing.lng === "number").map((listing) => ({
     id: listing.slug,
@@ -524,7 +535,7 @@ export function ListingMap({ listings, initialListings, mode = "vacation", singl
     precision: "exact",
   })), [detailQuery, language, listings, mode]);
   const initialPlaceIds = useMemo(() => initialListings?.map((listing) => listing.slug), [initialListings]);
-  return <PlacesMap key={initialPlaceIds?.join("|") || "all"} places={places} initialPlaceIds={initialPlaceIds} tone={mode} single={single} autoLoad={autoLoad} onClose={onClose} onVisibleCountChange={onVisibleCountChange} onVisiblePlaceIdsChange={onVisiblePlaceIdsChange} />;
+  return <PlacesMap key={initialPlaceIds?.join("|") || "all"} places={places} initialPlaceIds={initialPlaceIds} tone={mode} single={single} autoLoad={autoLoad} onClose={onClose} onVisibleCountChange={onVisibleCountChange} onVisiblePlaceIdsChange={onVisiblePlaceIdsChange} activePlaceId={activePlaceId} />;
 }
 
 export function DiscoveryMap({ items, initialItems, tone, single = false, autoLoad = false, onClose, onVisibleCountChange, onVisiblePlaceIdsChange }: { items: DiscoveryItem[]; initialItems?: DiscoveryItem[]; tone: "spa" | "hourly" | "activities"; single?: boolean; autoLoad?: boolean; onClose?: () => void; onVisibleCountChange?: (count: number) => void; onVisiblePlaceIdsChange?: (ids: string[]) => void }) {
