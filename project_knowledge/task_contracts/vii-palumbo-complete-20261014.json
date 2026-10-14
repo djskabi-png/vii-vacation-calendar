@@ -1,0 +1,212 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-palumbo-complete-20261014",
+  "project": "VII",
+  "task_type": "website_product_completion",
+  "goal": "Complete every actionable Palumbo request and verify the published VII release.",
+  "created_at": "2026-10-14T16:45:46.787413Z",
+  "updated_at": "2026-10-14T17:09:44.086111Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "73ac19ae8d64098ef290eaefe79a77f4d3e205c05c2b1fcd6288685464e276b1"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "57d19d7c2c285b4811dd9c0724e201aab03fdf3d3a7275b61c28d20ec9de6ff0"
+    },
+    "cognitive_model": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md",
+      "sha256": "4157f9ca7b58ba094dd84e819534a2c5aad6dd03a665818445fab4127c9f5c48"
+    },
+    "rulebook": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md",
+      "sha256": "8f63088b389a868ffbac567cc45b919a33edd7856d2093eaa3163c7b8e27aa4f"
+    },
+    "predictive_preflight": {
+      "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\project_knowledge\\task_contracts\\vii-palumbo-complete-preflight-20261014.json",
+      "sha256": "9605bc74799474122ac5d3c7e78b89e6385483711d68b522edd570ff61df4cdc"
+    }
+  },
+  "predictive_preflight": {
+    "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\project_knowledge\\task_contracts\\vii-palumbo-complete-preflight-20261014.json",
+    "sha256": "9605bc74799474122ac5d3c7e78b89e6385483711d68b522edd570ff61df4cdc",
+    "predicted_rejection_count": 4,
+    "affected_family_count": 10,
+    "lesson_bundle_count": 3,
+    "midpoint_required": true,
+    "effectiveness_measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ]
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "VII-PROJECT-001",
+      "title": "לוגיקת מוצר ייחודית ל-VII",
+      "scope": "project_guidance"
+    },
+    {
+      "lesson_id": "ADIR-WEB-005",
+      "title": "Responsive transitions are release-critical state changes",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "ADIR-WEB-006",
+      "title": "Public mobile screenshots are required release evidence",
+      "scope": "shared_skill_and_acceptance_check"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Complete every actionable Palumbo request and verify the published VII release.",
+      "acceptance_check": "Every written actionable request has production evidence or a precise blocker.",
+      "status": "blocked",
+      "evidence": [],
+      "reason": "Implementation is complete and pushed to GitHub at 22eea31, but exact production deployment is not verified because the owning Sites workspace credential is unavailable.",
+      "updated_at": "2026-10-14T17:09:39.128973Z"
+    },
+    {
+      "id": "preflight:prediction",
+      "source": "predictive_preflight",
+      "statement": "Predict likely Adir rejection reasons and bind prevention to observable evidence before implementation.",
+      "acceptance_check": "The bounded predictive manifest matches the task identity and selected lessons and passes deterministic validation.",
+      "status": "passed",
+      "evidence": [
+        "Predictive preflight C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\project_knowledge\\task_contracts\\vii-palumbo-complete-preflight-20261014.json validated with sha256 9605bc74799474122ac5d3c7e78b89e6385483711d68b522edd570ff61df4cdc"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T16:45:46.787413Z"
+    },
+    {
+      "id": "preflight:midpoint",
+      "source": "predictive_preflight.midpoint_gate",
+      "statement": "After the first integrated homepage and vacation-search implementation compiles and focused contract tests pass.",
+      "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
+      "status": "passed",
+      "evidence": [
+        "Focused Palumbo contract tests pass 16/16; TypeScript passes; desktop and 390px local UI show managed discovery rails, clear flexible-date workflow, complete destination hierarchy, and automatic result expansion from 9 to 18."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T16:54:55.131513Z"
+    },
+    {
+      "id": "preflight:adversarial",
+      "source": "predictive_preflight.adversarial_close",
+      "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
+      "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
+      "status": "passed",
+      "evidence": [
+        "Local candidate passed, but https://vii.spaplus.co still displayed the old text-only popular-search block, so production completion was rejected.",
+        "Homepage, vacation search, Content Studio authentication and all four translation dictionaries were covered by 694 passing tests; production persistence remains blocked.",
+        "Executed 4 specific completion attacks"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T17:09:44.086111Z"
+    },
+    {
+      "id": "preflight:effectiveness",
+      "source": "predictive_preflight.effectiveness",
+      "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
+      "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
+      "status": "passed",
+      "evidence": [
+        "Structured effectiveness result: first_pass=yes, repeated_corrections=0, prevented_failures=3, elapsed_minutes=75.0; The bounded midpoint caught invalid default routes, an empty video rail and missing localization before any publication attempt."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T17:09:39.761213Z"
+    },
+    {
+      "id": "lesson:VII-PROJECT-001",
+      "source": "lesson:VII-PROJECT-001",
+      "statement": "עולמות התוכן, לוגיקת ההזמנה, מבנה הרגע האחרון ומודל נתוני המקום נשארים בהנחיות פרויקט VII.",
+      "acceptance_check": "החלטות VII המדויקות מופיעות רק בהדרכת הפרויקט, כל נושא ממופה למקור ולבדיקה, והפרטים אינם מופיעים בספר החוקים הכללי.",
+      "status": "passed",
+      "evidence": [
+        "VII-specific discovery, supplier and administration behavior remained project-scoped and passed the full project test suite."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T17:09:39.257913Z"
+    },
+    {
+      "id": "lesson:ADIR-WEB-005",
+      "source": "lesson:ADIR-WEB-005",
+      "statement": "Every responsive website must remain correct through mobile-to-desktop and desktop-to-mobile transitions, reloads, orientation changes and browser device-emulation changes, including while overlays and scroll locks are active.",
+      "acceptance_check": "A real public route passes fresh desktop, desktop reload, fresh 390-pixel mobile, mobile overlay open followed by desktop resize, desktop reload, breakpoint boundary, orientation change and return to mobile. At every step the page has meaningful visible content, scrollX is zero, document width does not exceed viewport width and desktop has no stale mobile lock, backdrop or expanded state.",
+      "status": "blocked",
+      "evidence": [],
+      "reason": "Local desktop, reload and 390px responsive checks passed, but the exact public version could not be deployed and therefore cannot pass the mandatory live transition matrix.",
+      "updated_at": "2026-10-14T17:09:39.378593Z"
+    },
+    {
+      "id": "lesson:ADIR-WEB-006",
+      "source": "lesson:ADIR-WEB-006",
+      "statement": "A mobile search product is not visually approved until meaningful content is visible in the viewport and an independent checker inspects both a public-domain screenshot and the live page. DOM presence, text length, build output and overflow measurements alone are insufficient.",
+      "acceptance_check": "A public Spa results route with an artificially empty results control must fail with no-visible-results-state or excessive-empty-band, and the report must contain a screenshot path inspected by the independent checker.",
+      "status": "not_applicable",
+      "evidence": [],
+      "reason": "The affected family is homepage and vacation search; no Spa empty-results control was changed in this release.",
+      "updated_at": "2026-10-14T17:09:39.511095Z"
+    },
+    {
+      "id": "project:palumbo-inventory",
+      "source": "project_guidance",
+      "statement": "All actionable Palumbo items are mapped and closed.",
+      "acceptance_check": "All actionable Palumbo items are mapped and closed.",
+      "status": "passed",
+      "evidence": [
+        "All written actionable Palumbo items are mapped to commit 22eea31; build, typography audit, 694 automated tests and local desktop/mobile interaction checks passed."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T17:09:38.862168Z"
+    },
+    {
+      "id": "project:public-release",
+      "source": "project_guidance",
+      "statement": "Exact production version is verified on desktop and mobile.",
+      "acceptance_check": "Exact production version is verified on desktop and mobile.",
+      "status": "blocked",
+      "evidence": [],
+      "reason": "Sites project is not visible to the current connector workspace and the stored Sites Git credential is unavailable; the live route still shows the previous release.",
+      "updated_at": "2026-10-14T17:09:38.995010Z"
+    }
+  ],
+  "verification_status": "in_progress",
+  "verification_errors": [],
+  "predictive_results": {
+    "midpoint": {
+      "observed_at": "2026-10-14T16:54:55.131513Z",
+      "evidence": [
+        "Focused Palumbo contract tests pass 16/16; TypeScript passes; desktop and 390px local UI show managed discovery rails, clear flexible-date workflow, complete destination hierarchy, and automatic result expansion from 9 to 18."
+      ],
+      "findings": [
+        "The midpoint caught two concrete release defects before publication: default accommodation links used nonexistent paths, and the video rail remained empty because the exported supplier catalog did not expose curated visual tours. Both mechanisms were corrected and reverified."
+      ]
+    },
+    "effectiveness": {
+      "recorded_at": "2026-10-14T17:09:39.761213Z",
+      "first_pass_acceptance": "yes",
+      "repeated_corrections": 0,
+      "prevented_failures": 3,
+      "elapsed_minutes": 75.0,
+      "baseline_note": "The bounded midpoint caught invalid default routes, an empty video rail and missing localization before any publication attempt."
+    },
+    "adversarial": {
+      "observed_at": "2026-10-14T17:09:44.086111Z",
+      "attacks": [
+        "Reloaded desktop homepage and checked the managed discovery rails and video count.",
+        "Forced a 390px viewport and checked meaningful content, horizontal overflow and slider usability.",
+        "Opened destination and flexible-date dialogs, forced the progressive result sentinel, and checked ordering, removed copy and automatic loading.",
+        "Opened the exact production homepage to disprove publication."
+      ],
+      "natural_destination_evidence": "Local candidate passed, but https://vii.spaplus.co still displayed the old text-only popular-search block, so production completion was rejected.",
+      "affected_family_evidence": "Homepage, vacation search, Content Studio authentication and all four translation dictionaries were covered by 694 passing tests; production persistence remains blocked."
+    }
+  }
+}

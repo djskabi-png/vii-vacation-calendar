@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-palumbo-complete-20261014",
+  "project": "VII",
+  "task_type": "website_product_completion",
+  "requested_outcome": "Complete every actionable Palumbo request from 14 October, publish only a fully verified production release, and keep unverified requests open.",
+  "natural_destination": "https://vii.spaplus.co/ homepage, vacation search and authenticated content studio",
+  "authorization_boundary": "Source changes, tests and production publication are authorized by Adir's current and preceding explicit instructions. Outbound WhatsApp replies still require action-time sender confirmation.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "VII-PROJECT-001",
+      "reason": "The change spans VII-specific search, homepage, vacation inventory and CMS behavior.",
+      "acceptance_impact": "Every changed flow must follow VII_PLATFORM_MASTER_PLAN.md and VII_FEEDBACK_STANDARD.md and be verified on the public VII release."
+    },
+    {
+      "lesson_id": "ADIR-WEB-005",
+      "reason": "The requested homepage sliders, search filters and discovery controls are shared responsive components.",
+      "acceptance_impact": "Desktop, 390px mobile, reload and breakpoint transitions must preserve usable state without overflow or stale overlays."
+    },
+    {
+      "lesson_id": "ADIR-WEB-006",
+      "reason": "Prior VII releases passed technical checks while visible mobile defects remained.",
+      "acceptance_impact": "The exact deployed homepage and search pages require inspected 390px captures and live interaction evidence."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "Only the four easiest Palumbo items are fixed while the rest remain hidden in a summary.",
+      "prevention": "Map all 25 reviewed messages and implement every actionable incomplete requirement.",
+      "acceptance_check": "The acceptance manifest gives every remaining requirement a passed or precise blocked status, with no silent omission."
+    },
+    {
+      "rejection": "Controls exist in source but the public homepage or search still behaves as before.",
+      "prevention": "Exercise the exact production version after deployment on the natural routes.",
+      "acceptance_check": "Live desktop and mobile checks show the changed controls, data and interaction states on the deployed version."
+    },
+    {
+      "rejection": "Management controls are decorative and do not persist or change the public site.",
+      "prevention": "Use published content records as the source for homepage discovery configuration and verify save, reload and public reflection.",
+      "acceptance_check": "An authenticated save survives reload and the published configuration is reflected on the homepage."
+    },
+    {
+      "rejection": "A partial fix introduces regressions in search, maps, translations or mobile layout.",
+      "prevention": "Run the affected-family test suite, production build and responsive visual regression on homepage and vacation search.",
+      "acceptance_check": "Build and family tests pass, public pages show no overflow, and map/list/search state remains coherent."
+    }
+  ],
+  "affected_family": [
+    "homepage hero popular searches",
+    "homepage vacation discovery sliders",
+    "near-date and holiday deal sliders",
+    "homepage video and editorial sections",
+    "vacation search location hierarchy",
+    "vacation filters, sorting and progressive results",
+    "home calendar and flexible-date flow",
+    "content studio homepage controls",
+    "Hebrew, English, Russian and French labels",
+    "desktop and 390px mobile states"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII accepted product behavior",
+        "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "Palumbo message audit",
+        "source": "project_knowledge/process_manifests/vii-palumbo-whatsapp-replies-20261014.json"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the first integrated homepage and vacation-search implementation compiles and focused contract tests pass.",
+    "checks": [
+      "Inspect the homepage section order and discovery controls in a local production build.",
+      "Exercise filters, sort, flexible dates and result loading on one end-to-end vacation search."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Which Palumbo request still lacks a visible public result or explicit blocker?",
+      "Can a CMS editor change the promised homepage settings and see them persist after reload?",
+      "Do mobile, desktop, back navigation and map/list transitions preserve the same search state?",
+      "Does the public release still contain the exact copy or control Palumbo asked to remove?"
+    ],
+    "natural_destination_evidence": "Version-specific live observations and screenshots from vii.spaplus.co homepage, search and content studio.",
+    "affected_family_evidence": "Focused tests, complete production build, font audit and desktop/mobile family checks."
+  },
+  "effectiveness": {
+    "baseline": "Previous audit found 10 verified items and 15 incomplete, partial, ambiguous or non-actionable messages.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Close every actionable incomplete message without false completion claims or shared-family regressions."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}
