@@ -27,6 +27,7 @@ export type Listing = {
   featureGroups?: ListingFeatureGroup[];
   audiences: string[];
   badges: string[];
+  cardNote?: string;
   lat?: number;
   lng?: number;
   scenario: "single" | "multi";
