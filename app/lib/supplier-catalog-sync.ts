@@ -6,6 +6,7 @@ import {
   spaMediaWithinGuard,
   type SupplierCatalogEntry, type SupplierCatalogWorld,
 } from "./supplier-catalog-store.ts";
+import { approvedSpaCatalogTransition } from "./spa-catalog-approval.ts";
 
 type CatalogCandidate = { entries: SupplierCatalogEntry[]; fetchedAt: string };
 
@@ -80,7 +81,8 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
     const diff = compareSupplierCatalogEntries(input.world, previous, candidate.entries);
     diagnostics = catalogInventoryDiagnostics(input.world, previous, candidate.entries, diff.changed);
     const previousChildCount = previous.reduce((count, entry) => count + children(input.world, entry).length, 0);
-    if (!catalogRemovalWithinGuard(diff.before, diff.removed.length, previousChildCount, diff.removedChildren.length)) {
+    if (!catalogRemovalWithinGuard(diff.before, diff.removed.length, previousChildCount, diff.removedChildren.length)
+      && !(input.world === "spa" && approvedSpaCatalogTransition(previous, candidate.entries))) {
       throw new Error("catalog_removal_requires_review");
     }
     if (input.world === "spa" && !spaMediaWithinGuard(previous, candidate.entries)) {
@@ -92,7 +94,8 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
     }
     await acceptSupplierCatalogRun(db, { id: input.id, world: input.world,
       expectedCount: candidate.entries.length, added: diff.added, changed: diff.changed,
-      removed: diff.removed.length, finishedAt: now().toISOString(), baseline: input.baseline });
+      removed: diff.removed.length, finishedAt: now().toISOString(), baseline: input.baseline,
+      approvedRemoval: input.world === "spa" && approvedSpaCatalogTransition(previous, candidate.entries) });
     return { status: "accepted" as const, world: input.world, id: input.id, diff, fetchedAt: candidate.fetchedAt };
   } catch (error) {
     if (error instanceof SupplierCatalogRedirectError || error instanceof SpaCatalogJsonError) diagnostics = error.diagnostics;

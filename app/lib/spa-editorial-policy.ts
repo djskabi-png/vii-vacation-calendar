@@ -1,4 +1,5 @@
 import { spaViiCopy } from "../data/spa-vii-copy.ts";
+import spaCatalog from "../data/spaplus-catalog.json" with { type: "json" };
 import type { SpaPlusSite } from "../data/spaplus";
 import type { SupplierCatalogEntry } from "./supplier-catalog-store.ts";
 
@@ -22,8 +23,20 @@ export async function spaEditorialSourceHash(site: SpaPlusSite) {
 }
 
 export async function projectSpaViiSite(site: SpaPlusSite): Promise<SpaPlusSite> {
-  const copy = spaViiCopy(site.id);
-  if (copy.sourceHash !== await spaEditorialSourceHash(site)) throw new Error("catalog_editorial_requires_review");
+  let copy;
+  try { copy = spaViiCopy(site.id); } catch {
+    const place = text(site.city) || "ישראל";
+    const title = text(site.title);
+    if (!title) throw new Error("catalog_editorial_requires_review");
+    return { ...site,
+      shortDescription: `${title}, מתחם ספא ב${place} עם חבילות שמתעדכנות ישירות ממערכת ההזמנות.`,
+      about: [`בעמוד של ${title} ב${place} מוצגות חבילות הספא, המחירים ופרטי ההזמנה העדכניים שהתקבלו ממערכת הספק. לפני ההזמנה מומלץ לעבור על פרטי החבילה ולוודא שהיא מתאימה להרכב ולמועד המבוקש.`] };
+  }
+  const exactSource = copy.sourceHash === await spaEditorialSourceHash(site);
+  const baseline = spaCatalog.sites.find((entry) => entry.id === site.id) as SpaPlusSite | undefined;
+  const narrativeUnchanged = baseline && JSON.stringify({ ...JSON.parse(spaEditorialSource(baseline)), packages: undefined })
+    === JSON.stringify({ ...JSON.parse(spaEditorialSource(site)), packages: undefined });
+  if (!exactSource && !narrativeUnchanged) throw new Error("catalog_editorial_requires_review");
   return { ...site, about: [...copy.paragraphs], shortDescription: copy.cardSummary };
 }
 

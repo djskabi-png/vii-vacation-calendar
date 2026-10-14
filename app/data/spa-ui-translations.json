@@ -76,5 +76,9 @@
   "בתי ספא נבחרים": {"en": "Featured spas", "ru": "Избранные спа", "fr": "Spas à découvrir"},
   "איך בא לכם להתפנק?": {"en": "How would you like to unwind?", "ru": "Как вы хотите отдохнуть?", "fr": "Comment souhaitez-vous vous détendre ?"},
   "בחרו מה חשוב לכם ונציג רק מקומות מתאימים": {"en": "Choose what matters and see only matching spas", "ru": "Выберите важное, и мы покажем подходящие спа", "fr": "Choisissez vos priorités et affichez les spas adaptés"},
-  "מעדכנים...": {"en": "Updating...", "ru": "Обновляем...", "fr": "Mise à jour..."}
+  "מעדכנים...": {"en": "Updating...", "ru": "Обновляем...", "fr": "Mise à jour..."},
+  ", מתחם ספא ב": {"en": ", a spa in ", "ru": ", спа-центр в ", "fr": ", un spa à "},
+  "עם חבילות שמתעדכנות ישירות ממערכת ההזמנות.": {"en": "with packages updated directly from the booking system.", "ru": "с пакетами, которые обновляются напрямую из системы бронирования.", "fr": "avec des formules mises à jour directement depuis le système de réservation."},
+  "בעמוד של": {"en": "On the page for ", "ru": "На странице ", "fr": "Sur la page de "},
+  "מוצגות חבילות הספא, המחירים ופרטי ההזמנה העדכניים שהתקבלו ממערכת הספק. לפני ההזמנה מומלץ לעבור על פרטי החבילה ולוודא שהיא מתאימה להרכב ולמועד המבוקש.": {"en": "you can view the latest spa packages, prices and booking details received from the supplier system. Before booking, review the package details and make sure they suit your party and preferred date.", "ru": "можно посмотреть актуальные спа-пакеты, цены и условия бронирования, полученные из системы поставщика. Перед бронированием проверьте детали пакета и убедитесь, что он подходит для вашего состава гостей и выбранной даты.", "fr": "vous pouvez consulter les dernières formules spa, les tarifs et les détails de réservation reçus du système du fournisseur. Avant de réserver, vérifiez les détails de la formule et assurez-vous qu’elle convient au nombre de participants et à la date souhaitée."}
 }

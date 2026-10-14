@@ -1,5 +1,6 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { sanitizeCatalogDiagnostics, type CatalogSyncDiagnostics } from "./supplier-catalog-diagnostics.ts";
+import { approvedSpaCatalogTransition } from "./spa-catalog-approval.ts";
 
 export type SupplierCatalogWorld = "vacations" | "events" | "rooms" | "spa";
 
@@ -141,6 +142,7 @@ export async function acceptSupplierCatalogRun(db: D1Database, input: {
   removed: number;
   finishedAt: string;
   baseline?: SupplierCatalogEntry[];
+  approvedRemoval?: boolean;
 }) {
   const state = await db.prepare(`SELECT active_run_id AS activeRunId, active_count AS activeCount,
     accepted_at AS acceptedAt FROM supplier_catalog_state WHERE world = ? AND lock_run_id = ?`)
@@ -177,12 +179,19 @@ export async function acceptSupplierCatalogRun(db: D1Database, input: {
     const candidateChildren = new Set(childIds(input.world, candidate));
     removedChildren += oldChildren.filter((id) => !candidateChildren.has(id)).length;
   }
-  if (removed !== input.removed || !removalWithinGuard(oldRows.results.length, removed, beforeChildren, removedChildren)) {
+  const previousEntries = oldRows.results.map((row) => ({ supplierId: row.supplierId,
+    summary: JSON.parse(row.summaryJson), detail: row.detailJson ? JSON.parse(row.detailJson) : undefined }));
+  const candidateEntries = nextRows.results.map((row) => ({ supplierId: row.supplierId,
+    summary: JSON.parse(row.summaryJson), detail: row.detailJson ? JSON.parse(row.detailJson) : undefined }));
+  const approvedRemoval = input.approvedRemoval === true && input.world === "spa"
+    && approvedSpaCatalogTransition(previousEntries, candidateEntries);
+  if (removed !== input.removed
+    || (!removalWithinGuard(oldRows.results.length, removed, beforeChildren, removedChildren) && !approvedRemoval)) {
     throw new Error("catalog_removal_requires_review");
   }
   if (input.world === "spa" && !spaMediaWithinGuard(
-    oldRows.results.map((row) => ({ supplierId: row.supplierId, summary: JSON.parse(row.summaryJson) })),
-    nextRows.results.map((row) => ({ supplierId: row.supplierId, summary: JSON.parse(row.summaryJson) })),
+    previousEntries,
+    candidateEntries,
   )) throw new Error("catalog_media_requires_review");
   const results = await db.batch([
     db.prepare(`UPDATE supplier_catalog_state SET active_run_id = ?, accepted_at = ?, active_count = ?,
