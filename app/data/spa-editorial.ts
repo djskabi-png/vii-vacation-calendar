@@ -13,7 +13,9 @@ function audienceText(site: SpaPlusSite) {
 }
 
 export function spaEditorialSummary(site: SpaPlusSite) {
-  return spaViiCopy(site.id).cardSummary;
+  try { return spaViiCopy(site.id).cardSummary; } catch {
+    return site.shortDescription || `${site.title}, מתחם ספא ב${site.city || "ישראל"}.`;
+  }
 }
 
 export function spaEditorialTitle(site: SpaPlusSite) {

@@ -9,3 +9,8 @@ export function spaViiCopy(id: number): SpaViiCopy {
   if (!record || !record.cardSummary || !record.paragraphs.length) throw new Error("catalog_editorial_requires_review");
   return record;
 }
+
+export function spaViiCopyOrNull(id: number): SpaViiCopy | null {
+  const record = approved.get(id);
+  return record?.cardSummary && record.paragraphs.length ? record : null;
+}
