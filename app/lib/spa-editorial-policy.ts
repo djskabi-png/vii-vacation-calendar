@@ -33,10 +33,12 @@ export async function projectSpaViiSite(site: SpaPlusSite): Promise<SpaPlusSite>
       about: [`בעמוד של ${title} ב${place} מוצגות חבילות הספא, המחירים ופרטי ההזמנה העדכניים שהתקבלו ממערכת הספק. לפני ההזמנה מומלץ לעבור על פרטי החבילה ולוודא שהיא מתאימה להרכב ולמועד המבוקש.`] };
   }
   const exactSource = copy.sourceHash === await spaEditorialSourceHash(site);
+  const alreadyProjected = text(site.shortDescription) === text(copy.cardSummary)
+    && JSON.stringify(Array.isArray(site.about) ? site.about.map(text) : []) === JSON.stringify(copy.paragraphs.map(text));
   const baseline = spaCatalog.sites.find((entry) => entry.id === site.id) as SpaPlusSite | undefined;
   const narrativeUnchanged = baseline && JSON.stringify({ ...JSON.parse(spaEditorialSource(baseline)), packages: undefined })
     === JSON.stringify({ ...JSON.parse(spaEditorialSource(site)), packages: undefined });
-  if (!exactSource && !narrativeUnchanged) throw new Error("catalog_editorial_requires_review");
+  if (!exactSource && !alreadyProjected && !narrativeUnchanged) throw new Error("catalog_editorial_requires_review");
   return { ...site, about: [...copy.paragraphs], shortDescription: copy.cardSummary };
 }
 

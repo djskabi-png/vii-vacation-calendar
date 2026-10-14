@@ -53,6 +53,15 @@ test("changed supplier prose cannot overwrite VII; approved package, commercial 
   await assert.rejects(()=>validateSpaEditorialCandidate([{supplierId:6,summary:{...site,about:["new text"]}}]),/catalog_editorial_requires_review/);
 });
 
+test("already-projected runtime Spa entries remain renderable after package updates", async () => {
+  const site=structuredClone(catalog.sites.find(x=>x.id===6));
+  const projected=await projectSpaViiSite(site);
+  projected.packages=projected.packages.slice(1);
+  const rendered=await projectSpaViiSite(projected);
+  assert.equal(rendered.shortDescription,projected.shortDescription);
+  assert.deepEqual(rendered.about,projected.about);
+});
+
 test("public catalog, card and both read-more paths expose VII without mutating supplier records", async () => {
   const site=catalog.sites.find(x=>x.id===6), copy=copies.find(x=>x.id===6), before=JSON.stringify(site);
   const response=await catalogResponse(new Request("https://vii.spaplus.co/api/catalog?world=spa&id=6"),null);
