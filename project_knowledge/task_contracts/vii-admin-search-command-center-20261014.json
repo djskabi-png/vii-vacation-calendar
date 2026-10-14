@@ -5,7 +5,7 @@
   "task_type": "admin product repair and expansion",
   "goal": "Every real search is captured reliably, administrator tests are visible without contaminating public demand, and the management system provides a complete operational path from demand to an editable publishable page.",
   "created_at": "2026-10-14T10:48:52.701851Z",
-  "updated_at": "2026-10-14T11:06:45.653895Z",
+  "updated_at": "2026-10-14T11:13:17.338170Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -278,6 +278,30 @@
       ],
       "reason": null,
       "updated_at": "2026-10-14T11:06:45.653881Z"
+    },
+    {
+      "id": "project:bounded-catalog-retries",
+      "source": "user_correction",
+      "statement": "Temporary supplier catalog pull failures retry automatically after ten minutes and once more after another ten minutes, without an endless loop or retrying safety rejections.",
+      "acceptance_check": "Durable jobs execute at +10 and +20 minutes, stop after two retries, never retry a safety rejection, and preserve the last accepted catalog.",
+      "status": "passed",
+      "evidence": [
+        "Durable D1 queue, ten-minute Worker tick, two-retry cap, safety-rejection cancellation, and last-known-good preservation implemented; targeted retry tests, TypeScript, production build, and complete suite pass 668/668."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T11:13:17.193243Z"
+    },
+    {
+      "id": "project:catalog-retry-observability",
+      "source": "user_correction",
+      "statement": "Administrators can see whether a catalog retry is pending, running, exhausted, or deliberately blocked by safety validation.",
+      "acceptance_check": "The catalog sync API returns retry jobs and the administration card explains current retry state and safety rejection behavior.",
+      "status": "passed",
+      "evidence": [
+        "Admin catalog API returns retryJobs and each world card renders pending/running/exhausted status plus explicit safety-rejection explanation; TypeScript and full suite pass."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T11:13:17.338154Z"
     }
   ],
   "verification_status": "in_progress",

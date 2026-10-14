@@ -8,8 +8,7 @@ import hourlyUiTranslations from "../app/data/hourly-ui-translations.json";
 import providerJoinTranslations from "../app/data/provider-join-translations.json";
 import spaUiTranslations from "../app/data/spa-ui-translations.json";
 import catalogAdminTranslations from "../app/data/catalog-admin-translations.json";
-import { scheduledCatalogWorld } from "../app/lib/supplier-catalog-schedule.ts";
-import { syncSupplierCatalogWorld } from "../app/lib/supplier-catalog-runtime.ts";
+import { runSupplierCatalogScheduleTick } from "../app/lib/supplier-catalog-retry-runner.ts";
 import { legacyPlaceDestination } from "../app/lib/legacy-route-map.ts";
 
 const temporaryOrigin = "https://vii.spaplus.co";
@@ -227,11 +226,9 @@ interface ExecutionContext {
 
 const worker = {
   scheduled(controller: { scheduledTime: number }, env: Env, ctx: ExecutionContext) {
-    const world = scheduledCatalogWorld(new Date(controller.scheduledTime));
-    if (!world) return;
-    ctx.waitUntil(syncSupplierCatalogWorld(env.DB, world, "scheduled").then((result) => {
-      if (result.status !== "accepted" && result.status !== "skipped") {
-        console.error("VII scheduled catalog sync did not publish", world, result.errorCode);
+    ctx.waitUntil(runSupplierCatalogScheduleTick(env.DB, { now: new Date(controller.scheduledTime) }).then(({ primary, retries }) => {
+      for (const result of [...retries, ...(primary ? [primary] : [])]) if (result.status !== "accepted" && result.status !== "skipped") {
+        console.error("VII scheduled catalog sync did not publish", result.id, result.errorCode);
       }
     }));
   },

@@ -25,7 +25,7 @@ export function catalogRunStatusLabel(status: string | null | undefined) {
 }
 
 export function catalogRunSourceLabel(source: string) {
-  return source === "manual" ? "הפעלה ידנית" : source === "scheduled" ? "עדכון מתוזמן" : source;
+  return source === "manual" ? "הפעלה ידנית" : source === "scheduled" ? "עדכון מתוזמן" : source === "retry" ? "ניסיון אוטומטי חוזר" : source;
 }
 
 function percentage(removed: number, before: number) {

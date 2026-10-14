@@ -27,3 +27,11 @@ export function scheduledCatalogWorld(date: Date): SupplierCatalogWorld | null {
   const minute = parts.find((part) => part.type === "minute")?.value;
   return schedule[`${hour}:${minute}`] || null;
 }
+
+export function scheduledCatalogRunId(date: Date, world: SupplierCatalogWorld) {
+  if (scheduledCatalogWorld(date) !== world) throw new Error("catalog_slot_not_due");
+  const parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Jerusalem", year: "numeric",
+    month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(date);
+  const part = (type: string) => parts.find((value) => value.type === type)?.value || "";
+  return `scheduled_${part("year")}${part("month")}${part("day")}_${world}_${part("hour")}${part("minute")}`;
+}

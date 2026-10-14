@@ -50,6 +50,13 @@
       "when": 1791937200000,
       "tag": "0006_search_intelligence",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1791943200000,
+      "tag": "0007_catalog_retry_queue",
+      "breakpoints": true
     }
   ]
 }

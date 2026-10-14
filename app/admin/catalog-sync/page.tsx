@@ -11,7 +11,9 @@ type State = { world: World; activeCount: number; acceptedAt: string | null; loc
 type Run = { id: string; world: World; source: string; status: string; startedAt: string;
   finishedAt: string | null; beforeCount: number | null; candidateCount: number | null;
   addedCount: number | null; changedCount: number | null; errorCode: string | null; diagnostics?: CatalogSyncDiagnostics };
-type Dashboard = { states: State[]; runs: Run[] };
+type RetryJob = { id: string; rootRunId: string; world: World; attempt: number; dueAt: string; status: string;
+  resultStatus: string | null; errorCode: string | null };
+type Dashboard = { states: State[]; runs: Run[]; retryJobs: RetryJob[] };
 
 const worlds: { id: World; name: string }[] = [
   { id: "vacations", name: "נופש" }, { id: "events", name: "אירועים" },
@@ -109,12 +111,17 @@ export default function CatalogSyncPage() {
         {worlds.map(({ id, name }) => {
           const state = dashboard.states.find((item) => item.world === id);
           const run = dashboard.runs.find((item) => item.world === id);
+          const retry = dashboard.retryJobs.find((item) => item.world === id && (item.status === "pending" || item.status === "running"));
+          const exhausted = dashboard.retryJobs.find((item) => item.world === id && item.status === "exhausted");
           const running = busy === id || (!!state?.lockRunId && !!state.lockUntil && Date.parse(state.lockUntil) > Date.now());
           return <article key={id} style={{ border: "1px solid #dce4e2", borderRadius: 8, padding: 18 }}>
             <h2 style={{ margin: "0 0 12px", fontSize: "1.2rem" }}>{name}</h2>
             <p>מקומות: {state?.activeCount ?? "טרם נמשך"}</p>
             <p>עדכון אחרון: {date(state?.acceptedAt)}</p>
             <p>משיכה אחרונה: {catalogRunStatusLabel(run?.status)}</p>
+            {retry ? <p role="status"><strong>ניסיון אוטומטי {retry.attempt} מתוך 2:</strong> {retry.status === "running" ? "מתבצע עכשיו" : date(retry.dueAt)}</p> : null}
+            {!retry && exhausted && run?.status === "failed" ? <p role="alert">שני הניסיונות האוטומטיים מוצו. הקטלוג האחרון שאושר נשאר פעיל.</p> : null}
+            {run?.status === "rejected" ? <p>לא יתבצע ניסיון אוטומטי נוסף, משום שהנתונים נעצרו לבדיקת בטיחות ולא בגלל תקלה זמנית.</p> : null}
             {run?.errorCode ? <><p><strong>למה העדכון נעצר:</strong> {catalogRunExplanation(id, run.errorCode, run.diagnostics)}</p><small>קוד טכני: <code dir="ltr">{run.errorCode}</code></small></> : null}
             {run?.status === "failed" || run?.status === "rejected" ? <RunDiagnostics world={id} value={run.diagnostics} /> : null}
             <button type="button" disabled={!!busy || running} onClick={() => void pull(id)}>
