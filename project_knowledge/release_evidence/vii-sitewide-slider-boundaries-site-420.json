@@ -1,0 +1,58 @@
+{
+  "task_id": "vii-sitewide-slider-boundaries-20261015",
+  "release_url": "https://vii.spaplus.co/",
+  "site_version": 420,
+  "source_commit": "46a3ae2384189360c697d4c46ef54c8802acd62e",
+  "production_commit": "f144fa4703f020088cc733addfd2d41db3c541fb",
+  "rollback_version": 419,
+  "published_at": "2026-10-15T02:25:48+03:00",
+  "source_tree_matches_candidate": true,
+  "tests": {
+    "typescript": "passed",
+    "production_build": "passed",
+    "full_suite": "701/701 passed",
+    "focused_slider_tests": "18/18 passed",
+    "font_source_audit": "passed"
+  },
+  "http": {
+    "/": 200,
+    "/search": 200,
+    "/events": 200,
+    "/business?id=vacation-1597": 200,
+    "/sitemap.xml": 200,
+    "/robots.txt": 200
+  },
+  "production_interaction_evidence": [
+    "Events exposed three RTL rail-control groups. After hydration every overflowing rail started with previous disabled and next enabled.",
+    "The events region rail moved from scrollLeft 0 to -290, enabled previous, and stopped at -764 with next natively disabled.",
+    "Search exposed both discovery rails with correct initial boundaries and no document-level horizontal overflow.",
+    "A live result-card gallery moved from 1/5 to 2/5 and enabled previous.",
+    "The live vacation-1597 hero gallery started at 1/97 with previous disabled, moved to 2/97, and had no 390-pixel horizontal overflow.",
+    "The full story gallery opened with 98 images, started with previous disabled, enabled it after movement, and stopped after 97 moves with next disabled.",
+    "The production QA matrix completed homepage, events, search, mobile and English LTR rail checks before a repeated second navigation to /search timed out. Direct in-app browser checks then completed result-card, hero and full-gallery interaction evidence.",
+    "Sleeping-arrangement controls are present in the deployed source but no accepted current public vacation record rendered that optional family during production sampling; its boundary behavior passed local browser and source-contract tests."
+  ],
+  "visual_evidence": [
+    {
+      "path": "project_knowledge/release_evidence/vii-sitewide-slider-events-desktop-site-420.png",
+      "sha256": "7DA80B1A3BCFD940161683756B86B8A41DBDD8AB6F828F605377266112168D2E"
+    },
+    {
+      "path": "project_knowledge/release_evidence/vii-sitewide-slider-business-mobile-site-420.png",
+      "sha256": "8BAC8614A180EA44B636C569401A0ABA43EED759FB0CA144C33B1CB1CD6651C2"
+    }
+  ],
+  "independent_review": {
+    "checker": "/root/release_checker",
+    "status": "passed_with_explicit_sampling_limit",
+    "evidence": "Verified all six HTTP routes, ten homepage control groups, event and search rails, RTL, desktop and 390-pixel mobile non-overflow, live detail hero, result-card and full-gallery presence. The checker independently exercised one rail movement and documented that exhaustive terminal clicks and LTR switching were supplemented by the primary production and automated evidence."
+  },
+  "scope_preservation": {
+    "database_changed": false,
+    "bindings_changed": false,
+    "secrets_changed": false,
+    "domains_changed": false,
+    "schedules_changed": false,
+    "supplier_data_changed": false
+  }
+}

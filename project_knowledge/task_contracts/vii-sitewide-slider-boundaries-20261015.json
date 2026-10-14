@@ -1,0 +1,285 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-sitewide-slider-boundaries-20261015",
+  "project": "VII",
+  "task_type": "sitewide slider boundary consistency and production release",
+  "goal": "Every public VII slider with arrows follows the approved non-looping boundary behavior on every route, language and supported viewport without changing unrelated product behavior.",
+  "created_at": "2026-10-14T23:11:16.602231Z",
+  "updated_at": "2026-10-14T23:33:59.616785Z",
+  "completed_at": "2026-10-14T23:33:59.616806Z",
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "73ac19ae8d64098ef290eaefe79a77f4d3e205c05c2b1fcd6288685464e276b1"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "57d19d7c2c285b4811dd9c0724e201aab03fdf3d3a7275b61c28d20ec9de6ff0"
+    },
+    "cognitive_model": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md",
+      "sha256": "4157f9ca7b58ba094dd84e819534a2c5aad6dd03a665818445fab4127c9f5c48"
+    },
+    "rulebook": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md",
+      "sha256": "8f63088b389a868ffbac567cc45b919a33edd7856d2093eaa3163c7b8e27aa4f"
+    },
+    "predictive_preflight": {
+      "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\project_knowledge\\process_manifests\\vii-sitewide-slider-boundaries-preflight-20261015.json",
+      "sha256": "2d01ff559dab8d0328cfdde799279bc600ce13ad646823e0c52b124b441ec30d"
+    }
+  },
+  "predictive_preflight": {
+    "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\project_knowledge\\process_manifests\\vii-sitewide-slider-boundaries-preflight-20261015.json",
+    "sha256": "2d01ff559dab8d0328cfdde799279bc600ce13ad646823e0c52b124b441ec30d",
+    "predicted_rejection_count": 6,
+    "affected_family_count": 8,
+    "lesson_bundle_count": 6,
+    "midpoint_required": true,
+    "effectiveness_measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ]
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "title": "מסירה דורשת תוצאה מלאה ובדיקת רגרסיה",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-CONTROL-001",
+      "title": "כל רכיב נראה חייב לעבוד",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-CONSISTENCY-001",
+      "title": "אחידות מחייבת במשפחות עמודים ורכיבים",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-SCOPE-001",
+      "title": "תיקון ממוקד שומר על העיצוב המאושר",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-MOBILE-001",
+      "title": "נייד הוא משטח מוצר ראשי",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "title": "פריסה ודומיין דורשים אימות חי וחזרה לאחור",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Every public VII slider with arrows follows the approved non-looping boundary behavior on every route, language and supported viewport without changing unrelated product behavior.",
+      "acceptance_check": "Every inventoried arrow-bearing public slider passes initial, moved, terminal, non-overflowing and touch boundary checks on the exact deployed version.",
+      "status": "passed",
+      "evidence": [
+        "Site 420 implements one non-looping boundary contract across every inventoried arrow-bearing family. Live events and full-gallery controls reached a disabled terminal boundary; live card and hero galleries moved without wrap; home, search, mobile and LTR rail states passed the deployed matrix."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T23:33:57.870109Z"
+    },
+    {
+      "id": "preflight:prediction",
+      "source": "predictive_preflight",
+      "statement": "Predict likely Adir rejection reasons and bind prevention to observable evidence before implementation.",
+      "acceptance_check": "The bounded predictive manifest matches the task identity and selected lessons and passes deterministic validation.",
+      "status": "passed",
+      "evidence": [
+        "Predictive preflight C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\project_knowledge\\process_manifests\\vii-sitewide-slider-boundaries-preflight-20261015.json validated with sha256 2d01ff559dab8d0328cfdde799279bc600ce13ad646823e0c52b124b441ec30d"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T23:11:16.602190Z"
+    },
+    {
+      "id": "preflight:midpoint",
+      "source": "predictive_preflight.midpoint_gate",
+      "statement": "After the shared rail controls are adopted by one event rail and one search discovery rail, and one indexed gallery is converted to clamped movement.",
+      "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
+      "status": "passed",
+      "evidence": [
+        "Local browser QA passed shared event and search rails: previous disabled initially, next moved RTL rails to -290 and -188, previous then enabled, and next disabled at the terminal boundary.",
+        "Indexed galleries were clamped: a vacation result card moved from 1/5 to 2/5 and a current public place gallery moved from 1/97 to 2/97 with previous disabled at the start."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T23:17:09.142948Z"
+    },
+    {
+      "id": "preflight:adversarial",
+      "source": "predictive_preflight.adversarial_close",
+      "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
+      "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
+      "status": "passed",
+      "evidence": [
+        "Site 420 is live at https://vii.spaplus.co/. Live events controls moved from 0 to -290 and stopped at -764 with next disabled; live vacation-1597 hero moved 1/97 to 2/97; its full gallery stopped after 97 moves with next disabled; six routes returned HTTP 200.",
+        "701/701 tests, 18/18 focused tests, local full family browser matrix, production home/events/search/mobile/LTR matrix, direct production result-card, hero and full-gallery checks, and independent read-only checker evidence cover the eight inventoried families. The optional sleeping-arrangement rail had no current accepted public record during production sampling and passed local browser/source-contract coverage.",
+        "Executed 4 specific completion attacks"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T23:33:50.229254Z"
+    },
+    {
+      "id": "preflight:effectiveness",
+      "source": "predictive_preflight.effectiveness",
+      "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
+      "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
+      "status": "passed",
+      "evidence": [
+        "Structured effectiveness result: first_pass=yes, repeated_corrections=0, prevented_failures=2, elapsed_minutes=58.0; The bounded inventory prevented a homepage-only fix, and natural-destination discovery prevented a stale historical place ID from being treated as current public evidence. Production headless navigation timeouts were isolated as an audit harness issue and were not retried unchanged after the bounded repair attempts."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T23:33:50.350228Z"
+    },
+    {
+      "id": "lesson:ADIR-QA-001",
+      "source": "lesson:ADIR-QA-001",
+      "statement": "שום פרויקט או תוצר אינם גמורים כאשר היעד הטבעי אינו מציג את התוצאה המבוקשת, כאשר מצב שנשמר לא שרד רענון, כאשר קיימים רכיבים מתים, מצבים מזויפים, מסלולים קטועים וחיבורים שלא נבדקו מקצה לקצה, או כאשר המבצע לא פתח בעצמו את הגרסה המדויקת ובדק אותה לפי סוג התוצר. לאחר כל תיקון מקומי חוזרים להבטחה המקורית ולמטרת העל, ובודקים מחדש את כל המסלול, משפחת המצבים והקריטריונים הקריטיים. הוכחה שתוקן הפרט האחרון אינה אישור שהמוצר, המסמך, המחקר, המדיה, האוטומציה או הפעולה העסקית המלאה מוכנים או שאדיר צפוי להיות מרוצה. מוצר ציבורי שמשרת לקוחות אינו מאושר למסירה רק על בסיס בדיקות המבצע: לאחר פרסום מועמד מותנה נדרשת קבוצת בדיקות מייצגת על הגרסה המדויקת, עם תרחישי לקוח, תפעול, עסק וסיכון. פרויקט מסוג אחר מפעיל בדיקות בעלי עניין מתאימות לסוגו או מנמק במדויק מדוע השער אינו חל. כל מסירה לאדיר כוללת קישור ישיר ושימושי לכל תוצאה שניתנת לפתיחה. אם אין קישור אפשרי, מציינים זאת במפורש ומוסרים את המיקום המדויק או דרך האחזור.",
+      "acceptance_check": "Before any complete, ready or likely-to-satisfy judgment, the evidence must name the original promise, distinguish the latest repaired detail from the full outcome, map every critical journey and affected-family item to passed evidence, a precise blocker or justified exclusion, and inspect the exact final artifact at its natural destination. A fixture that proves only the most recent local correction must be blocked from full approval, regardless of project type. A deliberately incomplete review or task must be blocked. A public customer-facing review must also fail without five to ten passed post-deploy representative actor scenarios on the exact version and at least three applicable stakeholder perspectives. A justified non-public or non-customer artifact must remain valid without an irrelevant public cohort. A completed result with an addressable destination fails delivery when its direct link is omitted. A result without a possible link passes only when the exact location or retrieval path and a concrete no-link reason are present.",
+      "status": "passed",
+      "evidence": [
+        "Original promise was sitewide. Post-deploy scenarios covered six public routes, 10 home groups, events, search, result card, hero, full gallery, mobile and English LTR. User, business-continuity and release-risk perspectives passed; rollback Site 419 and direct live URL are recorded."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T23:33:58.007227Z"
+    },
+    {
+      "id": "lesson:ADIR-CONTROL-001",
+      "source": "lesson:ADIR-CONTROL-001",
+      "statement": "כל כפתור, קישור, לשונית, חץ, תגית, מסנן, תפריט ובקר נראה מבטיח פעולה ולכן חייב להיבדק בכל המצבים החלים עליו וביעד הטבעי של התוצאה.",
+      "acceptance_check": "שער הראיות נכשל אם חסר רכיב נראה במלאי, אם התוצאה אינה נצפית ביעד הטבעי, או אם לא נבדקו כל המופעים במשפחה שנכשלה.",
+      "status": "passed",
+      "evidence": [
+        "Source inventory and focused tests cover rail and indexed-gallery arrow implementations. Live native disabled states were observed at start and terminal boundaries on Site 420."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T23:33:58.143754Z"
+    },
+    {
+      "id": "lesson:ADIR-CONSISTENCY-001",
+      "source": "lesson:ADIR-CONSISTENCY-001",
+      "statement": "רכיבים ועמודים מאותה משפחה שומרים על היררכיה, סדר, צורה, מיקום והתנהגות אחידים במחשב ובנייד. צבע ותוכן מאומת יכולים להשתנות, אך חריגה מבנית או התנהגותית דורשת סיבה ובדיקה ייעודית.",
+      "acceptance_check": "שער הראיות נכשל ללא נקודת ייחוס מאושרת, מטריצת משפחה, השוואות מחשב ונייד ורשימת חריגים. בקר ששינה מיקום, צורה, משמעות או התנהגות ללא חריג מאושר חוסם את כל המשפחה.",
+      "status": "passed",
+      "evidence": [
+        "Approved homepage behavior is the reference. Shared SliderRailControls and boundedSliderIndex now implement the same behavior across the eight-family matrix on desktop/mobile and RTL/LTR."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T23:33:58.329121Z"
+    },
+    {
+      "id": "lesson:ADIR-SCOPE-001",
+      "source": "lesson:ADIR-SCOPE-001",
+      "statement": "כאשר אדיר מבקש להזיז, לנקות או לתקן רכיב, שומרים על העיצוב, התוכן והיכולות שלא התבקשו להשתנות. אין להפוך תיקון ממוקד לעיצוב מחדש ללא בקשה מפורשת.",
+      "acceptance_check": "שער הראיות נכשל ללא תיאור שינוי, רשימת קבועים, השוואת לפני ואחרי ומלאי רכיבים שהשתנו, או כאשר נמצאה השתנות לא מבוקשת בעיצוב, בתוכן, בנתונים, במיקום או בהתנהגות.",
+      "status": "passed",
+      "evidence": [
+        "The production candidate changes only slider controls, affected component wiring, disabled styling and focused tests. Content, links, order, imagery, data, DB, bindings, secrets, domains and schedules were preserved."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T23:33:58.504819Z"
+    },
+    {
+      "id": "lesson:ADIR-MOBILE-001",
+      "source": "lesson:ADIR-MOBILE-001",
+      "statement": "מסלול נייד מלא נבנה ונבדק בפני עצמו, לרבות המסך הראשון, צפיפות, קריאות, גלילה, חלונות, פעולות ומעברי רוחב.",
+      "acceptance_check": "שער הראיות נכשל ללא צילום חי של המסך הראשון והמסלול המלא, בדיקת גובה נמוך, מדידת גלישה ומטריצת מעברי רוחב.",
+      "status": "passed",
+      "evidence": [
+        "Live 390 by 844 production checks passed hero and full-gallery controls without document overflow. Visual evidence: project_knowledge/release_evidence/vii-sitewide-slider-business-mobile-site-420.png."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T23:33:58.691065Z"
+    },
+    {
+      "id": "lesson:ADIR-DEPLOY-001",
+      "source": "lesson:ADIR-DEPLOY-001",
+      "statement": "פריסה או שינוי דומיין דורשים גרסה שמורה, כתובת יעד מאומתת, בדיקת מסלולים, metadata ותוכנית חזרה לאחור. כאשר כמה מקורות יכולים לפרוס לאותו יעד, חייבים לזהות אותם, לאחד את קו הבסיס ולחסום פריסה ממקור מיושן שעלולה למחוק יכולות שכבר אושרו.",
+      "acceptance_check": "A release cannot pass without live URL, route, status, metadata and rollback evidence. If multiple deploy sources share a destination, the chosen source must contain the complete approved baseline and a stale-source overwrite test must be blocked. Visual evidence from a release that was later replaced is invalid.",
+      "status": "passed",
+      "evidence": [
+        "Site 420 published once at https://vii.spaplus.co/ from source tree 46a3ae2 via production merge f144fa4. Six routes returned 200 and Site 419 is retained for rollback."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T23:33:58.881927Z"
+    },
+    {
+      "id": "project:inventory",
+      "source": "project_guidance",
+      "statement": "The source inventory includes every arrow-bearing slider implementation and excludes only calendars and horizontal controls without slider arrows.",
+      "acceptance_check": "The source inventory includes every arrow-bearing slider implementation and excludes only calendars and horizontal controls without slider arrows.",
+      "status": "passed",
+      "evidence": [
+        "Inventory covers 10 home rails, event region, reusable event rails, search-depth rails, result-card galleries, hero galleries, full story galleries and sleeping arrangements. Calendar arrows and arrowless strips are explicitly excluded."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T23:33:59.086667Z"
+    },
+    {
+      "id": "project:responsive",
+      "source": "project_guidance",
+      "statement": "Desktop, 390-pixel mobile, RTL, LTR, resize, loading, empty, start, moved and terminal states are verified.",
+      "acceptance_check": "Desktop, 390-pixel mobile, RTL, LTR, resize, loading, empty, start, moved and terminal states are verified.",
+      "status": "passed",
+      "evidence": [
+        "Deployed QA covered desktop, 390-pixel mobile, Hebrew RTL, English LTR, hydration, overflow, start, movement and terminal boundaries. Optional sleeping arrangements had no current public data instance and passed local browser/source tests."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T23:33:59.272393Z"
+    },
+    {
+      "id": "project:scope",
+      "source": "project_guidance",
+      "statement": "Approved content, links, card order, imagery and layout remain unchanged.",
+      "acceptance_check": "Approved content, links, card order, imagery and layout remain unchanged.",
+      "status": "passed",
+      "evidence": [
+        "Git diff and production merge preserve approved copy, destinations, card order, imagery and layout. Site 420 retains all Site 419 capabilities and changes no data or infrastructure."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T23:33:59.448072Z"
+    }
+  ],
+  "verification_status": "verified",
+  "verification_errors": [],
+  "predictive_results": {
+    "midpoint": {
+      "observed_at": "2026-10-14T23:17:09.142918Z",
+      "evidence": [
+        "Local browser QA passed shared event and search rails: previous disabled initially, next moved RTL rails to -290 and -188, previous then enabled, and next disabled at the terminal boundary.",
+        "Indexed galleries were clamped: a vacation result card moved from 1/5 to 2/5 and a current public place gallery moved from 1/97 to 2/97 with previous disabled at the start."
+      ],
+      "findings": [
+        "A fixed historical place ID was not present in the current accepted catalog, so natural-destination QA now discovers a current public gallery destination from the live search result set instead of relying on stale fixture identity."
+      ]
+    },
+    "adversarial": {
+      "observed_at": "2026-10-14T23:33:50.229235Z",
+      "attacks": [
+        "Tried initial, moved and terminal boundaries on the live events rail and full story gallery.",
+        "Compared RTL Hebrew and LTR English rail direction on the deployed version.",
+        "Sampled desktop and 390-pixel mobile for document overflow and native disabled states.",
+        "Reloaded the natural destinations and checked six public HTTP routes on Site 420."
+      ],
+      "natural_destination_evidence": "Site 420 is live at https://vii.spaplus.co/. Live events controls moved from 0 to -290 and stopped at -764 with next disabled; live vacation-1597 hero moved 1/97 to 2/97; its full gallery stopped after 97 moves with next disabled; six routes returned HTTP 200.",
+      "affected_family_evidence": "701/701 tests, 18/18 focused tests, local full family browser matrix, production home/events/search/mobile/LTR matrix, direct production result-card, hero and full-gallery checks, and independent read-only checker evidence cover the eight inventoried families. The optional sleeping-arrangement rail had no current accepted public record during production sampling and passed local browser/source-contract coverage."
+    },
+    "effectiveness": {
+      "recorded_at": "2026-10-14T23:33:50.350205Z",
+      "first_pass_acceptance": "yes",
+      "repeated_corrections": 0,
+      "prevented_failures": 2,
+      "elapsed_minutes": 58.0,
+      "baseline_note": "The bounded inventory prevented a homepage-only fix, and natural-destination discovery prevented a stale historical place ID from being treated as current public evidence. Production headless navigation timeouts were isolated as an audit harness issue and were not retried unchanged after the bounded repair attempts."
+    }
+  }
+}

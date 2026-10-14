@@ -1,0 +1,55 @@
+{
+  "release_url": "https://vii.spaplus.co/",
+  "release_id": "Site 420 / f144fa4703f020088cc733addfd2d41db3c541fb",
+  "public_version_tested": true,
+  "jurisdictions": [
+    {
+      "country": "Israel",
+      "applicable_law": "Israeli Equal Rights for Persons with Disabilities framework, applicability not finally determined without operator facts and legal review",
+      "applicable_standard": "Israeli web accessibility requirements, exact applicability and required level blocked pending current official-source verification and operator facts",
+      "official_sources": [
+        {
+          "url": "https://www.gov.il/he/departments/topics/accessibility/govil-landing-page",
+          "checked_at": "2026-10-15",
+          "requirement_summary": "The official accessibility source was requested but returned HTTP 403 in this environment, so current legal wording was not independently revalidated."
+        }
+      ]
+    }
+  ],
+  "legal_applicability": {
+    "status": "blocked",
+    "owner_facts_complete": false,
+    "evidence": "This release changed native slider controls only. Operator size, turnover, service classification and exemption facts were not supplied, and current official legal text could not be retrieved because the government source returned HTTP 403.",
+    "exemptions": []
+  },
+  "checks": {
+    "automated_scan": {"status": "blocked", "evidence": "No full-site automated accessibility scan was run for Site 420."},
+    "keyboard": {"status": "pass", "evidence": "Arrow controls are native buttons with real disabled state; focused component tests and live DOM inspection verified enabled and disabled boundaries."},
+    "focus": {"status": "pass", "evidence": "The change preserves native button focus behavior and excludes disabled controls from activation."},
+    "screen_reader": {"status": "blocked", "evidence": "No real assistive-technology session was completed. Accessibility-tree inspection is supporting evidence only."},
+    "headings_landmarks": {"status": "not_applicable", "reason": "The release did not change heading or landmark structure.", "evidence": "No heading or landmark source changed."},
+    "names_labels": {"status": "pass", "evidence": "Shared rail controls and indexed galleries expose localized previous and next accessible names; live controls were readable in the accessibility tree."},
+    "contrast": {"status": "blocked", "evidence": "Disabled visual styling was inspected, but a formal contrast measurement was not completed."},
+    "resize_zoom_reflow": {"status": "pass", "evidence": "Desktop and 390-pixel mobile production checks found no document-level horizontal overflow on the sampled routes."},
+    "mobile": {"status": "pass", "evidence": "Live 390 by 844 checks verified hero-gallery boundaries, full-gallery controls and no horizontal overflow."},
+    "forms_errors": {"status": "not_applicable", "reason": "No forms or error messaging changed.", "evidence": "The slider release contains no form mutations."},
+    "media_documents": {"status": "not_applicable", "reason": "No media alternative or document flow changed.", "evidence": "The release changes navigation boundaries only."},
+    "maps_third_party": {"status": "not_applicable", "reason": "No map or third-party widget behavior changed.", "evidence": "No map source was modified."},
+    "language_direction": {"status": "pass", "evidence": "Production rail QA passed Hebrew RTL and English /en/events LTR control direction before the later unrelated repeated-search navigation timeout."},
+    "accessibility_statement": {"status": "blocked", "evidence": "The existing statement route was not legally re-audited in this bounded interaction release."},
+    "contact_and_arrangements": {"status": "blocked", "evidence": "Operator accessibility contact and accommodation process were outside this bounded release and were not independently verified."}
+  },
+  "statement_truth_verified": false,
+  "independent_check": {
+    "status": "pass",
+    "checker": "/root/release_checker",
+    "checked_at": "2026-10-15",
+    "evidence": "Independent read-only production review verified HTTP, native control presence, initial disabled state, sampled movement, RTL, mobile and non-overflow behavior, while explicitly recording the sampling limits."
+  },
+  "blockers": [
+    "Full legal applicability cannot be determined without operator facts and current official-source verification.",
+    "No real screen-reader audit was completed.",
+    "Formal contrast measurement and full-site automated accessibility scan remain outstanding.",
+    "The existing accessibility statement and operator contact arrangements were not re-audited for legal truth."
+  ]
+}
