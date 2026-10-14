@@ -701,6 +701,10 @@ const propertyCatalog: Property[] = [
   },
 ];
 
+// Curated visual tours are kept separate from the supplier catalog. Their notes
+// explicitly disclose when a tour was assembled from still images or is illustrative.
+export const visualTourProperties: Property[] = propertyCatalog.filter((property) => property.videos?.length);
+
 const activePropertyOrder = [
   "aqua-resort",
   "kesem-harimon",

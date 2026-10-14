@@ -324,7 +324,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     { value: "rating-asc", label: "דירוג מהנמוך לגבוה" },
     ...(properties.some((property) => property.capacityScope !== "unit") ? [{ value: "capacity", label: "קיבולת גבוהה" }] : []),
     { value: "units", label: "מספר יחידות" },
-    { value: "name", label: "שם המקום" },
+    { value: "name", label: "א-ב (סדר עולה)" },
   ];
   const router = useRouter();
   const pathname = usePathname();
@@ -824,7 +824,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
               <div className="filter-head"><h2>סינון תוצאות</h2><button type="button" onClick={closeFiltersPanel} aria-label="סגירה"><CloseIcon /></button></div>
               <div className="vacation-filter-sections" aria-label="קטגוריות סינון">
                 <button type="button" className={filterSection === "types" ? "active" : ""} aria-pressed={filterSection === "types"} onClick={() => setFilterSection("types")}>סוגי אירוח</button>
-                <button type="button" className={filterSection === "more" ? "active" : ""} aria-pressed={filterSection === "more"} onClick={() => setFilterSection("more")}>סינונים נוספים</button>
+                <button type="button" className={filterSection === "more" ? "active" : ""} aria-pressed={filterSection === "more"} onClick={() => setFilterSection("more")}>מחיר ומאפיינים</button>
               </div>
               <div className="filter-panel__mobile-sort">
                 <ModernSelect label="מיון לפי" value={shownFilters.sort} onChange={changeSort} options={vacationSortOptions} />
@@ -869,7 +869,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
             {flexibleSearch ? <div className="availability-demo-summary availability-demo-summary--live" role="status"><strong>{flexibleAvailabilityCopy[language].title}</strong><span>{flexibleAvailabilityCopy[language].text}</span></div> : null}
             <div className="results-toolbar"><div className="results-toolbar__actions"><ResultsViewToggle value={viewMode} onChange={setViewMode} />{filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתוצאות" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (mapOpen) closeResultsMap(); else openResultsMap(); }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לתוצאות" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect className="results-toolbar__sort" compact label="מיון לפי" value={sort} onChange={changeSort} options={vacationSortOptions} /></div>
             {guests > 2 && properties.some((property) => property.capacityScope === "unit") ? <SupplierCapacityNotice /> : null}
-            {!mapOpen && <ProgressiveResults className={`result-cards results-view results-view--${viewMode}`} resetKey={resultWindowKey} totalCount={displayedResults.length} visibleCount={visibleResults.length} onShowMore={() => setVisibleResultCount((current) => Math.min(displayedResults.length, current + 9))}>{visibleResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStayFor(property.slug)} liveAvailabilityState={liveAvailabilityFor(property.slug)} detailHref={detailHref(property.slug)} />)}</ProgressiveResults>}
+            {!mapOpen && <ProgressiveResults autoLoad className={`result-cards results-view results-view--${viewMode}`} resetKey={resultWindowKey} totalCount={displayedResults.length} visibleCount={visibleResults.length} onShowMore={() => setVisibleResultCount((current) => Math.min(displayedResults.length, current + 9))}>{visibleResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStayFor(property.slug)} liveAvailabilityState={liveAvailabilityFor(property.slug)} detailHref={detailHref(property.slug)} />)}</ProgressiveResults>}
             {mapOpen && <div className="airbnb-map-split">
               <div className={`airbnb-map-split__results result-cards results-view results-view--${viewMode}`}>{displayedResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStayFor(property.slug)} liveAvailabilityState={liveAvailabilityFor(property.slug)} detailHref={detailHref(property.slug)} onActiveChange={(active) => setActiveMapPropertyId(active ? property.slug : null)} />)}</div>
               <div className="airbnb-map-split__map"><DeferredListingMap listings={mapCandidates} initialListings={filtered} autoLoad detailQuery={detailQuery} onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPropertyId} /></div>

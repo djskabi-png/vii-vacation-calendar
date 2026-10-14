@@ -172,10 +172,11 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const [locationOpen, setLocationOpen] = useState(false);
   const [locationQuery, setLocationQuery] = useState("");
   const hasLocationQuery = locationQuery.trim().length > 0;
-  const placeInventoryLoading = hasLocationQuery && placeInventoryResult?.mode !== mode;
+  const shouldLoadPlaceInventory = hasLocationQuery || (locationOpen && mode === "vacation");
+  const placeInventoryLoading = shouldLoadPlaceInventory && placeInventoryResult?.mode !== mode;
   const placeInventory = placeInventoryResult?.mode === mode ? placeInventoryResult.places : [];
   useEffect(() => {
-    if (!hasLocationQuery) return;
+    if (!shouldLoadPlaceInventory) return;
     const controller = new AbortController();
     const world = { vacation: "vacations", events: "events", spa: "spa", hourly: "rooms" }[mode];
     setPlaceInventoryResult(null);
@@ -191,7 +192,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
         if (!controller.signal.aborted) { setPlaceInventoryResult({ mode, places: [] }); setPlaceInventoryError(true); }
       });
     return () => controller.abort();
-  }, [hasLocationQuery, mode]);
+  }, [mode, shouldLoadPlaceInventory]);
   const [locationStatus, setLocationStatus] = useState("");
   const [locating, setLocating] = useState(false);
   const [guestOpen, setGuestOpen] = useState(false);
@@ -508,6 +509,18 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const visibleNamedPlaces = normalizedLocationQuery
     ? placeInventory.filter((place) => [place.name, place.location, place.area, translate(place.name), translate(place.location), translate(place.area)].some((value) => value.toLocaleLowerCase().includes(normalizedLocationQuery))).slice(0, 8)
     : [];
+  const locationGroups = useMemo(() => {
+    if (mode !== "vacation") return vacationLocationGroups.map((group) => ({ ...group, options: [...group.options] }));
+    const unique = (values: string[]) => [...new Set(values.map((value) => value.trim()).filter(Boolean))];
+    const primary = [...vacationLocationGroups[0].options];
+    const regions = unique([...vacationLocationGroups[1].options, ...placeInventory.map((place) => place.area)]).filter((value) => !primary.includes(value as typeof primary[number]));
+    const settlements = unique([...vacationLocationGroups[2].options, ...placeInventory.map((place) => place.location)]).filter((value) => !primary.includes(value as typeof primary[number]) && !regions.includes(value));
+    return [
+      { id: "primary", title: "אזורים ראשיים", options: primary },
+      { id: "regions", title: "אזורים ותתי אזורים", options: regions },
+      { id: "settlements", title: "ערים ויישובים", options: settlements },
+    ];
+  }, [mode, placeInventory]);
 
   return (
     <>
@@ -536,10 +549,10 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
             {locationQuery.trim() ? (
               <div className="location-search-results">
                 {placeInventoryLoading ? <p role="status">{translate("מחפשים מקומות...")}</p> : null}
-                {visibleNamedPlaces.length > 0 ? <h3>{translate("מקומות מתאימים")}</h3> : null}
-                {visibleNamedPlaces.map((place) => <Link key={`${mode}-${place.id}`} className="location-place-result" href={localizedPath(place.href, language)}><PinIcon /><span><strong>{translate(place.name)}</strong><small>{translate(place.kind)} · {translate(place.location)}</small></span></Link>)}
                 {visibleDestinations.length > 0 ? <h3>{translate("אזורים ויישובים")}</h3> : null}
                 {visibleDestinations.map((place) => <button type="button" key={place} className={place === locationValue ? "selected" : ""} onClick={() => chooseLocation(place)}><PinIcon /><span>{translate(place)}</span></button>)}
+                {visibleNamedPlaces.length > 0 ? <h3>{translate("מקומות מתאימים")}</h3> : null}
+                {visibleNamedPlaces.map((place) => <Link key={`${mode}-${place.id}`} className="location-place-result" href={localizedPath(place.href, language)}><PinIcon /><span><strong>{translate(place.name)}</strong><small>{translate(place.kind)} · {translate(place.location)}</small></span></Link>)}
                 {placeInventoryError ? <p role="alert">{translate("לא ניתן לטעון את המקומות כרגע.")}</p> : null}
                 {!placeInventoryLoading && !placeInventoryError && visibleDestinations.length === 0 && visibleNamedPlaces.length === 0 ? <p>{translate("לא מצאנו יעד או מקום מתאים.")}</p> : null}
               </div>
@@ -551,7 +564,8 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
                   <b aria-hidden="true">←</b>
                 </button>
                 {locationStatus ? <p className="location-status" role="status">{translate(locationStatus)}</p> : null}
-                {vacationLocationGroups.map((group) => (
+                {placeInventoryLoading ? <p role="status">{translate("טוענים את כל היעדים...")}</p> : null}
+                {locationGroups.map((group) => (
                   <section className={`location-group location-group--${group.id}`} key={group.id}>
                     <h3>{translate(group.title)}</h3>
                     <div>

@@ -17,6 +17,7 @@ import { useSiteLanguage } from "../i18n/locale-provider";
 import { HomeLiveDeals } from "./home-live-deals";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { rotateDaily, rotateWithinTiers } from "../lib/daily-rotation";
+import { HomeManagedDiscovery } from "./home-discovery-sections";
 
 const vacationDestinations = [
   { label: "נופש בצפון", note: "גליל, גולן ונוף ירוק", href: "/vacations/north?guests=2", image: "/media/f18d7c0469633ca0.jpeg" },
@@ -161,6 +162,8 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
             })}
           </div>
         </div>
+
+        <HomeManagedDiscovery />
 
       </div>
     </section>
