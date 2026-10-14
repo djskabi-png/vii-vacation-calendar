@@ -1,0 +1,10 @@
+.createButton {
+  width: 100%; margin-top: 9px; border: 1px solid #087d84; border-radius: 11px;
+  background: #eff9f7; color: #08767b; padding: 9px; font: inherit; font-weight: 800; cursor: pointer;
+}
+.createPanel { display: grid; gap: 7px; margin-top: 9px; padding: 10px; border-radius: 12px; background: #f4f8f7; }
+.createPanel button { border: 0; border-radius: 10px; background: #087d84; color: #fff; padding: 9px; font: inherit; font-weight: 800; }
+.schedule { display: grid; gap: 2px; font-size: .72rem; font-weight: 800; color: #486661; }
+.schedule input { border: 1px solid #c9dcd8; border-radius: 9px; padding: 6px; font: inherit; color: #28524d; }
+.linkFlags { display: flex; gap: 8px; grid-column: 1 / -1; color: #486661; font-size: .8rem; font-weight: 700; }
+.linkFlags label { display: flex; align-items: center; gap: 5px; }

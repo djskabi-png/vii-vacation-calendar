@@ -5,27 +5,27 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { PageShell } from "../../components/page-shell";
-import { getMagazineArticle, magazineArticles } from "../../data/magazine-data";
+import { magazineArticles, type MagazineArticle } from "../../data/magazine-data";
 import { HeartIcon } from "../../site-header";
 import { BreadcrumbTrail } from "../../components/breadcrumb-trail";
 import { ShareButton } from "../../components/share-dialog";
 
-export function MagazineArticleView({ initialSlug = magazineArticles[0].slug, readQuery = true }: { initialSlug?: string; readQuery?: boolean }) {
+export function MagazineArticleView({ initialSlug = magazineArticles[0].slug, readQuery = true, initialArticles = magazineArticles }: { initialSlug?: string; readQuery?: boolean; initialArticles?: MagazineArticle[] }) {
   const [slug, setSlug] = useState(initialSlug);
   const [progress, setProgress] = useState(0);
   const [saved, setSaved] = useState(false);
   const [checked, setChecked] = useState<number[]>([]);
-  const article = getMagazineArticle(slug);
-  const related = useMemo(() => magazineArticles.filter((item) => item.slug !== article.slug).sort((a, b) => Number(b.category === article.category) - Number(a.category === article.category)).slice(0, 3), [article]);
+  const article = initialArticles.find((item) => item.slug === slug) || initialArticles[0];
+  const related = useMemo(() => initialArticles.filter((item) => item.slug !== article.slug).sort((a, b) => Number(b.category === article.category) - Number(a.category === article.category)).slice(0, 3), [article, initialArticles]);
 
   useEffect(() => {
     if (!readQuery) return;
     const timer = window.setTimeout(() => {
       const requested = new URLSearchParams(location.search).get("id");
-      setSlug(getMagazineArticle(requested).slug);
+      setSlug(initialArticles.find((item) => item.slug === requested)?.slug || initialArticles[0].slug);
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [readQuery]);
+  }, [initialArticles, readQuery]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {

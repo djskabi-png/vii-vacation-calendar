@@ -1,0 +1,61 @@
+{
+  "goal": "VII administrators can safely control supplier-backed and VII-owned content for every world and global navigation surface from one coherent content studio.",
+  "intent_model": {
+    "literal_request": "Add management for each world's data and manual content, including spa descriptions, suppliers, trails, magazine, footer and hamburger/header navigation.",
+    "implied_outcome": "Replace scattered hard-coded content with an operational CMS that remains simple while preserving source truth, editorial control and safe publication.",
+    "likely_rejections": ["Only the examples are implemented", "Saved content is not reflected publicly", "Supplier data overwrites manual content", "No preview, version history or rollback", "The interface is another technical dashboard instead of a usable editorial product"],
+    "interpretation_rules": [{ "phrase": "וכו' וכל הדברים הדומים", "operational_meaning": "Inventory the complete family of public content types and global site surfaces sharing the requirement.", "acceptance_impact": "Each family item receives implemented evidence, a precise blocker or an explicit exclusion." }]
+  },
+  "cognitive_flow": {
+    "current_layer": "Choose what kind of content to manage and see its publishing state.",
+    "current_decision": "Choose one item and edit the VII-owned layer while comparing it with the supplier source.",
+    "next_action": "Preview or publish the validated version.",
+    "deferred_complexity": ["SEO and structured fields", "translation workflow", "version history", "technical source diagnostics"],
+    "preserved_depth": ["Every world and global surface", "source provenance", "scheduling", "audit history", "rollback", "permission enforcement"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/task_contracts/vii-content-studio-preflight-20261014.json",
+    "lesson_bundle_ids": ["ADIR-ADMIN-001", "ADIR-WEB-CMS-001", "ADIR-CONTROL-001", "ADIR-QA-001", "ADIR-INTENT-001", "ADIR-TYPE-001", "ADIR-CONSISTENCY-001", "ADIR-SEO-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["VII administrator", "VII content editor", "public visitor", "supplier synchronization process"],
+  "natural_destination": "Authenticated VII administration and corresponding public VII pages.",
+  "facts": [
+    { "claim": "VII already has protected administration routes and D1-backed versioned search-page publishing.", "evidence": "app/admin, app/api/admin and app/lib/search-opportunities.ts" },
+    { "claim": "Spa, supplier, trail, magazine, header and footer content currently comes from multiple supplier and static sources.", "evidence": "app/data and app/components source inventory" }
+  ],
+  "assumptions": [{ "claim": "The current administrator allowlist remains the initial permission boundary.", "validation": "Keep all new API routes behind the existing Google session and VII_ADMIN_EMAILS check; do not claim granular roles until implemented." }],
+  "in_scope": [
+    "Unified content inventory for all public worlds and magazine", "Provider source versus VII editorial overlay", "Localized content fields", "Draft, review, scheduled, published and archived lifecycle", "Preview, version history, optimistic conflict prevention and rollback", "Managed desktop navigation, mobile hamburger and footer", "Public rendering of published overrides", "Audit metadata and protected API"
+  ],
+  "out_of_scope": ["Changing supplier-owned booking, availability or prices", "Inventing granular employee roles not yet present", "Production deployment without the release gate", "Bulk AI content generation without editorial review"],
+  "invariants": ["Supplier source remains preserved and traceable", "Last published content remains live while a new draft is edited", "Existing search, booking and catalog synchronization continue to work", "Unpublished content is excluded from public rendering and indexing", "English ASCII slug policy remains in force"],
+  "affected_family": ["all business world records", "supplier business records", "paid attraction records", "independent trail records", "magazine article records", "desktop header navigation", "mobile hamburger navigation", "managed footer groups", "Hebrew English Russian and French locales", "administrator authorization states", "D1 content storage", "public route rendering"],
+  "characteristics": { "stateful": true },
+  "requirements": [
+    { "id": "REQ-1", "statement": "The studio inventories and opens editable records for every requested content family.", "source": "User request" },
+    { "id": "REQ-2", "statement": "Supplier source fields and VII editorial overrides remain separate and visibly comparable.", "source": "User spa example and project source-of-truth rules" },
+    { "id": "REQ-3", "statement": "Content changes support validation, versions, preview, publication, scheduling, conflict protection and rollback.", "source": "ADIR-ADMIN-001 and VII project standards" },
+    { "id": "REQ-4", "statement": "Desktop header, mobile hamburger and footer share one managed canonical link model.", "source": "User request and CMS standard" },
+    { "id": "REQ-5", "statement": "Published overrides appear on the natural public route and drafts never leak publicly.", "source": "User request and completion standard" },
+    { "id": "REQ-6", "statement": "The editor remains simple, modern, Hebrew-safe and usable on desktop and mobile.", "source": "User product-quality direction" },
+    { "id": "REQ-7", "statement": "Unauthorized users cannot read or mutate the administration content inventory.", "source": "Existing VII security boundary" }
+  ],
+  "acceptance_checks": [
+    { "id": "AC-1", "requirement_ids": ["REQ-1"], "kind": "success", "setup": "Authenticated administrator opens Content Studio.", "action": "Switch through all content families.", "observable_result": "Each family has an inventory, counts, state filters and an editable item destination." },
+    { "id": "AC-2", "requirement_ids": ["REQ-2"], "kind": "persistence", "setup": "A supplier-backed spa has source text and a VII draft.", "action": "Save, reload and later ingest a changed supplier source.", "observable_result": "The source view changes but the VII draft and published override persist independently." },
+    { "id": "AC-3", "requirement_ids": ["REQ-3"], "kind": "rollback", "setup": "An item has at least two versions.", "action": "Restore an older version and save it.", "observable_result": "A new audited version is created, history is preserved and the former version can still be inspected." },
+    { "id": "AC-4", "requirement_ids": ["REQ-3", "REQ-5"], "kind": "success", "setup": "A valid draft is ready.", "action": "Preview and publish it.", "observable_result": "Preview shows the candidate, publication survives reload and the public route renders it while keeping the correct canonical and indexability state." },
+    { "id": "AC-5", "requirement_ids": ["REQ-3", "REQ-5"], "kind": "failure", "setup": "Two editors hold the same version.", "action": "Both try to save different changes.", "observable_result": "The second save is rejected with a clear version-conflict recovery message and no silent overwrite." },
+    { "id": "AC-6", "requirement_ids": ["REQ-4"], "kind": "success", "setup": "A published navigation or footer version exists.", "action": "Load desktop header, mobile hamburger and footer in every locale.", "observable_result": "All surfaces resolve the same ordered canonical items with localized labels and working destinations." },
+    { "id": "AC-7", "requirement_ids": ["REQ-6"], "kind": "empty", "setup": "A content family has no matching records.", "action": "Open the family.", "observable_result": "A clear empty state and valid creation action appear without a broken editor." },
+    { "id": "AC-8", "requirement_ids": ["REQ-6"], "kind": "success", "setup": "Desktop and 390-pixel mobile administration views.", "action": "Select an item, edit and save.", "observable_result": "One dominant action remains visible, no overflow occurs and all Hebrew controls render in the approved modern font." },
+    { "id": "AC-9", "requirement_ids": ["REQ-7"], "kind": "permission", "setup": "Anonymous or non-allowlisted request.", "action": "Request the inventory or mutation endpoint.", "observable_result": "The server returns 403 with no draft content or mutation." }
+  ],
+  "open_questions": [{ "question": "Granular editor, SEO editor and publisher roles are not yet defined.", "blocking": false, "resolution": "Use the verified administrator allowlist for this foundation and keep the model extensible without claiming role granularity." }],
+  "authorization_boundary": "Implement and verify locally, commit and push to the existing review branch. Production publication remains a separate externally verified release action.",
+  "ready_for_implementation": true
+}

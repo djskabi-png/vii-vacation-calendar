@@ -64,7 +64,7 @@ export const spaPlacesFromSites = (sites: SpaPlusSite[], galleryForId?: number):
     name: site.title,
     location: site.city || "מיקום לא נמסר",
     area: spaPlusArea(site.city),
-    description: spaViiCopy(site.id).cardSummary,
+    description: site.shortDescription || spaViiCopy(site.id).cardSummary,
     filterText: spaViiCopy(site.id).filterText,
     features: audiences.map((audience) => `חבילות ${audience === "זוג" ? "זוגיות" : audience === "יחיד" ? "ליחיד" : audience === "קבוצה" ? "לקבוצות" : "יום כיף"}`),
     searchTerms: site.packages.map((pack) => pack.title),

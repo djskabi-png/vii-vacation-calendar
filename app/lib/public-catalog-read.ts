@@ -7,6 +7,7 @@ import { projectSpaViiSite } from "./spa-editorial-policy.ts";
 import type { SpaPlusSite } from "../data/spaplus";
 import { readSupplierCatalogDetails, readSupplierCatalogEntry, readSupplierCatalogState, readSupplierCatalogSummaries, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
 import { runtimeCatalogDatabase } from "./published-supplier-ids.ts";
+import { readPublishedContentBatch, type ContentType, type EditorialContent } from "./content-studio.ts";
 
 const catalogCache = new Map<SupplierCatalogWorld, { runId: string; expiresAt: number; items: Promise<unknown[]> }>();
 
@@ -20,9 +21,9 @@ export async function publicCatalogSummaries<T>(world: SupplierCatalogWorld): Pr
   const db = await runtimeCatalogDatabase();
   if (!db) return await publicSummaries(world, bundled(world)) as T[];
   const state = await readSupplierCatalogState(db, world);
-  if (!state?.activeRunId) return await publicSummaries(world, bundled(world)) as T[];
+  if (!state?.activeRunId) return await withEditorialOverlays(db, world, await publicSummaries(world, bundled(world))) as T[];
   const cached = catalogCache.get(world);
-  if (cached?.runId === state.activeRunId && cached.expiresAt > Date.now()) return await cached.items as T[];
+  if (cached?.runId === state.activeRunId && cached.expiresAt > Date.now()) return await withEditorialOverlays(db, world, await cached.items) as T[];
   const runId = state.activeRunId;
   const items = (async () => {
     const accepted = await readSupplierCatalogSummaries(db, world);
@@ -31,11 +32,42 @@ export async function publicCatalogSummaries<T>(world: SupplierCatalogWorld): Pr
   })();
   catalogCache.set(world, { runId, expiresAt: Date.now() + 5 * 60_000, items });
   try {
-    return await items as T[];
+    return await withEditorialOverlays(db, world, await items) as T[];
   } catch (error) {
     if (catalogCache.get(world)?.items === items) catalogCache.delete(world);
     throw error;
   }
+}
+
+function catalogIdentity(world: SupplierCatalogWorld, value: unknown) {
+  const row = value as Record<string, unknown>;
+  if (world === "spa") return String(Number(row.id) || "");
+  if (world === "rooms") return typeof row.id === "string" ? row.id : String(Number(row.supplierId) || "");
+  return String(Number(row.supplierId) || "");
+}
+
+function contentTypeForWorld(world: SupplierCatalogWorld): ContentType {
+  if (world === "vacations") return "vacation";
+  if (world === "rooms") return "hourly";
+  return world;
+}
+
+function applyEditorial(world: SupplierCatalogWorld, value: unknown, content: EditorialContent) {
+  const row = value as Record<string, unknown>;
+  if (world === "spa") return { ...row, title: content.title, shortDescription: content.summary,
+    ...(content.body ? { about: content.body.split(/\n\s*\n/).map((paragraph) => paragraph.trim()).filter(Boolean) } : {}) };
+  return { ...row, name: content.title, description: content.summary };
+}
+
+async function withEditorialOverlays(db: NonNullable<Awaited<ReturnType<typeof runtimeCatalogDatabase>>>, world: SupplierCatalogWorld, entries: unknown[]) {
+  try {
+    const keys = entries.map((entry) => catalogIdentity(world, entry)).filter(Boolean);
+    const overlays = await readPublishedContentBatch(db, contentTypeForWorld(world), keys);
+    return entries.map((entry) => {
+      const content = overlays.get(catalogIdentity(world, entry));
+      return content ? applyEditorial(world, entry, content) : entry;
+    });
+  } catch { return entries; }
 }
 
 async function publicSummaries(world: SupplierCatalogWorld, entries: unknown[]): Promise<unknown[]> {

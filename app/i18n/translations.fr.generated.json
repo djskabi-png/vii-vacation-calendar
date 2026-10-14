@@ -8203,5 +8203,14 @@
   "ספק הספא הפנה לכתובת אחרת ולכן המשיכה נעצרה מטעמי בטיחות. לא בוצע שינוי בקטלוג.": "Le fournisseur spa a redirigé vers une autre adresse ; l’import a donc été arrêté par sécurité. Le catalogue n’a pas été modifié.",
   "החיבור המאובטח לספק הספא אינו מורשה כרגע. לא בוצע שינוי בקטלוג.": "La connexion sécurisée au fournisseur spa n’est actuellement pas autorisée. Le catalogue n’a pas été modifié.",
   "לא ניתן היה לקבל נתונים מספק הספא. לא בוצע שינוי בקטלוג.": "Les données du fournisseur spa n’ont pas pu être reçues. Le catalogue n’a pas été modifié.",
-  "המשיכה לא אושרה. הנתונים הקודמים נשמרו, ואפשר לפתוח את פרטי האבחון למידע נוסף.": "L’import n’a pas été approuvé. Les données précédentes ont été conservées ; ouvrez le diagnostic pour plus d’informations."
+  "המשיכה לא אושרה. הנתונים הקודמים נשמרו, ואפשר לפתוח את פרטי האבחון למידע נוסף.": "L’import n’a pas été approuvé. Les données précédentes ont été conservées ; ouvrez le diagnostic pour plus d’informations.",
+  "תפריט עולמות": "Menu des univers",
+  "תפריט משני והמבורגר": "Menu secondaire et menu mobile",
+  "קישורים הקשריים בפוטר": "Liens contextuels du pied de page",
+  "העולמות שלנו בפוטר": "Nos univers dans le pied de page",
+  "מידע ושירות בפוטר": "Informations et services dans le pied de page",
+  "יש לבדוק במקור הרשמי": "Consultez la source officielle",
+  "בודקים תנאי שטח ועדכונים במקור הרשמי לפני היציאה": "Vérifiez les conditions actuelles et les mises à jour officielles avant de partir",
+  "קראתי ושמרתי את הרעיון להמשך": "J’ai lu et enregistré cette idée pour plus tard",
+  "המידע המלא יעודכן בקרוב.": "Les informations complètes seront bientôt ajoutées."
 }

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { TrailCard } from "../components/trail-card";
-import { natureTypes, regions, trails, type TrailDifficulty } from "../data/trail-data";
+import { natureTypes, regions, trails, type Trail, type TrailDifficulty } from "../data/trail-data";
 import { DeferredTrailMap } from "../components/deferred-listing-map";
 import { useMapViewState } from "../components/map-view-state";
 import { MapIcon } from "../site-header";
@@ -29,7 +29,7 @@ function MultiChoice({ label, options, selected, onToggle }: { label: string; op
   </details>;
 }
 
-export function TrailsExplorer() {
+export function TrailsExplorer({ items = trails }: { items?: Trail[] }) {
   const searchParams = useSearchParams();
   const searchQuery = searchParams.toString();
   const [selectedRegions, setSelectedRegions] = useState(() => selectedValues(searchParams.get("area"), regionOptions));
@@ -38,14 +38,14 @@ export function TrailsExplorer() {
   const [query, setQuery] = useState(searchParams.get("q") || "");
   const { mapOpen, openMap, closeMap } = useMapViewState();
 
-  const filtered = useMemo(() => rotateWithinTiers(trails.filter((trail) => {
+  const filtered = useMemo(() => rotateWithinTiers(items.filter((trail) => {
     const searchable = `${trail.name} ${trail.mainArea} ${trail.region} ${trail.areaTags.join(" ")} ${trail.nature.join(" ")}`;
     return (selectedRegions.length === 0 || selectedRegions.includes(trail.mainArea))
       && (selectedNatures.length === 0 || selectedNatures.some((item) => trail.nature.includes(item)))
       && (selectedDifficulties.length === 0 || selectedDifficulties.includes(trail.difficulty))
       && (!query.trim() || searchable.includes(query.trim()));
   }), (trail) => query.trim() && !trail.name.includes(query.trim()) ? 1 : 0,
-  (trail) => trail.slug, "trail-search"), [selectedRegions, selectedNatures, selectedDifficulties, query]);
+  (trail) => trail.slug, "trail-search"), [items, selectedRegions, selectedNatures, selectedDifficulties, query]);
 
   function updateUrl(updates: Record<string, string>) {
     const params = new URLSearchParams(window.location.search);

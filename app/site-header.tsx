@@ -13,15 +13,30 @@ import { AccessibilityWidget } from "./components/accessibility-widget";
 import { WorldSwitcher } from "./components/world-switcher";
 import { useAccountAccess } from "./components/account-access";
 import { SavedViewedMenu } from "./components/saved-viewed-menu";
+import type { ManagedLink } from "./lib/content-studio";
 
-const nav = publicWorldNavigation.map((world) => ({ id: world.id, href: world.href, label: world.shortLabel, description: world.description }));
+const defaultNav = publicWorldNavigation.map((world) => ({ id: String(world.id), href: world.href, label: world.shortLabel, description: world.description }));
+const defaultSecondary: ManagedLink[] = [
+  { id: "gift-card", label: "גיפט קארד", href: "/gift-card", group: "עוד באתר", order: 1, visible: true, newWindow: false },
+  { id: "destinations", label: "יעדים", href: "/destinations", group: "עוד באתר", order: 2, visible: true, newWindow: false },
+  { id: "guides", label: "מגזין ומדריכים", href: "/guides", group: "עוד באתר", order: 3, visible: true, newWindow: false },
+  { id: "questions", label: "שאלות ותשובות", href: "/questions", group: "עוד באתר", order: 4, visible: true, newWindow: false },
+  { id: "accessibility", label: "הצהרת נגישות", href: "/accessibility", group: "עוד באתר", order: 5, visible: true, newWindow: false },
+];
 
 export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [managedChrome, setManagedChrome] = useState<{ language: string; primary?: ManagedLink[] | null; secondary?: ManagedLink[] | null } | null>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const pathname = stripLanguagePrefix(usePathname());
   const { language, translate } = useSiteLanguage();
+  const managedNav = managedChrome?.language === language && managedChrome.primary?.length
+    ? managedChrome.primary.filter((item) => item.visible).map((item) => ({ ...item, description: defaultNav.find((entry) => entry.id === item.id)?.description || item.group }))
+    : defaultNav;
+  const secondaryNav = managedChrome?.language === language && managedChrome.secondary?.length
+    ? managedChrome.secondary.filter((item) => item.visible)
+    : defaultSecondary;
   const homeHref = localizedPath("/", language);
   const homeLoadingLabel = translate("פותחים את דף הבית...");
   const { account, openLogin } = useAccountAccess();
@@ -43,6 +58,15 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
     ru: { connected: "Вы вошли", title: "Мой аккаунт", summary: "Избранное, бронирования и запросы в одном месте" },
     fr: { connected: "Connecté", title: "Mon compte", summary: "Favoris, réservations et demandes au même endroit" },
   }[language];
+
+  useEffect(() => {
+    const controller = new AbortController();
+    void fetch(`/api/content/chrome?locale=${language}`, { signal: controller.signal }).then((response) => response.ok ? response.json() : null)
+      .then((payload: { primary?: ManagedLink[] | null; secondary?: ManagedLink[] | null } | null) => {
+        if (payload) setManagedChrome({ language, ...payload });
+      }).catch(() => undefined);
+    return () => controller.abort();
+  }, [language]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -140,7 +164,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
         </div>
 
         <div className="menu-panel__main">
-          {nav.map((item) => (
+          {managedNav.map((item) => (
             <Link key={item.href} href={item.href} onClick={closeMenu}>
               <span><strong>{translate(item.label)}</strong><small>{translate(item.description)}</small></span>
               <ArrowIcon />
@@ -159,11 +183,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
 
         <span className="menu-panel__section-title">{translate("עוד באתר")}</span>
         <div className="menu-panel__secondary">
-          <Link href="/gift-card" onClick={closeMenu}><GiftIcon /><span>{translate("גיפט קארד")}</span></Link>
-          <Link href="/destinations" onClick={closeMenu}><PinIcon /><span>{translate("יעדים")}</span></Link>
-          <Link href="/guides" onClick={closeMenu} aria-current={magazineActive ? "page" : undefined}><InfoIcon /><span>{magazineCopy.menuLabel}</span></Link>
-          <Link href="/questions" onClick={closeMenu}><InfoIcon /><span>{translate("שאלות ותשובות")}</span></Link>
-          <Link href="/accessibility" onClick={closeMenu}><AccessibilityIcon /><span>{translate("הצהרת נגישות")}</span></Link>
+          {secondaryNav === defaultSecondary ? <><Link href="/gift-card" onClick={closeMenu}><GiftIcon /><span>{translate("גיפט קארד")}</span></Link><Link href="/destinations" onClick={closeMenu}><PinIcon /><span>{translate("יעדים")}</span></Link><Link href="/guides" onClick={closeMenu} aria-current={magazineActive ? "page" : undefined}><InfoIcon /><span>{magazineCopy.menuLabel}</span></Link><Link href="/questions" onClick={closeMenu}><InfoIcon /><span>{translate("שאלות ותשובות")}</span></Link><Link href="/accessibility" onClick={closeMenu}><AccessibilityIcon /><span>{translate("הצהרת נגישות")}</span></Link></> : secondaryNav.map((item) => <Link key={item.id} href={localizedPath(item.href, language)} onClick={closeMenu} target={item.newWindow ? "_blank" : undefined} rel={item.newWindow ? "noopener noreferrer" : undefined} aria-current={item.id === "guides" && magazineActive ? "page" : undefined}><InfoIcon /><span>{translate(item.id === "guides" ? magazineCopy.menuLabel : item.label)}</span></Link>)}
           <AccessibilityWidget placement="menu" />
         </div>
 

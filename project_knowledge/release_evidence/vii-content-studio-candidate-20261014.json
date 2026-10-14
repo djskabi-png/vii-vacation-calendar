@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "candidate": {
+    "branch": "review/vii-api-refresh-20261008",
+    "identity": "vii-content-studio-20261014",
+    "target": "production",
+    "deployed": false
+  },
+  "outcome": "not_ready_for_production_release",
+  "implemented": [
+    "Protected unified content studio for all public worlds, magazine, navigation and footer",
+    "Supplier source and VII editorial overlay separation",
+    "Draft, review, schedule, publish, archive, version history, rollback and optimistic concurrency",
+    "Published-content resolution on spa, provider, attraction, trail, magazine, header, hamburger and footer surfaces",
+    "Localized content variants and managed metadata, slug and indexability fields"
+  ],
+  "verification": {
+    "build": "passed",
+    "typecheck": "passed",
+    "eslint_changed_scope": "passed",
+    "tests": {
+      "passed": 671,
+      "failed": 0
+    },
+    "authenticated_desktop_ui": "passed locally",
+    "authenticated_mobile_390px_ui": "passed locally",
+    "unauthorized_ui_and_api": "passed locally",
+    "inventory_observed": {
+      "spa": 159,
+      "trails": 48,
+      "magazine": 10,
+      "navigation": 2,
+      "footer": 3
+    }
+  },
+  "release_blockers": [
+    "The candidate has not been deployed to production.",
+    "The exact deployed release has not completed cold and warm font verification on desktop and 390px mobile.",
+    "The exact deployed release has not completed representative post-deploy customer, editorial and operational scenarios.",
+    "Live SEO, sitemap and indexability behavior has not been verified against the exact deployed release."
+  ],
+  "rollback": "Preserve the current production release and database until the migration, deployment and live verification gates pass. Content versions support editorial rollback after release."
+}

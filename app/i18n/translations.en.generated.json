@@ -8203,5 +8203,14 @@
   "ספק הספא הפנה לכתובת אחרת ולכן המשיכה נעצרה מטעמי בטיחות. לא בוצע שינוי בקטלוג.": "The spa supplier redirected to another address, so the pull was stopped for safety. The catalog was not changed.",
   "החיבור המאובטח לספק הספא אינו מורשה כרגע. לא בוצע שינוי בקטלוג.": "The secure spa supplier connection is not currently authorized. The catalog was not changed.",
   "לא ניתן היה לקבל נתונים מספק הספא. לא בוצע שינוי בקטלוג.": "Data could not be received from the spa supplier. The catalog was not changed.",
-  "המשיכה לא אושרה. הנתונים הקודמים נשמרו, ואפשר לפתוח את פרטי האבחון למידע נוסף.": "The pull was not approved. Previous data was retained; open the diagnostics for more information."
+  "המשיכה לא אושרה. הנתונים הקודמים נשמרו, ואפשר לפתוח את פרטי האבחון למידע נוסף.": "The pull was not approved. Previous data was retained; open the diagnostics for more information.",
+  "תפריט עולמות": "Worlds menu",
+  "תפריט משני והמבורגר": "Secondary and hamburger menu",
+  "קישורים הקשריים בפוטר": "Contextual footer links",
+  "העולמות שלנו בפוטר": "Our worlds in the footer",
+  "מידע ושירות בפוטר": "Information and service in the footer",
+  "יש לבדוק במקור הרשמי": "Check the official source",
+  "בודקים תנאי שטח ועדכונים במקור הרשמי לפני היציאה": "Check current conditions and official updates before setting out",
+  "קראתי ושמרתי את הרעיון להמשך": "I read this and saved the idea for later",
+  "המידע המלא יעודכן בקרוב.": "Full information will be added soon."
 }

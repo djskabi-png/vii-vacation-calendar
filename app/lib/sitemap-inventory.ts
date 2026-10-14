@@ -1,24 +1,18 @@
-import type { EventPlace, Property } from "../data/site-data";
-import { discoveryItems, hourlyPlacesFromCatalog, spaPlacesFromSites } from "../data/world-data";
-import type { SpaPlusSite } from "../data/spaplus";
-import hourlyCatalog from "../data/sergey-hourly-catalog.json";
-import { publicCatalogSummaries } from "./public-catalog-read.ts";
-import { magazineArticles } from "../data/magazine-data";
-import { trails } from "../data/trail-data";
-import { absoluteUrl } from "./seo";
-import { indexableAccommodationLandings } from "../data/accommodation-landings";
-import { indexableVacationLandings } from "../data/vacation-landings";
-import { joinWorlds } from "../join/worlds";
-import { spaLandings, spaLandingHref } from "../data/spa-landings";
-import { indexableSpaSearchStates, spaSearchHref } from "../data/spa-search-landings";
-import { matchesSearchLocation, searchLocationOptions } from "../data/search-taxonomy";
-import { eventSearchHref, hourlySearchHref } from "../data/world-search-landings";
-import { publishedOpportunityPaths } from "./search-opportunities.ts";
+import type { EventPlace, Property } from "../data/site-data.ts";
+import type { SpaPlusSite } from "../data/spaplus.ts";
 import type { SitemapUrlEntry } from "./sitemap-xml.ts";
 
 export const sitemapSectionOrder = ["core", "vacations", "events", "spas", "hourly", "discovery", "search-pages"] as const;
 export type SitemapSection = (typeof sitemapSectionOrder)[number];
 const locales = ["he", "en", "ru", "fr"] as const;
+const SITE_URL = "https://vii.spaplus.co";
+
+function absoluteUrl(path: string) {
+  if (/^https?:\/\//.test(path)) return path;
+  const normalized = path.startsWith("/") ? path : `/${path}`; const [pathname, query] = normalized.split("?", 2);
+  const canonicalPath = pathname === "/" ? pathname : pathname.replace(/\/$/, "");
+  return `${SITE_URL}${canonicalPath}${query ? `?${query}` : ""}`;
+}
 
 function localizedPath(path: string, locale: typeof locales[number]) {
   const normalized = path === "/" ? "" : `/${path.replace(/^\/+|\/+$/g, "")}`;
@@ -37,11 +31,13 @@ function unique(entries: SitemapUrlEntry[]) {
 
 export async function sitemapSection(section: SitemapSection): Promise<SitemapUrlEntry[]> {
   const expand = (rows: Array<{ path: string; images?: string[] }>) => rows.flatMap((row) => localizedEntries(row.path, row.images));
-  if (section === "core") return unique(expand([
+  if (section === "core") { const { joinWorlds } = await import("../join/worlds.ts"); return unique(expand([
       { path: "/" }, { path: "/gift-card" }, { path: "/corporate" }, { path: "/destinations" }, { path: "/questions" }, { path: "/join" },
       ...joinWorlds.map((world) => ({ path: `/join/${world}` })), { path: "/accessibility" }, { path: "/legal/terms" }, { path: "/legal/privacy" }, { path: "/legal/cancellation" },
-  ]));
+  ])); }
   if (section === "vacations") {
+    const [{ publicCatalogSummaries }, { indexableAccommodationLandings }, { indexableVacationLandings }] = await Promise.all([
+      import("./public-catalog-read.ts"), import("../data/accommodation-landings.ts"), import("../data/vacation-landings.ts")]);
     const properties = await publicCatalogSummaries<Property>("vacations");
     return unique(expand([
       { path: "/search" }, ...indexableAccommodationLandings(properties).map(({ path }) => ({ path })), ...indexableVacationLandings(properties).map(({ path }) => ({ path })),
@@ -49,6 +45,8 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
     ]));
   }
   if (section === "events") {
+    const [{ publicCatalogSummaries }, { matchesSearchLocation, searchLocationOptions }, { eventSearchHref }] = await Promise.all([
+      import("./public-catalog-read.ts"), import("../data/search-taxonomy.ts"), import("../data/world-search-landings.ts")]);
     const eventPlaces = await publicCatalogSummaries<EventPlace>("events");
     return unique(expand([
       { path: "/events" }, { path: "/events/search" },
@@ -57,6 +55,8 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
     ]));
   }
   if (section === "spas") {
+    const [{ publicCatalogSummaries }, { spaPlacesFromSites }, { spaLandings, spaLandingHref }, { indexableSpaSearchStates, spaSearchHref }] = await Promise.all([
+      import("./public-catalog-read.ts"), import("../data/world-data.ts"), import("../data/spa-landings.ts"), import("../data/spa-search-landings.ts")]);
     const spaSites = await publicCatalogSummaries<SpaPlusSite>("spa");
     const spaPlaces = spaPlacesFromSites(spaSites);
     return unique(expand([
@@ -66,18 +66,23 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
     ]));
   }
   if (section === "hourly") {
-    const hourlyCatalogPlaces = await publicCatalogSummaries<(typeof hourlyCatalog.places)[number]>("rooms");
+    const [{ publicCatalogSummaries }, { hourlyPlacesFromCatalog }, { matchesSearchLocation, searchLocationOptions }, { hourlySearchHref }] = await Promise.all([
+      import("./public-catalog-read.ts"), import("../data/world-data.ts"), import("../data/search-taxonomy.ts"), import("../data/world-search-landings.ts")]);
+    type HourlyCatalogPlace = Parameters<typeof hourlyPlacesFromCatalog>[0][number];
+    const hourlyCatalogPlaces = await publicCatalogSummaries<HourlyCatalogPlace>("rooms");
     const hourlyPlaces = hourlyPlacesFromCatalog(hourlyCatalogPlaces);
     return unique(expand([
       { path: "/hourly" }, ...searchLocationOptions("hourly").filter((location) => location !== "כל הארץ" && hourlyPlaces.some((place) => matchesSearchLocation(place, location))).map((location) => ({ path: hourlySearchHref(location) })),
       ...hourlyPlaces.filter((place) => place.indexable !== false).map((place) => ({ path: `/discover/place/${place.id}`, images: place.image ? [place.image] : [] })),
     ]));
   }
-  if (section === "discovery") return unique(expand([
+  if (section === "discovery") { const [{ discoveryItems }, { magazineArticles }, { trails }] = await Promise.all([
+    import("../data/world-data.ts"), import("../data/magazine-data.ts"), import("../data/trail-data.ts")]); return unique(expand([
       { path: "/trails" }, { path: "/attractions" }, { path: "/guides" },
       ...discoveryItems.filter((place) => place.world !== "spa" && place.world !== "hourly" && (place.indexable === true || (place.indexable !== false && place.world === "activities"))).map((place) => ({ path: `/discover/place/${place.id}`, images: place.image ? [place.image] : [] })),
       ...magazineArticles.map((article) => ({ path: `/guides/${article.slug}`, images: [article.image] })), ...trails.map((trail) => ({ path: `/trails/${trail.slug}` })),
-  ]));
+  ])); }
+  const { publishedOpportunityPaths } = await import("./search-opportunities.ts");
   const opportunityPaths = await publishedOpportunityPaths();
   return unique(opportunityPaths.map(({ path, updatedAt }) => ({ url: absoluteUrl(path), lastModified: updatedAt || undefined })));
 }

@@ -29,8 +29,8 @@ test("header world controls, footer and homepage expose both dedicated pages", (
   assert.match(header, /publicWorldNavigation\.map/);
   assert.match(header, /<WorldSwitcher active=\{activeWorld\}/);
   assert.doesNotMatch(footer, /href="\/activities"/);
-  assert.match(footer, /href="\/trails">מסלולי טיולים/);
-  assert.match(footer, /href="\/attractions">אטרקציות/);
+  assert.match(footer, /href="\/trails">\{translate\("מסלולי טיולים"\)\}/);
+  assert.match(footer, /href="\/attractions">\{translate\("אטרקציות"\)\}/);
   assert.match(home, /publicWorldNavigation\.filter/);
 });
 

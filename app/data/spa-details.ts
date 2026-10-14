@@ -53,7 +53,7 @@ export function getSpaDetails(id: string, suppliedSite?: SpaPlusSite): SpaDetail
   const hours = site.opening.map((time, index) => `${weekdays[index] || `יום ${index + 1}`}: ${time === "closed" ? "סגור" : time}`);
   return {
     siteId: site.id,
-    editorialSummary: spaEditorialSummary(site),
+    editorialSummary: site.about?.filter(Boolean).join("\n\n") || spaEditorialSummary(site),
     packages,
     facilities: [],
     suitableFor,
