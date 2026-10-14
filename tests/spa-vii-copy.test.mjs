@@ -8,6 +8,8 @@ import { projectSpaViiSite, validateSpaEditorialCandidate, spaEditorialSourceHas
 import { catalogResponse } from "../app/api/catalog/route.ts";
 import { GET } from "../app/api/spa/description/route.ts";
 import { spaLandings } from "../app/data/spa-landings.ts";
+import { spaEditorialSummary } from "../app/data/spa-editorial.ts";
+import { spaViiCopyOrNull } from "../app/data/spa-vii-copy.ts";
 
 test("all 159 active Spa sources are pinned, individually rewritten and fact-mapped", async () => {
   assert.equal(copies.length, 159);
@@ -51,6 +53,24 @@ test("changed supplier prose cannot overwrite VII; approved package, commercial 
   assert.match(added.shortDescription,/ספא חדש/); assert.doesNotMatch(added.about.join(" "),/טקסט ספק/);
   await validateSpaEditorialCandidate([{supplierId:6,summary:site}]);
   await assert.rejects(()=>validateSpaEditorialCandidate([{supplierId:6,summary:{...site,about:["new text"]}}]),/catalog_editorial_requires_review/);
+});
+
+test("already-projected runtime Spa entries remain renderable after package updates", async () => {
+  const site=structuredClone(catalog.sites.find(x=>x.id===6));
+  const projected=await projectSpaViiSite(site);
+  projected.packages=projected.packages.slice(1);
+  const rendered=await projectSpaViiSite(projected);
+  assert.equal(rendered.shortDescription,projected.shortDescription);
+  assert.deepEqual(rendered.about,projected.about);
+});
+
+test("a newly approved Spa site remains renderable across discovery and detail projections", async () => {
+  const newSite={...structuredClone(catalog.sites[0]),id:534,title:"ספא חדש",city:"חיפה",shortDescription:"תיאור VII ניטרלי",about:["תוכן VII ניטרלי"]};
+  assert.equal(spaViiCopyOrNull(534),null);
+  assert.equal(spaEditorialSummary(newSite),"תיאור VII ניטרלי");
+  const worldData=await readFile(new URL("../app/data/world-data.ts",import.meta.url),"utf8");
+  assert.match(worldData,/spaViiCopyOrNull\(site\.id\)/);
+  assert.match(worldData,/approvedCopy\?\.filterText \|\|/);
 });
 
 test("public catalog, card and both read-more paths expose VII without mutating supplier records", async () => {

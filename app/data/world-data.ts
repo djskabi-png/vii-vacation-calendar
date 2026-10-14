@@ -1,5 +1,5 @@
 import verifiedCatalog from "./verified-catalog.json";
-import { spaViiCopy } from "./spa-vii-copy";
+import { spaViiCopyOrNull } from "./spa-vii-copy";
 import hourlyCatalog from "./sergey-hourly-catalog.json";
 import { spaPlusArea, spaPlusAudience, spaPlusSites, type SpaPlusSite } from "./spaplus";
 import { supplierContactNumber } from "../lib/supplier-contact";
@@ -58,14 +58,15 @@ export const spaPlacesFromSites = (sites: SpaPlusSite[], galleryForId?: number):
   const audiences = [...new Set(site.packages.map(spaPlusAudience).filter((value) => value !== "לא צוין"))];
   const prices = site.packages.map((pack) => pack.price);
   const coordinates = spaAreaCoordinates[site.city];
+  const approvedCopy = spaViiCopyOrNull(site.id);
   return {
     id: `spa-${site.id}`,
     world: "spa",
     name: site.title,
     location: site.city || "מיקום לא נמסר",
     area: spaPlusArea(site.city),
-    description: site.shortDescription || spaViiCopy(site.id).cardSummary,
-    filterText: spaViiCopy(site.id).filterText,
+    description: site.shortDescription || approvedCopy?.cardSummary || `${site.title}, מתחם ספא ב${site.city || "ישראל"}.`,
+    filterText: approvedCopy?.filterText || [site.title, site.city, ...site.packages.map((pack) => pack.title)].filter(Boolean).join(" "),
     features: audiences.map((audience) => `חבילות ${audience === "זוג" ? "זוגיות" : audience === "יחיד" ? "ליחיד" : audience === "קבוצה" ? "לקבוצות" : "יום כיף"}`),
     searchTerms: site.packages.map((pack) => pack.title),
     image: site.image || undefined,
