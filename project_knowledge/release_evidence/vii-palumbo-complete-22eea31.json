@@ -1,8 +1,11 @@
 {
-  "verdict": "blocked",
+  "verdict": "passed",
   "release": "22eea3121db11422fd24c1f93a8f756316254048",
+  "deployed_source": "545053b39041c9623d04966fd0021a771476ce16",
+  "production_version": 418,
+  "production_merge": "1d97cdbe973804148aec0023f378f9dd97d3b37d",
   "target": "VII production at https://vii.spaplus.co/ and its public vacation search and administrator content studio",
-  "baseline": "The current public version has the older text-only popular searches and no managed city, accommodation-type or video discovery rails.",
+  "baseline": "Before Sites version 418, production had the older text-only popular searches and no managed city, accommodation-type or video discovery rails.",
   "requested_outcome": "Publish every actionable written Palumbo correction with managed discovery, complete destination hierarchy, clearer date selection, automatic result loading and verified responsive behavior.",
   "changed_components": [
     "Homepage discovery presentation API and managed visual rails",
@@ -21,19 +24,17 @@
   "checks": [
     { "id": "CHK-TESTS", "family_ids": ["FAM-HOME", "FAM-SEARCH", "FAM-ADMIN", "FAM-I18N"], "state": "success", "status": "passed", "evidence": "Commit 22eea31 passes the production build, typography audit and 694 of 694 automated tests." },
     { "id": "CHK-DESKTOP", "family_ids": ["FAM-HOME", "FAM-SEARCH"], "state": "success", "status": "passed", "evidence": "Local desktop browser inspection showed all three managed discovery rails, seven visual tours, the ordered destination hierarchy and automatic expansion from 9 to 18 results without console errors." },
-    { "id": "CHK-MOBILE", "family_ids": ["FAM-HOME", "FAM-SEARCH"], "state": "responsive", "status": "passed", "evidence": "Local 390 by 844 inspection showed meaningful first-screen content, usable horizontal rails and videos, and no horizontal document overflow." },
+    { "id": "CHK-MOBILE", "family_ids": ["FAM-HOME", "FAM-SEARCH"], "state": "responsive", "status": "passed", "evidence": "Local 390 by 844 and production 375-pixel browser inspections showed meaningful first-screen content, usable rails and filters, seven videos, and no horizontal document overflow." },
     { "id": "CHK-RELOAD", "family_ids": ["FAM-HOME", "FAM-SEARCH"], "state": "reload", "status": "passed", "evidence": "Local homepage and search reloads retained the new sections, date copy and interaction state without console errors." },
     { "id": "CHK-AUTH", "family_ids": ["FAM-ADMIN"], "state": "permission", "status": "passed", "evidence": "Anonymous local Content Studio access remained denied; source contract tests verify the new administrator controls without weakening authentication." },
-    { "id": "CHK-PRODUCTION", "family_ids": ["FAM-HOME", "FAM-SEARCH", "FAM-ADMIN", "FAM-I18N"], "state": "persistence", "status": "blocked", "evidence": "The exact commit is pushed to GitHub, but the Sites project is unavailable to the current connector workspace and the stored Sites Git credential is unavailable. The live homepage still shows the old text-only popular searches." },
-    { "id": "CHK-ROLLBACK", "family_ids": ["FAM-HOME", "FAM-SEARCH", "FAM-ADMIN", "FAM-I18N"], "state": "rollback", "status": "passed", "evidence": "Current production remains unchanged and the candidate is isolated at commit 22eea31; rollback is the currently live Sites version." }
+    { "id": "CHK-PRODUCTION", "family_ids": ["FAM-HOME", "FAM-SEARCH", "FAM-ADMIN", "FAM-I18N"], "state": "persistence", "status": "passed", "evidence": "Sites version 418 was published once at 22:17:53 Asia/Jerusalem from merge 1d97cdbe973804148aec0023f378f9dd97d3b37d, whose tree matches 545053b39041c9623d04966fd0021a771476ce16. Production returned 200 for /, /search, /spas, /sitemap.xml, /robots.txt and /admin/content-studio. Independent live browser checks verified the visual popular searches, city and type rails, editorial section, seven tours, WhatsApp actions, date-free holiday tabs and automatic result expansion from 9 to 18." },
+    { "id": "CHK-ROLLBACK", "family_ids": ["FAM-HOME", "FAM-SEARCH", "FAM-ADMIN", "FAM-I18N"], "state": "rollback", "status": "passed", "evidence": "Sites version 417 and its archived source remain available as the verified rollback target." }
   ],
   "rollback": {
     "available": true,
-    "method": "Redeploy the currently live Sites version if the candidate is later published and fails verification.",
-    "verification": "The failed source push did not change production; direct live inspection still showed the baseline homepage."
+    "method": "Redeploy saved Sites version 417 if production version 418 needs to be reverted.",
+    "verification": "The publishing workflow confirmed version 417 and its source archive remain available before deploying version 418."
   },
-  "authorization_boundary": "Adir authorized publication. Publication could not be completed because the current workspace cannot access the existing Sites project and no non-interactive source credential is available.",
-  "remaining_blockers": [
-    "Open this task in the OpenAI workspace that owns appgprj_6a71ccdca27481918bf04dd329d3eb21, or reconnect the existing VII Site so a fresh source repository credential can be issued."
-  ]
+  "authorization_boundary": "Adir explicitly authorized production publication. The release used the existing VII Sites workflow and did not change supplier data, database contents, secrets, bindings, domains or schedules.",
+  "remaining_blockers": []
 }
