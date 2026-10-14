@@ -27,8 +27,8 @@ test("homepage holiday controls hide, shorten, sort and cap supplier holidays", 
     { id: 30, name: "ג", from: "2026-12-04", till: "2026-12-11", nights: 2, windowSearch: false },
     { id: 40, name: "ד", from: "2027-01-01", till: "2027-01-03", nights: 2, windowSearch: false },
   ];
-  assert.deepEqual(applyHolidayDisplaySettings(holidays, settings).map((item) => [item.id, item.from, item.till, item.nights]), [
-    [10, "2026-11-01", "2026-11-03", 2], [30, "2026-12-05", "2026-12-06", 1],
+  assert.deepEqual(applyHolidayDisplaySettings(holidays, settings).map((item) => [item.id, item.from, item.till, item.nights, item.exactStay === true]), [
+    [10, "2026-11-01", "2026-11-03", 2, false], [30, "2026-12-05", "2026-12-06", 1, true],
   ]);
 });
 

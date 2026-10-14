@@ -31,6 +31,7 @@ test("supplier homepage searches live dates without unsupported static offers", 
   assert.match(showcase, /usedDestinationImages/);
   assert.match(deals, /`\/api\/vii\/home-deals\?\$\{new URLSearchParams\(\{ period, locale: language \}\)\}`/);
   assert.match(deals, /`\/api\/vii\/home-holiday-deals\?\$\{new URLSearchParams/);
+  assert.match(deals, /selectedHoliday\?\.exactStay \? \{ from: selectedHoliday\.from, till: selectedHoliday\.till \} : \{\}/);
   assert.match(deals, /displayedDeals\.map/);
   assert.match(deals, /rotateWithinTiers\(data\.deals/);
   assert.match(route, /supplierToken\(\)/);

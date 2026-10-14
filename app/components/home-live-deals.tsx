@@ -74,7 +74,7 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
     setData(null);
     const selectedHoliday = holidays.find((item) => item.id === holidayId);
     const url = mode === "holidays"
-      ? `/api/vii/home-holiday-deals?${new URLSearchParams({ id: String(holidayId), ...(selectedHoliday ? { from: selectedHoliday.from, till: selectedHoliday.till } : {}) })}`
+      ? `/api/vii/home-holiday-deals?${new URLSearchParams({ id: String(holidayId), ...(selectedHoliday?.exactStay ? { from: selectedHoliday.from, till: selectedHoliday.till } : {}) })}`
       : `/api/vii/home-deals?${new URLSearchParams({ period, locale: language })}`;
     fetch(url, { signal: controller.signal, cache: "no-store", headers: { Accept: "application/json" } })
       .then(async (response) => {
