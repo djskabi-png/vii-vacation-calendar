@@ -18,6 +18,14 @@ export function shouldCheckRedirect(path: string) {
   return !currentRoutes.some((prefix) => prefixMatch(path, prefix)) && !isProtectedRedirectPath(path);
 }
 
+export function normalizeRedirectSource(source: string) {
+  const url = new URL(source, "https://www.vii.co.il");
+  const pathname = url.pathname.replace(/\/+$/, "") || "/";
+  const search = new URLSearchParams(url.search);
+  search.sort();
+  return `${pathname}${search.size ? `?${search}` : ""}`;
+}
+
 export function parseRedirectInput(value: unknown) {
   if (!value || typeof value !== "object") return null;
   const row = value as Record<string, unknown>;
@@ -25,13 +33,16 @@ export function parseRedirectInput(value: unknown) {
   const target = row.targetPath;
   const status = row.status;
   const active = row.active;
-  if (typeof source !== "string" || source.length > 240 || !/^\/[a-zA-Z0-9/_~%.-]+$/.test(source) || source.includes("//") || source.includes("..") || !shouldCheckRedirect(source)) return null;
+  if (typeof source !== "string" || source.length > 400 || !/^\/[a-zA-Z0-9/_~%?=&+.-]+$/.test(source) || source.includes("//") || source.includes("..")) return null;
+  const sourcePath = normalizeRedirectSource(source);
+  const sourcePathname = sourcePath.split("?")[0];
+  if (!shouldCheckRedirect(sourcePathname)) return null;
   if (status !== 301 && status !== 410 || typeof active !== "boolean") return null;
-  if (status === 410) return { sourcePath: source, targetPath: null, status: 410 as const, active };
+  if (status === 410) return { sourcePath, targetPath: null, status: 410 as const, active };
   if (typeof target !== "string" || target.length > 400 || !/^\/[a-zA-Z0-9/_~%?=&+.-]+$/.test(target) || target.startsWith("//") || target.includes("..")) return null;
   const targetPath = target.split("?")[0].replace(/\/$/, "") || "/";
-  if (targetPath === source || isProtectedRedirectPath(targetPath) || shouldCheckRedirect(targetPath)) return null;
-  return { sourcePath: source, targetPath: target, status: 301 as const, active };
+  if (targetPath === sourcePathname || isProtectedRedirectPath(targetPath) || shouldCheckRedirect(targetPath)) return null;
+  return { sourcePath, targetPath: target, status: 301 as const, active };
 }
 
 export async function redirectLookupDatabase(): Promise<D1Database> {
@@ -51,5 +62,11 @@ export async function redirectsDatabase(): Promise<D1Database> {
 }
 
 export async function redirectForPath(db: D1Database, path: string) {
-  return db.prepare("SELECT source_path, target_path, status, active, updated_at, updated_by FROM vii_redirects WHERE source_path = ? AND active = 1").bind(path).first<RedirectRecord>();
+  return db.prepare("SELECT source_path, target_path, status, active, updated_at, updated_by FROM vii_redirects WHERE source_path = ? COLLATE NOCASE AND active = 1").bind(path).first<RedirectRecord>();
+}
+
+export async function redirectForUrl(db: D1Database, url: URL) {
+  const exact = normalizeRedirectSource(`${url.pathname}${url.search}`);
+  const path = normalizeRedirectSource(url.pathname);
+  return await redirectForPath(db, exact) || (exact === path ? null : await redirectForPath(db, path));
 }

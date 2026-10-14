@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-legacy-redirects-20261014",
+  "project": "VII",
+  "task_type": "seo-migration-and-production-release",
+  "requested_outcome": "Create, verify and publish direct legacy-to-new VII URL handling for every discoverable old URL, using 301 only when a real equivalent exists and 410 when no equivalent exists.",
+  "natural_destination": "https://www.vii.co.il/ and https://vii.spaplus.co/",
+  "authorization_boundary": "Read old and new sitemaps and the authenticated VII Search Console property; change VII redirect code, tests and administration; publish the verified release and prepare the old-domain cutover. Do not invent equivalents, redirect obsolete content to the home page, alter unrelated catalogs, or claim the old domain is migrated before live DNS/runtime evidence proves it.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-LEARN-003",
+      "reason": "The request follows repeated completion and publication corrections.",
+      "acceptance_impact": "Completion must be proven at the live old URL, not inferred from code or a deployment queue."
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "Redirects affect every old entry route and crawler state.",
+      "acceptance_impact": "Exact, variant, missing, asset, query, 410 and chain behavior must be tested across the affected family."
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "reason": "The desired result requires a production runtime and domain cutover.",
+      "acceptance_impact": "Record immutable release identity, rollback target and live HTTP evidence on both hostnames."
+    },
+    {
+      "lesson_id": "ADIR-SEO-001",
+      "reason": "The task is an organic-search migration with canonical and indexation consequences.",
+      "acceptance_impact": "Each old URL must resolve in one hop to a semantically equivalent indexable canonical or an intentional 410."
+    },
+    {
+      "lesson_id": "ADIR-WEB-CMS-001",
+      "reason": "Redirect ownership must remain manageable after migration.",
+      "acceptance_impact": "The administration redirect source must actually participate in public request resolution and prevent chains."
+    },
+    {
+      "lesson_id": "ADIR-ADMIN-001",
+      "reason": "The existing redirect screen is not evidence that public traffic uses its records.",
+      "acceptance_impact": "Create/update/disable behavior must be verified through the public worker, with audit-friendly deterministic precedence."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "Only sitemap URLs are covered while valuable historical Search Console URLs are missed.",
+      "prevention": "Build the source inventory from the old sitemap, authenticated Search Console evidence, catalog source URLs and explicit legacy routes.",
+      "acceptance_check": "The inventory report states counts and disposition for every collected source, with zero unclassified sitemap URLs."
+    },
+    {
+      "rejection": "The code says 301 but live www.vii.co.il still serves the old page.",
+      "prevention": "Treat domain attachment/cutover as part of delivery and test the old hostname directly after release.",
+      "acceptance_check": "Representative old URLs return HTTP 301 from www.vii.co.il in one hop to final new 200 canonical URLs."
+    },
+    {
+      "rejection": "Old pages are dumped onto the home page or into redirect chains.",
+      "prevention": "Require semantic targets, reject home catch-all and resolve targets to final canonical paths before publication.",
+      "acceptance_check": "Automated audit finds no home catch-all, no loop and no multi-hop chain among classified URLs."
+    },
+    {
+      "rejection": "The admin redirects UI exists but its records do not affect public requests.",
+      "prevention": "Wire D1 redirect lookup into the worker ahead of static legacy fallback with strict normalization and status handling.",
+      "acceptance_check": "Worker tests prove enabled 301 and 410 records, disabled records, precedence and safe fallback behavior."
+    },
+    {
+      "rejection": "Publication breaks assets, locale URLs, sitemap or current public routes.",
+      "prevention": "Scope legacy matching to old page routes and run full build plus public-route, sitemap, robots, asset and locale regression checks.",
+      "acceptance_check": "Exact release passes tests and live checks for old hosts, new hosts, sitemap index, robots, assets and representative localized pages."
+    }
+  ],
+  "affected_family": [
+    "all 2,711 URLs in the legacy sitemap",
+    "historical VII URLs visible in Search Console",
+    "legacy vacation, event and hourly place pages",
+    "legacy static and legal pages",
+    "legacy category, search and filtered landing pages",
+    "www.vii.co.il and vii.co.il host handling",
+    "temporary vii.spaplus.co host handling",
+    "D1-managed 301 and 410 records",
+    "query strings, encoded paths, case and trailing-slash variants",
+    "assets, APIs, sitemap, robots and localized canonical routes"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII platform migration decision",
+        "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"
+      },
+      {
+        "label": "VII accepted product and release standard",
+        "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "Legacy sitemap",
+        "source": "https://www.vii.co.il/sitemap.php"
+      },
+      {
+        "label": "New sitemap index",
+        "source": "https://vii.spaplus.co/sitemap.xml"
+      },
+      {
+        "label": "Authenticated Google Search Console property",
+        "source": "sc-domain:vii.co.il"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "Complete classification of the legacy sitemap and current catalog before changing production routing",
+    "checks": [
+      "every legacy sitemap URL has exactly one disposition",
+      "semantic equivalents are supported by catalog or explicit route evidence",
+      "obsolete URLs are 410 rather than home redirects",
+      "targets are final canonical URLs with no chains",
+      "Search Console inventory gaps are recorded before release"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Does any old sitemap URL still return 200 old content or 404 after cutover?",
+      "Does any redirect land on the home page without semantic equivalence?",
+      "Does any source require more than one redirect hop or loop?",
+      "Can an enabled admin 301 or 410 be observed on the public worker?",
+      "Do assets, APIs, robots, sitemap and localized pages remain unaffected?",
+      "Does the exact live old hostname prove the release rather than only the temporary hostname?"
+    ],
+    "natural_destination_evidence": "Live HTTP matrix from representative and randomly sampled legacy URLs on both old hostnames, ending at final public canonicals on the exact deployed release.",
+    "affected_family_evidence": "Machine-readable full inventory audit plus build/tests, Search Console evidence, sitemap/robots verification and rollback identity."
+  },
+  "effectiveness": {
+    "baseline": "The legacy domain still serves the old site; the new worker only has partial catalog-derived 308 mappings and does not execute D1-managed redirect records.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "100 percent of collected legacy sitemap URLs classified, every valid equivalent redirected in one 301 hop, every no-equivalent URL intentionally 410, and live old-host verification after publication."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}
