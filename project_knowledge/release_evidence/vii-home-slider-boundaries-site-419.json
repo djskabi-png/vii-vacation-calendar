@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-home-slider-boundaries-20261015",
+  "verdict": "passed",
+  "verified_at": "2026-10-15T02:12:00+03:00",
+  "natural_destination": "https://vii.spaplus.co/",
+  "release": {
+    "site_version": 419,
+    "source_commit": "a2b10c3829de571bda7d1ad25030f4a5135dee63",
+    "production_merge": "54950c9029e0512ff0a6e93e2fb5b6d100caf722",
+    "rollback_version": 418,
+    "tree_matches_source": true
+  },
+  "automated_checks": {
+    "typescript": "passed",
+    "tests": "697/697 passed",
+    "production_slider_qa": "passed on desktop and 390px mobile",
+    "document_horizontal_overflow": "none"
+  },
+  "live_interaction": {
+    "control_group_count": 10,
+    "initial_state": "previous disabled; next enabled only when the rail has overflow",
+    "desktop_click": "destinations scrollLeft changed from 0 to -321 and previous became enabled",
+    "desktop_terminal": "destinations reached scrollLeft -1641 and next became disabled",
+    "mobile_click": "destinations scrollLeft changed from 0 to -334 and previous became enabled",
+    "loading_or_empty_state": "both arrows disabled"
+  },
+  "route_checks": {
+    "/": 200,
+    "/search": 200,
+    "/spas": 200,
+    "/sitemap.xml": 200,
+    "/robots.txt": 200
+  },
+  "independent_checker": {
+    "role": "release checker",
+    "verdict": "passed",
+    "scope": "production desktop and mobile arrow boundaries, movement, terminal state, responsive overflow and core routes"
+  },
+  "launch_readiness": {
+    "ui_release": "ready",
+    "formal_primary_domain_launch": "blocked",
+    "blockers": [
+      "Primary vii.co.il cutover and removal of the temporary host noindex state are not complete.",
+      "A complete legacy URL inventory and redirect coverage are not yet proven; the current exact redirect set is materially smaller than the expected legacy surface.",
+      "GTM and GA measurement with consent and conversion verification are not proven in the new application.",
+      "Unattended catalog synchronization success for every world and remaining supplier inventory-scope discrepancies are not fully proven."
+    ]
+  }
+}
