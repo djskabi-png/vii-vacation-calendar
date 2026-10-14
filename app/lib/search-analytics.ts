@@ -132,7 +132,7 @@ export async function searchAnalyticsDatabase(): Promise<D1Database> {
     db.prepare(`CREATE TABLE IF NOT EXISTS vii_search_demand_events (
       event_id TEXT PRIMARY KEY NOT NULL, opportunity_id TEXT NOT NULL, world TEXT NOT NULL, location TEXT NOT NULL,
       filters_json TEXT NOT NULL, page_path TEXT NOT NULL, result_count INTEGER NOT NULL, zero_result INTEGER NOT NULL,
-      session_id TEXT, internal INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL)`),
+      has_date INTEGER NOT NULL DEFAULT 0, session_id TEXT, internal INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL)`),
     db.prepare("CREATE INDEX IF NOT EXISTS idx_vii_search_demand_period ON vii_search_demand_events(created_at, internal, opportunity_id)"),
     db.prepare(`CREATE TABLE IF NOT EXISTS vii_search_page_opportunities (
       id TEXT PRIMARY KEY NOT NULL, canonical_key TEXT UNIQUE NOT NULL, world TEXT NOT NULL, locale TEXT NOT NULL DEFAULT 'he',
@@ -149,6 +149,7 @@ export async function searchAnalyticsDatabase(): Promise<D1Database> {
       action TEXT NOT NULL, actor_email TEXT NOT NULL, created_at TEXT NOT NULL)`),
     db.prepare("CREATE UNIQUE INDEX IF NOT EXISTS idx_vii_search_opportunity_version ON vii_search_page_opportunity_versions(opportunity_id, version)"),
   ]);
+  await db.prepare("ALTER TABLE vii_search_demand_events ADD COLUMN has_date INTEGER NOT NULL DEFAULT 0").run().catch(() => undefined);
   return db;
 }
 
@@ -161,10 +162,10 @@ export async function saveSearchEvent(db: D1Database, value: SearchDemandEvent |
   if (!("resultCount" in value) || value.resultCount === null || !value.pagePath) return;
   const identity = await opportunityIdentity(value);
   const inserted = await db.prepare(`INSERT OR IGNORE INTO vii_search_demand_events
-    (event_id, opportunity_id, world, location, filters_json, page_path, result_count, zero_result, session_id, internal, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING event_id`)
+    (event_id, opportunity_id, world, location, filters_json, page_path, result_count, zero_result, has_date, session_id, internal, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING event_id`)
     .bind(value.eventId, identity.id, value.world, value.location, JSON.stringify(value.filters), value.pagePath,
-      value.resultCount, value.resultCount === 0 ? 1 : 0, value.sessionId, internal ? 1 : 0, at).first<{ event_id: string }>();
+      value.resultCount, value.resultCount === 0 ? 1 : 0, value.hasDate ? 1 : 0, value.sessionId, internal ? 1 : 0, at).first<{ event_id: string }>();
   if (!inserted) return;
   const publicSearchCount = internal ? 0 : 1;
   const publicZeroResultCount = internal ? 0 : value.resultCount === 0 ? 1 : 0;
@@ -182,16 +183,38 @@ export async function saveSearchEvent(db: D1Database, value: SearchDemandEvent |
 
 export async function readSearchAnalytics(db: D1Database, days: number) {
   const since = new Date(Date.now() - days * 86400_000).toISOString();
-  const [total, dated, byWorld, byLocation, daily, opportunities, zeroResults] = await Promise.all([
-    db.prepare("SELECT COUNT(*) AS count FROM vii_search_events WHERE created_at >= ? AND internal = 0").bind(since).first<{ count: number }>(),
-    db.prepare("SELECT COUNT(*) AS count FROM vii_search_events WHERE created_at >= ? AND internal = 0 AND has_date = 1").bind(since).first<{ count: number }>(),
-    db.prepare("SELECT world, COUNT(*) AS count FROM vii_search_events WHERE created_at >= ? AND internal = 0 GROUP BY world ORDER BY count DESC").bind(since).all<{ world: string; count: number }>(),
-    db.prepare("SELECT location, COUNT(*) AS count FROM vii_search_events WHERE created_at >= ? AND internal = 0 GROUP BY location ORDER BY count DESC LIMIT 12").bind(since).all<{ location: string; count: number }>(),
-    db.prepare("SELECT substr(created_at, 1, 10) AS date, COUNT(*) AS count FROM vii_search_events WHERE created_at >= ? AND internal = 0 GROUP BY substr(created_at, 1, 10) ORDER BY date DESC LIMIT 31").bind(since).all<{ date: string; count: number }>(),
+  const recentColumns = `e.event_id AS eventId, e.opportunity_id AS opportunityId, e.world, e.location,
+    e.filters_json AS filtersJson, e.page_path AS pagePath, e.result_count AS resultCount,
+    e.zero_result AS zeroResult, e.has_date AS hasDate, e.created_at AS createdAt,
+    o.suggested_title AS suggestedTitle, o.status`;
+  const [total, dated, byWorld, byLocation, daily, opportunities, zeroResults, internalTotal, recentPublic, recentInternal, topIntents] = await Promise.all([
+    db.prepare("SELECT COUNT(*) AS count FROM vii_search_demand_events WHERE created_at >= ? AND internal = 0").bind(since).first<{ count: number }>(),
+    db.prepare("SELECT COUNT(*) AS count FROM vii_search_demand_events WHERE created_at >= ? AND internal = 0 AND has_date = 1").bind(since).first<{ count: number }>(),
+    db.prepare("SELECT world, COUNT(*) AS count FROM vii_search_demand_events WHERE created_at >= ? AND internal = 0 GROUP BY world ORDER BY count DESC").bind(since).all<{ world: string; count: number }>(),
+    db.prepare("SELECT location, COUNT(*) AS count FROM vii_search_demand_events WHERE created_at >= ? AND internal = 0 GROUP BY location ORDER BY count DESC LIMIT 12").bind(since).all<{ location: string; count: number }>(),
+    db.prepare("SELECT substr(created_at, 1, 10) AS date, COUNT(*) AS count FROM vii_search_demand_events WHERE created_at >= ? AND internal = 0 GROUP BY substr(created_at, 1, 10) ORDER BY date DESC LIMIT 31").bind(since).all<{ date: string; count: number }>(),
     db.prepare("SELECT COUNT(*) AS count FROM vii_search_page_opportunities WHERE status IN ('pending','draft','review')").first<{ count: number }>(),
     db.prepare("SELECT COUNT(*) AS count FROM vii_search_demand_events WHERE created_at >= ? AND internal = 0 AND zero_result = 1").bind(since).first<{ count: number }>(),
+    db.prepare("SELECT COUNT(*) AS count FROM vii_search_demand_events WHERE created_at >= ? AND internal = 1").bind(since).first<{ count: number }>(),
+    db.prepare(`SELECT ${recentColumns} FROM vii_search_demand_events e JOIN vii_search_page_opportunities o ON o.id = e.opportunity_id
+      WHERE e.created_at >= ? AND e.internal = 0 ORDER BY e.created_at DESC LIMIT 24`).bind(since).all<Record<string, unknown>>(),
+    db.prepare(`SELECT ${recentColumns} FROM vii_search_demand_events e JOIN vii_search_page_opportunities o ON o.id = e.opportunity_id
+      WHERE e.created_at >= ? AND e.internal = 1 ORDER BY e.created_at DESC LIMIT 24`).bind(since).all<Record<string, unknown>>(),
+    db.prepare(`SELECT e.opportunity_id AS opportunityId, o.suggested_title AS suggestedTitle, e.world, e.location,
+      o.filters_json AS filtersJson, o.source_path AS pagePath, o.latest_result_count AS resultCount,
+      COUNT(*) AS searches, COUNT(DISTINCT e.session_id) AS uniqueSessions,
+      SUM(e.zero_result) AS zeroResults, MAX(e.created_at) AS lastSeenAt, o.status
+      FROM vii_search_demand_events e JOIN vii_search_page_opportunities o ON o.id = e.opportunity_id
+      WHERE e.created_at >= ? AND e.internal = 0 GROUP BY e.opportunity_id ORDER BY searches DESC, lastSeenAt DESC LIMIT 12`).bind(since).all<Record<string, unknown>>(),
   ]);
+  const hydrateRecent = (rows: Array<Record<string, unknown>>) => rows.map((row) => {
+    const { filtersJson, ...rest } = row;
+    let filters: Record<string, SearchFilterValue> = {};
+    try { filters = JSON.parse(String(filtersJson || "{}")) as Record<string, SearchFilterValue>; } catch { filters = {}; }
+    return { ...rest, filters, zeroResult: Number(row.zeroResult) === 1, hasDate: Number(row.hasDate) === 1 };
+  });
   return { periodHours: days * 24, since, generatedAt: new Date().toISOString(), total: total?.count ?? 0,
     dated: dated?.count ?? 0, pendingOpportunities: opportunities?.count ?? 0, zeroResults: zeroResults?.count ?? 0,
-    byWorld: byWorld.results, byLocation: byLocation.results, daily: daily.results };
+    internalTotal: internalTotal?.count ?? 0, byWorld: byWorld.results, byLocation: byLocation.results, daily: daily.results,
+    recentPublic: hydrateRecent(recentPublic.results), recentInternal: hydrateRecent(recentInternal.results), topIntents: hydrateRecent(topIntents.results) };
 }

@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { parseSearchDemandEvent, parseSearchEvent, opportunityIdentity, saveSearchEvent } from "../app/lib/search-analytics.ts";
+import { parseSearchDemandEvent, parseSearchEvent, opportunityIdentity, readSearchAnalytics, saveSearchEvent } from "../app/lib/search-analytics.ts";
 import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
-import { POST } from "../app/api/analytics/search/route.ts";
+import { POST, searchCaptureMode } from "../app/api/analytics/search/route.ts";
 import { GET } from "../app/api/admin/search-analytics/route.ts";
 
 const eventId = "d5e63378-217c-4c08-9f62-7bccb8b4fd2e";
@@ -51,6 +51,33 @@ test("administrator search is retained as a separate test opportunity without in
   assert.equal(demand.internal, 1);
 });
 
+test("no-consent search capture is allowed only for an authenticated administrator test", () => {
+  assert.equal(searchCaptureMode({ consentState: "denied_or_unset", adminTestOnly: true }, true), "internal");
+  assert.equal(searchCaptureMode({ consentState: "denied_or_unset", adminTestOnly: true }, false), "discard");
+  assert.equal(searchCaptureMode({ consentState: "granted", adminTestOnly: false }, false), "public");
+  assert.equal(searchCaptureMode({ consentState: "granted", adminTestOnly: false }, true), "internal");
+});
+
+test("search intelligence returns recent public and internal rows without mixing their totals", async () => {
+  const sqlite = new DatabaseSync(":memory:");
+  const migration = fs.readFileSync(new URL("../drizzle/0006_search_intelligence.sql", import.meta.url), "utf8").replaceAll("--> statement-breakpoint", "");
+  sqlite.exec(migration);
+  sqlite.exec("CREATE TABLE vii_search_events (event_id TEXT PRIMARY KEY, world TEXT, location TEXT, has_date INTEGER, internal INTEGER, created_at TEXT)");
+  const db = { prepare(sql) { let values = []; return { bind(...next) { values = next; return this; }, async run() { return { meta: { changes: sqlite.prepare(sql).run(...values).changes } }; }, async first() { return sqlite.prepare(sql).get(...values) || null; }, async all() { return { results: sqlite.prepare(sql).all(...values) }; } }; }, async batch(statements) { return Promise.all(statements.map((statement) => statement.run())); } };
+  const publicEvent = parseSearchDemandEvent({ eventId, sessionId: "a5e63378-217c-4c08-9f62-7bccb8b4fd2e", world: "events", location: "חיפה והכרמל", hasDate: true, pagePath: "/events/search?eventType=family", resultCount: 2, filters: { eventType: "אירוע משפחתי" } });
+  const internalEvent = parseSearchDemandEvent({ eventId: "e5e63378-217c-4c08-9f62-7bccb8b4fd2e", sessionId: "b5e63378-217c-4c08-9f62-7bccb8b4fd2e", world: "spa", location: "מרכז", hasDate: false, pagePath: "/spas/search/center", resultCount: 4, filters: { experience: "pool" } });
+  await saveSearchEvent(db, publicEvent, false);
+  await saveSearchEvent(db, internalEvent, true);
+  const report = await readSearchAnalytics(db, 7);
+  assert.equal(report.total, 1);
+  assert.equal(report.dated, 1);
+  assert.equal(report.internalTotal, 1);
+  assert.equal(report.recentPublic.length, 1);
+  assert.equal(report.recentInternal.length, 1);
+  assert.equal(report.topIntents.length, 1);
+  assert.equal(report.recentInternal[0].world, "spa");
+});
+
 test("all four commercial result families emit detailed demand events", () => {
   const files = [
     fs.readFileSync(new URL("../app/search/page.tsx", import.meta.url), "utf8"),
@@ -62,6 +89,13 @@ test("all four commercial result families emit detailed demand events", () => {
     assert.match(files[index], /trackSearchResults/);
     assert.match(files[index], new RegExp(`world:\\s*["']${world}["']`));
   }
+});
+
+test("search intelligence interface exposes real rows, administrator tests and direct editing", () => {
+  const page = fs.readFileSync(new URL("../app/admin/search-analytics/page.tsx", import.meta.url), "utf8");
+  for (const behavior of ["זרם החיפושים", "בדיקות שלי", "הזדמנויות לפי ביקוש", "פתיחה ועריכה", "חיפוש ציבורי נספר רק לאחר הסכמה למדידה"]) assert.match(page, new RegExp(behavior));
+  assert.match(page, /\/admin\/search-pages\?id=/);
+  assert.match(page, /recentInternal/);
 });
 
 test("search ingestion rejects cross-origin and malformed requests before storage", async () => {

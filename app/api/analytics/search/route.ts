@@ -1,6 +1,25 @@
 import { readSession } from "../../../lib/google-auth.ts";
 import { parseSearchDemandEvent, saveSearchEvent, searchAnalyticsDatabase } from "../../../lib/search-analytics.ts";
 
+const noStore = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
+
+async function administrator(request: Request) {
+  const session = await readSession(request).catch(() => null);
+  const admins = (process.env.VII_ADMIN_EMAILS || "").split(",").map((email) => email.trim().toLowerCase()).filter(Boolean);
+  return !!session && admins.includes(session.email.toLowerCase());
+}
+
+export async function GET(request: Request) {
+  return new Response(null, { status: await administrator(request) ? 204 : 403, headers: noStore });
+}
+
+export function searchCaptureMode(value: unknown, isAdministrator: boolean) {
+  const row = value && typeof value === "object" ? value as Record<string, unknown> : {};
+  if (row.adminTestOnly === true) return isAdministrator ? "internal" : "discard";
+  if (row.consentState === "denied_or_unset") return "discard";
+  return isAdministrator ? "internal" : "public";
+}
+
 export async function POST(request: Request) {
   const origin = new URL(request.url).origin;
   if (request.headers.get("origin") !== origin) return Response.json({ error: "invalid_origin" }, { status: 403 });
@@ -15,10 +34,10 @@ export async function POST(request: Request) {
   if (!event) return Response.json({ error: "invalid_input" }, { status: 400 });
   const userAgent = request.headers.get("user-agent") || "";
   if (/bot|crawler|spider|headless/i.test(userAgent)) return new Response(null, { status: 204 });
-  const session = await readSession(request).catch(() => null);
-  const admins = (process.env.VII_ADMIN_EMAILS || "").split(",").map((email) => email.trim().toLowerCase());
+  const mode = searchCaptureMode(input, await administrator(request));
+  if (mode === "discard") return new Response(null, { status: 204, headers: noStore });
   try {
-    await saveSearchEvent(await searchAnalyticsDatabase(), event, !!session && admins.includes(session.email.toLowerCase()));
+    await saveSearchEvent(await searchAnalyticsDatabase(), event, mode === "internal");
     return new Response(null, { status: 204, headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     console.error("VII search analytics save unavailable", error);

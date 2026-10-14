@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-admin-search-command-center-20261014",
+  "project": "VII",
+  "task_type": "admin product repair and expansion",
+  "requested_outcome": "Every real search is captured reliably, administrator tests are visible without contaminating public demand, and the management system provides a complete operational path from demand to an editable publishable page.",
+  "natural_destination": "VII production administration at /admin/search-analytics, /admin/search-pages, /admin/content-queue and /admin/growth",
+  "authorization_boundary": "Local implementation, tests, branch commit and push are allowed by the active request. Production publication remains a distinct external action and must be verified after deployment.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-MIND-001",
+      "reason": "The user asked for the complete operational outcome rather than another partial screen.",
+      "acceptance_impact": "The search must appear in its natural management destination and continue through editing and publication states."
+    },
+    {
+      "lesson_id": "ADIR-WEB-005",
+      "reason": "The management system must be simple to operate while preserving advanced capability.",
+      "acceptance_impact": "Each screen gets one dominant task, clear status and progressive access to detail."
+    },
+    {
+      "lesson_id": "ADIR-WEB-006",
+      "reason": "A shared search-tracking defect affects all commercial worlds.",
+      "acceptance_impact": "Regression covers vacation, events, spa and hourly result families."
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "Source tests alone cannot prove the management workflow.",
+      "acceptance_impact": "The exact routes, loading, empty, permission, persistence and reload states require browser evidence."
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "reason": "The user expects the changes in the live VII administration system.",
+      "acceptance_impact": "Completion requires an immutable release identity and live verification, not only a pushed branch."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "A search performed by the signed-in administrator still does not appear.",
+      "prevention": "Permit authenticated administrator test capture even when public analytics consent is not granted, while discarding the same no-consent event for non-admin visitors.",
+      "acceptance_check": "A signed-in administrator search appears under a clearly separated tests view and public demand remains unchanged."
+    },
+    {
+      "rejection": "The dashboard shows only totals and does not reveal what was searched.",
+      "prevention": "Expose recent intents, world, location, filters, results, source route, timestamp and direct editing action.",
+      "acceptance_check": "The management screen displays an actionable recent-search inventory and opens the matching page opportunity."
+    },
+    {
+      "rejection": "The new management interface still feels like disconnected cards rather than an operating system.",
+      "prevention": "Connect overview, intelligence, approval queue, editor, publishing, sitemap and technical growth status through explicit next actions.",
+      "acceptance_check": "A manager can move from a search signal to the matching editing workspace without searching for another route."
+    },
+    {
+      "rejection": "Only one world records searches.",
+      "prevention": "Test the shared producer and each of the four commercial result families.",
+      "acceptance_check": "Vacation, events, spa and hourly emit the same bounded demand contract."
+    }
+  ],
+  "affected_family": [
+    "public search event producer",
+    "search analytics ingestion API",
+    "D1 search demand and opportunity records",
+    "vacation results",
+    "events results",
+    "spa results",
+    "hourly results",
+    "admin search intelligence",
+    "admin search-page studio",
+    "admin approval queue",
+    "admin growth center",
+    "authenticated and unauthorized states",
+    "desktop and 390px mobile"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII approved search-intelligence workflow",
+        "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md#search-intelligence-and-automatic-page-opportunities"
+      },
+      {
+        "label": "VII accepted search and results behavior",
+        "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the ingestion contract and report model pass focused tests, before broad visual expansion.",
+    "checks": [
+      "administrator no-consent test event is retained as internal",
+      "non-admin no-consent event is discarded",
+      "public demand counts exclude internal tests",
+      "recent intent rows resolve to a page opportunity"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can an administrator search disappear because consent is not set to all?",
+      "Can an internal test inflate public demand or the pending approval count?",
+      "Can the dashboard show a total without a route, filters or time that explains it?",
+      "Can an unauthorized visitor read search intelligence?",
+      "Does any commercial world fail to emit the detailed result event?"
+    ],
+    "natural_destination_evidence": "Live signed-in browser evidence on the exact VII administration routes after deployment.",
+    "affected_family_evidence": "Focused integration tests plus desktop and 390px browser checks for all changed routes."
+  },
+  "effectiveness": {
+    "baseline": "The live version does not show the user's performed search; the current analytics page exposes aggregates only, and client capture stops entirely without full analytics consent.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "One performed administrator search becomes visible in the separated tests surface within one refresh, without changing public-demand totals."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

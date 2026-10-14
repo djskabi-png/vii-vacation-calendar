@@ -1,0 +1,37 @@
+{
+  "status": "fixed",
+  "symptom": "A search performed by the user does not appear in the VII administration search surfaces.",
+  "expected_behavior": "The signed-in administrator can see the performed search as an internal test, while public-demand figures remain unaffected.",
+  "environment": "Production VII administration before deployment of the current release branch, with the user signed in and the browser consent choice unknown.",
+  "reproduction": {
+    "steps": [
+      "Perform a public search",
+      "Open /admin/search-analytics or /admin/search-pages",
+      "Refresh the selected reporting period"
+    ],
+    "evidence": "User observed the performed search was absent from the live administration system."
+  },
+  "observations": [
+    {"observation": "Client search capture returns without a request unless vii-cookie-choice equals all.", "evidence": "app/lib/analytics.ts"},
+    {"observation": "Authenticated administrator events are stored as internal and excluded from the existing aggregate report.", "evidence": "app/api/analytics/search/route.ts and app/lib/search-analytics.ts"},
+    {"observation": "The current analytics page has no recent internal-search inventory.", "evidence": "app/admin/search-analytics/page.tsx"}
+  ],
+  "hypotheses": [
+    {"id": "H1", "mechanism": "The administrator browser did not grant full analytics consent, so the client sent no event.", "prediction": "The source contains an early return before the request and no server-side admin exception can run.", "discriminating_test": "Inspect the event producer and simulate consent values.", "result": "The producer returns immediately unless consent is all.", "status": "supported"},
+    {"id": "H2", "mechanism": "The event is stored but intentionally hidden because it belongs to an administrator.", "prediction": "Internal rows exist but the report queries internal = 0 and the UI has no internal list.", "discriminating_test": "Inspect persistence and report queries.", "result": "The save path marks administrators internal, while readSearchAnalytics filters all aggregates to internal = 0.", "status": "supported"},
+    {"id": "H3", "mechanism": "Only the specific search world lacks an event producer.", "prediction": "One world result component would not call trackSearchResults.", "discriminating_test": "Inspect all four result families and run source coverage tests.", "result": "All four result families call trackSearchResults on the current release branch.", "status": "rejected"}
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {"change": "The client now asks the ingestion route for admin eligibility before discarding a no-consent search, the route stores only authenticated no-consent searches as internal tests, and the report exposes separate recent public and internal inventories sourced from detailed demand events.", "evidence": "Focused search analytics tests passed 18/18, including no-consent administrator retention, anonymous no-consent discard, and public/internal separation; the full repository suite passed 658/658 and TypeScript completed without errors."},
+  "affected_family": ["search event producer", "analytics ingestion", "search demand database", "administrator report", "four result families"],
+  "regression_checks": [
+    {"check": "Unauthenticated visitors without analytics consent do not create search demand rows.", "status": "passed", "evidence": "Focused route tests verify searchCaptureMode returns discard and the ingestion route responds without storage for non-admin no-consent events."},
+    {"check": "Authenticated administrator searches remain excluded from public demand and zero-result totals.", "status": "passed", "evidence": "Focused report tests verify internal rows appear only in recentInternal while public totals, unique sessions and zero-result counts use internal = 0."},
+    {"check": "Vacation, event, spa and hourly result families retain detailed search tracking.", "status": "passed", "evidence": "Source coverage assertions and the full 658-test suite verify all four search result families still call trackSearchResults."},
+    {"check": "The administration report exposes actionable recent rows and direct opportunity editing links.", "status": "passed", "evidence": "UI source tests verify public/internal mode controls, search filters, result counts, timestamps, opportunity status and /admin/search-pages?id= links."},
+    {"check": "The application builds and type-checks after the schema and report changes.", "status": "passed", "evidence": "pnpm test completed with 658 passed and 0 failed; pnpm exec tsc --noEmit completed successfully."}
+  ],
+  "confidence": "high",
+  "remaining_unknowns": ["The exact consent choice attached to the historical missing production search cannot be reconstructed because the previous client discarded it before any server request."],
+  "authorization_boundary": "The repair is implemented and locally verified; production completion remains conditional on deployment and exact live-route verification."
+}

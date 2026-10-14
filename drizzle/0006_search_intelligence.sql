@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS `vii_search_demand_events` (
 	`page_path` text NOT NULL,
 	`result_count` integer NOT NULL,
 	`zero_result` integer NOT NULL,
+	`has_date` integer DEFAULT 0 NOT NULL,
 	`session_id` text,
 	`internal` integer DEFAULT 0 NOT NULL,
 	`created_at` text NOT NULL
