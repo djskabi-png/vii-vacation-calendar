@@ -22,6 +22,8 @@ test("admin studio exposes demand, content, SEO, scheduling, history and recover
   for (const label of ["למה העמוד נוצר", "התוכן שהגולש יראה", "קידום, מנועי תשובות וכתובת", "פרסום עתידי", "גרסאות ויומן שינויים", "שמירת טיוטה", "פרסום עכשיו"]) assert.match(page, new RegExp(label));
   assert.match(page, /version_conflict/);
   assert.match(page, /מבקרים ייחודיים/);
+  assert.match(page, /בדיקות שלי/);
+  assert.match(page, /בדיקות של מנהל מחובר מוצגות בנפרד/);
 });
 
 test("published opportunity has a natural public destination and sitemap source", () => {

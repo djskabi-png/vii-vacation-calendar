@@ -9,6 +9,7 @@ type Opportunity = {
   id: string; origin: "search" | "managed"; world: string; locale: string; location: string;
   filters: Record<string, string | number | boolean>; sourcePath: string; proposedPath: string; suggestedTitle: string;
   latestResultCount: number; firstSeenAt: string; lastSeenAt: string; searches: number; uniqueSessions: number;
+  internalSearches: number; internalUniqueSessions: number; internalOnly: boolean;
   zeroResults: number; status: Status; assignee: string | null; title: string; metaTitle: string; metaDescription: string;
   h1: string; summary: string; body: string; faq: Array<{ question: string; answer: string }>; slug: string;
   canonicalPath: string; robotsIndex: boolean; scheduledAt: string | null; publishedAt: string | null; version: number;
@@ -16,7 +17,7 @@ type Opportunity = {
 };
 type Dashboard = {
   periodDays: number; generatedAt: string;
-  metrics: { recordedSearches: number; uniqueSessions: number; pending: number; published: number; zeroResultSearches: number };
+  metrics: { recordedSearches: number; uniqueSessions: number; pending: number; published: number; zeroResultSearches: number; internalSearches: number };
   statusCounts: Record<Status, number>; opportunities: Opportunity[];
 };
 type Version = { version: number; action: string; actorEmail: string; createdAt: string; snapshot: Partial<Opportunity> };
@@ -47,7 +48,7 @@ export default function SearchPagesAdmin() {
   const [selectedId, setSelectedId] = useState("");
   const [current, setCurrent] = useState<Opportunity | null>(null);
   const [versions, setVersions] = useState<Version[]>([]);
-  const [statusFilter, setStatusFilter] = useState<Status | "active" | "all">("active");
+  const [statusFilter, setStatusFilter] = useState<Status | "active" | "internal" | "all">("active");
   const [query, setQuery] = useState("");
   const [tab, setTab] = useState<Tab>("brief");
   const [loading, setLoading] = useState(true);
@@ -88,7 +89,7 @@ export default function SearchPagesAdmin() {
   useEffect(() => { void loadDashboard(period, true); }, [period]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const filtered = useMemo(() => (dashboard?.opportunities || []).filter((item) => {
-    const statusMatch = statusFilter === "all" || statusFilter === "active" ? statusFilter === "all" || !["published", "archived"].includes(item.status) : item.status === statusFilter;
+    const statusMatch = statusFilter === "all" || statusFilter === "active" ? statusFilter === "all" || !["published", "archived"].includes(item.status) : statusFilter === "internal" ? item.internalSearches > 0 : item.status === statusFilter;
     const term = query.trim().toLocaleLowerCase("he");
     return statusMatch && (!term || `${item.title} ${item.location} ${worldLabels[item.world] || item.world} ${item.canonicalPath}`.toLocaleLowerCase("he").includes(term));
   }), [dashboard, query, statusFilter]);
@@ -136,13 +137,13 @@ export default function SearchPagesAdmin() {
     {error ? <div className={styles.alert} role="alert"><AlertCircle size={18} /><span>{error}</span><button type="button" onClick={() => setError("")} aria-label="סגירת הודעה"><X size={16} /></button></div> : null}
     {message ? <div className={styles.success} role="status"><CheckCircle2 size={18} /><span>{message}</span><button type="button" onClick={() => setMessage("")} aria-label="סגירת הודעה"><X size={16} /></button></div> : null}
     {!forbidden && dashboard ? <>
-      <section className={styles.metrics} aria-label="מדדי חיפושים"><article><span><Search size={18} /> חיפושים</span><strong>{number(dashboard.metrics.recordedSearches)}</strong><small>{period} הימים האחרונים</small></article><article><span><Users size={18} /> מבקרים ייחודיים</span><strong>{number(dashboard.metrics.uniqueSessions)}</strong><small>לפי מזהה מפגש אנונימי</small></article><article className={styles.metricAccent}><span><CircleDashed size={18} /> ממתינים לעבודה</span><strong>{number(dashboard.metrics.pending)}</strong><small>ממתין, טיוטה או בדיקה</small></article><article><span><CheckCircle2 size={18} /> פורסמו</span><strong>{number(dashboard.metrics.published)}</strong><small>עמודים מנוהלים פעילים</small></article><article><span><AlertCircle size={18} /> ללא תוצאות</span><strong>{number(dashboard.metrics.zeroResultSearches)}</strong><small>אות לשיפור היצע או ניסוח</small></article></section>
+      <section className={styles.metrics} aria-label="מדדי חיפושים"><article><span><Search size={18} /> חיפושי גולשים</span><strong>{number(dashboard.metrics.recordedSearches)}</strong><small>{period} הימים האחרונים</small></article><article><span><Users size={18} /> מבקרים ייחודיים</span><strong>{number(dashboard.metrics.uniqueSessions)}</strong><small>לפי מזהה מפגש אנונימי</small></article><article className={styles.metricAccent}><span><CircleDashed size={18} /> ממתינים לעבודה</span><strong>{number(dashboard.metrics.pending)}</strong><small>ממתין, טיוטה או בדיקה</small></article><article><span><CheckCircle2 size={18} /> פורסמו</span><strong>{number(dashboard.metrics.published)}</strong><small>עמודים מנוהלים פעילים</small></article><article><span><AlertCircle size={18} /> ללא תוצאות</span><strong>{number(dashboard.metrics.zeroResultSearches)}</strong><small>אות לשיפור היצע או ניסוח</small></article><article><span><Target size={18} /> בדיקות מנהל</span><strong>{number(dashboard.metrics.internalSearches)}</strong><small>מוצגות בנפרד ולא משפיעות על הביקוש</small></article></section>
       <section className={styles.commandCenter}>
         <aside className={styles.queue} aria-label="תור עמודי חיפוש">
           <div className={styles.queueHead}><div><h2>תור עבודה</h2><span>{filtered.length} מתוך {dashboard.opportunities.length}</span></div><label><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="חיפוש עמוד, אזור או כתובת" /></label></div>
-          <div className={styles.statusTabs} role="tablist" aria-label="סינון לפי סטטוס"><button type="button" aria-pressed={statusFilter === "active"} onClick={() => setStatusFilter("active")}>לטיפול <b>{dashboard.metrics.pending}</b></button><button type="button" aria-pressed={statusFilter === "published"} onClick={() => setStatusFilter("published")}>פורסמו <b>{dashboard.statusCounts.published}</b></button><button type="button" aria-pressed={statusFilter === "all"} onClick={() => setStatusFilter("all")}>הכול</button></div>
+          <div className={styles.statusTabs} role="tablist" aria-label="סינון לפי סטטוס"><button type="button" aria-pressed={statusFilter === "active"} onClick={() => setStatusFilter("active")}>לטיפול <b>{dashboard.metrics.pending}</b></button><button type="button" aria-pressed={statusFilter === "internal"} onClick={() => setStatusFilter("internal")}>בדיקות שלי <b>{dashboard.metrics.internalSearches}</b></button><button type="button" aria-pressed={statusFilter === "published"} onClick={() => setStatusFilter("published")}>פורסמו <b>{dashboard.statusCounts.published}</b></button><button type="button" aria-pressed={statusFilter === "all"} onClick={() => setStatusFilter("all")}>הכול</button></div>
           <div className={styles.queueList}>{loading ? <div className={styles.queueState}><RefreshCw className={styles.spin} /> טוענים הזדמנויות...</div> : filtered.length ? filtered.map((item) => <button type="button" key={item.id} className={selectedId === item.id ? styles.selected : ""} onClick={() => void loadDetail(item.id)}>
-            <div className={styles.itemTop}><span data-status={item.status}>{statusLabels[item.status]}</span><small>{worldLabels[item.world] || item.world}</small></div><strong>{item.title || item.suggestedTitle}</strong><p>{item.location}{Object.values(item.filters).length ? ` · ${Object.values(item.filters).join(" · ")}` : ""}</p><div className={styles.itemMetrics}><span><Search size={13} /> {number(item.searches)}</span><span><Eye size={13} /> {number(item.latestResultCount)} תוצאות</span><span>{item.readiness}% מוכן</span></div>
+            <div className={styles.itemTop}><span data-status={item.internalOnly ? "internal" : item.status}>{item.internalOnly ? "בדיקת מנהל" : statusLabels[item.status]}</span><small>{worldLabels[item.world] || item.world}</small></div><strong>{item.title || item.suggestedTitle}</strong><p>{item.location}{Object.values(item.filters).length ? ` · ${Object.values(item.filters).join(" · ")}` : ""}</p><div className={styles.itemMetrics}><span><Search size={13} /> {number(item.searches)} גולשים</span>{item.internalSearches > 0 ? <span><Target size={13} /> {number(item.internalSearches)} בדיקות</span> : null}<span><Eye size={13} /> {number(item.latestResultCount)} תוצאות</span><span>{item.readiness}% מוכן</span></div>
           </button>) : <div className={styles.queueState}><ListFilter size={24} /><strong>אין עמודים במסנן הזה</strong><button type="button" onClick={() => { setStatusFilter("all"); setQuery(""); }}>הצגת כל העמודים</button></div>}</div>
         </aside>
         <section className={styles.workspace} aria-live="polite">
@@ -163,7 +164,7 @@ export default function SearchPagesAdmin() {
           </> : <div className={styles.blankState}><FileSearch size={42} /><h2>בחרו חיפוש מתור העבודה</h2><p>תראו למה הוא נוצר, מה אנשים חיפשו ומה חסר לפני שאפשר לפרסם.</p></div>}
         </section>
       </section>
-      <p className={styles.dataNote}><Clock3 size={14} /> עודכן {date(dashboard.generatedAt)} · כל המדדים מבוססים על אירועים שנשמרו בהסכמה. לחיצה, חשיפה או פתיחת וואטסאפ אינן מוצגות כהזמנה שהושלמה.</p>
+      <p className={styles.dataNote}><Clock3 size={14} /> עודכן {date(dashboard.generatedAt)} · חיפושים נשמרים לאחר הסכמת מדידה. בדיקות של מנהל מחובר מוצגות בנפרד ואינן משפיעות על נתוני הביקוש. לחיצה, חשיפה או פתיחת וואטסאפ אינן מוצגות כהזמנה שהושלמה.</p>
     </> : !forbidden && loading ? <div className={styles.authState}><RefreshCw className={styles.spin} /><h2>טוענים את מרכז עמודי החיפוש...</h2></div> : null}
   </main>;
 }

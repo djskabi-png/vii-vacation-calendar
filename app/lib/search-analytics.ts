@@ -165,17 +165,19 @@ export async function saveSearchEvent(db: D1Database, value: SearchDemandEvent |
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING event_id`)
     .bind(value.eventId, identity.id, value.world, value.location, JSON.stringify(value.filters), value.pagePath,
       value.resultCount, value.resultCount === 0 ? 1 : 0, value.sessionId, internal ? 1 : 0, at).first<{ event_id: string }>();
-  if (!inserted || internal) return;
+  if (!inserted) return;
+  const publicSearchCount = internal ? 0 : 1;
+  const publicZeroResultCount = internal ? 0 : value.resultCount === 0 ? 1 : 0;
   await db.prepare(`INSERT INTO vii_search_page_opportunities
     (id, canonical_key, world, location, filters_json, source_path, proposed_path, suggested_title, latest_result_count,
      first_seen_at, last_seen_at, search_count, zero_result_count)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(canonical_key) DO UPDATE SET source_path = excluded.source_path,
       latest_result_count = excluded.latest_result_count, last_seen_at = excluded.last_seen_at,
-      search_count = vii_search_page_opportunities.search_count + 1,
+      search_count = vii_search_page_opportunities.search_count + excluded.search_count,
       zero_result_count = vii_search_page_opportunities.zero_result_count + excluded.zero_result_count`)
     .bind(identity.id, identity.canonicalKey, value.world, value.location, JSON.stringify(value.filters), value.pagePath,
-      identity.proposedPath, identity.suggestedTitle, value.resultCount, at, at, value.resultCount === 0 ? 1 : 0).run();
+      identity.proposedPath, identity.suggestedTitle, value.resultCount, at, at, publicSearchCount, publicZeroResultCount).run();
 }
 
 export async function readSearchAnalytics(db: D1Database, days: number) {

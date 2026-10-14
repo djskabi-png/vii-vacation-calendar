@@ -20,6 +20,9 @@ export type SearchOpportunity = {
   lastSeenAt: string;
   searches: number;
   uniqueSessions: number;
+  internalSearches: number;
+  internalUniqueSessions: number;
+  internalOnly: boolean;
   zeroResults: number;
   status: OpportunityStatus;
   assignee: string | null;
@@ -49,7 +52,8 @@ type OpportunityRow = {
   assignee: string | null; title: string | null; metaTitle: string | null; metaDescription: string | null;
   h1: string | null; summary: string | null; body: string | null; faqJson: string; slug: string | null;
   canonicalPath: string | null; robotsIndex: number; scheduledAt: string | null; publishedAt: string | null;
-  version: number; updatedAt: string | null; updatedBy: string | null; periodSearches: number; uniqueSessions: number; periodZeroResults: number;
+  version: number; updatedAt: string | null; updatedBy: string | null; periodSearches: number; uniqueSessions: number;
+  internalPeriodSearches: number; internalUniqueSessions: number; periodZeroResults: number;
 };
 
 function safeJson<T>(value: string, fallback: T): T {
@@ -81,6 +85,8 @@ function hydrate(row: OpportunityRow): SearchOpportunity {
   };
   const searches = Number(row.periodSearches ?? row.searchCount ?? 0);
   const uniqueSessions = Number(row.uniqueSessions ?? 0);
+  const internalSearches = Number(row.internalPeriodSearches ?? 0);
+  const internalUniqueSessions = Number(row.internalUniqueSessions ?? 0);
   const zeroResults = Number(row.periodZeroResults ?? row.zeroResultCount ?? 0);
   return {
     id: row.id,
@@ -88,7 +94,9 @@ function hydrate(row: OpportunityRow): SearchOpportunity {
     world: row.world, locale: row.locale, location: row.location,
     filters, sourcePath: row.sourcePath, proposedPath: row.proposedPath, suggestedTitle: row.suggestedTitle,
     latestResultCount: Number(row.latestResultCount || 0), firstSeenAt: row.firstSeenAt, lastSeenAt: row.lastSeenAt,
-    searches, uniqueSessions, zeroResults, status: row.status, assignee: row.assignee,
+    searches, uniqueSessions, internalSearches, internalUniqueSessions,
+    internalOnly: searches === 0 && internalSearches > 0 && !row.canonicalKey.startsWith("managed:"),
+    zeroResults, status: row.status, assignee: row.assignee,
     ...content, faq, canonicalPath: row.canonicalPath || row.proposedPath, robotsIndex: row.robotsIndex === 1,
     scheduledAt: row.scheduledAt, publishedAt: row.publishedAt, version: Number(row.version || 0),
     updatedAt: row.updatedAt, updatedBy: row.updatedBy,
@@ -142,12 +150,15 @@ const selectColumns = `o.id, o.canonical_key AS canonicalKey, o.world, o.locale,
 
 export async function readOpportunityDashboard(db: D1Database, days: number) {
   const since = new Date(Date.now() - days * 86400_000).toISOString();
-  const [rows, globalUnique] = await Promise.all([db.prepare(`SELECT ${selectColumns},
+  const [rows, globalUnique, globalInternal] = await Promise.all([db.prepare(`SELECT ${selectColumns},
     COALESCE((SELECT COUNT(*) FROM vii_search_demand_events e WHERE e.opportunity_id = o.id AND e.internal = 0 AND e.created_at >= ?), 0) AS periodSearches,
     COALESCE((SELECT COUNT(DISTINCT e.session_id) FROM vii_search_demand_events e WHERE e.opportunity_id = o.id AND e.internal = 0 AND e.created_at >= ? AND e.session_id IS NOT NULL), 0) AS uniqueSessions,
+    COALESCE((SELECT COUNT(*) FROM vii_search_demand_events e WHERE e.opportunity_id = o.id AND e.internal = 1 AND e.created_at >= ?), 0) AS internalPeriodSearches,
+    COALESCE((SELECT COUNT(DISTINCT e.session_id) FROM vii_search_demand_events e WHERE e.opportunity_id = o.id AND e.internal = 1 AND e.created_at >= ? AND e.session_id IS NOT NULL), 0) AS internalUniqueSessions,
     COALESCE((SELECT COUNT(*) FROM vii_search_demand_events e WHERE e.opportunity_id = o.id AND e.internal = 0 AND e.created_at >= ? AND e.zero_result = 1), 0) AS periodZeroResults
-    FROM vii_search_page_opportunities o ORDER BY o.last_seen_at DESC`).bind(since, since, since).all<OpportunityRow>(),
+    FROM vii_search_page_opportunities o ORDER BY o.last_seen_at DESC`).bind(since, since, since, since, since).all<OpportunityRow>(),
     db.prepare("SELECT COUNT(DISTINCT session_id) AS count FROM vii_search_demand_events WHERE internal = 0 AND created_at >= ? AND session_id IS NOT NULL").bind(since).first<{ count: number }>(),
+    db.prepare("SELECT COUNT(*) AS count FROM vii_search_demand_events WHERE internal = 1 AND created_at >= ?").bind(since).first<{ count: number }>(),
   ]);
   const opportunities = rows.results.map(hydrate).sort((a, b) => b.priority - a.priority || b.searches - a.searches || b.lastSeenAt.localeCompare(a.lastSeenAt));
   const statusCounts = Object.fromEntries(opportunityStatuses.map((status) => [status, opportunities.filter((item) => item.status === status).length]));
@@ -157,9 +168,10 @@ export async function readOpportunityDashboard(db: D1Database, days: number) {
     metrics: {
       recordedSearches: opportunities.reduce((sum, item) => sum + item.searches, 0),
       uniqueSessions: Number(globalUnique?.count || 0),
-      pending: statusCounts.pending + statusCounts.draft + statusCounts.review,
+      pending: opportunities.filter((item) => !item.internalOnly && ["pending", "draft", "review"].includes(item.status)).length,
       published: statusCounts.published,
       zeroResultSearches: opportunities.reduce((sum, item) => sum + item.zeroResults, 0),
+      internalSearches: Number(globalInternal?.count || 0),
     },
     statusCounts,
     opportunities,
@@ -169,6 +181,8 @@ export async function readOpportunityDashboard(db: D1Database, days: number) {
 export async function readOpportunity(db: D1Database, id: string) {
   const row = await db.prepare(`SELECT ${selectColumns}, o.search_count AS periodSearches,
     (SELECT COUNT(DISTINCT e.session_id) FROM vii_search_demand_events e WHERE e.opportunity_id = o.id AND e.internal = 0 AND e.session_id IS NOT NULL) AS uniqueSessions,
+    (SELECT COUNT(*) FROM vii_search_demand_events e WHERE e.opportunity_id = o.id AND e.internal = 1) AS internalPeriodSearches,
+    (SELECT COUNT(DISTINCT e.session_id) FROM vii_search_demand_events e WHERE e.opportunity_id = o.id AND e.internal = 1 AND e.session_id IS NOT NULL) AS internalUniqueSessions,
     o.zero_result_count AS periodZeroResults FROM vii_search_page_opportunities o WHERE o.id = ?`).bind(id).first<OpportunityRow>();
   if (!row) return null;
   const versions = await db.prepare(`SELECT version, action, actor_email AS actorEmail, created_at AS createdAt, snapshot_json AS snapshotJson
@@ -235,6 +249,7 @@ export async function publishedOpportunityBySlug(slug: string) {
   const db = await opportunityDatabase();
   const now = new Date().toISOString();
   const row = await db.prepare(`SELECT ${selectColumns}, o.search_count AS periodSearches, 0 AS uniqueSessions,
+    0 AS internalPeriodSearches, 0 AS internalUniqueSessions,
     o.zero_result_count AS periodZeroResults FROM vii_search_page_opportunities o
     WHERE o.slug = ? AND o.robots_index = 1 AND (o.status = 'published' OR (o.status = 'scheduled' AND o.scheduled_at <= ?))
     ORDER BY o.version DESC LIMIT 1`).bind(slug, now).first<OpportunityRow>();

@@ -5,7 +5,7 @@
   "task_type": "administration product redesign and expansion",
   "goal": "Transform the VII administration area into a premium, clear daily operating system with real data, growth tooling and consistent responsive interaction states.",
   "created_at": "2026-10-14T02:33:48.675013Z",
-  "updated_at": "2026-10-14T02:39:36.265917Z",
+  "updated_at": "2026-10-14T02:46:58.416426Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -227,6 +227,24 @@
       "status": "pending",
       "evidence": [],
       "reason": null
+    },
+    {
+      "id": "correction:search-demand-visible",
+      "source": "user_correction",
+      "statement": "A real search must appear in the administration system; authenticated administrator test searches must remain separately visible without contaminating public demand metrics.",
+      "acceptance_check": "A consented search on every supported public result family creates or updates an opportunity; administrator searches appear in a clearly labeled internal-test lane while the leading public metrics continue to exclude internal traffic.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "correction:growth-tools-discoverable",
+      "source": "user_correction",
+      "statement": "Robots, sitemap and the rest of the growth tools must be discoverable directly from the administration system.",
+      "acceptance_check": "The live admin shell exposes a clear Growth Center destination; the page shows live robots.txt and sitemap status and direct links, and is verified in production.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
     }
   ],
   "verification_status": "in_progress",
@@ -241,5 +259,7 @@
         "The first slice preserved all existing route registrations and exposed the new /admin/growth route without TypeScript errors."
       ]
     }
-  }
+  },
+  "last_freshness_check_at": "2026-10-14T02:46:52.663446Z",
+  "last_freshness_check_errors": []
 }

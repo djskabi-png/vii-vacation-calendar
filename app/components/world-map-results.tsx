@@ -15,6 +15,7 @@ import { useSiteLanguage } from "../i18n/locale-provider";
 import { ResultsViewToggle, useResultsViewMode } from "./results-view-toggle";
 import { ProgressiveResults } from "./progressive-results";
 import { rotateWithinTiers } from "../lib/daily-rotation";
+import { trackSearchResults } from "../lib/analytics";
 
 const spaFilters = spaLandings;
 
@@ -115,6 +116,21 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
     && (!requestedDate || !dateCovered || availability.sites.has(Number(item.id.replace("spa-", ""))))
   )), (item) => item.image && item.priceLabel ? 0 : item.image ? 1 : 2,
   (item) => item.id, "spa-search"), [amenityFiltered, location, requestedDate, dateCovered, checkingDate, availability.sites]);
+
+  useEffect(() => {
+    if (checkingDate) return;
+    const timer = window.setTimeout(() => trackSearchResults({
+      world: "spa",
+      location,
+      hasDate: Boolean(requestedDate),
+      resultCount: filtered.length,
+      filters: {
+        ...(spaAudience ? { package: spaAudiences[spaAudience].label } : {}),
+        ...(selectedFilters.length ? { experience: selectedFilters.join(",") } : {}),
+      },
+    }), 650);
+    return () => window.clearTimeout(timer);
+  }, [checkingDate, filtered.length, location, requestedDate, selectedFilters, spaAudience]);
 
   function updateUrl(nextLocation: string, nextAudience: SpaAudienceId | "", nextFilters: string[]) {
     const params = new URLSearchParams(window.location.search);

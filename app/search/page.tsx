@@ -38,6 +38,7 @@ import { FilterControlIcon } from "../components/filter-control-icon";
 import { SearchAfterResults, type ContextualSearchSuggestion } from "../components/search-after-results";
 import { ResultsViewToggle, useResultsViewMode } from "../components/results-view-toggle";
 import { ProgressiveResults } from "../components/progressive-results";
+import { trackSearchResults } from "../lib/analytics";
 import { matchesVacationSearchFilter } from "../lib/vacation-search-filter-index";
 
 export type SearchLandingContext = {
@@ -613,6 +614,25 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   // the dependency list lets the compiler preserve this memo across renders.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [area, availabilityDemoActive, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, guests, landing, liveAvailabilityBySlug, supplierSearch, mapCandidates, pathname, requestedLocation, selectedStay, selectedTypes, sort]);
+
+  useEffect(() => {
+    if (catalogLoading || catalogError) return;
+    const timer = window.setTimeout(() => trackSearchResults({
+      world: "vacation",
+      location: area === "הכל" ? "כל הארץ" : area,
+      hasDate: Boolean(selectedStay?.from),
+      resultCount: filtered.length,
+      filters: {
+        ...(selectedTypes.length ? { type: selectedTypes.join(",") } : {}),
+        ...(guests > 2 ? { guests } : {}),
+        ...(accessibleOnly ? { accessible: true } : {}),
+        ...([...selectedExtras, ...(pool ? ["pool"] : []), ...(spa ? ["spa"] : [])].length
+          ? { features: [...selectedExtras, ...(pool ? ["pool"] : []), ...(spa ? ["spa"] : [])].join(",") }
+          : {}),
+      },
+    }), 650);
+    return () => window.clearTimeout(timer);
+  }, [accessibleOnly, area, catalogError, catalogLoading, filtered.length, guests, pool, selectedExtras, selectedStay?.from, selectedTypes, spa]);
 
   const draftCandidates = properties.filter((property) => {
     const matchesType = !supplierTypeFilterAvailable || matchesAnyAccommodationType(property.type, shownFilters.selectedTypes, landing);

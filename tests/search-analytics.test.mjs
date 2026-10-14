@@ -36,6 +36,34 @@ test("opportunity demand is idempotent for a repeated event id", async () => {
   assert.equal(row.results, 2);
 });
 
+test("administrator search is retained as a separate test opportunity without increasing public demand", async () => {
+  const sqlite = new DatabaseSync(":memory:");
+  const migration = fs.readFileSync(new URL("../drizzle/0006_search_intelligence.sql", import.meta.url), "utf8").replaceAll("--> statement-breakpoint", "");
+  sqlite.exec(migration);
+  sqlite.exec("CREATE TABLE vii_search_events (event_id TEXT PRIMARY KEY, world TEXT, location TEXT, has_date INTEGER, internal INTEGER, created_at TEXT)");
+  const db = { prepare(sql) { let values = []; return { bind(...next) { values = next; return this; }, async run() { return { meta: { changes: sqlite.prepare(sql).run(...values).changes } }; }, async first() { return sqlite.prepare(sql).get(...values) || null; }, async all() { return { results: sqlite.prepare(sql).all(...values) }; } }; }, async batch(statements) { return Promise.all(statements.map((statement) => statement.run())); } };
+  const parsed = parseSearchDemandEvent({ eventId, sessionId: "a5e63378-217c-4c08-9f62-7bccb8b4fd2e", world: "spa", location: "מרכז", hasDate: false, pagePath: "/spas/search/center", resultCount: 4, filters: { experience: "pool" } });
+  await saveSearchEvent(db, parsed, true);
+  const opportunity = sqlite.prepare("SELECT search_count AS publicCount, latest_result_count AS results FROM vii_search_page_opportunities").get();
+  const demand = sqlite.prepare("SELECT internal FROM vii_search_demand_events").get();
+  assert.equal(opportunity.publicCount, 0);
+  assert.equal(opportunity.results, 4);
+  assert.equal(demand.internal, 1);
+});
+
+test("all four commercial result families emit detailed demand events", () => {
+  const files = [
+    fs.readFileSync(new URL("../app/search/page.tsx", import.meta.url), "utf8"),
+    fs.readFileSync(new URL("../app/events/search/page.tsx", import.meta.url), "utf8"),
+    fs.readFileSync(new URL("../app/components/world-map-results.tsx", import.meta.url), "utf8"),
+    fs.readFileSync(new URL("../app/components/hourly-results.tsx", import.meta.url), "utf8"),
+  ];
+  for (const [index, world] of ["vacation", "events", "spa", "hourly"].entries()) {
+    assert.match(files[index], /trackSearchResults/);
+    assert.match(files[index], new RegExp(`world:\\s*["']${world}["']`));
+  }
+});
+
 test("search ingestion rejects cross-origin and malformed requests before storage", async () => {
   const url = "https://vii.spaplus.co/api/analytics/search";
   const crossOrigin = await POST(new Request(url, { method: "POST", headers: { origin: "https://foreign.example" }, body: "{}" }));
