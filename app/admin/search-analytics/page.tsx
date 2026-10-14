@@ -41,4 +41,3 @@ export default function SearchAnalyticsPage() {
       <p className={styles.foot}>התקופה היא {report.periodHours} שעות אחורה מזמן הבדיקה, לא ימים קלנדריים. המגמה היומית מחושבת לפי UTC. החיפושים שנעשו לפני הפעלת המדידה אינם כלולים.</p></> : null}
   </main>;
 }
-

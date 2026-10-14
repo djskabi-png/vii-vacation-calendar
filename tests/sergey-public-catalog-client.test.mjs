@@ -64,4 +64,3 @@ test("withholds a place without photos without discarding the rest of the catalo
   const result = await client({ galleries: [] }, true).fetchCandidate("vacations");
   assert.deepEqual(result.entries.map((entry) => entry.supplierId), [18]);
 });
-

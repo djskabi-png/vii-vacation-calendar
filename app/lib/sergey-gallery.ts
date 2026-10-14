@@ -49,4 +49,3 @@ export function sergeyRoomFeatureGroups(room: Record<string, unknown>) {
     return { title: typeof space.title === "string" && space.title.trim() ? space.title.trim() : "ביחידה", items };
   }).filter((group) => group.items.length);
 }
-

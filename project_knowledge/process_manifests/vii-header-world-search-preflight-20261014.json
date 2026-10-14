@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-header-world-search-20261014",
+  "project": "VII",
+  "task_type": "shared search navigation repair",
+  "requested_outcome": "From Attractions and every public VII page, the header search opens the real world chooser immediately, preserves the current-world context, and never redirects to an unrelated vacation-only search.",
+  "natural_destination": "The header search and world chooser on /attractions, /trails and representative pages from every public world, before and after hydration, on desktop and mobile.",
+  "authorization_boundary": "Diagnose, implement, test, commit and prepare the existing VII site release. Public deployment remains a separate action-time confirmed step.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "A shared header defect requires visible end-to-end proof across the affected page family.",
+      "acceptance_impact": "Exercise the exact header action before and after hydration, on desktop and mobile, and verify a real cross-world destination."
+    },
+    {
+      "lesson_id": "ADIR-SEARCH-001",
+      "reason": "The broken control claims global search but sends visitors into a different search corpus.",
+      "acceptance_impact": "Remove misleading global-search behavior and keep world choice, route, active context and destination aligned."
+    },
+    {
+      "lesson_id": "ADIR-SCOPE-001",
+      "reason": "The requested repair is focused on search navigation and must preserve the approved header and page layout.",
+      "acceptance_impact": "No unrelated redesign, catalog, filter, page-order or content change is allowed."
+    },
+    {
+      "lesson_id": "ADIR-SIMPLICITY-001",
+      "reason": "The header currently offers a misleading extra search path in addition to the world choices.",
+      "acceptance_impact": "Present one immediate decision, choose the search world, while preserving access to each real world."
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "reason": "The repaired shared navigation is intended for the public VII site.",
+      "acceptance_impact": "Release only the exact verified commit, preserve rollback identity and recheck the public routes after deployment."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The search still jumps to /search when clicked before React hydration.",
+      "prevention": "Use an immediately interactive native disclosure whose real world links exist in server HTML.",
+      "acceptance_check": "The first rendered HTML contains the closed chooser and no pre-hydration /search fallback."
+    },
+    {
+      "rejection": "Attractions or trails cannot be recognized as the active world.",
+      "prevention": "Derive the navigation context from the current pathname for the two activity sub-worlds.",
+      "acceptance_check": "The matching item is active on /attractions and /trails and the other item remains available."
+    },
+    {
+      "rejection": "The menu looks fixed locally but fails on mobile or a low-height screen.",
+      "prevention": "Exercise the native chooser at desktop, 390-pixel mobile and low height, including open, close, Escape and world navigation.",
+      "acceptance_check": "The chooser remains fully reachable and leaves no stale overlay or body lock."
+    },
+    {
+      "rejection": "A broad header rewrite damages other public worlds.",
+      "prevention": "Keep the existing panel design and link model, change only the activation mechanism and truthful choice set, then run the full shared-header family suite.",
+      "acceptance_check": "Representative vacation, events, spa, hourly, providers, trails and attractions routes retain a working header chooser."
+    }
+  ],
+  "affected_family": [
+    "Shared SiteHeader and WorldSwitcher",
+    "Server-rendered pre-hydration header state",
+    "Vacation, events, corporate, spa, hourly and providers routes",
+    "Trails and attractions navigation contexts",
+    "Desktop, 390-pixel mobile and low-height layouts",
+    "Hebrew and localized route prefixes"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII search and world consistency standard",
+        "source": "C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "Observed attractions header and local-search layout",
+        "source": "C:/Users/Adir/AppData/Local/Temp/codex-clipboard-523b6b66-db05-4f38-b8c2-1449415d6d97.png"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "The first server-rendered attractions page after replacing the pre-hydration fallback.",
+    "checks": [
+      "The header control opens without changing the URL before hydration.",
+      "The panel contains only real world destinations and marks Attractions active.",
+      "Selecting another world reaches its real route."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a first-paint click still navigate to vacation search?",
+      "Can Attractions or Trails open the menu without an active current item?",
+      "Can opening, closing or resizing leave the chooser hidden, stuck or off-screen?",
+      "Does any public world lose access to another world?"
+    ],
+    "natural_destination_evidence": "Observed browser interaction on the exact release candidate and then the deployed /attractions page.",
+    "affected_family_evidence": "Automated shared-header contracts plus representative browser checks across all world route families and responsive states."
+  },
+  "effectiveness": {
+    "baseline": "The server-rendered header linked directly to /search, while /search was vacation-specific and the attractions route did not identify its own navigation item as active.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Zero unintended URL changes when opening the header chooser, one active current-world item, and successful navigation to every listed world."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

@@ -186,4 +186,3 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
     </div>}
   </div>;
 }
-

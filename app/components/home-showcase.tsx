@@ -3,10 +3,12 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { DiscoveryCard } from "./discovery-card";
-import { eventPlaceHref, type EventPlace, type Property } from "../data/site-data";
-import { paidAttractions, providerProfiles, type DiscoveryItem } from "../data/world-data";
+import type { EventPlace, Property } from "../data/site-data";
+import { eventPlaceHref } from "../lib/event-place-href";
+import type { DiscoveryItem } from "../data/world-data";
 import { publicWorldNavigation } from "../data/world-navigation";
 import { trails } from "../data/trail-data";
 import { TrailCard } from "./trail-card";
@@ -33,6 +35,13 @@ const destinationMatchers = [
   (area: string, location: string) => /נגב|דרום|ערבה/.test(area) && location !== "אילת",
   (_area: string, location: string) => location === "אילת",
 ];
+
+const destinationLoadingCopy = {
+  he: { opening: "פותחים את המקומות...", waiting: "רק רגע, כבר נכנסים", prefix: "פותחים את" },
+  en: { opening: "Opening places...", waiting: "Just a moment, we’re almost there", prefix: "Opening" },
+  ru: { opening: "Открываем места...", waiting: "Ещё мгновение", prefix: "Открываем" },
+  fr: { opening: "Ouverture des lieux...", waiting: "Encore un instant", prefix: "Ouverture de" },
+} as const;
 
 
 function SliderControls({ onPrevious, onNext, label }: { onPrevious: () => void; onNext: () => void; label: string }) {
@@ -62,14 +71,20 @@ export type HomeRatedPlace = {
   reviewDate: string;
 };
 
-export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces, ratedPlaces }: {
+export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces, ratedPlaces, providerPreview, attractionPreview }: {
   properties: Pick<Property, "slug" | "name" | "location" | "area" | "image" | "videos">[];
   eventPlaces: EventPlace[];
   spaPlaces: DiscoveryItem[];
   hourlyPlaces: DiscoveryItem[];
   ratedPlaces: HomeRatedPlace[];
+  providerPreview: DiscoveryItem;
+  attractionPreview: DiscoveryItem;
 }) {
   const tracks = useRef<Record<string, HTMLDivElement | null>>({});
+  const router = useRouter();
+  const { language } = useSiteLanguage();
+  const destinationLoading = destinationLoadingCopy[language];
+  const [pendingDestination, setPendingDestination] = useState<string | null>(null);
   const worldCards = publicWorldNavigation.filter((world) => !["vacation", "events", "spa", "hourly"].includes(world.id));
   const featuredTours = rotateDaily(properties.flatMap((property) => (property.videos || []).map((video) => ({ property, video }))),
     ({ property, video }) => `${property.slug}:${video.src}`, "home-tours").slice(0, 7);
@@ -98,6 +113,19 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
     track.scrollBy({ left: direction === "next" ? forward : -forward, behavior: "smooth" });
   }
 
+  function warmDestination(href: string) {
+    router.prefetch(href);
+  }
+
+  function selectDestination(event: ReactMouseEvent<HTMLAnchorElement>, href: string) {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (pendingDestination) {
+      event.preventDefault();
+      return;
+    }
+    setPendingDestination(href);
+  }
+
   return <>
     <HomeLiveDeals />
     <HomeLiveDeals mode="holidays" />
@@ -115,7 +143,21 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
           <div className="home-vacation-strip__track home-vacation-strip__track--destinations" data-horizontal-rail ref={(node) => { tracks.current.destinations = node; }}>
             {vacationDestinations.map((item, index) => {
               const place = destinationPlaces[index];
-              return place ? <Link className="home-vacation-card home-vacation-card--destination home-slider__item" href={item.href} key={item.label}><img src={place.image} alt="" loading="lazy" decoding="async" /><div><span>יעד מומלץ</span><h4>{item.label}</h4><p>{item.note}</p><b>לכל המקומות באזור</b></div></Link> : null;
+              const isPending = pendingDestination === item.href;
+              return place ? <Link
+                className={`home-vacation-card home-vacation-card--destination home-slider__item${isPending ? " is-destination-pending" : ""}`}
+                href={item.href}
+                prefetch={false}
+                key={item.label}
+                onPointerEnter={() => warmDestination(item.href)}
+                onFocus={() => warmDestination(item.href)}
+                onPointerDown={() => warmDestination(item.href)}
+                onClick={(event) => selectDestination(event, item.href)}
+                aria-busy={isPending}
+                aria-disabled={pendingDestination !== null}
+                data-global-feedback="true"
+                data-loading-label={`${destinationLoading.prefix} ${item.label}...`}
+              ><img src={place.image} alt="" loading="lazy" decoding="async" /><div><span>יעד מומלץ</span><h4>{item.label}</h4><p>{item.note}</p><b>{isPending ? destinationLoading.opening : "לכל המקומות באזור"}</b></div>{isPending ? <span className="home-vacation-card__pending" aria-hidden="true"><i /><small>{destinationLoading.waiting}</small></span> : null}</Link> : null;
             })}
           </div>
         </div>
@@ -161,7 +203,7 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
     <section className="section home-worlds" aria-labelledby="home-worlds-title">
       <div className="shell"><div className="section-head"><div><span className="eyebrow">אתר אחד, הרבה דרכים ליהנות</span><h2 id="home-worlds-title">ממשיכים לכל העולמות</h2><p>לא רק מקום לישון. בונים את כל החופשה, הטיפול, השהייה הקצרה, הספקים והיום שמסביב.</p></div></div>
         <div className="home-world-gates">{worldCards.map((world) => {
-          const item = world.id === "providers" ? providerProfiles[0] : world.id === "trails" ? trails[0] : paidAttractions[0];
+          const item = world.id === "providers" ? providerPreview : world.id === "trails" ? trails[0] : attractionPreview;
           const image = "image" in item ? item.image : undefined;
           const description = "description" in item ? item.description : item.summary;
           return <Link key={world.id} className={`home-world-gate home-world-gate--${world.id}`} href={world.href}>{image ? <img src={image} alt={item.name} title={item.name} loading="lazy" decoding="async" /> : <span className="home-world-gate__visual">{world.shortLabel.slice(0,1)}</span>}<div><span>{world.label}</span><h3>{world.description}</h3><p>{"demo" in item && item.demo ? "פרופילים לדוגמה שממחישים איך השירות יעבוד באתר." : description}</p><b>לגלות את העולם</b></div></Link>;

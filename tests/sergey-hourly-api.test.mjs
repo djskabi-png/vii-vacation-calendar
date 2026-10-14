@@ -11,7 +11,7 @@ const card = await readFile(new URL("app/components/discovery-card.tsx", root), 
 test("hourly discovery uses every imported supplier place and no old local inventory", () => {
   assert.equal(catalog.source, "sergey-vii-api/rooms");
   assert.equal(catalog.places.length, 24);
-  assert.equal(new Set(catalog.places.map((place) => place.id)).size, 24);
+  assert.equal(new Set(catalog.places.map((place) => place.id)).size, catalog.places.length);
   assert.match(worldData, /hourlyPlaces: DiscoveryItem\[\] = hourlyPlacesFromCatalog\(hourlyCatalog\.places\)/);
   assert.doesNotMatch(worldData, /curatedHourlyPlaces|verifiedDiscoveryItems\("hourly"\)/);
 });

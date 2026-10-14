@@ -56,4 +56,3 @@ export default async function EventRegionPage({ params }: PageProps) {
     <EventSearchPage initialArea={location} landingTitle={displayTitle} landingDescription={displayDescription} />
   </>;
 }
-

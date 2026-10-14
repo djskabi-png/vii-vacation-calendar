@@ -1,27 +1,31 @@
 import { readSession } from "../../../lib/google-auth.ts";
-import { parseSearchPageInput, searchPageDatabase, searchPageDefinition, searchPageInventory } from "../../../lib/search-page-content.ts";
+import { opportunityDatabase, parseOpportunityChange, readOpportunity, readOpportunityDashboard, saveOpportunity } from "../../../lib/search-opportunities.ts";
 
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 
 async function admin(request: Request) {
   const session = await readSession(request).catch(() => null);
-  const allowed = (process.env.VII_ADMIN_EMAILS || "").split(",").map((email) => email.trim().toLowerCase());
+  const allowed = (process.env.VII_ADMIN_EMAILS || "").split(",").map((email) => email.trim().toLowerCase()).filter(Boolean);
   return session && allowed.includes(session.email.toLowerCase()) ? session.email : null;
 }
 
 export async function GET(request: Request) {
   if (!await admin(request)) return Response.json({ error: "forbidden" }, { status: 403, headers });
+  const url = new URL(request.url);
+  const days = Number(url.searchParams.get("days") || 30);
+  if (![7, 30, 90].includes(days)) return Response.json({ error: "invalid_period" }, { status: 400, headers });
   try {
-    const database = await searchPageDatabase();
-    const historyPath = new URL(request.url).searchParams.get("history");
-    if (historyPath !== null) {
-      if (!searchPageDefinition(historyPath)) return Response.json({ error: "invalid_page" }, { status: 400, headers });
-      const history = await database.prepare("SELECT title, description, status, scheduled_at AS scheduledAt, version, updated_at AS updatedAt, updated_by AS updatedBy FROM vii_search_page_versions WHERE path = ? ORDER BY version DESC LIMIT 20").bind(historyPath).all();
-      return Response.json({ history: history.results }, { headers });
+    const database = await opportunityDatabase();
+    const id = url.searchParams.get("id");
+    if (id) {
+      const result = await readOpportunity(database, id);
+      return result ? Response.json(result, { headers }) : Response.json({ error: "not_found" }, { status: 404, headers });
     }
-    return Response.json({ pages: await searchPageInventory(database) }, { headers });
+    return Response.json(await readOpportunityDashboard(database, days), { headers });
+  } catch (error) {
+    console.error("VII search opportunity inventory unavailable", error);
+    return Response.json({ error: "search_pages_unavailable" }, { status: 503, headers });
   }
-  catch (error) { console.error("VII search page inventory unavailable", error); return Response.json({ error: "search_pages_unavailable" }, { status: 503, headers }); }
 }
 
 export async function POST(request: Request) {
@@ -29,25 +33,19 @@ export async function POST(request: Request) {
   if (!actor) return Response.json({ error: "forbidden" }, { status: 403, headers });
   if (request.headers.get("origin") !== new URL(request.url).origin) return Response.json({ error: "invalid_origin" }, { status: 403, headers });
   let input: unknown;
-  try { const body = await request.text(); if (body.length > 2000) return Response.json({ error: "too_large" }, { status: 413, headers }); input = JSON.parse(body); }
-  catch { return Response.json({ error: "invalid_input" }, { status: 400, headers }); }
-  const change = parseSearchPageInput(input);
+  try {
+    const body = await request.text();
+    if (body.length > 20_000) return Response.json({ error: "too_large" }, { status: 413, headers });
+    input = JSON.parse(body);
+  } catch { return Response.json({ error: "invalid_input" }, { status: 400, headers }); }
+  const change = parseOpportunityChange(input);
   if (!change) return Response.json({ error: "invalid_page" }, { status: 400, headers });
   try {
-    const database = await searchPageDatabase();
-    const prior = await database.prepare("SELECT version FROM vii_search_page_content WHERE path = ?").bind(change.path).first<{ version: number }>();
-    if ((prior?.version || 0) !== change.expectedVersion) return Response.json({ error: "version_conflict" }, { status: 409, headers });
-    const version = (prior?.version || 0) + 1;
-    const at = new Date().toISOString();
-    await database.batch([
-      database.prepare(`INSERT INTO vii_search_page_content (path, title, description, status, scheduled_at, version, updated_at, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(path) DO UPDATE SET title = excluded.title, description = excluded.description, status = excluded.status, scheduled_at = excluded.scheduled_at, version = excluded.version, updated_at = excluded.updated_at, updated_by = excluded.updated_by`).bind(change.path, change.title, change.description, change.status, change.scheduledAt, version, at, actor),
-      database.prepare("INSERT INTO vii_search_page_versions (id, path, title, description, status, scheduled_at, version, updated_at, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)").bind(crypto.randomUUID(), change.path, change.title, change.description, change.status, change.scheduledAt, version, at, actor),
-    ]);
-    return Response.json({ page: { ...change, version, updatedAt: at, updatedBy: actor } }, { headers });
+    const result = await saveOpportunity(await opportunityDatabase(), change, actor);
+    if ("error" in result) return Response.json({ error: result.error }, { status: result.error === "not_found" ? 404 : 409, headers });
+    return Response.json(result, { headers });
   } catch (error) {
-    if (error instanceof Error && /UNIQUE constraint failed/i.test(error.message)) return Response.json({ error: "version_conflict" }, { status: 409, headers });
-    console.error("VII search page save unavailable", error);
+    console.error("VII search opportunity save unavailable", error);
     return Response.json({ error: "search_pages_unavailable" }, { status: 503, headers });
   }
 }
-

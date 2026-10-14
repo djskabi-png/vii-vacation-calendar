@@ -43,6 +43,13 @@
       "when": 1791930000000,
       "tag": "0005_search_page_schedule",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1791937200000,
+      "tag": "0006_search_intelligence",
+      "breakpoints": true
     }
   ]
 }

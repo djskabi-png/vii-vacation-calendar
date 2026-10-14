@@ -1,0 +1,97 @@
+{
+  "goal": "A premium VII search intelligence command center turns real searches into prioritized, editable, publishable and measurable landing-page opportunities.",
+  "intent_model": {
+    "literal_request": "Restore the old pending-search-page workflow and radically upgrade the administration system's appearance, usability, tools and capabilities.",
+    "implied_outcome": "An operator can see exactly what visitors search for, decide what to build, create trustworthy content, publish it safely and verify its public and sitemap effect without hunting across primitive screens.",
+    "likely_rejections": ["A visual redesign without real persistence", "A location-only queue that loses filter combinations", "An editor with only title and description", "A publish button without public and sitemap reflection", "A dense cockpit that is difficult to understand"],
+    "interpretation_rules": [
+      { "phrase": "מהפך על במערכת", "operational_meaning": "Material redesign of the operating flow and capabilities, not surface polish.", "acceptance_impact": "Require the full queue-to-public workflow and a new responsive shell." },
+      { "phrase": "כל המערכת הזאת", "operational_meaning": "Inventory and cover capture, demand, editing, status, publish and sitemap behavior.", "acceptance_impact": "No legacy workflow item may remain unclassified." },
+      { "phrase": "קל ופשוט", "operational_meaning": "Keep depth through progressive disclosure while presenting one task and next action.", "acceptance_impact": "The default workspace cannot expose competing primary actions or require route-hopping." }
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "A prioritized queue of real search opportunities and the selected opportunity's readiness.",
+    "current_decision": "For the selected opportunity, continue editing, move to review, schedule or publish.",
+    "next_action": "Open the highest-value pending search and complete the next missing readiness item.",
+    "deferred_complexity": ["version history", "advanced canonical and robots controls", "FAQ and structured fields", "merge and archive actions"],
+    "preserved_depth": ["complete SEO and GEO fields", "complete audit history", "future publication scheduling", "public-page preview", "managed sitemap publication state", "demand and result diagnostics"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/task_contracts/vii-search-command-center-20261014.preflight.json",
+    "lesson_bundle_ids": ["ADIR-WEB-001", "ADIR-ADMIN-001", "ADIR-SEARCH-001", "ADIR-SEO-001", "ADIR-WEB-CMS-001", "ADIR-DATA-001", "ADIR-SIMPLICITY-001", "ADIR-DEPLOY-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["VII super administrator", "VII content or SEO editor", "public visitor", "search crawler"],
+  "natural_destination": "Authenticated /admin/search-pages, the exact public search landing and /sitemap.xml on vii.spaplus.co.",
+  "facts": [
+    { "claim": "The current search event stores world, location and date presence only.", "evidence": "app/lib/search-analytics.ts" },
+    { "claim": "The current queue only surfaces existing location pages and skips unknown combinations.", "evidence": "app/api/admin/content-queue/route.ts" },
+    { "claim": "The current editor exposes only title, description and schedule.", "evidence": "app/admin/search-pages/page.tsx" },
+    { "claim": "The approved master plan requires automatic page opportunities with editorial approval before indexing.", "evidence": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md" }
+  ],
+  "assumptions": [
+    { "claim": "D1 remains the approved interim persistence layer for this operational foundation.", "validation": "Use the existing DB binding and additive schema with no Aurora claim." },
+    { "claim": "The supplied event search combination can map to a clean events landing path after approval.", "validation": "Generate a deterministic lowercase ASCII path and verify route resolution before publication." }
+  ],
+  "in_scope": [
+    "privacy-safe normalized search-intent ingestion",
+    "automatic idempotent pending opportunity creation",
+    "demand, unique-session, result and zero-result metrics",
+    "premium responsive admin shell and unified search-page studio",
+    "workflow statuses pending, draft, review, scheduled, published and archived",
+    "complete editorial and SEO/GEO fields with validation and preview",
+    "version history and optimistic conflict protection",
+    "public content reflection and intentional sitemap inclusion",
+    "loading, empty, error, permission and retry states",
+    "tests, build, live publication and live verification"
+  ],
+  "out_of_scope": [
+    "purchasing or selecting the future analytics warehouse",
+    "provisioning Aurora or AWS infrastructure",
+    "automatic AI publication without human approval",
+    "unrestricted arbitrary script injection",
+    "fabricating historical search events that were never captured"
+  ],
+  "invariants": [
+    "Existing public search results and filters continue to work.",
+    "Admin routes remain protected and noindex.",
+    "Supplier-owned catalog data is not overwritten by editorial search-page changes.",
+    "Unpublished, incomplete and archived opportunities stay out of the sitemap.",
+    "Existing published search-page versions remain recoverable.",
+    "No personal free text, names, email addresses or phone numbers are stored as search intent."
+  ],
+  "affected_family": ["search analytics API", "search result trackers", "Cloudflare D1 schema", "administration application shell", "search page studio", "content approval queue", "public event landing resolution", "XML sitemap generation", "authentication and error states", "desktop and mobile layouts"],
+  "characteristics": { "stateful": true },
+  "requirements": [
+    { "id": "REQ-1", "statement": "Every qualifying real search creates or updates one normalized pending opportunity without storing personal free text.", "source": "User request and VII master plan" },
+    { "id": "REQ-2", "statement": "The admin presents all opportunities with trustworthy demand, unique-session, result and zero-result signals and clear lifecycle status.", "source": "User request and ADIR-DATA-001" },
+    { "id": "REQ-3", "statement": "The selected opportunity can be edited through complete content and SEO/GEO fields, validated, previewed, versioned, scheduled, published, archived and recovered.", "source": "User request, ADIR-ADMIN-001 and ADIR-WEB-CMS-001" },
+    { "id": "REQ-4", "statement": "Only approved eligible pages appear publicly and in the sitemap, with matching canonical metadata and content.", "source": "VII master plan and ADIR-SEO-001" },
+    { "id": "REQ-5", "statement": "The administration experience is premium, responsive, Hebrew-native and simple to operate while preserving advanced depth.", "source": "User request and ADIR-SIMPLICITY-001" },
+    { "id": "REQ-6", "statement": "Existing search, admin security and published content behavior do not regress.", "source": "ADIR-WEB-001 and VII feedback standard" },
+    { "id": "REQ-7", "statement": "The exact production result is published with rollback identity and verified live.", "source": "User standing publication instruction and ADIR-DEPLOY-001" }
+  ],
+  "acceptance_checks": [
+    { "id": "AC-1", "requirement_ids": ["REQ-1"], "kind": "success", "setup": "No opportunity exists for the supplied event-type and location combination.", "action": "Record a consented public search with normalized filters and result count.", "observable_result": "One pending opportunity is persisted with the exact bounded filters, source route, first/last seen and count 1." },
+    { "id": "AC-2", "requirement_ids": ["REQ-1"], "kind": "retry", "setup": "The same event ID was already processed.", "action": "Replay it.", "observable_result": "No duplicate event or demand increment is created." },
+    { "id": "AC-3", "requirement_ids": ["REQ-2"], "kind": "success", "setup": "Opportunities with different traffic and result states exist.", "action": "Open the command center and change period or status filter.", "observable_result": "Queue order, counts and labels match persisted queries with period and Israel-time semantics visible." },
+    { "id": "AC-4", "requirement_ids": ["REQ-2", "REQ-5"], "kind": "empty", "setup": "No opportunities match a filter.", "action": "Apply that filter.", "observable_result": "A clear empty state explains the condition and offers one reset action." },
+    { "id": "AC-5", "requirement_ids": ["REQ-3"], "kind": "persistence", "setup": "An authorized editor selects a pending opportunity.", "action": "Edit fields, save a draft and reload.", "observable_result": "All fields, workflow status, version, actor and audit history persist and reload from D1." },
+    { "id": "AC-6", "requirement_ids": ["REQ-3"], "kind": "failure", "setup": "Required content or slug is invalid, or the expected version is stale.", "action": "Attempt save or publish.", "observable_result": "The operation is rejected with field-specific or conflict guidance and no false success." },
+    { "id": "AC-7", "requirement_ids": ["REQ-4"], "kind": "success", "setup": "A complete opportunity is approved and published.", "action": "Open the clean public URL and sitemap.", "observable_result": "The page returns its saved content and canonical state, and the URL appears once in sitemap.xml." },
+    { "id": "AC-8", "requirement_ids": ["REQ-4"], "kind": "rollback", "setup": "A published page is archived or an older version is republished.", "action": "Reload the public page and sitemap.", "observable_result": "The active version is reflected and an archived page is removed from sitemap without losing its audit history." },
+    { "id": "AC-9", "requirement_ids": ["REQ-5"], "kind": "success", "setup": "Desktop and 390px mobile authenticated views.", "action": "Open queue, select a page, edit, preview and reach publish controls.", "observable_result": "No overflow or hidden action occurs; one primary next action is clear; advanced sections remain reachable." },
+    { "id": "AC-10", "requirement_ids": ["REQ-6"], "kind": "permission", "setup": "Anonymous or non-admin request.", "action": "Open admin API and UI.", "observable_result": "The API returns 403/no-store and the UI offers the branded sign-in path without data leakage." },
+    { "id": "AC-11", "requirement_ids": ["REQ-6"], "kind": "recovery", "setup": "Search analytics or content storage is unavailable.", "action": "Load or save in the studio.", "observable_result": "The prior public version remains available and the admin shows an actionable retry state." },
+    { "id": "AC-12", "requirement_ids": ["REQ-7"], "kind": "success", "setup": "All local gates pass and a rollback version is identified.", "action": "Publish the exact release and exercise the live flow.", "observable_result": "The deployment is terminal-success and direct live admin, public-page and sitemap evidence matches the release." }
+  ],
+  "open_questions": [
+    { "question": "Which future analytics warehouse will own high-volume telemetry?", "blocking": false, "resolution": "Keep the D1 implementation explicitly interim and vendor-neutral." }
+  ],
+  "authorization_boundary": "Implementation, repository update and previously approved publication are permitted; external purchases, new cloud infrastructure and automatic unreviewed publication are excluded.",
+  "ready_for_implementation": true
+}

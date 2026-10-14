@@ -473,4 +473,3 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
     </PageShell>
   );
 }
-

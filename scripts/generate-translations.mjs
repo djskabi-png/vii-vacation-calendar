@@ -74,6 +74,8 @@ while (queue.length && visited.size < 260) {
 
 const manual = {
   en: {
+    "פותחים את המקומות...": "Opening places...", "רק רגע, כבר נכנסים": "Just a moment, we’re almost there", "פותחים את": "Opening",
+    "מכינים לכם את המקומות באזור": "Preparing places in this area", "עוד רגע אפשר להתחיל להשוות.": "You’ll be able to compare them in a moment.",
     "אורח": "Guest", "מקום לאירועים": "Event venue",
     "וי פור ויקיישן": "VII Vacation",
     "מקומות לאירועים פרטיים בישראל | וי פור ויקיישן": "Private Event Venues in Israel | VII Vacation",
@@ -107,6 +109,8 @@ const manual = {
     "\u05d4\u05ea\u05e7\u05e8\u05d1\u05d5\u05ea \u05dc\u05de\u05e7\u05d5\u05de\u05d5\u05ea \u05d4\u05de\u05e7\u05d5\u05d1\u05e6\u05d9\u05dd": "Zoom in to grouped places",
   },
   ru: {
+    "פותחים את המקומות...": "Открываем места...", "רק רגע, כבר נכנסים": "Ещё мгновение", "פותחים את": "Открываем",
+    "מכינים לכם את המקומות באזור": "Подбираем места в этом районе", "עוד רגע אפשר להתחיל להשוות.": "Через мгновение можно будет сравнить варианты.",
     "אורח": "Гость", "מקום לאירועים": "Место для мероприятий",
     "וי פור ויקיישן": "VII Vacation",
     "כל החופשה, במקום אחד": "Весь отдых в одном месте",
@@ -135,6 +139,8 @@ const manual = {
     "לאירועי חברה": "Корпоративные мероприятия",
   },
   fr: {
+    "פותחים את המקומות...": "Ouverture des lieux...", "רק רגע, כבר נכנסים": "Encore un instant", "פותחים את": "Ouverture de",
+    "מכינים לכם את המקומות באזור": "Préparation des lieux dans cette région", "עוד רגע אפשר להתחיל להשוות.": "Vous pourrez les comparer dans un instant.",
     "אורח": "Voyageur", "מקום לאירועים": "Lieu de réception",
     "וי פור ויקיישן": "VII Vacation",
     "כל החופשה, במקום אחד": "Toutes vos vacances, au même endroit",

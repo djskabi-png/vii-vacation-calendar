@@ -36,4 +36,3 @@ export function hourlySearchHref(location?: string) {
   const slug = location && location !== "הכל" && location !== "כל הארץ" ? searchLocationSlug(location) : undefined;
   return slug ? `/hourly/search/${slug}` : "/hourly";
 }
-

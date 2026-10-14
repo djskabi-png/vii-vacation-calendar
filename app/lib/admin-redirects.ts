@@ -53,4 +53,3 @@ export async function redirectsDatabase(): Promise<D1Database> {
 export async function redirectForPath(db: D1Database, path: string) {
   return db.prepare("SELECT source_path, target_path, status, active, updated_at, updated_by FROM vii_redirects WHERE source_path = ? AND active = 1").bind(path).first<RedirectRecord>();
 }
-

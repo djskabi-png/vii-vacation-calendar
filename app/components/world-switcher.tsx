@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { publicWorldNavigation, worlds, type WorldId } from "../data/world-navigation";
 import { useSiteLanguage } from "../i18n/locale-provider";
@@ -18,25 +18,22 @@ function searchWorldHref(world: "vacation" | "spa" | "events" | "hourly", locati
   return hourlySearchHref(location);
 }
 
-export function WorldSwitcher({ active = "vacation" }: { active?: WorldId }) {
-  const hydrated = useSyncExternalStore(() => () => {}, () => true, () => false);
-  const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const pointerStartRef = useRef<{ id: number; x: number; y: number } | null>(null);
-  const ignoreClickUntilRef = useRef(0);
+export type PublicWorldId = WorldId | "trails" | "attractions";
+
+export function WorldSwitcher({ active = "vacation" }: { active?: PublicWorldId }) {
+  const rootRef = useRef<HTMLDetailsElement>(null);
+  const triggerRef = useRef<HTMLElement>(null);
   const lastNavigationRef = useRef<{ href: string; until: number } | null>(null);
   const router = useRouter();
   const { language, translate } = useSiteLanguage();
 
   useEffect(() => {
-    if (!open) return;
     const closeOnOutsideClick = (event: globalThis.MouseEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+      if (rootRef.current?.open && !rootRef.current.contains(event.target as Node)) rootRef.current.open = false;
     };
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      setOpen(false);
+      if (event.key !== "Escape" || !rootRef.current?.open) return;
+      rootRef.current.open = false;
       triggerRef.current?.focus();
     };
     document.addEventListener("click", closeOnOutsideClick);
@@ -45,24 +42,10 @@ export function WorldSwitcher({ active = "vacation" }: { active?: WorldId }) {
       document.removeEventListener("click", closeOnOutsideClick);
       document.removeEventListener("keydown", closeOnEscape);
     };
-  }, [open]);
+  }, []);
 
-  const rememberPointerStart = (event: ReactPointerEvent<HTMLButtonElement>) => {
-    if (!event.isPrimary || event.button !== 0) return;
-    pointerStartRef.current = { id: event.pointerId, x: event.clientX, y: event.clientY };
-  };
-  const finishPointerActivation = (event: ReactPointerEvent<HTMLButtonElement>) => {
-    const start = pointerStartRef.current;
-    pointerStartRef.current = null;
-    if (!start || start.id !== event.pointerId || !event.isPrimary || event.button !== 0) return;
-    if (Math.hypot(event.clientX - start.x, event.clientY - start.y) > 10) return;
-    ignoreClickUntilRef.current = performance.now() + 650;
-    setOpen((value) => !value);
-  };
-  const cancelPointerActivation = () => { pointerStartRef.current = null; };
-  const finishClickActivation = () => {
-    if (performance.now() < ignoreClickUntilRef.current) return;
-    setOpen((value) => !value);
+  const closeSwitcher = () => {
+    if (rootRef.current) rootRef.current.open = false;
   };
   const navigateFromSwitcher = (event: ReactMouseEvent<HTMLAnchorElement>) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -70,6 +53,7 @@ export function WorldSwitcher({ active = "vacation" }: { active?: WorldId }) {
     const href = event.currentTarget.getAttribute("href");
     if (!href) return;
     if (lastNavigationRef.current?.href === href && performance.now() < lastNavigationRef.current.until) return;
+    closeSwitcher();
     router.push(href);
   };
   const navigateFromSwitcherPointer = (event: ReactPointerEvent<HTMLAnchorElement>) => {
@@ -78,20 +62,18 @@ export function WorldSwitcher({ active = "vacation" }: { active?: WorldId }) {
     if (!href) return;
     event.preventDefault();
     lastNavigationRef.current = { href, until: performance.now() + 650 };
+    closeSwitcher();
     router.push(href);
   };
 
-  const globalSearchHref = localizedPath("/search", language);
-
   return (
-    <div ref={rootRef} className={`world-dock ${open ? "open" : ""}`}>
-      {open && <nav className="world-dock__panel" aria-label={translate("חיפוש ומעבר בין עולמות")}>
+    <details ref={rootRef} className="world-dock" suppressHydrationWarning>
+      <summary ref={triggerRef} aria-label={translate("חיפוש ובחירת עולם")}><WorldSearchIcon /><span><strong>{translate("חיפוש")}</strong></span></summary>
+      <nav className="world-dock__panel" aria-label={translate("חיפוש ומעבר בין עולמות")}>
         <header><span>{translate("כל מה שכיף לעשות")}</span><strong>{translate("מה תרצו לחפש?")}</strong></header>
-        <Link className="world-dock__global-search" href={globalSearchHref} onPointerDown={navigateFromSwitcherPointer} onClick={navigateFromSwitcher}><WorldSearchIcon /><span><b>{translate("חיפוש כללי")}</b><small>{translate("חפשו מקום, עסק או יעד בכל האתר")}</small></span></Link>
         {publicWorldNavigation.map((world) => { const href = localizedPath(world.href, language); return <Link key={world.id} className={world.id === active ? "active" : ""} href={href} onPointerDown={navigateFromSwitcherPointer} onClick={navigateFromSwitcher}><span className={`world-mark world-mark--${world.id}`} aria-hidden="true" /><span><b>{translate(world.label)}</b><small>{translate(world.description)}</small></span></Link>; })}
-      </nav>}
-      {hydrated ? <button ref={triggerRef} type="button" aria-label={translate(open ? "סגירת חיפוש ובחירת עולם" : "חיפוש ובחירת עולם")} aria-expanded={open} aria-haspopup="true" onPointerDown={rememberPointerStart} onPointerUp={finishPointerActivation} onPointerCancel={cancelPointerActivation} onClick={finishClickActivation}><WorldSearchIcon /><span><strong>{translate(open ? "סגירה" : "חיפוש")}</strong></span></button> : <Link className="world-dock__prehydrate" href={globalSearchHref} aria-label={translate("חיפוש ובחירת עולם")}><WorldSearchIcon /><span><strong>{translate("חיפוש")}</strong></span></Link>}
-    </div>
+      </nav>
+    </details>
   );
 }
 
@@ -99,7 +81,7 @@ function WorldSearchIcon() {
   return <svg className="world-search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg>;
 }
 
-export function SearchWorldTabs({ active, location, onNavigate }: { active: WorldId; location?: string; onNavigate?: () => void }) {
+export function SearchWorldTabs({ active, location, onNavigate }: { active: PublicWorldId; location?: string; onNavigate?: () => void }) {
   const router = useRouter();
   const { language, translate } = useSiteLanguage();
   const [moreOpen, setMoreOpen] = useState(false);
@@ -161,7 +143,7 @@ export function SearchWorldTabs({ active, location, onNavigate }: { active: Worl
         </summary>
         <div className="search-world-tabs__menu">
           <header className="search-world-tabs__menu-head"><strong>{translate("עולמות נוספים")}</strong><button type="button" aria-label={translate("סגירת בחירת העולמות")} onClick={closeMoreAndRestoreFocus}>×</button></header>
-          {moreWorlds.map((world) => { const href = localizedPath(world.href, language); return <Link key={world.id} href={href} onClick={navigateWithinSearch(href, closeMoreMenu)}>
+          {moreWorlds.map((world) => { const href = localizedPath(world.href, language); return <Link key={world.id} className={world.id === active ? "active" : ""} aria-current={world.id === active ? "page" : undefined} href={href} onClick={navigateWithinSearch(href, closeMoreMenu)}>
             <span className={`world-mark world-mark--${world.id}`} aria-hidden="true" />
             <span><strong>{translate(world.shortLabel)}</strong><small>{translate(world.description)}</small></span>
           </Link>; })}

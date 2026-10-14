@@ -38,4 +38,3 @@ export default async function SpaLandingPage({ params }: { params: Promise<{ slu
     <WorldLanding world="spa" title={title} description={description} items={spaPlaces} searchMode="spa" activeSpaFilter={landing.id} initialSpaFilters={[landing.id]} breadcrumbItems={[{ name: "ראשי", path: "/" }, { name: "בתי ספא", path: "/spas" }, { name: title }]} collectionTitle={`${title}, ${items.length} מקומות מתאימים`} />
   </>;
 }
-

@@ -58,4 +58,3 @@ export async function GET(request: Request) {
     return Response.json({ error: "overview_unavailable" }, { status: 503, headers });
   }
 }
-

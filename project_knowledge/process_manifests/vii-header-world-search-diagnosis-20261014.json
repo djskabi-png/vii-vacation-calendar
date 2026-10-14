@@ -1,0 +1,92 @@
+{
+  "status": "fixed",
+  "symptom": "On the Attractions and Trails pages, the prominent top search control jumped to the page filters instead of letting the visitor change worlds, while the shared header could route an early click to the unrelated vacation search.",
+  "expected_behavior": "The first click on either search entry should stay at the current scroll position, open an in-place world chooser, identify the current world, and let the visitor switch to any VII world. Scrolling to local filters should require an explicit second action.",
+  "environment": "Local VII branch review/vii-api-refresh-20261008 before release on 2026-10-14, exercised at desktop width 1285 and mobile width 390 on /attractions and /trails.",
+  "reproduction": {
+    "steps": [
+      "Open /attractions or /trails.",
+      "Activate the large Change search control above the breadcrumbs.",
+      "Activate the shared header search before client hydration completes."
+    ],
+    "evidence": "The page source used a direct #attraction-search or #trail-search anchor with no world chooser. The shared header rendered a pre-hydration /search link even though /search is the vacation-specific search route. Attractions and Trails also shared the activities variant and could not represent their own active navigation IDs."
+  },
+  "observations": [
+    {
+      "observation": "The large search rail on Attractions and Trails was a direct hash link.",
+      "evidence": "Pre-fix app/attractions/page.tsx and app/trails/page.tsx used special-search-summary anchors to the local filter IDs."
+    },
+    {
+      "observation": "The header changed behavior across hydration and exposed /search before JavaScript was ready.",
+      "evidence": "Pre-fix WorldSwitcher contained a pre-hydration anchor to /search and later replaced it with a button-driven chooser."
+    },
+    {
+      "observation": "The corrected large control opens without URL or scroll change and has a separate local-filter action.",
+      "evidence": "Browser verification on /attractions observed the same URL, scrollY 0, an open chooser and explicit #attraction-search action; selecting Spa navigated to /spas."
+    },
+    {
+      "observation": "The corrected control remains usable without horizontal overflow on mobile.",
+      "evidence": "At 390x480 the disclosure opened at scrollY 0 with document overflow 0; its More menu was fixed within the viewport from y=78 to y=406 and marked Attractions aria-current=page."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "The header's pre-hydration /search fallback sends an early click to the vacation-specific search instead of opening the world chooser.",
+      "prediction": "Removing the fallback and server-rendering a native disclosure will keep the URL unchanged on the first click and expose all worlds immediately.",
+      "discriminating_test": "Inspect the server-rendered header and activate its summary before and after hydration across the world-page family.",
+      "result": "The corrected server HTML contains a native details/summary chooser, no /search fallback, eight world destinations and the route-specific active item. Focused header contracts passed.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The Attractions and Trails search rail itself is a local hash jump and has no path for changing worlds.",
+      "prediction": "Replacing the hash trigger with a native in-place disclosure containing the shared world tabs will prevent the initial jump while preserving an explicit route to local filters.",
+      "discriminating_test": "Activate the control on Attractions and Trails at scrollY 0, inspect URL and open state, then choose another world and separately activate the local-filter action.",
+      "result": "The initial activation stayed on the same URL at scrollY 0. The chooser exposed the current world and navigated from Attractions to /spas. The explicit local-filter action alone changed the URL to #attraction-search and scrolled to the filters.",
+      "status": "supported"
+    },
+    {
+      "id": "H3",
+      "mechanism": "The client-side router always sends Attractions visitors to the wrong route after hydration.",
+      "prediction": "A hydrated interaction would still navigate away immediately even after the pre-hydration fallback and hash link were removed.",
+      "discriminating_test": "Exercise the hydrated controls and compare the URL before and after opening them.",
+      "result": "Hydrated controls opened in place without changing the URL; only selecting a destination initiated navigation.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H2",
+  "fix": {
+    "change": "Replace the Attractions and Trails hash-only search rail with a server-owned native disclosure containing the shared world selector and a separately labeled local-filter link. Replace the header hydration fallback with a server-rendered native chooser, derive Attractions and Trails active IDs from the pathname, and keep the mobile More menu inside the viewport.",
+    "evidence": "TypeScript and 29 focused contracts passed. Browser checks passed on desktop and 390x480 mobile for first activation, no jump, active state, cross-world navigation, explicit filter jump and zero horizontal overflow."
+  },
+  "affected_family": [
+    "Shared header world chooser",
+    "Attractions landing search rail",
+    "Trails landing search rail",
+    "Localized world navigation",
+    "Mobile More-worlds menu"
+  ],
+  "regression_checks": [
+    {
+      "check": "TypeScript compilation",
+      "status": "passed",
+      "evidence": "pnpm exec tsc --noEmit passed after the final disclosure change."
+    },
+    {
+      "check": "Focused world-navigation contracts",
+      "status": "passed",
+      "evidence": "29 tests passed across page ordering, header behavior, public discovery navigation, mobile layout and performance contracts."
+    },
+    {
+      "check": "Desktop and mobile interaction",
+      "status": "passed",
+      "evidence": "Observed no initial URL or scroll change, successful /spas navigation, explicit filter jump only, route-specific active state and no horizontal overflow at 390x480."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "Production behavior remains to be verified against the exact deployed release after publication."
+  ],
+  "authorization_boundary": "The user authorized repair and publication of the VII search-world switching flow; no catalog, pricing, supplier, domain or unrelated content change is included."
+}

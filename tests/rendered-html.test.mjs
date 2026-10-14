@@ -756,7 +756,7 @@ test("independent trails are sourced, filterable and connected to stays", async 
   assert.match(business, /nearbyTrails/);
   assert.match(business, /מסלולים באזור/);
   assert.match(header, /publicWorldNavigation\.map/);
-  assert.match(header, /<WorldSwitcher active=\{variant\}/);
+  assert.match(header, /<WorldSwitcher active=\{activeWorld\}/);
   assert.match(footer, /href="\/trails"/);
   assert.match(styles, /\.trail-filters/);
   assert.match(styles, /\.trail-detail__layout/);
@@ -1157,10 +1157,10 @@ test("world selection stays in the header and no longer competes with floating a
   assert.doesNotMatch(css, /\.world-dock__backdrop/);
   assert.doesNotMatch(worldSwitcher, /className="world-dock__backdrop"/);
   assert.match(worldSwitcher, /document\.addEventListener\("click", closeOnOutsideClick\)/);
-  assert.match(worldSwitcher, /rootRef\.current\?\.contains\(event\.target as Node\)/);
+  assert.match(worldSwitcher, /rootRef\.current\?\.open && !rootRef\.current\.contains\(event\.target as Node\)/);
   assert.match(worldSwitcher, /event\.key !== "Escape"/);
   assert.match(css, /\/\* Compact world selector in the global header zone \*\/[\s\S]*\.header-actions \.world-dock \{[\s\S]*position: relative;[\s\S]*inset: auto !important;/);
-  assert.match(css, /@media \(max-width: 960px\) \{[\s\S]*\.world-dock > button \{[\s\S]*width: 44px;[\s\S]*border-radius: 50%;/);
+  assert.match(css, /@media \(max-width: 960px\) \{[\s\S]*\.world-dock > summary \{[\s\S]*width: 44px;[\s\S]*border-radius: 50%;/);
 });
 
 test("every business depth template exposes an internal gallery", async () => {
@@ -1526,7 +1526,7 @@ test("villa discovery uses a clean landing route and delayed navigation feedback
   assert.match(showcase, /<HomeLiveDeals \/>/);
   assert.match(liveDeals, /const searchDates = mode === "holidays" \? data\?\.deals\[0\] \?\? data\?\.dates : data\?\.dates/);
   assert.match(liveDeals, /new URLSearchParams\(\{ from: searchDates\.from, till: searchDates\.till, guests: "2" \}\)/);
-  assert.match(liveDeals, /<Link href=\{searchHref\}>/);
+  assert.match(liveDeals, /<Link href=\{searchHref\}[^>]*>/);
   assert.match(feedback, /showIfStillWaiting\(element\.dataset\.loadingLabel[^,]*, 320\)/);
 });
 

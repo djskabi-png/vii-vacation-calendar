@@ -26,6 +26,11 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
   const homeLoadingLabel = translate("פותחים את דף הבית...");
   const { account, openLogin } = useAccountAccess();
   const magazineActive = pathname === "/guides" || pathname.startsWith("/guides/");
+  const activeWorld = pathname === "/trails" || pathname.startsWith("/trails/")
+    ? "trails"
+    : pathname === "/attractions" || pathname.startsWith("/attractions/")
+      ? "attractions"
+      : variant;
   const magazineCopy = {
     he: { badge: "חדש", label: "מגזין", menuLabel: "מגזין ומדריכים" },
     en: { badge: "New", label: "Magazine", menuLabel: "Magazine and guides" },
@@ -183,7 +188,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
             <LanguageSwitcher compact iconOnly />
             <AccessibilityWidget placement="icon" />
             <Link className={`icon-button header-gift${pathname === "/gift-card" ? " active" : ""}`} href="/gift-card" aria-label={translate("גיפט קארד")} aria-current={pathname === "/gift-card" ? "page" : undefined}><GiftIcon /></Link>
-            <WorldSwitcher active={variant} />
+            <WorldSwitcher active={activeWorld} />
             <button ref={menuButtonRef} className="menu-button" type="button" aria-expanded={menuOpen} aria-haspopup="dialog" aria-label={translate("פתיחת תפריט")} onClick={() => setMenuOpen(true)}><MenuIcon /><span>{translate("תפריט")}</span></button>
           </div>
         </div>

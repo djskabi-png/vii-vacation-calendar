@@ -1,6 +1,5 @@
 import { readSession } from "../../../lib/google-auth.ts";
-import { searchAnalyticsDatabase } from "../../../lib/search-analytics.ts";
-import { searchPageDatabase, searchPageDefinitions, searchPageInventory } from "../../../lib/search-page-content.ts";
+import { opportunityDatabase, readOpportunityDashboard } from "../../../lib/search-opportunities.ts";
 
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 
@@ -9,20 +8,13 @@ export async function GET(request: Request) {
   const allowed = (process.env.VII_ADMIN_EMAILS || "").split(",").map((email) => email.trim().toLowerCase());
   if (!session || !allowed.includes(session.email.toLowerCase())) return Response.json({ error: "forbidden" }, { status: 403, headers });
   try {
-    const analytics = await searchAnalyticsDatabase();
-    const content = await searchPageDatabase();
-    const [signals, inventory] = await Promise.all([
-      analytics.prepare("SELECT world, location, COUNT(*) AS count FROM vii_search_events WHERE created_at >= ? AND internal = 0 AND location NOT IN ('כל הארץ', 'אחר') GROUP BY world, location ORDER BY count DESC LIMIT 50").bind(new Date(Date.now() - 30 * 86400_000).toISOString()).all<{ world: string; location: string; count: number }>(),
-      searchPageInventory(content),
-    ]);
-    const worldMap: Record<string, string> = { events: "events", hourly: "hourly", spa: "spa" };
-    const queue = signals.results.flatMap((signal) => {
-      const world = worldMap[signal.world];
-      const page = inventory.find((entry) => entry.world === world && entry.title.includes(signal.location));
-      if (!page || page.override?.status === "published") return [];
-      return [{ path: page.path, title: page.override?.title || page.title, world: signal.world, location: signal.location, searches: signal.count, status: page.override?.status || "needs_review" }];
-    });
-    return Response.json({ periodDays: 30, queue, generatedAt: new Date().toISOString() }, { headers });
+    const report = await readOpportunityDashboard(await opportunityDatabase(), 30);
+    const queue = report.opportunities.filter((item) => ["pending", "draft", "review", "scheduled"].includes(item.status)).map((item) => ({
+      id: item.id, path: item.canonicalPath || item.proposedPath, title: item.title || item.suggestedTitle,
+      world: item.world, location: item.location, searches: item.searches, uniqueSessions: item.uniqueSessions,
+      results: item.latestResultCount, readiness: item.readiness, priority: item.priority, status: item.status,
+    }));
+    return Response.json({ periodDays: 30, queue, generatedAt: report.generatedAt }, { headers });
   } catch (error) {
     console.error("VII content queue unavailable", error);
     return Response.json({ error: "content_queue_unavailable" }, { status: 503, headers });

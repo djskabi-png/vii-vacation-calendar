@@ -92,4 +92,3 @@ test("CMS-backed names stay localized in controls, favorites and accessible labe
   assert.match(favoritesPage, /localizeName\(item\.name, translate\)/);
   assert.match(discovery, /aria-label=\{`\$\{details\}: \$\{translate\(item\.name\)\}`\}/);
 });
-

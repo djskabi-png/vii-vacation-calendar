@@ -59,4 +59,3 @@ test("opening a mobile gallery image uses its displayed index through the last v
     }
   }
 });
-

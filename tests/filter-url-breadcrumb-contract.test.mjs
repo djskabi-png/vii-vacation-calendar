@@ -88,7 +88,7 @@ test("spa, events and hourly preserve location in semantic search routes", () =>
   assert.match(spa, /spaSearchHref/);
   assert.match(spa, /spaSearchTitle/);
   assert.match(spa, /slug: "spa-day-pass"/);
-  assert.match(spa, /getSpaDetails\(item\.id\)\?\.packages/);
+  assert.match(spa, /item\.features\.includes\(audienceFeature\)/);
   assert.match(spa, /matchesSearchLocation/);
 
   const spaPage = read("app/spas/search/[...segments]/page.tsx");

@@ -2,6 +2,9 @@ import { supplierDisplayDescription } from "./supplier-display-text";
 import verifiedCatalog from "./verified-catalog.json";
 import sergeyPublicCatalog from "./sergey-public-catalog.json";
 import { legacyVacationProfiles, type LegacyReview } from "./legacy-vacation-profiles";
+import { getListingOfferings } from "../lib/listing-offerings";
+import { eventPlaceHref } from "../lib/event-place-href";
+export { getListingOfferings, eventPlaceHref };
 
 export type Listing = {
   slug: string;
@@ -19,6 +22,7 @@ export type Listing = {
   images: string[];
   description: string;
   features: string[];
+  searchFilterIds?: string[];
   highlights?: ListingHighlight[];
   featureGroups?: ListingFeatureGroup[];
   audiences: string[];
@@ -93,16 +97,6 @@ export type BusinessOffering = {
   minimumNights?: number;
   minimumHours?: number;
 };
-
-export function getListingOfferings(listing: Listing): BusinessOffering[] {
-  return listing.offerings?.length ? listing.offerings : [{
-    world: "vacation",
-    label: "נופש ולינה",
-    summary: "בוחרים תאריכי הגעה ועזיבה והרכב אורחים.",
-    bookingMode: "availability-check",
-    maxGuests: listing.guests,
-  }];
-}
 
 export type ListingVideo = {
   title: string;
@@ -888,11 +882,6 @@ export const eventPlaces: EventPlace[] = sergeyPublicCatalog.places
   .filter((place) => place.world === "events")
   .map((place) => ({ ...place, description: supplierDisplayDescription(place) })) as unknown as EventPlace[];
 
-export function eventPlaceHref(place: EventPlace) {
-  return place.sourcePropertySlug
-    ? `/business?id=${place.sourcePropertySlug}&mode=events`
-    : `/events/place/${place.slug}`;
-}
 
 export const destinations = [
   { name: "אילת", subtitle: "ים, שמש ומקומות אירוח שלמים", image: properties[0].image },

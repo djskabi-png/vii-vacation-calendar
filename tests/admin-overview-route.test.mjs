@@ -36,4 +36,3 @@ test("admin overview denies a signed-in account outside the admin allowlist", as
     if (oldSecret === undefined) delete process.env.VII_AUTH_SECRET; else process.env.VII_AUTH_SECRET = oldSecret;
   }
 });
-

@@ -33,8 +33,6 @@ test("below-fold media does not compete with the first screen", async () => {
     readFile(new URL("app/components/discovery-card.tsx", root), "utf8"),
   ]);
   assert.match(home, /preload="none"/);
-  assert.match(page, /function homeShowcaseProperties\(properties: Property\[\]\)/);
-  assert.doesNotMatch(page, /const showcaseProperties = properties\.map/);
   for (const source of [home, page, property, discovery]) assert.match(source, /loading="lazy"/);
 });
 
@@ -42,6 +40,27 @@ test("hashed assets receive a long immutable browser cache", async () => {
   const worker = await readFile(new URL("worker/index.ts", root), "utf8");
   assert.match(worker, /url\.pathname\.startsWith\("\/assets\/"\)/);
   assert.match(worker, /public, max-age=31536000, immutable/);
+});
+
+test("shared navigation paths do not bundle the vacation catalog", async () => {
+  const [vacation, accommodation, spa] = await Promise.all([
+    readFile(new URL("app/data/vacation-landings.ts", root), "utf8"),
+    readFile(new URL("app/data/accommodation-landings.ts", root), "utf8"),
+    readFile(new URL("app/data/spa-search-landings.ts", root), "utf8"),
+  ]);
+  assert.doesNotMatch(vacation, /import \{ properties/);
+  assert.doesNotMatch(accommodation, /import \{ properties/);
+  assert.doesNotMatch(spa, /from "\.\/spa-details"/);
+});
+
+test("home cards receive only their featured world previews", async () => {
+  const home = await readFile(new URL("app/components/home-showcase.tsx", root), "utf8");
+  const page = await readFile(new URL("app/page.tsx", root), "utf8");
+  assert.doesNotMatch(home, /import \{ paidAttractions, providerProfiles/);
+  assert.match(page, /providerPreview=\{providerProfiles\[0\]\}/);
+  assert.match(page, /attractionPreview=\{paidAttractions\[0\]\}/);
+  assert.match(page, /function homeShowcaseProperties\(properties: Property\[\]\)/);
+  assert.doesNotMatch(page, /const showcaseProperties = properties\.map/);
 });
 
 test("vacation search serializes a compact catalog and only the visible card window", async () => {
@@ -71,4 +90,34 @@ test("shared navigation deliberately warms the localized homepage on capable con
   assert.match(shell, /<SmartNavigationWarmup/);
   assert.match(header, /href=\{homeHref\} prefetch/);
   assert.match(header, /data-global-feedback="true"/);
+});
+
+test("homepage does not prefetch heavyweight search result documents before intent", async () => {
+  const [page, showcase, deals, switcher] = await Promise.all([
+    readFile(new URL("app/page.tsx", root), "utf8"),
+    readFile(new URL("app/components/home-showcase.tsx", root), "utf8"),
+    readFile(new URL("app/components/home-live-deals.tsx", root), "utf8"),
+    readFile(new URL("app/components/world-switcher.tsx", root), "utf8"),
+  ]);
+  assert.match(page, /href="\/search" prefetch=\{false\}/);
+  assert.match(page, /href=\{`\/search\?location=.*?prefetch=\{false\}/s);
+  assert.match(showcase, /href=\{item\.href\}[\s\S]*?prefetch=\{false\}/);
+  assert.match(deals, /href=\{searchHref\} prefetch=\{false\}/);
+  assert.doesNotMatch(switcher, /world-dock__prehydrate|globalSearchHref/);
+});
+
+test("homepage destination cards acknowledge the click and warm only on intent", async () => {
+  const [showcase, styles, loading] = await Promise.all([
+    readFile(new URL("app/components/home-showcase.tsx", root), "utf8"),
+    readFile(new URL("app/globals.css", root), "utf8"),
+    readFile(new URL("app/vacations/[region]/loading.tsx", root), "utf8"),
+  ]);
+  assert.match(showcase, /onPointerEnter=\{\(\) => warmDestination\(item\.href\)\}/);
+  assert.match(showcase, /router\.prefetch\(href\)/);
+  assert.match(showcase, /aria-busy=\{isPending\}/);
+  assert.match(showcase, /data-global-feedback="true"/);
+  assert.match(showcase, /waiting: "רק רגע, כבר נכנסים"/);
+  assert.match(styles, /\.home-vacation-card__pending/);
+  assert.match(loading, /aria-busy="true"/);
+  assert.match(loading, /title: "מכינים לכם את המקומות באזור"/);
 });

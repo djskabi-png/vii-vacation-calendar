@@ -14,6 +14,7 @@ import { spaLandings, spaLandingHref } from "./data/spa-landings";
 import { indexableSpaSearchStates, spaSearchHref } from "./data/spa-search-landings";
 import { matchesSearchLocation, searchLocationOptions } from "./data/search-taxonomy";
 import { eventSearchHref, hourlySearchHref } from "./data/world-search-landings";
+import { publishedOpportunityPaths } from "./lib/search-opportunities.ts";
 
 export const dynamic = "force-dynamic";
 
@@ -51,11 +52,12 @@ function item(path: string, priority: number, changeFrequency: MetadataRoute.Sit
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [properties, eventPlaces, spaSites, hourlyCatalogPlaces] = await Promise.all([
+  const [properties, eventPlaces, spaSites, hourlyCatalogPlaces, opportunityPaths] = await Promise.all([
     publicCatalogSummaries<Property>("vacations"),
     publicCatalogSummaries<EventPlace>("events"),
     publicCatalogSummaries<SpaPlusSite>("spa"),
     publicCatalogSummaries<(typeof hourlyCatalog.places)[number]>("rooms"),
+    publishedOpportunityPaths(),
   ]);
   const spaPlaces = spaPlacesFromSites(spaSites);
   const hourlyPlaces = hourlyPlacesFromCatalog(hourlyCatalogPlaces);
@@ -96,5 +98,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .map((place) => item(`/discover/place/${place.id}`, 0.7, "weekly", place.image ? [place.image] : undefined)),
     ...magazineArticles.map((article) => item(`/guides/${article.slug}/`, 0.75, "monthly", [article.image])),
     ...trails.map((trail) => item(`/trails/${trail.slug}/`, 0.75, "monthly")),
+    ...opportunityPaths.map(({ path }) => item(path, 0.82, "weekly")),
   ];
 }

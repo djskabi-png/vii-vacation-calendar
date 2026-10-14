@@ -6,6 +6,7 @@ const taxonomy = readFileSync(new URL("../app/data/spa-landings.ts", import.meta
 const results = readFileSync(new URL("../app/components/world-map-results.tsx", import.meta.url), "utf8");
 const page = readFileSync(new URL("../app/spas/[slug]/page.tsx", import.meta.url), "utf8");
 const sitemap = readFileSync(new URL("../app/sitemap.ts", import.meta.url), "utf8");
+const searchLandings = readFileSync(new URL("../app/data/spa-search-landings.ts", import.meta.url), "utf8");
 
 test("all nine spa feature controls are crawlable clean links", () => {
   assert.equal((taxonomy.match(/slug: "/g) || []).length, 9);
@@ -25,4 +26,9 @@ test("spa landing template has unique metadata, breadcrumbs and filtered collect
 
 test("all curated spa landing pages are included in the sitemap", () => {
   assert.match(sitemap, /spaLandings\.map\(\(landing\) => item\(spaLandingHref\(landing\)/);
+});
+
+test("spa audience search uses the active catalog card instead of bundling stale spa details", () => {
+  assert.doesNotMatch(searchLandings, /from "\.\/spa-details"/);
+  assert.match(searchLandings, /item\.features\.includes\(audienceFeature\)/);
 });

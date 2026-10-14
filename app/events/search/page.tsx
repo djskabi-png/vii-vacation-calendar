@@ -12,7 +12,8 @@ import { SupplierCapacityNotice } from "../../components/supplier-capacity-notic
 import { UnavailablePlaceNotice } from "../../components/unavailable-place-notice";
 import { PageShell } from "../../components/page-shell";
 import { SearchBox } from "../../components/search-box";
-import { eventPlaceHref, type EventPlace } from "../../data/site-data";
+import type { EventPlace } from "../../data/site-data";
+import { eventPlaceHref } from "../../lib/event-place-href";
 import { supplierDisplayDescription } from "../../data/supplier-display-text";
 import { usePublishedCatalog } from "../../lib/use-published-catalog";
 import { getPlaceAccessibility } from "../../data/accessibility-data";
@@ -31,6 +32,7 @@ import { ResultsViewToggle, useResultsViewMode } from "../../components/results-
 import { matchesSearchLocation } from "../../data/search-taxonomy";
 import { useViiLiveSearch } from "../../components/use-vii-live-search";
 import { eventLiveCopy } from "../../i18n/vii-live-search-copy";
+import { trackSearchResults } from "../../lib/analytics";
 
 function runtimeEventPlace(value: unknown): EventPlace {
   const place = value as EventPlace;
@@ -134,6 +136,25 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   }, [filtered, mapOpen, mapVisibleIds]);
 
   useEffect(() => {
+    if (catalogLoading || catalogError) return;
+    const timer = window.setTimeout(() => trackSearchResults({
+      world: "events",
+      location: area,
+      hasDate: Boolean(eventFrom),
+      resultCount: filtered.length,
+      filters: {
+        ...(type !== "הכל" ? { type } : {}),
+        ...(eventType !== "הכל" ? { eventType } : {}),
+        ...(guests ? { guests } : {}),
+        ...(noNoiseLimit ? { noise: true } : {}),
+        ...(accessibleOnly ? { accessible: true } : {}),
+        ...(hours !== 3 ? { hours } : {}),
+      },
+    }), 650);
+    return () => window.clearTimeout(timer);
+  }, [accessibleOnly, area, catalogError, catalogLoading, eventFrom, eventType, filtered.length, guests, hours, noNoiseLimit, type]);
+
+  useEffect(() => {
     const timer = window.setTimeout(() => setMapVisibleIds(null), 0);
     return () => window.clearTimeout(timer);
   }, [accessibleOnly, area, eventType, guests, noNoiseLimit, sort, type]);
@@ -200,4 +221,3 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
     </PageShell>
   );
 }
-

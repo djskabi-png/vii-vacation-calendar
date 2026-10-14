@@ -1,4 +1,4 @@
-import { properties, type Property } from "./site-data";
+import type { Property } from "./site-data";
 
 export type AccommodationCategoryId = "villas" | "suite-complexes" | "luxury-suites" | "vacation-apartments";
 
@@ -85,7 +85,7 @@ export function getAccommodationRegion(slug?: string | null) {
   return slug ? accommodationRegions.find((region) => region.slug === slug) : undefined;
 }
 
-export function accommodationListings(category: AccommodationCategory, region?: AccommodationRegion, inventory: Property[] = properties) {
+export function accommodationListings(category: AccommodationCategory, region: AccommodationRegion | undefined, inventory: Property[]) {
   return inventory.filter((property) => category.propertyTypes.includes(property.type) && (!region || region.matches(property)));
 }
 
@@ -125,7 +125,7 @@ export function cleanAccommodationPath(type: string, area: string) {
   return accommodationLandingPath(category, region);
 }
 
-export function indexableAccommodationLandings(inventory: Property[] = properties) {
+export function indexableAccommodationLandings(inventory: Property[]) {
   return accommodationCategories.flatMap((category) => {
     if (!accommodationListings(category, undefined, inventory).length) return [];
     const regional = accommodationRegions
@@ -135,7 +135,7 @@ export function indexableAccommodationLandings(inventory: Property[] = propertie
   });
 }
 
-export function accommodationLandingForPath(categoryId: AccommodationCategoryId, regionSlug?: string | null, inventory: Property[] = properties) {
+export function accommodationLandingForPath(categoryId: AccommodationCategoryId, regionSlug: string | null | undefined, inventory: Property[]) {
   const category = getAccommodationCategory(categoryId);
   if (!category) return null;
   const region = getAccommodationRegion(regionSlug);

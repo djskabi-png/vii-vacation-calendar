@@ -53,4 +53,3 @@ export async function POST(request: Request) {
     return Response.json({ error: "redirects_unavailable" }, { status: 503, headers });
   }
 }
-

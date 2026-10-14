@@ -22,4 +22,3 @@ test("search page CMS denies anonymous access", async () => {
   assert.equal((await GET(new Request(url))).status, 403);
   assert.equal((await POST(new Request(url, { method: "POST", headers: { origin: "https://vii.spaplus.co" }, body: "{}" }))).status, 403);
 });
-

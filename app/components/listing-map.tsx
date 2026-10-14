@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { eventPlaceHref, type EventPlace, type Listing } from "../data/site-data";
+import type { EventPlace, Listing } from "../data/site-data";
+import { eventPlaceHref } from "../lib/event-place-href";
 import type { DiscoveryItem } from "../data/world-data";
 import type { Trail } from "../data/trail-data";
 import { useSiteLanguage } from "../i18n/locale-provider";

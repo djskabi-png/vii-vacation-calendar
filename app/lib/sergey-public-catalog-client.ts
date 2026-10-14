@@ -189,4 +189,3 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
     },
   };
 }
-

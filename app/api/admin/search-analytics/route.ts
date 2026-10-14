@@ -17,4 +17,3 @@ export async function GET(request: Request) {
     return Response.json({ error: "search_analytics_unavailable" }, { status: 503, headers });
   }
 }
-

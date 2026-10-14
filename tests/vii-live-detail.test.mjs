@@ -70,4 +70,3 @@ test("a temporarily empty supplier room list does not erase accepted units", asy
   assert.equal(detail.units, 3);
   assert.equal(detail.guests, 7);
 });
-

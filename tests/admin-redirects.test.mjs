@@ -30,4 +30,3 @@ test("redirect API denies anonymous reads and writes", async () => {
   const post = await POST(new Request(url, { method: "POST", headers: { origin: "https://vii.spaplus.co", "Content-Type": "application/json" }, body: JSON.stringify({ sourcePath: "/old", targetPath: "/search", status: 301, active: true }) }));
   assert.equal(post.status, 403);
 });
-

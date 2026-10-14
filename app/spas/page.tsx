@@ -26,4 +26,3 @@ export default async function SpasPage() {
     <WorldLanding world="spa" title={page?.title || "בתי ספא בישראל"} description={page?.description || "בוחרים אזור, תאריך וסוג חוויה ומוצאים את הספא שמתאים לכם."} items={spaPlaces} searchMode="spa" />
   </>;
 }
-

@@ -1,5 +1,6 @@
 import type { DiscoveryItem } from "../data/world-data";
-import { getListingOfferings, type EventPlace, type Listing } from "../data/site-data";
+import type { EventPlace, Listing } from "../data/site-data";
+import { getListingOfferings } from "./listing-offerings";
 import type { MagazineArticle } from "../data/magazine-data";
 import type { Trail } from "../data/trail-data";
 

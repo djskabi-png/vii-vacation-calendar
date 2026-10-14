@@ -46,4 +46,3 @@ export function SemanticWorldHeading({ mode, title, description }: { mode?: Sear
 
   return <><h1>{liveTitle}</h1><p>{liveDescription}</p></>;
 }
-

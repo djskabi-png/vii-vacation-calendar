@@ -602,4 +602,3 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     </>
   );
 }
-

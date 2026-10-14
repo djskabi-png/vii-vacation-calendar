@@ -1,4 +1,5 @@
 import type { Property } from "../data/site-data.ts";
+import { vacationSearchFilterIds } from "./vacation-search-filter-index.ts";
 
 // Search needs the complete filter and map inventory, but not depth-page
 // galleries, editorial sections or other heavy fields for every listing.
@@ -14,9 +15,10 @@ export function publicVacationSearchProperties(properties: readonly Property[]):
     capacityScope: property.capacityScope,
     image: property.image,
     images: (property.images?.length ? property.images : [property.image]).slice(0, 5),
-    description: property.description.slice(0, 500),
-    features: property.features,
-    audiences: property.audiences,
+    description: "",
+    features: property.features.slice(0, 3),
+    searchFilterIds: vacationSearchFilterIds(property),
+    audiences: [],
     badges: property.badges,
     lat: property.lat,
     lng: property.lng,
@@ -27,7 +29,7 @@ export function publicVacationSearchProperties(properties: readonly Property[]):
     dateQuotes: property.dateQuotes,
     dailyAvailability: property.dailyAvailability,
     roomOptions: property.roomOptions,
-    contact: property.contact,
+    contact: property.contact ? { phone: property.contact.phone, whatsapp: property.contact.whatsapp } : undefined,
     demoOperations: property.demoOperations,
   }));
 }

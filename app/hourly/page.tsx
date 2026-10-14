@@ -52,4 +52,3 @@ export async function HourlyLanding({ initialLocation }: { initialLocation?: str
 export default function HourlyPage() {
   return <HourlyLanding />;
 }
-

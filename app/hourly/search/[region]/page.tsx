@@ -39,4 +39,3 @@ export default async function HourlyRegionPage({ params }: PageProps) {
   if (!location || !hourlyPlaces.some((place) => matchesSearchLocation(place, location))) notFound();
   return <HourlyLanding initialLocation={location} />;
 }
-

@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import type { CatalogSyncDiagnostics } from "../../lib/supplier-catalog-diagnostics.ts";
+import { catalogDiagnosticLabels, catalogRunExplanation, catalogRunSourceLabel,
+  catalogRunStatusLabel } from "../../lib/catalog-sync-presentation.ts";
 
 type World = "vacations" | "events" | "rooms" | "spa";
 type State = { world: World; activeCount: number; acceptedAt: string | null; lockRunId: string | null; lockUntil: string | null };
@@ -20,18 +22,19 @@ function date(value: string | null | undefined) {
   return value ? new Date(value).toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" }) : "טרם עודכן";
 }
 
-function RunDiagnostics({ value }: { value?: CatalogSyncDiagnostics }) {
+function RunDiagnostics({ world, value }: { world: World; value?: CatalogSyncDiagnostics }) {
   if (!value) return <small>לא נשמר אבחון במשיכה זו</small>;
+  const labels = catalogDiagnosticLabels(world);
   return <details>
-    <summary>פרטי אבחון</summary>
-    {value.before !== undefined ? <p><span>לפני:</span> {value.before} · <span>מועמד:</span> {value.candidate}</p> : null}
+    <summary>אבחון {worlds.find((item) => item.id === world)?.name}</summary>
+    {value.before !== undefined ? <p><span>{labels.places.plural} לפני:</span> {value.before} · <span>התקבלו מהספק:</span> {value.candidate}</p> : null}
     {value.addedIds ? <p><span>נוספו:</span> {value.addedCount} · <span dir="ltr" style={{ overflowWrap: "anywhere" }}>{value.addedIds.join(", ") || "—"}</span></p> : null}
     {value.removedIds ? <p><span>נגרעו:</span> {value.removedCount} · <span dir="ltr" style={{ overflowWrap: "anywhere" }}>{value.removedIds.join(", ") || "—"}</span></p> : null}
     {value.units ? <>
-      <p><span>מזהי יחידות/חדרים לפני:</span> {value.units.before} · <span>מועמד:</span> {value.units.candidate}</p>
-      <p><span>מזהי יחידות/חדרים שנגרעו:</span> {value.units.removedTotal} · <span>עם מקום שנגרע:</span> {value.units.removedWithPlaces} · <span>במקומות שנותרו:</span> {value.units.removedFromRetainedPlaces}</p>
+      <p><span>{labels.children.plural} לפני:</span> {value.units.before} · <span>התקבלו מהספק:</span> {value.units.candidate}</p>
+      <p><span>{labels.children.plural} שלא התקבלו:</span> {value.units.removedTotal} · <span>במקומות שנגרעו:</span> {value.units.removedWithPlaces} · <span>במקומות שנותרו:</span> {value.units.removedFromRetainedPlaces}</p>
       <ul>{value.units.removed.map((row, index) => <li key={`${row.supplierId}-${row.childId}-${index}`}>
-        <span>מקום:</span> <span dir="ltr">{row.supplierId}</span> · <span>יחידה/חדר:</span> <span dir="ltr">{row.childId}</span>
+        <span>{labels.places.singular}:</span> <span dir="ltr">{row.supplierId}</span> · <span>{labels.children.singular}:</span> <span dir="ltr">{row.childId}</span>
         {row.placeRemoved ? <> · <span>המקום נגרע</span></> : null}
       </li>)}</ul>
     </> : null}
@@ -76,9 +79,10 @@ export default function CatalogSyncPage() {
       const response = await fetch("/api/admin/catalog-sync", {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ world }),
       });
-      const result = await response.json() as { status?: string; errorCode?: string; error?: string };
+      const result = await response.json() as { world?: World; status?: string; errorCode?: string; error?: string; diagnostics?: CatalogSyncDiagnostics };
       setNotice(result.status === "accepted" ? "הנתונים נבדקו ופורסמו" :
-        result.status === "rejected" ? "העדכון נדחה בבדיקה. הנתונים הקודמים נשמרו." :
+        result.status === "rejected" || result.status === "failed"
+          ? catalogRunExplanation(result.world || world, result.errorCode, result.diagnostics) :
           result.status === "skipped" ? "משיכה אחרת כבר פועלת בתחום הזה" :
             "המשיכה נכשלה. הנתונים הקודמים נשמרו.");
       if (!result.status) setError(result.error || "המשיכה לא בוצעה");
@@ -110,9 +114,9 @@ export default function CatalogSyncPage() {
             <h2 style={{ margin: "0 0 12px", fontSize: "1.2rem" }}>{name}</h2>
             <p>מקומות: {state?.activeCount ?? "טרם נמשך"}</p>
             <p>עדכון אחרון: {date(state?.acceptedAt)}</p>
-            <p>משיכה אחרונה: {run?.status || "אין עדיין"}</p>
-            {run?.errorCode ? <p>סיבת כשל: <code dir="ltr">{run.errorCode}</code></p> : null}
-            {run?.status === "failed" || run?.status === "rejected" ? <RunDiagnostics value={run.diagnostics} /> : null}
+            <p>משיכה אחרונה: {catalogRunStatusLabel(run?.status)}</p>
+            {run?.errorCode ? <><p><strong>למה העדכון נעצר:</strong> {catalogRunExplanation(id, run.errorCode, run.diagnostics)}</p><small>קוד טכני: <code dir="ltr">{run.errorCode}</code></small></> : null}
+            {run?.status === "failed" || run?.status === "rejected" ? <RunDiagnostics world={id} value={run.diagnostics} /> : null}
             <button type="button" disabled={!!busy || running} onClick={() => void pull(id)}>
               <RefreshCw size={17} aria-hidden="true" /> {running ? "מושכים נתונים..." : "משוך עכשיו"}
             </button>
@@ -126,11 +130,11 @@ export default function CatalogSyncPage() {
             <th key={label} scope="col" style={{ padding: 10, borderBottom: "1px solid #dce4e2" }}>{label}</th>)}</tr></thead>
           <tbody>{dashboard.runs.map((run) => <tr key={run.id}>
             {[date(run.startedAt), worlds.find((item) => item.id === run.world)?.name || run.world,
-              run.source, run.status, run.beforeCount, run.candidateCount, run.addedCount,
+              catalogRunSourceLabel(run.source), catalogRunStatusLabel(run.status), run.beforeCount, run.candidateCount, run.addedCount,
               run.changedCount, run.errorCode].map((value, index) =>
               <td key={index} style={{ padding: 10, borderBottom: "1px solid #edf0ef" }}>{value ?? ""}</td>)}
             <td style={{ padding: 10, borderBottom: "1px solid #edf0ef", minWidth: 200 }}>
-              {run.status === "failed" || run.status === "rejected" ? <RunDiagnostics value={run.diagnostics} /> : "—"}
+              {run.status === "failed" || run.status === "rejected" ? <RunDiagnostics world={run.world} value={run.diagnostics} /> : "—"}
             </td>
           </tr>)}</tbody>
         </table></div>

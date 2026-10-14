@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-destination-card-navigation-20261014",
+  "project": "VII",
+  "task_type": "public navigation performance and interaction repair",
+  "requested_outcome": "Make destination-card activation immediately understandable and materially faster without bulk-loading every destination, then publish and verify it on the existing VII site.",
+  "natural_destination": "The recommended vacation destination cards on the VII homepage and their regional vacation result routes.",
+  "authorization_boundary": "Read, implement, test and publish this focused repair to the existing VII Site while preserving domains, supplier data, secrets and unrelated behavior.",
+  "lesson_bundle": [
+    { "lesson_id": "ADIR-QA-001", "reason": "The exact click journey must work at its natural destination.", "acceptance_impact": "Require browser evidence plus full affected-family regression." },
+    { "lesson_id": "ADIR-DEPLOY-001", "reason": "The user requested publication and certainty.", "acceptance_impact": "Require exact public URL and release verification." },
+    { "lesson_id": "ADIR-SCOPE-001", "reason": "This is a focused behavior and performance repair.", "acceptance_impact": "Preserve existing card content, routes and design family." },
+    { "lesson_id": "ADIR-SIMPLICITY-001", "reason": "Feedback should clarify the action without adding user decisions.", "acceptance_impact": "One immediate selected-card state and one fallback route loader." }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    { "rejection": "A spinner is added but the route is not made faster.", "prevention": "Measure the real route and add intent-only warming before activation.", "acceptance_check": "The selected route starts warming on intent and the card changes state immediately." },
+    { "rejection": "All destination pages are prefetched and the homepage becomes heavier.", "prevention": "Keep automatic Link prefetch disabled and warm only the card receiving pointer or keyboard intent.", "acceptance_check": "The source and regression test retain prefetch=false and restrict router.prefetch to intent handlers." },
+    { "rejection": "The selected card works locally but the public release is not verified.", "prevention": "Treat local verification as a release candidate only.", "acceptance_check": "The same interaction and destination are exercised on the exact public version after deployment." }
+  ],
+  "affected_family": [
+    "recommended destination cards",
+    "regional vacation routes",
+    "loading and retry states",
+    "desktop and mobile activation",
+    "four public languages"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      { "label": "VII feedback standard", "source": "C:\\Users\\Adir\\Documents\\vii.co.il\\calendar-airbnb\\project_knowledge\\VII_FEEDBACK_STANDARD.md" }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After reproducing the source and measuring live route response, before changing shared navigation behavior.",
+    "checks": ["Measure at least two production destination routes.", "Compare cosmetic feedback, server latency and client navigation hypotheses."],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": ["Does the card change before navigation?", "Is bulk prefetch still disabled?", "Do regional pages retain one H1 and all languages?", "Does the public release show the repair?"],
+    "natural_destination_evidence": "Timed click observation on the homepage card and its resulting regional route.",
+    "affected_family_evidence": "Full test suite, sitemap HTML checks and four-language loading states."
+  },
+  "effectiveness": {
+    "baseline": "The user observed no acknowledgement and a wait that felt excessively long.",
+    "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"],
+    "target": "Immediate visible acknowledgement with an earlier route start and no homepage bulk-prefetch regression."
+  },
+  "privacy": { "raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true },
+  "ready_to_start": true
+}

@@ -29,7 +29,7 @@ test("vacation search includes the complete legacy additional filters", async ()
   for (const heading of ["כללי", "מתחם חיצוני", "מתחם פנימי", "קהלי יעד"]) assert.match(source, new RegExp(heading));
   for (const label of ["נגישות לנכים", "מקבלים בעלי חיים", "רישיון עסק", "חניה חינם", "בריכת שחייה מחוממת ומקורה", "בריכת ילדים", "בריכת שחייה פרטית", "בריכת זרמים", "בריכת שחייה מגודרת", "ג׳קוזי ספא מחומם ומקורה", "מטבח מאובזר", "אינטרנט אלחוטי", "קמין עצים", "עמדת קריוקי", "חדר משחקים", "מתאים לאירועים", "משפחות", "סוויטה לזוגות בלבד", "הצעות נישואין", "שבתות חתן", "חתונות"]) assert.match(source, new RegExp(label));
   assert.match(source, /selectedExtras\.every/);
-  assert.match(source, /searchableFacts\.includes/);
+  assert.match(source, /matchesVacationSearchFilter\(property, id\)/);
   assert.match(source, /label: "חניה חינם", matches: \["חניה חינם"\]/);
   assert.match(source, /label: "מטבח מאובזר", matches: \["מטבח מאובזר"\]/);
   assert.match(source, /label: "מבודדת", matches: \["מבודד", "מבודדת"\]/);

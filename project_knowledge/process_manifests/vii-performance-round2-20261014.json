@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-performance-round2-20261014",
+  "project": "VII",
+  "task_type": "production web performance optimization and release",
+  "requested_outcome": "Find and implement the next highest-value safe performance improvements after the smart-cache release, publish them to the existing VII Site, and verify the exact production result.",
+  "natural_destination": "https://vii.spaplus.co",
+  "authorization_boundary": "Local code changes, tests, Git push and one verified deployment to the existing VII Site are authorized. Preserve domain, D1, secrets, supplier connections, schedules, content truth and current audience.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "A performance claim must be proven on the exact live release and across the affected public-route family.",
+      "acceptance_impact": "Requires measured before-and-after evidence, browser navigation, mobile coverage and live route regression checks."
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "reason": "The change will be published to the existing VII production Site.",
+      "acceptance_impact": "Requires one saved release, exact source identity, live URL verification and a preserved rollback version."
+    },
+    {
+      "lesson_id": "ADIR-SCOPE-001",
+      "reason": "This is a targeted performance pass and must not redesign or remove approved behavior.",
+      "acceptance_impact": "Requires an explicit invariant list and regression evidence for unchanged content, navigation, language and transactional semantics."
+    },
+    {
+      "lesson_id": "ADIR-SEARCH-001",
+      "reason": "Search is the largest remaining public payload and the user's most latency-sensitive discovery surface.",
+      "acceptance_impact": "Requires measured search payload and interaction speed, accurate result-state preservation and no cache collision or stale-state regression."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The change reports a faster cache but leaves first-load JavaScript, hydration or image work unchanged.",
+      "prevention": "Measure live resource transfer and runtime work first, then optimize the largest attributable bottleneck instead of repeating cache-only work.",
+      "acceptance_check": "Before-and-after live evidence names the reduced resource or deferred work and shows a measurable result."
+    },
+    {
+      "rejection": "The homepage improves while search, world pages or detail pages remain heavy.",
+      "prevention": "Inventory and test the homepage, search, hourly, events, spa and representative detail routes.",
+      "acceptance_check": "The affected family returns 200 and the changed shared path is verified on every representative route."
+    },
+    {
+      "rejection": "Optimization removes content, breaks SEO, changes language navigation or serves stale personal and booking state.",
+      "prevention": "Preserve server HTML, metadata, localized routes and strict cache exclusions for private, transactional and RSC requests.",
+      "acceptance_check": "Raw HTML, canonical and language routes remain valid; excluded requests receive no public-cache marker."
+    },
+    {
+      "rejection": "A local improvement is published without proving the actual production click path and mobile result.",
+      "prevention": "Exercise the exact deployed site in a browser on desktop and 390-pixel mobile after publication.",
+      "acceptance_check": "Real browser navigation, progressive search and overflow checks pass on the deployed URL."
+    }
+  ],
+  "affected_family": [
+    "public homepage and localized home routes",
+    "general search and progressive result rendering",
+    "hourly, events and spa index routes",
+    "business and discover detail routes",
+    "shared header navigation and route prefetch",
+    "JavaScript, CSS, fonts and optimized image delivery",
+    "anonymous document and catalog cache behavior",
+    "authenticated, private, transactional and RSC exclusions"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII approved architecture and performance direction",
+        "source": "C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"
+      },
+      {
+        "label": "VII accepted product behavior and family consistency",
+        "source": "C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "Current verified smart-cache release baseline",
+        "source": "commit 7f1ec1c on review/vii-api-refresh-20261008"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After measuring the production resource waterfall and implementing the first high-value optimization locally, before broadening or deploying.",
+    "checks": [
+      "The targeted bottleneck is supported by measured live evidence.",
+      "The local production build passes and the changed route retains its content and interaction contract.",
+      "The improvement is not merely a duplicate of the already-published cache work."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Does a cold anonymous visit still download or execute the same heavy resources before useful content?",
+      "Did any deferred or split component become blank, shift layout or fail after interaction?",
+      "Do private, authenticated, booking and RSC requests still bypass shared public cache?",
+      "Does the exact live release preserve localized logo navigation, result progression, SEO metadata and mobile geometry?"
+    ],
+    "natural_destination_evidence": "Exact deployed URL, saved release identity, live resource and timing measurements, and real browser interaction evidence.",
+    "affected_family_evidence": "Representative public routes, both directions, private exclusions, search states, desktop and 390-pixel mobile all pass after deployment."
+  },
+  "effectiveness": {
+    "baseline": "The prior live release reduced search HTML to about 1.18 MB and warm public TTFB to about 0.30-0.66 seconds, but client resource and hydration costs remain to be measured and improved.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Deliver another independently measurable production performance gain without regression or unsafe cache expansion."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

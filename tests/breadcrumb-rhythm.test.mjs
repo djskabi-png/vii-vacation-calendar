@@ -7,7 +7,7 @@ const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf
 test("world landing breadcrumbs follow the search rail and precede the page heading", () => {
   for (const path of ["app/components/world-landing.tsx", "app/events/page.tsx", "app/attractions/page.tsx", "app/trails/page.tsx"]) {
     const source = read(path);
-    const search = Math.min(...["world-hero", "events-hero", "special-search-rail"].map((token) => source.indexOf(token)).filter((index) => index >= 0));
+    const search = Math.min(...["world-hero", "events-hero", "special-search-rail", "<SpecialWorldSearch"].map((token) => source.indexOf(token)).filter((index) => index >= 0));
     const breadcrumb = source.indexOf("<BreadcrumbTrail className=\"world-breadcrumbs\"");
     const heading = Math.min(...["world-page-heading", "attractions-hero", "trails-hero"].map((token) => source.indexOf(token)).filter((index) => index >= 0));
     assert.ok(search >= 0 && breadcrumb > search && heading > breadcrumb, `${path} must place search, breadcrumbs, then heading`);
