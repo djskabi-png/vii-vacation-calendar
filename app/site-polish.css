@@ -186,7 +186,7 @@ h1, h2, h3, h4 { letter-spacing: 0; }
 .home-live-deals__track { scroll-padding-inline: 3px; }
 .home-live-deals__card-body { line-height: 1.5; }
 .home-live-deals__card h3 { font-weight: 700; }
-.home-live-deals__card-body > b { width: fit-content; }
+.home-live-deals__actions { margin-top: auto; }
 
 .stay-card__gallery-arrow {
   opacity: 1;

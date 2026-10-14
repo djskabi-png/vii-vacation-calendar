@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-home-deals-owner-review-20261014",
+  "project": "VII",
+  "task_type": "public-homepage-admin-and-release",
+  "requested_outcome": "לתקן את כל ההערות בצילומי מקטע הנופש הפנוי, להוסיף שליטה ניהולית אמיתית בתצוגה, לפרסם ולוודא את התוצאה החיה",
+  "natural_destination": "https://vii.spaplus.co/ והעריכה ב-https://vii.spaplus.co/admin/content-studio",
+  "authorization_boundary": "מותר לשנות, לבדוק ולפרסם את אתר VII בהתאם להוראה המפורשת. אין להמציא זמינות, מחיר או קיבולת ואסור לפגוע בשינויים קיימים שאינם שייכים למשימה.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-ADMIN-001",
+      "reason": "אדיר ביקש לבחור דרך מערכת הניהול אילו מקומות יקודמו במקטע.",
+      "acceptance_impact": "נדרשת עריכה מורשית, שמירה, פרסום, רענון והשתקפות בפועל בדף הבית בלי לעקוף זמינות אמת."
+    },
+    {
+      "lesson_id": "ADIR-PREVIEW-001",
+      "reason": "ששת הצילומים הם חוזה מפורט למרכיבים ולמצבים שיש לתקן.",
+      "acceptance_impact": "כל הערה ממופה לרכיב ולבדיקה מפורשת בלי לשנות חלקים לא קשורים."
+    },
+    {
+      "lesson_id": "ADIR-MOBILE-001",
+      "reason": "הכרטיסים, הלשוניות והחצים משותפים גם לנייד.",
+      "acceptance_impact": "נדרש מסלול מלא ברוחב 390 פיקסלים ובדיקת גלילה, פעולות וחיתוכים."
+    },
+    {
+      "lesson_id": "ADIR-WEB-006",
+      "reason": "אישור חזותי של מוצר חיפוש דורש צילום חי ולא בדיקות קוד בלבד.",
+      "acceptance_impact": "יש לצלם ולבדוק את הגרסה הציבורית במחשב ובנייד לאחר הפרסום."
+    },
+    {
+      "lesson_id": "ADIR-TYPE-001",
+      "reason": "כל הטקסטים החדשים והניהוליים בעברית.",
+      "acceptance_impact": "Heebo וגיבוי מודרני נבדקים במקטע הציבורי ובסטודיו התוכן."
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "התוצאה כוללת API, ממשק ציבורי ומערכת ניהול ולכן תיקון נקודתי אינו מספיק.",
+      "acceptance_impact": "יש לבדוק מצבי טעינה, שגיאה, ריק, הצלחה, לחיצה, פרסום ורענון ביעד הטבעי."
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "reason": "המשימה מסתיימת רק בפרסום לפרודקשן.",
+      "acceptance_impact": "נדרש לזהות בסיס פרסום עדכני, לשמור נקודת חזרה ולבדוק את הכתובות החיות לאחר הפרסום."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "השדות החדשים ייראו יפה אבל לא יהיו מבוססים על נתוני הספק.",
+      "prevention": "להציג רק שם יחידה, חדרי שינה, קיבולת, טלפון וזמינות שמגיעים מתשובת ה-API המאומתת.",
+      "acceptance_check": "בדיקת API ו-DOM מוכיחה שאין ערך מומצא ושמידע חסר פשוט אינו מוצג."
+    },
+    {
+      "rejection": "בחירה במערכת הניהול לא תשפיע באמת על דף הבית.",
+      "prevention": "לחבר את שכבת VII שפורסמה בסטודיו התוכן למיון תוצאות הזמינות, תוך מילוי אוטומטי של מקומות אחרים כשנבחר אינו פנוי.",
+      "acceptance_check": "פרסום עדיפות לעסק, רענון ללא מטמון ואימות שהוא קודם בסליידר כאשר הוא זמין."
+    },
+    {
+      "rejection": "החצים ייראו פעילים בקצה או יישארו מושבתים אחרי גלילה.",
+      "prevention": "לחשב גבולות גלילה אמיתיים ב-RTL ולעדכן אחרי טעינה, שינוי לשונית, גלילה ושינוי גודל.",
+      "acceptance_check": "החץ לכיוון שאינו אפשרי מושבת בתחילה והופך לפעיל רק לאחר תנועה בכיוון הנגדי."
+    },
+    {
+      "rejection": "הטקסט העליון יישאר כללי או לא מיושר ללשוניות.",
+      "prevention": "להפיק קישור דינמי לפי התקופה הפעילה וליישר את שורת הלשוניות לשפת הרכיב ולכרטיסים.",
+      "acceptance_check": "כל אחת מחמש התקופות והחגים מציגה ניסוח נכון וקישור עם אותם תאריכים."
+    },
+    {
+      "rejection": "הכרטיס עדיין יציג מידע מיותר ולא ייתן להתקשר.",
+      "prevention": "להסיר את משפט מצב ההזמנה, להוסיף פעולת חיוג אמיתית כשקיים טלפון ולהציג את פרטי ההחלטה החסרים.",
+      "acceptance_check": "כרטיס עם טלפון כולל tel:, וכרטיס ללא טלפון אינו מציג פעולה מזויפת; הטקסט הישן נעדר."
+    },
+    {
+      "rejection": "הפרסום ידרוס שינויים מאושרים מהשעות האחרונות.",
+      "prevention": "לעבוד מן הענף העדכני שמכיל את מרכז הניהול וסנכרון הקטלוגים ולבדוק היסטוריה ו-diff לפני הפריסה.",
+      "acceptance_check": "הגרסה המועמדת היא צאצא של 7142be4 וכל המסלולים המרכזיים שנוספו לאחרונה נשארים חיים."
+    }
+  ],
+  "affected_family": [
+    "home-live-deals and home-holiday-deals",
+    "five near-period tabs and all holiday tabs",
+    "deal card ready, loading, error and empty states",
+    "carousel boundaries in RTL and LTR",
+    "vacation content-studio editor and published overlay",
+    "home deals and holiday deals API routes",
+    "Hebrew, English, Russian and French copy",
+    "desktop and 390px mobile",
+    "public detail and tel actions"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "ששת צילומי הבעלים וההערות המצורפות",
+        "source": "current user message attachments"
+      },
+      {
+        "label": "תקן מוצר VII",
+        "source": "project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "גרסת הייצור החיה לפני השינוי",
+        "source": "https://vii.spaplus.co/"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "לאחר מימוש הכרטיס, הטקסט הדינמי וגבולות החצים לפני חיבור מלא למערכת הניהול",
+    "checks": [
+      "רינדור מקומי עם תשובת API מייצגת",
+      "בדיקת טקסטים ופעולות בכרטיס",
+      "בדיקת חצים בתחילת המסילה ואחרי גלילה",
+      "בדיקת 390 פיקסלים ללא חיתוך"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "האם מקום שנבחר בניהול אך אינו פנוי מוצג בטעות כפנוי?",
+      "האם כפתור חיוג מופיע ללא מספר אמיתי או שהכרטיס כולו בולע את הלחיצה?",
+      "האם אחד החצים פעיל כאשר אין עוד תוכן בכיוון שלו, במיוחד ב-RTL?",
+      "האם שינוי לשונית משאיר טקסט, קישור או מצב גלילה מהתקופה הקודמת?",
+      "האם פרסום שכבת VII שרד רענון ומשפיע על הדף הציבורי בלי למחוק נתוני ספק?"
+    ],
+    "natural_destination_evidence": "צילום ובדיקת אינטראקציה בגרסת הייצור המדויקת בדף הבית ובסטודיו התוכן",
+    "affected_family_evidence": "בדיקות אוטומטיות, בדיקות API ודפדפן לכל המצבים, השפות והגדלים המושפעים"
+  },
+  "effectiveness": {
+    "baseline": "בייצור הקישור כללי, הכרטיס חסר שדות החלטה ופעולת חיוג, טקסט מצב ההזמנה מיותר והחצים אינם מודעים לגבולות המסילה.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "כל שש משפחות ההערות נסגרות בפרסום אחד ללא נסיגה במרכז הניהול או בנתוני הזמינות."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

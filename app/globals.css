@@ -5359,9 +5359,13 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .home-slider__item > * { height: 100%; }
 .home-recommended { overflow: hidden; padding-block: 64px; background: white; }
 .home-holiday-deals { background: #f4f8f7; }
-.home-live-deals__tabs { display: flex; gap: 8px; margin: 20px 0 18px; overflow-x: auto; scrollbar-width: thin; }
-.home-live-deals__tabs button { flex: 0 0 auto; min-height: 40px; padding: 0 15px; border: 1px solid #b5c9c8; border-radius: 6px; background: #fff; color: #284747; font: inherit; font-size: .85rem; cursor: pointer; }
-.home-live-deals__tabs button[aria-selected="true"] { background: #176762; border-color: #176762; color: #fff; }
+.home-live-deals__all-link { max-width: min(48vw, 360px); line-height: 1.35; text-align: end; }
+.home-live-deals__tabs { display: flex; gap: 10px; margin: 20px 0 18px; overflow-x: auto; padding: 2px; scrollbar-width: none; }
+.home-live-deals__tabs::-webkit-scrollbar { display: none; }
+.home-live-deals__tabs--near { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.home-live-deals__tabs button { flex: 0 0 auto; min-height: 46px; padding: 0 15px; border: 1px solid #c9d9d6; border-radius: 13px; background: #fff; color: #284747; box-shadow: 0 4px 14px #1646400a; font: inherit; font-size: .85rem; font-weight: 700; cursor: pointer; transition: background-color .18s ease, border-color .18s ease, color .18s ease, transform .18s ease; }
+.home-live-deals__tabs button:hover { border-color: #5c928d; transform: translateY(-1px); }
+.home-live-deals__tabs button[aria-selected="true"] { background: #176762; border-color: #176762; color: #fff; box-shadow: 0 8px 20px #17676226; }
 .home-live-deals__tabs button:focus-visible, .home-live-deals__status button:focus-visible { outline: 3px solid #117a71; outline-offset: 2px; }
 .home-live-deals__results { min-height: 345px; }
 .home-live-deals__loading { min-height: 320px; padding-block: 2px 12px; }
@@ -5387,8 +5391,8 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .home-live-deals__status p { margin: 0; }
 .home-live-deals__status button { padding: 8px 14px; border: 1px solid #176762; border-radius: 6px; background: #fff; color: #176762; font: inherit; cursor: pointer; }
 .home-live-deals__track { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 12px; }
-.home-live-deals__card { position: relative; flex: 0 0 calc((100% - 32px) / 3); min-width: 0; overflow: hidden; border: 1px solid #d8e2df; border-radius: 8px; color: #183332; scroll-snap-align: start; }
-.home-live-deals__card-link { display: flex; height: 100%; flex-direction: column; color: inherit; text-decoration: none; }
+.home-live-deals__card { position: relative; display: flex; flex: 0 0 calc((100% - 32px) / 3); min-width: 0; overflow: hidden; flex-direction: column; border: 1px solid #d8e2df; border-radius: 14px; background: #fff; color: #183332; box-shadow: 0 12px 34px #163f3812; scroll-snap-align: start; }
+.home-live-deals__card-link { display: flex; flex: 1; flex-direction: column; color: inherit; text-decoration: none; }
 .home-live-deals__card-link:focus-visible { outline: 3px solid #117a71; outline-offset: -3px; }
 .home-live-deals__favorite { position: absolute; top: 10px; left: 10px; z-index: 1; }
 .home-live-deals__card img { width: 100%; aspect-ratio: 1.65; object-fit: cover; }
@@ -5397,17 +5401,26 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .home-live-deals__card p { margin: 0; color: #506765; font-size: .83rem; }
 .home-live-deals__card .home-live-deals__rating { color: #175f59; font-weight: 700; }
 .home-live-deals__rating span:last-child { color: #506765; font-weight: 400; }
+.home-live-deals__facts { display: flex; flex-wrap: wrap; gap: 6px; }
+.home-live-deals__facts span { padding: 5px 8px; border-radius: 999px; background: #f0f5f3; color: #3d5d59; font-size: .74rem; font-weight: 700; line-height: 1.2; }
+.home-live-deals__facts .home-live-deals__available { background: #e2f5ee; color: #096147; }
 .home-live-deals__card-body .home-live-deals__price { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-top: auto; padding-top: 10px; border-top: 1px solid #e5ece9; }
-.home-live-deals__price span { color: #506765; font-size: .8rem; }
+.home-live-deals__price span { display: grid; color: #506765; font-size: .8rem; }
+.home-live-deals__price span small { color: #708581; font-size: .7rem; font-weight: 500; }
 .home-live-deals__price strong { color: #145c57; font-size: 1.15rem; }
-.home-live-deals__card-body > b { color: #176762; font-size: .82rem; }
+.home-live-deals__actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 14px 14px; }
+.home-live-deals__actions a { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; border: 1px solid #176762; border-radius: 10px; color: #176762; font-size: .82rem; font-weight: 800; text-align: center; text-decoration: none; }
+.home-live-deals__actions a[href^="tel:"] { background: #176762; color: #fff; }
+.home-live-deals__actions a:only-child { grid-column: 1 / -1; }
+.home-live-deals__actions a:focus-visible { outline: 3px solid #117a71; outline-offset: 2px; }
 .home-deal-detail-status { padding: 16px 18px; border-inline-start: 4px solid #176762; background: #eef7f5; color: #183332; }
 .home-deal-detail-status strong { display: block; font-size: 1rem; }
 .home-deal-detail-status p { margin: 6px 0 0; line-height: 1.5; }
 .home-deal-detail-status button { margin-top: 10px; padding: 8px 12px; border: 1px solid #176762; border-radius: 6px; background: #fff; color: #176762; font: inherit; cursor: pointer; }
 .home-deal-detail-status button:focus-visible { outline: 3px solid #117a71; outline-offset: 2px; }
 @media (max-width: 900px) { .home-live-deals__card, .home-live-deals__loading-card { flex-basis: calc((100% - 16px) / 2); } }
-@media (max-width: 600px) { .home-live-deals__card, .home-live-deals__loading-card { flex-basis: min(84vw, 350px); } .home-live-deals__results { min-height: 320px; } }
+@media (max-width: 700px) { .home-live-deals__tabs--near { display: flex; } .home-live-deals__tabs--near button { min-width: 138px; } .home-live-deals__all-link { max-width: 58vw; font-size: .82rem; } }
+@media (max-width: 600px) { .home-live-deals__card, .home-live-deals__loading-card { flex-basis: min(84vw, 350px); } .home-live-deals__results { min-height: 320px; } .home-live-deals__card-body { padding: 13px; } .home-live-deals__actions { padding: 0 13px 13px; } }
 @media (prefers-reduced-motion: reduce) { .home-live-deals__loading-route img, .home-live-deals__loading-image, .home-live-deals__loading-lines span { animation: none; } }
 .home-last-minute { padding-block: 64px; color: var(--ink); background: radial-gradient(circle at 14% 18%,rgba(100,205,210,.22),transparent 32%),linear-gradient(135deg,#eef9f8 0%,#f8fbfb 55%,#fff8f2 100%); }
 .home-last-minute__layout { display: grid; grid-template-columns: .58fr 1.42fr; gap: clamp(35px,5vw,70px); align-items: center; }
