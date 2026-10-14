@@ -5,7 +5,7 @@
   "task_type": "admin product repair and expansion",
   "goal": "Every real search is captured reliably, administrator tests are visible without contaminating public demand, and the management system provides a complete operational path from demand to an editable publishable page.",
   "created_at": "2026-10-14T10:48:52.701851Z",
-  "updated_at": "2026-10-14T10:54:28.416893Z",
+  "updated_at": "2026-10-14T11:00:16.218626Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -200,9 +200,12 @@
       "source": "project_guidance",
       "statement": "Search intelligence exposes actionable rows and a direct path into the editing workflow.",
       "acceptance_check": "Search intelligence exposes actionable rows and a direct path into the editing workflow.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "The admin studio exposes private editor URL, future public URL, locale, indexing gate, sitemap promise, collision error, scheduling, version history and direct public opening after publication."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T11:00:16.218610Z"
     },
     {
       "id": "project:family-regression",
@@ -215,6 +218,30 @@
       ],
       "reason": null,
       "updated_at": "2026-10-14T10:54:28.286357Z"
+    },
+    {
+      "id": "project:url-lifecycle",
+      "source": "user_correction",
+      "statement": "Draft, review, published and scheduled search pages use an explicit multilingual URL and indexing lifecycle.",
+      "acceptance_check": "Drafts have only a private admin identity; publication requires a unique world-scoped ASCII URL, indexing approval, live resolver eligibility and sitemap inclusion; untranslated editions are not advertised.",
+      "status": "passed",
+      "evidence": [
+        "URL policy tests and server guards verify private draft identity, world-scoped ASCII public paths, locale prefixes, indexing-required publication, collision checks and sitemap eligibility."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T11:00:15.951550Z"
+    },
+    {
+      "id": "project:live-draft-separation",
+      "source": "derived_architecture",
+      "statement": "Editing a new draft never removes or mutates the currently published edition.",
+      "acceptance_check": "Publications persist in a separate immutable live snapshot store; draft and review saves leave that snapshot intact, while archive removes it.",
+      "status": "passed",
+      "evidence": [
+        "SQLite lifecycle test publishes a live snapshot, saves a new draft without changing that snapshot, and removes the publication only on archive."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T11:00:16.087332Z"
     }
   ],
   "verification_status": "in_progress",

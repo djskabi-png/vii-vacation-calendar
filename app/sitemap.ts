@@ -41,12 +41,12 @@ function languageAlternates(path: string) {
   };
 }
 
-function item(path: string, priority: number, changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"] = "weekly", images?: string[]): MetadataRoute.Sitemap[number] {
+function item(path: string, priority: number, changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"] = "weekly", images?: string[], includeLanguageAlternates = true): MetadataRoute.Sitemap[number] {
   return {
     url: absoluteUrl(path),
     changeFrequency,
     priority,
-    alternates: languageAlternates(path),
+    ...(includeLanguageAlternates ? { alternates: languageAlternates(path) } : {}),
     ...(images?.length ? { images: Array.from(new Set(images)).map(absoluteUrl) } : {}),
   };
 }
@@ -98,6 +98,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .map((place) => item(`/discover/place/${place.id}`, 0.7, "weekly", place.image ? [place.image] : undefined)),
     ...magazineArticles.map((article) => item(`/guides/${article.slug}/`, 0.75, "monthly", [article.image])),
     ...trails.map((trail) => item(`/trails/${trail.slug}/`, 0.75, "monthly")),
-    ...opportunityPaths.map(({ path }) => item(path, 0.82, "weekly")),
+    // Search-demand editions are independently approved. Until a translation
+    // group is live, do not advertise synthetic localized alternates.
+    ...opportunityPaths.map(({ path }) => item(path, 0.82, "weekly", undefined, false)),
   ];
 }

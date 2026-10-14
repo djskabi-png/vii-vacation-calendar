@@ -20,7 +20,7 @@ test("detailed search demand keeps bounded filters and creates a clean stable op
     resultCount: 2, filters: { eventType: "אירוע משפחתי", ignored: "secret@example.com" } });
   assert.equal(parsed?.filters.eventType, "אירוע משפחתי");
   assert.equal("ignored" in (parsed?.filters || {}), false);
-  assert.equal((await opportunityIdentity(parsed)).proposedPath, "/find/events-haifa-carmel-family-event");
+  assert.equal((await opportunityIdentity(parsed)).proposedPath, "/search/events/family-event-haifa-carmel");
 });
 
 test("opportunity demand is idempotent for a repeated event id", async () => {

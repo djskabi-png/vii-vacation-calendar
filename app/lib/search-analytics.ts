@@ -1,6 +1,7 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { searchLocationOptions } from "../data/search-taxonomy.ts";
 import { searchLocationSlug } from "../data/world-search-landings.ts";
+import { publicSearchPagePath } from "./search-page-url-policy.ts";
 
 export const searchWorlds = ["vacation", "events", "spa", "hourly"] as const;
 export type SearchWorld = (typeof searchWorlds)[number];
@@ -113,11 +114,10 @@ function slugToken(value: SearchFilterValue | undefined) {
 export async function opportunityIdentity(event: SearchDemandEvent) {
   const intent = canonicalIntent(event);
   const hash = await sha256(intent);
-  const world = event.world === "vacation" ? "vacations" : event.world;
   const location = searchLocationSlug(event.location) || (event.location === "כל הארץ" ? "israel" : "search");
   const filter = slugToken(event.filters.eventType) || slugToken(event.filters.type) || slugToken(event.filters.experience);
-  const slug = [world, location, filter].filter(Boolean).join("-") + (filter ? "" : `-${hash.slice(0, 8)}`);
-  return { id: `search-${hash.slice(0, 24)}`, canonicalKey: hash, proposedPath: `/find/${slug}`, suggestedTitle: opportunityTitle(event) };
+  const slug = [filter, location].filter(Boolean).join("-") + (filter ? "" : `-${hash.slice(0, 8)}`);
+  return { id: `search-${hash.slice(0, 24)}`, canonicalKey: hash, proposedPath: publicSearchPagePath(event.world, slug), suggestedTitle: opportunityTitle(event) };
 }
 
 export async function searchAnalyticsDatabase(): Promise<D1Database> {
@@ -148,6 +148,9 @@ export async function searchAnalyticsDatabase(): Promise<D1Database> {
       id TEXT PRIMARY KEY NOT NULL, opportunity_id TEXT NOT NULL, version INTEGER NOT NULL, snapshot_json TEXT NOT NULL,
       action TEXT NOT NULL, actor_email TEXT NOT NULL, created_at TEXT NOT NULL)`),
     db.prepare("CREATE UNIQUE INDEX IF NOT EXISTS idx_vii_search_opportunity_version ON vii_search_page_opportunity_versions(opportunity_id, version)"),
+    db.prepare(`CREATE TABLE IF NOT EXISTS vii_search_page_publications (
+      opportunity_id TEXT PRIMARY KEY NOT NULL, canonical_path TEXT UNIQUE NOT NULL, locale TEXT NOT NULL, world TEXT NOT NULL,
+      snapshot_json TEXT NOT NULL, scheduled_at TEXT, published_at TEXT NOT NULL, updated_at TEXT NOT NULL)`),
   ]);
   await db.prepare("ALTER TABLE vii_search_demand_events ADD COLUMN has_date INTEGER NOT NULL DEFAULT 0").run().catch(() => undefined);
   return db;

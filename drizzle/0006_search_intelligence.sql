@@ -64,3 +64,16 @@ CREATE TABLE IF NOT EXISTS `vii_search_page_opportunity_versions` (
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS `idx_vii_search_opportunity_version` ON `vii_search_page_opportunity_versions` (`opportunity_id`,`version`);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `vii_search_page_publications` (
+	`opportunity_id` text PRIMARY KEY NOT NULL,
+	`canonical_path` text NOT NULL,
+	`locale` text NOT NULL,
+	`world` text NOT NULL,
+	`snapshot_json` text NOT NULL,
+	`scheduled_at` text,
+	`published_at` text NOT NULL,
+	`updated_at` text NOT NULL
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS `idx_vii_search_publication_path` ON `vii_search_page_publications` (`canonical_path`);

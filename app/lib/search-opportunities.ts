@@ -1,6 +1,9 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { searchPageDatabase, searchPageDefinitions, searchPageInventory } from "./search-page-content.ts";
 import { searchAnalyticsDatabase } from "./search-analytics.ts";
+import { publicSearchPagePath } from "./search-page-url-policy.ts";
+import { validSearchWorld, type SearchWorld } from "./search-analytics.ts";
+import type { SiteLanguage } from "../i18n/locale-routing.ts";
 
 export const opportunityStatuses = ["pending", "draft", "review", "scheduled", "published", "archived"] as const;
 export type OpportunityStatus = (typeof opportunityStatuses)[number];
@@ -215,6 +218,7 @@ export function parseOpportunityChange(value: unknown) {
   const status = row.status as OpportunityStatus;
   const scheduled = typeof row.scheduledAt === "string" && row.scheduledAt ? new Date(row.scheduledAt) : null;
   if (status === "scheduled" && (!scheduled || !Number.isFinite(scheduled.getTime()) || scheduled.getTime() <= Date.now())) return null;
+  if ((status === "published" || status === "scheduled") && row.robotsIndex !== true) return null;
   const content = { title: title!, metaTitle: metaTitle!, metaDescription: metaDescription!, h1: h1!, summary: summary!, body: body!, slug };
   if ((status === "published" || status === "scheduled" || status === "review") && opportunityReadiness(content) < 100) return null;
   return { id: row.id, expectedVersion: Number(row.expectedVersion), status, assignee, ...content, faq,
@@ -222,15 +226,35 @@ export function parseOpportunityChange(value: unknown) {
 }
 
 export async function saveOpportunity(db: D1Database, change: NonNullable<ReturnType<typeof parseOpportunityChange>>, actor: string) {
-  const prior = await db.prepare("SELECT version, status, proposed_path AS proposedPath FROM vii_search_page_opportunities WHERE id = ?").bind(change.id).first<{ version: number; status: string; proposedPath: string }>();
+  const prior = await db.prepare(`SELECT version, status, proposed_path AS proposedPath, world, locale, location,
+    filters_json AS filtersJson, source_path AS sourcePath, suggested_title AS suggestedTitle,
+    latest_result_count AS latestResultCount, first_seen_at AS firstSeenAt, last_seen_at AS lastSeenAt,
+    search_count AS searchCount, zero_result_count AS zeroResultCount
+    FROM vii_search_page_opportunities WHERE id = ?`).bind(change.id).first<{
+      version: number; status: string; proposedPath: string; world: string; locale: string; location: string;
+      filtersJson: string; sourcePath: string; suggestedTitle: string; latestResultCount: number;
+      firstSeenAt: string; lastSeenAt: string; searchCount: number; zeroResultCount: number;
+    }>();
   if (!prior) return { error: "not_found" as const };
   if (prior.version !== change.expectedVersion) return { error: "version_conflict" as const };
+  if (!validSearchWorld(prior.world) || !["he", "en", "ru", "fr"].includes(prior.locale)) return { error: "invalid_identity" as const };
+  if (["published", "scheduled"].includes(change.status) && !change.robotsIndex) return { error: "indexing_required" as const };
   const version = prior.version + 1;
   const at = new Date().toISOString();
-  const canonicalPath = `/find/${change.slug}`;
+  const canonicalPath = publicSearchPagePath(prior.world as SearchWorld, change.slug, prior.locale as SiteLanguage);
+  const collision = await db.prepare("SELECT opportunity_id AS id FROM vii_search_page_publications WHERE canonical_path = ? AND opportunity_id <> ? LIMIT 1").bind(canonicalPath, change.id).first<{ id: string }>();
+  if (collision) return { error: "url_conflict" as const };
   const publishedAt = change.status === "published" ? at : null;
-  const snapshot = { ...change, version, canonicalPath, publishedAt, updatedAt: at, updatedBy: actor };
-  await db.batch([
+  const snapshot: SearchOpportunity = {
+    ...change, id: change.id, origin: "search", world: prior.world, locale: prior.locale, location: prior.location,
+    filters: safeJson(prior.filtersJson, {}), sourcePath: prior.sourcePath, proposedPath: prior.proposedPath,
+    suggestedTitle: prior.suggestedTitle, latestResultCount: Number(prior.latestResultCount || 0),
+    firstSeenAt: prior.firstSeenAt, lastSeenAt: prior.lastSeenAt, searches: Number(prior.searchCount || 0),
+    uniqueSessions: 0, internalSearches: 0, internalUniqueSessions: 0, internalOnly: false,
+    zeroResults: Number(prior.zeroResultCount || 0), canonicalPath,
+    publishedAt, version, updatedAt: at, updatedBy: actor, readiness: opportunityReadiness(change), priority: 0,
+  };
+  const statements = [
     db.prepare(`UPDATE vii_search_page_opportunities SET status = ?, assignee = ?, title = ?, meta_title = ?,
       meta_description = ?, h1 = ?, summary = ?, body = ?, faq_json = ?, slug = ?, canonical_path = ?, robots_index = ?,
       scheduled_at = ?, published_at = CASE WHEN ? = 'published' THEN ? WHEN ? = 'archived' THEN NULL ELSE published_at END,
@@ -241,7 +265,15 @@ export async function saveOpportunity(db: D1Database, change: NonNullable<Return
     db.prepare(`INSERT INTO vii_search_page_opportunity_versions
       (id, opportunity_id, version, snapshot_json, action, actor_email, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`)
       .bind(crypto.randomUUID(), change.id, version, JSON.stringify(snapshot), change.status, actor, at),
-  ]);
+  ];
+  if (change.status === "published" || change.status === "scheduled") statements.push(db.prepare(`INSERT INTO vii_search_page_publications
+    (opportunity_id, canonical_path, locale, world, snapshot_json, scheduled_at, published_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(opportunity_id) DO UPDATE SET canonical_path = excluded.canonical_path,
+    locale = excluded.locale, world = excluded.world, snapshot_json = excluded.snapshot_json,
+    scheduled_at = excluded.scheduled_at, published_at = excluded.published_at, updated_at = excluded.updated_at`)
+    .bind(change.id, canonicalPath, prior.locale, prior.world, JSON.stringify(snapshot), change.scheduledAt, publishedAt || change.scheduledAt || at, at));
+  if (change.status === "archived") statements.push(db.prepare("DELETE FROM vii_search_page_publications WHERE opportunity_id = ?").bind(change.id));
+  await db.batch(statements);
   return { opportunity: snapshot };
 }
 
@@ -256,13 +288,24 @@ export async function publishedOpportunityBySlug(slug: string) {
   return row ? hydrate(row) : null;
 }
 
+export async function publishedOpportunityByPath(world: string, slug: string, locale: string) {
+  if (!validSearchWorld(world) || !["he", "en", "ru", "fr"].includes(locale)) return null;
+  const path = publicSearchPagePath(world, slug, locale as SiteLanguage);
+  const db = await opportunityDatabase();
+  const now = new Date().toISOString();
+  const row = await db.prepare(`SELECT snapshot_json AS snapshotJson FROM vii_search_page_publications
+    WHERE canonical_path = ? AND locale = ? AND (scheduled_at IS NULL OR scheduled_at <= ?) LIMIT 1`)
+    .bind(path, locale, now).first<{ snapshotJson: string }>();
+  return row ? safeJson<SearchOpportunity | null>(row.snapshotJson, null) : null;
+}
+
 export async function publishedOpportunityPaths() {
   try {
     const db = await opportunityDatabase();
     const now = new Date().toISOString();
-    const rows = await db.prepare(`SELECT canonical_path AS path, updated_at AS updatedAt FROM vii_search_page_opportunities
-      WHERE robots_index = 1 AND canonical_path IS NOT NULL AND (status = 'published' OR (status = 'scheduled' AND scheduled_at <= ?))`).bind(now).all<{ path: string; updatedAt: string | null }>();
-    return rows.results.filter((row) => row.path?.startsWith("/find/"));
+    const rows = await db.prepare(`SELECT canonical_path AS path, updated_at AS updatedAt FROM vii_search_page_publications
+      WHERE scheduled_at IS NULL OR scheduled_at <= ?`).bind(now).all<{ path: string; updatedAt: string | null }>();
+    return rows.results.filter((row) => /^\/(?:en\/|ru\/|fr\/)?search\/(?:vacations|events|spas|hourly)\/[a-z0-9-]+$/.test(row.path || ""));
   } catch { return []; }
 }
 
