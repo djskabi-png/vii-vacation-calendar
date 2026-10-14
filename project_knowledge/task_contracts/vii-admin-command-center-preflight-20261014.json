@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-admin-command-center-20261014",
+  "project": "VII",
+  "task_type": "administration product redesign and expansion",
+  "requested_outcome": "Transform the existing VII administration area into a premium, easy daily operating system with a clear command center, actionable data, search-content workflow, growth tooling and consistent responsive interaction states while preserving verified capabilities and truthful data boundaries.",
+  "natural_destination": "The authenticated production administration routes under https://vii.spaplus.co/admin",
+  "authorization_boundary": "Local implementation and verification are authorized. The standing explicit instruction in the active VII conversation authorizes publication after a versioned rollback-safe release; no supplier pull, purchase, outbound message or unverified integration activation is authorized.",
+  "lesson_bundle": [
+    {"lesson_id": "ADIR-ADMIN-001", "reason": "The request is specifically for a management system that works as a daily operating product.", "acceptance_impact": "Require short task paths, operational states, persistence where editing exists, and natural-surface verification."},
+    {"lesson_id": "ADIR-WEB-CMS-001", "reason": "Adir explicitly asked for promotion, search pages, sitemap, analytics and other site controls in one system.", "acceptance_impact": "Inventory the CMS and growth capability family and expose honest connected or unavailable states."},
+    {"lesson_id": "ADIR-DATA-001", "reason": "The dashboard contains business performance and funnel metrics.", "acceptance_impact": "Every visible number needs a defined source, period and formula; intent events remain distinct from completed outcomes."},
+    {"lesson_id": "ADIR-SIMPLICITY-001", "reason": "The requested system must remain easy and obvious despite broad capability.", "acceptance_impact": "Each screen has one current task and dominant action, with advanced tools progressively disclosed."},
+    {"lesson_id": "ADIR-VISUAL-001", "reason": "The current complaint is primarily about weak visual quality and hierarchy.", "acceptance_impact": "Use a coherent spacing rhythm, remove nested frames and verify desktop and mobile geometry visually."},
+    {"lesson_id": "ADIR-MOBILE-001", "reason": "The administration system is used on a narrow viewport and the current mobile shell is dense.", "acceptance_impact": "Treat 390px as a primary surface and verify navigation, tables, cards and actions without overflow."},
+    {"lesson_id": "ADIR-TYPE-001", "reason": "All changed administration surfaces are Hebrew.", "acceptance_impact": "Use and verify Heebo with modern sans-serif fallbacks on private desktop and mobile routes."},
+    {"lesson_id": "ADIR-QA-001", "reason": "The change touches a shared authenticated shell and several operational routes.", "acceptance_impact": "Run family regression, build, tests, live authenticated checks and preserve rollback identity."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection": "The home screen looks prettier but the inner administration pages still look like raw developer tables.", "prevention": "Create shared administration primitives and redesign the business-performance, queue and growth surfaces in addition to the shell and home.", "acceptance_check": "Open the dashboard, business performance, content queue and growth center on desktop and 390px mobile and compare hierarchy and interaction states."},
+    {"rejection": "The dashboard shows numbers without explaining whether they are impressions, visits, clicks, leads or completed bookings.", "prevention": "Label the funnel stages, period, sources and formulas and keep intent signals separate from saved leads and bookings.", "acceptance_check": "Every KPI and ratio visibly names its scope and the API contract is covered by tests."},
+    {"rejection": "The system is comprehensive but overwhelming, with too many equally prominent actions.", "prevention": "Use a dominant daily priority area, grouped tools, command search and progressive disclosure.", "acceptance_check": "Each representative screen exposes one dominant next action while all advanced modules remain reachable."},
+    {"rejection": "The new mobile administration view overflows or hides important navigation and controls.", "prevention": "Use a mobile command header, bottom navigation, horizontal-safe tables and card transformations at 390px.", "acceptance_check": "Live 390x844 checks show zero horizontal overflow and reachable primary controls."},
+    {"rejection": "The growth center pretends GA4, Search Console or supplier automation is connected.", "prevention": "Report only locally measured VII data and live public endpoint health; mark external integrations as not connected until verified.", "acceptance_check": "No connected claim is displayed without a verified API or live endpoint response."}
+  ],
+  "affected_family": [
+    "/admin shared layout and navigation",
+    "/admin overview dashboard",
+    "/admin/business-performance",
+    "/admin/content-queue",
+    "/admin/growth",
+    "authenticated loading, empty, error and unauthorized states",
+    "desktop, tablet and 390px mobile administration layouts",
+    "overview and performance API response contracts"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label": "VII administration requirements and implementation truth", "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"},
+      {"label": "VII product and release behavior", "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"},
+      {"label": "Existing search-page command center interaction depth", "source": "app/admin/search-pages/page.tsx"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the shared shell, command bar and dashboard are implemented before converting the remaining representative operational pages.",
+    "checks": ["Production build passes", "dashboard renders from real API data", "desktop and 390px first viewport have clear hierarchy and no overflow", "existing admin routes remain reachable"],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can an authenticated manager identify the single most important next action within five seconds?",
+      "Does any metric imply a completed call, WhatsApp send or booking when only an intent event was recorded?",
+      "Does any representative administration route retain raw unstyled controls, clipped content or horizontal page overflow at 390px?",
+      "Can an unauthorized visitor see any management data?",
+      "Did the redesign hide or break any previously verified tool or direct route?"
+    ],
+    "natural_destination_evidence": "Authenticated live production checks and screenshots of the exact published version on /admin and representative routes.",
+    "affected_family_evidence": "Build and complete regression suite plus desktop and mobile route matrix for the shared shell, dashboard, growth center, queue and business performance."
+  },
+  "effectiveness": {
+    "baseline": "Production version 412 has nine functioning modules, but the home dashboard and multiple operational pages use sparse cards, inline styles, raw tables and inconsistent controls; no unified growth center or command search exists.",
+    "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"],
+    "target": "One coherent administration product with a premium command center, at least four representative polished routes, truthful funnel data, zero page-level horizontal overflow at 390px and all previous routes preserved."
+  },
+  "privacy": {"raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true},
+  "ready_to_start": true
+}

@@ -1,18 +1,19 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Activity, BarChart3, Building2, CalendarSync, ExternalLink, FileSearch, Gauge, MessageCircle, Route, Search, Sparkles, Star, TrendingUp } from "lucide-react";
+import { BarChart3, Building2, CalendarSync, ExternalLink, FileSearch, Gauge, ListChecks, MessageCircle, Route, Search, Sparkles, Star, TrendingUp } from "lucide-react";
 import styles from "./admin.module.css";
 
 const groups = [
   { label: "מרכז שליטה", links: [
     { href: "/admin", label: "תמונת מצב", icon: Gauge },
+    { href: "/admin/growth", label: "מרכז קידום", icon: Sparkles },
     { href: "/admin/search-pages", label: "מרכז עמודי חיפוש", icon: FileSearch },
     { href: "/admin/business-performance", label: "ביצועי עסקים", icon: BarChart3 },
   ] },
   { label: "תוכן וגילוי", links: [
     { href: "/admin/search-analytics", label: "מודיעין חיפושים", icon: Search },
-    { href: "/admin/content-queue", label: "תור אישורים", icon: Activity },
+    { href: "/admin/content-queue", label: "תור אישורים", icon: ListChecks },
     { href: "/admin/discovery-promotions", label: "קידום מקומות", icon: TrendingUp },
     { href: "/admin/redirects", label: "כתובות והפניות", icon: Route },
   ] },
