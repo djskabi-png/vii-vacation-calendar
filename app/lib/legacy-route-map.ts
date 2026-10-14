@@ -1,28 +1,39 @@
-import supplierCatalog from "../data/sergey-public-catalog.json" with { type: "json" };
-import hourlyCatalog from "../data/sergey-hourly-catalog.json" with { type: "json" };
+import inventory from "../data/legacy-redirect-inventory.json" with { type: "json" };
 
-const destinations = new Map<string, string | null>();
+export type LegacyDisposition = { status: 301; target: string } | { status: 410 };
 
-function add(sourceUrl: string | undefined, destination: string) {
-  if (!sourceUrl) return;
-  const url = new URL(sourceUrl);
-  if (url.hostname !== "www.vii.co.il" && url.hostname !== "vii.co.il") return;
-  const key = url.pathname.toLowerCase().replace(/\/$/, "") || "/";
-  if (destinations.has(key) && destinations.get(key) !== destination) {
-    destinations.set(key, null);
-  } else if (!destinations.has(key)) {
-    destinations.set(key, destination);
-  }
+const redirects = inventory.redirects as Record<string, string>;
+const gone = new Set(inventory.gone as string[]);
+
+export function normalizedLegacySource(input: URL | string) {
+  const url = input instanceof URL ? input : new URL(input, "https://www.vii.co.il");
+  const pathname = (url.pathname.replace(/\/+$/, "") || "/").toLowerCase();
+  if (!url.search) return pathname;
+  const search = new URLSearchParams(url.search);
+  search.sort();
+  return `${pathname}?${search.toString()}`;
 }
 
-for (const place of supplierCatalog.places) {
-  if (place.world === "vacations") add(place.sourceUrl, `/business?id=${place.slug}`);
-  if (place.world === "events") add(place.sourceUrl, `/events/place/${place.slug}`);
+export function legacyDisposition(input: URL | string): LegacyDisposition | null {
+  const url = input instanceof URL ? input : new URL(input, "https://www.vii.co.il");
+  const exact = normalizedLegacySource(url);
+  const path = normalizedLegacySource(url.pathname);
+  const target = redirects[exact] || redirects[path];
+  if (target) return { status: 301, target };
+  if (gone.has(exact) || gone.has(path)) return { status: 410 };
+  return null;
 }
-for (const place of hourlyCatalog.places) add(place.sourceUrl, `/discover/place/${place.id}`);
-// This verified supplier URL was replaced in the refreshed hourly catalog.
-add("https://www.vii.co.il/rooms/ascape_room", "/discover/place/hourly-1915");
 
 export function legacyPlaceDestination(pathname: string) {
-  return destinations.get(pathname.toLowerCase().replace(/\/$/, "") || "/") || null;
+  const disposition = legacyDisposition(pathname);
+  return disposition?.status === 301 ? disposition.target : null;
 }
+
+export function looksLikeUninventoriedLegacyPath(pathname: string) {
+  const path = pathname.toLowerCase().replace(/\/+$/, "") || "/";
+  if (/^\/(?:s|events\/s)(?:\/|$)/.test(path)) return true;
+  if (/^\/(?:events|rooms)\/[^/]+$/.test(path)) return true;
+  return /^\/[^/.]+(?:\.html?|\.php)?$/.test(path);
+}
+
+export const legacyInventoryStats = inventory.stats;

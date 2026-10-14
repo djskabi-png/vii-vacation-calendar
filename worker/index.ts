@@ -9,12 +9,22 @@ import providerJoinTranslations from "../app/data/provider-join-translations.jso
 import spaUiTranslations from "../app/data/spa-ui-translations.json";
 import catalogAdminTranslations from "../app/data/catalog-admin-translations.json";
 import { runSupplierCatalogScheduleTick } from "../app/lib/supplier-catalog-retry-runner.ts";
-import { legacyPlaceDestination } from "../app/lib/legacy-route-map.ts";
+import { legacyDisposition, looksLikeUninventoriedLegacyPath } from "../app/lib/legacy-route-map.ts";
+import { redirectForUrl, shouldCheckRedirect } from "../app/lib/admin-redirects.ts";
 
 const temporaryOrigin = "https://vii.spaplus.co";
 const primaryOrigin = "https://www.vii.co.il";
 const publicCacheVersion = "v2";
 type PublicCachePolicy = { key: string; kind: "document" | "data"; ttlSeconds: number; home: boolean };
+
+function goneResponse(request: Request) {
+  const body = request.method === "HEAD" ? null : "העמוד הישן הוסר ואין לו עמוד חלופי מדויק.";
+  return new Response(body, { status: 410, headers: {
+    "Cache-Control": "public, max-age=300, s-maxage=86400",
+    "Content-Type": "text/plain; charset=utf-8",
+    "X-Robots-Tag": "noindex, follow",
+  } });
+}
 
 const publicDocumentQueryKeys = new Set([
   "accessible", "area", "features", "flex", "from", "guests", "id", "location", "maxPrice", "minPrice",
@@ -235,12 +245,22 @@ const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
     const primary = url.hostname === "www.vii.co.il" || url.hostname === "vii.co.il";
-    if (url.hostname === "vii.co.il") {
-      return Response.redirect(`${primaryOrigin}${url.pathname}${url.search}`, 308);
-    }
     if (request.method === "GET" || request.method === "HEAD") {
-      const legacyDestination = legacyPlaceDestination(url.pathname);
-      if (legacyDestination) return Response.redirect(new URL(legacyDestination, primary ? primaryOrigin : temporaryOrigin), 308);
+      if (env.DB && shouldCheckRedirect(url.pathname)) {
+        try {
+          const managed = await redirectForUrl(env.DB, url);
+          if (managed?.status === 301 && managed.target_path) return Response.redirect(new URL(managed.target_path, primary ? primaryOrigin : temporaryOrigin), 301);
+          if (managed?.status === 410) return goneResponse(request);
+        } catch (error) {
+          console.error("VII managed redirect lookup failed", error);
+        }
+      }
+      const legacy = legacyDisposition(url);
+      if (legacy?.status === 301) return Response.redirect(new URL(legacy.target, primary ? primaryOrigin : temporaryOrigin), 301);
+      if (legacy?.status === 410 || (primary && shouldCheckRedirect(url.pathname) && looksLikeUninventoriedLegacyPath(url.pathname))) return goneResponse(request);
+    }
+    if (url.hostname === "vii.co.il") {
+      return Response.redirect(`${primaryOrigin}${url.pathname}${url.search}`, 301);
     }
 
     const cachePolicy = publicCachePolicy(request, url);

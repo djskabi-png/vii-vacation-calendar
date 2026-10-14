@@ -37,16 +37,18 @@ test("all 159 active Spa sources are pinned, individually rewritten and fact-map
   }
 });
 
-test("unknown and changed supplier prose cannot overwrite VII; commercial/media updates remain independent", async () => {
+test("changed supplier prose cannot overwrite VII; approved package, commercial and media updates remain independent", async () => {
   const site=catalog.sites.find(x=>x.id===6);
-  for(const change of [{id:999999},{about:[...site.about,"unreviewed new provider restriction"]},{address:"changed address"},{shortDescription:"new provider description"},
-    {opening:["09:00-10:00"]},{packages:site.packages.map(x=>({...x,durationMinutes:70}))}]) {
+  for(const change of [{about:[...site.about,"unreviewed new provider restriction"]},{address:"changed address"},{shortDescription:"new provider description"},
+    {opening:["09:00-10:00"]}]) {
     await assert.rejects(()=>projectSpaViiSite({...site,...change}), /catalog_editorial_requires_review/);
   }
-  const commercial={...site, image:"https://www.spaplus.co.il/gallery/new.jpg", packages:site.packages.map(x=>({...x,price:x.price+1}))};
+  const commercial={...site, image:"https://www.spaplus.co.il/gallery/new.jpg", packages:site.packages.map(x=>({...x,price:x.price+1,durationMinutes:70}))};
   const view=await projectSpaViiSite(commercial);
   assert.deepEqual(view.packages,commercial.packages); assert.deepEqual(view.opening,commercial.opening);
   assert.equal(view.image,commercial.image);
+  const added=await projectSpaViiSite({...site,id:999999,title:"ספא חדש",city:"חיפה",about:["טקסט ספק שלא אושר"]});
+  assert.match(added.shortDescription,/ספא חדש/); assert.doesNotMatch(added.about.join(" "),/טקסט ספק/);
   await validateSpaEditorialCandidate([{supplierId:6,summary:site}]);
   await assert.rejects(()=>validateSpaEditorialCandidate([{supplierId:6,summary:{...site,about:["new text"]}}]),/catalog_editorial_requires_review/);
 });

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { parseRedirectInput, shouldCheckRedirect } from "../app/lib/admin-redirects.ts";
+import { normalizeRedirectSource, parseRedirectInput, shouldCheckRedirect } from "../app/lib/admin-redirects.ts";
 import { GET, POST } from "../app/api/admin/redirects/route.ts";
 
 test("redirect editor rejects active routes, system paths and external targets", () => {
@@ -16,6 +16,9 @@ test("redirect editor rejects active routes, system paths and external targets",
   assert.equal(shouldCheckRedirect("/legacy-villa-123.html"), true);
   assert.equal(shouldCheckRedirect("/asset.png"), false);
   assert.equal(shouldCheckRedirect("/events/search/north"), false);
+  assert.equal(normalizeRedirectSource("/s/?sett=508&attr=48"), "/s?attr=48&sett=508");
+  assert.deepEqual(parseRedirectInput({ sourcePath: "/s/?sett=508&attr=48", targetPath: "/search?location=%D7%90%D7%99%D7%9C%D7%AA", status: 301, active: true }),
+    { sourcePath: "/s?attr=48&sett=508", targetPath: "/search?location=%D7%90%D7%99%D7%9C%D7%AA", status: 301, active: true });
 });
 
 test("410 redirect has no target and can be saved as a draft", () => {
