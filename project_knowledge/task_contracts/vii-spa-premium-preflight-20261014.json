@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-spa-premium-20261014",
+  "project": "VII",
+  "task_type": "public-product-redesign-and-release",
+  "requested_outcome": "Transform the live Spa discovery page from a sparse generic layout into a premium, fast, clear VII experience and publish the complete approved branch without losing the administration and search-demand work already completed.",
+  "natural_destination": "https://vii.spaplus.co/spas",
+  "authorization_boundary": "Local code, tests, Git push and the user's repeatedly authorized VII production publication are allowed. Do not change supplier catalogs, domains, secrets, bindings or trigger supplier pulls.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-MIND-001",
+      "reason": "The terse rejection requires translating the visible defect into the complete experience Adir will test.",
+      "acceptance_impact": "The exact live Spa page must be inspected as a customer, not approved from code or build output."
+    },
+    {
+      "lesson_id": "ADIR-WEB-005",
+      "reason": "The changed hero, search and filter rail are responsive shared UI states.",
+      "acceptance_impact": "Desktop, 390-pixel mobile and breakpoint transitions must retain content, state and usable controls."
+    },
+    {
+      "lesson_id": "ADIR-WEB-006",
+      "reason": "The rejection was triggered by the visible mobile composition and empty space.",
+      "acceptance_impact": "A real 390-pixel capture must show meaningful content and no unexplained empty band."
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "The Spa page is a public customer surface with navigation, filters, cards and map behavior.",
+      "acceptance_impact": "The full visible journey, loading feedback and live destination require regression evidence."
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "reason": "The branch contains newer administration and tracking work than production Site 412.",
+      "acceptance_impact": "Publication must preserve the complete baseline, exact commit identity and rollback version, followed by live verification."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The first screen still feels empty, generic and unfinished.",
+      "prevention": "Build a compact image-led Spa hero with one clear search action and measured spacing.",
+      "acceptance_check": "Desktop and 390-pixel captures show title, value, real Spa imagery and search without a large empty band."
+    },
+    {
+      "rejection": "The filter icons still look like a technical grid and push the results below the fold.",
+      "prevention": "Use a deliberate horizontal experience rail on mobile and a compact premium category strip on desktop.",
+      "acceptance_check": "The result count and first result remain reachable quickly, with no two-row mobile filter wall."
+    },
+    {
+      "rejection": "Clicking a Spa category still gives no immediate acknowledgement.",
+      "prevention": "Add local pending state, spinner, accessible busy semantics and selected styling to the initiating category.",
+      "acceptance_check": "A category click changes the clicked control immediately and resolves to a matching URL, heading, count and results."
+    },
+    {
+      "rejection": "The redesign looks better locally but the live site still shows the old version or loses recent admin work.",
+      "prevention": "Publish only an immutable commit containing the current branch history and verify the exact live routes after deployment.",
+      "acceptance_check": "The live Spa page and the administration command center both expose the new release, with Site 412 retained for rollback."
+    },
+    {
+      "rejection": "Hebrew typography or mobile alignment still feels old or inconsistent.",
+      "prevention": "Reuse the approved modern sans stack and inspect headings, buttons, chips and results on both viewports.",
+      "acceptance_check": "Rendered controls use the approved Heebo/Rubik/Assistant sans family with clean RTL geometry and no clipping."
+    }
+  ],
+  "affected_family": [
+    "Base Spa discovery route at /spas",
+    "Spa feature landing routes under /spas/[feature]",
+    "Semantic Spa search routes under /spas/search/[...segments]",
+    "Spa WorldLanding hero",
+    "Spa search box",
+    "Spa experience filter rail",
+    "Spa results toolbar and cards",
+    "desktop viewport experience",
+    "390-pixel mobile viewport experience",
+    "default, pending, selected, reset, empty and map states",
+    "Hebrew right-to-left typography and geometry"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII Spa search and results behavior standard",
+        "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "Existing approved real Spa catalog images and data",
+        "source": "app/data and current production /spas catalog"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "First local desktop and 390-pixel render of the redesigned hero and filter rail",
+    "checks": [
+      "meaningful content above the fold",
+      "no unexplained blank band",
+      "one dominant search action",
+      "filter rail does not become a two-row wall",
+      "result cards and count remain visually connected"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a user still reach results quickly on a 390-pixel screen?",
+      "Does a filter click acknowledge immediately and preserve URL-backed state after reload and back?",
+      "Did the shared Spa landing family retain correct titles, breadcrumbs, selected chips and result counts?",
+      "Did publication overwrite or omit the newer administration and search-demand work?",
+      "Does any changed Hebrew control clip, wrap badly or fall back to an old font?"
+    ],
+    "natural_destination_evidence": "Live desktop and 390-pixel captures plus exercised search, category filter, reset, map and back flow on https://vii.spaplus.co/spas.",
+    "affected_family_evidence": "Representative base, feature and semantic search routes plus administration routes on the exact deployed version."
+  },
+  "effectiveness": {
+    "baseline": "Production Site 412 shows a sparse heading area and a large multi-row filter wall before results; the newer admin and search-demand commit is not yet live.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "One release candidate that visibly improves the first viewport, acknowledges interaction, preserves the full branch baseline and passes local and live release gates."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

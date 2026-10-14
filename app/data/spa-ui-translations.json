@@ -68,5 +68,13 @@
   ". מחירים ובדיקת זמינות באתר וי.": {"en": ". Prices and availability checks on VII.", "ru": ". Цены и проверка доступности на VII.", "fr": ". Tarifs et vérification des disponibilités sur VII."},
   "פרטי המקום ושעות הפעילות באתר וי.": {"en": "Venue details and opening hours on VII.", "ru": "Информация о месте и часы работы на VII.", "fr": "Détails du lieu et horaires sur VII."},
   ". מחירים; זמינות סופית בהזמנה.": {"en": ". Prices; final availability is confirmed during booking.", "ru": ". Цены; окончательная доступность подтверждается при бронировании.", "fr": ". Tarifs ; disponibilité définitive confirmée lors de la réservation."},
-  "עוד על המקום": {"en": "More about this spa", "ru": "Подробнее об этом спа", "fr": "En savoir plus sur ce spa"}
+  "עוד על המקום": {"en": "More about this spa", "ru": "Подробнее об этом спа", "fr": "En savoir plus sur ce spa"},
+  "הפסקה טובה מתחילה כאן": {"en": "Your perfect break starts here", "ru": "Ваш идеальный отдых начинается здесь", "fr": "Votre parenthèse bien-être commence ici"},
+  "יתרונות החיפוש": {"en": "Search benefits", "ru": "Преимущества поиска", "fr": "Avantages de la recherche"},
+  "מחירים וחבילות במקום אחד": {"en": "Prices and packages in one place", "ru": "Цены и пакеты в одном месте", "fr": "Tarifs et formules au même endroit"},
+  "חיפוש לפי אזור וחוויה": {"en": "Search by area and experience", "ru": "Поиск по региону и формату отдыха", "fr": "Recherche par région et expérience"},
+  "בתי ספא נבחרים": {"en": "Featured spas", "ru": "Избранные спа", "fr": "Spas à découvrir"},
+  "איך בא לכם להתפנק?": {"en": "How would you like to unwind?", "ru": "Как вы хотите отдохнуть?", "fr": "Comment souhaitez-vous vous détendre ?"},
+  "בחרו מה חשוב לכם ונציג רק מקומות מתאימים": {"en": "Choose what matters and see only matching spas", "ru": "Выберите важное, и мы покажем подходящие спа", "fr": "Choisissez vos priorités et affichez les spas adaptés"},
+  "מעדכנים...": {"en": "Updating...", "ru": "Обновляем...", "fr": "Mise à jour..."}
 }
