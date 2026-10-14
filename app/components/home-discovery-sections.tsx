@@ -3,10 +3,11 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Search } from "lucide-react";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { defaultHomepagePresentation, type HomeDiscoveryItem } from "../lib/homepage-presentation";
+import { HomeSliderControls } from "./home-slider-controls";
 
 type Presentation = typeof defaultHomepagePresentation;
 
@@ -25,18 +26,10 @@ function usePresentation() {
 }
 
 function DiscoveryRail({ id, eyebrow, title, items }: { id: string; eyebrow: string; title: string; items: HomeDiscoveryItem[] }) {
-  const track = useRef<HTMLDivElement>(null);
-  const move = (direction: number) => {
-    const node = track.current;
-    if (!node) return;
-    const card = node.querySelector<HTMLElement>("a");
-    const step = (card?.getBoundingClientRect().width || node.clientWidth * .7) + 16;
-    node.scrollBy({ left: direction * (getComputedStyle(node).direction === "rtl" ? -step : step), behavior: "smooth" });
-  };
   if (!items.length) return null;
   return <section className="home-managed-discovery" aria-labelledby={`${id}-title`}>
-    <div className="home-managed-discovery__head"><div><span>{eyebrow}</span><h3 id={`${id}-title`}>{title}</h3></div><div role="group" aria-label={`ניווט ${title}`}><button type="button" onClick={() => move(-1)} aria-label="הקודם"><ChevronRight /></button><button type="button" onClick={() => move(1)} aria-label="הבא"><ChevronLeft /></button></div></div>
-    <div className="home-managed-discovery__track" ref={track} data-horizontal-rail>{items.map((item) => <Link key={item.id} href={item.href} prefetch={false} data-global-feedback="true" data-loading-label={`פותחים ${item.label}...`}><img src={item.image} alt="" loading="lazy" decoding="async" /><span><strong>{item.label}</strong>{item.note ? <small>{item.note}</small> : null}<b>לצפייה בתוצאות</b></span></Link>)}</div>
+    <div className="home-managed-discovery__head"><div><span>{eyebrow}</span><h3 id={`${id}-title`}>{title}</h3></div><HomeSliderControls railId={`${id}-track`} label={title} itemSelector=":scope > a" /></div>
+    <div id={`${id}-track`} className="home-managed-discovery__track" data-horizontal-rail>{items.map((item) => <Link key={item.id} href={item.href} prefetch={false} data-global-feedback="true" data-loading-label={`פותחים ${item.label}...`}><img src={item.image} alt="" loading="lazy" decoding="async" /><span><strong>{item.label}</strong>{item.note ? <small>{item.note}</small> : null}<b>לצפייה בתוצאות</b></span></Link>)}</div>
   </section>;
 }
 

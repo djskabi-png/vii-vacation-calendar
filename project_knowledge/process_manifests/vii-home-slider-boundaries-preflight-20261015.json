@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-home-slider-boundaries-20261015",
+  "project": "VII",
+  "task_type": "shared homepage carousel interaction and launch-readiness verification",
+  "requested_outcome": "Every homepage content slider behaves like the approved available-stays slider: at the initial RTL boundary the right previous arrow is disabled, it becomes available only after moving left, the left next arrow disables at the far end, and launch readiness is reported from current live evidence.",
+  "natural_destination": "The public VII homepage on desktop and 390-pixel mobile, across available stays, destinations, managed discovery, videos, reviews, spa and hourly rails.",
+  "authorization_boundary": "Implement, test, commit and publish this bounded shared-control correction to the already approved temporary VII production site, preserving all unrelated content, data and behavior. DNS or main-domain cutover is not authorized by this change.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "A shared interaction is complete only when the exact public family is exercised, not merely when source code builds.",
+      "acceptance_impact": "Test each homepage rail at its initial boundary, after one movement and at its terminal boundary on the deployed version."
+    },
+    {
+      "lesson_id": "ADIR-CONTROL-001",
+      "reason": "Every visible carousel arrow promises a bounded action and must communicate when that action is unavailable.",
+      "acceptance_impact": "Disabled arrows are native disabled controls, visually distinct, skipped by activation and exposed correctly to assistive technology."
+    },
+    {
+      "lesson_id": "ADIR-CONSISTENCY-001",
+      "reason": "The user explicitly asked for every slider to match the approved available-stays behavior.",
+      "acceptance_impact": "Use one shared control implementation for every homepage rail instead of separate approximations."
+    },
+    {
+      "lesson_id": "ADIR-SCOPE-001",
+      "reason": "This is a targeted interaction correction on an already approved visual homepage.",
+      "acceptance_impact": "Preserve card content, order, dimensions, links, copy, loading and supplier data."
+    },
+    {
+      "lesson_id": "ADIR-MOBILE-001",
+      "reason": "Horizontal rails are a primary touch interaction on mobile.",
+      "acceptance_impact": "Verify swipe, arrow state, no overflow and no stale state at 390 pixels."
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "reason": "The requested behavior is intended for the public VII site.",
+      "acceptance_impact": "Publish only the verified current production baseline, retain rollback identity and recheck the live URL."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "Only one example slider is fixed while other homepage rails still allow both arrows at the boundary.",
+      "prevention": "Replace the three separate homepage arrow implementations with one shared boundary-aware component.",
+      "acceptance_check": "The affected-family inventory finds no remaining homepage rail with unbounded arrow controls."
+    },
+    {
+      "rejection": "The right arrow looks inactive but is still clickable or keyboard-focusable.",
+      "prevention": "Use the native disabled attribute derived from observed rail geometry.",
+      "acceptance_check": "At initial RTL position the right previous button is disabled and clicking it leaves scroll position unchanged."
+    },
+    {
+      "rejection": "Arrow state becomes stale after async deals load, CMS discovery data changes, resize or language direction changes.",
+      "prevention": "Observe scrolling, size and child mutations and recompute from actual first and last card geometry.",
+      "acceptance_check": "Loading to ready, resize and RTL/LTR routes all produce correct boundary states."
+    },
+    {
+      "rejection": "The change is locally correct but an older deployment source overwrites recent production capabilities.",
+      "prevention": "Work from the branch and worktree that produced public Site 418 and compare the deployed asset/version afterward.",
+      "acceptance_check": "The exact published candidate retains current homepage sections, supplier catalogs and admin routes, with rollback recorded."
+    }
+  ],
+  "affected_family": [
+    "Available-stays and holiday-stays homepage rails",
+    "Destination recommendations rail",
+    "Managed popular, city and property-type discovery rails",
+    "Videos and reviews rails",
+    "Spa and hourly-room rails",
+    "Hebrew RTL plus English, Russian and French direction-aware controls",
+    "Desktop and 390-pixel mobile interaction states"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "Approved available-stays slider behavior on current public homepage",
+        "source": "https://vii.spaplus.co/#home-live-deals-title"
+      },
+      {
+        "label": "VII accepted product feedback standard",
+        "source": "C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the shared control is applied to the destinations rail and one managed discovery rail.",
+    "checks": [
+      "The initial Hebrew state disables only the right previous arrow.",
+      "Moving left enables the right arrow and changes the rail position.",
+      "The approved visual shape, card layout and links remain unchanged."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can any homepage rail still activate the right arrow at its initial RTL boundary?",
+      "Can resizing or async content leave the wrong arrow enabled?",
+      "Can the terminal left boundary be passed with repeated clicks?",
+      "Did the release remove or alter any current homepage section or live catalog behavior?"
+    ],
+    "natural_destination_evidence": "Live browser interaction on the exact deployed VII homepage at desktop and 390-pixel mobile.",
+    "affected_family_evidence": "Automated shared-component contracts plus live checks of every visible homepage carousel group."
+  },
+  "effectiveness": {
+    "baseline": "The available-stays rails already track boundaries, while destinations, managed discovery, videos, reviews, spa and hourly rails expose both arrows at the initial boundary.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "One shared implementation and zero homepage sliders with an enabled previous arrow at the initial RTL boundary."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

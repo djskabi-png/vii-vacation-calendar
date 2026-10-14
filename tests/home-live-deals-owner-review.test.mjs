@@ -14,13 +14,19 @@ test("live deal cards communicate availability, price basis and the requested He
 });
 
 test("period navigation and carousel controls reflect the active context and real boundaries", async () => {
-  const component = await read("app/components/home-live-deals.tsx");
+  const [component, controls] = await Promise.all([
+    read("app/components/home-live-deals.tsx"),
+    read("app/components/home-slider-controls.tsx"),
+  ]);
   assert.match(component, /לכל מקומות הנופש ברגע האחרון/);
   assert.match(component, /לכל מקומות הנופש מחמישי עד שבת/);
-  assert.match(component, /first\.right > bounds\.right/);
-  assert.match(component, /last\.left < bounds\.left/);
-  assert.match(component, /!railState\.previous/);
-  assert.match(component, /!railState\.next/);
+  assert.match(component, /HomeSliderControls/);
+  assert.match(component, /const sectionId = mode === "holidays" \? "home-holiday-deals" : "home-live-deals"/);
+  assert.match(component, /railId=\{`\$\{sectionId\}-rail`\}/);
+  assert.match(controls, /first\.right > bounds\.right/);
+  assert.match(controls, /last\.left < bounds\.left/);
+  assert.match(controls, /!railState\.previous/);
+  assert.match(controls, /!railState\.next/);
 });
 
 test("content studio exposes explicit homepage placement, order and hide controls for vacations", async () => {
