@@ -2,7 +2,7 @@ import { getHomeDealsForDates } from "./vii-home-deals.ts";
 
 const API_ROOT = "https://bizonline.co.il/api/ai/vii";
 
-export type HomeHoliday = { id: number; name: string; from: string; till: string; nights: number; windowSearch: boolean };
+export type HomeHoliday = { id: number; name: string; from: string; till: string; nights: number; windowSearch: boolean; exactStay?: boolean };
 
 function record(value: unknown): Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
