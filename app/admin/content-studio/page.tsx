@@ -9,10 +9,12 @@ type Content = { title: string; summary: string; body: string; metaTitle: string
 type Item = { id: string; contentType: string; entityKey: string; world: string; locale: string; sourceLabel: string; source: Content; draft: Content; status: string; scheduledAt: string | null; version: number; publishedVersion: number | null; updatedAt: string; updatedBy: string; publicPath: string };
 type Version = { version: number; action: string; status: string; content: Content; createdAt: string; createdBy: string };
 type Payload = { items: Item[]; counts: Record<string, number>; total: number; truncated: boolean; selected: (Item & { versions: Version[] }) | null };
+type AdminHoliday = { id: number; name: string; from: string; till: string; nights: number };
 
-const types = [["spa", "ספא"], ["vacation", "נופש"], ["events", "אירועים"], ["hourly", "לפי שעה"], ["providers", "ספקים"], ["attractions", "אטרקציות"], ["trails", "טיולים"], ["magazine", "מגזין"], ["navigation", "תפריטים"], ["footer", "פוטר"]] as const;
+const types = [["homepage", "עמוד הבית"], ["spa", "ספא"], ["vacation", "נופש"], ["events", "אירועים"], ["hourly", "לפי שעה"], ["providers", "ספקים"], ["attractions", "אטרקציות"], ["trails", "טיולים"], ["magazine", "מגזין"], ["navigation", "תפריטים"], ["footer", "פוטר"]] as const;
 const statusLabel: Record<string, string> = { draft: "טיוטה", review: "ממתין לאישור", scheduled: "מתוזמן", published: "פורסם", archived: "בארכיון" };
 const homeDealPlacements = [["tomorrow", "ברגע האחרון"], ["weekend", "חמישי עד שבת"], ["friday-weekend", "שישי עד ראשון"], ["thursday", "לילה בחמישי"], ["friday", "לילה בשישי"], ["holidays", "חגים"]] as const;
+const homePeriodDefaults = homeDealPlacements.slice(0, 5);
 const attributeFields: Record<string, Array<[string, string]>> = {
   trails: [["mainArea", "אזור ראשי"], ["region", "אזור מדויק"], ["nature", "סוגי טבע, מופרדים בפסיק"], ["distance", "מרחק"], ["duration", "משך"], ["difficulty", "דרגת קושי"], ["routeType", "סוג מסלול"], ["bestSeason", "עונה מומלצת"], ["familyFit", "התאמה למשפחות"], ["accessibility", "נגישות"], ["officialSource", "קישור למקור רשמי"], ["sourceName", "שם המקור"], ["mapQuery", "חיפוש במפה"]],
   providers: [["location", "מיקום"], ["area", "תחום"], ["features", "שירותים, מופרדים בפסיק"], ["image", "כתובת תמונה"], ["priceLabel", "תיאור מחיר"], ["phone", "טלפון"], ["sourceUrl", "אתר מקור"], ["sourceName", "שם המקור"]],
@@ -20,6 +22,7 @@ const attributeFields: Record<string, Array<[string, string]>> = {
   magazine: [["category", "קטגוריה"], ["image", "כתובת תמונה"], ["dateLabel", "תאריך תצוגה"], ["readTime", "דקות קריאה"], ["takeaway", "השורה התחתונה"], ["tags", "תגיות, מופרדות בפסיק"]],
 };
 const date = (value: string | null) => value ? new Date(value).toLocaleString("he-IL", { timeZone: "Asia/Jerusalem", dateStyle: "short", timeStyle: "short" }) : "לא עודכן";
+function jsonAttributes(value = "{}") { try { const parsed = JSON.parse(value); return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed as Record<string, unknown> : {}; } catch { return {}; } }
 
 export default function ContentStudioPage() {
   const [type, setType] = useState("spa"); const [locale, setLocale] = useState("he"); const [query, setQuery] = useState("");
@@ -29,6 +32,7 @@ export default function ContentStudioPage() {
   const [error, setError] = useState(""); const [message, setMessage] = useState("");
   const [creating, setCreating] = useState(false); const [newTitle, setNewTitle] = useState(""); const [newKey, setNewKey] = useState("");
   const [scheduledAt, setScheduledAt] = useState(""); const [restoring, setRestoring] = useState(false);
+  const [homeHolidays, setHomeHolidays] = useState<AdminHoliday[]>([]); const [homeHolidaysError, setHomeHolidaysError] = useState("");
 
   const load = useCallback(async (nextType = type, id = "") => {
     setLoading(true); setError("");
@@ -44,6 +48,15 @@ export default function ContentStudioPage() {
     finally { setLoading(false); }
   }, [locale, query, type]);
   useEffect(() => { const timer = window.setTimeout(() => void load(), 220); return () => window.clearTimeout(timer); }, [load]);
+  useEffect(() => {
+    if (type !== "homepage") return;
+    const controller = new AbortController();
+    fetch("/api/vii/home-holidays?all=1", { cache: "no-store", signal: controller.signal })
+      .then(async (response) => { if (!response.ok) throw new Error(); return response.json() as Promise<{ holidays: AdminHoliday[] }>; })
+      .then((result) => { setHomeHolidaysError(""); setHomeHolidays(Array.isArray(result.holidays) ? result.holidays : []); })
+      .catch((cause) => { if ((cause as { name?: string })?.name !== "AbortError") setHomeHolidaysError("לא ניתן לטעון כרגע את לוח החגים מהספק."); });
+    return () => controller.abort();
+  }, [type]);
 
   function clearInventory() { setData(null); setSelected(null); setDraft(null); setCreating(false); }
 
@@ -67,6 +80,33 @@ export default function ContentStudioPage() {
     const placements = new Set((draft.attributes.homeDealPlacements || "").split(",").filter(Boolean));
     if (checked) placements.add(id); else placements.delete(id);
     updateAttribute("homeDealPlacements", [...placements].join(","));
+  }
+  function moveHomePeriod(id: string, direction: -1 | 1) {
+    if (!draft) return;
+    const canonical = homePeriodDefaults.map(([periodId]) => periodId);
+    const requested = (draft.attributes.homePeriodOrder || "").split(",").filter((periodId) => canonical.includes(periodId as typeof canonical[number]));
+    const order = [...new Set([...requested, ...canonical])]; const index = order.indexOf(id); const target = index + direction;
+    if (index < 0 || target < 0 || target >= order.length) return;
+    [order[index], order[target]] = [order[target], order[index]]; updateAttribute("homePeriodOrder", order.join(","));
+  }
+  function updateHomePeriodLabel(id: string, value: string) {
+    if (!draft) return; const labels = jsonAttributes(draft.attributes.homePeriodLabels); labels[id] = value; updateAttribute("homePeriodLabels", JSON.stringify(labels));
+  }
+  function updateHomePeriodVisibility(id: string, visible: boolean) {
+    if (!draft) return; const hidden = new Set((draft.attributes.homePeriodHidden || "").split(",").filter(Boolean));
+    if (visible) hidden.delete(id); else hidden.add(id); updateAttribute("homePeriodHidden", [...hidden].join(","));
+  }
+  function updateHolidayVisibility(id: number, visible: boolean) {
+    if (!draft) return; const hidden = new Set((draft.attributes.homeHolidayHidden || "").split(",").filter(Boolean));
+    if (visible) hidden.delete(String(id)); else hidden.add(String(id)); updateAttribute("homeHolidayHidden", [...hidden].join(","));
+  }
+  function updateHolidayDate(id: number, key: "from" | "till", value: string, defaults: Pick<AdminHoliday, "from" | "till">) {
+    if (!draft) return; const dates = jsonAttributes(draft.attributes.homeHolidayDates); const current = dates[String(id)] && typeof dates[String(id)] === "object" ? dates[String(id)] as Record<string, unknown> : {};
+    dates[String(id)] = { from: key === "from" ? value : String(current.from || defaults.from), till: key === "till" ? value : String(current.till || defaults.till) };
+    updateAttribute("homeHolidayDates", JSON.stringify(dates));
+  }
+  function resetHolidayDate(id: number) {
+    if (!draft) return; const dates = jsonAttributes(draft.attributes.homeHolidayDates); delete dates[String(id)]; updateAttribute("homeHolidayDates", JSON.stringify(dates));
   }
   async function createItem() {
     if (!newTitle.trim() || !newKey.trim()) return; setSaving(true); setError("");
@@ -96,6 +136,25 @@ export default function ContentStudioPage() {
           <label className={styles.field}><span>טקסט קצר לכרטיס</span><textarea value={draft.summary} onChange={(event) => update("summary", event.target.value)} /></label>
           <label className={`${styles.field} ${styles.wide}`}><span>תוכן מלא</span><textarea value={draft.body} onChange={(event) => update("body", event.target.value)} rows={12} /></label>
           <label className={`${styles.field} ${styles.wide}`}><span>תיאור תמונה חלופי</span><input value={draft.imageAlt} onChange={(event) => update("imageAlt", event.target.value)} /></label>
+          {selected.contentType === "homepage" ? <fieldset className={`${extras.homeDeals} ${extras.homeSliderControl} ${styles.wide}`}>
+            <legend>שליטה בלשוניות ובחגים של סליידרי הנופש</legend>
+            <p>השינויים נשמרים כגרסה. רק גרסה שפורסמה משפיעה על עמוד הבית, בלי לשנות את נתוני הזמינות של הספק.</p>
+            <section className={extras.controlSection} aria-labelledby="near-tabs-control"><div className={extras.controlHead}><div><strong id="near-tabs-control">לשוניות תאריכים קרובים</strong><small>עריכת שם, סדר, תצוגה ולשונית ברירת מחדל</small></div></div>
+              <div className={extras.periodControlList}>{[...homePeriodDefaults].sort(([left], [right]) => {
+                const order = (draft.attributes.homePeriodOrder || homePeriodDefaults.map(([id]) => id).join(",")).split(","); return order.indexOf(left) - order.indexOf(right);
+              }).map(([id, fallback], index, rows) => {
+                const labels = jsonAttributes(draft.attributes.homePeriodLabels); const hidden = (draft.attributes.homePeriodHidden || "").split(",").includes(id);
+                return <div className={extras.periodControlRow} key={id}><label className={extras.visibilityToggle}><input type="checkbox" checked={!hidden} onChange={(event) => updateHomePeriodVisibility(id, event.target.checked)} /><span>{hidden ? "מוסתר" : "מוצג"}</span></label><label className={extras.periodLabel}><span>שם הלשונית</span><input value={typeof labels[id] === "string" ? String(labels[id]) : fallback} onChange={(event) => updateHomePeriodLabel(id, event.target.value)} /></label><label className={extras.defaultPeriod}><input type="radio" name="home-default-period" checked={(draft.attributes.homePeriodDefault || "tomorrow") === id} disabled={hidden} onChange={() => updateAttribute("homePeriodDefault", id)} /> ברירת מחדל</label><div className={extras.orderButtons} aria-label={`סדר ${fallback}`}><button type="button" disabled={index === 0} onClick={() => moveHomePeriod(id, -1)}>העלאה</button><button type="button" disabled={index === rows.length - 1} onClick={() => moveHomePeriod(id, 1)}>הורדה</button></div></div>;
+              })}</div>
+            </section>
+            <section className={extras.controlSection} aria-labelledby="holiday-tabs-control"><div className={extras.controlHead}><div><strong id="holiday-tabs-control">לשוניות חגים</strong><small>החגים מגיעים מהספק. כאן מחליטים כמה יוצגו, מסתירים חג או מצמצמים את חלון התאריך שלו.</small></div><label className={extras.limitField}><span>מספר חגים להצגה</span><input type="number" min="1" max="12" value={draft.attributes.homeHolidayLimit || "6"} onChange={(event) => updateAttribute("homeHolidayLimit", event.target.value.replace(/\D/g, "").slice(0, 2))} /></label></div>
+              {homeHolidaysError ? <p className={extras.inlineError} role="alert">{homeHolidaysError}</p> : null}
+              <div className={extras.holidayControlList}>{homeHolidays.map((holiday) => {
+                const hidden = (draft.attributes.homeHolidayHidden || "").split(",").includes(String(holiday.id)); const dates = jsonAttributes(draft.attributes.homeHolidayDates); const override = dates[String(holiday.id)] && typeof dates[String(holiday.id)] === "object" ? dates[String(holiday.id)] as Record<string, unknown> : {};
+                return <div className={extras.holidayControlRow} key={holiday.id}><label className={extras.visibilityToggle}><input type="checkbox" checked={!hidden} onChange={(event) => updateHolidayVisibility(holiday.id, event.target.checked)} /><span>{hidden ? "מוסתר" : "מוצג"}</span></label><div className={extras.holidayIdentity}><strong>{holiday.name}</strong><small>מזהה ספק {holiday.id}</small></div><label><span>כניסה</span><input type="date" value={String(override.from || holiday.from)} min={holiday.from} max={String(override.till || holiday.till)} onChange={(event) => updateHolidayDate(holiday.id, "from", event.target.value, holiday)} /></label><label><span>יציאה</span><input type="date" value={String(override.till || holiday.till)} min={String(override.from || holiday.from)} max={holiday.till} onChange={(event) => updateHolidayDate(holiday.id, "till", event.target.value, holiday)} /></label><button type="button" className={extras.resetDate} disabled={!dates[String(holiday.id)]} onClick={() => resetHolidayDate(holiday.id)}>איפוס תאריך</button></div>;
+              })}</div>
+            </section>
+          </fieldset> : null}
           {selected.contentType === "vacation" ? <fieldset className={`${extras.homeDeals} ${styles.wide}`}>
             <legend>שליטה באזורי הנופש בעמוד הבית</legend>
             <p>סמנו באילו תקופות לקדם את המקום. המקום יוצג רק אם ה־API מאשר שהוא פנוי לתאריכים שנבחרו.</p>

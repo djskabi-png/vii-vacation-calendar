@@ -31,3 +31,14 @@ test("content studio exposes explicit homepage placement, order and hide control
   assert.match(admin, /homeDealHidden/);
   assert.match(admin, /המקום יוצג רק אם ה־API מאשר שהוא פנוי/);
 });
+
+test("content studio owns homepage period tabs and supplier holiday presentation", async () => {
+  const [admin, inventory, component] = await Promise.all([
+    read("app/admin/content-studio/page.tsx"), read("app/lib/content-studio-inventory.ts"), read("app/components/home-live-deals.tsx"),
+  ]);
+  assert.match(inventory, /type: "homepage", key: "vacation-sliders"/);
+  for (const field of ["homePeriodOrder", "homePeriodDefault", "homePeriodHidden", "homePeriodLabels", "homeHolidayLimit", "homeHolidayHidden", "homeHolidayDates"]) assert.match(admin, new RegExp(field));
+  assert.match(component, /result\.display\?\.periods/);
+  assert.match(component, /selectedHoliday\.from/);
+  assert.match(component, /<strong>\{item\.name\}<\/strong><small>/);
+});

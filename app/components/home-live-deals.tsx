@@ -10,14 +10,15 @@ import { useSiteLanguage } from "../i18n/locale-provider";
 import { FavoriteButton } from "./favorite-button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { rotateWithinTiers } from "../lib/daily-rotation";
+import type { HomePeriodTab } from "../lib/home-display-settings";
 
-type ResponseData = { period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[] };
+type ResponseData = { period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[]; display?: { periods: HomePeriodTab[]; defaultPeriod: HomeDealPeriod } };
 
 const copy = {
-  he: { title: "נופש פנוי בתאריכים הקרובים", all: "לכל מקומות הנופש", loading: "בודקים זמינות ומחירים", empty: "לא נמצאו מקומות פנויים לתאריכים האלה", error: "לא הצלחנו לבדוק זמינות כרגע", retry: "לנסות שוב", total: "מחיר כולל", details: "לפרטי המקום", call: "חיוג למקום", available: "פנוי לתאריכים שבחרתם", forGuests: "עבור 2 אורחים", night: "לילה", nights: "לילות", bedrooms: "חדרי שינה", guests: "אורחים", reviews: "חוות דעת", tabs: ["ברגע האחרון", "חמישי עד שבת", "שישי עד ראשון", "לילה בחמישי", "לילה בשישי"] },
-  en: { title: "Available stays ahead", all: "All stays", loading: "Checking availability and prices", empty: "No available stays for these dates", error: "Availability could not be checked", retry: "Try again", total: "Total price", details: "Place details", call: "Call the property", available: "Available for your dates", forGuests: "for 2 guests", night: "night", nights: "nights", bedrooms: "bedrooms", guests: "guests", reviews: "reviews", tabs: ["Last minute", "Thursday to Saturday", "Friday to Sunday", "Thursday night", "Friday night"] },
-  ru: { title: "Свободное жилье на ближайшие даты", all: "Все варианты", loading: "Проверяем наличие и цены", empty: "На эти даты свободных мест нет", error: "Не удалось проверить наличие", retry: "Повторить", total: "Полная стоимость", details: "Подробнее", call: "Позвонить", available: "Свободно на выбранные даты", forGuests: "для 2 гостей", night: "ночь", nights: "ночи", bedrooms: "спальни", guests: "гостей", reviews: "отзывов", tabs: ["В последний момент", "Чт–Сб", "Пт–Вс", "Ночь в четверг", "Ночь в пятницу"] },
-  fr: { title: "Séjours disponibles prochainement", all: "Tous les séjours", loading: "Vérification des disponibilités", empty: "Aucun séjour disponible à ces dates", error: "Disponibilité indisponible", retry: "Réessayer", total: "Prix total", details: "Voir le lieu", call: "Appeler le lieu", available: "Disponible à ces dates", forGuests: "pour 2 voyageurs", night: "nuit", nights: "nuits", bedrooms: "chambres", guests: "voyageurs", reviews: "avis", tabs: ["Dernière minute", "Jeudi à samedi", "Vendredi à dimanche", "Nuit de jeudi", "Nuit de vendredi"] },
+  he: { title: "נופש פנוי בתאריכים הקרובים", all: "לכל מקומות הנופש", loading: "בודקים זמינות ומחירים", empty: "לא נמצאו מקומות פנויים לתאריכים האלה", error: "לא הצלחנו לבדוק זמינות כרגע", retry: "לנסות שוב", total: "מחיר כולל", details: "לפרטי המקום", call: "חיוג למקום", available: "פנוי לתאריכים שבחרתם", forGuests: "עבור 2 אורחים", night: "לילה", nights: "לילות", bedrooms: "חדרי שינה", guests: "אורחים", reviews: "חוות דעת", dateTo: "עד", tabs: ["ברגע האחרון", "חמישי עד שבת", "שישי עד ראשון", "לילה בחמישי", "לילה בשישי"] },
+  en: { title: "Available stays ahead", all: "All stays", loading: "Checking availability and prices", empty: "No available stays for these dates", error: "Availability could not be checked", retry: "Try again", total: "Total price", details: "Place details", call: "Call the property", available: "Available for your dates", forGuests: "for 2 guests", night: "night", nights: "nights", bedrooms: "bedrooms", guests: "guests", reviews: "reviews", dateTo: "to", tabs: ["Last minute", "Thursday to Saturday", "Friday to Sunday", "Thursday night", "Friday night"] },
+  ru: { title: "Свободное жилье на ближайшие даты", all: "Все варианты", loading: "Проверяем наличие и цены", empty: "На эти даты свободных мест нет", error: "Не удалось проверить наличие", retry: "Повторить", total: "Полная стоимость", details: "Подробнее", call: "Позвонить", available: "Свободно на выбранные даты", forGuests: "для 2 гостей", night: "ночь", nights: "ночи", bedrooms: "спальни", guests: "гостей", reviews: "отзывов", dateTo: "до", tabs: ["В последний момент", "Чт–Сб", "Пт–Вс", "Ночь в четверг", "Ночь в пятницу"] },
+  fr: { title: "Séjours disponibles prochainement", all: "Tous les séjours", loading: "Vérification des disponibilités", empty: "Aucun séjour disponible à ces dates", error: "Disponibilité indisponible", retry: "Réessayer", total: "Prix total", details: "Voir le lieu", call: "Appeler le lieu", available: "Disponible à ces dates", forGuests: "pour 2 voyageurs", night: "nuit", nights: "nuits", bedrooms: "chambres", guests: "voyageurs", reviews: "avis", dateTo: "au", tabs: ["Dernière minute", "Jeudi à samedi", "Vendredi à dimanche", "Nuit de jeudi", "Nuit de vendredi"] },
 } as const;
 
 const allPeriodCopy = {
@@ -34,6 +35,7 @@ function dateLabel(date: string, locale: string) {
 export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" }) {
   const { language } = useSiteLanguage();
   const [period, setPeriod] = useState<HomeDealPeriod>("tomorrow");
+  const [periodTabs, setPeriodTabs] = useState<HomePeriodTab[]>(() => homeDealPeriods.map((item, index) => ({ id: item.id, label: copy[language].tabs[index] })));
   const [retry, setRetry] = useState(0);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [data, setData] = useState<ResponseData | null>(null);
@@ -42,6 +44,7 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
   const [holidayState, setHolidayState] = useState<"loading" | "ready" | "error">("loading");
   const [railState, setRailState] = useState({ previous: false, next: false });
   const track = useRef<HTMLDivElement>(null);
+  const displaySettingsApplied = useRef(false);
   const text = copy[language];
   const title = mode === "holidays" ? { he: "נופש פנוי בחגים", en: "Available stays for holidays", ru: "Отдых в праздники", fr: "Séjours disponibles pendant les fêtes" }[language] : text.title;
   const locale = { he: "he-IL", en: "en-GB", ru: "ru-RU", fr: "fr-FR" }[language];
@@ -52,7 +55,7 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
     if (mode !== "holidays") return;
     const controller = new AbortController();
     setHolidayState("loading");
-    fetch("/api/vii/home-holidays", { signal: controller.signal, cache: "no-store" })
+    fetch(`/api/vii/home-holidays?locale=${language}`, { signal: controller.signal, cache: "no-store" })
       .then(async (response) => { if (!response.ok) throw new Error("supplier_unavailable"); return response.json() as Promise<{ holidays: HomeHoliday[] }>; })
       .then((result) => {
         if (!Array.isArray(result.holidays)) throw new Error("invalid_result");
@@ -62,14 +65,17 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
       })
       .catch((error) => { if (error?.name !== "AbortError") setHolidayState("error"); });
     return () => controller.abort();
-  }, [mode, retry]);
+  }, [language, mode, retry]);
 
   useEffect(() => {
     if (mode === "holidays" && (holidayState !== "ready" || holidayId === null)) return;
     const controller = new AbortController();
     setState("loading");
     setData(null);
-    const url = mode === "holidays" ? `/api/vii/home-holiday-deals?id=${holidayId}` : `/api/vii/home-deals?period=${period}`;
+    const selectedHoliday = holidays.find((item) => item.id === holidayId);
+    const url = mode === "holidays"
+      ? `/api/vii/home-holiday-deals?${new URLSearchParams({ id: String(holidayId), ...(selectedHoliday ? { from: selectedHoliday.from, till: selectedHoliday.till } : {}) })}`
+      : `/api/vii/home-deals?${new URLSearchParams({ period, locale: language })}`;
     fetch(url, { signal: controller.signal, cache: "no-store", headers: { Accept: "application/json" } })
       .then(async (response) => {
         if (!response.ok) throw new Error("supplier_unavailable");
@@ -77,12 +83,19 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
       })
       .then((result) => {
         if (!Array.isArray(result.deals) || (mode === "near" && result.period !== period) || (mode === "holidays" && result.holiday?.id !== holidayId)) throw new Error("invalid_result");
+        if (mode === "near" && result.display?.periods?.length) {
+          setPeriodTabs(result.display.periods);
+          if (!displaySettingsApplied.current) {
+            displaySettingsApplied.current = true;
+            if (result.display.defaultPeriod !== period) { setPeriod(result.display.defaultPeriod); return; }
+          } else if (!result.display.periods.some((item) => item.id === period)) { setPeriod(result.display.defaultPeriod); return; }
+        }
         setData(result);
         setState("ready");
       })
       .catch((error) => { if (error?.name !== "AbortError") setState("error"); });
     return () => controller.abort();
-  }, [period, holidayId, holidayState, mode, retry]);
+  }, [period, holidayId, holidayState, holidays, language, mode, retry]);
 
   function choose(value: HomeDealPeriod) {
     setPeriod(value);
@@ -145,19 +158,19 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
     <div className="shell">
       <div className="section-head"><div><h2 id={`${sectionId}-title`}>{title}</h2></div><div><Link href={searchHref} prefetch={false} className="home-live-deals__all-link">{allLabel}</Link><div className="home-slider__controls" role="group" aria-label={title}><button type="button" onClick={() => scroll(-1)} aria-label={`${previousLabel}, ${title}`} title={previousLabel} disabled={displayState !== "ready" || !railState.previous}><PreviousIcon aria-hidden="true" /></button><button type="button" onClick={() => scroll(1)} aria-label={`${nextLabel}, ${title}`} title={nextLabel} disabled={displayState !== "ready" || !railState.next}><NextIcon aria-hidden="true" /></button></div></div></div>
       <div className={`home-live-deals__tabs${mode === "near" ? " home-live-deals__tabs--near" : ""}`} role="tablist" aria-label={title}>
-        {mode === "near" ? homeDealPeriods.map((item, index) => <button key={item.id} type="button" role="tab" aria-controls={`${sectionId}-results`} aria-selected={period === item.id} tabIndex={period === item.id ? 0 : -1} onClick={() => choose(item.id)} onKeyDown={(event) => {
-          const next = event.key === "Home" ? 0 : event.key === "End" ? homeDealPeriods.length - 1 : event.key === "ArrowRight" ? (index + (language === "he" ? -1 : 1) + homeDealPeriods.length) % homeDealPeriods.length : event.key === "ArrowLeft" ? (index + (language === "he" ? 1 : -1) + homeDealPeriods.length) % homeDealPeriods.length : -1;
+        {mode === "near" ? periodTabs.map((item, index) => <button key={item.id} type="button" role="tab" aria-controls={`${sectionId}-results`} aria-selected={period === item.id} tabIndex={period === item.id ? 0 : -1} onClick={() => choose(item.id)} onKeyDown={(event) => {
+          const next = event.key === "Home" ? 0 : event.key === "End" ? periodTabs.length - 1 : event.key === "ArrowRight" ? (index + (language === "he" ? -1 : 1) + periodTabs.length) % periodTabs.length : event.key === "ArrowLeft" ? (index + (language === "he" ? 1 : -1) + periodTabs.length) % periodTabs.length : -1;
           if (next < 0) return;
           event.preventDefault();
-          choose(homeDealPeriods[next].id);
+          choose(periodTabs[next].id);
           event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();
-        }}>{text.tabs[index]}</button>) : holidays.map((item, index) => <button key={item.id} type="button" role="tab" aria-controls={`${sectionId}-results`} aria-selected={holidayId === item.id} tabIndex={holidayId === item.id ? 0 : -1} onClick={() => chooseHoliday(item.id)} onKeyDown={(event) => {
+        }}>{item.label}</button>) : holidays.map((item, index) => <button key={item.id} type="button" role="tab" aria-controls={`${sectionId}-results`} aria-selected={holidayId === item.id} tabIndex={holidayId === item.id ? 0 : -1} onClick={() => chooseHoliday(item.id)} onKeyDown={(event) => {
           const next = event.key === "Home" ? 0 : event.key === "End" ? holidays.length - 1 : event.key === "ArrowRight" ? (index + (language === "he" ? -1 : 1) + holidays.length) % holidays.length : event.key === "ArrowLeft" ? (index + (language === "he" ? 1 : -1) + holidays.length) % holidays.length : -1;
           if (next < 0) return;
           event.preventDefault();
           chooseHoliday(holidays[next].id);
           event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();
-        }}>{item.name} · {dateLabel(item.from, locale)}</button>)}
+        }}><strong>{item.name}</strong><small>{dateLabel(item.from, locale)} {text.dateTo} {dateLabel(item.till, locale)}</small></button>)}
       </div>
       <div className="home-live-deals__results" id={`${sectionId}-results`} role="tabpanel" aria-live="polite" aria-busy={displayState === "loading"}>
         {displayState === "loading" ? <div className="home-live-deals__loading" role="status" aria-label={text.loading}>

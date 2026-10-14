@@ -1,6 +1,6 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
 
-export const contentTypes = ["vacation", "events", "hourly", "spa", "providers", "attractions", "trails", "magazine", "navigation", "footer"] as const;
+export const contentTypes = ["homepage", "vacation", "events", "hourly", "spa", "providers", "attractions", "trails", "magazine", "navigation", "footer"] as const;
 export const contentLocales = ["he", "en", "ru", "fr"] as const;
 export const contentStatuses = ["draft", "review", "scheduled", "published", "archived"] as const;
 export type ContentType = typeof contentTypes[number];
@@ -165,8 +165,9 @@ export function parseContentCreate(value: unknown): ContentCreate | null {
   const row = value as Record<string, unknown>; const type = row.type; const locale = row.locale;
   const title = clean(row.title, 160); const key = clean(row.key, 160).toLowerCase();
   if (!isContentType(type) || !isContentLocale(locale) || !title || !asciiSlug.test(key)
-    || type === "navigation" || type === "footer") return null;
+    || type === "homepage" || type === "navigation" || type === "footer") return null;
   const worlds: Record<Exclude<ContentType, "navigation" | "footer">, string> = {
+    homepage: "global",
     vacation: "vacation", events: "events", hourly: "hourly", spa: "spa", providers: "providers",
     attractions: "activities", trails: "activities", magazine: "magazine",
   };
@@ -204,7 +205,8 @@ export function parseContentChange(value: unknown) {
   const status = row.status as ContentStatus; const scheduled = typeof row.scheduledAt === "string" && row.scheduledAt ? new Date(row.scheduledAt) : null;
   if (status === "scheduled" && (!scheduled || !Number.isFinite(scheduled.getTime()) || scheduled.getTime() <= Date.now())) return null;
   const chromeItem = row.id.startsWith("navigation:") || row.id.startsWith("footer:");
-  if (["published", "scheduled"].includes(status) && ((chromeItem ? content.links.length < 1 : content.summary.length < 20)
+  const homepageItem = row.id.startsWith("homepage:");
+  if (["published", "scheduled"].includes(status) && ((chromeItem ? content.links.length < 1 : !homepageItem && content.summary.length < 20)
     || (content.indexable && (!content.metaTitle || content.metaDescription.length < 30)))) return null;
   const required: Record<string, string[]> = {
     trails: ["mainArea", "region", "nature", "duration", "difficulty", "officialSource", "sourceName", "mapQuery"],

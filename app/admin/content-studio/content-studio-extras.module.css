@@ -16,4 +16,25 @@
 .homeDealSettings { display: grid; grid-template-columns: minmax(150px,220px) 1fr; gap: 10px; margin-top: 12px; align-items: end; }
 .homeDealSettings > label:first-child { display: grid; gap: 5px; color: #46645f; font-size: .82rem; font-weight: 800; }
 .homeDealSettings input[type=number] { min-height: 42px; border: 1px solid #c9dcd8; border-radius: 10px; padding: 8px 10px; font: inherit; }
-@media(max-width:700px){.homeDealPeriods{grid-template-columns:1fr 1fr}.homeDealSettings{grid-template-columns:1fr}.homeDealPeriods label,.hideDeal{min-height:46px}}
+.homeSliderControl { display: grid; gap: 18px; }
+.controlSection { display: grid; gap: 11px; padding: 15px; border: 1px solid #d8e7e3; border-radius: 14px; background: rgba(255,255,255,.78); }
+.controlHead { display: flex; align-items: end; justify-content: space-between; gap: 14px; }
+.controlHead > div { display: grid; gap: 3px; }
+.controlHead strong { color: #174c48; font-size: .95rem; }
+.controlHead small { color: #627b77; line-height: 1.45; }
+.periodControlList,.holidayControlList { display: grid; gap: 8px; }
+.periodControlRow { display: grid; grid-template-columns: 96px minmax(180px,1fr) 118px auto; gap: 9px; align-items: end; padding: 10px; border: 1px solid #dce9e6; border-radius: 12px; background: #fff; }
+.periodLabel,.holidayControlRow > label:not(.visibilityToggle),.limitField { display: grid; gap: 4px; color: #506d68; font-size: .75rem; font-weight: 800; }
+.periodLabel input,.holidayControlRow input[type=date],.limitField input { min-height: 42px; border: 1px solid #c9dcd8; border-radius: 9px; padding: 7px 9px; background: #fff; color: #234d48; font: inherit; }
+.visibilityToggle,.defaultPeriod { min-height: 42px; display: flex; align-items: center; gap: 7px; color: #315a55; font-size: .8rem; font-weight: 800; }
+.orderButtons { display: flex; gap: 5px; }
+.orderButtons button,.resetDate { min-height: 42px; padding: 7px 10px; border: 1px solid #bcd6d1; border-radius: 9px; background: #f6fbfa; color: #176762; font: inherit; font-size: .76rem; font-weight: 800; cursor: pointer; }
+.orderButtons button:disabled,.resetDate:disabled { opacity: .42; cursor: not-allowed; }
+.limitField { min-width: 150px; }
+.holidayControlRow { display: grid; grid-template-columns: 96px minmax(145px,1fr) minmax(130px,.7fr) minmax(130px,.7fr) auto; gap: 9px; align-items: end; padding: 10px; border: 1px solid #dce9e6; border-radius: 12px; background: #fff; }
+.holidayIdentity { min-height: 42px; display: grid; align-content: center; gap: 2px; }
+.holidayIdentity strong { color: #234d48; font-size: .86rem; }
+.holidayIdentity small { color: #718783; font-size: .7rem; }
+.inlineError { margin: 0; padding: 9px 11px; border-radius: 9px; color: #8b2f2f; background: #fff0f0; }
+@media(max-width:900px){.periodControlRow{grid-template-columns:90px minmax(0,1fr) 110px}.orderButtons{grid-column:2 / -1}.holidayControlRow{grid-template-columns:90px minmax(0,1fr) minmax(130px,1fr) minmax(130px,1fr)}.resetDate{grid-column:2 / -1}}
+@media(max-width:700px){.homeDealPeriods{grid-template-columns:1fr 1fr}.homeDealSettings{grid-template-columns:1fr}.homeDealPeriods label,.hideDeal{min-height:46px}.controlHead{align-items:stretch;flex-direction:column}.limitField{min-width:0}.periodControlRow,.holidayControlRow{grid-template-columns:1fr}.orderButtons,.resetDate{grid-column:auto}.visibilityToggle,.defaultPeriod,.orderButtons button,.resetDate{min-height:44px}}

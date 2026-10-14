@@ -4,6 +4,8 @@ import { supplierToken } from "../../../lib/vii-supplier-token";
 import { publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
 import { curateHomeDeals } from "../../../lib/home-deal-curation.ts";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
+import { readHomeDisplaySettings } from "../../../lib/home-display-settings.ts";
+import { isContentLocale } from "../../../lib/content-studio.ts";
 
 const noStore = { "Cache-Control": "no-store" };
 
@@ -16,14 +18,22 @@ async function applyCuration(deals: Awaited<ReturnType<typeof getHomeDeals>>["de
 }
 
 export async function GET(request: Request) {
-  const period = new URL(request.url).searchParams.get("period");
+  const params = new URL(request.url).searchParams;
+  const period = params.get("period");
+  const requestedLocale = params.get("locale");
+  const locale = isContentLocale(requestedLocale) ? requestedLocale : "he";
   if (!homeDealPeriods.some((item) => item.id === period)) {
     return Response.json({ error: "invalid_period" }, { status: 400, headers: noStore });
   }
   try {
     const names = await publicCatalogSummaries<{ supplierId: number; name: string }>("vacations");
     const result = await getHomeDeals({ period: period as HomeDealPeriod, token: await supplierToken(), publicSiteIds: await publishedSupplierIds("vacations"), publicNames: new Map(names.map((place) => [place.supplierId, place.name])) });
-    return Response.json({ ...result, deals: await applyCuration(result.deals, period as HomeDealPeriod) }, { headers: noStore });
+    let display;
+    try {
+      const runtime = await import("cloudflare:workers");
+      display = await readHomeDisplaySettings((runtime.env as unknown as { DB?: D1Database }).DB, locale);
+    } catch { display = await readHomeDisplaySettings(undefined, locale); }
+    return Response.json({ ...result, deals: await applyCuration(result.deals, period as HomeDealPeriod), display: { periods: display.periods, defaultPeriod: display.defaultPeriod } }, { headers: noStore });
   } catch {
     return Response.json({ error: "supplier_unavailable" }, { status: 503, headers: noStore });
   }

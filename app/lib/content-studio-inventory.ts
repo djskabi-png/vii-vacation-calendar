@@ -52,6 +52,9 @@ export async function contentStudioSources(db: D1Database, locale: ContentLocale
     catalogRows(db, "vacations"), catalogRows(db, "events"), catalogRows(db, "rooms"), catalogRows(db, "spa"),
   ]);
   const sources: ContentSource[] = [
+    { type: "homepage", key: "vacation-sliders", world: "global", locale, sourceLabel: "VII homepage controls", title: "סליידרים של נופש בעמוד הבית",
+      summary: "שליטה בלשוניות התאריכים, ברירת המחדל, מספר החגים והתאריכים שיוצגו בעמוד הבית.", indexable: false,
+      attributes: { homePeriodOrder: "tomorrow,weekend,friday-weekend,thursday,friday", homePeriodDefault: "tomorrow", homePeriodHidden: "", homePeriodLabels: "{}", homeHolidayLimit: "6", homeHolidayHidden: "", homeHolidayDates: "{}" } },
     ...vacations.map((row) => source("vacation", "vacation", row, String(numeric(row.supplierId) || text(row.slug).replace(/^vacation-/, "")), "Sergey API", locale)),
     ...events.map((row) => source("events", "events", row, String(numeric(row.supplierId) || text(row.slug).replace(/^event-/, "")), "Sergey API", locale)),
     ...rooms.map((row) => source("hourly", "hourly", row, text(row.id) || String(numeric(row.supplierId)), "Sergey Rooms API", locale)),
@@ -86,6 +89,7 @@ export async function contentStudioSources(db: D1Database, locale: ContentLocale
 }
 
 export function publicContentPath(type: ContentType, key: string) {
+  if (type === "homepage") return "/";
   if (type === "vacation") return `/business?id=vacation-${key}`;
   if (type === "events") return `/events/place?id=event-${key}`;
   if (type === "hourly" || type === "spa" || type === "providers" || type === "attractions") return `/discover/place/${type === "spa" ? `spa-${key}` : key}`;
