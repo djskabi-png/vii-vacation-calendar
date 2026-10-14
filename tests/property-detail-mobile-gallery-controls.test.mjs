@@ -17,8 +17,8 @@ test("place pages share mobile gallery arrows, position dots and touch navigatio
   assert.match(gallery, /onTouchEnd=/);
   assert.match(gallery, /property-gallery__mobile-arrow--previous/);
   assert.match(gallery, /property-gallery__mobile-arrow--next/);
-  assert.match(gallery, /property-gallery__mobile-arrow--previous[^>]*>[\s\S]*?‹<\/span>/);
-  assert.match(gallery, /property-gallery__mobile-arrow--next[^>]*>[\s\S]*?›<\/span>/);
+  assert.match(gallery, /property-gallery__mobile-arrow--previous[^>]*disabled=\{selected === 0\}[^>]*>[\s\S]*?›<\/span>/);
+  assert.match(gallery, /property-gallery__mobile-arrow--next[^>]*disabled=\{selected >= galleryImages\.length - 1\}[^>]*>[\s\S]*?‹<\/span>/);
   assert.match(gallery, /property-gallery__mobile-dots/);
   assert.match(gallery, /aria-live="polite"/);
   assert.match(css, /\.property-gallery button\.property-gallery__mobile-arrow/);
@@ -43,7 +43,7 @@ test("opening a mobile gallery image uses its displayed index through the last v
     for (const selected of [0, 4, 5, count - 1]) {
       const module = { exports: {} };
       const hooks = { useState: () => [selected, () => {}], useRef: () => ({ current: null }) };
-      new Function("require", "module", "exports", compiled)((name) => name === "react" ? hooks : require(name), module, module.exports);
+      new Function("require", "module", "exports", compiled)((name) => name === "react" ? hooks : name === "./slider-rail-controls" ? { boundedSliderIndex: (current, direction, length) => Math.max(0, Math.min(Math.max(0, length - 1), current + direction)) } : require(name), module, module.exports);
       const images = Array.from({ length: count }, (_, i) => `https://example.com/photo-${i}.jpg`);
       let opened;
       const tree = module.exports.PropertyGallery({ images, name: "מקום", onOpen: (index) => { opened = index; } });

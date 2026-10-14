@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useRef } from "react";
+import { useId, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { StructuredData } from "./structured-data";
 import { faqSchema } from "../lib/seo";
@@ -10,6 +9,7 @@ import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
 import { isWholeCountrySelection, matchesSearchLocation, searchLocationOptions, type SearchMode } from "../data/search-taxonomy";
 import { spaSearchHref, spaSearchRegions } from "../data/spa-search-landings";
+import { SliderRailControls } from "./slider-rail-controls";
 
 export type SearchContentWorld = "vacation" | "events" | "spa" | "hourly" | "providers" | "activities";
 
@@ -170,29 +170,20 @@ function destinationHref(
   return contextualHref(world, language, currentQuery, { [locationParam]: isWholeCountrySelection(destination) ? null : destination });
 }
 
-function DiscoveryRail({ title, links, previousLabel, nextLabel }: {
+function DiscoveryRail({ title, links }: {
   title: string;
   links: DiscoveryLink[];
-  previousLabel: string;
-  nextLabel: string;
 }) {
   const railRef = useRef<HTMLElement>(null);
-  const move = (direction: number) => {
-    const rail = railRef.current;
-    if (!rail) return;
-    rail.scrollBy({ left: direction * Math.max(260, rail.clientWidth * 0.72), behavior: "smooth" });
-  };
+  const railId = useId();
 
   if (!links.length) return null;
   return <div className="search-depth__rail-block">
     <div className="search-depth__rail-head">
       <h3>{title}</h3>
-      <div className="search-depth__rail-controls">
-        <button type="button" onClick={() => move(-1)} aria-label={previousLabel} title={previousLabel}><ChevronLeft aria-hidden="true" /></button>
-        <button type="button" onClick={() => move(1)} aria-label={nextLabel} title={nextLabel}><ChevronRight aria-hidden="true" /></button>
-      </div>
+      <SliderRailControls railId={railId} railRef={railRef} label={title} className="search-depth__rail-controls" />
     </div>
-    <nav ref={railRef} className="search-depth__rail" aria-label={title}>
+    <nav id={railId} ref={railRef} className="search-depth__rail" data-horizontal-rail aria-label={title}>
       {links.map((item) => <Link className="search-depth__discovery-card" key={`${item.href}-${item.label}`} href={item.href}>
         <span className="search-depth__discovery-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21s7-5.2 7-12A7 7 0 1 0 5 9c0 6.8 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg></span>
         <strong>{item.label}</strong>
@@ -378,8 +369,8 @@ export function SearchAfterResults({
 
       <section className="search-depth__related search-depth__discovery" aria-labelledby={`search-related-${world}`}>
         <div className="search-depth__discovery-intro"><span className="eyebrow">{discovery.eyebrow}</span><h2 id={`search-related-${world}`}>{discovery.title}</h2><p>{discovery.intro}</p></div>
-        <DiscoveryRail title={destinationTitle} links={destinationLinks} previousLabel={discovery.previous} nextLabel={discovery.next} />
-        <DiscoveryRail title={searchSuggestions.length ? discovery.tailoredSearches : discovery.generalSearches} links={contextualLinks} previousLabel={discovery.previous} nextLabel={discovery.next} />
+        <DiscoveryRail title={destinationTitle} links={destinationLinks} />
+        <DiscoveryRail title={searchSuggestions.length ? discovery.tailoredSearches : discovery.generalSearches} links={contextualLinks} />
       </section>
     </div>
   </section>;

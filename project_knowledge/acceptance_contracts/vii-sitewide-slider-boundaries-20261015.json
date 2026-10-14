@@ -1,0 +1,183 @@
+{
+  "goal": "Every public VII slider with arrows follows the approved non-looping boundary behavior on every route, language and supported viewport without changing unrelated product behavior.",
+  "intent_model": {
+    "literal_request": "Apply the arrow behavior to every slider everywhere on the site and on every page that contains a slider with arrows.",
+    "implied_outcome": "A user never sees or can activate an arrow that cannot move the current slider, and every slider behaves predictably like the approved homepage reference.",
+    "likely_rejections": [
+      "Only homepage or one slider type was changed.",
+      "Image galleries still wrap around.",
+      "The arrow is visually faded but still active.",
+      "Mobile, RTL, LTR, loading or resize states were omitted.",
+      "The interaction fix changed approved content or layout."
+    ],
+    "interpretation_rules": [
+      {
+        "phrase": "every slider everywhere on the site",
+        "operational_meaning": "Inventory every distinct public implementation with previous and next arrows, including rails and indexed image galleries.",
+        "acceptance_impact": "No representative sampling may replace the complete source inventory; every family member needs evidence or a documented exclusion."
+      },
+      {
+        "phrase": "exactly like the available-stays slider",
+        "operational_meaning": "Use real boundary-aware, non-looping navigation with native disabled state.",
+        "acceptance_impact": "Initial, moved, terminal, non-overflowing and touch states must match the approved behavior."
+      }
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "The user sees only arrows that can currently move the slider.",
+    "current_decision": "Move toward the next or previous available item.",
+    "next_action": "Continue browsing or open the selected card or image.",
+    "deferred_complexity": [
+      "Geometry observation, direction handling and async-content reconciliation",
+      "Index clamping and resize reconciliation"
+    ],
+    "preserved_depth": [
+      "Touch scrolling and swiping",
+      "Keyboard navigation and gallery access",
+      "Localized labels and all existing destinations"
+    ]
+  },
+  "predictive_preflight": {
+    "manifest_path": "C:/Users/Adir/Documents/vii.co.il/vii-api-release-20261008/project_knowledge/process_manifests/vii-sitewide-slider-boundaries-preflight-20261015.json",
+    "lesson_bundle_ids": [
+      "ADIR-QA-001",
+      "ADIR-CONTROL-001",
+      "ADIR-CONSISTENCY-001",
+      "ADIR-SCOPE-001",
+      "ADIR-MOBILE-001",
+      "ADIR-DEPLOY-001"
+    ],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": [
+    "Public VII visitor using pointer, keyboard or touch"
+  ],
+  "natural_destination": "The exact deployed VII public routes that render homepage rails, event rails, search discovery, result cards, place galleries, story galleries and sleeping arrangements.",
+  "facts": [
+    {
+      "claim": "The homepage rail family already uses geometry-derived boundary state.",
+      "evidence": "Site 419 and app/components/home-slider-controls.tsx"
+    },
+    {
+      "claim": "Several other public slider implementations still scroll without boundary state or use modulo index wraparound.",
+      "evidence": "Source inventory in event-rail.tsx, search-after-results.tsx, sleeping-arrangements.tsx, property-card.tsx, property-gallery.tsx and gallery-experience.tsx"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "Components that horizontally scroll but expose no previous or next arrows are outside this interaction change.",
+      "validation": "The final source inventory separately lists arrow-bearing sliders and horizontal navigation strips without arrows."
+    }
+  ],
+  "in_scope": [
+    "Shared geometry-based boundary state for every arrow-controlled content rail",
+    "Clamped non-looping navigation for every arrow-controlled indexed image gallery",
+    "Native disabled attributes and visible disabled styles",
+    "Pointer, keyboard, touch, RTL, LTR, resize, loading, empty and terminal states",
+    "Automated and live production family verification"
+  ],
+  "out_of_scope": [
+    "Calendar month navigation, which is not a content slider",
+    "Horizontal tabs, chip rows and navigation strips that expose no slider arrows",
+    "DNS cutover, indexation changes and unrelated launch blockers",
+    "A visual redesign of cards, galleries or page sections"
+  ],
+  "invariants": [
+    "Existing card content, ordering, links, imagery and section hierarchy remain unchanged.",
+    "Touch scrolling and gallery swiping remain available but cannot wrap beyond a boundary.",
+    "Existing localization and text direction remain intact.",
+    "Booking, contact, supplier and analytics behavior remain unchanged."
+  ],
+  "affected_family": [
+    "Homepage content rails",
+    "Event-region and event content rails",
+    "Search-depth discovery rails",
+    "Vacation result-card image galleries",
+    "Vacation and event place hero galleries",
+    "Vacation, event and discovery story galleries",
+    "Sleeping-arrangement rail",
+    "Hebrew, English, Russian and French public routes",
+    "Desktop and 390-pixel mobile"
+  ],
+  "characteristics": {
+    "stateful": true
+  },
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "statement": "Every arrow-bearing content rail reports and enforces its actual start and end boundaries.",
+      "source": "User request"
+    },
+    {
+      "id": "REQ-2",
+      "statement": "Every arrow-bearing indexed image gallery uses clamped navigation and never wraps between first and last images.",
+      "source": "User request and approved reference behavior"
+    },
+    {
+      "id": "REQ-3",
+      "statement": "Boundary behavior remains correct after async content, resize, scrolling, touch and direction changes.",
+      "source": "VII product standard"
+    },
+    {
+      "id": "REQ-4",
+      "statement": "The change is published and verified across the complete affected family without altering unrelated product behavior.",
+      "source": "User request and VII release standard"
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "id": "AC-1",
+      "requirement_ids": ["REQ-1", "REQ-3"],
+      "kind": "success",
+      "setup": "An overflowing public rail is at its initial boundary.",
+      "action": "Inspect the controls, activate next once and continue to the terminal boundary.",
+      "observable_result": "Previous is initially disabled, becomes enabled after real movement, and next becomes disabled at the terminal boundary."
+    },
+    {
+      "id": "AC-2",
+      "requirement_ids": ["REQ-1", "REQ-3"],
+      "kind": "empty",
+      "setup": "A rail is loading, empty or has no horizontal overflow.",
+      "action": "Inspect and attempt to activate both controls.",
+      "observable_result": "Both arrows are natively disabled and the rail does not move."
+    },
+    {
+      "id": "AC-3",
+      "requirement_ids": ["REQ-2"],
+      "kind": "success",
+      "setup": "An image gallery contains more than one image and is at the first image.",
+      "action": "Use arrows and swipes to navigate to both boundaries and repeat the boundary action.",
+      "observable_result": "The previous arrow is disabled on the first image, next is disabled on the last image, and repeated arrow or swipe actions never wrap."
+    },
+    {
+      "id": "AC-4",
+      "requirement_ids": ["REQ-3"],
+      "kind": "persistence",
+      "setup": "A representative route is loaded in RTL and an LTR language at desktop and 390 pixels.",
+      "action": "Reload, resize and interact with the slider.",
+      "observable_result": "The correct visual arrow is disabled for the logical previous direction, states refresh from rendered geometry and no document overflow appears."
+    },
+    {
+      "id": "AC-5",
+      "requirement_ids": ["REQ-4"],
+      "kind": "rollback",
+      "setup": "A production candidate has passed automated and local browser checks.",
+      "action": "Publish once, record the immutable version and repeat representative family checks on the public URL.",
+      "observable_result": "The exact deployed version passes, a rollback version is recorded and existing routes, content and destinations remain available."
+    },
+    {
+      "id": "AC-6",
+      "requirement_ids": ["REQ-1", "REQ-2"],
+      "kind": "failure",
+      "setup": "A boundary is reached or the slider has no movable content.",
+      "action": "Attempt pointer, keyboard and repeated touch activation toward the unavailable direction.",
+      "observable_result": "No index or scroll position changes, no duplicate navigation fires and the available opposite direction remains usable."
+    }
+  ],
+  "open_questions": [],
+  "authorization_boundary": "Implementation, testing and publication to the already authorized temporary production site are permitted. DNS, indexing and unrelated product changes are excluded.",
+  "ready_for_implementation": true
+}

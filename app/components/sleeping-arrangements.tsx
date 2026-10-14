@@ -2,8 +2,9 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { useRef } from "react";
+import { useId, useRef } from "react";
 import type { SleepingArrangement } from "../data/site-data";
+import { SliderRailControls } from "./slider-rail-controls";
 
 type Props = {
   placeName: string;
@@ -18,13 +19,8 @@ function bedDescription(arrangement: SleepingArrangement) {
 
 export function SleepingArrangements({ placeName, arrangements }: Props) {
   const track = useRef<HTMLDivElement>(null);
+  const trackId = useId();
   const totalBeds = arrangements.reduce((total, arrangement) => total + arrangement.beds.reduce((sum, bed) => sum + bed.count, 0), 0);
-
-  function move(direction: "left" | "right") {
-    if (!track.current) return;
-    const amount = track.current.clientWidth * 0.82;
-    track.current.scrollBy({ left: direction === "left" ? -amount : amount, behavior: "smooth" });
-  }
 
   return (
     <section id="sleeping" className="sleeping-section" aria-labelledby="sleeping-title">
@@ -34,13 +30,10 @@ export function SleepingArrangements({ placeName, arrangements }: Props) {
           <h2 id="sleeping-title">איפה ישנים?</h2>
           <p>{arrangements.length} חדרי שינה ובהם {totalBeds} מיטות. כל כרטיס מייצג חדר שינה ולא יחידת אירוח.</p>
         </div>
-        <div className="sleeping-section__controls" aria-label="דפדוף בין חדרי השינה">
-          <button type="button" onClick={() => move("left")} aria-label="החדרים שמשמאל">‹</button>
-          <button type="button" onClick={() => move("right")} aria-label="החדרים שמימין">›</button>
-        </div>
+        <SliderRailControls railId={trackId} railRef={track} label="דפדוף בין חדרי השינה" className="sleeping-section__controls" />
       </div>
 
-      <div className="sleeping-track" ref={track} tabIndex={0} aria-label={`חדרי השינה של ${placeName}`}>
+      <div id={trackId} className="sleeping-track" ref={track} data-horizontal-rail tabIndex={0} aria-label={`חדרי השינה של ${placeName}`}>
         {arrangements.map((arrangement) => (
           <article className="sleeping-card" key={arrangement.name}>
             <img src={arrangement.galleryImage} alt={`${arrangement.name} ב${placeName}`} title={`${arrangement.name} ב${placeName}`} loading="lazy" />

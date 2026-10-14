@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-sitewide-slider-boundaries-20261015",
+  "project": "VII",
+  "task_type": "sitewide slider boundary consistency and production release",
+  "requested_outcome": "Every public VII slider that exposes previous and next arrows uses the approved boundary behavior: previous is disabled at the initial edge, becomes available only after movement, next is disabled at the terminal edge, and empty or non-overflowing rails expose no active arrow.",
+  "natural_destination": "Every public VII route and state that renders a content rail, card image slider, place gallery or full-screen gallery on desktop and 390-pixel mobile.",
+  "authorization_boundary": "Implement, test, commit, publish and verify this shared interaction change on the already authorized temporary VII production site. Preserve unrelated content, layout, links, supplier data and booking behavior. Do not cut over DNS or enable indexing.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "The word every requires a complete inventory and deployed family verification.",
+      "acceptance_impact": "Map every arrow-bearing slider implementation to passed live evidence or a documented exclusion."
+    },
+    {
+      "lesson_id": "ADIR-CONTROL-001",
+      "reason": "Each visible arrow promises a possible action.",
+      "acceptance_impact": "Use native disabled controls at real boundaries and verify pointer, keyboard and touch behavior."
+    },
+    {
+      "lesson_id": "ADIR-CONSISTENCY-001",
+      "reason": "The request explicitly extends one approved behavior to the entire component family.",
+      "acceptance_impact": "Use one boundary model across rails and the same non-looping state contract across indexed galleries."
+    },
+    {
+      "lesson_id": "ADIR-SCOPE-001",
+      "reason": "This is an interaction correction, not a redesign.",
+      "acceptance_impact": "Do not alter content, card order, navigation destinations, gallery imagery or visual hierarchy."
+    },
+    {
+      "lesson_id": "ADIR-MOBILE-001",
+      "reason": "Many affected sliders are primary touch surfaces.",
+      "acceptance_impact": "Verify swipes and arrows at 390 pixels, including no document overflow and no wraparound."
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "reason": "The user requires the behavior on the public site.",
+      "acceptance_impact": "Publish one identified version, retain rollback and repeat the family checks on the live version."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The homepage is fixed but event, search, place or gallery sliders still loop or expose both arrows.",
+      "prevention": "Create a source inventory for every arrow-bearing slider and a static contract that fails when a known implementation is omitted.",
+      "acceptance_check": "The inventory covers homepage rails, event rails, event regions, search discovery rails, result-card galleries, place galleries, full-screen galleries and sleeping arrangements."
+    },
+    {
+      "rejection": "An arrow looks faded but remains clickable or keyboard-focusable.",
+      "prevention": "Apply the native disabled attribute and gate the movement function itself.",
+      "acceptance_check": "Boundary clicks do not change the index or scroll position, and disabled arrows are omitted from keyboard activation."
+    },
+    {
+      "rejection": "Touch swiping still wraps from the first image to the last or from the last to the first.",
+      "prevention": "Replace modulo navigation with clamped index movement for all indexed image galleries.",
+      "acceptance_check": "Repeated swipe or arrow activation at either gallery boundary remains on the same image."
+    },
+    {
+      "rejection": "RTL and LTR arrows move in the wrong visual direction or report the wrong boundary.",
+      "prevention": "Derive rail movement from computed direction and derive gallery icons from the active language.",
+      "acceptance_check": "Hebrew begins with the right previous arrow disabled and left next arrow enabled; LTR languages mirror the visual direction."
+    },
+    {
+      "rejection": "A rail with too few items still shows an active arrow after resize or async loading.",
+      "prevention": "Recompute from rendered geometry on scroll, resize and child mutation.",
+      "acceptance_check": "Non-overflowing, loading and empty rails have both arrows disabled after hydration and resize."
+    },
+    {
+      "rejection": "A broad refactor changes approved card design, links or content.",
+      "prevention": "Restrict the delta to boundary state, movement gating, shared controls and disabled styles.",
+      "acceptance_check": "Representative before-and-after pages retain section order, content, links, card dimensions and imagery."
+    }
+  ],
+  "affected_family": [
+    "Ten homepage content rails",
+    "Event-region carousel and reusable event content rails",
+    "Search-depth discovery rails across all public worlds and languages",
+    "Vacation search result-card image galleries",
+    "Vacation and event place hero galleries",
+    "Vacation, event and discovery full-screen story galleries",
+    "Vacation sleeping-arrangement rail",
+    "Desktop, 390-pixel mobile, RTL and LTR interaction states"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "Approved homepage available-stays boundary behavior",
+        "source": "https://vii.spaplus.co/#home-live-deals-title"
+      },
+      {
+        "label": "VII accepted feedback standard",
+        "source": "C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the shared rail controls are adopted by one event rail and one search discovery rail, and one indexed gallery is converted to clamped movement.",
+    "checks": [
+      "Initial previous is natively disabled while next remains available only with overflow.",
+      "One movement enables previous and changes the real rail position or image index.",
+      "Repeated movement reaches a terminal next-disabled state without wrapping.",
+      "Approved styling, content and links remain unchanged."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can any known arrow-bearing slider still wrap around or move beyond an edge?",
+      "Can any disabled-looking arrow still receive activation?",
+      "Can async content, resize, RTL or LTR leave stale arrow state?",
+      "Did any page lose content, links, touch scrolling or gallery access?",
+      "Does the exact production release pass the full family inventory on desktop and mobile?"
+    ],
+    "natural_destination_evidence": "Live browser interaction on the exact deployed VII routes and representative data states.",
+    "affected_family_evidence": "A source inventory, automated contracts and live checks covering every distinct slider implementation rather than only one route."
+  },
+  "effectiveness": {
+    "baseline": "Homepage rails use the approved boundary behavior, while several sitewide rail and image-gallery implementations still expose unbounded or wrapping navigation.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Zero known arrow-bearing public slider implementations with active controls beyond a real boundary or wraparound navigation."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}
