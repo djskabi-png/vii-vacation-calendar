@@ -123,10 +123,11 @@ function storePublicCache(response: Response, policy: PublicCachePolicy | null, 
 function withLaunchSeo(response: Response, url: URL, primary: boolean) {
   const headers = new Headers(response.headers);
   const type = headers.get("content-type") || "";
-  if (!primary && (type.includes("text/html") || url.pathname === "/sitemap.xml")) {
+  const sitemapDocument = url.pathname === "/sitemap.xml" || url.pathname.startsWith("/sitemaps/");
+  if (!primary && (type.includes("text/html") || sitemapDocument)) {
     headers.set("X-Robots-Tag", "noindex");
   }
-  if (primary && (url.pathname === "/robots.txt" || url.pathname === "/sitemap.xml") &&
+  if (primary && (url.pathname === "/robots.txt" || sitemapDocument) &&
       (type.includes("text/plain") || type.includes("xml"))) {
     headers.delete("content-length");
     return response.text().then((body) => new Response(body.replaceAll(temporaryOrigin, primaryOrigin), {
@@ -159,7 +160,7 @@ function localizeStructuredUrl(value: string, locale: Exclude<PublicLocale, "he"
   try {
     const url = new URL(value);
     if (url.origin !== "https://vii.spaplus.co") return value;
-    if (/^\/(?:api|_next|assets|media)(?:\/|$)|^\/(?:favicon\.ico|robots\.txt|sitemap\.xml|feed\.xml|vii-logo\.png|og-v2\.png)$/.test(url.pathname)) return value;
+    if (/^\/(?:api|_next|assets|media|sitemaps)(?:\/|$)|^\/(?:favicon\.ico|robots\.txt|sitemap\.xml|feed\.xml|vii-logo\.png|og-v2\.png)$/.test(url.pathname)) return value;
     const basePath = url.pathname.replace(/^\/(en|ru|fr)(?=\/|$)/, "") || "/";
     url.pathname = `/${locale}${basePath === "/" ? "" : basePath}`;
     return url.toString();

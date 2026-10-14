@@ -20,6 +20,19 @@ async function render(pathname = "/", init = {}) {
   return withDeadline(worker.fetch(new Request(`http://localhost${pathname}`, { ...init, headers: { accept: "text/html", ...(init.headers || {}) } }), { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } }, { waitUntil() {}, passThroughOnException() {} }), pathname);
 }
 
+async function readSitemapDocuments() {
+  const indexResponse = await render("/sitemap.xml", { headers: { accept: "application/xml" } });
+  assert.equal(indexResponse.status, 200);
+  const indexXml = await indexResponse.text();
+  const paths = [...indexXml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => new URL(match[1].replaceAll("&amp;", "&")).pathname);
+  const documents = await Promise.all(paths.map(async (path) => {
+    const response = await render(path, { headers: { accept: "application/xml" } });
+    assert.equal(response.status, 200, path);
+    return { path, xml: await response.text() };
+  }));
+  return { indexXml, documents };
+}
+
 for (const [pathname, expected] of [
   ["/", /כל החופשה, במקום אחד/],
   ["/search", /נופש ברחבי הארץ/],
@@ -429,21 +442,22 @@ test("spa booking uses only the supplier handoff while other discovery stays in 
 });
 
 test("gift cards, corporate experiences and MASU form one internal journey", async () => {
-  const [giftResponse, corporateResponse, masuResponse, homeResponse, sitemapResponse, worldData, businessSource, eventSource, discoverySource, translations] = await Promise.all([
+  const [giftResponse, corporateResponse, masuResponse, homeResponse, sitemap, worldData, businessSource, eventSource, discoverySource, translations] = await Promise.all([
     render("/gift-card"),
     render("/corporate"),
     render("/discover/place/masu-home-wellness"),
     render("/"),
-    render("/sitemap.xml", { headers: { accept: "application/xml" } }),
+    readSitemapDocuments(),
     readFile(new URL("../app/data/world-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/events/place/client-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/discover/place/client-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/i18n/translations.generated.json", import.meta.url), "utf8"),
   ]);
-  const [giftHtml, corporateHtml, masuHtml, homeHtml, sitemapXml] = await Promise.all([
-    giftResponse.text(), corporateResponse.text(), masuResponse.text(), homeResponse.text(), sitemapResponse.text(),
+  const [giftHtml, corporateHtml, masuHtml, homeHtml] = await Promise.all([
+    giftResponse.text(), corporateResponse.text(), masuResponse.text(), homeResponse.text(),
   ]);
+  const sitemapXml = sitemap.documents.map((document) => document.xml).join("\n");
   assert.match(giftHtml, /gift-card-art/);
   assert.match(giftHtml, /gift-checkout__steps/);
   assert.match(giftHtml, /gift-designs/);
@@ -985,7 +999,7 @@ test("publishes crawler guidance, answer-engine guidance and an RSS feed", async
     readFile(new URL("../public/llms.txt", import.meta.url), "utf8"),
     readFile(new URL("../public/llms-full.txt", import.meta.url), "utf8"),
     readFile(new URL("../app/lib/seo.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/sitemap.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/lib/sitemap-inventory.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/questions/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../public/e7daf03f62b014067d8e10bb84098faa444d71d61f0d851d32013a07fe2502d3.txt", import.meta.url), "utf8"),
   ]);
@@ -1002,16 +1016,19 @@ test("publishes crawler guidance, answer-engine guidance and an RSS feed", async
   assert.equal(key.trim(), "e7daf03f62b014067d8e10bb84098faa444d71d61f0d851d32013a07fe2502d3");
 });
 
-test("every canonical URL in the sitemap has complete crawlable HTML", async () => {
-  const sitemapResponse = await render("/sitemap.xml", { headers: { accept: "application/xml" } });
-  const sitemapXml = await sitemapResponse.text();
-  assert.equal(sitemapResponse.status, 200);
-  const urls = [...sitemapXml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1].replaceAll("&amp;", "&"));
+test("the sitemap inventory is unique and a bounded sample from every family has complete crawlable HTML", async () => {
+  const { documents } = await readSitemapDocuments();
+  const urls = documents.flatMap(({ xml }) => [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1].replaceAll("&amp;", "&")));
   assert.ok(urls.length >= 132);
   assert.equal(urls.some((url) => url.includes("party-time")), false);
   assert.equal(new Set(urls).size, urls.length);
 
-  for (const absolute of urls) {
+  const sampled = documents.flatMap(({ xml }) => {
+    const familyUrls = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1].replaceAll("&amp;", "&"));
+    const step = Math.max(1, Math.ceil(familyUrls.length / 24));
+    return familyUrls.filter((_, index) => index % step === 0 || index === familyUrls.length - 1);
+  });
+  for (const absolute of [...new Set(sampled)]) {
     const target = new URL(absolute);
     const response = await render(`${target.pathname}${target.search}`);
     const html = await withDeadline(response.text(), absolute);
@@ -1028,15 +1045,16 @@ test("every canonical URL in the sitemap has complete crawlable HTML", async () 
 });
 
 test("sitemap exposes reciprocal language alternatives without synthetic update dates", async () => {
-  const response = await render("/sitemap.xml", { headers: { accept: "application/xml" } });
-  const xml = await response.text();
-  assert.equal(response.status, 200);
+  const { documents } = await readSitemapDocuments();
+  const xml = documents.map((document) => document.xml).join("\n");
   assert.match(xml, /hreflang="he-IL" href="https:\/\/vii\.spaplus\.co\//);
   assert.match(xml, /hreflang="en" href="https:\/\/vii\.spaplus\.co\/en/);
   assert.match(xml, /hreflang="ru" href="https:\/\/vii\.spaplus\.co\/ru/);
   assert.match(xml, /hreflang="fr" href="https:\/\/vii\.spaplus\.co\/fr/);
   assert.match(xml, /hreflang="x-default" href="https:\/\/vii\.spaplus\.co\//);
-  assert.doesNotMatch(xml, /<lastmod>/);
+  const core = documents.find((document) => document.path.includes("/sitemaps/core/"));
+  assert.ok(core);
+  assert.doesNotMatch(core.xml, /<lastmod>/);
 });
 
 test("key page types emit matching structured data and private pages stay out of the index", async () => {

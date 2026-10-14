@@ -9,7 +9,7 @@ const page = fs.readFileSync(new URL("../app/admin/search-pages/page.tsx", impor
 const route = fs.readFileSync(new URL("../app/find/[slug]/page.tsx", import.meta.url), "utf8");
 const publicRoute = fs.readFileSync(new URL("../app/search/[world]/[slug]/page.tsx", import.meta.url), "utf8");
 const landing = fs.readFileSync(new URL("../app/components/managed-search-landing.tsx", import.meta.url), "utf8");
-const sitemap = fs.readFileSync(new URL("../app/sitemap.ts", import.meta.url), "utf8");
+const sitemap = fs.readFileSync(new URL("../app/lib/sitemap-inventory.ts", import.meta.url), "utf8");
 const complete = { id: "search-123", expectedVersion: 0, status: "published", assignee: "", title: "אירועים משפחתיים בחיפה", metaTitle: "אירועים משפחתיים בחיפה והכרמל",
   metaDescription: "מקומות לאירועים משפחתיים בחיפה והכרמל עם מידע מעשי, תמונות ודרכי פנייה ישירות.", h1: "מקומות לאירועים משפחתיים בחיפה והכרמל",
   summary: "מבחר מקומות שמתאימים לאירועים משפחתיים באזור חיפה והכרמל.", body: "בעמוד הזה ריכזנו מקומות פעילים מתוך קטלוג VII שמתאימים לחיפוש. אפשר להשוות בין המתחמים, לבדוק את התמונות והמאפיינים ולפתוח את עמוד המקום לפני שפונים אליו. המידע מתעדכן לפי הקטלוג הפעיל.",
@@ -76,5 +76,5 @@ test("published opportunity has a natural public destination and sitemap source"
   assert.match(landing, /collectionSchema/);
   assert.match(landing, /מקומות שמתאימים לחיפוש/);
   assert.match(sitemap, /publishedOpportunityPaths/);
-  assert.match(sitemap, /includeLanguageAlternates/);
+  assert.match(sitemap, /opportunityPaths\.map/);
 });

@@ -115,7 +115,7 @@ test("spa, events and hourly preserve location in semantic search routes", () =>
   assert.match(localeProvider, /spaSemanticMatch/);
   assert.match(localeProvider, /Spa\$\{audience/);
 
-  const sitemap = read("app/sitemap.ts");
+  const sitemap = read("app/lib/sitemap-inventory.ts");
   assert.match(sitemap, /indexableSpaSearchStates/);
   assert.match(sitemap, /eventSearchHref/);
   assert.match(sitemap, /hourlySearchHref/);

@@ -5,7 +5,7 @@
   "task_type": "admin product repair and expansion",
   "goal": "Every real search is captured reliably, administrator tests are visible without contaminating public demand, and the management system provides a complete operational path from demand to an editable publishable page.",
   "created_at": "2026-10-14T10:48:52.701851Z",
-  "updated_at": "2026-10-14T11:00:16.218626Z",
+  "updated_at": "2026-10-14T11:06:45.653895Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -242,6 +242,42 @@
       ],
       "reason": null,
       "updated_at": "2026-10-14T11:00:16.087332Z"
+    },
+    {
+      "id": "project:scalable-multilingual-sitemap",
+      "source": "user_request",
+      "statement": "Build a scalable multilingual sitemap architecture for the new VII site, including correct pagination for a large place inventory.",
+      "acceptance_check": "The public sitemap is an index split by content family and deterministic 10000-URL pages; every allowed locale URL is separately listed with reciprocal hreflang; invalid and empty pages return 404.",
+      "status": "passed",
+      "evidence": [
+        "Build passed; sitemap routes are /sitemap.xml and /sitemaps/:section/:page; tests verify 10001 URLs split 10000+1, four locale URL entries, reciprocal hreflang, XML escaping, bounded images, and both production-host and staging-host behavior."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T11:06:45.390057Z"
+    },
+    {
+      "id": "project:sitemap-publication-truth",
+      "source": "user_request",
+      "statement": "Only approved public indexable pages may enter the sitemap, and published search pages must appear automatically.",
+      "acceptance_check": "Catalog entries respect indexable flags, search opportunity entries come only from publishedOpportunityPaths, and accurate publication lastmod is used only when known.",
+      "status": "passed",
+      "evidence": [
+        "Inventory filters catalog entries by indexability and builds managed pages exclusively from publishedOpportunityPaths; full suite passed 664/664."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T11:06:45.521387Z"
+    },
+    {
+      "id": "project:sitemap-operations",
+      "source": "inferred_operational_requirement",
+      "statement": "Expose truthful sitemap health and scale inside the growth administration center.",
+      "acceptance_check": "Authenticated sitemap status reports total URLs, child files, languages and per-section counts, and the growth center does not mistake an index for a broken urlset.",
+      "status": "passed",
+      "evidence": [
+        "Added authenticated /api/admin/sitemap and updated /admin/growth to show total public URLs and child sitemap files; TypeScript and production build passed."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-14T11:06:45.653881Z"
     }
   ],
   "verification_status": "in_progress",

@@ -5,7 +5,7 @@ import test from "node:test";
 const taxonomy = readFileSync(new URL("../app/data/spa-landings.ts", import.meta.url), "utf8");
 const results = readFileSync(new URL("../app/components/world-map-results.tsx", import.meta.url), "utf8");
 const page = readFileSync(new URL("../app/spas/[slug]/page.tsx", import.meta.url), "utf8");
-const sitemap = readFileSync(new URL("../app/sitemap.ts", import.meta.url), "utf8");
+const sitemap = readFileSync(new URL("../app/lib/sitemap-inventory.ts", import.meta.url), "utf8");
 const searchLandings = readFileSync(new URL("../app/data/spa-search-landings.ts", import.meta.url), "utf8");
 
 test("all nine spa feature controls are crawlable clean links", () => {
@@ -25,7 +25,8 @@ test("spa landing template has unique metadata, breadcrumbs and filtered collect
 });
 
 test("all curated spa landing pages are included in the sitemap", () => {
-  assert.match(sitemap, /spaLandings\.map\(\(landing\) => item\(spaLandingHref\(landing\)/);
+  assert.match(sitemap, /spaLandings\.map\(\(landing\) => \(\{ path: spaLandingHref\(landing\) \}\)\)/);
+  assert.match(sitemap, /localizedEntries\(row\.path/);
 });
 
 test("spa audience search uses the active catalog card instead of bundling stale spa details", () => {
