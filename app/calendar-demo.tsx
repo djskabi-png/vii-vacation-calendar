@@ -412,7 +412,7 @@ export function CalendarDemo({
             </h2>
             <p>
               {translate(mode === "home"
-                ? "כל תאריך עתידי ניתן לחיפוש. הזמינות תיבדק מול כל המקומות בתוצאות."
+                ? "בחרו תאריכי הגעה ויציאה, או עברו לחיפוש עם גמישות בתאריכים."
                 : businessKind === "single"
                   ? "ימים תפוסים ומינימום הלילות משפיעים על הטווח שניתן לבחור. במקום יחיד אין צורך להציג כמות יחידות."
                   : "ימים תפוסים, מספר היחידות ומינימום הלילות משפיעים על הטווח שניתן לבחור.")}
@@ -426,12 +426,13 @@ export function CalendarDemo({
         {mode === "home" && (
           <div className="date-mode-tabs" role="tablist" aria-label="אופן בחירת תאריכים">
             <button type="button" role="tab" aria-selected={!flexible} className={!flexible ? "active" : ""} onClick={() => setFlexible(false)}>{translate("תאריכים מדויקים")}</button>
-            <button type="button" role="tab" aria-selected={flexible} className={flexible ? "active" : ""} onClick={() => setFlexible(true)}>{translate("אני גמיש")}</button>
+            <button type="button" role="tab" aria-selected={flexible} className={flexible ? "active" : ""} onClick={() => setFlexible(true)}>{translate("גמישות בתאריכים")}</button>
           </div>
         )}
 
         {flexible ? (
           <div className="flexible-content">
+            <p className="flexible-content__intro">{translate("לא חייבים לבחור ימים מדויקים. בחרו משך, חודש וטווח גמישות, ואנחנו נחפש את האפשרויות המתאימות.")}</p>
             <section className="flexible-section flexible-section--stay" aria-labelledby="flexible-stay-title">
               <div className="flexible-section__heading">
                 <span>{translate("1. משך")}</span>
@@ -496,9 +497,7 @@ export function CalendarDemo({
             </div>
 
             <div className="dialog-legend">
-              {mode === "home" ? (
-                <span><i className="legend-dot general" /> כל תאריך עתידי ניתן לחיפוש</span>
-              ) : (
+              {mode === "home" ? null : (
                 <>
                   <span><i className="legend-dot open" /> פנוי</span>
                   {businessKind === "multi" && <span><i className="legend-dot limited" /> יחידה אחרונה</span>}

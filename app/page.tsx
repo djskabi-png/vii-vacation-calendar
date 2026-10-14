@@ -6,8 +6,9 @@ import { PageShell } from "./components/page-shell";
 import { HomeShowcase, HomeTrails, type HomeRatedPlace } from "./components/home-showcase";
 import { MasuExperience } from "./components/masu-experience";
 import { SearchBox } from "./components/search-box";
+import { HomeQuickSearches } from "./components/home-discovery-sections";
 import { magazineArticles } from "./data/magazine-data";
-import { destinations } from "./data/site-data";
+import { destinations, visualTourProperties } from "./data/site-data";
 import type { EventPlace, Property } from "./data/site-data";
 import { hourlyPlacesFromCatalog, paidAttractions, providerProfiles, spaPlacesFromSites } from "./data/world-data";
 import type { SpaPlusSite } from "./data/spaplus";
@@ -56,8 +57,10 @@ function homeShowcaseProperties(properties: Property[]) {
     if (place?.image) usedImages.add(place.image);
     return place;
   }).filter((place): place is Property => Boolean(place));
-  const tourPlaces = rotateDaily(properties.filter((place) => place.videos?.length), (place) => place.slug, "home-tours")
-    .flatMap((place) => (place.videos || []).map(() => place)).slice(0, 7);
+  const tourPlaces = rotateDaily([
+    ...properties.filter((place) => place.videos?.length),
+    ...visualTourProperties,
+  ], (place) => place.slug, "home-tours").slice(0, 7);
   const selected = new Map<string, Property>();
   [...destinationPlaces, ...tourPlaces].forEach((place) => selected.set(place.slug, place));
   return [...selected.values()].map(({ slug, name, location, area, image, videos }) => ({ slug, name, location, area, image, videos }));
@@ -86,7 +89,7 @@ export default async function HomePage() {
             <h1>כל החופשה, במקום אחד</h1>
             <p>נופש, ספא, אירועים וכל מה שעושים מסביב.</p>
             <SearchBox showWorlds />
-            <div className="quick-links home-hero__quick-links" aria-label="חיפושים פופולריים"><span>פופולרי עכשיו</span><Link href="/search" prefetch={false} data-global-feedback="true" data-loading-label="פותחים מקומות נופש...">מקומות נופש</Link><Link href="/search?feature=בריכה" prefetch={false} data-global-feedback="true" data-loading-label="מחפשים מקומות עם בריכה...">נופש עם בריכה</Link><Link href="/events/search" prefetch={false} data-global-feedback="true" data-loading-label="מחפשים מקומות לאירועים...">מקומות לאירועים</Link><Link href="/vacations/north" prefetch={false} data-global-feedback="true" data-loading-label="מחפשים נופש בצפון...">נופש בצפון</Link></div>
+            <HomeQuickSearches />
           </div>
         </section>
 
@@ -103,7 +106,7 @@ export default async function HomePage() {
         </section>
 
         <section className="section shell why-section home-page-section" aria-labelledby="why-title">
-          <div><span className="eyebrow">פשוט לבחור נכון</span><h2 id="why-title">פרטי המקום, בלי ללכת לאיבוד</h2><p>מחפשים מקום לפי אזור ומאפיינים, רואים את הפרטים שהתקבלו מהספק, ומבררים מחיר וזמינות לפני הזמנה.</p><Link className="button primary" href="/search" prefetch={false}>מתחילים לחפש</Link></div>
+          <div><span className="eyebrow">פשוט לבחור נכון</span><h2 id="why-title">פרטי המקום, בלי ללכת לאיבוד</h2><p>מחפשים מקום לפי אזור ומאפיינים, רואים את הפרטים שהתקבלו מהספק, ומבררים מחיר וזמינות לפני הזמנה.</p><Link className="button primary" href="/search" prefetch={false} data-global-feedback="true" data-loading-label="פותחים את החיפוש...">מתחילים לחפש</Link></div>
           <div className="benefit-grid"><article><b>01</b><h3>חיפוש ממוקד</h3><p>מסננים לפי אזור, הרכב ומאפיינים שקיימים בנתוני הספק.</p></article><article><b>02</b><h3>מידע על המקום</h3><p>רואים תמונות, מתקנים ופרטי אירוח שהתקבלו מהספק.</p></article><article><b>03</b><h3>בדיקה לפני הזמנה</h3><p>מבררים תאריך, מחיר ותנאים לפני שמתחייבים.</p></article></div>
         </section>
 

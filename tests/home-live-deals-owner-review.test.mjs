@@ -40,5 +40,6 @@ test("content studio owns homepage period tabs and supplier holiday presentation
   for (const field of ["homePeriodOrder", "homePeriodDefault", "homePeriodHidden", "homePeriodLabels", "homeHolidayLimit", "homeHolidayHidden", "homeHolidayDates"]) assert.match(admin, new RegExp(field));
   assert.match(component, /result\.display\?\.periods/);
   assert.match(component, /selectedHoliday\.from/);
-  assert.match(component, /<strong>\{item\.name\}<\/strong><small>/);
+  assert.match(component, /<strong>\{item\.name\}<\/strong><\/button>/);
+  assert.doesNotMatch(component, /<strong>\{item\.name\}<\/strong><small>/);
 });

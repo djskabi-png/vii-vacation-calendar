@@ -1,30 +1,30 @@
 "use client";
 
-import { Children, type ReactNode, useMemo, useState } from "react";
+import { Children, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 
 type ResultKind = "places" | "trails" | "providers";
 
-const copy: Record<SiteLanguage, Record<ResultKind, { more: (count: number) => string; progress: (visible: number, total: number) => string }>> = {
+const copy: Record<SiteLanguage, Record<ResultKind, { loading: string; more: (count: number) => string; progress: (visible: number, total: number) => string }>> = {
   he: {
-    places: { more: (count) => `הצגת ${count} מקומות נוספים`, progress: (visible, total) => `${visible} מתוך ${total} מקומות` },
-    trails: { more: (count) => `הצגת ${count} מסלולים נוספים`, progress: (visible, total) => `${visible} מתוך ${total} מסלולים` },
-    providers: { more: (count) => `הצגת ${count} ספקים נוספים`, progress: (visible, total) => `${visible} מתוך ${total} ספקים` },
+    places: { loading: "טוענים עוד מקומות...", more: (count) => `הצגת ${count} מקומות נוספים`, progress: (visible, total) => `${visible} מתוך ${total} מקומות` },
+    trails: { loading: "טוענים עוד מסלולים...", more: (count) => `הצגת ${count} מסלולים נוספים`, progress: (visible, total) => `${visible} מתוך ${total} מסלולים` },
+    providers: { loading: "טוענים עוד ספקים...", more: (count) => `הצגת ${count} ספקים נוספים`, progress: (visible, total) => `${visible} מתוך ${total} ספקים` },
   },
   en: {
-    places: { more: (count) => `Show ${count} more places`, progress: (visible, total) => `${visible} of ${total} places` },
-    trails: { more: (count) => `Show ${count} more trails`, progress: (visible, total) => `${visible} of ${total} trails` },
-    providers: { more: (count) => `Show ${count} more providers`, progress: (visible, total) => `${visible} of ${total} providers` },
+    places: { loading: "Loading more places...", more: (count) => `Show ${count} more places`, progress: (visible, total) => `${visible} of ${total} places` },
+    trails: { loading: "Loading more trails...", more: (count) => `Show ${count} more trails`, progress: (visible, total) => `${visible} of ${total} trails` },
+    providers: { loading: "Loading more providers...", more: (count) => `Show ${count} more providers`, progress: (visible, total) => `${visible} of ${total} providers` },
   },
   ru: {
-    places: { more: (count) => `Показать ещё ${count}`, progress: (visible, total) => `${visible} из ${total} мест` },
-    trails: { more: (count) => `Показать ещё ${count}`, progress: (visible, total) => `${visible} из ${total} маршрутов` },
-    providers: { more: (count) => `Показать ещё ${count}`, progress: (visible, total) => `${visible} из ${total} поставщиков` },
+    places: { loading: "Загружаем ещё места...", more: (count) => `Показать ещё ${count}`, progress: (visible, total) => `${visible} из ${total} мест` },
+    trails: { loading: "Загружаем ещё маршруты...", more: (count) => `Показать ещё ${count}`, progress: (visible, total) => `${visible} из ${total} маршрутов` },
+    providers: { loading: "Загружаем ещё поставщиков...", more: (count) => `Показать ещё ${count}`, progress: (visible, total) => `${visible} из ${total} поставщиков` },
   },
   fr: {
-    places: { more: (count) => `Afficher ${count} lieux de plus`, progress: (visible, total) => `${visible} lieux sur ${total}` },
-    trails: { more: (count) => `Afficher ${count} parcours de plus`, progress: (visible, total) => `${visible} parcours sur ${total}` },
-    providers: { more: (count) => `Afficher ${count} prestataires de plus`, progress: (visible, total) => `${visible} prestataires sur ${total}` },
+    places: { loading: "Chargement d'autres lieux...", more: (count) => `Afficher ${count} lieux de plus`, progress: (visible, total) => `${visible} lieux sur ${total}` },
+    trails: { loading: "Chargement d'autres parcours...", more: (count) => `Afficher ${count} parcours de plus`, progress: (visible, total) => `${visible} parcours sur ${total}` },
+    providers: { loading: "Chargement d'autres prestataires...", more: (count) => `Afficher ${count} prestataires de plus`, progress: (visible, total) => `${visible} prestataires sur ${total}` },
   },
 };
 
@@ -40,6 +40,7 @@ type ProgressiveResultsProps = {
   totalCount?: number;
   visibleCount?: number;
   onShowMore?: () => void;
+  autoLoad?: boolean;
 };
 
 export function ProgressiveResults(props: ProgressiveResultsProps) {
@@ -59,10 +60,13 @@ function ProgressiveResultsWindow({
   totalCount,
   visibleCount: controlledVisibleCount,
   onShowMore,
+  autoLoad = false,
 }: ProgressiveResultsProps) {
   const { language } = useSiteLanguage();
   const items = useMemo(() => Children.toArray(children), [children]);
   const [visibleCount, setVisibleCount] = useState(initialCount);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const loadingRef = useRef(false);
 
   const controlled = typeof totalCount === "number" && typeof controlledVisibleCount === "number" && Boolean(onShowMore);
   const visibleItems = controlled ? items : items.slice(0, visibleCount);
@@ -73,13 +77,26 @@ function ProgressiveResultsWindow({
   const nextCount = Math.min(increment, remaining);
   const labels = copy[language][kind];
 
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!autoLoad || !sentinel || remaining <= 0) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry?.isIntersecting || loadingRef.current) return;
+      loadingRef.current = true;
+      if (controlled) onShowMore?.(); else setVisibleCount((current) => Math.min(items.length, current + increment));
+      window.setTimeout(() => { loadingRef.current = false; }, 180);
+    }, { rootMargin: "500px 0px" });
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [autoLoad, controlled, increment, items.length, onShowMore, remaining]);
+
   return <>
     <div className={className}>
       {featuredItem ? <>{visibleItems.slice(0, featuredAfter)}{featuredItem}{visibleItems.slice(featuredAfter)}</> : visibleItems}
     </div>
-    {remaining > 0 ? <div className="progressive-results">
+    {remaining > 0 ? <div className="progressive-results" ref={sentinelRef} aria-busy={autoLoad || undefined}>
       <button type="button" onClick={() => controlled ? onShowMore?.() : setVisibleCount((current) => Math.min(items.length, current + increment))}>
-        <span>{labels.more(nextCount)}</span>
+        <span>{autoLoad ? labels.loading : labels.more(nextCount)}</span>
         <small aria-live="polite">{labels.progress(effectiveVisibleCount, effectiveTotalCount)}</small>
       </button>
     </div> : null}

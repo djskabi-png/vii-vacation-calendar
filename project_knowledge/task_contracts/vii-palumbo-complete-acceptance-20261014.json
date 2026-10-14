@@ -1,0 +1,97 @@
+{
+  "goal": "Complete and verify every actionable Palumbo request from today's VII review across homepage, search and management controls.",
+  "intent_model": {
+    "literal_request": "Take care of everything Palumbo requested and ask Adir only about genuinely unclear items.",
+    "implied_outcome": "A coherent, production-ready VII experience in which none of Palumbo's actionable feedback is silently omitted or falsely marked complete.",
+    "likely_rejections": [
+      "Only a subset was implemented.",
+      "A control exists but is not manageable or does not persist.",
+      "The code changed but the public site was not verified.",
+      "Mobile or a related component family regressed."
+    ],
+    "interpretation_rules": [
+      {
+        "phrase": "everything Palumbo requested",
+        "operational_meaning": "Use the complete reviewed message inventory, not a representative sample.",
+        "acceptance_impact": "Every actionable item has an explicit requirement and natural-surface evidence."
+      }
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "Visitors see visual, immediately understandable discovery and search controls.",
+    "current_decision": "Choose one discovery category, date intent or filter at a time.",
+    "next_action": "Open matching results or a place without waiting for an unexplained state.",
+    "deferred_complexity": ["advanced filters", "CMS curation fields", "full location hierarchy"],
+    "preserved_depth": ["map synchronization", "availability data", "multilingual routes", "versioned management controls"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/task_contracts/vii-palumbo-complete-preflight-20261014.json",
+    "lesson_bundle_ids": ["VII-PROJECT-001", "ADIR-WEB-005", "ADIR-WEB-006"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["VII visitor", "VII content editor", "VII administrator"],
+  "natural_destination": "Public VII homepage and vacation search, plus authenticated content studio",
+  "facts": [
+    {"claim": "Ten message-level requests were previously verified and fifteen remained partial, unclear or non-actionable.", "evidence": "project_knowledge/process_manifests/vii-palumbo-whatsapp-replies-20261014.json"},
+    {"claim": "The current public release is version 417 from source baa414c.", "evidence": "Prior live release verification in the active VII task."}
+  ],
+  "assumptions": [
+    {"claim": "The 19:17 voice note is not an actionable product requirement until its content is available.", "validation": "Ask Adir only if the written requirements are completed and the voice note remains unavailable."}
+  ],
+  "in_scope": [
+    "Visual and managed popular searches",
+    "Complete live-deal contact and card facts",
+    "Holiday tab presentation without public dates",
+    "Missing homepage discovery, video and editorial sections",
+    "Complete CMS-backed location hierarchy",
+    "Remove requested calendar sentence",
+    "Clarify flexible-date search",
+    "Complete sort labels, automatic result loading and filter naming",
+    "Preserve already verified map and card fixes",
+    "Publish and verify the exact production release"
+  ],
+  "out_of_scope": ["The unrelated computer-price request", "Untranscribed voice content", "Outbound WhatsApp replies before action-time sender confirmation"],
+  "invariants": [
+    "Supplier availability and approved catalog data remain the source of truth.",
+    "Map stickiness and card-marker synchronization remain working.",
+    "Published content remains versioned and authorized.",
+    "Search URL, breadcrumbs, H1, filters, count, list and map remain coherent.",
+    "The modern Hebrew Heebo stack remains consistent."
+  ],
+  "affected_family": ["homepage", "vacation search", "calendar", "content studio", "location data", "four languages", "desktop and mobile"],
+  "characteristics": {"stateful": true},
+  "requirements": [
+    {"id":"REQ-1","statement":"Popular searches are visual, aligned, managed and provide immediate navigation feedback.","source":"Palumbo 14:18 and 15:01"},
+    {"id":"REQ-2","statement":"Live-deal cards expose all requested facts plus phone and WhatsApp without redundant booking copy.","source":"Palumbo 14:36 and 14:37"},
+    {"id":"REQ-3","statement":"Holiday tabs show at most six managed holidays without public date text.","source":"Palumbo 14:57"},
+    {"id":"REQ-4","statement":"Homepage includes the requested popular search, city, accommodation-type, video and editorial discovery sections after recommended destinations.","source":"Palumbo 15:19 and 15:21"},
+    {"id":"REQ-5","statement":"Vacation location discovery uses the full available hierarchy ordered regions, subregions, cities and matching places.","source":"Palumbo 15:27"},
+    {"id":"REQ-6","statement":"The calendar sentence identified by Palumbo is removed.","source":"Palumbo 15:31"},
+    {"id":"REQ-7","statement":"Flexible-date search is self-explanatory before and after selection.","source":"Palumbo 16:00"},
+    {"id":"REQ-8","statement":"Vacation sorting includes price directions and the requested alphabetic label.","source":"Palumbo 16:10"},
+    {"id":"REQ-9","statement":"Vacation results load automatically on scroll without requiring repeated show-more clicks.","source":"Palumbo 16:14"},
+    {"id":"REQ-10","statement":"The unclear additional-filter label is replaced by an explicit category while retaining price and accommodation filters.","source":"Palumbo 16:16 and 16:18"},
+    {"id":"REQ-11","statement":"All changed management controls persist after save and reload and affect the published homepage only after publication.","source":"VII management standard"},
+    {"id":"REQ-12","statement":"The exact released version passes build, focused tests, typography, desktop, mobile and affected-family regression checks.","source":"VII release standard"}
+  ],
+  "acceptance_checks": [
+    {"id":"AC-1","requirement_ids":["REQ-1"],"kind":"success","setup":"Open homepage as a visitor.","action":"Inspect and activate each popular-search card.","observable_result":"Each item has a visual anchor and managed label, acknowledges activation and opens its exact result state."},
+    {"id":"AC-2","requirement_ids":["REQ-2"],"kind":"success","setup":"A deal has verified phone and WhatsApp data.","action":"Inspect the card and activate each contact method.","observable_result":"Facts, one-night wording, included guests, direct phone and prepared WhatsApp actions are visible and distinct."},
+    {"id":"AC-3","requirement_ids":["REQ-3","REQ-11"],"kind":"persistence","setup":"Publish homepage holiday settings.","action":"Reload CMS and homepage.","observable_result":"At most six visible holiday tabs retain managed order and visibility, and no tab prints its date."},
+    {"id":"AC-4","requirement_ids":["REQ-4"],"kind":"success","setup":"Open homepage with representative catalog data.","action":"Scroll after recommended destinations.","observable_result":"Every requested discovery section is visible, populated with verified data and has working navigation."},
+    {"id":"AC-5","requirement_ids":["REQ-5"],"kind":"success","setup":"Open vacation location selector.","action":"Browse and search the hierarchy.","observable_result":"Regions precede subregions, then cities and matching places, with no unrelated fallback."},
+    {"id":"AC-6","requirement_ids":["REQ-6","REQ-7"],"kind":"success","setup":"Open the home calendar and flexible-date search.","action":"Review instructions and complete a flexible selection.","observable_result":"The removed sentence is absent and the flexible flow explains its behavior and resulting date window."},
+    {"id":"AC-7","requirement_ids":["REQ-8","REQ-10"],"kind":"success","setup":"Open vacation results with prices and types.","action":"Open sort and filter controls.","observable_result":"Price directions, alphabetic A-to-Z wording, accommodation types, price range and an explicit feature-filter label are available."},
+    {"id":"AC-8","requirement_ids":["REQ-9"],"kind":"success","setup":"Open a result set longer than the initial window.","action":"Scroll near the end of the visible results.","observable_result":"The next window loads automatically with accessible progress and no duplicate cards."},
+    {"id":"AC-9","requirement_ids":["REQ-11"],"kind":"failure","setup":"A CMS save or publish request fails.","action":"Attempt the operation.","observable_result":"The initiating control exits loading, shows a clear error and does not falsely alter the public configuration."},
+    {"id":"AC-10","requirement_ids":["REQ-12"],"kind":"recovery","setup":"The candidate build is available with a known previous production version.","action":"Run affected-family verification and deploy only after pass.","observable_result":"The new version works on desktop and 390px mobile, with a documented rollback identity."}
+  ],
+  "open_questions": [
+    {"question":"What exactly was said in the 19:17 voice note?","blocking":false,"resolution":"Treat it as outside the written requirement inventory unless Adir supplies the content."}
+  ],
+  "authorization_boundary": "Implementation, testing and publication are authorized. Sending WhatsApp replies remains separately confirmation-gated.",
+  "ready_for_implementation": true
+}

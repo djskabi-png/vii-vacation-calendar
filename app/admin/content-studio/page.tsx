@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import styles from "./content-studio.module.css";
 import extras from "./content-studio-extras.module.css";
+import { defaultHomepagePresentation, type HomeDiscoveryItem } from "../../lib/homepage-presentation";
 
 type LinkItem = { id: string; label: string; href: string; group: string; order: number; visible: boolean; newWindow: boolean };
 type Content = { title: string; summary: string; body: string; metaTitle: string; metaDescription: string; slug: string; imageAlt: string; indexable: boolean; links: LinkItem[]; attributes: Record<string, string> };
@@ -24,6 +25,7 @@ const attributeFields: Record<string, Array<[string, string]>> = {
 };
 const date = (value: string | null) => value ? new Date(value).toLocaleString("he-IL", { timeZone: "Asia/Jerusalem", dateStyle: "short", timeStyle: "short" }) : "לא עודכן";
 function jsonAttributes(value = "{}") { try { const parsed = JSON.parse(value); return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed as Record<string, unknown> : {}; } catch { return {}; } }
+function discoveryItems(value: string | undefined, fallback: HomeDiscoveryItem[]) { try { const parsed = value ? JSON.parse(value) : fallback; return Array.isArray(parsed) ? parsed as HomeDiscoveryItem[] : fallback; } catch { return fallback; } }
 
 export default function ContentStudioPage() {
   const [type, setType] = useState("spa"); const [locale, setLocale] = useState("he"); const [query, setQuery] = useState("");
@@ -76,6 +78,12 @@ export default function ContentStudioPage() {
   function restore(version: Version) { setDraft(structuredClone(version.content)); setRestoring(true); setTab("content"); setMessage(`גרסה ${version.version} נטענה לעורך. שמירה תיצור גרסה חדשה ולא תמחק היסטוריה.`); }
   function updateLink(index: number, key: keyof LinkItem, value: string | number | boolean) { if (!draft) return; update("links", draft.links.map((item, itemIndex) => itemIndex === index ? { ...item, [key]: value } : item)); }
   function updateAttribute(key: string, value: string) { if (!draft) return; update("attributes", { ...draft.attributes, [key]: value }); }
+  function updateDiscoveryItem(key: string, fallback: HomeDiscoveryItem[], index: number, field: keyof HomeDiscoveryItem, value: string | boolean) {
+    if (!draft) return; const items = discoveryItems(draft.attributes[key], fallback).map((item, itemIndex) => itemIndex === index ? { ...item, [field]: value } : item); updateAttribute(key, JSON.stringify(items));
+  }
+  function moveDiscoveryItem(key: string, fallback: HomeDiscoveryItem[], index: number, direction: -1 | 1) {
+    if (!draft) return; const items = [...discoveryItems(draft.attributes[key], fallback)]; const target = index + direction; if (target < 0 || target >= items.length) return; [items[index], items[target]] = [items[target], items[index]]; updateAttribute(key, JSON.stringify(items));
+  }
   function updateHomeDealPlacement(id: string, checked: boolean) {
     if (!draft) return;
     const placements = new Set((draft.attributes.homeDealPlacements || "").split(",").filter(Boolean));
@@ -137,6 +145,16 @@ export default function ContentStudioPage() {
           <label className={styles.field}><span>טקסט קצר לכרטיס</span><textarea value={draft.summary} onChange={(event) => update("summary", event.target.value)} /></label>
           <label className={`${styles.field} ${styles.wide}`}><span>תוכן מלא</span><textarea value={draft.body} onChange={(event) => update("body", event.target.value)} rows={12} /></label>
           <label className={`${styles.field} ${styles.wide}`}><span>תיאור תמונה חלופי</span><input value={draft.imageAlt} onChange={(event) => update("imageAlt", event.target.value)} /></label>
+          {selected.contentType === "homepage" ? <fieldset className={`${extras.homeDeals} ${extras.homeSliderControl} ${styles.wide}`}>
+            <legend>שליטה בחיפושים ובסליידרים בעמוד הבית</legend>
+            <p>כל פריט כולל תמונה, טקסט ויעד. אפשר להסתיר, לערוך ולשנות סדר. רק פרסום מעדכן את האתר.</p>
+            {([
+              ["homePopularSearches", "חיפושים פופולריים", defaultHomepagePresentation.popular],
+              ["homeCitySearches", "חיפוש לפי עיר ואזור", defaultHomepagePresentation.cities],
+              ["homeTypeSearches", "סוגי מקומות נופש", defaultHomepagePresentation.types],
+            ] as const).map(([key, title, fallback]) => <section className={extras.controlSection} key={key}><div className={extras.controlHead}><div><strong>{title}</strong><small>עריכת טקסט, תמונה, קישור, תצוגה וסדר</small></div></div><div className={extras.discoveryControlList}>{discoveryItems(draft.attributes[key], [...fallback]).map((item, index, rows) => <div className={extras.discoveryControlRow} key={item.id}><label className={extras.visibilityToggle}><input type="checkbox" checked={item.visible !== false} onChange={(event) => updateDiscoveryItem(key, [...fallback], index, "visible", event.target.checked)} /><span>{item.visible === false ? "מוסתר" : "מוצג"}</span></label><label><span>כותרת</span><input value={item.label} onChange={(event) => updateDiscoveryItem(key, [...fallback], index, "label", event.target.value)} /></label><label><span>טקסט קצר</span><input value={item.note} onChange={(event) => updateDiscoveryItem(key, [...fallback], index, "note", event.target.value)} /></label><label><span>קישור</span><input dir="ltr" value={item.href} onChange={(event) => updateDiscoveryItem(key, [...fallback], index, "href", event.target.value)} /></label><label><span>תמונה</span><input dir="ltr" value={item.image} onChange={(event) => updateDiscoveryItem(key, [...fallback], index, "image", event.target.value)} /></label><div className={extras.orderButtons}><button type="button" disabled={index === 0} onClick={() => moveDiscoveryItem(key, [...fallback], index, -1)}>העלאה</button><button type="button" disabled={index === rows.length - 1} onClick={() => moveDiscoveryItem(key, [...fallback], index, 1)}>הורדה</button></div></div>)}</div></section>)}
+            <section className={extras.controlSection}><div className={extras.controlHead}><div><strong>אזור תוכן חופשי</strong><small>מופיע אחרי אזורי הגילוי ולפני המשך עמוד הבית</small></div></div><div className={extras.editorialFields}><label><span>כותרת</span><input value={draft.attributes.homeEditorialTitle || defaultHomepagePresentation.editorialTitle} onChange={(event) => updateAttribute("homeEditorialTitle", event.target.value)} /></label><label><span>תוכן</span><textarea rows={4} value={draft.attributes.homeEditorialBody || defaultHomepagePresentation.editorialBody} onChange={(event) => updateAttribute("homeEditorialBody", event.target.value)} /></label></div></section>
+          </fieldset> : null}
           {selected.contentType === "homepage" ? <fieldset className={`${extras.homeDeals} ${extras.homeSliderControl} ${styles.wide}`}>
             <legend>שליטה בלשוניות ובחגים של סליידרי הנופש</legend>
             <p>השינויים נשמרים כגרסה. רק גרסה שפורסמה משפיעה על עמוד הבית, בלי לשנות את נתוני הזמינות של הספק.</p>

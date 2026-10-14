@@ -10,7 +10,7 @@ test("vacation search preserves every legacy accommodation type", async () => {
     assert.match(source, new RegExp(label));
   }
   assert.match(source, />סוגי אירוח<\/button>/);
-  assert.match(source, />סינונים נוספים<\/button>/);
+  assert.match(source, />מחיר ומאפיינים<\/button>/);
   assert.match(source, /type="checkbox" checked=\{shownFilters\.selectedTypes\.includes\(item\.label\)\}/);
   assert.match(source, /selectedTypes\.some/);
   assert.match(source, /matchingTypes\.includes\(propertyType\)/);

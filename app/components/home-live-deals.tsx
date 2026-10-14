@@ -11,14 +11,15 @@ import { FavoriteButton } from "./favorite-button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { rotateWithinTiers } from "../lib/daily-rotation";
 import type { HomePeriodTab } from "../lib/home-display-settings";
+import { WhatsAppLeadButton } from "./whatsapp-lead-button";
 
 type ResponseData = { period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[]; display?: { periods: HomePeriodTab[]; defaultPeriod: HomeDealPeriod } };
 
 const copy = {
-  he: { title: "נופש פנוי בתאריכים הקרובים", all: "לכל מקומות הנופש", loading: "בודקים זמינות ומחירים", empty: "לא נמצאו מקומות פנויים לתאריכים האלה", error: "לא הצלחנו לבדוק זמינות כרגע", retry: "לנסות שוב", total: "מחיר כולל", details: "לפרטי המקום", call: "חיוג למקום", available: "פנוי לתאריכים שבחרתם", forGuests: "עבור 2 אורחים", night: "לילה", nights: "לילות", bedrooms: "חדרי שינה", guests: "אורחים", reviews: "חוות דעת", dateTo: "עד", tabs: ["ברגע האחרון", "חמישי עד שבת", "שישי עד ראשון", "לילה בחמישי", "לילה בשישי"] },
-  en: { title: "Available stays ahead", all: "All stays", loading: "Checking availability and prices", empty: "No available stays for these dates", error: "Availability could not be checked", retry: "Try again", total: "Total price", details: "Place details", call: "Call the property", available: "Available for your dates", forGuests: "for 2 guests", night: "night", nights: "nights", bedrooms: "bedrooms", guests: "guests", reviews: "reviews", dateTo: "to", tabs: ["Last minute", "Thursday to Saturday", "Friday to Sunday", "Thursday night", "Friday night"] },
-  ru: { title: "Свободное жилье на ближайшие даты", all: "Все варианты", loading: "Проверяем наличие и цены", empty: "На эти даты свободных мест нет", error: "Не удалось проверить наличие", retry: "Повторить", total: "Полная стоимость", details: "Подробнее", call: "Позвонить", available: "Свободно на выбранные даты", forGuests: "для 2 гостей", night: "ночь", nights: "ночи", bedrooms: "спальни", guests: "гостей", reviews: "отзывов", dateTo: "до", tabs: ["В последний момент", "Чт–Сб", "Пт–Вс", "Ночь в четверг", "Ночь в пятницу"] },
-  fr: { title: "Séjours disponibles prochainement", all: "Tous les séjours", loading: "Vérification des disponibilités", empty: "Aucun séjour disponible à ces dates", error: "Disponibilité indisponible", retry: "Réessayer", total: "Prix total", details: "Voir le lieu", call: "Appeler le lieu", available: "Disponible à ces dates", forGuests: "pour 2 voyageurs", night: "nuit", nights: "nuits", bedrooms: "chambres", guests: "voyageurs", reviews: "avis", dateTo: "au", tabs: ["Dernière minute", "Jeudi à samedi", "Vendredi à dimanche", "Nuit de jeudi", "Nuit de vendredi"] },
+  he: { title: "נופש פנוי בתאריכים הקרובים", all: "לכל מקומות הנופש", loading: "בודקים זמינות ומחירים", empty: "לא נמצאו מקומות פנויים לתאריכים האלה", error: "לא הצלחנו לבדוק זמינות כרגע", retry: "לנסות שוב", total: "מחיר כולל", details: "לפרטי המקום", call: "חיוג למקום", whatsapp: "וואטסאפ", available: "פנוי לתאריכים שבחרתם", forGuests: "עבור 2 אורחים", night: "לילה", nights: "לילות", bedrooms: "חדרי שינה", guests: "אורחים", reviews: "חוות דעת", dateTo: "עד", tabs: ["ברגע האחרון", "חמישי עד שבת", "שישי עד ראשון", "לילה בחמישי", "לילה בשישי"] },
+  en: { title: "Available stays ahead", all: "All stays", loading: "Checking availability and prices", empty: "No available stays for these dates", error: "Availability could not be checked", retry: "Try again", total: "Total price", details: "Place details", call: "Call the property", whatsapp: "WhatsApp", available: "Available for your dates", forGuests: "for 2 guests", night: "night", nights: "nights", bedrooms: "bedrooms", guests: "guests", reviews: "reviews", dateTo: "to", tabs: ["Last minute", "Thursday to Saturday", "Friday to Sunday", "Thursday night", "Friday night"] },
+  ru: { title: "Свободное жилье на ближайшие даты", all: "Все варианты", loading: "Проверяем наличие и цены", empty: "На эти даты свободных мест нет", error: "Не удалось проверить наличие", retry: "Повторить", total: "Полная стоимость", details: "Подробнее", call: "Позвонить", whatsapp: "WhatsApp", available: "Свободно на выбранные даты", forGuests: "для 2 гостей", night: "ночь", nights: "ночи", bedrooms: "спальни", guests: "гостей", reviews: "отзывов", dateTo: "до", tabs: ["В последний момент", "Чт–Сб", "Пт–Вс", "Ночь в четверг", "Ночь в пятницу"] },
+  fr: { title: "Séjours disponibles prochainement", all: "Tous les séjours", loading: "Vérification des disponibilités", empty: "Aucun séjour disponible à ces dates", error: "Disponibilité indisponible", retry: "Réessayer", total: "Prix total", details: "Voir le lieu", call: "Appeler le lieu", whatsapp: "WhatsApp", available: "Disponible à ces dates", forGuests: "pour 2 voyageurs", night: "nuit", nights: "nuits", bedrooms: "chambres", guests: "voyageurs", reviews: "avis", dateTo: "au", tabs: ["Dernière minute", "Jeudi à samedi", "Vendredi à dimanche", "Nuit de jeudi", "Nuit de vendredi"] },
 } as const;
 
 const allPeriodCopy = {
@@ -170,7 +171,7 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
           event.preventDefault();
           chooseHoliday(holidays[next].id);
           event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();
-        }}><strong>{item.name}</strong><small>{dateLabel(item.from, locale)} {text.dateTo} {dateLabel(item.till, locale)}</small></button>)}
+        }}><strong>{item.name}</strong></button>)}
       </div>
       <div className="home-live-deals__results" id={`${sectionId}-results`} role="tabpanel" aria-live="polite" aria-busy={displayState === "loading"}>
         {displayState === "loading" ? <div className="home-live-deals__loading" role="status" aria-label={text.loading}>
@@ -199,7 +200,7 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
                   <div className="home-live-deals__price"><span>{text.total}<small>{text.forGuests}</small></span><strong>₪{deal.total.toLocaleString(locale)}</strong></div>
                 </div>
               </Link>
-              <div className="home-live-deals__actions"><Link href={href}>{text.details}</Link>{tel ? <a href={tel} aria-label={`${text.call}: ${deal.name}`}>{text.call}</a> : null}</div>
+              <div className="home-live-deals__actions"><Link href={href}>{text.details}</Link>{tel ? <a href={tel} aria-label={`${text.call}: ${deal.name}`}>{text.call}</a> : null}{deal.whatsapp ? <WhatsAppLeadButton world="vacation" placeId={`vacation-${deal.siteID}`} placeName={deal.name} businessPhone={deal.whatsapp} serviceName={deal.roomName || "נופש"} initialDate={deal.from} initialTill={deal.till} initialGuests={deal.priceGuests} buttonLabel={text.whatsapp} buttonClassName="home-live-deals__whatsapp" /> : null}</div>
               <FavoriteButton id={`vacation-${deal.siteID}`} world="vacation" name={deal.name} location={placeLocation} image={deal.image} href={href} className="home-live-deals__favorite" />
             </article>;
           })}
