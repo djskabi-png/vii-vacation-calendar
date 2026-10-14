@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import carouselTranslations from "../data/event-region-carousel-translations.json";
+import { useSliderRailBoundaries } from "./slider-rail-controls";
 
 export type EventRegionCarouselItem = {
   label: string;
@@ -55,6 +56,7 @@ export function EventRegionCarousel({ items }: { items: EventRegionCarouselItem[
     category: carouselText("category", language),
   };
   const isRtl = language === "he";
+  const boundary = useSliderRailBoundaries({ railRef, itemSelector: ".event-region-carousel__card" });
 
   const updateActiveIndex = useCallback(() => {
     const rail = railRef.current;
@@ -101,11 +103,11 @@ export function EventRegionCarousel({ items }: { items: EventRegionCarouselItem[
         <i />
         <span>{String(items.length).padStart(2, "0")}</span>
       </span>
-      <div className="event-region-carousel__controls">
-        <button type="button" onClick={() => goTo(activeIndex - 1)} disabled={activeIndex === 0} aria-label={copy.previous}>
+      <div className="event-region-carousel__controls" data-slider-controls style={{ direction: isRtl ? "rtl" : "ltr" }}>
+        <button type="button" onClick={() => goTo(activeIndex - 1)} disabled={!boundary.previous} aria-label={copy.previous}>
           <ChevronIcon direction={isRtl ? "right" : "left"} />
         </button>
-        <button type="button" onClick={() => goTo(activeIndex + 1)} disabled={activeIndex === items.length - 1} aria-label={copy.next}>
+        <button type="button" onClick={() => goTo(activeIndex + 1)} disabled={!boundary.next} aria-label={copy.next}>
           <ChevronIcon direction={isRtl ? "left" : "right"} />
         </button>
       </div>

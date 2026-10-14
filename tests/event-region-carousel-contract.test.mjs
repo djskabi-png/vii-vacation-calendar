@@ -18,8 +18,9 @@ test("event regions use matching public inventory for truthful imagery and count
 test("event region carousel has usable controls, links and localized direction", () => {
   assert.match(component, /data-horizontal-rail/);
   assert.match(component, /scrollIntoView\(\{ behavior: "smooth", block: "nearest", inline: "start" \}\)/);
-  assert.match(component, /type="button"[\s\S]{0,180}disabled=\{activeIndex === 0\} aria-label=\{copy\.previous\}/);
-  assert.match(component, /type="button"[\s\S]{0,180}disabled=\{activeIndex === items\.length - 1\} aria-label=\{copy\.next\}/);
+  assert.match(component, /useSliderRailBoundaries/);
+  assert.match(component, /type="button"[\s\S]{0,180}disabled=\{!boundary\.previous\} aria-label=\{copy\.previous\}/);
+  assert.match(component, /type="button"[\s\S]{0,180}disabled=\{!boundary\.next\} aria-label=\{copy\.next\}/);
   assert.match(component, /dir=\{isRtl \? "rtl" : "ltr"\}/);
   assert.match(component, /aria-label=\{`\$\{label\}, \$\{countLabel\}`\}/);
 });

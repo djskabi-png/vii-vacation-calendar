@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const component = readFileSync(new URL("../app/components/search-after-results.tsx", import.meta.url), "utf8");
+const sliderControls = readFileSync(new URL("../app/components/slider-rail-controls.tsx", import.meta.url), "utf8");
 const worldLanding = readFileSync(new URL("../app/components/world-landing.tsx", import.meta.url), "utf8");
 const vacation = readFileSync(new URL("../app/search/page.tsx", import.meta.url), "utf8");
 const events = readFileSync(new URL("../app/events/search/page.tsx", import.meta.url), "utf8");
@@ -55,7 +56,8 @@ test("contextual discovery preserves filters while changing only the selected de
   assert.match(component, /params\.set\(key, value\)/);
   assert.match(component, /inventory\.filter/);
   assert.match(component, /matchesSearchLocation\(item, location\)/);
-  assert.match(component, /rail\.scrollBy/);
+  assert.match(component, /SliderRailControls/);
+  assert.match(sliderControls, /rail\.scrollBy/);
 });
 
 test("spa discovery cards lead to unique canonical landing pages", () => {
