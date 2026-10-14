@@ -3,15 +3,15 @@
 /* eslint-disable @next/next/no-img-element, react-hooks/set-state-in-effect */
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { homeDealPeriods, type HomeDeal, type HomeDealPeriod } from "../lib/vii-home-deals";
 import type { HomeHoliday } from "../lib/vii-home-holidays";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { FavoriteButton } from "./favorite-button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { rotateWithinTiers } from "../lib/daily-rotation";
 import type { HomePeriodTab } from "../lib/home-display-settings";
 import { WhatsAppLeadButton } from "./whatsapp-lead-button";
+import { HomeSliderControls } from "./home-slider-controls";
 
 type ResponseData = { period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[]; display?: { periods: HomePeriodTab[]; defaultPeriod: HomeDealPeriod } };
 
@@ -43,7 +43,6 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
   const [holidays, setHolidays] = useState<HomeHoliday[]>([]);
   const [holidayId, setHolidayId] = useState<number | null>(null);
   const [holidayState, setHolidayState] = useState<"loading" | "ready" | "error">("loading");
-  const [railState, setRailState] = useState({ previous: false, next: false });
   const track = useRef<HTMLDivElement>(null);
   const displaySettingsApplied = useRef(false);
   const text = copy[language];
@@ -100,36 +99,12 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
 
   function choose(value: HomeDealPeriod) {
     setPeriod(value);
-    setRailState({ previous: false, next: false });
     track.current?.scrollTo({ left: 0, behavior: "instant" });
   }
 
   function chooseHoliday(value: number) {
     setHolidayId(value);
-    setRailState({ previous: false, next: false });
     track.current?.scrollTo({ left: 0, behavior: "instant" });
-  }
-
-  const updateRailState = useCallback(() => {
-    const node = track.current;
-    const cards = node?.querySelectorAll<HTMLElement>(".home-live-deals__card");
-    if (!node || !cards?.length) { setRailState({ previous: false, next: false }); return; }
-    const bounds = node.getBoundingClientRect();
-    const first = cards[0].getBoundingClientRect();
-    const last = cards[cards.length - 1].getBoundingClientRect();
-    const rtl = getComputedStyle(node).direction === "rtl";
-    const nextState = rtl
-      ? { previous: first.right > bounds.right + 2, next: last.left < bounds.left - 2 }
-      : { previous: first.left < bounds.left - 2, next: last.right > bounds.right + 2 };
-    setRailState((current) => current.previous === nextState.previous && current.next === nextState.next ? current : nextState);
-  }, []);
-
-  function scroll(direction: -1 | 1) {
-    const node = track.current;
-    if (!node) return;
-    const card = node.querySelector<HTMLElement>(".home-live-deals__card");
-    const step = (card?.getBoundingClientRect().width || node.clientWidth) + 16;
-    node.scrollBy({ left: direction * step * (getComputedStyle(node).direction === "rtl" ? -1 : 1), behavior: "smooth" });
   }
 
   const sectionId = mode === "holidays" ? "home-holiday-deals" : "home-live-deals";
@@ -139,25 +114,12 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
     (deal) => Math.floor(deal.total / 500), (deal) => deal.siteID,
     `home-deals:${mode}:${mode === "holidays" ? holidayId : period}`)] : [];
   const displayState = mode === "holidays" && holidayState !== "ready" ? holidayState : state;
-  const previousLabel = { he: "הקודם", en: "Previous", ru: "Назад", fr: "Précédent" }[language];
-  const nextLabel = { he: "הבא", en: "Next", ru: "Далее", fr: "Suivant" }[language];
-  const PreviousIcon = language === "he" ? ChevronRight : ChevronLeft;
-  const NextIcon = language === "he" ? ChevronLeft : ChevronRight;
   const allLabel = mode === "holidays" && currentHoliday ? `${allPeriodCopy[language].holiday}${currentHoliday.name}` : mode === "near" ? allPeriodCopy[language][period] : text.all;
   const displayedDealCount = displayedDeals.length;
 
-  useEffect(() => {
-    const node = track.current;
-    if (displayState !== "ready" || !node || !displayedDealCount) { setRailState({ previous: false, next: false }); return; }
-    const frame = window.requestAnimationFrame(updateRailState);
-    node.addEventListener("scroll", updateRailState, { passive: true });
-    const observer = new ResizeObserver(updateRailState); observer.observe(node);
-    return () => { window.cancelAnimationFrame(frame); node.removeEventListener("scroll", updateRailState); observer.disconnect(); };
-  }, [data, displayState, displayedDealCount, period, holidayId, updateRailState]);
-
   return <section className={`section home-recommended home-live-deals ${sectionId}`} aria-labelledby={`${sectionId}-title`}>
     <div className="shell">
-      <div className="section-head"><div><h2 id={`${sectionId}-title`}>{title}</h2></div><div><Link href={searchHref} prefetch={false} className="home-live-deals__all-link">{allLabel}</Link><div className="home-slider__controls" role="group" aria-label={title}><button type="button" onClick={() => scroll(-1)} aria-label={`${previousLabel}, ${title}`} title={previousLabel} disabled={displayState !== "ready" || !railState.previous}><PreviousIcon aria-hidden="true" /></button><button type="button" onClick={() => scroll(1)} aria-label={`${nextLabel}, ${title}`} title={nextLabel} disabled={displayState !== "ready" || !railState.next}><NextIcon aria-hidden="true" /></button></div></div></div>
+      <div className="section-head"><div><h2 id={`${sectionId}-title`}>{title}</h2></div><div><Link href={searchHref} prefetch={false} className="home-live-deals__all-link">{allLabel}</Link><HomeSliderControls railId={`${sectionId}-rail`} label={title} itemSelector=".home-live-deals__card" disabled={displayState !== "ready" || !displayedDealCount} /></div></div>
       <div className={`home-live-deals__tabs${mode === "near" ? " home-live-deals__tabs--near" : ""}`} role="tablist" aria-label={title}>
         {mode === "near" ? periodTabs.map((item, index) => <button key={item.id} type="button" role="tab" aria-controls={`${sectionId}-results`} aria-selected={period === item.id} tabIndex={period === item.id ? 0 : -1} onClick={() => choose(item.id)} onKeyDown={(event) => {
           const next = event.key === "Home" ? 0 : event.key === "End" ? periodTabs.length - 1 : event.key === "ArrowRight" ? (index + (language === "he" ? -1 : 1) + periodTabs.length) % periodTabs.length : event.key === "ArrowLeft" ? (index + (language === "he" ? 1 : -1) + periodTabs.length) % periodTabs.length : -1;
@@ -183,7 +145,7 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
         </div> : null}
         {displayState === "error" ? <div className="home-live-deals__status"><p>{text.error}</p><button type="button" onClick={() => setRetry((value) => value + 1)}>{text.retry}</button></div> : null}
         {displayState === "ready" && (mode === "holidays" && !holidays.length || data?.deals.length === 0) ? <p className="home-live-deals__status">{text.empty}</p> : null}
-        {displayState === "ready" && data?.deals.length ? <div className="home-live-deals__track" ref={track} data-horizontal-rail>
+        {displayState === "ready" && data?.deals.length ? <div id={`${sectionId}-rail`} className="home-live-deals__track" ref={track} data-horizontal-rail>
           {displayedDeals.map((deal) => {
             const href = `/business?${new URLSearchParams({ id: `vacation-${deal.siteID}`, from: deal.from, till: deal.till, guests: "2", source: mode === "holidays" ? "home-holidays" : "home-deals", period: mode === "holidays" ? String(currentHoliday?.id ?? "") : period }).toString()}`;
             const placeLocation = [deal.city, deal.area].filter(Boolean).join(" · ");

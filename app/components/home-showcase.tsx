@@ -4,7 +4,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
+import { useState, type MouseEvent as ReactMouseEvent } from "react";
 import { DiscoveryCard } from "./discovery-card";
 import type { EventPlace, Property } from "../data/site-data";
 import { eventPlaceHref } from "../lib/event-place-href";
@@ -15,9 +15,9 @@ import { TrailCard } from "./trail-card";
 import { PinIcon } from "../site-header";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { HomeLiveDeals } from "./home-live-deals";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { rotateDaily, rotateWithinTiers } from "../lib/daily-rotation";
 import { HomeManagedDiscovery } from "./home-discovery-sections";
+import { HomeSliderControls } from "./home-slider-controls";
 
 const vacationDestinations = [
   { label: "נופש בצפון", note: "גליל, גולן ונוף ירוק", href: "/vacations/north?guests=2", image: "/media/f18d7c0469633ca0.jpeg" },
@@ -45,18 +45,6 @@ const destinationLoadingCopy = {
 } as const;
 
 
-function SliderControls({ onPrevious, onNext, label }: { onPrevious: () => void; onNext: () => void; label: string }) {
-  const { language } = useSiteLanguage();
-  const previous = { he: "הקודם", en: "Previous", ru: "Назад", fr: "Précédent" }[language];
-  const next = { he: "הבא", en: "Next", ru: "Далее", fr: "Suivant" }[language];
-  const PreviousIcon = language === "he" ? ChevronRight : ChevronLeft;
-  const NextIcon = language === "he" ? ChevronLeft : ChevronRight;
-  return <div className="home-slider__controls" role="group" aria-label={label}>
-    <button type="button" onClick={onPrevious} aria-label={`${previous}, ${label}`} title={previous}><PreviousIcon aria-hidden="true" /></button>
-    <button type="button" onClick={onNext} aria-label={`${next}, ${label}`} title={next}><NextIcon aria-hidden="true" /></button>
-  </div>;
-}
-
 function reviewExcerpt(value: string) {
   const normalized = value.trim().replace(/\s+/g, " ");
   if (normalized.length <= 118) return normalized;
@@ -81,7 +69,6 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
   providerPreview: DiscoveryItem;
   attractionPreview: DiscoveryItem;
 }) {
-  const tracks = useRef<Record<string, HTMLDivElement | null>>({});
   const router = useRouter();
   const { language } = useSiteLanguage();
   const destinationLoading = destinationLoadingCopy[language];
@@ -102,17 +89,6 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
   const featuredHourly = rotateWithinTiers(hourlyPlaces, (item) => item.image && item.priceLabel ? 0 : 1,
     (item) => item.id, "home-hourly");
   const featuredEvents = rotateDaily(eventPlaces.filter((place) => place.image), (place) => place.slug, "home-events");
-
-  function scroll(id: string, direction: "previous" | "next") {
-    const track = tracks.current[id];
-    if (!track) return;
-    const firstItem = track.querySelector<HTMLElement>(".home-slider__item, .home-last-minute__cards > a");
-    const gap = Number.parseFloat(window.getComputedStyle(track).columnGap || window.getComputedStyle(track).gap) || 0;
-    const step = firstItem ? firstItem.getBoundingClientRect().width + gap : track.clientWidth;
-    const isRtl = window.getComputedStyle(track).direction === "rtl";
-    const forward = isRtl ? -step : step;
-    track.scrollBy({ left: direction === "next" ? forward : -forward, behavior: "smooth" });
-  }
 
   function warmDestination(href: string) {
     router.prefetch(href);
@@ -140,8 +116,8 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
         </div>
 
         <div className="home-vacation-strip">
-          <div className="home-vacation-strip__head"><div><span>לפי אזור</span><h3>יעדים מומלצים לנופש</h3></div><SliderControls label="יעדי נופש" onPrevious={() => scroll("destinations", "previous")} onNext={() => scroll("destinations", "next")} /></div>
-          <div className="home-vacation-strip__track home-vacation-strip__track--destinations" data-horizontal-rail ref={(node) => { tracks.current.destinations = node; }}>
+          <div className="home-vacation-strip__head"><div><span>לפי אזור</span><h3>יעדים מומלצים לנופש</h3></div><HomeSliderControls railId="home-destinations-rail" label="יעדי נופש" itemSelector=".home-slider__item" /></div>
+          <div id="home-destinations-rail" className="home-vacation-strip__track home-vacation-strip__track--destinations" data-horizontal-rail>
             {vacationDestinations.map((item, index) => {
               const place = destinationPlaces[index];
               const isPending = pendingDestination === item.href;
@@ -171,8 +147,8 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
     {featuredTours.length || ratedPlaces.length ? <section className="section home-trust-discovery" aria-labelledby={featuredTours.length ? "home-tours-title" : "home-ratings-title"}>
       <div className="shell">
         {featuredTours.length ? <div className="home-trust-strip">
-          <div className="home-vacation-strip__head"><div><span>רואים לפני שבוחרים</span><h2 id="home-tours-title">סרטונים מובילים</h2></div><SliderControls label="סרטונים מובילים" onPrevious={() => scroll("tours", "previous")} onNext={() => scroll("tours", "next")} /></div>
-          <div className="home-slider__track home-slider__track--trust" data-horizontal-rail ref={(node) => { tracks.current.tours = node; }}>
+          <div className="home-vacation-strip__head"><div><span>רואים לפני שבוחרים</span><h2 id="home-tours-title">סרטונים מובילים</h2></div><HomeSliderControls railId="home-tours-rail" label="סרטונים מובילים" itemSelector=".home-slider__item" /></div>
+          <div id="home-tours-rail" className="home-slider__track home-slider__track--trust" data-horizontal-rail>
             {featuredTours.map(({ property, video }) => <article className="home-tour-card home-slider__item" key={`${property.slug}-${video.src}`}>
               <video controls playsInline preload="none" poster={video.poster} aria-label={`${video.title}, ${property.name}`}><source src={video.src} type="video/mp4" /></video>
               <div><span>{property.location}</span><h3>{property.name}</h3><p>{video.note}</p><Link href={`/business?id=${property.slug}`}>לפרטי המקום</Link></div>
@@ -181,8 +157,8 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
         </div> : null}
 
         {ratedPlaces.length ? <div className="home-trust-strip">
-          <div className="home-vacation-strip__head"><div><span>דירוגים ממקור המידע של המקום</span><h2 id="home-ratings-title">חוות דעת מובילות</h2></div><SliderControls label="חוות דעת מובילות" onPrevious={() => scroll("ratings", "previous")} onNext={() => scroll("ratings", "next")} /></div>
-          <div className="home-slider__track home-slider__track--trust home-slider__track--ratings" data-horizontal-rail ref={(node) => { tracks.current.ratings = node; }} aria-labelledby="home-ratings-title">
+          <div className="home-vacation-strip__head"><div><span>דירוגים ממקור המידע של המקום</span><h2 id="home-ratings-title">חוות דעת מובילות</h2></div><HomeSliderControls railId="home-ratings-rail" label="חוות דעת מובילות" itemSelector=".home-slider__item" /></div>
+          <div id="home-ratings-rail" className="home-slider__track home-slider__track--trust home-slider__track--ratings" data-horizontal-rail aria-labelledby="home-ratings-title">
             {ratedPlaces.map(({ place, reviewText, reviewAuthor, reviewDate }) => <Link className="home-rating-card home-slider__item" href={`/business?id=${place.slug}`} key={place.slug}>
               <div className="home-rating-card__top"><img src={place.image} alt="" loading="lazy" decoding="async" /><div><span>{place.location}</span><h3>{place.name}</h3><strong aria-label={`ציון ${place.score} מתוך 10, ${place.reviews} חוות דעת`}><b>{place.score}</b><small>{place.reviews} חוות דעת</small></strong></div></div><p lang="he" dir="rtl">{reviewExcerpt(reviewText)}</p><small className="home-rating-card__byline">{reviewAuthor}{reviewDate ? ` · ${reviewDate}` : ""}</small><b className="home-rating-card__cta">לפרטי המקום</b>
             </Link>)}
@@ -191,9 +167,9 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
       </div>
     </section> : null}
 
-    <section className="section home-spa-strip" aria-labelledby="home-spa-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">עוצרים לנשום</span><h2 id="home-spa-title">ספא ורוגע, כחלק מהחופשה</h2></div><div><Link href="/spas">לכל מתחמי הספא</Link><SliderControls label="מתחמי ספא" onPrevious={() => scroll("spa", "previous")} onNext={() => scroll("spa", "next")} /></div></div><div className="home-slider__track home-slider__track--discovery" data-horizontal-rail ref={(node) => { tracks.current.spa = node; }}>{featuredSpas.map((item) => <div className="home-slider__item" key={item.id}><DiscoveryCard item={item} /></div>)}</div></div></section>
+    <section className="section home-spa-strip" aria-labelledby="home-spa-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">עוצרים לנשום</span><h2 id="home-spa-title">ספא ורוגע, כחלק מהחופשה</h2></div><div><Link href="/spas">לכל מתחמי הספא</Link><HomeSliderControls railId="home-spa-rail" label="מתחמי ספא" itemSelector=".home-slider__item" /></div></div><div id="home-spa-rail" className="home-slider__track home-slider__track--discovery" data-horizontal-rail>{featuredSpas.map((item) => <div className="home-slider__item" key={item.id}><DiscoveryCard item={item} /></div>)}</div></div></section>
 
-    <section className="section home-short-stay" aria-labelledby="home-short-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">כשלא צריך לילה שלם</span><h2 id="home-short-title">חדרים לכמה שעות</h2><p>שהייה קצרה, פרטית וגמישה. בוחרים מקום ובודקים את מסגרת הזמן והמחיר.</p></div><div><Link href="/hourly">לכל החדרים</Link><SliderControls label="חדרים לפי שעה" onPrevious={() => scroll("hourly", "previous")} onNext={() => scroll("hourly", "next")} /></div></div><div className="home-slider__track home-slider__track--discovery" data-horizontal-rail ref={(node) => { tracks.current.hourly = node; }}>{featuredHourly.map((item) => <div className="home-slider__item" key={item.id}><DiscoveryCard item={item} /></div>)}</div></div></section>
+    <section className="section home-short-stay" aria-labelledby="home-short-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">כשלא צריך לילה שלם</span><h2 id="home-short-title">חדרים לכמה שעות</h2><p>שהייה קצרה, פרטית וגמישה. בוחרים מקום ובודקים את מסגרת הזמן והמחיר.</p></div><div><Link href="/hourly">לכל החדרים</Link><HomeSliderControls railId="home-hourly-rail" label="חדרים לפי שעה" itemSelector=".home-slider__item" /></div></div><div id="home-hourly-rail" className="home-slider__track home-slider__track--discovery" data-horizontal-rail>{featuredHourly.map((item) => <div className="home-slider__item" key={item.id}><DiscoveryCard item={item} /></div>)}</div></div></section>
 
     <section className="home-events-world" aria-labelledby="home-events-title">
       <div className="shell home-events-world__head"><div><span className="eyebrow">עולם האירועים</span><h2 id="home-events-title">כל סיבה טובה הופכת כאן לאירוע</h2><p>לופטים ומתחמים לימי הולדת, מסיבות, אירועי חברה וחגיגות פרטיות, עם חיפוש לפי כמות ואופי האירוע.</p></div><Link className="button" href="/events">נכנסים לעולם האירועים</Link></div>
