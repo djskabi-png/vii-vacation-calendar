@@ -1,0 +1,34 @@
+{
+  "goal": "A Google-aligned sitemap architecture whose exact per-file contents and health are visible in the authenticated VII administration system.",
+  "intent_model": {
+    "literal_request": "Research whether the vacations sitemap page is too long and show what every sitemap file contains in admin.",
+    "implied_outcome": "Adir can understand and operate the complete sitemap estate without reading XML source or guessing whether Google limits are being approached.",
+    "likely_rejections": ["Only vacations is covered", "Totals are estimates", "The screen omits file contents", "The result is not visible in admin"],
+    "interpretation_rules": [{"phrase":"כל קובץ מפת אתר של כל נושא","operational_meaning":"Inventory every generated sitemap child file across all sections.","acceptance_impact":"The index and admin file list must reconcile exactly."}]
+  },
+  "cognitive_flow": {"current_layer":"Overall sitemap health and family totals.","current_decision":"Which family or file needs inspection.","next_action":"Expand a family and open the exact XML or inspect its samples and composition.","deferred_complexity":["Raw URL-by-URL export remains behind the XML link"],"preserved_depth":["Per-file counts","size limits","language and image annotations","content composition","sample URLs"]},
+  "predictive_preflight": {"manifest_path":"project_knowledge/process_manifests/vii-sitemap-admin-preflight-20261015.json","lesson_bundle_ids":["ADIR-ADMIN-001","ADIR-SEO-001","ADIR-QA-001","ADIR-CONSISTENCY-001"],"no_applicable_lessons_reason":null,"midpoint_requirement":"preflight:midpoint","adversarial_requirement":"preflight:adversarial","effectiveness_requirement":"preflight:effectiveness"},
+  "actors":["VII administrator","Googlebot"],
+  "natural_destination":"Authenticated /admin/growth and public XML sitemap endpoints.",
+  "facts":[{"claim":"Google limits one sitemap to 50,000 URLs or 50MB uncompressed.","evidence":"Google Search Central official sitemap documentation"},{"claim":"The live vacations file currently contains 2,420 URL entries and 3,922,972 UTF-8 bytes.","evidence":"Direct production HTTP measurement on 2026-10-15"}],
+  "assumptions":[{"claim":"Existing 10,000 URL chunking remains safely below the byte limit for current content density.","validation":"Calculate rendered byte size for every generated file and expose warning thresholds."}],
+  "in_scope":["Official Google research","Exact live sitemap measurement","Protected per-family and per-file admin diagnostics","Responsive Hebrew admin UI","Automated reconciliation tests"],
+  "out_of_scope":["Search Console API connection","Changing indexability decisions or public URLs without evidence","Production publication without release authorization"],
+  "invariants":["Public sitemap URLs remain stable","Only canonical indexable URLs remain included","Four locale editions and reciprocal hreflang remain intact","Admin API stays restricted to approved admins"],
+  "affected_family":["sitemap index","seven sitemap sections","all generated child files","admin sitemap API","growth admin page"],
+  "characteristics":{"stateful":false},
+  "requirements":[
+    {"id":"REQ-1","statement":"Measure and classify every generated sitemap file against Google limits.","source":"User request and Google Search Central"},
+    {"id":"REQ-2","statement":"Show each family and child file in admin with its composition and direct link.","source":"User request"},
+    {"id":"REQ-3","statement":"Preserve authentication, current public sitemap behavior and approved Hebrew typography.","source":"Project and account rules"}
+  ],
+  "acceptance_checks":[
+    {"id":"AC-1","requirement_ids":["REQ-1"],"kind":"success","setup":"Generated sitemap inventory is available.","action":"Build the admin report.","observable_result":"Counts and bytes match rendered XML and every file is below 50,000 URLs and 50MB."},
+    {"id":"AC-2","requirement_ids":["REQ-2"],"kind":"success","setup":"Authenticated administrator opens growth center.","action":"Expand each sitemap family.","observable_result":"Every indexed child file shows URL count, size, languages, images, content types, samples and an open link."},
+    {"id":"AC-3","requirement_ids":["REQ-3"],"kind":"permission","setup":"No valid admin session.","action":"Request /api/admin/sitemap.","observable_result":"The API returns 403 and no inventory."},
+    {"id":"AC-4","requirement_ids":["REQ-2","REQ-3"],"kind":"failure","setup":"The sitemap report request fails.","action":"Open the admin surface.","observable_result":"A clear Hebrew error and retry action are shown without exposing stale success data."}
+  ],
+  "open_questions":[],
+  "authorization_boundary":"Local implementation and verification are authorized; production publication remains subject to current release authorization and exact post-deploy verification.",
+  "ready_for_implementation":true
+}

@@ -4,7 +4,7 @@
 
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { boundedSliderIndex } from "./slider-rail-controls";
+import { boundedSliderIndex, SliderRailControls } from "./slider-rail-controls";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import type { ListingAvailability, ListingDateQuote, Property } from "../data/site-data";
@@ -16,6 +16,7 @@ import { WhatsAppLeadButton } from "./whatsapp-lead-button";
 import { ListingContactPreview, SampleListingDisclosure } from "./listing-contact-preview";
 import { type LegacyAvailabilityState, useLegacyAvailability } from "./use-legacy-availability";
 import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
+import { latinBusinessAlias, localizedBusinessList, localizedBusinessText } from "../i18n/localized-business-content";
 
 function PhoneIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16.4v3a2 2 0 0 1-2.2 2 19.7 19.7 0 0 1-8.6-3.1 19.3 19.3 0 0 1-6-6A19.7 19.7 0 0 1 1.1 3.7 2 2 0 0 1 3.1 1.5h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.4 2.1L7.1 9.5a16 16 0 0 0 7.4 7.4l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2Z" /></svg>;
@@ -33,6 +34,13 @@ const phoneCopy: Record<SiteLanguage, { reveal: string; call: string }> = {
   en: { reveal: "Show number", call: "Call now" },
   ru: { reveal: "Показать номер", call: "Позвонить" },
   fr: { reveal: "Afficher le numéro", call: "Appeler" },
+};
+
+const propertyCardInterfaceCopy: Record<SiteLanguage, { stay: string; location: string; open: string; details: string; image: string; previous: string; next: string; choose: string; units: (count: number) => string; whole: string; capacity: (count: number, perUnit: boolean) => string; pending: string; highlights: string }> = {
+  he: { stay: "מקום אירוח", location: "ישראל", open: "פתיחת עמוד המקום", details: "פרטים על", image: "תמונה", previous: "התמונה הקודמת", next: "התמונה הבאה", choose: "בחירת תמונה", units: (count) => `${count} יחידות`, whole: "מקום אירוח שלם", capacity: (count, perUnit) => `עד ${count} אורחים${perUnit ? " ביחידה" : ""}`, pending: "קיבולת בבירור מול המקום", highlights: "מאפיינים מרכזיים" },
+  en: { stay: "Stay", location: "Israel", open: "Open property page", details: "Details for", image: "image", previous: "Previous image", next: "Next image", choose: "Choose image", units: (count) => `${count} units`, whole: "Entire property", capacity: (count, perUnit) => `Up to ${count} guests${perUnit ? " per unit" : ""}`, pending: "Capacity confirmed by the property", highlights: "Key features" },
+  ru: { stay: "Размещение", location: "Израиль", open: "Открыть страницу объекта", details: "Подробнее об объекте", image: "фото", previous: "Предыдущее фото", next: "Следующее фото", choose: "Выбрать фото", units: (count) => `${count} вариантов размещения`, whole: "Объект целиком", capacity: (count, perUnit) => `До ${count} гостей${perUnit ? " в каждом варианте" : ""}`, pending: "Вместимость подтвердит объект", highlights: "Основные удобства" },
+  fr: { stay: "Hébergement", location: "Israël", open: "Ouvrir la page de l’établissement", details: "Détails de", image: "photo", previous: "Photo précédente", next: "Photo suivante", choose: "Choisir une photo", units: (count) => `${count} unités`, whole: "Établissement entier", capacity: (count, perUnit) => `Jusqu’à ${count} personnes${perUnit ? " par unité" : ""}`, pending: "Capacité confirmée par l’établissement", highlights: "Caractéristiques principales" },
 };
 
 export type SelectedStay = { from: string; till: string; guests?: number };
@@ -295,15 +303,21 @@ export function hasAvailablePriceForSearch(property: Property, selectedStay: Sel
 }
 
 export function PropertyCard({ property, selectedStay = null, promotional = false, detailHref, liveAvailabilityState, onActiveChange }: { property: Property; selectedStay?: SelectedStay | null; promotional?: boolean; detailHref?: string; liveAvailabilityState?: LegacyAvailabilityState; onActiveChange?: (active: boolean) => void }) {
-  const { language } = useSiteLanguage();
+  const { language, translate } = useSiteLanguage();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const copy = cardCopy[language];
+  const interfaceCopy = propertyCardInterfaceCopy[language];
+  const localizedName = localizedBusinessText(property.name, language, translate, latinBusinessAlias(property.name) || interfaceCopy.stay);
+  const localizedLocation = localizedBusinessText(property.location, language, translate, interfaceCopy.location);
+  const localizedArea = localizedBusinessText(property.area, language, translate, interfaceCopy.location);
+  const localizedType = localizedBusinessText(property.type, language, translate, interfaceCopy.stay);
   const galleryImages = [property.image, ...property.images].filter((src, index, all) => src && all.indexOf(src) === index).slice(0, 10);
   const [imageIndex, setImageIndex] = useState(0);
   const [phoneVisible, setPhoneVisible] = useState(false);
   const touchStart = useRef<number | null>(null);
   const cardRef = useRef<HTMLElement>(null);
+  const highlightRailRef = useRef<HTMLDivElement>(null);
   const didSwipe = useRef(false);
   const swipeResetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const phone = property.contact?.phone?.replace(/[^\d+]/g, "");
@@ -322,7 +336,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
   const selectedGuests = String(selectedStay?.guests || searchParams.get("guests") || searchParams.get("adults") || 2);
   const propertyHref = quickBookingReady && selectedStay ? propertyDetailHref(basePropertyHref, { source: "search", from: selectedStay.from, till: selectedStay.till, guests: selectedGuests, price: String(resolvedAvailability?.nightlyPrice || ""), illustrative: resolvedAvailability?.illustrative || property.demoOperations?.fictional ? "1" : undefined }) : basePropertyHref;
   const quickBookingHref = quickBookingReady && selectedStay ? `/booking?${new URLSearchParams({ world: "vacation", place: property.slug, from: selectedStay.from, till: selectedStay.till, guests: selectedGuests, price: String(resolvedAvailability?.nightlyPrice || ""), ...(resolvedAvailability?.illustrative || property.demoOperations?.fictional ? { illustrative: "1" } : {}) }).toString()}` : "";
-  const cardHighlights = (property.highlights?.length ? property.highlights.map((highlight) => highlight.label) : property.features).slice(0, 3);
+  const cardHighlights = localizedBusinessList((property.highlights?.length ? property.highlights.map((highlight) => highlight.label) : property.features).slice(0, 3), language, translate);
   useEffect(() => { const node = cardRef.current; if (!node || !window.IntersectionObserver) return; let sent = false; const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting && entry.intersectionRatio >= .5 && !sent) { sent = true; trackBusinessEvent("impression", { placeId: property.slug, placeName: property.name, world: "vacation" }); observer.disconnect(); } }, { threshold: .5 }); observer.observe(node); return () => observer.disconnect(); }, [property.name, property.slug]);
 
   function moveImage(event: MouseEvent<HTMLButtonElement>, direction: -1 | 1) {
@@ -336,13 +350,13 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
 
   return (
     <article ref={cardRef} className={`stay-card stay-card--${cardMode}`} onPointerEnter={() => onActiveChange?.(true)} onPointerLeave={() => onActiveChange?.(false)} onFocusCapture={() => onActiveChange?.(true)} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) onActiveChange?.(false); }}>
-      <Link className="stay-card__surface-link" href={propertyHref} target="_blank" rel="noopener noreferrer" aria-label={`פתיחת עמוד המקום ${property.name}`} />
+      <Link className="stay-card__surface-link" href={propertyHref} target="_blank" rel="noopener noreferrer" aria-label={`${interfaceCopy.open}: ${localizedName}`} />
       <div className="stay-card__media" onTouchStart={(event) => { if (swipeResetTimer.current) clearTimeout(swipeResetTimer.current); didSwipe.current = false; touchStart.current = event.changedTouches[0].clientX; }} onTouchEnd={(event) => { if (touchStart.current === null || galleryImages.length < 2) return; const distance = event.changedTouches[0].clientX - touchStart.current; if (Math.abs(distance) > 45) { didSwipe.current = true; swipeResetTimer.current = setTimeout(() => { didSwipe.current = false; swipeResetTimer.current = null; }, 500); setImageIndex((current) => boundedSliderIndex(current, distance > 0 ? -1 : 1, galleryImages.length)); } touchStart.current = null; }}>
-        <Link href={propertyHref} target="_blank" rel="noopener noreferrer" aria-label={`פרטים על ${property.name}`} onClick={(event) => { if (!didSwipe.current) return; event.preventDefault(); event.stopPropagation(); didSwipe.current = false; if (swipeResetTimer.current) clearTimeout(swipeResetTimer.current); swipeResetTimer.current = null; }}>
-          <img key={galleryImages[imageIndex]} src={galleryImages[imageIndex]} alt={`${property.name}, תמונה ${imageIndex + 1} מתוך ${galleryImages.length}`} title={`${property.name}, תמונה ${imageIndex + 1} מתוך ${galleryImages.length}`} loading="lazy" decoding="async" />
+        <Link href={propertyHref} target="_blank" rel="noopener noreferrer" aria-label={`${interfaceCopy.details}: ${localizedName}`} onClick={(event) => { if (!didSwipe.current) return; event.preventDefault(); event.stopPropagation(); didSwipe.current = false; if (swipeResetTimer.current) clearTimeout(swipeResetTimer.current); swipeResetTimer.current = null; }}>
+          <img key={galleryImages[imageIndex]} src={galleryImages[imageIndex]} alt={`${localizedName}, ${interfaceCopy.image} ${imageIndex + 1}/${galleryImages.length}`} title={`${localizedName}, ${interfaceCopy.image} ${imageIndex + 1}/${galleryImages.length}`} loading="lazy" decoding="async" />
         </Link>
-        {galleryImages.length > 1 ? <><button className="stay-card__gallery-arrow stay-card__gallery-arrow--previous" type="button" aria-label={`התמונה הקודמת של ${property.name}`} title="התמונה הקודמת" disabled={imagePreviousDisabled} data-slider-boundary onClick={(event) => moveImage(event, -1)}>{language === "he" ? <ChevronRight aria-hidden="true" /> : <ChevronLeft aria-hidden="true" />}</button><button className="stay-card__gallery-arrow stay-card__gallery-arrow--next" type="button" aria-label={`התמונה הבאה של ${property.name}`} title="התמונה הבאה" disabled={imageNextDisabled} data-slider-boundary onClick={(event) => moveImage(event, 1)}>{language === "he" ? <ChevronLeft aria-hidden="true" /> : <ChevronRight aria-hidden="true" />}</button><div className="stay-card__gallery-dots" aria-label={`בחירת תמונה של ${property.name}`}>{galleryImages.slice(0, 5).map((src, index) => { const active = imageIndex === index || index === 4 && imageIndex >= 4; return <button key={src} className={active ? "active" : ""} type="button" aria-label={`הצגת תמונה ${index + 1} של ${property.name}`} aria-current={active ? "true" : undefined} onClick={(event) => { event.preventDefault(); event.stopPropagation(); setImageIndex(index); }} />; })}</div><span className="stay-card__gallery-count" aria-live="polite">{imageIndex + 1}/{galleryImages.length}</span></> : null}
-        <FavoriteButton className="heart-button" id={property.slug} world="vacation" name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={propertyHref} meta={property.guests > 0 ? `${property.type} · עד ${property.guests} אורחים` : property.type} />
+        {galleryImages.length > 1 ? <><button className="stay-card__gallery-arrow stay-card__gallery-arrow--previous" type="button" aria-label={`${interfaceCopy.previous}: ${localizedName}`} title={interfaceCopy.previous} disabled={imagePreviousDisabled} data-slider-boundary onClick={(event) => moveImage(event, -1)}>{language === "he" ? <ChevronRight aria-hidden="true" /> : <ChevronLeft aria-hidden="true" />}</button><button className="stay-card__gallery-arrow stay-card__gallery-arrow--next" type="button" aria-label={`${interfaceCopy.next}: ${localizedName}`} title={interfaceCopy.next} disabled={imageNextDisabled} data-slider-boundary onClick={(event) => moveImage(event, 1)}>{language === "he" ? <ChevronLeft aria-hidden="true" /> : <ChevronRight aria-hidden="true" />}</button><div className="stay-card__gallery-dots" aria-label={`${interfaceCopy.choose}: ${localizedName}`}>{galleryImages.slice(0, 5).map((src, index) => { const active = imageIndex === index || index === 4 && imageIndex >= 4; return <button key={src} className={active ? "active" : ""} type="button" aria-label={`${interfaceCopy.choose} ${index + 1}: ${localizedName}`} aria-current={active ? "true" : undefined} onClick={(event) => { event.preventDefault(); event.stopPropagation(); setImageIndex(index); }} />; })}</div><span className="stay-card__gallery-count" aria-live="polite">{imageIndex + 1}/{galleryImages.length}</span></> : null}
+        <FavoriteButton className="heart-button" id={property.slug} world="vacation" name={localizedName} location={`${localizedLocation}, ${localizedArea}`} image={property.image} href={propertyHref} meta={property.guests > 0 ? `${localizedType} · ${interfaceCopy.capacity(property.guests, property.capacityScope === "unit")}` : localizedType} />
         {property.cardNote ? <span className="stay-card__public-note">{property.cardNote}</span> : null}
         <div className="stay-card__badges">{property.badges.slice(0, 2).map((badge) => <span key={badge}>{badge}</span>)}</div>
       </div>
@@ -350,13 +364,16 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
         {property.demoOperations?.fictional ? <SampleListingDisclosure variant="card" /> : null}
         <div className="stay-card__title">
           <div>
-            <h3><Link href={propertyHref} target="_blank" rel="noopener noreferrer">{property.name}<span className="sr-only"></span></Link></h3>
-            <p><PinIcon />{property.location}, {property.area}</p>
+            <h3><Link href={propertyHref} target="_blank" rel="noopener noreferrer">{localizedName}<span className="sr-only"></span></Link></h3>
+            <p><PinIcon />{localizedLocation}, {localizedArea}</p>
           </div>
           {property.score && property.reviews ? <span className="stay-card__rating" aria-label={`${property.score} ${copy.outOfTen}, ${property.reviews} ${copy.reviews}`}><b aria-hidden="true">★</b><strong>{property.score}</strong><small>({property.reviews})</small></span> : null}
         </div>
-        <p className="stay-card__meta">{property.type}{property.units && property.units > 1 ? `, ${property.units} יחידות` : property.capacityScope === "unit" ? "" : ", מקום אירוח שלם"} · {property.guests > 0 ? `עד ${property.guests} אורחים${property.capacityScope === "unit" ? " ביחידה" : ""}` : "קיבולת בבירור מול המקום"}</p>
-        <div className="feature-chips stay-card__highlights" aria-label="מאפיינים מרכזיים">{cardHighlights.map((feature) => <span key={feature}>{feature}</span>)}</div>
+        <p className="stay-card__meta">{localizedType}{property.units && property.units > 1 ? `, ${interfaceCopy.units(property.units)}` : property.capacityScope === "unit" ? "" : `, ${interfaceCopy.whole}`} · {property.guests > 0 ? interfaceCopy.capacity(property.guests, property.capacityScope === "unit") : interfaceCopy.pending}</p>
+        {cardHighlights.length ? <div className="stay-card__highlights-shell">
+          <div ref={highlightRailRef} className="feature-chips stay-card__highlights" aria-label={interfaceCopy.highlights} data-horizontal-rail>{cardHighlights.map((feature) => <span key={feature}>{feature}</span>)}</div>
+          <SliderRailControls railRef={highlightRailRef} label={interfaceCopy.highlights} itemSelector=":scope > span" className="stay-card__highlight-controls" />
+        </div> : null}
         {isLiveAvailabilityLoading ? <div className="stay-card__date-status stay-card__date-status--checking" aria-live="polite"><strong>{copy.checking}</strong></div> : null}
         {isLiveAvailabilityError ? <div className="stay-card__date-status stay-card__date-status--error" aria-live="polite"><strong>{copy.unavailableSource}</strong></div> : null}
         {!promotional && !selectedStay ? <div className="stay-card__date-status"><strong>{copy.noDates}</strong></div> : null}

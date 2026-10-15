@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-business-detail-localization-20261015",
+  "project": "VII",
+  "task_type": "multilingual detail-page finish",
+  "goal": "Make every VII business-detail template polished, readable and complete in Hebrew, English, Russian and French, then publish and verify it.",
+  "created_at": "2026-10-15T00:00:00+03:00",
+  "predictive_preflight": "project_knowledge/process_manifests/vii-business-detail-localization-preflight-20261015.json",
+  "applicable_lessons": ["ADIR-WEB-001","ADIR-QA-001","ADIR-WEB-005","ADIR-WEB-006","ADIR-HEBREW-001","ADIR-I18N-001","ADIR-FAMILY-001","ADIR-DELIVERY-001"],
+  "requirements": [
+    {"id":"reviews:desktop","statement":"Redesign the desktop review display into a clear, premium and readable composition.","status":"passed","evidence":["Local desktop screenshots show a dedicated score summary and a balanced two-column review card layout."]},
+    {"id":"reviews:states","statement":"Localize and verify review display, empty, pending, modal, validation, error, submission and success states in four languages.","status":"passed","evidence":["Explicit HE, EN, RU and FR review copy added; automated localization and review persistence tests passed."]},
+    {"id":"i18n:family","statement":"Remove untranslated interface Hebrew and mixed-language dynamic copy from every business-detail template.","status":"passed","evidence":["Eight-state browser matrix found no visible or accessible Hebrew residue on EN, RU or FR routes."]},
+    {"id":"layout:responsive","statement":"Prevent localized text from clipping, overflowing or creating unusable controls on desktop and mobile.","status":"passed","evidence":["Eight-state browser matrix found no horizontal overflow and no overflowing controls."]},
+    {"id":"regression:actions","statement":"Preserve gallery, save, share, phone, WhatsApp, booking, map, accessibility, FAQ and navigation behavior.","status":"passed","evidence":["Full suite passed 732/732, including gallery, booking, WhatsApp, map, accessibility and navigation contracts."]},
+    {"id":"verification:local","statement":"Pass focused tests, full build, typography and responsive visual checks.","status":"passed","evidence":["Production build passed; 732/732 tests passed; typography source audit passed; visual matrix passed HE/EN/RU/FR on desktop and 390px mobile."]},
+    {"id":"verification:production","statement":"Publish one exact production release with rollback evidence and independent review.","status":"pending","evidence":[]}
+  ],
+  "invariants": [
+    "Verified supplier facts and source media are unchanged.",
+    "Booking, lead, phone, WhatsApp, share, favorite and map contracts are unchanged.",
+    "No database schema, secret, binding, domain, schedule or supplier API mutation is in scope.",
+    "Illustrative or source-language business content is never misrepresented as independently verified translation."
+  ],
+  "verification_status": "local_passed_production_pending",
+  "verification_errors": []
+}

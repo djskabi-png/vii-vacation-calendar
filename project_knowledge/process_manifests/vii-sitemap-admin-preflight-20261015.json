@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-sitemap-admin-20261015",
+  "project": "VII",
+  "task_type": "technical-seo-and-admin-product",
+  "requested_outcome": "Verify the vacation sitemap against current Google guidance and expose a complete per-family and per-file sitemap inventory in the authenticated VII administration system.",
+  "natural_destination": "The live VII sitemap files and the authenticated /admin/growth management surface.",
+  "authorization_boundary": "Read-only research, local implementation and verification are authorized. A live production publication remains a separate release action requiring current authorization and exact release verification.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-ADMIN-001","reason":"The requested result belongs in the daily management surface.","acceptance_impact":"The admin must expose actionable, role-protected, reload-safe sitemap details rather than a decorative total."},
+    {"lesson_id":"ADIR-SEO-001","reason":"Sitemaps and crawl eligibility are launch gates.","acceptance_impact":"The implementation must be checked against current official Google guidance and the real XML output."},
+    {"lesson_id":"ADIR-QA-001","reason":"A code-only result would not prove the natural admin destination.","acceptance_impact":"Open the exact admin view, exercise loading, success and permission states, and inspect desktop and mobile."},
+    {"lesson_id":"ADIR-CONSISTENCY-001","reason":"Every sitemap family and file must use the same diagnostic model.","acceptance_impact":"Inventory all families, not only vacations, and verify consistent fields and controls."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"Only a total count is shown and Adir still cannot tell what each XML file contains.","prevention":"Return section, file, URL count, byte size, language, image, content-type and sample details from the same sitemap source.","acceptance_check":"Every XML file in the index has a matching admin row and expandable contents summary."},
+    {"rejection":"The vacations file is called too long without measuring it against Google limits.","prevention":"Measure the live file and show both VII chunk capacity and Google protocol capacity.","acceptance_check":"Admin reports exact URL count and uncompressed bytes with a clear healthy/warning state."},
+    {"rejection":"The admin screen looks good locally but is inaccessible, broken on mobile or uses an unapproved Hebrew font.","prevention":"Use the protected API and existing Heebo admin surface, then inspect desktop, 390px mobile, loading, error and forbidden states.","acceptance_check":"Authenticated natural-destination checks and typography audit pass."}
+  ],
+  "affected_family": ["/sitemap.xml","/sitemaps/{section}/{page}.xml","/api/admin/sitemap","/admin/growth","all sitemap sections","authenticated admin desktop and mobile states"],
+  "family_inventory_complete": true,
+  "approved_precedents": {"sources":[{"label":"VII sitemap source of truth","source":"app/lib/sitemap-inventory.ts"},{"label":"VII administration SEO standard","source":"VII_PLATFORM_MASTER_PLAN.md and ADIR-ADMIN-001"}],"no_precedent_reason":null},
+  "midpoint_gate": {"required":true,"trigger":"The protected sitemap API returns the first complete per-file report.","checks":["Compare API totals to rendered XML totals","Verify vacations file exact count and byte size","Verify all seven sections appear"],"not_required_reason":null},
+  "adversarial_close": {"attack_questions":["Does every child sitemap in the index appear in admin?","Can a signed-out user retrieve the inventory?","Do desktop and 390px mobile show readable details without overflow?","Are URL, byte and language counts computed from the rendered XML rather than guessed?"],"natural_destination_evidence":"Authenticated /admin/growth screenshot and interaction on the exact release candidate.","affected_family_evidence":"Automated sitemap-family reconciliation plus API, permission, build and typography checks."},
+  "effectiveness": {"baseline":"The current admin API exposes only aggregate family URL and file counts; the live vacations file contains 2,420 URLs and 3,922,972 uncompressed bytes.","measurements":["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],"target":"Every current sitemap file becomes understandable and directly openable from one admin surface without changing valid public sitemap URLs."},
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

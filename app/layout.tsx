@@ -111,15 +111,15 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const requestHeaders = await headers();
-  const locale = requestHeaders.get("x-vii-locale") || "he";
+  const locale = (requestHeaders.get("x-vii-locale") || "he") as "he" | "en" | "ru" | "fr";
   const pathname = requestHeaders.get("x-vii-pathname") || "/";
   const normalizedPathname = stripLocale(pathname);
   const isAdmin = normalizedPathname === "/admin" || normalizedPathname.startsWith("/admin/");
   const direction = locale === "he" ? "rtl" : "ltr";
-  const localeBootstrap = `(function(){var d=document.documentElement;try{var p=location.pathname.match(/^\\/(en|ru|fr)(?:\\/|$)/);var l=p?p[1]:'he';d.lang=l;d.dir=l==='he'?'rtl':'ltr';d.dataset.locale=l;d.removeAttribute('data-locale-pending');try{localStorage.setItem('vii-site-language',l);}catch(_){}}catch(e){d.removeAttribute('data-locale-pending');}})();`;
-  return <html lang={locale} dir={direction} suppressHydrationWarning><head><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />{isAdmin ? <><link rel="preload" href="/fonts/heebo/heebo-hebrew-v28.woff2" as="font" type="font/woff2" crossOrigin="anonymous" /><link rel="preload" href="/fonts/heebo/heebo-latin-v28.woff2" as="font" type="font/woff2" crossOrigin="anonymous" /><style id="vii-admin-font-critical" dangerouslySetInnerHTML={{ __html: adminFontCriticalCss }} /></> : null}<script dangerouslySetInnerHTML={{ __html: localeBootstrap }} /></head><body data-vii-surface={isAdmin ? "admin" : "public"}>
+  const localeBootstrap = `(function(){var d=document.documentElement;try{var p=location.pathname.match(/^\\/(en|ru|fr)(?:\\/|$)/);var l=p?p[1]:'he';d.lang=l;d.dir=l==='he'?'rtl':'ltr';d.dataset.locale=l;if(l==='he')d.removeAttribute('data-locale-pending');try{localStorage.setItem('vii-site-language',l);}catch(_){}}catch(e){d.removeAttribute('data-locale-pending');}})();`;
+  return <html lang={locale} dir={direction} data-locale-pending={locale === "he" ? undefined : ""} suppressHydrationWarning><head><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />{isAdmin ? <><link rel="preload" href="/fonts/heebo/heebo-hebrew-v28.woff2" as="font" type="font/woff2" crossOrigin="anonymous" /><link rel="preload" href="/fonts/heebo/heebo-latin-v28.woff2" as="font" type="font/woff2" crossOrigin="anonymous" /><style id="vii-admin-font-critical" dangerouslySetInnerHTML={{ __html: adminFontCriticalCss }} /></> : null}<script dangerouslySetInnerHTML={{ __html: localeBootstrap }} /></head><body data-vii-surface={isAdmin ? "admin" : "public"}>
     <StructuredData data={organizationSchema()} />
     <StructuredData data={websiteSchema()} />
-    <LocaleProvider><AccountAccessProvider>{children}</AccountAccessProvider></LocaleProvider>
+    <LocaleProvider initialLanguage={locale}><AccountAccessProvider>{children}</AccountAccessProvider></LocaleProvider>
   </body></html>;
 }

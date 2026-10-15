@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { ArrowLeft, BarChart3, CalendarSync, FileSearch, Gauge, LibraryBig, ListChecks, LoaderCircle, LogOut, MessageCircle, Route, Search, Sparkles, Star, TrendingUp, X } from "lucide-react";
+import { ArrowLeft, BarChart3, CalendarSync, FileSearch, Gauge, LibraryBig, ListChecks, LoaderCircle, LogOut, MapPinned, MessageCircle, Route, Search, Sparkles, Star, TrendingUp, X } from "lucide-react";
 import styles from "./admin.module.css";
 
 const commands = [
@@ -16,6 +16,7 @@ const commands = [
   { href: "/admin/discovery-promotions", title: "קידום מקומות", hint: "טיוטות וקידום מבוקר", icon: TrendingUp },
   { href: "/admin/redirects", title: "כתובות והפניות", hint: "301, 410 ובקרת כתובות", icon: Route },
   { href: "/admin/catalog-sync", title: "קטלוגים וספקים", hint: "משיכות, אבחון ושמירת דור תקין", icon: CalendarSync },
+  { href: "/admin/geography", title: "ערים ואזורים", hint: "נתוני API, שמות, כתובות, מפה ונראות באתר", icon: MapPinned },
   { href: "/admin/operations", title: "הזמנות וחוות דעת", hint: "פעולות, סטטוסים ואסמכתאות", icon: Star },
   { href: "/admin/whatsapp-leads", title: "פניות וואטסאפ", hint: "פניות שנשמרו במערכת", icon: MessageCircle },
 ];

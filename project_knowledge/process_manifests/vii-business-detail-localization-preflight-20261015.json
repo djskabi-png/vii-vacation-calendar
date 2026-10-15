@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-business-detail-localization-20261015",
+  "project": "VII",
+  "task_type": "multilingual business-detail UX repair and production release",
+  "requested_outcome": "Deliver polished business-detail pages in Hebrew, English, Russian and French, with a high-quality desktop review experience and no mixed-language or overflowing controls.",
+  "natural_destinations": [
+    "https://vii.spaplus.co/business?id=vacation-1597",
+    "https://vii.spaplus.co/events/place/event-2",
+    "https://vii.spaplus.co/discover/place/spa-6",
+    "https://vii.spaplus.co/discover/place/masu-home-wellness"
+  ],
+  "authorization_boundary": "Implementation, verification and one production publication to the temporary VII site are authorized. Verified supplier facts, media, actions, database bindings and booking behavior must remain unchanged.",
+  "lifecycle_hooks": "disabled by explicit account configuration; the correction is attached directly to this task contract",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-WEB-001","reason":"A public detail-page family is being changed.","acceptance_impact":"Verify every shared detail template and preserve all existing actions."},
+    {"lesson_id":"ADIR-QA-001","reason":"A build cannot prove language or layout quality.","acceptance_impact":"Inspect the exact deployed release in all four languages."},
+    {"lesson_id":"ADIR-WEB-005","reason":"Long localized labels affect responsive controls.","acceptance_impact":"Test desktop, 390-pixel mobile and low-height dialog states."},
+    {"lesson_id":"ADIR-WEB-006","reason":"The reviews redesign is visual and interaction-heavy.","acceptance_impact":"Require visible desktop and mobile evidence plus independent review."},
+    {"lesson_id":"ADIR-HEBREW-001","reason":"Hebrew typography must never fall back to a serif face.","acceptance_impact":"Run source and first-paint font checks on the exact candidate."},
+    {"lesson_id":"ADIR-I18N-001","reason":"Translation must be native and complete, not mixed-language DOM replacement.","acceptance_impact":"Block non-Hebrew routes containing untranslated interface Hebrew."},
+    {"lesson_id":"ADIR-FAMILY-001","reason":"The review component and detail navigation are shared.","acceptance_impact":"Expand regression to vacation, event, spa, hourly, provider and activity detail pages."},
+    {"lesson_id":"ADIR-DELIVERY-001","reason":"The user explicitly requested publication.","acceptance_impact":"Report success only after exact public release and rollback evidence."}
+  ],
+  "predicted_rejections": [
+    {"rejection":"English, Russian or French pages still contain Hebrew interface text.","prevention":"Use explicit localized copy for review states and translate dynamic data at render time.","acceptance_check":"Automated Hebrew-residue scans pass on representative non-Hebrew detail routes."},
+    {"rejection":"Reviews still look like a long unstructured wall on desktop.","prevention":"Create a balanced summary and readable review grid with bounded cards and progressive disclosure.","acceptance_check":"Desktop capture shows clear hierarchy, readable card widths and a visible primary action."},
+    {"rejection":"French or Russian buttons overflow or force uneven controls.","prevention":"Allow protected wrapping, flexible minimum widths and language-safe button sizing.","acceptance_check":"No horizontal overflow or clipped text at desktop, 390-pixel mobile and low-height dialog viewports."},
+    {"rejection":"A fix on vacation pages leaves event, spa or provider details broken.","prevention":"Repair shared components and verify each detail template family.","acceptance_check":"Vacation, event, spa, hourly, provider and activity representatives pass the same language and layout checks."},
+    {"rejection":"The change is reported from source or build output only.","prevention":"Publish one immutable candidate and inspect exact production URLs.","acceptance_check":"Release identity, rollback identity, public HTTP checks and independent Seal approval are recorded."}
+  ],
+  "affected_family": [
+    "vacation business pages",
+    "event venue pages",
+    "spa, hourly, provider and activity discovery pages",
+    "shared review display and review submission dialog",
+    "sticky detail navigation, breadcrumbs, gallery labels, booking and contact actions",
+    "Hebrew, English, Russian and French routes",
+    "desktop, 390-pixel mobile, low-height, loading, empty, error and success states"
+  ],
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After localized review copy and representative page chrome are implemented, before production build.",
+    "checks": [
+      "review display and form expose explicit four-language copy",
+      "dynamic names, descriptions, features and status strings use locale-aware rendering",
+      "review and action controls have protected wrapping and no fixed-width clipping",
+      "focused component and localization tests pass"
+    ]
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a dynamic business name create a mixed Hebrew heading on an English route?",
+      "Can a Russian or French label escape a button or dialog?",
+      "Can a review body force an unreadably wide or tall desktop card?",
+      "Can opening, submitting, failing, retrying or closing the review dialog break focus or language?",
+      "Can one detail world still use stale Hebrew navigation labels?"
+    ],
+    "natural_destination_evidence": "Exercise representative deployed detail routes in all four languages, including reviews and long-label controls.",
+    "affected_family_evidence": "Focused tests, full build, typography audit, desktop/mobile captures, Hebrew-residue scan and independent exact-release review."
+  },
+  "effectiveness": {
+    "baseline": "Release 424 English vacation detail visibly contains mixed Hebrew UI, Hebrew review chrome and untranslated dynamic content; desktop reviews form a long single-column wall.",
+    "measurements": ["hebrew_residue_count","horizontal_overflow_count","representative_routes_passed","review_flow_states_passed","first_pass_acceptance","repeated_corrections"]
+  },
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { BarChart3, Building2, CalendarSync, ExternalLink, FileSearch, Gauge, LibraryBig, ListChecks, MessageCircle, Route, Search, Sparkles, Star, TrendingUp } from "lucide-react";
+import { BarChart3, Building2, CalendarSync, ExternalLink, FileSearch, Gauge, LibraryBig, ListChecks, MapPinned, MessageCircle, Route, Search, Sparkles, Star, TrendingUp } from "lucide-react";
 import styles from "./admin.module.css";
 
 const groups = [
@@ -21,6 +21,7 @@ const groups = [
   ] },
   { label: "תפעול", links: [
     { href: "/admin/catalog-sync", label: "קטלוגים וספקים", icon: CalendarSync },
+    { href: "/admin/geography", label: "ערים ואזורים", icon: MapPinned },
     { href: "/admin/operations", label: "הזמנות וחוות דעת", icon: Star },
     { href: "/admin/whatsapp-leads", label: "פניות וואטסאפ", icon: MessageCircle },
   ] },

@@ -1,25 +1,38 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import type { Trail } from "../data/trail-data";
 import { FavoriteButton } from "./favorite-button";
+import { useSiteLanguage } from "../i18n/locale-provider";
+import { localizedBusinessText } from "../i18n/localized-business-content";
 
-export function TrailVisual({ trail, compact = false }: { trail: Trail; compact?: boolean }) {
-  const imageTitle = `תמונת המחשה למסלול ${trail.name}`;
-  const imageAlt = `${imageTitle}: ${trail.highlights.slice(0, 2).join(" ו")}.`;
+export function TrailVisual({ trail, compact = false, language = "he", localizedName }: { trail: Trail; compact?: boolean; language?: "he" | "en" | "ru" | "fr"; localizedName?: string }) {
+  const copy = language === "en" ? { name: "Nature trail", image: "Illustrative image of", label: "Illustrative image", join: " and " }
+    : language === "ru" ? { name: "Природный маршрут", image: "Иллюстрация маршрута", label: "Иллюстрация", join: " и " }
+      : language === "fr" ? { name: "Sentier nature", image: "Image d’illustration de", label: "Image d’illustration", join: " et " }
+        : { name: "מסלול טבע", image: "תמונת המחשה למסלול", label: "תמונת המחשה", join: " ו" };
+  const displayName = localizedName || (language === "he" ? trail.name : copy.name);
+  const highlights = language === "he" ? trail.highlights.slice(0, 2) : [];
+  const imageTitle = `${copy.image} ${displayName}`;
+  const imageAlt = highlights.length ? `${imageTitle}: ${highlights.join(copy.join)}.` : imageTitle;
 
   return <div className={`trail-visual trail-visual--${trail.tone}${compact ? " trail-visual--compact" : ""}`}>
     <Image src={`/images/trails/${trail.slug}.jpg`} width={1200} height={800} alt={imageAlt} title={imageTitle} />
-    <span className="image-context-label">תמונת המחשה</span>
+    <span className="image-context-label">{copy.label}</span>
   </div>;
 }
 
 export function TrailCard({ trail, compact = false }: { trail: Trail; compact?: boolean }) {
+  const { language, translate } = useSiteLanguage();
+  const localizedName = localizedBusinessText(trail.name, language, translate, language === "he" ? "מסלול טבע" : language === "en" ? "Nature trail" : language === "ru" ? "Природный маршрут" : "Sentier nature");
+  const routeLabel = language === "he" ? "למסלול" : language === "en" ? "Open trail" : language === "ru" ? "Открыть маршрут" : "Ouvrir l’itinéraire";
   return <article className={`trail-card${compact ? " trail-card--compact" : ""}`}>
-    <Link className="trail-card__visual" href={`/trails/${trail.slug}`} target="_blank" rel="noopener noreferrer" aria-label={`למסלול ${trail.name}`}><TrailVisual trail={trail} compact={compact} /></Link>
-    <FavoriteButton id={trail.slug} world="trails" name={trail.name} location={`${trail.mainArea}, ${trail.region}`} href={`/trails/${trail.slug}`} meta={`${trail.duration} · ${trail.difficulty}`} />
+    <Link className="trail-card__visual" href={`/trails/${trail.slug}`} target="_blank" rel="noopener noreferrer" aria-label={`${routeLabel} ${localizedName}`}><TrailVisual trail={trail} compact={compact} language={language} localizedName={localizedName} /></Link>
+    <FavoriteButton id={trail.slug} world="trails" name={localizedName} location={`${trail.mainArea}, ${trail.region}`} href={`/trails/${trail.slug}`} meta={`${trail.duration} · ${trail.difficulty}`} />
     <div className="trail-card__body">
       <div className="trail-card__labels"><span>{trail.difficulty}</span><span>{trail.routeType}</span></div>
-      <h3><Link href={`/trails/${trail.slug}`} target="_blank" rel="noopener noreferrer">{trail.name}<span className="sr-only"></span></Link></h3>
+      <h3><Link href={`/trails/${trail.slug}`} target="_blank" rel="noopener noreferrer">{localizedName}<span className="sr-only"></span></Link></h3>
       <p>{trail.summary}</p>
       <dl><div><dt>משך</dt><dd>{trail.duration}</dd></div><div><dt>מרחק</dt><dd>{trail.distance}</dd></div></dl>
       <div className="trail-card__footer"><span>{trail.nature.join(" · ")}</span><Link href={`/trails/${trail.slug}`} target="_blank" rel="noopener noreferrer">למדריך המלא<span className="sr-only"></span></Link></div>

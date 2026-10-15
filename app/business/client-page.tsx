@@ -34,6 +34,7 @@ import { useViiStayQuote } from "../components/use-vii-stay-quote";
 import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
 import { ViewedItemTracker } from "../components/viewed-item-tracker";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
+import { latinBusinessAlias, localizedBusinessList, localizedBusinessText } from "../i18n/localized-business-content";
 import { publishedLastMinuteDeal } from "../data/last-minute-deals";
 import { UnitDetailsDialog } from "../components/unit-details-dialog";
 import { PropertyGallery } from "../components/property-gallery";
@@ -180,6 +181,33 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
         ...(room.id ? { supplierRoomID: room.id } : {}) })),
       features: [...new Set([...(supplierDetail.highlights || []), ...base.features, ...supplierDetail.rooms.flatMap((room) => room.features)])] } : base;
   }, [initialProperty, initialSlug, supplierDetail]);
+  const businessCopy = {
+    he: { name: "מקום אירוח מאומת", location: "ישראל", description: (name: string, location: string) => `${name} הוא מקום אירוח ב${location}. בעמוד תוכלו לראות תמונות, מתקנים, יחידות, זמינות ודרכי הזמנה.`, unit: "יחידת אירוח", feature: "מתקן במקום", faqQuestion: "מידע חשוב על המקום", faqAnswer: "הפרטים העדכניים, הזמינות ותנאי ההזמנה מאושרים מול המקום.", policy: "תנאי הביטול והשינויים נמסרים לפני אישור ההזמנה והתשלום.", checkIn: "כניסה", checkOut: "עזיבה", checkOutSat: "עזיבה בשבת", confirmHours: "יש לאשר את השעות מול המקום.", locationTitle: (name: string, location: string, area: string) => `המיקום של ${name} ב${location}, ${area}`, endcap: "אפשר להשוות מקומות נוספים באזור, לבחור מסלול לטיול או למצוא שירות שמגיע עד מקום האירוח.", moreArea: "עוד מקומות באזור" },
+    en: { name: "Verified stay", location: "Israel", description: (name: string, location: string) => `${name} is a verified stay in ${location}. Explore its photos, amenities, units, availability and booking options on this page.`, unit: "Accommodation unit", feature: "Property amenity", faqQuestion: "Important property information", faqAnswer: "Current details, availability and booking terms are confirmed directly with the property.", policy: "Cancellation and change terms are provided before the booking and payment are confirmed.", checkIn: "Check-in", checkOut: "Check-out", checkOutSat: "Saturday check-out", confirmHours: "Please confirm the hours with the property.", locationTitle: (name: string, location: string, area: string) => `Location of ${name} in ${location}, ${area}`, endcap: "Compare more stays nearby, choose a walking route or find a service that comes directly to your accommodation.", moreArea: "More stays in" },
+    ru: { name: "Проверенное размещение", location: "Израиль", description: (name: string, location: string) => `${name} — проверенный вариант размещения в регионе ${location}. Здесь собраны фотографии, удобства, варианты проживания, наличие и способы бронирования.`, unit: "Вариант размещения", feature: "Удобство объекта", faqQuestion: "Важная информация об объекте", faqAnswer: "Актуальные сведения, наличие и условия бронирования подтверждаются непосредственно объектом.", policy: "Условия отмены и изменений сообщаются до подтверждения бронирования и оплаты.", checkIn: "Заезд", checkOut: "Выезд", checkOutSat: "Выезд в субботу", confirmHours: "Подтвердите время непосредственно у объекта.", locationTitle: (name: string, location: string, area: string) => `Расположение ${name}: ${location}, ${area}`, endcap: "Сравните другие варианты поблизости, выберите маршрут для прогулки или найдите услугу с выездом к месту проживания.", moreArea: "Другие варианты в регионе" },
+    fr: { name: "Hébergement vérifié", location: "Israël", description: (name: string, location: string) => `${name} est un hébergement vérifié situé en ${location}. Consultez les photos, les équipements, les unités, les disponibilités et les options de réservation.`, unit: "Unité d’hébergement", feature: "Équipement sur place", faqQuestion: "Informations importantes sur l’établissement", faqAnswer: "Les informations, les disponibilités et les conditions de réservation sont confirmées directement avec l’établissement.", policy: "Les conditions d’annulation et de modification sont communiquées avant la confirmation et le paiement.", checkIn: "Arrivée", checkOut: "Départ", checkOutSat: "Départ le samedi", confirmHours: "Veuillez confirmer les horaires auprès de l’établissement.", locationTitle: (name: string, location: string, area: string) => `Emplacement de ${name} à ${location}, ${area}`, endcap: "Comparez d’autres hébergements à proximité, choisissez un itinéraire de promenade ou trouvez un service qui se déplace jusqu’à votre hébergement.", moreArea: "Autres hébergements dans la région" },
+  }[language];
+  const safeBusinessText = (value: string | undefined | null, fallback: string) => localizedBusinessText(value, language, translate, fallback);
+  const localizedPropertyName = safeBusinessText(property.name, latinBusinessAlias(property.name) || businessCopy.name);
+  const localizedArea = safeBusinessText(property.area, businessCopy.location);
+  const localizedLocation = safeBusinessText(property.location, localizedArea);
+  const localizedDescription = safeBusinessText(property.description, businessCopy.description(localizedPropertyName, localizedLocation));
+  const localizedMapProperty: Property = { ...property, name: localizedPropertyName, location: localizedLocation, area: localizedArea, description: localizedDescription };
+  const localizedGalleryProperty: Property = {
+    ...localizedMapProperty,
+    roomOptions: property.roomOptions?.map((room, index) => ({ ...room, name: safeBusinessText(room.name, `${businessCopy.unit} ${index + 1}`) })),
+    sleepingArrangements: property.sleepingArrangements?.map((room, index) => ({ ...room, name: safeBusinessText(room.name, `${businessCopy.unit} ${index + 1}`) })),
+  };
+  const localizeRelatedProperty = (item: Property): Property => ({
+    ...item,
+    name: safeBusinessText(item.name, latinBusinessAlias(item.name) || businessCopy.name),
+    location: safeBusinessText(item.location, businessCopy.location),
+    area: safeBusinessText(item.area, businessCopy.location),
+    description: safeBusinessText(item.description, businessCopy.description(latinBusinessAlias(item.name) || businessCopy.name, businessCopy.location)),
+    type: safeBusinessText(item.type, businessCopy.name),
+    features: localizedBusinessList(item.features, language, translate),
+    highlights: item.highlights?.map((highlight) => ({ ...highlight, label: safeBusinessText(highlight.label, businessCopy.feature) })),
+  });
   useEffect(() => { trackBusinessEvent("page_view", { placeId: property.slug, placeName: property.name, world: initialWorld }); }, [initialWorld, property.name, property.slug]);
   const offerings = useMemo(() => getListingOfferings(property), [property]);
   const [worldSelection, setWorldSelection] = useState<{ slug: string; world: BusinessWorld } | null>(null);
@@ -219,16 +247,16 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
   const ownerWhatsapp = property.contact?.whatsapp;
   const bookingActionHref = vacationPhoneFallback ? "#booking-summary" : `/booking?${bookingQuery}`;
   const sectionLinks = useMemo<DetailSectionLink[]>(() => [
-    { href: "#about", label: "על המקום" },
-    ...(property.roomOptions?.length ? [{ href: "#rooms" as const, label: property.scenario === "multi" ? "סוויטות ויחידות" : "מבנה המקום" }] : []),
-    ...(property.bedrooms ? [{ href: "#sleeping" as const, label: "איפה ישנים" }] : []),
-    { href: "#features", label: "מאפיינים" },
-    { href: "#accessibility", label: "נגישות" },
-    { href: "#location", label: "מיקום" },
-    { href: "#faq", label: "שאלות ותשובות" },
-    { href: "#reviews", label: "חוות דעת" },
-    { href: "#policies", label: "חשוב לדעת" },
-  ], [property.bedrooms, property.roomOptions?.length, property.scenario]);
+    { href: "#about", label: translate("על המקום") },
+    ...(property.roomOptions?.length ? [{ href: "#rooms" as const, label: translate(property.scenario === "multi" ? "סוויטות ויחידות" : "מבנה המקום") }] : []),
+    ...(property.bedrooms ? [{ href: "#sleeping" as const, label: translate("איפה ישנים") }] : []),
+    { href: "#features", label: translate("מאפיינים") },
+    { href: "#accessibility", label: translate("נגישות") },
+    { href: "#location", label: translate("מיקום") },
+    { href: "#faq", label: translate("שאלות ותשובות") },
+    { href: "#reviews", label: translate("חוות דעת") },
+    { href: "#policies", label: translate("חשוב לדעת") },
+  ], [property.bedrooms, property.roomOptions?.length, property.scenario, translate]);
   const roomQuantity = property.roomOptions?.reduce((total, room) => total + room.quantity, 0) || 0;
   const highlights = (property.highlights?.length ? property.highlights : property.features.map((label) => ({ label, icon: highlightIconFor(label) }))).slice(0, 5);
   const featureGroups = property.featureGroups?.length ? property.featureGroups : derivedFeatureGroups(property.features);
@@ -262,15 +290,15 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
       <main id="main-content" className="property-page">
         <ViewedItemTracker id={property.slug} world={activeWorld} name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={`/business?id=${property.slug}${activeWorld === offerings[0].world ? "" : `&mode=${activeWorld}`}`} meta={property.guests > 0 ? `${property.type} · עד ${property.guests} אורחים` : property.type} />
         <BreadcrumbTrail items={activeWorld === "events"
-          ? [{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, { name: "מקומות לאירועים", path: "/events/search" }, { name: property.name }]
+          ? [{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, { name: "מקומות לאירועים", path: "/events/search" }, { name: localizedPropertyName }]
           : activeWorld === "spa"
-            ? [{ name: "ראשי", path: "/" }, { name: "בתי ספא", path: "/spas" }, { name: property.name }]
+            ? [{ name: "ראשי", path: "/" }, { name: "בתי ספא", path: "/spas" }, { name: localizedPropertyName }]
             : activeWorld === "hourly"
-              ? [{ name: "ראשי", path: "/" }, { name: "חדרים לפי שעה", path: "/hourly" }, { name: property.name }]
-              : [{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, vacationBreadcrumbForLocation(property.area), { name: property.name }]} />
+              ? [{ name: "ראשי", path: "/" }, { name: "חדרים לפי שעה", path: "/hourly" }, { name: localizedPropertyName }]
+              : [{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, vacationBreadcrumbForLocation(property.area), { name: localizedPropertyName }]} />
 
         <section className="shell property-title">
-          <div><span className="eyebrow">{property.type} · {activeOffering.label}</span><h1>{property.name}</h1><p><PinIcon />{property.location}, {property.area}</p>{property.demoOperations?.fictional ? <SampleListingDisclosure /> : null}</div>
+          <div><span className="eyebrow">{safeBusinessText(property.type, businessCopy.name)} · {safeBusinessText(activeOffering.label, translate(worldLabels[activeWorld]))}</span><h1>{localizedPropertyName}</h1><p><PinIcon />{localizedLocation}, {localizedArea}</p>{property.demoOperations?.fictional ? <SampleListingDisclosure /> : null}</div>
           <div className="property-title__side">
             <div className="property-title__actions property-title__actions--contact">
               {property.demoOperations?.fictional && !vacationOnlineReady ? <ListingContactPreview placeName={property.name} className="listing-contact-preview--title" /> : null}
@@ -288,13 +316,13 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
         {offerings.length > 1 ? <section className="shell multiworld-offerings" aria-labelledby="multiworld-title">
           <div><span className="eyebrow">מקום אחד, כמה אפשרויות</span><h2 id="multiworld-title">מה תרצו לעשות במקום?</h2><p>המידע על המקום נשאר זהה. הזמינות, המחיר ותהליך ההזמנה משתנים לפי הבחירה.</p></div>
           <div className="multiworld-offerings__options" role="group" aria-label="בחירת סוג הזמנה">
-            {offerings.map((offering) => <button key={offering.world} type="button" aria-pressed={activeWorld === offering.world} className={activeWorld === offering.world ? "active" : ""} onClick={() => chooseWorld(offering.world)}><span>{worldLabels[offering.world]}</span><strong>{offering.label}</strong><small>{offering.summary}</small></button>)}
+            {offerings.map((offering) => <button key={offering.world} type="button" aria-pressed={activeWorld === offering.world} className={activeWorld === offering.world ? "active" : ""} onClick={() => chooseWorld(offering.world)}><span>{translate(worldLabels[offering.world])}</span><strong>{translate(offering.label)}</strong><small>{translate(offering.summary)}</small></button>)}
           </div>
         </section> : null}
 
         <div className="shell property-gallery-wrap">
-          <PropertyGallery images={placeGalleryImages} name={property.name} onOpen={(index) => { setGalleryTopic(null); openGallery("all", index); }} />
-          <FavoriteButton compact className="property-gallery__favorite" id={property.slug} world={activeWorld} name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={`/business?id=${property.slug}${activeWorld === offerings[0].world ? "" : `&mode=${activeWorld}`}`} meta={property.guests > 0 ? `${property.type} · עד ${property.guests} אורחים` : property.type} />
+          <PropertyGallery images={placeGalleryImages} name={localizedPropertyName} onOpen={(index) => { setGalleryTopic(null); openGallery("all", index); }} />
+          <FavoriteButton compact className="property-gallery__favorite" id={property.slug} world={activeWorld} name={localizedPropertyName} location={`${localizedLocation}, ${localizedArea}`} image={property.image} href={`/business?id=${property.slug}${activeWorld === offerings[0].world ? "" : `&mode=${activeWorld}`}`} meta={safeBusinessText(property.type, businessCopy.name)} />
         </div>
 
         {property.demoOperations?.fictional && property.videos?.[0] ? <section className="shell palumbo-media-story" aria-labelledby="palumbo-media-title">
@@ -306,8 +334,8 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
         </section> : null}
 
         <DetailStickyDock
-          name={property.name}
-          location={`${property.location}, ${property.area}`}
+          name={localizedPropertyName}
+          location={`${localizedLocation}, ${localizedArea}`}
           sections={sectionLinks}
           onlineHref={activeWorld === "vacation" ? undefined : onlineBooking || vacationPhoneFallback ? bookingActionHref : undefined}
           onlineLabel={activeWorld === "events" ? "בדיקת תאריך לאירוע" : "הזמנה אונליין"}
@@ -316,7 +344,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
 
         <div className={`shell property-layout ${activeWorld === "vacation" ? "property-layout--vacation" : ""}`}>
           <div className="property-content">
-            <section id="about" className="property-about"><span className="eyebrow">תיאור מקום האירוח</span><h2>על {property.name}</h2><p>{property.description}</p><div className="feature-chips audience-chips">{property.audiences.map((audience) => <span key={audience}>מתאים ל{audience}</span>)}</div>{highlights.length ? <div className="property-highlights" aria-label="הדברים הבולטים במקום">{highlights.map((highlight) => <article key={highlight.label}><PropertyHighlightIcon icon={highlight.icon} /><strong>{highlight.label}</strong></article>)}</div> : null}</section>
+            <section id="about" className="property-about"><span className="eyebrow">{translate("תיאור מקום האירוח")}</span><h2>{translate("על")} {localizedPropertyName}</h2><p>{localizedDescription}</p><div className="feature-chips audience-chips">{localizedBusinessList(property.audiences, language, translate).map((audience) => <span key={audience}>{translate("מתאים ל")} {audience}</span>)}</div>{highlights.length ? <div className="property-highlights" aria-label={translate("הדברים הבולטים במקום")}>{highlights.flatMap((highlight) => { const label = safeBusinessText(highlight.label, ""); return label ? [<article key={highlight.label}><PropertyHighlightIcon icon={highlight.icon} /><strong>{label}</strong></article>] : []; })}</div> : null}</section>
 
             {activeWorld === "vacation" && (initialSource === "home-deals" || initialSource === "home-holidays") && /^vacation-\d+$/.test(property.slug) ? <HomeDealDetailStatus siteID={Number(property.slug.slice(9))} period={initialPeriod} source={initialSource} from={dateRange.from} till={dateRange.till} guests={guests} /> : null}
 
@@ -381,21 +409,22 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
                             ? unitCopy.tooSmall
                             : roomUnavailable ? unitCopy.unavailable : unitCopy.error;
                   const canBookRoom = vacationAvailabilityMode === "live" && (supplierSiteID ? supplierQuote.status : liveLegacyAvailability.status) === "ready" && roomAvailable && roomFitsParty && roomNightlyPrice > 0 && (!supplierSiteID || supplierQuote.onlineBooking && Boolean(verifiedSupplierRoomID));
+                  const localizedRoomName = safeBusinessText(room.name, `${businessCopy.unit} ${roomIndex + 1}`);
                   return <article className={`room-card${roomAvailable ? " room-card--available" : roomUnavailable ? " room-card--unavailable" : ""}${vacationAvailabilityMode === "inquiry" ? " room-card--inquiry" : ""}`} key={room.name}>
-                  <div className="room-card__identity"><span>{property.type}</span><h3>{room.name}</h3></div>
-                  {room.image ? <button className="room-card__image" type="button" data-gallery-trigger onClick={() => { setGalleryTopic(room.name); openGallery("units", unitGalleryStart); }} aria-label={`פתיחת גלריית ${room.name}`}><img src={room.image} alt={`${room.name} ב${property.name}`} title={`${room.name} ב${property.name}`} loading="lazy" /><span>{room.images?.length ? `${room.images.length} תמונות` : "תמונת היחידה"}</span></button> : <div className="room-card__image room-card__image--missing"><img src={property.image} alt={`תמונת מקום האירוח ${property.name}, אינה משויכת ל${room.name}`} loading="lazy" /><span>תמונת המתחם, לא היחידה</span></div>}
+                  <div className="room-card__identity"><span>{safeBusinessText(property.type, businessCopy.name)}</span><h3>{localizedRoomName}</h3></div>
+                  {room.image ? <button className="room-card__image" type="button" data-gallery-trigger onClick={() => { setGalleryTopic(room.name); openGallery("units", unitGalleryStart); }} aria-label={`${translate("פתיחת גלריית")} ${localizedRoomName}`}><img src={room.image} alt={`${localizedRoomName}, ${localizedPropertyName}`} title={`${localizedRoomName}, ${localizedPropertyName}`} loading="lazy" /><span>{room.images?.length ? `${room.images.length} ${translate("תמונות")}` : translate("תמונת היחידה")}</span></button> : <div className="room-card__image room-card__image--missing"><img src={property.image} alt={`${localizedPropertyName}, ${localizedRoomName}`} loading="lazy" /><span>{translate("תמונת המתחם, לא היחידה")}</span></div>}
                   <div className="room-card__body">
-                    <div className="room-card__facts"><span>עד {room.guests} אורחים</span>{room.bedrooms > 0 ? <span>{bedroomLabel(room.bedrooms)}</span> : null}{room.area ? <span>{room.area} מ״ר</span> : null}<button className="room-card__more" type="button" onClick={() => setSelectedRoomIndex(roomIndex)}>פרטי היחידה</button></div>
+                    <div className="room-card__facts"><span>{translate(`עד ${room.guests} אורחים`)}</span>{room.bedrooms > 0 ? <span>{translate(bedroomLabel(room.bedrooms))}</span> : null}{room.area ? <span>{room.area} {translate("מ״ר")}</span> : null}<button className="room-card__more" type="button" onClick={() => setSelectedRoomIndex(roomIndex)}>פרטי היחידה</button></div>
                     {activeWorld === "vacation" && hasSelectedDates ? <div className="room-card__availability" role="status"><strong>{roomStatus}</strong>{vacationAvailabilityMode === "live" && roomNightlyPrice ? <span>{roomNightlyPrice.toLocaleString(numberLocale)} ₪ {unitCopy.perNight}{roomTotalPrice ? ` · ${roomTotalPrice.toLocaleString(numberLocale)} ₪ ${unitCopy.total}` : ""}</span> : null}</div> : null}
                     <div className="room-card__actions">{activeWorld === "vacation"
-                      ? canBookRoom ? <Link className="button primary" href={supplierSiteID ? `/booking?${bookingQuery}` : roomBookingHref(bookingQuery, roomIndex, roomNightlyPrice)}>{unitCopy.quick} {translate(room.name)}</Link>
+                      ? canBookRoom ? <Link className="button primary" href={supplierSiteID ? `/booking?${bookingQuery}` : roomBookingHref(bookingQuery, roomIndex, roomNightlyPrice)}>{unitCopy.quick} {safeBusinessText(room.name, `${businessCopy.unit} ${roomIndex + 1}`)}</Link>
                         : supplierSiteID && roomAvailable && roomFitsParty && roomNightlyPrice > 0 && phoneHref ? <a className="button primary" href={phoneHref}>הזמנה בטלפון</a>
-                        : vacationAvailabilityMode === "inquiry" && ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={`${unitCopy.check} ${translate(room.name)}`} initialDate={dateRange.from} initialTill={dateRange.till} initialGuests={guests} buttonLabel={unitCopy.enquire} buttonClassName="button primary" />
+                        : vacationAvailabilityMode === "inquiry" && ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={`${unitCopy.check} ${safeBusinessText(room.name, `${businessCopy.unit} ${roomIndex + 1}`)}`} initialDate={dateRange.from} initialTill={dateRange.till} initialGuests={guests} buttonLabel={unitCopy.enquire} buttonClassName="button primary" />
                           : vacationAvailabilityMode === "inquiry" && phoneHref ? <a className="button primary" href={phoneHref}>{unitCopy.enquire}</a>
                             : (supplierSiteID ? supplierQuote.status : liveLegacyAvailability.status) === "error" ? <button className="button secondary" type="button" onClick={supplierSiteID ? supplierQuote.retry : liveLegacyAvailability.retry}>{unitCopy.retry}</button>
                               : roomUnavailable ? <button className="button secondary" type="button" onClick={() => setCalendarOpen(true)}>{unitCopy.otherDate}</button>
-                                : roomAvailable && !roomFitsParty && ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={`בדיקת שילוב יחידות עם ${translate(room.name)}`} initialDate={dateRange.from} initialTill={dateRange.till} initialGuests={guests} buttonLabel="בדיקת שילוב יחידות" buttonClassName="button secondary" />
-                                  : <button className="button secondary" type="button" onClick={() => setCalendarOpen(true)}>{hasSelectedDates ? `${unitCopy.check} ${translate(room.name)}` : `${unitCopy.dates} ${translate(room.name)}`}</button>
+                                : roomAvailable && !roomFitsParty && ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={`בדיקת שילוב יחידות עם ${safeBusinessText(room.name, `${businessCopy.unit} ${roomIndex + 1}`)}`} initialDate={dateRange.from} initialTill={dateRange.till} initialGuests={guests} buttonLabel="בדיקת שילוב יחידות" buttonClassName="button secondary" />
+                                  : <button className="button secondary" type="button" onClick={() => setCalendarOpen(true)}>{hasSelectedDates ? `${unitCopy.check} ${safeBusinessText(room.name, `${businessCopy.unit} ${roomIndex + 1}`)}` : `${unitCopy.dates} ${safeBusinessText(room.name, `${businessCopy.unit} ${roomIndex + 1}`)}`}</button>
                       : onlineBooking ? <Link className="button primary" href={bookingActionHref}>הזמנה אונליין</Link> : phoneHref ? <Link className="button primary" href="#booking-summary">טלפון להזמנה</Link> : null}</div>
                   </div>
                 </article>;
@@ -409,25 +438,25 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
               <span className="eyebrow">עיקרי המקום</span>
               <h2>מתקנים ושירותים</h2>
               <div className="feature-section__mobile-preview" aria-label="הדברים הבולטים במקום">
-                {mobileFeaturePreview.map((feature) => <span key={feature}><b aria-hidden="true">✓</b>{feature}</span>)}
+                {localizedBusinessList(mobileFeaturePreview, language, translate).map((feature) => <span key={feature}><b aria-hidden="true">✓</b>{feature}</span>)}
               </div>
-              <div className="property-feature-groups">{featureGroups.map((group) => <article key={group.title}><h3>{group.title}</h3><div className="feature-list">{group.items.map((feature) => <span key={feature}>✓ {feature}</span>)}</div></article>)}</div>
+              <div className="property-feature-groups">{featureGroups.map((group) => { const items = localizedBusinessList(group.items, language, translate); return items.length ? <article key={group.title}><h3>{safeBusinessText(group.title, businessCopy.feature)}</h3><div className="feature-list">{items.map((feature) => <span key={feature}>✓ {feature}</span>)}</div></article> : null; })}</div>
               <div className={`feature-section__mobile-details ${mobileFeaturesOpen ? "is-open" : ""}`}>
                 <button className="feature-section__mobile-toggle" type="button" aria-expanded={mobileFeaturesOpen} aria-controls="mobile-feature-groups" onClick={() => setMobileFeaturesOpen((open) => !open)}>{mobileFeaturesOpen ? "הסתרת כל המתקנים" : "הצגת כל המתקנים"}</button>
-                <div id="mobile-feature-groups" className="feature-section__mobile-groups" hidden={!mobileFeaturesOpen}>{featureGroups.map((group) => <section key={group.title}><h3>{group.title}</h3><div>{group.items.map((feature) => <span key={feature}>✓ {feature}</span>)}</div></section>)}</div>
+                <div id="mobile-feature-groups" className="feature-section__mobile-groups" hidden={!mobileFeaturesOpen}>{featureGroups.map((group) => { const items = localizedBusinessList(group.items, language, translate); return items.length ? <section key={group.title}><h3>{safeBusinessText(group.title, businessCopy.feature)}</h3><div>{items.map((feature) => <span key={feature}>✓ {feature}</span>)}</div></section> : null; })}</div>
               </div>
               <button className="button subtle feature-section__desktop-more" type="button" onClick={() => setAllFeaturesOpen(true)}>הצגת כל המתקנים</button>
             </section>
 
-            <GuestReviewStudio placeName={property.name} subjectId={property.slug} rating={supplierDetail?.reviewScore ?? property.score} reviewCount={supplierDetail?.reviewCount ?? property.reviews} publishedReviews={property.reviewHighlights} supplierReviews={supplierDetail?.reviews} illustrative={property.reviewSource === "fictional-demo"} open={reviewOpen} onClose={() => setReviewOpen(false)} onOpenGallery={() => { setGalleryTopic(null); openGallery("guests", 0); }} />
+            <GuestReviewStudio placeName={localizedPropertyName} subjectId={property.slug} rating={supplierDetail?.reviewScore ?? property.score} reviewCount={supplierDetail?.reviewCount ?? property.reviews} publishedReviews={property.reviewHighlights} supplierReviews={supplierDetail?.reviews} illustrative={property.reviewSource === "fictional-demo"} open={reviewOpen} onClose={() => setReviewOpen(false)} onOpenGallery={() => { setGalleryTopic(null); openGallery("guests", 0); }} />
 
             <ListingAccessibility slug={property.slug} />
 
-            <section id="location" className="location-card location-card--map-only" aria-labelledby="property-location-title"><h2 id="property-location-title" className="sr-only">המיקום של {property.name} ב{property.location}, {property.area}</h2>{typeof property.lat === "number" && typeof property.lng === "number" ? <ListingMap listings={[property]} single /> : <p>המיקום המדויק טרם נמסר על ידי המקום. המתחם נמצא ב{property.location}, {property.area}.</p>}</section>
+            <section id="location" className="location-card location-card--map-only" aria-labelledby="property-location-title"><h2 id="property-location-title" className="sr-only">{businessCopy.locationTitle(localizedPropertyName, localizedLocation, localizedArea)}</h2>{typeof property.lat === "number" && typeof property.lng === "number" ? <ListingMap listings={[localizedMapProperty]} single /> : <p>{safeBusinessText("המיקום המדויק טרם נמסר על ידי המקום.", businessCopy.locationTitle(localizedPropertyName, localizedLocation, localizedArea))}</p>}</section>
 
-            <section id="faq" className="faq-section"><span className="eyebrow">כל מה שחשוב לפני שמזמינים</span><h2>שאלות ותשובות</h2>{propertyFaq.map((item, index) => <article key={item.question} className={openFaq === index ? "open" : ""}><button type="button" aria-expanded={openFaq === index} onClick={() => setOpenFaq(openFaq === index ? null : index)}><span>{item.question}</span><b>{openFaq === index ? "−" : "+"}</b></button>{openFaq === index && <p>{item.answer}</p>}</article>)}</section>
+            <section id="faq" className="faq-section"><span className="eyebrow">{translate("כל מה שחשוב לפני שמזמינים")}</span><h2>{translate("שאלות ותשובות")}</h2>{propertyFaq.map((item, index) => <article key={item.question} className={openFaq === index ? "open" : ""}><button type="button" aria-expanded={openFaq === index} onClick={() => setOpenFaq(openFaq === index ? null : index)}><span>{safeBusinessText(item.question, businessCopy.faqQuestion)}</span><b>{openFaq === index ? "−" : "+"}</b></button>{openFaq === index && <p>{safeBusinessText(item.answer, businessCopy.faqAnswer)}</p>}</article>)}</section>
 
-            <section id="policies" className="policies-section"><h2>כללים ותנאי הזמנה</h2><div><article><b>צ׳ק-אין וצ׳ק-אאוט</b><p>{supplierDetail?.policy.checkIn ? `כניסה: ${supplierDetail.policy.checkIn.slice(0, 5)}` : "שעת הכניסה נקבעת באישור ההזמנה"}{supplierDetail?.policy.checkOut ? ` · עזיבה: ${supplierDetail.policy.checkOut.slice(0, 5)}` : ""}{supplierDetail?.policy.checkOutSat ? ` · עזיבה בשבת: ${supplierDetail.policy.checkOutSat.slice(0, 5)}` : ""}. יש לאשר את השעות מול המקום.</p></article><article><b>מחיר ותשלום</b><p>המחיר הסופי תלוי בתאריכים, בהרכב וביחידה שנבחרה.</p></article><article><b>ביטול ושינויים</b><p>{supplierDetail?.policy.remarks || "תנאי הביטול נמסרים לפני אישור ההזמנה והתשלום."}</p></article></div></section>
+            <section id="policies" className="policies-section"><h2>{translate("כללים ותנאי הזמנה")}</h2><div><article><b>{translate("צ׳ק-אין וצ׳ק-אאוט")}</b><p>{supplierDetail?.policy.checkIn ? `${businessCopy.checkIn}: ${supplierDetail.policy.checkIn.slice(0, 5)}` : translate("שעת הכניסה נקבעת באישור ההזמנה")}{supplierDetail?.policy.checkOut ? ` · ${businessCopy.checkOut}: ${supplierDetail.policy.checkOut.slice(0, 5)}` : ""}{supplierDetail?.policy.checkOutSat ? ` · ${businessCopy.checkOutSat}: ${supplierDetail.policy.checkOutSat.slice(0, 5)}` : ""}. {businessCopy.confirmHours}</p></article><article><b>{translate("מחיר ותשלום")}</b><p>{translate("המחיר הסופי תלוי בתאריכים, בהרכב וביחידה שנבחרה.")}</p></article><article><b>{translate("ביטול ושינויים")}</b><p>{safeBusinessText(supplierDetail?.policy.remarks || "תנאי הביטול נמסרים לפני אישור ההזמנה והתשלום.", businessCopy.policy)}</p></article></div></section>
             {property.demoOperations?.fictional ? <section className="palumbo-practical" aria-labelledby="palumbo-practical-title"><span className="eyebrow">מידע מעשי</span><h2 id="palumbo-practical-title">כל מה שצריך לדעת לפני ההזמנה</h2><div><article><strong>15:00</strong><span>כניסה החל משעה זו</span></article><article><strong>11:00</strong><span>עזיבה עד שעה זו</span></article><article><strong>2 לילות</strong><span>מינימום להזמנה</span></article><article><strong>8 אורחים</strong><span>תפוסה מרבית</span></article></div></section> : null}
           </div>
 
@@ -439,7 +468,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
             <section className="property-provider-strip" aria-labelledby="matching-providers-title"><div className="section-head"><div><h2 id="matching-providers-title">ספקים שמגיעים אליכם</h2></div><Link href="/providers">לכל הספקים</Link></div><div className="property-provider-strip__rail">{matchingProviders.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div></section>
             <div className="property-complements__intro">
               <div className="section-head">
-                <div><h2>מה יש בסביבה של {property.name}?</h2></div>
+                <div><h2>{translate("מה יש בסביבה של")} {localizedPropertyName}?</h2></div>
                 <span className="section-head__links property-complements__nav"><Link href="/trails"><b aria-hidden="true">↗</b> מסלולי טיול</Link><Link href="/attractions"><b aria-hidden="true">✦</b> אטרקציות</Link></span>
               </div>
               <p className="property-complements__note">{typeof property.lat === "number" && typeof property.lng === "number" ? "מקומות במרחק משוער של עד 35 ק״מ, מהקרוב לרחוק. נקודת המיקום עשויה לייצג את מרכז היישוב." : `מקומות שאומתו ביישוב ${property.location}. לא זמין כרגע מרחק מדויק למקומות אחרים.`}</p>
@@ -449,13 +478,13 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
           </div>
         </section>
 
-        <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים שיכולים להתאים</h2></div><div className="card-grid">{(relatedProperties || properties).filter((item) => item.slug !== property.slug).slice(0, 3).map((item) => <PropertyCard key={item.slug} property={item} promotional />)}</div></div></section>
+        <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים שיכולים להתאים</h2></div><div className="card-grid">{(relatedProperties || properties).filter((item) => item.slug !== property.slug).slice(0, 3).map((item) => <PropertyCard key={item.slug} property={localizeRelatedProperty(item)} promotional />)}</div></div></section>
 
         <section className="property-page-endcap" aria-labelledby="property-endcap-title">
           <div className="shell property-page-endcap__inner">
-            <div className="property-page-endcap__intro"><span className="eyebrow">ממשיכים לתכנן</span><h2 id="property-endcap-title">עוד דרכים ליהנות באזור {property.location}</h2><p>אפשר להשוות מקומות נוספים ב{property.area}, לבחור מסלול לטיול או למצוא שירות שמגיע עד מקום האירוח.</p></div>
+            <div className="property-page-endcap__intro"><span className="eyebrow">ממשיכים לתכנן</span><h2 id="property-endcap-title">{translate("עוד דרכים ליהנות באזור")} {localizedLocation}</h2><p>{businessCopy.endcap}</p></div>
             <nav className="property-page-endcap__links" aria-label="המשך תכנון החופשה">
-              <Link href={regionalVacationLanding.path}><span aria-hidden="true">⌂</span><strong>עוד מקומות ב{property.area}</strong><small>להשוואת מקומות ואפשרויות אירוח</small></Link>
+              <Link href={regionalVacationLanding.path}><span aria-hidden="true">⌂</span><strong>{businessCopy.moreArea} {localizedArea}</strong><small>להשוואת מקומות ואפשרויות אירוח</small></Link>
               <Link href="/trails"><span aria-hidden="true">↗</span><strong>מסלולים באזור</strong><small>לבחירת טיול שמתאים ליום שלכם</small></Link>
               <Link href="/providers"><span aria-hidden="true">✦</span><strong>ספקים שמגיעים אליכם</strong><small>טיפולים, אוכל וחוויות במקום האירוח</small></Link>
             </nav>
@@ -466,7 +495,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
 
       <CalendarDemo mode="business" businessKind={property.scenario} businessName={property.name} open={calendarOpen && activeWorld === "vacation"} onClose={() => setCalendarOpen(false)} guests={guests} maxGuests={activeOffering.maxGuests || property.guests} onGuestsChange={setGuests} availabilityResolver={property.demoOperations?.fictional ? demoAvailabilityForDate : undefined} priceResolver={property.demoOperations?.fictional ? (date) => demoNightlyPrice(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`, property.demoOperations!.weekdayNightlyPrice, property.demoOperations!.weekendNightlyPrice) : undefined} onConfirm={(result) => { const from = result.checkIn || ""; setDates(result.summary); setDateRange({ from, till: result.checkOut || "" }); setSelectedPrice(property.demoOperations?.fictional && from ? String(demoNightlyPrice(from, property.demoOperations.weekdayNightlyPrice, property.demoOperations.weekendNightlyPrice)) : ""); }} />
 
-      <GalleryExperience key={`${property.slug}-${galleryOpen ? `${galleryTab}-${galleryStart}-${galleryTopic || "all"}` : "closed"}`} property={property} guestPhotos={property.guestPhotos} open={galleryOpen} initialIndex={galleryStart} initialTab={galleryTab} initialTopic={galleryTopic} onAddGuestContent={() => { closeGallery(); setReviewOpen(true); }} onSelectionChange={updateGallerySelection} onClose={closeGallery} />
+      <GalleryExperience key={`${property.slug}-${galleryOpen ? `${galleryTab}-${galleryStart}-${galleryTopic || "all"}` : "closed"}`} property={localizedGalleryProperty} guestPhotos={property.guestPhotos} open={galleryOpen} initialIndex={galleryStart} initialTab={galleryTab} initialTopic={galleryTopic} onAddGuestContent={() => { closeGallery(); setReviewOpen(true); }} onSelectionChange={updateGallerySelection} onClose={closeGallery} />
       <UnitDetailsDialog propertyName={property.name} room={selectedRoomIndex === null ? null : property.roomOptions?.[selectedRoomIndex] || null} open={selectedRoomIndex !== null} onClose={closeUnitDetails} onOpenGallery={() => { if (selectedRoomIndex === null || !property.roomOptions) return; const room = property.roomOptions[selectedRoomIndex]; const start = property.roomOptions.slice(0, selectedRoomIndex).reduce((total, option) => total + (option.images?.length || 1), 0); setGalleryTopic(room.name); closeUnitDetails(); window.setTimeout(() => openGallery("units", start), 0); }} />
 
       {allFeaturesOpen && <div className="simple-modal" onMouseDown={(event) => event.target === event.currentTarget && setAllFeaturesOpen(false)}><section role="dialog" aria-modal="true" aria-labelledby="features-title"><header><h2 id="features-title">המתקנים של {property.name}</h2><button type="button" onClick={() => setAllFeaturesOpen(false)}>סגירה</button></header><div className="modal-feature-groups">{featureGroups.map((group) => <section key={group.title}><h3>{group.title}</h3><div className="feature-list modal-features">{group.items.map((feature) => <span key={feature}>✓ {feature}</span>)}</div></section>)}</div><p>המידע המוצג נבדק כחלק מהכנת עמוד המקום.</p></section></div>}

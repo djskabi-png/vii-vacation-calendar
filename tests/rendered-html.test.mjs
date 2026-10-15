@@ -618,7 +618,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(sleeping, /איפה ישנים\?/);
   assert.match(sleeping, /כל כרטיס מייצג חדר שינה ולא יחידת אירוח/);
   assert.match(sleeping, /alt=\{`\$\{arrangement\.name\} ב\$\{placeName\}`\}/);
-  assert.match(business, /מה יש בסביבה של \{property\.name\}\?/);
+  assert.match(business, /translate\("מה יש בסביבה של"\).*\{localizedPropertyName\}\?/);
   assert.match(business, /complementaryItems/);
   assert.match(eventPlace, /ספקים שיכולים להשלים את החגיגה/);
   assert.match(eventPlace, /הפרטים מבוססים על מידע ציבורי/);
@@ -857,7 +857,7 @@ test("ships a favicon, four languages and no dependency on the retired site", as
   const dictionaries = JSON.parse(translations);
   assert.match(layout, /icons:\s*\{\s*icon:/);
   assert.equal(favicon.length > 0, true);
-  assert.match(layout, /<LocaleProvider>/);
+  assert.match(layout, /<LocaleProvider initialLanguage=\{locale\}>/);
   assert.match(localeRouting, /"he" \| "en" \| "ru" \| "fr"/);
   assert.match(locale, /document\.documentElement\.dir/);
   assert.equal(Object.keys(dictionaries.en).length >= 2000, true);
@@ -1274,9 +1274,9 @@ test("content card images pair descriptive alt text with matching title metadata
     readFile(new URL("../app/events/search/page.tsx", import.meta.url), "utf8"),
   ]);
 
-  assert.match(propertyCard, /alt=\{`\$\{property\.name\}, תמונה \$\{imageIndex \+ 1\} מתוך \$\{galleryImages\.length\}`\} title=\{`\$\{property\.name\}, תמונה \$\{imageIndex \+ 1\} מתוך \$\{galleryImages\.length\}`\}/);
-  assert.match(business, /alt=\{`\$\{room\.name\} ב\$\{property\.name\}`\} title=\{`\$\{room\.name\} ב\$\{property\.name\}`\}/);
-  assert.match(discoveryCard, /title=\{imageLabel && ui \? ui\.image : imageLabel \? `\$\{translate\(item\.name\)\}, \$\{imageLabel\}` : translate\(item\.name\)\}/);
+  assert.match(propertyCard, /alt=\{`\$\{localizedName\}, \$\{interfaceCopy\.image\} \$\{imageIndex \+ 1\}\/\$\{galleryImages\.length\}`\} title=\{`\$\{localizedName\}, \$\{interfaceCopy\.image\} \$\{imageIndex \+ 1\}\/\$\{galleryImages\.length\}`\}/);
+  assert.match(business, /alt=\{`\$\{localizedRoomName\}, \$\{localizedPropertyName\}`\} title=\{`\$\{localizedRoomName\}, \$\{localizedPropertyName\}`\}/);
+  assert.match(discoveryCard, /title=\{imageLabel && ui \? ui\.image : imageLabel \? `\$\{localizedName\}, \$\{imageLabel\}` : localizedName\}/);
   assert.match(eventsSearch, /alt=\{place\.name\} title=\{place\.name\}/);
 });
 

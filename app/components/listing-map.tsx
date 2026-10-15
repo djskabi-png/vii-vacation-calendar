@@ -75,12 +75,12 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
         ? { details: "Voir les détails", close: "Fermer la fiche du lieu", results: "Résultats sur la carte", visible: "lieux", list: "Liste des résultats", openCluster: "Ouvrir les lieux regroupés", searchArea: "Rechercher dans cette zone" }
       : { details: "לכל הפרטים", close: "סגירת פרטי המקום", results: "תוצאות על המפה", visible: "מקומות", list: "רשימת תוצאות במפה", openCluster: "פתיחת המקומות המקובצים", searchArea: "חיפוש באזור הזה" };
   const mapCopy = language === "en"
-    ? { preview: "Interactive map", label: "Interactive places map", back: "Back to list", hint: "Map zoom controls", loading: "Loading the map and markers" }
+    ? { preview: "Interactive map", label: "Interactive places map", back: "Back to list", hint: "Map zoom controls", loading: "Loading the map and markers", view: "View of" }
     : language === "ru"
-      ? { preview: "Интерактивная карта", label: "Интерактивная карта мест", back: "Вернуться к списку", hint: "Масштаб карты", loading: "Загрузка карты и маркеров" }
+      ? { preview: "Интерактивная карта", label: "Интерактивная карта мест", back: "Вернуться к списку", hint: "Масштаб карты", loading: "Загрузка карты и маркеров", view: "Вид на" }
       : language === "fr"
-        ? { preview: "Carte interactive", label: "Carte interactive des lieux", back: "Retour à la liste", hint: "Zoom de la carte", loading: "Chargement de la carte et des repères" }
-        : { preview: "מפה אינטראקטיבית", label: "מפה אינטראקטיבית של המקומות", back: "חזרה לרשימה", hint: "הגדלה והקטנה", loading: "טוענים את המפה ואת הסמנים" };
+        ? { preview: "Carte interactive", label: "Carte interactive des lieux", back: "Retour à la liste", hint: "Zoom de la carte", loading: "Chargement de la carte et des repères", view: "Vue de" }
+        : { preview: "מפה אינטראקטיבית", label: "מפה אינטראקטיבית של המקומות", back: "חזרה לרשימה", hint: "הגדלה והקטנה", loading: "טוענים את המפה ואת הסמנים", view: "מבט על" };
   const mapControlCopy = language === "en"
     ? { zoomIn: "Zoom in", zoomOut: "Zoom out", cluster: "Zoom in to grouped places" }
     : language === "ru"
@@ -471,7 +471,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
   const previewContent = (
     <>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="map-preview-image" src={preview.image} alt={`מבט על ${preview.name}`} title={`מבט על ${preview.name}`} />
+      <img className="map-preview-image" src={preview.image} alt={`${mapCopy.view} ${preview.name}`} title={`${mapCopy.view} ${preview.name}`} />
       <span className="map-preview-shade" aria-hidden="true" />
       <div className="map-preview-content">
         <span className="map-preview-label">{mapCopy.preview}</span>

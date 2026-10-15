@@ -34,13 +34,16 @@ test("place-type cards use distinct relevant photography without the unavailable
 });
 
 test("holiday, contact and card requirements remain explicit", async () => {
-  const [deals, model] = await Promise.all([
+  const [deals, model, sharedCard] = await Promise.all([
     source("app/components/home-live-deals.tsx"),
     source("app/lib/vii-home-deals.ts"),
+    source("app/components/property-card.tsx"),
   ]);
   assert.doesNotMatch(deals, /<small>\{dateLabel\(item\.from/);
-  assert.match(deals, /<WhatsAppLeadButton/);
-  assert.match(deals, /initialGuests=\{deal\.priceGuests\}/);
+  assert.match(deals, /<PropertyCard/);
+  assert.match(deals, /selectedStay=\{\{ from: deal\.from, till: deal\.till, guests: deal\.priceGuests \}\}/);
+  assert.match(deals, /legacyHolidaySearchPath|currentHoliday\?\.href/);
+  assert.match(sharedCard, /<WhatsAppLeadButton/);
   assert.match(model, /whatsapp\?: string/);
 });
 

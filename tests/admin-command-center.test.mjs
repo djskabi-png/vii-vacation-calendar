@@ -47,13 +47,17 @@ test("business performance provides filters, explicit funnel ratios and local ex
 });
 
 test("growth center reports verified local capabilities and honest external connection state", async () => {
-  const page = await read("app/admin/growth/page.tsx");
+  const [page, sitemapDetails, sitemapRoute] = await Promise.all([read("app/admin/growth/page.tsx"), read("app/admin/growth/sitemap-details.tsx"), read("app/api/admin/sitemap/route.ts")]);
   assert.match(page, /\/sitemap\.xml/);
   assert.match(page, /\/robots\.txt/);
   assert.match(page, /Google Search Console/);
   assert.match(page, /Google Analytics 4/);
   assert.match(page, /לא הוכח חיבור פעיל/);
   assert.match(page, /לא אומת/);
+  assert.match(sitemapDetails, /מה יש בכל קובץ מפת אתר/);
+  assert.match(sitemapDetails, /ממגבלת Google/);
+  assert.match(sitemapDetails, /דוגמאות לכתובות/);
+  assert.match(sitemapRoute, /sitemapAdminReport/);
 });
 
 test("content queue retains demand, readiness, priority and direct editing", async () => {

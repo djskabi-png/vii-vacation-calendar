@@ -6,12 +6,12 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { homeDealPeriods, type HomeDeal, type HomeDealPeriod } from "../lib/vii-home-deals";
 import type { HomeHoliday } from "../lib/vii-home-holidays";
+import type { Property } from "../data/site-data";
 import { useSiteLanguage } from "../i18n/locale-provider";
-import { FavoriteButton } from "./favorite-button";
 import { rotateWithinTiers } from "../lib/daily-rotation";
 import type { HomePeriodTab } from "../lib/home-display-settings";
-import { WhatsAppLeadButton } from "./whatsapp-lead-button";
 import { HomeSliderControls } from "./home-slider-controls";
+import { PropertyCard, type ResolvedAvailability } from "./property-card";
 
 type ResponseData = { period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[]; display?: { periods: HomePeriodTab[]; defaultPeriod: HomeDealPeriod } };
 
@@ -29,8 +29,45 @@ const allPeriodCopy = {
   fr: { tomorrow: "Tous les séjours de dernière minute", weekend: "Tous les séjours du jeudi au samedi", "friday-weekend": "Tous les séjours du vendredi au dimanche", thursday: "Tous les séjours du jeudi soir", friday: "Tous les séjours du vendredi soir", holiday: "Tous les séjours pour " },
 } as const;
 
-function dateLabel(date: string, locale: string) {
-  return new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" }).format(new Date(`${date}T12:00:00Z`));
+function dealProperty(deal: HomeDeal): Property {
+  const features = [
+    deal.roomName,
+    deal.bedrooms ? `${deal.bedrooms} חדרי שינה` : "",
+    deal.maxGuests ? `עד ${deal.maxGuests} אורחים` : "",
+  ].filter((value): value is string => Boolean(value));
+  return {
+    slug: `vacation-${deal.siteID}`,
+    name: deal.name,
+    location: deal.city || deal.area || "ישראל",
+    area: deal.area || deal.city || "ישראל",
+    type: deal.roomName || "מקום נופש",
+    guests: deal.maxGuests || deal.priceGuests,
+    bedrooms: deal.bedrooms,
+    image: deal.image,
+    images: [],
+    description: "",
+    features,
+    audiences: [],
+    badges: [],
+    scenario: "single",
+    score: deal.score || undefined,
+    reviews: deal.reviewCount || undefined,
+    contact: { phone: deal.phone, whatsapp: deal.whatsapp },
+  };
+}
+
+function dealAvailability(deal: HomeDeal): ResolvedAvailability {
+  return {
+    from: deal.from,
+    till: deal.till,
+    availability: "available",
+    totalPrice: deal.total,
+    nightlyPrice: Math.round(deal.total / Math.max(1, deal.nights)),
+    includedGuests: deal.priceGuests,
+    priceMode: "stay_total",
+    onlineBooking: deal.onlineBooking,
+    showSelectedDates: true,
+  };
 }
 
 export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" }) {
@@ -47,9 +84,11 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
   const displaySettingsApplied = useRef(false);
   const text = copy[language];
   const title = mode === "holidays" ? { he: "נופש פנוי בחגים", en: "Available stays for holidays", ru: "Отдых в праздники", fr: "Séjours disponibles pendant les fêtes" }[language] : text.title;
-  const locale = { he: "he-IL", en: "en-GB", ru: "ru-RU", fr: "fr-FR" }[language];
   const searchDates = mode === "holidays" ? data?.deals[0] ?? data?.dates : data?.dates;
-  const searchHref = searchDates ? `/search?${new URLSearchParams({ from: searchDates.from, till: searchDates.till, guests: "2" })}` : "/search";
+  const currentHoliday = holidays.find((item) => item.id === holidayId);
+  const searchHref = mode === "holidays" && currentHoliday?.href
+    ? currentHoliday.href
+    : searchDates ? `/search?${new URLSearchParams({ from: searchDates.from, till: searchDates.till, guests: "2" })}` : "/search";
 
   useEffect(() => {
     if (mode !== "holidays") return;
@@ -108,7 +147,6 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
   }
 
   const sectionId = mode === "holidays" ? "home-holiday-deals" : "home-live-deals";
-  const currentHoliday = holidays.find((item) => item.id === holidayId);
   const curatedDeals = data?.deals.filter((deal) => deal.curatedRank !== undefined).sort((a, b) => (a.curatedRank || 500) - (b.curatedRank || 500) || a.siteID - b.siteID) || [];
   const displayedDeals = data?.deals ? [...curatedDeals, ...rotateWithinTiers(data.deals.filter((deal) => deal.curatedRank === undefined),
     (deal) => Math.floor(deal.total / 500), (deal) => deal.siteID,
@@ -119,7 +157,7 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
 
   return <section className={`section home-recommended home-live-deals ${sectionId}`} aria-labelledby={`${sectionId}-title`}>
     <div className="shell">
-      <div className="section-head"><div><h2 id={`${sectionId}-title`}>{title}</h2></div><div><Link href={searchHref} prefetch={false} className="home-live-deals__all-link">{allLabel}</Link><HomeSliderControls railId={`${sectionId}-rail`} label={title} itemSelector=".home-live-deals__card" disabled={displayState !== "ready" || !displayedDealCount} /></div></div>
+      <div className="section-head"><div><h2 id={`${sectionId}-title`}>{title}</h2></div><div><Link href={searchHref} prefetch={false} className="home-live-deals__all-link">{allLabel}</Link><HomeSliderControls railId={`${sectionId}-rail`} label={title} itemSelector=".home-live-deals__item" disabled={displayState !== "ready" || !displayedDealCount} /></div></div>
       <div className={`home-live-deals__tabs${mode === "near" ? " home-live-deals__tabs--near" : ""}`} role="tablist" aria-label={title}>
         {mode === "near" ? periodTabs.map((item, index) => <button key={item.id} type="button" role="tab" aria-controls={`${sectionId}-results`} aria-selected={period === item.id} tabIndex={period === item.id ? 0 : -1} onClick={() => choose(item.id)} onKeyDown={(event) => {
           const next = event.key === "Home" ? 0 : event.key === "End" ? periodTabs.length - 1 : event.key === "ArrowRight" ? (index + (language === "he" ? -1 : 1) + periodTabs.length) % periodTabs.length : event.key === "ArrowLeft" ? (index + (language === "he" ? 1 : -1) + periodTabs.length) % periodTabs.length : -1;
@@ -148,23 +186,14 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
         {displayState === "ready" && data?.deals.length ? <div id={`${sectionId}-rail`} className="home-live-deals__track" ref={track} data-horizontal-rail>
           {displayedDeals.map((deal) => {
             const href = `/business?${new URLSearchParams({ id: `vacation-${deal.siteID}`, from: deal.from, till: deal.till, guests: "2", source: mode === "holidays" ? "home-holidays" : "home-deals", period: mode === "holidays" ? String(currentHoliday?.id ?? "") : period }).toString()}`;
-            const placeLocation = [deal.city, deal.area].filter(Boolean).join(" · ");
-            const tel = deal.phone ? `tel:${deal.phone.replace(/[^+\d]/g, "")}` : "";
-            return <article className="home-live-deals__card" key={`${deal.siteID}-${deal.from}`}>
-              <Link className="home-live-deals__card-link" href={href}>
-                <img src={deal.image} alt={deal.name} loading="lazy" decoding="async" />
-                <div className="home-live-deals__card-body">
-                  <h3>{deal.name}</h3>
-                  {placeLocation ? <p className="home-live-deals__location">{placeLocation}</p> : null}
-                  {deal.score !== null && deal.reviewCount > 0 ? <p className="home-live-deals__rating"><span aria-hidden="true">★</span> {deal.score.toLocaleString(locale)} <span>({deal.reviewCount.toLocaleString(locale)} {text.reviews})</span></p> : null}
-                  <div className="home-live-deals__facts" aria-label={text.available}><span className="home-live-deals__available">{text.available}</span>{deal.roomName ? <span>{deal.roomName}</span> : null}{deal.bedrooms ? <span>{deal.bedrooms} {text.bedrooms}</span> : null}{deal.maxGuests ? <span>{text.guests} {deal.maxGuests}</span> : null}</div>
-                  <p>{dateLabel(deal.from, locale)} – {dateLabel(deal.till, locale)} · {deal.nights === 1 ? `${text.night} 1` : `${deal.nights} ${text.nights}`}</p>
-                  <div className="home-live-deals__price"><span>{text.total}<small>{text.forGuests}</small></span><strong>₪{deal.total.toLocaleString(locale)}</strong></div>
-                </div>
-              </Link>
-              <div className="home-live-deals__actions"><Link href={href}>{text.details}</Link>{tel ? <a href={tel} aria-label={`${text.call}: ${deal.name}`}>{text.call}</a> : null}{deal.whatsapp ? <WhatsAppLeadButton world="vacation" placeId={`vacation-${deal.siteID}`} placeName={deal.name} businessPhone={deal.whatsapp} serviceName={deal.roomName || "נופש"} initialDate={deal.from} initialTill={deal.till} initialGuests={deal.priceGuests} buttonLabel={text.whatsapp} buttonClassName="home-live-deals__whatsapp" /> : null}</div>
-              <FavoriteButton id={`vacation-${deal.siteID}`} world="vacation" name={deal.name} location={placeLocation} image={deal.image} href={href} className="home-live-deals__favorite" />
-            </article>;
+            return <div className="home-live-deals__item" key={`${deal.siteID}-${deal.from}`}>
+              <PropertyCard
+                property={dealProperty(deal)}
+                selectedStay={{ from: deal.from, till: deal.till, guests: deal.priceGuests }}
+                liveAvailabilityState={{ status: "ready", quote: dealAvailability(deal) }}
+                detailHref={href}
+              />
+            </div>;
           })}
         </div> : null}
       </div>
