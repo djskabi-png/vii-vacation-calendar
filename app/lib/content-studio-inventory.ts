@@ -11,6 +11,9 @@ import type { D1Database } from "../../types/cloudflare-runtime";
 import type { ContentLocale, ContentSource, ContentType, ManagedLink } from "./content-studio.ts";
 import { defaultEventLandingPresentation, eventLandingSourceAttributes } from "./event-landing-presentation.ts";
 import { defaultWorldLandingPresentations, managedWorldLandingTypes, worldLandingSourceAttributes } from "./world-landing-presentation.ts";
+import { holidayContentSource } from "./holiday-world.ts";
+import { getHomeHolidays } from "./vii-home-holidays.ts";
+import { supplierToken } from "./vii-supplier-token.ts";
 
 type UnknownRow = Record<string, unknown>;
 const text = (value: unknown) => typeof value === "string" ? value : "";
@@ -51,7 +54,11 @@ async function catalogRows(db: D1Database, world: "vacations" | "events" | "room
 const managedLink = (id: string, label: string, href: string, group: string, order: number): ManagedLink =>
   ({ id, label, href, group, order, visible: true, newWindow: false });
 
-export async function contentStudioSources(db: D1Database, locale: ContentLocale = "he") {
+export async function contentStudioSources(db: D1Database, locale: ContentLocale = "he", requestedType?: ContentType) {
+  if (requestedType === "holiday") {
+    const holidays = await getHomeHolidays({ token: await supplierToken() }).catch(() => []);
+    return holidays.map((holiday) => holidayContentSource(holiday, locale));
+  }
   const [vacations, events, rooms, spas] = await Promise.all([
     catalogRows(db, "vacations"), catalogRows(db, "events"), catalogRows(db, "rooms"), catalogRows(db, "spa"),
   ]);
@@ -103,6 +110,7 @@ export async function contentStudioSources(db: D1Database, locale: ContentLocale
 
 export function publicContentPath(type: ContentType, key: string) {
   if (type === "homepage") return "/";
+  if (type === "holiday") return `/holidays/${key}`;
   if (type === "vacation") return `/business?id=vacation-${key}`;
   if (type === "events") return key === "landing" ? "/events" : `/events/place?id=event-${key}`;
   if (key === "landing" && (type === "hourly" || type === "providers" || type === "attractions" || type === "trails")) return `/${type}`;

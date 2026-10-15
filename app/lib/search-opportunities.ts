@@ -5,6 +5,7 @@ import { publicSearchPagePath } from "./search-page-url-policy.ts";
 import { validSearchWorld, type SearchWorld } from "./search-analytics.ts";
 import type { SiteLanguage } from "../i18n/locale-routing.ts";
 import legacySearchPublications from "../data/legacy-search-page-publications.json" with { type: "json" };
+import { holidayWorldPath } from "./holiday-world.ts";
 
 export const opportunityStatuses = ["pending", "draft", "review", "scheduled", "published", "archived"] as const;
 export type OpportunityStatus = (typeof opportunityStatuses)[number];
@@ -80,6 +81,7 @@ function normalizedHolidayName(value: string) {
 export function legacyHolidaySearchPath(name: string) {
   const holiday = normalizedHolidayName(name);
   if (!holiday) return null;
+  if (/חנוכה|hanukkah/i.test(holiday)) return holidayWorldPath(name);
   const preferredHolidayTitle = /^מקומות\s+פנויים/;
   const candidates = legacySearchPages.filter((page) => {
     const content = normalizedHolidayName(`${page.title} ${page.h1} ${page.metaTitle}`);

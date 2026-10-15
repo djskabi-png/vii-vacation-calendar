@@ -9,7 +9,13 @@ import { useSiteLanguage } from "../i18n/locale-provider";
 import { defaultHomepagePresentation, type HomeDiscoveryItem } from "../lib/homepage-presentation";
 import { HomeSliderControls } from "./home-slider-controls";
 
-type Presentation = typeof defaultHomepagePresentation;
+type Presentation = {
+  popular: HomeDiscoveryItem[];
+  cities: HomeDiscoveryItem[];
+  types: HomeDiscoveryItem[];
+  editorialTitle: string;
+  editorialBody: string;
+};
 
 function usePresentation() {
   const { language } = useSiteLanguage();

@@ -142,6 +142,7 @@ export async function liveSupplierSearch(options: {
       const roomID = Number(room.roomID);
       return sum + (roomBasis.get(Number(siteID))?.get(roomID) || 0);
     }, 0) || null : null;
+    const priceMode: LiveSearchResult["priceMode"] = world === "events" ? "event_total" : requestedRooms.length > 1 ? "nightly_average" : "stay_total";
     return [{
       siteID: siteID as number,
       available,
@@ -153,8 +154,8 @@ export async function liveSupplierSearch(options: {
       reason: typeof site.reason === "string" ? site.reason : reportedAvailable && !available ? "invalid_supplier_response" : null,
       roomCount: selectedRooms.length || requestedRooms.length,
       priceGuests,
-      priceMode: world === "events" ? "event_total" : requestedRooms.length > 1 ? "nightly_average" : "stay_total",
-    }];
+      priceMode,
+    } satisfies LiveSearchResult];
   }));
   const ids = new Set(parsed.flatMap((items) => items.map((item) => item.siteID)));
   const results: LiveSearchResult[] = [...ids].map((siteID) => {

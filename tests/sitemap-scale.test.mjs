@@ -32,7 +32,7 @@ test("every public language edition is a URL with reciprocal hreflang and bounde
 });
 
 test("sitemap index keeps content families independently diagnosable", () => {
-  assert.deepEqual(sitemapSectionOrder, ["core", "vacations", "events", "spas", "hourly", "discovery", "search-pages"]);
+  assert.deepEqual(sitemapSectionOrder, ["core", "holidays", "vacations", "events", "spas", "hourly", "discovery", "search-pages"]);
   const xml = renderSitemapIndex(sitemapSectionOrder.map((section) => `https://vii.spaplus.co/sitemaps/${section}/1.xml`));
   assert.match(xml, /<sitemapindex/);
   assert.match(xml, /\/sitemaps\/search-pages\/1\.xml/);

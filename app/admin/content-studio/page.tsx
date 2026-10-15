@@ -14,11 +14,12 @@ type Version = { version: number; action: string; status: string; content: Conte
 type Payload = { items: Item[]; counts: Record<string, number>; total: number; truncated: boolean; selected: (Item & { versions: Version[] }) | null };
 type AdminHoliday = { id: number; name: string; from: string; till: string; nights: number };
 
-const types = [["homepage", "עמוד הבית"], ["spa", "ספא"], ["vacation", "נופש"], ["events", "אירועים"], ["hourly", "לפי שעה"], ["providers", "ספקים"], ["attractions", "אטרקציות"], ["trails", "טיולים"], ["magazine", "מגזין"], ["navigation", "תפריטים"], ["footer", "פוטר"]] as const;
+const types = [["homepage", "עמוד הבית"], ["holiday", "חגים ומועדים"], ["spa", "ספא"], ["vacation", "נופש"], ["events", "אירועים"], ["hourly", "לפי שעה"], ["providers", "ספקים"], ["attractions", "אטרקציות"], ["trails", "טיולים"], ["magazine", "מגזין"], ["navigation", "תפריטים"], ["footer", "פוטר"]] as const;
 const statusLabel: Record<string, string> = { draft: "טיוטה", review: "ממתין לאישור", scheduled: "מתוזמן", published: "פורסם", archived: "בארכיון" };
 const homeDealPlacements = [["tomorrow", "ברגע האחרון"], ["weekend", "חמישי עד שבת"], ["friday-weekend", "שישי עד ראשון"], ["thursday", "לילה בחמישי"], ["friday", "לילה בשישי"], ["holidays", "חגים"]] as const;
 const homePeriodDefaults = homeDealPlacements.slice(0, 5);
 const attributeFields: Record<string, Array<[string, string]>> = {
+  holiday: [["holidayEyebrow", "שורת פתיחה"], ["holidayHeroImage", "תמונת פתיחה"], ["holidayProof1", "יתרון קצר 1"], ["holidayProof2", "יתרון קצר 2"], ["holidayProof3", "יתרון קצר 3"]],
   vacation: [["accommodationType", "סוג מקום האירוח"], ["highlights", "5 מאפיינים מרכזיים, לפי הסדר ובפסיקים"], ["cardNote", "הערה ציבורית על תמונת הכרטיס"]],
   trails: [["mainArea", "אזור ראשי"], ["region", "אזור מדויק"], ["nature", "סוגי טבע, מופרדים בפסיק"], ["distance", "מרחק"], ["duration", "משך"], ["difficulty", "דרגת קושי"], ["routeType", "סוג מסלול"], ["bestSeason", "עונה מומלצת"], ["familyFit", "התאמה למשפחות"], ["accessibility", "נגישות"], ["officialSource", "קישור למקור רשמי"], ["sourceName", "שם המקור"], ["mapQuery", "חיפוש במפה"]],
   providers: [["location", "מיקום"], ["area", "תחום"], ["features", "שירותים, מופרדים בפסיק"], ["image", "כתובת תמונה"], ["priceLabel", "תיאור מחיר"], ["phone", "טלפון"], ["sourceUrl", "אתר מקור"], ["sourceName", "שם המקור"]],

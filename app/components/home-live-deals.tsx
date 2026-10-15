@@ -29,7 +29,7 @@ const allPeriodCopy = {
   fr: { tomorrow: "Tous les séjours de dernière minute", weekend: "Tous les séjours du jeudi au samedi", "friday-weekend": "Tous les séjours du vendredi au dimanche", thursday: "Tous les séjours du jeudi soir", friday: "Tous les séjours du vendredi soir", holiday: "Tous les séjours pour " },
 } as const;
 
-function dealProperty(deal: HomeDeal): Property {
+export function dealProperty(deal: HomeDeal): Property {
   const features = [
     deal.roomName,
     deal.bedrooms ? `${deal.bedrooms} חדרי שינה` : "",
@@ -56,7 +56,7 @@ function dealProperty(deal: HomeDeal): Property {
   };
 }
 
-function dealAvailability(deal: HomeDeal): ResolvedAvailability {
+export function dealAvailability(deal: HomeDeal): ResolvedAvailability {
   return {
     from: deal.from,
     till: deal.till,

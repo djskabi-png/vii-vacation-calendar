@@ -761,6 +761,9 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       .filter((item) => !selectedTypes.includes(item.label))
       .map((item) => ({ label: item.label, params: { type: null, types: item.label } })),
     ...[
+      { label: "נופש לזוג", active: guests === 2, params: { guests: "2" } as Record<string, string | null> },
+      { label: "נופש למשפחה", active: guests === 6, params: { guests: "6" } as Record<string, string | null> },
+      { label: "נופש לקבוצה", active: guests === 12, params: { guests: "12" } as Record<string, string | null> },
       { label: "נופש עם בריכה", active: pool, params: { pool: "1" } as Record<string, string | null> },
       { label: "נופש עם ספא וג'קוזי", active: spa, params: { spa: "1" } as Record<string, string | null> },
       ...(properties.some((property) => property.capacityScope !== "unit" && property.scenario === "single") ? [{ label: "מקומות שלמים", active: whole, params: { whole: "1" } as Record<string, string | null> }] : []),

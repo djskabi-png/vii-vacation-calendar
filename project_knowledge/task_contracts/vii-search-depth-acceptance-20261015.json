@@ -1,0 +1,57 @@
+{
+  "goal": "Make VII search result pages continue into a clear, useful depth journey instead of ending after the first result list.",
+  "intent_model": {
+    "literal_request": "Add suitable regions, cities in the region, location-scoped place types, smart related searches, nearby trails, matching providers and the missing depth content from the old site.",
+    "implied_outcome": "A visitor can refine, broaden or enrich the same trip or event plan without restarting the search or losing context.",
+    "likely_rejections": ["Only two generic rows remain", "The location is missing from labels", "A row appears with unrelated content", "The old site remains deeper", "Mobile and arrows feel broken"],
+    "interpretation_rules": [{ "phrase": "דפי עומק", "operational_meaning": "Every applicable semantic layer is represented separately and populated from real context.", "acceptance_impact": "A single mixed recommendation row cannot pass." }]
+  },
+  "cognitive_flow": {
+    "current_layer": "Understand which adjacent search direction is being offered: area, city, place type or need.",
+    "current_decision": "Choose one bounded, clearly labeled refinement or complementary activity.",
+    "next_action": "Open the resulting filtered search, trail or verified provider page.",
+    "deferred_complexity": ["Advanced filters", "supplier contact details", "trail safety details"],
+    "preserved_depth": ["Active dates and guests", "existing result filters", "full trail guides", "provider detail pages", "SEO landing-page governance"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/task_contracts/vii-search-depth-20261015-preflight.json",
+    "lesson_bundle_ids": ["ADIR-QA-001", "ADIR-CONTROL-001", "ADIR-MOBILE-001", "ADIR-TYPE-001", "ADIR-SEO-001", "ADIR-COPY-001", "ADIR-SCOPE-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["vacation visitor", "event planner", "mobile visitor", "search crawler"],
+  "natural_destination": "The below-results depth section on VII search routes.",
+  "facts": [
+    { "claim": "The current component mixes destination levels into one rail.", "evidence": "app/components/search-after-results.tsx destinationOptions and two DiscoveryRail calls" },
+    { "claim": "The old site exposes focused areas and relevant categories.", "evidence": "https://www.vii.co.il/s/Center/14086 and indexed legacy search pages" },
+    { "claim": "VII already has verified trail area tags and provider service-area data.", "evidence": "app/data/trail-data.ts and app/data/world-data.ts" }
+  ],
+  "assumptions": [
+    { "claim": "Area equality and existing search-taxonomy terms are adequate for grouping current catalog cities.", "validation": "Exercise center, north, one exact city and whole-country examples against current catalog inventory." }
+  ],
+  "in_scope": ["Separate region rails", "cities within selected context", "location-scoped type rails", "location-scoped smart searches", "area-matched trail rail", "verified provider rail", "localization", "responsive and control-state QA", "combined release"],
+  "out_of_scope": ["Creating new supplier records", "inventing exact distance", "automatic indexing of every query combination", "changing result ranking"],
+  "invariants": ["Existing filters and result cards stay unchanged", "Dates and guests remain in contextual search URLs", "Guide, reviews and FAQ remain intact", "Only published verified provider records appear", "No unverified price or proximity claim"],
+  "affected_family": ["SearchAfterResults", "vacation search", "event search", "world landings", "slider controls", "four languages", "desktop and mobile"],
+  "characteristics": { "stateful": false },
+  "requirements": [
+    { "id": "REQ-1", "statement": "Show separate, non-duplicative rails for suitable regions, cities, additional regions, place types and smart searches whenever data exists.", "source": "User request" },
+    { "id": "REQ-2", "statement": "Every type and smart-search label must carry the selected location meaning and preserve applicable query state.", "source": "User request" },
+    { "id": "REQ-3", "statement": "Show trails and providers only when existing data supports the relationship.", "source": "User request and project truth" },
+    { "id": "REQ-4", "statement": "All visible controls and layouts must work on desktop, mobile and supported languages without regressing existing results.", "source": "Account and VII standards" }
+  ],
+  "acceptance_checks": [
+    { "id": "AC-1", "requirement_ids": ["REQ-1"], "kind": "success", "setup": "Open vacation search for מרכז.", "action": "Scroll below results.", "observable_result": "Distinct contextual rails show regions, cities, place types, smart searches and additional regions without duplicate cards." },
+    { "id": "AC-2", "requirement_ids": ["REQ-2"], "kind": "success", "setup": "Use the מרכז search with guests or dates.", "action": "Open one place-type card and one smart-search card.", "observable_result": "Labels include מרכז and destinations preserve the selected location plus applicable dates and guests." },
+    { "id": "AC-3", "requirement_ids": ["REQ-3"], "kind": "success", "setup": "Open a selected region with tagged trails and verified providers.", "action": "Inspect the complementary sections.", "observable_result": "Every trail matches an existing area tag and every provider is nationwide or covers the area; unmatched sections are omitted." },
+    { "id": "AC-4", "requirement_ids": ["REQ-1", "REQ-3"], "kind": "empty", "setup": "Open a whole-country or unsupported context.", "action": "Inspect below results.", "observable_result": "No empty carousel or unsupported nearby claim is rendered." },
+    { "id": "AC-5", "requirement_ids": ["REQ-4"], "kind": "success", "setup": "Open each shared world on desktop and 390px mobile.", "action": "Scroll and use every visible rail control.", "observable_result": "The page has no horizontal overflow, cards remain readable and only possible arrow directions are enabled." },
+    { "id": "AC-5B", "requirement_ids": ["REQ-2", "REQ-3"], "kind": "failure", "setup": "Provide a context with no supported trail or provider relationship and an invalid empty suggestion.", "action": "Render the shared depth component.", "observable_result": "Unsupported complementary rows and empty links are omitted while the remaining valid discovery controls continue to work." },
+    { "id": "AC-6", "requirement_ids": ["REQ-4"], "kind": "recovery", "setup": "Reload and navigate back after opening a contextual link.", "action": "Return to the results page.", "observable_result": "The search page restores its valid URL state and the depth section remains usable." }
+  ],
+  "open_questions": [],
+  "authorization_boundary": "Local implementation, testing and the requested combined publication are allowed; no new external data claims or purchases.",
+  "ready_for_implementation": true
+}

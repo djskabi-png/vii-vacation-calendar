@@ -1,6 +1,6 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
 
-export const contentTypes = ["homepage", "vacation", "events", "hourly", "spa", "providers", "attractions", "trails", "magazine", "navigation", "footer"] as const;
+export const contentTypes = ["homepage", "holiday", "vacation", "events", "hourly", "spa", "providers", "attractions", "trails", "magazine", "navigation", "footer"] as const;
 export const contentLocales = ["he", "en", "ru", "fr"] as const;
 export const contentStatuses = ["draft", "review", "scheduled", "published", "archived"] as const;
 export type ContentType = typeof contentTypes[number];
@@ -169,7 +169,7 @@ export function parseContentCreate(value: unknown): ContentCreate | null {
   const worlds: Record<Exclude<ContentType, "navigation" | "footer">, string> = {
     homepage: "global",
     vacation: "vacation", events: "events", hourly: "hourly", spa: "spa", providers: "providers",
-    attractions: "activities", trails: "activities", magazine: "magazine",
+    holiday: "vacation", attractions: "activities", trails: "activities", magazine: "magazine",
   };
   return { type, key, locale, title, world: worlds[type] };
 }

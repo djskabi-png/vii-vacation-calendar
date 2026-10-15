@@ -29,6 +29,7 @@ export function sitemapEntryKind(section: SitemapSection, entry: SitemapUrlEntry
     if (path === "/business") return "place-pages";
     return "region-type-landings";
   }
+  if (section === "holidays") return "holiday-worlds";
   if (section === "events") {
     if (path.startsWith("/events/place/")) return "place-pages";
     if (path.startsWith("/events/search")) return "search-region-pages";
@@ -59,9 +60,9 @@ function countBy(values: string[]) {
   return Object.entries(counts).map(([label, count]) => ({ label, count })).sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, "he"));
 }
 
-export function buildSitemapAdminReport(inventory: Record<SitemapSection, SitemapUrlEntry[]>) {
+export function buildSitemapAdminReport(inventory: Partial<Record<SitemapSection, SitemapUrlEntry[]>>) {
   const sections = sitemapSectionOrder.map((section) => {
-    const entries = inventory[section];
+    const entries = inventory[section] || [];
     const fileDetails = Array.from({ length: entries.length ? sitemapPageCount(entries.length) : 0 }, (_, index) => {
       const page = index + 1;
       const pageEntries = sitemapPage(entries, page);

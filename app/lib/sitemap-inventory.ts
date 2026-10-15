@@ -2,7 +2,7 @@ import type { EventPlace, Property } from "../data/site-data.ts";
 import type { SpaPlusSite } from "../data/spaplus.ts";
 import type { SitemapUrlEntry } from "./sitemap-xml.ts";
 
-export const sitemapSectionOrder = ["core", "vacations", "events", "spas", "hourly", "discovery", "search-pages"] as const;
+export const sitemapSectionOrder = ["core", "holidays", "vacations", "events", "spas", "hourly", "discovery", "search-pages"] as const;
 export type SitemapSection = (typeof sitemapSectionOrder)[number];
 const locales = ["he", "en", "ru", "fr"] as const;
 const SITE_URL = "https://vii.spaplus.co";
@@ -35,6 +35,16 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
       { path: "/" }, { path: "/gift-card" }, { path: "/corporate" }, { path: "/destinations" }, { path: "/questions" }, { path: "/join" },
       ...joinWorlds.map((world) => ({ path: `/join/${world}` })), { path: "/accessibility" }, { path: "/legal/terms" }, { path: "/legal/privacy" }, { path: "/legal/cancellation" },
   ])); }
+  if (section === "holidays") {
+    const [{ getHomeHolidays }, { supplierToken }, { holidayWorldPath, readHolidayWorld }] = await Promise.all([
+      import("./vii-home-holidays.ts"), import("./vii-supplier-token.ts"), import("./holiday-world.ts")]);
+    const holidays = await getHomeHolidays({ token: await supplierToken() }).catch(() => []);
+    let db;
+    try { const runtimeName = "cloudflare:workers"; const runtime = await import(/* @vite-ignore */ runtimeName); db = (runtime.env as unknown as { DB?: import("../../types/cloudflare-runtime.ts").D1Database }).DB; }
+    catch { db = undefined; }
+    const worlds = await Promise.all(holidays.map((holiday) => readHolidayWorld(holiday, db)));
+    return unique(worlds.filter((world) => world.indexable).map((world) => ({ url: absoluteUrl(holidayWorldPath(world.name, world.id)) })));
+  }
   if (section === "vacations") {
     const [{ publicCatalogSummaries }, { indexableAccommodationLandings }, { indexableVacationLandings }] = await Promise.all([
       import("./public-catalog-read.ts"), import("../data/accommodation-landings.ts"), import("../data/vacation-landings.ts")]);

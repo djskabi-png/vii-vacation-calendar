@@ -7,6 +7,7 @@ export type SitemapReport = { healthy: boolean; totalUrls: number; totalFiles: n
 
 const sectionMeta: Record<string, { label: string; description: string }> = {
   core: { label: "עמודי ליבה", description: "דף הבית, מידע, הצטרפות, נגישות ועמודים משפטיים" },
+  holidays: { label: "חגים ומועדים", description: "עמודי חג ייחודיים שנבנים מלוח החגים הפעיל" },
   vacations: { label: "נופש", description: "מקומות נופש, חיפוש ודפי נחיתה לפי אזור וסוג אירוח" },
   events: { label: "אירועים", description: "מקומות אירוח לאירועים ודפי חיפוש אזוריים" },
   spas: { label: "ספא", description: "בתי ספא ודפי נחיתה וחיפוש מאושרים" },
@@ -17,6 +18,7 @@ const sectionMeta: Record<string, { label: string; description: string }> = {
 
 const contentLabels: Record<string, string> = {
   home: "דף הבית", join: "הצטרפות ל־VII", "legal-accessibility": "משפטי ונגישות", "information-services": "מידע ושירותים",
+  "holiday-worlds": "עמודי חגים ומועדים",
   "vacation-search": "חיפוש נופש", "place-pages": "עמודי מקום", "region-type-landings": "דפי נחיתה לפי אזור או סוג",
   "search-region-pages": "חיפוש ודפי אזור", "events-world": "עמוד עולם האירועים", "spa-place-pages": "עמודי בית ספא",
   "spa-world": "עמוד עולם הספא", "landing-search-pages": "דפי נחיתה וחיפוש", "hourly-world": "עמוד עולם החדרים",
