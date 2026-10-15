@@ -11,9 +11,20 @@ test("supplier geography scopes overlapping ids by hierarchy level and preserves
   assert.ok(nodes.some((node) => node.key === "district:2"));
   assert.ok(nodes.some((node) => node.key === "city:2" && node.parentKey === "area:9"));
   assert.deepEqual(nodes.find((node) => node.key === "city:118"), {
-    key: "city:118", level: "city", supplierId: 118, parentKey: "area:0", title: "בית ליד", titleEn: "Bayt Lid",
+    key: "city:118", level: "city", supplierId: 118, parentKey: null, title: "בית ליד", titleEn: "Bayt Lid",
     gpsLat: 32.261548, gpsLong: 35.13028, unassigned: true,
   });
+});
+
+test("supplier geography infers object-keyed main regions at the response root", () => {
+  const nodes = normalizeSupplierGeography({
+    north: { id: 1, title: "צפון", areas: [{ id: 9, district_id: 1, title: "גליל", cities: [{ id: 700, area_id: 9, title: "ישרש", gps_lat: 31.916, gps_long: 34.849 }] }] },
+    unassigned: { cities: [{ id: 118, area_id: 0, title: "בית ליד" }] },
+  });
+  assert.ok(nodes.some((node) => node.key === "district:1" && node.title === "צפון"));
+  assert.ok(nodes.some((node) => node.key === "area:9" && node.parentKey === "district:1"));
+  assert.ok(nodes.some((node) => node.key === "city:700" && node.title === "ישרש"));
+  assert.equal(nodes.find((node) => node.key === "city:118")?.parentKey, null);
 });
 
 test("supplier geography accepts data wrappers and object-keyed collections", () => {
@@ -25,11 +36,17 @@ test("supplier geography uses the edge-supported manual redirect mode", async ()
   let init;
   const nodes = await fetchSupplierGeography("private-token", async (_url, options) => {
     init = options;
-    return Response.json({ cities: [{ id: 118, title: "בית ליד" }] });
+    return Response.json({ districts: [{ id: 1, title: "צפון", areas: [{ id: 2, title: "גליל", cities: [{ id: 3, title: "נהריה" }] }] }] });
   });
   assert.equal(init.redirect, "manual");
   assert.equal(init.headers.Authorization, "Bearer private-token");
-  assert.equal(nodes[0].key, "city:118");
+  assert.ok(nodes.some((node) => node.key === "city:3"));
+});
+
+test("supplier geography rejects a partial response containing only unassigned cities", async () => {
+  await assert.rejects(() => fetchSupplierGeography("private-token", async () =>
+    Response.json({ unassigned: { cities: [{ id: 118, area_id: 0, title: "בית ליד" }] } })),
+  /invalid_supplier_geography/);
 });
 
 test("supplier geography rejects redirects without following them", async () => {
@@ -46,15 +63,17 @@ test("manual geography change accepts scoped keys and rejects unsafe slugs or co
 });
 
 test("admin and public search are wired to the managed geography source", async () => {
-  const [nav, command, box, page] = await Promise.all([
+  const [nav, command, box, hook, page] = await Promise.all([
     readFile(new URL("../app/admin/admin-nav.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/admin/admin-command-bar.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/search-box.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/use-managed-geography.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/admin/geography/page.tsx", import.meta.url), "utf8"),
   ]);
   assert.match(nav, /\/admin\/geography/);
   assert.match(command, /ערים ואזורים/);
-  assert.match(box, /fetch\("\/api\/vii\/geography"/);
+  assert.match(box, /useManagedGeography/);
+  assert.match(hook, /fetch\("\/api\/vii\/geography"/);
   assert.match(page, /רענון מה־API/);
   assert.match(page, /מזהי ספק נשמרים לפי רמה/);
 });

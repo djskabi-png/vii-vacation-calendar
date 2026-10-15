@@ -19,15 +19,9 @@ import { spaSearchHref, spaSearchStateFromValues } from "../data/spa-search-land
 import { eventSearchHref, hourlySearchHref } from "../data/world-search-landings";
 import { trackSearchSubmitted } from "../lib/analytics";
 import type { PlaceSearchResult } from "../data/search-place-inventory";
+import { useManagedGeography } from "./use-managed-geography";
 
 type SpaAudience = "single" | "couple" | "group" | "day-pass";
-
-type ManagedGeographyOption = {
-  key: string;
-  level: "district" | "area" | "city";
-  title: string;
-  featured: boolean;
-};
 
 type VacationParty = {
   adults: number;
@@ -154,7 +148,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const [searchCommitted, setSearchCommitted] = useState(() => compact || Boolean(searchParamsKey) || Boolean(initialLocation) || Boolean(initialSpaAudience) || initialSpaFeatures.length > 0);
   const shouldCollapse = compact || searchCommitted;
   const destinationOptions = useMemo(() => searchLocationOptions(mode), [mode]);
-  const [managedGeography, setManagedGeography] = useState<ManagedGeographyOption[]>([]);
+  const managedGeography = useManagedGeography(mode === "vacation" || mode === "events");
   const [placeInventoryResult, setPlaceInventoryResult] = useState<{ mode: SearchMode; places: PlaceSearchResult[] } | null>(null);
   const [placeInventoryError, setPlaceInventoryError] = useState(false);
   const [locationValue, setLocationValue] = useState(() => {
@@ -183,15 +177,6 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const shouldLoadPlaceInventory = hasLocationQuery || (locationOpen && mode === "vacation");
   const placeInventoryLoading = shouldLoadPlaceInventory && placeInventoryResult?.mode !== mode;
   const placeInventory = placeInventoryResult?.mode === mode ? placeInventoryResult.places : [];
-  useEffect(() => {
-    if (mode !== "vacation" && mode !== "events") return;
-    const controller = new AbortController();
-    void fetch("/api/vii/geography", { signal: controller.signal })
-      .then(async (response) => response.ok ? response.json() as Promise<{ nodes?: ManagedGeographyOption[] }> : { nodes: [] })
-      .then((payload) => { if (!controller.signal.aborted && Array.isArray(payload.nodes)) setManagedGeography(payload.nodes); })
-      .catch(() => undefined);
-    return () => controller.abort();
-  }, [mode]);
   useEffect(() => {
     if (!shouldLoadPlaceInventory) return;
     const controller = new AbortController();

@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-complete-geography-search-20261015",
+  "project": "VII",
+  "task_type": "supplier geography integration and search recovery",
+  "requested_outcome": "Import every supplier district, area and city independently of listing inventory, expose them in vacation and event search, show genuinely nearby places for zero-inventory destinations, and make those destinations eligible for the existing editorial search-page workflow without auto-indexing thin pages.",
+  "natural_destination": "VII vacation and event destination picker, zero-result search pages, geography administration and approved search-page sitemap flow",
+  "authorization_boundary": "Read-only supplier pull, implementation, verification and the standing VII publication workflow are authorized. Automatic publication or indexation of thin destination pages is not authorized and remains behind editorial approval.",
+  "lesson_bundle": [
+    { "lesson_id": "ADIR-MIND-001", "reason": "The short request spans supplier identity, search, fallback ranking, CMS and sitemap policy.", "acceptance_impact": "The implementation is tested as one end-to-end geography contract rather than disconnected UI additions." },
+    { "lesson_id": "ADIR-QA-001", "reason": "A partial import can look successful while omitting almost every geography.", "acceptance_impact": "Counts, Yashresh, Bayt Lid, cross-level ID collisions and exact public behavior require direct evidence." },
+    { "lesson_id": "ADIR-SCOPE-001", "reason": "The repository contains unrelated active work that must be preserved.", "acceptance_impact": "Only geography, search recovery, focused tests and their evidence may be changed or staged." },
+    { "lesson_id": "ADIR-SEO-001", "reason": "The request explicitly connects geography pages to sitemaps.", "acceptance_impact": "A geography can enter the editorial queue, but only approved canonical useful pages may enter a sitemap." },
+    { "lesson_id": "ADIR-DATA-001", "reason": "Supplier identifiers overlap between hierarchy levels.", "acceptance_impact": "Canonical identity always includes geography level and supplier ID, and unassigned records never receive an invented parent." }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    { "rejection": "The import reports success but still contains only Bayt Lid.", "prevention": "Parse named and object-keyed root hierarchy variants, reconcile counts, and verify Yashresh in the accepted payload.", "acceptance_check": "Imported nodes include multiple hierarchy levels, Yashresh, and the unassigned Bayt Lid record." },
+    { "rejection": "Yashresh appears in autocomplete but a search shows a generic empty page.", "prevention": "Resolve the selected geography coordinates and rank filtered nearby inventory by bounded geodesic distance.", "acceptance_check": "Vacation and event zero-inventory searches show a clear nearby-results explanation and deterministic nearby cards." },
+    { "rejection": "Every imported city is automatically indexed, creating thin SEO pages.", "prevention": "Keep geography discovery separate from editorial publication state and existing sitemap approval rules.", "acceptance_check": "Unapproved geography pages remain noindex and absent from sitemaps; approved canonical pages remain eligible." },
+    { "rejection": "A city ID collides with an area or district ID.", "prevention": "Retain compound keys such as city:2 and district:2 throughout storage and APIs.", "acceptance_check": "Collision fixture stores and resolves both records independently." }
+  ],
+  "affected_family": [
+    "supplier geography adapter",
+    "geography D1 management source",
+    "admin geography refresh and editor",
+    "public geography endpoint",
+    "vacation destination picker and results",
+    "event destination picker and results",
+    "search-page editorial queue",
+    "approved search-page sitemap inventory"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      { "label": "VII platform truth", "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md" },
+      { "label": "VII accepted search behavior", "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md" },
+      { "label": "Existing managed geography implementation", "source": "app/lib/geography-admin.ts and app/admin/geography/page.tsx" }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the supplier parser and nearby-ranking primitives pass focused fixtures, before UI and release work",
+    "checks": [
+      "Object-keyed hierarchy variants parse without confusing cross-level IDs",
+      "Unassigned parent ID zero stays unassigned without a fake area:0 relation",
+      "Nearby ranking is coordinate-based, bounded and deterministic",
+      "No unapproved geography is added directly to sitemap inventory"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Does the production import still expose only one node?",
+      "Can Yashresh be selected in both vacation and event search?",
+      "Does a zero-inventory search explain that the results are nearby rather than pretending they are local?",
+      "Can district:2 and city:2 coexist?",
+      "Can an unapproved geography URL leak into the sitemap?"
+    ],
+    "natural_destination_evidence": "Exact production API counts and live desktop/mobile searches for a zero-inventory city after publication",
+    "affected_family_evidence": "Focused adapter/ranking/SEO tests, build, admin refresh evidence and live public endpoint evidence"
+  },
+  "effectiveness": {
+    "baseline": "The live geography endpoint contains only one unassigned city and cannot offer the full supplier geography corpus.",
+    "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time", "imported hierarchy counts", "Yashresh discoverability", "zero-inventory nearby result count", "sitemap exclusion before approval"],
+    "target": "The complete supplier hierarchy is searchable, zero-inventory destinations recover with nearby inventory, and sitemap inclusion remains editorially gated."
+  },
+  "privacy": { "raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true },
+  "ready_to_start": true
+}
