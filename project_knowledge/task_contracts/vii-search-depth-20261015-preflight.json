@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-search-depth-20261015",
+  "project": "VII",
+  "task_type": "public_search_product",
+  "requested_outcome": "Turn every relevant VII search results page into a deep discovery page with separate contextual rails for regions, cities, place types and smart searches, plus truthful nearby trails and matching providers.",
+  "natural_destination": "VII vacation and event search results, with the shared below-results component remaining valid for spa, hourly, providers and attractions.",
+  "authorization_boundary": "Implementation, tests, commit, push and the already-requested combined production publication are authorized. No new supplier facts, purchases or destructive data changes are allowed.",
+  "lesson_bundle": [
+    { "lesson_id": "ADIR-QA-001", "reason": "The complaint is about a feature family that disappeared from search pages, not one isolated card.", "acceptance_impact": "Every depth layer and the affected search-world family must be mapped to visible evidence before completion." },
+    { "lesson_id": "ADIR-CONTROL-001", "reason": "Every rail exposes navigation arrows and clickable cards.", "acceptance_impact": "Enabled and disabled arrow states, keyboard semantics and every destination must agree with actual behavior." },
+    { "lesson_id": "ADIR-MOBILE-001", "reason": "Search discovery rails are heavily used on mobile.", "acceptance_impact": "The complete stack must remain readable, swipeable and free of overflow at 390 pixels and through breakpoint transitions." },
+    { "lesson_id": "ADIR-TYPE-001", "reason": "The new headings and dynamic Hebrew labels are prominent public interface text.", "acceptance_impact": "Heebo and approved sans-serif fallbacks must cover every added heading, card and state from first paint." },
+    { "lesson_id": "ADIR-SEO-001", "reason": "These links form the internal-link graph for indexable search landing pages.", "acceptance_impact": "Links must preserve valid search intent without silently creating indexable thin combinations or contradictory canonical signals." },
+    { "lesson_id": "ADIR-COPY-001", "reason": "Dynamic labels must read naturally in Hebrew and remain meaningful in all supported languages.", "acceptance_impact": "Location-aware labels must be localized, non-repetitive and must not claim exact distance or supplier suitability without evidence." },
+    { "lesson_id": "ADIR-SCOPE-001", "reason": "The approved results, reviews, guide and FAQ must remain intact while depth navigation is expanded.", "acceptance_impact": "The change preserves existing results, filters, URL state, guide, reviews and FAQ behavior." }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    { "rejection": "The page still shows two generic rows instead of the full hierarchy Adir listed.", "prevention": "Model regions, cities, place types, smart searches and additional regions as separate named rails.", "acceptance_check": "A center-vacation search visibly renders each applicable rail with distinct content and titles." },
+    { "rejection": "Cards say only ‘villas’ or ‘with pool’ and lose the selected place name.", "prevention": "Generate location-scoped labels for every type and smart-search card.", "acceptance_check": "The center example includes labels such as ‘וילות במרכז’ and ‘נופש במרכז עם בריכה’." },
+    { "rejection": "Trails or providers are shown as nearby even though the data does not prove relevance.", "prevention": "Use existing area tags and verified provider service coverage, with honest ‘באזור’ wording and omit unmatched rows.", "acceptance_check": "Every shown trail matches an area tag and every provider is nationwide or explicitly covers the selected area." },
+    { "rejection": "The feature works for vacation but breaks events or another shared world.", "prevention": "Keep the shared component API compatible and test vacation, events and all existing world callers.", "acceptance_check": "Focused contract tests and production build cover all six shared worlds." },
+    { "rejection": "The rails are attractive but arrows lie about whether scrolling is possible.", "prevention": "Reuse the site-wide boundary-aware slider control and preserve native horizontal swipe.", "acceptance_check": "At both boundaries only the possible direction is enabled and the disabled direction is visibly and semantically disabled." },
+    { "rejection": "The added depth makes the page slow or unwieldy on mobile.", "prevention": "Use compact lazy-loaded visual cards, bounded item counts and no new network request in the interaction path.", "acceptance_check": "The candidate loads the rails without a new fetch, images remain lazy and the 390-pixel layout has no horizontal page overflow." }
+  ],
+  "affected_family": [
+    "vacation search results",
+    "event search results",
+    "shared spa, hourly, provider and attraction below-results content",
+    "region and city hierarchy",
+    "contextual type and smart-search URL generation",
+    "trail and provider cross-discovery",
+    "desktop and mobile slider controls",
+    "Hebrew, English, Russian and French labels",
+    "combined production release with the pending holiday-world change"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      { "label": "Accepted screenshot of the current VII below-results discovery panel", "source": "codex-clipboard-cb141a6e-a6f7-4acc-8b71-e1332804ffbd.png" },
+      { "label": "Legacy VII focused-search and relevant-category behavior", "source": "https://www.vii.co.il/s/Center/14086" },
+      { "label": "VII product truth and search standards", "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md and VII_FEEDBACK_STANDARD.md" }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "The center-vacation example renders from real catalog data with four separated contextual rails.",
+    "checks": [
+      "Compare the visible hierarchy against the user's screenshot and requested inventory.",
+      "Open one city, type and smart-search card and verify the preserved search state.",
+      "Confirm the component omits irrelevant or empty rails before adding trails and providers."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Does a city search accidentally label unrelated cities as nearby or collapse regions and cities into one row?",
+      "Does any contextual link lose dates, guests or active filters that should be preserved?",
+      "Can a trail or provider appear without a data-backed relation to the selected area?",
+      "Can either slider arrow still be pressed when no movement is possible?",
+      "Does the added stack overflow, clip or become unreadable on a 390-pixel viewport?"
+    ],
+    "natural_destination_evidence": "Exact deployed vacation and event search URLs showing the new depth stack, with opened destinations and desktop/mobile screenshots.",
+    "affected_family_evidence": "Focused tests, production build, static font audit and live checks across all shared SearchAfterResults callers."
+  },
+  "effectiveness": {
+    "baseline": "The current shared component exposes only one mixed destination rail and one mixed related-search rail, while trails and providers are absent.",
+    "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"],
+    "target": "All requested depth layers appear in one release with zero generic labels that omit the selected location and no unsupported nearby claim."
+  },
+  "privacy": { "raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true },
+  "ready_to_start": true
+}

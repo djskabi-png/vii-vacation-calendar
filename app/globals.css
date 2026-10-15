@@ -8194,6 +8194,17 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
 .search-depth__discovery-card strong { min-width: 0; align-self: end; font-size: .92rem; line-height: 1.35; }
 .search-depth__discovery-card small { min-width: 0; color: var(--ink-soft); font-size: .72rem; line-height: 1.35; }
 .search-depth__discovery-arrow { grid-column: 3; grid-row: 1 / 3; align-self: center; color: var(--teal); font-size: 1.1rem; }
+.search-depth__visual-rail { grid-auto-columns: minmax(248px,calc((100% - 42px)/4)); }
+.search-depth__visual-card { position: relative; min-width: 0; display: grid; grid-template-rows: 148px auto; overflow: hidden; color: var(--ink); border: 1px solid #c8e0e3; border-radius: 19px; background: #fff; scroll-snap-align: start; box-shadow: 0 9px 24px rgba(4,60,70,.07); transition: transform .18s ease,border-color .18s ease,box-shadow .18s ease; }
+.search-depth__visual-card:hover { transform: translateY(-2px); border-color: #68b8c1; box-shadow: 0 14px 28px rgba(4,60,70,.11); }
+.search-depth__visual-media { display: block; min-width: 0; overflow: hidden; background: #e7f1f1; }
+.search-depth__visual-media img { width: 100%; height: 100%; display: block; object-fit: cover; transition: transform .25s ease; }
+.search-depth__visual-card:hover .search-depth__visual-media img { transform: scale(1.035); }
+.search-depth__visual-card > .image-context-label { top: 12px; inset-inline-start: 12px; bottom: auto; }
+.search-depth__visual-body { min-width: 0; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 5px 10px; align-items: center; padding: 15px 16px 17px; }
+.search-depth__visual-body strong { min-width: 0; font-size: .94rem; line-height: 1.4; }
+.search-depth__visual-body small { min-width: 0; grid-column: 1; color: var(--ink-soft); font-size: .72rem; line-height: 1.4; }
+.search-depth__visual-body > span { grid-column: 2; grid-row: 1 / 3; color: var(--teal); font-size: 1.08rem; }
 @media (max-width: 760px) {
   .search-depth { margin-top: 8px; padding-block: 48px 58px; }
   .search-depth__inner { gap: 42px; }
@@ -8209,6 +8220,8 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   .search-depth__rail-controls { display: none; }
   .search-depth__rail { margin-inline: -3px; grid-auto-columns: minmax(215px,78vw); gap: 10px; padding-inline: 3px; }
   .search-depth__related .search-depth__discovery-card { min-height: 116px; padding: 16px; border-radius: 17px; }
+  .search-depth__visual-rail { grid-auto-columns: minmax(235px,82vw); }
+  .search-depth__visual-card { grid-template-rows: 132px auto; border-radius: 17px; }
 }
 
 /* The discovery rail already owns the first half of the section rhythm.

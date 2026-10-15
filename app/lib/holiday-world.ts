@@ -69,14 +69,15 @@ function searchCards(holiday: HomeHoliday): HolidaySearchCard[] {
   const duration = daysBetween(holiday.from, holiday.till);
   const middleOffset = Math.max(1, Math.floor(duration / 2) - 1);
   const lastStart = duration > 2 ? addDays(holiday.till, -2) : holiday.from;
-  return [
+  const cards: HolidaySearchCard[] = [
     { id: "couples", label: "חופשה זוגית", note: "שני אורחים, שני לילות בתוך החג", from: holiday.from, till: addDays(holiday.from, Math.min(2, duration)), guests: 2, accent: "berry" },
     { id: "family", label: "משפחה עד 6 אורחים", note: "מקומות שמתאימים לחופשה משפחתית", from: holiday.from, till: addDays(holiday.from, Math.min(2, duration)), guests: 6, accent: "amber" },
     { id: "group", label: "משפחות וקבוצות עד 20", note: "מתחמים גדולים להרכב מורחב", from: holiday.from, till: addDays(holiday.from, Math.min(2, duration)), guests: 20, accent: "teal" },
     { id: "opening", label: `תחילת ${holiday.name}`, note: `${dateLabel(holiday.from)} עד ${dateLabel(addDays(holiday.from, Math.min(2, duration)))}`, from: holiday.from, till: addDays(holiday.from, Math.min(2, duration)), guests: 2, accent: "night" },
     { id: "middle", label: `אמצע ${holiday.name}`, note: "חלון קצר באמצע ימי החג", from: addDays(holiday.from, middleOffset), till: addDays(holiday.from, Math.min(duration, middleOffset + 2)), guests: 2, accent: "teal" },
     { id: "ending", label: `סוף ${holiday.name}`, note: `${dateLabel(lastStart)} עד ${dateLabel(holiday.till)}`, from: lastStart, till: holiday.till, guests: 2, accent: "berry" },
-  ].filter((item) => item.from < item.till);
+  ];
+  return cards.filter((item) => item.from < item.till);
 }
 
 function hanukkahCopy(holiday: HomeHoliday) {

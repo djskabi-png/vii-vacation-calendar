@@ -47,7 +47,7 @@ export default async function HolidayPage({ params }: Props) {
     { question: `איך מוצאים מקום פנוי ל${world.name}?`, answer: "בוחרים כאן חלון תאריכים והרכב. בעמוד התוצאות VII בודקת זמינות ומחיר מול המערכת לפני הצגת דיל מאומת." },
     { question: "אפשר לחפש מקום לקבוצה גדולה?", answer: "כן. החיפוש לקבוצות מוגדר לעד 20 אורחים, ובעמוד התוצאות אפשר לשנות את מספר האורחים בהתאם להרכב המדויק." },
   ];
-  return <PageShell variant="vacation" footerTopic="vacation">
+  return <PageShell variant="vacation" footerTopic="vacation-villas">
     <main id="main-content" className="holiday-world">
       <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "חגים ומועדים", path: "/search" }, { name: world.name, path: `/holidays/${world.slug}` }])} />
       <StructuredData data={faqSchema(faqs)} />
