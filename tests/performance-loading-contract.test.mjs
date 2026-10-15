@@ -92,6 +92,21 @@ test("shared navigation deliberately warms the localized homepage on capable con
   assert.match(header, /data-global-feedback="true"/);
 });
 
+test("homepage warmup starts immediately without waiting for an idle window", async () => {
+  const warmup = await readFile(new URL("app/components/smart-navigation-warmup.tsx", root), "utf8");
+  assert.match(warmup, /router\.prefetch\(home\)/);
+  assert.doesNotMatch(warmup, /requestIdleCallback|setTimeout\(warm/);
+  assert.match(warmup, /connection\?\.saveData/);
+  assert.match(warmup, /effectiveType === "2g"/);
+});
+
+test("homepage overlaps rated-place details with independent world summaries", async () => {
+  const home = await readFile(new URL("app/page.tsx", root), "utf8");
+  assert.match(home, /const propertiesPromise = publicCatalogSummaries<Property>\("vacations"\)/);
+  assert.match(home, /const ratedPlacesPromise = propertiesPromise\.then\(homeRatedPlaces\)/);
+  assert.match(home, /hourlyCatalogPlaces, ratedPlaces\] = await Promise\.all/);
+});
+
 test("homepage does not prefetch heavyweight search result documents before intent", async () => {
   const [page, showcase, deals, switcher] = await Promise.all([
     readFile(new URL("app/page.tsx", root), "utf8"),

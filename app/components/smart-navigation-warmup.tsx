@@ -16,14 +16,10 @@ export function SmartNavigationWarmup() {
     const connection = (navigator as Navigator & { connection?: NetworkInformation }).connection;
     if (connection?.saveData || connection?.effectiveType === "slow-2g" || connection?.effectiveType === "2g") return;
     const home = localizedPath("/", languageFromPathname(pathname));
-    const warm = () => router.prefetch(home);
-    const browser = window as Window & { requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void };
-    if (browser.requestIdleCallback) {
-      const id = browser.requestIdleCallback(warm, { timeout: 1200 });
-      return () => browser.cancelIdleCallback?.(id);
-    }
-    const timer = window.setTimeout(warm, 500);
-    return () => window.clearTimeout(timer);
+    // The homepage is the primary escape route from every world. Start its
+    // App Router request as soon as this page hydrates so an early logo click
+    // does not beat an idle callback. Next deduplicates repeat prefetches.
+    router.prefetch(home);
   }, [pathname, router]);
 
   return null;

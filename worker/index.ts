@@ -14,7 +14,7 @@ import { redirectForUrl, shouldCheckRedirect } from "../app/lib/admin-redirects.
 
 const temporaryOrigin = "https://vii.spaplus.co";
 const primaryOrigin = "https://www.vii.co.il";
-const publicCacheVersion = "v2";
+const publicCacheVersion = "v3";
 type PublicCachePolicy = { key: string; kind: "document" | "data"; ttlSeconds: number; home: boolean };
 
 function goneResponse(request: Request) {
@@ -47,7 +47,7 @@ function normalizedPublicQuery(url: URL, allowed: ReadonlySet<string>) {
 
 function publicDocumentTtl(pathname: string) {
   const path = pathname.replace(/^\/(?:en|ru|fr)(?=\/|$)/, "") || "/";
-  if (path === "/") return 60;
+  if (path === "/") return 300;
   if (/^\/(?:admin|account|favorites|booking|handoff|join)(?:\/|$)/.test(path)) return null;
   if (/^\/(?:business|search|hourly|events|spas|providers|attractions|activities|trails|destinations|guides|questions|corporate|gift-card|contact|accessibility)(?:\/|$)/.test(path)) return 180;
   if (/^\/(?:vacations|villas|luxury-suites|suite-complexes|vacation-apartments|discover\/place)(?:\/|$)/.test(path)) return 180;
