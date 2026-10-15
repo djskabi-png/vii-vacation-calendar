@@ -125,9 +125,18 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
     return [...result].sort((a, b) => {
       if (sort === "capacity") return b.guests - a.guests;
       if (sort === "name") return a.name.localeCompare(b.name, "he");
+      if (eventFrom && guests && supplierSearch.status === "ready") {
+        const rank = (place: EventPlace) => {
+          const match = /^event-(\d+)$/.exec(place.slug);
+          const available = match ? supplierSearch.results[Number(match[1])]?.available : null;
+          return available === true ? 0 : available === false ? 2 : 1;
+        };
+        const statePriority = rank(a) - rank(b);
+        if (statePriority) return statePriority;
+      }
       return dailyRotationCompare(a.slug, b.slug, "event-search");
     });
-  }, [accessibleOnly, area, eventPlaces, eventType, eventTypes, guests, noNoiseLimit, sort, type, types]);
+  }, [accessibleOnly, area, eventFrom, eventPlaces, eventType, eventTypes, guests, noNoiseLimit, sort, supplierSearch.results, supplierSearch.status, type, types]);
 
   const displayed = useMemo(() => {
     if (!mapOpen || !mapVisibleIds) return filtered;

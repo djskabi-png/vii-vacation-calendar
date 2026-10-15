@@ -40,6 +40,7 @@ import { ResultsViewToggle, useResultsViewMode } from "../components/results-vie
 import { ProgressiveResults } from "../components/progressive-results";
 import { trackSearchResults } from "../lib/analytics";
 import { matchesVacationSearchFilter } from "../lib/vacation-search-filter-index";
+import { vacationRoomGuests, vacationRoomsFromSearchParams } from "../lib/vacation-party";
 
 export type SearchLandingContext = {
   path: string;
@@ -357,7 +358,9 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
 
   const selectedStay = useMemo(() => vacationStayFromSearch(searchParams, language), [language, searchParams]);
   const flexibleSearch = useMemo(() => flexibleVacationSearchFromParams(searchParams), [searchParams]);
-  const supplierSearch = useViiLiveSearch("vacations", selectedStay?.from || null, selectedStay?.till || null, guests);
+  const requestedRooms = useMemo(() => vacationRoomsFromSearchParams(searchParams), [searchParams]);
+  const supplierGuests = vacationRoomGuests(requestedRooms);
+  const supplierSearch = useViiLiveSearch("vacations", selectedStay?.from || null, selectedStay?.till || null, supplierGuests, undefined, requestedRooms);
   const requestedLocation = searchParams.get("location");
   const availabilityDemoActive = isAvailabilityDemoSearch(selectedStay, requestedLocation);
 
@@ -576,7 +579,9 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       const from = result.from || selectedStay.from;
       const till = result.till || selectedStay.till;
       const nights = Math.max(1, Math.round((Date.parse(`${till}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000));
-      return { quote: { from, till, availability: result.available === true ? "available" : result.available === false ? "unavailable" : "unknown", showSelectedDates: true, onlineBooking: result.onlineBooking, ...(result.total ? { nightlyPrice: Math.round(result.total / nights) } : {}) }, status: "ready" };
+      return { quote: { from, till, availability: result.available === true ? "available" : result.available === false ? "unavailable" : "unknown", showSelectedDates: true, onlineBooking: result.onlineBooking,
+        ...(result.total ? { nightlyPrice: Math.round(result.total / nights), totalPrice: result.total, priceMode: result.priceMode } : {}),
+        ...(result.priceGuests ? { includedGuests: result.priceGuests } : {}) }, status: "ready" };
     }
     if (flexibleSearch && !legacyAvailabilitySourceFor(slug)) return flexibleLocalAvailabilityBySlug[slug];
     if (!legacyAvailabilitySourceFor(slug)) return undefined;
@@ -608,7 +613,12 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
         return typeof price === "number" && price >= minPrice && price <= maxPrice;
       });
     return [...matches].sort((a, b) => {
-      const availabilityPriority = Number(hasVerifiedAvailablePrice(b) || hasAvailablePriceForSearch(b, selectedStayFor(b.slug), pathname, requestedLocation))
+      const liveRank = (property: typeof properties[number]) => {
+        if (!selectedStay || !/^vacation-\d+$/.test(property.slug) || supplierSearch.status !== "ready") return 1;
+        const result = supplierSearch.results[Number(property.slug.slice(9))];
+        return result?.available === true ? 0 : result?.available === false ? 2 : 1;
+      };
+      const availabilityPriority = liveRank(a) - liveRank(b) || Number(hasVerifiedAvailablePrice(b) || hasAvailablePriceForSearch(b, selectedStayFor(b.slug), pathname, requestedLocation))
         - Number(hasVerifiedAvailablePrice(a) || hasAvailablePriceForSearch(a, selectedStayFor(a.slug), pathname, requestedLocation));
       if (availabilityPriority) return availabilityPriority;
       if (sort === "recommended" && availabilityDemoActive) {

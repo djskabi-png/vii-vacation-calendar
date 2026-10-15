@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { LiveSearchResult, LiveSearchWorld } from "../lib/vii-live-search";
+import type { LiveSearchResult, LiveSearchRoom, LiveSearchWorld } from "../lib/vii-live-search";
 
 export type LiveSearchState = {
   status: "idle" | "loading" | "ready" | "error";
@@ -11,8 +11,9 @@ export type LiveSearchState = {
 
 const idle: LiveSearchState = { status: "idle", results: {}, checkedAt: null };
 
-export function useViiLiveSearch(world: LiveSearchWorld, from: string | null, till: string | null, guests: number, hours?: number) {
-  const key = from && till ? `${world}|${from}|${till}|${guests}|${hours || ""}` : "";
+export function useViiLiveSearch(world: LiveSearchWorld, from: string | null, till: string | null, guests: number, hours?: number, rooms?: LiveSearchRoom[]) {
+  const roomKey = rooms?.map((room) => `${room.adults}-${room.children || 0}`).join(",") || "";
+  const key = from && till ? `${world}|${from}|${till}|${guests}|${hours || ""}|${roomKey}` : "";
   const [value, setValue] = useState<{ key: string; state: LiveSearchState } | null>(null);
 
   useEffect(() => {
@@ -21,7 +22,7 @@ export function useViiLiveSearch(world: LiveSearchWorld, from: string | null, ti
     fetch("/api/vii/live-search", {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({ world, from, till, guests, ...(world === "events" ? { hours } : {}) }),
+      body: JSON.stringify({ world, from, till, guests, ...(world === "events" ? { hours } : {}), ...(world === "vacations" && rooms?.length ? { rooms } : {}) }),
       cache: "no-store",
       signal: controller.signal,
     }).then(async (response) => {
@@ -37,7 +38,7 @@ export function useViiLiveSearch(world: LiveSearchWorld, from: string | null, ti
       if (!controller.signal.aborted) setValue({ key, state: { status: "error", results: {}, checkedAt: null } });
     });
     return () => controller.abort();
-  }, [key, world, from, till, guests, hours]);
+  }, [key, world, from, till, guests, hours, rooms]);
 
   if (!key) return idle;
   return value?.key === key ? value.state : { ...idle, status: "loading" as const };

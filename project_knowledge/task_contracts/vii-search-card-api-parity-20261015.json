@@ -1,0 +1,32 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-search-card-api-parity-20261015",
+  "project": "VII",
+  "task_type": "search and supplier integration repair",
+  "goal": "Complete vacation and event result previews from verified supplier semantics and deliver a truthful managed event slider.",
+  "created_at": "2026-10-15T14:30:00Z",
+  "source_hashes": {
+    "working_profile":"73ac19ae8d64098ef290eaefe79a77f4d3e205c05c2b1fcd6288685464e276b1",
+    "cognitive_model":"708ce5d1b152afe220cf98008f571e7d27704c102624f7d7440dc85a1a6ba2d8",
+    "rulebook":"3844b5ec09c8af79c2731bdf75d2d94bc4b0cc1a4ee2633b1971a6cdb5d546cc",
+    "lesson_register":"d74ead306a1ee3a0ace2fc6afbd9b75da30bea4687531aaa8afe6e93204c462f",
+    "team":"d79e3984525d1df11255b2944837579472cf37485e3aaf0ae372c6ab7d88515",
+    "master_plan":"3143c0a625aa89abb318ad11f4f77a86dbd4c37fb6c28ffe7b7a213527a92f36",
+    "feedback_standard":"91d685d0c7bcb5e29e35a7b0150c5d65ddbEB31D6BCD278FE36B53641CC6023E"
+  },
+  "predictive_preflight": "project_knowledge/process_manifests/vii-search-card-api-parity-preflight-20261015.json",
+  "applicable_lessons": ["ADIR-WEB-001","ADIR-SEARCH-001","ADIR-DATA-001","ADIR-QA-001","ADIR-WEB-005","ADIR-WEB-006","ADIR-WEB-CMS-001","ADIR-MEDIA-001"],
+  "requirements": [
+    {"id":"research:email","statement":"Read and apply Sergey's exact search-result rules.","status":"passed","evidence":["Gmail message 1a13f27bffdab18c read and normalized into the research record."]},
+    {"id":"research:vacation-10","statement":"Run ten distinct legacy vacation searches including no-date, dated, one-room and multi-room searches.","status":"passed","evidence":["V1 through V10 recorded in project_knowledge/legacy-parity/vii-search-research-20261015.json."]},
+    {"id":"research:event-10","statement":"Run ten distinct legacy event searches with and without date and multiple guest counts.","status":"passed","evidence":["E1 through E10 recorded; legacy capacity-filter defect reproduced at 200 guests."]},
+    {"id":"implementation:room-array","statement":"Preserve the requested room array through URL, browser hook, API route and supplier request.","status":"pending","evidence":[]},
+    {"id":"implementation:vacation-card","statement":"Render Sergey-approved undated, dated single-room and dated multi-room data and copy.","status":"pending","evidence":[]},
+    {"id":"implementation:event-cards","statement":"Render truthful event availability, price and capacity data from the supported API.","status":"pending","evidence":[]},
+    {"id":"implementation:event-slider","statement":"Provide the requested event slider without false availability and preserve full back-office control of the visual discovery slider.","status":"pending","evidence":[]},
+    {"id":"verification:local","statement":"Pass focused tests, full build, typography audit and local desktop/mobile browser flows.","status":"pending","evidence":[]},
+    {"id":"verification:production","statement":"Publish and verify the exact temporary-site release at all natural destinations with independent review.","status":"pending","evidence":[]}
+  ],
+  "verification_status": "not_verified",
+  "verification_errors": ["Implementation and deployed-release evidence are pending."]
+}

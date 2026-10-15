@@ -23,6 +23,7 @@ export async function POST(request: Request) {
       from: body.from,
       till: body.till,
       guests: Number(body.guests),
+      rooms: world === "vacations" && Array.isArray(body.rooms) ? body.rooms as Array<{ adults: number; children?: number }> : undefined,
       hours: world === "events" ? Number(body.hours) : undefined,
       token: await supplierToken(),
       publishedIds: await publishedSupplierIds(world),

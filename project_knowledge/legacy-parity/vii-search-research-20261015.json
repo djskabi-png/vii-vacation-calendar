@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "researched_at": "2026-10-15",
+  "sources": {
+    "sergey_email": {
+      "message_id": "1a13f27bffdab18c",
+      "subject": "Search results page at VII.CO.IL",
+      "received": "2026-10-15T13:41:00+03:00"
+    },
+    "legacy_vacation": "https://www.vii.co.il/s/",
+    "legacy_events": "https://www.vii.co.il/events/s/",
+    "supported_api": "https://bizonline.co.il/api/ai/vii"
+  },
+  "sergey_contract": {
+    "without_dates": ["bottom line says no dates selected", "starting-from price only when configured", "no passenger indication", "random ordering"],
+    "dated_one_room": ["default is one room for two when party is absent", "available, busy and no-data remain distinct", "priced places show the cheapest whole-stay price", "displayed price guest basis may differ from requested guests", "available without price asks the user to call for price", "unknown asks the user to call for availability and price", "ordering is available, unknown, busy with rotation inside each block"],
+    "dated_multiple_rooms": ["same availability states", "price is the average nightly price of the cheapest combination"]
+  },
+  "vacation_scenarios": [
+    {"id":"V1","query":"no dates, no party","url":"https://www.vii.co.il/s/","observed":"no-date copy, configured starting prices, no party copy"},
+    {"id":"V2","query":"no dates, one couple room","url":"https://www.vii.co.il/s/?pax%5B0%5D=2-0","observed":"no-date behavior unchanged and no party shown in cards"},
+    {"id":"V3","query":"no dates, two couple rooms","url":"https://www.vii.co.il/s/?pax%5B0%5D=2-0&pax%5B1%5D=2-0","observed":"no-date behavior unchanged and no party shown in cards"},
+    {"id":"V4","query":"two nights, one couple room","url":"https://www.vii.co.il/s/?from=2026-11-08&till=2026-11-10&pax%5B0%5D=2-0","observed":"available block first; priced example showed 6000 NIS per night for 20 guests even though two were requested"},
+    {"id":"V5","query":"two nights, four adults","url":"https://www.vii.co.il/s/?from=2026-11-08&till=2026-11-10&pax%5B0%5D=4-0","cards":538,"available":211,"call_price":459,"nightly_price":78},
+    {"id":"V6","query":"two nights, two adults and one child","url":"https://www.vii.co.il/s/?from=2026-11-08&till=2026-11-10&pax%5B0%5D=2-1","cards":551,"available":219,"call_price":463,"nightly_price":87},
+    {"id":"V7","query":"two nights, two couple rooms","url":"https://www.vii.co.il/s/?from=2026-11-08&till=2026-11-10&pax%5B0%5D=2-0&pax%5B1%5D=2-0","cards":537,"available":206,"call_price":446,"nightly_price":91},
+    {"id":"V8","query":"three nights, three mixed rooms","url":"https://www.vii.co.il/s/?from=2026-11-08&till=2026-11-11&pax%5B0%5D=2-1&pax%5B1%5D=2-0&pax%5B2%5D=1-2","cards":489,"available":176,"call_price":423,"nightly_price":66,"priced_example":"4433 NIS per night, price basis 15 guests"},
+    {"id":"V9","query":"different dates, north text and one couple room","url":"https://www.vii.co.il/s/?from=2026-11-15&till=2026-11-17&pax%5B0%5D=2-0&location=%D7%A6%D7%A4%D7%95%D7%9F","cards":573,"available":229,"call_price":472,"nightly_price":100},
+    {"id":"V10","query":"different dates, center text and two mixed rooms","url":"https://www.vii.co.il/s/?from=2026-11-22&till=2026-11-24&pax%5B0%5D=2-0&pax%5B1%5D=2-1&location=%D7%9E%D7%A8%D7%9B%D7%96","cards":526,"available":201,"call_price":442,"nightly_price":84}
+  ],
+  "event_scenarios": [
+    {"id":"E1","query":"no date, no guests","url":"https://www.vii.co.il/events/s/","cards":132,"available":37,"unknown":95,"priced":3},
+    {"id":"E2","query":"no date, 20 guests","url":"https://www.vii.co.il/events/s/?pax%5B0%5D=20-0","cards":132,"available":37,"unknown":95,"priced":3},
+    {"id":"E3","query":"no date, 100 guests","url":"https://www.vii.co.il/events/s/?pax%5B0%5D=100-0","cards":132,"available":37,"unknown":95,"priced":3},
+    {"id":"E4","query":"date, default party","url":"https://www.vii.co.il/events/s/?from=2026-11-08","cards":132,"available":37,"unknown":95,"priced":3},
+    {"id":"E5","query":"date and 20 guests","url":"https://www.vii.co.il/events/s/?from=2026-11-08&pax%5B0%5D=20-0","cards":132,"available":37,"unknown":95,"priced":3},
+    {"id":"E6","query":"date and 50 guests","url":"https://www.vii.co.il/events/s/?from=2026-11-08&pax%5B0%5D=50-0","cards":132,"available":37,"unknown":95,"priced":3},
+    {"id":"E7","query":"date and 100 guests","url":"https://www.vii.co.il/events/s/?from=2026-11-08&pax%5B0%5D=100-0","cards":132,"available":37,"unknown":95,"priced":3},
+    {"id":"E8","query":"date and 200 guests","url":"https://www.vii.co.il/events/s/?from=2026-11-08&pax%5B0%5D=200-0","cards":132,"available":37,"unknown":95,"priced":3,"defect":"first cards included a venue declaring maximum 25 guests"},
+    {"id":"E9","query":"different date and 40 guests","url":"https://www.vii.co.il/events/s/?from=2026-11-15&pax%5B0%5D=40-0","cards":132,"available":37,"unknown":95,"priced":3},
+    {"id":"E10","query":"center landing, different date and 80 guests","url":"https://www.vii.co.il/events/s/Center/11235130550?from=2026-11-22&pax%5B0%5D=80-0","cards":93,"available":26,"unknown":67,"priced":2}
+  ],
+  "decisions": [
+    "Preserve Sergey's three-state and price-copy contract.",
+    "Preserve within-block daily rotation, not legacy global randomization.",
+    "Improve event capacity correctness instead of copying the legacy filter defect.",
+    "Do not use the legacy ajax_popularDeals endpoint as the permanent event slider source.",
+    "Do not call unknown availability available; the supported API remains authoritative."
+  ]
+}
