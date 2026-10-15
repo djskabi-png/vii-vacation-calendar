@@ -136,12 +136,16 @@ export function normalizeSupplierGeography(payload: unknown): SupplierGeographyN
 
 export async function fetchSupplierGeography(token: string, fetchImpl: typeof fetch = fetch) {
   if (!token) throw new Error("missing_supplier_token");
-  const response = await fetchImpl(`${API_ROOT}/areas`, {
-    headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
-    cache: "no-store",
-    redirect: "error",
-    signal: AbortSignal.timeout(20_000),
-  });
+  let response: Response;
+  try {
+    response = await fetchImpl(`${API_ROOT}/areas`, {
+      headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+      cache: "no-store",
+      redirect: "manual",
+      signal: AbortSignal.timeout(20_000),
+    });
+  } catch { throw new Error("supplier_geography_transport_error"); }
+  if (response.status >= 300 && response.status < 400) throw new Error("supplier_geography_redirect_not_allowed");
   if (!response.ok) throw new Error(response.status === 401 || response.status === 403 ? "supplier_not_authorized" : "supplier_geography_unavailable");
   const nodes = normalizeSupplierGeography(await response.json());
   if (!nodes.length || !nodes.some((node) => node.level === "city")) throw new Error("invalid_supplier_geography");
