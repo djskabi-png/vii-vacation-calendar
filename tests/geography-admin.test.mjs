@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { normalizeSupplierGeography, parseGeographyChange } from "../app/lib/geography-admin.ts";
+import { fetchSupplierGeography, normalizeSupplierGeography, parseGeographyChange } from "../app/lib/geography-admin.ts";
 
 test("supplier geography scopes overlapping ids by hierarchy level and preserves unassigned city coordinates", () => {
   const nodes = normalizeSupplierGeography({
@@ -19,6 +19,23 @@ test("supplier geography scopes overlapping ids by hierarchy level and preserves
 test("supplier geography accepts data wrappers and object-keyed collections", () => {
   const nodes = normalizeSupplierGeography({ data: { districts: { north: { id: 1, title: "צפון", areas: { galil: { id: 2, title: "גליל", cities: { nahariya: { id: 3, title: "נהריה" } } } } } } } });
   assert.deepEqual(nodes.map((node) => node.key), ["district:1", "area:2", "city:3"]);
+});
+
+test("supplier geography uses the edge-supported manual redirect mode", async () => {
+  let init;
+  const nodes = await fetchSupplierGeography("private-token", async (_url, options) => {
+    init = options;
+    return Response.json({ cities: [{ id: 118, title: "בית ליד" }] });
+  });
+  assert.equal(init.redirect, "manual");
+  assert.equal(init.headers.Authorization, "Bearer private-token");
+  assert.equal(nodes[0].key, "city:118");
+});
+
+test("supplier geography rejects redirects without following them", async () => {
+  await assert.rejects(() => fetchSupplierGeography("private-token", async () =>
+    new Response(null, { status: 302, headers: { Location: "https://example.invalid/" } })),
+  /supplier_geography_redirect_not_allowed/);
 });
 
 test("manual geography change accepts scoped keys and rejects unsafe slugs or coordinates", () => {
