@@ -5,6 +5,7 @@ import styles from "./content-studio.module.css";
 import extras from "./content-studio-extras.module.css";
 import { defaultHomepagePresentation, type HomeDiscoveryItem } from "../../lib/homepage-presentation";
 import { defaultEventLandingPresentation, type EventLandingSearchItem } from "../../lib/event-landing-presentation";
+import { defaultWorldLandingPresentations, isManagedWorldLandingType } from "../../lib/world-landing-presentation";
 
 type LinkItem = { id: string; label: string; href: string; group: string; order: number; visible: boolean; newWindow: boolean };
 type Content = { title: string; summary: string; body: string; metaTitle: string; metaDescription: string; slug: string; imageAlt: string; indexable: boolean; links: LinkItem[]; attributes: Record<string, string> };
@@ -25,6 +26,7 @@ const attributeFields: Record<string, Array<[string, string]>> = {
   magazine: [["category", "קטגוריה"], ["image", "כתובת תמונה"], ["dateLabel", "תאריך תצוגה"], ["readTime", "דקות קריאה"], ["takeaway", "השורה התחתונה"], ["tags", "תגיות, מופרדות בפסיק"]],
 };
 const date = (value: string | null) => value ? new Date(value).toLocaleString("he-IL", { timeZone: "Asia/Jerusalem", dateStyle: "short", timeStyle: "short" }) : "לא עודכן";
+const worldLandingDefaults = (type: string) => isManagedWorldLandingType(type) ? defaultWorldLandingPresentations[type] : defaultWorldLandingPresentations.hourly;
 function jsonAttributes(value = "{}") { try { const parsed = JSON.parse(value); return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed as Record<string, unknown> : {}; } catch { return {}; } }
 function discoveryItems(value: string | undefined, fallback: HomeDiscoveryItem[]) { try { const parsed = value ? JSON.parse(value) : fallback; return Array.isArray(parsed) ? parsed as HomeDiscoveryItem[] : fallback; } catch { return fallback; } }
 
@@ -184,6 +186,17 @@ export default function ContentStudioPage() {
                 <div className={extras.orderButtons}><button type="button" disabled={index === 0} onClick={() => moveDiscoveryItem("eventQuickSearches", [...defaultEventLandingPresentation.quickSearches], index, -1)}>העלאה</button><button type="button" disabled={index === rows.length - 1} onClick={() => moveDiscoveryItem("eventQuickSearches", [...defaultEventLandingPresentation.quickSearches], index, 1)}>הורדה</button><button type="button" disabled={rows.length <= 4} onClick={() => removeDiscoveryItem("eventQuickSearches", [...defaultEventLandingPresentation.quickSearches], index)}>הסרה</button></div>
               </div>)}</div>
               <button className={styles.add} type="button" disabled={discoveryItems(draft.attributes.eventQuickSearches, [...defaultEventLandingPresentation.quickSearches]).length >= 12} onClick={() => addDiscoveryItem("eventQuickSearches", [...defaultEventLandingPresentation.quickSearches])}>הוספת חיפוש מהיר</button>
+            </section>
+          </fieldset> : null}
+          {selected.entityKey === "landing" && isManagedWorldLandingType(selected.contentType) ? <fieldset className={`${extras.homeDeals} ${extras.homeSliderControl} ${styles.wide}`}>
+            <legend>עמוד הפתיחה של עולם {types.find(([id]) => id === selected.contentType)?.[1]}</legend>
+            <p>כאן מנהלים את הזהות, התמונות והיתרונות של העולם. השמירה יוצרת גרסה, ורק פרסום מעדכן את האתר הציבורי.</p>
+            <section className={extras.controlSection}><div className={extras.controlHead}><div><strong>זהות חזותית ותוכן</strong><small>הכותרת והתקציר נמצאים מעל. כאן שולטים בשורת הפתיחה, התמונות והיתרונות.</small></div></div>
+              <div className={extras.editorialFields}>
+                <label><span>שורת פתיחה</span><input value={draft.attributes.worldHeroEyebrow || worldLandingDefaults(selected.contentType).eyebrow} onChange={(event) => updateAttribute("worldHeroEyebrow", event.target.value)} /></label>
+                {[0, 1, 2].map((index) => <div className={extras.heroImageFields} key={index}><label><span>תמונה {index + 1}</span><input dir="ltr" value={draft.attributes[`worldHeroImage${index + 1}`] || worldLandingDefaults(selected.contentType).heroImages[index].src} onChange={(event) => updateAttribute(`worldHeroImage${index + 1}`, event.target.value)} /></label><label><span>תיאור חלופי לתמונה {index + 1}</span><input value={draft.attributes[`worldHeroImage${index + 1}Alt`] || worldLandingDefaults(selected.contentType).heroImages[index].alt} onChange={(event) => updateAttribute(`worldHeroImage${index + 1}Alt`, event.target.value)} /></label></div>)}
+                {[0, 1, 2].map((index) => <label key={`world-proof-${index}`}><span>יתרון קצר {index + 1}</span><input value={draft.attributes[`worldProof${index + 1}`] || worldLandingDefaults(selected.contentType).proof[index]} onChange={(event) => updateAttribute(`worldProof${index + 1}`, event.target.value)} /></label>)}
+              </div>
             </section>
           </fieldset> : null}
           {selected.contentType === "homepage" ? <fieldset className={`${extras.homeDeals} ${extras.homeSliderControl} ${styles.wide}`}>

@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-world-landings-20261015",
+  "project": "VII",
+  "task_type": "public product design, CMS control and release",
+  "requested_outcome": "Every public VII discovery world has a distinctive, image-led landing experience at the quality level of the approved spa landing, while retaining fast, simple search and separate CMS control.",
+  "natural_destination": "The public VII world routes and the VII Content Studio in production.",
+  "authorization_boundary": "Implementation, verification, pushing and production publication are authorized by the active conversation. No new third-party purchases, invented media, or unrelated product redesign is authorized.",
+  "lesson_bundle": [
+    { "lesson_id": "ADIR-QA-001", "reason": "The request covers an entire route family and production publication.", "acceptance_impact": "Verify every route at its natural destination on desktop and mobile, not just one implementation example." },
+    { "lesson_id": "ADIR-MOBILE-001", "reason": "Image-led heroes and horizontal controls commonly regress on small and low-height screens.", "acceptance_impact": "Require live 390px, low-height, overflow and interaction checks." },
+    { "lesson_id": "ADIR-CONTROL-001", "reason": "Each world includes search, quick links, cards and slider controls.", "acceptance_impact": "Every visible control must match its enabled state and complete a real route." },
+    { "lesson_id": "ADIR-ADMIN-001", "reason": "Adir explicitly requires separate backend control for each world.", "acceptance_impact": "Require editable world identity, content and images with preview, save, publish and persistence evidence." },
+    { "lesson_id": "ADIR-WEB-CMS-001", "reason": "The visible landing content must be managed rather than hard-coded only.", "acceptance_impact": "Require validated, permissioned content sources and public reflection for the whole world family." },
+    { "lesson_id": "ADIR-SCOPE-001", "reason": "Several world pages are already approved and must not lose search, results or specialized flows.", "acceptance_impact": "Preserve existing routes, data, results, SEO and unique corporate and gift-card experiences." },
+    { "lesson_id": "ADIR-TYPE-001", "reason": "All target surfaces are Hebrew-first public pages and admin controls.", "acceptance_impact": "Verify the approved Hebrew font and no serif or fallback flash across the affected family." }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    { "rejection": "Only hourly rooms and providers are improved while another generic world page remains.", "prevention": "Inventory all public discovery worlds before implementation and classify already-unique pages explicitly.", "acceptance_check": "A route matrix covers home, spa, events, hourly, providers, attractions, trails, activities, corporate and gift card." },
+    { "rejection": "Every page becomes the same copied spa template with different text.", "prevention": "Use a shared accessible structure with a distinct composition, palette, copy and verified media story for each world.", "acceptance_check": "Desktop and mobile captures show recognizably different world identities without sacrificing consistency." },
+    { "rejection": "The new visuals exist in code but cannot be managed from the admin system.", "prevention": "Add one managed landing source per discovery world and reuse the versioned Content Studio workflow.", "acceptance_check": "Admin edit, validation, preview, save, publish and reload are exercised for representative worlds." },
+    { "rejection": "The landing looks better but search, results, speed or indexing regresses.", "prevention": "Keep search and result components intact, use optimized images and run route, build, performance and SEO regressions.", "acceptance_check": "Search interactions, result anchors, metadata, build and route tests pass after the visual change." },
+    { "rejection": "The source branch is pushed but the public site is described as updated without deployment evidence.", "prevention": "Separate candidate evidence from exact production evidence and report publication only after opening the live release.", "acceptance_check": "The exact deployed release and every changed public URL are opened and visually verified." }
+  ],
+  "affected_family": [
+    "homepage route /", "spa route /spas", "events route /events", "hourly route /hourly", "providers route /providers", "attractions route /attractions", "trails route /trails", "activities hub route /activities", "corporate route /corporate", "gift-card route /gift-card",
+    "shared world hero and quick-search components", "Content Studio landing sources", "Hebrew, English, Russian and French message catalogs", "desktop, mobile and low-height states", "loading, empty, error and published states"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      { "label": "Approved rich spa landing direction", "source": "app/components/world-landing.tsx and the user-approved /spas result" },
+      { "label": "Accepted VII product decisions", "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md" },
+      { "label": "VII architecture and world inventory", "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md" }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the shared hero model and first two currently-generic worlds render locally, before extending to attractions and trails.",
+    "checks": ["Hourly and providers look distinct from each other and from spa", "Existing search and results still work", "Representative CMS defaults and validation are visible", "390px first screens contain a clear title, image and next action"],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can any public discovery world still be mistaken for an unfinished generic template?",
+      "Can an editor change one world's hero without changing another or editing code?",
+      "Does any image imply an unverified business, place or experience?",
+      "Do search, cards, sliders, metadata or results fail after the shared-component change?",
+      "Is any production claim based only on a build, commit or deployment queue?"
+    ],
+    "natural_destination_evidence": "Exact candidate screenshots and interactions for every affected public route and admin control, followed by exact production URLs after deployment.",
+    "affected_family_evidence": "Automated route and unit tests plus desktop, 390px mobile and low-height visual checks for the entire route matrix."
+  },
+  "effectiveness": {
+    "baseline": "Spa, corporate and gift card already have distinctive openings; hourly and providers use a generic landing, while attractions and trails use text-only hero treatments.",
+    "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"],
+    "target": "No generic discovery-world opening remains, all new landing controls are manageable, and the whole affected family passes release checks without a second route-specific repair."
+  },
+  "privacy": { "raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true },
+  "ready_to_start": true
+}

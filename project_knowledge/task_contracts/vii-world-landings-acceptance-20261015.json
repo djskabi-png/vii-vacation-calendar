@@ -1,0 +1,56 @@
+{
+  "goal": "Give every VII world a distinctive, polished, image-led landing with simple actions and dedicated backend control, without regressing existing discovery flows.",
+  "intent_model": {
+    "literal_request": "Make hourly rooms, providers and every world page unique like the spa page, with a title, imagery and a high-quality experience.",
+    "implied_outcome": "A coherent multi-world product where each world immediately communicates its purpose and next action, yet remains fast, easy and editable by the team.",
+    "likely_rejections": ["One generic world remains", "Pages are cloned rather than distinct", "The admin cannot control the new content", "Mobile or search gets worse", "Publication is claimed without live proof"],
+    "interpretation_rules": [{ "phrase": "every world", "operational_meaning": "Inventory the full public world family and improve every generic member while documenting already-distinct members.", "acceptance_impact": "Completion requires a passed route matrix, not a sample page." }]
+  },
+  "cognitive_flow": {
+    "current_layer": "Recognize the selected world and its strongest promise.",
+    "current_decision": "Choose a relevant quick path or start the world's existing search.",
+    "next_action": "Move directly into filtered results or the primary world flow.",
+    "deferred_complexity": ["Detailed filters", "place-specific details", "booking and contact conditions"],
+    "preserved_depth": ["Existing world search", "catalog results", "SEO metadata", "CMS versions and publication", "specialized corporate and gift-card flows"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/process_manifests/vii-world-landings-preflight-20261015.json",
+    "lesson_bundle_ids": ["ADIR-QA-001", "ADIR-MOBILE-001", "ADIR-CONTROL-001", "ADIR-ADMIN-001", "ADIR-WEB-CMS-001", "ADIR-SCOPE-001", "ADIR-TYPE-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["traveller or event planner", "VII content editor", "search engine crawler"],
+  "natural_destination": "Public VII world routes and /admin/content-studio on the exact deployed release.",
+  "facts": [
+    { "claim": "The spa landing is the approved visual-quality precedent.", "evidence": "Current app/components/world-landing.tsx and user feedback." },
+    { "claim": "Corporate and gift-card routes already have distinctive specialist heroes.", "evidence": "Current app/corporate/page.tsx and app/gift-card/page.tsx." },
+    { "claim": "Hourly and providers currently share the generic WorldLanding hero.", "evidence": "Current app/components/world-landing.tsx." }
+  ],
+  "assumptions": [{ "claim": "Existing catalog and trail images are the safest source for truthful world visuals.", "validation": "Trace every rendered hero image to an existing published item and preserve its item name as alt context." }],
+  "in_scope": ["World-family inventory", "distinctive hero treatments for generic discovery worlds", "visual quick paths", "per-world Content Studio controls", "responsive, accessibility, performance and regression tests", "authorized publication and live verification"],
+  "out_of_scope": ["Rebuilding already-distinct corporate and gift-card flows", "new supplier API fields", "purchasing stock media", "inventing booking availability"],
+  "invariants": ["Existing search and catalog results remain functional", "Existing URLs, canonical metadata and structured data remain stable", "No image is presented as a real place unless sourced from that place's existing data", "Home, spa and events approved work is preserved"],
+  "affected_family": ["world routes", "shared hero components", "quick-search controls", "Content Studio", "translations", "SEO and responsive styles"],
+  "characteristics": { "stateful": true },
+  "requirements": [
+    { "id": "REQ-1", "statement": "Every discovery world must open with a polished, recognizably distinct title, supporting copy and verified visual story.", "source": "User request" },
+    { "id": "REQ-2", "statement": "Each opening must expose an obvious next action and preserve the world's existing search and result flow.", "source": "User request and VII feedback standard" },
+    { "id": "REQ-3", "statement": "Editors must be able to manage each world's landing content and imagery independently through the existing versioned Content Studio workflow.", "source": "User request and ADIR-ADMIN-001" },
+    { "id": "REQ-4", "statement": "The affected family must remain fast, responsive, accessible, correctly localized and SEO-safe.", "source": "Project and account product standards" },
+    { "id": "REQ-5", "statement": "Publication status must be based on direct evidence from the exact production release.", "source": "User standing publication instruction and ADIR-QA-001" }
+  ],
+  "acceptance_checks": [
+    { "id": "AC-1", "requirement_ids": ["REQ-1"], "kind": "success", "setup": "Open each world route on the candidate build.", "action": "Inspect the first screen on desktop and 390px mobile.", "observable_result": "Each route presents a world-specific title, composition, palette and truthful imagery with no generic unfinished hero." },
+    { "id": "AC-2", "requirement_ids": ["REQ-2", "REQ-4"], "kind": "success", "setup": "Load each changed route with JavaScript enabled.", "action": "Use the primary search or quick path and return with browser back.", "observable_result": "The action gives immediate feedback, reaches the correct world results and returns without a broken or stale state." },
+    { "id": "AC-3", "requirement_ids": ["REQ-3"], "kind": "persistence", "setup": "Open Content Studio as an authorized editor.", "action": "Edit a representative world landing, save, reload, preview, publish and reopen its public page.", "observable_result": "The saved version persists, preview is accurate, publication is audited and only the selected world changes publicly." },
+    { "id": "AC-4", "requirement_ids": ["REQ-3"], "kind": "failure", "setup": "Enter an unsafe or malformed image/link value.", "action": "Attempt to save or publish.", "observable_result": "Validation blocks the unsafe value with a clear field-level explanation and preserves the previous published content." },
+    { "id": "AC-5", "requirement_ids": ["REQ-4"], "kind": "empty", "setup": "Render a world with no optional quick links or missing optional presentation override.", "action": "Load the page.", "observable_result": "A useful default hero and existing catalog flow render without empty boxes, broken images or layout collapse." },
+    { "id": "AC-6", "requirement_ids": ["REQ-4"], "kind": "recovery", "setup": "Force a content-store read failure in test scope.", "action": "Load a world route.", "observable_result": "The safe built-in world presentation renders and the user can continue to search." },
+    { "id": "AC-7", "requirement_ids": ["REQ-5"], "kind": "success", "setup": "Deploy the verified candidate.", "action": "Open every changed production URL and the admin route with a release marker.", "observable_result": "The exact deployed version shows the verified landing family and no prior version is mistaken for the new release." }
+  ],
+  "open_questions": [],
+  "authorization_boundary": "Implementation, push and publication are authorized. No purchases, new media licenses or unrelated live-data changes.",
+  "ready_for_implementation": true
+}
