@@ -4,12 +4,13 @@ import { applyHolidayDisplaySettings, readHomeDisplaySettings } from "../../../l
 import { isContentLocale } from "../../../lib/content-studio.ts";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
 import { legacyHolidaySearchPath } from "../../../lib/search-opportunities.ts";
+import { holidayWorldPath } from "../../../lib/holiday-world.ts";
 
 export async function GET(request: Request) {
   try {
     const holidays = (await getHomeHolidays({ token: await supplierToken() })).map((holiday) => ({
       ...holiday,
-      href: legacyHolidaySearchPath(holiday.name) || undefined,
+      href: holidayWorldPath(holiday.name, holiday.id) || legacyHolidaySearchPath(holiday.name) || undefined,
     }));
     const params = new URL(request.url).searchParams;
     if (params.get("all") === "1") return Response.json({ holidays }, { headers: { "Cache-Control": "no-store" } });

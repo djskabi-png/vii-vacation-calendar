@@ -24,7 +24,7 @@ export async function GET(request: Request) {
     const requestedType = url.searchParams.get("type"); if (requestedType && !isContentType(requestedType)) return Response.json({ error: "invalid_type" }, { status: 400, headers });
     const selectedType = isContentType(requestedType) ? requestedType : null;
     if (!selectedType) return Response.json({ error: "type_required" }, { status: 400, headers });
-    const db = await database(); const allSources = (await contentStudioSources(db, locale)).filter((item) => item.type === selectedType);
+    const db = await database(); const allSources = (await contentStudioSources(db, locale, selectedType)).filter((item) => item.type === selectedType);
     const term = (url.searchParams.get("q") || "").normalize("NFC").trim().toLocaleLowerCase("he").slice(0, 100);
     const matchingSources = term ? allSources.filter((item) => `${item.title} ${item.key}`.toLocaleLowerCase("he").includes(term)) : allSources;
     const pageSources = matchingSources.slice(0, 80); const selectedId = url.searchParams.get("id");

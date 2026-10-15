@@ -49,7 +49,7 @@ function publicDocumentTtl(pathname: string) {
   const path = pathname.replace(/^\/(?:en|ru|fr)(?=\/|$)/, "") || "/";
   if (path === "/") return 300;
   if (/^\/(?:admin|account|favorites|booking|handoff|join)(?:\/|$)/.test(path)) return null;
-  if (/^\/(?:business|search|hourly|events|spas|providers|attractions|activities|trails|destinations|guides|questions|corporate|gift-card|contact|accessibility)(?:\/|$)/.test(path)) return 180;
+  if (/^\/(?:business|search|holidays|hourly|events|spas|providers|attractions|activities|trails|destinations|guides|questions|corporate|gift-card|contact|accessibility)(?:\/|$)/.test(path)) return 180;
   if (/^\/(?:vacations|villas|luxury-suites|suite-complexes|vacation-apartments|discover\/place)(?:\/|$)/.test(path)) return 180;
   if (/^\/legal(?:\/|$)/.test(path)) return 900;
   return null;
