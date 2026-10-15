@@ -52,7 +52,7 @@ export default function GeographyAdminPage() {
   async function post(body: unknown) {
     const response = await fetch("/api/admin/geography", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     const payload = await response.json().catch(() => ({})) as { error?: string; nodes?: GeographyNode[]; node?: GeographyNode; imported?: number };
-    if (!response.ok) throw new Error(payload.error === "version_conflict" ? "הנתון השתנה מאז שפתחת אותו. טענו מחדש ונסו שוב." : "הפעולה נכשלה. בדקו את החיבור ונסו שוב.");
+    if (!response.ok) throw new Error(payload.error === "version_conflict" ? "הנתון השתנה מאז שפתחת אותו. טענו מחדש ונסו שוב." : `הפעולה נכשלה (${payload.error || "unknown"}). בדקו את החיבור ונסו שוב.`);
     return payload;
   }
 

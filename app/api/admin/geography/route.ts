@@ -6,6 +6,11 @@ import type { D1Database } from "../../../../types/cloudflare-runtime";
 
 const responseHeaders = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 
+function safeError(error: unknown) {
+  const code = error instanceof Error ? error.message : "geography_unavailable";
+  return /^[a-z][a-z0-9_]{2,80}$/.test(code) ? code : "geography_unavailable";
+}
+
 async function admin(request: Request) {
   const session = await readSession(request).catch(() => null);
   return session && isAdminEmail(session.email) ? session.email : null;
@@ -59,6 +64,6 @@ export async function POST(request: Request) {
     return Response.json(result, { headers: responseHeaders });
   } catch (error) {
     console.error("VII geography change unavailable", error);
-    return Response.json({ error: "geography_unavailable" }, { status: 503, headers: responseHeaders });
+    return Response.json({ error: safeError(error) }, { status: 503, headers: responseHeaders });
   }
 }
