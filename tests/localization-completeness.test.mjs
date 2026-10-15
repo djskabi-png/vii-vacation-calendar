@@ -61,9 +61,12 @@ test("every static Hebrew source phrase has a non-Hebrew translation in every pu
 
 test("localized routes translate the server response and retain safe hydration", async () => {
   const provider = await readFile(resolve(root, "app/i18n/locale-provider.tsx"), "utf8");
+  const layout = await readFile(resolve(root, "app/layout.tsx"), "utf8");
   const card = await readFile(resolve(root, "app/components/discovery-card.tsx"), "utf8");
   const worker = await readFile(resolve(root, "worker/index.ts"), "utf8");
-  assert.match(provider, /function initialLanguage\(\): SiteLanguage \{[\s\S]*return "he";/);
+  assert.match(provider, /initialLanguage = "he"/);
+  assert.match(layout, /<LocaleProvider initialLanguage=\{locale\}>/);
+  assert.match(layout, /data-locale-pending/);
   assert.match(worker, /serverTranslations/);
   assert.match(worker, /translateServerText/);
   assert.match(worker, /script\[type="application\/ld\+json"\]/);
@@ -90,5 +93,6 @@ test("CMS-backed names stay localized in controls, favorites and accessible labe
   assert.match(provider, /if \(translatedDestination === sourceDestination\) return value/);
   assert.match(favorite, /aria-label=\{`\$\{saved \? copy\.removeLabel : copy\.addLabel\}: \$\{translate\(name\)\}`\}/);
   assert.match(favoritesPage, /localizeName\(item\.name, translate\)/);
-  assert.match(discovery, /aria-label=\{`\$\{details\}: \$\{translate\(item\.name\)\}`\}/);
+  assert.match(discovery, /localizedBusinessText\(item\.name/);
+  assert.match(discovery, /aria-label=\{`\$\{details\}: \$\{localizedName\}`\}/);
 });

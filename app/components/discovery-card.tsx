@@ -10,6 +10,7 @@ import { trackPhoneReveal } from "../lib/analytics";
 import { FavoriteButton } from "./favorite-button";
 import { useState } from "react";
 import { resolvePublicSliderMedia } from "../lib/public-media-policy";
+import { latinBusinessAlias, localizedBusinessText } from "../i18n/localized-business-content";
 
 function PhoneIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.7 3.5 9 3a1.6 1.6 0 0 1 1.8 1l1 3a1.6 1.6 0 0 1-.5 1.7L9.7 10a14 14 0 0 0 4.3 4.3l1.3-1.6a1.6 1.6 0 0 1 1.7-.5l3 1a1.6 1.6 0 0 1 1 1.8l-.5 2.3a3 3 0 0 1-3 2.4A15.5 15.5 0 0 1 4.3 6.5a3 3 0 0 1 2.4-3Z"/></svg>;
@@ -64,6 +65,7 @@ export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
   const ui = language === "he" ? null : interfaceCopy[language];
   const location = language === "he" ? item.location : placeNames[language][item.location] || ui!.israel;
   const area = language === "he" ? item.area : placeNames[language][item.area] || ui!.israel;
+  const localizedName = localizedBusinessText(item.name, language, translate, latinBusinessAlias(item.name) || `${localized?.chips[0] || ui?.details || item.name} · ${location}`);
   const description = localized?.description || item.description;
   const features = localized?.chips || item.features.slice(0, 3);
   const details = ui?.details || (item.world === "hourly" ? "פרטי המקום" : "צפייה במקום");
@@ -81,15 +83,15 @@ export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
   const imageFit = item.imageFit || "cover";
 
   return <article className={`discovery-card discovery-card--${item.world}`}>
-    <Link className={`discovery-card__visual discovery-card__visual--${imageFit}`} href={`/discover/place/${item.id}`} target="_blank" rel="noopener noreferrer" aria-label={`${details}: ${translate(item.name)}`}>
-      {media.image ? <img src={media.image} alt={imageLabel && ui ? ui.image : imageLabel ? `${translate(item.name)}, ${imageLabel}` : translate(item.name)} title={imageLabel && ui ? ui.image : imageLabel ? `${translate(item.name)}, ${imageLabel}` : translate(item.name)} loading="lazy" decoding="async" style={item.imagePosition ? { objectPosition: item.imagePosition } : undefined} /> : <span className="discovery-card__missing-image">לא נמסרה תמונה ב־API</span>}
+    <Link className={`discovery-card__visual discovery-card__visual--${imageFit}`} href={`/discover/place/${item.id}`} target="_blank" rel="noopener noreferrer" aria-label={`${details}: ${localizedName}`}>
+      {media.image ? <img src={media.image} alt={imageLabel && ui ? ui.image : imageLabel ? `${localizedName}, ${imageLabel}` : localizedName} title={imageLabel && ui ? ui.image : imageLabel ? `${localizedName}, ${imageLabel}` : localizedName} loading="lazy" decoding="async" style={item.imagePosition ? { objectPosition: item.imagePosition } : undefined} /> : <span className="discovery-card__missing-image">לא נמסרה תמונה ב־API</span>}
       {imageLabel && <span className="image-context-label">{ui?.image || imageLabel}</span>}
       {item.rating && <span className="rating-badge">★ {item.rating.toFixed(1)}</span>}
     </Link>
-    <FavoriteButton id={item.id} world={item.world} name={item.name} location={`${location}, ${area}`} image={media.image || undefined} href={`/discover/place/${item.id}`} meta={price} />
+    <FavoriteButton id={item.id} world={item.world} name={localizedName} location={`${location}, ${area}`} image={media.image || undefined} href={`/discover/place/${item.id}`} meta={price} />
     <div className="discovery-card__body">
       <span className="discovery-card__meta"><PinIcon />{location}<small>{area}</small></span>
-      <h3><Link href={`/discover/place/${item.id}`} target="_blank" rel="noopener noreferrer">{item.name}<span className="sr-only"></span></Link></h3>
+      <h3><Link href={`/discover/place/${item.id}`} target="_blank" rel="noopener noreferrer">{localizedName}<span className="sr-only"></span></Link></h3>
       <p>{description}</p>
       <div className="discovery-card__chips">{features.map((feature) => <span key={feature}>{feature}</span>)}</div>
       <footer className={item.world === "hourly" ? "discovery-card__hourly-footer" : undefined}>

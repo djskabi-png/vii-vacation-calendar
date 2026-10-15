@@ -1,0 +1,12 @@
+{
+  "task_id": "vii-business-detail-localization-20261015",
+  "candidate": "pending-commit",
+  "rollback": "c911f06bb7858827ef636c961942cc5a3988365b",
+  "local_checks": {
+    "production_build": "passed",
+    "full_test_suite": "732 passed, 0 failed",
+    "typography_source_audit": "passed",
+    "browser_matrix": "HE, EN, RU and FR on desktop and 390px mobile: status 200, correct language and direction, no Hebrew residue on foreign routes, no horizontal overflow, no overflowing controls"
+  },
+  "production_verification": "pending"
+}

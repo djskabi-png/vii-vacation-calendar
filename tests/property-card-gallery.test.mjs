@@ -10,14 +10,14 @@ const search = await readFile(new URL("../app/search/page.tsx", import.meta.url)
 test("shared vacation card browses verified property gallery images before navigation", () => {
   assert.match(card, /\[property\.image, \.\.\.property\.images\]/);
   assert.match(card, /setImageIndex/);
-  assert.match(card, /התמונה הקודמת של/);
-  assert.match(card, /התמונה הבאה של/);
+  assert.match(card, /interfaceCopy\.previous/);
+  assert.match(card, /interfaceCopy\.next/);
   assert.match(card, /event\.preventDefault\(\)/);
   assert.match(card, /event\.stopPropagation\(\)/);
 });
 
 test("gallery updates accessible image context and supports touch swiping", () => {
-  assert.match(card, /תמונה \$\{imageIndex \+ 1\} מתוך \$\{galleryImages\.length\}/);
+  assert.match(card, /\$\{interfaceCopy\.image\} \$\{imageIndex \+ 1\}\/\$\{galleryImages\.length\}/);
   assert.match(card, /aria-live="polite"/);
   assert.match(card, /onTouchStart/);
   assert.match(card, /Math\.abs\(distance\) > 45/);

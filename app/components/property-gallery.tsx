@@ -4,6 +4,7 @@
 
 import { useRef, useState } from "react";
 import { boundedSliderIndex } from "./slider-rail-controls";
+import { useSiteLanguage } from "../i18n/locale-provider";
 
 type PropertyGalleryProps = {
   images: string[];
@@ -13,6 +14,14 @@ type PropertyGalleryProps = {
 };
 
 export function PropertyGallery({ images, name, onOpen, className = "" }: PropertyGalleryProps) {
+  const { language } = useSiteLanguage();
+  const copy = language === "en"
+    ? { gallery: "Photo gallery of", open: "Open gallery", image: "property photo", full: "View full gallery", previous: "Previous image", next: "Next image", position: "Image" }
+    : language === "ru"
+      ? { gallery: "Фотогалерея", open: "Открыть галерею", image: "фото объекта", full: "Открыть всю галерею", previous: "Предыдущее фото", next: "Следующее фото", position: "Фото" }
+      : language === "fr"
+        ? { gallery: "Galerie photo de", open: "Ouvrir la galerie", image: "photo de l’établissement", full: "Voir toute la galerie", previous: "Photo précédente", next: "Photo suivante", position: "Photo" }
+        : { gallery: "גלריית תמונות של", open: "פתיחת גלריית", image: "תמונת המקום", full: "לגלריה המלאה", previous: "התמונה הקודמת", next: "התמונה הבאה", position: "תמונה" };
   const galleryImages = images.filter(Boolean);
   const [selected, setSelected] = useState(0);
   const touchStart = useRef<number | null>(null);
@@ -31,7 +40,7 @@ export function PropertyGallery({ images, name, onOpen, className = "" }: Proper
 
   return <section
     className={`property-gallery${galleryImages.length === 1 ? " single" : ""}${className ? ` ${className}` : ""}`}
-    aria-label={`גלריית תמונות של ${name}`}
+    aria-label={`${copy.gallery} ${name}`}
     onTouchStart={(event) => { touchStart.current = event.changedTouches[0].clientX; }}
     onTouchEnd={(event) => {
       if (touchStart.current === null || galleryImages.length < 2) return;
@@ -46,17 +55,17 @@ export function PropertyGallery({ images, name, onOpen, className = "" }: Proper
       type="button"
       className={`property-gallery__image${selected === index || index === 0 && selected >= 5 ? " is-active" : ""}`}
       data-gallery-trigger
-      aria-label={`פתיחת גלריית ${name}, תמונה ${imageIndex(index) + 1}`}
+      aria-label={`${copy.open} ${name}, ${copy.position} ${imageIndex(index) + 1}`}
       onClick={() => onOpen(imageIndex(index))}
     >
-      <img alt={`${name}, תמונת המקום ${imageIndex(index) + 1}`} src={galleryImages[imageIndex(index)]} title={`${name}, תמונת המקום ${imageIndex(index) + 1}`} loading={index === 0 ? "eager" : "lazy"} />
-      {index === 4 && <span>לגלריה המלאה</span>}
+      <img alt={`${name}, ${copy.image} ${imageIndex(index) + 1}`} src={galleryImages[imageIndex(index)]} title={`${name}, ${copy.image} ${imageIndex(index) + 1}`} loading={index === 0 ? "eager" : "lazy"} />
+      {index === 4 && <span>{copy.full}</span>}
     </button>)}
 
     {galleryImages.length > 1 ? <>
-      <button className="property-gallery__mobile-arrow property-gallery__mobile-arrow--previous" type="button" disabled={selected === 0} data-slider-boundary onClick={() => move(-1)} aria-label="התמונה הקודמת"><span aria-hidden="true">›</span></button>
-      <button className="property-gallery__mobile-arrow property-gallery__mobile-arrow--next" type="button" disabled={selected >= galleryImages.length - 1} data-slider-boundary onClick={() => move(1)} aria-label="התמונה הבאה"><span aria-hidden="true">‹</span></button>
-      <div className="property-gallery__mobile-position" aria-label={`תמונה ${selected + 1} מתוך ${galleryImages.length}`}>
+      <button className="property-gallery__mobile-arrow property-gallery__mobile-arrow--previous" type="button" disabled={selected === 0} data-slider-boundary onClick={() => move(-1)} aria-label={copy.previous}><span aria-hidden="true">›</span></button>
+      <button className="property-gallery__mobile-arrow property-gallery__mobile-arrow--next" type="button" disabled={selected >= galleryImages.length - 1} data-slider-boundary onClick={() => move(1)} aria-label={copy.next}><span aria-hidden="true">‹</span></button>
+      <div className="property-gallery__mobile-position" aria-label={`${copy.position} ${selected + 1}/${galleryImages.length}`}>
         <div className="property-gallery__mobile-dots" aria-hidden="true">
           {Array.from({ length: dotCount }, (_, index) => <i key={index} className={activeDot === index ? "is-active" : ""} />)}
         </div>

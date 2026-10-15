@@ -948,12 +948,6 @@ const spaBookingTranslations: Record<Exclude<SiteLanguage, "he">, Record<string,
 
 for (const language of ["en", "ru", "fr"] as const) Object.assign(finalUiTranslations[language], spaBookingTranslations[language]);
 
-function initialLanguage(): SiteLanguage {
-  // The server source is Hebrew. Start from the same state during hydration,
-  // then synchronize with the localized route after the first client commit.
-  return "he";
-}
-
 function dictionary(language: SiteLanguage): Record<string, string> {
   return language === "he" ? {} : loadedTranslations[language] || {};
 }
@@ -1354,8 +1348,8 @@ function applyLanguageToRoot(root: Node, language: SiteLanguage) {
   });
 }
 
-export function LocaleProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<SiteLanguage>(() => initialLanguage());
+export function LocaleProvider({ children, initialLanguage = "he" }: { children: ReactNode; initialLanguage?: SiteLanguage }) {
+  const [language, setLanguageState] = useState<SiteLanguage>(initialLanguage);
   const [translationVersion, setTranslationVersion] = useState(0);
   const observer = useRef<MutationObserver | null>(null);
 

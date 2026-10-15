@@ -25,7 +25,7 @@ test("date launcher uses one clear mobile hierarchy", () => {
 
 test("mobile amenities stay short until the visitor expands them", () => {
   assert.match(business, /<h2>מתקנים ושירותים<\/h2>/);
-  assert.match(business, /mobileFeaturePreview\.map/);
+  assert.match(business, /localizedBusinessList\(mobileFeaturePreview, language, translate\)\.map/);
   assert.match(business, /hidden=\{!mobileFeaturesOpen\}/);
   assert.match(business, /"הצגת כל המתקנים"/);
   assert.match(styles, /\.feature-section__mobile-groups\[hidden\] \{ display: none; \}/);
