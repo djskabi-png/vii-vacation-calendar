@@ -30,6 +30,7 @@ test("operations report distinguishes supplier receipt, lead acceptance and loca
   assert.match(page, /אין ביומן הזה אישור מסירה לספק/);
   assert.match(reviews, /manualChecks:/);
   assert.doesNotMatch(page, /2026-10-13|אדיר/);
-  assert.match(reviews, /VII_ADMIN_EMAILS/);
+  assert.match(reviews, /import \{ isAdminEmail \} from "\.\.\/\.\.\/\.\.\/lib\/admin-access\.ts"/);
+  assert.match(reviews, /isAdminEmail\(session\.email\)/);
   assert.doesNotMatch(reviews, /user_email|visitor_phone/);
 });

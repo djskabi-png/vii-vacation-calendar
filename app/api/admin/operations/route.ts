@@ -1,13 +1,13 @@
 import { readSession } from "../../../lib/google-auth.ts";
+import { isAdminEmail } from "../../../lib/admin-access.ts";
 import { operationsDatabase } from "../../../lib/operations-audit.ts";
 import { ensureReviewSchema } from "../../../lib/review-storage.ts";
 
 const headers = { "Cache-Control": "no-store" };
 
 export async function GET(request: Request) {
-  const allowed = (process.env.VII_ADMIN_EMAILS || "").split(",").map((email) => email.trim().toLowerCase()).filter(Boolean);
   const session = await readSession(request).catch(() => null);
-  if (!session || !allowed.includes(session.email.toLowerCase())) {
+  if (!session || !isAdminEmail(session.email)) {
     return Response.json({ error: "forbidden" }, { status: 403, headers });
   }
   try {

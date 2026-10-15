@@ -1,12 +1,12 @@
 import { readSession } from "../../../lib/google-auth.ts";
+import { isAdminEmail } from "../../../lib/admin-access.ts";
 import { parseSearchDemandEvent, saveSearchEvent, searchAnalyticsDatabase } from "../../../lib/search-analytics.ts";
 
 const noStore = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 
 async function administrator(request: Request) {
   const session = await readSession(request).catch(() => null);
-  const admins = (process.env.VII_ADMIN_EMAILS || "").split(",").map((email) => email.trim().toLowerCase()).filter(Boolean);
-  return !!session && admins.includes(session.email.toLowerCase());
+  return !!session && isAdminEmail(session.email);
 }
 
 export async function GET(request: Request) {

@@ -2,6 +2,7 @@ import sergey from "../data/sergey-public-catalog.json" with { type: "json" };
 import hourly from "../data/sergey-hourly-catalog.json" with { type: "json" };
 import spa from "../data/spaplus-catalog.json" with { type: "json" };
 import { catalogStatusMcp } from "../lib/catalog-status-mcp.ts";
+import { adminEmailsCsv, combineAdminEmails } from "../lib/admin-access.ts";
 import type { D1Database } from "../../types/cloudflare-runtime";
 
 export const dynamic = "force-dynamic";
@@ -24,8 +25,9 @@ export async function POST(request: Request) {
     async adminEmails() {
       try {
         const runtime = await import("cloudflare:workers");
-        return (runtime.env as unknown as { VII_ADMIN_EMAILS?: string }).VII_ADMIN_EMAILS || "";
-      } catch { return process.env.VII_ADMIN_EMAILS || ""; }
+        const env = runtime.env as unknown as { VII_ADMIN_EMAILS?: string; VII_ADMIN_EMAILS_EXTRA?: string };
+        return combineAdminEmails(env.VII_ADMIN_EMAILS, env.VII_ADMIN_EMAILS_EXTRA).join(",");
+      } catch { return adminEmailsCsv(); }
     },
     async database() {
       const runtime = await import("cloudflare:workers");

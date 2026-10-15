@@ -1,4 +1,5 @@
 import { readSession } from "../../../lib/google-auth.ts";
+import { isAdminEmail } from "../../../lib/admin-access.ts";
 import { PromotionDraftError, promotionWorlds, readPromotionDraftDashboard, savePromotionDraft } from "../../../lib/discovery-promotion-drafts.ts";
 import { readSupplierCatalogEntry, type SupplierCatalogWorld } from "../../../lib/supplier-catalog-store.ts";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
@@ -6,12 +7,9 @@ import type { D1Database } from "../../../../types/cloudflare-runtime";
 const headers = { "Cache-Control": "no-store" };
 
 async function adminEmail(request: Request) {
-  const allowed = (process.env.VII_ADMIN_EMAILS || "").split(",")
-    .map((email) => email.trim().toLowerCase()).filter(Boolean);
-  if (!allowed.length) return null;
   try {
     const session = await readSession(request);
-    return session && allowed.includes(session.email.toLowerCase()) ? session.email.toLowerCase() : null;
+    return session && isAdminEmail(session.email) ? session.email.toLowerCase() : null;
   } catch { return null; }
 }
 
