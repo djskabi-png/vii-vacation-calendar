@@ -4,6 +4,7 @@ import { searchAnalyticsDatabase } from "./search-analytics.ts";
 import { publicSearchPagePath } from "./search-page-url-policy.ts";
 import { validSearchWorld, type SearchWorld } from "./search-analytics.ts";
 import type { SiteLanguage } from "../i18n/locale-routing.ts";
+import legacySearchPublications from "../data/legacy-search-page-publications.json" with { type: "json" };
 
 export const opportunityStatuses = ["pending", "draft", "review", "scheduled", "published", "archived"] as const;
 export type OpportunityStatus = (typeof opportunityStatuses)[number];
@@ -47,6 +48,38 @@ export type SearchOpportunity = {
   readiness: number;
   priority: number;
 };
+
+type LegacySearchPageRecord = {
+  id: string; legacySourcePath: string; sourcePath: string; location: string; slug: string;
+  title: string; metaTitle: string; metaDescription: string; h1: string; summary: string;
+  canonicalPath: string; latestResultCount: number; updatedAt: string;
+};
+type LegacySearchOpportunity = SearchOpportunity & { legacySourcePath: string };
+
+function legacyBody(page: LegacySearchPageRecord) {
+  return (legacySearchPublications.bodyTemplate as string[]).map((paragraph) => paragraph
+    .replaceAll("{{metaDescription}}", page.metaDescription)
+    .replaceAll("{{h1}}", page.h1)).join("\n\n");
+}
+
+function hydrateLegacyPage(page: LegacySearchPageRecord): LegacySearchOpportunity {
+  const generatedAt = legacySearchPublications.generatedAt;
+  return { ...page, origin: "managed", world: "vacation", locale: "he", filters: {},
+    proposedPath: page.canonicalPath, suggestedTitle: page.h1, firstSeenAt: generatedAt, lastSeenAt: generatedAt,
+    searches: 0, uniqueSessions: 0, internalSearches: 0, internalUniqueSessions: 0, internalOnly: false,
+    zeroResults: 0, status: "published", assignee: null, body: legacyBody(page), faq: [], robotsIndex: true,
+    scheduledAt: null, publishedAt: generatedAt, version: 1, updatedBy: "system-legacy-migration", readiness: 100, priority: 0 };
+}
+
+const legacySearchPages = (legacySearchPublications.pages as LegacySearchPageRecord[]).map(hydrateLegacyPage);
+
+function legacyOpportunityById(id: string) {
+  return legacySearchPages.find((page) => page.id === id) || null;
+}
+
+function legacyOpportunityByPath(world: string, slug: string, locale: string) {
+  return legacySearchPages.find((page) => page.world === world && page.slug === slug && page.locale === locale) || null;
+}
 
 type OpportunityRow = {
   id: string; canonicalKey: string; world: string; locale: string; location: string; filtersJson: string;
@@ -163,7 +196,10 @@ export async function readOpportunityDashboard(db: D1Database, days: number) {
     db.prepare("SELECT COUNT(DISTINCT session_id) AS count FROM vii_search_demand_events WHERE internal = 0 AND created_at >= ? AND session_id IS NOT NULL").bind(since).first<{ count: number }>(),
     db.prepare("SELECT COUNT(*) AS count FROM vii_search_demand_events WHERE internal = 1 AND created_at >= ?").bind(since).first<{ count: number }>(),
   ]);
-  const opportunities = rows.results.map(hydrate).sort((a, b) => b.priority - a.priority || b.searches - a.searches || b.lastSeenAt.localeCompare(a.lastSeenAt));
+  const databaseOpportunities = rows.results.map(hydrate);
+  const databaseIds = new Set(databaseOpportunities.map((item) => item.id));
+  const opportunities = [...databaseOpportunities, ...legacySearchPages.filter((item) => !databaseIds.has(item.id))]
+    .sort((a, b) => b.priority - a.priority || b.searches - a.searches || b.lastSeenAt.localeCompare(a.lastSeenAt));
   const statusCounts = Object.fromEntries(opportunityStatuses.map((status) => [status, opportunities.filter((item) => item.status === status).length]));
   return {
     periodDays: days,
@@ -187,10 +223,39 @@ export async function readOpportunity(db: D1Database, id: string) {
     (SELECT COUNT(*) FROM vii_search_demand_events e WHERE e.opportunity_id = o.id AND e.internal = 1) AS internalPeriodSearches,
     (SELECT COUNT(DISTINCT e.session_id) FROM vii_search_demand_events e WHERE e.opportunity_id = o.id AND e.internal = 1 AND e.session_id IS NOT NULL) AS internalUniqueSessions,
     o.zero_result_count AS periodZeroResults FROM vii_search_page_opportunities o WHERE o.id = ?`).bind(id).first<OpportunityRow>();
-  if (!row) return null;
+  if (!row) {
+    const legacy = legacyOpportunityById(id);
+    return legacy ? { opportunity: legacy, versions: [] } : null;
+  }
   const versions = await db.prepare(`SELECT version, action, actor_email AS actorEmail, created_at AS createdAt, snapshot_json AS snapshotJson
     FROM vii_search_page_opportunity_versions WHERE opportunity_id = ? ORDER BY version DESC LIMIT 30`).bind(id).all<{ version: number; action: string; actorEmail: string; createdAt: string; snapshotJson: string }>();
   return { opportunity: hydrate(row), versions: versions.results.map((version) => ({ ...version, snapshot: safeJson(version.snapshotJson, {}) })) };
+}
+
+async function materializeLegacyOpportunity(db: D1Database, id: string) {
+  const page = legacyOpportunityById(id);
+  if (!page) return false;
+  const canonicalKey = `managed:legacy:${page.legacySourcePath}`;
+  const snapshot = JSON.stringify(page);
+  await db.batch([
+    db.prepare(`INSERT OR IGNORE INTO vii_search_page_opportunities
+      (id, canonical_key, world, locale, location, filters_json, source_path, proposed_path, suggested_title,
+       latest_result_count, first_seen_at, last_seen_at, search_count, zero_result_count, status, assignee,
+       title, meta_title, meta_description, h1, summary, body, faq_json, slug, canonical_path, robots_index,
+       scheduled_at, published_at, version, updated_at, updated_by)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+      .bind(page.id, canonicalKey, page.world, page.locale, page.location, JSON.stringify(page.filters), page.sourcePath,
+        page.proposedPath, page.suggestedTitle, page.latestResultCount, page.firstSeenAt, page.lastSeenAt,
+        page.searches, page.zeroResults, page.status, page.assignee, page.title, page.metaTitle, page.metaDescription,
+        page.h1, page.summary, page.body, JSON.stringify(page.faq), page.slug, page.canonicalPath, 1,
+        page.scheduledAt, page.publishedAt, page.version, page.updatedAt, page.updatedBy),
+    db.prepare(`INSERT OR IGNORE INTO vii_search_page_publications
+      (opportunity_id, canonical_path, locale, world, snapshot_json, scheduled_at, published_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
+      .bind(page.id, page.canonicalPath, page.locale, page.world, snapshot, page.scheduledAt,
+        page.publishedAt || page.updatedAt, page.updatedAt),
+  ]);
+  return true;
 }
 
 function cleanText(value: unknown, max: number) {
@@ -226,7 +291,16 @@ export function parseOpportunityChange(value: unknown) {
 }
 
 export async function saveOpportunity(db: D1Database, change: NonNullable<ReturnType<typeof parseOpportunityChange>>, actor: string) {
-  const prior = await db.prepare(`SELECT version, status, proposed_path AS proposedPath, world, locale, location,
+  let prior = await db.prepare(`SELECT version, status, proposed_path AS proposedPath, world, locale, location,
+    filters_json AS filtersJson, source_path AS sourcePath, suggested_title AS suggestedTitle,
+    latest_result_count AS latestResultCount, first_seen_at AS firstSeenAt, last_seen_at AS lastSeenAt,
+    search_count AS searchCount, zero_result_count AS zeroResultCount
+    FROM vii_search_page_opportunities WHERE id = ?`).bind(change.id).first<{
+      version: number; status: string; proposedPath: string; world: string; locale: string; location: string;
+      filtersJson: string; sourcePath: string; suggestedTitle: string; latestResultCount: number;
+      firstSeenAt: string; lastSeenAt: string; searchCount: number; zeroResultCount: number;
+    }>();
+  if (!prior && await materializeLegacyOpportunity(db, change.id)) prior = await db.prepare(`SELECT version, status, proposed_path AS proposedPath, world, locale, location,
     filters_json AS filtersJson, source_path AS sourcePath, suggested_title AS suggestedTitle,
     latest_result_count AS latestResultCount, first_seen_at AS firstSeenAt, last_seen_at AS lastSeenAt,
     search_count AS searchCount, zero_result_count AS zeroResultCount
@@ -278,25 +352,31 @@ export async function saveOpportunity(db: D1Database, change: NonNullable<Return
 }
 
 export async function publishedOpportunityBySlug(slug: string) {
-  const db = await opportunityDatabase();
-  const now = new Date().toISOString();
-  const row = await db.prepare(`SELECT ${selectColumns}, o.search_count AS periodSearches, 0 AS uniqueSessions,
-    0 AS internalPeriodSearches, 0 AS internalUniqueSessions,
-    o.zero_result_count AS periodZeroResults FROM vii_search_page_opportunities o
-    WHERE o.slug = ? AND o.robots_index = 1 AND (o.status = 'published' OR (o.status = 'scheduled' AND o.scheduled_at <= ?))
-    ORDER BY o.version DESC LIMIT 1`).bind(slug, now).first<OpportunityRow>();
-  return row ? hydrate(row) : null;
+  const fallback = legacySearchPages.find((page) => page.slug === slug && page.locale === "he") || null;
+  try {
+    const db = await opportunityDatabase();
+    const now = new Date().toISOString();
+    const row = await db.prepare(`SELECT ${selectColumns}, o.search_count AS periodSearches, 0 AS uniqueSessions,
+      0 AS internalPeriodSearches, 0 AS internalUniqueSessions,
+      o.zero_result_count AS periodZeroResults FROM vii_search_page_opportunities o
+      WHERE o.slug = ? AND o.robots_index = 1 AND (o.status = 'published' OR (o.status = 'scheduled' AND o.scheduled_at <= ?))
+      ORDER BY o.version DESC LIMIT 1`).bind(slug, now).first<OpportunityRow>();
+    return row ? hydrate(row) : fallback;
+  } catch { return fallback; }
 }
 
 export async function publishedOpportunityByPath(world: string, slug: string, locale: string) {
   if (!validSearchWorld(world) || !["he", "en", "ru", "fr"].includes(locale)) return null;
   const path = publicSearchPagePath(world, slug, locale as SiteLanguage);
-  const db = await opportunityDatabase();
-  const now = new Date().toISOString();
-  const row = await db.prepare(`SELECT snapshot_json AS snapshotJson FROM vii_search_page_publications
-    WHERE canonical_path = ? AND locale = ? AND (scheduled_at IS NULL OR scheduled_at <= ?) LIMIT 1`)
-    .bind(path, locale, now).first<{ snapshotJson: string }>();
-  return row ? safeJson<SearchOpportunity | null>(row.snapshotJson, null) : null;
+  const fallback = legacyOpportunityByPath(world, slug, locale);
+  try {
+    const db = await opportunityDatabase();
+    const now = new Date().toISOString();
+    const row = await db.prepare(`SELECT snapshot_json AS snapshotJson FROM vii_search_page_publications
+      WHERE canonical_path = ? AND locale = ? AND (scheduled_at IS NULL OR scheduled_at <= ?) LIMIT 1`)
+      .bind(path, locale, now).first<{ snapshotJson: string }>();
+    return row ? safeJson<SearchOpportunity | null>(row.snapshotJson, null) : fallback;
+  } catch { return fallback; }
 }
 
 export async function publishedOpportunityPaths() {
@@ -305,8 +385,10 @@ export async function publishedOpportunityPaths() {
     const now = new Date().toISOString();
     const rows = await db.prepare(`SELECT canonical_path AS path, updated_at AS updatedAt FROM vii_search_page_publications
       WHERE scheduled_at IS NULL OR scheduled_at <= ?`).bind(now).all<{ path: string; updatedAt: string | null }>();
-    return rows.results.filter((row) => /^\/(?:en\/|ru\/|fr\/)?search\/(?:vacations|events|spas|hourly)\/[a-z0-9-]+$/.test(row.path || ""));
-  } catch { return []; }
+    const liveRows = rows.results.filter((row) => /^\/(?:en\/|ru\/|fr\/)?search\/(?:vacations|events|spas|hourly)\/[a-z0-9-]+$/.test(row.path || ""));
+    return [...new Map([...liveRows, ...legacySearchPages.map((page) => ({ path: page.canonicalPath, updatedAt: page.updatedAt }))]
+      .map((row) => [row.path, row])).values()];
+  } catch { return legacySearchPages.map((page) => ({ path: page.canonicalPath, updatedAt: page.updatedAt })); }
 }
 
 export function managedDefinitionCount() { return searchPageDefinitions.length; }

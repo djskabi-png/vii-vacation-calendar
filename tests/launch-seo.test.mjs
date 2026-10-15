@@ -31,6 +31,14 @@ test("temporary host stays out of the index and primary host gets its own canoni
   assert.equal(staging.status, 200);
   assert.equal(staging.headers.get("x-robots-tag"), "noindex");
 
+  for (const path of ["/admin", "/admin/search-pages", "/admin/catalog-sync", "/admin/redirects"]) {
+    const admin = await render(`https://vii.spaplus.co${path}`);
+    assert.ok([302, 303, 307, 308].includes(admin.status), `${path} returned ${admin.status}`);
+    assert.match(admin.headers.get("location") || "", /^https:\/\/vii\.spaplus\.co\/api\/auth\/google\?returnTo=/);
+    const body = await admin.text();
+    assert.doesNotMatch(body, /מרכזי העבודה|מרכז קידום|קטלוגים וספקים/);
+  }
+
   const primary = await render("https://www.vii.co.il/");
   assert.equal(primary.status, 200);
   assert.equal(primary.headers.get("x-robots-tag"), null);
@@ -46,7 +54,10 @@ test("temporary host stays out of the index and primary host gets its own canoni
   assert.equal((await render("https://www.vii.co.il/%D7%90%D7%94%D7%91%D7%94_%D7%91%D7%A9%D7%A0%D7%99%D7%99%D7%9D")).status, 410);
   const searchRedirect = await render("https://www.vii.co.il/s/Netanya/12806");
   assert.equal(searchRedirect.status, 301);
-  assert.match(searchRedirect.headers.get("location") || "", /^https:\/\/www\.vii\.co\.il\/search\?/);
+  const searchLocation = searchRedirect.headers.get("location") || "";
+  assert.match(searchLocation, /^https:\/\/www\.vii\.co\.il\/search\/vacations\/[a-z0-9-]+$/);
+  const searchTarget = await render(searchLocation);
+  assert.equal(searchTarget.status, 200);
   const apex = await render("https://vii.co.il/Azulat_Anof");
   assert.equal(apex.status, 301);
   assert.equal(apex.headers.get("location"), "https://www.vii.co.il/business?id=vacation-1");

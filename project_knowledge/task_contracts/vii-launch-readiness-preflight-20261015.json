@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-launch-readiness-20261015",
+  "project": "VII",
+  "task_type": "launch-readiness-auth-content-migration-redirects",
+  "requested_outcome": "Protect every administration screen before rendering, migrate every legacy search landing into a real manageable new page, map every legacy URL to a direct 301 or justified terminal outcome, and produce an evidence-based domain-cutover readiness decision.",
+  "natural_destination": "https://vii.spaplus.co/ before cutover and https://www.vii.co.il/ after an explicitly authorized cutover",
+  "authorization_boundary": "Inspect and change VII source, migration data, administration, search pages, redirects, tests and the currently approved temporary production release. Build the cutover package and readiness decision. Do not switch DNS or replace the live old-domain runtime without a separate explicit final cutover instruction.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-WEB-001",
+      "reason": "The user requires every old search and content page to survive the replacement.",
+      "acceptance_impact": "Every legacy URL and page must appear in an exported parity inventory with source, destination, content state and disposition."
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "Launch readiness is an end-to-end claim across public and private routes.",
+      "acceptance_impact": "The exact deployed candidate must be exercised at its natural destinations, with blockers preventing a ready claim."
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "reason": "The requested launch ultimately replaces the old domain runtime.",
+      "acceptance_impact": "Require immutable candidate and rollback identities, host-level tests and explicit authorization before DNS/runtime cutover."
+    },
+    {
+      "lesson_id": "ADIR-SEO-001",
+      "reason": "Search-page migration and 301 coverage determine organic-search continuity.",
+      "acceptance_impact": "Require indexability, canonical, sitemap, robots, hreflang, direct one-hop redirects and no unrelated home-page catch-all."
+    },
+    {
+      "lesson_id": "ADIR-WEB-CMS-001",
+      "reason": "Migrated search pages must remain controllable after import.",
+      "acceptance_impact": "Imported pages require safe editing, versions, preview/public state, sitemap state and rollback evidence in administration."
+    },
+    {
+      "lesson_id": "ADIR-ADMIN-001",
+      "reason": "The current administration shell is visible before its client-side authorization result.",
+      "acceptance_impact": "Anonymous and non-allowlisted requests must receive no administration shell HTML, while permitted accounts retain all routes."
+    },
+    {
+      "lesson_id": "VII-PROJECT-001",
+      "reason": "Search routes, worlds, publication states and content behavior are VII-specific.",
+      "acceptance_impact": "Use the VII master plan, feedback standard and URL/publication policy as project truth."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The admin APIs are protected but the navigation and management shell still flash before login.",
+      "prevention": "Move authentication and allowlist authorization to the server layout boundary before any administration component renders.",
+      "acceptance_check": "Anonymous and unauthorized HTML responses contain no admin navigation, command bar, module names or protected data."
+    },
+    {
+      "rejection": "Only a sample or Search Console top URLs are migrated while thousands of old sitemap search pages remain missing.",
+      "prevention": "Export the complete current legacy sitemap, crawl every search landing, classify every URL and fail the inventory on an unclassified row.",
+      "acceptance_check": "The export count reconciles exactly with all unique legacy sitemap URLs and every search-page row has a new page identity and status."
+    },
+    {
+      "rejection": "Redirects exist in a file but old pages were not recreated with their content and are absent from the new sitemap.",
+      "prevention": "Import content and publication records first, then generate redirects to verified published canonicals and verify sitemap inclusion.",
+      "acceptance_check": "Every migrated search target returns 200, is indexable, self-canonical and present in the correct sitemap before its old source is assigned 301."
+    },
+    {
+      "rejection": "The launch is called ready while forms, analytics, suppliers, languages, DNS, TLS, email, legal pages or rollback are unverified.",
+      "prevention": "Run the complete VII launch matrix and record pass, precise blocker or justified non-applicability for every launch family.",
+      "acceptance_check": "The final launch report contains no silent omissions and does not claim ready while a release-critical blocker remains."
+    },
+    {
+      "rejection": "The domain is switched as part of preparation without a final go-live checkpoint.",
+      "prevention": "Separate candidate publication from the old-domain DNS/runtime cutover and require a distinct final instruction for the latter.",
+      "acceptance_check": "Preparation can publish to the temporary production host, but DNS and old-domain origin remain unchanged until explicit cutover authorization."
+    }
+  ],
+  "affected_family": [
+    "all /admin routes, nested layouts and administration APIs",
+    "administrator Google session, allowlist, expiry and unauthorized states",
+    "all URLs in the live legacy sitemap and authenticated Search Console export",
+    "legacy vacation search landings and legacy property/static pages",
+    "new managed search-page publications, versions, sitemap entries and admin editor",
+    "301, 410, query, encoded-path, case and trailing-slash behavior",
+    "Hebrew, English, Russian and French canonical and hreflang behavior",
+    "robots, sitemap index and paginated sitemap children",
+    "public search, place, booking, lead, WhatsApp, supplier and analytics flows",
+    "temporary host, future old-domain host, DNS, TLS, CDN, email safety and rollback"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII platform master plan",
+        "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"
+      },
+      {
+        "label": "VII accepted feedback standard",
+        "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "VII search page URL and publication policy",
+        "source": "project_knowledge/VII_SEARCH_PAGE_URL_AND_PUBLICATION_POLICY.md"
+      },
+      {
+        "label": "Legacy sitemap index",
+        "source": "https://www.vii.co.il/sitemap.php"
+      },
+      {
+        "label": "Current new sitemap index",
+        "source": "https://vii.spaplus.co/sitemap.xml"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "Server-side admin protection is proven and the complete legacy sitemap is reconciled into page families before bulk import or redirect publication.",
+    "checks": [
+      "anonymous and non-admin requests cannot receive the admin shell",
+      "legacy sitemap count and family counts reconcile with the export",
+      "a representative legacy search page is recreated with preserved intent and manageable content",
+      "its proposed old-to-new redirect is a direct semantic one-hop target",
+      "the new page appears only when published and then enters the sitemap"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can an anonymous request retrieve any administration shell or protected module label?",
+      "Is any legacy sitemap or Search Console URL absent from the exported migration inventory?",
+      "Does any old search source redirect before its new target is live, indexable and in the sitemap?",
+      "Does any mapping create a chain, loop, irrelevant home redirect, 404 target or canonical conflict?",
+      "Do languages, mobile routes, booking and lead flows, supplier freshness, analytics or consent regress on the candidate?",
+      "Can the exact candidate be rolled back without losing the verified old-domain baseline?"
+    ],
+    "natural_destination_evidence": "Unauthenticated and authenticated live admin responses, live candidate public pages and sitemap entries, plus a launch matrix against the exact release identity.",
+    "affected_family_evidence": "Machine-readable full URL export, complete redirect audit, route/language/admin regression tests, desktop/mobile observations and rollback record."
+  },
+  "effectiveness": {
+    "baseline": "The admin shell renders before client authorization, the live old sitemap contains 2,710 listed URLs including 2,313 /s/ search pages, the current legacy inventory assigns 2,653 collected URLs to 410, and the new sitemap currently exposes no search-pages section.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Zero pre-auth admin-shell exposure, 100 percent URL inventory classification, 100 percent legacy search-page export/import disposition, zero invalid redirect targets or chains, and a truthful launch-ready or blocked decision with exact evidence."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

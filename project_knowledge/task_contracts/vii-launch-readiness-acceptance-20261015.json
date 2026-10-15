@@ -1,0 +1,218 @@
+{
+  "goal": "Prepare VII for an evidence-based old-domain launch by fully protecting administration, preserving every discoverable legacy page and search landing, and proving complete direct redirect coverage before cutover.",
+  "intent_model": {
+    "literal_request": "Hide administration until login, transfer every old search page, create all 301 redirects after content transfer, and check everything missing before launch, where launch means moving the old domain to the new site.",
+    "implied_outcome": "No private interface exposure and no loss of organic traffic, useful content, language behavior or business flows when the old domain eventually points to the new platform.",
+    "likely_rejections": [
+      "The API is protected but the admin shell still appears before login.",
+      "Only representative old pages or the top Search Console rows were migrated.",
+      "301 rules point to missing, generic or unpublished destinations.",
+      "The site is called ready without checking the complete launch family on the exact candidate.",
+      "The old domain is switched without a distinct final go-live authorization and rollback checkpoint."
+    ],
+    "interpretation_rules": [
+      {
+        "phrase": "כל עמודי החיפוש וכל הדפים",
+        "operational_meaning": "A count-reconciled inventory of every URL from the complete old sitemap plus known Search Console URLs, not a sample.",
+        "acceptance_impact": "Every source row must have an exported classification and evidence-backed destination or precise blocker."
+      }
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "One launch status: ready, conditionally ready with exact blockers, or not ready.",
+    "current_decision": "Whether the exact new-site candidate can safely replace the old-domain runtime.",
+    "next_action": "If every gate passes, request one final cutover instruction; otherwise resolve the listed release-critical blockers.",
+    "deferred_complexity": [
+      "Post-launch ranking monitoring and redirect-log optimization",
+      "Long-term multilingual editorial expansion beyond migrated Hebrew source content"
+    ],
+    "preserved_depth": [
+      "Full URL export and mapping evidence",
+      "Admin editing, versions and rollback",
+      "Sitemap, canonical, robots and hreflang diagnostics",
+      "Candidate and rollback release identities"
+    ]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/task_contracts/vii-launch-readiness-preflight-20261015.json",
+    "lesson_bundle_ids": [
+      "ADIR-WEB-001",
+      "ADIR-QA-001",
+      "ADIR-DEPLOY-001",
+      "ADIR-SEO-001",
+      "ADIR-WEB-CMS-001",
+      "ADIR-ADMIN-001",
+      "VII-PROJECT-001"
+    ],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": [
+    "anonymous visitor",
+    "signed-in non-administrator",
+    "allowlisted VII administrator",
+    "legacy search visitor",
+    "search crawler",
+    "VII launch operator"
+  ],
+  "natural_destination": "The exact temporary production candidate at https://vii.spaplus.co and, only after separate cutover authorization, the old-domain hosts https://www.vii.co.il and https://vii.co.il.",
+  "facts": [
+    {
+      "claim": "The live old sitemap currently lists 2,710 unique URLs, including 2,313 /s/ search URLs.",
+      "evidence": "2026-10-15 live fetch of https://www.vii.co.il/sitemap.php?page=1 and page=2"
+    },
+    {
+      "claim": "The current admin layout renders navigation and the command bar before client pages learn that the overview API returned 403.",
+      "evidence": "app/admin/layout.tsx and app/admin/page.tsx at baseline commit 81f1f11f5d6e8bc8a9586806af3fc63fbbb43ee3"
+    },
+    {
+      "claim": "The existing legacy inventory classifies 3,526 collected URLs as 873 redirects and 2,653 gone outcomes.",
+      "evidence": "app/data/legacy-redirect-inventory.json generated 2026-10-14"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "Legacy /s/ pages are vacation search landings unless their live content proves otherwise.",
+      "validation": "Crawl each live page and record its title, H1, canonical, description and search result context."
+    },
+    {
+      "claim": "A subset of old pages may be duplicate intent variants rather than unique content.",
+      "validation": "Cluster only when normalized title, intent and content evidence match, while retaining a source row and direct semantic redirect for every URL."
+    }
+  ],
+  "in_scope": [
+    "Server-side session and allowlist protection for all administration pages",
+    "Complete old sitemap and known Search Console URL export",
+    "Crawl and content export for every legacy search landing",
+    "Import or explicit blocker classification for every legacy search landing",
+    "Direct redirect matrix for every legacy URL after destination verification",
+    "Sitemap, canonical, robots, hreflang and publication-state validation",
+    "Full launch-readiness audit and rollback package",
+    "Publication of safe candidate changes to the temporary production host"
+  ],
+  "out_of_scope": [
+    "Changing DNS or replacing the old-domain runtime without a separate final instruction",
+    "Inventing translations or business facts absent from approved source content",
+    "Redirecting non-equivalent old content to the home page",
+    "Claiming legal compliance from automated checks alone"
+  ],
+  "invariants": [
+    "Existing allowlisted administrators retain access to every current admin route.",
+    "Administration APIs remain no-store, noindex and deny unauthorized requests.",
+    "Current public catalogs, supplier data, booking, WhatsApp and analytics behavior are preserved.",
+    "Published pages alone are indexable and listed in the sitemap.",
+    "Existing languages, canonical URLs and current public URLs do not regress.",
+    "The old production domain remains unchanged until the distinct cutover gate."
+  ],
+  "affected_family": [
+    "admin pages and nested layouts",
+    "admin API and Google session flows",
+    "legacy sitemap, Search Console pages and page content",
+    "managed search-page database, editor, versions and public route",
+    "redirect worker, D1 rules and static inventory",
+    "sitemap index and paginated sections",
+    "canonical, robots and hreflang metadata",
+    "all public worlds and active languages",
+    "forms, bookings, WhatsApp, supplier sync and analytics",
+    "temporary and old-domain hosts, DNS, TLS, CDN and rollback"
+  ],
+  "characteristics": {
+    "stateful": true
+  },
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "statement": "No administration shell or protected content is rendered to anonymous or non-allowlisted requests.",
+      "source": "User request 1 and ADIR-ADMIN-001"
+    },
+    {
+      "id": "REQ-2",
+      "statement": "Every discoverable legacy URL is exported and classified, and every old search landing has migrated content or a precise evidence-backed blocker.",
+      "source": "User request 2 and ADIR-WEB-001"
+    },
+    {
+      "id": "REQ-3",
+      "statement": "Every eligible legacy URL receives a direct one-hop 301 only after its equivalent target is live; no invalid, chained, looping or unrelated redirect is allowed.",
+      "source": "User request 3 and ADIR-SEO-001"
+    },
+    {
+      "id": "REQ-4",
+      "statement": "A complete launch audit produces a truthful readiness decision and exact remaining blockers across the full VII release family.",
+      "source": "User request 4 and ADIR-QA-001"
+    },
+    {
+      "id": "REQ-5",
+      "statement": "The old-domain cutover is not executed until a separately authorized final checkpoint with candidate and rollback identities.",
+      "source": "Authorization boundary and ADIR-DEPLOY-001"
+    }
+  ],
+  "acceptance_checks": [
+    {
+      "id": "AC-1",
+      "requirement_ids": ["REQ-1"],
+      "kind": "permission",
+      "setup": "No VII session cookie or a valid non-allowlisted Google session.",
+      "action": "Request /admin and representative nested /admin routes.",
+      "observable_result": "The response redirects before rendering and its HTML never contains the admin navigation, command bar, module names or protected data."
+    },
+    {
+      "id": "AC-2",
+      "requirement_ids": ["REQ-1"],
+      "kind": "success",
+      "setup": "Valid allowlisted Google administrator session.",
+      "action": "Open /admin and representative nested routes, reload without cache and let the session expire test run.",
+      "observable_result": "Authorized pages work normally, persist across reload, and expired access returns to authentication without exposing the shell."
+    },
+    {
+      "id": "AC-3",
+      "requirement_ids": ["REQ-2"],
+      "kind": "persistence",
+      "setup": "Complete legacy sitemap and known Search Console export.",
+      "action": "Generate and validate the migration export, import pages, reload the administration inventory and open public targets.",
+      "observable_result": "Source counts reconcile exactly; every row has a stable new identity and status; imported content persists in administration and public published state."
+    },
+    {
+      "id": "AC-4",
+      "requirement_ids": ["REQ-2", "REQ-3"],
+      "kind": "failure",
+      "setup": "A legacy source whose proposed target is missing, unpublished, non-indexable or semantically unrelated.",
+      "action": "Run migration and redirect validation.",
+      "observable_result": "The row is blocked from active 301 and reported with the exact failure rather than redirected to a generic destination."
+    },
+    {
+      "id": "AC-5",
+      "requirement_ids": ["REQ-3"],
+      "kind": "success",
+      "setup": "All eligible new targets are live on the exact candidate.",
+      "action": "Audit the complete redirect export and sample encoded, case, query and trailing-slash variants.",
+      "observable_result": "Every active mapping is one 301 hop to a final 200 self-canonical destination, with no loop, chain or unrelated home redirect."
+    },
+    {
+      "id": "AC-6",
+      "requirement_ids": ["REQ-4"],
+      "kind": "recovery",
+      "setup": "Exact release candidate and prior verified production release.",
+      "action": "Run launch audit and rollback rehearsal/document verification.",
+      "observable_result": "Every launch family has passed evidence, a precise blocker or justified non-applicability, and the prior release can be restored by exact identity."
+    },
+    {
+      "id": "AC-7",
+      "requirement_ids": ["REQ-5"],
+      "kind": "rollback",
+      "setup": "Candidate is otherwise ready but no distinct cutover instruction has been received.",
+      "action": "Finish preparation and inspect domain state.",
+      "observable_result": "The temporary candidate may be published, but old-domain DNS/runtime remains unchanged and the report requests only the final cutover decision."
+    }
+  ],
+  "open_questions": [
+    {
+      "question": "Which exact DNS/runtime control will perform the final old-domain cutover?",
+      "blocking": false,
+      "resolution": "Determine from the existing publisher/runtime and live DNS evidence during the launch audit; it blocks only the later cutover, not preparation."
+    }
+  ],
+  "authorization_boundary": "Safe repository, data-export, candidate-release and temporary-host production changes are authorized by the standing publication instruction. The actual old-domain DNS/runtime replacement requires a separate explicit final cutover instruction.",
+  "ready_for_implementation": true
+}
