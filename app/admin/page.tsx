@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Activity, ArrowLeft, BarChart3, CalendarSync, CheckCircle2, Eye, FilePenLine, ListChecks, MessageCircle, MousePointerClick, RefreshCw, Route, Search, ShieldCheck, Sparkles, Star, TrendingUp, Users } from "lucide-react";
+import { getIsraelGreeting } from "./israel-greeting";
 import styles from "./admin.module.css";
 
 type Overview = {
@@ -40,6 +41,7 @@ export default function AdminHome() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [forbidden, setForbidden] = useState(false);
+  const [greeting, setGreeting] = useState(() => getIsraelGreeting());
   const refresh = useCallback(async () => {
     setLoading(true); setError("");
     try {
@@ -51,6 +53,15 @@ export default function AdminHome() {
     finally { setLoading(false); }
   }, []);
   useEffect(() => { void refresh(); }, [refresh]);
+  useEffect(() => {
+    const updateGreeting = () => setGreeting(getIsraelGreeting());
+    const interval = window.setInterval(updateGreeting, 60_000);
+    document.addEventListener("visibilitychange", updateGreeting);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", updateGreeting);
+    };
+  }, []);
 
   const priorities = useMemo(() => {
     if (!overview) return [];
@@ -66,7 +77,7 @@ export default function AdminHome() {
     {forbidden ? <section className={styles.state}><ShieldCheck size={30} aria-hidden="true" /><h1>כניסה למנהלי VII</h1><p>המידע כאן פתוח רק לחשבון מנהל מורשה.</p><a href="/api/auth/google?returnTo=%2Fadmin" className={styles.primary}>כניסה עם Google <ArrowLeft size={17} aria-hidden="true" /></a></section> : null}
     {error ? <section className={styles.state} role="alert"><h1>מרכז השליטה אינו זמין</h1><p>{error}</p><button onClick={() => void refresh()} type="button" className={styles.primary}>ניסיון חוזר</button></section> : null}
     {overview && !forbidden ? <div className={styles.content}>
-      <div className={styles.heading}><div className={styles.headingCopy}><p className={styles.eyebrow}>מרכז שליטה חי</p><h1>{overview.account.name ? `בוקר טוב, ${overview.account.name.split(" ")[0]}` : "תמונת המצב של VII"}</h1><p>כל מה שדורש החלטה, כל מה שזז באתר וכל הכלים החשובים במקום אחד.</p></div><div className={styles.headingActions}><a href="/admin/growth" className={styles.ghostButton}><Sparkles size={16} /> מרכז קידום</a><button type="button" className={styles.refresh} onClick={() => void refresh()} disabled={loading} title="רענון נתונים" aria-label="רענון נתונים"><RefreshCw size={18} className={loading ? styles.spin : ""} /></button></div></div>
+      <div className={styles.heading}><div className={styles.headingCopy}><p className={styles.eyebrow}>מרכז שליטה חי</p><h1>{overview.account.name ? `${greeting}, ${overview.account.name.split(" ")[0]}` : "תמונת המצב של VII"}</h1><p>כל מה שדורש החלטה, כל מה שזז באתר וכל הכלים החשובים במקום אחד.</p></div><div className={styles.headingActions}><a href="/admin/growth" className={styles.ghostButton}><Sparkles size={16} /> מרכז קידום</a><button type="button" className={styles.refresh} onClick={() => void refresh()} disabled={loading} title="רענון נתונים" aria-label="רענון נתונים"><RefreshCw size={18} className={loading ? styles.spin : ""} /></button></div></div>
 
       <div className={styles.heroGrid}>
         <section className={styles.pulseCard} aria-labelledby="pulse-title"><div className={styles.pulseTop}><span className={styles.pulseLabel}><i className={styles.liveDot} /> נתוני VII, {overview.periodDays} ימים</span><CheckCircle2 size={19} aria-label="הנתונים נטענו" /></div><h2 id="pulse-title">מה קורה עכשיו באתר</h2><p>המספרים כוללים פעילות חיצונית שנשמרה בהסכמה. מנהלים ורובוטים מזוהים אינם נכללים במדדי החיפוש והעסקים.</p><div className={styles.pulseStats}><div><strong>{number(overview.search?.searches)}</strong><small>חיפושים</small></div><div><strong>{number(overview.business?.pageViews)}</strong><small>כניסות לעסקים</small></div><div><strong>{number((overview.business?.phoneReveals || 0) + (overview.business?.whatsappLeads || 0) + (overview.business?.bookingRequests || 0))}</strong><small>פעולות כוונה</small></div></div></section>
