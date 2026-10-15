@@ -1,13 +1,13 @@
 import { readSession } from "../../../lib/google-auth.ts";
+import { isAdminEmail } from "../../../lib/admin-access.ts";
 import { sitemapManifest } from "../../../lib/sitemap-inventory.ts";
 import { sitemapPageCount } from "../../../lib/sitemap-xml.ts";
 
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 
 export async function GET(request: Request) {
-  const allowlist = (process.env.VII_ADMIN_EMAILS || "").split(",").map((email) => email.trim().toLowerCase()).filter(Boolean);
   const session = await readSession(request).catch(() => null);
-  if (!session || !allowlist.includes(session.email.toLowerCase())) return Response.json({ error: "forbidden" }, { status: 403, headers });
+  if (!session || !isAdminEmail(session.email)) return Response.json({ error: "forbidden" }, { status: 403, headers });
   try {
     const manifest = await sitemapManifest();
     const sections = manifest.map(({ section, total }) => ({ section, urls: total, files: total ? sitemapPageCount(total) : 0 }));

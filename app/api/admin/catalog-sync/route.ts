@@ -1,4 +1,5 @@
 import { readSession } from "../../../lib/google-auth.ts";
+import { isAdminEmail } from "../../../lib/admin-access.ts";
 import { isCatalogWorld } from "../../../lib/supplier-catalog-runtime.ts";
 import { runCatalogPullWithRetryPlan } from "../../../lib/supplier-catalog-retry-runner.ts";
 import { readCatalogRetryJobs } from "../../../lib/supplier-catalog-retry.ts";
@@ -8,11 +9,9 @@ import type { D1Database } from "../../../../types/cloudflare-runtime";
 const headers = { "Cache-Control": "no-store" };
 
 async function authorized(request: Request) {
-  const emails = (process.env.VII_ADMIN_EMAILS || "").split(",").map((email) => email.trim().toLowerCase()).filter(Boolean);
-  if (!emails.length) return false;
   try {
     const session = await readSession(request);
-    return !!session && emails.includes(session.email.toLowerCase());
+    return !!session && isAdminEmail(session.email);
   } catch { return false; }
 }
 

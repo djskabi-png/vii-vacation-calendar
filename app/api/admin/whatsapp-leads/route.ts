@@ -1,11 +1,10 @@
 import { readSession } from "../../../lib/google-auth";
+import { isAdminEmail } from "../../../lib/admin-access";
 import { whatsappLeadDatabase } from "../../../lib/whatsapp-lead-storage";
 
 export async function GET(request: Request) {
   const session = await readSession(request);
-  const allowedEmails = (process.env.VII_ADMIN_EMAILS || "")
-    .split(",").map((email) => email.trim().toLowerCase()).filter(Boolean);
-  if (!session || !allowedEmails.includes(session.email.toLowerCase())) {
+  if (!session || !isAdminEmail(session.email)) {
     return Response.json({ error: "forbidden" }, { status: 403, headers: { "Cache-Control": "no-store" } });
   }
 

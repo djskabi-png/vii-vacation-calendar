@@ -1,12 +1,12 @@
 import { readSession } from "../../../lib/google-auth.ts";
+import { isAdminEmail } from "../../../lib/admin-access.ts";
 import { opportunityDatabase, parseOpportunityChange, readOpportunity, readOpportunityDashboard, saveOpportunity } from "../../../lib/search-opportunities.ts";
 
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 
 async function admin(request: Request) {
   const session = await readSession(request).catch(() => null);
-  const allowed = (process.env.VII_ADMIN_EMAILS || "").split(",").map((email) => email.trim().toLowerCase()).filter(Boolean);
-  return session && allowed.includes(session.email.toLowerCase()) ? session.email : null;
+  return session && isAdminEmail(session.email) ? session.email : null;
 }
 
 export async function GET(request: Request) {
