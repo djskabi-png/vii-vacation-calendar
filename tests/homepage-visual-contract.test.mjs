@@ -49,6 +49,11 @@ test("both live deal rails show branded, accessible loading placeholders", async
   assert.match(deals, /src="\/vii-logo\.png"/);
   assert.match(deals, /home-live-deals__loading-cards/);
   assert.match(css, /@keyframes home-deal-logo-trip/);
+  assert.match(css, /@keyframes home-deal-aurora/);
+  assert.match(css, /@keyframes home-deal-star-drift/);
+  assert.match(css, /@keyframes home-deal-card-float/);
+  assert.match(css, /@keyframes home-deal-shimmer/);
+  assert.match(css, /home-live-deals__loading::before/);
   assert.match(css, /prefers-reduced-motion: reduce\)[^\n]*home-live-deals__loading-route img/);
 });
 
