@@ -34,7 +34,20 @@ function record(value: unknown): Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 }
 
-function array(value: unknown) { return Array.isArray(value) ? value : []; }
+function array(value: unknown) {
+  if (Array.isArray(value)) return value;
+  return value && typeof value === "object" ? Object.values(value as Record<string, unknown>) : [];
+}
+
+function geographyRoot(payload: unknown) {
+  let current = record(payload);
+  for (let depth = 0; depth < 3; depth += 1) {
+    const nested = current.data ?? current.result ?? current.locations ?? current.geography;
+    if (!nested || typeof nested !== "object" || Array.isArray(nested)) break;
+    current = record(nested);
+  }
+  return current;
+}
 
 function id(value: unknown) {
   const number = typeof value === "number" ? value : Number(value);
@@ -63,7 +76,7 @@ function nestedRows(value: Record<string, unknown>, level: GeographyLevel) {
 }
 
 export function normalizeSupplierGeography(payload: unknown): SupplierGeographyNode[] {
-  const root = record(payload);
+  const root = geographyRoot(payload);
   const collected = new Map<string, SupplierGeographyNode>();
   const add = (level: GeographyLevel, rawValue: unknown, parentKey: string | null, unassigned = false) => {
     const raw = record(rawValue);
@@ -106,12 +119,16 @@ export function normalizeSupplierGeography(payload: unknown): SupplierGeographyN
   }
   for (const cityValue of array(root.cities)) add("city", cityValue, null);
 
-  const unassigned = record(root.unassigned);
+  const unassignedValue = root.unassigned;
+  const unassigned = record(unassignedValue);
   for (const areaValue of array(unassigned.areas)) {
     const area = add("area", areaValue, null, true);
     for (const cityValue of nestedRows(record(areaValue), "city")) add("city", cityValue, area?.key || null, true);
   }
   for (const cityValue of array(unassigned.cities)) add("city", cityValue, null, true);
+  if (Array.isArray(unassignedValue)) {
+    for (const cityValue of unassignedValue) add("city", cityValue, null, true);
+  }
 
   return [...collected.values()].sort((left, right) => geographyLevels.indexOf(left.level) - geographyLevels.indexOf(right.level)
     || left.title.localeCompare(right.title, "he"));

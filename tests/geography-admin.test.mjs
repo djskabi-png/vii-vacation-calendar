@@ -16,6 +16,11 @@ test("supplier geography scopes overlapping ids by hierarchy level and preserves
   });
 });
 
+test("supplier geography accepts data wrappers and object-keyed collections", () => {
+  const nodes = normalizeSupplierGeography({ data: { districts: { north: { id: 1, title: "צפון", areas: { galil: { id: 2, title: "גליל", cities: { nahariya: { id: 3, title: "נהריה" } } } } } } } });
+  assert.deepEqual(nodes.map((node) => node.key), ["district:1", "area:2", "city:3"]);
+});
+
 test("manual geography change accepts scoped keys and rejects unsafe slugs or coordinates", () => {
   const base = { key: "city:118", titleOverride: "", titleEnOverride: "Bayt Lid", slug: "bayt-lid", visible: true, featured: false, gpsLat: 32.261548, gpsLong: 35.13028, expectedVersion: 1 };
   assert.ok(parseGeographyChange(base));
