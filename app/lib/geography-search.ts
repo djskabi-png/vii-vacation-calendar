@@ -50,12 +50,23 @@ export function nearbyPlacesForSelection<T extends CoordinatePlace>(
   if (!target || target.gpsLat === null || target.gpsLong === null) return [];
   const maximumDistanceKm = options.maximumDistanceKm ?? 100;
   const limit = options.limit ?? 12;
+  const coordinatesByLocation = new Map(nodes
+    .filter((node) => node.level === "city" && node.gpsLat !== null && node.gpsLong !== null)
+    .flatMap((node) => [node.title, node.titleEn, node.slug]
+      .map(normalized)
+      .filter(Boolean)
+      .map((name) => [name, { lat: node.gpsLat as number, lng: node.gpsLong as number }] as const)));
   return places
-    .filter((place) => Number.isFinite(place.lat) && Number.isFinite(place.lng))
-    .map((place) => ({ place, distanceKm: distanceKm(
-      { lat: target.gpsLat as number, lng: target.gpsLong as number },
-      { lat: place.lat as number, lng: place.lng as number },
-    ) }))
+    .map((place) => {
+      const coordinates = Number.isFinite(place.lat) && Number.isFinite(place.lng)
+        ? { lat: place.lat as number, lng: place.lng as number }
+        : coordinatesByLocation.get(normalized(place.location));
+      return coordinates ? { place, distanceKm: distanceKm(
+        { lat: target.gpsLat as number, lng: target.gpsLong as number },
+        coordinates,
+      ) } : null;
+    })
+    .filter((candidate): candidate is NearbyPlace<T> => candidate !== null)
     .filter((candidate) => candidate.distanceKm <= maximumDistanceKm)
     .sort((left, right) => left.distanceKm - right.distanceKm
       || normalized(left.place.location).localeCompare(normalized(right.place.location), "he"))
