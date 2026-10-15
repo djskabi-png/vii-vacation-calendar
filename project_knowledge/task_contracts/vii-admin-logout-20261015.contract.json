@@ -5,7 +5,7 @@
   "task_type": "admin_auth_repair",
   "goal": "Enable complete admin logout across every admin route",
   "created_at": "2026-10-15T11:15:03.766077Z",
-  "updated_at": "2026-10-15T11:23:14.850644Z",
+  "updated_at": "2026-10-15T11:25:38.147490Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -210,6 +210,15 @@
       ],
       "reason": null,
       "updated_at": "2026-10-15T11:23:13.541033Z"
+    },
+    {
+      "id": "correction:admin-hebrew-font",
+      "source": "user_correction",
+      "statement": "Every Hebrew admin surface must render in Heebo from first visible paint, with only modern sans-serif fallbacks and no serif flash.",
+      "acceptance_check": "Static audit, production build, font response validation, Hebrew glyph inspection, desktop and 390px cold/warm first-paint probes, and live admin route checks all pass.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
     }
   ],
   "verification_status": "in_progress",
@@ -222,5 +231,7 @@
       ],
       "findings": []
     }
-  }
+  },
+  "last_freshness_check_at": "2026-10-15T11:25:37.999743Z",
+  "last_freshness_check_errors": []
 }

@@ -1,0 +1,22 @@
+{
+  "task": "VII admin Hebrew font first-paint verification rerun",
+  "createdAt": "2026-10-15T00:00:00+03:00",
+  "ownedProcesses": [
+    {
+      "pid": 15576,
+      "role": "pnpm launcher",
+      "command": "pnpm dev --host 127.0.0.1 --port 4175"
+    },
+    {
+      "pid": 32548,
+      "role": "Vite development server",
+      "port": 4175
+    }
+  ],
+  "status": "complete",
+  "cleanup": {
+    "stoppedProcesses": [15576, 32548],
+    "verifiedNoOwnedProcessesRemain": true,
+    "verification": "Both recorded PIDs absent and TCP port 4175 has no listener."
+  }
+}
