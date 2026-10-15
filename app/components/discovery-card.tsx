@@ -9,6 +9,7 @@ import { PinIcon } from "../site-header";
 import { trackPhoneReveal } from "../lib/analytics";
 import { FavoriteButton } from "./favorite-button";
 import { useState } from "react";
+import { resolvePublicSliderMedia } from "../lib/public-media-policy";
 
 function PhoneIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.7 3.5 9 3a1.6 1.6 0 0 1 1.8 1l1 3a1.6 1.6 0 0 1-.5 1.7L9.7 10a14 14 0 0 0 4.3 4.3l1.3-1.6a1.6 1.6 0 0 1 1.7-.5l3 1a1.6 1.6 0 0 1 1 1.8l-.5 2.3a3 3 0 0 1-3 2.4A15.5 15.5 0 0 1 4.3 6.5a3 3 0 0 1 2.4-3Z"/></svg>;
@@ -72,15 +73,20 @@ export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
 
   if (!item.image && item.world !== "hourly") return null;
 
+  const media = item.image
+    ? resolvePublicSliderMedia({ image: item.image, topic: `${item.world} ${item.name} ${item.area} ${item.features.join(" ")}` })
+    : { image: "", fallbackApplied: false };
+  const imageLabel = media.fallbackApplied ? "תמונת אווירה" : item.imageLabel;
+
   const imageFit = item.imageFit || "cover";
 
   return <article className={`discovery-card discovery-card--${item.world}`}>
     <Link className={`discovery-card__visual discovery-card__visual--${imageFit}`} href={`/discover/place/${item.id}`} target="_blank" rel="noopener noreferrer" aria-label={`${details}: ${translate(item.name)}`}>
-      {item.image ? <img src={item.image} alt={item.imageLabel && ui ? ui.image : translate(item.name)} title={item.imageLabel && ui ? ui.image : translate(item.name)} loading="lazy" decoding="async" style={item.imagePosition ? { objectPosition: item.imagePosition } : undefined} /> : <span className="discovery-card__missing-image">לא נמסרה תמונה ב־API</span>}
-      {item.imageLabel && <span className="image-context-label">{ui?.image || item.imageLabel}</span>}
+      {media.image ? <img src={media.image} alt={imageLabel && ui ? ui.image : imageLabel ? `${translate(item.name)}, ${imageLabel}` : translate(item.name)} title={imageLabel && ui ? ui.image : imageLabel ? `${translate(item.name)}, ${imageLabel}` : translate(item.name)} loading="lazy" decoding="async" style={item.imagePosition ? { objectPosition: item.imagePosition } : undefined} /> : <span className="discovery-card__missing-image">לא נמסרה תמונה ב־API</span>}
+      {imageLabel && <span className="image-context-label">{ui?.image || imageLabel}</span>}
       {item.rating && <span className="rating-badge">★ {item.rating.toFixed(1)}</span>}
     </Link>
-    <FavoriteButton id={item.id} world={item.world} name={item.name} location={`${location}, ${area}`} image={item.image} href={`/discover/place/${item.id}`} meta={price} />
+    <FavoriteButton id={item.id} world={item.world} name={item.name} location={`${location}, ${area}`} image={media.image || undefined} href={`/discover/place/${item.id}`} meta={price} />
     <div className="discovery-card__body">
       <span className="discovery-card__meta"><PinIcon />{location}<small>{area}</small></span>
       <h3><Link href={`/discover/place/${item.id}`} target="_blank" rel="noopener noreferrer">{item.name}<span className="sr-only"></span></Link></h3>

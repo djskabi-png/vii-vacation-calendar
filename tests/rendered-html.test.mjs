@@ -1276,7 +1276,7 @@ test("content card images pair descriptive alt text with matching title metadata
 
   assert.match(propertyCard, /alt=\{`\$\{property\.name\}, תמונה \$\{imageIndex \+ 1\} מתוך \$\{galleryImages\.length\}`\} title=\{`\$\{property\.name\}, תמונה \$\{imageIndex \+ 1\} מתוך \$\{galleryImages\.length\}`\}/);
   assert.match(business, /alt=\{`\$\{room\.name\} ב\$\{property\.name\}`\} title=\{`\$\{room\.name\} ב\$\{property\.name\}`\}/);
-  assert.match(discoveryCard, /title=\{item\.imageLabel && ui \? ui\.image : translate\(item\.name\)\}/);
+  assert.match(discoveryCard, /title=\{imageLabel && ui \? ui\.image : imageLabel \? `\$\{translate\(item\.name\)\}, \$\{imageLabel\}` : translate\(item\.name\)\}/);
   assert.match(eventsSearch, /alt=\{place\.name\} title=\{place\.name\}/);
 });
 

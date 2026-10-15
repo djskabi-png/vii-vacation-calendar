@@ -29,13 +29,13 @@ function DiscoveryRail({ id, eyebrow, title, items }: { id: string; eyebrow: str
   if (!items.length) return null;
   return <section className="home-managed-discovery" aria-labelledby={`${id}-title`}>
     <div className="home-managed-discovery__head"><div><span>{eyebrow}</span><h3 id={`${id}-title`}>{title}</h3></div><HomeSliderControls railId={`${id}-track`} label={title} itemSelector=":scope > a" /></div>
-    <div id={`${id}-track`} className="home-managed-discovery__track" data-horizontal-rail>{items.map((item) => <Link key={item.id} href={item.href} prefetch={false} data-global-feedback="true" data-loading-label={`פותחים ${item.label}...`}><img src={item.image} alt="" loading="lazy" decoding="async" /><span><strong>{item.label}</strong>{item.note ? <small>{item.note}</small> : null}<b>לצפייה בתוצאות</b></span></Link>)}</div>
+    <div id={`${id}-track`} className="home-managed-discovery__track" data-horizontal-rail>{items.map((item) => <Link key={item.id} href={item.href} prefetch={false} data-global-feedback="true" data-loading-label={`פותחים ${item.label}...`}><img src={item.image} alt={item.imageAlt || ""} title={item.imageAlt} loading="lazy" decoding="async" /><span><strong>{item.label}</strong>{item.note ? <small>{item.note}</small> : null}<b>לצפייה בתוצאות</b></span></Link>)}</div>
   </section>;
 }
 
 export function HomeQuickSearches() {
   const presentation = usePresentation();
-  return <section className="home-visual-searches" aria-labelledby="home-popular-searches-title"><div className="home-visual-searches__head"><Search aria-hidden="true" /><div><span>קיצורי דרך</span><h2 id="home-popular-searches-title">חיפושים פופולריים</h2></div></div><div>{presentation.popular.map((item) => <Link key={item.id} href={item.href} prefetch={false} data-global-feedback="true" data-loading-label={`מחפשים ${item.label}...`}><img src={item.image} alt="" /><span><strong>{item.label}</strong><small>{item.note}</small></span></Link>)}</div></section>;
+  return <section className="home-visual-searches" aria-labelledby="home-popular-searches-title"><div className="home-visual-searches__head"><Search aria-hidden="true" /><div><span>קיצורי דרך</span><h2 id="home-popular-searches-title">חיפושים פופולריים</h2></div></div><div>{presentation.popular.map((item) => <Link key={item.id} href={item.href} prefetch={false} data-global-feedback="true" data-loading-label={`מחפשים ${item.label}...`}><img src={item.image} alt={item.imageAlt || ""} title={item.imageAlt} /><span><strong>{item.label}</strong><small>{item.note}</small></span></Link>)}</div></section>;
 }
 
 export function HomeManagedDiscovery() {
