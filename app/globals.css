@@ -3634,7 +3634,7 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
 .world-page--hourly .world-hero { background: radial-gradient(circle at 14% 12%, rgba(244,146,45,.18), transparent 28%), linear-gradient(145deg,#fffaf5,#f6f5ee); }
 .world-page--providers .world-hero { background: radial-gradient(circle at 14% 12%, rgba(55,162,123,.16), transparent 28%), linear-gradient(145deg,#f7fcf8,#edf7f2); }
 .world-page--activities .world-hero { background: radial-gradient(circle at 14% 12%, rgba(34,153,192,.18), transparent 28%), linear-gradient(145deg,#f5fbfd,#edf7f5); }
-.spa-discovery-hero { position: relative; isolation: isolate; padding: 28px 0 58px; overflow: hidden; background: radial-gradient(circle at 8% 16%,rgba(255,195,228,.72),transparent 34%),radial-gradient(circle at 88% 22%,rgba(195,187,255,.6),transparent 31%),linear-gradient(145deg,#fffafc 0%,#f4f0fb 56%,#edf7f8 100%); }
+.spa-discovery-hero { position: relative; z-index: 1; isolation: isolate; padding: 28px 0 58px; overflow: visible; background: radial-gradient(circle at 8% 16%,rgba(255,195,228,.72),transparent 34%),radial-gradient(circle at 88% 22%,rgba(195,187,255,.6),transparent 31%),linear-gradient(145deg,#fffafc 0%,#f4f0fb 56%,#edf7f8 100%); }
 .spa-discovery-hero::before { content: ""; position: absolute; z-index: -1; inset: 0; opacity: .38; background-image: radial-gradient(rgba(123,66,125,.14) .7px,transparent .7px); background-size: 17px 17px; mask-image: linear-gradient(90deg,#000,transparent 72%); }
 .spa-discovery-hero__layout { position: relative; display: grid; grid-template-columns: minmax(0,1.04fr) minmax(420px,.96fr); grid-template-areas: "content visual" "search search"; align-items: center; gap: 24px 46px; }
 .spa-discovery-hero__content { grid-area: content; min-width: 0; padding-block: 4px 28px; }
@@ -3680,14 +3680,14 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
 .special-search-local strong { font-size: .9rem; }
 .special-search-local small { overflow: hidden; color: var(--ink-soft); font-size: .76rem; text-overflow: ellipsis; white-space: nowrap; }
 .special-search-local > b { width: 36px; height: 36px; flex: 0 0 36px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: var(--teal); font-size: 1.1rem; }
-.trails-page > .trails-hero,
-.attractions-page > .attractions-hero { padding-block: 22px 12px; }
-.trails-page > .trails-hero > .shell,
-.attractions-page > .attractions-hero > .shell { display: block; text-align: right; }
-.trails-page > .trails-hero h1,
-.attractions-page > .attractions-hero h1 { max-width: 880px; margin: 0 0 8px; font-size: clamp(2rem,3.2vw,3rem); line-height: 1.08; }
-.trails-page > .trails-hero p,
-.attractions-page > .attractions-hero p { max-width: 760px; margin: 0; color: var(--ink-soft); font-size: 1rem; line-height: 1.6; }
+.trails-page > .trails-hero:not(.discovery-world-hero),
+.attractions-page > .attractions-hero:not(.discovery-world-hero) { padding-block: 22px 12px; }
+.trails-page > .trails-hero:not(.discovery-world-hero) > .shell,
+.attractions-page > .attractions-hero:not(.discovery-world-hero) > .shell { display: block; text-align: right; }
+.trails-page > .trails-hero:not(.discovery-world-hero) h1,
+.attractions-page > .attractions-hero:not(.discovery-world-hero) h1 { max-width: 880px; margin: 0 0 8px; font-size: clamp(2rem,3.2vw,3rem); line-height: 1.08; }
+.trails-page > .trails-hero:not(.discovery-world-hero) p,
+.attractions-page > .attractions-hero:not(.discovery-world-hero) p { max-width: 760px; margin: 0; color: var(--ink-soft); font-size: 1rem; line-height: 1.6; }
 .trails-page > .trail-explorer,
 .attractions-page > .attraction-explorer { padding-top: 10px; }
 .world-page > .section,
@@ -4797,12 +4797,12 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
   .special-search-panel { margin-top: 8px; padding: 10px; border-radius: 16px; }
   .special-search-local { min-height: 54px; padding: 8px 10px; }
   .special-search-local small { font-size: .69rem; }
-  .trails-page > .trails-hero,
-  .attractions-page > .attractions-hero { padding-block: 14px 8px; }
-  .trails-page > .trails-hero h1,
-  .attractions-page > .attractions-hero h1 { font-size: clamp(1.72rem,8vw,2.15rem); line-height: 1.14; }
-  .trails-page > .trails-hero p,
-  .attractions-page > .attractions-hero p { font-size: .9rem; line-height: 1.5; }
+  .trails-page > .trails-hero:not(.discovery-world-hero),
+  .attractions-page > .attractions-hero:not(.discovery-world-hero) { padding-block: 14px 8px; }
+  .trails-page > .trails-hero:not(.discovery-world-hero) h1,
+  .attractions-page > .attractions-hero:not(.discovery-world-hero) h1 { font-size: clamp(1.72rem,8vw,2.15rem); line-height: 1.14; }
+  .trails-page > .trails-hero:not(.discovery-world-hero) p,
+  .attractions-page > .attractions-hero:not(.discovery-world-hero) p { font-size: .9rem; line-height: 1.5; }
   .world-hero { padding: 14px 0; }
   .world-page--hourly .world-hero { padding-block: 14px; }
   .world-page-heading { padding-block: 14px 8px; }
@@ -7218,8 +7218,8 @@ body:has(.smart-concierge.open) .world-dock { display: none; }
   .activities-hub__paid { grid-template-columns: 1fr; }
 }
 @media (max-width: 720px) {
-  .attractions-hero { padding-block: 36px; }
-  .attractions-hero h1 { font-size: 2.65rem; }
+  .attractions-hero:not(.discovery-world-hero) { padding-block: 36px; }
+  .attractions-hero:not(.discovery-world-hero) h1 { font-size: 2.65rem; }
   .attractions-hero__panel { padding: 20px; border-radius: 24px; }
   .attraction-trust .shell { grid-template-columns: 1fr; padding-block: 8px; }
   .attraction-trust .shell > div { border-inline: 0; border-bottom: 1px solid var(--line); }
