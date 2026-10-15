@@ -49,6 +49,20 @@ function geographyRoot(payload: unknown) {
   return current;
 }
 
+function shape(value: unknown, depth = 0): unknown {
+  if (depth >= 4) return Array.isArray(value) ? "array" : value === null ? "null" : typeof value;
+  if (Array.isArray(value)) return { type: "array", length: value.length, item: value.length ? shape(value[0], depth + 1) : "empty" };
+  if (value === null) return "null";
+  if (typeof value !== "object") return typeof value;
+  return Object.fromEntries(Object.entries(value as Record<string, unknown>)
+    .slice(0, 40)
+    .map(([key, nested]) => [key, shape(nested, depth + 1)]));
+}
+
+export function supplierGeographyShape(payload: unknown) {
+  return shape(payload);
+}
+
 function id(value: unknown) {
   const number = typeof value === "number" ? value : Number(value);
   return Number.isSafeInteger(number) && number >= 0 ? number : null;
@@ -163,12 +177,20 @@ export async function fetchSupplierGeography(token: string, fetchImpl: typeof fe
   } catch { throw new Error("supplier_geography_transport_error"); }
   if (response.status >= 300 && response.status < 400) throw new Error("supplier_geography_redirect_not_allowed");
   if (!response.ok) throw new Error(response.status === 401 || response.status === 403 ? "supplier_not_authorized" : "supplier_geography_unavailable");
-  const nodes = normalizeSupplierGeography(await response.json());
+  const payload = await response.json();
+  const nodes = normalizeSupplierGeography(payload);
   // This endpoint is the full national corpus. A response containing only the
   // unassigned bucket is a partial parse or a partial upstream response and
   // must not replace the accepted geography generation.
   if (!nodes.some((node) => node.level === "area")
-    || !nodes.some((node) => node.level === "city" && !node.unassigned)) throw new Error("invalid_supplier_geography");
+    || !nodes.some((node) => node.level === "city" && !node.unassigned)) {
+    console.error("VII supplier geography invalid", {
+      shape: supplierGeographyShape(payload),
+      counts: Object.fromEntries(geographyLevels.map((level) => [level, nodes.filter((node) => node.level === level).length])),
+      assignedCities: nodes.filter((node) => node.level === "city" && !node.unassigned).length,
+    });
+    throw new Error("invalid_supplier_geography");
+  }
   return nodes;
 }
 

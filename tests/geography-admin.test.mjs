@@ -1,7 +1,15 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { fetchSupplierGeography, normalizeSupplierGeography, parseGeographyChange } from "../app/lib/geography-admin.ts";
+import { fetchSupplierGeography, normalizeSupplierGeography, parseGeographyChange, supplierGeographyShape } from "../app/lib/geography-admin.ts";
+
+test("supplier geography diagnostics expose structure without values", () => {
+  const signature = supplierGeographyShape({ secretBranch: [{ id: 17, title: "private title", cities: [] }] });
+  const serialized = JSON.stringify(signature);
+  assert.match(serialized, /secretBranch/);
+  assert.match(serialized, /cities/);
+  assert.doesNotMatch(serialized, /private title|17/);
+});
 
 test("supplier geography scopes overlapping ids by hierarchy level and preserves unassigned city coordinates", () => {
   const nodes = normalizeSupplierGeography({
