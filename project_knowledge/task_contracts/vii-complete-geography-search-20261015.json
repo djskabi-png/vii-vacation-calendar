@@ -1,0 +1,147 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-complete-geography-search-20261015",
+  "project": "VII",
+  "task_type": "supplier geography ingestion and zero-inventory search recovery",
+  "goal": "Import the complete supplier geography hierarchy independently of inventory, expose every destination in vacation and event search, and recover nearby inventory without indexing unapproved thin pages.",
+  "created_at": "2026-10-15T15:22:16.887472Z",
+  "updated_at": "2026-10-15T15:22:47.925745Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "73ac19ae8d64098ef290eaefe79a77f4d3e205c05c2b1fcd6288685464e276b1"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "d74ead306a1ee3a0ace2fc6afbd9b75da30bea4687531aaa8afe6e93204c462f"
+    },
+    "cognitive_model": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md",
+      "sha256": "708ce5d1b152afe220cf98008f571e7d27704c102624f7d7440dc85a1a6ba2d8"
+    },
+    "rulebook": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md",
+      "sha256": "3844b5ec09c8af79c2731bdf75d2d94bc4b0cc1a4ee2633b1971a6cdb5d546cc"
+    },
+    "predictive_preflight": {
+      "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\project_knowledge\\task_contracts\\vii-complete-geography-search-20261015.preflight.json",
+      "sha256": "3e13f46056e56d5c5c093dde542f3942a752db91d1f9ebbd4d464d8dbeeb9f7a"
+    }
+  },
+  "predictive_preflight": {
+    "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\project_knowledge\\task_contracts\\vii-complete-geography-search-20261015.preflight.json",
+    "sha256": "3e13f46056e56d5c5c093dde542f3942a752db91d1f9ebbd4d464d8dbeeb9f7a",
+    "predicted_rejection_count": 5,
+    "affected_family_count": 7,
+    "lesson_bundle_count": 5,
+    "midpoint_required": true,
+    "effectiveness_measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ]
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-MIND-001",
+      "title": "Task decisions require natural-destination evidence",
+      "scope": "account acceptance gate"
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "title": "Completion requires regression and production evidence",
+      "scope": "account acceptance gate"
+    },
+    {
+      "lesson_id": "ADIR-SCOPE-001",
+      "title": "Shared changes expand to the affected family",
+      "scope": "vacation and event search family"
+    },
+    {
+      "lesson_id": "ADIR-SEO-001",
+      "title": "Indexation requires editorial quality and explicit approval",
+      "scope": "search-page and sitemap workflow"
+    },
+    {
+      "lesson_id": "ADIR-DATA-001",
+      "title": "Supplier truth and local editorial overrides stay distinct",
+      "scope": "managed geography corpus"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "All supplier districts, areas and cities are searchable even without inventory, with nearby recovery and editorially gated sitemap publication.",
+      "acceptance_check": "The exact production release imports multiple hierarchy levels, contains Yashresh, returns nearby vacation and event inventory, and does not index an unapproved Yashresh page.",
+      "status": "pending",
+      "evidence": [
+        "Commit 5bc6022 is pushed to origin/review/vii-api-refresh-20261008 and submitted once to the established VII publisher."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-15T15:22:16.887472Z"
+    },
+    {
+      "id": "preflight:prediction",
+      "source": "predictive_preflight",
+      "statement": "Predict rejection reasons and bind prevention to observable evidence.",
+      "acceptance_check": "The task preflight and acceptance contracts validate before implementation.",
+      "status": "passed",
+      "evidence": [
+        "Both bounded preflight and acceptance validators passed before implementation."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-15T15:22:16.887472Z"
+    },
+    {
+      "id": "preflight:midpoint",
+      "source": "predictive_preflight.midpoint_gate",
+      "statement": "Verify compound identity, unassigned handling, distance ordering and indexation gating before broad verification.",
+      "acceptance_check": "Focused tests cover level-scoped IDs, area_id zero, coordinates, deterministic proximity and publication gating.",
+      "status": "passed",
+      "evidence": [
+        "12/12 focused geography tests and 39/39 relevant geography, search, URL, editorial and sitemap tests passed."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-15T15:22:16.887472Z"
+    },
+    {
+      "id": "preflight:adversarial",
+      "source": "predictive_preflight.adversarial_close",
+      "statement": "Attempt to disprove completion in the exact production release.",
+      "acceptance_check": "Verify hierarchy counts, Yashresh autocomplete and nearby recovery in both worlds, and absence from sitemap before approval.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:effectiveness",
+      "source": "predictive_preflight.effectiveness",
+      "statement": "Measure whether the preflight prevented known geography and SEO failures.",
+      "acceptance_check": "Record first-pass state, repeated corrections, prevented failures and elapsed time.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    }
+  ],
+  "verification_status": "in_progress",
+  "verification_errors": [],
+  "predictive_results": {
+    "midpoint": {
+      "observed_at": "2026-10-15T15:22:16.887472Z",
+      "evidence": [
+        "The parser no longer manufactures area:0 and accepts root object-keyed hierarchy nodes.",
+        "Nearby recovery is bounded to 100 km and stable by distance then business identity.",
+        "Published-only sitemap behavior remains unchanged."
+      ],
+      "findings": [
+        "The production importer previously parsed only root.unassigned, which explained the single Bayt Lid node."
+      ]
+    }
+  },
+  "last_freshness_check_at": "2026-10-15T15:22:47.925723Z",
+  "last_freshness_check_errors": []
+}
