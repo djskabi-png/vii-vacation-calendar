@@ -9,6 +9,14 @@ import type { Trail } from "../data/trail-data";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import "leaflet/dist/leaflet.css";
 
+let leafletModulePromise: Promise<typeof import("leaflet")> | null = null;
+
+export function preloadLeaflet() {
+  if (typeof window === "undefined") return null;
+  leafletModulePromise ??= import("leaflet");
+  return leafletModulePromise;
+}
+
 type MapTone = "vacation" | "events" | "spa" | "hourly" | "activities";
 
 type MapPlace = {
@@ -172,7 +180,9 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
     setPendingVisibleIds([]);
     setMapReady(false);
 
-    void import("leaflet").then((L) => {
+    const leaflet = preloadLeaflet();
+    if (!leaflet) return;
+    void leaflet.then((L) => {
       if (cancelled) return;
       mapInstance.current?.remove();
       mapInstance.current = null;

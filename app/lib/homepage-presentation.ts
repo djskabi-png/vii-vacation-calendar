@@ -27,9 +27,9 @@ const defaults = {
   ],
   types: [
     { id: "villas", label: "וילות", note: "מקום שלם למשפחה או לקבוצה", href: "/villas", image: "/media/322de460abbda5c6.jpg", visible: true },
-    { id: "suites", label: "סוויטות", note: "אירוח זוגי ומשפחתי", href: "/suite-complexes", image: "/media/e65d757e686fda64.jpg", visible: true },
-    { id: "cabins", label: "צימרים ובקתות", note: "אירוח אינטימי מול הנוף", href: "/search?types=צימרים", image: "/media/f18d7c0469633ca0.jpeg", visible: true },
-    { id: "apartments", label: "דירות נופש", note: "עצמאות ונוחות בעיר", href: "/vacation-apartments", image: "/media/c3a6274bfd08091a.jpeg", visible: true },
+    { id: "suites", label: "סוויטות", note: "אירוח זוגי ומשפחתי", href: "/suite-complexes", image: "/media/051ff4fbc8d7d2ac.jpeg", visible: true },
+    { id: "cabins", label: "צימרים ובקתות", note: "אירוח אינטימי מול הנוף", href: "/search?types=צימרים", image: "/media/hilat-hanof/535f7c268ed1dc4.jpeg", visible: true },
+    { id: "apartments", label: "דירות נופש", note: "עצמאות ונוחות בעיר", href: "/vacation-apartments", image: "/media/88fcef4341b24a45.jpeg", visible: true },
     { id: "complexes", label: "מתחמי אירוח", note: "כמה יחידות במקום אחד", href: "/search?types=מתחמי אירוח", image: "/media/978e5fd5134b0831.jpeg", visible: true }
   ]
 } satisfies Record<string, HomeDiscoveryItem[]>;

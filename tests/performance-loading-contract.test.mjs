@@ -25,6 +25,39 @@ test("result maps are deferred until the map view is opened", async () => {
   for (const source of [hourly, worlds, attractions]) assert.match(source, /DeferredDiscoveryMap/);
 });
 
+test("map code warms on intent and Leaflet loading overlaps the deferred chunk", async () => {
+  const [deferred, listing, vacation, events, hourly, worlds, attractions, styles] = await Promise.all([
+    readFile(new URL("app/components/deferred-listing-map.tsx", root), "utf8"),
+    readFile(new URL("app/components/listing-map.tsx", root), "utf8"),
+    readFile(new URL("app/search/page.tsx", root), "utf8"),
+    readFile(new URL("app/events/search/page.tsx", root), "utf8"),
+    readFile(new URL("app/components/hourly-results.tsx", root), "utf8"),
+    readFile(new URL("app/components/world-map-results.tsx", root), "utf8"),
+    readFile(new URL("app/attractions/attractions-explorer.tsx", root), "utf8"),
+    readFile(new URL("app/globals.css", root), "utf8"),
+  ]);
+  assert.match(deferred, /export const preloadListingMap/);
+  assert.match(deferred, /module\.preloadLeaflet\(\)/);
+  assert.match(deferred, /טוענים את המפה/);
+  assert.match(listing, /export function preloadLeaflet/);
+  assert.match(listing, /leafletModulePromise \?\?= import\("leaflet"\)/);
+  assert.match(listing, /void leaflet\.then/);
+  for (const source of [vacation, events, hourly, worlds, attractions]) {
+    assert.match(source, /onPointerEnter=\{preloadListingMap\}/);
+    assert.match(source, /onFocus=\{preloadListingMap\}/);
+  }
+  assert.match(styles, /map-deferred-loading__orbit/);
+  assert.match(styles, /prefers-reduced-motion/);
+});
+
+test("discovery cards keep equal geometry and consistent primary actions", async () => {
+  const styles = await readFile(new URL("app/globals.css", root), "utf8");
+  assert.match(styles, /\.discovery-card \{[^}]*height: 100%;[^}]*display: flex;[^}]*flex-direction: column;/s);
+  assert.match(styles, /\.discovery-card__body \{[^}]*flex: 1 1 auto;[^}]*display: flex;[^}]*flex-direction: column;/s);
+  assert.match(styles, /\.discovery-card footer \{[^}]*margin-top: auto;/s);
+  assert.match(styles, /\.discovery-card__details \{[^}]*min-width: 132px;[^}]*min-height: 44px;/s);
+});
+
 test("below-fold media does not compete with the first screen", async () => {
   const [home, page, property, discovery] = await Promise.all([
     readFile(new URL("app/components/home-showcase.tsx", root), "utf8"),
