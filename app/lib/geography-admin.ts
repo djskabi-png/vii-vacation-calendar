@@ -84,13 +84,13 @@ function sourceId(value: Record<string, unknown>, level: GeographyLevel) {
 function titleEn(value: Record<string, unknown>) { return text(value.title_en ?? value.titleEn ?? value.name_en ?? value.nameEn); }
 
 function nestedRows(value: Record<string, unknown>, level: GeographyLevel) {
-  const keys = level === "district" ? ["districts", "regions", "counties"]
+  const keys = level === "district" ? ["districts", "main_areas", "regions", "counties"]
     : level === "area" ? ["areas", "subareas", "regions"] : ["cities", "settlements", "towns"];
   return keys.flatMap((key) => array(value[key]));
 }
 
 function inferredRootDistricts(root: Record<string, unknown>) {
-  const reserved = new Set(["unassigned", "areas", "cities", "districts", "regions", "counties", "data", "result", "locations", "geography"]);
+  const reserved = new Set(["unassigned", "areas", "cities", "districts", "main_areas", "regions", "counties", "data", "result", "locations", "geography"]);
   return Object.entries(root)
     .filter(([key]) => !reserved.has(key))
     .map(([, value]) => value)

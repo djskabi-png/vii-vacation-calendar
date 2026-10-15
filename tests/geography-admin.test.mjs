@@ -40,6 +40,23 @@ test("supplier geography accepts data wrappers and object-keyed collections", ()
   assert.deepEqual(nodes.map((node) => node.key), ["district:1", "area:2", "city:3"]);
 });
 
+test("supplier geography accepts the production main_areas hierarchy", () => {
+  const nodes = normalizeSupplierGeography({
+    api_version: 1,
+    created: "timestamp",
+    main_areas: [{ id: 4, title: "מרכז", title_en: "Center", areas: [
+      { id: 12, title: "שפלה", title_en: "Shfela", cities: [
+        { id: 700, area_id: 12, title: "ישרש", title_en: "Yashresh", gps_lat: 31.916, gps_long: 34.849 },
+      ] },
+    ] }],
+    unassigned: { areas: [], cities: [{ id: 118, area_id: 0, title: "בית ליד" }] },
+  });
+  assert.ok(nodes.some((node) => node.key === "district:4" && node.title === "מרכז"));
+  assert.ok(nodes.some((node) => node.key === "area:12" && node.parentKey === "district:4"));
+  assert.ok(nodes.some((node) => node.key === "city:700" && node.parentKey === "area:12" && node.title === "ישרש"));
+  assert.equal(nodes.find((node) => node.key === "city:118")?.unassigned, true);
+});
+
 test("supplier geography uses the edge-supported manual redirect mode", async () => {
   let init;
   const nodes = await fetchSupplierGeography("private-token", async (_url, options) => {
