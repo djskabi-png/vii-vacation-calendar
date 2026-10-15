@@ -5,7 +5,7 @@
   "task_type": "homepage loading-state motion polish",
   "goal": "Make the shared live-deals loading state visibly active, distinctive and interesting without slowing or destabilizing the homepage.",
   "created_at": "2026-10-15T00:24:05.897710Z",
-  "updated_at": "2026-10-15T00:28:27.153775Z",
+  "updated_at": "2026-10-15T00:29:33.549799Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -141,8 +141,8 @@
       "acceptance_check": "Before any complete, ready or likely-to-satisfy judgment, the evidence must name the original promise, distinguish the latest repaired detail from the full outcome, map every critical journey and affected-family item to passed evidence, a precise blocker or justified exclusion, and inspect the exact final artifact at its natural destination. A fixture that proves only the most recent local correction must be blocked from full approval, regardless of project type. A deliberately incomplete review or task must be blocked. A public customer-facing review must also fail without five to ten passed post-deploy representative actor scenarios on the exact version and at least three applicable stakeholder perspectives. A justified non-public or non-customer artifact must remain valid without an irrelevant public cohort. A completed result with an addressable destination fails delivery when its direct link is omitted. A result without a possible link passes only when the exact location or retrieval path and a concrete no-link reason are present.",
       "status": "blocked",
       "evidence": [],
-      "reason": "Exact production publication cannot yet be verified because the configured Sites project is not accessible to the currently connected Sites workspace. Local destination, full build and 708 tests passed; public post-deploy actor evidence is unavailable until access is restored.",
-      "updated_at": "2026-10-15T00:28:18.714140Z"
+      "reason": "Production publication is not verified. After commit 3e24496 was pushed, the exact configured Sites project appgprj_6a71ccdca27481918bf04dd329d3eb21 returned Sites project not found in the connected workspace. No alternate project was substituted. Local destination, build and 708 tests pass.",
+      "updated_at": "2026-10-15T00:29:33.423597Z"
     },
     {
       "id": "lesson:ADIR-SCOPE-001",
@@ -231,7 +231,7 @@
   ],
   "verification_status": "not_verified",
   "verification_errors": [
-    "lesson:ADIR-QA-001: blocked: Exact production publication cannot yet be verified because the configured Sites project is not accessible to the currently connected Sites workspace. Local destination, full build and 708 tests passed; public post-deploy actor evidence is unavailable until access is restored."
+    "lesson:ADIR-QA-001: blocked: Production publication is not verified. After commit 3e24496 was pushed, the exact configured Sites project appgprj_6a71ccdca27481918bf04dd329d3eb21 returned Sites project not found in the connected workspace. No alternate project was substituted. Local destination, build and 708 tests pass."
   ],
   "predictive_results": {
     "midpoint": {
