@@ -1,0 +1,47 @@
+{
+  "verdict": "not_ready",
+  "release": "candidate e7839b227881258df39ec4a4cab1acb77ebc050d",
+  "target": "temporary production candidate at https://vii.spaplus.co; future primary domain cutover is separate",
+  "baseline": "Sites release 423, production commit a6d9679abba2445c097e03441e7027be2a2ca134",
+  "requested_outcome": "Protect administration before render, migrate every legacy search page, create direct redirects, and determine whether the old domain can safely move to the new platform.",
+  "changed_components": [
+    "server-side administration layout authorization",
+    "2,313 generated legacy search-page publications",
+    "complete legacy redirect inventory",
+    "search-page administration merge and materialization behavior",
+    "paginated search-page sitemap",
+    "migration and launch regression tests"
+  ],
+  "affected_family": [
+    {"id": "FAM-1", "surface": "all administration routes and session states"},
+    {"id": "FAM-2", "surface": "2,313 legacy search pages, their new public targets and administrator records"},
+    {"id": "FAM-3", "surface": "3,526 classified legacy URLs and the redirect worker"},
+    {"id": "FAM-4", "surface": "sitemap, canonical, robots and hreflang outputs"},
+    {"id": "FAM-5", "surface": "public launch operations, analytics, accessibility, DNS and rollback"}
+  ],
+  "characteristics": {"stateful": true, "responsive": true},
+  "checks": [
+    {"id": "CHK-1", "family_ids": ["FAM-1"], "state": "permission", "status": "passed", "evidence": "Three server-session tests pass and four built admin routes redirect before shell text is returned."},
+    {"id": "CHK-2", "family_ids": ["FAM-2"], "state": "persistence", "status": "passed", "evidence": "2,313 generated published records have stable identities; a D1 administration row shadows and materializes the generated record on first edit."},
+    {"id": "CHK-3", "family_ids": ["FAM-2", "FAM-3"], "state": "success", "status": "passed", "evidence": "2,313 of 2,313 source pages were fetched; every source has one unique target and direct redirect; full inventory totals 3,075 redirects and 451 gone outcomes."},
+    {"id": "CHK-4", "family_ids": ["FAM-4"], "state": "success", "status": "passed", "evidence": "Built-worker tests verify staging noindex, primary canonical and robots host, and paginated search-page sitemap membership."},
+    {"id": "CHK-5", "family_ids": ["FAM-1", "FAM-2", "FAM-3", "FAM-4"], "state": "reload", "status": "passed", "evidence": "Complete build and 723 automated tests pass at commit e7839b227881258df39ec4a4cab1acb77ebc050d."},
+    {"id": "CHK-6", "family_ids": ["FAM-5"], "state": "responsive", "status": "pending", "evidence": "Exact-candidate public desktop, 390-pixel mobile and independent visual review remain pending publication."},
+    {"id": "CHK-7", "family_ids": ["FAM-5"], "state": "failure", "status": "blocked", "evidence": "GA4/GTM/Search Console reconciliation, live conversion delivery evidence and the legally required accessibility applicability and manual audit are incomplete."},
+    {"id": "CHK-8", "family_ids": ["FAM-5"], "state": "rollback", "status": "pending", "evidence": "Release 423 is the recorded rollback identity; rollback availability must be reconfirmed in Sites before candidate publication and domain cutover."}
+  ],
+  "rollback": {
+    "available": true,
+    "method": "Restore saved Sites release 423 on the existing VII Site.",
+    "verification": "Release 423 and production commit a6d9679abba2445c097e03441e7027be2a2ca134 were the verified live baseline before this candidate; restore readiness must be rechecked at publication."
+  },
+  "authorization_boundary": "Safe candidate publication to vii.spaplus.co is authorized. Old-domain DNS or origin replacement remains a distinct final cutover action.",
+  "remaining_blockers": [
+    "Exact candidate is not yet published and visually verified.",
+    "Independent functional, responsive and visual review is missing.",
+    "GA4, GTM consent, Search Console, Bing and launch monitoring are not reconciled on the candidate.",
+    "Accessibility and legal truth are not independently approved for the exact release.",
+    "DNS, TLS, email DNS preservation and rollback rehearsal are not complete.",
+    "Complete CMS and least-privilege role coverage remain incomplete."
+  ]
+}
