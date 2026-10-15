@@ -5,7 +5,7 @@
   "task_type": "public product design, CMS control and release",
   "goal": "Every VII world has a distinctive image-led landing and independent CMS control without regressing search or results.",
   "created_at": "2026-10-15T00:07:49.213716Z",
-  "updated_at": "2026-10-15T00:20:32.589413Z",
+  "updated_at": "2026-10-15T00:22:35.272659Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -89,10 +89,10 @@
       "acceptance_check": "Open and exercise every affected route and representative Content Studio edit on the exact released version.",
       "status": "blocked",
       "evidence": [
-        "Local implementation, build, tests and visual QA passed, but exact production release and live CMS persistence are not yet verified."
+        "Direct production inspection of https://vii.spaplus.co/hourly?release_check=f11aa56 still showed the old generic heading/search/results opening with no managed image-led hero."
       ],
-      "reason": "Production publication still requires a working authenticated Sites deployment path.",
-      "updated_at": "2026-10-15T00:20:26.542183Z"
+      "reason": "Sites connector returned project not found for the retained project_id, and the short-lived Git credential flow remained unavailable.",
+      "updated_at": "2026-10-15T00:22:34.750085Z"
     },
     {
       "id": "preflight:prediction",
@@ -151,10 +151,10 @@
       "acceptance_check": "Before any complete, ready or likely-to-satisfy judgment, the evidence must name the original promise, distinguish the latest repaired detail from the full outcome, map every critical journey and affected-family item to passed evidence, a precise blocker or justified exclusion, and inspect the exact final artifact at its natural destination. A fixture that proves only the most recent local correction must be blocked from full approval, regardless of project type. A deliberately incomplete review or task must be blocked. A public customer-facing review must also fail without five to ten passed post-deploy representative actor scenarios on the exact version and at least three applicable stakeholder perspectives. A justified non-public or non-customer artifact must remain valid without an irrelevant public cohort. A completed result with an addressable destination fails delivery when its direct link is omitted. A result without a possible link passes only when the exact location or retrieval path and a concrete no-link reason are present.",
       "status": "blocked",
       "evidence": [
-        "Candidate passed build, 708 tests, affected-family screenshots and independent review."
+        "Exact public route was opened after GitHub push and proved the candidate was not deployed."
       ],
-      "reason": "Exact production release and representative post-deploy scenarios are unavailable until deployment succeeds.",
-      "updated_at": "2026-10-15T00:20:26.995867Z"
+      "reason": "The production release is still version 420 behavior, so representative post-deploy validation cannot begin.",
+      "updated_at": "2026-10-15T00:22:35.272659Z"
     },
     {
       "id": "lesson:ADIR-MOBILE-001",
@@ -253,13 +253,8 @@
       "updated_at": "2026-10-15T00:20:30.491602Z"
     }
   ],
-  "verification_status": "not_verified",
-  "verification_errors": [
-    "goal: blocked: Production publication still requires a working authenticated Sites deployment path.",
-    "lesson:ADIR-QA-001: blocked: Exact production release and representative post-deploy scenarios are unavailable until deployment succeeds.",
-    "lesson:ADIR-ADMIN-001: blocked: Live D1 save, reload, preview, publish and rollback cannot be verified without deployed Cloudflare bindings.",
-    "lesson:ADIR-WEB-CMS-001: blocked: Live D1 persistence and public reflection are not verified."
-  ],
+  "verification_status": "in_progress",
+  "verification_errors": [],
   "predictive_results": {
     "midpoint": {
       "observed_at": "2026-10-15T00:20:16.467348Z",
