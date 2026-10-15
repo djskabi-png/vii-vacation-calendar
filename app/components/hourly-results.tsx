@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DiscoveryCard } from "./discovery-card";
 import type { DiscoveryItem } from "../data/world-data";
-import { DeferredDiscoveryMap } from "./deferred-listing-map";
+import { DeferredDiscoveryMap, preloadListingMap } from "./deferred-listing-map";
 import { MapIcon } from "../site-header";
 import { ModernSelect } from "./modern-select";
 import { useMapViewState } from "./map-view-state";
@@ -138,7 +138,7 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
         <div className="hourly-results__actions">
           <ResultsViewToggle value={viewMode} onChange={setViewMode} />
           <button type="button" className={`hourly-filter-toggle ${moreFiltersOpen ? "active" : ""}`} aria-expanded={moreFiltersOpen} aria-controls="hourly-result-filters" onClick={() => setMoreFiltersOpen((value) => !value)}>סינון{features.length ? ` (${features.length})` : ""}</button>
-          {filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onClick={toggleResultsMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
+          {filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onPointerEnter={preloadListingMap} onFocus={preloadListingMap} onTouchStart={preloadListingMap} onClick={toggleResultsMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
         </div>
       </div>
       <div id="hourly-result-filters" className={`hourly-results__filters ${moreFiltersOpen ? "open" : ""}`}>

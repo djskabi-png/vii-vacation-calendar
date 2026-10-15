@@ -6,10 +6,19 @@ import type { Listing } from "../data/site-data";
 import type { DiscoveryItem } from "../data/world-data";
 import type { Trail } from "../data/trail-data";
 
-const loadingMap = () => <div className="map-deferred-loading" role="status">טוענים את המפה</div>;
+const loadListingMap = () => import("./listing-map");
+
+export const preloadListingMap = () => {
+  void loadListingMap().then((module) => module.preloadLeaflet());
+};
+
+const loadingMap = () => <div className="map-deferred-loading" role="status" aria-live="polite">
+  <span className="map-deferred-loading__orbit" aria-hidden="true"><i /><i /><i /></span>
+  <strong>טוענים את המפה</strong>
+</div>;
 
 export const DeferredListingMap = dynamic(
-  () => import("./listing-map").then((module) => module.ListingMap),
+  () => loadListingMap().then((module) => module.ListingMap),
   { ssr: false, loading: loadingMap },
 ) as ComponentType<{
   listings: Listing[];
@@ -25,7 +34,7 @@ export const DeferredListingMap = dynamic(
 }>;
 
 export const DeferredDiscoveryMap = dynamic(
-  () => import("./listing-map").then((module) => module.DiscoveryMap),
+  () => loadListingMap().then((module) => module.DiscoveryMap),
   { ssr: false, loading: loadingMap },
 ) as ComponentType<{
   items: DiscoveryItem[];
@@ -39,7 +48,7 @@ export const DeferredDiscoveryMap = dynamic(
 }>;
 
 export const DeferredTrailMap = dynamic(
-  () => import("./listing-map").then((module) => module.TrailMap),
+  () => loadListingMap().then((module) => module.TrailMap),
   { ssr: false, loading: loadingMap },
 ) as ComponentType<{
   trails: Trail[];

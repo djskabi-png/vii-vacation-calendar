@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-live-deals-motion-20261015",
+  "project": "VII",
+  "task_type": "homepage loading-state motion polish",
+  "requested_outcome": "The available-stays loading state feels alive, special and clearly active instead of looking like a static placeholder, without delaying content or causing layout shift.",
+  "natural_destination": "The VII homepage available-stays and holiday-stays sections during their initial API request and every tab change.",
+  "authorization_boundary": "Change only the shared live-deals loading presentation, test it locally and prepare the release candidate. Preserve data fetching, tabs, result cards, links, copy and error behavior.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "A source animation is not complete until the actual loading state is observed at its natural destination.",
+      "acceptance_impact": "Capture the loading state and verify its transition into results without a jump or dead layer."
+    },
+    {
+      "lesson_id": "ADIR-SCOPE-001",
+      "reason": "The approved homepage content and cards must remain unchanged.",
+      "acceptance_impact": "Only loading-state CSS and its contract test may change."
+    },
+    {
+      "lesson_id": "ADIR-MOBILE-001",
+      "reason": "The loading block must remain useful and contained on 390-pixel mobile and low-height screens.",
+      "acceptance_impact": "Verify no horizontal overflow, clipped animation or blank first viewport on mobile."
+    },
+    {
+      "lesson_id": "ADIR-TYPE-001",
+      "reason": "The Hebrew loading label remains a visible brand surface.",
+      "acceptance_impact": "Preserve the existing approved font stack and readable loading label."
+    },
+    {
+      "lesson_id": "ADIR-CONTROL-001",
+      "reason": "Tabs and slider controls surrounding the loading state must keep their existing enabled and disabled semantics.",
+      "acceptance_impact": "Motion polish must not change any control state or interaction."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The logo moves but the large background still feels static.",
+      "prevention": "Add independent ambient light, drifting point field, shimmer and staggered card motion.",
+      "acceptance_check": "At least three visually distinct motion layers are visible while the request is pending."
+    },
+    {
+      "rejection": "The animation is flashy, distracting or makes the site feel slower.",
+      "prevention": "Use low-amplitude transform and opacity animations with no timers, video or additional network requests.",
+      "acceptance_check": "Only compositor-friendly decorative layers move and the API begins immediately as before."
+    },
+    {
+      "rejection": "The new background causes overflow or a layout jump when results arrive.",
+      "prevention": "Keep the existing reserved height and clip decoration inside the loader.",
+      "acceptance_check": "Desktop, 390-pixel mobile and low-height checks show no horizontal overflow and stable section height."
+    },
+    {
+      "rejection": "Users who request reduced motion still receive continuous animation.",
+      "prevention": "Disable every added keyframe under prefers-reduced-motion.",
+      "acceptance_check": "The reduced-motion rule enumerates the ambient, card, shimmer, logo and line animations."
+    }
+  ],
+  "affected_family": [
+    "Homepage nearby-date live deals loader",
+    "Homepage holiday live deals loader",
+    "Initial load and tab-change load",
+    "Desktop, 390-pixel mobile and low-height viewport",
+    "Normal motion and reduced-motion preferences"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "User-provided screenshot of the current loading state",
+        "source": "C:/Users/Adir/AppData/Local/Temp/codex-clipboard-d6401a53-ee76-447c-80a4-03c16e9818fb.png"
+      },
+      {
+        "label": "VII accepted product feedback standard",
+        "source": "C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the new ambient background and shimmer render in the first nearby-date loader.",
+    "checks": [
+      "The background visibly moves independently of the logo.",
+      "The cards remain aligned to the final card geometry.",
+      "No data, copy, tabs or result behavior changed."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can the loader still be mistaken for a frozen page?",
+      "Does any decorative layer escape the rounded loading surface?",
+      "Does reduced-motion still animate any added layer?",
+      "Did the visual change alter the loading-to-results transition or existing controls?"
+    ],
+    "natural_destination_evidence": "Local browser observation of the real homepage API loading state and its transition to results.",
+    "affected_family_evidence": "Visual and source checks for both loader modes, desktop, mobile, low-height and reduced motion."
+  },
+  "effectiveness": {
+    "baseline": "The current logo travels across a short route and skeleton opacity pulses, but the large background and card surfaces read as static.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "A clearly active but calm loader with no additional network request, no overflow and complete reduced-motion fallback."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

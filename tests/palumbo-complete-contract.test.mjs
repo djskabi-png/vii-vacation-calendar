@@ -22,6 +22,17 @@ test("homepage discovery is visual, managed and complete", async () => {
   assert.match(discovery, /סוגי מקומות נופש/);
 });
 
+test("place-type cards use distinct relevant photography without the unavailable placeholder", async () => {
+  const presentation = await source("app/lib/homepage-presentation.ts");
+  const typeBlock = presentation.match(/types: \[([\s\S]*?)\n  \]/)?.[1] || "";
+  const images = [...typeBlock.matchAll(/image: "([^"]+)"/g)].map((match) => match[1]);
+  assert.equal(images.length, 5);
+  assert.equal(new Set(images).size, images.length);
+  assert.doesNotMatch(typeBlock, /e65d757e686fda64|c3a6274bfd08091a/);
+  assert.match(typeBlock, /hilat-hanof\/535f7c268ed1dc4\.jpeg/);
+  assert.match(typeBlock, /88fcef4341b24a45\.jpeg/);
+});
+
 test("holiday, contact and card requirements remain explicit", async () => {
   const [deals, model] = await Promise.all([
     source("app/components/home-live-deals.tsx"),

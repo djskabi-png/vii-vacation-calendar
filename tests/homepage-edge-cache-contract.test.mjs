@@ -5,7 +5,8 @@ import test from "node:test";
 const worker = await readFile(new URL("../worker/index.ts", import.meta.url), "utf8");
 
 test("public HTML and catalog reads have bounded host-aware caches with private exclusions", () => {
-  assert.match(worker, /const publicCacheVersion = "v2"/);
+  assert.match(worker, /const publicCacheVersion = "v3"/);
+  assert.match(worker, /if \(path === "\/"\) return 300/);
   assert.match(worker, /publicDocumentTtl/);
   assert.match(worker, /url\.hostname/);
   assert.match(worker, /admin\|account\|favorites\|booking/);

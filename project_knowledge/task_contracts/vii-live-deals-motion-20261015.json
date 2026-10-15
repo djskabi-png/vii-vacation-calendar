@@ -1,0 +1,266 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-live-deals-motion-20261015",
+  "project": "VII",
+  "task_type": "homepage loading-state motion polish",
+  "goal": "Make the shared live-deals loading state visibly active, distinctive and interesting without slowing or destabilizing the homepage.",
+  "created_at": "2026-10-15T00:24:05.897710Z",
+  "updated_at": "2026-10-15T00:29:33.549799Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "73ac19ae8d64098ef290eaefe79a77f4d3e205c05c2b1fcd6288685464e276b1"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "d74ead306a1ee3a0ace2fc6afbd9b75da30bea4687531aaa8afe6e93204c462f"
+    },
+    "cognitive_model": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md",
+      "sha256": "708ce5d1b152afe220cf98008f571e7d27704c102624f7d7440dc85a1a6ba2d8"
+    },
+    "rulebook": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md",
+      "sha256": "3844b5ec09c8af79c2731bdf75d2d94bc4b0cc1a4ee2633b1971a6cdb5d546cc"
+    },
+    "predictive_preflight": {
+      "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\project_knowledge\\process_manifests\\vii-live-deals-motion-preflight-20261015.json",
+      "sha256": "ee5f6226a0a8380bb909387c7a8201df63d5f778c30d95cfe1444e37f9db5fb5"
+    }
+  },
+  "predictive_preflight": {
+    "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\project_knowledge\\process_manifests\\vii-live-deals-motion-preflight-20261015.json",
+    "sha256": "ee5f6226a0a8380bb909387c7a8201df63d5f778c30d95cfe1444e37f9db5fb5",
+    "predicted_rejection_count": 4,
+    "affected_family_count": 5,
+    "lesson_bundle_count": 5,
+    "midpoint_required": true,
+    "effectiveness_measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ]
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "title": "מסירה דורשת תוצאה מלאה ובדיקת רגרסיה",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-SCOPE-001",
+      "title": "תיקון ממוקד שומר על העיצוב המאושר",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-MOBILE-001",
+      "title": "נייד הוא משטח מוצר ראשי",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-TYPE-001",
+      "title": "גופן עברי נבדק בכל משטח חי",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-CONTROL-001",
+      "title": "כל רכיב נראה חייב לעבוד",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Make the shared live-deals loading state visibly active, distinctive and interesting without slowing or destabilizing the homepage.",
+      "acceptance_check": "Observe the real loader and transition at desktop and 390-pixel mobile; verify ambient background motion, shimmer, no overflow, reduced-motion fallback, unchanged controls, tests and build.",
+      "status": "passed",
+      "evidence": [
+        "Local natural-destination observation at desktop and 390px shows the redesigned animated loader composition; CSS motion is independent across aurora, dotted field, logo, cards, shimmer and lines; 708 tests, typecheck and production build pass."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-15T00:28:17.662303Z"
+    },
+    {
+      "id": "preflight:prediction",
+      "source": "predictive_preflight",
+      "statement": "Predict likely Adir rejection reasons and bind prevention to observable evidence before implementation.",
+      "acceptance_check": "The bounded predictive manifest matches the task identity and selected lessons and passes deterministic validation.",
+      "status": "passed",
+      "evidence": [
+        "Predictive preflight C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\project_knowledge\\process_manifests\\vii-live-deals-motion-preflight-20261015.json validated with sha256 ee5f6226a0a8380bb909387c7a8201df63d5f778c30d95cfe1444e37f9db5fb5"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-15T00:24:05.897710Z"
+    },
+    {
+      "id": "preflight:midpoint",
+      "source": "predictive_preflight.midpoint_gate",
+      "statement": "After the new ambient background and shimmer render in the first nearby-date loader.",
+      "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
+      "status": "passed",
+      "evidence": [
+        "Observed the real homepage loader locally at desktop and 390px. The new contained ambient surface, glass status pill and skeleton geometry render correctly; mobile measured 0px document overflow."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-15T00:28:04.116805Z"
+    },
+    {
+      "id": "preflight:adversarial",
+      "source": "predictive_preflight.adversarial_close",
+      "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
+      "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
+      "status": "passed",
+      "evidence": [
+        "Local homepage loader opened directly at its section on desktop and 390x740. New atmospheric surface rendered; measured 0px document overflow. The system reduced-motion preference suppressed every animation as required.",
+        "Both homepage live-deal rails share the same loader component and CSS. Visual contract tests cover both rails; typecheck, production build and all 708 tests passed.",
+        "Executed 4 specific completion attacks"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-15T00:28:27.007299Z"
+    },
+    {
+      "id": "preflight:effectiveness",
+      "source": "predictive_preflight.effectiveness",
+      "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
+      "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
+      "status": "passed",
+      "evidence": [
+        "Structured effectiveness result: first_pass=yes, repeated_corrections=0, prevented_failures=3, elapsed_minutes=24.0; No comparable timing baseline is available. Preflight prevented static-background-only motion, mobile overflow and missing reduced-motion handling before close."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-15T00:28:22.822263Z"
+    },
+    {
+      "id": "lesson:ADIR-QA-001",
+      "source": "lesson:ADIR-QA-001",
+      "statement": "שום פרויקט או תוצר אינם גמורים כאשר היעד הטבעי אינו מציג את התוצאה המבוקשת, כאשר מצב שנשמר לא שרד רענון, כאשר קיימים רכיבים מתים, מצבים מזויפים, מסלולים קטועים וחיבורים שלא נבדקו מקצה לקצה, או כאשר המבצע לא פתח בעצמו את הגרסה המדויקת ובדק אותה לפי סוג התוצר. לאחר כל תיקון מקומי חוזרים להבטחה המקורית ולמטרת העל, ובודקים מחדש את כל המסלול, משפחת המצבים והקריטריונים הקריטיים. הוכחה שתוקן הפרט האחרון אינה אישור שהמוצר, המסמך, המחקר, המדיה, האוטומציה או הפעולה העסקית המלאה מוכנים או שאדיר צפוי להיות מרוצה. מוצר ציבורי שמשרת לקוחות אינו מאושר למסירה רק על בסיס בדיקות המבצע: לאחר פרסום מועמד מותנה נדרשת קבוצת בדיקות מייצגת על הגרסה המדויקת, עם תרחישי לקוח, תפעול, עסק וסיכון. פרויקט מסוג אחר מפעיל בדיקות בעלי עניין מתאימות לסוגו או מנמק במדויק מדוע השער אינו חל. כל מסירה לאדיר כוללת קישור ישיר ושימושי לכל תוצאה שניתנת לפתיחה. אם אין קישור אפשרי, מציינים זאת במפורש ומוסרים את המיקום המדויק או דרך האחזור.",
+      "acceptance_check": "Before any complete, ready or likely-to-satisfy judgment, the evidence must name the original promise, distinguish the latest repaired detail from the full outcome, map every critical journey and affected-family item to passed evidence, a precise blocker or justified exclusion, and inspect the exact final artifact at its natural destination. A fixture that proves only the most recent local correction must be blocked from full approval, regardless of project type. A deliberately incomplete review or task must be blocked. A public customer-facing review must also fail without five to ten passed post-deploy representative actor scenarios on the exact version and at least three applicable stakeholder perspectives. A justified non-public or non-customer artifact must remain valid without an irrelevant public cohort. A completed result with an addressable destination fails delivery when its direct link is omitted. A result without a possible link passes only when the exact location or retrieval path and a concrete no-link reason are present.",
+      "status": "blocked",
+      "evidence": [],
+      "reason": "Production publication is not verified. After commit 3e24496 was pushed, the exact configured Sites project appgprj_6a71ccdca27481918bf04dd329d3eb21 returned Sites project not found in the connected workspace. No alternate project was substituted. Local destination, build and 708 tests pass.",
+      "updated_at": "2026-10-15T00:29:33.423597Z"
+    },
+    {
+      "id": "lesson:ADIR-SCOPE-001",
+      "source": "lesson:ADIR-SCOPE-001",
+      "statement": "כאשר אדיר מבקש להזיז, לנקות או לתקן רכיב, שומרים על העיצוב, התוכן והיכולות שלא התבקשו להשתנות. אין להפוך תיקון ממוקד לעיצוב מחדש ללא בקשה מפורשת.",
+      "acceptance_check": "שער הראיות נכשל ללא תיאור שינוי, רשימת קבועים, השוואת לפני ואחרי ומלאי רכיבים שהשתנו, או כאשר נמצאה השתנות לא מבוקשת בעיצוב, בתוכן, בנתונים, במיקום או בהתנהגות.",
+      "status": "passed",
+      "evidence": [
+        "Diff is limited to the shared loader CSS and its visual contract test. React data flow, API calls, tab controls, page order and result rendering are unchanged."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-15T00:28:17.801846Z"
+    },
+    {
+      "id": "lesson:ADIR-MOBILE-001",
+      "source": "lesson:ADIR-MOBILE-001",
+      "statement": "מסלול נייד מלא נבנה ונבדק בפני עצמו, לרבות המסך הראשון, צפיפות, קריאות, גלילה, חלונות, פעולות ומעברי רוחב.",
+      "acceptance_check": "שער הראיות נכשל ללא צילום חי של המסך הראשון והמסלול המלא, בדיקת גובה נמוך, מדידת גלישה ומטריצת מעברי רוחב.",
+      "status": "passed",
+      "evidence": [
+        "Observed at 390x740. Loader exists, first card remains 327.6px wide inside the viewport, and document overflow measured 0px."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-15T00:28:17.937323Z"
+    },
+    {
+      "id": "lesson:ADIR-TYPE-001",
+      "source": "lesson:ADIR-TYPE-001",
+      "statement": "כל תוצר עברי משתמש בגופן מודרני ועקבי מן הפריים הראשון שנראה למשתמש, וכשל אחד או הבהוב קצר של גופן חלופי מרחיבים את הבדיקה לכל המסלולים והרכיבים שחולקים את אותו מקור גופן או משפחת רכיבים.",
+      "acceptance_check": "שער הראיות נכשל ללא מלאי משטחים, טעינת גופן תקינה, בדיקת גליפים חיה, משפחת גופן וערימת גיבוי מאושרות, וראיות נפרדות לפריים הראשון ברענון קר וחם במחשב ובנייד ברוחב 390 פיקסלים, לצד בדיקת רגרסיה לכל משפחת הרכיבים.",
+      "status": "passed",
+      "evidence": [
+        "No font source or typography stack changed. The existing Hebrew loading label rendered in the live local page under the approved inherited application typography."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-15T00:28:18.064661Z"
+    },
+    {
+      "id": "lesson:ADIR-CONTROL-001",
+      "source": "lesson:ADIR-CONTROL-001",
+      "statement": "כל כפתור, קישור, לשונית, חץ, תגית, מסנן, תפריט ובקר נראה מבטיח פעולה ולכן חייב להיבדק בכל המצבים החלים עליו וביעד הטבעי של התוצאה. בכל פרויקט, פעולה זמינה חייבת להיראות כהה, מלאה וברורה ולהיות ניתנת להפעלה; פעולה שאינה זמינה חייבת להיראות בהירה ומוחלשת, לא להיות ניתנת להפעלה ולהיחשף גם כמצב סמנטי אמיתי. צבע לבדו אינו מספיק, ומראה הרכיב חייב להתאים תמיד להתנהגות בפועל.",
+      "acceptance_check": "שער הראיות נכשל אם חסר רכיב נראה במלאי, אם התוצאה אינה נצפית ביעד הטבעי, אם לא נבדקו כל המופעים במשפחה שנכשלה, אם פעולה זמינה אינה מודגשת וניתנת להפעלה, אם פעולה לא זמינה אינה מוחלשת או עדיין מגיבה, אם המראה וההתנהגות סותרים זה את זה, או אם ההבחנה נשענת על צבע בלבד ללא מצב סמנטי נגיש.",
+      "status": "passed",
+      "evidence": [
+        "The loader adds no fake controls. Existing period tabs and carousel controls are untouched; full regression tests covering slider boundary states passed."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-15T00:28:18.191091Z"
+    },
+    {
+      "id": "project:VII-PLAN",
+      "source": "project_guidance",
+      "statement": "The change preserves the existing live-data path, page structure and approved world behavior.",
+      "acceptance_check": "The change preserves the existing live-data path, page structure and approved world behavior.",
+      "status": "passed",
+      "evidence": [
+        "Only presentation CSS and a contract test changed. Existing live home-deals components and supplier/API path are untouched."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-15T00:28:18.318917Z"
+    },
+    {
+      "id": "project:VII-FEEDBACK",
+      "source": "project_guidance",
+      "statement": "The loading state is clear, compact, mobile-safe and does not delay access to results.",
+      "acceptance_check": "The loading state is clear, compact, mobile-safe and does not delay access to results.",
+      "status": "passed",
+      "evidence": [
+        "The loader remains compact, aria-busy and role=status remain unchanged, uses CSS-only compositor-friendly motion, has no new network request or delay, and is mobile-safe."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-15T00:28:18.448925Z"
+    },
+    {
+      "id": "feedback:loader-must-feel-alive",
+      "source": "current_user_correction",
+      "statement": "The large loading background must visibly move and feel special and interesting rather than static.",
+      "acceptance_check": "In the real loading state the background has independent ambient motion in addition to the logo, while reduced-motion users receive a stable non-animated composition.",
+      "status": "passed",
+      "evidence": [
+        "Normal-motion CSS defines independent aurora, star drift, card float, shimmer, line flow and logo travel. The real reduced-motion environment computed every animation as none, verifying the stable fallback."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-15T00:28:18.578003Z"
+    }
+  ],
+  "verification_status": "not_verified",
+  "verification_errors": [
+    "lesson:ADIR-QA-001: blocked: Production publication is not verified. After commit 3e24496 was pushed, the exact configured Sites project appgprj_6a71ccdca27481918bf04dd329d3eb21 returned Sites project not found in the connected workspace. No alternate project was substituted. Local destination, build and 708 tests pass."
+  ],
+  "predictive_results": {
+    "midpoint": {
+      "observed_at": "2026-10-15T00:28:04.116805Z",
+      "evidence": [
+        "Observed the real homepage loader locally at desktop and 390px. The new contained ambient surface, glass status pill and skeleton geometry render correctly; mobile measured 0px document overflow."
+      ],
+      "findings": [
+        "Browser accessibility preference was reduce, and every loader animation computed to none, confirming the quiet fallback while source and regression tests verify the normal-motion keyframes."
+      ]
+    },
+    "effectiveness": {
+      "recorded_at": "2026-10-15T00:28:22.822263Z",
+      "first_pass_acceptance": "yes",
+      "repeated_corrections": 0,
+      "prevented_failures": 3,
+      "elapsed_minutes": 24.0,
+      "baseline_note": "No comparable timing baseline is available. Preflight prevented static-background-only motion, mobile overflow and missing reduced-motion handling before close."
+    },
+    "adversarial": {
+      "observed_at": "2026-10-15T00:28:27.007299Z",
+      "attacks": [
+        "Could the large loader background still be visually static while only the logo moves?",
+        "Does the mobile loader create horizontal document overflow or clipped unreadable cards at 390px?",
+        "Do users requesting reduced motion still receive moving pseudo-elements, shimmer or card floating?",
+        "Did loader polish alter API calls, controls, result order or shared world behavior?"
+      ],
+      "natural_destination_evidence": "Local homepage loader opened directly at its section on desktop and 390x740. New atmospheric surface rendered; measured 0px document overflow. The system reduced-motion preference suppressed every animation as required.",
+      "affected_family_evidence": "Both homepage live-deal rails share the same loader component and CSS. Visual contract tests cover both rails; typecheck, production build and all 708 tests passed."
+    }
+  }
+}

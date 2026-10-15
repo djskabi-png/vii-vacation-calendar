@@ -4,6 +4,7 @@ import { chromium } from "playwright";
 const baseURL = (process.env.VII_QA_URL || "http://127.0.0.1:5173").replace(/\/$/, "");
 const executablePath = process.env.CHROME_PATH || "C:/Program Files/Google/Chrome/Application/chrome.exe";
 const browser = await chromium.launch({ executablePath, headless: true });
+const navigationTimeout = Number(process.env.VII_QA_NAVIGATION_TIMEOUT || 30_000);
 
 function route(path) {
   return `${baseURL}${path}`;
@@ -92,7 +93,7 @@ async function exerciseFirstOverflowingRail(page, path) {
 }
 
 async function exerciseIndexedGallery(page, path, previousSelector, nextSelector, counterSelector) {
-  await page.goto(route(path), { waitUntil: "domcontentloaded" });
+  await page.goto(route(path), { waitUntil: "commit" });
   await page.waitForTimeout(900);
   const previous = page.locator(previousSelector).first();
   const next = page.locator(nextSelector).first();
@@ -109,6 +110,7 @@ async function exerciseIndexedGallery(page, path, previousSelector, nextSelector
 
 try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, locale: "he-IL" });
+  page.setDefaultNavigationTimeout(navigationTimeout);
   const homeDesktop = await railInventory(page, "/", { width: 1280, height: 900 }, 8);
   const eventsDesktop = await railInventory(page, "/events", { width: 1280, height: 900 }, 3);
   const eventsMove = await exerciseFirstOverflowingRail(page, "/events");

@@ -67,13 +67,15 @@ function homeShowcaseProperties(properties: Property[]) {
 }
 
 export default async function HomePage() {
-  const [properties, eventPlaces, spaSites, hourlyCatalogPlaces] = await Promise.all([
-    publicCatalogSummaries<Property>("vacations"),
+  const propertiesPromise = publicCatalogSummaries<Property>("vacations");
+  const ratedPlacesPromise = propertiesPromise.then(homeRatedPlaces);
+  const [properties, eventPlaces, spaSites, hourlyCatalogPlaces, ratedPlaces] = await Promise.all([
+    propertiesPromise,
     publicCatalogSummaries<EventPlace>("events"),
     publicCatalogSummaries<SpaPlusSite>("spa"),
     publicCatalogSummaries<(typeof hourlyCatalog.places)[number]>("rooms"),
+    ratedPlacesPromise,
   ]);
-  const ratedPlaces = await homeRatedPlaces(properties);
   const showcaseProperties = homeShowcaseProperties(properties);
   const showcaseEvents = rotateDaily(eventPlaces.filter((place) => place.image),
     (place) => place.slug, "home-events").slice(0, 5);

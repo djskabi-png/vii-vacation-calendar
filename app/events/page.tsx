@@ -10,18 +10,19 @@ import { PinIcon } from "../site-header";
 import { StructuredData } from "../components/structured-data";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 import { breadcrumbSchema, collectionSchema } from "../lib/seo";
-import { WorldQuickSearches } from "../components/world-quick-searches";
 import { EventRegionCarousel, type EventRegionCarouselItem } from "../components/event-region-carousel";
 import { EventRail } from "../components/event-rail";
 import { EventLastMinute } from "../components/event-last-minute";
 import { DiscoveryCard } from "../components/discovery-card";
 import { discoveryItems } from "../data/world-data";
+import { EventQuickSearches } from "../components/event-quick-searches";
+import { readEventLandingPresentation } from "../lib/event-landing-presentation";
 
-export const metadata: Metadata = {
-  title: "מקומות לאירועים פרטיים",
-  description: "מחפשים מקומות לאירועים לפי אזור, תאריך וכמות משתתפים ומשווים בין מתחמים ברחבי הארץ.",
-  alternates: { canonical: "/events" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const presentation = await readEventLandingPresentation();
+  return { title: presentation.title, description: presentation.description, alternates: { canonical: "/events" },
+    openGraph: { type: "website", url: "/events", title: presentation.title, description: presentation.description } };
+}
 
 const eventRegionLabels = ["מישור החוף והשפלה", "חיפה וחוף הכרמל", "מישור החוף הדרומי", "תל אביב", "ראשון לציון", "נשר"];
 
@@ -42,7 +43,10 @@ function eventRegionItems(eventPlaces: EventPlace[]): EventRegionCarouselItem[] 
 }
 
 export default async function EventsPage() {
-  const eventPlaces = await publicCatalogSummaries<EventPlace>("events");
+  const [eventPlaces, presentation] = await Promise.all([
+    publicCatalogSummaries<EventPlace>("events"),
+    readEventLandingPresentation()
+  ]);
   const regions = eventRegionItems(eventPlaces);
   const recommended = eventPlaces.filter((place) => place.image && (place.score || 0) > 0 && (place.reviews || 0) > 0)
     .sort((a, b) => (b.score || 0) - (a.score || 0) || (b.reviews || 0) - (a.reviews || 0)).slice(0, 12);
@@ -52,11 +56,25 @@ export default async function EventsPage() {
   return (
     <PageShell variant="events">
       <main id="main-content" className="events-page">
-        <StructuredData data={collectionSchema("מקומות לאירועים פרטיים", "מקומות לאירועים לפי אזור, כמות משתתפים וסוג האירוע.", "/events", eventPlaces.map((place) => ({ name: place.name, path: eventPlaceHref(place), image: place.image })))} />
+        <StructuredData data={collectionSchema(presentation.title, presentation.description, "/events", eventPlaces.map((place) => ({ name: place.name, path: eventPlaceHref(place), image: place.image })))} />
         <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }])} />
-        <section className="events-hero"><div className="shell"><SearchBox mode="events" compact showWorlds /></div></section>
-        <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "אירועים" }]} />
-        <section className="world-page-heading shell"><h1>מוצאים מקום לחגוג בו</h1><p>מחפשים לפי אזור, תאריך וכמות משתתפים ומשווים בין מקומות אמיתיים.</p><WorldQuickSearches mode="events" /></section>
+        <section className="events-hero">
+          <div className="shell events-hero__layout">
+            <div className="events-hero__content">
+              <BreadcrumbTrail className="events-hero__breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "אירועים" }]} />
+              <span className="events-hero__eyebrow">{presentation.eyebrow}</span>
+              <h1>{presentation.title}</h1>
+              <p>{presentation.description}</p>
+              <div className="events-hero__proof" aria-label="יתרונות החיפוש">{presentation.proof.map((item, index) => <span key={item}>{index === 0 ? <b>{eventPlaces.length}</b> : null}{item}</span>)}</div>
+            </div>
+            <div className="events-hero__visual" aria-label="מקומות נבחרים לאירועים">
+              {presentation.heroImages.map((image, index) => <figure key={`${image.src}-${index}`} className={`events-hero__image events-hero__image--${index + 1}`}><img src={image.src} alt={image.alt} decoding="async" fetchPriority={index === 0 ? "high" : "auto"} /></figure>)}
+              <span className="events-hero__visual-note"><small>כל אירוע מתחיל במקום הנכון</small><strong>בוחרים, משווים וחוגגים</strong></span>
+            </div>
+            <div className="events-hero__search"><SearchBox mode="events" compact showWorlds /></div>
+          </div>
+        </section>
+        <EventQuickSearches eyebrow={presentation.quickSearchEyebrow} title={presentation.quickSearchTitle} items={presentation.quickSearches} />
         <EventLastMinute places={eventPlaces} />
         <section className="section shell event-region-section">
           <div className="section-head">

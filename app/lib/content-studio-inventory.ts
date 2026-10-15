@@ -9,6 +9,8 @@ import { worldFooterContexts } from "../data/footer-context.ts";
 import { readSupplierCatalogSummaries } from "./supplier-catalog-store.ts";
 import type { D1Database } from "../../types/cloudflare-runtime";
 import type { ContentLocale, ContentSource, ContentType, ManagedLink } from "./content-studio.ts";
+import { defaultEventLandingPresentation, eventLandingSourceAttributes } from "./event-landing-presentation.ts";
+import { defaultWorldLandingPresentations, managedWorldLandingTypes, worldLandingSourceAttributes } from "./world-landing-presentation.ts";
 
 type UnknownRow = Record<string, unknown>;
 const text = (value: unknown) => typeof value === "string" ? value : "";
@@ -57,6 +59,15 @@ export async function contentStudioSources(db: D1Database, locale: ContentLocale
     { type: "homepage", key: "vacation-sliders", world: "global", locale, sourceLabel: "VII homepage controls", title: "סליידרים של נופש בעמוד הבית",
       summary: "שליטה בלשוניות התאריכים, ברירת המחדל, מספר החגים והתאריכים שיוצגו בעמוד הבית.", indexable: false,
       attributes: { homePeriodOrder: "tomorrow,weekend,friday-weekend,thursday,friday", homePeriodDefault: "tomorrow", homePeriodHidden: "", homePeriodLabels: "{}", homeHolidayLimit: "6", homeHolidayHidden: "", homeHolidayDates: "{}" } },
+    { type: "events", key: "landing", world: "events", locale, sourceLabel: "VII events landing controls", title: defaultEventLandingPresentation.title,
+      summary: defaultEventLandingPresentation.description, body: "", slug: "events", imageAlt: defaultEventLandingPresentation.heroImages[0].alt,
+      indexable: true, attributes: eventLandingSourceAttributes() },
+    ...managedWorldLandingTypes.map((type) => {
+      const presentation = defaultWorldLandingPresentations[type];
+      return { type, key: "landing", world: type === "attractions" || type === "trails" ? "activities" : type, locale, sourceLabel: "VII world landing controls",
+        title: presentation.title, summary: presentation.description, body: "", slug: type, imageAlt: presentation.heroImages[0].alt,
+        indexable: true, attributes: worldLandingSourceAttributes(type) } satisfies ContentSource;
+    }),
     ...vacations.map((row) => source("vacation", "vacation", row, String(numeric(row.supplierId) || text(row.slug).replace(/^vacation-/, "")), "Sergey API", locale)),
     ...events.map((row) => source("events", "events", row, String(numeric(row.supplierId) || text(row.slug).replace(/^event-/, "")), "Sergey API", locale)),
     ...rooms.map((row) => source("hourly", "hourly", row, text(row.id) || String(numeric(row.supplierId)), "Sergey Rooms API", locale)),
@@ -93,7 +104,8 @@ export async function contentStudioSources(db: D1Database, locale: ContentLocale
 export function publicContentPath(type: ContentType, key: string) {
   if (type === "homepage") return "/";
   if (type === "vacation") return `/business?id=vacation-${key}`;
-  if (type === "events") return `/events/place?id=event-${key}`;
+  if (type === "events") return key === "landing" ? "/events" : `/events/place?id=event-${key}`;
+  if (key === "landing" && (type === "hourly" || type === "providers" || type === "attractions" || type === "trails")) return `/${type}`;
   if (type === "hourly" || type === "spa" || type === "providers" || type === "attractions") return `/discover/place/${type === "spa" ? `spa-${key}` : key}`;
   if (type === "trails") return `/trails/${key}`;
   if (type === "magazine") return `/guides/${key}`;

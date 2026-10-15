@@ -5,13 +5,22 @@ import test from "node:test";
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("world landing breadcrumbs follow the search rail and precede the page heading", () => {
-  for (const path of ["app/components/world-landing.tsx", "app/events/page.tsx", "app/attractions/page.tsx", "app/trails/page.tsx"]) {
+  for (const path of ["app/components/world-landing.tsx", "app/attractions/page.tsx", "app/trails/page.tsx"]) {
     const source = read(path);
     const search = Math.min(...["world-hero", "events-hero", "special-search-rail", "<SpecialWorldSearch"].map((token) => source.indexOf(token)).filter((index) => index >= 0));
     const breadcrumb = source.indexOf("<BreadcrumbTrail className=\"world-breadcrumbs\"");
     const heading = Math.min(...["world-page-heading", "attractions-hero", "trails-hero"].map((token) => source.indexOf(token)).filter((index) => index >= 0));
     assert.ok(search >= 0 && breadcrumb > search && heading > breadcrumb, `${path} must place search, breadcrumbs, then heading`);
   }
+});
+
+test("events keeps breadcrumbs, heading and complete search inside its unique hero", () => {
+  const source = read("app/events/page.tsx");
+  const hero = source.indexOf('className="events-hero"');
+  const breadcrumb = source.indexOf('className="events-hero__breadcrumbs"');
+  const heading = source.indexOf("<h1>{presentation.title}</h1>");
+  const search = source.indexOf('<SearchBox mode="events" compact showWorlds');
+  assert.ok(hero >= 0 && breadcrumb > hero && heading > breadcrumb && search > heading);
 });
 
 test("result pages keep search, breadcrumbs, then filters and results", () => {

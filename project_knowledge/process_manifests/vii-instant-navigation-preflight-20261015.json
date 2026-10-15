@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-instant-navigation-20261015",
+  "project": "VII",
+  "task_type": "sitewide page-loading performance diagnosis, implementation and release",
+  "requested_outcome": "Make public VII navigation feel immediate by reducing real route latency, starting safe predictive work early and restoring effective anonymous document reuse without changing catalog truth or private flows.",
+  "natural_destination": "The public VII routes at https://vii.spaplus.co, especially an early header-logo click from /hourly to / and repeated browsing among public worlds.",
+  "authorization_boundary": "Diagnose, implement, test, commit and publish performance changes to the existing VII site. Preserve private, personalized, transactional and RSC cache exclusions; do not change DNS, credentials, catalog truth, design or indexing policy.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-QA-001","reason":"Real speed must be proven in the natural browser journey.","acceptance_impact":"Measure cold and warmed transitions and verify the affected route family."},
+    {"lesson_id":"ADIR-WEB-003","reason":"Perceived speed cannot substitute for removing causal work.","acceptance_impact":"Prefer prefetch, concurrency and shared reuse over cosmetic loading alone."},
+    {"lesson_id":"ADIR-MOBILE-001","reason":"Mobile networks and data-saving preferences change the safe prefetch policy.","acceptance_impact":"Keep save-data and 2G exclusions and verify a mobile viewport."},
+    {"lesson_id":"ADIR-SCOPE-001","reason":"This is a speed repair, not a visual redesign.","acceptance_impact":"Preserve content, layout, routes and user-visible behavior."},
+    {"lesson_id":"ADIR-CONSISTENCY-001","reason":"Shared navigation and cache policy affect a route family.","acceptance_impact":"Verify homepage, search, hourly, spa, events and detail routes."},
+    {"lesson_id":"ADIR-OPS-001","reason":"Build and browser processes require bounded ownership and cleanup.","acceptance_impact":"Record and close only task-created processes and tabs."},
+    {"lesson_id":"ADIR-DEPLOY-001","reason":"The requested result is the public site.","acceptance_impact":"Do not claim live without an exact release and post-deploy evidence."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"A loader looks nicer but the click still waits seconds.","prevention":"Time the exact click and change the request scheduling and server critical path.","acceptance_check":"An already hydrated non-home route starts homepage prefetch immediately and a warmed transition reaches the homepage within 500ms in the controlled browser check."},
+    {"rejection":"The first click remains slow because warmup begins only when the browser becomes idle.","prevention":"Start the bounded home prefetch immediately after hydration while preserving low-bandwidth exclusions.","acceptance_check":"The warmup source contains no idle callback or delayed timer and keeps Save-Data, 2G and private-route guards."},
+    {"rejection":"Homepage rendering still serializes an avoidable second database phase.","prevention":"Overlap review-detail loading with the other independent catalog reads.","acceptance_check":"The homepage starts the properties and rated-place promises before awaiting the independent world summaries."},
+    {"rejection":"Cache headers exist in source but production still regenerates every public page.","prevention":"Verify real response markers on the exact deployment and fail the release claim when absent.","acceptance_check":"Repeated eligible production requests report the VII cache marker; private, Cookie, Authorization and RSC requests do not."},
+    {"rejection":"Aggressive caching serves stale personal or booking data.","prevention":"Limit reuse to anonymous public documents and catalog JSON with bounded TTLs.","acceptance_check":"Existing exclusions and Set-Cookie protection remain covered by tests."},
+    {"rejection":"The change helps the homepage but breaks another public route or language.","prevention":"Run the route family, locale and mobile regressions before release.","acceptance_check":"Representative routes and Hebrew/English navigation remain correct without document overflow or dead links."}
+  ],
+  "affected_family": ["shared header and internal public navigation", "homepage server data path", "anonymous public document cache", "search and world landings", "public business/detail pages", "Hebrew and English routes", "desktop and 390-pixel mobile", "Save-Data and slow-network states"],
+  "family_inventory_complete": true,
+  "approved_precedents": {"sources":[{"label":"VII platform performance architecture","source":"C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"},{"label":"VII accepted product standard","source":"C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"}],"no_precedent_reason":null},
+  "midpoint_gate": {"required":true,"trigger":"After immediate warmup, homepage concurrency and bounded cache policy changes are implemented locally, before publication.","checks":["Static contracts prove immediate safe warmup.","Homepage data dependencies overlap without changing rendered data.","Public cache tests preserve all private and RSC exclusions.","TypeScript and focused performance tests pass."],"not_required_reason":null},
+  "adversarial_close": {"attack_questions":["Does an early click still miss warmup?","Does a cold origin response still take seconds?","Can personalized or RSC traffic enter the public cache?","Did any public route, locale or mobile layout regress?","Is the exact public release actually serving the change?"],"natural_destination_evidence":"Timed browser clicks and response headers on the exact public URL.","affected_family_evidence":"Focused tests, production build, route probes and desktop/mobile browser checks across the listed family."},
+  "effectiveness": {"baseline":"Production measured about 2772ms for an early /hourly-to-home logo click and about 205ms after a 2200ms warmup; repeated direct homepage TTFB was about 2.1 to 3.8 seconds with no VII cache marker.","measurements":["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],"target":"Start warmup early enough for ordinary interaction, keep a warmed navigation below 500ms, reduce avoidable cold homepage work and restore verified anonymous reuse."},
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { DiscoveryCard } from "../components/discovery-card";
-import { DeferredDiscoveryMap } from "../components/deferred-listing-map";
+import { DeferredDiscoveryMap, preloadListingMap } from "../components/deferred-listing-map";
 import { ModernSelect } from "../components/modern-select";
 import { paidAttractions, type DiscoveryItem } from "../data/world-data";
 import { MapIcon } from "../site-header";
@@ -89,7 +89,7 @@ export function AttractionsExplorer({ items = paidAttractions }: { items?: Disco
     </form>
     <div className="trail-results-head attraction-results-head">
       <div><strong>{displayed.length === 1 ? "חוויה אחת מתאימה" : `${displayed.length} חוויות מתאימות`}</strong><span>הספק, הזמינות והמחיר מוצגים רק לאחר אימות.</span></div>
-      {filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת האטרקציות על המפה"} aria-pressed={mapOpen} onClick={toggleResultsMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
+      {filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת האטרקציות על המפה"} aria-pressed={mapOpen} onPointerEnter={preloadListingMap} onFocus={preloadListingMap} onTouchStart={preloadListingMap} onClick={toggleResultsMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
     </div>
     {filtered.length
       ? mapOpen

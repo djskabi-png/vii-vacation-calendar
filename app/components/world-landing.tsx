@@ -14,6 +14,8 @@ import { WorldQuickSearches } from "./world-quick-searches";
 import { SemanticWorldHeading } from "./semantic-world-heading";
 import { SearchAfterResults } from "./search-after-results";
 import type { ProviderCategoryId } from "../data/provider-categories";
+import { DiscoveryWorldHero } from "./discovery-world-hero";
+import { readWorldLandingPresentation } from "../lib/world-landing-presentation";
 
 const crossSellByWorld = {
   hourly: {
@@ -46,7 +48,7 @@ const crossSellByWorld = {
   },
 } as const;
 
-export function WorldLanding({
+export async function WorldLanding({
   world,
   title,
   description,
@@ -90,10 +92,27 @@ export function WorldLanding({
   const spaHeroImages = world === "spa"
     ? items.filter((item) => Boolean(item.image)).slice(0, 3)
     : [];
+  const managedPresentation = world === "hourly" || world === "providers"
+    ? await readWorldLandingPresentation(world)
+    : null;
+  const heroPresentation = managedPresentation ? {
+    ...managedPresentation,
+    title: world === "hourly" && initialSearchLocation ? title : managedPresentation.title,
+    description: world === "hourly" && initialSearchLocation ? description : managedPresentation.description,
+  } : null;
 
   return <PageShell variant={world}>
     <main id="main-content" className={`world-page world-page--${world}${crossSell ? " world-page--with-cross-sell" : ""}`}>
-      {world === "spa" && searchMode ? <section className="spa-discovery-hero">
+      {heroPresentation && (world === "hourly" || world === "providers") ? <DiscoveryWorldHero
+        type={world}
+        presentation={heroPresentation}
+        breadcrumbs={breadcrumbItems || [{ name: "ראשי", path: "/" }, { name: worldLabel }]}
+        count={items.length}
+        countLabel={world === "hourly" ? "מקומות לשהייה קצרה" : "ספקים ושירותים"}
+        targetId="world-results"
+      >
+        {searchMode ? <><SearchBox mode={searchMode} compact showWorlds initialLocation={initialSearchLocation} initialSpaAudience={initialSpaAudience} initialSpaFeatures={initialSpaFilters} /><WorldQuickSearches mode={searchMode} initialLocation={initialSearchLocation} initialSpaAudience={initialSpaAudience} /></> : null}
+      </DiscoveryWorldHero> : world === "spa" && searchMode ? <section className="spa-discovery-hero">
         <div className="shell spa-discovery-hero__layout">
           <div className="spa-discovery-hero__content">
             <BreadcrumbTrail className="spa-discovery-hero__breadcrumbs" items={breadcrumbItems || [{ name: "ראשי", path: "/" }, { name: worldLabel }]} />
@@ -121,7 +140,7 @@ export function WorldLanding({
           {searchMode && world !== "spa" && world !== "hourly" && <WorldQuickSearches mode={searchMode} initialLocation={initialSearchLocation} initialSpaAudience={initialSpaAudience} />}
         </section>
       </>}
-      <section className="section shell">
+      <section id="world-results" className="section shell">
         {world !== "providers" && (world !== "spa" && world !== "hourly" && <div className="section-head world-results-title"><div><h2>{collectionTitle}</h2></div>{sourceNote && <p className="source-note">{sourceNote}</p>}</div>)}
         {world === "hourly" ? <HourlyResults items={items} initialLocation={initialSearchLocation} /> : world === "providers" ? <ProviderResults items={items} category={providerCategory} /> : world === "spa" ? <WorldMapResults items={items} world="spa" activeSpaFilter={activeSpaFilter} initialLocation={initialSearchLocation} initialSpaAudience={initialSpaAudience} initialSpaFilters={initialSpaFilters} /> : <div className="discovery-grid">{items.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>}
       </section>

@@ -1,0 +1,234 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-instant-navigation-20261015",
+  "project": "VII",
+  "task_type": "sitewide page-loading performance diagnosis, implementation and release",
+  "goal": "Make public VII navigation feel immediate through early safe warmup, concurrent homepage data work and verified bounded anonymous reuse.",
+  "created_at": "2026-10-15T00:33:58.681371Z",
+  "updated_at": "2026-10-15T00:34:37.687980Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "73ac19ae8d64098ef290eaefe79a77f4d3e205c05c2b1fcd6288685464e276b1"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "d74ead306a1ee3a0ace2fc6afbd9b75da30bea4687531aaa8afe6e93204c462f"
+    },
+    "cognitive_model": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md",
+      "sha256": "708ce5d1b152afe220cf98008f571e7d27704c102624f7d7440dc85a1a6ba2d8"
+    },
+    "rulebook": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md",
+      "sha256": "3844b5ec09c8af79c2731bdf75d2d94bc4b0cc1a4ee2633b1971a6cdb5d546cc"
+    },
+    "predictive_preflight": {
+      "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\project_knowledge\\process_manifests\\vii-instant-navigation-preflight-20261015.json",
+      "sha256": "9ddb0a8b5bc77b03ad522a0542194592bb4f8285c9413687b5f4c7682b29408e"
+    }
+  },
+  "predictive_preflight": {
+    "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\project_knowledge\\process_manifests\\vii-instant-navigation-preflight-20261015.json",
+    "sha256": "9ddb0a8b5bc77b03ad522a0542194592bb4f8285c9413687b5f4c7682b29408e",
+    "predicted_rejection_count": 6,
+    "affected_family_count": 8,
+    "lesson_bundle_count": 7,
+    "midpoint_required": true,
+    "effectiveness_measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ]
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "title": "מסירה דורשת תוצאה מלאה ובדיקת רגרסיה",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-WEB-003",
+      "title": "משוב מיידי לפעולה ממתינה",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "ADIR-MOBILE-001",
+      "title": "נייד הוא משטח מוצר ראשי",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-SCOPE-001",
+      "title": "תיקון ממוקד שומר על העיצוב המאושר",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-CONSISTENCY-001",
+      "title": "אחידות מחייבת במשפחות עמודים ורכיבים",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-OPS-001",
+      "title": "Every local task owns and closes its processes",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "title": "פריסה ודומיין דורשים אימות חי וחזרה לאחור",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Make public VII navigation feel immediate through early safe warmup, concurrent homepage data work and verified bounded anonymous reuse.",
+      "acceptance_check": "Exact browser navigation, focused contracts, production build and exact deployed response markers prove the speed improvement while private/RSC exclusions and public route behavior remain intact.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:prediction",
+      "source": "predictive_preflight",
+      "statement": "Predict likely Adir rejection reasons and bind prevention to observable evidence before implementation.",
+      "acceptance_check": "The bounded predictive manifest matches the task identity and selected lessons and passes deterministic validation.",
+      "status": "passed",
+      "evidence": [
+        "Predictive preflight C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\project_knowledge\\process_manifests\\vii-instant-navigation-preflight-20261015.json validated with sha256 9ddb0a8b5bc77b03ad522a0542194592bb4f8285c9413687b5f4c7682b29408e"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-15T00:33:58.681322Z"
+    },
+    {
+      "id": "preflight:midpoint",
+      "source": "predictive_preflight.midpoint_gate",
+      "statement": "After immediate warmup, homepage concurrency and bounded cache policy changes are implemented locally, before publication.",
+      "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
+      "status": "passed",
+      "evidence": [
+        "Focused performance, cache and interaction suite passed 17 of 17 tests after the first implementation slice.",
+        "pnpm exec tsc --noEmit passed with immediate warmup, overlapped homepage data promises and the v3 five-minute anonymous homepage cache policy."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-15T00:34:37.687973Z"
+    },
+    {
+      "id": "preflight:adversarial",
+      "source": "predictive_preflight.adversarial_close",
+      "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
+      "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:effectiveness",
+      "source": "predictive_preflight.effectiveness",
+      "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
+      "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-QA-001",
+      "source": "lesson:ADIR-QA-001",
+      "statement": "שום פרויקט או תוצר אינם גמורים כאשר היעד הטבעי אינו מציג את התוצאה המבוקשת, כאשר מצב שנשמר לא שרד רענון, כאשר קיימים רכיבים מתים, מצבים מזויפים, מסלולים קטועים וחיבורים שלא נבדקו מקצה לקצה, או כאשר המבצע לא פתח בעצמו את הגרסה המדויקת ובדק אותה לפי סוג התוצר. לאחר כל תיקון מקומי חוזרים להבטחה המקורית ולמטרת העל, ובודקים מחדש את כל המסלול, משפחת המצבים והקריטריונים הקריטיים. הוכחה שתוקן הפרט האחרון אינה אישור שהמוצר, המסמך, המחקר, המדיה, האוטומציה או הפעולה העסקית המלאה מוכנים או שאדיר צפוי להיות מרוצה. מוצר ציבורי שמשרת לקוחות אינו מאושר למסירה רק על בסיס בדיקות המבצע: לאחר פרסום מועמד מותנה נדרשת קבוצת בדיקות מייצגת על הגרסה המדויקת, עם תרחישי לקוח, תפעול, עסק וסיכון. פרויקט מסוג אחר מפעיל בדיקות בעלי עניין מתאימות לסוגו או מנמק במדויק מדוע השער אינו חל. כל מסירה לאדיר כוללת קישור ישיר ושימושי לכל תוצאה שניתנת לפתיחה. אם אין קישור אפשרי, מציינים זאת במפורש ומוסרים את המיקום המדויק או דרך האחזור.",
+      "acceptance_check": "Before any complete, ready or likely-to-satisfy judgment, the evidence must name the original promise, distinguish the latest repaired detail from the full outcome, map every critical journey and affected-family item to passed evidence, a precise blocker or justified exclusion, and inspect the exact final artifact at its natural destination. A fixture that proves only the most recent local correction must be blocked from full approval, regardless of project type. A deliberately incomplete review or task must be blocked. A public customer-facing review must also fail without five to ten passed post-deploy representative actor scenarios on the exact version and at least three applicable stakeholder perspectives. A justified non-public or non-customer artifact must remain valid without an irrelevant public cohort. A completed result with an addressable destination fails delivery when its direct link is omitted. A result without a possible link passes only when the exact location or retrieval path and a concrete no-link reason are present.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-003",
+      "source": "lesson:ADIR-WEB-003",
+      "statement": "כל פעולה אסינכרונית שיוצרת הזמנה, אישור, תשלום, הודעה או שינוי משמעותי מציגה מיד לואדר והסבר מקומי, מונעת שליחה כפולה ומסתיימת בהצלחה או בשגיאה ברורה.",
+      "acceptance_check": "בפעולת הזמנה אמיתית הכפתור משתנה מיד, הלואדר וההסבר מוצגים במשך ההמתנה, aria-busy פעיל, לחיצה כפולה חסומה, הצלחה מחליפה את הטעינה ושגיאה מחזירה כפתור פעיל עם הסבר.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-MOBILE-001",
+      "source": "lesson:ADIR-MOBILE-001",
+      "statement": "מסלול נייד מלא נבנה ונבדק בפני עצמו, לרבות המסך הראשון, צפיפות, קריאות, גלילה, חלונות, פעולות ומעברי רוחב.",
+      "acceptance_check": "שער הראיות נכשל ללא צילום חי של המסך הראשון והמסלול המלא, בדיקת גובה נמוך, מדידת גלישה ומטריצת מעברי רוחב.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-SCOPE-001",
+      "source": "lesson:ADIR-SCOPE-001",
+      "statement": "כאשר אדיר מבקש להזיז, לנקות או לתקן רכיב, שומרים על העיצוב, התוכן והיכולות שלא התבקשו להשתנות. אין להפוך תיקון ממוקד לעיצוב מחדש ללא בקשה מפורשת.",
+      "acceptance_check": "שער הראיות נכשל ללא תיאור שינוי, רשימת קבועים, השוואת לפני ואחרי ומלאי רכיבים שהשתנו, או כאשר נמצאה השתנות לא מבוקשת בעיצוב, בתוכן, בנתונים, במיקום או בהתנהגות.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-CONSISTENCY-001",
+      "source": "lesson:ADIR-CONSISTENCY-001",
+      "statement": "רכיבים ועמודים מאותה משפחה שומרים על היררכיה, סדר, צורה, מיקום והתנהגות אחידים במחשב ובנייד. צבע ותוכן מאומת יכולים להשתנות, אך חריגה מבנית או התנהגותית דורשת סיבה ובדיקה ייעודית.",
+      "acceptance_check": "שער הראיות נכשל ללא נקודת ייחוס מאושרת, מטריצת משפחה, השוואות מחשב ונייד ורשימת חריגים. בקר ששינה מיקום, צורה, משמעות או התנהגות ללא חריג מאושר חוסם את כל המשפחה.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-OPS-001",
+      "source": "lesson:ADIR-OPS-001",
+      "statement": "Every task that launches a long-lived local process records its PID, keeps one development server per project, closes owned processes before pause, completion, archive or handoff, and cannot claim completion while the resource verification gate reports a live owned process.",
+      "acceptance_check": "A real forward test must return exit code 2 while a recorded process is alive, cleanup must stop that exact process, and verify must then return exit code 0. A live cleanup must preserve active work, remove only verified idle-task processes, and report before-and-after resource evidence.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-DEPLOY-001",
+      "source": "lesson:ADIR-DEPLOY-001",
+      "statement": "פריסה או שינוי דומיין דורשים גרסה שמורה, כתובת יעד מאומתת, בדיקת מסלולים, metadata ותוכנית חזרה לאחור. כאשר כמה מקורות יכולים לפרוס לאותו יעד, חייבים לזהות אותם, לאחד את קו הבסיס ולחסום פריסה ממקור מיושן שעלולה למחוק יכולות שכבר אושרו.",
+      "acceptance_check": "A release cannot pass without live URL, route, status, metadata and rollback evidence. If multiple deploy sources share a destination, the chosen source must contain the complete approved baseline and a stale-source overwrite test must be blocked. Visual evidence from a release that was later replaced is invalid.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:vii-master-plan",
+      "source": "project_guidance",
+      "statement": "Preserve the approved VII architecture, supplier truth, localized routes and fresh booking semantics.",
+      "acceptance_check": "Preserve the approved VII architecture, supplier truth, localized routes and fresh booking semantics.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:vii-feedback-standard",
+      "source": "project_guidance",
+      "statement": "Verify the changed public journey at its natural destination on desktop and 390-pixel mobile.",
+      "acceptance_check": "Verify the changed public journey at its natural destination on desktop and 390-pixel mobile.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    }
+  ],
+  "verification_status": "in_progress",
+  "verification_errors": [],
+  "predictive_results": {
+    "midpoint": {
+      "observed_at": "2026-10-15T00:34:37.687944Z",
+      "evidence": [
+        "Focused performance, cache and interaction suite passed 17 of 17 tests after the first implementation slice.",
+        "pnpm exec tsc --noEmit passed with immediate warmup, overlapped homepage data promises and the v3 five-minute anonymous homepage cache policy."
+      ],
+      "findings": [
+        "The smallest causal change removes the 500-1200ms scheduling delay while preserving Save-Data, slow-2g, 2g and private-route guards.",
+        "Homepage review-detail loading now overlaps event, spa and room catalog reads instead of beginning after all four summaries complete."
+      ]
+    }
+  }
+}
