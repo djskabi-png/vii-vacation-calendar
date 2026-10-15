@@ -11,6 +11,7 @@ import { FavoriteButton } from "./favorite-button";
 import { useState } from "react";
 import { resolvePublicSliderMedia } from "../lib/public-media-policy";
 import { latinBusinessAlias, localizedBusinessText } from "../i18n/localized-business-content";
+import { PreviewCardGallery } from "./preview-card-gallery";
 
 function PhoneIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.7 3.5 9 3a1.6 1.6 0 0 1 1.8 1l1 3a1.6 1.6 0 0 1-.5 1.7L9.7 10a14 14 0 0 0 4.3 4.3l1.3-1.6a1.6 1.6 0 0 1 1.7-.5l3 1a1.6 1.6 0 0 1 1 1.8l-.5 2.3a3 3 0 0 1-3 2.4A15.5 15.5 0 0 1 4.3 6.5a3 3 0 0 1 2.4-3Z"/></svg>;
@@ -75,10 +76,14 @@ export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { ite
 
   if (!item.image && item.world !== "hourly") return null;
 
+  const mediaTopic = `${item.world} ${item.name} ${item.area} ${item.features.join(" ")}`;
   const media = item.image
-    ? resolvePublicSliderMedia({ image: item.image, topic: `${item.world} ${item.name} ${item.area} ${item.features.join(" ")}` })
+    ? resolvePublicSliderMedia({ image: item.image, topic: mediaTopic })
     : { image: "", fallbackApplied: false };
   const imageLabel = media.fallbackApplied ? "תמונת אווירה" : item.imageLabel;
+  const galleryImages = [...new Set([item.image, ...(item.images || [])]
+    .map((image) => resolvePublicSliderMedia({ image, topic: mediaTopic }).image)
+    .filter(Boolean))];
 
   const imageFit = item.imageFit || "cover";
 
@@ -90,11 +95,11 @@ export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { ite
     onFocusCapture={() => onActiveChange?.(true)}
     onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) onActiveChange?.(false); }}
   >
-    <Link className={`discovery-card__visual discovery-card__visual--${imageFit}`} href={`/discover/place/${item.id}`} target="_blank" rel="noopener noreferrer" aria-label={`${details}: ${localizedName}`}>
-      {media.image ? <img src={media.image} alt={imageLabel && ui ? ui.image : imageLabel ? `${localizedName}, ${imageLabel}` : localizedName} title={imageLabel && ui ? ui.image : imageLabel ? `${localizedName}, ${imageLabel}` : localizedName} loading="lazy" decoding="async" style={item.imagePosition ? { objectPosition: item.imagePosition } : undefined} /> : <span className="discovery-card__missing-image">לא נמסרה תמונה ב־API</span>}
+    <PreviewCardGallery className={`discovery-card__visual discovery-card__visual--${imageFit}`} href={`/discover/place/${item.id}`} name={localizedName} images={galleryImages} imageFit={imageFit} imagePosition={item.imagePosition} imageLabel={imageLabel && ui ? ui.image : imageLabel ? `${localizedName}, ${imageLabel}` : localizedName} linkLabel={`${details}: ${localizedName}`}>
+      {!media.image ? <span className="discovery-card__missing-image">לא נמסרה תמונה ב־API</span> : null}
       {imageLabel && <span className="image-context-label">{ui?.image || imageLabel}</span>}
       {item.rating && <span className="rating-badge">★ {item.rating.toFixed(1)}</span>}
-    </Link>
+    </PreviewCardGallery>
     <FavoriteButton id={item.id} world={item.world} name={localizedName} location={`${location}, ${area}`} image={media.image || undefined} href={`/discover/place/${item.id}`} meta={price} />
     <div className="discovery-card__body">
       <span className="discovery-card__meta"><PinIcon />{location}<small>{area}</small></span>

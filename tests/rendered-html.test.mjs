@@ -1267,17 +1267,21 @@ test("indexable place schemas expose page-bound image metadata without invented 
 });
 
 test("content card images pair descriptive alt text with matching title metadata", async () => {
-  const [propertyCard, business, discoveryCard, eventsSearch] = await Promise.all([
+  const [propertyCard, business, discoveryCard, eventsSearch, previewGallery, eventResultCard] = await Promise.all([
     readFile(new URL("../app/components/property-card.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/business/client-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/discovery-card.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/events/search/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/preview-card-gallery.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/event-result-card.tsx", import.meta.url), "utf8"),
   ]);
 
   assert.match(propertyCard, /alt=\{`\$\{localizedName\}, \$\{interfaceCopy\.image\} \$\{imageIndex \+ 1\}\/\$\{galleryImages\.length\}`\} title=\{`\$\{localizedName\}, \$\{interfaceCopy\.image\} \$\{imageIndex \+ 1\}\/\$\{galleryImages\.length\}`\}/);
   assert.match(business, /alt=\{`\$\{localizedRoomName\}, \$\{localizedPropertyName\}`\} title=\{`\$\{localizedRoomName\}, \$\{localizedPropertyName\}`\}/);
-  assert.match(discoveryCard, /title=\{imageLabel && ui \? ui\.image : imageLabel \? `\$\{localizedName\}, \$\{imageLabel\}` : localizedName\}/);
-  assert.match(eventsSearch, /alt=\{place\.name\} title=\{place\.name\}/);
+  assert.match(discoveryCard, /imageLabel=\{imageLabel && ui \? ui\.image : imageLabel \? `\$\{localizedName\}, \$\{imageLabel\}` : localizedName\}/);
+  assert.match(eventsSearch, /EventResultCard/);
+  assert.match(eventResultCard, /PreviewCardGallery/);
+  assert.match(previewGallery, /alt=\{`\$\{name\}, \$\{copy\.image\} \$\{imageIndex \+ 1\}\/\$\{galleryImages\.length\}`\} title=\{imageLabel \|\| `\$\{name\}, \$\{copy\.image\} \$\{imageIndex \+ 1\}\/\$\{galleryImages\.length\}`\}/);
 });
 
 test("discovery depth pages expose only their visible verified FAQs as FAQPage data", async () => {
@@ -1409,7 +1413,7 @@ test("favorites span every world and bookings continue into the personal account
   const bookingPage = await readFile(new URL("../app/booking/client-page.tsx", import.meta.url), "utf8");
   const discoveryCard = await readFile(new URL("../app/components/discovery-card.tsx", import.meta.url), "utf8");
   const trailCard = await readFile(new URL("../app/components/trail-card.tsx", import.meta.url), "utf8");
-  const eventSearch = await readFile(new URL("../app/events/search/page.tsx", import.meta.url), "utf8");
+  const eventSearch = `${await readFile(new URL("../app/events/search/page.tsx", import.meta.url), "utf8")}\n${await readFile(new URL("../app/components/event-result-card.tsx", import.meta.url), "utf8")}`;
   const corporatePage = await readFile(new URL("../app/corporate/page.tsx", import.meta.url), "utf8");
 
   for (const world of ["vacation", "events", "corporate", "spa", "hourly", "providers", "activities", "trails"]) assert.match(favoritesPage, new RegExp(`${world}:`));
