@@ -54,6 +54,7 @@ export const DeferredListingMap = dynamic(
   onVisibleCountChange?: (count: number) => void;
   onVisiblePlaceIdsChange?: (ids: string[]) => void;
   activePlaceId?: string | null;
+  onActivePlaceChange?: (id: string | null) => void;
 }>;
 
 export const DeferredDiscoveryMap = dynamic(
@@ -68,6 +69,8 @@ export const DeferredDiscoveryMap = dynamic(
   onClose?: () => void;
   onVisibleCountChange?: (count: number) => void;
   onVisiblePlaceIdsChange?: (ids: string[]) => void;
+  activePlaceId?: string | null;
+  onActivePlaceChange?: (id: string | null) => void;
 }>;
 
 export const DeferredTrailMap = dynamic(

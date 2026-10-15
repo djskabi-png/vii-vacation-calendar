@@ -63,6 +63,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   const [hours, setHours] = useState([2, 3, 4, 5, 6].includes(Number(initialParams.get("hours"))) ? Number(initialParams.get("hours")) : 3);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
+  const [activeMapPlaceId, setActiveMapPlaceId] = useState<string | null>(null);
 
   function updateUrl(updates: Record<string, string | null>) {
     const params = new URLSearchParams(window.location.search);
@@ -181,18 +182,19 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   }, [accessibleOnly, area, catalogError, catalogLoading, eventFrom, eventType, filtered.length, guests, hours, noNoiseLimit, type]);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setMapVisibleIds(null), 0);
+    const timer = window.setTimeout(() => { setMapVisibleIds(null); setActiveMapPlaceId(null); }, 0);
     return () => window.clearTimeout(timer);
   }, [accessibleOnly, area, eventType, guests, noNoiseLimit, sort, type]);
 
   function toggleResultsMap() {
     setMapVisibleIds(null);
-    if (mapOpen) closeMap();
+    if (mapOpen) { setActiveMapPlaceId(null); closeMap(); }
     else openMap();
   }
 
   function closeResultsMap() {
     setMapVisibleIds(null);
+    setActiveMapPlaceId(null);
     closeMap();
   }
 
@@ -238,7 +240,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
             {guests > 0 && eventPlaces.some((place) => place.capacityScope === "unit") ? <SupplierCapacityNotice /> : null}
             {nearbyRecovery.length > 0 ? <div className="availability-demo-summary availability-demo-summary--live" role="status"><strong>{nearbyCopy.title}</strong><span>{nearbyCopy.text}</span><small>{Math.round(nearbyRecovery[0].distanceKm)} עד {Math.round(nearbyRecovery.at(-1)?.distanceKm || 0)} ק״מ</small></div> : null}
             <div className="results-toolbar"><div className="results-toolbar__actions"><ResultsViewToggle value={viewMode} onChange={setViewMode} />{resultSet.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתוצאות" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onPointerEnter={preloadListingMap} onFocus={preloadListingMap} onTouchStart={preloadListingMap} onClick={toggleResultsMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לתוצאות" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect className="results-toolbar__sort" compact label="מיון לפי" value={sort} onChange={(value) => changeFilter("sort", value)} options={sortOptions} /></div>
-            {mapOpen && <div className="event-map-pane"><DeferredListingMap listings={resultSet} mode="events" autoLoad onClose={closeResultsMap} onVisiblePlaceIdsChange={setMapVisibleIds} /></div>}{displayed.map((place) => <article key={place.slug}><div className="event-card-gallery"><img src={place.image} alt={place.name} title={place.name} loading="lazy" decoding="async" /><span>{place.images.length} תמונות</span><FavoriteButton id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={detailHref(place)} meta={`${place.type} · עד ${place.guests} אורחים ביחידה הגדולה`} /></div><div><small>{place.type}</small><h2>{place.name}</h2><p><PinIcon />{place.location}, {place.area}</p><p>{place.description}</p><div className="feature-chips">{place.features.slice(0, 3).map((feature) => <span key={feature}>{feature}</span>)}</div><div className="event-capacity">עד {place.guests} אורחים ביחידה הגדולה</div>{supplierStatus(place.slug) ? <p className="event-live-status" role="status">{supplierStatus(place.slug)}</p> : null}<div className="stay-card__actions event-card__actions"><Link className="stay-card__details-link" href={detailHref(place)} target="_blank" rel="noopener noreferrer">לפרטים על המקום<span className="sr-only"></span></Link><EventCardContactActions placeId={place.slug} placeName={place.name} phone={place.contact?.phone} whatsapp={place.contact?.whatsapp} serviceName={place.type} /></div></div></article>)}
+            {mapOpen && <div className="event-map-pane"><DeferredListingMap listings={resultSet} mode="events" autoLoad onClose={closeResultsMap} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPlaceId} onActivePlaceChange={setActiveMapPlaceId} /></div>}{displayed.map((place) => <article key={place.slug} className={activeMapPlaceId === place.slug ? "is-map-active" : undefined} data-map-place-id={place.slug} onPointerEnter={() => mapOpen && setActiveMapPlaceId(place.slug)} onPointerLeave={() => mapOpen && setActiveMapPlaceId(null)} onFocusCapture={() => mapOpen && setActiveMapPlaceId(place.slug)} onBlurCapture={(event) => { if (mapOpen && !event.currentTarget.contains(event.relatedTarget)) setActiveMapPlaceId(null); }}><div className="event-card-gallery"><img src={place.image} alt={place.name} title={place.name} loading="lazy" decoding="async" /><span>{place.images.length} תמונות</span><FavoriteButton id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={detailHref(place)} meta={`${place.type} · עד ${place.guests} אורחים ביחידה הגדולה`} /></div><div><small>{place.type}</small><h2>{place.name}</h2><p><PinIcon />{place.location}, {place.area}</p><p>{place.description}</p><div className="feature-chips">{place.features.slice(0, 3).map((feature) => <span key={feature}>{feature}</span>)}</div><div className="event-capacity">עד {place.guests} אורחים ביחידה הגדולה</div>{supplierStatus(place.slug) ? <p className="event-live-status" role="status">{supplierStatus(place.slug)}</p> : null}<div className="stay-card__actions event-card__actions"><Link className="stay-card__details-link" href={detailHref(place)} target="_blank" rel="noopener noreferrer">לפרטים על המקום<span className="sr-only"></span></Link><EventCardContactActions placeId={place.slug} placeName={place.name} phone={place.contact?.phone} whatsapp={place.contact?.whatsapp} serviceName={place.type} /></div></div></article>)}
             {!catalogLoading && !catalogError && displayed.length === 0 && <div className="empty-state"><h2>לא נמצאה התאמה או מקום קרוב</h2><p>אפשר להפחית את כמות המשתתפים או להסיר סינון.</p><button className="button primary" type="button" onClick={reset}>ניקוי סינונים</button></div>}
           </section>
         </div>

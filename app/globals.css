@@ -8729,6 +8729,39 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
 .vii-map-marker-wrap:not(.is-cluster).is-active .vii-map-marker__icon,
 .vii-map-marker-wrap:not(.is-cluster):hover .vii-map-marker__icon,
 .vii-map-marker-wrap:not(.is-cluster):focus .vii-map-marker__icon { color: #fff; }
+.vii-map-marker-wrap:not(.is-cluster).is-card-active .vii-map-marker {
+  z-index: 2;
+  border-color: #082f36;
+  color: #fff;
+  background: #082f36;
+  box-shadow: 0 16px 34px rgba(4, 43, 51, .34), 0 0 0 8px rgba(255, 255, 255, .9), 0 0 0 13px rgba(17, 151, 166, .2);
+  transform: translateY(-8px) scale(1.12);
+}
+.vii-map-marker-wrap:not(.is-cluster).is-card-active .vii-map-marker::after {
+  border-color: #082f36;
+  background: #082f36;
+}
+.vii-map-marker-wrap:not(.is-cluster).is-card-active .vii-map-marker__icon { color: #fff; }
+.airbnb-map-split__results [data-map-place-id],
+.event-list--map-open > [data-map-place-id] {
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+}
+.airbnb-map-split__results [data-map-place-id].is-map-active,
+.event-list--map-open > [data-map-place-id].is-map-active {
+  z-index: 2;
+  border-color: rgba(8, 126, 139, .58);
+  background-color: #fff;
+  box-shadow: 0 22px 52px rgba(5, 66, 77, .18), 0 0 0 4px rgba(50, 176, 190, .15);
+  transform: translateY(-4px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .vii-map-marker-wrap:not(.is-cluster).is-card-active .vii-map-marker,
+  .airbnb-map-split__results [data-map-place-id].is-map-active,
+  .event-list--map-open > [data-map-place-id].is-map-active {
+    transition: none;
+    transform: none;
+  }
+}
 .vii-map-marker-wrap.is-cluster .vii-map-marker {
   isolation: isolate;
   min-width: 50px;

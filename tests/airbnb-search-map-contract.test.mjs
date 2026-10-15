@@ -4,7 +4,7 @@ import test from "node:test";
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("map changes results only after an explicit search-this-area action", () => {
+test("map viewport changes results only after an explicit search-this-area action", () => {
   const map = read("app/components/listing-map.tsx");
   assert.match(map, /searchArea: "חיפוש באזור הזה"/);
   assert.match(map, /onVisiblePlaceIdsChange\?: \(ids: string\[\]\) => void/);
@@ -16,7 +16,8 @@ test("map changes results only after an explicit search-this-area action", () =>
   assert.match(map, /map\.invalidateSize\(\{ animate: false \}\)/);
   assert.match(map, /focusInitialPlaces\(\)/);
   assert.match(map, /suppressViewportPrompt\.current = false/);
-  assert.doesNotMatch(map, /marker\.on\("mouseover"/);
+  assert.match(map, /marker\.on\("mouseover", \(\) => activePlaceCallback\.current\?\.\(id\)\)/);
+  assert.doesNotMatch(map, /marker\.on\("mouseover"[\s\S]{0,180}reportVisiblePlaces/);
 });
 
 test("opening and closing a map clears stale viewport-only results", () => {

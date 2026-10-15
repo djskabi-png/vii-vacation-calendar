@@ -58,7 +58,7 @@ function localizedPrice(label: string | undefined, language: Exclude<SiteLanguag
   return amount ? `${interfaceCopy[language].from} ₪${amount}` : details;
 }
 
-export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
+export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { item: DiscoveryItem; mapActive?: boolean; onActiveChange?: (active: boolean) => void }) {
   const { language, translate } = useSiteLanguage();
   const [phoneVisible, setPhoneVisible] = useState(false);
   const localized = language === "he" ? null : worldCopy[language][item.world];
@@ -82,7 +82,14 @@ export function DiscoveryCard({ item }: { item: DiscoveryItem }) {
 
   const imageFit = item.imageFit || "cover";
 
-  return <article className={`discovery-card discovery-card--${item.world}`}>
+  return <article
+    className={`discovery-card discovery-card--${item.world}${mapActive ? " is-map-active" : ""}`}
+    data-map-place-id={item.id}
+    onPointerEnter={() => onActiveChange?.(true)}
+    onPointerLeave={() => onActiveChange?.(false)}
+    onFocusCapture={() => onActiveChange?.(true)}
+    onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) onActiveChange?.(false); }}
+  >
     <Link className={`discovery-card__visual discovery-card__visual--${imageFit}`} href={`/discover/place/${item.id}`} target="_blank" rel="noopener noreferrer" aria-label={`${details}: ${localizedName}`}>
       {media.image ? <img src={media.image} alt={imageLabel && ui ? ui.image : imageLabel ? `${localizedName}, ${imageLabel}` : localizedName} title={imageLabel && ui ? ui.image : imageLabel ? `${localizedName}, ${imageLabel}` : localizedName} loading="lazy" decoding="async" style={item.imagePosition ? { objectPosition: item.imagePosition } : undefined} /> : <span className="discovery-card__missing-image">לא נמסרה תמונה ב־API</span>}
       {imageLabel && <span className="image-context-label">{ui?.image || imageLabel}</span>}
