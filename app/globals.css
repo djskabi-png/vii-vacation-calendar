@@ -5561,16 +5561,15 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .home-managed-discovery__head h3 { margin: 0; color: #12383c; font-size: clamp(1.25rem,2vw,1.7rem); }
 .home-managed-discovery__head > div:last-child { display: flex; gap: 7px; }
 .home-managed-discovery__head svg { width: 18px; }
-.home-managed-discovery__track { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding: 2px 2px 12px; }
+.home-managed-discovery__track.search-depth__rail { grid-auto-columns: minmax(220px,calc((100% - 42px)/4)); scrollbar-width: none; }
 .home-managed-discovery__track::-webkit-scrollbar { display: none; }
-.home-managed-discovery__track > a { position: relative; flex: 0 0 min(270px,28vw); min-height: 210px; overflow: hidden; border-radius: 22px; color: #fff; scroll-snap-align: start; box-shadow: 0 14px 32px rgba(18,57,61,.15); }
-.home-managed-discovery__track img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
-.home-managed-discovery__track > a::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg,transparent 20%,rgba(5,31,34,.82)); }
-.home-managed-discovery__track > a:hover img { transform: scale(1.035); }
-.home-managed-discovery__track > a span { position: relative; z-index: 1; min-height: 210px; display: flex; flex-direction: column; justify-content: end; align-items: start; gap: 4px; padding: 20px; }
-.home-managed-discovery__track strong { font-size: 1.24rem; }
-.home-managed-discovery__track small { color: rgba(255,255,255,.86); line-height: 1.45; }
-.home-managed-discovery__track b { margin-top: 5px; font-size: .76rem; }
+.home-managed-discovery__track .search-depth__discovery-card { position: relative; min-height: 126px; display: grid; grid-template-columns: 48px minmax(0,1fr) 24px; grid-template-rows: auto auto; align-content: center; gap: 6px 12px; padding: 18px; border: 1px solid #c8e0e3; border-radius: 19px; background: #fff; color: var(--ink); scroll-snap-align: start; box-shadow: 0 9px 24px rgba(4,60,70,.06); transition: transform .18s ease,border-color .18s ease,box-shadow .18s ease; }
+.home-managed-discovery__track .search-depth__discovery-card:hover { transform: translateY(-2px); border-color: #68b8c1; background: #fff; box-shadow: 0 14px 28px rgba(4,60,70,.1); }
+.home-managed-discovery__track .home-managed-discovery__visual { width: 48px; height: 48px; overflow: hidden; padding: 0; background: #e9f8f7; }
+.home-managed-discovery__visual img { width: 100%; height: 100%; object-fit: cover; transition: transform .24s ease; }
+.home-managed-discovery__track .search-depth__discovery-card:hover .home-managed-discovery__visual img { transform: scale(1.045); }
+.home-managed-discovery__track .search-depth__discovery-card strong { min-width: 0; align-self: end; font-size: .94rem; line-height: 1.35; }
+.home-managed-discovery__track .search-depth__discovery-card small { min-width: 0; color: var(--ink-soft); font-size: .72rem; line-height: 1.4; }
 .home-editorial-copy { max-width: 900px; margin-inline: auto; padding: clamp(24px,4vw,46px); border-radius: 28px; background: linear-gradient(135deg,#eaf9f7,#f4f8ff); text-align: center; }
 .home-editorial-copy > span { color: #087b82; font-size: .78rem; font-weight: 850; }
 .home-editorial-copy h2 { margin: 7px 0 10px; color: #113c40; font-size: clamp(1.55rem,3vw,2.35rem); }
@@ -5584,7 +5583,8 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
   .home-visual-searches > div:last-child { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
   .home-visual-searches a { flex: 0 0 76%; scroll-snap-align: start; }
   .home-managed-discovery-wrap { gap: 30px; margin-top: 30px; }
-  .home-managed-discovery__track > a { flex-basis: min(78vw,310px); }
+  .home-managed-discovery__track.search-depth__rail { grid-auto-columns: minmax(220px,78vw); gap: 10px; }
+  .home-managed-discovery__track .search-depth__discovery-card { min-height: 116px; padding: 16px; border-radius: 17px; }
   .home-managed-discovery__head { align-items: center; }
   .home-editorial-copy { text-align: start; border-radius: 22px; }
 }
