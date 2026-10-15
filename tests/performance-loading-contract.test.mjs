@@ -68,14 +68,17 @@ test("discovery cards keep equal geometry and consistent primary actions", async
 });
 
 test("below-fold media does not compete with the first screen", async () => {
-  const [home, page, property, discovery] = await Promise.all([
+  const [home, page, property, discovery, previewGallery] = await Promise.all([
     readFile(new URL("app/components/home-showcase.tsx", root), "utf8"),
     readFile(new URL("app/page.tsx", root), "utf8"),
     readFile(new URL("app/components/property-card.tsx", root), "utf8"),
     readFile(new URL("app/components/discovery-card.tsx", root), "utf8"),
+    readFile(new URL("app/components/preview-card-gallery.tsx", root), "utf8"),
   ]);
   assert.match(home, /preload="none"/);
-  for (const source of [home, page, property, discovery]) assert.match(source, /loading="lazy"/);
+  for (const source of [home, page, property]) assert.match(source, /loading="lazy"/);
+  assert.match(discovery, /PreviewCardGallery/);
+  assert.match(previewGallery, /loading="lazy"/);
 });
 
 test("hashed assets receive a long immutable browser cache", async () => {

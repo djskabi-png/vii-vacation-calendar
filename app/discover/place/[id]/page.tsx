@@ -26,7 +26,7 @@ async function resolveItem(id: string) {
   let hourlyPlace: (typeof hourlyCatalog.places)[number] | undefined;
   if (/^spa-\d+$/.test(id)) {
     const sites = await publicCatalogSummaries<SpaPlusSite>("spa");
-    items = spaPlacesFromSites(sites, Number(id.slice(4)));
+    items = spaPlacesFromSites(sites);
     spaSite = sites.find((site) => `spa-${site.id}` === id);
   } else if (/^hourly-\d+$/.test(id)) {
     const places = await publicCatalogSummaries<(typeof hourlyCatalog.places)[number]>("rooms");

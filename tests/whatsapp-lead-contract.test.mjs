@@ -122,10 +122,12 @@ test("the lead modal looks and behaves like the start of a WhatsApp conversation
 });
 
 test("event result cards expose the same tracked phone and WhatsApp actions as vacation cards", async () => {
-  const [events, actions] = await Promise.all([
+  const [eventsPage, eventCard, actions] = await Promise.all([
     read("app/events/search/page.tsx"),
+    read("app/components/event-result-card.tsx"),
     read("app/components/event-card-contact-actions.tsx"),
   ]);
+  const events = `${eventsPage}\n${eventCard}`;
 
   assert.match(events, /EventCardContactActions/);
   assert.match(events, /phone=\{place\.contact\?\.phone\}/);

@@ -23,6 +23,7 @@ export function AttractionsExplorer({ items = paidAttractions }: { items?: Disco
   const [type, setType] = useState(types.includes(requestedType) ? requestedType : "הכל");
   const { mapOpen, openMap, closeMap } = useMapViewState();
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
+  const [activeMapPlaceId, setActiveMapPlaceId] = useState<string | null>(null);
 
   const filtered = useMemo(() => rotateWithinTiers(items.filter((item) => {
     const searchable = `${item.name} ${item.location} ${item.area} ${item.description} ${item.features.join(" ")}`;
@@ -55,18 +56,19 @@ export function AttractionsExplorer({ items = paidAttractions }: { items?: Disco
   }, [filtered, mapOpen, mapVisibleIds]);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setMapVisibleIds(null), 0);
+    const timer = window.setTimeout(() => { setMapVisibleIds(null); setActiveMapPlaceId(null); }, 0);
     return () => window.clearTimeout(timer);
   }, [area, query, type]);
 
   function toggleResultsMap() {
     setMapVisibleIds(null);
-    if (mapOpen) closeMap();
+    if (mapOpen) { setActiveMapPlaceId(null); closeMap(); }
     else openMap();
   }
 
   function closeResultsMap() {
     setMapVisibleIds(null);
+    setActiveMapPlaceId(null);
     closeMap();
   }
   useEffect(() => {
@@ -93,7 +95,7 @@ export function AttractionsExplorer({ items = paidAttractions }: { items?: Disco
     </div>
     {filtered.length
       ? mapOpen
-        ? <div className="airbnb-map-split world-map-split"><div className="airbnb-map-split__results discovery-grid attraction-grid">{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div><div className="airbnb-map-split__map"><DeferredDiscoveryMap items={filtered} tone="activities" autoLoad onClose={closeResultsMap} onVisiblePlaceIdsChange={setMapVisibleIds} /></div></div>
+        ? <div className="airbnb-map-split world-map-split"><div className="airbnb-map-split__results discovery-grid attraction-grid">{displayed.map((item) => <DiscoveryCard key={item.id} item={item} mapActive={activeMapPlaceId === item.id} onActiveChange={(active) => setActiveMapPlaceId(active ? item.id : null)} />)}</div><div className="airbnb-map-split__map"><DeferredDiscoveryMap items={filtered} tone="activities" autoLoad onClose={closeResultsMap} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPlaceId} onActivePlaceChange={setActiveMapPlaceId} /></div></div>
         : <div className="discovery-grid attraction-grid">{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>
       : <div className="trail-empty"><h2>לא מצאנו התאמה לסינון הזה</h2><p>אפשר להסיר סינון או לבחור אזור סמוך.</p><button type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
   </>;

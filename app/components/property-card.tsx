@@ -302,7 +302,7 @@ export function hasAvailablePriceForSearch(property: Property, selectedStay: Sel
     && resolvedAvailability.nightlyPrice > 0;
 }
 
-export function PropertyCard({ property, selectedStay = null, promotional = false, detailHref, liveAvailabilityState, onActiveChange }: { property: Property; selectedStay?: SelectedStay | null; promotional?: boolean; detailHref?: string; liveAvailabilityState?: LegacyAvailabilityState; onActiveChange?: (active: boolean) => void }) {
+export function PropertyCard({ property, selectedStay = null, promotional = false, detailHref, liveAvailabilityState, mapActive = false, onActiveChange }: { property: Property; selectedStay?: SelectedStay | null; promotional?: boolean; detailHref?: string; liveAvailabilityState?: LegacyAvailabilityState; mapActive?: boolean; onActiveChange?: (active: boolean) => void }) {
   const { language, translate } = useSiteLanguage();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -349,7 +349,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
   const imageNextDisabled = imageIndex >= galleryImages.length - 1;
 
   return (
-    <article ref={cardRef} className={`stay-card stay-card--${cardMode}`} onPointerEnter={() => onActiveChange?.(true)} onPointerLeave={() => onActiveChange?.(false)} onFocusCapture={() => onActiveChange?.(true)} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) onActiveChange?.(false); }}>
+    <article ref={cardRef} className={`stay-card stay-card--${cardMode}${mapActive ? " is-map-active" : ""}`} data-map-place-id={property.slug} onPointerEnter={() => onActiveChange?.(true)} onPointerLeave={() => onActiveChange?.(false)} onFocusCapture={() => onActiveChange?.(true)} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) onActiveChange?.(false); }}>
       <Link className="stay-card__surface-link" href={propertyHref} target="_blank" rel="noopener noreferrer" aria-label={`${interfaceCopy.open}: ${localizedName}`} />
       <div className="stay-card__media" onTouchStart={(event) => { if (swipeResetTimer.current) clearTimeout(swipeResetTimer.current); didSwipe.current = false; touchStart.current = event.changedTouches[0].clientX; }} onTouchEnd={(event) => { if (touchStart.current === null || galleryImages.length < 2) return; const distance = event.changedTouches[0].clientX - touchStart.current; if (Math.abs(distance) > 45) { didSwipe.current = true; swipeResetTimer.current = setTimeout(() => { didSwipe.current = false; swipeResetTimer.current = null; }, 500); setImageIndex((current) => boundedSliderIndex(current, distance > 0 ? -1 : 1, galleryImages.length)); } touchStart.current = null; }}>
         <Link href={propertyHref} target="_blank" rel="noopener noreferrer" aria-label={`${interfaceCopy.details}: ${localizedName}`} onClick={(event) => { if (!didSwipe.current) return; event.preventDefault(); event.stopPropagation(); didSwipe.current = false; if (swipeResetTimer.current) clearTimeout(swipeResetTimer.current); swipeResetTimer.current = null; }}>
