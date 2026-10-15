@@ -8335,5 +8335,22 @@
   "חוף אכזיב והים בגליל המערבי": "La plage d’Akhziv et la côte de Galilée occidentale",
   "נוף מדברי בהרי אילת": "Paysages désertiques dans les montagnes d’Eilat",
   "נוף ומים באזור הכנרת": "Paysages et eau autour du lac de Tibériade",
-  "מסלולים עצמאיים": "itinéraires en autonomie"
+  "מסלולים עצמאיים": "itinéraires en autonomie",
+  ", תמונת אווירה": ", image d’illustration",
+  "מתחם נופש באזור החוף, תמונת אווירה": "Complexe de vacances en bord de mer, image d’illustration",
+  "חמישי הקרוב": "Jeudi prochain",
+  "שישי הקרוב": "Vendredi prochain",
+  "בדיקה ישירה מול ה־API": "Vérification directe via l’API",
+  "מקומות לאירוע קרוב": "Lieux pour un événement prochain",
+  "בחירת תאריך מהירה": "Sélection rapide de la date",
+  "תאריך אחר": "Une autre date",
+  "הבדיקה היא ל־20 משתתפים ול־3 שעות. ״לבירור״ פירושו שה־API לא אישר ולא שלל זמינות.": "La vérification porte sur 20 participants et 3 heures. À vérifier signifie que l’API n’a ni confirmé ni exclu la disponibilité.",
+  "לא נמצאו מקומות שניתן להציג לתאריך הזה. נסו תאריך אחר.": "Aucun lieu ne peut être affiché pour cette date. Essayez une autre date.",
+  "לבירור זמינות ומחיר": "Vérifier la disponibilité et le prix",
+  "פנייה ישירה למקום": "Contacter directement le lieu",
+  "לא נבחרו תאריכים": "Aucune date sélectionnée",
+  "ממוצע ללילה": "Moyenne par nuit",
+  "פנו למקום לקבלת הצעת מחיר": "Contactez l’établissement pour obtenir un devis",
+  "בסיס המחיר:": "Base du prix :",
+  "לבירור זמינות ומחיר פנו למקום": "Contactez l’établissement pour vérifier la disponibilité et le prix"
 }

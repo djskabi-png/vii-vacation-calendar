@@ -1,5 +1,6 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { readPublishedContent, type ContentLocale } from "./content-studio";
+import { resolvePublicSliderMedia } from "./public-media-policy";
 
 export type HomeDiscoveryItem = {
   id: string;
@@ -22,7 +23,7 @@ const defaults = {
     { id: "eilat", label: "אילת", note: "שמש, ים ומקומות שלמים", href: "/search?location=אילת", image: "/media/322de460abbda5c6.jpg", visible: true },
     { id: "tiberias", label: "טבריה והכנרת", note: "חופשה קרובה למים", href: "/search?location=כנרת", image: "/media/9a403cb4d9d1cbde.jpg", visible: true },
     { id: "jerusalem", label: "ירושלים", note: "אוויר הרים וחופשה עירונית", href: "/search?location=ירושלים והסביבה", image: "/media/231b0e706cc61cc1.jpg", visible: true },
-    { id: "netanya", label: "נתניה והשרון", note: "ים, מרכז ונגישות קלה", href: "/search?location=נתניה", image: "/media/c3a6274bfd08091a.jpeg", visible: true },
+    { id: "netanya", label: "נתניה והשרון", note: "ים, מרכז ונגישות קלה", href: "/search?location=נתניה", image: "/media/verified/vacation/vacation-vila-tzukey-yam-1.jpg", imageAlt: "מתחם נופש באזור החוף, תמונת אווירה", visible: true },
     { id: "galilee", label: "הגליל", note: "נוף ירוק ומתחמים למשפחות", href: "/search?location=גליל עליון", image: "/media/f18d7c0469633ca0.jpeg", visible: true }
   ],
   types: [
@@ -44,14 +45,19 @@ function parseItems(value: string | undefined, fallback: HomeDiscoveryItem[]) {
       const row = entry as Record<string, unknown>;
       const label = typeof row.label === "string" ? row.label.trim().slice(0, 70) : "";
       const href = typeof row.href === "string" ? row.href.trim().slice(0, 240) : "";
-      const image = typeof row.image === "string" ? row.image.trim().slice(0, 300) : "";
-      if (!label || !href.startsWith("/") || !image.startsWith("/")) return [];
+      const requestedImage = typeof row.image === "string" ? row.image.trim().slice(0, 300) : "";
+      if (!label || !href.startsWith("/") || !requestedImage.startsWith("/")) return [];
+      const id = typeof row.id === "string" && row.id.trim() ? row.id.trim().slice(0, 60) : `item-${index + 1}`;
+      const matchedFallback = fallback.find((item) => item.id === id) || fallback[index];
+      const media = resolvePublicSliderMedia({ image: requestedImage, topic: `${id} ${label} ${href}`, fallback: matchedFallback?.image });
+      if (!media.image.startsWith("/")) return [];
       return [{
-        id: typeof row.id === "string" && row.id.trim() ? row.id.trim().slice(0, 60) : `item-${index + 1}`,
+        id,
         label,
         note: typeof row.note === "string" ? row.note.trim().slice(0, 120) : "",
         href,
-        image,
+        image: media.image,
+        imageAlt: media.fallbackApplied ? `${label}, תמונת אווירה` : (typeof row.imageAlt === "string" ? row.imageAlt.trim().slice(0, 160) : undefined),
         visible: row.visible !== false,
       }];
     });

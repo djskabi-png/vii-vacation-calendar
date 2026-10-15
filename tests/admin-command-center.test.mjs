@@ -5,13 +5,26 @@ import { test } from "node:test";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("administration shell exposes command search, growth center and mobile-safe navigation", async () => {
-  const [layout, navigation, commandBar, styles] = await Promise.all([
-    read("app/admin/layout.tsx"), read("app/admin/admin-nav.tsx"), read("app/admin/admin-command-bar.tsx"), read("app/admin/admin.module.css"),
+  const [rootLayout, layout, navigation, commandBar, styles] = await Promise.all([
+    read("app/layout.tsx"), read("app/admin/layout.tsx"), read("app/admin/admin-nav.tsx"), read("app/admin/admin-command-bar.tsx"), read("app/admin/admin.module.css"),
   ]);
+  assert.match(rootLayout, /font-family: "VII Heebo", Arial, sans-serif !important/);
+  assert.match(rootLayout, /heebo-hebrew-v28\.woff2/);
+  assert.match(rootLayout, /heebo-latin-v28\.woff2/);
+  assert.match(rootLayout, /data-vii-surface=\{isAdmin \? "admin" : "public"\}/);
+  assert.match(rootLayout, /vii-admin-font-critical/);
   assert.match(layout, /<AdminCommandBar \/>/);
   assert.match(navigation, /\/admin\/growth/);
   assert.match(commandBar, /Ctrl K/);
   assert.match(commandBar, /חיפוש כלי, דוח או פעולה/);
+  assert.match(commandBar, /\/api\/auth\/logout/);
+  assert.match(commandBar, /method: "POST"/);
+  assert.match(commandBar, /window\.location\.replace\("\/account\?loggedOut=1"\)/);
+  assert.match(commandBar, /aria-busy=\{logoutState === "loading"\}/);
+  assert.match(commandBar, /role="alert"/);
+  assert.match(commandBar, /pageshow/);
+  assert.match(styles, /\.logoutButton/);
+  assert.match(styles, /\.logoutError/);
   assert.match(styles, /@media\(max-width:760px\)/);
   assert.match(styles, /\.commandBackdrop/);
   assert.match(styles, /position:fixed/);

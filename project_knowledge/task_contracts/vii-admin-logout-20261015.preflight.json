@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-admin-logout-20261015",
+  "project": "VII",
+  "task_type": "admin_auth_repair",
+  "requested_outcome": "An administrator can clearly and reliably sign out from every admin screen, receives immediate feedback, and cannot recover protected admin content by reloading or using browser history.",
+  "natural_destination": "https://vii.spaplus.co/admin",
+  "authorization_boundary": "Diagnose, implement, test and publish the VII admin logout repair under Adir's existing VII publication authorization; do not change administrator membership or authentication providers.",
+  "lesson_bundle": [
+    { "lesson_id": "ADIR-QA-001", "reason": "The reported failure is a visible production interaction.", "acceptance_impact": "Requires exercising the exact live logout flow rather than relying on source or build evidence." },
+    { "lesson_id": "ADIR-CONTROL-001", "reason": "Logout is a visible control with success, loading and failure states.", "acceptance_impact": "The control must acknowledge activation, prevent duplicate submission and end in a clear result." },
+    { "lesson_id": "ADIR-SCOPE-001", "reason": "The admin shell is shared across all admin routes and viewports.", "acceptance_impact": "Coverage must include the complete admin route family and mobile presentation, not only catalog sync." },
+    { "lesson_id": "ADIR-LEARN-004", "reason": "The task follows a fresh correction and must remain evidence-backed through delivery.", "acceptance_impact": "The correction is attached to the contract and completion is blocked without exact destination evidence." }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    { "rejection": "A server logout route exists but there is still no discoverable control in the admin UI.", "prevention": "Place one labelled logout action in the shared admin command bar.", "acceptance_check": "The action is present on representative desktop and mobile admin routes." },
+    { "rejection": "The click appears idle or can be submitted repeatedly.", "prevention": "Add an accessible busy state, disabled duplicate activation and localized progress label.", "acceptance_check": "The button changes to a busy state immediately and issues one POST." },
+    { "rejection": "The interface redirects but the authenticated cookie survives.", "prevention": "Use the existing server logout endpoint and verify the clearing cookie matches the session cookie path and security attributes.", "acceptance_check": "After POST, session lookup is unauthenticated and a protected admin request is rejected or redirected." },
+    { "rejection": "Browser Back reveals a cached admin page after logout.", "prevention": "Replace the current history entry and revalidate session state when an admin document is restored from browser history.", "acceptance_check": "Back, reload and bfcache restoration do not leave protected admin content usable." },
+    { "rejection": "The control disappears on mobile because the desktop navigation footer is hidden.", "prevention": "Put the action in the shared command bar that renders on every viewport.", "acceptance_check": "At 390px the action remains visible, labelled and keyboard accessible." }
+  ],
+  "affected_family": [
+    "shared /admin layout",
+    "all /admin child routes",
+    "desktop command bar",
+    "mobile command bar",
+    "POST /api/auth/logout",
+    "GET /api/auth/session",
+    "browser reload and history restoration",
+    "Hebrew labels and error state"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      { "label": "VII admin shared shell and security requirements", "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md" },
+      { "label": "VII accepted visible-control behavior", "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md" }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the shared control, logout request and post-logout navigation are wired, before broad regression and release.",
+    "checks": [
+      "Inspect the rendered shared shell at desktop and mobile widths.",
+      "Run focused tests proving one POST, cookie clearing and failure recovery."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can an administrator navigate to another admin route where logout is missing?",
+      "Can a failed logout leave the button permanently disabled or silently redirect?",
+      "Can Back, reload or a copied admin URL reveal protected content after logout?",
+      "Does the action remain visible and understandable at 390px without colliding with search?"
+    ],
+    "natural_destination_evidence": "Exercise the published logout control on vii.spaplus.co and verify the unauthenticated destination and protected-route behavior.",
+    "affected_family_evidence": "Focused auth tests, production build, representative admin route checks and desktop/mobile browser evidence."
+  },
+  "effectiveness": {
+    "baseline": "User reports that no usable logout action exists in the admin interface.",
+    "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"],
+    "target": "One shared implementation fixes every admin route with no repeated correction and blocks cached post-logout access."
+  },
+  "privacy": { "raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true },
+  "ready_to_start": true
+}

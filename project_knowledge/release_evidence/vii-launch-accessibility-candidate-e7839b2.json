@@ -1,0 +1,48 @@
+{
+  "release_url": "https://vii.spaplus.co",
+  "release_id": "candidate e7839b227881258df39ec4a4cab1acb77ebc050d",
+  "public_version_tested": false,
+  "jurisdictions": [
+    {
+      "country": "Israel",
+      "applicable_law": "Not revalidated for this candidate",
+      "applicable_standard": "Exact legal applicability and level blocked; WCAG 2.2 AA remains the internal engineering floor only",
+      "official_sources": [
+        {"url": "https://www.gov.il/he/pages/website_accessibility?chapterIndex=3", "checked_at": "2026-10-15", "requirement_summary": "Fetch returned HTTP 403, so current official wording was not independently verified."},
+        {"url": "https://www.gov.il/he/pages/declaration_website_accessibility?chapterIndex=3", "checked_at": "2026-10-15", "requirement_summary": "Fetch returned HTTP 403, so current statement requirements were not independently verified."},
+        {"url": "https://www.gov.il/BlobFolder/legalinfo/israeli_accessibility_standards_pdf/he/sitedocs_si-5568-1-september-2023.pdf", "checked_at": "2026-10-15", "requirement_summary": "Fetch returned HTTP 403, so the incorporated standard was not independently rechecked."}
+      ]
+    }
+  ],
+  "legal_applicability": {
+    "status": "blocked",
+    "owner_facts_complete": false,
+    "evidence": "Public tourism, accommodation, leisure and commerce services are in scope for review, but operator turnover, employee count, service arrangements, coordinator obligations and any exemption facts were not supplied and must not be inferred.",
+    "exemptions": []
+  },
+  "checks": {
+    "automated_scan": {"status": "blocked", "evidence": "No full automated accessibility scan of the exact candidate deployment."},
+    "keyboard": {"status": "blocked", "evidence": "Source tests cover selected controls; no complete exact-release keyboard journey."},
+    "focus": {"status": "blocked", "evidence": "No full exact-release visible-focus review."},
+    "screen_reader": {"status": "blocked", "evidence": "No named screen reader, browser and operating-system audit."},
+    "headings_landmarks": {"status": "blocked", "evidence": "Representative automated tests pass but the full deployed template family was not manually inspected."},
+    "names_labels": {"status": "blocked", "evidence": "Representative automated tests pass but the full deployed control inventory was not manually inspected."},
+    "contrast": {"status": "blocked", "evidence": "No exact-release measured contrast audit."},
+    "resize_zoom_reflow": {"status": "blocked", "evidence": "No exact-release 200-percent zoom and narrow reflow audit."},
+    "mobile": {"status": "blocked", "evidence": "Candidate 390-pixel public review is pending publication."},
+    "forms_errors": {"status": "blocked", "evidence": "No complete exact-release manual form and error audit."},
+    "media_documents": {"status": "blocked", "evidence": "No complete media and document accessibility inventory."},
+    "maps_third_party": {"status": "blocked", "evidence": "No complete exact-release map and third-party component screen-reader audit."},
+    "language_direction": {"status": "blocked", "evidence": "Automated locale tests pass; full exact-release manual four-language audit is pending."},
+    "accessibility_statement": {"status": "blocked", "evidence": "The statement exists but its legal and operational truth was not independently verified."},
+    "contact_and_arrangements": {"status": "blocked", "evidence": "Coordinator details, feedback process and applicable physical arrangements were not verified."}
+  },
+  "statement_truth_verified": false,
+  "independent_check": {"status": "blocked", "checker": "", "checked_at": "", "evidence": "No independent checker inspected the exact candidate deployment."},
+  "blockers": [
+    "Current official Israeli requirements could not be fetched from gov.il in this environment.",
+    "Required operator facts are incomplete.",
+    "Manual keyboard, screen-reader, contrast, zoom, mobile and third-party component checks are incomplete.",
+    "The exact deployed candidate has not received independent accessibility review."
+  ]
+}

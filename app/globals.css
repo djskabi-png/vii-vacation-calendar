@@ -9837,6 +9837,10 @@ button[data-slider-boundary]:disabled { opacity: .32; color: #71898d; cursor: de
 .event-last-minute-controls { display: flex; flex-wrap: wrap; align-items: end; gap: 12px 20px; margin-bottom: 12px; color: var(--ink-soft); font-size: .8rem; }
 .event-last-minute-controls label { display: grid; gap: 5px; font-weight: 750; }
 .event-last-minute-controls input { min-height: 42px; padding: 6px 10px; border: 1px solid #bfd8da; border-radius: 6px; background: #fff; color: var(--ink); font: inherit; }
+.event-last-minute-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.event-last-minute-tabs button { min-height: 42px; padding: 7px 15px; border: 1px solid #bfd8da; border-radius: 999px; background: #fff; color: var(--teal-dark); font: inherit; font-weight: 800; cursor: pointer; }
+.event-last-minute-tabs button:hover { border-color: var(--teal); background: #f1fbfb; }
+.event-last-minute-tabs button.active { border-color: var(--teal); background: var(--teal); color: #fff; }
 @media (max-width: 560px) {
   .event-discovery-section { padding-block: 18px; }
   .event-rail-card, .event-rail-discovery { flex-basis: min(76vw, 290px); }

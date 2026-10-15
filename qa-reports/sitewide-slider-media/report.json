@@ -1,0 +1,1236 @@
+{
+  "baseUrl": "http://127.0.0.1:5173",
+  "bannedToken": "c3a6274bfd08091a",
+  "results": [
+    {
+      "viewport": "desktop",
+      "route": "/",
+      "sliderImages": 57,
+      "media": [
+        {
+          "src": "https://www.vii.co.il/gallery/1863c6707315aff.jpeg",
+          "alt": "",
+          "width": 276.5,
+          "height": 283
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/276a7d759604dcf.png",
+          "alt": "",
+          "width": 276.5,
+          "height": 283
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/36a731cbc0320c.jpeg",
+          "alt": "",
+          "width": 276.5,
+          "height": 283
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/4369bbf55cbd70d.jpeg",
+          "alt": "",
+          "width": 276.5,
+          "height": 283
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/176a9691d40a653.jpeg",
+          "alt": "",
+          "width": 276.5,
+          "height": 283
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/6167d1619fbea5b.jpeg",
+          "alt": "",
+          "width": 276.5,
+          "height": 283
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/f18d7c0469633ca0.jpeg",
+          "alt": "",
+          "width": 270,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/9a403cb4d9d1cbde.jpg",
+          "alt": "",
+          "width": 270,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/bc85b10f1d64d6db.jpeg",
+          "alt": "",
+          "width": 270,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/978e5fd5134b0831.jpeg",
+          "alt": "",
+          "width": 270,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/322de460abbda5c6.jpg",
+          "alt": "",
+          "width": 270,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/9a403cb4d9d1cbde.jpg",
+          "alt": "",
+          "width": 270,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/231b0e706cc61cc1.jpg",
+          "alt": "",
+          "width": 270,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/verified/vacation/vacation-vila-tzukey-yam-1.jpg",
+          "alt": "מתחם נופש באזור החוף, תמונת אווירה",
+          "width": 270,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/f18d7c0469633ca0.jpeg",
+          "alt": "",
+          "width": 270,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/322de460abbda5c6.jpg",
+          "alt": "",
+          "width": 270,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/051ff4fbc8d7d2ac.jpeg",
+          "alt": "",
+          "width": 270,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/hilat-hanof/535f7c268ed1dc4.jpeg",
+          "alt": "",
+          "width": 270,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/88fcef4341b24a45.jpeg",
+          "alt": "",
+          "width": 270,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/978e5fd5134b0831.jpeg",
+          "alt": "",
+          "width": 270,
+          "height": 210
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/8860af69c2deafe.jpg",
+          "alt": "",
+          "width": 84,
+          "height": 84
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/196a1d4e829a212.JPG",
+          "alt": "",
+          "width": 84,
+          "height": 84
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/855fdb2c3118cfa.jpeg",
+          "alt": "",
+          "width": 84,
+          "height": 84
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/3663c7c2d9eeeb.jpg",
+          "alt": "",
+          "width": 84,
+          "height": 84
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/6069ef3cc9e672e.jpeg",
+          "alt": "",
+          "width": 84,
+          "height": 84
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/756ac4cd70c08a2.jpg",
+          "alt": "",
+          "width": 84,
+          "height": 84
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/062c3e8df340bc.jpeg",
+          "alt": "",
+          "width": 84,
+          "height": 84
+        },
+        {
+          "src": "https://www.spaplus.co.il/gallery/1790061659424426.jpeg",
+          "alt": "פלאיה ספא - ספא במלון פליי ווסט תל אביב",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.spaplus.co.il/gallery/1705515429845738.jpeg",
+          "alt": "מלון ספא אלמונד - Almond spa",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.spaplus.co.il/gallery/1732608716652357.jpeg",
+          "alt": "ספא במלון רוקסון אורבן רמת גן - Roxon Urban Spa",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.spaplus.co.il/gallery/1718004116266151.jpeg",
+          "alt": "ספא במלון לאונרדו פלאזה חיפה - spa Leonardo Plaza Haifa",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.spaplus.co.il/gallery/1715516600312617.jpeg",
+          "alt": "ספא אואזיס במלון נווה אילת -  oazis spa eilat",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.spaplus.co.il/gallery/1670935057854597.jpeg",
+          "alt": "ספא יערות הכרמל במלון אוריינט ירושלים - Orient Spa",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.spaplus.co.il/gallery/1691320591435887.jpeg",
+          "alt": "ספא במלון סטאי כנרת -  Setai Spa Sea Of Galilee",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/91699ad6303593b.jpg",
+          "alt": "יוקרה בצפון",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/2562387d3b560d5.jpg",
+          "alt": "קצפת בראשון",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/536a859f5c8e5de.jpeg",
+          "alt": "נעם בגלבוע",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/2461a5de83befc2.jpg",
+          "alt": "קסם בבוסתן",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/686a0c45003dd05.jpg",
+          "alt": "שקיעה בזכרון",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/7561c1cebc7d085.jpg",
+          "alt": "צימרים רימונים",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/476735a2d0b8602.jpg",
+          "alt": "ספא האוס - פתח תקווה",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/506703b8a479c37.jpeg",
+          "alt": "הסוויטה הסודית",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/97672c6915de5a5.jpg",
+          "alt": "אהבה בשניים",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/476a7ad0c759cf2.jpg",
+          "alt": "כפר הים",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/516ac770476abd1.jpeg",
+          "alt": "שדה נסתר",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/316ac780714de7b.jpeg",
+          "alt": "סיקרט ספוט",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/8680df42b2a7b1.jpeg",
+          "alt": "ויליג' קומפלקס",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/2267a20938826af.jpeg",
+          "alt": "פנטהאוז הים",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/9672c6a4c26523.jpeg",
+          "alt": "רום קלאס",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/46695ba53962ffb.jpeg",
+          "alt": "לאגו סוויט",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/956751a02ae1e08.jpg",
+          "alt": "אסקייפ לאב",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/646751aaeef0950.jpg",
+          "alt": "תיק תק רומס",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/886756c62861070.jpg",
+          "alt": "קסם של רגע",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/366a73a11e4abd.jpg",
+          "alt": "בלו טופז איטלי",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/5566a63b4bbd258.jpg",
+          "alt": "קינקי רומס",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/216992d090a36e0.jpg",
+          "alt": "אהבה ביער",
+          "width": 363,
+          "height": 225
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/46673b29b3edff5.JPG",
+          "alt": "טיטאניק ספא",
+          "width": 363,
+          "height": 225
+        }
+      ],
+      "screenshot": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\qa-reports\\sitewide-slider-media\\desktop-home.png",
+      "focusedScreenshots": [
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\qa-reports\\sitewide-slider-media\\desktop-home-home-city-rail-track.png",
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\qa-reports\\sitewide-slider-media\\desktop-home-home-type-rail-track.png"
+      ]
+    },
+    {
+      "viewport": "desktop",
+      "route": "/search",
+      "sliderImages": 0,
+      "media": [],
+      "screenshot": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\qa-reports\\sitewide-slider-media\\desktop-search.png",
+      "focusedScreenshots": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/events",
+      "sliderImages": 31,
+      "media": [
+        {
+          "src": "https://www.vii.co.il/gallery/5962a5b1c42c285.jpeg",
+          "alt": "מתחם מעוצב לחגיגת יום הולדת",
+          "width": 330,
+          "height": 260
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/44677127ddf2c2e.jpeg",
+          "alt": "מתחם לאירוע משפחתי",
+          "width": 330,
+          "height": 260
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/67659401a5b852d.jpeg",
+          "alt": "אולם לאירוע רב משתתפים",
+          "width": 330,
+          "height": 260
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/9862975a4a90481.JPG",
+          "alt": "מתחם למסיבה פרטית",
+          "width": 330,
+          "height": 260
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/8266f8f7940fa93.jpg",
+          "alt": "מקום לאירועים באזור המרכז",
+          "width": 330,
+          "height": 260
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/3465c34aea44623.jpeg",
+          "alt": "לופט לאירועים בתל אביב",
+          "width": 330,
+          "height": 260
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/44677127ddf2c2e.jpeg",
+          "alt": "",
+          "width": 308,
+          "height": 336
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/5962a5b1c42c285.jpeg",
+          "alt": "",
+          "width": 308,
+          "height": 336
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/155f8ea6f7d3759.jpeg",
+          "alt": "",
+          "width": 308,
+          "height": 336
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/3465c34aea44623.jpeg",
+          "alt": "",
+          "width": 308,
+          "height": 336
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/1693031bab4525.jpeg",
+          "alt": "",
+          "width": 308,
+          "height": 336
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/196a6071f6c6fb5.jpg",
+          "alt": "",
+          "width": 308,
+          "height": 336
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/2168807f1ee28f6.jpeg",
+          "alt": "חורשת האקליפטוס ריזורט",
+          "width": 298,
+          "height": 170
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/2769cbb1392a225.jpg",
+          "alt": "לופט דיטלס איוונטס",
+          "width": 298,
+          "height": 170
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/9069304489be646.JPG",
+          "alt": "ספא סאן מארי בוטיק",
+          "width": 298,
+          "height": 170
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/5068b3ef9f2781c.JPG",
+          "alt": "Happy bar – הפי בר",
+          "width": 298,
+          "height": 170
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/1269df3999daa6e.jpeg",
+          "alt": "איוונט 47",
+          "width": 298,
+          "height": 170
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/696a4f99bdaf573.JPG",
+          "alt": "לופט כמיסה",
+          "width": 298,
+          "height": 170
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/56a4a580246952.jpg",
+          "alt": "סיטי לופט ראשון לציון",
+          "width": 298,
+          "height": 170
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/providers/masu/masu-home.jpg",
+          "alt": "מאסו",
+          "width": 298,
+          "height": 225
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/providers/maor-natan-1.jpg",
+          "alt": "מאור נתן",
+          "width": 298,
+          "height": 225
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/providers/nissan-mukhtar-1.jpg",
+          "alt": "ניסן מוכתר",
+          "width": 298,
+          "height": 225
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/providers/amit-mitrani/amit-mitrani-1.webp",
+          "alt": "עמית מיטרני, Magic Man",
+          "width": 298,
+          "height": 225
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/providers/dj-kfir-w-1.jpg",
+          "alt": "DJ Kfir W",
+          "width": 298,
+          "height": 225
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/providers/liran-elias-dj-1.jpg",
+          "alt": "Liran Elias",
+          "width": 298,
+          "height": 225
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/providers/photoshot-1.webp",
+          "alt": "פוטושוט",
+          "width": 298,
+          "height": 225
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/providers/baboom-1.webp",
+          "alt": "באבום בלונים",
+          "width": 298,
+          "height": 225
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/providers/balloona-1.jpg",
+          "alt": "Balloona",
+          "width": 298,
+          "height": 225
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/providers/hagit-designed-events-1.jpg",
+          "alt": "חגית אירועים מעוצבים",
+          "width": 298,
+          "height": 225
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/providers/aae-event-design-1.jpg",
+          "alt": "אביחי אהרון עיצוב אירועים",
+          "width": 298,
+          "height": 225
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/providers/argaman-events-1.webp",
+          "alt": "ארגמן הפקות אירועים",
+          "width": 298,
+          "height": 225
+        }
+      ],
+      "screenshot": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\qa-reports\\sitewide-slider-media\\desktop-events.png",
+      "focusedScreenshots": [
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\qa-reports\\sitewide-slider-media\\desktop-events-event-quick-searches-rail.png"
+      ]
+    },
+    {
+      "viewport": "desktop",
+      "route": "/events/search",
+      "sliderImages": 0,
+      "media": [],
+      "screenshot": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\qa-reports\\sitewide-slider-media\\desktop-events-search.png",
+      "focusedScreenshots": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/spas",
+      "sliderImages": 0,
+      "media": [],
+      "screenshot": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\qa-reports\\sitewide-slider-media\\desktop-spas.png",
+      "focusedScreenshots": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/hourly",
+      "sliderImages": 0,
+      "media": [],
+      "screenshot": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\qa-reports\\sitewide-slider-media\\desktop-hourly.png",
+      "focusedScreenshots": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/providers",
+      "sliderImages": 0,
+      "media": [],
+      "screenshot": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\qa-reports\\sitewide-slider-media\\desktop-providers.png",
+      "focusedScreenshots": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/activities",
+      "sliderImages": 0,
+      "media": [],
+      "screenshot": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\qa-reports\\sitewide-slider-media\\desktop-activities.png",
+      "focusedScreenshots": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/business?id=vacation-1",
+      "sliderImages": 0,
+      "media": [],
+      "screenshot": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\qa-reports\\sitewide-slider-media\\desktop-business-id-vacation-1.png",
+      "focusedScreenshots": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/discover/place/spa-6",
+      "sliderImages": 0,
+      "media": [],
+      "screenshot": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\qa-reports\\sitewide-slider-media\\desktop-discover-place-spa-6.png",
+      "focusedScreenshots": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/",
+      "sliderImages": 57,
+      "media": [
+        {
+          "src": "https://www.vii.co.il/gallery/1863c6707315aff.jpeg",
+          "alt": "",
+          "width": 330,
+          "height": 303
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/276a7d759604dcf.png",
+          "alt": "",
+          "width": 330,
+          "height": 303
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/36a731cbc0320c.jpeg",
+          "alt": "",
+          "width": 330,
+          "height": 303
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/4369bbf55cbd70d.jpeg",
+          "alt": "",
+          "width": 330,
+          "height": 303
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/176a9691d40a653.jpeg",
+          "alt": "",
+          "width": 330,
+          "height": 303
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/6167d1619fbea5b.jpeg",
+          "alt": "",
+          "width": 330,
+          "height": 303
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/f18d7c0469633ca0.jpeg",
+          "alt": "",
+          "width": 304.1875,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/9a403cb4d9d1cbde.jpg",
+          "alt": "",
+          "width": 304.1875,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/bc85b10f1d64d6db.jpeg",
+          "alt": "",
+          "width": 304.1875,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/978e5fd5134b0831.jpeg",
+          "alt": "",
+          "width": 304.1875,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/322de460abbda5c6.jpg",
+          "alt": "",
+          "width": 304.1875,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/9a403cb4d9d1cbde.jpg",
+          "alt": "",
+          "width": 304.1875,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/231b0e706cc61cc1.jpg",
+          "alt": "",
+          "width": 304.1875,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/verified/vacation/vacation-vila-tzukey-yam-1.jpg",
+          "alt": "מתחם נופש באזור החוף, תמונת אווירה",
+          "width": 304.1875,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/f18d7c0469633ca0.jpeg",
+          "alt": "",
+          "width": 304.1875,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/322de460abbda5c6.jpg",
+          "alt": "",
+          "width": 304.1875,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/051ff4fbc8d7d2ac.jpeg",
+          "alt": "",
+          "width": 304.1875,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/hilat-hanof/535f7c268ed1dc4.jpeg",
+          "alt": "",
+          "width": 304.1875,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/88fcef4341b24a45.jpeg",
+          "alt": "",
+          "width": 304.1875,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/978e5fd5134b0831.jpeg",
+          "alt": "",
+          "width": 304.1875,
+          "height": 210
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/8860af69c2deafe.jpg",
+          "alt": "",
+          "width": 76,
+          "height": 76
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/196a1d4e829a212.JPG",
+          "alt": "",
+          "width": 76,
+          "height": 76
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/855fdb2c3118cfa.jpeg",
+          "alt": "",
+          "width": 76,
+          "height": 76
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/3663c7c2d9eeeb.jpg",
+          "alt": "",
+          "width": 76,
+          "height": 76
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/6069ef3cc9e672e.jpeg",
+          "alt": "",
+          "width": 76,
+          "height": 76
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/756ac4cd70c08a2.jpg",
+          "alt": "",
+          "width": 76,
+          "height": 76
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/062c3e8df340bc.jpeg",
+          "alt": "",
+          "width": 76,
+          "height": 76
+        },
+        {
+          "src": "https://www.spaplus.co.il/gallery/1790061659424426.jpeg",
+          "alt": "פלאיה ספא - ספא במלון פליי ווסט תל אביב",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.spaplus.co.il/gallery/1705515429845738.jpeg",
+          "alt": "מלון ספא אלמונד - Almond spa",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.spaplus.co.il/gallery/1732608716652357.jpeg",
+          "alt": "ספא במלון רוקסון אורבן רמת גן - Roxon Urban Spa",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.spaplus.co.il/gallery/1718004116266151.jpeg",
+          "alt": "ספא במלון לאונרדו פלאזה חיפה - spa Leonardo Plaza Haifa",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.spaplus.co.il/gallery/1715516600312617.jpeg",
+          "alt": "ספא אואזיס במלון נווה אילת -  oazis spa eilat",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.spaplus.co.il/gallery/1670935057854597.jpeg",
+          "alt": "ספא יערות הכרמל במלון אוריינט ירושלים - Orient Spa",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.spaplus.co.il/gallery/1691320591435887.jpeg",
+          "alt": "ספא במלון סטאי כנרת -  Setai Spa Sea Of Galilee",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/91699ad6303593b.jpg",
+          "alt": "יוקרה בצפון",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/2562387d3b560d5.jpg",
+          "alt": "קצפת בראשון",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/536a859f5c8e5de.jpeg",
+          "alt": "נעם בגלבוע",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/2461a5de83befc2.jpg",
+          "alt": "קסם בבוסתן",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/686a0c45003dd05.jpg",
+          "alt": "שקיעה בזכרון",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/7561c1cebc7d085.jpg",
+          "alt": "צימרים רימונים",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/476735a2d0b8602.jpg",
+          "alt": "ספא האוס - פתח תקווה",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/506703b8a479c37.jpeg",
+          "alt": "הסוויטה הסודית",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/97672c6915de5a5.jpg",
+          "alt": "אהבה בשניים",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/476a7ad0c759cf2.jpg",
+          "alt": "כפר הים",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/516ac770476abd1.jpeg",
+          "alt": "שדה נסתר",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/316ac780714de7b.jpeg",
+          "alt": "סיקרט ספוט",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/8680df42b2a7b1.jpeg",
+          "alt": "ויליג' קומפלקס",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/2267a20938826af.jpeg",
+          "alt": "פנטהאוז הים",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/9672c6a4c26523.jpeg",
+          "alt": "רום קלאס",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/46695ba53962ffb.jpeg",
+          "alt": "לאגו סוויט",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/956751a02ae1e08.jpg",
+          "alt": "אסקייפ לאב",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/646751aaeef0950.jpg",
+          "alt": "תיק תק רומס",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/886756c62861070.jpg",
+          "alt": "קסם של רגע",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/366a73a11e4abd.jpg",
+          "alt": "בלו טופז איטלי",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/5566a63b4bbd258.jpg",
+          "alt": "קינקי רומס",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/216992d090a36e0.jpg",
+          "alt": "אהבה ביער",
+          "width": 340,
+          "height": 210
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/46673b29b3edff5.JPG",
+          "alt": "טיטאניק ספא",
+          "width": 340,
+          "height": 210
+        }
+      ],
+      "screenshot": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\qa-reports\\sitewide-slider-media\\mobile-home.png",
+      "focusedScreenshots": [
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\qa-reports\\sitewide-slider-media\\mobile-home-home-city-rail-track.png",
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\qa-reports\\sitewide-slider-media\\mobile-home-home-type-rail-track.png"
+      ]
+    },
+    {
+      "viewport": "mobile",
+      "route": "/search",
+      "sliderImages": 0,
+      "media": [],
+      "screenshot": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\qa-reports\\sitewide-slider-media\\mobile-search.png",
+      "focusedScreenshots": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/events",
+      "sliderImages": 31,
+      "media": [
+        {
+          "src": "https://www.vii.co.il/gallery/5962a5b1c42c285.jpeg",
+          "alt": "מתחם מעוצב לחגיגת יום הולדת",
+          "width": 290,
+          "height": 220
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/44677127ddf2c2e.jpeg",
+          "alt": "מתחם לאירוע משפחתי",
+          "width": 290,
+          "height": 220
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/67659401a5b852d.jpeg",
+          "alt": "אולם לאירוע רב משתתפים",
+          "width": 290,
+          "height": 220
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/9862975a4a90481.JPG",
+          "alt": "מתחם למסיבה פרטית",
+          "width": 290,
+          "height": 220
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/8266f8f7940fa93.jpg",
+          "alt": "מקום לאירועים באזור המרכז",
+          "width": 290,
+          "height": 220
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/3465c34aea44623.jpeg",
+          "alt": "לופט לאירועים בתל אביב",
+          "width": 290,
+          "height": 220
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/44677127ddf2c2e.jpeg",
+          "alt": "",
+          "width": 302.1875,
+          "height": 322
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/5962a5b1c42c285.jpeg",
+          "alt": "",
+          "width": 302.1875,
+          "height": 322
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/155f8ea6f7d3759.jpeg",
+          "alt": "",
+          "width": 302.1875,
+          "height": 322
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/3465c34aea44623.jpeg",
+          "alt": "",
+          "width": 302.1875,
+          "height": 322
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/1693031bab4525.jpeg",
+          "alt": "",
+          "width": 302.1875,
+          "height": 322
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/196a6071f6c6fb5.jpg",
+          "alt": "",
+          "width": 302.1875,
+          "height": 322
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/2168807f1ee28f6.jpeg",
+          "alt": "חורשת האקליפטוס ריזורט",
+          "width": 288,
+          "height": 170
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/2769cbb1392a225.jpg",
+          "alt": "לופט דיטלס איוונטס",
+          "width": 288,
+          "height": 170
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/9069304489be646.JPG",
+          "alt": "ספא סאן מארי בוטיק",
+          "width": 288,
+          "height": 170
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/5068b3ef9f2781c.JPG",
+          "alt": "Happy bar – הפי בר",
+          "width": 288,
+          "height": 170
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/1269df3999daa6e.jpeg",
+          "alt": "איוונט 47",
+          "width": 288,
+          "height": 170
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/696a4f99bdaf573.JPG",
+          "alt": "לופט כמיסה",
+          "width": 288,
+          "height": 170
+        },
+        {
+          "src": "https://www.vii.co.il/gallery/56a4a580246952.jpg",
+          "alt": "סיטי לופט ראשון לציון",
+          "width": 288,
+          "height": 170
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/providers/masu/masu-home.jpg",
+          "alt": "מאסו",
+          "width": 288,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/providers/maor-natan-1.jpg",
+          "alt": "מאור נתן",
+          "width": 288,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/providers/nissan-mukhtar-1.jpg",
+          "alt": "ניסן מוכתר",
+          "width": 288,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/providers/amit-mitrani/amit-mitrani-1.webp",
+          "alt": "עמית מיטרני, Magic Man",
+          "width": 288,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/providers/dj-kfir-w-1.jpg",
+          "alt": "DJ Kfir W",
+          "width": 288,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/providers/liran-elias-dj-1.jpg",
+          "alt": "Liran Elias",
+          "width": 288,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/providers/photoshot-1.webp",
+          "alt": "פוטושוט",
+          "width": 288,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/providers/baboom-1.webp",
+          "alt": "באבום בלונים",
+          "width": 288,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/providers/balloona-1.jpg",
+          "alt": "Balloona",
+          "width": 288,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/providers/hagit-designed-events-1.jpg",
+          "alt": "חגית אירועים מעוצבים",
+          "width": 288,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/providers/aae-event-design-1.jpg",
+          "alt": "אביחי אהרון עיצוב אירועים",
+          "width": 288,
+          "height": 210
+        },
+        {
+          "src": "http://127.0.0.1:5173/media/providers/argaman-events-1.webp",
+          "alt": "ארגמן הפקות אירועים",
+          "width": 288,
+          "height": 210
+        }
+      ],
+      "screenshot": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\qa-reports\\sitewide-slider-media\\mobile-events.png",
+      "focusedScreenshots": [
+        "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\qa-reports\\sitewide-slider-media\\mobile-events-event-quick-searches-rail.png"
+      ]
+    },
+    {
+      "viewport": "mobile",
+      "route": "/events/search",
+      "sliderImages": 0,
+      "media": [],
+      "screenshot": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\qa-reports\\sitewide-slider-media\\mobile-events-search.png",
+      "focusedScreenshots": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/spas",
+      "sliderImages": 0,
+      "media": [],
+      "screenshot": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\qa-reports\\sitewide-slider-media\\mobile-spas.png",
+      "focusedScreenshots": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/hourly",
+      "sliderImages": 0,
+      "media": [],
+      "screenshot": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\qa-reports\\sitewide-slider-media\\mobile-hourly.png",
+      "focusedScreenshots": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/providers",
+      "sliderImages": 0,
+      "media": [],
+      "screenshot": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\qa-reports\\sitewide-slider-media\\mobile-providers.png",
+      "focusedScreenshots": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/activities",
+      "sliderImages": 0,
+      "media": [],
+      "screenshot": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\qa-reports\\sitewide-slider-media\\mobile-activities.png",
+      "focusedScreenshots": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/business?id=vacation-1",
+      "sliderImages": 0,
+      "media": [],
+      "screenshot": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\qa-reports\\sitewide-slider-media\\mobile-business-id-vacation-1.png",
+      "focusedScreenshots": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/discover/place/spa-6",
+      "sliderImages": 0,
+      "media": [],
+      "screenshot": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\qa-reports\\sitewide-slider-media\\mobile-discover-place-spa-6.png",
+      "focusedScreenshots": []
+    }
+  ]
+}

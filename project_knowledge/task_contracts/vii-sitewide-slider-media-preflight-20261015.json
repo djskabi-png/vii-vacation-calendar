@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-sitewide-slider-media-20261015",
+  "project": "VII",
+  "task_type": "sitewide-media-correction",
+  "requested_outcome": "Every public slider uses subject-relevant, truthful media and never renders the legacy unavailable-place image.",
+  "natural_destination": "All public VII slider and carousel families on desktop and 390-pixel mobile.",
+  "authorization_boundary": "Implementation, tests and release-candidate preparation are authorized. Domain launch or unrelated content changes are outside this correction.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-MEDIA-001",
+      "reason": "The defect is an incorrect public card image and replacement media must preserve identity and truthfulness.",
+      "acceptance_impact": "Inventory every changed image, its source, semantic fit and illustration label where applicable."
+    },
+    {
+      "lesson_id": "ADIR-CONSISTENCY-001",
+      "reason": "The correction must cover the full slider family rather than one homepage row.",
+      "acceptance_impact": "A family-wide source and rendered regression must cover every slider data source."
+    },
+    {
+      "lesson_id": "ADIR-SCOPE-001",
+      "reason": "This is a targeted media correction and approved layout, text and interactions must stay unchanged.",
+      "acceptance_impact": "Before-and-after review must show only intended media and truthful-label changes."
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "Completion requires the exact public surface and affected-family regression, not only a code edit.",
+      "acceptance_impact": "Build, tests, desktop/mobile visual inspection and a precise deployment status are required."
+    },
+    {
+      "lesson_id": "ADIR-LEARN-004",
+      "reason": "This request is a repeated correction and lifecycle hooks are disabled.",
+      "acceptance_impact": "The correction is captured directly in the active task contract without claiming hook enforcement."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "Only the two visible homepage cards are fixed while another slider still exposes the unavailable image.",
+      "prevention": "Centralize the banned-media rule and inventory every slider and carousel source.",
+      "acceptance_check": "Repository and rendered-route sweep finds zero use of the banned asset in public slider output."
+    },
+    {
+      "rejection": "A generated or unrelated photo is presented as a real venue.",
+      "prevention": "Prefer verified project media and mark thematic fallbacks as illustration rather than business photography.",
+      "acceptance_check": "Every fallback has a relevant category mapping and truthful accessible label."
+    },
+    {
+      "rejection": "CMS content reintroduces the banned asset after the static default was corrected.",
+      "prevention": "Sanitize persisted presentation data at the read boundary and serialize only approved media.",
+      "acceptance_check": "A regression fixture with the banned image resolves to the category-specific fallback."
+    },
+    {
+      "rejection": "The repair changes slider layout, navigation or card copy.",
+      "prevention": "Keep markup and interaction contracts stable and limit changes to media resolution and labels.",
+      "acceptance_check": "Targeted diff and desktop/mobile comparison show unchanged geometry and controls."
+    }
+  ],
+  "affected_family": [
+    "homepage managed discovery rails",
+    "homepage visual search cards",
+    "event quick-search slider",
+    "event region carousel",
+    "last-minute event rail",
+    "world discovery card rails",
+    "CMS-managed slider payloads",
+    "desktop and 390-pixel mobile states"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII feedback standard media-integrity rule",
+        "source": "project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "User-provided screenshot showing the rejected unavailable-place image",
+        "source": "C:/Users/Adir/AppData/Local/Temp/codex-clipboard-f041a343-bc1a-49f1-9270-e2bf7cef2b08.png"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the central resolver and one homepage rail are wired, before expansion to all slider families.",
+    "checks": [
+      "The banned image resolves to a subject-matched alternative.",
+      "A valid approved image remains unchanged.",
+      "The card exposes an honest illustration label only when a fallback is used."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can persisted CMS JSON still force the banned asset into any slider?",
+      "Can a query string or absolute legacy URL bypass the banned-media match?",
+      "Does any desktop or mobile carousel render the wrong topic image after hydration?",
+      "Is any fallback mistaken for a real named business photograph?"
+    ],
+    "natural_destination_evidence": "Screenshots and DOM/media-source checks on the exact candidate for representative public slider routes at desktop and 390-pixel mobile.",
+    "affected_family_evidence": "Automated inventory test covering each slider source plus a repository sweep for banned asset references."
+  },
+  "effectiveness": {
+    "baseline": "The legacy unavailable-place asset is referenced by homepage presentation data and can also be restored through persisted CMS slider JSON.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Zero banned or semantically mismatched unavailable-place images in all public slider families, including CMS overrides."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

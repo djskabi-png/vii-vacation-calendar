@@ -1,0 +1,80 @@
+{
+  "status": "fixed",
+  "symptom": "An anonymous request to /admin returned HTTP 200 and the rendered HTML contained administration navigation before authentication.",
+  "expected_behavior": "Every /admin route redirects to Google authentication before any administration shell or management content is rendered.",
+  "environment": "VII release candidate based on source commit 81f1f11f5d6e8bc8a9586806af3fc63fbbb43ee3; temporary production host https://vii.spaplus.co on 2026-10-15.",
+  "reproduction": {
+    "steps": [
+      "Request https://vii.spaplus.co/admin without cookies and without following redirects.",
+      "Inspect the HTTP status, Location header and response HTML."
+    ],
+    "evidence": "The deployed pre-fix response returned HTTP 200, no Location header, and HTML matching administration shell labels."
+  },
+  "observations": [
+    {
+      "observation": "Administrative API routes already deny anonymous and non-allowlisted accounts.",
+      "evidence": "Existing admin authorization tests pass for overview, catalog, redirects and search-page APIs."
+    },
+    {
+      "observation": "The administration layout rendered AdminNav and AdminCommandBar without a server-side session gate.",
+      "evidence": "Pre-fix app/admin/layout.tsx contained the shell directly and delegated authorization to client page fetches."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "Authorization existed only in administrative APIs, so the shared administration layout rendered before client requests could receive 403.",
+      "prediction": "Anonymous HTML contains administration shell text even though subsequent API requests are denied.",
+      "discriminating_test": "Compare the anonymous /admin HTML response with anonymous API authorization tests.",
+      "result": "The public host returned the shell with HTTP 200 while the API denial tests passed.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The Google OAuth callback or administrator allowlist incorrectly authorized anonymous visitors.",
+      "prediction": "Anonymous administrative API calls would also succeed or an anonymous session would be returned.",
+      "discriminating_test": "Run anonymous and signed non-admin tests against the shared session and administrative APIs.",
+      "result": "Anonymous and signed non-admin requests were denied; the allowlist was not the exposure mechanism.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Add one server-side authorization helper and require it in app/admin/layout.tsx before rendering any administration shell. Redirect anonymous accounts to Google authentication and signed non-admin accounts to the account page.",
+    "evidence": "Three admin-session unit tests pass, and built-worker assertions show /admin, /admin/search-pages, /admin/catalog-sync and /admin/redirects redirect without shell content."
+  },
+  "affected_family": [
+    "Administration root route at /admin",
+    "Search-page management route at /admin/search-pages",
+    "Catalog synchronization route at /admin/catalog-sync",
+    "Redirect management route at /admin/redirects",
+    "Every route rendered under the shared /admin server layout"
+  ],
+  "regression_checks": [
+    {
+      "check": "Anonymous session",
+      "status": "passed",
+      "evidence": "tests/admin-server-gate.test.mjs denies an anonymous request."
+    },
+    {
+      "check": "Signed non-administrator session",
+      "status": "passed",
+      "evidence": "tests/admin-server-gate.test.mjs denies a signed-in address outside the administrator allowlist."
+    },
+    {
+      "check": "Signed administrator session",
+      "status": "passed",
+      "evidence": "tests/admin-server-gate.test.mjs accepts an allowed administrator case-insensitively."
+    },
+    {
+      "check": "Built administration route family",
+      "status": "passed",
+      "evidence": "tests/launch-seo.test.mjs verifies four representative built routes redirect before rendering shell text."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "The exact public deployment must be rechecked after publishing the candidate."
+  ],
+  "authorization_boundary": "Diagnosis and candidate repair are authorized; changing the old-domain DNS or origin remains outside this repair."
+}

@@ -21,13 +21,13 @@ test("result cards support verified price and all availability states", async ()
   assert.match(data, /includedGuests\?: number/);
   assert.match(card, /quote\.from === selectedStay\.from && quote\.till === selectedStay\.till/);
   assert.match(card, /availability: "unknown"/);
-  assert.match(card, /hasQuotedPrice = Boolean\(resolvedAvailability\?\.nightlyPrice\)/);
+  assert.match(card, /hasQuotedPrice = typeof displayPrice === "number" && displayPrice > 0/);
   assert.match(card, /!promotional && \(resolvedAvailability \|\| \(!selectedStay && property\.price\)\)/);
   assert.doesNotMatch(card, /: copy\.datePrice/);
-  assert.match(card, /פנה למתחם לבירור מחיר/);
+  assert.match(card, /פנו למקום לקבלת הצעת מחיר/);
   assert.match(card, /פנוי בתאריכים שבחרת/);
   assert.match(card, /לא פנוי בתאריכים שבחרת/);
-  assert.match(card, /אין מידע על זמינות לתאריכים/);
+  assert.match(card, /לבירור זמינות ומחיר פנו למקום/);
   assert.doesNotMatch(card, /includedGuests\s*\|\|\s*property\.guests/);
   assert.match(search, /selectedStay=\{selectedStayFor\(property\.slug\)\}/);
 });
@@ -35,11 +35,11 @@ test("result cards support verified price and all availability states", async ()
 test("selected-date card copy is localized in every supported language", async () => {
   const card = await readFile(new URL("app/components/property-card.tsx", root), "utf8");
   for (const phrase of [
-    "Contact the property for a price",
-    "No availability information for these dates",
-    "Уточните цену у объекта",
-    "Нет данных о наличии на эти даты",
-    "Contactez l'établissement pour connaître le prix",
-    "Aucune information de disponibilité pour ces dates",
+    "Contact the property for availability and price",
+    "No dates selected",
+    "Уточните наличие и цену у объекта",
+    "Даты не выбраны",
+    "Contactez l'établissement pour la disponibilité et le prix",
+    "Aucune date sélectionnée",
   ]) assert.match(card, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
 });

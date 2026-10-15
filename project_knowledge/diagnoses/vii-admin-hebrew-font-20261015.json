@@ -1,0 +1,80 @@
+{
+  "status": "fixed",
+  "symptom": "The production admin could render Hebrew in an unapproved typeface or flash an uncontrolled browser fallback even though admin CSS named Heebo.",
+  "expected_behavior": "Every Hebrew admin surface renders with the bundled Heebo face from the first visible paint and can fall back only to modern sans-serif Arial.",
+  "environment": "VII production version 423 at https://vii.spaplus.co/admin/catalog-sync and local candidate on 2026-10-15.",
+  "reproduction": {
+    "steps": [
+      "Inspect the live admin computed font family and loaded style sheets.",
+      "Inspect the repository and built CSS for Heebo font files and font-face declarations."
+    ],
+    "evidence": "The live shell computed Heebo, Assistant, Arial, sans-serif, while the repository contained no font assets and the live style sheets exposed no Heebo font-face; the root stylesheet loaded only remote Rubik."
+  },
+  "observations": [
+    {
+      "observation": "Admin CSS declared Heebo by family name but the project shipped no Heebo WOFF, WOFF2, TTF or OTF asset.",
+      "evidence": "rg --files public returned no font assets before the repair; app/admin/admin.module.css declared Heebo,Assistant,Arial,sans-serif."
+    },
+    {
+      "observation": "The root stylesheet imported Rubik only, so the Heebo name resolved through local machine availability or later fallbacks rather than a pinned project artifact.",
+      "evidence": "app/globals.css imported Rubik from Google Fonts and contained no Heebo font-face."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "Heebo was named but never supplied, leaving first paint and the final face dependent on uncontrolled local/browser fallback behavior.",
+      "prediction": "There will be no project Heebo asset or font-face even though computed styles list Heebo.",
+      "discriminating_test": "Inventory font assets and font-face rules and compare them with live computed styles.",
+      "result": "No Heebo asset or font-face existed; live computed styles still listed the unresolved family name.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "An explicit serif, calligraphic or decorative font rule in an admin component overrode the shell.",
+      "prediction": "A forbidden family declaration will appear in app/admin source or built admin CSS.",
+      "discriminating_test": "Search the complete admin source family for serif, Georgia, Times, David, Frank, Narkisim, cursive, fantasy and ui-serif declarations.",
+      "result": "No forbidden admin family declaration was found; the failure was missing font delivery rather than an explicit decorative override.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Bundle the Hebrew and Latin Heebo v28 WOFF2 subsets, preload them only for admin routes, emit critical font-face and admin stack CSS in the initial HTML head, and scope every non-code admin descendant to VII Heebo, Arial, sans-serif.",
+    "evidence": "Typography audit passed; both font files returned 200 font/woff2; Hebrew glyph probe passed; desktop and 390px cold/warm first-paint automation and visual inspection passed."
+  },
+  "affected_family": [
+    "all /admin routes",
+    "admin desktop shell",
+    "admin 390px mobile shell",
+    "buttons, links, headings, fields, labels, tables, loading, error and modal states",
+    "cold navigation, warm navigation and browser cache restoration"
+  ],
+  "regression_checks": [
+    {
+      "check": "Static forbidden-font and local-source audit",
+      "status": "passed",
+      "evidence": "audit_font_sources.py passed for the project root."
+    },
+    {
+      "check": "Bundled Hebrew glyph coverage",
+      "status": "passed",
+      "evidence": "fontTools probe confirmed Hebrew letters and the shekel sign in heebo-hebrew-v28.woff2."
+    },
+    {
+      "check": "Desktop and mobile cold/warm first paint",
+      "status": "passed",
+      "evidence": "scripts/verify-admin-font-first-paint.mjs returned ADMIN_FONT_FIRST_PAINT_QA_PASSED for 1280x800 and 390x844."
+    },
+    {
+      "check": "Complete application regression",
+      "status": "passed",
+      "evidence": "pnpm test completed with 728/728 passing tests."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "The exact production release still requires deployment and repetition of the live first-paint checks."
+  ],
+  "authorization_boundary": "Repair and prepare the admin typography and logout candidate; production publication remains part of the already authorized VII release but must be verified on the exact deployed version."
+}

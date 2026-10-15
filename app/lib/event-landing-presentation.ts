@@ -1,5 +1,6 @@
 import { readPublishedContent, type EditorialContent } from "./content-studio.ts";
 import type { D1Database } from "../../types/cloudflare-runtime";
+import { isBannedPublicMedia, resolvePublicSliderMedia } from "./public-media-policy.ts";
 
 export type EventLandingSearchItem = {
   id: string;
@@ -40,6 +41,7 @@ export const defaultEventLandingPresentation = {
 function safeImage(value: unknown) {
   if (typeof value !== "string") return "";
   const image = value.trim().slice(0, 400);
+  if (isBannedPublicMedia(image)) return "";
   return image.startsWith("/") || /^https:\/\/(?:www\.)?vii\.co\.il\//i.test(image) ? image : "";
 }
 
@@ -59,16 +61,21 @@ function parseQuickSearches(value: string | undefined) {
       const row = entry as Record<string, unknown>;
       const label = typeof row.label === "string" ? row.label.trim().slice(0, 70) : "";
       const href = safePath(row.href);
-      const image = safeImage(row.image);
+      const requestedImage = typeof row.image === "string" ? row.image.trim().slice(0, 400) : "";
       const imageAlt = typeof row.imageAlt === "string" ? row.imageAlt.trim().slice(0, 140) : "";
-      if (!label || !href || !image || !imageAlt) return [];
+      if (!label || !href || !requestedImage || !imageAlt) return [];
+      const media = resolvePublicSliderMedia({
+        image: requestedImage,
+        topic: `${typeof row.id === "string" ? row.id : ""} ${label} ${href}`,
+        fallback: defaultQuickSearches[index]?.image,
+      });
       return [{
         id: typeof row.id === "string" && row.id.trim() ? row.id.trim().slice(0, 60) : `event-search-${index + 1}`,
         label,
         note: typeof row.note === "string" ? row.note.trim().slice(0, 120) : "",
         href,
-        image,
-        imageAlt,
+        image: media.image,
+        imageAlt: media.fallbackApplied ? `${label}, תמונת אווירה` : imageAlt,
         visible: row.visible !== false
       }];
     });

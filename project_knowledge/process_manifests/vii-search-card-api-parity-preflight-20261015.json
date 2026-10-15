@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-search-card-api-parity-20261015",
+  "project": "VII",
+  "task_type": "legacy research, supplier API integration and public search repair",
+  "requested_outcome": "Research ten vacation and ten event searches on the legacy site, reconcile Sergey supplier API semantics, complete the new result cards and provide a truthful event availability slider on the temporary VII site.",
+  "natural_destinations": [
+    "https://vii.spaplus.co/search",
+    "https://vii.spaplus.co/events",
+    "https://vii.spaplus.co/events/search"
+  ],
+  "authorization_boundary": "Read-only legacy and supplier research, implementation, verification and publication to the temporary VII site are in scope. Supplier facts may not be invented and unknown availability may not be labeled available.",
+  "lifecycle_hooks": "disabled by explicit account configuration; requirements and corrections are attached directly to the task contract",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-WEB-001","reason":"The new product must preserve understood legacy capabilities without copying legacy defects.","acceptance_impact":"Require a 20-scenario parity matrix with an explicit preserve, improve or reject decision for every behavior."},
+    {"lesson_id":"ADIR-SEARCH-001","reason":"This changes query state, filtering, ranking and result previews.","acceptance_impact":"Require URL-state fidelity, capacity filtering, availability blocks and a repeatable search matrix."},
+    {"lesson_id":"ADIR-DATA-001","reason":"Every visible price and availability label is a data contract.","acceptance_impact":"Require direct mapping from supplier fields and fail closed for missing or inconsistent data."},
+    {"lesson_id":"ADIR-QA-001","reason":"A build is not proof that the public search and slider work.","acceptance_impact":"Require local and exact deployed desktop and mobile flow evidence."},
+    {"lesson_id":"ADIR-WEB-005","reason":"Cards, filters and sliders are responsive stateful interfaces.","acceptance_impact":"Require desktop, 390-pixel mobile and transition coverage."},
+    {"lesson_id":"ADIR-WEB-006","reason":"The public mobile result composition needs visual evidence.","acceptance_impact":"Require public screenshots reviewed by an independent checker."},
+    {"lesson_id":"ADIR-WEB-CMS-001","reason":"The event discovery slider must remain managed.","acceptance_impact":"Preserve content-studio control of labels, copy, images, targets, visibility and order."},
+    {"lesson_id":"ADIR-MEDIA-001","reason":"Event slider images must represent the linked subject truthfully.","acceptance_impact":"Require verified VII catalog media or an honest fallback, never a missing-place placeholder."}
+  ],
+  "predicted_rejections": [
+    {"rejection":"Multiple rooms are reduced to one room with the total guest count.","prevention":"Carry an explicit rooms array from URL state through the hook and server API client.","acceptance_check":"A two-room and three-room test proves the exact room array sent to the supplier."},
+    {"rejection":"The card labels a whole-stay price as a nightly price or omits the supplier price basis.","prevention":"Parse cheapest rooms and expose whole-stay, average-night and basis-guest metadata explicitly.","acceptance_check":"Single-room cards show total-stay semantics and multi-room cards show the calculated average per night with the verified basis."},
+    {"rejection":"Unknown availability is presented as unavailable or available.","prevention":"Keep true, false and null distinct and map each to the Sergey-approved copy.","acceptance_check":"Unit and browser evidence cover available, unavailable, no-data and supplier-error states."},
+    {"rejection":"Event guest filters still return venues below the requested capacity.","prevention":"Apply the verified catalog capacity contract before rendering and preserve supplier truth separately.","acceptance_check":"A 200-participant search excludes a 25-capacity venue."},
+    {"rejection":"The event availability slider is visually present but empty, misleading or based on the unsupported legacy AJAX endpoint.","prevention":"Use only the supported supplier API, render confirmed items first, provide an honest no-confirmed-availability state and retain managed visual quick searches.","acceptance_check":"The slider never labels null or false as available, and still offers useful managed discovery when no confirmed deal exists."},
+    {"rejection":"The change is local only or breaks mobile cards, search state or slider controls.","prevention":"Run focused tests, full production build, desktop/mobile browser flows and exact release verification.","acceptance_check":"All natural destinations pass on the deployed release and the independent checker approves the exact version."}
+  ],
+  "affected_family": [
+    "vacation search URL and party state",
+    "vacation supplier request and response parsing",
+    "vacation result cards, price copy and availability ordering",
+    "event search filters, supplier states and result cards",
+    "event last-minute availability slider",
+    "managed event quick-search slider",
+    "Hebrew, English, Russian and French visible card copy",
+    "desktop, 390-pixel mobile, loading, error, empty and reload states"
+  ],
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the structured room request and supplier response model pass focused tests, before UI publication.",
+    "checks": [
+      "one-room and multi-room bodies match the supplier contract",
+      "three-state availability remains distinct",
+      "single-stay and multi-room price semantics are explicit",
+      "event capacity and slider truth rules are represented in tests"
+    ]
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a multi-room URL silently become one room?",
+      "Can a null API answer show as available or unavailable?",
+      "Can a 200-person event return a venue below 200?",
+      "Can a whole-stay total be labeled per night?",
+      "Can the event slider disappear when there are no confirmed API deals?",
+      "Can a managed slider edit fail to survive reload or publication?"
+    ],
+    "natural_destination_evidence": "Exercise the exact deployed search and event pages with dated, undated, single-room, multi-room and high-capacity queries.",
+    "affected_family_evidence": "Focused tests, full production build, typography audit, desktop/mobile captures, first-paint check and independent exact-release review."
+  },
+  "effectiveness": {
+    "baseline": "The new vacation API call collapses every party to one room, result cards discard supplier room metadata, and the event last-minute rail cannot truthfully reproduce the legacy source from the supported API.",
+    "measurements": ["first_pass_acceptance","repeated_corrections","prevented_false_availability","twenty_scenario_coverage","elapsed_time"]
+  },
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

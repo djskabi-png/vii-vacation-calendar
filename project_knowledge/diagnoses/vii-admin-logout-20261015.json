@@ -1,0 +1,32 @@
+{
+  "status": "fixed",
+  "symptom": "An authenticated administrator has no usable way to sign out from the admin interface.",
+  "expected_behavior": "Every admin screen exposes a clear logout action that clears the session, shows progress, handles failure and prevents protected content from returning through reload or browser history.",
+  "environment": "VII production admin and release checkout on 2026-10-15; shared /admin layout and Google session cookie authentication.",
+  "reproduction": {
+    "steps": ["Open any /admin route while authenticated", "Inspect the shared navigation and command bar for a logout action"],
+    "evidence": "app/admin/admin-nav.tsx and app/admin/admin-command-bar.tsx contain no logout control or call to /api/auth/logout."
+  },
+  "observations": [
+    { "observation": "A POST logout endpoint already exists and returns a Set-Cookie header that expires vii_session.", "evidence": "app/api/auth/logout/route.ts" },
+    { "observation": "The shared admin navigation has only an external site link in its footer.", "evidence": "app/admin/admin-nav.tsx" },
+    { "observation": "The shared command bar contains search and work-queue actions but no logout action.", "evidence": "app/admin/admin-command-bar.tsx" }
+  ],
+  "hypotheses": [
+    { "id": "H1", "mechanism": "The server capability is orphaned because the shared admin UI never exposes or invokes it.", "prediction": "The endpoint exists, while no admin component references it.", "discriminating_test": "Search the admin component family and inspect the endpoint.", "result": "Endpoint exists; no admin UI reference or sign-out control was found.", "status": "supported" },
+    { "id": "H2", "mechanism": "A visible logout control exists but fails because its request method or cookie attributes do not match the endpoint.", "prediction": "Admin source contains a logout button or /api/auth/logout fetch whose request or clearing cookie is malformed.", "discriminating_test": "Search all admin sources for logout controls and compare secureCookie with clearCookie attributes.", "result": "No admin logout invocation exists. secureCookie and clearCookie both use Path=/, HttpOnly, Secure and SameSite=Lax.", "status": "rejected" }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": { "change": "Added one shared admin-command-bar logout action with immediate busy feedback, duplicate prevention, localized recovery error, cookie-expiring POST, history-replacement navigation and bfcache session revalidation.", "evidence": "Focused tests pass 6/6; production build passes; local browser QA passed the desktop logout, cookie removal, Back protection and 390px mobile touch-target checks." },
+  "affected_family": ["All shared admin routes", "desktop and mobile command bar", "logout endpoint", "post-logout history restoration"],
+  "regression_checks": [
+    { "check": "Shared control on representative admin routes", "status": "passed", "evidence": "Desktop /admin/catalog-sync and mobile /admin/search-analytics screenshots show the shared control." },
+    { "check": "Cookie expiry and no-store response", "status": "passed", "evidence": "tests/logout-route.test.mjs" },
+    { "check": "Loading, duplicate prevention and recoverable failure", "status": "passed", "evidence": "tests/admin-command-center.test.mjs and inspected command-bar component states" },
+    { "check": "Post-logout navigation and Back protection", "status": "passed", "evidence": "ADMIN_LOGOUT_BROWSER_QA_PASSED with an empty vii_session cookie and no admin URL after Back" },
+    { "check": "Production compilation and Hebrew font source", "status": "passed", "evidence": "pnpm build exit 0; audit_font_sources.py passed" }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": ["Exact live production behavior remains pending deployment and post-deploy inspection."],
+  "authorization_boundary": "Repair and verify VII admin logout without changing administrator membership or provider configuration."
+}
