@@ -73,6 +73,22 @@ function hydrateLegacyPage(page: LegacySearchPageRecord): LegacySearchOpportunit
 
 const legacySearchPages = (legacySearchPublications.pages as LegacySearchPageRecord[]).map(hydrateLegacyPage);
 
+function normalizedHolidayName(value: string) {
+  return value.toLocaleLowerCase("he").replace(/^(?:חג|ערב חג)\s+/, "").replace(/["'״׳]/g, "").replace(/\s+/g, " ").trim();
+}
+
+export function legacyHolidaySearchPath(name: string) {
+  const holiday = normalizedHolidayName(name);
+  if (!holiday) return null;
+  const preferredHolidayTitle = /^מקומות\s+פנויים/;
+  const candidates = legacySearchPages.filter((page) => {
+    const content = normalizedHolidayName(`${page.title} ${page.h1} ${page.metaTitle}`);
+    return content.includes(holiday) && /חג|פסח|חנוכה|סוכות|שבועות|סיגד|ראש השנה|יום העצמאות/.test(`${page.title} ${page.h1}`);
+  });
+  return candidates.sort((left, right) => Number(preferredHolidayTitle.test(right.title)) - Number(preferredHolidayTitle.test(left.title))
+    || right.latestResultCount - left.latestResultCount)[0]?.canonicalPath || null;
+}
+
 function legacyOpportunityById(id: string) {
   return legacySearchPages.find((page) => page.id === id) || null;
 }

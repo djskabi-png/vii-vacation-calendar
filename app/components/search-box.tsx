@@ -22,6 +22,13 @@ import type { PlaceSearchResult } from "../data/search-place-inventory";
 
 type SpaAudience = "single" | "couple" | "group" | "day-pass";
 
+type ManagedGeographyOption = {
+  key: string;
+  level: "district" | "area" | "city";
+  title: string;
+  featured: boolean;
+};
+
 type VacationParty = {
   adults: number;
   children: number;
@@ -147,6 +154,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const [searchCommitted, setSearchCommitted] = useState(() => compact || Boolean(searchParamsKey) || Boolean(initialLocation) || Boolean(initialSpaAudience) || initialSpaFeatures.length > 0);
   const shouldCollapse = compact || searchCommitted;
   const destinationOptions = useMemo(() => searchLocationOptions(mode), [mode]);
+  const [managedGeography, setManagedGeography] = useState<ManagedGeographyOption[]>([]);
   const [placeInventoryResult, setPlaceInventoryResult] = useState<{ mode: SearchMode; places: PlaceSearchResult[] } | null>(null);
   const [placeInventoryError, setPlaceInventoryError] = useState(false);
   const [locationValue, setLocationValue] = useState(() => {
@@ -175,6 +183,15 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const shouldLoadPlaceInventory = hasLocationQuery || (locationOpen && mode === "vacation");
   const placeInventoryLoading = shouldLoadPlaceInventory && placeInventoryResult?.mode !== mode;
   const placeInventory = placeInventoryResult?.mode === mode ? placeInventoryResult.places : [];
+  useEffect(() => {
+    if (mode !== "vacation" && mode !== "events") return;
+    const controller = new AbortController();
+    void fetch("/api/vii/geography", { signal: controller.signal })
+      .then(async (response) => response.ok ? response.json() as Promise<{ nodes?: ManagedGeographyOption[] }> : { nodes: [] })
+      .then((payload) => { if (!controller.signal.aborted && Array.isArray(payload.nodes)) setManagedGeography(payload.nodes); })
+      .catch(() => undefined);
+    return () => controller.abort();
+  }, [mode]);
   useEffect(() => {
     if (!shouldLoadPlaceInventory) return;
     const controller = new AbortController();
@@ -505,7 +522,9 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const mobileSummary = [locationValue, !isHourly ? dates : "", !isHourly ? peopleValue : ""].filter(Boolean).join(" · ");
   const mobileSheetTitle = "עריכת חיפוש";
   const normalizedLocationQuery = locationQuery.trim().toLocaleLowerCase();
-  const visibleDestinations = destinationOptions.filter((place) => translate(place).toLocaleLowerCase().includes(normalizedLocationQuery));
+  const managedDestinations = managedGeography.map((node) => node.title);
+  const visibleDestinations = [...new Set([...destinationOptions, ...managedDestinations])]
+    .filter((place) => translate(place).toLocaleLowerCase().includes(normalizedLocationQuery));
   const visibleNamedPlaces = normalizedLocationQuery
     ? placeInventory.filter((place) => [place.name, place.location, place.area, translate(place.name), translate(place.location), translate(place.area)].some((value) => value.toLocaleLowerCase().includes(normalizedLocationQuery))).slice(0, 8)
     : [];
@@ -513,14 +532,16 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     if (mode !== "vacation") return vacationLocationGroups.map((group) => ({ ...group, options: [...group.options] }));
     const unique = (values: string[]) => [...new Set(values.map((value) => value.trim()).filter(Boolean))];
     const primary = [...vacationLocationGroups[0].options];
-    const regions = unique([...vacationLocationGroups[1].options, ...placeInventory.map((place) => place.area)]).filter((value) => !primary.includes(value as typeof primary[number]));
-    const settlements = unique([...vacationLocationGroups[2].options, ...placeInventory.map((place) => place.location)]).filter((value) => !primary.includes(value as typeof primary[number]) && !regions.includes(value));
+    const managedRegions = managedGeography.filter((node) => node.level !== "city").sort((a, b) => Number(b.featured) - Number(a.featured)).map((node) => node.title);
+    const managedCities = managedGeography.filter((node) => node.level === "city").sort((a, b) => Number(b.featured) - Number(a.featured)).map((node) => node.title);
+    const regions = unique([...vacationLocationGroups[1].options, ...managedRegions, ...placeInventory.map((place) => place.area)]).filter((value) => !primary.includes(value as typeof primary[number]));
+    const settlements = unique([...vacationLocationGroups[2].options, ...managedCities, ...placeInventory.map((place) => place.location)]).filter((value) => !primary.includes(value as typeof primary[number]) && !regions.includes(value));
     return [
       { id: "primary", title: "אזורים ראשיים", options: primary },
       { id: "regions", title: "אזורים ותתי אזורים", options: regions },
       { id: "settlements", title: "ערים ויישובים", options: settlements },
     ];
-  }, [mode, placeInventory]);
+  }, [managedGeography, mode, placeInventory]);
 
   return (
     <>

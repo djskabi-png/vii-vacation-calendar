@@ -4,7 +4,7 @@
 
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { boundedSliderIndex } from "./slider-rail-controls";
+import { boundedSliderIndex, SliderRailControls } from "./slider-rail-controls";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import type { ListingAvailability, ListingDateQuote, Property } from "../data/site-data";
@@ -317,6 +317,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
   const [phoneVisible, setPhoneVisible] = useState(false);
   const touchStart = useRef<number | null>(null);
   const cardRef = useRef<HTMLElement>(null);
+  const highlightRailRef = useRef<HTMLDivElement>(null);
   const didSwipe = useRef(false);
   const swipeResetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const phone = property.contact?.phone?.replace(/[^\d+]/g, "");
@@ -369,7 +370,10 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
           {property.score && property.reviews ? <span className="stay-card__rating" aria-label={`${property.score} ${copy.outOfTen}, ${property.reviews} ${copy.reviews}`}><b aria-hidden="true">★</b><strong>{property.score}</strong><small>({property.reviews})</small></span> : null}
         </div>
         <p className="stay-card__meta">{localizedType}{property.units && property.units > 1 ? `, ${interfaceCopy.units(property.units)}` : property.capacityScope === "unit" ? "" : `, ${interfaceCopy.whole}`} · {property.guests > 0 ? interfaceCopy.capacity(property.guests, property.capacityScope === "unit") : interfaceCopy.pending}</p>
-        <div className="feature-chips stay-card__highlights" aria-label={interfaceCopy.highlights}>{cardHighlights.map((feature) => <span key={feature}>{feature}</span>)}</div>
+        {cardHighlights.length ? <div className="stay-card__highlights-shell">
+          <div ref={highlightRailRef} className="feature-chips stay-card__highlights" aria-label={interfaceCopy.highlights} data-horizontal-rail>{cardHighlights.map((feature) => <span key={feature}>{feature}</span>)}</div>
+          <SliderRailControls railRef={highlightRailRef} label={interfaceCopy.highlights} itemSelector=":scope > span" className="stay-card__highlight-controls" />
+        </div> : null}
         {isLiveAvailabilityLoading ? <div className="stay-card__date-status stay-card__date-status--checking" aria-live="polite"><strong>{copy.checking}</strong></div> : null}
         {isLiveAvailabilityError ? <div className="stay-card__date-status stay-card__date-status--error" aria-live="polite"><strong>{copy.unavailableSource}</strong></div> : null}
         {!promotional && !selectedStay ? <div className="stay-card__date-status"><strong>{copy.noDates}</strong></div> : null}
