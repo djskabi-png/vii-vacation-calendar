@@ -1,6 +1,6 @@
 import { readPublishedContent, type EditorialContent } from "./content-studio.ts";
 import type { D1Database } from "../../types/cloudflare-runtime";
-import { isBannedPublicMedia, resolvePublicSliderMedia } from "./public-media-policy";
+import { isBannedPublicMedia, resolvePublicSliderMedia } from "./public-media-policy.ts";
 
 export type EventLandingSearchItem = {
   id: string;

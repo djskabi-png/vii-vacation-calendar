@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { ArrowLeft, BarChart3, CalendarSync, FileSearch, Gauge, LibraryBig, ListChecks, MessageCircle, Route, Search, Sparkles, Star, TrendingUp, X } from "lucide-react";
+import { ArrowLeft, BarChart3, CalendarSync, FileSearch, Gauge, LibraryBig, ListChecks, LoaderCircle, LogOut, MessageCircle, Route, Search, Sparkles, Star, TrendingUp, X } from "lucide-react";
 import styles from "./admin.module.css";
 
 const commands = [
@@ -28,6 +28,7 @@ export default function AdminCommandBar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [logoutState, setLogoutState] = useState<"idle" | "loading" | "error">("idle");
   const input = useRef<HTMLInputElement>(null);
   const closeCommand = () => { setOpen(false); setQuery(""); };
   const filtered = useMemo(() => {
@@ -49,14 +50,45 @@ export default function AdminCommandBar() {
     return () => window.clearTimeout(timer);
   }, [open]);
 
+  useEffect(() => {
+    const verifyRestoredSession = (event: PageTransitionEvent) => {
+      if (!event.persisted) return;
+      void fetch("/api/auth/session", { credentials: "same-origin", cache: "no-store" })
+        .then((response) => response.ok ? response.json() : null)
+        .then((payload) => { if (!payload?.account) window.location.replace("/account?loggedOut=1"); })
+        .catch(() => undefined);
+    };
+    window.addEventListener("pageshow", verifyRestoredSession);
+    return () => window.removeEventListener("pageshow", verifyRestoredSession);
+  }, []);
+
+  async function logout() {
+    if (logoutState === "loading") return;
+    setLogoutState("loading");
+    try {
+      const response = await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin", cache: "no-store" });
+      if (!response.ok) throw new Error("logout_failed");
+      window.location.replace("/account?loggedOut=1");
+    } catch {
+      setLogoutState("error");
+    }
+  }
+
   return <>
     <header className={styles.commandBar} dir="rtl">
       <div className={styles.commandIdentity}><span>VII Control</span><strong>{currentTitle(pathname)}</strong></div>
       <button type="button" className={styles.commandSearch} onClick={() => setOpen(true)} aria-haspopup="dialog">
         <Search size={17} aria-hidden="true" /><span>חיפוש כלי, דוח או פעולה</span><kbd>Ctrl K</kbd>
       </button>
-      <a href="/admin/content-queue" className={styles.commandPrimary}><ListChecks size={17} aria-hidden="true" /> פתיחת תור העבודה</a>
+      <div className={styles.commandActions}>
+        <a href="/admin/content-queue" className={styles.commandPrimary}><ListChecks size={17} aria-hidden="true" /> פתיחת תור העבודה</a>
+        <button type="button" className={styles.logoutButton} onClick={() => void logout()} disabled={logoutState === "loading"} aria-busy={logoutState === "loading"}>
+          {logoutState === "loading" ? <LoaderCircle className={styles.spin} size={17} aria-hidden="true" /> : <LogOut size={17} aria-hidden="true" />}
+          <span>{logoutState === "loading" ? "מתנתקים..." : "התנתקות"}</span>
+        </button>
+      </div>
     </header>
+    {logoutState === "error" ? <div className={styles.logoutError} role="alert"><span>לא הצלחנו להתנתק. בדקו את החיבור ונסו שוב.</span><button type="button" onClick={() => setLogoutState("idle")}>סגירה</button></div> : null}
     {open ? <div className={styles.commandBackdrop} role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeCommand(); }}>
       <section className={styles.commandDialog} role="dialog" aria-modal="true" aria-labelledby="admin-command-title">
         <header><div><Sparkles size={18} aria-hidden="true" /><h2 id="admin-command-title">לאן ממשיכים?</h2></div><button type="button" onClick={closeCommand} aria-label="סגירת חיפוש"><X size={19} /></button></header>
