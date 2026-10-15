@@ -653,7 +653,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(map, /map-preview-image/);
   assert.match(map, /if \(!enabled\)/);
   assert.match(map, /autoLoad/);
-  assert.match(search, /<DeferredListingMap listings=\{mapCandidates\} initialListings=\{filtered\} autoLoad/);
+  assert.match(search, /<DeferredListingMap listings=\{resultSet\} initialListings=\{resultSet\} autoLoad/);
   assert.match(search, /onVisibleCountChange=\{setVisibleMapCount\}/);
   assert.doesNotMatch(search, /מתוך \$\{properties\.length\}/);
   assert.match(map, /listing\.bedrooms/);

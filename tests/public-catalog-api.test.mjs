@@ -88,7 +88,7 @@ test("search does not flash bundled supplier places before the accepted catalog 
   assert.match(vacationLayout, /publicCatalogSummaries<Property>\("vacations"\)/);
   assert.match(eventLayout, /publicCatalogSummaries<EventPlace>\("events"\)/);
   assert.match(hook, /setItems\(\[\]\);\s*setError\(true\)/);
-  assert.match(vacation, /!catalogLoading && !catalogError && .*filtered\.length === 0/);
+  assert.match(vacation, /!catalogLoading && !catalogError && \(mapOpen && mapVisibleIds \? displayedResults\.length === 0 : resultSet\.length === 0\)/);
   assert.match(events, /!catalogLoading && !catalogError && displayed\.length === 0/);
   assert.match(vacation, /inventory=\{properties\}/);
   assert.match(events, /inventory=\{eventPlaces\}/);

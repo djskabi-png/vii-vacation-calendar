@@ -20,15 +20,15 @@ test("map changes results only after an explicit search-this-area action", () =>
 });
 
 test("opening and closing a map clears stale viewport-only results", () => {
-  for (const path of [
-    "app/search/page.tsx",
-    "app/events/search/page.tsx",
-    "app/components/hourly-results.tsx",
-    "app/attractions/attractions-explorer.tsx",
-    "app/components/world-map-results.tsx",
+  for (const [path, resultCollection] of [
+    ["app/search/page.tsx", "resultSet"],
+    ["app/events/search/page.tsx", "resultSet"],
+    ["app/components/hourly-results.tsx", "filtered"],
+    ["app/attractions/attractions-explorer.tsx", "filtered"],
+    ["app/components/world-map-results.tsx", "filtered"],
   ]) {
     const source = read(path);
-    assert.match(source, /if \(!mapOpen \|\| !mapVisibleIds\) return filtered/);
+    assert.match(source, new RegExp(`if \\(!mapOpen \\|\\| !mapVisibleIds\\) return ${resultCollection}`));
     assert.match(source, /setMapVisibleIds\(null\)/);
   }
 });

@@ -25,6 +25,15 @@ test("result maps are deferred until the map view is opened", async () => {
   for (const source of [hourly, worlds, attractions]) assert.match(source, /DeferredDiscoveryMap/);
 });
 
+test("a map chunk removed by a newer deployment recovers with one bounded reload", async () => {
+  const deferred = await readFile(new URL("app/components/deferred-listing-map.tsx", root), "utf8");
+  assert.match(deferred, /Failed to fetch dynamically imported module/);
+  assert.match(deferred, /MAP_ASSET_RECOVERY_WINDOW_MS = 60_000/);
+  assert.match(deferred, /window\.sessionStorage\.setItem\(MAP_ASSET_RECOVERY_KEY, String\(Date\.now\(\)\)\)/);
+  assert.match(deferred, /window\.location\.reload\(\)/);
+  assert.match(deferred, /window\.sessionStorage\.removeItem\(MAP_ASSET_RECOVERY_KEY\)/);
+});
+
 test("map code warms on intent and Leaflet loading overlaps the deferred chunk", async () => {
   const [deferred, listing, vacation, events, hourly, worlds, attractions, styles] = await Promise.all([
     readFile(new URL("app/components/deferred-listing-map.tsx", root), "utf8"),
