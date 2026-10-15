@@ -6,7 +6,30 @@ import type { Listing } from "../data/site-data";
 import type { DiscoveryItem } from "../data/world-data";
 import type { Trail } from "../data/trail-data";
 
-const loadListingMap = () => import("./listing-map");
+const MAP_ASSET_RECOVERY_KEY = "vii:map-asset-recovery";
+const MAP_ASSET_RECOVERY_WINDOW_MS = 60_000;
+
+function isStaleDynamicImport(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  return /Failed to fetch dynamically imported module|Importing a module script failed|error loading dynamically imported module|ChunkLoadError/i.test(message);
+}
+
+const loadListingMap = () => import("./listing-map")
+  .then((module) => {
+    if (typeof window !== "undefined") window.sessionStorage.removeItem(MAP_ASSET_RECOVERY_KEY);
+    return module;
+  })
+  .catch((error: unknown) => {
+    if (typeof window !== "undefined" && isStaleDynamicImport(error)) {
+      const lastRecovery = Number(window.sessionStorage.getItem(MAP_ASSET_RECOVERY_KEY) || 0);
+      if (!Number.isFinite(lastRecovery) || Date.now() - lastRecovery > MAP_ASSET_RECOVERY_WINDOW_MS) {
+        window.sessionStorage.setItem(MAP_ASSET_RECOVERY_KEY, String(Date.now()));
+        window.location.reload();
+        return new Promise<never>(() => undefined);
+      }
+    }
+    throw error;
+  });
 
 export const preloadListingMap = () => {
   void loadListingMap().then((module) => module.preloadLeaflet());
