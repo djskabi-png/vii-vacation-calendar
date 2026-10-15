@@ -41,6 +41,8 @@ import { ProgressiveResults } from "../components/progressive-results";
 import { trackSearchResults } from "../lib/analytics";
 import { matchesVacationSearchFilter } from "../lib/vacation-search-filter-index";
 import { vacationRoomGuests, vacationRoomsFromSearchParams } from "../lib/vacation-party";
+import { nearbyPlacesForSelection } from "../lib/geography-search";
+import { useManagedGeography } from "../components/use-managed-geography";
 
 export type SearchLandingContext = {
   path: string;
@@ -332,6 +334,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const searchParams = useSearchParams();
   const searchQuery = searchParams.toString();
   const { language, translate } = useSiteLanguage();
+  const managedGeography = useManagedGeography();
   const landingType = normalizedLandingType(landing);
   const initialParams = new URLSearchParams(searchQuery);
   const initialGuestCount = Number(initialParams.get("guests") || (Number(initialParams.get("adults") || 2) + Number(initialParams.get("children") || 0)));
@@ -637,6 +640,17 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [area, availabilityDemoActive, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, guests, landing, liveAvailabilityBySlug, maxPrice, minPrice, supplierSearch, mapCandidates, pathname, requestedLocation, selectedStay, selectedTypes, sort]);
 
+  const nearbyRecovery = useMemo(() => filtered.length === 0 && !isWholeCountrySelection(area)
+    ? nearbyPlacesForSelection(mapCandidates, managedGeography, area, { limit: 12, maximumDistanceKm: 100 })
+    : [], [area, filtered.length, managedGeography, mapCandidates]);
+  const resultSet = useMemo(() => filtered.length > 0 ? filtered : nearbyRecovery.map((candidate) => candidate.place), [filtered, nearbyRecovery]);
+  const nearbyCopy = {
+    he: { title: `לא מצאנו מקום בתוך ${area}`, text: "מציגים מקומות קרובים לפי המרחק מהיישוב שבחרתם. העיר האמיתית של כל מקום נשארת גלויה בכרטיס." },
+    en: { title: `No place was found in ${area}`, text: "Showing nearby places ordered by distance from your selected destination. Each card keeps the place's actual city." },
+    ru: { title: `В ${area} мест не найдено`, text: "Показываем ближайшие варианты по расстоянию от выбранного места. В каждой карточке указан фактический город." },
+    fr: { title: `Aucun lieu trouvé à ${area}`, text: "Nous affichons les lieux proches, classés par distance. La ville réelle de chaque lieu reste visible sur sa fiche." },
+  }[language];
+
   useEffect(() => {
     if (catalogLoading || catalogError) return;
     const timer = window.setTimeout(() => trackSearchResults({
@@ -680,9 +694,9 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const draftResultLabel = draftResultCount === 1 ? "הצגת מקום אחד" : `הצגת ${draftResultCount} מקומות`;
 
   const displayedResults = useMemo(() => {
-    if (!mapOpen || !mapVisibleIds) return filtered;
+    if (!mapOpen || !mapVisibleIds) return resultSet;
     const visible = new Set(mapVisibleIds);
-    return mapCandidates.filter((property) => visible.has(property.slug)).sort((a, b) => {
+    return resultSet.filter((property) => visible.has(property.slug)).sort((a, b) => {
       const availabilityPriority = Number(hasVerifiedAvailablePrice(b) || hasAvailablePriceForSearch(b, selectedStayFor(b.slug), pathname, requestedLocation))
         - Number(hasVerifiedAvailablePrice(a) || hasAvailablePriceForSearch(a, selectedStayFor(a.slug), pathname, requestedLocation));
       if (availabilityPriority) return availabilityPriority;
@@ -691,7 +705,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   // The availability helpers close over the same primitive query inputs listed
   // below. Listing them directly would invalidate this memo on every render.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtered, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, guests, liveAvailabilityBySlug, supplierSearch, mapCandidates, mapOpen, mapVisibleIds, pathname, requestedLocation, selectedStay, sort]);
+  }, [resultSet, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, guests, liveAvailabilityBySlug, supplierSearch, mapCandidates, mapOpen, mapVisibleIds, pathname, requestedLocation, selectedStay, sort]);
   const resultWindowKey = [area, selectedTypes.join(","), minPrice, maxPrice, pool, spa, whole, accessibleOnly, selectedExtras.join(","), sort, searchQuery, mapOpen ? "map" : "list"].join("|");
   useEffect(() => { setVisibleResultCount(9); }, [resultWindowKey]);
   const visibleResults = mapOpen ? displayedResults : displayedResults.slice(0, visibleResultCount);
@@ -877,14 +891,15 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
             {activeFilters.length > 0 && <div className="active-filter-row"><span>סינונים פעילים:</span>{activeFilters.map((filter) => <button key={filter.id} type="button" onClick={filter.remove} aria-label={`הסרת הסינון ${filter.label}`}>{filter.label} ×</button>)}<button type="button" className="clear-all" onClick={resetFilters}>ניקוי הכל</button></div>}
             {availabilityDemoActive ? <div className="availability-demo-summary" role="status"><strong>{availabilityDemoCopy[language].title}</strong><span>{availabilityDemoCopy[language].text}</span><small>{selectedStay?.from}{" "}{String.fromCharCode(183)}{" "}{selectedStay?.till}</small></div> : null}
             {flexibleSearch ? <div className="availability-demo-summary availability-demo-summary--live" role="status"><strong>{flexibleAvailabilityCopy[language].title}</strong><span>{flexibleAvailabilityCopy[language].text}</span></div> : null}
-            <div className="results-toolbar"><div className="results-toolbar__actions"><ResultsViewToggle value={viewMode} onChange={setViewMode} />{filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתוצאות" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onPointerEnter={preloadListingMap} onFocus={preloadListingMap} onTouchStart={preloadListingMap} onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (mapOpen) closeResultsMap(); else openResultsMap(); }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לתוצאות" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect className="results-toolbar__sort" compact label="מיון לפי" value={sort} onChange={changeSort} options={vacationSortOptions} /></div>
+            {nearbyRecovery.length > 0 ? <div className="availability-demo-summary availability-demo-summary--live" role="status"><strong>{nearbyCopy.title}</strong><span>{nearbyCopy.text}</span><small>{Math.round(nearbyRecovery[0].distanceKm)} עד {Math.round(nearbyRecovery.at(-1)?.distanceKm || 0)} ק״מ</small></div> : null}
+            <div className="results-toolbar"><div className="results-toolbar__actions"><ResultsViewToggle value={viewMode} onChange={setViewMode} />{resultSet.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתוצאות" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onPointerEnter={preloadListingMap} onFocus={preloadListingMap} onTouchStart={preloadListingMap} onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (mapOpen) closeResultsMap(); else openResultsMap(); }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לתוצאות" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect className="results-toolbar__sort" compact label="מיון לפי" value={sort} onChange={changeSort} options={vacationSortOptions} /></div>
             {guests > 2 && properties.some((property) => property.capacityScope === "unit") ? <SupplierCapacityNotice /> : null}
             {!mapOpen && <ProgressiveResults autoLoad className={`result-cards results-view results-view--${viewMode}`} resetKey={resultWindowKey} totalCount={displayedResults.length} visibleCount={visibleResults.length} onShowMore={() => setVisibleResultCount((current) => Math.min(displayedResults.length, current + 9))}>{visibleResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStayFor(property.slug)} liveAvailabilityState={liveAvailabilityFor(property.slug)} detailHref={detailHref(property.slug)} />)}</ProgressiveResults>}
             {mapOpen && <div className="airbnb-map-split">
               <div className={`airbnb-map-split__results result-cards results-view results-view--${viewMode}`}>{displayedResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStayFor(property.slug)} liveAvailabilityState={liveAvailabilityFor(property.slug)} detailHref={detailHref(property.slug)} onActiveChange={(active) => setActiveMapPropertyId(active ? property.slug : null)} />)}</div>
-              <div className="airbnb-map-split__map"><DeferredListingMap listings={mapCandidates} initialListings={filtered} autoLoad detailQuery={detailQuery} onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPropertyId} /></div>
+              <div className="airbnb-map-split__map"><DeferredListingMap listings={resultSet} initialListings={resultSet} autoLoad detailQuery={detailQuery} onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPropertyId} /></div>
             </div>}
-            {!catalogLoading && !catalogError && (mapOpen && mapVisibleIds ? displayedResults.length === 0 : filtered.length === 0) && <div className="empty-state"><h2>לא נמצאה התאמה מדויקת</h2><p>אפשר לשנות אזור, להפחית את כמות האורחים או להסיר מאפיין.</p><button className="button primary" type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
+            {!catalogLoading && !catalogError && (mapOpen && mapVisibleIds ? displayedResults.length === 0 : resultSet.length === 0) && <div className="empty-state"><h2>לא נמצאה התאמה מדויקת או מקום קרוב</h2><p>אפשר לשנות אזור, להפחית את כמות האורחים או להסיר מאפיין.</p><button className="button primary" type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
             {landing && filtered.length > 0 && <>
               <section id="accommodation-guide" className="accommodation-page-guide" aria-labelledby="accommodation-page-guide-title"><span className="eyebrow">המדריך של העמוד</span><h2 id="accommodation-page-guide-title">{landing.guideTitle || `איך בוחרים ${landing.breadcrumb}`}</h2><div>{(landing.guideParagraphs || [landing.description]).map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div></section>
               {landing.faqs?.length ? <section id="accommodation-faq" className="accommodation-page-faq" aria-labelledby="accommodation-page-faq-title"><span className="eyebrow">תשובות ממוקדות לעמוד הזה</span><h2 id="accommodation-page-faq-title">שאלות ותשובות על {landing.breadcrumb}</h2><div>{landing.faqs.map((item) => <details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}</div></section> : null}

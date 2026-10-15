@@ -1,0 +1,83 @@
+{
+  "status": "fixed",
+  "symptom": "At approximately 15:00 Israel time, the authenticated VII admin dashboard displayed בוקר טוב, Adir.",
+  "expected_behavior": "The greeting reflects the current Israel-local period and displays צהריים טובים at 15:00.",
+  "environment": "VII temporary production release 427 at https://vii.spaplus.co/admin on 2026-10-15, authenticated administrator view.",
+  "reproduction": {
+    "steps": [
+      "Open the authenticated production admin dashboard at 15:00 Israel time.",
+      "Inspect the main heading."
+    ],
+    "evidence": "User-supplied screenshot C:/Users/Adir/AppData/Local/Temp/codex-clipboard-de45587d-25f9-483e-b64e-cfaa26952844.png shows בוקר טוב, Adir at the reported afternoon time."
+  },
+  "observations": [
+    {
+      "observation": "The admin heading interpolated the administrator name into a literal בוקר טוב string.",
+      "evidence": "Pre-fix app/admin/page.tsx line containing `בוקר טוב, ${overview.account.name.split(\" \")[0]}`."
+    },
+    {
+      "observation": "No time lookup participated in the heading before the fix.",
+      "evidence": "Repository search found no getHours or greeting helper used by app/admin/page.tsx."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "The visible greeting is hardcoded rather than derived from the current time.",
+      "prediction": "The source contains a literal morning greeting and no time-dependent selection.",
+      "discriminating_test": "Inspect the exact dashboard heading expression.",
+      "result": "The source used a literal morning greeting for every named administrator.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "A UTC or daylight-saving conversion turns 15:00 Israel time into a morning period.",
+      "prediction": "A time conversion exists but uses the host timezone or an incorrect offset.",
+      "discriminating_test": "Search the dashboard source for Date, getHours, Intl and timezone usage in the heading path.",
+      "result": "No time conversion existed in the heading path, so timezone conversion could not cause the original symptom.",
+      "status": "rejected"
+    },
+    {
+      "id": "H3",
+      "mechanism": "A stale response or browser cache preserves an earlier morning label.",
+      "prediction": "The current source computes a dynamic greeting but production displays an older value.",
+      "discriminating_test": "Compare current source behavior with the literal rendered text.",
+      "result": "The source itself always emitted בוקר טוב, so cache behavior was not required to reproduce the defect.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Added a pure Israel-time greeting selector using Intl.DateTimeFormat with Asia/Jerusalem, replaced the literal label, and refresh it every minute and when the tab visibility changes.",
+    "evidence": "tests/admin-israel-greeting.test.mjs passes winter, summer, all four boundaries, 15:00, and dashboard wiring checks."
+  },
+  "affected_family": [
+    "authenticated admin dashboard heading",
+    "Israel-time period boundaries",
+    "summer and winter timezone conversion",
+    "long-open and restored admin tabs",
+    "admin Hebrew typography"
+  ],
+  "regression_checks": [
+    {
+      "check": "Focused greeting and localization tests",
+      "status": "passed",
+      "evidence": "node --test tests/admin-israel-greeting.test.mjs tests/localization-completeness.test.mjs: 6/6 passed."
+    },
+    {
+      "check": "Full project build and regression suite",
+      "status": "passed",
+      "evidence": "pnpm test: build completed and 745/745 tests passed."
+    },
+    {
+      "check": "Hebrew typography source policy",
+      "status": "passed",
+      "evidence": "audit_font_sources.py passed for the full repository."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "Exact production rendering remains to be checked after publication."
+  ],
+  "authorization_boundary": "Repair, test, publish and verify the reported VII administration defect without changing unrelated data or configuration."
+}

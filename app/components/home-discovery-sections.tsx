@@ -29,7 +29,12 @@ function DiscoveryRail({ id, eyebrow, title, items }: { id: string; eyebrow: str
   if (!items.length) return null;
   return <section className="home-managed-discovery" aria-labelledby={`${id}-title`}>
     <div className="home-managed-discovery__head"><div><span>{eyebrow}</span><h3 id={`${id}-title`}>{title}</h3></div><HomeSliderControls railId={`${id}-track`} label={title} itemSelector=":scope > a" /></div>
-    <div id={`${id}-track`} className="home-managed-discovery__track" data-horizontal-rail>{items.map((item) => <Link key={item.id} href={item.href} prefetch={false} data-global-feedback="true" data-loading-label={`פותחים ${item.label}...`}><img src={item.image} alt={item.imageAlt || ""} title={item.imageAlt} loading="lazy" decoding="async" /><span><strong>{item.label}</strong>{item.note ? <small>{item.note}</small> : null}<b>לצפייה בתוצאות</b></span></Link>)}</div>
+    <nav id={`${id}-track`} className="home-managed-discovery__track search-depth__rail" data-horizontal-rail aria-label={title}>{items.map((item) => <Link className="search-depth__discovery-card" key={item.id} href={item.href} prefetch={false} data-global-feedback="true" data-loading-label={`פותחים ${item.label}...`}>
+      <span className="search-depth__discovery-icon home-managed-discovery__visual"><img src={item.image} alt={item.imageAlt || ""} title={item.imageAlt} loading="lazy" decoding="async" /></span>
+      <strong>{item.label}</strong>
+      {item.note ? <small>{item.note}</small> : <small>לצפייה בתוצאות</small>}
+      <span className="search-depth__discovery-arrow" aria-hidden="true">←</span>
+    </Link>)}</nav>
   </section>;
 }
 

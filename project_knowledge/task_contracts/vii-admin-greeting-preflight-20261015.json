@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-admin-greeting-20261015",
+  "project": "VII",
+  "task_type": "admin-visible-defect-and-production-release",
+  "requested_outcome": "The VII admin dashboard greeting must match the current time in Israel, including at 15:00, and the corrected behavior must be verified on the exact published release.",
+  "natural_destination": "https://vii.spaplus.co/admin",
+  "authorization_boundary": "Repair, test, commit, publish and verify the reported VII admin defect. Preserve unrelated work, data, credentials, domains and schedules.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-MIND-001",
+      "reason": "The visible correction must be translated into exact time boundaries and production evidence before implementation.",
+      "acceptance_impact": "Requires a validated preflight, affected-family inventory, midpoint and exact natural-destination proof."
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "A local source edit is insufficient for a production admin defect.",
+      "acceptance_impact": "Requires focused regression, build evidence and live verification of the exact release."
+    },
+    {
+      "lesson_id": "ADIR-TYPE-001",
+      "reason": "The change affects visible Hebrew text in the administration system.",
+      "acceptance_impact": "Requires approved modern Hebrew typography to remain intact with no serif fallback."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The dashboard still says morning at 15:00.",
+      "prevention": "Replace the hardcoded label with an Israel-time greeting function and cover 15:00 explicitly.",
+      "acceptance_check": "A test for 15:00 Asia/Jerusalem returns צהריים טובים and the published dashboard displays it."
+    },
+    {
+      "rejection": "The fix depends on the hosting server or browser timezone and fails during daylight-saving changes.",
+      "prevention": "Read the hour through Intl.DateTimeFormat with the explicit Asia/Jerusalem timezone.",
+      "acceptance_check": "Winter and summer UTC instants map to the correct Israel greeting."
+    },
+    {
+      "rejection": "Only the single reported hour works while boundary hours are wrong.",
+      "prevention": "Define and test morning, afternoon, evening and night boundaries.",
+      "acceptance_check": "Boundary tests pass for 05:00, 12:00, 17:00 and 21:00 Israel time."
+    },
+    {
+      "rejection": "The code is fixed locally but the old production release remains visible.",
+      "prevention": "Publish one traceable release and reopen the authenticated production dashboard.",
+      "acceptance_check": "The exact production release shows the correct greeting after reload on desktop and mobile."
+    }
+  ],
+  "affected_family": [
+    "admin dashboard heading",
+    "Israel local-time conversion",
+    "authenticated admin desktop rendering",
+    "authenticated admin mobile rendering",
+    "admin Hebrew typography"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "Reported production screenshot showing the incorrect 15:00 greeting",
+        "source": "C:/Users/Adir/AppData/Local/Temp/codex-clipboard-de45587d-25f9-483e-b64e-cfaa26952844.png"
+      },
+      {
+        "label": "VII accepted product and release behavior",
+        "source": "project_knowledge/VII_FEEDBACK_STANDARD.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "The focused greeting tests pass before the full build and publication.",
+    "checks": [
+      "15:00 returns the afternoon greeting",
+      "time boundaries pass",
+      "summer and winter UTC instants use Israel local time",
+      "the dashboard no longer contains a hardcoded morning greeting"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a UTC-hosted render still select the wrong greeting?",
+      "Does the greeting remain correct on both sides of every boundary?",
+      "Does a production reload show the corrected text rather than a cached prior build?",
+      "Did the Hebrew font or responsive heading regress?"
+    ],
+    "natural_destination_evidence": "Authenticated live inspection of https://vii.spaplus.co/admin on the exact new release.",
+    "affected_family_evidence": "Focused tests, full build and desktop/mobile live checks of the dashboard heading and typography."
+  },
+  "effectiveness": {
+    "baseline": "Production release 427 always renders בוקר טוב for a named administrator because the text is hardcoded.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "One causal implementation covers every Israel-time period and is visible on the first published release without another correction."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

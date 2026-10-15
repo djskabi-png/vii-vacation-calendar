@@ -1,0 +1,60 @@
+{
+  "goal": "Use the complete supplier geography corpus in VII vacation and event discovery, including zero-inventory destinations with truthful nearby recovery and editorially controlled SEO pages.",
+  "intent_model": {
+    "literal_request": "Import every city, area and main area from Sergey and Maxim, cross-reference it with the API, show all destinations in search, show nearby places where inventory is empty and make destination pages possible.",
+    "implied_outcome": "Geography is an independent platform capability rather than a side effect of current business inventory.",
+    "likely_rejections": ["Only the unassigned sample is imported", "A destination can be selected but still produces a dead end", "Thin pages are indexed automatically", "IDs collide across hierarchy levels"],
+    "interpretation_rules": [
+      { "phrase": "כל עיר/אזור/אזור ראשי", "operational_meaning": "The supplier hierarchy is complete and independent of current listings.", "acceptance_impact": "Validate hierarchy counts and named zero-inventory cities from the exact response." },
+      { "phrase": "עדיין יוצגו מקומות ליד", "operational_meaning": "Only geographically defensible nearby inventory is shown and labeled as nearby.", "acceptance_impact": "Use city coordinates and bounded distance ordering; never silently fall back to arbitrary nationwide results." }
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "Choose a destination in vacation or events.",
+    "current_decision": "Select an exact city or area even when it currently has no listed business.",
+    "next_action": "See exact matches or a clearly labeled nearby recovery set and optionally progress the destination through the editorial page workflow.",
+    "deferred_complexity": ["Editorial content and indexation remain an admin approval decision"],
+    "preserved_depth": ["Supplier IDs", "hierarchy", "coordinates", "manual overrides", "canonical URL policy", "sitemap approval gate"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/task_contracts/vii-complete-geography-search-20261015.preflight.json",
+    "lesson_bundle_ids": ["ADIR-MIND-001", "ADIR-QA-001", "ADIR-SCOPE-001", "ADIR-SEO-001", "ADIR-DATA-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["VII vacation visitor", "VII event visitor", "VII content administrator"],
+  "natural_destination": "Production vacation and event destination pickers, their zero-inventory result pages, /admin/geography and the approved search-page sitemap pipeline",
+  "facts": [
+    { "claim": "The supplier documents that numeric IDs are unique only within their geography level.", "evidence": "Maxim message supplied by Adir on 2026-10-15" },
+    { "claim": "The current production public geography endpoint exposes only the unassigned Bayt Lid sample.", "evidence": "GET https://vii.spaplus.co/api/vii/geography returned one node during preflight" },
+    { "claim": "VII already has a protected geography admin source and a public managed geography endpoint.", "evidence": "app/lib/geography-admin.ts, app/api/admin/geography/route.ts and app/api/vii/geography/route.ts" }
+  ],
+  "assumptions": [
+    { "claim": "The complete supplier response may use object-keyed hierarchy roots not covered by the current named collection parser.", "validation": "The current parser imports only root.unassigned while the supplier states that the endpoint contains the complete hierarchy; inspect the exact response shape through a bounded admin diagnostic if robust inference is insufficient." }
+  ],
+  "in_scope": ["Supplier geography normalization", "Level-scoped canonical IDs", "Unassigned handling", "Vacation and event destination autocomplete", "Nearby zero-inventory recovery", "Admin corpus inspection and overrides", "Editorial SEO eligibility and sitemap gating"],
+  "out_of_scope": ["Automatic indexation of every imported location", "Invented hierarchy relationships", "Unrelated catalog or visual redesign", "DNS or domain launch"],
+  "invariants": ["Supplier listing inventory remains authoritative for whether a place exists in a city", "Geography identity includes level and supplier ID", "Nearby results are labeled and never represented as local", "Only approved canonical useful pages enter sitemaps", "Manual geography overrides survive refresh"],
+  "affected_family": ["app/lib/geography-admin.ts supplier adapter", "admin geography refresh and editor", "public geography API", "vacation search picker and results", "event search picker and results", "search-page editorial queue", "sitemap inventory"],
+  "characteristics": { "stateful": true },
+  "requirements": [
+    { "id": "GEO-1", "statement": "Import all supported hierarchy variants from the supplier areas endpoint.", "source": "User request and supplier contract" },
+    { "id": "GEO-2", "statement": "Expose every visible managed geography in vacation and event destination search.", "source": "User request" },
+    { "id": "GEO-3", "statement": "Recover zero-inventory destination searches with bounded nearby inventory.", "source": "User request" },
+    { "id": "GEO-4", "statement": "Preserve editorial control of indexation and sitemap membership.", "source": "User request, VII platform master plan and SEO standard" },
+    { "id": "GEO-5", "statement": "Allow administrators to inspect and override the imported corpus without losing supplier truth.", "source": "VII platform master plan" }
+  ],
+  "acceptance_checks": [
+    { "id": "AC-1", "requirement_ids": ["GEO-1", "GEO-5"], "kind": "success", "setup": "Supplier response contains named or object-keyed districts, areas, cities, overlapping numeric IDs and unassigned nodes.", "action": "Refresh the geography source.", "observable_result": "Every valid node is stored under a level-scoped key, counts cover all levels, Yashresh is present, Bayt Lid remains unassigned and manual overrides survive." },
+    { "id": "AC-2", "requirement_ids": ["GEO-2"], "kind": "success", "setup": "Yashresh exists in managed geography and has no vacation or event listing.", "action": "Type Yashresh in each destination picker and submit.", "observable_result": "Yashresh is selectable in both worlds and the selected destination persists in the URL and heading." },
+    { "id": "AC-3", "requirement_ids": ["GEO-3"], "kind": "success", "setup": "The selected city has coordinates but no exact listings and nearby inventory has coordinates.", "action": "Open vacation and event results.", "observable_result": "A clearly labeled nearby result set is sorted by distance within the bounded recovery radius and each card retains its true city." },
+    { "id": "AC-4", "requirement_ids": ["GEO-3"], "kind": "failure", "setup": "The selected geography has no usable coordinates or no inventory exists inside the maximum radius.", "action": "Open results.", "observable_result": "The UI shows an honest empty state and recovery controls, without arbitrary nationwide listings." },
+    { "id": "AC-5", "requirement_ids": ["GEO-4"], "kind": "persistence", "setup": "A geography is imported but has no approved editorial page.", "action": "Refresh the corpus and sitemap inventory.", "observable_result": "The geography stays searchable but no URL enters the sitemap until the existing approval workflow publishes a canonical useful page." },
+    { "id": "AC-6", "requirement_ids": ["GEO-1"], "kind": "failure", "setup": "The supplier request fails or returns a structurally invalid payload.", "action": "Run refresh.", "observable_result": "The accepted geography corpus is preserved and the admin receives a clear failure; partial data is not accepted as a successful full refresh." }
+  ],
+  "open_questions": [],
+  "authorization_boundary": "Read-only supplier pulls, implementation, verification and the standing VII publication workflow are authorized. Automatic publication or indexation of thin geography pages is prohibited.",
+  "ready_for_implementation": true
+}

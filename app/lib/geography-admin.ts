@@ -75,6 +75,19 @@ function nestedRows(value: Record<string, unknown>, level: GeographyLevel) {
   return keys.flatMap((key) => array(value[key]));
 }
 
+function inferredRootDistricts(root: Record<string, unknown>) {
+  const reserved = new Set(["unassigned", "areas", "cities", "districts", "regions", "counties", "data", "result", "locations", "geography"]);
+  return Object.entries(root)
+    .filter(([key]) => !reserved.has(key))
+    .map(([, value]) => value)
+    .filter((value) => {
+      const candidate = record(value);
+      return sourceId(candidate, "district") !== null
+        && Boolean(text(candidate.title ?? candidate.name))
+        && (nestedRows(candidate, "area").length > 0 || nestedRows(candidate, "city").length > 0);
+    });
+}
+
 export function normalizeSupplierGeography(payload: unknown): SupplierGeographyNode[] {
   const root = geographyRoot(payload);
   const collected = new Map<string, SupplierGeographyNode>();
@@ -86,7 +99,9 @@ export function normalizeSupplierGeography(payload: unknown): SupplierGeographyN
     const key = `${level}:${supplierId}`;
     const parentId = level === "area" ? id(raw.district_id ?? raw.districtID ?? raw.district)
       : level === "city" ? id(raw.area_id ?? raw.areaID ?? raw.area) : null;
-    const resolvedParent = parentKey || (parentId !== null ? `${level === "area" ? "district" : "area"}:${parentId}` : null);
+    // The supplier uses zero for an explicitly unassigned parent. Never create
+    // a synthetic area:0 or district:0 relationship from that sentinel.
+    const resolvedParent = parentKey || (parentId !== null && parentId > 0 ? `${level === "area" ? "district" : "area"}:${parentId}` : null);
     const node: SupplierGeographyNode = {
       key,
       level,
@@ -112,7 +127,8 @@ export function normalizeSupplierGeography(payload: unknown): SupplierGeographyN
     for (const cityValue of nestedRows(raw, "city")) add("city", cityValue, null, true);
   };
 
-  for (const district of nestedRows(root, "district")) walkDistrict(district);
+  const namedDistricts = nestedRows(root, "district");
+  for (const district of [...namedDistricts, ...inferredRootDistricts(root)]) walkDistrict(district);
   for (const areaValue of array(root.areas)) {
     const area = add("area", areaValue, null);
     for (const cityValue of nestedRows(record(areaValue), "city")) add("city", cityValue, area?.key || null);
@@ -148,7 +164,11 @@ export async function fetchSupplierGeography(token: string, fetchImpl: typeof fe
   if (response.status >= 300 && response.status < 400) throw new Error("supplier_geography_redirect_not_allowed");
   if (!response.ok) throw new Error(response.status === 401 || response.status === 403 ? "supplier_not_authorized" : "supplier_geography_unavailable");
   const nodes = normalizeSupplierGeography(await response.json());
-  if (!nodes.length || !nodes.some((node) => node.level === "city")) throw new Error("invalid_supplier_geography");
+  // This endpoint is the full national corpus. A response containing only the
+  // unassigned bucket is a partial parse or a partial upstream response and
+  // must not replace the accepted geography generation.
+  if (!nodes.some((node) => node.level === "area")
+    || !nodes.some((node) => node.level === "city" && !node.unassigned)) throw new Error("invalid_supplier_geography");
   return nodes;
 }
 
