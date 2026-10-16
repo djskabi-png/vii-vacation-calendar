@@ -18,6 +18,7 @@ import { PlacePreviewCard } from "../components/place-preview-card";
 import { discoveryItems } from "../data/world-data";
 import { EventQuickSearches } from "../components/event-quick-searches";
 import { readEventLandingPresentation } from "../lib/event-landing-presentation";
+import { WorldTopicImage } from "../components/world-topic-image";
 
 export async function generateMetadata(): Promise<Metadata> {
   const presentation = await readEventLandingPresentation();
@@ -68,9 +69,8 @@ export default async function EventsPage() {
               <p>{presentation.description}</p>
               <div className="events-hero__proof" aria-label="יתרונות החיפוש">{presentation.proof.map((item, index) => <span key={item}>{index === 0 ? <b>{eventPlaces.length}</b> : null}{item}</span>)}</div>
             </div>
-            <div className="events-hero__visual" aria-label="מקומות נבחרים לאירועים">
-              {presentation.heroImages.map((image, index) => <figure key={`${image.src}-${index}`} className={`events-hero__image events-hero__image--${index + 1}`}><img src={image.src} alt={image.alt} decoding="async" fetchPriority={index === 0 ? "high" : "auto"} /></figure>)}
-              <span className="events-hero__visual-note"><small>כל אירוע מתחיל במקום הנכון</small><strong>בוחרים, משווים וחוגגים</strong></span>
+            <div className="events-hero__visual">
+              <WorldTopicImage image={presentation.heroImages[0]} />
             </div>
             <div className="events-hero__search"><SearchBox mode="events" compact showWorlds /></div>
           </div>

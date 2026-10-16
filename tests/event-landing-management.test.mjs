@@ -10,7 +10,7 @@ import {
 
 test("event landing defaults provide a complete hero and visual discovery rail", () => {
   const presentation = parseEventLandingPresentation(null);
-  assert.equal(presentation.heroImages.length, 3);
+  assert.equal(presentation.heroImages.length, 1);
   assert.ok(presentation.heroImages.every((image) => image.src && image.alt));
   assert.ok(presentation.quickSearches.length >= 4);
   assert.ok(presentation.quickSearches.every((item) => item.href.startsWith("/events/") && item.image && item.imageAlt));
@@ -22,7 +22,7 @@ test("event landing management accepts safe complete presentation data and rejec
   const items = JSON.parse(attributes.eventQuickSearches);
   items[0].href = "https://unrelated.example/search";
   assert.equal(validEventLandingAttributes({ ...attributes, eventQuickSearches: JSON.stringify(items) }), false);
-  assert.equal(validEventLandingAttributes({ ...attributes, eventHeroImage1Alt: "" }), false);
+  assert.equal(validEventLandingAttributes({ ...attributes, eventTopicImageAlt: "" }), false);
 });
 
 test("content studio seeds and exposes the events landing as a versioned public control", async () => {
@@ -38,7 +38,7 @@ test("content studio seeds and exposes the events landing as a versioned public 
   assert.match(editor, /הוספת חיפוש מהיר/);
   assert.match(route, /validEventLandingAttributes/);
   assert.match(page, /readEventLandingPresentation/);
-  assert.match(page, /presentation\.heroImages\.map/);
+  assert.match(page, /<WorldTopicImage image=\{presentation\.heroImages\[0\]\}/);
   assert.match(page, /<EventQuickSearches/);
   assert.equal(defaultEventLandingPresentation.quickSearches.length, 6);
 });
