@@ -10,6 +10,19 @@ export const worldTopicMedia = {
 export type WorldTopic = keyof typeof worldTopicMedia;
 export type WorldTopicImage = { src: string; alt: string };
 
+const topicTranslations = {
+  en: ["Massage stones and towels in a spa setting", "A candlelit celebration table", "Soft linen and warm lighting for a short rest", "A chef preparing food for a gathering", "Kayaks and paddles for a day on the water", "A nature trail at sunset"],
+  fr: ["Pierres de massage et serviettes dans une ambiance de spa", "Une table de fête éclairée aux bougies", "Du linge doux et une lumière chaleureuse pour une courte pause", "Un chef préparant des plats pour une réception", "Kayaks et pagaies pour une sortie sur l’eau", "Un sentier dans la nature au coucher du soleil"],
+  ru: ["Массажные камни и полотенца в атмосфере спа", "Праздничный стол при свечах", "Мягкое бельё и тёплый свет для короткого отдыха", "Шеф-повар готовит блюда для гостей", "Каяки и вёсла для отдыха на воде", "Природная тропа на закате"],
+} as const;
+
+export function worldTopicImageCopy(image: WorldTopicImage, locale: string) {
+  const index = Object.values(worldTopicMedia).findIndex((value) => value.alt === image.alt);
+  if (locale !== "en" && locale !== "fr" && locale !== "ru") return { alt: image.alt, caption: "תמונת המחשה" };
+  return { alt: index >= 0 ? topicTranslations[locale][index] : image.alt,
+    caption: { en: "Illustrative image", fr: "Image d’illustration", ru: "Иллюстративное изображение" }[locale] };
+}
+
 // Deliberately separate from the retired collage keys. Saved business photos
 // must not silently reappear as the identity of a whole world after deployment.
 export function resolveWorldTopicImage(world: WorldTopic, src?: string, alt?: string): WorldTopicImage {
