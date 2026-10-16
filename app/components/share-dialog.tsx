@@ -197,7 +197,7 @@ export function ShareButton({ title, kind = "place" }: { title: string; kind?: S
   const encodedUrl = encodeURIComponent(url);
 
   return <>
-    <button ref={triggerRef} className="share-trigger" type="button" onClick={show}><ShareIcon /><span>{labels.trigger}</span></button>
+    <button ref={triggerRef} className="share-trigger" type="button" aria-label={labels.trigger} title={labels.trigger} aria-haspopup="dialog" aria-expanded={open} onClick={show}><ShareIcon /></button>
     {mounted && open ? createPortal(
       <div className="share-dialog-layer" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) close(); }}>
         <section ref={dialogRef} className="share-dialog" role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descriptionId} dir={language === "he" ? "rtl" : "ltr"}>

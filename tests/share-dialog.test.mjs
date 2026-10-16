@@ -36,3 +36,17 @@ test("sharing uses one branded accessible dialog instead of the operating system
   assert.match(css, /@media \(max-width: 767px\)[\s\S]*\.share-dialog-layer \{ align-items: end/);
   assert.match(css, /font-family: var\(--font-sans\)/);
 });
+
+test("shared share trigger is icon-only but retains a localized accessible name", async () => {
+  const [dialog, css] = await Promise.all([read("app/components/share-dialog.tsx"), read("app/globals.css")]);
+  const trigger = dialog.match(/<button ref=\{triggerRef\}[\s\S]*?<\/button>/)?.[0];
+  assert.ok(trigger);
+  assert.match(trigger, /aria-label=\{labels\.trigger\}/);
+  assert.match(trigger, /title=\{labels\.trigger\}/);
+  assert.match(trigger, /aria-haspopup="dialog" aria-expanded=\{open\}/);
+  assert.match(trigger, /onClick=\{show\}><ShareIcon \/><\/button>$/);
+  assert.doesNotMatch(trigger, /<span|>\{labels\.trigger\}</);
+  for (const label of ["שיתוף", "Share", "Поделиться", "Partager"]) assert.ok(dialog.includes(`trigger: "${label}"`));
+  assert.match(css, /\.share-trigger \{ width: 44px; min-width: 44px; height: 44px; min-height: 44px; padding: 0/);
+  assert.match(css, /\.share-trigger svg \{[^}]*flex: 0 0 18px/);
+});
