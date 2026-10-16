@@ -4,6 +4,19 @@ import test from "node:test";
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
+test("vacation photo arrows outrank card interaction positioning and image links", () => {
+  const css = read("app/globals.css");
+  // A class-only rule loses to `.stay-card button`, even if it appears later.
+  const arrow = css.match(/\.stay-card \.stay-card__gallery-arrow \{([^}]+)\}/)?.[1];
+  assert.ok(arrow, "two-class specificity is required to preserve absolute positioning");
+  assert.match(arrow, /position: absolute/);
+  assert.match(arrow, /top: 50%/);
+  assert.match(arrow, /translate: 0 -50%/);
+  const arrowLayer = Number(arrow.match(/z-index: (\d+)/)?.[1]);
+  const linkLayer = Number(css.match(/\.stay-card a:not\(\.stay-card__surface-link\),\.stay-card button \{[^}]*z-index: (\d+)/)?.[1]);
+  assert.ok(arrowLayer > linkLayer, "visible arrow must receive pointer hits above the photo link");
+});
+
 test("near-date, holiday home and holiday landing deal adapters never drop galleries", () => {
   const deals = read("app/components/home-live-deals.tsx");
   assert.match(deals, /images: deal\.images \|\| \[\]/);
