@@ -17,7 +17,8 @@ test("known legacy place paths map directly to equivalent new detail pages", () 
 
 test("Cloudflare HTMLRewriter path applies staging noindex to HTML responses", async () => {
   const workerSource = await readFile(new URL("../worker/index.ts", import.meta.url), "utf8");
-  assert.match(workerSource, /if \(!primary\) return storePublicCache\(await withLaunchSeo\(transformed, url, false\), cachePolicy, env, ctx\)/);
+  assert.match(workerSource, /if \(!primary\) \{\s*const output = await withLaunchSeo\(transformed, url, false\);[\s\S]*?return storePublicCache\(output, cachePolicy, env, ctx\)/);
+  assert.match(workerSource, /withLaunchSeo\(rewriteCanonicalStream\(response, makeLocaleLinks\), url, false\)/);
   assert.match(workerSource, /type\.includes\("text\/html"\)/);
 });
 

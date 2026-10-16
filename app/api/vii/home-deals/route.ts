@@ -17,6 +17,13 @@ async function applyCuration(deals: Awaited<ReturnType<typeof getHomeDeals>>["de
   } catch { return deals; }
 }
 
+async function displaySettings(locale: Parameters<typeof readHomeDisplaySettings>[1]) {
+  try {
+    const runtime = await import("cloudflare:workers");
+    return await readHomeDisplaySettings((runtime.env as unknown as { DB?: D1Database }).DB, locale);
+  } catch { return readHomeDisplaySettings(undefined, locale); }
+}
+
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const period = params.get("period");
@@ -26,14 +33,14 @@ export async function GET(request: Request) {
     return Response.json({ error: "invalid_period" }, { status: 400, headers: noStore });
   }
   try {
-    const names = await publicCatalogSummaries<{ supplierId: number; name: string }>("vacations");
-    const result = await getHomeDeals({ period: period as HomeDealPeriod, token: await supplierToken(), publicSiteIds: await publishedSupplierIds("vacations"), publicNames: new Map(names.map((place) => [place.supplierId, place.name])) });
-    let display;
-    try {
-      const runtime = await import("cloudflare:workers");
-      display = await readHomeDisplaySettings((runtime.env as unknown as { DB?: D1Database }).DB, locale);
-    } catch { display = await readHomeDisplaySettings(undefined, locale); }
-    return Response.json({ ...result, deals: await applyCuration(result.deals, period as HomeDealPeriod), display: { periods: display.periods, defaultPeriod: display.defaultPeriod } }, { headers: noStore });
+    const displayPromise = displaySettings(locale);
+    const [names, publicSiteIds, token] = await Promise.all([
+      publicCatalogSummaries<{ supplierId: number; name: string }>("vacations"),
+      publishedSupplierIds("vacations"), supplierToken(),
+    ]);
+    const result = await getHomeDeals({ period: period as HomeDealPeriod, token, publicSiteIds, publicNames: new Map(names.map((place) => [place.supplierId, place.name])) });
+    const [deals, display] = await Promise.all([applyCuration(result.deals, period as HomeDealPeriod), displayPromise]);
+    return Response.json({ ...result, deals, display: { periods: display.periods, defaultPeriod: display.defaultPeriod } }, { headers: noStore });
   } catch {
     return Response.json({ error: "supplier_unavailable" }, { status: 503, headers: noStore });
   }

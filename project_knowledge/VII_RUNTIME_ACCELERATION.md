@@ -59,3 +59,11 @@ Official implementation references checked16October2026:
 
 - https://developers.cloudflare.com/workers/runtime-apis/context/#waituntil
 - https://developers.cloudflare.com/d1/sql-api/query-json/
+
+### Production435 observation and corrective candidate
+
+435 was published16October2026 at06:40:58Israel time, productionc7e16ee7bd0755cc2aff386cf697091a408a552c. A true-cold workstation probe still reached the homepage heading at4339ms versus4508ms in434. Suspense markers alone therefore did not prove early delivery. The Worker fallback still collected the complete document with response.text() when HTMLRewriter was unavailable. A streaming canonical-only transform now preserves the Hebrew temporary-host public response without waiting for its tail. Native and fallback transforms expose a diagnostic header so production can confirm which path ran. Localized and primary-domain SEO transforms retain their existing contract.
+
+The remote435probe saw only4of12 repeated hits, while434had all hits. The150ms R2 budget could reject legitimate regional reads. The corrective candidate uses a finite750ms budget, with a200ms simulated regional-hit regression test. No hard response freshness is extended.
+
+Fresh deal API inputs and display settings now overlap independent work. Supplier queries, public allowlists, curation, locale validation, errors and no-store remain intact. Behavioral tests hold the catalog promise unresolved and prove token/allowlist reads have already started. No availability cache or invented result was introduced.

@@ -199,7 +199,10 @@ export async function readPublicCache(policy: PublicCachePolicy, env: CacheEnvir
     if (response && expiresAt > Date.now()) return cacheHeaders(response, policy, "HIT", "edge", expiresAt);
   } catch { /* The managed runtime may not support Cache API. R2 remains usable. */ }
   if (!env?.UPLOADS) return null;
-  const cached = await cacheLookup(env.UPLOADS.get(policy.key), 150);
+  // Production435 showed that150ms rejected valid cross-region R2 hits.
+  // Keep a finite budget, but prefer a750ms stored hit over a multi-second
+  // full render when the isolate does not retain a memory entry.
+  const cached = await cacheLookup(env.UPLOADS.get(policy.key), 750);
   if (!cached) return null;
   const expiresAt = Number(cached.customMetadata?.expiresAt);
   if (!Number.isFinite(expiresAt) || expiresAt <= Date.now()) return null;
