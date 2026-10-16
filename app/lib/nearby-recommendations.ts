@@ -1,4 +1,4 @@
-import { distanceKm, type CoordinatePlace } from "./geography-search.ts";
+import { distanceKm, nearbyPlacesForSelection, type CoordinatePlace, type PublicGeographyNode } from "./geography-search.ts";
 
 // Existing coarse region centers used by TrailMap. They are NOT trail locations.
 export const nearbyRegionCenters: Record<string, { lat: number; lng: number }> = {
@@ -53,6 +53,20 @@ export function nearbyPoint(place: CoordinatePlace) {
   const exact = exactPoint(place);
   const region = nearbyRegion(place.area) || nearbyRegion(place.location);
   return exact || (region ? nearbyRegionCenters[region] : null);
+}
+
+/** Search origins use the authoritative city hierarchy before any coarse fallback. */
+export function nearbySearchRecommendations<T extends CoordinatePlace>(
+  pool: readonly T[], selection: string, nodes: readonly PublicGeographyNode[],
+  options: { key: (item: T) => string; origin?: CoordinatePlace },
+): T[] {
+  const managed = nearbyPlacesForSelection(pool, nodes, selection,
+    { limit: 12, maximumDistanceKm: 100, minimumResults: 3 });
+  if (managed.length) return managed.map((candidate) => candidate.place);
+  const origin = options.origin || { location: selection, area: selection };
+  // An unknown city is not a geographic anchor. Never fill it in catalog order.
+  if (!nearbyPoint(origin)) return [];
+  return nearbyRecommendations(pool, origin, { key: options.key, limit: 12 }).items;
 }
 
 /** Only geography is relaxed. Callers must supply their already eligible public pool. */

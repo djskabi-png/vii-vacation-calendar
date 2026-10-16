@@ -16,7 +16,8 @@ import { ResultsViewToggle, useResultsViewMode } from "./results-view-toggle";
 import { ProgressiveResults } from "./progressive-results";
 import { rotateWithinTiers } from "../lib/daily-rotation";
 import { trackSearchResults } from "../lib/analytics";
-import { nearbyRecommendations, completeNearbyResults, nearbyPoint } from "../lib/nearby-recommendations";
+import { nearbySearchRecommendations, completeNearbyResults } from "../lib/nearby-recommendations";
+import { useManagedGeography } from "./use-managed-geography";
 import { NearbySearchNotice } from "./nearby-search-notice";
 
 const spaFilters = spaLandings;
@@ -58,6 +59,7 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
   const requestedDate = searchParams.get("date") || "";
   const [availability, setAvailability] = useState<{ status: "idle" | "loading" | "ready" | "unavailable"; checkedDate: string; dates: string[]; sites: Map<number, number> }>({ status: "idle", checkedDate: "", dates: [], sites: new Map() });
   const [location, setLocation] = useState(requestedLocation);
+  const managedGeography = useManagedGeography(location !== "כל הארץ");
   const [spaAudience, setSpaAudience] = useState<SpaAudienceId | "">(
     requestedAudience && requestedAudience in spaAudiences ? requestedAudience as SpaAudienceId : "",
   );
@@ -124,10 +126,10 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
   const nearbyRecovery = useMemo(() => {
     if (filtered.length >= 3 || checkingDate || location === "כל הארץ") return [];
     const origin = items.find((item) => item.location === location || item.area === location);
-    if (!origin && !nearbyPoint({ area: location })) return [];
     const eligible = amenityFiltered.filter((item) => !requestedDate || !dateCovered || availability.sites.has(Number(item.id.replace("spa-", ""))));
-    return nearbyRecommendations(eligible, { location, area: location, lat: origin?.location === location ? origin.lat : undefined, lng: origin?.location === location ? origin.lng : undefined }, { key: (item) => item.id, limit: 12, minimum: 3 }).items;
-  }, [amenityFiltered, availability.sites, checkingDate, dateCovered, filtered.length, items, location, requestedDate]);
+    return nearbySearchRecommendations(eligible, location, managedGeography, { key: (item) => item.id,
+      origin: { location, area: location, lat: origin?.location === location ? origin.lat : undefined, lng: origin?.location === location ? origin.lng : undefined } });
+  }, [amenityFiltered, availability.sites, checkingDate, dateCovered, filtered.length, items, location, managedGeography, requestedDate]);
   const resultItems = useMemo(() => completeNearbyResults(filtered, nearbyRecovery, (item) => item.id), [filtered, nearbyRecovery]);
 
   useEffect(() => {

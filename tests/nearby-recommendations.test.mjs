@@ -1,11 +1,27 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { nearbyRecommendations, nearbyRecommendationCopy, completeNearbyResults } from "../app/lib/nearby-recommendations.ts";
+import { nearbyRecommendations, nearbySearchRecommendations, nearbyRecommendationCopy, completeNearbyResults } from "../app/lib/nearby-recommendations.ts";
 import { nearbyTrails, trails } from "../app/data/trail-data.ts";
 
 const origin = { location: "תל אביב", area: "מרכז", lat: 32.08, lng: 34.78 };
 const make = (id, lat, area = "מרכז") => ({ id, location: id, area, lat, lng: 34.78 });
 const key = (item) => item.id;
+
+test("a city absent from legacy coordinate dictionaries ranks from managed geography,not catalog order", () => {
+  const cities = [
+    ["נצרת", 32.699, 35.304], ["טבריה", 32.794, 35.532],
+    ["חיפה", 32.794, 34.989], ["תל אביב", 32.085, 34.781],
+  ].map(([title, gpsLat, gpsLong], index) => ({ key: `city:${index}`, level: "city", parentKey: null,
+    title, titleEn: title, slug: String(index), featured: false, gpsLat, gpsLong, unassigned: false }));
+  const pool = ["תל אביב", "נצרת", "חיפה", "טבריה"].map((location) => ({ id: location, location }));
+  const result = nearbySearchRecommendations(pool, "נצרת", cities, { key });
+  assert.deepEqual(result.map(key), ["נצרת", "טבריה", "חיפה", "תל אביב"]);
+  assert.deepEqual(completeNearbyResults([pool[1]], result, key).map(key), ["נצרת", "טבריה", "חיפה"]);
+});
+
+test("unknown cities without a managed or coarse anchor never imply nearest catalog-order results", () => {
+  assert.deepEqual(nearbySearchRecommendations([make("one", 32), make("two", 33), make("three", 34)], "עיר לא ידועה", [], { key }), []);
+});
 
 test("sparse geography expands to3 nearest eligible distinct recommendations", () => {
   const result = nearbyRecommendations([make("far", 33.7), make("near", 32.1), make("middle", 32.6), make("furthest", 34)], origin, { key });
