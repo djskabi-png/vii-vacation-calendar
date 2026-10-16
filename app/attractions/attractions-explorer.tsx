@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { DiscoveryCard } from "../components/discovery-card";
 import { DeferredDiscoveryMap, preloadListingMap } from "../components/deferred-listing-map";
 import { ModernSelect } from "../components/modern-select";
@@ -11,15 +11,17 @@ import { useMapViewState } from "../components/map-view-state";
 import { rotateWithinTiers } from "../lib/daily-rotation";
 import { nearbyRecommendations, completeNearbyResults, nearbyPoint } from "../lib/nearby-recommendations";
 import { NearbySearchNotice } from "../components/nearby-search-notice";
+import { activityRegion, activityType } from "../lib/activity-discovery-taxonomy";
 
 const areas = ["הכל", "צפון", "כנרת", "מרכז ותל אביב", "ירושלים", "דרום ונגב", "אילת והסביבה"];
 const types = ["הכל", "שטח ואדרנלין", "טבע ורכיבה", "ים ושיט", "מים ומשפחה", "נחלים ומים", "אוכל ותרבות", "מדבר ושטח", "יצירה וקבוצות"];
 
-export function AttractionsExplorer({ items = paidAttractions }: { items?: DiscoveryItem[] }) {
+export function AttractionsExplorer({ items = paidAttractions, initialArea, initialType }: { items?: DiscoveryItem[]; initialArea?: string; initialType?: string }) {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const searchQuery = searchParams.toString();
-  const requestedArea = searchParams.get("area") || "הכל";
-  const requestedType = searchParams.get("type") || "הכל";
+  const requestedArea = searchParams.get("area") || initialArea || "הכל";
+  const requestedType = searchParams.get("type") || initialType || "הכל";
   const [query, setQuery] = useState(searchParams.get("q") || "");
   const [area, setArea] = useState(areas.includes(requestedArea) ? requestedArea : "הכל");
   const [type, setType] = useState(types.includes(requestedType) ? requestedType : "הכל");
@@ -29,8 +31,8 @@ export function AttractionsExplorer({ items = paidAttractions }: { items?: Disco
 
   const filtered = useMemo(() => rotateWithinTiers(items.filter((item) => {
     const searchable = `${item.name} ${item.location} ${item.area} ${item.description} ${item.features.join(" ")}`;
-    const areaMatch = area === "הכל" || item.location.includes(area) || (area === "מרכז ותל אביב" && (item.location.includes("מרכז") || item.location.includes("תל אביב")));
-    return areaMatch && (type === "הכל" || item.area === type) && (!query.trim() || searchable.includes(query.trim()));
+    const areaMatch = area === "הכל" || activityRegion(item) === area;
+    return areaMatch && (type === "הכל" || activityType(item) === type) && (!query.trim() || searchable.includes(query.trim()));
   }), (item) => query.trim() && !item.name.includes(query.trim()) ? 1 : 0,
   (item) => item.id, "attraction-search"), [area, items, query, type]);
 
@@ -40,7 +42,7 @@ export function AttractionsExplorer({ items = paidAttractions }: { items?: Disco
     const normalizedQuery = query.trim();
     const eligible = items.filter((item) => {
       const searchable = `${item.name} ${item.location} ${item.area} ${item.description} ${item.features.join(" ")}`;
-      return (type === "הכל" || item.area === type) && (!normalizedQuery || searchable.includes(normalizedQuery));
+      return (type === "הכל" || activityType(item) === type) && (!normalizedQuery || searchable.includes(normalizedQuery));
     });
     return nearbyRecommendations(eligible, { area, location: area }, { key: (item) => item.id, limit: 12, minimum: 3 }).items;
   }, [area, filtered.length, items, query, type]);
@@ -48,8 +50,12 @@ export function AttractionsExplorer({ items = paidAttractions }: { items?: Disco
 
   function updateUrl(updates: Record<string, string>) {
     const params = new URLSearchParams(window.location.search);
+    if (initialArea && !params.has("area")) params.set("area", initialArea);
+    if (initialType && !params.has("type")) params.set("type", initialType);
     Object.entries(updates).forEach(([key, value]) => value && value !== "הכל" ? params.set(key, value) : params.delete(key));
-    window.history.pushState(null, "", `${window.location.pathname}${params.size ? `?${params}` : ""}`);
+    const basePath = window.location.pathname.replace(/\/explore\/[^/]+\/?$/, "");
+    if (basePath !== window.location.pathname) router.push(`${basePath}${params.size ? `?${params}` : ""}`, { scroll: false });
+    else window.history.pushState(null, "", `${basePath}${params.size ? `?${params}` : ""}`);
   }
 
   function changeQuery(value: string) { setQuery(value); updateUrl({ q: value.trim() }); }
@@ -88,14 +94,14 @@ export function AttractionsExplorer({ items = paidAttractions }: { items?: Disco
   useEffect(() => {
     const timer = window.setTimeout(() => {
       const params = new URLSearchParams(searchQuery);
-      const nextArea = params.get("area") || "הכל";
-      const nextType = params.get("type") || "הכל";
+      const nextArea = params.get("area") || initialArea || "הכל";
+      const nextType = params.get("type") || initialType || "הכל";
       setArea(areas.includes(nextArea) ? nextArea : "הכל");
       setType(types.includes(nextType) ? nextType : "הכל");
       setQuery(params.get("q") || "");
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [searchQuery]);
+  }, [searchQuery, initialArea, initialType]);
 
   return <>
     <form className="trail-filters attraction-filters" onSubmit={(event) => event.preventDefault()} aria-label="סינון אטרקציות בתשלום">
