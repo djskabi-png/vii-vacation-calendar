@@ -256,6 +256,19 @@ export async function readSupplierCatalogEntry(db: D1Database, world: SupplierCa
     detail: row.detailJson ? JSON.parse(row.detailJson) : null };
 }
 
+/** Distinguish no accepted generation from an absent entry in one snapshot. */
+export async function readSupplierCatalogDetailSnapshot(db: D1Database,
+  world: Extract<SupplierCatalogWorld, "vacations" | "events">, supplierId: number) {
+  if (!validWorld(world) || !Number.isSafeInteger(supplierId) || supplierId < 1) return null;
+  const row = await db.prepare(`SELECT s.active_run_id AS activeRunId, e.detail_json AS detailJson
+    FROM supplier_catalog_state s LEFT JOIN supplier_catalog_entries e
+      ON e.run_id = s.active_run_id AND e.world = s.world AND e.supplier_id = ?
+    WHERE s.world = ?`).bind(supplierId, world)
+    .first<{ activeRunId: string | null; detailJson: string | null }>();
+  if (!row) return null;
+  return { activeRunId: row.activeRunId, detail: row.detailJson ? JSON.parse(row.detailJson) : null };
+}
+
 export async function readSupplierCatalogDetails(db: D1Database, world: Extract<SupplierCatalogWorld, "vacations" | "events">, supplierIds: readonly number[]) {
   const ids = [...new Set(supplierIds)].filter((supplierId) => Number.isSafeInteger(supplierId) && supplierId > 0);
   if (!ids.length) return new Map<number, unknown>();
@@ -320,4 +333,55 @@ export async function readSupplierCatalogReviewDetails(db: D1Database,
     .bind(world, ...ids).all<{ supplierId: number; reviewsJson: string | null }>();
   return new Map(rows.results.map((row) => [row.supplierId,
     { reviews: row.reviewsJson ? JSON.parse(row.reviewsJson) : undefined }]));
+}
+
+type PublicReview = { text: string; author?: string; date?: string };
+
+function usableReview(value: unknown): value is PublicReview {
+  return Boolean(value && typeof value === "object" &&
+    typeof (value as PublicReview).text === "string" && (value as PublicReview).text.trim().length >= 30);
+}
+
+/** Only the first usable review is needed by the homepage, not every review. */
+export async function readSupplierCatalogReviewPreviews(db: D1Database,
+  world: Extract<SupplierCatalogWorld, "vacations" | "events">, supplierIds: readonly number[]) {
+  const ids = [...new Set(supplierIds)].filter((id) => Number.isSafeInteger(id) && id > 0);
+  if (!ids.length) return null;
+  const rows = await db.prepare(`SELECT s.active_run_id AS activeRunId, e.supplier_id AS supplierId,
+    (SELECT r.value FROM json_each(CASE WHEN json_type(e.detail_json, '$.reviews') = 'array'
+      THEN json_extract(e.detail_json, '$.reviews') ELSE '[]' END) r
+      WHERE r.type = 'object' AND
+        CASE WHEN r.type = 'object' THEN json_type(r.value, '$.text') = 'text' AND
+          length(CAST(json_extract(r.value, '$.text') AS BLOB)) >= 30 ELSE 0 END
+      ORDER BY CAST(r.key AS INTEGER) LIMIT 1) AS reviewJson
+    FROM supplier_catalog_state s LEFT JOIN supplier_catalog_entries e
+      ON e.run_id = s.active_run_id AND e.world = s.world
+      AND e.supplier_id IN (${ids.map(() => "?").join(", ")})
+    WHERE s.world = ?`).bind(...ids, world)
+    .all<{ activeRunId: string | null; supplierId: number | null; reviewJson: string | null }>();
+  const activeRunId = rows.results[0]?.activeRunId;
+  if (!activeRunId) return null;
+  const previews = new Map<number, { reviews: PublicReview[] }>();
+  const fallbackIds: number[] = [];
+  for (const row of rows.results) {
+    if (row.supplierId === null) continue;
+    const review: unknown = row.reviewJson ? JSON.parse(row.reviewJson) : null;
+    if (review !== null && !usableReview(review)) fallbackIds.push(row.supplierId);
+    previews.set(row.supplierId, { reviews: usableReview(review) ? [review] : [] });
+  }
+  // UTF-8 byte length is a conservative superset of JS UTF-16/trim length.
+  // A byte-eligible but unusable candidate (spaces, emoji, etc.) must not hide
+  // a later valid review. Rare fallbacks read the same pinned generation.
+  if (fallbackIds.length) {
+    const fallback = await db.prepare(`SELECT supplier_id AS supplierId,
+      json_extract(detail_json, '$.reviews') AS reviewsJson FROM supplier_catalog_entries
+      WHERE run_id = ? AND world = ? AND supplier_id IN (${fallbackIds.map(() => "?").join(", ")})`)
+      .bind(activeRunId, world, ...fallbackIds).all<{ supplierId: number; reviewsJson: string | null }>();
+    for (const row of fallback.results) {
+      const reviews: unknown = row.reviewsJson ? JSON.parse(row.reviewsJson) : [];
+      const review = Array.isArray(reviews) ? reviews.find(usableReview) : undefined;
+      previews.set(row.supplierId, { reviews: review ? [review] : [] });
+    }
+  }
+  return { activeRunId, previews };
 }

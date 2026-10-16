@@ -67,3 +67,23 @@ Official implementation references checked16October2026:
 The remote435probe saw only4of12 repeated hits, while434had all hits. The150ms R2 budget could reject legitimate regional reads. The corrective candidate uses a finite750ms budget, with a200ms simulated regional-hit regression test. No hard response freshness is extended.
 
 Fresh deal API inputs and display settings now overlap independent work. Supplier queries, public allowlists, curation, locale validation, errors and no-store remain intact. Behavioral tests hold the catalog promise unresolved and prove token/allowlist reads have already started. No availability cache or invented result was introduced.
+
+### Published436: measured result and limits
+
+Published16October2026 at06:51:17Israel time, deployment appgdep_6ad19f111b508191a2389acad17b4d93, source cd3425c46cd4b62c2739df359d66bb452c03797e, exact tree76f397aea2c3e4904262da8e7563259162d0fe6b. Live cache build718ba1c1-96c3-4ee5-b8f2-ed0c2dc75e43.795tests, TypeScript, typography,11route artifact and independent production checks passed.435archive retained for rollback. Environment11, supplier data and schedules unchanged.
+
+Fresh home-deals response samples from the same workstation improved from1831/1546ms to1127/1127ms, with46results and no-store retained. Holidays improved from263/251ms to214/216ms, with6holidays retained. These small samples are response timings, not a geographic benchmark or complete UI measurement.
+
+All24repeat samples across six public HTML and six Flight variants were HIT,49to214ms TTFB from the workstation. The publisher remote network observed R2hits with110and243ms cache read times, but total network TTFB still6to9seconds. Do not present warm workstation timings as universal performance.
+
+Cold latency is not fully resolved. The first-connection homepage heading arrived at4208ms, versus4508ms in434. A separate reused-connection cold-key test reached its heading in1099ms with gzip and1114ms without compression. Production used native-stream, not the new fallback. Therefore fallback correctness is a robustness improvement, not evidence of a live first-paint improvement. The broad cold-latency investigation remains open; no claim that all pages are instant or that Aurora is deployed is justified.
+
+Exact release evidence and bounded public-surface classification are in project_knowledge/release_evidence/vii-cold-speed-436.json and vii-cold-speed-436-public-trust.json.
+
+### Next read-pipeline increment
+
+The homepage only needs the first review whose JavaScript-trimmed text has at least30UTF16code units. The previous SQL projection still transferred every review for14candidate places. A new preview query returns the earliest conservative byte-eligible candidate per place, validates it using the original JavaScript semantics and falls back to the complete review list only for ambiguous cases such as whitespace or emoji. The fallback pins the same active generation so a concurrent supplier publication cannot mix versions. Original complete-review APIs remain unchanged.
+
+The real14record fixture shrinks from232565bytes to6821bytes, about97percent, with identical selected review objects and one normal SQL request. All bundled vacation and event selections also match in D1-sized batches. Unicode, malformed members, whitespace, missing generation, accepted-but-missing entity and concurrent publication tests pass.
+
+Single vacation/event detail reads now use one state-to-entry left join instead of reading state and then detail separately. The join preserves the distinction between no accepted generation, where the bundled fallback is allowed, and a missing entry in an accepted generation, which must returnnull. No new cache, schema, supplier pull or transaction policy is introduced. All802tests, TypeScript, font audit and11routeHTML/Flight artifact checks passed before publication. Live timing remains to be measured separately rather than inferred from reduced work.

@@ -5,7 +5,7 @@ import sergeyDetails from "../data/sergey-place-details.json" with { type: "json
 import { supplierDisplayDescription } from "../data/supplier-display-text.ts";
 import { projectSpaViiSite } from "./spa-editorial-policy.ts";
 import type { SpaPlusSite } from "../data/spaplus";
-import { readSupplierCatalogDetails, readSupplierCatalogReviewDetails, readSupplierCatalogEntry, readSupplierCatalogState, readSupplierCatalogSummaries, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
+import { readSupplierCatalogDetails, readSupplierCatalogDetailSnapshot, readSupplierCatalogReviewDetails, readSupplierCatalogReviewPreviews, readSupplierCatalogState, readSupplierCatalogSummaries, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
 import { runtimeCatalogDatabase } from "./published-supplier-ids.ts";
 import { readPublishedItems, type ContentType, type EditorialContent } from "./content-studio.ts";
 
@@ -91,10 +91,23 @@ export async function publicCatalogDetail<T>(world: "vacations" | "events", supp
   const slug = `${world === "vacations" ? "vacation" : "event"}-${supplierId}`;
   const bundledDetail = (sergeyDetails.details as unknown as Record<string, T>)[slug] || null;
   if (!db) return bundledDetail;
-  const state = await readSupplierCatalogState(db, world);
-  if (!state?.activeRunId) return bundledDetail;
-  const entry = await readSupplierCatalogEntry(db, world, supplierId);
-  return (entry?.detail as T | null) || null;
+  const snapshot = await readSupplierCatalogDetailSnapshot(db, world, supplierId);
+  if (!snapshot?.activeRunId) return bundledDetail;
+  return (snapshot.detail as T | null) || null;
+}
+
+export async function publicCatalogReviewPreviews<T>(world: "vacations" | "events", supplierIds: readonly number[]): Promise<Map<number, T | null>> {
+  const ids = [...new Set(supplierIds)].filter((id) => Number.isSafeInteger(id) && id > 0);
+  if (!ids.length) return new Map();
+  const db = await runtimeCatalogDatabase();
+  const snapshot = db ? await readSupplierCatalogReviewPreviews(db, world, ids) : null;
+  if (snapshot) return new Map(ids.map((id) => [id, (snapshot.previews.get(id) as T | undefined) || null]));
+  return new Map(ids.map((id) => {
+    const slug = `${world === "vacations" ? "vacation" : "event"}-${id}`;
+    const detail = (sergeyDetails.details as unknown as Record<string, { reviews?: { text?: string }[] }>)[slug];
+    const review = detail?.reviews?.find((entry) => typeof entry.text === "string" && entry.text.trim().length >= 30);
+    return [id, detail ? { reviews: review ? [review] : [] } as T : null];
+  }));
 }
 
 export async function publicCatalogDetails<T>(world: "vacations" | "events", supplierIds: readonly number[]): Promise<Map<number, T | null>> {
