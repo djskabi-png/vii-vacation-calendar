@@ -3936,7 +3936,9 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
 body:has(.whatsapp-lead-layer) .smart-concierge { display: none; }
 body:has(.share-dialog-layer) .smart-concierge { display: none; }
 
-.share-trigger svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.share-trigger { width: 44px; min-width: 44px; height: 44px; min-height: 44px; padding: 0; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+.magazine-article__actions .share-trigger { width: 44px; padding: 0; }
+.share-trigger svg { width: 18px; height: 18px; flex: 0 0 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .share-dialog-layer { position: fixed; z-index: 2100; inset: 0; padding: 20px; display: grid; place-items: center; overflow: hidden; background: rgba(2,28,35,.68); backdrop-filter: blur(8px); }
 .share-dialog { width: min(440px,calc(100vw - 32px)); max-height: min(620px,calc(100dvh - 32px)); overflow-y: auto; overscroll-behavior: contain; padding: 18px; border: 1px solid rgba(8,126,139,.16); border-radius: 24px; background: #fff; box-shadow: 0 30px 90px rgba(0,30,38,.3); color: var(--ink); font-family: var(--font-sans); }
 .share-dialog > header { padding: 0 0 14px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid rgba(8,126,139,.1); }
