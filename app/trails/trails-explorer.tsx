@@ -11,6 +11,7 @@ import { ProgressiveResults } from "../components/progressive-results";
 import { rotateWithinTiers } from "../lib/daily-rotation";
 import { completeNearbyResults } from "../lib/nearby-recommendations";
 import { NearbySearchNotice } from "../components/nearby-search-notice";
+import { useSiteLanguage } from "../i18n/locale-provider";
 
 const difficulties: Array<"הכל" | TrailDifficulty> = ["הכל", "קל", "בינוני", "למיטיבי לכת"];
 const regionOptions = regions.filter((item) => item !== "הכל");
@@ -34,12 +35,23 @@ function MultiChoice({ label, options, selected, onToggle }: { label: string; op
 export function TrailsExplorer({ items = trails, initialFilters }: { items?: Trail[]; initialFilters?: Readonly<Record<string, string>> }) {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { language } = useSiteLanguage();
   const searchQuery = searchParams.toString();
   const [selectedRegions, setSelectedRegions] = useState(() => selectedValues(searchParams.get("area") || initialFilters?.area || null, regionOptions));
   const [selectedNatures, setSelectedNatures] = useState(() => selectedValues(searchParams.get("nature") || initialFilters?.nature || null, natureOptions));
   const [selectedDifficulties, setSelectedDifficulties] = useState(() => selectedValues(searchParams.get("difficulty") || initialFilters?.difficulty || null, difficultyOptions));
   const [query, setQuery] = useState(searchParams.get("q") || "");
   const { mapOpen, openMap, closeMap } = useMapViewState();
+  const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
+  const [visibleMapCount, setVisibleMapCount] = useState(0);
+  const [activeMapPlaceId, setActiveMapPlaceId] = useState<string | null>(null);
+  const mapFilterQuery = useMemo(() => {
+    const params = new URLSearchParams();
+    if (selectedNatures.length) params.set("nature", selectedNatures.join(","));
+    if (selectedDifficulties.length) params.set("difficulty", selectedDifficulties.join(","));
+    if (query.trim()) params.set("q", query.trim());
+    return params.toString();
+  }, [selectedNatures, selectedDifficulties, query]);
 
   const filtered = useMemo(() => rotateWithinTiers(items.filter((trail) => {
     const searchable = `${trail.name} ${trail.mainArea} ${trail.region} ${trail.areaTags.join(" ")} ${trail.nature.join(" ")}`;
@@ -60,6 +72,11 @@ export function TrailsExplorer({ items = trails, initialFilters }: { items?: Tra
     return nearbyTrails(selectedRegions[0], "", eligible.length, { inventory: eligible });
   }, [filtered, items, query, selectedDifficulties, selectedNatures, selectedRegions]);
   const resultTrails = useMemo(() => completeNearbyResults(filtered, nearbyRecovery, (trail) => trail.slug), [filtered, nearbyRecovery]);
+  const displayedTrails = useMemo(() => {
+    if (!mapOpen || !mapVisibleIds) return resultTrails;
+    const visible = new Set(mapVisibleIds);
+    return resultTrails.filter((trail) => visible.has(trail.slug) || visible.has(`trails-${trail.mainArea}`));
+  }, [mapOpen, mapVisibleIds, resultTrails]);
 
   function updateUrl(updates: Record<string, string>) {
     const params = new URLSearchParams(window.location.search);
@@ -77,6 +94,11 @@ export function TrailsExplorer({ items = trails, initialFilters }: { items?: Tra
   }
   function changeQuery(value: string) { setQuery(value); updateUrl({ q: value.trim() }); }
   function resetFilters() { setSelectedRegions([]); setSelectedNatures([]); setSelectedDifficulties([]); setQuery(""); updateUrl({ area: "", nature: "", difficulty: "", q: "" }); }
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => { setMapVisibleIds(null); setActiveMapPlaceId(null); }, 0);
+    return () => window.clearTimeout(timer);
+  }, [selectedRegions, selectedNatures, selectedDifficulties, query]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -97,7 +119,7 @@ export function TrailsExplorer({ items = trails, initialFilters }: { items?: Tra
       <MultiChoice label="דרגת קושי" options={difficultyOptions} selected={selectedDifficulties} onToggle={(value) => toggleValue(value, selectedDifficulties, setSelectedDifficulties, "difficulty")} />
     </form>
     {resultTrails.length > filtered.length && <NearbySearchNotice regionalOnly />}
-    <div className="trail-results-head"><div><strong>{resultTrails.length} מסלולים מתאימים</strong><span>הנתונים נערכו ממקורות רשמיים. מצב המסלול נבדק שוב ביום הטיול.</span></div>{resultTrails.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לרשימת המסלולים" : "הצגת המסלולים על המפה"} aria-pressed={mapOpen} onClick={() => mapOpen ? closeMap() : openMap()}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לרשימה" : "מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div>
-    {resultTrails.length ? mapOpen ? <div className="airbnb-map-split trail-map-split"><div className="airbnb-map-split__results trail-grid">{resultTrails.map((trail) => <TrailCard key={trail.slug} trail={trail} />)}</div><div className="airbnb-map-split__map"><DeferredTrailMap trails={resultTrails} autoLoad onClose={closeMap} /></div></div> : <ProgressiveResults className="trail-grid" kind="trails" resetKey={`${selectedRegions.join(",")}|${selectedNatures.join(",")}|${selectedDifficulties.join(",")}|${query}`}>{resultTrails.map((trail) => <TrailCard key={trail.slug} trail={trail} />)}</ProgressiveResults> : <div className="trail-empty"><h2>לא מצאנו התאמה לסינון הזה</h2><p>אפשר להסיר אחד מהסינונים או לחפש אזור סמוך.</p><button type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
+    <div className="trail-results-head"><div><strong>{language === "he" ? mapOpen ? `${visibleMapCount} מסלולים באזור המוצג במפה` : `${resultTrails.length} מסלולים מתאימים` : language === "en" ? `Trails${mapOpen ? " in the map area" : " found"}: ${mapOpen ? visibleMapCount : resultTrails.length}` : language === "ru" ? `Маршруты${mapOpen ? " в области карты" : " по вашему запросу"}: ${mapOpen ? visibleMapCount : resultTrails.length}` : `Itinéraires${mapOpen ? " dans la zone affichée" : " trouvés"} : ${mapOpen ? visibleMapCount : resultTrails.length}`}</strong><span>הנתונים נערכו ממקורות רשמיים. מצב המסלול נבדק שוב ביום הטיול.</span></div>{resultTrails.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לרשימת המסלולים" : "הצגת המסלולים על המפה"} aria-pressed={mapOpen} onClick={() => { setMapVisibleIds(null); setActiveMapPlaceId(null); if (mapOpen) closeMap(); else { setVisibleMapCount(resultTrails.length); openMap(); } }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לרשימה" : "מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div>
+    {resultTrails.length ? mapOpen ? <div className="airbnb-map-split trail-map-split"><div className="airbnb-map-split__results trail-grid">{displayedTrails.map((trail) => <TrailCard key={trail.slug} trail={trail} mapActive={activeMapPlaceId === trail.slug || activeMapPlaceId === `trails-${trail.mainArea}`} onActiveChange={(active) => setActiveMapPlaceId(active ? trail.slug : null)} />)}</div><div className="airbnb-map-split__map"><DeferredTrailMap trails={resultTrails} filterQuery={mapFilterQuery} autoLoad onClose={() => { setMapVisibleIds(null); setActiveMapPlaceId(null); closeMap(); }} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPlaceId} onActivePlaceChange={setActiveMapPlaceId} /></div></div> : <ProgressiveResults className="trail-grid" kind="trails" resetKey={`${selectedRegions.join(",")}|${selectedNatures.join(",")}|${selectedDifficulties.join(",")}|${query}`}>{resultTrails.map((trail) => <TrailCard key={trail.slug} trail={trail} />)}</ProgressiveResults> : <div className="trail-empty"><h2>לא מצאנו התאמה לסינון הזה</h2><p>אפשר להסיר אחד מהסינונים או לחפש אזור סמוך.</p><button type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
   </>;
 }

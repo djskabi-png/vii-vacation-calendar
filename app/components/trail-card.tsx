@@ -23,11 +23,11 @@ export function TrailVisual({ trail, compact = false, language = "he", localized
   </div>;
 }
 
-export function TrailCard({ trail, compact = false }: { trail: Trail; compact?: boolean }) {
+export function TrailCard({ trail, compact = false, mapActive = false, onActiveChange }: { trail: Trail; compact?: boolean; mapActive?: boolean; onActiveChange?: (active: boolean) => void }) {
   const { language, translate } = useSiteLanguage();
   const localizedName = localizedBusinessText(trail.name, language, translate, language === "he" ? "מסלול טבע" : language === "en" ? "Nature trail" : language === "ru" ? "Природный маршрут" : "Sentier nature");
   const routeLabel = language === "he" ? "למסלול" : language === "en" ? "Open trail" : language === "ru" ? "Открыть маршрут" : "Ouvrir l’itinéraire";
-  return <article className={`trail-card${compact ? " trail-card--compact" : ""}`}>
+  return <article className={`trail-card${compact ? " trail-card--compact" : ""}${mapActive ? " is-map-active" : ""}`} data-map-place-id={trail.slug} onMouseEnter={() => onActiveChange?.(true)} onMouseLeave={() => onActiveChange?.(false)} onFocusCapture={() => onActiveChange?.(true)} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) onActiveChange?.(false); }}>
     <Link className="trail-card__visual" href={`/trails/${trail.slug}`} target="_blank" rel="noopener noreferrer" aria-label={`${routeLabel} ${localizedName}`}><TrailVisual trail={trail} compact={compact} language={language} localizedName={localizedName} /></Link>
     <FavoriteButton id={trail.slug} world="trails" name={localizedName} location={`${trail.mainArea}, ${trail.region}`} href={`/trails/${trail.slug}`} meta={`${trail.duration} · ${trail.difficulty}`} />
     <div className="trail-card__body">

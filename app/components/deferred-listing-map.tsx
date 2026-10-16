@@ -32,7 +32,9 @@ const loadListingMap = () => import("./listing-map")
   });
 
 export const preloadListingMap = () => {
-  void loadListingMap().then((module) => module.preloadLeaflet());
+  // Speculative loading must not create an unhandled rejection before the
+  // visitor has even activated the map. Activation owns recovery feedback.
+  void loadListingMap().then((module) => module.preloadLeaflet()).catch(() => undefined);
 };
 
 const loadingMap = () => <div className="map-deferred-loading" role="status" aria-live="polite">
@@ -78,6 +80,11 @@ export const DeferredTrailMap = dynamic(
   { ssr: false, loading: loadingMap },
 ) as ComponentType<{
   trails: Trail[];
+  filterQuery?: string;
   autoLoad?: boolean;
   onClose?: () => void;
+  onVisibleCountChange?: (count: number) => void;
+  onVisiblePlaceIdsChange?: (ids: string[]) => void;
+  activePlaceId?: string | null;
+  onActivePlaceChange?: (id: string | null) => void;
 }>;

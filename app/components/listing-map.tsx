@@ -7,6 +7,7 @@ import { eventPlaceHref } from "../lib/event-place-href";
 import type { DiscoveryItem } from "../data/world-data";
 import type { Trail } from "../data/trail-data";
 import { useSiteLanguage } from "../i18n/locale-provider";
+import { localizedPath } from "../i18n/locale-routing";
 import { PreviewCardGallery } from "./preview-card-gallery";
 import "leaflet/dist/leaflet.css";
 
@@ -34,6 +35,7 @@ type MapPlace = {
   href: string;
   markerLabel: string;
   precision?: "exact" | "area";
+  illustrativeImage?: boolean;
 };
 
 type PlacesMapProps = {
@@ -47,6 +49,7 @@ type PlacesMapProps = {
   onVisiblePlaceIdsChange?: (ids: string[]) => void;
   activePlaceId?: string | null;
   onActivePlaceChange?: (id: string | null) => void;
+  regional?: boolean;
 };
 
 function safeMarkerLabel(value: string) {
@@ -78,7 +81,7 @@ function markerIcon(tone: MapTone) {
   return `<svg ${common}><path d="m3.5 10.6 8.5-6.8 8.5 6.8"/><path d="M5.6 9.4v10.8h12.8V9.4M9.5 20.2v-6.1h5v6.1M8 11.1h1.8M14.2 11.1H16"/></svg>`;
 }
 
-function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation", single = false, autoLoad = false, onClose, onVisibleCountChange, onVisiblePlaceIdsChange, activePlaceId = null, onActivePlaceChange }: PlacesMapProps) {
+function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation", single = false, autoLoad = false, onClose, onVisibleCountChange, onVisiblePlaceIdsChange, activePlaceId = null, onActivePlaceChange, regional = false }: PlacesMapProps) {
   // Hover/focus can recreate equivalent arrays in parents. Do not tear down
   // Leaflet and its pending click listeners unless the actual place data changes.
   // Include all fields, not just coordinates: prices, names and photos stay fresh.
@@ -107,6 +110,9 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
       : language === "fr"
         ? { zoomIn: "Agrandir la carte", zoomOut: "R\u00e9duire la carte", cluster: "Agrandir les lieux regroup\u00e9s" }
         : { zoomIn: "\u05d4\u05d2\u05d3\u05dc\u05ea \u05d4\u05de\u05e4\u05d4", zoomOut: "\u05d4\u05e7\u05d8\u05e0\u05ea \u05d4\u05de\u05e4\u05d4", cluster: "\u05d4\u05ea\u05e7\u05e8\u05d1\u05d5\u05ea \u05dc\u05de\u05e7\u05d5\u05de\u05d5\u05ea \u05d4\u05de\u05e7\u05d5\u05d1\u05e6\u05d9\u05dd" };
+  const precisionCopy = { he: "מיקום אזורי משוער", en: "Approximate area", ru: "Приблизительный район", fr: "Zone approximative" }[language];
+  const illustrationCopy = { he: "תמונת המחשה", en: "Illustrative image", ru: "Иллюстрация", fr: "Image d’illustration" }[language];
+  const regionsCopy = { he: "אזורים", en: "regions", ru: "регионов", fr: "régions" }[language];
   const mapElement = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<import("leaflet").Map | null>(null);
   const markerInstances = useRef<Map<string, import("leaflet").Marker>>(new Map());
@@ -114,6 +120,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
   const visibleCountCallback = useRef(onVisibleCountChange);
   const visiblePlaceIdsCallback = useRef(onVisiblePlaceIdsChange);
   const activePlaceCallback = useRef(onActivePlaceChange);
+  const hoveredPlaceId = useRef(activePlaceId);
   const suppressViewportPrompt = useRef(false);
   const initialSelectedId = single ? initialPlaceIds?.find((id) => places.some((place) => place.id === id)) ?? places[0]?.id ?? "" : "";
   const selectedIdRef = useRef(initialSelectedId);
@@ -133,6 +140,8 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
     activePlaceCallback.current = onActivePlaceChange;
   }, [onActivePlaceChange, onVisibleCountChange, onVisiblePlaceIdsChange]);
 
+  useEffect(() => { hoveredPlaceId.current = activePlaceId; }, [activePlaceId]);
+
   useEffect(() => {
     if (!selectedId || places.some((place) => place.id === selectedId)) return;
     const clearSelectionFrame = window.requestAnimationFrame(() => setSelectedId(""));
@@ -144,19 +153,23 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
     if (!place) return;
     selectedIdRef.current = id;
     setSelectedId(id);
-
+    activePlaceCallback.current?.(id);
   }, [places]);
 
   const closeSelectedPlace = useCallback(() => {
     const marker = markerInstances.current.get(selectedIdRef.current);
+    selectedIdRef.current = "";
     setSelectedId("");
+    activePlaceCallback.current?.(null);
     window.setTimeout(() => marker?.getElement()?.focus(), 0);
   }, []);
 
   useEffect(() => {
     if (!effectiveSelectedId) return;
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") closeSelectedPlace();
+      if (event.key === "Escape") {
+        closeSelectedPlace();
+      }
     };
     window.addEventListener("keydown", closeOnEscape);
     return () => window.removeEventListener("keydown", closeOnEscape);
@@ -167,6 +180,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
     visiblePlaceIdsCallback.current?.(pendingVisibleIds);
     setViewportDirty(false);
     setSelectedId("");
+    activePlaceCallback.current?.(null);
   }, [pendingVisibleIds]);
 
   useEffect(() => {
@@ -183,14 +197,22 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
     activePreviewMarker.current?.remove();
     activePreviewMarker.current = null;
     const activeMarker = activePlaceId ? markerInstances.current.get(activePlaceId) : undefined;
+    const sharedMarkerCount = activeMarker ? [...markerInstances.current.values()].filter((marker) => marker === activeMarker).length : 0;
     new Set(markerInstances.current.values()).forEach((marker) => {
-      const active = marker === activeMarker;
+      // A cluster is not the hovered place's exact location. Its temporary
+      // exact-coordinate preview is the only highlighted marker in that case.
+      const active = marker === activeMarker && sharedMarkerCount === 1;
       marker.getElement()?.classList.toggle("is-card-active", active);
       marker.setZIndexOffset(active ? 1000 : 0);
     });
 
     if (!activePlaceId || !activeMarker || !mapInstance.current) return;
-    const sharedMarkerCount = [...markerInstances.current.values()].filter((marker) => marker === activeMarker).length;
+    const activePlace = places.find((place) => place.id === activePlaceId);
+    if (activePlace && !mapInstance.current.getBounds().pad(-0.08).contains([activePlace.lat, activePlace.lng])) {
+      mapInstance.current.panInside([activePlace.lat, activePlace.lng], {
+        padding: [48, 48], animate: !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+      });
+    }
     if (sharedMarkerCount <= 1) return;
 
     const place = places.find((entry) => entry.id === activePlaceId);
@@ -239,6 +261,10 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
     let layoutTimer: number | undefined;
     let settleFrame: number | undefined;
     let createdMap: import("leaflet").Map | null = null;
+    let resizeObserver: ResizeObserver | undefined;
+    let resizeFrame: number | undefined;
+    let layoutReady = false;
+    let tilesReady = false;
     suppressViewportPrompt.current = true;
     setViewportDirty(false);
     setPendingVisibleIds([]);
@@ -314,27 +340,28 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
       layersToggle?.setAttribute("aria-label", layerNames.layers);
 
       const showMap = () => {
-        if (!cancelled) setMapReady(true);
+        tilesReady = true;
+        if (!cancelled && layoutReady) setMapReady(true);
       };
       streetTiles.once("load", showMap);
       readyTimer = window.setTimeout(showMap, 2200);
 
       const markerLayer = L.layerGroup().addTo(map);
       let expandedPlaceIds = new Set<string>();
+      let clusterActivationEvent: Event | undefined;
       const bindPlaceMarkerInteraction = (marker: import("leaflet").Marker, id: string) => {
         marker.on("mouseover", () => activePlaceCallback.current?.(id));
-        marker.on("mouseout", () => activePlaceCallback.current?.(null));
+        marker.on("mouseout", () => activePlaceCallback.current?.(selectedIdRef.current || null));
         const element = marker.getElement();
         element?.setAttribute("data-map-place-id", id);
         element?.addEventListener("focus", () => activePlaceCallback.current?.(id));
-        element?.addEventListener("blur", () => activePlaceCallback.current?.(null));
+        element?.addEventListener("blur", () => activePlaceCallback.current?.(selectedIdRef.current || null));
       };
       const spiderfyCluster = (entries: MapPlace[], center: import("leaflet").LatLng, clearExisting = true) => {
         if (clearExisting) {
           markerLayer.clearLayers();
           markerRegistry.clear();
         }
-        const selectionReadyAt = performance.now() + 300;
         const centerPoint = map.latLngToLayerPoint(center);
         const goldenAngle = Math.PI * (3 - Math.sqrt(5));
 
@@ -369,8 +396,10 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
             }),
           }).addTo(markerLayer);
           spiderMarker.getElement()?.setAttribute("aria-label", entry.name);
-          spiderMarker.on("click", () => {
-            if (performance.now() < selectionReadyAt) return;
+          spiderMarker.on("click", (event) => {
+            // Ignore only the event which expanded the cluster, not a new tap
+            // or immediate keyboard action on the newly revealed place.
+            if (event.originalEvent && event.originalEvent === clusterActivationEvent) return;
             selectPlace(entry.id);
           });
           bindPlaceMarkerInteraction(spiderMarker, entry.id);
@@ -442,7 +471,8 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
             cluster.entries.forEach((entry) => markerRegistry.set(entry.id, marker));
             marker.getElement()?.setAttribute("aria-label", `${clusterText}, ${mapControlCopy.cluster}`);
             marker.getElement()?.setAttribute("aria-pressed", String(cluster.entries.some((entry) => entry.id === selectedIdRef.current)));
-            marker.on("click", () => {
+            marker.on("click", (event) => {
+              clusterActivationEvent = event.originalEvent;
               selectedIdRef.current = "";
               setSelectedId("");
               expandedPlaceIds = new Set(cluster.entries.map((entry) => entry.id));
@@ -465,6 +495,11 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
           }
           enableMarkerKeyboardActivation(marker);
         });
+        const activeMarker = hoveredPlaceId.current ? markerRegistry.get(hoveredPlaceId.current) : undefined;
+        if (activeMarker && [...markerRegistry.values()].filter((marker) => marker === activeMarker).length === 1) {
+          activeMarker.getElement()?.classList.add("is-card-active");
+          activeMarker.setZIndexOffset(1000);
+        }
       };
 
       const visiblePlaceIds = () => {
@@ -475,7 +510,10 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
         const ids = visiblePlaceIds();
         setPendingVisibleIds(ids);
         if (prompt && !suppressViewportPrompt.current) setViewportDirty(true);
-        else visibleCountCallback.current?.(ids.length);
+        else {
+          visibleCountCallback.current?.(ids.length);
+          if (!prompt) visiblePlaceIdsCallback.current?.(ids);
+        }
       };
 
       const focusPlaces = initialPlaceIds?.length
@@ -499,10 +537,9 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
       };
       focusInitialPlaces();
 
-      map.on("moveend", () => {
-        if (cancelled || mapInstance.current !== map) return;
-        renderMarkers();
-      });
+      // Panning and resizing do not change proximity at a fixed zoom. Leaflet
+      // repositions existing markers itself. Replacing their DOM here loses
+      // focus and can discard the first click/Enter after the layout changes.
       map.on("zoomend", () => {
         if (cancelled || mapInstance.current !== map) return;
         renderMarkers();
@@ -515,12 +552,32 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
       renderMarkers();
       reportVisiblePlaces();
 
+      // CSS changes the same canvas between a sticky split and a full-screen
+      // map. Leaflet's window resize handler does not observe every flex/grid
+      // size change. Preserve the camera; never refit the original search here.
+      resizeObserver = new ResizeObserver(() => {
+        if (resizeFrame) window.cancelAnimationFrame(resizeFrame);
+        resizeFrame = window.requestAnimationFrame(() => {
+          if (cancelled || mapInstance.current !== map || !container.isConnected) return;
+          map.invalidateSize({ animate: false, pan: false });
+          reportVisiblePlaces(true);
+        });
+      });
+      resizeObserver.observe(container);
+      map.on("click", () => {
+        selectedIdRef.current = "";
+        setSelectedId("");
+        activePlaceCallback.current?.(null);
+      });
+
       layoutTimer = window.setTimeout(() => {
         if (cancelled || mapInstance.current !== map || !container.isConnected) return;
         map.invalidateSize({ animate: false });
         focusInitialPlaces();
         renderMarkers();
         reportVisiblePlaces();
+        layoutReady = true;
+        if (tilesReady) setMapReady(true);
         settleFrame = window.requestAnimationFrame(() => {
           suppressViewportPrompt.current = false;
           setViewportDirty(false);
@@ -533,6 +590,8 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
       if (readyTimer) window.clearTimeout(readyTimer);
       if (layoutTimer) window.clearTimeout(layoutTimer);
       if (settleFrame) window.cancelAnimationFrame(settleFrame);
+      resizeObserver?.disconnect();
+      if (resizeFrame) window.cancelAnimationFrame(resizeFrame);
       suppressViewportPrompt.current = false;
       activePreviewMarker.current?.remove();
       activePreviewMarker.current = null;
@@ -548,7 +607,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
 
   if (!preview) return null;
 
-  const regional = preview.precision === "area";
+  const previewRegional = preview.precision === "area";
   const previewContent = (
     <>
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -563,7 +622,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
         </div>
         {!enabled && <button className="button map-load-button" type="button" onClick={() => setEnabled(true)}><span aria-hidden="true">⌖</span>פתיחת המפה</button>}
         {enabled && !mapReady && <span className="map-loading-pill">המפה נטענת...</span>}
-        {single && regional && <small className="map-precision-note">מוצג אזור המקום. נקודת ההגעה המדויקת נמסרת לאחר אישור.</small>}
+        {single && previewRegional && <small className="map-precision-note">מוצג אזור המקום. נקודת ההגעה המדויקת נמסרת לאחר אישור.</small>}
       </div>
     </>
   );
@@ -574,17 +633,18 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
     <div ref={mapElement} className={`listing-map ${mapReady ? "is-ready" : ""}`} aria-label={mapCopy.label} />
     {onClose && !single && <button className="map-mobile-close" type="button" onClick={onClose} aria-label={mapCopy.back}><span aria-hidden="true">×</span>{mapCopy.back}</button>}
     {mapReady && !viewportDirty && <span className="map-zoom-hint">{mapCopy.hint}</span>}
-    {mapReady && !single && viewportDirty && <button className="map-search-area" type="button" onClick={applyVisibleArea}><span>{cardCopy.searchArea}</span><small>{pendingVisibleIds.length} {cardCopy.visible}</small></button>}
+    {mapReady && !single && viewportDirty && <button className="map-search-area" type="button" onClick={applyVisibleArea}><span>{cardCopy.searchArea}</span><small>{pendingVisibleIds.length} {regional ? regionsCopy : cardCopy.visible}</small></button>}
     {!mapReady && (autoLoad ? <span className="map-live-loading" role="status">{mapCopy.loading}</span> : <div className="map-preview-card map-loading-preview">{previewContent}</div>)}
     {mapReady && !single && selected && <article className="map-selection-card" aria-live="polite">
-      <PreviewCardGallery key={selected.id} className="map-selection-card__media" name={selected.name} images={[selected.image, ...(selected.images || [])]} href={selected.href}>
-        <small>{selected.category}</small>
+      <PreviewCardGallery key={selected.id} className="map-selection-card__media" name={selected.name} images={[selected.image, ...(selected.images || [])]} href={localizedPath(selected.href, language)}>
+        <small>{selected.illustrativeImage ? `${illustrationCopy} · ${selected.category}` : selected.category}</small>
       </PreviewCardGallery>
       <div className="map-selection-card__body">
         <span className="map-selection-card__location">{selected.location}</span>
         <strong>{selected.name}</strong>
         <span className="map-selection-card__meta">{selected.meta}</span>
-        <Link href={selected.href}>{cardCopy.details}</Link>
+        {selected.precision === "area" && <span className="map-selection-card__precision">{precisionCopy}</span>}
+        <Link href={localizedPath(selected.href, language)}>{cardCopy.details}</Link>
       </div>
       <button className="map-selection-card__close" type="button" onClick={closeSelectedPlace} aria-label={cardCopy.close}>×</button>
     </article>}
@@ -598,17 +658,23 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
 }
 
 export function ListingMap({ listings, initialListings, mode = "vacation", single = false, autoLoad = false, detailQuery, onClose, onVisibleCountChange, onVisiblePlaceIdsChange, activePlaceId, onActivePlaceChange }: { listings: Listing[]; initialListings?: Listing[]; mode?: "vacation" | "events"; single?: boolean; autoLoad?: boolean; detailQuery?: string; onClose?: () => void; onVisibleCountChange?: (count: number) => void; onVisiblePlaceIdsChange?: (ids: string[]) => void; activePlaceId?: string | null; onActivePlaceChange?: (id: string | null) => void }) {
-  const { language } = useSiteLanguage();
+  const { language, translate } = useSiteLanguage();
+  const units = useMemo(() => ({
+    he: { bedrooms: "חדרי שינה", units: "יחידות", guests: "אורחים", upTo: "עד" },
+    en: { bedrooms: "bedrooms", units: "units", guests: "guests", upTo: "Up to" },
+    ru: { bedrooms: "спален", units: "номеров", guests: "гостей", upTo: "До" },
+    fr: { bedrooms: "chambres", units: "logements", guests: "personnes", upTo: "Jusqu’à" },
+  })[language], [language]);
   const places = useMemo<MapPlace[]>(() => listings.filter((listing) => typeof listing.lat === "number" && typeof listing.lng === "number").map((listing) => ({
     id: listing.slug,
     name: listing.name,
     location: listing.location,
     area: listing.area,
-    category: listing.type,
+    category: translate(listing.type),
     meta: [
-      listing.bedrooms ? `${listing.bedrooms} חדרי שינה` : null,
-      listing.units && listing.units > 1 ? `${listing.units} יחידות` : null,
-      listing.guests > 0 ? `עד ${listing.guests} אורחים` : null,
+      listing.bedrooms ? `${listing.bedrooms} ${units.bedrooms}` : null,
+      listing.units && listing.units > 1 ? `${listing.units} ${units.units}` : null,
+      listing.guests > 0 ? `${units.upTo} ${listing.guests} ${units.guests}` : null,
     ].filter(Boolean).join(" · "),
     image: listing.image,
     images: listing.images?.slice(0, 10),
@@ -616,14 +682,14 @@ export function ListingMap({ listings, initialListings, mode = "vacation", singl
     lng: listing.lng!,
     href: mode === "events" ? eventPlaceHref(listing as EventPlace) : `/business?id=${listing.slug}${detailQuery ? `&${detailQuery}` : ""}`,
     markerLabel: mode === "events"
-      ? listing.guests > 0 ? `${listing.guests} אורחים` : listing.type
+      ? listing.guests > 0 ? `${listing.guests} ${units.guests}` : translate(listing.type)
       : typeof listing.price === "number"
         ? language === "he"
           ? `${listing.price.toLocaleString("he-IL")} ₪`
           : `₪${listing.price.toLocaleString(language === "fr" ? "fr-FR" : language === "ru" ? "ru-RU" : "en-US")}`
-        : listing.type,
+        : translate(listing.type),
     precision: "exact",
-  })), [detailQuery, language, listings, mode]);
+  })), [detailQuery, language, listings, mode, translate, units]);
   const initialPlaceIds = useMemo(() => initialListings?.map((listing) => listing.slug), [initialListings]);
   return <PlacesMap key={initialPlaceIds?.join("|") || "all"} places={places} initialPlaceIds={initialPlaceIds} tone={mode} single={single} autoLoad={autoLoad} onClose={onClose} onVisibleCountChange={onVisibleCountChange} onVisiblePlaceIdsChange={onVisiblePlaceIdsChange} activePlaceId={activePlaceId} onActivePlaceChange={onActivePlaceChange} />;
 }
@@ -670,7 +736,13 @@ const trailAreaCenters: Record<Trail["mainArea"], { lat: number; lng: number }> 
   "אילת והסביבה": { lat: 29.56, lng: 34.95 },
 };
 
-export function TrailMap({ trails, autoLoad = false, onClose }: { trails: Trail[]; autoLoad?: boolean; onClose?: () => void }) {
+export function TrailMap({ trails, autoLoad = false, onClose, onVisibleCountChange, onVisiblePlaceIdsChange, activePlaceId, onActivePlaceChange, filterQuery = "" }: { trails: Trail[]; autoLoad?: boolean; onClose?: () => void; onVisibleCountChange?: (count: number) => void; onVisiblePlaceIdsChange?: (ids: string[]) => void; activePlaceId?: string | null; onActivePlaceChange?: (id: string | null) => void; filterQuery?: string }) {
+  const { language } = useSiteLanguage();
+  const areaNames: Record<string, Record<string, string>> = {
+    en: { "צפון": "Northern Israel", "כנרת": "the Sea of Galilee", "חיפה": "Haifa", "מרכז": "Central Israel", "תל אביב": "Tel Aviv", "דרום ונגב": "the South and Negev", "ירושלים": "Jerusalem", "אילת והסביבה": "Eilat and its surroundings" },
+    ru: { "צפון": "Север Израиля", "כנרת": "Кинерет", "חיפה": "Хайфа", "מרכז": "Центр Израиля", "תל אביב": "Тель-Авив", "דרום ונגב": "Юг и Негев", "ירושלים": "Иерусалим", "אילת והסביבה": "Эйлат и окрестности" },
+    fr: { "צפון": "le nord d’Israël", "כנרת": "le lac de Tibériade", "חיפה": "Haïfa", "מרכז": "le centre d’Israël", "תל אביב": "Tel-Aviv", "דרום ונגב": "le sud et le Néguev", "ירושלים": "Jérusalem", "אילת והסביבה": "Eilat et ses environs" },
+  };
   const places = useMemo<MapPlace[]>(() => Object.entries(
     trails.reduce<Record<string, Trail[]>>((groups, trail) => {
       (groups[trail.mainArea] ||= []).push(trail);
@@ -678,21 +750,41 @@ export function TrailMap({ trails, autoLoad = false, onClose }: { trails: Trail[
     }, {}),
   ).map(([area, areaTrails]) => {
     const center = trailAreaCenters[area as Trail["mainArea"]];
+    const areaName = language === "he" ? area : areaNames[language]?.[area] || area;
+    const groupCount = areaTrails.length;
+    const query = new URLSearchParams();
+    const sourceQuery = new URLSearchParams(filterQuery);
+    for (const key of ["nature", "difficulty", "q"]) {
+      const value = sourceQuery.get(key);
+      if (value) query.set(key, value);
+    }
+    query.set("area", area);
     return {
       id: `trails-${area}`,
-      name: `מסלולי טיול ב${area}`,
-      location: area,
-      area,
-      category: "טיולים",
-      meta: `${areaTrails.length} מסלולים באזור`,
-      image: "/vii-logo.png",
+      name: language === "he" ? `מסלולי טיול ב${area}` : language === "en" ? `Trails: ${areaName}` : language === "ru" ? `Маршруты: ${areaName}` : `Itinéraires : ${areaName}`,
+      location: areaName,
+      area: areaName,
+      category: { he: "טיולים", en: "Trails", ru: "Маршруты", fr: "Itinéraires" }[language],
+      meta: language === "he" ? `${groupCount} מסלולים באזור` : language === "en" ? `Trails in this area: ${groupCount}` : language === "ru" ? `Маршрутов в этом районе: ${groupCount}` : `Itinéraires dans cette zone : ${groupCount}`,
+      image: `/images/trails/${areaTrails[0].slug}.jpg`,
+      illustrativeImage: true,
       lat: center.lat,
       lng: center.lng,
-      href: `/trails?area=${encodeURIComponent(area)}`,
-      markerLabel: `${areaTrails.length} מסלולים`,
+      href: `/trails?area=${encodeURIComponent(area)}${query.size > 1 ? `&${[...query].filter(([key]) => key !== "area").map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join("&")}` : ""}`,
+      markerLabel: language === "he" ? `${groupCount} מסלולים` : language === "en" ? `${groupCount} ${groupCount === 1 ? "trail" : "trails"}` : language === "ru" ? `Маршруты: ${groupCount}` : `${groupCount} ${groupCount === 1 ? "itinéraire" : "itinéraires"}`,
       precision: "area" as const,
     };
-  }), [trails]);
+  // areaNames is a fixed vocabulary; only the selected locale changes it.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [trails, language, filterQuery]);
 
-  return <PlacesMap places={places} tone="activities" autoLoad={autoLoad} onClose={onClose} />;
+  const activeTrail = trails.find((trail) => trail.slug === activePlaceId);
+  const activeGroupId = activeTrail ? `trails-${activeTrail.mainArea}` : activePlaceId;
+  const reportVisibleTrails = (groupIds: string[]) => {
+    const groups = new Set(groupIds);
+    const ids = trails.filter((trail) => groups.has(`trails-${trail.mainArea}`)).map((trail) => trail.slug);
+    onVisibleCountChange?.(ids.length);
+    onVisiblePlaceIdsChange?.(ids);
+  };
+  return <PlacesMap places={places} tone="activities" regional autoLoad={autoLoad} onClose={onClose} onVisiblePlaceIdsChange={reportVisibleTrails} activePlaceId={activeGroupId} onActivePlaceChange={onActivePlaceChange} />;
 }
