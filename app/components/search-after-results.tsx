@@ -503,7 +503,7 @@ export function SearchAfterResults({
       <section className="search-depth__related search-depth__discovery" aria-labelledby={`search-related-${world}`}>
         <div className="search-depth__discovery-intro"><span className="eyebrow">{discovery.eyebrow}</span><h2 id={`search-related-${world}`}>{discovery.title}</h2><p>{discovery.intro}</p></div>
         <DiscoveryRail title={!location || isWholeCountrySelection(location) ? discovery.countryAreas : `${discovery.suitableRegions}${titleLocationLabel}`} links={regionLinks} />
-        <DiscoveryRail title={`${discovery.citiesInArea}${titleLocationLabel}`} links={cityLinks} />
+        <DiscoveryRail title={`${world === "trails" ? discovery.additionalRegions : discovery.citiesInArea}${titleLocationLabel}`} links={cityLinks} />
         <DiscoveryRail title={`${typesTitle}${titleLocationLabel}`} links={typeLinks} />
         <DiscoveryRail title={`${searchSuggestions.length ? discovery.smartSearches : discovery.generalSearches}${titleLocationLabel}`} links={smartLinks} />
         <DiscoveryRail title={discovery.additionalRegions} links={additionalRegionLinks} />
