@@ -14,7 +14,7 @@ import type { EventPlace, Property } from "./data/site-data";
 import { hourlyPlacesFromCatalog, paidAttractions, providerProfiles, spaPlacesFromSites } from "./data/world-data";
 import type { SpaPlusSite } from "./data/spaplus";
 import hourlyCatalog from "./data/sergey-hourly-catalog.json";
-import { publicCatalogReviewDetails, publicCatalogSummaries } from "./lib/public-catalog-read.ts";
+import { publicCatalogReviewPreviews, publicCatalogSummaries } from "./lib/public-catalog-read.ts";
 import { dailyRotationCompare, rotateDaily, rotateWithinTiers } from "./lib/daily-rotation";
 import { GiftIcon, PeopleIcon } from "./site-header";
 
@@ -30,7 +30,7 @@ async function homeRatedPlaces(properties: Property[]): Promise<HomeRatedPlace[]
     .filter((place) => place.image && Number(place.score) > 0 && Number(place.reviews) >= 5 && /^vacation-\d+$/.test(place.slug))
     .sort((a, b) => Number(b.score) - Number(a.score) || dailyRotationCompare(a.slug, b.slug, "home-reviews"))
     .slice(0, 14);
-  const details = await publicCatalogReviewDetails<SupplierReviewDetail>("vacations", candidates.map((place) => Number(place.slug.slice("vacation-".length))));
+  const details = await publicCatalogReviewPreviews<SupplierReviewDetail>("vacations", candidates.map((place) => Number(place.slug.slice("vacation-".length))));
   const withReviews = candidates.map((place) => {
     const supplierId = Number(place.slug.slice("vacation-".length));
     const detail = details.get(supplierId);
