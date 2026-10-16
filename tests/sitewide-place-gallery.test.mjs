@@ -68,3 +68,17 @@ test("all marker variants activate through Enter and Space without repeating sel
   assert.match(map, /event\.preventDefault\(\);\s*event\.stopPropagation\(\)/);
   assert.match(map, /if \(!event\.repeat\) marker\.fire\("click"\)/);
 });
+test("managed published search results preserve every world gallery and separate links from controls", () => {
+  const managed = read("app/components/managed-search-landing.tsx");
+  assert.equal((managed.match(/images: place\.images\.slice\(0, 10\)/g) || []).length, 2);
+  assert.match(managed, /images: \(place\.images \|\| \[\]\)\.slice\(0, 10\)/);
+  assert.match(managed, /<PreviewCardGallery className=\{styles\.resultMedia\}/);
+  assert.match(managed, /images=\{\[result\.image \|\| "", \.\.\.result\.images\]\}/);
+  assert.match(managed, /<Link className=\{styles\.resultBody\}/);
+  assert.doesNotMatch(managed, /<Link[^>]+>\{result\.image/);
+  assert.match(managed, /className=\{styles\.imageFallback\}/);
+  const css = read("app/find/[slug]/search-landing.module.css");
+  assert.match(css, /\.grid article \.resultMedia \{[^}]*padding: 0/);
+  assert.match(css, /\.grid article \.resultMedia \{[^}]*position: relative/);
+  assert.match(css, /\.grid a\.resultBody \{[^}]*display: flex/);
+});
