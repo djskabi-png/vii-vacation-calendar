@@ -33,6 +33,8 @@ import { useViiLiveSearch } from "../../components/use-vii-live-search";
 import { eventLiveCopy } from "../../i18n/vii-live-search-copy";
 import { trackSearchResults } from "../../lib/analytics";
 import { nearbyPlacesForSelection } from "../../lib/geography-search";
+import { completeNearbyResults } from "../../lib/nearby-recommendations";
+import { NearbySearchNotice } from "../../components/nearby-search-notice";
 import { useManagedGeography } from "../../components/use-managed-geography";
 
 function runtimeEventPlace(value: unknown): EventPlace {
@@ -126,8 +128,13 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
     : eventPlaceHref(place);
   const types = useMemo(() => ["הכל", ...Array.from(new Set(eventPlaces.map((place) => place.type)))], [eventPlaces]);
   const eventTypes = useMemo(() => ["הכל", ...Array.from(new Set(eventPlaces.flatMap((place) => place.eventTypes)))], [eventPlaces]);
+  const matchesHardFilters = (place: EventPlace) => (!types.includes(type) || type === "הכל" || place.type === type)
+    && (!eventTypes.includes(eventType) || eventType === "הכל" || place.eventTypes.includes(eventType))
+    && (!guests || place.capacityScope === "unit" || place.guests >= guests)
+    && (!noNoiseLimit || place.features.some((feature) => feature.includes("ללא הגבלת רעש")))
+    && (!accessibleOnly || getPlaceAccessibility(place.slug).status === "accessible");
   const filtered = useMemo(() => {
-    const result = eventPlaces.filter((place) => matchesSearchLocation(place, area) && (!types.includes(type) || type === "הכל" || place.type === type) && (!eventTypes.includes(eventType) || eventType === "הכל" || place.eventTypes.includes(eventType)) && (!guests || place.capacityScope === "unit" || place.guests >= guests) && (!noNoiseLimit || place.features.some((feature) => feature.includes("ללא הגבלת רעש"))) && (!accessibleOnly || getPlaceAccessibility(place.slug).status === "accessible"));
+    const result = eventPlaces.filter((place) => matchesSearchLocation(place, area) && matchesHardFilters(place));
     return [...result].sort((a, b) => {
       if (sort === "capacity") return b.guests - a.guests;
       if (sort === "name") return a.name.localeCompare(b.name, "he");
@@ -144,16 +151,17 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
     });
   }, [accessibleOnly, area, eventFrom, eventPlaces, eventType, eventTypes, guests, noNoiseLimit, sort, supplierSearch.results, supplierSearch.status, type, types]);
 
-  const nearbyRecovery = useMemo(() => filtered.length === 0 && area !== "הכל" && area !== "כל הארץ"
-    ? nearbyPlacesForSelection(eventPlaces, managedGeography, area, { limit: 12, maximumDistanceKm: 100 })
-    : [], [area, eventPlaces, filtered.length, managedGeography]);
-  const resultSet = useMemo(() => filtered.length > 0 ? filtered : nearbyRecovery.map((candidate) => candidate.place), [filtered, nearbyRecovery]);
-  const nearbyCopy = {
-    he: { title: `לא מצאנו מקום לאירוע בתוך ${area}`, text: "מציגים מקומות קרובים לפי המרחק מהיישוב שבחרתם. היישוב האמיתי נשאר גלוי בכל כרטיס." },
-    en: { title: `No event venue was found in ${area}`, text: "Showing nearby venues ordered by distance. Each card keeps the venue's actual city." },
-    ru: { title: `В ${area} площадок не найдено`, text: "Показываем ближайшие площадки по расстоянию. В каждой карточке указан фактический город." },
-    fr: { title: `Aucun lieu événementiel trouvé à ${area}`, text: "Nous affichons les lieux proches, classés par distance. La ville réelle reste visible sur chaque fiche." },
-  }[language];
+  const nearbyRecovery = useMemo(() => {
+    if (filtered.length >= 3 || area === "הכל" || area === "כל הארץ") return [];
+    // Broaden geography only; a supplier-confirmed unavailable venue remains excluded.
+    const eligible = eventPlaces.filter((place) => matchesHardFilters(place)).filter((place) => {
+      const match = /^event-(\d+)$/.exec(place.slug);
+      return !eventFrom || !guests || supplierSearch.status !== "ready"
+        || supplierSearch.results[Number(match?.[1] || -1)]?.available !== false;
+    });
+    return nearbyPlacesForSelection(eligible, managedGeography, area, { limit: 12, maximumDistanceKm: 100, minimumResults: 3 });
+  }, [accessibleOnly, area, eventFrom, eventPlaces, eventType, eventTypes, filtered.length, guests, managedGeography, noNoiseLimit, supplierSearch.results, supplierSearch.status, type, types]);
+  const resultSet = useMemo(() => completeNearbyResults(filtered, nearbyRecovery.map((candidate) => candidate.place), (place) => place.slug), [filtered, nearbyRecovery]);
 
   const displayed = useMemo(() => {
     if (!mapOpen || !mapVisibleIds) return resultSet;
@@ -167,7 +175,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
       world: "events",
       location: area,
       hasDate: Boolean(eventFrom),
-      resultCount: filtered.length,
+      resultCount: resultSet.length,
       filters: {
         ...(type !== "הכל" ? { type } : {}),
         ...(eventType !== "הכל" ? { eventType } : {}),
@@ -178,7 +186,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
       },
     }), 650);
     return () => window.clearTimeout(timer);
-  }, [accessibleOnly, area, catalogError, catalogLoading, eventFrom, eventType, filtered.length, guests, hours, noNoiseLimit, type]);
+  }, [accessibleOnly, area, catalogError, catalogLoading, eventFrom, eventType, resultSet.length, guests, hours, noNoiseLimit, type]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => { setMapVisibleIds(null); setActiveMapPlaceId(null); }, 0);
@@ -237,7 +245,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
           <section className={`event-list results-view results-view--${viewMode}${mapOpen ? " event-list--map-open" : ""}`}>
             <section className="results-heading"><div><h1>{landingTitle && area === initialArea && type === "הכל" && eventType === "הכל" ? landingTitle : eventHeading}</h1><div className="results-heading__meta"><p>{displayed.length} מקומות מתאימים לחיפוש</p>{landingDescription && area === initialArea && type === "הכל" && eventType === "הכל" ? <p>{landingDescription}</p> : null}</div></div></section>
             {guests > 0 && eventPlaces.some((place) => place.capacityScope === "unit") ? <SupplierCapacityNotice /> : null}
-            {nearbyRecovery.length > 0 ? <div className="availability-demo-summary availability-demo-summary--live" role="status"><strong>{nearbyCopy.title}</strong><span>{nearbyCopy.text}</span><small>{Math.round(nearbyRecovery[0].distanceKm)} עד {Math.round(nearbyRecovery.at(-1)?.distanceKm || 0)} ק״מ</small></div> : null}
+            {resultSet.length > filtered.length ? <NearbySearchNotice dated={Boolean(eventFrom)} /> : null}
             <div className="results-toolbar"><div className="results-toolbar__actions"><ResultsViewToggle value={viewMode} onChange={setViewMode} />{resultSet.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתוצאות" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onPointerEnter={preloadListingMap} onFocus={preloadListingMap} onTouchStart={preloadListingMap} onClick={toggleResultsMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לתוצאות" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect className="results-toolbar__sort" compact label="מיון לפי" value={sort} onChange={(value) => changeFilter("sort", value)} options={sortOptions} /></div>
             {mapOpen && <div className="event-map-pane"><DeferredListingMap listings={resultSet} mode="events" autoLoad onClose={closeResultsMap} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPlaceId} onActivePlaceChange={setActiveMapPlaceId} /></div>}{displayed.map((place) => <EventResultCard key={place.slug} place={place} href={detailHref(place)} supplierStatus={supplierStatus(place.slug)} mapActive={activeMapPlaceId === place.slug} onActiveChange={(active) => { if (mapOpen) setActiveMapPlaceId(active ? place.slug : null); }} />)}
             {!catalogLoading && !catalogError && displayed.length === 0 && <div className="empty-state"><h2>לא נמצאה התאמה או מקום קרוב</h2><p>אפשר להפחית את כמות המשתתפים או להסיר סינון.</p><button className="button primary" type="button" onClick={reset}>ניקוי סינונים</button></div>}

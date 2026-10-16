@@ -44,31 +44,54 @@ export function nearbyPlacesForSelection<T extends CoordinatePlace>(
   places: readonly T[],
   nodes: readonly PublicGeographyNode[],
   selection: string,
-  options: { limit?: number; maximumDistanceKm?: number } = {},
+  options: { limit?: number; maximumDistanceKm?: number; minimumResults?: number } = {},
 ): NearbyPlace<T>[] {
   const target = geographyNodeForSelection(nodes, selection);
-  if (!target || target.gpsLat === null || target.gpsLong === null) return [];
+  if (!target) return [];
+  const descendantKeys = new Set([target.key]);
+  for (let pass = 0; pass < nodes.length; pass++) {
+    const before = descendantKeys.size;
+    for (const node of nodes) if (node.parentKey && descendantKeys.has(node.parentKey)) descendantKeys.add(node.key);
+    if (before === descendantKeys.size) break;
+  }
+  const childPoints = nodes.filter((node) => descendantKeys.has(node.key) && node.level === "city"
+    && Number.isFinite(node.gpsLat) && Number.isFinite(node.gpsLong));
+  const origin = Number.isFinite(target.gpsLat) && Number.isFinite(target.gpsLong)
+    ? { lat: target.gpsLat!, lng: target.gpsLong! }
+    : childPoints.length ? {
+      lat: childPoints.reduce((sum, node) => sum + node.gpsLat!, 0) / childPoints.length,
+      lng: childPoints.reduce((sum, node) => sum + node.gpsLong!, 0) / childPoints.length,
+    } : null;
+  if (!origin) return [];
   const maximumDistanceKm = options.maximumDistanceKm ?? 100;
   const limit = options.limit ?? 12;
+  const minimumResults = Math.max(0, options.minimumResults ?? 0);
   const coordinatesByLocation = new Map(nodes
     .filter((node) => node.level === "city" && node.gpsLat !== null && node.gpsLong !== null)
     .flatMap((node) => [node.title, node.titleEn, node.slug]
       .map(normalized)
       .filter(Boolean)
       .map((name) => [name, { lat: node.gpsLat as number, lng: node.gpsLong as number }] as const)));
-  return places
+  const seen = new Set<unknown>();
+  const ranked = places.filter((place) => {
+      const identity = (place as { id?: unknown; slug?: string }).id || (place as { slug?: string }).slug || place;
+      if (seen.has(identity)) return false;
+      seen.add(identity);
+      return true;
+    })
     .map((place) => {
       const coordinates = Number.isFinite(place.lat) && Number.isFinite(place.lng)
         ? { lat: place.lat as number, lng: place.lng as number }
         : coordinatesByLocation.get(normalized(place.location));
-      return coordinates ? { place, distanceKm: distanceKm(
-        { lat: target.gpsLat as number, lng: target.gpsLong as number },
-        coordinates,
-      ) } : null;
+      return coordinates ? { place, distanceKm: distanceKm(origin, coordinates) } : null;
     })
     .filter((candidate): candidate is NearbyPlace<T> => candidate !== null)
-    .filter((candidate) => candidate.distanceKm <= maximumDistanceKm)
     .sort((left, right) => left.distanceKm - right.distanceKm
       || normalized(left.place.location).localeCompare(normalized(right.place.location), "he"))
-    .slice(0, limit);
+  const bounded = ranked.filter((candidate) => candidate.distanceKm <= maximumDistanceKm);
+  // Keep the normal radius when it already satisfies the requested minimum.
+  // If it does not, expand geographically to the closest real candidates. We
+  // never relax the caller's hard filters because this helper only receives
+  // the already-filtered inventory.
+  return (bounded.length >= minimumResults ? bounded : ranked).slice(0, limit);
 }

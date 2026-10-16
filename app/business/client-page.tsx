@@ -15,7 +15,8 @@ import { ListingAccessibility } from "../components/listing-accessibility";
 import { SleepingArrangements } from "../components/sleeping-arrangements";
 import { getListingOfferings, properties, propertyFaq, type BusinessWorld, type ListingFeatureGroup, type ListingHighlightIcon, type Property } from "../data/site-data";
 import { discoveryItems, type DiscoveryItem } from "../data/world-data";
-import { nearbyTrails } from "../data/trail-data";
+import { nearbyTrails, type Trail } from "../data/trail-data";
+import { nearbyRecommendations, nearbyRecommendationCopy } from "../lib/nearby-recommendations";
 import { TrailCard } from "../components/trail-card";
 import { GalleryExperience } from "../components/gallery-experience";
 import { useGalleryDeepLink } from "../components/use-gallery-deep-link";
@@ -41,29 +42,6 @@ import { PropertyGallery } from "../components/property-gallery";
 import { FloatingContactActions } from "../components/floating-contact-actions";
 import type { SupplierPlaceDetail } from "../data/supplier-place-detail";
 import { trackBusinessEvent } from "../lib/analytics";
-
-function distanceKm(lat: number, lng: number, targetLat: number, targetLng: number) {
-  const radians = Math.PI / 180;
-  const difference = (targetLng - lng) * radians;
-  return 6371 * Math.acos(Math.min(1, Math.max(-1,
-    Math.sin(lat * radians) * Math.sin(targetLat * radians)
-      + Math.cos(lat * radians) * Math.cos(targetLat * radians) * Math.cos(difference),
-  )));
-}
-
-function complementaryItems(area: string, location: string, lat?: number, lng?: number): DiscoveryItem[] {
-  return discoveryItems
-    .filter((item) => item.world === "spa" || item.world === "activities")
-    .map((item) => {
-      const distance = typeof lat === "number" && typeof lng === "number" && typeof item.lat === "number" && typeof item.lng === "number"
-        ? distanceKm(lat, lng, item.lat, item.lng) : null;
-      return { item, distance };
-    })
-    .filter(({ item, distance }) => distance !== null ? distance <= 35 : item.location === location)
-    .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity) || Number(b.item.location === location) - Number(a.item.location === location))
-    .map(({ item }) => item)
-    .slice(0, 6);
-}
 
 function bedroomLabel(count: number) {
   return count === 1 ? "חדר שינה אחד" : `${count} חדרי שינה`;
@@ -151,7 +129,7 @@ function roomBookingHref(bookingQuery: string, index: number, nightlyPrice: numb
   params.set("price", String(nightlyPrice));
   return `/booking?${params.toString()}`;
 }
-export default function BusinessPage({ initialSlug, initialProperty, relatedProperties, supplierDetail, initialWorld = "vacation", initialDates, initialFrom, initialTill, initialGuests = "2", initialPrice, initialIllustrative = false, initialSource, initialPeriod }: { initialSlug: string; initialProperty?: Property; relatedProperties?: Property[]; supplierDetail?: SupplierPlaceDetail; initialWorld?: BusinessWorld; initialDates?: string; initialFrom?: string; initialTill?: string; initialGuests?: string; initialRooms?: string; initialPrice?: string; initialIllustrative?: boolean; initialSource?: string; initialPeriod?: string }) {
+export default function BusinessPage({ initialSlug, initialProperty, relatedProperties, trailInventory, complementaryInventory, supplierDetail, initialWorld = "vacation", initialDates, initialFrom, initialTill, initialGuests = "2", initialPrice, initialIllustrative = false, initialSource, initialPeriod }: { initialSlug: string; initialProperty?: Property; relatedProperties?: Property[]; trailInventory?: Trail[]; complementaryInventory?: DiscoveryItem[]; supplierDetail?: SupplierPlaceDetail; initialWorld?: BusinessWorld; initialDates?: string; initialFrom?: string; initialTill?: string; initialGuests?: string; initialRooms?: string; initialPrice?: string; initialIllustrative?: boolean; initialSource?: string; initialPeriod?: string }) {
   const { language, translate } = useSiteLanguage();
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [dates, setDates] = useState(initialDates || "");
@@ -262,8 +240,10 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
   const featureGroups = property.featureGroups?.length ? property.featureGroups : derivedFeatureGroups(property.features);
   const mobileFeaturePreview = featureGroups.flatMap((group) => group.items).slice(0, 4);
   const placeGalleryImages = property.images;
-  const complements = useMemo(() => complementaryItems(property.area, property.location, property.lat, property.lng), [property.area, property.location, property.lat, property.lng]);
-  const localTrails = useMemo(() => nearbyTrails(property.area, property.location, 6), [property.area, property.location]);
+  const complementSelection = useMemo(() => nearbyRecommendations((complementaryInventory || discoveryItems).filter((item) => item.world === "spa" || item.world === "activities"), property, { key: (item) => `${item.world}:${item.id}` }), [complementaryInventory, property]);
+  const complements = complementSelection.items;
+  const localTrails = useMemo(() => nearbyTrails(property.area, property.location, 6, { inventory: trailInventory, lat: property.lat, lng: property.lng }), [trailInventory, property.area, property.location, property.lat, property.lng]);
+  const nearbyCopy = nearbyRecommendationCopy[language];
   const regionalVacationLanding = useMemo(() => vacationBreadcrumbForLocation(property.area), [property.area]);
   const matchingProviders = useMemo(() => {
     const providers = discoveryItems.filter((item) => item.world === "providers" && item.image);
@@ -471,10 +451,10 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
                 <div><h2>{translate("מה יש בסביבה של")} {localizedPropertyName}?</h2></div>
                 <span className="section-head__links property-complements__nav"><Link href="/trails"><b aria-hidden="true">↗</b> מסלולי טיול</Link><Link href="/attractions"><b aria-hidden="true">✦</b> אטרקציות</Link></span>
               </div>
-              <p className="property-complements__note">{typeof property.lat === "number" && typeof property.lng === "number" ? "מקומות במרחק משוער של עד 35 ק״מ, מהקרוב לרחוק. נקודת המיקום עשויה לייצג את מרכז היישוב." : `מקומות שאומתו ביישוב ${property.location}. לא זמין כרגע מרחק מדויק למקומות אחרים.`}</p>
+              <p className="property-complements__note">{complementSelection.expanded ? `${nearbyCopy.expanded} ` : ""}{complementSelection.regionalOnly ? nearbyCopy.regional : nearbyCopy.places}</p>
             </div>
             {complements.length ? <div className="discovery-grid discovery-grid--compact">{complements.map((item) => <DiscoveryCard key={`${item.world}-${item.id}`} item={item} />)}</div> : <p>לא נמצאו כרגע מקומות עם מיקום מתאים שאפשר לאמת בסביבה הקרובה.</p>}
-            {localTrails.length ? <div className="property-nearby-trails"><div className="section-head"><div><span className="eyebrow">טיול עצמאי באזור</span><h2>מסלולים באזור</h2><p>המסלולים מותאמים לשם היישוב או האזור. אין כרגע נקודות מיקום מאומתות לחישוב מרחק מדויק ביניהם.</p></div><Link href="/trails">לכל המסלולים</Link></div><div className="trail-grid trail-grid--business">{localTrails.map((trail) => <TrailCard key={trail.slug} trail={trail} compact />)}</div></div> : null}
+            {localTrails.length ? <div className="property-nearby-trails"><div className="section-head"><div><span className="eyebrow">טיול עצמאי באזור</span><h2>מסלולים באזור</h2><p>{nearbyCopy.trails}</p></div><Link href="/trails">לכל המסלולים</Link></div><div className="trail-grid trail-grid--business">{localTrails.map((trail) => <TrailCard key={trail.slug} trail={trail} compact />)}</div></div> : null}
           </div>
         </section>
 

@@ -349,9 +349,9 @@ test("spa, hourly, event and attraction worlds expose interactive maps", async (
   assert.match(mapSource, /map-tone--\$\{tone\}/);
   assert.match(worldData, /mapPrecision: coordinates \? "area" : undefined/);
   assert.match(worldData, /mapPrecision: "exact"/);
-  assert.match(hourlyResults, /<DeferredDiscoveryMap items=\{filtered\} tone="hourly" autoLoad onClose=/);
+  assert.match(hourlyResults, /<DeferredDiscoveryMap items=\{resultItems\} tone="hourly" autoLoad onClose=/);
   assert.match(worldResults, /<DeferredDiscoveryMap items=\{items\} tone=\{world\} autoLoad onClose=/);
-  assert.match(attractionResults, /<DeferredDiscoveryMap items=\{filtered\} tone="activities" autoLoad onClose=/);
+  assert.match(attractionResults, /<DeferredDiscoveryMap items=\{resultItems\} tone="activities" autoLoad onClose=/);
   for (const source of [hourlyResults, worldResults, attractionResults, searchResults, eventResults]) assert.match(source, /mobile-map-fab/);
   assert.match(styles, /\.mobile-map-fab \{/);
   assert.match(styles, /bottom: calc\(18px \+ env\(safe-area-inset-bottom\)\)/);
@@ -619,7 +619,8 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(sleeping, /כל כרטיס מייצג חדר שינה ולא יחידת אירוח/);
   assert.match(sleeping, /alt=\{`\$\{arrangement\.name\} ב\$\{placeName\}`\}/);
   assert.match(business, /translate\("מה יש בסביבה של"\).*\{localizedPropertyName\}\?/);
-  assert.match(business, /complementaryItems/);
+  assert.match(business, /complementaryInventory/);
+  assert.match(business, /nearbyRecommendations/);
   assert.match(eventPlace, /ספקים שיכולים להשלים את החגיגה/);
   assert.match(eventPlace, /הפרטים מבוססים על מידע ציבורי/);
   assert.match(business, /bookingQuery/);
@@ -1321,7 +1322,7 @@ test("spa results expose working place and amenity filters before the result lis
 
   const source = await readFile(new URL("../app/components/world-map-results.tsx", import.meta.url), "utf8");
   assert.match(source, /selectedFilters\.every/);
-  assert.match(source, /<DeferredDiscoveryMap items=\{filtered\} initialItems=\{filtered\}/);
+  assert.match(source, /<DeferredDiscoveryMap items=\{resultItems\} initialItems=\{resultItems\}/);
   assert.match(source, /onVisibleCountChange=\{setVisibleMapCount\}/);
   assert.match(source, /displayed\.map\(\(item\)/);
 

@@ -1,3 +1,6 @@
+import { distanceKm } from "../lib/geography-search.ts";
+import { nearbyPoint, nearbyRegion } from "../lib/nearby-recommendations.ts";
+
 export type TrailDifficulty = "קל" | "בינוני" | "למיטיבי לכת";
 
 export const mainTrailAreas = ["צפון", "כנרת", "חיפה", "מרכז", "תל אביב", "דרום ונגב", "ירושלים", "אילת והסביבה"] as const;
@@ -404,16 +407,21 @@ export function getTrail(slug: string) {
   return trails.find((trail) => trail.slug === slug) || trails[0];
 }
 
-export function nearbyTrails(area: string, location: string, limit = 6) {
-  return trails
-    .map((trail) => ({ trail, score: trail.areaTags.reduce((score, tag) => {
+export function nearbyTrails(area: string, location: string, limit = 6,
+  options: { inventory?: readonly Trail[]; excludeSlug?: string; lat?: number; lng?: number } = {}) {
+  const origin = nearbyPoint({ area, location, lat: options.lat, lng: options.lng });
+  const mainArea = nearbyRegion(area) || nearbyRegion(location);
+  const seen = new Set<string>();
+  const ranked = (options.inventory || trails)
+    .filter((trail) => trail.slug !== options.excludeSlug && !seen.has(trail.slug) && !!seen.add(trail.slug))
+    .map((trail, index) => ({ trail, index, score: trail.areaTags.reduce((score, tag) => {
       if (tag.length < 3) return score;
       if (location === tag || location.includes(tag)) return Math.max(score, 2);
       if (area === tag || area.includes(tag)) return Math.max(score, 1);
       return score;
-    }, 0) }))
-    .filter(({ score }) => score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, limit)
+    }, trail.mainArea === mainArea ? 1 : 0), distance: origin && nearbyPoint({ area: trail.mainArea }) ? distanceKm(origin, nearbyPoint({ area: trail.mainArea })!) : Infinity }))
+    .sort((a, b) => b.score - a.score || a.distance - b.distance || a.index - b.index);
+  const matches = ranked.filter(({ score }) => score > 0).length;
+  return ranked.slice(0, Math.min(Math.max(0, limit), Math.max(matches, 3)))
     .map(({ trail }) => trail);
 }

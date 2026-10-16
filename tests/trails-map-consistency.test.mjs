@@ -8,7 +8,7 @@ const listingMap = await readFile(new URL("../app/components/listing-map.tsx", i
 
 test("trails share the responsive map control used by every non-provider world", () => {
   assert.match(explorer, /map-button mobile-map-fab/);
-  assert.match(explorer, /DeferredTrailMap trails={filtered}/);
+  assert.match(explorer, /DeferredTrailMap trails={resultTrails}/);
   assert.match(deferredMap, /module\.TrailMap/);
   assert.match(listingMap, /export function TrailMap/);
   assert.match(listingMap, /precision: "area"/);

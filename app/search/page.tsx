@@ -42,6 +42,8 @@ import { trackSearchResults } from "../lib/analytics";
 import { matchesVacationSearchFilter } from "../lib/vacation-search-filter-index";
 import { vacationRoomGuests, vacationRoomsFromSearchParams } from "../lib/vacation-party";
 import { nearbyPlacesForSelection } from "../lib/geography-search";
+import { completeNearbyResults } from "../lib/nearby-recommendations";
+import { NearbySearchNotice } from "../components/nearby-search-notice";
 import { useManagedGeography } from "../components/use-managed-geography";
 
 export type SearchLandingContext = {
@@ -640,16 +642,23 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [area, availabilityDemoActive, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, guests, landing, liveAvailabilityBySlug, maxPrice, minPrice, supplierSearch, mapCandidates, pathname, requestedLocation, selectedStay, selectedTypes, sort]);
 
-  const nearbyRecovery = useMemo(() => filtered.length === 0 && !isWholeCountrySelection(area)
-    ? nearbyPlacesForSelection(mapCandidates, managedGeography, area, { limit: 12, maximumDistanceKm: 100 })
-    : [], [area, filtered.length, managedGeography, mapCandidates]);
-  const resultSet = useMemo(() => filtered.length > 0 ? filtered : nearbyRecovery.map((candidate) => candidate.place), [filtered, nearbyRecovery]);
-  const nearbyCopy = {
-    he: { title: `לא מצאנו מקום בתוך ${area}`, text: "מציגים מקומות קרובים לפי המרחק מהיישוב שבחרתם. העיר האמיתית של כל מקום נשארת גלויה בכרטיס." },
-    en: { title: `No place was found in ${area}`, text: "Showing nearby places ordered by distance from your selected destination. Each card keeps the place's actual city." },
-    ru: { title: `В ${area} мест не найдено`, text: "Показываем ближайшие варианты по расстоянию от выбранного места. В каждой карточке указан фактический город." },
-    fr: { title: `Aucun lieu trouvé à ${area}`, text: "Nous affichons les lieux proches, classés par distance. La ville réelle de chaque lieu reste visible sur sa fiche." },
-  }[language];
+  const nearbyRecovery = useMemo(() => {
+    if (filtered.length >= 3 || isWholeCountrySelection(area)) return [];
+    // A nearby fallback may broaden geography only. An explicit supplier
+    // unavailability for the selected dates remains a hard exclusion.
+    const eligible = mapCandidates.filter((property) => {
+      const priceFilterActive = minPrice > VACATION_PRICE_MIN || maxPrice < VACATION_PRICE_MAX;
+      if (priceFilterActive) {
+        const livePrice = liveAvailabilityFor(property.slug)?.quote?.nightlyPrice;
+        const price = typeof livePrice === "number" && livePrice > 0 ? livePrice : property.price;
+        if (typeof price !== "number" || price < minPrice || price > maxPrice) return false;
+      }
+      if (!selectedStay && !flexibleSearch) return true;
+      return liveAvailabilityFor(property.slug)?.quote?.availability !== "unavailable";
+    });
+    return nearbyPlacesForSelection(eligible, managedGeography, area, { limit: 12, maximumDistanceKm: 100, minimumResults: 3 });
+  }, [VACATION_PRICE_MAX, VACATION_PRICE_MIN, area, filtered.length, managedGeography, mapCandidates, maxPrice, minPrice, selectedStay, flexibleSearch, supplierSearch.results, supplierSearch.status, liveAvailabilityBySlug, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug]);
+  const resultSet = useMemo(() => completeNearbyResults(filtered, nearbyRecovery.map((candidate) => candidate.place), (place) => place.slug), [filtered, nearbyRecovery]);
 
   useEffect(() => {
     if (catalogLoading || catalogError) return;
@@ -657,7 +666,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       world: "vacation",
       location: area === "הכל" ? "כל הארץ" : area,
       hasDate: Boolean(selectedStay?.from),
-      resultCount: filtered.length,
+      resultCount: resultSet.length,
       filters: {
         ...(selectedTypes.length ? { type: selectedTypes.join(",") } : {}),
         ...(guests > 2 ? { guests } : {}),
@@ -668,7 +677,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       },
     }), 650);
     return () => window.clearTimeout(timer);
-  }, [accessibleOnly, area, catalogError, catalogLoading, filtered.length, guests, pool, selectedExtras, selectedStay?.from, selectedTypes, spa]);
+  }, [accessibleOnly, area, catalogError, catalogLoading, resultSet.length, guests, pool, selectedExtras, selectedStay?.from, selectedTypes, spa]);
 
   const draftCandidates = properties.filter((property) => {
     const matchesType = !supplierTypeFilterAvailable || matchesAnyAccommodationType(property.type, shownFilters.selectedTypes, landing);
@@ -732,7 +741,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
 
   function openResultsMap() {
     setMapVisibleIds(null);
-    setVisibleMapCount(filtered.length);
+    setVisibleMapCount(resultSet.length);
     openMap();
   }
 
@@ -895,7 +904,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
             {activeFilters.length > 0 && <div className="active-filter-row"><span>סינונים פעילים:</span>{activeFilters.map((filter) => <button key={filter.id} type="button" onClick={filter.remove} aria-label={`הסרת הסינון ${filter.label}`}>{filter.label} ×</button>)}<button type="button" className="clear-all" onClick={resetFilters}>ניקוי הכל</button></div>}
             {availabilityDemoActive ? <div className="availability-demo-summary" role="status"><strong>{availabilityDemoCopy[language].title}</strong><span>{availabilityDemoCopy[language].text}</span><small>{selectedStay?.from}{" "}{String.fromCharCode(183)}{" "}{selectedStay?.till}</small></div> : null}
             {flexibleSearch ? <div className="availability-demo-summary availability-demo-summary--live" role="status"><strong>{flexibleAvailabilityCopy[language].title}</strong><span>{flexibleAvailabilityCopy[language].text}</span></div> : null}
-            {nearbyRecovery.length > 0 ? <div className="availability-demo-summary availability-demo-summary--live" role="status"><strong>{nearbyCopy.title}</strong><span>{nearbyCopy.text}</span><small>{Math.round(nearbyRecovery[0].distanceKm)} עד {Math.round(nearbyRecovery.at(-1)?.distanceKm || 0)} ק״מ</small></div> : null}
+            {resultSet.length > filtered.length ? <NearbySearchNotice dated={Boolean(selectedStay || flexibleSearch)} /> : null}
             <div className="results-toolbar"><div className="results-toolbar__actions"><ResultsViewToggle value={viewMode} onChange={setViewMode} />{resultSet.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתוצאות" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onPointerEnter={preloadListingMap} onFocus={preloadListingMap} onTouchStart={preloadListingMap} onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (mapOpen) closeResultsMap(); else openResultsMap(); }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לתוצאות" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect className="results-toolbar__sort" compact label="מיון לפי" value={sort} onChange={changeSort} options={vacationSortOptions} /></div>
             {guests > 2 && properties.some((property) => property.capacityScope === "unit") ? <SupplierCapacityNotice /> : null}
             {!mapOpen && <ProgressiveResults autoLoad className={`result-cards results-view results-view--${viewMode}`} resetKey={resultWindowKey} totalCount={displayedResults.length} visibleCount={visibleResults.length} onShowMore={() => setVisibleResultCount((current) => Math.min(displayedResults.length, current + 9))}>{visibleResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStayFor(property.slug)} liveAvailabilityState={liveAvailabilityFor(property.slug)} detailHref={detailHref(property.slug)} />)}</ProgressiveResults>}

@@ -17,6 +17,8 @@ import { ResultsViewToggle, useResultsViewMode } from "./results-view-toggle";
 import { ProgressiveResults } from "./progressive-results";
 import { rotateWithinTiers } from "../lib/daily-rotation";
 import { trackSearchResults } from "../lib/analytics";
+import { nearbyRecommendations, completeNearbyResults } from "../lib/nearby-recommendations";
+import { NearbySearchNotice } from "./nearby-search-notice";
 
 const featureFilters = [
   { id: "parking", label: "חניה", terms: ["חניה"] },
@@ -66,20 +68,36 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
     return locationMatches && priceMatches && featuresMatch;
   }), (item) => Number.isFinite(twoHourPrice(item)) && item.image ? 0 : Number.isFinite(twoHourPrice(item)) ? 1 : 2,
   (item) => item.id, "hourly-search"), [features, items, location, maximumPrice]);
+  const nearbyRecovery = useMemo(() => {
+    if (filtered.length >= 3 || location === "כל הארץ") return [];
+    const anchors = items.filter((item) => matchesSearchLocation(item, location) && Number.isFinite(item.lat) && Number.isFinite(item.lng));
+    const center = anchors.length ? {
+      lat: anchors.reduce((sum, item) => sum + (item.lat as number), 0) / anchors.length,
+      lng: anchors.reduce((sum, item) => sum + (item.lng as number), 0) / anchors.length,
+    } : {};
+    const eligible = items.filter((item) => {
+      const priceMatches = maximumPrice === 0 || twoHourPrice(item) <= maximumPrice;
+      const searchable = `${item.description} ${item.features.join(" ")}`;
+      const featuresMatch = features.every((featureId) => featureFilters.find((filter) => filter.id === featureId)?.terms.some((term) => searchable.includes(term)) ?? true);
+      return priceMatches && featuresMatch;
+    });
+    return nearbyRecommendations(eligible, { location, area: location, ...center }, { key: (item) => item.id, limit: 12 }).items;
+  }, [features, filtered, items, location, maximumPrice]);
+  const resultItems = useMemo(() => completeNearbyResults(filtered, nearbyRecovery, (item) => item.id), [filtered, nearbyRecovery]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => trackSearchResults({
       world: "hourly",
       location,
       hasDate: false,
-      resultCount: filtered.length,
+      resultCount: resultItems.length,
       filters: {
         ...(maximumPrice ? { maxPrice: maximumPrice } : {}),
         ...(features.length ? { features: features.join(",") } : {}),
       },
     }), 650);
     return () => window.clearTimeout(timer);
-  }, [features, filtered.length, location, maximumPrice]);
+  }, [features, resultItems.length, location, maximumPrice]);
 
   function updateUrl(updates: Record<string, string>) {
     const params = new URLSearchParams(window.location.search);
@@ -108,12 +126,12 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
     updateUrl({ location: "", maxPrice: "", features: "" });
   }
 
-  const resultLabel = filtered.length === 1 ? "נמצא מקום אחד" : `נמצאו ${filtered.length} מקומות`;
+  const resultLabel = resultItems.length === 1 ? "נמצא מקום אחד" : `נמצאו ${resultItems.length} מקומות`;
   const displayed = useMemo(() => {
-    if (!mapOpen || !mapVisibleIds) return filtered;
+    if (!mapOpen || !mapVisibleIds) return resultItems;
     const visible = new Set(mapVisibleIds);
-    return filtered.filter((item) => visible.has(item.id));
-  }, [filtered, mapOpen, mapVisibleIds]);
+    return resultItems.filter((item) => visible.has(item.id));
+  }, [mapOpen, mapVisibleIds, resultItems]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setMapVisibleIds(null), 0);
@@ -132,13 +150,14 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
   }
 
   return <div className="hourly-results">
+    {resultItems.length > filtered.length && <NearbySearchNotice />}
     <div className="hourly-results__toolbar" aria-label="סינון תוצאות של חדרים לפי שעה">
       <div className="hourly-results__heading">
         <div><h2 aria-live="polite">{resultLabel}</h2></div>
         <div className="hourly-results__actions">
           <ResultsViewToggle value={viewMode} onChange={setViewMode} />
           <button type="button" className={`hourly-filter-toggle ${moreFiltersOpen ? "active" : ""}`} aria-expanded={moreFiltersOpen} aria-controls="hourly-result-filters" onClick={() => setMoreFiltersOpen((value) => !value)}>סינון{features.length ? ` (${features.length})` : ""}</button>
-          {filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onPointerEnter={preloadListingMap} onFocus={preloadListingMap} onTouchStart={preloadListingMap} onClick={toggleResultsMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
+          {resultItems.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onPointerEnter={preloadListingMap} onFocus={preloadListingMap} onTouchStart={preloadListingMap} onClick={toggleResultsMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
         </div>
       </div>
       <div id="hourly-result-filters" className={`hourly-results__filters ${moreFiltersOpen ? "open" : ""}`}>
@@ -149,6 +168,6 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
         <button type="button" className="hourly-results__reset" onClick={resetFilters} disabled={location === "כל הארץ" && maximumPrice === 0 && features.length === 0}>ניקוי סינונים</button>
       </div>
     </div>
-    {filtered.length > 0 ? mapOpen ? <div className="airbnb-map-split world-map-split"><div className={`airbnb-map-split__results discovery-grid results-view results-view--${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div><div className="airbnb-map-split__map"><DeferredDiscoveryMap items={filtered} tone="hourly" autoLoad onClose={closeResultsMap} onVisiblePlaceIdsChange={setMapVisibleIds} /></div></div> : <ProgressiveResults className={`discovery-grid results-view results-view--${viewMode}`} resetKey={`${location}|${maximumPrice}|${features.join(",")}|${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</ProgressiveResults> : <div className="hourly-results__empty"><strong>לא נמצאו מקומות שמתאימים לכל הסינונים</strong><p>אפשר להרחיב את האזור או להסיר אחד מהמאפיינים.</p><button type="button" className="button secondary" onClick={resetFilters}>הצגת כל המקומות</button></div>}
+    {resultItems.length > 0 ? mapOpen ? <div className="airbnb-map-split world-map-split"><div className={`airbnb-map-split__results discovery-grid results-view results-view--${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div><div className="airbnb-map-split__map"><DeferredDiscoveryMap items={resultItems} tone="hourly" autoLoad onClose={closeResultsMap} onVisiblePlaceIdsChange={setMapVisibleIds} /></div></div> : <ProgressiveResults className={`discovery-grid results-view results-view--${viewMode}`} resetKey={`${location}|${maximumPrice}|${features.join(",")}|${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</ProgressiveResults> : <div className="hourly-results__empty"><strong>לא נמצאו מקומות שמתאימים לכל הסינונים</strong><p>אפשר להרחיב את האזור או להסיר אחד מהמאפיינים.</p><button type="button" className="button secondary" onClick={resetFilters}>הצגת כל המקומות</button></div>}
   </div>;
 }

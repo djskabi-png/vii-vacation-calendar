@@ -8,7 +8,7 @@ const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf
 test("spa result actions sit in a clean toolbar immediately above the results", () => {
   const filterStrip = component.indexOf('className="spa-results__filter-strip"');
   const resultsHeading = component.indexOf('className="spa-results__heading"');
-  const resultCards = component.indexOf("filtered.length > 0 ? mapOpen");
+  const resultCards = component.indexOf("resultItems.length > 0 ? mapOpen");
 
   assert.ok(filterStrip > -1, "spa filter strip is present");
   assert.ok(resultsHeading > filterStrip, "result actions are outside and after the filter strip");

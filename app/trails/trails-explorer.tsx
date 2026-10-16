@@ -3,12 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { TrailCard } from "../components/trail-card";
-import { natureTypes, regions, trails, type Trail, type TrailDifficulty } from "../data/trail-data";
+import { natureTypes, regions, trails, nearbyTrails, type Trail, type TrailDifficulty } from "../data/trail-data";
 import { DeferredTrailMap } from "../components/deferred-listing-map";
 import { useMapViewState } from "../components/map-view-state";
 import { MapIcon } from "../site-header";
 import { ProgressiveResults } from "../components/progressive-results";
 import { rotateWithinTiers } from "../lib/daily-rotation";
+import { completeNearbyResults } from "../lib/nearby-recommendations";
+import { NearbySearchNotice } from "../components/nearby-search-notice";
 
 const difficulties: Array<"הכל" | TrailDifficulty> = ["הכל", "קל", "בינוני", "למיטיבי לכת"];
 const regionOptions = regions.filter((item) => item !== "הכל");
@@ -46,6 +48,17 @@ export function TrailsExplorer({ items = trails }: { items?: Trail[] }) {
       && (!query.trim() || searchable.includes(query.trim()));
   }), (trail) => query.trim() && !trail.name.includes(query.trim()) ? 1 : 0,
   (trail) => trail.slug, "trail-search"), [items, selectedRegions, selectedNatures, selectedDifficulties, query]);
+  const nearbyRecovery = useMemo(() => {
+    if (filtered.length >= 3 || selectedRegions.length === 0) return [];
+    const eligible = items.filter((trail) => {
+      if (selectedNatures.length && !selectedNatures.some((item) => trail.nature.includes(item))) return false;
+      if (selectedDifficulties.length && !selectedDifficulties.includes(trail.difficulty)) return false;
+      if (query.trim() && !`${trail.name} ${trail.mainArea} ${trail.region} ${trail.areaTags.join(" ")} ${trail.nature.join(" ")}`.includes(query.trim())) return false;
+      return true;
+    });
+    return nearbyTrails(selectedRegions[0], "", eligible.length, { inventory: eligible });
+  }, [filtered, items, query, selectedDifficulties, selectedNatures, selectedRegions]);
+  const resultTrails = useMemo(() => completeNearbyResults(filtered, nearbyRecovery, (trail) => trail.slug), [filtered, nearbyRecovery]);
 
   function updateUrl(updates: Record<string, string>) {
     const params = new URLSearchParams(window.location.search);
@@ -79,7 +92,8 @@ export function TrailsExplorer({ items = trails }: { items?: Trail[] }) {
       <MultiChoice label="סוג טבע" options={natureOptions} selected={selectedNatures} onToggle={(value) => toggleValue(value, selectedNatures, setSelectedNatures, "nature")} />
       <MultiChoice label="דרגת קושי" options={difficultyOptions} selected={selectedDifficulties} onToggle={(value) => toggleValue(value, selectedDifficulties, setSelectedDifficulties, "difficulty")} />
     </form>
-    <div className="trail-results-head"><div><strong>{filtered.length} מסלולים מתאימים</strong><span>הנתונים נערכו ממקורות רשמיים. מצב המסלול נבדק שוב ביום הטיול.</span></div>{filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לרשימת המסלולים" : "הצגת המסלולים על המפה"} aria-pressed={mapOpen} onClick={() => mapOpen ? closeMap() : openMap()}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לרשימה" : "מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div>
-    {filtered.length ? mapOpen ? <div className="airbnb-map-split trail-map-split"><div className="airbnb-map-split__results trail-grid">{filtered.map((trail) => <TrailCard key={trail.slug} trail={trail} />)}</div><div className="airbnb-map-split__map"><DeferredTrailMap trails={filtered} autoLoad onClose={closeMap} /></div></div> : <ProgressiveResults className="trail-grid" kind="trails" resetKey={`${selectedRegions.join(",")}|${selectedNatures.join(",")}|${selectedDifficulties.join(",")}|${query}`}>{filtered.map((trail) => <TrailCard key={trail.slug} trail={trail} />)}</ProgressiveResults> : <div className="trail-empty"><h2>לא מצאנו התאמה לסינון הזה</h2><p>אפשר להסיר אחד מהסינונים או לחפש אזור סמוך.</p><button type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
+    {resultTrails.length > filtered.length && <NearbySearchNotice regionalOnly />}
+    <div className="trail-results-head"><div><strong>{resultTrails.length} מסלולים מתאימים</strong><span>הנתונים נערכו ממקורות רשמיים. מצב המסלול נבדק שוב ביום הטיול.</span></div>{resultTrails.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לרשימת המסלולים" : "הצגת המסלולים על המפה"} aria-pressed={mapOpen} onClick={() => mapOpen ? closeMap() : openMap()}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לרשימה" : "מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div>
+    {resultTrails.length ? mapOpen ? <div className="airbnb-map-split trail-map-split"><div className="airbnb-map-split__results trail-grid">{resultTrails.map((trail) => <TrailCard key={trail.slug} trail={trail} />)}</div><div className="airbnb-map-split__map"><DeferredTrailMap trails={resultTrails} autoLoad onClose={closeMap} /></div></div> : <ProgressiveResults className="trail-grid" kind="trails" resetKey={`${selectedRegions.join(",")}|${selectedNatures.join(",")}|${selectedDifficulties.join(",")}|${query}`}>{resultTrails.map((trail) => <TrailCard key={trail.slug} trail={trail} />)}</ProgressiveResults> : <div className="trail-empty"><h2>לא מצאנו התאמה לסינון הזה</h2><p>אפשר להסיר אחד מהסינונים או לחפש אזור סמוך.</p><button type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}
   </>;
 }

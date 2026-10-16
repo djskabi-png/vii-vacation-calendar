@@ -31,6 +31,16 @@ test("nearby geography recovery enriches catalog places from their managed city"
   assert.deepEqual(nearby.map((item) => item.place.location), ["רחובות"]);
 });
 
+test("nearby recovery expands beyond the preferred radius to satisfy a minimum", () => {
+  const nearby = nearbyPlacesForSelection([
+    { location: "רחובות", lat: 31.894, lng: 34.811 },
+    { location: "תל אביב", lat: 32.0853, lng: 34.7818 },
+    { location: "חיפה", lat: 32.794, lng: 34.9896 },
+  ], nodes, "ישרש", { maximumDistanceKm: 10, minimumResults: 3, limit: 3 });
+  assert.equal(nearby.length, 3);
+  assert.deepEqual(nearby.map((item) => item.place.location), ["רחובות", "תל אביב", "חיפה"]);
+});
+
 test("nearby geography recovery does not invent results without coordinates", () => {
   const coordinateFree = [{ ...nodes[0], gpsLat: null, gpsLong: null }];
   assert.deepEqual(nearbyPlacesForSelection([{ location: "רחובות", lat: 31.894, lng: 34.811 }], coordinateFree, "ישרש"), []);
@@ -40,4 +50,16 @@ test("haversine distance remains symmetric", () => {
   const first = { lat: 31.916, lng: 34.849 };
   const second = { lat: 31.894, lng: 34.811 };
   assert.equal(distanceKm(first, second), distanceKm(second, first));
+});
+
+test("regions without coordinates rank from managed descendant city coordinates", () => {
+  const region = { key: "area:9", level: "area", parentKey: null, title: "אזור בדיקה", titleEn: "Test area", slug: "test-area", featured: false, gpsLat: null, gpsLong: null, unassigned: false };
+  const result = nearbyPlacesForSelection([{ id: "near", lat: 31.9, lng: 34.83 }, { id: "far", lat: 33, lng: 35 }], [region, ...nodes], region.title, { minimumResults: 3 });
+  assert.deepEqual(result.map((entry) => entry.place.id), ["near", "far"]);
+});
+
+test("geography ranking deduplicates identity before limiting minimum results", () => {
+  const near = { id: "near", lat: 31.9, lng: 34.83 };
+  const result = nearbyPlacesForSelection([near, { ...near }, { id: "far", lat: 33, lng: 35 }, { id: "last", lat: 29.5, lng: 35 }], nodes, "ישרש", { minimumResults: 3, limit: 3 });
+  assert.deepEqual(result.map((entry) => entry.place.id), ["near", "far", "last"]);
 });
