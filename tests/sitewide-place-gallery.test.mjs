@@ -50,3 +50,21 @@ test("gallery interactions remain localized, bounded and separate from rail navi
   assert.doesNotMatch(read("app/components/property-card.tsx"), /<img key=/);
   assert.match(read("app/globals.css"), /\.home-event-feature \.preview-card-gallery__arrow \{ top: 100px;/);
 });
+
+test("equivalent parent renders cannot recreate the map during marker hover or selection", () => {
+  const map = read("app/components/listing-map.tsx");
+  assert.match(map, /const placesSignature = JSON\.stringify\(incomingPlaces\)/);
+  assert.match(map, /const places = useMemo\(\(\) => incomingPlaces, \[placesSignature\]\)/);
+  assert.doesNotMatch(map, /\[enabled, places, selectPlace,[^\]]*initialPlaceIds/);
+  assert.match(map, /focusKey, cardCopy\.openCluster/);
+});
+
+test("all marker variants activate through Enter and Space without repeating selection", () => {
+  const map = read("app/components/listing-map.tsx");
+  for (const marker of ["marker", "spiderMarker", "previewMarker"]) {
+    assert.match(map, new RegExp(`enableMarkerKeyboardActivation\\(${marker}\\)`));
+  }
+  assert.match(map, /event\.key !== "Enter" && event\.key !== " "/);
+  assert.match(map, /event\.preventDefault\(\);\s*event\.stopPropagation\(\)/);
+  assert.match(map, /if \(!event\.repeat\) marker\.fire\("click"\)/);
+});

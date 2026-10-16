@@ -8,7 +8,10 @@ const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8")
 test("the results map supports natural zoom without jumping on marker selection", () => {
   assert.match(mapSource, /scrollWheelZoom:\s*true/);
   assert.doesNotMatch(mapSource, /addEventListener\("wheel"/);
-  assert.doesNotMatch(mapSource, /preventDefault\(\)/);
+  // Keyboard button activation may suppress Space scrolling. Pointer/wheel
+  // gestures must remain native and unblocked everywhere else in the map.
+  const withoutKeyboardButton = mapSource.replace(/function enableMarkerKeyboardActivation\([\s\S]*?\n}\r?\n/, "");
+  assert.doesNotMatch(withoutKeyboardButton, /preventDefault\(\)/);
   assert.doesNotMatch(mapSource, /map\.flyTo\(/);
   assert.match(mapSource, /touchZoom:\s*true/);
   assert.match(mapSource, /doubleClickZoom:\s*true/);

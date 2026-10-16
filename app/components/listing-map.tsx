@@ -59,6 +59,16 @@ function safeMarkerLabel(value: string) {
   })[character] ?? character);
 }
 
+function enableMarkerKeyboardActivation(marker: import("leaflet").Marker) {
+  // Leaflet's div icons have role=button but do not synthesize a click on Enter.
+  marker.getElement()?.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (!event.repeat) marker.fire("click");
+  });
+}
+
 function markerIcon(tone: MapTone) {
   const common = 'viewBox="0 0 24 24" aria-hidden="true" focusable="false"';
   if (tone === "events") return `<svg ${common}><path d="M12 5.2c.7 3.6 2.8 5.7 6.4 6.4-3.6.7-5.7 2.8-6.4 6.4-.7-3.6-2.8-5.7-6.4-6.4 3.6-.7 5.7-2.8 6.4-6.4Z"/><path d="M5.2 4.2v2.4M4 5.4h2.4M19 17.7v2.1M18 18.7h2"/></svg>`;
@@ -68,7 +78,13 @@ function markerIcon(tone: MapTone) {
   return `<svg ${common}><path d="m3.5 10.6 8.5-6.8 8.5 6.8"/><path d="M5.6 9.4v10.8h12.8V9.4M9.5 20.2v-6.1h5v6.1M8 11.1h1.8M14.2 11.1H16"/></svg>`;
 }
 
-function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false, autoLoad = false, onClose, onVisibleCountChange, onVisiblePlaceIdsChange, activePlaceId = null, onActivePlaceChange }: PlacesMapProps) {
+function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation", single = false, autoLoad = false, onClose, onVisibleCountChange, onVisiblePlaceIdsChange, activePlaceId = null, onActivePlaceChange }: PlacesMapProps) {
+  // Hover/focus can recreate equivalent arrays in parents. Do not tear down
+  // Leaflet and its pending click listeners unless the actual place data changes.
+  // Include all fields, not just coordinates: prices, names and photos stay fresh.
+  const placesSignature = JSON.stringify(incomingPlaces);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const places = useMemo(() => incomingPlaces, [placesSignature]);
   const { language } = useSiteLanguage();
   const cardCopy = language === "en"
     ? { details: "View details", close: "Close place details", results: "Results on the map", visible: "places", list: "Result list", openCluster: "Open grouped places", searchArea: "Search this area" }
@@ -201,6 +217,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
       previewMarker.getElement()?.setAttribute("data-map-place-id", place.id);
       previewMarker.getElement()?.setAttribute("aria-label", place.name);
       previewMarker.on("click", () => selectPlace(place.id));
+      enableMarkerKeyboardActivation(previewMarker);
       previewMarker.on("mouseover", () => activePlaceCallback.current?.(place.id));
       previewMarker.on("mouseout", () => activePlaceCallback.current?.(null));
       activePreviewMarker.current = previewMarker;
@@ -357,6 +374,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
             selectPlace(entry.id);
           });
           bindPlaceMarkerInteraction(spiderMarker, entry.id);
+          enableMarkerKeyboardActivation(spiderMarker);
           markerRegistry.set(entry.id, spiderMarker);
         });
       };
@@ -445,6 +463,7 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
             bindPlaceMarkerInteraction(marker, place.id);
             markerRegistry.set(place.id, marker);
           }
+          enableMarkerKeyboardActivation(marker);
         });
       };
 
@@ -522,7 +541,10 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
       createdMap?.remove();
       if (mapInstance.current === createdMap) mapInstance.current = null;
     };
-  }, [enabled, places, selectPlace, single, tone, language, focusKey, initialPlaceIds, cardCopy.openCluster, mapControlCopy.cluster, mapControlCopy.zoomIn, mapControlCopy.zoomOut]);
+  // focusKey already represents every initial ID. Array identity alone is not
+  // an instruction to rebuild the map during a marker hover or keyboard focus.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled, places, selectPlace, single, tone, language, focusKey, cardCopy.openCluster, mapControlCopy.cluster, mapControlCopy.zoomIn, mapControlCopy.zoomOut]);
 
   if (!preview) return null;
 
@@ -589,7 +611,7 @@ export function ListingMap({ listings, initialListings, mode = "vacation", singl
       listing.guests > 0 ? `עד ${listing.guests} אורחים` : null,
     ].filter(Boolean).join(" · "),
     image: listing.image,
-    images: listing.images,
+    images: listing.images?.slice(0, 10),
     lat: listing.lat!,
     lng: listing.lng!,
     href: mode === "events" ? eventPlaceHref(listing as EventPlace) : `/business?id=${listing.slug}${detailQuery ? `&${detailQuery}` : ""}`,
@@ -625,7 +647,7 @@ export function DiscoveryMap({ items, initialItems, tone, single = false, autoLo
       category: tone === "activities" ? item.area : localized ? (tone === "spa" ? localized.spa : localized.hourly) : tone === "spa" ? "ספא וטיפולים" : "שהייה לפי שעה",
       meta: localized ? (price ? `${localized.from} ₪${price}` : tone === "spa" ? localized.packages : tone === "activities" ? item.priceLabel || item.location : localized.short) : item.priceLabel || (tone === "spa" ? "חבילות וטיפולים" : tone === "activities" ? "חוויה בתשלום" : "שהייה קצרה"),
       image: item.image || "/vii-logo.png",
-      images: item.images,
+      images: item.images?.slice(0, 10),
       lat: item.lat!,
       lng: item.lng!,
       href: `/discover/place/${item.id}`,
