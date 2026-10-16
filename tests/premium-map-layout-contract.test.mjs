@@ -20,10 +20,10 @@ test("place cards open only after marker activation and use a quiet modern basem
   assert.doesNotMatch(component, /\.on\("focus", \(\) => setSelectedId/);
   assert.match(component, /marker\.on\("click", \(\) => selectPlace/);
   assert.match(component, /element\?\.setAttribute\("aria-pressed", String\(active\)\)/);
-  assert.match(component, /const selectionReadyAt = performance\.now\(\) \+ 300/);
-  assert.match(component, /if \(performance\.now\(\) < selectionReadyAt\) return/);
+  assert.doesNotMatch(component, /selectionReadyAt/);
+  assert.match(component, /if \(event\.originalEvent && event\.originalEvent === clusterActivationEvent\) return/);
   assert.doesNotMatch(component, /if \(clustered\) \{[\s\S]*marker\.on\("click", \(\) => \{[\s\S]*selectPlace\(cluster\.entries\[0\]\.id\)/);
-  assert.match(component, /marker\.on\("click", \(\) => \{[\s\S]*selectedIdRef\.current = "";[\s\S]*setSelectedId\(""/);
+  assert.match(component, /marker\.on\("click", \(event\) => \{[\s\S]*clusterActivationEvent = event\.originalEvent;[\s\S]*selectedIdRef\.current = "";[\s\S]*setSelectedId\(""/);
   assert.doesNotMatch(component, /title: entry\.name|title: clustered \?/);
   assert.match(component, /basemaps\.cartocdn\.com\/rastertiles\/voyager/);
   assert.match(component, /subdomains: language === "he" \? "abc" : "abcd"/);
@@ -50,7 +50,7 @@ test("tightly overlapping clusters expand into individually selectable spider ma
   assert.match(component, /const clusterAnchor = cluster\.entries\.reduce/);
   assert.match(component, /const clusterCenter = L\.latLng\(clusterAnchor\.lat, clusterAnchor\.lng\)/);
   assert.match(component, /const goldenAngle = Math\.PI \* \(3 - Math\.sqrt\(5\)\)/);
-  assert.match(component, /spiderMarker\.on\("click", \(\) => \{[\s\S]*if \(performance\.now\(\) < selectionReadyAt\) return;[\s\S]*selectPlace\(entry\.id\)/);
+  assert.match(component, /spiderMarker\.on\("click", \(event\) => \{[\s\S]*event\.originalEvent === clusterActivationEvent\) return;[\s\S]*selectPlace\(entry\.id\)/);
   assert.match(component, /L\.polyline\(\[center, spiderPosition\]/);
   assert.match(component, /setAttribute\("aria-label", `\$\{clusterText\}, \$\{mapControlCopy\.cluster\}`\)/);
   assert.match(component, /map\.getBoundsZoom\(paddedClusterBounds, false, L\.point\(140, 140\)\)/);

@@ -53,6 +53,8 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
   const { viewMode, setViewMode } = useResultsViewMode("hourly");
   const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
+  const [visibleMapCount, setVisibleMapCount] = useState(0);
+  const [activeMapPlaceId, setActiveMapPlaceId] = useState<string | null>(null);
 
   const locations = useMemo(
     () => ["כל הארץ", ...Array.from(new Set(items.flatMap((item) => [item.area, item.location])))],
@@ -128,7 +130,9 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
     updateUrl({ location: "", maxPrice: "", features: "" });
   }
 
-  const resultLabel = resultItems.length === 1 ? "נמצא מקום אחד" : `נמצאו ${resultItems.length} מקומות`;
+  const resultLabel = mapOpen
+    ? `${visibleMapCount} מקומות באזור המוצג במפה`
+    : resultItems.length === 1 ? "נמצא מקום אחד" : `נמצאו ${resultItems.length} מקומות`;
   const displayed = useMemo(() => {
     if (!mapOpen || !mapVisibleIds) return resultItems;
     const visible = new Set(mapVisibleIds);
@@ -136,18 +140,20 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
   }, [mapOpen, mapVisibleIds, resultItems]);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setMapVisibleIds(null), 0);
+    const timer = window.setTimeout(() => { setMapVisibleIds(null); setActiveMapPlaceId(null); }, 0);
     return () => window.clearTimeout(timer);
   }, [features, location, maximumPrice]);
 
   function toggleResultsMap() {
     setMapVisibleIds(null);
+    setActiveMapPlaceId(null);
     if (mapOpen) closeMap();
-    else openMap();
+    else { setVisibleMapCount(filtered.length); openMap(); }
   }
 
   function closeResultsMap() {
     setMapVisibleIds(null);
+    setActiveMapPlaceId(null);
     closeMap();
   }
 
@@ -170,6 +176,6 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
         <button type="button" className="hourly-results__reset" onClick={resetFilters} disabled={location === "כל הארץ" && maximumPrice === 0 && features.length === 0}>ניקוי סינונים</button>
       </div>
     </div>
-    {resultItems.length > 0 ? mapOpen ? <div className="airbnb-map-split world-map-split"><div className={`airbnb-map-split__results discovery-grid results-view results-view--${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div><div className="airbnb-map-split__map"><DeferredDiscoveryMap items={resultItems} tone="hourly" autoLoad onClose={closeResultsMap} onVisiblePlaceIdsChange={setMapVisibleIds} /></div></div> : <ProgressiveResults className={`discovery-grid results-view results-view--${viewMode}`} resetKey={`${location}|${maximumPrice}|${features.join(",")}|${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</ProgressiveResults> : <div className="hourly-results__empty"><strong>לא נמצאו מקומות שמתאימים לכל הסינונים</strong><p>אפשר להרחיב את האזור או להסיר אחד מהמאפיינים.</p><button type="button" className="button secondary" onClick={resetFilters}>הצגת כל המקומות</button></div>}
+    {resultItems.length > 0 ? mapOpen ? <div className="airbnb-map-split world-map-split"><div className={`airbnb-map-split__results discovery-grid results-view results-view--${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} mapActive={activeMapPlaceId === item.id} onActiveChange={(active) => setActiveMapPlaceId(active ? item.id : null)} />)}</div><div className="airbnb-map-split__map"><DeferredDiscoveryMap items={resultItems} tone="hourly" autoLoad onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPlaceId} onActivePlaceChange={setActiveMapPlaceId} /></div></div> : <ProgressiveResults className={`discovery-grid results-view results-view--${viewMode}`} resetKey={`${location}|${maximumPrice}|${features.join(",")}|${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</ProgressiveResults> : <div className="hourly-results__empty"><strong>לא נמצאו מקומות שמתאימים לכל הסינונים</strong><p>אפשר להרחיב את האזור או להסיר אחד מהמאפיינים.</p><button type="button" className="button secondary" onClick={resetFilters}>הצגת כל המקומות</button></div>}
   </div>;
 }

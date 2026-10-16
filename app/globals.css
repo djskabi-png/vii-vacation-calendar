@@ -5054,7 +5054,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .map-load-button { min-width: 170px; gap: 8px; border: 0 !important; background: white !important; color: var(--teal-dark) !important; box-shadow: 0 12px 28px rgba(0, 25, 32, .24); text-shadow: none; }
 .map-load-button:hover { transform: translateY(-2px); box-shadow: 0 16px 32px rgba(0, 25, 32, .3); }
 .map-loading-pill { padding: 10px 16px; border-radius: 999px; background: rgba(255, 255, 255, .92); color: var(--teal-dark); font-size: .84rem; font-weight: 800; text-shadow: none; }
-.listing-map-shell { position: relative; min-height: 640px; border: 1px solid var(--line); border-radius: 24px; overflow: hidden; background: #e7f1f2; }
+.listing-map-shell { position: relative; min-height: 640px; border: 1px solid var(--line); border-radius: 24px; overflow: hidden; overflow: clip; background: #e7f1f2; }
 .map-deferred-loading { min-height: 640px; display: grid; place-content: center; justify-items: center; gap: 8px; overflow: hidden; border: 1px solid var(--line); border-radius: 24px; background: radial-gradient(circle at 50% 40%,#fbffff 0,#eef8f8 48%,#e5f0f1 100%); color: var(--teal-dark); text-align: center; font: 700 1rem/1.4 Rubik, Heebo, Assistant, Arial, sans-serif; }
 .map-deferred-loading strong { font-size: 1.05rem; }
 .map-deferred-loading small { color: var(--ink-soft); font-size: .78rem; font-weight: 650; }
@@ -8842,7 +8842,8 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
 .map-selection-card__location { font-size: .74rem; }
 .map-selection-card__body strong { font-size: 1.16rem; }
 .map-selection-card__meta { font-size: .79rem; }
-.map-selection-card__body a { min-height: 42px; border-radius: 12px; box-shadow: none; }
+.map-selection-card__precision { color: #526b70; font-size: .7rem; line-height: 1.35; }
+.map-selection-card__body a { min-height: 44px; border-radius: 12px; box-shadow: none; }
 .map-selection-card__close { top: 10px; inset-inline-start: 10px; border-color: rgba(17, 67, 76, .11); box-shadow: 0 8px 22px rgba(8, 47, 56, .16); }
 .map-mobile-close { border-color: rgba(17, 67, 76, .11); color: #153e46; box-shadow: 0 10px 28px rgba(8, 47, 56, .16); }
 
@@ -8884,7 +8885,7 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   .map-selection-card__media { min-height: 140px; }
   .map-selection-card__body { padding: 13px 12px 12px; }
   .map-selection-card__body strong { font-size: 1rem; }
-  .map-selection-card__body a { min-height: 42px; }
+  .map-selection-card__body a { min-height: 44px; }
   .map-selection-card__close { width: 40px; height: 40px; }
   .listing-map-shell .leaflet-control-attribution { font-size: .52rem; }
 }

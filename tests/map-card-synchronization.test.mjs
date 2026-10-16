@@ -10,7 +10,7 @@ test("shared maps expose reciprocal active-place state", () => {
 
   assert.match(map, /onActivePlaceChange\?: \(id: string \| null\) => void/);
   assert.match(map, /marker\.on\("mouseover", \(\) => activePlaceCallback\.current\?\.\(id\)\)/);
-  assert.match(map, /marker\.on\("mouseout", \(\) => activePlaceCallback\.current\?\.\(null\)\)/);
+  assert.match(map, /marker\.on\("mouseout", \(\) => activePlaceCallback\.current\?\.\(selectedIdRef\.current \|\| null\)\)/);
   assert.match(map, /data-map-place-id/);
   assert.match(map, /sharedMarkerCount <= 1/);
   assert.match(map, /is-card-active is-hover-preview/);
@@ -28,7 +28,7 @@ test("every commercial map world connects cards and markers", () => {
   const propertyCard = read("app/components/property-card.tsx");
   const discoveryCard = read("app/components/discovery-card.tsx");
 
-  for (const source of [search, eventSearch, worldResults, attractions]) {
+  for (const source of [search, eventSearch, worldResults, attractions, read("app/components/hourly-results.tsx")]) {
     assert.match(source, /activePlaceId=\{/);
     assert.match(source, /onActivePlaceChange=\{setActiveMap/);
   }
