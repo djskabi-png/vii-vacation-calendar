@@ -2,10 +2,14 @@ import vinext from "vinext";
 import { defineConfig } from "vite";
 import hostingConfig from "./.openai/hosting.json";
 import { sites } from "./build/sites-vite-plugin";
+import { randomUUID } from "node:crypto";
 
 const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
   "00000000-0000-4000-8000-000000000000";
 const ASSET_RELEASE = "calendar-close-v25";
+// Each immutable build owns its HTML and Flight responses. A redeployment
+// must never reuse cached markup that references removed prior-build chunks.
+const publicCacheBuildId = randomUUID();
 
 const { d1, r2 } = hostingConfig;
 
@@ -46,6 +50,7 @@ export default defineConfig(async () => {
   const { cloudflare } = await import("@cloudflare/vite-plugin");
 
   return {
+    define: { __VII_CACHE_BUILD_ID__: JSON.stringify(publicCacheBuildId) },
     build: {
       rollupOptions: {
         output: {

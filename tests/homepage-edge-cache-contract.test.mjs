@@ -3,22 +3,16 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const worker = await readFile(new URL("../worker/index.ts", import.meta.url), "utf8");
+const cache = await readFile(new URL("../worker/public-response-cache.ts", import.meta.url), "utf8");
+const config = await readFile(new URL("../vite.config.ts", import.meta.url), "utf8");
 
 test("public HTML and catalog reads have bounded host-aware caches with private exclusions", () => {
-  assert.match(worker, /const publicCacheVersion = "v3"/);
-  assert.match(worker, /if \(path === "\/"\) return 300/);
-  assert.match(worker, /publicDocumentTtl/);
-  assert.match(worker, /url\.hostname/);
-  assert.match(worker, /admin\|account\|favorites\|booking/);
-  assert.match(worker, /request\.headers\.has\("Cookie"\).*request\.headers\.has\("Authorization"\)/);
-  assert.match(worker, /request\.headers\.get\("RSC"\).*Next-Router-State-Tree/);
-  assert.match(worker, /url\.pathname === "\/api\/catalog"/);
-  assert.match(worker, /X-VII-Page-Cache/);
-  assert.match(worker, /X-VII-Data-Cache/);
-  assert.match(worker, /X-VII-Home-Cache-Until/);
-  assert.match(worker, /runtime-cache\/public\/\$\{publicCacheVersion\}/);
-  assert.match(worker, /env\.UPLOADS\.get\(policy\.key\)/);
-  assert.match(worker, /cacheable\.clone\(\)\.arrayBuffer\(\)\.then\(\(body\) => env\.UPLOADS\.put\(policy\.key, body/);
-  assert.match(worker, /customMetadata: \{ expiresAt \}/);
-  assert.match(worker, /if \(!allowed\.has\(key\) \|\| seen\.has\(key\)\) return null/);
+  assert.match(cache, /const publicCacheVersion = "v4"/);
+  assert.match(cache, /admin\|account\|favorites\|booking/);
+  assert.match(cache, /hasPrivateCookies/);
+  assert.match(cache, /X-VII-Navigation-Cache/);
+  assert.match(cache, /runtime-cache\/public\/\$\{publicCacheVersion\}\/\$\{build\}/);
+  assert.match(worker, /await publicCachePolicy\(request, url, publicCacheBuild\)/);
+  assert.match(worker, /cachePolicy\?\.kind !== "document"/);
+  assert.match(config, /__VII_CACHE_BUILD_ID__.*JSON.stringify\(publicCacheBuildId\)/);
 });
