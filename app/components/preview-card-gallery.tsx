@@ -97,7 +97,7 @@ export function PreviewCardGallery({
         swipeResetTimer.current = null;
       }}
     >
-      {currentImage ? <img key={currentImage} src={currentImage} alt={`${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} title={imageLabel || `${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} loading="lazy" decoding="async" style={imageStyle} /> : null}
+      {currentImage ? <img src={currentImage} alt={`${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} title={imageLabel || `${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} loading="lazy" decoding="async" style={imageStyle} /> : null}
     </Link>
     {galleryImages.length > 1 ? <>
       <button className="preview-card-gallery__arrow preview-card-gallery__arrow--previous" type="button" aria-label={`${copy.previous}: ${name}`} title={copy.previous} disabled={previousDisabled} data-slider-boundary onClick={(event) => moveImage(event, -1)}>{language === "he" ? <ChevronRight /> : <ChevronLeft />}</button>

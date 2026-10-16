@@ -18,6 +18,8 @@ import { HomeLiveDeals } from "./home-live-deals";
 import { rotateDaily, rotateWithinTiers } from "../lib/daily-rotation";
 import { HomeManagedDiscovery } from "./home-discovery-sections";
 import { HomeSliderControls } from "./home-slider-controls";
+import { PlacePreviewCard } from "./place-preview-card";
+import { PreviewCardGallery } from "./preview-card-gallery";
 
 // These sliders fetch their own availability. They must not wait for the
 // unrelated four-world catalog or below-the-fold review queries.
@@ -172,9 +174,9 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
         {ratedPlaces.length ? <div className="home-trust-strip">
           <div className="home-vacation-strip__head"><div><span>דירוגים ממקור המידע של המקום</span><h2 id="home-ratings-title">חוות דעת מובילות</h2></div><HomeSliderControls railId="home-ratings-rail" label="חוות דעת מובילות" itemSelector=".home-slider__item" /></div>
           <div id="home-ratings-rail" className="home-slider__track home-slider__track--trust home-slider__track--ratings" data-horizontal-rail aria-labelledby="home-ratings-title">
-            {ratedPlaces.map(({ place, reviewText, reviewAuthor, reviewDate }) => <Link className="home-rating-card home-slider__item" href={`/business?id=${place.slug}`} key={place.slug}>
-              <div className="home-rating-card__top"><img src={place.image} alt="" loading="lazy" decoding="async" /><div><span>{place.location}</span><h3>{place.name}</h3><strong aria-label={`ציון ${place.score} מתוך 10, ${place.reviews} חוות דעת`}><b>{place.score}</b><small>{place.reviews} חוות דעת</small></strong></div></div><p lang="he" dir="rtl">{reviewExcerpt(reviewText)}</p><small className="home-rating-card__byline">{reviewAuthor}{reviewDate ? ` · ${reviewDate}` : ""}</small><b className="home-rating-card__cta">לפרטי המקום</b>
-            </Link>)}
+            {ratedPlaces.map(({ place, reviewText, reviewAuthor, reviewDate }) => <article className="home-rating-card home-slider__item" key={place.slug}>
+              <div className="home-rating-card__top"><PreviewCardGallery className="home-rating-card__gallery" images={[place.image, ...place.images]} href={`/business?id=${place.slug}`} name={place.name} /><div><span>{place.location}</span><h3><Link href={`/business?id=${place.slug}`}>{place.name}</Link></h3><strong aria-label={`ציון ${place.score} מתוך 10, ${place.reviews} חוות דעת`}><b>{place.score}</b><small>{place.reviews} חוות דעת</small></strong></div></div><p lang="he" dir="rtl">{reviewExcerpt(reviewText)}</p><small className="home-rating-card__byline">{reviewAuthor}{reviewDate ? ` · ${reviewDate}` : ""}</small><Link className="home-rating-card__cta" href={`/business?id=${place.slug}`}>לפרטי המקום</Link>
+            </article>)}
           </div>
         </div> : null}
       </div>
@@ -187,8 +189,8 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
     <section className="home-events-world" aria-labelledby="home-events-title">
       <div className="shell home-events-world__head"><div><span className="eyebrow">עולם האירועים</span><h2 id="home-events-title">כל סיבה טובה הופכת כאן לאירוע</h2><p>לופטים ומתחמים לימי הולדת, מסיבות, אירועי חברה וחגיגות פרטיות, עם חיפוש לפי כמות ואופי האירוע.</p></div><Link className="button" href="/events">נכנסים לעולם האירועים</Link></div>
       <div className="shell home-events-world__layout">
-        {featuredEvents[0] ? <Link className="home-event-feature" href={eventPlaceHref(featuredEvents[0])}><img src={featuredEvents[0].image} alt={featuredEvents[0].name} title={featuredEvents[0].name} loading="lazy" decoding="async" /><span>{featuredEvents[0].type}</span><div><small><PinIcon />{featuredEvents[0].location}</small><h3>{featuredEvents[0].name}</h3>{featuredEvents[0].description ? <p>{featuredEvents[0].description}</p> : null}<b>עד {featuredEvents[0].guests} אורחים ביחידה הגדולה</b></div></Link> : null}
-        <div className="home-event-list">{featuredEvents.slice(1, 5).map((place) => <Link key={place.slug} href={eventPlaceHref(place)}><img src={place.image} alt={place.name} title={place.name} loading="lazy" decoding="async" /><div><span>{place.type}</span><h3>{place.name}</h3><small>{place.location}, עד {place.guests} אורחים ביחידה הגדולה</small></div></Link>)}</div>
+        {featuredEvents[0] ? <PlacePreviewCard className="home-event-feature" name={featuredEvents[0].name} image={featuredEvents[0].image} images={featuredEvents[0].images} href={eventPlaceHref(featuredEvents[0])}><span className="home-event-feature__type">{featuredEvents[0].type}</span><div><small><PinIcon />{featuredEvents[0].location}</small><h3>{featuredEvents[0].name}</h3>{featuredEvents[0].description ? <p>{featuredEvents[0].description}</p> : null}<b>עד {featuredEvents[0].guests} אורחים ביחידה הגדולה</b></div></PlacePreviewCard> : null}
+        <div className="home-event-list">{featuredEvents.slice(1, 5).map((place) => <PlacePreviewCard className="home-event-list__card" key={place.slug} name={place.name} image={place.image} images={place.images} href={eventPlaceHref(place)}><div><span>{place.type}</span><h3>{place.name}</h3><small>{place.location}, עד {place.guests} אורחים ביחידה הגדולה</small></div></PlacePreviewCard>)}</div>
       </div>
     </section>
 

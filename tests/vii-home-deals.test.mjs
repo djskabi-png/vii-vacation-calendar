@@ -32,7 +32,7 @@ test("home deals use only supplier-confirmed availability and live totals", asyn
   const result = await getHomeDeals({ period: "tomorrow", now: new Date("2026-10-05T12:00:00Z"), token: "test-token", publicSiteIds: new Set([11, 12]), publicNames: new Map([[11, "שם עמוד המקום"]]), fetchImpl });
   assert.equal(result.period, "tomorrow");
   assert.equal(requested.length, 3);
-  assert.deepEqual(result.deals, [{ siteID: 11, name: "שם עמוד המקום", image: "https://www.vii.co.il/gallery/hilat.jpg", city: "כלנית", area: "כנרת", score: 9.9, reviewCount: 182, from: "2026-10-06", till: "2026-10-07", total: 850, nights: 1, priceGuests: 2, onlineBooking: false }]);
+  assert.deepEqual(result.deals, [{ siteID: 11, name: "שם עמוד המקום", image: "https://www.vii.co.il/gallery/hilat.jpg", images: ["https://www.vii.co.il/gallery/hilat.jpg"], city: "כלנית", area: "כנרת", score: 9.9, reviewCount: 182, from: "2026-10-06", till: "2026-10-07", total: 850, nights: 1, priceGuests: 2, onlineBooking: false }]);
 });
 
 test("home deals expose only verified room facts, guest basis and safe supplier phone", async () => {
@@ -72,4 +72,26 @@ test("a locations outage does not hide valid supplier deals", async () => {
 test("supplier failure is not replaced with invented deals", async () => {
   await assert.rejects(getHomeDeals({ period: "tomorrow", token: "", publicSiteIds: new Set() }), /missing_token/);
   await assert.rejects(getHomeDeals({ period: "tomorrow", token: "test-token", publicSiteIds: new Set(), fetchImpl: async () => new Response(null, { status: 503 }) }), /supplier_unavailable/);
+});
+
+test("deal cards preserve verified gallery photos from every gallery without extra reads", async () => {
+  let reads = 0;
+  const fetchImpl = async (url) => {
+    reads++;
+    if (url.endsWith("/locations")) return Response.json({});
+    if (url.endsWith("/vacations")) return Response.json({ places: [{ siteID: 11, active: true, siteName: "מקום", galleries: [
+      { pictures: ["/gallery/cover.jpg", "/gallery/pool.jpg", "http://www.vii.co.il/unsafe.jpg", "https://evil.example/wrong.jpg"] },
+      { pictures: ["/gallery/pool.jpg", "/gallery/room.jpg", null, ...Array.from({ length: 20 }, (_, i) => `/gallery/${i}.jpg`)] },
+      { pictures: null }, null,
+    ] }] });
+    return Response.json({ sites: [{ siteID: 11, available: true, minTotal: 850, cheapest: { from: "2026-10-06", till: "2026-10-07" } }] });
+  };
+  const result = await getHomeDeals({ period: "tomorrow", now: new Date("2026-10-05T12:00:00Z"), token: "test-token", publicSiteIds: new Set([11]), fetchImpl });
+  const deal = result.deals[0];
+  assert.equal(reads, 3);
+  assert.equal(deal.images.length, 10);
+  assert.equal(new Set(deal.images).size, deal.images.length);
+  assert.equal(deal.image, deal.images[0]);
+  assert.deepEqual(deal.images.slice(0, 3), ["cover", "pool", "room"].map(name => `https://www.vii.co.il/gallery/${name}.jpg`));
+  assert.ok(deal.images.every(url => url.startsWith("https://www.vii.co.il/")));
 });

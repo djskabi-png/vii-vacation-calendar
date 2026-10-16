@@ -7,6 +7,7 @@ import Link from "next/link";
 import { ListingMap } from "../../components/listing-map";
 import { PageShell } from "../../components/page-shell";
 import { DiscoveryCard } from "../../components/discovery-card";
+import { PlacePreviewCard } from "../../components/place-preview-card";
 import { ListingAccessibility } from "../../components/listing-accessibility";
 import { eventPlaceHref, eventPlaces } from "../../data/site-data";
 import { providerProfiles } from "../../data/world-data";
@@ -171,7 +172,7 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
 
         <div className="section shell"><MasuExperience context="event" /></div>
 
-        <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים לאירוע</h2></div><div className="event-more-grid">{(relatedPlaces || eventPlaces).filter((item) => item.slug !== place.slug).slice(0, 3).map((item) => { const name = safeEventText(item.name, latinBusinessAlias(item.name) || eventContentCopy.name); const location = safeEventText(item.location, safeEventText(item.area, eventContentCopy.location)); return <Link key={item.slug} href={eventPlaceHref(item)}><img src={item.image} alt={name} title={name} /><div><b>{name}</b><span>{location} · עד {item.guests} אורחים ביחידה הגדולה</span></div></Link>; })}</div></div></section>
+        <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים לאירוע</h2></div><div className="event-more-grid">{(relatedPlaces || eventPlaces).filter((item) => item.slug !== place.slug).slice(0, 3).map((item) => { const name = safeEventText(item.name, latinBusinessAlias(item.name) || eventContentCopy.name); const location = safeEventText(item.location, safeEventText(item.area, eventContentCopy.location)); return <PlacePreviewCard className="event-related-card" key={item.slug} name={name} image={item.image} images={item.images} href={eventPlaceHref(item)}><div><b>{name}</b><span>{location} · עד {item.guests} אורחים ביחידה הגדולה</span></div></PlacePreviewCard>; })}</div></div></section>
         <FloatingContactActions world="events" placeId={place.slug} placeName={place.name} phone={ownerPhone} whatsapp={ownerWhatsapp} serviceName={place.type} from={eventDate} guests={Number(eventGuests) || undefined} />
       </main>
 

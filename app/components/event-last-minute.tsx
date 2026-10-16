@@ -9,6 +9,7 @@ import { eventPlaceHref } from "../lib/event-place-href";
 import { useViiLiveSearch } from "./use-vii-live-search";
 import { EventRail } from "./event-rail";
 import { dailyRotationCompare } from "../lib/daily-rotation";
+import { PlacePreviewCard } from "./place-preview-card";
 
 function israelDate(offset: number) {
   const parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Jerusalem", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date());
@@ -48,6 +49,6 @@ export function EventLastMinute({ places }: { places: EventPlace[] }) {
     {search.status === "loading" || search.status === "idle" ? <p className="event-rail-status" role="status">בודקים זמינות ומחירים...</p> : null}
     {search.status === "error" ? <p className="event-rail-status" role="alert">לא ניתן לבדוק זמינות כרגע. אפשר לבחור תאריך אחר או לחפש בכל המקומות.</p> : null}
     {search.status === "ready" && !candidates.length ? <p className="event-rail-status">לא נמצאו מקומות שניתן להציג לתאריך הזה. נסו תאריך אחר.</p> : null}
-    {candidates.length ? <EventRail title="מקומות לאירוע קרוב">{candidates.map(({ place, confirmed, price, start, date: eventDate }) => <Link className="event-rail-card" key={place.slug} href={`${eventPlaceHref(place)}?${new URLSearchParams({ from: eventDate || date || "", guests: "20", hours: "3" })}`}><img src={place.image} alt={place.name} loading="lazy" /><span className="event-rail-card__body"><small>{place.location}{start ? ` · ${start}` : ""}</small><strong>{place.name}</strong><span>{confirmed ? "פנוי לפי בדיקת ה־API" : "לבירור זמינות ומחיר"}</span><b>{confirmed && price ? `${price.toLocaleString("he-IL")} ₪ לאירוע` : "פנייה ישירה למקום"}</b></span></Link>)}</EventRail> : null}
+    {candidates.length ? <EventRail title="מקומות לאירוע קרוב">{candidates.map(({ place, confirmed, price, start, date: eventDate }) => <PlacePreviewCard className="event-rail-card" key={place.slug} name={place.name} image={place.image} images={place.images} href={`${eventPlaceHref(place)}?${new URLSearchParams({ from: eventDate || date || "", guests: "20", hours: "3" })}`}><span className="event-rail-card__body"><small>{place.location}{start ? ` · ${start}` : ""}</small><strong>{place.name}</strong><span>{confirmed ? "פנוי לפי בדיקת ה־API" : "לבירור זמינות ומחיר"}</span><b>{confirmed && price ? `${price.toLocaleString("he-IL")} ₪ לאירוע` : "פנייה ישירה למקום"}</b></span></PlacePreviewCard>)}</EventRail> : null}
   </section>;
 }

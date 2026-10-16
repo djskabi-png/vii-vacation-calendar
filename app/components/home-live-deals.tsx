@@ -44,7 +44,7 @@ export function dealProperty(deal: HomeDeal): Property {
     guests: deal.maxGuests || deal.priceGuests,
     bedrooms: deal.bedrooms,
     image: deal.image,
-    images: [],
+    images: deal.images || [],
     description: "",
     features,
     audiences: [],
