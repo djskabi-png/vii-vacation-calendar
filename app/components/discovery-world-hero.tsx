@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { WorldTopicImage } from "./world-topic-image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { BreadcrumbTrail } from "./breadcrumb-trail";
@@ -29,12 +29,8 @@ export function DiscoveryWorldHero({ type, presentation, breadcrumbs, count, cou
         </div>
         {!children ? <Link className="button primary discovery-world-hero__action" href={`#${targetId}`}>מתחילים לבחור</Link> : null}
       </div>
-      <div className="discovery-world-hero__visual" aria-label="הצצה לעולם">
-        {presentation.heroImages.map((image, index) => <figure key={image.src} className={`discovery-world-hero__image discovery-world-hero__image--${index + 1}`}>
-          {image.src.startsWith("/")
-            ? <img src={image.src} alt={image.alt} title={image.alt} loading={index === 0 ? "eager" : "lazy"} fetchPriority={index === 0 ? "high" : "auto"} decoding="async" />
-            : <Image src={image.src} alt={image.alt} title={image.alt} fill priority={index === 0} sizes="(max-width: 720px) 70vw, 34vw" />}
-        </figure>)}
+      <div className="discovery-world-hero__visual">
+        <WorldTopicImage image={presentation.heroImages[0]} />
       </div>
       {children ? <div className="discovery-world-hero__search">{children}</div> : null}
     </div>

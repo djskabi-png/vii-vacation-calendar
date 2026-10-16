@@ -4,8 +4,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import styles from "./content-studio.module.css";
 import extras from "./content-studio-extras.module.css";
 import { defaultHomepagePresentation, type HomeDiscoveryItem } from "../../lib/homepage-presentation";
-import { defaultEventLandingPresentation, type EventLandingSearchItem } from "../../lib/event-landing-presentation";
-import { defaultWorldLandingPresentations, isManagedWorldLandingType } from "../../lib/world-landing-presentation";
+import { defaultEventLandingPresentation, eventLandingSourceAttributes, type EventLandingSearchItem } from "../../lib/event-landing-presentation";
+import { defaultWorldLandingPresentations, isManagedWorldLandingType, worldLandingSourceAttributes } from "../../lib/world-landing-presentation";
 
 type LinkItem = { id: string; label: string; href: string; group: string; order: number; visible: boolean; newWindow: boolean };
 type Content = { title: string; summary: string; body: string; metaTitle: string; metaDescription: string; slug: string; imageAlt: string; indexable: boolean; links: LinkItem[]; attributes: Record<string, string> };
@@ -49,7 +49,16 @@ export default function ContentStudioPage() {
       if (response.status === 403) { setForbidden(true); return; }
       if (!response.ok) throw new Error("סטודיו התוכן אינו זמין כרגע.");
       const next = await response.json() as Payload; setForbidden(false); setData(next);
-      if (next.selected) { setSelected(next.selected); setDraft(structuredClone(next.selected.draft)); setScheduledAt(next.selected.scheduledAt ? next.selected.scheduledAt.slice(0, 16) : ""); }
+      if (next.selected) {
+        setSelected(next.selected);
+        const editable = structuredClone(next.selected.draft);
+        if (next.selected.entityKey === "landing") {
+          const defaults = next.selected.contentType === "events" ? eventLandingSourceAttributes()
+            : isManagedWorldLandingType(next.selected.contentType) ? worldLandingSourceAttributes(next.selected.contentType) : {};
+          editable.attributes = { ...defaults, ...editable.attributes };
+        }
+        setDraft(editable); setScheduledAt(next.selected.scheduledAt ? next.selected.scheduledAt.slice(0, 16) : "");
+      }
       else { setSelected(null); setDraft(null); }
     } catch (cause) { setError(cause instanceof Error ? cause.message : "שגיאת טעינה"); }
     finally { setLoading(false); }
@@ -171,7 +180,8 @@ export default function ContentStudioPage() {
             <section className={extras.controlSection}><div className={extras.controlHead}><div><strong>אזור הפתיחה</strong><small>כותרת, תמונות, טקסטים קצרים והוכחות שימושיות</small></div></div>
               <div className={extras.editorialFields}>
                 <label><span>שורת פתיחה</span><input value={draft.attributes.eventHeroEyebrow || defaultEventLandingPresentation.eyebrow} onChange={(event) => updateAttribute("eventHeroEyebrow", event.target.value)} /></label>
-                {[0, 1, 2].map((index) => <div className={extras.heroImageFields} key={index}><label><span>תמונה {index + 1}</span><input dir="ltr" value={draft.attributes[`eventHeroImage${index + 1}`] || defaultEventLandingPresentation.heroImages[index].src} onChange={(event) => updateAttribute(`eventHeroImage${index + 1}`, event.target.value)} /></label><label><span>תיאור חלופי לתמונה {index + 1}</span><input value={draft.attributes[`eventHeroImage${index + 1}Alt`] || defaultEventLandingPresentation.heroImages[index].alt} onChange={(event) => updateAttribute(`eventHeroImage${index + 1}Alt`, event.target.value)} /></label></div>)}
+                <div className={extras.heroImageFields}><label><span>תמונת התחום</span><input dir="ltr" value={draft.attributes.eventTopicImage || defaultEventLandingPresentation.heroImages[0].src} onChange={(event) => updateAttribute("eventTopicImage", event.target.value)} /></label><label><span>תיאור חלופי לתמונת התחום</span><input value={draft.attributes.eventTopicImageAlt || defaultEventLandingPresentation.heroImages[0].alt} onChange={(event) => updateAttribute("eventTopicImageAlt", event.target.value)} /></label></div>
+                <p>תמונה אחת שמייצגת את התחום, לא עסק מסוים. בוחרים נכס מתוך תיקיית התמונות של העולמות.</p>
                 {[0, 1, 2].map((index) => <label key={`proof-${index}`}><span>יתרון קצר {index + 1}</span><input value={draft.attributes[`eventProof${index + 1}`] || defaultEventLandingPresentation.proof[index]} onChange={(event) => updateAttribute(`eventProof${index + 1}`, event.target.value)} /></label>)}
               </div>
             </section>
@@ -195,7 +205,8 @@ export default function ContentStudioPage() {
             <section className={extras.controlSection}><div className={extras.controlHead}><div><strong>זהות חזותית ותוכן</strong><small>הכותרת והתקציר נמצאים מעל. כאן שולטים בשורת הפתיחה, התמונות והיתרונות.</small></div></div>
               <div className={extras.editorialFields}>
                 <label><span>שורת פתיחה</span><input value={draft.attributes.worldHeroEyebrow || worldLandingDefaults(selected.contentType).eyebrow} onChange={(event) => updateAttribute("worldHeroEyebrow", event.target.value)} /></label>
-                {[0, 1, 2].map((index) => <div className={extras.heroImageFields} key={index}><label><span>תמונה {index + 1}</span><input dir="ltr" value={draft.attributes[`worldHeroImage${index + 1}`] || worldLandingDefaults(selected.contentType).heroImages[index].src} onChange={(event) => updateAttribute(`worldHeroImage${index + 1}`, event.target.value)} /></label><label><span>תיאור חלופי לתמונה {index + 1}</span><input value={draft.attributes[`worldHeroImage${index + 1}Alt`] || worldLandingDefaults(selected.contentType).heroImages[index].alt} onChange={(event) => updateAttribute(`worldHeroImage${index + 1}Alt`, event.target.value)} /></label></div>)}
+                <div className={extras.heroImageFields}><label><span>תמונת התחום</span><input dir="ltr" value={draft.attributes.worldTopicImage || worldLandingDefaults(selected.contentType).heroImages[0].src} onChange={(event) => updateAttribute("worldTopicImage", event.target.value)} /></label><label><span>תיאור חלופי לתמונת התחום</span><input value={draft.attributes.worldTopicImageAlt || worldLandingDefaults(selected.contentType).heroImages[0].alt} onChange={(event) => updateAttribute("worldTopicImageAlt", event.target.value)} /></label></div>
+                <p>תמונה אחת שמייצגת את התחום, לא עסק מסוים. בוחרים נכס מתוך תיקיית התמונות של העולמות.</p>
                 {[0, 1, 2].map((index) => <label key={`world-proof-${index}`}><span>יתרון קצר {index + 1}</span><input value={draft.attributes[`worldProof${index + 1}`] || worldLandingDefaults(selected.contentType).proof[index]} onChange={(event) => updateAttribute(`worldProof${index + 1}`, event.target.value)} /></label>)}
               </div>
             </section>

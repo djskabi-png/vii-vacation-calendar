@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import { WorldTopicImage } from "./world-topic-image";
 import { BreadcrumbTrail } from "./breadcrumb-trail";
 import { PageShell } from "./page-shell";
 import { DiscoveryCard } from "./discovery-card";
@@ -89,10 +89,7 @@ export async function WorldLanding({
         ? `${items.length} ספקים ושירותים`
         : `${items.length} ${worldLabel}`);
 
-  const spaHeroImages = world === "spa"
-    ? items.filter((item) => Boolean(item.image)).slice(0, 3)
-    : [];
-  const managedPresentation = world === "hourly" || world === "providers"
+  const managedPresentation = world === "spa" || world === "hourly" || world === "providers"
     ? await readWorldLandingPresentation(world)
     : null;
   const heroPresentation = managedPresentation ? {
@@ -124,11 +121,8 @@ export async function WorldLanding({
               <span>חיפוש לפי אזור וחוויה</span>
             </div>
           </div>
-          <div className="spa-discovery-hero__visual" aria-label="בתי ספא נבחרים">
-            {spaHeroImages.map((item, index) => <figure key={item.id} className={`spa-discovery-hero__image spa-discovery-hero__image--${index + 1}`}>
-              <Image src={item.image!} fill sizes="(max-width: 720px) 45vw, 24vw" priority={index === 0} alt={item.name} title={item.name} />
-              {index === 0 && <figcaption><span>{item.location}</span><strong>{item.name}</strong></figcaption>}
-            </figure>)}
+          <div className="spa-discovery-hero__visual">
+            {heroPresentation ? <WorldTopicImage image={heroPresentation.heroImages[0]} /> : null}
           </div>
           <div className="spa-discovery-hero__search"><SearchBox mode={searchMode} compact showWorlds initialLocation={initialSearchLocation} initialSpaAudience={initialSpaAudience} initialSpaFeatures={initialSpaFilters} /></div>
         </div>

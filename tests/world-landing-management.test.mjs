@@ -10,12 +10,12 @@ import {
 } from "../app/lib/world-landing-presentation.ts";
 
 test("every managed discovery world has a complete and distinct visual presentation", () => {
-  assert.deepEqual([...managedWorldLandingTypes], ["hourly", "providers", "attractions", "trails"]);
+  assert.deepEqual([...managedWorldLandingTypes], ["hourly", "providers", "attractions", "trails", "spa"]);
   const titles = new Set();
   for (const type of managedWorldLandingTypes) {
     const value = parseWorldLandingPresentation(type, null);
     titles.add(value.title);
-    assert.equal(value.heroImages.length, 3);
+    assert.equal(value.heroImages.length, 1);
     assert.equal(value.proof.length, 3);
     assert.ok(value.heroImages.every((image) => image.src && image.alt));
   }
@@ -25,8 +25,8 @@ test("every managed discovery world has a complete and distinct visual presentat
 test("world landing controls accept verified VII images and reject unsafe or incomplete media", () => {
   for (const type of managedWorldLandingTypes) assert.equal(validWorldLandingAttributes(worldLandingSourceAttributes(type)), true);
   const attributes = worldLandingSourceAttributes("providers");
-  assert.equal(validWorldLandingAttributes({ ...attributes, worldHeroImage1: "https://unrelated.example/image.jpg" }), false);
-  assert.equal(validWorldLandingAttributes({ ...attributes, worldHeroImage2Alt: "" }), false);
+  assert.equal(validWorldLandingAttributes({ ...attributes, worldTopicImage: "https://unrelated.example/image.jpg" }), false);
+  assert.equal(validWorldLandingAttributes({ ...attributes, worldTopicImageAlt: "" }), false);
   assert.equal(validWorldLandingAttributes({ ...attributes, worldProof3: "" }), false);
 });
 
@@ -47,6 +47,6 @@ test("the world family is wired to shared public rendering and independent versi
   assert.match(landing, /<DiscoveryWorldHero/);
   assert.match(attractions, /readWorldLandingPresentation\("attractions"\)/);
   assert.match(trails, /readWorldLandingPresentation\("trails"\)/);
-  for (const type of managedWorldLandingTypes) assert.match(css, new RegExp(`data-world=\\"${type}\\"`));
-  assert.equal(defaultWorldLandingPresentations.providers.heroImages[0].src.startsWith("/media/providers/"), true);
+  for (const type of managedWorldLandingTypes.filter((type) => type !== "spa")) assert.match(css, new RegExp(`data-world=\\"${type}\\"`));
+  assert.equal(defaultWorldLandingPresentations.providers.heroImages[0].src.startsWith("/media/world-heroes/"), true);
 });

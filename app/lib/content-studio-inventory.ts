@@ -113,6 +113,7 @@ export function publicContentPath(type: ContentType, key: string) {
   if (type === "holiday") return `/holidays/${key}`;
   if (type === "vacation") return `/business?id=vacation-${key}`;
   if (type === "events") return key === "landing" ? "/events" : `/events/place?id=event-${key}`;
+  if (key === "landing" && type === "spa") return "/spas";
   if (key === "landing" && (type === "hourly" || type === "providers" || type === "attractions" || type === "trails")) return `/${type}`;
   if (type === "hourly" || type === "spa" || type === "providers" || type === "attractions") return `/discover/place/${type === "spa" ? `spa-${key}` : key}`;
   if (type === "trails") return `/trails/${key}`;

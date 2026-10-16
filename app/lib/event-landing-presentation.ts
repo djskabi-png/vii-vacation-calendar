@@ -1,6 +1,7 @@
 import { readPublishedContent, type EditorialContent } from "./content-studio.ts";
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { isBannedPublicMedia, resolvePublicSliderMedia } from "./public-media-policy.ts";
+import { resolveWorldTopicImage, validWorldTopicImage, worldTopicMedia } from "./world-topic-media.ts";
 
 export type EventLandingSearchItem = {
   id: string;
@@ -28,11 +29,7 @@ export const defaultEventLandingPresentation = {
   description: "בוחרים אזור, תאריך וכמות משתתפים ומוצאים מקום שמתאים בדיוק לאירוע שלכם.",
   eyebrow: "האירוע שלכם מתחיל כאן",
   proof: ["מקומות בכל הארץ", "חיפוש לפי כמות וסוג אירוע", "השוואה במקום אחד"],
-  heroImages: [
-    { src: "https://www.vii.co.il/gallery/956736033706edb.JPG", alt: "מתחם אירועים פתוח מול הנוף" },
-    { src: "https://www.vii.co.il/gallery/33682d8fa6e9f0f.jpg", alt: "וילה מעוצבת לאירוע פרטי" },
-    { src: "https://www.vii.co.il/gallery/196a6071f6c6fb5.jpg", alt: "לופט מעוצב למסיבה ואירוע" }
-  ] satisfies HeroImage[],
+  heroImages: [worldTopicMedia.events] satisfies HeroImage[],
   quickSearchEyebrow: "מתחילים מהסגנון שלכם",
   quickSearchTitle: "חיפושים מהירים לאירוע",
   quickSearches: defaultQuickSearches
@@ -87,10 +84,7 @@ function parseQuickSearches(value: string | undefined) {
 
 export function parseEventLandingPresentation(content?: EditorialContent | null) {
   const attributes = content?.attributes || {};
-  const heroImages = defaultEventLandingPresentation.heroImages.map((fallback, index) => ({
-    src: safeImage(attributes[`eventHeroImage${index + 1}`]) || fallback.src,
-    alt: attributes[`eventHeroImage${index + 1}Alt`]?.trim().slice(0, 140) || fallback.alt
-  }));
+  const heroImages = [resolveWorldTopicImage("events", attributes.eventTopicImage, attributes.eventTopicImageAlt)];
   return {
     title: content?.title?.trim() || defaultEventLandingPresentation.title,
     description: content?.summary?.trim() || defaultEventLandingPresentation.description,
@@ -109,12 +103,8 @@ export function eventLandingSourceAttributes() {
     eventProof1: defaultEventLandingPresentation.proof[0],
     eventProof2: defaultEventLandingPresentation.proof[1],
     eventProof3: defaultEventLandingPresentation.proof[2],
-    eventHeroImage1: defaultEventLandingPresentation.heroImages[0].src,
-    eventHeroImage1Alt: defaultEventLandingPresentation.heroImages[0].alt,
-    eventHeroImage2: defaultEventLandingPresentation.heroImages[1].src,
-    eventHeroImage2Alt: defaultEventLandingPresentation.heroImages[1].alt,
-    eventHeroImage3: defaultEventLandingPresentation.heroImages[2].src,
-    eventHeroImage3Alt: defaultEventLandingPresentation.heroImages[2].alt,
+    eventTopicImage: defaultEventLandingPresentation.heroImages[0].src,
+    eventTopicImageAlt: defaultEventLandingPresentation.heroImages[0].alt,
     eventQuickSearchEyebrow: defaultEventLandingPresentation.quickSearchEyebrow,
     eventQuickSearchTitle: defaultEventLandingPresentation.quickSearchTitle,
     eventQuickSearches: JSON.stringify(defaultQuickSearches)
@@ -123,9 +113,7 @@ export function eventLandingSourceAttributes() {
 
 export function validEventLandingAttributes(attributes: Record<string, string>) {
   if (!attributes.eventHeroEyebrow?.trim() || !attributes.eventQuickSearchTitle?.trim()) return false;
-  for (let index = 1; index <= 3; index += 1) {
-    if (!safeImage(attributes[`eventHeroImage${index}`]) || !attributes[`eventHeroImage${index}Alt`]?.trim()) return false;
-  }
+  if (!validWorldTopicImage(attributes.eventTopicImage || "", attributes.eventTopicImageAlt || "")) return false;
   try {
     const rows = JSON.parse(attributes.eventQuickSearches || "") as unknown;
     if (!Array.isArray(rows) || rows.length < 4 || rows.length > 12) return false;
