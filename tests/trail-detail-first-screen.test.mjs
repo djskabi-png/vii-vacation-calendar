@@ -26,7 +26,7 @@ test("all trail illustrations expose accurate text and distinct matching JPEG fi
   const compile = (source) => ts.transpileModule(source, { compilerOptions: {
     module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.React,
   } }).outputText;
-  const { trails } = await import(`data:text/javascript;base64,${Buffer.from(compile(data)).toString("base64")}`);
+  const { trails } = await import("../app/data/trail-data.ts");
   const visualSource = card.slice(card.indexOf("export function TrailVisual"), card.indexOf("export function TrailCard"));
   const visual = compile(visualSource).replace("export function TrailVisual", "return function TrailVisual");
   const TrailVisual = new Function("React", "Image", visual)(React, NextImage.default || NextImage);

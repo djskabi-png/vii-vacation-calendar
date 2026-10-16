@@ -1,4 +1,5 @@
 "use client";
+import { nearbyRecommendations } from "../../lib/nearby-recommendations";
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -217,11 +218,8 @@ export default function DiscoveryPlacePage({ initialId, initialItem, relatedItem
   const localizedLocation = safeDetailText(item.location, localizedArea);
   const localizedDescription = safeDetailText(item.description, detailCopy.description(localizedItemName, localizedLocation));
   const localizedFeatures = localizedBusinessList(item.features, language, translate);
-  const related = (relatedItems || discoveryItems)
-    .filter((entry) => entry.world === item.world && entry.id !== item.id)
-    .sort((a, b) => Number(b.location === item.location) - Number(a.location === item.location)
-      || Number(b.area === item.area) - Number(a.area === item.area))
-    .slice(0, 6);
+  const related = nearbyRecommendations((relatedItems || discoveryItems).filter((entry) => entry.world === item.world), item,
+    { key: (entry) => entry.id, exclude: item.id }).items;
   const spaDetails = item.world === "spa" ? initialSpaDetails || getSpaDetails(item.id) : undefined;
   const providerDetails = item.world === "providers" ? getProviderDetails(item.id) : undefined;
   const hourlyDetails = item.world === "hourly" ? initialHourlyDetails || getHourlyDetails(item) : undefined;

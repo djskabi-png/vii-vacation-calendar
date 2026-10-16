@@ -16,6 +16,8 @@ import { ResultsViewToggle, useResultsViewMode } from "./results-view-toggle";
 import { ProgressiveResults } from "./progressive-results";
 import { rotateWithinTiers } from "../lib/daily-rotation";
 import { trackSearchResults } from "../lib/analytics";
+import { nearbyRecommendations, completeNearbyResults, nearbyPoint } from "../lib/nearby-recommendations";
+import { NearbySearchNotice } from "./nearby-search-notice";
 
 const spaFilters = spaLandings;
 
@@ -119,20 +121,29 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
   )), (item) => item.image && item.priceLabel ? 0 : item.image ? 1 : 2,
   (item) => item.id, "spa-search"), [amenityFiltered, location, requestedDate, dateCovered, checkingDate, availability.sites]);
 
+  const nearbyRecovery = useMemo(() => {
+    if (filtered.length >= 3 || checkingDate || location === "כל הארץ") return [];
+    const origin = items.find((item) => item.location === location || item.area === location);
+    if (!origin && !nearbyPoint({ area: location })) return [];
+    const eligible = amenityFiltered.filter((item) => !requestedDate || !dateCovered || availability.sites.has(Number(item.id.replace("spa-", ""))));
+    return nearbyRecommendations(eligible, { location, area: location, lat: origin?.location === location ? origin.lat : undefined, lng: origin?.location === location ? origin.lng : undefined }, { key: (item) => item.id, limit: 12, minimum: 3 }).items;
+  }, [amenityFiltered, availability.sites, checkingDate, dateCovered, filtered.length, items, location, requestedDate]);
+  const resultItems = useMemo(() => completeNearbyResults(filtered, nearbyRecovery, (item) => item.id), [filtered, nearbyRecovery]);
+
   useEffect(() => {
     if (checkingDate) return;
     const timer = window.setTimeout(() => trackSearchResults({
       world: "spa",
       location,
       hasDate: Boolean(requestedDate),
-      resultCount: filtered.length,
+      resultCount: resultItems.length,
       filters: {
         ...(spaAudience ? { package: spaAudiences[spaAudience].label } : {}),
         ...(selectedFilters.length ? { experience: selectedFilters.join(",") } : {}),
       },
     }), 650);
     return () => window.clearTimeout(timer);
-  }, [checkingDate, filtered.length, location, requestedDate, selectedFilters, spaAudience]);
+  }, [checkingDate, resultItems.length, location, requestedDate, selectedFilters, spaAudience]);
 
   function updateUrl(nextLocation: string, nextAudience: SpaAudienceId | "", nextFilters: string[]) {
     const params = new URLSearchParams(window.location.search);
@@ -164,10 +175,10 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
 
   const hasFilters = location !== "כל הארץ" || spaAudience !== "" || selectedFilters.length > 0;
   const displayed = useMemo(() => {
-    if (!mapOpen || !mapVisibleIds) return filtered;
+    if (!mapOpen || !mapVisibleIds) return resultItems;
     const visible = new Set(mapVisibleIds);
-    return filtered.filter((item) => visible.has(item.id));
-  }, [filtered, mapOpen, mapVisibleIds]);
+    return resultItems.filter((item) => visible.has(item.id));
+  }, [mapOpen, mapVisibleIds, resultItems]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => { setMapVisibleIds(null); setActiveMapPlaceId(null); }, 0);
@@ -202,11 +213,13 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
     }, 0);
     return () => window.clearTimeout(timer);
   }, [initialLocation, initialSpaAudience, initialSpaFilters, searchQuery]);
-  const resultLabel = mapOpen
+  const expandedResultLabel = { he: `${displayed.length} בתי ספא באזור ובסביבה`, en: `${displayed.length} spas in the area and nearby`, ru: `${displayed.length} спа в выбранном районе и окрестностях`, fr: `${displayed.length} spas dans le secteur et aux alentours` }[language];
+  const resultLabel = !mapOpen && resultItems.length > filtered.length ? expandedResultLabel : mapOpen
     ? `${visibleMapCount} בתי ספא באזור המוצג במפה`
     : `${displayed.length} בתי ספא${mapVisibleIds ? " באזור שבחרתם במפה" : location === "כל הארץ" ? " בישראל" : ` ב${location}`}`;
 
   return <div className="world-map-results world-map-results--spa spa-results">
+    {resultItems.length > filtered.length && <NearbySearchNotice dated={Boolean(requestedDate)} regionalOnly />}
     {requestedDate && <p className="source-note" role="status">{availability.status === "loading" || availability.status === "idle" ? "בודקים זמינות מול ביז און ליין..." : availability.status === "unavailable" ? "בדיקת הזמינות אינה זמינה כרגע. מוצגים כל המקומות ללא אישור זמינות." : !dateCovered ? "לתאריך הזה אין עדיין נתוני זמינות מביז. מוצגים כל המקומות ללא אישור זמינות." : "מוצגים רק מקומות שביז דיווח להם על משבצת פנויה. הנתון משוער, ומקומות ללא דיווח אינם מוצגים. זמינות החבילה הזוגית תאושר במהלך ההזמנה."}</p>}
     <section id="spa-result-filters" className="spa-results__filter-strip" aria-label="סינון תוצאות ספא" hidden={!filtersOpen}>
       <div className="spa-results__filters">
@@ -219,10 +232,10 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
       <h2 aria-live="polite">{resultLabel}</h2>
       <div className="spa-results__view-actions">
         <button className="spa-results__filter-toggle" type="button" aria-controls="spa-result-filters" aria-expanded={filtersOpen} onClick={() => setFiltersOpen((open) => !open)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M7 12h10M10 17h4" /></svg><span>סינון</span></button>
-        {filtered.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onPointerEnter={preloadListingMap} onFocus={preloadListingMap} onTouchStart={preloadListingMap} onPointerDown={(event) => event.stopPropagation()} onPointerUp={(event) => event.stopPropagation()} onClick={(event) => { event.preventDefault(); event.stopPropagation(); toggleResultsMap(); }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
+        {resultItems.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onPointerEnter={preloadListingMap} onFocus={preloadListingMap} onTouchStart={preloadListingMap} onPointerDown={(event) => event.stopPropagation()} onPointerUp={(event) => event.stopPropagation()} onClick={(event) => { event.preventDefault(); event.stopPropagation(); toggleResultsMap(); }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
       </div>
     </div>
-    {checkingDate ? <div className="spa-results__empty" role="status">בודקים מקומות פנויים לתאריך שבחרתם...</div> : filtered.length > 0 ? mapOpen ? <div className="airbnb-map-split world-map-split"><div className={`airbnb-map-split__results discovery-grid results-view results-view--${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} mapActive={activeMapPlaceId === item.id} onActiveChange={(active) => setActiveMapPlaceId(active ? item.id : null)} />)}</div><div className="airbnb-map-split__map"><DeferredDiscoveryMap items={filtered} initialItems={filtered} tone="spa" autoLoad onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPlaceId} onActivePlaceChange={setActiveMapPlaceId} /></div></div> : <ProgressiveResults className={`discovery-grid results-view results-view--${viewMode}`} resetKey={`${location}|${spaAudience}|${requestedDate}|${availability.status}|${selectedFilters.join(",")}|${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</ProgressiveResults> : <div className="spa-results__empty"><strong>לא נמצאו מתחמים שמתאימים לתאריך ולסינונים</strong><p>אפשר לבחור תאריך או אזור אחר.</p><button type="button" className="button secondary" onClick={resetFilters}>הצגת כל מתחמי הספא</button></div>}
+    {checkingDate ? <div className="spa-results__empty" role="status">בודקים מקומות פנויים לתאריך שבחרתם...</div> : resultItems.length > 0 ? mapOpen ? <div className="airbnb-map-split world-map-split"><div className={`airbnb-map-split__results discovery-grid results-view results-view--${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} mapActive={activeMapPlaceId === item.id} onActiveChange={(active) => setActiveMapPlaceId(active ? item.id : null)} />)}</div><div className="airbnb-map-split__map"><DeferredDiscoveryMap items={resultItems} initialItems={resultItems} tone="spa" autoLoad onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPlaceId} onActivePlaceChange={setActiveMapPlaceId} /></div></div> : <ProgressiveResults className={`discovery-grid results-view results-view--${viewMode}`} resetKey={`${location}|${spaAudience}|${requestedDate}|${availability.status}|${selectedFilters.join(",")}|${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</ProgressiveResults> : <div className="spa-results__empty"><strong>לא נמצאו מתחמים שמתאימים לתאריך ולסינונים</strong><p>אפשר לבחור תאריך או אזור אחר.</p><button type="button" className="button secondary" onClick={resetFilters}>הצגת כל מתחמי הספא</button></div>}
   </div>;
 }
 

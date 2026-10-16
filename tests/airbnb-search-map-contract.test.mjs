@@ -24,9 +24,9 @@ test("opening and closing a map clears stale viewport-only results", () => {
   for (const [path, resultCollection] of [
     ["app/search/page.tsx", "resultSet"],
     ["app/events/search/page.tsx", "resultSet"],
-    ["app/components/hourly-results.tsx", "filtered"],
-    ["app/attractions/attractions-explorer.tsx", "filtered"],
-    ["app/components/world-map-results.tsx", "filtered"],
+    ["app/components/hourly-results.tsx", "resultItems"],
+    ["app/attractions/attractions-explorer.tsx", "resultItems"],
+    ["app/components/world-map-results.tsx", "resultItems"],
   ]) {
     const source = read(path);
     assert.match(source, new RegExp(`if \\(!mapOpen \\|\\| !mapVisibleIds\\) return ${resultCollection}`));

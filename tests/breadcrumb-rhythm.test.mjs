@@ -52,7 +52,7 @@ test("spa and hourly expose one concise live results heading", () => {
   const hourly = read("app/components/hourly-results.tsx");
   assert.match(landing, /world !== "spa" && world !== "hourly" && <div className="section-head world-results-title"/);
   assert.match(spa, /<h2 aria-live="polite">\{resultLabel\}<\/h2>/);
-  assert.match(hourly, /filtered\.length === 1 \? "נמצא מקום אחד"/);
+  assert.match(hourly, /resultItems\.length === 1 \? "נמצא מקום אחד"/);
   assert.match(hourly, /<h2 aria-live="polite">\{resultLabel\}<\/h2>/);
 });
 

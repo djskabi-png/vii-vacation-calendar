@@ -32,8 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function TrailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const publishedTrails = await managedTrails(trails); const trail = publishedTrails.find((item) => item.slug === slug); if (!trail) notFound();
-  const managedBySlug = new Map(publishedTrails.map((item) => [item.slug, item]));
-  const related = nearbyTrails(trail.mainArea, trail.region, 7).filter((item) => item.slug !== trail.slug).map((item) => managedBySlug.get(item.slug) || item).slice(0, 6);
+  const related = nearbyTrails(trail.mainArea, trail.region, 6, { inventory: publishedTrails, excludeSlug: trail.slug });
   const trailFaqs = [
     { question: `האם ${trail.name} מתאים למשפחות?`, answer: trail.familyFit },
     { question: `מה רמת הנגישות ב${trail.name}?`, answer: trail.accessibility },

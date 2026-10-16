@@ -12,6 +12,11 @@ import { ViewedItemBootstrap } from "../components/viewed-item-bootstrap";
 import { currentPeriodOffer } from "../data/last-minute-deals";
 import { supplierLegacySlug, unavailableLegacySearchHref } from "../data/supplier-legacy-links";
 import { liveSupplierPlaceDetail, type SupplierPlaceDetail } from "../data/supplier-place-detail";
+import { trails } from "../data/trail-data";
+import { discoveryItems, spaPlacesFromSites } from "../data/world-data";
+import type { SpaPlusSite } from "../data/spaplus";
+import { managedTrails, managedDiscoveryItems } from "../lib/managed-public-content";
+import { nearbyRecommendations } from "../lib/nearby-recommendations";
 
 type QueryValue = string | string[] | undefined;
 type BusinessParams = { id?: QueryValue; mode?: QueryValue; dates?: QueryValue; from?: QueryValue; till?: QueryValue; guests?: QueryValue; rooms?: QueryValue; price?: QueryValue; illustrative?: QueryValue; source?: QueryValue; period?: QueryValue };
@@ -63,9 +68,19 @@ export default async function Page({ searchParams }: Props) {
   }
   const { property, properties } = await resolveProperty(params.id);
   if (!property) notFound();
+  const recommendations = Promise.all([
+    managedTrails(trails), publicCatalogSummaries<SpaPlusSite>("spa").catch(() => {
+      console.warn("nearby_spa_catalog_unavailable");
+      return [] as SpaPlusSite[];
+    }),
+    managedDiscoveryItems(discoveryItems.filter((item) => item.world === "activities"), "attractions"),
+  ]);
   const supplierId = /^vacation-(\d+)$/.exec(property.slug)?.[1];
   const acceptedDetail = supplierId ? await publicCatalogDetail<SupplierPlaceDetail>("vacations", Number(supplierId)) : null;
   const supplierDetail = await liveSupplierPlaceDetail(property.slug, { fallback: acceptedDetail, listing: property });
+  const [trailInventory, spaSites, attractions] = await recommendations;
+  const complementaryInventory = [...spaPlacesFromSites(spaSites), ...attractions];
+  const relatedProperties = nearbyRecommendations(properties, property, { key: (item) => item.slug, exclude: property.slug, limit: 3 }).items;
   const currentOffer = property.capacityScope === "unit" ? undefined : currentPeriodOffer(property.slug, params.period);
   if (currentOffer && (params.from !== currentOffer.from || params.till !== currentOffer.till || Number(params.price) !== currentOffer.nightlyPrice)) {
     const locale = (await headers()).get("x-vii-locale");
@@ -102,6 +117,6 @@ export default async function Page({ searchParams }: Props) {
       { name: property.name, path: `/business?id=${property.slug}` },
     ])} />
     <StructuredData data={faqSchema(propertyFaq)} />
-    <BusinessPage initialSlug={property.slug} initialProperty={property} relatedProperties={properties.filter((item) => item.slug !== property.slug).slice(0, 3)} supplierDetail={supplierDetail} initialWorld={initialWorld} initialDates={params.dates} initialFrom={params.from} initialTill={params.till} initialGuests={params.guests} initialRooms={params.rooms} initialPrice={params.price} initialIllustrative={params.illustrative === "1"} initialSource={params.source} initialPeriod={params.period} />
+    <BusinessPage initialSlug={property.slug} initialProperty={property} relatedProperties={relatedProperties} trailInventory={trailInventory} complementaryInventory={complementaryInventory} supplierDetail={supplierDetail} initialWorld={initialWorld} initialDates={params.dates} initialFrom={params.from} initialTill={params.till} initialGuests={params.guests} initialRooms={params.rooms} initialPrice={params.price} initialIllustrative={params.illustrative === "1"} initialSource={params.source} initialPeriod={params.period} />
   </>;
 }

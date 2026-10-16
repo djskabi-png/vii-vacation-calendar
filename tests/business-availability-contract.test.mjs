@@ -34,7 +34,10 @@ test("vacation availability starts with dates and only then offers an enquiry", 
 });
 
 test("nearby recommendations explain their purpose in plain Hebrew", () => {
-  assert.match(business, /מקומות במרחק משוער של עד 35 ק״מ/);
-  assert.match(business, /לא זמין כרגע מרחק מדויק/);
+  const nearbyCopy = readFileSync(new URL("../app/lib/nearby-recommendations.ts", import.meta.url), "utf8");
+  assert.match(business, /complementSelection\.expanded/);
+  assert.match(nearbyCopy, /אפשרויות מהאזור הרחב יותר/);
+  assert.match(nearbyCopy, /לפי שיוך אזורי ולא לפי מרחק מדויק/);
+  assert.doesNotMatch(business, /עד 35 ק״מ/);
   assert.doesNotMatch(business, /אימות התאמה, פרטים ואופן הזמנה/);
 });

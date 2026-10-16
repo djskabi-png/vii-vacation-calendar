@@ -1,4 +1,5 @@
 "use client";
+import { nearbyRecommendations } from "../../lib/nearby-recommendations";
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -172,7 +173,7 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
 
         <div className="section shell"><MasuExperience context="event" /></div>
 
-        <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים לאירוע</h2></div><div className="event-more-grid">{(relatedPlaces || eventPlaces).filter((item) => item.slug !== place.slug).slice(0, 3).map((item) => { const name = safeEventText(item.name, latinBusinessAlias(item.name) || eventContentCopy.name); const location = safeEventText(item.location, safeEventText(item.area, eventContentCopy.location)); return <PlacePreviewCard className="event-related-card" key={item.slug} name={name} image={item.image} images={item.images} href={eventPlaceHref(item)}><div><b>{name}</b><span>{location} · עד {item.guests} אורחים ביחידה הגדולה</span></div></PlacePreviewCard>; })}</div></div></section>
+        <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים לאירוע</h2></div><div className="event-more-grid">{nearbyRecommendations(relatedPlaces || eventPlaces, place, { key: (entry) => entry.slug, exclude: place.slug, limit: 3 }).items.map((item) => { const name = safeEventText(item.name, latinBusinessAlias(item.name) || eventContentCopy.name); const location = safeEventText(item.location, safeEventText(item.area, eventContentCopy.location)); return <PlacePreviewCard className="event-related-card" key={item.slug} name={name} image={item.image} images={item.images} href={eventPlaceHref(item)}><div><b>{name}</b><span>{location} · עד {item.guests} אורחים ביחידה הגדולה</span></div></PlacePreviewCard>; })}</div></div></section>
         <FloatingContactActions world="events" placeId={place.slug} placeName={place.name} phone={ownerPhone} whatsapp={ownerWhatsapp} serviceName={place.type} from={eventDate} guests={Number(eventGuests) || undefined} />
       </main>
 
