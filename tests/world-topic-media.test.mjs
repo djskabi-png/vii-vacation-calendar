@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile, stat } from "node:fs/promises";
 import test from "node:test";
-import { resolveWorldTopicImage, validWorldTopicImage, worldTopicMedia } from "../app/lib/world-topic-media.ts";
+import { resolveWorldTopicImage, validWorldTopicImage, worldTopicMedia, worldTopicImageCopy } from "../app/lib/world-topic-media.ts";
 import { parseWorldLandingPresentation, managedWorldLandingTypes, worldLandingSourceAttributes } from "../app/lib/world-landing-presentation.ts";
 import { parseEventLandingPresentation, eventLandingSourceAttributes } from "../app/lib/event-landing-presentation.ts";
 
@@ -43,7 +43,8 @@ test("topic overrides are intentional, safe and do not fall back to supplier gal
 test("shared visual has one image, illustration disclosure and no business links or collage", async () => {
   const component = await readFile(new URL("../app/components/world-topic-image.tsx", import.meta.url), "utf8");
   assert.equal((component.match(/<img /g) || []).length, 1);
-  assert.match(component, /<figcaption>תמונת המחשה<\/figcaption>/);
+  assert.match(component, /<figcaption>\{copy.caption\}<\/figcaption>/);
+  assert.match(component, /\(await headers\(\)\)\.get\("x-vii-locale"\)/);
   assert.match(component, /srcSet=/); assert.match(component, /width=\{1200\} height=\{800\}/);
   assert.doesNotMatch(component, /<a |<Link |item\.name|figures\.map|fetch\(/);
   for (const file of ["discovery-world-hero.tsx", "world-landing.tsx", "../events/page.tsx"]) {
@@ -54,4 +55,16 @@ test("shared visual has one image, illustration disclosure and no business links
   }
   const inventory = await readFile(new URL("../app/lib/content-studio-inventory.ts", import.meta.url), "utf8");
   assert.match(inventory, /key === "landing" && type === "spa"\) return "\/spas"/);
+});
+
+test("topic metadata is localized before hydration with the verified request locale", () => {
+  for (const image of Object.values(worldTopicMedia)) {
+    for (const locale of ["en", "fr", "ru"]) {
+      const copy = worldTopicImageCopy(image, locale);
+      assert.doesNotMatch(copy.alt + copy.caption, /[\u0590-\u05ff]/);
+      assert.ok(copy.alt.length > 15);
+    }
+    assert.deepEqual(worldTopicImageCopy(image, "he"), {alt:image.alt,caption:"תמונת המחשה"});
+    assert.deepEqual(worldTopicImageCopy(image, "untrusted"), {alt:image.alt,caption:"תמונת המחשה"});
+  }
 });
