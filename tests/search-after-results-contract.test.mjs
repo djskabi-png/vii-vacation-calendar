@@ -53,7 +53,9 @@ test("a following cross-sell uses one measured section rhythm instead of stacked
 
 test("contextual discovery preserves filters while changing only the selected destination or suggestion", () => {
   assert.match(component, /new URLSearchParams\(currentQuery\)/);
-  assert.match(component, /params\.set\(key, value\)/);
+  assert.match(component, /depthQuery\(world, currentQuery, updates\)/);
+  const policy = readFileSync(new URL("../app/lib/world-depth-policy.ts", import.meta.url), "utf8");
+  assert.match(policy, /params\.set\(key, value\)/);
   assert.match(component, /inventory\.filter/);
   assert.match(component, /matchesSearchLocation\(item, location\)/);
   assert.match(component, /SliderRailControls/);
@@ -62,7 +64,10 @@ test("contextual discovery preserves filters while changing only the selected de
 
 test("spa discovery cards lead to unique canonical landing pages", () => {
   assert.match(component, /spaSearchRegions\.find\(\(entry\) => entry\.label === destination\)/);
-  assert.match(component, /spaSearchHref\(\{ region, features: \[\] \}\)/);
+  assert.match(component, /spaSearchStateFromValues\(destination, incoming\.get\("spaFor"\)/);
+  assert.match(component, /spaSearchHref\(state\)/);
+  assert.match(component, /incoming\.get\("features"\)/);
+  assert.match(component, /!state\.region\) extra\.set\("location"/);
   assert.match(component, /href: "\/spas\/search\/couples"/);
   assert.match(component, /href: "\/spas\/search\/single"/);
   assert.match(component, /href: "\/spas\/spa-day"/);

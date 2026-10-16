@@ -45,6 +45,8 @@ test("every static Hebrew source phrase has a non-Hebrew translation in every pu
     const spaUiDictionary = JSON.parse(await readFile(resolve(root, "app/data/spa-ui-translations.json"), "utf8"));
     const catalogAdminDictionary = JSON.parse(await readFile(resolve(root, "app/data/catalog-admin-translations.json"), "utf8"));
     const emailPolishDictionary = JSON.parse(await readFile(resolve(root, "app/data/email-polish-translations.json"), "utf8"));
+    const depthDictionary = JSON.parse(await readFile(resolve(root, "app/data/world-depth-translations.json"), "utf8"));
+    for (const [phrase, translations] of Object.entries(depthDictionary)) dictionary[phrase] = translations[language];
     for (const [phrase, translations] of Object.entries(legacyDictionary)) dictionary[phrase] = translations[language];
     for (const [phrase, translations] of Object.entries(bookingHubDictionary)) dictionary[phrase] = translations[language];
     for (const [phrase, translations] of Object.entries(hourlyDictionary)) dictionary[phrase] = translations[language];

@@ -3,6 +3,11 @@ import { isWholeCountrySelection, matchesSearchLocation, searchLocationOptions, 
 export type SearchDepthInventoryPlace = {
   location: string;
   area: string;
+  type?: string;
+  eventTypes?: string[];
+  serviceAreas?: string[];
+  nature?: string[];
+  difficulty?: string;
 };
 
 export type SearchDepthLocationLayers = {
@@ -13,7 +18,7 @@ export type SearchDepthLocationLayers = {
 };
 
 function unique(values: Array<string | undefined | null>) {
-  return [...new Set(values.map((value) => value?.trim()).filter((value): value is string => Boolean(value)))];
+  return [...new Set(values.map((value) => value?.trim()).filter((value): value is string => Boolean(value) && !/לא נמסר|לא צוין|עד לבית הלקוח|לפי מיקום|בתיאום/.test(value!)))];
 }
 
 function isPlaceLocation(value: string, inventory: SearchDepthInventoryPlace[]) {

@@ -42,6 +42,7 @@ import { publishedLastMinuteDeal } from "../data/last-minute-deals";
 import { UnitDetailsDialog } from "../components/unit-details-dialog";
 import { PropertyGallery } from "../components/property-gallery";
 import { FloatingContactActions } from "../components/floating-contact-actions";
+import { SearchAfterResults } from "../components/search-after-results";
 import type { SupplierPlaceDetail } from "../data/supplier-place-detail";
 import { trackBusinessEvent } from "../lib/analytics";
 
@@ -480,6 +481,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
           </div>
         </section>
         {(activeWorld === "vacation" || activeWorld === "events" || activeWorld === "hourly") ? <FloatingContactActions world={activeWorld} placeId={property.slug} placeName={property.name} phone={property.contact?.phone} whatsapp={ownerWhatsapp} serviceName={activeOffering.label} from={dateRange.from} till={dateRange.till} guests={guests} /> : null}
+        <SearchAfterResults world={activeWorld} discoveryOnly location={property.location} inventory={[property, ...(relatedProperties || [])].map(entry => ({ location: entry.location, area: entry.area, type: entry.type }))} />
       </main>
 
       <CalendarDemo mode="business" businessKind={property.scenario} businessName={property.name} open={calendarOpen && activeWorld === "vacation"} onClose={() => setCalendarOpen(false)} guests={guests} maxGuests={activeOffering.maxGuests || property.guests} onGuestsChange={setGuests} availabilityResolver={property.demoOperations?.fictional ? demoAvailabilityForDate : undefined} priceResolver={property.demoOperations?.fictional ? (date) => demoNightlyPrice(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`, property.demoOperations!.weekdayNightlyPrice, property.demoOperations!.weekendNightlyPrice) : undefined} onConfirm={(result) => { const from = result.checkIn || ""; setDates(result.summary); setDateRange({ from, till: result.checkOut || "" }); setSelectedPrice(property.demoOperations?.fictional && from ? String(demoNightlyPrice(from, property.demoOperations.weekdayNightlyPrice, property.demoOperations.weekendNightlyPrice)) : ""); }} />

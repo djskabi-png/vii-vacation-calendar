@@ -7,6 +7,7 @@ import frTranslations from "../app/i18n/translations.fr.generated.json";
 import hourlyUiTranslations from "../app/data/hourly-ui-translations.json";
 import providerJoinTranslations from "../app/data/provider-join-translations.json";
 import spaUiTranslations from "../app/data/spa-ui-translations.json";
+import worldDepthTranslations from "../app/data/world-depth-translations.json";
 import catalogAdminTranslations from "../app/data/catalog-admin-translations.json";
 import { runSupplierCatalogScheduleTick } from "../app/lib/supplier-catalog-retry-runner.ts";
 import { legacyDisposition, looksLikeUninventoriedLegacyPath } from "../app/lib/legacy-route-map.ts";
@@ -55,6 +56,10 @@ const serverTranslations: Record<Exclude<PublicLocale, "he">, TranslationDiction
   ru: { ...ruTranslations, ...Object.fromEntries(Object.entries(hourlyUiTranslations).map(([key, value]) => [key, value.ru])), ...Object.fromEntries(Object.entries(providerJoinTranslations).map(([key, value]) => [key, value.ru])), ...Object.fromEntries(Object.entries(spaUiTranslations).map(([key, value]) => [key, value.ru])), ...Object.fromEntries(Object.entries(catalogAdminTranslations).map(([key, value]) => [key, value.ru])) },
   fr: { ...frTranslations, ...Object.fromEntries(Object.entries(hourlyUiTranslations).map(([key, value]) => [key, value.fr])), ...Object.fromEntries(Object.entries(providerJoinTranslations).map(([key, value]) => [key, value.fr])), ...Object.fromEntries(Object.entries(spaUiTranslations).map(([key, value]) => [key, value.fr])), ...Object.fromEntries(Object.entries(catalogAdminTranslations).map(([key, value]) => [key, value.fr])) },
 };
+
+for (const locale of ["en", "ru", "fr"] as const) {
+  Object.assign(serverTranslations[locale], Object.fromEntries(Object.entries(worldDepthTranslations).map(([key, value]) => [key, value[locale]])));
+}
 
 function translateServerText(value: string, locale: PublicLocale) {
   if (locale === "he" || !/[\u0590-\u05ff]/.test(value)) return value;

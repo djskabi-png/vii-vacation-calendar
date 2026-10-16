@@ -26,6 +26,7 @@ import { ShareButton } from "../../components/share-dialog";
 import { ViewedItemTracker } from "../../components/viewed-item-tracker";
 import { PropertyGallery } from "../../components/property-gallery";
 import { FloatingContactActions } from "../../components/floating-contact-actions";
+import { SearchAfterResults } from "../../components/search-after-results";
 import type { SupplierPlaceDetail } from "../../data/supplier-place-detail";
 import { useSearchParams } from "next/navigation";
 import { useViiLiveSearch } from "../../components/use-vii-live-search";
@@ -175,6 +176,7 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
 
         <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים לאירוע</h2></div><div className="event-more-grid">{nearbyRecommendations(relatedPlaces || eventPlaces, place, { key: (entry) => entry.slug, exclude: place.slug, limit: 3 }).items.map((item) => { const name = safeEventText(item.name, latinBusinessAlias(item.name) || eventContentCopy.name); const location = safeEventText(item.location, safeEventText(item.area, eventContentCopy.location)); return <PlacePreviewCard className="event-related-card" key={item.slug} name={name} image={item.image} images={item.images} href={eventPlaceHref(item)}><div><b>{name}</b><span>{location} · עד {item.guests} אורחים ביחידה הגדולה</span></div></PlacePreviewCard>; })}</div></div></section>
         <FloatingContactActions world="events" placeId={place.slug} placeName={place.name} phone={ownerPhone} whatsapp={ownerWhatsapp} serviceName={place.type} from={eventDate} guests={Number(eventGuests) || undefined} />
+        <SearchAfterResults world="events" discoveryOnly location={place.location} inventory={[place, ...(relatedPlaces || [])].map(entry => ({ location: entry.location, area: entry.area, type: entry.type, eventTypes: entry.eventTypes }))} />
       </main>
 
       <GalleryExperience key={`${place.slug}-${galleryOpen ? `${galleryTab}-${galleryStart}` : "closed"}`} property={place} open={galleryOpen} initialIndex={galleryStart} initialTab={galleryTab} onSelectionChange={updateGallerySelection} onClose={closeGallery} />

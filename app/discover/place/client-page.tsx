@@ -26,6 +26,9 @@ import { DetailStickyDock, type DetailSectionLink } from "../../components/detai
 import { GuestReviewStudio } from "../../components/guest-review-studio";
 import { WhatsAppLeadButton } from "../../components/whatsapp-lead-button";
 import { FloatingContactActions } from "../../components/floating-contact-actions";
+import { SearchAfterResults } from "../../components/search-after-results";
+import { providerDepthLocation } from "../../lib/world-depth-policy";
+import { activityRegion, activityType } from "../../lib/activity-discovery-taxonomy";
 import { useSiteLanguage } from "../../i18n/locale-provider";
 import { latinBusinessAlias, localizedBusinessList, localizedBusinessText } from "../../i18n/localized-business-content";
 
@@ -281,6 +284,7 @@ export default function DiscoveryPlacePage({ initialId, initialItem, relatedItem
       <div className="section shell"><GuestReviewStudio placeName={localizedItemName} subjectId={item.id} rating={item.rating} /></div>
       <section className="section section-tint"><div className="shell"><div className="section-head"><div><span className="eyebrow">באותו עולם</span><h2>עוד אפשרויות שכדאי לראות</h2></div></div><div className="discovery-grid">{related.map((entry) => <DiscoveryCard key={entry.id} item={entry} />)}</div></div></section>
       {item.world === "hourly" ? <FloatingContactActions world="hourly" placeId={item.id} placeName={item.name} phone={item.phone} whatsapp={item.whatsapp} serviceName="חדרים לפי שעה" /> : null}
+      {(item.world === "spa" || item.world === "hourly" || item.world === "providers" || item.world === "activities") ? <SearchAfterResults world={item.world} discoveryOnly location={item.world === "providers" ? providerDepthLocation(item.serviceAreas) : item.world === "activities" ? activityRegion(item) || undefined : item.location} inventory={[item, ...(relatedItems || []).filter(entry => entry.world === item.world)].map(entry => ({ location: entry.location, area: item.world === "activities" ? activityRegion(entry) || "" : entry.area, type: item.world === "activities" ? activityType(entry) || undefined : undefined, serviceAreas: entry.serviceAreas }))} /> : null}
     </main>
     <GalleryExperience key={`${item.id}-${galleryOpen ? `${galleryTab}-${galleryStart}` : "closed"}`} property={{ ...gallerySubject, name: localizedItemName }} open={galleryOpen} initialIndex={galleryStart} initialTab={galleryTab} onSelectionChange={updateGallerySelection} onClose={closeGallery} />
   </PageShell>;

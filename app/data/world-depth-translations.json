@@ -1,0 +1,145 @@
+{
+"מידע על הפעילות, תמונות ופרטי הזמנה, כדי לבחור חוויה שמתאימה לכם.": {"en":"Explore activities, photos and booking details to find the right experience for you.","ru":"Сравните развлечения, фотографии и условия бронирования, чтобы выбрать подходящее впечатление.","fr":"Comparez les activités, les photos et les modalités de réservation pour choisir votre expérience."},
+"בוחרים מסלול לפי דרגת קושי, משך ועונה, ובודקים הנחיות בטיחות ומקורות רשמיים לפני היציאה.": {"en":"Choose a trail by difficulty, duration and season. Check safety guidance and official updates before setting out.","ru":"Выберите маршрут по сложности, длительности и сезону. Перед выходом проверьте рекомендации по безопасности и официальные обновления.","fr":"Choisissez un itinéraire selon la difficulté, la durée et la saison. Consultez les consignes de sécurité et les informations officielles avant de partir."},
+"אטרקציות בצפון": {"en":"Activities in northern Israel","ru":"Развлечения на севере Израиля","fr":"Activités dans le nord d’Israël"},
+"אטרקציות במרכז": {"en":"Activities in central Israel","ru":"Развлечения в центре Израиля","fr":"Activités dans le centre d’Israël"},
+"אטרקציות בדרום": {"en":"Activities in southern Israel","ru":"Развлечения на юге Израиля","fr":"Activités dans le sud d’Israël"},
+"רחובות": {"en":"Rehovot","ru":"Реховот","fr":"Rehovot"},
+"רעננה": {"en":"Ra'anana","ru":"Раанана","fr":"Ra'anana"},
+"צפת": {"en":"Safed","ru":"Цфат","fr":"Safed"},
+"ספא זוגי": {"en":"Spa for couples","ru":"Спа для двоих","fr":"Spa en duo"},
+"יום כיף בספא": {"en":"Spa day","ru":"Спа-день","fr":"Journée spa"},
+"סוג השירות": {"en":"Service category","ru":"Категория услуг","fr":"Type de service"},
+"סוג טבע": {"en":"Landscape and nature","ru":"Природа маршрута","fr":"Paysages et nature"},
+"סוג חוויה": {"en":"Experience type","ru":"Тип впечатлений","fr":"Type d’expérience"},
+"עם מידע ברור, תמונות, אזור ודרך הזמנה מסודרת.": {"en":"with details, photos, location and booking information.","ru":"с описанием, фотографиями, расположением и условиями бронирования.","fr":"avec les informations, les photos, la localisation et les modalités de réservation."},
+"אטרקציות, סיורים וחוויות בנושא": {"en":"Activities, tours and experiences:","ru":"Развлечения, экскурсии и впечатления:","fr":"Activités, visites et expériences :"},
+"עם דרגת קושי, משך, עונה ומידע בטיחותי ממקורות רשמיים.": {"en":"with difficulty, duration, season and safety guidance from official sources.","ru":"с уровнем сложности, длительностью, сезоном и рекомендациями по безопасности из официальных источников.","fr":"avec le niveau de difficulté, la durée, la saison et les consignes de sécurité de sources officielles."},
+"מסלולים בנושא": {"en":"Trails to explore:","ru":"Маршруты по теме:","fr":"Randonnées à découvrir :"},
+"עם מידע בטיחותי ומקור רשמי.": {"en":"with safety information and an official source.","ru":"с рекомендациями по безопасности и официальным источником.","fr":"avec des conseils de sécurité et une source officielle."},
+  "מוצאים": {
+    "en": "Find",
+    "ru": "Найдите",
+    "fr": "Trouvez"
+  },
+  "עם מידע ברור, תמונות ודרך הזמנה מסודרת.": {
+    "en": "with details, photos and booking information.",
+    "ru": "с описанием, фотографиями и условиями бронирования.",
+    "fr": "avec des informations, des photos et les modalités de réservation."
+  },
+  "מגלים": {
+    "en": "Explore",
+    "ru": "Откройте",
+    "fr": "Découvrez"
+  },
+  "עם דרגת קושי, משך, עונה ומידע בטיחותי.": {
+    "en": "with difficulty, duration, season and safety information.",
+    "ru": "с уровнем сложности, длительностью, сезоном и рекомендациями по безопасности.",
+    "fr": "avec le niveau de difficulté, la durée, la saison et les conseils de sécurité."
+  },
+  "חדרים עם בריכה": {
+    "en": "Rooms with a pool",
+    "ru": "Номера с бассейном",
+    "fr": "Chambres avec piscine"
+  },
+  "אטרקציות בכנרת": {
+    "en": "Activities around the Sea of Galilee",
+    "ru": "Развлечения у Кинерета",
+    "fr": "Activités autour du lac de Tibériade"
+  },
+  "אטרקציות בירושלים": {
+    "en": "Activities in Jerusalem",
+    "ru": "Развлечения в Иерусалиме",
+    "fr": "Activités à Jérusalem"
+  },
+  "אטרקציות באילת והסביבה": {
+    "en": "Activities in and around Eilat",
+    "ru": "Развлечения в Эйлате и окрестностях",
+    "fr": "Activités à Eilat et aux alentours"
+  },
+  "אטרקציות מים ומשפחה": {
+    "en": "Water activities for families",
+    "ru": "Водные развлечения для семей",
+    "fr": "Activités aquatiques en famille"
+  },
+  "אטרקציות טבע ורכיבה": {
+    "en": "Nature and riding activities",
+    "ru": "Природа и прогулки верхом",
+    "fr": "Nature et balades à cheval"
+  },
+  "אטרקציות אוכל ותרבות": {
+    "en": "Food and culture experiences",
+    "ru": "Гастрономия и культура",
+    "fr": "Expériences gastronomiques et culturelles"
+  },
+  "מסלולים ב": {
+    "en": "Trails in ",
+    "ru": "Маршруты в регионе ",
+    "fr": "Randonnées dans la région de "
+  },
+  "מסלולי מים": {
+    "en": "Waterside trails",
+    "ru": "Водные маршруты",
+    "fr": "Randonnées au fil de l’eau"
+  },
+  "מסלולי מעיינות": {
+    "en": "Spring trails",
+    "ru": "Маршруты к источникам",
+    "fr": "Randonnées près des sources"
+  },
+  "מסלולי יער": {
+    "en": "Forest trails",
+    "ru": "Лесные маршруты",
+    "fr": "Randonnées en forêt"
+  },
+  "מסלולים קלים": {
+    "en": "Easy trails",
+    "ru": "Лёгкие маршруты",
+    "fr": "Randonnées faciles"
+  },
+  "מסלולים בדרגת קושי בינונית": {
+    "en": "Moderate trails",
+    "ru": "Маршруты средней сложности",
+    "fr": "Randonnées de difficulté modérée"
+  },
+  "מסלולים בצפון": {
+    "en": "Trails in northern Israel",
+    "ru": "Маршруты на севере Израиля",
+    "fr": "Randonnées dans le nord d’Israël"
+  },
+  "מסלולים בכנרת": {
+    "en": "Trails around the Sea of Galilee",
+    "ru": "Маршруты у Кинерета",
+    "fr": "Randonnées autour du lac de Tibériade"
+  },
+  "מסלולים בחיפה": {
+    "en": "Trails around Haifa",
+    "ru": "Маршруты у Хайфы",
+    "fr": "Randonnées autour de Haïfa"
+  },
+  "מסלולים במרכז": {
+    "en": "Trails in central Israel",
+    "ru": "Маршруты в центре Израиля",
+    "fr": "Randonnées dans le centre d’Israël"
+  },
+  "מסלולים בתל אביב": {
+    "en": "Trails around Tel Aviv",
+    "ru": "Маршруты у Тель-Авива",
+    "fr": "Randonnées autour de Tel-Aviv"
+  },
+  "מסלולים בדרום ונגב": {
+    "en": "Trails in southern Israel and the Negev",
+    "ru": "Маршруты на юге Израиля и в Негеве",
+    "fr": "Randonnées dans le sud d’Israël et le Néguev"
+  },
+  "מסלולים בירושלים": {
+    "en": "Trails around Jerusalem",
+    "ru": "Маршруты у Иерусалима",
+    "fr": "Randonnées autour de Jérusalem"
+  },
+  "מסלולים באילת והסביבה": {
+    "en": "Trails in and around Eilat",
+    "ru": "Маршруты в Эйлате и окрестностях",
+    "fr": "Randonnées à Eilat et aux alentours"
+  }
+}

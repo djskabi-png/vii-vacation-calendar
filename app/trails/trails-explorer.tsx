@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { TrailCard } from "../components/trail-card";
 import { natureTypes, regions, trails, nearbyTrails, type Trail, type TrailDifficulty } from "../data/trail-data";
 import { DeferredTrailMap } from "../components/deferred-listing-map";
@@ -31,12 +31,13 @@ function MultiChoice({ label, options, selected, onToggle }: { label: string; op
   </details>;
 }
 
-export function TrailsExplorer({ items = trails }: { items?: Trail[] }) {
+export function TrailsExplorer({ items = trails, initialFilters }: { items?: Trail[]; initialFilters?: Readonly<Record<string, string>> }) {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const searchQuery = searchParams.toString();
-  const [selectedRegions, setSelectedRegions] = useState(() => selectedValues(searchParams.get("area"), regionOptions));
-  const [selectedNatures, setSelectedNatures] = useState(() => selectedValues(searchParams.get("nature"), natureOptions));
-  const [selectedDifficulties, setSelectedDifficulties] = useState(() => selectedValues(searchParams.get("difficulty"), difficultyOptions));
+  const [selectedRegions, setSelectedRegions] = useState(() => selectedValues(searchParams.get("area") || initialFilters?.area || null, regionOptions));
+  const [selectedNatures, setSelectedNatures] = useState(() => selectedValues(searchParams.get("nature") || initialFilters?.nature || null, natureOptions));
+  const [selectedDifficulties, setSelectedDifficulties] = useState(() => selectedValues(searchParams.get("difficulty") || initialFilters?.difficulty || null, difficultyOptions));
   const [query, setQuery] = useState(searchParams.get("q") || "");
   const { mapOpen, openMap, closeMap } = useMapViewState();
 
@@ -62,8 +63,11 @@ export function TrailsExplorer({ items = trails }: { items?: Trail[] }) {
 
   function updateUrl(updates: Record<string, string>) {
     const params = new URLSearchParams(window.location.search);
+    Object.entries(initialFilters || {}).forEach(([key, value]) => { if (!params.has(key)) params.set(key, value); });
     Object.entries(updates).forEach(([key, value]) => value && value !== "הכל" ? params.set(key, value) : params.delete(key));
-    window.history.pushState(null, "", `${window.location.pathname}${params.size ? `?${params}` : ""}`);
+    const basePath = window.location.pathname.replace(/\/explore\/[^/]+\/?$/, "");
+    if (basePath !== window.location.pathname) router.push(`${basePath}${params.size ? `?${params}` : ""}`, { scroll: false });
+    else window.history.pushState(null, "", `${basePath}${params.size ? `?${params}` : ""}`);
   }
 
   function toggleValue(value: string, selected: string[], setSelected: (next: string[]) => void, key: string) {
@@ -77,13 +81,13 @@ export function TrailsExplorer({ items = trails }: { items?: Trail[] }) {
   useEffect(() => {
     const timer = window.setTimeout(() => {
       const params = new URLSearchParams(searchQuery);
-      setSelectedRegions(selectedValues(params.get("area"), regionOptions));
-      setSelectedNatures(selectedValues(params.get("nature"), natureOptions));
-      setSelectedDifficulties(selectedValues(params.get("difficulty"), difficultyOptions));
+      setSelectedRegions(selectedValues(params.get("area") || initialFilters?.area || null, regionOptions));
+      setSelectedNatures(selectedValues(params.get("nature") || initialFilters?.nature || null, natureOptions));
+      setSelectedDifficulties(selectedValues(params.get("difficulty") || initialFilters?.difficulty || null, difficultyOptions));
       setQuery(params.get("q") || "");
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [searchQuery]);
+  }, [searchQuery, initialFilters]);
 
   return <>
     <form className="trail-filters" onSubmit={(event) => event.preventDefault()} aria-label="סינון מסלולי טיול">

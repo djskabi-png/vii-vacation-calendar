@@ -19,6 +19,7 @@ import { discoveryItems } from "../data/world-data";
 import { EventQuickSearches } from "../components/event-quick-searches";
 import { readEventLandingPresentation } from "../lib/event-landing-presentation";
 import { WorldTopicImage } from "../components/world-topic-image";
+import { SearchAfterResults } from "../components/search-after-results";
 
 export async function generateMetadata(): Promise<Metadata> {
   const presentation = await readEventLandingPresentation();
@@ -91,6 +92,7 @@ export default async function EventsPage() {
         {eventProviders.length ? <section className="section shell event-discovery-section" aria-labelledby="event-providers-title"><div className="section-head"><div><h2 id="event-providers-title">ספקים לאירוע</h2></div><Link href="/providers">לכל הספקים</Link></div><EventRail title="ספקים לאירוע">{eventProviders.map((item) => <div className="event-rail-discovery" key={item.id}><DiscoveryCard item={item} /></div>)}</EventRail></section> : null}
         <section className="section section-tint"><div className="shell"><div className="section-head"><div><h2>מקומות לאירועים</h2></div><Link href="/events/search">לכל המקומות</Link></div><div className="event-card-grid">{eventPlaces.slice(0, 4).map((place) => <PlacePreviewCard className="event-card" key={place.slug} name={place.name} image={place.image} images={place.images} href={eventPlaceHref(place)}><span className="event-card__body"><small>{place.type}</small><h3>{place.name}</h3><p><PinIcon />{place.location}</p><span>עד {place.guests} אורחים ביחידה הגדולה</span><span className="button secondary">לפרטים</span></span></PlacePreviewCard>)}</div></div></section>
         <section className="section shell event-planning"><div><span className="eyebrow">בחירה חכמה יותר</span><h2>שלושה דברים שסוגרים לפני שבוחרים מקום</h2></div><ol><li><b>01</b><span><strong>הכמות</strong>מספר משתתפים ריאלי, כולל טווח ביטחון.</span></li><li><b>02</b><span><strong>הסגנון</strong>מסיבה, אירוע משפחתי או מפגש עסקי.</span></li><li><b>03</b><span><strong>הצרכים</strong>מוזיקה, אוכל, חניה ונגישות.</span></li></ol></section>
+        <SearchAfterResults world="events" discoveryOnly inventory={eventPlaces.map(item => ({ location: item.location, area: item.area, type: item.type, eventTypes: item.eventTypes }))} />
       </main>
     </PageShell>
   );

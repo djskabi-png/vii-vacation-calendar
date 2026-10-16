@@ -1,6 +1,8 @@
 import type { EventPlace, Property } from "../data/site-data.ts";
 import type { SpaPlusSite } from "../data/spaplus.ts";
 import type { SitemapUrlEntry } from "./sitemap-xml.ts";
+import { activityDepthTopics, trailDepthTopics } from "./world-depth-topics.ts";
+import { activityMatchesTopic } from "./activity-discovery-taxonomy.ts";
 
 export const sitemapSectionOrder = ["core", "holidays", "vacations", "events", "spas", "hourly", "discovery", "search-pages"] as const;
 export type SitemapSection = (typeof sitemapSectionOrder)[number];
@@ -89,6 +91,8 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
   if (section === "discovery") { const [{ discoveryItems }, { magazineArticles }, { trails }] = await Promise.all([
     import("../data/world-data.ts"), import("../data/magazine-data.ts"), import("../data/trail-data.ts")]); return unique(expand([
       { path: "/trails" }, { path: "/attractions" }, { path: "/guides" },
+      ...activityDepthTopics.filter(topic => discoveryItems.some(item => item.world === "activities" && item.indexable !== false && activityMatchesTopic(item, topic.params))).map(topic => ({ path: `/attractions/explore/${topic.slug}` })),
+      ...trailDepthTopics.map(topic => ({ path: `/trails/explore/${topic.slug}` })),
       ...discoveryItems.filter((place) => place.world !== "spa" && place.world !== "hourly" && (place.indexable === true || (place.indexable !== false && place.world === "activities"))).map((place) => ({ path: `/discover/place/${place.id}`, images: place.image ? [place.image] : [] })),
       ...magazineArticles.map((article) => ({ path: `/guides/${article.slug}`, images: [article.image] })), ...trails.map((trail) => ({ path: `/trails/${trail.slug}` })),
   ])); }

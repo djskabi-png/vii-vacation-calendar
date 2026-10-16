@@ -12,6 +12,7 @@ import { ViewedItemTracker } from "../../components/viewed-item-tracker";
 import { ViewedItemBootstrap } from "../../components/viewed-item-bootstrap";
 import { managedTrails } from "../../lib/managed-public-content";
 import { notFound } from "next/navigation";
+import { SearchAfterResults } from "../../components/search-after-results";
 
 export function generateStaticParams() {
   return trails.map((trail) => ({ slug: trail.slug }));
@@ -70,6 +71,7 @@ export default async function TrailPage({ params }: { params: Promise<{ slug: st
       <div className="section shell"><GuestReviewStudio placeName={trail.name} subjectId={trail.slug} subjectType="trail" /></div>
 
       <section className="section section-tint"><div className="shell"><div className="section-head"><div><span className="eyebrow">עוד רעיונות באזור ובאותו סגנון</span><h2>ממשיכים לטייל</h2></div><Link href="/trails">לכל המסלולים</Link></div><div className="trail-grid trail-grid--related">{related.map((item) => <TrailCard key={item.slug} trail={item} compact />)}</div></div></section>
+      <SearchAfterResults world="trails" discoveryOnly location={trail.mainArea} inventory={publishedTrails.map(entry => ({ location: entry.region, area: entry.mainArea, nature: entry.nature, difficulty: entry.difficulty }))} />
     </main>
   </PageShell>;
 }
