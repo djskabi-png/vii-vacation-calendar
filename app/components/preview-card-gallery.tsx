@@ -3,8 +3,9 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
+import { useRef, type CSSProperties, type MouseEvent, type ReactNode } from "react";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
+import { PreviewGalleryStatus, usePreviewGallery } from "./use-preview-gallery";
 
 const galleryCopy: Record<SiteLanguage, { previous: string; next: string; image: string }> = {
   he: { previous: "התמונה הקודמת", next: "התמונה הבאה", image: "תמונה" },
@@ -47,13 +48,13 @@ export function PreviewCardGallery({
   const { language } = useSiteLanguage();
   const copy = galleryCopy[language];
   const galleryImages = [...new Set(images.filter(Boolean))].slice(0, 10);
-  const [imageIndex, setImageIndex] = useState(0);
+  const { imageIndex, navigationIndex, setImageIndex, warmImages, pending, error } = usePreviewGallery(galleryImages);
   const touchStart = useRef<number | null>(null);
   const didSwipe = useRef(false);
   const swipeResetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentImage = galleryImages[imageIndex] || galleryImages[0] || "";
-  const previousDisabled = imageIndex === 0;
-  const nextDisabled = imageIndex >= galleryImages.length - 1;
+  const previousDisabled = navigationIndex === 0;
+  const nextDisabled = navigationIndex >= galleryImages.length - 1;
   const imageStyle: CSSProperties | undefined = imagePosition || imageFit === "contain"
     ? { objectPosition: imagePosition, objectFit: imageFit }
     : undefined;
@@ -66,7 +67,11 @@ export function PreviewCardGallery({
 
   return <div
     className={`preview-card-gallery ${className}`}
+    aria-busy={pending || undefined}
+    onPointerEnter={warmImages}
+    onFocusCapture={warmImages}
     onTouchStart={(event) => {
+      warmImages();
       if (swipeResetTimer.current) clearTimeout(swipeResetTimer.current);
       didSwipe.current = false;
       touchStart.current = event.changedTouches[0].clientX;
@@ -99,6 +104,7 @@ export function PreviewCardGallery({
     >
       {currentImage ? <img src={currentImage} alt={`${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} title={imageLabel || `${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} loading="lazy" decoding="async" style={imageStyle} /> : null}
     </Link>
+    <PreviewGalleryStatus pending={pending} error={error} />
     {galleryImages.length > 1 ? <>
       <button className="preview-card-gallery__arrow preview-card-gallery__arrow--previous" type="button" aria-label={`${copy.previous}: ${name}`} title={copy.previous} disabled={previousDisabled} data-slider-boundary onClick={(event) => moveImage(event, -1)}>{language === "he" ? <ChevronRight /> : <ChevronLeft />}</button>
       <button className="preview-card-gallery__arrow preview-card-gallery__arrow--next" type="button" aria-label={`${copy.next}: ${name}`} title={copy.next} disabled={nextDisabled} data-slider-boundary onClick={(event) => moveImage(event, 1)}>{language === "he" ? <ChevronLeft /> : <ChevronRight />}</button>

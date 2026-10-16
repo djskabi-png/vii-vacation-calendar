@@ -17,6 +17,7 @@ import { ListingContactPreview, SampleListingDisclosure } from "./listing-contac
 import { type LegacyAvailabilityState, useLegacyAvailability } from "./use-legacy-availability";
 import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
 import { latinBusinessAlias, localizedBusinessList, localizedBusinessText } from "../i18n/localized-business-content";
+import { PreviewGalleryStatus, usePreviewGallery } from "./use-preview-gallery";
 
 function PhoneIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16.4v3a2 2 0 0 1-2.2 2 19.7 19.7 0 0 1-8.6-3.1 19.3 19.3 0 0 1-6-6A19.7 19.7 0 0 1 1.1 3.7 2 2 0 0 1 3.1 1.5h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.4 2.1L7.1 9.5a16 16 0 0 0 7.4 7.4l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2Z" /></svg>;
@@ -313,7 +314,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
   const localizedArea = localizedBusinessText(property.area, language, translate, interfaceCopy.location);
   const localizedType = localizedBusinessText(property.type, language, translate, interfaceCopy.stay);
   const galleryImages = [property.image, ...property.images].filter((src, index, all) => src && all.indexOf(src) === index).slice(0, 10);
-  const [imageIndex, setImageIndex] = useState(0);
+  const { imageIndex, navigationIndex, setImageIndex, warmImages, pending, error } = usePreviewGallery(galleryImages);
   const [phoneVisible, setPhoneVisible] = useState(false);
   const touchStart = useRef<number | null>(null);
   const cardRef = useRef<HTMLElement>(null);
@@ -345,16 +346,17 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
     setImageIndex((current) => boundedSliderIndex(current, direction, galleryImages.length));
   }
 
-  const imagePreviousDisabled = imageIndex === 0;
-  const imageNextDisabled = imageIndex >= galleryImages.length - 1;
+  const imagePreviousDisabled = navigationIndex === 0;
+  const imageNextDisabled = navigationIndex >= galleryImages.length - 1;
 
   return (
-    <article ref={cardRef} className={`stay-card stay-card--${cardMode}${mapActive ? " is-map-active" : ""}`} data-map-place-id={property.slug} onPointerEnter={() => onActiveChange?.(true)} onPointerLeave={() => onActiveChange?.(false)} onFocusCapture={() => onActiveChange?.(true)} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) onActiveChange?.(false); }}>
+    <article ref={cardRef} className={`stay-card stay-card--${cardMode}${mapActive ? " is-map-active" : ""}`} data-map-place-id={property.slug} aria-busy={pending || undefined} onTouchStartCapture={warmImages} onPointerEnter={() => { warmImages(); onActiveChange?.(true); }} onPointerLeave={() => onActiveChange?.(false)} onFocusCapture={() => { warmImages(); onActiveChange?.(true); }} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) onActiveChange?.(false); }}>
       <Link className="stay-card__surface-link" href={propertyHref} target="_blank" rel="noopener noreferrer" aria-label={`${interfaceCopy.open}: ${localizedName}`} />
       <div className="stay-card__media" onTouchStart={(event) => { if (swipeResetTimer.current) clearTimeout(swipeResetTimer.current); didSwipe.current = false; touchStart.current = event.changedTouches[0].clientX; }} onTouchEnd={(event) => { if (touchStart.current === null || galleryImages.length < 2) return; const distance = event.changedTouches[0].clientX - touchStart.current; if (Math.abs(distance) > 45) { didSwipe.current = true; swipeResetTimer.current = setTimeout(() => { didSwipe.current = false; swipeResetTimer.current = null; }, 500); setImageIndex((current) => boundedSliderIndex(current, distance > 0 ? -1 : 1, galleryImages.length)); } touchStart.current = null; }}>
         <Link href={propertyHref} target="_blank" rel="noopener noreferrer" aria-label={`${interfaceCopy.details}: ${localizedName}`} onClick={(event) => { if (!didSwipe.current) return; event.preventDefault(); event.stopPropagation(); didSwipe.current = false; if (swipeResetTimer.current) clearTimeout(swipeResetTimer.current); swipeResetTimer.current = null; }}>
           <img src={galleryImages[imageIndex]} alt={`${localizedName}, ${interfaceCopy.image} ${imageIndex + 1}/${galleryImages.length}`} title={`${localizedName}, ${interfaceCopy.image} ${imageIndex + 1}/${galleryImages.length}`} loading="lazy" decoding="async" />
         </Link>
+        <PreviewGalleryStatus pending={pending} error={error} />
         {galleryImages.length > 1 ? <><button className="stay-card__gallery-arrow stay-card__gallery-arrow--previous" type="button" aria-label={`${interfaceCopy.previous}: ${localizedName}`} title={interfaceCopy.previous} disabled={imagePreviousDisabled} data-slider-boundary onClick={(event) => moveImage(event, -1)}>{language === "he" ? <ChevronRight aria-hidden="true" /> : <ChevronLeft aria-hidden="true" />}</button><button className="stay-card__gallery-arrow stay-card__gallery-arrow--next" type="button" aria-label={`${interfaceCopy.next}: ${localizedName}`} title={interfaceCopy.next} disabled={imageNextDisabled} data-slider-boundary onClick={(event) => moveImage(event, 1)}>{language === "he" ? <ChevronLeft aria-hidden="true" /> : <ChevronRight aria-hidden="true" />}</button><div className="stay-card__gallery-dots" aria-label={`${interfaceCopy.choose}: ${localizedName}`}>{galleryImages.slice(0, 5).map((src, index) => { const active = imageIndex === index || index === 4 && imageIndex >= 4; return <button key={src} className={active ? "active" : ""} type="button" aria-label={`${interfaceCopy.choose} ${index + 1}: ${localizedName}`} aria-current={active ? "true" : undefined} onClick={(event) => { event.preventDefault(); event.stopPropagation(); setImageIndex(index); }} />; })}</div><span className="stay-card__gallery-count" aria-live="polite">{imageIndex + 1}/{galleryImages.length}</span></> : null}
         <FavoriteButton className="heart-button" id={property.slug} world="vacation" name={localizedName} location={`${localizedLocation}, ${localizedArea}`} image={property.image} href={propertyHref} meta={property.guests > 0 ? `${localizedType} · ${interfaceCopy.capacity(property.guests, property.capacityScope === "unit")}` : localizedType} />
         {property.cardNote ? <span className="stay-card__public-note">{property.cardNote}</span> : null}
