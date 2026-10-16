@@ -1,14 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-
-const depthRoutes = [
-  /^\/business(?:\/|$)/,
-  /^\/events\/place(?:\/|$)/,
-  /^\/discover\/place(?:\/|$)/,
-  /^\/guides\/[^/]+(?:\/|$)/,
-  /^\/trails\/[^/]+(?:\/|$)/,
-];
+import { isBusinessDepthRoute } from "../lib/new-tab-policy";
 
 function shouldOpenInNewTab(anchor: HTMLAnchorElement) {
   if (anchor.hasAttribute("target") || anchor.hasAttribute("download")) return false;
@@ -20,8 +13,7 @@ function shouldOpenInNewTab(anchor: HTMLAnchorElement) {
   if (url.origin !== window.location.origin) return true;
   if (anchor.closest("[data-keep-same-tab='true']")) return false;
 
-  const localizedPath = url.pathname.replace(/^\/(en|ru|fr)(?=\/|$)/, "") || "/";
-  return depthRoutes.some((pattern) => pattern.test(localizedPath));
+  return isBusinessDepthRoute(url.pathname);
 }
 
 function applyNewTabPolicy(root: ParentNode) {
