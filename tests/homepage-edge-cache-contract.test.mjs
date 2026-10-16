@@ -7,7 +7,7 @@ const cache = await readFile(new URL("../worker/public-response-cache.ts", impor
 const config = await readFile(new URL("../vite.config.ts", import.meta.url), "utf8");
 
 test("public HTML and catalog reads have bounded host-aware caches with private exclusions", () => {
-  assert.match(cache, /const publicCacheVersion = "v4"/);
+  assert.match(cache, /const publicCacheVersion = "v5"/);
   assert.match(cache, /admin\|account\|favorites\|booking/);
   assert.match(cache, /hasPrivateCookies/);
   assert.match(cache, /X-VII-Navigation-Cache/);
