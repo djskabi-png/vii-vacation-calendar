@@ -50,6 +50,7 @@ test("topic visuals communicate actual meaning instead of repeating a location p
   for (const [label, key] of cases) assert.equal(depthTopicKey(label, "spa"), key);
   const renderer = readFileSync(new URL("../app/components/search-after-results.tsx", import.meta.url), "utf8");
   assert.match(renderer, /<DepthTopicIcon topic=/);
+  assert.match(renderer, /world === "trails" \? discovery\.additionalRegions : discovery\.citiesInArea/);
   assert.doesNotMatch(renderer, /M12 21s7-5/);
 });
 
