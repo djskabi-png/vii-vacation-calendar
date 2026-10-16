@@ -288,6 +288,18 @@ export async function readSupplierCatalogState(db: D1Database, world: SupplierCa
     .bind(world).first<StateRow>();
 }
 
+/** Bounded library-card projection; never reads detail_json or another generation. */
+export async function readSupplierCatalogSelectedSummaries(db: D1Database, world: SupplierCatalogWorld, supplierIds: readonly number[]) {
+  const ids = [...new Set(supplierIds)].filter(id => Number.isSafeInteger(id) && id > 0).slice(0, 8);
+  if (!validWorld(world) || !ids.length) return [];
+  const rows = await db.prepare(`SELECT s.active_run_id AS activeRunId, e.summary_json AS summaryJson
+    FROM supplier_catalog_state s LEFT JOIN supplier_catalog_entries e
+      ON e.run_id = s.active_run_id AND e.world = s.world AND e.supplier_id IN (${ids.map(() => "?").join(",")})
+    WHERE s.world = ?`).bind(...ids, world).all<{ activeRunId: string | null; summaryJson: string | null }>();
+  if (!rows.results[0]?.activeRunId) return null;
+  return rows.results.flatMap(row => row.summaryJson ? [JSON.parse(row.summaryJson)] : []);
+}
+
 export async function readSupplierCatalogDashboard(db: D1Database) {
   const [states, runs] = await Promise.all([
     db.prepare(`SELECT world, active_run_id AS activeRunId, active_count AS activeCount,

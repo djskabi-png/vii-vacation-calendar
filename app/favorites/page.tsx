@@ -11,6 +11,7 @@ import { trails } from "../data/trail-data";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { readSavedItems, savedItemKey, SAVED_ITEMS_EVENT, type SavedItem, type SavedWorld, writeSavedItems } from "../lib/saved-items";
 import { clearViewedItems, readViewedItems, VIEWED_ITEMS_EVENT, type ViewedItem } from "../lib/viewed-items";
+import { PreviewCardGallery } from "../components/preview-card-gallery";
 
 type LibraryMode = "saved" | "viewed";
 type LibraryItem = SavedItem | ViewedItem;
@@ -91,6 +92,7 @@ export default function FavoritesPage() {
   const [ready, setReady] = useState(false);
   const [filtering, setFiltering] = useState(false);
   const [clearArmed, setClearArmed] = useState(false);
+  const [cardGalleries, setCardGalleries] = useState<Record<string, string[]>>({});
   const copy = copyByLanguage[language];
   const labels = worldLabels[language];
   const items: LibraryItem[] = mode === "viewed" ? viewedItems : savedItems;
@@ -125,6 +127,18 @@ export default function FavoritesPage() {
   const filteredItems = activeWorld === "all" ? items : items.filter((item) => item.world === activeWorld);
   const totalPages = Math.max(1, Math.ceil(filteredItems.length / PAGE_SIZE));
   const visibleItems = filteredItems.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const galleryRequest = JSON.stringify(visibleItems.filter(item => ["vacation", "events", "spa", "hourly", "providers", "activities"].includes(item.world) && /^[a-z0-9-]{1,100}$/.test(item.id)).map(({ world, id }) => ({ world, id })));
+
+  useEffect(() => {
+    const items = JSON.parse(galleryRequest);
+    if (!items.length) return;
+    const controller = new AbortController();
+    void fetch("/api/vii/card-galleries", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ items }), cache: "no-store", signal: controller.signal })
+      .then(response => response.ok ? response.json() : Promise.reject(new Error("catalog_unavailable")))
+      .then(value => { if (value.galleries && typeof value.galleries === "object") setCardGalleries(current => ({ ...current, ...value.galleries })); })
+      .catch(() => undefined); // Keep the saved cover and detail link usable on failure.
+    return () => controller.abort();
+  }, [galleryRequest]);
 
   function selectMode(nextMode: LibraryMode) {
     if (nextMode === mode) return;
@@ -193,7 +207,7 @@ export default function FavoritesPage() {
               const imageTitle = trail ? `${illustrationLabel[language]}: ${localizeName(item.name, translate)}` : localizeName(item.name, translate);
               const imageAlt = trail ? `${imageTitle}: ${trail.highlights.slice(0, 2).map((highlight) => translate(highlight)).join(language === "he" ? " ו" : " · ")}.` : imageTitle;
               return <article key={item.key} className="favorite-card">
-              <Link className="favorite-card__media" href={item.href}>{image ? <img src={image} alt={imageAlt} title={imageTitle} /> : <span>{localizeName(item.name, translate).slice(0, 1)}</span>}{trail ? <em className="favorite-card__media-label">{illustrationLabel[language]}</em> : null}</Link>
+              {image ? <PreviewCardGallery className="favorite-card__media" name={imageAlt} imageLabel={imageTitle} images={[image, ...(cardGalleries[item.key] || [])]} href={item.href}>{trail ? <em className="favorite-card__media-label">{illustrationLabel[language]}</em> : null}</PreviewCardGallery> : <Link className="favorite-card__media" href={item.href}><span>{localizeName(item.name, translate).slice(0, 1)}</span></Link>}
               <FavoriteButton id={item.id} world={item.world} name={item.name} location={item.location} image={item.image} href={item.href} meta={item.meta} />
               <div className="favorite-card__body"><small>{labels[item.world]}</small><h2><Link href={item.href}>{localizeName(item.name, translate)}</Link></h2><p>{localizeLocation(item.location, translate)}</p>{localizeMeta(item, language) ? <span>{translate(localizeMeta(item, language) || "")}</span> : null}{mode === "viewed" && "viewedAt" in item ? <time dateTime={item.viewedAt}>{copy.viewedAt} {new Intl.DateTimeFormat(language === "he" ? "he-IL" : language, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(item.viewedAt))}</time> : null}<Link className="button secondary" href={item.href}>{copy.details}</Link></div>
             </article>; })}
