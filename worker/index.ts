@@ -12,6 +12,7 @@ import { runSupplierCatalogScheduleTick } from "../app/lib/supplier-catalog-retr
 import { legacyDisposition, looksLikeUninventoriedLegacyPath } from "../app/lib/legacy-route-map.ts";
 import { redirectForUrl, shouldCheckRedirect } from "../app/lib/admin-redirects.ts";
 import { publicCachePolicy, readPublicCache, refreshPublicCacheAhead, storePublicCache } from "./public-response-cache.ts";
+import { rewriteCanonicalStream } from "./stream-canonical.ts";
 
 declare const __VII_CACHE_BUILD_ID__: string;
 const publicCacheBuild = typeof __VII_CACHE_BUILD_ID__ === "string" ? __VII_CACHE_BUILD_ID__ : "local";
@@ -164,9 +165,11 @@ const worker = {
 
     const cachePolicy = await publicCachePolicy(request, url, publicCacheBuild);
     if (cachePolicy && !refreshPublic) {
+      const lookupStarted = performance.now();
       try {
         const cached = await readPublicCache(cachePolicy, env, ctx);
         if (cached) {
+          cached.headers.set("X-VII-Cache-Read-Ms", String(Math.round(performance.now() - lookupStarted)));
           cached.headers.set("X-VII-Cache-Refresh", refreshPublicCacheAhead(cached, cachePolicy, ctx,
             () => worker.fetch(request, env, ctx, true)));
           return cached;
@@ -279,7 +282,11 @@ const worker = {
       }
 
       const transformed = rewriter.transform(response);
-      if (!primary) return storePublicCache(await withLaunchSeo(transformed, url, false), cachePolicy, env, ctx);
+      if (!primary) {
+        const output = await withLaunchSeo(transformed, url, false);
+        output.headers.set("X-VII-Html-Transform", "native-stream");
+        return storePublicCache(output, cachePolicy, env, ctx);
+      }
       const headers = new Headers(transformed.headers);
       headers.delete("content-length");
       const html = (await transformed.text()).replaceAll(temporaryOrigin, primaryOrigin);
@@ -289,6 +296,9 @@ const worker = {
     // The standalone Vinext production server used by local QA does not
     // expose Cloudflare's HTMLRewriter. Keep the same output contract there
     // so raw-HTML SEO checks exercise the exact locale behavior.
+    if (locale === "he" && !primary && cachePolicy?.kind === "document") {
+      return storePublicCache(await withLaunchSeo(rewriteCanonicalStream(response, makeLocaleLinks), url, false), cachePolicy, env, ctx);
+    }
     const html = await response.text();
     const rewritten = html.replace(
       /<link rel="canonical" href="([^"]+)"\s*\/?>/,

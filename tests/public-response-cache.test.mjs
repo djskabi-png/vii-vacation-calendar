@@ -146,6 +146,14 @@ test("hung optional R2 read has a bounded miss and late errors are consumed", as
   const p = await policy(); const started = performance.now(); let rejectLate;
   const result = await readPublicCache(p, { UPLOADS: { get: () => new Promise((_, reject) => { rejectLate = reject; }) } });
   assert.equal(result, null);
-  assert.ok(performance.now() - started < 750, "optional storage blocked rendering");
+  assert.ok(performance.now() - started < 1600, "optional storage blocked rendering");
   rejectLate(new Error("late storage error"));
+});
+
+test("cross-region R2 hits slower than150ms remain usable instead of forcing full renders", async()=>{
+  const p=await policy();const expiresAt=Date.now()+60_000;
+  const response=await readPublicCache(p,{UPLOADS:{get:()=>new Promise(resolve=>setTimeout(()=>resolve({
+    body:new Response('valid regional hit').body,customMetadata:{expiresAt:String(expiresAt),headers:'[["Content-Type","text/html"]]'}
+  }),200))}});
+  assert.equal(response.headers.get('X-VII-Cache-Layer'),'r2');assert.equal(await response.text(),'valid regional hit');
 });
