@@ -10220,3 +10220,13 @@ html[data-locale-pending] body {
 .world-topic-image > img { display:block; width:100%; height:100%; object-fit:cover; object-position:center; }
 .world-topic-image > figcaption { position:absolute; inset-inline-end:12px; bottom:12px; padding:4px 9px; border-radius:6px; background:rgba(255,255,255,.94); color:#234b4b; font-family:Heebo,Assistant,Rubik,Arial,sans-serif; font-size:11px; font-weight:600; line-height:1.5; }
 @media (max-width:720px) { .world-topic-image { border-width:3px; border-radius:20px; } .world-topic-image > figcaption { inset-inline-end:8px; bottom:8px; } }
+
+/* Mobile world entry prioritizes search and results; desktop artwork is unchanged. */
+@media (max-width:720px) {
+  .spa-discovery-hero__visual,
+  .events-hero__visual,
+  .discovery-world-hero__visual { display:none; }
+  .spa-discovery-hero__layout,
+  .events-hero__layout,
+  .discovery-world-hero__layout { grid-template-areas:"content" "search"; }
+}

@@ -68,3 +68,16 @@ test("topic metadata is localized before hydration with the verified request loc
     assert.deepEqual(worldTopicImageCopy(image, "untrusted"), {alt:image.alt,caption:"תמונת המחשה"});
   }
 });
+
+test("mobile world entry removes the whole visual row without hiding desktop or business photos", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const rule = css.slice(css.indexOf("/* Mobile world entry prioritizes"));
+  assert.match(rule, /@media \(max-width:720px\)/);
+  for (const prefix of ["spa-discovery-hero", "events-hero", "discovery-world-hero"]) {
+    assert.ok(rule.includes(`.${prefix}__visual`));
+    assert.ok(rule.includes(`.${prefix}__layout`));
+  }
+  assert.match(rule, /__visual \{ display:none; \}/);
+  assert.match(rule, /grid-template-areas:"content" "search"/);
+  assert.doesNotMatch(rule, /img|\.place-|\.discovery-card|\.world-topic-image/);
+});
