@@ -1,5 +1,6 @@
 // Only anonymous discovery responses enter this cache. Transactional reads,
 // sessions, actions and unknown cookies always take the authoritative path.
+import { claimPublicCacheCapture, claimPublicCacheWrite, readBoundedCacheBody } from "./public-cache-work.ts";
 export type PublicCachePolicy = {
   key: string;
   edgeUrl: string;
@@ -17,7 +18,7 @@ type CacheEnvironment = { UPLOADS?: {
 type Context = { waitUntil(promise: Promise<unknown>): void };
 type EdgeCache = { match(request: Request): Promise<Response | undefined>; put(request: Request, response: Response): Promise<void> };
 
-const publicCacheVersion = "v4";
+const publicCacheVersion = "v5";
 const maxResponseBytes = 2 * 1024 * 1024;
 const maxMemoryBytes = 8 * 1024 * 1024;
 const maxMemoryEntries = 32;
@@ -169,6 +170,7 @@ function cacheHeaders(response: Response, policy: PublicCachePolicy, state: "HIT
   const headers = new Headers(response.headers);
   headers.delete("content-length");
   headers.delete("content-encoding");
+  headers.delete("X-VII-Cache-Capture");
   const remaining = Math.max(0, Math.floor((expiresAt - Date.now()) / 1000));
   // Never restart the freshness window when promoting a lower-tier hit.
   headers.set("Cache-Control", `public, max-age=${Math.min(60, remaining)}, s-maxage=${remaining}`);
@@ -212,37 +214,56 @@ export async function readPublicCache(policy: PublicCachePolicy, env: CacheEnvir
     // Preserve framework params, mounted slots, Vary, canonical metadata and
     // noindex across tiers; an RSC body alone is not a valid navigation.
     const response = cacheHeaders(new Response(cached.body, { headers }), policy, "HIT", "r2", expiresAt);
-    ctx?.waitUntil(response.clone().arrayBuffer().then(async (body) => {
-      if (body.byteLength > maxResponseBytes) return;
+    const releaseCapture = ctx ? claimPublicCacheCapture() : null;
+    if (ctx && releaseCapture) ctx.waitUntil(readBoundedCacheBody(response.clone().body, maxResponseBytes).then(async (body) => {
+      if (!body) return;
       const storedHeaders = [...response.headers.entries()];
       remember(policy.key, { body, headers: storedHeaders, expiresAt });
-      await edgeCache()?.put(new Request(policy.edgeUrl), new Response(body.slice(0), { headers: storedHeaders }));
-    }).catch(() => undefined));
+      const releaseWrite = claimPublicCacheWrite();
+      if (releaseWrite) ctx.waitUntil(Promise.resolve().then(() => edgeCache()?.put(new Request(policy.edgeUrl),
+        new Response(body.slice(0), { headers: storedHeaders }))).catch(() => undefined).finally(releaseWrite));
+    }).catch(() => undefined).finally(releaseCapture));
     return response;
   } catch { return null; }
 }
 
 export function storePublicCache(response: Response, policy: PublicCachePolicy | null, env: CacheEnvironment | undefined, ctx: Context) {
-  if (!policy || response.status !== 200 || response.headers.has("Set-Cookie")) return response;
+  const skip = () => response;
+  const control = (response.headers.get("Cache-Control") || "").trim().toLowerCase();
+  // Vinext emits this exact generic default for every dynamic public stream.
+  // Preserve the existing explicit anonymous-route policy for that default,
+  // not arbitrary private/no-store responses or any JSON API response.
+  const frameworkStreamDefault = policy && policy.kind !== "data" && control === "no-store, must-revalidate";
+  if (!policy || response.status !== 200 || response.headers.has("Set-Cookie")
+    || (!frameworkStreamDefault && /(?:^|,)\s*(?:private|no-store)(?:\s*(?:,|=|$))/i.test(control))) return skip();
   const contentType = response.headers.get("Content-Type") || "";
   const expected = policy.kind === "document" ? "text/html" : policy.kind === "navigation" ? "text/x-component" : "application/json";
-  if (!contentType.includes(expected)) return response;
-  if ((response.headers.get("Vary") || "").split(",").some((name) => name.trim() && !allowedVaryHeaders.has(name.trim().toLowerCase()))) return response;
+  if (!contentType.includes(expected)) return skip();
+  if ((response.headers.get("Vary") || "").split(",").some((name) => name.trim() && !allowedVaryHeaders.has(name.trim().toLowerCase()))) return skip();
   const declaredSize = Number(response.headers.get("Content-Length"));
-  if (declaredSize > maxResponseBytes) return response;
+  if (declaredSize > maxResponseBytes) return skip();
+  const releaseCapture = claimPublicCacheCapture();
+  if (!releaseCapture) {
+    const headers = new Headers(response.headers);
+    headers.set("X-VII-Cache-Capture", "busy");
+    return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+  }
   const expiresAt = Date.now() + policy.ttlSeconds * 1000;
   const cacheable = cacheHeaders(response, policy, "MISS", "origin", expiresAt);
   const storedHeaders = [...cacheable.headers.entries()];
-  ctx.waitUntil(cacheable.clone().arrayBuffer().then(async (body) => {
-    if (body.byteLength > maxResponseBytes) return;
+  cacheable.headers.set("X-VII-Cache-Capture", "queued");
+  ctx.waitUntil(readBoundedCacheBody(cacheable.clone().body, maxResponseBytes).then(async (body) => {
+    if (!body) return;
     remember(policy.key, { body, headers: storedHeaders, expiresAt });
-    await Promise.allSettled([
+    const releaseWrite = claimPublicCacheWrite();
+    if (!releaseWrite) return;
+    ctx.waitUntil(Promise.allSettled([
       edgeCache()?.put(new Request(policy.edgeUrl), new Response(body.slice(0), { headers: storedHeaders })),
       env?.UPLOADS?.put(policy.key, body, {
         httpMetadata: { contentType },
         customMetadata: { expiresAt: String(expiresAt), headers: JSON.stringify(storedHeaders) },
       }),
-    ]);
-  }).catch((error) => console.error("VII public cache write failed", policy.kind, error)));
+    ]).finally(releaseWrite));
+  }).catch(() => console.error("VII public cache write failed", policy.kind)).finally(releaseCapture));
   return cacheable;
 }
