@@ -3273,6 +3273,12 @@ h3 { font-size: 1.18rem; }
 /* Outrank the card's generic interactive-content rule and its image link. */
 .stay-card .stay-card__gallery-arrow { position: absolute; z-index: 5; top: 50%; width: 44px; height: 44px; display: grid; place-items: center; translate: 0 -50%; border: 1px solid rgba(6,58,69,.14); border-radius: 50%; color: #fff; background: rgba(4,51,62,.82); box-shadow: 0 7px 20px rgba(0,35,44,.17); font: inherit; cursor: pointer; opacity: 1; transition: opacity .2s,transform .2s; }
 .stay-card__gallery-arrow:disabled { color: #5f7479; background: rgba(255,255,255,.82); }
+.preview-gallery-loading, .preview-gallery-error { position: absolute; z-index: 6; left: 50%; top: 50%; transform: translate(-50%, -50%); pointer-events: none; color: #fff; background: rgba(4,51,62,.88); box-shadow: 0 2px 12px rgba(0,0,0,.16); }
+.preview-gallery-loading { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; }
+.preview-gallery-loading > span { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.35); border-top-color: #fff; border-radius: 50%; animation: preview-photo-spin .75s linear infinite; }
+.preview-gallery-error { border-radius: 16px; padding: 6px 10px; font-family: inherit; font-size: 12px; font-weight: 600; line-height: 1.3; max-width: calc(100% - 112px); text-align: center; }
+@keyframes preview-photo-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .preview-gallery-loading > span { animation: none; } }
 .stay-card__gallery-arrow:hover { transform: scale(1.06); }
 .stay-card__gallery-arrow:focus-visible { opacity: 1; outline: 3px solid rgba(0,143,162,.3); outline-offset: 2px; }
 .stay-card:hover .stay-card__gallery-arrow { opacity: 1; }
