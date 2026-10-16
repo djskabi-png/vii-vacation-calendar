@@ -11,7 +11,7 @@ test("saved and viewed trail cards use the current image even when a stored snap
   assert.match(page, /item\.world === "trails" \? trailBySlug\.get\(item\.id\)/);
   assert.match(page, /const image = trail \? `\/images\/trails\/\$\{trail\.slug\}\.jpg` : item\.image/);
   assert.match(page, /const items: LibraryItem\[\] = mode === "viewed" \? viewedItems : savedItems/);
-  assert.match(page, /<img src=\{image\} alt=\{imageAlt\} title=\{imageTitle\}/);
+  assert.match(page, /<PreviewCardGallery className="favorite-card__media" name=\{imageAlt\} imageLabel=\{imageTitle\}/);
   assert.match(page, /favorite-card__media-label/);
   assert.match(page, /<FavoriteButton id=\{item\.id\} world=\{item\.world\}/);
 });

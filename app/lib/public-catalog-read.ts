@@ -5,7 +5,7 @@ import sergeyDetails from "../data/sergey-place-details.json" with { type: "json
 import { supplierDisplayDescription } from "../data/supplier-display-text.ts";
 import { projectSpaViiSite } from "./spa-editorial-policy.ts";
 import type { SpaPlusSite } from "../data/spaplus";
-import { readSupplierCatalogDetails, readSupplierCatalogDetailSnapshot, readSupplierCatalogReviewDetails, readSupplierCatalogReviewPreviews, readSupplierCatalogState, readSupplierCatalogSummaries, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
+import { readSupplierCatalogDetails, readSupplierCatalogDetailSnapshot, readSupplierCatalogReviewDetails, readSupplierCatalogReviewPreviews, readSupplierCatalogState, readSupplierCatalogSummaries, readSupplierCatalogSelectedSummaries, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
 import { runtimeCatalogDatabase } from "./published-supplier-ids.ts";
 import { readPublishedItems, type ContentType, type EditorialContent } from "./content-studio.ts";
 
@@ -47,6 +47,20 @@ function catalogIdentity(world: SupplierCatalogWorld, value: unknown) {
   if (world === "spa") return String(Number(row.id) || "");
   if (world === "rooms") return typeof row.id === "string" ? row.id : String(Number(row.supplierId) || "");
   return String(Number(row.supplierId) || "");
+}
+
+export async function publicCatalogSelectedSummaries<T>(world: SupplierCatalogWorld, supplierIds: readonly number[]): Promise<T[]> {
+  const ids = [...new Set(supplierIds)].filter(id => Number.isSafeInteger(id) && id > 0).slice(0, 8);
+  if (!ids.length) return [];
+  const db = await runtimeCatalogDatabase();
+  const selected = db ? await readSupplierCatalogSelectedSummaries(db, world, ids) : null;
+  const entries = selected ?? bundled(world).filter(value => {
+    const row = value as { id?: unknown; supplierId?: unknown };
+    return ids.includes(Number(world === "spa" ? row.id : row.supplierId));
+  });
+  // Card photos do not depend on text overlays. Keep the normal publication
+  // projection (including spa review policy), without a full-world DB read.
+  return await publicSummaries(world, entries) as T[];
 }
 
 function contentTypeForWorld(world: SupplierCatalogWorld): ContentType {
