@@ -3,6 +3,21 @@ import test from "node:test";
 import { readFileSync } from "node:fs";
 import { activityDepthTopics, findDepthTopic, trailDepthTopics } from "../app/lib/world-depth-topics.ts";
 import { worldDepthCopy } from "../app/lib/world-depth-copy.ts";
+import { trails } from "../app/data/trail-data.ts";
+
+test("trail depth taxonomy has explicit native translations, not machine homonyms", () => {
+  const dictionary = JSON.parse(readFileSync(new URL("../app/data/world-depth-translations.json", import.meta.url), "utf8"));
+  const labels = new Set(trails.flatMap(trail => [trail.region, trail.difficulty, ...trail.nature]));
+  for (const label of labels) for (const locale of ["en", "fr", "ru"]) {
+    assert.ok(dictionary[label]?.[locale]?.length > 1, `${locale}: ${label}`);
+    assert.doesNotMatch(dictionary[label][locale], /[\u0590-\u05ff]/);
+  }
+  assert.equal(dictionary["אצבע הגליל"].en, "Galilee Panhandle");
+  assert.equal(dictionary["ביצה"].en, "Wetland");
+  assert.equal(dictionary["קניון בזלתי"].en, "Basalt canyon");
+  assert.equal(dictionary["הערבה התיכונה"].fr, "Arava centrale");
+  assert.equal(dictionary["גליל תחתון"].ru, "Нижняя Галилея");
+});
 
 test("depth topics use only supported attraction filters", () => {
   assert.ok(activityDepthTopics.length >= 6);
