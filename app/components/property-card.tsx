@@ -18,6 +18,8 @@ import { type LegacyAvailabilityState, useLegacyAvailability } from "./use-legac
 import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
 import { latinBusinessAlias, localizedBusinessList, localizedBusinessText } from "../i18n/localized-business-content";
 import { PreviewGalleryStatus, usePreviewGallery } from "./use-preview-gallery";
+import { OnlineBookingBadge } from "./online-booking-badge";
+import { canShowOnlineBookingBadge } from "../lib/online-booking-eligibility";
 
 function PhoneIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16.4v3a2 2 0 0 1-2.2 2 19.7 19.7 0 0 1-8.6-3.1 19.3 19.3 0 0 1-6-6A19.7 19.7 0 0 1 1.1 3.7 2 2 0 0 1 3.1 1.5h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.4 2.1L7.1 9.5a16 16 0 0 0 7.4 7.4l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2Z" /></svg>;
@@ -52,6 +54,7 @@ export type ResolvedAvailability = ListingDateQuote & {
   totalPrice?: number;
   priceMode?: "stay_total" | "nightly_average" | "event_total";
   onlineBooking?: boolean;
+  bookingSupported?: boolean;
   alternatives?: Array<{ from: string; till: string; nightlyPrice: number }>;
   illustrative?: boolean;
   units?: Array<{
@@ -331,6 +334,15 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
   const displayPrice = resolvedAvailability?.priceMode === "stay_total" ? resolvedAvailability.totalPrice : resolvedAvailability?.nightlyPrice;
   const priceUnit = resolvedAvailability?.priceMode === "stay_total" ? copy.stayTotal : resolvedAvailability?.priceMode === "nightly_average" ? copy.nightlyAverage : copy.night;
   const hasQuotedPrice = typeof displayPrice === "number" && displayPrice > 0;
+  const onlineBookingEligible = canShowOnlineBookingBadge({
+    ready: !promotional && liveLegacyAvailability.status === "ready",
+    onlineBooking: resolvedAvailability?.onlineBooking,
+    bookingSupported: resolvedAvailability?.bookingSupported === true,
+    availability: resolvedAvailability?.availability, price: displayPrice,
+    from: resolvedAvailability?.from, till: resolvedAvailability?.till,
+    selectedFrom: selectedStay?.from, selectedTill: selectedStay?.till,
+    illustrative: Boolean(resolvedAvailability?.illustrative || property.demoOperations?.fictional),
+  });
   const quickBookingReady = Boolean(!/^vacation-\d+$/.test(property.slug) && selectedStay && resolvedAvailability?.availability === "available" && resolvedAvailability.nightlyPrice && resolvedAvailability.nightlyPrice > 0);
   const cardMode = promotional ? "promotional" : resolvedAvailability ? "dated" : "result";
   const basePropertyHref = detailHref || `/business?id=${property.slug}`;
@@ -360,6 +372,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
         {galleryImages.length > 1 ? <><button className="stay-card__gallery-arrow stay-card__gallery-arrow--previous" type="button" aria-label={`${interfaceCopy.previous}: ${localizedName}`} title={interfaceCopy.previous} disabled={imagePreviousDisabled} data-slider-boundary onClick={(event) => moveImage(event, -1)}>{language === "he" ? <ChevronRight aria-hidden="true" /> : <ChevronLeft aria-hidden="true" />}</button><button className="stay-card__gallery-arrow stay-card__gallery-arrow--next" type="button" aria-label={`${interfaceCopy.next}: ${localizedName}`} title={interfaceCopy.next} disabled={imageNextDisabled} data-slider-boundary onClick={(event) => moveImage(event, 1)}>{language === "he" ? <ChevronLeft aria-hidden="true" /> : <ChevronRight aria-hidden="true" />}</button><div className="stay-card__gallery-dots" aria-label={`${interfaceCopy.choose}: ${localizedName}`}>{galleryImages.slice(0, 5).map((src, index) => { const active = imageIndex === index || index === 4 && imageIndex >= 4; return <button key={src} className={active ? "active" : ""} type="button" aria-label={`${interfaceCopy.choose} ${index + 1}: ${localizedName}`} aria-current={active ? "true" : undefined} onClick={(event) => { event.preventDefault(); event.stopPropagation(); setImageIndex(index); }} />; })}</div><span className="stay-card__gallery-count" aria-live="polite">{imageIndex + 1}/{galleryImages.length}</span></> : null}
         <FavoriteButton className="heart-button" id={property.slug} world="vacation" name={localizedName} location={`${localizedLocation}, ${localizedArea}`} image={property.image} href={propertyHref} meta={property.guests > 0 ? `${localizedType} · ${interfaceCopy.capacity(property.guests, property.capacityScope === "unit")}` : localizedType} />
         {property.cardNote ? <span className="stay-card__public-note">{property.cardNote}</span> : null}
+        <OnlineBookingBadge eligible={onlineBookingEligible} className="stay-card__booking-stamp" />
         <div className="stay-card__badges">{property.badges.slice(0, 2).map((badge) => <span key={badge}>{badge}</span>)}</div>
       </div>
       <div className="stay-card__body">
@@ -385,7 +398,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
             <div className="stay-card__selected-dates"><small>{copy.searchedDates}</small><span>{localizedDate(resolvedAvailability.from, language)} <small>{copy.to}</small> {localizedDate(resolvedAvailability.till, language)}</span></div>
             <span className="stay-card__availability-group"><strong className={`stay-card__availability stay-card__availability--${resolvedAvailability.availability}`}>{copy.availability[resolvedAvailability.availability]}</strong>{resolvedAvailability.minimumNights && resolvedAvailability.minimumNights > 1 ? <small>{copy.minimumNights(resolvedAvailability.minimumNights)}</small> : null}</span>
           </div>
-          {resolvedAvailability.availability === "available" && typeof resolvedAvailability.onlineBooking === "boolean" ? <small>{resolvedAvailability.onlineBooking ? { he: "אפשר להזמין באתר", en: "Book online", ru: "Бронирование на сайте", fr: "Réservation en ligne" }[language] : { he: "להזמנה מתקשרים למקום", en: "Call the property to book", ru: "Для бронирования позвоните", fr: "Réservation par téléphone" }[language]}</small> : null}
+          {resolvedAvailability.availability === "available" && resolvedAvailability.onlineBooking === false ? <small>{{ he: "להזמנה מתקשרים למקום", en: "Call the property to book", ru: "Для бронирования позвоните", fr: "Réservation par téléphone" }[language]}</small> : null}
           {resolvedAvailability.alternatives?.length ? <div className="stay-card__alternatives">
             <strong>{demoScenarioCopy[language].alternatives}</strong>
             <div>{resolvedAvailability.alternatives.map((alternative) => <span key={alternative.from}><small>{localizedDate(alternative.from, language)} {copy.to} {localizedDate(alternative.till, language)}</small><b><PriceValue amount={alternative.nightlyPrice.toLocaleString()} language={language} /></b></span>)}</div>

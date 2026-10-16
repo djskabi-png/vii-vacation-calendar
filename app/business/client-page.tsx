@@ -29,6 +29,8 @@ import { FavoriteButton } from "../components/favorite-button";
 import { ShareButton } from "../components/share-dialog";
 import { CalendarIcon, PinIcon } from "../site-header";
 import { VacationBookingHub } from "../components/vacation-booking-hub";
+import { OnlineBookingBadge } from "../components/online-booking-badge";
+import { canShowOnlineBookingBadge } from "../lib/online-booking-eligibility";
 import { HomeDealDetailStatus } from "../components/home-deal-detail-status";
 import { useLegacyAvailability } from "../components/use-legacy-availability";
 import { useViiStayQuote } from "../components/use-vii-stay-quote";
@@ -216,6 +218,13 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
   const hasSelectedPrice = Boolean(resolvedSelectedPrice && Number(resolvedSelectedPrice) > 0);
   const verifiedSupplierRoomID = supplierQuote.roomIDs.length === 1 && property.roomOptions?.some((room) => room.supplierRoomID === supplierQuote.roomIDs[0]) ? supplierQuote.roomIDs[0] : undefined;
   const vacationOnlineReady = activeWorld === "vacation" && vacationAvailabilityMode !== "inquiry" && hasSelectedDates && effectiveVacationAvailability?.availability === "available" && hasSelectedPrice && (!supplierSiteID || supplierQuote.onlineBooking && supplierQuote.roomIDs.length === 1 && Boolean(verifiedSupplierRoomID));
+  const onlineBookingEligible = canShowOnlineBookingBadge({
+    ready: supplierQuote.status === "ready", onlineBooking: supplierQuote.onlineBooking,
+    bookingSupported: vacationOnlineReady, availability: effectiveVacationAvailability?.availability,
+    price: Number(resolvedSelectedPrice), from: effectiveVacationAvailability?.from, till: effectiveVacationAvailability?.till,
+    selectedFrom: dateRange.from, selectedTill: dateRange.till,
+    illustrative: Boolean(initialIllustrative || property.demoOperations?.fictional || effectiveVacationAvailability?.illustrative),
+  });
   const vacationPhoneFallback = activeWorld === "vacation" && !vacationOnlineReady;
   const vacationRequest = activeWorld === "vacation" && !vacationOnlineReady;
   const onlineBooking = activeWorld === "vacation" ? vacationOnlineReady : activeOffering.bookingMode !== "call-only";
@@ -278,7 +287,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
               : [{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, vacationBreadcrumbForLocation(property.area), { name: localizedPropertyName }]} />
 
         <section className="shell property-title">
-          <div><span className="eyebrow">{safeBusinessText(property.type, businessCopy.name)} · {safeBusinessText(activeOffering.label, translate(worldLabels[activeWorld]))}</span><h1>{localizedPropertyName}</h1><p><PinIcon />{localizedLocation}, {localizedArea}</p>{property.demoOperations?.fictional ? <SampleListingDisclosure /> : null}</div>
+          <div><span className="eyebrow">{safeBusinessText(property.type, businessCopy.name)} · {safeBusinessText(activeOffering.label, translate(worldLabels[activeWorld]))}</span><h1>{localizedPropertyName}</h1><p><PinIcon />{localizedLocation}, {localizedArea}</p><OnlineBookingBadge eligible={onlineBookingEligible} />{property.demoOperations?.fictional ? <SampleListingDisclosure /> : null}</div>
           <div className="property-title__side">
             <div className="property-title__actions property-title__actions--contact">
               {property.demoOperations?.fictional && !vacationOnlineReady ? <ListingContactPreview placeName={property.name} className="listing-contact-preview--title" /> : null}

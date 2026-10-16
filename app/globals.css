@@ -10202,3 +10202,15 @@ html[data-locale-pending] body {
 /* Keep directional glyphs literal; inherited RTL must not mirror the chevrons. */
 .property-gallery__mobile-arrow span,
 .story-gallery__tap::before { direction: ltr; unicode-bidi: isolate; }
+
+.online-booking-badge {
+  display: inline-flex; align-items: center; gap: 6px; align-self: flex-start;
+  max-width: 100%; box-sizing: border-box; padding: 6px 10px;
+  border: 1px solid #b6ddd0; border-radius: 8px; background: #e9f7f0; color: #125741;
+  font-family: Heebo, Assistant, Rubik, Arial, sans-serif; font-size: 12px; font-weight: 700;
+  line-height: 1.5; text-align: start;
+}
+.online-booking-badge > svg { width: 17px; height: 17px; flex: 0 0 17px; }
+.online-booking-badge > span:not(.sr-only) { min-width: 0; overflow-wrap: anywhere; }
+.stay-card__media > .stay-card__booking-stamp { position: absolute; z-index: 6; top: 14px; right: 14px; left: auto; max-width: calc(100% - 84px); pointer-events: none; box-shadow: 0 2px 8px #123d3320; }
+.property-title .online-booking-badge { margin-block-start: 8px; }
