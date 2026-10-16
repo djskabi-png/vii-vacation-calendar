@@ -19,6 +19,22 @@ import { rotateDaily, rotateWithinTiers } from "../lib/daily-rotation";
 import { HomeManagedDiscovery } from "./home-discovery-sections";
 import { HomeSliderControls } from "./home-slider-controls";
 
+// These sliders fetch their own availability. They must not wait for the
+// unrelated four-world catalog or below-the-fold review queries.
+export function HomeLiveSections() {
+  return <><HomeLiveDeals /><HomeLiveDeals mode="holidays" /></>;
+}
+
+export function HomeCatalogLoading() {
+  const { language } = useSiteLanguage();
+  const label = { he: "טוענים מקומות", en: "Loading places", ru: "Загружаем места", fr: "Chargement des lieux" }[language];
+  return <div className="section shell home-live-deals__loading" role="status" aria-label={label}>
+    <div className="home-live-deals__loading-cards" aria-hidden="true">{[0, 1, 2].map((index) =>
+      <div className="home-live-deals__loading-card" key={index}><div className="home-live-deals__loading-image" />
+        <div className="home-live-deals__loading-lines"><span /><span /><span /></div></div>)}</div>
+  </div>;
+}
+
 const vacationDestinations = [
   { label: "נופש בצפון", note: "גליל, גולן ונוף ירוק", href: "/vacations/north?guests=2", image: "/media/f18d7c0469633ca0.jpeg" },
   { label: "נופש בכנרת", note: "חופשה רגועה ליד המים", href: "/vacations/kinneret?guests=2", image: "/media/9a403cb4d9d1cbde.jpg" },
@@ -104,9 +120,6 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
   }
 
   return <>
-    <HomeLiveDeals />
-    <HomeLiveDeals mode="holidays" />
-
     <section className="section home-vacation-discovery" aria-labelledby="vacation-discovery-title">
       <div className="shell">
         <div className="home-vacation-discovery__intro">

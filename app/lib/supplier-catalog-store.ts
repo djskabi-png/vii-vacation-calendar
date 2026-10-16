@@ -293,11 +293,12 @@ export async function readSupplierCatalogDashboard(db: D1Database) {
   }) };
 }
 
-export async function readSupplierCatalogSummaries(db: D1Database, world: SupplierCatalogWorld) {
+export async function readSupplierCatalogSummaries(db: D1Database, world: SupplierCatalogWorld,
+  selectedState?: Awaited<ReturnType<typeof readSupplierCatalogState>>) {
   if (!validWorld(world)) return null;
-  const state = await db.prepare(`SELECT active_run_id AS activeRunId, active_count AS activeCount,
+  const state = selectedState === undefined ? await db.prepare(`SELECT active_run_id AS activeRunId, active_count AS activeCount,
     accepted_at AS acceptedAt FROM supplier_catalog_state WHERE world = ?`)
-    .bind(world).first<StateRow>();
+    .bind(world).first<StateRow>() : selectedState;
   if (!state?.activeRunId) return null;
   const rows = await db.prepare(`SELECT supplier_id AS supplierId, summary_json AS summaryJson
     FROM supplier_catalog_entries WHERE run_id = ? AND world = ? ORDER BY supplier_id`)
@@ -305,4 +306,18 @@ export async function readSupplierCatalogSummaries(db: D1Database, world: Suppli
   if (rows.results.length !== state.activeCount) throw new Error("catalog_active_generation_incomplete");
   return { acceptedAt: state.acceptedAt,
     entries: rows.results.map((row) => ({ supplierId: row.supplierId, summary: JSON.parse(row.summaryJson) })) };
+}
+
+export async function readSupplierCatalogReviewDetails(db: D1Database,
+  world: Extract<SupplierCatalogWorld, "vacations" | "events">, supplierIds: readonly number[]) {
+  const ids = [...new Set(supplierIds)].filter((id) => Number.isSafeInteger(id) && id > 0);
+  if (!ids.length) return new Map<number, unknown>();
+  const rows = await db.prepare(`SELECT e.supplier_id AS supplierId,
+    json_extract(e.detail_json, '$.reviews') AS reviewsJson
+    FROM supplier_catalog_state s
+    JOIN supplier_catalog_entries e ON e.run_id = s.active_run_id AND e.world = s.world
+    WHERE s.world = ? AND e.supplier_id IN (${ids.map(() => "?").join(", ")})`)
+    .bind(world, ...ids).all<{ supplierId: number; reviewsJson: string | null }>();
+  return new Map(rows.results.map((row) => [row.supplierId,
+    { reviews: row.reviewsJson ? JSON.parse(row.reviewsJson) : undefined }]));
 }

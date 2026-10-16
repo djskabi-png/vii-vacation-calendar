@@ -23,6 +23,38 @@ const maxMemoryBytes = 8 * 1024 * 1024;
 const maxMemoryEntries = 32;
 const memory = new Map<string, StoredResponse>();
 let memoryBytes = 0;
+const refreshing = new Set<string>();
+
+// Optional cache storage must never hold an origin render hostage. Late
+// failures are consumed, and a timeout is a miss, not a cache error page.
+async function cacheLookup<T>(operation: Promise<T> | undefined, budgetMs: number): Promise<T | undefined> {
+  if (!operation) return undefined;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([operation.catch(() => undefined), new Promise<undefined>((resolve) => {
+      timer = setTimeout(() => resolve(undefined), budgetMs);
+    })]);
+  } finally { if (timer) clearTimeout(timer); }
+}
+
+export function refreshPublicCacheAhead(response: Response, policy: PublicCachePolicy, ctx: Context,
+  render: () => Promise<Response>): "fresh" | "queued" | "running" | "busy" | "expired" {
+  const remaining = Number(response.headers.get("X-VII-Cache-Until")) - Date.now();
+  if (!Number.isFinite(remaining) || remaining <= 0) return "expired";
+  // Refresh after the first third of the existing lifetime. Never serve past
+  // its original hard expiry, even if refresh fails or storage is unavailable.
+  if (remaining > policy.ttlSeconds * 1000 * 2 / 3) return "fresh";
+  if (refreshing.has(policy.key)) return "running";
+  if (refreshing.size >= 2) return "busy";
+  refreshing.add(policy.key);
+  ctx.waitUntil(Promise.resolve().then(render).then(async (refreshed) => {
+    // Drain the server stream so response-cache writes finish even though
+    // there is no browser waiting for this background render.
+    await refreshed.arrayBuffer();
+  }).catch(() => console.warn("VII public cache refresh failed", policy.kind))
+    .finally(() => refreshing.delete(policy.key)));
+  return "queued";
+}
 
 // These cookies are evaluated by Cloudflare before our Worker and do not
 // personalize VII content. Everything else is deliberately fail-closed.
@@ -162,12 +194,12 @@ export async function readPublicCache(policy: PublicCachePolicy, env: CacheEnvir
     memory.delete(policy.key);
   }
   try {
-    const response = await edgeCache()?.match(new Request(policy.edgeUrl));
+    const response = await cacheLookup(edgeCache()?.match(new Request(policy.edgeUrl)), 50);
     const expiresAt = Number(response?.headers.get("X-VII-Cache-Until"));
     if (response && expiresAt > Date.now()) return cacheHeaders(response, policy, "HIT", "edge", expiresAt);
   } catch { /* The managed runtime may not support Cache API. R2 remains usable. */ }
   if (!env?.UPLOADS) return null;
-  const cached = await env.UPLOADS.get(policy.key);
+  const cached = await cacheLookup(env.UPLOADS.get(policy.key), 150);
   if (!cached) return null;
   const expiresAt = Number(cached.customMetadata?.expiresAt);
   if (!Number.isFinite(expiresAt) || expiresAt <= Date.now()) return null;

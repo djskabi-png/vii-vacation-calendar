@@ -24,7 +24,7 @@ test("home tours use verified media with an honest disclosure", () => {
 
 test("home ratings use sourced values, clean excerpts and responsive cards", () => {
   const home = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
-  assert.match(home, /publicCatalogDetails<SupplierReviewDetail>\("vacations", candidates\.map/);
+  assert.match(home, /publicCatalogReviewDetails<SupplierReviewDetail>\("vacations", candidates\.map/);
   assert.match(home, /Number\(place\.reviews\) >= 5/);
   assert.match(source, /reviewExcerpt\(reviewText\)/);
   assert.match(source, /ratedPlaces\.length \?/);

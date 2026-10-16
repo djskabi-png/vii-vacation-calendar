@@ -5,9 +5,9 @@ import sergeyDetails from "../data/sergey-place-details.json" with { type: "json
 import { supplierDisplayDescription } from "../data/supplier-display-text.ts";
 import { projectSpaViiSite } from "./spa-editorial-policy.ts";
 import type { SpaPlusSite } from "../data/spaplus";
-import { readSupplierCatalogDetails, readSupplierCatalogEntry, readSupplierCatalogState, readSupplierCatalogSummaries, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
+import { readSupplierCatalogDetails, readSupplierCatalogReviewDetails, readSupplierCatalogEntry, readSupplierCatalogState, readSupplierCatalogSummaries, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
 import { runtimeCatalogDatabase } from "./published-supplier-ids.ts";
-import { readPublishedContentBatch, type ContentType, type EditorialContent } from "./content-studio.ts";
+import { readPublishedItems, type ContentType, type EditorialContent } from "./content-studio.ts";
 
 const catalogCache = new Map<SupplierCatalogWorld, { runId: string; expiresAt: number; items: Promise<unknown[]> }>();
 
@@ -20,19 +20,22 @@ function bundled(world: SupplierCatalogWorld): unknown[] {
 export async function publicCatalogSummaries<T>(world: SupplierCatalogWorld): Promise<T[]> {
   const db = await runtimeCatalogDatabase();
   if (!db) return await publicSummaries(world, bundled(world)) as T[];
+  // Editorial content is independent of supplier generation. Start both reads
+  // together, without caching manual edits or binding hundreds of IDs to SQL.
+  const overlays = readPublishedItems(db, contentTypeForWorld(world)).catch(() => []);
   const state = await readSupplierCatalogState(db, world);
-  if (!state?.activeRunId) return await withEditorialOverlays(db, world, await publicSummaries(world, bundled(world))) as T[];
+  if (!state?.activeRunId) return withEditorialOverlays(world, await publicSummaries(world, bundled(world)), await overlays) as T[];
   const cached = catalogCache.get(world);
-  if (cached?.runId === state.activeRunId && cached.expiresAt > Date.now()) return await withEditorialOverlays(db, world, await cached.items) as T[];
+  if (cached?.runId === state.activeRunId && cached.expiresAt > Date.now()) return withEditorialOverlays(world, await cached.items, await overlays) as T[];
   const runId = state.activeRunId;
   const items = (async () => {
-    const accepted = await readSupplierCatalogSummaries(db, world);
+    const accepted = await readSupplierCatalogSummaries(db, world, state);
     if (!accepted) throw new Error("catalog_active_generation_missing");
     return publicSummaries(world, accepted.entries.map((entry) => entry.summary));
   })();
   catalogCache.set(world, { runId, expiresAt: Date.now() + 5 * 60_000, items });
   try {
-    return await withEditorialOverlays(db, world, await items) as T[];
+    return withEditorialOverlays(world, await items, await overlays) as T[];
   } catch (error) {
     if (catalogCache.get(world)?.items === items) catalogCache.delete(world);
     throw error;
@@ -66,15 +69,12 @@ function applyEditorial(world: SupplierCatalogWorld, value: unknown, content: Ed
   return { ...row, name: content.title, description: content.summary };
 }
 
-async function withEditorialOverlays(db: NonNullable<Awaited<ReturnType<typeof runtimeCatalogDatabase>>>, world: SupplierCatalogWorld, entries: unknown[]) {
-  try {
-    const keys = entries.map((entry) => catalogIdentity(world, entry)).filter(Boolean);
-    const overlays = await readPublishedContentBatch(db, contentTypeForWorld(world), keys);
+function withEditorialOverlays(world: SupplierCatalogWorld, entries: unknown[], published: { key: string; content: EditorialContent }[]) {
+    const overlays = new Map(published.map((entry) => [entry.key, entry.content]));
     return entries.map((entry) => {
       const content = overlays.get(catalogIdentity(world, entry));
       return content ? applyEditorial(world, entry, content) : entry;
     });
-  } catch { return entries; }
 }
 
 async function publicSummaries(world: SupplierCatalogWorld, entries: unknown[]): Promise<unknown[]> {
@@ -98,6 +98,14 @@ export async function publicCatalogDetail<T>(world: "vacations" | "events", supp
 }
 
 export async function publicCatalogDetails<T>(world: "vacations" | "events", supplierIds: readonly number[]): Promise<Map<number, T | null>> {
+  return catalogDetails<T>(world, supplierIds, false);
+}
+
+export async function publicCatalogReviewDetails<T>(world: "vacations" | "events", supplierIds: readonly number[]): Promise<Map<number, T | null>> {
+  return catalogDetails<T>(world, supplierIds, true);
+}
+
+async function catalogDetails<T>(world: "vacations" | "events", supplierIds: readonly number[], reviewsOnly: boolean): Promise<Map<number, T | null>> {
   const ids = [...new Set(supplierIds)].filter((supplierId) => Number.isSafeInteger(supplierId) && supplierId > 0);
   const fallback = new Map(ids.map((supplierId) => {
     const slug = `${world === "vacations" ? "vacation" : "event"}-${supplierId}`;
@@ -107,6 +115,6 @@ export async function publicCatalogDetails<T>(world: "vacations" | "events", sup
   if (!db) return fallback;
   const state = await readSupplierCatalogState(db, world);
   if (!state?.activeRunId) return fallback;
-  const details = await readSupplierCatalogDetails(db, world, ids);
+  const details = await (reviewsOnly ? readSupplierCatalogReviewDetails(db, world, ids) : readSupplierCatalogDetails(db, world, ids));
   return new Map(ids.map((supplierId) => [supplierId, (details.get(supplierId) as T | null) || null]));
 }
