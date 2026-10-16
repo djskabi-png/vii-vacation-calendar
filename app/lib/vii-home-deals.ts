@@ -13,7 +13,7 @@ export const homeDealPeriods = [
 
 export type HomeDealPeriod = (typeof homeDealPeriods)[number]["id"];
 export type HomeDeal = {
-  siteID: number; name: string; image: string; city: string; area: string; score: number | null; reviewCount: number;
+  siteID: number; name: string; image: string; images?: string[]; city: string; area: string; score: number | null; reviewCount: number;
   from: string; till: string; total: number; nights: number; priceGuests: number; roomID?: number; roomName?: string;
   bedrooms?: number; maxGuests?: number; phone?: string; whatsapp?: string; onlineBooking?: boolean; curatedRank?: number;
 };
@@ -124,8 +124,12 @@ export async function getHomeDealsForDates(options: {
     if (result.available !== true || !Number.isSafeInteger(siteID) || !options.publicSiteIds.has(siteID as number) || typeof total !== "number" || !Number.isFinite(total) || total <= 0) continue;
     const cheapest = record(result.cheapest);
     const place = places.get(siteID as number);
-    const gallery = Array.isArray(place?.galleries) ? record(place.galleries[0]) : {};
-    const image = mediaUrl(Array.isArray(gallery.pictures) ? gallery.pictures[0] : null);
+    // Keep the existing cover first, but do not discard the rest of this place's
+    // verified galleries. No extra detail request or image download is needed.
+    const images = [...new Set((Array.isArray(place?.galleries) ? place.galleries : [])
+      .flatMap((value) => { const gallery = record(value); return Array.isArray(gallery.pictures) ? gallery.pictures : []; })
+      .map(mediaUrl).filter((url): url is string => Boolean(url)))].slice(0, 10);
+    const image = images[0];
     const name = options.publicNames?.get(siteID as number) || (typeof place?.siteName === "string" ? place.siteName.trim() : "");
     const validStay = options.window
       ? typeof cheapest.from === "string" && typeof cheapest.till === "string"
@@ -149,7 +153,7 @@ export async function getHomeDealsForDates(options: {
     const maxGuests = Number.isSafeInteger(selectedRoom.maxGuests) && Number(selectedRoom.maxGuests) > 0 ? Number(selectedRoom.maxGuests) : undefined;
     const phone = supplierContactNumber(record(place?.contact).phone);
     const whatsapp = supplierContactNumber(record(place?.contact).whatsapp) || phone;
-    deals.push({ siteID: siteID as number, name, image, city: location?.city || "", area: location?.area || "", score, reviewCount,
+    deals.push({ siteID: siteID as number, name, image, images, city: location?.city || "", area: location?.area || "", score, reviewCount,
       from: cheapest.from as string, till: cheapest.till as string, total, nights: dates.nights, priceGuests: 2,
       ...(roomID ? { roomID } : {}), ...(roomName ? { roomName } : {}), ...(bedrooms ? { bedrooms } : {}),
       ...(maxGuests ? { maxGuests } : {}), ...(phone ? { phone } : {}), ...(whatsapp ? { whatsapp } : {}), onlineBooking: result.onlineBooking === true });

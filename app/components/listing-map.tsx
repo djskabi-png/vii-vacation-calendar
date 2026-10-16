@@ -7,6 +7,7 @@ import { eventPlaceHref } from "../lib/event-place-href";
 import type { DiscoveryItem } from "../data/world-data";
 import type { Trail } from "../data/trail-data";
 import { useSiteLanguage } from "../i18n/locale-provider";
+import { PreviewCardGallery } from "./preview-card-gallery";
 import "leaflet/dist/leaflet.css";
 
 let leafletModulePromise: Promise<typeof import("leaflet")> | null = null;
@@ -27,6 +28,7 @@ type MapPlace = {
   category: string;
   meta: string;
   image: string;
+  images?: string[];
   lat: number;
   lng: number;
   href: string;
@@ -553,11 +555,9 @@ function PlacesMap({ places, initialPlaceIds, tone = "vacation", single = false,
     {mapReady && !single && viewportDirty && <button className="map-search-area" type="button" onClick={applyVisibleArea}><span>{cardCopy.searchArea}</span><small>{pendingVisibleIds.length} {cardCopy.visible}</small></button>}
     {!mapReady && (autoLoad ? <span className="map-live-loading" role="status">{mapCopy.loading}</span> : <div className="map-preview-card map-loading-preview">{previewContent}</div>)}
     {mapReady && !single && selected && <article className="map-selection-card" aria-live="polite">
-      <div className="map-selection-card__media">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={selected.image} alt={selected.name} title={selected.name} />
+      <PreviewCardGallery key={selected.id} className="map-selection-card__media" name={selected.name} images={[selected.image, ...(selected.images || [])]} href={selected.href}>
         <small>{selected.category}</small>
-      </div>
+      </PreviewCardGallery>
       <div className="map-selection-card__body">
         <span className="map-selection-card__location">{selected.location}</span>
         <strong>{selected.name}</strong>
@@ -589,6 +589,7 @@ export function ListingMap({ listings, initialListings, mode = "vacation", singl
       listing.guests > 0 ? `עד ${listing.guests} אורחים` : null,
     ].filter(Boolean).join(" · "),
     image: listing.image,
+    images: listing.images,
     lat: listing.lat!,
     lng: listing.lng!,
     href: mode === "events" ? eventPlaceHref(listing as EventPlace) : `/business?id=${listing.slug}${detailQuery ? `&${detailQuery}` : ""}`,
@@ -624,6 +625,7 @@ export function DiscoveryMap({ items, initialItems, tone, single = false, autoLo
       category: tone === "activities" ? item.area : localized ? (tone === "spa" ? localized.spa : localized.hourly) : tone === "spa" ? "ספא וטיפולים" : "שהייה לפי שעה",
       meta: localized ? (price ? `${localized.from} ₪${price}` : tone === "spa" ? localized.packages : tone === "activities" ? item.priceLabel || item.location : localized.short) : item.priceLabel || (tone === "spa" ? "חבילות וטיפולים" : tone === "activities" ? "חוויה בתשלום" : "שהייה קצרה"),
       image: item.image || "/vii-logo.png",
+      images: item.images,
       lat: item.lat!,
       lng: item.lng!,
       href: `/discover/place/${item.id}`,
