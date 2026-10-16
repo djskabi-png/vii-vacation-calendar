@@ -17,7 +17,8 @@ import { ResultsViewToggle, useResultsViewMode } from "./results-view-toggle";
 import { ProgressiveResults } from "./progressive-results";
 import { rotateWithinTiers } from "../lib/daily-rotation";
 import { trackSearchResults } from "../lib/analytics";
-import { nearbyRecommendations, completeNearbyResults } from "../lib/nearby-recommendations";
+import { nearbySearchRecommendations, completeNearbyResults } from "../lib/nearby-recommendations";
+import { useManagedGeography } from "./use-managed-geography";
 import { NearbySearchNotice } from "./nearby-search-notice";
 
 const featureFilters = [
@@ -45,6 +46,7 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
   const router = useRouter();
   const { language } = useSiteLanguage();
   const [location, setLocation] = useState(requestedLocation);
+  const managedGeography = useManagedGeography(location !== "כל הארץ");
   const [maximumPrice, setMaximumPrice] = useState(hourlyPriceOptions.includes(requestedPrice as typeof hourlyPriceOptions[number]) ? requestedPrice : 0);
   const [features, setFeatures] = useState<string[]>(requestedFeatures);
   const { mapOpen, openMap, closeMap } = useMapViewState();
@@ -81,8 +83,8 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
       const featuresMatch = features.every((featureId) => featureFilters.find((filter) => filter.id === featureId)?.terms.some((term) => searchable.includes(term)) ?? true);
       return priceMatches && featuresMatch;
     });
-    return nearbyRecommendations(eligible, { location, area: location, ...center }, { key: (item) => item.id, limit: 12 }).items;
-  }, [features, filtered, items, location, maximumPrice]);
+    return nearbySearchRecommendations(eligible, location, managedGeography, { key: (item) => item.id, origin: { location, area: location, ...center } });
+  }, [features, filtered, items, location, managedGeography, maximumPrice]);
   const resultItems = useMemo(() => completeNearbyResults(filtered, nearbyRecovery, (item) => item.id), [filtered, nearbyRecovery]);
 
   useEffect(() => {

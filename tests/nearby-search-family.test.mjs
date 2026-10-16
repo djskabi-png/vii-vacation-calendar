@@ -3,6 +3,15 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
+test("spa and hourly anchor city expansion to managed geography before any regional fallback", async () => {
+  for (const path of ["app/components/world-map-results.tsx", "app/components/hourly-results.tsx"]) {
+    const source = await read(path);
+    assert.match(source, /const managedGeography = useManagedGeography\(location !== "כל הארץ"\)/, path);
+    assert.match(source, /nearbySearchRecommendations\(eligible, location, managedGeography,/, path);
+    assert.doesNotMatch(source, /return nearbyRecommendations\(eligible,/, path);
+  }
+});
+
 test("every geographic search family shares non-truncating minimum completion", async () => {
   for (const path of ["app/search/page.tsx", "app/events/search/page.tsx", "app/components/world-map-results.tsx", "app/components/hourly-results.tsx", "app/attractions/attractions-explorer.tsx", "app/trails/trails-explorer.tsx"]) {
     const source = await read(path);
