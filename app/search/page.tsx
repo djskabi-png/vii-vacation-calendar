@@ -584,7 +584,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       const from = result.from || selectedStay.from;
       const till = result.till || selectedStay.till;
       const nights = Math.max(1, Math.round((Date.parse(`${till}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000));
-      return { quote: { from, till, availability: result.available === true ? "available" : result.available === false ? "unavailable" : "unknown", showSelectedDates: true, onlineBooking: result.onlineBooking,
+      return { quote: { from, till, availability: result.available === true ? "available" : result.available === false ? "unavailable" : "unknown", showSelectedDates: true, onlineBooking: result.onlineBooking, bookingSupported: result.roomCount === 1,
         ...(result.total ? { nightlyPrice: Math.round(result.total / nights), totalPrice: result.total, priceMode: result.priceMode } : {}),
         ...(result.priceGuests ? { includedGuests: result.priceGuests } : {}) }, status: "ready" };
     }

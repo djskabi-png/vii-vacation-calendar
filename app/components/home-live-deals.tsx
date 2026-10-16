@@ -66,6 +66,7 @@ export function dealAvailability(deal: HomeDeal): ResolvedAvailability {
     includedGuests: deal.priceGuests,
     priceMode: "stay_total",
     onlineBooking: deal.onlineBooking,
+    bookingSupported: Number.isSafeInteger(deal.roomID) && Number(deal.roomID) > 0,
     showSelectedDates: true,
   };
 }
