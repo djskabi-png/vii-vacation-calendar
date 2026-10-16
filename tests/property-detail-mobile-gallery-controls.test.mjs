@@ -59,3 +59,8 @@ test("opening a mobile gallery image uses its displayed index through the last v
     }
   }
 });
+test("inline and full-screen gallery glyphs are isolated from RTL mirroring", () => {
+  assert.match(css, /\.property-gallery__mobile-arrow span,\s*\.story-gallery__tap::before\s*\{\s*direction:\s*ltr;\s*unicode-bidi:\s*isolate;/);
+  // LTR layouts already mirror the literal glyph to follow the logical side.
+  assert.match(css, /\[dir="ltr"\] \.property-gallery button\.property-gallery__mobile-arrow span \{ transform: translateY\(-1px\) scaleX\(-1\); \}/);
+});
