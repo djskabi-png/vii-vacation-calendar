@@ -44,3 +44,18 @@ Official references researched for this change:
 - https://developers.cloudflare.com/d1/reference/faq/
 
 No new paid cloud service or supplier-data refresh is part of this increment.
+
+## Cold-render continuation candidate
+
+The next increment removes the homepage root-level catalog wait. The hero, shared search and two independently fetched live-deal sections can render before the four-world catalog and review data. The existing catalog sections retain their data and order behind a streamed Suspense boundary, with the existing animated skeleton styles and a localized status label.
+
+Public catalog reads start the published editorial query in parallel with generation selection and pass that selected immutable generation into the summary read, removing a redundant database round trip. Editorial rows are still freshly queried, not retained in an additional cache. Homepage review reads project the JSON review field in SQL instead of fetching complete place detail records. A real bundled-record SQLite test returns identical reviews and reduces that sample from 311642 to232565bytes, about25percent.
+
+Valid response hits can refresh in the background after the first third of their lifetime. The original hard expiry remains180seconds for discovery and300for the homepage. Refreshes are deduplicated by the complete variant key, limited to two per isolate and cannot recurse into cache reads. Session, unknown-cookie, action and transaction exclusions remain unchanged. Optional edge/R2 lookup waits are bounded to50/150milliseconds before origin rendering can proceed. No supplier fetch or transaction is timed out by these optional-cache budgets.
+
+Candidate checks:786tests passed, TypeScript passed, font-source audit passed,11route HTML/Flight artifact audit passed, independent source review passed. The prior release434 true-cold homepage probe reached its heading at4508ms; the post-publication cold-shell measurement must be recorded separately, not inferred from these code changes.
+
+Official implementation references checked16October2026:
+
+- https://developers.cloudflare.com/workers/runtime-apis/context/#waituntil
+- https://developers.cloudflare.com/d1/sql-api/query-json/

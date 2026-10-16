@@ -11,7 +11,7 @@ import catalogAdminTranslations from "../app/data/catalog-admin-translations.jso
 import { runSupplierCatalogScheduleTick } from "../app/lib/supplier-catalog-retry-runner.ts";
 import { legacyDisposition, looksLikeUninventoriedLegacyPath } from "../app/lib/legacy-route-map.ts";
 import { redirectForUrl, shouldCheckRedirect } from "../app/lib/admin-redirects.ts";
-import { publicCachePolicy, readPublicCache, storePublicCache } from "./public-response-cache.ts";
+import { publicCachePolicy, readPublicCache, refreshPublicCacheAhead, storePublicCache } from "./public-response-cache.ts";
 
 declare const __VII_CACHE_BUILD_ID__: string;
 const publicCacheBuild = typeof __VII_CACHE_BUILD_ID__ === "string" ? __VII_CACHE_BUILD_ID__ : "local";
@@ -141,7 +141,7 @@ const worker = {
       }
     }));
   },
-  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext, refreshPublic = false): Promise<Response> {
     const url = new URL(request.url);
     const primary = url.hostname === "www.vii.co.il" || url.hostname === "vii.co.il";
     if (request.method === "GET" || request.method === "HEAD") {
@@ -163,10 +163,14 @@ const worker = {
     }
 
     const cachePolicy = await publicCachePolicy(request, url, publicCacheBuild);
-    if (cachePolicy) {
+    if (cachePolicy && !refreshPublic) {
       try {
         const cached = await readPublicCache(cachePolicy, env, ctx);
-        if (cached) return cached;
+        if (cached) {
+          cached.headers.set("X-VII-Cache-Refresh", refreshPublicCacheAhead(cached, cachePolicy, ctx,
+            () => worker.fetch(request, env, ctx, true)));
+          return cached;
+        }
       } catch (error) {
         console.error("VII public cache read failed", cachePolicy.kind, error);
       }

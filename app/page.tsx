@@ -1,9 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Link from "next/link";
 import { PageShell } from "./components/page-shell";
-import { HomeShowcase, HomeTrails, type HomeRatedPlace } from "./components/home-showcase";
+import { HomeShowcase, HomeTrails, HomeLiveSections, HomeCatalogLoading, type HomeRatedPlace } from "./components/home-showcase";
 import { MasuExperience } from "./components/masu-experience";
 import { SearchBox } from "./components/search-box";
 import { HomeQuickSearches } from "./components/home-discovery-sections";
@@ -13,7 +14,7 @@ import type { EventPlace, Property } from "./data/site-data";
 import { hourlyPlacesFromCatalog, paidAttractions, providerProfiles, spaPlacesFromSites } from "./data/world-data";
 import type { SpaPlusSite } from "./data/spaplus";
 import hourlyCatalog from "./data/sergey-hourly-catalog.json";
-import { publicCatalogDetails, publicCatalogSummaries } from "./lib/public-catalog-read.ts";
+import { publicCatalogReviewDetails, publicCatalogSummaries } from "./lib/public-catalog-read.ts";
 import { dailyRotationCompare, rotateDaily, rotateWithinTiers } from "./lib/daily-rotation";
 import { GiftIcon, PeopleIcon } from "./site-header";
 
@@ -29,7 +30,7 @@ async function homeRatedPlaces(properties: Property[]): Promise<HomeRatedPlace[]
     .filter((place) => place.image && Number(place.score) > 0 && Number(place.reviews) >= 5 && /^vacation-\d+$/.test(place.slug))
     .sort((a, b) => Number(b.score) - Number(a.score) || dailyRotationCompare(a.slug, b.slug, "home-reviews"))
     .slice(0, 14);
-  const details = await publicCatalogDetails<SupplierReviewDetail>("vacations", candidates.map((place) => Number(place.slug.slice("vacation-".length))));
+  const details = await publicCatalogReviewDetails<SupplierReviewDetail>("vacations", candidates.map((place) => Number(place.slug.slice("vacation-".length))));
   const withReviews = candidates.map((place) => {
     const supplierId = Number(place.slug.slice("vacation-".length));
     const detail = details.get(supplierId);
@@ -66,7 +67,7 @@ function homeShowcaseProperties(properties: Property[]) {
   return [...selected.values()].map(({ slug, name, location, area, image, videos }) => ({ slug, name, location, area, image, videos }));
 }
 
-export default async function HomePage() {
+async function HomeCatalogShowcase() {
   const propertiesPromise = publicCatalogSummaries<Property>("vacations");
   const ratedPlacesPromise = propertiesPromise.then(homeRatedPlaces);
   const [properties, eventPlaces, spaSites, hourlyCatalogPlaces, ratedPlaces] = await Promise.all([
@@ -83,6 +84,11 @@ export default async function HomePage() {
     (item) => item.image && item.priceLabel ? 0 : item.image ? 1 : 2,
     (item) => item.id, "home-spa").slice(0, 7);
   const showcaseHourly = hourlyPlacesFromCatalog(hourlyCatalogPlaces);
+  return <HomeShowcase properties={showcaseProperties} eventPlaces={showcaseEvents} ratedPlaces={ratedPlaces}
+    spaPlaces={showcaseSpas} hourlyPlaces={showcaseHourly} providerPreview={providerProfiles[0]} attractionPreview={paidAttractions[0]} />;
+}
+
+export default function HomePage() {
   return (
     <PageShell>
       <main id="main-content">
@@ -95,8 +101,8 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <HomeShowcase properties={showcaseProperties} eventPlaces={showcaseEvents} ratedPlaces={ratedPlaces}
-          spaPlaces={showcaseSpas} hourlyPlaces={showcaseHourly} providerPreview={providerProfiles[0]} attractionPreview={paidAttractions[0]} />
+        <HomeLiveSections />
+        <Suspense fallback={<HomeCatalogLoading />}><HomeCatalogShowcase /></Suspense>
 
         <section className="section home-corporate-gift"><div className="shell"><Link className="home-corporate-gift__card home-corporate-gift__card--gift" href="/gift-card"><span className="home-corporate-gift__visual"><GiftIcon /></span><div><span className="eyebrow">מתנה שמשאירה את הבחירה אצלם</span><h2>גיפט קארד לכל העולמות של וי</h2><p>נופש, ספא, אירועים, אטרקציות ושירותים, במתנה אחת.</p><strong>יוצרים גיפט קארד</strong></div></Link><Link className="home-corporate-gift__card home-corporate-gift__card--corporate" href="/corporate"><span className="home-corporate-gift__visual"><PeopleIcon /></span><div><span className="eyebrow">למנהלות רווחה ולעסקים</span><h2>אירועי חברה, רווחה ומתנות לעובדים</h2><p>מקום, תוכן, ספקים וגיפט קארד במסלול אחד.</p><strong>למרכז הארגוני</strong></div></Link></div></section>
 

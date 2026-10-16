@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { publicCachePolicy, readPublicCache, storePublicCache } from "../worker/public-response-cache.ts";
+import { publicCachePolicy, readPublicCache, refreshPublicCacheAhead, storePublicCache } from "../worker/public-response-cache.ts";
 
 const origin = "https://vii.spaplus.co";
 let sequence = 0;
@@ -113,4 +113,39 @@ test("expired objects, errors, private responses, unsupported Vary and wrong MIM
 
 test("the cache is optional when edge and R2 are unavailable", async () => {
   assert.equal(await readPublicCache(await policy(), undefined), null);
+});
+
+test("refresh-ahead is nonblocking, deduplicated, capped and retains hard expiry", async () => {
+  const p = await policy(); const ctx = context(); let renders = 0; let complete;
+  const expiresAt = Date.now() + 60_000;
+  const cached = new Response("still valid", { headers: { "X-VII-Cache-Until": String(expiresAt) } });
+  const render = () => { renders++; return new Promise((resolve) => { complete = resolve; }); };
+  assert.equal(refreshPublicCacheAhead(cached, p, ctx, render), "queued");
+  assert.equal(refreshPublicCacheAhead(cached, p, ctx, render), "running");
+  assert.equal(await cached.text(), "still valid"); // no wait for render
+  assert.equal(renders, 1);
+  assert.equal(cached.headers.get("X-VII-Cache-Until"), String(expiresAt));
+  const other = await policy(); let releaseOther;
+  assert.equal(refreshPublicCacheAhead(new Response(null, { headers: { "X-VII-Cache-Until": String(expiresAt) } }), other, ctx,
+    () => new Promise((resolve) => { releaseOther = resolve; })), "queued");
+  assert.equal(refreshPublicCacheAhead(new Response(null, { headers: { "X-VII-Cache-Until": String(expiresAt) } }), await policy(), ctx, render), "busy");
+  assert.equal(refreshPublicCacheAhead(new Response(null, { headers: { "X-VII-Cache-Until": String(Date.now() - 1) } }), p, ctx, render), "expired");
+  assert.equal(refreshPublicCacheAhead(new Response(null, { headers: { "X-VII-Cache-Until": String(Date.now() + 175_000) } }), p, ctx, render), "fresh");
+  complete(new Response("new")); releaseOther(new Response("other")); await ctx.settle();
+  const failure = context();
+  assert.equal(refreshPublicCacheAhead(new Response(null, { headers: { "X-VII-Cache-Until": String(expiresAt) } }), p, failure,
+    async () => { throw new Error("origin unavailable"); }), "queued");
+  await failure.settle();
+  const retry = context();
+  assert.equal(refreshPublicCacheAhead(new Response(null, { headers: { "X-VII-Cache-Until": String(expiresAt) } }), p, retry,
+    async () => new Response("recovered")), "queued");
+  await retry.settle();
+});
+
+test("hung optional R2 read has a bounded miss and late errors are consumed", async () => {
+  const p = await policy(); const started = performance.now(); let rejectLate;
+  const result = await readPublicCache(p, { UPLOADS: { get: () => new Promise((_, reject) => { rejectLate = reject; }) } });
+  assert.equal(result, null);
+  assert.ok(performance.now() - started < 750, "optional storage blocked rendering");
+  rejectLate(new Error("late storage error"));
 });
