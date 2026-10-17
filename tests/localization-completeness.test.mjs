@@ -81,7 +81,8 @@ test("localized routes translate the server response and retain safe hydration",
   assert.doesNotMatch(worker, /body \*:not\(script\):not\(style\):not\(noscript\)/);
   assert.match(provider, /function revealLocalizedDocument\(\)/);
   assert.doesNotMatch(provider, /useLayoutEffect/);
-  assert.match(provider, /!originalText\.has\(textNode\)/);
+  assert.match(provider, /textNode\.data !== lastTranslatedText\.get\(textNode\)/);
+  assert.match(provider, /lastTranslatedText\.set\(textNode, translated\)/);
   assert.match(provider, /!saved\.has\(attribute\)/);
   assert.doesNotMatch(card, /discovery-card__body" data-no-translate/);
   assert.match(provider, /"יוצאים מהצימר\. נכנסים לישראל היפה\.": "Leave your stay behind\. Step into Israel’s beautiful outdoors\."/);
