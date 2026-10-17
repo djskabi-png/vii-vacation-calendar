@@ -29,8 +29,8 @@ export async function projectSpaViiSite(site: SpaPlusSite): Promise<SpaPlusSite>
     const title = text(site.title);
     if (!title) throw new Error("catalog_editorial_requires_review");
     return { ...site,
-      shortDescription: `${title}, מתחם ספא ב${place} עם חבילות שמתעדכנות ישירות ממערכת ההזמנות.`,
-      about: [`בעמוד של ${title} ב${place} מוצגות חבילות הספא, המחירים ופרטי ההזמנה העדכניים שהתקבלו ממערכת הספק. לפני ההזמנה מומלץ לעבור על פרטי החבילה ולוודא שהיא מתאימה להרכב ולמועד המבוקש.`] };
+      shortDescription: `${title}, מתחם ספא ב${place}.`,
+      about: ["לפני ההזמנה, בדקו מה כלול בחבילה, למי היא מתאימה ומהם תנאי הביטול."] };
   }
   const exactSource = copy.sourceHash === await spaEditorialSourceHash(site);
   const alreadyProjected = text(site.shortDescription) === text(copy.cardSummary)

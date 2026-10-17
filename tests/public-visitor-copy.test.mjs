@@ -5,7 +5,7 @@ import { resolve, relative } from "node:path";
 import ts from "typescript";
 
 const root = resolve(import.meta.dirname, "..");
-const internalCopy = /\bAPI\b|מקור הנתונים|ספק[י]? (?:הסליקה|סליקה)|לאחר (?:ה)?חיבור (?:המערכת|מערכת|מערכות|פרטי העסק)|יחוברו למערכת|בקטלוג הנוכחי|מהקטלוג הפעיל/iu;
+const internalCopy = /\bAPI\b|מקור הנתונים|ספק[י]? (?:הסליקה|סליקה)|לאחר (?:ה)?חיבור (?:המערכת|מערכת|מערכות|פרטי העסק)|יחוברו למערכת|בקטלוג הנוכחי|מהקטלוג הפעיל|מערכת (?:ההזמנות|הספק)|החיבור למערכת/iu;
 const hasVisitorLanguage = /[\u0590-\u05ff]|\sAPI\s/u;
 function visitorLiterals(path, source) {
   const file = ts.createSourceFile(path, source, ts.ScriptTarget.Latest, true, path.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
@@ -32,7 +32,7 @@ async function collect(directory) {
 
 test("public visitor templates do not explain internal data or integration mechanisms", async () => {
   const leaks = [];
-  for (const path of await collect(resolve(root, "app"))) {
+  for (const path of [...await collect(resolve(root, "app")), resolve(root, "app/lib/spa-editorial-policy.ts")]) {
     for (const text of visitorLiterals(path, await readFile(path, "utf8"))) {
       if (internalCopy.test(text)) leaks.push(`${relative(root, path)}: ${text.trim()}`);
     }
