@@ -63,7 +63,7 @@ export function ResponsiveViewportGuard() {
         if (!region.isConnected) { observer.unobserve(region); observed.delete(region); visible.delete(region); availabilityVisible.delete(region); }
       });
       document.querySelectorAll<HTMLElement>(".mobile-map-fab").forEach((button) => {
-        const region = button.closest<HTMLElement>(".results-list, .trail-explorer, .hourly-results, .attraction-explorer, .world-map-results") || button.parentElement;
+        const region = button.closest<HTMLElement>(".results-list, .trail-explorer, .hourly-results, .attraction-explorer, .world-map-results, .event-list") || button.parentElement;
         if (region && !observed.has(region)) { observed.add(region); observer.observe(region); }
       });
       document.querySelectorAll<HTMLElement>(".regional-availability").forEach((region) => {
