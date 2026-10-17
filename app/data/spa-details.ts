@@ -7,6 +7,9 @@ export type SpaPackage = {
   audience: "יחיד" | "זוג" | "קבוצה" | "יום כיף" | "לא צוין";
   price: string;
   duration?: string;
+  durationMinutes?: number | null;
+  people?: number | null;
+  group?: boolean;
   includes: string[];
   image?: string;
   bookingUrl: string;
@@ -45,6 +48,9 @@ export function getSpaDetails(id: string, suppliedSite?: SpaPlusSite): SpaDetail
     audience: spaPlusAudience(pack),
     price: `${pack.price.toLocaleString("he-IL")} ₪`,
     duration: pack.durationMinutes ? `${pack.durationMinutes} דקות` : undefined,
+    durationMinutes: pack.durationMinutes,
+    people: pack.people,
+    group: pack.group,
     includes: [],
     image: pack.image || undefined,
     bookingUrl: publicSpaBookingUrl(pack.bookingUrl || site.bookingUrl!),

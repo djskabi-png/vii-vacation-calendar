@@ -693,7 +693,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(homeShowcase, /<HomeLiveDeals \/>/);
   assert.doesNotMatch(homeShowcase, /nightlyPrice/);
   assert.match(homeShowcase, /כל סיבה טובה הופכת כאן לאירוע/);
-  assert.match(homeShowcase, /rotateWithinTiers\(spaPlaces/);
+  assert.match(homeShowcase, /<SpaPackageDeals \/>/);
   assert.match(homeShowcase, /rotateWithinTiers\(hourlyPlaces/);
   assert.match(homeShowcase, /featuredHourly\.map/);
   assert.doesNotMatch(homeShowcase, /המחיר והזמינות הסופיים יאומתו/);
@@ -781,7 +781,7 @@ test("independent trails are sourced, filterable and connected to stays", async 
   assert.match(activities, /מסלולי טיול עצמאיים/);
   assert.match(activities, /אטרקציות בתשלום/);
   assert.match(home, /מסלולים ליד החופשה/);
-  assert.match(home, /ספא ורוגע, כחלק מהחופשה/);
+  assert.match(home, /<SpaPackageDeals \/>/);
   assert.match(home, /חדרים לכמה שעות/);
   assert.ok(homepage.indexOf("<HomeTrails />") > homepage.indexOf("רעיונות שממשיכים את החופשה"));
   assert.match(business, /nearbyTrails/);
@@ -1549,7 +1549,7 @@ test("homepage keeps factual vacation discovery before spa without unsupported o
   const source = await readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8");
   const recommended = source.indexOf("<HomeLiveDeals />");
   const discovery = source.indexOf('className="section home-vacation-discovery"');
-  const spa = source.indexOf('className="section home-spa-strip"');
+  const spa = source.indexOf('<SpaPackageDeals />');
   assert.ok(recommended >= 0 && discovery > recommended && spa > discovery);
   assert.match(source, /יעדים מומלצים לנופש/);
   assert.match(source, /\/vacations\/north\?guests=2/);

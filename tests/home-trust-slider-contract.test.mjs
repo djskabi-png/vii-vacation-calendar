@@ -12,7 +12,7 @@ test("homepage keeps the requested discovery sliders before the next world", () 
   assert.match(source, /featuredTours.length \?/);
   assert.match(source, />סרטונים מובילים</);
   assert.match(source, />חוות דעת מובילות</);
-  assert.ok(source.indexOf("home-trust-discovery") < source.indexOf("home-spa-strip"));
+  assert.ok(source.indexOf("home-trust-discovery") < source.indexOf("<SpaPackageDeals />"));
 });
 
 test("home tours use verified media with an honest disclosure", () => {

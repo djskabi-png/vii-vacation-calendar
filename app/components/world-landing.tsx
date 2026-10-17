@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { WorldTopicImage } from "./world-topic-image";
 import { BreadcrumbTrail } from "./breadcrumb-trail";
 import { PageShell } from "./page-shell";
@@ -63,6 +64,7 @@ export async function WorldLanding({
   breadcrumbItems,
   collectionTitle: customCollectionTitle,
   providerCategory,
+  beforeResults,
 }: {
   world: WorldId;
   title: string;
@@ -77,6 +79,7 @@ export async function WorldLanding({
   breadcrumbItems?: BreadcrumbTrailItem[];
   collectionTitle?: string;
   providerCategory?: ProviderCategoryId;
+  beforeResults?: ReactNode;
 }) {
   const crossSell = world === "hourly" || world === "spa" || world === "providers"
     ? crossSellByWorld[world]
@@ -135,6 +138,7 @@ export async function WorldLanding({
           {searchMode && world !== "spa" && world !== "hourly" && <WorldQuickSearches mode={searchMode} initialLocation={initialSearchLocation} initialSpaAudience={initialSpaAudience} />}
         </section>
       </>}
+      {beforeResults}
       <section id="world-results" className="section shell">
         {world !== "providers" && (world !== "spa" && world !== "hourly" && <div className="section-head world-results-title"><div><h2>{collectionTitle}</h2></div>{sourceNote && <p className="source-note">{sourceNote}</p>}</div>)}
         {world === "hourly" ? <HourlyResults items={items} initialLocation={initialSearchLocation} /> : world === "providers" ? <ProviderResults items={items} category={providerCategory} /> : world === "spa" ? <WorldMapResults items={items} world="spa" activeSpaFilter={activeSpaFilter} initialLocation={initialSearchLocation} initialSpaAudience={initialSpaAudience} initialSpaFilters={initialSpaFilters} /> : <div className="discovery-grid">{items.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>}
