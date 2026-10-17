@@ -4,6 +4,7 @@ import "./results-view.css";
 import "./mobile-stability.css";
 import "./app-experience.css";
 import "./site-polish.css";
+import "./mobile-polish.css";
 import { LocaleProvider } from "./i18n/locale-provider";
 import { StructuredData } from "./components/structured-data";
 import { organizationSchema, websiteSchema } from "./lib/seo";

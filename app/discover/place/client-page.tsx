@@ -33,6 +33,7 @@ import { FloatingContactActions } from "../../components/floating-contact-action
 import { SearchAfterResults } from "../../components/search-after-results";
 import { providerDepthLocation } from "../../lib/world-depth-policy";
 import { activityRegion, activityType } from "../../lib/activity-discovery-taxonomy";
+import { HomeMobileRail } from "../../components/home-mobile-rail";
 import { useSiteLanguage } from "../../i18n/locale-provider";
 import { latinBusinessAlias, localizedBusinessList, localizedBusinessText } from "../../i18n/localized-business-content";
 
@@ -292,7 +293,7 @@ export default function DiscoveryPlacePage({ initialId, initialItem, relatedItem
       {(item.world === "spa" || item.world === "hourly") && <div className="shell discovery-detail__accessibility"><ListingAccessibility slug={item.id} /></div>}
       {(item.world === "spa" || item.world === "hourly") && item.id !== "masu-home-wellness" ? <div className="section shell"><MasuExperience context={item.world === "spa" ? "spa" : "hourly"} /></div> : null}
       <div className="section shell"><GuestReviewStudio placeName={localizedItemName} subjectId={item.id} rating={item.rating} /></div>
-      <section className="section section-tint"><div className="shell"><div className="section-head"><div><span className="eyebrow">באותו עולם</span><h2>עוד אפשרויות שכדאי לראות</h2></div></div><div className="discovery-grid">{related.map((entry) => <DiscoveryCard key={entry.id} item={entry} />)}</div></div></section>
+      <section className="section section-tint"><div className="shell"><div className="section-head"><div><span className="eyebrow">באותו עולם</span><h2>{translate("עוד אפשרויות שכדאי לראות")}</h2></div></div><HomeMobileRail id="discovery-detail-related" label={translate("עוד אפשרויות שכדאי לראות")} className="discovery-grid">{related.map((entry) => <DiscoveryCard key={entry.id} item={entry} />)}</HomeMobileRail></div></section>
       {item.world === "hourly" ? <FloatingContactActions world="hourly" placeId={item.id} placeName={item.name} phone={item.phone} whatsapp={item.whatsapp} serviceName="חדרים לפי שעה" /> : null}
       {(item.world === "spa" || item.world === "hourly" || item.world === "providers" || item.world === "activities") ? <SearchAfterResults world={item.world} discoveryOnly location={item.world === "providers" ? providerDepthLocation(item.serviceAreas) : item.world === "activities" ? activityRegion(item) || undefined : item.location} inventory={[item, ...(relatedItems || []).filter(entry => entry.world === item.world)].map(entry => ({ location: entry.location, area: item.world === "activities" ? activityRegion(entry) || "" : entry.area, type: item.world === "activities" ? activityType(entry) || undefined : undefined, serviceAreas: entry.serviceAreas }))} /> : null}
     </main>

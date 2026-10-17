@@ -502,7 +502,9 @@ test("gift cards, corporate experiences and MASU form one internal journey", asy
   assert.doesNotMatch(worldData, /id: "masu-home-wellness"[^\n]*rating:/);
   assert.match(businessSource, /property-provider-strip/);
   assert.match(businessSource, /item\.id === "masu-home-wellness"/);
-  assert.match(eventSource, /<MasuExperience context="event"/);
+  assert.match(eventSource, /item\.id === "masu-home-wellness"/);
+  assert.match(eventSource, /eventProviders\.map/);
+  assert.doesNotMatch(eventSource, /<MasuExperience context="event"/);
   assert.match(discoverySource, /<MasuExperience context=/);
   const dictionaries = JSON.parse(translations);
   for (const language of ["en", "ru", "fr"]) {

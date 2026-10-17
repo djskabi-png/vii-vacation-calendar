@@ -52,13 +52,14 @@ test("privacy preferences reopen through the mounted consent control", async () 
   assert.match(experienceCss, /\.cookie-card--notice \{[\s\S]*?position: relative;[\s\S]*?inset: auto;/);
 });
 
-test("provider topic rail exposes a visible mobile continuation cue", async () => {
+test("provider topic rail exposes real bounded mobile continuation controls", async () => {
   const [component, css] = await Promise.all([
     read("app/components/provider-results.tsx"),
-    read("app/globals.css"),
+    read("app/mobile-polish.css"),
   ]);
-  assert.match(component, /provider-categories__scroll-cue/);
-  assert.match(css, /\.provider-categories__scroll-cue \{[\s\S]*?display: grid;[\s\S]*?pointer-events: none;/);
+  assert.doesNotMatch(component, /provider-categories__scroll-cue/);
+  assert.match(component, /<SliderRailControls railId=\{categoryRailId\} railRef=\{categoryNavRef\}/);
+  assert.match(css, /\.site-page \.provider-categories-controls \{ display:flex;/);
 });
 
 test("the noindex platform blueprint remains inside its mobile hero", async () => {

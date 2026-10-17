@@ -12,7 +12,7 @@ import { PlacePreviewCard } from "../../components/place-preview-card";
 import { ListingAccessibility } from "../../components/listing-accessibility";
 import { eventPlaceHref, eventPlaces } from "../../data/site-data";
 import { providerProfiles } from "../../data/world-data";
-import { MasuExperience } from "../../components/masu-experience";
+import { HomeMobileRail } from "../../components/home-mobile-rail";
 import { CalendarIcon, PinIcon } from "../../site-header";
 import { GalleryExperience } from "../../components/gallery-experience";
 import { useGalleryDeepLink } from "../../components/use-gallery-deep-link";
@@ -170,13 +170,11 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
         <section className="section property-complements">
           <div className="shell">
             <div className="section-head"><div><span className="eyebrow">מרכיבים את כל האירוע</span><h2>ספקים שיכולים להשלים את החגיגה</h2><p>המחיר, הזמינות והתנאים יאושרו ישירות מול הספק לפני ההזמנה.</p></div><Link href="/providers">לכל הספקים</Link></div>
-            <div className="discovery-grid discovery-grid--compact">{eventProviders.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>
+            <HomeMobileRail id="event-detail-providers" label={translate("ספקים לאירוע")} className="discovery-grid discovery-grid--compact">{eventProviders.map((item) => <DiscoveryCard key={item.id} item={item} />)}</HomeMobileRail>
           </div>
         </section>
 
-        <div className="section shell"><MasuExperience context="event" /></div>
-
-        <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים לאירוע</h2></div><div className="event-more-grid">{nearbyRecommendations(relatedPlaces || eventPlaces, place, { key: (entry) => entry.slug, exclude: place.slug, limit: 3 }).items.map((item) => { const name = safeEventText(item.name, latinBusinessAlias(item.name) || eventContentCopy.name); const location = safeEventText(item.location, safeEventText(item.area, eventContentCopy.location)); return <PlacePreviewCard className="event-related-card" key={item.slug} name={name} image={item.image} images={item.images} href={eventPlaceHref(item)}><div><b>{name}</b><span>{location} · עד {item.guests} אורחים ביחידה הגדולה</span></div></PlacePreviewCard>; })}</div></div></section>
+        <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים לאירוע</h2></div><HomeMobileRail id="event-detail-nearby" label={translate("מקומות נוספים לאירוע")} className="event-more-grid">{nearbyRecommendations(relatedPlaces || eventPlaces, place, { key: (entry) => entry.slug, exclude: place.slug, limit: 3 }).items.map((item) => { const name = safeEventText(item.name, latinBusinessAlias(item.name) || eventContentCopy.name); const location = safeEventText(item.location, safeEventText(item.area, eventContentCopy.location)); return <PlacePreviewCard className="event-related-card" key={item.slug} name={name} image={item.image} images={item.images} href={eventPlaceHref(item)}><div><b>{name}</b><span>{location} · עד {item.guests} אורחים ביחידה הגדולה</span></div></PlacePreviewCard>; })}</HomeMobileRail></div></section>
         <FloatingContactActions world="events" placeId={place.slug} placeName={place.name} phone={ownerPhone} whatsapp={ownerWhatsapp} serviceName={place.type} from={eventDate} guests={Number(eventGuests) || undefined} />
         <SearchAfterResults world="events" discoveryOnly location={place.location} inventory={[place, ...(relatedPlaces || [])].map(entry => ({ location: entry.location, area: entry.area, type: entry.type, eventTypes: entry.eventTypes }))} />
       </main>

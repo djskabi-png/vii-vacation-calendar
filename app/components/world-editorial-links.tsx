@@ -8,6 +8,7 @@ import { editorialImageCopy } from "../data/editorial-image-copy";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import type { WorldId } from "../data/world-data";
 import { editorialAreaVisible } from "../lib/editorial-viewport";
+import { HomeMobileRail } from "./home-mobile-rail";
 
 export function WorldEditorialLinks({ variant }: { variant: WorldId }) {
   const pathname = usePathname().replace(/^\/(en|fr|ru)(?=\/|$)/, "");
@@ -42,8 +43,8 @@ export function WorldEditorialLinks({ variant }: { variant: WorldId }) {
   if (!articles.length) return null;
   return <section ref={sectionRef} className="section shell world-editorial" aria-labelledby="world-editorial-title">
     <div className="section-head"><h2 id="world-editorial-title">מדריכים שכדאי לקרוא לפני שבוחרים</h2><Link href="/guides">לכל הכתבות</Link></div>
-    <div className="world-editorial__grid">{articles.map(article => <article key={article.slug}>
+    <HomeMobileRail id="world-editorial-rail" label="מדריכים שכדאי לקרוא לפני שבוחרים" className="world-editorial__grid">{articles.map(article => <article key={article.slug}>
       <Link href={`/guides/${article.slug}`}><img src={article.image} alt={editorialImageCopy[article.slug].he.alt} title={editorialImageCopy[article.slug].he.title} width={768} height={512} loading="lazy" decoding="async" data-no-translate /><small className="editorial-illustration">תמונת המחשה</small><h3>{article.title}</h3><p>{article.excerpt}</p><span>לקריאת המדריך</span></Link>
-    </article>)}</div>
+    </article>)}</HomeMobileRail>
   </section>;
 }
