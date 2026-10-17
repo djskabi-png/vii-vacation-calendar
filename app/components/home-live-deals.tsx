@@ -12,8 +12,10 @@ import { rotateWithinTiers } from "../lib/daily-rotation";
 import type { HomePeriodTab } from "../lib/home-display-settings";
 import { HomeSliderControls } from "./home-slider-controls";
 import { PropertyCard, type ResolvedAvailability } from "./property-card";
+import { regionalAvailabilityRegion, regionalAvailabilityTitle } from "../lib/regional-availability";
+import { regionalExpansionCopy } from "../i18n/regional-availability-copy";
 
-type ResponseData = { period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[]; display?: { periods: HomePeriodTab[]; defaultPeriod: HomeDealPeriod } };
+type ResponseData = { region?: string; expandedRegion?: boolean; regionalOrder?: number[]; period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[]; display?: { periods: HomePeriodTab[]; defaultPeriod: HomeDealPeriod } };
 
 const copy = {
   he: { title: "נופש פנוי בתאריכים הקרובים", all: "לכל מקומות הנופש", loading: "בודקים זמינות ומחירים", empty: "לא נמצאו מקומות פנויים לתאריכים האלה", error: "לא הצלחנו לבדוק זמינות כרגע", retry: "לנסות שוב", total: "מחיר כולל", details: "לפרטי המקום", call: "חיוג למקום", whatsapp: "וואטסאפ", available: "פנוי לתאריכים שבחרתם", forGuests: "עבור 2 אורחים", night: "לילה", nights: "לילות", bedrooms: "חדרי שינה", guests: "אורחים", reviews: "חוות דעת", dateTo: "עד", tabs: ["ברגע האחרון", "חמישי עד שבת", "שישי עד ראשון", "לילה בחמישי", "לילה בשישי"] },
@@ -71,7 +73,9 @@ export function dealAvailability(deal: HomeDeal): ResolvedAvailability {
   };
 }
 
-export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" }) {
+export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "near" | "holidays"; region?: string; guests?: number }) {
+  const scope = mode === "near" ? regionalAvailabilityRegion(region) : null;
+  const regionLabel = scope?.label;
   const { language } = useSiteLanguage();
   const [period, setPeriod] = useState<HomeDealPeriod>("tomorrow");
   const [periodTabs, setPeriodTabs] = useState<HomePeriodTab[]>(() => homeDealPeriods.map((item, index) => ({ id: item.id, label: copy[language].tabs[index] })));
@@ -84,12 +88,12 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
   const track = useRef<HTMLDivElement>(null);
   const displaySettingsApplied = useRef(false);
   const text = copy[language];
-  const title = mode === "holidays" ? { he: "נופש פנוי בחגים", en: "Available stays for holidays", ru: "Отдых в праздники", fr: "Séjours disponibles pendant les fêtes" }[language] : text.title;
+  const title = scope ? regionalAvailabilityTitle("vacation", scope, language) : mode === "holidays" ? { he: "נופש פנוי בחגים", en: "Available stays for holidays", ru: "Отдых в праздники", fr: "Séjours disponibles pendant les fêtes" }[language] : text.title;
   const searchDates = mode === "holidays" ? data?.deals[0] ?? data?.dates : data?.dates;
   const currentHoliday = holidays.find((item) => item.id === holidayId);
   const searchHref = mode === "holidays" && currentHoliday?.href
     ? currentHoliday.href
-    : searchDates ? `/search?${new URLSearchParams({ from: searchDates.from, till: searchDates.till, guests: "2" })}` : "/search";
+    : searchDates ? `/search?${new URLSearchParams({ from: searchDates.from, till: searchDates.till, guests: String(guests), ...(regionLabel ? { location: regionLabel } : {}) })}` : regionLabel ? `/search?${new URLSearchParams({ location: regionLabel, guests: String(guests) })}` : "/search";
 
   useEffect(() => {
     if (mode !== "holidays") return;
@@ -115,14 +119,15 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
     const selectedHoliday = holidays.find((item) => item.id === holidayId);
     const url = mode === "holidays"
       ? `/api/vii/home-holiday-deals?${new URLSearchParams({ id: String(holidayId), ...(selectedHoliday?.exactStay ? { from: selectedHoliday.from, till: selectedHoliday.till } : {}) })}`
-      : `/api/vii/home-deals?${new URLSearchParams({ period, locale: language })}`;
+      : `/api/vii/home-deals?${new URLSearchParams({ period, locale: language, ...(regionLabel ? { region: regionLabel } : {}), ...(guests !== 2 ? { guests: String(guests) } : {}) })}`;
     fetch(url, { signal: controller.signal, cache: "no-store", headers: { Accept: "application/json" } })
       .then(async (response) => {
         if (!response.ok) throw new Error("supplier_unavailable");
         return response.json() as Promise<ResponseData>;
       })
       .then((result) => {
-        if (!Array.isArray(result.deals) || (mode === "near" && result.period !== period) || (mode === "holidays" && result.holiday?.id !== holidayId)) throw new Error("invalid_result");
+        if (controller.signal.aborted) return;
+        if (!Array.isArray(result.deals) || (mode === "near" && (result.period !== period || result.region !== regionLabel)) || (mode === "holidays" && result.holiday?.id !== holidayId)) throw new Error("invalid_result");
         if (mode === "near" && result.display?.periods?.length) {
           setPeriodTabs(result.display.periods);
           if (!displaySettingsApplied.current) {
@@ -135,21 +140,23 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
       })
       .catch((error) => { if (error?.name !== "AbortError") setState("error"); });
     return () => controller.abort();
-  }, [period, holidayId, holidayState, holidays, language, mode, retry]);
+  }, [period, holidayId, holidayState, holidays, language, mode, retry, regionLabel, guests]);
 
   function choose(value: HomeDealPeriod) {
+    if (value !== period) { setState("loading"); setData(null); }
     setPeriod(value);
     track.current?.scrollTo({ left: 0, behavior: "instant" });
   }
 
   function chooseHoliday(value: number) {
+    if (value !== holidayId) { setState("loading"); setData(null); }
     setHolidayId(value);
     track.current?.scrollTo({ left: 0, behavior: "instant" });
   }
 
-  const sectionId = mode === "holidays" ? "home-holiday-deals" : "home-live-deals";
+  const sectionId = scope ? `regional-vacation-${scope.key}` : mode === "holidays" ? "home-holiday-deals" : "home-live-deals";
   const curatedDeals = data?.deals.filter((deal) => deal.curatedRank !== undefined).sort((a, b) => (a.curatedRank || 500) - (b.curatedRank || 500) || a.siteID - b.siteID) || [];
-  const displayedDeals = data?.deals ? [...curatedDeals, ...rotateWithinTiers(data.deals.filter((deal) => deal.curatedRank === undefined),
+  const displayedDeals = scope ? data?.deals || [] : data?.deals ? [...curatedDeals, ...rotateWithinTiers(data.deals.filter((deal) => deal.curatedRank === undefined),
     (deal) => Math.floor(deal.total / 500), (deal) => deal.siteID,
     `home-deals:${mode}:${mode === "holidays" ? holidayId : period}`)] : [];
   const displayState = mode === "holidays" && holidayState !== "ready" ? holidayState : state;
@@ -175,6 +182,7 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
         }}><strong>{item.name}</strong></button>)}
       </div>
       <div className="home-live-deals__results" id={`${sectionId}-results`} role="tabpanel" aria-live="polite" aria-busy={displayState === "loading"}>
+        {scope && displayState === "ready" && data?.expandedRegion && displayedDealCount > 0 ? <p className="regional-availability__expansion" data-no-translate>{regionalExpansionCopy[language]}</p> : null}
         {displayState === "loading" ? <div className="home-live-deals__loading" role="status" aria-label={text.loading}>
           <div className="home-live-deals__loading-head" aria-hidden="true">
             <div className="home-live-deals__loading-route"><span /><span /><span /><img src="/vii-logo.png" alt="" title="" data-image-role="decorative" /></div>
@@ -186,7 +194,7 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
         {displayState === "ready" && (mode === "holidays" && !holidays.length || data?.deals.length === 0) ? <p className="home-live-deals__status">{text.empty}</p> : null}
         {displayState === "ready" && data?.deals.length ? <div id={`${sectionId}-rail`} className="home-live-deals__track" ref={track} data-horizontal-rail>
           {displayedDeals.map((deal) => {
-            const href = `/business?${new URLSearchParams({ id: `vacation-${deal.siteID}`, from: deal.from, till: deal.till, guests: "2", source: mode === "holidays" ? "home-holidays" : "home-deals", period: mode === "holidays" ? String(currentHoliday?.id ?? "") : period }).toString()}`;
+            const href = `/business?${new URLSearchParams({ id: `vacation-${deal.siteID}`, from: deal.from, till: deal.till, guests: String(deal.priceGuests), source: mode === "holidays" ? "home-holidays" : "home-deals", period: mode === "holidays" ? String(currentHoliday?.id ?? "") : period }).toString()}`;
             return <div className="home-live-deals__item" key={`${deal.siteID}-${deal.from}`}>
               <PropertyCard
                 property={dealProperty(deal)}

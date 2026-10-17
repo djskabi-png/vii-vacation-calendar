@@ -65,6 +65,7 @@ export async function getHomeDeals(options: {
   token: string;
   publicSiteIds: ReadonlySet<number>;
   publicNames?: ReadonlyMap<number, string>;
+  guests?: number;
   now?: Date;
   fetchImpl?: typeof fetch;
 }) {

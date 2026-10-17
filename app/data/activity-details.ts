@@ -61,6 +61,7 @@ const plans: Record<string, { highlights: string[]; plan: string[]; preparation:
 
 export function getActivityDetails(item: DiscoveryItem): ActivityDetails {
   const matching = item.world === "activities";
+  const verifiedBusiness = matching && item.indexable === true && Boolean(item.sourceUrl);
   const content = plans[item.id] || {
     highlights: ["התאמה לפי אזור מקום האירוח", "בדיקת ספק וזמינות לפני הצגה", "תנאים ומחיר מלאים לפני אישור", "תהליך הזמנה שנשאר בתוך אתר VII"],
     plan: ["בוחרים אזור, תאריך והרכב", "המערכת מציגה אפשרויות פעילות מתאימות", "בודקים מה כלול, מגבלות ומדיניות ביטול", "משלימים הזמנה או עוברים לשיחה עם הספק לפי שיטת המכירה שלו"],
@@ -70,13 +71,15 @@ export function getActivityDetails(item: DiscoveryItem): ActivityDetails {
     ? {
         mode: "online" as const,
         onlineLabel: "הזמנה דרך האתר",
-        note: "הבקשה נשלחת מתוך אתר VII עם התאריך, האזור ומספר המשתתפים. לאחר בדיקת הזמינות ממשיכים לתהליך ההזמנה שמתאים לספק, בלי לצאת מהאתר.",
+        note: verifiedBusiness ? "בחרו מועד ומספר משתתפים. לפני אישור ההזמנה בדקו את המחיר, מה כלול ותנאי הביטול." : "הבקשה נשלחת מתוך אתר VII עם התאריך, האזור ומספר המשתתפים. לאחר בדיקת הזמינות ממשיכים לתהליך ההזמנה שמתאים לספק, בלי לצאת מהאתר.",
       }
     : undefined;
   return {
     kind: matching ? "matching" : "guide",
     booking,
-    about: matching
+    about: verifiedBusiness
+      ? [item.description, "לפני הביקור כדאי לבדוק את שעות הפעילות, התאמת הפעילות להרכב שלכם ותנאי הכרטיסים."]
+      : matching
       ? [`${item.name} הוא שירות התאמה, לא שם של עסק מסוים. שולחים את מקום האירוח, התאריך וההרכב, והצוות מחפש אפשרות פעילה שמתאימה לבקשה.`, "שם הספק, המחיר, הזמינות, הביטוח והמגבלות נמסרים לפני אישור. עד אז לא מוצג באתר עסק שלא עבר בדיקה." ]
       : [`${item.name} הוא רעיון מתוכנן ליציאה עצמאית בזמן החופשה. העמוד מרכז מסלול מוצע, הכנה ונקודות החלטה כדי שלא יהיה צורך לאסוף מידע מכמה מקומות.`, `${item.description} לפני היציאה חשוב לבדוק תנאים עדכניים, שעות פעילות והנחיות רשמיות.`],
     facts: [
@@ -85,8 +88,8 @@ export function getActivityDetails(item: DiscoveryItem): ActivityDetails {
       { label: "אופי", value: item.features[0] },
       { label: "מתאים עבור", value: item.features.slice(1).join(" · ") || "לפי התאמה" },
     ],
-    highlights: content.highlights,
-    plan: content.plan,
+    highlights: verifiedBusiness ? item.features.filter((feature) => !["פרטים מלאים", "בדיקת אפשרויות הזמנה"].includes(feature)) : content.highlights,
+    plan: verifiedBusiness ? ["בוחרים מועד ומספר משתתפים", "בודקים התאמה לגיל ולצרכים של המשתתפים", "מוודאים מה כלול במחיר ומהם תנאי הביטול", "מקבלים אישור הזמנה ושומרים את פרטי ההגעה"] : content.plan,
     preparation: content.preparation,
     faq: [
       { question: "האם צריך להזמין מראש?", answer: matching ? "כן. זו חוויה עם ספק ולכן יש לקבל אישור זמינות, מחיר ותנאים לפני היציאה." : "ברוב הרעיונות העצמאיים לא נדרשת הזמנה, אך באתרים מוסדרים או בתקופות עמוסות ייתכן צורך ברישום מראש." },

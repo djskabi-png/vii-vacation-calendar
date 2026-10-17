@@ -20,7 +20,6 @@ import { rotateDaily, rotateWithinTiers } from "../lib/daily-rotation";
 import { HomeManagedDiscovery } from "./home-discovery-sections";
 import { HomeSliderControls } from "./home-slider-controls";
 import { PlacePreviewCard } from "./place-preview-card";
-import { PreviewCardGallery } from "./preview-card-gallery";
 import { SpaPackageDeals } from "./spa-package-deals";
 import { HomeMobileRail } from "./home-mobile-rail";
 import { homeEventPhotography, homeReviewExcerpt } from "../lib/home-preview-content";
@@ -169,7 +168,7 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, ratedPlace
           <div className="home-vacation-strip__head"><div><span>דירוגי מקומות</span><h2 id="home-ratings-title">חוות דעת מובילות</h2></div><HomeSliderControls railId="home-ratings-rail" label="חוות דעת מובילות" itemSelector=".home-slider__item" /></div>
           <div id="home-ratings-rail" className="home-slider__track home-slider__track--trust home-slider__track--ratings" data-horizontal-rail aria-labelledby="home-ratings-title">
             {ratedPlaces.map(({ place, reviewText, reviewAuthor, reviewDate }) => <article className="home-rating-card home-slider__item" key={place.slug}>
-              <div className="home-rating-card__top"><PreviewCardGallery className="home-rating-card__gallery" images={[place.image, ...place.images]} href={`/business?id=${place.slug}`} name={place.name} /><div><span>{place.location}</span><h3><Link href={`/business?id=${place.slug}`}>{place.name}</Link></h3><strong aria-label={`ציון ${place.score} מתוך 10, ${place.reviews} חוות דעת`}><b>{place.score}</b><small>{place.reviews} חוות דעת</small></strong></div></div><p lang="he" dir="rtl">{homeReviewExcerpt(reviewText)}</p><small className="home-rating-card__byline">{reviewAuthor}{reviewDate ? ` · ${reviewDate}` : ""}</small><Link className="home-rating-card__cta" href={`/business?id=${place.slug}`}>לפרטי המקום</Link>
+              <div className="home-rating-card__top"><Link className="home-rating-card__gallery" href={`/business?id=${place.slug}`} target="_blank" rel="noopener noreferrer"><img src={place.image} alt={place.name} title={place.name} loading="lazy" decoding="async" /></Link><div><span>{place.location}</span><h3><Link href={`/business?id=${place.slug}`}>{place.name}</Link></h3><strong aria-label={`ציון ${place.score} מתוך 10, ${place.reviews} חוות דעת`}><b>{place.score}</b><small>{place.reviews} חוות דעת</small></strong></div></div><p lang="he" dir="rtl">{homeReviewExcerpt(reviewText)}</p><small className="home-rating-card__byline">{reviewAuthor}{reviewDate ? ` · ${reviewDate}` : ""}</small><Link className="home-rating-card__cta" href={`/business?id=${place.slug}`}>לפרטי המקום</Link>
             </article>)}
           </div>
         </div> : null}

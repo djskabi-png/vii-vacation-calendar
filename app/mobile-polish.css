@@ -1,0 +1,75 @@
+/* Public mobile layouts. Keep desktop grids and every original rail item. */
+.home-mobile-rail-controls { display:none; }
+.review-card__toggle,.review-experience__controls { display:none; }
+.provider-categories-controls { display:none; }
+.destination-directory__media { position:relative; min-width:0; margin:0; }
+.destination-directory__media figcaption { position:absolute; inset-inline-start:12px; bottom:12px; padding:4px 8px; border-radius:8px; color:#163c46; background:#fffffff0; font-size:.7rem; }
+
+@media (max-width:760px) {
+  /* A count and an explanatory sentence must not become two narrow columns. */
+  .site-page .results-heading__meta:has(> p + p) { display:grid; gap:4px; }
+  body[data-public-footer-visible] :is(.mobile-map-fab,.floating-contact-actions) { visibility:hidden; pointer-events:none; }
+  .site-page .section-head { flex-wrap:wrap; align-items:flex-start; gap:10px 16px; }
+  .site-page .section-head > :is(div:first-child,h2) { flex:1 1 100%; min-width:0; }
+  .site-page .section-head > a { display:inline-flex; align-items:center; min-height:44px; }
+  .site-page .home-mobile-rail-controls { display:flex; justify-content:flex-end; margin-block:0 12px; }
+  .site-page .home-mobile-rail { display:flex; gap:16px; overflow-x:auto; padding:2px 0 12px; scroll-padding-inline:0; scroll-snap-type:x mandatory; overscroll-behavior-inline:contain; }
+  .site-page .home-mobile-rail > * { flex:0 0 100%; min-width:0; max-inline-size:100%; scroll-snap-align:start; scroll-snap-stop:always; }
+  .site-page .event-rail { gap:16px; padding-inline:0; scroll-padding-inline:0; }
+  .site-page .event-rail > :is(.event-rail-card,.event-rail-discovery) { flex-basis:100%; max-inline-size:100%; scroll-snap-stop:always; }
+  .site-page :is([data-horizontal-rail],.destination-grid) { scrollbar-width:none; }
+  .site-page :is([data-horizontal-rail],.destination-grid)::-webkit-scrollbar { display:none; }
+  .site-page [data-slider-controls] button { width:44px; min-width:44px; height:44px; min-height:44px; padding:0; border-radius:50%; }
+  .site-page .search-depth__rail-controls { display:flex; }
+  .site-page .search-depth__rail { grid-auto-columns:calc((100% - 12px)/2); gap:12px; margin-inline:0; padding-inline:0; scroll-padding-inline:0; }
+  .site-page .search-depth__rail > * { min-width:0; max-inline-size:100%; }
+  .site-page .search-depth__related .search-depth__discovery-card { grid-template-columns:minmax(0,1fr); grid-template-rows:auto auto 1fr; align-content:start; justify-items:start; gap:8px; padding:14px; }
+  .site-page .search-depth__discovery-icon { grid-row:auto; }
+  .site-page .search-depth__discovery-card :is(strong,small) { grid-column:1; align-self:start; }
+  .site-page .search-depth__discovery-arrow { position:absolute; inset-inline-end:12px; top:20px; grid-row:auto; grid-column:auto; }
+  .site-page :is(.event-quick-searches__rail,.event-region-carousel__rail) { grid-auto-columns:100%; padding-inline:0; scroll-padding-inline:0; gap:16px; }
+  .site-page :is(.event-quick-searches__rail,.event-region-carousel__rail) > * { flex-basis:100%; min-width:0; max-inline-size:100%; }
+  .site-page .footer-grid { gap:26px 18px; padding-block:32px; }
+  .site-page .footer-grid nav { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:2px 16px; }
+  .site-page .footer-grid nav strong { grid-column:1/-1; margin-bottom:6px; }
+  .site-page .footer-grid nav a { display:flex; align-items:center; min-height:44px; padding-block:6px; line-height:1.45; }
+  .site-page > .back-to-top { position:static; display:grid; margin:0 auto; width:100%; height:52px; border:0; border-radius:0; box-shadow:none; background:#103b45; color:#fff; }
+  .event-place-page .feature-list { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+  .event-place-page .feature-list span { min-width:0; padding:10px; font-size:.86rem; overflow-wrap:anywhere; }
+  .event-title .property-title__actions--contact { display:grid; grid-template-columns:minmax(0,1fr) 44px minmax(0,1.2fr); gap:8px; }
+  .event-title .property-title__actions--contact > .universal-favorite { grid-column:1/-1; justify-self:end; min-height:44px; }
+  .event-title .property-title__actions--contact > :not(.universal-favorite) { grid-row:2; }
+  .event-title .property-title__actions--contact:has(.property-whatsapp-action) { grid-template-columns:minmax(0,1fr) 44px minmax(0,1.2fr); }
+  .event-title .property-title__actions--contact:not(:has(.property-whatsapp-action)) { grid-template-columns:minmax(0,1fr) 44px; }
+  .event-title .property-title__actions--contact > .property-phone-action { grid-column:1; }
+  .event-title .property-title__actions--contact > .share-trigger { grid-column:2; }
+  .event-title .property-title__actions--contact > .property-whatsapp-action { grid-column:3; }
+  .event-title .property-title__actions--contact > * { min-width:0; }
+  .site-page .review-experience__published { grid-template-columns:none; grid-auto-columns:100%; padding-inline:0; scroll-padding-inline:0; align-items:start; }
+  .site-page .review-experience__head > div { min-width:0; }
+  .site-page .review-experience__head h2 { font-size:1.4rem; line-height:1.35; white-space:normal; overflow-wrap:anywhere; }
+  .site-page .review-card--published { align-self:start; width:100%; height:auto; min-width:0; max-inline-size:100%; padding:20px; }
+  .site-page .review-card--expandable:not(.is-expanded) .review-card__original { max-height:10.5em; overflow:hidden; }
+  .site-page .review-card__toggle { display:inline-flex; align-items:center; justify-self:start; min-height:44px; padding:8px 12px; border:1px solid #b8d4d9; border-radius:12px; color:#125c6c; background:#f5fafb; font:inherit; font-size:.85rem; cursor:pointer; }
+  .site-page .review-experience__controls { display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px; }
+  .site-page .review-experience__controls button { border:1px solid #b8d4d9; color:#125c6c; background:#fff; cursor:pointer; }
+  .site-page .review-experience__controls button:disabled { color:#a9bfc4; border-color:#deebee; background:#f7fafb; cursor:default; }
+  .discovery-detail--hourly .hourly-rate-grid button { padding:38px 12px 14px; align-content:start; }
+  .discovery-detail--hourly .hourly-rate-grid button span { width:100%; min-width:0; white-space:normal; overflow:visible; text-overflow:clip; overflow-wrap:anywhere; line-height:1.5; }
+  .discovery-detail--hourly #hourly-amenities ul { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+  .discovery-detail--hourly #hourly-amenities li { padding:10px; border-radius:12px; background:#f3f9fa; font-size:.88rem; }
+  .discovery-detail--activities #activity-highlights .depth-card-grid article { min-height:80px; justify-content:center; padding:20px; }
+  .discovery-detail--providers .provider-process li { min-height:80px; display:grid; grid-template-columns:36px minmax(0,1fr); align-items:center; gap:14px; padding:18px; }
+  .discovery-detail--providers .provider-process li p { margin:0; }
+  .trail-detail__content h2 { font-size:1.4rem; line-height:1.4; overflow-wrap:anywhere; }
+  /* Keep the thin reading bar and accessible progress value, not a pill over prose. */
+  .site-page .mobile-reading-progress { position:absolute; width:1px; height:1px; min-height:0; padding:0; border:0; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+  .site-page .provider-categories { padding-inline:0; scroll-padding-inline:0; mask-image:none; -webkit-mask-image:none; }
+  .site-page .provider-categories-controls { display:flex; justify-content:flex-end; gap:8px; margin-top:8px; }
+  .site-page .provider-categories-controls button { border:1px solid #b8d4d9; color:#125c6c; background:#fff; cursor:pointer; }
+  .site-page .provider-categories-controls button:disabled { color:#a9bfc4; border-color:#deebee; background:#f7fafb; cursor:default; }
+  .site-page .questions-hero nav { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); overflow:visible; }
+  .site-page .questions-hero nav a { display:flex; align-items:center; min-height:44px; min-width:0; padding:10px; font-size:.85rem; }
+  /* The gift preview must not cover amount, design or recipient controls. */
+  .site-page .gift-builder__preview { position:static; }
+}

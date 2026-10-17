@@ -52,7 +52,8 @@ test("the viewport guard continuously returns only the root viewport to its hori
   assert.match(guard, /window\.addEventListener\("scroll", lockHorizontalScroll, \{ passive: true \}\)/);
   assert.match(guard, /if \(!scrollingElement\?\.scrollLeft/);
   assert.match(guard, /window\.addEventListener\("touchend", reset, \{ passive: true \}\)/);
-  assert.doesNotMatch(guard, /querySelectorAll<HTMLElement>\("(?!\[data-horizontal-rail\])/);
+  const resetCollections = guard.slice(guard.indexOf("function resetHorizontalCollections()"), guard.indexOf("function releaseStaleViewportLocks()"));
+  assert.doesNotMatch(resetCollections, /querySelectorAll<HTMLElement>\("(?!\[data-horizontal-rail\])/);
 });
 
 test("restored mobile tabs reset only declared horizontal rails", () => {

@@ -17,6 +17,7 @@ import { getListingOfferings, properties, propertyFaq, type BusinessWorld, type 
 import { discoveryItems, type DiscoveryItem } from "../data/world-data";
 import { nearbyTrails, type Trail } from "../data/trail-data";
 import { nearbyRecommendations, nearbyRecommendationCopy } from "../lib/nearby-recommendations";
+import { HomeMobileRail } from "../components/home-mobile-rail";
 import { TrailCard } from "../components/trail-card";
 import { GalleryExperience } from "../components/gallery-experience";
 import { useGalleryDeepLink } from "../components/use-gallery-deep-link";
@@ -455,7 +456,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
 
         <section className="section property-complements">
           <div className="shell">
-            <section className="property-provider-strip" aria-labelledby="matching-providers-title"><div className="section-head"><div><h2 id="matching-providers-title">ספקים שמגיעים אליכם</h2></div><Link href="/providers">לכל הספקים</Link></div><div className="property-provider-strip__rail">{matchingProviders.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div></section>
+            <section className="property-provider-strip" aria-labelledby="matching-providers-title"><div className="section-head"><div><h2 id="matching-providers-title">{translate("ספקים שמגיעים אליכם")}</h2></div><Link href="/providers">{translate("לכל הספקים")}</Link></div><HomeMobileRail id="vacation-detail-providers" label={translate("ספקים שמגיעים אליכם")} className="property-provider-strip__rail">{matchingProviders.map((item) => <DiscoveryCard key={item.id} item={item} />)}</HomeMobileRail></section>
             <div className="property-complements__intro">
               <div className="section-head">
                 <div><h2>{translate("מה יש בסביבה של")} {localizedPropertyName}?</h2></div>
@@ -463,12 +464,12 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
               </div>
               <p className="property-complements__note">{complementSelection.expanded ? `${nearbyCopy.expanded} ` : ""}{complementSelection.regionalOnly ? nearbyCopy.regional : nearbyCopy.places}</p>
             </div>
-            {complements.length ? <div className="discovery-grid discovery-grid--compact">{complements.map((item) => <DiscoveryCard key={`${item.world}-${item.id}`} item={item} />)}</div> : <p>לא נמצאו כרגע מקומות עם מיקום מתאים שאפשר לאמת בסביבה הקרובה.</p>}
-            {localTrails.length ? <div className="property-nearby-trails"><div className="section-head"><div><span className="eyebrow">טיול עצמאי באזור</span><h2>מסלולים באזור</h2><p>{nearbyCopy.trails}</p></div><Link href="/trails">לכל המסלולים</Link></div><div className="trail-grid trail-grid--business">{localTrails.map((trail) => <TrailCard key={trail.slug} trail={trail} compact />)}</div></div> : null}
+            {complements.length ? <HomeMobileRail id="vacation-detail-nearby" label={translate("מקומות נוספים בסביבה")} className="discovery-grid discovery-grid--compact">{complements.map((item) => <DiscoveryCard key={`${item.world}-${item.id}`} item={item} />)}</HomeMobileRail> : <p>לא נמצאו כרגע מקומות עם מיקום מתאים שאפשר לאמת בסביבה הקרובה.</p>}
+            {localTrails.length ? <div className="property-nearby-trails"><div className="section-head"><div><span className="eyebrow">{translate("טיול עצמאי באזור")}</span><h2>{translate("מסלולים באזור")}</h2><p>{nearbyCopy.trails}</p></div><Link href="/trails">{translate("לכל המסלולים")}</Link></div><HomeMobileRail id="vacation-detail-trails" label={translate("מסלולים באזור")} className="trail-grid trail-grid--business">{localTrails.map((trail) => <TrailCard key={trail.slug} trail={trail} compact />)}</HomeMobileRail></div> : null}
           </div>
         </section>
 
-        <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים שיכולים להתאים</h2></div><div className="card-grid">{(relatedProperties || properties).filter((item) => item.slug !== property.slug).slice(0, 3).map((item) => <PropertyCard key={item.slug} property={localizeRelatedProperty(item)} promotional />)}</div></div></section>
+        <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים שיכולים להתאים</h2></div><HomeMobileRail id="vacation-detail-similar" label="מקומות נוספים שיכולים להתאים" className="card-grid">{(relatedProperties || properties).filter((item) => item.slug !== property.slug).slice(0, 3).map((item) => <PropertyCard key={item.slug} property={localizeRelatedProperty(item)} promotional />)}</HomeMobileRail></div></section>
 
         <section className="property-page-endcap" aria-labelledby="property-endcap-title">
           <div className="shell property-page-endcap__inner">

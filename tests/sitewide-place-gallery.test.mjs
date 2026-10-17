@@ -41,8 +41,15 @@ test("every compact event place family preserves its source photos", () => {
   }
 });
 
-test("review previews and selected map cards also keep browsable photos", () => {
-  assert.match(read("app/components/home-showcase.tsx"), /className="home-rating-card__gallery" images=\{\[place\.image, \.\.\.place\.images\]\}/);
+test("review summary thumbnails stay static while the review rail remains browsable", () => {
+  const home = read("app/components/home-showcase.tsx");
+  const ratings = home.slice(home.indexOf('{ratedPlaces.length ? <div className="home-trust-strip">'), home.indexOf("<SpaPackageDeals />"));
+  assert.match(ratings, /<Link className="home-rating-card__gallery"[^>]*>[\s\S]*?<img src=\{place\.image\} alt=\{place\.name\} title=\{place\.name\}/);
+  assert.doesNotMatch(ratings, /PreviewCardGallery|preview-card-gallery__(?:arrow|count)|onTouchStart|onTouchEnd/);
+  assert.match(ratings, /<HomeSliderControls railId="home-ratings-rail"/);
+});
+
+test("selected map cards preserve their browsable place photos", () => {
   const map = read("app/components/listing-map.tsx");
   assert.match(map, /images: listing\.images/);
   assert.match(map, /images: item\.images/);

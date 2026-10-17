@@ -502,7 +502,9 @@ test("gift cards, corporate experiences and MASU form one internal journey", asy
   assert.doesNotMatch(worldData, /id: "masu-home-wellness"[^\n]*rating:/);
   assert.match(businessSource, /property-provider-strip/);
   assert.match(businessSource, /item\.id === "masu-home-wellness"/);
-  assert.match(eventSource, /<MasuExperience context="event"/);
+  assert.match(eventSource, /item\.id === "masu-home-wellness"/);
+  assert.match(eventSource, /eventProviders\.map/);
+  assert.doesNotMatch(eventSource, /<MasuExperience context="event"/);
   assert.match(discoverySource, /<MasuExperience context=/);
   const dictionaries = JSON.parse(translations);
   for (const language of ["en", "ru", "fr"]) {
@@ -1567,7 +1569,7 @@ test("villa discovery uses a clean landing route and delayed navigation feedback
   assert.match(home, /href="\/search"[^>]*data-global-feedback="true"/);
   assert.match(showcase, /<HomeLiveDeals \/>/);
   assert.match(liveDeals, /const searchDates = mode === "holidays" \? data\?\.deals\[0\] \?\? data\?\.dates : data\?\.dates/);
-  assert.match(liveDeals, /new URLSearchParams\(\{ from: searchDates\.from, till: searchDates\.till, guests: "2" \}\)/);
+  assert.match(liveDeals, /new URLSearchParams\(\{ from: searchDates\.from, till: searchDates\.till, guests: String\(guests\), \.\.\.\(regionLabel \? \{ location: regionLabel \} : \{\}\) \}\)/);
   assert.match(liveDeals, /<Link href=\{searchHref\}[^>]*>/);
   assert.match(feedback, /showIfStillWaiting\(element\.dataset\.loadingLabel[^,]*, 320\)/);
 });

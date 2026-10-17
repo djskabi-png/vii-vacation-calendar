@@ -18,6 +18,7 @@ import type { ProviderCategoryId } from "../data/provider-categories";
 import { DiscoveryWorldHero } from "./discovery-world-hero";
 import { readWorldLandingPresentation } from "../lib/world-landing-presentation";
 import { activityRegion, activityType } from "../lib/activity-discovery-taxonomy";
+import { RegionalAvailability } from "./regional-availability";
 
 const crossSellByWorld = {
   hourly: {
@@ -139,6 +140,7 @@ export async function WorldLanding({
         </section>
       </>}
       {beforeResults}
+      {world === "spa" && !beforeResults && !initialSpaAudience && !initialSpaFilters?.length ? <RegionalAvailability world="spa" region={initialSearchLocation} /> : null}
       <section id="world-results" className="section shell">
         {world !== "providers" && (world !== "spa" && world !== "hourly" && <div className="section-head world-results-title"><div><h2>{collectionTitle}</h2></div>{sourceNote && <p className="source-note">{sourceNote}</p>}</div>)}
         {world === "hourly" ? <HourlyResults items={items} initialLocation={initialSearchLocation} /> : world === "providers" ? <ProviderResults items={items} category={providerCategory} /> : world === "spa" ? <WorldMapResults items={items} world="spa" activeSpaFilter={activeSpaFilter} initialLocation={initialSearchLocation} initialSpaAudience={initialSpaAudience} initialSpaFilters={initialSpaFilters} /> : <div className="discovery-grid">{items.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>}

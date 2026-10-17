@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { DiscoveryItem } from "../data/world-data";
 import { providerCategories, providerCategoryHref, type ProviderCategoryId } from "../data/provider-categories";
@@ -10,6 +10,7 @@ import { ModernSelect } from "./modern-select";
 import { ProgressiveResults } from "./progressive-results";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { rotateWithinTiers } from "../lib/daily-rotation";
+import { SliderRailControls } from "./slider-rail-controls";
 
 const joinCopy: Record<SiteLanguage, { slot: string; title: string; description: string; action: string }> = {
   he: { slot: "מקום לספק הבא", title: "העסק שלכם יכול להיות כאן", description: "נותנים שירות לנופש או לאירועים? הציגו את העסק שלכם למי שמחפש ספק מתאים.", action: "פרטי הצטרפות כספק" },
@@ -36,6 +37,7 @@ export function ProviderResults({ items, category = "all" }: { items: DiscoveryI
   const searchParams = useSearchParams();
   const searchQuery = searchParams.toString();
   const categoryNavRef = useRef<HTMLElement>(null);
+  const categoryRailId = useId();
   const [query, setQuery] = useState(searchParams.get("q") || "");
   const [region, setRegion] = useState(searchParams.get("region") || "כל הארץ");
   const regions = useMemo(() => ["כל הארץ", ...Array.from(new Set(items.flatMap((item) => item.serviceAreas || [item.area])))], [items]);
@@ -81,10 +83,10 @@ export function ProviderResults({ items, category = "all" }: { items: DiscoveryI
       <ModernSelect label="אזור שירות" value={region} onChange={(value) => { setRegion(value); updateUrl({ region: value }); }} options={regions.map((option) => ({ value: option, label: option }))} />
       <div className="provider-filter-options">
         <div className="provider-categories-shell">
-          <nav ref={categoryNavRef} className="provider-categories" aria-label="עמודי ספקים לפי תחום" data-horizontal-rail>
+          <nav id={categoryRailId} ref={categoryNavRef} className="provider-categories" aria-label="עמודי ספקים לפי תחום" data-horizontal-rail>
             {providerCategories.map((entry) => <Link key={entry.id} href={providerCategoryHref(entry)} aria-current={category === entry.id ? "page" : undefined}>{entry.label}</Link>)}
           </nav>
-          <span className="provider-categories__scroll-cue" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14.5 5.5 8 12l6.5 6.5" /></svg></span>
+          <SliderRailControls railId={categoryRailId} railRef={categoryNavRef} label="עמודי ספקים לפי תחום" className="provider-categories-controls" />
         </div>
         {(query || region !== "כל הארץ") ? <button type="button" className="provider-reset" onClick={resetFilters}>ניקוי סינונים</button> : null}
       </div>

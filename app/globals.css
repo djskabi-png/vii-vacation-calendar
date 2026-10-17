@@ -35,6 +35,7 @@
 .world-editorial__grid .editorial-illustration { margin:8px 20px 0; color:var(--text); }
 .magazine-card__body>.editorial-illustration { margin-bottom:8px; color:var(--text); }
 @media(max-width:820px) {
+  body:not([data-map-results-visible]) .mobile-map-fab:not(.active):not(:focus) { visibility:hidden; opacity:0; pointer-events:none; }
   body[data-world-editorial-reading] .mobile-map-fab:not(.active):not(:focus),
   body[data-world-editorial-reading] .back-to-top:not(:focus) { visibility:hidden; opacity:0; pointer-events:none; }
 }
@@ -4265,9 +4266,9 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .event-planning li span { display: grid; }
 .event-results-layout { display: grid; grid-template-columns: 240px 1fr; gap: 24px; padding-bottom: 80px; }
 .event-list { display: grid; gap: 18px; }
-.event-list article { display: grid; grid-template-columns: 280px 1fr; gap: 22px; border: 1px solid var(--line); border-radius: 22px; padding: 10px; }
+.event-list > article { display: grid; grid-template-columns: 280px 1fr; gap: 22px; border: 1px solid var(--line); border-radius: 22px; padding: 10px; }
 .event-list img { width: 100%; height: 230px; object-fit: cover; border-radius: 15px; }
-.event-list article > div { padding: 15px 10px; }
+.event-list > article > div { padding: 15px 10px; }
 .event-place-hero { padding-block: 55px; display: grid; grid-template-columns: .7fr 1.3fr; gap: 40px; align-items: center; }
 .event-place-hero img { width: 100%; height: 460px; object-fit: cover; border-radius: 28px; }
 .event-place-actions { display: flex; gap: 10px; }
@@ -4767,7 +4768,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
   .booking-card--request { overflow: visible; margin-bottom: max(24px, env(safe-area-inset-bottom)); padding-bottom: max(32px, calc(24px + env(safe-area-inset-bottom))); }
   .booking-card--request .booking-whatsapp { min-height: 54px; margin-bottom: 8px; scroll-margin-bottom: max(28px, calc(16px + env(safe-area-inset-bottom))); }
   .event-card-grid { grid-template-columns: 1fr 1fr; }
-  .event-list article { grid-template-columns: 220px 1fr; }
+  .event-list > article { grid-template-columns: 220px 1fr; }
   .event-place-hero { grid-template-columns: 1fr; }
   .event-place-hero img { height: 360px; }
   .destination-directory article, .destination-directory article:nth-child(even) { grid-template-columns: 1fr; }
@@ -4998,7 +4999,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
   .event-region-carousel__content { inset-inline: 20px 64px; inset-block-end: 20px; }
   .event-region-carousel__pin { inset-block-start: 16px; inset-inline-start: 16px; }
   .event-region-carousel__progress i { width: 38px; }
-  .event-list article { grid-template-columns: 1fr; }
+  .event-list > article { grid-template-columns: 1fr; }
   .event-list img { height: 220px; }
   .event-place-hero img { height: 300px; }
   .contact-form { grid-template-columns: 1fr; padding: 20px; }
@@ -5762,9 +5763,13 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .home-rating-card__top > div { min-width: 0; display: grid; gap: 5px; }
 .home-rating-card__top > .home-rating-card__gallery { position: relative; display: block; width: 112px; height: 112px; overflow: hidden; border-radius: 16px; }
 .home-rating-card__gallery img { width: 100%; height: 100%; object-fit: cover; }
-.home-rating-card__gallery .preview-card-gallery__arrow--previous { inset-inline-start: 3px; }
-.home-rating-card__gallery .preview-card-gallery__arrow--next { inset-inline-end: 3px; }
-.home-rating-card__gallery .preview-card-gallery__count { bottom: 2px; inset-inline-start: 34px; padding: 2px 4px; font-size: .65rem; }
+.regional-availability { min-width: 0; grid-column: 1 / -1; }
+.regional-availability--embedded { margin-block: 24px; }
+.regional-availability--embedded > .section { padding-block: 0; }
+.regional-availability--embedded .shell,
+.regional-availability--embedded > .shell { width: 100%; max-width: none; padding-inline: 0; margin-inline: 0; }
+.regional-availability--embedded .section-head { align-items: start; flex-wrap: wrap; gap: 12px; }
+.regional-availability--embedded .section-head h2 { font-size: clamp(1.25rem, 2.4vw, 1.8rem); }
 .home-rating-card strong { display: flex; align-items: center; gap: 8px; color: #c77a0a; }
 .home-rating-card strong b { min-width: 42px; min-height: 34px; display: grid; place-items: center; border-radius: 11px; color: white; background: var(--teal-dark); font-size: .88rem; }
 .home-rating-card strong i { font-style: normal; font-size: .74rem; letter-spacing: 1px; }
@@ -6278,7 +6283,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .event-list > .results-toolbar { display: flex; align-items: center; justify-content: space-between; }
 .event-card-gallery { position: relative; padding: 0 !important; }
 .event-card-gallery > .preview-card-gallery__count { inset-inline-start: 12px; right: auto; bottom: 12px; padding: 6px 9px; border-radius: 999px; color: #fff; background: rgba(3,39,48,.72); font-size: .72rem; font-weight: 800; }
-.event-list article > div:last-child > p:nth-of-type(2) { display: block; color: var(--ink-soft); line-height: 1.55; }
+.event-list > article > div:last-child > p:nth-of-type(2) { display: block; color: var(--ink-soft); line-height: 1.55; }
 .event-card__actions { margin-top: 14px; }
 .event-capacity { margin: 13px 0; color: var(--teal-dark); font-weight: 800; }
 .event-title { padding-top: 30px; }
@@ -6417,7 +6422,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
   .room-card__availability { align-items: flex-start; flex-direction: column; gap: 4px; }
   .policies-section > div, .event-suitable-grid, .event-more-grid { grid-template-columns: 1fr; }
   .location-card .map-consent-card { min-height: 300px; padding: 20px; }
-  .event-list article > div:last-child { padding: 10px 6px 15px; }
+  .event-list > article > div:last-child { padding: 10px 6px 15px; }
   .world-map-results__toolbar { align-items: stretch; flex-direction: column; }
   .world-map-results__toolbar .map-button { width: 100%; }
   .world-map-results .listing-map-shell,.world-map-results .listing-map,.hourly-results .listing-map-shell,.hourly-results .listing-map { min-height: 68svh; }

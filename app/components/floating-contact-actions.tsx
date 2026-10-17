@@ -21,10 +21,19 @@ export function FloatingContactActions({ world, placeId, placeName, phone, whats
   const [revealed, setRevealed] = useState(false);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
-    const update = () => setVisible(window.scrollY > 450);
+    // Yield to the actual booking/contact area and footer instead of covering
+    // their fields, prices or primary actions on a small viewport.
+    const targets = [...document.querySelectorAll<HTMLElement>("#event-booking, #booking, #booking-summary, #hourly-options, #hourly-contact, #reviews, .property-booking, .site-footer")];
+    const intersections = new Set<Element>();
+    const update = () => setVisible(window.scrollY > 450 && intersections.size === 0);
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => entry.isIntersecting ? intersections.add(entry.target) : intersections.delete(entry.target));
+      update();
+    }, { rootMargin: "0px 0px 80px 0px" });
+    targets.forEach((target) => observer.observe(target));
     update();
     window.addEventListener("scroll", update, { passive: true });
-    return () => window.removeEventListener("scroll", update);
+    return () => { observer.disconnect(); window.removeEventListener("scroll", update); };
   }, []);
   const callable = phone?.replace(/[^\d+]/g, "");
   if ((!callable && !whatsapp) || !visible) return null;

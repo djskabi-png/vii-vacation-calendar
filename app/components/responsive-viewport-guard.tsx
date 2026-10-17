@@ -36,6 +36,48 @@ export function ResponsiveViewportGuard() {
   const searchKey = searchParams.toString();
 
   useEffect(() => {
+    const footer = document.querySelector(".site-footer");
+    if (!footer) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      document.body.toggleAttribute("data-public-footer-visible", entry.isIntersecting);
+    });
+    observer.observe(footer);
+    return () => { observer.disconnect(); document.body.removeAttribute("data-public-footer-visible"); };
+  }, [pathname]);
+
+  useEffect(() => {
+    const visible = new Set<HTMLElement>();
+    const availabilityVisible = new Set<HTMLElement>();
+    const update = () => document.body.toggleAttribute("data-map-results-visible", visible.size > 0 && availabilityVisible.size === 0);
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const region = entry.target as HTMLElement;
+        const target = region.matches(".regional-availability") ? availabilityVisible : visible;
+        if (entry.isIntersecting) target.add(region); else target.delete(region);
+      });
+      update();
+    }, { threshold: 0, rootMargin: "-12% 0px -12% 0px" });
+    const observed = new Set<HTMLElement>();
+    const attach = () => {
+      observed.forEach((region) => {
+        if (!region.isConnected) { observer.unobserve(region); observed.delete(region); visible.delete(region); availabilityVisible.delete(region); }
+      });
+      document.querySelectorAll<HTMLElement>(".mobile-map-fab").forEach((button) => {
+        const region = button.closest<HTMLElement>(".results-list, .trail-explorer, .hourly-results, .attraction-explorer, .world-map-results") || button.parentElement;
+        if (region && !observed.has(region)) { observed.add(region); observer.observe(region); }
+      });
+      document.querySelectorAll<HTMLElement>(".regional-availability").forEach((region) => {
+        if (!observed.has(region)) { observed.add(region); observer.observe(region); }
+      });
+      update();
+    };
+    attach();
+    const mutationObserver = new MutationObserver(attach);
+    mutationObserver.observe(document.body, { childList: true, subtree: true });
+    return () => { observer.disconnect(); mutationObserver.disconnect(); document.body.removeAttribute("data-map-results-visible"); };
+  }, [pathname, searchKey]);
+
+  useEffect(() => {
     let frame = window.requestAnimationFrame(resetHorizontalViewport);
     let timer = window.setTimeout(resetHorizontalViewport, 80);
     const reset = () => {

@@ -11,13 +11,19 @@ import type { SpaDealAudience, SpaPackageDeal } from "../lib/spa-package-deals";
 import "./spa-package-deals.css";
 import { localizedSpaPackageTitle, spaDealPeople } from "../i18n/localized-spa-package";
 import { latinBusinessAlias, localizedBusinessText } from "../i18n/localized-business-content";
-import { millisecondsToNextIsraelDay } from "../lib/spa-package-deals";
-type DealResponse = { checkedAt:string; days:string[]; offers:Record<string,Record<SpaDealAudience,SpaPackageDeal[]>> };
+import { millisecondsToNextIsraelDay, validSpaDealDate } from "../lib/spa-package-deals";
+import { regionalAvailabilityRegion, regionalAvailabilityTitle } from "../lib/regional-availability";
+import { spaSearchHref, spaSearchStateFromValues } from "../data/spa-search-landings";
+import { regionalExpansionCopy } from "../i18n/regional-availability-copy";
+type DealResponse = { region?:string; expandedRegions?:Record<string,Partial<Record<SpaDealAudience,boolean>>>; checkedAt:string; days:string[]; offers:Record<string,Record<SpaDealAudience,SpaPackageDeal[]>> };
 const audiences:SpaDealAudience[] = ["single","couple","group"];
-export function SpaPackageDeals({sectionId="spa-package-deals"}:{sectionId?:string}) {
+export function SpaPackageDeals({sectionId="spa-package-deals",region}:{sectionId?:string;region?:string}) {
  const {language,translate} = useSiteLanguage();
  const text = spaDealCopy[language];
  const params = useSearchParams(); const pathname = usePathname(); const router = useRouter();
+ const scope = regionalAvailabilityRegion(region ?? (/^\/(?:en\/|fr\/|ru\/)?spas(?:\/|$)/.test(pathname) ? params.get("location") : null));
+ const regionLabel = scope?.label;
+ const title = scope ? regionalAvailabilityTitle("spa",scope,language) : text.title;
  const [data,setData] = useState<DealResponse|null>(null);
  const [status,setStatus] = useState<"loading"|"ready"|"error">("loading");
  const [attempt,setAttempt] = useState(0);
@@ -39,12 +45,12 @@ export function SpaPackageDeals({sectionId="spa-package-deals"}:{sectionId?:stri
  },[data,requestedDate,params,pathname,router,sectionId]);
  useEffect(()=>{
   const controller = new AbortController(); setStatus("loading"); setData(null);
-  fetch("/api/spa/deals",{signal:controller.signal,cache:"no-store"})
+  fetch(regionLabel ? `/api/spa/deals?${new URLSearchParams({region:regionLabel})}` : "/api/spa/deals",{signal:controller.signal,cache:"no-store"})
    .then(response=>{if(!response.ok) throw new Error("unavailable"); return response.json();})
-   .then((body:DealResponse)=>{if(!Array.isArray(body.days)||!body.offers||!body.checkedAt) throw new Error("invalid"); if(!controller.signal.aborted){setData(body);setStatus("ready");}})
+   .then((body:DealResponse)=>{if(!Array.isArray(body.days)||!body.offers||!body.checkedAt||body.region!==regionLabel) throw new Error("invalid"); if(!controller.signal.aborted){setData(body);setStatus("ready");}})
    .catch(()=>{if(!controller.signal.aborted) setStatus("error");});
   return ()=>controller.abort();
- },[attempt]);
+ },[attempt,regionLabel]);
  useEffect(()=>{
   const refresh=()=>{if(data && Date.now()-Date.parse(data.checkedAt)>300_000) setAttempt(value=>value+1);};
   window.addEventListener("focus",refresh); return ()=>window.removeEventListener("focus",refresh);
@@ -55,9 +61,12 @@ export function SpaPackageDeals({sectionId="spa-package-deals"}:{sectionId?:stri
   router.replace(`${pathname}?${query.toString()}#${sectionId}`,{scroll:false});
  }
  const offers=status==="ready" ? data?.offers[date]?.[audience] || [] : [];
+ const expandedRegion=!!scope && status==="ready" && data?.expandedRegions?.[date]?.[audience]===true;
+ const linkDate=date || (validSpaDealDate(selection.date)?selection.date:"");
+ const allHref=scope ? `${spaSearchHref(spaSearchStateFromValues(scope.label,audience))}${linkDate?`?${new URLSearchParams({date:linkDate})}`:""}` : "/spas";
  const formatDate=(value:string)=>new Intl.DateTimeFormat(language==="he"?"he-IL":language,{weekday:"short",day:"numeric",month:"short",timeZone:"UTC"}).format(new Date(`${value}T12:00:00Z`));
  return <section id={sectionId} className="section shell spa-package-deals" aria-labelledby={`${sectionId}-title`} data-no-translate>
-  <div className="section-head"><h2 id={`${sectionId}-title`}>{text.title}</h2><Link href="/spas">{text.all}</Link></div>
+  <div className="section-head"><h2 id={`${sectionId}-title`}>{title}</h2><Link href={allHref}>{text.all}</Link></div>
   <div className="spa-package-deals__controls">
    <div className="spa-package-deals__days" role="group" aria-label={text.days}>{data?.days.map((day,index)=><button type="button" key={day} aria-pressed={date===day} onClick={()=>select(day,audience)}><strong>{index===0?text.today:index===1?text.tomorrow:new Intl.DateTimeFormat(language==="he"?"he-IL":language,{weekday:"short",timeZone:"UTC"}).format(new Date(`${day}T12:00:00Z`))}</strong><small>{new Intl.DateTimeFormat(language==="he"?"he-IL":language,{day:"numeric",month:"numeric",timeZone:"UTC"}).format(new Date(`${day}T12:00:00Z`))}</small></button>)}</div>
    <div className="spa-package-deals__audiences" role="group" aria-label={text.who}>{audiences.map(value=><button type="button" key={value} disabled={!data||status!=="ready"} aria-pressed={audience===value} onClick={()=>select(date,value)}>{text.audiences[value]}</button>)}</div>
@@ -66,7 +75,8 @@ export function SpaPackageDeals({sectionId="spa-package-deals"}:{sectionId?:stri
    {status==="loading"?<div role="status" className="home-live-deals__loading"><p>{text.loading}</p><div className="home-live-deals__loading-cards" aria-hidden="true">{[0,1,2].map(index=><div className="home-live-deals__loading-card" key={index}><div className="home-live-deals__loading-image"/><div className="home-live-deals__loading-lines"><span/><span/><span/></div></div>)}</div></div>:null}
    {status==="error"?<div role="alert" className="event-rail-status"><p>{text.error}</p><button type="button" className="button secondary" onClick={()=>setAttempt(value=>value+1)}>{text.retry}</button></div>:null}
    {status==="ready"&&!offers.length?<p className="event-rail-status">{text.empty}</p>:null}
-   {offers.length?<><div className="spa-package-deals__context"><p>{text.requested}: {formatDate(date)}</p><span>{text.order}</span></div><EventRail key={`${date}-${audience}`} title={text.title}>{offers.map(offer=>{
+   {expandedRegion && offers.length > 0 ? <p className="regional-availability__expansion">{regionalExpansionCopy[language]}</p> : null}
+   {offers.length?<><div className="spa-package-deals__context"><p>{text.requested}: {formatDate(date)}</p>{!expandedRegion ? <span>{text.order}</span> : null}</div><EventRail key={`${date}-${audience}`} title={title}>{offers.map(offer=>{
     const href=localizedPath(offer.href,language); const title=localizedSpaPackageTitle(offer,language,translate);
     const siteName=localizedBusinessText(offer.siteName,language,translate,latinBusinessAlias(offer.siteNameEN) || latinBusinessAlias(offer.siteName) || `Spa ${offer.siteId}`);
     const city=localizedBusinessText(offer.city,language,translate,"");

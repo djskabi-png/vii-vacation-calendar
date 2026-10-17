@@ -3,6 +3,7 @@ import test from 'node:test';
 import {readFile} from 'node:fs/promises';
 import {stripTypeScriptTypes} from 'node:module';
 import {holidayParts} from '../app/lib/holiday-deal-selection.ts';
+import {regionalAvailabilityRegion,regionalPublishedIds} from '../app/lib/regional-availability.ts';
 
 async function loadRoute(name, dependencies) {
   const source=await readFile(new URL(`../app/api/vii/${name}/route.ts`,import.meta.url),'utf8');
@@ -16,7 +17,7 @@ for(const name of ['home-deals','home-holiday-deals'])test(`${name} starts indep
     publicCatalogSummaries(){calls.push('names');return new Promise(resolve=>{releaseNames=resolve;});},
     publishedSupplierIds(){calls.push('ids');return Promise.resolve(new Set([1]));},
     supplierToken(){calls.push('token');return Promise.resolve('synthetic-test');},
-    homeDealPeriods:[{id:'tomorrow'}], holidayParts, isContentLocale:()=>true,
+    homeDealPeriods:[{id:'tomorrow'}], holidayParts, isContentLocale:()=>true, regionalAvailabilityRegion, regionalPublishedIds,
     readHomeDisplaySettings:async()=>({periods:[{id:'tomorrow'}],defaultPeriod:'tomorrow'}),
     curateHomeDeals:async(_db,deals)=>deals,
   };

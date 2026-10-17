@@ -38,6 +38,7 @@ import { nearbyPlacesForSelection } from "../../lib/geography-search";
 import { completeNearbyResults } from "../../lib/nearby-recommendations";
 import { NearbySearchNotice } from "../../components/nearby-search-notice";
 import { useManagedGeography } from "../../components/use-managed-geography";
+import { RegionalAvailability } from "../../components/regional-availability";
 
 function runtimeEventPlace(value: unknown): EventPlace {
   const place = value as EventPlace;
@@ -249,6 +250,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
           </aside>
           <section className={`event-list results-view results-view--${viewMode}${mapOpen ? " event-list--map-open" : ""}`}>
             <section className="results-heading"><div><h1>{landingTitle && area === initialArea && type === "הכל" && eventType === "הכל" ? landingTitle : eventHeading}</h1><div className="results-heading__meta"><p>{displayed.length} מקומות מתאימים לחיפוש</p>{landingDescription && area === initialArea && type === "הכל" && eventType === "הכל" ? <p>{landingDescription}</p> : null}</div></div></section>
+            {!mapOpen && !eventFrom && type === "הכל" && eventType === "הכל" && !noNoiseLimit && !accessibleOnly ? <RegionalAvailability world="events" region={area} guests={guests || 20} embedded /> : null}
             {guests > 0 && eventPlaces.some((place) => place.capacityScope === "unit") ? <SupplierCapacityNotice /> : null}
             {resultSet.length > filtered.length ? <NearbySearchNotice dated={Boolean(eventFrom)} /> : null}
             <div className="results-toolbar"><div className="results-toolbar__actions"><ResultsViewToggle value={viewMode} onChange={setViewMode} />{resultSet.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתוצאות" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onPointerEnter={preloadListingMap} onFocus={preloadListingMap} onTouchStart={preloadListingMap} onClick={toggleResultsMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לתוצאות" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect className="results-toolbar__sort" compact label="מיון לפי" value={sort} onChange={(value) => changeFilter("sort", value)} options={sortOptions} /></div>

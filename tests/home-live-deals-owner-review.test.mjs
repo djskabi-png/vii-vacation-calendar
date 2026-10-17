@@ -23,7 +23,7 @@ test("period navigation and carousel controls reflect the active context and rea
   assert.match(component, /לכל מקומות הנופש ברגע האחרון/);
   assert.match(component, /לכל מקומות הנופש מחמישי עד שבת/);
   assert.match(component, /HomeSliderControls/);
-  assert.match(component, /const sectionId = mode === "holidays" \? "home-holiday-deals" : "home-live-deals"/);
+  assert.match(component, /const sectionId = scope \? `regional-vacation-\$\{scope.key\}` : mode === "holidays" \? "home-holiday-deals" : "home-live-deals"/);
   assert.match(component, /railId=\{`\$\{sectionId\}-rail`\}/);
   assert.match(controls, /first\.right > bounds\.right/);
   assert.match(controls, /last\.left < bounds\.left/);
