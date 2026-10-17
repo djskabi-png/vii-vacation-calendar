@@ -23,7 +23,8 @@ test("hourly prices retain duration and weekday/weekend source distinction", () 
   });
   assert.match(details, /rate\.weekday/);
   assert.match(details, /rate\.weekend/);
-  assert.match(details, /מחירי בסיס מה־API/);
+  assert.match(details, /המחירים המוצגים הם מחירי בסיס/);
+  assert.doesNotMatch(details, /API/);
 });
 
 test("supplier places without photos or rooms remain visible without invented content", () => {
@@ -31,6 +32,6 @@ test("supplier places without photos or rooms remain visible without invented co
   assert.deepEqual(incomplete.map((place) => place.supplierId), [2716]);
   assert.ok(incomplete.every((place) => !place.rooms.length && !place.images.length));
   assert.match(card, /item\.world !== "hourly"/);
-  assert.match(card, /לא נמסרה תמונה ב־API/);
+  assert.match(card, /תמונה אינה זמינה/);
   assert.match(worldData, /startingPrice \? .* : undefined/);
 });

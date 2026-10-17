@@ -8,6 +8,7 @@ import hourlyUiTranslations from "../app/data/hourly-ui-translations.json";
 import providerJoinTranslations from "../app/data/provider-join-translations.json";
 import spaUiTranslations from "../app/data/spa-ui-translations.json";
 import worldDepthTranslations from "../app/data/world-depth-translations.json";
+import visitorUiTranslations from "../app/data/visitor-ui-translations.json";
 import catalogAdminTranslations from "../app/data/catalog-admin-translations.json";
 import { runSupplierCatalogScheduleTick } from "../app/lib/supplier-catalog-retry-runner.ts";
 import { legacyDisposition, looksLikeUninventoriedLegacyPath } from "../app/lib/legacy-route-map.ts";
@@ -58,7 +59,7 @@ const serverTranslations: Record<Exclude<PublicLocale, "he">, TranslationDiction
 };
 
 for (const locale of ["en", "ru", "fr"] as const) {
-  Object.assign(serverTranslations[locale], Object.fromEntries(Object.entries(worldDepthTranslations).map(([key, value]) => [key, value[locale]])));
+  Object.assign(serverTranslations[locale], Object.fromEntries(Object.entries(worldDepthTranslations).map(([key, value]) => [key, value[locale]])), Object.fromEntries(Object.entries(visitorUiTranslations).map(([key, value]) => [key, value[locale]])));
 }
 
 function translateServerText(value: string, locale: PublicLocale) {

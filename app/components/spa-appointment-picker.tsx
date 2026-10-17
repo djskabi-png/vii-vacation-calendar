@@ -233,7 +233,7 @@ export function SpaAppointmentPicker({ initialDate, initialGuests, offerName, of
           <p>בחרו תחילה יום פנוי בלוח.</p>
         </div> : <div className="spa-appointment__slots">
           <h3>בחרו שעה מועדפת</h3>
-          <p className="spa-appointment__slot-help">לאחר חיבור מערכת ספא פלוס יוצגו כאן רק השעות הפנויות בפועל.</p>
+          <p className="spa-appointment__slot-help">בחרו שעה מועדפת. המקום יאשר את השעה הסופית לפני ההזמנה.</p>
           {timeGroups.map((group) => <div className="spa-appointment__slot-group" key={group.label}>
             <span>{group.label}</span>
             <div>{group.slots.map((time) => <button key={time} type="button" dir="ltr" aria-pressed={selectedTime === time} onClick={() => chooseTime(time)}>{time}</button>)}</div>
@@ -245,7 +245,7 @@ export function SpaAppointmentPicker({ initialDate, initialGuests, offerName, of
 
     <footer className="spa-appointment__note">
       <span aria-hidden="true">i</span>
-      <p><strong>אלו שעות לבקשה, לא זמינות חיה.</strong> לאחר החיבור למערכת יוצגו שעות פנויות בזמן אמת. עד אז המקום מאמת את השעה לפני אישור ההזמנה.</p>
+      <p><strong>אלו שעות לבקשה, לא זמינות חיה.</strong> המקום יאשר את השעה שביקשתם לפני השלמת ההזמנה.</p>
     </footer>
   </section>;
 }

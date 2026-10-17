@@ -43,7 +43,8 @@ test("spa package details and the schedule handoff stay in the booking contract"
   assert.match(booking, /props\.offerDuration/);
   assert.match(booking, /offerName=\{props\.offerName\}/);
   assert.match(picker, /גמישים בשעה/);
-  assert.match(picker, /רק השעות הפנויות בפועל/);
+  assert.match(picker, /המקום יאשר את השעה שביקשתם לפני השלמת ההזמנה/);
+  assert.match(picker, /אלו שעות לבקשה, לא זמינות חיה/);
   assert.match(css, /\.spa-appointment__offer/);
   assert.match(css, /\.booking-summary__package/);
 });
