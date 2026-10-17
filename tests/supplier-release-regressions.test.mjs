@@ -85,7 +85,7 @@ test("missing legacy vacation records explain absence through relevant search wi
     assert.equal(search.status, 200);
     const html = await search.text();
     assert.ok(html.includes(old.name));
-    assert.match(html, /המקום אינו זמין בקטלוג הנוכחי/);
+    assert.match(html, /המקום אינו מוצג כעת באתר/);
     assert.doesNotMatch(html, /business\?id=vacation-(?:tepers-estate|aqua-sol-dreamy-rent|ahuzat-shaked)/);
   }
 });
@@ -116,7 +116,7 @@ test("vacation SSR honors region before hydration and old unsupported filters do
   const cards = (html) => [...html.matchAll(/href="\/business\?id=vacation-\d+"/g)].length;
   assert.ok(cards(normal) >= 15);
   assert.equal(cards(large), cards(normal));
-  assert.match(large, /התאמה לכמות האורחים המבוקשת תיבדק מול המקום/);
+  assert.match(large, /התאמת כמה יחידות להרכב שלכם תיבדק מול המקום/);
   assert.match(large, />טווח מחיר</);
   assert.match(large, />סוג מקום</);
   assert.doesNotMatch(large, />מקום שלם<|>קיבולת גבוהה</);

@@ -13,7 +13,7 @@ test("dated vacation results do not manufacture availability or a dated price", 
   assert.match(card, /return false;/);
   assert.match(card, /if \(legacyAvailabilitySourceFor\(property\.slug\)\) return null;/);
   assert.match(card, /\(!selectedStay && property\.price\)/, "a static from-price must not be shown as the selected date price");
-  assert.match(card, /בודקים זמינות ומחיר מול מערכת המקום/);
+  assert.match(card, /בודקים זמינות ומחיר/);
   assert.match(card, /לא הצלחנו לאמת זמינות ומחיר כרגע/);
 });
 

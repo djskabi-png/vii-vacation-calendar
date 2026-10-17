@@ -71,7 +71,7 @@ export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { ite
   const features = localized?.chips || item.features.slice(0, 3);
   const details = ui?.details || (item.world === "hourly" ? "פרטי המקום" : "צפייה במקום");
   const price = item.world === "hourly" && !item.priceLabel
-    ? language === "he" ? "מחיר לא נמסר ב־API" : ui!.noPrice
+    ? translate("למחיר, פנו למקום")
     : language === "he" ? item.priceLabel || item.duration || details : localizedPrice(item.priceLabel || item.duration, language, details);
 
   if (!item.image && item.world !== "hourly") return null;
@@ -96,7 +96,7 @@ export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { ite
     onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) onActiveChange?.(false); }}
   >
     <PreviewCardGallery className={`discovery-card__visual discovery-card__visual--${imageFit}`} href={`/discover/place/${item.id}`} name={localizedName} images={galleryImages} imageFit={imageFit} imagePosition={item.imagePosition} imageLabel={imageLabel && ui ? ui.image : imageLabel ? `${localizedName}, ${imageLabel}` : localizedName} linkLabel={`${details}: ${localizedName}`}>
-      {!media.image ? <span className="discovery-card__missing-image">לא נמסרה תמונה ב־API</span> : null}
+      {!media.image ? <span className="discovery-card__missing-image">{translate("תמונה אינה זמינה")}</span> : null}
       {imageLabel && <span className="image-context-label">{ui?.image || imageLabel}</span>}
       {item.rating && <span className="rating-badge">★ {item.rating.toFixed(1)}</span>}
     </PreviewCardGallery>

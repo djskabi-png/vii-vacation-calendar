@@ -1,0 +1,74 @@
+{
+  "דירוג המקום": { "en": "Property rating", "ru": "Оценка объекта", "fr": "Note de l’établissement" },
+  "בודקים זמינות ומחיר": { "en": "Checking availability and price", "ru": "Проверяем наличие и цену", "fr": "Vérification de la disponibilité et du prix" },
+  "ההצעות ל־20 משתתפים ול־3 שעות. כשמופיע ״לבירור״, יש לאשר זמינות ומחיר מול המקום.": {
+    "en": "Offers are for 20 guests and 3 hours. Where an enquiry is required, confirm availability and price with the venue.",
+    "ru": "Предложения рассчитаны на 20 гостей и 3 часа. Если требуется уточнение, согласуйте наличие и цену с площадкой.",
+    "fr": "Les offres concernent 20 personnes et 3 heures. Lorsqu’une demande est nécessaire, confirmez la disponibilité et le prix auprès de l’établissement."
+  },
+  "פנוי בתאריך שבחרתם": { "en": "Available on your selected date", "ru": "Доступно на выбранную дату", "fr": "Disponible à la date choisie" },
+  "מספר האורחים המוצג מתייחס ליחידה הגדולה ביותר. התאמת כמה יחידות להרכב שלכם תיבדק מול המקום.": {
+    "en": "The guest count shown is for the largest unit. Confirm with the venue whether several units can accommodate your group.",
+    "ru": "Указанное число гостей относится к самому большому номеру. Уточните у объекта, можно ли разместить вашу группу в нескольких номерах.",
+    "fr": "Le nombre de personnes indiqué concerne la plus grande unité. Vérifiez auprès de l’établissement si plusieurs unités peuvent accueillir votre groupe."
+  },
+  "המקום אינו מוצג כעת באתר. אפשר לחפש מקומות אחרים באזור.": {
+    "en": "This venue is not currently listed. You can search for other places in the area.",
+    "ru": "Этот объект сейчас не представлен на сайте. Можно найти другие места поблизости.",
+    "fr": "Cet établissement n’est pas présenté sur le site actuellement. Vous pouvez rechercher d’autres adresses dans la région."
+  },
+  "לפני שמאשרים הזמנה, בודקים את המחיר לתאריכים ולהרכב שבחרתם, מה כלול ומהי מדיניות הביטול.": {
+    "en": "Before confirming a booking, check the price for your dates and group, what is included and the cancellation policy.",
+    "ru": "Перед подтверждением бронирования проверьте цену для ваших дат и состава гостей, включённые услуги и условия отмены.",
+    "fr": "Avant de confirmer une réservation, vérifiez le prix pour vos dates et votre groupe, les prestations incluses et les conditions d’annulation."
+  },
+  "מחיר סופי מתייחס לתאריכים ולהרכב מסוימים. לפני אישור ההזמנה, ודאו שהסכום והתנאים תואמים לבחירה שלכם.": {
+    "en": "A final price applies to specific dates and guests. Before confirming, make sure the amount and terms match your selection.",
+    "ru": "Итоговая цена действует для определённых дат и состава гостей. Перед подтверждением убедитесь, что сумма и условия соответствуют вашему выбору.",
+    "fr": "Un prix final correspond à des dates et à un groupe précis. Avant de confirmer, vérifiez que le montant et les conditions correspondent à votre choix."
+  },
+  "בדקו מחיר לתאריכים ולהרכב שבחרתם בעמוד המקום. אם המחיר מופיע כ׳החל מ־׳ או כ׳מחיר לבירור׳, יש לאשר עם המקום את הסכום והתנאים לפני ההזמנה.": {
+    "en": "Check the venue page for a price for your dates and guests. If it says 'from' or 'price on enquiry', confirm the amount and terms with the venue before booking.",
+    "ru": "Проверьте цену для ваших дат и состава гостей на странице объекта. Если указано «от» или «цена по запросу», согласуйте сумму и условия с объектом перед бронированием.",
+    "fr": "Consultez la page de l’établissement pour le prix correspondant à vos dates et à votre groupe. Si le tarif indique « à partir de » ou « sur demande », confirmez le montant et les conditions avant de réserver."
+  },
+  "בודקים שהמקום פנוי ושהמחיר מתאים לתאריכים שבחרתם.": { "en": "Checking availability and the price for your chosen dates.", "ru": "Проверяем наличие и цену для выбранных дат.", "fr": "Vérification de la disponibilité et du prix pour les dates choisies." },
+  "לא ניתן להמשיך עם ההצעה הזו. אפשר לחזור למקום, לבחור תאריך אחר או לפנות אליו ישירות.": {
+    "en": "This offer is no longer available to book. You can return to the venue page, choose another date or contact the venue directly.",
+    "ru": "Продолжить бронирование этого предложения нельзя. Вернитесь на страницу объекта, выберите другую дату или свяжитесь с ним напрямую.",
+    "fr": "Vous ne pouvez pas poursuivre avec cette offre. Revenez à la page de l’établissement, choisissez une autre date ou contactez-le directement."
+  },
+  "לתיאום ההזמנה ולאישור המחיר והזמינות, פנו ישירות למקום.": { "en": "Contact the venue directly to arrange your booking and confirm the price and availability.", "ru": "Свяжитесь с объектом напрямую, чтобы согласовать бронирование, цену и наличие.", "fr": "Contactez directement l’établissement pour organiser la réservation et confirmer le prix et la disponibilité." },
+  "ההזמנה אושרה על ידי המקום": { "en": "Booking confirmed by the venue", "ru": "Бронирование подтверждено объектом", "fr": "Réservation confirmée par l’établissement" },
+  "פרטי ההזמנה נשמרו. לא בוצע חיוב בכרטיס.": { "en": "Your booking details have been saved. Your card has not been charged.", "ru": "Данные бронирования сохранены. Списания с карты не было.", "fr": "Les détails de la réservation sont enregistrés. Votre carte n’a pas été débitée." },
+  "פרטי ההזמנה נשמרו. לא בוצע חיוב ולא נשמר כרטיס לביטחון.": { "en": "Your booking details have been saved. No payment was taken and no card was saved as a guarantee.", "ru": "Данные бронирования сохранены. Оплата не взималась, карта для гарантии не сохранена.", "fr": "Les détails de la réservation sont enregistrés. Aucun paiement n’a été effectué et aucune carte n’a été conservée en garantie." },
+  "המקום אישר את ההזמנה. לא בוצע חיוב דרך VII.": { "en": "The venue confirmed your booking. No payment was taken through VII.", "ru": "Объект подтвердил бронирование. Оплата через VII не взималась.", "fr": "L’établissement a confirmé la réservation. Aucun paiement n’a été effectué via VII." },
+  "המקום קיבל את הבקשה והיא ממתינה לאישורו. לא בוצע חיוב דרך VII.": { "en": "The venue received your request and it is awaiting approval. No payment was taken through VII.", "ru": "Объект получил запрос, он ожидает подтверждения. Оплата через VII не взималась.", "fr": "L’établissement a reçu la demande, qui est en attente de confirmation. Aucun paiement n’a été effectué via VII." },
+  "המחשה בלבד. ההודעות הבאות לא נשלחו.": { "en": "Demonstration only. The following messages were not sent.", "ru": "Только демонстрация. Следующие сообщения не отправлены.", "fr": "Démonstration uniquement. Les messages suivants n’ont pas été envoyés." },
+  "זו המחשה בלבד. לא נשלחת הזמנה ולא מתבצע חיוב.": { "en": "This is a demonstration only. No booking is sent and no payment is taken.", "ru": "Это только демонстрация. Бронирование не отправляется, оплата не взимается.", "fr": "Il s’agit uniquement d’une démonstration. Aucune réservation n’est envoyée et aucun paiement n’est effectué." },
+  "המחשה בלבד. לא מתבצע תשלום ואין להזין פרטי כרטיס אמיתי.": { "en": "Demonstration only. No payment is taken. Do not enter real card details.", "ru": "Только демонстрация. Оплата не взимается. Не вводите данные настоящей карты.", "fr": "Démonstration uniquement. Aucun paiement n’est effectué. Ne saisissez pas les coordonnées d’une vraie carte." },
+  "לאחר בדיקת המחיר והזמינות, הבקשה תועבר למקום. בסיום יוצג אם ההזמנה אושרה או ממתינה לאישורו. לא יבוצע חיוב דרך VII.": {
+    "en": "After checking the price and availability, your request will be sent to the venue. You will see whether it is confirmed or awaiting approval. No payment will be taken through VII.",
+    "ru": "После проверки цены и наличия запрос будет отправлен объекту. Вы увидите, подтверждено ли бронирование или ожидает одобрения. Оплата через VII не взимается.",
+    "fr": "Après vérification du prix et de la disponibilité, votre demande sera transmise à l’établissement. Vous verrez si la réservation est confirmée ou en attente. Aucun paiement ne sera effectué via VII."
+  },
+  "לא התקבל אישור סופי להזמנה. מספר הפנייה הוא": { "en": "Your booking has not yet been confirmed. Your enquiry reference is", "ru": "Окончательное подтверждение бронирования ещё не получено. Номер обращения:", "fr": "La réservation n’a pas encore été confirmée. Votre référence de demande est" },
+  "אפשר לנסות שוב לבדיקת אותה בקשה, ללא יצירת הזמנה כפולה.": { "en": "You can retry to check the same request without creating a duplicate booking.", "ru": "Можно повторить проверку того же запроса без создания повторного бронирования.", "fr": "Vous pouvez réessayer pour vérifier la même demande sans créer de réservation en double." },
+  "לא מתבצע תשלום ולא נאספים פרטי כרטיס אמיתי.": { "en": "No payment is taken and no real card details are collected.", "ru": "Оплата не взимается, данные настоящей карты не собираются.", "fr": "Aucun paiement n’est effectué et aucune coordonnée de carte réelle n’est recueillie." },
+  "חוות הדעת הכתובות אינן זמינות כרגע.": { "en": "Written reviews are currently unavailable.", "ru": "Тексты отзывов сейчас недоступны.", "fr": "Les avis écrits ne sont pas disponibles pour le moment." },
+  "דירוגי מקומות": { "en": "Property ratings", "ru": "Оценки объектов", "fr": "Notes des établissements" },
+  "לקהל שלכם": { "en": "For your members", "ru": "Для вашей аудитории", "fr": "Pour vos membres" },
+  "בוחרים הטבה שמתאימה לעובדים או לחברי המועדון.": { "en": "Choose a benefit that suits your employees or club members.", "ru": "Выберите предложение для сотрудников или участников клуба.", "fr": "Choisissez une offre adaptée à vos salariés ou aux membres de votre club." },
+  "תנאים ברורים": { "en": "Clear terms", "ru": "Понятные условия", "fr": "Des conditions claires" },
+  "בודקים מה כלול בהטבה, למי היא מיועדת ועד מתי אפשר לממש אותה.": { "en": "Check what is included, who the benefit is for and when it can be used.", "ru": "Уточните, что включено, кому предназначено предложение и до какого срока им можно воспользоваться.", "fr": "Vérifiez les prestations incluses, les bénéficiaires et la date limite d’utilisation." },
+  "מאשרים את ההצעה והתנאים ישירות מול המקום או נותן השירות.": { "en": "Confirm the offer and terms directly with the venue or service provider.", "ru": "Согласуйте предложение и условия напрямую с площадкой или исполнителем.", "fr": "Confirmez l’offre et les conditions directement auprès de l’établissement ou du prestataire." },
+  "בחרו שעה מועדפת. המקום יאשר את השעה הסופית לפני ההזמנה.": { "en": "Choose a preferred time. The spa will confirm the final time before booking.", "ru": "Выберите удобное время. Спа подтвердит его перед бронированием.", "fr": "Choisissez l’horaire souhaité. Le spa confirmera l’heure définitive avant la réservation." },
+  "המקום יאשר את השעה שביקשתם לפני השלמת ההזמנה.": { "en": "The spa will confirm your requested time before the booking is completed.", "ru": "Спа подтвердит запрошенное время до завершения бронирования.", "fr": "Le spa confirmera l’horaire demandé avant de finaliser la réservation." },
+  "דוגמה לפנייה בוואטסאפ. לא נשלחת הודעה.": { "en": "Example WhatsApp enquiry. No message is sent.", "ru": "Пример запроса в WhatsApp. Сообщение не отправляется.", "fr": "Exemple de demande WhatsApp. Aucun message n’est envoyé." },
+  "בוחרים שירות וממלאים פרטים כדי לפנות לספק בוואטסאפ.": { "en": "Choose a service and fill in your details to contact the provider on WhatsApp.", "ru": "Выберите услугу и заполните данные, чтобы связаться с исполнителем в WhatsApp.", "fr": "Choisissez un service et renseignez vos coordonnées pour contacter le prestataire sur WhatsApp." },
+  "בוחרים שירות וממשיכים לתיאום המועד והפרטים.": { "en": "Choose a service, then arrange the date and details.", "ru": "Выберите услугу, затем согласуйте дату и детали.", "fr": "Choisissez un service, puis convenez de la date et des détails." },
+  "פונים ישירות לספק": { "en": "Contact the provider directly", "ru": "Связаться с исполнителем напрямую", "fr": "Contactez le prestataire directement" },
+  "שלחו את פרטי האירוע לספק ובדקו יחד זמינות ומחיר.": { "en": "Send your event details to the provider and confirm availability and price together.", "ru": "Отправьте исполнителю детали мероприятия и уточните наличие и цену.", "fr": "Envoyez les détails de l’événement au prestataire et vérifiez ensemble la disponibilité et le prix." },
+  "בחרו מועד, ציינו את מספר המשתתפים ובקשו את השירות שמתאים לכם.": { "en": "Choose a date, enter the number of guests and request the service that suits you.", "ru": "Выберите дату, укажите число участников и нужную услугу.", "fr": "Choisissez une date, indiquez le nombre de participants et demandez le service qui vous convient." },
+  "בחרו חוויה ובדקו את המועד, המחיר ומה כלול לפני ההזמנה.": { "en": "Choose an experience and check the date, price and what is included before booking.", "ru": "Выберите впечатление и проверьте дату, цену и включённые услуги перед бронированием.", "fr": "Choisissez une expérience et vérifiez la date, le prix et les prestations incluses avant de réserver." }
+}

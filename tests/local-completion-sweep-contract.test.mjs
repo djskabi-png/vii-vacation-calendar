@@ -38,7 +38,7 @@ test("the floating concierge yields to footer content on phones", () => {
 
 test("business FAQs speak to visitors without internal integration copy", () => {
   assert.match(data, /הזמינות אינה מאושרת עד לקבלת תשובה מהמקום/);
-  assert.match(data, /יש לקבל מהמקום מחיר ותנאים מלאים לפני אישור הזמנה/);
+  assert.match(data, /יש לאשר עם המקום את הסכום והתנאים לפני ההזמנה/);
   assert.doesNotMatch(data, /בשלב החיבור למערכת הניהול/);
   assert.doesNotMatch(data, /יוצג לאחר חיבור מנוע ההזמנות/);
 });

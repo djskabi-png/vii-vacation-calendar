@@ -10,6 +10,7 @@ import spaUiTranslations from "../data/spa-ui-translations.json";
 import catalogAdminTranslations from "../data/catalog-admin-translations.json";
 import emailPolishTranslations from "../data/email-polish-translations.json";
 import worldDepthTranslations from "../data/world-depth-translations.json";
+import visitorUiTranslations from "../data/visitor-ui-translations.json";
 
 export type { SiteLanguage } from "./locale-routing";
 
@@ -53,7 +54,6 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
   en: {
     "הדיל שבחרתם": "Your selected deal",
     "בודקים שוב את המחיר והזמינות": "Rechecking price and availability",
-    "ה־API מחזיר כעת ₪": "The API currently returns ₪",
     "לכל השהייה שבחרתם, לשני מבוגרים. המחיר וההזמנה יאושרו מול המקום.": "for your selected stay, for two adults. The property must confirm the final price and booking.",
     "הדיל אינו זמין עוד בתאריכים שנבחרו. אפשר לבדוק תאריך אחר או לפנות למקום.": "This deal is no longer available for the selected dates. Try other dates or contact the property.",
     "לא הצלחנו לאמת את הדיל כרגע. אין להסתמך על המחיר שהופיע קודם.": "We could not verify this deal now. Do not rely on the earlier price.",
@@ -175,7 +175,6 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
   ru: {
     "הדיל שבחרתם": "Выбранное предложение",
     "בודקים שוב את המחיר והזמינות": "Повторно проверяем цену и наличие",
-    "ה־API מחזיר כעת ₪": "API сейчас возвращает ₪",
     "לכל השהייה שבחרתם, לשני מבוגרים. המחיר וההזמנה יאושרו מול המקום.": "за всё выбранное проживание для двух взрослых. Окончательную цену и бронирование подтвердит объект.",
     "הדיל אינו זמין עוד בתאריכים שנבחרו. אפשר לבדוק תאריך אחר או לפנות למקום.": "Предложение больше недоступно на эти даты. Выберите другие даты или свяжитесь с объектом.",
     "לא הצלחנו לאמת את הדיל כרגע. אין להסתמך על המחיר שהופיע קודם.": "Сейчас не удалось подтвердить предложение. Не полагайтесь на прежнюю цену.",
@@ -307,7 +306,6 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
   fr: {
     "הדיל שבחרתם": "Votre offre",
     "בודקים שוב את המחיר והזמינות": "Nouvelle vérification du prix et de la disponibilité",
-    "ה־API מחזיר כעת ₪": "L'API indique actuellement ₪",
     "לכל השהייה שבחרתם, לשני מבוגרים. המחיר וההזמנה יאושרו מול המקום.": "pour tout le séjour choisi de deux adultes. Le lieu doit confirmer le prix final et la réservation.",
     "הדיל אינו זמין עוד בתאריכים שנבחרו. אפשר לבדוק תאריך אחר או לפנות למקום.": "Cette offre n'est plus disponible pour ces dates. Choisissez d'autres dates ou contactez le lieu.",
     "לא הצלחנו לאמת את הדיל כרגע. אין להסתמך על המחיר שהופיע קודם.": "Impossible de vérifier cette offre maintenant. Ne vous fiez pas au prix précédent.",
@@ -1226,6 +1224,7 @@ function translateValue(value: string, language: SiteLanguage): string {
   const trailing = value.match(/\s*$/)?.[0] || "";
   const core = value.trim().replace(/\s+/g, " ");
   const bookingHubExact = (bookingHubTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
+  const visitorExact = (visitorUiTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
   const hourlyExact = (hourlyUiTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
   const providerJoinExact = (providerJoinTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
   const spaUiExact = (spaUiTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
@@ -1233,7 +1232,7 @@ function translateValue(value: string, language: SiteLanguage): string {
   const emailPolishExact = (emailPolishTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
   const legacyExact = (legacyVacationUiTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
   const depthExact = (worldDepthTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
-  const exact = depthExact || bookingHubExact || hourlyExact || providerJoinExact || spaUiExact || catalogAdminExact || emailPolishExact || legacyExact || finalUiTranslations[language][core] || curatedTranslations[language][core] || dictionary(language)[core];
+  const exact = visitorExact || depthExact || bookingHubExact || hourlyExact || providerJoinExact || spaUiExact || catalogAdminExact || emailPolishExact || legacyExact || finalUiTranslations[language][core] || curatedTranslations[language][core] || dictionary(language)[core];
   let translated: string = exact || translateDynamic(core, language);
   if (language === "en") {
     translated = translated

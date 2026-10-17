@@ -34,13 +34,13 @@ export default function CorporatePage() {
 
       <CorporatePackageBuilder />
 
-      <section className="section shell corporate-clubs"><div><span className="eyebrow">מועדוני צרכנות וארגונים</span><h2>מייצרים הטבה שנראית כמו מוצר, לא כמו קופון אבוד</h2><p>עמוד ייעודי, תוכן ברור, קהל מתאים ומסלול בקשה שנשאר בתוך אתר וי.</p></div><div><article><b>עמוד הטבה</b><p>הצעה ממותגת עם תנאים, קהל יעד ותאריכים.</p></article><article><b>מבחר חוויות</b><p>נופש, ספא, אירועים, אטרקציות ושירותים.</p></article><article><b>שיוך מקור</b><p>כל בקשה נשמרת עם מקור הקמפיין והארגון.</p></article><article><b>דוח מרוכז</b><p>לאחר חיבור המערכת ניתן יהיה למדוד בקשות, רכישות ומימושים.</p></article></div></section>
+      <section className="section shell corporate-clubs"><div><span className="eyebrow">מועדוני צרכנות וארגונים</span><h2>מייצרים הטבה שנראית כמו מוצר, לא כמו קופון אבוד</h2><p>עמוד ייעודי, תוכן ברור, קהל מתאים ומסלול בקשה שנשאר בתוך אתר וי.</p></div><div><article><b>עמוד הטבה</b><p>הצעה ממותגת עם תנאים, קהל יעד ותאריכים.</p></article><article><b>מבחר חוויות</b><p>נופש, ספא, אירועים, אטרקציות ושירותים.</p></article><article><b>לקהל שלכם</b><p>בוחרים הטבה שמתאימה לעובדים או לחברי המועדון.</p></article><article><b>תנאים ברורים</b><p>בודקים מה כלול בהטבה, למי היא מיועדת ועד מתי אפשר לממש אותה.</p></article></div></section>
 
       <div className="section shell"><MasuExperience context="corporate" /></div>
 
       <section className="section corporate-gifts"><div className="shell"><div><span className="eyebrow">כשלא רוצים לבחור בשבילם</span><h2>גיפט קארד שמכבד את הטעם של כל עובד</h2><p>הארגון בוחר סכום וכמות. העובדים בוחרים את החוויה שמתאימה להם מתוך העולמות המשתתפים באתר.</p></div><Link className="button light" href="/gift-card">למרכז הגיפט קארד</Link></div></section>
 
-      <section className="section shell corporate-process"><div className="section-head"><div><span className="eyebrow">איך זה עובד</span><h2>בקשה אחת, תמונה מלאה</h2></div></div><ol><li><span>1</span><div><h3>מספרים מה צריך</h3><p>כמות משתתפים, מועד, אזור, תקציב והמטרה של האירוע או ההטבה.</p></div></li><li><span>2</span><div><h3>בונים שילוב</h3><p>מחברים מקום, ספקים, אוכל, רווחה ומתנה לפי הצורך.</p></div></li><li><span>3</span><div><h3>מקבלים הצעה מסודרת</h3><p>אפשרויות, מה כלול, תנאים ושלבי ביצוע במקום אחד.</p></div></li><li><span>4</span><div><h3>מאשרים ומתקדמים</h3><p>לאחר חיבור מערכות התשלום והזמינות, האישור יתבצע ישירות באתר.</p></div></li></ol></section>
+      <section className="section shell corporate-process"><div className="section-head"><div><span className="eyebrow">איך זה עובד</span><h2>בקשה אחת, תמונה מלאה</h2></div></div><ol><li><span>1</span><div><h3>מספרים מה צריך</h3><p>כמות משתתפים, מועד, אזור, תקציב והמטרה של האירוע או ההטבה.</p></div></li><li><span>2</span><div><h3>בונים שילוב</h3><p>מחברים מקום, ספקים, אוכל, רווחה ומתנה לפי הצורך.</p></div></li><li><span>3</span><div><h3>מקבלים הצעה מסודרת</h3><p>אפשרויות, מה כלול, תנאים ושלבי ביצוע במקום אחד.</p></div></li><li><span>4</span><div><h3>מאשרים ומתקדמים</h3><p>מאשרים את ההצעה והתנאים ישירות מול המקום או נותן השירות.</p></div></li></ol></section>
 
     </main>
   </PageShell>;

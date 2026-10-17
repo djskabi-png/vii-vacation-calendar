@@ -172,7 +172,7 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
         </div> : null}
 
         {ratedPlaces.length ? <div className="home-trust-strip">
-          <div className="home-vacation-strip__head"><div><span>דירוגים ממקור המידע של המקום</span><h2 id="home-ratings-title">חוות דעת מובילות</h2></div><HomeSliderControls railId="home-ratings-rail" label="חוות דעת מובילות" itemSelector=".home-slider__item" /></div>
+          <div className="home-vacation-strip__head"><div><span>דירוגי מקומות</span><h2 id="home-ratings-title">חוות דעת מובילות</h2></div><HomeSliderControls railId="home-ratings-rail" label="חוות דעת מובילות" itemSelector=".home-slider__item" /></div>
           <div id="home-ratings-rail" className="home-slider__track home-slider__track--trust home-slider__track--ratings" data-horizontal-rail aria-labelledby="home-ratings-title">
             {ratedPlaces.map(({ place, reviewText, reviewAuthor, reviewDate }) => <article className="home-rating-card home-slider__item" key={place.slug}>
               <div className="home-rating-card__top"><PreviewCardGallery className="home-rating-card__gallery" images={[place.image, ...place.images]} href={`/business?id=${place.slug}`} name={place.name} /><div><span>{place.location}</span><h3><Link href={`/business?id=${place.slug}`}>{place.name}</Link></h3><strong aria-label={`ציון ${place.score} מתוך 10, ${place.reviews} חוות דעת`}><b>{place.score}</b><small>{place.reviews} חוות דעת</small></strong></div></div><p lang="he" dir="rtl">{reviewExcerpt(reviewText)}</p><small className="home-rating-card__byline">{reviewAuthor}{reviewDate ? ` · ${reviewDate}` : ""}</small><Link className="home-rating-card__cta" href={`/business?id=${place.slug}`}>לפרטי המקום</Link>
