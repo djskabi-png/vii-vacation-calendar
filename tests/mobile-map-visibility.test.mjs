@@ -15,3 +15,10 @@ test("mobile map FAB visibility follows the results region and preserves active 
   assert.match(guard, /observer\.unobserve\(region\)/);
   assert.match(css, /body:not\(\[data-map-results-visible\]\) \.mobile-map-fab:not\(\.active\)/);
 });
+
+test("regional availability cards never have the normal-results map FAB covering them", () => {
+  assert.match(guard, /visible.size > 0 && availabilityVisible.size === 0/);
+  assert.match(guard, /region.matches\("\.regional-availability"\)/);
+  assert.match(guard, /querySelectorAll<HTMLElement>\("\.regional-availability"\)/);
+  assert.match(guard, /availabilityVisible.delete\(region\)/);
+});

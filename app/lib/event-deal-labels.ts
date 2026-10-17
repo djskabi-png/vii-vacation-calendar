@@ -2,7 +2,7 @@ import type { SiteLanguage } from "../i18n/locale-routing";
 import { latinBusinessAlias, localizedBusinessText } from "../i18n/localized-business-content.ts";
 import type { PublicGeographyNode } from "./geography-search";
 
-export type EventDealPlace = { slug: string; name: string; location: string; type: string; guests: number; image: string; images: string[]; sourceUrl?: string; sourcePropertySlug?: string };
+export type EventDealPlace = { slug: string; name: string; location: string; area?: string; type: string; guests: number; image: string; images: string[]; sourceUrl?: string; sourcePropertySlug?: string };
 
 function sourceBusinessName(sourceUrl?: string) {
   try {

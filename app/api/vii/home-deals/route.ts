@@ -6,6 +6,7 @@ import { curateHomeDeals } from "../../../lib/home-deal-curation.ts";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
 import { readHomeDisplaySettings } from "../../../lib/home-display-settings.ts";
 import { isContentLocale } from "../../../lib/content-studio.ts";
+import { regionalAvailabilityRegion, regionalPublishedIds } from "../../../lib/regional-availability.ts";
 
 const noStore = { "Cache-Control": "no-store" };
 
@@ -29,18 +30,23 @@ export async function GET(request: Request) {
   const period = params.get("period");
   const requestedLocale = params.get("locale");
   const locale = isContentLocale(requestedLocale) ? requestedLocale : "he";
+  const region = regionalAvailabilityRegion(params.get("region"));
+  if (params.has("region") && !region) return Response.json({ error: "invalid_region" }, { status: 400, headers: noStore });
+  const guests = Number(params.get("guests") ?? 2);
+  if (!Number.isSafeInteger(guests) || guests < 1 || guests > 50) return Response.json({ error: "invalid_guests" }, { status: 400, headers: noStore });
   if (!homeDealPeriods.some((item) => item.id === period)) {
     return Response.json({ error: "invalid_period" }, { status: 400, headers: noStore });
   }
   try {
     const displayPromise = displaySettings(locale);
     const [names, publicSiteIds, token] = await Promise.all([
-      publicCatalogSummaries<{ supplierId: number; name: string }>("vacations"),
+      publicCatalogSummaries<{ supplierId: number; name: string; area?: string; location?: string }>("vacations"),
       publishedSupplierIds("vacations"), supplierToken(),
     ]);
-    const result = await getHomeDeals({ period: period as HomeDealPeriod, token, publicSiteIds, publicNames: new Map(names.map((place) => [place.supplierId, place.name])) });
+    const eligibleIds = region ? regionalPublishedIds(names, publicSiteIds, region.label) : publicSiteIds;
+    const result = await getHomeDeals({ period: period as HomeDealPeriod, guests, token, publicSiteIds: eligibleIds, publicNames: new Map(names.map((place) => [place.supplierId, place.name])) });
     const [deals, display] = await Promise.all([applyCuration(result.deals, period as HomeDealPeriod), displayPromise]);
-    return Response.json({ ...result, deals, display: { periods: display.periods, defaultPeriod: display.defaultPeriod } }, { headers: noStore });
+    return Response.json({ ...result, ...(region ? { region: region.label } : {}), deals, display: { periods: display.periods, defaultPeriod: display.defaultPeriod } }, { headers: noStore });
   } catch {
     return Response.json({ error: "supplier_unavailable" }, { status: 503, headers: noStore });
   }

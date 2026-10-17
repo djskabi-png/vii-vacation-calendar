@@ -46,6 +46,7 @@ import { completeNearbyResults } from "../lib/nearby-recommendations";
 import { NearbySearchNotice } from "../components/nearby-search-notice";
 import { useManagedGeography } from "../components/use-managed-geography";
 import { matchesVacationOnlineBooking } from "../lib/vacation-online-booking-filter";
+import { RegionalAvailability } from "../components/regional-availability";
 
 export type SearchLandingContext = {
   path: string;
@@ -920,6 +921,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
             <section className="results-heading">
               <div><h1>{translate(landing?.title || (area === "הכל" ? "נופש ברחבי הארץ" : `נופש ב${area}`))}</h1><div className="results-heading__meta">{!onlineCheckPending ? <p className="results-heading__inventory" aria-live="polite">{inventorySummary}</p> : null}</div></div>
             </section>
+            {!mapOpen && !selectedStay && !flexibleSearch && selectedTypes.length === 0 && !pool && !spa && !whole && !accessibleOnly && !onlineOnly && !selectedExtras.length ? <RegionalAvailability world="vacation" region={area} guests={guests} embedded /> : null}
             <nav className="search-quick-filters" aria-label="סינון מהיר">
               <button type="button" className={activeFilters.length ? "primary-filter active" : "primary-filter"} onClick={() => openFiltersPanel()}><FilterControlIcon /><span>מסננים</span>{activeFilters.length ? <b>{activeFilters.length}</b> : null}</button>
               <button type="button" className={onlineOnly ? "online-booking-quick-filter active" : "online-booking-quick-filter"} aria-pressed={onlineOnly} onClick={() => changeOnlineFilter(!onlineOnly)}>ניתן להזמין אונליין</button>
