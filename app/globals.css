@@ -3784,7 +3784,7 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
 .preview-card-gallery__arrow svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.35; stroke-linecap: round; stroke-linejoin: round; }
 .preview-card-gallery__count { position: absolute; z-index: 4; inset-inline-start: 12px; bottom: 12px; min-width: 44px; padding: 6px 9px; border-radius: 999px; color: #fff; background: rgba(3,39,48,.72); font-size: .7rem; font-weight: 800; text-align: center; backdrop-filter: blur(6px); }
 .preview-card-gallery > .preview-card-gallery__count { color: #fff; }
-.discovery-card__missing-image { display: grid; place-items: center; min-height: 225px; height: 100%; padding: 24px; color: var(--ink); text-align: center; background: #e8eeec; }
+.discovery-card__missing-image { position: absolute; inset: 0; display: grid; place-items: center; min-height: 0; height: 100%; padding: 24px; color: var(--ink); text-align: center; background: #e8eeec; }
 .discovery-card__visual img { width: 100%; height: 225px; object-fit: cover; transition: transform .35s ease; }
 .discovery-card__visual--contain { display: grid; place-items: center; padding: 24px; background: linear-gradient(145deg,#f8fbfc,#edf6f7); }
 .discovery-card__visual--contain img { width: 100%; height: 177px; object-fit: contain; object-position: center; }

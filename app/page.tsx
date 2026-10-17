@@ -19,6 +19,8 @@ import hourlyCatalog from "./data/sergey-hourly-catalog.json";
 import { publicCatalogReviewPreviews, publicCatalogSummaries } from "./lib/public-catalog-read.ts";
 import { dailyRotationCompare, rotateDaily, rotateWithinTiers } from "./lib/daily-rotation";
 import { GiftIcon, PeopleIcon } from "./site-header";
+import { HomeMobileRail } from "./components/home-mobile-rail";
+import "./home-mobile.css";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -89,13 +91,13 @@ async function HomeCatalogShowcase() {
 async function HomeMagazineSection() {
   const locale = (await headers()).get("x-vii-locale") || "he";
   const homeArticles = (await managedMagazineArticles(magazineArticles)).filter(article => !article.publishedLocales || article.publishedLocales.includes(locale)).slice(0,3);
-  return <section className="section home-magazine" aria-labelledby="home-magazine-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">מגזין וי</span><h2 id="home-magazine-title">רעיונות שממשיכים את החופשה</h2></div><Link href="/guides">לכל הכתבות</Link></div><div className="home-magazine__grid">{homeArticles.map((article,index) => <article key={article.slug} className={index === 0 ? "featured" : ""}><Link href={`/guides/${article.slug}`}><EditorialCover slug={article.slug} src={article.image} alt={article.imageAlt} title={article.imageTitle} /><span>{article.category}</span><div><EditorialIllustrationLabel /><small>{article.readTime} דקות קריאה</small><h3>{article.title}</h3><p>{article.excerpt}</p></div></Link></article>)}</div></div></section>;
+  return <section className="section home-magazine" aria-labelledby="home-magazine-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">מגזין וי</span><h2 id="home-magazine-title">רעיונות שממשיכים את החופשה</h2></div><Link href="/guides">לכל הכתבות</Link></div><HomeMobileRail id="home-magazine-rail" label="רעיונות שממשיכים את החופשה" className="home-magazine__grid">{homeArticles.map((article,index) => <article key={article.slug} className={index === 0 ? "featured" : ""}><Link href={`/guides/${article.slug}`}><EditorialCover slug={article.slug} src={article.image} alt={article.imageAlt} title={article.imageTitle} /><span>{article.category}</span><div><EditorialIllustrationLabel /><small>{article.readTime} דקות קריאה</small><h3>{article.title}</h3><p>{article.excerpt}</p></div></Link></article>)}</HomeMobileRail></div></section>;
 }
 
 export default function HomePage() {
   return (
     <PageShell>
-      <main id="main-content">
+      <main id="main-content" className="home-page">
         <section className="home-hero">
           <div className="shell home-hero__content">
             <h1>כל מה שעושים בחופש, במקום אחד</h1>
@@ -118,8 +120,8 @@ export default function HomePage() {
         </section>
 
         <section className="section shell why-section home-page-section" aria-labelledby="why-title">
-          <div><span className="eyebrow">פשוט לבחור נכון</span><h2 id="why-title">פרטי המקום, בלי ללכת לאיבוד</h2><p>מחפשים מקום לפי אזור ומאפיינים, רואים את הפרטים שהתקבלו מהספק, ומבררים מחיר וזמינות לפני הזמנה.</p><Link className="button primary" href="/search" prefetch={false} data-global-feedback="true" data-loading-label="פותחים את החיפוש...">מתחילים לחפש</Link></div>
-          <div className="benefit-grid"><article><b>01</b><h3>חיפוש ממוקד</h3><p>מסננים לפי אזור, הרכב ומאפיינים שקיימים בנתוני הספק.</p></article><article><b>02</b><h3>מידע על המקום</h3><p>רואים תמונות, מתקנים ופרטי אירוח שהתקבלו מהספק.</p></article><article><b>03</b><h3>בדיקה לפני הזמנה</h3><p>מבררים תאריך, מחיר ותנאים לפני שמתחייבים.</p></article></div>
+          <div><span className="eyebrow">פשוט לבחור נכון</span><h2 id="why-title">פרטי המקום, בלי ללכת לאיבוד</h2><p>בוחרים אזור והרכב, משווים תמונות ומתקנים ובודקים מחיר וזמינות לפני שמזמינים.</p><Link className="button primary" href="/search" prefetch={false} data-global-feedback="true" data-loading-label="פותחים את החיפוש...">מתחילים לחפש</Link></div>
+          <div className="benefit-grid"><article><b>01</b><h3>חיפוש ממוקד</h3><p>מצמצמים את החיפוש לפי האזור, מספר האורחים ומה שחשוב לכם.</p></article><article><b>02</b><h3>מידע על המקום</h3><p>משווים תמונות, מתקנים ופרטי אירוח לפני שבוחרים.</p></article><article><b>03</b><h3>בדיקה לפני הזמנה</h3><p>בודקים את התאריך, המחיר והתנאים לפני שמתחייבים.</p></article></div>
         </section>
 
         <Suspense fallback={null}><HomeMagazineSection /></Suspense>

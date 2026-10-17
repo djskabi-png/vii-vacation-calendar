@@ -15,6 +15,7 @@ import type { EventSlot } from "../lib/vii-live-search";
 import { eventDealDate, eventDealPresets } from "../lib/event-deal-dates";
 import { eventDealPlaceLabels } from "../lib/event-deal-labels";
 import { useManagedGeography } from "./use-managed-geography";
+import { homeEventPhotography } from "../lib/home-preview-content";
 
 const copy = {
   he: { title: "מקומות פנויים לאירועים", all: "לכל המקומות הפנויים", tabs: ["ברגע האחרון", "פנוי לחמישי", "פנוי לשישי"], date: "תאריך אחר", guests: "משתתפים", loading: "בודקים זמינות ומחירים...", error: "לא הצלחנו לבדוק זמינות כרגע", retry: "לנסות שוב", empty: "לא נמצאו הצעות פנויות לבחירה הזו. נסו תאריך או כמות משתתפים אחרים.", available: "פנוי", price: "מחיר לאירוע", forGuests: "עבור", capacity: "עד", people: "משתתפים", details: "לפרטי המקום" },
@@ -60,6 +61,7 @@ export function EventLastMinute({ places, sectionId = "event-last-minute" }: { p
       {search.status === "ready" && !candidates.length ? <p className="event-rail-status">{text.empty}</p> : null}
       {initialized && search.status === "idle" ? <p className="event-rail-status">{translate("בחרו תאריך")}</p> : null}
       {candidates.length ? <EventRail title={text.title}>{candidates.map(({ place, offer }) => {
+        place = homeEventPhotography(place);
         const labels = eventDealPlaceLabels(place, language, translate, geography);
         const href = eventOfferHref(place, new URLSearchParams({ from: offer.from!, guests: String(guests), slot: offer.slot!, ...(offer.roomID ? { roomID: String(offer.roomID) } : {}) }));
         return <PlacePreviewCard className="event-rail-card event-deals__card" key={place.slug} name={labels.name} image={place.image} images={place.images} href={href} newTab><span className="event-rail-card__body"><small>{labels.location} · {labels.type}</small><strong>{labels.name}</strong><span>{text.capacity} {place.guests} {text.people}</span><span className="event-deals__availability">{text.available} · {new Intl.DateTimeFormat(language === "he" ? "he-IL" : language, { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${offer.from}T12:00:00Z`))} · {slots[offer.slot!]}</span><span>{text.forGuests} {guests} {text.people}</span><b>{offer.total!.toLocaleString(language === "he" ? "he-IL" : language)} ₪ <small>{text.price}</small></b><span className="button primary">{text.details}</span></span></PlacePreviewCard>;
