@@ -5763,9 +5763,6 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .home-rating-card__top > div { min-width: 0; display: grid; gap: 5px; }
 .home-rating-card__top > .home-rating-card__gallery { position: relative; display: block; width: 112px; height: 112px; overflow: hidden; border-radius: 16px; }
 .home-rating-card__gallery img { width: 100%; height: 100%; object-fit: cover; }
-.home-rating-card__gallery .preview-card-gallery__arrow--previous { inset-inline-start: 3px; }
-.home-rating-card__gallery .preview-card-gallery__arrow--next { inset-inline-end: 3px; }
-.home-rating-card__gallery .preview-card-gallery__count { bottom: 2px; inset-inline-start: 34px; padding: 2px 4px; font-size: .65rem; }
 .home-rating-card strong { display: flex; align-items: center; gap: 8px; color: #c77a0a; }
 .home-rating-card strong b { min-width: 42px; min-height: 34px; display: grid; place-items: center; border-radius: 11px; color: white; background: var(--teal-dark); font-size: .88rem; }
 .home-rating-card strong i { font-style: normal; font-size: .74rem; letter-spacing: 1px; }
