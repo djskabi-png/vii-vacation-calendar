@@ -192,3 +192,29 @@ test("concurrent calls fetch only once and failed slots cannot be retried automa
     assert.doesNotMatch(JSON.stringify(repeat), /private-provider-key/);
   } finally { db.close(); }
 });
+
+test("authenticated pull drains due retry jobs even when the requested world has no current slot", async () => {
+  const db = await database(); const calls = [];
+  const due = new Date("2026-10-15T05:10:28Z").toISOString();
+  await db.prepare(`INSERT INTO supplier_catalog_retry_jobs
+    (id, root_run_id, world, attempt, due_at, status, created_at)
+    VALUES (?, ?, ?, ?, ?, 'pending', ?)`)
+    .bind("mcp_root_retry_1", "mcp_root", "vacations", 1, due, due).run();
+  try {
+    const result = await pullCatalogSlot(db, "spa", {
+      now: () => new Date("2026-10-16T00:00:00Z"),
+      sync: async (runId, world, source) => { calls.push({ runId, world, source }); return { id: runId, world, status: "failed", errorCode: "provider_timeout" }; },
+    });
+    assert.equal(result.status, "no_due_slot");
+    assert.deepEqual(calls, [{ runId: "mcp_root_retry_1", world: "vacations", source: "retry" }]);
+    const job = await db.prepare("SELECT status, result_status AS resultStatus FROM supplier_catalog_retry_jobs WHERE id = ?").bind("mcp_root_retry_1").first();
+    assert.equal(job.status, "completed");
+    assert.equal(job.resultStatus, "failed");
+  } finally { db.close(); }
+});
+
+test("the authenticated MCP route forwards the runner source instead of hardcoding scheduled", async () => {
+  const route = await readFile(new URL("../app/mcp/route.ts", import.meta.url), "utf8");
+  assert.match(route, /syncSupplierCatalogWorld\(db, selectedWorld, source, \{ runId \}\)/);
+  assert.doesNotMatch(route, /syncSupplierCatalogWorld\(db, selectedWorld, "scheduled", \{ runId \}\)/);
+});

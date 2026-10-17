@@ -17,7 +17,7 @@ export async function POST(request: Request) {
       const { pullCatalogSlot } = await import("../lib/catalog-pull-mcp.ts");
       const { syncSupplierCatalogWorld } = await import("../lib/supplier-catalog-runtime.ts");
       const value = await pullCatalogSlot(db, world, {
-        sync: (runId, selectedWorld) => syncSupplierCatalogWorld(db, selectedWorld, "scheduled", { runId }),
+        sync: (runId, selectedWorld, source) => syncSupplierCatalogWorld(db, selectedWorld, source, { runId }),
       });
       console.info("VII authenticated catalog MCP result", { world: value.world, status: value.status });
       return value;

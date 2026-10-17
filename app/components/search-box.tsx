@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { vacationStayFromSearch } from "../lib/vacation-date-range";
@@ -202,6 +203,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const [maximumPrice, setMaximumPrice] = useState(() => normalizeHourlyPrice(searchParams.get("maxPrice")));
   const [isSearching, setIsSearching] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState(false);
+  const searchSurfaceRef = useRef<HTMLDivElement>(null);
   const [mobileStep, setMobileStep] = useState<"overview" | "location" | "dates" | "guests">("overview");
   const visibleDates = mode === "vacation" && vacationDateRange.from && vacationDateRange.till
     // Render with the provider language so the server and the first client render
@@ -311,14 +313,28 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     const previousOverscroll = document.body.style.overscrollBehavior;
     document.body.style.overflow = "hidden";
     document.body.style.overscrollBehavior = "none";
+    const surface = searchSurfaceRef.current;
+    surface?.querySelector<HTMLButtonElement>(".search-mobile-sheet-head button")?.focus({ preventScroll: true });
     const closeOnEscape = (event: KeyboardEvent) => {
+      // The separate date dialog owns its keys while it is above this sheet.
+      if (surface && event.target instanceof Node && !surface.contains(event.target)) return;
       if (event.key === "Escape") cancelMobileSearch();
+      if (event.key !== "Tab" || !surface) return;
+      const controls = [...surface.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), [tabindex="0"]')]
+        .filter((element) => element.getClientRects().length > 0 && getComputedStyle(element).visibility !== "hidden");
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
     };
     window.addEventListener("keydown", closeOnEscape);
     return () => {
       document.body.style.overflow = previousOverflow;
       document.body.style.overscrollBehavior = previousOverscroll;
       window.removeEventListener("keydown", closeOnEscape);
+      window.requestAnimationFrame(() => {
+        searchSurfaceRef.current?.querySelector<HTMLElement>(".search-mobile-summary, .search-field")?.focus({ preventScroll: true });
+      });
     };
   }, [cancelMobileSearch, mobileExpanded]);
 
@@ -528,11 +544,8 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     ];
   }, [managedGeography, mode, placeInventory]);
 
-  return (
-    <>
-      {showWorlds && !shouldCollapse && !mobileExpanded && <SearchWorldTabs active={activeWorld} location={locationValue} />}
-      {showWorlds && shouldCollapse && (guestOpen || priceOpen) && <div className="search-context-worlds"><SearchWorldTabs active={activeWorld} location={locationValue} onNavigate={closeMobileSearch} /></div>}
-      <div className={`search-box-shell ${shouldCollapse ? "search-box-shell--results" : ""} ${mobileExpanded ? "mobile-expanded" : "mobile-collapsed"}`}>
+  const searchSurface = (
+      <div ref={searchSurfaceRef} className={`search-box-shell ${shouldCollapse ? "search-box-shell--results" : ""} ${mobileExpanded ? "mobile-expanded" : "mobile-collapsed"}`} role={mobileExpanded ? "dialog" : undefined} aria-modal={mobileExpanded ? true : undefined} aria-label={mobileExpanded ? translate(mobileSheetTitle) : undefined} data-search-surface={mobileExpanded ? "portal" : "inline"}>
         {shouldCollapse && <button type="button" className="search-mobile-summary" onClick={() => { setMobileStep("overview"); setMobileExpanded(true); setLocationOpen(false); setCalendarOpen(false); setGuestOpen(false); }} aria-expanded={mobileExpanded} aria-label={`שינוי חיפוש. ${mobileSummary}`}>
           <span className="search-mobile-summary__copy"><strong>{translate(locationValue)}</strong><small>{!isHourly && <><span>{visibleDates}</span><span aria-hidden="true"> · </span><span>{peopleValue}</span></>}</small></span>
           <span className="search-mobile-summary__action"><SearchIcon /><b>שינוי חיפוש</b></span>
@@ -618,6 +631,13 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
         </div>
         <span className="search-status" role="status" aria-live="polite">{isSearching ? "מחפשים" : ""}</span>
       </div>
+  );
+
+  return (
+    <>
+      {showWorlds && !shouldCollapse && !mobileExpanded && <SearchWorldTabs active={activeWorld} location={locationValue} />}
+      {showWorlds && shouldCollapse && (guestOpen || priceOpen) && <div className="search-context-worlds"><SearchWorldTabs active={activeWorld} location={locationValue} onNavigate={closeMobileSearch} /></div>}
+      {mobileExpanded && typeof document !== "undefined" ? createPortal(searchSurface, document.body) : searchSurface}
       {mode === "events" ? <EventDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelMobileSearch} onSkip={() => { setDates("בחרו תאריכים"); setEventDateRange({ from: null, to: null }); setCalendarOpen(false); setMobileStep("guests"); setGuestOpen(true); }} onConfirm={(result) => { setDates(result.summary); setEventDateRange({ from: result.from, to: result.to }); setMobileStep("guests"); setGuestOpen(true); }} /> : mode === "spa" ? <SpaDatePicker open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelMobileSearch} onSkip={() => { setDates("בלי תאריך כרגע"); setSpaDate({ date: null, withoutDate: true }); setCalendarOpen(false); setMobileStep("overview"); }} onConfirm={(result) => { setDates(result.summary); setSpaDate({ date: result.date, withoutDate: result.withoutDate }); setMobileStep("overview"); setGuestOpen(false); }} /> : !isHourly && <CalendarDemo mode="home" open={calendarOpen} onClose={() => setCalendarOpen(false)} onCancel={cancelMobileSearch} onSkip={() => { setDates("בחרו תאריכים"); setVacationDateRange({ from: null, till: null }); setVacationFlexibleSearch(null); setCalendarOpen(false); setMobileStep("guests"); setGuestOpen(true); }} onConfirm={(result) => { setDates(result.summary); setVacationDateRange({ from: result.checkIn, till: result.checkOut }); setVacationFlexibleSearch(result.flexible && result.flexibleStay && result.flexibleMonth && result.flexibleDays !== null ? { stay: result.flexibleStay, month: result.flexibleMonth, days: result.flexibleDays } : null); setMobileStep("guests"); setGuestOpen(true); }} />}
     </>
   );

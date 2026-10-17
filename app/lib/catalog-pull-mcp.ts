@@ -2,6 +2,7 @@ import type { D1Database } from "../../types/cloudflare-runtime";
 import type { SupplierCatalogWorld } from "./supplier-catalog-store.ts";
 import { readSupplierCatalogState } from "./supplier-catalog-store.ts";
 import { catalogPullSlot } from "./supplier-catalog-schedule.ts";
+import { runDueCatalogRetries } from "./supplier-catalog-retry-runner.ts";
 import { CATALOG_RETRY_DELAY_MS, cancelPendingCatalogRetries, scheduleCatalogRetry } from "./supplier-catalog-retry.ts";
 
 type Run = { id: string; world: SupplierCatalogWorld; source: string; status: string;
@@ -14,19 +15,36 @@ async function readRun(db: D1Database, id: string, world: SupplierCatalogWorld) 
 }
 
 export async function pullCatalogSlot(db: D1Database, world: SupplierCatalogWorld, dependencies: {
-  sync: (id: string, world: SupplierCatalogWorld) => Promise<unknown>;
+  sync: (id: string, world: SupplierCatalogWorld, source: "scheduled" | "retry") => Promise<unknown>;
   now?: () => Date;
 }) {
   if (!["vacations", "events", "rooms", "spa"].includes(world)) throw new Error("invalid_world");
-  const slot = catalogPullSlot((dependencies.now || (() => new Date()))(), world);
+  const now = (dependencies.now || (() => new Date()))();
+  // The authenticated Sites/MCP caller is also a recovery path in runtimes
+  // where native Worker scheduled events are unavailable. Drain only the
+  // small due set; the shared runner keeps the atomic claim, retry limit and
+  // last-good-catalog guards. This never creates a new slot or bypasses auth.
+  await runDueCatalogRetries(db, {
+    now,
+    limit: 2,
+    sync: async (retryWorld, _source, retryRunId) => {
+      const value = await dependencies.sync(retryRunId, retryWorld, "retry");
+      const result = (value && typeof value === "object" ? value : {}) as { status?: string; id?: string; errorCode?: string };
+      return {
+        status: ["accepted", "rejected", "failed", "skipped"].includes(result.status || "") ? result.status as "accepted" | "rejected" | "failed" | "skipped" : "failed",
+        id: result.id || retryRunId,
+        ...(result.errorCode ? { errorCode: result.errorCode } : {}),
+      };
+    },
+  });
+  const slot = catalogPullSlot(now, world);
   if (!slot) return { world, status: "no_due_slot", source: "scheduled" };
   const previous = await readRun(db, slot.id, world);
   // The guarded runner's INSERT OR IGNORE supplies the atomic concurrency boundary.
   if (!previous) {
-    const now = (dependencies.now || (() => new Date()))();
     await scheduleCatalogRetry(db, { rootRunId: slot.id, world, attempt: 1,
       dueAt: new Date(now.getTime() + CATALOG_RETRY_DELAY_MS).toISOString(), createdAt: now.toISOString() });
-    await dependencies.sync(slot.id, world);
+    await dependencies.sync(slot.id, world, "scheduled");
   }
   const run = await readRun(db, slot.id, world);
   if (!run || run.source !== "scheduled") throw new Error("catalog_result_unavailable");
@@ -36,7 +54,7 @@ export async function pullCatalogSlot(db: D1Database, world: SupplierCatalogWorl
   const errorCode = run.errorCode === "catalog_removal_requires_review" || run.errorCode === "catalog_media_requires_review"
     ? run.errorCode : run.errorCode ? "catalog_pull_failed" : null;
   if (run.status === "accepted" || run.status === "rejected") await cancelPendingCatalogRetries(db, slot.id,
-    (dependencies.now || (() => new Date()))().toISOString(), run.status, run.id, run.errorCode || undefined);
+    now.toISOString(), run.status, run.id, run.errorCode || undefined);
   return { ...slot, source: "scheduled", status, repeated: !!previous, persisted: true,
     candidateCount: run.candidateCount, activeCount: state?.activeCount || 0,
     activeGenerationMatchesRun: state?.activeRunId === slot.id, errorCode,
