@@ -91,3 +91,8 @@ test('regional rails span the whole results grid on desktop rather than one prop
   const css=readFileSync(new URL('../app/globals.css',import.meta.url),'utf8');
   assert.match(css,/\.regional-availability \{ min-width: 0; grid-column: 1 \/ -1; \}/);
 });
+test('event result-list geometry never leaks into nested rail articles and clips price/actions',()=>{
+  const css=readFileSync(new URL('../app/globals.css',import.meta.url),'utf8');
+  assert.doesNotMatch(css,/\.event-list article/);
+  assert.match(css,/\.event-list > article \{ display: grid; grid-template-columns: 280px 1fr;/);
+});
