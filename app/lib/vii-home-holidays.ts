@@ -1,4 +1,5 @@
 import { getHomeDealsForDates } from "./vii-home-deals.ts";
+import { holidayDealWindow, holidayParts, type HolidayPart } from "./holiday-deal-selection.ts";
 
 const API_ROOT = "https://bizonline.co.il/api/ai/vii";
 
@@ -52,8 +53,11 @@ export async function getHomeHolidays(options: { token: string; now?: Date; fetc
 }
 
 export async function getHomeHolidayDeals(options: {
-  id: number; token: string; publicSiteIds: ReadonlySet<number>; publicNames?: ReadonlyMap<number, string>; now?: Date; fetchImpl?: typeof fetch; from?: string; till?: string;
+  id: number; token: string; publicSiteIds: ReadonlySet<number>; publicNames?: ReadonlyMap<number, string>; now?: Date; fetchImpl?: typeof fetch; from?: string; till?: string; guests?: number; part?: HolidayPart;
 }) {
+  const guests = options.guests ?? 2;
+  if (![2, 6, 20].includes(guests) || (options.part && !holidayParts.includes(options.part))) throw new Error("invalid_selection");
+  if (options.part && options.part !== "all" && (options.from !== undefined || options.till !== undefined)) throw new Error("invalid_stay");
   const holidays = await getHomeHolidays(options);
   const holiday = holidays.find((item) => item.id === options.id);
   if (!holiday) throw new Error("invalid_holiday");
@@ -64,8 +68,9 @@ export async function getHomeHolidayDeals(options: {
       || Math.round((till.valueOf() - from.valueOf()) / 86_400_000) !== holiday.nights) throw new Error("invalid_stay");
     return { holiday, ...await getHomeDealsForDates({ ...options, dates: { from: options.from!, till: options.till!, nights: holiday.nights } }) };
   }
-  const checkout = new Date(`${holiday.from}T00:00:00Z`);
-  checkout.setUTCDate(checkout.getUTCDate() + holiday.nights);
-  const dates = { from: holiday.from, till: checkout.toISOString().slice(0, 10), nights: holiday.nights };
-  return { holiday, ...await getHomeDealsForDates({ ...options, dates, window: { from: holiday.from, till: holiday.till } }) };
+  const window = holidayDealWindow(holiday, options.part ?? "all");
+  const checkout = new Date(`${window.from}T00:00:00Z`);
+  checkout.setUTCDate(checkout.getUTCDate() + window.nights);
+  const dates = { from: window.from, till: checkout.toISOString().slice(0, 10), nights: window.nights };
+  return { holiday, ...await getHomeDealsForDates({ ...options, guests, dates, window: { from: window.from, till: window.till } }) };
 }
