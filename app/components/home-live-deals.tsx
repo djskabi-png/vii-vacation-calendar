@@ -13,8 +13,9 @@ import type { HomePeriodTab } from "../lib/home-display-settings";
 import { HomeSliderControls } from "./home-slider-controls";
 import { PropertyCard, type ResolvedAvailability } from "./property-card";
 import { regionalAvailabilityRegion, regionalAvailabilityTitle } from "../lib/regional-availability";
+import { regionalExpansionCopy } from "../i18n/regional-availability-copy";
 
-type ResponseData = { region?: string; period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[]; display?: { periods: HomePeriodTab[]; defaultPeriod: HomeDealPeriod } };
+type ResponseData = { region?: string; expandedRegion?: boolean; regionalOrder?: number[]; period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[]; display?: { periods: HomePeriodTab[]; defaultPeriod: HomeDealPeriod } };
 
 const copy = {
   he: { title: "נופש פנוי בתאריכים הקרובים", all: "לכל מקומות הנופש", loading: "בודקים זמינות ומחירים", empty: "לא נמצאו מקומות פנויים לתאריכים האלה", error: "לא הצלחנו לבדוק זמינות כרגע", retry: "לנסות שוב", total: "מחיר כולל", details: "לפרטי המקום", call: "חיוג למקום", whatsapp: "וואטסאפ", available: "פנוי לתאריכים שבחרתם", forGuests: "עבור 2 אורחים", night: "לילה", nights: "לילות", bedrooms: "חדרי שינה", guests: "אורחים", reviews: "חוות דעת", dateTo: "עד", tabs: ["ברגע האחרון", "חמישי עד שבת", "שישי עד ראשון", "לילה בחמישי", "לילה בשישי"] },
@@ -155,7 +156,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
 
   const sectionId = scope ? `regional-vacation-${scope.key}` : mode === "holidays" ? "home-holiday-deals" : "home-live-deals";
   const curatedDeals = data?.deals.filter((deal) => deal.curatedRank !== undefined).sort((a, b) => (a.curatedRank || 500) - (b.curatedRank || 500) || a.siteID - b.siteID) || [];
-  const displayedDeals = data?.deals ? [...curatedDeals, ...rotateWithinTiers(data.deals.filter((deal) => deal.curatedRank === undefined),
+  const displayedDeals = scope ? data?.deals || [] : data?.deals ? [...curatedDeals, ...rotateWithinTiers(data.deals.filter((deal) => deal.curatedRank === undefined),
     (deal) => Math.floor(deal.total / 500), (deal) => deal.siteID,
     `home-deals:${mode}:${mode === "holidays" ? holidayId : period}`)] : [];
   const displayState = mode === "holidays" && holidayState !== "ready" ? holidayState : state;
@@ -181,6 +182,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
         }}><strong>{item.name}</strong></button>)}
       </div>
       <div className="home-live-deals__results" id={`${sectionId}-results`} role="tabpanel" aria-live="polite" aria-busy={displayState === "loading"}>
+        {scope && displayState === "ready" && data?.expandedRegion && displayedDealCount > 0 ? <p className="regional-availability__expansion" data-no-translate>{regionalExpansionCopy[language]}</p> : null}
         {displayState === "loading" ? <div className="home-live-deals__loading" role="status" aria-label={text.loading}>
           <div className="home-live-deals__loading-head" aria-hidden="true">
             <div className="home-live-deals__loading-route"><span /><span /><span /><img src="/vii-logo.png" alt="" title="" data-image-role="decorative" /></div>

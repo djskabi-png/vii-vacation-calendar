@@ -9,6 +9,8 @@ export type LiveSearchState = {
   results: Record<number, LiveSearchResult>;
   checkedAt: string | null;
   places?: EventDealPlace[];
+  expandedRegion?: boolean;
+  regionalOrder?: number[];
 };
 
 const idle: LiveSearchState = { status: "idle", results: {}, checkedAt: null };
@@ -29,7 +31,7 @@ export function useViiLiveSearch(world: LiveSearchWorld, from: string | null, ti
       signal: controller.signal,
     }).then(async (response) => {
       if (!response.ok) throw new Error("supplier_unavailable");
-      return response.json() as Promise<{ region?: string; checkedAt: string | null; results: LiveSearchResult[]; places?: EventDealPlace[] }>;
+      return response.json() as Promise<{ region?: string; expandedRegion?: boolean; regionalOrder?: number[]; checkedAt: string | null; results: LiveSearchResult[]; places?: EventDealPlace[] }>;
     }).then((result) => {
       if (!Array.isArray(result.results) || (includePlaces && result.region !== region)) throw new Error("invalid_result");
       if (!controller.signal.aborted) setValue({ key, state: {
@@ -37,6 +39,7 @@ export function useViiLiveSearch(world: LiveSearchWorld, from: string | null, ti
         results: Object.fromEntries(result.results.map((item) => [item.siteID, item])),
         checkedAt: result.checkedAt,
         ...(includePlaces ? { places: Array.isArray(result.places) ? result.places : [] } : {}),
+        ...(includePlaces && region ? { expandedRegion: result.expandedRegion === true, regionalOrder: Array.isArray(result.regionalOrder) ? result.regionalOrder : [] } : {}),
       } });
     }).catch(() => {
       if (!controller.signal.aborted) setValue({ key, state: { status: "error", results: {}, checkedAt: null } });

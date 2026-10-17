@@ -8,7 +8,7 @@ import {stripTypeScriptTypes} from 'node:module';
 import {resolve,extname,sep} from 'node:path';
 import {Readable} from 'node:stream';
 import worker from '../dist/server/index.js';
-import {regionalAvailabilityRegion,regionalPublishedIds} from '../app/lib/regional-availability.ts';
+import {regionalAvailabilityRegion,regionalPublishedIds,selectRegionalOffers} from '../app/lib/regional-availability.ts';
 import {matchesSearchLocation} from '../app/data/search-taxonomy.ts';
 import {spaPlusArea} from '../app/data/spa-regions.ts';
 import {selectSpaPackageDeals} from '../app/lib/spa-package-deals.ts';
@@ -36,7 +36,7 @@ async function candidateAPI(request){
  let homeResult;
  const home=()=>homeResult??=(json(`/api/vii/home-deals?${new URLSearchParams({period:url.searchParams.get('period')||'tomorrow',locale:url.searchParams.get('locale')||'he'})}`));
  const dependencies={
-  regionalAvailabilityRegion,regionalPublishedIds,matchesSearchLocation,spaPlusArea,selectSpaPackageDeals,eventDealDate,homeDealPeriods,validDate,
+  regionalAvailabilityRegion,regionalPublishedIds,selectRegionalOffers,matchesSearchLocation,spaPlusArea,selectSpaPackageDeals,eventDealDate,homeDealPeriods,validDate,
   isContentLocale:value=>['he','en','ru','fr'].includes(value),
   supplierToken:async()=>'local-public-read-adapter-not-a-provider-token',
   publicCatalogSummaries:catalog,

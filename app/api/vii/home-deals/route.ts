@@ -6,7 +6,7 @@ import { curateHomeDeals } from "../../../lib/home-deal-curation.ts";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
 import { readHomeDisplaySettings } from "../../../lib/home-display-settings.ts";
 import { isContentLocale } from "../../../lib/content-studio.ts";
-import { regionalAvailabilityRegion, regionalPublishedIds } from "../../../lib/regional-availability.ts";
+import { regionalAvailabilityRegion, selectRegionalOffers } from "../../../lib/regional-availability.ts";
 
 const noStore = { "Cache-Control": "no-store" };
 
@@ -40,13 +40,15 @@ export async function GET(request: Request) {
   try {
     const displayPromise = displaySettings(locale);
     const [names, publicSiteIds, token] = await Promise.all([
-      publicCatalogSummaries<{ supplierId: number; name: string; area?: string; location?: string }>("vacations"),
+      publicCatalogSummaries<{ supplierId: number; name: string; area?: string; location?: string; lat?: number; lng?: number }>("vacations"),
       publishedSupplierIds("vacations"), supplierToken(),
     ]);
-    const eligibleIds = region ? regionalPublishedIds(names, publicSiteIds, region.label) : publicSiteIds;
-    const result = await getHomeDeals({ period: period as HomeDealPeriod, guests, token, publicSiteIds: eligibleIds, publicNames: new Map(names.map((place) => [place.supplierId, place.name])) });
-    const [deals, display] = await Promise.all([applyCuration(result.deals, period as HomeDealPeriod), displayPromise]);
-    return Response.json({ ...result, ...(region ? { region: region.label } : {}), deals, display: { periods: display.periods, defaultPeriod: display.defaultPeriod } }, { headers: noStore });
+    const result = await getHomeDeals({ period: period as HomeDealPeriod, guests, token, publicSiteIds, publicNames: new Map(names.map((place) => [place.supplierId, place.name])) });
+    const [curated, display] = await Promise.all([applyCuration(result.deals, period as HomeDealPeriod), displayPromise]);
+    const regionalPool = region ? [...curated].sort((a, b) => (a.curatedRank ?? 500) - (b.curatedRank ?? 500) || a.total - b.total || a.siteID - b.siteID) : curated;
+    const selected = region ? selectRegionalOffers(regionalPool, names.filter(place => publicSiteIds.has(place.supplierId)), region.label, { placeId: deal => deal.siteID, key: deal => String(deal.siteID) }) : null;
+    const deals = selected?.offers ?? curated;
+    return Response.json({ ...result, ...(region ? { region: region.label, expandedRegion: selected!.expanded, regionalOrder: selected!.order } : {}), deals, display: { periods: display.periods, defaultPeriod: display.defaultPeriod } }, { headers: noStore });
   } catch {
     return Response.json({ error: "supplier_unavailable" }, { status: 503, headers: noStore });
   }

@@ -40,7 +40,7 @@ for(const route of ['home-deals','home-holiday-deals'])test(`${route} overlaps c
   assert.match(source,/const \[names, publicSiteIds, token\] = await Promise\.all\(\[/);
   assert.match(source,/publishedSupplierIds\("vacations"\), supplierToken\(\)/);
   assert.match(source,/Cache-Control.*no-store/);
-  assert.match(source,route==='home-deals' ? /publicSiteIds: eligibleIds, publicNames: new Map/ : /publicSiteIds, publicNames: new Map/);
+  assert.match(source,/publicSiteIds, publicNames: new Map/);
   assert.match(source,/curateHomeDeals/);
 });
 test('display settings start before supplier requests while holiday all mode stays unfiltered',async()=>{

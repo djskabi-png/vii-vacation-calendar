@@ -53,8 +53,9 @@ test('spa scope is applied before price sorting and national cap, without invent
 
 test('event API applies regional eligibility before top12; scope travels through state and response',()=>{
   const route=read('app/api/vii/live-search/route.ts');
-  assert.ok(route.indexOf('regionalPublishedIds(')<route.indexOf('liveSupplierSearch({'));
-  assert.match(route,/publishedIds: eligibleIds/);
+  assert.ok(route.indexOf('publishedSupplierIds(world)')<route.indexOf('liveSupplierSearch({'));
+  assert.ok(route.indexOf('selectRegionalOffers(')<route.indexOf('.slice(0, 12)'));
+  assert.match(route,/publishedIds: publicIds/);
   assert.match(route,/region: region.label/);
   assert.match(route,/area: place.area/);
   const hook=read('app/components/use-vii-live-search.ts');

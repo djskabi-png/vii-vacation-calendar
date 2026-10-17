@@ -98,7 +98,7 @@ export const hourlyPlacesFromCatalog = (places: typeof hourlyCatalog.places): Di
     name: place.name,
     location: place.location,
     area: place.area,
-    description: place.description || "לפרטים נוספים ולתיאום שהייה, פנו למקום.",
+    description: place.description?.replace(/ש[״"]ח/g, "₪") || "לפרטים נוספים ולתיאום שהייה, פנו למקום.",
     features: features.slice(0, 12),
     image: place.images[0],
     images: place.images,
