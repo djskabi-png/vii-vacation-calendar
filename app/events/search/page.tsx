@@ -13,7 +13,7 @@ import { UnavailablePlaceNotice } from "../../components/unavailable-place-notic
 import { PageShell } from "../../components/page-shell";
 import { SearchBox } from "../../components/search-box";
 import type { EventPlace } from "../../data/site-data";
-import { eventPlaceHref } from "../../lib/event-place-href";
+import { eventOfferHref, eventPlaceHref } from "../../lib/event-place-href";
 import { supplierDisplayDescription } from "../../data/supplier-display-text";
 import { usePublishedCatalog } from "../../lib/use-published-catalog";
 import { getPlaceAccessibility } from "../../data/accessibility-data";
@@ -31,6 +31,8 @@ import { ResultsViewToggle, useResultsViewMode } from "../../components/results-
 import { matchesSearchLocation } from "../../data/search-taxonomy";
 import { useViiLiveSearch } from "../../components/use-vii-live-search";
 import { eventLiveCopy } from "../../i18n/vii-live-search-copy";
+import { eventSlotCopy } from "../../i18n/event-slot-copy";
+import type { EventSlot } from "../../lib/vii-live-search";
 import { trackSearchResults } from "../../lib/analytics";
 import { nearbyPlacesForSelection } from "../../lib/geography-search";
 import { completeNearbyResults } from "../../lib/nearby-recommendations";
@@ -49,6 +51,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   const { language } = useSiteLanguage();
   const managedGeography = useManagedGeography();
   const liveCopy = eventLiveCopy[language];
+  const slotCopy = eventSlotCopy[language];
   const searchQuery = searchParams.toString();
   const initialParams = typeof window === "undefined" ? searchParams : new URLSearchParams(window.location.search);
   const initialGuests = Number(initialParams.get("guests") || 0);
@@ -61,7 +64,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   const { mapOpen, openMap, closeMap } = useMapViewState();
   const { viewMode, setViewMode } = useResultsViewMode("events");
   const [sort, setSort] = useState(["capacity", "name"].includes(initialParams.get("sort") || "") ? initialParams.get("sort") || "recommended" : "recommended");
-  const [hours, setHours] = useState([2, 3, 4, 5, 6].includes(Number(initialParams.get("hours"))) ? Number(initialParams.get("hours")) : 3);
+  const [slot, setSlot] = useState<EventSlot | undefined>(initialParams.get("slot") === "morning" ? "morning" : initialParams.get("slot") === "evening" ? "evening" : undefined);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
   const [activeMapPlaceId, setActiveMapPlaceId] = useState<string | null>(null);
@@ -77,7 +80,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
     router.push(localizedPath(`${path}${query ? `?${query}` : ""}`, language));
   }
 
-  function changeFilter(key: "location" | "type" | "eventType" | "guests" | "noise" | "accessible" | "sort" | "hours", value: string | boolean | number) {
+  function changeFilter(key: "location" | "type" | "eventType" | "guests" | "noise" | "accessible" | "sort" | "slot", value: string | boolean | number) {
     if (key === "location") setArea(String(value));
     if (key === "type") setType(String(value));
     if (key === "eventType") setEventType(String(value));
@@ -85,8 +88,8 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
     if (key === "noise") setNoNoiseLimit(Boolean(value));
     if (key === "accessible") setAccessibleOnly(Boolean(value));
     if (key === "sort") setSort(String(value));
-    if (key === "hours") setHours(Number(value));
-    const isDefault = value === false || value === 0 || value === "הכל" || value === "recommended";
+    if (key === "slot") setSlot(value === "morning" || value === "evening" ? value : undefined);
+    const isDefault = value === false || value === 0 || value === "" || value === "הכל" || value === "recommended";
     updateUrl({ [key]: isDefault ? null : String(value === true ? 1 : value) });
   }
 
@@ -102,7 +105,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
       setNoNoiseLimit(params.get("noise") === "1");
       setAccessibleOnly(params.get("accessible") === "1");
       setSort(["capacity", "name"].includes(params.get("sort") || "") ? params.get("sort") || "recommended" : "recommended");
-      setHours([2, 3, 4, 5, 6].includes(Number(params.get("hours"))) ? Number(params.get("hours")) : 3);
+      setSlot(params.get("slot") === "morning" ? "morning" : params.get("slot") === "evening" ? "evening" : undefined);
     }, 0);
     return () => window.clearTimeout(timer);
   }, [initialArea, searchQuery]);
@@ -113,19 +116,22 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   ].filter(Boolean)))], [eventPlaces, managedGeography]);
   const eventFrom = searchParams.get("from");
   const eventTo = searchParams.get("to") || eventFrom;
-  const supplierSearch = useViiLiveSearch("events", guests > 0 ? eventFrom : null, guests > 0 ? eventTo : null, guests, hours);
+  const supplierSearch = useViiLiveSearch("events", guests > 0 ? eventFrom : null, guests > 0 ? eventTo : null, guests, undefined, undefined, slot);
   const supplierStatus = (slug: string) => {
     if (!eventFrom || !eventTo || !guests || !/^event-\d+$/.test(slug)) return null;
     if (supplierSearch.status === "loading") return liveCopy.checking;
     if (supplierSearch.status === "error") return liveCopy.error;
     const result = supplierSearch.results[Number(slug.slice(6))];
     if (result?.available === false) return liveCopy.unavailable;
-    if (result?.available === true && result.total && result.from && result.start) return liveCopy.available(result.total, hours, result.from, result.start);
+    if (result?.available === true && result.total && result.from && result.slot) return `${liveCopy.available(result.total, 0, result.from, result.start || "")} · ${slotCopy[result.slot]}`;
     return liveCopy.unknown;
   };
-  const detailHref = (place: (typeof eventPlaces)[number]) => eventFrom && guests > 0
-    ? `${eventPlaceHref(place)}?${new URLSearchParams({ from: eventFrom, guests: String(guests), hours: String(hours) })}`
-    : eventPlaceHref(place);
+  const detailHref = (place: (typeof eventPlaces)[number]) => {
+    const offer = supplierSearch.results[Number(place.slug.slice(6))];
+    return eventFrom && guests > 0
+      ? eventOfferHref(place, new URLSearchParams({ from: offer?.from || eventFrom, guests: String(guests), ...(offer?.slot || slot ? { slot: offer?.slot || slot! } : {}) }))
+      : eventPlaceHref(place);
+  };
   const types = useMemo(() => ["הכל", ...Array.from(new Set(eventPlaces.map((place) => place.type)))], [eventPlaces]);
   const eventTypes = useMemo(() => ["הכל", ...Array.from(new Set(eventPlaces.flatMap((place) => place.eventTypes)))], [eventPlaces]);
   const matchesHardFilters = (place: EventPlace) => (!types.includes(type) || type === "הכל" || place.type === type)
@@ -182,11 +188,10 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
         ...(guests ? { guests } : {}),
         ...(noNoiseLimit ? { noise: true } : {}),
         ...(accessibleOnly ? { accessible: true } : {}),
-        ...(hours !== 3 ? { hours } : {}),
       },
     }), 650);
     return () => window.clearTimeout(timer);
-  }, [accessibleOnly, area, catalogError, catalogLoading, eventFrom, eventType, resultSet.length, guests, hours, noNoiseLimit, type]);
+  }, [accessibleOnly, area, catalogError, catalogLoading, eventFrom, eventType, resultSet.length, guests, slot, noNoiseLimit, type]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => { setMapVisibleIds(null); setActiveMapPlaceId(null); }, 0);
@@ -205,7 +210,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
     closeMap();
   }
 
-  function reset() { setArea("הכל"); setType("הכל"); setEventType("הכל"); setGuests(0); setNoNoiseLimit(false); setAccessibleOnly(false); setSort("recommended"); setHours(3); updateUrl({ location: null, type: null, eventType: null, guests: null, noise: null, accessible: null, sort: null, hours: null }); }
+  function reset() { setArea("הכל"); setType("הכל"); setEventType("הכל"); setGuests(0); setNoNoiseLimit(false); setAccessibleOnly(false); setSort("recommended"); setSlot(undefined); updateUrl({ location: null, type: null, eventType: null, guests: null, noise: null, accessible: null, sort: null, hours: null, slot: null }); }
 
   const sortOptions = [{ value: "recommended", label: "התאמה מומלצת" }, ...(eventPlaces.some((place) => place.capacityScope !== "unit") ? [{ value: "capacity", label: "קיבולת גבוהה" }] : []), { value: "name", label: "שם המקום" }];
 
@@ -232,7 +237,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
             <ModernSelect label="אזור" value={area} onChange={(value) => changeFilter("location", value)} options={areas.map((item) => ({ value: item, label: item }))} />
             <ModernSelect label="סוג מקום" value={type} onChange={(value) => changeFilter("type", value)} options={types.map((item) => ({ value: item, label: item }))} />
             <ModernSelect label="סוג אירוע" value={eventType} onChange={(value) => changeFilter("eventType", value)} options={eventTypes.map((item) => ({ value: item, label: item }))} />
-            <ModernSelect label={liveCopy.duration} value={String(hours)} onChange={(value) => changeFilter("hours", Number(value))} options={[2, 3, 4, 5, 6].map((value) => ({ value: String(value), label: liveCopy.hours(value) }))} />
+            <ModernSelect label={slotCopy.label} value={slot || "both"} onChange={(value) => changeFilter("slot", value === "both" ? "" : value)} options={[{ value: "both", label: slotCopy.both }, { value: "morning", label: slotCopy.morning }, { value: "evening", label: slotCopy.evening }]} />
             {eventPlaces.some((place) => place.capacityScope !== "unit") && <fieldset><legend>כמות משתתפים</legend><input type="range" min="0" max="300" step="10" value={guests} aria-label="כמות משתתפים" onChange={(event) => changeFilter("guests", Number(event.target.value))} /></fieldset>}
             <label><input type="checkbox" checked={noNoiseLimit} onChange={(event) => changeFilter("noise", event.target.checked)} /> ללא הגבלת רעש</label>
             <label><input type="checkbox" checked={accessibleOnly} onChange={(event) => changeFilter("accessible", event.target.checked)} /> נגישות מלאה ומאומתת</label>

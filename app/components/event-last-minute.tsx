@@ -1,54 +1,69 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
-
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { EventPlace } from "../data/site-data";
-import { eventPlaceHref } from "../lib/event-place-href";
+import { eventOfferHref } from "../lib/event-place-href";
 import { useViiLiveSearch } from "./use-vii-live-search";
 import { EventRail } from "./event-rail";
 import { dailyRotationCompare } from "../lib/daily-rotation";
 import { PlacePreviewCard } from "./place-preview-card";
+import { ModernSelect } from "./modern-select";
+import { useSiteLanguage } from "../i18n/locale-provider";
+import { eventSlotCopy } from "../i18n/event-slot-copy";
+import type { EventSlot } from "../lib/vii-live-search";
+import { eventDealDate, eventDealPresets } from "../lib/event-deal-dates";
+import { eventDealPlaceLabels } from "../lib/event-deal-labels";
+import { useManagedGeography } from "./use-managed-geography";
 
-function israelDate(offset: number) {
-  const parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Jerusalem", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date());
-  const value = (name: string) => Number(parts.find((part) => part.type === name)?.value || 0);
-  const date = new Date(Date.UTC(value("year"), value("month") - 1, value("day") + offset));
-  return date.toISOString().slice(0, 10);
-}
+const copy = {
+  he: { title: "מקומות פנויים לאירועים", all: "לכל המקומות הפנויים", tabs: ["ברגע האחרון", "פנוי לחמישי", "פנוי לשישי"], date: "תאריך אחר", guests: "משתתפים", loading: "בודקים זמינות ומחירים...", error: "לא הצלחנו לבדוק זמינות כרגע", retry: "לנסות שוב", empty: "לא נמצאו הצעות פנויות לבחירה הזו. נסו תאריך או כמות משתתפים אחרים.", available: "פנוי", price: "מחיר לאירוע", forGuests: "עבור", capacity: "עד", people: "משתתפים", details: "לפרטי המקום" },
+  en: { title: "Available event venues", all: "All available venues", tabs: ["Last minute", "Available Thursday", "Available Friday"], date: "Another date", guests: "Guests", loading: "Checking availability and prices...", error: "We could not check availability right now", retry: "Try again", empty: "No available offers for this selection. Try another date or guest count.", available: "Available", price: "Event total", forGuests: "for", capacity: "Up to", people: "guests", details: "Venue details" },
+  ru: { title: "Свободные площадки для мероприятий", all: "Все свободные площадки", tabs: ["Ближайшие даты", "В четверг", "В пятницу"], date: "Другая дата", guests: "Гости", loading: "Проверяем наличие и цены...", error: "Сейчас не удалось проверить наличие", retry: "Повторить", empty: "Свободных предложений нет. Выберите другую дату или количество гостей.", available: "Свободно", price: "Цена мероприятия", forGuests: "для", capacity: "До", people: "гостей", details: "Подробнее о площадке" },
+  fr: { title: "Lieux disponibles pour vos événements", all: "Tous les lieux disponibles", tabs: ["Dernière minute", "Jeudi", "Vendredi"], date: "Autre date", guests: "Participants", loading: "Vérification des disponibilités et des prix...", error: "La disponibilité ne peut pas être vérifiée pour le moment", retry: "Réessayer", empty: "Aucune offre disponible. Essayez une autre date ou un autre nombre de participants.", available: "Disponible", price: "Prix de l’événement", forGuests: "pour", capacity: "Jusqu’à", people: "participants", details: "Voir le lieu" },
+};
 
-function nextWeekdayOffset(targetDay: number) {
-  const [year, month, day] = israelDate(0).split("-").map(Number);
-  const weekday = new Date(Date.UTC(year, month - 1, day)).getUTCDay();
-  const offset = (targetDay - weekday + 7) % 7;
-  return offset || 7;
-}
-
-export function EventLastMinute({ places }: { places: EventPlace[] }) {
+export function EventLastMinute({ places, sectionId = "event-last-minute" }: { places: EventPlace[]; sectionId?: string }) {
+  const { language, translate } = useSiteLanguage();
+  const geography = useManagedGeography(language !== "he");
+  const text = copy[language];
+  const slots = eventSlotCopy[language];
   const [date, setDate] = useState<string | null>(null);
-  useEffect(() => { setDate(israelDate(1)); }, []);
-  const search = useViiLiveSearch("events", date, date, 20, 3);
-  const candidates = places.flatMap((place) => {
+  const [initialized, setInitialized] = useState(false);
+  const [selectedPreset, setSelectedPreset] = useState<string | null>("lastminute");
+  const [guests, setGuests] = useState(20);
+  const [slot, setSlot] = useState<EventSlot | undefined>();
+  const [retry, setRetry] = useState(0);
+  useEffect(() => { setDate(eventDealDate(1)); setInitialized(true); }, []);
+  const search = useViiLiveSearch("events", date, date, guests, undefined, undefined, slot, retry, true);
+  const candidates = (search.places || places).flatMap((place) => {
     const match = /^event-(\d+)$/.exec(place.slug);
-    const result = match ? search.results[Number(match[1])] : null;
-    if (!result || result.available === false) return [];
-    return [{ place, confirmed: result.available === true, price: result.total || null, start: result.start || null, date: result.from || date }];
-  }).sort((a, b) => Number(b.confirmed) - Number(a.confirmed)
-    || (a.price ?? Number.MAX_SAFE_INTEGER) - (b.price ?? Number.MAX_SAFE_INTEGER)
-    || dailyRotationCompare(a.place.slug, b.place.slug, `event-last-minute-${date || "none"}`)).slice(0, 12);
-  const presets = [
-    { label: "מחר", value: israelDate(1) },
-    { label: "חמישי הקרוב", value: israelDate(nextWeekdayOffset(4)) },
-    { label: "שישי הקרוב", value: israelDate(nextWeekdayOffset(5)) },
-  ];
+    const offer = match ? search.results[Number(match[1])] : null;
+    if (offer?.available !== true || !offer.total || !offer.from || !offer.slot) return [];
+    return [{ place, offer }];
+  }).sort((a, b) => a.offer.total! - b.offer.total!
+    || dailyRotationCompare(a.place.slug, b.place.slug, `${sectionId}-${date}`)).slice(0, 12);
+  const params = new URLSearchParams({ from: date || "", to: date || "", guests: String(guests), ...(slot ? { slot } : {}) });
+  const busy = search.status === "loading" || !initialized;
 
-  return <section className="section shell event-discovery-section" aria-labelledby="event-last-minute-title">
-    <div className="section-head"><div><h2 id="event-last-minute-title">מקומות לאירוע קרוב</h2></div><Link href={`/events/search?${new URLSearchParams({ from: date || "", to: date || "", guests: "20", hours: "3" })}`}>לכל המקומות</Link></div>
-    <div className="event-last-minute-controls"><div className="event-last-minute-tabs" aria-label="בחירת תאריך מהירה">{presets.map((preset) => <button type="button" key={preset.value} className={date === preset.value ? "active" : ""} aria-pressed={date === preset.value} onClick={() => setDate(preset.value)}>{preset.label}</button>)}</div><label>תאריך אחר <input type="date" value={date || ""} min={israelDate(0)} max={israelDate(30)} onChange={(event) => setDate(event.target.value || null)} /></label><span>ההצעות ל־20 משתתפים ול־3 שעות. כשמופיע ״לבירור״, יש לאשר זמינות ומחיר מול המקום.</span></div>
-    {search.status === "loading" || search.status === "idle" ? <p className="event-rail-status" role="status">בודקים זמינות ומחירים...</p> : null}
-    {search.status === "error" ? <p className="event-rail-status" role="alert">לא ניתן לבדוק זמינות כרגע. אפשר לבחור תאריך אחר או לחפש בכל המקומות.</p> : null}
-    {search.status === "ready" && !candidates.length ? <p className="event-rail-status">לא נמצאו מקומות שניתן להציג לתאריך הזה. נסו תאריך אחר.</p> : null}
-    {candidates.length ? <EventRail title="מקומות לאירוע קרוב">{candidates.map(({ place, confirmed, price, start, date: eventDate }) => <PlacePreviewCard className="event-rail-card" key={place.slug} name={place.name} image={place.image} images={place.images} href={`${eventPlaceHref(place)}?${new URLSearchParams({ from: eventDate || date || "", guests: "20", hours: "3" })}`}><span className="event-rail-card__body"><small>{place.location}{start ? ` · ${start}` : ""}</small><strong>{place.name}</strong><span>{confirmed ? "פנוי בתאריך שבחרתם" : "לבירור זמינות ומחיר"}</span><b>{confirmed && price ? `${price.toLocaleString("he-IL")} ₪ לאירוע` : "פנייה ישירה למקום"}</b></span></PlacePreviewCard>)}</EventRail> : null}
+  return <section className="section shell event-discovery-section event-deals" aria-labelledby={`${sectionId}-title`}>
+    <div className="section-head"><h2 id={`${sectionId}-title`}>{text.title}</h2><Link href={`/events/search?${params}`}>{text.all}</Link></div>
+    <div className="event-last-minute-controls">
+      <div className="event-last-minute-tabs" role="group" aria-label={text.title}>{eventDealPresets().map((preset, index) => <button type="button" key={preset.id} className={selectedPreset === preset.id ? "active" : ""} aria-pressed={selectedPreset === preset.id} onClick={() => { setDate(preset.date); setSelectedPreset(preset.id); }}>{text.tabs[index]}</button>)}</div>
+      <label>{text.date}<input type="date" value={date || ""} min={eventDealDate(0)} max={eventDealDate(62)} onChange={(event) => { setDate(event.target.value || null); setSelectedPreset(null); }} /></label>
+      <ModernSelect label={text.guests} value={String(guests)} onChange={(value) => setGuests(Number(value))} options={[20, 30, 50, 100, 200].map((count) => ({ value: String(count), label: `${count} ${text.people}` }))} />
+      <ModernSelect label={slots.label} value={slot || "both"} onChange={(value) => setSlot(value === "both" ? undefined : value as EventSlot)} options={[{ value: "both", label: slots.both }, { value: "morning", label: slots.morning }, { value: "evening", label: slots.evening }]} />
+    </div>
+    <div aria-busy={busy} aria-live="polite">
+      {busy ? <div className="event-deals__loading" role="status"><p>{text.loading}</p><div className="home-live-deals__loading-cards" aria-hidden="true">{[0, 1, 2].map((index) => <div className="home-live-deals__loading-card" key={index}><div className="home-live-deals__loading-image" /><div className="home-live-deals__loading-lines"><span /><span /><span /></div></div>)}</div></div> : null}
+      {search.status === "error" ? <div className="event-rail-status" role="alert"><p>{text.error}</p><button type="button" className="button secondary" onClick={() => setRetry((value) => value + 1)}>{text.retry}</button></div> : null}
+      {search.status === "ready" && !candidates.length ? <p className="event-rail-status">{text.empty}</p> : null}
+      {initialized && search.status === "idle" ? <p className="event-rail-status">{translate("בחרו תאריך")}</p> : null}
+      {candidates.length ? <EventRail title={text.title}>{candidates.map(({ place, offer }) => {
+        const labels = eventDealPlaceLabels(place, language, translate, geography);
+        const href = eventOfferHref(place, new URLSearchParams({ from: offer.from!, guests: String(guests), slot: offer.slot!, ...(offer.roomID ? { roomID: String(offer.roomID) } : {}) }));
+        return <PlacePreviewCard className="event-rail-card event-deals__card" key={place.slug} name={labels.name} image={place.image} images={place.images} href={href} newTab><span className="event-rail-card__body"><small>{labels.location} · {labels.type}</small><strong>{labels.name}</strong><span>{text.capacity} {place.guests} {text.people}</span><span className="event-deals__availability">{text.available} · {new Intl.DateTimeFormat(language === "he" ? "he-IL" : language, { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${offer.from}T12:00:00Z`))} · {slots[offer.slot!]}</span><span>{text.forGuests} {guests} {text.people}</span><b>{offer.total!.toLocaleString(language === "he" ? "he-IL" : language)} ₪ <small>{text.price}</small></b><span className="button primary">{text.details}</span></span></PlacePreviewCard>;
+      })}</EventRail> : null}
+    </div>
   </section>;
 }

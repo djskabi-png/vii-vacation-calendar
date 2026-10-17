@@ -15,6 +15,7 @@ import { TrailCard } from "./trail-card";
 import { PinIcon } from "../site-header";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { HomeLiveDeals } from "./home-live-deals";
+import { EventLastMinute } from "./event-last-minute";
 import { rotateDaily, rotateWithinTiers } from "../lib/daily-rotation";
 import { HomeManagedDiscovery } from "./home-discovery-sections";
 import { HomeSliderControls } from "./home-slider-controls";
@@ -186,6 +187,7 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
 
     <section className="section home-short-stay" aria-labelledby="home-short-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">כשלא צריך לילה שלם</span><h2 id="home-short-title">חדרים לכמה שעות</h2><p>שהייה קצרה, פרטית וגמישה. בוחרים מקום ובודקים את מסגרת הזמן והמחיר.</p></div><div><Link href="/hourly">לכל החדרים</Link><HomeSliderControls railId="home-hourly-rail" label="חדרים לפי שעה" itemSelector=".home-slider__item" /></div></div><div id="home-hourly-rail" className="home-slider__track home-slider__track--discovery" data-horizontal-rail>{featuredHourly.map((item) => <div className="home-slider__item" key={item.id}><DiscoveryCard item={item} /></div>)}</div></div></section>
 
+    <EventLastMinute places={eventPlaces} sectionId="home-event-deals" />
     <section className="home-events-world" aria-labelledby="home-events-title">
       <div className="shell home-events-world__head"><div><span className="eyebrow">עולם האירועים</span><h2 id="home-events-title">כל סיבה טובה הופכת כאן לאירוע</h2><p>לופטים ומתחמים לימי הולדת, מסיבות, אירועי חברה וחגיגות פרטיות, עם חיפוש לפי כמות ואופי האירוע.</p></div><Link className="button" href="/events">נכנסים לעולם האירועים</Link></div>
       <div className="shell home-events-world__layout">

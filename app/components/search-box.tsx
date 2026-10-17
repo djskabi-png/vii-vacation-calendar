@@ -419,6 +419,8 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
         if (eventDateRange.from) params.set("from", eventDateRange.from);
         if (eventDateRange.to) params.set("to", eventDateRange.to);
         if (guests > 0) params.set("guests", String(guests));
+        const selectedEventSlot = new URLSearchParams(searchParamsKey).get("slot");
+        if (selectedEventSlot === "morning" || selectedEventSlot === "evening") params.set("slot", selectedEventSlot);
       } else if (mode === "spa") {
         if (spaDate.date) params.set("date", spaDate.date);
         if (spaDate.withoutDate) params.set("withoutDate", "1");

@@ -4,16 +4,17 @@ import { PreviewCardGallery } from "./preview-card-gallery";
 
 // Compact/editorial place previews share the same gallery as result cards.
 // The body link and image controls are siblings, never nested interactive links.
-export function PlacePreviewCard({ name, image, images = [], href, className, children }: {
+export function PlacePreviewCard({ name, image, images = [], href, className, children, newTab = false }: {
   name: string;
   image: string;
   images?: string[];
   href: string;
   className: string;
   children: ReactNode;
+  newTab?: boolean;
 }) {
   return <article className={className}>
     <PreviewCardGallery key={href} className="place-preview-card__media" name={name} images={[image, ...images]} href={href} />
-    <Link className="place-preview-card__body" href={href}>{children}</Link>
+    <Link className="place-preview-card__body" href={href} target={newTab ? "_blank" : undefined} rel={newTab ? "noopener noreferrer" : undefined}>{children}</Link>
   </article>;
 }

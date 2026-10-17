@@ -1,4 +1,13 @@
 {
+  "מקומות פנויים לאירועים": { "en": "Available event venues", "ru": "Свободные площадки для мероприятий", "fr": "Lieux disponibles pour vos événements" },
+  "לכל המקומות הפנויים": { "en": "All available venues", "ru": "Все свободные площадки", "fr": "Tous les lieux disponibles" },
+  "לא נמצאו הצעות פנויות לבחירה הזו. נסו תאריך או כמות משתתפים אחרים.": { "en": "No available offers for this selection. Try another date or guest count.", "ru": "Свободных предложений нет. Выберите другую дату или количество гостей.", "fr": "Aucune offre disponible. Essayez une autre date ou un autre nombre de participants." },
+  "מחיר לאירוע": { "en": "Event total", "ru": "Цена мероприятия", "fr": "Prix de l’événement" },
+  ". מועד:": { "en": ". Time:", "ru": ". Время:", "fr": ". Créneau :" },
+  "מועד האירוע": { "en": "Event time", "ru": "Время мероприятия", "fr": "Créneau de l’événement" },
+  "בוקר או ערב": { "en": "Morning or evening", "ru": "Утро или вечер", "fr": "Matin ou soir" },
+  "בוקר · 08:00 עד 16:00": { "en": "Morning · 08:00 to 16:00", "ru": "Утро · с 08:00 до 16:00", "fr": "Matin · de 08:00 à 16:00" },
+  "ערב · 17:00 עד חצות": { "en": "Evening · 17:00 to midnight", "ru": "Вечер · с 17:00 до полуночи", "fr": "Soir · de 17:00 à minuit" },
   "כל מה שעושים בחופש, במקום אחד": { "en": "Everything for your time off, in one place", "ru": "Всё для отдыха в одном месте", "fr": "Toutes vos envies d’évasion, au même endroit" },
   "נופש, ספא, אירועים ופעילויות. מחפשים ומזמינים ישר כאן.": { "en": "Stays, spas, events and activities. Find and book them right here.", "ru": "Отдых, спа, мероприятия и развлечения. Находите и бронируйте прямо здесь.", "fr": "Séjours, spas, événements et activités. Trouvez et réservez directement ici." },
   "בוחרים תאריכים והרכב אורחים בחיפוש או בעמוד המקום. אם מופיעה אפשרות לבירור, פונים למקום לאישור המחיר והזמינות.": { "en": "Choose your dates and guests in search or on the venue page. If an enquiry is required, contact the venue to confirm the price and availability.", "ru": "Выберите даты и состав гостей в поиске или на странице объекта. Если требуется уточнение, свяжитесь с объектом для подтверждения цены и наличия.", "fr": "Choisissez vos dates et votre groupe dans la recherche ou sur la page de l’établissement. Si une demande est nécessaire, contactez-le pour confirmer le prix et la disponibilité." },
