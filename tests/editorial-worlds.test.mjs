@@ -68,7 +68,30 @@ test("article group composition is not mistranslated as a vehicle and utility pa
   assert.match(title.en,/group/); assert.doesNotMatch(title.en,/vehicle|car\b/i);
   assert.match(title.fr,/groupe/); assert.doesNotMatch(title.fr,/véhicule|voiture/i);
   assert.doesNotMatch(title.ru,/автомобил|машин/i);
+  const client=await fs.readFile(new URL("../app/i18n/locale-provider.tsx",import.meta.url),"utf8");
+  assert.match(client,/core\.endsWith\(brandSuffix\)/);
+  assert.match(client,/if \(reviewedHeadline\) return/);
   const source=await fs.readFile(new URL("../app/components/world-editorial-links.tsx",import.meta.url),"utf8");
   assert.match(source,/!\/\^/);
   assert.ok(articles.every(article=>!article.sourceLinks?.some(link=>link.url.includes("govil-landing-page"))));
+});
+test("editorial visibility has exact enter and exit boundaries", async () => {
+  const { editorialAreaVisible }=await load("../app/lib/editorial-viewport.ts");
+  assert.equal(editorialAreaVisible({top:843,bottom:1200},844),true);
+  assert.equal(editorialAreaVisible({top:844,bottom:1200},844),false);
+  assert.equal(editorialAreaVisible({top:-900,bottom:1},844),true);
+  assert.equal(editorialAreaVisible({top:-900,bottom:0},844),false);
+  assert.equal(editorialAreaVisible({top:0,bottom:100},0),false);
+});
+test("editorial floating-control policy preserves active maps, keyboard focus and cleanup", async () => {
+  const component=await fs.readFile(new URL("../app/components/world-editorial-links.tsx",import.meta.url),"utf8");
+  const css=await fs.readFile(new URL("../app/globals.css",import.meta.url),"utf8");
+  assert.match(component,/observer\.observe\(element\)/);
+  assert.match(component,/observer\.disconnect\(\)/);
+  assert.match(component,/removeEventListener\("resize", update\)/);
+  assert.match(component,/removeAttribute\("data-world-editorial-reading"\)/);
+  assert.match(component,/\[pathname, language, variant\]/);
+  assert.match(css,/max-width:820px/);
+  assert.match(css,/\.mobile-map-fab:not\(\.active\):not\(:focus\)/);
+  assert.match(css,/\.back-to-top:not\(:focus\)/);
 });

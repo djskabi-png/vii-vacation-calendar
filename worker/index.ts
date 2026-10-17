@@ -69,6 +69,12 @@ function translateServerText(value: string, locale: PublicLocale) {
   const trailing = value.match(/\s*$/)?.[0] || "";
   const core = value.slice(leading.length, value.length - trailing.length);
   if (!core) return value;
+  // Metadata templates append the brand after the page title. Prefer the same
+  // reviewed headline as the UI over an older machine-translated full string.
+  const brandSuffix = " | וי פור ויקיישן";
+  const headline = core.endsWith(brandSuffix) ? core.slice(0, -brandSuffix.length) : "";
+  const reviewedHeadline = (visitorUiTranslations as Record<string, Partial<Record<PublicLocale, string>>>)[headline]?.[locale];
+  if (reviewedHeadline) return `${leading}${reviewedHeadline} | ${serverTranslations[locale]["וי פור ויקיישן"] || "VII Vacation"}${trailing}`;
   return `${leading}${serverTranslations[locale][core] || core}${trailing}`;
 }
 

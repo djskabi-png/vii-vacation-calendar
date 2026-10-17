@@ -1223,6 +1223,10 @@ function translateValue(value: string, language: SiteLanguage): string {
   const leading = value.match(/^\s*/)?.[0] || "";
   const trailing = value.match(/\s*$/)?.[0] || "";
   const core = value.trim().replace(/\s+/g, " ");
+  const brandSuffix = " | וי פור ויקיישן";
+  const headline = core.endsWith(brandSuffix) ? core.slice(0, -brandSuffix.length) : "";
+  const reviewedHeadline = (visitorUiTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[headline]?.[language];
+  if (reviewedHeadline) return `${leading}${reviewedHeadline} | VII Vacation${trailing}`;
   const bookingHubExact = (bookingHubTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
   const visitorExact = (visitorUiTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
   const hourlyExact = (hourlyUiTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
