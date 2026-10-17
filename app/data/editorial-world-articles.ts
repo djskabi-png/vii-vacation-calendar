@@ -971,12 +971,6 @@ export const editorialWorldArticles: EditorialWorldArticle[] = [
         "answer": "לפני קביעת הטיפול, כדי שהצוות יוכל להנחות ולהתאים."
       }
     ],
-    "sourceLinks": [
-      {
-        "title": "משרד הבריאות: מידע לציבור",
-        "url": "https://www.gov.il/he/departments/ministry_of_health/govil-landing-page"
-      }
-    ],
     "imagePath": "/media/editorial/spa-choose-treatment.webp"
   },
   {

@@ -62,3 +62,13 @@ test("Hebrew-only editorial content is not misrepresented as approved translatio
   assert.match(route,/index: false, follow: true/);
   assert.match(worker,/hebrewOnlyArticle \? \{ "he-IL": basePath, "x-default": basePath \}/);
 });
+test("article group composition is not mistranslated as a vehicle and utility pages receive no world-guide rail", async () => {
+  const translations=JSON.parse(await fs.readFile(new URL("../app/data/visitor-ui-translations.json",import.meta.url),"utf8"));
+  const title=translations["איך בוחרים מקום שבאמת מתאים להרכב שלכם"];
+  assert.match(title.en,/group/); assert.doesNotMatch(title.en,/vehicle|car\b/i);
+  assert.match(title.fr,/groupe/); assert.doesNotMatch(title.fr,/véhicule|voiture/i);
+  assert.doesNotMatch(title.ru,/автомобил|машин/i);
+  const source=await fs.readFile(new URL("../app/components/world-editorial-links.tsx",import.meta.url),"utf8");
+  assert.match(source,/!\/\^/);
+  assert.ok(articles.every(article=>!article.sourceLinks?.some(link=>link.url.includes("govil-landing-page"))));
+});
