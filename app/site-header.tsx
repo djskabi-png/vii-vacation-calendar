@@ -38,6 +38,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
     ? managedChrome.secondary.filter((item) => item.visible)
     : defaultSecondary;
   const homeHref = localizedPath("/", language);
+  const advertiseHref = localizedPath("/join#join-pricing", language);
   const homeLoadingLabel = translate("פותחים את דף הבית...");
   const { account, openLogin } = useAccountAccess();
   const magazineActive = pathname === "/guides" || pathname.startsWith("/guides/");
@@ -164,6 +165,10 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
         </div>
 
         <div className="menu-panel__main">
+          <Link href={advertiseHref} onClick={closeMenu}>
+            <span><strong>{translate("פרסום באתר")}</strong><small>{translate("פרסום עסק, ספק, אטרקציה או מקום אירוח")}</small></span>
+            <ArrowIcon />
+          </Link>
           {managedNav.map((item) => (
             <Link key={item.href} href={item.href} onClick={closeMenu}>
               <span><strong>{translate(item.label)}</strong><small>{translate(item.description)}</small></span>
@@ -172,7 +177,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
           ))}
         </div>
 
-        <Link className="menu-panel__join" href="/join#join-pricing" onClick={closeMenu}>
+        <Link className="menu-panel__join" href={advertiseHref} onClick={closeMenu}>
           <ContactIcon />
           <span>
             <strong>{translate("פרסום והצטרפות לאתר")}</strong>
