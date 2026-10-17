@@ -1,5 +1,6 @@
 import { getHomeDealsForDates } from "./vii-home-deals.ts";
 import { holidayDealWindow, holidayParts, type HolidayPart } from "./holiday-deal-selection.ts";
+import { firstDealDate } from "./deal-clock.ts";
 
 const API_ROOT = "https://bizonline.co.il/api/ai/vii";
 
@@ -30,7 +31,7 @@ export async function getHomeHolidays(options: { token: string; now?: Date; fetc
   if (!response.ok) throw new Error("supplier_unavailable");
   const source = record(await response.json());
   if (!Array.isArray(source.holidays)) throw new Error("invalid_supplier_response");
-  const today = israelToday(options.now ?? new Date());
+  const today = new Date(`${firstDealDate(options.now ?? new Date())}T00:00:00Z`);
   const holidays: HomeHoliday[] = [];
   for (const value of source.holidays) {
     const item = record(value);

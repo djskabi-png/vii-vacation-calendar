@@ -7,6 +7,7 @@ import { matchesSearchLocation } from '../app/data/search-taxonomy.ts';
 import { spaPlusArea } from '../app/data/spa-regions.ts';
 import { selectSpaPackageDeals } from '../app/lib/spa-package-deals.ts';
 import { eventDealDate } from '../app/lib/event-deal-dates.ts';
+import { dealRailDays, eligibleDealDate } from '../app/lib/deal-clock.ts';
 
 function handler(path, method, dependencies) {
   const source=readFileSync(new URL(`../app/api/${path}/route.ts`,import.meta.url),'utf8');
@@ -18,11 +19,11 @@ const request=(path,body)=>new Request(`https://example.test/${path}`,body?{meth
 test('actual vacation handler validates scope before reads, joins publication and returns the region',async()=>{
   let calls=0;
   const get=handler('vii/home-deals','GET',{
-    regionalAvailabilityRegion,regionalPublishedIds,selectRegionalOffers,isContentLocale:()=>true,homeDealPeriods:[{id:'tomorrow'}],
+    regionalAvailabilityRegion,regionalPublishedIds,selectRegionalOffers,eligibleDealDate,isContentLocale:()=>true,homeDealPeriods:[{id:'tomorrow'}],
     publicCatalogSummaries:async()=>{calls++;return[{supplierId:1,name:'Center',area:'מרכז'},{supplierId:2,name:'North',area:'גליל מערבי'},{supplierId:3,name:'Hidden',area:'צפון'}];},
     publishedSupplierIds:async()=>new Set([1,2]),supplierToken:async()=>'test',
     readHomeDisplaySettings:async()=>({periods:[{id:'tomorrow'}],defaultPeriod:'tomorrow'}),
-    getHomeDeals:async options=>{assert.deepEqual([...options.publicSiteIds],[1,2]);assert.equal(options.guests,6);return {period:'tomorrow',deals:[{siteID:2,total:600,priceGuests:6}]};},
+    getHomeDeals:async options=>{assert.deepEqual([...options.publicSiteIds],[1,2]);assert.equal(options.guests,6);return {period:'tomorrow',deals:[{siteID:2,total:600,priceGuests:6,from:eventDealDate(1)}]};},
   });
   for(const query of ['period=tomorrow&region=unknown','period=tomorrow&guests=0','period=tomorrow&guests=51','period=tomorrow&guests=2.5']) assert.equal((await get(request(`?${query}`))).status,400);
   assert.equal(calls,0);
@@ -35,7 +36,7 @@ test('actual vacation handler validates scope before reads, joins publication an
 test('actual event handler selects regional public IDs before national top12 and echoes scope',async()=>{
   const places=Array.from({length:26},(_,i)=>({supplierId:i+1,slug:`event-${i+1}`,name:`Venue ${i+1}`,location:i<20?'נתניה':'צפת',area:i<20?'מרכז':'צפון',type:'Venue',guests:50,image:'https://www.vii.co.il/gallery/venue.jpg',images:[]}));
   const post=handler('vii/live-search','POST',{
-    regionalAvailabilityRegion,regionalPublishedIds,selectRegionalOffers,validDate:value=>/^\d{4}-\d{2}-\d{2}$/.test(value),
+    regionalAvailabilityRegion,regionalPublishedIds,selectRegionalOffers,eligibleDealDate,validDate:value=>/^\d{4}-\d{2}-\d{2}$/.test(value),
     supplierToken:async()=>'test',publishedSupplierIds:async()=>new Set(places.slice(0,-1).map(place=>place.supplierId)),
     publicCatalogSummaries:async()=>places,
     publicCatalogSelectedSummaries:async(_world,ids)=>places.filter(place=>ids.includes(place.supplierId)),
@@ -51,8 +52,8 @@ test('actual event handler selects regional public IDs before national top12 and
 test('actual spa handler filters source sites before cap and returns honest empty/error states',async()=>{
   const image='https://www.spaplus.co.il/gallery/venue.jpg';
   const sites=Array.from({length:24},(_,i)=>({id:i+1,title:`Spa ${i+1}`,city:i<20?'תל אביב':'צפת',image,packages:[{id:i+1,title:'Package',price:i+1,people:1,group:false,image}]}));
-  const dependencies={regionalAvailabilityRegion,selectRegionalOffers,matchesSearchLocation,spaPlusArea,selectSpaPackageDeals,eventDealDate,
-    publicCatalogSummaries:async()=>sites,readSpaAvailability:async()=>sites.map(site=>({siteID:site.id,date:eventDealDate(0),available:2}))};
+  const dependencies={regionalAvailabilityRegion,selectRegionalOffers,matchesSearchLocation,spaPlusArea,selectSpaPackageDeals,eventDealDate,dealRailDays,
+    publicCatalogSummaries:async()=>sites,readSpaAvailability:async()=>sites.map(site=>({siteID:site.id,date:dealRailDays(6)[0],available:2}))};
   const get=handler('spa/deals','GET',dependencies);
   const response=await get(request(`?${new URLSearchParams({region:'צפון'})}`));const body=await response.json();
   assert.equal(body.region,'צפון');assert.deepEqual(body.offers[body.days[0]].single.map(offer=>offer.siteId),[21,22,23,24]);

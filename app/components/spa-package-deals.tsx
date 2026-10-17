@@ -11,7 +11,10 @@ import type { SpaDealAudience, SpaPackageDeal } from "../lib/spa-package-deals";
 import "./spa-package-deals.css";
 import { localizedSpaPackageTitle, spaDealPeople } from "../i18n/localized-spa-package";
 import { latinBusinessAlias, localizedBusinessText } from "../i18n/localized-business-content";
-import { millisecondsToNextIsraelDay, validSpaDealDate } from "../lib/spa-package-deals";
+import { validSpaDealDate } from "../lib/spa-package-deals";
+import { eligibleDealDate, normalizeDealDate } from "../lib/deal-clock";
+import { eventDealDate } from "../lib/event-deal-dates";
+import { useDealClock } from "./use-deal-clock";
 import { regionalAvailabilityRegion, regionalAvailabilityTitle } from "../lib/regional-availability";
 import { spaSearchHref, spaSearchStateFromValues } from "../data/spa-search-landings";
 import { regionalExpansionCopy } from "../i18n/regional-availability-copy";
@@ -19,6 +22,7 @@ type DealResponse = { region?:string; expandedRegions?:Record<string,Partial<Rec
 const audiences:SpaDealAudience[] = ["single","couple","group"];
 export function SpaPackageDeals({sectionId="spa-package-deals",region}:{sectionId?:string;region?:string}) {
  const {language,translate} = useSiteLanguage();
+ const clock = useDealClock();
  const text = spaDealCopy[language];
  const params = useSearchParams(); const pathname = usePathname(); const router = useRouter();
  const scope = regionalAvailabilityRegion(region ?? (/^\/(?:en\/|fr\/|ru\/)?spas(?:\/|$)/.test(pathname) ? params.get("location") : null));
@@ -32,25 +36,23 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region}:{sectionI
  const [selection,setSelection] = useState({ date:requestedDate, audience:audiences.includes(requestedAudience)?requestedAudience:"single" as SpaDealAudience });
  useEffect(()=>{setSelection({date:requestedDate,audience:audiences.includes(requestedAudience)?requestedAudience:"single"});},[requestedDate,requestedAudience]);
  const audience = selection.audience;
- const date = data?.days.includes(selection.date) ? selection.date : data?.days[0] || "";
+ const days = clock ? data?.days.filter(day=>eligibleDealDate(day,clock.now)) || [] : [];
+ const date = days.includes(selection.date) ? selection.date : days[0] || "";
  useEffect(()=>{
-  if(!data) return;
-  const timer=window.setTimeout(()=>setAttempt(value=>value+1),millisecondsToNextIsraelDay());
-  return ()=>window.clearTimeout(timer);
- },[data]);
- useEffect(()=>{
-  if(!data || !requestedDate || data.days.includes(requestedDate)) return;
-  const query=new URLSearchParams(params.toString());query.set("spaDealDate",data.days[0]);
+  if(!clock || !requestedDate || (eligibleDealDate(requestedDate,clock.now) && (!data || data.days.includes(requestedDate)))) return;
+  const nextDate=days[0] || normalizeDealDate(requestedDate,clock.now);
+  const query=new URLSearchParams(params.toString());query.set("spaDealDate",nextDate);
   router.replace(`${pathname}?${query.toString()}#${sectionId}`,{scroll:false});
- },[data,requestedDate,params,pathname,router,sectionId]);
+ },[clock,data,requestedDate,params,pathname,router,sectionId,date]);
  useEffect(()=>{
+  if(!clock) return;
   const controller = new AbortController(); setStatus("loading"); setData(null);
   fetch(regionLabel ? `/api/spa/deals?${new URLSearchParams({region:regionLabel})}` : "/api/spa/deals",{signal:controller.signal,cache:"no-store"})
    .then(response=>{if(!response.ok) throw new Error("unavailable"); return response.json();})
    .then((body:DealResponse)=>{if(!Array.isArray(body.days)||!body.offers||!body.checkedAt||body.region!==regionLabel) throw new Error("invalid"); if(!controller.signal.aborted){setData(body);setStatus("ready");}})
    .catch(()=>{if(!controller.signal.aborted) setStatus("error");});
   return ()=>controller.abort();
- },[attempt,regionLabel]);
+ },[attempt,regionLabel,clock?.key]);
  useEffect(()=>{
   const refresh=()=>{if(data && Date.now()-Date.parse(data.checkedAt)>300_000) setAttempt(value=>value+1);};
   window.addEventListener("focus",refresh); return ()=>window.removeEventListener("focus",refresh);
@@ -62,13 +64,13 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region}:{sectionI
  }
  const offers=status==="ready" ? data?.offers[date]?.[audience] || [] : [];
  const expandedRegion=!!scope && status==="ready" && data?.expandedRegions?.[date]?.[audience]===true;
- const linkDate=date || (validSpaDealDate(selection.date)?selection.date:"");
+ const linkDate=date || (clock && validSpaDealDate(selection.date)?normalizeDealDate(selection.date,clock.now):"");
  const allHref=scope ? `${spaSearchHref(spaSearchStateFromValues(scope.label,audience))}${linkDate?`?${new URLSearchParams({date:linkDate})}`:""}` : "/spas";
  const formatDate=(value:string)=>new Intl.DateTimeFormat(language==="he"?"he-IL":language,{weekday:"short",day:"numeric",month:"short",timeZone:"UTC"}).format(new Date(`${value}T12:00:00Z`));
  return <section id={sectionId} className="section shell spa-package-deals" aria-labelledby={`${sectionId}-title`} data-no-translate>
   <div className="section-head"><h2 id={`${sectionId}-title`}>{title}</h2><Link href={allHref}>{text.all}</Link></div>
   <div className="spa-package-deals__controls">
-   <div className="spa-package-deals__days" role="group" aria-label={text.days}>{data?.days.map((day,index)=><button type="button" key={day} aria-pressed={date===day} onClick={()=>select(day,audience)}><strong>{index===0?text.today:index===1?text.tomorrow:new Intl.DateTimeFormat(language==="he"?"he-IL":language,{weekday:"short",timeZone:"UTC"}).format(new Date(`${day}T12:00:00Z`))}</strong><small>{new Intl.DateTimeFormat(language==="he"?"he-IL":language,{day:"numeric",month:"numeric",timeZone:"UTC"}).format(new Date(`${day}T12:00:00Z`))}</small></button>)}</div>
+   <div className="spa-package-deals__days" role="group" aria-label={text.days}>{days.map(day=><button type="button" key={day} aria-pressed={date===day} onClick={()=>select(day,audience)}><strong>{day===eventDealDate(0,clock!.now)?text.today:day===eventDealDate(1,clock!.now)?text.tomorrow:new Intl.DateTimeFormat(language==="he"?"he-IL":language,{weekday:"short",timeZone:"UTC"}).format(new Date(`${day}T12:00:00Z`))}</strong><small>{new Intl.DateTimeFormat(language==="he"?"he-IL":language,{day:"numeric",month:"numeric",timeZone:"UTC"}).format(new Date(`${day}T12:00:00Z`))}</small></button>)}</div>
    <div className="spa-package-deals__audiences" role="group" aria-label={text.who}>{audiences.map(value=><button type="button" key={value} disabled={!data||status!=="ready"} aria-pressed={audience===value} onClick={()=>select(date,value)}>{text.audiences[value]}</button>)}</div>
   </div>
   <div aria-busy={status==="loading"} aria-live="polite">

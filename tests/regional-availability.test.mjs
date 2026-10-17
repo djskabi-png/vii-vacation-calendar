@@ -85,7 +85,8 @@ test('regional requests reject wrong scopes and booking links retain real guest 
   const spa=read('app/components/spa-package-deals.tsx');
   assert.match(spa,/body.region!==regionLabel/);
   assert.match(spa,/spaSearchStateFromValues\(scope.label,audience\)/);
-  assert.match(spa,/validSpaDealDate\(selection.date\)\?selection.date/);
+  assert.match(spa,/validSpaDealDate\(selection.date\)\?normalizeDealDate\(selection.date,clock.now\)/);
+  assert.match(spa,/eligibleDealDate\(requestedDate,clock.now\)/);
   assert.match(spa,/new URLSearchParams\(\{date:linkDate\}\)/);
   for(const path of ['app/api/vii/home-deals/route.ts','app/api/spa/deals/route.ts']) assert.match(read(path),/invalid_region/);
 });

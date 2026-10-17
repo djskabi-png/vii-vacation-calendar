@@ -7,6 +7,7 @@ import type { D1Database } from "../../../../types/cloudflare-runtime";
 import { readHomeDisplaySettings } from "../../../lib/home-display-settings.ts";
 import { isContentLocale } from "../../../lib/content-studio.ts";
 import { regionalAvailabilityRegion, selectRegionalOffers } from "../../../lib/regional-availability.ts";
+import { eligibleDealDate } from "../../../lib/deal-clock.ts";
 
 const noStore = { "Cache-Control": "no-store" };
 
@@ -44,7 +45,9 @@ export async function GET(request: Request) {
       publishedSupplierIds("vacations"), supplierToken(),
     ]);
     const result = await getHomeDeals({ period: period as HomeDealPeriod, guests, token, publicSiteIds, publicNames: new Map(names.map((place) => [place.supplierId, place.name])) });
-    const [curated, display] = await Promise.all([applyCuration(result.deals, period as HomeDealPeriod), displayPromise]);
+    const [curatedSource, display] = await Promise.all([applyCuration(result.deals, period as HomeDealPeriod), displayPromise]);
+    const now = new Date();
+    const curated = curatedSource.filter(deal => eligibleDealDate(deal.from, now));
     const regionalPool = region ? [...curated].sort((a, b) => (a.curatedRank ?? 500) - (b.curatedRank ?? 500) || a.total - b.total || a.siteID - b.siteID) : curated;
     const selected = region ? selectRegionalOffers(regionalPool, names.filter(place => publicSiteIds.has(place.supplierId)), region.label, { placeId: deal => deal.siteID, key: deal => String(deal.siteID) }) : null;
     const deals = selected?.offers ?? curated;

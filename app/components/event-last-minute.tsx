@@ -20,6 +20,8 @@ import { matchesSearchLocation } from "../data/search-taxonomy";
 import { regionalAvailabilityRegion, regionalAvailabilityTitle } from "../lib/regional-availability";
 import { eventSearchHref } from "../data/world-search-landings";
 import { regionalExpansionCopy } from "../i18n/regional-availability-copy";
+import { firstDealDate, normalizeDealDate } from "../lib/deal-clock";
+import { useDealClock } from "./use-deal-clock";
 
 const copy = {
   he: { title: "מקומות פנויים לאירועים", all: "לכל המקומות הפנויים", tabs: ["ברגע האחרון", "פנוי לחמישי", "פנוי לשישי"], date: "תאריך אחר", guests: "משתתפים", loading: "בודקים זמינות ומחירים...", error: "לא הצלחנו לבדוק זמינות כרגע", retry: "לנסות שוב", empty: "לא נמצאו הצעות פנויות לבחירה הזו. נסו תאריך או כמות משתתפים אחרים.", available: "פנוי", price: "מחיר לאירוע", forGuests: "עבור", capacity: "עד", people: "משתתפים", details: "לפרטי המקום" },
@@ -30,18 +32,21 @@ const copy = {
 
 export function EventLastMinute({ places, sectionId = "event-last-minute", region, initialGuests = 20 }: { places: EventPlace[]; sectionId?: string; region?: string; initialGuests?: number }) {
   const { language, translate } = useSiteLanguage();
+  const clock = useDealClock();
   const geography = useManagedGeography(language !== "he");
   const text = copy[language];
   const scope = regionalAvailabilityRegion(region);
   const title = scope ? regionalAvailabilityTitle("events", scope, language) : text.title;
   const slots = eventSlotCopy[language];
-  const [date, setDate] = useState<string | null>(null);
+  const [chosenDate, setDate] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<string | null>("lastminute");
   const [guests, setGuests] = useState(initialGuests > 0 ? initialGuests : 20);
   const [slot, setSlot] = useState<EventSlot | undefined>();
   const [retry, setRetry] = useState(0);
   useEffect(() => { setDate(eventDealDate(1)); setInitialized(true); }, []);
+  const presets = clock ? eventDealPresets(clock.now) : [];
+  const date = clock && chosenDate ? (presets.find(preset => preset.id === selectedPreset)?.date || normalizeDealDate(chosenDate, clock.now)) : null;
   const search = useViiLiveSearch("events", date, date, guests, undefined, undefined, slot, retry, true, scope?.label);
   const candidates = (search.places || places).flatMap((place) => {
     if (scope && !search.expandedRegion && !matchesSearchLocation(place, scope.label)) return [];
@@ -58,8 +63,8 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
   return <section className="section shell event-discovery-section event-deals" aria-labelledby={`${sectionId}-title`}>
     <div className="section-head"><h2 id={`${sectionId}-title`}>{title}</h2><Link href={`${searchPath}?${params}`}>{text.all}</Link></div>
     <div className="event-last-minute-controls">
-      <div className="event-last-minute-tabs" role="group" aria-label={text.title}>{eventDealPresets().map((preset, index) => <button type="button" key={preset.id} className={selectedPreset === preset.id ? "active" : ""} aria-pressed={selectedPreset === preset.id} onClick={() => { setDate(preset.date); setSelectedPreset(preset.id); }}>{text.tabs[index]}</button>)}</div>
-      <label>{text.date}<input type="date" value={date || ""} min={eventDealDate(0)} max={eventDealDate(62)} onChange={(event) => { setDate(event.target.value || null); setSelectedPreset(null); }} /></label>
+      <div className="event-last-minute-tabs" role="group" aria-label={text.title}>{presets.map((preset, index) => <button type="button" key={preset.id} className={selectedPreset === preset.id ? "active" : ""} aria-pressed={selectedPreset === preset.id} onClick={() => { setDate(preset.date); setSelectedPreset(preset.id); }}>{text.tabs[index]}</button>)}</div>
+      <label>{text.date}<input type="date" value={date || ""} min={clock ? firstDealDate(clock.now) : eventDealDate(1)} max={eventDealDate(62)} onChange={(event) => { setDate(event.target.value || null); setSelectedPreset(null); }} /></label>
       <ModernSelect label={text.guests} value={String(guests)} onChange={(value) => setGuests(Number(value))} options={[...new Set([guests, 20, 30, 50, 100, 200])].sort((a,b) => a-b).map((count) => ({ value: String(count), label: `${count} ${text.people}` }))} />
       <ModernSelect label={slots.label} value={slot || "both"} onChange={(value) => setSlot(value === "both" ? undefined : value as EventSlot)} options={[{ value: "both", label: slots.both }, { value: "morning", label: slots.morning }, { value: "evening", label: slots.evening }]} />
     </div>

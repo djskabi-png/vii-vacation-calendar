@@ -4,6 +4,7 @@ import { supplierToken } from "../../../lib/vii-supplier-token";
 import { publicCatalogSelectedSummaries, publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
 import type { EventDealPlace } from "../../../lib/event-deal-labels";
 import { regionalAvailabilityRegion, selectRegionalOffers } from "../../../lib/regional-availability.ts";
+import { eligibleDealDate } from "../../../lib/deal-clock.ts";
 
 const noStore = { "Cache-Control": "no-store" };
 
@@ -20,6 +21,9 @@ export async function POST(request: Request) {
   const region = regionalAvailabilityRegion(typeof body.region === "string" ? body.region : null);
   if (body.region !== undefined && (!region || world !== "events" || body.includePlaces !== true)) return Response.json({ error: "invalid_region" }, { status: 400, headers: noStore });
   if ((world !== "vacations" && world !== "events") || !validDate(body.from) || !validDate(body.till)) {
+    return Response.json({ error: "invalid_search" }, { status: 400, headers: noStore });
+  }
+  if (world === "events" && body.includePlaces === true && !eligibleDealDate(body.from, new Date())) {
     return Response.json({ error: "invalid_search" }, { status: 400, headers: noStore });
   }
   try {
