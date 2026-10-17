@@ -80,6 +80,7 @@ test("holiday UI replaces banners, carries complete quote context and guards lat
   assert.match(ui, /popstate/);
   assert.match(ui, /priceGuests !== guests/);
   assert.match(ui, /guests: String\(deal\.priceGuests\)/);
+  assert.match(ui, /source: "home-holidays"/, "retain the existing holiday detail recheck contract");
   assert.match(card, /initialTill=\{selectedStay\?\.till\}/);
   assert.match(card, /initialGuests=\{selectedStay\?\.guests\}/);
 });

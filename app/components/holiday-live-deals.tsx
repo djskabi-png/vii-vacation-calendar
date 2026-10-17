@@ -96,7 +96,7 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
         {state === "error" ? <div className="holiday-deals__message" role="alert"><strong>{text.error}</strong><button type="button" onClick={() => holiday.id <= 0 ? globalThis.location.reload() : setRetry((value) => value + 1)}>{text.retry}</button><Link href={searchHref}>{text.search}</Link></div> : null}
         {state === "ready" && !deals.length ? <div className="holiday-deals__message"><strong>{text.empty}</strong><p>{text.emptyHelp}</p>{selection.part !== "all" ? <button type="button" onClick={() => choose({ ...selection, part: "all" })}>{text.reset}</button> : null}<Link href={searchHref}>{text.search}</Link></div> : null}
         {state === "ready" && deals.length ? <><p className="holiday-deals__count" role="status">{deals.length} {text.count}</p><div className="holiday-deals__grid">{deals.map((deal) => {
-          const href = localizedPath(`/business?${new URLSearchParams({ id: `vacation-${deal.siteID}`, from: deal.from, till: deal.till, guests: String(deal.priceGuests), source: "holiday-deals", period: String(holiday.id) }).toString()}`, language);
+          const href = localizedPath(`/business?${new URLSearchParams({ id: `vacation-${deal.siteID}`, from: deal.from, till: deal.till, guests: String(deal.priceGuests), source: "home-holidays", period: String(holiday.id) }).toString()}`, language);
           return <div className="holiday-deals__item" key={`${key}-${deal.siteID}-${deal.from}`}><PropertyCard property={dealProperty(deal)} selectedStay={{ from: deal.from, till: deal.till, guests: deal.priceGuests }} liveAvailabilityState={{ status: "ready", quote: dealAvailability(deal) }} detailHref={href} /></div>;
         })}</div></> : null}
       </div>
