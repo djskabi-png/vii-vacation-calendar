@@ -67,7 +67,7 @@ export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { ite
   const location = language === "he" ? item.location : placeNames[language][item.location] || ui!.israel;
   const area = language === "he" ? item.area : placeNames[language][item.area] || ui!.israel;
   const localizedName = localizedBusinessText(item.name, language, translate, latinBusinessAlias(item.name) || `${localized?.chips[0] || ui?.details || item.name} · ${location}`);
-  const description = localized?.description || item.description;
+  const description = (localized?.description || item.description).replace(/ש["״]ח/g, "₪");
   const features = localized?.chips || item.features.slice(0, 3);
   const details = ui?.details || (item.world === "hourly" ? "פרטי המקום" : "צפייה במקום");
   const price = item.world === "hourly" && !item.priceLabel

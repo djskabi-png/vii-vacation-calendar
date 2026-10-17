@@ -26,7 +26,7 @@ test("home ratings use sourced values, clean excerpts and responsive cards", () 
   const home = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
   assert.match(home, /publicCatalogReviewPreviews<SupplierReviewDetail>\("vacations", candidates\.map/);
   assert.match(home, /Number\(place\.reviews\) >= 5/);
-  assert.match(source, /reviewExcerpt\(reviewText\)/);
+  assert.match(source, /homeReviewExcerpt\(reviewText\)/);
   assert.match(source, /ratedPlaces\.length \?/);
   assert.doesNotMatch(source, /הדירוג מוצג לפי מקור המידע המאומת של המקום/);
   assert.doesNotMatch(styles, /\.home-rating-card > p[^}]*-webkit-line-clamp/);

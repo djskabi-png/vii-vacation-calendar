@@ -22,6 +22,9 @@ import { HomeSliderControls } from "./home-slider-controls";
 import { PlacePreviewCard } from "./place-preview-card";
 import { PreviewCardGallery } from "./preview-card-gallery";
 import { SpaPackageDeals } from "./spa-package-deals";
+import { HomeMobileRail } from "./home-mobile-rail";
+import { homeEventPhotography, homeReviewExcerpt } from "../lib/home-preview-content";
+import { worldTopicMedia, worldTopicImageCopy } from "../lib/world-topic-media";
 
 // These sliders fetch their own availability. They must not wait for the
 // unrelated four-world catalog or below-the-fold review queries.
@@ -65,14 +68,6 @@ const destinationLoadingCopy = {
 } as const;
 
 
-function reviewExcerpt(value: string) {
-  const normalized = value.trim().replace(/\s+/g, " ");
-  if (normalized.length <= 118) return normalized;
-  const candidate = normalized.slice(0, 119);
-  const lastWord = candidate.lastIndexOf(" ");
-  return `${candidate.slice(0, lastWord > 82 ? lastWord : 118).trim()}...`;
-}
-
 export type HomeRatedPlace = {
   place: Property;
   reviewText: string;
@@ -105,7 +100,7 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, ratedPlace
   });
   const featuredHourly = rotateWithinTiers(hourlyPlaces, (item) => item.image && item.priceLabel ? 0 : 1,
     (item) => item.id, "home-hourly");
-  const featuredEvents = rotateDaily(eventPlaces.filter((place) => place.image), (place) => place.slug, "home-events");
+  const featuredEvents = rotateDaily(eventPlaces.filter((place) => place.image).map(homeEventPhotography), (place) => place.slug, "home-events");
 
   function warmDestination(href: string) {
     router.prefetch(href);
@@ -174,7 +169,7 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, ratedPlace
           <div className="home-vacation-strip__head"><div><span>דירוגי מקומות</span><h2 id="home-ratings-title">חוות דעת מובילות</h2></div><HomeSliderControls railId="home-ratings-rail" label="חוות דעת מובילות" itemSelector=".home-slider__item" /></div>
           <div id="home-ratings-rail" className="home-slider__track home-slider__track--trust home-slider__track--ratings" data-horizontal-rail aria-labelledby="home-ratings-title">
             {ratedPlaces.map(({ place, reviewText, reviewAuthor, reviewDate }) => <article className="home-rating-card home-slider__item" key={place.slug}>
-              <div className="home-rating-card__top"><PreviewCardGallery className="home-rating-card__gallery" images={[place.image, ...place.images]} href={`/business?id=${place.slug}`} name={place.name} /><div><span>{place.location}</span><h3><Link href={`/business?id=${place.slug}`}>{place.name}</Link></h3><strong aria-label={`ציון ${place.score} מתוך 10, ${place.reviews} חוות דעת`}><b>{place.score}</b><small>{place.reviews} חוות דעת</small></strong></div></div><p lang="he" dir="rtl">{reviewExcerpt(reviewText)}</p><small className="home-rating-card__byline">{reviewAuthor}{reviewDate ? ` · ${reviewDate}` : ""}</small><Link className="home-rating-card__cta" href={`/business?id=${place.slug}`}>לפרטי המקום</Link>
+              <div className="home-rating-card__top"><PreviewCardGallery className="home-rating-card__gallery" images={[place.image, ...place.images]} href={`/business?id=${place.slug}`} name={place.name} /><div><span>{place.location}</span><h3><Link href={`/business?id=${place.slug}`}>{place.name}</Link></h3><strong aria-label={`ציון ${place.score} מתוך 10, ${place.reviews} חוות דעת`}><b>{place.score}</b><small>{place.reviews} חוות דעת</small></strong></div></div><p lang="he" dir="rtl">{homeReviewExcerpt(reviewText)}</p><small className="home-rating-card__byline">{reviewAuthor}{reviewDate ? ` · ${reviewDate}` : ""}</small><Link className="home-rating-card__cta" href={`/business?id=${place.slug}`}>לפרטי המקום</Link>
             </article>)}
           </div>
         </div> : null}
@@ -188,7 +183,8 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, ratedPlace
     <EventLastMinute places={eventPlaces} sectionId="home-event-deals" />
     <section className="home-events-world" aria-labelledby="home-events-title">
       <div className="shell home-events-world__head"><div><span className="eyebrow">עולם האירועים</span><h2 id="home-events-title">כל סיבה טובה הופכת כאן לאירוע</h2><p>לופטים ומתחמים לימי הולדת, מסיבות, אירועי חברה וחגיגות פרטיות, עם חיפוש לפי כמות ואופי האירוע.</p></div><Link className="button" href="/events">נכנסים לעולם האירועים</Link></div>
-      <div className="shell home-events-world__layout">
+      <div className="shell home-mobile-rail-controls"><HomeSliderControls railId="home-event-stories" label="מקומות לאירועים" itemSelector=".home-event-feature, .home-event-list__card" /></div>
+      <div id="home-event-stories" className="shell home-events-world__layout" data-horizontal-rail>
         {featuredEvents[0] ? <PlacePreviewCard className="home-event-feature" name={featuredEvents[0].name} image={featuredEvents[0].image} images={featuredEvents[0].images} href={eventPlaceHref(featuredEvents[0])}><span className="home-event-feature__type">{featuredEvents[0].type}</span><div><small><PinIcon />{featuredEvents[0].location}</small><h3>{featuredEvents[0].name}</h3>{featuredEvents[0].description ? <p>{featuredEvents[0].description}</p> : null}<b>עד {featuredEvents[0].guests} אורחים ביחידה הגדולה</b></div></PlacePreviewCard> : null}
         <div className="home-event-list">{featuredEvents.slice(1, 5).map((place) => <PlacePreviewCard className="home-event-list__card" key={place.slug} name={place.name} image={place.image} images={place.images} href={eventPlaceHref(place)}><div><span>{place.type}</span><h3>{place.name}</h3><small>{place.location}, עד {place.guests} אורחים ביחידה הגדולה</small></div></PlacePreviewCard>)}</div>
       </div>
@@ -196,12 +192,15 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, ratedPlace
 
     <section className="section home-worlds" aria-labelledby="home-worlds-title">
       <div className="shell"><div className="section-head"><div><span className="eyebrow">אתר אחד, הרבה דרכים ליהנות</span><h2 id="home-worlds-title">ממשיכים לכל העולמות</h2><p>לא רק מקום לישון. בונים את כל החופשה, הטיפול, השהייה הקצרה, הספקים והיום שמסביב.</p></div></div>
-        <div className="home-world-gates">{worldCards.map((world) => {
+        <HomeMobileRail id="home-worlds-rail" label="ממשיכים לכל העולמות" className="home-world-gates">{worldCards.map((world) => {
           const item = world.id === "providers" ? providerPreview : world.id === "trails" ? trails[0] : attractionPreview;
-          const image = "image" in item ? item.image : undefined;
+          const topicImage = world.id === "trails" ? worldTopicMedia.trails : null;
+          const topicCopy = topicImage ? worldTopicImageCopy(topicImage, language) : null;
+          const image = topicImage?.src || ("image" in item ? item.image : undefined);
+          const imageAlt = topicCopy?.alt || item.name;
           const description = "description" in item ? item.description : item.summary;
-          return <Link key={world.id} className={`home-world-gate home-world-gate--${world.id}`} href={world.href}>{image ? <img src={image} alt={item.name} title={item.name} loading="lazy" decoding="async" /> : <span className="home-world-gate__visual">{world.shortLabel.slice(0,1)}</span>}<div><span>{world.label}</span><h3>{world.description}</h3><p>{"demo" in item && item.demo ? "פרופילים לדוגמה שממחישים איך השירות יעבוד באתר." : description}</p><b>לגלות את העולם</b></div></Link>;
-        })}</div>
+          return <Link key={world.id} className={`home-world-gate home-world-gate--${world.id}`} href={world.href}>{image ? <img src={image} alt={imageAlt} title={imageAlt} loading="lazy" decoding="async" /> : <span className="home-world-gate__visual">{world.shortLabel.slice(0,1)}</span>}{topicCopy ? <span className="home-world-gate__image-label" data-no-translate>{topicCopy.caption}</span> : null}<div><span>{world.label}</span><h3>{world.description}</h3><p>{"demo" in item && item.demo ? "פרופילים לדוגמה שממחישים איך השירות יעבוד באתר." : description}</p><b>לגלות את העולם</b></div></Link>;
+        })}</HomeMobileRail>
       </div>
     </section>
 
@@ -211,7 +210,7 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, ratedPlace
 export function HomeTrails() {
   return <section className="section home-trails" aria-labelledby="home-trails-title">
     <div className="shell"><div className="section-head"><div><span className="eyebrow">יוצאים מהצימר אל הטבע</span><h2 id="home-trails-title">מסלולים ליד החופשה</h2><p>מדריכי טיול עצמאיים עם זמן, קושי, עונה, בטיחות ומקור רשמי לבדיקה ביום היציאה.</p></div><Link href="/trails">לכל המסלולים</Link></div>
-      <div className="trail-grid trail-grid--home">{rotateDaily(trails, (trail) => trail.slug, "home-trails").slice(0, 4).map((trail) => <TrailCard key={trail.slug} trail={trail} compact />)}</div>
+      <HomeMobileRail id="home-trails-rail" label="מסלולים ליד החופשה" className="trail-grid trail-grid--home">{rotateDaily(trails, (trail) => trail.slug, "home-trails").slice(0, 4).map((trail) => <TrailCard key={trail.slug} trail={trail} compact />)}</HomeMobileRail>
     </div>
   </section>;
 }

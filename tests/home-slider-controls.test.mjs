@@ -21,7 +21,9 @@ test("homepage rails share one geometry-aware boundary control", () => {
 });
 
 test("every homepage content rail uses the shared controls", () => {
-  assert.equal((showcase.match(/<HomeSliderControls/g) || []).length, 4);
+  assert.equal((showcase.match(/<HomeSliderControls/g) || []).length, 5);
+  const mobileRail = readFileSync(new URL("../app/components/home-mobile-rail.tsx", import.meta.url), "utf8");
+  assert.match(mobileRail, /<HomeSliderControls/);
   assert.match(showcase, /<SpaPackageDeals \/>/);
   const spa = readFileSync(new URL("../app/components/spa-package-deals.tsx", import.meta.url), "utf8");
   const rail = readFileSync(new URL("../app/components/event-rail.tsx", import.meta.url), "utf8");
