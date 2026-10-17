@@ -79,8 +79,11 @@ export async function getHomeDealsForDates(options: {
   publicSiteIds: ReadonlySet<number>;
   publicNames?: ReadonlyMap<number, string>;
   fetchImpl?: typeof fetch;
+  guests?: number;
 }) {
   if (!options.token) throw new Error("missing_token");
+  const guests = options.guests ?? 2;
+  if (!Number.isSafeInteger(guests) || guests < 1 || guests > 50) throw new Error("invalid_guests");
   const dates = options.dates;
   const fetchImpl = options.fetchImpl ?? fetch;
   const headers = { Authorization: `Bearer ${options.token}`, Accept: "application/json" };
@@ -88,7 +91,7 @@ export async function getHomeDealsForDates(options: {
     fetchImpl(`${API_ROOT}/vacations`, { headers, cache: "no-store", signal: AbortSignal.timeout(20_000) }),
     fetchImpl(`${API_ROOT}/vacations/search`, {
       method: "POST", headers: { ...headers, "Content-Type": "application/json" },
-      body: JSON.stringify({ ...(options.window ? { window: options.window } : { from: dates.from }), nights: dates.nights, rooms: [{ adults: 2 }] }),
+      body: JSON.stringify({ ...(options.window ? { window: options.window } : { from: dates.from }), nights: dates.nights, rooms: [{ adults: guests }] }),
       cache: "no-store", signal: AbortSignal.timeout(20_000),
     }),
     fetchImpl(`${API_ROOT}/locations`, { headers, cache: "no-store", signal: AbortSignal.timeout(5_000) }).catch(() => null),
@@ -151,10 +154,11 @@ export async function getHomeDealsForDates(options: {
     const roomName = typeof selectedRoom.roomName === "string" ? selectedRoom.roomName.trim() : "";
     const bedrooms = Number.isSafeInteger(selectedRoom.bedrooms) && Number(selectedRoom.bedrooms) > 0 ? Number(selectedRoom.bedrooms) : undefined;
     const maxGuests = Number.isSafeInteger(selectedRoom.maxGuests) && Number(selectedRoom.maxGuests) > 0 ? Number(selectedRoom.maxGuests) : undefined;
+    if (maxGuests && maxGuests < guests) continue;
     const phone = supplierContactNumber(record(place?.contact).phone);
-    const whatsapp = supplierContactNumber(record(place?.contact).whatsapp) || phone;
+    const whatsapp = supplierContactNumber(record(place?.contact).whatsapp);
     deals.push({ siteID: siteID as number, name, image, images, city: location?.city || "", area: location?.area || "", score, reviewCount,
-      from: cheapest.from as string, till: cheapest.till as string, total, nights: dates.nights, priceGuests: 2,
+      from: cheapest.from as string, till: cheapest.till as string, total, nights: dates.nights, priceGuests: guests,
       ...(roomID ? { roomID } : {}), ...(roomName ? { roomName } : {}), ...(bedrooms ? { bedrooms } : {}),
       ...(maxGuests ? { maxGuests } : {}), ...(phone ? { phone } : {}), ...(whatsapp ? { whatsapp } : {}), onlineBooking: result.onlineBooking === true });
   }

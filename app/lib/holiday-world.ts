@@ -84,7 +84,7 @@ function hanukkahCopy(holiday: HomeHoliday) {
   return {
     title: "דילים לחנוכה 2026 שמתחילים בהרכב ובתאריך שלכם",
     eyebrow: "שמונה ימים. הרבה דרכים לצאת לחופשה.",
-    summary: "בוחרים זוג, משפחה או קבוצה, מחליטים אם יוצאים בתחילת החג, באמצע או בסופו, וממשיכים ישר לחיפוש שמתאים להרכב שלכם.",
+    summary: "בוחרים משפחה, זוג או קבוצה ורואים כאן דילים פנויים לתאריכי החג.",
     body: "נר ראשון של חנוכה תשפ״ז יודלק בערב יום שישי, 4 בדצמבר 2026. ימי החג יחולו מיום שבת, 5 בדצמבר, ועד יום שבת, 12 בדצמבר 2026. בגלל שהחג משתרע על פני כמה סופי שבוע וימי חול, חילקנו את החיפוש לחלונות קצרים וברורים במקום להציג רשימה אחת ארוכה ולא מדויקת.",
     metaTitle: "דילים לחנוכה 2026 | נופש לזוגות, משפחות וקבוצות",
     metaDescription: "מוצאים נופש לחנוכה 2026 לפי תאריך והרכב: זוגות, משפחות עד 6 וקבוצות עד 20 אורחים, בתחילת החג, באמצע או בסוף.",
@@ -101,7 +101,7 @@ export function defaultHolidayWorld(holiday: HomeHoliday): HolidayWorld {
   const special = slug === "hanukkah" ? hanukkahCopy(planningHoliday) : {
     title: `דילים ל${planningHoliday.name} ${year}`,
     eyebrow: `מתכננים את ${planningHoliday.name} בדרך שמתאימה לכם`,
-    summary: `בוחרים הרכב וחלק בחג וממשיכים לחיפוש נופש ממוקד ל${planningHoliday.name}.`,
+    summary: "בוחרים משפחה, זוג או קבוצה ורואים כאן דילים פנויים לתאריכי החג.",
     body: `${planningHoliday.name} חל בין ${dateLabel(planningHoliday.from)} לבין ${dateLabel(planningHoliday.till)}. אפשר להתחיל מחיפוש לזוג, למשפחה או לקבוצה, ולבדוק את הזמינות בפועל לתאריכים שבחרתם.`,
     metaTitle: `דילים ל${planningHoliday.name} ${year} | נופש בישראל`,
     metaDescription: `חיפוש נופש ל${planningHoliday.name} ${year} לפי תאריך והרכב, עם מעבר ישיר לזמינות ולמחירים לתקופה שבחרתם.`,
