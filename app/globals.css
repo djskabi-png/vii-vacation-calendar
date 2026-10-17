@@ -10259,6 +10259,16 @@ html[data-locale-pending] body {
 }
 
 /* The expanded editor is portalled to body, outside every hero clipping context. */
+.vacation-online-filter { margin:16px 0; padding:0 0 16px; border:0; border-bottom:1px solid var(--line); min-width:0; }
+.vacation-online-filter legend { font-weight:700; margin-bottom:6px; }
+.vacation-online-filter label { display:flex; align-items:center; gap:10px; min-height:44px; font-weight:700; cursor:pointer; }
+.vacation-online-filter input { width:20px; height:20px; flex:0 0 20px; accent-color:var(--teal); }
+.vacation-online-filter p { margin:4px 0 0; color:var(--muted); font-size:.85rem; line-height:1.65; }
+.online-booking-filter-notice { display:flex; align-items:center; flex-wrap:wrap; gap:12px; padding:12px 0; }
+.online-booking-filter-notice p { flex:1 1 260px; margin:0; font-size:.9rem; line-height:1.65; color:var(--muted); }
+.online-booking-filter-notice .button { min-height:44px; }
+.search-quick-filters .online-booking-quick-filter,
+.active-filter-row .online-booking-active-filter { min-height:44px; }
 @media (max-width:820px) {
   body > .search-box-shell.mobile-expanded { position:fixed; inset:0; z-index:1600; margin:0; border:0; font-family:Rubik,Heebo,Assistant,Arial,sans-serif; }
 }

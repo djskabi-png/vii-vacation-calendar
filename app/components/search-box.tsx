@@ -139,7 +139,7 @@ function normalizeHourlyPrice(value: string | null) {
   return HOURLY_PRICE_OPTIONS.includes(price as typeof HOURLY_PRICE_OPTIONS[number]) ? price : 0;
 }
 
-export function SearchBox({ mode = "vacation", compact = false, showWorlds = true, initialLocation, initialGuests, basePath, vacationType, initialSpaAudience, initialSpaFeatures = [] }: { mode?: SearchMode; compact?: boolean; showWorlds?: boolean; initialLocation?: string; initialGuests?: number; basePath?: string; vacationType?: string; initialSpaAudience?: string; initialSpaFeatures?: string[] }) {
+export function SearchBox({ mode = "vacation", compact = false, showWorlds = true, initialLocation, initialGuests, basePath, vacationType, initialSpaAudience, initialSpaFeatures = [], openDatesRequest = 0 }: { mode?: SearchMode; compact?: boolean; showWorlds?: boolean; initialLocation?: string; initialGuests?: number; basePath?: string; vacationType?: string; initialSpaAudience?: string; initialSpaFeatures?: string[]; openDatesRequest?: number }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const searchParamsKey = searchParams.toString();
@@ -205,6 +205,14 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const [mobileExpanded, setMobileExpanded] = useState(false);
   const searchSurfaceRef = useRef<HTMLDivElement>(null);
   const [mobileStep, setMobileStep] = useState<"overview" | "location" | "dates" | "guests">("overview");
+  useEffect(() => {
+    if (!openDatesRequest || mode !== "vacation") return;
+    setLocationOpen(false);
+    setGuestOpen(false);
+    setMobileStep("dates");
+    if (window.matchMedia("(max-width: 820px)").matches) setMobileExpanded(true);
+    setCalendarOpen(true);
+  }, [openDatesRequest, mode]);
   const visibleDates = mode === "vacation" && vacationDateRange.from && vacationDateRange.till
     // Render with the provider language so the server and the first client render
     // stay identical. LocaleProvider synchronizes the route language after hydration.
@@ -426,6 +434,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
         if (spaDate.withoutDate) params.set("withoutDate", "1");
       } else {
         applyVacationDates(params);
+        if (mode === "vacation" && new URLSearchParams(searchParamsKey).get("online") === "1") params.set("online", "1");
         if (mode === "vacation" && vacationParty.adults === 2 && vacationParty.children === 0) params.set("guests", "2");
         if (vacationParty.adults !== 2) params.set("adults", String(vacationParty.adults));
         if (vacationParty.children) params.set("children", String(vacationParty.children));

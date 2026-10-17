@@ -5,7 +5,7 @@ export type DepthWorld = "vacation" | "events" | "spa" | "hourly" | "providers" 
 export type DepthSuggestion = { label: string; params: Record<string, string | null>; path?: string; kind?: "type" | "smart" };
 export const depthLocationParam = (world: DepthWorld) => world === "providers" ? "region" : world === "activities" || world === "trails" ? "area" : "location";
 const allowed: Record<DepthWorld, readonly string[]> = {
-  vacation: ["location", "from", "till", "dates", "guests", "adults", "children", "rooms", "type", "types", "pool", "spa", "whole", "accessible", "features", "minPrice", "maxPrice", "sort"],
+  vacation: ["location", "from", "till", "dates", "guests", "adults", "children", "rooms", "type", "types", "pool", "spa", "whole", "accessible", "online", "features", "minPrice", "maxPrice", "sort"],
   events: ["location", "from", "to", "guests", "type", "eventType", "hours", "noise", "accessible", "sort"],
   spa: ["location", "spaFor", "features", "date"], hourly: ["location", "maxPrice", "features"],
   providers: ["region", "q"], activities: ["area", "type", "q"], trails: ["area", "nature", "difficulty", "q"],
