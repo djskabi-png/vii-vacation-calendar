@@ -1,5 +1,5 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
-import { catalogInventoryDiagnostics, SupplierCatalogRedirectError, SpaCatalogJsonError, type CatalogSyncDiagnostics } from "./supplier-catalog-diagnostics.ts";
+import { catalogInventoryDiagnostics, SupplierCatalogRedirectError, SpaCatalogJsonError, SpaEditorialReviewError, type CatalogSyncDiagnostics } from "./supplier-catalog-diagnostics.ts";
 import {
   acceptSupplierCatalogRun, beginSupplierCatalogRun, finishSupplierCatalogRun,
   readSupplierCatalog, stageSupplierCatalogEntries,
@@ -98,6 +98,7 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
       approvedRemoval: input.world === "spa" && approvedSpaCatalogTransition(previous, candidate.entries) });
     return { status: "accepted" as const, world: input.world, id: input.id, diff, fetchedAt: candidate.fetchedAt };
   } catch (error) {
+    if (error instanceof SpaEditorialReviewError) diagnostics = { ...diagnostics, ...error.diagnostics };
     if (error instanceof SupplierCatalogRedirectError || error instanceof SpaCatalogJsonError) diagnostics = error.diagnostics;
     const code = errorCode(error);
     const status = code.includes("removal") || code === "catalog_media_requires_review" || code === "catalog_editorial_requires_review"
