@@ -911,7 +911,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
               </div>}
             </div>
             <div className="filter-panel__actions">
-              <button type="button" className="button primary filter-apply" onClick={applyFilters}>{draftResultLabel}</button>
+              <button type="button" className="button primary filter-apply" data-no-translate onClick={applyFilters}>{translate(draftResultLabel)}</button>
               <button type="button" className="button subtle wide filter-reset" onClick={resetFilters}>ניקוי סינונים</button>
             </div>
           </aside>
@@ -932,7 +932,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
             </nav>
             {activeFilters.length > 0 && <div className="active-filter-row"><span>סינונים פעילים:</span>{activeFilters.map((filter) => <button key={filter.id} className={filter.id === "online" ? "online-booking-active-filter" : undefined} type="button" onClick={filter.remove} aria-label={`הסרת הסינון ${filter.label}`}>{filter.label} ×</button>)}<button type="button" className="clear-all" onClick={resetFilters}>ניקוי הכל</button></div>}
             {onlineOnly ? <div className="online-booking-filter-notice" role={selectedStay && supplierSearch.status === "error" ? "alert" : "status"} aria-busy={Boolean(selectedStay && supplierSearch.status === "loading")}>
-              <p>{!selectedStay ? "בחרו תאריכי כניסה ויציאה כדי לראות מקומות שניתן להזמין אונליין." : supplierSearch.status === "error" ? "לא הצלחנו לבדוק הזמנה אונליין כרגע." : supplierSearch.status !== "ready" ? "בודקים אילו מקומות ניתן להזמין אונליין..." : resultSet.length ? "רק מקומות עם מחיר וזמינות לתאריכים שבחרתם, שאפשר להזמין באתר." : "לא נמצאו מקומות להזמנה אונליין בבחירה הזו."}</p>
+              <p data-no-translate>{translate(!selectedStay ? "בחרו תאריכי כניסה ויציאה כדי לראות מקומות שניתן להזמין אונליין." : supplierSearch.status === "error" ? "לא הצלחנו לבדוק הזמנה אונליין כרגע." : supplierSearch.status !== "ready" ? "בודקים אילו מקומות ניתן להזמין אונליין..." : resultSet.length ? "רק מקומות עם מחיר וזמינות לתאריכים שבחרתם, שאפשר להזמין באתר." : "לא נמצאו מקומות להזמנה אונליין בבחירה הזו.")}</p>
               {!selectedStay || supplierSearch.status === "ready" && !resultSet.length ? <button className="button secondary" type="button" onClick={() => setOpenDatesRequest((value) => value + 1)}>בחירת תאריכים</button> : null}
               {selectedStay && supplierSearch.status === "error" ? <button className="button secondary" type="button" onClick={() => setOnlineSearchRetry((value) => value + 1)}>לנסות שוב</button> : null}
               {selectedStay && supplierSearch.status === "ready" && !resultSet.length ? <button className="button subtle" type="button" onClick={() => changeOnlineFilter(false)}>הסרת סינון הזמנה אונליין</button> : null}
