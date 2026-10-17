@@ -6,6 +6,8 @@
 .destination-directory__media figcaption { position:absolute; inset-inline-start:12px; bottom:12px; padding:4px 8px; border-radius:8px; color:#163c46; background:#fffffff0; font-size:.7rem; }
 
 @media (max-width:760px) {
+  /* A count and an explanatory sentence must not become two narrow columns. */
+  .site-page .results-heading__meta:has(> p + p) { display:grid; gap:4px; }
   body[data-public-footer-visible] :is(.mobile-map-fab,.floating-contact-actions) { visibility:hidden; pointer-events:none; }
   .site-page .section-head { flex-wrap:wrap; align-items:flex-start; gap:10px 16px; }
   .site-page .section-head > :is(div:first-child,h2) { flex:1 1 100%; min-width:0; }

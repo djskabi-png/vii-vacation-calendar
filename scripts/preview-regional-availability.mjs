@@ -18,7 +18,7 @@ import {validDate} from '../app/lib/vii-live-search.ts';
 const origin='https://vii.spaplus.co';
 const manifestPath=process.argv[2];
 const manifest=JSON.parse(await fs.readFile(manifestPath,'utf8'));
-manifest.ownedProcesses.push({pid:process.pid,parentPid:process.ppid,purpose:'Built regional availability UI + candidate handlers, real public read adapters only',command:'node scripts/preview-regional-availability.mjs',startedAt:new Date().toISOString(),status:'running',port:4365});
+manifest.ownedProcesses.push({pid:process.pid,parentPid:process.ppid,purpose:'Built regional availability UI + candidate handlers, real public read adapters only',command:'node scripts/preview-regional-availability.mjs',startedAt:new Date().toISOString(),recordedAt:new Date().toISOString(),processName:'node.exe',status:'running',port:4365});
 await fs.writeFile(manifestPath,JSON.stringify(manifest,null,2));
 const root=resolve('dist/client');
 const mime={'.js':'text/javascript','.css':'text/css','.woff2':'font/woff2','.png':'image/png','.jpg':'image/jpeg','.webp':'image/webp','.svg':'image/svg+xml','.json':'application/json'};
