@@ -9,6 +9,7 @@ import { projectSpaCatalogEntries } from "../../lib/spa-editorial-policy.ts";
 import type { SupplierCatalogEntry } from "../../lib/supplier-catalog-store.ts";
 import { publicVacationSearchProperties } from "../../lib/public-vacation-search.ts";
 import type { Property } from "../../data/site-data.ts";
+import { safeHourlyDescription } from "../../lib/hourly-description.ts";
 
 const noStore = { "Cache-Control": "no-store" };
 const publicCatalogCache = { "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=300" };
@@ -28,6 +29,11 @@ function bundledDetail(world: SupplierCatalogWorld, supplierId: number) {
   if (world !== "vacations" && world !== "events") return null;
   const slug = `${world === "vacations" ? "vacation" : "event"}-${supplierId}`;
   return (sergeyDetails.details as Record<string, unknown>)[slug] || null;
+}
+
+function projectHourlyEntry<T extends { supplierId: number; summary: { id?: string; description?: string | null } }>(entry: T): T {
+  if (entry.summary.id !== "hourly-1181") return entry;
+  return { ...entry, summary: { ...entry.summary, description: safeHourlyDescription({ id: entry.summary.id, description: entry.summary.description }) } };
 }
 
 async function database(): Promise<D1Database | null> {
@@ -60,12 +66,12 @@ export async function catalogResponse(request: Request, db: D1Database | null) {
         if (supplierId !== null) {
           const entry = await readSupplierCatalogEntry(db, world, supplierId);
           if (!entry) return Response.json({ error: "not_found" }, { status: 404, headers: noStore });
-          const publicEntry = world === "spa" ? (await projectSpaCatalogEntries([entry]))[0] : entry;
+          const publicEntry = world === "spa" ? (await projectSpaCatalogEntries([entry]))[0] : world === "rooms" ? projectHourlyEntry(entry) : entry;
           return Response.json({ world, source: "runtime", fetchedAt: entry.acceptedAt, entry: publicEntry }, { headers: publicCatalogCache });
         }
         const catalog = await readSupplierCatalogSummaries(db, world);
         if (!catalog) throw new Error("catalog_active_generation_missing");
-        const entries = world === "spa" ? await projectSpaCatalogEntries(catalog.entries) : catalog.entries;
+        const entries = world === "spa" ? await projectSpaCatalogEntries(catalog.entries) : world === "rooms" ? catalog.entries.map((entry) => projectHourlyEntry(entry as { supplierId: number; summary: { id?: string; description?: string | null } })) : catalog.entries;
         if (view === "lookup") return Response.json({ world, source: "runtime", fetchedAt: catalog.acceptedAt,
           places: searchPlaceInventory(world === "vacations" ? "vacation" : world === "rooms" ? "hourly" : world,
             entries.map((entry) => entry.summary)) }, { headers: publicCatalogCache });
@@ -82,7 +88,7 @@ export async function catalogResponse(request: Request, db: D1Database | null) {
   const fetchedAt = world === "spa" ? spa.generatedAt : world === "rooms" ? hourly.fetchedAt : sergey.fetchedAt;
   const rawEntries = bundledEntries(world);
   let entries: typeof rawEntries;
-  try { entries = world === "spa" ? await projectSpaCatalogEntries(rawEntries as SupplierCatalogEntry[]) as typeof rawEntries : rawEntries; }
+  try { entries = world === "spa" ? await projectSpaCatalogEntries(rawEntries as SupplierCatalogEntry[]) as typeof rawEntries : world === "rooms" ? rawEntries.map((entry) => projectHourlyEntry(entry as { supplierId: number; summary: { id?: string; description?: string | null } })) as typeof rawEntries : rawEntries; }
   catch { return Response.json({ error: "catalog_unavailable" }, { status: 503, headers: noStore }); }
   if (view === "lookup") return Response.json({ world, source: "bundled-fallback", fetchedAt,
     places: searchPlaceInventory(world === "vacations" ? "vacation" : world === "rooms" ? "hourly" : world,

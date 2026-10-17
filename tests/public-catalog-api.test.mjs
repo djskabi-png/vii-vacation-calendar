@@ -54,6 +54,39 @@ test("serves compact named-place lookup for all four published worlds", async ()
   }
 });
 
+test("rooms catalog quarantines only the known mismatched summary in list and id responses", async () => {
+  const list = await (await catalogResponse(request("world=rooms"), null)).json();
+  const sunset = list.entries.find((entry) => entry.supplierId === 1181);
+  const hidden = list.entries.find((entry) => entry.summary?.name === "שדה נסתר");
+  assert.equal(sunset.summary.description, "");
+  assert.match(hidden.summary.description, /שדה נסתר בתל מונד/);
+  const detail = await (await catalogResponse(request("world=rooms&id=1181"), null)).json();
+  assert.equal(detail.entry.summary.description, "");
+});
+
+test("accepted runtime rooms are projected without mutating stored source or losing future corrected text", async () => {
+  const bundled = JSON.parse(await readFile(new URL("../app/data/sergey-hourly-catalog.json", import.meta.url), "utf8"));
+  const summary = structuredClone(bundled.places.find((place) => place.id === "hourly-1181"));
+  const sourceDescription = summary.description;
+  const db = { prepare(sql) { return {
+    bind() { return this; },
+    async first() { return !sql.includes("JOIN")
+      ? { activeRunId: "accepted-rooms", activeCount: 1, acceptedAt: "2026-10-17T12:00:00Z" }
+      : { supplierId: 1181, summaryJson: JSON.stringify(summary), detailJson: null, acceptedAt: "2026-10-17T12:00:00Z" }; },
+    async all() { return { results: [{ supplierId: 1181, summaryJson: JSON.stringify(summary) }] }; },
+  }; } };
+  const list = await (await catalogResponse(request("world=rooms"), db)).json();
+  assert.equal(list.source, "runtime");
+  assert.equal(list.entries[0].summary.description, "");
+  const detail = await (await catalogResponse(request("world=rooms&id=1181"), db)).json();
+  assert.equal(detail.source, "runtime");
+  assert.equal(detail.entry.summary.description, "");
+  assert.equal(summary.description, sourceDescription);
+  summary.description = "תיאור מתוקן של שקיעה בזכרון";
+  const corrected = await (await catalogResponse(request("world=rooms&id=1181"), db)).json();
+  assert.equal(corrected.entry.summary.description, summary.description);
+});
+
 test("named-place lookup uses only the accepted D1 generation", async () => {
   const summary = { slug: "vacation-9999", name: "מקום חדש", location: "חיפה", area: "חיפה" };
   const db = {
