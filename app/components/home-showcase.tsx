@@ -21,6 +21,7 @@ import { HomeManagedDiscovery } from "./home-discovery-sections";
 import { HomeSliderControls } from "./home-slider-controls";
 import { PlacePreviewCard } from "./place-preview-card";
 import { PreviewCardGallery } from "./preview-card-gallery";
+import { SpaPackageDeals } from "./spa-package-deals";
 
 // These sliders fetch their own availability. They must not wait for the
 // unrelated four-world catalog or below-the-fold review queries.
@@ -79,10 +80,9 @@ export type HomeRatedPlace = {
   reviewDate: string;
 };
 
-export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces, ratedPlaces, providerPreview, attractionPreview }: {
+export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, ratedPlaces, providerPreview, attractionPreview }: {
   properties: Pick<Property, "slug" | "name" | "location" | "area" | "image" | "videos">[];
   eventPlaces: EventPlace[];
-  spaPlaces: DiscoveryItem[];
   hourlyPlaces: DiscoveryItem[];
   ratedPlaces: HomeRatedPlace[];
   providerPreview: DiscoveryItem;
@@ -103,8 +103,6 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
     if (place) usedDestinationImages.add(place.image);
     return place;
   });
-  const featuredSpas = rotateWithinTiers(spaPlaces, (item) => item.image && item.priceLabel ? 0 : item.image ? 1 : 2,
-    (item) => item.id, "home-spa").slice(0, 7);
   const featuredHourly = rotateWithinTiers(hourlyPlaces, (item) => item.image && item.priceLabel ? 0 : 1,
     (item) => item.id, "home-hourly");
   const featuredEvents = rotateDaily(eventPlaces.filter((place) => place.image), (place) => place.slug, "home-events");
@@ -183,7 +181,7 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
       </div>
     </section> : null}
 
-    <section className="section home-spa-strip" aria-labelledby="home-spa-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">עוצרים לנשום</span><h2 id="home-spa-title">ספא ורוגע, כחלק מהחופשה</h2></div><div><Link href="/spas">לכל מתחמי הספא</Link><HomeSliderControls railId="home-spa-rail" label="מתחמי ספא" itemSelector=".home-slider__item" /></div></div><div id="home-spa-rail" className="home-slider__track home-slider__track--discovery" data-horizontal-rail>{featuredSpas.map((item) => <div className="home-slider__item" key={item.id}><DiscoveryCard item={item} /></div>)}</div></div></section>
+    <SpaPackageDeals />
 
     <section className="section home-short-stay" aria-labelledby="home-short-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">כשלא צריך לילה שלם</span><h2 id="home-short-title">חדרים לכמה שעות</h2><p>שהייה קצרה, פרטית וגמישה. בוחרים מקום ובודקים את מסגרת הזמן והמחיר.</p></div><div><Link href="/hourly">לכל החדרים</Link><HomeSliderControls railId="home-hourly-rail" label="חדרים לפי שעה" itemSelector=".home-slider__item" /></div></div><div id="home-hourly-rail" className="home-slider__track home-slider__track--discovery" data-horizontal-rail>{featuredHourly.map((item) => <div className="home-slider__item" key={item.id}><DiscoveryCard item={item} /></div>)}</div></div></section>
 

@@ -14,8 +14,7 @@ import { EditorialCover, EditorialIllustrationLabel } from "./components/editori
 import { headers } from "next/headers";
 import { destinations, visualTourProperties } from "./data/site-data";
 import type { EventPlace, Property } from "./data/site-data";
-import { hourlyPlacesFromCatalog, paidAttractions, providerProfiles, spaPlacesFromSites } from "./data/world-data";
-import type { SpaPlusSite } from "./data/spaplus";
+import { hourlyPlacesFromCatalog, paidAttractions, providerProfiles } from "./data/world-data";
 import hourlyCatalog from "./data/sergey-hourly-catalog.json";
 import { publicCatalogReviewPreviews, publicCatalogSummaries } from "./lib/public-catalog-read.ts";
 import { dailyRotationCompare, rotateDaily, rotateWithinTiers } from "./lib/daily-rotation";
@@ -73,22 +72,18 @@ function homeShowcaseProperties(properties: Property[]) {
 async function HomeCatalogShowcase() {
   const propertiesPromise = publicCatalogSummaries<Property>("vacations");
   const ratedPlacesPromise = propertiesPromise.then(homeRatedPlaces);
-  const [properties, eventPlaces, spaSites, hourlyCatalogPlaces, ratedPlaces] = await Promise.all([
+  const [properties, eventPlaces, hourlyCatalogPlaces, ratedPlaces] = await Promise.all([
     propertiesPromise,
     publicCatalogSummaries<EventPlace>("events"),
-    publicCatalogSummaries<SpaPlusSite>("spa"),
     publicCatalogSummaries<(typeof hourlyCatalog.places)[number]>("rooms"),
     ratedPlacesPromise,
   ]);
   const showcaseProperties = homeShowcaseProperties(properties);
   const showcaseEvents = rotateDaily(eventPlaces.filter((place) => place.image),
     (place) => place.slug, "home-events").slice(0, 5);
-  const showcaseSpas = rotateWithinTiers(spaPlacesFromSites(spaSites),
-    (item) => item.image && item.priceLabel ? 0 : item.image ? 1 : 2,
-    (item) => item.id, "home-spa").slice(0, 7);
   const showcaseHourly = hourlyPlacesFromCatalog(hourlyCatalogPlaces);
   return <HomeShowcase properties={showcaseProperties} eventPlaces={showcaseEvents} ratedPlaces={ratedPlaces}
-    spaPlaces={showcaseSpas} hourlyPlaces={showcaseHourly} providerPreview={providerProfiles[0]} attractionPreview={paidAttractions[0]} />;
+    hourlyPlaces={showcaseHourly} providerPreview={providerProfiles[0]} attractionPreview={paidAttractions[0]} />;
 }
 
 async function HomeMagazineSection() {

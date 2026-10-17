@@ -4,6 +4,10 @@ import { nearbyRecommendations } from "../../lib/nearby-recommendations";
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { validSpaDealDate } from "../../lib/spa-package-deals";
+import { spaDealCopy } from "../../i18n/spa-deal-copy";
+import { localizedSpaPackageTitle } from "../../i18n/localized-spa-package";
 import { BreadcrumbTrail } from "../../components/breadcrumb-trail";
 import { worldBreadcrumb } from "../../lib/seo";
 import { FavoriteButton } from "../../components/favorite-button";
@@ -48,12 +52,15 @@ function hourlyRateLabel(value: string, language: "he" | "en" | "ru" | "fr", tra
   return `${translate(room)} · ${durations[language][duration as keyof typeof durations.en] || duration} · ${days[language][day as keyof typeof days.en] || day}`;
 }
 
-function SpaPackageCard({ pack }: { pack: SpaPackage }) {
-  const { translate } = useSiteLanguage();
-  return <article className="spa-package-card">
-    {pack.image && <img className="spa-package-card__image" src={pack.image} alt={translate(pack.title)} title={translate(pack.title)} loading="lazy" decoding="async" />}
+function SpaPackageCard({ pack, requestedDate }: { pack: SpaPackage; requestedDate?: string }) {
+  const { language, translate } = useSiteLanguage();
+  const text = spaDealCopy[language];
+  const title = localizedSpaPackageTitle({title:pack.title,durationMinutes:pack.durationMinutes || null,people:pack.people || null,group:pack.group},language,translate);
+  return <article className="spa-package-card" id={`spa-package-${pack.id}`}>
+    {pack.image && <img className="spa-package-card__image" src={pack.image} alt={title} title={title} loading="lazy" decoding="async" />}
     <header><span>{translate(pack.audience === "לא צוין" ? "חבילת ספא" : pack.audience)}</span>{pack.duration && <small>{translate(pack.duration)}</small>}</header>
-    <h3>{translate(pack.title)}</h3>
+    <h3>{title}</h3>
+    {requestedDate ? <p className="spa-package-request-date" data-no-translate>{text.requested}: {new Intl.DateTimeFormat(language === "he" ? "he-IL" : language, {day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}).format(new Date(`${requestedDate}T12:00:00Z`))}. {text.chooseDate}</p> : null}
     {pack.includes.length > 0 && <ul>{pack.includes.map((entry) => <li key={entry}>{translate(entry)}</li>)}</ul>}
     <footer><strong>{pack.price}</strong><a className="button primary" href={pack.bookingUrl} target="_blank" rel="noopener noreferrer" aria-label={`בדיקת זמינות והזמנת ${pack.title} באתר ספא פלוס, נפתח בלשונית חדשה`}>בדיקת זמינות והזמנה</a></footer>
   </article>;
@@ -61,6 +68,9 @@ function SpaPackageCard({ pack }: { pack: SpaPackage }) {
 
 function SpaContent({ details }: { details: SpaDetails }) {
   const { language, translate } = useSiteLanguage();
+  const searchParams = useSearchParams();
+  const requestedDate = searchParams.get("date") || "";
+  const selectedPackage = searchParams.get("package");
   const sourceFallback = { he: "מידע נוסף נמסר ישירות מהמקום.", en: "Additional information is supplied directly by the spa.", ru: "Дополнительная информация предоставлена непосредственно спа-центром.", fr: "Les informations complémentaires sont fournies directement par le spa." }[language];
   const [expanded, setExpanded] = useState(false);
   const [sourceAbout, setSourceAbout] = useState<string[] | null>(null);
@@ -96,7 +106,7 @@ function SpaContent({ details }: { details: SpaDetails }) {
         {details.suitableFor.length > 0 && <div><small>{translate("מתאים עבור")}</small><strong>{details.suitableFor.map(translate).join(" · ")}</strong></div>}
       </aside>
     </section>
-    {details.packages.length ? <section className="section section-tint" id="spa-packages"><div className="shell"><div className="section-head"><div><span className="eyebrow">בוחרים לפי החוויה</span><h2>חבילות הספא</h2></div></div><div className="spa-packages-grid">{details.packages.map((pack) => <SpaPackageCard key={pack.id} pack={pack} />)}</div><p className="spa-price-note">המחיר והזמינות הסופיים מוצגים לפני אישור ההזמנה.</p></div></section> : <section className="section section-tint" id="spa-packages"><div className="shell depth-final-cta"><div><span className="eyebrow">חבילות ספא</span><h2>לבירור חבילות ומחירים</h2><p>בדקו חבילות וזמינות לפני ההזמנה.</p></div><a className="button primary" href={details.bookingUrl} target="_blank" rel="noopener noreferrer">בדיקת אפשרויות בספא פלוס</a></div></section>}
+    {details.packages.length ? <section className="section section-tint" id="spa-packages"><div className="shell"><div className="section-head"><div><span className="eyebrow">בוחרים לפי החוויה</span><h2>חבילות הספא</h2></div></div><div className="spa-packages-grid">{details.packages.map((pack) => <SpaPackageCard key={pack.id} pack={pack} requestedDate={pack.id === selectedPackage && validSpaDealDate(requestedDate) ? requestedDate : undefined} />)}</div><p className="spa-price-note">המחיר והזמינות הסופיים מוצגים לפני אישור ההזמנה.</p></div></section> : <section className="section section-tint" id="spa-packages"><div className="shell depth-final-cta"><div><span className="eyebrow">חבילות ספא</span><h2>לבירור חבילות ומחירים</h2><p>בדקו חבילות וזמינות לפני ההזמנה.</p></div><a className="button primary" href={details.bookingUrl} target="_blank" rel="noopener noreferrer">בדיקת אפשרויות בספא פלוס</a></div></section>}
     {(details.treatments?.length || details.facilities.length) ? <section className="section shell spa-details-grid">
       {details.treatments?.length ? <div id="spa-treatments" className="spa-detail-panel"><span className="eyebrow">{translate("לבחירה במקום")}</span><h2>{translate("טיפולים")}</h2><div className="spa-treatment-list">{details.treatments.map((treatment) => <article key={treatment.name}><strong>{translate(treatment.name)}</strong>{treatment.durations?.length ? <span>{treatment.durations.map(translate).join(" · ")}</span> : null}{treatment.priceNote ? <small>{translate(treatment.priceNote)}</small> : null}</article>)}</div></div> : null}
       {details.facilities.length > 0 && <div id="spa-facilities" className="spa-detail-panel"><span className="eyebrow">{translate("בתוך המתחם")}</span><h2>{translate("מתקנים ושירותים")}</h2><ul className="spa-facility-list">{details.facilities.map((facility) => <li key={facility}>{translate(facility)}</li>)}</ul></div>}
