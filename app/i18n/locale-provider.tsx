@@ -24,6 +24,7 @@ const LocaleContext = createContext<LocaleContextValue>({ language: "he", setLan
 const languageStorageKey = "vii-site-language";
 const hebrewPattern = /[\u0590-\u05ff]/;
 const originalText = new WeakMap<Text, string>();
+const lastTranslatedText = new WeakMap<Text, string>();
 const originalAttributes = new WeakMap<Element, Map<string, string>>();
 const translatedAttributes = ["aria-label", "alt", "placeholder", "title"];
 let originalDocumentTitle = "";
@@ -1289,11 +1290,14 @@ function applyLanguageToRoot(root: Node, language: SiteLanguage) {
   const translateTextNode = (textNode: Text) => {
     const parent = textNode.parentElement;
     if (!parent || parent.closest("[data-no-translate]") || ["SCRIPT", "STYLE", "NOSCRIPT", "CODE", "PRE"].includes(parent.tagName)) return;
-    if (hebrewPattern.test(textNode.data) && !originalText.has(textNode)) originalText.set(textNode, textNode.data);
+    // React may replace a loading count on the same Text node. Keep that new
+    // source, but never mistake our own partly translated output for a source.
+    if (hebrewPattern.test(textNode.data) && textNode.data !== lastTranslatedText.get(textNode)) originalText.set(textNode, textNode.data);
     const source = originalText.get(textNode);
     if (!source) return;
     const translated = translateValue(source, language);
     if (textNode.data !== translated) textNode.data = translated;
+    lastTranslatedText.set(textNode, translated);
   };
 
   if (root.nodeType === Node.TEXT_NODE) {
