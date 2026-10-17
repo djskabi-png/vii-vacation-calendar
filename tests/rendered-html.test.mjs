@@ -353,7 +353,7 @@ test("spa, hourly, event and attraction worlds expose interactive maps", async (
   assert.doesNotMatch(mapSource, /addEventListener\("wheel"/);
   assert.doesNotMatch(mapSource, /map\.flyTo\(/);
   assert.match(mapSource, /touchZoom: true/);
-  assert.match(mapSource, /basemaps\.cartocdn\.com\/rastertiles\/voyager/);
+  assert.match(mapSource, /tile\.openstreetmap\.org/);
   assert.match(mapSource, /openstreetmap\.org\/copyright/);
   assert.match(mapSource, /מפה בעברית/);
   assert.match(mapSource, /map\.getBounds\(\)\.pad/);
@@ -395,7 +395,7 @@ test("map markers use the rich synchronized place card instead of legacy text to
   assert.doesNotMatch(source, /title: entry\.name|title: clustered \?/);
   assert.match(source, /marker\.on\("click", \(\) => selectPlace/);
   assert.match(source, /const initialSelectedId = single \?/);
-  assert.match(source, /basemaps\.cartocdn\.com\/rastertiles\/voyager/);
+  assert.match(source, /tile\.openstreetmap\.org/);
   assert.match(source, /aria-live="polite"/);
   assert.match(source, /map-selection-card__media/);
   assert.match(source, /map-selection-card__body/);
@@ -665,7 +665,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(searchBox, /בחרו כמות משתתפים/);
   assert.doesNotMatch(searchBox, /mode === "events" \? 40/);
   assert.match(eventsPage, /<SearchBox mode="events" compact showWorlds \/>/);
-  assert.match(map, /basemaps\.cartocdn\.com/);
+  assert.match(map, /tile\.openstreetmap\.org/);
   assert.match(map, /World_Imagery/);
   assert.match(map, /map-preview-image/);
   assert.match(map, /if \(!enabled\)/);
