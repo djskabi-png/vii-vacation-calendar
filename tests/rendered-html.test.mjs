@@ -33,6 +33,22 @@ async function readSitemapDocuments() {
   return { indexXml, documents };
 }
 
+test("all ten legacy editorial SEO titles use the same reviewed localized headline as the UI", async () => {
+  const overrides=JSON.parse(await readFile(new URL("../app/data/visitor-ui-translations.json",import.meta.url),"utf8"));
+  const source=await readFile(new URL("../app/data/magazine-data.ts",import.meta.url),"utf8");
+  const rows=[...source.matchAll(/slug: "([^"]+)",\s*title: "([^"]+)"/g)].slice(0,10);
+  assert.equal(rows.length,10);
+  for(const [locale] of [["en"],["fr"],["ru"]]) {
+    for(const [,slug,title] of rows) {
+      const response=await render(`/${locale}/guides/${slug}`);
+      const html=await response.text();
+      assert.equal(response.status,200);
+      const expected=overrides[title][locale];
+      assert.ok(html.includes("<title>"+expected+" | VII Vacation</title>"),locale+" / "+slug);
+    }
+  }
+});
+
 for (const [pathname, expected] of [
   ["/", /כל החופשה, במקום אחד/],
   ["/search", /נופש ברחבי הארץ/],

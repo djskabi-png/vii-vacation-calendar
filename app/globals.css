@@ -34,6 +34,10 @@
 .editorial-illustration { display:block; font-size:11px; line-height:1.5; font-weight:400; }
 .world-editorial__grid .editorial-illustration { margin:8px 20px 0; color:var(--text); }
 .magazine-card__body>.editorial-illustration { margin-bottom:8px; color:var(--text); }
+@media(max-width:820px) {
+  body[data-world-editorial-reading] .mobile-map-fab:not(.active):not(:focus),
+  body[data-world-editorial-reading] .back-to-top:not(:focus) { visibility:hidden; opacity:0; pointer-events:none; }
+}
 @media(max-width:700px) { .world-editorial__grid { grid-template-columns:1fr; gap:20px; } .world-editorial__grid img { max-height:240px; } }
 
 * {
