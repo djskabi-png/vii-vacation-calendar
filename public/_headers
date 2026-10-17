@@ -1,0 +1,9 @@
+# Keep the existing immutable policy for content-hashed build assets.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/fonts/heebo/heebo-hebrew-v28.woff2
+  Content-Type: font/woff2
+
+/fonts/heebo/heebo-latin-v28.woff2
+  Content-Type: font/woff2
