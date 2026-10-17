@@ -87,3 +87,7 @@ test('all four visitor locales disclose geography only, without technical explan
   assert.match(read('event-last-minute'),/!search.expandedRegion && !matchesSearchLocation/);
   assert.match(read('home-live-deals'),/const displayedDeals = scope \? data\?\.deals/);
 });
+test('regional rails span the whole results grid on desktop rather than one property cell',()=>{
+  const css=readFileSync(new URL('../app/globals.css',import.meta.url),'utf8');
+  assert.match(css,/\.regional-availability \{ min-width: 0; grid-column: 1 \/ -1; \}/);
+});

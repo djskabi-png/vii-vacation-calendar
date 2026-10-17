@@ -5763,7 +5763,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .home-rating-card__top > div { min-width: 0; display: grid; gap: 5px; }
 .home-rating-card__top > .home-rating-card__gallery { position: relative; display: block; width: 112px; height: 112px; overflow: hidden; border-radius: 16px; }
 .home-rating-card__gallery img { width: 100%; height: 100%; object-fit: cover; }
-.regional-availability { min-width: 0; }
+.regional-availability { min-width: 0; grid-column: 1 / -1; }
 .regional-availability--embedded { margin-block: 24px; }
 .regional-availability--embedded > .section { padding-block: 0; }
 .regional-availability--embedded .shell,
