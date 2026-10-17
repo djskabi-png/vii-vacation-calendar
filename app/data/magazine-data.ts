@@ -1,4 +1,6 @@
 import { eventPlaces, properties } from "./site-data";
+import { editorialWorldArticles, type EditorialWorld } from "./editorial-world-articles";
+import { editorialImageCopy } from "./editorial-image-copy";
 
 function propertyImage(slug: string) {
   return properties.find((property) => property.slug === slug)?.image || properties[0].image;
@@ -19,6 +21,19 @@ export type MagazineArticle = {
   excerpt: string;
   image: string;
   imageAlt: string;
+  imageTitle?: string;
+  imageKind?: "illustration" | "legacy";
+  imageCredit?: string;
+  world?: EditorialWorld;
+  publishedAt?: string;
+  modifiedAt?: string;
+  publishedLocales?: string[];
+  indexable?: boolean;
+  metaTitle?: string;
+  metaDescription?: string;
+  sourceLinks?: { title: string; url: string }[];
+  faqs?: { question: string; answer: string }[];
+  relatedSearches?: { label: string; href: string }[];
   readTime: number;
   dateLabel: string;
   tags: string[];
@@ -28,7 +43,7 @@ export type MagazineArticle = {
   checklist: string[];
 };
 
-export const magazineArticles: MagazineArticle[] = [
+const originalMagazineArticles: MagazineArticle[] = [
   {
     slug: "choose-the-right-place",
     title: "איך בוחרים מקום שבאמת מתאים להרכב שלכם",
@@ -231,6 +246,16 @@ export const magazineArticles: MagazineArticle[] = [
   },
 ];
 
+export const magazineArticles: MagazineArticle[] = [
+  ...editorialWorldArticles.map(({ imagePath, ...article }): MagazineArticle => ({ ...article,
+    image: imagePath, dateLabel: "17 באוקטובר 2026", publishedLocales: ["he"],
+    imageCredit: "תמונת המחשה שנוצרה בבינה מלאכותית", imageAlt: editorialImageCopy[article.slug].he.alt, imageTitle: editorialImageCopy[article.slug].he.title,
+  })),
+  ...originalMagazineArticles.map((article): MagazineArticle => ({ ...article,
+    image: `/media/editorial/${article.slug}.webp`, imageKind: "illustration",
+    imageAlt: editorialImageCopy[article.slug].he.alt, imageTitle: editorialImageCopy[article.slug].he.title, imageCredit: "תמונת המחשה שנוצרה בבינה מלאכותית", modifiedAt: "2026-10-17",
+  })),
+];
 export const magazineCategories = ["הכל", ...Array.from(new Set(magazineArticles.map((article) => article.category)))];
 
 export function getMagazineArticle(slug: string | null) {

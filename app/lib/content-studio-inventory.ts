@@ -4,6 +4,7 @@ import spaCatalog from "../data/spaplus-catalog.json" with { type: "json" };
 import { providerProfiles, paidAttractions } from "../data/world-data.ts";
 import { trails } from "../data/trail-data.ts";
 import { magazineArticles } from "../data/magazine-data.ts";
+import { magazineBodySource } from "./magazine-body";
 import { publicWorldNavigation } from "../data/world-navigation.ts";
 import { worldFooterContexts } from "../data/footer-context.ts";
 import { readSupplierCatalogSummaries } from "./supplier-catalog-store.ts";
@@ -29,7 +30,7 @@ function sourceAttributes(type: ContentType, row: UnknownRow): Record<string, st
   if (type === "providers" || type === "attractions") return { location: text(row.location), area: text(row.area), features: list(row.features),
     image: text(row.image), priceLabel: text(row.priceLabel), phone: text(row.phone), sourceUrl: text(row.sourceUrl), sourceName: text(row.sourceName) };
   if (type === "magazine") return { category: text(row.category), image: text(row.image), dateLabel: text(row.dateLabel), readTime: String(numeric(row.readTime) || ""),
-    takeaway: text(row.takeaway), tags: list(row.tags) };
+    takeaway: text(row.takeaway), tags: list(row.tags), imageTitle: text(row.imageTitle) || text(row.imageAlt), imageCredit: text(row.imageCredit), world: text(row.world) };
   return {};
 }
 
@@ -37,7 +38,7 @@ function source(type: ContentType, world: string, row: UnknownRow, key: string, 
   const about = Array.isArray(row.about) ? row.about.filter((item): item is string => typeof item === "string") : [];
   return { type, world, key, sourceLabel, locale, title: text(row.title || row.name) || key,
     summary: text(row.shortDescription || row.description || row.summary || row.excerpt),
-    body: about.join("\n\n") || text(row.intro || row.body), slug: text(row.slug) || key,
+    body: type === "magazine" ? magazineBodySource(row as unknown as Parameters<typeof magazineBodySource>[0]) : about.join("\n\n") || text(row.intro || row.body), slug: text(row.slug) || key,
     imageAlt: text(row.imageAlt) || text(row.title || row.name), indexable: row.indexable !== false, attributes: sourceAttributes(type, row) };
 }
 

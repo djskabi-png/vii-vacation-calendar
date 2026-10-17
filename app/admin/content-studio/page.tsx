@@ -24,7 +24,7 @@ const attributeFields: Record<string, Array<[string, string]>> = {
   trails: [["mainArea", "אזור ראשי"], ["region", "אזור מדויק"], ["nature", "סוגי טבע, מופרדים בפסיק"], ["distance", "מרחק"], ["duration", "משך"], ["difficulty", "דרגת קושי"], ["routeType", "סוג מסלול"], ["bestSeason", "עונה מומלצת"], ["familyFit", "התאמה למשפחות"], ["accessibility", "נגישות"], ["officialSource", "קישור למקור רשמי"], ["sourceName", "שם המקור"], ["mapQuery", "חיפוש במפה"]],
   providers: [["location", "מיקום"], ["area", "תחום"], ["features", "שירותים, מופרדים בפסיק"], ["image", "כתובת תמונה"], ["priceLabel", "תיאור מחיר"], ["phone", "טלפון"], ["sourceUrl", "אתר מקור"], ["sourceName", "שם המקור"]],
   attractions: [["location", "מיקום"], ["area", "סוג חוויה"], ["features", "מאפיינים, מופרדים בפסיק"], ["image", "כתובת תמונה"], ["priceLabel", "תיאור מחיר"], ["phone", "טלפון"], ["sourceUrl", "אתר מקור"], ["sourceName", "שם המקור"]],
-  magazine: [["category", "קטגוריה"], ["image", "כתובת תמונה"], ["dateLabel", "תאריך תצוגה"], ["readTime", "דקות קריאה"], ["takeaway", "השורה התחתונה"], ["tags", "תגיות, מופרדות בפסיק"]],
+  magazine: [["category", "קטגוריה"], ["world", "עולם תוכן"], ["image", "כתובת תמונה"], ["imageTitle", "כותרת התמונה"], ["imageCredit", "מקור וקרדיט לתמונה"], ["dateLabel", "תאריך תצוגה"], ["readTime", "דקות קריאה"], ["takeaway", "השורה התחתונה"], ["tags", "תגיות, מופרדות בפסיק"]],
 };
 const date = (value: string | null) => value ? new Date(value).toLocaleString("he-IL", { timeZone: "Asia/Jerusalem", dateStyle: "short", timeStyle: "short" }) : "לא עודכן";
 const worldLandingDefaults = (type: string) => isManagedWorldLandingType(type) ? defaultWorldLandingPresentations[type] : defaultWorldLandingPresentations.hourly;

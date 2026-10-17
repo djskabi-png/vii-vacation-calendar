@@ -636,7 +636,7 @@ function InteractiveArchitecture({
           <picture>
             <source srcSet="/platform-architecture-overview.avif" type="image/avif" />
             <source srcSet="/platform-architecture-overview.webp" type="image/webp" />
-            <img src="/platform-architecture-overview.png" alt="המחשה של ארכיטקטורת היעד של VII, מידע מלא נכנס מספקים ולפי החוזה הזמנות וחוות דעת חוזרות לספק המתאים" width="1672" height="941" loading="lazy" decoding="async" />
+            <img src="/platform-architecture-overview.png" alt="המחשה של ארכיטקטורת היעד של VII, מידע מלא נכנס מספקים ולפי החוזה הזמנות וחוות דעת חוזרות לספק המתאים" title="המחשה של ארכיטקטורת היעד של VII, מידע מלא נכנס מספקים ולפי החוזה הזמנות וחוות דעת חוזרות לספק המתאים" width="1672" height="941" loading="lazy" decoding="async" />
           </picture>
           <span className={styles.architectureScan} aria-hidden="true" />
           <span className={styles.architectureCorePulse} aria-hidden="true" />
@@ -801,7 +801,7 @@ export function PlatformExplorer() {
       <header className={styles.hero}>
         <nav className={styles.topbar} aria-label="ניווט מפת המערכת">
           <Link href="/" className={styles.brand} aria-label="VII, חזרה לאתר">
-            <img src="/vii-logo.png" alt="וי פור ויקיישן" width="160" height="122" />
+            <img src="/vii-logo.png" alt="וי פור ויקיישן" title="וי פור ויקיישן" width="160" height="122" />
             <span>PLATFORM BLUEPRINT</span>
           </Link>
           <a className={styles.topAction} href="#platform-map">לתרשים הלחיץ</a>
@@ -823,7 +823,7 @@ export function PlatformExplorer() {
           </div>
           <div className={styles.orbit} aria-label="כל עולמות VII">
             <span className={styles.orbitRing} />
-            <span className={styles.orbitCore}><img src="/vii-logo.png" alt="" width="160" height="122" /><small>VII CORE</small></span>
+            <span className={styles.orbitCore}><img src="/vii-logo.png" alt="" title="" data-image-role="decorative" width="160" height="122" /><small>VII CORE</small></span>
             {worlds.map((world, index) => <button type="button" key={world.id} className={`${styles.orbitWorld} ${styles[`orbitWorld${index + 1}`]}`} onClick={() => selectNode(world)} aria-haspopup="dialog" aria-controls="platform-detail-dialog" dir="ltr">{world.title}</button>)}
           </div>
         </div>
@@ -918,13 +918,13 @@ export function PlatformExplorer() {
 
           <article className={styles.hilatPagePanel}>
             <div className={styles.hilatBrowserBar}><span aria-hidden="true"><i /><i /><i /></span><b dir="ltr">vii.spaplus.co</b></div>
-            <div className={styles.hilatMiniHeader}><img src="/vii-logo.png" alt="וי פור ויקיישן" width="160" height="122" /><span>נופש</span><span>בחירת עולם</span></div>
+            <div className={styles.hilatMiniHeader}><img src="/vii-logo.png" alt="וי פור ויקיישן" title="וי פור ויקיישן" width="160" height="122" /><span>נופש</span><span>בחירת עולם</span></div>
             <div className={styles.hilatMiniTitle}><small>מתחם בקתות עץ · נופש ולינה</small><h3>הילת הנוף</h3><p>כלנית, סובב כנרת</p></div>
             <div className={styles.hilatMiniActions}><span>שמירה</span><span>שיתוף</span><span>הצגת מספר</span><span>פנייה בוואטסאפ</span></div>
             <div className={styles.hilatMiniGallery}>
-              <img src="/media/hilat-hanof/87686399e3d2342.jpg" alt="בריכת השחייה והנוף בהילת הנוף" width="1027" height="687" />
-              <img src="/media/hilat-hanof/495f7c268eb4431.jpeg" alt="ג׳קוזי ביחידת אירוח בהילת הנוף" width="1024" height="683" />
-              <img src="/media/hilat-hanof/845f7c268dc8ca2.jpeg" alt="יחידת אירוח בהילת הנוף" width="1024" height="683" />
+              <img src="/media/hilat-hanof/87686399e3d2342.jpg" alt="בריכת השחייה והנוף בהילת הנוף" title="בריכת השחייה והנוף בהילת הנוף" width="1027" height="687" />
+              <img src="/media/hilat-hanof/495f7c268eb4431.jpeg" alt="ג׳קוזי ביחידת אירוח בהילת הנוף" title="ג׳קוזי ביחידת אירוח בהילת הנוף" width="1024" height="683" />
+              <img src="/media/hilat-hanof/845f7c268dc8ca2.jpeg" alt="יחידת אירוח בהילת הנוף" title="יחידת אירוח בהילת הנוף" width="1024" height="683" />
               <span>לגלריה המלאה</span>
             </div>
             <div className={styles.hilatMiniStats}><span><b>25</b> אורחים</span><span><b>4</b> יחידות</span><span><b>4</b> בקתות</span><span><b>180</b> חוות דעת</span></div>
@@ -1324,7 +1324,7 @@ export function PlatformExplorer() {
       </div>}
 
       <footer className={styles.footer}>
-        <Link href="/" aria-label="חזרה לאתר VII"><img src="/vii-logo.png" alt="וי פור ויקיישן" width="160" height="122" /></Link>
+        <Link href="/" aria-label="חזרה לאתר VII"><img src="/vii-logo.png" alt="וי פור ויקיישן" title="וי פור ויקיישן" width="160" height="122" /></Link>
         <p>VII PLATFORM BLUEPRINT</p>
         <span>מסמך תכנון אינטראקטיבי לצוות. עודכן לפי החלטות 18 באוגוסט 2026. ללא מידע סודי וללא פרטי גישה.</span>
       </footer>

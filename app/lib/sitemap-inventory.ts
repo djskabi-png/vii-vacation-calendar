@@ -88,14 +88,19 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
       ...hourlyPlaces.filter((place) => place.indexable !== false).map((place) => ({ path: `/discover/place/${place.id}`, images: place.image ? [place.image] : [] })),
     ]));
   }
-  if (section === "discovery") { const [{ discoveryItems }, { magazineArticles }, { trails }] = await Promise.all([
-    import("../data/world-data.ts"), import("../data/magazine-data.ts"), import("../data/trail-data.ts")]); return unique(expand([
+  if (section === "discovery") { const [{ discoveryItems }, { magazineArticles }, { trails }, { managedMagazineArticles }] = await Promise.all([
+    import("../data/world-data.ts"), import("../data/magazine-data.ts"), import("../data/trail-data.ts"), import("./managed-public-content.ts")]);
+    const articles = await managedMagazineArticles(magazineArticles);
+    const articleEntries = articles.filter(article => article.indexable !== false).flatMap(article => article.publishedLocales
+      ? [{ url: absoluteUrl(`/guides/${article.slug}`), images: [absoluteUrl(article.image)], lastModified: article.modifiedAt }]
+      : localizedEntries(`/guides/${article.slug}`, [article.image]));
+    return unique([...expand([
       { path: "/trails" }, { path: "/attractions" }, { path: "/guides" },
       ...activityDepthTopics.filter(topic => discoveryItems.some(item => item.world === "activities" && item.indexable !== false && activityMatchesTopic(item, topic.params))).map(topic => ({ path: `/attractions/explore/${topic.slug}` })),
       ...trailDepthTopics.map(topic => ({ path: `/trails/explore/${topic.slug}` })),
       ...discoveryItems.filter((place) => place.world !== "spa" && place.world !== "hourly" && (place.indexable === true || (place.indexable !== false && place.world === "activities"))).map((place) => ({ path: `/discover/place/${place.id}`, images: place.image ? [place.image] : [] })),
-      ...magazineArticles.map((article) => ({ path: `/guides/${article.slug}`, images: [article.image] })), ...trails.map((trail) => ({ path: `/trails/${trail.slug}` })),
-  ])); }
+      ...trails.map((trail) => ({ path: `/trails/${trail.slug}` })),
+  ]), ...articleEntries]); }
   const { publishedOpportunityPaths } = await import("./search-opportunities.ts");
   const opportunityPaths = await publishedOpportunityPaths();
   return unique(opportunityPaths.map(({ path, updatedAt }) => ({ url: absoluteUrl(path), lastModified: updatedAt || undefined })));

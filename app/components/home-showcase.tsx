@@ -150,7 +150,7 @@ export function HomeShowcase({ properties, eventPlaces, spaPlaces, hourlyPlaces,
                 aria-disabled={pendingDestination !== null}
                 data-global-feedback="true"
                 data-loading-label={`${destinationLoading.prefix} ${item.label}...`}
-              ><img src={place.image} alt="" loading="lazy" decoding="async" /><div><span>יעד מומלץ</span><h4>{item.label}</h4><p>{item.note}</p><b>{isPending ? destinationLoading.opening : "לכל המקומות באזור"}</b></div>{isPending ? <span className="home-vacation-card__pending" aria-hidden="true"><i /><small>{destinationLoading.waiting}</small></span> : null}</Link> : null;
+              ><img src={place.image} alt="" title="" data-image-role="decorative" loading="lazy" decoding="async" /><div><span>יעד מומלץ</span><h4>{item.label}</h4><p>{item.note}</p><b>{isPending ? destinationLoading.opening : "לכל המקומות באזור"}</b></div>{isPending ? <span className="home-vacation-card__pending" aria-hidden="true"><i /><small>{destinationLoading.waiting}</small></span> : null}</Link> : null;
             })}
           </div>
         </div>

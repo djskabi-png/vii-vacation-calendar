@@ -270,13 +270,18 @@ export function articleSchema(article: MagazineArticle) {
     headline: article.title,
     description: article.excerpt,
     image: absoluteUrl(article.image),
-    datePublished: articlePublishedDate(article.dateLabel),
+    datePublished: article.publishedAt || articlePublishedDate(article.dateLabel),
+    ...(article.modifiedAt ? { dateModified: article.modifiedAt } : {}),
     inLanguage: "he-IL",
     mainEntityOfPage: url,
     author: { "@id": ORGANIZATION_ID },
     publisher: { "@id": ORGANIZATION_ID },
     articleSection: article.category,
     keywords: article.tags.join(", "),
+    isAccessibleForFree: true,
+    wordCount: [article.intro, ...article.sections.flatMap((section) => section.paragraphs)].join(" ").split(/\s+/).filter(Boolean).length,
+    ...(article.sourceLinks?.length ? { citation: article.sourceLinks.map((source) => source.url) } : {}),
+    ...(article.world ? { about: { "@type": "Thing", name: article.category } } : {}),
   };
 }
 

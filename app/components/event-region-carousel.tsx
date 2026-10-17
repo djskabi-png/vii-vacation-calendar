@@ -124,7 +124,7 @@ export function EventRegionCarousel({ items }: { items: EventRegionCarouselItem[
           href={item.href}
           aria-label={`${label}, ${countLabel}`}
         >
-          <img src={item.image} alt="" loading="lazy" decoding="async" />
+          <img src={item.image} alt="" title="" data-image-role="decorative" loading="lazy" decoding="async" />
           <span className="event-region-carousel__shade" />
           <span className="event-region-carousel__pin"><RegionPinIcon /></span>
           <span className="event-region-carousel__content">

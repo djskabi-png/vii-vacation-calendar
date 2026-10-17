@@ -1,4 +1,9 @@
 {
+  "17 באוקטובר 2026": { "en": "17 October 2026", "fr": "17 octobre 2026", "ru": "17 октября 2026" },
+  "תמונת המחשה שנוצרה בבינה מלאכותית": { "en": "Illustrative image created with AI", "fr": "Image d’illustration créée avec l’IA", "ru": "Иллюстрация, созданная с помощью ИИ" },
+  "שאלות שעולות לפני שמחליטים": { "en": "Questions before you decide", "fr": "Questions avant de choisir", "ru": "Вопросы перед выбором" },
+  "מכאן לחיפוש שמתאים לכם": { "en": "Find an option that suits you", "fr": "Trouvez une option qui vous convient", "ru": "Найдите подходящий вариант" },
+  "לקריאה ולבדיקה נוספת": { "en": "Further reading and checks", "fr": "Pour en savoir plus", "ru": "Дополнительная информация" },
   "ניתן להזמין אונליין": { "en": "Book online", "ru": "Онлайн-бронирование", "fr": "Réservation en ligne" },
   "דרך הזמנה": { "en": "Booking options", "ru": "Способ бронирования", "fr": "Mode de réservation" },
   "רק מקומות עם מחיר וזמינות לתאריכים שבחרתם, שאפשר להזמין באתר.": { "en": "Only places with a confirmed price and availability for your dates that you can book on this site.", "ru": "Только объекты с подтверждённой ценой и наличием на ваши даты, которые можно забронировать на сайте.", "fr": "Uniquement les lieux disponibles à un prix confirmé pour vos dates, réservables sur ce site." },

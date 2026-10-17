@@ -3,6 +3,7 @@ import type { Trail } from "../data/trail-data.ts";
 import type { MagazineArticle } from "../data/magazine-data.ts";
 import { readPublishedContent, readPublishedContentBatch, readPublishedItems, type ContentLocale, type ContentType } from "./content-studio.ts";
 import { runtimeCatalogDatabase } from "./published-supplier-ids.ts";
+import { magazineBodyOverride } from "./magazine-body";
 
 export async function managedDiscoveryItems(items: readonly DiscoveryItem[], type: Extract<ContentType, "providers" | "attractions">) {
   const db = await runtimeCatalogDatabase(); if (!db) return [...items];
@@ -41,10 +42,15 @@ export async function managedMagazineArticles(items: readonly MagazineArticle[])
   try {
   const overlays = await readPublishedContentBatch(db, "magazine", items.map((item) => item.slug));
   const managed = items.map((item) => { const content = overlays.get(item.slug); return content ? { ...item, title: content.title,
-    excerpt: content.summary, intro: content.body || item.intro, imageAlt: content.imageAlt || item.imageAlt } : item; });
+    excerpt: content.summary, ...magazineBodyOverride(content.body, item), imageAlt: content.imageAlt || item.imageAlt,
+    image: content.attributes.image || item.image, imageTitle: content.attributes.imageTitle || item.imageTitle || item.imageAlt,
+    imageCredit: content.attributes.imageCredit || item.imageCredit,
+    indexable: content.indexable, metaTitle: content.metaTitle || item.title, metaDescription: content.metaDescription || content.summary } : item; });
   const known = new Set(items.map((item) => item.slug)); const originals = (await readPublishedItems(db, "magazine")).filter((item) => !known.has(item.key));
   return [...managed, ...originals.map(({ key, content }): MagazineArticle => ({ slug: key, title: content.title,
     category: content.attributes.category, excerpt: content.summary, image: content.attributes.image, imageAlt: content.imageAlt,
+    imageTitle: content.attributes.imageTitle || content.imageAlt, imageCredit: content.attributes.imageCredit,
+    indexable: content.indexable, metaTitle: content.metaTitle, metaDescription: content.metaDescription,
     readTime: Math.max(1, Number(content.attributes.readTime) || 5), dateLabel: content.attributes.dateLabel,
     tags: split(content.attributes.tags), intro: content.body, takeaway: content.attributes.takeaway || content.summary,
     sections: [{ id: "article", title: content.title, paragraphs: paragraphs(content.body) }], checklist: ["קראתי ושמרתי את הרעיון להמשך"] }))];

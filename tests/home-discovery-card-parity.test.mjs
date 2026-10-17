@@ -16,7 +16,8 @@ test("all homepage vacation discovery rails use the search discovery card contra
 test("homepage discovery cards retain CMS images, destinations and click feedback", () => {
   assert.match(discovery, /href=\{item\.href\}/);
   assert.match(discovery, /src=\{item\.image\}/);
-  assert.match(discovery, /alt=\{item\.imageAlt \|\| ""\}/);
+  assert.match(discovery, /alt=\{item\.imageAlt \|\| item\.label\}/);
+  assert.match(discovery, /title=\{item\.imageAlt \|\| item\.label\}/);
   assert.match(discovery, /data-global-feedback="true"/);
   assert.match(discovery, /data-loading-label=\{`פותחים \$\{item\.label\}\.\.\.`\}/);
 });

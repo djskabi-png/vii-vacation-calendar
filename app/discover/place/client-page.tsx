@@ -51,7 +51,7 @@ function hourlyRateLabel(value: string, language: "he" | "en" | "ru" | "fr", tra
 function SpaPackageCard({ pack }: { pack: SpaPackage }) {
   const { translate } = useSiteLanguage();
   return <article className="spa-package-card">
-    {pack.image && <img className="spa-package-card__image" src={pack.image} alt={translate(pack.title)} loading="lazy" decoding="async" />}
+    {pack.image && <img className="spa-package-card__image" src={pack.image} alt={translate(pack.title)} title={translate(pack.title)} loading="lazy" decoding="async" />}
     <header><span>{translate(pack.audience === "לא צוין" ? "חבילת ספא" : pack.audience)}</span>{pack.duration && <small>{translate(pack.duration)}</small>}</header>
     <h3>{translate(pack.title)}</h3>
     {pack.includes.length > 0 && <ul>{pack.includes.map((entry) => <li key={entry}>{translate(entry)}</li>)}</ul>}
