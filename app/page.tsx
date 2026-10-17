@@ -9,6 +9,9 @@ import { MasuExperience } from "./components/masu-experience";
 import { SearchBox } from "./components/search-box";
 import { HomeQuickSearches } from "./components/home-discovery-sections";
 import { magazineArticles } from "./data/magazine-data";
+import { managedMagazineArticles } from "./lib/managed-public-content";
+import { EditorialCover, EditorialIllustrationLabel } from "./components/editorial-cover";
+import { headers } from "next/headers";
 import { destinations, visualTourProperties } from "./data/site-data";
 import type { EventPlace, Property } from "./data/site-data";
 import { hourlyPlacesFromCatalog, paidAttractions, providerProfiles, spaPlacesFromSites } from "./data/world-data";
@@ -88,6 +91,12 @@ async function HomeCatalogShowcase() {
     spaPlaces={showcaseSpas} hourlyPlaces={showcaseHourly} providerPreview={providerProfiles[0]} attractionPreview={paidAttractions[0]} />;
 }
 
+async function HomeMagazineSection() {
+  const locale = (await headers()).get("x-vii-locale") || "he";
+  const homeArticles = (await managedMagazineArticles(magazineArticles)).filter(article => !article.publishedLocales || article.publishedLocales.includes(locale)).slice(0,3);
+  return <section className="section home-magazine" aria-labelledby="home-magazine-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">מגזין וי</span><h2 id="home-magazine-title">רעיונות שממשיכים את החופשה</h2></div><Link href="/guides">לכל הכתבות</Link></div><div className="home-magazine__grid">{homeArticles.map((article,index) => <article key={article.slug} className={index === 0 ? "featured" : ""}><Link href={`/guides/${article.slug}`}><EditorialCover slug={article.slug} src={article.image} alt={article.imageAlt} title={article.imageTitle} /><span>{article.category}</span><div><EditorialIllustrationLabel /><small>{article.readTime} דקות קריאה</small><h3>{article.title}</h3><p>{article.excerpt}</p></div></Link></article>)}</div></div></section>;
+}
+
 export default function HomePage() {
   return (
     <PageShell>
@@ -118,9 +127,7 @@ export default function HomePage() {
           <div className="benefit-grid"><article><b>01</b><h3>חיפוש ממוקד</h3><p>מסננים לפי אזור, הרכב ומאפיינים שקיימים בנתוני הספק.</p></article><article><b>02</b><h3>מידע על המקום</h3><p>רואים תמונות, מתקנים ופרטי אירוח שהתקבלו מהספק.</p></article><article><b>03</b><h3>בדיקה לפני הזמנה</h3><p>מבררים תאריך, מחיר ותנאים לפני שמתחייבים.</p></article></div>
         </section>
 
-        <section className="section home-magazine" aria-labelledby="home-magazine-title">
-          <div className="shell"><div className="section-head"><div><span className="eyebrow">מגזין וי</span><h2 id="home-magazine-title">רעיונות שממשיכים את החופשה</h2></div><Link href="/guides">לכל הכתבות</Link></div><div className="home-magazine__grid">{magazineArticles.slice(0,3).map((article,index) => <article key={article.slug} className={index === 0 ? "featured" : ""}><Link href={`/guides/${article.slug}`}><img src={article.image} alt={article.imageAlt} title={article.imageAlt} loading="lazy" decoding="async" /><span>{article.category}</span><div><small>{article.readTime} דקות קריאה</small><h3>{article.title}</h3><p>{article.excerpt}</p></div></Link></article>)}</div></div>
-        </section>
+        <Suspense fallback={null}><HomeMagazineSection /></Suspense>
 
         <HomeTrails />
 

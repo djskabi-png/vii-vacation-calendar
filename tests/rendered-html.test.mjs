@@ -577,7 +577,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
     readFile(new URL("../app/components/listing-map.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/data/magazine-data.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/guides/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/guides/client-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/guides/article/client-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
@@ -997,7 +997,7 @@ test("publishes crawler guidance, answer-engine guidance and an RSS feed", async
   const feedText = await feed.text();
   assert.equal(feed.status, 200);
   assert.match(feed.headers.get("content-type") ?? "", /application\/rss\+xml/);
-  assert.equal((feedText.match(/<item>/g) || []).length, 10);
+  assert.equal((feedText.match(/<item>/g) || []).length, 34);
 
   const [llms, llmsFull, seo, sitemapSource, questions, key] = await Promise.all([
     readFile(new URL("../public/llms.txt", import.meta.url), "utf8"),

@@ -308,7 +308,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
                           ? unitCopy.tooSmall
                           : isUnavailable ? unitCopy.unavailable : unitCopy.confirm;
                 return <article className={`vacation-booking-dialog__unit${isAvailable ? " is-available" : isUnavailable ? " is-unavailable" : ""}`} key={room.name}>
-                  {room.image ? <img className="vacation-booking-dialog__unit-image" src={room.image} alt="" loading="lazy" /> : <div className="vacation-booking-dialog__unit-image vacation-booking-dialog__unit-image--missing" aria-hidden="true" />}
+                  {room.image ? <img className="vacation-booking-dialog__unit-image" src={room.image} alt="" title="" data-image-role="decorative" loading="lazy" /> : <div className="vacation-booking-dialog__unit-image vacation-booking-dialog__unit-image--missing" aria-hidden="true" />}
                   <div className="vacation-booking-dialog__unit-content">
                     <div className="vacation-booking-dialog__unit-main">
                       <span className="vacation-booking-dialog__unit-mark" aria-hidden="true"></span>

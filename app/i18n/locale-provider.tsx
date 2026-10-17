@@ -1310,7 +1310,10 @@ function applyLanguageToRoot(root: Node, language: SiteLanguage) {
     const saved = originalAttributes.get(element) || new Map<string, string>();
     translatedAttributes.forEach((attribute) => {
       const current = element.getAttribute(attribute);
-      if (current && hebrewPattern.test(current) && !saved.has(attribute)) saved.set(attribute, current);
+      // React may replace a gallery image without replacing its DOM element.
+      // Remember the new source rather than restoring the previous image's alt.
+      if (current && hebrewPattern.test(current) && (!saved.has(attribute) ||
+        (current !== saved.get(attribute) && current !== translateValue(saved.get(attribute) || "", language)))) saved.set(attribute, current);
       const source = saved.get(attribute);
       if (source) {
         const translated = translateValue(source, language);

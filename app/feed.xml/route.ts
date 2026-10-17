@@ -1,18 +1,19 @@
 import { magazineArticles } from "../data/magazine-data";
 import { SITE_URL, articlePublishedDate } from "../lib/seo";
+import { managedMagazineArticles } from "../lib/managed-public-content";
 
 function xml(value: string) {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 }
 
-export function GET() {
-  const items = magazineArticles.map((article) => `
+export async function GET() {
+  const items = (await managedMagazineArticles(magazineArticles)).filter(article => article.indexable !== false).map((article) => `
     <item>
       <title>${xml(article.title)}</title>
       <link>${SITE_URL}/guides/${article.slug}/</link>
       <guid isPermaLink="true">${SITE_URL}/guides/${article.slug}/</guid>
       <description>${xml(article.excerpt)}</description>
-      <pubDate>${new Date(`${articlePublishedDate(article.dateLabel)}T09:00:00+03:00`).toUTCString()}</pubDate>
+      <pubDate>${new Date(`${article.publishedAt || articlePublishedDate(article.dateLabel)}T09:00:00+03:00`).toUTCString()}</pubDate>
     </item>`).join("");
 
   const body = `<?xml version="1.0" encoding="UTF-8" ?>

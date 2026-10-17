@@ -177,7 +177,7 @@ export function HomeLiveDeals({ mode = "near" }: { mode?: "near" | "holidays" })
       <div className="home-live-deals__results" id={`${sectionId}-results`} role="tabpanel" aria-live="polite" aria-busy={displayState === "loading"}>
         {displayState === "loading" ? <div className="home-live-deals__loading" role="status" aria-label={text.loading}>
           <div className="home-live-deals__loading-head" aria-hidden="true">
-            <div className="home-live-deals__loading-route"><span /><span /><span /><img src="/vii-logo.png" alt="" /></div>
+            <div className="home-live-deals__loading-route"><span /><span /><span /><img src="/vii-logo.png" alt="" title="" data-image-role="decorative" /></div>
             <span>{text.loading}</span>
           </div>
           <div className="home-live-deals__loading-cards" aria-hidden="true">{[0, 1, 2].map((index) => <div className="home-live-deals__loading-card" key={index}><div className="home-live-deals__loading-image" /><div className="home-live-deals__loading-lines"><span /><span /><span /></div></div>)}</div>

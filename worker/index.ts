@@ -15,6 +15,7 @@ import { legacyDisposition, looksLikeUninventoriedLegacyPath } from "../app/lib/
 import { redirectForUrl, shouldCheckRedirect } from "../app/lib/admin-redirects.ts";
 import { publicCachePolicy, readPublicCache, refreshPublicCacheAhead, storePublicCache } from "./public-response-cache.ts";
 import { rewriteCanonicalStream } from "./stream-canonical.ts";
+import { editorialWorldLinks } from "../app/data/editorial-world-links";
 
 declare const __VII_CACHE_BUILD_ID__: string;
 const publicCacheBuild = typeof __VII_CACHE_BUILD_ID__ === "string" ? __VII_CACHE_BUILD_ID__ : "local";
@@ -226,12 +227,13 @@ const worker = {
       const canonicalUrl = new URL(currentHref || url.pathname, url.origin);
       const basePathname = canonicalUrl.pathname.replace(/^\/(en|ru|fr)(?=\/|$)/, "") || "/";
       const basePath = `${basePathname}${canonicalUrl.search}`;
-      const localizedPath = locale === "he"
+      const hebrewOnlyArticle = editorialWorldLinks.some(article => basePathname.replace(/\/$/, "") === `/guides/${article.slug}`);
+      const localizedPath = locale === "he" || hebrewOnlyArticle
         ? basePath
         : `/${locale}${basePathname === "/" ? "" : basePathname}${canonicalUrl.search}`;
       const publicOrigin = primary ? primaryOrigin : temporaryOrigin;
       const canonical = new URL(localizedPath, publicOrigin).toString();
-      const alternatePaths: Record<string, string> = {
+      const alternatePaths: Record<string, string> = hebrewOnlyArticle ? { "he-IL": basePath, "x-default": basePath } : {
         "he-IL": basePath,
         en: `/en${basePathname === "/" ? "" : basePathname}${canonicalUrl.search}`,
         ru: `/ru${basePathname === "/" ? "" : basePathname}${canonicalUrl.search}`,
