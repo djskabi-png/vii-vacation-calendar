@@ -866,9 +866,12 @@ test("ships a favicon, four languages and no dependency on the retired site", as
   assert.equal(Object.keys(dictionaries.fr).length >= 2000, true);
   assert.match(header, /<LanguageSwitcher compact/);
   assert.match(header, /<AccessibilityWidget placement="menu" \/>/);
-  assert.match(header, /className="menu-panel__join" href="\/join#join-pricing"/);
+  assert.match(header, /const advertiseHref = localizedPath\("\/join#join-pricing", language\)/);
+  assert.match(header, /className="menu-panel__join" href=\{advertiseHref\}/);
   assert.doesNotMatch(header, /className="menu-panel__eyebrow"/);
-  assert.equal((header.match(/href="\/join#join-pricing"/g) || []).length, 1);
+  // Two placements are intentional: the new first row and the retained CTA.
+  assert.equal((header.match(/href=\{advertiseHref\}/g) || []).length, 2);
+  assert.equal((header.match(/translate\("פרסום באתר"\)/g) || []).length, 1);
   assert.equal((header.match(/translate\("פרסום והצטרפות לאתר"\)/g) || []).length, 1);
   assert.doesNotMatch(header, /הצטרפות כספק/);
   assert.match(styles, /\.menu-panel__main > a \{[^}]*border: 1px solid #d8e9eb/);
