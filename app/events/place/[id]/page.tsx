@@ -9,8 +9,9 @@ import { breadcrumbSchema, eventVenueSchema } from "../../../lib/seo";
 import { ViewedItemBootstrap } from "../../../components/viewed-item-bootstrap";
 import { supplierLegacySlug, unavailableLegacySearchHref } from "../../../data/supplier-legacy-links";
 import { liveSupplierPlaceDetail, type SupplierPlaceDetail } from "../../../data/supplier-place-detail";
+import { validDate } from "../../../lib/vii-live-search";
 
-type Props = { params: Promise<{ id: string }> };
+type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ from?: string; guests?: string }> };
 
 async function resolvePlace(id: string) {
   const mappedSlug = supplierLegacySlug(id, "events");
@@ -35,9 +36,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function Page({ params }: Props) {
+export default async function Page({ params, searchParams }: Props) {
   const place = await resolvePlace((await params).id);
-  if (place.sourcePropertySlug) redirect(eventPlaceHref(place));
+  const selection = await searchParams;
+  const datedEvent = validDate(selection.from) && /^\d+$/.test(selection.guests || "")
+    && Number(selection.guests) > 0 && Number(selection.guests) <= 1000;
+  // Preserve the existing canonical business redirect for undated visits.
+  // Dated event visits must recheck the event supplier, not a vacation quote.
+  if (place.sourcePropertySlug && !datedEvent) redirect(eventPlaceHref(place));
   const places = await publicCatalogSummaries<EventPlace>("events");
   const supplierId = /^event-(\d+)$/.exec(place.slug)?.[1];
   const acceptedDetail = supplierId ? await publicCatalogDetail<SupplierPlaceDetail>("events", Number(supplierId)) : null;

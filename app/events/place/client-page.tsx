@@ -30,6 +30,8 @@ import { SearchAfterResults } from "../../components/search-after-results";
 import type { SupplierPlaceDetail } from "../../data/supplier-place-detail";
 import { useSearchParams } from "next/navigation";
 import { useViiLiveSearch } from "../../components/use-vii-live-search";
+import { eventSlotCopy } from "../../i18n/event-slot-copy";
+import type { EventSlot } from "../../lib/vii-live-search";
 import { trackPhoneReveal } from "../../lib/analytics";
 import { useSiteLanguage } from "../../i18n/locale-provider";
 import { latinBusinessAlias, localizedBusinessList, localizedBusinessText } from "../../i18n/localized-business-content";
@@ -43,11 +45,12 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
   const searchParams = useSearchParams();
   const selectedDate = /^\d{4}-\d{2}-\d{2}$/.test(searchParams.get("from") || "") ? searchParams.get("from") || "" : "";
   const selectedGuests = /^\d+$/.test(searchParams.get("guests") || "") ? searchParams.get("guests") || "" : "";
-  const selectedHours = [2, 3, 4, 5, 6].includes(Number(searchParams.get("hours"))) ? Number(searchParams.get("hours")) : 3;
+  const selectedSlot = searchParams.get("slot") === "morning" ? "morning" : searchParams.get("slot") === "evening" ? "evening" : undefined;
   const [eventDate, setEventDate] = useState(selectedDate);
   const [eventGuests, setEventGuests] = useState(selectedGuests);
-  const [eventHours, setEventHours] = useState(selectedHours);
-  const supplierSearch = useViiLiveSearch("events", eventDate && Number(eventGuests) > 0 ? eventDate : null, eventDate && Number(eventGuests) > 0 ? eventDate : null, Number(eventGuests), eventHours);
+  const [eventSlot, setEventSlot] = useState<EventSlot | undefined>(selectedSlot);
+  const slotCopy = eventSlotCopy[language];
+  const supplierSearch = useViiLiveSearch("events", eventDate && Number(eventGuests) > 0 ? eventDate : null, eventDate && Number(eventGuests) > 0 ? eventDate : null, Number(eventGuests), undefined, undefined, eventSlot);
   const supplierResult = /^event-\d+$/.test(initialSlug) ? supplierSearch.results[Number(initialSlug.slice(6))] : undefined;
   const eventQuoteCopy = {
     he: { loading: "בודקים זמינות ומחיר מול מערכת האירועים", error: "לא הצלחנו לבדוק כעת מול מערכת האירועים", noPrice: "אין מחיר מאומת לתאריך ולהרכב שבחרתם", unavailable: "אין זמינות מאומתת לתאריך ולהרכב שבחרתם", inquiry: "הזמינות והמחיר יאושרו מול המקום", available: (start: string, total: number) => `פנוי החל מ־${start} · ${total.toLocaleString("he-IL")} ₪ לאירוע` },
@@ -58,7 +61,7 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
   const eventQuote = supplierSearch.status === "loading" ? eventQuoteCopy.loading
     : supplierSearch.status === "error" ? eventQuoteCopy.error
     : supplierResult?.available === true && supplierResult.total && supplierResult.start
-      ? eventQuoteCopy.available(supplierResult.start, supplierResult.total)
+      ? `${eventQuoteCopy.available(supplierResult.start, supplierResult.total)} · ${supplierResult.slot ? slotCopy[supplierResult.slot] : ""}`
       : supplierResult?.reason === "no_prices" ? eventQuoteCopy.noPrice
       : supplierResult?.reason === "no_availability" || supplierResult?.available === false ? eventQuoteCopy.unavailable
       : eventQuoteCopy.inquiry;
@@ -125,7 +128,7 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
           phone: values.get("phone"),
           organization: place.name,
           location: `${place.location}, ${place.area}`,
-          message: `בקשת התאמה ל${place.name}. תאריך: ${values.get("date")}. משתתפים: ${values.get("guests")}. משך: ${eventHours} שעות. סוג אירוע: ${values.get("eventType")}.`,
+          message: `בקשת התאמה ל${place.name}. תאריך: ${values.get("date")}. משתתפים: ${values.get("guests")}. מועד: ${eventSlot ? eventSlotCopy.he[eventSlot] : eventSlotCopy.he.both}. סוג אירוע: ${values.get("eventType")}.`,
           honey: values.get("company_site"),
           privacyAccepted: values.get("privacy") === "on",
           sourcePage: window.location.href,
@@ -161,7 +164,7 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
             <GuestReviewStudio placeName={localizedPlaceName} subjectId={place.slug} rating={supplierDetail?.reviewScore ?? place.score} reviewCount={supplierDetail?.reviewCount ?? place.reviews} supplierReviews={supplierDetail?.reviews} />
           </div>
 
-          <aside id="event-booking" className="booking-card event-inquiry"><CalendarIcon /><span className="eyebrow">בדיקת אירוע</span><h2>שולחים בקשה למקום</h2>{submitState === "success" ? <div className="inquiry-success" role="status"><b>הבקשה נקלטה</b><p>הפרטים נשמרו במערכת. האירוע אינו מאושר עד לבדיקת זמינות ומחיר.</p>{reference ? <strong dir="ltr">{reference}</strong> : null}</div> : <form onSubmit={submitInquiry}><label>תאריך מבוקש<input name="date" type="date" value={eventDate} onChange={(event) => setEventDate(event.target.value)} required /></label><label>כמות משתתפים<input name="guests" type="number" min="1" value={eventGuests} onChange={(event) => setEventGuests(event.target.value)} placeholder="הקלידו כמות" required /></label><ModernSelect label="משך האירוע" value={String(eventHours)} onChange={(value) => setEventHours(Number(value))} options={[2, 3, 4, 5, 6].map((hours) => ({ value: String(hours), label: `${hours} שעות` }))} /><p role="status" aria-live="polite">{eventDate && Number(eventGuests) > 0 ? eventQuote : "בחרו תאריך וכמות משתתפים לבדיקה"}</p>{place.eventTypes.length ? <ModernSelect name="eventType" label="סוג האירוע" defaultValue={place.eventTypes[0]} options={place.eventTypes.map((item) => ({ value: item, label: item }))} /> : null}<label>שם מלא<input name="name" type="text" autoComplete="name" minLength={2} required /></label><label>טלפון<input name="phone" type="tel" inputMode="tel" autoComplete="tel" minLength={7} required /></label><label className="form-honey" aria-hidden="true">אתר החברה<input name="company_site" tabIndex={-1} autoComplete="off" /></label><label className="consent legal-consent"><input name="privacy" type="checkbox" required /><span>קראתי והסכמתי ל<Link href="/legal/terms">תקנון האתר</Link> ול<Link href="/legal/privacy">מדיניות הפרטיות</Link>, ואני מאשר או מאשרת טיפול בפרטים לצורך הבקשה.</span></label><button className="button primary wide" type="submit" disabled={submitState === "submitting"}>{submitState === "submitting" ? "שולחים..." : "שליחת בקשה"}</button>{submitState === "error" ? <p className="form-error" role="alert">השליחה לא הושלמה. הפרטים נשארו בטופס ואפשר לנסות שוב.</p> : null}<small>זו בקשת בירור בלבד. אין חיוב או אישור הזמנה.</small></form>}</aside>
+          <aside id="event-booking" className="booking-card event-inquiry"><CalendarIcon /><span className="eyebrow">בדיקת אירוע</span><h2>שולחים בקשה למקום</h2>{submitState === "success" ? <div className="inquiry-success" role="status"><b>הבקשה נקלטה</b><p>הפרטים נשמרו במערכת. האירוע אינו מאושר עד לבדיקת זמינות ומחיר.</p>{reference ? <strong dir="ltr">{reference}</strong> : null}</div> : <form onSubmit={submitInquiry}><label>תאריך מבוקש<input name="date" type="date" value={eventDate} onChange={(event) => setEventDate(event.target.value)} required /></label><label>כמות משתתפים<input name="guests" type="number" min="1" value={eventGuests} onChange={(event) => setEventGuests(event.target.value)} placeholder="הקלידו כמות" required /></label><ModernSelect label={slotCopy.label} value={eventSlot || "both"} onChange={(value) => setEventSlot(value === "both" ? undefined : value as EventSlot)} options={[{ value: "both", label: slotCopy.both }, { value: "morning", label: slotCopy.morning }, { value: "evening", label: slotCopy.evening }]} /><p role="status" aria-live="polite">{eventDate && Number(eventGuests) > 0 ? eventQuote : "בחרו תאריך וכמות משתתפים לבדיקה"}</p>{place.eventTypes.length ? <ModernSelect name="eventType" label="סוג האירוע" defaultValue={place.eventTypes[0]} options={place.eventTypes.map((item) => ({ value: item, label: item }))} /> : null}<label>שם מלא<input name="name" type="text" autoComplete="name" minLength={2} required /></label><label>טלפון<input name="phone" type="tel" inputMode="tel" autoComplete="tel" minLength={7} required /></label><label className="form-honey" aria-hidden="true">אתר החברה<input name="company_site" tabIndex={-1} autoComplete="off" /></label><label className="consent legal-consent"><input name="privacy" type="checkbox" required /><span>קראתי והסכמתי ל<Link href="/legal/terms">תקנון האתר</Link> ול<Link href="/legal/privacy">מדיניות הפרטיות</Link>, ואני מאשר או מאשרת טיפול בפרטים לצורך הבקשה.</span></label><button className="button primary wide" type="submit" disabled={submitState === "submitting"}>{submitState === "submitting" ? "שולחים..." : "שליחת בקשה"}</button>{submitState === "error" ? <p className="form-error" role="alert">השליחה לא הושלמה. הפרטים נשארו בטופס ואפשר לנסות שוב.</p> : null}<small>זו בקשת בירור בלבד. אין חיוב או אישור הזמנה.</small></form>}</aside>
         </div>
 
         <section className="section property-complements">

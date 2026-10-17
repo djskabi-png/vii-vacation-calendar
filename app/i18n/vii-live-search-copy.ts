@@ -14,21 +14,21 @@ export const eventLiveCopy: Record<SiteLanguage, {
   he: {
     checking: "בודקים זמינות ומחיר", error: "לא ניתן לאמת זמינות כרגע", unavailable: "אין זמינות במועד שבחרתם",
     unknown: "אין מידע מאומת על זמינות למועד זה", duration: "משך האירוע", hours: (count) => `${count} שעות`,
-    available: (total, count, date, start) => `פנוי מ־${total.toLocaleString("he-IL")} ₪ ל־${count} שעות · ${date} ${start}`,
+    available: (total, _count, date, _start) => `פנוי · ${total.toLocaleString("he-IL")} ₪ לאירוע · ${date}`,
   },
   en: {
     checking: "Checking availability and price", error: "Availability could not be verified", unavailable: "Unavailable for your dates",
     unknown: "No verified availability for this date", duration: "Event duration", hours: (count) => `${count} hours`,
-    available: (total, count, date, start) => `Available from ILS ${total.toLocaleString("en-US")} for ${count} hours · ${date} ${start}`,
+    available: (total, _count, date, _start) => `Available · ₪${total.toLocaleString("en-US")} for the event · ${date}`,
   },
   ru: {
     checking: "Проверяем наличие и цену", error: "Не удалось проверить наличие", unavailable: "Нет мест на выбранную дату",
     unknown: "Нет подтвержденных данных на эту дату", duration: "Длительность мероприятия", hours: (count) => `${count} ч`,
-    available: (total, count, date, start) => `Свободно от ${total.toLocaleString("ru-RU")} ₪ за ${count} ч · ${date} ${start}`,
+    available: (total, _count, date, _start) => `Свободно · ${total.toLocaleString("ru-RU")} ₪ за мероприятие · ${date}`,
   },
   fr: {
     checking: "Vérification des disponibilités et du prix", error: "Disponibilité impossible à vérifier", unavailable: "Indisponible aux dates choisies",
     unknown: "Aucune disponibilité vérifiée pour cette date", duration: "Durée de l’événement", hours: (count) => `${count} heures`,
-    available: (total, count, date, start) => `Disponible dès ${total.toLocaleString("fr-FR")} ₪ pour ${count} heures · ${date} ${start}`,
+    available: (total, _count, date, _start) => `Disponible · ${total.toLocaleString("fr-FR")} ₪ pour l’événement · ${date}`,
   },
 };

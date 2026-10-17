@@ -9951,6 +9951,21 @@ button[data-slider-boundary]:disabled { opacity: .32; color: #71898d; cursor: de
 .event-last-minute-tabs button { min-height: 42px; padding: 7px 15px; border: 1px solid #bfd8da; border-radius: 999px; background: #fff; color: var(--teal-dark); font: inherit; font-weight: 800; cursor: pointer; }
 .event-last-minute-tabs button:hover { border-color: var(--teal); background: #f1fbfb; }
 .event-last-minute-tabs button.active { border-color: var(--teal); background: var(--teal); color: #fff; }
+.event-deals .event-last-minute-controls > .modern-select { width: min(100%, 230px); }
+.event-deals__card { border-radius: 20px; grid-template-rows: 190px 1fr; }
+.event-deals__card > .place-preview-card__media { height: 190px; }
+.event-deals__card .event-rail-card__body { gap: 9px; }
+.event-deals__card .event-rail-card__body > strong { min-height: 2.7em; }
+.event-deals__card .event-rail-card__body > b { margin-top: auto; }
+.event-deals__card .event-deals__availability { color: var(--teal-dark); font-weight: 750; min-height: 3em; }
+.event-deals__loading { min-height: 340px; }
+.event-deals .event-last-minute-tabs button, .event-deals input { min-height: 44px; }
+@media (max-width: 560px) {
+  .event-deals .event-last-minute-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .event-deals .event-last-minute-tabs, .event-deals .event-last-minute-controls > .modern-select:last-child { grid-column: 1 / -1; }
+  .event-deals .event-last-minute-controls > .modern-select, .event-deals .event-last-minute-controls input { width: 100%; min-width: 0; }
+  .event-deals .section-head h2 { font-size: 1.4rem; }
+}
 @media (max-width: 560px) {
   .event-discovery-section { padding-block: 18px; }
   .event-rail-card, .event-rail-discovery { flex-basis: min(76vw, 290px); }

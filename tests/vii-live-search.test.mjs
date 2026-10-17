@@ -59,21 +59,24 @@ test("event search splits a 60-day window and never treats a partial unknown as 
       calls.push(body);
       const first = body.window.from === "2026-10-10";
       return Response.json({ sites: first ? [
-        { siteID: 11, available: false }, { siteID: 12, available: null, reason: "no_availability" }, { siteID: 13, available: true, minTotal: 900, cheapest: { date: "2026-10-11", endDate: "2026-10-11", start: "18:00" } },
+        { siteID: 11, available: false }, { siteID: 12, available: null, reason: "no_availability" }, { siteID: 13, available: true, minPrice: 900, cheapest: { date: "2026-10-11", slot: "morning", roomID: 130, price: 900 } },
       ] : [
-        { siteID: 11, available: false }, { siteID: 12, available: false }, { siteID: 13, available: true, minTotal: 700, cheapest: { date: "2026-11-17", endDate: "2026-11-17", start: "19:00" } },
+        { siteID: 11, available: false }, { siteID: 12, available: false }, { siteID: 13, available: true, minPrice: 700, cheapest: { date: "2026-11-17", slot: "evening", roomID: 130, price: 700 } },
       ] });
     },
   });
   assert.equal(calls.length, 2);
   assert.equal(calls[0].window.till, "2026-11-09");
   assert.equal(calls[1].window.from, "2026-11-10");
+  assert.equal(calls[0].guests, 20);
+  assert.equal(calls[0].hours, undefined);
+  assert.equal(calls[0].rooms, undefined);
   assert.deepEqual(result.results.map(({ siteID, available, total }) => [siteID, available, total]), [[11, false, null], [12, null, null], [13, true, 700]]);
 });
 
 test("invalid dates, duration and supplier failures fail closed", async () => {
   assert.equal(validDate("2026-02-30"), false);
   await assert.rejects(liveSupplierSearch({ world: "vacations", from: "2026-02-30", till: "2026-03-01", guests: 2, token: "x", publishedIds: new Set() }), /invalid_search/);
-  await assert.rejects(liveSupplierSearch({ world: "events", from: "2026-10-10", till: "2026-10-10", guests: 2, hours: 0, token: "x", publishedIds: new Set() }), /invalid_search/);
+  await assert.rejects(liveSupplierSearch({ world: "events", from: "2026-10-10", till: "2026-10-10", guests: 2, slot: "afternoon", token: "x", publishedIds: new Set() }), /invalid_search/);
   await assert.rejects(liveSupplierSearch({ world: "vacations", from: "2026-10-10", till: "2026-10-11", guests: 2, token: "x", publishedIds: new Set(), fetchImpl: async (url) => url.endsWith("/vacations") ? Response.json({ places: [] }) : new Response(null, { status: 503 }) }), /supplier_unavailable/);
 });
