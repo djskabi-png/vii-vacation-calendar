@@ -177,7 +177,7 @@ test("spa pages use the supplier catalog and preserve only verified legacy route
   assert.equal(current.status, 200);
   assert.match(await current.text(), /בדיקת זמינות והזמנה/);
   assert.equal(noPackages.status, 200);
-  assert.match(await noPackages.text(), /לא נמסרו חבילות למקום זה/);
+  assert.match(await noPackages.text(), /לבירור חבילות ומחירים/);
   assert.equal(oldMatch.status, 307);
   assert.match(oldMatch.headers.get("location") || "", /\/discover\/place\/spa-365$/);
   assert.equal(oldMissing.status, 404);
@@ -638,7 +638,7 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.match(business, /complementaryInventory/);
   assert.match(business, /nearbyRecommendations/);
   assert.match(eventPlace, /ספקים שיכולים להשלים את החגיגה/);
-  assert.match(eventPlace, /הפרטים מבוססים על מידע ציבורי/);
+  assert.match(eventPlace, /המחיר, הזמינות והתנאים יאושרו ישירות מול הספק לפני ההזמנה/);
   assert.match(business, /bookingQuery/);
   assert.match(business, /world: activeWorld/);
   assert.match(business, /initialFrom/);

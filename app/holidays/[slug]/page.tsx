@@ -45,7 +45,7 @@ export default async function HolidayPage({ params, searchParams }: Props) {
   const selection = holidaySelection({ get: (name) => typeof query?.[name] === "string" ? query[name] as string : null });
   const faqs = [
     { question: `מתי ${world.name} ${world.year}?`, answer: world.proof[0] },
-    { question: `איך מוצאים מקום פנוי ל${world.name}?`, answer: "בוחרים כאן חלון תאריכים והרכב. בעמוד התוצאות VII בודקת זמינות ומחיר מול המערכת לפני הצגת דיל מאומת." },
+    { question: `איך מוצאים מקום פנוי ל${world.name}?`, answer: "בוחרים תאריכים והרכב אורחים ורואים את המקומות הפנויים והמחירים המתאימים." },
     { question: "אפשר לחפש מקום לקבוצה גדולה?", answer: "כן. החיפוש לקבוצות מוגדר לעד 20 אורחים, ובעמוד התוצאות אפשר לשנות את מספר האורחים בהתאם להרכב המדויק." },
   ];
   return <PageShell variant="vacation" footerTopic="vacation-villas">
@@ -65,7 +65,7 @@ export default async function HolidayPage({ params, searchParams }: Props) {
 
       <HolidayLiveDeals holiday={holiday} initialSelection={selection} />
 
-      <section className="section shell holiday-story" aria-labelledby="holiday-story-title"><div><span className="eyebrow">מתכננים בלי לנחש</span><h2 id="holiday-story-title">מה חשוב לדעת לפני שסוגרים?</h2><p>{world.body}</p></div><ol><li><b>01</b><span><strong>בוחרים חלון</strong>לא חייבים לחפש את כל ימי החג יחד.</span></li><li><b>02</b><span><strong>מגדירים הרכב</strong>מספר האורחים משפיע על המקומות ועל המחיר.</span></li><li><b>03</b><span><strong>בודקים בזמן אמת</strong>רק תוצאה שחזרה מהמערכת מוצגת כדיל פנוי.</span></li></ol></section>
+      <section className="section shell holiday-story" aria-labelledby="holiday-story-title"><div><span className="eyebrow">מתכננים בלי לנחש</span><h2 id="holiday-story-title">מה חשוב לדעת לפני שסוגרים?</h2><p>{world.body}</p></div><ol><li><b>01</b><span><strong>בוחרים חלון</strong>לא חייבים לחפש את כל ימי החג יחד.</span></li><li><b>02</b><span><strong>מגדירים הרכב</strong>מספר האורחים משפיע על המקומות ועל המחיר.</span></li><li><b>03</b><span><strong>בודקים בזמן אמת</strong>משווים מקומות פנויים לתאריכים ולהרכב שבחרתם.</span></li></ol></section>
 
       <section className="section section-tint holiday-faq"><div className="shell"><div className="holiday-section-head"><div><span className="eyebrow">תשובות קצרות לפני שיוצאים</span><h2>שאלות על נופש ב{world.name}</h2></div></div><div className="holiday-faq__list">{faqs.map((item) => <details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}</div></div></section>
     </main>

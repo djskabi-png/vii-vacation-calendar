@@ -1,4 +1,5 @@
 "use client";
+import { publicReviewError } from "../lib/public-review-error";
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -155,15 +156,18 @@ export function GuestReviewStudio({
         window.location.href = `/api/auth/google?return_to=${encodeURIComponent(`${window.location.pathname}${window.location.search}#reviews`)}`;
         return;
       }
-      if (!response.ok) throw new Error(language === "he" && payload.error ? payload.error : copy.genericError);
+      if (!response.ok) {
+        setSubmitError(publicReviewError(payload.error, language, copy.genericError));
+        return;
+      }
       setPendingReview(payload.review);
       setFinished(true);
       form.reset();
       setRating(0);
       previews.forEach((url) => URL.revokeObjectURL(url));
       setPreviews([]);
-    } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : copy.genericError);
+    } catch {
+      setSubmitError(copy.genericError);
     } finally {
       setSubmitting(false);
     }

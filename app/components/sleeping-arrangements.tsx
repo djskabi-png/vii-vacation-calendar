@@ -36,7 +36,7 @@ export function SleepingArrangements({ placeName, arrangements }: Props) {
       <div id={trackId} className="sleeping-track" ref={track} data-horizontal-rail tabIndex={0} aria-label={`חדרי השינה של ${placeName}`}>
         {arrangements.map((arrangement) => (
           <article className="sleeping-card" key={arrangement.name}>
-            <img src={arrangement.galleryImage} alt={`${arrangement.name} ב${placeName}`} title={`${arrangement.name} ב${placeName}`} loading="lazy" />
+            {arrangement.galleryImage ? <img src={arrangement.galleryImage} alt={`${arrangement.name} ב${placeName}`} title={`${arrangement.name} ב${placeName}`} loading="lazy" /> : null}
             <div className="sleeping-card__body">
               <span>{arrangement.floor || "הקומה לא צוינה בפרטי המקום"}</span>
               <h3>{arrangement.name}</h3>
@@ -49,7 +49,6 @@ export function SleepingArrangements({ placeName, arrangements }: Props) {
         ))}
       </div>
 
-      <p className="sleeping-section__disclosure">הפירוט והתמונות מבוססים על חדרי השינה המופיעים בעמוד המקום. כאשר אין שיוך מאומת לתמונת חדר מסוים, לא תוצג תמונה במקומו.</p>
     </section>
   );
 }

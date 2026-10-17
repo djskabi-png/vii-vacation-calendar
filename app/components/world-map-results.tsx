@@ -19,6 +19,7 @@ import { trackSearchResults } from "../lib/analytics";
 import { nearbySearchRecommendations, completeNearbyResults } from "../lib/nearby-recommendations";
 import { useManagedGeography } from "./use-managed-geography";
 import { NearbySearchNotice } from "./nearby-search-notice";
+import { publicAvailabilityNotice } from "../lib/public-availability-notice";
 
 const spaFilters = spaLandings;
 
@@ -220,9 +221,10 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
     ? `${visibleMapCount} בתי ספא באזור המוצג במפה`
     : `${displayed.length} בתי ספא${mapVisibleIds ? " באזור שבחרתם במפה" : location === "כל הארץ" ? " בישראל" : ` ב${location}`}`;
 
+  const availabilityNotice = publicAvailabilityNotice({ requestedDate, checkingDate, status: availability.status, dateCovered }, language);
   return <div className="world-map-results world-map-results--spa spa-results">
     {resultItems.length > filtered.length && <NearbySearchNotice dated={Boolean(requestedDate)} regionalOnly />}
-    {requestedDate && <p className="source-note" role="status">{availability.status === "loading" || availability.status === "idle" ? "בודקים זמינות מול ביז און ליין..." : availability.status === "unavailable" ? "בדיקת הזמינות אינה זמינה כרגע. מוצגים כל המקומות ללא אישור זמינות." : !dateCovered ? "לתאריך הזה אין עדיין נתוני זמינות מביז. מוצגים כל המקומות ללא אישור זמינות." : "מוצגים רק מקומות שביז דיווח להם על משבצת פנויה. הנתון משוער, ומקומות ללא דיווח אינם מוצגים. זמינות החבילה הזוגית תאושר במהלך ההזמנה."}</p>}
+    {availabilityNotice && <p className="source-note" role="status" data-no-translate>{availabilityNotice.text}</p>}
     <section id="spa-result-filters" className="spa-results__filter-strip" aria-label="סינון תוצאות ספא" hidden={!filtersOpen}>
       <div className="spa-results__filters">
         <nav className="spa-results__landing-links" aria-label="עמודי ספא לפי מאפיין"><header><div><strong>איך בא לכם להתפנק?</strong><span>בחרו מה חשוב לכם ונציג רק מקומות מתאימים</span></div><small>החליקו לעוד אפשרויות</small></header><div>{spaFilters.map((filter) => { const selected = selectedFilters.includes(filter.id); const pending = pendingFilterId === filter.id; return <Link key={filter.id} href={spaLandingContext(filter.id)} scroll={false} aria-current={selected ? "page" : undefined} aria-busy={pending} className={`${selected ? "selected" : ""}${pending ? " is-loading" : ""}`} onClick={(event) => { if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { setPendingFilterId(filter.id); setSelectedFilters((current) => current.includes(filter.id) ? current.filter((id) => id !== filter.id) : [...current, filter.id]); } }}><span className="spa-results__filter-icon">{pending ? <span className="spa-results__filter-spinner" aria-hidden="true" /> : <SpaFilterIcon id={filter.id} />}</span><span className="spa-results__filter-label">{pending ? "מעדכנים..." : filter.label}</span><span className="spa-results__filter-check" aria-hidden="true">✓</span></Link>; })}</div></nav>
