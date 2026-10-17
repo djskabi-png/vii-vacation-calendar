@@ -295,26 +295,23 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
       });
       createdMap = map;
       mapInstance.current = map;
-      const streetTileUrl = language === "he"
-        ? "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        : "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
+      const streetTileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
       const streetTiles = L.tileLayer(streetTileUrl, {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 20,
-        maxNativeZoom: language === "he" ? 19 : 20,
-        subdomains: language === "he" ? "abc" : "abcd",
-      });
-      streetTiles.on("tileerror", (event) => {
-        const tile = event.tile as HTMLImageElement;
-        if (tile.dataset.viiFallback === "true") return;
-        tile.dataset.viiFallback = "true";
-        const { x, y, z } = event.coords;
-        tile.src = `https://a.basemaps.cartocdn.com/rastertiles/voyager/${Math.min(z, 20)}/${x}/${y}.png`;
+        maxNativeZoom: 19,
       });
       const aerialTiles = L.tileLayer(
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         { attribution: "Tiles &copy; Esri", maxZoom: 19 },
       );
+      let streetFallbackUsed = false;
+      streetTiles.on("tileerror", () => {
+        if (streetFallbackUsed || !map.hasLayer(streetTiles)) return;
+        streetFallbackUsed = true;
+        map.removeLayer(streetTiles);
+        aerialTiles.addTo(map);
+      });
       streetTiles.addTo(map);
       const layerNames = language === "he"
         ? { street: "מפה בעברית", aerial: "תצלום אוויר", layers: "בחירת סוג מפה" }

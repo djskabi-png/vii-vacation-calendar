@@ -25,13 +25,24 @@ test("place cards open only after marker activation and use a quiet modern basem
   assert.doesNotMatch(component, /if \(clustered\) \{[\s\S]*marker\.on\("click", \(\) => \{[\s\S]*selectPlace\(cluster\.entries\[0\]\.id\)/);
   assert.match(component, /marker\.on\("click", \(event\) => \{[\s\S]*clusterActivationEvent = event\.originalEvent;[\s\S]*selectedIdRef\.current = "";[\s\S]*setSelectedId\(""/);
   assert.doesNotMatch(component, /title: entry\.name|title: clustered \?/);
-  assert.match(component, /basemaps\.cartocdn\.com\/rastertiles\/voyager/);
-  assert.match(component, /subdomains: language === "he" \? "abc" : "abcd"/);
-  assert.match(component, /maxNativeZoom: language === "he" \? 19 : 20/);
+  assert.match(component, /https:\/\/tile\.openstreetmap\.org\/\{z\}\/\{x\}\/\{y\}\.png/);
+  assert.doesNotMatch(component, /cartocdn|carto\.com|subdomains:/);
+  assert.match(component, /maxNativeZoom: 19/);
   assert.match(component, /streetTiles\.on\("tileerror"/);
-  assert.match(component, /tile\.dataset\.viiFallback/);
+  assert.match(component, /streetFallbackUsed/);
   assert.match(styles, /\.listing-map-shell \.leaflet-tile-pane \{ filter: saturate\(\.76\) contrast\(\.94\) brightness\(1\.06\); \}/);
   assert.match(component, /setAttribute\("aria-label", layerNames\.layers\)/);
+});
+
+test("failed street tiles switch the whole layer once without touching markers", () => {
+  const body=component.match(/streetTiles\.on\("tileerror", \(\) => \{([\s\S]*?)\n      \}\);/)?.[1];
+  assert.ok(body);
+  const marker={};const layers=new Set([marker]);const street={};let adds=0,removes=0;
+  const map={hasLayer:layer=>layers.has(layer),removeLayer:layer=>{removes++;layers.delete(layer);}};
+  const aerial={addTo:()=>{adds++;layers.add(aerial);}};
+  const fail=new Function("map","streetTiles","aerialTiles",`let streetFallbackUsed=false;return ()=>{${body}};`)(map,street,aerial);
+  fail();assert.equal(adds,0);layers.add(street);fail();fail();assert.equal(adds,1);assert.equal(removes,1);assert.ok(layers.has(marker));assert.ok(layers.has(aerial));assert.ok(!layers.has(street));
+  layers.add(street);fail();assert.equal(adds,1);
 });
 
 test("useful numeric labels appear on markers while generic places keep icons", () => {
@@ -91,5 +102,5 @@ test("map controls and Hebrew basemap are localized", () => {
   assert.match(component, /zoomControl: false/);
   assert.match(component, /zoomInTitle: mapControlCopy\.zoomIn/);
   assert.match(component, /zoomOutTitle: mapControlCopy\.zoomOut/);
-  assert.match(component, /language === "he"[\s\S]*tile\.openstreetmap\.org/);
+  assert.match(component, /const streetTileUrl = "https:\/\/tile\.openstreetmap\.org/);
 });
