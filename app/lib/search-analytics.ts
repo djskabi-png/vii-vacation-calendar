@@ -18,7 +18,7 @@ export type SearchDemandEvent = {
 };
 
 const filterKeys: Record<SearchWorld, Set<string>> = {
-  vacation: new Set(["type", "guests", "bedrooms", "accessible", "features"]),
+  vacation: new Set(["type", "guests", "bedrooms", "accessible", "features", "online"]),
   events: new Set(["type", "eventType", "guests", "noise", "accessible", "hours"]),
   spa: new Set(["experience", "package", "guests", "accessible"]),
   hourly: new Set(["maxPrice", "features", "accessible"]),
