@@ -14,6 +14,8 @@ import { HomeSliderControls } from "./home-slider-controls";
 import { PropertyCard, type ResolvedAvailability } from "./property-card";
 import { regionalAvailabilityRegion, regionalAvailabilityTitle } from "../lib/regional-availability";
 import { regionalExpansionCopy } from "../i18n/regional-availability-copy";
+import { eligibleDealDate } from "../lib/deal-clock";
+import { useDealClock } from "./use-deal-clock";
 
 type ResponseData = { region?: string; expandedRegion?: boolean; regionalOrder?: number[]; period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[]; display?: { periods: HomePeriodTab[]; defaultPeriod: HomeDealPeriod } };
 
@@ -74,6 +76,7 @@ export function dealAvailability(deal: HomeDeal): ResolvedAvailability {
 }
 
 export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "near" | "holidays"; region?: string; guests?: number }) {
+  const clock = useDealClock();
   const scope = mode === "near" ? regionalAvailabilityRegion(region) : null;
   const regionLabel = scope?.label;
   const { language } = useSiteLanguage();
@@ -89,13 +92,15 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
   const displaySettingsApplied = useRef(false);
   const text = copy[language];
   const title = scope ? regionalAvailabilityTitle("vacation", scope, language) : mode === "holidays" ? { he: "נופש פנוי בחגים", en: "Available stays for holidays", ru: "Отдых в праздники", fr: "Séjours disponibles pendant les fêtes" }[language] : text.title;
-  const searchDates = mode === "holidays" ? data?.deals[0] ?? data?.dates : data?.dates;
+  const selectedDates = mode === "holidays" ? data?.deals[0] ?? data?.dates : data?.dates;
+  const searchDates = clock && selectedDates && eligibleDealDate(selectedDates.from, clock.now) ? selectedDates : undefined;
   const currentHoliday = holidays.find((item) => item.id === holidayId);
   const searchHref = mode === "holidays" && currentHoliday?.href
     ? currentHoliday.href
     : searchDates ? `/search?${new URLSearchParams({ from: searchDates.from, till: searchDates.till, guests: String(guests), ...(regionLabel ? { location: regionLabel } : {}) })}` : regionLabel ? `/search?${new URLSearchParams({ location: regionLabel, guests: String(guests) })}` : "/search";
 
   useEffect(() => {
+    if (!clock) return;
     if (mode !== "holidays") return;
     const controller = new AbortController();
     setHolidayState("loading");
@@ -104,14 +109,15 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
       .then((result) => {
         if (!Array.isArray(result.holidays)) throw new Error("invalid_result");
         setHolidays(result.holidays);
-        setHolidayId(result.holidays[0]?.id ?? null);
+        setHolidayId(previous => result.holidays.some(item => item.id === previous) ? previous : result.holidays[0]?.id ?? null);
         setHolidayState("ready");
       })
       .catch((error) => { if (error?.name !== "AbortError") setHolidayState("error"); });
     return () => controller.abort();
-  }, [language, mode, retry]);
+  }, [language, mode, retry, clock?.key]);
 
   useEffect(() => {
+    if (!clock) return;
     if (mode === "holidays" && (holidayState !== "ready" || holidayId === null)) return;
     const controller = new AbortController();
     setState("loading");
@@ -140,7 +146,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
       })
       .catch((error) => { if (error?.name !== "AbortError") setState("error"); });
     return () => controller.abort();
-  }, [period, holidayId, holidayState, holidays, language, mode, retry, regionLabel, guests]);
+  }, [period, holidayId, holidayState, holidays, language, mode, retry, regionLabel, guests, clock?.key]);
 
   function choose(value: HomeDealPeriod) {
     if (value !== period) { setState("loading"); setData(null); }
@@ -156,9 +162,10 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
 
   const sectionId = scope ? `regional-vacation-${scope.key}` : mode === "holidays" ? "home-holiday-deals" : "home-live-deals";
   const curatedDeals = data?.deals.filter((deal) => deal.curatedRank !== undefined).sort((a, b) => (a.curatedRank || 500) - (b.curatedRank || 500) || a.siteID - b.siteID) || [];
-  const displayedDeals = scope ? data?.deals || [] : data?.deals ? [...curatedDeals, ...rotateWithinTiers(data.deals.filter((deal) => deal.curatedRank === undefined),
+  const orderedDeals = scope ? data?.deals || [] : data?.deals ? [...curatedDeals, ...rotateWithinTiers(data.deals.filter((deal) => deal.curatedRank === undefined),
     (deal) => Math.floor(deal.total / 500), (deal) => deal.siteID,
     `home-deals:${mode}:${mode === "holidays" ? holidayId : period}`)] : [];
+  const displayedDeals = clock ? orderedDeals.filter(deal => eligibleDealDate(deal.from, clock.now)) : [];
   const displayState = mode === "holidays" && holidayState !== "ready" ? holidayState : state;
   const allLabel = mode === "holidays" && currentHoliday ? `${allPeriodCopy[language].holiday}${currentHoliday.name}` : mode === "near" ? allPeriodCopy[language][period] : text.all;
   const displayedDealCount = displayedDeals.length;

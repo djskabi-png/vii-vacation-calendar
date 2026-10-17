@@ -4,6 +4,7 @@ import {readFile} from 'node:fs/promises';
 import {stripTypeScriptTypes} from 'node:module';
 import {holidayParts} from '../app/lib/holiday-deal-selection.ts';
 import {regionalAvailabilityRegion,regionalPublishedIds} from '../app/lib/regional-availability.ts';
+import {eligibleDealDate} from '../app/lib/deal-clock.ts';
 
 async function loadRoute(name, dependencies) {
   const source=await readFile(new URL(`../app/api/vii/${name}/route.ts`,import.meta.url),'utf8');
@@ -17,14 +18,14 @@ for(const name of ['home-deals','home-holiday-deals'])test(`${name} starts indep
     publicCatalogSummaries(){calls.push('names');return new Promise(resolve=>{releaseNames=resolve;});},
     publishedSupplierIds(){calls.push('ids');return Promise.resolve(new Set([1]));},
     supplierToken(){calls.push('token');return Promise.resolve('synthetic-test');},
-    homeDealPeriods:[{id:'tomorrow'}], holidayParts, isContentLocale:()=>true, regionalAvailabilityRegion, regionalPublishedIds,
+    homeDealPeriods:[{id:'tomorrow'}], holidayParts, isContentLocale:()=>true, regionalAvailabilityRegion, regionalPublishedIds,eligibleDealDate,
     readHomeDisplaySettings:async()=>({periods:[{id:'tomorrow'}],defaultPeriod:'tomorrow'}),
     curateHomeDeals:async(_db,deals)=>deals,
   };
   const supplier=async(input)=>{
     assert.equal(input.token,'synthetic-test');assert.equal(input.publicNames.get(1),'Verified name');assert.deepEqual([...input.publicSiteIds],[1]);
     if (name === 'home-holiday-deals') { assert.equal(input.guests, 2); assert.equal(input.part, 'all'); }
-    return {deals:[{siteID:1,total:350}],source:'live-test'};
+    return {deals:[{siteID:1,total:350,from:'2099-12-05'}],source:'live-test'};
   };
   dependencies.getHomeDeals=supplier;dependencies.getHomeHolidayDeals=supplier;
   const get=await loadRoute(name,dependencies);
@@ -33,7 +34,7 @@ for(const name of ['home-deals','home-holiday-deals'])test(`${name} starts indep
   releaseNames([{supplierId:1,name:'Verified name'}]);
   const response=await responsePromise;
   assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),'no-store');
-  assert.deepEqual((await response.json()).deals,[{siteID:1,total:350}]);
+  assert.deepEqual((await response.json()).deals,[{siteID:1,total:350,from:'2099-12-05'}]);
 });
 for(const route of ['home-deals','home-holiday-deals'])test(`${route} overlaps catalog, publication allowlist and token without caching availability`,async()=>{
   const source=await readFile(new URL(`../app/api/vii/${route}/route.ts`,import.meta.url),'utf8');

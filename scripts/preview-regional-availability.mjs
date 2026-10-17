@@ -13,6 +13,7 @@ import {matchesSearchLocation} from '../app/data/search-taxonomy.ts';
 import {spaPlusArea} from '../app/data/spa-regions.ts';
 import {selectSpaPackageDeals} from '../app/lib/spa-package-deals.ts';
 import {eventDealDate} from '../app/lib/event-deal-dates.ts';
+import {dealRailDays,eligibleDealDate} from '../app/lib/deal-clock.ts';
 import {homeDealPeriods} from '../app/lib/vii-home-deals.ts';
 import {validDate} from '../app/lib/vii-live-search.ts';
 const origin='https://vii.spaplus.co';
@@ -36,7 +37,7 @@ async function candidateAPI(request){
  let homeResult;
  const home=()=>homeResult??=(json(`/api/vii/home-deals?${new URLSearchParams({period:url.searchParams.get('period')||'tomorrow',locale:url.searchParams.get('locale')||'he'})}`));
  const dependencies={
-  regionalAvailabilityRegion,regionalPublishedIds,selectRegionalOffers,matchesSearchLocation,spaPlusArea,selectSpaPackageDeals,eventDealDate,homeDealPeriods,validDate,
+  regionalAvailabilityRegion,regionalPublishedIds,selectRegionalOffers,matchesSearchLocation,spaPlusArea,selectSpaPackageDeals,eventDealDate,homeDealPeriods,validDate,dealRailDays,eligibleDealDate,
   isContentLocale:value=>['he','en','ru','fr'].includes(value),
   supplierToken:async()=>'local-public-read-adapter-not-a-provider-token',
   publicCatalogSummaries:catalog,

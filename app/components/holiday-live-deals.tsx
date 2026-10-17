@@ -12,6 +12,8 @@ import { useSiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
 import { dealAvailability, dealProperty } from "./home-live-deals.tsx";
 import { PropertyCard } from "./property-card.tsx";
+import { eligibleDealDate, firstDealDate } from "../lib/deal-clock";
+import { useDealClock } from "./use-deal-clock";
 
 const copy = {
   he: { heading: "הדילים שמתאימים לכם", audience: "מי יוצא לחופשה?", family: "משפחה", couple: "זוג", group: "קבוצה גדולה", all: "כל החג", opening: "תחילת החג", middle: "אמצע החג", ending: "סוף החג", period: "מתי יוצאים?", guests: "אורחים", nights: "לילות", loading: "בודקים זמינות ומחיר להרכב שלכם", empty: "לא נמצאו דילים זמינים לבחירה הזאת", emptyHelp: "נסו חלק אחר בחג או שנו את התאריכים וההרכב בחיפוש.", error: "לא הצלחנו לבדוק זמינות כרגע", retry: "לנסות שוב", search: "שינוי תאריכים והרכב", reset: "חזרה לכל החג", count: "מקומות זמינים", basis: "המחירים מחושבים לפי", window: "השהייה עשויה להתחיל בכל תאריך בטווח הזה. התאריכים המדויקים מופיעים בכל דיל." },
@@ -23,6 +25,7 @@ const icons = { family: Users, couple: Heart, group: UsersRound };
 type Result = { key: string; status: "loading" | "ready" | "error"; deals: HomeDeal[] };
 
 export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeHoliday; initialSelection: HolidaySelection }) {
+  const clock = useDealClock();
   const { language } = useSiteLanguage();
   const text = copy[language];
   const [selection, setSelection] = useState(initialSelection);
@@ -30,11 +33,13 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
   const [result, setResult] = useState<Result>({ key: "", status: "loading", deals: [] });
   const generation = useRef(0);
   const guests = holidayAudiences.find((item) => item.id === selection.audience)!.guests;
-  const window = holidayDealWindow(holiday, selection.part);
-  const key = `${holiday.id}:${selection.audience}:${selection.part}`;
+  const earliest = clock ? firstDealDate(clock.now) : holiday.from;
+  const currentHoliday = holiday.from < earliest ? { ...holiday, from: earliest, nights: Math.min(2, Math.max(1, Math.round((Date.parse(`${holiday.till}T00:00:00Z`) - Date.parse(`${earliest}T00:00:00Z`)) / 86_400_000))) } : holiday;
+  const window = holidayDealWindow(currentHoliday, selection.part);
+  const key = `${holiday.id}:${selection.audience}:${selection.part}:${clock?.key || "loading"}`;
   const state = result.key === key ? result.status : "loading";
-  const deals = state === "ready" ? result.deals : [];
-  const searchHref = localizedPath(holidayDealSearchHref(holiday, selection), language);
+  const deals = state === "ready" && clock ? result.deals.filter(deal => eligibleDealDate(deal.from, clock.now)) : [];
+  const searchHref = localizedPath(holidayDealSearchHref(currentHoliday, selection), language);
 
   useEffect(() => {
     const restore = () => setSelection(holidaySelection(new URLSearchParams(globalThis.location.search)));
@@ -43,9 +48,11 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
   }, []);
 
   useEffect(() => {
+    if (!clock) return;
     const controller = new AbortController();
     const request = ++generation.current;
     setResult({ key, status: "loading", deals: [] });
+    if (currentHoliday.from >= holiday.till) { setResult({ key, status: "ready", deals: [] }); return () => controller.abort(); }
     if (holiday.id <= 0) { setResult({ key, status: "error", deals: [] }); return () => controller.abort(); }
     const params = new URLSearchParams({ id: String(holiday.id), guests: String(guests), part: selection.part });
     fetch(`/api/vii/home-holiday-deals?${params}`, { cache: "no-store", signal: controller.signal })
@@ -58,7 +65,7 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
       .then((items) => { if (!controller.signal.aborted && request === generation.current) setResult({ key, status: "ready", deals: items }); })
       .catch(() => { if (!controller.signal.aborted && request === generation.current) setResult({ key, status: "error", deals: [] }); });
     return () => controller.abort();
-  }, [key, retry, holiday.id, guests, selection.part, window.from, window.till]);
+  }, [key, retry, holiday.id, guests, selection.part, window.from, window.till, clock?.key]);
 
   function choose(next: HolidaySelection) {
     if (next.audience === selection.audience && next.part === selection.part) return;
