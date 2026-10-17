@@ -4,6 +4,7 @@ import hourlyCatalog from "./sergey-hourly-catalog.json";
 import { spaPlusArea, spaPlusAudience, spaPlusSites, type SpaPlusSite } from "./spaplus";
 import { supplierContactNumber } from "../lib/supplier-contact";
 import type { WorldId } from "./world-navigation";
+import { safeHourlyDescription } from "../lib/hourly-description";
 export { worlds, publicWorldNavigation } from "./world-navigation";
 export type { WorldId, WorldDefinition } from "./world-navigation";
 
@@ -98,7 +99,7 @@ export const hourlyPlacesFromCatalog = (places: typeof hourlyCatalog.places): Di
     name: place.name,
     location: place.location,
     area: place.area,
-    description: place.description?.replace(/ש[״"]ח/g, "₪") || "לפרטים נוספים ולתיאום שהייה, פנו למקום.",
+    description: safeHourlyDescription(place).replace(/ש[״"]ח/g, "₪") || "לפרטים נוספים ולתיאום שהייה, פנו למקום.",
     features: features.slice(0, 12),
     image: place.images[0],
     images: place.images,
