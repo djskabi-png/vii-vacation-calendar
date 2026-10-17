@@ -1,7 +1,15 @@
 import type { SupplierCatalogEntry, SupplierCatalogWorld } from "./supplier-catalog-store.ts";
 
 export const catalogDiagnosticLimit = 100;
+export const spaEditorialDiagnosticFields = ["title", "titleEN", "address", "city", "shortDescription", "about", "opening"] as const;
+export type SpaEditorialDiagnosticField = typeof spaEditorialDiagnosticFields[number];
 export type CatalogSyncDiagnostics = {
+  spaEditorialReview?: {
+    total: number;
+    rejected: { supplierId: number; fields: SpaEditorialDiagnosticField[];
+      reason: "content_changed" | "missing_title" | "baseline_unavailable" }[];
+    truncated: boolean;
+  };
   before?: number;
   candidate?: number;
   addedCount?: number;
@@ -52,6 +60,22 @@ function hostname(value: unknown) {
 export function sanitizeCatalogDiagnostics(value: unknown): CatalogSyncDiagnostics | undefined {
   const input = object(value);
   const output: CatalogSyncDiagnostics = {};
+  const editorial = object(input.spaEditorialReview);
+  if (count(editorial.total) && Array.isArray(editorial.rejected)) {
+    const allowedFields = new Set<string>(spaEditorialDiagnosticFields);
+    const allowedReasons = new Set(["content_changed", "missing_title", "baseline_unavailable"]);
+    output.spaEditorialReview = {
+      total: editorial.total,
+      rejected: editorial.rejected.slice(0, catalogDiagnosticLimit).map(object)
+        .filter((row) => id(row.supplierId) && allowedReasons.has(String(row.reason)))
+        .map((row) => ({ supplierId: row.supplierId as number,
+          fields: [...new Set(Array.isArray(row.fields) ? row.fields.filter((field): field is SpaEditorialDiagnosticField =>
+            typeof field === "string" && allowedFields.has(field)) : [])],
+          reason: row.reason as "content_changed" | "missing_title" | "baseline_unavailable" })),
+      truncated: editorial.truncated === true || editorial.rejected.length > catalogDiagnosticLimit
+        || editorial.total > editorial.rejected.length,
+    };
+  }
   for (const key of ["before", "candidate", "addedCount", "removedCount", "changedCount"] as const) {
     if (count(input[key])) output[key] = input[key];
   }
@@ -139,5 +163,14 @@ export class SpaCatalogJsonError extends Error {
   constructor(metadata: NonNullable<CatalogSyncDiagnostics["spaJsonFailure"]>) {
     super("invalid_spa_response");
     this.diagnostics = sanitizeCatalogDiagnostics({ spaJsonFailure: metadata })!;
+  }
+}
+
+/** Fixed field names and IDs only. Never retain supplier prose in diagnostic history. */
+export class SpaEditorialReviewError extends Error {
+  readonly diagnostics: CatalogSyncDiagnostics;
+  constructor(review: NonNullable<CatalogSyncDiagnostics["spaEditorialReview"]>) {
+    super("catalog_editorial_requires_review");
+    this.diagnostics = sanitizeCatalogDiagnostics({ spaEditorialReview: review })!;
   }
 }

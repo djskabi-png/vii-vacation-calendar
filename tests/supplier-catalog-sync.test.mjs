@@ -55,6 +55,13 @@ test("changed Spa prose is rejected before staging and cannot replace reviewed p
       validateCandidate: validateSpaEditorialCandidate, fetchCandidate: async () => ({ fetchedAt: at().toISOString(), entries: [{supplierId:6, summary:{...site,about:[...site.about,"new unreviewed supplier words"]}}] }) });
     assert.equal(rejected.status, "rejected");
     assert.equal(rejected.errorCode, "catalog_editorial_requires_review");
+    assert.deepEqual(rejected.diagnostics.spaEditorialReview, { total: 1, truncated: false,
+      rejected: [{ supplierId: 6, fields: ["about"], reason: "content_changed" }] });
+    const persisted = (await readSupplierCatalogDashboard(db)).runs.find((run) => run.id === "editorial-changed");
+    assert.deepEqual(persisted.diagnostics.spaEditorialReview, rejected.diagnostics.spaEditorialReview);
+    assert.equal(persisted.diagnostics.before, 1);
+    assert.equal(persisted.diagnostics.candidate, 1);
+    assert.doesNotMatch(JSON.stringify(persisted.diagnostics), /new unreviewed supplier words/);
     assert.deepEqual(await readSupplierCatalog(db, "spa"), before);
     assert.equal((await db.prepare("SELECT COUNT(*) AS n FROM supplier_catalog_entries WHERE run_id = ?").bind("editorial-changed").first()).n, 0);
     const publicBody = await (await catalogResponse(new Request("https://vii.spaplus.co/api/catalog?world=spa&id=6"), db)).json();
