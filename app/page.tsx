@@ -94,8 +94,8 @@ export default function HomePage() {
       <main id="main-content">
         <section className="home-hero">
           <div className="shell home-hero__content">
-            <h1>כל החופשה, במקום אחד</h1>
-            <p>נופש, ספא, אירועים וכל מה שעושים מסביב.</p>
+            <h1>כל מה שעושים בחופש, במקום אחד</h1>
+            <p>נופש, ספא, אירועים ופעילויות. מחפשים ומזמינים ישר כאן.</p>
             <SearchBox showWorlds />
             <HomeQuickSearches />
           </div>

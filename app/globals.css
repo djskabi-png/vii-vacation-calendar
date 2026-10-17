@@ -10239,4 +10239,12 @@ html[data-locale-pending] body {
   .spa-discovery-hero__layout,
   .events-hero__layout,
   .discovery-world-hero__layout { grid-template-areas:"content" "search"; }
+  .spa-discovery-hero__search,
+  .events-hero__search,
+  .discovery-world-hero__search { margin-bottom:0; }
+}
+
+/* The expanded editor is portalled to body, outside every hero clipping context. */
+@media (max-width:820px) {
+  body > .search-box-shell.mobile-expanded { position:fixed; inset:0; z-index:1600; margin:0; border:0; font-family:Rubik,Heebo,Assistant,Arial,sans-serif; }
 }

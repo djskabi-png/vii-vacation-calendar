@@ -69,8 +69,8 @@ test("homepage hero keeps one focused message and compact local spacing", async 
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
-  assert.match(page, /<h1>כל החופשה, במקום אחד<\/h1>/);
-  assert.match(page, /<p>נופש, ספא, אירועים וכל מה שעושים מסביב\.<\/p>/);
+  assert.match(page, /<h1>כל מה שעושים בחופש, במקום אחד<\/h1>/);
+  assert.match(page, /<p>נופש, ספא, אירועים ופעילויות\. מחפשים ומזמינים ישר כאן\.<\/p>/);
   assert.doesNotMatch(page, /<span className="eyebrow">נופש, אירועים, ספא וחוויות<\/span>/);
   assert.match(css, /\.home-hero \{[^}]*min-height: 470px;[^}]*padding: 52px 0 42px;/);
   assert.match(css, /\.home-recommended \{[^}]*padding-block: 64px;/);
