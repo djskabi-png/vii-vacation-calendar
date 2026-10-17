@@ -10,7 +10,8 @@ import type { WorldId } from "../data/world-data";
 export function WorldEditorialLinks({ variant }: { variant: WorldId }) {
   const pathname = usePathname().replace(/^\/(en|fr|ru)(?=\/|$)/, "");
   const { language } = useSiteLanguage();
-  if (language !== "he" || /^\/(guides|admin|platform|account|legal|booking|join|favorites|gift-card)(\/|$)/.test(pathname) || pathname === "/") return null;
+  // Discovery guides belong to worlds and business pages, not legal/account utilities.
+  if (language !== "he" || !/^\/(search|vacations|events|corporate|spas|hourly|providers|attractions|trails|business|discover|villas|suite-complexes|vacation-apartments|lofts)(\/|$)/.test(pathname)) return null;
   const world = pathname.startsWith("/corporate") ? "corporate"
     : pathname.startsWith("/attractions") ? "attractions"
     : pathname.startsWith("/trails") ? "trails"
