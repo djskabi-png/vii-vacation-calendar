@@ -43,6 +43,10 @@ test("online filter is wired before primary and nearby results and has truthful 
   assert.match(page, /accessible: null, online: null/);
   assert.match(page, /catalogLoading \|\| catalogError \|\| onlineCheckPending/);
   assert.match(page, /setOnlineSearchRetry\(\(value\) => value \+ 1\)/);
+  // The DOM translation observer caches a text node's first Hebrew source.
+  // Stateful status/count copy must be React-owned and translated explicitly.
+  assert.match(page, /<p data-no-translate>\{translate\(!selectedStay/);
+  assert.match(page, /className="button primary filter-apply" data-no-translate[\s\S]*?\{translate\(draftResultLabel\)\}/);
   const box = readFileSync(new URL("../app/components/search-box.tsx", import.meta.url), "utf8");
   assert.match(box, /mode === "vacation" && new URLSearchParams\(searchParamsKey\).get\("online"\) === "1"/);
   assert.match(box, /if \(!openDatesRequest \|\| mode !== "vacation"\) return/);
