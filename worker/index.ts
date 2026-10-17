@@ -15,6 +15,7 @@ import { legacyDisposition, looksLikeUninventoriedLegacyPath } from "../app/lib/
 import { redirectForUrl, shouldCheckRedirect } from "../app/lib/admin-redirects.ts";
 import { publicCachePolicy, readPublicCache, refreshPublicCacheAhead, storePublicCache } from "./public-response-cache.ts";
 import { rewriteCanonicalStream } from "./stream-canonical.ts";
+import { rewriteOriginStream } from "./stream-origin.ts";
 import { editorialWorldLinks } from "../app/data/editorial-world-links";
 
 declare const __VII_CACHE_BUILD_ID__: string;
@@ -301,17 +302,18 @@ const worker = {
         output.headers.set("X-VII-Html-Transform", "native-stream");
         return storePublicCache(output, cachePolicy, env, ctx);
       }
-      const headers = new Headers(transformed.headers);
-      headers.delete("content-length");
-      const html = (await transformed.text()).replaceAll(temporaryOrigin, primaryOrigin);
-      return storePublicCache(new Response(html, { status: transformed.status, statusText: transformed.statusText, headers }), cachePolicy, env, ctx);
+      const output = rewriteOriginStream(transformed, temporaryOrigin, primaryOrigin);
+      output.headers.set("X-VII-Html-Transform", "native-stream");
+      return storePublicCache(output, cachePolicy, env, ctx);
     }
 
     // The standalone Vinext production server used by local QA does not
     // expose Cloudflare's HTMLRewriter. Keep the same output contract there
     // so raw-HTML SEO checks exercise the exact locale behavior.
-    if (locale === "he" && !primary && cachePolicy?.kind === "document") {
-      return storePublicCache(await withLaunchSeo(rewriteCanonicalStream(response, makeLocaleLinks), url, false), cachePolicy, env, ctx);
+    if (locale === "he" && cachePolicy?.kind === "document") {
+      const canonical = rewriteCanonicalStream(response, makeLocaleLinks);
+      const output = primary ? rewriteOriginStream(canonical, temporaryOrigin, primaryOrigin) : canonical;
+      return storePublicCache(await withLaunchSeo(output, url, primary), cachePolicy, env, ctx);
     }
     const html = await response.text();
     const rewritten = html.replace(
