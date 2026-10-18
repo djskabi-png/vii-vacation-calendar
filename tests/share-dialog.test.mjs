@@ -50,3 +50,21 @@ test("shared share trigger is icon-only but retains a localized accessible name"
   assert.match(css, /\.share-trigger \{ width: 44px; min-width: 44px; height: 44px; min-height: 44px; padding: 0/);
   assert.match(css, /\.share-trigger svg \{[^}]*flex: 0 0 18px/);
 });
+
+test("sharing previews the actual entity cover, without the failing optimizer, and recovers from missing media", async () => {
+  const [dialog, business, events, article, css] = await Promise.all([
+    read("app/components/share-dialog.tsx"), read("app/business/client-page.tsx"),
+    read("app/events/place/client-page.tsx"), read("app/guides/article/client-page.tsx"), read("app/globals.css"),
+  ]);
+  assert.match(business, /<ShareButton title=\{property\.name\} image=\{property\.image\}/);
+  assert.match(events, /<ShareButton title=\{place\.name\} kind="event" image=\{place\.image\}/);
+  assert.match(article, /kind="article" image=\{article\.image\} imageAlt=\{article\.imageAlt\} imageCaption=/);
+  assert.match(article, /imageKind === "illustration"/);
+  assert.match(dialog, /src=\{image!\}[\s\S]*?unoptimized[\s\S]*?onError=\{\(\) => setPhotoFailed\(true\)\}/);
+  assert.match(dialog, /src="\/vii-logo\.png"[^>]*unoptimized[^>]*onError=\{\(\) => setLogoFailed\(true\)\}/);
+  assert.match(dialog, /logoFailed \? <span aria-label="VII">VII<\/span>/);
+  assert.match(dialog, /<SharePreviewImage key=\{image\}/);
+  assert.match(css, /\.share-dialog__preview > \.share-dialog__logo img \{ object-fit: contain; \}/);
+  assert.match(css, /\.share-dialog__preview strong \{[^}]*-webkit-line-clamp: 2/);
+  assert.ok(events.indexOf('ownerWhatsapp ? <WhatsAppLeadButton') < events.indexOf('<ShareButton title={place.name}'));
+});
