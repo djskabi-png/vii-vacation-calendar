@@ -78,7 +78,7 @@ export default async function JoinPage({ initialWorld, searchParams }: { initial
         <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "הצטרפות ופרסום" }]} />
         <section className="join-hero join-hero--conversion">
           <div className="shell">
-            <span className="eyebrow">מצטרפים לעולמות של וי פור ויקיישן</span>
+
             <h1>מצטרפים בדרך שמתאימה בדיוק לעסק שלכם</h1>
             <p>ספקים בוחרים חבילת פרסום ומתחילים אונליין. מקומות אירוח, אירועים, ספא, חדרים לפי שעה ואטרקציות מתחילים ברישום קצר וממשיכים עם נציג מומחה.</p>
             <div className="join-hero__actions">
@@ -96,7 +96,7 @@ export default async function JoinPage({ initialWorld, searchParams }: { initial
         <section id="join-benefits" className="section shell join-benefits" aria-labelledby="join-benefits-title">
           <div className="section-head">
             <div>
-              <span className="eyebrow">יותר מעמוד באינדקס</span>
+
               <h2 id="join-benefits-title">מערכת אחת שמחברת פרסום, תוכן וזמינות</h2>
               <p>העסק מקבל נוכחות מלאה באתר וכלים שעוזרים לנהל אותה לאורך זמן.</p>
             </div>
@@ -116,7 +116,7 @@ export default async function JoinPage({ initialWorld, searchParams }: { initial
 
         <section className="section shell join-faq" aria-labelledby="join-faq-title">
           <div className="join-faq__intro">
-            <span className="eyebrow">מידע לפני שמצטרפים</span>
+
             <h2 id="join-faq-title">שאלות ותשובות על הצטרפות ופרסום באתר</h2>
             <p>תשובות ברורות על מסלולי הפרסום, תהליך הבדיקה, החיוב וניהול עמוד העסק.</p>
           </div>

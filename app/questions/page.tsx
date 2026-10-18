@@ -67,7 +67,7 @@ export default function QuestionsPage() {
       ])} />
       <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "מידע ושירות", path: "/guides" }, { name: "שאלות ותשובות" }]} />
       <header className="shell questions-hero">
-        <span className="eyebrow">תשובות לפני שמחליטים</span>
+
         <h1>כל מה שרוצים לדעת לפני חופשה, אירוע או יום פינוק</h1>
         <p>ריכזנו תשובות קצרות וברורות לשאלות שחוזרות לפני בחירת מקום. המידע בעמוד אינו מחליף את התנאים המחייבים שיוצגו בתהליך ההזמנה.</p>
         <nav aria-label="נושאים בעמוד">
@@ -86,7 +86,7 @@ export default function QuestionsPage() {
         </section>)}
       </div>
       <section className="section section-tint questions-cta">
-        <div className="shell"><div><span className="eyebrow">מוכנים להתקדם</span><h2>עוברים מהשאלה לחיפוש מדויק</h2><p>בחרו עולם, אזור והרכב וקבלו מקומות שמתאימים למה שאתם באמת צריכים.</p></div><Link className="button primary" href="/search">לחיפוש מקומות</Link></div>
+        <div className="shell"><div><h2>עוברים מהשאלה לחיפוש מדויק</h2><p>בחרו עולם, אזור והרכב וקבלו מקומות שמתאימים למה שאתם באמת צריכים.</p></div><Link className="button primary" href="/search">לחיפוש מקומות</Link></div>
       </section>
     </main>
   </PageShell>;

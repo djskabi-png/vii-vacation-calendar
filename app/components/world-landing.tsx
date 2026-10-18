@@ -118,7 +118,6 @@ export async function WorldLanding({
         <div className="shell spa-discovery-hero__layout">
           <div className="spa-discovery-hero__content">
             <BreadcrumbTrail className="spa-discovery-hero__breadcrumbs" items={breadcrumbItems || [{ name: "ראשי", path: "/" }, { name: worldLabel }]} />
-            <span className="spa-discovery-hero__eyebrow">הפסקה טובה מתחילה כאן</span>
             <SemanticWorldHeading mode={searchMode} title={title} description={description} />
             <div className="spa-discovery-hero__proof" aria-label="יתרונות החיפוש">
               <span><b>{items.length}</b> בתי ספא</span>
@@ -146,7 +145,7 @@ export async function WorldLanding({
         {world === "hourly" ? <HourlyResults items={items} initialLocation={initialSearchLocation} /> : world === "providers" ? <ProviderResults items={items} category={providerCategory} /> : world === "spa" ? <WorldMapResults items={items} world="spa" activeSpaFilter={activeSpaFilter} initialLocation={initialSearchLocation} initialSpaAudience={initialSpaAudience} initialSpaFilters={initialSpaFilters} /> : <div className="discovery-grid">{items.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>}
       </section>
       {(world === "hourly" || world === "spa" || world === "providers" || world === "activities") ? <SearchAfterResults world={world} location={initialSearchLocation} baseParams={{ ...(initialSpaAudience ? { spaFor: initialSpaAudience } : {}), ...(initialSpaFilters?.length ? { features: initialSpaFilters.join(",") } : {}) }} inventory={items.map(item => ({ location: item.location, area: world === "activities" ? activityRegion(item) || "" : item.area, type: world === "activities" ? activityType(item) || undefined : undefined, serviceAreas: item.serviceAreas }))} reviewHighlights={items.filter((item) => typeof item.rating === "number").sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 3).map((item) => ({ name: item.name, href: `/discover/place/${item.id}`, rating: item.rating || 0, context: item.sourceName ? `דירוג מתוך ${item.sourceName}` : undefined }))} /> : null}
-      {crossSell && <section className="section section-tint world-cross-sell"><div className="shell"><span className="eyebrow">{crossSell.eyebrow}</span><h2>{crossSell.title}</h2><p>{crossSell.description}</p><div>{crossSell.links.map((link, index) => <Link key={link.href} className={`button ${index === 0 ? "primary" : "secondary"}`} href={link.href}>{link.label}</Link>)}</div></div></section>}
+      {crossSell && <section className="section section-tint world-cross-sell"><div className="shell"><h2>{crossSell.title}</h2><p>{crossSell.description}</p><div>{crossSell.links.map((link, index) => <Link key={link.href} className={`button ${index === 0 ? "primary" : "secondary"}`} href={link.href}>{link.label}</Link>)}</div></div></section>}
     </main>
   </PageShell>;
 }

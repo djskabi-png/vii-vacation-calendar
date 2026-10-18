@@ -59,9 +59,9 @@ export default async function TrailPage({ params }: { params: Promise<{ slug: st
 
       <div className="shell trail-detail__layout">
         <article className="trail-detail__content">
-          <section aria-labelledby="trail-plan"><span className="eyebrow">התוכנית שלנו ליום הזה</span><h2 id="trail-plan">איך עושים את המסלול נכון</h2><ol className="trail-plan">{trail.dayPlan.map((step, index) => <li key={step}><span>{index + 1}</span><p>{step}</p></li>)}</ol></section>
+          <section aria-labelledby="trail-plan"><h2 id="trail-plan">איך עושים את המסלול נכון</h2><ol className="trail-plan">{trail.dayPlan.map((step, index) => <li key={step}><span>{index + 1}</span><p>{step}</p></li>)}</ol></section>
           <section aria-labelledby="trail-highlights"><h2 id="trail-highlights">מה פוגשים בדרך</h2><div className="trail-highlight-grid">{trail.highlights.map((item) => <span key={item}>{item}</span>)}</div></section>
-          <section className="trail-safety" aria-labelledby="trail-safety"><span className="eyebrow">לא יוצאים בלי לבדוק</span><h2 id="trail-safety">בטיחות ותנאים משתנים</h2><ul>{trail.safety.map((item) => <li key={item}>{item}</li>)}</ul><p>המידע אינו אישור שהמסלול פתוח כרגע. לפני היציאה בודקים מבזקים, תחזית, שעות פעילות והנחיות בשטח.</p><p className="trail-source-link">מקור המידע שנבדק: {trail.sourceName}</p></section>
+          <section className="trail-safety" aria-labelledby="trail-safety"><h2 id="trail-safety">בטיחות ותנאים משתנים</h2><ul>{trail.safety.map((item) => <li key={item}>{item}</li>)}</ul><p>המידע אינו אישור שהמסלול פתוח כרגע. לפני היציאה בודקים מבזקים, תחזית, שעות פעילות והנחיות בשטח.</p><p className="trail-source-link">מקור המידע שנבדק: {trail.sourceName}</p></section>
           <section aria-labelledby="trail-who"><h2 id="trail-who">למי זה מתאים</h2><p>{trail.familyFit}</p><h3>נגישות במסלול</h3><p>{trail.accessibility}</p></section>
           <section className="trail-faq" aria-labelledby="trail-faq"><h2 id="trail-faq">שאלות חשובות לפני שיוצאים</h2>{trailFaqs.map((item) => <details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}</section>
         </article>
@@ -71,7 +71,7 @@ export default async function TrailPage({ params }: { params: Promise<{ slug: st
 
       <div className="section shell"><GuestReviewStudio placeName={trail.name} subjectId={trail.slug} subjectType="trail" /></div>
 
-      <section className="section section-tint"><div className="shell"><div className="section-head"><div><span className="eyebrow">עוד רעיונות באזור ובאותו סגנון</span><h2>ממשיכים לטייל</h2></div><Link href="/trails">לכל המסלולים</Link></div><HomeMobileRail shufflePlaces id="trail-detail-related" label="ממשיכים לטייל" className="trail-grid trail-grid--related">{related.map((item) => <TrailCard key={item.slug} trail={item} compact />)}</HomeMobileRail></div></section>
+      <section className="section section-tint"><div className="shell"><div className="section-head"><div><h2>ממשיכים לטייל</h2></div><Link href="/trails">לכל המסלולים</Link></div><HomeMobileRail shufflePlaces id="trail-detail-related" label="ממשיכים לטייל" className="trail-grid trail-grid--related">{related.map((item) => <TrailCard key={item.slug} trail={item} compact />)}</HomeMobileRail></div></section>
       <SearchAfterResults world="trails" discoveryOnly location={trail.mainArea} inventory={publishedTrails.map(entry => ({ location: entry.region, area: entry.mainArea, nature: entry.nature, difficulty: entry.difficulty }))} />
     </main>
   </PageShell>;

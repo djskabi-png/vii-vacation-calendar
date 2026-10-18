@@ -1,0 +1,383 @@
+{
+  "scope": "Redundant interface lead-ins only, not a whole-platform legal/launch certification",
+  "baseline": "public 509 / fbcfb70",
+  "removals": [
+    {
+      "path": "app/discover/place/client-page.tsx",
+      "removed": "בוחרים לפי החוויה",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/discover/place/client-page.tsx",
+      "removed": "מתכננים את הביקור",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/discover/place/client-page.tsx",
+      "removed": "בוחרים את השירות הנכון",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/discover/place/client-page.tsx",
+      "removed": "מוכנים להזמין?",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/discover/place/client-page.tsx",
+      "removed": "רוצים לתאם?",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/discover/place/client-page.tsx",
+      "removed": "יוצאים עם תוכנית ברורה",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/discover/place/client-page.tsx",
+      "removed": "למה כדאי",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/discover/place/client-page.tsx",
+      "removed": "שלב אחר שלב",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/discover/place/client-page.tsx",
+      "removed": "יוצאים מוכנים",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/discover/place/client-page.tsx",
+      "removed": "לפני שיוצאים",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/discover/place/client-page.tsx",
+      "removed": "משלבים את זה בחופשה",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/discover/place/client-page.tsx",
+      "removed": "מכירים את האזור לפני שמגיעים",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/discover/place/client-page.tsx",
+      "removed": "באותו עולם",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/discover/place/client-page.tsx",
+      "removed": "{translate(\"כל מה שחשוב לפני שמזמינים\")}",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/discover/place/client-page.tsx",
+      "removed": "{translate(\"לבחירה במקום\")}",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/discover/place/client-page.tsx",
+      "removed": "{translate(\"בתוך המתחם\")}",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/discover/place/client-page.tsx",
+      "removed": "{translate(\"פרופיל שירות מלא\")}",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/discover/place/client-page.tsx",
+      "removed": "{translate(\"מתאים לחגיגה שלכם\")}",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/discover/place/client-page.tsx",
+      "removed": "{translate(\"פשוט, ברור וללא ניחושים\")}",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/discover/place/client-page.tsx",
+      "removed": "{translate(\"לפני שסוגרים\")}",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/discover/place/client-page.tsx",
+      "removed": "{translate(\"מתוך פרטי החדרים\")}",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/discover/place/client-page.tsx",
+      "removed": "{translate(\"לפני שמתאמים\")}",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/discover/place/client-page.tsx",
+      "removed": "{translate(\"תשובות ברורות\")}",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/search/page.tsx",
+      "removed": "המדריך של העמוד",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/search/page.tsx",
+      "removed": "תשובות ממוקדות לעמוד הזה",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/join/page.tsx",
+      "removed": "מצטרפים לעולמות של וי פור ויקיישן",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/join/page.tsx",
+      "removed": "יותר מעמוד באינדקס",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/join/page.tsx",
+      "removed": "מידע לפני שמצטרפים",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/questions/page.tsx",
+      "removed": "תשובות לפני שמחליטים",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/questions/page.tsx",
+      "removed": "מוכנים להתקדם",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/components/world-map-results.tsx",
+      "removed": "<span className=\"eyebrow\">בוחרים בדרך שנוחה לכם</span>",
+      "reason": "Duplicate navigation instruction or slogan; functionality retained"
+    },
+    {
+      "path": "app/components/discovery-world-hero.tsx",
+      "removed": "        <span className=\"discovery-world-hero__eyebrow\">{presentation.eyebrow}</span>\n",
+      "reason": "Duplicate navigation instruction or slogan; functionality retained"
+    },
+    {
+      "path": "app/components/home-showcase.tsx",
+      "removed": "מכאן קל יותר לבחור",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/components/home-showcase.tsx",
+      "removed": "כשלא צריך לילה שלם",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/components/home-showcase.tsx",
+      "removed": "אתר אחד, הרבה דרכים ליהנות",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/components/home-showcase.tsx",
+      "removed": "יוצאים מהצימר אל הטבע",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/components/home-showcase.tsx",
+      "removed": "<span>לפי אזור</span>",
+      "reason": "Duplicate navigation instruction or slogan; functionality retained"
+    },
+    {
+      "path": "app/components/home-showcase.tsx",
+      "removed": "<span>רואים לפני שבוחרים</span>",
+      "reason": "Duplicate navigation instruction or slogan; functionality retained"
+    },
+    {
+      "path": "app/components/home-showcase.tsx",
+      "removed": "<span>יעד מומלץ</span>",
+      "reason": "Duplicate navigation instruction or slogan; functionality retained"
+    },
+    {
+      "path": "app/events/place/client-page.tsx",
+      "removed": "{translate(\"כל מה שחשוב לדעת\")}",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/events/place/client-page.tsx",
+      "removed": "מרכיבים את כל האירוע",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/components/search-after-results.tsx",
+      "removed": "{content.eyebrow}",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/components/search-after-results.tsx",
+      "removed": "חוות דעת שעוזרות לבחור",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/components/search-after-results.tsx",
+      "removed": "תשובות לפני שבוחרים",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/components/search-after-results.tsx",
+      "removed": "<span className=\"eyebrow\">{discovery.eyebrow}</span>",
+      "reason": "Duplicate navigation instruction or slogan; functionality retained"
+    },
+    {
+      "path": "app/components/search-after-results.tsx",
+      "removed": "<p>{discovery.intro}</p>",
+      "reason": "Duplicate navigation instruction or slogan; functionality retained"
+    },
+    {
+      "path": "app/business/client-page.tsx",
+      "removed": "מקום אחד, כמה אפשרויות",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/business/client-page.tsx",
+      "removed": "הסיפור המלא של המקום",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/business/client-page.tsx",
+      "removed": "מידע מעשי",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/business/client-page.tsx",
+      "removed": "ממשיכים לתכנן",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/business/client-page.tsx",
+      "removed": "{translate(\"תיאור מקום האירוח\")}",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/business/client-page.tsx",
+      "removed": "{translate(\"כל מה שחשוב לפני שמזמינים\")}",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/business/client-page.tsx",
+      "removed": "{translate(\"טיול עצמאי באזור\")}",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/activities/page.tsx",
+      "removed": "הנישה החדשה למטייל העצמאי",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/guides/article/client-page.tsx",
+      "removed": "לוקחים את הכתבה איתכם",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/guides/article/client-page.tsx",
+      "removed": "ממשיכים לקרוא",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/page.tsx",
+      "removed": "מתנה שמשאירה את הבחירה אצלם",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/page.tsx",
+      "removed": "בחרו כיוון",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/page.tsx",
+      "removed": "פשוט לבחור נכון",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/components/world-landing.tsx",
+      "removed": "            <span className=\"spa-discovery-hero__eyebrow\">הפסקה טובה מתחילה כאן</span>\n",
+      "reason": "Duplicate navigation instruction or slogan; functionality retained"
+    },
+    {
+      "path": "app/components/world-landing.tsx",
+      "removed": "<span className=\"eyebrow\">{crossSell.eyebrow}</span>",
+      "reason": "Duplicate navigation instruction or slogan; functionality retained"
+    },
+    {
+      "path": "app/trails/[slug]/page.tsx",
+      "removed": "התוכנית שלנו ליום הזה",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/trails/[slug]/page.tsx",
+      "removed": "לא יוצאים בלי לבדוק",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/trails/[slug]/page.tsx",
+      "removed": "עוד רעיונות באזור ובאותו סגנון",
+      "reason": "Redundant lead-in; semantic heading and useful content retained"
+    },
+    {
+      "path": "app/gift-card/page.tsx",
+      "removed": "מתנה שלא מגבילה את החוויה",
+      "reason": "Duplicate slogan before an already descriptive heading; useful content retained"
+    },
+    {
+      "path": "app/gift-card/page.tsx",
+      "removed": "יוצרים את המתנה",
+      "reason": "Duplicate slogan before an already descriptive heading; useful content retained"
+    },
+    {
+      "path": "app/gift-card/page.tsx",
+      "removed": "מתנה שמתאימה לכולם",
+      "reason": "Duplicate slogan before an already descriptive heading; useful content retained"
+    },
+    {
+      "path": "app/gift-card/page.tsx",
+      "removed": "מתנות לעובדים וללקוחות",
+      "reason": "Duplicate slogan before an already descriptive heading; useful content retained"
+    },
+    {
+      "path": "app/gift-card/page.tsx",
+      "removed": "לפני שקונים",
+      "reason": "Duplicate slogan before an already descriptive heading; useful content retained"
+    },
+    {
+      "path": "app/destinations/page.tsx",
+      "removed": "ישראל מחכה לכם",
+      "reason": "Duplicate slogan before an already descriptive heading; useful content retained"
+    },
+    {
+      "path": "app/guides/client-page.tsx",
+      "removed": "מוצאים את הכתבה שלכם",
+      "reason": "Duplicate slogan before an already descriptive heading; useful content retained"
+    },
+    {
+      "path": "app/corporate/page.tsx",
+      "removed": "מתאימים פתרון למטרה",
+      "reason": "Duplicate slogan before an already descriptive heading; useful content retained"
+    },
+    {
+      "path": "app/corporate/page.tsx",
+      "removed": "כשלא רוצים לבחור בשבילם",
+      "reason": "Duplicate slogan before an already descriptive heading; useful content retained"
+    }
+  ],
+  "additional": [
+    "Shortcut label and duplicate four-link popular rail removed; original four managed quick links retained",
+    "Event quick-search eyebrow and event hero slogan removed"
+  ],
+  "protected": [
+    "All H1/H2 headings, useful descriptions, SEO paragraphs/FAQ structured data, filters and counts",
+    "Real price/availability, booking/contact actions, gallery/media labels, legal/privacy/consent",
+    "Business type/category, article category/date/author, source and safety disclosures, unit versus bedroom distinction"
+  ],
+  "excluded": [
+    "Infrastructure, database, supplier cache/ranking, maps, authentication, legal policy, CMS stored values"
+  ]
+}

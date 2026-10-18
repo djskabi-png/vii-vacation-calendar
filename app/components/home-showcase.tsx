@@ -123,13 +123,13 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, ratedPlace
     <section className="section home-vacation-discovery" aria-labelledby="vacation-discovery-title">
       <div className="shell">
         <div className="home-vacation-discovery__intro">
-          <span className="eyebrow">מכאן קל יותר לבחור</span>
+
           <h2 id="vacation-discovery-title">מוצאים את הנופש בדרך שמתאימה לכם</h2>
           <p>מתחילים באזור ובהרכב האורחים ומשווים את פרטי המקומות.</p>
         </div>
 
         <div className="home-vacation-strip">
-          <div className="home-vacation-strip__head"><div><span>לפי אזור</span><h3>יעדים מומלצים לנופש</h3></div><HomeSliderControls railId="home-destinations-rail" label="יעדי נופש" itemSelector=".home-slider__item" /></div>
+          <div className="home-vacation-strip__head"><div><h3>יעדים מומלצים לנופש</h3></div><HomeSliderControls railId="home-destinations-rail" label="יעדי נופש" itemSelector=".home-slider__item" /></div>
           <div id="home-destinations-rail" className="home-vacation-strip__track home-vacation-strip__track--destinations" data-horizontal-rail>
             {vacationDestinations.map((item, index) => {
               const place = destinationPlaces[index];
@@ -147,7 +147,7 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, ratedPlace
                 aria-disabled={pendingDestination !== null}
                 data-global-feedback="true"
                 data-loading-label={`${destinationLoading.prefix} ${item.label}...`}
-              ><img src={place.image} alt="" title="" data-image-role="decorative" loading="lazy" decoding="async" /><div><span>יעד מומלץ</span><h4>{item.label}</h4><p>{item.note}</p><b>{isPending ? destinationLoading.opening : "לכל המקומות באזור"}</b></div>{isPending ? <span className="home-vacation-card__pending" aria-hidden="true"><i /><small>{destinationLoading.waiting}</small></span> : null}</Link> : null;
+              ><img src={place.image} alt="" title="" data-image-role="decorative" loading="lazy" decoding="async" /><div><h4>{item.label}</h4><p>{item.note}</p><b>{isPending ? destinationLoading.opening : "לכל המקומות באזור"}</b></div>{isPending ? <span className="home-vacation-card__pending" aria-hidden="true"><i /><small>{destinationLoading.waiting}</small></span> : null}</Link> : null;
             })}
           </div>
         </div>
@@ -160,7 +160,7 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, ratedPlace
     {featuredTours.length || ratedPlaces.length ? <section className="section home-trust-discovery" aria-labelledby={featuredTours.length ? "home-tours-title" : "home-ratings-title"}>
       <div className="shell">
         {featuredTours.length ? <div className="home-trust-strip">
-          <div className="home-vacation-strip__head"><div><span>רואים לפני שבוחרים</span><h2 id="home-tours-title">סרטונים מובילים</h2></div><HomeSliderControls railId="home-tours-rail" label="סרטונים מובילים" itemSelector=".home-slider__item" /></div>
+          <div className="home-vacation-strip__head"><div><h2 id="home-tours-title">סרטונים מובילים</h2></div><HomeSliderControls railId="home-tours-rail" label="סרטונים מובילים" itemSelector=".home-slider__item" /></div>
           <div id="home-tours-rail" className="home-slider__track home-slider__track--trust" data-horizontal-rail>
             {featuredTours.map(({ property, video }) => <article className="home-tour-card home-slider__item" key={`${property.slug}-${video.src}`}>
               <video controls playsInline preload="none" poster={video.poster} aria-label={`${video.title}, ${property.name}`}><source src={video.src} type="video/mp4" /></video>
@@ -182,7 +182,7 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, ratedPlace
 
     <SpaPackageDeals />
 
-    <section className="section home-short-stay" aria-labelledby="home-short-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">כשלא צריך לילה שלם</span><h2 id="home-short-title">חדרים לכמה שעות</h2><p>שהייה קצרה, פרטית וגמישה. בוחרים מקום ובודקים את מסגרת הזמן והמחיר.</p></div><div><Link href="/hourly">לכל החדרים</Link><HomeSliderControls railId="home-hourly-rail" label="חדרים לפי שעה" itemSelector=".home-slider__item" /></div></div><div id="home-hourly-rail" className="home-slider__track home-slider__track--discovery" data-horizontal-rail>{featuredHourly.map((item) => <div className="home-slider__item" key={item.id}><DiscoveryCard item={item} /></div>)}</div></div></section>
+    <section className="section home-short-stay" aria-labelledby="home-short-title"><div className="shell"><div className="section-head"><div><h2 id="home-short-title">חדרים לכמה שעות</h2><p>שהייה קצרה, פרטית וגמישה. בוחרים מקום ובודקים את מסגרת הזמן והמחיר.</p></div><div><Link href="/hourly">לכל החדרים</Link><HomeSliderControls railId="home-hourly-rail" label="חדרים לפי שעה" itemSelector=".home-slider__item" /></div></div><div id="home-hourly-rail" className="home-slider__track home-slider__track--discovery" data-horizontal-rail>{featuredHourly.map((item) => <div className="home-slider__item" key={item.id}><DiscoveryCard item={item} /></div>)}</div></div></section>
 
     <EventLastMinute places={eventPlaces} sectionId="home-event-deals" />
     <section className="home-events-world" aria-labelledby="home-events-title">
@@ -195,7 +195,7 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, ratedPlace
     </section>
 
     <section className="section home-worlds" aria-labelledby="home-worlds-title">
-      <div className="shell"><div className="section-head"><div><span className="eyebrow">אתר אחד, הרבה דרכים ליהנות</span><h2 id="home-worlds-title">ממשיכים לכל העולמות</h2><p>לא רק מקום לישון. בונים את כל החופשה, הטיפול, השהייה הקצרה, הספקים והיום שמסביב.</p></div></div>
+      <div className="shell"><div className="section-head"><div><h2 id="home-worlds-title">ממשיכים לכל העולמות</h2><p>לא רק מקום לישון. בונים את כל החופשה, הטיפול, השהייה הקצרה, הספקים והיום שמסביב.</p></div></div>
         <HomeMobileRail id="home-worlds-rail" label="ממשיכים לכל העולמות" className="home-world-gates">{worldCards.map((world) => {
           const item = world.id === "providers" ? providerPreview : world.id === "trails" ? trails[0] : attractionPreview;
           const topicImage = world.id === "trails" ? worldTopicMedia.trails : null;
@@ -214,7 +214,7 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, ratedPlace
 export function HomeTrails() {
   const documentSeed = useDocumentSeed();
   return <section className="section home-trails" aria-labelledby="home-trails-title">
-    <div className="shell"><div className="section-head"><div><span className="eyebrow">יוצאים מהצימר אל הטבע</span><h2 id="home-trails-title">מסלולים ליד החופשה</h2><p>מדריכי טיול עצמאיים עם זמן, קושי, עונה, בטיחות ומקור רשמי לבדיקה ביום היציאה.</p></div><Link href="/trails">לכל המסלולים</Link></div>
+    <div className="shell"><div className="section-head"><div><h2 id="home-trails-title">מסלולים ליד החופשה</h2><p>מדריכי טיול עצמאיים עם זמן, קושי, עונה, בטיחות ומקור רשמי לבדיקה ביום היציאה.</p></div><Link href="/trails">לכל המסלולים</Link></div>
       <HomeMobileRail id="home-trails-rail" label="מסלולים ליד החופשה" className="trail-grid trail-grid--home">{orderDiscoveryRail(trails, { id: trail => trail.slug, seed: `${documentSeed}:home-trails`, limit: 20 }).map((trail) => <TrailCard key={trail.slug} trail={trail} compact />)}</HomeMobileRail>
     </div>
   </section>;
