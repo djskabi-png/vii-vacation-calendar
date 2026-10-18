@@ -141,3 +141,15 @@ test('request execution context returns stale immediately and owns background re
   release();await Promise.all(pending);assert.deepEqual((await cachedDiscovery({...options,load:async()=>{throw Error('must not call');}})).value,[2]);
  }finally{release?.();await Promise.allSettled(pending);await mf.dispose();}
 });
+
+test('D1 admission bounds cold failures and never evicts active refresh leases',async()=>{
+ const {mf,db}=await d1();let calls=0;const now=600_000_000;
+ try{
+  await db.prepare(`WITH RECURSIVE n(x) AS (SELECT 1 UNION ALL SELECT x+1 FROM n WHERE x<512) INSERT INTO vii_discovery_offer_cache_v1(cache_key) SELECT 'existing-'||x FROM n`).run();
+  for(let i=0;i<3;i++)await assert.rejects(cachedDiscovery({key:['bounded-cold',i],db,now:()=>now,load:async()=>{calls++;throw Error('down');}}));
+  assert.equal(calls,3);assert.equal((await db.prepare('SELECT count(*) AS count FROM vii_discovery_offer_cache_v1').first()).count,512);
+  await db.prepare('UPDATE vii_discovery_offer_cache_v1 SET lease_until = ?').bind(now+60_000).run();
+  await assert.rejects(cachedDiscovery({key:['bounded-active'],db,now:()=>now,load:async()=>{calls++;return [1];}}));
+  assert.equal(calls,3);assert.equal((await db.prepare('SELECT count(*) AS count FROM vii_discovery_offer_cache_v1').first()).count,512);
+ }finally{await mf.dispose();}
+});
