@@ -13,10 +13,10 @@ test("the place favorite is a compact overlay on the gallery image", () => {
 });
 
 test("mobile place contact actions stay in one refined row", () => {
-  assert.match(css, /\.property-title__actions \{ display: grid; grid-template-columns: minmax\(96px, \.92fr\) 44px minmax\(132px, 1\.2fr\);/);
+  assert.match(css, /\.property-title__actions \{ display: grid; grid-template-columns: minmax\(96px, \.92fr\) minmax\(132px, 1\.2fr\) 44px;/);
   assert.match(css, /\.property-title__actions \.property-phone-action \{ grid-column: 1; grid-row: 1; \}/);
-  assert.match(css, /\.property-title__actions \.share-trigger \{ grid-column: 2; grid-row: 1;/);
-  assert.match(css, /\.property-title__actions \.property-whatsapp-action \{ grid-column: 3; grid-row: 1;/);
+  assert.match(css, /\.property-title__actions \.share-trigger \{ grid-column: 3; grid-row: 1;/);
+  assert.match(css, /\.property-title__actions \.property-whatsapp-action \{ grid-column: 2; grid-row: 1;/);
   assert.doesNotMatch(css, /\.property-title__actions \.property-whatsapp-action \{ grid-column: 1 \/ -1; grid-row: 2;/);
 });
 
@@ -30,6 +30,7 @@ test("the contact row does not look like one enclosing button", () => {
 
 test("phone share and WhatsApp controls remain wired", () => {
   assert.match(page, /onClick=\{\(\) => setPhoneRevealed\(true\)\}/);
-  assert.match(page, /<ShareButton title=\{property\.name\} \/>/);
+  assert.match(page, /<ShareButton title=\{property\.name\} image=\{property\.image\} \/>/);
+  assert.ok(page.indexOf('<WhatsAppLeadButton world={activeWorld}') < page.indexOf('<ShareButton title={property.name}'));
   assert.match(page, /<WhatsAppLeadButton[\s\S]*buttonClassName="property-whatsapp-action"/);
 });

@@ -297,8 +297,8 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
                 ? <a className="property-phone-action property-phone-action--revealed" href={phoneHref} aria-label={`חיוג אל ${property.name}, ${property.contact?.phone}`}><PhoneIcon /><span dir="ltr">{property.contact?.phone}</span></a>
                 : <button className="property-phone-action" type="button" onClick={() => setPhoneRevealed(true)} aria-expanded="false"><PhoneIcon /><span>הצגת מספר</span></button>
                 : null}
-              <ShareButton title={property.name} />
               {ownerWhatsapp ? <WhatsAppLeadButton world={activeWorld} placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={activeOffering.label} initialDate={dateRange.from} initialTill={dateRange.till} initialGuests={guests} buttonClassName="property-whatsapp-action" /> : null}
+              <ShareButton title={property.name} image={property.image} />
             </div>
             {activeWorld === "vacation" ? null : onlineBooking ? <Link className="button primary" href={bookingActionHref}>הזמנה אונליין</Link> : property.contact?.phone ? <Link className="button primary" href="#booking-summary">טלפון להזמנה</Link> : null}
           </div>

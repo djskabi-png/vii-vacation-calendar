@@ -101,7 +101,18 @@ function MailIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m4 7 8 6 8-6" /></svg>;
 }
 
-export function ShareButton({ title, kind = "place" }: { title: string; kind?: ShareKind }) {
+function SharePreviewImage({ image, title, imageAlt }: { image?: string; title: string; imageAlt?: string }) {
+  const [photoFailed, setPhotoFailed] = useState(false);
+  const [logoFailed, setLogoFailed] = useState(false);
+  const hasPhoto = Boolean(image?.trim()) && !photoFailed;
+  return <span className={hasPhoto ? "share-dialog__image" : "share-dialog__logo"}>
+    {hasPhoto ? <Image src={image!} width={240} height={180} unoptimized alt={imageAlt || title} title={imageAlt || title} onError={() => setPhotoFailed(true)} />
+      : logoFailed ? <span aria-label="VII">VII</span>
+        : <Image src="/vii-logo.png" width={160} height={122} unoptimized alt="" title="" data-image-role="decorative" onError={() => setLogoFailed(true)} />}
+  </span>;
+}
+
+export function ShareButton({ title, kind = "place", image, imageAlt, imageCaption }: { title: string; kind?: ShareKind; image?: string; imageAlt?: string; imageCaption?: string }) {
   const { language, translate } = useSiteLanguage();
   const labels = copy[language];
   const translatedTitle = translate(title);
@@ -207,8 +218,8 @@ export function ShareButton({ title, kind = "place" }: { title: string; kind?: S
           </header>
           <p id={descriptionId} className="share-dialog__description">{labels.description}</p>
           <div className="share-dialog__preview">
-            <span aria-hidden="true"><Image src="/vii-logo.png" width={160} height={122} alt="" title="" data-image-role="decorative" /></span>
-            <div><small>{labels.preview}</small><strong>{translatedTitle}</strong></div>
+            <SharePreviewImage key={image} image={image} title={translatedTitle} imageAlt={imageAlt ? translate(imageAlt) : translatedTitle} />
+            <div><small>{imageCaption || labels.preview}</small><strong>{translatedTitle}</strong></div>
           </div>
           <div className="share-dialog__options">
             <button className={copied ? "share-option share-option--copied" : "share-option"} type="button" onClick={() => void copyLink()}><span><LinkIcon /></span><strong>{copied ? labels.copied : labels.copy}</strong></button>
