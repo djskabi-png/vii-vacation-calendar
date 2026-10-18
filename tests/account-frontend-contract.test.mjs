@@ -33,13 +33,16 @@ test("Google account access is shared and backed by real server OAuth routes", a
   assert.match(account, /הזמנות ובקשות/);
 });
 
-test("customer forms offer sign in and prefill saved profile details", async () => {
+test("customer forms preserve saved profile autofill and keep WhatsApp enquiry uncluttered", async () => {
   const [booking, whatsapp, lead] = await Promise.all([read("app/booking/client-page.tsx"), read("app/components/whatsapp-lead-button.tsx"), read("app/components/lead-intake-form.tsx")]);
   for (const source of [booking, whatsapp, lead]) {
-    assert.match(source, /AccountFormPrompt/);
     assert.match(source, /useAccountAccess/);
     assert.match(source, /account\?\.(?:name|phone|email)|account\.(?:name|phone|email)/);
   }
+  for (const source of [booking, lead]) assert.match(source, /AccountFormPrompt/);
+  assert.doesNotMatch(whatsapp, /<AccountFormPrompt/);
+  assert.match(whatsapp, /defaultValue=\{account\?\.name \|\| ""\}/);
+  assert.match(whatsapp, /defaultValue=\{account\?\.phone \|\| ""\}/);
   assert.match(booking, /setName\(account\.name\)/);
   assert.match(booking, /setPhone\(account\.phone \|\| ""\)/);
   assert.match(booking, /setEmail\(account\.email\)/);

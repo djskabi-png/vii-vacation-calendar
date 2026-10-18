@@ -48,7 +48,14 @@ export function ListingContactPreview({ placeName, className = "" }: { placeName
   useEffect(() => {
     if (!open) return;
     const previousOverflow = document.body.style.overflow;
-    const onKeyDown = (event: KeyboardEvent) => event.key === "Escape" && close();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") close();
+      if (event.key !== "Tab") return;
+      const controls = Array.from(dialogRef.current?.querySelectorAll<HTMLButtonElement>("button:not([disabled])") || []);
+      const first = controls[0], last = controls[controls.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    };
     document.body.style.overflow = "hidden";
     document.addEventListener("keydown", onKeyDown);
     requestAnimationFrame(() => dialogRef.current?.querySelector<HTMLElement>("button")?.focus());
@@ -61,16 +68,14 @@ export function ListingContactPreview({ placeName, className = "" }: { placeName
   return <div className={`listing-contact-preview ${className}`}>
     <button className="listing-contact-preview__phone" type="button" aria-expanded={phoneVisible} onClick={() => setPhoneVisible(true)}><PhoneIcon /><span>{phoneVisible ? <><bdi dir="ltr">050-000-0000</bdi><small>{labels.exampleNumber}</small></> : labels.reveal}</span></button>
     <button ref={triggerRef} className="listing-contact-preview__whatsapp" type="button" onClick={() => setOpen(true)}><WhatsAppIcon /><span>{labels.whatsapp}</span></button>
-    {open ? <div className="listing-contact-preview__layer" onMouseDown={(event) => event.target === event.currentTarget && close()}>
-      <section ref={dialogRef} className="listing-contact-preview__dialog" role="dialog" aria-modal="true" aria-labelledby={titleId}>
-        <button className="dialog-close" type="button" onClick={close} aria-label={labels.close}>×</button>
-        <span className="listing-contact-preview__brand"><WhatsAppIcon /></span>
-        <small>{labels.preview}</small>
-        <h2 id={titleId}>{labels.title(localizedPlaceName)}</h2>
-        <p>{labels.intro}</p>
-        <div className="listing-contact-preview__bubble">{labels.bubble}</div>
-        <p className="listing-contact-preview__note">{labels.note}</p>
-        <button className="button primary wide" type="button" onClick={close}>{labels.done}</button>
+    {open ? <div className="whatsapp-lead-layer" onMouseDown={(event) => event.target === event.currentTarget && close()}>
+      <section ref={dialogRef} className="whatsapp-lead-dialog" role="dialog" aria-modal="true" aria-labelledby={titleId} dir={language === "he" ? "rtl" : "ltr"}>
+        <header className="whatsapp-lead-dialog__header">
+          <span className="whatsapp-lead-dialog__icon" aria-hidden="true"><WhatsAppIcon /></span>
+          <button className="dialog-close" type="button" onClick={close} aria-label={labels.close}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg></button>
+        </header>
+        <div className="whatsapp-lead-dialog__intro"><h2 id={titleId}>{labels.title(localizedPlaceName)}</h2><p>{labels.intro}</p><p>{labels.note}</p></div>
+        <footer><button className="button primary wide" type="button" onClick={close}>{labels.done}</button></footer>
       </section>
     </div> : null}
   </div>;
