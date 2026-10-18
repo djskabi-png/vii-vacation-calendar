@@ -1,5 +1,6 @@
 import type { Property } from "./site-data";
-import { isWholeCountrySelection, matchesSearchLocation } from "./search-taxonomy";
+import { isWholeCountrySelection, matchesSearchLocation } from "./search-taxonomy.ts";
+import { canonicalSearchLocation } from "../lib/geographic-names.ts";
 
 export type VacationRegion = {
   slug: string;
@@ -13,6 +14,7 @@ export const vacationRegions: VacationRegion[] = [
   { slug: "haifa-carmel", label: "חיפה והכרמל" },
   { slug: "center", label: "מרכז" },
   { slug: "tel-aviv", label: "תל אביב" },
+  { slug: "tel-aviv-area", label: "תל אביב וגוש דן" },
   { slug: "jerusalem", label: "ירושלים והסביבה" },
   { slug: "dead-sea", label: "ים המלח" },
   { slug: "south-negev", label: "דרום ונגב" },
@@ -24,7 +26,7 @@ export function vacationRegionBySlug(slug?: string | null) {
 }
 
 export function vacationRegionByLabel(label?: string | null) {
-  return label ? vacationRegions.find((region) => region.label === label) : undefined;
+  return label ? vacationRegions.find((region) => region.label === canonicalSearchLocation(label)) : undefined;
 }
 
 export function vacationRegionListings(region: VacationRegion, inventory: Property[]) {

@@ -1,5 +1,6 @@
 import type { SearchMode } from "./search-taxonomy";
 import { searchLocationOptions } from "./search-taxonomy.ts";
+import { canonicalSearchLocation } from "../lib/geographic-names.ts";
 
 const locationSlugs: Record<string, string> = {
   "צפון": "north",
@@ -11,6 +12,7 @@ const locationSlugs: Record<string, string> = {
   "מישור החוף והשפלה": "coastal-plain",
   "מרכז": "center",
   "תל אביב": "tel-aviv",
+  "תל אביב וגוש דן": "tel-aviv-area",
   "ירושלים והסביבה": "jerusalem",
   "ים המלח": "dead-sea",
   "דרום ונגב": "south",
@@ -19,7 +21,7 @@ const locationSlugs: Record<string, string> = {
 };
 
 export function searchLocationSlug(location: string) {
-  return locationSlugs[location];
+  return locationSlugs[canonicalSearchLocation(location)];
 }
 
 export function searchLocationFromSlug(mode: SearchMode, slug: string | undefined) {

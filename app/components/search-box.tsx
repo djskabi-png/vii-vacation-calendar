@@ -17,6 +17,7 @@ import { languageFromPathname, localizedPath, type SiteLanguage } from "../i18n/
 import { cleanVacationPath } from "../data/vacation-landings";
 import { cleanAccommodationPath } from "../data/accommodation-landings";
 import { spaSearchHref, spaSearchStateFromValues } from "../data/spa-search-landings";
+import { canonicalSearchLocation, uniqueSearchLocations, locationMatchesQuery } from "../lib/geographic-names.ts";
 import { eventSearchHref, hourlySearchHref } from "../data/world-search-landings";
 import { trackSearchSubmitted } from "../lib/analytics";
 import type { PlaceSearchResult } from "../data/search-place-inventory";
@@ -478,7 +479,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   }
 
   function chooseLocation(place: string) {
-    setLocationValue(place);
+    setLocationValue(canonicalSearchLocation(place));
     setLocationOpen(false);
     setLocationQuery("");
     setLocationStatus("");
@@ -535,14 +536,14 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const mobileSheetTitle = "עריכת חיפוש";
   const normalizedLocationQuery = locationQuery.trim().toLocaleLowerCase();
   const managedDestinations = managedGeography.map((node) => node.title);
-  const visibleDestinations = [...new Set([...destinationOptions, ...managedDestinations])]
-    .filter((place) => translate(place).toLocaleLowerCase().includes(normalizedLocationQuery));
+  const visibleDestinations = uniqueSearchLocations([...destinationOptions, ...managedDestinations])
+    .filter((place) => locationMatchesQuery(place, locationQuery) || translate(place).toLocaleLowerCase().includes(normalizedLocationQuery));
   const visibleNamedPlaces = normalizedLocationQuery
     ? placeInventory.filter((place) => [place.name, place.location, place.area, translate(place.name), translate(place.location), translate(place.area)].some((value) => value.toLocaleLowerCase().includes(normalizedLocationQuery))).slice(0, 8)
     : [];
   const locationGroups = useMemo(() => {
     if (mode !== "vacation") return vacationLocationGroups.map((group) => ({ ...group, options: [...group.options] }));
-    const unique = (values: string[]) => [...new Set(values.map((value) => value.trim()).filter(Boolean))];
+    const unique = uniqueSearchLocations;
     const primary = [...vacationLocationGroups[0].options];
     const managedRegions = managedGeography.filter((node) => node.level !== "city").sort((a, b) => Number(b.featured) - Number(a.featured)).map((node) => node.title);
     const managedCities = managedGeography.filter((node) => node.level === "city").sort((a, b) => Number(b.featured) - Number(a.featured)).map((node) => node.title);

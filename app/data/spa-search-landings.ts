@@ -1,13 +1,16 @@
 import type { DiscoveryItem } from "./world-data";
-import { matchesSearchLocation } from "./search-taxonomy";
-import { getSpaLanding, spaItemMatches, spaLandingHref, spaLandings, type SpaLanding } from "./spa-landings";
+import { matchesSearchLocation } from "./search-taxonomy.ts";
+import { canonicalSearchLocation } from "../lib/geographic-names.ts";
+import { getSpaLanding, spaItemMatches, spaLandingHref, spaLandings, type SpaLanding } from "./spa-landings.ts";
 
 export const spaSearchRegions = [
   { slug: "north", label: "צפון" },
   { slug: "haifa", label: "חיפה" },
+  { slug: "haifa-carmel", label: "חיפה והכרמל" },
   { slug: "kinneret", label: "כנרת" },
   { slug: "center", label: "מרכז" },
   { slug: "tel-aviv", label: "תל אביב" },
+  { slug: "tel-aviv-area", label: "תל אביב וגוש דן" },
   { slug: "jerusalem", label: "ירושלים והסביבה" },
   { slug: "south", label: "דרום ונגב" },
   { slug: "eilat", label: "אילת והסביבה" },
@@ -45,7 +48,7 @@ export function spaSearchStateFromSegments(segments: string[] | undefined): SpaS
 
 export function spaSearchStateFromValues(location?: string, audienceId?: string, featureIds: string[] = []): SpaSearchState {
   return {
-    region: spaSearchRegions.find((entry) => entry.label === location),
+    region: spaSearchRegions.find((entry) => entry.label === canonicalSearchLocation(location)),
     audience: spaSearchAudiences.find((entry) => entry.id === audienceId),
     features: featureIds.map((id) => spaLandings.find((entry) => entry.id === id)).filter((entry): entry is SpaLanding => Boolean(entry)),
   };
@@ -58,9 +61,9 @@ export function spaSearchHref(state: SpaSearchState) {
 }
 
 const localizedRegions: Record<Exclude<SpaSearchLanguage, "he">, Record<string, string>> = {
-  en: { north: "Northern Israel", haifa: "Haifa", kinneret: "the Sea of Galilee", center: "Central Israel", "tel-aviv": "Tel Aviv", jerusalem: "Jerusalem", south: "Southern Israel", eilat: "Eilat" },
-  fr: { north: "nord d’Israël", haifa: "Haïfa", kinneret: "lac de Tibériade", center: "centre d’Israël", "tel-aviv": "Tel-Aviv", jerusalem: "Jérusalem", south: "sud d’Israël", eilat: "Eilat" },
-  ru: { north: "северной части Израиля", haifa: "Хайфе", kinneret: "районе Кинерета", center: "центральной части Израиля", "tel-aviv": "Тель-Авиве", jerusalem: "Иерусалиме", south: "южной части Израиля", eilat: "Эйлате" },
+  en: { north: "Northern Israel", haifa: "Haifa", "haifa-carmel": "Haifa and Carmel", kinneret: "the Sea of Galilee", center: "Central Israel", "tel-aviv": "Tel Aviv", "tel-aviv-area": "Tel Aviv and Gush Dan", jerusalem: "Jerusalem", south: "Southern Israel", eilat: "Eilat" },
+  fr: { north: "nord d’Israël", haifa: "Haïfa", "haifa-carmel": "Haïfa et Carmel", kinneret: "lac de Tibériade", center: "centre d’Israël", "tel-aviv": "Tel-Aviv", "tel-aviv-area": "Tel-Aviv et Gush Dan", jerusalem: "Jérusalem", south: "sud d’Israël", eilat: "Eilat" },
+  ru: { north: "северной части Израиля", haifa: "Хайфе", "haifa-carmel": "Хайфе и районе Кармеля", kinneret: "районе Кинерета", center: "центральной части Израиля", "tel-aviv": "Тель-Авиве", "tel-aviv-area": "Тель-Авиве и Гуш-Дане", jerusalem: "Иерусалиме", south: "южной части Израиля", eilat: "Эйлате" },
 };
 
 const localizedAudiences: Record<Exclude<SpaSearchLanguage, "he">, Record<SpaSearchAudienceId, string>> = {
