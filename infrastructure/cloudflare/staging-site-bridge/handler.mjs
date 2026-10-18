@@ -3,7 +3,7 @@ const reply=(status,ok=false,extra={})=>Response.json(ok?{ok:true,databaseConnec
 export const HEALTH_SQL="SELECT current_database() AS database, current_user AS role, current_setting('transaction_read_only') AS read_only, marker FROM vii_stage_probe.health WHERE id = 1";
 
 export function createBridgeHandler({Client,verifyJwt,now=Date.now}) {
- return async function fetch(request,env) {
+ return async function fetch(request,env,ctx) {
   const url=new URL(request.url);
   if(url.pathname!=='/probe'||url.search)return reply(404);
   if(request.method!=='GET')return reply(405,false,{allow:'GET'});
@@ -32,6 +32,10 @@ export function createBridgeHandler({Client,verifyJwt,now=Date.now}) {
    await client.query('ROLLBACK');
    return reply(200,true);
   }catch{return reply(503);}
-  finally{if(client)void client.end().catch(()=>{});}
+  finally{if(client){
+   const cleanup=Promise.resolve().then(()=>client.end()).catch(()=>{});
+   if(typeof ctx?.waitUntil==='function')ctx.waitUntil(cleanup);
+   else await cleanup;
+  }}
  };
 }

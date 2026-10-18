@@ -1,9 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createStagingHealthClient,STAGE_HEALTH_URL,STAGE_HEALTH_ADMIN_PATH} from '../infrastructure/http/staging-site-client.mjs';
+import {createStagingHealthClient,readStagingHealthConfiguration,STAGE_HEALTH_URL,STAGE_HEALTH_ADMIN_PATH} from '../infrastructure/http/staging-site-client.mjs';
 const now=Date.parse('2026-10-18T08:00:00Z');
 const credentials={environment:'staging',clientId:'a'.repeat(32)+'.access',clientSecret:'synthetic-not-a-real-secret',expiresAt:'2026-10-18T20:00:00Z'};
 const good={ok:true,databaseConnected:true,readOnly:true,markerMatched:true};
+test('secret reader supports the Site process channel without changing precedence or failclosed limits',()=>{
+ const raw=JSON.stringify(credentials);
+ assert.deepEqual(readStagingHealthConfiguration(undefined,raw),credentials);
+ assert.deepEqual(readStagingHealthConfiguration('',raw),credentials);
+ assert.deepEqual(readStagingHealthConfiguration(raw,'not valid JSON'),credentials);
+ for(const values of [[undefined,undefined],[undefined,''],[undefined,'x'.repeat(2049)],['not JSON',raw],[undefined,'not JSON']])assert.throws(()=>readStagingHealthConfiguration(...values));
+});
 const request=(path=STAGE_HEALTH_ADMIN_PATH,method='GET')=>new Request('https://site.example.test'+path,{method,headers:{cookie:'owner-session-must-not-forward','Cf-Access-Authenticated-User-Email':'owner@example.test'}});
 function harness(overrides={}) {
  const calls=[];
