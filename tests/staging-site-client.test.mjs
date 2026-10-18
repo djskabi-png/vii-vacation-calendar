@@ -4,6 +4,40 @@ import {createStagingHealthClient,readStagingHealthConfiguration,STAGE_HEALTH_UR
 const now=Date.parse('2026-10-18T08:00:00Z');
 const credentials={environment:'staging',clientId:'a'.repeat(32)+'.access',clientSecret:'synthetic-not-a-real-secret',expiresAt:'2026-10-18T20:00:00Z'};
 const good={ok:true,databaseConnected:true,readOnly:true,markerMatched:true};
+test('server diagnostics expose only fixed stage codes and never credential/error values',async()=>{
+ const cases=[
+  [{getCredentials:async()=>readStagingHealthConfiguration(undefined,undefined)},'config_missing'],
+  [{getCredentials:async()=>readStagingHealthConfiguration(undefined,'private-non-json-value')},'config_json'],
+  [{getCredentials:async()=>readStagingHealthConfiguration(undefined,'x'.repeat(2049))},'config_size'],
+  [{getCredentials:async()=>{throw Error('private-secret');}},'config_read_failure'],
+  [{getCredentials:async()=>({...credentials,environment:'production'})},'config_environment'],
+  [{getCredentials:async()=>({...credentials,expiresAt:'invalid-private-value'})},'config_expiry'],
+  [{getCredentials:async()=>({...credentials,clientId:'private-invalid-id'})},'config_client_id'],
+  [{getCredentials:async()=>({...credentials,clientSecret:'private\nvalue'})},'config_client_secret'],
+  [{fetchImpl:async()=>new Response('private-body',{status:401})},'upstream_auth'],
+  [{fetchImpl:async()=>new Response('private-body',{status:503})},'upstream_http'],
+  [{fetchImpl:async()=>new Response('private-body',{headers:{'content-type':'text/html'}})},'upstream_type'],
+  [{fetchImpl:async()=>new Response('private-body',{headers:{'content-type':'application/json','content-length':'900'}})},'upstream_size'],
+  [{fetchImpl:async()=>new Response(null,{headers:{'content-type':'application/json'}})},'upstream_empty'],
+  [{fetchImpl:async()=>new Response('private-non-json',{headers:{'content-type':'application/json'}})},'upstream_decode'],
+  [{fetchImpl:async()=>Response.json({...good,private:'value'})},'upstream_shape'],
+  [{fetchImpl:async()=>{throw Object.assign(Error('private-network'),{healthCode:'private-injected-code'});}},'upstream_network'],
+  [{deadlineMs:10,fetchImpl:async()=>new Promise(()=>{})},'upstream_timeout'],
+ ];
+ for(const [overrides,expected] of cases){
+  const events=[];const response=await harness({...overrides,diagnostics:(...args)=>events.push(args)}).handle(request());
+  assert.equal(response.status,503);assert.equal(await response.text(),'{"ok":false}');assert.deepEqual(events,[[expected]]);
+ }
+});
+test('diagnostics run only after authorization and route gates, never on success, and cannot break handling',async()=>{
+ const events=[];const diagnostics=code=>events.push(code);
+ for(const overrides of [{authorize:async()=>false},{authorize:async()=>{throw Error('private');}}])assert.equal((await harness({...overrides,diagnostics}).handle(request())).status,403);
+ for(const [path,method,status] of [['/wrong','GET',404],[STAGE_HEALTH_ADMIN_PATH+'?private=value','GET',400],[STAGE_HEALTH_ADMIN_PATH,'POST',405]])assert.equal((await harness({diagnostics}).handle(request(path,method))).status,status);
+ assert.equal((await harness({diagnostics}).handle(request())).status,200);assert.deepEqual(events,[]);
+ for(const callback of [()=>{throw Error('private-log');},async()=>{throw Error('private-log');}]){
+  const response=await harness({diagnostics:callback,getCredentials:async()=>null}).handle(request());assert.equal(response.status,503);assert.equal(await response.text(),'{"ok":false}');
+ }
+});
 test('secret reader supports the Site process channel without changing precedence or failclosed limits',()=>{
  const raw=JSON.stringify(credentials);
  assert.deepEqual(readStagingHealthConfiguration(undefined,raw),credentials);

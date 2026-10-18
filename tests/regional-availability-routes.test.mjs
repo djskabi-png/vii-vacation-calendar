@@ -36,6 +36,8 @@ test('actual vacation handler validates scope before reads, joins publication an
 test('actual event handler selects regional public IDs before national top12 and echoes scope',async()=>{
   const places=Array.from({length:26},(_,i)=>({supplierId:i+1,slug:`event-${i+1}`,name:`Venue ${i+1}`,location:i<20?'נתניה':'צפת',area:i<20?'מרכז':'צפון',type:'Venue',guests:50,image:'https://www.vii.co.il/gallery/venue.jpg',images:[]}));
   const post=handler('vii/live-search','POST',{
+    // This eligibility fixture must not depend on the developer's wall clock.
+    Date:class extends Date {constructor(...args){super(...(args.length?args:['2026-10-17T12:00:00Z']));}},
     regionalAvailabilityRegion,regionalPublishedIds,selectRegionalOffers,eligibleDealDate,validDate:value=>/^\d{4}-\d{2}-\d{2}$/.test(value),
     supplierToken:async()=>'test',publishedSupplierIds:async()=>new Set(places.slice(0,-1).map(place=>place.supplierId)),
     publicCatalogSummaries:async()=>places,
@@ -62,4 +64,24 @@ test('actual spa handler filters source sites before cap and returns honest empt
   assert.equal((await get(request('?region=unknown'))).status,400);
   const failed=handler('spa/deals','GET',{...dependencies,readSpaAvailability:async()=>{throw new Error('offline');}});
   assert.equal((await failed(request('/'))).status,503);
+});
+
+test('event rail date guard respects Israel cutoff and midnight with an explicit clock',async()=>{
+  for(const [clock,date,status] of [
+    ['2026-10-18T11:00:59Z','2026-10-18',200],
+    ['2026-10-18T11:01:00Z','2026-10-18',400],
+    ['2026-10-18T21:00:00Z','2026-10-19',400],
+    ['2026-10-18T21:01:00Z','2026-10-19',200],
+  ]){
+    let reads=0;
+    const post=handler('vii/live-search','POST',{
+      Date:class extends Date {constructor(...args){super(...(args.length?args:[clock]));}},
+      regionalAvailabilityRegion,regionalPublishedIds,selectRegionalOffers,eligibleDealDate,validDate:()=>true,
+      supplierToken:async()=>{reads++;return 'fixture';},publishedSupplierIds:async()=>new Set(),
+      publicCatalogSummaries:async()=>[],publicCatalogSelectedSummaries:async()=>[],
+      liveSupplierSearch:async()=>({results:[]}),
+    });
+    const response=await post(request('/',{world:'events',from:date,till:date,guests:30,slot:'evening',includePlaces:true,region:'צפון'}));
+    assert.equal(response.status,status,clock);assert.equal(reads,status===200?1:0,clock);
+  }
 });
