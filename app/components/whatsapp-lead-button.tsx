@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { trackWhatsAppLeadSaved } from "../lib/analytics";
 import { useAccountAccess } from "./account-access";
@@ -255,7 +256,7 @@ export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, s
 
   return <>
     <button ref={triggerRef} className={`${buttonClassName} whatsapp-lead-trigger`} type="button" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}><WhatsAppIcon /><span>{buttonLabel || labels.button}</span></button>
-    {open ? <div className="whatsapp-lead-layer" onMouseDown={(event) => event.target === event.currentTarget && closeDialog()}>
+    {open ? createPortal(<div className="whatsapp-lead-layer" onMouseDown={(event) => event.target === event.currentTarget && closeDialog()}>
       <section ref={dialogRef} className="whatsapp-lead-dialog" role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descriptionId} dir={language === "he" ? "rtl" : "ltr"}>
         <header className="whatsapp-lead-dialog__header">
           <span className="whatsapp-lead-dialog__icon" aria-hidden="true"><WhatsAppIcon /></span>
@@ -283,6 +284,6 @@ export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, s
           </footer>
         </form>
       </section>
-    </div> : null}
+    </div>, document.body) : null}
   </>;
 }
