@@ -14,7 +14,7 @@ export function holidaySelection(params: { get(name: string): string | null }): 
   const audience = params.get("audience");
   const part = params.get("part");
   return {
-    audience: holidayAudiences.some((item) => item.id === audience) ? audience as HolidayAudience : "family",
+    audience: holidayAudiences.some((item) => item.id === audience) ? audience as HolidayAudience : "couple",
     part: holidayParts.includes(part as HolidayPart) ? part as HolidayPart : "all",
   };
 }
