@@ -102,6 +102,26 @@ export function spaSearchDescription(state: SpaSearchState, language: SpaSearchL
   return `${title}, עם חבילות וטיפולים מאומתים, פרטי מקום ברורים ואפשרות להמשיך לבקשת הזמנה באתר.`;
 }
 
+// SEO and structured data receive the same Hebrew semantic source as the UI.
+// Parse only known regions, audiences and features, never translate arbitrary
+// business names or infer an unsupported search state.
+export function localizedSpaSearchSource(value: string, language: SpaSearchLanguage): string | undefined {
+  const descriptionSuffix = ", עם חבילות וטיפולים מאומתים, פרטי מקום ברורים ואפשרות להמשיך לבקשת הזמנה באתר.";
+  const description = value.endsWith(descriptionSuffix);
+  const title = description ? value.slice(0, -descriptionSuffix.length) : value;
+  const prefix = title.match(/^ספא(?: (ליחיד|לזוג|לקבוצה|ליום כיף))? ב(.+)$/);
+  if (!prefix) return undefined;
+  const region = spaSearchRegions.find((entry) => prefix[2] === entry.label || prefix[2].startsWith(`${entry.label} עם `));
+  if (!region) return undefined;
+  const featureText = prefix[2].slice(region.label.length);
+  const labels = featureText ? featureText.slice(" עם ".length).split(" ו") : [];
+  const features = labels.map((label) => spaLandings.find((entry) => entry.label === label));
+  if (features.some((entry) => !entry)) return undefined;
+  const audience = prefix[1] ? spaSearchAudiences.find((entry) => entry.title === prefix[1]) : undefined;
+  const state: SpaSearchState = { region, audience, features: features as SpaLanding[] };
+  return description ? spaSearchDescription(state, language) : spaSearchTitle(state, language);
+}
+
 export function spaItemMatchesSearch(item: DiscoveryItem, state: SpaSearchState) {
   if (state.region && !matchesSearchLocation(item, state.region.label)) return false;
   if (state.features.some((feature) => !spaItemMatches(item, feature))) return false;
