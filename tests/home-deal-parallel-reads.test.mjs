@@ -8,9 +8,11 @@ import {eligibleDealDate} from '../app/lib/deal-clock.ts';
 import {homeDealDates} from '../app/lib/vii-home-deals.ts';
 import {firstDealDate} from '../app/lib/deal-clock.ts';
 import {validDate} from '../app/lib/vii-live-search.ts';
+import {prioritizeOnlineFirst,isHomeDealOnlineEligible} from '../app/lib/vacation-online-first.ts';
+import {dailyRotationCompare} from '../app/lib/daily-rotation.ts';
 
 async function loadRoute(name, dependencies) {
-  dependencies={homeDealDates,firstDealDate,validDate,runtimeCatalogDatabase:async()=>null,discoveryVacationCatalog:()=>async()=>new Map(),
+  dependencies={homeDealDates,firstDealDate,validDate,prioritizeOnlineFirst,isHomeDealOnlineEligible,dailyRotationCompare,runtimeCatalogDatabase:async()=>null,discoveryVacationCatalog:()=>async()=>new Map(),
     getDiscoveryHolidays:async()=>[{id:123,from:'2099-12-05',till:'2099-12-07',nights:1}],cachedDiscovery:async({load})=>({value:await load(),cache:{status:'refreshed',checkedAt:new Date().toISOString()}}),...dependencies};
   const source=await readFile(new URL(`../app/api/vii/${name}/route.ts`,import.meta.url),'utf8');
   const compiled=stripTypeScriptTypes(source.replace(/^import .*;\r?$/gm,''),{mode:'strip'}).replace('export async function GET','async function GET');
