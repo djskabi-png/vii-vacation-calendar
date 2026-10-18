@@ -114,7 +114,7 @@ export async function getHomeDealsForDates(options: {
   const search = record(await searchResponse.json());
   const locations = locationsResponse?.ok ? record(await locationsResponse.json().catch(() => ({}))) : {};
   if ((!options.resolveCatalog && !Array.isArray(catalog.places)) || !Array.isArray(search.sites) || search.error) throw new Error("invalid_supplier_response");
-  const accepted = options.resolveCatalog ? await options.resolveCatalog(search.sites.map(value => record(value).siteID).filter((id): id is number => Number.isSafeInteger(id) && options.publicSiteIds.has(id as number))) : null;
+  const accepted = options.resolveCatalog ? await options.resolveCatalog(search.sites.map(record).filter(item => item.available === true && typeof item.minTotal === "number" && Number.isFinite(item.minTotal) && item.minTotal > 0).map(item => item.siteID).filter((id): id is number => Number.isSafeInteger(id) && options.publicSiteIds.has(id as number))) : null;
 
   const areas = new Map<number, string>();
   for (const value of Array.isArray(locations.areas) ? locations.areas : []) {

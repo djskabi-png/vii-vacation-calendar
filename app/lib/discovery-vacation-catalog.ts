@@ -8,13 +8,20 @@ export function discoveryVacationCatalog(places: DiscoveryVacationPlace[]) {
   const byId = new Map(places.map(place => [place.supplierId, place]));
   return async (requestedIds: number[]): Promise<ReadonlyMap<number, HomeDealCatalogPlace>> => {
     const ids = [...new Set(requestedIds)].filter(id => byId.has(id));
-    const details = await publicCatalogDetails<PublicDetail>("vacations", ids);
-    return new Map(ids.map(id => {
+    const result = new Map<number, HomeDealCatalogPlace>();
+    // D1 permits at most100 bound parameters. Keep the world parameter plus
+    // IDs below that limit and discard full detail/review bodies per batch.
+    for (let offset = 0; offset < ids.length; offset += 32) {
+      const chunk = ids.slice(offset, offset + 32);
+      const details = await publicCatalogDetails<PublicDetail>("vacations", chunk);
+      for (const id of chunk) {
       const place = byId.get(id)!;
-      return [id, { name: place.name, images: [...new Set([place.image, ...(place.images || [])].filter((image): image is string => Boolean(image)))].slice(0, 10),
+      result.set(id, { name: place.name, images: [...new Set([place.image, ...(place.images || [])].filter((image): image is string => Boolean(image)))].slice(0, 10),
         city: place.location || "", area: place.area || "", phone: place.contact?.phone, whatsapp: place.contact?.whatsapp,
         rooms: (details.get(id)?.rooms || []).map(room => ({ roomID: room.id, roomName: room.name, bedrooms: room.bedrooms, maxGuests: room.guests })),
-      }];
-    }));
+      });
+      }
+    }
+    return result;
   };
 }
