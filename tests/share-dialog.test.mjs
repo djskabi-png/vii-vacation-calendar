@@ -68,3 +68,12 @@ test("sharing previews the actual entity cover, without the failing optimizer, a
   assert.match(css, /\.share-dialog__preview strong \{[^}]*-webkit-line-clamp: 2/);
   assert.ok(events.indexOf('ownerWhatsapp ? <WhatsAppLeadButton') < events.indexOf('<ShareButton title={place.name}'));
 });
+
+test("event-specific mobile stylesheet keeps share outside the contact pair and handles absent WhatsApp", async () => {
+  const css = await read("app/mobile-polish.css");
+  assert.match(css, /\.event-title \.property-title__actions--contact:has\(\.property-whatsapp-action\) \{ grid-template-columns:minmax\(0,1fr\) minmax\(0,1\.2fr\) 44px;/);
+  assert.match(css, /:has\(\.property-whatsapp-action\) > \.share-trigger \{ grid-column:3;/);
+  assert.match(css, /\.event-title \.property-title__actions--contact > \.property-whatsapp-action \{ grid-column:2;/);
+  assert.match(css, /:not\(:has\(\.property-whatsapp-action\)\) \{ grid-template-columns:minmax\(0,1fr\) 44px;/);
+  assert.match(css, /> \.property-phone-action \{ grid-column:1; min-width:0;/);
+});
