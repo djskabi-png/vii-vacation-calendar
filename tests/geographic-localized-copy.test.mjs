@@ -61,3 +61,20 @@ test('semantic brand handling preserves reviewed legacy full-title translations'
     assert.equal(translate('כותרת לא מוכרת | וי פור ויקיישן',locale),'כותרת לא מוכרת | וי פור ויקיישן');
   }
 });
+
+test('actual vacation metadata owns its OG fields and reviewed metro descriptions in every locale',async()=>{
+  const source=read('app/components/vacation-landing-route.tsx');
+  const snippet=source.slice(source.indexOf('export async function vacationLandingMetadata('),source.indexOf('\nexport async function VacationLandingRoute(')).replace('export async','async');
+  const regions={haifa:{slug:'haifa-carmel',label:'חיפה והכרמל'},dan:{slug:'tel-aviv-area',label:'תל אביב וגוש דן'}};
+  const metadata=new Function('vacationRegionBySlug','publicCatalogSummaries','vacationRegionListings',compile(snippet)+'\nreturn vacationLandingMetadata;')(id=>regions[id],async()=>[{}],()=>[{}]);
+  for(const id of ['haifa','dan']) {
+    const result=await metadata(id);
+    assert.equal(result.openGraph.title,result.title);
+    assert.equal(result.openGraph.description,result.description);
+    assert.equal(result.openGraph.url,result.alternates.canonical);
+    for(const locale of ['en','fr','ru']) {
+      assert.ok(visitor[result.title][locale]);
+      assert.doesNotMatch(visitor[result.description][locale],/[\u0590-\u05ff]/);
+    }
+  }
+});

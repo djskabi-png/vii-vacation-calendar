@@ -15,7 +15,8 @@ export async function vacationLandingMetadata(regionSlug?: string | null): Promi
   if (!region || !vacationRegionListings(region, inventory).length) return {};
   const title = `נופש ב${region.label}`;
   const description = `מקומות נופש פעילים ב${region.label}, עם תמונות, פרטי חדרים, מתקנים ואפשרויות הזמנה.`;
-  return { title, description, alternates: { canonical: `/vacations/${region.slug}` } };
+  const path = `/vacations/${region.slug}`;
+  return { title, description, alternates: { canonical: path }, openGraph: { type: "website", url: path, title, description } };
 }
 
 export async function VacationLandingRoute({ regionSlug }: { regionSlug?: string | null }) {
