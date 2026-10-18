@@ -44,14 +44,15 @@ test('one real SQLite catalog statement returns counts and generation integrity,
     assert.equal(body.observation.schemasObservedSeparately, true);
     assert.equal(body.observation.rowBodiesIncluded, false);
     assert.equal(f.queries[0], CATALOG_METADATA_SQL);
-    assert.equal(f.queries.length, 2 + METADATA_TABLES.length);
+    assert.equal(f.queries.length, 3 + METADATA_TABLES.length);
     assert.equal(body.tables.find(t => t.table === 'vii_content_items').rowCount, 1);
     assert.equal(body.tables.find(t => t.table === 'vii_content_versions').rowCount, null);
+    assert.equal(body.tables.find(t => t.table === 'guest_reviews').rowCount, 1);
     assert.ok(METADATA_TABLES.includes('vii_search_page_opportunities'));
     assert.ok(METADATA_TABLES.includes('vii_search_page_opportunity_versions'));
     assert.equal(body.observation.rowCountsObservedSeparately, true);
     assert.ok(f.queries.every(sql => /^(SELECT|PRAGMA)\b/i.test(sql.trim())));
-    assert.ok(f.queries.every(sql => !/guest_reviews|user_email|summary_json|detail_json|diagnostics_json/i.test(sql)));
+    assert.ok(f.queries.every(sql => sql===CATALOG_METADATA_SQL || /^PRAGMA table_info\("[a-z_]+"\)$/.test(sql) || /^SELECT COUNT\(\*\) AS count FROM "[a-z_]+"$/.test(sql)));
     assert.ok(!JSON.stringify(body).match(/PRIVATE_|@example\.test/));
     assert.equal(f.sqlite.prepare('SELECT total_changes() AS count').get().count, before);
     assert.equal(response.headers.get('cache-control'), 'private, no-store');
@@ -155,5 +156,7 @@ test('route reuses existing auth and binding without schema initialization, new 
   assert.match(route, /authorizedAdminSession/);
   assert.match(route, /DB\?: D1Database/);
   assert.doesNotMatch(route, /ensure|CREATE|ALTER|INSERT|UPDATE|DELETE|process\.env|GetSecret|Bearer/);
-  assert.equal(METADATA_TABLES.length, 13);
+  assert.equal(METADATA_TABLES.length, 24);
+  assert.equal(new Set(METADATA_TABLES).size,24);
+  for(const table of ['guest_reviews','guest_review_files','supplier_catalog_retry_jobs','discovery_promotion_draft_events','vii_booking_audit','vii_booking_rate','vii_business_events','vii_redirect_events','vii_search_events','vii_search_demand_events','whatsapp_leads'])assert.ok(METADATA_TABLES.includes(table));
 });

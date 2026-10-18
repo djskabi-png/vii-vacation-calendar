@@ -7,6 +7,10 @@ export const METADATA_TABLES = Object.freeze([
   "vii_search_page_versions", "vii_search_page_publications",
   "vii_geography_nodes", "vii_geography_versions", "vii_redirects",
   "vii_search_page_opportunities", "vii_search_page_opportunity_versions",
+  "guest_reviews", "guest_review_files", "supplier_catalog_retry_jobs",
+  "discovery_promotion_draft_events", "vii_booking_audit", "vii_booking_rate",
+  "vii_business_events", "vii_redirect_events", "vii_search_events",
+  "vii_search_demand_events", "whatsapp_leads",
 ] as const);
 
 export const CATALOG_METADATA_SQL = `
@@ -77,7 +81,8 @@ export async function readBackendSourceMetadata(db: D1Database) {
     return { table: METADATA_TABLES[index], exists: columns.length > 0, columns };
   });
   // Fixed counts only, no row bodies or actors. Never initialize missing tables.
-  const countTables = tables.filter(table => table.exists && !table.table.startsWith("supplier_catalog_"));
+  const catalogTotalsTables = new Set<string>(["supplier_catalog_runs", "supplier_catalog_entries", "supplier_catalog_state"]);
+  const countTables = tables.filter(table => table.exists && !catalogTotalsTables.has(table.table));
   const countResults = countTables.length ? await db.batch(countTables.map(table => db.prepare(`SELECT COUNT(*) AS count FROM "${table.table}"`))) : [];
   if (countResults.length !== countTables.length) throw new Error("invalid_metadata");
   const rowCounts = new Map<string, number>();
