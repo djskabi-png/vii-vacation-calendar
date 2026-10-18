@@ -57,7 +57,12 @@ async function durableRead<T>(db: D1Database, key: string, options: Options<T>):
   let now = clock(), row = await read(db, key), value = parse(row, options, now);
   if (row && value !== undefined && now < row.checked_at + FRESH) return result(value, row, "fresh");
   if (row && now < row.retry_after) return value !== undefined ? result(value, row, "stale") : unavailable();
-  await db.prepare(`INSERT OR IGNORE INTO ${TABLE} (cache_key) VALUES (?)`).bind(key).run();
+  if (!row) {
+    // Admission is bounded even when every provider call fails. Never let cold
+    // failure placeholders grow without limit or evict an active lease owner.
+    await db.prepare(`DELETE FROM ${TABLE} WHERE cache_key IN (SELECT cache_key FROM ${TABLE} WHERE lease_until <= ? ORDER BY checked_at DESC, cache_key LIMIT -1 OFFSET 511)`).bind(now).run();
+    await db.prepare(`INSERT OR IGNORE INTO ${TABLE} (cache_key) SELECT ? WHERE (SELECT COUNT(*) FROM ${TABLE}) < 512`).bind(key).run();
+  }
   const token = crypto.randomUUID();
   const leased = await db.prepare(`UPDATE ${TABLE} SET lease_until = ?, lease_token = ? WHERE cache_key = ? AND lease_until <= ? AND retry_after <= ? AND checked_at = ?`).bind(now + LEASE, token, key, now, now, row?.checked_at ?? 0).run();
   if (!leased.meta.changes) {
