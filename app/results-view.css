@@ -36,8 +36,8 @@
 .results-toolbar { position: relative; z-index: 20; }
 
 /* Vacation results default to complete card tiles. */
-.result-cards.results-view--grid { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; }
-.result-cards.results-view--grid .stay-card { display: block; }
+.result-cards.results-view--grid { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; }
+.result-cards.results-view--grid .stay-card { display: flex; flex-direction: column; }
 .result-cards.results-view--grid .stay-card__media { min-height: 0; aspect-ratio: 4 / 3; }
 .result-cards.results-view--grid .stay-card__body { padding: 17px; }
 .result-cards.results-view--grid .stay-card__actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -48,11 +48,11 @@
 .result-cards.results-view--list .stay-card__media { min-height: 245px; aspect-ratio: auto; }
 
 /* Event results use the same grid-first language. */
-.event-list.results-view--grid { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; }
+.event-list.results-view--grid { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; }
 .event-list.results-view--grid > .results-heading,
 .event-list.results-view--grid > .results-toolbar,
 .event-list.results-view--grid > .empty-state { grid-column: 1 / -1; }
-.event-list.results-view--grid > article { min-width: 0; display: block; overflow: hidden; padding: 0; background: #fff; box-shadow: 0 10px 32px rgba(3, 39, 48, .07); }
+.event-list.results-view--grid > article { min-width: 0; display: flex; flex-direction: column; gap: 0; overflow: hidden; padding: 0; background: #fff; box-shadow: 0 10px 32px rgba(3, 39, 48, .07); }
 .event-list.results-view--grid > article > .event-card-gallery { padding: 0; }
 .event-list.results-view--grid > article > .event-card-gallery img { height: auto; aspect-ratio: 4 / 3; border-radius: 0; }
 .event-list.results-view--grid > article > div:last-child { padding: 17px; }
@@ -71,7 +71,7 @@
 
 /* Map mode keeps the chosen list language without squeezing the map. */
 .airbnb-map-split__results.results-view--grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.airbnb-map-split__results.result-cards.results-view--grid .stay-card { display: block; }
+.airbnb-map-split__results.result-cards.results-view--grid .stay-card { display: flex; flex-direction: column; }
 .airbnb-map-split__results.result-cards.results-view--list { grid-template-columns: minmax(0, 1fr); }
 .airbnb-map-split__results.result-cards.results-view--list .stay-card { grid-template-columns: minmax(190px, 38%) minmax(0, 1fr); }
 .event-list.event-list--map-open { grid-template-columns: minmax(500px, .92fr) minmax(480px, 1.08fr); }

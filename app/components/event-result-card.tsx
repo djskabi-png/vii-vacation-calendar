@@ -25,7 +25,7 @@ export function EventResultCard({ place, href, supplierStatus, mapActive = false
   const { language } = useSiteLanguage();
 
   return <article
-    className={mapActive ? "is-map-active" : undefined}
+    className={`event-result-card${mapActive ? " is-map-active" : ""}`}
     data-map-place-id={place.slug}
     onPointerEnter={() => onActiveChange?.(true)}
     onPointerLeave={() => onActiveChange?.(false)}
@@ -35,6 +35,13 @@ export function EventResultCard({ place, href, supplierStatus, mapActive = false
     <PreviewCardGallery className="event-card-gallery" href={href} name={place.name} images={[place.image, ...place.images]} countLabel={(count) => `${count} ${photoCountCopy[language]}`}>
       <FavoriteButton id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={href} meta={`${place.type} · עד ${place.guests} אורחים ביחידה הגדולה`} />
     </PreviewCardGallery>
-    <div><small>{place.type}</small><h2>{place.name}</h2><p><PinIcon />{place.location}, {place.area}</p><p>{place.description}</p><div className="feature-chips">{place.features.slice(0, 3).map((feature) => <span key={feature}>{feature}</span>)}</div><div className="event-capacity">עד {place.guests} אורחים ביחידה הגדולה</div>{supplierStatus ? <p className="event-live-status" role="status">{supplierStatus}</p> : null}<div className="stay-card__actions event-card__actions"><Link className="stay-card__details-link" href={href} target="_blank" rel="noopener noreferrer">לפרטים על המקום<span className="sr-only"></span></Link><EventCardContactActions placeId={place.slug} placeName={place.name} phone={place.contact?.phone} whatsapp={place.contact?.whatsapp} serviceName={place.type} /></div></div>
+    <div className="event-result-card__body">
+      <small className="event-result-card__type">{place.type}</small>
+      <h3 className="event-result-card__title"><Link href={href} target="_blank" rel="noopener noreferrer" title={place.name}>{place.name}</Link></h3>
+      <p className="event-result-card__location"><PinIcon /><span>{place.location}, {place.area}</span></p>
+      <div className="event-capacity">עד {place.guests} אורחים ביחידה הגדולה</div>
+      <div className="event-result-card__offer">{supplierStatus ? <p className="event-live-status" role="status">{supplierStatus}</p> : null}</div>
+      <div className="stay-card__actions event-card__actions"><Link className="stay-card__details-link" href={href} target="_blank" rel="noopener noreferrer">לפרטים על המקום<span className="sr-only"></span></Link><EventCardContactActions placeId={place.slug} placeName={place.name} phone={place.contact?.phone} whatsapp={place.contact?.whatsapp} serviceName={place.type} /></div>
+    </div>
   </article>;
 }
