@@ -75,7 +75,7 @@ test('missing, expired, overlong-lived, wrong environment and invalid header con
 });
 test('success calls only fixed HTTPS with allowlisted service headers and returns exact booleans',async()=>{
  const h=harness();const r=await h.handle(request());assert.equal(r.status,200);assert.deepEqual(await r.json(),good);
- const call=h.calls[1];assert.equal(call.url,STAGE_HEALTH_URL);assert.equal(call.options.redirect,'error');assert.equal(call.options.credentials,'omit');assert.equal(call.options.cache,'no-store');assert.equal(call.options.method,'GET');
+ const call=h.calls[1];assert.equal(call.url,STAGE_HEALTH_URL);assert.equal(call.options.redirect,'manual');assert.equal(call.options.credentials,'omit');assert.equal(call.options.cache,'no-store');assert.equal(call.options.method,'GET');
  assert.deepEqual(call.options.headers,{accept:'application/json','CF-Access-Client-Id':credentials.clientId,'CF-Access-Client-Secret':credentials.clientSecret});
  assert.equal(call.options.body,undefined);assert.equal(r.headers.get('cache-control'),'private, no-store');assert.ok(r.headers.get('x-robots-tag').includes('noindex'));
 });
