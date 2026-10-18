@@ -3,7 +3,7 @@ import { createStagingHealthClient, readStagingHealthConfiguration } from "../..
 
 export const dynamic = "force-dynamic";
 const handle = createStagingHealthClient({
-  diagnostics: (code: string) => console.warn(`[vii-stage-health] ${code}`),
+  diagnostics: (code: string) => console.error(`[vii-stage-health] ${code}`),
   authorize: async (request: Request) => !!await authorizedAdminSession(request),
   getCredentials: async () => {
     let workerValue: string | undefined;

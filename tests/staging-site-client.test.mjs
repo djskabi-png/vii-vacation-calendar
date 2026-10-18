@@ -1,9 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {createStagingHealthClient,readStagingHealthConfiguration,STAGE_HEALTH_URL,STAGE_HEALTH_ADMIN_PATH} from '../infrastructure/http/staging-site-client.mjs';
 const now=Date.parse('2026-10-18T08:00:00Z');
 const credentials={environment:'staging',clientId:'a'.repeat(32)+'.access',clientSecret:'synthetic-not-a-real-secret',expiresAt:'2026-10-18T20:00:00Z'};
 const good={ok:true,databaseConnected:true,readOnly:true,markerMatched:true};
+test('private route emits only the fixed diagnostic prefix at the supported error log level',()=>{
+ const source=readFileSync(new URL('../app/api/admin/staging-private-health/route.ts',import.meta.url),'utf8');
+ assert.match(source,/diagnostics: \(code: string\) => console\.error\(`\[vii-stage-health\] \$\{code\}`\)/);
+ assert.doesNotMatch(source,/console\.(?:warn|log|debug|info)\(/);
+});
 test('server diagnostics expose only fixed stage codes and never credential/error values',async()=>{
  const cases=[
   [{getCredentials:async()=>readStagingHealthConfiguration(undefined,undefined)},'config_missing'],
