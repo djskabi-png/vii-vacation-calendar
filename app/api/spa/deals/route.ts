@@ -24,8 +24,8 @@ export async function GET(request: Request) {
     const expandedRegions: Record<string, Partial<Record<SpaDealAudience, boolean>>> = {};
     const offers = Object.fromEntries(days.map(date => [date, Object.fromEntries(audiences.map(audience => {
       const allDeals = selectSpaPackageDeals(sites, availability, date, audience);
-      if (!region) return [audience, allDeals.slice(0, 18)];
-      const selected = selectRegionalOffers(allDeals, locations, region.label, { placeId: deal => deal.siteId, key: deal => `${deal.siteId}:${deal.packageId}`, limit: 18 });
+      if (!region) return [audience, allDeals.slice(0, 20)];
+      const selected = selectRegionalOffers(allDeals, locations, region.label, { placeId: deal => deal.siteId, key: deal => `${deal.siteId}:${deal.packageId}`, limit: 20 });
       if (selected.expanded) (expandedRegions[date] ||= {})[audience] = true;
       return [audience, selected.offers];
     }))]));

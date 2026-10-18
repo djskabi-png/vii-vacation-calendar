@@ -51,10 +51,10 @@ test('spa scope is applied before price sorting and national cap, without invent
   assert.deepEqual(offers.map(offer=>offer.price),[21,22,23]);
 });
 
-test('event API applies regional eligibility before top12; scope travels through state and response',()=>{
+test('event API applies regional eligibility before top20; scope travels through state and response',()=>{
   const route=read('app/api/vii/live-search/route.ts');
   assert.ok(route.indexOf('publishedSupplierIds(world)')<route.indexOf('liveSupplierSearch({'));
-  assert.ok(route.indexOf('selectRegionalOffers(')<route.indexOf('.slice(0, 12)'));
+  assert.ok(route.indexOf('selectRegionalOffers(')<route.indexOf('.slice(0, 20)'));
   assert.match(route,/publishedIds: publicIds/);
   assert.match(route,/region: region.label/);
   assert.match(route,/area: place.area/);
@@ -62,7 +62,8 @@ test('event API applies regional eligibility before top12; scope travels through
   assert.match(hook,/\$\{region \|\| ""\}/);
   assert.match(hook,/includePlaces && result.region !== region/);
   const rail=read('app/components/event-last-minute.tsx');
-  assert.ok(rail.indexOf('matchesSearchLocation(place, scope.label)')<rail.indexOf('.slice(0, 12)'));
+  assert.match(rail,/orderDiscoveryRail\(\(search.places \|\| places\).flatMap/);
+  assert.ok(rail.indexOf('matchesSearchLocation(place, scope.label)')<rail.indexOf('}), { id: item => item.place.slug'));
   assert.match(rail,/eventSearchHref\(scope\?\.label\)/);
 });
 

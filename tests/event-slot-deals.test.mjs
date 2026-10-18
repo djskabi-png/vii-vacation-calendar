@@ -76,5 +76,5 @@ test("both discovery surfaces use real event deals, preserving slot and particip
   const route = readFileSync(new URL("../app/api/vii/live-search/route.ts", import.meta.url), "utf8");
   assert.match(route, /body.includePlaces === true/);
   assert.match(route, /publicCatalogSelectedSummaries<EventDealPlace>\("events", ids\)/);
-  assert.match(route, /slice\(0, 12\)/);
+  assert.match(route, /slice\(0, 20\)/);
 });

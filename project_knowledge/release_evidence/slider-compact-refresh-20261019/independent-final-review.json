@@ -1,0 +1,15 @@
+{
+  "reviewedAt": "2026-10-18T22:49:14.2960208Z",
+  "scope": "slider compact refresh code and focused regression tests",
+  "tests": {
+    "command": "node --test tests/discovery-slider-order.test.mjs tests/slider-family-refresh.test.mjs tests/slider-card-compact.test.mjs tests/homepage-visual-contract.test.mjs tests/regional-expansion.test.mjs tests/vacation-online-first.test.mjs tests/discovery-cache-boundaries.test.mjs tests/home-deal-parallel-reads.test.mjs",
+    "passed": 45,
+    "failed": 0
+  },
+  "verdict": "SCOPED_CODE_TEST_PASS",
+  "limits": [
+    "No independent build, public HTTP, or visual browser verification was performed in this pass.",
+    "Parent-reported typecheck/build and full-suite status are not independent evidence here.",
+    "Initial artifact-gate opinion superseded by same checker's explicit follow-up after native506 comparison: raw TAR equality is not a Sites contract and must not block on its own. Use unchanged original archive, complete provenance, native Save/Deploy IDs and public build/assets/behavior with506rollback. See publication-premise-review.json. Provider stored-body equality is not claimed."
+  ]
+}

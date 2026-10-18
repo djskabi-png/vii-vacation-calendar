@@ -23,6 +23,8 @@ import { regionalExpansionCopy } from "../i18n/regional-availability-copy";
 import { discoveryCacheCopy } from "../i18n/discovery-cache-copy.ts";
 import { firstDealDate, normalizeDealDate } from "../lib/deal-clock";
 import { useDealClock } from "./use-deal-clock";
+import { orderDiscoveryRail } from "../lib/discovery-slider-order";
+import { useDocumentSeed } from "./use-document-seed";
 
 const copy = {
   he: { title: "מקומות פנויים לאירועים", all: "לכל המקומות הפנויים", tabs: ["ברגע האחרון", "פנוי לחמישי", "פנוי לשישי"], date: "תאריך אחר", guests: "משתתפים", loading: "בודקים זמינות ומחירים...", error: "לא הצלחנו לבדוק זמינות כרגע", retry: "לנסות שוב", empty: "לא נמצאו הצעות פנויות לבחירה הזו. נסו תאריך או כמות משתתפים אחרים.", available: "פנוי", price: "מחיר לאירוע", forGuests: "עבור", capacity: "עד", people: "משתתפים", details: "לפרטי המקום" },
@@ -34,6 +36,7 @@ const copy = {
 export function EventLastMinute({ places, sectionId = "event-last-minute", region, initialGuests = 20 }: { places: EventPlace[]; sectionId?: string; region?: string; initialGuests?: number }) {
   const { language, translate } = useSiteLanguage();
   const clock = useDealClock();
+  const documentSeed = useDocumentSeed();
   const geography = useManagedGeography(language !== "he");
   const text = copy[language];
   const scope = regionalAvailabilityRegion(region);
@@ -49,14 +52,13 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
   const presets = clock ? eventDealPresets(clock.now) : [];
   const date = clock && chosenDate ? (presets.find(preset => preset.id === selectedPreset)?.date || normalizeDealDate(chosenDate, clock.now)) : null;
   const search = useViiLiveSearch("events", date, date, guests, undefined, undefined, slot, retry, true, scope?.label);
-  const candidates = (search.places || places).flatMap((place) => {
+  const candidates = orderDiscoveryRail((search.places || places).flatMap((place) => {
     if (scope && !search.expandedRegion && !matchesSearchLocation(place, scope.label)) return [];
     const match = /^event-(\d+)$/.exec(place.slug);
     const offer = match ? search.results[Number(match[1])] : null;
     if (offer?.available !== true || !offer.total || !offer.from || !offer.slot) return [];
     return [{ place, offer }];
-  }).sort((a, b) => (scope && search.regionalOrder?.length ? search.regionalOrder.indexOf(a.offer.siteID) - search.regionalOrder.indexOf(b.offer.siteID) : 0) || a.offer.total! - b.offer.total!
-    || dailyRotationCompare(a.place.slug, b.place.slug, `${sectionId}-${date}`)).slice(0, 12);
+  }), { id: item => item.place.slug, seed: `${documentSeed}:${sectionId}:${date}`, priority: item => scope && search.regionalOrder?.length ? Math.max(0, search.regionalOrder.indexOf(item.offer.siteID)) : undefined });
   const searchPath = eventSearchHref(scope?.label);
   const params = new URLSearchParams({ from: date || "", to: date || "", guests: String(guests), ...(slot ? { slot } : {}), ...(scope && searchPath === "/events/search" ? { location: scope.label } : {}) });
   const busy = search.status === "loading" || !initialized;

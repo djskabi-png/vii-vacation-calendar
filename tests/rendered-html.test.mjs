@@ -696,7 +696,8 @@ test("keeps calendar contexts, real listing ids and maps", async () => {
   assert.doesNotMatch(homeShowcase, /nightlyPrice/);
   assert.match(homeShowcase, /כל סיבה טובה הופכת כאן לאירוע/);
   assert.match(homeShowcase, /<SpaPackageDeals \/>/);
-  assert.match(homeShowcase, /rotateWithinTiers\(hourlyPlaces/);
+  assert.match(homeShowcase, /orderDiscoveryRail\(hourlyPlaces/);
+  assert.match(homeShowcase, /compare: \(a, b\) => Number\(!\(a.image && a.priceLabel\)\) - Number\(!\(b.image && b.priceLabel\)\)/);
   assert.match(homeShowcase, /featuredHourly\.map/);
   assert.doesNotMatch(homeShowcase, /המחיר והזמינות הסופיים יאומתו/);
 });
