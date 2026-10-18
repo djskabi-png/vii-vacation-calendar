@@ -1,7 +1,20 @@
 // Match the existing public readers, not the latest editable admin draft.
 const editorialFields = ['title','summary','body','metaTitle','metaDescription','slug','imageAlt','indexable','links','attributes'];
 const publicationFields = ['id','world','locale','location','filters','title','metaTitle','metaDescription','h1','summary','body','faq','slug','canonicalPath','robotsIndex','version'];
-const projectJson = (column: string, fields: string[]) => `json_object(${fields.map(key => `'${key}',json_extract(${column},'$.${key}')`).join(',')})`;
+// D1 limits SQL functions to32arguments. Keep nulls and JSON subtypes while
+// extending larger objects; json_patch would incorrectly remove null fields.
+const jsonObject = (fields: [string,string][]) => {
+ let expression=`json_object(${fields.slice(0,16).map(([key,value])=>`'${key}',${value}`).join(',')})`;
+ for(let n=16;n<fields.length;n+=15) expression=`json_set(${expression},${fields.slice(n,n+15).map(([key,value])=>`'$.${key}',${value}`).join(',')})`;
+ return expression;
+};
+const projectJson = (column: string, fields: string[]) => jsonObject(fields.map(key=>[key,`json_extract(${column},'$.${key}')`]));
+const opportunityJson=jsonObject([
+ ['id','o.id'],['world','o.world'],['locale','o.locale'],['location','o.location'],['filters','json(o.filters_json)'],
+ ['canonicalPath','o.canonical_path'],['slug','o.slug'],['suggestedTitle','o.suggested_title'],
+ ['title','o.title'],['metaTitle','o.meta_title'],['metaDescription','o.meta_description'],['h1','o.h1'],
+ ['summary','o.summary'],['body','o.body'],['faq','json(o.faq_json)'],['version','o.version']
+]);
 export const PUBLIC_CMS_PROJECTION_SQL = `
 WITH
 editorial AS (
@@ -21,11 +34,7 @@ search_versions AS (
   AND (newer.status='published' OR (newer.status='scheduled' AND newer.scheduled_at<=?1)) AND newer.version>v.version)
 ),
 opportunities AS (
- SELECT 'search-opportunity' AS family,o.id AS identity,json_object(
-  'id',o.id,'world',o.world,'locale',o.locale,'location',o.location,'filters',json(o.filters_json),
-  'canonicalPath',o.canonical_path,'slug',o.slug,'suggestedTitle',o.suggested_title,
-  'title',o.title,'metaTitle',o.meta_title,'metaDescription',o.meta_description,'h1',o.h1,
-  'summary',o.summary,'body',o.body,'faq',json(o.faq_json),'version',o.version) AS data
+ SELECT 'search-opportunity' AS family,o.id AS identity,${opportunityJson} AS data
  FROM vii_search_page_opportunities o WHERE o.robots_index=1
   AND (o.status='published' OR (o.status='scheduled' AND o.scheduled_at<=?1))
 ),
@@ -48,10 +57,14 @@ redirects AS (
  SELECT 'redirect' AS family,source_path AS identity,
   json_object('sourcePath',source_path,'targetPath',target_path,'status',status) AS data
  FROM vii_redirects WHERE active=1
+),
+family_a AS MATERIALIZED (
+ SELECT * FROM editorial UNION ALL SELECT * FROM search_versions UNION ALL SELECT * FROM opportunities
+),
+family_b AS MATERIALIZED (
+ SELECT * FROM publications UNION ALL SELECT * FROM geography UNION ALL SELECT * FROM redirects
 )
-SELECT * FROM editorial UNION ALL SELECT * FROM search_versions
-UNION ALL SELECT * FROM opportunities UNION ALL SELECT * FROM publications
-UNION ALL SELECT * FROM geography UNION ALL SELECT * FROM redirects
+SELECT * FROM family_a UNION ALL SELECT * FROM family_b
 ORDER BY family,identity`;
 
 export const CMS_FAMILIES = ['editorial','search-version','search-opportunity','search-publication','geography','redirect'] as const;
