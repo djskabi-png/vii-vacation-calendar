@@ -4,7 +4,7 @@ import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useId, useRef, useState } from "react";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { trackWhatsAppLeadSaved } from "../lib/analytics";
-import { AccountFormPrompt, useAccountAccess } from "./account-access";
+import { useAccountAccess } from "./account-access";
 
 type Copy = {
   button: string;
@@ -93,6 +93,13 @@ const newTabLabel: Record<SiteLanguage, string> = {
   fr: "s’ouvre dans un nouvel onglet",
 };
 
+const dialogCopy: Record<SiteLanguage, { title: string; intro: string; optional: string; submit: string; submitting: string }> = {
+  he: { title: "פנייה בוואטסאפ", intro: "רק שם וטלפון, את השאר אפשר לתאם בשיחה.", optional: "תאריכים ואורחים (לא חובה)", submit: "המשך לוואטסאפ", submitting: "רגע, שומרים את הפנייה..." },
+  en: { title: "Enquire on WhatsApp", intro: "Just your name and phone. You can arrange the rest in the chat.", optional: "Dates and guests (optional)", submit: "Continue to WhatsApp", submitting: "Saving your enquiry..." },
+  ru: { title: "Связаться в WhatsApp", intro: "Только имя и телефон. Остальное можно обсудить в чате.", optional: "Даты и гости (необязательно)", submit: "Перейти в WhatsApp", submitting: "Сохраняем запрос..." },
+  fr: { title: "Contacter par WhatsApp", intro: "Votre nom et votre téléphone suffisent. Le reste peut se discuter dans le chat.", optional: "Dates et voyageurs (facultatif)", submit: "Continuer sur WhatsApp", submitting: "Enregistrement en cours..." },
+};
+
 function WhatsAppIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20.5 11.7a8.5 8.5 0 0 1-12.6 7.4L3 20.4l1.3-4.7A8.5 8.5 0 1 1 20.5 11.7Z"/><path d="M8.2 7.7c.2-.4.4-.4.7-.4h.4c.2 0 .4.1.5.4l.8 1.9c.1.3 0 .5-.2.7l-.6.7c-.2.2-.2.4-.1.6.6 1.2 1.6 2.2 2.8 2.8.2.1.4.1.6-.1l.8-1c.2-.2.4-.3.7-.2l1.8.9c.3.1.4.3.4.5 0 .3-.1 1.4-.8 2-.6.5-1.4.8-2.3.6-1.2-.2-2.8-.8-4.5-2.3-2-1.8-3.3-4.1-3.4-5.5-.1-.8.2-1.6.6-2.1.4-.4.8-.5 1-.5"/></svg>;
 }
@@ -119,22 +126,34 @@ export type WhatsAppLeadButtonProps = {
 export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, serviceName = "", initialDate = "", initialTill = "", initialGuests = "", buttonLabel, buttonClassName = "button primary" }: WhatsAppLeadButtonProps) {
   const { language, translate } = useSiteLanguage();
   const labels = copy[language];
+  const dialogLabels = dialogCopy[language];
   const localizedPlaceName = translate(placeName);
   const { account } = useAccountAccess();
   const [open, setOpen] = useState(false);
   const [state, setState] = useState<"idle" | "submitting" | "error">("idle");
   const [submissionId, setSubmissionId] = useState("");
+  const stateRef = useRef(state);
+  stateRef.current = state;
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const firstInputRef = useRef<HTMLInputElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLElement>(null);
+  const errorRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
   const descriptionId = useId();
 
   const closeDialog = useCallback(() => {
-    if (state === "submitting") return;
+    if (stateRef.current === "submitting") return;
     setOpen(false);
     setState("idle");
     requestAnimationFrame(() => triggerRef.current?.focus());
+  }, []);
+
+  useEffect(() => {
+    if (state !== "error") return;
+    requestAnimationFrame(() => {
+      errorRef.current?.scrollIntoView({ block: "nearest" });
+      errorRef.current?.focus({ preventScroll: true });
+    });
   }, [state]);
 
   useEffect(() => {
@@ -146,7 +165,8 @@ export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, s
         return;
       }
       if (event.key !== "Tab") return;
-      const focusable = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>("button:not([disabled]), input:not([disabled]), a[href]") || []);
+      const focusable = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>("button:not([disabled]), input:not([disabled]):not([tabindex='-1']), summary, a[href]") || [])
+        .filter((element) => element.getClientRects().length > 0 && (!element.closest("details:not([open])") || element.tagName === "SUMMARY"));
       if (!focusable.length) return;
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
@@ -160,7 +180,8 @@ export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, s
     };
     document.body.style.overflow = "hidden";
     document.addEventListener("keydown", onKeyDown);
-    requestAnimationFrame(() => firstInputRef.current?.focus());
+    // Keep the keyboard closed on mobile until the visitor chooses a field.
+    requestAnimationFrame(() => closeRef.current?.focus({ preventScroll: true }));
     return () => {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener("keydown", onKeyDown);
@@ -233,33 +254,33 @@ export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, s
   }
 
   return <>
-    <button ref={triggerRef} className={`${buttonClassName} whatsapp-lead-trigger`} type="button" onClick={() => setOpen(true)}><WhatsAppIcon /><span>{buttonLabel || labels.button}</span></button>
+    <button ref={triggerRef} className={`${buttonClassName} whatsapp-lead-trigger`} type="button" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}><WhatsAppIcon /><span>{buttonLabel || labels.button}</span></button>
     {open ? <div className="whatsapp-lead-layer" onMouseDown={(event) => event.target === event.currentTarget && closeDialog()}>
       <section ref={dialogRef} className="whatsapp-lead-dialog" role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descriptionId} dir={language === "he" ? "rtl" : "ltr"}>
-        <header className="whatsapp-lead-dialog__appbar">
-          <div className="whatsapp-lead-dialog__brand"><span aria-hidden="true"><WhatsAppIcon /></span><div><strong>{labels.appName}</strong><small>{labels.eyebrow}</small></div></div>
-          <button className="dialog-close" type="button" onClick={closeDialog} aria-label={labels.close}>×</button>
+        <header className="whatsapp-lead-dialog__header">
+          <span className="whatsapp-lead-dialog__icon" aria-hidden="true"><WhatsAppIcon /></span>
+          <button ref={closeRef} className="dialog-close" type="button" onClick={closeDialog} disabled={state === "submitting"} aria-label={labels.close}><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18" /></svg></button>
         </header>
-        <div className="whatsapp-lead-dialog__conversation" aria-label={labels.conversationWith(localizedPlaceName)}>
-          <span className="whatsapp-lead-dialog__avatar" aria-hidden="true"><WhatsAppIcon /></span>
-          <div className="whatsapp-lead-dialog__bubble"><strong>{localizedPlaceName}</strong><p>{labels.previewMessage}</p></div>
-        </div>
-        <div className="whatsapp-lead-dialog__intro"><h2 id={titleId}>{labels.title}</h2><p id={descriptionId} className="sr-only">{labels.description}</p></div>
-        <form onSubmit={submit}>
+        <div className="whatsapp-lead-dialog__intro"><h2 id={titleId}>{dialogLabels.title}</h2><strong className="whatsapp-lead-dialog__place">{localizedPlaceName}</strong><p id={descriptionId}>{dialogLabels.intro}</p></div>
+        <form onSubmit={submit} aria-busy={state === "submitting"} onInvalidCapture={(event) => { const optional = (event.target as HTMLElement).closest("details"); if (optional) optional.open = true; }}>
           <div className="whatsapp-lead-dialog__fields">
-            <div className="form-wide"><AccountFormPrompt compact /></div>
-            <label>{labels.name}<input key={`name-${account?.email || "guest"}`} ref={firstInputRef} required name="name" autoComplete="name" minLength={2} defaultValue={account?.name || ""} /></label>
-            <label>{labels.phone}<input key={`phone-${account?.email || "guest"}`} required name="phone" type="tel" inputMode="tel" autoComplete="tel" minLength={7} maxLength={20} pattern="[0-9+() -]{7,20}" defaultValue={account?.phone || ""} /></label>
+            <label>{labels.name}<input key={`name-${account?.email || "guest"}`} required name="name" autoComplete="name" minLength={2} defaultValue={account?.name || ""} /></label>
+            <label>{labels.phone}<input key={`phone-${account?.email || "guest"}`} required name="phone" type="tel" inputMode="tel" autoComplete="tel" minLength={7} maxLength={20} pattern="[0-9+() -]{7,20}" defaultValue={account?.phone || ""} dir="ltr" /></label>
+            <details className="whatsapp-lead-dialog__optional">
+              <summary>{dialogLabels.optional}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5" /></svg></summary>
+              <div className="whatsapp-lead-dialog__optional-fields">
             <label>{labels.date}<input name="requested_date" type="date" defaultValue={initialDate} /></label>
             {initialTill ? <label>{labels.checkout}<input name="requested_till" type="date" min={initialDate || undefined} defaultValue={initialTill} /></label> : null}
             <label>{labels.guests}<input name="guests" type="number" inputMode="numeric" min="1" defaultValue={initialGuests} placeholder={labels.guestsHint} /></label>
+              </div>
+            </details>
             <label className="form-honey" aria-hidden="true">Company site<input name="company_site" tabIndex={-1} autoComplete="off" /></label>
             <p className="whatsapp-lead-dialog__privacy"><span>{labels.privacyPrefix} <Link href="/legal/privacy" target="_blank" rel="noopener noreferrer">{labels.privacyLink}<span className="sr-only"> ({newTabLabel[language]})</span></Link>.</span></p>
           </div>
+          {state === "error" ? <div ref={errorRef} className="whatsapp-lead-dialog__error" role="alert" tabIndex={-1}><strong>{labels.errorTitle}</strong><span>{labels.errorBody}</span></div> : null}
           <footer>
-            <button className="button primary booking-whatsapp" type="submit" disabled={state === "submitting"}><WhatsAppIcon /><span>{state === "submitting" ? labels.submitting : labels.submit}</span></button>
+            <button className="button primary booking-whatsapp" type="submit" aria-label={state === "submitting" ? dialogLabels.submitting : dialogLabels.submit} disabled={state === "submitting"}>{state === "submitting" ? <span className="whatsapp-lead-dialog__spinner" aria-hidden="true" /> : <WhatsAppIcon />}<span role="status">{state === "submitting" ? dialogLabels.submitting : dialogLabels.submit}</span></button>
           </footer>
-          {state === "error" ? <div className="whatsapp-lead-dialog__error" role="alert"><strong>{labels.errorTitle}</strong><span>{labels.errorBody}</span></div> : null}
         </form>
       </section>
     </div> : null}

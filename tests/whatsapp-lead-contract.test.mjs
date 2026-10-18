@@ -99,26 +99,69 @@ test("the tracked lead event is available to analytics without bypassing consent
   assert.match(source, /vii-cookie-choice/);
   assert.match(source, /lead_reference/);
 });
-test("the lead modal looks and behaves like the start of a WhatsApp conversation", async () => {
+test("the shared lead modal is clean and progressively discloses optional details", async () => {
   const [component, css] = await Promise.all([
     read("app/components/whatsapp-lead-button.tsx"),
     read("app/globals.css"),
   ]);
 
   assert.match(component, /function WhatsAppIcon\(\)/);
-  assert.match(component, /whatsapp-lead-dialog__appbar/);
-  assert.match(component, /whatsapp-lead-dialog__conversation/);
-  assert.match(component, /<AccountFormPrompt compact \/>/);
+  assert.match(component, /whatsapp-lead-dialog__header/);
+  assert.doesNotMatch(component, /whatsapp-lead-dialog__conversation|<AccountFormPrompt/);
   assert.match(component, /const localizedPlaceName = translate\(placeName\)/);
-  assert.match(component, /conversationWith\(localizedPlaceName\)/);
-  assert.doesNotMatch(component, /labels\.previewStatus\}<\/small>/);
-  assert.match(css, /\.account-form-prompt--compact/);
-  assert.match(component, /labels\.conversationWith\(localizedPlaceName\)/);
+  assert.match(component, /className="whatsapp-lead-dialog__place">\{localizedPlaceName\}/);
+  assert.match(component, /<details className="whatsapp-lead-dialog__optional">/);
+  assert.doesNotMatch(component, /<details[^>]*\bopen[=> ]/);
+  assert.match(component, /defaultValue=\{initialDate\}/);
+  assert.match(component, /defaultValue=\{initialTill\}/);
+  assert.match(component, /defaultValue=\{initialGuests\}/);
+  assert.match(component, /defaultValue=\{account\?\.name/);
+  assert.match(component, /defaultValue=\{account\?\.phone/);
   assert.match(component, /className=\{`\$\{buttonClassName\} whatsapp-lead-trigger`\}/);
-  assert.match(component, /className="button primary booking-whatsapp"[^>]*><WhatsAppIcon \/>/);
-  assert.match(css, /\.whatsapp-lead-dialog__appbar\s*\{[^}]*#075e54[^}]*#128c7e/);
-  assert.match(css, /\.whatsapp-lead-dialog \.booking-whatsapp\s*\{[^}]*#25d366/);
-  assert.match(css, /\.whatsapp-lead-dialog__conversation\s*\{[^}]*#efeae2/);
+  assert.match(component, /aria-busy=\{state === "submitting"\}/);
+  assert.match(component, /whatsapp-lead-dialog__spinner/);
+  assert.match(component, /element\.getClientRects\(\)\.length > 0/);
+  assert.match(component, /element\.closest\("details:not\(\[open\]\)"\) \|\| element\.tagName === "SUMMARY"/);
+  assert.match(component, /closeRef\.current\?\.focus\(\{ preventScroll: true \}\)/);
+  assert.match(component, /stateRef\.current === "submitting"/);
+  assert.match(component, /errorRef\.current\?\.scrollIntoView\(\{ block: "nearest" \}\)/);
+  assert.match(component, /onInvalidCapture=[\s\S]*optional\.open = true/);
+  assert.match(component, /m6 6 12 12M18 6 6 18/);
+  assert.match(css, /\.whatsapp-lead-dialog \.dialog-close\s*\{[^}]*width: 44px[^}]*height: 44px[^}]*padding: 0[^}]*display: grid[^}]*place-items: center/);
+  assert.match(css, /\.whatsapp-lead-dialog\s*\{[^}]*width: min\(460px,100%\)/);
+  assert.match(css, /prefers-reduced-motion: reduce[^}]*whatsapp-lead-dialog__spinner/);
+});
+
+test("isolated enquiry handler preserves optional context and never navigates on failure", async () => {
+  const source = await read("app/components/whatsapp-lead-button.tsx");
+  const handler = source.slice(source.indexOf("  async function submit("), source.indexOf("\n  return <>"))
+    .replace("event: FormEvent<HTMLFormElement>", "event")
+    .replace(/ as \{ success\?: boolean; reference\?: string \}/, "");
+  const run = new Function("deps", `const {setState,state,submissionId,setSubmissionId,crypto,FormData,labels,world,placeId,placeName,serviceName,window,fetch,localizedPlaceName,trackWhatsAppLeadSaved,businessPhone,whatsappNumber} = deps; ${handler}; return submit({preventDefault(){},currentTarget:{}});`);
+  for (const mode of ["success", "error", "retry", "busy"]) {
+    const calls = [], states = [], navigations = [];
+    let payload;
+    const deps = {
+      state: mode === "busy" ? "submitting" : "idle", submissionId: mode === "retry" ? "stable-id" : "", setSubmissionId: id => calls.push(`id:${id}`),
+      crypto: { randomUUID: () => "new-id" }, setState: state => states.push(state),
+      FormData: class { get(key) { return {name:"Test User",phone:"0500000000",requested_date:"2026-12-10",requested_till:"2026-12-12",guests:"6",company_site:""}[key]; } },
+      labels: new Proxy({}, {get: (_, key) => key === "messageIntro" ? name => `Hello ${name}` : key}),
+      world:"vacation",placeId:"test-only",placeName:"Fixture",localizedPlaceName:"Fixture",serviceName:"Selected unit",businessPhone:"0500000000",whatsappNumber: () => "972500000000",
+      window:{location:{href:"https://example.test/fixture",assign:url => navigations.push(url)}},
+      fetch: async (url, options) => { calls.push(url); payload = JSON.parse(options.body); return {ok:mode !== "error",json:async () => ({success:mode !== "error",reference:"fixture-ref"})}; },
+      trackWhatsAppLeadSaved: () => calls.push("tracked"),
+    };
+    await run(deps);
+    if (mode === "busy") { assert.deepEqual(calls, []); assert.deepEqual(navigations, []); continue; }
+    assert.equal(payload.requestedDate, "2026-12-10");
+    assert.equal(payload.requestedTill, "2026-12-12");
+    assert.equal(payload.guests, "6");
+    assert.equal(payload.serviceName, "Selected unit");
+    assert.equal(payload.privacyAccepted, true);
+    assert.equal(payload.submissionId, mode === "retry" ? "stable-id" : "new-id");
+    if (mode === "error") { assert.deepEqual(navigations, []); assert.equal(states.at(-1), "error"); assert.ok(!calls.includes("tracked")); }
+    else { assert.equal(navigations.length, 1); assert.match(decodeURIComponent(navigations[0]), /2026-12-10[\s\S]*2026-12-12[\s\S]*6[\s\S]*Selected unit[\s\S]*fixture-ref/); assert.equal(calls.at(-1), "tracked"); }
+  }
 });
 
 test("event result cards expose the same tracked phone and WhatsApp actions as vacation cards", async () => {
