@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 
 const text: Record<SiteLanguage, { reveal: string; exampleNumber: string; whatsapp: string; close: string; preview: string; title: (name: string) => string; intro: string; bubble: string; note: string; done: string }> = {
@@ -68,7 +69,7 @@ export function ListingContactPreview({ placeName, className = "" }: { placeName
   return <div className={`listing-contact-preview ${className}`}>
     <button className="listing-contact-preview__phone" type="button" aria-expanded={phoneVisible} onClick={() => setPhoneVisible(true)}><PhoneIcon /><span>{phoneVisible ? <><bdi dir="ltr">050-000-0000</bdi><small>{labels.exampleNumber}</small></> : labels.reveal}</span></button>
     <button ref={triggerRef} className="listing-contact-preview__whatsapp" type="button" onClick={() => setOpen(true)}><WhatsAppIcon /><span>{labels.whatsapp}</span></button>
-    {open ? <div className="whatsapp-lead-layer" onMouseDown={(event) => event.target === event.currentTarget && close()}>
+    {open ? createPortal(<div className="whatsapp-lead-layer" onMouseDown={(event) => event.target === event.currentTarget && close()}>
       <section ref={dialogRef} className="whatsapp-lead-dialog" role="dialog" aria-modal="true" aria-labelledby={titleId} dir={language === "he" ? "rtl" : "ltr"}>
         <header className="whatsapp-lead-dialog__header">
           <span className="whatsapp-lead-dialog__icon" aria-hidden="true"><WhatsAppIcon /></span>
@@ -77,6 +78,6 @@ export function ListingContactPreview({ placeName, className = "" }: { placeName
         <div className="whatsapp-lead-dialog__intro"><h2 id={titleId}>{labels.title(localizedPlaceName)}</h2><p>{labels.intro}</p><p>{labels.note}</p></div>
         <footer><button className="button primary wide" type="button" onClick={close}>{labels.done}</button></footer>
       </section>
-    </div> : null}
+    </div>, document.body) : null}
   </div>;
 }

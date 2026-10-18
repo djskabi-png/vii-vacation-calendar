@@ -76,6 +76,9 @@ test("the lead modal is keyboard and mobile safe", async () => {
   ]);
 
   assert.match(component, /role="dialog"/);
+  assert.match(component, /import \{ createPortal \} from "react-dom"/);
+  assert.match(component, /open \? createPortal\(/);
+  assert.match(component, /<\/div>, document\.body\)/);
   assert.match(component, /aria-modal="true"/);
   assert.match(component, /aria-describedby=/);
   assert.match(component, /event\.key === "Escape"/);
