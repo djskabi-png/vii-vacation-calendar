@@ -10,6 +10,8 @@ import type { SupplierCatalogEntry } from "../../lib/supplier-catalog-store.ts";
 import { publicVacationSearchProperties } from "../../lib/public-vacation-search.ts";
 import type { Property } from "../../data/site-data.ts";
 import { safeHourlyDescription } from "../../lib/hourly-description.ts";
+import { readPublishedItems } from "../../lib/content-studio.ts";
+import { managedVacationPriority } from "../../lib/vacation-priority.ts";
 
 const noStore = { "Cache-Control": "no-store" };
 const publicCatalogCache = { "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=300" };
@@ -34,6 +36,25 @@ function bundledDetail(world: SupplierCatalogWorld, supplierId: number) {
 function projectHourlyEntry<T extends { supplierId: number; summary: { id?: string; description?: string | null } }>(entry: T): T {
   if (entry.summary.id !== "hourly-1181") return entry;
   return { ...entry, summary: { ...entry.summary, description: safeHourlyDescription({ id: entry.summary.id, description: entry.summary.description }) } };
+}
+
+async function vacationSearchPriority(db: D1Database | null) {
+  if (!db) return new Map<number, number>();
+  try {
+    const items = await readPublishedItems(db, "vacation", "he");
+    return new Map(items.flatMap(item => {
+      const rank = managedVacationPriority(item.content.attributes.homeDealOrder);
+      const id = Number(item.key);
+      return rank !== undefined && Number.isSafeInteger(id) && id > 0 ? [[id, rank] as [number, number]] : [];
+    }));
+  } catch { return new Map<number, number>(); }
+}
+
+function withVacationSearchPriority<T extends { supplierId: number; summary: Property }>(entries: T[], priorities: ReadonlyMap<number, number>) {
+  return entries.map(entry => {
+    const rank = priorities.get(entry.supplierId);
+    return { ...entry, summary: { ...entry.summary, curatedRank: rank } };
+  });
 }
 
 async function database(): Promise<D1Database | null> {
@@ -75,8 +96,11 @@ export async function catalogResponse(request: Request, db: D1Database | null) {
         if (view === "lookup") return Response.json({ world, source: "runtime", fetchedAt: catalog.acceptedAt,
           places: searchPlaceInventory(world === "vacations" ? "vacation" : world === "rooms" ? "hourly" : world,
             entries.map((entry) => entry.summary)) }, { headers: publicCatalogCache });
-        if (view === "search") return Response.json({ world, source: "runtime", fetchedAt: catalog.acceptedAt,
-          entries: publicVacationSearchProperties(entries.map((entry) => entry.summary) as Property[]).map((summary, index) => ({ ...entries[index], summary })) }, { headers: publicCatalogCache });
+        if (view === "search") {
+          const prioritized = withVacationSearchPriority(entries as { supplierId: number; summary: Property }[], await vacationSearchPriority(db));
+          return Response.json({ world, source: "runtime", fetchedAt: catalog.acceptedAt,
+            entries: publicVacationSearchProperties(prioritized.map((entry) => entry.summary)).map((summary, index) => ({ ...prioritized[index], summary })) }, { headers: publicCatalogCache });
+        }
         return Response.json({ world, source: "runtime", fetchedAt: catalog.acceptedAt, entries }, { headers: publicCatalogCache });
       }
     } catch (error) {
@@ -93,8 +117,11 @@ export async function catalogResponse(request: Request, db: D1Database | null) {
   if (view === "lookup") return Response.json({ world, source: "bundled-fallback", fetchedAt,
     places: searchPlaceInventory(world === "vacations" ? "vacation" : world === "rooms" ? "hourly" : world,
       entries.map((entry) => entry.summary)) }, { headers: publicCatalogCache });
-  if (view === "search") return Response.json({ world, source: "bundled-fallback", fetchedAt,
-    entries: publicVacationSearchProperties(entries.map((entry) => entry.summary) as Property[]).map((summary, index) => ({ ...entries[index], summary })) }, { headers: publicCatalogCache });
+  if (view === "search") {
+    const prioritized = withVacationSearchPriority(entries as { supplierId: number; summary: Property }[], await vacationSearchPriority(db));
+    return Response.json({ world, source: "bundled-fallback", fetchedAt,
+      entries: publicVacationSearchProperties(prioritized.map((entry) => entry.summary)).map((summary, index) => ({ ...prioritized[index], summary })) }, { headers: publicCatalogCache });
+  }
   if (supplierId !== null) {
     const entry = entries.find((item) => item.supplierId === supplierId);
     if (!entry) return Response.json({ error: "not_found" }, { status: 404, headers: noStore });

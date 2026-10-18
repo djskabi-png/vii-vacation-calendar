@@ -12,6 +12,8 @@ import { homeDealDates } from "../../../lib/vii-home-deals.ts";
 import { cachedDiscovery } from "../../../lib/discovery-offer-cache.ts";
 import { runtimeCatalogDatabase } from "../../../lib/published-supplier-ids.ts";
 import { discoveryVacationCatalog, type DiscoveryVacationPlace } from "../../../lib/discovery-vacation-catalog.ts";
+import { prioritizeOnlineFirst, isHomeDealOnlineEligible } from "../../../lib/vacation-online-first.ts";
+import { compareVacationPriority } from "../../../lib/vacation-priority.ts";
 
 const noStore = { "Cache-Control": "no-store" };
 
@@ -57,10 +59,10 @@ export async function GET(request: Request) {
     const result = { ...cached.value, period: period as HomeDealPeriod };
     const [curatedSource, display] = await Promise.all([applyCuration(result.deals, period as HomeDealPeriod), displayPromise]);
     const curated = curatedSource.filter(deal => publicSiteIds.has(deal.siteID) && deal.priceGuests === guests && deal.from === dates.from && deal.till === dates.till && eligibleDealDate(deal.from, now));
-    const regionalPool = region ? [...curated].sort((a, b) => (a.curatedRank ?? 500) - (b.curatedRank ?? 500) || a.total - b.total || a.siteID - b.siteID) : curated;
-    const selected = region ? selectRegionalOffers(regionalPool, names.filter(place => publicSiteIds.has(place.supplierId)), region.label, { placeId: deal => deal.siteID, key: deal => String(deal.siteID) }) : null;
-    const deals = selected?.offers ?? curated;
-    return Response.json({ ...result, cache: cached.cache, ...(region ? { region: region.label, expandedRegion: selected!.expanded, regionalOrder: selected!.order } : {}), deals, display: { periods: display.periods, defaultPeriod: display.defaultPeriod } }, { headers: { ...noStore, "X-VII-Discovery-Cache": cached.cache.status } });
+    const ordered = prioritizeOnlineFirst(curated, deal => isHomeDealOnlineEligible(deal, cached.cache.status === "stale"), (a, b) => compareVacationPriority(a, b, a.siteID, b.siteID, `home-deals:${period}`));
+    const selected = region ? selectRegionalOffers(ordered, names.filter(place => publicSiteIds.has(place.supplierId)), region.label, { placeId: deal => deal.siteID, key: deal => String(deal.siteID) }) : null;
+    const deals = prioritizeOnlineFirst(selected?.offers ?? ordered, deal => isHomeDealOnlineEligible(deal, cached.cache.status === "stale"), (a, b) => compareVacationPriority(a, b, a.siteID, b.siteID, `home-deals:${period}`));
+    return Response.json({ ...result, cache: cached.cache, ...(region ? { region: region.label, expandedRegion: selected!.expanded, regionalOrder: deals.map(deal => deal.siteID) } : {}), deals, display: { periods: display.periods, defaultPeriod: display.defaultPeriod } }, { headers: { ...noStore, "X-VII-Discovery-Cache": cached.cache.status } });
   } catch {
     return Response.json({ error: "supplier_unavailable" }, { status: 503, headers: noStore });
   }

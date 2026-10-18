@@ -383,6 +383,12 @@ export function CalendarDemo({
     setNotice("בחרו תאריך הגעה");
   }
 
+  function continueWithoutDates() {
+    reset();
+    setFlexible(false);
+    onSkip?.();
+  }
+
   function confirm() {
     const selectedStay = FLEX_STAYS.find((stay) => stay.id === flexStay) ?? FLEX_STAYS[0];
     const selectedMonth = addMonths(START_MONTH, flexMonth);
@@ -523,7 +529,7 @@ export function CalendarDemo({
             </div>
           </div>
           <div className="dialog-actions">
-            {mode === "home" && onSkip && <button type="button" className="mobile-date-skip" onClick={onSkip}>דלגו על התאריך</button>}
+            {mode === "home" && onSkip && <button type="button" className="mobile-date-skip calendar-without-dates" onClick={continueWithoutDates}>{translate("ללא תאריך")}</button>}
             {!flexible && <button type="button" className="clear-dates" onClick={reset} disabled={!checkIn && !checkOut}>ניקוי</button>}
             <button type="button" className="confirm-dates" onClick={confirm} disabled={!ready}>
               {mode === "home" ? "הבא" : businessKind === "single" ? "בדיקת מחיר וזמינות" : "בדיקת יחידות ומחירים"}

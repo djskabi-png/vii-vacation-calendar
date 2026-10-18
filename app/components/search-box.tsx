@@ -410,6 +410,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     } else if (mode === "vacation" && cleanVacationRoute) {
       const params = new URLSearchParams();
       applyVacationDates(params);
+      if (new URLSearchParams(searchParamsKey).get("online") === "1") params.set("online", "1");
       if (vacationParty.adults !== 2) params.set("adults", String(vacationParty.adults));
       if (vacationParty.children) params.set("children", String(vacationParty.children));
       if (vacationParty.infants) params.set("infants", String(vacationParty.infants));

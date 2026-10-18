@@ -11,6 +11,8 @@ import { discoveryVacationCatalog, type DiscoveryVacationPlace } from "../../../
 import { getDiscoveryHolidays } from "../../../lib/discovery-holidays.ts";
 import { eligibleDealDate, firstDealDate } from "../../../lib/deal-clock.ts";
 import { validDate } from "../../../lib/vii-live-search.ts";
+import { prioritizeOnlineFirst, isHomeDealOnlineEligible } from "../../../lib/vacation-online-first.ts";
+import { compareVacationPriority } from "../../../lib/vacation-priority.ts";
 
 const headers = { "Cache-Control": "no-store" };
 
@@ -46,7 +48,7 @@ export async function GET(request: Request) {
       validate: value => !!value && typeof value === "object" && Array.isArray((value as { deals?: unknown }).deals),
     });
     const result = cached.value;
-    const deals = (await applyCuration(result.deals)).filter(deal => publicSiteIds.has(deal.siteID) && deal.priceGuests === guests && eligibleDealDate(deal.from, now));
+    const deals = prioritizeOnlineFirst((await applyCuration(result.deals)).filter(deal => publicSiteIds.has(deal.siteID) && deal.priceGuests === guests && eligibleDealDate(deal.from, now)), deal => isHomeDealOnlineEligible(deal, cached.cache.status === "stale"), (a, b) => compareVacationPriority(a, b, a.siteID, b.siteID, `holiday:${id}:${part}`));
     return Response.json({ ...result, deals, cache: cached.cache }, { headers: { ...headers, "X-VII-Discovery-Cache": cached.cache.status } });
   } catch (error) {
     const reason = error instanceof Error ? error.message : "supplier_unavailable";

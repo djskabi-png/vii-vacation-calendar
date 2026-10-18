@@ -9635,6 +9635,8 @@ body:has(.vacation-booking-dialog-layer) .detail-sticky-wrap { display: none; }
 .location-list__body::-webkit-scrollbar { display: none; }
 .location-list__body > .location-list__search { margin-bottom: 14px; }
 .mobile-date-skip { display: none; }
+.mobile-date-skip.calendar-without-dates { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 8px 14px; border: 1px solid #b9d6da; border-radius: 12px; color: var(--teal-dark); background: #fff; font: 800 .78rem/1.3 var(--font-sans); cursor: pointer; }
+.calendar-without-dates:focus-visible { outline: 2px solid var(--teal-dark); outline-offset: 3px; }
 .event-date-dialog__actions,.spa-date-dialog__actions { display: flex; align-items: center; gap: 9px; }
 
 @media (min-width: 821px) {
