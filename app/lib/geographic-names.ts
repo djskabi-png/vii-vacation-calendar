@@ -1,9 +1,19 @@
 /** Names are search identities, never supplier IDs or replacements for coordinates. */
+const normalizedNames = new Map<string, string>();
 export function normalizeGeographicName(value?: string | null): string {
-  return (value || "").normalize("NFKD").replace(/\p{M}/gu, "")
+  const source = value || "";
+  const prior = normalizedNames.get(source);
+  if (prior !== undefined) return prior;
+  const normalized = source.normalize("NFKD").replace(/\p{M}/gu, "")
     .replace(/[\u200e\u200f\u202a-\u202e\u2066-\u2069]/g, "")
     .toLocaleLowerCase("he").replace(/[׳״'".,()\[\]־–—\-/]/g, " ")
     .replace(/\s+/g, " ").trim().replace(/קריית/g, "קרית");
+  // Only short geographic labels, bounded per isolate; never persistent storage.
+  if (source.length <= 128) {
+    if (normalizedNames.size >= 1024) normalizedNames.delete(normalizedNames.keys().next().value!);
+    normalizedNames.set(source, normalized);
+  }
+  return normalized;
 }
 
 const nameGroups = [
@@ -18,6 +28,10 @@ const nameGroups = [
 const aliases = new Map<string, (typeof nameGroups)[number]>();
 for (const group of nameGroups) for (const name of [group.label, ...group.aliases]) aliases.set(normalizeGeographicName(name), group);
 const groupFor = (value?: string | null) => aliases.get(normalizeGeographicName(value));
+const metropolitanMembers = new Map(nameGroups.flatMap(group => "cities" in group ? [[group.label, {
+  cities: new Set(group.cities.map(normalizeGeographicName)),
+  areas: new Set([group.label, ...group.areas].map(normalizeGeographicName)),
+}] as const] : []));
 
 export function canonicalSearchLocation(value?: string | null): string {
   return groupFor(value)?.label || (value || "").trim();
@@ -48,7 +62,6 @@ export function metropolitanLocationMatches(place: { area?: string; location?: s
   if (!group || !("cities" in group)) return null;
   const city = normalizeGeographicName(canonicalSearchLocation(place.location));
   const area = normalizeGeographicName(canonicalSearchLocation(place.area));
-  return area === normalizeGeographicName(group.label)
-    || group.areas.some(name => normalizeGeographicName(name) === area)
-    || group.cities.some(name => normalizeGeographicName(name) === city);
+  const members = metropolitanMembers.get(group.label)!;
+  return members.areas.has(area) || members.cities.has(city);
 }

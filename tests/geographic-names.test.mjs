@@ -50,3 +50,8 @@ test('unknown location cannot become a national fallback and missing coordinates
  assert.deepEqual(nearbyPlacesForSelection([{location:'חיפה'}],nodes,'לא קיים',{minimumResults:3}),[]);
  assert.deepEqual(nearbyPlacesForSelection([{location:'עיר לא מוכרת'}],nodes,'גוש דן',{minimumResults:3}),[]);
 });
+test('bounded normalization memo preserves results after more labels than its capacity',()=>{
+ for(let i=0;i<1400;i++)assert.equal(normalizeGeographicName(` label-${i} `),`label ${i}`);
+ assert.equal(canonicalSearchLocation('תל־אביב-יפו'),'תל אביב');
+ assert.equal(matchesSearchLocation({location:'קריית אתא',area:'קריות'},'חיפה והסביבה'),true);
+});
