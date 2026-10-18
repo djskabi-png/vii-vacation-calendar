@@ -44,7 +44,12 @@ test('one real SQLite catalog statement returns counts and generation integrity,
     assert.equal(body.observation.schemasObservedSeparately, true);
     assert.equal(body.observation.rowBodiesIncluded, false);
     assert.equal(f.queries[0], CATALOG_METADATA_SQL);
-    assert.equal(f.queries.length, 1 + METADATA_TABLES.length);
+    assert.equal(f.queries.length, 2 + METADATA_TABLES.length);
+    assert.equal(body.tables.find(t => t.table === 'vii_content_items').rowCount, 1);
+    assert.equal(body.tables.find(t => t.table === 'vii_content_versions').rowCount, null);
+    assert.ok(METADATA_TABLES.includes('vii_search_page_opportunities'));
+    assert.ok(METADATA_TABLES.includes('vii_search_page_opportunity_versions'));
+    assert.equal(body.observation.rowCountsObservedSeparately, true);
     assert.ok(f.queries.every(sql => /^(SELECT|PRAGMA)\b/i.test(sql.trim())));
     assert.ok(f.queries.every(sql => !/guest_reviews|user_email|summary_json|detail_json|diagnostics_json/i.test(sql)));
     assert.ok(!JSON.stringify(body).match(/PRIVATE_|@example\.test/));
@@ -150,5 +155,5 @@ test('route reuses existing auth and binding without schema initialization, new 
   assert.match(route, /authorizedAdminSession/);
   assert.match(route, /DB\?: D1Database/);
   assert.doesNotMatch(route, /ensure|CREATE|ALTER|INSERT|UPDATE|DELETE|process\.env|GetSecret|Bearer/);
-  assert.equal(METADATA_TABLES.length, 11);
+  assert.equal(METADATA_TABLES.length, 13);
 });

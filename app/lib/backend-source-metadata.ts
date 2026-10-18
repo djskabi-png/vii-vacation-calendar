@@ -6,6 +6,7 @@ export const METADATA_TABLES = Object.freeze([
   "vii_content_items", "vii_content_versions", "vii_search_page_content",
   "vii_search_page_versions", "vii_search_page_publications",
   "vii_geography_nodes", "vii_geography_versions", "vii_redirects",
+  "vii_search_page_opportunities", "vii_search_page_opportunity_versions",
 ] as const);
 
 export const CATALOG_METADATA_SQL = `
@@ -75,9 +76,24 @@ export async function readBackendSourceMetadata(db: D1Database) {
     });
     return { table: METADATA_TABLES[index], exists: columns.length > 0, columns };
   });
+  // Fixed counts only, no row bodies or actors. Never initialize missing tables.
+  const countTables = tables.filter(table => table.exists && !table.table.startsWith("supplier_catalog_"));
+  const countResults = countTables.length ? await db.batch(countTables.map(table => db.prepare(`SELECT COUNT(*) AS count FROM "${table.table}"`))) : [];
+  if (countResults.length !== countTables.length) throw new Error("invalid_metadata");
+  const rowCounts = new Map<string, number>();
+  countResults.forEach((result, index) => {
+    if (!result.success || !Array.isArray(result.results) || result.results.length !== 1) throw new Error("invalid_metadata");
+    const value = (result.results[0] as Record<string, unknown>).count;
+    if (!count(value)) throw new Error("invalid_metadata");
+    rowCounts.set(countTables[index].table, value);
+  });
+  rowCounts.set("supplier_catalog_runs", rawTotals.runs as number);
+  rowCounts.set("supplier_catalog_entries", rawTotals.entries as number);
+  rowCounts.set("supplier_catalog_state", rawTotals.states as number);
   return {
-    schemaVersion: 1, totals: { runs: rawTotals.runs, entries: rawTotals.entries, states: rawTotals.states }, states, tables,
-    observation: { catalogMetadataStatements: 1, schemasObservedSeparately: true, rowBodiesIncluded: false },
+    schemaVersion: 1, totals: { runs: rawTotals.runs, entries: rawTotals.entries, states: rawTotals.states }, states,
+    tables: tables.map(table => ({ ...table, rowCount: rowCounts.get(table.table) ?? null })),
+    observation: { catalogMetadataStatements: 1, schemasObservedSeparately: true, rowCountsObservedSeparately: true, rowBodiesIncluded: false },
     fullExport: false, sourceSnapshotVerified: false, migrationVerified: false, fullLaunchReady: false,
   };
 }
