@@ -61,7 +61,7 @@ test('actual vacation API uses one complete eligible read and returns minimum-th
     getHomeDeals:async input=>{reads++;assert.equal(input.guests,6);assert.equal(input.publicSiteIds.size,6);return{period:'tomorrow',dates:homeDealDates('tomorrow'),deals:offers.map(o=>({...o,priceGuests:6,from:homeDealDates('tomorrow').from,till:homeDealDates('tomorrow').till}))};},
   });
   const response=await get(new Request(`https://example.test/?${new URLSearchParams({region:'צפון',period:'tomorrow',guests:'6'})}`));
-  const body=await response.json();assert.equal(response.status,200);assert.equal(reads,1);assert.equal(body.expandedRegion,true);assert.deepEqual([...body.regionalOrder].sort((a,b)=>a-b),[1,2,6]);assert.deepEqual([...body.deals.map(o=>o.siteID)].sort((a,b)=>a-b),[1,2,6]);assert.ok(body.deals.every(o=>o.priceGuests===6));
+  const body=await response.json();assert.equal(response.status,200);assert.equal(reads,1);assert.equal(body.expandedRegion,true);assert.deepEqual([...body.regionalOrder].sort((a,b)=>a-b),[1,2,6]);assert.deepEqual(body.regionalOrder,body.deals.map(o=>o.siteID));assert.ok(body.deals.every(o=>o.priceGuests===6));
 });
 test('actual event API excludes unavailable/missing images before expansion and preserves exact slot/party',async()=>{
   const post=handler('vii/live-search','POST',{
