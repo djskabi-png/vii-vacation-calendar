@@ -953,7 +953,8 @@ function dictionary(language: SiteLanguage): Record<string, string> {
 }
 
 function translateDynamic(value: string, language: Exclude<SiteLanguage, "he">): string {
-  const translatePart = (source: string) => finalUiTranslations[language][source]
+  const translatePart = (source: string) => (visitorUiTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[source]?.[language]
+    || finalUiTranslations[language][source]
     || curatedTranslations[language][source]
     || dictionary(language)[source]
     || source;
@@ -1228,6 +1229,7 @@ function translateValue(value: string, language: SiteLanguage): string {
   const headline = core.endsWith(brandSuffix) ? core.slice(0, -brandSuffix.length) : "";
   const reviewedHeadline = (visitorUiTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[headline]?.[language];
   if (reviewedHeadline) return `${leading}${reviewedHeadline} | VII Vacation${trailing}`;
+  if (headline) return `${leading}${translateValue(headline, language)} | VII Vacation${trailing}`;
   const bookingHubExact = (bookingHubTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
   const visitorExact = (visitorUiTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
   const hourlyExact = (hourlyUiTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];

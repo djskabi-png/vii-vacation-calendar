@@ -17,6 +17,7 @@ import { publicCachePolicy, readPublicCache, refreshPublicCacheAhead, storePubli
 import { rewriteCanonicalStream } from "./stream-canonical.ts";
 import { rewriteOriginStream } from "./stream-origin.ts";
 import { editorialWorldLinks } from "../app/data/editorial-world-links";
+import { localizedSpaSearchSource } from "../app/data/spa-search-landings.ts";
 
 declare const __VII_CACHE_BUILD_ID__: string;
 const publicCacheBuild = typeof __VII_CACHE_BUILD_ID__ === "string" ? __VII_CACHE_BUILD_ID__ : "local";
@@ -76,7 +77,8 @@ function translateServerText(value: string, locale: PublicLocale) {
   const headline = core.endsWith(brandSuffix) ? core.slice(0, -brandSuffix.length) : "";
   const reviewedHeadline = (visitorUiTranslations as Record<string, Partial<Record<PublicLocale, string>>>)[headline]?.[locale];
   if (reviewedHeadline) return `${leading}${reviewedHeadline} | ${serverTranslations[locale]["וי פור ויקיישן"] || "VII Vacation"}${trailing}`;
-  return `${leading}${serverTranslations[locale][core] || core}${trailing}`;
+  if (headline) return `${leading}${translateServerText(headline, locale)} | VII Vacation${trailing}`;
+  return `${leading}${localizedSpaSearchSource(core, locale) || serverTranslations[locale][core] || core}${trailing}`;
 }
 
 function localizeStructuredUrl(value: string, locale: Exclude<PublicLocale, "he">) {
