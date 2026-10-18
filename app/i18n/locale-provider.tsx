@@ -1229,7 +1229,10 @@ function translateValue(value: string, language: SiteLanguage): string {
   const headline = core.endsWith(brandSuffix) ? core.slice(0, -brandSuffix.length) : "";
   const reviewedHeadline = (visitorUiTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[headline]?.[language];
   if (reviewedHeadline) return `${leading}${reviewedHeadline} | VII Vacation${trailing}`;
-  if (headline) return `${leading}${translateValue(headline, language)} | VII Vacation${trailing}`;
+  if (headline) {
+    const localizedHeadline = translateValue(headline, language);
+    if (!hebrewPattern.test(localizedHeadline)) return `${leading}${localizedHeadline} | VII Vacation${trailing}`;
+  }
   const bookingHubExact = (bookingHubTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
   const visitorExact = (visitorUiTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
   const hourlyExact = (hourlyUiTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];

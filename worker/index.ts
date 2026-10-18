@@ -77,7 +77,10 @@ function translateServerText(value: string, locale: PublicLocale) {
   const headline = core.endsWith(brandSuffix) ? core.slice(0, -brandSuffix.length) : "";
   const reviewedHeadline = (visitorUiTranslations as Record<string, Partial<Record<PublicLocale, string>>>)[headline]?.[locale];
   if (reviewedHeadline) return `${leading}${reviewedHeadline} | ${serverTranslations[locale]["וי פור ויקיישן"] || "VII Vacation"}${trailing}`;
-  if (headline) return `${leading}${translateServerText(headline, locale)} | VII Vacation${trailing}`;
+  if (headline) {
+    const localizedHeadline = localizedSpaSearchSource(headline, locale) || serverTranslations[locale][headline];
+    if (localizedHeadline) return `${leading}${localizedHeadline} | VII Vacation${trailing}`;
+  }
   return `${leading}${localizedSpaSearchSource(core, locale) || serverTranslations[locale][core] || core}${trailing}`;
 }
 
