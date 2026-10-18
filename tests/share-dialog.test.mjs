@@ -76,4 +76,6 @@ test("event-specific mobile stylesheet keeps share outside the contact pair and 
   assert.match(css, /\.event-title \.property-title__actions--contact > \.property-whatsapp-action \{ grid-column:2;/);
   assert.match(css, /:not\(:has\(\.property-whatsapp-action\)\) \{ grid-template-columns:minmax\(0,1fr\) 44px;/);
   assert.match(css, /> \.property-phone-action \{ grid-column:1; min-width:0;/);
+  assert.match(css, /:is\(\.property-phone-action,\.property-whatsapp-action\) > span \{[^}]*white-space:normal;[^}]*overflow-wrap:anywhere/);
+  assert.match(css, /\.property-phone-action--revealed > span \{ white-space:nowrap/);
 });
