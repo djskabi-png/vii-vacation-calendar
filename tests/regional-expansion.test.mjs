@@ -10,6 +10,9 @@ import { homeDealDates } from '../app/lib/vii-home-deals.ts';
 import { selectSpaPackageDeals } from '../app/lib/spa-package-deals.ts';
 import { spaPlusArea } from '../app/data/spa-regions.ts';
 import { regionalExpansionCopy } from '../app/i18n/regional-availability-copy.ts';
+import { prioritizeOnlineFirst,isHomeDealOnlineEligible } from '../app/lib/vacation-online-first.ts';
+import { dailyRotationCompare } from '../app/lib/daily-rotation.ts';
+import { compareVacationPriority } from '../app/lib/vacation-priority.ts';
 
 const places = [
   {supplierId:1,name:'Local1',location:'צפת',area:'צפון',lat:33.0,lng:35.4,image:'https://example.test/1.jpg'},
@@ -24,7 +27,7 @@ const options={placeId:o=>o.siteID,key:o=>String(o.siteID)};
 const offers=[{siteID:5,total:10},{siteID:1,total:100},{siteID:2,total:200},{siteID:6,total:900}];
 const publicPlaces=places.filter(p=>p.supplierId!==7);
 function handler(path,method,dependencies){
-  dependencies={homeDealDates,firstDealDate,runtimeCatalogDatabase:async()=>null,discoveryVacationCatalog:()=>async()=>new Map(),cachedDiscovery:async({load})=>({value:await load(),cache:{status:'refreshed',checkedAt:new Date().toISOString()}}),...dependencies};
+  dependencies={homeDealDates,firstDealDate,prioritizeOnlineFirst,isHomeDealOnlineEligible,dailyRotationCompare,compareVacationPriority,runtimeCatalogDatabase:async()=>null,discoveryVacationCatalog:()=>async()=>new Map(),cachedDiscovery:async({load})=>({value:await load(),cache:{status:'refreshed',checkedAt:new Date().toISOString()}}),...dependencies};
   const source=readFileSync(new URL(`../app/api/${path}/route.ts`,import.meta.url),'utf8');
   const compiled=stripTypeScriptTypes(source.replace(/^import .*;\r?$/gm,''),{mode:'strip'}).replace(`export async function ${method}`,`async function ${method}`);
   return new Function(...Object.keys(dependencies),`${compiled};return ${method};`)(...Object.values(dependencies));
@@ -58,7 +61,7 @@ test('actual vacation API uses one complete eligible read and returns minimum-th
     getHomeDeals:async input=>{reads++;assert.equal(input.guests,6);assert.equal(input.publicSiteIds.size,6);return{period:'tomorrow',dates:homeDealDates('tomorrow'),deals:offers.map(o=>({...o,priceGuests:6,from:homeDealDates('tomorrow').from,till:homeDealDates('tomorrow').till}))};},
   });
   const response=await get(new Request(`https://example.test/?${new URLSearchParams({region:'צפון',period:'tomorrow',guests:'6'})}`));
-  const body=await response.json();assert.equal(response.status,200);assert.equal(reads,1);assert.equal(body.expandedRegion,true);assert.deepEqual(body.regionalOrder,[1,2,6]);assert.ok(body.deals.every(o=>o.priceGuests===6));
+  const body=await response.json();assert.equal(response.status,200);assert.equal(reads,1);assert.equal(body.expandedRegion,true);assert.deepEqual([...body.regionalOrder].sort((a,b)=>a-b),[1,2,6]);assert.deepEqual(body.regionalOrder,body.deals.map(o=>o.siteID));assert.ok(body.deals.every(o=>o.priceGuests===6));
 });
 test('actual event API excludes unavailable/missing images before expansion and preserves exact slot/party',async()=>{
   const post=handler('vii/live-search','POST',{
@@ -90,7 +93,7 @@ test('all four visitor locales disclose geography only, without technical explan
   for(const p of ['home-live-deals','event-last-minute','spa-package-deals'])assert.match(read(p),/regionalExpansionCopy\[language\]/);
   assert.match(read('spa-package-deals'),/expandedRegions\?\.\[date\]\?\.\[audience\]/);
   assert.match(read('event-last-minute'),/!search.expandedRegion && !matchesSearchLocation/);
-  assert.match(read('home-live-deals'),/const orderedDeals = scope \? data\?\.deals/);
+  assert.match(read('home-live-deals'),/const orderedDeals = prioritizeOnlineFirst/);
   assert.match(read('home-live-deals'),/orderedDeals.filter\(deal => eligibleDealDate\(deal.from, clock.now\)\)/);
 });
 test('regional rails span the whole results grid on desktop rather than one property cell',()=>{

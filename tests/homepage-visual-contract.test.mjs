@@ -33,7 +33,8 @@ test("supplier homepage searches live dates without unsupported static offers", 
   assert.match(deals, /`\/api\/vii\/home-holiday-deals\?\$\{new URLSearchParams/);
   assert.match(deals, /selectedHoliday\?\.exactStay \? \{ from: selectedHoliday\.from, till: selectedHoliday\.till \} : \{\}/);
   assert.match(deals, /displayedDeals\.map/);
-  assert.match(deals, /rotateWithinTiers\(data\.deals/);
+  assert.match(deals, /prioritizeOnlineFirst/);
+  assert.match(deals, /isHomeDealOnlineEligible/);
   assert.match(route, /supplierToken\(\)/);
   assert.match(token, /SERGEY_VII_API_TOKEN/);
   assert.doesNotMatch(showcase, /nightlyPrice|lastMinuteHref|selectDealPeriod|home-vacation-card--style/);

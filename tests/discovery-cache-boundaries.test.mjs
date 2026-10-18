@@ -7,6 +7,8 @@ import {homeDealDates} from '../app/lib/vii-home-deals.ts';
 import {regionalAvailabilityRegion,selectRegionalOffers} from '../app/lib/regional-availability.ts';
 import {eligibleDealDate} from '../app/lib/deal-clock.ts';
 import {discoveryJson} from '../app/lib/discovery-client-cache.ts';
+import {prioritizeOnlineFirst,isHomeDealOnlineEligible} from '../app/lib/vacation-online-first.ts';
+import {compareVacationPriority} from '../app/lib/vacation-priority.ts';
 
 function route(path,method,deps){
  const text=readFileSync(new URL(`../app/api/${path}/route.ts`,import.meta.url),'utf8');
@@ -15,7 +17,7 @@ function route(path,method,deps){
 }
 test('actual vacation route reuses one quote across regions but re-filters withdrawn IDs and preserves party/date keys',async()=>{
  let calls=0,ids=new Set([11,12]);const date=homeDealDates('tomorrow');
- const get=route('vii/home-deals','GET',{cachedDiscovery,homeDealDates,regionalAvailabilityRegion,selectRegionalOffers,eligibleDealDate,homeDealPeriods:[{id:'tomorrow'}],isContentLocale:()=>true,
+ const get=route('vii/home-deals','GET',{cachedDiscovery,homeDealDates,regionalAvailabilityRegion,selectRegionalOffers,prioritizeOnlineFirst,isHomeDealOnlineEligible,compareVacationPriority,eligibleDealDate,homeDealPeriods:[{id:'tomorrow'}],isContentLocale:()=>true,
   runtimeCatalogDatabase:async()=>null,discoveryVacationCatalog:()=>async()=>new Map(),supplierToken:async()=>'fixture',publishedSupplierIds:async()=>ids,
   publicCatalogSummaries:async()=>[{supplierId:11,name:'Local',area:'מרכז'},{supplierId:12,name:'Other',area:'צפון'}],
   readHomeDisplaySettings:async()=>({periods:[{id:'tomorrow'}],defaultPeriod:'tomorrow'}),

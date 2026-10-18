@@ -46,6 +46,8 @@ import { completeNearbyResults } from "../lib/nearby-recommendations";
 import { NearbySearchNotice } from "../components/nearby-search-notice";
 import { useManagedGeography } from "../components/use-managed-geography";
 import { matchesVacationOnlineBooking } from "../lib/vacation-online-booking-filter";
+import { prioritizeOnlineFirst } from "../lib/vacation-online-first";
+import { compareVacationPriority } from "../lib/vacation-priority.ts";
 import { RegionalAvailability } from "../components/regional-availability";
 
 export type SearchLandingContext = {
@@ -633,7 +635,10 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
         const price = typeof livePrice === "number" && livePrice > 0 ? livePrice : property.price;
         return typeof price === "number" && price >= minPrice && price <= maxPrice;
       });
-    return [...matches].sort((a, b) => {
+    const compareMatches = (a: typeof properties[number], b: typeof properties[number]) => {
+      if (sort === "recommended") {
+        return compareVacationPriority(a, b, a.slug, b.slug, "vacation-search");
+      }
       const liveRank = (property: typeof properties[number]) => {
         if (!selectedStay || !/^vacation-\d+$/.test(property.slug) || supplierSearch.status !== "ready") return 1;
         const result = supplierSearch.results[Number(property.slug.slice(9))];
@@ -652,7 +657,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
         }
       }
       return compareVacationProperties(a, b, sort, properties);
-    });
+    };
+    return prioritizeOnlineFirst(matches, property => Boolean(matchesVacationOnlineBooking(true, liveAvailabilityFor(property.slug), selectedStayFor(property.slug))), compareMatches);
   // landingType is derived from the immutable landing prop. Keeping the prop in
   // the dependency list lets the compiler preserve this memo across renders.
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -675,7 +681,13 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     });
     return nearbyPlacesForSelection(eligible, managedGeography, area, { limit: 12, maximumDistanceKm: 100, minimumResults: 3 });
   }, [VACATION_PRICE_MAX, VACATION_PRICE_MIN, area, filtered.length, managedGeography, mapCandidates, maxPrice, minPrice, onlineOnly, selectedStay, flexibleSearch, supplierSearch.results, supplierSearch.status, liveAvailabilityBySlug, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug]);
-  const resultSet = useMemo(() => completeNearbyResults(filtered, nearbyRecovery.map((candidate) => candidate.place), (place) => place.slug), [filtered, nearbyRecovery]);
+  const resultSet = useMemo(() => prioritizeOnlineFirst(
+    completeNearbyResults(filtered, nearbyRecovery.map((candidate) => candidate.place), (place) => place.slug),
+    property => matchesVacationOnlineBooking(true, liveAvailabilityFor(property.slug), selectedStayFor(property.slug)),
+    sort === "recommended" ? (a, b) => compareVacationPriority(a, b, a.slug, b.slug, "vacation-search") : undefined,
+  // Availability helpers close over these same quote/selection inputs.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  ), [filtered, nearbyRecovery, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, liveAvailabilityBySlug, selectedStay, supplierSearch, sort]);
 
   useEffect(() => {
     if (catalogLoading || catalogError || onlineCheckPending) return;
@@ -731,16 +743,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const displayedResults = useMemo(() => {
     if (!mapOpen || !mapVisibleIds) return resultSet;
     const visible = new Set(mapVisibleIds);
-    return resultSet.filter((property) => visible.has(property.slug)).sort((a, b) => {
-      const availabilityPriority = Number(hasVerifiedAvailablePrice(b) || hasAvailablePriceForSearch(b, selectedStayFor(b.slug), pathname, requestedLocation))
-        - Number(hasVerifiedAvailablePrice(a) || hasAvailablePriceForSearch(a, selectedStayFor(a.slug), pathname, requestedLocation));
-      if (availabilityPriority) return availabilityPriority;
-      return compareVacationProperties(a, b, sort, properties);
-    });
-  // The availability helpers close over the same primitive query inputs listed
-  // below. Listing them directly would invalidate this memo on every render.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resultSet, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, guests, liveAvailabilityBySlug, supplierSearch, mapCandidates, mapOpen, mapVisibleIds, pathname, requestedLocation, selectedStay, sort]);
+    return resultSet.filter((property) => visible.has(property.slug));
+  }, [resultSet, mapOpen, mapVisibleIds]);
   const resultWindowKey = [area, selectedTypes.join(","), minPrice, maxPrice, pool, spa, whole, accessibleOnly, selectedExtras.join(","), sort, searchQuery, mapOpen ? "map" : "list"].join("|");
   useEffect(() => { setVisibleResultCount(9); }, [resultWindowKey]);
   const visibleResults = mapOpen ? displayedResults : displayedResults.slice(0, visibleResultCount);

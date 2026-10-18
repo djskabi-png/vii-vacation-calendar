@@ -9,9 +9,11 @@ import { selectSpaPackageDeals } from '../app/lib/spa-package-deals.ts';
 import { eventDealDate } from '../app/lib/event-deal-dates.ts';
 import { dealRailDays, eligibleDealDate, firstDealDate } from '../app/lib/deal-clock.ts';
 import { homeDealDates } from '../app/lib/vii-home-deals.ts';
+import { prioritizeOnlineFirst,isHomeDealOnlineEligible } from '../app/lib/vacation-online-first.ts';
+import { compareVacationPriority } from '../app/lib/vacation-priority.ts';
 
 function handler(path, method, dependencies) {
-  dependencies={firstDealDate,runtimeCatalogDatabase:async()=>null, cachedDiscovery:async({load})=>({value:await load(),cache:{status:'refreshed',checkedAt:new Date().toISOString()}}),homeDealDates,
+  dependencies={firstDealDate,prioritizeOnlineFirst,isHomeDealOnlineEligible,compareVacationPriority,runtimeCatalogDatabase:async()=>null, cachedDiscovery:async({load})=>({value:await load(),cache:{status:'refreshed',checkedAt:new Date().toISOString()}}),homeDealDates,
     discoveryVacationCatalog:()=>async()=>new Map(),...dependencies};
   const source=readFileSync(new URL(`../app/api/${path}/route.ts`,import.meta.url),'utf8');
   const compiled=stripTypeScriptTypes(source.replace(/^import .*;\r?$/gm,''),{mode:'strip'}).replace(`export async function ${method}`,`async function ${method}`);

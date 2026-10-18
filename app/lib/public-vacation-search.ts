@@ -31,5 +31,6 @@ export function publicVacationSearchProperties(properties: readonly Property[]):
     roomOptions: property.roomOptions,
     contact: property.contact ? { phone: property.contact.phone, whatsapp: property.contact.whatsapp } : undefined,
     demoOperations: property.demoOperations,
+    curatedRank: property.curatedRank,
   }));
 }

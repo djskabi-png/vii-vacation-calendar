@@ -16,6 +16,8 @@ import { discoveryJson } from "../lib/discovery-client-cache.ts";
 import { discoveryCacheCopy } from "../i18n/discovery-cache-copy.ts";
 import { eligibleDealDate, firstDealDate } from "../lib/deal-clock";
 import { useDealClock } from "./use-deal-clock";
+import { prioritizeOnlineFirst, isHomeDealOnlineEligible } from "../lib/vacation-online-first.ts";
+import { compareVacationPriority } from "../lib/vacation-priority.ts";
 
 const copy = {
   he: { heading: "הדילים שמתאימים לכם", audience: "מי יוצא לחופשה?", family: "משפחה", couple: "זוג", group: "קבוצה גדולה", all: "כל החג", opening: "תחילת החג", middle: "אמצע החג", ending: "סוף החג", period: "מתי יוצאים?", guests: "אורחים", nights: "לילות", loading: "בודקים זמינות ומחיר להרכב שלכם", empty: "לא נמצאו דילים זמינים לבחירה הזאת", emptyHelp: "נסו חלק אחר בחג או שנו את התאריכים וההרכב בחיפוש.", error: "לא הצלחנו לבדוק זמינות כרגע", retry: "לנסות שוב", search: "שינוי תאריכים והרכב", reset: "חזרה לכל החג", count: "מקומות זמינים", basis: "המחירים מחושבים לפי", window: "השהייה עשויה להתחיל בכל תאריך בטווח הזה. התאריכים המדויקים מופיעים בכל דיל." },
@@ -40,7 +42,10 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
   const window = holidayDealWindow(currentHoliday, selection.part);
   const key = `${holiday.id}:${selection.audience}:${selection.part}:${clock?.key || "loading"}`;
   const state = result.key === key ? result.status : "loading";
-  const deals = state === "ready" && clock ? result.deals.filter(deal => eligibleDealDate(deal.from, clock.now)) : [];
+  const deals = state === "ready" && clock ? prioritizeOnlineFirst(result.deals.filter(deal => eligibleDealDate(deal.from, clock.now)), deal => {
+    if (result.stale) return false;
+    return isHomeDealOnlineEligible(deal, false);
+  }, (a, b) => compareVacationPriority(a, b, a.siteID, b.siteID, `holiday:${holiday.id}:${selection.part}`)) : [];
   const searchHref = localizedPath(holidayDealSearchHref(currentHoliday, selection), language);
 
   useEffect(() => {

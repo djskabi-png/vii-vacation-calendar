@@ -8,13 +8,14 @@ import { homeDealPeriods, type HomeDeal, type HomeDealPeriod } from "../lib/vii-
 import type { HomeHoliday } from "../lib/vii-home-holidays";
 import type { Property } from "../data/site-data";
 import { useSiteLanguage } from "../i18n/locale-provider";
-import { rotateWithinTiers } from "../lib/daily-rotation";
 import type { HomePeriodTab } from "../lib/home-display-settings";
 import { HomeSliderControls } from "./home-slider-controls";
 import { PropertyCard, type ResolvedAvailability } from "./property-card";
 import { regionalAvailabilityRegion, regionalAvailabilityTitle } from "../lib/regional-availability";
 import { regionalExpansionCopy } from "../i18n/regional-availability-copy";
 import { eligibleDealDate } from "../lib/deal-clock";
+import { prioritizeOnlineFirst, isHomeDealOnlineEligible } from "../lib/vacation-online-first";
+import { compareVacationPriority } from "../lib/vacation-priority.ts";
 import { useDealClock } from "./use-deal-clock";
 import { discoveryJson } from "../lib/discovery-client-cache.ts";
 import { discoveryCacheCopy } from "../i18n/discovery-cache-copy.ts";
@@ -158,10 +159,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
   }
 
   const sectionId = scope ? `regional-vacation-${scope.key}` : mode === "holidays" ? "home-holiday-deals" : "home-live-deals";
-  const curatedDeals = data?.deals.filter((deal) => deal.curatedRank !== undefined).sort((a, b) => (a.curatedRank || 500) - (b.curatedRank || 500) || a.siteID - b.siteID) || [];
-  const orderedDeals = scope ? data?.deals || [] : data?.deals ? [...curatedDeals, ...rotateWithinTiers(data.deals.filter((deal) => deal.curatedRank === undefined),
-    (deal) => Math.floor(deal.total / 500), (deal) => deal.siteID,
-    `home-deals:${mode}:${mode === "holidays" ? holidayId : period}`)] : [];
+  const orderedDeals = prioritizeOnlineFirst(data?.deals || [], deal => isHomeDealOnlineEligible(deal, data?.cache?.status === "stale"), (a, b) => compareVacationPriority(a, b, a.siteID, b.siteID, `home-deals:${mode}:${mode === "holidays" ? holidayId : period}`));
   const displayedDeals = clock ? orderedDeals.filter(deal => eligibleDealDate(deal.from, clock.now)) : [];
   const displayState = mode === "holidays" && holidayState !== "ready" ? holidayState : state;
   const allLabel = mode === "holidays" && currentHoliday ? `${allPeriodCopy[language].holiday}${currentHoliday.name}` : mode === "near" ? allPeriodCopy[language][period] : text.all;

@@ -8,6 +8,7 @@ import type { SpaPlusSite } from "../data/spaplus";
 import { readSupplierCatalogDetails, readSupplierCatalogDetailSnapshot, readSupplierCatalogReviewDetails, readSupplierCatalogReviewPreviews, readSupplierCatalogState, readSupplierCatalogSummaries, readSupplierCatalogSelectedSummaries, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
 import { runtimeCatalogDatabase } from "./published-supplier-ids.ts";
 import { readPublishedItems, type ContentType, type EditorialContent } from "./content-studio.ts";
+import { managedVacationPriority } from "./vacation-priority.ts";
 
 const catalogCache = new Map<SupplierCatalogWorld, { runId: string; expiresAt: number; items: Promise<unknown[]> }>();
 
@@ -76,6 +77,7 @@ function applyEditorial(world: SupplierCatalogWorld, value: unknown, content: Ed
   if (world === "vacations") {
     const selectedHighlights = content.attributes.highlights?.split(",").map((item) => item.trim()).filter(Boolean).slice(0, 5) || [];
     return { ...row, name: content.title, description: content.summary,
+      curatedRank: managedVacationPriority(content.attributes.homeDealOrder),
       ...(content.attributes.accommodationType ? { type: content.attributes.accommodationType } : {}),
       ...(selectedHighlights.length ? { highlights: selectedHighlights.map((label) => ({ label, icon: "default" })), features: [...new Set([...selectedHighlights, ...(Array.isArray(row.features) ? row.features.filter((item): item is string => typeof item === "string") : [])])] } : {}),
       ...(content.attributes.cardNote ? { cardNote: content.attributes.cardNote } : {}) };
