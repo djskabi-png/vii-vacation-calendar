@@ -36,8 +36,11 @@ test("live home deals and search results share the same complete card interactio
   assert.match(css, /@media \(hover: none\), \(max-width: 820px\)/);
 });
 
-test("feature rows expose bounded controls instead of an invisible overflow", () => {
+test("feature rows scroll naturally without arrows and stay above the card link", () => {
   assert.match(card, /stay-card__highlights-shell/);
-  assert.match(card, /<SliderRailControls[\s\S]*stay-card__highlight-controls/);
-  assert.match(css, /\.stay-card__highlight-controls button/);
+  assert.doesNotMatch(card, /SliderRailControls|highlightRailRef|stay-card__highlight-controls/);
+  assert.match(card, /className="feature-chips stay-card__highlights" role="region" tabIndex=\{0\} aria-label=\{interfaceCopy.highlights\} data-horizontal-rail/);
+  assert.match(css, /\.stay-card__highlights \{[^}]*position: relative;[^}]*z-index: 4;[^}]*overflow-x: auto;/);
+  assert.match(css, /\.stay-card__highlights:focus-visible/);
+  assert.doesNotMatch(css, /\.stay-card__highlight-controls/);
 });
