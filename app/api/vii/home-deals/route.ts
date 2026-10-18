@@ -8,6 +8,10 @@ import { readHomeDisplaySettings } from "../../../lib/home-display-settings.ts";
 import { isContentLocale } from "../../../lib/content-studio.ts";
 import { regionalAvailabilityRegion, selectRegionalOffers } from "../../../lib/regional-availability.ts";
 import { eligibleDealDate } from "../../../lib/deal-clock.ts";
+import { homeDealDates } from "../../../lib/vii-home-deals.ts";
+import { cachedDiscovery } from "../../../lib/discovery-offer-cache.ts";
+import { runtimeCatalogDatabase } from "../../../lib/published-supplier-ids.ts";
+import { discoveryVacationCatalog, type DiscoveryVacationPlace } from "../../../lib/discovery-vacation-catalog.ts";
 
 const noStore = { "Cache-Control": "no-store" };
 
@@ -41,17 +45,22 @@ export async function GET(request: Request) {
   try {
     const displayPromise = displaySettings(locale);
     const [names, publicSiteIds, token] = await Promise.all([
-      publicCatalogSummaries<{ supplierId: number; name: string; area?: string; location?: string; lat?: number; lng?: number }>("vacations"),
+      publicCatalogSummaries<DiscoveryVacationPlace>("vacations"),
       publishedSupplierIds("vacations"), supplierToken(),
     ]);
-    const result = await getHomeDeals({ period: period as HomeDealPeriod, guests, token, publicSiteIds, publicNames: new Map(names.map((place) => [place.supplierId, place.name])) });
-    const [curatedSource, display] = await Promise.all([applyCuration(result.deals, period as HomeDealPeriod), displayPromise]);
     const now = new Date();
-    const curated = curatedSource.filter(deal => eligibleDealDate(deal.from, now));
+    const dates = homeDealDates(period as HomeDealPeriod, now);
+    const cached = await cachedDiscovery({ key: ["vacation-near", dates.from, dates.till, guests], db: await runtimeCatalogDatabase(),
+      load: () => getHomeDeals({ period: period as HomeDealPeriod, now, guests, token, publicSiteIds, publicNames: new Map(names.map((place) => [place.supplierId, place.name])), resolveCatalog: discoveryVacationCatalog(names) }),
+      validate: value => !!value && typeof value === "object" && Array.isArray((value as { deals?: unknown }).deals),
+    });
+    const result = { ...cached.value, period: period as HomeDealPeriod };
+    const [curatedSource, display] = await Promise.all([applyCuration(result.deals, period as HomeDealPeriod), displayPromise]);
+    const curated = curatedSource.filter(deal => publicSiteIds.has(deal.siteID) && deal.priceGuests === guests && deal.from === dates.from && deal.till === dates.till && eligibleDealDate(deal.from, now));
     const regionalPool = region ? [...curated].sort((a, b) => (a.curatedRank ?? 500) - (b.curatedRank ?? 500) || a.total - b.total || a.siteID - b.siteID) : curated;
     const selected = region ? selectRegionalOffers(regionalPool, names.filter(place => publicSiteIds.has(place.supplierId)), region.label, { placeId: deal => deal.siteID, key: deal => String(deal.siteID) }) : null;
     const deals = selected?.offers ?? curated;
-    return Response.json({ ...result, ...(region ? { region: region.label, expandedRegion: selected!.expanded, regionalOrder: selected!.order } : {}), deals, display: { periods: display.periods, defaultPeriod: display.defaultPeriod } }, { headers: noStore });
+    return Response.json({ ...result, cache: cached.cache, ...(region ? { region: region.label, expandedRegion: selected!.expanded, regionalOrder: selected!.order } : {}), deals, display: { periods: display.periods, defaultPeriod: display.defaultPeriod } }, { headers: { ...noStore, "X-VII-Discovery-Cache": cached.cache.status } });
   } catch {
     return Response.json({ error: "supplier_unavailable" }, { status: 503, headers: noStore });
   }

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { EventSlot, LiveSearchResult, LiveSearchRoom, LiveSearchWorld } from "../lib/vii-live-search";
 import type { EventDealPlace } from "../lib/event-deal-labels";
+import { discoveryJson } from "../lib/discovery-client-cache.ts";
 
 export type LiveSearchState = {
   status: "idle" | "loading" | "ready" | "error";
@@ -11,6 +12,7 @@ export type LiveSearchState = {
   places?: EventDealPlace[];
   expandedRegion?: boolean;
   regionalOrder?: number[];
+  stale?: boolean;
 };
 
 const idle: LiveSearchState = { status: "idle", results: {}, checkedAt: null };
@@ -23,21 +25,26 @@ export function useViiLiveSearch(world: LiveSearchWorld, from: string | null, ti
   useEffect(() => {
     if (!key || !from || !till) return;
     const controller = new AbortController();
-    fetch("/api/vii/live-search", {
+    const init = {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({ world, from, till, guests, ...(world === "events" && slot ? { slot } : {}), ...(world === "events" && includePlaces ? { includePlaces: true, ...(region ? { region } : {}) } : {}), ...(world === "vacations" && rooms?.length ? { rooms } : {}) }),
-      cache: "no-store",
+      cache: "no-store" as const,
       signal: controller.signal,
-    }).then(async (response) => {
+    };
+    const request = includePlaces && world === "events"
+      ? discoveryJson("/api/vii/live-search", `${from}:${till}`, init)
+      : fetch("/api/vii/live-search", init).then(async (response) => {
       if (!response.ok) throw new Error("supplier_unavailable");
-      return response.json() as Promise<{ region?: string; expandedRegion?: boolean; regionalOrder?: number[]; checkedAt: string | null; results: LiveSearchResult[]; places?: EventDealPlace[] }>;
-    }).then((result) => {
+      return response.json();
+    });
+    (request as Promise<{ cache?:{status:string}; region?: string; expandedRegion?: boolean; regionalOrder?: number[]; checkedAt: string | null; results: LiveSearchResult[]; places?: EventDealPlace[] }>).then((result) => {
       if (!Array.isArray(result.results) || (includePlaces && result.region !== region)) throw new Error("invalid_result");
       if (!controller.signal.aborted) setValue({ key, state: {
         status: "ready",
         results: Object.fromEntries(result.results.map((item) => [item.siteID, item])),
         checkedAt: result.checkedAt,
+        ...(includePlaces ? { stale: result.cache?.status === "stale" } : {}),
         ...(includePlaces ? { places: Array.isArray(result.places) ? result.places : [] } : {}),
         ...(includePlaces && region ? { expandedRegion: result.expandedRegion === true, regionalOrder: Array.isArray(result.regionalOrder) ? result.regionalOrder : [] } : {}),
       } });

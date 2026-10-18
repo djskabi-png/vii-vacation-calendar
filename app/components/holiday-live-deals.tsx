@@ -12,6 +12,8 @@ import { useSiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
 import { dealAvailability, dealProperty } from "./home-live-deals.tsx";
 import { PropertyCard } from "./property-card.tsx";
+import { discoveryJson } from "../lib/discovery-client-cache.ts";
+import { discoveryCacheCopy } from "../i18n/discovery-cache-copy.ts";
 import { eligibleDealDate, firstDealDate } from "../lib/deal-clock";
 import { useDealClock } from "./use-deal-clock";
 
@@ -22,7 +24,7 @@ const copy = {
   fr: { heading: "Des offres pour votre séjour", audience: "Avec qui partez-vous ?", family: "Famille", couple: "Couple", group: "Grand groupe", all: "Toutes les fêtes", opening: "Début", middle: "Milieu", ending: "Fin", period: "Quand partez-vous ?", guests: "personnes", nights: "nuits", loading: "Vérification des disponibilités et des prix pour votre groupe", empty: "Aucune offre disponible pour cette sélection", emptyHelp: "Essayez une autre période des fêtes ou modifiez les dates et le nombre de personnes.", error: "Impossible de vérifier les disponibilités pour le moment", retry: "Réessayer", search: "Modifier les dates et le groupe", reset: "Rechercher sur toutes les fêtes", count: "séjours disponibles", basis: "Prix calculés pour", window: "Le séjour peut commencer à toute date de cette période. Chaque offre indique ses dates exactes." },
 } as const;
 const icons = { family: Users, couple: Heart, group: UsersRound };
-type Result = { key: string; status: "loading" | "ready" | "error"; deals: HomeDeal[] };
+type Result = { key: string; status: "loading" | "ready" | "error"; deals: HomeDeal[]; stale?: boolean };
 
 export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeHoliday; initialSelection: HolidaySelection }) {
   const clock = useDealClock();
@@ -55,14 +57,12 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
     if (currentHoliday.from >= holiday.till) { setResult({ key, status: "ready", deals: [] }); return () => controller.abort(); }
     if (holiday.id <= 0) { setResult({ key, status: "error", deals: [] }); return () => controller.abort(); }
     const params = new URLSearchParams({ id: String(holiday.id), guests: String(guests), part: selection.part });
-    fetch(`/api/vii/home-holiday-deals?${params}`, { cache: "no-store", signal: controller.signal })
-      .then(async (response) => {
-        if (!response.ok) throw new Error("deals_unavailable");
-        const data = await response.json() as { holiday: HomeHoliday; deals: HomeDeal[] };
+    discoveryJson<{ holiday: HomeHoliday; deals: HomeDeal[]; cache?:{status:string} }>(`/api/vii/home-holiday-deals?${params}`, clock.key, { signal: controller.signal })
+      .then((data) => {
         if (data.holiday?.id !== holiday.id || !Array.isArray(data.deals) || data.deals.some((deal) => deal.priceGuests !== guests || deal.from < window.from || deal.till > window.till || !Number.isFinite(deal.total) || deal.total <= 0)) throw new Error("invalid_deals");
-        return data.deals;
+        return data;
       })
-      .then((items) => { if (!controller.signal.aborted && request === generation.current) setResult({ key, status: "ready", deals: items }); })
+      .then((data) => { if (!controller.signal.aborted && request === generation.current) setResult({ key, status: "ready", deals: data.deals, stale: data.cache?.status === "stale" }); })
       .catch(() => { if (!controller.signal.aborted && request === generation.current) setResult({ key, status: "error", deals: [] }); });
     return () => controller.abort();
   }, [key, retry, holiday.id, guests, selection.part, window.from, window.till, clock?.key]);
@@ -99,12 +99,13 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
       <div className="holiday-results-heading"><div><h2 id="holiday-live-title">{text.heading}</h2><p>{text.basis} <strong>{guests} {text.guests}</strong> · {window.nights} {text.nights} · <time dateTime={window.from}>{formatDate(window.from)}</time> / <time dateTime={window.till}>{formatDate(window.till)}</time></p></div><Link href={searchHref}>{text.search}</Link></div>
       {selection.part === "all" ? <p className="holiday-window-note">{text.window}</p> : null}
       <div id="holiday-deal-results" className="holiday-deals__surface" role="tabpanel" tabIndex={0} aria-labelledby={`holiday-tab-${selection.audience}`} aria-busy={state === "loading"}>
+        {state === "ready" && result.stale && deals.length > 0 ? <p data-no-translate>{discoveryCacheCopy[language]}</p> : null}
         {state === "loading" ? <div className="holiday-deals__loading" role="status"><span className="holiday-deals__spinner" aria-hidden="true" /><strong>{text.loading}</strong><small>{guests} {text.guests} · {formatDate(window.from)} / {formatDate(window.till)}</small></div> : null}
         {state === "error" ? <div className="holiday-deals__message" role="alert"><strong>{text.error}</strong><button type="button" onClick={() => holiday.id <= 0 ? globalThis.location.reload() : setRetry((value) => value + 1)}>{text.retry}</button><Link href={searchHref}>{text.search}</Link></div> : null}
         {state === "ready" && !deals.length ? <div className="holiday-deals__message"><strong>{text.empty}</strong><p>{text.emptyHelp}</p>{selection.part !== "all" ? <button type="button" onClick={() => choose({ ...selection, part: "all" })}>{text.reset}</button> : null}<Link href={searchHref}>{text.search}</Link></div> : null}
         {state === "ready" && deals.length ? <><p className="holiday-deals__count" role="status">{deals.length} {text.count}</p><div className="holiday-deals__grid">{deals.map((deal) => {
           const href = localizedPath(`/business?${new URLSearchParams({ id: `vacation-${deal.siteID}`, from: deal.from, till: deal.till, guests: String(deal.priceGuests), source: "home-holidays", period: String(holiday.id) }).toString()}`, language);
-          return <div className="holiday-deals__item" key={`${key}-${deal.siteID}-${deal.from}`}><PropertyCard property={dealProperty(deal)} selectedStay={{ from: deal.from, till: deal.till, guests: deal.priceGuests }} liveAvailabilityState={{ status: "ready", quote: dealAvailability(deal) }} detailHref={href} /></div>;
+          return <div className="holiday-deals__item" key={`${key}-${deal.siteID}-${deal.from}`}><PropertyCard property={dealProperty(deal)} selectedStay={{ from: deal.from, till: deal.till, guests: deal.priceGuests }} liveAvailabilityState={{ status: "ready", quote: dealAvailability(deal, result.stale) }} detailHref={href} /></div>;
         })}</div></> : null}
       </div>
     </div>

@@ -18,6 +18,14 @@ export type HomeDeal = {
   from: string; till: string; total: number; nights: number; priceGuests: number; roomID?: number; roomName?: string;
   bedrooms?: number; maxGuests?: number; phone?: string; whatsapp?: string; onlineBooking?: boolean; curatedRank?: number;
 };
+// Accepted public metadata enriches discovery offers only. Prices and availability
+// still come from the matching supplier search, never from catalog base prices.
+export type HomeDealCatalogPlace = {
+  name: string; images: string[]; city: string; area: string;
+  rooms?: { roomID: number; roomName?: string; bedrooms?: number; maxGuests?: number }[];
+  phone?: string; whatsapp?: string;
+};
+type ResolveHomeDealCatalog = (ids: number[]) => Promise<ReadonlyMap<number, HomeDealCatalogPlace>>;
 
 function israelToday(now: Date) {
   const parts = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Jerusalem", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(now);
@@ -70,6 +78,7 @@ export async function getHomeDeals(options: {
   guests?: number;
   now?: Date;
   fetchImpl?: typeof fetch;
+  resolveCatalog?: ResolveHomeDealCatalog;
 }) {
   const dates = homeDealDates(options.period, options.now);
   return { period: options.period, ...await getHomeDealsForDates({ ...options, dates }) };
@@ -83,6 +92,7 @@ export async function getHomeDealsForDates(options: {
   publicNames?: ReadonlyMap<number, string>;
   fetchImpl?: typeof fetch;
   guests?: number;
+  resolveCatalog?: ResolveHomeDealCatalog;
 }) {
   if (!options.token) throw new Error("missing_token");
   const guests = options.guests ?? 2;
@@ -91,19 +101,20 @@ export async function getHomeDealsForDates(options: {
   const fetchImpl = options.fetchImpl ?? fetch;
   const headers = { Authorization: `Bearer ${options.token}`, Accept: "application/json" };
   const [catalogResponse, searchResponse, locationsResponse] = await Promise.all([
-    fetchImpl(`${API_ROOT}/vacations`, { headers, cache: "no-store", signal: AbortSignal.timeout(20_000) }),
+    options.resolveCatalog ? Promise.resolve(null) : fetchImpl(`${API_ROOT}/vacations`, { headers, cache: "no-store", signal: AbortSignal.timeout(20_000) }),
     fetchImpl(`${API_ROOT}/vacations/search`, {
       method: "POST", headers: { ...headers, "Content-Type": "application/json" },
       body: JSON.stringify({ ...(options.window ? { window: options.window } : { from: dates.from }), nights: dates.nights, rooms: [{ adults: guests }] }),
       cache: "no-store", signal: AbortSignal.timeout(20_000),
     }),
-    fetchImpl(`${API_ROOT}/locations`, { headers, cache: "no-store", signal: AbortSignal.timeout(5_000) }).catch(() => null),
+    options.resolveCatalog ? Promise.resolve(null) : fetchImpl(`${API_ROOT}/locations`, { headers, cache: "no-store", signal: AbortSignal.timeout(5_000) }).catch(() => null),
   ]);
-  if (!catalogResponse.ok || !searchResponse.ok) throw new Error("supplier_unavailable");
-  const catalog = record(await catalogResponse.json());
+  if ((!options.resolveCatalog && !catalogResponse?.ok) || !searchResponse.ok) throw new Error("supplier_unavailable");
+  const catalog = catalogResponse ? record(await catalogResponse.json()) : {};
   const search = record(await searchResponse.json());
   const locations = locationsResponse?.ok ? record(await locationsResponse.json().catch(() => ({}))) : {};
-  if (!Array.isArray(catalog.places) || !Array.isArray(search.sites)) throw new Error("invalid_supplier_response");
+  if ((!options.resolveCatalog && !Array.isArray(catalog.places)) || !Array.isArray(search.sites) || search.error) throw new Error("invalid_supplier_response");
+  const accepted = options.resolveCatalog ? await options.resolveCatalog(search.sites.map(value => record(value).siteID).filter((id): id is number => Number.isSafeInteger(id) && options.publicSiteIds.has(id as number))) : null;
 
   const areas = new Map<number, string>();
   for (const value of Array.isArray(locations.areas) ? locations.areas : []) {
@@ -117,7 +128,7 @@ export async function getHomeDealsForDates(options: {
   }
 
   const places = new Map<number, Record<string, unknown>>();
-  for (const value of catalog.places) {
+  for (const value of Array.isArray(catalog.places) ? catalog.places : []) {
     const place = record(value);
     if (Number.isSafeInteger(place.siteID) && place.active === true) places.set(place.siteID as number, place);
   }
@@ -130,20 +141,22 @@ export async function getHomeDealsForDates(options: {
     if (result.available !== true || !Number.isSafeInteger(siteID) || !options.publicSiteIds.has(siteID as number) || typeof total !== "number" || !Number.isFinite(total) || total <= 0) continue;
     const cheapest = record(result.cheapest);
     const place = places.get(siteID as number);
+    const canonical = accepted?.get(siteID as number);
+    if (accepted && !canonical) continue;
     // Keep the existing cover first, but do not discard the rest of this place's
     // verified galleries. No extra detail request or image download is needed.
-    const images = [...new Set((Array.isArray(place?.galleries) ? place.galleries : [])
+    const images = [...new Set(canonical ? canonical.images.map(mediaUrl).filter((url): url is string => Boolean(url)) : (Array.isArray(place?.galleries) ? place.galleries : [])
       .flatMap((value) => { const gallery = record(value); return Array.isArray(gallery.pictures) ? gallery.pictures : []; })
       .map(mediaUrl).filter((url): url is string => Boolean(url)))].slice(0, 10);
     const image = images[0];
-    const name = options.publicNames?.get(siteID as number) || (typeof place?.siteName === "string" ? place.siteName.trim() : "");
+    const name = options.publicNames?.get(siteID as number) || canonical?.name || (typeof place?.siteName === "string" ? place.siteName.trim() : "");
     const validStay = options.window
       ? typeof cheapest.from === "string" && typeof cheapest.till === "string"
         && cheapest.from >= options.window.from && cheapest.till <= options.window.till
         && checkoutDate(cheapest.from, dates.nights) === cheapest.till
       : cheapest.from === dates.from && cheapest.till === dates.till;
     if (!image || !name || !validStay || (typeof cheapest.total === "number" && cheapest.total !== total)) continue;
-    const location = cities.get(record(place?.location).cityID as number);
+    const location = canonical ? { city: canonical.city, area: canonical.area } : cities.get(record(place?.location).cityID as number);
     const reviews = (siteDetails.details as Record<string, { reviews?: Array<{ score?: number }> }>)[`vacation-${siteID}`]?.reviews || [];
     const scores = reviews.map((review) => review.score).filter((score): score is number => typeof score === "number" && Number.isFinite(score) && score > 0 && score <= 10);
     const score = scores.length ? Math.round(scores.reduce((sum, value) => sum + value, 0) / scores.length * 10) / 10 : null;
@@ -151,15 +164,15 @@ export async function getHomeDealsForDates(options: {
     const rooms = Array.isArray(cheapest.rooms) ? cheapest.rooms : [];
     const room = rooms.length === 1 ? record(rooms[0]) : {};
     const roomID = Number.isSafeInteger(room.roomID) && (room.roomID as number) > 0 ? room.roomID as number : undefined;
-    const catalogRooms = Array.isArray(place?.rooms) ? place.rooms.map(record) : [];
+    const catalogRooms = canonical?.rooms || (Array.isArray(place?.rooms) ? place.rooms.map(record) : []);
     const catalogRoom = roomID ? catalogRooms.find((candidate) => candidate.roomID === roomID) : undefined;
     const selectedRoom = catalogRoom || room;
     const roomName = typeof selectedRoom.roomName === "string" ? selectedRoom.roomName.trim() : "";
     const bedrooms = Number.isSafeInteger(selectedRoom.bedrooms) && Number(selectedRoom.bedrooms) > 0 ? Number(selectedRoom.bedrooms) : undefined;
     const maxGuests = Number.isSafeInteger(selectedRoom.maxGuests) && Number(selectedRoom.maxGuests) > 0 ? Number(selectedRoom.maxGuests) : undefined;
     if (maxGuests && maxGuests < guests) continue;
-    const phone = supplierContactNumber(record(place?.contact).phone);
-    const whatsapp = supplierContactNumber(record(place?.contact).whatsapp);
+    const phone = supplierContactNumber(canonical?.phone ?? record(place?.contact).phone);
+    const whatsapp = supplierContactNumber(canonical?.whatsapp ?? record(place?.contact).whatsapp);
     deals.push({ siteID: siteID as number, name, image, images, city: location?.city || "", area: location?.area || "", score, reviewCount,
       from: cheapest.from as string, till: cheapest.till as string, total, nights: dates.nights, priceGuests: guests,
       ...(roomID ? { roomID } : {}), ...(roomName ? { roomName } : {}), ...(bedrooms ? { bedrooms } : {}),

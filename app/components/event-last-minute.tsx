@@ -20,6 +20,7 @@ import { matchesSearchLocation } from "../data/search-taxonomy";
 import { regionalAvailabilityRegion, regionalAvailabilityTitle } from "../lib/regional-availability";
 import { eventSearchHref } from "../data/world-search-landings";
 import { regionalExpansionCopy } from "../i18n/regional-availability-copy";
+import { discoveryCacheCopy } from "../i18n/discovery-cache-copy.ts";
 import { firstDealDate, normalizeDealDate } from "../lib/deal-clock";
 import { useDealClock } from "./use-deal-clock";
 
@@ -69,6 +70,7 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
       <ModernSelect label={slots.label} value={slot || "both"} onChange={(value) => setSlot(value === "both" ? undefined : value as EventSlot)} options={[{ value: "both", label: slots.both }, { value: "morning", label: slots.morning }, { value: "evening", label: slots.evening }]} />
     </div>
     <div aria-busy={busy} aria-live="polite">
+      {search.status === "ready" && search.stale && candidates.length > 0 ? <p className="regional-availability__expansion" data-no-translate>{discoveryCacheCopy[language]}</p> : null}
       {scope && search.status === "ready" && search.expandedRegion && candidates.length > 0 ? <p className="regional-availability__expansion" data-no-translate>{regionalExpansionCopy[language]}</p> : null}
       {busy ? <div className="event-deals__loading" role="status"><p>{text.loading}</p><div className="home-live-deals__loading-cards" aria-hidden="true">{[0, 1, 2].map((index) => <div className="home-live-deals__loading-card" key={index}><div className="home-live-deals__loading-image" /><div className="home-live-deals__loading-lines"><span /><span /><span /></div></div>)}</div></div> : null}
       {search.status === "error" ? <div className="event-rail-status" role="alert"><p>{text.error}</p><button type="button" className="button secondary" onClick={() => setRetry((value) => value + 1)}>{text.retry}</button></div> : null}
