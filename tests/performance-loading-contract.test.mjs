@@ -162,7 +162,7 @@ test("homepage does not prefetch heavyweight search result documents before inte
   assert.match(page, /href="\/search" prefetch=\{false\}/);
   assert.match(page, /href=\{`\/search\?location=.*?prefetch=\{false\}/s);
   assert.match(showcase, /href=\{item\.href\}[\s\S]*?prefetch=\{false\}/);
-  assert.match(deals, /href=\{searchHref\} prefetch=\{false\}/);
+  assert.match(deals, /href=\{localizedPath\(searchHref, language\)\} prefetch=\{false\}/);
   assert.doesNotMatch(switcher, /world-dock__prehydrate|globalSearchHref/);
 });
 
