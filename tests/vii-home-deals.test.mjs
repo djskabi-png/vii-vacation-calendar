@@ -9,7 +9,7 @@ test("discovery enriches live search from accepted catalog without broken suppli
       { siteID: 11, available: true, minTotal: 900, onlineBooking: true, cheapest: { from: "2026-10-06", till: "2026-10-07", rooms: [{ roomID: 7 }] } },
       { siteID: 12, available: false, minTotal: 1 },
     ] }); },
-    resolveCatalog: async ids => { assert.deepEqual(ids, [11, 12]); return new Map([[11, { name: "Accepted", images: ["https://www.vii.co.il/gallery/real.jpg"], city: "City", area: "Area", rooms: [{ roomID: 7, roomName: "Suite", bedrooms: 1, maxGuests: 2 }] }]]); },
+    resolveCatalog: async ids => { assert.deepEqual(ids, [11]); return new Map([[11, { name: "Accepted", images: ["https://www.vii.co.il/gallery/real.jpg"], city: "City", area: "Area", rooms: [{ roomID: 7, roomName: "Suite", bedrooms: 1, maxGuests: 2 }] }]]); },
   });
   assert.equal(calls, 1); assert.equal(result.deals.length, 1);
   assert.equal(result.deals[0].total, 900); assert.equal(result.deals[0].roomName, "Suite"); assert.equal(result.deals[0].city, "City");
