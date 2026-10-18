@@ -23,7 +23,29 @@ const options = { id: 140, token: "fixture", publicSiteIds: new Set([11]), now: 
 test("holiday audience selection has exactly the requested three parties and safe defaults", () => {
   assert.deepEqual(holidayAudiences.map(({ id, guests }) => [id, guests]), [["family", 6], ["couple", 2], ["group", 20]]);
   assert.deepEqual(holidaySelection(new URLSearchParams("audience=group&part=ending")), { audience: "group", part: "ending" });
-  assert.deepEqual(holidaySelection(new URLSearchParams("audience=unknown&part=evil")), { audience: "family", part: "all" });
+  assert.deepEqual(holidaySelection(new URLSearchParams("audience=unknown&part=evil")), { audience: "couple", part: "all" });
+  assert.deepEqual(holidaySelection(new URLSearchParams()), { audience: "couple", part: "all" });
+});
+
+test("every holiday entry defaults to two guests without replacing explicit audience or period intent", () => {
+  for (const part of holidayParts) {
+    for (const raw of ["", "audience=", "audience=unknown", "audience=Family"]) {
+      const selection = holidaySelection(new URLSearchParams(`${raw}&part=${part}`));
+      assert.deepEqual(selection, { audience: "couple", part });
+      const params = new URL(holidayDealSearchHref(holiday, selection), "https://vii.spaplus.co").searchParams;
+      assert.equal(params.get("guests"), "2");
+    }
+    for (const { id, guests } of holidayAudiences) {
+      const selection = holidaySelection(new URLSearchParams({ audience: id, part }));
+      assert.deepEqual(selection, { audience: id, part });
+      assert.equal(new URL(holidayDealSearchHref(holiday, selection), "https://vii.spaplus.co").searchParams.get("guests"), String(guests));
+    }
+  }
+  const page = readFileSync(new URL("../app/holidays/[slug]/page.tsx", import.meta.url), "utf8");
+  const ui = readFileSync(new URL("../app/components/holiday-live-deals.tsx", import.meta.url), "utf8");
+  assert.match(page, /const selection = holidaySelection\(/, "every holiday slug resolves SSR selection with the shared default");
+  assert.match(ui, /setSelection\(holidaySelection\(new URLSearchParams\(globalThis.location.search\)\)\)/, "back restores the same shared default");
+  assert.match(ui, /guests: String\(guests\)/, "request uses selected audience guest count");
 });
 
 test("all parties and holiday periods send matching live guest requests and return that price basis", async () => {
