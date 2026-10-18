@@ -60,6 +60,8 @@ test('actual vacation API uses one complete eligible read and returns minimum-th
 });
 test('actual event API excludes unavailable/missing images before expansion and preserves exact slot/party',async()=>{
   const post=handler('vii/live-search','POST',{
+    // Keep the real eligibility guard, but freeze time before the dated fixture.
+    Date:class extends Date {constructor(...args){super(...(args.length?args:['2026-10-17T12:00:00Z']));}},
     regionalAvailabilityRegion,selectRegionalOffers,eligibleDealDate,validDate:()=>true,supplierToken:async()=>'test',publishedSupplierIds:async()=>new Set([1,2,3,4,5,6]),
     publicCatalogSummaries:async()=>places,
     publicCatalogSelectedSummaries:async(_world,ids)=>places.filter(p=>ids.includes(p.supplierId)).map(p=>({...p,slug:`event-${p.supplierId}`,images:[]})),
