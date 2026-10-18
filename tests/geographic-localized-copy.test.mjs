@@ -50,3 +50,14 @@ test('actual server metadata translates semantic spa headline before appending b
     assert.equal(translate(spaSearchDescription(state),locale),spaSearchDescription(state,locale));
   }
 });
+
+test('semantic brand handling preserves reviewed legacy full-title translations',()=>{
+  const source=read('worker/index.ts');
+  const snippet=source.slice(source.indexOf('function translateServerText('),source.indexOf('\nfunction localizeStructuredUrl('));
+  const translate=new Function('visitorUiTranslations','serverTranslations','localizedSpaSearchSource',compile(snippet)+'\nreturn translateServerText;')(visitor,dictionaries,localizedSpaSearchSource);
+  for(const locale of ['en','fr','ru']) {
+    const title='הצטרפות לוי פור ויקיישן, ספא וטיפולים | וי פור ויקיישן';
+    assert.equal(translate(title,locale),dictionaries[locale][title]);
+    assert.equal(translate('כותרת לא מוכרת | וי פור ויקיישן',locale),'כותרת לא מוכרת | וי פור ויקיישן');
+  }
+});
