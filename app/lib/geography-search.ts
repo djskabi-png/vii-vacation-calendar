@@ -1,3 +1,4 @@
+import { canonicalSearchLocation, geographicAnchorSelection, normalizeGeographicName } from "./geographic-names.ts";
 export type PublicGeographyNode = {
   key: string;
   level: "district" | "area" | "city";
@@ -21,13 +22,14 @@ export type CoordinatePlace = {
 export type NearbyPlace<T> = { place: T; distanceKm: number };
 
 function normalized(value?: string | null) {
-  return (value || "").trim().toLocaleLowerCase("he");
+  return normalizeGeographicName(canonicalSearchLocation(value));
 }
 
 export function geographyNodeForSelection(nodes: readonly PublicGeographyNode[], selection?: string | null) {
   const target = normalized(selection);
   if (!target) return null;
-  return nodes.find((node) => normalized(node.title) === target || normalized(node.titleEn) === target || normalized(node.slug) === target) || null;
+  return nodes.find(node => node.key === selection)
+    || nodes.find((node) => normalized(node.title) === target || normalized(node.titleEn) === target || (node.slug && normalized(node.slug) === target)) || null;
 }
 
 export function distanceKm(first: { lat: number; lng: number }, second: { lat: number; lng: number }) {
@@ -56,12 +58,15 @@ export function nearbyPlacesForSelection<T extends CoordinatePlace>(
   }
   const childPoints = nodes.filter((node) => descendantKeys.has(node.key) && node.level === "city"
     && Number.isFinite(node.gpsLat) && Number.isFinite(node.gpsLong));
-  const origin = Number.isFinite(target.gpsLat) && Number.isFinite(target.gpsLong)
+  const anchor = geographicAnchorSelection(selection);
+  const anchorNode = anchor ? nodes.find(node => node.level === "city" && normalized(node.title) === normalized(anchor)
+    && node.gpsLat !== null && node.gpsLong !== null && Number.isFinite(node.gpsLat) && Number.isFinite(node.gpsLong)) : null;
+  const origin = target.gpsLat !== null && target.gpsLong !== null && Number.isFinite(target.gpsLat) && Number.isFinite(target.gpsLong)
     ? { lat: target.gpsLat!, lng: target.gpsLong! }
     : childPoints.length ? {
       lat: childPoints.reduce((sum, node) => sum + node.gpsLat!, 0) / childPoints.length,
       lng: childPoints.reduce((sum, node) => sum + node.gpsLong!, 0) / childPoints.length,
-    } : null;
+    } : anchorNode ? { lat: anchorNode.gpsLat!, lng: anchorNode.gpsLong! } : null;
   if (!origin) return [];
   const maximumDistanceKm = options.maximumDistanceKm ?? 100;
   const limit = options.limit ?? 12;

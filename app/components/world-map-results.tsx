@@ -20,6 +20,7 @@ import { nearbySearchRecommendations, completeNearbyResults } from "../lib/nearb
 import { useManagedGeography } from "./use-managed-geography";
 import { NearbySearchNotice } from "./nearby-search-notice";
 import { publicAvailabilityNotice } from "../lib/public-availability-notice";
+import { matchesSearchLocation } from "../data/search-taxonomy";
 
 const spaFilters = spaLandings;
 
@@ -119,14 +120,14 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
   const checkingDate = Boolean(requestedDate) && (availability.checkedDate !== requestedDate || availability.status === "idle" || availability.status === "loading");
   const filtered = useMemo(() => rotateWithinTiers(amenityFiltered.filter((item) => (
     !checkingDate &&
-    (location === "כל הארץ" || item.area === location || item.location === location)
+    matchesSearchLocation(item, location)
     && (!requestedDate || !dateCovered || availability.sites.has(Number(item.id.replace("spa-", ""))))
   )), (item) => item.image && item.priceLabel ? 0 : item.image ? 1 : 2,
   (item) => item.id, "spa-search"), [amenityFiltered, location, requestedDate, dateCovered, checkingDate, availability.sites]);
 
   const nearbyRecovery = useMemo(() => {
     if (filtered.length >= 3 || checkingDate || location === "כל הארץ") return [];
-    const origin = items.find((item) => item.location === location || item.area === location);
+    const origin = items.find((item) => matchesSearchLocation(item, location));
     const eligible = amenityFiltered.filter((item) => !requestedDate || !dateCovered || availability.sites.has(Number(item.id.replace("spa-", ""))));
     return nearbySearchRecommendations(eligible, location, managedGeography, { key: (item) => item.id,
       origin: { location, area: location, lat: origin?.location === location ? origin.lat : undefined, lng: origin?.location === location ? origin.lng : undefined } });

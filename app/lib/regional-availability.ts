@@ -2,6 +2,7 @@ import { matchesSearchLocation } from "../data/search-taxonomy.ts";
 import { nearbyPoint } from "./nearby-recommendations.ts";
 import { distanceKm } from "./geography-search.ts";
 import type { CoordinatePlace } from "./geography-search.ts";
+import { canonicalSearchLocation } from "./geographic-names.ts";
 
 // Region labels are the existing search taxonomy, not supplier geographic IDs.
 // A city ID and a district ID may be equal and must never be joined by ID alone.
@@ -20,6 +21,7 @@ const regions = [
   ["sharon-short", "שרון", "the Sharon region", "районе Шарона", "région du Sharon"],
   ["coastal-plain", "מישור החוף והשפלה", "the Coastal Plain", "Прибрежной равнине", "plaine côtière"],
   ["tel-aviv", "תל אביב", "Tel Aviv", "Тель-Авиве", "Tel-Aviv"],
+  ["tel-aviv-area", "תל אביב וגוש דן", "Tel Aviv and Gush Dan", "Тель-Авиве и Гуш-Дане", "Tel-Aviv et Gush Dan"],
   ["jerusalem", "ירושלים והסביבה", "Jerusalem and its surroundings", "Иерусалиме и окрестностях", "Jérusalem et environs"],
   ["judean-hills", "ירושלים והרי יהודה", "Jerusalem and the Judean Hills", "Иерусалиме и Иудейских горах", "Jérusalem et monts de Judée"],
   ["dead-sea", "ים המלח", "the Dead Sea", "районе Мёртвого моря", "mer Morte"],
@@ -29,7 +31,7 @@ const regions = [
 
 export type AvailabilityWorld = "vacation" | "events" | "spa";
 export function regionalAvailabilityRegion(value?: string | null) {
-  const match = regions.find(region => region[1] === value?.trim());
+  const match = regions.find(region => region[1] === canonicalSearchLocation(value));
   return match ? { key: match[0], label: match[1], en: match[2], ru: match[3], fr: match[4] } : null;
 }
 

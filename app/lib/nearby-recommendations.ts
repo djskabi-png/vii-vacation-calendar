@@ -1,4 +1,5 @@
 import { distanceKm, nearbyPlacesForSelection, type CoordinatePlace, type PublicGeographyNode } from "./geography-search.ts";
+import { canonicalSearchLocation } from "./geographic-names.ts";
 
 // Existing coarse region centers used by TrailMap. They are NOT trail locations.
 export const nearbyRegionCenters: Record<string, { lat: number; lng: number }> = {
@@ -15,7 +16,7 @@ export const nearbyRecommendationCopy = {
   fr: { places: "Les lieux sont classés du plus proche au plus éloigné selon les positions disponibles. Une position peut représenter le centre d'une ville.", expanded: "Il y a peu de choix à proximité. Nous avons donc ajouté des lieux dans un secteur plus large.", regional: "Ces suggestions se fondent sur la région. Les positions exactes ne sont pas disponibles pour toutes les comparaisons.", trails: "Des itinéraires dans cette région et les régions voisines, classés par secteur plutôt que par distance exacte au départ." },
 };
 
-const text = (value?: string) => (value || "").trim().replace(/[־–-]/g, " ");
+const text = (value?: string) => canonicalSearchLocation(value).replace(/[־–-]/g, " ");
 export function completeNearbyResults<T>(exact: readonly T[], nearby: readonly T[], key: (item: T) => string, minimum = 3): T[] {
   const seen = new Set<string>();
   const result = exact.filter((item) => !seen.has(key(item)) && !!seen.add(key(item)));

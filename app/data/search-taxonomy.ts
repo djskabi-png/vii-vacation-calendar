@@ -1,3 +1,4 @@
+import { canonicalSearchLocation, metropolitanLocationMatches, normalizeGeographicName } from "../lib/geographic-names.ts";
 export type SearchMode = "vacation" | "events" | "spa" | "hourly";
 
 type SearchablePlace = {
@@ -10,11 +11,11 @@ const OPTIONS: Record<SearchMode, string[]> = {
     "כל הארץ", "צפון", "מרכז", "דרום",
     "גליל מערבי", "גליל עליון", "אילת והערבה", "כנרת", "מישור החוף והשפלה", "ירושלים והרי יהודה", "שרון", "רמת הגולן",
     "אילת", "ירכא", "נוף כנרת", "מגדל", "דלתון", "נתניה", "יערה", "טבריה", "חדרה", "יבנאל", "חוסן", "פקיעין החדשה", "קיסריה", "אבן מנחם", "כלנית",
-    "חיפה והכרמל", "תל אביב", "ירושלים והסביבה", "ים המלח", "דרום ונגב",
+    "חיפה והכרמל", "תל אביב", "תל אביב וגוש דן", "ירושלים והסביבה", "ים המלח", "דרום ונגב",
   ],
-  events: ["כל הארץ", "צפון", "חיפה והכרמל", "מרכז", "תל אביב", "ירושלים והסביבה", "דרום ונגב", "אילת והערבה"],
-  spa: ["כל הארץ", "צפון", "חיפה", "כנרת", "מרכז", "תל אביב", "ירושלים והסביבה", "דרום ונגב", "אילת והסביבה"],
-  hourly: ["כל הארץ", "גליל מערבי", "מישור החוף והשפלה", "השרון", "מרכז"],
+  events: ["כל הארץ", "צפון", "חיפה והכרמל", "מרכז", "תל אביב", "תל אביב וגוש דן", "ירושלים והסביבה", "דרום ונגב", "אילת והערבה"],
+  spa: ["כל הארץ", "צפון", "חיפה", "חיפה והכרמל", "כנרת", "מרכז", "תל אביב", "תל אביב וגוש דן", "ירושלים והסביבה", "דרום ונגב", "אילת והסביבה"],
+  hourly: ["כל הארץ", "גליל מערבי", "חיפה והכרמל", "מישור החוף והשפלה", "השרון", "מרכז", "תל אביב וגוש דן"],
 };
 
 export const vacationLocationGroups = [
@@ -71,7 +72,13 @@ export function isWholeCountrySelection(selection?: string | null) {
 
 export function matchesSearchLocation(place: SearchablePlace, selection: string) {
   if (isWholeCountrySelection(selection)) return true;
-  const haystack = `${place.area ?? ""} ${place.location ?? ""}`;
-  const terms = LOCATION_TERMS[selection] ?? [selection];
-  return terms.some((term) => haystack.includes(term));
+  const canonical = canonicalSearchLocation(selection);
+  const metro = metropolitanLocationMatches(place, canonical);
+  if (metro !== null) return metro;
+  if (canonical === "חיפה" || canonical === "תל אביב") {
+    return normalizeGeographicName(canonicalSearchLocation(place.location || place.area)) === normalizeGeographicName(canonical);
+  }
+  const haystack = normalizeGeographicName(`${place.area ?? ""} ${place.location ?? ""}`);
+  const terms = LOCATION_TERMS[canonical] ?? [canonical];
+  return terms.some((term) => haystack.includes(normalizeGeographicName(term)));
 }
