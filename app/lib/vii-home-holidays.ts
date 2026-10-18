@@ -55,11 +55,13 @@ export async function getHomeHolidays(options: { token: string; now?: Date; fetc
 
 export async function getHomeHolidayDeals(options: {
   id: number; token: string; publicSiteIds: ReadonlySet<number>; publicNames?: ReadonlyMap<number, string>; now?: Date; fetchImpl?: typeof fetch; from?: string; till?: string; guests?: number; part?: HolidayPart;
+  holidays?: HomeHoliday[];
+  resolveCatalog?: Parameters<typeof getHomeDealsForDates>[0]["resolveCatalog"];
 }) {
   const guests = options.guests ?? 2;
   if (![2, 6, 20].includes(guests) || (options.part && !holidayParts.includes(options.part))) throw new Error("invalid_selection");
   if (options.part && options.part !== "all" && (options.from !== undefined || options.till !== undefined)) throw new Error("invalid_stay");
-  const holidays = await getHomeHolidays(options);
+  const holidays = options.holidays ?? await getHomeHolidays(options);
   const holiday = holidays.find((item) => item.id === options.id);
   if (!holiday) throw new Error("invalid_holiday");
   if (options.from !== undefined || options.till !== undefined) {

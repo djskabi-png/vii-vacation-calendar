@@ -1,4 +1,4 @@
-import { getHomeHolidays } from "../../../lib/vii-home-holidays";
+import { getDiscoveryHolidays } from "../../../lib/discovery-holidays.ts";
 import { supplierToken } from "../../../lib/vii-supplier-token";
 import { applyHolidayDisplaySettings, readHomeDisplaySettings } from "../../../lib/home-display-settings.ts";
 import { isContentLocale } from "../../../lib/content-studio.ts";
@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     const requestedLocale = params.get("locale");
     const locale = isContentLocale(requestedLocale) ? requestedLocale : "he";
     const settingsPromise = params.get("all") === "1" ? null : displaySettings(locale);
-    const holidays = (await getHomeHolidays({ token: await supplierToken() })).map((holiday) => ({
+    const holidays = (await getDiscoveryHolidays(await supplierToken())).map((holiday) => ({
       ...holiday,
       href: holidayWorldPath(holiday.name, holiday.id) || legacyHolidaySearchPath(holiday.name) || undefined,
     }));

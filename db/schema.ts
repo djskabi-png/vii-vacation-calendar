@@ -1,5 +1,15 @@
 import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
+export const discoveryOfferCache = sqliteTable("vii_discovery_offer_cache_v1", {
+  cacheKey: text("cache_key").primaryKey().notNull(),
+  payload: text("payload"),
+  checkedAt: integer("checked_at").notNull().default(0),
+  staleUntil: integer("stale_until").notNull().default(0),
+  retryAfter: integer("retry_after").notNull().default(0),
+  leaseUntil: integer("lease_until").notNull().default(0),
+  leaseToken: text("lease_token"),
+});
+
 export const guestReviews = sqliteTable("guest_reviews", {
   id: text("id").primaryKey(),
   subjectType: text("subject_type").notNull(),

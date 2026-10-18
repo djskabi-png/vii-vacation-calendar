@@ -18,7 +18,9 @@ import { useDealClock } from "./use-deal-clock";
 import { regionalAvailabilityRegion, regionalAvailabilityTitle } from "../lib/regional-availability";
 import { spaSearchHref, spaSearchStateFromValues } from "../data/spa-search-landings";
 import { regionalExpansionCopy } from "../i18n/regional-availability-copy";
-type DealResponse = { region?:string; expandedRegions?:Record<string,Partial<Record<SpaDealAudience,boolean>>>; checkedAt:string; days:string[]; offers:Record<string,Record<SpaDealAudience,SpaPackageDeal[]>> };
+import { discoveryJson } from "../lib/discovery-client-cache.ts";
+import { discoveryCacheCopy } from "../i18n/discovery-cache-copy.ts";
+type DealResponse = { cache?:{status:string}; region?:string; expandedRegions?:Record<string,Partial<Record<SpaDealAudience,boolean>>>; checkedAt:string; days:string[]; offers:Record<string,Record<SpaDealAudience,SpaPackageDeal[]>> };
 const audiences:SpaDealAudience[] = ["single","couple","group"];
 export function SpaPackageDeals({sectionId="spa-package-deals",region}:{sectionId?:string;region?:string}) {
  const {language,translate} = useSiteLanguage();
@@ -47,8 +49,7 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region}:{sectionI
  useEffect(()=>{
   if(!clock) return;
   const controller = new AbortController(); setStatus("loading"); setData(null);
-  fetch(regionLabel ? `/api/spa/deals?${new URLSearchParams({region:regionLabel})}` : "/api/spa/deals",{signal:controller.signal,cache:"no-store"})
-   .then(response=>{if(!response.ok) throw new Error("unavailable"); return response.json();})
+  discoveryJson<DealResponse>(regionLabel ? `/api/spa/deals?${new URLSearchParams({region:regionLabel})}` : "/api/spa/deals",clock.key,{signal:controller.signal})
    .then((body:DealResponse)=>{if(!Array.isArray(body.days)||!body.offers||!body.checkedAt||body.region!==regionLabel) throw new Error("invalid"); if(!controller.signal.aborted){setData(body);setStatus("ready");}})
    .catch(()=>{if(!controller.signal.aborted) setStatus("error");});
   return ()=>controller.abort();
@@ -74,6 +75,7 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region}:{sectionI
    <div className="spa-package-deals__audiences" role="group" aria-label={text.who}>{audiences.map(value=><button type="button" key={value} disabled={!data||status!=="ready"} aria-pressed={audience===value} onClick={()=>select(date,value)}>{text.audiences[value]}</button>)}</div>
   </div>
   <div aria-busy={status==="loading"} aria-live="polite">
+   {status==="ready" && data?.cache?.status==="stale" && offers.length>0 ? <p className="regional-availability__expansion">{discoveryCacheCopy[language]}</p> : null}
    {status==="loading"?<div role="status" className="home-live-deals__loading"><p>{text.loading}</p><div className="home-live-deals__loading-cards" aria-hidden="true">{[0,1,2].map(index=><div className="home-live-deals__loading-card" key={index}><div className="home-live-deals__loading-image"/><div className="home-live-deals__loading-lines"><span/><span/><span/></div></div>)}</div></div>:null}
    {status==="error"?<div role="alert" className="event-rail-status"><p>{text.error}</p><button type="button" className="button secondary" onClick={()=>setAttempt(value=>value+1)}>{text.retry}</button></div>:null}
    {status==="ready"&&!offers.length?<p className="event-rail-status">{text.empty}</p>:null}

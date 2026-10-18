@@ -16,8 +16,10 @@ import { regionalAvailabilityRegion, regionalAvailabilityTitle } from "../lib/re
 import { regionalExpansionCopy } from "../i18n/regional-availability-copy";
 import { eligibleDealDate } from "../lib/deal-clock";
 import { useDealClock } from "./use-deal-clock";
+import { discoveryJson } from "../lib/discovery-client-cache.ts";
+import { discoveryCacheCopy } from "../i18n/discovery-cache-copy.ts";
 
-type ResponseData = { region?: string; expandedRegion?: boolean; regionalOrder?: number[]; period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[]; display?: { periods: HomePeriodTab[]; defaultPeriod: HomeDealPeriod } };
+type ResponseData = { cache?: { status: string }; region?: string; expandedRegion?: boolean; regionalOrder?: number[]; period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[]; display?: { periods: HomePeriodTab[]; defaultPeriod: HomeDealPeriod } };
 
 const copy = {
   he: { title: "נופש פנוי בתאריכים הקרובים", all: "לכל מקומות הנופש", loading: "בודקים זמינות ומחירים", empty: "לא נמצאו מקומות פנויים לתאריכים האלה", error: "לא הצלחנו לבדוק זמינות כרגע", retry: "לנסות שוב", total: "מחיר כולל", details: "לפרטי המקום", call: "חיוג למקום", whatsapp: "וואטסאפ", available: "פנוי לתאריכים שבחרתם", forGuests: "עבור 2 אורחים", night: "לילה", nights: "לילות", bedrooms: "חדרי שינה", guests: "אורחים", reviews: "חוות דעת", dateTo: "עד", tabs: ["ברגע האחרון", "חמישי עד שבת", "שישי עד ראשון", "לילה בחמישי", "לילה בשישי"] },
@@ -60,7 +62,7 @@ export function dealProperty(deal: HomeDeal): Property {
   };
 }
 
-export function dealAvailability(deal: HomeDeal): ResolvedAvailability {
+export function dealAvailability(deal: HomeDeal, stale = false): ResolvedAvailability {
   return {
     from: deal.from,
     till: deal.till,
@@ -69,7 +71,7 @@ export function dealAvailability(deal: HomeDeal): ResolvedAvailability {
     nightlyPrice: Math.round(deal.total / Math.max(1, deal.nights)),
     includedGuests: deal.priceGuests,
     priceMode: "stay_total",
-    onlineBooking: deal.onlineBooking,
+    onlineBooking: !stale && deal.onlineBooking,
     bookingSupported: Number.isSafeInteger(deal.roomID) && Number(deal.roomID) > 0,
     showSelectedDates: true,
   };
@@ -104,8 +106,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
     if (mode !== "holidays") return;
     const controller = new AbortController();
     setHolidayState("loading");
-    fetch(`/api/vii/home-holidays?locale=${language}`, { signal: controller.signal, cache: "no-store" })
-      .then(async (response) => { if (!response.ok) throw new Error("supplier_unavailable"); return response.json() as Promise<{ holidays: HomeHoliday[] }>; })
+    discoveryJson<{ holidays: HomeHoliday[] }>(`/api/vii/home-holidays?locale=${language}`, clock.key, { signal: controller.signal })
       .then((result) => {
         if (!Array.isArray(result.holidays)) throw new Error("invalid_result");
         setHolidays(result.holidays);
@@ -126,11 +127,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
     const url = mode === "holidays"
       ? `/api/vii/home-holiday-deals?${new URLSearchParams({ id: String(holidayId), ...(selectedHoliday?.exactStay ? { from: selectedHoliday.from, till: selectedHoliday.till } : {}) })}`
       : `/api/vii/home-deals?${new URLSearchParams({ period, locale: language, ...(regionLabel ? { region: regionLabel } : {}), ...(guests !== 2 ? { guests: String(guests) } : {}) })}`;
-    fetch(url, { signal: controller.signal, cache: "no-store", headers: { Accept: "application/json" } })
-      .then(async (response) => {
-        if (!response.ok) throw new Error("supplier_unavailable");
-        return response.json() as Promise<ResponseData>;
-      })
+    discoveryJson<ResponseData>(url, clock.key, { signal: controller.signal, headers: { Accept: "application/json" } })
       .then((result) => {
         if (controller.signal.aborted) return;
         if (!Array.isArray(result.deals) || (mode === "near" && (result.period !== period || result.region !== regionLabel)) || (mode === "holidays" && result.holiday?.id !== holidayId)) throw new Error("invalid_result");
@@ -189,6 +186,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
         }}><strong>{item.name}</strong></button>)}
       </div>
       <div className="home-live-deals__results" id={`${sectionId}-results`} role="tabpanel" aria-live="polite" aria-busy={displayState === "loading"}>
+        {displayState === "ready" && data?.cache?.status === "stale" && displayedDealCount > 0 ? <p className="regional-availability__expansion" data-no-translate>{discoveryCacheCopy[language]}</p> : null}
         {scope && displayState === "ready" && data?.expandedRegion && displayedDealCount > 0 ? <p className="regional-availability__expansion" data-no-translate>{regionalExpansionCopy[language]}</p> : null}
         {displayState === "loading" ? <div className="home-live-deals__loading" role="status" aria-label={text.loading}>
           <div className="home-live-deals__loading-head" aria-hidden="true">
@@ -206,7 +204,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
               <PropertyCard
                 property={dealProperty(deal)}
                 selectedStay={{ from: deal.from, till: deal.till, guests: deal.priceGuests }}
-                liveAvailabilityState={{ status: "ready", quote: dealAvailability(deal) }}
+                liveAvailabilityState={{ status: "ready", quote: dealAvailability(deal, data?.cache?.status === "stale") }}
                 detailHref={href}
               />
             </div>;

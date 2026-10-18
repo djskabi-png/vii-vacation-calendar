@@ -7,9 +7,12 @@ import { matchesSearchLocation } from '../app/data/search-taxonomy.ts';
 import { spaPlusArea } from '../app/data/spa-regions.ts';
 import { selectSpaPackageDeals } from '../app/lib/spa-package-deals.ts';
 import { eventDealDate } from '../app/lib/event-deal-dates.ts';
-import { dealRailDays, eligibleDealDate } from '../app/lib/deal-clock.ts';
+import { dealRailDays, eligibleDealDate, firstDealDate } from '../app/lib/deal-clock.ts';
+import { homeDealDates } from '../app/lib/vii-home-deals.ts';
 
 function handler(path, method, dependencies) {
+  dependencies={firstDealDate,runtimeCatalogDatabase:async()=>null, cachedDiscovery:async({load})=>({value:await load(),cache:{status:'refreshed',checkedAt:new Date().toISOString()}}),homeDealDates,
+    discoveryVacationCatalog:()=>async()=>new Map(),...dependencies};
   const source=readFileSync(new URL(`../app/api/${path}/route.ts`,import.meta.url),'utf8');
   const compiled=stripTypeScriptTypes(source.replace(/^import .*;\r?$/gm,''),{mode:'strip'}).replace(`export async function ${method}`,`async function ${method}`);
   return new Function(...Object.keys(dependencies),`${compiled}; return ${method};`)(...Object.values(dependencies));
@@ -23,7 +26,7 @@ test('actual vacation handler validates scope before reads, joins publication an
     publicCatalogSummaries:async()=>{calls++;return[{supplierId:1,name:'Center',area:'מרכז'},{supplierId:2,name:'North',area:'גליל מערבי'},{supplierId:3,name:'Hidden',area:'צפון'}];},
     publishedSupplierIds:async()=>new Set([1,2]),supplierToken:async()=>'test',
     readHomeDisplaySettings:async()=>({periods:[{id:'tomorrow'}],defaultPeriod:'tomorrow'}),
-    getHomeDeals:async options=>{assert.deepEqual([...options.publicSiteIds],[1,2]);assert.equal(options.guests,6);return {period:'tomorrow',deals:[{siteID:2,total:600,priceGuests:6,from:eventDealDate(1)}]};},
+    getHomeDeals:async options=>{assert.deepEqual([...options.publicSiteIds],[1,2]);assert.equal(options.guests,6);return {period:'tomorrow',deals:[{siteID:2,total:600,priceGuests:6,from:homeDealDates('tomorrow').from,till:homeDealDates('tomorrow').till}]};},
   });
   for(const query of ['period=tomorrow&region=unknown','period=tomorrow&guests=0','period=tomorrow&guests=51','period=tomorrow&guests=2.5']) assert.equal((await get(request(`?${query}`))).status,400);
   assert.equal(calls,0);

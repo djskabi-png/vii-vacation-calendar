@@ -5,13 +5,19 @@ import { selectSpaPackageDeals, type SpaDealAudience } from "../../../lib/spa-pa
 import type { SpaPlusSite } from "../../../data/spaplus";
 import { regionalAvailabilityRegion, selectRegionalOffers } from "../../../lib/regional-availability.ts";
 import { spaPlusArea } from "../../../data/spa-regions.ts";
+import { cachedDiscovery } from "../../../lib/discovery-offer-cache.ts";
+import { runtimeCatalogDatabase } from "../../../lib/published-supplier-ids.ts";
+import { firstDealDate } from "../../../lib/deal-clock.ts";
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const region = regionalAvailabilityRegion(params.get("region"));
   if (params.has("region") && !region) return Response.json({ error: "invalid_region" }, { status: 400, headers: { "Cache-Control": "no-store" } });
   try {
-    const [sites, availability] = await Promise.all([publicCatalogSummaries<SpaPlusSite>("spa"), readSpaAvailability()]);
     const now = new Date();
+    const [sites, cached] = await Promise.all([publicCatalogSummaries<SpaPlusSite>("spa"),
+      cachedDiscovery({ key: ["spa-discovery-availability", firstDealDate(now)], db: await runtimeCatalogDatabase(), load: readSpaAvailability, validate: Array.isArray }),
+    ]);
+    const availability = cached.value;
     const days = dealRailDays(6, now);
     const audiences: SpaDealAudience[] = ["single", "couple", "group"];
     const locations = sites.map(site => ({ supplierId: site.id, location: site.city, area: spaPlusArea(site.city) }));
@@ -23,7 +29,7 @@ export async function GET(request: Request) {
       if (selected.expanded) (expandedRegions[date] ||= {})[audience] = true;
       return [audience, selected.offers];
     }))]));
-    return Response.json({ checkedAt: now.toISOString(), ...(region ? { region: region.label, expandedRegions } : {}), days, offers }, { headers: { "Cache-Control": "no-store" } });
+    return Response.json({ checkedAt: cached.cache.checkedAt, cache: cached.cache, ...(region ? { region: region.label, expandedRegions } : {}), days, offers }, { headers: { "Cache-Control": "no-store", "X-VII-Discovery-Cache": cached.cache.status } });
   } catch {
     return Response.json({ error: "spa_deals_unavailable" }, { status: 503, headers: { "Cache-Control": "no-store" } });
   }
