@@ -49,7 +49,9 @@ export function createStagingHealthClient({authorize,getCredentials,fetchImpl=fe
   try {
    const action=(async()=>{
     // Never forward request headers, cookies, body, query or a caller URL.
-    const upstream=await fetchImpl(STAGE_HEALTH_URL,{method:'GET',redirect:'error',credentials:'omit',cache:'no-store',signal:controller.signal,
+    // workerd rejects redirect:error before transport. Manual never follows a
+    // redirect; the exact-200 gate below rejects every redirect response.
+    const upstream=await fetchImpl(STAGE_HEALTH_URL,{method:'GET',redirect:'manual',credentials:'omit',cache:'no-store',signal:controller.signal,
      headers:{accept:'application/json','CF-Access-Client-Id':credentials.clientId,'CF-Access-Client-Secret':credentials.clientSecret}});
     if(upstream.status===401||upstream.status===403)throw healthError('upstream_auth');
     if(upstream.status!==200)throw healthError('upstream_http');
