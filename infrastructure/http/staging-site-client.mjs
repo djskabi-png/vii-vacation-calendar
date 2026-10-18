@@ -4,6 +4,13 @@ export const STAGE_HEALTH_URL='https://vii-staging-site-bridge.djskabi.workers.d
 export const STAGE_HEALTH_ADMIN_PATH='/api/admin/staging-private-health';
 const KEYS=['databaseConnected','markerMatched','ok','readOnly'];
 const MAX_BYTES=512;
+// Sites runtime secrets may be exposed through process.env rather than the
+// Cloudflare storage-binding facade. Accept only this one server-side value.
+export function readStagingHealthConfiguration(workerValue,processValue) {
+ const raw=typeof workerValue==='string'&&workerValue.length>0?workerValue:processValue;
+ if(typeof raw!=='string'||raw.length===0||raw.length>2048)throw Error('private_health_unavailable');
+ return JSON.parse(raw);
+}
 const reply=(status,ok=false,extra={})=>Response.json(ok
  ? {ok:true,databaseConnected:true,readOnly:true,markerMatched:true}
  : {ok:false},{status,headers:{'cache-control':'private, no-store','x-robots-tag':'noindex, nofollow','x-content-type-options':'nosniff',...extra}});

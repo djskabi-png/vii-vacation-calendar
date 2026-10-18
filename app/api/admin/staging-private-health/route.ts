@@ -1,14 +1,16 @@
 import { authorizedAdminSession } from "../../../lib/admin-session.ts";
-import { createStagingHealthClient } from "../../../../infrastructure/http/staging-site-client.mjs";
+import { createStagingHealthClient, readStagingHealthConfiguration } from "../../../../infrastructure/http/staging-site-client.mjs";
 
 export const dynamic = "force-dynamic";
 const handle = createStagingHealthClient({
   authorize: async (request: Request) => !!await authorizedAdminSession(request),
   getCredentials: async () => {
-    const { env } = await import("cloudflare:workers");
-    const raw = (env as unknown as { VII_STAGE_HEALTH_CONFIG?: string }).VII_STAGE_HEALTH_CONFIG;
-    if (typeof raw !== "string" || raw.length > 2048) throw new Error("private_health_unavailable");
-    return JSON.parse(raw);
+    let workerValue: string | undefined;
+    try {
+      const { env } = await import("cloudflare:workers");
+      workerValue = (env as unknown as { VII_STAGE_HEALTH_CONFIG?: string }).VII_STAGE_HEALTH_CONFIG;
+    } catch { /* The supported Site secret channel remains server-only. */ }
+    return readStagingHealthConfiguration(workerValue, process.env.VII_STAGE_HEALTH_CONFIG);
   },
 });
 
