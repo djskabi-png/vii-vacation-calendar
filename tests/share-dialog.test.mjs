@@ -79,4 +79,5 @@ test("event-specific mobile stylesheet keeps share outside the contact pair and 
   assert.match(css, /:is\(\.property-phone-action,\.property-whatsapp-action\) > span \{[^}]*white-space:normal;[^}]*overflow-wrap:anywhere/);
   assert.match(css, /:is\(\.property-phone-action,\.property-whatsapp-action\) \{[^}]*height:auto; min-height:44px; align-self:stretch;/);
   assert.match(css, /\.property-phone-action--revealed > span \{ white-space:nowrap/);
+  assert.match(css, /\.property-phone-action--revealed svg \{ display:none;/);
 });

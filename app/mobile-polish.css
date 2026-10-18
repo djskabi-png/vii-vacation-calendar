@@ -50,6 +50,7 @@
   .site-page .property-title__actions--contact :is(.property-phone-action,.property-whatsapp-action) > span { min-width:0; white-space:normal; overflow-wrap:anywhere; text-align:center; }
   .site-page .property-title__actions--contact .property-whatsapp-action svg { flex:0 0 18px; }
   .site-page .property-title__actions--contact .property-phone-action--revealed > span { white-space:nowrap; overflow-wrap:normal; }
+  .site-page .property-title__actions--contact .property-phone-action--revealed svg { display:none; }
   .site-page .review-experience__published { grid-template-columns:none; grid-auto-columns:100%; padding-inline:0; scroll-padding-inline:0; align-items:start; }
   .site-page .review-experience__head > div { min-width:0; }
   .site-page .review-experience__head h2 { font-size:1.4rem; line-height:1.35; white-space:normal; overflow-wrap:anywhere; }
