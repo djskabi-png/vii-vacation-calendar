@@ -8,6 +8,7 @@ import { homeDealPeriods, type HomeDeal, type HomeDealPeriod } from "../lib/vii-
 import type { HomeHoliday } from "../lib/vii-home-holidays";
 import type { Property } from "../data/site-data";
 import { useSiteLanguage } from "../i18n/locale-provider";
+import { localizedPath } from "../i18n/locale-routing";
 import type { HomePeriodTab } from "../lib/home-display-settings";
 import { HomeSliderControls } from "./home-slider-controls";
 import { PropertyCard, type ResolvedAvailability } from "./property-card";
@@ -170,7 +171,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
 
   return <section className={`section home-recommended home-live-deals ${sectionId}`} aria-labelledby={`${sectionId}-title`}>
     <div className="shell">
-      <div className="section-head"><div><h2 id={`${sectionId}-title`}>{title}</h2></div><div><Link href={searchHref} prefetch={false} className="home-live-deals__all-link">{allLabel}</Link><HomeSliderControls railId={`${sectionId}-rail`} label={title} itemSelector=".home-live-deals__item" disabled={displayState !== "ready" || !displayedDealCount} /></div></div>
+      <div className="section-head"><div><h2 id={`${sectionId}-title`}>{title}</h2></div><div><Link href={localizedPath(searchHref, language)} prefetch={false} className="home-live-deals__all-link">{allLabel}</Link><HomeSliderControls railId={`${sectionId}-rail`} label={title} itemSelector=".home-live-deals__item" disabled={displayState !== "ready" || !displayedDealCount} /></div></div>
       <div className={`home-live-deals__tabs${mode === "near" ? " home-live-deals__tabs--near" : ""}`} role="tablist" aria-label={title}>
         {mode === "near" ? periodTabs.map((item, index) => <button key={item.id} type="button" role="tab" aria-controls={`${sectionId}-results`} aria-selected={period === item.id} tabIndex={period === item.id ? 0 : -1} onClick={() => choose(item.id)} onKeyDown={(event) => {
           const next = event.key === "Home" ? 0 : event.key === "End" ? periodTabs.length - 1 : event.key === "ArrowRight" ? (index + (language === "he" ? -1 : 1) + periodTabs.length) % periodTabs.length : event.key === "ArrowLeft" ? (index + (language === "he" ? 1 : -1) + periodTabs.length) % periodTabs.length : -1;

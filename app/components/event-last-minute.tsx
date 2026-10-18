@@ -10,6 +10,7 @@ import { dailyRotationCompare } from "../lib/daily-rotation";
 import { PlacePreviewCard } from "./place-preview-card";
 import { ModernSelect } from "./modern-select";
 import { useSiteLanguage } from "../i18n/locale-provider";
+import { localizedPath } from "../i18n/locale-routing";
 import { eventSlotCopy } from "../i18n/event-slot-copy";
 import type { EventSlot } from "../lib/vii-live-search";
 import { eventDealDate, eventDealPresets } from "../lib/event-deal-dates";
@@ -64,7 +65,7 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
   const busy = search.status === "loading" || !initialized;
 
   return <section className="section shell event-discovery-section event-deals" aria-labelledby={`${sectionId}-title`}>
-    <div className="section-head"><h2 id={`${sectionId}-title`}>{title}</h2><Link href={`${searchPath}?${params}`}>{text.all}</Link></div>
+    <div className="section-head"><h2 id={`${sectionId}-title`}>{title}</h2><Link href={localizedPath(`${searchPath}?${params}`, language)}>{text.all}</Link></div>
     <div className="event-last-minute-controls">
       <div className="event-last-minute-tabs" role="group" aria-label={text.title}>{presets.map((preset, index) => <button type="button" key={preset.id} className={selectedPreset === preset.id ? "active" : ""} aria-pressed={selectedPreset === preset.id} onClick={() => { setDate(preset.date); setSelectedPreset(preset.id); }}>{text.tabs[index]}</button>)}</div>
       <label>{text.date}<input type="date" value={date || ""} min={clock ? firstDealDate(clock.now) : eventDealDate(1)} max={eventDealDate(62)} onChange={(event) => { setDate(event.target.value || null); setSelectedPreset(null); }} /></label>
