@@ -1,0 +1,11 @@
+{
+ "name":"vii-staging-site-bridge",
+ "account_id":"45b2f6dcf2cfe44204d2c470cbe682d9",
+ "main":"index.mjs",
+ "compatibility_date":"2026-10-18",
+ "compatibility_flags":["nodejs_compat"],
+ "workers_dev":false,
+ "preview_urls":false,
+ "vars":{"VII_ENVIRONMENT":"staging"},
+ "observability":{"enabled":false}
+}
