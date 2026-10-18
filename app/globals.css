@@ -3339,11 +3339,9 @@ h3 { font-size: 1.18rem; }
 .feature-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .feature-chips span { padding: 4px 9px; border-radius: 40px; background: var(--mist); color: var(--ink-soft); font-size: .75rem; }
 .stay-card__highlights-shell { min-width: 0; }
-.stay-card__highlights { position: relative; z-index: 4; min-width: 0; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scroll-behavior: smooth; scroll-snap-type: inline proximity; overscroll-behavior-inline: contain; scrollbar-width: thin; scrollbar-color: #b9d6da transparent; }
+.stay-card__highlights { position: relative; z-index: 4; min-width: 0; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scroll-behavior: smooth; scroll-snap-type: inline proximity; overscroll-behavior-inline: contain; scrollbar-width: none; }
 .stay-card__highlights:focus-visible { outline: 2px solid #087b89; outline-offset: -2px; border-radius: 8px; }
-.stay-card .stay-card__highlights::-webkit-scrollbar { display: block; height: 4px; }
-.stay-card__highlights::-webkit-scrollbar-thumb { background: #b9d6da; border-radius: 8px; }
-.stay-card__highlights::-webkit-scrollbar-button { display: none; }
+.stay-card .stay-card__highlights::-webkit-scrollbar { display: none; }
 .stay-card__highlights span { flex: 0 0 auto; max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; scroll-snap-align: start; }
 .stay-card__date-status { margin-top: 14px; padding: 11px 12px; display: grid; gap: 9px; border: 1px solid rgba(8,126,139,.16); border-radius: 13px; background: #f4fafb; color: var(--ink); font-family: var(--font-sans); font-size: .78rem; }
 .stay-card__date-status-row { min-width: 0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; }

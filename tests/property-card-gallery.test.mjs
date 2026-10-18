@@ -42,5 +42,7 @@ test("feature rows scroll naturally without arrows and stay above the card link"
   assert.match(card, /className="feature-chips stay-card__highlights" role="region" tabIndex=\{0\} aria-label=\{interfaceCopy.highlights\} data-horizontal-rail/);
   assert.match(css, /\.stay-card__highlights \{[^}]*position: relative;[^}]*z-index: 4;[^}]*overflow-x: auto;/);
   assert.match(css, /\.stay-card__highlights:focus-visible/);
+  assert.match(css, /\.stay-card__highlights \{[^}]*scrollbar-width: none;/);
+  assert.match(css, /\.stay-card \.stay-card__highlights::-webkit-scrollbar \{ display: none; \}/);
   assert.doesNotMatch(css, /\.stay-card__highlight-controls/);
 });
