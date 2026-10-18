@@ -71,7 +71,7 @@ export default async function TrailPage({ params }: { params: Promise<{ slug: st
 
       <div className="section shell"><GuestReviewStudio placeName={trail.name} subjectId={trail.slug} subjectType="trail" /></div>
 
-      <section className="section section-tint"><div className="shell"><div className="section-head"><div><span className="eyebrow">עוד רעיונות באזור ובאותו סגנון</span><h2>ממשיכים לטייל</h2></div><Link href="/trails">לכל המסלולים</Link></div><HomeMobileRail id="trail-detail-related" label="ממשיכים לטייל" className="trail-grid trail-grid--related">{related.map((item) => <TrailCard key={item.slug} trail={item} compact />)}</HomeMobileRail></div></section>
+      <section className="section section-tint"><div className="shell"><div className="section-head"><div><span className="eyebrow">עוד רעיונות באזור ובאותו סגנון</span><h2>ממשיכים לטייל</h2></div><Link href="/trails">לכל המסלולים</Link></div><HomeMobileRail shufflePlaces id="trail-detail-related" label="ממשיכים לטייל" className="trail-grid trail-grid--related">{related.map((item) => <TrailCard key={item.slug} trail={item} compact />)}</HomeMobileRail></div></section>
       <SearchAfterResults world="trails" discoveryOnly location={trail.mainArea} inventory={publishedTrails.map(entry => ({ location: entry.region, area: entry.mainArea, nature: entry.nature, difficulty: entry.difficulty }))} />
     </main>
   </PageShell>;

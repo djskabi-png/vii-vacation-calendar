@@ -1,0 +1,118 @@
+/* Place/deal rails use content-sized cards, not inherited percentage heights.
+   Search grids, full galleries, review chronology and detail-page units stay intact. */
+[data-horizontal-rail] > :is(.home-slider__item, .home-live-deals__item) { display: flex; }
+[data-horizontal-rail] > :is(.home-slider__item, .home-live-deals__item) > article { flex: 1; }
+[data-horizontal-rail] :is(.stay-card, .discovery-card, .trail-card, .event-result-card) {
+  height: auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+}
+[data-horizontal-rail] :is(.stay-card__body, .discovery-card__body, .trail-card__body, .event-result-card__body) {
+  min-height: 0;
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+}
+[data-horizontal-rail] .stay-card .stay-card__media {
+  aspect-ratio: 1.85;
+  min-height: 0;
+  flex: 0 0 auto;
+}
+[data-horizontal-rail] :is(.stay-card, .discovery-card, .trail-card, .event-result-card) :is(h3, .event-result-card__title) {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.4;
+  min-block-size: 2.8em;
+  max-block-size: 2.8em;
+}
+[data-horizontal-rail] .stay-card .stay-card__title p { margin: 3px 0 0; font-size: .76rem; line-height: 1.4; }
+[data-horizontal-rail] .stay-card .stay-card__meta { margin: 0; font-size: .76rem; line-height: 1.4; }
+[data-horizontal-rail] .stay-card .stay-card__highlights { padding: 0; margin: 0; }
+[data-horizontal-rail] .stay-card .stay-card__highlights span { padding: 4px 8px; font-size: .68rem; }
+[data-horizontal-rail] .stay-card .stay-card__date-status { margin: 0; padding: 8px 10px; gap: 4px; font-size: .72rem; }
+[data-horizontal-rail] .stay-card .stay-card__date-status-row { gap: 4px 8px; }
+[data-horizontal-rail] .stay-card .stay-card__selected-dates > small { font-size: .65rem; }
+[data-horizontal-rail] .stay-card .stay-card__selected-dates > span { font-size: .76rem; }
+[data-horizontal-rail] .stay-card .stay-card__availability { font-size: .7rem; }
+[data-horizontal-rail] .stay-card .stay-card__footer { margin-top: auto; padding-top: 8px; gap: 8px; }
+[data-horizontal-rail] .stay-card .stay-card__price--selected { max-width: 100%; gap: 3px 6px; }
+[data-horizontal-rail] .stay-card .stay-card__price b { font-size: 1rem; }
+[data-horizontal-rail] .stay-card .stay-card__price small { font-size: .72rem; }
+[data-horizontal-rail] .stay-card .stay-card__price--selected em { flex-basis: auto; font-size: .68rem; }
+[data-horizontal-rail] .stay-card .stay-card__price--selected em::before { content: "· "; }
+[data-horizontal-rail] .stay-card .stay-card__actions { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+[data-horizontal-rail] .stay-card .stay-card__actions:empty { display: none; }
+[data-horizontal-rail] .stay-card :is(.stay-card__contact, .stay-card__details-link) { min-height: 44px; padding: 8px; font-size: .72rem; }
+
+/* Real photography retains a useful composition; logos keep their contain fit. */
+[data-horizontal-rail] .discovery-card .discovery-card__visual {
+  flex: 0 0 auto;
+  aspect-ratio: 1.85;
+  height: auto;
+  min-height: 0;
+}
+[data-horizontal-rail] .discovery-card .discovery-card__visual img { height: 100%; }
+[data-horizontal-rail] .discovery-card .discovery-card__visual--contain { padding: 14px; }
+[data-horizontal-rail] .discovery-card .discovery-card__body > p {
+  margin: 0;
+  min-block-size: 2.8em;
+  max-block-size: 2.8em;
+  min-height: 0;
+  line-height: 1.4;
+  font-size: .8rem;
+  -webkit-line-clamp: 2;
+}
+[data-horizontal-rail] .discovery-card .discovery-card__chips { min-block-size: 0; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; }
+[data-horizontal-rail] .discovery-card .discovery-card__chips span { flex: 0 0 auto; white-space: nowrap; font-size: .68rem; padding: 4px 7px; }
+[data-horizontal-rail] .discovery-card .discovery-card__chips:focus-visible { outline: 2px solid #087b89; outline-offset: 2px; }
+[data-horizontal-rail] .discovery-card footer { margin-top: auto; padding-top: 8px; gap: 8px; flex-wrap: wrap; }
+[data-horizontal-rail] .discovery-card footer strong { font-size: .85rem; }
+[data-horizontal-rail] .discovery-card__details { min-height: 44px; display: inline-flex; align-items: center; }
+
+[data-horizontal-rail] .trail-card .trail-visual { min-height: 0; height: auto; aspect-ratio: 1.85; }
+[data-horizontal-rail] .trail-card .trail-card__labels { min-height: 0; gap: 5px; }
+[data-horizontal-rail] .trail-card .trail-card__labels span { padding: 4px 7px; font-size: .68rem; }
+[data-horizontal-rail] .trail-card p { min-height: 0; margin: 0; font-size: .8rem; line-height: 1.4; -webkit-line-clamp: 2; }
+[data-horizontal-rail] .trail-card dl { height: auto; min-height: 0; margin: 0; gap: 8px; }
+[data-horizontal-rail] .trail-card dl div { height: auto; min-height: 0; padding: 8px; }
+[data-horizontal-rail] .trail-card dd { min-height: 0; }
+[data-horizontal-rail] .trail-card .trail-card__footer { min-height: 44px; margin-top: auto; padding-top: 8px; }
+[data-horizontal-rail] .trail-card .trail-card__footer a { min-height: 44px; display: inline-flex; align-items: center; font-size: .8rem; }
+
+[data-horizontal-rail].event-rail .event-rail-card { grid-template-rows: auto 1fr; }
+[data-horizontal-rail] .event-rail-card > .place-preview-card__media { height: auto; aspect-ratio: 1.85; }
+[data-horizontal-rail] .event-rail-card .event-rail-card__body { gap: 6px; padding: 14px; }
+[data-horizontal-rail] .event-rail-card .event-rail-card__body > strong { font-size: 1rem; line-height: 1.4; }
+[data-horizontal-rail] .event-rail-card .event-deals__availability { min-height: 0; }
+[data-horizontal-rail] .event-rail-card .button { min-height: 44px; padding-block: 8px; }
+[data-horizontal-rail] .event-result-card .event-result-card__offer { min-block-size: 0; }
+[data-horizontal-rail] .event-result-card .event-card__actions { margin-top: auto; min-block-size: 0; }
+[data-horizontal-rail] .event-result-card :is(.stay-card__details-link, .stay-card__contact) { min-height: 44px; }
+[data-horizontal-rail] :is(.event-card, .event-related-card) > .place-preview-card__media { height: auto; aspect-ratio: 1.85; }
+[data-horizontal-rail] .event-card .event-card__body { padding: 14px; }
+[data-horizontal-rail] .event-card .event-card__body h3 { margin-block: 6px; font-size: 1rem; line-height: 1.4; }
+[data-horizontal-rail] .event-card .event-card__body p { margin-block: 6px; font-size: .78rem; }
+
+[data-horizontal-rail].event-rail .spa-deal-card .spa-deal-card__image { aspect-ratio: 1.85; }
+[data-horizontal-rail].event-rail .spa-deal-card .spa-deal-card__body { gap: 8px; padding: 14px; }
+[data-horizontal-rail].event-rail .spa-deal-card .spa-deal-card__body > small { min-height: 2.8em; }
+[data-horizontal-rail].event-rail .spa-deal-card h3 { font-size: 1rem; min-height: 2.8em; max-height: 2.8em; line-height: 1.4; -webkit-line-clamp: 2; }
+[data-horizontal-rail].event-rail .spa-deal-card .spa-deal-card__bottom { padding-top: 8px; gap: 8px; }
+[data-horizontal-rail].event-rail .spa-deal-card .spa-deal-card__bottom strong small { display: inline; }
+
+@media (max-width: 760px) {
+  /* Equal content-sized cards rather than a percentage-height box with a void. */
+  [data-horizontal-rail] :is(.home-slider__item, .home-live-deals__item) > :is(.stay-card, .discovery-card) { height: auto; }
+  .home-page [data-horizontal-rail] .discovery-card .discovery-card__body { padding: 14px; }
+  .home-page [data-horizontal-rail] .discovery-card .discovery-card__visual { flex-basis: auto; height: auto; min-height: 0; }
+  .home-page [data-horizontal-rail] .discovery-card .discovery-card__visual img { height: 100%; }
+  .home-page [data-horizontal-rail] :is(.home-event-feature, .home-event-list__card) > .place-preview-card__media { flex-basis: auto; height: auto; aspect-ratio: 1.85; }
+  .home-page [data-horizontal-rail] .home-event-feature > .place-preview-card__body { padding: 14px; }
+  .home-page [data-horizontal-rail] .home-event-feature h3 { font-size: 1.1rem; }
+  .home-page [data-horizontal-rail] .home-event-feature p { -webkit-line-clamp: 2; margin-block: 6px; }
+}

@@ -20,7 +20,7 @@ test('review preview removes only observed import metadata before Hebrew, not gu
 test('mobile-only rails preserve all world, magazine and trail items with shared boundary controls',()=>{
  const home=read('app/components/home-showcase.tsx'),page=read('app/page.tsx'),rail=read('app/components/home-mobile-rail.tsx'),css=read('app/home-mobile.css');
  for(const id of ['home-worlds-rail','home-trails-rail'])assert.ok(home.includes(id));
- assert.match(page,/HomeMobileRail id="home-magazine-rail"/);assert.match(rail,/HomeSliderControls/);assert.match(rail,/\{children\}/);
+ assert.match(page,/HomeMobileRail id="home-magazine-rail"/);assert.match(rail,/HomeSliderControls/);assert.match(rail,/shufflePlaces = false/);assert.match(rail,/shufflePlaces \? orderPlaceRailChildren\(children,.*\) : children/);assert.match(rail,/\{rendered\}/);
  assert.match(css,/\.home-mobile-rail-controls \{ display:none; \}/);assert.match(css,/@media \(max-width:760px\)/);
  assert.match(css,/\.home-page \.home-mobile-rail > \* \{[^}]*flex:0 0 100%/);
  assert.match(css,/\.home-page :is\(\.spa-deal-card,\.event-deals__card\) \{ flex-basis:100%;/);

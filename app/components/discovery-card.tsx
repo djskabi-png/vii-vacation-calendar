@@ -105,7 +105,7 @@ export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { ite
       <span className="discovery-card__meta"><PinIcon />{location}<small>{area}</small></span>
       <h3><Link href={`/discover/place/${item.id}`} target="_blank" rel="noopener noreferrer">{localizedName}<span className="sr-only"></span></Link></h3>
       <p>{description}</p>
-      <div className="discovery-card__chips">{features.map((feature) => <span key={feature}>{feature}</span>)}</div>
+      <div className="discovery-card__chips" role="region" tabIndex={0} aria-label={{he:"מאפיינים מרכזיים",en:"Key features",ru:"Основные удобства",fr:"Caractéristiques principales"}[language]}>{features.map((feature) => <span key={feature}>{feature}</span>)}</div>
       <footer className={item.world === "hourly" ? "discovery-card__hourly-footer" : undefined}>
         <strong>{price}</strong>
         <div className="discovery-card__footer-actions">

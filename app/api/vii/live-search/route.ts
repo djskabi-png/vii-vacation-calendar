@@ -53,8 +53,8 @@ export async function POST(request: Request) {
     const result = cached?.value ?? await load();
     if (world === "events" && body.includePlaces === true) {
       const liveOffers = result.results.filter(offer => publicIds.has(offer.siteID) && offer.available === true && offer.total && offer.slot).sort((a, b) => a.total! - b.total!);
-      const selected = region ? selectRegionalOffers(liveOffers, regionPlaces.filter(place => publicIds.has(place.supplierId) && place.image), region.label, { placeId: offer => offer.siteID, key: offer => String(offer.siteID), limit: 12 }) : null;
-      const offers = selected?.offers ?? liveOffers.slice(0, 12);
+      const selected = region ? selectRegionalOffers(liveOffers, regionPlaces.filter(place => publicIds.has(place.supplierId) && place.image), region.label, { placeId: offer => offer.siteID, key: offer => String(offer.siteID), limit: 20 }) : null;
+      const offers = selected?.offers ?? liveOffers.slice(0, 20);
       const ids = offers.map(offer => offer.siteID);
       const places = await publicCatalogSelectedSummaries<EventDealPlace>("events", ids);
       // Join only the matching offers. The homepage's five editorial picks must

@@ -93,8 +93,8 @@ test('all four visitor locales disclose geography only, without technical explan
   for(const p of ['home-live-deals','event-last-minute','spa-package-deals'])assert.match(read(p),/regionalExpansionCopy\[language\]/);
   assert.match(read('spa-package-deals'),/expandedRegions\?\.\[date\]\?\.\[audience\]/);
   assert.match(read('event-last-minute'),/!search.expandedRegion && !matchesSearchLocation/);
-  assert.match(read('home-live-deals'),/const orderedDeals = prioritizeOnlineFirst/);
-  assert.match(read('home-live-deals'),/orderedDeals.filter\(deal => eligibleDealDate\(deal.from, clock.now\)\)/);
+  assert.match(read('home-live-deals'),/orderDiscoveryRail/);
+  assert.match(read('home-live-deals'),/eligibleDeals = clock/);
 });
 test('regional rails span the whole results grid on desktop rather than one property cell',()=>{
   const css=readFileSync(new URL('../app/globals.css',import.meta.url),'utf8');

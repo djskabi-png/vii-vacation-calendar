@@ -16,7 +16,7 @@ import { PinIcon } from "../site-header";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { HomeLiveDeals } from "./home-live-deals";
 import { EventLastMinute } from "./event-last-minute";
-import { rotateDaily, rotateWithinTiers } from "../lib/daily-rotation";
+import { rotateDaily } from "../lib/daily-rotation";
 import { HomeManagedDiscovery } from "./home-discovery-sections";
 import { HomeSliderControls } from "./home-slider-controls";
 import { PlacePreviewCard } from "./place-preview-card";
@@ -24,6 +24,8 @@ import { SpaPackageDeals } from "./spa-package-deals";
 import { HomeMobileRail } from "./home-mobile-rail";
 import { homeEventPhotography, homeReviewExcerpt } from "../lib/home-preview-content";
 import { worldTopicMedia, worldTopicImageCopy } from "../lib/world-topic-media";
+import { orderDiscoveryRail } from "../lib/discovery-slider-order";
+import { useDocumentSeed } from "./use-document-seed";
 
 // These sliders fetch their own availability. They must not wait for the
 // unrelated four-world catalog or below-the-fold review queries.
@@ -83,12 +85,15 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, ratedPlace
   attractionPreview: DiscoveryItem;
 }) {
   const router = useRouter();
+  const documentSeed = useDocumentSeed();
   const { language } = useSiteLanguage();
   const destinationLoading = destinationLoadingCopy[language];
   const [pendingDestination, setPendingDestination] = useState<string | null>(null);
   const worldCards = publicWorldNavigation.filter((world) => !["vacation", "events", "spa", "hourly"].includes(world.id));
-  const featuredTours = rotateDaily(properties.flatMap((property) => (property.videos || []).map((video) => ({ property, video }))),
-    ({ property, video }) => `${property.slug}:${video.src}`, "home-tours").slice(0, 7);
+  const featuredTours = orderDiscoveryRail(properties.flatMap((property) => (property.videos || []).map((video) => ({ property, video }))),
+    { id: ({ property, video }) => `${property.slug}:${video.src}`, seed: `${documentSeed}:home-tours`, limit: 7 });
+  const featuredRatings = orderDiscoveryRail(ratedPlaces, { id: item => item.place.slug, seed: `${documentSeed}:home-ratings`,
+    compare: (a, b) => (b.place.score || 0) - (a.place.score || 0) });
   const destinationImages = rotateDaily(properties.filter((property) => property.image), (property) => property.slug, "home-destination-images");
   const usedDestinationImages = new Set<string>();
   const destinationPlaces = vacationDestinations.map((_destination, index) => {
@@ -97,9 +102,9 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, ratedPlace
     if (place) usedDestinationImages.add(place.image);
     return place;
   });
-  const featuredHourly = rotateWithinTiers(hourlyPlaces, (item) => item.image && item.priceLabel ? 0 : 1,
-    (item) => item.id, "home-hourly");
-  const featuredEvents = rotateDaily(eventPlaces.filter((place) => place.image).map(homeEventPhotography), (place) => place.slug, "home-events");
+  const featuredHourly = orderDiscoveryRail(hourlyPlaces, { id: item => item.id, seed: `${documentSeed}:home-hourly`,
+    compare: (a, b) => Number(!(a.image && a.priceLabel)) - Number(!(b.image && b.priceLabel)) });
+  const featuredEvents = orderDiscoveryRail(eventPlaces.filter((place) => place.image).map(homeEventPhotography), { id: place => place.slug, seed: `${documentSeed}:home-events` });
 
   function warmDestination(href: string) {
     router.prefetch(href);
@@ -167,7 +172,7 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, ratedPlace
         {ratedPlaces.length ? <div className="home-trust-strip">
           <div className="home-vacation-strip__head"><div><span>דירוגי מקומות</span><h2 id="home-ratings-title">חוות דעת מובילות</h2></div><HomeSliderControls railId="home-ratings-rail" label="חוות דעת מובילות" itemSelector=".home-slider__item" /></div>
           <div id="home-ratings-rail" className="home-slider__track home-slider__track--trust home-slider__track--ratings" data-horizontal-rail aria-labelledby="home-ratings-title">
-            {ratedPlaces.map(({ place, reviewText, reviewAuthor, reviewDate }) => <article className="home-rating-card home-slider__item" key={place.slug}>
+            {featuredRatings.map(({ place, reviewText, reviewAuthor, reviewDate }) => <article className="home-rating-card home-slider__item" key={place.slug}>
               <div className="home-rating-card__top"><Link className="home-rating-card__gallery" href={`/business?id=${place.slug}`} target="_blank" rel="noopener noreferrer"><img src={place.image} alt={place.name} title={place.name} loading="lazy" decoding="async" /></Link><div><span>{place.location}</span><h3><Link href={`/business?id=${place.slug}`}>{place.name}</Link></h3><strong aria-label={`ציון ${place.score} מתוך 10, ${place.reviews} חוות דעת`}><b>{place.score}</b><small>{place.reviews} חוות דעת</small></strong></div></div><p lang="he" dir="rtl">{homeReviewExcerpt(reviewText)}</p><small className="home-rating-card__byline">{reviewAuthor}{reviewDate ? ` · ${reviewDate}` : ""}</small><Link className="home-rating-card__cta" href={`/business?id=${place.slug}`}>לפרטי המקום</Link>
             </article>)}
           </div>
@@ -207,9 +212,10 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, ratedPlace
 }
 
 export function HomeTrails() {
+  const documentSeed = useDocumentSeed();
   return <section className="section home-trails" aria-labelledby="home-trails-title">
     <div className="shell"><div className="section-head"><div><span className="eyebrow">יוצאים מהצימר אל הטבע</span><h2 id="home-trails-title">מסלולים ליד החופשה</h2><p>מדריכי טיול עצמאיים עם זמן, קושי, עונה, בטיחות ומקור רשמי לבדיקה ביום היציאה.</p></div><Link href="/trails">לכל המסלולים</Link></div>
-      <HomeMobileRail id="home-trails-rail" label="מסלולים ליד החופשה" className="trail-grid trail-grid--home">{rotateDaily(trails, (trail) => trail.slug, "home-trails").slice(0, 4).map((trail) => <TrailCard key={trail.slug} trail={trail} compact />)}</HomeMobileRail>
+      <HomeMobileRail id="home-trails-rail" label="מסלולים ליד החופשה" className="trail-grid trail-grid--home">{orderDiscoveryRail(trails, { id: trail => trail.slug, seed: `${documentSeed}:home-trails`, limit: 20 }).map((trail) => <TrailCard key={trail.slug} trail={trail} compact />)}</HomeMobileRail>
     </div>
   </section>;
 }

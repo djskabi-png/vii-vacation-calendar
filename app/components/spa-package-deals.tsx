@@ -20,11 +20,14 @@ import { spaSearchHref, spaSearchStateFromValues } from "../data/spa-search-land
 import { regionalExpansionCopy } from "../i18n/regional-availability-copy";
 import { discoveryJson } from "../lib/discovery-client-cache.ts";
 import { discoveryCacheCopy } from "../i18n/discovery-cache-copy.ts";
+import { orderDiscoveryRail } from "../lib/discovery-slider-order";
+import { useDocumentSeed } from "./use-document-seed";
 type DealResponse = { cache?:{status:string}; region?:string; expandedRegions?:Record<string,Partial<Record<SpaDealAudience,boolean>>>; checkedAt:string; days:string[]; offers:Record<string,Record<SpaDealAudience,SpaPackageDeal[]>> };
 const audiences:SpaDealAudience[] = ["single","couple","group"];
 export function SpaPackageDeals({sectionId="spa-package-deals",region}:{sectionId?:string;region?:string}) {
  const {language,translate} = useSiteLanguage();
  const clock = useDealClock();
+ const documentSeed = useDocumentSeed();
  const text = spaDealCopy[language];
  const params = useSearchParams(); const pathname = usePathname(); const router = useRouter();
  const scope = regionalAvailabilityRegion(region ?? (/^\/(?:en\/|fr\/|ru\/)?spas(?:\/|$)/.test(pathname) ? params.get("location") : null));
@@ -63,7 +66,7 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region}:{sectionI
   const query=new URLSearchParams(params.toString());query.set("spaDealDate",nextDate);query.set("spaDealFor",nextAudience);
   router.replace(`${pathname}?${query.toString()}#${sectionId}`,{scroll:false});
  }
- const offers=status==="ready" ? data?.offers[date]?.[audience] || [] : [];
+ const offers=status==="ready" ? orderDiscoveryRail(data?.offers[date]?.[audience] || [], { id: offer => `${offer.siteId}:${offer.packageId}`, seed: `${documentSeed}:spa:${date}:${audience}`, priority: offer => offer.price }) : [];
  const expandedRegion=!!scope && status==="ready" && data?.expandedRegions?.[date]?.[audience]===true;
  const linkDate=date || (clock && validSpaDealDate(selection.date)?normalizeDealDate(selection.date,clock.now):"");
  const allHref=scope ? `${spaSearchHref(spaSearchStateFromValues(scope.label,audience))}${linkDate?`?${new URLSearchParams({date:linkDate})}`:""}` : "/spas";
