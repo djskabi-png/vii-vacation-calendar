@@ -38,9 +38,6 @@ export type Listing = {
   guestPhotos?: ListingGuestPhoto[];
   legacySource?: { sourceUrl: string; checkedAt: string };
   price?: number;
-  /** Supplier advertising floor only; never a dated quote or availability evidence. */
-  startPriceWinter?: number;
-  startPriceSummer?: number;
   /** Managed editorial priority projected from published content for vacation search. */
   curatedRank?: number;
   dateQuotes?: ListingDateQuote[];

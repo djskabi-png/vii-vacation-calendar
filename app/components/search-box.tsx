@@ -17,11 +17,13 @@ import { languageFromPathname, localizedPath, type SiteLanguage } from "../i18n/
 import { cleanVacationPath } from "../data/vacation-landings";
 import { cleanAccommodationPath } from "../data/accommodation-landings";
 import { spaSearchHref, spaSearchStateFromValues } from "../data/spa-search-landings";
-import { canonicalSearchLocation, uniqueSearchLocations, locationMatchesQuery } from "../lib/geographic-names.ts";
+import { canonicalSearchLocation, uniqueSearchLocations } from "../lib/geographic-names.ts";
 import { eventSearchHref, hourlySearchHref } from "../data/world-search-landings";
 import { trackSearchSubmitted } from "../lib/analytics";
 import type { PlaceSearchResult } from "../data/search-place-inventory";
 import { useManagedGeography } from "./use-managed-geography";
+import { destinationInventory, matchingDestinations, destinationChildren, destinationPage, recentDestinations, QUICK_DESTINATIONS, DESTINATION_PAGE_SIZE } from "../lib/destination-picker";
+import { destinationPickerCopy } from "../i18n/destination-picker-copy";
 
 type SpaAudience = "single" | "couple" | "group" | "day-pass";
 
@@ -150,7 +152,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const [searchCommitted, setSearchCommitted] = useState(() => compact || Boolean(searchParamsKey) || Boolean(initialLocation) || Boolean(initialSpaAudience) || initialSpaFeatures.length > 0);
   const shouldCollapse = compact || searchCommitted;
   const destinationOptions = useMemo(() => searchLocationOptions(mode), [mode]);
-  const managedGeography = useManagedGeography(mode === "vacation" || mode === "events");
+  const managedGeography = useManagedGeography();
   const [placeInventoryResult, setPlaceInventoryResult] = useState<{ mode: SearchMode; places: PlaceSearchResult[] } | null>(null);
   const [placeInventoryError, setPlaceInventoryError] = useState(false);
   const [locationValue, setLocationValue] = useState(() => {
@@ -175,8 +177,16 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [locationOpen, setLocationOpen] = useState(false);
   const [locationQuery, setLocationQuery] = useState("");
+  const [browseKey, setBrowseKey] = useState<string | null | undefined>(undefined);
+  const [browsePage, setBrowsePage] = useState(0);
+  const [recentLocations, setRecentLocations] = useState<string[]>([]);
+  const pickerCopy = destinationPickerCopy[language];
+  useEffect(() => {
+    if (!locationOpen) { setBrowseKey(undefined); setBrowsePage(0); return; }
+    try { setRecentLocations(JSON.parse(localStorage.getItem("vii-recent-destinations") || "[]")); } catch { setRecentLocations([]); }
+  }, [locationOpen]);
   const hasLocationQuery = locationQuery.trim().length > 0;
-  const shouldLoadPlaceInventory = hasLocationQuery || (locationOpen && mode === "vacation");
+  const shouldLoadPlaceInventory = hasLocationQuery;
   const placeInventoryLoading = shouldLoadPlaceInventory && placeInventoryResult?.mode !== mode;
   const placeInventory = placeInventoryResult?.mode === mode ? placeInventoryResult.places : [];
   useEffect(() => {
@@ -481,6 +491,9 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
 
   function chooseLocation(place: string) {
     setLocationValue(canonicalSearchLocation(place));
+    const recent = recentDestinations([place, ...(Array.isArray(recentLocations) ? recentLocations : [])], destinations);
+    setRecentLocations(recent);
+    try { localStorage.setItem("vii-recent-destinations", JSON.stringify(recent)); } catch { /* Search still works when storage is unavailable. */ }
     setLocationOpen(false);
     setLocationQuery("");
     setLocationStatus("");
@@ -536,26 +549,15 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const mobileSummary = [locationValue, !isHourly ? dates : "", !isHourly ? peopleValue : ""].filter(Boolean).join(" · ");
   const mobileSheetTitle = "עריכת חיפוש";
   const normalizedLocationQuery = locationQuery.trim().toLocaleLowerCase();
-  const managedDestinations = managedGeography.map((node) => node.title);
-  const visibleDestinations = uniqueSearchLocations([...destinationOptions, ...managedDestinations])
-    .filter((place) => locationMatchesQuery(place, locationQuery) || translate(place).toLocaleLowerCase().includes(normalizedLocationQuery));
+  const destinations = useMemo(() => destinationInventory(managedGeography, uniqueSearchLocations([...destinationOptions, ...vacationLocationGroups.flatMap(group => [...group.options])])), [managedGeography, destinationOptions]);
+  const visibleDestinations = matchingDestinations(destinations, locationQuery, translate);
   const visibleNamedPlaces = normalizedLocationQuery
-    ? placeInventory.filter((place) => [place.name, place.location, place.area, translate(place.name), translate(place.location), translate(place.area)].some((value) => value.toLocaleLowerCase().includes(normalizedLocationQuery))).slice(0, 8)
+    ? placeInventory.filter((place) => [place.name, place.location, place.area, translate(place.name), translate(place.location), translate(place.area)].some((value) => value.toLocaleLowerCase().includes(normalizedLocationQuery))).slice(0, DESTINATION_PAGE_SIZE - visibleDestinations.length)
     : [];
-  const locationGroups = useMemo(() => {
-    if (mode !== "vacation") return vacationLocationGroups.map((group) => ({ ...group, options: [...group.options] }));
-    const unique = uniqueSearchLocations;
-    const primary = [...vacationLocationGroups[0].options];
-    const managedRegions = managedGeography.filter((node) => node.level !== "city").sort((a, b) => Number(b.featured) - Number(a.featured)).map((node) => node.title);
-    const managedCities = managedGeography.filter((node) => node.level === "city").sort((a, b) => Number(b.featured) - Number(a.featured)).map((node) => node.title);
-    const regions = unique([...vacationLocationGroups[1].options, ...managedRegions, ...placeInventory.map((place) => place.area)]).filter((value) => !primary.includes(value as typeof primary[number]));
-    const settlements = unique([...vacationLocationGroups[2].options, ...managedCities, ...placeInventory.map((place) => place.location)]).filter((value) => !primary.includes(value as typeof primary[number]) && !regions.includes(value));
-    return [
-      { id: "primary", title: "אזורים ראשיים", options: primary },
-      { id: "regions", title: "אזורים ותתי אזורים", options: regions },
-      { id: "settlements", title: "ערים ויישובים", options: settlements },
-    ];
-  }, [managedGeography, mode, placeInventory]);
+  const browseParent = destinations.find(item => item.key === browseKey);
+  const browseItems = destinationPage(destinationChildren(destinations, browseKey ?? null), browsePage);
+  const visibleRecent = recentDestinations(recentLocations, destinations);
+  const destinationKind = (level: string) => level === "city" ? pickerCopy.city : level === "country" ? pickerCopy.country : pickerCopy.region;
 
   const searchSurface = (
       <div ref={searchSurfaceRef} className={`search-box-shell ${shouldCollapse ? "search-box-shell--results" : ""} ${mobileExpanded ? "mobile-expanded" : "mobile-collapsed"}`} role={mobileExpanded ? "dialog" : undefined} aria-modal={mobileExpanded ? true : undefined} aria-label={mobileExpanded ? translate(mobileSheetTitle) : undefined} data-search-surface={mobileExpanded ? "portal" : "inline"}>
@@ -570,25 +572,35 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
         {mobileExpanded && showWorlds && <div className="search-mobile-worlds"><SearchWorldTabs active={activeWorld} location={locationValue} onNavigate={closeMobileSearch} /></div>}
         <div className={`search-field-wrap search-step search-step--location ${mobileStep === "location" ? "active" : ""}`}>
           <button type="button" className="search-field" aria-expanded={locationOpen} onClick={() => { setMobileStep("location"); expandMobileSearch(); setLocationOpen((value) => !value); setGuestOpen(false); setPriceOpen(false); }}><PinIcon /><span><small>{mode === "events" ? "אזור או מקום" : isHourly ? "עיר או אזור" : "לאן נוסעים"}</small><strong>{translate(locationValue)}</strong></span></button>
-          {locationOpen && <div className="search-popover location-list" role="dialog" aria-modal="true" aria-labelledby={`location-dialog-title-${mode}`}>
+          {locationOpen && <div className="search-popover location-list location-list--progressive" role="dialog" aria-modal="true" aria-labelledby={`location-dialog-title-${mode}`}>
             <header className="location-list__header">
               <div><h2 id={`location-dialog-title-${mode}`}>{translate("חיפוש יעד")}</h2><small>{translate("הקלידו עיר, אזור או שם מקום")}</small></div>
               <button type="button" className="location-list__close" onClick={closeLocationPicker} aria-label={translate("סגירת אפשרויות החיפוש")}>×</button>
             </header>
             {showWorlds && <div className="search-dialog-worlds search-desktop-worlds"><SearchWorldTabs active={activeWorld} location={locationValue} onNavigate={closeMobileSearch} /></div>}
             <div className="location-list__body">
-            <label className="location-list__search"><input aria-label={translate("חיפוש יעד")} value={locationQuery} onChange={(event) => setLocationQuery(event.target.value)} placeholder={translate("הקלידו עיר, אזור או שם מקום")} autoFocus /></label>
+            <div className="location-list__input-row"><label className="location-list__search"><input aria-label={translate("חיפוש יעד")} value={locationQuery} onChange={(event) => setLocationQuery(event.target.value)} placeholder={translate("הקלידו עיר, אזור או שם מקום")} autoFocus /></label>{locationQuery ? <button type="button" className="location-clear" aria-label={pickerCopy.clear} onClick={() => setLocationQuery("")}>×</button> : null}</div>
+            <div className="location-list__content">
             {locationQuery.trim() ? (
               <div className="location-search-results">
                 {placeInventoryLoading ? <p role="status">{translate("מחפשים מקומות...")}</p> : null}
                 {visibleDestinations.length > 0 ? <h3>{translate("אזורים ויישובים")}</h3> : null}
-                {visibleDestinations.map((place) => <button type="button" key={place} className={place === locationValue ? "selected" : ""} onClick={() => chooseLocation(place)}><PinIcon /><span>{translate(place)}</span></button>)}
+                {visibleDestinations.map((place) => <button type="button" key={place.key} className={place.value === locationValue ? "selected" : ""} onClick={() => chooseLocation(place.value)}><PinIcon /><span>{translate(place.value)}<small>{destinationKind(place.level)}</small></span></button>)}
                 {visibleNamedPlaces.length > 0 ? <h3>{translate("מקומות מתאימים")}</h3> : null}
                 {visibleNamedPlaces.map((place) => <Link key={`${mode}-${place.id}`} className="location-place-result" href={localizedPath(place.href, language)}><PinIcon /><span><strong>{translate(place.name)}</strong><small>{translate(place.kind)} · {translate(place.location)}</small></span></Link>)}
                 {placeInventoryError ? <p role="alert">{translate("לא ניתן לטעון את המקומות כרגע.")}</p> : null}
                 {!placeInventoryLoading && !placeInventoryError && visibleDestinations.length === 0 && visibleNamedPlaces.length === 0 ? <p>{translate("לא מצאנו יעד או מקום מתאים.")}</p> : null}
               </div>
-            ) : mode === "vacation" ? (
+            ) : browseKey !== undefined ? (
+              <div className="location-browser">
+                <button type="button" className="location-browser__back" onClick={() => { setBrowseKey(browseParent ? browseParent.parentKey : undefined); setBrowsePage(0); }}>{pickerCopy.back}</button>
+                <h3 aria-live="polite">{browseParent ? translate(browseParent.value) : pickerCopy.browse}</h3>
+                {browseParent ? <button type="button" className="location-browser__select" onClick={() => chooseLocation(browseParent.value)}>{pickerCopy.searchRegion(translate(browseParent.value))}</button> : null}
+                <div className="location-search-results">{browseItems.items.map(place => <button type="button" key={place.key} onClick={() => { if (destinationChildren(destinations, place.key).length) { setBrowseKey(place.key); setBrowsePage(0); } else chooseLocation(place.value); }}><PinIcon /><span>{translate(place.value)}<small>{destinationKind(place.level)}</small></span>{destinationChildren(destinations, place.key).length ? <span className="location-browser__refine">{pickerCopy.refine}</span> : null}</button>)}</div>
+                {!browseItems.items.length ? <p role="status">{pickerCopy.typeInstead}</p> : null}
+                {browseItems.pages > 1 ? <nav className="location-browser__pages" aria-label={pickerCopy.pages}><button type="button" disabled={browseItems.current === 0} onClick={() => setBrowsePage(browseItems.current - 1)}>{pickerCopy.previous}</button><span aria-live="polite">{browseItems.current + 1} / {browseItems.pages}</span><button type="button" disabled={browseItems.current + 1 >= browseItems.pages} onClick={() => setBrowsePage(browseItems.current + 1)}>{pickerCopy.next}</button></nav> : null}
+              </div>
+            ) : (
               <div className="location-discovery">
                 <button type="button" className="location-nearby" onClick={chooseNearbyLocation} disabled={locating}>
                   <span className="location-nearby__icon"><PinIcon /></span>
@@ -596,21 +608,12 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
                   <b aria-hidden="true">←</b>
                 </button>
                 {locationStatus ? <p className="location-status" role="status">{translate(locationStatus)}</p> : null}
-                {placeInventoryLoading ? <p role="status">{translate("טוענים את כל היעדים...")}</p> : null}
-                {locationGroups.map((group) => (
-                  <section className={`location-group location-group--${group.id}`} key={group.id}>
-                    <h3>{translate(group.title)}</h3>
-                    <div>
-                      {group.options.map((place) => <button type="button" key={place} className={place === locationValue ? "selected" : ""} aria-pressed={place === locationValue} onClick={() => chooseLocation(place)}><PinIcon /><span>{translate(place)}</span></button>)}
-                    </div>
-                  </section>
-                ))}
-              </div>
-            ) : (
-              <div className="location-search-results">
-                {visibleDestinations.map((place) => <button type="button" key={place} className={place === locationValue ? "selected" : ""} onClick={() => chooseLocation(place)}><PinIcon /><span>{translate(place)}</span></button>)}
+                {visibleRecent.length ? <section className="location-group"><h3>{pickerCopy.recent}</h3><div className="location-recent">{visibleRecent.map(place => <button type="button" key={place} onClick={() => chooseLocation(place)}><PinIcon /><span>{translate(place)}</span></button>)}</div></section> : null}
+                <section className="location-group location-group--primary"><h3>{pickerCopy.quick}</h3><div>{QUICK_DESTINATIONS.map(place => <button type="button" key={place} className={place === locationValue ? "selected" : ""} aria-pressed={place === locationValue} onClick={() => chooseLocation(place)}><PinIcon /><span>{translate(place)}</span></button>)}</div></section>
+                <button type="button" className="location-browse-trigger" onClick={() => { setBrowseKey(null); setBrowsePage(0); }}>{pickerCopy.browse}</button>
               </div>
             )}
+            </div>
             </div>
           </div>}
         </div>

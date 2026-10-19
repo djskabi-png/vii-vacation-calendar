@@ -44,6 +44,6 @@ test('spa UI and shared picker use the canonical boundary, preserve non-geograph
  assert.doesNotMatch(ui,/item\.area === location \|\| item\.location === location/);
  assert.match(ui,/selectedFilters\.every/);
  assert.match(ui,/availability\.sites\.has/);
- assert.match(read('app/components/search-box.tsx'),/uniqueSearchLocations\(\[\.\.\.destinationOptions, \.\.\.managedDestinations\]\)/);
- assert.match(read('app/components/search-box.tsx'),/locationMatchesQuery\(place, locationQuery\)/);
+ assert.match(read('app/components/search-box.tsx'),/destinationInventory\(managedGeography/);
+ assert.match(read('app/components/search-box.tsx'),/matchingDestinations\(destinations, locationQuery, translate\)/);
 });

@@ -7,7 +7,7 @@ const calendar = readFileSync(new URL("../app/calendar-demo.tsx", import.meta.ur
 const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
 
 test("destination editor uses the shared rounded dialog structure", () => {
-  assert.match(search, /className="search-popover location-list" role="dialog" aria-modal="true"/);
+  assert.match(search, /className="search-popover location-list location-list--progressive" role="dialog" aria-modal="true"/);
   assert.match(search, /className="location-list__header"/);
   assert.match(search, /className="location-list__close"[^>]*onClick=\{closeLocationPicker\}/);
   assert.match(search, /className="location-list__body"/);

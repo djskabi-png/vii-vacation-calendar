@@ -4,7 +4,6 @@ import { supplierDisplayDescription } from "../data/supplier-display-text.ts";
 import type { SupplierCatalogEntry } from "./supplier-catalog-store.ts";
 import { SupplierCatalogRedirectError } from "./supplier-catalog-diagnostics.ts";
 import { sergeyPlaceImages, sergeyRoomImages, sergeyRoomFeatureGroups } from "./sergey-gallery.ts";
-import { startingPriceFields } from "./supplier-starting-price.ts";
 
 type World = "vacations" | "events";
 const root = "https://bizonline.co.il/api/ai/vii";
@@ -121,7 +120,6 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
   const summary = {
     supplierId,
     world,
-    ...startingPriceFields(raw),
     sourceUrl: raw.page_url,
     slug,
     name,

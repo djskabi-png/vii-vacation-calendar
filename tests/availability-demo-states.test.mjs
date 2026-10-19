@@ -12,9 +12,7 @@ test("dated vacation results do not manufacture availability or a dated price", 
   assert.match(card, /Public search results must never manufacture availability or a price/);
   assert.match(card, /return false;/);
   assert.match(card, /if \(legacyAvailabilitySourceFor\(property\.slug\)\) return null;/);
-  assert.match(card, /undatedSearch = !selectedStay && !hasSearchDate\(searchParams\)/, "a date intent, including partial or flexible dates, must suppress static starting prices");
-  assert.match(card, /\(undatedSearch && property\.price\)/, "a static from-price must not be shown as the selected date price");
-  assert.match(card, /undatedSearch && !resolvedAvailability && !promotional \? supplierStartingPrice/, "supplier starting prices cannot replace live quotes or appear on promotional cards");
+  assert.match(card, /\(!selectedStay && property\.price\)/, "a static from-price must not be shown as the selected date price");
   assert.match(card, /בודקים זמינות ומחיר/);
   assert.match(card, /לא הצלחנו לאמת זמינות ומחיר כרגע/);
 });

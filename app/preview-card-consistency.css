@@ -73,10 +73,6 @@
 .place-preview-card--contact > .place-preview-card__body { flex: 1; min-width: 0; }
 .place-preview-card__contact { margin-top: auto; padding: 0 14px 14px; min-width: 0; width: 100%; }
 .place-preview-card__contact:not(:has(.preview-card-contact-row)) { display: none; }
-.catalog-starting-price { display: inline-flex; align-items: baseline; flex-wrap: wrap; gap: 5px; max-width: 100%; color: var(--ink); font: inherit; }
-.catalog-starting-price small { font-size: .78rem; }
-.catalog-starting-price bdi { font-size: .95rem; font-weight: 800; }
-.event-result-card__offer:has(.catalog-starting-price) { min-block-size: 28px; }
 .home-event-feature.place-preview-card--contact { justify-content: flex-end; align-items: stretch; }
 .home-event-feature.place-preview-card--contact > .place-preview-card__body { flex: 0 0 auto; padding-bottom: 16px; }
 .home-event-feature > .place-preview-card__contact { position: relative; z-index: 2; margin-top: 0; padding-inline: clamp(25px,4vw,45px); padding-bottom: 20px; }

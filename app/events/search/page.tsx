@@ -27,8 +27,6 @@ import { useSiteLanguage } from "../../i18n/locale-provider";
 import { dailyRotationCompare } from "../../lib/daily-rotation";
 import { SearchAfterResults, type ContextualSearchSuggestion } from "../../components/search-after-results";
 import { EventResultCard } from "../../components/event-result-card";
-import { useStartingPrices } from "../../lib/use-starting-prices";
-import { hasSearchDate, supplierStartingPrice } from "../../lib/supplier-starting-price";
 import { ResultsViewToggle, useResultsViewMode } from "../../components/results-view-toggle";
 import { matchesSearchLocation } from "../../data/search-taxonomy";
 import { useViiLiveSearch } from "../../components/use-vii-live-search";
@@ -118,8 +116,6 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
     ...eventPlaces.flatMap((place) => [place.area, place.location]),
   ].filter(Boolean)))], [eventPlaces, managedGeography]);
   const eventFrom = searchParams.get("from");
-  const undatedSearch = !hasSearchDate(searchParams);
-  const startingPrices = useStartingPrices("events", undatedSearch);
   const eventTo = searchParams.get("to") || eventFrom;
   const supplierSearch = useViiLiveSearch("events", guests > 0 ? eventFrom : null, guests > 0 ? eventTo : null, guests, undefined, undefined, slot);
   const supplierStatus = (slug: string) => {
@@ -257,7 +253,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
             {guests > 0 && eventPlaces.some((place) => place.capacityScope === "unit") ? <SupplierCapacityNotice /> : null}
             {resultSet.length > filtered.length ? <NearbySearchNotice dated={Boolean(eventFrom)} /> : null}
             <div className="results-toolbar"><div className="results-toolbar__actions"><ResultsViewToggle value={viewMode} onChange={setViewMode} />{resultSet.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתוצאות" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onPointerEnter={preloadListingMap} onFocus={preloadListingMap} onTouchStart={preloadListingMap} onClick={toggleResultsMap}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לתוצאות" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect className="results-toolbar__sort" compact label="מיון לפי" value={sort} onChange={(value) => changeFilter("sort", value)} options={sortOptions} /></div>
-            {mapOpen && <div className="event-map-pane"><DeferredListingMap listings={resultSet} mode="events" autoLoad onClose={closeResultsMap} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPlaceId} onActivePlaceChange={setActiveMapPlaceId} /></div>}{displayed.map((place) => <EventResultCard key={place.slug} place={place} href={detailHref(place)} supplierStatus={supplierStatus(place.slug)} startingPrice={undatedSearch ? supplierStartingPrice(startingPrices[place.slug] ?? place) : null} mapActive={activeMapPlaceId === place.slug} onActiveChange={(active) => { if (mapOpen) setActiveMapPlaceId(active ? place.slug : null); }} />)}
+            {mapOpen && <div className="event-map-pane"><DeferredListingMap listings={resultSet} mode="events" autoLoad onClose={closeResultsMap} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPlaceId} onActivePlaceChange={setActiveMapPlaceId} /></div>}{displayed.map((place) => <EventResultCard key={place.slug} place={place} href={detailHref(place)} supplierStatus={supplierStatus(place.slug)} mapActive={activeMapPlaceId === place.slug} onActiveChange={(active) => { if (mapOpen) setActiveMapPlaceId(active ? place.slug : null); }} />)}
             {!catalogLoading && !catalogError && displayed.length === 0 && <div className="empty-state"><h2>לא נמצאה התאמה או מקום קרוב</h2><p>אפשר להפחית את כמות המשתתפים או להסיר סינון.</p><button className="button primary" type="button" onClick={reset}>ניקוי סינונים</button></div>}
             {!mapOpen && !eventFrom && type === "הכל" && eventType === "הכל" && !noNoiseLimit && !accessibleOnly ? <RegionalAvailability world="events" region={area} guests={guests || 20} embedded /> : null}
           </section>

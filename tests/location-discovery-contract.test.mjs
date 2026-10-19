@@ -18,10 +18,10 @@ test("vacation destination picker preserves the complete legacy discovery set", 
 test("destination picker offers nearby search, grouped discovery and useful filtering", () => {
   assert.match(search, /navigator\.geolocation\.getCurrentPosition/);
   assert.match(search, /className="location-nearby"/);
-  assert.match(search, /vacationLocationGroups\.map/);
+  assert.match(search, /vacationLocationGroups\.flatMap/);
   assert.match(search, /className="location-search-results"/);
   assert.match(search, /chooseLocation\(place\)/);
-  assert.match(search, /translate\(group\.title\)/);
+  assert.match(search, /pickerCopy\.browse/);
   assert.match(search, /translate\(place\)/);
   assert.match(search, /translate\("מקומות בסביבה הקרובה"\)/);
   assert.match(css, /\.location-group--primary > div\s*\{[^}]*repeat\(4/s);
