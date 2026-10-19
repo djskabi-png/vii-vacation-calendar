@@ -26,6 +26,7 @@ import { homeEventPhotography, homeReviewExcerpt } from "../lib/home-preview-con
 import { worldTopicMedia, worldTopicImageCopy } from "../lib/world-topic-media";
 import { orderDiscoveryRail } from "../lib/discovery-slider-order";
 import { useDocumentSeed } from "./use-document-seed";
+import { homeTourVideos } from "../lib/home-video-selection";
 
 // These sliders fetch their own availability. They must not wait for the
 // unrelated four-world catalog or below-the-fold review queries.
@@ -90,7 +91,7 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, ratedPlace
   const destinationLoading = destinationLoadingCopy[language];
   const [pendingDestination, setPendingDestination] = useState<string | null>(null);
   const worldCards = publicWorldNavigation.filter((world) => !["vacation", "events", "spa", "hourly"].includes(world.id));
-  const featuredTours = orderDiscoveryRail(properties.flatMap((property) => (property.videos || []).map((video) => ({ property, video }))),
+  const featuredTours = orderDiscoveryRail(properties.flatMap((property) => homeTourVideos(property.videos).map((video) => ({ property, video }))),
     { id: ({ property, video }) => `${property.slug}:${video.src}`, seed: `${documentSeed}:home-tours`, limit: 7 });
   const featuredRatings = orderDiscoveryRail(ratedPlaces, { id: item => item.place.slug, seed: `${documentSeed}:home-ratings`,
     compare: (a, b) => (b.place.score || 0) - (a.place.score || 0) });

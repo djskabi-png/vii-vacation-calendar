@@ -22,6 +22,7 @@ import { GiftIcon, PeopleIcon } from "./site-header";
 import { HomeMobileRail } from "./components/home-mobile-rail";
 import "./home-mobile.css";
 import { serverPublicCopy } from "./i18n/server-public-copy";
+import { eligibleHomeTourProperties } from "./lib/home-video-selection";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -63,10 +64,10 @@ function homeShowcaseProperties(properties: Property[]) {
     if (place?.image) usedImages.add(place.image);
     return place;
   }).filter((place): place is Property => Boolean(place));
-  const tourPlaces = rotateDaily([
-    ...properties.filter((place) => place.videos?.length),
+  const tourPlaces = rotateDaily(eligibleHomeTourProperties([
+    ...properties,
     ...visualTourProperties,
-  ], (place) => place.slug, "home-tours").slice(0, 7);
+  ]), (place) => place.slug, "home-tours").slice(0, 7);
   const selected = new Map<string, Property>();
   [...destinationPlaces, ...tourPlaces].forEach((place) => selected.set(place.slug, place));
   return [...selected.values()].map(({ slug, name, location, area, image, videos }) => ({ slug, name, location, area, image, videos }));

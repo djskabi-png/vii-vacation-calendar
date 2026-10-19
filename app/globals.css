@@ -5497,7 +5497,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .home-slider__track::-webkit-scrollbar { display: none; }
 .home-slider__item { flex: 0 0 clamp(310px,30vw,390px); min-width: 0; scroll-snap-align: start; scroll-snap-stop: always; }
 .home-slider__track--properties .home-slider__item { flex-basis: calc((100% - 40px) / 3); }
-.home-slider__item > * { height: 100%; }
+div.home-slider__item > :is(.stay-card, .discovery-card) { height: 100%; }
 .home-recommended { overflow: hidden; padding-block: 64px; background: white; }
 .home-holiday-deals { background: #f4f8f7; }
 .home-live-deals__all-link { max-width: min(48vw, 360px); line-height: 1.35; text-align: end; }
@@ -5742,7 +5742,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .home-slider__track--trust .home-slider__item { flex-basis: clamp(270px,24vw,325px); }
 .home-slider__track--ratings .home-slider__item { flex-basis: calc((100% - 60px) / 4); }
 .home-tour-card,.home-rating-card { overflow: hidden; border: 1px solid #d5e6e8; border-radius: 22px; background: white; box-shadow: 0 12px 34px rgba(0,55,65,.08); }
-.home-tour-card video { width: 100%; aspect-ratio: 16/9; display: block; object-fit: cover; background: #061d23; }
+.home-tour-card video { width: 100%; height: auto; aspect-ratio: 16/9; display: block; object-fit: contain; background: #061d23; }
 .home-tour-card > div,.home-rating-card > div { display: grid; align-content: start; gap: 7px; padding: 17px; }
 .home-tour-card span,.home-rating-card span { color: var(--teal); font-size: .72rem; font-weight: 800; }
 .home-tour-card h3,.home-rating-card h3 { margin: 0; color: var(--ink); font-size: 1.02rem; }
