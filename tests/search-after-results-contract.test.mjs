@@ -22,7 +22,8 @@ test("every main search world receives the shared below-results content", () => 
 
 test("the shared content includes guide, verified review context, FAQ schema and contextual discovery", () => {
   assert.match(component, /search-depth__guide/);
-  assert.match(component, /חוות דעת שעוזרות לבחור/);
+  assert.match(component, /search-depth__reviews/);
+  assert.match(component, /reviews\.map/);
   assert.match(component, /דירוגים ממקומות שמופיעים בתוצאות/);
   assert.match(component, /faqSchema\(content\.faqs\)/);
   assert.match(component, /search-depth__related/);
