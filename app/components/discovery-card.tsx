@@ -6,16 +6,11 @@ import Link from "next/link";
 import type { DiscoveryItem } from "../data/world-data";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { PinIcon } from "../site-header";
-import { trackPhoneReveal } from "../lib/analytics";
 import { FavoriteButton } from "./favorite-button";
-import { useState } from "react";
 import { resolvePublicSliderMedia } from "../lib/public-media-policy";
 import { latinBusinessAlias, localizedBusinessText } from "../i18n/localized-business-content";
 import { PreviewCardGallery } from "./preview-card-gallery";
-
-function PhoneIcon() {
-  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.7 3.5 9 3a1.6 1.6 0 0 1 1.8 1l1 3a1.6 1.6 0 0 1-.5 1.7L9.7 10a14 14 0 0 0 4.3 4.3l1.3-1.6a1.6 1.6 0 0 1 1.7-.5l3 1a1.6 1.6 0 0 1 1 1.8l-.5 2.3a3 3 0 0 1-3 2.4A15.5 15.5 0 0 1 4.3 6.5a3 3 0 0 1 2.4-3Z"/></svg>;
-}
+import { CardContactActions } from "./card-contact-actions";
 
 const placeNames: Record<Exclude<SiteLanguage, "he">, Record<string, string>> = {
   en: { "תל אביב": "Tel Aviv", "ירושלים": "Jerusalem", "נהריה": "Nahariya", "חיפה": "Haifa", "רגבה": "Regba", "כמון": "Kamon", "רמת גן": "Ramat Gan", "אילת": "Eilat", "הרצליה": "Herzliya", "אשדוד": "Ashdod", "אשקלון": "Ashkelon", "טבריה": "Tiberias", "נתניה": "Netanya", "פתח תקווה": "Petah Tikva", "ראשון לציון": "Rishon LeZion", "רחובות": "Rehovot", "באר שבע": "Beersheba", "ים המלח": "Dead Sea", "מרכז": "Central Israel", "צפון": "Northern Israel", "דרום ונגב": "Southern Israel and the Negev", "ירושלים והסביבה": "Jerusalem area", "אילת והערבה": "Eilat and the Arava", "גליל מערבי": "Western Galilee", "חיפה והקריות": "Haifa area" },
@@ -61,7 +56,6 @@ function localizedPrice(label: string | undefined, language: Exclude<SiteLanguag
 
 export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { item: DiscoveryItem; mapActive?: boolean; onActiveChange?: (active: boolean) => void }) {
   const { language, translate } = useSiteLanguage();
-  const [phoneVisible, setPhoneVisible] = useState(false);
   const localized = language === "he" ? null : worldCopy[language][item.world];
   const ui = language === "he" ? null : interfaceCopy[language];
   const location = language === "he" ? item.location : placeNames[language][item.location] || ui!.israel;
@@ -107,14 +101,15 @@ export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { ite
       <p>{description}</p>
       <div className="discovery-card__chips" role="region" tabIndex={0} aria-label={{he:"מאפיינים מרכזיים",en:"Key features",ru:"Основные удобства",fr:"Caractéristiques principales"}[language]}>{features.map((feature) => <span key={feature}>{feature}</span>)}</div>
       <footer className={item.world === "hourly" ? "discovery-card__hourly-footer" : undefined}>
+        {item.world === "hourly" ? <>
+          <div className="preview-card-price-row"><strong>{price}</strong><Link className="discovery-card__details" href={`/discover/place/${item.id}`} target="_blank" rel="noopener noreferrer">{details}<span aria-hidden="true">←</span></Link></div>
+          <CardContactActions key={item.id} world="hourly" placeId={item.id} placeName={localizedName} phone={item.phone} whatsapp={item.whatsapp} serviceName={item.name} />
+        </> : <>
         <strong>{price}</strong>
         <div className="discovery-card__footer-actions">
-          {item.world === "hourly" && item.phone ? phoneVisible
-            ? <a className="discovery-card__quick-call" dir="ltr" href={`tel:${item.phone.replace(/[^\d+]/g, "")}`} aria-label={translate(`חיוג אל ${item.name}`)}><PhoneIcon /><bdi>{item.phone}</bdi></a>
-            : <button className="discovery-card__reveal-phone" type="button" onClick={() => { setPhoneVisible(true); trackPhoneReveal({ placeId: item.id, placeName: item.name, world: item.world, placement: "discovery_card" }); }}><PhoneIcon /><span>הצגת מספר</span></button>
-          : null}
           <Link className="discovery-card__details" href={`/discover/place/${item.id}`} target="_blank" rel="noopener noreferrer">{details}<span aria-hidden="true">←</span><span className="sr-only"></span></Link>
         </div>
+        </>}
       </footer>
     </div>
   </article>;

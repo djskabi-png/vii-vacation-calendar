@@ -65,6 +65,7 @@ export async function POST(request: Request) {
         ...(place.area ? { area: place.area } : {}),
         ...(place.sourceUrl ? { sourceUrl: place.sourceUrl } : {}),
         ...(place.sourcePropertySlug ? { sourcePropertySlug: place.sourcePropertySlug } : {}),
+        ...(place.contact ? { contact: { ...(place.contact.phone ? { phone: place.contact.phone } : {}), ...(place.contact.whatsapp ? { whatsapp: place.contact.whatsapp } : {}) } } : {}),
       })) }, { headers: { ...noStore, "X-VII-Discovery-Cache": cached!.cache.status } });
     }
     return Response.json(result, { headers: noStore });
