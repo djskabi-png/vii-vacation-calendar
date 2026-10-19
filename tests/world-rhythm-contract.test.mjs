@@ -13,7 +13,9 @@ test("world landing intros share one compact vertical rhythm", async () => {
   assert.match(css, /\.world-page-heading \{ padding-block: 22px 14px/);
   assert.match(css, /\.world-page > \.section,\s*\.events-page > \.section \{ padding-block: 64px/);
   assert.match(css, /\.events-hero__eyebrow/);
-  assert.match(events, /className="events-hero__eyebrow"/);
+  assert.doesNotMatch(events, /className="events-hero__eyebrow"/);
+  assert.match(events, /<h1>\{presentation\.title\}<\/h1>/);
+  assert.match(events, /<p>\{presentation\.description\}<\/p>/);
   assert.doesNotMatch(worldLanding.match(/<section className="world-hero">[\s\S]*?<\/section>/)?.[0] || "", /className="eyebrow"/);
 });
 

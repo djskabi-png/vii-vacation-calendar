@@ -10,7 +10,9 @@ test("all homepage vacation discovery rails use the search discovery card contra
   assert.match(discovery, /className="search-depth__discovery-card"/);
   assert.match(discovery, /className="search-depth__discovery-icon home-managed-discovery__visual"/);
   assert.match(discovery, /className="search-depth__discovery-arrow"/);
-  assert.equal((discovery.match(/<DiscoveryRail id="home-(?:popular|city|type)-rail"/g) || []).length, 3);
+  assert.equal((discovery.match(/<DiscoveryRail id="home-(?:city|type)-rail"/g) || []).length, 2);
+  assert.match(discovery, /presentation\.popular\.map/);
+  assert.doesNotMatch(discovery, /<DiscoveryRail id="home-popular-rail"/);
 });
 
 test("homepage discovery cards retain CMS images, destinations and click feedback", () => {
