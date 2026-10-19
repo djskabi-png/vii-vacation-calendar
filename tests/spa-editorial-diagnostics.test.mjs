@@ -2,24 +2,18 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import catalog from "../app/data/spaplus-catalog.json" with { type: "json" };
 import { validateSpaEditorialCandidate, projectSpaViiSite } from "../app/lib/spa-editorial-policy.ts";
-import { sanitizeCatalogDiagnostics, SpaEditorialReviewError } from "../app/lib/supplier-catalog-diagnostics.ts";
+import { sanitizeCatalogDiagnostics } from "../app/lib/supplier-catalog-diagnostics.ts";
 
-test("editorial rejection identifies every affected supplier and exact normalized fields without retaining prose", async () => {
+test("reviewed supplier changes preserve VII copy instead of rejecting the whole catalog", async () => {
   const sites = catalog.sites.slice(0, 3);
   const entries = sites.map((site, index) => ({ supplierId: site.id, summary: index === 0
     ? { ...site, about: ["private rejected prose"], opening: ["private opening"] }
     : index === 1 ? { ...site, address: "private address" } : site }));
   const before = JSON.stringify(entries);
-  await assert.rejects(() => validateSpaEditorialCandidate(entries), (error) => {
-    assert.ok(error instanceof SpaEditorialReviewError);
-    assert.equal(error.message, "catalog_editorial_requires_review");
-    assert.deepEqual(error.diagnostics.spaEditorialReview, { total: 2, truncated: false, rejected: [
-      { supplierId: sites[0].id, fields: ["about", "opening"], reason: "content_changed" },
-      { supplierId: sites[1].id, fields: ["address"], reason: "content_changed" },
-    ] });
-    assert.doesNotMatch(JSON.stringify(error.diagnostics), /private|prose|https|@/);
-    return true;
-  });
+  await validateSpaEditorialCandidate(entries);
+  const projected = await projectSpaViiSite(entries[0].summary);
+  assert.doesNotMatch(JSON.stringify({about:projected.about,shortDescription:projected.shortDescription}), /private rejected prose/);
+  assert.deepEqual(projected.opening, ["private opening"]);
   assert.equal(JSON.stringify(entries), before);
 });
 
@@ -56,15 +50,14 @@ test("missing title produces safe diagnostics and multiple bad records cannot fa
 });
 
 test("large rejected candidates retain the true count but only the first hundred diagnostic records", async () => {
-  const sites = catalog.sites.slice(0, 150);
-  await assert.rejects(() => validateSpaEditorialCandidate(sites.map((site) => ({ supplierId: site.id,
-    summary: { ...site, about: ["private changed text"] } }))), (error) => {
+  const sites = Array.from({length:150},(_,index)=>({id:900000+index,title:"",city:"private city"}));
+  await assert.rejects(() => validateSpaEditorialCandidate(sites.map((site) => ({ supplierId: site.id, summary: site }))), (error) => {
     const review = error.diagnostics.spaEditorialReview;
     assert.equal(review.total, 150);
     assert.equal(review.rejected.length, 100);
     assert.equal(review.truncated, true);
     assert.deepEqual(review.rejected.map((row) => row.supplierId), sites.slice(0, 100).map((site) => site.id));
-    assert.doesNotMatch(JSON.stringify(review), /private changed text/);
+    assert.doesNotMatch(JSON.stringify(review), /private city/);
     return true;
   });
 });

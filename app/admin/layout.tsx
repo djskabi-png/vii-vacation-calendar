@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { authorizedAdminSession } from "../lib/admin-session.ts";
+import { resolveAdminAccess } from "../lib/admin-grants.ts";
+import { adminLanding, adminRouteAllowed } from "../lib/admin-permissions.ts";
 import { readSession } from "../lib/google-auth.ts";
 import AdminCommandBar from "./admin-command-bar";
 import AdminNav from "./admin-nav";
+import AdminAccessProvider from "./admin-access-context.tsx";
 import styles from "./admin.module.css";
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
@@ -22,6 +24,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const request = requestFromHeaders(requestHeaders, pathname);
   const session = await readSession(request).catch(() => null);
   if (!session) redirect(`/api/auth/google?returnTo=${encodeURIComponent(pathname)}`);
-  if (!await authorizedAdminSession(request)) redirect("/account?authError=admin_forbidden");
-  return <div className={styles.shell}><AdminNav /><div className={styles.workspace}><AdminCommandBar />{children}</div></div>;
+  const access = await resolveAdminAccess(session.email, undefined, session.sub);
+  if (!access) redirect("/account?authError=admin_forbidden");
+  if (!adminRouteAllowed(access, pathname)) redirect(adminLanding(access));
+  return <div className={styles.shell}><AdminNav access={access} /><div className={styles.workspace}><AdminCommandBar access={access} /><AdminAccessProvider access={access}>{children}</AdminAccessProvider></div></div>;
 }

@@ -1,0 +1,33 @@
+/* Phone values are public supplier contacts. Preserve their numeric direction
+   independently from the surrounding interface and never shrink to an icon. */
+.direct-phone-link { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-width:0; min-height:44px; }
+.direct-phone-link > bdi { flex:0 0 auto; direction:ltr; unicode-bidi:isolate; white-space:nowrap; font-variant-numeric:tabular-nums; font-size:inherit; line-height:1.2; }
+.direct-phone-link > svg { width:18px; height:18px; flex:0 0 18px; }
+.direct-phone-link:focus-visible { outline:3px solid #087e8b; outline-offset:2px; }
+.stay-card__contact.direct-phone-link > bdi { overflow:visible; text-overflow:clip; }
+.listing-contact-preview > .listing-contact-preview__phone { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:44px; padding:9px 13px; border:1px solid #b8dce1; border-radius:12px; color:#087987; background:#f1fafb; font:800 .78rem/1.2 var(--font-sans); }
+.listing-contact-preview > .listing-contact-preview__phone svg { width:18px; height:18px; flex:0 0 18px; fill:none; stroke:currentColor; stroke-width:2; }
+.listing-contact-preview__phone bdi { white-space:nowrap; font-variant-numeric:tabular-nums; }
+@media (max-width:760px) {
+  /* A visible number needs a protected numeric track, not the old short-label
+     slot. Keep the number/WhatsApp pair adjacent and share outside the pair. */
+  .site-page .property-title__actions.property-title__actions--contact:has(> .direct-phone-link) { grid-template-columns:minmax(122px,1.1fr) minmax(0,1fr) 44px; gap:6px; }
+  .site-page .property-title__actions.property-title__actions--contact:has(> .direct-phone-link):not(:has(> .property-whatsapp-action)) { grid-template-columns:minmax(122px,1fr) 44px; }
+  .site-page .property-title__actions.property-title__actions--contact:has(> .direct-phone-link):not(:has(> .property-whatsapp-action,> .share-trigger)) { grid-template-columns:minmax(0,1fr); }
+  .site-page .property-title__actions--contact > .direct-phone-link.property-phone-action { gap:6px; padding-inline:4px; font-size:.74rem; }
+  .preview-card-contact-row:has(> .direct-phone-link[data-phone-long]) { grid-template-columns:minmax(0,1fr); }
+  .site-page .property-title__actions.property-title__actions--contact:has(> .direct-phone-link[data-phone-long]) { grid-template-columns:minmax(0,1fr) 44px; }
+  .site-page .property-title__actions.property-title__actions--contact:has(> .direct-phone-link[data-phone-long]) > .direct-phone-link { grid-column:1/-1; grid-row:auto; }
+  .site-page .property-title__actions.property-title__actions--contact:has(> .direct-phone-link[data-phone-long]) > .property-whatsapp-action { grid-column:1; grid-row:auto; }
+  .site-page .property-title__actions.property-title__actions--contact:has(> .direct-phone-link[data-phone-long]) > .share-trigger { grid-column:2; grid-row:auto; }
+}
+@media (max-width:360px) {
+  .listing-contact-preview:has(> .listing-contact-preview__phone) { grid-template-columns:minmax(0,1fr); }
+  .preview-card-contact-row .stay-card__contact.direct-phone-link { gap:4px; padding-inline:4px; }
+  .preview-card-contact-row .stay-card__contact.direct-phone-link > bdi { font-size:.7rem; }
+  .preview-card-contact-row .stay-card__contact.direct-phone-link > svg { width:16px; height:16px; flex-basis:16px; }
+  .site-page .property-title__actions.property-title__actions--contact:has(> .direct-phone-link):has(> .property-whatsapp-action):not(:has(> .direct-phone-link[data-phone-long])) { grid-template-columns:minmax(122px,1.1fr) minmax(0,1fr); }
+  .site-page .property-title__actions.property-title__actions--contact:has(> .direct-phone-link):not(:has(> .direct-phone-link[data-phone-long])) > .direct-phone-link { grid-column:1; grid-row:auto; }
+  .site-page .property-title__actions.property-title__actions--contact:has(> .direct-phone-link):has(> .property-whatsapp-action):not(:has(> .direct-phone-link[data-phone-long])) > .property-whatsapp-action { grid-column:2; grid-row:auto; }
+  .site-page .property-title__actions.property-title__actions--contact:has(> .direct-phone-link):has(> .property-whatsapp-action):not(:has(> .direct-phone-link[data-phone-long])) > .share-trigger { grid-column:1/-1; grid-row:auto; justify-self:end; }
+}

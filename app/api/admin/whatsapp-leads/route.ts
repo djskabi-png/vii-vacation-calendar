@@ -1,10 +1,9 @@
-import { readSession } from "../../../lib/google-auth";
-import { isAdminEmail } from "../../../lib/admin-access";
+import { authorizedAdminSession } from "../../../lib/admin-session.ts";
 import { whatsappLeadDatabase } from "../../../lib/whatsapp-lead-storage";
 
 export async function GET(request: Request) {
-  const session = await readSession(request);
-  if (!session || !isAdminEmail(session.email)) {
+  const session = await authorizedAdminSession(request);
+  if (!session) {
     return Response.json({ error: "forbidden" }, { status: 403, headers: { "Cache-Control": "no-store" } });
   }
 

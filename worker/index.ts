@@ -11,6 +11,7 @@ import worldDepthTranslations from "../app/data/world-depth-translations.json";
 import visitorUiTranslations from "../app/data/visitor-ui-translations.json";
 import catalogAdminTranslations from "../app/data/catalog-admin-translations.json";
 import { runSupplierCatalogScheduleTick } from "../app/lib/supplier-catalog-retry-runner.ts";
+import { cachedOnlineCapabilities } from "../app/lib/online-booking-capability-cache.ts";
 import { legacyDisposition, looksLikeUninventoriedLegacyPath } from "../app/lib/legacy-route-map.ts";
 import { redirectForUrl, shouldCheckRedirect } from "../app/lib/admin-redirects.ts";
 import { publicCachePolicy, readPublicCache, refreshPublicCacheAhead, storePublicCache } from "./public-response-cache.ts";
@@ -155,6 +156,10 @@ interface ExecutionContext {
 
 const worker = {
   scheduled(controller: { scheduledTime: number }, env: Env, ctx: ExecutionContext) {
+    // One shared, leased daily probe, not a probe per visitor or geography.
+    ctx.waitUntil(cachedOnlineCapabilities(env.DB).catch(() => {
+      console.error("VII online capability refresh unavailable");
+    }));
     ctx.waitUntil(runSupplierCatalogScheduleTick(env.DB, { now: new Date(controller.scheduledTime) }).then(({ primary, retries }) => {
       for (const result of [...retries, ...(primary ? [primary] : [])]) if (result.status !== "accepted" && result.status !== "skipped") {
         console.error("VII scheduled catalog sync did not publish", result.id, result.errorCode);

@@ -35,7 +35,6 @@ export function ListingContactPreview({ placeName, className = "" }: { placeName
   const { language, translate } = useSiteLanguage();
   const labels = text[language];
   const localizedPlaceName = translate(placeName);
-  const [phoneVisible, setPhoneVisible] = useState(false);
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLElement>(null);
@@ -67,7 +66,7 @@ export function ListingContactPreview({ placeName, className = "" }: { placeName
   }, [open]);
 
   return <div className={`listing-contact-preview ${className}`}>
-    <button className="listing-contact-preview__phone" type="button" aria-expanded={phoneVisible} onClick={() => setPhoneVisible(true)}><PhoneIcon /><span>{phoneVisible ? <><bdi dir="ltr">050-000-0000</bdi><small>{labels.exampleNumber}</small></> : labels.reveal}</span></button>
+    <span className="listing-contact-preview__phone"><PhoneIcon /><span><bdi dir="ltr" data-no-translate>050-000-0000</bdi><small>{labels.exampleNumber}</small></span></span>
     <button ref={triggerRef} className="listing-contact-preview__whatsapp" type="button" onClick={() => setOpen(true)}><WhatsAppIcon /><span>{labels.whatsapp}</span></button>
     {open ? createPortal(<div className="whatsapp-lead-layer" onMouseDown={(event) => event.target === event.currentTarget && close()}>
       <section ref={dialogRef} className="whatsapp-lead-dialog" role="dialog" aria-modal="true" aria-labelledby={titleId} dir={language === "he" ? "rtl" : "ltr"}>

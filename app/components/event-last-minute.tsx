@@ -8,11 +8,9 @@ import { useViiLiveSearch } from "./use-vii-live-search";
 import { EventRail } from "./event-rail";
 import { dailyRotationCompare } from "../lib/daily-rotation";
 import { PlacePreviewCard } from "./place-preview-card";
-import { ModernSelect } from "./modern-select";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
 import { eventSlotCopy } from "../i18n/event-slot-copy";
-import type { EventSlot } from "../lib/vii-live-search";
 import { eventDealDate, eventDealPresets } from "../lib/event-deal-dates";
 import { eventDealPlaceLabels } from "../lib/event-deal-labels";
 import { useManagedGeography } from "./use-managed-geography";
@@ -22,16 +20,16 @@ import { regionalAvailabilityRegion, regionalAvailabilityTitle } from "../lib/re
 import { eventSearchHref } from "../data/world-search-landings";
 import { regionalExpansionCopy } from "../i18n/regional-availability-copy";
 import { discoveryCacheCopy } from "../i18n/discovery-cache-copy.ts";
-import { firstDealDate, normalizeDealDate } from "../lib/deal-clock";
+import { normalizeDealDate } from "../lib/deal-clock";
 import { useDealClock } from "./use-deal-clock";
 import { orderDiscoveryRail } from "../lib/discovery-slider-order";
 import { useDocumentSeed } from "./use-document-seed";
 
 const copy = {
-  he: { title: "מקומות פנויים לאירועים", all: "לכל המקומות הפנויים", tabs: ["ברגע האחרון", "פנוי לחמישי", "פנוי לשישי"], date: "תאריך אחר", guests: "משתתפים", loading: "בודקים זמינות ומחירים...", error: "לא הצלחנו לבדוק זמינות כרגע", retry: "לנסות שוב", empty: "לא נמצאו הצעות פנויות לבחירה הזו. נסו תאריך או כמות משתתפים אחרים.", available: "פנוי", price: "מחיר לאירוע", forGuests: "עבור", capacity: "עד", people: "משתתפים", details: "לפרטי המקום" },
-  en: { title: "Available event venues", all: "All available venues", tabs: ["Last minute", "Available Thursday", "Available Friday"], date: "Another date", guests: "Guests", loading: "Checking availability and prices...", error: "We could not check availability right now", retry: "Try again", empty: "No available offers for this selection. Try another date or guest count.", available: "Available", price: "Event total", forGuests: "for", capacity: "Up to", people: "guests", details: "Venue details" },
-  ru: { title: "Свободные площадки для мероприятий", all: "Все свободные площадки", tabs: ["Ближайшие даты", "В четверг", "В пятницу"], date: "Другая дата", guests: "Гости", loading: "Проверяем наличие и цены...", error: "Сейчас не удалось проверить наличие", retry: "Повторить", empty: "Свободных предложений нет. Выберите другую дату или количество гостей.", available: "Свободно", price: "Цена мероприятия", forGuests: "для", capacity: "До", people: "гостей", details: "Подробнее о площадке" },
-  fr: { title: "Lieux disponibles pour vos événements", all: "Tous les lieux disponibles", tabs: ["Dernière minute", "Jeudi", "Vendredi"], date: "Autre date", guests: "Participants", loading: "Vérification des disponibilités et des prix...", error: "La disponibilité ne peut pas être vérifiée pour le moment", retry: "Réessayer", empty: "Aucune offre disponible. Essayez une autre date ou un autre nombre de participants.", available: "Disponible", price: "Prix de l’événement", forGuests: "pour", capacity: "Jusqu’à", people: "participants", details: "Voir le lieu" },
+  he: { title: "מקומות פנויים לאירועים", all: "לכל המקומות הפנויים", tabs: ["ברגע האחרון", "פנוי לחמישי", "פנוי לשישי"], loading: "בודקים זמינות ומחירים...", error: "לא הצלחנו לבדוק זמינות כרגע", retry: "לנסות שוב", empty: "לא נמצאו הצעות פנויות לבחירה הזו. נסו תאריך או כמות משתתפים אחרים.", available: "פנוי", price: "מחיר לאירוע", forGuests: "עבור", capacity: "עד", people: "משתתפים", details: "לפרטי המקום" },
+  en: { title: "Available event venues", all: "All available venues", tabs: ["Last minute", "Available Thursday", "Available Friday"], loading: "Checking availability and prices...", error: "We could not check availability right now", retry: "Try again", empty: "No available offers for this selection. Try another date or guest count.", available: "Available", price: "Event total", forGuests: "for", capacity: "Up to", people: "guests", details: "Venue details" },
+  ru: { title: "Свободные площадки для мероприятий", all: "Все свободные площадки", tabs: ["Ближайшие даты", "В четверг", "В пятницу"], loading: "Проверяем наличие и цены...", error: "Сейчас не удалось проверить наличие", retry: "Повторить", empty: "Свободных предложений нет. Выберите другую дату или количество гостей.", available: "Свободно", price: "Цена мероприятия", forGuests: "для", capacity: "До", people: "гостей", details: "Подробнее о площадке" },
+  fr: { title: "Lieux disponibles pour vos événements", all: "Tous les lieux disponibles", tabs: ["Dernière minute", "Jeudi", "Vendredi"], loading: "Vérification des disponibilités et des prix...", error: "La disponibilité ne peut pas être vérifiée pour le moment", retry: "Réessayer", empty: "Aucune offre disponible. Essayez une autre date ou un autre nombre de participants.", available: "Disponible", price: "Prix de l’événement", forGuests: "pour", capacity: "Jusqu’à", people: "participants", details: "Voir le lieu" },
 };
 
 export function EventLastMinute({ places, sectionId = "event-last-minute", region, initialGuests = 20 }: { places: EventPlace[]; sectionId?: string; region?: string; initialGuests?: number }) {
@@ -46,13 +44,12 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
   const [chosenDate, setDate] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<string | null>("lastminute");
-  const [guests, setGuests] = useState(initialGuests > 0 ? initialGuests : 20);
-  const [slot, setSlot] = useState<EventSlot | undefined>();
+  const guests = initialGuests > 0 ? initialGuests : 20;
   const [retry, setRetry] = useState(0);
   useEffect(() => { setDate(eventDealDate(1)); setInitialized(true); }, []);
   const presets = clock ? eventDealPresets(clock.now) : [];
   const date = clock && chosenDate ? (presets.find(preset => preset.id === selectedPreset)?.date || normalizeDealDate(chosenDate, clock.now)) : null;
-  const search = useViiLiveSearch("events", date, date, guests, undefined, undefined, slot, retry, true, scope?.label);
+  const search = useViiLiveSearch("events", date, date, guests, undefined, undefined, undefined, retry, true, scope?.label);
   const candidates = orderDiscoveryRail((search.places || places).flatMap((place) => {
     if (scope && !search.expandedRegion && !matchesSearchLocation(place, scope.label)) return [];
     const match = /^event-(\d+)$/.exec(place.slug);
@@ -61,25 +58,33 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
     return [{ place, offer }];
   }), { id: item => item.place.slug, seed: `${documentSeed}:${sectionId}:${date}`, priority: item => scope && search.regionalOrder?.length ? Math.max(0, search.regionalOrder.indexOf(item.offer.siteID)) : undefined });
   const searchPath = eventSearchHref(scope?.label);
-  const params = new URLSearchParams({ from: date || "", to: date || "", guests: String(guests), ...(slot ? { slot } : {}), ...(scope && searchPath === "/events/search" ? { location: scope.label } : {}) });
+  const params = new URLSearchParams({ from: date || "", to: date || "", guests: String(guests), ...(scope && searchPath === "/events/search" ? { location: scope.label } : {}) });
   const busy = search.status === "loading" || !initialized;
+
+  function choosePreset(id: string, presetDate: string) {
+    setDate(presetDate);
+    setSelectedPreset(id);
+  }
 
   return <section className="section shell event-discovery-section event-deals" aria-labelledby={`${sectionId}-title`}>
     <div className="section-head"><h2 id={`${sectionId}-title`}>{title}</h2><Link href={localizedPath(`${searchPath}?${params}`, language)}>{text.all}</Link></div>
-    <div className="event-last-minute-controls">
-      <div className="event-last-minute-tabs" role="group" aria-label={text.title}>{presets.map((preset, index) => <button type="button" key={preset.id} className={selectedPreset === preset.id ? "active" : ""} aria-pressed={selectedPreset === preset.id} onClick={() => { setDate(preset.date); setSelectedPreset(preset.id); }}>{text.tabs[index]}</button>)}</div>
-      <label>{text.date}<input type="date" value={date || ""} min={clock ? firstDealDate(clock.now) : eventDealDate(1)} max={eventDealDate(62)} onChange={(event) => { setDate(event.target.value || null); setSelectedPreset(null); }} /></label>
-      <ModernSelect label={text.guests} value={String(guests)} onChange={(value) => setGuests(Number(value))} options={[...new Set([guests, 20, 30, 50, 100, 200])].sort((a,b) => a-b).map((count) => ({ value: String(count), label: `${count} ${text.people}` }))} />
-      <ModernSelect label={slots.label} value={slot || "both"} onChange={(value) => setSlot(value === "both" ? undefined : value as EventSlot)} options={[{ value: "both", label: slots.both }, { value: "morning", label: slots.morning }, { value: "evening", label: slots.evening }]} />
+    <div className="home-live-deals__tabs event-last-minute-tabs" role="tablist" aria-label={text.title}>
+      {presets.map((preset, index) => <button type="button" role="tab" aria-controls={`${sectionId}-results`} aria-selected={selectedPreset === preset.id} tabIndex={selectedPreset === preset.id ? 0 : -1} key={preset.id} onClick={() => choosePreset(preset.id, preset.date)} onKeyDown={(event) => {
+        const next = event.key === "Home" ? 0 : event.key === "End" ? presets.length - 1 : event.key === "ArrowRight" ? (index + (language === "he" ? -1 : 1) + presets.length) % presets.length : event.key === "ArrowLeft" ? (index + (language === "he" ? 1 : -1) + presets.length) % presets.length : -1;
+        if (next < 0) return;
+        event.preventDefault();
+        choosePreset(presets[next].id, presets[next].date);
+        event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();
+      }}>{text.tabs[index]}</button>)}
     </div>
-    <div aria-busy={busy} aria-live="polite">
+    <div id={`${sectionId}-results`} role="tabpanel" aria-busy={busy} aria-live="polite">
       {search.status === "ready" && search.stale && candidates.length > 0 ? <p className="regional-availability__expansion" data-no-translate>{discoveryCacheCopy[language]}</p> : null}
       {scope && search.status === "ready" && search.expandedRegion && candidates.length > 0 ? <p className="regional-availability__expansion" data-no-translate>{regionalExpansionCopy[language]}</p> : null}
       {busy ? <div className="event-deals__loading" role="status"><p>{text.loading}</p><div className="home-live-deals__loading-cards" aria-hidden="true">{[0, 1, 2].map((index) => <div className="home-live-deals__loading-card" key={index}><div className="home-live-deals__loading-image" /><div className="home-live-deals__loading-lines"><span /><span /><span /></div></div>)}</div></div> : null}
       {search.status === "error" ? <div className="event-rail-status" role="alert"><p>{text.error}</p><button type="button" className="button secondary" onClick={() => setRetry((value) => value + 1)}>{text.retry}</button></div> : null}
       {search.status === "ready" && !candidates.length ? <p className="event-rail-status">{text.empty}</p> : null}
       {initialized && search.status === "idle" ? <p className="event-rail-status">{translate("בחרו תאריך")}</p> : null}
-      {candidates.length ? <EventRail key={`${date}-${guests}-${slot || "both"}`} title={title}>{candidates.map(({ place, offer }) => {
+      {candidates.length ? <EventRail key={`${date}-${guests}`} title={title}>{candidates.map(({ place, offer }) => {
         place = homeEventPhotography(place);
         const labels = eventDealPlaceLabels(place, language, translate, geography);
         const href = eventOfferHref(place, new URLSearchParams({ from: offer.from!, guests: String(guests), slot: offer.slot!, ...(offer.roomID ? { roomID: String(offer.roomID) } : {}) }));

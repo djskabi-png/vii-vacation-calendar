@@ -39,11 +39,14 @@ test("all 159 active Spa sources are pinned, individually rewritten and fact-map
   }
 });
 
-test("changed supplier prose cannot overwrite VII; approved package, commercial and media updates remain independent", async () => {
+test("changed supplier facts refresh while supplier prose can never overwrite VII copy", async () => {
   const site=catalog.sites.find(x=>x.id===6);
   for(const change of [{about:[...site.about,"unreviewed new provider restriction"]},{address:"changed address"},{shortDescription:"new provider description"},
     {opening:["09:00-10:00"]}]) {
-    await assert.rejects(()=>projectSpaViiSite({...site,...change}), /catalog_editorial_requires_review/);
+    const projected=await projectSpaViiSite({...site,...change});
+    const copy=copies.find(x=>x.id===site.id);
+    assert.equal(projected.shortDescription,copy.cardSummary);
+    assert.deepEqual(projected.about,copy.paragraphs);
   }
   const commercial={...site, image:"https://www.spaplus.co.il/gallery/new.jpg", packages:site.packages.map(x=>({...x,price:x.price+1,durationMinutes:70}))};
   const view=await projectSpaViiSite(commercial);
@@ -52,7 +55,7 @@ test("changed supplier prose cannot overwrite VII; approved package, commercial 
   const added=await projectSpaViiSite({...site,id:999999,title:"ספא חדש",city:"חיפה",about:["טקסט ספק שלא אושר"]});
   assert.match(added.shortDescription,/ספא חדש/); assert.doesNotMatch(added.about.join(" "),/טקסט ספק/);
   await validateSpaEditorialCandidate([{supplierId:6,summary:site}]);
-  await assert.rejects(()=>validateSpaEditorialCandidate([{supplierId:6,summary:{...site,about:["new text"]}}]),/catalog_editorial_requires_review/);
+  await validateSpaEditorialCandidate([{supplierId:6,summary:{...site,about:["new text"],opening:["09:00-10:00"]}}]);
 });
 
 test("already-projected runtime Spa entries remain renderable after package updates", async () => {

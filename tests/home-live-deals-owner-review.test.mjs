@@ -11,7 +11,9 @@ test("live deal cards communicate availability, price basis and the requested He
   assert.match(component, /priceMode: "stay_total"/);
   assert.match(component, /<PropertyCard/);
   assert.match(sharedCard, /priceMode === "stay_total"/);
-  assert.match(sharedCard, /href=\{`tel:\$\{phone\}`\}/);
+  assert.match(sharedCard, /<DirectPhoneLink phone=\{property\.contact\?\.phone\} placeName=\{property\.name\}/);
+  assert.match(sharedCard, /placement: "property_card"/);
+  assert.doesNotMatch(sharedCard, /phoneRevealed|setPhoneRevealed|הצגת מספר/);
   assert.doesNotMatch(component, /אפשר להזמין באתר|להזמנה מתקשרים למקום|bookingModeCopy/);
 });
 

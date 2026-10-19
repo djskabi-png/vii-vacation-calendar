@@ -1,5 +1,4 @@
-import { readSession } from "../../../lib/google-auth.ts";
-import { isAdminEmail } from "../../../lib/admin-access.ts";
+import { authorizedAdminSession } from "../../../lib/admin-session.ts";
 import { isCatalogWorld } from "../../../lib/supplier-catalog-runtime.ts";
 import { runCatalogPullWithRetryPlan } from "../../../lib/supplier-catalog-retry-runner.ts";
 import { readCatalogRetryJobs } from "../../../lib/supplier-catalog-retry.ts";
@@ -10,8 +9,8 @@ const headers = { "Cache-Control": "no-store" };
 
 async function authorized(request: Request) {
   try {
-    const session = await readSession(request);
-    return !!session && isAdminEmail(session.email);
+    const session = await authorizedAdminSession(request);
+    return !!session;
   } catch { return false; }
 }
 

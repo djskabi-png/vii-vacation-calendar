@@ -1,8 +1,7 @@
 import { spaViiCopy } from "../data/spa-vii-copy.ts";
-import spaCatalog from "../data/spaplus-catalog.json" with { type: "json" };
 import type { SpaPlusSite } from "../data/spaplus";
 import type { SupplierCatalogEntry } from "./supplier-catalog-store.ts";
-import { SpaEditorialReviewError, spaEditorialDiagnosticFields, catalogDiagnosticLimit,
+import { SpaEditorialReviewError, catalogDiagnosticLimit,
   type CatalogSyncDiagnostics } from "./supplier-catalog-diagnostics.ts";
 
 function text(value: unknown) {
@@ -35,20 +34,11 @@ export async function projectSpaViiSite(site: SpaPlusSite): Promise<SpaPlusSite>
       shortDescription: `${title}, מתחם ספא ב${place}.`,
       about: ["לפני ההזמנה, בדקו מה כלול בחבילה, למי היא מתאימה ומהם תנאי הביטול."] };
   }
-  const exactSource = copy.sourceHash === await spaEditorialSourceHash(site);
-  const alreadyProjected = text(site.shortDescription) === text(copy.cardSummary)
-    && JSON.stringify(Array.isArray(site.about) ? site.about.map(text) : []) === JSON.stringify(copy.paragraphs.map(text));
-  const baseline = spaCatalog.sites.find((entry) => entry.id === site.id) as SpaPlusSite | undefined;
-  const narrativeUnchanged = baseline && JSON.stringify({ ...JSON.parse(spaEditorialSource(baseline)), packages: undefined })
-    === JSON.stringify({ ...JSON.parse(spaEditorialSource(site)), packages: undefined });
-  if (!exactSource && !alreadyProjected && !narrativeUnchanged) {
-    const before = baseline ? JSON.parse(spaEditorialSource(baseline)) : null;
-    const after = JSON.parse(spaEditorialSource(site));
-    const fields = before ? spaEditorialDiagnosticFields.filter((field) =>
-      JSON.stringify(before[field]) !== JSON.stringify(after[field])) : [];
-    throw new SpaEditorialReviewError({ total: 1, truncated: false,
-      rejected: [{ supplierId: site.id, fields, reason: baseline ? "content_changed" : "baseline_unavailable" }] });
-  }
+  // Existing reviewed places always keep VII-owned narrative copy. Supplier
+  // factual changes such as title, address, hours and packages may therefore
+  // refresh without turning a harmless upstream edit into a catalog-wide
+  // editorial rejection. The source hash remains audit evidence for the
+  // original review, not a publication lock on all future supplier facts.
   return { ...site, about: [...copy.paragraphs], shortDescription: copy.cardSummary };
 }
 

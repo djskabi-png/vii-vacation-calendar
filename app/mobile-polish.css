@@ -24,9 +24,18 @@
   .site-page .search-depth__rail { grid-auto-columns:calc((100% - 12px)/2); gap:12px; margin-inline:0; padding-inline:0; scroll-padding-inline:0; }
   .site-page .search-depth__rail > * { min-width:0; max-inline-size:100%; }
   .site-page .search-depth__related .search-depth__discovery-card { grid-template-columns:minmax(0,1fr); grid-template-rows:auto auto 1fr; align-content:start; justify-items:start; gap:8px; padding:14px; }
-  .site-page .search-depth__discovery-icon { grid-row:auto; }
-  .site-page .search-depth__discovery-card :is(strong,small) { grid-column:1; align-self:start; }
+  .site-page .search-depth__related .search-depth__discovery-icon { grid-row:auto; }
+  .site-page .search-depth__related .search-depth__discovery-card :is(strong,small) { grid-column:1; align-self:start; }
   .site-page .search-depth__discovery-arrow { position:absolute; inset-inline-end:12px; top:20px; grid-row:auto; grid-column:auto; }
+  /* Home image cards have a different structure from stacked depth-topic cards.
+     Keep text in its own flexible column, never in the thumbnail's fixed track. */
+  .site-page .home-managed-discovery__track.search-depth__rail { grid-auto-columns:min(88%,320px); gap:12px; align-items:stretch; }
+  .site-page .home-managed-discovery__track .search-depth__discovery-card { grid-template-columns:64px minmax(0,1fr) 16px; grid-template-rows:auto auto; grid-template-areas:"media label arrow" "media note arrow"; min-height:96px; padding:14px; gap:4px 12px; align-content:center; text-align:start; }
+  .site-page .home-managed-discovery__track .home-managed-discovery__visual { grid-area:media; width:64px; height:64px; align-self:center; }
+  .site-page .home-managed-discovery__track .search-depth__discovery-card strong { grid-area:label; align-self:end; overflow-wrap:anywhere; }
+  .site-page .home-managed-discovery__track .search-depth__discovery-card small { grid-area:note; align-self:start; overflow-wrap:anywhere; }
+  .site-page .home-managed-discovery__track .search-depth__discovery-arrow { grid-area:arrow; position:static; align-self:center; justify-self:center; }
+  .site-page .home-managed-discovery__track .search-depth__discovery-card:focus-visible { outline:3px solid #087e8b; outline-offset:-3px; }
   .site-page :is(.event-quick-searches__rail,.event-region-carousel__rail) { grid-auto-columns:100%; padding-inline:0; scroll-padding-inline:0; gap:16px; }
   .site-page :is(.event-quick-searches__rail,.event-region-carousel__rail) > * { flex-basis:100%; min-width:0; max-inline-size:100%; }
   .site-page .footer-grid { gap:26px 18px; padding-block:32px; }
@@ -78,4 +87,9 @@
   .site-page .questions-hero nav a { display:flex; align-items:center; min-height:44px; min-width:0; padding:10px; font-size:.85rem; }
   /* The gift preview must not cover amount, design or recipient controls. */
   .site-page .gift-builder__preview { position:static; }
+}
+
+@media (max-width:360px) {
+  .site-page .home-managed-discovery__track .search-depth__discovery-card { grid-template-columns:56px minmax(0,1fr) 12px; padding:12px; column-gap:10px; }
+  .site-page .home-managed-discovery__track .home-managed-discovery__visual { width:56px; height:56px; }
 }

@@ -24,7 +24,7 @@
   .home-page .home-slider__track > .home-slider__item { flex-basis:100%; max-inline-size:100%; }
   .home-page .home-vacation-strip__track { gap:16px; }
   .home-page .home-vacation-strip__track > .home-slider__item { flex-basis:100%; max-inline-size:100%; }
-  .home-page .home-managed-discovery__track.search-depth__rail { grid-auto-columns:100%; }
+  .home-page .home-managed-discovery__track.search-depth__rail { grid-auto-columns:min(88%,320px); }
   .home-page :is(.spa-package-deals,.event-deals) .event-rail { gap:16px; }
   .home-page :is(.spa-deal-card,.event-deals__card) { flex-basis:100%; }
   .home-page .spa-package-deals__days { scrollbar-width:none; }

@@ -1,5 +1,7 @@
 "use client";
 
+import { useAdminCanEdit } from "../admin-access-context.tsx";
+
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { Archive, Pencil, RotateCcw, Search, Save } from "lucide-react";
 import styles from "./promotions.module.css";
@@ -35,6 +37,7 @@ const errors: Record<string, string> = {
 };
 
 export default function DiscoveryPromotionsPage() {
+  const canEdit = useAdminCanEdit();
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
   const [form, setForm] = useState<Form>(emptyForm);
   const [resolvedName, setResolvedName] = useState("");
@@ -90,6 +93,7 @@ export default function DiscoveryPromotionsPage() {
   }
 
   async function save(status: "draft" | "archived", sourceForm = form) {
+    if (!canEdit) return;
     if (busy) return;
     setBusy(true); setError(""); setNotice("");
     const requestKey = JSON.stringify({ sourceForm, status });
@@ -152,7 +156,7 @@ export default function DiscoveryPromotionsPage() {
               onChange={(event) => change("contractSource", event.target.value)} disabled={busy} placeholder="למשל: מערכת חוזים" /></label></div>
           <label>הערה פנימית<textarea rows={3} maxLength={500} value={form.note}
             onChange={(event) => change("note", event.target.value)} disabled={busy} /></label>
-          <button type="submit" className={styles.primary} disabled={busy || !resolvedName}><Save size={17} aria-hidden="true" />{busy ? "שומרים..." : "שמירת טיוטה"}</button>
+          <button type="submit" className={styles.primary} disabled={!canEdit || (busy || !resolvedName)}><Save size={17} aria-hidden="true" />{busy ? "שומרים..." : "שמירת טיוטה"}</button>
         </form>
       </section>
       <div className={styles.records}>
@@ -168,7 +172,7 @@ export default function DiscoveryPromotionsPage() {
                   onClick={() => void save("archived", { campaignId: draft.campaignId, expectedVersion: draft.version,
                     world: draft.world, supplierId: String(draft.supplierId), kind: draft.kind, weight: draft.weight,
                     startsOn: draft.startsOn, endsOn: draft.endsOn, contractEndsOn: draft.contractEndsOn || "",
-                    contractSource: draft.contractSource || "", note: draft.note })} disabled={busy}><Archive size={17} /></button> : null}</div></td>
+                    contractSource: draft.contractSource || "", note: draft.note })} disabled={!canEdit || (busy)}><Archive size={17} /></button> : null}</div></td>
             </tr>)}</tbody></table></div> : <p className={styles.empty}>עדיין אין טיוטות קידום.</p>}
         </section>
         <section aria-labelledby="promotion-log-title"><div className={styles.sectionHeading}><h2 id="promotion-log-title">יומן שינויים</h2></div>

@@ -10,7 +10,8 @@ import { useEffect, useRef, useState, type MouseEvent } from "react";
 import type { ListingAvailability, ListingDateQuote, Property } from "../data/site-data";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { PinIcon } from "../site-header";
-import { trackBusinessEvent, trackPhoneReveal } from "../lib/analytics";
+import { trackBusinessEvent } from "../lib/analytics";
+import { DirectPhoneLink } from "./direct-phone-link";
 import { FavoriteButton } from "./favorite-button";
 import { WhatsAppLeadButton } from "./whatsapp-lead-button";
 import { ListingContactPreview, SampleListingDisclosure } from "./listing-contact-preview";
@@ -30,13 +31,6 @@ const cardCopy: Record<SiteLanguage, { call: string; whatsapp: string; reviews: 
   en: { call: "Call", whatsapp: "WhatsApp enquiry", reviews: "reviews", outOfTen: "out of 10", details: "View details", quickBook: "Quick booking", searchedDates: "Your searched dates", noDates: "No dates selected", from: "From ", night: "per night", stayTotal: "for the whole stay", nightlyAverage: "average per night", to: "to", inquirePrice: "Contact the property for availability and price", checking: "Checking live availability and price", unavailableSource: "We could not verify availability and price right now", includedGuests: (count) => `Price basis: ${count} guests`, minimumNights: (count) => `Minimum stay: ${count} nights`, availability: { available: "Available for your dates", unavailable: "Unavailable for your dates", unknown: "Contact the property for availability and price" } },
   ru: { call: "Позвонить", whatsapp: "Запрос в WhatsApp", reviews: "отзывов", outOfTen: "из 10", details: "Подробнее", quickBook: "Быстрое бронирование", searchedDates: "Даты вашего поиска", noDates: "Даты не выбраны", from: "От ", night: "за ночь", stayTotal: "за весь период", nightlyAverage: "в среднем за ночь", to: "по", inquirePrice: "Уточните наличие и цену у объекта", checking: "Проверяем актуальные наличие и цену", unavailableSource: "Не удалось проверить наличие и цену", includedGuests: (count) => `Цена рассчитана для ${count} гостей`, minimumNights: (count) => `Минимум ${count} ночи`, availability: { available: "Свободно на ваши даты", unavailable: "Нет мест на ваши даты", unknown: "Уточните наличие и цену у объекта" } },
   fr: { call: "Appeler", whatsapp: "Demande par WhatsApp", reviews: "avis", outOfTen: "sur 10", details: "Voir les détails", quickBook: "Réservation rapide", searchedDates: "Dates de votre recherche", noDates: "Aucune date sélectionnée", from: "À partir de ", night: "par nuit", stayTotal: "pour tout le séjour", nightlyAverage: "moyenne par nuit", to: "au", inquirePrice: "Contactez l'établissement pour la disponibilité et le prix", checking: "Vérification des disponibilités et du prix", unavailableSource: "Impossible de vérifier la disponibilité et le prix pour le moment", includedGuests: (count) => `Prix calculé pour ${count} personnes`, minimumNights: (count) => `Séjour minimum : ${count} nuits`, availability: { available: "Disponible à vos dates", unavailable: "Indisponible à vos dates", unknown: "Contactez l'établissement pour la disponibilité et le prix" } },
-};
-
-const phoneCopy: Record<SiteLanguage, { reveal: string; call: string }> = {
-  he: { reveal: "הצגת מספר", call: "לחיוג" },
-  en: { reveal: "Show number", call: "Call now" },
-  ru: { reveal: "Показать номер", call: "Позвонить" },
-  fr: { reveal: "Afficher le numéro", call: "Appeler" },
 };
 
 const propertyCardInterfaceCopy: Record<SiteLanguage, { stay: string; location: string; open: string; details: string; image: string; previous: string; next: string; choose: string; units: (count: number) => string; whole: string; capacity: (count: number, perUnit: boolean) => string; pending: string; highlights: string }> = {
@@ -306,7 +300,7 @@ export function hasAvailablePriceForSearch(property: Property, selectedStay: Sel
     && resolvedAvailability.nightlyPrice > 0;
 }
 
-export function PropertyCard({ property, selectedStay = null, promotional = false, detailHref, liveAvailabilityState, mapActive = false, onActiveChange }: { property: Property; selectedStay?: SelectedStay | null; promotional?: boolean; detailHref?: string; liveAvailabilityState?: LegacyAvailabilityState; mapActive?: boolean; onActiveChange?: (active: boolean) => void }) {
+export function PropertyCard({ property, selectedStay = null, promotional = false, detailHref, liveAvailabilityState, onlineCapability = false, mapActive = false, onActiveChange }: { property: Property; selectedStay?: SelectedStay | null; promotional?: boolean; detailHref?: string; liveAvailabilityState?: LegacyAvailabilityState; onlineCapability?: boolean; mapActive?: boolean; onActiveChange?: (active: boolean) => void }) {
   const { language, translate } = useSiteLanguage();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -318,7 +312,6 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
   const localizedType = localizedBusinessText(property.type, language, translate, interfaceCopy.stay);
   const galleryImages = [property.image, ...property.images].filter((src, index, all) => src && all.indexOf(src) === index).slice(0, 10);
   const { imageIndex, navigationIndex, setImageIndex, warmImages, pending, error } = usePreviewGallery(galleryImages);
-  const [phoneVisible, setPhoneVisible] = useState(false);
   const touchStart = useRef<number | null>(null);
   const cardRef = useRef<HTMLElement>(null);
   const didSwipe = useRef(false);
@@ -333,7 +326,8 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
   const displayPrice = resolvedAvailability?.priceMode === "stay_total" ? resolvedAvailability.totalPrice : resolvedAvailability?.nightlyPrice;
   const priceUnit = resolvedAvailability?.priceMode === "stay_total" ? copy.stayTotal : resolvedAvailability?.priceMode === "nightly_average" ? copy.nightlyAverage : copy.night;
   const hasQuotedPrice = typeof displayPrice === "number" && displayPrice > 0;
-  const onlineBookingEligible = canShowOnlineBookingBadge({
+  const undatedSearch = !selectedStay;
+  const onlineBookingEligible = (undatedSearch && !promotional && !property.demoOperations?.fictional && onlineCapability) || canShowOnlineBookingBadge({
     ready: !promotional && liveLegacyAvailability.status === "ready",
     onlineBooking: resolvedAvailability?.onlineBooking,
     bookingSupported: resolvedAvailability?.bookingSupported === true,
@@ -408,10 +402,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
           </div> : null}
           <div className="stay-card__actions">
             {quickBookingReady ? <Link className="stay-card__details-link stay-card__details-link--booking" href={quickBookingHref}>{copy.quickBook}</Link> : null}
-            {!quickBookingReady && !promotional && phone ? phoneVisible
-              ? <a className="stay-card__contact stay-card__contact--phone stay-card__contact--revealed" href={`tel:${phone}`} aria-label={`${phoneCopy[language].call}: ${property.name}`}><PhoneIcon /><bdi>{property.contact?.phone}</bdi></a>
-              : <button className="stay-card__contact stay-card__contact--phone" type="button" aria-expanded={phoneVisible} onClick={() => { setPhoneVisible(true); trackPhoneReveal({ placeId: property.slug, placeName: property.name, world: "vacation", placement: "property_card" }); }}><PhoneIcon /><span>{phoneCopy[language].reveal}</span></button>
-            : null}
+            {!quickBookingReady && !promotional && phone ? <DirectPhoneLink phone={property.contact?.phone} placeName={property.name} className="stay-card__contact stay-card__contact--phone stay-card__contact--revealed" tracking={{ placeId: property.slug, placeName: property.name, world: "vacation", placement: "property_card" }} /> : null}
             {!quickBookingReady && !promotional && whatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={whatsapp} serviceName={property.type} initialDate={selectedStay?.from} initialTill={selectedStay?.till} initialGuests={selectedStay?.guests} buttonLabel={copy.whatsapp} buttonClassName="stay-card__contact stay-card__contact--whatsapp" /> : null}
             {!quickBookingReady && !promotional && property.demoOperations?.fictional ? <ListingContactPreview placeName={property.name} className="listing-contact-preview--card" /> : null}
           </div>

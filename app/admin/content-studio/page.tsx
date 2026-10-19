@@ -1,5 +1,7 @@
 "use client";
 
+import { useAdminCanEdit } from "../admin-access-context.tsx";
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import styles from "./content-studio.module.css";
 import extras from "./content-studio-extras.module.css";
@@ -32,6 +34,7 @@ function jsonAttributes(value = "{}") { try { const parsed = JSON.parse(value); 
 function discoveryItems(value: string | undefined, fallback: HomeDiscoveryItem[]) { try { const parsed = value ? JSON.parse(value) : fallback; return Array.isArray(parsed) ? parsed as HomeDiscoveryItem[] : fallback; } catch { return fallback; } }
 
 export default function ContentStudioPage() {
+  const canEdit = useAdminCanEdit();
   const [type, setType] = useState("spa"); const [locale, setLocale] = useState("he"); const [query, setQuery] = useState("");
   const [data, setData] = useState<Payload | null>(null); const [selected, setSelected] = useState<(Item & { versions: Version[] }) | null>(null);
   const [draft, setDraft] = useState<Content | null>(null); const [tab, setTab] = useState<"content" | "seo" | "links" | "preview" | "history">("content");
@@ -79,6 +82,7 @@ export default function ContentStudioPage() {
   const visible = useMemo(() => data?.items || [], [data]);
   const update = <K extends keyof Content>(key: K, value: Content[K]) => setDraft((current) => current ? { ...current, [key]: value } : current);
   async function save(status: string, action: string, content = draft) {
+    if (!canEdit) return;
     if (!selected || !content) return; setSaving(true); setError(""); setMessage("");
     try {
       const response = await fetch("/api/admin/content-studio", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: selected.id, expectedVersion: selected.version, status, action, content, scheduledAt: scheduledAt ? new Date(scheduledAt).toISOString() : null }) });
@@ -242,7 +246,7 @@ export default function ContentStudioPage() {
         {tab === "links" ? <div className={styles.links}>{draft.links.map((item, index) => <div className={styles.linkRow} key={item.id}><input aria-label="תווית" value={item.label} onChange={(event) => updateLink(index, "label", event.target.value)} /><input aria-label="כתובת" dir="ltr" value={item.href} onChange={(event) => updateLink(index, "href", event.target.value)} /><input aria-label="קבוצה" value={item.group} onChange={(event) => updateLink(index, "group", event.target.value)} /><input aria-label="סדר" type="number" value={item.order} onChange={(event) => updateLink(index, "order", Number(event.target.value))} /><button className={styles.remove} type="button" onClick={() => update("links", draft.links.filter((_, itemIndex) => itemIndex !== index))}>הסרה</button><div className={extras.linkFlags}><label><input type="checkbox" checked={item.visible} onChange={(event) => updateLink(index, "visible", event.target.checked)} /> מוצג באתר</label><label><input type="checkbox" checked={item.newWindow} onChange={(event) => updateLink(index, "newWindow", event.target.checked)} /> פתיחה בחלון חדש</label></div></div>)}<button className={styles.add} type="button" onClick={() => update("links", [...draft.links, { id: `link-${Date.now()}`, label: "קישור חדש", href: "/", group: "כללי", order: draft.links.length + 1, visible: true, newWindow: false }])}>הוספת קישור</button></div> : null}
         {tab === "preview" ? <section className={styles.preview}><small>תצוגה מקדימה של הגרסה הנוכחית, לפני פרסום</small><h3>{draft.title}</h3><p>{draft.summary}</p>{draft.body ? <p>{draft.body}</p> : null}{draft.links.length ? <nav>{draft.links.filter((item) => item.visible).map((item) => <a key={item.id} href={item.href} onClick={(event) => event.preventDefault()}>{item.label}</a>)}</nav> : null}</section> : null}
         {tab === "history" ? <div className={styles.history}>{selected.versions.length ? selected.versions.map((version) => <div className={styles.version} key={version.version}><div><strong>גרסה {version.version} · {statusLabel[version.status]}</strong><small>{date(version.createdAt)} · {version.createdBy}</small></div><button type="button" onClick={() => restore(version)}>טעינה לעורך</button></div>) : <p>עדיין אין גרסאות שמורות.</p>}</div> : null}
-        <footer className={styles.actions}><button disabled={saving} onClick={() => void save("draft", restoring ? "restore" : "save")}>{restoring ? "שמירת שחזור כגרסה חדשה" : "שמירת טיוטה"}</button><button disabled={saving} onClick={() => void save("review", "review")}>העברה לאישור</button><label className={extras.schedule}><span>מועד פרסום</span><input type="datetime-local" value={scheduledAt} onChange={(event) => setScheduledAt(event.target.value)} /></label><button disabled={saving || !scheduledAt} onClick={() => void save("scheduled", "schedule")}>תזמון</button><button className={styles.primary} disabled={saving} onClick={() => void save("published", "publish")}>{saving ? "שומרים..." : "פרסום"}</button><button disabled={saving} onClick={() => void save("archived", "archive")}>העברה לארכיון</button>{message ? <span className={styles.message} role="status">{message}</span> : null}</footer>
+        <footer className={styles.actions}><button disabled={!canEdit || (saving)} onClick={() => void save("draft", restoring ? "restore" : "save")}>{restoring ? "שמירת שחזור כגרסה חדשה" : "שמירת טיוטה"}</button><button disabled={!canEdit || (saving)} onClick={() => void save("review", "review")}>העברה לאישור</button><label className={extras.schedule}><span>מועד פרסום</span><input type="datetime-local" value={scheduledAt} onChange={(event) => setScheduledAt(event.target.value)} /></label><button disabled={!canEdit || (saving || !scheduledAt)} onClick={() => void save("scheduled", "schedule")}>תזמון</button><button className={styles.primary} disabled={!canEdit || (saving)} onClick={() => void save("published", "publish")}>{saving ? "שומרים..." : "פרסום"}</button><button disabled={!canEdit || (saving)} onClick={() => void save("archived", "archive")}>העברה לארכיון</button>{message ? <span className={styles.message} role="status">{message}</span> : null}</footer>
       </> : <div className={styles.empty}><h2>בחרו פריט לעריכה</h2><p>המקור והשכבה של VII יוצגו זה לצד זה, בלי לדרוס נתוני ספק.</p></div>}</article>
     </section>
   </main>;

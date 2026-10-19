@@ -1,5 +1,7 @@
 "use client";
 
+import { useAdminCanEdit } from "../admin-access-context.tsx";
+
 import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, CloudDownload, LocateFixed, MapPinned, RefreshCw, Save, Search } from "lucide-react";
 import styles from "./geography.module.css";
@@ -15,6 +17,7 @@ type GeographyNode = {
 const levelNames: Record<NodeLevel, string> = { district: "מחוז", area: "אזור", city: "עיר או יישוב" };
 
 export default function GeographyAdminPage() {
+  const canEdit = useAdminCanEdit();
   const [nodes, setNodes] = useState<GeographyNode[]>([]);
   const [selectedKey, setSelectedKey] = useState("");
   const [query, setQuery] = useState("");
@@ -57,6 +60,7 @@ export default function GeographyAdminPage() {
   }
 
   async function refresh() {
+    if (!canEdit) return;
     if (working) return;
     setWorking("refresh"); setMessage(null);
     try {
@@ -70,6 +74,7 @@ export default function GeographyAdminPage() {
   }
 
   async function save() {
+    if (!canEdit) return;
     if (!draft || working) return;
     setWorking("save"); setMessage(null);
     try {
@@ -88,7 +93,7 @@ export default function GeographyAdminPage() {
 
   return <main className={styles.page} dir="rtl">
     <header className={styles.hero}><div><span>מפת התוכן של VII</span><h1>ערים, אזורים ומחוזות</h1><p>מקור אמת אחד לנתוני ה־API, לחיפוש, למפות ולדפי הקידום. אפשר לכפות שם, כתובת ונראות בלי לאבד את נתוני הספק.</p></div>
-      <button type="button" onClick={() => void refresh()} disabled={Boolean(working)} aria-busy={working === "refresh"}><RefreshCw className={working === "refresh" ? styles.spin : ""} size={18} />{working === "refresh" ? "מושכים נתונים..." : "רענון מה־API"}</button></header>
+      <button type="button" onClick={() => void refresh()} disabled={!canEdit || (Boolean(working))} aria-busy={working === "refresh"}><RefreshCw className={working === "refresh" ? styles.spin : ""} size={18} />{working === "refresh" ? "מושכים נתונים..." : "רענון מה־API"}</button></header>
     {message ? <p className={message.kind === "success" ? styles.success : styles.error} role={message.kind === "error" ? "alert" : "status"}>{message.kind === "success" ? <CheckCircle2 size={18} /> : null}{message.text}</p> : null}
     <section className={styles.metrics} aria-label="סיכום נתוני אזורים">
       <article><MapPinned size={19} /><span>מחוזות</span><strong>{counts.district || 0}</strong></article>
@@ -111,7 +116,7 @@ export default function GeographyAdminPage() {
           {draft.level === "city" ? <div className={styles.coordinates}><label><span>קו רוחב</span><input dir="ltr" inputMode="decimal" value={draft.gpsLat ?? ""} onChange={(event) => setDraft({ ...draft, gpsLat: event.target.value === "" ? null : Number(event.target.value) })} /></label><label><span>קו אורך</span><input dir="ltr" inputMode="decimal" value={draft.gpsLong ?? ""} onChange={(event) => setDraft({ ...draft, gpsLong: event.target.value === "" ? null : Number(event.target.value) })} /></label></div> : null}
           <div className={styles.toggles}><label><input type="checkbox" checked={draft.visible} onChange={(event) => setDraft({ ...draft, visible: event.target.checked })} /><span><b>מוצג באתר</b><small>מופיע באפשרויות החיפוש הציבוריות</small></span></label><label><input type="checkbox" checked={draft.featured} onChange={(event) => setDraft({ ...draft, featured: event.target.checked })} /><span><b>יעד מוביל</b><small>מקודם בתחילת רשימת היעדים</small></span></label></div>
         </section>
-        <footer><span>גרסה {draft.version} · השינויים נשמרים עם היסטוריה מלאה</span><button type="button" onClick={() => void save()} disabled={Boolean(working)} aria-busy={working === "save"}><Save size={17} />{working === "save" ? "שומרים..." : "שמירת שינויים"}</button></footer>
+        <footer><span>גרסה {draft.version} · השינויים נשמרים עם היסטוריה מלאה</span><button type="button" onClick={() => void save()} disabled={!canEdit || (Boolean(working))} aria-busy={working === "save"}><Save size={17} />{working === "save" ? "שומרים..." : "שמירת שינויים"}</button></footer>
       </> : <div className={styles.blank}><MapPinned size={38} /><h2>בחרו עיר או אזור לעריכה</h2><p>אפשר לשמור שם חלופי, כתובת באנגלית, נראות וקואורדינטות.</p></div>}</div>
     </section>
   </main>;

@@ -32,7 +32,7 @@ import { useSearchParams } from "next/navigation";
 import { useViiLiveSearch } from "../../components/use-vii-live-search";
 import { eventSlotCopy } from "../../i18n/event-slot-copy";
 import type { EventSlot } from "../../lib/vii-live-search";
-import { trackPhoneReveal } from "../../lib/analytics";
+import { DirectPhoneLink } from "../../components/direct-phone-link";
 import { useSiteLanguage } from "../../i18n/locale-provider";
 import { latinBusinessAlias, localizedBusinessList, localizedBusinessText } from "../../i18n/localized-business-content";
 
@@ -69,7 +69,6 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
   const [submitState, setSubmitState] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [reference, setReference] = useState("");
   const [submissionId, setSubmissionId] = useState("");
-  const [phoneRevealed, setPhoneRevealed] = useState(false);
   const place = useMemo(() => {
     const base = initialPlace || eventPlaces.find((item) => item.slug === initialSlug) || eventPlaces[0];
     return supplierDetail ? { ...base, name: supplierDetail.name || base.name, image: supplierDetail.images[0] || base.image,
@@ -148,7 +147,7 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
       <ViewedItemTracker id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים ביחידה הגדולה`} />
       <main id="main-content" className="event-place-page">
         <BreadcrumbTrail items={[{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, { name: "מקומות לאירועים", path: "/events/search" }, { name: localizedPlaceName }]} />
-<section className="shell property-title event-title"><div><span className="eyebrow">{safeEventText(place.type, eventContentCopy.name)}</span><h1>{localizedPlaceName}</h1><p><PinIcon />{localizedLocation}, {localizedArea}</p></div><div className="property-title__side"><div className="property-title__actions property-title__actions--contact"><FavoriteButton compact={false} id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים ביחידה הגדולה`} />{phoneHref ? phoneRevealed ? <a className="property-phone-action property-phone-action--revealed" href={phoneHref} aria-label={`${translate("חיוג אל")} ${localizedPlaceName}, ${ownerPhone}`}><PhoneIcon /><span dir="ltr">{ownerPhone}</span></a> : <button className="property-phone-action" type="button" onClick={() => { setPhoneRevealed(true); trackPhoneReveal({ placeId: place.slug, placeName: place.name, world: "events", placement: "event_detail" }); }} aria-expanded="false"><PhoneIcon /><span>{translate("הצגת מספר")}</span></button> : null}{ownerWhatsapp ? <WhatsAppLeadButton world="events" placeId={place.slug} placeName={place.name} businessPhone={ownerWhatsapp} serviceName={place.type} buttonClassName="property-whatsapp-action" /> : null}<ShareButton title={place.name} kind="event" image={place.image} /></div><a className="button primary" href="#event-booking">{translate("בדיקת אירוע")}</a></div></section>
+<section className="shell property-title event-title"><div><span className="eyebrow">{safeEventText(place.type, eventContentCopy.name)}</span><h1>{localizedPlaceName}</h1><p><PinIcon />{localizedLocation}, {localizedArea}</p></div><div className="property-title__side"><div className="property-title__actions property-title__actions--contact"><FavoriteButton compact={false} id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים ביחידה הגדולה`} />{phoneHref ? <DirectPhoneLink phone={ownerPhone} placeName={localizedPlaceName} className="property-phone-action" tracking={{ placeId: place.slug, placeName: place.name, world: "events", placement: "event_detail" }} /> : null}{ownerWhatsapp ? <WhatsAppLeadButton world="events" placeId={place.slug} placeName={place.name} businessPhone={ownerWhatsapp} serviceName={place.type} buttonClassName="property-whatsapp-action" /> : null}<ShareButton title={place.name} kind="event" image={place.image} /></div><a className="button primary" href="#event-booking">{translate("בדיקת אירוע")}</a></div></section>
         <PropertyGallery className="shell" images={place.images} name={localizedPlaceName} onOpen={(index) => openGallery("all", index)} />
 
         <DetailStickyDock name={localizedPlaceName} location={`${localizedLocation}, ${localizedArea}`} sections={sectionLinks} onlineHref="#event-booking" onlineLabel="בדיקת תאריך לאירוע" />

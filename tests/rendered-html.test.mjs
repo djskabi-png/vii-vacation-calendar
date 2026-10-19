@@ -1369,8 +1369,10 @@ test("provider pages demonstrate tracked WhatsApp and full-site booking modes", 
   const [whatsappHtml, fullHtml] = await Promise.all([whatsappResponse.text(), fullResponse.text()]);
 
   assert.match(whatsappHtml, /הזמנה בוואטסאפ/);
-  assert.match(whatsappHtml, /הצגת מספר/);
-  assert.doesNotMatch(whatsappHtml, />050-786-7711</);
+  const directPhoneAnchor = whatsappHtml.match(/<a[^>]*class="[^"]*direct-phone-link[^\"]*"[^>]*href="tel:0507867711"[^>]*>[\s\S]*?<\/a>/)?.[0];
+  assert.ok(directPhoneAnchor, "provider phone must be directly callable before hydration");
+  assert.match(directPhoneAnchor, /<bdi dir="ltr" data-no-translate="true">050-786-7711<\/bdi>/);
+  assert.doesNotMatch(whatsappHtml, /הצגת מספר/);
   assert.match(fullHtml, /התחלת הזמנה/);
   assert.match(fullHtml, /\/booking\?world=providers&amp;place=nissan-mukhtar/);
   assert.match(source, /<WhatsAppLeadButton/);

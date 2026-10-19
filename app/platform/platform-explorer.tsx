@@ -920,7 +920,7 @@ export function PlatformExplorer() {
             <div className={styles.hilatBrowserBar}><span aria-hidden="true"><i /><i /><i /></span><b dir="ltr">vii.spaplus.co</b></div>
             <div className={styles.hilatMiniHeader}><img src="/vii-logo.png" alt="וי פור ויקיישן" title="וי פור ויקיישן" width="160" height="122" /><span>נופש</span><span>בחירת עולם</span></div>
             <div className={styles.hilatMiniTitle}><small>מתחם בקתות עץ · נופש ולינה</small><h3>הילת הנוף</h3><p>כלנית, סובב כנרת</p></div>
-            <div className={styles.hilatMiniActions}><span>שמירה</span><span>שיתוף</span><span>הצגת מספר</span><span>פנייה בוואטסאפ</span></div>
+            <div className={styles.hilatMiniActions}><span>שמירה</span><span>שיתוף</span><span><bdi dir="ltr">050-000-0000</bdi> · מספר לדוגמה</span><span>פנייה בוואטסאפ</span></div>
             <div className={styles.hilatMiniGallery}>
               <img src="/media/hilat-hanof/87686399e3d2342.jpg" alt="בריכת השחייה והנוף בהילת הנוף" title="בריכת השחייה והנוף בהילת הנוף" width="1027" height="687" />
               <img src="/media/hilat-hanof/495f7c268eb4431.jpeg" alt="ג׳קוזי ביחידת אירוח בהילת הנוף" title="ג׳קוזי ביחידת אירוח בהילת הנוף" width="1024" height="683" />

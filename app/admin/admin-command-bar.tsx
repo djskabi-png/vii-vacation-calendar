@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { ArrowLeft, BarChart3, CalendarSync, FileSearch, Gauge, LibraryBig, ListChecks, LoaderCircle, LogOut, MapPinned, MessageCircle, Route, Search, Sparkles, Star, TrendingUp, X } from "lucide-react";
 import styles from "./admin.module.css";
+import { adminRouteAllowed, type AdminAccess } from "../lib/admin-permissions.ts";
 
 const commands = [
   { href: "/admin", title: "תמונת מצב", hint: "מדדים, בריאות המערכת וסדר היום", icon: Gauge },
@@ -19,13 +20,14 @@ const commands = [
   { href: "/admin/geography", title: "ערים ואזורים", hint: "נתוני API, שמות, כתובות, מפה ונראות באתר", icon: MapPinned },
   { href: "/admin/operations", title: "הזמנות וחוות דעת", hint: "פעולות, סטטוסים ואסמכתאות", icon: Star },
   { href: "/admin/whatsapp-leads", title: "פניות וואטסאפ", hint: "פניות שנשמרו במערכת", icon: MessageCircle },
+  { href: "/admin/users", title: "משתמשים והרשאות", hint: "גישה, תחומי עבודה וביטול הרשאות", icon: ListChecks },
 ];
 
 function currentTitle(pathname: string) {
   return commands.find((item) => item.href === "/admin" ? pathname === item.href : pathname.startsWith(item.href))?.title || "מערכת הניהול";
 }
 
-export default function AdminCommandBar() {
+export default function AdminCommandBar({ access }: { access: AdminAccess }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -34,8 +36,9 @@ export default function AdminCommandBar() {
   const closeCommand = () => { setOpen(false); setQuery(""); };
   const filtered = useMemo(() => {
     const term = query.trim().toLocaleLowerCase("he");
-    return term ? commands.filter((item) => `${item.title} ${item.hint}`.toLocaleLowerCase("he").includes(term)) : commands;
-  }, [query]);
+    const allowed = commands.filter((item) => adminRouteAllowed(access, item.href));
+    return term ? allowed.filter((item) => `${item.title} ${item.hint}`.toLocaleLowerCase("he").includes(term)) : allowed;
+  }, [query, access]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -82,7 +85,7 @@ export default function AdminCommandBar() {
         <Search size={17} aria-hidden="true" /><span>חיפוש כלי, דוח או פעולה</span><kbd>Ctrl K</kbd>
       </button>
       <div className={styles.commandActions}>
-        <a href="/admin/content-queue" className={styles.commandPrimary}><ListChecks size={17} aria-hidden="true" /> פתיחת תור העבודה</a>
+        {adminRouteAllowed(access, "/admin/content-queue") ? <a href="/admin/content-queue" className={styles.commandPrimary}><ListChecks size={17} aria-hidden="true" /> פתיחת תור העבודה</a> : null}
         <button type="button" className={styles.logoutButton} onClick={() => void logout()} disabled={logoutState === "loading"} aria-busy={logoutState === "loading"}>
           {logoutState === "loading" ? <LoaderCircle className={styles.spin} size={17} aria-hidden="true" /> : <LogOut size={17} aria-hidden="true" />}
           <span>{logoutState === "loading" ? "מתנתקים..." : "התנתקות"}</span>

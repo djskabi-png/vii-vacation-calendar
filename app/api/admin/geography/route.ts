@@ -1,5 +1,4 @@
-import { readSession } from "../../../lib/google-auth.ts";
-import { isAdminEmail } from "../../../lib/admin-access.ts";
+import { authorizedAdminSession } from "../../../lib/admin-session.ts";
 import { fetchSupplierGeography, geographyDatabase, parseGeographyChange, readGeography, refreshGeography, saveGeographyNode } from "../../../lib/geography-admin.ts";
 import { supplierToken } from "../../../lib/vii-supplier-token.ts";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
@@ -12,8 +11,8 @@ function safeError(error: unknown) {
 }
 
 async function admin(request: Request) {
-  const session = await readSession(request).catch(() => null);
-  return session && isAdminEmail(session.email) ? session.email : null;
+  const session = await authorizedAdminSession(request).catch(() => null);
+  return session ? session.email : null;
 }
 
 async function database() {

@@ -37,15 +37,15 @@ test("online selection survives vacation URLs and depth changes but never crosse
 test("online filter is wired before primary and nearby results and has truthful date and retry states", () => {
   const page = readFileSync(new URL("../app/search/page.tsx", import.meta.url), "utf8");
   assert.match(page, /const onlineOnly = searchParams.get\("online"\) === "1"/);
-  assert.equal((page.match(/matchesVacationOnlineBooking\(onlineOnly,/g) || []).length, 2);
-  assert.match(page, /shownFilters.onlineOnly[\s\S]*matchesVacationOnlineBooking\(true,/);
+  assert.match(page, /const matchesOnline[\s\S]*matchesVacationOnlineBooking\(/);
+  assert.match(page, /shownFilters.onlineOnly[\s\S]*matchesOnline\(property\)/);
   assert.match(page, /online: draftFilters.onlineOnly \? "1" : null/);
   assert.match(page, /accessible: null, online: null/);
   assert.match(page, /catalogLoading \|\| catalogError \|\| onlineCheckPending/);
   assert.match(page, /setOnlineSearchRetry\(\(value\) => value \+ 1\)/);
   // The DOM translation observer caches a text node's first Hebrew source.
   // Stateful status/count copy must be React-owned and translated explicitly.
-  assert.match(page, /<p data-no-translate>\{translate\(!selectedStay/);
+  assert.match(page, /<p data-no-translate>\{translate\(undatedSearch/);
   assert.match(page, /className="button primary filter-apply" data-no-translate[\s\S]*?\{translate\(draftResultLabel\)\}/);
   const box = readFileSync(new URL("../app/components/search-box.tsx", import.meta.url), "utf8");
   assert.match(box, /mode === "vacation" && new URLSearchParams\(searchParamsKey\).get\("online"\) === "1"/);
