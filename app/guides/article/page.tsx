@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { magazineArticles } from "../../data/magazine-data";
 import { notFound, redirect } from "next/navigation";
+import { serverLocalePath } from "../../i18n/server-public-copy";
 
 type Props = { searchParams: Promise<{ id?: string }> };
 
@@ -22,5 +23,5 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 
 export default async function Page({ searchParams }: Props) {
   const article = resolveArticle((await searchParams).id);
-  redirect(`/guides/${article.slug}`);
+  redirect(await serverLocalePath(`/guides/${article.slug}`));
 }

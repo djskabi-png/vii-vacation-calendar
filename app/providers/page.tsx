@@ -6,6 +6,7 @@ import { breadcrumbSchema, collectionSchema } from "../lib/seo";
 import { redirect } from "next/navigation";
 import { getProviderCategory, providerCategoryHref } from "../data/provider-categories";
 import { managedDiscoveryItems } from "../lib/managed-public-content";
+import { serverLocalePath } from "../i18n/server-public-copy";
 
 export const metadata: Metadata = {
   title: "ספקים לחופשה ולאירוע במקום אחד",
@@ -25,7 +26,7 @@ export default async function ProvidersPage({ searchParams }: ProvidersPageProps
       if (key === "category" || typeof value !== "string" || !value) continue;
       nextParams.set(key, value);
     }
-    redirect(`${providerCategoryHref(legacyCategory)}${nextParams.size ? `?${nextParams}` : ""}`);
+    redirect(await serverLocalePath(`${providerCategoryHref(legacyCategory)}${nextParams.size ? `?${nextParams}` : ""}`));
   }
   const providers = await managedDiscoveryItems(providerProfiles, "providers");
   return <>

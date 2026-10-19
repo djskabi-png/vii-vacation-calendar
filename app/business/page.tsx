@@ -17,6 +17,7 @@ import { discoveryItems, spaPlacesFromSites } from "../data/world-data";
 import type { SpaPlusSite } from "../data/spaplus";
 import { managedTrails, managedDiscoveryItems } from "../lib/managed-public-content";
 import { nearbyRecommendations } from "../lib/nearby-recommendations";
+import { serverPublicCopy } from "../i18n/server-public-copy";
 
 type QueryValue = string | string[] | undefined;
 type BusinessParams = { id?: QueryValue; mode?: QueryValue; dates?: QueryValue; from?: QueryValue; till?: QueryValue; guests?: QueryValue; rooms?: QueryValue; adults?: QueryValue; children?: QueryValue; infants?: QueryValue; price?: QueryValue; illustrative?: QueryValue; source?: QueryValue; period?: QueryValue };
@@ -40,12 +41,15 @@ async function resolveProperty(id?: string) {
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const { property } = await resolveProperty(queryValue((await searchParams).id));
   if (!property) return { title: "המקום אינו זמין", robots: { index: false, follow: false } };
+  const { translate } = await serverPublicCopy();
+  const name = translate(property.name);
+  const description = translate(property.description);
   return {
-    title: property.name,
-    description: property.description,
+    title: name,
+    description,
     alternates: { canonical: `/business?id=${property.slug}` },
-    openGraph: { type: "website", url: `/business?id=${property.slug}`, title: property.name, description: property.description, images: [{ url: property.image, alt: property.name }] },
-    twitter: { card: "summary_large_image", title: property.name, description: property.description, images: [property.image] },
+    openGraph: { type: "website", url: `/business?id=${property.slug}`, title: name, description, images: [{ url: property.image, alt: name }] },
+    twitter: { card: "summary_large_image", title: name, description, images: [property.image] },
     robots: property.demoOperations?.fictional ? { index: false, follow: false } : undefined,
   };
 }

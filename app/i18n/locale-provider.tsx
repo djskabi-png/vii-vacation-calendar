@@ -11,6 +11,10 @@ import catalogAdminTranslations from "../data/catalog-admin-translations.json";
 import emailPolishTranslations from "../data/email-polish-translations.json";
 import worldDepthTranslations from "../data/world-depth-translations.json";
 import visitorUiTranslations from "../data/visitor-ui-translations.json";
+import publicReviewTranslations from "../data/public-review-translations.json";
+import { lookupPublicCopy } from "./public-copy";
+
+const publicReviewByLanguage = Object.fromEntries((["en", "fr", "ru"] as const).map((language) => [language, Object.fromEntries(Object.entries(publicReviewTranslations).map(([source, translations]) => [source, translations[language]]))])) as Record<"en" | "fr" | "ru", Record<string, string>>;
 
 export type { SiteLanguage } from "./locale-routing";
 
@@ -1222,6 +1226,8 @@ function translateDynamic(value: string, language: Exclude<SiteLanguage, "he">):
 
 function translateValue(value: string, language: SiteLanguage): string {
   if (language === "he" || !hebrewPattern.test(value)) return value;
+  const publicText = lookupPublicCopy(value, language, publicReviewByLanguage[language]);
+  if (publicText) return publicText;
   const leading = value.match(/^\s*/)?.[0] || "";
   const trailing = value.match(/\s*$/)?.[0] || "";
   const core = value.trim().replace(/\s+/g, " ");

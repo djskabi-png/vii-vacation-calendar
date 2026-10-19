@@ -7,6 +7,7 @@ import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, collectionSchema } from "../lib/seo";
 import { publishedSearchPage } from "../lib/search-page-content.ts";
 import { SpaPackageDeals } from "../components/spa-package-deals";
+import { serverPublicCopy } from "../i18n/server-public-copy";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function SpasPage() {
   const page = await publishedSearchPage("/spas");
+  const { translate } = await serverPublicCopy();
   const spaPlaces = spaPlacesFromSites(await publicCatalogSummaries<SpaPlusSite>("spa"));
   return <>
     <StructuredData data={breadcrumbSchema([
@@ -24,6 +26,6 @@ export default async function SpasPage() {
       { name: "בתי ספא", path: "/spas/" },
     ])} />
     <StructuredData data={collectionSchema(page?.title || "בתי ספא בישראל", page?.description || "בתי ספא וחבילות לפי אזור וסוג החוויה.", "/spas", spaPlaces.map((place) => ({ name: place.name, path: `/discover/place/${place.id}`, image: place.image })))} />
-    <WorldLanding world="spa" title={page?.title || "בתי ספא בישראל"} description={page?.description || "בוחרים אזור, תאריך וסוג חוויה ומוצאים את הספא שמתאים לכם."} items={spaPlaces} searchMode="spa" beforeResults={<SpaPackageDeals sectionId="spa-world-package-deals" />} />
+    <WorldLanding world="spa" title={translate(page?.title || "בתי ספא בישראל")} description={translate(page?.description || "בוחרים אזור, תאריך וסוג חוויה ומוצאים את הספא שמתאים לכם.")} items={spaPlaces} searchMode="spa" beforeResults={<SpaPackageDeals sectionId="spa-world-package-deals" />} />
   </>;
 }
