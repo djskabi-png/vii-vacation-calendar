@@ -16,6 +16,39 @@ test("local cache reuses fresh value and accepts successful empty result", async
   assert.deepEqual(third.value, [{ id: 2 }]); assert.equal(third.cache.status, "refreshed"); assert.equal(calls, 2);
 });
 
+test("daily policy persists capability across isolates, merges previous evidence, coalesces and retains failures", async () => {
+  const { mf, db } = await d1(); let now = 700_000_000; let calls = 0;
+  const policy = { freshMs: 86_400_000, staleMs: 7 * 86_400_000 };
+  const options = { key: ["daily-capability-proof"], db, now: () => now, policy };
+  const good = { "vacation-1": { checkedAt: now } };
+  try {
+    await cachedDiscovery({ ...options, load: async () => { calls++; return good; } });
+    now += 86_399_999;
+    const hit = await cachedDiscovery({ ...options, load: async () => { calls++; throw Error("must_not_fetch"); } });
+    assert.deepEqual(hit.value, good); assert.equal(calls, 1);
+    now += 2;
+    const [a, b] = await Promise.all([0, 1].map(() => cachedDiscovery({ ...options, load: async previous => { calls++; assert.deepEqual(previous, good); throw Error("provider_down"); } })));
+    assert.equal(calls, 2); assert.deepEqual(a.value, good); assert.deepEqual(b.value, good);
+    // A new binding object represents another isolate; persisted row still wins.
+    const isolate = { prepare: (...args) => db.prepare(...args) };
+    assert.deepEqual((await cachedDiscovery({ ...options, db: isolate, load: async () => { throw Error("cooldown"); } })).value, good);
+    now = 700_000_000 + policy.staleMs;
+    await assert.rejects(cachedDiscovery({ ...options, load: async () => { throw Error("expired"); } }));
+  } finally { await mf.dispose(); }
+});
+
+test("daily evidence survives short-lived offer cache churn without exceeding admission bound", async () => {
+  const { mf, db } = await d1(); let now = 800_000_000, calls = 0;
+  const options = { key: ["daily-churn-proof"], db, now: () => now, policy: { freshMs: 86_400_000, staleMs: 604_800_000 }, load: async () => { calls++; return [1]; } };
+  try {
+    await cachedDiscovery(options); now += 5000;
+    await db.batch(Array.from({ length: 511 }, (_, i) => db.prepare('INSERT INTO vii_discovery_offer_cache_v1 (cache_key,payload,checked_at,stale_until) VALUES (?, ?, ?, ?)').bind(`offer-churn-${i}`, '[]', now, now + 86_400_000)));
+    await cachedDiscovery({ key: ['another-short-offer'], db, now: () => now, load: async () => [] });
+    assert.equal((await cachedDiscovery(options)).cache.status, 'fresh'); assert.equal(calls, 1);
+    assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM vii_discovery_offer_cache_v1').first()).n, 512);
+  } finally { await mf.dispose(); }
+});
+
 test("local cache serves last good value on refresh failure", async () => {
   let now = 2_000_000; let calls = 0;
   const first = await cachedDiscovery({ key: ["spa", "today", "couple"], load: async () => ({ offers: [1] }), now: () => now });

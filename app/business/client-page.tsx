@@ -46,6 +46,7 @@ import { FloatingContactActions } from "../components/floating-contact-actions";
 import { SearchAfterResults } from "../components/search-after-results";
 import type { SupplierPlaceDetail } from "../data/supplier-place-detail";
 import { trackBusinessEvent } from "../lib/analytics";
+import { DirectPhoneLink } from "../components/direct-phone-link";
 
 function bedroomLabel(count: number) {
   return count === 1 ? "חדר שינה אחד" : `${count} חדרי שינה`;
@@ -146,7 +147,6 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
   const [reviewOpen, setReviewOpen] = useState(false);
   const [allFeaturesOpen, setAllFeaturesOpen] = useState(false);
   const [mobileFeaturesOpen, setMobileFeaturesOpen] = useState(false);
-  const [phoneRevealed, setPhoneRevealed] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [selectedRoomIndex, setSelectedRoomIndex] = useState<number | null>(null);
   const closeUnitDetails = useCallback(() => setSelectedRoomIndex(null), []);
@@ -293,10 +293,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
           <div className="property-title__side">
             <div className="property-title__actions property-title__actions--contact">
               {property.demoOperations?.fictional && !vacationOnlineReady ? <ListingContactPreview placeName={property.name} className="listing-contact-preview--title" /> : null}
-              {phoneHref ? phoneRevealed
-                ? <a className="property-phone-action property-phone-action--revealed" href={phoneHref} aria-label={`חיוג אל ${property.name}, ${property.contact?.phone}`}><PhoneIcon /><span dir="ltr">{property.contact?.phone}</span></a>
-                : <button className="property-phone-action" type="button" onClick={() => setPhoneRevealed(true)} aria-expanded="false"><PhoneIcon /><span>הצגת מספר</span></button>
-                : null}
+              {phoneHref ? <DirectPhoneLink phone={property.contact?.phone} placeName={localizedPropertyName} className="property-phone-action" tracking={{ placeId: property.slug, placeName: property.name, world: activeWorld, placement: "property_detail" }} /> : null}
               {ownerWhatsapp ? <WhatsAppLeadButton world={activeWorld} placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={activeOffering.label} initialDate={dateRange.from} initialTill={dateRange.till} initialGuests={guests} buttonClassName="property-whatsapp-action" /> : null}
               <ShareButton title={property.name} image={property.image} />
             </div>

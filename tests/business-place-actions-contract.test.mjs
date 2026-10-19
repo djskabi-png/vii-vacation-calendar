@@ -29,7 +29,8 @@ test("the contact row does not look like one enclosing button", () => {
 });
 
 test("phone share and WhatsApp controls remain wired", () => {
-  assert.match(page, /onClick=\{\(\) => setPhoneRevealed\(true\)\}/);
+  assert.match(page, /<DirectPhoneLink phone=\{property.contact\?\.phone\}/);
+  assert.doesNotMatch(page, /setPhoneRevealed/);
   assert.match(page, /<ShareButton title=\{property\.name\} image=\{property\.image\} \/>/);
   assert.ok(page.indexOf('<WhatsAppLeadButton world={activeWorld}') < page.indexOf('<ShareButton title={property.name}'));
   assert.match(page, /<WhatsAppLeadButton[\s\S]*buttonClassName="property-whatsapp-action"/);

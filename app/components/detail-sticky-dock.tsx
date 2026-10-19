@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DirectPhoneLink } from "./direct-phone-link";
 
 export type DetailSectionLink = {
   href: `#${string}`;
@@ -41,7 +42,7 @@ export function DetailStickyDock({
         </nav>
 
         <div className="detail-sticky-dock__actions">
-          {phoneHref ? <a className="detail-sticky-dock__phone" href={phoneHref} aria-label={`חיוג להזמנה אצל ${name}`}><span aria-hidden="true">☎</span><b>חיוג</b></a> : null}
+          {phoneHref ? <DirectPhoneLink className="detail-sticky-dock__phone" phone={phone} placeName={name} /> : null}
           {onlineHref ? onlineHref.startsWith("#")
             ? <a className="button primary detail-sticky-dock__primary" href={onlineHref}>{onlineLabel}</a>
             : <Link className="button primary detail-sticky-dock__primary" href={onlineHref}>{onlineLabel}</Link>

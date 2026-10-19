@@ -19,6 +19,8 @@ import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 import type { Property } from "../data/site-data";
 import { supplierDisplayDescription } from "../data/supplier-display-text";
 import { usePublishedCatalog } from "../lib/use-published-catalog";
+import { useOnlineCapabilities } from "../lib/use-online-capabilities";
+import { hasOnlineCapability } from "../lib/online-booking-capability";
 import { getPlaceAccessibility } from "../data/accessibility-data";
 import { CloseIcon, MapIcon, PinIcon } from "../site-header";
 import { useSiteLanguage } from "../i18n/locale-provider";
@@ -370,11 +372,13 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const [activeMapPropertyId, setActiveMapPropertyId] = useState<string | null>(null);
 
   const selectedStay = useMemo(() => vacationStayFromSearch(searchParams, language), [language, searchParams]);
+  const undatedSearch = !selectedStay;
+  const onlineCapabilities = useOnlineCapabilities(undatedSearch, onlineSearchRetry);
   const flexibleSearch = useMemo(() => flexibleVacationSearchFromParams(searchParams), [searchParams]);
   const requestedRooms = useMemo(() => vacationRoomsFromSearchParams(searchParams), [searchParams]);
   const supplierGuests = vacationRoomGuests(requestedRooms);
   const supplierSearch = useViiLiveSearch("vacations", selectedStay?.from || null, selectedStay?.till || null, supplierGuests, undefined, requestedRooms, undefined, onlineSearchRetry);
-  const onlineCheckPending = onlineOnly && (!selectedStay || supplierSearch.status !== "ready");
+  const onlineCheckPending = onlineOnly && (undatedSearch ? onlineCapabilities.status === "loading" : supplierSearch.status !== "ready");
   const requestedLocation = searchParams.get("location");
   const availabilityDemoActive = isAvailabilityDemoSearch(selectedStay, requestedLocation);
 
@@ -620,6 +624,11 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     const quote = liveAvailabilityFor(property.slug)?.quote;
     return quote?.availability === "available" && typeof quote.nightlyPrice === "number" && quote.nightlyPrice > 0;
   };
+  const matchesOnline = (property: Property, enabled = true) => !property.demoOperations?.fictional && matchesVacationOnlineBooking(
+    enabled, liveAvailabilityFor(property.slug), selectedStayFor(property.slug),
+    { undated: undatedSearch, capability: onlineCapabilities.capabilities[property.slug] },
+  );
+  const searchPrice = (property: Property) => liveAvailabilityFor(property.slug)?.quote?.nightlyPrice ?? property.price;
 
   const filtered = useMemo(() => {
     const useLandingSet = Boolean(landing?.listingSlugs?.length
@@ -627,15 +636,19 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       && (landing.area ? area === landing.area : area === "הכל"));
     const priceFilterActive = minPrice > VACATION_PRICE_MIN || maxPrice < VACATION_PRICE_MAX;
     const matches = mapCandidates
-      .filter((property) => matchesVacationOnlineBooking(onlineOnly, liveAvailabilityFor(property.slug), selectedStayFor(property.slug)))
+      .filter((property) => !onlineOnly || matchesOnline(property))
       .filter((property) => useLandingSet ? landing?.listingSlugs?.includes(property.slug) : matchesSearchLocation(property, area))
       .filter((property) => {
         if (!priceFilterActive) return true;
-        const livePrice = liveAvailabilityFor(property.slug)?.quote?.nightlyPrice;
-        const price = typeof livePrice === "number" && livePrice > 0 ? livePrice : property.price;
+        const price = searchPrice(property);
         return typeof price === "number" && price >= minPrice && price <= maxPrice;
       });
     const compareMatches = (a: typeof properties[number], b: typeof properties[number]) => {
+      if (undatedSearch && (sort === "price-asc" || sort === "price-desc")) {
+        const aPrice = searchPrice(a), bPrice = searchPrice(b);
+        if (!aPrice || !bPrice) return Number(!aPrice) - Number(!bPrice);
+        return sort === "price-asc" ? aPrice - bPrice : bPrice - aPrice;
+      }
       if (sort === "recommended") {
         return compareVacationPriority(a, b, a.slug, b.slug, "vacation-search");
       }
@@ -658,39 +671,39 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       }
       return compareVacationProperties(a, b, sort, properties);
     };
-    return prioritizeOnlineFirst(matches, property => Boolean(matchesVacationOnlineBooking(true, liveAvailabilityFor(property.slug), selectedStayFor(property.slug))), compareMatches);
+    return prioritizeOnlineFirst(matches, property => matchesOnline(property), compareMatches);
   // landingType is derived from the immutable landing prop. Keeping the prop in
   // the dependency list lets the compiler preserve this memo across renders.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [area, availabilityDemoActive, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, guests, landing, liveAvailabilityBySlug, maxPrice, minPrice, supplierSearch, mapCandidates, onlineOnly, pathname, requestedLocation, selectedStay, selectedTypes, sort]);
+  }, [area, availabilityDemoActive, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, guests, landing, liveAvailabilityBySlug, maxPrice, minPrice, supplierSearch, mapCandidates, onlineOnly, onlineCapabilities, undatedSearch, pathname, requestedLocation, selectedStay, selectedTypes, sort]);
 
   const nearbyRecovery = useMemo(() => {
     if (filtered.length >= 3 || isWholeCountrySelection(area)) return [];
     // A nearby fallback may broaden geography only. An explicit supplier
     // unavailability for the selected dates remains a hard exclusion.
     const eligible = mapCandidates.filter((property) => {
-      if (!matchesVacationOnlineBooking(onlineOnly, liveAvailabilityFor(property.slug), selectedStayFor(property.slug))) return false;
+      if (onlineOnly && !matchesOnline(property)) return false;
       const priceFilterActive = minPrice > VACATION_PRICE_MIN || maxPrice < VACATION_PRICE_MAX;
       if (priceFilterActive) {
-        const livePrice = liveAvailabilityFor(property.slug)?.quote?.nightlyPrice;
-        const price = typeof livePrice === "number" && livePrice > 0 ? livePrice : property.price;
+        const price = searchPrice(property);
         if (typeof price !== "number" || price < minPrice || price > maxPrice) return false;
       }
       if (!selectedStay && !flexibleSearch) return true;
       return liveAvailabilityFor(property.slug)?.quote?.availability !== "unavailable";
     });
     return nearbyPlacesForSelection(eligible, managedGeography, area, { limit: 12, maximumDistanceKm: 100, minimumResults: 3 });
-  }, [VACATION_PRICE_MAX, VACATION_PRICE_MIN, area, filtered.length, managedGeography, mapCandidates, maxPrice, minPrice, onlineOnly, selectedStay, flexibleSearch, supplierSearch.results, supplierSearch.status, liveAvailabilityBySlug, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug]);
+  }, [VACATION_PRICE_MAX, VACATION_PRICE_MIN, area, filtered.length, managedGeography, mapCandidates, maxPrice, minPrice, onlineOnly, onlineCapabilities, undatedSearch, selectedStay, flexibleSearch, supplierSearch.results, supplierSearch.status, liveAvailabilityBySlug, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug]);
   const resultSet = useMemo(() => prioritizeOnlineFirst(
     completeNearbyResults(filtered, nearbyRecovery.map((candidate) => candidate.place), (place) => place.slug),
-    property => matchesVacationOnlineBooking(true, liveAvailabilityFor(property.slug), selectedStayFor(property.slug)),
+    property => matchesOnline(property),
     sort === "recommended" ? (a, b) => compareVacationPriority(a, b, a.slug, b.slug, "vacation-search") : undefined,
   // Availability helpers close over these same quote/selection inputs.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  ), [filtered, nearbyRecovery, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, liveAvailabilityBySlug, selectedStay, supplierSearch, sort]);
+  ), [filtered, nearbyRecovery, onlineCapabilities, undatedSearch, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, liveAvailabilityBySlug, selectedStay, supplierSearch, sort]);
 
   useEffect(() => {
     if (catalogLoading || catalogError || onlineCheckPending) return;
+    if (onlineOnly && undatedSearch && onlineCapabilities.status === "error" && !resultSet.length) return;
     const timer = window.setTimeout(() => trackSearchResults({
       world: "vacation",
       location: area === "הכל" ? "כל הארץ" : area,
@@ -707,17 +720,17 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       },
     }), 650);
     return () => window.clearTimeout(timer);
-  }, [accessibleOnly, area, catalogError, catalogLoading, resultSet.length, guests, onlineOnly, onlineCheckPending, pool, selectedExtras, selectedStay?.from, selectedTypes, spa]);
+  }, [accessibleOnly, area, catalogError, catalogLoading, resultSet.length, guests, onlineOnly, onlineCheckPending, onlineCapabilities.status, undatedSearch, pool, selectedExtras, selectedStay?.from, selectedTypes, spa]);
 
   const draftCandidates = properties.filter((property) => {
-    if (shownFilters.onlineOnly && (shownFilters.guests !== guests || !matchesVacationOnlineBooking(true, liveAvailabilityFor(property.slug), selectedStayFor(property.slug)))) return false;
+    if (shownFilters.onlineOnly && ((!undatedSearch && shownFilters.guests !== guests) || !matchesOnline(property))) return false;
     const matchesType = !supplierTypeFilterAvailable || matchesAnyAccommodationType(property.type, shownFilters.selectedTypes, landing);
     const matchesExtras = shownFilters.selectedExtras.every((id) => {
       if (id === "accessible") return getPlaceAccessibility(property.slug).status === "accessible";
       return matchesVacationSearchFilter(property, id);
     });
     const priceFilterActive = shownFilters.minPrice > VACATION_PRICE_MIN || shownFilters.maxPrice < VACATION_PRICE_MAX;
-    const draftPrice = shownFilters.onlineOnly ? liveAvailabilityFor(property.slug)?.quote?.nightlyPrice : property.price;
+    const draftPrice = searchPrice(property);
     const matchesPrice = !priceFilterActive || (!shownFilters.onlineOnly && !supplierPriceFilterAvailable)
       || (typeof draftPrice === "number" && draftPrice >= shownFilters.minPrice && draftPrice <= shownFilters.maxPrice);
     return matchesType
@@ -736,8 +749,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const draftNearby = shownFilters.onlineOnly && draftMatches.length < 3 && !isWholeCountrySelection(shownFilters.area)
     ? nearbyPlacesForSelection(draftCandidates, managedGeography, shownFilters.area, { limit: 12, maximumDistanceKm: 100, minimumResults: 3 }).map(candidate => candidate.place) : [];
   const draftResultCount = shownFilters.onlineOnly ? completeNearbyResults(draftMatches, draftNearby, place => place.slug).length : draftMatches.length;
-  const draftResultLabel = shownFilters.onlineOnly && !selectedStay ? "בחירת תאריכים"
-    : shownFilters.onlineOnly && (supplierSearch.status !== "ready" || shownFilters.guests !== guests) ? "החלת סינונים"
+  const draftResultLabel = shownFilters.onlineOnly && !undatedSearch && (supplierSearch.status !== "ready" || shownFilters.guests !== guests) ? "החלת סינונים"
     : draftResultCount === 1 ? "הצגת מקום אחד" : `הצגת ${draftResultCount} מקומות`;
 
   const displayedResults = useMemo(() => {
@@ -899,7 +911,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
                 <ModernSelect label="מיון לפי" value={shownFilters.sort} onChange={changeSort} options={vacationSortOptions} />
               </div>
               {mapOpen && <div className="map-filter-status" aria-live="polite"><PinIcon /><span>האזור שמוצג במפה</span><strong>{area === "הכל" ? "כל הארץ" : area}</strong></div>}
-              <fieldset className="vacation-online-filter"><legend>דרך הזמנה</legend><label><input type="checkbox" checked={shownFilters.onlineOnly} onChange={(event) => changeOnlineFilter(event.target.checked)} /><span>ניתן להזמין אונליין</span></label><p>רק מקומות עם מחיר וזמינות לתאריכים שבחרתם, שאפשר להזמין באתר.</p></fieldset>
+              <fieldset className="vacation-online-filter"><legend>דרך הזמנה</legend><label><input type="checkbox" checked={shownFilters.onlineOnly} onChange={(event) => changeOnlineFilter(event.target.checked)} /><span>ניתן להזמין אונליין</span></label><p data-no-translate>{translate(undatedSearch ? "מקומות שאפשר להזמין באתר. בחרו תאריכים לבדיקת זמינות ומחיר לשהייה שלכם." : "רק מקומות עם מחיר וזמינות לתאריכים שבחרתם, שאפשר להזמין באתר.")}</p></fieldset>
               {filterSection === "types" ? <fieldset className="vacation-type-options"><legend>סוגי אירוח, אפשר לבחור כמה אפשרויות</legend>{legacyAccommodationTypes.map((item) => <label key={item.label}><input type="checkbox" checked={shownFilters.selectedTypes.includes(item.label)} onChange={() => toggleType(item.label)} /> {item.label}</label>)}</fieldset> : <div className="vacation-more-filters">
                 <fieldset className="vacation-price-filter" disabled={!supplierPriceFilterAvailable && !selectedStay}>
                   <legend>מחיר ללילה</legend>
@@ -936,20 +948,22 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
               <button type="button" className={accessibleOnly ? "active" : ""} aria-pressed={accessibleOnly} onClick={() => changeBinaryFilter("accessible", !accessibleOnly)}>נגישות</button>
             </nav>
             {activeFilters.length > 0 && <div className="active-filter-row"><span>סינונים פעילים:</span>{activeFilters.map((filter) => <button key={filter.id} className={filter.id === "online" ? "online-booking-active-filter" : undefined} type="button" onClick={filter.remove} aria-label={`הסרת הסינון ${filter.label}`}>{filter.label} ×</button>)}<button type="button" className="clear-all" onClick={resetFilters}>ניקוי הכל</button></div>}
-            {onlineOnly ? <div className="online-booking-filter-notice" role={selectedStay && supplierSearch.status === "error" ? "alert" : "status"} aria-busy={Boolean(selectedStay && supplierSearch.status === "loading")}>
-              <p data-no-translate>{translate(!selectedStay ? "בחרו תאריכי כניסה ויציאה כדי לראות מקומות שניתן להזמין אונליין." : supplierSearch.status === "error" ? "לא הצלחנו לבדוק הזמנה אונליין כרגע." : supplierSearch.status !== "ready" ? "בודקים אילו מקומות ניתן להזמין אונליין..." : resultSet.length ? "רק מקומות עם מחיר וזמינות לתאריכים שבחרתם, שאפשר להזמין באתר." : "לא נמצאו מקומות להזמנה אונליין בבחירה הזו.")}</p>
-              {!selectedStay || supplierSearch.status === "ready" && !resultSet.length ? <button className="button secondary" type="button" onClick={() => setOpenDatesRequest((value) => value + 1)}>בחירת תאריכים</button> : null}
-              {selectedStay && supplierSearch.status === "error" ? <button className="button secondary" type="button" onClick={() => setOnlineSearchRetry((value) => value + 1)}>לנסות שוב</button> : null}
-              {selectedStay && supplierSearch.status === "ready" && !resultSet.length ? <button className="button subtle" type="button" onClick={() => changeOnlineFilter(false)}>הסרת סינון הזמנה אונליין</button> : null}
+            {onlineOnly && (!undatedSearch || !resultSet.length) ? <div className="online-booking-filter-notice" role={(undatedSearch ? onlineCapabilities.status : supplierSearch.status) === "error" ? "alert" : "status"} aria-busy={(undatedSearch ? onlineCapabilities.status : supplierSearch.status) === "loading"}>
+              <p data-no-translate>{translate(undatedSearch
+                ? onlineCapabilities.status === "loading" ? "טוענים מקומות להזמנה אונליין..." : onlineCapabilities.status === "error" ? "לא הצלחנו לטעון מקומות להזמנה אונליין. נסו שוב." : "לא נמצאו מקומות להזמנה אונליין בבחירה הזו."
+                : !selectedStay ? "בחרו תאריכים תקינים לבדיקת זמינות." : supplierSearch.status === "error" ? "לא הצלחנו לבדוק הזמנה אונליין כרגע." : supplierSearch.status !== "ready" ? "בודקים אילו מקומות ניתן להזמין אונליין..." : resultSet.length ? "רק מקומות עם מחיר וזמינות לתאריכים שבחרתם, שאפשר להזמין באתר." : "לא נמצאו מקומות להזמנה אונליין בבחירה הזו.")}</p>
+              {!undatedSearch && (!selectedStay || supplierSearch.status === "ready" && !resultSet.length) ? <button className="button secondary" type="button" onClick={() => setOpenDatesRequest((value) => value + 1)}>בחירת תאריכים</button> : null}
+              {(undatedSearch ? onlineCapabilities.status : supplierSearch.status) === "error" ? <button className="button secondary" type="button" onClick={() => setOnlineSearchRetry((value) => value + 1)}>לנסות שוב</button> : null}
+              {!onlineCheckPending && !resultSet.length ? <button className="button subtle" type="button" onClick={() => changeOnlineFilter(false)}>הסרת סינון הזמנה אונליין</button> : null}
             </div> : null}
             {availabilityDemoActive ? <div className="availability-demo-summary" role="status"><strong>{availabilityDemoCopy[language].title}</strong><span>{availabilityDemoCopy[language].text}</span><small>{selectedStay?.from}{" "}{String.fromCharCode(183)}{" "}{selectedStay?.till}</small></div> : null}
             {flexibleSearch ? <div className="availability-demo-summary availability-demo-summary--live" role="status"><strong>{flexibleAvailabilityCopy[language].title}</strong><span>{flexibleAvailabilityCopy[language].text}</span></div> : null}
             {resultSet.length > filtered.length ? <NearbySearchNotice dated={Boolean(selectedStay || flexibleSearch)} /> : null}
             <div className="results-toolbar"><div className="results-toolbar__actions"><ResultsViewToggle value={viewMode} onChange={setViewMode} />{resultSet.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתוצאות" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onPointerEnter={preloadListingMap} onFocus={preloadListingMap} onTouchStart={preloadListingMap} onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (mapOpen) closeResultsMap(); else openResultsMap(); }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "חזרה לתוצאות" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}</div><ModernSelect className="results-toolbar__sort" compact label="מיון לפי" value={sort} onChange={changeSort} options={vacationSortOptions} /></div>
             {guests > 2 && properties.some((property) => property.capacityScope === "unit") ? <SupplierCapacityNotice /> : null}
-            {!mapOpen && <ProgressiveResults autoLoad className={`result-cards results-view results-view--${viewMode}`} resetKey={resultWindowKey} totalCount={displayedResults.length} visibleCount={visibleResults.length} onShowMore={() => setVisibleResultCount((current) => Math.min(displayedResults.length, current + 9))}>{visibleResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStayFor(property.slug)} liveAvailabilityState={liveAvailabilityFor(property.slug)} detailHref={detailHref(property.slug)} />)}</ProgressiveResults>}
+            {!mapOpen && <ProgressiveResults autoLoad className={`result-cards results-view results-view--${viewMode}`} resetKey={resultWindowKey} totalCount={displayedResults.length} visibleCount={visibleResults.length} onShowMore={() => setVisibleResultCount((current) => Math.min(displayedResults.length, current + 9))}>{visibleResults.map((property) => <PropertyCard key={property.slug} property={property} onlineCapability={undatedSearch && hasOnlineCapability(onlineCapabilities.capabilities[property.slug])} selectedStay={selectedStayFor(property.slug)} liveAvailabilityState={liveAvailabilityFor(property.slug)} detailHref={detailHref(property.slug)} />)}</ProgressiveResults>}
             {mapOpen && <div className="airbnb-map-split">
-              <div className={`airbnb-map-split__results result-cards results-view results-view--${viewMode}`}>{displayedResults.map((property) => <PropertyCard key={property.slug} property={property} selectedStay={selectedStayFor(property.slug)} liveAvailabilityState={liveAvailabilityFor(property.slug)} detailHref={detailHref(property.slug)} mapActive={activeMapPropertyId === property.slug} onActiveChange={(active) => setActiveMapPropertyId(active ? property.slug : null)} />)}</div>
+              <div className={`airbnb-map-split__results result-cards results-view results-view--${viewMode}`}>{displayedResults.map((property) => <PropertyCard key={property.slug} property={property} onlineCapability={undatedSearch && hasOnlineCapability(onlineCapabilities.capabilities[property.slug])} selectedStay={selectedStayFor(property.slug)} liveAvailabilityState={liveAvailabilityFor(property.slug)} detailHref={detailHref(property.slug)} mapActive={activeMapPropertyId === property.slug} onActiveChange={(active) => setActiveMapPropertyId(active ? property.slug : null)} />)}</div>
               <div className="airbnb-map-split__map"><DeferredListingMap listings={resultSet} initialListings={resultSet} autoLoad detailQuery={detailQuery} onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPropertyId} onActivePlaceChange={setActiveMapPropertyId} /></div>
             </div>}
             {!onlineOnly && !catalogLoading && !catalogError && (mapOpen && mapVisibleIds ? displayedResults.length === 0 : resultSet.length === 0) && <div className="empty-state"><h2>לא נמצאה התאמה מדויקת או מקום קרוב</h2><p>אפשר לשנות אזור, להפחית את כמות האורחים או להסיר מאפיין.</p><button className="button primary" type="button" onClick={resetFilters}>ניקוי סינונים</button></div>}

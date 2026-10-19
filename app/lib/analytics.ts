@@ -5,6 +5,26 @@ type PhoneRevealDetails = {
   placement: "property_card" | "discovery_card" | "event_card" | "event_detail" | "floating_detail";
 };
 
+export type PhoneClickDetails = {
+  placeId: string;
+  placeName: string;
+  world: string;
+  placement: string;
+};
+
+// A tel-link click is intent, not a completed call or a phone reveal. Keep the
+// supplier's virtual-number routing intact and emit nothing merely on render.
+export function trackPhoneClick(details: PhoneClickDetails) {
+  if (typeof window === "undefined") return;
+  try {
+    if (window.localStorage.getItem("vii-cookie-choice") !== "all") return;
+    const event = { event: "vii_phone_click", place_id: details.placeId, place_name: details.placeName, world: details.world, placement: details.placement, page_path: window.location.pathname };
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push(event);
+    window.dispatchEvent(new CustomEvent("vii:phone-click", { detail: event }));
+  } catch { /* Optional measurement must never interrupt a native tel link. */ }
+}
+
 type WhatsAppLeadDetails = {
   placeId: string;
   placeName: string;

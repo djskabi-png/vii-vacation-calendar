@@ -29,8 +29,9 @@ test("incomplete vacation data keeps availability date-first and preserves the b
   assert.match(vacationHub, /"בחירת תאריכים"/);
   assert.doesNotMatch(business, /phoneRevealed \? <a className="phone-reveal phone-reveal--visible"/);
   assert.match(booking, /if \(!onlineReady\)/);
-  assert.match(booking, /phoneRevealed \? <a className="phone-reveal phone-reveal--visible"/);
-  assert.match(booking, /setPhoneRevealed\(true\)/);
+  assert.match(booking, /<DirectPhoneLink phone=\{props.phone\}/);
+  assert.doesNotMatch(booking, /phoneRevealed|לחצו להצגת המספר/);
+  assert.match(booking, /placement: "booking_phone_fallback"/);
 });
 
 test("spa booking adds payment choice, safe hosted-payment preview and thank-you summary", () => {
@@ -68,9 +69,9 @@ test("bookable vacation uses one quick-book action while incomplete data keeps d
   assert.match(business, /vacationOnlineReady = activeWorld === "vacation" && vacationAvailabilityMode !== "inquiry" && hasSelectedDates && effectiveVacationAvailability\?\.availability === "available" && hasSelectedPrice/);
   assert.match(vacationHub, />הזמנה מהירה<\/Link>/);
   assert.match(business, /ownerWhatsapp \? <WhatsAppLeadButton world=\{activeWorld\}/);
-  assert.match(business, /phoneHref \? phoneRevealed/);
-  assert.match(business, /setPhoneRevealed\(true\)/);
-  assert.match(business, /<a className="property-phone-action property-phone-action--revealed" href=\{phoneHref\}/);
+  assert.match(business, /phoneHref \? <DirectPhoneLink/);
+  assert.doesNotMatch(business, /setPhoneRevealed|phoneRevealed/);
+  assert.match(business, /className="property-phone-action" tracking=/);
   assert.doesNotMatch(business, /בדיקת זמינות לחיפוש הזה/);
   assert.match(vacationHub, /buttonLabel=\{bookingEnabled \? "בדיקת זמינות" : "פנייה להזמנה"\}/);
   assert.match(vacationHub, /state === "available-price"/);

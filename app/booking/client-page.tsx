@@ -15,6 +15,8 @@ import { useViiStayQuote } from "../components/use-vii-stay-quote";
 import type { Property } from "../data/site-data";
 import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
 import { trackBusinessEvent } from "../lib/analytics";
+import { DirectPhoneLink } from "../components/direct-phone-link";
+import { supplierPhoneLink } from "../lib/supplier-contact";
 
 type Props = {
   world: string;
@@ -78,7 +80,6 @@ export default function BookingPageClient(props: Props) {
   const [unknownReference, setUnknownReference] = useState("");
   const [submissionId, setSubmissionId] = useState("");
   const [spaAppointmentReady, setSpaAppointmentReady] = useState(false);
-  const [phoneRevealed, setPhoneRevealed] = useState(false);
   const [arrival, setArrival] = useState(props.initialFrom || "");
   const [departure, setDeparture] = useState(props.initialTill || "");
   const [preferredTime, setPreferredTime] = useState("");
@@ -363,7 +364,7 @@ export default function BookingPageClient(props: Props) {
       <span className="eyebrow">הזמנה בטלפון</span>
       <h1 id="booking-phone-title">{supplierPhoneOnly ? "התאריכים פנויים, ההזמנה בטלפון" : supplierSiteID || liveSourceEnabled ? "התאריכים או היחידה כבר אינם זמינים להזמנה מהירה" : "חסר תאריך או מחיר להזמנה מקוונת"}</h1>
       <p>{supplierPhoneOnly ? `המחיר שנבדק כעת הוא ${supplierQuote.quote!.nightlyPrice!.toLocaleString("he-IL")} ₪ ללילה. המקום אינו מקבל הזמנות אונליין; התקשרו כדי להשלים את ההזמנה.` : supplierSiteID || liveSourceEnabled ? "לא ניתן להמשיך עם ההצעה הזו. אפשר לחזור למקום, לבחור תאריך אחר או לפנות אליו ישירות." : "לתיאום ההזמנה ולאישור המחיר והזמינות, פנו ישירות למקום."}</p>
-      {props.phone ? phoneRevealed ? <a className="phone-reveal phone-reveal--visible" href={`tel:${props.phone.replace(/[^\d+]/g, "")}`}><span>לחיוג עכשיו</span><strong dir="ltr">{props.phone}</strong></a> : <button className="phone-reveal" type="button" onClick={() => setPhoneRevealed(true)} aria-expanded={phoneRevealed}><span>טלפון להזמנה</span><strong>לחצו להצגת המספר</strong></button> : <p role="status">מספר טלפון אינו זמין כרגע</p>}
+      {supplierPhoneLink(props.phone) ? <DirectPhoneLink phone={props.phone} placeName={props.placeName} className="phone-reveal phone-reveal--visible" tracking={{ placeId: props.placeId, placeName: props.placeName, world: props.world, placement: "booking_phone_fallback" }} /> : <p role="status">{translate("מספר טלפון אינו זמין כרגע")}</p>}
       <span data-keep-same-tab="true"><Link className="button secondary" href={businessReturnHref}>{returnCopy.business}</Link></span>
     </section>
   </main>;

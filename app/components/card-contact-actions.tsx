@@ -1,16 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
-import { trackPhoneReveal } from "../lib/analytics";
-import { supplierContactNumber } from "../lib/supplier-contact";
+import { supplierContactNumber, supplierPhoneLink } from "../lib/supplier-contact";
 import { WhatsAppLeadButton } from "./whatsapp-lead-button";
+import { DirectPhoneLink } from "./direct-phone-link";
 
-const copy: Record<SiteLanguage, { reveal: string; call: string; whatsapp: string }> = {
-  he: { reveal: "הצגת מספר", call: "לחיוג", whatsapp: "פנייה בוואטסאפ" },
-  en: { reveal: "Show number", call: "Call now", whatsapp: "WhatsApp enquiry" },
-  ru: { reveal: "Показать номер", call: "Позвонить", whatsapp: "Запрос в WhatsApp" },
-  fr: { reveal: "Afficher le numéro", call: "Appeler", whatsapp: "Demande par WhatsApp" },
+const copy: Record<SiteLanguage, { whatsapp: string }> = {
+  he: { whatsapp: "פנייה בוואטסאפ" },
+  en: { whatsapp: "WhatsApp enquiry" },
+  ru: { whatsapp: "Запрос в WhatsApp" },
+  fr: { whatsapp: "Demande par WhatsApp" },
 };
 export type CardContactActionsProps = {
   world: "events" | "hourly";
@@ -26,18 +25,15 @@ export type CardContactActionsProps = {
 export function CardContactActions({ world, placeId, placeName, phone, whatsapp, serviceName, initialDate, initialGuests }: CardContactActionsProps) {
   const { language } = useSiteLanguage();
   const labels = copy[language];
-  const [phoneVisible, setPhoneVisible] = useState(false);
-  const publicPhone = supplierContactNumber(phone);
-  const callablePhone = publicPhone && publicPhone.replace(/\D/g, "").length >= 7 ? publicPhone.replace(/[^\d+]/g, "") : undefined;
+  const contact = supplierPhoneLink(phone);
+  const publicPhone = contact?.display;
+  const callablePhone = contact?.href;
   const whatsappNumber = supplierContactNumber(whatsapp);
   const hasWhatsApp = Boolean(whatsappNumber && whatsappNumber.replace(/\D/g, "").length >= 7);
   if (!callablePhone && !hasWhatsApp) return null;
 
   return <div className="preview-card-contact-row">
-    {callablePhone ? phoneVisible
-      ? <a className="stay-card__contact stay-card__contact--phone stay-card__contact--revealed" href={`tel:${callablePhone}`} aria-label={`${labels.call}: ${placeName}`}><PhoneIcon /><bdi dir="ltr">{publicPhone}</bdi></a>
-      : <button className="stay-card__contact stay-card__contact--phone" type="button" aria-expanded={phoneVisible} onClick={() => { setPhoneVisible(true); trackPhoneReveal({ placeId, placeName, world, placement: world === "events" ? "event_card" : "discovery_card" }); }}><PhoneIcon /><span>{labels.reveal}</span></button>
-      : null}
+    {callablePhone ? <DirectPhoneLink phone={publicPhone} placeName={placeName} className="stay-card__contact stay-card__contact--phone stay-card__contact--revealed" tracking={{ placeId, placeName, world, placement: world === "events" ? "event_card" : "discovery_card" }} /> : null}
     {hasWhatsApp ? <WhatsAppLeadButton world={world} placeId={placeId} placeName={placeName} businessPhone={whatsappNumber!} serviceName={serviceName} initialDate={initialDate} initialGuests={initialGuests} buttonLabel={labels.whatsapp} buttonClassName="stay-card__contact stay-card__contact--whatsapp" /> : null}
   </div>;
 }

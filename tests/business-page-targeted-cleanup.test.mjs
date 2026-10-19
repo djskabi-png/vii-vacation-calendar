@@ -6,12 +6,11 @@ const business = readFileSync(new URL("../app/business/client-page.tsx", import.
 const bookingHub = readFileSync(new URL("../app/components/vacation-booking-hub.tsx", import.meta.url), "utf8");
 const styles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
 
-test("business phone stays private until the visitor asks to reveal it", () => {
-  assert.match(business, /const \[phoneRevealed, setPhoneRevealed\] = useState\(false\)/);
-  assert.match(business, /<span>הצגת מספר<\/span><\/button>/);
-  assert.match(business, /onClick=\{\(\) => setPhoneRevealed\(true\)\}/);
-  assert.match(business, /<a className="property-phone-action property-phone-action--revealed" href=\{phoneHref\}/);
-  assert.match(business, /<span dir="ltr">\{property\.contact\?\.phone\}<\/span>/);
+test("owner's public business phone is visible immediately through shared direct dialing", () => {
+  assert.doesNotMatch(business, /phoneRevealed|setPhoneRevealed|הצגת מספר/);
+  assert.match(business, /<DirectPhoneLink phone=\{property.contact\?\.phone\}/);
+  assert.match(business, /className="property-phone-action"/);
+  assert.match(business, /placement: "property_detail"/);
 });
 
 test("date launcher uses one clear mobile hierarchy", () => {

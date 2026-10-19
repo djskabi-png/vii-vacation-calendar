@@ -2,19 +2,23 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import ts from 'typescript';
-import {supplierContactNumber} from '../app/lib/supplier-contact.ts';
+import {supplierContactNumber,supplierPhoneLink} from '../app/lib/supplier-contact.ts';
 const read=p=>readFileSync(new URL(`../${p}`,import.meta.url),'utf8');
 function harness(language='he') {
- let value=false; const events=[];
- const jsx=(type,props)=>({type,props});
+ const events=[];
+ const jsx=(type,props)=>typeof type==='function'?type(props):({type,props});
  const dependencies={
-  'react':{useState:()=>[value,next=>value=next]},
   'react/jsx-runtime':{jsx,jsxs:jsx},
   '../i18n/locale-provider':{useSiteLanguage:()=>({language})},
-  '../lib/analytics':{trackPhoneReveal:event=>events.push(event)},
-  '../lib/supplier-contact':{supplierContactNumber},
-  './whatsapp-lead-button':{WhatsAppLeadButton:function WhatsAppLeadButton(){}},
+  '../lib/analytics':{trackPhoneClick:event=>events.push(event)},
+  '../lib/supplier-contact':{supplierContactNumber,supplierPhoneLink},
+  'lucide-react':{Phone:props=>({type:'svg',props})},
+  './whatsapp-lead-button':{WhatsAppLeadButton:props=>({type:'WhatsAppLeadButton',props})},
  };
+ const directExports={};
+ const directSource=ts.transpileModule(read('app/components/direct-phone-link.tsx'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText;
+ new Function('require','exports',directSource)(id=>{assert.ok(dependencies[id],id);return dependencies[id]},directExports);
+ dependencies['./direct-phone-link']=directExports;
  const exports={};
  const source=ts.transpileModule(read('app/components/card-contact-actions.tsx'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText;
  new Function('require','exports',source)(id=>{assert.ok(dependencies[id],id);return dependencies[id]},exports);
@@ -27,17 +31,19 @@ test('contact eligibility never infers WhatsApp from phone or invalid data',()=>
  assert.equal(h.render(base),null);
  assert.equal(h.render({...base,phone:'-------',whatsapp:'not-a-number'}),null);
  const phoneOnly=children(h.render({...base,phone:'050-111-1111'}));
- assert.equal(phoneOnly.length,1); assert.equal(phoneOnly[0].type,'button');
+ assert.equal(phoneOnly.length,1); assert.equal(phoneOnly[0].type,'a');
+ assert.equal(phoneOnly[0].props.href,'tel:0501111111');
  const whatsappOnly=children(h.render({...base,whatsapp:'050-222-2222'}));
  assert.equal(whatsappOnly.length,1);assert.equal(whatsappOnly[0].props.businessPhone,'050-222-2222');
 });
-test('phone reveal becomes a callable isolated number and retains world analytics',()=>{
+test('first render already has a callable isolated number; only click tracks intent',()=>{
  for(const world of ['hourly','events']){
   const h=harness();const props={...base,world,phone:'050-111-1111',whatsapp:'050-222-2222'};
-  children(h.render(props))[0].props.onClick();
   const call=children(h.render(props))[0];
+  assert.deepEqual(h.events,[]);
   assert.equal(call.type,'a');assert.equal(call.props.href,'tel:0501111111');
   assert.equal(children(call)[1].props.dir,'ltr');
+  call.props.onClick();
   assert.deepEqual(h.events,[{placeId:props.placeId,placeName:props.placeName,world,placement:world==='events'?'event_card':'discovery_card'}]);
  }
 });
@@ -45,7 +51,7 @@ test('localized actions keep explicit venue/date/party context for existing lead
  for(const language of ['he','en','fr','ru']){
   const h=harness(language);const props={...base,world:'events',phone:'050-111-1111',whatsapp:'050-222-2222',initialDate:'2026-10-23',initialGuests:20};
   const [phone,wa]=children(h.render(props));
-  assert.ok(children(phone).some(node=>node.type==='span'));
+  assert.ok(children(phone).some(node=>node.type==='bdi'));
   for(const field of ['world','placeId','placeName','serviceName','initialDate','initialGuests'])assert.equal(wa.props[field],props[field]);
   assert.ok(wa.props.buttonLabel);if(language!=='he')assert.doesNotMatch(wa.props.buttonLabel,/[\u0590-\u05ff]/);
  }

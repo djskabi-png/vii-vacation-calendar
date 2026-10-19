@@ -17,23 +17,23 @@ function propertyBlock(slug) {
 test("listing cards expose only verified commercial fields", () => {
   assert.match(card, /property\.score && property\.reviews/);
   assert.match(card, /property\.contact\?\.phone/);
-  assert.match(card, /href=\{`tel:\$\{phone\}`\}/);
+  assert.match(card, /<DirectPhoneLink phone=\{property.contact\?\.phone\}/);
   assert.doesNotMatch(card, /href=\{`https:\/\/wa\.me/);
   assert.match(card, /<WhatsAppLeadButton/);
   assert.match(card, /buttonClassName="stay-card__contact stay-card__contact--whatsapp"/);
-  assert.match(card, /setPhoneVisible\(true\)/);
-  assert.match(card, /trackPhoneReveal/);
+  assert.doesNotMatch(card, /setPhoneVisible|trackPhoneReveal/);
+  assert.match(card, /placement: "property_card"/);
   assert.match(card, /property\.price \?/);
 });
 
-test("recommended cards omit booking price copy and keep a measured reveal action", () => {
+test("recommended cards preserve price scope and direct phone uses separate click intent", () => {
   assert.match(card, /promotional = false/);
   assert.match(card, /!promotional && resolvedAvailability \? <div className="stay-card__date-status"/);
   assert.match(card, /!promotional && \(resolvedAvailability \|\| \(!selectedStay && property\.price\)\) \? <div className="stay-card__commercial-summary">/);
   assert.match(card, /const cardMode = promotional \? "promotional" : resolvedAvailability \? "dated" : "result"/);
   assert.match(card, /!promotional && whatsapp \? <WhatsAppLeadButton/);
-  assert.match(card, /phoneCopy\[language\]\.reveal/);
-  assert.match(analytics, /event: "vii_phone_reveal"/);
+  assert.match(card, /<DirectPhoneLink/);
+  assert.match(analytics, /event: "vii_phone_click"/);
   assert.match(analytics, /vii-cookie-choice/);
   assert.match(analytics, /window\.dataLayer\.push\(eventDetails\)/);
 });
@@ -64,7 +64,7 @@ test("compact card actions remain usable on mobile and keyboard", () => {
   assert.match(css, /\.stay-card__contact span \{ display: inline; \}/);
   assert.match(css, /stay-card__contact--revealed bdi \{[^}]*white-space: nowrap/);
   assert.match(css, /\.stay-card__details-link \{ grid-column: 1 \/ -1; width: 100%; min-height: 48px/);
-  assert.match(card, /aria-label=\{`\$\{phoneCopy\[language\]\.call\}: \$\{property\.name\}`\}/);
+  assert.match(card, /placeName=\{property.name\}/);
   assert.doesNotMatch(card, /className="button secondary"/);
   assert.match(card, /<PriceValue amount=\{property\.price\.toLocaleString\(\)\} language=\{language\} \/>/);
   assert.match(card, /className="stay-card__price-value"/);

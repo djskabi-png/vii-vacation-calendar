@@ -16,9 +16,9 @@ test("vacation date launcher sits immediately above the verified unit inventory"
 
 test("vacation details expose direct phone and WhatsApp actions", async () => {
   const business = await read("app/business/client-page.tsx");
-  assert.match(business, /phoneHref \? phoneRevealed/);
-  assert.match(business, /<span>הצגת מספר<\/span><\/button>/);
-  assert.match(business, /<a className="property-phone-action property-phone-action--revealed" href=\{phoneHref\}/);
+  assert.match(business, /phoneHref \? <DirectPhoneLink phone=\{property\.contact\?\.phone\} placeName=\{localizedPropertyName\} className="property-phone-action"/);
+  assert.match(business, /placement: "property_detail"/);
+  assert.doesNotMatch(business, /phoneRevealed|setPhoneRevealed|הצגת מספר/);
   assert.match(business, /ownerWhatsapp \? <WhatsAppLeadButton world=\{activeWorld\}/);
 });
 

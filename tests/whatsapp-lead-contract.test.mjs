@@ -178,7 +178,8 @@ test("event result cards expose the same tracked phone and WhatsApp actions as v
   assert.match(events, /EventCardContactActions/);
   assert.match(events, /phone=\{place\.contact\?\.phone\}/);
   assert.match(events, /whatsapp=\{place\.contact\?\.whatsapp\}/);
-  assert.match(actions, /trackPhoneReveal\(\{ placeId, placeName, world, placement: world === "events" \? "event_card" : "discovery_card" \}\)/);
+  assert.match(actions, /<DirectPhoneLink[^\n]*tracking=\{\{ placeId, placeName, world, placement: world === "events" \? "event_card" : "discovery_card" \}\}/);
+  assert.doesNotMatch(actions, /trackPhoneReveal|setPhoneVisible/);
   assert.match(actions, /<WhatsAppLeadButton world=\{world\}/);
   assert.match(actions, /const whatsappNumber = supplierContactNumber\(whatsapp\);/);
   assert.doesNotMatch(actions, /whatsapp \|\| phone/);
@@ -198,7 +199,7 @@ test("event detail keeps calling separate from supplier WhatsApp", async () => {
     read("app/globals.css"),
   ]);
   assert.match(source, /const ownerPhone = place\.contact\?\.phone/);
-  assert.match(source, /href=\{phoneHref\}/);
+  assert.match(source, /<DirectPhoneLink phone=\{ownerPhone\}/);
   assert.match(source, /placement: "event_detail"/);
   assert.match(source, /ownerWhatsapp \? <WhatsAppLeadButton/);
   assert.doesNotMatch(source, /whatsapp:\s*supplierDetail\.whatsapp\s*\|\|\s*supplierDetail\.phone/);
@@ -214,8 +215,8 @@ test("vacation and event detail pages expose WhatsApp in their primary action ar
   ]);
 
   assert.match(business, /ownerWhatsapp \? <WhatsAppLeadButton world=\{activeWorld\}/);
-  assert.match(business, /phoneHref \? phoneRevealed/);
-  assert.match(business, /<a className="property-phone-action property-phone-action--revealed" href=\{phoneHref\}/);
+  assert.match(business, /phoneHref \? <DirectPhoneLink/);
+  assert.doesNotMatch(business, /phoneRevealed|setPhoneRevealed/);
   assert.match(business, /<VacationBookingHub/);
   assert.match(vacationHub, /<WhatsAppLeadButton world="vacation"/);
   assert.match(vacationHub, /unavailable \|\| !hasDates/);
