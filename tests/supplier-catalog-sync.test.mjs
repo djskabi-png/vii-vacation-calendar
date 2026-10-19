@@ -42,7 +42,7 @@ async function database() {
 }
 
 const at = () => new Date("2026-10-12T12:00:00Z");
-test("changed Spa prose is rejected before staging and cannot replace reviewed public text", async () => {
+test("changed Spa facts are accepted while reviewed public prose remains protected", async () => {
   const db = await database();
   const site = spaCatalog.sites.find(x => x.id === 6);
   const reviewed = [{ supplierId: 6, summary: site }];
@@ -50,20 +50,14 @@ test("changed Spa prose is rejected before staging and cannot replace reviewed p
     const accepted = await runSupplierCatalogSync(db, { id: "editorial-approved", world: "spa", source: "test", baseline: reviewed, now: at,
       validateCandidate: validateSpaEditorialCandidate, fetchCandidate: async () => ({ fetchedAt: at().toISOString(), entries: reviewed }) });
     assert.equal(accepted.status, "accepted");
-    const before = await readSupplierCatalog(db, "spa");
-    const rejected = await runSupplierCatalogSync(db, { id: "editorial-changed", world: "spa", source: "test", baseline: reviewed, now: at,
+    const refreshed = await runSupplierCatalogSync(db, { id: "editorial-changed", world: "spa", source: "test", baseline: reviewed, now: at,
       validateCandidate: validateSpaEditorialCandidate, fetchCandidate: async () => ({ fetchedAt: at().toISOString(), entries: [{supplierId:6, summary:{...site,about:[...site.about,"new unreviewed supplier words"]}}] }) });
-    assert.equal(rejected.status, "rejected");
-    assert.equal(rejected.errorCode, "catalog_editorial_requires_review");
-    assert.deepEqual(rejected.diagnostics.spaEditorialReview, { total: 1, truncated: false,
-      rejected: [{ supplierId: 6, fields: ["about"], reason: "content_changed" }] });
+    assert.equal(refreshed.status, "accepted");
     const persisted = (await readSupplierCatalogDashboard(db)).runs.find((run) => run.id === "editorial-changed");
-    assert.deepEqual(persisted.diagnostics.spaEditorialReview, rejected.diagnostics.spaEditorialReview);
-    assert.equal(persisted.diagnostics.before, 1);
-    assert.equal(persisted.diagnostics.candidate, 1);
-    assert.doesNotMatch(JSON.stringify(persisted.diagnostics), /new unreviewed supplier words/);
-    assert.deepEqual(await readSupplierCatalog(db, "spa"), before);
-    assert.equal((await db.prepare("SELECT COUNT(*) AS n FROM supplier_catalog_entries WHERE run_id = ?").bind("editorial-changed").first()).n, 0);
+    assert.equal(persisted.status, "accepted");
+    assert.deepEqual(refreshed.diff, { before: 1, after: 1, added: 0, changed: 1, removed: [], removedChildren: [] });
+    assert.equal((await readSupplierCatalogDashboard(db)).states.find((state) => state.world === "spa").activeRunId, "editorial-changed");
+    assert.equal((await db.prepare("SELECT COUNT(*) AS n FROM supplier_catalog_entries WHERE run_id = ?").bind("editorial-changed").first()).n, 1);
     const publicBody = await (await catalogResponse(new Request("https://vii.spaplus.co/api/catalog?world=spa&id=6"), db)).json();
     assert.notDeepEqual(publicBody.entry.summary.about, site.about);
     assert.doesNotMatch(JSON.stringify(publicBody), /new unreviewed supplier words/);

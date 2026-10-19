@@ -2,6 +2,7 @@
   "מקומות שאפשר להזמין באתר. בחרו תאריכים לבדיקת זמינות ומחיר לשהייה שלכם.": {"en":"Places you can book online. Choose dates to check availability and the price for your stay.","fr":"Des hébergements réservables en ligne. Choisissez vos dates pour vérifier les disponibilités et le prix de votre séjour.","ru":"Жильё с онлайн-бронированием. Выберите даты, чтобы проверить наличие и стоимость проживания."},
   "טוענים מקומות להזמנה אונליין...": {"en":"Loading places you can book online...","fr":"Chargement des hébergements réservables en ligne...","ru":"Загружаем жильё с онлайн-бронированием..."},
   "לא הצלחנו לטעון מקומות להזמנה אונליין. נסו שוב.": {"en":"We couldn't load places you can book online. Please try again.","fr":"Impossible de charger les hébergements réservables en ligne. Réessayez.","ru":"Не удалось загрузить жильё с онлайн-бронированием. Попробуйте ещё раз."},
+  "בחרו תאריכים תקינים לבדיקת זמינות.": {"en":"Choose valid dates to check availability.","fr":"Choisissez des dates valides pour vérifier les disponibilités.","ru":"Укажите корректные даты, чтобы проверить наличие."},
   "לעסקים": {"en":"Business","fr":"Entreprises","ru":"Бизнес"},
   "ללא תאריך": {"en":"Without dates","fr":"Sans dates","ru":"Без дат"},
   "רק שם וטלפון, את השאר אפשר לתאם בשיחה.": {"en":"Just your name and phone. You can arrange the rest in the chat.","fr":"Votre nom et votre téléphone suffisent. Le reste peut se discuter dans le chat.","ru":"Только имя и телефон. Остальное можно обсудить в чате."},

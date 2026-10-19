@@ -49,14 +49,14 @@ test("public route filters current publication after cache and rejects parameter
   assert.equal((await onlineCapabilitiesResponse(new Request(request.url + "?from=2026-11-01"), deps)).status, 400);
   assert.equal((await onlineCapabilitiesResponse(request, { ...deps, published: async () => { throw Error("down"); } })).status, 503);
 });
-test("search list, nearby, map, draft and badge share capability while starting prices remain independent", () => {
+test("search list, nearby, map, draft and badge share capability without changing price semantics", () => {
   const page = readFileSync(new URL("../app/search/page.tsx", import.meta.url), "utf8");
-  assert.match(page, /const undatedSearch = !selectedStay && !hasSearchDate\(searchParams\)/);
+  assert.match(page, /const undatedSearch = !selectedStay;/);
   assert.equal((page.match(/onlineCapability=\{undatedSearch && hasOnlineCapability/g) || []).length, 2);
   assert.match(page, /onlineOnly && !matchesOnline\(property\)/);
   assert.match(page, /shownFilters.onlineOnly[^\n]*!matchesOnline\(property\)/);
   assert.doesNotMatch(page, /בחרו תאריכי כניסה ויציאה כדי לראות מקומות שניתן להזמין אונליין/);
-  assert.match(page, /supplierStartingPrice\(startingPrices\[property.slug\] \?\? property\)/);
+  assert.doesNotMatch(page, /supplierStartingPrice|startingPrices|catalogStartingPrices/);
   assert.match(page, /aria-busy=\{\(undatedSearch \? onlineCapabilities.status : supplierSearch.status\) === "loading"\}/);
   assert.match(page, /onlineOnly && undatedSearch && onlineCapabilities.status === "error" && !resultSet.length/);
   const worker = readFileSync(new URL("../worker/index.ts", import.meta.url), "utf8");
