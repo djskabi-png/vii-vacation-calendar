@@ -139,11 +139,11 @@ export async function WorldLanding({
         </section>
       </>}
       {beforeResults}
-      {world === "spa" && !beforeResults && !initialSpaAudience && !initialSpaFilters?.length ? <RegionalAvailability world="spa" region={initialSearchLocation} /> : null}
       <section id="world-results" className="section shell">
         {world !== "providers" && (world !== "spa" && world !== "hourly" && <div className="section-head world-results-title"><div><h2>{collectionTitle}</h2></div>{sourceNote && <p className="source-note">{sourceNote}</p>}</div>)}
         {world === "hourly" ? <HourlyResults items={items} initialLocation={initialSearchLocation} /> : world === "providers" ? <ProviderResults items={items} category={providerCategory} /> : world === "spa" ? <WorldMapResults items={items} world="spa" activeSpaFilter={activeSpaFilter} initialLocation={initialSearchLocation} initialSpaAudience={initialSpaAudience} initialSpaFilters={initialSpaFilters} /> : <div className="discovery-grid">{items.map((item) => <DiscoveryCard key={item.id} item={item} />)}</div>}
       </section>
+      {world === "spa" && !beforeResults && !initialSpaAudience && !initialSpaFilters?.length ? <RegionalAvailability world="spa" region={initialSearchLocation} /> : null}
       {(world === "hourly" || world === "spa" || world === "providers" || world === "activities") ? <SearchAfterResults world={world} location={initialSearchLocation} baseParams={{ ...(initialSpaAudience ? { spaFor: initialSpaAudience } : {}), ...(initialSpaFilters?.length ? { features: initialSpaFilters.join(",") } : {}) }} inventory={items.map(item => ({ location: item.location, area: world === "activities" ? activityRegion(item) || "" : item.area, type: world === "activities" ? activityType(item) || undefined : undefined, serviceAreas: item.serviceAreas }))} reviewHighlights={items.filter((item) => typeof item.rating === "number").sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 3).map((item) => ({ name: item.name, href: `/discover/place/${item.id}`, rating: item.rating || 0, context: item.sourceName ? `דירוג מתוך ${item.sourceName}` : undefined }))} /> : null}
       {crossSell && <section className="section section-tint world-cross-sell"><div className="shell"><h2>{crossSell.title}</h2><p>{crossSell.description}</p><div>{crossSell.links.map((link, index) => <Link key={link.href} className={`button ${index === 0 ? "primary" : "secondary"}`} href={link.href}>{link.label}</Link>)}</div></div></section>}
     </main>
