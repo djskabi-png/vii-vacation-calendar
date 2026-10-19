@@ -10,6 +10,7 @@ import { dailyRotationCompare } from "../lib/daily-rotation";
 import { PlacePreviewCard } from "./place-preview-card";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
+import { eventSlotCopy } from "../i18n/event-slot-copy";
 import { eventDealDate, eventDealPresets } from "../lib/event-deal-dates";
 import { eventDealPlaceLabels } from "../lib/event-deal-labels";
 import { useManagedGeography } from "./use-managed-geography";
@@ -39,6 +40,7 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
   const text = copy[language];
   const scope = regionalAvailabilityRegion(region);
   const title = scope ? regionalAvailabilityTitle("events", scope, language) : text.title;
+  const slots = eventSlotCopy[language];
   const [chosenDate, setDate] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<string | null>("lastminute");
