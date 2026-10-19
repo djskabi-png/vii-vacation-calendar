@@ -9,7 +9,7 @@ import { localizedPath } from "../i18n/locale-routing";
 import { cleanVacationPath } from "../data/vacation-landings";
 import { spaSearchHref, spaSearchStateFromValues } from "../data/spa-search-landings";
 import { eventSearchHref, hourlySearchHref } from "../data/world-search-landings";
-import { headerWorldLabel, headerWorldOptions } from "../data/world-switcher-labels";
+import { headerWorldCompactLabel, headerWorldLabel, headerWorldOptions } from "../data/world-switcher-labels";
 
 function searchWorldHref(world: "vacation" | "spa" | "events" | "hourly", location?: string) {
   if (!location || location === "כל הארץ") return worlds.find((item) => item.id === world)!.href;
@@ -69,7 +69,7 @@ export function WorldSwitcher({ active = "vacation" }: { active?: PublicWorldId 
 
   return (
     <details ref={rootRef} className="world-dock" suppressHydrationWarning>
-      <summary ref={triggerRef}><span><strong>{headerWorldLabel(active, language)}</strong></span><WorldToggleIcon /></summary>
+      <summary ref={triggerRef}><span><strong className="world-label-full">{headerWorldLabel(active, language)}</strong><strong className="world-label-compact">{headerWorldCompactLabel(active, language)}</strong></span><WorldToggleIcon /></summary>
       <nav className="world-dock__panel" aria-label={translate("חיפוש ומעבר בין עולמות")}>
         <header><span>{translate("כל מה שכיף לעשות")}</span><strong>{translate("מה תרצו לחפש?")}</strong></header>
         {headerWorldOptions(language).map((world) => { const href = localizedPath(world.href, language); const isActive = world.id === (active === "activities" ? "attractions" : active); return <Link key={world.id} className={isActive ? "active" : ""} aria-current={isActive ? "page" : undefined} href={href} onPointerDown={navigateFromSwitcherPointer} onClick={navigateFromSwitcher}><span className={`world-mark world-mark--${world.id}`} aria-hidden="true" /><span><b>{world.label}</b><small>{translate(world.description)}</small></span></Link>; })}

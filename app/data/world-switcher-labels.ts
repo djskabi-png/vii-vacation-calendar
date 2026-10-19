@@ -21,3 +21,15 @@ export function headerWorldLabel(active: string, language: SiteLanguage) {
   if (id === "corporate") return { he: "לעסקים", en: "Business", fr: "Entreprises", ru: "Бизнес" }[language];
   return headerWorldOptions(language).find((world) => world.id === id)?.label || labels[language][0];
 }
+
+export function headerWorldCompactLabel(active: string, language: SiteLanguage) {
+  const id = active === "activities" ? "attractions" : active;
+  const index = order.indexOf(id as typeof order[number]);
+  const compact = {
+    he: ["נופש", "ספא", "אירועים", "לפי שעה", "אטרקציות", "טיולים", "ספקים", "לעסקים"],
+    en: ["Stays", "Spa", "Events", "Hourly", "Attractions", "Trails", "Services", "Business"],
+    fr: ["Séjours", "Spa", "Fêtes", "À l’heure", "Loisirs", "Balades", "Services", "Entreprises"],
+    ru: ["Отдых", "Спа", "События", "По часам", "Досуг", "Туры", "Услуги", "Бизнес"],
+  } as const;
+  return compact[language][index < 0 ? 0 : index];
+}

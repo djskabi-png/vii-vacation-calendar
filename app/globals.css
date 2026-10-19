@@ -8162,6 +8162,7 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
 .world-dock[open] > summary .world-toggle-icon { transform: rotate(180deg); }
 .world-dock > summary strong { display: block; font-size: .82rem; }
 .world-dock > summary > span { min-width: 0; }
+.world-dock > summary .world-label-compact { display: none; }
 .world-dock__panel {
   position: fixed;
   top: 72px;
@@ -8185,6 +8186,8 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
     border-radius: 14px;
   }
   .world-dock > summary strong { font-size: .72rem; line-height: 1.25; overflow-wrap: anywhere; }
+  .world-dock > summary .world-label-full { display: none; }
+  .world-dock > summary .world-label-compact { display: block; }
   .world-dock > summary > span { flex: 1; }
   .world-dock > summary .world-toggle-icon { width: 12px; height: 12px; }
   .world-dock__panel {
