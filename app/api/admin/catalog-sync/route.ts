@@ -4,6 +4,7 @@ import { runCatalogPullWithRetryPlan } from "../../../lib/supplier-catalog-retry
 import { readCatalogRetryJobs } from "../../../lib/supplier-catalog-retry.ts";
 import { readSupplierCatalogDashboard } from "../../../lib/supplier-catalog-store.ts";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
+import { catalogFreshnessAlerts, readCatalogAlerts } from "../../../lib/supplier-catalog-alerts.ts";
 
 const headers = { "Cache-Control": "no-store" };
 
@@ -25,8 +26,9 @@ export async function GET(request: Request) {
   if (!await authorized(request)) return Response.json({ error: "forbidden" }, { status: 403, headers });
   try {
     const db = await database();
-    const [dashboard, retryJobs] = await Promise.all([readSupplierCatalogDashboard(db), readCatalogRetryJobs(db)]);
-    return Response.json({ ...dashboard, retryJobs }, { headers });
+    const [dashboard, retryJobs, storedAlerts] = await Promise.all([readSupplierCatalogDashboard(db), readCatalogRetryJobs(db), readCatalogAlerts(db)]);
+    const alerts = [...catalogFreshnessAlerts(dashboard.states), ...storedAlerts];
+    return Response.json({ ...dashboard, retryJobs, alerts }, { headers });
   }
   catch (error) {
     console.error("VII catalog dashboard unavailable", error);

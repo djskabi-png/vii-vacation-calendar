@@ -10,7 +10,8 @@ import { ResponsiveViewportGuard } from "./responsive-viewport-guard";
 import { BackToTop } from "./back-to-top";
 import { SmartNavigationWarmup } from "./smart-navigation-warmup";
 import { WorldEditorialLinks } from "./world-editorial-links";
+import { PwaExperience } from "./pwa-experience";
 
 export function PageShell({ children, variant = "vacation", footerTopic }: { children: ReactNode; variant?: WorldId; footerTopic?: FooterTopicId }) {
-  return <div className="site-page"><NewTabNavigation /><ResponsiveViewportGuard /><SmartNavigationWarmup /><a className="skip-link" href="#main-content">דילוג לתוכן</a><GlobalActionFeedback /><SiteHeader variant={variant} /><CookieConsent />{children}<WorldEditorialLinks variant={variant} /><SiteFooter variant={variant} topic={footerTopic} /><BackToTop /></div>;
+  return <div className="site-page"><NewTabNavigation /><ResponsiveViewportGuard /><SmartNavigationWarmup /><PwaExperience /><a className="skip-link" href="#main-content">דילוג לתוכן</a><GlobalActionFeedback /><SiteHeader variant={variant} /><CookieConsent />{children}<WorldEditorialLinks variant={variant} /><SiteFooter variant={variant} topic={footerTopic} /><BackToTop /></div>;
 }

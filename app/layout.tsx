@@ -8,6 +8,7 @@ import "./mobile-polish.css";
 import "./preview-card-consistency.css";
 import "./slider-card-compact.css";
 import "./direct-phone-link.css";
+import "./pwa.css";
 import { LocaleProvider } from "./i18n/locale-provider";
 import { StructuredData } from "./components/structured-data";
 import { organizationSchema, websiteSchema } from "./lib/seo";

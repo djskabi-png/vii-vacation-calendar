@@ -8424,5 +8424,14 @@
   "מסלולים באזור המוצג במפה": "trails in the map area",
   "מיקום אזורי משוער": "Approximate area",
   "אזורים": "regions",
-  "פרסום באתר": "Advertise on VII"
+  "פרסום באתר": "Advertise on VII",
+  "התקנת האפליקציה": "Install app",
+  "עדכון האפליקציה": "Update app",
+  "אין כרגע חיבור. אפשר להמשיך בעמודים שכבר נפתחו.": "You are offline. Pages you already opened remain available.",
+  "ב־iPhone: פתחו שיתוף ובחרו „הוספה למסך הבית”.": "On iPhone, open Share and choose Add to Home Screen.",
+  "חיפוש נופש": "Search stays",
+  "חיפוש ספא": "Search spas",
+  "חיפוש אירועים": "Search event venues",
+  "אין כרגע חיבור": "You’re offline",
+  "אפשר לחזור לדף הבית או לנסות שוב כשהחיבור חוזר.": "Return home or try again when your connection is restored."
 }

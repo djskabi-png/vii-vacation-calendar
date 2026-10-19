@@ -15,7 +15,8 @@ type Run = { id: string; world: World; source: string; status: string; startedAt
   addedCount: number | null; changedCount: number | null; errorCode: string | null; diagnostics?: CatalogSyncDiagnostics };
 type RetryJob = { id: string; rootRunId: string; world: World; attempt: number; dueAt: string; status: string;
   resultStatus: string | null; errorCode: string | null };
-type Dashboard = { states: State[]; runs: Run[]; retryJobs: RetryJob[] };
+type Alert = { id: string; world: World; severity: "warning" | "critical"; kind: "review_required" | "retries_exhausted" | "stale"; status: "open" | "resolved"; errorCode: string | null; lastSeenAt: string };
+type Dashboard = { states: State[]; runs: Run[]; retryJobs: RetryJob[]; alerts: Alert[] };
 
 const worlds: { id: World; name: string }[] = [
   { id: "vacations", name: "נופש" }, { id: "events", name: "אירועים" },
@@ -111,6 +112,18 @@ export default function CatalogSyncPage() {
     {notice ? <p role="status">{notice}</p> : null}
     {loading && !dashboard ? <p role="status">טוענים נתונים...</p> : null}
     {dashboard ? <>
+      <section aria-labelledby="catalog-alerts-title" style={{ marginBlock: 24, padding: 18, border: "1px solid #dce4e2", borderRadius: 12 }}>
+        <h2 id="catalog-alerts-title" style={{ marginTop: 0, fontSize: "1.25rem" }}>התראות תפעול</h2>
+        {dashboard.alerts.filter((item) => item.status === "open").length ? <ul>{dashboard.alerts.filter((item) => item.status === "open").map((alert) => <li key={alert.id}>
+          <strong>{worlds.find((item) => item.id === alert.world)?.name}:</strong> {alert.kind === "stale" ? "הקטלוג לא פורסם בהצלחה ב־24 השעות האחרונות." : alert.kind === "retries_exhausted" ? "הסנכרון נכשל וגם שני הניסיונות האוטומטיים מוצו." : "העדכון נעצר לבדיקת בטיחות והקטלוג הקודם נשמר."} <small>{date(alert.lastSeenAt)}</small>
+        </li>)}</ul> : <p role="status">אין כרגע התראות פתוחות בארבעת התחומים.</p>}
+      </section>
+      <section aria-labelledby="catalog-backup-title" style={{ marginBlock: 24, padding: 18, border: "1px solid #dce4e2", borderRadius: 12 }}>
+        <h2 id="catalog-backup-title" style={{ marginTop: 0, fontSize: "1.25rem" }}>גיבויים להורדה</h2>
+        <p>כל קובץ נוצר בקריאה עקבית, כולל ספירות וחתימת שלמות בסופו. הקבצים נשמרים רק במחשב שמוריד אותם.</p>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}><a href="/api/admin/catalog-snapshot" download>הורדת ארבעת הקטלוגים הפעילים</a><a href="/api/admin/public-cms-snapshot" download>הורדת התוכן הציבורי הפעיל</a></div>
+        <small>הגיבויים האלה אינם כוללים חשבונות, הזמנות, פניות, הודעות או קובצי מדיה.</small>
+      </section>
       <section aria-label="מצב התחומים" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 230px), 1fr))", gap: 16, marginBlock: 24 }}>
         {worlds.map(({ id, name }) => {
           const state = dashboard.states.find((item) => item.world === id);
