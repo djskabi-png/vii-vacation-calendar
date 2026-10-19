@@ -2,6 +2,17 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {normalizeHomepageSearchHref as normalize,normalizeHomepageItems} from '../app/lib/homepage-search-href.ts';
+import {localizedPath} from '../app/i18n/locale-routing.ts';
+
+test('managed links carry locale in the React navigation prop, not only a later DOM rewrite',()=>{
+ const source=readFileSync('app/components/home-discovery-sections.tsx','utf8');
+ assert.equal((source.match(/href=\{localizedPath\(item.href, language\)\}/g)||[]).length,2);
+ assert.ok(source.includes('href={localizedPath("/search", language)}'));
+ for(const locale of ['en','fr','ru']){
+  assert.equal(localizedPath(normalize('/search?feature=בריכה'),locale),`/${locale}/search?pool=1`);
+  assert.equal(localizedPath('/vacations/north',locale),`/${locale}/vacations/north`);
+ }
+});
 test('legacy managed pool quick search activates the actual pool query contract',()=>{
  assert.equal(normalize('/search?feature=בריכה'),'/search?pool=1');
  assert.equal(normalize('/search?feature=%D7%91%D7%A8%D7%99%D7%9B%D7%94'),'/search?pool=1');
