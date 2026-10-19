@@ -22,7 +22,7 @@ function fixture() {
   for(const sql of adminGrantSchema)sqlite.exec(sql);
   return {db,sqlite};
 }
-function configure() {process.env.VII_ADMIN_EMAILS='owner@example.test';process.env.VII_ADMIN_EMAILS_EXTRA='legacy@example.test';process.env.VII_ACCESS_MANAGER_EMAILS='owner@example.test,outsider@example.test';process.env.VII_AUTH_SECRET=secret;}
+function configure() {process.env.VII_ADMIN_EMAILS='owner@example.test,second-owner@example.test';process.env.VII_ADMIN_EMAILS_EXTRA='legacy@example.test';process.env.VII_ACCESS_MANAGER_EMAILS='owner@example.test,second-owner@example.test,outsider@example.test';process.env.VII_AUTH_SECRET=secret;}
 const change = (overrides={}) => parseAdminGrantChange({email:'editor@example.test',name:'Test Editor',permissions:{content:'view'},active:true,manageUsers:false,version:0,confirmed:true,...overrides});
 async function signed(email,path,method='GET') {
   const value=await createSignedValue({sub:`google:${email}`,email,name:'Test',provider:'google',exp:Math.floor(Date.now()/1000)+600},secret);
@@ -36,6 +36,7 @@ test('scope parser rejects unknown modules, escalation and invalid read-only edi
   assert.deepEqual(parseAdminPermissions({content:'view',geography:'edit'}),{content:'view',geography:'edit'});
   assert.equal(change({confirmed:false}),null);
   assert.equal(change({permissions:{}}),null);
+  assert.equal(change({manageUsers:true}),null);
   assert.equal(change({email:'bad address'}),null);
 });
 test('every delegated module gates exact routes and verbs, technical/new routes stay owner-only',()=>{
@@ -59,7 +60,8 @@ test('grant, audit and reload are persisted together; stale edits do not overwri
     assert.equal(fresh.grants[0].version,1);assert.equal(fresh.audit[0].id,first.auditId);
     await assert.rejects(saveAdminGrant(f.db,change(),'owner@example.test'),{code:'version_conflict'});
     assert.equal((await readAdminGrantDashboard(f.db)).audit.length,1);
-    assert.equal((await resolveAdminAccess('legacy@example.test',async()=>f.db)).manageUsers,false);
+    assert.equal(await resolveAdminAccess('legacy@example.test',async()=>f.db),null);
+    assert.deepEqual(await resolveAdminAccess('second-owner@example.test',async()=>f.db),{fullAccess:true,manageUsers:true,permissions:{}});
     assert.equal(await resolveAdminAccess('outsider@example.test',async()=>f.db),null);
   }finally{f.sqlite.close();}
 });
@@ -74,16 +76,20 @@ test('signed viewer can read only selected API, cannot write or manage users; re
     assert.equal((await readAdminGrantDashboard(f.db)).audit[0].action,'revoke');
   }finally{f.sqlite.close();}
 });
-test('only configured existing manager can bootstrap; self/legacy owner changes and member promotion are denied',async()=>{
+test('only the two configured owners can manage access; delegated accounts cannot be promoted',async()=>{
   configure();const f=fixture();try{
     for(const actor of ['legacy@example.test','outsider@example.test','editor@example.test'])await assert.rejects(saveAdminGrant(f.db,change(),actor),{code:'forbidden'});
-    for(const email of ['owner@example.test','legacy@example.test'])await assert.rejects(saveAdminGrant(f.db,change({email}),'owner@example.test'),{code:'protected_account'});
-    await saveAdminGrant(f.db,change({manageUsers:true}),'owner@example.test');
-    assert.equal(await resolveAdminAccess('editor@example.test',async()=>f.db),null);
-    assert.ok(await authorizedAdminSession(await signed('editor@example.test','/api/admin/users'),undefined,async()=>f.db));
-    await assert.rejects(saveAdminGrant(f.db,change({version:2}),'editor@example.test'),{code:'protected_account'});
-    await saveAdminGrant(f.db,change({email:'second@example.test'}),'editor@example.test');
+    for(const email of ['owner@example.test','second-owner@example.test'])await assert.rejects(saveAdminGrant(f.db,change({email}),'owner@example.test'),{code:'protected_account'});
+    assert.equal(change({manageUsers:true}),null);
+    await saveAdminGrant(f.db,change(),'second-owner@example.test');
+    const session=await signed('editor@example.test','/api/admin/content-studio');
+    assert.ok(await authorizedAdminSession(session,undefined,async()=>f.db));
+    assert.equal(await authorizedAdminSession(await signed('editor@example.test','/api/admin/users'),undefined,async()=>f.db),null);
+    await assert.rejects(saveAdminGrant(f.db,change({version:2}),'editor@example.test'),{code:'forbidden'});
+    await saveAdminGrant(f.db,change({email:'second@example.test'}),'owner@example.test');
     assert.ok(await readAdminGrant(f.db,'second@example.test'));
+    const dashboard=await readAdminGrantDashboard(f.db);
+    assert.deepEqual(dashboard.protectedAccounts.map((item)=>item.email),['owner@example.test','second-owner@example.test']);
   }finally{f.sqlite.close();}
 });
 test('audit failure rolls back the access write and unavailable storage never reuses permissions',async()=>{

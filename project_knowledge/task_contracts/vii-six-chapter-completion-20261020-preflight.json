@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-six-chapter-completion-20261020",
+  "project": "VII",
+  "task_type": "full product completion and public release",
+  "requested_outcome": "Complete all six approved chapters, publish the exact frozen candidate to the VII public temporary URL, and pass post-publication checks before asking Adir to continue.",
+  "natural_destination": "https://vii.spaplus.co/ and its authenticated VII administration surfaces",
+  "authorization_boundary": "Adir explicitly authorized implementation, publication and post-publication verification for the six chapters. Maskyoo/Biz integration, business command center and groups, primary-domain cutover, and AWS/Aurora application migration remain excluded future work. Do not send customer or supplier messages, create bookings, publish reviews, or purchase services as part of verification.",
+  "lesson_bundle": [
+    {"lesson_id": "ADIR-QA-001", "reason": "The requested outcome is public and cross-family.", "acceptance_impact": "No chapter passes from source, build or tests alone; the exact public artifact and natural destination must pass."},
+    {"lesson_id": "ADIR-DEPLOY-001", "reason": "The task includes publication.", "acceptance_impact": "Freeze one clean candidate, retain version 516 as rollback, publish once per verified candidate and verify the deployment identity."},
+    {"lesson_id": "ADIR-WEB-007", "reason": "Accessibility is an explicit chapter.", "acceptance_impact": "Technical accessibility and the current Israel legal-risk checklist need separate evidence; a widget is not sufficient."},
+    {"lesson_id": "ADIR-TYPE-001", "reason": "The product and administration surfaces contain Hebrew.", "acceptance_impact": "Actual loaded and computed modern Hebrew typography is a release gate."},
+    {"lesson_id": "ADIR-MOBILE-001", "reason": "Mobile and PWA are an explicit chapter.", "acceptance_impact": "Full journeys at 390x844 and low-height viewports, transitions and persistence are required."},
+    {"lesson_id": "ADIR-CONTROL-001", "reason": "The layout and administration chapters affect visible controls.", "acceptance_impact": "Every visible control in changed families must complete its promised action and expose failure recovery."},
+    {"lesson_id": "ADIR-ADMIN-001", "reason": "The first chapter is live administration permissions.", "acceptance_impact": "Owner, scoped, unauthorized, save, reload, audit and natural-destination reflection must pass."},
+    {"lesson_id": "ADIR-CONSISTENCY-001", "reason": "Homepage, worlds, languages and cards share components.", "acceptance_impact": "A shared defect expands regression to every affected world, language, role and viewport."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection": "One of the six chapters is described as complete because code or tests exist, although the public temporary URL or authenticated administration flow was not exercised.", "prevention": "Require exact release identity and live natural-surface evidence for every chapter.", "acceptance_check": "Each chapter maps to live success, failure, persistence, responsive and rollback evidence or remains not verified."},
+    {"rejection": "The cheaper winter/summer rule is applied to one card but another undated surface still uses a different price field.", "prevention": "Create one canonical selector and inventory every consumer of undated starting price.", "acceptance_check": "Results, homepage, region, place and structured-data families agree across valid, missing, zero and malformed inputs."},
+    {"rejection": "Adir receives manager access but Roy, scoped users, or denial cases are incomplete, or an older manager retains permission.", "prevention": "Use one exact owner set and test both owners plus scoped and unauthorized matrices after reload.", "acceptance_check": "Only the two approved owners can manage users; other identities are limited to persisted explicit grants."},
+    {"rejection": "The four-language claim hides mixed-language dynamic text, wrong direction, untranslated errors or metadata.", "prevention": "Audit route templates, dynamic strings, administration, metadata and structured data as one language matrix.", "acceptance_check": "Hebrew, English, Russian and French pass content, direction, controls, metadata and dynamic-state checks on the public candidate."},
+    {"rejection": "A broad visual or mobile change damages a previously approved slider, search, card, booking or contact flow.", "prevention": "Record baseline invariants from version 516 and test the full affected shared families after each midpoint.", "acceptance_check": "Approved version 516 behavior remains intact except for the six explicitly changed outcomes."},
+    {"rejection": "Scheduled synchronization, alerts or backup are called complete from configuration without an observed run, delivered signal and restore drill.", "prevention": "Exercise one real scheduled/manual path, guarded rejection, recovery, alert receipt and consistent restore using the current Sites/D1 runtime.", "acceptance_check": "All four worlds and the backup/alert families have durable provider or live administration evidence with no customer side effect."}
+  ],
+  "affected_family": [
+    "administrator sign-in, owner set, roles, world/module grants, denial, audit and persistence",
+    "supplier price mapping and every undated starting-price consumer",
+    "all public and administration route templates in Hebrew, English, Russian and French",
+    "homepage, video, navigation, results, region, place, card, slider, gallery and footer layout families",
+    "PWA manifest, service worker, install, offline/update, mobile and responsive transition states",
+    "performance budgets and exact public Core Web Vitals observations",
+    "keyboard, focus, landmarks, names, contrast, reduced motion and screen-reader semantics",
+    "VACATIONS, EVENTS, ROOMS VIP and SPA sync, freshness, rejection, retry and recovery",
+    "operator alerts, immutable evidence, consistent D1/catalog backup and restore",
+    "publication identity, rollback and post-publication regression"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label": "VII platform source of truth", "source": "calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"},
+      {"label": "VII accepted product and public-link gate", "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"},
+      {"label": "Known-good public baseline", "source": "public version 516, commit ac7edd3d3cb521c02d77c1f97d5bb3526b675647"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the admin and canonical price slices pass focused tests, before broad language/layout/PWA work is merged into the candidate.",
+    "checks": [
+      "Both approved owners and one scoped-denial fixture pass without broadening other identities.",
+      "Every undated price consumer uses the same canonical minimum selector.",
+      "The exact diff against version 516 contains no excluded future work.",
+      "Representative vacation, event, hourly and spa public routes retain their approved search, card and contact behavior."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can any chapter marked complete be disproved by an untested public route, language, role, viewport or failure state?",
+      "Can a non-owner manage users or can either approved owner fail after session reload?",
+      "Does any visible starting price exceed another valid winter/summer supplier value?",
+      "Does any public or admin surface contain mixed language, wrong direction or a non-modern Hebrew fallback?",
+      "Does install, offline, update, interrupted network, keyboard-only or low-height mobile expose a dead end?",
+      "Did each of four supplier worlds produce durable sync evidence, and can a rejected or failed pull preserve the last good catalog?",
+      "Can the backup actually restore an equivalent catalog, and did an operator alert reach its verified destination?",
+      "Does the exact deployed source, tree and artifact match the candidate that passed the gates, with 516 still recoverable?"
+    ],
+    "natural_destination_evidence": "Exact public temporary URL, deployment/version identifiers, authenticated administration observations, fresh reload/back checks and dated post-publication captures.",
+    "affected_family_evidence": "Requirement matrix, route/language/role/viewport inventory, test logs, live network and accessibility observations, sync/alert/restore receipts and release manifest."
+  },
+  "effectiveness": {
+    "baseline": "Version 516 is public and stable, but the six chapters remain explicitly unfinished.",
+    "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"],
+    "target": "One frozen publication closes all six chapters without regressing the approved version 516 product or resuming deferred work."
+  },
+  "privacy": {"raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true},
+  "ready_to_start": true
+}
