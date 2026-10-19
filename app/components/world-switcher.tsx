@@ -9,6 +9,7 @@ import { localizedPath } from "../i18n/locale-routing";
 import { cleanVacationPath } from "../data/vacation-landings";
 import { spaSearchHref, spaSearchStateFromValues } from "../data/spa-search-landings";
 import { eventSearchHref, hourlySearchHref } from "../data/world-search-landings";
+import { headerWorldCompactLabel, headerWorldLabel, headerWorldOptions } from "../data/world-switcher-labels";
 
 function searchWorldHref(world: "vacation" | "spa" | "events" | "hourly", location?: string) {
   if (!location || location === "כל הארץ") return worlds.find((item) => item.id === world)!.href;
@@ -68,17 +69,17 @@ export function WorldSwitcher({ active = "vacation" }: { active?: PublicWorldId 
 
   return (
     <details ref={rootRef} className="world-dock" suppressHydrationWarning>
-      <summary ref={triggerRef} aria-label={translate("חיפוש ובחירת עולם")}><WorldSearchIcon /><span><strong>{translate("חיפוש")}</strong></span></summary>
+      <summary ref={triggerRef}><span><strong className="world-label-full">{headerWorldLabel(active, language)}</strong><strong className="world-label-compact">{headerWorldCompactLabel(active, language)}</strong></span><WorldToggleIcon /></summary>
       <nav className="world-dock__panel" aria-label={translate("חיפוש ומעבר בין עולמות")}>
         <header><span>{translate("כל מה שכיף לעשות")}</span><strong>{translate("מה תרצו לחפש?")}</strong></header>
-        {publicWorldNavigation.map((world) => { const href = localizedPath(world.href, language); return <Link key={world.id} className={world.id === active ? "active" : ""} href={href} onPointerDown={navigateFromSwitcherPointer} onClick={navigateFromSwitcher}><span className={`world-mark world-mark--${world.id}`} aria-hidden="true" /><span><b>{translate(world.label)}</b><small>{translate(world.description)}</small></span></Link>; })}
+        {headerWorldOptions(language).map((world) => { const href = localizedPath(world.href, language); const isActive = world.id === (active === "activities" ? "attractions" : active); return <Link key={world.id} className={isActive ? "active" : ""} aria-current={isActive ? "page" : undefined} href={href} onPointerDown={navigateFromSwitcherPointer} onClick={navigateFromSwitcher}><span className={`world-mark world-mark--${world.id}`} aria-hidden="true" /><span><b>{world.label}</b><small>{translate(world.description)}</small></span></Link>; })}
       </nav>
     </details>
   );
 }
 
-function WorldSearchIcon() {
-  return <svg className="world-search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg>;
+function WorldToggleIcon() {
+  return <svg className="world-toggle-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>;
 }
 
 export function SearchWorldTabs({ active, location, onNavigate }: { active: PublicWorldId; location?: string; onNavigate?: () => void }) {
