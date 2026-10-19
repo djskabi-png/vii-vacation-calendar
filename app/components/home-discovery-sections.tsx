@@ -8,6 +8,7 @@ import { Search } from "lucide-react";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { defaultHomepagePresentation, type HomeDiscoveryItem } from "../lib/homepage-presentation";
 import { HomeSliderControls } from "./home-slider-controls";
+import { normalizeHomepageItems } from "../lib/homepage-search-href";
 
 type Presentation = {
   popular: HomeDiscoveryItem[];
@@ -24,7 +25,12 @@ function usePresentation() {
     const controller = new AbortController();
     void fetch(`/api/vii/homepage-presentation?locale=${language}`, { signal: controller.signal })
       .then((response) => response.ok ? response.json() : Promise.reject(new Error("presentation_unavailable")))
-      .then((value: Presentation) => setPresentation(value))
+      .then((value: Presentation) => setPresentation({
+        ...value,
+        popular: normalizeHomepageItems(value.popular),
+        cities: normalizeHomepageItems(value.cities),
+        types: normalizeHomepageItems(value.types),
+      }))
       .catch(() => undefined);
     return () => controller.abort();
   }, [language]);
