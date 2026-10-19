@@ -20,7 +20,7 @@ test("public navigation replaces the generic activities hub with trails and attr
   assert.match(data, /id: "trails"[\s\S]*href: "\/trails"/);
   assert.match(data, /id: "attractions"[\s\S]*href: "\/attractions"/);
   assert.match(data, /world\.id !== "activities"/);
-  assert.match(switcher, /publicWorldNavigation\.map/);
+  assert.match(switcher, /headerWorldOptions\(language\)\.map/);
   assert.match(switcher, /export type PublicWorldId = WorldId \| "trails" \| "attractions"/);
   assert.match(switcher, /aria-current=\{world\.id === active \? "page" : undefined\}[\s\S]*href=\{href\}/);
 });

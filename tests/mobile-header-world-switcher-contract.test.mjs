@@ -13,12 +13,12 @@ test("the world switcher belongs to the header action row beside the menu", () =
   assert.doesNotMatch(shell, /<WorldSwitcher/);
 });
 
-test("the mobile world switcher is a compact forty-four pixel touch target", () => {
-  assert.match(styles, /\.header-actions \.world-dock \{ position: relative; inset: auto; z-index: auto; flex: 0 0 44px; \}/);
-  assert.match(styles, /\.world-dock > summary \{[\s\S]*width: 44px;[\s\S]*min-height: 44px/);
-  assert.match(styles, /\.world-dock > summary > span:last-child \{ display: none; \}/);
-  assert.match(switcher, /aria-label=\{translate\("חיפוש ובחירת עולם"\)\}/);
-  assert.match(switcher, /<WorldSearchIcon \/>/);
-  assert.match(switcher, /className="world-search-icon"/);
+test("the mobile world switcher exposes the current topic and a chevron with a forty-four pixel touch height", () => {
+  assert.match(styles, /\.header-actions \.world-dock \{ position: relative; inset: auto; z-index: auto; flex: 0 1 auto; \}/);
+  assert.match(styles, /\.world-dock > summary \{[\s\S]*min-width: 68px;[\s\S]*min-height: 44px/);
+  assert.doesNotMatch(styles, /\.world-dock > summary > span:last-child \{ display: none; \}/);
+  assert.match(switcher, /headerWorldLabel\(active, language\)/);
+  assert.match(switcher, /<WorldToggleIcon \/>/);
+  assert.match(switcher, /className="world-toggle-icon"/);
   assert.doesNotMatch(switcher, /localizedPath\("\/search", language\)/);
 });

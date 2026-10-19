@@ -26,12 +26,12 @@ test("desktop navigation has no duplicate more menu or gift-card text link", () 
   assert.match(css, /\.site-header__inner \{ min-height: 74px; display: grid; grid-template-columns: minmax\(0,1fr\) max-content;/);
 });
 
-test("world selection uses one immediately interactive magnifying-glass trigger", () => {
-  assert.match(switcher, /function WorldSearchIcon/);
-  assert.match(switcher, /className="world-search-icon"/);
-  assert.match(switcher, /<circle cx="11" cy="11" r="7" \/>/);
+test("world selection uses one immediately interactive current-topic and chevron trigger", () => {
+  assert.match(switcher, /function WorldToggleIcon/);
+  assert.match(switcher, /className="world-toggle-icon"/);
+  assert.match(switcher, /headerWorldLabel\(active, language\)/);
   assert.match(switcher, /<details ref=\{rootRef\} className="world-dock" suppressHydrationWarning>/);
-  assert.match(switcher, /<summary ref=\{triggerRef\} aria-label=\{translate\("חיפוש ובחירת עולם"\)\}>/);
+  assert.match(switcher, /<summary ref=\{triggerRef\}>/);
   assert.doesNotMatch(switcher, /localizedPath\("\/search", language\)/);
   assert.doesNotMatch(switcher, /חיפוש כללי|חפשו מקום, עסק או יעד בכל האתר/);
   assert.doesNotMatch(switcher, /current\.shortLabel/);
@@ -66,15 +66,15 @@ test("world links navigate on pointer activation without a full document reload 
 
 test("header utility actions share sizing and world selection is not fixed", () => {
   assert.match(css, /\.icon-button \{ width: 44px; \}/);
-  assert.match(css, /\.header-actions \.world-dock \{ position: relative; inset: auto; z-index: auto; flex: 0 0 44px; \}/);
-  assert.match(css, /\.world-dock > summary \{\s*width: 44px;\s*min-width: 44px;\s*min-height: 44px;/);
+  assert.match(css, /\.header-actions \.world-dock \{ position: relative; inset: auto; z-index: auto; flex: 0 1 auto; \}/);
+  assert.match(css, /\.world-dock > summary \{\s*width: 76px;\s*min-width: 68px;\s*max-width: 76px;\s*min-height: 44px;/);
   assert.match(css, /\.header-actions \.world-dock \{\s*position: relative;\s*inset: auto !important;/);
   assert.doesNotMatch(css, /\.world-dock > summary \{\s*width: 40px;\s*min-width: 40px;\s*min-height: 40px;/);
-  assert.match(css, /\.world-dock > summary \.world-search-icon \{ width: 20px; height: 20px;/);
+  assert.match(css, /\.world-dock > summary \.world-toggle-icon \{ width: 16px; height: 16px;/);
 });
 
 test("the header has one combined search and worlds action plus direct accessibility", () => {
-  const worldSwitcherComponent = switcher.match(/export function WorldSwitcher[\s\S]*?(?=function WorldSearchIcon)/)?.[0] ?? "";
+  const worldSwitcherComponent = switcher.match(/export function WorldSwitcher[\s\S]*?(?=function WorldToggleIcon)/)?.[0] ?? "";
   assert.doesNotMatch(header, /header-search/);
   assert.match(header, /<AccessibilityWidget placement="icon" \/>/);
   assert.match(header, /<WorldSwitcher active=\{activeWorld\} \/>/);
