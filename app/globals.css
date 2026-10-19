@@ -6218,7 +6218,6 @@ div.home-slider__item > :is(.stay-card, .discovery-card) { height: 100%; }
   .home-recommended .section-head > div:last-child, .home-spa-strip .section-head > div:last-child, .home-short-stay .section-head > div:last-child { flex-direction: row; justify-content: space-between; align-items: center; }
   .home-slider__item, .home-slider__track--properties .home-slider__item, .home-slider__track--discovery .home-slider__item, .home-slider__track--trust .home-slider__item { flex-basis: calc(100vw - 48px); }
   .home-rating-card { min-height: 250px; padding: 15px; }
-  .home-rating-card__top { grid-template-columns: 112px minmax(0,1fr); }
   .home-vacation-discovery { padding-block: 62px 70px; }
   .home-vacation-discovery__intro { margin-bottom: 34px; }
   .home-vacation-discovery__intro h2 { font-size: 2.5rem; }

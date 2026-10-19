@@ -7,6 +7,7 @@ test('review cards protect common header, quote, author/date and CTA rows',()=>{
  assert.match(css,/\.home-rating-card \{[^}]*display: grid;[^}]*grid-template-rows: 112px minmax\(4\.8em,1fr\) auto auto/);
  assert.doesNotMatch(css,/\.home-tour-card > div,\.home-rating-card > div/);
  assert.match(css,/\.home-rating-card__top \{[^}]*grid-template-columns: 84px minmax\(0,1fr\);[^}]*padding: 0/);
+ assert.doesNotMatch(css,/\.home-rating-card__top \{[^}]*grid-template-columns: 112px/);
  assert.match(css,/\.home-rating-card__top h3 \{[^}]*min-block-size: 2\.7em;[^}]*-webkit-line-clamp: 2/);
  assert.match(css,/\.home-rating-card__byline > time \{ flex: 0 0 auto; white-space: nowrap/);
  assert.match(source,/<time dateTime=\{reviewDate\} dir="ltr">\{reviewDate\}<\/time>/);
