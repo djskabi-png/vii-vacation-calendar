@@ -26,7 +26,8 @@ test("near-date, holiday home and holiday landing deal adapters never drop galle
 
 test("compact place previews use independent media and body links, not nested buttons", () => {
   const card = read("app/components/place-preview-card.tsx");
-  assert.match(card, /<article className=\{className\}>\s*<PreviewCardGallery/);
+  // Preserve the caller's class while allowing the event contact footer modifier.
+  assert.match(card, /<article className=\{`\$\{className\}\$\{contact \? " place-preview-card--contact" : ""\}`\}>\s*<PreviewCardGallery/);
   assert.match(card, /images=\{\[image, \.\.\.images\]\}/);
   assert.match(card, /<Link className="place-preview-card__body"/);
   assert.doesNotMatch(card, /<Link[^>]*>\s*<PreviewCardGallery/);
