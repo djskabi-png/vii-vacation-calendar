@@ -6,12 +6,17 @@
 .home-page .home-vacation-discovery + .home-trust-discovery { padding-block-start:32px; }
 .home-page .home-trust-strip > .home-vacation-strip__head { margin:0; align-items:center; }
 .home-page .home-trust-strip > .home-vacation-strip__head h2 { margin:0; }
+.home-page .home-trust-discovery { background:transparent; }
+.home-page .home-trust-discovery:has(+ .spa-package-deals) { padding-block-end:24px; }
+.home-page .home-trust-discovery + .spa-package-deals { padding-block-start:32px; }
 
 @media (max-width:760px) {
   .home-page { --home-mobile-gap:32px; }
   .home-page > .section,.home-page > .home-events-world { padding-block:var(--home-mobile-gap); }
   .home-page .home-vacation-discovery:has(+ .home-trust-discovery) { padding-block-end:16px; }
   .home-page .home-vacation-discovery + .home-trust-discovery { padding-block-start:16px; }
+  .home-page .home-trust-discovery:has(+ .spa-package-deals) { padding-block-end:16px; }
+  .home-page .home-trust-discovery + .spa-package-deals { padding-block-start:16px; }
   .home-page .section-head { display:flex; flex-wrap:wrap; align-items:flex-start; gap:10px 16px; margin-bottom:18px; }
   .home-page .section-head > div:first-child { flex:1 1 100%; min-width:0; }
   .home-page .section-head h2 { margin-block:0; font-size:1.4rem; line-height:1.35; }
