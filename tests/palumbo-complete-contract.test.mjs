@@ -58,8 +58,8 @@ test("vacation discovery and result controls implement Palumbo requirements", as
   assert.match(search, /מחיר ומאפיינים/);
   assert.match(search, /<ProgressiveResults autoLoad/);
   assert.match(progressive, /IntersectionObserver/);
-  assert.match(box, /אזורים ותתי אזורים/);
-  assert.match(box, /ערים ויישובים/);
+  assert.match(box, /destinationChildren\(destinations, browseKey/);
+  assert.match(box, /matchingDestinations\(destinations, locationQuery, translate\)/);
   assert.match(box, /visibleDestinations[\s\S]*visibleNamedPlaces/);
   assert.doesNotMatch(calendar, /<span><i className="legend-dot general" \/> כל תאריך עתידי ניתן לחיפוש<\/span>/);
   assert.match(calendar, /גמישות בתאריכים/);

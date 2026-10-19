@@ -1,0 +1,9 @@
+import type { SiteLanguage } from "./locale-routing";
+
+type PickerCopy = { quick: string; recent: string; browse: string; back: string; clear: string; city: string; region: string; country: string; refine: string; previous: string; next: string; pages: string; typeInstead: string; searchRegion: (region: string) => string };
+export const destinationPickerCopy: Record<SiteLanguage, PickerCopy> = {
+  he: { quick: "בחירה מהירה", recent: "חיפושים אחרונים", browse: "בחירה לפי אזור", back: "חזרה", clear: "ניקוי החיפוש", city: "עיר / יישוב", region: "אזור", country: "כל הארץ", refine: "מיקוד", previous: "הקודם", next: "הבא", pages: "דפדוף בין יעדים", typeInstead: "אפשר להקליד עיר או אזור לחיפוש.", searchRegion: region => `חיפוש בכל ${region}` },
+  en: { quick: "Quick choices", recent: "Recent searches", browse: "Browse by region", back: "Back", clear: "Clear search", city: "City / town", region: "Region", country: "All Israel", refine: "Explore", previous: "Previous", next: "Next", pages: "Destination pages", typeInstead: "Type a city or region to search.", searchRegion: region => `Search all of ${region}` },
+  fr: { quick: "Choix rapides", recent: "Recherches récentes", browse: "Choisir par région", back: "Retour", clear: "Effacer la recherche", city: "Ville / localité", region: "Région", country: "Tout Israël", refine: "Explorer", previous: "Précédent", next: "Suivant", pages: "Pages de destinations", typeInstead: "Saisissez une ville ou une région.", searchRegion: region => `Rechercher dans toute la région : ${region}` },
+  ru: { quick: "Быстрый выбор", recent: "Недавние поиски", browse: "Выбрать по региону", back: "Назад", clear: "Очистить поиск", city: "Город / посёлок", region: "Регион", country: "Весь Израиль", refine: "Уточнить", previous: "Назад", next: "Далее", pages: "Страницы направлений", typeInstead: "Введите город или регион для поиска.", searchRegion: region => `Искать по всему региону: ${region}` },
+};
