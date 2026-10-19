@@ -1,12 +1,11 @@
-import { readSession } from "../../../lib/google-auth.ts";
-import { isAdminEmail } from "../../../lib/admin-access.ts";
+import { authorizedAdminSession } from "../../../lib/admin-session.ts";
 import { readSearchAnalytics, searchAnalyticsDatabase } from "../../../lib/search-analytics.ts";
 
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 
 export async function GET(request: Request) {
-  const session = await readSession(request).catch(() => null);
-  if (!session || !isAdminEmail(session.email)) {
+  const session = await authorizedAdminSession(request).catch(() => null);
+  if (!session) {
     return Response.json({ error: "forbidden" }, { status: 403, headers });
   }
   const days = Number(new URL(request.url).searchParams.get("days") || 7);

@@ -1,12 +1,11 @@
-import { readSession } from "../../../lib/google-auth.ts";
-import { isAdminEmail } from "../../../lib/admin-access.ts";
+import { authorizedAdminSession } from "../../../lib/admin-session.ts";
 import { opportunityDatabase, readOpportunityDashboard } from "../../../lib/search-opportunities.ts";
 
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 
 export async function GET(request: Request) {
-  const session = await readSession(request).catch(() => null);
-  if (!session || !isAdminEmail(session.email)) return Response.json({ error: "forbidden" }, { status: 403, headers });
+  const session = await authorizedAdminSession(request).catch(() => null);
+  if (!session) return Response.json({ error: "forbidden" }, { status: 403, headers });
   try {
     const report = await readOpportunityDashboard(await opportunityDatabase(), 30);
     const queue = report.opportunities.filter((item) => ["pending", "draft", "review", "scheduled"].includes(item.status)).map((item) => ({

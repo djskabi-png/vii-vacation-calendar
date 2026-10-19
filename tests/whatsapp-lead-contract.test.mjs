@@ -46,9 +46,9 @@ test("completed WhatsApp popups are counted once and visible only to approved ad
   ]);
   assert.match(storage, /submission_id TEXT PRIMARY KEY/);
   assert.match(storage, /INSERT OR IGNORE INTO whatsapp_leads/);
-  assert.match(report, /readSession\(request\)/);
-  assert.match(report, /import \{ isAdminEmail \} from "\.\.\/\.\.\/\.\.\/lib\/admin-access"/);
-  assert.match(report, /isAdminEmail\(session\.email\)/);
+  assert.match(report, /authorizedAdminSession\(request\)/);
+  assert.match(report, /import \{ authorizedAdminSession \} from "\.\.\/\.\.\/\.\.\/lib\/admin-session\.ts"/);
+  assert.match(report, /if \(!session\)/);
   assert.match(report, /SELECT COUNT\(\*\) AS count FROM whatsapp_leads/);
   assert.match(page, /אין אפשרות לדעת מכאן אם ההודעה נשלחה בוואטסאפ/);
   assert.match(page, /\/api\/auth\/google\?returnTo=%2Fadmin%2Fwhatsapp-leads/);

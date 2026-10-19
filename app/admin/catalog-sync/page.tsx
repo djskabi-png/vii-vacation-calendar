@@ -1,5 +1,7 @@
 "use client";
 
+import { useAdminCanEdit } from "../admin-access-context.tsx";
+
 import { useCallback, useEffect, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import type { CatalogSyncDiagnostics } from "../../lib/supplier-catalog-diagnostics.ts";
@@ -51,6 +53,7 @@ function RunDiagnostics({ world, value }: { world: World; value?: CatalogSyncDia
 }
 
 export default function CatalogSyncPage() {
+  const canEdit = useAdminCanEdit();
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
   const [busy, setBusy] = useState<World | null>(null);
   const [loading, setLoading] = useState(true);
@@ -73,6 +76,7 @@ export default function CatalogSyncPage() {
   useEffect(() => { void refresh(); }, [refresh]);
 
   async function pull(world: World) {
+    if (!canEdit) return;
     if (busy) return;
     setBusy(world);
     setNotice("");
@@ -124,7 +128,7 @@ export default function CatalogSyncPage() {
             {run?.status === "rejected" ? <p>לא יתבצע ניסיון אוטומטי נוסף, משום שהנתונים נעצרו לבדיקת בטיחות ולא בגלל תקלה זמנית.</p> : null}
             {run?.errorCode ? <><p><strong>למה העדכון נעצר:</strong> {catalogRunExplanation(id, run.errorCode, run.diagnostics)}</p><small>קוד טכני: <code dir="ltr">{run.errorCode}</code></small></> : null}
             {run?.status === "failed" || run?.status === "rejected" ? <RunDiagnostics world={id} value={run.diagnostics} /> : null}
-            <button type="button" disabled={!!busy || running} onClick={() => void pull(id)}>
+            <button type="button" disabled={!canEdit || (!!busy || running)} onClick={() => void pull(id)}>
               <RefreshCw size={17} aria-hidden="true" /> {running ? "מושכים נתונים..." : "משוך עכשיו"}
             </button>
           </article>;

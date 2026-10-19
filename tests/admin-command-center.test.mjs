@@ -13,7 +13,9 @@ test("administration shell exposes command search, growth center and mobile-safe
   assert.match(rootLayout, /heebo-latin-v28\.woff2/);
   assert.match(rootLayout, /data-vii-surface=\{isAdmin \? "admin" : "public"\}/);
   assert.match(rootLayout, /vii-admin-font-critical/);
-  assert.match(layout, /<AdminCommandBar \/>/);
+  assert.match(layout, /<AdminCommandBar access=\{access\} \/>/);
+  assert.match(layout, /adminRouteAllowed\(access, pathname\)/);
+  assert.match(layout, /<AdminAccessProvider access=\{access\}>/);
   assert.match(navigation, /\/admin\/growth/);
   assert.match(commandBar, /Ctrl K/);
   assert.match(commandBar, /חיפוש כלי, דוח או פעולה/);

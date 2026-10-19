@@ -1,5 +1,7 @@
 "use client";
 
+import { useAdminCanEdit } from "../admin-access-context.tsx";
+
 import { useCallback, useEffect, useState } from "react";
 import { ArrowUpRight, RefreshCw, Save } from "lucide-react";
 import styles from "./redirects.module.css";
@@ -9,6 +11,7 @@ type Form = { sourcePath: string; targetPath: string; status: 301 | 410; active:
 const blank: Form = { sourcePath: "", targetPath: "", status: 301, active: false };
 
 export default function RedirectsPage() {
+  const canEdit = useAdminCanEdit();
   const [rows, setRows] = useState<Redirect[]>([]);
   const [form, setForm] = useState<Form>(blank);
   const [loading, setLoading] = useState(true);
@@ -30,6 +33,7 @@ export default function RedirectsPage() {
   useEffect(() => { void load(); }, [load]);
 
   async function save() {
+    if (!canEdit) return;
     setSaving(true); setError(""); setMessage("");
     try {
       const response = await fetch("/api/admin/redirects", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
@@ -53,7 +57,7 @@ export default function RedirectsPage() {
       <label>תוצאה<select value={form.status} onChange={(event) => setForm({ ...form, status: Number(event.target.value) as 301 | 410 })}><option value={301}>301 לכתובת חדשה</option><option value={410}>410 הוסר ללא תחליף</option></select></label>
       {form.status === 301 ? <label>יעד באתר<input dir="ltr" value={form.targetPath} onChange={(event) => setForm({ ...form, targetPath: event.target.value })} placeholder="/search" /></label> : null}
       <label className={styles.check}><input type="checkbox" checked={form.active} onChange={(event) => setForm({ ...form, active: event.target.checked })} /> הפעלה לציבור</label>
-    </div><div className={styles.actions}><button type="button" onClick={() => void save()} disabled={saving || loading}><Save size={16} /> {saving ? "שומרים..." : "שמירה"}</button><button type="button" className={styles.secondary} onClick={() => setForm(blank)}>ניקוי</button></div><p className={styles.hint}>אין להפנות כתובת פעילה או להפנות לדף הבית ללא יעד שקול. יש לבדוק את הכתובת אחרי הפעלה.</p></section>
+    </div><div className={styles.actions}><button type="button" onClick={() => void save()} disabled={!canEdit || (saving || loading)}><Save size={16} /> {saving ? "שומרים..." : "שמירה"}</button><button type="button" className={styles.secondary} onClick={() => setForm(blank)}>ניקוי</button></div><p className={styles.hint}>אין להפנות כתובת פעילה או להפנות לדף הבית ללא יעד שקול. יש לבדוק את הכתובת אחרי הפעלה.</p></section>
     <section className={styles.list} aria-labelledby="list-title"><div className={styles.listHead}><h2 id="list-title">הפניות שמורות</h2><span>{loading ? "טוענים..." : `${rows.length} רשומות`}</span></div>{rows.length ? <div className={styles.tableWrap}><table><thead><tr><th>מקור</th><th>יעד / תשובה</th><th>מצב</th><th>עודכן</th><th></th></tr></thead><tbody>{rows.map((row) => <tr key={row.source_path}><td dir="ltr">{row.source_path}</td><td dir="ltr">{row.status === 410 ? "410 Gone" : row.target_path}</td><td>{row.active ? "פעיל" : "טיוטה"}</td><td>{new Date(row.updated_at).toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" })}</td><td><button type="button" onClick={() => { setForm({ sourcePath: row.source_path, targetPath: row.target_path || "", status: row.status, active: Boolean(row.active) }); window.scrollTo({ top: 0, behavior: "smooth" }); }}>עריכה</button>{row.active ? <a href={row.source_path} target="_blank" rel="noreferrer" aria-label={`בדיקת ${row.source_path}`}><ArrowUpRight size={16} /></a> : null}</td></tr>)}</tbody></table></div> : !loading ? <p className={styles.empty}>עדיין אין הפניות שמורות.</p> : null}</section></> : null}
   </main>;
 }

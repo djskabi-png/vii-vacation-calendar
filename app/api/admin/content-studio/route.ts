@@ -1,5 +1,4 @@
-import { readSession } from "../../../lib/google-auth.ts";
-import { isAdminEmail } from "../../../lib/admin-access.ts";
+import { authorizedAdminSession } from "../../../lib/admin-session.ts";
 import { contentStudioSources, publicContentPath } from "../../../lib/content-studio-inventory.ts";
 import { contentItemId, createContentItem, ensureContentItems, isContentLocale, isContentType, parseContentChange, parseContentCreate, readContentItem, readContentVersions, readOriginalContentItems, saveContentItem } from "../../../lib/content-studio.ts";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
@@ -8,8 +7,8 @@ import { isManagedWorldLandingType, validWorldLandingAttributes } from "../../..
 
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 async function actor(request: Request) {
-  const session = await readSession(request).catch(() => null);
-  return session && isAdminEmail(session.email) ? session.email : null;
+  const session = await authorizedAdminSession(request).catch(() => null);
+  return session ? session.email : null;
 }
 async function database(): Promise<D1Database> {
   const runtime = await import("cloudflare:workers"); const db = (runtime.env as unknown as { DB?: D1Database }).DB;

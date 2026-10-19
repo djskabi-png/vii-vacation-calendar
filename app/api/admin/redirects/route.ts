@@ -1,12 +1,11 @@
-import { readSession } from "../../../lib/google-auth.ts";
-import { isAdminEmail } from "../../../lib/admin-access.ts";
+import { authorizedAdminSession } from "../../../lib/admin-session.ts";
 import { parseRedirectInput, redirectsDatabase, type RedirectRecord } from "../../../lib/admin-redirects.ts";
 
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 
 async function admin(request: Request) {
-  const session = await readSession(request).catch(() => null);
-  return session && isAdminEmail(session.email) ? session.email : null;
+  const session = await authorizedAdminSession(request).catch(() => null);
+  return session ? session.email : null;
 }
 
 export async function GET(request: Request) {
