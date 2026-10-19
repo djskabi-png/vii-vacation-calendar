@@ -33,14 +33,14 @@ async function readSitemapDocuments() {
   return { indexXml, documents };
 }
 
-test("holiday and spa primary headings are localized in raw server output and contact retains locale", async () => {
+test("home, magazine, holiday and spa primary headings are localized in raw server output and contact retains locale", async () => {
   for (const locale of ["he", "en", "fr", "ru"]) {
     const prefix = locale === "he" ? "" : `/${locale}`;
     const contact = await render(`${prefix}/contact`);
     assert.equal(contact.status, 308);
     assert.equal(new URL(contact.headers.get("location"), "http://localhost").pathname, `${prefix}/join`);
-    for (const path of ["/holidays/hanukkah", "/spas"]) {
-      const response = await render(`${prefix}${path}`);
+    for (const path of ["/", "/guides", "/holidays/hanukkah", "/spas"]) {
+      const response = await render(path === "/" ? prefix || "/" : `${prefix}${path}`);
       assert.equal(response.status, 200);
       const html = await response.text();
       const title = html.match(/<title>([^<]*)<\/title>/)?.[1];
@@ -103,8 +103,8 @@ test("homepage hero keeps one focused message and compact local spacing", async 
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
-  assert.match(page, /<h1>כל מה שעושים בחופש, במקום אחד<\/h1>/);
-  assert.match(page, /<p>נופש, ספא, אירועים ופעילויות\. מחפשים ומזמינים ישר כאן\.<\/p>/);
+  assert.match(page, /<h1>\{translate\("כל מה שעושים בחופש, במקום אחד"\)\}<\/h1>/);
+  assert.match(page, /<p>\{translate\("נופש, ספא, אירועים ופעילויות\. מחפשים ומזמינים ישר כאן\."\)\}<\/p>/);
   assert.doesNotMatch(page, /<span className="eyebrow">נופש, אירועים, ספא וחוויות<\/span>/);
   assert.match(css, /\.home-hero \{[^}]*min-height: 470px;[^}]*padding: 52px 0 42px;/);
   assert.match(css, /\.home-recommended \{[^}]*padding-block: 64px;/);

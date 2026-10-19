@@ -85,7 +85,7 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
     fr: { name: "Lieu événementiel vérifié", location: "Israël", description: (name: string, location: string) => `${name} est un lieu événementiel vérifié situé en ${location}. Consultez les photos, les équipements, la capacité et les moyens de contact.`, unit: "Espace événementiel", policy: "Les remarques et conditions complémentaires sont confirmées directement avec le lieu." },
   }[language];
   const safeEventText = (value: string | undefined | null, fallback: string) => localizedBusinessText(value, language, translate, fallback);
-  const localizedPlaceName = safeEventText(place.name, latinBusinessAlias(place.name) || eventContentCopy.name);
+  const localizedPlaceName = safeEventText(place.name, latinBusinessAlias(place.name) || place.name);
   const localizedArea = safeEventText(place.area, eventContentCopy.location);
   const localizedLocation = safeEventText(place.location, localizedArea);
   const localizedDescription = safeEventText(place.description, eventContentCopy.description(localizedPlaceName, localizedLocation));

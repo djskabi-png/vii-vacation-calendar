@@ -18,6 +18,6 @@ test("expanded shared search escapes hero clipping while inline desktop and cale
   assert.ok(source.indexOf("<EventDatePicker")>source.indexOf("createPortal(searchSurface, document.body)"));
 });
 test("homepage uses the exact approved copy",()=>{
-  assert.match(home,/<h1>כל מה שעושים בחופש, במקום אחד<\/h1>/);
-  assert.match(home,/<p>נופש, ספא, אירועים ופעילויות\. מחפשים ומזמינים ישר כאן\.<\/p>/);
+  assert.match(home,/<h1>\{translate\("כל מה שעושים בחופש, במקום אחד"\)\}<\/h1>/);
+  assert.match(home,/<p>\{translate\("נופש, ספא, אירועים ופעילויות\. מחפשים ומזמינים ישר כאן\."\)\}<\/p>/);
 });
