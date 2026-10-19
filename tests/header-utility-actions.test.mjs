@@ -67,7 +67,7 @@ test("world links navigate on pointer activation without a full document reload 
 test("header utility actions share sizing and world selection is not fixed", () => {
   assert.match(css, /\.icon-button \{ width: 44px; \}/);
   assert.match(css, /\.header-actions \.world-dock \{ position: relative; inset: auto; z-index: auto; flex: 0 1 auto; \}/);
-  assert.match(css, /\.world-dock > summary \{\s*width: 76px;\s*min-width: 68px;\s*max-width: 76px;\s*min-height: 44px;/);
+  assert.match(css, /\.world-dock > summary \{\s*width: 90px;\s*min-width: 68px;\s*max-width: 90px;\s*min-height: 44px;/);
   assert.match(css, /\.header-actions \.world-dock \{\s*position: relative;\s*inset: auto !important;/);
   assert.doesNotMatch(css, /\.world-dock > summary \{\s*width: 40px;\s*min-width: 40px;\s*min-height: 40px;/);
   assert.match(css, /\.world-dock > summary \.world-toggle-icon \{ width: 16px; height: 16px;/);
