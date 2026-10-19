@@ -21,6 +21,8 @@ import { latinBusinessAlias, localizedBusinessList, localizedBusinessText } from
 import { PreviewGalleryStatus, usePreviewGallery } from "./use-preview-gallery";
 import { OnlineBookingBadge } from "./online-booking-badge";
 import { canShowOnlineBookingBadge } from "../lib/online-booking-eligibility";
+import { hasSearchDate, supplierStartingPrice, type SeasonalStartingPrices } from "../lib/supplier-starting-price";
+import { CatalogStartingPrice } from "./catalog-starting-price";
 
 function PhoneIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16.4v3a2 2 0 0 1-2.2 2 19.7 19.7 0 0 1-8.6-3.1 19.3 19.3 0 0 1-6-6A19.7 19.7 0 0 1 1.1 3.7 2 2 0 0 1 3.1 1.5h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.4 2.1L7.1 9.5a16 16 0 0 0 7.4 7.4l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2Z" /></svg>;
@@ -300,7 +302,7 @@ export function hasAvailablePriceForSearch(property: Property, selectedStay: Sel
     && resolvedAvailability.nightlyPrice > 0;
 }
 
-export function PropertyCard({ property, selectedStay = null, promotional = false, detailHref, liveAvailabilityState, onlineCapability = false, mapActive = false, onActiveChange }: { property: Property; selectedStay?: SelectedStay | null; promotional?: boolean; detailHref?: string; liveAvailabilityState?: LegacyAvailabilityState; onlineCapability?: boolean; mapActive?: boolean; onActiveChange?: (active: boolean) => void }) {
+export function PropertyCard({ property, selectedStay = null, promotional = false, detailHref, liveAvailabilityState, catalogStartingPrices, onlineCapability = false, mapActive = false, onActiveChange }: { property: Property; selectedStay?: SelectedStay | null; promotional?: boolean; detailHref?: string; liveAvailabilityState?: LegacyAvailabilityState; catalogStartingPrices?: SeasonalStartingPrices; onlineCapability?: boolean; mapActive?: boolean; onActiveChange?: (active: boolean) => void }) {
   const { language, translate } = useSiteLanguage();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -326,7 +328,8 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
   const displayPrice = resolvedAvailability?.priceMode === "stay_total" ? resolvedAvailability.totalPrice : resolvedAvailability?.nightlyPrice;
   const priceUnit = resolvedAvailability?.priceMode === "stay_total" ? copy.stayTotal : resolvedAvailability?.priceMode === "nightly_average" ? copy.nightlyAverage : copy.night;
   const hasQuotedPrice = typeof displayPrice === "number" && displayPrice > 0;
-  const undatedSearch = !selectedStay;
+  const undatedSearch = !selectedStay && !hasSearchDate(searchParams);
+  const startingPrice = undatedSearch && !resolvedAvailability && !promotional ? supplierStartingPrice(catalogStartingPrices ?? property) : null;
   const onlineBookingEligible = (undatedSearch && !promotional && !property.demoOperations?.fictional && onlineCapability) || canShowOnlineBookingBadge({
     ready: !promotional && liveLegacyAvailability.status === "ready",
     onlineBooking: resolvedAvailability?.onlineBooking,
@@ -397,8 +400,8 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
           </div> : null}
         </div> : null}
         <div className={`stay-card__footer stay-card__footer--${cardMode}`}>
-          {!promotional && (resolvedAvailability || (!selectedStay && property.price)) ? <div className="stay-card__commercial-summary">
-            {resolvedAvailability ? <span className={`stay-card__price stay-card__price--selected ${hasQuotedPrice ? "stay-card__price--known" : ""}`}>{hasQuotedPrice ? <><b><PriceValue amount={displayPrice?.toLocaleString() || ""} language={language} /></b><small>{priceUnit}</small>{resolvedAvailability.includedGuests ? <em>{copy.includedGuests(resolvedAvailability.includedGuests)}</em> : null}</> : resolvedAvailability.alternatives?.length ? <strong>{demoScenarioCopy[language].alternativePrice}</strong> : <strong>{copy.inquirePrice}</strong>}</span> : property.price ? <span className="stay-card__price stay-card__price--known"><small>{copy.from}</small><b><PriceValue amount={property.price.toLocaleString()} language={language} /></b><small>{copy.night}</small></span> : null}
+          {!promotional && (resolvedAvailability || startingPrice || (undatedSearch && property.price)) ? <div className="stay-card__commercial-summary">
+            {resolvedAvailability ? <span className={`stay-card__price stay-card__price--selected ${hasQuotedPrice ? "stay-card__price--known" : ""}`}>{hasQuotedPrice ? <><b><PriceValue amount={displayPrice?.toLocaleString() || ""} language={language} /></b><small>{priceUnit}</small>{resolvedAvailability.includedGuests ? <em>{copy.includedGuests(resolvedAvailability.includedGuests)}</em> : null}</> : resolvedAvailability.alternatives?.length ? <strong>{demoScenarioCopy[language].alternativePrice}</strong> : <strong>{copy.inquirePrice}</strong>}</span> : startingPrice ? <CatalogStartingPrice amount={startingPrice} /> : undatedSearch && property.price ? <span className="stay-card__price stay-card__price--known"><small>{copy.from}</small><b><PriceValue amount={property.price.toLocaleString()} language={language} /></b><small>{copy.night}</small></span> : null}
           </div> : null}
           <div className="stay-card__actions">
             {quickBookingReady ? <Link className="stay-card__details-link stay-card__details-link--booking" href={quickBookingHref}>{copy.quickBook}</Link> : null}

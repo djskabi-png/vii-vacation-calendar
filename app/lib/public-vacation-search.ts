@@ -26,6 +26,8 @@ export function publicVacationSearchProperties(properties: readonly Property[]):
     score: property.score,
     reviews: property.reviews,
     price: property.price,
+    startPriceWinter: property.startPriceWinter,
+    startPriceSummer: property.startPriceSummer,
     dateQuotes: property.dateQuotes,
     dailyAvailability: property.dailyAvailability,
     roomOptions: property.roomOptions,
