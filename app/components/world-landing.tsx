@@ -119,7 +119,7 @@ export async function WorldLanding({
           <div className="spa-discovery-hero__content">
             <BreadcrumbTrail className="spa-discovery-hero__breadcrumbs" items={breadcrumbItems || [{ name: "ראשי", path: "/" }, { name: worldLabel }]} />
             <SemanticWorldHeading mode={searchMode} title={title} description={description} />
-            <div className="spa-discovery-hero__proof" aria-label="יתרונות החיפוש">
+            <div className="spa-discovery-hero__proof" aria-label="יתרונות החיפוש" tabIndex={0}>
               <span><b>{items.length}</b> בתי ספא</span>
               <span>מחירים וחבילות במקום אחד</span>
               <span>חיפוש לפי אזור וחוויה</span>

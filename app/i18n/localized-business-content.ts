@@ -7,10 +7,12 @@ export function localizedBusinessText(
   language: SiteLanguage,
   translate: (source: string) => string,
   fallback: string,
+  stableFallback = false,
 ) {
   const source = value?.trim();
   if (!source) return fallback;
   if (language === "he") return source;
+  if (stableFallback) return fallback;
   const translated = translate(source).trim();
   return translated && !hebrewPattern.test(translated) ? translated : fallback;
 }

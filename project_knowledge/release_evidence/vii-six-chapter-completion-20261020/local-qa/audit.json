@@ -1,0 +1,324 @@
+{
+  "base": "http://127.0.0.1:4173",
+  "checkedAt": "2026-10-19T23:47:09.622Z",
+  "results": [
+    {
+      "viewport": "desktop",
+      "route": "/",
+      "url": "http://127.0.0.1:4173/",
+      "title": "וי פור ויקיישן | מוצאים את החופשה שמתאימה לכם",
+      "structure": {
+        "lang": "he",
+        "dir": "rtl",
+        "h1": 1,
+        "horizontalOverflow": -15,
+        "tinyTargets": []
+      },
+      "keyboardFocus": {
+        "tag": "A",
+        "label": "דילוג לתוכן"
+      },
+      "serious": [],
+      "pageErrors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/events",
+      "url": "http://127.0.0.1:4173/events",
+      "title": "מוצאים מקום לחגוג בו | וי פור ויקיישן",
+      "structure": {
+        "lang": "he",
+        "dir": "rtl",
+        "h1": 1,
+        "horizontalOverflow": -15,
+        "tinyTargets": []
+      },
+      "keyboardFocus": {
+        "tag": "A",
+        "label": "דילוג לתוכן"
+      },
+      "serious": [],
+      "pageErrors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/spas",
+      "url": "http://127.0.0.1:4173/spas",
+      "title": "בתי ספא בישראל | וי פור ויקיישן",
+      "structure": {
+        "lang": "he",
+        "dir": "rtl",
+        "h1": 1,
+        "horizontalOverflow": -15,
+        "tinyTargets": []
+      },
+      "keyboardFocus": {
+        "tag": "A",
+        "label": "דילוג לתוכן"
+      },
+      "serious": [],
+      "pageErrors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/search",
+      "url": "http://127.0.0.1:4173/search",
+      "title": "וי פור ויקיישן | מוצאים את החופשה שמתאימה לכם",
+      "structure": {
+        "lang": "he",
+        "dir": "rtl",
+        "h1": 1,
+        "horizontalOverflow": -15,
+        "tinyTargets": []
+      },
+      "keyboardFocus": {
+        "tag": "A",
+        "label": "דילוג לתוכן"
+      },
+      "serious": [],
+      "pageErrors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/en",
+      "url": "http://127.0.0.1:4173/en",
+      "title": "VII Vacation | Find your perfect stay",
+      "structure": {
+        "lang": "en",
+        "dir": "ltr",
+        "h1": 1,
+        "horizontalOverflow": -15,
+        "tinyTargets": []
+      },
+      "keyboardFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "serious": [],
+      "pageErrors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/fr/events",
+      "url": "http://127.0.0.1:4173/fr/events",
+      "title": "Trouver un endroit pour célébrer | VII Vacation",
+      "structure": {
+        "lang": "fr",
+        "dir": "ltr",
+        "h1": 1,
+        "horizontalOverflow": -15,
+        "tinyTargets": []
+      },
+      "keyboardFocus": {
+        "tag": "A",
+        "label": "Passer au contenu"
+      },
+      "serious": [],
+      "pageErrors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/ru/spas",
+      "url": "http://127.0.0.1:4173/ru/spas",
+      "title": "Спа в Израиле | VII Vacation",
+      "structure": {
+        "lang": "ru",
+        "dir": "ltr",
+        "h1": 1,
+        "horizontalOverflow": -15,
+        "tinyTargets": []
+      },
+      "keyboardFocus": {
+        "tag": "A",
+        "label": "Перейти к содержимому"
+      },
+      "serious": [],
+      "pageErrors": []
+    },
+    {
+      "viewport": "desktop",
+      "route": "/accessibility",
+      "url": "http://127.0.0.1:4173/accessibility",
+      "title": "הצהרת נגישות | וי פור ויקיישן",
+      "structure": {
+        "lang": "he",
+        "dir": "rtl",
+        "h1": 1,
+        "horizontalOverflow": -15,
+        "tinyTargets": []
+      },
+      "keyboardFocus": {
+        "tag": "A",
+        "label": "דילוג לתוכן"
+      },
+      "serious": [],
+      "pageErrors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/",
+      "url": "http://127.0.0.1:4173/",
+      "title": "וי פור ויקיישן | מוצאים את החופשה שמתאימה לכם",
+      "structure": {
+        "lang": "he",
+        "dir": "rtl",
+        "h1": 1,
+        "horizontalOverflow": 0,
+        "tinyTargets": []
+      },
+      "keyboardFocus": {
+        "tag": "A",
+        "label": "דילוג לתוכן"
+      },
+      "serious": [],
+      "pageErrors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/events",
+      "url": "http://127.0.0.1:4173/events",
+      "title": "מוצאים מקום לחגוג בו | וי פור ויקיישן",
+      "structure": {
+        "lang": "he",
+        "dir": "rtl",
+        "h1": 1,
+        "horizontalOverflow": 0,
+        "tinyTargets": []
+      },
+      "keyboardFocus": {
+        "tag": "A",
+        "label": "דילוג לתוכן"
+      },
+      "serious": [],
+      "pageErrors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/spas",
+      "url": "http://127.0.0.1:4173/spas",
+      "title": "בתי ספא בישראל | וי פור ויקיישן",
+      "structure": {
+        "lang": "he",
+        "dir": "rtl",
+        "h1": 1,
+        "horizontalOverflow": 0,
+        "tinyTargets": []
+      },
+      "keyboardFocus": {
+        "tag": "A",
+        "label": "דילוג לתוכן"
+      },
+      "serious": [],
+      "pageErrors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/search",
+      "url": "http://127.0.0.1:4173/search",
+      "title": "וי פור ויקיישן | מוצאים את החופשה שמתאימה לכם",
+      "structure": {
+        "lang": "he",
+        "dir": "rtl",
+        "h1": 1,
+        "horizontalOverflow": 0,
+        "tinyTargets": []
+      },
+      "keyboardFocus": {
+        "tag": "A",
+        "label": "דילוג לתוכן"
+      },
+      "serious": [],
+      "pageErrors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/en",
+      "url": "http://127.0.0.1:4173/en",
+      "title": "VII Vacation | Find your perfect stay",
+      "structure": {
+        "lang": "en",
+        "dir": "ltr",
+        "h1": 1,
+        "horizontalOverflow": 0,
+        "tinyTargets": []
+      },
+      "keyboardFocus": {
+        "tag": "A",
+        "label": "Skip to content"
+      },
+      "serious": [],
+      "pageErrors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/fr/events",
+      "url": "http://127.0.0.1:4173/fr/events",
+      "title": "Trouver un endroit pour célébrer | VII Vacation",
+      "structure": {
+        "lang": "fr",
+        "dir": "ltr",
+        "h1": 1,
+        "horizontalOverflow": 0,
+        "tinyTargets": []
+      },
+      "keyboardFocus": {
+        "tag": "A",
+        "label": "Passer au contenu"
+      },
+      "serious": [],
+      "pageErrors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/ru/spas",
+      "url": "http://127.0.0.1:4173/ru/spas",
+      "title": "Спа в Израиле | VII Vacation",
+      "structure": {
+        "lang": "ru",
+        "dir": "ltr",
+        "h1": 1,
+        "horizontalOverflow": 0,
+        "tinyTargets": []
+      },
+      "keyboardFocus": {
+        "tag": "A",
+        "label": "Перейти к содержимому"
+      },
+      "serious": [],
+      "pageErrors": []
+    },
+    {
+      "viewport": "mobile",
+      "route": "/accessibility",
+      "url": "http://127.0.0.1:4173/accessibility",
+      "title": "הצהרת נגישות | וי פור ויקיישן",
+      "structure": {
+        "lang": "he",
+        "dir": "rtl",
+        "h1": 1,
+        "horizontalOverflow": 0,
+        "tinyTargets": []
+      },
+      "keyboardFocus": {
+        "tag": "A",
+        "label": "דילוג לתוכן"
+      },
+      "serious": [],
+      "pageErrors": []
+    }
+  ],
+  "pwa": {
+    "manifestStatus": 200,
+    "id": "/",
+    "scope": "/",
+    "display": "standalone",
+    "iconPurposes": [
+      "any",
+      "maskable"
+    ],
+    "workerStatus": 200,
+    "offlineFallback": true,
+    "privateExclusions": true
+  },
+  "failures": []
+}

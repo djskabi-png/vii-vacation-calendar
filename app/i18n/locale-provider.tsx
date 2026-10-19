@@ -57,6 +57,7 @@ function loadTranslations(language: GeneratedLanguage) {
 
 const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, string>> = {
   en: {
+    "לאגו סוויט": "Lago Suite",
     "הדיל שבחרתם": "Your selected deal",
     "בודקים שוב את המחיר והזמינות": "Rechecking price and availability",
     "לכל השהייה שבחרתם, לשני מבוגרים. המחיר וההזמנה יאושרו מול המקום.": "for your selected stay, for two adults. The property must confirm the final price and booking.",
@@ -178,6 +179,7 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "These cards are search shortcuts. Availability and final pricing are confirmed after selecting dates and guests.",
   },
   ru: {
+    "לאגו סוויט": "Lago Suite",
     "הדיל שבחרתם": "Выбранное предложение",
     "בודקים שוב את המחיר והזמינות": "Повторно проверяем цену и наличие",
     "לכל השהייה שבחרתם, לשני מבוגרים. המחיר וההזמנה יאושרו מול המקום.": "за всё выбранное проживание для двух взрослых. Окончательную цену и бронирование подтвердит объект.",
@@ -309,6 +311,7 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "Карточки ведут к поиску. Наличие мест и итоговая цена подтверждаются после выбора дат и состава гостей.",
   },
   fr: {
+    "לאגו סוויט": "Lago Suite",
     "הדיל שבחרתם": "Votre offre",
     "בודקים שוב את המחיר והזמינות": "Nouvelle vérification du prix et de la disponibilité",
     "לכל השהייה שבחרתם, לשני מבוגרים. המחיר וההזמנה יאושרו מול המקום.": "pour tout le séjour choisi de deux adultes. Le lieu doit confirmer le prix final et la réservation.",
@@ -1372,6 +1375,9 @@ function applyLanguageToRoot(root: Node, language: SiteLanguage) {
 }
 
 export function LocaleProvider({ children, initialLanguage = "he" }: { children: ReactNode; initialLanguage?: SiteLanguage }) {
+  // Localized HTML is translated at the edge before hydration. The first
+  // browser render must therefore derive the same locale from the URL instead
+  // of replaying a Hebrew RSC default over an already localized document.
   const [language, setLanguageState] = useState<SiteLanguage>(initialLanguage);
   const [translationVersion, setTranslationVersion] = useState(0);
   const observer = useRef<MutationObserver | null>(null);
@@ -1392,7 +1398,9 @@ export function LocaleProvider({ children, initialLanguage = "he" }: { children:
     };
     syncLanguageWithRoute();
     window.addEventListener("popstate", syncLanguageWithRoute);
-    return () => window.removeEventListener("popstate", syncLanguageWithRoute);
+    return () => {
+      window.removeEventListener("popstate", syncLanguageWithRoute);
+    };
   }, []);
 
   useEffect(() => {
@@ -1444,36 +1452,55 @@ export function LocaleProvider({ children, initialLanguage = "he" }: { children:
   }, [language]);
 
   useEffect(() => {
-    applyLanguage(language);
     const translationReady = language === "he" || Boolean(loadedTranslations[language]);
-    if (translationReady) revealLocalizedDocument();
     observer.current?.disconnect();
+    if (!translationReady) return;
     if (language === "he") return;
+    // Some Vinext Suspense boundaries hydrate after their parent provider.
+    // Mutating their server DOM before that point creates a false mismatch.
+    // The load event is our hydration hand-off: translate only after the
+    // initial document and client bundles are ready, then observe later UI.
+    let active = true;
+    let startTimer = 0;
+    let hydrationFrame = 0;
     let frame = 0;
     const pendingRoots = new Set<Node>();
     const observe = () => observer.current?.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: translatedAttributes });
-    observer.current = new MutationObserver((records) => {
-      records.forEach((record) => {
-        if (record.type === "childList") record.addedNodes.forEach((node) => pendingRoots.add(node));
-        else pendingRoots.add(record.target);
-      });
-      window.cancelAnimationFrame(frame);
-      frame = window.requestAnimationFrame(() => {
-        observer.current?.disconnect();
-        pendingRoots.forEach((root) => {
-          if (root.isConnected) applyLanguageToRoot(root, language);
+    const start = () => {
+      const hydrationDelay = process.env.NODE_ENV === "development" ? 1_800 : 800;
+      hydrationFrame = window.requestAnimationFrame(() => {
+        startTimer = window.setTimeout(() => {
+        if (!active) return;
+        applyLanguage(language);
+        revealLocalizedDocument();
+        observer.current = new MutationObserver((records) => {
+          records.forEach((record) => {
+            if (record.type === "childList") record.addedNodes.forEach((node) => pendingRoots.add(node));
+            else pendingRoots.add(record.target);
+          });
+          window.cancelAnimationFrame(frame);
+          frame = window.requestAnimationFrame(() => {
+            observer.current?.disconnect();
+            pendingRoots.forEach((root) => {
+              if (root.isConnected) applyLanguageToRoot(root, language);
+            });
+            pendingRoots.clear();
+            observe();
+          });
         });
-        pendingRoots.clear();
         observe();
+        frame = window.requestAnimationFrame(() => applyLanguageToRoot(document.body, language));
+        }, hydrationDelay);
       });
-    });
-    observe();
-    const settleFrame = window.requestAnimationFrame(() => applyLanguageToRoot(document.body, language));
-    const settleTimer = window.setTimeout(() => applyLanguageToRoot(document.body, language), 350);
+    };
+    if (document.readyState === "complete") start();
+    else window.addEventListener("load", start, { once: true });
     return () => {
+      active = false;
+      window.removeEventListener("load", start);
+      window.clearTimeout(startTimer);
+      window.cancelAnimationFrame(hydrationFrame);
       window.cancelAnimationFrame(frame);
-      window.cancelAnimationFrame(settleFrame);
-      window.clearTimeout(settleTimer);
       observer.current?.disconnect();
     };
   }, [language, translationVersion]);

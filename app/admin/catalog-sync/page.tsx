@@ -61,6 +61,7 @@ export default function CatalogSyncPage() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [forbidden, setForbidden] = useState(false);
+  const [observedAt, setObservedAt] = useState(0);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -69,12 +70,13 @@ export default function CatalogSyncPage() {
       if (response.status === 403) setForbidden(true);
       if (!response.ok) throw new Error(response.status === 403 ? "אין הרשאת מנהל" : "לא ניתן לטעון את מצב הקטלוגים");
       setDashboard(await response.json() as Dashboard);
+      setObservedAt(Date.now());
       setError("");
     } catch (cause) { setError(cause instanceof Error ? cause.message : "שגיאת טעינה"); }
     finally { setLoading(false); }
   }, []);
 
-  useEffect(() => { void refresh(); }, [refresh]);
+  useEffect(() => { const timer = window.setTimeout(() => void refresh(), 0); return () => window.clearTimeout(timer); }, [refresh]);
 
   async function pull(world: World) {
     if (!canEdit) return;
@@ -130,7 +132,7 @@ export default function CatalogSyncPage() {
           const run = dashboard.runs.find((item) => item.world === id);
           const retry = dashboard.retryJobs.find((item) => item.world === id && (item.status === "pending" || item.status === "running"));
           const exhausted = dashboard.retryJobs.find((item) => item.world === id && item.status === "exhausted");
-          const running = busy === id || (!!state?.lockRunId && !!state.lockUntil && Date.parse(state.lockUntil) > Date.now());
+          const running = busy === id || (!!state?.lockRunId && !!state.lockUntil && Date.parse(state.lockUntil) > observedAt);
           return <article key={id} style={{ border: "1px solid #dce4e2", borderRadius: 8, padding: 18 }}>
             <h2 style={{ margin: "0 0 12px", fontSize: "1.2rem" }}>{name}</h2>
             <p>מקומות: {state?.activeCount ?? "טרם נמשך"}</p>

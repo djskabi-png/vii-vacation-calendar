@@ -8433,5 +8433,8 @@
   "חיפוש ספא": "Search spas",
   "חיפוש אירועים": "Search event venues",
   "אין כרגע חיבור": "You’re offline",
-  "אפשר לחזור לדף הבית או לנסות שוב כשהחיבור חוזר.": "Return home or try again when your connection is restored."
+  "אפשר לחזור לדף הבית או לנסות שוב כשהחיבור חוזר.": "Return home or try again when your connection is restored.",
+  "עודכן ביום 20 באוקטובר 2026": "Updated on October 20, 2026",
+  "ביום 20 באוקטובר 2026 הושלמה בדיקה אוטומטית של עמודי הליבה בעברית, באנגלית, בצרפתית וברוסית, בתצוגת מחשב ובתצוגת טלפון. הבדיקה כללה מבנה כותרות, ניגודיות, גלישה אופקית, יעדי הפעלה וכניסה לניווט באמצעות מקלדת. בדיקה אוטומטית אינה מחליפה בדיקה ידנית באמצעות טכנולוגיות מסייעות.": "On October 20, 2026, automated testing was completed for key pages in Hebrew, English, French and Russian on desktop and mobile. The checks covered heading structure, contrast, horizontal overflow, target sizes and keyboard entry. Automated testing does not replace manual testing with assistive technologies.",
+  "תקן ישראלי 5568 חלק 1, מהדורת ספטמבר 2023": "Israeli Standard 5568 Part 1, September 2023 edition"
 }

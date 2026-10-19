@@ -26,20 +26,24 @@ function applyNewTabPolicy(root: ParentNode) {
 
 export function NewTabNavigation() {
   useEffect(() => {
-    applyNewTabPolicy(document);
-    const observer = new MutationObserver((records) => {
-      records.forEach((record) => record.addedNodes.forEach((node) => {
-        if (!(node instanceof Element)) return;
-        if (node.matches("a[href]") && shouldOpenInNewTab(node as HTMLAnchorElement)) {
-          const anchor = node as HTMLAnchorElement;
-          anchor.target = "_blank";
-          anchor.rel = "noopener noreferrer";
-        }
-        applyNewTabPolicy(node);
-      }));
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
-    return () => observer.disconnect();
+    let observer: MutationObserver | null = null;
+    const hydrationDelay = process.env.NODE_ENV === "development" ? 1_800 : 800;
+    const timer = window.setTimeout(() => {
+      applyNewTabPolicy(document);
+      observer = new MutationObserver((records) => {
+        records.forEach((record) => record.addedNodes.forEach((node) => {
+          if (!(node instanceof Element)) return;
+          if (node.matches("a[href]") && shouldOpenInNewTab(node as HTMLAnchorElement)) {
+            const anchor = node as HTMLAnchorElement;
+            anchor.target = "_blank";
+            anchor.rel = "noopener noreferrer";
+          }
+          applyNewTabPolicy(node);
+        }));
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+    }, hydrationDelay);
+    return () => { window.clearTimeout(timer); observer?.disconnect(); };
   }, []);
 
   return null;
