@@ -54,6 +54,29 @@
 .event-result-card .stay-card__contact { min-width: 0; min-height: 40px; padding: 8px; }
 .event-result-card .stay-card__details-link { min-height: 40px; }
 
+/* Vacation-like contact actions always follow the preview content. */
+.preview-card-contact-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; min-width: 0; }
+.preview-card-contact-row > :only-child { grid-column: 1 / -1; }
+.preview-card-contact-row .stay-card__contact { min-width: 0; width: 100%; min-height: 44px; padding: 8px 6px; font-size: .72rem; text-align: center; text-decoration: none; }
+.preview-card-contact-row .stay-card__contact span { min-width: 0; overflow-wrap: anywhere; }
+.preview-card-contact-row .stay-card__contact svg { flex: 0 0 17px; }
+.preview-card-contact-row .stay-card__contact--revealed bdi { font-size: .72rem; }
+.event-result-card .event-card__actions { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.event-card__actions > .stay-card__details-link,
+.event-card__actions > .preview-card-contact-row { grid-column: 1 / -1; }
+.discovery-card.discovery-card--hourly footer.discovery-card__hourly-footer { display: flex; flex-direction: column; align-items: stretch; gap: 10px; margin-top: auto; }
+.preview-card-price-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 0; }
+.preview-card-price-row > strong { min-width: 0; font-size: .85rem; }
+.preview-card-price-row > a { flex: 0 0 auto; }
+.place-preview-card--contact { display: flex; flex-direction: column; }
+.place-preview-card--contact > .place-preview-card__media { flex: 0 0 auto; }
+.place-preview-card--contact > .place-preview-card__body { flex: 1; min-width: 0; }
+.place-preview-card__contact { margin-top: auto; padding: 0 14px 14px; min-width: 0; width: 100%; }
+.place-preview-card__contact:not(:has(.preview-card-contact-row)) { display: none; }
+.home-event-feature.place-preview-card--contact { justify-content: flex-end; align-items: stretch; }
+.home-event-feature.place-preview-card--contact > .place-preview-card__body { flex: 0 0 auto; padding-bottom: 16px; }
+.home-event-feature > .place-preview-card__contact { position: relative; z-index: 2; margin-top: 0; padding-inline: clamp(25px,4vw,45px); padding-bottom: 20px; }
+
 /* Keep rich vacation quotes intact. Equal row height comes from stretching the
    cards, not clipping prices, selected dates, alternatives or booking actions. */
 .result-cards .stay-card__body { flex: 1; display: flex; flex-direction: column; }

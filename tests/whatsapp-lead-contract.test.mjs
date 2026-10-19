@@ -171,16 +171,16 @@ test("event result cards expose the same tracked phone and WhatsApp actions as v
   const [eventsPage, eventCard, actions] = await Promise.all([
     read("app/events/search/page.tsx"),
     read("app/components/event-result-card.tsx"),
-    read("app/components/event-card-contact-actions.tsx"),
+    read("app/components/card-contact-actions.tsx"),
   ]);
   const events = `${eventsPage}\n${eventCard}`;
 
   assert.match(events, /EventCardContactActions/);
   assert.match(events, /phone=\{place\.contact\?\.phone\}/);
   assert.match(events, /whatsapp=\{place\.contact\?\.whatsapp\}/);
-  assert.match(actions, /trackPhoneReveal\(\{ placeId, placeName, world: "events", placement: "event_card" \}\)/);
-  assert.match(actions, /<WhatsAppLeadButton world="events"/);
-  assert.match(actions, /const whatsappNumber = whatsapp;/);
+  assert.match(actions, /trackPhoneReveal\(\{ placeId, placeName, world, placement: world === "events" \? "event_card" : "discovery_card" \}\)/);
+  assert.match(actions, /<WhatsAppLeadButton world=\{world\}/);
+  assert.match(actions, /const whatsappNumber = supplierContactNumber\(whatsapp\);/);
   assert.doesNotMatch(actions, /whatsapp \|\| phone/);
   assert.match(actions, /stay-card__contact--revealed/);
 });

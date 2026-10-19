@@ -40,6 +40,8 @@ test('actual vacation handler validates scope before reads, joins publication an
 
 test('actual event handler selects regional public IDs before national top12 and echoes scope',async()=>{
   const places=Array.from({length:26},(_,i)=>({supplierId:i+1,slug:`event-${i+1}`,name:`Venue ${i+1}`,location:i<20?'נתניה':'צפת',area:i<20?'מרכז':'צפון',type:'Venue',guests:50,image:'https://www.vii.co.il/gallery/venue.jpg',images:[]}));
+  places[20].contact={phone:'050-111-1111',whatsapp:'050-222-2222',privateNote:'must-not-be-projected'};
+  places[21].contact={phone:'050-333-3333'};
   const post=handler('vii/live-search','POST',{
     // This eligibility fixture must not depend on the developer's wall clock.
     Date:class extends Date {constructor(...args){super(...(args.length?args:['2026-10-17T12:00:00Z']));}},
@@ -54,6 +56,10 @@ test('actual event handler selects regional public IDs before national top12 and
   const response=await post(request('/',selection));const body=await response.json();
   assert.equal(response.status,200);assert.equal(body.region,'צפון');assert.equal(body.places.length,5);
   assert.ok(body.places.every(place=>place.area==='צפון'));
+  assert.deepEqual(body.places.find(place=>place.slug==='event-21').contact,{phone:'050-111-1111',whatsapp:'050-222-2222'});
+  assert.deepEqual(body.places.find(place=>place.slug==='event-22').contact,{phone:'050-333-3333'});
+  assert.equal(body.places.find(place=>place.slug==='event-23').contact,undefined);
+  assert.doesNotMatch(JSON.stringify(body.places),/privateNote|must-not-be-projected/);
 });
 
 test('actual spa handler filters source sites before cap and returns honest empty/error states',async()=>{
