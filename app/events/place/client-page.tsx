@@ -155,7 +155,7 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
 
         <div className="shell event-place-layout">
           <div>
-            {place.description ? <section id="event-about"><span className="eyebrow">{translate("כל מה שחשוב לדעת")}</span><h2>{translate("על המקום")}</h2><p>{localizedDescription}</p></section> : null}
+            {place.description ? <section id="event-about"><h2>{translate("על המקום")}</h2><p>{localizedDescription}</p></section> : null}
             {place.features.length ? <section id="event-features"><h2>{translate("מתקנים ואפשרויות")}</h2><div className="feature-list">{localizedBusinessList(place.features, language, translate).map((feature) => <span key={feature}>✓ {feature}</span>)}</div></section> : null}
             {supplierDetail?.rooms.length ? <section className="supplier-rooms"><h2>מתחמים לפי נתוני המקום</h2><div>{supplierDetail.rooms.map((room, index) => { const features = localizedBusinessList(room.features, language, translate); return <article key={`${room.name}-${index}`}><h3>{safeEventText(room.name, `${eventContentCopy.unit} ${index + 1}`)}</h3><p>{room.quantity} {room.quantity === 1 ? "מתחם" : "מתחמים"} · עד {room.guests} משתתפים ביחידה</p>{features.length ? <div className="feature-list">{features.map((feature) => <span key={feature}>✓ {feature}</span>)}</div> : null}</article>; })}</div></section> : null}
             <ListingAccessibility slug={place.slug} />
@@ -169,7 +169,7 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
 
         <section className="section property-complements">
           <div className="shell">
-            <div className="section-head"><div><span className="eyebrow">מרכיבים את כל האירוע</span><h2>ספקים שיכולים להשלים את החגיגה</h2><p>המחיר, הזמינות והתנאים יאושרו ישירות מול הספק לפני ההזמנה.</p></div><Link href="/providers">לכל הספקים</Link></div>
+            <div className="section-head"><div><h2>ספקים שיכולים להשלים את החגיגה</h2><p>המחיר, הזמינות והתנאים יאושרו ישירות מול הספק לפני ההזמנה.</p></div><Link href="/providers">לכל הספקים</Link></div>
             <HomeMobileRail shufflePlaces id="event-detail-providers" label={translate("ספקים לאירוע")} className="discovery-grid discovery-grid--compact">{eventProviders.map((item) => <DiscoveryCard key={item.id} item={item} />)}</HomeMobileRail>
           </div>
         </section>

@@ -4,11 +4,11 @@ import Link from "next/link";
 import type { EventLandingSearchItem } from "../lib/event-landing-presentation";
 import { HomeSliderControls } from "./home-slider-controls";
 
-export function EventQuickSearches({ eyebrow, title, items }: { eyebrow: string; title: string; items: EventLandingSearchItem[] }) {
+export function EventQuickSearches({ title, items }: { eyebrow: string; title: string; items: EventLandingSearchItem[] }) {
   if (!items.length) return null;
   return <section className="event-quick-searches shell" aria-labelledby="event-quick-searches-title">
     <div className="event-quick-searches__head">
-      <div><span className="eyebrow">{eyebrow}</span><h2 id="event-quick-searches-title">{title}</h2></div>
+      <div><h2 id="event-quick-searches-title">{title}</h2></div>
       <HomeSliderControls railId="event-quick-searches-rail" label={title} itemSelector=":scope > a" />
     </div>
     <div id="event-quick-searches-rail" className="event-quick-searches__rail" data-horizontal-rail>

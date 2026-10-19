@@ -95,7 +95,7 @@ export default function GuidesPage({ initialArticles }: { initialArticles: Magaz
 
       <section className="magazine-quiz-section">
         <div className="shell magazine-quiz">
-          <div><span className="eyebrow">מוצאים את הכתבה שלכם</span><h2>מה בא לכם מהחופשה הבאה?</h2><p>בחרו תחושה וניקח אתכם למדריך שמתאים להתחלה.</p></div>
+          <div><h2>מה בא לכם מהחופשה הבאה?</h2><p>בחרו תחושה וניקח אתכם למדריך שמתאים להתחלה.</p></div>
           <div className="magazine-quiz__options">{quizOptions.map((option) => <button type="button" key={option.slug} className={quizResult?.slug === option.slug ? "active" : ""} onClick={() => setQuizResult(option)}><strong>{option.label}</strong><span>{option.note}</span></button>)}</div>
           {quizResult && <div className="magazine-quiz__result" role="status"><span>מצאנו לכם התחלה טובה</span><strong>{articles.find((article) => article.slug === quizResult.slug)?.title}</strong><Link className="button primary" href={`/guides/${quizResult.slug}`}>קחו אותי לכתבה</Link></div>}
         </div>

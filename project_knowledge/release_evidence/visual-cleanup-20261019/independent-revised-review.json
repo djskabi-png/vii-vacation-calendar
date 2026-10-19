@@ -1,0 +1,18 @@
+{
+  "reviewedAt": "2026-10-18T23:54:44.7146989Z",
+  "scope": "visual cleanup candidate re-evaluation",
+  "findingWithdrawn": {
+    "path": "app/components/search-after-results.tsx",
+    "reason": "The removed discovery.intro is a static generic instruction in each locale, not location/world facts or dynamic SEO content. World guide paragraphs, headings, contextual link titles and structured data remain. Its removal matches the requested declutter scope."
+  },
+  "tests": {
+    "command": "node --test tests/visual-cleanup.test.mjs",
+    "passed": 4,
+    "failed": 0
+  },
+  "verdict": "SCOPED_CODE_PASS",
+  "limits": [
+    "No public visual or deployment verification in this review.",
+    "No whole-platform, accessibility, legal or SEO certification."
+  ]
+}

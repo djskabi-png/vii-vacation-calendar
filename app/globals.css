@@ -5580,10 +5580,8 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 @media (max-width: 600px) { .home-hero__quick-links { width: 100%; border-radius: 18px; padding: 5px; } .home-hero__quick-links a { min-height: 44px; flex: 0 0 auto; } .home-live-deals__item, .home-live-deals__loading-card { flex-basis: min(84vw, 350px); } .home-live-deals__results { min-height: 320px; } .home-live-deals__card-body { padding: 13px; } .home-live-deals__actions { padding: 0 13px 13px; } .home-holiday-deals .home-live-deals__tabs button { min-width: 145px; } }
 
 .home-visual-searches { width: min(980px,100%); margin: 22px auto 0; padding: 14px; border: 1px solid rgba(16,117,127,.17); border-radius: 24px; background: rgba(255,255,255,.9); box-shadow: 0 18px 45px rgba(13,73,82,.11); text-align: start; }
-.home-visual-searches__head { display: flex; align-items: center; gap: 10px; margin: 0 4px 11px; color: #0a6f78; }
+.home-visual-searches__head { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0 4px 11px; color: #0a6f78; text-align: center; }
 .home-visual-searches__head > svg { width: 30px; height: 30px; padding: 7px; border-radius: 50%; background: #e5f7f6; }
-.home-visual-searches__head div { display: grid; gap: 1px; }
-.home-visual-searches__head span { font-size: .72rem; font-weight: 800; color: #4c7774; }
 .home-visual-searches__head h2 { margin: 0; font-size: 1rem; color: #143e42; }
 .home-visual-searches > div:last-child { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 10px; }
 .home-visual-searches a { min-width: 0; display: grid; grid-template-columns: 58px 1fr; align-items: center; gap: 10px; min-height: 70px; padding: 7px; border: 1px solid #dcebea; border-radius: 16px; background: #fff; color: #153f42; transition: transform .18s ease,border-color .18s ease,box-shadow .18s ease; }

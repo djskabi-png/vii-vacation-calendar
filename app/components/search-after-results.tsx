@@ -484,24 +484,24 @@ export function SearchAfterResults({
     {!hideGuideAndFaq && !discoveryOnly ? <StructuredData data={faqSchema(content.faqs)} /> : null}
     <div className="shell search-depth__inner">
       {!hideGuideAndFaq && !discoveryOnly ? <section className="search-depth__guide" aria-labelledby={`search-guide-${world}`}>
-        <span className="eyebrow">{content.eyebrow}</span>
+
         <h2 id={`search-guide-${world}`}>{content.title}{locationLabel}</h2>
         <div>{content.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div>
       </section> : null}
 
       {!discoveryOnly ? <section className="search-depth__reviews" aria-labelledby={`search-reviews-${world}`}>
-        <div className="search-depth__section-head"><span className="eyebrow">חוות דעת שעוזרות לבחור</span><h2 id={`search-reviews-${world}`}>{reviews.length ? "דירוגים ממקומות שמופיעים בתוצאות" : "מה כדאי לבדוק בחוות הדעת"}</h2><p>{reviews.length ? "לקריאת חוות הדעת המלאות, היכנסו לעמוד המקום." : "לפני שמחליטים, מחפשים בחוות הדעת מידע עקבי על הדברים שמשפיעים באמת על החוויה."}</p></div>
+        <div className="search-depth__section-head"><h2 id={`search-reviews-${world}`}>{reviews.length ? "דירוגים ממקומות שמופיעים בתוצאות" : "מה כדאי לבדוק בחוות הדעת"}</h2><p>{reviews.length ? "לקריאת חוות הדעת המלאות, היכנסו לעמוד המקום." : "לפני שמחליטים, מחפשים בחוות הדעת מידע עקבי על הדברים שמשפיעים באמת על החוויה."}</p></div>
         {reviews.length ? <div className="search-depth__review-grid">{reviews.map((review) => <Link key={review.href} href={review.href}><span>{review.context || "דירוג המקום"}</span><strong><bdi dir="ltr">{review.rating.toLocaleString("he-IL", { maximumFractionDigits: 1 })}</bdi><small aria-hidden="true">★</small></strong><h3>{review.name}</h3>{review.reviews ? <p>{review.reviews} חוות דעת שפורסמו</p> : <p>לחוות הדעת המלאות</p>}</Link>)}</div> : <ul className="search-depth__review-checklist">{content.reviewCriteria.map((criterion) => <li key={criterion}>{criterion}</li>)}</ul>}
       </section> : null}
 
       {!hideGuideAndFaq && !discoveryOnly ? <section className="search-depth__faq" aria-labelledby={`search-faq-${world}`}>
-        <span className="eyebrow">תשובות לפני שבוחרים</span>
+
         <h2 id={`search-faq-${world}`}>שאלות נפוצות</h2>
         <div>{content.faqs.map((item) => <details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}</div>
       </section> : null}
 
       <section className="search-depth__related search-depth__discovery" aria-labelledby={`search-related-${world}`}>
-        <div className="search-depth__discovery-intro"><span className="eyebrow">{discovery.eyebrow}</span><h2 id={`search-related-${world}`}>{discovery.title}</h2><p>{discovery.intro}</p></div>
+        <div className="search-depth__discovery-intro"><h2 id={`search-related-${world}`}>{discovery.title}</h2></div>
         <DiscoveryRail title={!location || isWholeCountrySelection(location) ? discovery.countryAreas : `${discovery.suitableRegions}${titleLocationLabel}`} links={regionLinks} />
         <DiscoveryRail title={`${world === "trails" ? discovery.additionalRegions : discovery.citiesInArea}${titleLocationLabel}`} links={cityLinks} />
         <DiscoveryRail title={`${typesTitle}${titleLocationLabel}`} links={typeLinks} />
