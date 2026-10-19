@@ -1,6 +1,7 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { readPublishedContent, type ContentLocale } from "./content-studio";
 import { resolvePublicSliderMedia } from "./public-media-policy";
+import { normalizeHomepageSearchHref } from "./homepage-search-href";
 
 export type HomeDiscoveryItem = {
   id: string;
@@ -15,7 +16,7 @@ export type HomeDiscoveryItem = {
 const defaults = {
   popular: [
     { id: "vacations", label: "מקומות נופש", note: "כל המקומות והאזורים", href: "/search", image: "/media/f18d7c0469633ca0.jpeg", visible: true },
-    { id: "pool", label: "נופש עם בריכה", note: "בריכות פרטיות ומתחמים", href: "/search?feature=בריכה", image: "/media/9a403cb4d9d1cbde.jpg", visible: true },
+    { id: "pool", label: "נופש עם בריכה", note: "בריכות פרטיות ומתחמים", href: "/search?pool=1", image: "/media/9a403cb4d9d1cbde.jpg", visible: true },
     { id: "events", label: "מקומות לאירועים", note: "לפי כמות וסוג האירוע", href: "/events/search", image: "/media/bc85b10f1d64d6db.jpeg", visible: true },
     { id: "north", label: "נופש בצפון", note: "גליל, גולן וכנרת", href: "/vacations/north", image: "/media/978e5fd5134b0831.jpeg", visible: true }
   ],
@@ -55,7 +56,7 @@ function parseItems(value: string | undefined, fallback: HomeDiscoveryItem[]) {
         id,
         label,
         note: typeof row.note === "string" ? row.note.trim().slice(0, 120) : "",
-        href,
+        href: normalizeHomepageSearchHref(href),
         image: media.image,
         imageAlt: media.fallbackApplied ? `${label}, תמונת אווירה` : (typeof row.imageAlt === "string" ? row.imageAlt.trim().slice(0, 160) : undefined),
         visible: row.visible !== false,
