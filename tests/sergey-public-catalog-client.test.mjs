@@ -44,6 +44,16 @@ test("rejects inactive or mismatched place details", async () => {
   await assert.rejects(() => client({ active: false }).fetchCandidate("vacations"), /invalid_sergey_place/);
 });
 
+test("preserves only valid new seasonal starting prices without creating a quote", async () => {
+  const {summary}= (await client({startPriceWinter:1000,startPriceSummer:1500}).fetchCandidate("vacations")).entries[0];
+  assert.equal(summary.startPriceWinter,1000);
+  assert.equal(summary.startPriceSummer,1500);
+  for(const key of ["price","nightlyPrice","onlineBooking","available"]) assert.equal(Object.hasOwn(summary,key),false);
+  const invalid=(await client({startPriceWinter:0,startPriceSummer:"1500"}).fetchCandidate("vacations")).entries[0].summary;
+  assert.equal(Object.hasOwn(invalid,"startPriceWinter"),false);
+  assert.equal(Object.hasOwn(invalid,"startPriceSummer"),false);
+});
+
 test("keeps supplier gallery order and resolves the Suite Tohar naming difference", async () => {
   const result = await client({
     galleries: {
