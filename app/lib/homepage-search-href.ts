@@ -9,3 +9,7 @@ export function normalizeHomepageSearchHref(href: string): string {
   if (!url.searchParams.has("pool")) url.searchParams.set("pool", "1");
   return `${url.pathname}${url.search}${url.hash}`;
 }
+
+export function normalizeHomepageItems<T extends { href: string }>(items: T[]): T[] {
+  return items.map((item) => ({ ...item, href: normalizeHomepageSearchHref(item.href) }));
+}

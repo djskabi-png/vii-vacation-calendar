@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {normalizeHomepageSearchHref as normalize} from '../app/lib/homepage-search-href.ts';
+import {normalizeHomepageSearchHref as normalize,normalizeHomepageItems} from '../app/lib/homepage-search-href.ts';
 test('legacy managed pool quick search activates the actual pool query contract',()=>{
  assert.equal(normalize('/search?feature=בריכה'),'/search?pool=1');
  assert.equal(normalize('/search?feature=%D7%91%D7%A8%D7%99%D7%9B%D7%94'),'/search?pool=1');
@@ -26,4 +26,17 @@ test('defaults and managed CMS records use the same correct search contract',()=
  const source=readFileSync('app/lib/homepage-presentation.ts','utf8');
  assert.match(source,/id: "pool"[^\n]*href: "\/search\?pool=1"/);
  assert.match(source,/href: normalizeHomepageSearchHref\(href\)/);
+});
+test('the browser also normalizes cached old presentation responses before rendering links',()=>{
+ const source=readFileSync('app/components/home-discovery-sections.tsx','utf8');
+ for(const group of ['popular','cities','types'])assert.ok(source.includes(`${group}: normalizeHomepageItems(value.${group})`),`${group} old cached response needs normalization`);
+});
+test('cached legacy items are repaired without mutating managed content or dropping metadata',()=>{
+ const input=[{id:'pool',href:'/search?feature=בריכה&guests=6',label:'נופש עם בריכה',image:'/media/pool.jpg',visible:true},{id:'north',href:'/vacations/north',label:'נופש בצפון'}];
+ const output=normalizeHomepageItems(input);
+ assert.equal(output[0].href,'/search?guests=6&pool=1');
+ assert.deepEqual({...output[0],href:input[0].href},input[0]);
+ assert.deepEqual(output[1],input[1]);
+ assert.equal(input[0].href,'/search?feature=בריכה&guests=6');
+ assert.deepEqual(normalizeHomepageItems([]),[]);
 });
