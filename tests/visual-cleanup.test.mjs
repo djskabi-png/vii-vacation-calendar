@@ -7,7 +7,7 @@ test('popular searches has one centered heading and preserves all managed quick 
  assert.doesNotMatch(source,/קיצורי דרך|home-popular-rail/);
  assert.match(source,/<Search aria-hidden="true" \/><h2 id="home-popular-searches-title">חיפושים פופולריים/);
  assert.match(source,/presentation\.popular\.map/);
- assert.match(source,/href=\{item\.href\}/);
+ assert.match(source,/href=\{localizedPath\(item\.href, language\)\}/);
  assert.match(source,/home-city-rail/);assert.match(source,/home-type-rail/);
  assert.match(read('app/globals.css'),/\.home-visual-searches__head\s*\{[^}]*justify-content:\s*center/);
 });
