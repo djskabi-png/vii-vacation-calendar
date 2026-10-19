@@ -775,6 +775,10 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     if (till) params.set("till", till);
     params.set("guests", String(guests));
     if (rooms) params.set("rooms", rooms);
+    for (const key of ["adults", "children", "infants"]) {
+      const value = searchParams.get(key);
+      if (value !== null) params.set(key, value);
+    }
     return params.toString();
   }, [guests, searchParams]);
   const detailHref = (slug: string) => `/business?id=${slug}${detailQuery ? `&${detailQuery}` : ""}`;

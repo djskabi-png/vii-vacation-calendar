@@ -3,6 +3,7 @@ import { BookingError, createSupplierBooking } from "../../../lib/vii-supplier-b
 import { supplierToken } from "../../../lib/vii-supplier-token";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
 import { recordBookingAudit } from "../../../lib/operations-audit";
+import type { VacationSearchRoom } from "../../../lib/vacation-party";
 
 const headers = { "Cache-Control": "no-store" };
 
@@ -39,6 +40,7 @@ export async function POST(request: Request) {
       siteID: Number(body.siteID), roomID: Number(body.roomID), from: String(body.from || ""),
       till: String(body.till || ""), guests: Number(body.guests), expectedTotal: Number(body.expectedTotal),
       partnerRef: String(body.partnerRef || ""),
+      party: body.party as VacationSearchRoom | undefined,
       guest: {
         firstName: String(guest.firstName || "").trim(), lastName: String(guest.lastName || "").trim(),
         phone: String(guest.phone || "").trim(), email: String(guest.email || "").trim(),

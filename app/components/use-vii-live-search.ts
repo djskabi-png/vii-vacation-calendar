@@ -18,7 +18,7 @@ export type LiveSearchState = {
 const idle: LiveSearchState = { status: "idle", results: {}, checkedAt: null };
 
 export function useViiLiveSearch(world: LiveSearchWorld, from: string | null, till: string | null, guests: number, hours?: number, rooms?: LiveSearchRoom[], slot?: EventSlot, retry = 0, includePlaces = false, region?: string) {
-  const roomKey = rooms?.map((room) => `${room.adults}-${room.children || 0}`).join(",") || "";
+  const roomKey = rooms?.map((room) => `${room.adults}-${room.children || 0}-${room.infants || 0}`).join(",") || "";
   const key = from && till ? `${world}|${from}|${till}|${guests}|${world === "events" ? slot || "both" : hours || ""}|${roomKey}|${retry}|${includePlaces}|${region || ""}` : "";
   const [value, setValue] = useState<{ key: string; state: LiveSearchState } | null>(null);
 

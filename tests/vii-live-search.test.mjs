@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { liveSupplierSearch, validDate } from "../app/lib/vii-live-search.ts";
+import { vacationRoomsFromSearchParams } from "../app/lib/vacation-party.ts";
 
 test("live vacation search keeps available, unavailable and unknown distinct", async () => {
   const calls = [];
@@ -29,6 +30,13 @@ test("live vacation search keeps available, unavailable and unknown distinct", a
   assert.equal(result.results[0].priceMode, "stay_total");
 });
 
+test('infants are preserved separately and provider receives kids, never children',async()=>{
+ const rooms=vacationRoomsFromSearchParams(new URLSearchParams('adults=2&children=1&infants=1&rooms=1'));
+ assert.deepEqual(rooms,[{adults:2,children:1,infants:1}]);const calls=[];
+ await liveSupplierSearch({world:'vacations',from:'2026-11-01',till:'2026-11-04',guests:3,rooms,token:'test',publishedIds:new Set(),fetchImpl:async(url,init)=>{if(init?.body)calls.push(JSON.parse(init.body));return Response.json(url.endsWith('/vacations')?{places:[]}:{sites:[]});}});
+ assert.deepEqual(calls[0].rooms,[{adults:2,kids:1,infants:1}]);
+});
+
 test("multi-room vacation search preserves room composition and marks the price as a nightly average", async () => {
   const calls = [];
   const result = await liveSupplierSearch({
@@ -42,7 +50,7 @@ test("multi-room vacation search preserves room composition and marks the price 
     },
   });
   const searchCall = calls.find((call) => call.url.endsWith("/vacations/search"));
-  assert.deepEqual(JSON.parse(searchCall.init.body), { from: "2026-11-01", nights: 3, rooms: [{ adults: 2, children: 1 }, { adults: 3, children: 1 }] });
+  assert.deepEqual(JSON.parse(searchCall.init.body), { from: "2026-11-01", nights: 3, rooms: [{ adults: 2, kids: 1 }, { adults: 3, kids: 1 }] });
   assert.equal(result.results[0].total, 4500);
   assert.equal(result.results[0].priceGuests, 6);
   assert.equal(result.results[0].roomCount, 2);

@@ -123,12 +123,19 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
   const nightlyPrice = rawNightlyPrice;
   const state = bookingState(hasDates, guests, property, displayedAvailability, nightlyPrice, availabilityMode, availabilityStatus);
   const minimumStayNotMet = Boolean(hasDates && displayedAvailability?.minimumNights && nights < displayedAvailability.minimumNights);
+  const restrictions = {
+    he: { minimum: (n: number) => `נדרשים לפחות ${n} לילות`, later: "בחרו תאריך עזיבה מאוחר יותר", closed: "אין כניסה בתאריך שבחרתם", another: "בחרו תאריך הגעה אחר", average: "בממוצע ללילה" },
+    en: { minimum: (n: number) => `Minimum stay: ${n} nights`, later: "Choose a later check-out date", closed: "Check-in is closed on this date", another: "Choose another arrival date", average: "average per night" },
+    ru: { minimum: (n: number) => `Минимум ${n} ночей`, later: "Выберите более позднюю дату выезда", closed: "Заезд в эту дату недоступен", another: "Выберите другую дату заезда", average: "в среднем за ночь" },
+    fr: { minimum: (n: number) => `Séjour minimum : ${n} nuits`, later: "Choisissez une date de départ plus tardive", closed: "Arrivée impossible à cette date", another: "Choisissez une autre date d’arrivée", average: "en moyenne par nuit" },
+  }[language];
   const summary = minimumStayNotMet
-    ? { title: `נדרשים לפחות ${displayedAvailability?.minimumNights} לילות`, text: "הוסיפו לילה כדי לבדוק את ההזמנה" }
+    ? { title: restrictions.minimum(displayedAvailability!.minimumNights!), text: restrictions.later }
+    : displayedAvailability?.unavailableReason === "closed_to_arrival" ? { title: restrictions.closed, text: restrictions.another }
     : stateCopy(state);
-  const quickBooking = state === "available-price" && bookingEnabled;
+  const quickBooking = state === "available-price" && bookingEnabled && !minimumStayNotMet;
   const unavailable = state === "unavailable" || state === "unavailable-price" || state === "unavailable-alternatives" || state === "too-many-guests";
-  const totalPrice = nightlyPrice > 0 && nights > 0 ? nightlyPrice * nights : 0;
+  const totalPrice = displayedAvailability?.totalPrice ?? (nightlyPrice > 0 && nights > 0 ? nightlyPrice * nights : 0);
   const displayDates = localizedDateRange(from, till, dates, language);
   const numberLocale = languageLocales[language];
   const unitPriceCopy = {
@@ -226,7 +233,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
       </span>
       {hasDates ? <span className="vacation-booking-hub__launcher-meta">
         <small>{guests} אורחים</small>
-        {nightlyPrice > 0 ? <b>{nightlyPrice.toLocaleString(numberLocale)} ₪ ללילה{recommendation?.unitCount === 1 && property.scenario === "multi" ? unitPriceCopy.night : ""}</b> : <b>{hasVerifiedUnitCatalog ? unitCopy.availableCount(availableUnitCount, totalUnitCount) : summary.title}</b>}
+        {nightlyPrice > 0 ? <b>{nightlyPrice.toLocaleString(numberLocale, { maximumFractionDigits: 2 })} ₪ {displayedAvailability?.priceMode === "nightly_average" ? restrictions.average : unitCopy.perNight}{recommendation?.unitCount === 1 && property.scenario === "multi" ? unitPriceCopy.night : ""}</b> : <b>{hasVerifiedUnitCatalog ? unitCopy.availableCount(availableUnitCount, totalUnitCount) : summary.title}</b>}
       </span> : null}
         {hasDates ? <span className="vacation-booking-hub__launcher-action">עריכה</span> : null}
     </button>
@@ -338,7 +345,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
 
         <footer className="vacation-booking-dialog__footer">
           {nightlyPrice > 0 || illustrative ? <div className="vacation-booking-dialog__footer-copy">
-            {nightlyPrice > 0 ? <><strong>{nightlyPrice.toLocaleString(numberLocale)} ₪ ללילה{recommendation?.unitCount && recommendation.unitCount > 1 ? " לכל ההרכב" : property.scenario === "multi" ? unitPriceCopy.night : ""}</strong>{totalPrice ? <small>{totalPrice.toLocaleString(numberLocale)} ₪ לכל {nights} הלילות{recommendation?.unitCount && recommendation.unitCount > 1 ? " לכל ההרכב" : property.scenario === "multi" ? unitPriceCopy.stay : ""}</small> : null}</> : null}
+            {nightlyPrice > 0 ? <><strong>{nightlyPrice.toLocaleString(numberLocale, { maximumFractionDigits: 2 })} ₪ {displayedAvailability?.priceMode === "nightly_average" ? restrictions.average : unitCopy.perNight}{recommendation?.unitCount && recommendation.unitCount > 1 ? " לכל ההרכב" : property.scenario === "multi" ? unitPriceCopy.night : ""}</strong>{totalPrice ? <small>{totalPrice.toLocaleString(numberLocale)} ₪ לכל {nights} הלילות{recommendation?.unitCount && recommendation.unitCount > 1 ? " לכל ההרכב" : property.scenario === "multi" ? unitPriceCopy.stay : ""}</small> : null}</> : null}
             {illustrative ? <em>המחשה בלבד, ללא חיוב</em> : null}
           </div> : null}
           <div className="vacation-booking-dialog__footer-actions">

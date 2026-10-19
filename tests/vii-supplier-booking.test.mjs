@@ -8,7 +8,7 @@ const base = {
   guest: { firstName: "Dana", lastName: "Levi", phone: "0501111111", email: "dana@example.com" },
   token: "test", publishedIds: new Set([389]),
 };
-const stay = { siteID: 389, from: base.from, till: base.till, nights: 1,
+const stay = { siteID: 389, from: base.from, till: base.till, nights: 1, currency:'ILS',
   rooms: [{ roomID: 1433, pax: { adults: 2 } }], totals: { total: 100 } };
 const vacancy = { available: true, onlineBooking: true, summary: stay };
 const search = { sites: [{ siteID: 389, available: true, cheapest: { from: base.from, till: base.till, rooms: [{ roomID: 1433 }] } }] };
@@ -61,4 +61,24 @@ test("unknown create result is not automatically retried", async () => {
 
 test("unpublished sites cannot write to the supplier", async () => {
   await assert.rejects(createSupplierBooking({ ...base, siteID: 123, fetchImpl: async () => { throw Error("called"); } }), /invalid_booking/);
+});
+
+test('family composition is identical in search, vacancy, booking and idempotent receipt',async()=>{
+ const party={adults:2,children:1,infants:1},familyStay={...stay,rooms:[{roomID:1433,pax:{adults:2,kids:1,infants:1}}]};
+ const familyBooking={...booking,summary:familyStay};
+ const f=fakeFetch(undefined,Response.json({...vacancy,summary:familyStay}),Response.json(familyBooking,{status:201}));
+ const result=await createSupplierBooking({...base,guests:3,party,fetchImpl:f.fetchImpl});
+ assert.equal(result.success,true);
+ assert.deepEqual(f.calls[1].body.rooms,[{adults:2,kids:1,infants:1}]);
+ assert.deepEqual(f.calls[2].body.rooms,[{roomID:1433,adults:2,kids:1,infants:1}]);
+ assert.deepEqual(f.calls[3].body.rooms,f.calls[2].body.rooms);
+ const replay=fakeFetch(Response.json(familyBooking));
+ assert.equal((await createSupplierBooking({...base,guests:3,party,fetchImpl:replay.fetchImpl})).replay,true);assert.equal(replay.calls.length,1);
+});
+test('guest composition or currency disagreement blocks a booking write',async()=>{
+ for(const summary of [{...stay,currency:'USD'},{...stay,rooms:[{roomID:1433,pax:{adults:1,kids:1}}]}]){
+  const f=fakeFetch(undefined,Response.json({...vacancy,summary}));
+  await assert.rejects(createSupplierBooking({...base,fetchImpl:f.fetchImpl}),/invalid_supplier_response/);assert.equal(f.calls.length,3);
+ }
+ const invalid=fakeFetch();await assert.rejects(createSupplierBooking({...base,party:{adults:1},fetchImpl:invalid.fetchImpl}),/invalid_booking/);assert.equal(invalid.calls.length,0);
 });

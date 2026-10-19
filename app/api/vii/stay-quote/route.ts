@@ -1,6 +1,7 @@
 import { publishedSupplierIds } from "../../../lib/published-supplier-ids.ts";
 import { supplierStayQuote } from "../../../lib/vii-stay-quote";
 import { supplierToken } from "../../../lib/vii-supplier-token";
+import type { VacationSearchRoom } from "../../../lib/vacation-party";
 
 const headers = { "Cache-Control": "no-store" };
 
@@ -10,6 +11,7 @@ export async function POST(request: Request) {
     const value = await request.json();
     if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("invalid");
     body = value;
+    if (body.rooms !== undefined && !Array.isArray(body.rooms)) throw new Error("invalid");
   } catch {
     return Response.json({ error: "invalid_stay" }, { status: 400, headers });
   }
@@ -17,6 +19,7 @@ export async function POST(request: Request) {
     const quote = await supplierStayQuote({
       siteID: Number(body.siteID), from: String(body.from || ""), till: String(body.till || ""),
       guests: Number(body.guests), token: await supplierToken(), publishedIds: await publishedSupplierIds("vacations"),
+      rooms: body.rooms as VacationSearchRoom[] | undefined,
     });
     return Response.json(quote, { headers });
   } catch (error) {

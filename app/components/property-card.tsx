@@ -46,6 +46,7 @@ export type SelectedStay = { from: string; till: string; guests?: number };
 
 type DemoAvailabilityKind = "available-price" | "price-only" | "available-no-price" | "no-data" | "unavailable" | "unavailable-alternatives" | "unavailable-price";
 export type ResolvedAvailability = ListingDateQuote & {
+  unavailableReason?: string;
   showSelectedDates: boolean;
   totalPrice?: number;
   priceMode?: "stay_total" | "nightly_average" | "event_total";

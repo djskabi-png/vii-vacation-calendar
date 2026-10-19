@@ -1,4 +1,5 @@
 import { daysBetween, validDate } from "./vii-live-search.ts";
+import { validVacationRooms, supplierPartyRooms, type VacationSearchRoom } from "./vacation-party.ts";
 
 const API_ROOT = "https://bizonline.co.il/api/ai/vii";
 
@@ -18,14 +19,16 @@ export class BookingError extends Error {
 
 export async function createSupplierBooking(options: {
   siteID: number; roomID: number; from: string; till: string; guests: number;
+  party?: VacationSearchRoom;
   expectedTotal: number; partnerRef: string; guest: { firstName: string; lastName: string; phone: string; email: string; remarks?: string };
   token: string; publishedIds: ReadonlySet<number>; fetchImpl?: typeof fetch;
 }) {
   const { siteID, roomID, from, till, guests, expectedTotal, partnerRef, guest, token, publishedIds } = options;
   const nights = validDate(from) && validDate(till) ? daysBetween(from, till) : 0;
+  const requestedParty = options.party === undefined ? { adults: guests } : options.party;
   if (!Number.isSafeInteger(siteID) || !publishedIds.has(siteID) || !Number.isSafeInteger(roomID) || roomID < 1
     || !validDate(from) || !validDate(till) || nights < 1 || nights > 30
-    || !Number.isSafeInteger(guests) || guests < 1 || guests > 1000
+    || !Number.isSafeInteger(guests) || guests < 1 || guests > 1000 || !validVacationRooms([requestedParty], guests)
     || !Number.isFinite(expectedTotal) || expectedTotal <= 0
     || !/^VII-[A-Za-z0-9-]{8,59}$/.test(partnerRef)
     || !guest.firstName.trim() || !guest.lastName.trim() || !/^[+\d\s().-]{7,30}$/.test(guest.phone)
@@ -44,9 +47,10 @@ export async function createSupplierBooking(options: {
   if (existing.ok) return receipt(await existing.json(), options, true);
   if (existing.status !== 404) throw new BookingError("supplier_unavailable", 503);
 
-  const stay = { siteID, from, nights, rooms: [{ roomID, adults: guests }] };
+  const party = supplierPartyRooms([requestedParty])[0];
+  const stay = { siteID, from, nights, rooms: [{ roomID, ...party }] };
   const search = await fetchImpl(`${API_ROOT}/vacations/search`, {
-    method: "POST", headers, body: JSON.stringify({ siteID, from, nights, rooms: [{ adults: guests }] }),
+    method: "POST", headers, body: JSON.stringify({ siteID, from, nights, rooms: [party] }),
     cache: "no-store", signal: AbortSignal.timeout(20_000),
   });
   if (!search.ok) throw new BookingError("supplier_unavailable", 503);
@@ -65,9 +69,11 @@ export async function createSupplierBooking(options: {
   const summary = object(checked.summary);
   const total = object(summary.totals).total;
   const summaryRooms = summary.rooms;
+  const quotedPax = object(object(Array.isArray(summaryRooms) ? summaryRooms[0] : undefined).pax);
   if (checked.available !== true || checked.onlineBooking !== true) throw new BookingError("not_available", 409);
-  if (summary.siteID !== siteID || summary.from !== from || summary.till !== till || summary.nights !== nights
+  if (summary.siteID !== siteID || summary.from !== from || summary.till !== till || summary.nights !== nights || summary.currency !== "ILS"
     || !Array.isArray(summaryRooms) || summaryRooms.length !== 1 || object(summaryRooms[0]).roomID !== roomID
+    || quotedPax.adults !== party.adults || (quotedPax.kids ?? 0) !== (party.kids ?? 0) || (quotedPax.infants ?? 0) !== (party.infants ?? 0)
     || typeof total !== "number" || !Number.isFinite(total) || total <= 0) {
     throw new BookingError("invalid_supplier_response", 503);
   }
@@ -96,11 +102,13 @@ function receipt(raw: unknown, expected: Parameters<typeof createSupplierBooking
   const summary = object(value.summary);
   const rooms = summary.rooms;
   const remoteGuest = object(value.guest);
+  const party = supplierPartyRooms([expected.party ?? { adults: expected.guests }])[0];
+  const pax = object(object(Array.isArray(rooms) ? rooms[0] : undefined).pax);
   if (value.partnerRef !== expected.partnerRef || (value.status !== "confirmed" && value.status !== "pending_approval")
     || summary.siteID !== expected.siteID || summary.from !== expected.from || summary.till !== expected.till
-    || summary.nights !== daysBetween(expected.from, expected.till)
+    || summary.nights !== daysBetween(expected.from, expected.till) || summary.currency !== "ILS"
     || !Array.isArray(rooms) || rooms.length !== 1 || object(rooms[0]).roomID !== expected.roomID
-    || object(object(rooms[0]).pax).adults !== expected.guests
+    || pax.adults !== party.adults || (pax.kids ?? 0) !== (party.kids ?? 0) || (pax.infants ?? 0) !== (party.infants ?? 0)
     || typeof object(summary.totals).total !== "number"
     || Math.abs(Number(object(summary.totals).total) - expected.expectedTotal) > 0.01
     || remoteGuest.email !== expected.guest.email
