@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { PageShell } from "../components/page-shell";
 import type { EventPlace, Property } from "../data/site-data";
@@ -13,6 +14,8 @@ import { supplierLegacySlug, unavailableLegacySearchHref } from "../data/supplie
 import { liveSupplierPlaceDetail, type SupplierPlaceDetail } from "../data/supplier-place-detail";
 import { publicCatalogDetail, publicCatalogSummaries } from "../lib/public-catalog-read.ts";
 import spaLegacyAliases from "../data/spaplus-legacy-aliases.json";
+import { serverPublicCopy } from "../i18n/server-public-copy";
+import { localizedPath } from "../i18n/locale-routing";
 
 export const metadata: Metadata = {
   title: "הזמנה אונליין",
@@ -20,6 +23,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/booking" },
   robots: { index: false, follow: true },
 };
+
+export const dynamic = "force-dynamic";
 
 type Props = {
   searchParams: Promise<{
@@ -116,10 +121,7 @@ async function resolveBooking(params: Awaited<Props["searchParams"]>) {
   const item = [...spaPlacesFromSites(spaSites), ...hourlyPlacesFromCatalog(hourlyPlaces),
     ...discoveryItems.filter((entry) => entry.world !== "spa" && entry.world !== "hourly")]
     .find((entry) => entry.id === params.place);
-  if (!item) {
-    if (params.place) notFound();
-    return { world: params.world || "vacation", placeId: "", placeName: "הזמנה באתר", offerId, offerName: "בחירת שירות", price: "מחיר יוצג לפני אישור" };
-  }
+  if (!item) notFound();
 
   if (item.world === "spa") {
     const site = spaSites.find((entry) => `spa-${entry.id}` === item.id);
@@ -148,6 +150,17 @@ async function resolveBooking(params: Awaited<Props["searchParams"]>) {
 
 export default async function BookingPage({ searchParams }: Props) {
   const params = await searchParams;
+  if (!params.place) {
+    const { language, translate } = await serverPublicCopy();
+    const destinations = [
+      ["/search", "נופש"],
+      ["/spas", "ספא"],
+      ["/hourly", "חדרים לפי שעה"],
+      ["/events/search", "אירועים"],
+      ["/providers", "ספקים לאירועים"],
+    ] as const;
+    return <PageShell><main id="main-content" className="shell"><section className="empty-state"><h1>{translate("מתחילים בבחירת מקום")}</h1><p>{translate("בחרו את סוג החוויה, ואנחנו נציג את האפשרויות המתאימות להזמנה.")}</p><div className="favorites-empty__links">{destinations.map(([href, label]) => <Link key={href} href={localizedPath(href, language)}>{translate(label)}</Link>)}</div></section></main></PageShell>;
+  }
   if (params.place?.startsWith("spa-") || params.world === "spa") {
     const placeId = (spaLegacyAliases as Record<string, string>)[params.place || ""] || params.place || "";
     const sites = await publicCatalogSummaries<SpaPlusSite>("spa");

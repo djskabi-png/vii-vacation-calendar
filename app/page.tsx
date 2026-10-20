@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import { PageShell } from "./components/page-shell";
-import { HomeShowcase, HomeTrails, HomeLiveSections, HomeCatalogLoading, type HomeRatedPlace } from "./components/home-showcase";
+import { HomeShowcase, HomeTrails, HomeLiveSections, HomeCatalogLoading, HomeRatingsSection, type HomeRatedPlace } from "./components/home-showcase";
 import { MasuExperience } from "./components/masu-experience";
 import { SearchBox } from "./components/search-box";
 import { HomeQuickSearches } from "./components/home-discovery-sections";
@@ -74,20 +74,22 @@ function homeShowcaseProperties(properties: Property[]) {
 }
 
 async function HomeCatalogShowcase() {
-  const propertiesPromise = publicCatalogSummaries<Property>("vacations");
-  const ratedPlacesPromise = propertiesPromise.then(homeRatedPlaces);
-  const [properties, eventPlaces, hourlyCatalogPlaces, ratedPlaces] = await Promise.all([
-    propertiesPromise,
+  const [properties, eventPlaces, hourlyCatalogPlaces] = await Promise.all([
+    publicCatalogSummaries<Property>("vacations"),
     publicCatalogSummaries<EventPlace>("events"),
     publicCatalogSummaries<(typeof hourlyCatalog.places)[number]>("rooms"),
-    ratedPlacesPromise,
   ]);
   const showcaseProperties = homeShowcaseProperties(properties);
   const showcaseEvents = rotateDaily(eventPlaces.filter((place) => place.image),
     (place) => place.slug, "home-events").slice(0, 5);
   const showcaseHourly = hourlyPlacesFromCatalog(hourlyCatalogPlaces);
-  return <HomeShowcase properties={showcaseProperties} eventPlaces={showcaseEvents} ratedPlaces={ratedPlaces}
+  return <HomeShowcase properties={showcaseProperties} eventPlaces={showcaseEvents}
     hourlyPlaces={showcaseHourly} providerPreview={providerProfiles[0]} attractionPreview={paidAttractions[0]} />;
+}
+
+async function HomeRatings() {
+  const properties = await publicCatalogSummaries<Property>("vacations");
+  return <HomeRatingsSection ratedPlaces={await homeRatedPlaces(properties)} />;
 }
 
 async function HomeMagazineSection() {
@@ -112,6 +114,7 @@ export default async function HomePage() {
 
         <HomeLiveSections />
         <Suspense fallback={<HomeCatalogLoading />}><HomeCatalogShowcase /></Suspense>
+        <Suspense fallback={null}><HomeRatings /></Suspense>
 
         <section className="section home-corporate-gift"><div className="shell"><Link className="home-corporate-gift__card home-corporate-gift__card--gift" href="/gift-card"><span className="home-corporate-gift__visual"><GiftIcon /></span><div><h2>גיפט קארד לכל העולמות של וי</h2><p>נופש, ספא, אירועים, אטרקציות ושירותים, במתנה אחת.</p><strong>יוצרים גיפט קארד</strong></div></Link><Link className="home-corporate-gift__card home-corporate-gift__card--corporate" href="/corporate"><span className="home-corporate-gift__visual"><PeopleIcon /></span><div><span className="eyebrow">למנהלות רווחה ולעסקים</span><h2>אירועי חברה, רווחה ומתנות לעובדים</h2><p>מקום, תוכן, ספקים וגיפט קארד במסלול אחד.</p><strong>למרכז הארגוני</strong></div></Link></div></section>
 

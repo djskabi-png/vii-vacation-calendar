@@ -11,7 +11,7 @@ test("event regions use matching public inventory for truthful imagery and count
   assert.match(page, /eventPlaces\.filter\(\(place\) => place\.area === label \|\| place\.location === label\)/);
   assert.match(page, /matchingPlaces\.find\(\(place\) => !usedImages\.has\(place\.image\)\)/);
   assert.match(page, /venueCount: matchingPlaces\.length/);
-  assert.match(page, /href: `\/events\/search\?location=\$\{encodeURIComponent\(label\)\}`/);
+  assert.match(page, /href: localizedPath\(`\/events\/search\?location=\$\{encodeURIComponent\(label\)\}`, language\)/);
   assert.match(page, /<EventRegionCarousel items=\{regions\} \/>/);
 });
 

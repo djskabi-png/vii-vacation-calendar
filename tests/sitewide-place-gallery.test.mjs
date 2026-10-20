@@ -44,7 +44,7 @@ test("every compact event place family preserves its source photos", () => {
 
 test("review summary thumbnails stay static while the review rail remains browsable", () => {
   const home = read("app/components/home-showcase.tsx");
-  const ratings = home.slice(home.indexOf('{ratedPlaces.length ? <div className="home-trust-strip">'), home.indexOf("<SpaPackageDeals />"));
+  const ratings = home.slice(home.indexOf("export function HomeRatingsSection"), home.indexOf("export function HomeTrails"));
   assert.match(ratings, /<Link className="home-rating-card__gallery"[^>]*>[\s\S]*?<img src=\{place\.image\} alt=\{place\.name\} title=\{place\.name\}/);
   assert.doesNotMatch(ratings, /PreviewCardGallery|preview-card-gallery__(?:arrow|count)|onTouchStart|onTouchEnd/);
   assert.match(ratings, /<HomeSliderControls railId="home-ratings-rail"/);

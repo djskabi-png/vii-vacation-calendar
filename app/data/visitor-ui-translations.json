@@ -238,5 +238,10 @@
   "תאריך ברור": { "en": "Clear dates", "ru": "Точные даты", "fr": "Dates claires" },
   "הרכב אורחים": { "en": "Guest party", "ru": "Состав гостей", "fr": "Composition du groupe" },
   "זמינות ומחיר": { "en": "Availability and price", "ru": "Наличие и цена", "fr": "Disponibilité et prix" },
-  "לזוגות, משפחות וקבוצות": { "en": "For couples, families and groups", "ru": "Для пар, семей и компаний", "fr": "Pour les couples, les familles et les groupes" }
+  "לזוגות, משפחות וקבוצות": { "en": "For couples, families and groups", "ru": "Для пар, семей и компаний", "fr": "Pour les couples, les familles et les groupes" },
+  "מתחילים בבחירת מקום": { "en": "Start by choosing a place", "ru": "Начните с выбора места", "fr": "Commencez par choisir un lieu" },
+  "בחרו את סוג החוויה, ואנחנו נציג את האפשרויות המתאימות להזמנה.": { "en": "Choose the experience you want and we’ll show suitable options to book.", "ru": "Выберите формат отдыха, и мы покажем подходящие варианты для бронирования.", "fr": "Choisissez votre expérience et nous vous proposerons des options adaptées à réserver." },
+  "מתקנים ושירותים ביחידה": { "en": "Unit amenities and services", "ru": "Удобства и услуги номера", "fr": "Équipements et services de l’unité" },
+  "העמוד לא נמצא": { "en": "Page not found", "ru": "Страница не найдена", "fr": "Page introuvable" },
+  "הקישור שביקשתם אינו זמין. אפשר לחזור לעמוד הבית או לפתוח חיפוש חדש.": { "en": "The link you requested is unavailable. You can return home or start a new search.", "ru": "Запрошенная ссылка недоступна. Вернитесь на главную страницу или начните новый поиск.", "fr": "Le lien demandé n’est pas disponible. Revenez à l’accueil ou lancez une nouvelle recherche." }
 }

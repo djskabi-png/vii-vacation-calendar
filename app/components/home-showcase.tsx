@@ -77,11 +77,10 @@ export type HomeRatedPlace = {
   reviewDate: string;
 };
 
-export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, ratedPlaces, providerPreview, attractionPreview }: {
+export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, providerPreview, attractionPreview }: {
   properties: Pick<Property, "slug" | "name" | "location" | "area" | "image" | "videos">[];
   eventPlaces: EventPlace[];
   hourlyPlaces: DiscoveryItem[];
-  ratedPlaces: HomeRatedPlace[];
   providerPreview: DiscoveryItem;
   attractionPreview: DiscoveryItem;
 }) {
@@ -93,8 +92,6 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, ratedPlace
   const worldCards = publicWorldNavigation.filter((world) => !["vacation", "events", "spa", "hourly"].includes(world.id));
   const featuredTours = orderDiscoveryRail(properties.flatMap((property) => homeTourVideos(property.videos).map((video) => ({ property, video }))),
     { id: ({ property, video }) => `${property.slug}:${video.src}`, seed: `${documentSeed}:home-tours`, limit: 7 });
-  const featuredRatings = orderDiscoveryRail(ratedPlaces, { id: item => item.place.slug, seed: `${documentSeed}:home-ratings`,
-    compare: (a, b) => (b.place.score || 0) - (a.place.score || 0) });
   const destinationImages = rotateDaily(properties.filter((property) => property.image), (property) => property.slug, "home-destination-images");
   const usedDestinationImages = new Set<string>();
   const destinationPlaces = vacationDestinations.map((_destination, index) => {
@@ -158,7 +155,7 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, ratedPlace
       </div>
     </section>
 
-    {featuredTours.length || ratedPlaces.length ? <section className="section home-trust-discovery" aria-labelledby={featuredTours.length ? "home-tours-title" : "home-ratings-title"}>
+    {featuredTours.length ? <section className="section home-trust-discovery" aria-labelledby="home-tours-title">
       <div className="shell">
         {featuredTours.length ? <div className="home-trust-strip">
           <div className="home-vacation-strip__head"><div><h2 id="home-tours-title">סרטונים מובילים</h2></div><HomeSliderControls railId="home-tours-rail" label="סרטונים מובילים" itemSelector=".home-slider__item" /></div>
@@ -170,14 +167,6 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, ratedPlace
           </div>
         </div> : null}
 
-        {ratedPlaces.length ? <div className="home-trust-strip">
-          <div className="home-vacation-strip__head"><div><span>דירוגי מקומות</span><h2 id="home-ratings-title">חוות דעת מובילות</h2></div><HomeSliderControls railId="home-ratings-rail" label="חוות דעת מובילות" itemSelector=".home-slider__item" /></div>
-          <div id="home-ratings-rail" className="home-slider__track home-slider__track--trust home-slider__track--ratings" data-horizontal-rail aria-labelledby="home-ratings-title">
-            {featuredRatings.map(({ place, reviewText, reviewAuthor, reviewDate }) => <article className="home-rating-card home-slider__item" key={place.slug}>
-              <div className="home-rating-card__top"><Link className="home-rating-card__gallery" href={`/business?id=${place.slug}`} target="_blank" rel="noopener noreferrer"><img src={place.image} alt={place.name} title={place.name} loading="lazy" decoding="async" /></Link><div><span title={place.location}>{place.location}</span><h3><Link href={`/business?id=${place.slug}`} title={place.name}>{place.name}</Link></h3><strong aria-label={`ציון ${place.score} מתוך 10, ${place.reviews} חוות דעת`}><b>{place.score}</b><small>{place.reviews} חוות דעת</small></strong></div></div><p lang="he" dir="rtl">{homeReviewExcerpt(reviewText)}</p><small className="home-rating-card__byline"><span title={reviewAuthor}>{reviewAuthor}</span>{reviewDate ? <time dateTime={reviewDate} dir="ltr">{reviewDate}</time> : null}</small><Link className="home-rating-card__cta" href={`/business?id=${place.slug}`}>לפרטי המקום</Link>
-            </article>)}
-          </div>
-        </div> : null}
       </div>
     </section> : null}
 
@@ -210,6 +199,21 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, ratedPlace
     </section>
 
   </>;
+}
+
+export function HomeRatingsSection({ ratedPlaces }: { ratedPlaces: HomeRatedPlace[] }) {
+  const documentSeed = useDocumentSeed();
+  const featuredRatings = orderDiscoveryRail(ratedPlaces, { id: item => item.place.slug, seed: `${documentSeed}:home-ratings`,
+    compare: (a, b) => (b.place.score || 0) - (a.place.score || 0) });
+  if (!featuredRatings.length) return null;
+  return <section className="section home-trust-discovery" aria-labelledby="home-ratings-title"><div className="shell"><div className="home-trust-strip">
+    <div className="home-vacation-strip__head"><div><span>דירוגי מקומות</span><h2 id="home-ratings-title">חוות דעת מובילות</h2></div><HomeSliderControls railId="home-ratings-rail" label="חוות דעת מובילות" itemSelector=".home-slider__item" /></div>
+    <div id="home-ratings-rail" className="home-slider__track home-slider__track--trust home-slider__track--ratings" data-horizontal-rail aria-labelledby="home-ratings-title">
+      {featuredRatings.map(({ place, reviewText, reviewAuthor, reviewDate }) => <article className="home-rating-card home-slider__item" key={place.slug}>
+        <div className="home-rating-card__top"><Link className="home-rating-card__gallery" href={`/business?id=${place.slug}`} target="_blank" rel="noopener noreferrer"><img src={place.image} alt={place.name} title={place.name} width="640" height="426" loading="lazy" decoding="async" /></Link><div><span title={place.location}>{place.location}</span><h3><Link href={`/business?id=${place.slug}`} title={place.name}>{place.name}</Link></h3><strong aria-label={`ציון ${place.score} מתוך 10, ${place.reviews} חוות דעת`}><b>{place.score}</b><small>{place.reviews} חוות דעת</small></strong></div></div><p lang="he" dir="rtl">{homeReviewExcerpt(reviewText)}</p><small className="home-rating-card__byline"><span title={reviewAuthor}>{reviewAuthor}</span>{reviewDate ? <time dateTime={reviewDate} dir="ltr">{reviewDate}</time> : null}</small><Link className="home-rating-card__cta" href={`/business?id=${place.slug}`}>לפרטי המקום</Link>
+      </article>)}
+    </div>
+  </div></div></section>;
 }
 
 export function HomeTrails() {

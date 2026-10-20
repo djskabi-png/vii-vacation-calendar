@@ -156,11 +156,13 @@ test("internal destinations warm on real pointer, focus or touch intent", async 
   assert.match(warmup, /\^\\\/\(\?:admin\|account\|favorites\|booking\)/);
 });
 
-test("homepage overlaps rated-place details with independent world summaries", async () => {
+test("homepage keeps rated-place details outside the critical world-summary boundary", async () => {
   const home = await readFile(new URL("app/page.tsx", root), "utf8");
-  assert.match(home, /const propertiesPromise = publicCatalogSummaries<Property>\("vacations"\)/);
-  assert.match(home, /const ratedPlacesPromise = propertiesPromise\.then\(homeRatedPlaces\)/);
-  assert.match(home, /hourlyCatalogPlaces, ratedPlaces\] = await Promise\.all/);
+  assert.match(home, /async function HomeCatalogShowcase\(\)/);
+  assert.match(home, /async function HomeRatings\(\)/);
+  assert.match(home, /<Suspense fallback=\{<HomeCatalogLoading \/>\}><HomeCatalogShowcase \/><\/Suspense>/);
+  assert.match(home, /<Suspense fallback=\{null\}><HomeRatings \/><\/Suspense>/);
+  assert.doesNotMatch(home, /hourlyCatalogPlaces, ratedPlaces\] = await Promise\.all/);
 });
 
 test("homepage does not prefetch heavyweight search result documents before intent", async () => {

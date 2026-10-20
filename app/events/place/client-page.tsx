@@ -168,7 +168,7 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
 
         <section className="section property-complements">
           <div className="shell">
-            <div className="section-head"><div><h2>ספקים שיכולים להשלים את החגיגה</h2><p>המחיר, הזמינות והתנאים יאושרו ישירות מול הספק לפני ההזמנה.</p></div><Link href="/providers">לכל הספקים</Link></div>
+            <div className="section-head"><div><h2>ספקים שיכולים להשלים את החגיגה</h2></div><Link href="/providers">לכל הספקים</Link></div>
             <HomeMobileRail shufflePlaces id="event-detail-providers" label={translate("ספקים לאירוע")} className="discovery-grid discovery-grid--compact">{eventProviders.map((item) => <DiscoveryCard key={item.id} item={item} />)}</HomeMobileRail>
           </div>
         </section>

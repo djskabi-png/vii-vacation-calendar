@@ -23,5 +23,5 @@ test("Villa Palumbo public media has been removed", () => {
 
 test("unknown retired booking ids render the not-found page", () => {
   const bookingPage = fs.readFileSync(new URL("app/booking/page.tsx", root), "utf8");
-  assert.match(bookingPage, /if \(params\.place\) notFound\(\)/);
+  assert.match(bookingPage, /if \(!item\) notFound\(\)/);
 });

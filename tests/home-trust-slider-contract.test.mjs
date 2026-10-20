@@ -27,7 +27,9 @@ test("home ratings use sourced values, clean excerpts and responsive cards", () 
   assert.match(home, /publicCatalogReviewPreviews<SupplierReviewDetail>\("vacations", candidates\.map/);
   assert.match(home, /Number\(place\.reviews\) >= 5/);
   assert.match(source, /homeReviewExcerpt\(reviewText\)/);
-  assert.match(source, /ratedPlaces\.length \?/);
+  assert.match(source, /export function HomeRatingsSection/);
+  assert.match(source, /if \(!featuredRatings\.length\) return null/);
+  assert.match(home, /<Suspense fallback=\{null\}><HomeRatings \/><\/Suspense>/);
   assert.doesNotMatch(source, /הדירוג מוצג לפי מקור המידע המאומת של המקום/);
   assert.doesNotMatch(styles, /\.home-rating-card > p[^}]*-webkit-line-clamp/);
   assert.match(source, /href=\{`\/business\?id=\$\{place\.slug\}`\}/);
