@@ -1,0 +1,48 @@
+{
+  "operation": "vii-launch-foundation-read-20261019-v1",
+  "observedAt": "2026-10-20T02:52:34.099874+00:00",
+  "status": "READ_COMPLETE_NOT_LAUNCH_APPROVAL",
+  "region": "il-central-1",
+  "environments": [
+    {
+      "environment": "staging",
+      "account": "808939434958",
+      "cluster": "vii-staging",
+      "status": "available",
+      "engine": "aurora-postgresql",
+      "version": "16.15",
+      "encrypted": true,
+      "deletionProtection": false,
+      "backupDays": 7,
+      "scaling": { "MinCapacity": 0.0, "MaxCapacity": 4.0, "SecondsUntilAutoPause": 600 },
+      "members": [{ "id": "vii-staging-writer", "writer": true, "tier": 0 }],
+      "instances": [{ "id": "vii-staging-writer", "status": "available", "az": "il-central-1a", "public": false }]
+    },
+    {
+      "environment": "production",
+      "account": "551626543793",
+      "cluster": "vii-production",
+      "status": "available",
+      "engine": "aurora-postgresql",
+      "version": "16.15",
+      "encrypted": true,
+      "deletionProtection": true,
+      "backupDays": 35,
+      "scaling": { "MinCapacity": 2.0, "MaxCapacity": 16.0 },
+      "members": [
+        { "id": "vii-production-reader", "writer": false, "tier": 0 },
+        { "id": "vii-production-writer", "writer": true, "tier": 0 }
+      ],
+      "instances": [
+        { "id": "vii-production-reader", "status": "available", "az": "il-central-1b", "public": false },
+        { "id": "vii-production-writer", "status": "available", "az": "il-central-1a", "public": false }
+      ]
+    }
+  ],
+  "secretsRead": false,
+  "sqlExecuted": false,
+  "resourceMutations": 0,
+  "domainChanged": false,
+  "fullLaunchReady": false,
+  "capture": "Authenticated AWS Management CloudShell in account 569030432108; existing OrganizationAccountAccessRole assumed in each member account."
+}

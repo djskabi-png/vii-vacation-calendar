@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-aws-production-migration-20261020",
+  "project": "VII",
+  "task_type": "production-migration",
+  "requested_outcome": "Run the complete current VII public product from the approved AWS production foundation, migrate every required data and media family without replaying customer actions, cut over the public domain only after a public candidate passes, and retain a tested rollback.",
+  "natural_destination": "https://vii.spaplus.co and the exact AWS-backed public candidate used before cutover",
+  "authorization_boundary": "Adir explicitly authorized AWS build, deployment, data and media migration, public publication and domain cutover for VII. Do not create or replay bookings, leads, messages, payments or reviews; do not create new long-lived credentials; do not remove the current Sites release or unrelated Cloudflare resources; keep secrets out of the repository; keep a verified rollback until post-cutover checks pass.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "The work changes a public customer product and must be proved at its natural destination.",
+      "acceptance_impact": "Blocks completion until the exact deployed release passes representative customer, operator and risk scenarios and has a direct link."
+    },
+    {
+      "lesson_id": "ADIR-AUTH-001",
+      "reason": "The migration uses authenticated AWS and Cloudflare production systems.",
+      "acceptance_impact": "Requires existing authorized sessions, no invented access and no new persistent credential unless separately authorized."
+    },
+    {
+      "lesson_id": "ADIR-LEARN-003",
+      "reason": "The resumed project follows earlier corrections and must retain them as acceptance checks.",
+      "acceptance_impact": "Requires a version-two contract, midpoint evidence and correction-family verification before finish."
+    },
+    {
+      "lesson_id": "ADIR-MIND-001",
+      "reason": "The public cutover has cross-system blast radius and rollback risk.",
+      "acceptance_impact": "Requires evidence-backed diagnosis, bounded retries and explicit rollback identity before mutation."
+    },
+    {
+      "lesson_id": "VII-PROJECT-001",
+      "reason": "VII project truth and architecture decisions are project scoped and authoritative.",
+      "acceptance_impact": "Requires conformance with the VII master plan and feedback standard rather than generic hosting assumptions."
+    },
+    {
+      "lesson_id": "ADIR-WEB-005",
+      "reason": "The migration must preserve the complete responsive public experience.",
+      "acceptance_impact": "Requires desktop and mobile checks across every representative VII page family and state."
+    },
+    {
+      "lesson_id": "ADIR-WEB-006",
+      "reason": "Search, detail, admin and supplier integrations share data and component families.",
+      "acceptance_impact": "One defect expands regression to all shared consumers and no isolated-page proof can approve release."
+    },
+    {
+      "lesson_id": "ADIR-PUBLIC-TRUST-001",
+      "reason": "The site is a public commercial surface with privacy, media, legal and consent obligations.",
+      "acceptance_impact": "Requires classification and live verification of public-trust surfaces without unsupported compliance claims."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The domain is cut over but requests or business data are still served from the old Sites and D1 production path.",
+      "prevention": "Record origin and database provenance on a public AWS-backed candidate before DNS or routing changes.",
+      "acceptance_check": "Candidate and final public response expose the immutable release identity and AWS backend health while the old release remains separately reachable for rollback."
+    },
+    {
+      "rejection": "Only the supplier catalog moved while private content, permissions, operational tables or media were omitted.",
+      "prevention": "Inventory every known source table, binding, media namespace, scheduled job and role before migration and reconcile counts and checksums after load.",
+      "acceptance_check": "All source families are passed, precisely excluded or blocked with row and media reconciliation evidence and no customer-action replay."
+    },
+    {
+      "rejection": "The AWS build passes internally but visible routes, Hebrew typography, mobile layout, search, booking or admin behavior regress.",
+      "prevention": "Run the project build and tests plus live desktop, 390-pixel mobile, language, state and authenticated administration checks on the exact candidate and final domain.",
+      "acceptance_check": "The exact immutable release passes the route matrix, representative actor scenarios, accessibility checks and an independent checker."
+    },
+    {
+      "rejection": "A failed or slow cutover cannot be reversed safely.",
+      "prevention": "Freeze and identify both candidate and rollback, retain the previous public release and lower routing TTL only when the candidate is already healthy.",
+      "acceptance_check": "Rollback identity and procedure are verified before cutover and post-cutover monitoring shows healthy origin, database and public responses."
+    }
+  ],
+  "affected_family": [
+    "public runtime and every route, language, redirect, canonical, robots and sitemap family",
+    "all D1 source tables, Aurora schemas, transactional history, leases, retry ledgers and audit records",
+    "R2 and public media assets, image transformation and cache behavior",
+    "supplier catalog synchronization, scheduling, availability, starting prices and failure recovery",
+    "admin authentication, Adir and Roi super-admin access, scoped roles, CMS, redirects and publication",
+    "search, filters, maps, listing cards, detail pages, spa, events, holidays, rooms and suppliers",
+    "bookings, leads, reviews, analytics, consent, privacy and other public-trust flows",
+    "DNS and Cloudflare edge, AWS networking, Aurora, monitoring, backup, restore, failover and rollback"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "Current approved public product and release 522 visual and behavioral baseline",
+        "source": "https://vii.spaplus.co"
+      },
+      {
+        "label": "Approved VII architecture and AWS database decisions",
+        "source": "project_knowledge/VII_PLATFORM_MASTER_PLAN.md"
+      },
+      {
+        "label": "Accepted public product behavior",
+        "source": "project_knowledge/VII_FEEDBACK_STANDARD.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "The first immutable public AWS-backed candidate can render representative read-only pages against a reconciled migrated data slice while the current public release remains unchanged.",
+    "checks": [
+      "AWS origin and database provenance is observable without exposing secrets",
+      "representative home, search, event, spa and business pages render on desktop and 390-pixel mobile",
+      "source and target schema, counts and catalog generation reconcile for the migrated slice",
+      "no booking, lead, message, review or supplier side effect is replayed",
+      "old production release remains intact as rollback"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can any public route or data read still silently fall back to the old Sites or D1 origin?",
+      "Can a missing table, media object, role or scheduled job be found outside the reconciled inventory?",
+      "Can reload, back, failure, empty, unauthorized, retry, mobile or language states break on the exact final release?",
+      "Can the previous release be restored quickly without data loss or replay if AWS or routing fails?"
+    ],
+    "natural_destination_evidence": "Public response and visual evidence from https://vii.spaplus.co after cutover, including immutable release and AWS backend provenance, desktop and mobile flows, and post-cutover health.",
+    "affected_family_evidence": "Reconciliation, automated test, restore, failover, monitoring, role, media, route and independent-check evidence for every listed family."
+  },
+  "effectiveness": {
+    "baseline": "Previous continuation proved AWS foundation and partial shadow data but did not migrate the complete current public release or cut over the natural destination.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Reach one fully verified cutover without data loss, replay, public regression or an unbounded retry cycle."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

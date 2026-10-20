@@ -1,0 +1,9 @@
+{
+  "name": "vii-aws-database-bridge",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@aws-sdk/client-secrets-manager": "3.922.0",
+    "pg": "8.16.3"
+  }
+}

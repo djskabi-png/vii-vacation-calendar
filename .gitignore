@@ -43,3 +43,10 @@ next-env.d.ts
 /.wrangler/
 /outputs/
 /work/
+
+# AWS application bridge build artifacts and local dependency trees
+/infrastructure/aws/application-bridge/node_modules/
+/infrastructure/aws/application-bridge/pnpm-lock.yaml
+/infrastructure/aws/application-bridge-bundle/
+/infrastructure/aws/*.zip
+/infrastructure/aws/application-bridge/*.zip
