@@ -1,0 +1,84 @@
+{
+  "goal": "Publish an AWS-backed VII release where every important click acknowledges immediately and meaningful content remains visible until the next valid result is ready.",
+  "intent_model": {
+    "literal_request": "The site must fly: click, result, no blank white screen and no heavy loading. Plan with experts and implement it.",
+    "implied_outcome": "A consistently fast-feeling public discovery product across navigation, search, live sliders, images and maps, not a cosmetic loader on one page.",
+    "likely_rejections": [
+      "A previous result disappears while a tab or query refreshes",
+      "Only the homepage is optimized while another discovery route remains slow",
+      "A speed change damages image quality, galleries, accessibility or live availability truth",
+      "The public domain is not the exact tested AWS-backed build"
+    ],
+    "interpretation_rules": [
+      { "phrase": "click, boom, result", "operational_meaning": "Acknowledge input locally within one frame and preserve useful content until atomic replacement.", "acceptance_impact": "Measure immediate feedback and inspect every changed loading transition." },
+      { "phrase": "the site", "operational_meaning": "Cover the shared public discovery family, not only one reported slider.", "acceptance_impact": "Test representative route families, languages and viewport states." },
+      { "phrase": "implement", "operational_meaning": "Code, verify, publish and recheck at the natural destination under the already authorized AWS release.", "acceptance_impact": "Local success is insufficient without live AWS provenance and rollback evidence." }
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "A click must feel accepted immediately and the prior useful state must not disappear.",
+    "current_decision": "Use last-good content with atomic replacement, deferred heavy modules and fixed media geometry.",
+    "next_action": "Verify the candidate and publish only after every release gate passes.",
+    "deferred_complexity": ["Long-term RUM dashboards and deeper framework migration can follow after the verified cutover."],
+    "preserved_depth": ["Fresh final booking verification", "full galleries", "map interaction", "localized routes", "rollback"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/task_contracts/vii-instant-response-aws-release-20261020-preflight.json",
+    "lesson_bundle_ids": ["ADIR-WEB-003", "ADIR-WEB-005", "ADIR-CONTROL-001", "ADIR-SEARCH-001", "ADIR-MEDIA-001", "ADIR-INTENT-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["Public visitor on desktop", "Public visitor on mobile", "Keyboard user", "Release operator", "Independent release checker"],
+  "natural_destination": "https://vii.spaplus.co on the exact AWS-backed release",
+  "facts": [
+    { "claim": "Home live deals and spa deals currently clear valid data when starting some refreshes.", "evidence": "Pre-change source audit of app/components/home-live-deals.tsx and app/components/spa-package-deals.tsx" },
+    { "claim": "Leaflet is dynamically deferred but the map component serializes the full incoming places collection during render.", "evidence": "Pre-change source audit of app/components/listing-map.tsx and app/components/deferred-listing-map.tsx" },
+    { "claim": "The authoritative VII plan and feedback standards apply to this public release.", "evidence": "AGENTS.md and source hashes 7D371D99... and 2193D111..." }
+  ],
+  "assumptions": [
+    { "claim": "The exact Sites-managed source can accept the final AWS environment secret through an authorized secure path.", "validation": "Verify the environment setting without printing the secret, deploy, then require public AWS provenance." },
+    { "claim": "Representative lab timings are meaningful enough for this release in the absence of current field RUM percentiles.", "validation": "Measure repeated cold and warm runs and mark field percentile claims unavailable rather than inventing them." }
+  ],
+  "in_scope": [
+    "Preserve last-good live results during refresh and recover without an empty region",
+    "Immediate local navigation and search feedback without a full-page white overlay",
+    "Avoid full result serialization and keep Leaflet deferred until map intent",
+    "Reserve shared card image geometry without recompressing or replacing verified media",
+    "Focused, full, desktop, mobile, failure, retry, reload, back and language verification",
+    "AWS-backed deployment, public cutover, post-deploy checks and rollback retention"
+  ],
+  "out_of_scope": ["Changing supplier business rules", "Changing verified prices or availability", "Replaying customer actions", "Replacing the approved design system", "Claiming field Core Web Vitals without field data"],
+  "invariants": [
+    "Final booking and availability actions revalidate fresh supplier state",
+    "Existing galleries, map controls, localization and approved copy remain available",
+    "Verified source media is not recompressed, replaced or mislabeled",
+    "Current public release remains a rollback until final verification passes",
+    "No secret appears in source, logs, screenshots or evidence"
+  ],
+  "affected_family": ["global internal navigation", "live deal slider components", "public search result routes", "shared result card components", "deferred interactive map components", "Hebrew, English, Russian and French routes", "desktop and 390-pixel mobile layouts", "AWS production candidate and public release"],
+  "characteristics": { "stateful": true },
+  "requirements": [
+    { "id": "REQ-1", "statement": "A changed asynchronous discovery action keeps meaningful prior content visible and acknowledges the click within 100 ms.", "source": "User request" },
+    { "id": "REQ-2", "statement": "Heavy map and media work does not block ordinary list navigation or cause avoidable layout shift.", "source": "User request and expert audit" },
+    { "id": "REQ-3", "statement": "The complete change passes shared-family regression and public desktop/mobile verification.", "source": "VII feedback standard" },
+    { "id": "REQ-4", "statement": "The final public domain runs the immutable tested release with AWS database provenance and retained rollback.", "source": "Existing authorized migration outcome" },
+    { "id": "REQ-5", "statement": "Refreshing the page, navigating back and retrying a failure preserve or recover the correct visible state.", "source": "Stateful product requirement" }
+  ],
+  "acceptance_checks": [
+    { "id": "AC-1", "requirement_ids": ["REQ-1"], "kind": "success", "setup": "A live slider has valid visible cards and the next response is delayed.", "action": "Choose another valid tab or audience.", "observable_result": "The control changes immediately, aria-busy becomes true, prior cards remain visible but non-interactive, and the new validated result replaces them atomically." },
+    { "id": "AC-2", "requirement_ids": ["REQ-1", "REQ-5"], "kind": "failure", "setup": "Valid cards are visible and the refresh request fails.", "action": "Trigger a refresh and then retry.", "observable_result": "The existing cards never disappear, a concise local error and retry appear, and successful retry replaces the result." },
+    { "id": "AC-3", "requirement_ids": ["REQ-2"], "kind": "success", "setup": "A result list with 100 or more projected map places is visible.", "action": "Use the list, then focus or click the map control.", "observable_result": "Leaflet is absent from list-only startup, begins on intent, no full incoming-record JSON serialization occurs and the map acknowledges opening within 300 ms." },
+    { "id": "AC-4", "requirement_ids": ["REQ-2", "REQ-3"], "kind": "success", "setup": "Representative cards load on desktop and 390-pixel mobile.", "action": "Cold load, scroll and change gallery images.", "observable_result": "Card media geometry is reserved, verified crops and galleries remain intact, and lab CLS is at most 0.05 on tested critical routes." },
+    { "id": "AC-5", "requirement_ids": ["REQ-3"], "kind": "success", "setup": "The exact release candidate is available.", "action": "Run focused and full tests plus home, search, spa, events, holiday and business flows in desktop and mobile viewports.", "observable_result": "No critical or high regression, no blank content transition and all applicable routes remain usable in Hebrew and representative LTR language." },
+    { "id": "AC-6", "requirement_ids": ["REQ-4"], "kind": "rollback", "setup": "The immutable candidate and prior public release are identified.", "action": "Publish and inspect the public domain.", "observable_result": "The domain serves the exact candidate with AWS origin and Aurora evidence; the previous release remains restorable until post-deploy checks pass." },
+    { "id": "AC-7", "requirement_ids": ["REQ-5"], "kind": "persistence", "setup": "A search or live-result selection is active.", "action": "Reload, navigate away and back, and cross the mobile breakpoint.", "observable_result": "URL-backed state, visible results and scroll or viewport locks recover consistently without a duplicate blank fetch." },
+    { "id": "AC-8", "requirement_ids": ["REQ-5"], "kind": "retry", "setup": "An API response is unavailable.", "action": "Use the visible retry control after service recovery.", "observable_result": "One bounded retry returns the component to a valid ready state without duplicate side effects." }
+  ],
+  "open_questions": [
+    { "question": "Which lab timing percentiles are reproducible on the final host?", "blocking": false, "resolution": "Measure the exact candidate and report the observed values; do not claim unavailable field percentiles." }
+  ],
+  "authorization_boundary": "Implementation, tests and public AWS release are authorized. Secret values must remain protected; any interactive transfer that requires a separate safety confirmation must be confirmed at the moment of action.",
+  "ready_for_implementation": true
+}

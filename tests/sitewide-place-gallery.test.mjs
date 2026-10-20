@@ -74,7 +74,8 @@ test("gallery interactions remain localized, bounded and separate from rail navi
 
 test("equivalent parent renders cannot recreate the map during marker hover or selection", () => {
   const map = read("app/components/listing-map.tsx");
-  assert.match(map, /const placesSignature = JSON\.stringify\(incomingPlaces\)/);
+  assert.match(map, /const placesSignature = incomingPlaces\.map/);
+  assert.doesNotMatch(map, /JSON\.stringify\(incomingPlaces\)/);
   assert.match(map, /const places = useMemo\(\(\) => incomingPlaces, \[placesSignature\]\)/);
   assert.doesNotMatch(map, /\[enabled, places, selectPlace,[^\]]*initialPlaceIds/);
   assert.match(map, /focusKey, cardCopy\.openCluster/);

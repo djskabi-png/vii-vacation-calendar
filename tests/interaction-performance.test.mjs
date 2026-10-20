@@ -4,6 +4,7 @@ import test from "node:test";
 
 const localeSource = await readFile(new URL("../app/i18n/locale-provider.tsx", import.meta.url), "utf8");
 const feedbackSource = await readFile(new URL("../app/components/global-action-feedback.tsx", import.meta.url), "utf8");
+const viewportSource = await readFile(new URL("../app/components/responsive-viewport-guard.tsx", import.meta.url), "utf8");
 
 test("Hebrew routes do not install the translation mutation observer", () => {
   assert.match(localeSource, /if \(language === "he"\) return;/);
@@ -25,4 +26,11 @@ test("localized internal links keep client-side navigation", () => {
   assert.match(localeSource, /preserveLanguageOnInternalNavigation/);
   assert.match(localeSource, /anchor\.setAttribute\("href", destination\)/);
   assert.doesNotMatch(localeSource, /event\.preventDefault\(\);[\s\S]{0,300}window\.location\.assign\(destination\)/);
+});
+
+test("dynamic viewport observers batch subtree updates into one frame", () => {
+  assert.match(viewportSource, /const scheduleAttach = \(\) =>/);
+  assert.match(viewportSource, /if \(attachFrame\) return/);
+  assert.match(viewportSource, /requestAnimationFrame/);
+  assert.match(viewportSource, /cancelAnimationFrame\(attachFrame\)/);
 });

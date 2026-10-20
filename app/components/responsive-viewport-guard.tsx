@@ -72,9 +72,17 @@ export function ResponsiveViewportGuard() {
       update();
     };
     attach();
-    const mutationObserver = new MutationObserver(attach);
+    let attachFrame = 0;
+    const scheduleAttach = () => {
+      if (attachFrame) return;
+      attachFrame = window.requestAnimationFrame(() => {
+        attachFrame = 0;
+        attach();
+      });
+    };
+    const mutationObserver = new MutationObserver(scheduleAttach);
     mutationObserver.observe(document.body, { childList: true, subtree: true });
-    return () => { observer.disconnect(); mutationObserver.disconnect(); document.body.removeAttribute("data-map-results-visible"); };
+    return () => { window.cancelAnimationFrame(attachFrame); observer.disconnect(); mutationObserver.disconnect(); document.body.removeAttribute("data-map-results-visible"); };
   }, [pathname, searchKey]);
 
   useEffect(() => {

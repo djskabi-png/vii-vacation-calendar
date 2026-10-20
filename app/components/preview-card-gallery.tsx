@@ -102,7 +102,7 @@ export function PreviewCardGallery({
         swipeResetTimer.current = null;
       }}
     >
-      {currentImage ? <img src={currentImage} alt={`${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} title={imageLabel || `${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} loading="lazy" decoding="async" style={imageStyle} /> : null}
+      {currentImage ? <img src={currentImage} alt={`${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} title={imageLabel || `${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} width="900" height="667" loading="lazy" decoding="async" style={imageStyle} /> : null}
     </Link>
     <PreviewGalleryStatus pending={pending} error={error} />
     {galleryImages.length > 1 ? <>

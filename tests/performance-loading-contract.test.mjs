@@ -145,6 +145,17 @@ test("homepage warmup starts immediately without waiting for an idle window", as
   assert.match(warmup, /effectiveType === "2g"/);
 });
 
+test("internal destinations warm on real pointer, focus or touch intent", async () => {
+  const warmup = await readFile(new URL("app/components/smart-navigation-warmup.tsx", root), "utf8");
+  assert.match(warmup, /document\.addEventListener\("pointerover"/);
+  assert.match(warmup, /document\.addEventListener\("focusin"/);
+  assert.match(warmup, /document\.addEventListener\("touchstart"/);
+  assert.match(warmup, /router\.prefetch\(destination\)/);
+  assert.match(warmup, /saveData/);
+  assert.match(warmup, /warmed\.size > 24/);
+  assert.match(warmup, /\^\\\/\(\?:admin\|account\|favorites\|booking\)/);
+});
+
 test("homepage overlaps rated-place details with independent world summaries", async () => {
   const home = await readFile(new URL("app/page.tsx", root), "utf8");
   assert.match(home, /const propertiesPromise = publicCatalogSummaries<Property>\("vacations"\)/);

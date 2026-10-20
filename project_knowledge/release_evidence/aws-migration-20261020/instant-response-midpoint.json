@@ -1,0 +1,40 @@
+{
+  "task_id": "vii-instant-response-aws-release-20261020",
+  "stage": "pre-publication-midpoint",
+  "checked_at": "2026-10-20T04:50:00Z",
+  "implementation": {
+    "last_good_results_preserved": ["home-live-deals", "spa-package-deals", "holiday-live-deals"],
+    "refresh_interaction_lock": "inert plus pointer blocking while old cards remain visible",
+    "map_stabilization": "compact complete field signature without full record JSON serialization",
+    "navigation_warmup": "same-origin intent prefetch with save-data and 2G exclusions",
+    "media_geometry": "shared result images reserve 900 by 667 intrinsic geometry",
+    "observer_batching": "responsive subtree mutations coalesced into one animation frame"
+  },
+  "verification": {
+    "typescript": "passed",
+    "build": "passed",
+    "focused_tests": { "passed": 34, "failed": 0 },
+    "full_source_tests": { "passed": 1355, "failed": 0 },
+    "diff_check": "passed",
+    "global_lint": {
+      "status": "baseline-debt-not-passed",
+      "errors": 54,
+      "warnings": 71,
+      "release_interpretation": "Do not claim lint passed; the release gates rely on exact build, TypeScript, focused contracts, full tests and live verification."
+    }
+  },
+  "data_reconciliation": {
+    "tables": 28,
+    "rows": 21380,
+    "foreign_keys": 4,
+    "hashes_matched": true,
+    "evidence": "data-reconciliation-final-retry.jsonl"
+  },
+  "remaining_gates": [
+    "secure Sites environment secret update",
+    "immutable source push and candidate deployment",
+    "public AWS origin proof and interaction measurements",
+    "exporter cleanup deployment",
+    "independent final release review"
+  ]
+}
