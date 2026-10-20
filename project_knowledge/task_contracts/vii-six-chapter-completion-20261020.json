@@ -22,13 +22,54 @@
     "features_hooks": false
   },
   "requirements": [
-    {"id": "chapter-1-admin", "status": "pending", "acceptance": "Adir and Roy are the only full-platform access managers; all other identities use explicit persisted grants. Owner, scoped, unauthorized, audit, save and reload states pass live."},
-    {"id": "chapter-2-starting-price", "status": "pending", "acceptance": "Every undated starting-price surface takes the lower valid winter/summer supplier value through one canonical selector and handles missing, invalid, equal and zero inputs honestly."},
-    {"id": "chapter-3-languages", "status": "pending", "acceptance": "Hebrew, English, Russian and French are complete and audience-native across public and administration routes, dynamic states, metadata and structured data, with correct direction."},
-    {"id": "chapter-4-video-home-layout", "status": "pending", "acceptance": "Video, homepage and broad shared layout families are complete on desktop/mobile, every visible control works, and approved version 516 behavior is preserved."},
-    {"id": "chapter-5-pwa-mobile-performance-accessibility", "status": "pending", "acceptance": "PWA install/offline/update, 390x844 and low-height mobile flows, live performance targets, keyboard/focus/semantics/contrast/reduced-motion and modern Hebrew typography pass on the public artifact."},
-    {"id": "chapter-6-sync-alert-backup", "status": "pending", "acceptance": "All four supplier worlds pass current Sites/D1 scheduled/manual sync, guard, failure and recovery checks; an operator alert is delivered; a consistent backup is restored and compared without data loss."},
-    {"id": "public-publication", "status": "pending", "acceptance": "The exact clean candidate is published to the existing public temporary URL with an immutable identity, version 516 rollback and post-publication regression evidence."}
+    {
+      "id": "chapter-1-admin",
+      "status": "pending",
+      "acceptance": "Adir and Roy are the only full-platform access managers; all other identities use explicit persisted grants. Owner, scoped, unauthorized, audit, save and reload states pass live."
+    },
+    {
+      "id": "chapter-2-starting-price",
+      "status": "pending",
+      "acceptance": "Every undated starting-price surface takes the lower valid winter/summer supplier value through one canonical selector and handles missing, invalid, equal and zero inputs honestly."
+    },
+    {
+      "id": "chapter-3-languages",
+      "status": "pending",
+      "acceptance": "Hebrew, English, Russian and French are complete and audience-native across public and administration routes, dynamic states, metadata and structured data, with correct direction."
+    },
+    {
+      "id": "chapter-4-video-home-layout",
+      "status": "pending",
+      "acceptance": "Video, homepage and broad shared layout families are complete on desktop/mobile, every visible control works, and approved version 516 behavior is preserved."
+    },
+    {
+      "id": "chapter-5-pwa-mobile-performance-accessibility",
+      "status": "pending",
+      "acceptance": "PWA install/offline/update, 390x844 and low-height mobile flows, live performance targets, keyboard/focus/semantics/contrast/reduced-motion and modern Hebrew typography pass on the public artifact."
+    },
+    {
+      "id": "chapter-6-sync-alert-backup",
+      "status": "pending",
+      "acceptance": "All four supplier worlds pass current Sites/D1 scheduled/manual sync, guard, failure and recovery checks; an operator alert is delivered; a consistent backup is restored and compared without data loss."
+    },
+    {
+      "id": "public-publication",
+      "status": "pending",
+      "acceptance": "The exact clean candidate is published to the existing public temporary URL with an immutable identity, version 516 rollback and post-publication regression evidence."
+    },
+    {
+      "id": "correction:preview-card-image-fidelity",
+      "source": "user_correction",
+      "statement": "Restore the approved preview-card image size, crop, and effective visual resolution before publication.",
+      "acceptance_check": "Direct public-vs-candidate comparison shows preview-card media geometry and source-pixel quality match the approved baseline across affected card families and mobile/desktop.",
+      "status": "passed",
+      "evidence": [
+        "app/globals.css restores the review-card media column and gallery to 112px by 112px.",
+        "Fresh desktop and mobile public-versus-candidate screenshots in project_knowledge/release_evidence/vii-six-chapter-completion-20261020/card-media-diagnosis/ show matching media geometry.",
+        "Focused layout contracts, the 16-page strict audit, pnpm build, and all 1,345 tests pass."
+      ],
+      "reason": null
+    }
   ],
   "explicit_exclusions": [
     "Maskyoo/Biz integration",
@@ -47,5 +88,10 @@
   "evidence": {
     "preflight": "project_knowledge/task_contracts/vii-six-chapter-completion-20261020-preflight.json",
     "release_directory": "project_knowledge/release_evidence/vii-six-chapter-completion-20261020/"
-  }
+  },
+  "last_freshness_check_at": "2026-10-20T00:05:27.933560Z",
+  "last_freshness_check_errors": [],
+  "updated_at": "2026-10-20T00:05:28.137731Z",
+  "verification_errors": [],
+  "completed_at": null
 }

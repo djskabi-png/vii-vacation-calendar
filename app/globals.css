@@ -5750,9 +5750,9 @@ div.home-slider__item > :is(.stay-card, .discovery-card) { height: 100%; }
 .home-tour-card a { width: fit-content; margin-top: 4px; color: var(--teal-dark); font-size: .78rem; font-weight: 850; text-decoration: underline; text-underline-offset: 3px; }
 .home-rating-card { min-height: 290px; display: grid; grid-template-rows: 112px minmax(4.8em,1fr) auto auto; gap: 10px; padding: 16px; color: inherit; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
 .home-rating-card:hover { transform: translateY(-3px); border-color: rgba(0,129,143,.32); box-shadow: 0 17px 38px rgba(0,55,65,.13); }
-.home-rating-card__top { min-width: 0; display: grid; grid-template-columns: 84px minmax(0,1fr); align-items: start; gap: 12px; padding: 0; }
+.home-rating-card__top { min-width: 0; display: grid; grid-template-columns: 112px minmax(0,1fr); align-items: start; gap: 12px; padding: 0; }
 .home-rating-card__top > div { min-width: 0; display: grid; gap: 5px; }
-.home-rating-card__top > .home-rating-card__gallery { position: relative; display: block; width: 84px; height: 84px; overflow: hidden; border-radius: 16px; }
+.home-rating-card__top > .home-rating-card__gallery { position: relative; display: block; width: 112px; height: 112px; overflow: hidden; border-radius: 16px; }
 .home-rating-card__top h3 { font-size: .95rem; line-height: 1.35; min-block-size: 2.7em; max-block-size: 2.7em; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; }
 .home-rating-card__top > div > span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .home-rating-card strong small { min-width: 0; font-size: .68rem; line-height: 1.4; }
