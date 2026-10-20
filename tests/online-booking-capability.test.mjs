@@ -22,7 +22,7 @@ test("capability carries no probe availability, prices, dates or personal fields
     assert.equal(init.redirect, "error"); input = JSON.parse(init.body); return Response.json(payload);
   });
   assert.deepEqual(value, { "vacation-1": { checkedAt: now } });
-  assert.deepEqual(input, { from: "2026-11-02", nights: 3, rooms: [{ adults: 2 }] });
+  assert.deepEqual(input, { from: "2026-10-21", nights: 1, rooms: [{ adults: 2 }] });
   assert.deepEqual(input, capabilityProbe(now));
 });
 test("busy/minimum-stay/omitted/unknown availability does not disable or renew prior capability; explicit false revokes", () => {
