@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-instant-response-aws-release-20261020",
+  "project": "VII",
+  "task_type": "public-web-performance-and-production-release",
+  "requested_outcome": "Every important VII click acknowledges immediately, preserves meaningful content while new data arrives, avoids blank white transitions and ships as the verified AWS-backed public release.",
+  "natural_destination": "https://vii.spaplus.co on desktop and 390-pixel mobile",
+  "authorization_boundary": "The user authorized implementation, testing and publication of the complete VII release to AWS. Preserve supplier truth, booking revalidation, existing approved design and rollback. Do not expose secrets or replay bookings, leads, messages, reviews or payments.",
+  "lesson_bundle": [
+    { "lesson_id": "ADIR-WEB-003", "reason": "The request explicitly requires immediate click feedback and no unexplained wait.", "acceptance_impact": "Every changed asynchronous interaction keeps local visible feedback and an accessible busy state." },
+    { "lesson_id": "ADIR-WEB-005", "reason": "Blank or stale responsive states previously regressed across viewport transitions.", "acceptance_impact": "Desktop, mobile, reload, back and breakpoint transitions must retain meaningful content." },
+    { "lesson_id": "ADIR-CONTROL-001", "reason": "Every visible tab, result, map and search control is part of the speed promise.", "acceptance_impact": "Representative controls are exercised through loading, success, failure and recovery." },
+    { "lesson_id": "ADIR-SEARCH-001", "reason": "Search speed and state consistency are a core discovery requirement.", "acceptance_impact": "Query, results, filters, map and URL remain consistent without clearing useful results." },
+    { "lesson_id": "ADIR-MEDIA-001", "reason": "Image layout shifts and bad crops can make fast responses feel broken.", "acceptance_impact": "Shared cards reserve geometry and retain verified source media and crop rules." },
+    { "lesson_id": "ADIR-INTENT-001", "reason": "The user's short performance language means the whole click-to-result journey, not one loader.", "acceptance_impact": "The affected family includes navigation, search, live sliders, cards, images and maps." }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    { "rejection": "A tab click still clears the prior cards and shows a large empty or skeleton band.", "prevention": "Keep last-good content visible, mark it busy and replace it atomically only after validation.", "acceptance_check": "Slow-response tests show zero empty-content frames and a local busy state within 100 ms." },
+    { "rejection": "The homepage feels faster but search, spa, holidays or maps still blank or freeze.", "prevention": "Apply and test the state contract across the shared discovery family and keep Leaflet deferred until intent.", "acceptance_check": "Home, search, spa, events, holidays and business routes pass desktop and mobile interaction checks." },
+    { "rejection": "A performance optimization removes galleries, freshness checks, accessibility or approved visual behavior.", "prevention": "Record invariants and run existing family regression tests before publication.", "acceptance_check": "Galleries, final booking revalidation, keyboard interaction, Hebrew typography and map controls remain intact." },
+    { "rejection": "Local tests pass but the public domain still runs the old data origin or is measurably slow.", "prevention": "Release only the immutable candidate, verify AWS provenance and measure the natural destination after cutover.", "acceptance_check": "The exact public release exposes AWS origin evidence and passes the live route and timing matrix with rollback retained." }
+  ],
+  "affected_family": [
+    "global internal navigation and action feedback",
+    "homepage vacation, spa, event and holiday live-result families",
+    "vacation, event, spa and hourly search result states",
+    "shared property and preview-card image geometry",
+    "deferred list and map transitions",
+    "Hebrew, English, Russian and French public routes",
+    "desktop, 390-pixel mobile, low-height, reload, back, failure and retry states",
+    "AWS candidate, public cutover and retained rollback"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      { "label": "Current approved public product baseline", "source": "https://vii.spaplus.co" },
+      { "label": "VII platform architecture and data truth", "source": "C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md" },
+      { "label": "Accepted VII product behavior", "source": "C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md" }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "Last-good result preservation, compact map stabilization and image geometry changes compile and pass focused contracts locally.",
+    "checks": [
+      "No live discovery component clears valid content merely to start a refresh",
+      "Leaflet remains deferred and large result arrays are not fully JSON-serialized on interaction",
+      "Shared card images reserve intrinsic geometry without changing source media",
+      "Focused family tests and TypeScript pass before full build"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a slow or failed response still create an empty white region?",
+      "Can rapid tab changes display mismatched clickable data or duplicate requests?",
+      "Can opening or hovering a 100-plus-result map block the main thread or rebuild Leaflet?",
+      "Can mobile, reload, back or language changes reintroduce stale locks or blank content?",
+      "Can the public domain pass visually while still using the old database origin?"
+    ],
+    "natural_destination_evidence": "Timed and visual interaction evidence from the exact AWS-backed release at https://vii.spaplus.co on desktop and 390-pixel mobile.",
+    "affected_family_evidence": "Focused and full tests, build asset inventory, route timing matrix, failure-state checks, image geometry checks and independent release verdict."
+  },
+  "effectiveness": {
+    "baseline": "The current release can clear live slider content during refresh, performs a full JSON serialization for map stabilization and lacks a single public AWS-backed performance verdict.",
+    "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"],
+    "target": "Zero blank-content transitions in the changed discovery family, immediate local feedback within 100 ms and a verified AWS-backed public release with no critical regression."
+  },
+  "privacy": { "raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true },
+  "ready_to_start": true
+}

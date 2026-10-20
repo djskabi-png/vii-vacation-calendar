@@ -127,7 +127,6 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
     if (mode === "holidays" && (holidayState !== "ready" || holidayId === null)) return;
     const controller = new AbortController();
     setState("loading");
-    setData(null);
     const selectedHoliday = holidays.find((item) => item.id === holidayId);
     const url = mode === "holidays"
       ? `/api/vii/home-holiday-deals?${new URLSearchParams({ id: String(holidayId), ...(selectedHoliday?.exactStay ? { from: selectedHoliday.from, till: selectedHoliday.till } : {}) })}`
@@ -151,13 +150,13 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
   }, [period, holidayId, holidayState, holidays, language, mode, retry, regionLabel, guests, clock?.key]);
 
   function choose(value: HomeDealPeriod) {
-    if (value !== period) { setState("loading"); setData(null); }
+    if (value !== period) setState("loading");
     setPeriod(value);
     track.current?.scrollTo({ left: 0, behavior: "instant" });
   }
 
   function chooseHoliday(value: number) {
-    if (value !== holidayId) { setState("loading"); setData(null); }
+    if (value !== holidayId) setState("loading");
     setHolidayId(value);
     track.current?.scrollTo({ left: 0, behavior: "instant" });
   }
@@ -166,6 +165,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
   const eligibleDeals = clock ? (data?.deals || []).filter(deal => eligibleDealDate(deal.from, clock.now)) : [];
   const displayedDeals = orderDiscoveryRail(eligibleDeals, { id: deal => deal.siteID, seed: `${documentSeed}:home:${mode}:${mode === "holidays" ? holidayId : period}`, online: deal => isHomeDealOnlineEligible(deal, data?.cache?.status === "stale"), priority: deal => managedVacationPriority((deal as HomeDeal & { curatedRank?: number }).curatedRank) });
   const displayState = mode === "holidays" && holidayState !== "ready" ? holidayState : state;
+  const refreshing = displayState === "loading" && data !== null;
   const allLabel = mode === "holidays" && currentHoliday ? `${allPeriodCopy[language].holiday}${currentHoliday.name}` : mode === "near" ? allPeriodCopy[language][period] : text.all;
   const displayedDealCount = displayedDeals.length;
 
@@ -187,19 +187,19 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
           event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();
         }}><strong>{item.name}</strong></button>)}
       </div>
-      <div className="home-live-deals__results" id={`${sectionId}-results`} role="tabpanel" aria-live="polite" aria-busy={displayState === "loading"}>
+      <div className={`home-live-deals__results${refreshing ? " is-refreshing" : ""}`} id={`${sectionId}-results`} role="tabpanel" aria-live="polite" aria-busy={displayState === "loading"}>
         {displayState === "ready" && data?.cache?.status === "stale" && displayedDealCount > 0 ? <p className="regional-availability__expansion" data-no-translate>{discoveryCacheCopy[language]}</p> : null}
         {scope && displayState === "ready" && data?.expandedRegion && displayedDealCount > 0 ? <p className="regional-availability__expansion" data-no-translate>{regionalExpansionCopy[language]}</p> : null}
-        {displayState === "loading" ? <div className="home-live-deals__loading" role="status" aria-label={text.loading}>
+        {displayState === "loading" && !data ? <div className="home-live-deals__loading" role="status" aria-label={text.loading}>
           <div className="home-live-deals__loading-head" aria-hidden="true">
             <div className="home-live-deals__loading-route"><span /><span /><span /><img src="/vii-logo.png" alt="" title="" data-image-role="decorative" /></div>
             <span>{text.loading}</span>
           </div>
           <div className="home-live-deals__loading-cards" aria-hidden="true">{[0, 1, 2].map((index) => <div className="home-live-deals__loading-card" key={index}><div className="home-live-deals__loading-image" /><div className="home-live-deals__loading-lines"><span /><span /><span /></div></div>)}</div>
         </div> : null}
-        {displayState === "error" ? <div className="home-live-deals__status"><p>{text.error}</p><button type="button" onClick={() => setRetry((value) => value + 1)}>{text.retry}</button></div> : null}
+        {displayState === "error" ? <div className={`home-live-deals__status${data ? " home-live-deals__status--overlay" : ""}`}><p>{text.error}</p><button type="button" onClick={() => setRetry((value) => value + 1)}>{text.retry}</button></div> : null}
         {displayState === "ready" && (mode === "holidays" && !holidays.length || data?.deals.length === 0) ? <p className="home-live-deals__status">{text.empty}</p> : null}
-        {displayState === "ready" && data?.deals.length ? <div id={`${sectionId}-rail`} className="home-live-deals__track" ref={track} data-horizontal-rail>
+        {data?.deals.length ? <div id={`${sectionId}-rail`} className="home-live-deals__track" ref={track} data-horizontal-rail inert={refreshing || undefined} aria-hidden={refreshing || undefined}>
           {displayedDeals.map((deal) => {
             const href = `/business?${new URLSearchParams({ id: `vacation-${deal.siteID}`, from: deal.from, till: deal.till, guests: String(deal.priceGuests), source: mode === "holidays" ? "home-holidays" : "home-deals", period: mode === "holidays" ? String(currentHoliday?.id ?? "") : period }).toString()}`;
             return <div className="home-live-deals__item" key={`${deal.siteID}-${deal.from}`}>

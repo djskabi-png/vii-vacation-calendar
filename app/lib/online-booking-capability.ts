@@ -19,8 +19,9 @@ export function publicOnlineCapabilities(value: OnlineCapabilityMap, ids: Readon
 }
 
 export function capabilityProbe(now: number) {
-  // A broad future stay avoids today's cut-off. Probe selection is never sent to visitors.
-  const from = new Date(now + 60 * CAPABILITY_FRESH_MS).toISOString().slice(0, 10);
+  // Keep the probe inside the supplier's supported forward-search window while
+  // staying clear of today's cut-off. The selection is never sent to visitors.
+  const from = new Date(now + 14 * CAPABILITY_FRESH_MS).toISOString().slice(0, 10);
   return { from, nights: 3, rooms: [{ adults: 2 }] };
 }
 

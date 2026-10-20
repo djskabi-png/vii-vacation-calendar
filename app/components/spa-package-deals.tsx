@@ -51,7 +51,7 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region}:{sectionI
  },[clock,data,requestedDate,params,pathname,router,sectionId,date]);
  useEffect(()=>{
   if(!clock) return;
-  const controller = new AbortController(); setStatus("loading"); setData(null);
+  const controller = new AbortController(); setStatus("loading");
   discoveryJson<DealResponse>(regionLabel ? `/api/spa/deals?${new URLSearchParams({region:regionLabel})}` : "/api/spa/deals",clock.key,{signal:controller.signal})
    .then((body:DealResponse)=>{if(!Array.isArray(body.days)||!body.offers||!body.checkedAt||body.region!==regionLabel) throw new Error("invalid"); if(!controller.signal.aborted){setData(body);setStatus("ready");}})
    .catch(()=>{if(!controller.signal.aborted) setStatus("error");});
@@ -66,7 +66,8 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region}:{sectionI
   const query=new URLSearchParams(params.toString());query.set("spaDealDate",nextDate);query.set("spaDealFor",nextAudience);
   router.replace(`${pathname}?${query.toString()}#${sectionId}`,{scroll:false});
  }
- const offers=status==="ready" ? orderDiscoveryRail(data?.offers[date]?.[audience] || [], { id: offer => `${offer.siteId}:${offer.packageId}`, seed: `${documentSeed}:spa:${date}:${audience}`, priority: offer => offer.price }) : [];
+ const refreshing=status==="loading" && data!==null;
+ const offers=data ? orderDiscoveryRail(data.offers[date]?.[audience] || [], { id: offer => `${offer.siteId}:${offer.packageId}`, seed: `${documentSeed}:spa:${date}:${audience}`, priority: offer => offer.price }) : [];
  const expandedRegion=!!scope && status==="ready" && data?.expandedRegions?.[date]?.[audience]===true;
  const linkDate=date || (clock && validSpaDealDate(selection.date)?normalizeDealDate(selection.date,clock.now):"");
  const allHref=scope ? `${spaSearchHref(spaSearchStateFromValues(scope.label,audience))}${linkDate?`?${new URLSearchParams({date:linkDate})}`:""}` : "/spas";
@@ -78,10 +79,10 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region}:{sectionI
    <div className="spa-package-deals__days" role="group" aria-label={text.days}>{days.map(day=><button type="button" key={day} aria-pressed={date===day} onClick={()=>select(day,audience)}><strong>{day===eventDealDate(0,clock!.now)?text.today:day===eventDealDate(1,clock!.now)?text.tomorrow:new Intl.DateTimeFormat(language==="he"?"he-IL":language,{weekday:"short",timeZone:"UTC"}).format(new Date(`${day}T12:00:00Z`))}</strong><small>{new Intl.DateTimeFormat(language==="he"?"he-IL":language,{day:"numeric",month:"numeric",timeZone:"UTC"}).format(new Date(`${day}T12:00:00Z`))}</small></button>)}</div>
    <div className="spa-package-deals__audiences" role="group" aria-label={text.who}><span className="spa-package-deals__audiences-label">{text.who}</span><div className="spa-package-deals__audience-options">{audiences.map(value=><button type="button" key={value} disabled={!data||status!=="ready"} aria-pressed={audience===value} onClick={()=>select(date,value)}>{text.audiences[value]}</button>)}</div></div>
   </div>
-  <div aria-busy={status==="loading"} aria-live="polite">
+  <div className={refreshing?"spa-package-deals__results is-refreshing":"spa-package-deals__results"} aria-busy={status==="loading"} aria-live="polite" inert={refreshing || undefined}>
    {status==="ready" && data?.cache?.status==="stale" && offers.length>0 ? <p className="regional-availability__expansion">{discoveryCacheCopy[language]}</p> : null}
-   {status==="loading"?<div role="status" className="home-live-deals__loading"><p>{text.loading}</p><div className="home-live-deals__loading-cards" aria-hidden="true">{[0,1,2].map(index=><div className="home-live-deals__loading-card" key={index}><div className="home-live-deals__loading-image"/><div className="home-live-deals__loading-lines"><span/><span/><span/></div></div>)}</div></div>:null}
-   {status==="error"?<div role="alert" className="event-rail-status"><p>{text.error}</p><button type="button" className="button secondary" onClick={()=>setAttempt(value=>value+1)}>{text.retry}</button></div>:null}
+   {status==="loading"&&!data?<div role="status" className="home-live-deals__loading"><p>{text.loading}</p><div className="home-live-deals__loading-cards" aria-hidden="true">{[0,1,2].map(index=><div className="home-live-deals__loading-card" key={index}><div className="home-live-deals__loading-image"/><div className="home-live-deals__loading-lines"><span/><span/><span/></div></div>)}</div></div>:null}
+   {status==="error"?<div role="alert" className={`event-rail-status${data?" event-rail-status--overlay":""}`}><p>{text.error}</p><button type="button" className="button secondary" onClick={()=>setAttempt(value=>value+1)}>{text.retry}</button></div>:null}
    {status==="ready"&&!offers.length?<p className="event-rail-status">{text.empty}</p>:null}
    {expandedRegion && offers.length > 0 ? <p className="regional-availability__expansion">{regionalExpansionCopy[language]}</p> : null}
    {offers.length?<><div className="spa-package-deals__context"><p>{text.requested}: {formatDate(date)}</p>{!expandedRegion ? <span>{text.order}</span> : null}</div><EventRail key={`${date}-${audience}`} title={title}>{offers.map(offer=>{

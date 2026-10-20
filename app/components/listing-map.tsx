@@ -82,10 +82,24 @@ function markerIcon(tone: MapTone) {
 }
 
 function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation", single = false, autoLoad = false, onClose, onVisibleCountChange, onVisiblePlaceIdsChange, activePlaceId = null, onActivePlaceChange, regional = false }: PlacesMapProps) {
-  // Hover/focus can recreate equivalent arrays in parents. Do not tear down
-  // Leaflet and its pending click listeners unless the actual place data changes.
-  // Include all fields, not just coordinates: prices, names and photos stay fresh.
-  const placesSignature = JSON.stringify(incomingPlaces);
+  // Keep equivalent parent renders from rebuilding Leaflet without serializing
+  // entire image arrays and records on every hover or selection render.
+  const placesSignature = incomingPlaces.map((place) => [
+    place.id,
+    place.name,
+    place.location,
+    place.area,
+    place.category,
+    place.meta,
+    place.image,
+    place.images?.join(",") ?? "",
+    place.lat,
+    place.lng,
+    place.href,
+    place.markerLabel,
+    place.precision ?? "",
+    place.illustrativeImage ? "1" : "0",
+  ].join(":")).join("|");
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const places = useMemo(() => incomingPlaces, [placesSignature]);
   const { language } = useSiteLanguage();

@@ -627,7 +627,10 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     const quote = liveAvailabilityFor(property.slug)?.quote;
     return quote?.availability === "available" && typeof quote.nightlyPrice === "number" && quote.nightlyPrice > 0;
   };
-  const matchesOnline = (property: Property, enabled = true) => !property.demoOperations?.fictional && matchesVacationOnlineBooking(
+  const undatedCapabilityUnavailable = undatedSearch && onlineCapabilities.status === "error";
+  const matchesOnline = (property: Property, enabled = true) => enabled && undatedCapabilityUnavailable
+    ? true
+    : !property.demoOperations?.fictional && matchesVacationOnlineBooking(
     enabled, liveAvailabilityFor(property.slug), selectedStayFor(property.slug),
     { undated: undatedSearch, capability: onlineCapabilities.capabilities[property.slug] },
   );
@@ -706,7 +709,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
 
   useEffect(() => {
     if (catalogLoading || catalogError || onlineCheckPending) return;
-    if (onlineOnly && undatedSearch && onlineCapabilities.status === "error" && !resultSet.length) return;
+    if (onlineOnly && undatedCapabilityUnavailable) return;
     const timer = window.setTimeout(() => trackSearchResults({
       world: "vacation",
       location: area === "הכל" ? "כל הארץ" : area,
@@ -723,7 +726,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       },
     }), 650);
     return () => window.clearTimeout(timer);
-  }, [accessibleOnly, area, catalogError, catalogLoading, resultSet.length, guests, onlineOnly, onlineCheckPending, onlineCapabilities.status, undatedSearch, pool, selectedExtras, selectedStay?.from, selectedTypes, spa]);
+  }, [accessibleOnly, area, catalogError, catalogLoading, resultSet.length, guests, onlineOnly, onlineCheckPending, undatedCapabilityUnavailable, pool, selectedExtras, selectedStay?.from, selectedTypes, spa]);
 
   const draftCandidates = properties.filter((property) => {
     if (shownFilters.onlineOnly && ((!undatedSearch && shownFilters.guests !== guests) || !matchesOnline(property))) return false;
@@ -752,7 +755,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const draftNearby = shownFilters.onlineOnly && draftMatches.length < 3 && !isWholeCountrySelection(shownFilters.area)
     ? nearbyPlacesForSelection(draftCandidates, managedGeography, shownFilters.area, { limit: 12, maximumDistanceKm: 100, minimumResults: 3 }).map(candidate => candidate.place) : [];
   const draftResultCount = shownFilters.onlineOnly ? completeNearbyResults(draftMatches, draftNearby, place => place.slug).length : draftMatches.length;
-  const draftResultLabel = shownFilters.onlineOnly && !undatedSearch && (supplierSearch.status !== "ready" || shownFilters.guests !== guests) ? "החלת סינונים"
+  const draftResultLabel = shownFilters.onlineOnly && undatedCapabilityUnavailable ? "הצגת המקומות באזור"
+    : shownFilters.onlineOnly && !undatedSearch && (supplierSearch.status !== "ready" || shownFilters.guests !== guests) ? "החלת סינונים"
     : draftResultCount === 1 ? "הצגת מקום אחד" : `הצגת ${draftResultCount} מקומות`;
 
   const displayedResults = useMemo(() => {
@@ -942,7 +946,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
 
           <section className="results-list" aria-label="תוצאות">
             <section className="results-heading">
-              <div><h1>{translate(landing?.title || (area === "הכל" ? "נופש ברחבי הארץ" : `נופש ב${area}`))}</h1><div className="results-heading__meta">{!onlineCheckPending ? <p className="results-heading__inventory" aria-live="polite">{inventorySummary}</p> : null}</div></div>
+              <div><h1>{translate(landing?.title || (area === "הכל" ? "נופש ברחבי הארץ" : `נופש ב${area}`))}</h1><div className="results-heading__meta">{!onlineCheckPending && !undatedCapabilityUnavailable ? <p className="results-heading__inventory" aria-live="polite">{inventorySummary}</p> : null}</div></div>
             </section>
             <nav className="search-quick-filters" aria-label="סינון מהיר">
               <button type="button" className={activeFilters.length ? "primary-filter active" : "primary-filter"} onClick={() => openFiltersPanel()}><FilterControlIcon /><span>מסננים</span>{activeFilters.length ? <b>{activeFilters.length}</b> : null}</button>
@@ -955,9 +959,9 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
               <button type="button" className={accessibleOnly ? "active" : ""} aria-pressed={accessibleOnly} onClick={() => changeBinaryFilter("accessible", !accessibleOnly)}>נגישות</button>
             </nav>
             {activeFilters.length > 0 && <div className="active-filter-row"><span>סינונים פעילים:</span>{activeFilters.map((filter) => <button key={filter.id} className={filter.id === "online" ? "online-booking-active-filter" : undefined} type="button" onClick={filter.remove} aria-label={`הסרת הסינון ${filter.label}`}>{filter.label} ×</button>)}<button type="button" className="clear-all" onClick={resetFilters}>ניקוי הכל</button></div>}
-            {onlineOnly && (!undatedSearch || !resultSet.length) ? <div className="online-booking-filter-notice" role={(undatedSearch ? onlineCapabilities.status : supplierSearch.status) === "error" ? "alert" : "status"} aria-busy={(undatedSearch ? onlineCapabilities.status : supplierSearch.status) === "loading"}>
+            {onlineOnly && (!undatedSearch || !resultSet.length || undatedCapabilityUnavailable) ? <div className="online-booking-filter-notice" role={(undatedSearch ? onlineCapabilities.status : supplierSearch.status) === "error" ? "alert" : "status"} aria-busy={(undatedSearch ? onlineCapabilities.status : supplierSearch.status) === "loading"}>
               <p data-no-translate>{translate(undatedSearch
-                ? onlineCapabilities.status === "loading" ? "טוענים מקומות להזמנה אונליין..." : onlineCapabilities.status === "error" ? "לא הצלחנו לטעון מקומות להזמנה אונליין. נסו שוב." : "לא נמצאו מקומות להזמנה אונליין בבחירה הזו."
+                ? onlineCapabilities.status === "loading" ? "טוענים מקומות להזמנה אונליין..." : onlineCapabilities.status === "error" ? "לא הצלחנו להחיל כרגע את סינון ההזמנה אונליין. מוצגים כל המקומות באזור, בלי סימון הזמנה אונליין." : "לא נמצאו מקומות להזמנה אונליין בבחירה הזו."
                 : !selectedStay ? "בחרו תאריכים תקינים לבדיקת זמינות." : supplierSearch.status === "error" ? "לא הצלחנו לבדוק הזמנה אונליין כרגע." : supplierSearch.status !== "ready" ? "בודקים אילו מקומות ניתן להזמין אונליין..." : resultSet.length ? "רק מקומות עם מחיר וזמינות לתאריכים שבחרתם, שאפשר להזמין באתר." : "לא נמצאו מקומות להזמנה אונליין בבחירה הזו.")}</p>
               {!undatedSearch && (!selectedStay || supplierSearch.status === "ready" && !resultSet.length) ? <button className="button secondary" type="button" onClick={() => setOpenDatesRequest((value) => value + 1)}>בחירת תאריכים</button> : null}
               {(undatedSearch ? onlineCapabilities.status : supplierSearch.status) === "error" ? <button className="button secondary" type="button" onClick={() => setOnlineSearchRetry((value) => value + 1)}>לנסות שוב</button> : null}
