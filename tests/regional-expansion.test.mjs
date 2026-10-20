@@ -70,7 +70,9 @@ test('actual event API excludes unavailable/missing images before expansion and 
     regionalAvailabilityRegion,selectRegionalOffers,eligibleDealDate,validDate:()=>true,supplierToken:async()=>'test',publishedSupplierIds:async()=>new Set([1,2,3,4,5,6]),
     publicCatalogSummaries:async()=>places,
     publicCatalogSelectedSummaries:async(_world,ids)=>places.filter(p=>ids.includes(p.supplierId)).map(p=>({...p,slug:`event-${p.supplierId}`,images:[]})),
-    liveSupplierSearch:async input=>{assert.equal(input.guests,30);assert.equal(input.slot,'evening');return{results:[...offers.map(o=>({...o,available:true,slot:'evening',from:input.from})),{siteID:3,available:false,total:1},{siteID:7,available:true,total:1,slot:'evening'}]};},
+    readCachedDiscovery:async ({key})=>{assert.deepEqual(key,['events-discovery','2026-10-18','2026-10-18',30,'evening']);return{cache:{status:'fresh',checkedAt:'2026-10-17T12:00:00Z'},value:{results:[...offers.map(o=>({...o,available:true,slot:'evening',from:'2026-10-18'})),{siteID:3,available:false,total:1},{siteID:7,available:true,total:1,slot:'evening'}]}};},
+    EVENT_DISCOVERY_POLICY:{freshMs:30*60_000,staleMs:30*86_400_000},
+    liveSupplierSearch:async()=>{throw new Error('visitor_must_not_call_provider');},
   });
   const response=await post(new Request('https://example.test/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({world:'events',from:'2026-10-18',till:'2026-10-18',guests:30,slot:'evening',includePlaces:true,region:'צפון'})}));
   const body=await response.json();assert.equal(response.status,200);assert.equal(body.expandedRegion,true);assert.deepEqual(body.regionalOrder,[1,2,6]);assert.deepEqual(body.results.map(o=>o.siteID),[1,2,6]);

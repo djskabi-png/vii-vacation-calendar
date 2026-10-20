@@ -15,6 +15,7 @@ import catalogAdminTranslations from "../app/data/catalog-admin-translations.jso
 import { runSupplierCatalogScheduleTick } from "../app/lib/supplier-catalog-retry-runner.ts";
 import { cachedOnlineCapabilities } from "../app/lib/online-booking-capability-cache.ts";
 import { warmVacationDiscoveryCache } from "../app/lib/warm-vacation-discovery-cache.ts";
+import { warmEventDiscoveryCache } from "../app/lib/warm-event-discovery-cache.ts";
 import { bundledMapSnapshotCandidates } from "../app/lib/map-snapshot-catalog.ts";
 import { isWeeklyMapSnapshotWindow, reconcileMapSnapshots } from "../app/lib/map-snapshot-store.ts";
 import { legacyDisposition, looksLikeUninventoriedLegacyPath } from "../app/lib/legacy-route-map.ts";
@@ -181,8 +182,13 @@ const worker = {
     // refreshed only on the half hour and visitors always read the last
     // accepted snapshot instead of waiting on the supplier.
     if (Math.floor(controller.scheduledTime / 60_000) % 30 === 0) {
-      ctx.waitUntil(warmVacationDiscoveryCache(database, new Date(controller.scheduledTime)).catch(() => {
-        console.error("VII vacation discovery refresh unavailable");
+      const scheduledAt = new Date(controller.scheduledTime);
+      ctx.waitUntil(Promise.allSettled([
+        warmVacationDiscoveryCache(database, scheduledAt),
+        warmEventDiscoveryCache(database, scheduledAt),
+      ]).then((results) => {
+        if (results[0].status === "rejected") console.error("VII vacation discovery refresh unavailable");
+        if (results[1].status === "rejected") console.error("VII event discovery refresh unavailable");
       }));
     }
     const scheduledAt = new Date(controller.scheduledTime);

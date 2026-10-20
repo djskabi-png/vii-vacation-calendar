@@ -25,6 +25,10 @@ export async function POST(request: Request) {
           warmVacationDiscoveryCache(db),
         ]).catch(() => console.error("VII scheduled discovery refresh unavailable"));
       }
+      if (world === "events") {
+        const { warmEventDiscoveryCache } = await import("../lib/warm-event-discovery-cache.ts");
+        await warmEventDiscoveryCache(db).catch(() => console.error("VII scheduled event discovery refresh unavailable"));
+      }
       console.info("VII authenticated catalog MCP result", { world: value.world, status: value.status });
       return value;
     },

@@ -68,6 +68,9 @@ test("snapshot delivery is server-side, cached and never exposes provider creden
     read("app/lib/map-snapshot-store.ts"),
   ]);
   assert.match(route, /UPLOADS\.get\(record\.objectKey\)/);
+  assert.match(route, /getRequestExecutionContext/);
+  assert.match(route, /reconcileMapSnapshots\(\{ db, bucket: env\.UPLOADS, env, candidates: \[candidate\], limit: 1 \}\)/);
+  assert.match(route, /"X-VII-Map-Snapshot": candidate \? "warming" : "missing"/);
   assert.match(route, /stale-while-revalidate=2592000/);
   assert.match(route, /ETag/);
   assert.doesNotMatch(route, /MAPBOX_STATIC_TOKEN|MAPTILER_API_KEY/);

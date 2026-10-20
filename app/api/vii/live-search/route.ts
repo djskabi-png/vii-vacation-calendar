@@ -5,10 +5,12 @@ import { publicCatalogSelectedSummaries, publicCatalogSummaries } from "../../..
 import type { EventDealPlace } from "../../../lib/event-deal-labels";
 import { regionalAvailabilityRegion, selectRegionalOffers } from "../../../lib/regional-availability.ts";
 import { eligibleDealDate } from "../../../lib/deal-clock.ts";
-import { cachedDiscovery } from "../../../lib/discovery-offer-cache.ts";
+import { readCachedDiscovery } from "../../../lib/discovery-offer-cache.ts";
 import { runtimeCatalogDatabase } from "../../../lib/published-supplier-ids.ts";
+import { EVENT_DISCOVERY_POLICY } from "../../../lib/warm-event-discovery-cache.ts";
 
 const noStore = { "Cache-Control": "no-store" };
+type LiveSearchPayload = Awaited<ReturnType<typeof liveSupplierSearch>>;
 
 export async function POST(request: Request) {
   let body: Record<string, unknown>;
@@ -47,10 +49,13 @@ export async function POST(request: Request) {
       token,
       publishedIds: publicIds,
     });
-    const cached = discovery ? await cachedDiscovery({ key: ["events-discovery", body.from, body.till, Number(body.guests), body.slot ?? "both"], db: await runtimeCatalogDatabase(), load,
-      validate: value => !!value && typeof value === "object" && Array.isArray((value as { results?: unknown }).results),
+    const cached = discovery ? await readCachedDiscovery<LiveSearchPayload>({ key: ["events-discovery", body.from, body.till, Number(body.guests), body.slot ?? "both"], db: await runtimeCatalogDatabase(),
+      policy: EVENT_DISCOVERY_POLICY,
+      validate: value => !!value && typeof value === "object" && Array.isArray((value as { results?: unknown }).results)
+        && (value as { results: Array<{ available?: boolean; total?: number; slot?: string }> }).results
+          .some((offer) => offer?.available === true && Number(offer.total) > 0 && Boolean(offer.slot)),
     }) : null;
-    const result = cached?.value ?? await load();
+    const result = discovery ? cached!.value : await load();
     if (world === "events" && body.includePlaces === true) {
       const liveOffers = result.results.filter(offer => publicIds.has(offer.siteID) && offer.available === true && offer.total && offer.slot).sort((a, b) => a.total! - b.total!);
       const selected = region ? selectRegionalOffers(liveOffers, regionPlaces.filter(place => publicIds.has(place.supplierId) && place.image), region.label, { placeId: offer => offer.siteID, key: offer => String(offer.siteID), limit: 20 }) : null;

@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-cache-booking-release-provenance-20261021",
+  "project": "VII",
+  "task_type": "production cache booking and release provenance incident",
+  "requested_outcome": "Identify and repair the production incident so event and vacation discovery use durable last-known results, online booking remains usable, trail detail pages expose all approved nearby-content groups, and the exact tested release is the one served publicly.",
+  "natural_destination": "https://vii.spaplus.co event rails, vacation online flow and trail detail pages",
+  "authorization_boundary": "Diagnose production read-only, implement and verify a release candidate. Do not place a real booking or overwrite production until the active publication boundary is confirmed.",
+  "lesson_bundle": [
+    {"lesson_id": "VII-PROJECT-001", "reason": "The incident spans accepted VII cache, trail and release decisions.", "acceptance_impact": "Use the VII master plan and feedback standard as the product contract and verify the whole affected family."},
+    {"lesson_id": "ADIR-QA-001", "reason": "A local code fix cannot prove the public booking and discovery journeys are restored.", "acceptance_impact": "Open the exact candidate and public release, exercise cold load, retry, dated and undated flows, and inspect desktop and mobile."},
+    {"lesson_id": "ADIR-CONTROL-001", "reason": "The user suspects a version mix-up.", "acceptance_impact": "Record immutable commit, version and deployment identities and prove which code serves localhost and production."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection": "A cold event page still replaces usable cached places with a temporary supplier error.", "prevention": "Move visitor discovery to durable read-only snapshots and warm the required keys independently of visits.", "acceptance_check": "Cold-load event rails during an injected refresh failure and still render the last accepted real places."},
+    {"rejection": "Undated online places appear, but the dated quote or booking handoff fails.", "prevention": "Trace one exact room through cached capability, dated quote, detail and checkout without submitting an order.", "acceptance_check": "The same site and room reach a booking-ready checkout after authoritative validation."},
+    {"rejection": "Only one trail happens to show nearby sections while other trail pages omit them.", "prevention": "Inventory every public trail slug and require the four approved content families or a truthful empty-state policy.", "acceptance_check": "All representative trail regions render vacation, spa, attractions and suppliers with working links."},
+    {"rejection": "The tested local code is not the code served publicly.", "prevention": "Bind build, version, deployment and public asset evidence to one immutable commit.", "acceptance_check": "The deployed release identity and visible behavior match the tested commit; localhost provenance is separately identified."}
+  ],
+  "affected_family": [
+    "event discovery sliders",
+    "vacation home-deal sliders",
+    "undated online capability search",
+    "dated vacation quote and booking handoff",
+    "trail detail nearby-content sections",
+    "scheduled worker cache warmers",
+    "runtime database selection",
+    "Sites release and localhost provenance"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label": "VII platform architecture", "source": "C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"},
+      {"label": "VII accepted product behavior", "source": "C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"},
+      {"label": "Official Vii supplier frontend API", "source": "https://bizonline.co.il/api/ai/vii/Vii-Frontend.html"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After identifying the exact public and localhost versions and tracing cache reads and scheduled writes to their runtime databases.",
+    "checks": [
+      "Prove whether scheduled warming and visitor reads use the same database and key policy.",
+      "Prove whether the missing trail sections are route-data variation or stale-version evidence.",
+      "Exercise one online-capable vacation through quote and checkout without submission."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "What happens on a cold browser when the supplier is temporarily unavailable?",
+      "What happens after date rollover before the first visitor?",
+      "Can the room identity disappear between the online card and checkout?",
+      "Do all trail pages, not only the sampled one, expose the approved nearby families?",
+      "Can another deployment or stale local server make the verification evidence false?"
+    ],
+    "natural_destination_evidence": "Exact public URLs opened on desktop and mobile with immutable release identity and network evidence.",
+    "affected_family_evidence": "Focused tests, production-safe API traces, schedule and database provenance, full trail inventory and independent release review."
+  },
+  "effectiveness": {
+    "baseline": "Production returned a stale event snapshot, a current vacation home-deals key returned 503, and the user observed missing trail sections in the open local page.",
+    "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"],
+    "target": "No visitor-triggered supplier dependency for discovery, a verified booking handoff, complete trail reverse links and one provable release source."
+  },
+  "privacy": {"raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true},
+  "ready_to_start": true
+}

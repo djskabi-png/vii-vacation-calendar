@@ -34,12 +34,30 @@ test("vacation discovery keeps last-good rails and the authenticated scheduler w
   assert.match(warmer, /for \(const period of homeDealPeriods\)/);
   assert.match(warmer, /key: \["vacation-near", dates\.from, dates\.till, 2\]/);
   assert.match(warmer, /deals\.length > 0/);
-  assert.match(warmer, /now\.getTime\(\) \+ 86_400_000/);
+  assert.match(warmer, /Array\.from\(\{ length: 7 \}/);
   assert.match(warmer, /status: "unavailable"/);
   assert.match(warmer, /if \(!warmed\.some\(item => item\.count > 0\)\)/);
   assert.match(worker, /scheduledTime \/ 60_000\) % 30 === 0[\s\S]*warmVacationDiscoveryCache/);
   assert.match(mcp, /warmVacationDiscoveryCache\(db\)/);
   assert.match(rail, /lastGoodData\.current \? "ready"/);
+});
+
+test("event discovery is prewarmed for a rolling week and visitor requests never call the supplier", async () => {
+  const [route, warmer, worker, mcp] = await Promise.all([
+    read("app/api/vii/live-search/route.ts"),
+    read("app/lib/warm-event-discovery-cache.ts"),
+    read("worker/index.ts"),
+    read("app/mcp/route.ts"),
+  ]);
+  assert.match(warmer, /freshMs: 30 \* 60_000, staleMs: 30 \* 86_400_000/);
+  assert.match(warmer, /offset < 7/);
+  assert.match(warmer, /for \(const preset of eventDealPresets\(clock\)\)/);
+  assert.match(warmer, /key: \["events-discovery", date, date, guests, "both"\]/);
+  assert.match(warmer, /some\(\(offer\) => offer\?\.available === true/);
+  assert.match(route, /readCachedDiscovery/);
+  assert.doesNotMatch(route, /cachedDiscovery\(/);
+  assert.match(worker, /warmVacationDiscoveryCache\(database, scheduledAt\)[\s\S]*warmEventDiscoveryCache\(database, scheduledAt\)/);
+  assert.match(mcp, /world === "events"[\s\S]*warmEventDiscoveryCache\(db\)/);
 });
 
 test("map cards send only their primary image and room cards own stable media geometry", async () => {

@@ -22,7 +22,10 @@ export async function warmVacationDiscoveryCache(db: D1Database, now = new Date(
   const publicNames = new Map(places.map(place => [place.supplierId, place.name]));
   const resolveCatalog = discoveryVacationCatalog(places);
   const warmed: Array<{ period: string; status: "fresh" | "refreshed" | "stale" | "unavailable"; count: number }> = [];
-  const upcomingClocks = [now, new Date(now.getTime() + 86_400_000)];
+  // Keep a full rolling week prepared. This avoids a cold key after the Israel
+  // date boundary and keeps the rails useful through a multi-day supplier
+  // incident without making any visitor wait on the provider.
+  const upcomingClocks = Array.from({ length: 7 }, (_, offset) => new Date(now.getTime() + offset * 86_400_000));
   const seen = new Set<string>();
   for (const period of homeDealPeriods) for (const clock of upcomingClocks) {
     const dates = homeDealDates(period.id, clock);
