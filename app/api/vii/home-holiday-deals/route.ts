@@ -48,7 +48,7 @@ export async function GET(request: Request) {
       validate: value => !!value && typeof value === "object" && Array.isArray((value as { deals?: unknown }).deals),
     });
     const result = cached.value;
-    const deals = prioritizeOnlineFirst((await applyCuration(result.deals)).filter(deal => publicSiteIds.has(deal.siteID) && deal.priceGuests === guests && eligibleDealDate(deal.from, now)), deal => isHomeDealOnlineEligible(deal, cached.cache.status === "stale"), (a, b) => compareVacationPriority(a, b, a.siteID, b.siteID, `holiday:${id}:${part}`));
+    const deals = prioritizeOnlineFirst((await applyCuration(result.deals)).filter(deal => publicSiteIds.has(deal.siteID) && deal.priceGuests === guests && eligibleDealDate(deal.from, now)), deal => isHomeDealOnlineEligible(deal), (a, b) => compareVacationPriority(a, b, a.siteID, b.siteID, `holiday:${id}:${part}`));
     return Response.json({ ...result, deals, cache: cached.cache }, { headers: { ...headers, "X-VII-Discovery-Cache": cached.cache.status } });
   } catch (error) {
     const reason = error instanceof Error ? error.message : "supplier_unavailable";

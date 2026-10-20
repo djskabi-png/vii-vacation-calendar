@@ -46,10 +46,7 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
   const window = holidayDealWindow(currentHoliday, normalizedSelection.part);
   const key = `${holiday.id}:${normalizedSelection.audience}:${normalizedSelection.part}:${clock?.key || "loading"}`;
   const state = result.key === key ? result.status : "loading";
-  const deals = state === "ready" && clock ? orderDiscoveryItems(result.deals.filter(deal => eligibleDealDate(deal.from, clock.now)), { id: deal => deal.siteID, seed: `${documentSeed}:holiday:${holiday.id}:${selection.part}`, online: deal => {
-    if (result.stale) return false;
-    return isHomeDealOnlineEligible(deal, false);
-  }, priority: deal => managedVacationPriority((deal as HomeDeal & { curatedRank?: number }).curatedRank) }) : [];
+  const deals = state === "ready" && clock ? orderDiscoveryItems(result.deals.filter(deal => eligibleDealDate(deal.from, clock.now)), { id: deal => deal.siteID, seed: `${documentSeed}:holiday:${holiday.id}:${selection.part}`, online: deal => isHomeDealOnlineEligible(deal), priority: deal => managedVacationPriority((deal as HomeDeal & { curatedRank?: number }).curatedRank) }) : [];
   const searchHref = localizedPath(holidayDealSearchHref(currentHoliday, normalizedSelection), language);
 
   useEffect(() => {
@@ -124,8 +121,8 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
         {state === "error" ? <div className="holiday-deals__message" role="alert"><strong>{text.error}</strong><button type="button" onClick={() => holiday.id <= 0 ? globalThis.location.reload() : setRetry((value) => value + 1)}>{text.retry}</button><Link href={searchHref}>{text.search}</Link></div> : null}
         {state === "ready" && !deals.length ? <div className="holiday-deals__message"><strong>{text.empty}</strong><p>{text.emptyHelp}</p>{selection.part !== "all" ? <button type="button" onClick={() => choose({ ...selection, part: "all" })}>{text.reset}</button> : null}<Link href={searchHref}>{text.search}</Link></div> : null}
         {(state === "ready" ? deals : result.deals).length ? <><p className="holiday-deals__count" role="status">{(state === "ready" ? deals : result.deals).length} {text.count}</p><div className="holiday-deals__grid" inert={state === "loading" || undefined} aria-hidden={state === "loading" || undefined}>{(state === "ready" ? deals : result.deals).map((deal) => {
-          const href = localizedPath(`/business?${new URLSearchParams({ id: `vacation-${deal.siteID}`, from: deal.from, till: deal.till, guests: String(deal.priceGuests), source: "home-holidays", period: String(holiday.id) }).toString()}`, language);
-          return <div className="holiday-deals__item" key={`${key}-${deal.siteID}-${deal.from}`}><PropertyCard property={dealProperty(deal)} selectedStay={{ from: deal.from, till: deal.till, guests: deal.priceGuests }} liveAvailabilityState={{ status: "ready", quote: dealAvailability(deal, result.stale) }} detailHref={href} /></div>;
+          const href = localizedPath(`/business?${new URLSearchParams({ id: `vacation-${deal.siteID}`, from: deal.from, till: deal.till, guests: String(deal.priceGuests), ...(deal.roomID ? { roomID: String(deal.roomID) } : {}), source: "home-holidays", period: String(holiday.id) }).toString()}`, language);
+          return <div className="holiday-deals__item" key={`${key}-${deal.siteID}-${deal.from}`}><PropertyCard property={dealProperty(deal)} selectedStay={{ from: deal.from, till: deal.till, guests: deal.priceGuests }} liveAvailabilityState={{ status: "ready", quote: dealAvailability(deal) }} detailHref={href} /></div>;
         })}</div></> : null}
       </div>
     </div>

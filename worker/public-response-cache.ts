@@ -66,7 +66,7 @@ const routingHeaders = ["RSC", "Accept", "Next-Router-State-Tree", "Next-Router-
 const allowedVaryHeaders = new Set([...routingHeaders.map((header) => header.toLowerCase()), "accept-encoding"]);
 const publicDocumentQueryKeys = new Set([
   "accessible", "area", "features", "flex", "from", "guests", "id", "location", "maxPrice", "minPrice",
-  "months", "period", "pool", "release", "sort", "source", "spa", "till", "to", "type", "types", "whole",
+  "months", "online", "period", "pool", "release", "sort", "source", "spa", "till", "to", "type", "types", "whole",
 ]);
 
 function hasPrivateCookies(request: Request) {

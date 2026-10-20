@@ -6,11 +6,11 @@ import type { VacationSearchRoom } from "../lib/vacation-party";
 
 type Quote = { status: "available" | "unavailable" | "unverified"; total?: number; nights?: number; roomIDs?: number[]; onlineBooking?: boolean; minimumNights?: number; reason?: string | null };
 
-export function useViiStayQuote(siteID: number | null, from: string, till: string, guests: number, rooms?: VacationSearchRoom[]) {
+export function useViiStayQuote(siteID: number | null, from: string, till: string, guests: number, rooms?: VacationSearchRoom[], roomID?: number) {
   const [result, setResult] = useState<{ key: string; quote: ResolvedAvailability | null; status: "ready" | "error"; roomIDs: number[]; onlineBooking: boolean } | null>(null);
   const [retryCount, setRetryCount] = useState(0);
   const roomKey = JSON.stringify(rooms ?? [{ adults: guests }]);
-  const key = `${siteID}|${from}|${till}|${guests}|${roomKey}|${retryCount}`;
+  const key = `${siteID}|${from}|${till}|${guests}|${roomKey}|${roomID || ""}|${retryCount}`;
   const retry = useCallback(() => setRetryCount((value) => value + 1), []);
 
   useEffect(() => {
@@ -18,7 +18,7 @@ export function useViiStayQuote(siteID: number | null, from: string, till: strin
     const controller = new AbortController();
     fetch("/api/vii/stay-quote", {
       method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store", signal: controller.signal,
-      body: JSON.stringify({ siteID, from, till, guests, ...(rooms ? { rooms } : {}) }),
+      body: JSON.stringify({ siteID, from, till, guests, ...(rooms ? { rooms } : {}), ...(roomID ? { roomID } : {}) }),
     }).then(async (response) => {
       if (!response.ok) throw new Error("supplier_unavailable");
       return response.json() as Promise<Quote>;
@@ -36,7 +36,7 @@ export function useViiStayQuote(siteID: number | null, from: string, till: strin
       } : null });
     }).catch(() => { if (!controller.signal.aborted) setResult({ key, status: "error", quote: null, roomIDs: [], onlineBooking: false }); });
     return () => controller.abort();
-  }, [siteID, from, till, guests, key]);
+  }, [siteID, from, till, guests, rooms, roomID, key]);
 
   return { quote: result?.key === key ? result.quote : null,
     roomIDs: result?.key === key ? result.roomIDs : [],

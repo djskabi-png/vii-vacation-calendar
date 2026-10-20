@@ -39,7 +39,7 @@ test("business detail shows the preserved search before availability", () => {
   assert.match(business, /till=\{dateRange\.till\}/);
   assert.match(business, /selectedPrice=\{resolvedSelectedPrice\}/);
   assert.doesNotMatch(business, /בדיקת זמינות לחיפוש הזה/);
-  assert.match(business, /onlineHref={activeWorld === "vacation" \? undefined/);
+  assert.match(business, /onlineHref={activeWorld === "vacation" \? "#booking-summary"/);
 });
 
 test("the nightly price is a stable RTL-aware inline group", () => {

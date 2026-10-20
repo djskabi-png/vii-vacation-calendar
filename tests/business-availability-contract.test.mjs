@@ -18,7 +18,8 @@ test("search cards and business details share the same seven-state availability 
 
 test("vacation detail keeps one contextual booking action", () => {
   assert.match(business, /activeWorld === "vacation" \? null : onlineBooking/);
-  assert.match(business, /onlineHref={activeWorld === "vacation" \? undefined/);
+  assert.match(business, /onlineHref={activeWorld === "vacation" \? "#booking-summary"/);
+  assert.match(business, /activeWorld === "vacation" \? "בדיקת תאריך והזמנה"/);
   assert.doesNotMatch(business, /בדיקת זמינות לחיפוש הזה/);
   assert.match(business, /<VacationBookingHub/);
   assert.match(vacationHub, />הזמנה מהירה<\/Link>/);

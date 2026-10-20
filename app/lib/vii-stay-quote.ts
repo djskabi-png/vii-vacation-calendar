@@ -1,5 +1,4 @@
 import { daysBetween, validDate } from "./vii-live-search.ts";
-import { assessCalendarStay, supplierStayCalendar, stayCalendarDay } from "./vii-stay-calendar.ts";
 import { validVacationRooms, supplierPartyRooms, type VacationSearchRoom } from "./vacation-party.ts";
 
 const API_ROOT = "https://bizonline.co.il/api/ai/vii";
@@ -21,6 +20,7 @@ export async function supplierStayQuote(options: {
   till: string;
   guests: number;
   rooms?: VacationSearchRoom[];
+  roomID?: number;
   token: string;
   publishedIds: ReadonlySet<number>;
   fetchImpl?: typeof fetch;
@@ -29,40 +29,42 @@ export async function supplierStayQuote(options: {
   const nights = validDate(from) && validDate(till) ? daysBetween(from, till) : 0;
   const requestedRooms = options.rooms ?? [{ adults: guests }];
   if (!Number.isSafeInteger(siteID) || !publishedIds.has(siteID) || !validDate(from) || !validDate(till)
-    || nights < 1 || nights > 30 || !Number.isSafeInteger(guests) || guests < 1 || guests > 1000 || !validVacationRooms(requestedRooms, guests)) {
+    || nights < 1 || nights > 30 || !Number.isSafeInteger(guests) || guests < 1 || guests > 1000 || !validVacationRooms(requestedRooms, guests)
+    || (options.roomID !== undefined && (!Number.isSafeInteger(options.roomID) || options.roomID < 1))) {
     throw new Error("invalid_stay");
   }
   if (!token) throw new Error("supplier_unavailable");
   const fetchImpl = options.fetchImpl ?? fetch;
-  const calendar = await supplierStayCalendar({ siteID, from, till, token, publishedIds, fetchImpl });
-  const rules = assessCalendarStay(calendar, from, till);
-  if (!rules.allowed) return { status: rules.reason === "calendar_unknown" ? "unverified" as const : "unavailable" as const, reason: rules.reason, ...(rules.minimumNights ? { minimumNights: rules.minimumNights } : {}) };
   const headers = { Authorization: `Bearer ${token}`, Accept: "application/json", "Content-Type": "application/json" };
-  const search = await fetchImpl(`${API_ROOT}/vacations/search`, {
-    method: "POST", headers, body: JSON.stringify({ from, nights, rooms: supplierPartyRooms(requestedRooms), siteID }),
-    cache: "no-store", signal: AbortSignal.timeout(20_000),
-  });
-  if (!search.ok) throw new Error("supplier_unavailable");
-  const searchSites = object(await search.json()).sites;
-  if (!Array.isArray(searchSites)) throw new Error("invalid_supplier_response");
-  const match = searchSites.map(object).find((site) => site.siteID === siteID);
-  if (!match) return { status: "unverified" as const, reason: "missing_site" };
-  if (match.available === false) return { status: "unavailable" as const, ...rejection(match) };
-  if (match.available !== true) return { status: "unverified" as const, reason: typeof match.reason === "string" ? match.reason : null };
-  const cheapest = object(match.cheapest);
-  const selectedRooms = cheapest.rooms;
-  if (cheapest.from !== from || cheapest.till !== till || !Array.isArray(selectedRooms) || !selectedRooms.length) {
-    return { status: "unverified" as const, reason: "missing_room" };
+  let roomIDs: unknown[];
+  if (options.roomID !== undefined) {
+    // A last-minute card already carries the exact supplier room. The official
+    // vacancy endpoint is the authoritative pre-booking check, so do not make
+    // that path depend on the broader calendar or cheapest-room search.
+    roomIDs = [options.roomID];
+  } else {
+    const search = await fetchImpl(`${API_ROOT}/vacations/search`, {
+      method: "POST", headers, body: JSON.stringify({ from, nights, rooms: supplierPartyRooms(requestedRooms), siteID }),
+      cache: "no-store", signal: AbortSignal.timeout(20_000),
+    });
+    if (!search.ok) throw new Error("supplier_unavailable");
+    const searchSites = object(await search.json()).sites;
+    if (!Array.isArray(searchSites)) throw new Error("invalid_supplier_response");
+    const match = searchSites.map(object).find((site) => site.siteID === siteID);
+    if (!match) return { status: "unverified" as const, reason: "missing_site" };
+    if (match.available === false) return { status: "unavailable" as const, ...rejection(match) };
+    if (match.available !== true) return { status: "unverified" as const, reason: typeof match.reason === "string" ? match.reason : null };
+    const cheapest = object(match.cheapest);
+    const selectedRooms = cheapest.rooms;
+    if (cheapest.from !== from || cheapest.till !== till || !Array.isArray(selectedRooms) || !selectedRooms.length) {
+      return { status: "unverified" as const, reason: "missing_room" };
+    }
+    roomIDs = selectedRooms.map((value) => object(value).roomID);
   }
-  const roomIDs = selectedRooms.map((value) => object(value).roomID);
-  if (roomIDs.some((id) => !Number.isSafeInteger(id) || (id as number) < 1)) {
-    return { status: "unverified" as const, reason: "missing_room" };
-  }
-  // The search result does not promise a guest allocation for multiple rooms.
+  if (roomIDs.some((id) => !Number.isSafeInteger(id) || (id as number) < 1)) return { status: "unverified" as const, reason: "missing_room" };
+  // The current checkout intentionally supports one verified supplier unit.
   if (roomIDs.length !== 1 || requestedRooms.length !== 1) return { status: "unverified" as const, reason: "multiple_rooms" };
   const party = supplierPartyRooms(requestedRooms)[0];
-  const selectedRules = assessCalendarStay(calendar, from, till, roomIDs[0] as number);
-  if (!selectedRules.allowed) return { status: selectedRules.reason === "calendar_unknown" ? "unverified" as const : "unavailable" as const, reason: selectedRules.reason, ...(selectedRules.minimumNights ? { minimumNights: selectedRules.minimumNights } : {}) };
   const vacancy = await fetchImpl(`${API_ROOT}/vacations/${siteID}/vacancy`, {
     method: "POST", headers,
     body: JSON.stringify({ siteID, from, nights, rooms: [{ roomID: roomIDs[0], ...party }] }),
@@ -84,6 +86,5 @@ export async function supplierStayQuote(options: {
   }
   // The authoritative total must survive intact. total/nights is a display
   // average, never a new amount to multiply back into a booking total.
-  return { status: "available" as const, total, nights, roomIDs, onlineBooking: result.onlineBooking === true,
-    minimumNights: stayCalendarDay({ ...calendar, rooms: calendar.rooms.filter((room) => room.roomID === roomIDs[0]) }, from).minimumNights };
+  return { status: "available" as const, total, nights, roomIDs: roomIDs as number[], onlineBooking: result.onlineBooking === true };
 }

@@ -351,7 +351,10 @@ export function CalendarDemo({
   const visibleMonths = Array.from({ length: 12 }, (_, index) => addMonths(START_MONTH, index));
   const nights = checkIn && checkOut ? dateDiff(checkIn, checkOut) : 0;
   const selectedMin = mode === "business" && checkIn ? sourceMinimum(dateFromKey(checkIn), liveCalendar, illustrative) : 1;
-  const calendarBlocked = calendarRequired && (calendarStatus !== "ready" || !liveCalendar);
+  // A calendar outage must not dead-end booking. While loading we avoid a
+  // premature choice; on error dates remain selectable as unknown and the
+  // authoritative stay quote validates them immediately after confirmation.
+  const calendarBlocked = calendarRequired && calendarStatus === "loading";
   const ready = !calendarBlocked && (flexible || Boolean(checkIn && checkOut && nights >= selectedMin && (!liveCalendar || assessCalendarStay(liveCalendar, checkIn, checkOut).allowed)));
   const effectiveResolver = availabilityResolver ?? ((date: Date) => sourceAvailability(date, mode, businessKind, liveCalendar, illustrative));
 
@@ -528,7 +531,7 @@ export function CalendarDemo({
         ) : (
           <div ref={calendarBodyRef} className="calendar-body">
             {calendarRequired && calendarStatus !== "ready" ? <div role="status" aria-live="polite">
-              <p>{({ he: calendarStatus === "error" ? "לא הצלחנו לטעון את התאריכים. נסו שוב." : "טוענים תאריכים פנויים ותנאי שהייה", en: calendarStatus === "error" ? "Dates could not be loaded. Please try again." : "Loading available dates and stay requirements", ru: calendarStatus === "error" ? "Не удалось загрузить даты. Попробуйте ещё раз." : "Загружаем свободные даты и условия проживания", fr: calendarStatus === "error" ? "Impossible de charger les dates. Réessayez." : "Chargement des dates et des conditions de séjour" })[language]}</p>
+              <p>{({ he: calendarStatus === "error" ? "אפשר לבחור תאריכים. הזמינות והמחיר ייבדקו מיד לאחר הבחירה." : "טוענים תאריכים פנויים ותנאי שהייה", en: calendarStatus === "error" ? "You can choose dates. Availability and price will be checked immediately afterwards." : "Loading available dates and stay requirements", ru: calendarStatus === "error" ? "Можно выбрать даты. Наличие и цена будут проверены сразу после выбора." : "Загружаем свободные даты и условия проживания", fr: calendarStatus === "error" ? "Vous pouvez choisir des dates. La disponibilité et le prix seront vérifiés juste après." : "Chargement des dates et des conditions de séjour" })[language]}</p>
               {calendarStatus === "error" && onRetryCalendar ? <button type="button" onClick={onRetryCalendar}>{({ he: "ניסיון נוסף", en: "Try again", ru: "Повторить", fr: "Réessayer" })[language]}</button> : null}
             </div> : null}
             <div className="calendar-toolbar">

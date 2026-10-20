@@ -20,6 +20,7 @@ export async function POST(request: Request) {
       siteID: Number(body.siteID), from: String(body.from || ""), till: String(body.till || ""),
       guests: Number(body.guests), token: await supplierToken(), publishedIds: await publishedSupplierIds("vacations"),
       rooms: body.rooms as VacationSearchRoom[] | undefined,
+      roomID: body.roomID === undefined ? undefined : Number(body.roomID),
     });
     return Response.json(quote, { headers });
   } catch (error) {

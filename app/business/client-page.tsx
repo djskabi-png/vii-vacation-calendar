@@ -132,7 +132,7 @@ function roomBookingHref(bookingQuery: string, index: number, nightlyPrice: numb
   params.set("price", String(nightlyPrice));
   return `/booking?${params.toString()}`;
 }
-export default function BusinessPage({ initialSlug, initialProperty, relatedProperties, trailInventory, complementaryInventory, supplierDetail, initialWorld = "vacation", initialDates, initialFrom, initialTill, initialGuests = "2", initialRooms, initialChildren, initialInfants, initialPrice, initialIllustrative = false, initialSource, initialPeriod }: { initialSlug: string; initialProperty?: Property; relatedProperties?: Property[]; trailInventory?: Trail[]; complementaryInventory?: DiscoveryItem[]; supplierDetail?: SupplierPlaceDetail; initialWorld?: BusinessWorld; initialDates?: string; initialFrom?: string; initialTill?: string; initialGuests?: string; initialRooms?: string; initialChildren?: string; initialInfants?: string; initialPrice?: string; initialIllustrative?: boolean; initialSource?: string; initialPeriod?: string }) {
+export default function BusinessPage({ initialSlug, initialProperty, relatedProperties, trailInventory, complementaryInventory, supplierDetail, initialWorld = "vacation", initialDates, initialFrom, initialTill, initialGuests = "2", initialRooms, initialChildren, initialInfants, initialRoomID, initialPrice, initialIllustrative = false, initialSource, initialPeriod }: { initialSlug: string; initialProperty?: Property; relatedProperties?: Property[]; trailInventory?: Trail[]; complementaryInventory?: DiscoveryItem[]; supplierDetail?: SupplierPlaceDetail; initialWorld?: BusinessWorld; initialDates?: string; initialFrom?: string; initialTill?: string; initialGuests?: string; initialRooms?: string; initialChildren?: string; initialInfants?: string; initialRoomID?: string; initialPrice?: string; initialIllustrative?: boolean; initialSource?: string; initialPeriod?: string }) {
   const { language, translate } = useSiteLanguage();
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [dates, setDates] = useState(initialDates || "");
@@ -204,7 +204,9 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
   const calendarFrom = `${siteToday.getFullYear()}-${String(siteToday.getMonth() + 1).padStart(2, "0")}-${String(siteToday.getDate()).padStart(2, "0")}`;
   const supplierCalendar = useViiStayCalendar(supplierSiteID ? Number(supplierSiteID) : null, calendarOpen && activeWorld === "vacation", calendarFrom);
   const supplierRooms = useMemo(() => vacationPartyForGuestCount(guests, Number(initialChildren) || 0, Number(initialInfants) || 0, Number(initialRooms) || 1), [guests, initialChildren, initialInfants, initialRooms]);
-  const supplierQuote = useViiStayQuote(supplierSiteID ? Number(supplierSiteID) : null, dateRange.from, dateRange.till, guests, supplierRooms);
+  const preferredSupplierRoomID = Number.isSafeInteger(Number(initialRoomID)) && Number(initialRoomID) > 0
+    && property.roomOptions?.some((room) => room.supplierRoomID === Number(initialRoomID)) ? Number(initialRoomID) : undefined;
+  const supplierQuote = useViiStayQuote(supplierSiteID ? Number(supplierSiteID) : null, dateRange.from, dateRange.till, guests, supplierRooms, preferredSupplierRoomID);
   const liveLegacyAvailability = useLegacyAvailability(property, selectedStay);
   const verifiedLastMinuteDeal = activeWorld === "vacation" && selectedStay
     ? publishedLastMinuteDeal({ slug: property.slug, period: initialPeriod, from: selectedStay.from, till: selectedStay.till, guests, nightlyPrice: Number(selectedPrice) || 0 })
@@ -329,8 +331,8 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
           name={localizedPropertyName}
           location={`${localizedLocation}, ${localizedArea}`}
           sections={sectionLinks}
-          onlineHref={activeWorld === "vacation" ? undefined : onlineBooking || vacationPhoneFallback ? bookingActionHref : undefined}
-          onlineLabel={activeWorld === "events" ? "בדיקת תאריך לאירוע" : "הזמנה אונליין"}
+          onlineHref={activeWorld === "vacation" ? "#booking-summary" : onlineBooking || vacationPhoneFallback ? bookingActionHref : undefined}
+          onlineLabel={activeWorld === "events" ? "בדיקת תאריך לאירוע" : activeWorld === "vacation" ? "בדיקת תאריך והזמנה" : "הזמנה אונליין"}
           phone={phoneBooking ? property.contact?.phone : undefined}
         />
 

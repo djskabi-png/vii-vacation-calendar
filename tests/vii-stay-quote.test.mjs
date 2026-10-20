@@ -16,31 +16,32 @@ function supplier(searchSite, vacancy) {
 test("exact vacation quote confirms the selected supplier room and total", async () => {
   const { calls, fetchImpl } = supplier({ siteID: 2662, available: true, cheapest: { from: base.from, till: base.till, rooms: [{ roomID: 4487 }] } },
     { available: true, onlineBooking: true, summary: { siteID: 2662, from: base.from, till: base.till, nights: 1, totals: { total: 600 } } });
-  assert.deepEqual(await supplierStayQuote({ ...base, fetchImpl }), { status: "available", total: 600, nights: 1, roomIDs: [4487], onlineBooking: true, minimumNights:1 });
-  assert.equal(calls.length, 3);
-  assert.deepEqual(calls[1].body, { from: base.from, nights: 1, rooms: [{ adults: 2 }], siteID: 2662 });
-  assert.deepEqual(calls[2].body, { siteID: 2662, from: base.from, nights: 1, rooms: [{ roomID: 4487, adults: 2 }] });
+  assert.deepEqual(await supplierStayQuote({ ...base, fetchImpl }), { status: "available", total: 600, nights: 1, roomIDs: [4487], onlineBooking: true });
+  assert.equal(calls.length, 2);
+  assert.deepEqual(calls[0].body, { from: base.from, nights: 1, rooms: [{ adults: 2 }], siteID: 2662 });
+  assert.deepEqual(calls[1].body, { siteID: 2662, from: base.from, nights: 1, rooms: [{ roomID: 4487, adults: 2 }] });
 });
 
 test("unavailable and malformed supplier responses never become prices", async () => {
   const unavailable = supplier({ siteID: 2662, available: false, reason: "no_prices" }, {});
   assert.deepEqual(await supplierStayQuote({ ...base, fetchImpl: unavailable.fetchImpl }), { status: "unavailable", reason: "no_prices" });
-  assert.equal(unavailable.calls.length, 2);
+  assert.equal(unavailable.calls.length, 1);
   const wrongTotal = supplier({ siteID: 2662, available: true, cheapest: { from: base.from, till: base.till, rooms: [{ roomID: 4487 }] } },
     { available: true, summary: { siteID: 2662, from: base.from, till: base.till, nights: 1, totals: { total: 0 } } });
   assert.deepEqual(await supplierStayQuote({ ...base, fetchImpl: wrongTotal.fetchImpl }), { status: "unverified", reason: "invalid_supplier_response" });
   const multi = supplier({ siteID: 2662, available: true, cheapest: { from: base.from, till: base.till, rooms: [{ roomID: 1 }, { roomID: 2 }] } }, {});
   assert.deepEqual(await supplierStayQuote({ ...base, fetchImpl: multi.fetchImpl }), { status: "unverified", reason: "multiple_rooms" });
-  assert.equal(multi.calls.length, 2);
+  assert.equal(multi.calls.length, 1);
 });
 
 test("unpublished site IDs cannot reach the supplier", async () => {
   await assert.rejects(supplierStayQuote({ ...base, siteID: 999, fetchImpl: async () => { throw Error("called"); } }), /invalid_stay/);
 });
 
-test('daily restrictions block invalid stays before any pricing or booking request',async()=>{
- const calls=[];const quote=await supplierStayQuote({...base,fetchImpl:async(url)=>{calls.push(url);return Response.json({siteID:base.siteID,from:base.from,till:base.till,rooms:[{roomID:4487,dates:[{date:base.from,minNights:3,closedArrival:false,availableUnitCount:1,availableUnits:[1]}]}]});}});
- assert.deepEqual(quote,{status:'unavailable',reason:'min_nights',minimumNights:3});assert.equal(calls.length,1);assert.match(calls[0],/\/calendar\?/);
+test('authoritative vacancy restrictions block invalid stays without a fallback price',async()=>{
+ const f=supplier({siteID:base.siteID,available:true,cheapest:{from:base.from,till:base.till,rooms:[{roomID:4487}]}},{available:false,reason:'not_sellable',details:{roomID:4487,reasons:['min_nights']}});
+ assert.deepEqual(await supplierStayQuote({...base,fetchImpl:f.fetchImpl}),{status:'unavailable',reason:'min_nights'});
+ assert.equal(f.calls.length,2);assert.match(f.calls[1].url,/\/vacancy$/);
 });
 
 test('not_sellable reasons remain distinct and never acquire a fallback price',async()=>{
@@ -61,7 +62,15 @@ test('family quote forwards kids and infants without treating them as adults',as
  const f=supplier({siteID:base.siteID,available:true,cheapest:{from:base.from,till:base.till,rooms:[{roomID:4487}]}},{available:true,onlineBooking:true,summary:{siteID:base.siteID,from:base.from,till:base.till,nights:1,totals:{total:700},rooms:[{roomID:4487,pax:{adults:2,kids:1,infants:1}}]}});
  const result=await supplierStayQuote({...base,guests:3,rooms:[{adults:2,children:1,infants:1}],fetchImpl:f.fetchImpl});
  assert.equal(result.status,'available');assert.equal(result.total,700);
- assert.deepEqual(f.calls[1].body.rooms,[{adults:2,kids:1,infants:1}]);
- assert.deepEqual(f.calls[2].body.rooms,[{roomID:4487,adults:2,kids:1,infants:1}]);
+ assert.deepEqual(f.calls[0].body.rooms,[{adults:2,kids:1,infants:1}]);
+ assert.deepEqual(f.calls[1].body.rooms,[{roomID:4487,adults:2,kids:1,infants:1}]);
  await assert.rejects(supplierStayQuote({...base,guests:3,rooms:[{adults:2}],fetchImpl:async()=>{throw Error('must not call')}}),/invalid_stay/);
+});
+
+test('a card-provided room goes straight to the authoritative vacancy check',async()=>{
+ const f=supplier({}, {available:true,onlineBooking:true,summary:{siteID:base.siteID,from:base.from,till:base.till,nights:1,totals:{total:650}}});
+ const result=await supplierStayQuote({...base,roomID:4487,fetchImpl:f.fetchImpl});
+ assert.deepEqual(result,{status:'available',total:650,nights:1,roomIDs:[4487],onlineBooking:true});
+ assert.equal(f.calls.length,1);assert.match(f.calls[0].url,/\/vacations\/2662\/vacancy$/);
+ assert.deepEqual(f.calls[0].body.rooms,[{roomID:4487,adults:2}]);
 });

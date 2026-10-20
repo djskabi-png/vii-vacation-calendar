@@ -24,6 +24,7 @@ import type { PlaceSearchResult } from "../data/search-place-inventory";
 import { useManagedGeography } from "./use-managed-geography";
 import { destinationInventory, matchingDestinations, destinationChildren, destinationPage, recentDestinations, QUICK_DESTINATIONS, DESTINATION_PAGE_SIZE } from "../lib/destination-picker";
 import { destinationPickerCopy } from "../i18n/destination-picker-copy";
+import { nearestSearchLocation } from "../lib/nearby-search-location.ts";
 
 type SpaAudience = "single" | "couple" | "group" | "day-pass";
 
@@ -503,34 +504,37 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     }
   }
 
-  function chooseNearbyLocation() {
-    if (!navigator.geolocation || locating) {
-      setLocationStatus("לא הצלחנו לזהות את המיקום. אפשר לבחור יעד מהרשימה.");
-      return;
-    }
+  async function chooseNearbyLocation() {
+    if (locating) return;
     setLocating(true);
     setLocationStatus("מאתרים את האזור הקרוב...");
+    let finished = false;
+    let fallbackStarted = false;
+    let watchdog = 0;
+    const select = (location: string | null) => {
+      if (finished) return;
+      finished = true;
+      window.clearTimeout(watchdog);
+      setLocating(false);
+      if (location) chooseLocation(location);
+      else setLocationStatus("לא הצלחנו לזהות את המיקום. אפשר לבחור יעד מהרשימה.");
+    };
+    const approximate = async () => {
+      if (finished || fallbackStarted) return;
+      fallbackStarted = true;
+      setLocationStatus("מנסים לזהות את האזור הקרוב...");
+      try {
+        const response = await fetch("/api/vii/nearby-location", { cache: "no-store", headers: { Accept: "application/json" }, signal: AbortSignal.timeout(5000) });
+        const payload = await response.json() as { location?: string };
+        select(response.ok && typeof payload.location === "string" ? payload.location : null);
+      } catch { select(null); }
+    };
+    if (!navigator.geolocation) { await approximate(); return; }
+    watchdog = window.setTimeout(() => { void approximate(); }, 6500);
     navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        const centers = [
-          { label: "צפון", lat: 32.96, lng: 35.5 },
-          { label: "מרכז", lat: 32.08, lng: 34.8 },
-          { label: "ירושלים והרי יהודה", lat: 31.78, lng: 35.21 },
-          { label: "דרום", lat: 31.25, lng: 34.79 },
-          { label: "אילת והערבה", lat: 29.56, lng: 34.95 },
-        ];
-        const nearest = centers.reduce((best, item) => {
-          const distance = (coords.latitude - item.lat) ** 2 + (coords.longitude - item.lng) ** 2;
-          return distance < best.distance ? { label: item.label, distance } : best;
-        }, { label: "מרכז", distance: Number.POSITIVE_INFINITY });
-        setLocating(false);
-        chooseLocation(nearest.label);
-      },
-      () => {
-        setLocating(false);
-        setLocationStatus("לא הצלחנו לזהות את המיקום. אפשר לבחור יעד מהרשימה.");
-      },
-      { enableHighAccuracy: false, timeout: 7000, maximumAge: 300000 },
+      ({ coords }) => select(nearestSearchLocation(coords.latitude, coords.longitude)),
+      () => { void approximate(); },
+      { enableHighAccuracy: false, timeout: 6000, maximumAge: 300000 },
     );
   }
   function expandMobileSearch() {

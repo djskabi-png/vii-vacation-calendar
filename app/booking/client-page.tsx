@@ -104,7 +104,7 @@ export default function BookingPageClient(props: Props) {
   const liveSourceEnabled = Boolean(vacationProperty && legacyAvailabilitySourceFor(vacationProperty.slug));
   const supplierSiteID = /^vacation-(\d+)$/.exec(props.placeId)?.[1];
   const supplierRooms = useMemo(() => vacationPartyForGuestCount(Math.max(1, Number(guests) || 2), Number(props.initialChildren) || 0, Number(props.initialInfants) || 0, Number(props.initialRooms) || 1), [guests, props.initialChildren, props.initialInfants, props.initialRooms]);
-  const supplierQuote = useViiStayQuote(supplierSiteID ? Number(supplierSiteID) : null, arrival, departure, Math.max(1, Number(guests) || 2), supplierRooms);
+  const supplierQuote = useViiStayQuote(supplierSiteID ? Number(supplierSiteID) : null, arrival, departure, Math.max(1, Number(guests) || 2), supplierRooms, props.supplierRoomID);
   const liveAvailability = useLegacyAvailability(vacationProperty, props.world === "vacation" && props.initialFrom && props.initialTill
     ? { from: props.initialFrom, till: props.initialTill, guests: Math.max(1, Number(props.initialGuests) || 2) }
     : null);

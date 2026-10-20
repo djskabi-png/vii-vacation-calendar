@@ -6,6 +6,10 @@ const business = await readFile(new URL("../app/business/client-page.tsx", impor
 const vacationHub = await readFile(new URL("../app/components/vacation-booking-hub.tsx", import.meta.url), "utf8");
 const booking = await readFile(new URL("../app/booking/client-page.tsx", import.meta.url), "utf8");
 const bookingPage = await readFile(new URL("../app/booking/page.tsx", import.meta.url), "utf8");
+const businessPage = await readFile(new URL("../app/business/page.tsx", import.meta.url), "utf8");
+const homeDeals = await readFile(new URL("../app/components/home-live-deals.tsx", import.meta.url), "utf8");
+const stayQuoteHook = await readFile(new URL("../app/components/use-vii-stay-quote.ts", import.meta.url), "utf8");
+const dealStatus = await readFile(new URL("../app/components/home-deal-detail-status.tsx", import.meta.url), "utf8");
 const localeProvider = await readFile(new URL("../app/i18n/locale-provider.tsx", import.meta.url), "utf8");
 const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
 
@@ -75,4 +79,18 @@ test("bookable vacation uses one quick-book action while incomplete data keeps d
   assert.doesNotMatch(business, /בדיקת זמינות לחיפוש הזה/);
   assert.match(vacationHub, /buttonLabel=\{bookingEnabled \? "בדיקת זמינות" : "פנייה להזמנה"\}/);
   assert.match(vacationHub, /state === "available-price"/);
+});
+
+test("last-minute online booking preserves the exact supplier room through checkout", () => {
+  assert.match(homeDeals, /deal\.roomID \? \{ roomID: String\(deal\.roomID\) \} : \{\}/);
+  assert.match(businessPage, /initialRoomID=\{params\.roomID\}/);
+  assert.match(business, /preferredSupplierRoomID[\s\S]*useViiStayQuote\([\s\S]*preferredSupplierRoomID\)/);
+  assert.match(stayQuoteHook, /\.\.\.\(roomID \? \{ roomID \} : \{\}\)/);
+  assert.match(booking, /useViiStayQuote\([\s\S]*props\.supplierRoomID\)/);
+  assert.match(business, /onlineHref=\{activeWorld === "vacation" \? "#booking-summary"/);
+});
+
+test("deal status does not promise an online action independently of quote readiness", () => {
+  assert.doesNotMatch(dealStatus, /אפשר להמשיך להזמנה באתר|You can continue to booking/);
+  assert.match(dealStatus, /החדר אינו נשמר עד לסיום ההזמנה/);
 });

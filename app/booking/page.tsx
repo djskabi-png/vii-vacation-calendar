@@ -58,7 +58,7 @@ async function resolveBooking(params: Awaited<Props["searchParams"]>) {
   const mappedSlug = supplierLegacySlug(params.place, params.world === "events" ? "events" : "vacations");
   if (mappedSlug) {
     const query = new URLSearchParams({ place: mappedSlug });
-    for (const key of ["world", "from", "till", "guests", "rooms", "children", "infants"] as const) if (params[key]) query.set(key, params[key]!);
+    for (const key of ["world", "from", "till", "guests", "rooms", "children", "infants", "roomID"] as const) if (params[key]) query.set(key, params[key]!);
     redirect(`${prefix}/booking?${query}`);
   }
   const offerId = params.package || params.service || params.offer || "";

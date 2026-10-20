@@ -65,7 +65,7 @@ export function dealProperty(deal: HomeDeal): Property {
   };
 }
 
-export function dealAvailability(deal: HomeDeal, stale = false): ResolvedAvailability {
+export function dealAvailability(deal: HomeDeal): ResolvedAvailability {
   return {
     from: deal.from,
     till: deal.till,
@@ -74,7 +74,9 @@ export function dealAvailability(deal: HomeDeal, stale = false): ResolvedAvailab
     nightlyPrice: Math.round(deal.total / Math.max(1, deal.nights)),
     includedGuests: deal.priceGuests,
     priceMode: "stay_total",
-    onlineBooking: !stale && deal.onlineBooking,
+    // An accepted last-known snapshot remains valid discovery evidence while
+    // the background refresh retries. Checkout still revalidates live.
+    onlineBooking: deal.onlineBooking,
     bookingSupported: Number.isSafeInteger(deal.roomID) && Number(deal.roomID) > 0,
     showSelectedDates: true,
   };
@@ -164,7 +166,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
 
   const sectionId = scope ? `regional-vacation-${scope.key}` : mode === "holidays" ? "home-holiday-deals" : "home-live-deals";
   const eligibleDeals = clock ? (data?.deals || []).filter(deal => eligibleDealDate(deal.from, clock.now)) : [];
-  const displayedDeals = orderDiscoveryRail(eligibleDeals, { id: deal => deal.siteID, seed: `${documentSeed}:home:${mode}:${mode === "holidays" ? holidayId : period}`, online: deal => isHomeDealOnlineEligible(deal, data?.cache?.status === "stale"), priority: deal => managedVacationPriority((deal as HomeDeal & { curatedRank?: number }).curatedRank) });
+  const displayedDeals = orderDiscoveryRail(eligibleDeals, { id: deal => deal.siteID, seed: `${documentSeed}:home:${mode}:${mode === "holidays" ? holidayId : period}`, online: deal => isHomeDealOnlineEligible(deal), priority: deal => managedVacationPriority((deal as HomeDeal & { curatedRank?: number }).curatedRank) });
   const displayState = mode === "holidays" && holidayState !== "ready" ? holidayState : state;
   const refreshing = displayState === "loading" && data !== null;
   const allLabel = mode === "holidays" && currentHoliday ? `${allPeriodCopy[language].holiday}${currentHoliday.name}` : mode === "near" ? allPeriodCopy[language][period] : text.all;
@@ -201,12 +203,12 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
         {displayState === "ready" && (mode === "holidays" && !holidays.length || data?.deals.length === 0) ? <p className="home-live-deals__status">{text.empty}</p> : null}
         {data?.deals.length ? <div id={`${sectionId}-rail`} className="home-live-deals__track" ref={track} data-horizontal-rail inert={refreshing || undefined} aria-hidden={refreshing || undefined}>
           {displayedDeals.map((deal) => {
-            const href = `/business?${new URLSearchParams({ id: `vacation-${deal.siteID}`, from: deal.from, till: deal.till, guests: String(deal.priceGuests), source: mode === "holidays" ? "home-holidays" : "home-deals", period: mode === "holidays" ? String(currentHoliday?.id ?? "") : period }).toString()}`;
+            const href = `/business?${new URLSearchParams({ id: `vacation-${deal.siteID}`, from: deal.from, till: deal.till, guests: String(deal.priceGuests), ...(deal.roomID ? { roomID: String(deal.roomID) } : {}), source: mode === "holidays" ? "home-holidays" : "home-deals", period: mode === "holidays" ? String(currentHoliday?.id ?? "") : period }).toString()}`;
             return <div className="home-live-deals__item" key={`${deal.siteID}-${deal.from}`}>
               <PropertyCard
                 property={dealProperty(deal)}
                 selectedStay={{ from: deal.from, till: deal.till, guests: deal.priceGuests }}
-                liveAvailabilityState={{ status: "ready", quote: dealAvailability(deal, data?.cache?.status === "stale") }}
+                liveAvailabilityState={{ status: "ready", quote: dealAvailability(deal) }}
                 detailHref={href}
               />
             </div>;

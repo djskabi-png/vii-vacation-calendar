@@ -17,6 +17,7 @@ test("vacation destination picker preserves the complete legacy discovery set", 
 
 test("destination picker offers nearby search, grouped discovery and useful filtering", () => {
   assert.match(search, /navigator\.geolocation\.getCurrentPosition/);
+  assert.match(search, /\/api\/vii\/nearby-location/);
   assert.match(search, /className="location-nearby"/);
   assert.match(search, /vacationLocationGroups\.flatMap/);
   assert.match(search, /className="location-search-results"/);

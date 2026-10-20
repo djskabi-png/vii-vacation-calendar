@@ -23,12 +23,12 @@ test("badge proof rejects no price, no room support, illustrative and stale data
   for (const change of [{ price: 0 }, { bookingSupported: false }, { illustrative: true }, { availability: "unknown" }, { till: "2026-10-19" }]) assert.equal(canShowOnlineBookingBadge({ ...base, ...change }), false);
 });
 
-test("home and holiday deals require a real positive nightly price and room", () => {
+test("home and holiday deals keep accepted online evidence during background refresh", () => {
   const deal = { onlineBooking: true, roomID: 7, total: 1000, nights: 2, from: "2026-10-20", till: "2026-10-22" };
   assert.equal(isHomeDealOnlineEligible(deal), true);
   assert.equal(isHomeDealOnlineEligible({ ...deal, nights: 0 }), false);
   assert.equal(isHomeDealOnlineEligible({ ...deal, roomID: undefined }), false);
-  assert.equal(isHomeDealOnlineEligible(deal, true), false);
+  assert.equal(isHomeDealOnlineEligible(deal), true);
 });
 
 test("empty and manual order are preserved", () => {

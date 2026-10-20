@@ -45,7 +45,7 @@ test("private, transaction, actions and refresh paths bypass every tier", async 
 test("identity isolates builds, hosts, locales, filters and every Flight routing variant", async () => {
   const base = await policy("/spas", {}, "same");
   assert.notEqual((await policy("/spas", {}, "new-release")).key, base.key);
-  for (const path of ["/en/spas", "/ru/spas", "/fr/spas", "/spas?location=center", "/spas?release=433"]) {
+  for (const path of ["/en/spas", "/ru/spas", "/fr/spas", "/spas?location=center", "/spas?release=433", "/search?online=1"]) {
     assert.notEqual((await policy(path, {}, "same")).key, base.key);
   }
   const primary = new Request("https://www.vii.co.il/spas", { headers: { Accept: "text/html" } });

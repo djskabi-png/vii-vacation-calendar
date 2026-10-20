@@ -59,3 +59,9 @@ test('real calendar plumbing is explicit and authoritative totals survive to che
  assert.match(checkout,/totalPrice: supplierQuote.quote!\.totalPrice!/);assert.match(checkout,/const currentTotal = pricing \? pricing.totalPrice : 0/);
  for(const field of ['rooms','children','infants'])assert.match(checkout,new RegExp(`businessReturnParams.set\\("${field}"`));
 });
+test('calendar failure does not dead-end selection because the stay quote revalidates',()=>{
+ const source=readFileSync(new URL('../app/calendar-demo.tsx',import.meta.url),'utf8');
+ assert.match(source,/calendarBlocked = calendarRequired && calendarStatus === "loading"/);
+ assert.match(source,/הזמינות והמחיר ייבדקו מיד לאחר הבחירה/);
+ assert.doesNotMatch(source,/calendarBlocked = calendarRequired && \(calendarStatus !== "ready"/);
+});

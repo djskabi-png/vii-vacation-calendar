@@ -20,7 +20,7 @@ import { nearbyRecommendations } from "../lib/nearby-recommendations";
 import { serverPublicCopy } from "../i18n/server-public-copy";
 
 type QueryValue = string | string[] | undefined;
-type BusinessParams = { id?: QueryValue; mode?: QueryValue; dates?: QueryValue; from?: QueryValue; till?: QueryValue; guests?: QueryValue; rooms?: QueryValue; adults?: QueryValue; children?: QueryValue; infants?: QueryValue; price?: QueryValue; illustrative?: QueryValue; source?: QueryValue; period?: QueryValue };
+type BusinessParams = { id?: QueryValue; mode?: QueryValue; dates?: QueryValue; from?: QueryValue; till?: QueryValue; guests?: QueryValue; rooms?: QueryValue; adults?: QueryValue; children?: QueryValue; infants?: QueryValue; roomID?: QueryValue; price?: QueryValue; illustrative?: QueryValue; source?: QueryValue; period?: QueryValue };
 type Props = { searchParams: Promise<BusinessParams> };
 
 function queryValue(value: QueryValue) {
@@ -59,14 +59,14 @@ export default async function Page({ searchParams }: Props) {
   const mappedSlug = supplierLegacySlug(params.id, "vacations");
   if (mappedSlug) {
     const query = new URLSearchParams({ id: mappedSlug });
-    for (const key of ["from", "till", "guests"] as const) if (params[key]) query.set(key, params[key]!);
+    for (const key of ["from", "till", "guests", "roomID"] as const) if (params[key]) query.set(key, params[key]!);
     const locale = (await headers()).get("x-vii-locale");
     redirect(`${locale && locale !== "he" ? `/${locale}` : ""}/business?${query}`);
   }
   const unavailable = unavailableLegacySearchHref(params.id, "vacations");
   if (unavailable) {
     const url = new URL(unavailable, "https://vii.spaplus.co");
-    for (const key of ["from", "till", "guests"] as const) if (params[key]) url.searchParams.set(key, params[key]!);
+    for (const key of ["from", "till", "guests", "roomID"] as const) if (params[key]) url.searchParams.set(key, params[key]!);
     const locale = (await headers()).get("x-vii-locale");
     redirect(`${locale && locale !== "he" ? `/${locale}` : ""}${url.pathname}${url.search}`);
   }
@@ -122,6 +122,6 @@ export default async function Page({ searchParams }: Props) {
       { name: property.name, path: `/business?id=${property.slug}` },
     ])} />
     <StructuredData data={faqSchema(propertyFaq)} />
-    <BusinessPage initialSlug={property.slug} initialProperty={property} relatedProperties={relatedProperties} trailInventory={trailInventory} complementaryInventory={complementaryInventory} supplierDetail={supplierDetail} initialWorld={initialWorld} initialDates={params.dates} initialFrom={params.from} initialTill={params.till} initialGuests={params.guests} initialRooms={params.rooms} initialChildren={params.children} initialInfants={params.infants} initialPrice={params.price} initialIllustrative={params.illustrative === "1"} initialSource={params.source} initialPeriod={params.period} />
+    <BusinessPage initialSlug={property.slug} initialProperty={property} relatedProperties={relatedProperties} trailInventory={trailInventory} complementaryInventory={complementaryInventory} supplierDetail={supplierDetail} initialWorld={initialWorld} initialDates={params.dates} initialFrom={params.from} initialTill={params.till} initialGuests={params.guests} initialRooms={params.rooms} initialChildren={params.children} initialInfants={params.infants} initialRoomID={params.roomID} initialPrice={params.price} initialIllustrative={params.illustrative === "1"} initialSource={params.source} initialPeriod={params.period} />
   </>;
 }

@@ -2,7 +2,7 @@ import { readCachedOnlineCapabilities } from "../../../lib/online-booking-capabi
 import { publicOnlineCapabilities, validOnlineCapabilities, type OnlineCapabilityMap } from "../../../lib/online-booking-capability.ts";
 import { publishedSupplierIds, runtimeCatalogDatabase } from "../../../lib/published-supplier-ids.ts";
 
-const headers = { "Cache-Control": "public, max-age=300, s-maxage=3600, stale-while-revalidate=604800" };
+const headers = { "Cache-Control": "public, max-age=300, s-maxage=1800, stale-while-revalidate=2592000" };
 const noStore = { "Cache-Control": "no-store" };
 export async function onlineCapabilitiesResponse(request: Request, dependencies: {
   read: () => Promise<{ value: OnlineCapabilityMap }>;
