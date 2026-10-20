@@ -59,7 +59,10 @@ export async function GET(request: Request) {
     });
     const result = { ...cached.value, period: period as HomeDealPeriod };
     const [curatedSource, display] = await Promise.all([applyCuration(result.deals, period as HomeDealPeriod), displayPromise]);
-    const curated = curatedSource.filter(deal => publicSiteIds.has(deal.siteID) && deal.priceGuests === guests && deal.from === dates.from && deal.till === dates.till && eligibleDealDate(deal.from, now));
+    const publicSummaryIds = new Set(names.map((place) => place.supplierId));
+    const curated = curatedSource.filter(deal => publicSiteIds.has(deal.siteID)
+      && publicSummaryIds.has(deal.siteID)
+      && deal.priceGuests === guests && deal.from === dates.from && deal.till === dates.till && eligibleDealDate(deal.from, now));
     const ordered = prioritizeOnlineFirst(curated, deal => isHomeDealOnlineEligible(deal), (a, b) => compareVacationPriority(a, b, a.siteID, b.siteID, `home-deals:${period}`));
     const selected = region ? selectRegionalOffers(ordered, names.filter(place => publicSiteIds.has(place.supplierId)), region.label, { placeId: deal => deal.siteID, key: deal => String(deal.siteID) }) : null;
     const deals = prioritizeOnlineFirst(selected?.offers ?? ordered, deal => isHomeDealOnlineEligible(deal), (a, b) => compareVacationPriority(a, b, a.siteID, b.siteID, `home-deals:${period}`));

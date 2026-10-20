@@ -2,11 +2,18 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { publicCatalogEntryAllowed } from "../app/lib/public-catalog-policy.ts";
 import { publicSearchOpportunityAllowed } from "../app/lib/search-opportunities.ts";
+import { publicHomeDealAllowed } from "../app/lib/vii-home-deals.ts";
 
 test("internal supplier fixtures never reach public catalog consumers", () => {
   assert.equal(publicCatalogEntryAllowed({ name: "המתחם הקטלני של רועי", contact: { phone: "050-1234567" } }), false);
   assert.equal(publicCatalogEntryAllowed({ name: "test4", contact: { phone: "050-5555555" } }), false);
   assert.equal(publicCatalogEntryAllowed({ name: "וילה אמיתית", contact: { phone: "050-5555555" } }), true);
+});
+
+test("cached homepage availability applies the same fixture guard at the final deal boundary", () => {
+  assert.equal(publicHomeDealAllowed({ name: "המתחם הקטלני של רועי", phone: "050-1234567" }), false);
+  assert.equal(publicHomeDealAllowed({ name: "test4", phone: "050-1234567" }), false);
+  assert.equal(publicHomeDealAllowed({ name: "מקום אמיתי", phone: "050-7654321" }), true);
 });
 
 test("malformed or empty managed pages are not publicly eligible", () => {

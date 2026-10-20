@@ -3,6 +3,7 @@ const MEDIA_ROOT = "https://www.vii.co.il";
 import siteDetails from "../data/sergey-place-details.json" with { type: "json" };
 import { supplierContactNumber } from "./supplier-contact.ts";
 import { eligibleDealDate } from "./deal-clock.ts";
+import { publicCatalogEntryAllowed } from "./public-catalog-policy.ts";
 
 export const homeDealPeriods = [
   { id: "tomorrow", label: "ברגע האחרון", weekday: null, nights: 1 },
@@ -18,6 +19,10 @@ export type HomeDeal = {
   from: string; till: string; total: number; nights: number; priceGuests: number; roomID?: number; roomName?: string;
   bedrooms?: number; maxGuests?: number; phone?: string; whatsapp?: string; onlineBooking?: boolean; curatedRank?: number;
 };
+
+export function publicHomeDealAllowed(deal: Pick<HomeDeal, "name" | "phone" | "whatsapp">) {
+  return publicCatalogEntryAllowed({ name: deal.name, phone: deal.phone, whatsapp: deal.whatsapp });
+}
 // Accepted public metadata enriches discovery offers only. Prices and availability
 // still come from the matching supplier search, never from catalog base prices.
 export type HomeDealCatalogPlace = {
@@ -173,6 +178,10 @@ export async function getHomeDealsForDates(options: {
     if (maxGuests && maxGuests < guests) continue;
     const phone = supplierContactNumber(canonical?.phone ?? record(place?.contact).phone);
     const whatsapp = supplierContactNumber(canonical?.whatsapp ?? record(place?.contact).whatsapp);
+    // Availability snapshots can outlive a catalog publication filter. Apply
+    // the same public-fixture guard at the final deal boundary so a cached
+    // supplier result can never reintroduce an internal test venue.
+    if (!publicHomeDealAllowed({ name, phone, whatsapp })) continue;
     deals.push({ siteID: siteID as number, name, image, images, city: location?.city || "", area: location?.area || "", score, reviewCount,
       from: cheapest.from as string, till: cheapest.till as string, total, nights: dates.nights, priceGuests: guests,
       ...(roomID ? { roomID } : {}), ...(roomName ? { roomName } : {}), ...(bedrooms ? { bedrooms } : {}),

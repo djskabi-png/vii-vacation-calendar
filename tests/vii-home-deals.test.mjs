@@ -15,6 +15,16 @@ test("discovery enriches live search from accepted catalog without broken suppli
   assert.equal(result.deals[0].total, 900); assert.equal(result.deals[0].roomName, "Suite"); assert.equal(result.deals[0].city, "City");
 });
 
+test("supplier availability cannot reintroduce an internal fixture into a fresh homepage snapshot", async () => {
+  const result = await getHomeDeals({ period: "tomorrow", now: new Date("2026-10-05T12:00:00Z"), token: "test", publicSiteIds: new Set([11]),
+    fetchImpl: async () => Response.json({ sites: [
+      { siteID: 11, available: true, minTotal: 100, onlineBooking: true, cheapest: { from: "2026-10-06", till: "2026-10-07", rooms: [{ roomID: 4 }] } },
+    ] }),
+    resolveCatalog: async () => new Map([[11, { name: "המתחם הקטלני של רועי", images: ["https://www.vii.co.il/gallery/test.jpg"], city: "ראשון לציון", area: "מישור החוף והשפלה", rooms: [{ roomID: 4, roomName: "test4", bedrooms: 1, maxGuests: 4 }], phone: "050-1234567" }]]),
+  });
+  assert.deepEqual(result.deals, []);
+});
+
 test("canonical metadata never substitutes base prices for a failed search", async () => {
   await assert.rejects(getHomeDeals({ period: "tomorrow", token: "test", publicSiteIds: new Set([11]), resolveCatalog: async () => new Map(), fetchImpl: async () => Response.json({ error: "supplier SQL error" }) }), /invalid_supplier_response/);
 });
