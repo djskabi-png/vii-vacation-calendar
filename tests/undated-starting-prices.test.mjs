@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {stripTypeScriptTypes} from 'node:module';
-import {startingPriceFields,supplierStartingPrice,hasSearchDate,startingPriceCatalog,validStartingPriceMap,publishedStartingPrices,fetchStartingPriceCatalog} from '../app/lib/supplier-starting-price.ts';
+import {startingPriceFields,supplierStartingPrice,hasSearchDate,startingPriceCatalog,validStartingPriceMap,publishedStartingPrices,readAcceptedStartingPriceCatalog,fetchStartingPriceCatalog} from '../app/lib/supplier-starting-price.ts';
 import {cachedDiscovery} from '../app/lib/discovery-offer-cache.ts';
 const read=p=>readFileSync(new URL(`../${p}`,import.meta.url),'utf8');
 
@@ -76,6 +76,25 @@ test('one server list read uses only existing bearer auth and does not forward r
   await assert.rejects(()=>fetchStartingPriceCatalog('events','test',async()=>new Response('x'.repeat(10*1024*1024+1))),/unavailable/);
 });
 
+test('accepted D1 generation projects only supplier seasonal fields without reading the oversized raw API feed',async()=>{
+  const statements=[];
+  const db={prepare(sql){statements.push(sql);const statement={bind(...args){statement.args=args;return statement;},
+    async first(){return{activeRunId:'accepted-events',activeCount:3,acceptedAt:'2026-10-20T00:00:00Z'};},
+    async all(){return{success:true,results:[
+      {supplierId:2,startPriceWinter:1500,startPriceSummer:1000},
+      {supplierId:3,startPriceWinter:null,startPriceSummer:700},
+      {supplierId:4,startPriceWinter:0,startPriceSummer:null},
+    ]};}};return statement;}};
+  assert.deepEqual(await readAcceptedStartingPriceCatalog(db,'events'),{
+    'event-2':{startPriceWinter:1500,startPriceSummer:1000},
+    'event-3':{startPriceSummer:700},
+  });
+  assert.match(statements[1],/json_extract\(summary_json, '\$\.startPriceWinter'\)/);
+  assert.doesNotMatch(statements[1],/detail_json/);
+  const broken={prepare(sql){const statement={bind(){return statement;},async first(){return{activeRunId:'run',activeCount:2};},async all(){return{results:[{supplierId:2,startPriceWinter:1000}]};}};return statement;}};
+  await assert.rejects(()=>readAcceptedStartingPriceCatalog(broken,'events'),/catalog_active_generation_incomplete/);
+});
+
 test('existing discovery cache coalesces, isolates worlds and preserves only valid last-good browse data',async()=>{
   let now=9_000_000,calls=0;
   const load=async()=>{calls++;return{'event-2':{startPriceWinter:1000}}};
@@ -102,6 +121,9 @@ test('all search card callers guard dates without changing live quotes, ranking 
   assert.doesNotMatch(read('app/components/catalog-starting-price.tsx'),/night|per event|ללילה|לאירוע|onlineBooking|available/);
   assert.match(read('app/lib/sergey-public-catalog-client.ts'),/\.\.\.startingPriceFields\(raw\)/);
   assert.match(read('app/lib/public-vacation-search.ts'),/startPriceWinter: property.startPriceWinter/);
+  const route=read('app/api/vii/starting-prices/route.ts');
+  assert.match(route,/readAcceptedStartingPriceCatalog\(database, world\)/);
+  assert.match(route,/fetchStartingPriceCatalog\(world, await supplierToken\(\)\)/);
 });
 
 test('actual client hook clears previous prices for malformed 200, wrong-world and failed responses',async()=>{

@@ -1,7 +1,7 @@
 import { cachedDiscovery } from "../../../lib/discovery-offer-cache.ts";
 import { publishedSupplierIds, runtimeCatalogDatabase } from "../../../lib/published-supplier-ids.ts";
 import { supplierToken } from "../../../lib/vii-supplier-token.ts";
-import { fetchStartingPriceCatalog, publishedStartingPrices, validStartingPriceMap, type StartingPriceMap, type StartingPriceWorld } from "../../../lib/supplier-starting-price.ts";
+import { fetchStartingPriceCatalog, publishedStartingPrices, readAcceptedStartingPriceCatalog, validStartingPriceMap, type StartingPriceMap, type StartingPriceWorld } from "../../../lib/supplier-starting-price.ts";
 
 const headers = { "Cache-Control": "no-store" };
 type Dependencies = {
@@ -27,12 +27,15 @@ export async function startingPricesResponse(request: Request, dependencies: Dep
 }
 
 export async function GET(request: Request) {
+  const database = await runtimeCatalogDatabase();
   return startingPricesResponse(request, {
-    published: world => publishedSupplierIds(world),
+    published: world => publishedSupplierIds(world, database),
     read: async world => cachedDiscovery({
-      key: ["supplier-starting-prices", 1, world],
-      db: await runtimeCatalogDatabase(),
-      load: async () => fetchStartingPriceCatalog(world, await supplierToken()),
+      key: ["supplier-starting-prices", 2, world],
+      db: database,
+      load: async () => database
+        ? readAcceptedStartingPriceCatalog(database, world)
+        : fetchStartingPriceCatalog(world, await supplierToken()),
       validate: value => validStartingPriceMap(world, value),
     }),
   });
