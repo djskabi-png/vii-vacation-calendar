@@ -14,21 +14,20 @@ import { runtimeCatalogDatabase } from "../../../lib/published-supplier-ids.ts";
 import { discoveryVacationCatalog, type DiscoveryVacationPlace } from "../../../lib/discovery-vacation-catalog.ts";
 import { prioritizeOnlineFirst, isHomeDealOnlineEligible } from "../../../lib/vacation-online-first.ts";
 import { compareVacationPriority } from "../../../lib/vacation-priority.ts";
+import { runtimeDatabase } from "../../../lib/runtime-database.ts";
 
 const noStore = { "Cache-Control": "no-store" };
 
 async function applyCuration(deals: Awaited<ReturnType<typeof getHomeDeals>>["deals"], period: HomeDealPeriod) {
   try {
-    const runtime = await import("cloudflare:workers");
-    const db = (runtime.env as unknown as { DB?: D1Database }).DB;
+    const db = await runtimeDatabase();
     return db ? await curateHomeDeals(db, deals, period) : deals;
   } catch { return deals; }
 }
 
 async function displaySettings(locale: Parameters<typeof readHomeDisplaySettings>[1]) {
   try {
-    const runtime = await import("cloudflare:workers");
-    return await readHomeDisplaySettings((runtime.env as unknown as { DB?: D1Database }).DB, locale);
+    return await readHomeDisplaySettings(await runtimeDatabase(), locale);
   } catch { return readHomeDisplaySettings(undefined, locale); }
 }
 

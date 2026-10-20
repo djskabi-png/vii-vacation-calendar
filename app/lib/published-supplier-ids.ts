@@ -1,6 +1,7 @@
 import catalog from "../data/sergey-public-catalog.json" with { type: "json" };
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { readSupplierCatalogState, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
+import { runtimeDatabase } from "./runtime-database.ts";
 
 const bundled = {
   vacations: new Set(catalog.places.filter((place) => place.world === "vacations").map((place) => place.supplierId)),
@@ -9,8 +10,7 @@ const bundled = {
 
 export async function runtimeCatalogDatabase(): Promise<D1Database | null> {
   try {
-    const runtime = await import("cloudflare:workers");
-    return (runtime.env as unknown as { DB?: D1Database }).DB || null;
+    return await runtimeDatabase() || null;
   } catch { return null; }
 }
 

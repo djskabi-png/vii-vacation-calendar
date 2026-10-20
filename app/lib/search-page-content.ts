@@ -1,4 +1,5 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
+import { requiredRuntimeDatabase } from "./runtime-database.ts";
 import { spaLandings, spaLandingHref } from "../data/spa-landings.ts";
 import { searchLocationOptions } from "../data/search-taxonomy.ts";
 import { eventSearchHref, hourlySearchHref } from "../data/world-search-landings.ts";
@@ -33,10 +34,7 @@ export function parseSearchPageInput(value: unknown) {
 }
 
 async function db(): Promise<D1Database> {
-  const runtime = await import("cloudflare:workers");
-  const database = (runtime.env as unknown as { DB?: D1Database }).DB;
-  if (!database) throw new Error("search_page_database_unavailable");
-  return database;
+  return requiredRuntimeDatabase("search_page_database_unavailable");
 }
 
 export async function searchPageDatabase() {

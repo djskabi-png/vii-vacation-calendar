@@ -104,6 +104,13 @@ test('every admin API uses the central authorization gate and mutating routes va
   const root=new URL('../app/api/admin/',import.meta.url);
   for(const dir of readdirSync(root,{withFileTypes:true}).filter(d=>d.isDirectory())){
     const source=readFileSync(new URL(`${dir.name}/route.ts`,root),'utf8');
+    if(dir.name==='aws-migration-export'){
+      assert.match(source,/VII_MIGRATION_EXPORT_TOKEN/);
+      assert.match(source,/timingSafeEqual/);
+      assert.match(source,/not_found/);
+      assert.doesNotMatch(source,/export async function POST/);
+      continue;
+    }
     assert.match(source,/authorizedAdminSession/,dir.name);
     assert.doesNotMatch(source,/isAdminEmail|readSession\(/,dir.name);
     if(source.includes('export async function POST')) {

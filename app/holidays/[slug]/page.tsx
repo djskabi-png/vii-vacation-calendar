@@ -12,13 +12,14 @@ import { holidaySelection } from "../../lib/holiday-deal-selection.ts";
 import { getHomeHolidays } from "../../lib/vii-home-holidays.ts";
 import { supplierToken } from "../../lib/vii-supplier-token.ts";
 import type { D1Database } from "../../../types/cloudflare-runtime.ts";
+import { runtimeDatabase } from "../../lib/runtime-database.ts";
 import "../holiday-world.css";
 import { serverPublicCopy } from "../../i18n/server-public-copy";
 
 type Props = { params: Promise<{ slug: string }>; searchParams?: Promise<Record<string, string | string[] | undefined>> };
 
 async function database(): Promise<D1Database | null> {
-  try { const runtimeName = "cloudflare:workers"; const runtime = await import(/* @vite-ignore */ runtimeName); return (runtime.env as unknown as { DB?: D1Database }).DB || null; }
+  try { return await runtimeDatabase() || null; }
   catch { return null; }
 }
 

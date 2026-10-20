@@ -5,6 +5,7 @@ import { readCatalogRetryJobs } from "../../../lib/supplier-catalog-retry.ts";
 import { readSupplierCatalogDashboard } from "../../../lib/supplier-catalog-store.ts";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
 import { catalogFreshnessAlerts, readCatalogAlerts } from "../../../lib/supplier-catalog-alerts.ts";
+import { requiredRuntimeDatabase } from "../../../lib/runtime-database.ts";
 
 const headers = { "Cache-Control": "no-store" };
 
@@ -16,10 +17,7 @@ async function authorized(request: Request) {
 }
 
 async function database(): Promise<D1Database> {
-  const runtime = await import("cloudflare:workers");
-  const db = (runtime.env as unknown as { DB?: D1Database }).DB;
-  if (!db) throw new Error("catalog_database_unavailable");
-  return db;
+  return requiredRuntimeDatabase("catalog_database_unavailable");
 }
 
 export async function GET(request: Request) {

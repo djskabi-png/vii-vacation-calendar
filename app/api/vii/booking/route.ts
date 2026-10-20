@@ -4,14 +4,14 @@ import { supplierToken } from "../../../lib/vii-supplier-token";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
 import { recordBookingAudit } from "../../../lib/operations-audit";
 import type { VacationSearchRoom } from "../../../lib/vacation-party";
+import { runtimeDatabase } from "../../../lib/runtime-database.ts";
 
 const headers = { "Cache-Control": "no-store" };
 
 async function limitBookingRequests(request: Request) {
   const ip = request.headers.get("cf-connecting-ip");
   if (!ip) throw new BookingError("supplier_unavailable", 503);
-  const runtime = await import("cloudflare:workers");
-  const db = (runtime.env as unknown as { DB?: D1Database }).DB;
+  const db = await runtimeDatabase();
   if (!db) throw new BookingError("supplier_unavailable", 503);
   const bytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`${await supplierToken()}:${ip}`));
   const hashedIp = Array.from(new Uint8Array(bytes), (byte) => byte.toString(16).padStart(2, "0")).join("");

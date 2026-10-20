@@ -1,6 +1,7 @@
 import { readPublishedContent, type ContentType, type EditorialContent } from "./content-studio.ts";
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { resolveWorldTopicImage, validWorldTopicImage, worldTopicMedia } from "./world-topic-media.ts";
+import { runtimeDatabase } from "./runtime-database.ts";
 
 export const managedWorldLandingTypes = ["hourly", "providers", "attractions", "trails", "spa"] as const;
 export type ManagedWorldLandingType = typeof managedWorldLandingTypes[number];
@@ -93,8 +94,6 @@ export async function readWorldLandingPresentation(type: ManagedWorldLandingType
 
 async function worldLandingDatabase(): Promise<D1Database | null> {
   try {
-    const workerModule = "cloudflare:workers";
-    const runtime = await import(/* @vite-ignore */ workerModule);
-    return (runtime.env as unknown as { DB?: D1Database }).DB || null;
+    return await runtimeDatabase() || null;
   } catch { return null; }
 }

@@ -1,4 +1,5 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
+import { requiredRuntimeDatabase } from "./runtime-database.ts";
 
 export type RedirectRecord = { source_path: string; target_path: string | null; status: 301 | 410; active: number; updated_at: string; updated_by: string };
 
@@ -46,10 +47,7 @@ export function parseRedirectInput(value: unknown) {
 }
 
 export async function redirectLookupDatabase(): Promise<D1Database> {
-  const runtime = await import("cloudflare:workers");
-  const db = (runtime.env as unknown as { DB?: D1Database }).DB;
-  if (!db) throw new Error("redirects_database_unavailable");
-  return db;
+  return requiredRuntimeDatabase("redirects_database_unavailable");
 }
 
 export async function redirectsDatabase(): Promise<D1Database> {
@@ -62,7 +60,7 @@ export async function redirectsDatabase(): Promise<D1Database> {
 }
 
 export async function redirectForPath(db: D1Database, path: string) {
-  return db.prepare("SELECT source_path, target_path, status, active, updated_at, updated_by FROM vii_redirects WHERE source_path = ? COLLATE NOCASE AND active = 1").bind(path).first<RedirectRecord>();
+  return db.prepare("SELECT source_path, target_path, status, active, updated_at, updated_by FROM vii_redirects WHERE LOWER(source_path) = LOWER(?) AND active = 1").bind(path).first<RedirectRecord>();
 }
 
 export async function redirectForUrl(db: D1Database, url: URL) {

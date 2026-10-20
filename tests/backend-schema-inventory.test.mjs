@@ -87,7 +87,7 @@ test('strict auth, wrong path, query, origin and nonGET all deny before DB acqui
 });
 test('private response headers and real route wiring preserve existing admin without new env secrets',async()=>{
  const f=fixture();try{const r=await backendSchemaInventoryResponse(request(),deps(f.db));assert.equal(r.status,200);assert.equal(r.headers.get('cache-control'),'private, no-store');assert.equal(r.headers.get('x-robots-tag'),'noindex, nofollow');assert.equal(r.headers.get('x-content-type-options'),'nosniff');}finally{f.sqlite.close();}
- const route=readFileSync(new URL('../app/api/admin/source-schema-inventory/route.ts',import.meta.url),'utf8');assert.match(route,/authorizedAdminSession/);assert.match(route,/\.DB/);assert.doesNotMatch(route,/process\.env|TOKEN|SECRET/);
+ const route=readFileSync(new URL('../app/api/admin/source-schema-inventory/route.ts',import.meta.url),'utf8');assert.match(route,/authorizedAdminSession/);assert.match(route,/requiredRuntimeDatabase/);assert.doesNotMatch(route,/process\.env|TOKEN|SECRET/);
 });
 test('actual pinned D1 supports complete schema inventory including FT5, quoted names and expressions',{timeout:30000},async()=>{
  const req=createRequire(import.meta.url),dependency=createRequire(req.resolve('wrangler')), {Miniflare}=dependency('miniflare');

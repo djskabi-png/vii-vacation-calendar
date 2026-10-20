@@ -1,4 +1,5 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
+import { requiredRuntimeDatabase } from "./runtime-database.ts";
 
 export type BookingAudit = {
   id: string;
@@ -11,9 +12,7 @@ export type BookingAudit = {
 };
 
 export async function operationsDatabase(): Promise<D1Database> {
-  const runtime = await import("cloudflare:workers");
-  const db = (runtime.env as unknown as { DB?: D1Database }).DB;
-  if (!db) throw new Error("operations_database_unavailable");
+  const db = await requiredRuntimeDatabase("operations_database_unavailable");
   await db.batch([
     db.prepare(`CREATE TABLE IF NOT EXISTS vii_booking_audit (
       id TEXT PRIMARY KEY NOT NULL, world TEXT NOT NULL, place_id TEXT NOT NULL,

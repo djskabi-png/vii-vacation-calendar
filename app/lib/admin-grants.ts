@@ -1,4 +1,5 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
+import { requiredRuntimeDatabase } from "./runtime-database.ts";
 import { adminEmails } from "./admin-access.ts";
 import { parseAdminPermissions, type AdminAccess, type AdminPermissions } from "./admin-permissions.ts";
 
@@ -16,10 +17,7 @@ export function accessManagerEmails() {
   return (process.env.VII_ACCESS_MANAGER_EMAILS || "").split(",").map((v) => v.trim().toLowerCase()).filter((v) => v && existing.includes(v));
 }
 export async function adminGrantDatabase(): Promise<D1Database> {
-  const { env } = await import("cloudflare:workers");
-  const db = (env as unknown as { DB?: D1Database }).DB;
-  if (!db) throw new Error("admin_access_unavailable");
-  return db;
+  return requiredRuntimeDatabase("admin_access_unavailable");
 }
 function primaryDatabase(db: D1Database): AccessDatabase {
   return typeof db.withSession === "function" ? db.withSession("first-primary") : db;

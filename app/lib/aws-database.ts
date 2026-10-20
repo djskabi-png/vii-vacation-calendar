@@ -1,3 +1,8 @@
+import type { D1Database } from "../../types/cloudflare-runtime";
+
+type D1Statement = ReturnType<D1Database["prepare"]>;
+type D1RunResult = Awaited<ReturnType<D1Statement["run"]>>;
+
 type AwsDatabaseEnv = {
   DB: D1Database;
   VII_AWS_DB_ENDPOINT?: string;
@@ -47,8 +52,13 @@ async function callBridge(env: AwsDatabaseEnv, operations: RemoteOperation[], tr
 
 class RemotePreparedStatement {
   private params: unknown[] = [];
+  private readonly env: AwsDatabaseEnv;
+  readonly statement: string;
 
-  constructor(private readonly env: AwsDatabaseEnv, readonly statement: string) {}
+  constructor(env: AwsDatabaseEnv, statement: string) {
+    this.env = env;
+    this.statement = statement;
+  }
 
   bind(...values: unknown[]) {
     const next = new RemotePreparedStatement(this.env, this.statement);
@@ -84,7 +94,11 @@ class RemotePreparedStatement {
 }
 
 class RemoteD1Database {
-  constructor(private readonly env: AwsDatabaseEnv) {}
+  private readonly env: AwsDatabaseEnv;
+
+  constructor(env: AwsDatabaseEnv) {
+    this.env = env;
+  }
 
   prepare(sql: string) {
     return new RemotePreparedStatement(this.env, sql) as unknown as D1Statement;
@@ -94,7 +108,9 @@ class RemoteD1Database {
     const operations = statements.map(statement => {
       const remote = statement as unknown as RemotePreparedStatement;
       if (typeof remote.operation !== "function") throw new Error("VII AWS database batch received a foreign statement");
-      return remote.operation("run");
+      // D1 batch is used for both reads and writes. PostgreSQL returns an empty
+      // row set for writes, so requesting rows preserves both contracts.
+      return remote.operation("all");
     });
     return await callBridge(this.env, operations, true) as unknown as Awaited<ReturnType<D1Database["batch"]>>;
   }
@@ -124,6 +140,11 @@ export function databaseForEnv(env: AwsDatabaseEnv): D1Database {
   return adapter;
 }
 
+export function databaseForRuntimeEnv(env: Partial<AwsDatabaseEnv>): D1Database | undefined {
+  if (!env.DB) return undefined;
+  return databaseForEnv(env as AwsDatabaseEnv);
+}
+
 export function activateAwsDatabase(env: AwsDatabaseEnv) {
   if (!configured(env)) return false;
   const adapter = databaseForEnv(env);
@@ -139,8 +160,4 @@ export function activateAwsDatabase(env: AwsDatabaseEnv) {
 export function awsDatabaseMode(env: Pick<AwsDatabaseEnv, "VII_AWS_DB_MODE">) {
   return env.VII_AWS_DB_MODE === "primary" ? "aws-aurora" : "cloudflare-d1";
 }
-import type { D1Database } from "../../types/cloudflare-runtime";
-
-type D1Statement = ReturnType<D1Database["prepare"]>;
-type D1RunResult = Awaited<ReturnType<D1Statement["run"]>>;
 

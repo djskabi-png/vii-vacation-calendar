@@ -4,6 +4,7 @@ import { contentItemId, createContentItem, ensureContentItems, isContentLocale, 
 import type { D1Database } from "../../../../types/cloudflare-runtime";
 import { validEventLandingAttributes } from "../../../lib/event-landing-presentation.ts";
 import { isManagedWorldLandingType, validWorldLandingAttributes } from "../../../lib/world-landing-presentation.ts";
+import { requiredRuntimeDatabase } from "../../../lib/runtime-database.ts";
 
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 async function actor(request: Request) {
@@ -11,8 +12,7 @@ async function actor(request: Request) {
   return session ? session.email : null;
 }
 async function database(): Promise<D1Database> {
-  const runtime = await import("cloudflare:workers"); const db = (runtime.env as unknown as { DB?: D1Database }).DB;
-  if (!db) throw new Error("content_studio_database_unavailable"); return db;
+  return requiredRuntimeDatabase("content_studio_database_unavailable");
 }
 
 export async function GET(request: Request) {

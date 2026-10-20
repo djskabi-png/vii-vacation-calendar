@@ -13,13 +13,13 @@ import { eligibleDealDate, firstDealDate } from "../../../lib/deal-clock.ts";
 import { validDate } from "../../../lib/vii-live-search.ts";
 import { prioritizeOnlineFirst, isHomeDealOnlineEligible } from "../../../lib/vacation-online-first.ts";
 import { compareVacationPriority } from "../../../lib/vacation-priority.ts";
+import { runtimeDatabase } from "../../../lib/runtime-database.ts";
 
 const headers = { "Cache-Control": "no-store" };
 
 async function applyCuration(deals: Awaited<ReturnType<typeof getHomeHolidayDeals>>["deals"]) {
   try {
-    const runtime = await import("cloudflare:workers");
-    const db = (runtime.env as unknown as { DB?: D1Database }).DB;
+    const db = await runtimeDatabase();
     return db ? await curateHomeDeals(db, deals, "holidays") : deals;
   } catch { return deals; }
 }

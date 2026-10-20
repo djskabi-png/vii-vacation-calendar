@@ -50,3 +50,5 @@ next-env.d.ts
 /infrastructure/aws/application-bridge-bundle/
 /infrastructure/aws/*.zip
 /infrastructure/aws/application-bridge/*.zip
+/infrastructure/aws/__pycache__/
+/focused.log

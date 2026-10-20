@@ -1,6 +1,7 @@
 import type { D1Database } from "../../../../types/cloudflare-runtime";
 import { readHomepagePresentation } from "../../../lib/homepage-presentation";
 import type { ContentLocale } from "../../../lib/content-studio";
+import { runtimeDatabase } from "../../../lib/runtime-database.ts";
 
 const locales = new Set<ContentLocale>(["he", "en", "ru", "fr"]);
 
@@ -9,8 +10,7 @@ export async function GET(request: Request) {
   const locale = localeValue && locales.has(localeValue) ? localeValue : "he";
   let db: D1Database | undefined;
   try {
-    const runtime = await import("cloudflare:workers");
-    db = (runtime.env as unknown as { DB?: D1Database }).DB;
+    db = await runtimeDatabase();
   } catch {
     db = undefined;
   }

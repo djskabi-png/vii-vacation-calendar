@@ -154,7 +154,7 @@ test('existing signed-session authorization excludes visitors and expired admin 
 test('route reuses existing auth and binding without schema initialization, new config or broad SQL', () => {
   const route = readFileSync(new URL('../app/api/admin/backend-readiness/route.ts', import.meta.url), 'utf8');
   assert.match(route, /authorizedAdminSession/);
-  assert.match(route, /DB\?: D1Database/);
+  assert.match(route, /requiredRuntimeDatabase/);
   assert.doesNotMatch(route, /ensure|CREATE|ALTER|INSERT|UPDATE|DELETE|process\.env|GetSecret|Bearer/);
   assert.equal(METADATA_TABLES.length, 24);
   assert.equal(new Set(METADATA_TABLES).size,24);

@@ -4,6 +4,7 @@ import spa from "../data/spaplus-catalog.json" with { type: "json" };
 import { catalogStatusMcp } from "../lib/catalog-status-mcp.ts";
 import { adminEmailsCsv, combineAdminEmails } from "../lib/admin-access.ts";
 import type { D1Database } from "../../types/cloudflare-runtime";
+import { requiredRuntimeDatabase } from "../lib/runtime-database.ts";
 
 export const dynamic = "force-dynamic";
 
@@ -11,9 +12,7 @@ export async function POST(request: Request) {
   return catalogStatusMcp(request, {
     async pull(world) {
       // This callback is invoked only after Sites identity, administrator and input checks.
-      const runtime = await import("cloudflare:workers");
-      const db = (runtime.env as unknown as { DB?: D1Database }).DB;
-      if (!db) throw new Error("catalog_database_unavailable");
+      const db = await requiredRuntimeDatabase("catalog_database_unavailable");
       const { pullCatalogSlot } = await import("../lib/catalog-pull-mcp.ts");
       const { syncSupplierCatalogWorld } = await import("../lib/supplier-catalog-runtime.ts");
       const value = await pullCatalogSlot(db, world, {
@@ -30,10 +29,7 @@ export async function POST(request: Request) {
       } catch { return adminEmailsCsv(); }
     },
     async database() {
-      const runtime = await import("cloudflare:workers");
-      const db = (runtime.env as unknown as { DB?: D1Database }).DB;
-      if (!db) throw new Error("catalog_database_unavailable");
-      return db;
+      return requiredRuntimeDatabase("catalog_database_unavailable");
     },
     fallbackCounts: {
       vacations: sergey.places.filter((place) => place.world === "vacations").length,

@@ -2,6 +2,7 @@ import { authorizedAdminSession } from "../../../lib/admin-session.ts";
 import { fetchSupplierGeography, geographyDatabase, parseGeographyChange, readGeography, refreshGeography, saveGeographyNode } from "../../../lib/geography-admin.ts";
 import { supplierToken } from "../../../lib/vii-supplier-token.ts";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
+import { requiredRuntimeDatabase } from "../../../lib/runtime-database.ts";
 
 const responseHeaders = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 
@@ -16,10 +17,7 @@ async function admin(request: Request) {
 }
 
 async function database() {
-  const runtime = await import("cloudflare:workers");
-  const db = (runtime.env as unknown as { DB?: D1Database }).DB;
-  if (!db) throw new Error("geography_database_unavailable");
-  return geographyDatabase(db);
+  return geographyDatabase(await requiredRuntimeDatabase("geography_database_unavailable"));
 }
 
 export async function GET(request: Request) {
