@@ -1,3 +1,6 @@
+import type { D1Database } from "../../types/cloudflare-runtime";
+import { readSupplierCatalogState } from "./supplier-catalog-store.ts";
+
 /** Catalog advertising prices are not a quote or evidence of availability. */
 export type SeasonalStartingPrices = { startPriceWinter?: number; startPriceSummer?: number };
 export type StartingPriceWorld = "vacations" | "events";
@@ -55,6 +58,31 @@ export function validStartingPriceMap(world: StartingPriceWorld, value: unknown)
 export function publishedStartingPrices(world: StartingPriceWorld, prices: StartingPriceMap, ids: ReadonlySet<number>): StartingPriceMap {
   const prefix = world === "vacations" ? "vacation-" : "event-";
   return Object.fromEntries(Object.entries(prices).filter(([slug]) => slug.startsWith(prefix) && ids.has(Number(slug.slice(prefix.length)))));
+}
+
+/**
+ * Read only the two approved seasonal fields from the accepted supplier
+ * generation. The catalog generation itself is populated by the supplier API,
+ * so public browsing does not need to download the multi-megabyte raw feed on
+ * every cache refresh.
+ */
+export async function readAcceptedStartingPriceCatalog(db: D1Database, world: StartingPriceWorld): Promise<StartingPriceMap> {
+  const state = await readSupplierCatalogState(db, world);
+  if (!state?.activeRunId) throw new Error("starting_prices_unavailable");
+  const rows = await db.prepare(`SELECT supplier_id AS supplierId,
+    json_extract(summary_json, '$.startPriceWinter') AS startPriceWinter,
+    json_extract(summary_json, '$.startPriceSummer') AS startPriceSummer
+    FROM supplier_catalog_entries WHERE run_id = ? AND world = ? ORDER BY supplier_id`)
+    .bind(state.activeRunId, world).all<{ supplierId: number; startPriceWinter: unknown; startPriceSummer: unknown }>();
+  if (rows.results.length !== state.activeCount) throw new Error("catalog_active_generation_incomplete");
+  const prefix = world === "vacations" ? "vacation" : "event";
+  const prices: StartingPriceMap = {};
+  for (const row of rows.results) {
+    if (!positive(row.supplierId)) throw new Error("starting_prices_unavailable");
+    const fields = startingPriceFields(row);
+    if (supplierStartingPrice(fields) !== null) prices[`${prefix}-${row.supplierId}`] = fields;
+  }
+  return prices;
 }
 
 export async function fetchStartingPriceCatalog(world: StartingPriceWorld, token: string, fetchImpl: typeof fetch = fetch): Promise<StartingPriceMap> {
