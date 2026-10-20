@@ -9,7 +9,7 @@
 .spa-package-deals__audiences { align-items:center; color:#526f7c; font-size:.82rem; }
 .spa-package-deals__audiences-label { font-weight:700; white-space:nowrap; }
 .spa-package-deals__audience-options { display:flex; align-items:center; gap:10px; }
-.spa-package-deals__audiences button { position:relative; min-width:44px; min-height:44px; padding:6px 7px; border:0; border-radius:0; background:transparent; color:#647b84; font-size:.8rem; font-weight:700; }
+.spa-package-deals__audiences button { position:relative; min-width:44px; min-height:44px; padding:6px 7px; border:0; border-radius:0; background:transparent; color:#607780; font-size:.8rem; font-weight:700; }
 .spa-package-deals__audiences button::after { position:absolute; inset-inline:0; bottom:5px; height:2px; border-radius:2px; background:transparent; content:""; }
 .spa-package-deals__audiences button[aria-pressed=true] { color:var(--spa-deal-accent); }
 .spa-package-deals__audiences button[aria-pressed=true]::after { background:currentColor; }
