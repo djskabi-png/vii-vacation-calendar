@@ -111,7 +111,10 @@ export async function saveAdminGrant(db: D1Database, input: NonNullable<ReturnTy
       updated_at=excluded.updated_at,updated_by=excluded.updated_by WHERE vii_admin_grants.version = ?`)
       .bind(record.email, record.name, Number(record.active), Number(record.manageUsers), JSON.stringify(record.permissions), record.version, record.updatedAt, actorEmail, Number(bootstrapManager), actorEmail, input.version),
     db.prepare(`INSERT INTO vii_admin_grant_audit(id,email,action,before_json,after_json,actor,created_at)
-      SELECT ?,?,?,?,?,?,? WHERE changes() = 1`).bind(op, input.email, !input.active ? "revoke" : before ? "update" : "grant", before ? JSON.stringify(before) : null, JSON.stringify(record), actorEmail, record.updatedAt),
+      SELECT ?,?,?,?,?,?,? WHERE EXISTS (
+        SELECT 1 FROM vii_admin_grants WHERE email = ? AND version = ? AND updated_by = ? AND updated_at = ?
+      )`).bind(op, input.email, !input.active ? "revoke" : before ? "update" : "grant", before ? JSON.stringify(before) : null, JSON.stringify(record), actorEmail, record.updatedAt,
+        record.email, record.version, actorEmail, record.updatedAt),
   ]);
   if (result[0].meta.changes !== 1 || result[1].meta.changes !== 1) throw new AdminGrantError("version_conflict", 409);
   const persisted = await readAdminGrant(db, input.email);

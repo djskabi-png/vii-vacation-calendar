@@ -1,8 +1,8 @@
-type TourProperty = { slug: string; active?: boolean; videos?: readonly { src: string; poster: string }[] };
+type TourProperty = { slug: string; active?: boolean; videos?: readonly { src: string; poster: string; verifiedRealVideo?: true }[] };
 
-export function homeTourVideos<T extends { src: string; poster: string }>(videos: readonly T[] | undefined): T[] {
+export function homeTourVideos<T extends { src: string; poster: string; verifiedRealVideo?: true }>(videos: readonly T[] | undefined): T[] {
   const usable = (value: string) => typeof value === "string" && /^(?:https?:\/\/|\/(?!\/))\S+$/i.test(value.trim());
-  return (videos || []).filter(video => usable(video.src) && usable(video.poster));
+  return (videos || []).filter(video => video.verifiedRealVideo === true && usable(video.src) && usable(video.poster));
 }
 
 // An inactive listing or illustrative demo must not be reintroduced by the

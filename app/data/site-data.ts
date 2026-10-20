@@ -109,6 +109,8 @@ export type ListingVideo = {
   src: string;
   poster: string;
   note: string;
+  /** Only real, customer-approved recordings may appear in public video rails. */
+  verifiedRealVideo?: true;
 };
 
 export type ListingGuestPhoto = {

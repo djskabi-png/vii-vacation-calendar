@@ -95,6 +95,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
   const [holidayId, setHolidayId] = useState<number | null>(null);
   const [holidayState, setHolidayState] = useState<"loading" | "ready" | "error">("loading");
   const track = useRef<HTMLDivElement>(null);
+  const lastGoodData = useRef<ResponseData | null>(null);
   const displaySettingsApplied = useRef(false);
   const text = copy[language];
   const title = scope ? regionalAvailabilityTitle("vacation", scope, language) : mode === "holidays" ? { he: "נופש פנוי בחגים", en: "Available stays for holidays", ru: "Отдых в праздники", fr: "Séjours disponibles pendant les fêtes" }[language] : text.title;
@@ -141,10 +142,11 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
             if (result.display.defaultPeriod !== period) { setPeriod(result.display.defaultPeriod); return; }
           } else if (!result.display.periods.some((item) => item.id === period)) { setPeriod(result.display.defaultPeriod); return; }
         }
+        lastGoodData.current = result;
         setData(result);
         setState("ready");
       })
-      .catch((error) => { if (error?.name !== "AbortError") setState("error"); });
+      .catch((error) => { if (error?.name !== "AbortError") setState(lastGoodData.current ? "ready" : "error"); });
     return () => controller.abort();
   }, [period, holidayId, holidayState, holidays, language, mode, retry, regionLabel, guests, clock?.key]);
 

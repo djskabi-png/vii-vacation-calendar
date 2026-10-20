@@ -14,6 +14,8 @@ import { compareVacationPriority } from '../app/lib/vacation-priority.ts';
 
 function handler(path, method, dependencies) {
   dependencies={firstDealDate,prioritizeOnlineFirst,isHomeDealOnlineEligible,compareVacationPriority,runtimeCatalogDatabase:async()=>null, cachedDiscovery:async({load})=>({value:await load(),cache:{status:'refreshed',checkedAt:new Date().toISOString()}}),homeDealDates,
+    VACATION_DISCOVERY_POLICY:{freshMs:30*60_000,staleMs:30*86_400_000},
+    readCachedDiscovery:async()=>{throw new Error('missing_snapshot_fixture');},
     discoveryVacationCatalog:()=>async()=>new Map(),...dependencies};
   const source=readFileSync(new URL(`../app/api/${path}/route.ts`,import.meta.url),'utf8');
   const compiled=stripTypeScriptTypes(source.replace(/^import .*;\r?$/gm,''),{mode:'strip'}).replace(`export async function ${method}`,`async function ${method}`);
@@ -26,9 +28,9 @@ test('actual vacation handler validates scope before reads, joins publication an
   const get=handler('vii/home-deals','GET',{
     regionalAvailabilityRegion,regionalPublishedIds,selectRegionalOffers,eligibleDealDate,isContentLocale:()=>true,homeDealPeriods:[{id:'tomorrow'}],
     publicCatalogSummaries:async()=>{calls++;return[{supplierId:1,name:'Center',area:'מרכז'},{supplierId:2,name:'North',area:'גליל מערבי'},{supplierId:3,name:'Hidden',area:'צפון'}];},
-    publishedSupplierIds:async()=>new Set([1,2]),supplierToken:async()=>'test',
+    publishedSupplierIds:async()=>new Set([1,2]),
     readHomeDisplaySettings:async()=>({periods:[{id:'tomorrow'}],defaultPeriod:'tomorrow'}),
-    getHomeDeals:async options=>{assert.deepEqual([...options.publicSiteIds],[1,2]);assert.equal(options.guests,6);return {period:'tomorrow',deals:[{siteID:2,total:600,priceGuests:6,from:homeDealDates('tomorrow').from,till:homeDealDates('tomorrow').till}]};},
+    readCachedDiscovery:async({key})=>{assert.equal(key.at(-1),6);return {cache:{status:'fresh',checkedAt:new Date().toISOString()},value:{dates:homeDealDates('tomorrow'),deals:[{siteID:2,total:600,priceGuests:6,from:homeDealDates('tomorrow').from,till:homeDealDates('tomorrow').till}]}};},
   });
   for(const query of ['period=tomorrow&region=unknown','period=tomorrow&guests=0','period=tomorrow&guests=51','period=tomorrow&guests=2.5']) assert.equal((await get(request(`?${query}`))).status,400);
   assert.equal(calls,0);

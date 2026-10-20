@@ -151,14 +151,14 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
   const property = useMemo<Property>(() => {
     const base = initialProperty || properties.find((item) => item.slug === initialSlug) || properties[0];
     return supplierDetail ? { ...base, name: supplierDetail.name || base.name, image: supplierDetail.images[0] || base.image,
-      images: supplierDetail.images, location: supplierDetail.location || base.location, area: supplierDetail.area || base.area,
+      images: supplierDetail.images.length ? supplierDetail.images : base.images, location: supplierDetail.location || base.location, area: supplierDetail.area || base.area,
       lat: supplierDetail.lat ?? base.lat, lng: supplierDetail.lng ?? base.lng, guests: supplierDetail.guests || base.guests,
       units: supplierDetail.units || base.units, contact: { ...base.contact, ...(supplierDetail.phone ? { phone: supplierDetail.phone } : {}), whatsapp: supplierDetail.whatsapp },
       description: supplierDetail.summary || base.description,
-      roomOptions: supplierDetail.rooms.map((room) => ({ name: room.name, quantity: room.quantity, guests: room.guests,
+      roomOptions: supplierDetail.rooms.length ? supplierDetail.rooms.map((room) => ({ name: room.name, quantity: room.quantity, guests: room.guests,
         bedrooms: room.bedrooms, image: room.images?.[0] || "", images: room.images || [], features: room.features,
         featureGroups: room.featureGroups,
-        ...(room.id ? { supplierRoomID: room.id } : {}) })),
+        ...(room.id ? { supplierRoomID: room.id } : {}) })) : base.roomOptions,
       features: [...new Set([...(supplierDetail.highlights || []), ...base.features, ...supplierDetail.rooms.flatMap((room) => room.features)])] } : base;
   }, [initialProperty, initialSlug, supplierDetail]);
   const businessCopy = {
@@ -288,7 +288,9 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
             ? [{ name: "ראשי", path: "/" }, { name: "בתי ספא", path: "/spas" }, { name: localizedPropertyName }]
             : activeWorld === "hourly"
               ? [{ name: "ראשי", path: "/" }, { name: "חדרים לפי שעה", path: "/hourly" }, { name: localizedPropertyName }]
-              : [{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, vacationBreadcrumbForLocation(property.area), { name: localizedPropertyName }]} />
+              : [{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, vacationBreadcrumbForLocation(property.area),
+                ...(property.location && property.location !== property.area ? [{ name: `נופש ב${localizedLocation}`, path: `/search?location=${encodeURIComponent(property.location)}` }] : []),
+                { name: localizedPropertyName }]} />
 
         <section className="shell property-title">
           <div><span className="eyebrow">{safeBusinessText(property.type, businessCopy.name)} · {safeBusinessText(activeOffering.label, translate(worldLabels[activeWorld]))}</span><h1>{localizedPropertyName}</h1><p><PinIcon />{localizedLocation}, {localizedArea}</p><OnlineBookingBadge eligible={onlineBookingEligible} />{property.demoOperations?.fictional ? <SampleListingDisclosure /> : null}</div>

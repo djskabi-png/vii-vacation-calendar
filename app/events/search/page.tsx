@@ -129,6 +129,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
     const result = supplierSearch.results[Number(slug.slice(6))];
     if (result?.available === false) return liveCopy.unavailable;
     if (result?.available === true && result.total && result.from && result.slot) return `${liveCopy.available(result.total, 0, result.from, result.start || "")} · ${slotCopy[result.slot]}`;
+    if (result?.available === true) return liveCopy.availableNoPrice;
     return liveCopy.unknown;
   };
   const detailHref = (place: (typeof eventPlaces)[number]) => {

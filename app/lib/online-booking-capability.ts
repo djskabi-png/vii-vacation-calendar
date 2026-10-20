@@ -1,7 +1,7 @@
 /** Discovery capability only. Never a price, availability quote or booking authorization. */
 const DAY_MS = 86_400_000;
-export const CAPABILITY_FRESH_MS = 7 * DAY_MS;
-export const CAPABILITY_MAX_AGE_MS = 14 * DAY_MS;
+export const CAPABILITY_FRESH_MS = 30 * 60_000;
+export const CAPABILITY_MAX_AGE_MS = 30 * DAY_MS;
 export type OnlineCapabilityMap = Record<string, { checkedAt: number }>;
 
 export function validOnlineCapabilities(value: unknown): value is OnlineCapabilityMap {

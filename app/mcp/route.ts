@@ -19,7 +19,11 @@ export async function POST(request: Request) {
       });
       if (world === "vacations") {
         const { cachedOnlineCapabilities } = await import("../lib/online-booking-capability-cache.ts");
-        await cachedOnlineCapabilities(db).catch(() => console.error("VII weekly online capability refresh unavailable"));
+        const { warmVacationDiscoveryCache } = await import("../lib/warm-vacation-discovery-cache.ts");
+        await Promise.all([
+          cachedOnlineCapabilities(db),
+          warmVacationDiscoveryCache(db),
+        ]).catch(() => console.error("VII scheduled discovery refresh unavailable"));
       }
       console.info("VII authenticated catalog MCP result", { world: value.world, status: value.status });
       return value;

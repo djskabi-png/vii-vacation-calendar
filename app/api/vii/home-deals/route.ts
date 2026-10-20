@@ -1,24 +1,25 @@
 import { publishedSupplierIds } from "../../../lib/published-supplier-ids.ts";
-import { getHomeDeals, homeDealPeriods, type HomeDealPeriod } from "../../../lib/vii-home-deals";
-import { supplierToken } from "../../../lib/vii-supplier-token";
+import { homeDealPeriods, type HomeDealPeriod } from "../../../lib/vii-home-deals";
 import { publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
 import { curateHomeDeals } from "../../../lib/home-deal-curation.ts";
-import type { D1Database } from "../../../../types/cloudflare-runtime";
 import { readHomeDisplaySettings } from "../../../lib/home-display-settings.ts";
 import { isContentLocale } from "../../../lib/content-studio.ts";
 import { regionalAvailabilityRegion, selectRegionalOffers } from "../../../lib/regional-availability.ts";
 import { eligibleDealDate } from "../../../lib/deal-clock.ts";
 import { homeDealDates } from "../../../lib/vii-home-deals.ts";
-import { cachedDiscovery } from "../../../lib/discovery-offer-cache.ts";
+import { readCachedDiscovery } from "../../../lib/discovery-offer-cache.ts";
 import { runtimeCatalogDatabase } from "../../../lib/published-supplier-ids.ts";
-import { discoveryVacationCatalog, type DiscoveryVacationPlace } from "../../../lib/discovery-vacation-catalog.ts";
+import type { DiscoveryVacationPlace } from "../../../lib/discovery-vacation-catalog.ts";
 import { prioritizeOnlineFirst, isHomeDealOnlineEligible } from "../../../lib/vacation-online-first.ts";
 import { compareVacationPriority } from "../../../lib/vacation-priority.ts";
 import { runtimeDatabase } from "../../../lib/runtime-database.ts";
+import { VACATION_DISCOVERY_POLICY } from "../../../lib/warm-vacation-discovery-cache.ts";
 
 const noStore = { "Cache-Control": "no-store" };
 
-async function applyCuration(deals: Awaited<ReturnType<typeof getHomeDeals>>["deals"], period: HomeDealPeriod) {
+type CachedHomeDeals = { dates: { from: string; till: string; nights: number }; checkedAt: string | null; deals: Parameters<typeof curateHomeDeals>[1] };
+
+async function applyCuration(deals: CachedHomeDeals["deals"], period: HomeDealPeriod) {
   try {
     const db = await runtimeDatabase();
     return db ? await curateHomeDeals(db, deals, period) : deals;
@@ -45,15 +46,16 @@ export async function GET(request: Request) {
   }
   try {
     const displayPromise = displaySettings(locale);
-    const [names, publicSiteIds, token] = await Promise.all([
+    const [names, publicSiteIds] = await Promise.all([
       publicCatalogSummaries<DiscoveryVacationPlace>("vacations"),
-      publishedSupplierIds("vacations"), supplierToken(),
+      publishedSupplierIds("vacations"),
     ]);
     const now = new Date();
     const dates = homeDealDates(period as HomeDealPeriod, now);
-    const cached = await cachedDiscovery({ key: ["vacation-near", dates.from, dates.till, guests], db: await runtimeCatalogDatabase(),
-      load: () => getHomeDeals({ period: period as HomeDealPeriod, now, guests, token, publicSiteIds, publicNames: new Map(names.map((place) => [place.supplierId, place.name])), resolveCatalog: discoveryVacationCatalog(names) }),
-      validate: value => !!value && typeof value === "object" && Array.isArray((value as { deals?: unknown }).deals),
+    const cached = await readCachedDiscovery<CachedHomeDeals>({ key: ["vacation-near", dates.from, dates.till, guests], db: await runtimeCatalogDatabase(),
+      policy: VACATION_DISCOVERY_POLICY,
+      validate: value => !!value && typeof value === "object" && Array.isArray((value as { deals?: unknown }).deals)
+        && (value as { deals: unknown[] }).deals.length > 0,
     });
     const result = { ...cached.value, period: period as HomeDealPeriod };
     const [curatedSource, display] = await Promise.all([applyCuration(result.deals, period as HomeDealPeriod), displayPromise]);

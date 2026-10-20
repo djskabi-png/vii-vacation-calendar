@@ -29,9 +29,9 @@ async function signed(email,path,method='GET') {
   return new Request(origin+path,{method,headers:{cookie:`${SESSION_COOKIE}=${encodeURIComponent(value)}`,origin}});
 }
 
-test('scope parser rejects unknown modules, escalation and invalid read-only edit levels',()=>{
+test('scope parser rejects unknown modules and escalation while every business domain supports view or edit',()=>{
   assert.equal(parseAdminPermissions({users:'edit'}),null);
-  assert.equal(parseAdminPermissions({overview:'edit'}),null);
+  assert.deepEqual(parseAdminPermissions({overview:'edit',analytics:'edit',operations:'edit',leads:'edit'}),{overview:'edit',analytics:'edit',operations:'edit',leads:'edit'});
   assert.equal(parseAdminPermissions({content:'owner'}),null);
   assert.deepEqual(parseAdminPermissions({content:'view',geography:'edit'}),{content:'view',geography:'edit'});
   assert.equal(change({confirmed:false}),null);
@@ -40,12 +40,12 @@ test('scope parser rejects unknown modules, escalation and invalid read-only edi
   assert.equal(change({email:'bad address'}),null);
 });
 test('every delegated module gates exact routes and verbs, technical/new routes stay owner-only',()=>{
-  for(const module of adminModules){
-    const viewer={fullAccess:false,manageUsers:false,permissions:{[module.id]:'view'}};
-    for(const path of [...module.pages,...module.apis.map(a=>`/api/admin/${a}`)]){
+  for(const adminModule of adminModules){
+    const viewer={fullAccess:false,manageUsers:false,permissions:{[adminModule.id]:'view'}};
+    for(const path of [...adminModule.pages,...adminModule.apis.map(a=>`/api/admin/${a}`)]){
       assert.equal(adminRouteAllowed(viewer,path),true,path);
       assert.equal(adminRouteAllowed(viewer,path,'POST'),false,path);
-      assert.equal(adminRouteAllowed({...viewer,permissions:{[module.id]:'edit'}},path,'POST'),module.editable,path);
+      assert.equal(adminRouteAllowed({...viewer,permissions:{[adminModule.id]:'edit'}},path,'POST'),adminModule.editable,path);
     }
     for(const path of ['/api/admin/users','/api/admin/source-schema-inventory','/api/admin/staging-private-health','/api/admin/new-feature','/admin/content-studio/unknown'])assert.equal(adminRouteAllowed(viewer,path),false,path);
   }

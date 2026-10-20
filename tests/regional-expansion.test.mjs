@@ -27,7 +27,7 @@ const options={placeId:o=>o.siteID,key:o=>String(o.siteID)};
 const offers=[{siteID:5,total:10},{siteID:1,total:100},{siteID:2,total:200},{siteID:6,total:900}];
 const publicPlaces=places.filter(p=>p.supplierId!==7);
 function handler(path,method,dependencies){
-  dependencies={homeDealDates,firstDealDate,prioritizeOnlineFirst,isHomeDealOnlineEligible,dailyRotationCompare,compareVacationPriority,runtimeCatalogDatabase:async()=>null,discoveryVacationCatalog:()=>async()=>new Map(),cachedDiscovery:async({load})=>({value:await load(),cache:{status:'refreshed',checkedAt:new Date().toISOString()}}),...dependencies};
+  dependencies={homeDealDates,firstDealDate,prioritizeOnlineFirst,isHomeDealOnlineEligible,dailyRotationCompare,compareVacationPriority,runtimeCatalogDatabase:async()=>null,discoveryVacationCatalog:()=>async()=>new Map(),cachedDiscovery:async({load})=>({value:await load(),cache:{status:'refreshed',checkedAt:new Date().toISOString()}}),VACATION_DISCOVERY_POLICY:{freshMs:30*60_000,staleMs:30*86_400_000},...dependencies};
   const source=readFileSync(new URL(`../app/api/${path}/route.ts`,import.meta.url),'utf8');
   const compiled=stripTypeScriptTypes(source.replace(/^import .*;\r?$/gm,''),{mode:'strip'}).replace(`export async function ${method}`,`async function ${method}`);
   return new Function(...Object.keys(dependencies),`${compiled};return ${method};`)(...Object.values(dependencies));
@@ -56,9 +56,9 @@ test('actual vacation API uses one complete eligible read and returns minimum-th
   let reads=0;
   const get=handler('vii/home-deals','GET',{
     regionalAvailabilityRegion,selectRegionalOffers,eligibleDealDate,isContentLocale:()=>true,homeDealPeriods:[{id:'tomorrow'}],
-    publicCatalogSummaries:async()=>places,publishedSupplierIds:async()=>new Set([1,2,3,4,5,6]),supplierToken:async()=>'test',
+    publicCatalogSummaries:async()=>places,publishedSupplierIds:async()=>new Set([1,2,3,4,5,6]),
     readHomeDisplaySettings:async()=>({periods:[{id:'tomorrow'}],defaultPeriod:'tomorrow'}),
-    getHomeDeals:async input=>{reads++;assert.equal(input.guests,6);assert.equal(input.publicSiteIds.size,6);return{period:'tomorrow',dates:homeDealDates('tomorrow'),deals:offers.map(o=>({...o,priceGuests:6,from:homeDealDates('tomorrow').from,till:homeDealDates('tomorrow').till}))};},
+    readCachedDiscovery:async({key})=>{reads++;assert.equal(key.at(-1),6);return{cache:{status:'fresh',checkedAt:new Date().toISOString()},value:{dates:homeDealDates('tomorrow'),deals:offers.map(o=>({...o,priceGuests:6,from:homeDealDates('tomorrow').from,till:homeDealDates('tomorrow').till}))}};},
   });
   const response=await get(new Request(`https://example.test/?${new URLSearchParams({region:'צפון',period:'tomorrow',guests:'6'})}`));
   const body=await response.json();assert.equal(response.status,200);assert.equal(reads,1);assert.equal(body.expandedRegion,true);assert.deepEqual([...body.regionalOrder].sort((a,b)=>a-b),[1,2,6]);assert.deepEqual(body.regionalOrder,body.deals.map(o=>o.siteID));assert.ok(body.deals.every(o=>o.priceGuests===6));

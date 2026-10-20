@@ -112,7 +112,8 @@ export default async function Page({ searchParams }: Props) {
       ? [{ name: "ראשי", path: "/" }, { name: "בתי ספא", path: "/spas" }]
       : primaryWorld === "hourly"
         ? [{ name: "ראשי", path: "/" }, { name: "חדרים לפי שעה", path: "/hourly" }]
-        : [{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, vacationArea];
+        : [{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, vacationArea,
+          ...(property.location && property.location !== property.area ? [{ name: `נופש ב${property.location}`, path: `/search?location=${encodeURIComponent(property.location)}` }] : [])];
   return <>
     <ViewedItemBootstrap id={property.slug} world={initialWorld} name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={`/business?id=${property.slug}${initialWorld === primaryWorld ? "" : `&mode=${initialWorld}`}`} meta={property.guests > 0 ? `${property.type} · עד ${property.guests} אורחים${property.capacityScope === "unit" ? " ביחידה הגדולה" : ""}` : property.type} />
     {!property.demoOperations?.fictional ? <StructuredData data={lodgingSchema(property)} /> : null}

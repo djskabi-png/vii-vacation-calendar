@@ -98,7 +98,7 @@ export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { ite
     <FavoriteButton id={item.id} world={item.world} name={localizedName} location={`${location}, ${area}`} image={media.image || undefined} href={`/discover/place/${item.id}`} meta={price} />
     <div className="discovery-card__body">
       <span className="discovery-card__meta"><PinIcon />{location}<small>{area}</small></span>
-      <h3><Link href={`/discover/place/${item.id}`} target="_blank" rel="noopener noreferrer">{localizedName}<span className="sr-only"></span></Link></h3>
+      <h3><Link className="discovery-card__stretched-link" href={`/discover/place/${item.id}`}>{localizedName}<span className="sr-only"></span></Link></h3>
       <p>{description}</p>
       <div className="discovery-card__chips" role="region" tabIndex={0} aria-label={{he:"מאפיינים מרכזיים",en:"Key features",ru:"Основные удобства",fr:"Caractéristiques principales"}[language]}>{features.map((feature) => <span key={feature}>{feature}</span>)}</div>
       <footer className={item.world === "hourly" ? "discovery-card__hourly-footer" : undefined}>
@@ -107,9 +107,6 @@ export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { ite
           <CardContactActions key={item.id} world="hourly" placeId={item.id} placeName={localizedName} phone={item.phone} whatsapp={item.whatsapp} serviceName={item.name} />
         </> : <>
         <strong>{price}</strong>
-        <div className="discovery-card__footer-actions">
-          <Link className="discovery-card__details" href={`/discover/place/${item.id}`} target="_blank" rel="noopener noreferrer">{details}<span aria-hidden="true">←</span><span className="sr-only"></span></Link>
-        </div>
         </>}
       </footer>
     </div>

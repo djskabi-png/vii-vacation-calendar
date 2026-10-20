@@ -39,11 +39,11 @@ export function EventResultCard({ place, href, supplierStatus, startingPrice, ma
     </PreviewCardGallery>
     <div className="event-result-card__body">
       <small className="event-result-card__type">{place.type}</small>
-      <h3 className="event-result-card__title"><Link href={href} target="_blank" rel="noopener noreferrer" title={place.name}>{place.name}</Link></h3>
+      <h3 className="event-result-card__title"><Link className="event-result-card__stretched-link" href={href} title={place.name}>{place.name}</Link></h3>
       <p className="event-result-card__location"><PinIcon /><span>{place.location}, {place.area}</span></p>
       <div className="event-capacity">עד {place.guests} אורחים ביחידה הגדולה</div>
       <div className="event-result-card__offer">{supplierStatus ? <p className="event-live-status" role="status">{supplierStatus}</p> : startingPrice ? <CatalogStartingPrice amount={startingPrice} /> : null}</div>
-      <div className="stay-card__actions event-card__actions"><Link className="stay-card__details-link" href={href} target="_blank" rel="noopener noreferrer">לפרטים על המקום<span className="sr-only"></span></Link><EventCardContactActions placeId={place.slug} placeName={place.name} phone={place.contact?.phone} whatsapp={place.contact?.whatsapp} serviceName={place.type} /></div>
+      <div className="stay-card__actions event-card__actions"><EventCardContactActions placeId={place.slug} placeName={place.name} phone={place.contact?.phone} whatsapp={place.contact?.whatsapp} serviceName={place.type} /></div>
     </div>
   </article>;
 }

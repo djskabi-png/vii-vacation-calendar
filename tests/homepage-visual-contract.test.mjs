@@ -18,11 +18,12 @@ test("homepage discovery uses complete card compositions", async () => {
   assert.match(component, /src=\{place.image\}/);
 });
 
-test("supplier homepage searches live dates without unsupported static offers", async () => {
-  const [showcase, deals, route, token] = await Promise.all([
+test("homepage uses scheduled dated snapshots without unsupported static offers", async () => {
+  const [showcase, deals, route, warmer, token] = await Promise.all([
     readFile(new URL("../app/components/home-showcase.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/home-live-deals.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/api/vii/home-deals/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/lib/warm-vacation-discovery-cache.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/lib/vii-supplier-token.ts", import.meta.url), "utf8"),
   ]);
   assert.match(showcase, /<HomeLiveDeals \/>/);
@@ -35,7 +36,10 @@ test("supplier homepage searches live dates without unsupported static offers", 
   assert.match(deals, /displayedDeals\.map/);
   assert.match(deals, /orderDiscoveryRail\(/);
   assert.match(deals, /isHomeDealOnlineEligible/);
-  assert.match(route, /supplierToken\(\)/);
+  assert.match(route, /readCachedDiscovery/);
+  assert.doesNotMatch(route, /supplierToken|getHomeDeals/);
+  assert.match(warmer, /supplierToken\(\)/);
+  assert.match(warmer, /getHomeDeals/);
   assert.match(token, /SERGEY_VII_API_TOKEN/);
   assert.doesNotMatch(showcase, /nightlyPrice|lastMinuteHref|selectDealPeriod|home-vacation-card--style/);
 });

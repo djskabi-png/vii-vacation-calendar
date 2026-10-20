@@ -18,7 +18,7 @@ test('adjacent trust section uses one bounded gap and no doubled header margin',
  assert.match(home,/padding-block-end:16px/);assert.match(home,/padding-block-start:16px/);
 });
 test('inactive demos, unavailable listings and empty media are excluded before selection limits',()=>{
- const video={src:'/own-tour.mp4',poster:'/own-poster.jpg'};
+ const video={src:'/own-tour.mp4',poster:'/own-poster.jpg',verifiedRealVideo:true};
  const values=[{slug:'demo',active:false,videos:[video]},{slug:'closed',active:false,videos:[video]},
  {slug:'active',active:true,videos:[video]},{slug:'legacy',videos:[video]},
  {slug:'no-video'},{slug:'empty',videos:[{src:'',poster:'/poster.jpg'}]},
@@ -30,12 +30,13 @@ test('inactive demos, unavailable listings and empty media are excluded before s
  assert.match(page,/rotateDaily\(eligibleHomeTourProperties\(/);
 });
 test('mixed video arrays retain valid pairs but never render empty or unsafe media',()=>{
- const good={src:'/own-tour.mp4',poster:'/own-poster.jpg',note:'Real source disclosure'};
+ const good={src:'/own-tour.mp4',poster:'/own-poster.jpg',note:'Real source disclosure',verifiedRealVideo:true};
  const mixed=[{src:'',poster:'/cover.jpg'},good,{src:'/tour.mp4',poster:' '},
   {src:'javascript:alert(1)',poster:'/cover.jpg'},{src:'/tour.mp4',poster:'//other.example/cover.jpg'}];
  const saved=JSON.stringify(mixed);
  assert.deepEqual(homeTourVideos(mixed),[good]);assert.equal(JSON.stringify(mixed),saved);
  assert.equal(eligibleHomeTourProperties([{slug:'mixed',videos:mixed}]).length,1);
+ assert.deepEqual(homeTourVideos([{src:'/slideshow.mp4',poster:'/cover.jpg',note:'Edited from still images'}]),[]);
  const source=readFileSync(new URL('../app/components/home-showcase.tsx',import.meta.url),'utf8');
  assert.match(source,/homeTourVideos\(property.videos\)\.map/);
 });

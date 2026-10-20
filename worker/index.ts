@@ -14,6 +14,7 @@ import { lookupPublicCopy } from "../app/i18n/public-copy";
 import catalogAdminTranslations from "../app/data/catalog-admin-translations.json";
 import { runSupplierCatalogScheduleTick } from "../app/lib/supplier-catalog-retry-runner.ts";
 import { cachedOnlineCapabilities } from "../app/lib/online-booking-capability-cache.ts";
+import { warmVacationDiscoveryCache } from "../app/lib/warm-vacation-discovery-cache.ts";
 import { legacyDisposition, looksLikeUninventoriedLegacyPath } from "../app/lib/legacy-route-map.ts";
 import { redirectForUrl, shouldCheckRedirect } from "../app/lib/admin-redirects.ts";
 import { publicCachePolicy, readPublicCache, refreshPublicCacheAhead, storePublicCache } from "./public-response-cache.ts";
@@ -171,6 +172,14 @@ const worker = {
     ctx.waitUntil(cachedOnlineCapabilities(database).catch(() => {
       console.error("VII online capability refresh unavailable");
     }));
+    // The cron ticks every ten minutes for catalog retries. Discovery rails are
+    // refreshed only on the half hour and visitors always read the last
+    // accepted snapshot instead of waiting on the supplier.
+    if (Math.floor(controller.scheduledTime / 60_000) % 30 === 0) {
+      ctx.waitUntil(warmVacationDiscoveryCache(database, new Date(controller.scheduledTime)).catch(() => {
+        console.error("VII vacation discovery refresh unavailable");
+      }));
+    }
     ctx.waitUntil(runSupplierCatalogScheduleTick(database, { now: new Date(controller.scheduledTime) }).then(({ primary, retries }) => {
       for (const result of [...retries, ...(primary ? [primary] : [])]) if (result.status !== "accepted" && result.status !== "skipped") {
         console.error("VII scheduled catalog sync did not publish", result.id, result.errorCode);

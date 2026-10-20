@@ -3,7 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { useRef, type CSSProperties, type MouseEvent, type ReactNode } from "react";
+import { useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { PreviewGalleryStatus, usePreviewGallery } from "./use-preview-gallery";
 
@@ -49,6 +49,7 @@ export function PreviewCardGallery({
   const copy = galleryCopy[language];
   const galleryImages = [...new Set(images.filter(Boolean))].slice(0, 10);
   const { imageIndex, navigationIndex, setImageIndex, warmImages, pending, error } = usePreviewGallery(galleryImages);
+  const [brokenImages, setBrokenImages] = useState<Set<string>>(() => new Set());
   const touchStart = useRef<number | null>(null);
   const didSwipe = useRef(false);
   const swipeResetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -102,7 +103,10 @@ export function PreviewCardGallery({
         swipeResetTimer.current = null;
       }}
     >
-      {currentImage ? <img src={currentImage} alt={`${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} title={imageLabel || `${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} width="900" height="667" loading="lazy" decoding="async" style={imageStyle} /> : null}
+      {currentImage && !brokenImages.has(currentImage) ? <img src={currentImage} alt={`${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} title={imageLabel || `${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} width="900" height="667" loading="lazy" decoding="async" style={imageStyle} onError={() => {
+        setBrokenImages(previous => new Set(previous).add(currentImage));
+        if (imageIndex < galleryImages.length - 1) setImageIndex(imageIndex + 1);
+      }} /> : <span className="preview-card-gallery__missing">{language === "he" ? "תמונה לא זמינה" : language === "en" ? "Photo unavailable" : language === "ru" ? "Фото недоступно" : "Photo indisponible"}</span>}
     </Link>
     <PreviewGalleryStatus pending={pending} error={error} />
     {galleryImages.length > 1 ? <>

@@ -6,6 +6,11 @@ import { matchesVacationOnlineBooking } from "../app/lib/vacation-online-booking
 import { onlineCapabilitiesResponse } from "../app/api/vii/online-capabilities/route.ts";
 const now = Date.parse("2026-10-19T12:00:00Z");
 
+test("capability discovery refreshes every half hour and retains last-good evidence across supplier outages", () => {
+  assert.equal(week, 30 * 60_000);
+  assert.ok(maxAge >= 30 * 24 * 60 * 60_000);
+});
+
 test("undated filter accepts persisted capability but never relaxes dated selection", () => {
   const discovery = { undated: true, capability: { checkedAt: Date.now() } };
   assert.equal(matchesVacationOnlineBooking(true, undefined, null, discovery), true);

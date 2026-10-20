@@ -4257,6 +4257,13 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .event-card__body { display: block; padding: 17px; }
 .event-card__body > small { color: var(--teal-dark); }
 .event-card__body .button { margin-top: 10px; }
+.preview-card-gallery__missing { position:absolute; inset:0; display:grid; place-items:center; padding:18px; background:linear-gradient(145deg,#edf5f3,#dce9e7); color:#496965; font:750 .82rem/1.5 var(--font-sans); text-align:center; }
+.discovery-card { position:relative; }
+.discovery-card__stretched-link::after { content:""; position:absolute; z-index:1; inset:0; border-radius:inherit; }
+.discovery-card :is(.preview-card-gallery,.favorite-button,.card-contact-actions,.discovery-card__chips,.discovery-card__hourly-footer) { position:relative; z-index:2; }
+.event-result-card { position:relative; }
+.event-result-card__stretched-link::after { content:""; position:absolute; z-index:1; inset:0; border-radius:inherit; }
+.event-result-card :is(.event-card-gallery,.event-card__actions) { position:relative; z-index:2; }
 .event-planning { display: grid; grid-template-columns: .6fr 1fr; gap: 55px; }
 .event-planning ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; }
 .event-planning li { display: flex; gap: 18px; align-items: center; padding: 18px; border: 1px solid var(--line); border-radius: 17px; }
