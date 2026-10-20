@@ -111,7 +111,13 @@ export async function cachedDiscovery<T>(options: Options<T>): Promise<Discovery
   if (!group) { group = new Map(); flights.set(db!, group); }
   const pending = group.get(key);
   if (pending) return structuredClone(await pending) as DiscoveryCacheResult<T>;
-  const operation = db ? durableRead(db, key, options) : localRead(key, options);
+  const operation = db ? durableRead(db, key, options).catch((error: unknown) => {
+    // A transient cache-infrastructure failure must not prevent the underlying
+    // discovery check. Expected provider/cooldown failures already collapse to
+    // discovery_unavailable and must not be retried through the local path.
+    if (error instanceof Error && error.message === "discovery_unavailable") throw error;
+    return localRead(key, options);
+  }) : localRead(key, options);
   group.set(key, operation as Promise<DiscoveryCacheResult<unknown>>);
   try { return await operation; } finally { if (group.get(key) === operation) group.delete(key); }
 }
