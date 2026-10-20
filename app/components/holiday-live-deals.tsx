@@ -60,12 +60,13 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
   }, []);
 
   useEffect(() => {
-    if (selection.part === normalizedSelection.part) return;
-    setSelection(normalizedSelection);
     const url = new URL(globalThis.location.href);
+    const requestedPart = url.searchParams.get("part");
+    if (selection.part !== normalizedSelection.part) setSelection(normalizedSelection);
+    if (!requestedPart || requestedPart === normalizedSelection.part) return;
     url.searchParams.set("part", normalizedSelection.part);
     globalThis.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
-  }, [normalizedSelection, selection.part]);
+  }, [normalizedSelection.part, selection.part]);
 
   useEffect(() => {
     if (!clock) return;

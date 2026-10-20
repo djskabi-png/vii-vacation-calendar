@@ -89,6 +89,10 @@ test("holiday period controls expose only distinct windows and stale params norm
   assert.deepEqual(availableHolidayParts(threeDays), ["all", "opening", "ending"]);
   assert.deepEqual(availableHolidayParts(holiday), holidayParts);
   assert.deepEqual(holidaySelection(new URLSearchParams("audience=family&part=ending"), oneDay), { audience: "family", part: "all" });
+  const ui = readFileSync(new URL("../app/components/holiday-live-deals.tsx", import.meta.url), "utf8");
+  assert.match(ui, /requestedPart = url\.searchParams\.get\("part"\)/, "the client must inspect the requested URL state, not only the already-normalized SSR selection");
+  assert.match(ui, /requestedPart === normalizedSelection\.part/, "a valid canonical period must remain unchanged");
+  assert.match(ui, /history\.replaceState\(null, "",/, "a stale period must be replaced rather than added to browser history");
 });
 
 test("the supplier request rejects a period that the holiday cannot contain", async () => {
