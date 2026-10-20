@@ -29,8 +29,10 @@ try {
       const structure = await page.evaluate(() => {
         const visible = (element) => { const style = getComputedStyle(element); const rect = element.getBoundingClientRect(); return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0; };
         const tinyTargets = [...document.querySelectorAll('button,input,select,summary,[role="button"],a.button,a[class*="button"],a[class*="action"],a[class*="trigger"]')].filter(visible).map((element) => {
-          const rect = element.getBoundingClientRect(); return { tag: element.tagName, label: element.getAttribute("aria-label") || element.textContent?.trim().slice(0, 80) || "", width: Math.round(rect.width), height: Math.round(rect.height) };
-        }).filter((item) => item.width < 24 || item.height < 24);
+          const label = element.matches('input[type="checkbox"],input[type="radio"]') ? element.closest("label") : null;
+          const target = label && visible(label) ? label : element;
+          const rect = target.getBoundingClientRect(); return { tag: element.tagName, label: element.getAttribute("aria-label") || target.textContent?.trim().slice(0, 80) || "", width: Math.round(rect.width), height: Math.round(rect.height) };
+        }).filter((item) => item.width < 44 || item.height < 44);
         return { lang: document.documentElement.lang, dir: document.documentElement.dir,
           h1: [...document.querySelectorAll("h1")].filter(visible).length,
           horizontalOverflow: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - innerWidth,
@@ -63,7 +65,7 @@ try {
   summary.failures = results.flatMap((result) => [
     ...(result.structure.h1 < 1 ? [`${result.viewport} ${result.route}: no visible H1`] : []),
     ...(result.structure.horizontalOverflow > 1 ? [`${result.viewport} ${result.route}: horizontal overflow ${result.structure.horizontalOverflow}px`] : []),
-    ...(result.structure.tinyTargets.length ? [`${result.viewport} ${result.route}: ${result.structure.tinyTargets.length} targets below 24px`] : []),
+    ...(result.structure.tinyTargets.length ? [`${result.viewport} ${result.route}: ${result.structure.tinyTargets.length} targets below 44px`] : []),
     ...(result.keyboardFocus.tag === "BODY" || !result.keyboardFocus.tag ? [`${result.viewport} ${result.route}: keyboard focus did not enter page`] : []),
     ...result.serious.map((violation) => `${result.viewport} ${result.route}: axe ${violation.id} (${violation.nodes})`),
     ...result.pageErrors.map((error) => `${result.viewport} ${result.route}: ${error}`),
