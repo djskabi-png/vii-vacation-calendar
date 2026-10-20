@@ -18,10 +18,10 @@ test("maps representative Israeli coordinates to the nearest supported search re
 
 test("nearby control has a server fallback and bounded browser request", () => {
   assert.match(search, /fetch\("\/api\/vii\/nearby-location"/);
-  assert.match(search, /AbortSignal\.timeout\(5000\)/);
+  assert.match(search, /AbortSignal\.timeout\(1800\)/);
   assert.match(search, /navigator\.geolocation\.getCurrentPosition/);
-  assert.match(search, /timeout:\s*6000/);
-  assert.match(search, /window\.setTimeout\(\(\) => \{ void approximate\(\); \}, 6500\)/);
+  assert.match(search, /timeout:\s*2000/);
+  assert.match(search, /window\.setTimeout\(\(\) => \{ void approximate\(\); \}, 2200\)/);
   assert.match(search, /nearestSearchLocation\(coords\.latitude, coords\.longitude\)/);
   assert.match(route, /cloudflareRequestCoordinates/);
   assert.match(route, /"Cache-Control": "private, no-store"/);

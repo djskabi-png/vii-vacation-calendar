@@ -9,6 +9,7 @@ import { readSupplierCatalogDetails, readSupplierCatalogDetailSnapshot, readSupp
 import { runtimeCatalogDatabase } from "./published-supplier-ids.ts";
 import { readPublishedItems, type ContentType, type EditorialContent } from "./content-studio.ts";
 import { managedVacationPriority } from "./vacation-priority.ts";
+import { publicCatalogEntryAllowed } from "./public-catalog-policy.ts";
 
 const catalogCache = new Map<SupplierCatalogWorld, { runId: string; expiresAt: number; items: Promise<unknown[]> }>();
 
@@ -94,9 +95,10 @@ function withEditorialOverlays(world: SupplierCatalogWorld, entries: unknown[], 
 }
 
 async function publicSummaries(world: SupplierCatalogWorld, entries: unknown[]): Promise<unknown[]> {
-  if (world === "spa") return Promise.all(entries.map((site) => projectSpaViiSite(site as SpaPlusSite)));
-  if (world !== "vacations" && world !== "events") return entries;
-  return entries.map((value) => {
+  const publicEntries = entries.filter(publicCatalogEntryAllowed);
+  if (world === "spa") return Promise.all(publicEntries.map((site) => projectSpaViiSite(site as SpaPlusSite)));
+  if (world !== "vacations" && world !== "events") return publicEntries;
+  return publicEntries.map((value) => {
     const place = value as { description: string; name: string; location: string; area: string };
     return { ...place, description: supplierDisplayDescription(place) };
   });

@@ -524,17 +524,17 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
       fallbackStarted = true;
       setLocationStatus("מנסים לזהות את האזור הקרוב...");
       try {
-        const response = await fetch("/api/vii/nearby-location", { cache: "no-store", headers: { Accept: "application/json" }, signal: AbortSignal.timeout(5000) });
+        const response = await fetch("/api/vii/nearby-location", { cache: "no-store", headers: { Accept: "application/json" }, signal: AbortSignal.timeout(1800) });
         const payload = await response.json() as { location?: string };
         select(response.ok && typeof payload.location === "string" ? payload.location : null);
       } catch { select(null); }
     };
     if (!navigator.geolocation) { await approximate(); return; }
-    watchdog = window.setTimeout(() => { void approximate(); }, 6500);
+    watchdog = window.setTimeout(() => { void approximate(); }, 2200);
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => select(nearestSearchLocation(coords.latitude, coords.longitude)),
       () => { void approximate(); },
-      { enableHighAccuracy: false, timeout: 6000, maximumAge: 300000 },
+      { enableHighAccuracy: false, timeout: 2000, maximumAge: 300000 },
     );
   }
   function expandMobileSearch() {

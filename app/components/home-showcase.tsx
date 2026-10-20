@@ -204,7 +204,7 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, ratedPlace
           const image = topicImage?.src || ("image" in item ? item.image : undefined);
           const imageAlt = topicCopy?.alt || item.name;
           const description = "description" in item ? item.description : item.summary;
-          return <Link key={world.id} className={`home-world-gate home-world-gate--${world.id}`} href={world.href}>{image ? <img src={image} alt={imageAlt} title={imageAlt} loading="lazy" decoding="async" /> : <span className="home-world-gate__visual">{world.shortLabel.slice(0,1)}</span>}{topicCopy ? <span className="home-world-gate__image-label" data-no-translate>{topicCopy.caption}</span> : null}<div><span>{world.label}</span><h3>{world.description}</h3><p>{"demo" in item && item.demo ? "פרופילים לדוגמה שממחישים איך השירות יעבוד באתר." : description}</p><b>לגלות את העולם</b></div></Link>;
+          return <Link key={world.id} className={`home-world-gate home-world-gate--${world.id}`} href={world.href}>{image ? <img src={image} alt={imageAlt} title={imageAlt} loading="lazy" decoding="async" /> : <span className="home-world-gate__visual">{world.shortLabel.slice(0,1)}</span>}<div><span>{world.label}</span><h3>{world.description}</h3><p>{"demo" in item && item.demo ? "פרופילים לדוגמה שממחישים איך השירות יעבוד באתר." : description}</p><b>לגלות את העולם</b></div></Link>;
         })}</HomeMobileRail>
       </div>
     </section>

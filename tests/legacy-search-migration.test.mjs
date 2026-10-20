@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { sitemapSection } from "../app/lib/sitemap-inventory.ts";
+import { publicSearchOpportunityAllowed } from "../app/lib/search-opportunities.ts";
 
 const exported = JSON.parse(readFileSync(new URL("../project_knowledge/launch/legacy-search-pages-20261015.json", import.meta.url), "utf8"));
 const publications = JSON.parse(readFileSync(new URL("../app/data/legacy-search-page-publications.json", import.meta.url), "utf8"));
@@ -44,9 +45,10 @@ test("migrated pages satisfy publication content and URL requirements", () => {
   assert.match(opportunitySource, /function legacyBody/);
 });
 
-test("every migrated page is included in the managed search sitemap family", async () => {
+test("only publication-quality migrated pages are included in the managed search sitemap family", async () => {
   const entries = await sitemapSection("search-pages");
-  assert.equal(entries.length, publications.count);
+  const eligible = publications.pages.filter((page) => publicSearchOpportunityAllowed({ ...page, body: publications.bodyTemplate.join("\n\n") }));
+  assert.equal(entries.length, eligible.length);
   const urls = new Set(entries.map((entry) => new URL(entry.url).pathname));
-  for (const page of publications.pages) assert.equal(urls.has(page.canonicalPath), true, page.canonicalPath);
+  for (const page of eligible) assert.equal(urls.has(page.canonicalPath), true, page.canonicalPath);
 });

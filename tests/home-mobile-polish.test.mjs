@@ -31,9 +31,9 @@ test('missing image occupies existing media region instead of adding another225p
  const css=read('app/globals.css');assert.match(css,/\.discovery-card__missing-image \{ position: absolute; inset: 0;[^}]*min-height: 0;/);
  assert.doesNotMatch(css,/\.discovery-card__missing-image \{[^}]*min-height: 225px/);
 });
-test('homepage trust prose does not explain supplier mechanics and trail gate has truthful labeled image',()=>{
+test('homepage trust prose does not explain supplier mechanics and trail gate keeps truthful nonvisual media context',()=>{
  const page=read('app/page.tsx'),home=read('app/components/home-showcase.tsx');
- assert.doesNotMatch(page,/שהתקבלו מהספק|נתוני הספק/);assert.match(home,/worldTopicMedia\.trails/);assert.match(home,/topicCopy\.caption/);
+ assert.doesNotMatch(page,/שהתקבלו מהספק|נתוני הספק/);assert.match(home,/worldTopicMedia\.trails/);assert.match(home,/const imageAlt = topicCopy\?\.alt/);assert.doesNotMatch(home,/home-world-gate__image-label/);
  assert.match(home,/homeEventPhotography/);assert.match(home,/homeReviewExcerpt/);
 });
 test('imported discovery-card currency spelling is normalized without changing the amount',()=>{

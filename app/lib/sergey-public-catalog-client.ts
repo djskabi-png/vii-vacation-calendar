@@ -5,6 +5,7 @@ import type { SupplierCatalogEntry } from "./supplier-catalog-store.ts";
 import { SupplierCatalogRedirectError } from "./supplier-catalog-diagnostics.ts";
 import { sergeyPlaceImages, sergeyRoomImages, sergeyRoomFeatureGroups } from "./sergey-gallery.ts";
 import { startingPriceFields } from "./supplier-starting-price.ts";
+import { publicCatalogEntryAllowed } from "./public-catalog-policy.ts";
 
 type World = "vacations" | "events";
 const root = "https://bizonline.co.il/api/ai/vii";
@@ -145,6 +146,7 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
     ...(phone || whatsapp ? { contact: { ...(phone ? { phone } : {}), ...(whatsapp ? { whatsapp } : {}) } } : {}),
     ...(world === "events" ? { eventTypes: [] } : {}),
   };
+  if (!publicCatalogEntryAllowed(summary)) throw new Error("supplier_fixture_not_public");
   return { supplierId, summary, detail };
 }
 
@@ -188,7 +190,7 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
           try {
             entries[index] = normalizePlace(world, id, await get(`/${world}/${id}`), cities, areas);
           } catch (error) {
-            if (error instanceof Error && error.message === "sergey_place_missing_media") {
+            if (error instanceof Error && ["sergey_place_missing_media", "supplier_fixture_not_public"].includes(error.message)) {
               entries[index] = null;
               excludedMediaIds.push(id);
             } else throw error;

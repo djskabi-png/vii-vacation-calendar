@@ -72,7 +72,15 @@ function hydrateLegacyPage(page: LegacySearchPageRecord): LegacySearchOpportunit
     scheduledAt: null, publishedAt: generatedAt, version: 1, updatedBy: "system-legacy-migration", readiness: 100, priority: 0 };
 }
 
-const legacySearchPages = (legacySearchPublications.pages as LegacySearchPageRecord[]).map(hydrateLegacyPage);
+export function publicSearchOpportunityAllowed(page: Pick<SearchOpportunity, "title" | "metaTitle" | "metaDescription" | "h1" | "summary" | "body" | "latestResultCount">) {
+  const text = [page.title, page.metaTitle, page.metaDescription, page.h1, page.summary, page.body].join(" ");
+  if (page.latestResultCount < 1) return false;
+  if (/מיזם\s+V(?:\s|\.{2,}|…|$)|(?:^|\s)ב\s+עם(?:\s|$)|(?:\.\.\.|…)\s*(?:$|["'׳״])/i.test(text)) return false;
+  if (/\b(?:undefined|null|lorem ipsum|test\d*)\b/i.test(text)) return false;
+  return true;
+}
+
+const legacySearchPages = (legacySearchPublications.pages as LegacySearchPageRecord[]).map(hydrateLegacyPage).filter(publicSearchOpportunityAllowed);
 
 function normalizedHolidayName(value: string) {
   return value.toLocaleLowerCase("he").replace(/^(?:חג|ערב חג)\s+/, "").replace(/["'״׳]/g, "").replace(/\s+/g, " ").trim();
@@ -379,7 +387,9 @@ export async function publishedOpportunityBySlug(slug: string) {
       o.zero_result_count AS periodZeroResults FROM vii_search_page_opportunities o
       WHERE o.slug = ? AND o.robots_index = 1 AND (o.status = 'published' OR (o.status = 'scheduled' AND o.scheduled_at <= ?))
       ORDER BY o.version DESC LIMIT 1`).bind(slug, now).first<OpportunityRow>();
-    return row ? hydrate(row) : fallback;
+    if (!row) return fallback;
+    const page = hydrate(row);
+    return publicSearchOpportunityAllowed(page) ? page : null;
   } catch { return fallback; }
 }
 
@@ -393,7 +403,9 @@ export async function publishedOpportunityByPath(world: string, slug: string, lo
     const row = await db.prepare(`SELECT snapshot_json AS snapshotJson FROM vii_search_page_publications
       WHERE canonical_path = ? AND locale = ? AND (scheduled_at IS NULL OR scheduled_at <= ?) LIMIT 1`)
       .bind(path, locale, now).first<{ snapshotJson: string }>();
-    return row ? safeJson<SearchOpportunity | null>(row.snapshotJson, null) : fallback;
+    if (!row) return fallback;
+    const page = safeJson<SearchOpportunity | null>(row.snapshotJson, null);
+    return page && publicSearchOpportunityAllowed(page) ? page : null;
   } catch { return fallback; }
 }
 
