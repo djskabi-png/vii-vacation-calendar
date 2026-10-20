@@ -29,6 +29,12 @@ test("currency claims are excluded without removing unrelated factual sentences"
   }
 });
 
+test("public supplier descriptions normalize markup and encoded spacing", () => {
+  const place = { name: "כינר", location: "ראש פינה", area: "גליל עליון", description: "מקום בגליל.&nbsp; <b>מכבדים</b> שוברי מילואים&#160;" };
+  assert.equal(supplierDisplayDescription(place), "מקום בגליל. מכבדים שוברי מילואים");
+  assert.doesNotMatch(supplierDisplayDescription(place), /&(?:nbsp|#160);|<[^>]+>/i);
+});
+
 test("event search, place HTML and metadata do not publish event-711's unverified promotion", async () => {
   for (const path of ["/events/search", "/events/search?location=%D7%A0%D7%AA%D7%A0%D7%99%D7%94", "/events/place/event-711"]) {
     const response = await render(path);
