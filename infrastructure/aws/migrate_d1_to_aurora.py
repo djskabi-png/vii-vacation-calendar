@@ -10,8 +10,11 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
+import subprocess
 import sys
+import tempfile
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -20,6 +23,41 @@ from typing import Any
 
 
 def request_json(url: str, token: str, *, body: dict[str, Any] | None = None) -> dict[str, Any]:
+    if urllib.parse.urlsplit(url).netloc == "vii.spaplus.co" and body is None:
+        config = "\n".join([
+            "silent",
+            "show-error",
+            "fail-with-body",
+            f"url = {json.dumps(url)}",
+            f"header = {json.dumps(f'Authorization: Bearer {token}')}",
+            'header = "Accept: application/json"',
+            'user-agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/141.0 Safari/537.36"',
+        ])
+        config_path = ""
+        try:
+            with tempfile.NamedTemporaryFile("w", encoding="utf-8", suffix=".curl", delete=False) as config_file:
+                config_file.write(config)
+                config_path = config_file.name
+            result = subprocess.run(
+                ["curl.exe", "--config", config_path],
+                check=False,
+                capture_output=True,
+                timeout=120,
+            )
+        finally:
+            if config_path:
+                try:
+                    os.remove(config_path)
+                except FileNotFoundError:
+                    pass
+        if result.returncode != 0:
+            detail = result.stdout[:500].decode("utf-8", "replace") or result.stderr[:500].decode("utf-8", "replace")
+            raise RuntimeError(f"curl HTTP failure from {urllib.parse.urlsplit(url).netloc}: {detail}")
+        payload = json.loads(result.stdout)
+        if not isinstance(payload, dict) or not payload.get("ok"):
+            raise RuntimeError(f"Unsuccessful response from {urllib.parse.urlsplit(url).netloc}")
+        return payload
+
     data = None if body is None else json.dumps(body, separators=(",", ":")).encode("utf-8")
     request = urllib.request.Request(
         url,
@@ -112,6 +150,34 @@ def index_sql(table: dict[str, Any]) -> list[str]:
         statements.append(
             f"CREATE {unique}INDEX {quote_identifier(name)} ON {quote_identifier(table['name'])} "
             + "(" + ", ".join(quote_identifier(column) for column in columns) + ")"
+        )
+    return statements
+
+
+def foreign_key_sql(table: dict[str, Any]) -> list[str]:
+    grouped: dict[int, list[dict[str, Any]]] = {}
+    for foreign_key in table.get("foreignKeys", []):
+        grouped.setdefault(int(foreign_key.get("id", 0)), []).append(foreign_key)
+    statements: list[str] = []
+    allowed_actions = {"NO ACTION", "RESTRICT", "CASCADE", "SET NULL", "SET DEFAULT"}
+    for key_id, entries in sorted(grouped.items()):
+        ordered = sorted(entries, key=lambda entry: int(entry.get("seq", 0)))
+        referenced_table = str(ordered[0].get("table") or "")
+        source_columns = [str(entry.get("from") or "") for entry in ordered]
+        target_columns = [str(entry.get("to") or "") for entry in ordered]
+        if not referenced_table or not all(source_columns) or not all(target_columns):
+            raise RuntimeError(f"Invalid foreign key metadata for {table['name']} id {key_id}")
+        update_action = str(ordered[0].get("on_update") or "NO ACTION").upper()
+        delete_action = str(ordered[0].get("on_delete") or "NO ACTION").upper()
+        if update_action not in allowed_actions or delete_action not in allowed_actions:
+            raise RuntimeError(f"Unsupported foreign key action for {table['name']} id {key_id}")
+        constraint = f"fk_{table['name']}_{key_id}"
+        statements.append(
+            f"ALTER TABLE {quote_identifier(str(table['name']))} ADD CONSTRAINT {quote_identifier(constraint)} "
+            + "FOREIGN KEY (" + ", ".join(quote_identifier(column) for column in source_columns) + ") "
+            + f"REFERENCES {quote_identifier(referenced_table)} ("
+            + ", ".join(quote_identifier(column) for column in target_columns) + ") "
+            + f"ON UPDATE {update_action} ON DELETE {delete_action}"
         )
     return statements
 
@@ -248,7 +314,13 @@ def main() -> int:
         if not matched:
             raise RuntimeError(f"Reconciliation failed for {name}")
 
-    print(json.dumps({"ok": True, "tables": len(evidence), "rows": sum(item["count"] for item in evidence)}, separators=(",", ":")))
+    foreign_key_count = 0
+    for table in tables:
+        for statement in foreign_key_sql(table):
+            bridge(arguments.bridge, bridge_token, [{"sql": statement, "params": [], "method": "run"}])
+            foreign_key_count += 1
+
+    print(json.dumps({"ok": True, "tables": len(evidence), "rows": sum(item["count"] for item in evidence), "foreignKeys": foreign_key_count}, separators=(",", ":")))
     return 0
 
 
