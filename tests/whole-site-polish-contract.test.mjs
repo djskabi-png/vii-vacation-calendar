@@ -33,6 +33,7 @@ test("mobile controls keep modern visuals without undersized hit targets", async
   assert.match(css, /\.magazine-search input \{ min-height: 44px; \}/);
   assert.match(css, /\.selected-plan-summary button \{ min-height: 44px;/);
   assert.match(css, /\.spa-results__reset \{ min-height: 44px; \}/);
+  assert.match(css, /\.filter-panel > label \{ min-height: 44px;[^}]*cursor: pointer; \}/);
 });
 
 test("privacy preferences reopen through the mounted consent control", async () => {
