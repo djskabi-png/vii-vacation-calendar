@@ -22,7 +22,7 @@ test("capability carries no probe availability, prices, dates or personal fields
     assert.equal(init.redirect, "error"); input = JSON.parse(init.body); return Response.json(payload);
   });
   assert.deepEqual(value, { "vacation-1": { checkedAt: now } });
-  assert.deepEqual(input, { from: "2026-12-18", nights: 3, rooms: [{ adults: 2 }] });
+  assert.deepEqual(input, { from: "2026-11-02", nights: 3, rooms: [{ adults: 2 }] });
   assert.deepEqual(input, capabilityProbe(now));
 });
 test("busy/minimum-stay/omitted/unknown availability does not disable or renew prior capability; explicit false revokes", () => {
@@ -59,7 +59,9 @@ test("search list, nearby, map, draft and badge share capability without changin
   assert.match(page, /const startingPrices = useStartingPrices\("vacations", undatedSearch\);/);
   assert.equal((page.match(/catalogStartingPrices=\{startingPrices\[property\.slug\]\}/g) || []).length, 2);
   assert.match(page, /aria-busy=\{\(undatedSearch \? onlineCapabilities.status : supplierSearch.status\) === "loading"\}/);
-  assert.match(page, /onlineOnly && undatedSearch && onlineCapabilities.status === "error" && !resultSet.length/);
+  assert.match(page, /onlineOnly && undatedCapabilityUnavailable/);
+  assert.match(page, /undatedCapabilityUnavailable[\s\S]*?\? true[\s\S]*?matchesVacationOnlineBooking/);
+  assert.match(page, /מוצגים כל המקומות באזור, בלי סימון הזמנה אונליין/);
   const worker = readFileSync(new URL("../worker/index.ts", import.meta.url), "utf8");
   assert.match(worker, /scheduled[\s\S]*databaseForEnv\(env\)[\s\S]*ctx.waitUntil\(cachedOnlineCapabilities\(database\)/);
   const card = readFileSync(new URL("../app/components/property-card.tsx", import.meta.url), "utf8");
