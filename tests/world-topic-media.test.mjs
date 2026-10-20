@@ -40,11 +40,11 @@ test("topic overrides are intentional, safe and do not fall back to supplier gal
   assert.equal(validWorldTopicImage(worldTopicMedia.spa.src, ""), false);
 });
 
-test("shared visual has one image, illustration disclosure and no business links or collage", async () => {
+test("shared visual has one decorative topic image, no production label and no business links or collage", async () => {
   const component = await readFile(new URL("../app/components/world-topic-image.tsx", import.meta.url), "utf8");
   assert.equal((component.match(/<img /g) || []).length, 1);
-  assert.match(component, /<figcaption>\{copy.caption\}<\/figcaption>/);
-  assert.match(component, /\(await headers\(\)\)\.get\("x-vii-locale"\)/);
+  assert.match(component, /alt="" title="" data-image-role="decorative"/);
+  assert.doesNotMatch(component, /figcaption|Illustrative image|תמונת המחשה/);
   assert.match(component, /srcSet=/); assert.match(component, /width=\{1200\} height=\{800\}/);
   assert.doesNotMatch(component, /<a |<Link |item\.name|figures\.map|fetch\(/);
   for (const file of ["discovery-world-hero.tsx", "world-landing.tsx", "../events/page.tsx"]) {

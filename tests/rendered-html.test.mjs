@@ -1319,7 +1319,8 @@ test("content card images pair descriptive alt text with matching title metadata
 
   assert.match(propertyCard, /alt=\{`\$\{localizedName\}, \$\{interfaceCopy\.image\} \$\{imageIndex \+ 1\}\/\$\{galleryImages\.length\}`\} title=\{`\$\{localizedName\}, \$\{interfaceCopy\.image\} \$\{imageIndex \+ 1\}\/\$\{galleryImages\.length\}`\}/);
   assert.match(business, /alt=\{`\$\{localizedRoomName\}, \$\{localizedPropertyName\}`\} title=\{`\$\{localizedRoomName\}, \$\{localizedPropertyName\}`\}/);
-  assert.match(discoveryCard, /imageLabel=\{imageLabel && ui \? ui\.image : imageLabel \? `\$\{localizedName\}, \$\{imageLabel\}` : localizedName\}/);
+  assert.match(discoveryCard, /imageLabel=\{localizedName\}/);
+  assert.doesNotMatch(discoveryCard, /image-context-label|Illustrative image|תמונת המחשה/);
   assert.match(eventsSearch, /EventResultCard/);
   assert.match(eventResultCard, /PreviewCardGallery/);
   assert.match(previewGallery, /alt=\{`\$\{name\}, \$\{copy\.image\} \$\{imageIndex \+ 1\}\/\$\{galleryImages\.length\}`\} title=\{imageLabel \|\| `\$\{name\}, \$\{copy\.image\} \$\{imageIndex \+ 1\}\/\$\{galleryImages\.length\}`\}/);

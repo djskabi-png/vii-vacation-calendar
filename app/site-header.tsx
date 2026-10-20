@@ -19,9 +19,10 @@ const defaultNav = publicWorldNavigation.map((world) => ({ id: String(world.id),
 const defaultSecondary: ManagedLink[] = [
   { id: "gift-card", label: "גיפט קארד", href: "/gift-card", group: "עוד באתר", order: 1, visible: true, newWindow: false },
   { id: "destinations", label: "יעדים", href: "/destinations", group: "עוד באתר", order: 2, visible: true, newWindow: false },
-  { id: "guides", label: "מגזין ומדריכים", href: "/guides", group: "עוד באתר", order: 3, visible: true, newWindow: false },
-  { id: "questions", label: "שאלות ותשובות", href: "/questions", group: "עוד באתר", order: 4, visible: true, newWindow: false },
-  { id: "accessibility", label: "הצהרת נגישות", href: "/accessibility", group: "עוד באתר", order: 5, visible: true, newWindow: false },
+  { id: "holidays", label: "נופש בחג", href: "/holidays", group: "עוד באתר", order: 3, visible: true, newWindow: false },
+  { id: "guides", label: "מגזין ומדריכים", href: "/guides", group: "עוד באתר", order: 4, visible: true, newWindow: false },
+  { id: "questions", label: "שאלות ותשובות", href: "/questions", group: "עוד באתר", order: 5, visible: true, newWindow: false },
+  { id: "accessibility", label: "הצהרת נגישות", href: "/accessibility", group: "עוד באתר", order: 6, visible: true, newWindow: false },
 ];
 
 export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
@@ -188,7 +189,7 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
 
         <span className="menu-panel__section-title">{translate("עוד באתר")}</span>
         <div className="menu-panel__secondary">
-          {secondaryNav === defaultSecondary ? <><Link href="/gift-card" onClick={closeMenu}><GiftIcon /><span>{translate("גיפט קארד")}</span></Link><Link href="/destinations" onClick={closeMenu}><PinIcon /><span>{translate("יעדים")}</span></Link><Link href="/guides" onClick={closeMenu} aria-current={magazineActive ? "page" : undefined}><InfoIcon /><span>{magazineCopy.menuLabel}</span></Link><Link href="/questions" onClick={closeMenu}><InfoIcon /><span>{translate("שאלות ותשובות")}</span></Link><Link href="/accessibility" onClick={closeMenu}><AccessibilityIcon /><span>{translate("הצהרת נגישות")}</span></Link></> : secondaryNav.map((item) => <Link key={item.id} href={localizedPath(item.href, language)} onClick={closeMenu} target={item.newWindow ? "_blank" : undefined} rel={item.newWindow ? "noopener noreferrer" : undefined} aria-current={item.id === "guides" && magazineActive ? "page" : undefined}><InfoIcon /><span>{translate(item.id === "guides" ? magazineCopy.menuLabel : item.label)}</span></Link>)}
+          {secondaryNav === defaultSecondary ? <><Link href="/gift-card" onClick={closeMenu}><GiftIcon /><span>{translate("גיפט קארד")}</span></Link><Link href="/destinations" onClick={closeMenu}><PinIcon /><span>{translate("יעדים")}</span></Link><Link href={localizedPath("/holidays", language)} onClick={closeMenu}><CalendarIcon /><span>{translate("נופש בחג")}</span></Link><Link href="/guides" onClick={closeMenu} aria-current={magazineActive ? "page" : undefined}><InfoIcon /><span>{magazineCopy.menuLabel}</span></Link><Link href="/questions" onClick={closeMenu}><InfoIcon /><span>{translate("שאלות ותשובות")}</span></Link><Link href="/accessibility" onClick={closeMenu}><AccessibilityIcon /><span>{translate("הצהרת נגישות")}</span></Link></> : <>{secondaryNav.map((item) => <Link key={item.id} href={localizedPath(item.href, language)} onClick={closeMenu} target={item.newWindow ? "_blank" : undefined} rel={item.newWindow ? "noopener noreferrer" : undefined} aria-current={item.id === "guides" && magazineActive ? "page" : undefined}><InfoIcon /><span>{translate(item.id === "guides" ? magazineCopy.menuLabel : item.label)}</span></Link>)}{secondaryNav.some((item) => item.href === "/holidays") ? null : <Link href={localizedPath("/holidays", language)} onClick={closeMenu}><CalendarIcon /><span>{translate("נופש בחג")}</span></Link>}</>}
           <AccessibilityWidget placement="menu" />
         </div>
 

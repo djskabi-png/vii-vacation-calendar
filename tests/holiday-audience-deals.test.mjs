@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
-import { holidayAudiences, holidayParts, holidaySelection, holidayDealWindow, holidayDealSearchHref } from "../app/lib/holiday-deal-selection.ts";
+import { availableHolidayParts, holidayAudiences, holidayParts, holidaySelection, holidayDealWindow, holidayDealSearchHref } from "../app/lib/holiday-deal-selection.ts";
 import { getHomeHolidayDeals } from "../app/lib/vii-home-holidays.ts";
 
 const holiday = { id: 140, name: "חנוכה", from: "2026-12-04", till: "2026-12-12", nights: 2, windowSearch: true };
@@ -44,7 +44,7 @@ test("every holiday entry defaults to two guests without replacing explicit audi
   const page = readFileSync(new URL("../app/holidays/[slug]/page.tsx", import.meta.url), "utf8");
   const ui = readFileSync(new URL("../app/components/holiday-live-deals.tsx", import.meta.url), "utf8");
   assert.match(page, /const selection = holidaySelection\(/, "every holiday slug resolves SSR selection with the shared default");
-  assert.match(ui, /setSelection\(holidaySelection\(new URLSearchParams\(globalThis.location.search\)\)\)/, "back restores the same shared default");
+  assert.match(ui, /holidaySelection\(new URLSearchParams\(globalThis.location.search\), currentHoliday\)/, "back restores the same shared default");
   assert.match(ui, /guests: String\(guests\)/, "request uses selected audience guest count");
 });
 
@@ -78,6 +78,22 @@ test("short holiday windows never escape their boundaries", () => {
     const result = holidayDealWindow(tiny, part);
     assert.ok(result.from >= tiny.from && result.till <= tiny.till && result.from < result.till);
   }
+});
+
+test("holiday period controls expose only distinct windows and stale params normalize safely", () => {
+  const oneDay = { from: "2026-12-01", till: "2026-12-02", nights: 1 };
+  const twoDays = { from: "2026-12-01", till: "2026-12-03", nights: 2 };
+  const threeDays = { from: "2026-12-01", till: "2026-12-04", nights: 2 };
+  assert.deepEqual(availableHolidayParts(oneDay), ["all"]);
+  assert.deepEqual(availableHolidayParts(twoDays), ["all"]);
+  assert.deepEqual(availableHolidayParts(threeDays), ["all", "opening", "ending"]);
+  assert.deepEqual(availableHolidayParts(holiday), holidayParts);
+  assert.deepEqual(holidaySelection(new URLSearchParams("audience=family&part=ending"), oneDay), { audience: "family", part: "all" });
+});
+
+test("the supplier request rejects a period that the holiday cannot contain", async () => {
+  const short = { id: 141, name: "סיגד", from: "2026-11-10", till: "2026-11-11", nights: 1, windowSearch: true };
+  await assert.rejects(getHomeHolidayDeals({ ...options, id: short.id, holidays: [short], part: "opening" }), /invalid_selection/);
 });
 
 test("advanced search uses supported exact dates and preserves party rather than unknown window params", () => {

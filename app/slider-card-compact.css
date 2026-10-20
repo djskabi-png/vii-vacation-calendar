@@ -100,7 +100,7 @@
 [data-horizontal-rail] .event-card .event-card__body h3 { margin-block: 6px; font-size: 1rem; line-height: 1.4; }
 [data-horizontal-rail] .event-card .event-card__body p { margin-block: 6px; font-size: .78rem; }
 
-[data-horizontal-rail].event-rail .spa-deal-card .spa-deal-card__image { aspect-ratio: 1.85; }
+[data-horizontal-rail].event-rail .spa-deal-card .spa-deal-card__image { aspect-ratio: 1.6; }
 [data-horizontal-rail].event-rail .spa-deal-card .spa-deal-card__body { gap: 8px; padding: 14px; }
 [data-horizontal-rail].event-rail .spa-deal-card .spa-deal-card__body > small { min-height: 2.8em; }
 [data-horizontal-rail].event-rail .spa-deal-card h3 { font-size: 1rem; min-height: 2.8em; max-height: 2.8em; line-height: 1.4; -webkit-line-clamp: 2; }

@@ -1,5 +1,5 @@
 import { getHomeDealsForDates } from "./vii-home-deals.ts";
-import { holidayDealWindow, holidayParts, type HolidayPart } from "./holiday-deal-selection.ts";
+import { availableHolidayParts, holidayDealWindow, holidayParts, type HolidayPart } from "./holiday-deal-selection.ts";
 import { firstDealDate } from "./deal-clock.ts";
 
 const API_ROOT = "https://bizonline.co.il/api/ai/vii";
@@ -64,6 +64,7 @@ export async function getHomeHolidayDeals(options: {
   const holidays = options.holidays ?? await getHomeHolidays(options);
   const holiday = holidays.find((item) => item.id === options.id);
   if (!holiday) throw new Error("invalid_holiday");
+  if (options.part && !availableHolidayParts(holiday).includes(options.part)) throw new Error("invalid_selection");
   if (options.from !== undefined || options.till !== undefined) {
     const from = date(options.from);
     const till = date(options.till);

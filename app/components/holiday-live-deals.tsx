@@ -7,7 +7,7 @@ import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { Heart, Users, UsersRound, CalendarDays } from "lucide-react";
 import type { HomeHoliday } from "../lib/vii-home-holidays.ts";
 import type { HomeDeal } from "../lib/vii-home-deals.ts";
-import { holidayAudiences, holidayParts, holidaySelection, holidayDealWindow, holidayDealSearchHref, type HolidaySelection } from "../lib/holiday-deal-selection.ts";
+import { availableHolidayParts, holidayAudiences, holidaySelection, holidayDealWindow, holidayDealSearchHref, type HolidaySelection } from "../lib/holiday-deal-selection.ts";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
 import { dealAvailability, dealProperty } from "./home-live-deals.tsx";
@@ -42,20 +42,30 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
   const guests = holidayAudiences.find((item) => item.id === selection.audience)!.guests;
   const earliest = clock ? firstDealDate(clock.now) : holiday.from;
   const currentHoliday = holiday.from < earliest ? { ...holiday, from: earliest, nights: Math.min(2, Math.max(1, Math.round((Date.parse(`${holiday.till}T00:00:00Z`) - Date.parse(`${earliest}T00:00:00Z`)) / 86_400_000))) } : holiday;
-  const window = holidayDealWindow(currentHoliday, selection.part);
-  const key = `${holiday.id}:${selection.audience}:${selection.part}:${clock?.key || "loading"}`;
+  const visibleParts = availableHolidayParts(currentHoliday);
+  const normalizedSelection = visibleParts.includes(selection.part) ? selection : { ...selection, part: "all" as const };
+  const window = holidayDealWindow(currentHoliday, normalizedSelection.part);
+  const key = `${holiday.id}:${normalizedSelection.audience}:${normalizedSelection.part}:${clock?.key || "loading"}`;
   const state = result.key === key ? result.status : "loading";
   const deals = state === "ready" && clock ? orderDiscoveryItems(result.deals.filter(deal => eligibleDealDate(deal.from, clock.now)), { id: deal => deal.siteID, seed: `${documentSeed}:holiday:${holiday.id}:${selection.part}`, online: deal => {
     if (result.stale) return false;
     return isHomeDealOnlineEligible(deal, false);
   }, priority: deal => managedVacationPriority((deal as HomeDeal & { curatedRank?: number }).curatedRank) }) : [];
-  const searchHref = localizedPath(holidayDealSearchHref(currentHoliday, selection), language);
+  const searchHref = localizedPath(holidayDealSearchHref(currentHoliday, normalizedSelection), language);
 
   useEffect(() => {
-    const restore = () => setSelection(holidaySelection(new URLSearchParams(globalThis.location.search)));
+    const restore = () => setSelection(holidaySelection(new URLSearchParams(globalThis.location.search), currentHoliday));
     globalThis.addEventListener("popstate", restore);
     return () => globalThis.removeEventListener("popstate", restore);
   }, []);
+
+  useEffect(() => {
+    if (selection.part === normalizedSelection.part) return;
+    setSelection(normalizedSelection);
+    const url = new URL(globalThis.location.href);
+    url.searchParams.set("part", normalizedSelection.part);
+    globalThis.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+  }, [normalizedSelection, selection.part]);
 
   useEffect(() => {
     if (!clock) return;
@@ -64,7 +74,7 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
     setResult({ key, status: "loading", deals: [] });
     if (currentHoliday.from >= holiday.till) { setResult({ key, status: "ready", deals: [] }); return () => controller.abort(); }
     if (holiday.id <= 0) { setResult({ key, status: "error", deals: [] }); return () => controller.abort(); }
-    const params = new URLSearchParams({ id: String(holiday.id), guests: String(guests), part: selection.part });
+    const params = new URLSearchParams({ id: String(holiday.id), guests: String(guests), part: normalizedSelection.part });
     discoveryJson<{ holiday: HomeHoliday; deals: HomeDeal[]; cache?:{status:string} }>(`/api/vii/home-holiday-deals?${params}`, clock.key, { signal: controller.signal })
       .then((data) => {
         if (data.holiday?.id !== holiday.id || !Array.isArray(data.deals) || data.deals.some((deal) => deal.priceGuests !== guests || deal.from < window.from || deal.till > window.till || !Number.isFinite(deal.total) || deal.total <= 0)) throw new Error("invalid_deals");
@@ -73,7 +83,7 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
       .then((data) => { if (!controller.signal.aborted && request === generation.current) setResult({ key, status: "ready", deals: data.deals, stale: data.cache?.status === "stale" }); })
       .catch(() => { if (!controller.signal.aborted && request === generation.current) setResult({ key, status: "error", deals: [] }); });
     return () => controller.abort();
-  }, [key, retry, holiday.id, guests, selection.part, window.from, window.till, clock?.key]);
+  }, [key, retry, holiday.id, guests, normalizedSelection.part, window.from, window.till, clock?.key]);
 
   function choose(next: HolidaySelection) {
     if (next.audience === selection.audience && next.part === selection.part) return;
@@ -100,12 +110,11 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
         const Icon = icons[item.id];
         return <button type="button" role="tab" id={`holiday-tab-${item.id}`} aria-controls="holiday-deal-results" aria-selected={selection.audience === item.id} tabIndex={selection.audience === item.id ? 0 : -1} key={item.id} onClick={() => choose({ ...selection, audience: item.id })} onKeyDown={(event) => navigateTabs(event, index)}><Icon size={21} aria-hidden="true" /><span>{text[item.id]}</span><small>{item.guests} {text.guests}</small></button>;
       })}</div>
-      <div className="holiday-periods" role="group" aria-label={text.period}><CalendarDays size={18} aria-hidden="true" />{holidayParts.map((part) => {
-        const disabled = part !== "all" && holiday.till <= new Date(Date.parse(`${holiday.from}T00:00:00Z`) + holiday.nights * 86_400_000).toISOString().slice(0, 10);
-        return <button type="button" aria-pressed={selection.part === part} disabled={disabled} key={part} onClick={() => choose({ ...selection, part })}>{text[part]}</button>;
+      <div className="holiday-periods" role="group" aria-label={text.period}><CalendarDays size={18} aria-hidden="true" />{visibleParts.map((part) => {
+        return <button type="button" aria-pressed={normalizedSelection.part === part} key={part} onClick={() => choose({ ...normalizedSelection, part })}>{text[part]}</button>;
       })}</div>
       <div className="holiday-results-heading"><div><h2 id="holiday-live-title">{text.heading}</h2><p>{text.basis} <strong>{guests} {text.guests}</strong> · {window.nights} {text.nights} · <time dateTime={window.from}>{formatDate(window.from)}</time> / <time dateTime={window.till}>{formatDate(window.till)}</time></p></div><Link href={searchHref}>{text.search}</Link></div>
-      {selection.part === "all" ? <p className="holiday-window-note">{text.window}</p> : null}
+      {normalizedSelection.part === "all" ? <p className="holiday-window-note">{text.window}</p> : null}
       <div id="holiday-deal-results" className="holiday-deals__surface" role="tabpanel" tabIndex={0} aria-labelledby={`holiday-tab-${selection.audience}`} aria-busy={state === "loading"}>
         {state === "ready" && result.stale && deals.length > 0 ? <p data-no-translate>{discoveryCacheCopy[language]}</p> : null}
         {state === "loading" ? <div className="holiday-deals__loading" role="status"><span className="holiday-deals__spinner" aria-hidden="true" /><strong>{text.loading}</strong><small>{guests} {text.guests} · {formatDate(window.from)} / {formatDate(window.till)}</small></div> : null}

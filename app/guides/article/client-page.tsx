@@ -10,7 +10,7 @@ import { useSiteLanguage } from "../../i18n/locale-provider";
 import { HeartIcon } from "../../site-header";
 import { BreadcrumbTrail } from "../../components/breadcrumb-trail";
 import { ShareButton } from "../../components/share-dialog";
-import { EditorialCover, EditorialIllustrationLabel } from "../../components/editorial-cover";
+import { EditorialCover } from "../../components/editorial-cover";
 
 export function MagazineArticleView({ initialSlug, readQuery = true, initialArticles }: { initialSlug: string; readQuery?: boolean; initialArticles: MagazineArticle[] }) {
   const { language } = useSiteLanguage();
@@ -82,8 +82,8 @@ export function MagazineArticleView({ initialSlug, readQuery = true, initialArti
     <main id="main-content" className="magazine-article">
       <BreadcrumbTrail className="magazine-article__crumbs" items={[{ name: "ראשי", path: "/" }, { name: "מגזין ומדריכים", path: "/guides" }, { name: article.title }]} />
       <header className="shell magazine-article__hero">
-        <div className="magazine-article__headline"><span className="eyebrow">{article.category}</span><h1>{article.title}</h1><p>{article.excerpt}</p><div className="magazine-article__meta"><span>מאת מערכת מגזין וי</span><span>{article.dateLabel}</span><span>{article.readTime} דקות קריאה</span></div><div className="magazine-article__actions"><button type="button" aria-pressed={saved} onClick={toggleSaved}><HeartIcon filled={saved} />{saved ? "נשמר לקריאה" : "שמירה לקריאה"}</button><ShareButton title={article.title} kind="article" image={article.image} imageAlt={article.imageAlt} imageCaption={article.imageKind === "illustration" ? ({ he: "תמונת המחשה שנוצרה בבינה מלאכותית", en: "Illustrative image created with AI", fr: "Image d’illustration créée avec l’IA", ru: "Иллюстрация, созданная с помощью ИИ" }[language]) : article.imageCredit} /></div></div>
-        <figure><EditorialCover slug={article.slug} src={article.image} alt={article.imageAlt} title={article.imageTitle} priority /><figcaption data-no-translate>{article.imageKind === "illustration" ? ({ he: "תמונת המחשה שנוצרה בבינה מלאכותית", en: "Illustrative image created with AI", fr: "Image d’illustration créée avec l’IA", ru: "Иллюстрация, созданная с помощью ИИ" }[language]) : article.imageCredit}</figcaption></figure>
+        <div className="magazine-article__headline"><span className="eyebrow">{article.category}</span><h1>{article.title}</h1><p>{article.excerpt}</p><div className="magazine-article__meta"><span>מאת מערכת מגזין וי</span><span>{article.dateLabel}</span><span>{article.readTime} דקות קריאה</span></div><div className="magazine-article__actions"><button type="button" aria-pressed={saved} onClick={toggleSaved}><HeartIcon filled={saved} />{saved ? "נשמר לקריאה" : "שמירה לקריאה"}</button><ShareButton title={article.title} kind="article" image={article.image} imageAlt={article.imageAlt} imageCaption={article.imageKind === "illustration" ? undefined : article.imageCredit} /></div></div>
+        <figure><EditorialCover slug={article.slug} src={article.image} alt={article.imageAlt} title={article.imageTitle} priority />{article.imageKind !== "illustration" && article.imageCredit ? <figcaption data-no-translate>{article.imageCredit}</figcaption> : null}</figure>
       </header>
 
       <div className="shell magazine-article__layout">
@@ -104,7 +104,7 @@ export function MagazineArticleView({ initialSlug, readQuery = true, initialArti
         </article>
       </div>
 
-      <section className="section magazine-related"><div className="shell"><div className="section-head"><div><h2>עוד רעיונות לחופשה הבאה</h2></div><Link href="/guides">לכל הכתבות</Link></div><div className="magazine-related__grid">{related.filter(item => !item.publishedLocales || item.publishedLocales.includes(language)).map((item) => <article key={item.slug}><Link href={`/guides/${item.slug}`}><EditorialCover slug={item.slug} src={item.image} alt={item.imageAlt} title={item.imageTitle} /><EditorialIllustrationLabel /><span>{item.category}</span><h3>{item.title}</h3><small>{item.readTime} דקות קריאה</small></Link></article>)}</div></div></section>
+      <section className="section magazine-related"><div className="shell"><div className="section-head"><div><h2>עוד רעיונות לחופשה הבאה</h2></div><Link href="/guides">לכל הכתבות</Link></div><div className="magazine-related__grid">{related.filter(item => !item.publishedLocales || item.publishedLocales.includes(language)).map((item) => <article key={item.slug}><Link href={`/guides/${item.slug}`}><EditorialCover slug={item.slug} src={item.image} alt={item.imageAlt} title={item.imageTitle} /><span>{item.category}</span><h3>{item.title}</h3><small>{item.readTime} דקות קריאה</small></Link></article>)}</div></div></section>
     </main>
   </PageShell>;
 }

@@ -47,7 +47,7 @@ export default async function HolidayPage({ params, searchParams }: Props) {
   const source = await readHolidayWorld(holiday, await database(), language);
   const world = { ...source, name: translate(source.name), title: translate(source.title), summary: translate(source.summary), body: translate(source.body), proof: source.proof.map(translate) };
   const query = await searchParams;
-  const selection = holidaySelection({ get: (name) => typeof query?.[name] === "string" ? query[name] as string : null });
+  const selection = holidaySelection({ get: (name) => typeof query?.[name] === "string" ? query[name] as string : null }, holiday);
   const faqs = [
     { question: translate(`מתי ${source.name} ${world.year}?`), answer: world.proof[0] },
     { question: translate(`איך מוצאים מקום פנוי ל${source.name}?`), answer: translate("בוחרים תאריכים והרכב אורחים ורואים את המקומות הפנויים והמחירים המתאימים.") },
@@ -55,12 +55,12 @@ export default async function HolidayPage({ params, searchParams }: Props) {
   ];
   return <PageShell variant="vacation" footerTopic="vacation-villas">
     <main id="main-content" className="holiday-world">
-      <StructuredData data={breadcrumbSchema([{ name: translate("ראשי"), path: "/" }, { name: translate("חגים ומועדים"), path: "/search" }, { name: world.name, path: `/holidays/${world.slug}` }])} />
+      <StructuredData data={breadcrumbSchema([{ name: translate("ראשי"), path: "/" }, { name: translate("נופש בחג"), path: "/holidays" }, { name: world.name, path: `/holidays/${world.slug}` }])} />
       <StructuredData data={faqSchema(faqs)} />
       <section className="holiday-hero">
         <div className="shell">
           <div className="holiday-hero__content">
-            <BreadcrumbTrail items={[{ name: translate("ראשי"), path: "/" }, { name: translate("חגים ומועדים"), path: "/search" }, { name: world.name }]} />
+            <BreadcrumbTrail items={[{ name: translate("ראשי"), path: "/" }, { name: translate("נופש בחג"), path: "/holidays" }, { name: world.name }]} />
             <h1>{world.title}</h1>
             <p>{world.summary}</p>
             <div className="holiday-hero__proof" aria-label={translate("חגים ומועדים")}>{world.proof.map((item) => <span key={item}>{item}</span>)}</div>

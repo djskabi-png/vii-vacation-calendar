@@ -88,8 +88,8 @@ export async function contentStudioSources(db: D1Database, locale: ContentLocale
   const primaryLinks = publicWorldNavigation.map((row, index) => managedLink(String(row.id), row.shortLabel, row.href, "עולמות", index + 1));
   const secondaryLinks = [
     managedLink("gift-card", "גיפט קארד", "/gift-card", "עוד באתר", 1), managedLink("destinations", "יעדים", "/destinations", "עוד באתר", 2),
-    managedLink("guides", "מגזין ומדריכים", "/guides", "עוד באתר", 3), managedLink("questions", "שאלות ותשובות", "/questions", "עוד באתר", 4),
-    managedLink("accessibility", "הצהרת נגישות", "/accessibility", "עוד באתר", 5),
+    managedLink("holidays", "נופש בחג", "/holidays", "עוד באתר", 3), managedLink("guides", "מגזין ומדריכים", "/guides", "עוד באתר", 4),
+    managedLink("questions", "שאלות ותשובות", "/questions", "עוד באתר", 5), managedLink("accessibility", "הצהרת נגישות", "/accessibility", "עוד באתר", 6),
   ];
   const worldLinks = Object.entries(worldFooterContexts).flatMap(([world, context], worldIndex) => context.links.map((row, index) =>
     managedLink(`${world}-${index + 1}`, row.label, row.href, context.label, worldIndex * 100 + index + 1)));

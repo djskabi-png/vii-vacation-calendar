@@ -43,9 +43,9 @@ const worldCopy: Record<Exclude<SiteLanguage, "he">, Record<DiscoveryItem["world
 };
 
 const interfaceCopy = {
-  en: { details: "View details", from: "From", israel: "Israel", demo: "Demo profile", system: "Curated suggestion", image: "Illustrative image", noPrice: "Price not supplied" },
-  ru: { details: "Подробнее", from: "От", israel: "Израиль", demo: "Демо-профиль", system: "Рекомендация VII", image: "Иллюстрация", noPrice: "Цена не указана" },
-  fr: { details: "Voir les détails", from: "À partir de", israel: "Israël", demo: "Profil de démonstration", system: "Suggestion VII", image: "Image d'illustration", noPrice: "Prix non fourni" },
+  en: { details: "View details", from: "From", israel: "Israel", demo: "Demo profile", system: "Curated suggestion", noPrice: "Price not supplied" },
+  ru: { details: "Подробнее", from: "От", israel: "Израиль", demo: "Демо-профиль", system: "Рекомендация VII", noPrice: "Цена не указана" },
+  fr: { details: "Voir les détails", from: "À partir de", israel: "Israël", demo: "Profil de démonstration", system: "Suggestion VII", noPrice: "Prix non fourni" },
 } satisfies Record<Exclude<SiteLanguage, "he">, Record<string, string>>;
 
 function localizedPrice(label: string | undefined, language: Exclude<SiteLanguage, "he">, details: string) {
@@ -77,7 +77,6 @@ export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { ite
   const media = item.image
     ? resolvePublicSliderMedia({ image: item.image, topic: mediaTopic })
     : { image: "", fallbackApplied: false };
-  const imageLabel = media.fallbackApplied ? "תמונת אווירה" : item.imageLabel;
   const galleryImages = [...new Set([item.image, ...(item.images || [])]
     .map((image) => resolvePublicSliderMedia({ image, topic: mediaTopic }).image)
     .filter(Boolean))];
@@ -92,9 +91,8 @@ export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { ite
     onFocusCapture={() => onActiveChange?.(true)}
     onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) onActiveChange?.(false); }}
   >
-    <PreviewCardGallery className={`discovery-card__visual discovery-card__visual--${imageFit}`} href={`/discover/place/${item.id}`} name={localizedName} images={galleryImages} imageFit={imageFit} imagePosition={item.imagePosition} imageLabel={imageLabel && ui ? ui.image : imageLabel ? `${localizedName}, ${imageLabel}` : localizedName} linkLabel={`${details}: ${localizedName}`}>
+    <PreviewCardGallery className={`discovery-card__visual discovery-card__visual--${imageFit}`} href={`/discover/place/${item.id}`} name={localizedName} images={galleryImages} imageFit={imageFit} imagePosition={item.imagePosition} imageLabel={localizedName} linkLabel={`${details}: ${localizedName}`}>
       {!media.image ? <span className="discovery-card__missing-image">{translate("תמונה אינה זמינה")}</span> : null}
-      {imageLabel && <span className="image-context-label">{ui?.image || imageLabel}</span>}
       {item.rating && <span className="rating-badge">★ {item.rating.toFixed(1)}</span>}
     </PreviewCardGallery>
     <FavoriteButton id={item.id} world={item.world} name={localizedName} location={`${location}, ${area}`} image={media.image || undefined} href={`/discover/place/${item.id}`} meta={price} />

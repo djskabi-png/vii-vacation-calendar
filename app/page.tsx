@@ -10,7 +10,7 @@ import { SearchBox } from "./components/search-box";
 import { HomeQuickSearches } from "./components/home-discovery-sections";
 import { magazineArticles } from "./data/magazine-data";
 import { managedMagazineArticles } from "./lib/managed-public-content";
-import { EditorialCover, EditorialIllustrationLabel } from "./components/editorial-cover";
+import { EditorialCover } from "./components/editorial-cover";
 import { headers } from "next/headers";
 import { destinations, visualTourProperties } from "./data/site-data";
 import type { EventPlace, Property } from "./data/site-data";
@@ -93,7 +93,7 @@ async function HomeCatalogShowcase() {
 async function HomeMagazineSection() {
   const locale = (await headers()).get("x-vii-locale") || "he";
   const homeArticles = (await managedMagazineArticles(magazineArticles)).filter(article => !article.publishedLocales || article.publishedLocales.includes(locale)).slice(0,3);
-  return <section className="section home-magazine" aria-labelledby="home-magazine-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">מגזין וי</span><h2 id="home-magazine-title">רעיונות שממשיכים את החופשה</h2></div><Link href="/guides">לכל הכתבות</Link></div><HomeMobileRail id="home-magazine-rail" label="רעיונות שממשיכים את החופשה" className="home-magazine__grid">{homeArticles.map((article,index) => <article key={article.slug} className={index === 0 ? "featured" : ""}><Link href={`/guides/${article.slug}`}><EditorialCover slug={article.slug} src={article.image} alt={article.imageAlt} title={article.imageTitle} /><span>{article.category}</span><div><EditorialIllustrationLabel /><small>{article.readTime} דקות קריאה</small><h3>{article.title}</h3><p>{article.excerpt}</p></div></Link></article>)}</HomeMobileRail></div></section>;
+  return <section className="section home-magazine" aria-labelledby="home-magazine-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">מגזין וי</span><h2 id="home-magazine-title">רעיונות שממשיכים את החופשה</h2></div><Link href="/guides">לכל הכתבות</Link></div><HomeMobileRail id="home-magazine-rail" label="רעיונות שממשיכים את החופשה" className="home-magazine__grid">{homeArticles.map((article,index) => <article key={article.slug} className={index === 0 ? "featured" : ""}><Link href={`/guides/${article.slug}`}><EditorialCover slug={article.slug} src={article.image} alt={article.imageAlt} title={article.imageTitle} /><span>{article.category}</span><div><small>{article.readTime} דקות קריאה</small><h3>{article.title}</h3><p>{article.excerpt}</p></div></Link></article>)}</HomeMobileRail></div></section>;
 }
 
 export default async function HomePage() {

@@ -8,10 +8,10 @@ import { useSiteLanguage } from "../i18n/locale-provider";
 import { localizedBusinessText } from "../i18n/localized-business-content";
 
 export function TrailVisual({ trail, compact = false, language = "he", localizedName }: { trail: Trail; compact?: boolean; language?: "he" | "en" | "ru" | "fr"; localizedName?: string }) {
-  const copy = language === "en" ? { name: "Nature trail", image: "Illustrative image of", label: "Illustrative image", join: " and " }
-    : language === "ru" ? { name: "Природный маршрут", image: "Иллюстрация маршрута", label: "Иллюстрация", join: " и " }
-      : language === "fr" ? { name: "Sentier nature", image: "Image d’illustration de", label: "Image d’illustration", join: " et " }
-        : { name: "מסלול טבע", image: "תמונת המחשה למסלול", label: "תמונת המחשה", join: " ו" };
+  const copy = language === "en" ? { name: "Nature trail", image: "Nature along", join: " and " }
+    : language === "ru" ? { name: "Природный маршрут", image: "Природа на маршруте", join: " и " }
+      : language === "fr" ? { name: "Sentier nature", image: "Nature le long de", join: " et " }
+        : { name: "מסלול טבע", image: "נוף לאורך מסלול", join: " ו" };
   const displayName = localizedName || (language === "he" ? trail.name : copy.name);
   const highlights = language === "he" ? trail.highlights.slice(0, 2) : [];
   const imageTitle = `${copy.image} ${displayName}`;
@@ -19,7 +19,6 @@ export function TrailVisual({ trail, compact = false, language = "he", localized
 
   return <div className={`trail-visual trail-visual--${trail.tone}${compact ? " trail-visual--compact" : ""}`}>
     <Image src={`/images/trails/${trail.slug}.jpg`} width={1200} height={800} alt={imageAlt} title={imageTitle} />
-    <span className="image-context-label">{copy.label}</span>
   </div>;
 }
 
