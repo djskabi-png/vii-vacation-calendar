@@ -71,6 +71,13 @@
       "when": 1792338058061,
       "tag": "0009_discovery_offer_cache",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1792550400000,
+      "tag": "0010_map_snapshots",
+      "breakpoints": true
     }
   ]
 }

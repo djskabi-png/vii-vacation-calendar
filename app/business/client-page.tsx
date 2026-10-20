@@ -49,6 +49,7 @@ import { SearchAfterResults } from "../components/search-after-results";
 import type { SupplierPlaceDetail } from "../data/supplier-place-detail";
 import { trackBusinessEvent } from "../lib/analytics";
 import { DirectPhoneLink } from "../components/direct-phone-link";
+import { Accessibility, Bath, BedDouble, Check, CircleParking, CookingPot, Eye, Gamepad2, Sparkles, Trees, Waves } from "lucide-react";
 
 function bedroomLabel(count: number) {
   return count === 1 ? "חדר שינה אחד" : `${count} חדרי שינה`;
@@ -79,18 +80,18 @@ function derivedFeatureGroups(features: string[]): ListingFeatureGroup[] {
 }
 
 function PropertyHighlightIcon({ icon }: { icon: ListingHighlightIcon }) {
-  const path = icon === "pool" ? <><path d="M3 10c2-2 4-2 6 0s4 2 6 0 4-2 6 0" /><path d="M3 15c2-2 4-2 6 0s4 2 6 0 4-2 6 0" /></>
-    : icon === "spa" ? <><path d="M8 4c-2 3 2 4 0 7M12 3c-2 3 2 4 0 7M16 4c-2 3 2 4 0 7" /><path d="M5 14h14l-1 5H6z" /></>
-    : icon === "games" ? <><rect x="4" y="7" width="16" height="10" rx="4" /><path d="M8 12h4M10 10v4" /><circle cx="16" cy="11" r="1" /><circle cx="18" cy="14" r="1" /></>
-    : icon === "garden" ? <><path d="M12 20v-9" /><path d="M12 12C8 12 5 9 5 5c4 0 7 2 7 7ZM12 15c4 0 7-2 7-6-4 0-7 2-7 6Z" /></>
-    : icon === "kitchen" ? <><path d="M7 3v8M4 3v5c0 2 6 2 6 0V3M7 11v10M16 3v18M16 3c4 3 4 8 0 10" /></>
-    : icon === "view" ? <><path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6S2 12 2 12Z" /><circle cx="12" cy="12" r="3" /></>
-    : icon === "parking" ? <><rect x="5" y="3" width="14" height="18" rx="3" /><path d="M10 17V7h3.5a3 3 0 0 1 0 6H10" /></>
-    : icon === "accessibility" ? <><circle cx="12" cy="4" r="2" /><path d="M9 8h5l2 5h-5l-2 7M7 11a6 6 0 1 0 9 6" /></>
-    : icon === "events" ? <path d="m12 3 2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9Z" />
-    : icon === "units" ? <><rect x="4" y="4" width="7" height="7" rx="1" /><rect x="13" y="4" width="7" height="7" rx="1" /><rect x="4" y="13" width="7" height="7" rx="1" /><rect x="13" y="13" width="7" height="7" rx="1" /></>
-    : <path d="m5 12 4 4L19 6" />;
-  return <span className={`property-highlight-icon property-highlight-icon--${icon}`} aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{path}</svg></span>;
+  const Icon = icon === "pool" ? Waves
+    : icon === "spa" ? Bath
+    : icon === "games" ? Gamepad2
+    : icon === "garden" ? Trees
+    : icon === "kitchen" ? CookingPot
+    : icon === "view" ? Eye
+    : icon === "parking" ? CircleParking
+    : icon === "accessibility" ? Accessibility
+    : icon === "events" ? Sparkles
+    : icon === "units" ? BedDouble
+    : Check;
+  return <span className={`property-highlight-icon property-highlight-icon--${icon}`} aria-hidden="true"><Icon strokeWidth={1.9} /></span>;
 }
 
 const worldLabels: Record<BusinessWorld, string> = {

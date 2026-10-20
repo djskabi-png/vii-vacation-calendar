@@ -1,0 +1,118 @@
+{
+  "status": "diagnosed",
+  "symptom": "The live last-minute vacation rail contains supplier-confirmed online-bookable offers, but does not present them as online-bookable and a matching vacation detail page has no usable path into booking.",
+  "expected_behavior": "Last-known accepted online-booking capability remains visible during a transient refresh failure, online-capable last-minute offers are ordered and labeled accordingly, and a dated offer can continue to a live revalidated booking flow.",
+  "environment": "VII production at https://vii.spaplus.co on release 530, inspected 2026-10-20.",
+  "reproduction": {
+    "steps": [
+      "Open the home page and inspect the last-minute vacation rail.",
+      "Read /api/vii/home-deals?period=tomorrow&locale=he and select an offer whose onlineBooking field is true, such as site 1605.",
+      "Open /business?id=vacation-1605&from=2026-10-21&till=2026-10-22&guests=2&source=home-deals&period=tomorrow.",
+      "Attempt to continue to booking and compare the visible controls with the live quote endpoints."
+    ],
+    "evidence": "Production returned 56 last-minute offers, including 18 with onlineBooking=true. The cache status was stale with checkedAt 2026-10-20T13:36:11.987Z. The detail confirmation text stated that the 1,400 ILS stay could continue online, but the rendered page exposed no booking link. POST /api/vii/stay-quote for site 1605 returned supplier_unavailable."
+  },
+  "observations": [
+    {
+      "observation": "The accepted last-minute snapshot still contains 18 onlineBooking=true offers and valid positive room IDs.",
+      "evidence": "Live /api/vii/home-deals response for period=tomorrow on 2026-10-20."
+    },
+    {
+      "observation": "Both server and client deliberately classify every stale home-deal snapshot as not online-bookable.",
+      "evidence": "app/lib/vacation-online-first.ts returns false when stale; app/components/home-live-deals.tsx rewrites dealAvailability.onlineBooking to false when cache.status is stale."
+    },
+    {
+      "observation": "The vacation detail layout suppresses the entire booking aside and always removes the sticky booking destination for vacation pages.",
+      "evidence": "app/business/client-page.tsx uses activeWorld === vacation ? null for the booking aside and activeWorld === vacation ? undefined for DetailStickyDock.onlineHref."
+    },
+    {
+      "observation": "The live supplier quote needed to authorize booking currently fails, and the bundled catalog summary does not carry verified room options for site 1605.",
+      "evidence": "POST /api/vii/stay-quote returned {error:supplier_unavailable}; /api/catalog?world=vacations&id=1605 returned source=bundled-fallback with no summary.roomOptions."
+    },
+    {
+      "observation": "The scheduled design intends to refresh capabilities every ten minutes and near-date discovery every thirty minutes, but the accepted production snapshot remained over one hour old.",
+      "evidence": "worker/index.ts scheduled handler and the live checkedAt timestamp."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "There are no online-bookable last-minute offers.",
+      "prediction": "The live home-deals payload contains no onlineBooking=true rows.",
+      "discriminating_test": "Inspect the exact production home-deals payload and count onlineBooking=true rows.",
+      "result": "Rejected: 18 of 56 offers are marked onlineBooking=true, including sites 1605, 144, 2356 and 2210.",
+      "status": "rejected"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The stale-cache safety rule erases accepted last-known online capability from ranking and card presentation.",
+      "prediction": "A stale response still contains true flags, while the UI helper and card adapter force them to false.",
+      "discriminating_test": "Compare the live payload with isHomeDealOnlineEligible and dealAvailability.",
+      "result": "Supported exactly: the payload contains true flags, but both helpers suppress them solely because status is stale.",
+      "status": "supported"
+    },
+    {
+      "id": "H3",
+      "mechanism": "A detail-page rendering regression removes the booking entry point even when dated online evidence exists.",
+      "prediction": "The live page confirms the deal but renders no booking CTA, and the source contains a vacation-specific null branch.",
+      "discriminating_test": "Open a dated online offer, inventory booking controls, and inspect the shared detail layout condition.",
+      "result": "Supported: the confirmation says the stay can continue online, but no booking CTA is present; the vacation branch explicitly renders null.",
+      "status": "supported"
+    },
+    {
+      "id": "H4",
+      "mechanism": "Only presentation is broken; the live booking authorization path is healthy.",
+      "prediction": "The live stay-quote returns an available online quote and a verified room ID.",
+      "discriminating_test": "POST the exact site, dates and party to /api/vii/stay-quote.",
+      "result": "Rejected: the endpoint returned supplier_unavailable, so the live authorization path is also unhealthy.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H2",
+  "fix": {
+    "change": "Not implemented in this diagnostic turn. Required repair is to preserve accepted last-known capability during refresh failure, restore a vacation booking entry point, and make the live quote and verified room mapping succeed before allowing final booking submission.",
+    "evidence": "No production mutation or release was authorized by the current diagnostic request."
+  },
+  "affected_family": [
+    "Home last-minute vacation rail",
+    "Regional and holiday vacation deal rails",
+    "Undated online-booking filter",
+    "Vacation detail booking card and sticky dock",
+    "Supplier stay-quote route",
+    "Booking page room verification",
+    "Scheduled discovery and capability refresh"
+  ],
+  "regression_checks": [
+    {
+      "check": "Live last-minute payload contains real online flags",
+      "status": "passed",
+      "evidence": "18 onlineBooking=true offers observed in production."
+    },
+    {
+      "check": "Stale accepted data remains presented as last-known capability",
+      "status": "failed",
+      "evidence": "The stale branch suppresses all online eligibility."
+    },
+    {
+      "check": "Dated online offer exposes a booking CTA",
+      "status": "failed",
+      "evidence": "No booking link rendered for vacation-1605."
+    },
+    {
+      "check": "Live stay quote succeeds before booking",
+      "status": "failed",
+      "evidence": "Production returned supplier_unavailable."
+    },
+    {
+      "check": "No false claim that the issue is absence of inventory",
+      "status": "passed",
+      "evidence": "Production inventory and capability counts were measured directly."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "Whether the scheduled Worker did not fire or fired and failed against the supplier or Aurora bridge cannot be separated without current runtime logs.",
+    "The exact upstream cause of supplier_unavailable in /api/vii/stay-quote remains to be isolated from Worker logs and supplier response evidence."
+  ],
+  "authorization_boundary": "Read-only production diagnosis. Do not submit a booking, modify supplier data, or publish a release."
+}

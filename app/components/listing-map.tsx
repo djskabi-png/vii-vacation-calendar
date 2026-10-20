@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { MapPinned } from "lucide-react";
 import type { EventPlace, Listing } from "../data/site-data";
 import { eventPlaceHref } from "../lib/event-place-href";
 import type { DiscoveryItem } from "../data/world-data";
@@ -9,6 +10,7 @@ import type { Trail } from "../data/trail-data";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
 import { PreviewCardGallery } from "./preview-card-gallery";
+import { mapSnapshotPublicUrl } from "../lib/map-snapshot-url";
 import "leaflet/dist/leaflet.css";
 
 let leafletModulePromise: Promise<typeof import("leaflet")> | null = null;
@@ -109,12 +111,12 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
         ? { details: "Voir les détails", close: "Fermer la fiche du lieu", results: "Résultats sur la carte", visible: "lieux", list: "Liste des résultats", openCluster: "Ouvrir les lieux regroupés", searchArea: "Rechercher dans cette zone" }
       : { details: "לכל הפרטים", close: "סגירת פרטי המקום", results: "תוצאות על המפה", visible: "מקומות", list: "רשימת תוצאות במפה", openCluster: "פתיחת המקומות המקובצים", searchArea: "חיפוש באזור הזה" };
   const mapCopy = language === "en"
-    ? { preview: "Interactive map", label: "Interactive places map", back: "Back to list", hint: "Map zoom controls", loading: "Loading the map and markers", view: "View of" }
+    ? { preview: "Interactive map", label: "Interactive places map", back: "Back to list", hint: "Map zoom controls", loading: "Loading the map and markers", view: "View of", open: "Open map" }
     : language === "ru"
-      ? { preview: "Интерактивная карта", label: "Интерактивная карта мест", back: "Вернуться к списку", hint: "Масштаб карты", loading: "Загрузка карты и маркеров", view: "Вид на" }
+      ? { preview: "Интерактивная карта", label: "Интерактивная карта мест", back: "Вернуться к списку", hint: "Масштаб карты", loading: "Загрузка карты и маркеров", view: "Вид на", open: "Открыть карту" }
       : language === "fr"
-        ? { preview: "Carte interactive", label: "Carte interactive des lieux", back: "Retour à la liste", hint: "Zoom de la carte", loading: "Chargement de la carte et des repères", view: "Vue de" }
-        : { preview: "מפה אינטראקטיבית", label: "מפה אינטראקטיבית של המקומות", back: "חזרה לרשימה", hint: "הגדלה והקטנה", loading: "טוענים את המפה ואת הסמנים", view: "מבט על" };
+        ? { preview: "Carte interactive", label: "Carte interactive des lieux", back: "Retour à la liste", hint: "Zoom de la carte", loading: "Chargement de la carte et des repères", view: "Vue de", open: "Ouvrir la carte" }
+        : { preview: "מפה אינטראקטיבית", label: "מפה אינטראקטיבית של המקומות", back: "חזרה לרשימה", hint: "הגדלה והקטנה", loading: "טוענים את המפה ואת הסמנים", view: "מבט על", open: "פתיחת המפה" };
   const mapControlCopy = language === "en"
     ? { zoomIn: "Zoom in", zoomOut: "Zoom out", cluster: "Zoom in to grouped places" }
     : language === "ru"
@@ -140,10 +142,37 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
   const [selectedId, setSelectedId] = useState(initialSelectedId);
   const [pendingVisibleIds, setPendingVisibleIds] = useState<string[]>([]);
   const [viewportDirty, setViewportDirty] = useState(false);
+  const [snapshotUnavailable, setSnapshotUnavailable] = useState(true);
+  const previewImageRef = useRef<HTMLImageElement>(null);
   const preview = places[0] ?? null;
+  const snapshotUrl = preview ? mapSnapshotPublicUrl(tone, preview.id) : "";
   const effectiveSelectedId = selectedId !== "" && places.some((place) => place.id === selectedId) ? selectedId : "";
   const selected = places.find((place) => place.id === effectiveSelectedId) ?? null;
   const focusKey = initialPlaceIds?.join("|") ?? "";
+
+  useEffect(() => {
+    setSnapshotUnavailable(true);
+    if (!snapshotUrl) return;
+    const controller = new AbortController();
+    void fetch(snapshotUrl, { cache: "force-cache", signal: controller.signal })
+      .then((response) => {
+        if (response.ok) setSnapshotUnavailable(false);
+      })
+      .catch(() => undefined);
+    return () => controller.abort();
+  }, [snapshotUrl]);
+
+  useEffect(() => {
+    if (snapshotUnavailable) return;
+    const image = previewImageRef.current;
+    if (!image) return;
+    const usePlaceFallback = () => setSnapshotUnavailable(true);
+    image.addEventListener("error", usePlaceFallback);
+    // A cached 404 can finish before React hydrates and attaches onError.
+    // Inspect the element as well so the preview can never remain broken.
+    if (image.complete && image.naturalWidth === 0) usePlaceFallback();
+    return () => image.removeEventListener("error", usePlaceFallback);
+  }, [snapshotUnavailable, preview?.id, tone]);
 
   useEffect(() => {
     visibleCountCallback.current = onVisibleCountChange;
@@ -616,22 +645,28 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
   if (!preview) return null;
 
   const previewRegional = preview.precision === "area";
+  const previewImage = snapshotUnavailable ? preview.image : snapshotUrl;
+  const locationPreviewLabel = language === "en" ? "Place location" : language === "ru" ? "Расположение" : language === "fr" ? "Emplacement" : "מיקום המקום";
   const previewContent = (
     <>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="map-preview-image" src={preview.image} alt={`${mapCopy.view} ${preview.name}`} title={`${mapCopy.view} ${preview.name}`} />
+      <img ref={previewImageRef} className={`map-preview-image ${snapshotUnavailable ? "is-place-fallback" : "is-map-snapshot"}`} src={previewImage}
+        alt={snapshotUnavailable ? `${locationPreviewLabel}: ${preview.name}` : `${mapCopy.view} ${preview.name}`}
+        title={snapshotUnavailable ? `${locationPreviewLabel}: ${preview.name}` : `${mapCopy.view} ${preview.name}`}
+        onError={() => { if (!snapshotUnavailable) setSnapshotUnavailable(true); }} />
       <span className="map-preview-shade" aria-hidden="true" />
       <div className="map-preview-content">
-        <span className="map-preview-label">{mapCopy.preview}</span>
-        <span className="map-consent-pin" aria-hidden="true">⌖</span>
+        <span className="map-preview-label">{snapshotUnavailable ? locationPreviewLabel : mapCopy.preview}</span>
+        <span className="map-consent-pin" aria-hidden="true"><MapPinned /></span>
         <div>
           <h3>{single ? preview.name : `${places.length} מקומות על המפה`}</h3>
           <p>{single ? `${preview.location}, ${preview.area}` : "רואים את התוצאות ואת המפה יחד, ובוחרים מקום בלי לאבד את החיפוש"}</p>
         </div>
-        {!enabled && <button className="button map-load-button" type="button" onClick={() => setEnabled(true)}><span aria-hidden="true">⌖</span>פתיחת המפה</button>}
+        {!enabled && <button className="button map-load-button" type="button" onClick={() => setEnabled(true)}><MapPinned aria-hidden="true" />{mapCopy.open}</button>}
         {enabled && !mapReady && <span className="map-loading-pill">המפה נטענת...</span>}
         {single && previewRegional && <small className="map-precision-note">מוצג אזור המקום. נקודת ההגעה המדויקת נמסרת לאחר אישור.</small>}
       </div>
+      {!snapshotUnavailable && <a className="map-preview-attribution" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()}>© OpenStreetMap</a>}
     </>
   );
 

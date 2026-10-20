@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-map-snapshot-pipeline-20261021",
+  "project": "VII",
+  "task_type": "map performance and automation",
+  "requested_outcome": "Replace the heavy first-view place map with a persisted static map image and open the existing interactive map only after activation, while a weekly guarded job fills missing or changed snapshots for every eligible public place.",
+  "natural_destination": "VII public place detail location sections across vacation, events, spa, hourly and other mapped discovery worlds.",
+  "authorization_boundary": "Implement and verify the bug-batch candidate only. Do not publish, buy a map plan, create vendor credentials or mutate production until Adir closes the batch and authorizes publication.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "The request combines visible behavior, persisted state and an unattended weekly recovery path.",
+      "acceptance_impact": "Require end-to-end success, missing-image, provider-failure, reload and affected-family evidence before completion."
+    },
+    {
+      "lesson_id": "ADIR-VISUAL-001",
+      "reason": "The map preview must be clean, immediately understandable and responsive rather than another framed banner.",
+      "acceptance_impact": "Inspect desktop and 390px preview geometry, overlay placement, attribution and the transition to the live map."
+    },
+    {
+      "lesson_id": "ADIR-MEDIA-001",
+      "reason": "A map snapshot is public media and must truthfully represent the same approved location with preserved attribution.",
+      "acceptance_impact": "Reject unrelated fallback imagery, broken images, hidden attribution or snapshots whose coordinates do not match the place record."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The first view still loads Leaflet or remote tiles and the page does not feel instant.",
+      "prevention": "Render only the stored image before activation and keep Leaflet behind the existing explicit map-open action.",
+      "acceptance_check": "Before activation there is an image request but no Leaflet canvas or OSM tile request; after activation the interactive map appears."
+    },
+    {
+      "rejection": "Only the pictured vacation place works while spa, hourly or event pages keep the old behavior.",
+      "prevention": "Implement the behavior in the shared map component and inventory every caller and map tone.",
+      "acceptance_check": "Shared-component tests cover all map tones and representative detail routes."
+    },
+    {
+      "rejection": "A transient provider failure deletes a good map image or leaves a broken blank block.",
+      "prevention": "Upload and validate a new immutable object before swapping metadata; retain the last ready object on failure and use the verified place image only when no snapshot exists yet.",
+      "acceptance_check": "Failure-path test proves the prior ready object remains active and the UI has no broken image."
+    },
+    {
+      "rejection": "The weekly process is only a chat reminder or a cron claim that cannot run in the deployed environment.",
+      "prevention": "Add an idempotent reconciler to the existing Worker schedule path and record status in the database, while explicitly retaining the known production scheduler truth boundary.",
+      "acceptance_check": "A deterministic schedule test selects the weekly window once, skips duplicate runs and records missing, ready and failed states."
+    },
+    {
+      "rejection": "The implementation scrapes community OSM tiles in violation of the provider policy or removes map attribution.",
+      "prevention": "Use a configured static-images provider, never headless tile scraping, and preserve visible provider/OSM attribution.",
+      "acceptance_check": "Source test rejects the public OSM tile host as a snapshot provider and verifies visible attribution metadata."
+    }
+  ],
+  "affected_family": [
+    "shared ListingMap preview and activation states",
+    "vacation place details",
+    "event place details",
+    "spa and hourly discovery details",
+    "attraction and mapped discovery details",
+    "D1 snapshot metadata",
+    "R2 snapshot objects",
+    "scheduled Worker reconciliation",
+    "Hebrew, English, Russian and French labels",
+    "desktop and 390px mobile layouts"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "User-provided desired static-map preview and current interactive-map screenshots",
+        "source": "codex-clipboard-d0b2de92-8790-4097-a42d-e8f051160dc6.png and codex-clipboard-b14693ca-3855-4e20-b7d4-6bc19d29789e.png"
+      },
+      {
+        "label": "VII accepted location-section standard",
+        "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "One exact-coordinate place has a persisted snapshot, instant preview and click-to-live-map transition with failure preservation tests.",
+    "checks": [
+      "Snapshot metadata and immutable object agree",
+      "No live map dependency loads before activation",
+      "Desktop and mobile preview retain correct aspect and overlay geometry",
+      "A failed refresh preserves the last ready image"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a missing provider key, timeout, 429 or invalid body replace a good snapshot or expose a broken image?",
+      "Can duplicate weekly invocations regenerate the same place or overlap through an expired lease?",
+      "Does any mapped detail caller still show a business photo while claiming it is a map snapshot?",
+      "Is attribution visible on the static preview and the interactive map in desktop and mobile layouts?",
+      "Does activating, closing, reloading or using keyboard focus leave the page or map in a stuck state?"
+    ],
+    "natural_destination_evidence": "Frozen public temporary candidate screenshots and network/interaction checks are required before release; code and local tests alone remain candidate evidence.",
+    "affected_family_evidence": "Automated family inventory plus representative vacation, event, spa, hourly and attraction detail checks on desktop and 390px mobile."
+  },
+  "effectiveness": {
+    "baseline": "Current shared preview uses the place photograph and initializes Leaflet only after activation, but there is no persisted map snapshot metadata or weekly generator.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Every eligible caller uses one shared static-map path, a provider outage preserves prior media, and the first view makes zero interactive tile requests."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

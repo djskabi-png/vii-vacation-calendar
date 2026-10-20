@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "taskId": "vii-icon-centering-20261021",
+  "status": "verified_candidate",
+  "outcome": "Every icon in the shared place-detail feature family is geometrically centered and visually consistent, including default check marks and booking badges.",
+  "naturalDestination": "/business?id=:listing",
+  "authorizationBoundary": "Implement and verify inside the current unpublished bug-batch candidate. Do not publish.",
+  "affectedFamily": ["vacation business detail highlights", "facility and room feature lists", "event and hourly feature icons", "shared search and filter icon frames", "online booking badges"],
+  "invariants": ["labels, meanings and verified business data do not change", "icon container sizes and page hierarchy remain stable", "desktop and mobile layouts remain free of clipping and overflow"],
+  "acceptance": ["Every property feature meaning maps to a normalized 24px SVG icon.", "SVG boxes are explicitly centered without relying on inline baselines.", "Default check icons are optically sized inside their circle.", "Representative desktop and 390px mobile pages show centered icons without clipping.", "Regression tests and production build pass."]
+}

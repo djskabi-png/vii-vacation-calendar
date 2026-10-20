@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { DiscoveryItem } from "../data/world-data";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { PinIcon } from "../site-header";
@@ -55,6 +56,7 @@ function localizedPrice(label: string | undefined, language: Exclude<SiteLanguag
 }
 
 export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { item: DiscoveryItem; mapActive?: boolean; onActiveChange?: (active: boolean) => void }) {
+  const router = useRouter();
   const { language, translate } = useSiteLanguage();
   const localized = language === "he" ? null : worldCopy[language][item.world];
   const ui = language === "he" ? null : interfaceCopy[language];
@@ -66,7 +68,7 @@ export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { ite
   const localizedName = localizedBusinessText(item.name, language, translate, latinBusinessAlias(item.name) || `${localized?.chips[0] || ui?.details || item.name} · ${location}`, true);
   const description = (localized?.description || item.description).replace(/ש["״]ח/g, "₪");
   const features = localized?.chips || item.features.slice(0, 3);
-  const details = ui?.details || (item.world === "hourly" ? "פרטי המקום" : "צפייה במקום");
+  const details = ui?.details || "צפייה במקום";
   const price = item.world === "hourly" && !item.priceLabel
     ? translate("למחיר, פנו למקום")
     : language === "he" ? item.priceLabel || item.duration || details : localizedPrice(item.priceLabel || item.duration, language, details);
@@ -82,6 +84,7 @@ export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { ite
     .filter(Boolean))];
 
   const imageFit = item.imageFit || "cover";
+  const detailsHref = `/discover/place/${item.id}`;
 
   return <article
     className={`discovery-card discovery-card--${item.world}${mapActive ? " is-map-active" : ""}`}
@@ -90,20 +93,25 @@ export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { ite
     onPointerLeave={() => onActiveChange?.(false)}
     onFocusCapture={() => onActiveChange?.(true)}
     onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) onActiveChange?.(false); }}
+    onClick={(event) => {
+      const target = event.target as HTMLElement;
+      if (target.closest("a,button,input,select,textarea,[role='button']")) return;
+      router.push(detailsHref);
+    }}
   >
-    <PreviewCardGallery className={`discovery-card__visual discovery-card__visual--${imageFit}`} href={`/discover/place/${item.id}`} name={localizedName} images={galleryImages} imageFit={imageFit} imagePosition={item.imagePosition} imageLabel={localizedName} linkLabel={`${details}: ${localizedName}`}>
+    <PreviewCardGallery className={`discovery-card__visual discovery-card__visual--${imageFit}`} href={detailsHref} name={localizedName} images={galleryImages} imageFit={imageFit} imagePosition={item.imagePosition} imageLabel={localizedName} linkLabel={`${details}: ${localizedName}`}>
       {!media.image ? <span className="discovery-card__missing-image">{translate("תמונה אינה זמינה")}</span> : null}
       {item.rating && <span className="rating-badge">★ {item.rating.toFixed(1)}</span>}
     </PreviewCardGallery>
     <FavoriteButton id={item.id} world={item.world} name={localizedName} location={`${location}, ${area}`} image={media.image || undefined} href={`/discover/place/${item.id}`} meta={price} />
     <div className="discovery-card__body">
       <span className="discovery-card__meta"><PinIcon />{location}<small>{area}</small></span>
-      <h3><Link className="discovery-card__stretched-link" href={`/discover/place/${item.id}`}>{localizedName}<span className="sr-only"></span></Link></h3>
+      <h3><Link className="discovery-card__stretched-link" href={detailsHref}>{localizedName}<span className="sr-only"></span></Link></h3>
       <p>{description}</p>
       <div className="discovery-card__chips" role="region" tabIndex={0} aria-label={{he:"מאפיינים מרכזיים",en:"Key features",ru:"Основные удобства",fr:"Caractéristiques principales"}[language]}>{features.map((feature) => <span key={feature}>{feature}</span>)}</div>
       <footer className={item.world === "hourly" ? "discovery-card__hourly-footer" : undefined}>
         {item.world === "hourly" ? <>
-          <div className="preview-card-price-row"><strong>{price}</strong><Link className="discovery-card__details" href={`/discover/place/${item.id}`} target="_blank" rel="noopener noreferrer">{details}<span aria-hidden="true">←</span></Link></div>
+          <div className="preview-card-price-row"><strong>{price}</strong></div>
           <CardContactActions key={item.id} world="hourly" placeId={item.id} placeName={localizedName} phone={item.phone} whatsapp={item.whatsapp} serviceName={item.name} />
         </> : <>
         <strong>{price}</strong>

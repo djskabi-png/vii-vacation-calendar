@@ -1,0 +1,16 @@
+{
+  "task_id": "vii-event-gallery-recovery-20261020",
+  "candidate": "release/vii-ten-part-polish-20261020 working tree",
+  "public_release": false,
+  "root_cause": "Rose Gold sources 1-3 returned text/html while source 4 was a valid JPEG; the prior gallery stopped after the first alternate failed.",
+  "implementation": ["Shared directional scan for the first decodable supplier image", "Latest-request and unmount guards preserved", "Failure appears only after the remaining source range is exhausted"],
+  "checks": [
+    "ROOT_CAUSE_VERIFIED",
+    "pnpm build passed",
+    "52/52 affected-family tests passed",
+    "390x844 automatic reload recovery: 4269b29b08ec935.jpeg, 1027x668, no error/missing/loading",
+    "1440x900 card verification: valid 1027x668 JPEG, no error/missing",
+    "Port 4173 clear and owned preview processes stopped"
+  ],
+  "publication_boundary": "Not deployed because the current request did not authorize publication."
+}

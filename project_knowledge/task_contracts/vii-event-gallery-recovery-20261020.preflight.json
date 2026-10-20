@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-event-gallery-recovery-20261020",
+  "project": "VII",
+  "task_type": "production-visible shared gallery defect repair",
+  "requested_outcome": "Rose Gold and every shared preview card must recover from stale supplier image URLs and show the first valid photograph.",
+  "natural_destination": "VII event availability cards on mobile and desktop",
+  "authorization_boundary": "Source repair and local verification are authorized. Public deployment is excluded until Adir explicitly authorizes this candidate.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-QA-001","reason":"A public card is visibly blank.","acceptance_impact":"Require exact Rose Gold evidence and shared-family regression."},
+    {"lesson_id":"ADIR-WEB-002","reason":"Recovery is asynchronous and gallery navigation remains interactive.","acceptance_impact":"Verify loading, consecutive failures, success, exhaustion and manual navigation."},
+    {"lesson_id":"ADIR-MOBILE-001","reason":"The reported failure is mobile.","acceptance_impact":"Inspect the exact card at 390px and desktop."}
+  ],
+  "predicted_rejections": [
+    {"rejection":"Only Rose Gold is patched while another card can still stay blank.","prevention":"Repair the shared gallery loader.","acceptance_check":"Unit tests prove consecutive invalid URLs are skipped for both shared card families."},
+    {"rejection":"The error badge remains after a later photo succeeds.","prevention":"Commit success and clear error in one final gallery state update.","acceptance_check":"Rendered card has an image and no error status after recovery."},
+    {"rejection":"A false HTTP 200 is treated as an image.","prevention":"Use browser image decode instead of response status.","acceptance_check":"Rose Gold HTML responses fail decode and the first JPEG succeeds."}
+  ],
+  "affected_family": ["event availability cards", "event discovery cards", "property cards", "map and favorites preview galleries", "mobile and desktop"],
+  "family_inventory_complete": true,
+  "midpoint_gate": {"required":true,"trigger":"After focused tests and before broad build/browser verification.","checks":["three stale Rose Gold URLs rejected", "fourth JPEG selected", "no stale error state"]},
+  "adversarial_close": {"attack_questions":["Can two consecutive failures still stop recovery?", "Can a stale request overwrite a newer click?", "Does Rose Gold still show no image at 390px?"],"natural_destination_evidence":"Local exact Rose Gold card at 390px and desktop.","affected_family_evidence":"Focused loader/gallery tests plus production build."},
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

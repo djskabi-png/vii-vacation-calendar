@@ -1,0 +1,28 @@
+{
+  "status": "fixed",
+  "symptom": "The Rose Gold event card shows a blank media panel and a not-loaded badge instead of a photograph.",
+  "expected_behavior": "A card with multiple supplier photographs automatically presents the first decodable photo even when earlier gallery URLs are stale.",
+  "environment": "Public VII event availability card reported on 2026-10-20 at mobile width; local candidate branch release/vii-ten-part-polish-20261020.",
+  "reproduction": {"steps":["Inspect event-1085 gallery sources.","Request each source and compare response media types.","Trace the shared gallery failure transition."],"evidence":"Rose Gold sources 1-3 return text/html, source 4 returns image/jpeg; the prior hook tested only source 2 after source 1 failed and then stopped."},
+  "observations": [
+    {"observation":"The catalog contains twelve Rose Gold image URLs.","evidence":"app/data/sergey-public-catalog.json event-1085."},
+    {"observation":"The first three URLs are not image payloads despite HTTP 200.","evidence":"curl content-type checks returned text/html for 5069..., 7369... and 169b... ."},
+    {"observation":"Later URLs are valid JPEGs.","evidence":"4269... returned image/jpeg with 201933 bytes."}
+  ],
+  "hypotheses": [
+    {"id":"H1","mechanism":"Consecutive stale supplier URLs stop gallery recovery after only one alternate is tested.","prediction":"The first and second sources fail but a later source decodes successfully; old state remains on index 0 with error.","discriminating_test":"Check sequential content types and trace setImageIndex through usePreviewGallery.","result":"Observed exactly: first three are HTML, fourth is JPEG, and the old hook stopped when target index 1 failed.","status":"supported"},
+    {"id":"H2","mechanism":"Rose Gold has no usable photos in the supplier catalog.","prediction":"Every catalog URL fails image validation.","discriminating_test":"Request the complete leading source set and inspect content types.","result":"Rejected: source 4 and several later sources are valid JPEGs.","status":"rejected"}
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {"change":"Make the shared preview loader continue in the requested direction until it finds a decodable image or exhausts the gallery.","evidence":"Focused tests cover two consecutive failures followed by success and full exhaustion. A fresh 390px browser reload automatically selected the fourth Rose Gold source at 1027x668 with no error or missing state."},
+  "affected_family": ["PreviewCardGallery consumers", "PropertyCard gallery", "event availability rail", "event discovery rail", "favorites and map previews"],
+  "regression_checks": [
+    {"check":"Focused image loader and catalog contracts","status":"passed","evidence":"15/15 tests passed."},
+    {"check":"Shared preview-card affected family","status":"passed","evidence":"52/52 gallery, loading, map, discovery, interaction and consistency tests passed."},
+    {"check":"Production build","status":"passed","evidence":"pnpm build completed successfully."},
+    {"check":"Rose Gold natural destination","status":"passed","evidence":"Automatic recovery verified after reload at 390x844 and visually rechecked at 1440x900; valid JPEG displayed with no failure badge."}
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [],
+  "authorization_boundary": "Local repair and verification only; no public deployment without current approval."
+}

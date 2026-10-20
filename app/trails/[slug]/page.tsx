@@ -11,9 +11,13 @@ import { GuestReviewStudio } from "../../components/guest-review-studio";
 import { BreadcrumbTrail } from "../../components/breadcrumb-trail";
 import { ViewedItemTracker } from "../../components/viewed-item-tracker";
 import { ViewedItemBootstrap } from "../../components/viewed-item-bootstrap";
-import { managedTrails } from "../../lib/managed-public-content";
+import { managedDiscoveryItems, managedTrails } from "../../lib/managed-public-content";
 import { notFound } from "next/navigation";
 import { SearchAfterResults } from "../../components/search-after-results";
+import { TrailNearbyWorlds } from "../../components/trail-nearby-worlds";
+import { properties } from "../../data/site-data";
+import { discoveryItems } from "../../data/world-data";
+import { nearbyRecommendations, nearbyRegion } from "../../lib/nearby-recommendations";
 
 export function generateStaticParams() {
   return trails.map((trail) => ({ slug: trail.slug }));
@@ -35,6 +39,18 @@ export default async function TrailPage({ params }: { params: Promise<{ slug: st
   const { slug } = await params;
   const publishedTrails = await managedTrails(trails); const trail = publishedTrails.find((item) => item.slug === slug); if (!trail) notFound();
   const related = nearbyTrails(trail.mainArea, trail.region, 6, { inventory: publishedTrails, excludeSlug: trail.slug });
+  const origin = { location: trail.region, area: trail.mainArea };
+  const publicVacations = properties.filter((property) => property.active !== false && property.indexable !== false && Boolean(property.image));
+  const vacationNearby = nearbyRecommendations(publicVacations, origin, { key: (property) => property.slug, limit: 3, minimum: 0 }).items;
+  const spaNearby = nearbyRecommendations(discoveryItems.filter((item) => item.world === "spa" && item.indexable !== false && Boolean(item.image)), origin, { key: (item) => item.id, limit: 3, minimum: 0 }).items;
+  const [managedAttractions, managedProviders] = await Promise.all([
+    managedDiscoveryItems(discoveryItems.filter((item) => item.world === "activities" && item.indexable !== false && Boolean(item.image)), "attractions"),
+    managedDiscoveryItems(discoveryItems.filter((item) => item.world === "providers" && item.indexable !== false && Boolean(item.image)), "providers"),
+  ]);
+  const attractionNearby = nearbyRecommendations(managedAttractions, origin, { key: (item) => item.id, limit: 3, minimum: 0 }).items;
+  const trailRegion = nearbyRegion(trail.mainArea) || nearbyRegion(trail.region);
+  const providerPool = managedProviders.filter((item) => !trailRegion || item.serviceAreas?.some((area) => nearbyRegion(area) === trailRegion));
+  const providerNearby = (providerPool.length ? providerPool : managedProviders).slice(0, 3);
   const trailFaqs = [
     { question: `האם ${trail.name} מתאים למשפחות?`, answer: trail.familyFit },
     { question: `מה רמת הנגישות ב${trail.name}?`, answer: trail.accessibility },
@@ -70,6 +86,8 @@ export default async function TrailPage({ params }: { params: Promise<{ slug: st
       </div>
 
       <div className="section shell"><GuestReviewStudio placeName={trail.name} subjectId={trail.slug} subjectType="trail" /></div>
+
+      <TrailNearbyWorlds area={trail.mainArea} vacations={vacationNearby} spas={spaNearby} attractions={attractionNearby} providers={providerNearby} />
 
       <section className="section section-tint"><div className="shell"><div className="section-head"><div><h2>ממשיכים לטייל</h2></div><Link href="/trails">לכל המסלולים</Link></div><HomeMobileRail shufflePlaces id="trail-detail-related" label="ממשיכים לטייל" className="trail-grid trail-grid--related">{related.map((item) => <TrailCard key={item.slug} trail={item} compact />)}</HomeMobileRail></div></section>
       <SearchAfterResults world="trails" discoveryOnly location={trail.mainArea} inventory={publishedTrails.map(entry => ({ location: entry.region, area: entry.mainArea, nature: entry.nature, difficulty: entry.difficulty }))} />

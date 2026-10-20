@@ -1,0 +1,248 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-online-booking-repair-20261020",
+  "project": "VII",
+  "task_type": "production booking flow repair",
+  "goal": "Repair the complete vacation online-booking family without losing cached capability results or bypassing final live validation.",
+  "created_at": "2026-10-20T15:01:04.043992Z",
+  "updated_at": "2026-10-20T15:20:25.208362Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "a53f3cf6f221a2a2da458ce59681240effe0028a2744bf25317e1c3b162f9973"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "f1aa410611dd0fdb5adbb8a620832ee6ff9f9a3498a8108f74f1ccb86562379b"
+    },
+    "cognitive_model": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md",
+      "sha256": "708ce5d1b152afe220cf98008f571e7d27704c102624f7d7440dc85a1a6ba2d8"
+    },
+    "rulebook": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md",
+      "sha256": "eef33571725d590d0dadeeee9475422715279004fbc40356257d11e818039ab1"
+    },
+    "predictive_preflight": {
+      "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-aws-migration-20261020\\project_knowledge\\task_contracts\\vii-online-booking-repair-20261020.preflight.json",
+      "sha256": "225f2bce02f898c1a1178e6b642d8d672eb650d5a680350287c1aa59a480dc1d"
+    }
+  },
+  "predictive_preflight": {
+    "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-aws-migration-20261020\\project_knowledge\\task_contracts\\vii-online-booking-repair-20261020.preflight.json",
+    "sha256": "225f2bce02f898c1a1178e6b642d8d672eb650d5a680350287c1aa59a480dc1d",
+    "predicted_rejection_count": 4,
+    "affected_family_count": 8,
+    "lesson_bundle_count": 3,
+    "midpoint_required": true,
+    "effectiveness_measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ]
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-MIND-001",
+      "title": "כל משימה מפעילה את לולאת ההחלטה של אדיר",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "title": "מסירה דורשת תוצאה מלאה ובדיקת רגרסיה",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-SEARCH-001",
+      "title": "חיפוש הוא מוצר מדורג, מדיד ומנוהל",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Repair the complete vacation online-booking family without losing cached capability results or bypassing final live validation.",
+      "acceptance_check": "Undated cached filtering, exact room continuity, authoritative quote and checkout boundaries all pass automated and destination checks.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:prediction",
+      "source": "predictive_preflight",
+      "statement": "Predict likely Adir rejection reasons and bind prevention to observable evidence before implementation.",
+      "acceptance_check": "The bounded predictive manifest matches the task identity and selected lessons and passes deterministic validation.",
+      "status": "passed",
+      "evidence": [
+        "Predictive preflight C:\\Users\\Adir\\Documents\\vii.co.il\\vii-aws-migration-20261020\\project_knowledge\\task_contracts\\vii-online-booking-repair-20261020.preflight.json validated with sha256 225f2bce02f898c1a1178e6b642d8d672eb650d5a680350287c1aa59a480dc1d"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T15:01:04.043918Z"
+    },
+    {
+      "id": "preflight:midpoint",
+      "source": "predictive_preflight.midpoint_gate",
+      "statement": "After reproducing the live failure and tracing the room from card to quote.",
+      "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
+      "status": "passed",
+      "evidence": [
+        "Live home-deals returned 18 online offers inside a stale accepted snapshot, while code explicitly disabled all online eligibility when stale.",
+        "The live stay-quote endpoint returned 503 for three online deals; the card URL dropped roomID and the quote path depended on calendar before authoritative vacancy."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T15:01:21.037865Z"
+    },
+    {
+      "id": "preflight:adversarial",
+      "source": "predictive_preflight.adversarial_close",
+      "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
+      "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:effectiveness",
+      "source": "predictive_preflight.effectiveness",
+      "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
+      "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-MIND-001",
+      "source": "lesson:ADIR-MIND-001",
+      "statement": "לפני עבודה מהותית המבצע מתרגם את הבקשה לתוצאה המלאה, חוזה מה אדיר צפוי לבדוק, מאמת אמת והרשאה, ובונה בדיקות קבלה וראיה גלויה במקום שבו התוצאה אמורה לעבוד.",
+      "acceptance_check": "A new representative version-two task contract cannot start without a valid matching predictive manifest, rejects a missing or oversized lesson bundle and private feedback storage, creates midpoint, adversarial and effectiveness requirements, detects manifest tampering and blocks completion while any predictive check is pending. A complete real contract must return VERIFIED, while an existing version-one contract must remain finishable.",
+      "status": "passed",
+      "evidence": [
+        "Version-two preflight validated, live failure was reproduced, and the compound root cause was recorded at the midpoint before implementation broadened."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T15:17:22.371736Z"
+    },
+    {
+      "id": "lesson:ADIR-QA-001",
+      "source": "lesson:ADIR-QA-001",
+      "statement": "שום פרויקט או תוצר אינם גמורים כאשר היעד הטבעי אינו מציג את התוצאה המבוקשת, כאשר מצב שנשמר לא שרד רענון, כאשר קיימים רכיבים מתים, מצבים מזויפים, מסלולים קטועים וחיבורים שלא נבדקו מקצה לקצה, או כאשר המבצע לא פתח בעצמו את הגרסה המדויקת ובדק אותה לפי סוג התוצר. לאחר כל תיקון מקומי חוזרים להבטחה המקורית ולמטרת העל, ובודקים מחדש את כל המסלול, משפחת המצבים והקריטריונים הקריטיים. הוכחה שתוקן הפרט האחרון אינה אישור שהמוצר, המסמך, המחקר, המדיה, האוטומציה או הפעולה העסקית המלאה מוכנים או שאדיר צפוי להיות מרוצה. מוצר ציבורי שמשרת לקוחות אינו מאושר למסירה רק על בסיס בדיקות המבצע: לאחר פרסום מועמד מותנה נדרשת קבוצת בדיקות מייצגת על הגרסה המדויקת, עם תרחישי לקוח, תפעול, עסק וסיכון. פרויקט מסוג אחר מפעיל בדיקות בעלי עניין מתאימות לסוגו או מנמק במדויק מדוע השער אינו חל. כל מסירה לאדיר כוללת קישור ישיר ושימושי לכל תוצאה שניתנת לפתיחה. אם אין קישור אפשרי, מציינים זאת במפורש ומוסרים את המיקום המדויק או דרך האחזור.",
+      "acceptance_check": "Before any complete, ready or likely-to-satisfy judgment, the evidence must name the original promise, distinguish the latest repaired detail from the full outcome, map every critical journey and affected-family item to passed evidence, a precise blocker or justified exclusion, and inspect the exact final artifact at its natural destination. A fixture that proves only the most recent local correction must be blocked from full approval, regardless of project type. A deliberately incomplete review or task must be blocked. A public customer-facing review must also fail without five to ten passed post-deploy representative actor scenarios on the exact version and at least three applicable stakeholder perspectives. A justified non-public or non-customer artifact must remain valid without an irrelevant public cohort. A completed result with an addressable destination fails delivery when its direct link is omitted. A result without a possible link passes only when the exact location or retrieval path and a concrete no-link reason are present.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-SEARCH-001",
+      "source": "lesson:ADIR-SEARCH-001",
+      "statement": "חיפוש מגדיר קורפוס, שדות, דירוג, שפות, שגיאות כתיב, מילים נרדפות, תעתיקים, מצבי אפס ומגבלת מהירות, וכל משטחי הגילוי מתארים ושומרים את אותו מצב.",
+      "acceptance_check": "חבילת הזהב נכשלת על תוצאה עליונה לא קשורה, רשומה לא זמינה, שאילתת אפס ללא התאוששות, פער מצב, מסנן מת, אינדקס לא טרי, חריגה מתקציב המהירות או יכולת ניהול שלא השתקפה בחיפוש החי.",
+      "status": "passed",
+      "evidence": [
+        "Undated capability and dated availability remain separate: persisted capability prevents false zero results, while dated selection still requires authoritative validation."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T15:17:22.935112Z"
+    },
+    {
+      "id": "project:vii-sources",
+      "source": "project_guidance",
+      "statement": "VII_PLATFORM_MASTER_PLAN.md and VII_FEEDBACK_STANDARD.md reviewed before implementation.",
+      "acceptance_check": "VII_PLATFORM_MASTER_PLAN.md and VII_FEEDBACK_STANDARD.md reviewed before implementation.",
+      "status": "passed",
+      "evidence": [
+        "Reviewed VII_PLATFORM_MASTER_PLAN.md and VII_FEEDBACK_STANDARD.md before implementation."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T15:17:18.867434Z"
+    },
+    {
+      "id": "cache-last-known",
+      "source": "user_correction",
+      "statement": "Undated online results and online-first deal ordering use the last accepted capability snapshot even when refresh is late.",
+      "acceptance_check": "Stale accepted snapshots retain online eligibility; transient refresh failure cannot replace them with empty data.",
+      "status": "passed",
+      "evidence": [
+        "63 focused online-booking tests passed, including 30-minute capability refresh, persisted last-good fallback, stale accepted deal eligibility and strict dated validation."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T15:17:19.358897Z"
+    },
+    {
+      "id": "room-continuity",
+      "source": "user_bug_report",
+      "statement": "The exact supplier room selected on a deal card survives detail and checkout navigation.",
+      "acceptance_check": "roomID is present in the detail URL, verified against room inventory, sent to quote and retained in checkout.",
+      "status": "passed",
+      "evidence": [
+        "Focused contract tests verify roomID survives deal URL, detail validation, authoritative quote and checkout."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T15:17:19.940001Z"
+    },
+    {
+      "id": "authoritative-quote",
+      "source": "official_api",
+      "statement": "Final vacation price and availability come from the supplier vacancy endpoint.",
+      "acceptance_check": "Known room calls vacancy directly; unknown room uses site-scoped search then vacancy; invalid responses fail closed.",
+      "status": "passed",
+      "evidence": [
+        "Focused tests verify known rooms call vacancy directly, unknown rooms use scoped search then vacancy, and malformed or unavailable responses fail closed."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T15:17:20.379338Z"
+    },
+    {
+      "id": "coherent-ui",
+      "source": "user_bug_report",
+      "statement": "Online claims and actions remain coherent on search, detail and checkout.",
+      "acceptance_check": "No status copy promises online continuation independently of verified booking readiness, and detail exposes the booking hub.",
+      "status": "passed",
+      "evidence": [
+        "Detail now exposes the booking hub, calendar failure permits selection for final validation, and status copy no longer promises an online action independently of quote readiness."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T15:17:20.839456Z"
+    },
+    {
+      "id": "no-publish-yet",
+      "source": "latest_user_release_boundary",
+      "statement": "Keep this repair in the local bug-batch release candidate until Adir authorizes publication.",
+      "acceptance_check": "No deployment or production mutation occurs during implementation.",
+      "status": "passed",
+      "evidence": [
+        "No deployment or production mutation was performed; changes remain in the local bug-batch candidate."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T15:17:21.586918Z"
+    },
+    {
+      "id": "publish-public-batch",
+      "source": "latest_user_authorization",
+      "statement": "Publish the complete accumulated public bug-fix candidate, excluding only the known server migration work still in progress.",
+      "acceptance_check": "The exact immutable release is deployed to https://vii.spaplus.co, all accumulated working-tree changes intended for the public batch are included, server-migration-only work is excluded, and post-deploy booking, search, media, navigation and responsive checks pass.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    }
+  ],
+  "verification_status": "in_progress",
+  "verification_errors": [],
+  "predictive_results": {
+    "midpoint": {
+      "observed_at": "2026-10-20T15:01:21.037777Z",
+      "evidence": [
+        "Live home-deals returned 18 online offers inside a stale accepted snapshot, while code explicitly disabled all online eligibility when stale.",
+        "The live stay-quote endpoint returned 503 for three online deals; the card URL dropped roomID and the quote path depended on calendar before authoritative vacancy."
+      ],
+      "findings": [
+        "The failure is a compounded state-transition regression, not absence of online inventory: stale suppression, room identity loss and a non-authoritative quote prerequisite."
+      ]
+    }
+  },
+  "last_freshness_check_at": "2026-10-20T15:20:13.944779Z",
+  "last_freshness_check_errors": []
+}

@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "taskId": "vii-trail-reverse-crosslinks-20261021",
+  "status": "verified_candidate",
+  "outcome": "Every trail detail page becomes a useful entry point into nearby vacation stays, spas, attractions and relevant suppliers.",
+  "naturalDestination": "/trails/:slug",
+  "authorizationBoundary": "Implement and verify in the current candidate only; do not publish until Adir finishes the bug batch and explicitly requests deployment.",
+  "affectedFamily": ["all published trail detail pages", "vacation, spa, attraction and provider internal links", "desktop and mobile trail layouts"],
+  "invariants": ["trail guide, safety, source, map, reviews and related-trail sections remain intact", "only public verified inventory with usable media is shown", "no invented distance or availability claim is displayed"],
+  "acceptance": ["Every trail page renders all four requested world groups with crawlable internal links.", "Location-labelled groups show only inventory from the trail region and never pad the list with an unrelated region.", "The section remains compact and readable rather than stacking four full result sliders.", "Desktop and 390px mobile layouts have no clipping, broken media or horizontal overflow.", "Production build and trail-family regressions pass."]
+}

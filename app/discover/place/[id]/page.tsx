@@ -16,6 +16,7 @@ import { spaEditorialDescription, spaEditorialTitle } from "../../../data/spa-ed
 import hourlyCatalog from "../../../data/sergey-hourly-catalog.json";
 import { managedDiscoveryItems } from "../../../lib/managed-public-content";
 import { serverLocalePath } from "../../../i18n/server-public-copy";
+import { hourlyBreadcrumbForLocation } from "../../../data/world-search-landings";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -71,15 +72,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function Page({ params }: Props) {
   const { item, items, spaSite, hourlyPlace } = await resolveItem((await params).id);
   const indexable = item.indexable === true || (item.indexable !== false && (item.world === "spa" || item.world === "hourly" || item.world === "activities"));
+  const itemBreadcrumbs = item.world === "hourly"
+    ? [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), hourlyBreadcrumbForLocation(item.area, item.location), { name: item.name, path: `/discover/place/${item.id}` }]
+    : [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), { name: item.name, path: `/discover/place/${item.id}` }];
   return <>
     <ViewedItemBootstrap id={item.id} world={item.world} name={item.name} location={`${item.location}, ${item.area}`} image={item.image} href={`/discover/place/${item.id}`} meta={item.priceLabel || item.duration} />
     {indexable ? <StructuredData data={discoverySchema(item)} /> : null}
     {itemFaq(item, spaSite, hourlyPlace).length ? <StructuredData data={faqSchema(itemFaq(item, spaSite, hourlyPlace))} /> : null}
-    <StructuredData data={breadcrumbSchema([
-      { name: "ראשי", path: "/" },
-      worldBreadcrumb(item.world),
-      { name: item.name, path: `/discover/place/${item.id}` },
-    ])} />
+    <StructuredData data={breadcrumbSchema(itemBreadcrumbs)} />
     <DiscoveryPlacePage initialId={item.id} initialItem={item} relatedItems={items}
       initialSpaDetails={spaSite ? getSpaDetails(item.id, spaSite) : undefined}
       initialHourlyDetails={hourlyPlace ? getHourlyDetails(item, hourlyPlace) : undefined} />

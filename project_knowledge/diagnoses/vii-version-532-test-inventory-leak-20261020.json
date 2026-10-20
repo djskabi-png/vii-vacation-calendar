@@ -1,0 +1,92 @@
+{
+  "status": "fixed",
+  "symptom": "Production Sites version 532 displayed the internal vacation fixture 'המתחם הקטלני של רועי' with room 'test4' and phone 050-1234567 in the homepage last-minute rail.",
+  "expected_behavior": "Internal QA fixtures must be absent from every public catalog, cached discovery rail, detail path and booking entry.",
+  "environment": "Observed on https://vii.spaplus.co in Sites version 532, deployment appgdep_6ad7aa2aec28819188014d5f824e12f6. Fixed and independently verified on Sites version 533, deployment appgdep_6ad7b050469c81918a1a11ba1ba01f1e, on 2026-10-20 after the dynamic homepage rail settled.",
+  "reproduction": {
+    "steps": [
+      "Open the public homepage in a fresh browser session.",
+      "Wait for the last-minute availability rail to replace its loader.",
+      "Inspect the rendered cards."
+    ],
+    "evidence": "The rendered rail contained the exact internal fixture name, room, phone and ₪100 total while the server-rendered catalog surface excluded it."
+  },
+  "observations": [
+    {
+      "observation": "publicCatalogSummaries filters entries through publicCatalogEntryAllowed.",
+      "evidence": "app/lib/public-catalog-read.ts"
+    },
+    {
+      "observation": "The home-deals endpoint accepted cached deals using publishedSupplierIds only and did not intersect them with the filtered public summary set.",
+      "evidence": "app/api/vii/home-deals/route.ts before the fix"
+    },
+    {
+      "observation": "A cached availability snapshot can outlive a later catalog-level fixture exclusion.",
+      "evidence": "Production version 532 returned the fixture only after the dynamic cached availability rail loaded."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "The last-known-good availability cache retained a supplier deal and the final endpoint filtered only by published supplier ID, bypassing the public catalog fixture predicate.",
+      "prediction": "The fixture appears in the hydrated availability rail even though public catalog summaries and server-rendered catalog cards exclude it.",
+      "discriminating_test": "Compare the settled homepage rail with the public catalog guard and trace the home-deals final filtering boundary.",
+      "result": "Observed exactly: the dynamic rail contained the fixture, publicCatalogSummaries applied the guard, and the endpoint did not intersect cached deals with filtered summaries.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "Sites deployed the wrong commit or stale frontend assets.",
+      "prediction": "The production page would lack version 532 assets/configuration and other release changes.",
+      "discriminating_test": "Verify the deployment record, public headers/assets and other version 532 corrections.",
+      "result": "Deployment 532 succeeded on commit 8aaeab0, production returned the new asset family, aws-aurora origin and the other release corrections; only the cached deal boundary leaked the fixture.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Filter freshly generated deals through the shared public fixture predicate and intersect every cached homepage deal with the already-filtered public catalog summary IDs before curation and rendering.",
+    "evidence": "13 focused tests, 35 affected-family tests, the production build and the full 1,377-test suite pass locally."
+  },
+  "affected_family": [
+    "homepage last-minute availability snapshots",
+    "regional homepage vacation availability",
+    "fresh supplier availability snapshot generation",
+    "last-known-good cached deal rendering"
+  ],
+  "regression_checks": [
+    {
+      "check": "Fresh supplier availability cannot add the exact fixture.",
+      "status": "passed",
+      "evidence": "tests/vii-home-deals.test.mjs"
+    },
+    {
+      "check": "Cached deal boundary rejects fixture identities and keeps real places.",
+      "status": "passed",
+      "evidence": "tests/public-catalog-guard.test.mjs"
+    },
+    {
+      "check": "Cache, regional expansion and parallel-read contracts remain intact.",
+      "status": "passed",
+      "evidence": "35 focused affected-family tests passed."
+    },
+    {
+      "check": "Complete project regression suite.",
+      "status": "passed",
+      "evidence": "1,377 of 1,377 tests passed after a clean rerun."
+    },
+    {
+      "check": "Deployed public regression on desktop and mobile.",
+      "status": "passed",
+      "evidence": "Sites version 533 showed real last-minute offers with zero matches for the fixture name, test4 or 050-1234567; no horizontal overflow was observed at 1280x720 or 390x844."
+    },
+    {
+      "check": "Online-booking availability remained functional.",
+      "status": "passed",
+      "evidence": "Production capabilities returned 21 entries and a read-only stay quote for siteID 1605, roomID 2877 returned available, total 1400, onlineBooking true without creating a booking."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [],
+  "authorization_boundary": "Repair and publish the public VII release only; no real booking, destructive data action, DNS change or server migration."
+}

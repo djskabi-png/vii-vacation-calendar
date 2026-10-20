@@ -5,7 +5,7 @@ import ts from "typescript";
 
 const source = fs.readFileSync(new URL("../app/lib/preview-image-loader.ts", import.meta.url), "utf8");
 const compiled = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext } }).outputText;
-const { createPreviewImageLoader } = await import(`data:text/javascript;base64,${Buffer.from(compiled).toString("base64")}`);
+const { createPreviewImageLoader, findReadyPreviewImage } = await import(`data:text/javascript;base64,${Buffer.from(compiled).toString("base64")}`);
 
 function fixture() {
   const images = [];
@@ -75,6 +75,26 @@ test("failed image requests are not cached and may be retried", async () => {
   assert.equal(await second, true);
 });
 
+test("gallery skips consecutive broken supplier URLs and selects the first decodable photo", async () => {
+  const attempts = [];
+  const readyIndex = await findReadyPreviewImage(["stale-html-1", "stale-html-2", "valid-photo", "unused"], 0, 1, async src => {
+    attempts.push(src);
+    return src === "valid-photo";
+  });
+  assert.equal(readyIndex, 2);
+  assert.deepEqual(attempts, ["stale-html-1", "stale-html-2", "valid-photo"]);
+});
+
+test("gallery reports exhaustion only after every remaining supplier URL fails", async () => {
+  const attempts = [];
+  const readyIndex = await findReadyPreviewImage(["shown", "broken-1", "broken-2"], 1, 1, async src => {
+    attempts.push(src);
+    return false;
+  });
+  assert.equal(readyIndex, null);
+  assert.deepEqual(attempts, ["broken-1", "broken-2"]);
+});
+
 test("decode failure is recoverable and never reported ready", async () => {
   const f = fixture();
   const first = f.loader.load("bad-decode");
@@ -112,7 +132,8 @@ test("decoded cache has a bounded LRU of48 entries", async () => {
 
 test("both card families retain displayed index until success with latest-request and unmount guards", () => {
   const hook = fs.readFileSync(new URL("../app/components/use-preview-gallery.tsx", import.meta.url), "utf8");
-  assert.match(hook, /index: ok \? target : imageIndex/);
+  assert.match(hook, /findReadyPreviewImage\(imagesRef\.current, target, direction\)/);
+  assert.match(hook, /index: readyIndex \?\? imageIndex/);
   assert.match(hook, /token !== request\.current/);
   assert.match(hook, /!alive\.current/);
   assert.match(hook, /connection\?\.saveData/);

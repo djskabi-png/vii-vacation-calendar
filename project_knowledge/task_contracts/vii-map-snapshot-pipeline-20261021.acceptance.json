@@ -1,0 +1,121 @@
+{
+  "goal": "Deliver a fast, truthful place-location preview backed by automatically maintained static map snapshots and open the existing interactive map only on demand.",
+  "intent_model": {
+    "literal_request": "For every place, capture and save a map image, show a floating open-map control, store whether the image exists, and automatically check missing images weekly in code.",
+    "implied_outcome": "Place pages feel instant and clean while map coverage heals automatically without chat reminders or repeated live tile loading.",
+    "likely_rejections": [
+      "A business photograph is still labeled as a map",
+      "The solution works only for one world",
+      "A provider outage produces a blank image",
+      "The weekly check exists only as a claim and not executable code",
+      "Attribution is missing or the implementation scrapes public OSM tiles"
+    ],
+    "interpretation_rules": [
+      {
+        "phrase": "לכל מקום",
+        "operational_meaning": "All eligible public place records with approved coordinates across the shared affected family, not only the example place.",
+        "acceptance_impact": "Require a complete inventory and coverage report, with explicit reasons for records lacking coordinates."
+      },
+      {
+        "phrase": "הכל צריך להיות אוטומטי טכנולוגי",
+        "operational_meaning": "Persisted state, idempotent generation, a real scheduler entry point and recovery behavior in the product code.",
+        "acceptance_impact": "A reminder or manual screenshot process cannot pass."
+      }
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "A clear map image with one floating open-map action.",
+    "current_decision": "Open the live map only when the visitor wants to pan or zoom.",
+    "next_action": "Activate the preview to load and use the interactive map.",
+    "deferred_complexity": ["provider generation", "weekly reconciliation", "failure recovery and status history"],
+    "preserved_depth": ["interactive zoom controls", "interactive map panning", "street and aerial map layers", "keyboard-accessible map controls", "approved location precision notice"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/task_contracts/vii-map-snapshot-pipeline-20261021.preflight.json",
+    "lesson_bundle_ids": ["ADIR-QA-001", "ADIR-VISUAL-001", "ADIR-MEDIA-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["VII visitor", "scheduled map snapshot reconciler", "VII operator"],
+  "natural_destination": "Public VII place detail location sections and the unattended weekly runtime path.",
+  "facts": [
+    {
+      "claim": "The shared map currently uses a business image as its inactive preview and loads Leaflet after activation.",
+      "evidence": "app/components/listing-map.tsx"
+    },
+    {
+      "claim": "The runtime already has D1, R2 and a Worker scheduled entry point.",
+      "evidence": "db/schema.ts, .openai/hosting.json and worker/index.ts"
+    },
+    {
+      "claim": "OSMF prohibits headless automated tile panning or prefetching from tile.openstreetmap.org.",
+      "evidence": "https://operations.osmfoundation.org/policies/tiles/"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "A production-approved static-images provider credential can be supplied through managed environment secrets before publication.",
+      "validation": "Verify the selected provider and secret binding in the exact public candidate without exposing the credential."
+    }
+  ],
+  "in_scope": [
+    "Persist snapshot status and immutable object identity",
+    "Generate only missing or stale eligible place snapshots",
+    "Run a guarded weekly reconciliation from code",
+    "Preserve the last ready snapshot on refresh failure",
+    "Serve snapshots with durable browser caching",
+    "Use the shared snapshot preview and lazy interactive map across callers",
+    "Keep visible map attribution and location precision semantics",
+    "Test success, missing, failure, duplicate, reload and responsive states"
+  ],
+  "out_of_scope": [
+    "Publishing the current bug batch before Adir says it is complete",
+    "Purchasing a map vendor plan or creating credentials",
+    "Replacing the interactive-map provider across search maps",
+    "Revealing more precise coordinates than the currently approved public record"
+  ],
+  "invariants": [
+    "Existing interactive zoom, pan, layer and marker behavior remains available after activation",
+    "Exact versus area-only precision remains unchanged",
+    "A failed refresh cannot delete or replace the last good snapshot",
+    "No provider token is exposed to the browser or committed to source",
+    "Other dirty bug-batch changes remain untouched"
+  ],
+  "affected_family": [
+    "ListingMap and its callers",
+    "vacation, event, spa, hourly and attraction detail pages",
+    "D1 metadata and R2 media",
+    "Worker schedule",
+    "four UI languages",
+    "desktop and mobile"
+  ],
+  "characteristics": { "stateful": true },
+  "requirements": [
+    { "id": "REQ-1", "statement": "The inactive map state displays a genuine saved map snapshot when ready and never mislabels a business photo as a map.", "source": "User request" },
+    { "id": "REQ-2", "statement": "The live interactive map and its dependencies load only after activation.", "source": "User performance goal" },
+    { "id": "REQ-3", "statement": "Snapshot metadata records missing, processing, ready, failed and stale outcomes with source identity and timestamps.", "source": "User automation request" },
+    { "id": "REQ-4", "statement": "A weekly idempotent reconciler fills missing or changed eligible snapshots and skips unchanged ready records.", "source": "User automation request" },
+    { "id": "REQ-5", "statement": "Generation failure preserves the last good image and records actionable failure state without retry loops.", "source": "VII persistence standard" },
+    { "id": "REQ-6", "statement": "Map generation uses an approved static-images provider and retains required attribution; it does not scrape public OSM tiles.", "source": "Provider policy and public trust" }
+  ],
+  "acceptance_checks": [
+    { "id": "AC-1", "requirement_ids": ["REQ-1", "REQ-2"], "kind": "success", "setup": "A place has a ready stored snapshot.", "action": "Open the detail page, then activate the map.", "observable_result": "The stored image appears immediately; only activation replaces it with the working live map." },
+    { "id": "AC-2", "requirement_ids": ["REQ-1", "REQ-3"], "kind": "empty", "setup": "A place has coordinates but no stored snapshot.", "action": "Open the detail page.", "observable_result": "The UI uses an honest non-map fallback without a broken image, and persisted state remains missing until generation succeeds." },
+    { "id": "AC-3", "requirement_ids": ["REQ-3", "REQ-4"], "kind": "persistence", "setup": "A weekly run generates a valid image.", "action": "Read metadata and object storage again after the run.", "observable_result": "Ready metadata, immutable key, content type, dimensions/source hash and object remain consistent." },
+    { "id": "AC-4", "requirement_ids": ["REQ-4"], "kind": "retry", "setup": "The same weekly window is invoked twice.", "action": "Run reconciliation twice with unchanged coordinates.", "observable_result": "The second invocation skips the ready current record and creates no duplicate generation." },
+    { "id": "AC-5", "requirement_ids": ["REQ-5"], "kind": "failure", "setup": "A prior ready image exists and the provider times out or returns an invalid image.", "action": "Run refresh.", "observable_result": "The prior object stays active, failure metadata is recorded and no immediate unbounded retry occurs." },
+    { "id": "AC-6", "requirement_ids": ["REQ-6"], "kind": "permission", "setup": "No approved provider credential is configured.", "action": "Run reconciliation.", "observable_result": "The run records provider_not_configured, makes no OSM tile requests and does not change the active image." },
+    { "id": "AC-7", "requirement_ids": ["REQ-1", "REQ-2", "REQ-6"], "kind": "recovery", "setup": "Desktop and 390px pages in representative worlds have ready snapshots.", "action": "Reload, focus and activate the preview.", "observable_result": "The map image, attribution and action are unclipped and the live map remains usable." }
+  ],
+  "open_questions": [
+    {
+      "question": "Which paid or owner-controlled static-images provider will be bound in production?",
+      "blocking": false,
+      "resolution": "Implement a provider adapter and fail-closed configuration now; choose and bind the credential before public release evidence."
+    }
+  ],
+  "authorization_boundary": "Candidate implementation and non-production verification are authorized. Publication, vendor purchase and production secret mutation remain excluded until separately authorized.",
+  "ready_for_implementation": true
+}

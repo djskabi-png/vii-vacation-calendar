@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-event-gallery-recovery-20261020",
+  "project": "VII",
+  "task_type": "production-visible shared gallery defect repair",
+  "goal": "Recover automatically from stale supplier gallery URLs so Rose Gold and every preview card show the first decodable photograph.",
+  "verification_status": "verified",
+  "requirements": [
+    {"id":"root-cause","statement":"Confirm the mechanism using the exact Rose Gold sources.","status":"passed","evidence":["The first three Rose Gold URLs return HTTP 200 text/html; the fourth returns HTTP 200 image/jpeg. The old gallery stopped after preloading only the next failed URL."]},
+    {"id":"shared-fix","statement":"Repair the causal shared gallery path, not one venue record.","status":"passed","evidence":["Shared findReadyPreviewImage scans consecutive supplier URLs until browser decode succeeds."]},
+    {"id":"focused-regression","statement":"Prove consecutive failure recovery and total exhaustion.","status":"passed","evidence":["15/15 focused image and catalog tests passed."]},
+    {"id":"natural-destination","statement":"Verify Rose Gold visually on local mobile and desktop.","status":"passed","evidence":["At 390x844 after reload and scroll, Rose Gold automatically advanced from three invalid sources to 4269b29b08ec935.jpeg at 1027x668 with no error, loading or missing state. Desktop 1440x900 displayed the same card with a valid 1027x668 JPEG and no missing/error state."]},
+    {"id":"release-boundary","statement":"Do not publish without current explicit authorization.","status":"passed","evidence":["No deployment action taken."]}
+  ],
+  "completed_at": "2026-10-20T20:57:11.5085321Z"
+}

@@ -58,11 +58,15 @@ test("map cards send only their primary image and room cards own stable media ge
 });
 
 test("card galleries advance past broken supplier images before showing the neutral fallback", async () => {
-  const [gallery, css] = await Promise.all([
+  const [gallery, hook, loader, css] = await Promise.all([
     read("app/components/preview-card-gallery.tsx"),
+    read("app/components/use-preview-gallery.tsx"),
+    read("app/lib/preview-image-loader.ts"),
     read("app/globals.css"),
   ]);
   assert.match(gallery, /onError=\{\(\) => \{[\s\S]*setBrokenImages\(previous => new Set\(previous\)\.add\(currentImage\)\)[\s\S]*setImageIndex\(imageIndex \+ 1\)/);
+  assert.match(hook, /findReadyPreviewImage\(imagesRef\.current, target, direction\)/);
+  assert.match(loader, /for \(let index = startIndex; index >= 0 && index < images\.length; index \+= direction\)/);
   assert.match(gallery, /preview-card-gallery__missing/);
   assert.match(css, /\.preview-card-gallery__missing \{[^}]*position:absolute;[^}]*place-items:center/);
 });

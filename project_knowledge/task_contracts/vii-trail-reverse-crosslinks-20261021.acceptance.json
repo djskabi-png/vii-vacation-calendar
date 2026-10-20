@@ -1,0 +1,37 @@
+{
+  "taskId": "vii-trail-reverse-crosslinks-20261021",
+  "status": "verified_candidate",
+  "publicationStatus": "not_published",
+  "outcomes": [
+    {
+      "requirement": "Every trail detail page connects to vacation, spa, attraction and provider inventory.",
+      "evidence": "The shared /trails/:slug template renders TrailNearbyWorlds with four crawlable groups, so the change covers every published trail detail page."
+    },
+    {
+      "requirement": "Recommendations must be regional and truthful.",
+      "evidence": "Vacation, spa and attraction pools use the shared regional policy with minimum 0, preventing unrelated-region filler. Providers are filtered by declared service areas, with nationwide providers accepted."
+    },
+    {
+      "requirement": "The section must be clean and fast rather than four heavy sliders.",
+      "evidence": "One responsive two-column grid is used on desktop and one column on mobile. There is no HomeMobileRail or horizontal slider in the component."
+    }
+  ],
+  "automatedChecks": {
+    "trailCrosslinkTests": "3/3 passed after the final regional-safety correction",
+    "productionBuild": "vinext build completed all five stages; RSC manifests agreed; exit code 0",
+    "diffCheck": "passed"
+  },
+  "visualChecks": [
+    {
+      "route": "/trails/snir-hatzbani",
+      "viewports": ["1280x720", "390x844"],
+      "result": "Four groups present, no horizontal overflow, no broken loaded media, modern Hebrew font stack, northern vacation and spa results, one verified northern attraction and three relevant providers."
+    },
+    {
+      "route": "/trails/timna-arches",
+      "viewports": ["1280x720", "390x844"],
+      "result": "Four groups present, no horizontal overflow, no broken loaded media, southern vacation and spa results, one verified local attraction and three relevant providers."
+    }
+  ],
+  "resourceCleanup": "Temporary browser tab was closed, viewport override reset, QA server stopped and port 4173 verified clear."
+}

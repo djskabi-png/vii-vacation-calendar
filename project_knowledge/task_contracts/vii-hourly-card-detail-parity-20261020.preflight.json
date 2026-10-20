@@ -1,0 +1,13 @@
+{
+  "taskId": "vii-hourly-card-detail-parity-20261020",
+  "affectedFamily": ["hourly discovery cards", "hourly place details", "visible and JSON-LD breadcrumbs"],
+  "likelyRejectionReasons": [
+    "A second details control remains visible or the whole card is not actually clickable.",
+    "Phone or WhatsApp is swallowed by the stretched card link.",
+    "Breadcrumbs link to a generic or empty hourly page instead of the place region.",
+    "The detail page is only recolored and still lacks the room-oriented hierarchy of vacation pages.",
+    "Mobile room cards or rate chips overflow or become difficult to scan."
+  ],
+  "earliestMidpoint": "Source tests for card interaction, breadcrumb hierarchy and hourly room-card structure before visual verification.",
+  "adversarialClose": "Exercise card body, gallery, favorite, phone and WhatsApp separately; inspect the same hourly detail at desktop and 390px; compare visible and structured breadcrumbs."
+}

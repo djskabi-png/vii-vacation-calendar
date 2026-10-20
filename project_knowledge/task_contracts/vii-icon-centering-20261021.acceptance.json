@@ -1,0 +1,24 @@
+{
+  "taskId": "vii-icon-centering-20261021",
+  "status": "verified_candidate",
+  "publicationStatus": "not_published",
+  "rootCause": "The generic .feature-list span rule also styled the nested icon frame. It injected padding and overrode the grid centering, shifting 34px feature icons 5.5px left and 5.5px down.",
+  "implementation": [
+    "Replaced hand-drawn property glyphs with one normalized Lucide 24px icon family.",
+    "Isolated icon colors and backgrounds through component-scoped CSS variables.",
+    "Restored display:grid, place-items:center, padding:0 and line-height:0 on nested property feature frames.",
+    "Normalized SVG block layout for shared square icon frames and the online-booking badge."
+  ],
+  "visualEvidence": {
+    "route": "/business?id=vacation-116#features",
+    "desktop": "1280x720: 10 visible grouped feature icons measured at 34x34 with 19x19 SVGs; every horizontal and vertical center delta was 0px; no page overflow.",
+    "mobile": "390x844: four visible preview icons measured at 30x30 with 17x17 SVGs; every horizontal and vertical center delta was 0px; no page overflow.",
+    "before": "The same grouped icons measured -5.5px horizontally and +5.5px vertically before the CSS collision was removed."
+  },
+  "checks": {
+    "tests": "6/6 targeted icon and business-detail regression tests passed",
+    "productionBuild": "vinext build completed all five stages; RSC manifests agreed; exit code 0",
+    "resourceCleanup": "temporary browser tab closed, viewport reset and port 4175 verified clear"
+  },
+  "durableRule": "VII_FEEDBACK_STANDARD.md now requires frame-to-SVG center measurement and family-wide regression whenever a shared icon wrapper fails."
+}

@@ -40,6 +40,10 @@ function PhoneIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.7 3.5 9 3a1.6 1.6 0 0 1 1.8 1l1 3a1.6 1.6 0 0 1-.5 1.7L9.7 10a14 14 0 0 0 4.3 4.3l1.3-1.6a1.6 1.6 0 0 1 1.7-.5l3 1a1.6 1.6 0 0 1 1 1.8l-.5 2.3a3 3 0 0 1-3 2.4A15.5 15.5 0 0 1 4.3 6.5a3 3 0 0 1 2.4-3Z" /></svg>;
 }
 
+function EventFeatureCheck() {
+  return <span className="event-feature-check" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="m4.5 10.2 3.3 3.3 7.7-7.7" /></svg></span>;
+}
+
 export default function EventPlacePage({ initialSlug, initialPlace, relatedPlaces, supplierDetail }: { initialSlug: string; initialPlace?: (typeof eventPlaces)[number]; relatedPlaces?: typeof eventPlaces; supplierDetail?: SupplierPlaceDetail }) {
   const { language, translate } = useSiteLanguage();
   const searchParams = useSearchParams();
@@ -155,8 +159,8 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
         <div className="shell event-place-layout">
           <div>
             {place.description ? <section id="event-about"><h2>{translate("על המקום")}</h2><p>{localizedDescription}</p></section> : null}
-            {place.features.length ? <section id="event-features"><h2>{translate("מתקנים ואפשרויות")}</h2><div className="feature-list">{localizedBusinessList(place.features, language, translate).map((feature) => <span key={feature}>✓ {feature}</span>)}</div></section> : null}
-            {supplierDetail?.rooms.length ? <section className="supplier-rooms"><h2>מתחמים לפי נתוני המקום</h2><div>{supplierDetail.rooms.map((room, index) => { const features = localizedBusinessList(room.features, language, translate); return <article key={`${room.name}-${index}`}><h3>{safeEventText(room.name, `${eventContentCopy.unit} ${index + 1}`)}</h3><p>{room.quantity} {room.quantity === 1 ? "מתחם" : "מתחמים"} · עד {room.guests} משתתפים ביחידה</p>{features.length ? <div className="feature-list">{features.map((feature) => <span key={feature}>✓ {feature}</span>)}</div> : null}</article>; })}</div></section> : null}
+            {place.features.length ? <section id="event-features"><h2>{translate("מתקנים ואפשרויות")}</h2><div className="feature-list">{localizedBusinessList(place.features, language, translate).map((feature) => <span key={feature}><EventFeatureCheck /><b>{feature}</b></span>)}</div></section> : null}
+            {supplierDetail?.rooms.length ? <section className="supplier-rooms"><h2>מתחמים לפי נתוני המקום</h2><div>{supplierDetail.rooms.map((room, index) => { const features = localizedBusinessList(room.features, language, translate); return <article key={`${room.name}-${index}`}><h3>{safeEventText(room.name, `${eventContentCopy.unit} ${index + 1}`)}</h3><p>{room.quantity} {room.quantity === 1 ? "מתחם" : "מתחמים"} · עד {room.guests} משתתפים ביחידה</p>{features.length ? <div className="feature-list">{features.map((feature) => <span key={feature}><EventFeatureCheck /><b>{feature}</b></span>)}</div> : null}</article>; })}</div></section> : null}
             <ListingAccessibility slug={place.slug} />
             <section id="event-map" className="location-card"><div><span className="eyebrow">המיקום</span><h2>{localizedLocation}</h2><p>{localizedArea}</p>{typeof place.lat === "number" && typeof place.lng === "number" ? <span className="location-card__inline-note">מגדילים, מקטינים ומזיזים את המפה כאן בעמוד.</span> : <span className="location-card__inline-note">המיקום המדויק טרם נמסר על ידי המקום.</span>}</div>{typeof place.lat === "number" && typeof place.lng === "number" ? <ListingMap listings={[place]} mode="events" single autoLoad /> : null}</section>
             <section className="policies-section"><h2>חשוב לדעת</h2><div><article><b>קיבולת</b><p>עד {place.guests} אורחים ביחידה הגדולה. קיבולת האירוע כולו תיבדק מול המקום.</p></article><article><b>זמינות</b><p>הזמינות הסופית נבדקת מול צוות המקום לאחר שליחת הבקשה.</p></article><article><b>מחיר</b><p>המחיר תלוי בתאריך, במספר המשתתפים ובאופי האירוע.</p></article><article><b>בקשת התאמה</b><p>צרפו תאריך וכמות משתתפים כדי שהמקום יוכל לבדוק התאמה לאירוע שלכם.</p></article>{supplierDetail?.policy.remarks ? <article><b>הערות המקום</b><p>{safeEventText(supplierDetail.policy.remarks, eventContentCopy.policy)}</p></article> : null}</div></section>

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-audit-remediation-release-20261020",
+  "project": "VII",
+  "task_type": "production remediation and public release",
+  "requested_outcome": "Repair the verified public-site defects, preserve working booking and discovery behavior, publish one tested candidate to the current temporary public VII destination, and verify it after publication.",
+  "natural_destination": "https://vii.spaplus.co",
+  "authorization_boundary": "Adir explicitly authorized public publication. Primary-domain DNS cutover, legal certification, real purchases, outbound messages, and destructive production data changes remain outside this release.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-QA-001","reason":"This is a public customer release.","acceptance_impact":"Require exact-version post-deploy journeys, rollback and direct link."},
+    {"lesson_id":"ADIR-WEB-002","reason":"Search, sliders, cards, galleries and nearby location are interactive.","acceptance_impact":"Exercise success, failure, retry, reload and reset states."},
+    {"lesson_id":"ADIR-MOBILE-001","reason":"Reported defects include clipping, overlays and delayed media on mobile.","acceptance_impact":"Verify 390px and low-height mobile paths independently."},
+    {"lesson_id":"ADIR-SEARCH-001","reason":"Online capability, managed pages, filters and nearby discovery are central.","acceptance_impact":"Require fast cached undated results, dated live reads and recoverable zero/error states."},
+    {"lesson_id":"ADIR-VISUAL-001","reason":"The audit found spacing, card, rail and room-layout defects.","acceptance_impact":"Require full-page visual review and no clipping, slivers or unexplained whitespace."},
+    {"lesson_id":"ADIR-MEDIA-001","reason":"The audit found missing, distorted and illustrative media concerns.","acceptance_impact":"Require valid media, correct crop, truthful identity and no broken image state."},
+    {"lesson_id":"ADIR-SEO-001","reason":"Broken managed pages and sitemap inventory affect public trust.","acceptance_impact":"Exclude invalid generated pages and verify canonical, robots and sitemap behavior on the temporary host."},
+    {"lesson_id":"ADIR-ADMIN-001","reason":"Public test data and publication guards originate in managed data.","acceptance_impact":"Require a durable exclusion guard without opening admin permissions."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"A release is published while the public test listing is still visible.","prevention":"Block test/demo inventory at the canonical public boundary and sitemap.","acceptance_check":"Exact public searches and homepage contain none of the known test identity fields."},
+    {"rejection":"Online booking or undated online filtering regresses.","prevention":"Preserve last-known-good cached capability behavior and run booking journeys before and after deploy.","acceptance_check":"Undated filter returns immediate cached results and a dated result reaches a valid booking action."},
+    {"rejection":"A local build passes but cards, rooms or sliders are still visibly broken.","prevention":"Inspect the rendered candidate at desktop and 390px before publication and again on the exact deployed version.","acceptance_check":"No broken media, cut rails, nested frames, card-only detail button, or mobile overlay blocks the tested families."},
+    {"rejection":"The release claims infrastructure, accessibility or legal completion without proof.","prevention":"Keep those claims explicitly bounded and publish only verified product-code changes.","acceptance_check":"Release evidence distinguishes current routing indicators from unverified infrastructure and human legal/assistive-tech review."},
+    {"rejection":"A new version is published without a verified rollback.","prevention":"Pin the current deployed version and verify rollback identity before deploy.","acceptance_check":"Release manifest names exact prior version and rollback method."}
+  ],
+  "affected_family": ["homepage rails", "vacation search and online capability", "dated booking", "nearby location", "vacation detail rooms", "spa landing", "event rails", "provider rails and cards", "managed search pages", "sitemap and metadata", "localized first viewport", "public cache and media headers", "mobile sticky controls"],
+  "family_inventory_complete": true,
+  "approved_precedents": {"sources":[{"label":"VII platform source of truth","source":"calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"},{"label":"Accepted VII product decisions","source":"calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"},{"label":"Verified audit findings","source":"project_knowledge/VII_FULL_PRODUCT_AUDIT_2026-10-20.md"}],"no_precedent_reason":null},
+  "midpoint_gate": {"required":true,"trigger":"After focused source fixes and targeted tests for the five highest-risk families, before full build and sitewide expansion.","checks":["Known test listing excluded everywhere","Undated online capability remains last-known-good and fast","Nearby-location failure resolves quickly with manual recovery","Room/card/rail fixes render correctly","Localized first viewport has no mixed Hebrew"],"not_required_reason":null},
+  "adversarial_close": {"attack_questions":["Can the known test entity be reached by any public listing, search route or sitemap?","Can a supplier/API interruption erase cached online results?","Can mobile users become stuck behind location, map or slider controls?","Can a broken image, clipped first card or giant white room panel still appear?","Can any changed route regress booking, contact or WhatsApp behavior?"],"natural_destination_evidence":"Exact version observed at https://vii.spaplus.co on desktop and 390px mobile after publication.","affected_family_evidence":"Every listed family maps to a passed check, precise blocker or justified exclusion."},
+  "effectiveness": {"baseline":"Public version 531 at commit c7e2d47 has verified audit defects and restored booking behavior to preserve.","measurements":["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],"target":"One bounded release candidate, zero repeated identical deploy attempts, no P0/P1 regression in the affected family."},
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

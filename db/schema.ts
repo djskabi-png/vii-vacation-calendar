@@ -1,4 +1,4 @@
-import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { index, integer, real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 export const discoveryOfferCache = sqliteTable("vii_discovery_offer_cache_v1", {
   cacheKey: text("cache_key").primaryKey().notNull(),
@@ -9,6 +9,35 @@ export const discoveryOfferCache = sqliteTable("vii_discovery_offer_cache_v1", {
   leaseUntil: integer("lease_until").notNull().default(0),
   leaseToken: text("lease_token"),
 });
+
+export const mapSnapshots = sqliteTable("vii_map_snapshots_v1", {
+  entityKey: text("entity_key").primaryKey().notNull(),
+  world: text("world").notNull(),
+  placeId: text("place_id").notNull(),
+  placeName: text("place_name").notNull(),
+  latitude: real("latitude").notNull(),
+  longitude: real("longitude").notNull(),
+  precision: text("precision").notNull(),
+  zoom: integer("zoom").notNull(),
+  sourceHash: text("source_hash").notNull(),
+  status: text("status").notNull().default("missing"),
+  objectKey: text("object_key"),
+  contentType: text("content_type"),
+  byteSize: integer("byte_size"),
+  width: integer("width"),
+  height: integer("height"),
+  provider: text("provider"),
+  attribution: text("attribution"),
+  generatedAt: text("generated_at"),
+  checkedAt: text("checked_at").notNull(),
+  retryAfter: text("retry_after"),
+  leaseUntil: text("lease_until"),
+  leaseToken: text("lease_token"),
+  lastError: text("last_error"),
+}, (table) => [
+  index("idx_vii_map_snapshots_status_retry").on(table.status, table.retryAfter),
+  index("idx_vii_map_snapshots_world_place").on(table.world, table.placeId),
+]);
 
 export const guestReviews = sqliteTable("guest_reviews", {
   id: text("id").primaryKey(),

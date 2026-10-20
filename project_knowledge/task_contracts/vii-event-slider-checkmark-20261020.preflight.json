@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-event-slider-checkmark-20261020",
+  "project": "VII",
+  "task_type": "targeted shared UI repair",
+  "requested_outcome": "Repair the events-place slider so it exposes the available venue inventory through working RTL navigation, and center and size every affected place-card checkmark consistently.",
+  "natural_destination": "VII events landing and event place-card family on desktop and mobile",
+  "authorization_boundary": "Source changes and local verification are authorized. Production publication remains excluded until Adir explicitly approves deployment of this candidate.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-QA-001","reason":"A reported public defect requires exact-family evidence.","acceptance_impact":"Require natural-surface and regression evidence before completion."},
+    {"lesson_id":"ADIR-WEB-002","reason":"The event rail is interactive.","acceptance_impact":"Exercise enabled and disabled arrows, first and last boundaries, pointer and keyboard behavior."},
+    {"lesson_id":"ADIR-MOBILE-001","reason":"The rail and card geometry change at mobile breakpoints.","acceptance_impact":"Verify desktop, 390px and low-height behavior without overflow or clipping."},
+    {"lesson_id":"ADIR-VISUAL-001","reason":"The checkmark defect is geometric and shared.","acceptance_impact":"Measure icon box, glyph centering, size and alignment across affected cards."},
+    {"lesson_id":"ADIR-TYPE-001","reason":"The affected surfaces contain Hebrew labels.","acceptance_impact":"Preserve the approved modern Hebrew font stack and direction."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"Only four venues remain in the general event rail or arrows do not reveal the rest.","prevention":"Remove the hard four-item cut and use the geometry-aware event rail for the complete venue set.","acceptance_check":"The rendered rail contains the full catalog count and its next arrow advances until the final boundary."},
+    {"rejection":"The checkmark is technically centered by CSS but still looks low or oversized.","prevention":"Replace baseline text glyphs with a shared fixed-viewBox SVG icon inside a grid-centered box.","acceptance_check":"Bounding boxes are centered and desktop/mobile screenshots show balanced optical alignment."},
+    {"rejection":"The targeted fix changes card copy, images, contacts or other sliders.","prevention":"Limit edits to event landing rail composition and the shared event feature checkmark primitive.","acceptance_check":"Existing card content, gallery, phone, WhatsApp and unrelated rails remain unchanged."},
+    {"rejection":"Rendering all venues makes the page feel slower or leaves a white image after moving the rail.","prevention":"Keep images lazy, cards compact and warm only the next rail-width of images before navigation.","acceptance_check":"Build passes, the rail remains responsive and the next visible card image is already painted while exposing every venue."}
+  ],
+  "affected_family": ["events landing venue rail", "shared event rail controls", "event place feature cards", "event room feature cards", "Hebrew RTL and localized LTR variants", "desktop and mobile layouts"],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label":"VII platform source of truth","source":"calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"},
+      {"label":"Accepted VII product decisions","source":"calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"},
+      {"label":"Observed public version 534","source":"https://vii.spaplus.co/events"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After focused source tests and the first locally rendered desktop event page, before full regression.",
+    "checks": ["rail item count matches catalog count", "next control is enabled when overflow exists", "checkmark SVG is centered in both event feature families", "no horizontal page overflow"],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": ["Can the rail still stop after four venues?", "Can an RTL arrow look enabled but fail to move?", "Can the checkmark sit off-center after wrapping or at 390px?", "Did the change alter contact, gallery or availability behavior?"],
+    "natural_destination_evidence": "A locally rendered exact candidate inspected on the events landing and an event detail route at desktop and 390px.",
+    "affected_family_evidence": "Focused contracts, full type/build checks and paired desktop/mobile geometry captures for the two changed families."
+  },
+  "effectiveness": {
+    "baseline": "Public version 534 exposes only four cards in the general events section and uses baseline text checkmarks in event feature cards.",
+    "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"],
+    "target": "One focused candidate with no hard venue truncation, working rail boundaries and optically centered checkmarks, without unrelated UI changes."
+  },
+  "privacy": {"raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true},
+  "ready_to_start": true
+}

@@ -38,3 +38,13 @@ export function hourlySearchHref(location?: string) {
   const slug = location && location !== "הכל" && location !== "כל הארץ" ? searchLocationSlug(location) : undefined;
   return slug ? `/hourly/search/${slug}` : "/hourly";
 }
+
+export function hourlyBreadcrumbForLocation(area: string, location?: string) {
+  const candidate = [area, location]
+    .map((value) => value?.trim())
+    .find((value): value is string => Boolean(value && searchLocationSlug(value)));
+
+  return candidate
+    ? { name: `חדרים לפי שעה ב${canonicalSearchLocation(candidate)}`, path: hourlySearchHref(candidate) }
+    : { name: "חדרים לפי שעה", path: "/hourly" };
+}

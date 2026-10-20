@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-ten-part-polish-20261020",
+  "project": "VII",
+  "task_type": "shared product polish, performance and public release",
+  "requested_outcome": "Complete all ten approved VII improvement chapters as one coherent release, verify every affected shared family with simulated-Adir review, publish the exact candidate, and recheck it publicly.",
+  "natural_destination": "https://vii.spaplus.co",
+  "authorization_boundary": "Implementation, tests and one verified publication to the current public VII Sites target are authorized. Primary-domain DNS cutover, destructive data changes, real purchases, real booking submission, legal certification and external messaging remain excluded.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-QA-001","reason":"This is a public multi-family release.","acceptance_impact":"Require exact-version public verification, family regression and rollback."},
+    {"lesson_id":"ADIR-WEB-002","reason":"Cards, sliders, maps, loading and navigation are interactive.","acceptance_impact":"Exercise success, loading, failure, recovery, reload and back states."},
+    {"lesson_id":"ADIR-MOBILE-001","reason":"Several reported defects are mobile clipping and overlay failures.","acceptance_impact":"Verify 390px, desktop and low-height responsive transitions."},
+    {"lesson_id":"ADIR-VISUAL-001","reason":"The request explicitly covers rooms, rails, imagery and visual coherence.","acceptance_impact":"Inspect full pages and shared component families for crop, spacing, edges and empty bands."},
+    {"lesson_id":"ADIR-MEDIA-001","reason":"Image sharpness, crop, identity and illustration disclosure are in scope.","acceptance_impact":"Require decoded media, truthful identity, dimensions and approved fallback behavior."},
+    {"lesson_id":"ADIR-SEARCH-001","reason":"Nearby recovery, map intent and search performance are in scope.","acceptance_impact":"Preserve URL state, filters, result truth, manual recovery and delayed map loading."},
+    {"lesson_id":"ADIR-TYPE-001","reason":"Hebrew typography and first-paint language consistency are in scope.","acceptance_impact":"Require server-visible language consistency and modern Hebrew on first paint."},
+    {"lesson_id":"ADIR-DEPLOY-001","reason":"Adir requested completion only after tests and publication.","acceptance_impact":"The exact candidate must be published through the established task and inspected at its natural destination."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"Only the supplied screenshots are repaired while equivalent cards or rails remain broken.","prevention":"Inventory and change shared families, then test each world on desktop and mobile.","acceptance_check":"Rooms, vacation, spa, events, providers and hourly representatives all pass the same family checks."},
+    {"rejection":"The site looks cleaner but online discovery or booking regresses.","prevention":"Keep catalog and availability invariants and rerun undated capability plus dated quote journeys.","acceptance_check":"Cached no-date online results remain instant and a dated read-only quote remains available."},
+    {"rejection":"Performance work merely adds loaders or changes result truth.","prevention":"Reduce critical payload and defer secondary work without changing counts, ranking or source data.","acceptance_check":"Meaningful first content improves while totals, filters and final results remain identical."},
+    {"rejection":"Illustration labels are removed while stock or generated media is presented as the real business.","prevention":"Remove disclosure only when verified real media replaces the illustration; otherwise keep a discreet truthful label.","acceptance_check":"Every changed image has verified identity or an accurate local disclosure."},
+    {"rejection":"A passing build is reported as completion without a public full-page review.","prevention":"Publish one immutable candidate and run independent simulated-Adir checks on the exact public version.","acceptance_check":"Exact version, deployment, rollback and desktop/mobile natural-destination evidence are recorded."}
+  ],
+  "affected_family": ["vacation room cards", "vacation, spa, event, provider and hourly result cards", "horizontal rails and tabs", "nearby and map interactions", "public copy and illustrative media", "loading, empty and error states", "homepage and search critical rendering", "contact, booking-context and 404 recovery", "Hebrew and EN/FR/RU first viewport", "public release and rollback"],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label":"VII platform source of truth","source":"calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"},
+      {"label":"Accepted VII product decisions","source":"calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"},
+      {"label":"Full product audit","source":"../project_knowledge/VII_FULL_PRODUCT_AUDIT_2026-10-20.md"},
+      {"label":"User screenshots and corrections","source":"Current VII conversation context"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After shared room/card/rail/nearby/loading primitives pass focused tests and a first rendered representative slice, before performance expansion and full release.",
+    "checks": ["One vacation detail room family is visually complete", "Each rail starts at the RTL edge without a cut card", "Whole-card activation excludes phone and WhatsApp", "Nearby failure reaches manual recovery", "Booking and online capability invariants still pass"],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": ["Can any shared card still show a broken, distorted or misleading image?", "Can any rail open with a cut first card or native scrollbar?", "Can nearby, map, booking or a delayed API leave the visitor stuck or blank?", "Can a language route show Hebrew or a forbidden fallback on first paint?", "Did payload reduction change counts, ranking, filters or booking truth?"],
+    "natural_destination_evidence": "Exact deployed version inspected at https://vii.spaplus.co on desktop, 390px mobile and a low-height viewport.",
+    "affected_family_evidence": "Every listed family has a passed check, precise blocker or justified exclusion, plus independent simulated-Adir review."
+  },
+  "effectiveness": {
+    "baseline": "Public Sites version 533 is stable for fixture exclusion and read-only online booking, but the October 20 product audit retains shared visual, recovery, payload and localization findings.",
+    "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"],
+    "target": "One coherent candidate with all ten chapters evidenced, zero P0/P1 regression, no repeated identical publication attempt, and exact public rollback."
+  },
+  "privacy": {"raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true},
+  "ready_to_start": true
+}

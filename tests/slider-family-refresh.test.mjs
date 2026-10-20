@@ -8,7 +8,7 @@ test('every static place/trail recommendation family explicitly opts in, semanti
    assert.ok(rails.length,path);
    assert.ok(rails.every(rail=>rail.includes('shufflePlaces')),path);
  }
- assert.match(read('events/page.tsx'),/<HomeMobileRail shufflePlaces id="events-world-places"/);
+ assert.match(read('events/page.tsx'),/<EventRail shufflePlaces warmAheadImages title=\{translate\("מקומות לאירועים"\)\}>\{eventPlaces\.map/);
  assert.match(read('events/page.tsx'),/<EventRail shufflePlaces title=\{translate\("ספקים לאירוע"\)\}/);
  assert.doesNotMatch(read('world-editorial-links.tsx'.replace(/^/,'components/')),/<HomeMobileRail shufflePlaces/);
  assert.doesNotMatch(read('events/page.tsx'),/<EventRail shufflePlaces title="סוגי מקומות/);

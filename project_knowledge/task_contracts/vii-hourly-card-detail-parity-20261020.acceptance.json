@@ -1,0 +1,14 @@
+{
+  "taskId": "vii-hourly-card-detail-parity-20261020",
+  "status": "passed_local_candidate",
+  "deployment": "not requested in the current bug-batch phase",
+  "checks": [
+    { "outcome": "No visible details button on hourly cards", "evidence": "DOM and desktop/mobile visual checks found zero controls labeled פרטי המקום." },
+    { "outcome": "Whole-card navigation with isolated controls", "evidence": "A real click on the hourly price area navigated from /hourly to /discover/place/hourly-475; source guard excludes anchors, buttons, inputs, selects and textareas so phone, WhatsApp, favorite and gallery controls remain independent." },
+    { "outcome": "Vacation-grade breadcrumb hierarchy", "evidence": "Visible mobile/desktop trail rendered ראשי > חדרים לפי שעה > חדרים לפי שעה במישור החוף והשפלה > אסקייפ לאב; JSON-LD uses the same helper." },
+    { "outcome": "Hourly detail visual and information parity", "evidence": "Room image, description and six verified rate options render in one room card; overview, facts, contact, amenities and practical information use coherent grouped sections." },
+    { "outcome": "Responsive and typography", "evidence": "Observed at 1280x720 and 390x844 with no horizontal overflow; Rubik, Heebo, Assistant font stack; room rate buttons remained 148px wide in a two-column mobile grid." },
+    { "outcome": "Regression", "evidence": "Production build passed; 125/127 broad tests passed initially and the two stale copy assertions were updated to the accepted new headings, then both targeted reruns passed; focused card/hourly suite passed 8/8." },
+    { "outcome": "Resource hygiene", "evidence": "Temporary QA tab closed, owned server stopped, and port 4173 verified clear." }
+  ]
+}

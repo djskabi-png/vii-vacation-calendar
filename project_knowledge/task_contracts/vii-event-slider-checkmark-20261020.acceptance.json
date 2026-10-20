@@ -1,0 +1,51 @@
+{
+  "goal": "The events landing exposes all venue cards through a clear working slider, and every affected place-card checkmark is visually centered and consistently sized.",
+  "intent_model": {
+    "literal_request": "Fix the events slider because there are more than three places, and center and resize the V marks inside circles or squares on place cards.",
+    "implied_outcome": "Visitors can browse the actual event inventory without an artificial short rail and the card UI looks professionally aligned.",
+    "likely_rejections": ["Only the visible screenshot is patched", "The rail still contains only four records", "Arrows are disabled or backwards", "The V is mathematically but not optically centered", "The fix hurts loading or other card actions"],
+    "interpretation_rules": [{"phrase":"יש הרבה יותר מ 3 מקומות","operational_meaning":"Do not cap the general venue rail to the first four records.","acceptance_impact":"Rendered rail count must equal the loaded event catalog count and remain navigable."}]
+  },
+  "cognitive_flow": {
+    "current_layer": "Browse event venues and understand feature cards.",
+    "current_decision": "Choose a venue or recognize a supported feature.",
+    "next_action": "Open the venue card or continue sliding.",
+    "deferred_complexity": ["Search filtering controls", "Realtime supplier availability", "Booking confirmation flow"],
+    "preserved_depth": ["Complete venue search", "Venue image gallery", "Direct phone action", "Direct WhatsApp action", "Availability detail flow"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/task_contracts/vii-event-slider-checkmark-20261020.preflight.json",
+    "lesson_bundle_ids": ["ADIR-QA-001", "ADIR-WEB-002", "ADIR-MOBILE-001", "ADIR-VISUAL-001", "ADIR-TYPE-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["Public event visitor"],
+  "natural_destination": "Events landing and event detail pages",
+  "facts": [
+    {"claim":"The current public general event section renders only four venue cards.","evidence":"Public version 534 DOM and app/events/page.tsx eventPlaces.slice(0, 4)."},
+    {"claim":"Event detail feature cards use a raw text checkmark before their label.","evidence":"app/events/place/client-page.tsx and the public event-2 route."}
+  ],
+  "assumptions": [{"claim":"The user's V complaint refers to the event place feature-card family observed in the same events context.","validation":"Inspect both event-level and room-level feature cards at desktop and mobile; keep the primitive scoped to that family."}],
+  "in_scope": ["General events venue rail", "RTL and LTR slider controls", "Event feature-card checkmark primitive", "Desktop and mobile geometry"],
+  "out_of_scope": ["Supplier availability rules", "Catalog synchronization", "AWS work", "Production deployment without explicit approval"],
+  "invariants": ["Venue catalog truth", "Card imagery", "Whole-card navigation", "Phone and WhatsApp isolation", "Availability and booking behavior", "Other world sliders"],
+  "affected_family": ["event landing rail", "event place feature list", "event room feature list", "four public languages"],
+  "characteristics": {"stateful": true},
+  "requirements": [
+    {"id":"REQ-1","statement":"The general events rail contains every loaded venue and exposes overflow through working controls.","source":"User request"},
+    {"id":"REQ-2","statement":"Affected checkmarks use a fixed SVG box with centered and consistent geometry.","source":"User request"},
+    {"id":"REQ-3","statement":"The repair preserves existing card, contact, image and availability behavior.","source":"Project truth"}
+  ],
+  "acceptance_checks": [
+    {"id":"AC-1","requirement_ids":["REQ-1"],"kind":"success","setup":"Events landing with more cards than fit in the viewport","action":"Load the page and activate the next control","observable_result":"The rail contains the full catalog, starts at the correct edge and advances to additional venue cards."},
+    {"id":"AC-2","requirement_ids":["REQ-1"],"kind":"persistence","setup":"Rail moved away from the initial boundary","action":"Reload and resize desktop to 390px and back","observable_result":"The rail resets to the logical start and remains navigable without page overflow."},
+    {"id":"AC-3","requirement_ids":["REQ-2"],"kind":"success","setup":"Event feature and room feature cards rendered","action":"Inspect glyph and container boxes","observable_result":"Each check SVG is centered in a fixed circle or square and uses the approved size at desktop and mobile."},
+    {"id":"AC-4","requirement_ids":["REQ-3"],"kind":"failure","setup":"Changed event cards rendered","action":"Exercise gallery, whole-card link, phone and WhatsApp boundaries","observable_result":"No action is lost, nested or redirected by the rail/checkmark repair."},
+    {"id":"AC-5","requirement_ids":["REQ-1","REQ-2","REQ-3"],"kind":"rollback","setup":"Candidate build available","action":"Compare changed files with public baseline","observable_result":"Only the requested event rail and feature-check families differ and production stays on version 534."}
+  ],
+  "open_questions": [],
+  "authorization_boundary": "Local implementation and verification are authorized; public deployment requires an explicit current approval.",
+  "ready_for_implementation": true
+}

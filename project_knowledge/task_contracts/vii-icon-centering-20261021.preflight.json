@@ -1,0 +1,8 @@
+{
+  "taskId": "vii-icon-centering-20261021",
+  "predictedRejections": ["The check mark is mathematically centered but still looks optically low or small.", "Only the screenshot example is fixed while room or card icons remain inconsistent.", "A generic CSS rule changes container sizes or breaks mobile layout.", "The code passes while the rendered SVG is still clipped or baseline-shifted."],
+  "affectedFamily": ["top property highlights", "facility groups", "room amenities", "event and hourly feature icons", "online booking badge"],
+  "midpoint": "Inspect the rendered feature section on one representative vacation listing before broadening verification.",
+  "adversarialClose": ["Measure the icon frame and SVG centers in the browser.", "Inspect multiple icon shapes rather than only the check mark.", "Verify desktop and 390px mobile rendering.", "Confirm no horizontal overflow or clipped SVG bounds."],
+  "effectivenessMeasures": ["center delta no greater than 0.5 CSS pixels", "zero clipped icons", "zero horizontal overflow", "production build exit code 0"]
+}

@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-online-booking-repair-20261020",
+  "project": "VII",
+  "task_type": "production booking flow repair",
+  "requested_outcome": "Repair the complete vacation online-booking family without losing cached capability results or bypassing final live validation.",
+  "natural_destination": "VII vacation search, last-minute cards, business detail and booking checkout",
+  "authorization_boundary": "Implement and verify locally as part of the open bug batch. Do not publish until Adir says the batch is complete and authorizes release.",
+  "lesson_bundle": [
+    {"lesson_id": "ADIR-MIND-001", "reason": "The request combines cache, search, detail and checkout behavior into one outcome.", "acceptance_impact": "Treat the full path as one contract and do not close on an isolated code fix."},
+    {"lesson_id": "ADIR-QA-001", "reason": "A booking regression can appear fixed while one transition still drops the room or online state.", "acceptance_impact": "Exercise success, stale-cache, supplier failure, loading, retry and final validation boundaries."},
+    {"lesson_id": "ADIR-SEARCH-001", "reason": "Undated online filtering must be immediate and cache-backed while dated search remains authoritative.", "acceptance_impact": "Separate cached capability discovery from dated live availability and prove both paths."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection": "Online places disappear when a scheduled refresh is late or the supplier has a transient failure.", "prevention": "Keep the last accepted capability snapshot and refresh it in the background every thirty minutes.", "acceptance_check": "Stale accepted data still filters and orders online places while checkout revalidates live."},
+    {"rejection": "The card says online but the business or checkout page cannot identify the selected room.", "prevention": "Carry the supplier room ID through card, detail, quote and checkout.", "acceptance_check": "The exact room ID survives every transition and is verified against the published room catalog."},
+    {"rejection": "A non-authoritative calendar dependency blocks a bookable room.", "prevention": "Use the official vacancy endpoint as the authoritative pre-booking check and use search only to choose a room when none was supplied.", "acceptance_check": "A known room reaches vacancy directly and an unknown room uses search then vacancy."},
+    {"rejection": "A status message promises online booking while no working call to action exists.", "prevention": "Derive the action from the verified quote and keep informational deal copy neutral.", "acceptance_check": "No copy claims an online continuation independently of the booking-ready state."}
+  ],
+  "affected_family": [
+    "undated online filter",
+    "online capability cache and refresh",
+    "dated live search",
+    "last-minute and holiday deal cards",
+    "business detail booking hub",
+    "supplier stay quote",
+    "vacation checkout",
+    "public document cache keys"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label": "VII platform architecture", "source": "C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"},
+      {"label": "VII accepted product behavior", "source": "C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"},
+      {"label": "Official Vii supplier frontend API", "source": "https://bizonline.co.il/api/ai/vii/Vii-Frontend.html"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After reproducing the live failure and tracing the room from card to quote.",
+    "checks": [
+      "Confirm whether stale cache status suppresses accepted online evidence.",
+      "Confirm whether the room ID is lost before the authoritative vacancy check."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Does a stale accepted cache still return real online places?",
+      "Can a transient capability refresh erase the last known list?",
+      "Can a card lose its room ID before checkout?",
+      "Can checkout proceed without a live authoritative vacancy and price response?"
+    ],
+    "natural_destination_evidence": "Local release candidate exercised across search, detail and checkout, followed by production evidence only after release authorization.",
+    "affected_family_evidence": "Targeted automated tests, type checking, build and responsive browser checks for the full online-booking path."
+  },
+  "effectiveness": {
+    "baseline": "The live system exposed cached online places but suppressed them when stale, dropped the room ID on navigation and returned supplier_unavailable from the stay-quote path.",
+    "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"],
+    "target": "A single coherent booking path with instant undated discovery, exact room continuity and authoritative live validation before checkout."
+  },
+  "privacy": {"raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true},
+  "ready_to_start": true
+}

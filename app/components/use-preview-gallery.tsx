@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type SetStateAction } from "react";
-import { previewImageLoader } from "../lib/preview-image-loader";
+import { findReadyPreviewImage, previewImageLoader } from "../lib/preview-image-loader";
 import { useSiteLanguage } from "../i18n/locale-provider";
 
 export function usePreviewGallery(images: string[]) {
@@ -34,10 +34,11 @@ export function usePreviewGallery(images: string[]) {
       return;
     }
     setState({ key: imageKey, index: imageIndex, pending: true, error: false });
-    void previewImageLoader.load(imagesRef.current[target]).then((ok) => {
+    const direction: -1 | 1 = target >= imageIndex ? 1 : -1;
+    void findReadyPreviewImage(imagesRef.current, target, direction).then((readyIndex) => {
       if (!alive.current || token !== request.current) return;
-      if (!ok) wanted.current = imageIndex;
-      setState({ key: imageKey, index: ok ? target : imageIndex, pending: false, error: !ok });
+      wanted.current = readyIndex ?? imageIndex;
+      setState({ key: imageKey, index: readyIndex ?? imageIndex, pending: false, error: readyIndex === null });
     });
   }
 

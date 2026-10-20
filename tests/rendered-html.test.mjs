@@ -471,7 +471,7 @@ test("spa booking uses only the supplier handoff while other discovery stays in 
   assert.doesNotMatch(spaPage, /spa-booking-dialog|<iframe|isFrame=1|ispackFrame=1/);
   assert.doesNotMatch(otherPages.join("\n").replaceAll('href="https://www.spaplus.co.il/club/?src=vii"', ""), /href=["'][^"']*(?:roomsvip\.com|spaplus\.co\.il)/i);
   assert.doesNotMatch(pages, /פתיחה במפה מלאה/);
-  assert.match(pages, /לפרטי החדרים והמחירים/);
+  assert.match(pages, /בדיקת זמינות מול המקום/);
   assert.match(pages, /מגדילים, מקטינים ומזיזים את המפה כאן בעמוד/);
 });
 
@@ -1140,7 +1140,7 @@ test("every discovery card has stable media and every new world has a full detai
   }
 
   for (const [pathname, expected, hasFaq = true] of [
-    ["/discover/place/hourly-1915", /חדרים ומחירי בסיס/],
+    ["/discover/place/hourly-1915", /החדרים והמחירים/],
     ["/discover/place/timna-park", /איך מזמינים את האטרקציה/],
     ["/discover/place/kfar-blum-kayaks", /איך מזמינים את האטרקציה/],
     ["/discover/place/spa-365", /חבילות הספא/, false],

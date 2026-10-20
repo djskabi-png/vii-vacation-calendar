@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "taskId": "vii-hourly-card-detail-parity-20261020",
+  "status": "verified_candidate",
+  "scope": [
+    "Remove the redundant visible details button from hourly result cards while preserving whole-card navigation and isolated phone/WhatsApp actions.",
+    "Match hourly detail breadcrumbs to the vacation hierarchy with a valid regional landing.",
+    "Bring hourly detail information architecture and visual treatment up to the established vacation detail standard on desktop and mobile."
+  ],
+  "naturalDestinations": [
+    "/hourly and hourly search result cards",
+    "/discover/place/hourly-* detail pages"
+  ],
+  "invariants": [
+    "Gallery controls, favorite, phone and WhatsApp remain independent interactive controls.",
+    "Verified supplier room, rate, amenity, map and contact data is preserved.",
+    "No public deployment occurs until Adir finishes the bug batch and explicitly asks to publish."
+  ],
+  "acceptance": [
+    "No visible hourly-card details CTA remains.",
+    "A non-interactive card surface opens the place, while phone and WhatsApp do not.",
+    "Hourly breadcrumbs render Root, Hourly, regional landing, Place and structured data matches.",
+    "Hourly rooms and rates are presented together as coherent room cards with a clean contact panel.",
+    "Desktop and 390px mobile layouts have no clipping, overflow, duplicate action or unapproved font."
+  ]
+}

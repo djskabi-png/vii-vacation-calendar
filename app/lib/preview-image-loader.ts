@@ -70,3 +70,20 @@ export function createPreviewImageLoader(createImage: () => HTMLImageElement = (
 }
 
 export const previewImageLoader = createPreviewImageLoader();
+
+/**
+ * Supplier galleries occasionally retain stale URLs that return an HTML page
+ * instead of image bytes. Walk in the requested direction until a decodable
+ * photo is found so one bad supplier asset cannot blank the whole card.
+ */
+export async function findReadyPreviewImage(
+  images: string[],
+  startIndex: number,
+  direction: -1 | 1,
+  load: (src: string) => Promise<boolean> = previewImageLoader.load,
+) {
+  for (let index = startIndex; index >= 0 && index < images.length; index += direction) {
+    if (await load(images[index])) return index;
+  }
+  return null;
+}

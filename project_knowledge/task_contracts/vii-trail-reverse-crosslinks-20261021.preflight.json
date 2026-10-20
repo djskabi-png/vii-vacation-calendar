@@ -1,0 +1,7 @@
+{
+  "taskId": "vii-trail-reverse-crosslinks-20261021",
+  "likelyRejectionReasons": ["Only one sample trail receives the links instead of the shared template.", "The same generic businesses appear everywhere without regional relevance.", "Four large sliders make the trail page slow and visually exhausting.", "A group is empty, links to a placeholder or uses broken media.", "The section looks acceptable on desktop but becomes clipped or repetitive on mobile."],
+  "midpoint": "Render all four groups for two trails from different regions and verify their hrefs before visual styling.",
+  "adversarialClose": "Inspect a northern and southern trail at desktop and 390px, open one item from every world, and verify no horizontal overflow or missing image.",
+  "selectedLessons": ["shared-family completeness", "natural-destination evidence", "mobile is a primary surface", "verified media and entity truth"]
+}

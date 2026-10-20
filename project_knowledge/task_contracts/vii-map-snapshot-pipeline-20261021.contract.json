@@ -1,0 +1,245 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-map-snapshot-pipeline-20261021",
+  "project": "VII",
+  "task_type": "map performance and automation",
+  "goal": "Persist static map previews and reconcile missing snapshots weekly without loading the interactive map before activation",
+  "created_at": "2026-10-20T21:34:01.818172Z",
+  "updated_at": "2026-10-20T21:51:09.357496Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "a53f3cf6f221a2a2da458ce59681240effe0028a2744bf25317e1c3b162f9973"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "f1aa410611dd0fdb5adbb8a620832ee6ff9f9a3498a8108f74f1ccb86562379b"
+    },
+    "cognitive_model": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md",
+      "sha256": "708ce5d1b152afe220cf98008f571e7d27704c102624f7d7440dc85a1a6ba2d8"
+    },
+    "rulebook": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md",
+      "sha256": "eef33571725d590d0dadeeee9475422715279004fbc40356257d11e818039ab1"
+    },
+    "predictive_preflight": {
+      "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-aws-migration-20261020\\project_knowledge\\task_contracts\\vii-map-snapshot-pipeline-20261021.preflight.json",
+      "sha256": "a30c5fe3dd08b5de2f8b063ad642aaabc97a26482f680eb89d5f2ae750f3d69f"
+    }
+  },
+  "predictive_preflight": {
+    "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-aws-migration-20261020\\project_knowledge\\task_contracts\\vii-map-snapshot-pipeline-20261021.preflight.json",
+    "sha256": "a30c5fe3dd08b5de2f8b063ad642aaabc97a26482f680eb89d5f2ae750f3d69f",
+    "predicted_rejection_count": 5,
+    "affected_family_count": 10,
+    "lesson_bundle_count": 3,
+    "midpoint_required": true,
+    "effectiveness_measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ]
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "title": "מסירה דורשת תוצאה מלאה ובדיקת רגרסיה",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-VISUAL-001",
+      "title": "ריסון חזותי וקצב ריווח מדוד",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-MEDIA-001",
+      "title": "זהות מדיה ומותג מאומתת לפני פרסום",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Persist static map previews and reconcile missing snapshots weekly without loading the interactive map before activation",
+      "acceptance_check": "Shared preview, persistence, weekly reconciliation and failure preservation pass across the affected family",
+      "status": "blocked",
+      "evidence": [
+        "Code, schema, API, R2 storage path, weekly reconciler, fallback and UI are implemented and locally verified."
+      ],
+      "reason": "Implementation candidate is complete, but real snapshot generation and weekly production execution require an approved static-map provider credential and the later authorized batch deployment.",
+      "updated_at": "2026-10-20T21:51:07.440709Z"
+    },
+    {
+      "id": "preflight:prediction",
+      "source": "predictive_preflight",
+      "statement": "Predict likely Adir rejection reasons and bind prevention to observable evidence before implementation.",
+      "acceptance_check": "The bounded predictive manifest matches the task identity and selected lessons and passes deterministic validation.",
+      "status": "passed",
+      "evidence": [
+        "Predictive preflight C:\\Users\\Adir\\Documents\\vii.co.il\\vii-aws-migration-20261020\\project_knowledge\\task_contracts\\vii-map-snapshot-pipeline-20261021.preflight.json validated with sha256 a30c5fe3dd08b5de2f8b063ad642aaabc97a26482f680eb89d5f2ae750f3d69f"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T21:34:01.818172Z"
+    },
+    {
+      "id": "preflight:midpoint",
+      "source": "predictive_preflight.midpoint_gate",
+      "statement": "One exact-coordinate place has a persisted snapshot, instant preview and click-to-live-map transition with failure preservation tests.",
+      "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
+      "status": "passed",
+      "evidence": [
+        "Implemented shared snapshot URL/fallback, D1 metadata, immutable R2 write-before-swap, Mapbox/MapTiler adapters, weekly Israel-time Worker hook; 6 focused tests and TypeScript pass"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T21:39:23.793077Z"
+    },
+    {
+      "id": "preflight:adversarial",
+      "source": "predictive_preflight.adversarial_close",
+      "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
+      "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
+      "status": "passed",
+      "evidence": [
+        "Local business page checked at the location section on desktop and mobile; fallback loaded at naturalWidth 1027 and live map opened visibly.",
+        "Shared ListingMap component covers vacation, events, spa, hourly and activities; inventory tests cover all five worlds and build completed.",
+        "Executed 3 specific completion attacks"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T21:51:08.187366Z"
+    },
+    {
+      "id": "preflight:effectiveness",
+      "source": "predictive_preflight.effectiveness",
+      "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
+      "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
+      "status": "passed",
+      "evidence": [
+        "Structured effectiveness result: first_pass=no, repeated_corrections=1, prevented_failures=2, elapsed_minutes=26.0; Visual QA caught a cached-404 hydration race before release; adversarial close prevented a false claim that provider-backed pixels and the production scheduler were live."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T21:51:08.758494Z"
+    },
+    {
+      "id": "lesson:ADIR-QA-001",
+      "source": "lesson:ADIR-QA-001",
+      "statement": "שום פרויקט או תוצר אינם גמורים כאשר היעד הטבעי אינו מציג את התוצאה המבוקשת, כאשר מצב שנשמר לא שרד רענון, כאשר קיימים רכיבים מתים, מצבים מזויפים, מסלולים קטועים וחיבורים שלא נבדקו מקצה לקצה, או כאשר המבצע לא פתח בעצמו את הגרסה המדויקת ובדק אותה לפי סוג התוצר. לאחר כל תיקון מקומי חוזרים להבטחה המקורית ולמטרת העל, ובודקים מחדש את כל המסלול, משפחת המצבים והקריטריונים הקריטיים. הוכחה שתוקן הפרט האחרון אינה אישור שהמוצר, המסמך, המחקר, המדיה, האוטומציה או הפעולה העסקית המלאה מוכנים או שאדיר צפוי להיות מרוצה. מוצר ציבורי שמשרת לקוחות אינו מאושר למסירה רק על בסיס בדיקות המבצע: לאחר פרסום מועמד מותנה נדרשת קבוצת בדיקות מייצגת על הגרסה המדויקת, עם תרחישי לקוח, תפעול, עסק וסיכון. פרויקט מסוג אחר מפעיל בדיקות בעלי עניין מתאימות לסוגו או מנמק במדויק מדוע השער אינו חל. כל מסירה לאדיר כוללת קישור ישיר ושימושי לכל תוצאה שניתנת לפתיחה. אם אין קישור אפשרי, מציינים זאת במפורש ומוסרים את המיקום המדויק או דרך האחזור.",
+      "acceptance_check": "Before any complete, ready or likely-to-satisfy judgment, the evidence must name the original promise, distinguish the latest repaired detail from the full outcome, map every critical journey and affected-family item to passed evidence, a precise blocker or justified exclusion, and inspect the exact final artifact at its natural destination. A fixture that proves only the most recent local correction must be blocked from full approval, regardless of project type. A deliberately incomplete review or task must be blocked. A public customer-facing review must also fail without five to ten passed post-deploy representative actor scenarios on the exact version and at least three applicable stakeholder perspectives. A justified non-public or non-customer artifact must remain valid without an irrelevant public cohort. A completed result with an addressable destination fails delivery when its direct link is omitted. A result without a possible link passes only when the exact location or retrieval path and a concrete no-link reason are present.",
+      "status": "blocked",
+      "evidence": [
+        "pnpm build exited 0; TypeScript passed; focused tests passed; desktop and mobile click flow passed."
+      ],
+      "reason": "Candidate build and local natural-destination checks passed, but the feature is deliberately unpublished during the user bug batch and lacks configured snapshot generation.",
+      "updated_at": "2026-10-20T21:51:06.438398Z"
+    },
+    {
+      "id": "lesson:ADIR-VISUAL-001",
+      "source": "lesson:ADIR-VISUAL-001",
+      "statement": "כל ממשק משתמש בהיררכיה נקייה ובקצב ריווח מדוד, ללא כותרות כפולות, טקסטי מילוי, קווים ללא תפקיד, מסגרות בתוך מסגרות, שטחים ריקים ללא סיבה או תוכן ובקרים הצמודים לגבולות.",
+      "acceptance_check": "שער הראיות נכשל ללא אסימוני ריווח, מדידות של מעברים סמוכים, צילום עמוד מלא במחשב ובנייד, סריקת תוכן כפול ומלאי מסגרות וקווים שעברו בדיקה עצמאית.",
+      "status": "passed",
+      "evidence": [
+        "Desktop 1265px and mobile 390x844 natural-destination inspection passed for fallback preview, floating action, spacing and live-map transition."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T21:51:03.762834Z"
+    },
+    {
+      "id": "lesson:ADIR-MEDIA-001",
+      "source": "lesson:ADIR-MEDIA-001",
+      "statement": "כל לוגו, פאבילקון, תמונת עסק, תמונת כרטיס והמחשה ציבורית נלקחים ממקור מאושר, תואמים לזהות ולתפקיד הנכונים ומוצגים בחיתוך תקין. המחשה, מאגר או יצירה מלאכותית מסומנים ביושר ואינם מתחזים לעבודה או ללקוח אמיתיים.",
+      "acceptance_check": "שער הראיות נכשל ללא מלאי מדיה, מקור מאושר, התאמת זהות ותווית אמת לכל חזותי ציבורי שהשתנה, או כאשר לוגו, עסק, תמונת כרטיס, חיתוך או כיתוב אינם תואמים למקור המאומת.",
+      "status": "blocked",
+      "evidence": [
+        "Desktop and mobile fallback image loaded with naturalWidth 1027; map attribution is preserved in provider request configuration."
+      ],
+      "reason": "Fallback uses the verified place image and is labeled honestly, but no generated static-map asset exists yet to inspect for provider identity and attribution.",
+      "updated_at": "2026-10-20T21:51:05.780923Z"
+    },
+    {
+      "id": "project:map-preview",
+      "source": "project_guidance",
+      "statement": "Ready snapshots appear before activation and the live map loads only after activation",
+      "acceptance_check": "Ready snapshots appear before activation and the live map loads only after activation",
+      "status": "blocked",
+      "evidence": [
+        "Local desktop and mobile inspection proved no broken image and successful live map activation; focused tests 6/6 and build passed."
+      ],
+      "reason": "The client, fallback and click-to-live-map flow pass locally, but an approved provider credential is absent so a real persisted static-map pixel cannot yet be observed.",
+      "updated_at": "2026-10-20T21:51:04.192294Z"
+    },
+    {
+      "id": "project:map-persistence",
+      "source": "project_guidance",
+      "statement": "Metadata and immutable objects survive reload and failure",
+      "acceptance_check": "Metadata and immutable objects survive reload and failure",
+      "status": "blocked",
+      "evidence": [
+        "Focused failure-preservation test passed."
+      ],
+      "reason": "Write-before-swap, immutable object keys and prior-object preservation pass source tests, but no configured provider plus deployed D1/R2 run exists for integration proof.",
+      "updated_at": "2026-10-20T21:51:04.682044Z"
+    },
+    {
+      "id": "project:map-weekly",
+      "source": "project_guidance",
+      "statement": "Weekly reconciliation is idempotent and skips current snapshots",
+      "acceptance_check": "Weekly reconciliation is idempotent and skips current snapshots",
+      "status": "blocked",
+      "evidence": [
+        "Israel-time window and idempotent skip behavior passed focused tests."
+      ],
+      "reason": "Weekly bounded reconciliation is implemented in the Worker scheduled handler, but the target production scheduler is not yet deployed and observed.",
+      "updated_at": "2026-10-20T21:51:05.282925Z"
+    },
+    {
+      "id": "project:map-policy",
+      "source": "project_guidance",
+      "statement": "No automated public OSM tile scraping and attribution remains visible",
+      "acceptance_check": "No automated public OSM tile scraping and attribution remains visible",
+      "status": "passed",
+      "evidence": [
+        "Source and tests restrict generation to Mapbox or MapTiler static-image APIs, retain attribution, and contain no automated tile.openstreetmap.org browser capture."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T21:51:03.276131Z"
+    }
+  ],
+  "verification_status": "in_progress",
+  "verification_errors": [],
+  "predictive_results": {
+    "midpoint": {
+      "observed_at": "2026-10-20T21:39:23.793077Z",
+      "evidence": [
+        "Implemented shared snapshot URL/fallback, D1 metadata, immutable R2 write-before-swap, Mapbox/MapTiler adapters, weekly Israel-time Worker hook; 6 focused tests and TypeScript pass"
+      ],
+      "findings": [
+        "No approved static-map provider credential exists in the checkout, so real per-place pixels and a public temporary candidate remain deliberately unclaimed before batch release configuration."
+      ]
+    },
+    "adversarial": {
+      "observed_at": "2026-10-20T21:51:08.187320Z",
+      "attacks": [
+        "Removed provider configuration; confirmed the UI never leaves a broken image and labels the verified place image as location rather than map.",
+        "Clicked the floating map control on desktop and 390x844 mobile; confirmed Leaflet controls, OSM tiles and the place marker appear only after activation.",
+        "Attempted to claim completion without a provider credential or deployed scheduler; completion remains blocked."
+      ],
+      "natural_destination_evidence": "Local business page checked at the location section on desktop and mobile; fallback loaded at naturalWidth 1027 and live map opened visibly.",
+      "affected_family_evidence": "Shared ListingMap component covers vacation, events, spa, hourly and activities; inventory tests cover all five worlds and build completed."
+    },
+    "effectiveness": {
+      "recorded_at": "2026-10-20T21:51:08.758379Z",
+      "first_pass_acceptance": "no",
+      "repeated_corrections": 1,
+      "prevented_failures": 2,
+      "elapsed_minutes": 26.0,
+      "baseline_note": "Visual QA caught a cached-404 hydration race before release; adversarial close prevented a false claim that provider-backed pixels and the production scheduler were live."
+    }
+  },
+  "last_freshness_check_at": "2026-10-20T21:51:09.357420Z",
+  "last_freshness_check_errors": []
+}

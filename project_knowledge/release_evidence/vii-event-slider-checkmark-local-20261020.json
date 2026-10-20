@@ -1,0 +1,39 @@
+{
+  "verdict": "ready",
+  "release": "Local candidate based on 77380ac7746436358470bbd9c72ec57e7f2cea9a",
+  "target": "Local VII candidate at http://127.0.0.1:4176/events and /events/place/event-2259",
+  "baseline": "Public version 534 limited the general events section to eventPlaces.slice(0, 4) and rendered raw text checkmarks in event feature cards.",
+  "requested_outcome": "Expose the loaded event venue inventory through a working slider and center and size the V mark in affected place feature cards.",
+  "changed_components": [
+    "app/events/page.tsx",
+    "app/components/event-rail.tsx",
+    "app/events/place/client-page.tsx",
+    "app/globals.css",
+    "tests/event-slider-checkmark-contract.test.mjs",
+    "tests/events-mobile-rail.test.mjs",
+    "tests/slider-family-refresh.test.mjs"
+  ],
+  "affected_family": [
+    {"id": "FAM-1", "surface": "General event venue rail on Hebrew and localized event landing routes"},
+    {"id": "FAM-2", "surface": "Shared EventRail controls, boundaries, direction and near-card image warming"},
+    {"id": "FAM-3", "surface": "Event place and supplier-room feature cards on desktop and mobile"}
+  ],
+  "characteristics": {"stateful": true, "responsive": true},
+  "checks": [
+    {"id": "CHK-1", "family_ids": ["FAM-1", "FAM-2"], "state": "success", "status": "passed", "evidence": "Local /events rendered 20 loaded event-world-card children instead of the prior four; desktop rail clientWidth 1180, scrollWidth 5956, RTL start delta 0, next control enabled and scrollLeft moved from 0 to -258."},
+    {"id": "CHK-2", "family_ids": ["FAM-1", "FAM-2"], "state": "responsive", "status": "passed", "evidence": "At 390x844 the general rail rendered 20 cards, one 341px card aligned at right delta 0, scrollWidth 7124, no document overflow and next moved scrollLeft from 0 to -357."},
+    {"id": "CHK-3", "family_ids": ["FAM-2"], "state": "reload", "status": "passed", "evidence": "Fresh local reload reset the rail to logical scrollLeft 0; the next rail-width image warmer painted the revealed mobile card without the prior white post-navigation frame."},
+    {"id": "CHK-4", "family_ids": ["FAM-2"], "state": "success", "status": "passed", "evidence": "Local /en/events rendered the same 20 cards in LTR with first-left delta 0; next was enabled and moved scrollLeft from 0 to 4776 with no page overflow."},
+    {"id": "CHK-5", "family_ids": ["FAM-3"], "state": "success", "status": "passed", "evidence": "Local event detail rendered 23 shared SVG checks; sampled containers were 24x24, SVGs 14x14 and center delta was [0,0] on desktop and 390px mobile."},
+    {"id": "CHK-6", "family_ids": ["FAM-2", "FAM-3"], "state": "failure", "status": "passed", "evidence": "Focused boundary tests confirm disabled controls remain native and inactive; source and DOM checks confirm no raw check glyph remains in either affected event feature family."},
+    {"id": "CHK-7", "family_ids": ["FAM-1", "FAM-2", "FAM-3"], "state": "persistence", "status": "passed", "evidence": "Final Vinext five-stage build passed, TypeScript passed, git diff check passed, typography source audit passed and 17 affected-family tests passed after replacing the obsolete four-card expectation."},
+    {"id": "CHK-8", "family_ids": ["FAM-1", "FAM-2", "FAM-3"], "state": "rollback", "status": "passed", "evidence": "Candidate remains uncommitted and unpublished; public version 534 is unchanged and the exact source baseline is commit 77380ac7746436358470bbd9c72ec57e7f2cea9a."}
+  ],
+  "rollback": {
+    "available": true,
+    "method": "Discard only the seven candidate files or restore from baseline commit 77380ac7746436358470bbd9c72ec57e7f2cea9a; no production state changed.",
+    "verification": "git diff lists only the requested event rail, event feature-check and matching regression-test family plus task evidence files."
+  },
+  "authorization_boundary": "Local implementation and verification are complete. Production deployment or publication was not authorized by the current request and was not performed.",
+  "remaining_blockers": []
+}

@@ -37,6 +37,7 @@ import { activityRegion, activityType } from "../../lib/activity-discovery-taxon
 import { HomeMobileRail } from "../../components/home-mobile-rail";
 import { useSiteLanguage } from "../../i18n/locale-provider";
 import { latinBusinessAlias, localizedBusinessList, localizedBusinessText } from "../../i18n/localized-business-content";
+import { hourlyBreadcrumbForLocation } from "../../data/world-search-landings";
 
 function hourlyRateLabel(value: string, language: "he" | "en" | "ru" | "fr", translate: (value: string) => string) {
   const [room, duration, day] = value.split(" · ");
@@ -176,21 +177,34 @@ function HourlyContent({ item, details }: { item: (typeof discoveryItems)[number
   const [selectedDuration, setSelectedDuration] = useState(details.rates[0]?.duration || "");
   const selectedRate = details.rates.find((rate) => rate.duration === selectedDuration);
   const phoneHref = item.phone ? `tel:${item.phone.replace(/[^\d+]/g, "")}` : undefined;
+  const roomImages = item.images?.length ? item.images : item.image ? [item.image] : [];
 
   return <>
-    <section className="section shell depth-about" id="hourly-about">
-      <div><h2>{translate("על המקום")}</h2>{details.about.map((paragraph) => <p key={paragraph}>{translate(paragraph)}</p>)}</div>
-      <aside><small>איך מתאמים</small><strong>מאשרים שעה וחדר מול המקום</strong><small>מתי ההזמנה סופית</small><strong>רק לאחר אישור המקום</strong><a className="text-link" href="#hourly-options">לפרטי החדרים והמחירים</a></aside>
+    <section className="section shell hourly-overview" id="hourly-about">
+      <div className="hourly-overview__copy"><span className="eyebrow">כל המידע במקום אחד</span><h2>{translate("על המקום")}</h2>{details.about.map((paragraph) => <p key={paragraph}>{translate(paragraph)}</p>)}</div>
+      <div className="hourly-overview__facts" aria-label="פרטי שהייה מרכזיים">
+        <article><small>סוג שהייה</small><strong>אירוח פרטי לפי שעה</strong></article>
+        <article><small>תיאום</small><strong>ישירות מול המקום</strong></article>
+        <article><small>אישור</small><strong>לאחר בחירת שעה וחדר</strong></article>
+      </div>
     </section>
-    <section className="section section-tint hourly-direct-booking" id="hourly-options"><div className="shell">
-      <div className="section-head"><div><h2>חדרים ומחירי בסיס</h2><p>המחירים מוצגים לפי חדר, משך וסוג יום. השעה הפנויה והמחיר הסופי מחייבים אישור של המקום.</p></div></div>
-      {details.rates.length ? <div className="hourly-rate-grid" role="group" aria-label="מחירי בסיס לפי חדר ומשך שהייה">{details.rates.map((rate) => <button key={rate.duration} type="button" className={selectedDuration === rate.duration ? "selected" : ""} onClick={() => setSelectedDuration(rate.duration)} aria-pressed={selectedDuration === rate.duration}><span data-no-translate>{hourlyRateLabel(rate.duration, language, translate)}</span><strong>{rate.price}</strong></button>)}</div> : <p>{translate("למחירי החדרים ולבירור זמינות, פנו למקום.")}</p>}
-      <div className="hourly-call-panel" id="hourly-contact"><div><span className="eyebrow">בירור ישיר</span><h3>מה אומרים בשיחה?</h3><p>שלום, ראיתי את {item.name} באתר VII. רציתי לבדוק שעה פנויה{selectedRate ? ` עבור ${selectedRate.duration}, שמחיר הבסיס שלה ${selectedRate.price}` : ""}.</p><ul><li>מאשרים תאריך, שעה וחדר פנוי</li><li>מאשרים את המחיר הסופי ותנאי ההגעה</li></ul></div><aside><small>{translate("טלפון המקום")}</small>{phoneHref ? <DirectPhoneLink phone={item.phone} placeName={item.name} className="hourly-phone-number" tracking={{ placeId: item.id, placeName: item.name, world: "hourly", placement: "hourly_detail" }} /> : <span className="hourly-phone-missing">{translate("מספר טלפון אינו זמין כרגע")}</span>}<small>אין חיוב באתר. ההזמנה מתואמת ישירות מול המקום.</small></aside></div>
+    <section className="section section-tint hourly-rooms" id="hourly-options"><div className="shell">
+      <div className="section-head"><div><span className="eyebrow">אפשרויות האירוח</span><h2>החדרים והמחירים</h2><p>בוחרים חדר ומשך שהייה, ואז מאשרים מול המקום את השעה הפנויה והמחיר הסופי.</p></div></div>
+      {details.stayOptions.length ? <div className="hourly-room-grid">{details.stayOptions.map((option, index) => {
+        const roomRates = details.rates.filter((rate) => rate.duration.startsWith(`${option.title} ·`));
+        const image = roomImages[index % Math.max(roomImages.length, 1)];
+        return <article className="hourly-room-card" key={option.title}>
+          {image ? <div className="hourly-room-card__media"><img src={image} alt="" /></div> : null}
+          <div className="hourly-room-card__body"><h3>{translate(option.title)}</h3><p>{translate(option.description)}</p>
+            {roomRates.length ? <div className="hourly-room-card__rates" role="group" aria-label={`מחירי ${option.title}`}>{roomRates.map((rate) => <button key={rate.duration} type="button" className={selectedDuration === rate.duration ? "selected" : ""} onClick={() => setSelectedDuration(rate.duration)} aria-pressed={selectedDuration === rate.duration}><span data-no-translate>{hourlyRateLabel(rate.duration, language, translate).replace(`${translate(option.title)} · `, "")}</span><strong>{rate.price}</strong></button>)}</div> : <p className="hourly-room-card__no-rate">{translate("למחיר ולבירור זמינות, פנו למקום.")}</p>}
+          </div>
+        </article>;
+      })}</div> : details.rates.length ? <div className="hourly-rate-grid" role="group" aria-label="מחירי בסיס לפי חדר ומשך שהייה">{details.rates.map((rate) => <button key={rate.duration} type="button" className={selectedDuration === rate.duration ? "selected" : ""} onClick={() => setSelectedDuration(rate.duration)} aria-pressed={selectedDuration === rate.duration}><span data-no-translate>{hourlyRateLabel(rate.duration, language, translate)}</span><strong>{rate.price}</strong></button>)}</div> : <p>{translate("למחירי החדרים ולבירור זמינות, פנו למקום.")}</p>}
+      <div className="hourly-contact-card" id="hourly-contact"><div><span className="eyebrow">תיאום ישיר</span><h3>בדיקת זמינות מול המקום</h3><p>{selectedRate ? `בחרתם ${selectedRate.duration}, במחיר בסיס של ${selectedRate.price}. ` : ""}בשיחה מאשרים תאריך, שעה, חדר, מחיר והנחיות הגעה.</p></div><aside><small>{translate("טלפון המקום")}</small>{phoneHref ? <DirectPhoneLink phone={item.phone} placeName={item.name} className="hourly-phone-number" tracking={{ placeId: item.id, placeName: item.name, world: "hourly", placement: "hourly_detail" }} /> : <span className="hourly-phone-missing">{translate("מספר טלפון אינו זמין כרגע")}</span>}<small>התשלום והתיאום נעשים ישירות מול המקום.</small></aside></div>
     </div></section>
-    {details.stayOptions.length ? <section className="section shell hourly-stay-notes"><div className="section-head"><div><h2>{translate("חדרים במקום")}</h2></div></div><div className="depth-card-grid">{details.stayOptions.map((option) => <article key={option.title}><h3>{translate(option.title)}</h3><p>{translate(option.description)}</p><a className="text-link" href="#hourly-contact">{translate("בירור זמינות")}</a></article>)}</div></section> : null}
-    <section className="section shell depth-columns">
-      {details.amenities.length ? <div id="hourly-amenities"><h2>{translate("מתקנים ומאפיינים")}</h2><ul>{details.amenities.map((entry) => <li key={entry}>{translate(entry)}</li>)}</ul></div> : null}
-      <div id="hourly-info"><h2>{translate("פרטים שימושיים")}</h2><ul>{details.arrivalNotes.map((entry) => <li key={entry}>{translate(entry)}</li>)}</ul></div>
+    <section className="section shell hourly-practical">
+      {details.amenities.length ? <div id="hourly-amenities"><span className="eyebrow">מה מחכה בחדר</span><h2>{translate("מתקנים ושירותים")}</h2><div className="hourly-feature-grid">{details.amenities.map((entry) => <article key={entry}><span className="hourly-feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18M6 6l12 12M18 6 6 18" /></svg></span><strong>{translate(entry)}</strong></article>)}</div></div> : null}
+      <div id="hourly-info"><span className="eyebrow">לפני שמגיעים</span><h2>{translate("מידע שימושי")}</h2><div className="hourly-info-list">{details.arrivalNotes.map((entry) => <p key={entry}>{translate(entry)}</p>)}</div></div>
     </section>
     <section className="section shell depth-faq" id="hourly-faq"><div className="section-head"><div><h2>{translate("שאלות נפוצות")}</h2></div></div>{details.faq.map((entry) => <details key={entry.question}><summary>{translate(entry.question)}</summary><p>{translate(entry.answer)}</p></details>)}</section>
     <section className="section depth-final-cta"><div className="shell"><div><h2>מאשרים שעה ישירות מול המקום</h2><p>בודקים חדר, שעה, מחיר והנחיות הגעה בשיחה.</p></div>{phoneHref ? <a className="button primary" href={phoneHref}>חיוג למקום</a> : <a className="button primary" href="#hourly-contact">לפרטי הקשר</a>}</div></section>
@@ -276,7 +290,7 @@ export default function DiscoveryPlacePage({ initialId, initialItem, relatedItem
   return <PageShell variant={item.world as WorldId}>
     <ViewedItemTracker id={item.id} world={item.world} name={item.name} location={`${item.location}, ${item.area}`} image={item.image} href={`/discover/place/${item.id}`} meta={item.priceLabel || item.duration} />
     <main id="main-content" className={`discovery-detail discovery-detail--${item.world}`}>
-      <BreadcrumbTrail items={[{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), { name: localizedItemName }]} />
+      <BreadcrumbTrail items={item.world === "hourly" ? [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), hourlyBreadcrumbForLocation(item.area, item.location), { name: localizedItemName }] : [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), { name: localizedItemName }]} />
       <section className="shell discovery-detail__hero">
         <div className="discovery-detail__copy"><span className="eyebrow">{translate(world.label)}</span><h1>{localizedItemName}</h1><p className="discovery-detail__location"><PinIcon />{localizedLocation}, {localizedArea}</p><p>{localizedDescription}</p><div className="discovery-card__chips">{localizedFeatures.map((feature) => <span key={feature}>{feature}</span>)}</div><div className="discovery-detail__actions">{spaDetails ? <a className="button primary" href="#spa-packages">{translate("לבחירת חבילה")}</a> : providerDetails ? <a className="button primary" href="#provider-services">{translate("לבחירת שירות")}</a> : hourlyDetails ? <DirectPhoneLink phone={item.phone} placeName={localizedItemName} className="button primary" tracking={{ placeId: item.id, placeName: item.name, world: "hourly", placement: "hourly_title" }} /> : activityDetails?.booking ? <a className="button primary" href="#activity-booking">{translate("איך מזמינים")}</a> : activityDetails ? <a className="button primary" href="#activity-plan">{translate("לתכנון המלא")}</a> : <Link className="button primary" href={world.href}>{translate("לכל האפשרויות")}</Link>}<FavoriteButton id={item.id} world={item.world} name={item.name} location={`${item.location}, ${item.area}`} image={item.image} href={`/discover/place/${item.id}`} meta={item.priceLabel || item.duration} compact={false} /><Link className="button secondary" href={world.href}>{translate("חזרה לרשימה")}</Link></div></div>
         <div className={`discovery-detail__media discovery-card__placeholder--${item.world}`}>{item.image ? <><button className="discovery-detail__gallery-media" type="button" data-gallery-trigger onClick={() => openGallery("all", 0)} aria-label={`פתיחת הגלריה של ${item.name}`}><img src={item.image} alt="" title="" data-image-role="decorative" /></button><button className="discovery-detail__gallery-launch" type="button" data-gallery-trigger onClick={() => openGallery("all", 0)}><span aria-hidden="true">▦</span>לגלריה <small>{galleryImages.length} {galleryImages.length === 1 ? "תמונה" : "תמונות"}</small></button></> : null}</div>

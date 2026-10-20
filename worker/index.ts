@@ -15,6 +15,8 @@ import catalogAdminTranslations from "../app/data/catalog-admin-translations.jso
 import { runSupplierCatalogScheduleTick } from "../app/lib/supplier-catalog-retry-runner.ts";
 import { cachedOnlineCapabilities } from "../app/lib/online-booking-capability-cache.ts";
 import { warmVacationDiscoveryCache } from "../app/lib/warm-vacation-discovery-cache.ts";
+import { bundledMapSnapshotCandidates } from "../app/lib/map-snapshot-catalog.ts";
+import { isWeeklyMapSnapshotWindow, reconcileMapSnapshots } from "../app/lib/map-snapshot-store.ts";
 import { legacyDisposition, looksLikeUninventoriedLegacyPath } from "../app/lib/legacy-route-map.ts";
 import { redirectForUrl, shouldCheckRedirect } from "../app/lib/admin-redirects.ts";
 import { publicCachePolicy, readPublicCache, refreshPublicCacheAhead, storePublicCache } from "./public-response-cache.ts";
@@ -151,6 +153,9 @@ interface Env {
   VII_AWS_DB_ENDPOINT?: string;
   VII_AWS_DB_TOKEN?: string;
   VII_AWS_DB_MODE?: string;
+  VII_STATIC_MAP_PROVIDER?: string;
+  VII_MAPBOX_STATIC_TOKEN?: string;
+  VII_MAPTILER_API_KEY?: string;
 }
 
 interface ExecutionContext {
@@ -178,6 +183,21 @@ const worker = {
     if (Math.floor(controller.scheduledTime / 60_000) % 30 === 0) {
       ctx.waitUntil(warmVacationDiscoveryCache(database, new Date(controller.scheduledTime)).catch(() => {
         console.error("VII vacation discovery refresh unavailable");
+      }));
+    }
+    const scheduledAt = new Date(controller.scheduledTime);
+    if (isWeeklyMapSnapshotWindow(scheduledAt)) {
+      ctx.waitUntil(reconcileMapSnapshots({
+        db: database,
+        bucket: env.UPLOADS,
+        env,
+        candidates: bundledMapSnapshotCandidates(),
+        now: scheduledAt,
+        limit: 50,
+      }).then((result) => {
+        if (result.failed) console.error("VII weekly map snapshot reconciliation incomplete", result.failed, result.failures.slice(0, 5));
+      }).catch((error) => {
+        console.error("VII weekly map snapshot reconciliation unavailable", error);
       }));
     }
     ctx.waitUntil(runSupplierCatalogScheduleTick(database, { now: new Date(controller.scheduledTime) }).then(({ primary, retries }) => {
