@@ -21,7 +21,7 @@ const quizOptions = [
 ];
 
 export default function GuidesPage({ initialArticles }: { initialArticles: MagazineCard[] }) {
-  const { language } = useSiteLanguage();
+  const { language, translate } = useSiteLanguage();
   const [category, setCategory] = useState("הכל");
   const [query, setQuery] = useState("");
   const [saved, setSaved] = useState<string[]>([]);
@@ -68,8 +68,8 @@ export default function GuidesPage({ initialArticles }: { initialArticles: Magaz
         <div className="shell magazine-feature">
           <div className="magazine-feature__copy">
             <span className="eyebrow">בחירת המערכת</span>
-            <h1>החופשה הטובה מתחילה ברעיון טוב</h1>
-            <p>מדריכים שימושיים, מסלולים, אנשים ורגעים שיעזרו לכם לתכנן פחות וליהנות יותר.</p>
+            <h1>{translate("החופשה הטובה מתחילה ברעיון טוב")}</h1>
+            <p>{translate("מדריכים שימושיים, מסלולים, אנשים ורגעים שיעזרו לכם לתכנן פחות וליהנות יותר.")}</p>
             <Link className="button primary" href={`/guides/${featured.slug}`}>לכתבה הראשית</Link>
           </div>
           <Link className="magazine-feature__story" href={`/guides/${featured.slug}`}>

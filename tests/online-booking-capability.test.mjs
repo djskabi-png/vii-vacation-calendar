@@ -51,12 +51,13 @@ test("public route filters current publication after cache and rejects parameter
 });
 test("search list, nearby, map, draft and badge share capability without changing price semantics", () => {
   const page = readFileSync(new URL("../app/search/page.tsx", import.meta.url), "utf8");
-  assert.match(page, /const undatedSearch = !selectedStay;/);
+  assert.match(page, /const undatedSearch = !selectedStay && !hasSearchDate\(searchParams\);/);
   assert.equal((page.match(/onlineCapability=\{undatedSearch && hasOnlineCapability/g) || []).length, 2);
   assert.match(page, /onlineOnly && !matchesOnline\(property\)/);
   assert.match(page, /shownFilters.onlineOnly[^\n]*!matchesOnline\(property\)/);
   assert.doesNotMatch(page, /בחרו תאריכי כניסה ויציאה כדי לראות מקומות שניתן להזמין אונליין/);
-  assert.doesNotMatch(page, /supplierStartingPrice|startingPrices|catalogStartingPrices/);
+  assert.match(page, /const startingPrices = useStartingPrices\("vacations", undatedSearch\);/);
+  assert.equal((page.match(/catalogStartingPrices=\{startingPrices\[property\.slug\]\}/g) || []).length, 2);
   assert.match(page, /aria-busy=\{\(undatedSearch \? onlineCapabilities.status : supplierSearch.status\) === "loading"\}/);
   assert.match(page, /onlineOnly && undatedSearch && onlineCapabilities.status === "error" && !resultSet.length/);
   const worker = readFileSync(new URL("../worker/index.ts", import.meta.url), "utf8");

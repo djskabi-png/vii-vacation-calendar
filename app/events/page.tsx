@@ -68,7 +68,7 @@ export default async function EventsPage() {
               <BreadcrumbTrail className="events-hero__breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "אירועים" }]} />
               <h1>{presentation.title}</h1>
               <p>{presentation.description}</p>
-              <div className="events-hero__proof" aria-label="יתרונות החיפוש">{presentation.proof.map((item, index) => <span key={item}>{index === 0 ? <b>{eventPlaces.length}</b> : null}{item}</span>)}</div>
+              <div className="events-hero__proof" aria-label="יתרונות החיפוש" tabIndex={0}>{presentation.proof.map((item, index) => <span key={item}>{index === 0 ? <b>{eventPlaces.length}</b> : null}{item}</span>)}</div>
             </div>
             <div className="events-hero__visual">
               <WorldTopicImage image={presentation.heroImages[0]} />

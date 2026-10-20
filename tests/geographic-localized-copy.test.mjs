@@ -4,6 +4,7 @@ import test from 'node:test';
 import ts from 'typescript';
 import {localizedSpaSearchSource, spaSearchRegions, spaSearchAudiences, spaSearchTitle, spaSearchDescription} from '../app/data/spa-search-landings.ts';
 import {spaLandings} from '../app/data/spa-landings.ts';
+import {lookupPublicCopy} from '../app/i18n/public-copy.ts';
 
 const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 const visitor=JSON.parse(read('app/data/visitor-ui-translations.json'));
@@ -43,7 +44,7 @@ test('actual client dynamic counter and breadcrumb use reviewed geographic names
 test('actual server metadata translates semantic spa headline before appending brand',()=>{
   const source=read('worker/index.ts');
   const snippet=source.slice(source.indexOf('function translateServerText('),source.indexOf('\nfunction localizeStructuredUrl('));
-  const translate=new Function('visitorUiTranslations','serverTranslations','localizedSpaSearchSource',compile(snippet)+'\nreturn translateServerText;')(visitor,empty,localizedSpaSearchSource);
+  const translate=new Function('visitorUiTranslations','serverTranslations','localizedSpaSearchSource','lookupPublicCopy',compile(snippet)+'\nreturn translateServerText;')(visitor,empty,localizedSpaSearchSource,lookupPublicCopy);
   for(const locale of ['en','fr','ru']) {
     const state={region:spaSearchRegions.find(r=>r.slug==='tel-aviv-area'),features:[spaLandings.find(f=>f.id==='couples')]};
     assert.equal(translate(spaSearchTitle(state)+' | וי פור ויקיישן',locale),spaSearchTitle(state,locale)+' | VII Vacation');
@@ -54,7 +55,7 @@ test('actual server metadata translates semantic spa headline before appending b
 test('semantic brand handling preserves reviewed legacy full-title translations',()=>{
   const source=read('worker/index.ts');
   const snippet=source.slice(source.indexOf('function translateServerText('),source.indexOf('\nfunction localizeStructuredUrl('));
-  const translate=new Function('visitorUiTranslations','serverTranslations','localizedSpaSearchSource',compile(snippet)+'\nreturn translateServerText;')(visitor,dictionaries,localizedSpaSearchSource);
+  const translate=new Function('visitorUiTranslations','serverTranslations','localizedSpaSearchSource','lookupPublicCopy',compile(snippet)+'\nreturn translateServerText;')(visitor,dictionaries,localizedSpaSearchSource,lookupPublicCopy);
   for(const locale of ['en','fr','ru']) {
     const title='הצטרפות לוי פור ויקיישן, ספא וטיפולים | וי פור ויקיישן';
     assert.equal(translate(title,locale),dictionaries[locale][title]);

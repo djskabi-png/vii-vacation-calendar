@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-six-chapter-completion-20261020",
+  "project": "VII",
+  "goal": "Complete all six approved chapters, publish the exact frozen candidate to the public temporary VII URL, and pass post-publication checks before asking Adir to continue.",
+  "source_baseline": {
+    "public_url": "https://vii.spaplus.co/",
+    "public_version": 516,
+    "source_commit": "ac7edd3d3cb521c02d77c1f97d5bb3526b675647",
+    "source_tree": "10e651422a03e72c0bfadaf22c6b78ed9f1927ca",
+    "deployment": "appgdep_6ad69c18eabc819181cab2eaae772521",
+    "rollback_version": 516
+  },
+  "source_freshness": {
+    "ADIR_WORKING_PROFILE.md": "A53F3CF6F221A2A2DA458CE59681240EFFE0028A2744BF25317E1C3B162F9973",
+    "ADIR_COGNITIVE_OPERATING_MODEL.md": "708CE5D1B152AFE220CF98008F571E7D27704C102624F7D7440DC85A1A6BA2D8",
+    "ADIR_AI_RULEBOOK.md": "EEF33571725D590D0DADEEEE9475422715279004FBC40356257D11E818039AB1",
+    "ADIR_AI_TEAM.md": "D79E3984525D1DF11255B2944837579472CF37485E3AAFD0AE372C6AB7D88515",
+    "ADIR_LEARNING_REGISTER.json": "F1AA410611DD0FDB5ADBB8A620832EE6FF9F9A3498A8108F74F1CCB86562379B",
+    "VII_PLATFORM_MASTER_PLAN.md": "7D371D99D6983EB863B4C603EC548267A004D9F8CADF4E697E1BDFFD94EBBA0D",
+    "VII_FEEDBACK_STANDARD.md": "2193D1113983C0D1B3CFF98CDF42B157E2FE370572E16276267BEA4F961D5EF2",
+    "features_hooks": false
+  },
+  "requirements": [
+    {
+      "id": "chapter-1-admin",
+      "status": "pending",
+      "acceptance": "Adir and Roy are the only full-platform access managers; all other identities use explicit persisted grants. Owner, scoped, unauthorized, audit, save and reload states pass live."
+    },
+    {
+      "id": "chapter-2-starting-price",
+      "status": "pending",
+      "acceptance": "Every undated starting-price surface takes the lower valid winter/summer supplier value through one canonical selector and handles missing, invalid, equal and zero inputs honestly."
+    },
+    {
+      "id": "chapter-3-languages",
+      "status": "pending",
+      "acceptance": "Hebrew, English, Russian and French are complete and audience-native across public and administration routes, dynamic states, metadata and structured data, with correct direction."
+    },
+    {
+      "id": "chapter-4-video-home-layout",
+      "status": "pending",
+      "acceptance": "Video, homepage and broad shared layout families are complete on desktop/mobile, every visible control works, and approved version 516 behavior is preserved."
+    },
+    {
+      "id": "chapter-5-pwa-mobile-performance-accessibility",
+      "status": "pending",
+      "acceptance": "PWA install/offline/update, 390x844 and low-height mobile flows, live performance targets, keyboard/focus/semantics/contrast/reduced-motion and modern Hebrew typography pass on the public artifact."
+    },
+    {
+      "id": "chapter-6-sync-alert-backup",
+      "status": "pending",
+      "acceptance": "All four supplier worlds pass current Sites/D1 scheduled/manual sync, guard, failure and recovery checks; an operator alert is delivered; a consistent backup is restored and compared without data loss."
+    },
+    {
+      "id": "public-publication",
+      "status": "pending",
+      "acceptance": "The exact clean candidate is published to the existing public temporary URL with an immutable identity, version 516 rollback and post-publication regression evidence."
+    },
+    {
+      "id": "correction:preview-card-image-fidelity",
+      "source": "user_correction",
+      "statement": "Restore the approved preview-card image size, crop, and effective visual resolution before publication.",
+      "acceptance_check": "Direct public-vs-candidate comparison shows preview-card media geometry and source-pixel quality match the approved baseline across affected card families and mobile/desktop.",
+      "status": "passed",
+      "evidence": [
+        "app/globals.css restores the review-card media column and gallery to 112px by 112px.",
+        "Fresh desktop and mobile public-versus-candidate screenshots in project_knowledge/release_evidence/vii-six-chapter-completion-20261020/card-media-diagnosis/ show matching media geometry.",
+        "Focused layout contracts, the 16-page strict audit, pnpm build, and all 1,345 tests pass."
+      ],
+      "reason": null
+    }
+  ],
+  "explicit_exclusions": [
+    "Maskyoo/Biz integration",
+    "business command center and groups",
+    "primary-domain cutover",
+    "AWS/Aurora application migration"
+  ],
+  "operation_identity": {
+    "release_candidate": "vii-six-chapter-completion-20261020-candidate-1",
+    "publication": "vii-six-chapter-completion-20261020-publication-attempt-1",
+    "post_publication_sync": "vii-six-chapter-completion-20261020-post-publication-sync-attempt-1",
+    "backup_restore": "vii-six-chapter-completion-20261020-backup-restore-attempt-1",
+    "retry_rule": "Never repeat while an outcome is running, pending or uncertain. An unchanged failure receives at most one retry after a concrete discriminating change."
+  },
+  "verification_status": "in_progress",
+  "evidence": {
+    "preflight": "project_knowledge/task_contracts/vii-six-chapter-completion-20261020-preflight.json",
+    "release_directory": "project_knowledge/release_evidence/vii-six-chapter-completion-20261020/"
+  },
+  "last_freshness_check_at": "2026-10-20T00:05:27.933560Z",
+  "last_freshness_check_errors": [],
+  "updated_at": "2026-10-20T00:05:28.137731Z",
+  "verification_errors": [],
+  "completed_at": null
+}

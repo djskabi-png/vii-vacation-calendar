@@ -4,7 +4,8 @@ import { readFileSync } from 'node:fs';
 const css=readFileSync(new URL('../app/slider-card-compact.css',import.meta.url),'utf8');
 test('compact cards are scoped to horizontal rails, not all search/detail cards',()=>{
  assert.match(css,/\[data-horizontal-rail\][\s\S]*height: auto/);
- assert.match(css,/\.home-slider__item, \.home-live-deals__item\) > article \{ flex: 1/);
+ assert.match(css,/> div:is\(\.home-slider__item, \.home-live-deals__item\) > article \{ flex: 1/);
+ assert.doesNotMatch(css,/\[data-horizontal-rail\] > :is\(\.home-slider__item, \.home-live-deals__item\) \{ display: flex/);
  assert.doesNotMatch(css,/max-height:\s*\d+px|height:\s*\d+px.*overflow:\s*hidden/);
 });
 test('rail quote price and guest basis share a wrapping line without hiding data',()=>{

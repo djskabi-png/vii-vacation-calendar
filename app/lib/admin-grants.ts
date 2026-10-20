@@ -39,7 +39,9 @@ export async function ensureAdminGrantSchema(db: D1Database) {
 function decode(row: GrantRow): AdminGrant {
   const permissions = parseAdminPermissions(JSON.parse(row.permissions_json));
   if (!permissions) throw new Error("invalid_stored_permissions");
-  return { email: row.email, name: row.name, active: row.active === 1, identityBound: !!row.google_sub, manageUsers: row.manage_users === 1, permissions, version: row.version, updatedAt: row.updated_at, updatedBy: row.updated_by };
+  // Delegated grants never confer authority over other accounts. Only the two
+  // explicitly configured access managers may grant or revoke access.
+  return { email: row.email, name: row.name, active: row.active === 1, identityBound: !!row.google_sub, manageUsers: false, permissions, version: row.version, updatedAt: row.updated_at, updatedBy: row.updated_by };
 }
 export async function readAdminGrant(db: D1Database, email: string): Promise<AdminGrant | null> {
   const row = await primaryDatabase(db).prepare("SELECT * FROM vii_admin_grants WHERE email = ?").bind(email.trim().toLowerCase()).first<GrantRow>();
@@ -48,8 +50,8 @@ export async function readAdminGrant(db: D1Database, email: string): Promise<Adm
 export async function resolveAdminAccess(email: string, database = adminGrantDatabase, googleSubject?: string): Promise<AdminAccess | null> {
   const normalized = email.trim().toLowerCase();
   const manager = accessManagerEmails().includes(normalized);
-  // Legacy administrators retain their existing full access, but do not silently acquire delegation.
-  if (adminEmails().includes(normalized)) return { fullAccess: true, manageUsers: manager, permissions: {} };
+  // Full platform access belongs only to the explicitly configured owners.
+  if (manager) return { fullAccess: true, manageUsers: true, permissions: {} };
   try {
     const db = primaryDatabase(await database());
     let row = await db.prepare("SELECT * FROM vii_admin_grants WHERE email = ?").bind(normalized).first<GrantRow>();
@@ -69,7 +71,7 @@ export async function resolveAdminAccess(email: string, database = adminGrantDat
     }
     if (!row?.active || !row.google_sub || (googleSubject !== undefined && row.google_sub !== googleSubject)) return null;
     const grant = decode(row);
-    return { fullAccess: false, manageUsers: grant.manageUsers, permissions: grant.permissions };
+    return { fullAccess: false, manageUsers: false, permissions: grant.permissions };
   } catch { return null; } // Storage failure never falls back to a stale or browser-supplied grant.
 }
 
@@ -81,9 +83,9 @@ export function parseAdminGrantChange(input: unknown) {
   const permissions = parseAdminPermissions(row.permissions);
   if (!/^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?\.[a-z]{2,63}$/.test(email) || email.length > 254
     || !name || name.length > 100 || /[\u0000-\u001f\u007f]/.test(name) || !permissions
-    || typeof row.active !== "boolean" || typeof row.manageUsers !== "boolean" || !Number.isSafeInteger(row.version) || Number(row.version) < 0
-    || row.confirmed !== true || (!Object.keys(permissions).length && row.active && !row.manageUsers)) return null;
-  return { email, name, permissions, active: row.active, manageUsers: row.manageUsers, version: Number(row.version) };
+    || typeof row.active !== "boolean" || row.manageUsers !== false || !Number.isSafeInteger(row.version) || Number(row.version) < 0
+    || row.confirmed !== true || (!Object.keys(permissions).length && row.active)) return null;
+  return { email, name, permissions, active: row.active, manageUsers: false, version: Number(row.version) };
 }
 
 export class AdminGrantError extends Error {
@@ -95,10 +97,10 @@ export async function saveAdminGrant(db: D1Database, input: NonNullable<ReturnTy
   const actorEmail = actor.trim().toLowerCase();
   const actorAccess = await resolveAdminAccess(actorEmail, async () => db);
   if (!actorAccess?.manageUsers) throw new AdminGrantError("forbidden", 403);
-  if (input.email === actorEmail || adminEmails().includes(input.email)) throw new AdminGrantError("protected_account", 403);
+  if (input.email === actorEmail || accessManagerEmails().includes(input.email)) throw new AdminGrantError("protected_account", 403);
   const before = await readAdminGrant(db, input.email);
   if ((before?.version || 0) !== input.version) throw new AdminGrantError("version_conflict", 409);
-  const record: AdminGrant = { email: input.email, name: input.name, active: input.active, identityBound: before?.identityBound || false, manageUsers: input.manageUsers,
+  const record: AdminGrant = { email: input.email, name: input.name, active: input.active, identityBound: before?.identityBound || false, manageUsers: false,
     permissions: input.permissions, version: input.version + 1, updatedAt: new Date().toISOString(), updatedBy: actorEmail };
   const op = crypto.randomUUID();
   const bootstrapManager = accessManagerEmails().includes(actorEmail);
@@ -127,5 +129,5 @@ export async function readAdminGrantDashboard(db: D1Database) {
     primary.prepare("SELECT id,email,action,actor,created_at AS createdAt FROM vii_admin_grant_audit ORDER BY created_at DESC, id DESC LIMIT 50").all(),
   ]);
   return { grants: grants.results.map(decode), audit: audit.results,
-    protectedAccounts: adminEmails().map((email) => ({ email, manageUsers: accessManagerEmails().includes(email) })) };
+    protectedAccounts: accessManagerEmails().map((email) => ({ email, manageUsers: true })) };
 }

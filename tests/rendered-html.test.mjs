@@ -33,6 +33,24 @@ async function readSitemapDocuments() {
   return { indexXml, documents };
 }
 
+test("home, magazine, holiday and spa primary headings are localized in raw server output and contact retains locale", async () => {
+  for (const locale of ["he", "en", "fr", "ru"]) {
+    const prefix = locale === "he" ? "" : `/${locale}`;
+    const contact = await render(`${prefix}/contact`);
+    assert.equal(contact.status, 308);
+    assert.equal(new URL(contact.headers.get("location"), "http://localhost").pathname, `${prefix}/join`);
+    for (const path of ["/", "/guides", "/holidays/hanukkah", "/spas"]) {
+      const response = await render(path === "/" ? prefix || "/" : `${prefix}${path}`);
+      assert.equal(response.status, 200);
+      const html = await response.text();
+      const title = html.match(/<title>([^<]*)<\/title>/)?.[1];
+      const h1 = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)?.[1]?.replace(/<[^>]+>/g, "");
+      assert.ok(title && h1, `${locale}${path} must contain title and H1 before hydration`);
+      if (locale !== "he") { assert.doesNotMatch(title, /[\u0590-\u05ff]/); assert.doesNotMatch(h1, /[\u0590-\u05ff]/); }
+    }
+  }
+});
+
 test("all ten legacy editorial SEO titles use the same reviewed localized headline as the UI", async () => {
   const overrides=JSON.parse(await readFile(new URL("../app/data/visitor-ui-translations.json",import.meta.url),"utf8"));
   const source=await readFile(new URL("../app/data/magazine-data.ts",import.meta.url),"utf8");
@@ -85,8 +103,8 @@ test("homepage hero keeps one focused message and compact local spacing", async 
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
-  assert.match(page, /<h1>כל מה שעושים בחופש, במקום אחד<\/h1>/);
-  assert.match(page, /<p>נופש, ספא, אירועים ופעילויות\. מחפשים ומזמינים ישר כאן\.<\/p>/);
+  assert.match(page, /<h1>\{translate\("כל מה שעושים בחופש, במקום אחד"\)\}<\/h1>/);
+  assert.match(page, /<p>\{translate\("נופש, ספא, אירועים ופעילויות\. מחפשים ומזמינים ישר כאן\."\)\}<\/p>/);
   assert.doesNotMatch(page, /<span className="eyebrow">נופש, אירועים, ספא וחוויות<\/span>/);
   assert.match(css, /\.home-hero \{[^}]*min-height: 470px;[^}]*padding: 52px 0 42px;/);
   assert.match(css, /\.home-recommended \{[^}]*padding-block: 64px;/);
@@ -740,7 +758,7 @@ test("footer destinations and booking forms have real destinations", async () =>
   assert.match(form, /privacyAccepted/);
   assert.match(form, /crypto\.randomUUID\(\)/);
   assert.match(form, /state === "success"/);
-  assert.match(contact, /permanentRedirect\("\/join"\)/);
+  assert.match(contact, /permanentRedirect\(localizedPath\("\/join", language\)\)/);
   assert.match(form, /type Purpose = "join" \| "booking" \| "accessibility"/);
   assert.match(join, /PartnerOnboarding/);
   assert.match(onboarding, /LeadIntakeForm purpose="join"/);

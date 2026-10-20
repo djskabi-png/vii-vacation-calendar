@@ -21,6 +21,8 @@ import { dailyRotationCompare, rotateDaily, rotateWithinTiers } from "./lib/dail
 import { GiftIcon, PeopleIcon } from "./site-header";
 import { HomeMobileRail } from "./components/home-mobile-rail";
 import "./home-mobile.css";
+import { serverPublicCopy } from "./i18n/server-public-copy";
+import { eligibleHomeTourProperties } from "./lib/home-video-selection";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -62,10 +64,10 @@ function homeShowcaseProperties(properties: Property[]) {
     if (place?.image) usedImages.add(place.image);
     return place;
   }).filter((place): place is Property => Boolean(place));
-  const tourPlaces = rotateDaily([
-    ...properties.filter((place) => place.videos?.length),
+  const tourPlaces = rotateDaily(eligibleHomeTourProperties([
+    ...properties,
     ...visualTourProperties,
-  ], (place) => place.slug, "home-tours").slice(0, 7);
+  ]), (place) => place.slug, "home-tours").slice(0, 7);
   const selected = new Map<string, Property>();
   [...destinationPlaces, ...tourPlaces].forEach((place) => selected.set(place.slug, place));
   return [...selected.values()].map(({ slug, name, location, area, image, videos }) => ({ slug, name, location, area, image, videos }));
@@ -94,14 +96,15 @@ async function HomeMagazineSection() {
   return <section className="section home-magazine" aria-labelledby="home-magazine-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">מגזין וי</span><h2 id="home-magazine-title">רעיונות שממשיכים את החופשה</h2></div><Link href="/guides">לכל הכתבות</Link></div><HomeMobileRail id="home-magazine-rail" label="רעיונות שממשיכים את החופשה" className="home-magazine__grid">{homeArticles.map((article,index) => <article key={article.slug} className={index === 0 ? "featured" : ""}><Link href={`/guides/${article.slug}`}><EditorialCover slug={article.slug} src={article.image} alt={article.imageAlt} title={article.imageTitle} /><span>{article.category}</span><div><EditorialIllustrationLabel /><small>{article.readTime} דקות קריאה</small><h3>{article.title}</h3><p>{article.excerpt}</p></div></Link></article>)}</HomeMobileRail></div></section>;
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const { translate } = await serverPublicCopy();
   return (
     <PageShell>
       <main id="main-content" className="home-page">
         <section className="home-hero">
           <div className="shell home-hero__content">
-            <h1>כל מה שעושים בחופש, במקום אחד</h1>
-            <p>נופש, ספא, אירועים ופעילויות. מחפשים ומזמינים ישר כאן.</p>
+            <h1>{translate("כל מה שעושים בחופש, במקום אחד")}</h1>
+            <p>{translate("נופש, ספא, אירועים ופעילויות. מחפשים ומזמינים ישר כאן.")}</p>
             <SearchBox showWorlds />
             <HomeQuickSearches />
           </div>

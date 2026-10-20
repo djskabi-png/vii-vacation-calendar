@@ -9,6 +9,7 @@ import { footerContextFor, type FooterTopicId } from "../data/footer-context";
 import { useEffect, useState } from "react";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import type { ManagedLink } from "../lib/content-studio";
+import { PwaInstallControl } from "./pwa-experience";
 
 const defaultWorldLinks: ManagedLink[] = [
   ["vacation", "נופש", "/search"], ["events", "אירועים", "/events"], ["corporate", "אירועי חברה ורווחה", "/corporate"],
@@ -59,7 +60,7 @@ export function SiteFooter({ variant = "vacation", topic }: { variant?: WorldId;
         <nav aria-label="שירותים"><strong>{translate("העולמות שלנו")}</strong>{worldLinks === defaultWorldLinks ? <><Link href="/search">{translate("נופש")}</Link><Link href="/events">{translate("אירועים")}</Link><Link href="/corporate">{translate("אירועי חברה ורווחה")}</Link><Link href="/spas">{translate("ספא")}</Link><Link href="/hourly">{translate("חדרים לכמה שעות")}</Link><Link href="/providers">{translate("ספקים")}</Link><Link href="/trails">{translate("מסלולי טיולים")}</Link><Link href="/attractions">{translate("אטרקציות")}</Link></> : links(worldLinks)}</nav>
         <nav aria-label="מידע ושירות"><strong>{translate("מידע ושירות")}</strong>{serviceLinks === defaultServiceLinks ? <><Link href="/account">{translate("החשבון האישי שלי")}</Link><Link href="/favorites">{translate("המקומות שאהבתי")}</Link><Link href="/gift-card">{translate("גיפט קארד")}</Link><Link href="/corporate">{translate("אירועי חברה ורווחה")}</Link><Link href="/booking?action=manage">{translate("ניהול הזמנה")}</Link><Link href="/questions">{translate("שאלות ותשובות")}</Link><Link href="/guides">{translate("מגזין ומדריכים")}</Link><Link href="/accessibility">{translate("הצהרת נגישות")}</Link><Link href="/legal/terms">{translate("תקנון האתר")}</Link><Link href="/legal/privacy">{translate("מדיניות פרטיות")}</Link><Link href="/legal/cancellation">{translate("ביטול ושינוי הזמנה")}</Link></> : links(serviceLinks)}<a href="https://www.spaplus.co.il/club/?src=vii" target="_blank" rel="noopener noreferrer">{translate("הצטרפות למועדון לקוחות")}</a></nav>
       </div>
-      <div className="shell footer-bottom"><span>© וי פור ויקיישן</span><div><LanguageSwitcher compact /><AccessibilityWidget placement="footer" /><CookiePreferencesButton /><span>כל החופשה, במקום אחד</span></div></div>
+      <div className="shell footer-bottom"><span>© וי פור ויקיישן</span><div><LanguageSwitcher compact /><AccessibilityWidget placement="footer" /><CookiePreferencesButton /><PwaInstallControl /><span>כל החופשה, במקום אחד</span></div></div>
     </footer>
   );
 }

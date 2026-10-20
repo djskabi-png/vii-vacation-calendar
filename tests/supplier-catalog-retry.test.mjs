@@ -4,6 +4,7 @@ import { DatabaseSync } from "node:sqlite";
 import test from "node:test";
 import { runCatalogPullWithRetryPlan, runSupplierCatalogScheduleTick } from "../app/lib/supplier-catalog-retry-runner.ts";
 import { readCatalogRetryJobs } from "../app/lib/supplier-catalog-retry.ts";
+import { catalogFreshnessAlerts, readCatalogAlerts } from "../app/lib/supplier-catalog-alerts.ts";
 
 async function database() {
   const sqlite = new DatabaseSync(":memory:");
@@ -57,6 +58,10 @@ test("safety rejection is never retried automatically", async () => {
     assert.equal(jobs.length, 1);
     assert.equal(jobs[0].status, "cancelled");
     assert.equal(jobs[0].resultStatus, "rejected");
+    const alerts = await readCatalogAlerts(db);
+    assert.equal(alerts.length, 1);
+    assert.equal(alerts[0].kind, "review_required");
+    assert.equal(alerts[0].severity, "warning");
   } finally { db.close(); }
 });
 
@@ -71,10 +76,20 @@ test("two failed retries exhaust the bounded retry budget and preserve an audita
     assert.equal(jobs.length, 2);
     assert.equal(jobs.find((job) => job.attempt === 2).status, "exhausted");
     assert.equal(jobs.some((job) => job.status === "pending"), false);
+    const alerts = await readCatalogAlerts(db);
+    assert.equal(alerts.length, 1);
+    assert.equal(alerts[0].kind, "retries_exhausted");
+    assert.equal(alerts[0].severity, "critical");
   } finally { db.close(); }
 });
 
 test("the runtime checks durable retry work every 10 minutes", async () => {
   const config = await readFile(new URL("../vite.config.ts", import.meta.url), "utf8");
   assert.match(config, /crons: \["\*\/10 \* \* \* \*"\]/);
+});
+
+test("dashboard derives a critical freshness alert after 24 hours and clears it after a current publication", () => {
+  const now = new Date("2026-10-20T12:00:00Z");
+  assert.equal(catalogFreshnessAlerts([{ world: "spa", acceptedAt: "2026-10-19T11:59:59Z" }], now).length, 1);
+  assert.equal(catalogFreshnessAlerts([{ world: "spa", acceptedAt: "2026-10-20T11:00:00Z" }], now).length, 0);
 });

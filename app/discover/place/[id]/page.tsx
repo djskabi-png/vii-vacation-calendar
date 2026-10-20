@@ -15,12 +15,13 @@ import type { SpaPlusSite } from "../../../data/spaplus";
 import { spaEditorialDescription, spaEditorialTitle } from "../../../data/spa-editorial";
 import hourlyCatalog from "../../../data/sergey-hourly-catalog.json";
 import { managedDiscoveryItems } from "../../../lib/managed-public-content";
+import { serverLocalePath } from "../../../i18n/server-public-copy";
 
 type Props = { params: Promise<{ id: string }> };
 
 async function resolveItem(id: string) {
   const spaAlias = (spaLegacyAliases as Record<string, string>)[id];
-  if (spaAlias) redirect(`/discover/place/${spaAlias}`);
+  if (spaAlias) redirect(await serverLocalePath(`/discover/place/${spaAlias}`));
   let items: DiscoveryItem[] = discoveryItems;
   let spaSite: SpaPlusSite | undefined;
   let hourlyPlace: (typeof hourlyCatalog.places)[number] | undefined;

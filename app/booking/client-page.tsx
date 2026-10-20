@@ -12,6 +12,7 @@ import { BookingSchedulePicker } from "../components/booking-schedule-picker";
 import { ViewedItemTracker } from "../components/viewed-item-tracker";
 import { useLegacyAvailability } from "../components/use-legacy-availability";
 import { useViiStayQuote } from "../components/use-vii-stay-quote";
+import { vacationPartyForGuestCount } from "../lib/vacation-party";
 import type { Property } from "../data/site-data";
 import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
 import { trackBusinessEvent } from "../lib/analytics";
@@ -32,6 +33,9 @@ type Props = {
   initialFrom?: string;
   initialTill?: string;
   initialGuests?: string;
+  initialRooms?: string;
+  initialChildren?: string;
+  initialInfants?: string;
   onlineReady?: boolean;
   phone?: string;
   illustrative?: boolean;
@@ -99,7 +103,8 @@ export default function BookingPageClient(props: Props) {
   const vacationProperty = props.world === "vacation" ? props.vacationProperty || null : null;
   const liveSourceEnabled = Boolean(vacationProperty && legacyAvailabilitySourceFor(vacationProperty.slug));
   const supplierSiteID = /^vacation-(\d+)$/.exec(props.placeId)?.[1];
-  const supplierQuote = useViiStayQuote(supplierSiteID ? Number(supplierSiteID) : null, arrival, departure, Math.max(1, Number(guests) || 2));
+  const supplierRooms = useMemo(() => vacationPartyForGuestCount(Math.max(1, Number(guests) || 2), Number(props.initialChildren) || 0, Number(props.initialInfants) || 0, Number(props.initialRooms) || 1), [guests, props.initialChildren, props.initialInfants, props.initialRooms]);
+  const supplierQuote = useViiStayQuote(supplierSiteID ? Number(supplierSiteID) : null, arrival, departure, Math.max(1, Number(guests) || 2), supplierRooms);
   const liveAvailability = useLegacyAvailability(vacationProperty, props.world === "vacation" && props.initialFrom && props.initialTill
     ? { from: props.initialFrom, till: props.initialTill, guests: Math.max(1, Number(props.initialGuests) || 2) }
     : null);
@@ -118,7 +123,7 @@ export default function BookingPageClient(props: Props) {
   const pricing = supplierSiteID
     ? supplierBookingReady && currentNights > 0 ? {
       nightlyPrice: supplierQuote.quote!.nightlyPrice!, nights: currentNights,
-      totalPrice: supplierQuote.quote!.nightlyPrice! * currentNights,
+      totalPrice: supplierQuote.quote!.totalPrice!,
       guests: Math.max(1, Number(guests) || 2), wholeProperty: false, taxesIncluded: false,
     } : undefined
     : liveSourceEnabled
@@ -131,7 +136,7 @@ export default function BookingPageClient(props: Props) {
       taxesIncluded: vacationProperty?.demoOperations?.taxesIncluded === true,
     } : undefined
     : props.vacationPrice;
-  const currentTotal = pricing ? pricing.nightlyPrice * currentNights : 0;
+  const currentTotal = pricing ? pricing.totalPrice : 0;
   const labels = priceCopy[language];
   const returnCopy = {
     he: { business: "חזרה לפרטי המקום", site: "חזרה לדף הבית", label: "חזרה לפרטי המקום" },
@@ -144,6 +149,9 @@ export default function BookingPageClient(props: Props) {
   if (arrival) businessReturnParams.set("from", arrival);
   if (departure) businessReturnParams.set("till", departure);
   if (guests) businessReturnParams.set("guests", guests);
+  if (props.initialRooms) businessReturnParams.set("rooms", props.initialRooms);
+  if (props.initialChildren) businessReturnParams.set("children", props.initialChildren);
+  if (props.initialInfants) businessReturnParams.set("infants", props.initialInfants);
   if (pricing?.nightlyPrice) businessReturnParams.set("price", String(pricing.nightlyPrice));
   if (props.illustrative) businessReturnParams.set("illustrative", "1");
   const businessReturnHref = localizedPath(`/business?${businessReturnParams.toString()}`, language);
@@ -152,6 +160,9 @@ export default function BookingPageClient(props: Props) {
   if (props.initialFrom) viewedOfferParams.set("from", props.initialFrom);
   if (props.initialTill) viewedOfferParams.set("till", props.initialTill);
   if (props.initialGuests) viewedOfferParams.set("guests", String(props.initialGuests));
+  if (props.initialRooms) viewedOfferParams.set("rooms", props.initialRooms);
+  if (props.initialChildren) viewedOfferParams.set("children", props.initialChildren);
+  if (props.initialInfants) viewedOfferParams.set("infants", props.initialInfants);
   const viewedOfferHref = `/booking?${viewedOfferParams.toString()}`;
   const viewedOfferTracker = props.world === "spa" && props.offerId
     ? <ViewedItemTracker id={`${props.placeId}:${props.offerId}`} world="spa" name={`${props.offerName}, ${props.placeName}`} location={props.placeName} image={props.placeImage} href={viewedOfferHref} meta={props.price} />
@@ -167,7 +178,7 @@ export default function BookingPageClient(props: Props) {
   const vacationPriceSummary = pricing ? <div className="booking-price-breakdown" aria-label={labels.total}>
     <span>{labels.total}</span>
     <strong>{currentTotal.toLocaleString(language === "he" ? "he-IL" : language)} ₪</strong>
-    <small>{pricing.nightlyPrice.toLocaleString(language === "he" ? "he-IL" : language)} ₪ {labels.night} × {currentNights === 1 ? labels.oneNight : `${currentNights} ${labels.nights}`}</small>
+    <small>{pricing.nightlyPrice.toLocaleString(language === "he" ? "he-IL" : language, { maximumFractionDigits: 2 })} ₪ {supplierSiteID ? ({ he: "בממוצע ללילה", en: "average per night", ru: "в среднем за ночь", fr: "en moyenne par nuit" })[language] : labels.night} · {currentNights === 1 ? labels.oneNight : `${currentNights} ${labels.nights}`}</small>
     <small>{pricing.wholeProperty ? `${labels.whole} · ` : props.offerName ? `${translate(props.offerName)} · ` : ""}{guests} {labels.guests}</small>
     <em>{pricing.taxesIncluded ? labels.taxIncluded : labels.taxPending}</em>
   </div> : null;
@@ -263,7 +274,7 @@ export default function BookingPageClient(props: Props) {
     setBookingError("");
     setState("submitting");
     const roomID = supplierQuote.roomIDs[0];
-    const storageKey = supplierSiteID ? `vii-booking:${supplierSiteID}:${roomID}:${arrival}:${departure}:${guests}` : "";
+    const storageKey = supplierSiteID ? `vii-booking:${supplierSiteID}:${roomID}:${arrival}:${departure}:${guests}:${JSON.stringify(supplierRooms)}` : "";
     const storedId = storageKey ? window.sessionStorage.getItem(storageKey) : null;
     const id = supplierSiteID ? storedId || crypto.randomUUID() : submissionId || crypto.randomUUID();
     if (!supplierSiteID && !submissionId) setSubmissionId(id);
@@ -289,6 +300,7 @@ export default function BookingPageClient(props: Props) {
           body: JSON.stringify({
             partnerRef: `VII-${id}`, siteID: Number(supplierSiteID), roomID,
             from: arrival, till: departure, guests: Number(guests), expectedTotal: currentTotal,
+            party: supplierRooms[0],
             guest: { firstName: nameParts[0], lastName: nameParts.slice(1).join(" "), phone: String(values.get("phone") || ""), email: String(values.get("email") || ""), remarks: String(values.get("notes") || "") },
             privacyAccepted: values.get("privacy") === "on", honey: values.get("company_site"),
           }),

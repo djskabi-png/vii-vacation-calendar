@@ -304,7 +304,8 @@ export async function readSupplierCatalogDashboard(db: D1Database) {
   const [states, runs] = await Promise.all([
     db.prepare(`SELECT world, active_run_id AS activeRunId, active_count AS activeCount,
       accepted_at AS acceptedAt, lock_run_id AS lockRunId, lock_until AS lockUntil
-      FROM supplier_catalog_state ORDER BY world`).all(),
+      FROM supplier_catalog_state ORDER BY world`).all<{ world: SupplierCatalogWorld; activeRunId: string | null;
+        activeCount: number; acceptedAt: string | null; lockRunId: string | null; lockUntil: string | null }>(),
     db.prepare(`SELECT id, world, source, status, started_at AS startedAt,
       finished_at AS finishedAt, before_count AS beforeCount, candidate_count AS candidateCount,
       added_count AS addedCount, changed_count AS changedCount, removed_count AS removedCount,

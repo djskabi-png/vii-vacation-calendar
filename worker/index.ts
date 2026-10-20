@@ -9,6 +9,8 @@ import providerJoinTranslations from "../app/data/provider-join-translations.jso
 import spaUiTranslations from "../app/data/spa-ui-translations.json";
 import worldDepthTranslations from "../app/data/world-depth-translations.json";
 import visitorUiTranslations from "../app/data/visitor-ui-translations.json";
+import publicReviewTranslations from "../app/data/public-review-translations.json";
+import { lookupPublicCopy } from "../app/i18n/public-copy";
 import catalogAdminTranslations from "../app/data/catalog-admin-translations.json";
 import { runSupplierCatalogScheduleTick } from "../app/lib/supplier-catalog-retry-runner.ts";
 import { cachedOnlineCapabilities } from "../app/lib/online-booking-capability-cache.ts";
@@ -64,6 +66,7 @@ const serverTranslations: Record<Exclude<PublicLocale, "he">, TranslationDiction
 
 for (const locale of ["en", "ru", "fr"] as const) {
   Object.assign(serverTranslations[locale], Object.fromEntries(Object.entries(worldDepthTranslations).map(([key, value]) => [key, value[locale]])), Object.fromEntries(Object.entries(visitorUiTranslations).map(([key, value]) => [key, value[locale]])));
+  Object.assign(serverTranslations[locale], Object.fromEntries(Object.entries(publicReviewTranslations).map(([key, value]) => [key, value[locale]])));
 }
 
 function translateServerText(value: string, locale: PublicLocale) {
@@ -78,6 +81,8 @@ function translateServerText(value: string, locale: PublicLocale) {
   const headline = core.endsWith(brandSuffix) ? core.slice(0, -brandSuffix.length) : "";
   const reviewedHeadline = (visitorUiTranslations as Record<string, Partial<Record<PublicLocale, string>>>)[headline]?.[locale];
   if (reviewedHeadline) return `${leading}${reviewedHeadline} | ${serverTranslations[locale]["וי פור ויקיישן"] || "VII Vacation"}${trailing}`;
+  const reviewedOrExact = lookupPublicCopy(core, locale, serverTranslations[locale]);
+  if (reviewedOrExact) return `${leading}${reviewedOrExact}${trailing}`;
   if (headline) {
     const localizedHeadline = localizedSpaSearchSource(headline, locale) || serverTranslations[locale][headline];
     if (localizedHeadline) return `${leading}${localizedHeadline} | VII Vacation${trailing}`;

@@ -60,7 +60,10 @@ export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { ite
   const ui = language === "he" ? null : interfaceCopy[language];
   const location = language === "he" ? item.location : placeNames[language][item.location] || ui!.israel;
   const area = language === "he" ? item.area : placeNames[language][item.area] || ui!.israel;
-  const localizedName = localizedBusinessText(item.name, language, translate, latinBusinessAlias(item.name) || `${localized?.chips[0] || ui?.details || item.name} · ${location}`);
+  // Generated dictionaries load after hydration. Business identity must not
+  // change between SSR and the browser, so use only a verified Latin alias or
+  // a localized neutral fallback on these discovery cards.
+  const localizedName = localizedBusinessText(item.name, language, translate, latinBusinessAlias(item.name) || `${localized?.chips[0] || ui?.details || item.name} · ${location}`, true);
   const description = (localized?.description || item.description).replace(/ש["״]ח/g, "₪");
   const features = localized?.chips || item.features.slice(0, 3);
   const details = ui?.details || (item.world === "hourly" ? "פרטי המקום" : "צפייה במקום");

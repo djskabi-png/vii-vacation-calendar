@@ -35,6 +35,8 @@ import { canShowOnlineBookingBadge } from "../lib/online-booking-eligibility";
 import { HomeDealDetailStatus } from "../components/home-deal-detail-status";
 import { useLegacyAvailability } from "../components/use-legacy-availability";
 import { useViiStayQuote } from "../components/use-vii-stay-quote";
+import { useViiStayCalendar } from "../components/use-vii-stay-calendar";
+import { vacationPartyForGuestCount } from "../lib/vacation-party";
 import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources";
 import { ViewedItemTracker } from "../components/viewed-item-tracker";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
@@ -134,7 +136,7 @@ function roomBookingHref(bookingQuery: string, index: number, nightlyPrice: numb
   params.set("price", String(nightlyPrice));
   return `/booking?${params.toString()}`;
 }
-export default function BusinessPage({ initialSlug, initialProperty, relatedProperties, trailInventory, complementaryInventory, supplierDetail, initialWorld = "vacation", initialDates, initialFrom, initialTill, initialGuests = "2", initialPrice, initialIllustrative = false, initialSource, initialPeriod }: { initialSlug: string; initialProperty?: Property; relatedProperties?: Property[]; trailInventory?: Trail[]; complementaryInventory?: DiscoveryItem[]; supplierDetail?: SupplierPlaceDetail; initialWorld?: BusinessWorld; initialDates?: string; initialFrom?: string; initialTill?: string; initialGuests?: string; initialRooms?: string; initialPrice?: string; initialIllustrative?: boolean; initialSource?: string; initialPeriod?: string }) {
+export default function BusinessPage({ initialSlug, initialProperty, relatedProperties, trailInventory, complementaryInventory, supplierDetail, initialWorld = "vacation", initialDates, initialFrom, initialTill, initialGuests = "2", initialRooms, initialChildren, initialInfants, initialPrice, initialIllustrative = false, initialSource, initialPeriod }: { initialSlug: string; initialProperty?: Property; relatedProperties?: Property[]; trailInventory?: Trail[]; complementaryInventory?: DiscoveryItem[]; supplierDetail?: SupplierPlaceDetail; initialWorld?: BusinessWorld; initialDates?: string; initialFrom?: string; initialTill?: string; initialGuests?: string; initialRooms?: string; initialChildren?: string; initialInfants?: string; initialPrice?: string; initialIllustrative?: boolean; initialSource?: string; initialPeriod?: string }) {
   const { language, translate } = useSiteLanguage();
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [dates, setDates] = useState(initialDates || "");
@@ -170,7 +172,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
     fr: { name: "Hébergement vérifié", location: "Israël", description: (name: string, location: string) => `${name} est un hébergement vérifié situé en ${location}. Consultez les photos, les équipements, les unités, les disponibilités et les options de réservation.`, unit: "Unité d’hébergement", feature: "Équipement sur place", faqQuestion: "Informations importantes sur l’établissement", faqAnswer: "Les informations, les disponibilités et les conditions de réservation sont confirmées directement avec l’établissement.", policy: "Les conditions d’annulation et de modification sont communiquées avant la confirmation et le paiement.", checkIn: "Arrivée", checkOut: "Départ", checkOutSat: "Départ le samedi", confirmHours: "Veuillez confirmer les horaires auprès de l’établissement.", locationTitle: (name: string, location: string, area: string) => `Emplacement de ${name} à ${location}, ${area}`, endcap: "Comparez d’autres hébergements à proximité, choisissez un itinéraire de promenade ou trouvez un service qui se déplace jusqu’à votre hébergement.", moreArea: "Autres hébergements dans la région" },
   }[language];
   const safeBusinessText = (value: string | undefined | null, fallback: string) => localizedBusinessText(value, language, translate, fallback);
-  const localizedPropertyName = safeBusinessText(property.name, latinBusinessAlias(property.name) || businessCopy.name);
+  const localizedPropertyName = safeBusinessText(property.name, property.name);
   const localizedArea = safeBusinessText(property.area, businessCopy.location);
   const localizedLocation = safeBusinessText(property.location, localizedArea);
   const localizedDescription = safeBusinessText(property.description, businessCopy.description(localizedPropertyName, localizedLocation));
@@ -202,7 +204,11 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
   const hasSelectedDates = Boolean(dateRange.from && dateRange.till);
   const selectedStay = hasSelectedDates ? { from: dateRange.from, till: dateRange.till, guests } : null;
   const supplierSiteID = /^vacation-(\d+)$/.exec(property.slug)?.[1];
-  const supplierQuote = useViiStayQuote(supplierSiteID ? Number(supplierSiteID) : null, dateRange.from, dateRange.till, guests);
+  const siteToday = currentSiteDay();
+  const calendarFrom = `${siteToday.getFullYear()}-${String(siteToday.getMonth() + 1).padStart(2, "0")}-${String(siteToday.getDate()).padStart(2, "0")}`;
+  const supplierCalendar = useViiStayCalendar(supplierSiteID ? Number(supplierSiteID) : null, calendarOpen && activeWorld === "vacation", calendarFrom);
+  const supplierRooms = useMemo(() => vacationPartyForGuestCount(guests, Number(initialChildren) || 0, Number(initialInfants) || 0, Number(initialRooms) || 1), [guests, initialChildren, initialInfants, initialRooms]);
+  const supplierQuote = useViiStayQuote(supplierSiteID ? Number(supplierSiteID) : null, dateRange.from, dateRange.till, guests, supplierRooms);
   const liveLegacyAvailability = useLegacyAvailability(property, selectedStay);
   const verifiedLastMinuteDeal = activeWorld === "vacation" && selectedStay
     ? publishedLastMinuteDeal({ slug: property.slug, period: initialPeriod, from: selectedStay.from, till: selectedStay.till, guests, nightlyPrice: Number(selectedPrice) || 0 })
@@ -232,7 +238,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
   const onlineBooking = activeWorld === "vacation" ? vacationOnlineReady : activeOffering.bookingMode !== "call-only";
   const phoneBooking = activeOffering.bookingMode === "call-only" || activeOffering.bookingMode === "online-or-call";
   const phoneHref = property.contact?.phone ? `tel:${property.contact.phone.replace(/[^\d+]/g, "")}` : undefined;
-  const bookingQuery = new URLSearchParams({ world: activeWorld, place: property.slug, ...(dateRange.from ? { from: dateRange.from } : {}), ...(dateRange.till ? { till: dateRange.till } : {}), guests: String(guests), ...(resolvedSelectedPrice ? { price: resolvedSelectedPrice } : {}), ...(supplierSiteID && supplierQuote.roomIDs.length === 1 ? { roomID: String(supplierQuote.roomIDs[0]) } : {}), ...(verifiedLastMinuteDeal ? { period: initialPeriod || "last-minute", source: initialSource || "last-minute" } : {}), ...(initialIllustrative || property.demoOperations?.fictional || effectiveVacationAvailability?.illustrative ? { illustrative: "1" } : {}) }).toString();
+  const bookingQuery = new URLSearchParams({ world: activeWorld, place: property.slug, ...(dateRange.from ? { from: dateRange.from } : {}), ...(dateRange.till ? { till: dateRange.till } : {}), guests: String(guests), ...(initialRooms ? { rooms: initialRooms } : {}), ...(initialChildren ? { children: initialChildren } : {}), ...(initialInfants ? { infants: initialInfants } : {}), ...(resolvedSelectedPrice ? { price: resolvedSelectedPrice } : {}), ...(supplierSiteID && supplierQuote.roomIDs.length === 1 ? { roomID: String(supplierQuote.roomIDs[0]) } : {}), ...(verifiedLastMinuteDeal ? { period: initialPeriod || "last-minute", source: initialSource || "last-minute" } : {}), ...(initialIllustrative || property.demoOperations?.fictional || effectiveVacationAvailability?.illustrative ? { illustrative: "1" } : {}) }).toString();
   const ownerWhatsapp = property.contact?.whatsapp;
   const bookingActionHref = vacationPhoneFallback ? "#booking-summary" : `/booking?${bookingQuery}`;
   const sectionLinks = useMemo<DetailSectionLink[]>(() => [
@@ -482,7 +488,9 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
         <SearchAfterResults world={activeWorld} discoveryOnly location={property.location} inventory={[property, ...(relatedProperties || [])].map(entry => ({ location: entry.location, area: entry.area, type: entry.type }))} />
       </main>
 
-      <CalendarDemo mode="business" businessKind={property.scenario} businessName={property.name} open={calendarOpen && activeWorld === "vacation"} onClose={() => setCalendarOpen(false)} guests={guests} maxGuests={activeOffering.maxGuests || property.guests} onGuestsChange={setGuests} availabilityResolver={property.demoOperations?.fictional ? demoAvailabilityForDate : undefined} priceResolver={property.demoOperations?.fictional ? (date) => demoNightlyPrice(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`, property.demoOperations!.weekdayNightlyPrice, property.demoOperations!.weekendNightlyPrice) : undefined} onConfirm={(result) => { const from = result.checkIn || ""; setDates(result.summary); setDateRange({ from, till: result.checkOut || "" }); setSelectedPrice(property.demoOperations?.fictional && from ? String(demoNightlyPrice(from, property.demoOperations.weekdayNightlyPrice, property.demoOperations.weekendNightlyPrice)) : ""); }} />
+      <CalendarDemo mode="business" businessKind={property.scenario} businessName={property.name} open={calendarOpen && activeWorld === "vacation"} onClose={() => setCalendarOpen(false)} guests={guests} maxGuests={activeOffering.maxGuests || property.guests} onGuestsChange={setGuests}
+        liveCalendar={supplierCalendar.calendar} calendarRequired={Boolean(supplierSiteID)} calendarStatus={supplierCalendar.status} onRetryCalendar={supplierCalendar.retry} illustrative={Boolean(property.demoOperations?.fictional)}
+        availabilityResolver={property.demoOperations?.fictional ? demoAvailabilityForDate : undefined} priceResolver={property.demoOperations?.fictional ? (date) => demoNightlyPrice(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`, property.demoOperations!.weekdayNightlyPrice, property.demoOperations!.weekendNightlyPrice) : undefined} onConfirm={(result) => { const from = result.checkIn || ""; setDates(result.summary); setDateRange({ from, till: result.checkOut || "" }); setSelectedPrice(property.demoOperations?.fictional && from ? String(demoNightlyPrice(from, property.demoOperations.weekdayNightlyPrice, property.demoOperations.weekendNightlyPrice)) : ""); }} />
 
       <GalleryExperience key={`${property.slug}-${galleryOpen ? `${galleryTab}-${galleryStart}-${galleryTopic || "all"}` : "closed"}`} property={localizedGalleryProperty} guestPhotos={property.guestPhotos} open={galleryOpen} initialIndex={galleryStart} initialTab={galleryTab} initialTopic={galleryTopic} onAddGuestContent={() => { closeGallery(); setReviewOpen(true); }} onSelectionChange={updateGallerySelection} onClose={closeGallery} />
       <UnitDetailsDialog propertyName={property.name} room={selectedRoomIndex === null ? null : property.roomOptions?.[selectedRoomIndex] || null} open={selectedRoomIndex !== null} onClose={closeUnitDetails} onOpenGallery={() => { if (selectedRoomIndex === null || !property.roomOptions) return; const room = property.roomOptions[selectedRoomIndex]; const start = property.roomOptions.slice(0, selectedRoomIndex).reduce((total, option) => total + (option.images?.length || 1), 0); setGalleryTopic(room.name); closeUnitDetails(); window.setTimeout(() => openGallery("units", start), 0); }} />

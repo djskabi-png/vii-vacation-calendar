@@ -21,7 +21,7 @@ export default function AccessibilityPage() {
           <span className="eyebrow">שירות שווה לכולם</span>
           <h1>הצהרת נגישות</h1>
           <p className="lead">אנחנו פועלים כדי לאפשר לכל אדם להשתמש באתר, למצוא מקום מתאים ולקבל מידע ברור לפני הזמנה.</p>
-          <p className="accessibility-statement__date">עודכן ביום 19 באוגוסט 2026</p>
+          <p className="accessibility-statement__date">עודכן ביום 20 באוקטובר 2026</p>
         </header>
 
         <aside className="accessibility-statement__notice" aria-label="עדכון בנוגע להצהרת הנגישות">
@@ -46,6 +46,7 @@ export default function AccessibilityPage() {
             <li>כלי עזר לשינוי גודל הטקסט, ניגודיות, צבעי אפור, הדגשת קישורים, ריווח, מיקוד והפחתת תנועה.</li>
             <li>שמירת העדפות התצוגה במכשיר של המשתמש.</li>
           </ul>
+          <p>ביום 20 באוקטובר 2026 הושלמה בדיקה אוטומטית של עמודי הליבה בעברית, באנגלית, בצרפתית וברוסית, בתצוגת מחשב ובתצוגת טלפון. הבדיקה כללה מבנה כותרות, ניגודיות, גלישה אופקית, יעדי הפעלה וכניסה לניווט באמצעות מקלדת. בדיקה אוטומטית אינה מחליפה בדיקה ידנית באמצעות טכנולוגיות מסייעות.</p>
         </section>
 
         <section>
@@ -94,6 +95,7 @@ export default function AccessibilityPage() {
         <section className="accessibility-statement__sources">
           <h2>מקורות רשמיים</h2>
           <ul>
+            <li><a href="https://www.gov.il/BlobFolder/legalinfo/israeli_accessibility_standards_pdf/he/sitedocs_si-5568-1-september-2023.pdf" target="_blank" rel="noreferrer">תקן ישראלי 5568 חלק 1, מהדורת ספטמבר 2023</a></li>
             <li><a href="https://www.gov.il/he/pages/declaration_website_accessibility?chapterIndex=1" target="_blank" rel="noreferrer">מדריך ממשלתי להצהרת נגישות ולפרסום הסדרים</a></li>
             <li><a href="https://www.gov.il/he/pages/website_accessibility?chapterIndex=1" target="_blank" rel="noreferrer">מדריך ממשלתי לנגישות אתרי אינטרנט</a></li>
             <li><a href="https://www.gov.il/BlobFolder/guide/accommodating_service_providing_rules/he/sitedocs_service_acessibility_regulations.pdf" target="_blank" rel="noreferrer">תקנות שוויון זכויות לאנשים עם מוגבלות, התאמות נגישות לשירות</a></li>

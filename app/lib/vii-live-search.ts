@@ -2,7 +2,7 @@ const API_ROOT = "https://bizonline.co.il/api/ai/vii";
 
 export type LiveSearchWorld = "vacations" | "events";
 export type EventSlot = "morning" | "evening";
-export type LiveSearchRoom = { adults: number; children?: number };
+export type LiveSearchRoom = { adults: number; children?: number; infants?: number };
 export type LiveSearchResult = {
   siteID: number;
   available: boolean | null;
@@ -37,10 +37,11 @@ export function daysBetween(from: string, till: string) {
 }
 
 function validRooms(value: unknown): value is LiveSearchRoom[] {
-  return Array.isArray(value) && value.length > 0 && value.length <= 12 && value.every((room) => {
+  return Array.isArray(value) && value.length > 0 && value.length <= 10 && value.every((room) => {
     const item = object(room);
     return Number.isSafeInteger(item.adults) && Number(item.adults) >= 1 && Number(item.adults) <= 30
-      && (item.children === undefined || Number.isSafeInteger(item.children) && Number(item.children) >= 0 && Number(item.children) <= 20);
+      && (item.children === undefined || Number.isSafeInteger(item.children) && Number(item.children) >= 0 && Number(item.children) <= 20)
+      && (item.infants === undefined || Number.isSafeInteger(item.infants) && Number(item.infants) >= 0 && Number(item.infants) <= 10);
   });
 }
 
@@ -100,7 +101,7 @@ export async function liveSupplierSearch(options: {
   }
   if (!options.token) throw new Error("supplier_unavailable");
   const bodies: Record<string, unknown>[] = [];
-  if (world === "vacations") bodies.push({ from, nights: days, rooms: requestedRooms });
+  if (world === "vacations") bodies.push({ from, nights: days, rooms: requestedRooms.map(({ adults, children, infants }) => ({ adults, ...(children ? { kids: children } : {}), ...(infants ? { infants } : {}) })) });
   else if (days === 0) bodies.push({ date: from, guests, ...(options.slot ? { slot: options.slot } : {}) });
   else {
     let cursor = Date.parse(`${from}T00:00:00Z`);

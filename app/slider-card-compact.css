@@ -1,7 +1,9 @@
 /* Place/deal rails use content-sized cards, not inherited percentage heights.
    Search grids, full galleries, review chronology and detail-page units stay intact. */
-[data-horizontal-rail] > :is(.home-slider__item, .home-live-deals__item) { display: flex; }
-[data-horizontal-rail] > :is(.home-slider__item, .home-live-deals__item) > article { flex: 1; }
+/* Only wrappers stretch cards. An article/link can itself be a rail item:
+   turning it into a row hides video captions and distorts direct media. */
+[data-horizontal-rail] > div:is(.home-slider__item, .home-live-deals__item) { display: flex; }
+[data-horizontal-rail] > div:is(.home-slider__item, .home-live-deals__item) > article { flex: 1; }
 [data-horizontal-rail] :is(.stay-card, .discovery-card, .trail-card, .event-result-card) {
   height: auto;
   min-height: 0;

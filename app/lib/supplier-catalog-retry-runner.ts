@@ -4,6 +4,7 @@ import { syncSupplierCatalogWorld } from "./supplier-catalog-runtime.ts";
 import { CATALOG_MAX_RETRIES, CATALOG_RETRY_DELAY_MS, cancelPendingCatalogRetries,
   claimDueCatalogRetries, finishCatalogRetry, scheduleCatalogRetry } from "./supplier-catalog-retry.ts";
 import type { SupplierCatalogWorld } from "./supplier-catalog-store.ts";
+import { recordCatalogAlert, resolveCatalogAlerts } from "./supplier-catalog-alerts.ts";
 
 type SyncResult = { status: "accepted" | "rejected" | "failed" | "skipped"; id: string; errorCode?: string };
 type Sync = (world: SupplierCatalogWorld, source: "manual" | "scheduled" | "retry", runId: string) => Promise<SyncResult>;
@@ -26,6 +27,18 @@ async function settleInitial(db: D1Database, rootRunId: string, result: SyncResu
   }
 }
 
+async function settleAlerts(db: D1Database, input: { rootRunId: string; world: SupplierCatalogWorld; result: SyncResult; now: string; exhausted?: boolean }) {
+  try {
+    if (input.result.status === "accepted") await resolveCatalogAlerts(db, input.world, input.now);
+    else if (input.result.status === "rejected") await recordCatalogAlert(db, { rootRunId: input.rootRunId,
+      runId: input.result.id, world: input.world, severity: "warning", kind: "review_required",
+      errorCode: input.result.errorCode, now: input.now });
+    else if (input.result.status === "failed" && input.exhausted) await recordCatalogAlert(db, { rootRunId: input.rootRunId,
+      runId: input.result.id, world: input.world, severity: "critical", kind: "retries_exhausted",
+      errorCode: input.result.errorCode, now: input.now });
+  } catch (error) { console.error("VII catalog alert persistence unavailable", input.world, input.result.id, error); }
+}
+
 export async function runCatalogPullWithRetryPlan(db: D1Database, input: {
   world: SupplierCatalogWorld;
   source: "manual" | "scheduled";
@@ -39,6 +52,7 @@ export async function runCatalogPullWithRetryPlan(db: D1Database, input: {
     dueAt: after(now, CATALOG_RETRY_DELAY_MS), createdAt: now.toISOString() });
   const result = await sync(input.world, input.source, input.runId);
   await settleInitial(db, input.runId, result, now.toISOString());
+  await settleAlerts(db, { rootRunId: input.runId, world: input.world, result, now: now.toISOString() });
   return result;
 }
 
@@ -59,6 +73,7 @@ export async function runDueCatalogRetries(db: D1Database, input: { now?: Date; 
     if (result.status === "accepted" || result.status === "rejected") {
       await cancelPendingCatalogRetries(db, job.rootRunId, now.toISOString(), result.status, result.id, result.errorCode);
     }
+    await settleAlerts(db, { rootRunId: job.rootRunId, world: job.world, result, now: now.toISOString(), exhausted: terminalStatus === "exhausted" });
     results.push(result);
   }
   return results;

@@ -32,6 +32,9 @@ type Props = {
     from?: string;
     till?: string;
     guests?: string;
+    rooms?: string;
+    children?: string;
+    infants?: string;
     price?: string;
     unitIndex?: string;
     roomID?: string;
@@ -55,7 +58,7 @@ async function resolveBooking(params: Awaited<Props["searchParams"]>) {
   const mappedSlug = supplierLegacySlug(params.place, params.world === "events" ? "events" : "vacations");
   if (mappedSlug) {
     const query = new URLSearchParams({ place: mappedSlug });
-    for (const key of ["world", "from", "till", "guests"] as const) if (params[key]) query.set(key, params[key]!);
+    for (const key of ["world", "from", "till", "guests", "rooms", "children", "infants"] as const) if (params[key]) query.set(key, params[key]!);
     redirect(`${prefix}/booking?${query}`);
   }
   const offerId = params.package || params.service || params.offer || "";
@@ -157,6 +160,6 @@ export default async function BookingPage({ searchParams }: Props) {
   }
   const booking = await resolveBooking(params);
   return <PageShell variant={booking.world as "vacation" | "events" | "spa" | "hourly" | "providers" | "activities"}>
-    <BookingPageClient {...booking} action={params.action || "new"} initialFrom={params.from} initialTill={params.till} initialGuests={params.guests} />
+    <BookingPageClient {...booking} action={params.action || "new"} initialFrom={params.from} initialTill={params.till} initialGuests={params.guests} initialRooms={params.rooms} initialChildren={params.children} initialInfants={params.infants} />
   </PageShell>;
 }
