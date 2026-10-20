@@ -21,6 +21,7 @@ import { rewriteCanonicalStream } from "./stream-canonical.ts";
 import { rewriteOriginStream } from "./stream-origin.ts";
 import { editorialWorldLinks } from "../app/data/editorial-world-links";
 import { localizedSpaSearchSource } from "../app/data/spa-search-landings.ts";
+import { activateAwsDatabase, awsDatabaseMode, databaseForEnv } from "../app/lib/aws-database.ts";
 
 declare const __VII_CACHE_BUILD_ID__: string;
 const publicCacheBuild = typeof __VII_CACHE_BUILD_ID__ === "string" ? __VII_CACHE_BUILD_ID__ : "local";
@@ -146,6 +147,9 @@ interface Env {
       };
     };
   };
+  VII_AWS_DB_ENDPOINT?: string;
+  VII_AWS_DB_TOKEN?: string;
+  VII_AWS_DB_MODE?: string;
 }
 
 interface ExecutionContext {
@@ -161,23 +165,27 @@ interface ExecutionContext {
 
 const worker = {
   scheduled(controller: { scheduledTime: number }, env: Env, ctx: ExecutionContext) {
+    activateAwsDatabase(env);
+    const database = databaseForEnv(env);
     // One shared, leased daily probe, not a probe per visitor or geography.
-    ctx.waitUntil(cachedOnlineCapabilities(env.DB).catch(() => {
+    ctx.waitUntil(cachedOnlineCapabilities(database).catch(() => {
       console.error("VII online capability refresh unavailable");
     }));
-    ctx.waitUntil(runSupplierCatalogScheduleTick(env.DB, { now: new Date(controller.scheduledTime) }).then(({ primary, retries }) => {
+    ctx.waitUntil(runSupplierCatalogScheduleTick(database, { now: new Date(controller.scheduledTime) }).then(({ primary, retries }) => {
       for (const result of [...retries, ...(primary ? [primary] : [])]) if (result.status !== "accepted" && result.status !== "skipped") {
         console.error("VII scheduled catalog sync did not publish", result.id, result.errorCode);
       }
     }));
   },
   async fetch(request: Request, env: Env, ctx: ExecutionContext, refreshPublic = false): Promise<Response> {
+    activateAwsDatabase(env);
+    const database = databaseForEnv(env);
     const url = new URL(request.url);
     const primary = url.hostname === "www.vii.co.il" || url.hostname === "vii.co.il";
     if (request.method === "GET" || request.method === "HEAD") {
-      if (env.DB && shouldCheckRedirect(url.pathname)) {
+      if (database && shouldCheckRedirect(url.pathname)) {
         try {
-          const managed = await redirectForUrl(env.DB, url);
+          const managed = await redirectForUrl(database, url);
           if (managed?.status === 301 && managed.target_path) return Response.redirect(new URL(managed.target_path, primary ? primaryOrigin : temporaryOrigin), 301);
           if (managed?.status === 410) return goneResponse(request);
         } catch (error) {
@@ -230,6 +238,7 @@ const worker = {
     requestHeaders.set("x-vii-locale", localeMatch?.[1] || "he");
 
     const response = await handler.fetch(new Request(request, { headers: requestHeaders }), env, ctx);
+    response.headers.set("X-VII-Data-Origin", awsDatabaseMode(env));
     const contentType = response.headers.get("content-type") || "";
     if (!contentType.includes("text/html")) {
       // Vite gives every compiled asset a content hash. Let the browser keep

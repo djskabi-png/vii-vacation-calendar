@@ -1,0 +1,240 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-aws-production-migration-20261020",
+  "project": "VII",
+  "task_type": "production-migration",
+  "goal": "Complete the current VII production migration to the approved AWS foundation and verify the public cutover end to end",
+  "created_at": "2026-10-20T02:51:57.640493Z",
+  "updated_at": "2026-10-20T02:51:57.640493Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "a53f3cf6f221a2a2da458ce59681240effe0028a2744bf25317e1c3b162f9973"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "f1aa410611dd0fdb5adbb8a620832ee6ff9f9a3498a8108f74f1ccb86562379b"
+    },
+    "cognitive_model": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md",
+      "sha256": "708ce5d1b152afe220cf98008f571e7d27704c102624f7d7440dc85a1a6ba2d8"
+    },
+    "rulebook": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md",
+      "sha256": "eef33571725d590d0dadeeee9475422715279004fbc40356257d11e818039ab1"
+    },
+    "predictive_preflight": {
+      "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-aws-migration-20261020\\project_knowledge\\task_contracts\\vii-aws-production-migration-20261020-preflight.json",
+      "sha256": "965123452fa0958ce900a4c8dc1c26d22a01ca1e0717b10863cb75c2e09762f5"
+    }
+  },
+  "predictive_preflight": {
+    "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-aws-migration-20261020\\project_knowledge\\task_contracts\\vii-aws-production-migration-20261020-preflight.json",
+    "sha256": "965123452fa0958ce900a4c8dc1c26d22a01ca1e0717b10863cb75c2e09762f5",
+    "predicted_rejection_count": 4,
+    "affected_family_count": 8,
+    "lesson_bundle_count": 8,
+    "midpoint_required": true,
+    "effectiveness_measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ]
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "title": "מסירה דורשת תוצאה מלאה ובדיקת רגרסיה",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-AUTH-001",
+      "title": "המלצה אינה הרשאה לפעולה חיצונית",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-LEARN-003",
+      "title": "כל משימה טוענת את הלקחים של אדיר ונחסמת ללא ראיות",
+      "scope": "account_rule_and_shared_skill_and_acceptance_check"
+    },
+    {
+      "lesson_id": "ADIR-MIND-001",
+      "title": "כל משימה מפעילה את לולאת ההחלטה של אדיר",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "VII-PROJECT-001",
+      "title": "לוגיקת מוצר ייחודית ל-VII",
+      "scope": "project_guidance"
+    },
+    {
+      "lesson_id": "ADIR-WEB-005",
+      "title": "Responsive transitions are release-critical state changes",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "ADIR-WEB-006",
+      "title": "Public mobile screenshots are required release evidence",
+      "scope": "shared_skill_and_acceptance_check"
+    },
+    {
+      "lesson_id": "ADIR-PUBLIC-TRUST-001",
+      "title": "כל משטח ציבורי עובר מלאי אמון, זכויות והסכמה",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Complete the current VII production migration to the approved AWS foundation and verify the public cutover end to end",
+      "acceptance_check": "Exact public domain serves the immutable AWS-backed release; all data, media, routes, roles, jobs and critical flows reconcile and pass; rollback and post-cutover health are verified",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:prediction",
+      "source": "predictive_preflight",
+      "statement": "Predict likely Adir rejection reasons and bind prevention to observable evidence before implementation.",
+      "acceptance_check": "The bounded predictive manifest matches the task identity and selected lessons and passes deterministic validation.",
+      "status": "passed",
+      "evidence": [
+        "Predictive preflight C:\\Users\\Adir\\Documents\\vii.co.il\\vii-aws-migration-20261020\\project_knowledge\\task_contracts\\vii-aws-production-migration-20261020-preflight.json validated with sha256 965123452fa0958ce900a4c8dc1c26d22a01ca1e0717b10863cb75c2e09762f5"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T02:51:57.640493Z"
+    },
+    {
+      "id": "preflight:midpoint",
+      "source": "predictive_preflight.midpoint_gate",
+      "statement": "The first immutable public AWS-backed candidate can render representative read-only pages against a reconciled migrated data slice while the current public release remains unchanged.",
+      "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:adversarial",
+      "source": "predictive_preflight.adversarial_close",
+      "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
+      "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:effectiveness",
+      "source": "predictive_preflight.effectiveness",
+      "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
+      "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-QA-001",
+      "source": "lesson:ADIR-QA-001",
+      "statement": "שום פרויקט או תוצר אינם גמורים כאשר היעד הטבעי אינו מציג את התוצאה המבוקשת, כאשר מצב שנשמר לא שרד רענון, כאשר קיימים רכיבים מתים, מצבים מזויפים, מסלולים קטועים וחיבורים שלא נבדקו מקצה לקצה, או כאשר המבצע לא פתח בעצמו את הגרסה המדויקת ובדק אותה לפי סוג התוצר. לאחר כל תיקון מקומי חוזרים להבטחה המקורית ולמטרת העל, ובודקים מחדש את כל המסלול, משפחת המצבים והקריטריונים הקריטיים. הוכחה שתוקן הפרט האחרון אינה אישור שהמוצר, המסמך, המחקר, המדיה, האוטומציה או הפעולה העסקית המלאה מוכנים או שאדיר צפוי להיות מרוצה. מוצר ציבורי שמשרת לקוחות אינו מאושר למסירה רק על בסיס בדיקות המבצע: לאחר פרסום מועמד מותנה נדרשת קבוצת בדיקות מייצגת על הגרסה המדויקת, עם תרחישי לקוח, תפעול, עסק וסיכון. פרויקט מסוג אחר מפעיל בדיקות בעלי עניין מתאימות לסוגו או מנמק במדויק מדוע השער אינו חל. כל מסירה לאדיר כוללת קישור ישיר ושימושי לכל תוצאה שניתנת לפתיחה. אם אין קישור אפשרי, מציינים זאת במפורש ומוסרים את המיקום המדויק או דרך האחזור.",
+      "acceptance_check": "Before any complete, ready or likely-to-satisfy judgment, the evidence must name the original promise, distinguish the latest repaired detail from the full outcome, map every critical journey and affected-family item to passed evidence, a precise blocker or justified exclusion, and inspect the exact final artifact at its natural destination. A fixture that proves only the most recent local correction must be blocked from full approval, regardless of project type. A deliberately incomplete review or task must be blocked. A public customer-facing review must also fail without five to ten passed post-deploy representative actor scenarios on the exact version and at least three applicable stakeholder perspectives. A justified non-public or non-customer artifact must remain valid without an irrelevant public cohort. A completed result with an addressable destination fails delivery when its direct link is omitted. A result without a possible link passes only when the exact location or retrieval path and a concrete no-link reason are present.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-AUTH-001",
+      "source": "lesson:ADIR-AUTH-001",
+      "statement": "שאלה או המלצה על ספק, ענן, רכישה, התקנה, הגדרה או העלאת מידע אינה הרשאה לבצע את הפעולה. עונים על השאלה בלבד עד שאדיר נותן אישור מפורש לפעולה החיצונית המדויקת.",
+      "acceptance_check": "A forward-test recommendation about a cloud provider produces an answer only and no external mutation. A separate explicit authorization for a named action is required before the action can proceed, and the task contract records the authorization boundary.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-LEARN-003",
+      "source": "lesson:ADIR-LEARN-003",
+      "statement": "בכל משימה ובכל פרויקט יש לטעון מראש את צורת העבודה, הבדיקות והלקחים המאושרים הרלוונטיים של אדיר, ולהימנע מהכרזת השלמה עד שכל דרישה ולקח קיבלו ראיה שעברה או חסימה מדויקת.",
+      "acceptance_check": "משימת מבחן אמיתית טוענת את הלקח לפי מזהה, שומרת גיבובי מקור, ממפה כל דרישה לראיה ומסתיימת במצב VERIFIED גם כאשר הווים כבויים במכוון ואין אירוע סינתטי. עותק מכוון עם דרישה ממתינה או מקור שהשתנה חייב להיכשל במצב NOT_VERIFIED. מניפסט לולאה מתקדם ותחום חייב לעבור, בעוד כשל זהה שלישי, ניסיון חדש מעל תוצאה לא ודאית, מועד סיום חסר או חריגה מתקרת ניסיונות חייבים להיחסם.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-MIND-001",
+      "source": "lesson:ADIR-MIND-001",
+      "statement": "לפני עבודה מהותית המבצע מתרגם את הבקשה לתוצאה המלאה, חוזה מה אדיר צפוי לבדוק, מאמת אמת והרשאה, ובונה בדיקות קבלה וראיה גלויה במקום שבו התוצאה אמורה לעבוד.",
+      "acceptance_check": "A new representative version-two task contract cannot start without a valid matching predictive manifest, rejects a missing or oversized lesson bundle and private feedback storage, creates midpoint, adversarial and effectiveness requirements, detects manifest tampering and blocks completion while any predictive check is pending. A complete real contract must return VERIFIED, while an existing version-one contract must remain finishable.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:VII-PROJECT-001",
+      "source": "lesson:VII-PROJECT-001",
+      "statement": "עולמות התוכן, לוגיקת ההזמנה, מבנה הרגע האחרון ומודל נתוני המקום נשארים בהנחיות פרויקט VII.",
+      "acceptance_check": "החלטות VII המדויקות מופיעות רק בהדרכת הפרויקט, כל נושא ממופה למקור ולבדיקה, והפרטים אינם מופיעים בספר החוקים הכללי.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-005",
+      "source": "lesson:ADIR-WEB-005",
+      "statement": "Every responsive website must remain correct through mobile-to-desktop and desktop-to-mobile transitions, reloads, orientation changes and browser device-emulation changes, including while overlays and scroll locks are active.",
+      "acceptance_check": "A real public route passes fresh desktop, desktop reload, fresh 390-pixel mobile, mobile overlay open followed by desktop resize, desktop reload, breakpoint boundary, orientation change and return to mobile. At every step the page has meaningful visible content, scrollX is zero, document width does not exceed viewport width and desktop has no stale mobile lock, backdrop or expanded state.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-006",
+      "source": "lesson:ADIR-WEB-006",
+      "statement": "A mobile search product is not visually approved until meaningful content is visible in the viewport and an independent checker inspects both a public-domain screenshot and the live page. DOM presence, text length, build output and overflow measurements alone are insufficient.",
+      "acceptance_check": "A public Spa results route with an artificially empty results control must fail with no-visible-results-state or excessive-empty-band, and the report must contain a screenshot path inspected by the independent checker.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-PUBLIC-TRUST-001",
+      "source": "lesson:ADIR-PUBLIC-TRUST-001",
+      "statement": "לפני אישור או פרסום של אתר, יישום, דף נחיתה, יעד קמפיין, חוויה מוטמעת או משטח מסחרי ציבורי, מסווגים מדיניות פרטיות, מדיניות עוגיות, מדיניות החזרים, הסכמה בטפסים, זכויות לתמונות, תקנון ותנאי שימוש, טקסט חלופי לתמונות, כיתוב ברור לכפתורים ולקישורים, הסכמה לעוגיות, הטמעות צד שלישי, דף שגיאה שימושי, ומדיניות משלוחים או אספקה. כל סעיף מקבל ראיה, חסימה מדויקת או נימוק אי תחולה. הרשימה אינה הוכחה לעמידה בחוק, ומסקנה משפטית דורשת מקורות רשמיים ועדכניים ועובדות עסקיות מאומתות.",
+      "acceptance_check": "A complete twelve-category manifest with verified context and exact evidence passes. A missing category, a passed category without evidence, an unexplained blocked or not-applicable category, or an unsupported legal-compliance claim fails. A resumed-task snapshot that does not reflect the current account guidance must be refreshed before material work or completion.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:project:continuity",
+      "source": "project_guidance",
+      "statement": "Every required source table, media object, identity, role, schedule, lease and audit family is reconciled without replay",
+      "acceptance_check": "Every required source table, media object, identity, role, schedule, lease and audit family is reconciled without replay",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:project:public-candidate",
+      "source": "project_guidance",
+      "statement": "A public immutable AWS-backed candidate passes before cutover while the old release remains intact",
+      "acceptance_check": "A public immutable AWS-backed candidate passes before cutover while the old release remains intact",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:project:cutover",
+      "source": "project_guidance",
+      "statement": "The public domain serves the exact approved AWS-backed release and passes post-cutover checks with tested rollback",
+      "acceptance_check": "The public domain serves the exact approved AWS-backed release and passes post-cutover checks with tested rollback",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    }
+  ],
+  "verification_status": "in_progress",
+  "verification_errors": []
+}
