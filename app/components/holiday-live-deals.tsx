@@ -13,7 +13,6 @@ import { localizedPath } from "../i18n/locale-routing";
 import { dealAvailability, dealProperty } from "./home-live-deals.tsx";
 import { PropertyCard } from "./property-card.tsx";
 import { discoveryJson } from "../lib/discovery-client-cache.ts";
-import { discoveryCacheCopy } from "../i18n/discovery-cache-copy.ts";
 import { eligibleDealDate, firstDealDate } from "../lib/deal-clock";
 import { useDealClock } from "./use-deal-clock";
 import { isHomeDealOnlineEligible } from "../lib/vacation-online-first.ts";
@@ -121,7 +120,6 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
       <div className="holiday-results-heading"><div><h2 id="holiday-live-title">{text.heading}</h2><p>{text.basis} <strong>{guests} {text.guests}</strong> · {window.nights} {text.nights} · <time dateTime={window.from}>{formatDate(window.from)}</time> / <time dateTime={window.till}>{formatDate(window.till)}</time></p></div><Link href={searchHref}>{text.search}</Link></div>
       {normalizedSelection.part === "all" ? <p className="holiday-window-note">{text.window}</p> : null}
       <div id="holiday-deal-results" className={`holiday-deals__surface${state === "loading" && result.deals.length ? " is-refreshing" : ""}`} role="tabpanel" tabIndex={0} aria-labelledby={`holiday-tab-${selection.audience}`} aria-busy={state === "loading"}>
-        {state === "ready" && result.stale && deals.length > 0 ? <p data-no-translate>{discoveryCacheCopy[language]}</p> : null}
         {state === "loading" && !result.deals.length ? <div className="holiday-deals__loading" role="status"><span className="holiday-deals__spinner" aria-hidden="true" /><strong>{text.loading}</strong><small>{guests} {text.guests} · {formatDate(window.from)} / {formatDate(window.till)}</small></div> : null}
         {state === "error" ? <div className="holiday-deals__message" role="alert"><strong>{text.error}</strong><button type="button" onClick={() => holiday.id <= 0 ? globalThis.location.reload() : setRetry((value) => value + 1)}>{text.retry}</button><Link href={searchHref}>{text.search}</Link></div> : null}
         {state === "ready" && !deals.length ? <div className="holiday-deals__message"><strong>{text.empty}</strong><p>{text.emptyHelp}</p>{selection.part !== "all" ? <button type="button" onClick={() => choose({ ...selection, part: "all" })}>{text.reset}</button> : null}<Link href={searchHref}>{text.search}</Link></div> : null}

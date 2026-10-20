@@ -30,9 +30,10 @@ test("map stabilization avoids full result serialization", async () => {
   const map = await readFile(new URL("app/components/listing-map.tsx", root), "utf8");
   assert.doesNotMatch(map, /JSON\.stringify\(incomingPlaces\)/);
   assert.match(map, /incomingPlaces\.map\(\(place\) => \[/);
-  for (const field of ["place.id", "place.name", "place.images", "place.lat", "place.lng", "place.href", "place.markerLabel"]) {
+  for (const field of ["place.id", "place.name", "place.image", "place.lat", "place.lng", "place.href", "place.markerLabel"]) {
     assert.match(map, new RegExp(field.replace(".", "\\.")));
   }
+  assert.doesNotMatch(map, /place\.images/);
   assert.match(map, /useMemo\(\(\) => incomingPlaces, \[placesSignature\]\)/);
 });
 

@@ -7,7 +7,7 @@ let lastGood: OnlineCapabilityMap = {};
 let flight: Promise<OnlineCapabilityMap> | null = null;
 let fetchedAt = 0;
 function load() {
-  if (Date.now() - fetchedAt < 60_000) return Promise.resolve(lastGood);
+  if (Date.now() - fetchedAt < 60 * 60_000) return Promise.resolve(lastGood);
   if (flight) return flight;
   flight = fetch("/api/vii/online-capabilities", { signal: AbortSignal.timeout(16_000) })
     .then(async response => {
@@ -23,13 +23,9 @@ export function useOnlineCapabilities(enabled: boolean, retry = 0) {
   useEffect(() => {
     if (!enabled) return;
     let active = true;
-    const refresh = () => {
-      void load().then(capabilities => { if (active) setState({ status: "ready", capabilities }); })
-        .catch(() => { if (active) setState(current => ({ ...current, status: "error" })); });
-    };
-    refresh();
-    const timer = window.setInterval(refresh, 60_000);
-    return () => { active = false; window.clearInterval(timer); };
+    void load().then(capabilities => { if (active) setState({ status: "ready", capabilities }); })
+      .catch(() => { if (active) setState(current => ({ ...current, status: "error" })); });
+    return () => { active = false; };
   }, [enabled, retry]);
   return state;
 }

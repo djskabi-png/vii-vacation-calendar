@@ -121,3 +121,14 @@ export async function cachedDiscovery<T>(options: Options<T>): Promise<Discovery
   group.set(key, operation as Promise<DiscoveryCacheResult<unknown>>);
   try { return await operation; } finally { if (group.get(key) === operation) group.delete(key); }
 }
+
+/** Read the last accepted discovery value without ever calling its provider. */
+export async function readCachedDiscovery<T>(options: Omit<Options<T>, "load">): Promise<DiscoveryCacheResult<T>> {
+  const selectedPolicy = policy({ ...options, load: async () => unavailable() });
+  const key = await identity(options.key);
+  const now = (options.now ?? Date.now)();
+  const row = options.db ? await read(options.db, key) : memory.get(key);
+  const value = parse(row, { ...options, load: async () => unavailable() }, now);
+  if (!row || value === undefined) return unavailable();
+  return result(value, row, now < row.checked_at + selectedPolicy.freshMs ? "fresh" : "stale");
+}

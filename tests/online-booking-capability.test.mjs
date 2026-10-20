@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { CAPABILITY_FRESH_MS as day, CAPABILITY_MAX_AGE_MS as maxAge, capabilityProbe, fetchCapabilityProbe, mergeCapabilityProbe, hasOnlineCapability, validOnlineCapabilities, publicOnlineCapabilities } from "../app/lib/online-booking-capability.ts";
+import { CAPABILITY_FRESH_MS as week, CAPABILITY_MAX_AGE_MS as maxAge, capabilityProbe, fetchCapabilityProbe, mergeCapabilityProbe, hasOnlineCapability, validOnlineCapabilities, publicOnlineCapabilities } from "../app/lib/online-booking-capability.ts";
 import { matchesVacationOnlineBooking } from "../app/lib/vacation-online-booking-filter.ts";
 import { onlineCapabilitiesResponse } from "../app/api/vii/online-capabilities/route.ts";
 const now = Date.parse("2026-10-19T12:00:00Z");
@@ -26,7 +26,7 @@ test("capability carries no probe availability, prices, dates or personal fields
   assert.deepEqual(input, capabilityProbe(now));
 });
 test("busy/minimum-stay/omitted/unknown availability does not disable or renew prior capability; explicit false revokes", () => {
-  const previous = { "vacation-1": { checkedAt: now - day }, "vacation-2": { checkedAt: now - day }, "vacation-3": { checkedAt: now - day } };
+  const previous = { "vacation-1": { checkedAt: now - week }, "vacation-2": { checkedAt: now - week }, "vacation-3": { checkedAt: now - week } };
   const result = mergeCapabilityProbe({ sites: [{ siteID: 1, available: false }, { siteID: 2, available: null }, { siteID: 4, onlineBooking: false }] }, previous, now);
   assert.deepEqual(result, previous);
   for (const available of [true, false, null]) assert.deepEqual(mergeCapabilityProbe({ sites: [{ siteID: 1, available, onlineBooking: false }] }, previous, now), { "vacation-2": previous["vacation-2"], "vacation-3": previous["vacation-3"] });
@@ -64,6 +64,13 @@ test("search list, nearby, map, draft and badge share capability without changin
   assert.match(page, /מוצגים כל המקומות באזור, בלי סימון הזמנה אונליין/);
   const worker = readFileSync(new URL("../worker/index.ts", import.meta.url), "utf8");
   assert.match(worker, /scheduled[\s\S]*databaseForEnv\(env\)[\s\S]*ctx.waitUntil\(cachedOnlineCapabilities\(database\)/);
+  const route = readFileSync(new URL("../app/api/vii/online-capabilities/route.ts", import.meta.url), "utf8");
+  assert.match(route, /readCachedOnlineCapabilities/);
+  assert.doesNotMatch(route, /read: async \(\) => cachedOnlineCapabilities/);
+  const client = readFileSync(new URL("../app/lib/use-online-capabilities.ts", import.meta.url), "utf8");
+  assert.doesNotMatch(client, /setInterval/);
+  const mcp = readFileSync(new URL("../app/mcp/route.ts", import.meta.url), "utf8");
+  assert.match(mcp, /world === "vacations"[\s\S]*cachedOnlineCapabilities\(db\)/);
   const card = readFileSync(new URL("../app/components/property-card.tsx", import.meta.url), "utf8");
   assert.match(card, /undatedSearch && !promotional && !property.demoOperations\?\.fictional && onlineCapability/);
 });

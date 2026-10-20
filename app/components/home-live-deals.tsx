@@ -19,7 +19,6 @@ import { isHomeDealOnlineEligible } from "../lib/vacation-online-first";
 import { managedVacationPriority } from "../lib/vacation-priority.ts";
 import { useDealClock } from "./use-deal-clock";
 import { discoveryJson } from "../lib/discovery-client-cache.ts";
-import { discoveryCacheCopy } from "../i18n/discovery-cache-copy.ts";
 import { orderDiscoveryRail } from "../lib/discovery-slider-order.ts";
 import { useDocumentSeed } from "./use-document-seed.ts";
 
@@ -188,7 +187,6 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
         }}><strong>{item.name}</strong></button>)}
       </div>
       <div className={`home-live-deals__results${refreshing ? " is-refreshing" : ""}`} id={`${sectionId}-results`} role="tabpanel" aria-live="polite" aria-busy={displayState === "loading"}>
-        {displayState === "ready" && data?.cache?.status === "stale" && displayedDealCount > 0 ? <p className="regional-availability__expansion" data-no-translate>{discoveryCacheCopy[language]}</p> : null}
         {scope && displayState === "ready" && data?.expandedRegion && displayedDealCount > 0 ? <p className="regional-availability__expansion" data-no-translate>{regionalExpansionCopy[language]}</p> : null}
         {displayState === "loading" && !data ? <div className="home-live-deals__loading" role="status" aria-label={text.loading}>
           <div className="home-live-deals__loading-head" aria-hidden="true">

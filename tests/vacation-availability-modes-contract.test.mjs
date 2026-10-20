@@ -40,7 +40,8 @@ test("unit cards keep only compact facts and place status and price above the ac
   assert.doesNotMatch(page, /כל פרטי היחידה \+/);
   assert.doesNotMatch(page, /room-card__features/);
   assert.doesNotMatch(page, /room-card__sleeping/);
-  assert.match(css, /grid-template-areas: "identity identity" "image body"/);
+  assert.match(css, /grid-template-areas: "image identity" "image body"/);
+  assert.match(css, /\.room-card__image \{[^}]*min-height: 318px/);
   assert.match(css, /\.room-card__actions \{[^}]*margin-top: auto/);
 });
 

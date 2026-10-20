@@ -1,0 +1,105 @@
+{
+  "status": "source_verified_pending_public_candidate",
+  "scope": "Latest user batch, twelve supplied screenshots, room/unit regression, online-booking discovery and shared loading behavior",
+  "screenshots": [
+    {
+      "id": 1,
+      "finding": "Illustration badge over public image",
+      "resolution": "Public editorial and world images no longer render production-process labels over the media.",
+      "evidence": ["app/components/editorial-cover.tsx", "app/components/world-topic-image.tsx", "tests/visual-cleanup.test.mjs"]
+    },
+    {
+      "id": 2,
+      "finding": "Spa hero carried the same redundant illustration badge",
+      "resolution": "Spa topic media is a clean responsive image with fixed intrinsic geometry and no overlay label.",
+      "evidence": ["app/components/world-topic-image.tsx"]
+    },
+    {
+      "id": 3,
+      "finding": "Spa offer rail printed a repetitive booking disclaimer below the cards",
+      "resolution": "The repeated paragraph was removed from the rail; practical confirmation belongs in the booking/detail flow.",
+      "evidence": ["app/components/spa-package-deals.tsx", "app/components/spa-package-deals.css"]
+    },
+    {
+      "id": 4,
+      "finding": "Guide card had a production label between image and title",
+      "resolution": "Guide cards retain category, reading time and title without the extra production label.",
+      "evidence": ["app/guides/client-page.tsx", "tests/visual-cleanup.test.mjs"]
+    },
+    {
+      "id": 5,
+      "finding": "Guide hero placed a long illustration caption under the image",
+      "resolution": "Illustration captions are no longer printed below editorial hero media; intrinsic 1200x800 geometry remains.",
+      "evidence": ["app/guides/article/client-page.tsx", "app/components/editorial-cover.tsx"]
+    },
+    {
+      "id": 6,
+      "finding": "Related guide cards mixed caption text into card content and cropped the visual hierarchy",
+      "resolution": "Related cards use a clean image-category-title-time hierarchy and a stable 3:2 mobile image ratio.",
+      "evidence": ["app/guides/article/client-page.tsx", "app/globals.css"]
+    },
+    {
+      "id": 7,
+      "finding": "Magazine category rail began outside the rounded shell",
+      "resolution": "Desktop categories wrap inside the shell; mobile categories scroll inside the shell with bounded inline padding.",
+      "evidence": ["app/globals.css:.magazine-categories"]
+    },
+    {
+      "id": 8,
+      "finding": "Duplicate view of the same magazine edge clipping",
+      "resolution": "Covered by the shared magazine-category layout fix, not a screenshot-specific offset.",
+      "evidence": ["app/globals.css:.magazine-discovery", "app/globals.css:.magazine-categories"]
+    },
+    {
+      "id": 9,
+      "finding": "Event availability area included redundant explanatory copy and previously duplicated controls",
+      "resolution": "The event block exposes only the three date tabs and the matching result state; cache implementation copy is absent.",
+      "evidence": ["app/components/event-last-minute.tsx", "tests/online-catalog-polish.test.mjs"]
+    },
+    {
+      "id": 10,
+      "finding": "Rated-event rail showed a clipped extra card and native horizontal scrollbar",
+      "resolution": "The shared event rail uses four complete desktop cards, responsive three/one-card sizing and hidden native scrollbars.",
+      "evidence": ["app/globals.css:.event-rail", "app/components/event-rail.tsx"]
+    },
+    {
+      "id": 11,
+      "finding": "Duplicate view of the same event-rail clipping",
+      "resolution": "Covered by the shared event-rail geometry and scroll behavior.",
+      "evidence": ["app/globals.css:.event-rail-card"]
+    },
+    {
+      "id": 12,
+      "finding": "Mobile event-region section had an excessive blank band before the heading",
+      "resolution": "Mobile section spacing is bounded and region cards keep a stable minimum height.",
+      "evidence": ["app/globals.css:.events-page > .event-region-section", "app/globals.css:.event-region-carousel__card"]
+    }
+  ],
+  "additionalSharedFixes": [
+    {
+      "finding": "Vacation room cards had a small image and a large empty white body",
+      "resolution": "Room cards now use a 43 percent stable media column, 960x640 intrinsic media, compact facts and a mobile 16:10 media ratio without crowding the booking action.",
+      "evidence": ["app/business/client-page.tsx", "app/globals.css:.room-card", "tests/online-catalog-polish.test.mjs"]
+    },
+    {
+      "finding": "Facility lists looked generic and lost the earlier icon treatment",
+      "resolution": "Desktop, mobile and modal vacation facility lists now reuse the semantic amenity icon system.",
+      "evidence": ["app/business/client-page.tsx", "app/globals.css:.property-feature-groups"]
+    },
+    {
+      "finding": "Map payload rebuilt with full galleries",
+      "resolution": "Map result cards receive one primary image only; static image preview remains until the user opens the map.",
+      "evidence": ["app/components/listing-map.tsx", "tests/online-catalog-polish.test.mjs"]
+    },
+    {
+      "finding": "Undated online-booking filter depended on a supplier request and could return no results",
+      "resolution": "The public path is read-only against a persisted capability snapshot, refreshed weekly with fourteen-day last-good retention. Dated searches remain live.",
+      "evidence": ["app/api/vii/online-capabilities/route.ts", "app/lib/online-booking-capability.ts", "app/mcp/route.ts", "tests/online-booking-capability.test.mjs"]
+    },
+    {
+      "finding": "Repeated refreshes and implementation notes made result areas feel heavy",
+      "resolution": "Client polling and public cache notes were removed; last good cards remain visible during refresh.",
+      "evidence": ["app/lib/use-online-capabilities.ts", "app/components/home-live-deals.tsx", "app/components/spa-package-deals.tsx"]
+    }
+  ]
+}

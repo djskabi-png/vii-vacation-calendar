@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { cachedDiscovery } from "../app/lib/discovery-offer-cache.ts";
+import { cachedDiscovery, readCachedDiscovery } from "../app/lib/discovery-offer-cache.ts";
 import { createRequire } from "node:module";
 import { readFileSync } from "node:fs";
 import { runWithExecutionContext } from "vinext/shims/request-context";
@@ -14,6 +14,13 @@ test("local cache reuses fresh value and accepts successful empty result", async
   now += 16 * 60 * 1000;
   const third = await cachedDiscovery({ key: ["events", "2026-10-18", 2], load, now: () => now });
   assert.deepEqual(third.value, [{ id: 2 }]); assert.equal(third.cache.status, "refreshed"); assert.equal(calls, 2);
+});
+
+test("read-only discovery returns the accepted snapshot and never invokes a provider", async () => {
+  const key = ["read-only-snapshot", Date.now()];
+  await assert.rejects(readCachedDiscovery({ key }), /discovery_unavailable/);
+  await cachedDiscovery({ key, load: async () => ({ places: [1] }) });
+  assert.deepEqual((await readCachedDiscovery({ key })).value, { places: [1] });
 });
 
 test("daily policy persists capability across isolates, merges previous evidence, coalesces and retains failures", async () => {
