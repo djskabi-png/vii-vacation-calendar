@@ -3,6 +3,7 @@ import type { SpaPlusSite } from "../data/spaplus.ts";
 import type { SitemapUrlEntry } from "./sitemap-xml.ts";
 import { activityDepthTopics, trailDepthTopics } from "./world-depth-topics.ts";
 import { activityMatchesTopic } from "./activity-discovery-taxonomy.ts";
+import { runtimeDatabase } from "./runtime-database.ts";
 
 export const sitemapSectionOrder = ["core", "holidays", "vacations", "events", "spas", "hourly", "discovery", "search-pages"] as const;
 export type SitemapSection = (typeof sitemapSectionOrder)[number];
@@ -42,7 +43,7 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
       import("./vii-home-holidays.ts"), import("./vii-supplier-token.ts"), import("./holiday-world.ts")]);
     const holidays = await getHomeHolidays({ token: await supplierToken() }).catch(() => []);
     let db;
-    try { const runtimeName = "cloudflare:workers"; const runtime = await import(/* @vite-ignore */ runtimeName); db = (runtime.env as unknown as { DB?: import("../../types/cloudflare-runtime.ts").D1Database }).DB; }
+    try { db = await runtimeDatabase(); }
     catch { db = undefined; }
     const worlds = await Promise.all(holidays.map((holiday) => readHolidayWorld(holiday, db)));
     return unique(worlds.filter((world) => world.indexable).map((world) => ({ url: absoluteUrl(holidayWorldPath(world.name, world.id)) })));

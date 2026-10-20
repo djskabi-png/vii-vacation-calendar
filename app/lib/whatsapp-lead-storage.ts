@@ -1,12 +1,10 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
+import { requiredRuntimeDatabase } from "./runtime-database.ts";
 
 type LeadPayload = Record<string, unknown>;
 
 async function database(): Promise<D1Database> {
-  const runtime = await import("cloudflare:workers");
-  const db = (runtime.env as unknown as { DB?: D1Database }).DB;
-  if (!db) throw new Error("VII lead database is unavailable");
-  return db;
+  return requiredRuntimeDatabase("VII lead database is unavailable");
 }
 
 export async function whatsappLeadDatabase() {

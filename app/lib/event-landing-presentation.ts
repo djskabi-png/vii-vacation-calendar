@@ -2,6 +2,7 @@ import { readPublishedContent, type EditorialContent } from "./content-studio.ts
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { isBannedPublicMedia, resolvePublicSliderMedia } from "./public-media-policy.ts";
 import { resolveWorldTopicImage, validWorldTopicImage, worldTopicMedia } from "./world-topic-media.ts";
+import { runtimeDatabase } from "./runtime-database.ts";
 
 export type EventLandingSearchItem = {
   id: string;
@@ -140,9 +141,7 @@ async function eventLandingDatabase(): Promise<D1Database | null> {
     // This module is rendered only on the server. Keeping the Worker binding
     // import opaque prevents Vinext from pulling a Cloudflare-only module into
     // the browser bundle while preserving the real production D1 binding.
-    const workerModule = "cloudflare:workers";
-    const runtime = await import(/* @vite-ignore */ workerModule);
-    return (runtime.env as unknown as { DB?: D1Database }).DB || null;
+    return await runtimeDatabase() || null;
   } catch {
     return null;
   }

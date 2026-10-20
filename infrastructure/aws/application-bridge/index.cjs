@@ -1,9 +1,16 @@
 "use strict";
 const crypto = require("node:crypto");
-const { Client } = require("pg");
+const { Client, types } = require("pg");
 const { SecretsManagerClient, GetSecretValueCommand } = require("@aws-sdk/client-secrets-manager");
 const secrets = new SecretsManagerClient({});
 let cachedSecret;
+
+types.setTypeParser(20, value => {
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) ? parsed : value;
+});
+types.setTypeParser(114, value => value);
+types.setTypeParser(3802, value => value);
 
 function equalToken(value) {
   const expectedHex = process.env.BRIDGE_TOKEN_SHA256 || "";
@@ -22,13 +29,33 @@ function placeholders(sql) {
   for (let i=0;i<sql.length;i+=1) { const char=sql[i];
     if (quote) { output+=char; if (char===quote && sql[i-1]!=="\\") quote=null; continue; }
     if (char==="'" || char==='"') { quote=char; output+=char; continue; }
-    if (char==="?") { index+=1; output+=`$${index}`; continue; } output+=char;
+    if (char==="?") {
+      let cursor=i+1, digits="";
+      while (cursor<sql.length && /\d/.test(sql[cursor])) { digits+=sql[cursor]; cursor+=1; }
+      if (digits) { const explicit=Number(digits); index=Math.max(index,explicit); output+=`$${explicit}`; i=cursor-1; }
+      else { index+=1; output+=`$${index}`; }
+      continue;
+    } output+=char;
   } return output;
 }
 function jsonPath(path) { return `{${path.replace(/^\$\.?/,"").split(".").filter(Boolean).join(",")}}`; }
 function translate(sql) {
   const ignored=/^\s*INSERT\s+OR\s+IGNORE\s+INTO\s+/i.test(sql);
   let query=sql.trim().replace(/;\s*$/,"").replace(/^INSERT\s+OR\s+IGNORE\s+INTO\s+/i,"INSERT INTO ");
+  if (/\bFROM\s+json_each\s*\(/i.test(query) && /e\.detail_json/i.test(query)) {
+    const ids=query.match(/e\.supplier_id\s+IN\s*\(([^)]+)\)/i)?.[1];
+    if (!ids) throw new Error("unsupported_json_each_query");
+    query=`SELECT s.active_run_id AS "activeRunId", e.supplier_id AS "supplierId",
+      (SELECT value::text FROM jsonb_array_elements(CASE
+        WHEN jsonb_typeof(e.detail_json::jsonb -> 'reviews')='array' THEN e.detail_json::jsonb -> 'reviews'
+        ELSE '[]'::jsonb END) WITH ORDINALITY AS r(value,key)
+       WHERE jsonb_typeof(value)='object' AND jsonb_typeof(value -> 'text')='string'
+         AND octet_length(convert_to(value ->> 'text','UTF8'))>=30
+       ORDER BY key LIMIT 1) AS "reviewJson"
+      FROM supplier_catalog_state s LEFT JOIN supplier_catalog_entries e
+        ON e.run_id=s.active_run_id AND e.world=s.world AND e.supplier_id IN (${ids})
+      WHERE s.world=?`;
+  }
   query=query.replace(/\bjson_object\s*\(/gi,"json_build_object(")
     .replace(/json_extract\s*\(\s*([\w.]+)\s*,\s*'([^']+)'\s*\)/gi,(_m,c,p)=>`(${c}::jsonb #>> '${jsonPath(p)}')`)
     .replace(/json_type\s*\(\s*([\w.]+)\s*,\s*'([^']+)'\s*\)/gi,(_m,c,p)=>`jsonb_typeof(${c}::jsonb #> '${jsonPath(p)}')`)
@@ -42,13 +69,23 @@ function translate(sql) {
 async function pragma(client,sql) {
   const match=sql.trim().match(/^PRAGMA\s+(table_info|table_xinfo|index_list|index_xinfo|foreign_key_list)\s*\(\s*["']?([\w]+)["']?\s*\)/i); if(!match)return null;
   const [,kind,name]=match;
-  if(kind.toLowerCase().startsWith("table_")) return client.query(`SELECT c.ordinal_position-1 AS cid,c.column_name AS name,c.data_type AS type,CASE WHEN c.is_nullable='NO' THEN 1 ELSE 0 END AS notnull,c.column_default AS dflt_value,CASE WHEN tc.constraint_type='PRIMARY KEY' THEN 1 ELSE 0 END AS pk,0 AS hidden FROM information_schema.columns c LEFT JOIN information_schema.key_column_usage k USING(table_schema,table_name,column_name) LEFT JOIN information_schema.table_constraints tc USING(constraint_catalog,constraint_schema,constraint_name,table_schema,table_name) WHERE c.table_schema='public' AND c.table_name=$1 ORDER BY c.ordinal_position`,[name]);
+  if(kind.toLowerCase().startsWith("table_")) return client.query(`SELECT c.ordinal_position-1 AS cid,c.column_name AS name,c.data_type AS type,CASE WHEN c.is_nullable='NO' THEN 1 ELSE 0 END AS notnull,c.column_default AS dflt_value,COALESCE(pk.ordinal_position,0) AS pk,0 AS hidden FROM information_schema.columns c LEFT JOIN (SELECT k.table_schema,k.table_name,k.column_name,k.ordinal_position FROM information_schema.key_column_usage k JOIN information_schema.table_constraints tc USING(constraint_catalog,constraint_schema,constraint_name,table_schema,table_name) WHERE tc.constraint_type='PRIMARY KEY') pk USING(table_schema,table_name,column_name) WHERE c.table_schema='public' AND c.table_name=$1 ORDER BY c.ordinal_position`,[name]);
   if(kind.toLowerCase()==="index_list") return client.query(`SELECT row_number() OVER()-1 AS seq,indexname AS name,CASE WHEN indexdef ILIKE '%UNIQUE%' THEN 1 ELSE 0 END AS unique,'c' AS origin,0 AS partial FROM pg_indexes WHERE schemaname='public' AND tablename=$1 ORDER BY indexname`,[name]);
   if(kind.toLowerCase()==="index_xinfo") return client.query(`SELECT row_number() OVER()-1 AS seqno,a.attnum-1 AS cid,a.attname AS name,0 AS desc,'BINARY' AS coll,1 AS key FROM pg_class i JOIN pg_index ix ON i.oid=ix.indexrelid JOIN pg_attribute a ON a.attrelid=ix.indrelid AND a.attnum=ANY(ix.indkey) WHERE i.relname=$1 ORDER BY a.attnum`,[name]);
   return client.query(`SELECT kcu.ordinal_position-1 AS id,kcu.ordinal_position-1 AS seq,ccu.table_name AS table,kcu.column_name AS from,ccu.column_name AS to,rc.update_rule AS on_update,rc.delete_rule AS on_delete,'NONE' AS match FROM information_schema.key_column_usage kcu JOIN information_schema.referential_constraints rc USING(constraint_catalog,constraint_schema,constraint_name) JOIN information_schema.constraint_column_usage ccu USING(constraint_catalog,constraint_schema,constraint_name) WHERE kcu.table_schema='public' AND kcu.table_name=$1 ORDER BY kcu.ordinal_position`,[name]);
 }
+async function sqliteMaster(client,sql,params) {
+  if(!/\bFROM\s+sqlite_master\b/i.test(sql))return null;
+  const filtered=/\bWHERE\s+tbl_name\s*=\s*\?/i.test(sql);
+  const query=`SELECT type,name,tbl_name,sql FROM (
+    SELECT 'table'::text AS type,tablename::text AS name,tablename::text AS tbl_name,('CREATE TABLE "'||replace(tablename,'"','""')||'"')::text AS sql FROM pg_tables WHERE schemaname='public'
+    UNION ALL SELECT 'index',indexname,tablename,indexdef FROM pg_indexes WHERE schemaname='public'
+    UNION ALL SELECT 'view',viewname,viewname,('CREATE VIEW "'||replace(viewname,'"','""')||'" AS '||definition) FROM pg_views WHERE schemaname='public'
+  ) objects ${filtered?'WHERE tbl_name=$1':''} ORDER BY type,name LIMIT 513`;
+  return client.query(query,filtered?[params?.[0]]:[]);
+}
 async function execute(client,operation) {
-  const started=Date.now(), result=await pragma(client,operation.sql)||await client.query(translate(operation.sql),operation.params||[]), rows=result.rows||[], fields=(result.fields||[]).map(f=>f.name);
+  const started=Date.now(), result=await pragma(client,operation.sql)||await sqliteMaster(client,operation.sql,operation.params)||await client.query(translate(operation.sql),operation.params||[]), rows=result.rows||[], fields=(result.fields||[]).map(f=>f.name);
   return {success:true,results:operation.method==="run"?[]:rows,raw:operation.method==="raw"?rows.map(r=>fields.map(f=>r[f])):undefined,meta:{changes:Number(result.rowCount||0),duration:Date.now()-started}};
 }
 exports.handler=async event=>{

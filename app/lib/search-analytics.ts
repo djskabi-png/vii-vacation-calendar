@@ -1,4 +1,5 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
+import { requiredRuntimeDatabase } from "./runtime-database.ts";
 import { searchLocationOptions } from "../data/search-taxonomy.ts";
 import { searchLocationSlug } from "../data/world-search-landings.ts";
 import { publicSearchPagePath } from "./search-page-url-policy.ts";
@@ -121,9 +122,7 @@ export async function opportunityIdentity(event: SearchDemandEvent) {
 }
 
 export async function searchAnalyticsDatabase(): Promise<D1Database> {
-  const runtime = await import("cloudflare:workers");
-  const db = (runtime.env as unknown as { DB?: D1Database }).DB;
-  if (!db) throw new Error("search_analytics_database_unavailable");
+  const db = await requiredRuntimeDatabase("search_analytics_database_unavailable");
   await db.batch([
     db.prepare(`CREATE TABLE IF NOT EXISTS vii_search_events (
       event_id TEXT PRIMARY KEY NOT NULL, world TEXT NOT NULL, location TEXT NOT NULL,

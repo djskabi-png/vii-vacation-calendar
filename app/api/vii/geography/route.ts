@@ -1,11 +1,10 @@
 import { geographyDatabase, readGeography } from "../../../lib/geography-admin.ts";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
+import { requiredRuntimeDatabase } from "../../../lib/runtime-database.ts";
 
 export async function GET() {
   try {
-    const runtime = await import("cloudflare:workers");
-    const database = (runtime.env as unknown as { DB?: D1Database }).DB;
-    if (!database) throw new Error("geography_database_unavailable");
+    const database = await requiredRuntimeDatabase("geography_database_unavailable");
     const nodes = await readGeography(await geographyDatabase(database), true);
     return Response.json({
       generatedAt: new Date().toISOString(),

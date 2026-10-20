@@ -2,6 +2,7 @@ import { authorizedAdminSession } from "../../../lib/admin-session.ts";
 import { PromotionDraftError, promotionWorlds, readPromotionDraftDashboard, savePromotionDraft } from "../../../lib/discovery-promotion-drafts.ts";
 import { readSupplierCatalogEntry, type SupplierCatalogWorld } from "../../../lib/supplier-catalog-store.ts";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
+import { requiredRuntimeDatabase } from "../../../lib/runtime-database.ts";
 
 const headers = { "Cache-Control": "no-store" };
 
@@ -13,10 +14,7 @@ async function adminEmail(request: Request) {
 }
 
 async function database(): Promise<D1Database> {
-  const runtime = await import("cloudflare:workers");
-  const db = (runtime.env as unknown as { DB?: D1Database }).DB;
-  if (!db) throw new Error("promotion_database_unavailable");
-  return db;
+  return requiredRuntimeDatabase("promotion_database_unavailable");
 }
 
 export async function GET(request: Request) {

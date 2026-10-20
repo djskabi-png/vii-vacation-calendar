@@ -2,6 +2,7 @@ import {authorizedAdminSession} from '../../../lib/admin-session.ts';
 import {createStagingCatalogClient,readStagingCatalogConfiguration} from '../../../../infrastructure/http/staging-catalog-client.mjs';
 import {CATALOG_SHADOW_EXPECTED} from '../../../../infrastructure/postgres/catalog-shadow-expected.mjs';
 import type {D1Database} from '../../../../types/cloudflare-runtime';
+import {requiredRuntimeDatabase} from '../../../lib/runtime-database.ts';
 
 export const dynamic='force-dynamic';
 const handle=createStagingCatalogClient({
@@ -14,9 +15,7 @@ const handle=createStagingCatalogClient({
   return readStagingCatalogConfiguration(workerValue,process.env.VII_STAGE_CATALOG_CONFIG);
  },
  getCurrentGenerations:async()=>{
-  const {env}=await import('cloudflare:workers');
-  const db=(env as unknown as {DB?:D1Database}).DB;
-  if(!db)throw Error('source_unavailable');
+  const db=await requiredRuntimeDatabase('source_unavailable');
   const result=await db.prepare(`SELECT world,active_run_id AS activeRunId,active_count AS activeCount,
    lock_run_id AS lockRunId,lock_until AS lockUntil FROM supplier_catalog_state ORDER BY world`).all();
   if(!result.success||!Array.isArray(result.results))throw Error('source_unavailable');

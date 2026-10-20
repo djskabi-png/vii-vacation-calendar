@@ -1,4 +1,5 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
+import { requiredRuntimeDatabase } from "./runtime-database.ts";
 
 export const businessEventNames = ["impression", "page_view", "phone_reveal", "whatsapp_lead", "booking_request"] as const;
 export type BusinessEventName = typeof businessEventNames[number];
@@ -13,8 +14,7 @@ export function parseBusinessEvent(value: unknown): BusinessEvent | null {
 }
 
 export async function businessAnalyticsDatabase(): Promise<D1Database> {
-  const runtime = await import("cloudflare:workers"); const db = (runtime.env as unknown as { DB?: D1Database }).DB;
-  if (!db) throw new Error("business_analytics_database_unavailable");
+  const db = await requiredRuntimeDatabase("business_analytics_database_unavailable");
   await db.batch([db.prepare("CREATE TABLE IF NOT EXISTS vii_business_events (event_id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, place_id TEXT NOT NULL, place_name TEXT NOT NULL, world TEXT NOT NULL, page_path TEXT NOT NULL, session_id TEXT NOT NULL, internal INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL)"), db.prepare("CREATE INDEX IF NOT EXISTS idx_vii_business_events_report ON vii_business_events(created_at, internal, place_id, name)")]); return db;
 }
 

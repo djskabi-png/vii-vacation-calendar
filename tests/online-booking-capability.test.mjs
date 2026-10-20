@@ -61,7 +61,7 @@ test("search list, nearby, map, draft and badge share capability without changin
   assert.match(page, /aria-busy=\{\(undatedSearch \? onlineCapabilities.status : supplierSearch.status\) === "loading"\}/);
   assert.match(page, /onlineOnly && undatedSearch && onlineCapabilities.status === "error" && !resultSet.length/);
   const worker = readFileSync(new URL("../worker/index.ts", import.meta.url), "utf8");
-  assert.match(worker, /scheduled[\s\S]*ctx.waitUntil\(cachedOnlineCapabilities\(env.DB\)/);
+  assert.match(worker, /scheduled[\s\S]*databaseForEnv\(env\)[\s\S]*ctx.waitUntil\(cachedOnlineCapabilities\(database\)/);
   const card = readFileSync(new URL("../app/components/property-card.tsx", import.meta.url), "utf8");
   assert.match(card, /undatedSearch && !promotional && !property.demoOperations\?\.fictional && onlineCapability/);
 });

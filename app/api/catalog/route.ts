@@ -12,6 +12,7 @@ import type { Property } from "../../data/site-data.ts";
 import { safeHourlyDescription } from "../../lib/hourly-description.ts";
 import { readPublishedItems } from "../../lib/content-studio.ts";
 import { managedVacationPriority } from "../../lib/vacation-priority.ts";
+import { runtimeDatabase } from "../../lib/runtime-database.ts";
 
 const noStore = { "Cache-Control": "no-store" };
 const publicCatalogCache = { "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=300" };
@@ -59,8 +60,7 @@ function withVacationSearchPriority<T extends { supplierId: number; summary: Pro
 
 async function database(): Promise<D1Database | null> {
   try {
-    const runtime = await import("cloudflare:workers");
-    return (runtime.env as unknown as { DB?: D1Database }).DB || null;
+    return await runtimeDatabase() || null;
   } catch {
     return null;
   }

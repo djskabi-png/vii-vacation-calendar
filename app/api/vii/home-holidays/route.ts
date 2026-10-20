@@ -5,11 +5,11 @@ import { isContentLocale } from "../../../lib/content-studio.ts";
 import type { D1Database } from "../../../../types/cloudflare-runtime";
 import { legacyHolidaySearchPath } from "../../../lib/search-opportunities.ts";
 import { holidayWorldPath } from "../../../lib/holiday-world.ts";
+import { runtimeDatabase } from "../../../lib/runtime-database.ts";
 
 async function displaySettings(locale: Parameters<typeof readHomeDisplaySettings>[1]) {
   try {
-    const runtime = await import("cloudflare:workers");
-    return await readHomeDisplaySettings((runtime.env as unknown as { DB?: D1Database }).DB, locale);
+    return await readHomeDisplaySettings(await runtimeDatabase(), locale);
   } catch { return readHomeDisplaySettings(undefined, locale); }
 }
 
