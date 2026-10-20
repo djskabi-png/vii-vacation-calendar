@@ -7394,6 +7394,7 @@ button:not(:disabled):active,a[href]:active,[role="button"]:active,.is-action-pr
 .filter-panel .modern-select { margin-bottom: 14px; }
 .filter-panel .modern-select__label { color: var(--ink-soft); font-size: .82rem; }
 .filter-panel .modern-select__trigger { background: #fff; }
+.filter-panel > label { min-height: 44px; padding: 7px 6px; border-radius: 10px; cursor: pointer; }
 .filter-panel input[type="checkbox"],.filter-panel input[type="radio"] { width: 22px; height: 22px; flex: 0 0 22px; appearance: none; border: 1.5px solid #a9c6ca; border-radius: 7px; background: #fff; box-shadow: 0 2px 7px rgba(3,64,74,.06); cursor: pointer; transition: border-color .16s ease,background .16s ease,box-shadow .16s ease; }
 .filter-panel input[type="radio"] { border-radius: 50%; }
 .filter-panel input[type="checkbox"]:hover,.filter-panel input[type="radio"]:hover { border-color: #078995; }
