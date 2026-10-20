@@ -1,0 +1,89 @@
+{
+  "status": "fixed",
+  "symptom": "The public undated starting-price APIs for vacations and events returned HTTP 503 on release 518, then HTTP 200 with empty price maps immediately after the server-route repair in release 519.",
+  "expected_behavior": "Both public endpoints must return a non-empty map of valid seasonal supplier prices from the accepted catalog generation, while every undated card displays the lower valid winter or summer value.",
+  "environment": "Public VII temporary domain https://vii.spaplus.co, Sites release 518 for reproduction and release 519 for the causal repair, backed by the production D1 catalog.",
+  "authorization_boundary": "Adir explicitly authorized publication and post-publication verification of the complete six-chapter VII release; no primary-domain cutover or unrelated integration work was authorized.",
+  "reproduction": {
+    "steps": [
+      "Request /api/vii/starting-prices?world=vacations on public release 518.",
+      "Request /api/vii/starting-prices?world=events on the same immutable release.",
+      "After deploying the D1 projection fix as release 519, repeat both requests before republishing the supplier generations."
+    ],
+    "evidence": "Release 518 returned 503 for both worlds; release 519 initially returned 200 with empty maps generated at 2026-10-20T01:01:27Z."
+  },
+  "observations": [
+    {
+      "observation": "The authenticated supplier locations were reachable and the stored credential remained valid.",
+      "evidence": "The signed-in production-admin preflight returned HTTP 200 for the configured supplier locations, rejecting an authentication or availability explanation."
+    },
+    {
+      "observation": "The vacations supplier response exceeded the route's ten-megabyte raw-feed ceiling.",
+      "evidence": "The authenticated production preflight classified the vacations payload as parseKind oversize while the public release 518 route returned 503."
+    },
+    {
+      "observation": "The accepted catalog generation used by the initial release 519 requests contained no projected seasonal prices.",
+      "evidence": "The integrity-verified snapshot vii-active-catalog (4).ndjson contained 573 vacation and 132 event rows, with zero startPriceWinter or startPriceSummer fields."
+    },
+    {
+      "observation": "Fresh manual pulls populated the accepted generation without crossing the supplier-removal guard.",
+      "evidence": "The integrity-verified snapshot vii-active-catalog (5).ndjson contains 113 priced vacation rows and 23 priced event rows; sample 1008 resolves 900 from winter 900 and summer 1500."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1-oversize-feed-and-stale-projection",
+      "mechanism": "The public runtime fetched a full supplier feed that exceeded its size ceiling, and the accepted D1 generation available after the route repair predated the seasonal-price projection.",
+      "prediction": "Direct supplier parsing fails as oversized, a D1-backed route returns successfully but empty until fresh accepted pulls persist the two seasonal fields.",
+      "discriminating_test": "Compare authenticated source preflight, old accepted-generation snapshot, fresh pull results, and the new integrity-verified accepted-generation snapshot.",
+      "result": "The supplier preflight was oversized, the old generation had zero price fields, and the fresh generation has 113 vacation and 23 event prices.",
+      "status": "supported"
+    },
+    {
+      "id": "H2-invalid-supplier-authentication",
+      "mechanism": "The supplier token or configured source location was invalid and caused the public route to fail.",
+      "prediction": "Authenticated source preflight should return 401, 403, or an unreachable-source result for the configured supplier locations.",
+      "discriminating_test": "Run the signed-in production-admin source preflight for the configured vacations and events integrations.",
+      "result": "Both configured source locations returned HTTP 200, so invalid authentication did not explain the observed failure.",
+      "status": "rejected"
+    },
+    {
+      "id": "H3-catalog-publication-rejected",
+      "mechanism": "The supplier guard rejected the refreshed vacation or event generation because too many records were removed.",
+      "prediction": "The admin would show an open operational alert, a rejected generation, or a count drop beyond the configured guard.",
+      "discriminating_test": "Run one bounded manual pull for each affected world and inspect generation status, before and after counts, and operational alerts.",
+      "result": "Vacations published 573 to 573 with 113 changes and events published 132 to 132 with 23 changes; no operational alert remained open.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1-oversize-feed-and-stale-projection",
+  "affected_family": [
+    "Public vacations undated starting-price API and vacation preview cards",
+    "Public events undated starting-price API and event preview cards",
+    "Production supplier pulls and accepted D1 catalog generation",
+    "Shared lower-of-winter-and-summer starting-price selector"
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [],
+  "fix": {
+    "change": "Release 519 reads only startPriceWinter and startPriceSummer from the accepted D1 generation, preserves the canonical lower-value selector and supplier fallback, and fresh production pulls persisted those fields.",
+    "evidence": "Commit 365c15c7ba6646f329d466e21f8421ca3d8e4947 passed the clean build and 1,346 tests; fresh snapshot chain 5ffae5d19b498a614d7b04a82eba43d083e7b890f7bd54a28b1d39d478ded3fd records the populated fields."
+  },
+  "regression_checks": [
+    {
+      "check": "Canonical starting-price selector unit and route contracts",
+      "status": "passed",
+      "evidence": "All 52 focused starting-price tests and all 1,346 repository tests passed against release 519 source."
+    },
+    {
+      "check": "Accepted production catalog integrity and lower-value selection",
+      "status": "passed",
+      "evidence": "Snapshot vii-active-catalog (5).ndjson passed its SHA-256 chain and contains 113 vacation and 23 event price records with verified lower-season samples."
+    },
+    {
+      "check": "Public release 520 price APIs and rendered card values after cache refresh",
+      "status": "passed",
+      "evidence": "Release 520 returned 113 vacation and 23 event records with no unknown fields; two rendered vacation cards and all 23 rendered event cards matched their data-map-place-id to the lower seasonal API value."
+    }
+  ]
+}

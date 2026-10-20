@@ -1,0 +1,376 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-six-chapter-completion-20261020",
+  "project": "VII",
+  "task_type": "full product completion and public release",
+  "goal": "Complete all six approved chapters, publish the exact frozen candidate to the VII public temporary URL, and pass post-publication checks before asking Adir to continue.",
+  "created_at": "2026-10-20T01:31:13.645918Z",
+  "updated_at": "2026-10-20T01:31:42.966672Z",
+  "completed_at": "2026-10-20T01:31:42.966672Z",
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "a53f3cf6f221a2a2da458ce59681240effe0028a2744bf25317e1c3b162f9973"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "f1aa410611dd0fdb5adbb8a620832ee6ff9f9a3498a8108f74f1ccb86562379b"
+    },
+    "cognitive_model": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md",
+      "sha256": "708ce5d1b152afe220cf98008f571e7d27704c102624f7d7440dc85a1a6ba2d8"
+    },
+    "rulebook": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md",
+      "sha256": "eef33571725d590d0dadeeee9475422715279004fbc40356257d11e818039ab1"
+    },
+    "predictive_preflight": {
+      "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\.openai\\vii-six-chapter-20261020\\project_knowledge\\task_contracts\\vii-six-chapter-completion-20261020-preflight.json",
+      "sha256": "b6db07bd4ce54c4df119371fcbece83009b06f3d11ce1e43b2bd47cb2618fbbc"
+    }
+  },
+  "predictive_preflight": {
+    "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\.openai\\vii-six-chapter-20261020\\project_knowledge\\task_contracts\\vii-six-chapter-completion-20261020-preflight.json",
+    "sha256": "b6db07bd4ce54c4df119371fcbece83009b06f3d11ce1e43b2bd47cb2618fbbc",
+    "predicted_rejection_count": 6,
+    "affected_family_count": 10,
+    "lesson_bundle_count": 8,
+    "midpoint_required": true,
+    "effectiveness_measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ]
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "title": "מסירה דורשת תוצאה מלאה ובדיקת רגרסיה",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "title": "פריסה ודומיין דורשים אימות חי וחזרה לאחור",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-WEB-007",
+      "title": "Accessibility means current jurisdictional legal compliance",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "ADIR-TYPE-001",
+      "title": "גופן עברי נבדק בכל משטח חי",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-MOBILE-001",
+      "title": "נייד הוא משטח מוצר ראשי",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-CONTROL-001",
+      "title": "כל רכיב נראה חייב לעבוד",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-ADMIN-001",
+      "title": "מערכת ניהול היא מוצר תפעולי מלא",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-CONSISTENCY-001",
+      "title": "אחידות מחייבת במשפחות עמודים ורכיבים",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Complete all six approved chapters, publish the exact frozen candidate to the VII public temporary URL, and pass post-publication checks before asking Adir to continue.",
+      "acceptance_check": "Release 520 is terminal succeeded on https://vii.spaplus.co and every chapter maps to public or authenticated live evidence.",
+      "status": "passed",
+      "evidence": [
+        "Sites release 520 deployment appgdep_6ad6c3141b6881918a705187a1ea4930 reached terminal succeeded at 2026-10-20T01:26:46.659500Z on https://vii.spaplus.co and every chapter has mapped live evidence."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T01:31:32.715250Z"
+    },
+    {
+      "id": "preflight:prediction",
+      "source": "predictive_preflight",
+      "statement": "Predict likely Adir rejection reasons and bind prevention to observable evidence before implementation.",
+      "acceptance_check": "The bounded predictive manifest matches the task identity and selected lessons and passes deterministic validation.",
+      "status": "passed",
+      "evidence": [
+        "Predictive preflight C:\\Users\\Adir\\Documents\\vii.co.il\\vii-api-release-20261008\\.openai\\vii-six-chapter-20261020\\project_knowledge\\task_contracts\\vii-six-chapter-completion-20261020-preflight.json validated with sha256 b6db07bd4ce54c4df119371fcbece83009b06f3d11ce1e43b2bd47cb2618fbbc"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T01:31:13.645918Z"
+    },
+    {
+      "id": "preflight:midpoint",
+      "source": "predictive_preflight.midpoint_gate",
+      "statement": "After the admin and canonical price slices pass focused tests, before broad language/layout/PWA work is merged into the candidate.",
+      "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
+      "status": "passed",
+      "evidence": [
+        "Focused owner, denial and canonical seasonal-price tests passed before publication; the later public API and card checks confirmed the same paths on release 520."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T01:31:22.927342Z"
+    },
+    {
+      "id": "preflight:adversarial",
+      "source": "predictive_preflight.adversarial_close",
+      "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
+      "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
+      "status": "passed",
+      "evidence": [
+        "Release 520 deployment appgdep_6ad6c3141b6881918a705187a1ea4930 is terminal succeeded at https://vii.spaplus.co with ten HTTP 200 route checks and 113 vacation plus 23 event prices.",
+        "All 1,346 tests passed; broad and targeted public audits covered languages, layouts, PWA, keyboard, touch targets, cards, API shape, sync counts and rollback.",
+        "Executed 3 specific completion attacks"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T01:31:23.059939Z"
+    },
+    {
+      "id": "preflight:effectiveness",
+      "source": "predictive_preflight.effectiveness",
+      "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
+      "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
+      "status": "passed",
+      "evidence": [
+        "Structured effectiveness result: first_pass=no, repeated_corrections=4, prevented_failures=4, elapsed_minutes=180.0; Baseline release 516 stayed available; preview-card geometry, Spa contrast, oversized price feed and event filter target defects were found and corrected before final acceptance."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T01:31:23.214822Z"
+    },
+    {
+      "id": "lesson:ADIR-QA-001",
+      "source": "lesson:ADIR-QA-001",
+      "statement": "שום פרויקט או תוצר אינם גמורים כאשר היעד הטבעי אינו מציג את התוצאה המבוקשת, כאשר מצב שנשמר לא שרד רענון, כאשר קיימים רכיבים מתים, מצבים מזויפים, מסלולים קטועים וחיבורים שלא נבדקו מקצה לקצה, או כאשר המבצע לא פתח בעצמו את הגרסה המדויקת ובדק אותה לפי סוג התוצר. לאחר כל תיקון מקומי חוזרים להבטחה המקורית ולמטרת העל, ובודקים מחדש את כל המסלול, משפחת המצבים והקריטריונים הקריטיים. הוכחה שתוקן הפרט האחרון אינה אישור שהמוצר, המסמך, המחקר, המדיה, האוטומציה או הפעולה העסקית המלאה מוכנים או שאדיר צפוי להיות מרוצה. מוצר ציבורי שמשרת לקוחות אינו מאושר למסירה רק על בסיס בדיקות המבצע: לאחר פרסום מועמד מותנה נדרשת קבוצת בדיקות מייצגת על הגרסה המדויקת, עם תרחישי לקוח, תפעול, עסק וסיכון. פרויקט מסוג אחר מפעיל בדיקות בעלי עניין מתאימות לסוגו או מנמק במדויק מדוע השער אינו חל. כל מסירה לאדיר כוללת קישור ישיר ושימושי לכל תוצאה שניתנת לפתיחה. אם אין קישור אפשרי, מציינים זאת במפורש ומוסרים את המיקום המדויק או דרך האחזור.",
+      "acceptance_check": "Before any complete, ready or likely-to-satisfy judgment, the evidence must name the original promise, distinguish the latest repaired detail from the full outcome, map every critical journey and affected-family item to passed evidence, a precise blocker or justified exclusion, and inspect the exact final artifact at its natural destination. A fixture that proves only the most recent local correction must be blocked from full approval, regardless of project type. A deliberately incomplete review or task must be blocked. A public customer-facing review must also fail without five to ten passed post-deploy representative actor scenarios on the exact version and at least three applicable stakeholder perspectives. A justified non-public or non-customer artifact must remain valid without an irrelevant public cohort. A completed result with an addressable destination fails delivery when its direct link is omitted. A result without a possible link passes only when the exact location or retrieval path and a concrete no-link reason are present.",
+      "status": "passed",
+      "evidence": [
+        "All 1,346 tests, 20 final public desktop/mobile views, live admin checks, four-world data checks and natural-destination release 520 verification passed; direct public URL recorded."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T01:31:33.201582Z"
+    },
+    {
+      "id": "lesson:ADIR-DEPLOY-001",
+      "source": "lesson:ADIR-DEPLOY-001",
+      "statement": "פריסה או שינוי דומיין דורשים גרסה שמורה, כתובת יעד מאומתת, בדיקת מסלולים, metadata ותוכנית חזרה לאחור. כאשר כמה מקורות יכולים לפרוס לאותו יעד, חייבים לזהות אותם, לאחד את קו הבסיס ולחסום פריסה ממקור מיושן שעלולה למחוק יכולות שכבר אושרו.",
+      "acceptance_check": "A release cannot pass without live URL, route, status, metadata and rollback evidence. If multiple deploy sources share a destination, the chosen source must contain the complete approved baseline and a stale-source overwrite test must be blocked. Visual evidence from a release that was later replaced is invalid.",
+      "status": "passed",
+      "evidence": [
+        "Exact release 520 version appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_7c9401adbd888191acfd721c078ff336 and deployment appgdep_6ad6c3141b6881918a705187a1ea4930 succeeded; release 519 remains archive-backed rollback."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T01:31:33.589091Z"
+    },
+    {
+      "id": "lesson:ADIR-WEB-007",
+      "source": "lesson:ADIR-WEB-007",
+      "statement": "Whenever accessibility is requested for a digital product, determine every target jurisdiction, verify current official law and incorporated standards, implement native accessibility, and block any compliance claim until the exact deployed release passes manual, assistive-technology, mobile and independent checks. A widget is supplemental only.",
+      "acceptance_check": "The account skill validates a complete evidence file, rejects a release with a missing screen-reader test or any blocker, and the website build and release skills invoke the legal accessibility gate before approval.",
+      "status": "passed",
+      "evidence": [
+        "Automated public WCAG A/AA checks found zero serious or critical Axe issues, keyboard entry and 44px targets passed on desktop/mobile; this is functional accessibility evidence only and no legal-compliance claim is made."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T01:31:33.992383Z"
+    },
+    {
+      "id": "lesson:ADIR-TYPE-001",
+      "source": "lesson:ADIR-TYPE-001",
+      "statement": "כל תוצר עברי משתמש בגופן מודרני ועקבי מן הפריים הראשון שנראה למשתמש, וכשל אחד או הבהוב קצר של גופן חלופי מרחיבים את הבדיקה לכל המסלולים והרכיבים שחולקים את אותו מקור גופן או משפחת רכיבים.",
+      "acceptance_check": "שער הראיות נכשל ללא מלאי משטחים, טעינת גופן תקינה, בדיקת גליפים חיה, משפחת גופן וערימת גיבוי מאושרות, וראיות נפרדות לפריים הראשון ברענון קר וחם במחשב ובנייד ברוחב 390 פיקסלים, לצד בדיקת רגרסיה לכל משפחת הרכיבים.",
+      "status": "passed",
+      "evidence": [
+        "Modern Hebrew typography source audit passed for Heebo/approved fallbacks and the 20-view public route audit showed correct Hebrew direction and no rendering failures."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T01:31:34.227292Z"
+    },
+    {
+      "id": "lesson:ADIR-MOBILE-001",
+      "source": "lesson:ADIR-MOBILE-001",
+      "statement": "מסלול נייד מלא נבנה ונבדק בפני עצמו, לרבות המסך הראשון, צפיפות, קריאות, גלילה, חלונות, פעולות ומעברי רוחב.",
+      "acceptance_check": "שער הראיות נכשל ללא צילום חי של המסך הראשון והמסלול המלא, בדיקת גובה נמוך, מדידת גלישה ומטריצת מעברי רוחב.",
+      "status": "passed",
+      "evidence": [
+        "390 by 844 public audits covered the broad eight-route family plus search and event-search, with zero overflow, undersized targets, serious Axe findings or page errors."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T01:31:34.401491Z"
+    },
+    {
+      "id": "lesson:ADIR-CONTROL-001",
+      "source": "lesson:ADIR-CONTROL-001",
+      "statement": "כל כפתור, קישור, לשונית, חץ, תגית, מסנן, תפריט ובקר נראה מבטיח פעולה ולכן חייב להיבדק בכל המצבים החלים עליו וביעד הטבעי של התוצאה. בכל פרויקט, פעולה זמינה חייבת להיראות כהה, מלאה וברורה ולהיות ניתנת להפעלה; פעולה שאינה זמינה חייבת להיראות בהירה ומוחלשת, לא להיות ניתנת להפעלה ולהיחשף גם כמצב סמנטי אמיתי. צבע לבדו אינו מספיק, ומראה הרכיב חייב להתאים תמיד להתנהגות בפועל.",
+      "acceptance_check": "שער הראיות נכשל אם חסר רכיב נראה במלאי, אם התוצאה אינה נצפית ביעד הטבעי, אם לא נבדקו כל המופעים במשפחה שנכשלה, אם פעולה זמינה אינה מודגשת וניתנת להפעלה, אם פעולה לא זמינה אינה מוחלשת או עדיין מגיבה, אם המראה וההתנהגות סותרים זה את זה, או אם ההבחנה נשענת על צבע בלבד ללא מצב סמנטי נגיש.",
+      "status": "passed",
+      "evidence": [
+        "Slider, gallery, search, filter, keyboard and PWA control contracts passed; release 520 live filter labels measured 44 and 65 pixels and all targeted controls completed without page errors."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T01:31:34.542330Z"
+    },
+    {
+      "id": "lesson:ADIR-ADMIN-001",
+      "source": "lesson:ADIR-ADMIN-001",
+      "statement": "מערכת ניהול מיועדת לעבודה יומיומית קצרה וברורה, ומנהלת בהרשאה הנכונה תוכן, חיפוש, SEO ו־GEO, סכמה, רובוטים, מפות אתר, מדידה, ניווט, פוטר, תמונות, כתובות והפניות, עם שמירה, גרסה, תצוגה מקדימה, השתקפות וחזרה לאחור. שינוי הרשאה נחשב תקין רק לאחר שהרשומה המתמידה הוחזרה מהשרת, נשמרה במקור האמת, שרדה רענון ללא מטמון ונבדקה במסלול הכניסה של תפקיד היעד בלי לפתוח אזורים שלא אושרו.",
+      "acceptance_check": "מערכת ניהול אינה עוברת בלי מטריצת יכולות והרשאות, עריכה ותצוגה מקדימה של כל משפחת אתר מחייבת, שמירה ששרדה רענון, השתקפות ביעד הטבעי, יומן שינוי וחזרה לאחור לפעולות כלל־אתר. שינוי הרשאה נכשל אם חסרים הרשומה המתמידה במקור האמת, תגובת שרת עם המשתמש שנשמר, רענון ללא מטמון, אירוע ביקורת, כניסה מוצלחת של תפקיד היעד או הוכחה שאזור לא מורשה נשאר חסום.",
+      "status": "passed",
+      "evidence": [
+        "Production admin reload showed only djskabi@gmail.com and palombo.r@gmail.com as protected owners; anonymous users, catalog sync and snapshot APIs returned 403, while persistence and audit contracts passed."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T01:31:34.680019Z"
+    },
+    {
+      "id": "lesson:ADIR-CONSISTENCY-001",
+      "source": "lesson:ADIR-CONSISTENCY-001",
+      "statement": "רכיבים ועמודים מאותה משפחה שומרים על היררכיה, סדר, צורה, מיקום והתנהגות אחידים במחשב ובנייד. צבע ותוכן מאומת יכולים להשתנות, אך חריגה מבנית או התנהגותית דורשת סיבה ובדיקה ייעודית.",
+      "acceptance_check": "שער הראיות נכשל ללא נקודת ייחוס מאושרת, מטריצת משפחה, השוואות מחשב ונייד ורשימת חריגים. בקר ששינה מיקום, צורה, משמעות או התנהגות ללא חריג מאושר חוסם את כל המשפחה.",
+      "status": "passed",
+      "evidence": [
+        "Public desktop/mobile family matrix covered home, events, spas, search, localized routes and accessibility; preview-card geometry, shared controls and responsive behavior had zero final audit failures."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T01:31:34.889125Z"
+    },
+    {
+      "id": "project:chapter-1-admin",
+      "source": "project_guidance",
+      "statement": "Only Adir and Roy remain protected full-platform owners and delegated access is persisted and denied outside scope.",
+      "acceptance_check": "Only Adir and Roy remain protected full-platform owners and delegated access is persisted and denied outside scope.",
+      "status": "passed",
+      "evidence": [
+        "Production /admin/users reload showed only Adir djskabi@gmail.com and Roy palombo.r@gmail.com as protected system owners with no delegated users; anonymous admin users API returned HTTP 403 and grant/audit tests passed."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T01:31:41.335785Z"
+    },
+    {
+      "id": "project:chapter-2-starting-price",
+      "source": "project_guidance",
+      "statement": "All undated vacation and event price cards use the lower valid seasonal API value.",
+      "acceptance_check": "All undated vacation and event price cards use the lower valid seasonal API value.",
+      "status": "passed",
+      "evidence": [
+        "Release 520 live APIs returned 113 vacation and 23 event records with approved fields only; rendered vacation and event card IDs matched the exact lower seasonal API value."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T01:31:41.536583Z"
+    },
+    {
+      "id": "project:chapter-3-languages",
+      "source": "project_guidance",
+      "statement": "Hebrew English Russian and French route families preserve native copy metadata and direction.",
+      "acceptance_check": "Hebrew English Russian and French route families preserve native copy metadata and direction.",
+      "status": "passed",
+      "evidence": [
+        "Hebrew, English, French and Russian public route families passed direction, heading, metadata, dynamic copy and zero-serious-Axe checks on the published artifact."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T01:31:41.750450Z"
+    },
+    {
+      "id": "project:chapter-4-video-home-layout",
+      "source": "project_guidance",
+      "statement": "Homepage media sliders cards and shared responsive layout preserve approved behavior.",
+      "acceptance_check": "Homepage media sliders cards and shared responsive layout preserve approved behavior.",
+      "status": "passed",
+      "evidence": [
+        "Desktop/mobile public audits and card-media comparisons passed homepage, video/media, slider, gallery, navigation and shared layout families while preserving the approved 112 by 112 preview media geometry."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T01:31:42.057908Z"
+    },
+    {
+      "id": "project:chapter-5-pwa-mobile-accessibility",
+      "source": "project_guidance",
+      "statement": "PWA mobile keyboard contrast typography and responsive target checks pass on the public artifact.",
+      "acceptance_check": "PWA mobile keyboard contrast typography and responsive target checks pass on the public artifact.",
+      "status": "passed",
+      "evidence": [
+        "Release 520 manifest, service worker, offline fallback and private exclusions returned HTTP 200; 20 public responsive views passed keyboard, target, overflow, contrast, Axe and typography checks. No legal-compliance claim is made."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T01:31:42.227453Z"
+    },
+    {
+      "id": "project:chapter-6-sync-backup",
+      "source": "project_guidance",
+      "statement": "All four worlds have accepted generations with guard alert and restore evidence.",
+      "acceptance_check": "All four worlds have accepted generations with guard alert and restore evidence.",
+      "status": "passed",
+      "evidence": [
+        "Accepted production generations contain vacations 573, events 132, rooms 53 and spa 159; Spa stayed within the 5 percent removal guard, no alert remained open, and the integrity snapshot restored in memory with exact counts."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T01:31:42.427959Z"
+    },
+    {
+      "id": "project:public-publication",
+      "source": "project_guidance",
+      "statement": "Exact immutable release identity rollback and post-publication checks pass at the natural destination.",
+      "acceptance_check": "Exact immutable release identity rollback and post-publication checks pass at the natural destination.",
+      "status": "passed",
+      "evidence": [
+        "Version 520 appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_7c9401adbd888191acfd721c078ff336 deployed as appgdep_6ad6c3141b6881918a705187a1ea4930 with terminal succeeded; ten smoke routes passed and release 519 remains rollback."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T01:31:42.732803Z"
+    },
+    {
+      "id": "correction:preview-card-image-fidelity",
+      "source": "user_correction",
+      "statement": "Restore the approved preview-card image size, crop and effective visual resolution before publication.",
+      "acceptance_check": "Public-versus-candidate desktop and mobile comparison preserves the approved 112 by 112 media geometry across affected card families.",
+      "status": "passed",
+      "evidence": [
+        "Fresh desktop/mobile comparisons in project_knowledge/release_evidence/vii-six-chapter-completion-20261020/card-media-diagnosis show restored 112 by 112 media geometry; release 520 retained it."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-20T01:31:32.230108Z"
+    }
+  ],
+  "verification_status": "verified",
+  "verification_errors": [],
+  "predictive_results": {
+    "midpoint": {
+      "observed_at": "2026-10-20T01:31:22.927342Z",
+      "evidence": [
+        "Focused owner, denial and canonical seasonal-price tests passed before publication; the later public API and card checks confirmed the same paths on release 520."
+      ],
+      "findings": [
+        "The midpoint prevented broad publication from hiding inconsistent owner access or a second starting-price selector."
+      ]
+    },
+    "adversarial": {
+      "observed_at": "2026-10-20T01:31:23.059939Z",
+      "attacks": [
+        "Attempted to disprove public completion with 20 desktop/mobile route audits; zero final failures remained.",
+        "Attempted to disprove price correctness by matching rendered card IDs against the live seasonal API; all checked cards matched the lower value.",
+        "Attempted to disprove permissions and recovery with anonymous 403 checks, owner reload, accepted-generation integrity and in-memory backup restore."
+      ],
+      "natural_destination_evidence": "Release 520 deployment appgdep_6ad6c3141b6881918a705187a1ea4930 is terminal succeeded at https://vii.spaplus.co with ten HTTP 200 route checks and 113 vacation plus 23 event prices.",
+      "affected_family_evidence": "All 1,346 tests passed; broad and targeted public audits covered languages, layouts, PWA, keyboard, touch targets, cards, API shape, sync counts and rollback."
+    },
+    "effectiveness": {
+      "recorded_at": "2026-10-20T01:31:23.214822Z",
+      "first_pass_acceptance": "no",
+      "repeated_corrections": 4,
+      "prevented_failures": 4,
+      "elapsed_minutes": 180.0,
+      "baseline_note": "Baseline release 516 stayed available; preview-card geometry, Spa contrast, oversized price feed and event filter target defects were found and corrected before final acceptance."
+    }
+  }
+}
