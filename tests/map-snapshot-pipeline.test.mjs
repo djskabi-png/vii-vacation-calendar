@@ -6,8 +6,9 @@ import { isWeeklyMapSnapshotWindow, mapSnapshotSourceHash, staticMapRequest } fr
 const read = path => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("inactive shared maps request a stored snapshot and fall back honestly without loading Leaflet", async () => {
-  const [map, url, css] = await Promise.all([
+  const [map, detail, url, css] = await Promise.all([
     read("app/components/listing-map.tsx"),
+    read("app/discover/place/client-page.tsx"),
     read("app/lib/map-snapshot-url.ts"),
     read("app/globals.css"),
   ]);
@@ -20,6 +21,8 @@ test("inactive shared maps request a stored snapshot and fall back honestly with
   assert.match(map, /image\.complete && image\.naturalWidth === 0/);
   assert.match(map, /onClick=\{\(\) => setEnabled\(true\)\}/);
   assert.match(map, /!enabled[\s\S]*map-preview-card/);
+  assert.match(detail, /<DiscoveryMap items=\{\[item\]\} tone=\{item\.world === "spa" \? "spa" : "hourly"\} single \/>/);
+  assert.doesNotMatch(detail, /<DiscoveryMap items=\{\[item\]\}[^>]*single autoLoad/);
   assert.match(url, /\/api\/map-snapshot\?world=/);
   assert.match(css, /\.map-preview-image\.is-map-snapshot/);
   assert.match(css, /\.map-preview-attribution/);
