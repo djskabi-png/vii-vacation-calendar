@@ -101,6 +101,22 @@ test("D1 failure cooldown avoids repeated upstream calls", async () => {
   } finally { await mf.dispose(); }
 });
 
+test("D1 infrastructure failure falls back locally without retrying provider failures", async () => {
+  let calls = 0;
+  const db = { prepare() { throw new Error("VII AWS database bridge returned 503"); } };
+  const key = ["database-bridge-fallback", Date.now()];
+  const options = { key, db, load: async () => { calls++; return { online: true }; } };
+  assert.deepEqual((await cachedDiscovery(options)).value, { online: true });
+  assert.deepEqual((await cachedDiscovery(options)).value, { online: true });
+  assert.equal(calls, 1);
+
+  const failedKey = ["database-bridge-provider-failure", Date.now()];
+  const failed = { key: failedKey, db, load: async () => { calls++; throw new Error("provider_down"); } };
+  await assert.rejects(cachedDiscovery(failed), /discovery_unavailable/);
+  await assert.rejects(cachedDiscovery(failed), /discovery_unavailable/);
+  assert.equal(calls, 2);
+});
+
 test("D1 concurrent callers do not overwrite a lease owner", async () => {
   const { mf, db } = await d1(); let calls = 0; try {
     const opts = { key: ["events", "2026-10-21", 20], db, load: async () => { calls++; await new Promise(r => setTimeout(r, 20)); return { id: calls }; } };
