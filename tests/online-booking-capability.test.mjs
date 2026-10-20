@@ -4,11 +4,25 @@ import { readFileSync } from "node:fs";
 import { CAPABILITY_FRESH_MS as week, CAPABILITY_MAX_AGE_MS as maxAge, capabilityCandidateIds, capabilityProbe, fetchCapabilityProbe, mergeCapabilityProbe, hasOnlineCapability, validOnlineCapabilities, publicOnlineCapabilities } from "../app/lib/online-booking-capability.ts";
 import { matchesVacationOnlineBooking } from "../app/lib/vacation-online-booking-filter.ts";
 import { onlineCapabilitiesResponse } from "../app/api/vii/online-capabilities/route.ts";
+import { observedOnlineCapabilities } from "../app/lib/online-booking-capability-cache.ts";
 const now = Date.parse("2026-10-19T12:00:00Z");
 
 test("capability discovery refreshes every half hour and retains last-good evidence across supplier outages", () => {
   assert.equal(week, 30 * 60_000);
   assert.ok(maxAge >= 30 * 24 * 60 * 60_000);
+});
+
+test("accepted dated deal snapshots keep undated online discovery non-empty during a cold capability refresh", () => {
+  const clock = Date.UTC(2026, 9, 20, 12);
+  assert.deepEqual(observedOnlineCapabilities([
+    { checked_at: clock - 1_000, payload: JSON.stringify({ period: "tomorrow", deals: [
+      { siteID: 57, onlineBooking: true, total: 900 },
+      { siteID: 58, onlineBooking: false, total: 800 },
+      { siteID: "59", onlineBooking: true },
+    ] }) },
+    { checked_at: clock - 2_000, payload: "not json" },
+    { checked_at: clock - 31 * 86_400_000, payload: JSON.stringify({ deals: [{ siteID: 60, onlineBooking: true }] }) },
+  ], clock), { "vacation-57": { checkedAt: clock - 1_000 } });
 });
 
 test("undated filter accepts persisted capability but never relaxes dated selection", () => {
