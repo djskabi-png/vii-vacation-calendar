@@ -19,10 +19,11 @@ export function publicOnlineCapabilities(value: OnlineCapabilityMap, ids: Readon
 }
 
 export function capabilityProbe(now: number) {
-  // Keep the probe inside the supplier's supported forward-search window while
-  // staying clear of today's cut-off. The selection is never sent to visitors.
-  const from = new Date(now + 14 * CAPABILITY_FRESH_MS).toISOString().slice(0, 10);
-  return { from, nights: 3, rooms: [{ adults: 2 }] };
+  // This is capability discovery, not a stay offer. A near one-night probe
+  // keeps the supplier query bounded while the returned onlineBooking flag
+  // remains independent of whether that particular night is available.
+  const from = new Date(now + 2 * CAPABILITY_FRESH_MS).toISOString().slice(0, 10);
+  return { from, nights: 1, rooms: [{ adults: 2 }] };
 }
 
 export function mergeCapabilityProbe(payload: unknown, previous: OnlineCapabilityMap = {}, now = Date.now()): OnlineCapabilityMap {
@@ -51,7 +52,7 @@ export async function fetchCapabilityProbe(token: string, previous?: OnlineCapab
   if (!token) throw new Error("capabilities_unavailable");
   const response = await fetchImpl("https://bizonline.co.il/api/ai/vii/vacations/search", {
     method: "POST", headers: { Authorization: `Bearer ${token}`, Accept: "application/json", "Content-Type": "application/json" },
-    body: JSON.stringify(capabilityProbe(now)), redirect: "error", cache: "no-store", signal: AbortSignal.timeout(12_000),
+    body: JSON.stringify(capabilityProbe(now)), redirect: "error", cache: "no-store", signal: AbortSignal.timeout(20_000),
   });
   if (!response.ok || !response.body) throw new Error("capabilities_unavailable");
   const reader = response.body.getReader();
