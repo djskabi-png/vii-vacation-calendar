@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { CAPABILITY_FRESH_MS as week, CAPABILITY_MAX_AGE_MS as maxAge, capabilityProbe, fetchCapabilityProbe, mergeCapabilityProbe, hasOnlineCapability, validOnlineCapabilities, publicOnlineCapabilities } from "../app/lib/online-booking-capability.ts";
+import { CAPABILITY_FRESH_MS as week, CAPABILITY_MAX_AGE_MS as maxAge, capabilityCandidateIds, capabilityProbe, fetchCapabilityProbe, mergeCapabilityProbe, hasOnlineCapability, validOnlineCapabilities, publicOnlineCapabilities } from "../app/lib/online-booking-capability.ts";
 import { matchesVacationOnlineBooking } from "../app/lib/vacation-online-booking-filter.ts";
 import { onlineCapabilitiesResponse } from "../app/api/vii/online-capabilities/route.ts";
 const now = Date.parse("2026-10-19T12:00:00Z");
@@ -21,14 +21,39 @@ test("undated filter accepts persisted capability but never relaxes dated select
 });
 test("capability carries no probe availability, prices, dates or personal fields", async () => {
   const payload = { sites: [{ siteID: 1, available: false, onlineBooking: true, minTotal: 900, cheapest: { from: "other" }, phone: "private" }] };
-  let input;
+  let input; const calls = [];
   const value = await fetchCapabilityProbe("test-token", undefined, now, async (url, init) => {
+    calls.push(url); assert.equal(init.redirect, "error");
+    if (url.endsWith("/vacations")) return Response.json({ places: [{ siteID: 1, active: true, has_availability: true }] });
     assert.equal(url, "https://bizonline.co.il/api/ai/vii/vacations/search");
-    assert.equal(init.redirect, "error"); input = JSON.parse(init.body); return Response.json(payload);
+    input = JSON.parse(init.body); return Response.json(payload);
   });
   assert.deepEqual(value, { "vacation-1": { checkedAt: now } });
-  assert.deepEqual(input, { from: "2026-10-21", nights: 1, rooms: [{ adults: 2 }] });
-  assert.deepEqual(input, capabilityProbe(now));
+  assert.deepEqual(input, { ...capabilityProbe(now), siteIDs: [1] });
+  assert.deepEqual(calls, ["https://bizonline.co.il/api/ai/vii/vacations", "https://bizonline.co.il/api/ai/vii/vacations/search"]);
+});
+test("candidate list bounds probes to active sites with online-managed availability", () => {
+  assert.deepEqual(capabilityCandidateIds({ places: [
+    { siteID: 1, active: true, has_availability: true },
+    { siteID: 2, active: true, has_availability: false },
+    { siteID: 3, active: false, has_availability: true },
+  ] }), [1]);
+  for (const payload of [{}, { places: [] }, { places: [{ siteID: 1 }, { siteID: 1 }] }]) assert.throws(() => capabilityCandidateIds(payload));
+});
+test("complete batched refresh keeps last-good rows when one supplier batch fails", async () => {
+  const ids = Array.from({ length: 21 }, (_, index) => index + 1);
+  const previous = Object.fromEntries(ids.map(id => [`vacation-${id}`, { checkedAt: now - week }]));
+  const bodies = [];
+  const result = await fetchCapabilityProbe("test-token", previous, now, async (url, init = {}) => {
+    if (url.endsWith("/vacations")) return Response.json({ places: ids.map(siteID => ({ siteID, active: true, has_availability: true })) });
+    const body = JSON.parse(init.body); bodies.push(body);
+    if (body.siteIDs[0] === 21) return new Response("", { status: 503 });
+    return Response.json({ sites: body.siteIDs.map(siteID => ({ siteID, onlineBooking: siteID % 2 === 0 })) });
+  });
+  assert.deepEqual(bodies.map(body => body.siteIDs.length), [20, 1]);
+  assert.equal(result["vacation-2"].checkedAt, now);
+  assert.equal(result["vacation-1"], undefined);
+  assert.deepEqual(result["vacation-21"], previous["vacation-21"]);
 });
 test("busy/minimum-stay/omitted/unknown availability does not disable or renew prior capability; explicit false revokes", () => {
   const previous = { "vacation-1": { checkedAt: now - week }, "vacation-2": { checkedAt: now - week }, "vacation-3": { checkedAt: now - week } };

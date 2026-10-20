@@ -27,6 +27,25 @@ export function capabilityProbe(now: number) {
   return { from, nights: 1, rooms: [{ adults: 2 }] };
 }
 
+function record(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+export function capabilityCandidateIds(payload: unknown): number[] {
+  const places = record(payload).places;
+  if (!Array.isArray(places) || !places.length || places.length > 10_000) throw new Error("capabilities_unavailable");
+  const seen = new Set<number>();
+  const candidates: number[] = [];
+  for (const value of places) {
+    const row = record(value);
+    if (!Number.isSafeInteger(row.siteID) || Number(row.siteID) < 1 || seen.has(Number(row.siteID))) throw new Error("invalid_capabilities");
+    seen.add(Number(row.siteID));
+    if (row.active === true && row.has_availability === true) candidates.push(Number(row.siteID));
+  }
+  if (!candidates.length) throw new Error("capabilities_unavailable");
+  return candidates;
+}
+
 export function mergeCapabilityProbe(payload: unknown, previous: OnlineCapabilityMap = {}, now = Date.now()): OnlineCapabilityMap {
   if (!payload || typeof payload !== "object" || Array.isArray(payload) || (payload as { error?: unknown }).error) throw new Error("invalid_capabilities");
   const sites = (payload as { sites?: unknown } | null)?.sites;
@@ -51,21 +70,33 @@ export function mergeCapabilityProbe(payload: unknown, previous: OnlineCapabilit
 
 export async function fetchCapabilityProbe(token: string, previous?: OnlineCapabilityMap, now = Date.now(), fetchImpl: typeof fetch = fetch): Promise<OnlineCapabilityMap> {
   if (!token) throw new Error("capabilities_unavailable");
-  const response = await fetchImpl("https://bizonline.co.il/api/ai/vii/vacations/search", {
-    method: "POST", headers: { Authorization: `Bearer ${token}`, Accept: "application/json", "Content-Type": "application/json" },
-    body: JSON.stringify(capabilityProbe(now)), redirect: "error", cache: "no-store", signal: AbortSignal.timeout(20_000),
+  const headers = { Authorization: `Bearer ${token}`, Accept: "application/json" };
+  const listing = await fetchImpl("https://bizonline.co.il/api/ai/vii/vacations", {
+    headers, redirect: "error", cache: "no-store", signal: AbortSignal.timeout(20_000),
   });
-  if (!response.ok || !response.body) throw new Error("capabilities_unavailable");
-  const reader = response.body.getReader();
-  const chunks: Uint8Array[] = []; let size = 0;
-  try {
-    for (;;) {
-      const part = await reader.read(); if (part.done) break;
-      size += part.value.byteLength; if (size > 10 * 1024 * 1024) throw new Error("invalid_capabilities");
-      chunks.push(part.value);
-    }
-    const bytes = new Uint8Array(size); let offset = 0;
-    for (const part of chunks) { bytes.set(part, offset); offset += part.length; }
-    return mergeCapabilityProbe(JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes)), previous, now);
-  } finally { await reader.cancel().catch(() => {}); }
+  if (!listing.ok) throw new Error("capabilities_unavailable");
+  const candidateIds = capabilityCandidateIds(await listing.json().catch(() => null));
+  const candidateSlugs = new Set(candidateIds.map(id => `vacation-${id}`));
+  let result = Object.fromEntries(Object.entries(previous || {}).filter(([slug, row]) => candidateSlugs.has(slug) && hasOnlineCapability(row, now)));
+  let successfulBatches = 0;
+  // The provider documents remote_limit as a signal to search fewer sites. Small
+  // explicit batches make the capability inventory complete without turning a
+  // visitor request into a live supplier scan.
+  for (let offset = 0; offset < candidateIds.length; offset += 20) {
+    const siteIDs = candidateIds.slice(offset, offset + 20);
+    try {
+      const response = await fetchImpl("https://bizonline.co.il/api/ai/vii/vacations/search", {
+        method: "POST", headers: { ...headers, "Content-Type": "application/json" },
+        body: JSON.stringify({ ...capabilityProbe(now), siteIDs }), redirect: "error", cache: "no-store", signal: AbortSignal.timeout(20_000),
+      });
+      if (!response.ok) continue;
+      const payload = await response.json().catch(() => null);
+      const sites = record(payload).sites;
+      if (!Array.isArray(sites) || sites.some(value => !siteIDs.includes(Number(record(value).siteID)))) continue;
+      result = mergeCapabilityProbe(payload, result, now);
+      successfulBatches++;
+    } catch { /* Keep the last-good rows for this batch; the next refresh will retry. */ }
+  }
+  if (!successfulBatches) throw new Error("capabilities_unavailable");
+  return result;
 }
