@@ -3,7 +3,6 @@ import hourly from "../data/sergey-hourly-catalog.json" with { type: "json" };
 import spa from "../data/spaplus-catalog.json" with { type: "json" };
 import { catalogStatusMcp } from "../lib/catalog-status-mcp.ts";
 import { adminEmailsCsv, combineAdminEmails } from "../lib/admin-access.ts";
-import type { D1Database } from "../../types/cloudflare-runtime";
 import { requiredRuntimeDatabase } from "../lib/runtime-database.ts";
 
 export const dynamic = "force-dynamic";
@@ -18,6 +17,10 @@ export async function POST(request: Request) {
       const value = await pullCatalogSlot(db, world, {
         sync: (runId, selectedWorld, source) => syncSupplierCatalogWorld(db, selectedWorld, source, { runId }),
       });
+      if (world === "vacations") {
+        const { cachedOnlineCapabilities } = await import("../lib/online-booking-capability-cache.ts");
+        await cachedOnlineCapabilities(db).catch(() => console.error("VII weekly online capability refresh unavailable"));
+      }
       console.info("VII authenticated catalog MCP result", { world: value.world, status: value.status });
       return value;
     },

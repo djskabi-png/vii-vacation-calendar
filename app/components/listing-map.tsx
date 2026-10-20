@@ -29,7 +29,6 @@ type MapPlace = {
   category: string;
   meta: string;
   image: string;
-  images?: string[];
   lat: number;
   lng: number;
   href: string;
@@ -92,7 +91,6 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
     place.category,
     place.meta,
     place.image,
-    place.images?.join(",") ?? "",
     place.lat,
     place.lng,
     place.href,
@@ -646,7 +644,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
     {mapReady && !single && viewportDirty && <button className="map-search-area" type="button" onClick={applyVisibleArea}><span>{cardCopy.searchArea}</span><small>{pendingVisibleIds.length} {regional ? regionsCopy : cardCopy.visible}</small></button>}
     {!mapReady && (autoLoad ? <span className="map-live-loading" role="status">{mapCopy.loading}</span> : <div className="map-preview-card map-loading-preview">{previewContent}</div>)}
     {mapReady && !single && selected && <article className="map-selection-card" aria-live="polite">
-      <PreviewCardGallery key={selected.id} className="map-selection-card__media" name={selected.name} images={[selected.image, ...(selected.images || [])]} href={localizedPath(selected.href, language)}>
+      <PreviewCardGallery key={selected.id} className="map-selection-card__media" name={selected.name} images={[selected.image]} href={localizedPath(selected.href, language)}>
         <small>{selected.category}</small>
       </PreviewCardGallery>
       <div className="map-selection-card__body">
@@ -687,7 +685,6 @@ export function ListingMap({ listings, initialListings, mode = "vacation", singl
       listing.guests > 0 ? `${units.upTo} ${listing.guests} ${units.guests}` : null,
     ].filter(Boolean).join(" · "),
     image: listing.image,
-    images: listing.images?.slice(0, 10),
     lat: listing.lat!,
     lng: listing.lng!,
     href: mode === "events" ? eventPlaceHref(listing as EventPlace) : `/business?id=${listing.slug}${detailQuery ? `&${detailQuery}` : ""}`,
@@ -723,7 +720,6 @@ export function DiscoveryMap({ items, initialItems, tone, single = false, autoLo
       category: tone === "activities" ? item.area : localized ? (tone === "spa" ? localized.spa : localized.hourly) : tone === "spa" ? "ספא וטיפולים" : "שהייה לפי שעה",
       meta: localized ? (price ? `${localized.from} ₪${price}` : tone === "spa" ? localized.packages : tone === "activities" ? item.priceLabel || item.location : localized.short) : item.priceLabel || (tone === "spa" ? "חבילות וטיפולים" : tone === "activities" ? "חוויה בתשלום" : "שהייה קצרה"),
       image: item.image || "/vii-logo.png",
-      images: item.images?.slice(0, 10),
       lat: item.lat!,
       lng: item.lng!,
       href: `/discover/place/${item.id}`,

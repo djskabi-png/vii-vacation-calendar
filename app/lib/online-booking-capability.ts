@@ -1,6 +1,7 @@
 /** Discovery capability only. Never a price, availability quote or booking authorization. */
-export const CAPABILITY_FRESH_MS = 86_400_000;
-export const CAPABILITY_MAX_AGE_MS = 7 * CAPABILITY_FRESH_MS;
+const DAY_MS = 86_400_000;
+export const CAPABILITY_FRESH_MS = 7 * DAY_MS;
+export const CAPABILITY_MAX_AGE_MS = 14 * DAY_MS;
 export type OnlineCapabilityMap = Record<string, { checkedAt: number }>;
 
 export function validOnlineCapabilities(value: unknown): value is OnlineCapabilityMap {
@@ -22,7 +23,7 @@ export function capabilityProbe(now: number) {
   // This is capability discovery, not a stay offer. A near one-night probe
   // keeps the supplier query bounded while the returned onlineBooking flag
   // remains independent of whether that particular night is available.
-  const from = new Date(now + 2 * CAPABILITY_FRESH_MS).toISOString().slice(0, 10);
+  const from = new Date(now + 2 * DAY_MS).toISOString().slice(0, 10);
   return { from, nights: 1, rooms: [{ adults: 2 }] };
 }
 

@@ -50,12 +50,12 @@ test("review summary thumbnails stay static while the review rail remains browsa
   assert.match(ratings, /<HomeSliderControls railId="home-ratings-rail"/);
 });
 
-test("selected map cards preserve their browsable place photos", () => {
+test("selected map cards preserve the primary place photo without serializing full galleries", () => {
   const map = read("app/components/listing-map.tsx");
-  assert.match(map, /images: listing\.images/);
-  assert.match(map, /images: item\.images/);
+  assert.doesNotMatch(map, /images: listing\.images/);
+  assert.doesNotMatch(map, /images: item\.images/);
   assert.match(map, /<PreviewCardGallery key=\{selected\.id\}/);
-  assert.match(map, /images=\{\[selected\.image, \.\.\.\(selected\.images \|\| \[\]\)\]\}/);
+  assert.match(map, /images=\{\[selected\.image\]\}/);
 });
 
 test("gallery interactions remain localized, bounded and separate from rail navigation", () => {
