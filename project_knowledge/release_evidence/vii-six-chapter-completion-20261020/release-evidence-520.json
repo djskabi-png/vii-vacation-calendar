@@ -1,0 +1,89 @@
+{
+  "verdict": "ready",
+  "release": "VII public Sites release 520, deployment appgdep_6ad6c3141b6881918a705187a1ea4930, source commit 2e0c20491db629817a25e63ccbc2cd0d38f5eafe, tree f1044f73302a780c135648f9c34983b51dcba832",
+  "target": "Public temporary VII product at https://vii.spaplus.co plus the authenticated production administration at https://vii.spaplus.co/admin",
+  "baseline": "Previously published release 519 remains the immediate immutable archive-backed rollback after its verified route, data, and API checks.",
+  "requested_outcome": "Publish and verify all six approved chapters without regressing existing public card media, search, world navigation, administration, supplier synchronization, backup recovery, mobile behavior, or accessibility fundamentals.",
+  "authorization_boundary": "Adir authorized the complete six-chapter publication and post-publication checks on the existing public temporary URL; primary-domain cutover and unrelated future chapters remain excluded.",
+  "changed_components": [
+    "Persisted administration grants with protected full-platform owners for Adir and Roy",
+    "Canonical lower-of-winter-and-summer starting-price projection and public APIs",
+    "Hebrew, English, Russian and French public and administration language families",
+    "Events and spa sliders, homepage media, preview-card image fidelity, and shared responsive layout",
+    "PWA, mobile interaction, accessibility fundamentals, contrast, and Hebrew typography",
+    "Four-world supplier sync guards, operational alerts, snapshots, integrity chain, and restore flow"
+  ],
+  "affected_family": [
+    {"id": "admin-access", "surface": "Authenticated admin users, grants, protected-owner persistence, anonymous rejection, and audit states"},
+    {"id": "starting-prices", "surface": "Vacation and event starting-price APIs, lower-season selector, search results, and preview cards"},
+    {"id": "language-family", "surface": "Hebrew, English, Russian, and French routes, metadata, direction, and dynamic interface states"},
+    {"id": "public-layout", "surface": "Homepage, event and spa world sliders, galleries, preview-card media, desktop and mobile shared layout"},
+    {"id": "pwa-accessibility", "surface": "Manifest, service worker, offline fallback, keyboard entry, touch targets, contrast, and Hebrew font delivery"},
+    {"id": "sync-recovery", "surface": "Vacations, events, rooms and spa pulls, removal guards, alerts, accepted generations, backup and restore"}
+  ],
+  "characteristics": {"stateful": true, "responsive": true},
+  "checks": [
+    {
+      "id": "release-520-public-success",
+      "state": "success",
+      "status": "passed",
+      "evidence": "Release 520 deployment appgdep_6ad6c3141b6881918a705187a1ea4930 reached succeeded at 2026-10-20T01:26:46Z; ten public routes returned HTTP 200 and all 1,346 source tests passed.",
+      "family_ids": ["admin-access", "starting-prices", "language-family", "public-layout", "pwa-accessibility", "sync-recovery"]
+    },
+    {
+      "id": "failure-and-guard-behavior",
+      "state": "failure",
+      "status": "passed",
+      "evidence": "Release 520 source tests cover invalid seasonal values and supplier failure states; live anonymous admin users, catalog sync and snapshot endpoints each returned HTTP 403, and production showed no unresolved sync alert.",
+      "family_ids": ["admin-access", "starting-prices", "sync-recovery"]
+    },
+    {
+      "id": "owner-and-catalog-persistence",
+      "state": "persistence",
+      "status": "passed",
+      "evidence": "The production admin reload showed only djskabi@gmail.com and palombo.r@gmail.com as protected system owners with no delegated users; integrity-verified accepted catalog snapshots retained exact four-world counts.",
+      "family_ids": ["admin-access", "sync-recovery"]
+    },
+    {
+      "id": "public-reload-and-price-cache",
+      "state": "reload",
+      "status": "passed",
+      "evidence": "Release 520 public price endpoints returned 113 vacation and 23 event records; rendered cards matched each data-map-place-id to the exact lower seasonal API value.",
+      "family_ids": ["starting-prices", "public-layout"]
+    },
+    {
+      "id": "desktop-mobile-regression",
+      "state": "responsive",
+      "status": "passed",
+      "evidence": "Sixteen broad public views plus four release 520 price-search views across 1440x900 and 390x844 had zero audit failures, zero serious or critical Axe findings, no horizontal overflow, no undersized targets, correct language direction, and restored preview-card image geometry.",
+      "family_ids": ["language-family", "public-layout", "pwa-accessibility"]
+    },
+    {
+      "id": "backup-recovery",
+      "state": "recovery",
+      "status": "passed",
+      "evidence": "The integrity-verified production snapshot restored in memory to SQLite with exact accepted counts: vacations 573, events 132, rooms 53 and spa 159, without mutating production.",
+      "family_ids": ["sync-recovery"]
+    },
+    {
+      "id": "pwa-permission-boundaries",
+      "state": "permission",
+      "status": "passed",
+      "evidence": "Release 520 keeps private admin APIs unavailable anonymously with HTTP 403 while public manifest and service-worker resources return HTTP 200 and exclude private routes from offline caching.",
+      "family_ids": ["admin-access", "pwa-accessibility"]
+    },
+    {
+      "id": "immutable-rollback",
+      "state": "rollback",
+      "status": "passed",
+      "evidence": "Immutable Sites release 519 and deployment appgdep_6ad6bd015bd48191b6a98cbacd665405 remain retained and were verified on the same public target before release 520.",
+      "family_ids": ["admin-access", "starting-prices", "language-family", "public-layout", "pwa-accessibility", "sync-recovery"]
+    }
+  ],
+  "rollback": {
+    "available": true,
+    "method": "Redeploy saved Sites version 519 using deployment appgdep_6ad6bd015bd48191b6a98cbacd665405 if release 520 must be reversed.",
+    "verification": "Version 519 completed deployment at 2026-10-20T01:00:48Z and its public routes, price APIs, accepted catalog data, manifest and service worker were verified before release 520."
+  },
+  "remaining_blockers": []
+}

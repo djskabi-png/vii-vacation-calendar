@@ -1,0 +1,69 @@
+{
+  "goal": "Publish and verify one coherent VII finish release for holidays, vacation quick filters and spa deal sliders.",
+  "intent_model": {
+    "literal_request": "Hide holiday tabs that cannot exist, create a beautiful Holiday Vacation hub linked from Holiday and Dates navigation, repair the clipped and awkward quick-filter panel, and make the spa slider coherent with sharp proportionate images, then publish and test.",
+    "implied_outcome": "Discovery surfaces feel intentional and trustworthy, with no impossible choice, generic destination, visual seam or degraded media.",
+    "likely_rejections": ["Only the screenshot example is fixed","The new page is visually pretty but disconnected from live holiday data","The spa image container is resized without verifying the source asset","A local build is presented instead of the public result"],
+    "interpretation_rules": [{"phrase":"כל / כנ״ל / פרסם ובדוק","operational_meaning":"Cover the full shared family, preserve settled behavior and verify the exact public release.","acceptance_impact":"Adds family matrices, public candidate QA, production verification and rollback."}]
+  },
+  "cognitive_flow": {
+    "current_layer": "Show only choices that can produce a real result and present each discovery area as one coherent section.",
+    "current_decision": "Holiday or date first; spa date first with party as a quiet refinement; quick filters as independent controls without a competing panel.",
+    "next_action": "Open a real holiday page or select a valid spa or vacation filter and see matching results.",
+    "deferred_complexity": ["advanced search fields","full supplier confirmation","unrelated administration"],
+    "preserved_depth": ["audience and date persistence","live availability and price basis","advanced search","booking and contact actions","language and responsive behavior"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/task_contracts/vii-holiday-hub-ui-finish-20261020-preflight.json",
+    "lesson_bundle_ids": ["ADIR-QA-001","ADIR-TYPE-001","ADIR-MOBILE-001","ADIR-CONTROL-001","ADIR-VISUAL-001","ADIR-CONSISTENCY-001","ADIR-SCOPE-001","ADIR-MEDIA-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["VII visitor seeking vacation deals","VII visitor browsing spa packages"],
+  "natural_destination": "https://vii.spaplus.co",
+  "facts": [
+    {"claim":"Holiday pages currently render all four period controls and disable some of them.","evidence":"app/components/holiday-live-deals.tsx"},
+    {"claim":"Holiday breadcrumbs currently link Holiday and Dates to generic /search.","evidence":"app/holidays/[slug]/page.tsx"},
+    {"claim":"The quick-filter rail applies a full white background and bottom border while overflowing horizontally.","evidence":"app/globals.css .search-quick-filters"},
+    {"claim":"The public production baseline is release 520.","evidence":"Existing VII release evidence and public runtime state."}
+  ],
+  "assumptions": [
+    {"claim":"All current spa deal placements share the same core component family.","validation":"Inventory imports and render each placement before implementation."},
+    {"claim":"The live holiday feed is sufficient to populate the hub.","validation":"Inspect its current normalized fields and public response before rendering."}
+  ],
+  "in_scope": ["valid distinct holiday periods only","new /holidays hub","canonical Holiday and Dates navigation to /holidays","quick-filter visual repair","spa slider hierarchy and media geometry","remove internal illustration labels and supplier-confirmation disclaimers","repair reported magazine, event review and nearby-area rail geometry","sitewide shared-family visual sweep","publication and public QA"],
+  "out_of_scope": ["supplier writeback","booking rule changes","price formula changes","unrelated admin permissions","DNS or runtime migration"],
+  "invariants": ["couple and two guests remain the holiday default","explicit valid audience and period persist","availability and price basis remain aligned","search filters keep their existing meaning","spa deals stay sorted by cheapest valid price","existing card actions and navigation remain functional","no unrelated visual redesign"],
+  "affected_family": ["holiday hub","all holiday pages","holiday API and selection utilities","site navigation and breadcrumbs","vacation quick filters","all spa package deal sliders","spa hero and guide surfaces","magazine categories","event discovery and review rails","mobile nearby-area rails","shared media and responsive styles","HE EN RU FR routes"],
+  "characteristics": {"stateful":true},
+  "requirements": [
+    {"id":"REQ-1","statement":"Expose only distinct valid holiday period choices and safely normalize stale invalid period URLs.","source":"User request"},
+    {"id":"REQ-2","statement":"Provide a useful, polished Holiday Vacation hub built from upcoming holiday data with canonical links to each holiday.","source":"User request"},
+    {"id":"REQ-3","statement":"Route Holiday and Dates navigation and holiday breadcrumbs to the new hub.","source":"User request"},
+    {"id":"REQ-4","statement":"Remove the clipped circular ends and awkward white background or frame from the vacation quick-filter rail without changing filter behavior.","source":"User correction"},
+    {"id":"REQ-5","statement":"Make every spa deal slider a coherent single section with quieter party refinement and clear date navigation.","source":"User correction"},
+    {"id":"REQ-6","statement":"Render spa slider images sharply at a stable intentional ratio without stretching or accidental subject loss.","source":"User correction"},
+    {"id":"REQ-7","statement":"Publish the exact verified artifact and re-test its public destination with rollback retained.","source":"User request"},
+    {"id":"REQ-8","statement":"Remove public-facing internal labels such as illustration notices and low-value supplier-confirmation disclaimers from the complete public source family.","source":"User correction with screenshots"},
+    {"id":"REQ-9","statement":"Repair every reported clipped rail, wrong-edge partial card, native scrollbar, excess whitespace and redundant explanatory sentence across the shared magazine, event and nearby-area families.","source":"User correction with screenshots"},
+    {"id":"REQ-10","statement":"Inspect every attached visual issue twice, first against its source component and then against the exact public release, expanding shared defects sitewide.","source":"User explicit acceptance instruction"}
+  ],
+  "acceptance_checks": [
+    {"id":"AC-1","requirement_ids":["REQ-1"],"kind":"success","setup":"A one-day or short holiday such as Sigd","action":"Open the holiday page with no part parameter","observable_result":"Only Whole holiday is shown when no other distinct valid period exists."},
+    {"id":"AC-2","requirement_ids":["REQ-1"],"kind":"recovery","setup":"A stale URL contains part=middle for a holiday without a middle period","action":"Load, reload and navigate back","observable_result":"State, URL, dates, price basis and results normalize to a valid visible period."},
+    {"id":"AC-3","requirement_ids":["REQ-2","REQ-3"],"kind":"success","setup":"Upcoming holiday data is available","action":"Open /holidays and follow each holiday link from desktop and mobile navigation and breadcrumbs","observable_result":"The hub has unique useful content and every link reaches its matching canonical holiday page."},
+    {"id":"AC-4","requirement_ids":["REQ-4"],"kind":"success","setup":"Vacation results at desktop, tablet and 390px","action":"Inspect and horizontally scroll the quick filters, then activate and clear filters","observable_result":"No clipped white ends, stray border, horizontal page overflow or behavior regression appears."},
+    {"id":"AC-5","requirement_ids":["REQ-5","REQ-6"],"kind":"success","setup":"Every spa slider placement at desktop and 390px","action":"Change date and party, scroll cards and inspect every visible image","observable_result":"The section reads as one unit, party selection is visually secondary, card results match selection and images remain sharp and proportionate."},
+    {"id":"AC-6","requirement_ids":["REQ-1","REQ-4","REQ-5"],"kind":"persistence","setup":"Make a valid selection on each changed family","action":"Reload, use back and transition between mobile and desktop","observable_result":"Valid selections persist and no stale panel, scroll lock or invalid active control remains."},
+    {"id":"AC-7","requirement_ids":["REQ-7"],"kind":"rollback","setup":"The candidate passes public QA","action":"Publish the same frozen artifact","observable_result":"The public release identity and hashes match the candidate and release 520 remains a usable rollback."},
+    {"id":"AC-8","requirement_ids":["REQ-8"],"kind":"success","setup":"Search all public source and render all representative affected routes","action":"Look for illustration labels and supplier-confirmation disclaimer variants in Hebrew and localized copy","observable_result":"No internal or low-value disclaimer text is visible on public cards, heroes, guides or rails."},
+    {"id":"AC-9","requirement_ids":["REQ-9"],"kind":"success","setup":"Desktop and 390px views of magazine, event review and nearby-area families","action":"Scroll each rail from its natural RTL start and inspect section boundaries","observable_result":"No wrong-edge partial card, clipped tab, exposed native scrollbar, redundant sentence or unexplained empty band remains."},
+    {"id":"AC-10","requirement_ids":["REQ-10"],"kind":"success","setup":"The twelve user screenshots are mapped to components and public routes","action":"Perform source-family review and a second independent live visual pass","observable_result":"Every screenshot issue has exact before/after evidence or a precise blocker; shared instances are included."}
+    ,{"id":"AC-11","requirement_ids":["REQ-1","REQ-2","REQ-4","REQ-5","REQ-6","REQ-8","REQ-9"],"kind":"failure","setup":"A supplier request fails, an image fails to decode or a changed rail has no results","action":"Load the affected public route and operate the remaining controls","observable_result":"The page shows an honest localized error or empty state, keeps navigation usable, and does not restore removed internal labels, broken frames or distorted media."}
+  ],
+  "open_questions": [],
+  "authorization_boundary": "The user authorized publication and post-publication testing for this scoped UI release. No unrelated external mutation is allowed.",
+  "ready_for_implementation": true
+}

@@ -19,14 +19,16 @@ test('world openings retain H1, intro, search, breadcrumbs and truthful imagery 
  assert.doesNotMatch(read('app/events/page.tsx'),/className="events-hero__eyebrow"/);
  assert.match(read('app/events/page.tsx'),/<SearchBox mode="events"/);
 });
-test('search-depth keeps useful SEO, FAQs, reviews, semantic related links and image disclosures',()=>{
+test('search-depth keeps useful SEO, FAQs, reviews and semantic related links without production labels',()=>{
  const source=read('app/components/search-after-results.tsx');
  assert.doesNotMatch(source,/<span className="eyebrow">\{(?:content|discovery)\.eyebrow\}<\/span>|<p>\{discovery\.intro\}<\/p>/);
- for(const text of ['faqSchema(content.faqs)','content.paragraphs.map','content.faqs.map','reviews.map','discovery.title','regionLinks','cityLinks','typeLinks','smartLinks','trailLinks','providerLinks','Illustrative image'])assert.ok(source.includes(text),text);
+ for(const text of ['faqSchema(content.faqs)','content.paragraphs.map','content.faqs.map','reviews.map','discovery.title','regionLinks','cityLinks','typeLinks','smartLinks','trailLinks','providerLinks'])assert.ok(source.includes(text),text);
+ assert.doesNotMatch(source,/image-context-label|Illustrative image|תמונת המחשה/);
 });
-test('declutter does not remove article facts, gallery disclosures or trail safety',()=>{
+test('declutter keeps article facts and trail safety while removing editorial production labels',()=>{
  const article=read('app/guides/article/client-page.tsx');
- for(const text of ['article.category','article.dateLabel','article.readTime','EditorialIllustrationLabel','article.checklist.map','toggleChecklist'])assert.ok(article.includes(text),text);
+ for(const text of ['article.category','article.dateLabel','article.readTime','article.checklist.map','toggleChecklist'])assert.ok(article.includes(text),text);
+ assert.doesNotMatch(article,/EditorialIllustrationLabel|תמונת המחשה/);
  const trail=read('app/trails/[slug]/page.tsx');
  for(const text of ['trail.safety.map','trail.sourceName','המידע אינו אישור שהמסלול פתוח כרגע','trail.dayPlan.map'])assert.ok(trail.includes(text),text);
  const home=read('app/components/home-showcase.tsx');assert.match(home,/\{video.note\}/);

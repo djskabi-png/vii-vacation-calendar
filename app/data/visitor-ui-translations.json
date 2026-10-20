@@ -223,5 +223,18 @@
   "פונים ישירות לספק": { "en": "Contact the provider directly", "ru": "Связаться с исполнителем напрямую", "fr": "Contactez le prestataire directement" },
   "שלחו את פרטי האירוע לספק ובדקו יחד זמינות ומחיר.": { "en": "Send your event details to the provider and confirm availability and price together.", "ru": "Отправьте исполнителю детали мероприятия и уточните наличие и цену.", "fr": "Envoyez les détails de l’événement au prestataire et vérifiez ensemble la disponibilité et le prix." },
   "בחרו מועד, ציינו את מספר המשתתפים ובקשו את השירות שמתאים לכם.": { "en": "Choose a date, enter the number of guests and request the service that suits you.", "ru": "Выберите дату, укажите число участников и нужную услугу.", "fr": "Choisissez une date, indiquez le nombre de participants et demandez le service qui vous convient." },
-  "בחרו חוויה ובדקו את המועד, המחיר ומה כלול לפני ההזמנה.": { "en": "Choose an experience and check the date, price and what is included before booking.", "ru": "Выберите впечатление и проверьте дату, цену и включённые услуги перед бронированием.", "fr": "Choisissez une expérience et vérifiez la date, le prix et les prestations incluses avant de réserver." }
+  "בחרו חוויה ובדקו את המועד, המחיר ומה כלול לפני ההזמנה.": { "en": "Choose an experience and check the date, price and what is included before booking.", "ru": "Выберите впечатление и проверьте дату, цену и включённые услуги перед бронированием.", "fr": "Choisissez une expérience et vérifiez la date, le prix et les prestations incluses avant de réserver." },
+  "נוף לאורך מסלול": { "en": "Scenery along the trail", "ru": "Пейзаж вдоль маршрута", "fr": "Paysage le long du sentier" },
+  "מתכננים את החופשה הבאה": { "en": "Plan your next break", "ru": "Планируем следующую поездку", "fr": "Préparez votre prochaine escapade" },
+  "נופש בחג": { "en": "Holiday escapes", "ru": "Отдых в праздники", "fr": "Séjours pendant les fêtes" },
+  "בוחרים חג קרוב, רואים את התאריכים וממשיכים ישר למקומות הפנויים להרכב שלכם.": { "en": "Choose an upcoming holiday, see the dates and continue directly to available stays for your party.", "ru": "Выберите ближайший праздник, проверьте даты и перейдите к свободным вариантам для вашей компании.", "fr": "Choisissez une fête à venir, consultez les dates et accédez aux séjours disponibles pour votre groupe." },
+  "החגים הקרובים": { "en": "Upcoming holidays", "ru": "Ближайшие праздники", "fr": "Fêtes à venir" },
+  "לנופש בחג": { "en": "Explore stays", "ru": "Смотреть отдых", "fr": "Voir les séjours" },
+  "אין כרגע חגים קרובים להצגה.": { "en": "There are no upcoming holidays to show right now.", "ru": "Сейчас нет ближайших праздников для показа.", "fr": "Aucune fête à venir n’est disponible pour le moment." },
+  "לחיפוש נופש": { "en": "Search stays", "ru": "Поиск отдыха", "fr": "Rechercher un séjour" },
+  "מתחילים מהחג, מסיימים במקום שמתאים לכם": { "en": "Start with the holiday, finish with the right stay", "ru": "От праздника к подходящему месту", "fr": "De la fête au séjour qui vous convient" },
+  "תאריך ברור": { "en": "Clear dates", "ru": "Точные даты", "fr": "Dates claires" },
+  "הרכב אורחים": { "en": "Guest party", "ru": "Состав гостей", "fr": "Composition du groupe" },
+  "זמינות ומחיר": { "en": "Availability and price", "ru": "Наличие и цена", "fr": "Disponibilité et prix" },
+  "לזוגות, משפחות וקבוצות": { "en": "For couples, families and groups", "ru": "Для пар, семей и компаний", "fr": "Pour les couples, les familles et les groupes" }
 }

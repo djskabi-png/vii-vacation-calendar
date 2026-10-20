@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-holiday-hub-ui-finish-20261020",
+  "project": "VII",
+  "task_type": "public-product-ui-release",
+  "requested_outcome": "Publish and verify a coherent VII finish release that hides impossible holiday periods, adds a useful Holiday Vacation hub, repairs the vacation quick-filter rail, and makes the spa deals slider visually coherent with sharp proportionate media.",
+  "natural_destination": "https://vii.spaplus.co",
+  "authorization_boundary": "Source changes, tests, a temporary public candidate, publication and post-publication verification are authorized by the user. No supplier writeback, booking, messaging, DNS, unrelated admin or data migration is authorized.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-QA-001","reason":"The requested outcome includes publication and live verification.","acceptance_impact":"Require exact public URL, release identity, responsive interaction evidence and rollback."},
+    {"lesson_id":"ADIR-TYPE-001","reason":"Changed surfaces contain Hebrew controls and editorial copy.","acceptance_impact":"Require Heebo-family static and live checks on desktop and 390px mobile."},
+    {"lesson_id":"ADIR-MOBILE-001","reason":"The holiday, filter and spa slider families are primary mobile discovery surfaces.","acceptance_impact":"Require 390x844, low-height and responsive transition checks."},
+    {"lesson_id":"ADIR-CONTROL-001","reason":"Holiday periods, quick filters, spa date and party controls are interactive.","acceptance_impact":"Exercise every changed control, invalid state, reload and back behavior."},
+    {"lesson_id":"ADIR-VISUAL-001","reason":"The request explicitly identifies clipped edges, an awkward frame and incoherent slider composition.","acceptance_impact":"Require full-page visual inspection, measured geometry and no clipped or stretched media."},
+    {"lesson_id":"ADIR-CONSISTENCY-001","reason":"The defects affect shared page and slider families.","acceptance_impact":"Compare all holiday pages and all spa slider placements across desktop and mobile."},
+    {"lesson_id":"ADIR-SCOPE-001","reason":"This is a targeted finish release over an approved public version.","acceptance_impact":"Preserve search, pricing, audience, availability, navigation and unrelated styling."},
+    {"lesson_id":"ADIR-MEDIA-001","reason":"Spa card image sharpness, crop and proportions are explicitly in scope.","acceptance_impact":"Inspect actual source dimensions, rendered geometry and every visible changed card image."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"A one-day holiday still shows disabled or redundant start, middle or end pills.","prevention":"Derive visible periods from distinct valid date windows and normalize invalid URL state.","acceptance_check":"Every current holiday is inventoried and Sigd exposes only Whole holiday."},
+    {"rejection":"The Holiday Vacation page is decorative or links to stale/generic search instead of real holiday pages.","prevention":"Build the hub from the same live holiday source and canonical holiday route builder.","acceptance_check":"The public hub lists upcoming holidays with working canonical links and localized metadata."},
+    {"rejection":"The quick-filter bar still looks like a clipped white rectangle at one viewport.","prevention":"Remove the accidental container panel treatment and verify edge geometry at desktop, tablet and mobile widths.","acceptance_check":"Screenshots and bounding rectangles show no clipped white semicircles, border fragment or horizontal page overflow."},
+    {"rejection":"The spa slider remains two competing tab systems or cards appear detached from the controls.","prevention":"Establish one grouped slider surface with primary date navigation and quieter party selection.","acceptance_check":"Desktop and mobile inspection shows one coherent section with a single dominant decision at a time."},
+    {"rejection":"Spa images are blurred, stretched or crop the subject.","prevention":"Audit media source resolution and enforce one art-directed aspect ratio and object-fit policy.","acceptance_check":"Every visible spa slider image preserves aspect ratio, covers the frame intentionally and has sufficient source pixels."},
+    {"rejection":"Internal labels, disclaimers, exposed native scrollbars, clipped rails or empty bands remain elsewhere on shared public components.","prevention":"Search all public sources for the reported copy patterns and expand each visual defect to its shared component family.","acceptance_check":"The attached twelve-image inventory is resolved twice: once in the exact source/component and once in the frozen public release."},
+    {"rejection":"The release breaks existing prices, availability, audiences, navigation or card actions.","prevention":"Record invariants and run focused plus shared-family regression before and after publication.","acceptance_check":"Existing functional suites pass and public smoke checks retain price, availability and action behavior."}
+  ],
+  "affected_family": [
+    "all current /holidays/[slug] routes in HE, EN, RU and FR",
+    "new /holidays hub and canonical navigation links",
+    "holiday selection parser, period derivation, API validation and search links",
+    "vacation /search quick-filter rail on desktop, tablet and mobile",
+    "spa package deal sliders on homepage, spa landing and regional placements",
+    "shared card media styles, navigation, metadata, sitemap and breadcrumbs",
+    "spa hero, spa guide cards and recommendation rails",
+    "magazine category rail, event discovery intro, event review rail and mobile nearby-area rail",
+    "all public occurrences of illustration labels and supplier-confirmation disclaimer copy"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label":"VII accepted holiday behavior","source":"C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md#דפי-חגים"},
+      {"label":"Vacation as the structural reference","source":"C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"},
+      {"label":"User screenshots for holiday periods and filter rail","source":"current task attachments"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "The first local rendered slice contains Sigd, the new holiday hub, the vacation filter rail and one spa slider at desktop and 390px.",
+    "checks": ["Sigd has no impossible periods","hub links resolve","filter rail has no panel-edge artifact","spa controls and first three card images form one coherent surface"],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can an invalid or stale period URL produce an active control or dates that cannot exist?",
+      "Does any header, hamburger, footer, breadcrumb or hub link still route Holiday and Dates to generic search?",
+      "At any tested width do the quick filters create a clipped background, border fragment or page overflow?",
+      "Does any spa slider show duplicate-priority controls or distorted, soft or semantically wrong media?",
+      "Did any targeted visual change alter live pricing, availability, audience, action or unrelated page structure?"
+    ],
+    "natural_destination_evidence": "Exact public release URL, release ID, screenshots, interaction log and HTTP checks.",
+    "affected_family_evidence": "Holiday route matrix, navigation matrix, filter breakpoint matrix and spa slider placement/card matrix."
+  },
+  "effectiveness": {
+    "baseline": "Public release 520 visibly shows redundant holiday period controls and a clipped white quick-filter panel; spa slider coherence and media quality are reported defective.",
+    "measurements": ["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],
+    "target": "One frozen candidate passes all four changed families without a corrective republish."
+  },
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

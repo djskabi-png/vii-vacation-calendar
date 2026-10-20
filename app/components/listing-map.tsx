@@ -111,7 +111,6 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
         ? { zoomIn: "Agrandir la carte", zoomOut: "R\u00e9duire la carte", cluster: "Agrandir les lieux regroup\u00e9s" }
         : { zoomIn: "\u05d4\u05d2\u05d3\u05dc\u05ea \u05d4\u05de\u05e4\u05d4", zoomOut: "\u05d4\u05e7\u05d8\u05e0\u05ea \u05d4\u05de\u05e4\u05d4", cluster: "\u05d4\u05ea\u05e7\u05e8\u05d1\u05d5\u05ea \u05dc\u05de\u05e7\u05d5\u05de\u05d5\u05ea \u05d4\u05de\u05e7\u05d5\u05d1\u05e6\u05d9\u05dd" };
   const precisionCopy = { he: "מיקום אזורי משוער", en: "Approximate area", ru: "Приблизительный район", fr: "Zone approximative" }[language];
-  const illustrationCopy = { he: "תמונת המחשה", en: "Illustrative image", ru: "Иллюстрация", fr: "Image d’illustration" }[language];
   const regionsCopy = { he: "אזורים", en: "regions", ru: "регионов", fr: "régions" }[language];
   const mapElement = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<import("leaflet").Map | null>(null);
@@ -634,7 +633,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
     {!mapReady && (autoLoad ? <span className="map-live-loading" role="status">{mapCopy.loading}</span> : <div className="map-preview-card map-loading-preview">{previewContent}</div>)}
     {mapReady && !single && selected && <article className="map-selection-card" aria-live="polite">
       <PreviewCardGallery key={selected.id} className="map-selection-card__media" name={selected.name} images={[selected.image, ...(selected.images || [])]} href={localizedPath(selected.href, language)}>
-        <small>{selected.illustrativeImage ? `${illustrationCopy} · ${selected.category}` : selected.category}</small>
+        <small>{selected.category}</small>
       </PreviewCardGallery>
       <div className="map-selection-card__body">
         <span className="map-selection-card__location">{selected.location}</span>

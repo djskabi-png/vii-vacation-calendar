@@ -43,7 +43,24 @@
 .holiday-faq details{padding:18px;background:#fff;border:1px solid #d1e2d9;border-radius:14px}
 .holiday-faq summary{cursor:pointer;font-weight:750;line-height:1.5}
 .holiday-faq p{color:#496b5b;line-height:1.7;margin:12px 0 0}
+.holiday-hub__hero{padding:34px 0 38px;background:radial-gradient(circle at 12% 18%,#fff0cf 0 7%,transparent 30%),linear-gradient(120deg,#fffaf0,#e8f5f0 72%)}
+.holiday-hub__hero h1{font-size:clamp(2.25rem,5vw,4.7rem);letter-spacing:-.055em;line-height:1;margin:14px 0 16px}
+.holiday-hub__hero>div>p{max-width:720px;color:#49665f;font-size:clamp(1rem,1.8vw,1.2rem);line-height:1.8;margin:0}
+.holiday-hub__steps{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.holiday-hub__steps span{display:flex;align-items:center;gap:10px;min-height:48px;padding:9px 16px;border:1px solid #b9d5cb;border-radius:999px;background:#ffffffb8;color:#264f46;font-weight:700}
+.holiday-hub__steps b{color:#b57221;font-size:.72rem}
+.holiday-hub__upcoming{padding-top:44px}
+.holiday-hub__grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:22px}
+.holiday-hub__card{position:relative;display:grid;grid-template-columns:1fr auto;gap:10px 22px;min-height:220px;padding:28px;border:1px solid #cfdfda;border-radius:24px;background:#fff;overflow:hidden;box-shadow:0 12px 34px #23493f0b}
+.holiday-hub__card::after{position:absolute;inset-inline-end:-54px;bottom:-82px;width:190px;height:190px;border-radius:50%;background:#dceddf80;content:""}
+.holiday-hub__card--1::after{background:#f6dfc580}.holiday-hub__card--2::after{background:#e8dbee80}.holiday-hub__card--3::after{background:#d9e9f280}
+.holiday-hub__date{grid-column:1/-1;display:flex;gap:10px;align-items:center;color:#4e6d64;font-size:.78rem}
+.holiday-hub__date svg{width:19px;color:#126454}.holiday-hub__date span{display:flex;gap:7px;flex-wrap:wrap}.holiday-hub__date i{font-style:normal;color:#92aaa3}
+.holiday-hub__card h3{font-size:clamp(1.45rem,2.5vw,2.1rem);margin:18px 0 0;align-self:end}.holiday-hub__card p{grid-column:1/-1;margin:0;color:#5a746c}
+.holiday-hub__card a{position:relative;z-index:1;grid-column:1/-1;justify-self:start;display:inline-flex;align-items:center;gap:8px;color:#0e6757;font-weight:800;text-decoration:none;min-height:44px}.holiday-hub__card a svg{width:18px}
+.holiday-hub__empty{text-align:center;padding:44px;border-radius:20px;background:#eef6f2}.holiday-hub__empty p{color:#4d6b61}
 @keyframes holiday-spin{to{transform:rotate(360deg)}}
 @media(max-width:1000px){.holiday-deals__grid{grid-template-columns:repeat(2,minmax(0,1fr))}.holiday-audience-tabs button{flex:1;padding:10px 12px}.holiday-story{grid-template-columns:1fr;gap:24px}}
+@media(max-width:700px){.holiday-hub__hero{padding:20px 0 26px}.holiday-hub__steps{display:grid;grid-template-columns:1fr;margin-top:20px}.holiday-hub__steps span{min-height:44px}.holiday-hub__grid{grid-template-columns:1fr}.holiday-hub__card{min-height:200px;padding:22px}.holiday-hub__upcoming{padding-top:30px}}
 @media(max-width:600px){.holiday-hero{padding:16px 0}.holiday-hero__content{gap:8px}.holiday-hero__content>p{font-size:.86rem}.holiday-hero__proof{font-size:.7rem;gap:5px 12px}.holiday-deals.section{padding-top:16px}.holiday-audience-tabs{gap:6px;padding-bottom:10px}.holiday-audience-tabs button{display:grid;grid-template-columns:auto 1fr;gap:3px 7px;min-height:64px;padding:9px 6px;font-size:.8rem;border-radius:12px}.holiday-audience-tabs button svg{width:19px;grid-row:1/3;justify-self:end}.holiday-audience-tabs button span{white-space:normal;line-height:1.3;text-align:start}.holiday-audience-tabs button small{font-size:.65rem;text-align:start}.holiday-periods{gap:5px;padding:10px 0 14px}.holiday-periods>svg{display:none}.holiday-periods button{padding:8px 10px;font-size:.72rem;flex:1}.holiday-results-heading{display:block}.holiday-results-heading>a{margin-top:2px;min-height:32px}.holiday-results-heading p{font-size:.77rem}.holiday-window-note{font-size:.73rem}.holiday-deals__grid{grid-template-columns:1fr;gap:18px}.holiday-faq__list{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.holiday-deals__spinner{animation:none}.holiday-audience-tabs button{transition:none}}

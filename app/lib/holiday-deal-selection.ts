@@ -10,12 +10,23 @@ export type HolidayAudience = typeof holidayAudiences[number]["id"];
 export type HolidayPart = typeof holidayParts[number];
 export type HolidaySelection = { audience: HolidayAudience; part: HolidayPart };
 
-export function holidaySelection(params: { get(name: string): string | null }): HolidaySelection {
+export function availableHolidayParts(holiday: Pick<HomeHoliday, "from" | "till" | "nights">): HolidayPart[] {
+  const parts: HolidayPart[] = ["all"];
+  const seen = new Set([JSON.stringify(holidayDealWindow(holiday, "all"))]);
+  for (const part of holidayParts.slice(1)) {
+    const window = holidayDealWindow(holiday, part);
+    const key = JSON.stringify(window);
+    if (!seen.has(key)) { parts.push(part); seen.add(key); }
+  }
+  return parts;
+}
+
+export function holidaySelection(params: { get(name: string): string | null }, holiday?: Pick<HomeHoliday, "from" | "till" | "nights">): HolidaySelection {
   const audience = params.get("audience");
   const part = params.get("part");
   return {
     audience: holidayAudiences.some((item) => item.id === audience) ? audience as HolidayAudience : "couple",
-    part: holidayParts.includes(part as HolidayPart) ? part as HolidayPart : "all",
+    part: holidayParts.includes(part as HolidayPart) && (!holiday || availableHolidayParts(holiday).includes(part as HolidayPart)) ? part as HolidayPart : "all",
   };
 }
 

@@ -287,7 +287,6 @@ function VisualDiscoveryRail({ title, links }: { title: string; links: VisualDis
     <nav id={railId} ref={railRef} className="search-depth__rail search-depth__visual-rail" data-horizontal-rail aria-label={title}>
       {links.map((item) => <Link className="search-depth__visual-card" key={`${item.href}-${item.label}`} href={item.href}>
         <span className="search-depth__visual-media"><Image src={item.image} alt={item.imageLabel ? `${item.label}, ${item.imageLabel}` : item.label} title={item.imageLabel ? `${item.label}, ${item.imageLabel}` : item.label} width={560} height={360} loading="lazy" /></span>
-        {item.imageLabel ? <span className="image-context-label">{item.imageLabel}</span> : null}
         <span className="search-depth__visual-body"><strong>{item.label}</strong><small>{item.meta}</small><span aria-hidden="true">←</span></span>
       </Link>)}
     </nav>
@@ -472,7 +471,7 @@ export function SearchAfterResults({
   const trailLinks: VisualDiscoveryLink[] = contextualComplementsAllowed ? depthSeed.trails
     .map((trail) => ({ trail, score: trail.areaTags.reduce((score, tag) => matchesDepthTerm(tag, location || "", locationLayers.contextArea) ? Math.max(score, tag === location ? 3 : 1) : score, 0) }))
     .filter(({ score }) => score > 0).sort((a, b) => b.score - a.score).slice(0, 8)
-    .map(({ trail }) => ({ label: translate(trail.name), href: localizedPath(`/trails/${trail.slug}`, language), meta: language === "he" ? trail.meta : `${translate(trail.mainArea)} · ${translate(trail.region)}`, image: trail.image, imageLabel: language === "he" ? "תמונת המחשה" : language === "en" ? "Illustrative image" : language === "ru" ? "Иллюстрация" : "Image d’illustration" })) : [];
+    .map(({ trail }) => ({ label: translate(trail.name), href: localizedPath(`/trails/${trail.slug}`, language), meta: language === "he" ? trail.meta : `${translate(trail.mainArea)} · ${translate(trail.region)}`, image: trail.image })) : [];
   const providerLinks: VisualDiscoveryLink[] = contextualComplementsAllowed ? depthSeed.providers
     .filter((provider) => {
       const coverage = [provider.location, ...provider.serviceAreas];

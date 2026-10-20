@@ -21,7 +21,7 @@ test("trail details answer the critical visit questions in the first screen", ()
   assert.match(page, /faqSchema\(trailFaqs\)/);
 });
 
-test("all trail illustrations expose accurate text and distinct matching JPEG files", async () => {
+test("all trail visuals expose useful route text without public production labels and use distinct matching JPEG files", async () => {
   const data = await readFile(new URL("../app/data/trail-data.ts", import.meta.url), "utf8");
   const compile = (source) => ts.transpileModule(source, { compilerOptions: {
     module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.React,
@@ -41,9 +41,9 @@ test("all trail illustrations expose accurate text and distinct matching JPEG fi
     assert.equal(bytes.readUInt16BE(bytes.length - 2), 0xffd9);
     hashes.add(createHash("sha256").update(bytes).digest("hex"));
     const html = renderToStaticMarkup(React.createElement(TrailVisual, { trail }));
-    assert.ok(html.includes(`title="תמונת המחשה למסלול ${trail.name}"`));
-    assert.ok(html.includes(`alt="תמונת המחשה למסלול ${trail.name}: ${trail.highlights.slice(0, 2).join(" ו")}."`));
-    assert.ok(html.includes('image-context-label">תמונת המחשה</span>'));
+    assert.ok(html.includes(`title="נוף לאורך מסלול ${trail.name}"`));
+    assert.ok(html.includes(`alt="נוף לאורך מסלול ${trail.name}: ${trail.highlights.slice(0, 2).join(" ו")}."`));
+    assert.ok(!html.includes('image-context-label'));
     assert.ok(!html.includes('aria-hidden="true"'));
   }
   assert.equal(hashes.size, 48);
