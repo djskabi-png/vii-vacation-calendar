@@ -13,6 +13,21 @@ const storagePrefix = "vii-discovery-v2:";
 const defaultTimeoutMs = 5_000;
 const defaultFreshMs = 120_000;
 const defaultStaleMs = 86_400_000;
+let initialDocumentReady: Promise<void> | undefined;
+
+/** Start discovery I/O immediately, but never commit a cached or network
+ * result while React is still hydrating streamed HTML. Fast cache responses
+ * used to win that race and replace rail text before its boundary hydrated. */
+function waitForInitialDocument(): Promise<void> {
+  if (typeof window === "undefined" || typeof document === "undefined") return Promise.resolve();
+  if (initialDocumentReady) return initialDocumentReady;
+  initialDocumentReady = new Promise((resolve) => {
+    const afterLoad = () => requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+    if (document.readyState === "complete") afterLoad();
+    else window.addEventListener("load", afterLoad, { once: true });
+  });
+  return initialDocumentReady;
+}
 
 class DiscoveryResponseError extends Error {
   readonly status: number;
@@ -133,11 +148,17 @@ export async function discoveryJson<T>(url: string, scope: string, init: Discove
     if (previous && previous.staleUntil > Date.now()) return clone<T>(previous.value);
     throw failure ?? new Error("discovery_unavailable");
   };
+  const release = async <Value>(pending: Promise<Value> | Value) => {
+    const result = await pending;
+    await waitForInitialDocument();
+    if (requestInit.signal?.aborted) throw requestInit.signal.reason ?? new DOMException("Aborted", "AbortError");
+    return result;
+  };
   if (requestInit.signal?.aborted) throw requestInit.signal.reason ?? new DOMException("Aborted", "AbortError");
-  if (previous?.freshUntil && previous.freshUntil > Date.now()) return clone<T>(previous.value);
+  if (previous?.freshUntil && previous.freshUntil > Date.now()) return release(clone<T>(previous.value));
   if (previous?.staleUntil && previous.staleUntil > Date.now()) {
     void load().catch(() => {});
-    return clone<T>(previous.value);
+    return release(clone<T>(previous.value));
   }
-  return load();
+  return release(load());
 }
