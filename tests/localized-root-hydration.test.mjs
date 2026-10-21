@@ -12,3 +12,11 @@ test("localized root metadata is rendered before hydration", async () => {
   assert.match(layout, /default:\s*localizedRootTitles\[locale\]/);
   assert.match(layout, /template:\s*localizedTitleTemplates\[locale\]/);
 });
+
+test("same-origin APIs cannot race the initial streamed hydration", async () => {
+  const layout = await readFile(new URL("../app/layout.tsx", import.meta.url), "utf8");
+  assert.match(layout, /apiHydrationGate/);
+  assert.match(layout, /target\.origin===location\.origin&&target\.pathname\.indexOf\('\/api\/'\)===0/);
+  assert.match(layout, /window\.addEventListener\('load',open,\{once:true\}\)/);
+  assert.match(layout, /setTimeout\(function\(\)\{release\(\);window\.fetch=original\},800\)/);
+});
