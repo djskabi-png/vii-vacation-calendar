@@ -147,6 +147,11 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
     return [...result].sort((a, b) => {
       if (sort === "capacity") return b.guests - a.guests;
       if (sort === "name") return a.name.localeCompare(b.name, "he");
+      if (undatedSearch) {
+        const startingPricePriority = Number(!supplierStartingPrice(startingPrices[a.slug] ?? a))
+          - Number(!supplierStartingPrice(startingPrices[b.slug] ?? b));
+        if (startingPricePriority) return startingPricePriority;
+      }
       if (eventFrom && guests && supplierSearch.status === "ready") {
         const rank = (place: EventPlace) => {
           const match = /^event-(\d+)$/.exec(place.slug);
@@ -158,7 +163,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
       }
       return dailyRotationCompare(a.slug, b.slug, "event-search");
     });
-  }, [accessibleOnly, area, eventFrom, eventPlaces, eventType, eventTypes, guests, noNoiseLimit, sort, supplierSearch.results, supplierSearch.status, type, types]);
+  }, [accessibleOnly, area, eventFrom, eventPlaces, eventType, eventTypes, guests, noNoiseLimit, sort, startingPrices, supplierSearch.results, supplierSearch.status, type, types, undatedSearch]);
 
   const nearbyRecovery = useMemo(() => {
     if (filtered.length >= 3 || area === "הכל" || area === "כל הארץ") return [];

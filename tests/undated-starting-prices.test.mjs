@@ -118,6 +118,7 @@ test('all search card callers guard dates without changing live quotes, ranking 
   assert.equal((read('app/search/page.tsx').match(/catalogStartingPrices=\{startingPrices\[property.slug\]\}/g)||[]).length,2);
   assert.match(events,/useStartingPrices\("events", undatedSearch\)/);
   assert.match(events,/startingPrice=\{undatedSearch \? supplierStartingPrice/);
+  assert.match(events,/if \(undatedSearch\)[\s\S]*startingPricePriority/);
   assert.match(read('app/components/event-result-card.tsx'),/supplierStatus \? <p[^]*? : startingPrice \? <CatalogStartingPrice/);
   assert.doesNotMatch(read('app/components/catalog-starting-price.tsx'),/night|per event|ללילה|לאירוע|onlineBooking|available/);
   assert.match(read('app/lib/sergey-public-catalog-client.ts'),/\.\.\.startingPriceFields\(raw\)/);

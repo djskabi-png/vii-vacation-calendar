@@ -68,7 +68,14 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
     if (!place.image || confirmed.has(place.slug)) return [];
     if (scope && !matchesSearchLocation(place, scope.label)) return [];
     return [homeEventPhotography(place)];
-  }), { id: place => place.slug, seed: `${documentSeed}:${sectionId}:${date}:more` }).slice(0, Math.max(0, 20 - candidates.length));
+  }), {
+    id: place => place.slug,
+    seed: `${documentSeed}:${sectionId}:${date}:more`,
+    // Without a selected date, an accepted supplier advertising floor is the
+    // useful commercial fact. Keep those cards first instead of letting the
+    // daily rotation make the restored starting-price field look missing.
+    priority: place => supplierStartingPrice(startingPrices[place.slug] ?? place) ? 0 : 1,
+  }).slice(0, Math.max(0, 20 - candidates.length));
   const searchPath = eventSearchHref(scope?.label);
   const busy = search.status === "loading" || !initialized;
 
@@ -91,7 +98,7 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
     <div id={`${sectionId}-results`} role="tabpanel" aria-busy={busy} aria-live="polite">
       {scope && search.status === "ready" && search.expandedRegion && candidates.length > 0 ? <p className="regional-availability__expansion" data-no-translate>{regionalExpansionCopy[language]}</p> : null}
       {busy && !additionalPlaces.length ? <div className="event-deals__loading" role="status"><p>{text.loading}</p><div className="home-live-deals__loading-cards" aria-hidden="true">{[0, 1, 2].map((index) => <div className="home-live-deals__loading-card" key={index}><div className="home-live-deals__loading-image" /><div className="home-live-deals__loading-lines"><span /><span /><span /></div></div>)}</div></div> : null}
-      {search.status === "error" ? <div className="event-rail-status" role="alert"><p>{text.error}</p><button type="button" className="button secondary" onClick={() => setRetry((value) => value + 1)}>{text.retry}</button></div> : null}
+      {search.status === "error" && !additionalPlaces.length ? <div className="event-rail-status" role="alert"><p>{text.error}</p><button type="button" className="button secondary" onClick={() => setRetry((value) => value + 1)}>{text.retry}</button></div> : null}
       {search.status === "ready" && !candidates.length ? <p className="event-rail-status">{text.empty}</p> : null}
       {initialized && search.status === "idle" ? <p className="event-rail-status">{translate("בחרו תאריך")}</p> : null}
       {candidates.length || additionalPlaces.length ? <EventRail key={`${date}-${guests}`} title={title}>{candidates.map(({ place, offer }) => {
