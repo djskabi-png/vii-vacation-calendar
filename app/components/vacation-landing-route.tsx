@@ -8,11 +8,11 @@ import { publicVacationSearchProperties } from "../lib/public-vacation-search";
 import { StructuredData } from "./structured-data";
 import { breadcrumbSchema, collectionSchema } from "../lib/seo";
 import { vacationRegionBySlug, vacationRegionListings } from "../data/vacation-landings";
+import { completeNearbyResults, nearbySearchRecommendations } from "../lib/nearby-recommendations.ts";
 
 export async function vacationLandingMetadata(regionSlug?: string | null): Promise<Metadata> {
   const region = vacationRegionBySlug(regionSlug);
-  const inventory = await publicCatalogSummaries<Property>("vacations");
-  if (!region || !vacationRegionListings(region, inventory).length) return {};
+  if (!region) return {};
   const title = `נופש ב${region.label}`;
   const description = `מקומות נופש פעילים ב${region.label}, עם תמונות, פרטי חדרים, מתקנים ואפשרויות הזמנה.`;
   const path = `/vacations/${region.slug}`;
@@ -24,13 +24,16 @@ export async function VacationLandingRoute({ regionSlug }: { regionSlug?: string
   const region = vacationRegionBySlug(regionSlug);
   if (!region) notFound();
   const listings = vacationRegionListings(region, publishedProperties);
-  if (!listings.length) notFound();
+  const represented = completeNearbyResults(listings, nearbySearchRecommendations(publishedProperties, region.label, [], {
+    key: (property) => property.slug,
+    origin: { location: region.label, area: region.label },
+  }), (property) => property.slug);
   const path = `/vacations/${region.slug}`;
   const title = `נופש ב${region.label}`;
   const description = `מקומות נופש פעילים ב${region.label}, עם תמונות, פרטי חדרים, מתקנים ואפשרויות הזמנה.`;
   return <>
     <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, { name: title, path }])} />
-    <StructuredData data={collectionSchema(title, description, path, listings.map((property) => ({ name: property.name, path: `/business?id=${property.slug}`, image: property.image })))} />
+    <StructuredData data={collectionSchema(title, description, path, represented.map((property) => ({ name: property.name, path: `/business?id=${property.slug}`, image: property.image })))} />
     <PublishedCatalogSeed world="vacations" entries={publishedProperties}><SearchExperience landing={{ path, title, description, breadcrumb: title, type: "הכל", area: region.label, listingSlugs: listings.map((property) => property.slug) }} /></PublishedCatalogSeed>
   </>;
 }

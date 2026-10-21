@@ -8,6 +8,7 @@ import { breadcrumbSchema, collectionSchema } from "../lib/seo";
 import { matchesSearchLocation } from "../data/search-taxonomy";
 import { hourlySearchHref } from "../data/world-search-landings";
 import { publishedSearchPage } from "../lib/search-page-content.ts";
+import { completeNearbyResults, nearbySearchRecommendations } from "../lib/nearby-recommendations.ts";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +30,12 @@ export async function HourlyLanding({ initialLocation }: { initialLocation?: str
   const matchingItems = initialLocation
     ? hourlyPlaces.filter((place) => matchesSearchLocation(place, initialLocation))
     : hourlyPlaces;
+  const representedItems = initialLocation
+    ? completeNearbyResults(matchingItems, nearbySearchRecommendations(hourlyPlaces, initialLocation, [], {
+      key: (place) => place.id,
+      origin: { location: initialLocation, area: initialLocation },
+    }), (place) => place.id)
+    : matchingItems;
 
   return <>
     <StructuredData data={breadcrumbSchema([
@@ -36,7 +43,7 @@ export async function HourlyLanding({ initialLocation }: { initialLocation?: str
       { name: "חדרים לפי שעה", path: "/hourly/" },
       ...(initialLocation ? [{ name: displayTitle, path }] : []),
     ])} />
-    <StructuredData data={collectionSchema(displayTitle, displayDescription, path, matchingItems.map((place) => ({ name: place.name, path: `/discover/place/${place.id}`, image: place.image })))} />
+    <StructuredData data={collectionSchema(displayTitle, displayDescription, path, representedItems.map((place) => ({ name: place.name, path: `/discover/place/${place.id}`, image: place.image })))} />
     <WorldLanding
       world="hourly"
       title={displayTitle}

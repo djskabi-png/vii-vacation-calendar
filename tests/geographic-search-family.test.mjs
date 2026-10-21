@@ -3,7 +3,7 @@ import test from 'node:test';
 import {readFileSync} from 'node:fs';
 import {spaSearchStateFromValues,spaSearchHref,spaSearchTitle,spaItemMatchesSearch} from '../app/data/spa-search-landings.ts';
 import {vacationRegionByLabel,cleanVacationPath} from '../app/data/vacation-landings.ts';
-import {eventSearchHref,hourlySearchHref,searchLocationFromSlug} from '../app/data/world-search-landings.ts';
+import {eventSearchHref,hourlySearchHref,mergeSearchHref,searchLocationFromSlug} from '../app/data/world-search-landings.ts';
 import {regionalAvailabilityRegion,selectRegionalOffers} from '../app/lib/regional-availability.ts';
 const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 test('equivalent scopes use one clean route per world without dropping selection',()=>{
@@ -22,6 +22,30 @@ test('equivalent scopes use one clean route per world without dropping selection
  }
  assert.equal(vacationRegionByLabel('תל אביב').slug,'tel-aviv');
  assert.equal(searchLocationFromSlug('events','tel-aviv-area'),'תל אביב וגוש דן');
+});
+test('semantic location routes accept every location they can generate, independent of curated world options',()=>{
+ assert.equal(hourlySearchHref('חיפה'),'/hourly/search/haifa');
+ assert.equal(searchLocationFromSlug('hourly','haifa'),'חיפה');
+ assert.equal(searchLocationFromSlug('hourly','haifa-carmel'),'חיפה והכרמל');
+ assert.equal(searchLocationFromSlug('events','eilat'),'אילת והערבה');
+ assert.equal(searchLocationFromSlug('hourly','not-a-real-place'),undefined);
+});
+test('live catalog cities without a semantic slug keep their location as a query and retain hard filters',()=>{
+ assert.equal(hourlySearchHref('טירת כרמל'),'/hourly?location=%D7%98%D7%99%D7%A8%D7%AA%20%D7%9B%D7%A8%D7%9E%D7%9C');
+ assert.equal(eventSearchHref('טירת כרמל'),'/events/search?location=%D7%98%D7%99%D7%A8%D7%AA%20%D7%9B%D7%A8%D7%9E%D7%9C');
+ assert.equal(mergeSearchHref(hourlySearchHref('טירת כרמל'),new URLSearchParams({maxPrice:'250'})),'/hourly?location=%D7%98%D7%99%D7%A8%D7%AA+%D7%9B%D7%A8%D7%9E%D7%9C&maxPrice=250');
+});
+test('known sparse semantic routes reach nearby recovery instead of returning a false 404',()=>{
+ const hourlyRoute=read('app/hourly/search/[region]/page.tsx');
+ const eventRoute=read('app/events/search/[region]/page.tsx');
+ const vacationRoute=read('app/components/vacation-landing-route.tsx');
+ assert.match(hourlyRoute,/if \(!location\) notFound\(\)/);
+ assert.doesNotMatch(hourlyRoute,/\.some\(\(place\) => matchesSearchLocation/);
+ assert.match(eventRoute,/if \(!location\) notFound\(\)/);
+ assert.doesNotMatch(eventRoute,/if \(!matching\.length\) notFound\(\)/);
+ assert.match(eventRoute,/nearbySearchRecommendations/);
+ assert.doesNotMatch(vacationRoute,/if \(!listings\.length\) notFound\(\)/);
+ assert.match(vacationRoute,/nearbySearchRecommendations/);
 });
 test('new metro titles are localized and retain audience and feature constraints',()=>{
  const state=spaSearchStateFromValues('גוש דן','couple',['pool']);

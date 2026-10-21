@@ -1,5 +1,4 @@
 import type { SearchMode } from "./search-taxonomy";
-import { searchLocationOptions } from "./search-taxonomy.ts";
 import { canonicalSearchLocation } from "../lib/geographic-names.ts";
 
 const locationSlugs: Record<string, string> = {
@@ -26,23 +25,40 @@ export function searchLocationSlug(location: string) {
 
 export function searchLocationFromSlug(mode: SearchMode, slug: string | undefined) {
   if (!slug) return undefined;
-  return searchLocationOptions(mode).find((location) => locationSlugs[location] === slug);
+  // Route parsing must mirror route creation. A location can be offered by the
+  // managed geography or live catalog even when it is not in a world's small
+  // curated picker. Reject only slugs we never generate or recognize.
+  void mode;
+  return Object.entries(locationSlugs).find(([, candidate]) => candidate === slug)?.[0];
+}
+
+function locationHref(semanticBasePath: string, fallbackPath: string, location?: string) {
+  if (!location || location === "הכל" || location === "כל הארץ") return fallbackPath;
+  const canonical = canonicalSearchLocation(location);
+  const slug = searchLocationSlug(canonical);
+  return slug ? `${semanticBasePath}/${slug}` : `${fallbackPath}?location=${encodeURIComponent(canonical)}`;
+}
+
+export function mergeSearchHref(href: string, updates: URLSearchParams) {
+  const [path, existing = ""] = href.split("?", 2);
+  const params = new URLSearchParams(existing);
+  updates.forEach((value, key) => params.set(key, value));
+  const query = params.toString();
+  return query ? `${path}?${query}` : path;
 }
 
 export function eventSearchHref(location?: string) {
-  const slug = location && location !== "הכל" && location !== "כל הארץ" ? searchLocationSlug(location) : undefined;
-  return slug ? `/events/search/${slug}` : "/events/search";
+  return locationHref("/events/search", "/events/search", location);
 }
 
 export function hourlySearchHref(location?: string) {
-  const slug = location && location !== "הכל" && location !== "כל הארץ" ? searchLocationSlug(location) : undefined;
-  return slug ? `/hourly/search/${slug}` : "/hourly";
+  return locationHref("/hourly/search", "/hourly", location);
 }
 
 export function hourlyBreadcrumbForLocation(area: string, location?: string) {
   const candidate = [area, location]
     .map((value) => value?.trim())
-    .find((value): value is string => Boolean(value && searchLocationSlug(value)));
+    .find((value): value is string => Boolean(value && value !== "הכל" && value !== "כל הארץ"));
 
   return candidate
     ? { name: `חדרים לפי שעה ב${canonicalSearchLocation(candidate)}`, path: hourlySearchHref(candidate) }

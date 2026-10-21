@@ -8,6 +8,7 @@ import { eventSearchHref, searchLocationFromSlug } from "../../../data/world-sea
 import { StructuredData } from "../../../components/structured-data";
 import { breadcrumbSchema, collectionSchema } from "../../../lib/seo";
 import { publishedSearchPage } from "../../../lib/search-page-content.ts";
+import { completeNearbyResults, nearbySearchRecommendations } from "../../../lib/nearby-recommendations.ts";
 
 export const dynamic = "force-dynamic";
 
@@ -37,9 +38,12 @@ export default async function EventRegionPage({ params }: PageProps) {
   const { region } = await params;
   const location = locationFor(region);
   if (!location) notFound();
-  const matching = (await publicCatalogSummaries<EventPlace>("events"))
-    .filter((place) => matchesSearchLocation(place, location));
-  if (!matching.length) notFound();
+  const places = await publicCatalogSummaries<EventPlace>("events");
+  const matching = places.filter((place) => matchesSearchLocation(place, location));
+  const represented = completeNearbyResults(matching, nearbySearchRecommendations(places, location, [], {
+    key: (place) => place.slug,
+    origin: { location, area: location },
+  }), (place) => place.slug);
   const title = `מקומות לאירועים ב${location}`;
   const description = `מקומות לאירועים ב${location}, עם תמונות, מתקנים ופנייה ישירה למקום.`;
   const path = eventSearchHref(location);
@@ -52,7 +56,7 @@ export default async function EventRegionPage({ params }: PageProps) {
       { name: "אירועים", path: "/events/" },
       { name: displayTitle, path },
     ])} />
-    <StructuredData data={collectionSchema(displayTitle, displayDescription, path, matching.map((place) => ({ name: place.name, path: `/events/place/${place.slug}`, image: place.image })))} />
+    <StructuredData data={collectionSchema(displayTitle, displayDescription, path, represented.map((place) => ({ name: place.name, path: `/events/place/${place.slug}`, image: place.image })))} />
     <EventSearchPage initialArea={location} landingTitle={displayTitle} landingDescription={displayDescription} />
   </>;
 }

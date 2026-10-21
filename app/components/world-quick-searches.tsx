@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { SearchMode } from "../data/search-taxonomy";
-import { hourlySearchHref } from "../data/world-search-landings";
+import { hourlySearchHref, mergeSearchHref } from "../data/world-search-landings";
 import { spaSearchHref, spaSearchStateFromValues } from "../data/spa-search-landings";
 
 const quickSearches: Partial<Record<SearchMode, Array<{ label: string; href: string }>>> = {
@@ -24,7 +24,7 @@ export function WorldQuickSearches({ mode, initialLocation, initialSpaAudience }
   const spaFeatureIds = ["couples", "day-pass", "hotel", "pool"];
   const contextualLinks = links.map((link, index) => {
     if (mode === "spa") return { ...link, href: spaSearchHref(spaSearchStateFromValues(initialLocation, initialSpaAudience, [spaFeatureIds[index]])) };
-    if (mode === "hourly" && initialLocation) return { ...link, href: `${hourlySearchHref(initialLocation)}${link.href.includes("?") ? link.href.slice(link.href.indexOf("?")) : ""}` };
+    if (mode === "hourly" && initialLocation) return { ...link, href: mergeSearchHref(hourlySearchHref(initialLocation), new URLSearchParams(link.href.split("?")[1] || "")) };
     return link;
   });
 

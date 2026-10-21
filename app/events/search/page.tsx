@@ -21,7 +21,7 @@ import { CloseIcon, MapIcon, PinIcon } from "../../site-header";
 import { BreadcrumbTrail } from "../../components/breadcrumb-trail";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMapViewState } from "../../components/map-view-state";
-import { eventSearchHref } from "../../data/world-search-landings";
+import { eventSearchHref, mergeSearchHref } from "../../data/world-search-landings";
 import { localizedPath } from "../../i18n/locale-routing";
 import { useSiteLanguage } from "../../i18n/locale-provider";
 import { dailyRotationCompare } from "../../lib/daily-rotation";
@@ -78,9 +78,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
     const requestedArea = updates.location === undefined ? area : updates.location || "הכל";
     params.delete("location");
     const path = eventSearchHref(requestedArea);
-    if (path === "/events/search" && requestedArea !== "הכל" && requestedArea !== "כל הארץ") params.set("location", requestedArea);
-    const query = params.toString();
-    router.push(localizedPath(`${path}${query ? `?${query}` : ""}`, language));
+    router.push(localizedPath(mergeSearchHref(path, params), language));
   }
 
   function changeFilter(key: "location" | "type" | "eventType" | "guests" | "noise" | "accessible" | "sort" | "slot", value: string | boolean | number) {

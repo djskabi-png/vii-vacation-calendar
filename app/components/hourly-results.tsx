@@ -9,7 +9,7 @@ import { MapIcon } from "../site-header";
 import { ModernSelect } from "./modern-select";
 import { useMapViewState } from "./map-view-state";
 import { verifiedHourlyPrice } from "../data/hourly-details";
-import { hourlySearchHref } from "../data/world-search-landings";
+import { hourlySearchHref, mergeSearchHref } from "../data/world-search-landings";
 import { matchesSearchLocation } from "../data/search-taxonomy";
 import { localizedPath } from "../i18n/locale-routing";
 import { useSiteLanguage } from "../i18n/locale-provider";
@@ -109,7 +109,7 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
     const requestedLocation = updates.location === undefined ? location : updates.location || "כל הארץ";
     params.delete("location");
     const path = hourlySearchHref(requestedLocation);
-    router.push(localizedPath(`${path}${params.size ? `?${params}` : ""}`, language));
+    router.push(localizedPath(mergeSearchHref(path, params), language));
   }
 
   function changeLocation(value: string) { setLocation(value); updateUrl({ location: value }); }

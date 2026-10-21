@@ -18,7 +18,7 @@ import { cleanVacationPath } from "../data/vacation-landings";
 import { cleanAccommodationPath } from "../data/accommodation-landings";
 import { spaSearchHref, spaSearchStateFromValues } from "../data/spa-search-landings";
 import { canonicalSearchLocation, uniqueSearchLocations } from "../lib/geographic-names.ts";
-import { eventSearchHref, hourlySearchHref } from "../data/world-search-landings";
+import { eventSearchHref, hourlySearchHref, mergeSearchHref } from "../data/world-search-landings";
 import { trackSearchSubmitted } from "../lib/analytics";
 import type { PlaceSearchResult } from "../data/search-place-inventory";
 import { useManagedGeography } from "./use-managed-geography";
@@ -416,8 +416,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
     if (isHourly) {
       const params = new URLSearchParams();
       if (maximumPrice > 0) params.set("maxPrice", String(maximumPrice));
-      const query = params.toString();
-      destination = query ? `${route}?${query}` : route;
+      destination = mergeSearchHref(route, params);
     } else if (mode === "vacation" && cleanVacationRoute) {
       const params = new URLSearchParams();
       applyVacationDates(params);
@@ -427,8 +426,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
       if (vacationParty.infants) params.set("infants", String(vacationParty.infants));
       if (vacationParty.pets) params.set("pets", String(vacationParty.pets));
       if (vacationParty.rooms !== 1) params.set("rooms", String(vacationParty.rooms));
-      const query = params.toString();
-      destination = query ? `${route}?${query}` : route;
+      destination = mergeSearchHref(route, params);
     } else {
       const params = new URLSearchParams();
       if (mode === "vacation" && !basePath) {
@@ -455,8 +453,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
         if (vacationParty.pets) params.set("pets", String(vacationParty.pets));
         if (vacationParty.rooms !== 1) params.set("rooms", String(vacationParty.rooms));
       }
-      const query = params.toString();
-      destination = query ? `${route}?${query}` : route;
+      destination = mergeSearchHref(route, params);
     }
     try {
       trackSearchSubmitted({ world: mode, location: locationValue, hasDate: Boolean(mode === "spa" ? spaDate.date : mode === "events" ? eventDateRange.from : vacationDateRange.from) });
