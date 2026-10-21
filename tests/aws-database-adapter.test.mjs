@@ -74,8 +74,10 @@ test('AWS adapter restores D1 camelCase aliases folded by Aurora PostgreSQL', as
 test('AWS adapter retries one transient SELECT failure and never loops', async () => {
   const originalFetch = globalThis.fetch;
   let calls = 0;
+  const callTimes = [];
   globalThis.fetch = async () => {
     calls += 1;
+    callTimes.push(performance.now());
     if (calls === 1) return Response.json({ ok: false, error: 'temporary' }, { status: 503 });
     return Response.json({ ok: true, results: [{ success: true, results: [{ value: 7 }] }] });
   };
@@ -83,6 +85,7 @@ test('AWS adapter retries one transient SELECT failure and never loops', async (
     const db = databaseForEnv({DB:{prepare(){}},VII_AWS_DB_ENDPOINT:'https://bridge.example.test',VII_AWS_DB_TOKEN:'token',VII_AWS_DB_MODE:'primary'});
     assert.deepEqual(await db.prepare('SELECT 7 AS value').first(), { value: 7 });
     assert.equal(calls, 2);
+    assert.ok(callTimes[1] - callTimes[0] >= 100, 'retry should leave the failing backend a bounded recovery window');
   } finally { globalThis.fetch = originalFetch; }
 });
 

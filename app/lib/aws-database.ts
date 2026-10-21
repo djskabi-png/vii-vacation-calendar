@@ -24,6 +24,8 @@ type RemoteResult = {
   error?: string;
 };
 
+const TRANSIENT_READ_RETRY_DELAY_MS = 125;
+
 function sqlAliases(sql: string) {
   const aliases = new Map<string, string>();
   for (const match of sql.matchAll(/\bAS\s+(?:"([A-Za-z_][A-Za-z0-9_]*)"|([A-Za-z_][A-Za-z0-9_]*))/gi)) {
@@ -72,6 +74,10 @@ async function bridgeRequest(env: AwsDatabaseEnv, operations: RemoteOperation[],
   });
 }
 
+function waitForTransientReadRetry() {
+  return new Promise(resolve => setTimeout(resolve, TRANSIENT_READ_RETRY_DELAY_MS));
+}
+
 async function callBridge(env: AwsDatabaseEnv, operations: RemoteOperation[], transactional = false) {
   if (!configured(env)) throw new Error("VII AWS database bridge is not configured");
   const canRetry = retryableRead(operations, transactional);
@@ -82,10 +88,12 @@ async function callBridge(env: AwsDatabaseEnv, operations: RemoteOperation[], tr
   } catch (error) {
     if (!canRetry) throw error;
     retried = true;
+    await waitForTransientReadRetry();
     response = await bridgeRequest(env, operations, transactional);
   }
   if (canRetry && !retried && (response.status === 429 || response.status >= 500)) {
     await response.body?.cancel();
+    await waitForTransientReadRetry();
     response = await bridgeRequest(env, operations, transactional);
   }
   const payload = await response.json().catch(() => ({})) as {
