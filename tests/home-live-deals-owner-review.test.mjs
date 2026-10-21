@@ -24,6 +24,8 @@ test("period navigation and carousel controls reflect the active context and rea
   ]);
   assert.match(component, /לכל מקומות הנופש ברגע האחרון/);
   assert.match(component, /לכל מקומות הנופש מחמישי עד שבת/);
+  assert.match(component, /translate\(currentHoliday\.name\)/);
+  assert.match(component, /home-live-deals__all-link" suppressHydrationWarning/);
   assert.match(component, /HomeSliderControls/);
   assert.match(component, /const sectionId = scope \? `regional-vacation-\$\{scope.key\}` : mode === "holidays" \? "home-holiday-deals" : "home-live-deals"/);
   assert.match(component, /railId=\{`\$\{sectionId\}-rail`\}/);
