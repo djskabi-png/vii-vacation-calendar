@@ -25,7 +25,8 @@ async function database(): Promise<D1Database | null> {
 
 async function holidayForSlug(slug: string) {
   const holidays = await getHomeHolidays({ token: await supplierToken() }).catch(() => []);
-  return holidays.find((holiday) => holidaySlug(holiday.name, holiday.id) === slug) || fallbackHolidayForSlug(slug);
+  const legacyId = /^holiday-(\d+)$/.exec(slug)?.[1];
+  return holidays.find((holiday) => holidaySlug(holiday.name, holiday.id) === slug || (legacyId && holiday.id === Number(legacyId))) || fallbackHolidayForSlug(slug);
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -47,6 +48,7 @@ export default async function HolidayPage({ params, searchParams }: Props) {
   const { language, translate } = await serverPublicCopy();
   const source = await readHolidayWorld(holiday, await database(), language);
   const world = { ...source, name: translate(source.name), title: translate(source.title), summary: translate(source.summary), body: translate(source.body), proof: source.proof.map(translate) };
+  const heroMobileImage = world.heroImage.startsWith("/images/holidays/") ? world.heroImage.replace(/\.webp$/, "-mobile.webp") : world.heroImage;
   const query = await searchParams;
   const selection = holidaySelection({ get: (name) => typeof query?.[name] === "string" ? query[name] as string : null }, holiday);
   const faqs = [
@@ -59,12 +61,18 @@ export default async function HolidayPage({ params, searchParams }: Props) {
       <StructuredData data={breadcrumbSchema([{ name: translate("ראשי"), path: "/" }, { name: translate("נופש בחג"), path: "/holidays" }, { name: world.name, path: `/holidays/${world.slug}` }])} />
       <StructuredData data={faqSchema(faqs)} />
       <section className="holiday-hero">
-        <div className="shell">
+        <div className="shell holiday-hero__frame">
           <div className="holiday-hero__content">
             <BreadcrumbTrail items={[{ name: translate("ראשי"), path: "/" }, { name: translate("נופש בחג"), path: "/holidays" }, { name: world.name }]} />
             <h1>{world.title}</h1>
             <p>{world.summary}</p>
             <div className="holiday-hero__proof" aria-label={translate("חגים ומועדים")}>{world.proof.map((item) => <span key={item}>{item}</span>)}</div>
+          </div>
+          <div className="holiday-hero__media">
+            <picture>
+              <source media="(max-width: 760px)" srcSet={heroMobileImage} />
+              <img src={world.heroImage} alt={translate(world.heroImageAlt)} width="1600" height="900" loading="eager" fetchPriority="high" decoding="async" />
+            </picture>
           </div>
         </div>
       </section>

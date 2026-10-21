@@ -13,11 +13,21 @@
   "רמאדן": {"en":"Ramadan","fr":"Ramadan","ru":"Рамадан"},
   "יום האהבה": {"en":"Valentine’s Day","fr":"Saint-Valentin","ru":"День святого Валентина"},
   "עיד אל פיטר": {"en":"Eid al-Fitr","fr":"Aïd el-Fitr","ru":"Ураза-байрам"},
+  "פורים": {"en":"Purim","fr":"Pourim","ru":"Пурим"},
+  "חג הנביא שועייב": {"en":"Nabi Shu'ayb Festival","fr":"Fête de Nabi Shu'ayb","ru":"Праздник Наби Шуайба"},
+  "מימונה": {"en":"Mimouna","fr":"Mimouna","ru":"Мимуна"},
+  "יום הזיכרון": {"en":"Memorial Day","fr":"Jour du souvenir","ru":"День памяти"},
+  "יום העצמאות": {"en":"Independence Day","fr":"Fête de l’Indépendance","ru":"День независимости"},
+  "עיד אל אדחא": {"en":"Eid al-Adha","fr":"Aïd al-Adha","ru":"Курбан-байрам"},
+  "לג בעומר": {"en":"Lag BaOmer","fr":"Lag BaOmer","ru":"Лаг ба-Омер"},
+  "יום כיפור": {"en":"Yom Kippur","fr":"Yom Kippour","ru":"Йом-Кипур"},
   "אקווה ריזורט, וילת החוף": {"en":"Aqua Resort, Beachfront Villa","fr":"Aqua Resort, villa en bord de mer","ru":"Aqua Resort, вилла у пляжа"},
   "דילים לחנוכה 2026 שמתחילים בהרכב ובתאריך שלכם": {"en":"Hanukkah 2026 stays for your dates and group","fr":"Séjours pour Hanoucca 2026 selon vos dates et votre groupe","ru":"Отдых на Хануку 2026 для ваших дат и компании"},
   "דילים לחנוכה 2026 | נופש לזוגות, משפחות וקבוצות": {"en":"Hanukkah 2026 stays | Couples, families and groups","fr":"Séjours pour Hanoucca 2026 | Couples, familles et groupes","ru":"Отдых на Хануку 2026 | Пары, семьи и компании"},
   "מוצאים נופש לחנוכה 2026 לפי תאריך והרכב: זוגות, משפחות עד 6 וקבוצות עד 20 אורחים, בתחילת החג, באמצע או בסוף.": {"en":"Find a Hanukkah 2026 stay for a couple, a family of up to 6 or a group of up to 20. Choose dates at the beginning, middle or end of the holiday.","fr":"Trouvez un séjour pour Hanoucca 2026 en couple, en famille jusqu’à 6 personnes ou en groupe jusqu’à 20. Choisissez le début, le milieu ou la fin des fêtes.","ru":"Найдите жильё на Хануку 2026 для пары, семьи до 6 или компании до 20 гостей. Выберите начало, середину или конец праздника."},
   "נר ראשון של חנוכה תשפ״ז יודלק בערב יום שישי, 4 בדצמבר 2026. ימי החג יחולו מיום שבת, 5 בדצמבר, ועד יום שבת, 12 בדצמבר 2026. בגלל שהחג משתרע על פני כמה סופי שבוע וימי חול, חילקנו את החיפוש לחלונות קצרים וברורים במקום להציג רשימה אחת ארוכה ולא מדויקת.": {"en":"The first Hanukkah candle is lit on Friday evening, 4 December 2026. The holiday runs from Saturday, 5 December, through Saturday, 12 December. Search shorter periods to compare weekday and weekend stays without searching the whole holiday at once.","fr":"La première bougie de Hanoucca sera allumée le vendredi soir 4 décembre 2026. La fête se déroule du samedi 5 au samedi 12 décembre. Des périodes de recherche courtes permettent de comparer les séjours en semaine et le week-end sans rechercher toute la fête à la fois.","ru":"Первую свечу Хануки зажгут вечером в пятницу, 4 декабря 2026 года. Праздник продлится с субботы, 5 декабря, по субботу, 12 декабря. Короткие периоды поиска помогают сравнить будние и выходные дни, не выбирая весь праздник целиком."},
   "ערב 4 בדצמבר עד 12 בדצמבר 2026": {"en":"Evening of 4 December to 12 December 2026","fr":"Du soir du 4 décembre au 12 décembre 2026","ru":"С вечера 4 декабря по 12 декабря 2026 года"},
-  "בוחרים משפחה, זוג או קבוצה ורואים כאן דילים פנויים לתאריכי החג.": {"en":"Choose a couple, family or group to see available stays for the holiday.","fr":"Choisissez un couple, une famille ou un groupe pour voir les séjours disponibles pendant les fêtes.","ru":"Выберите пару, семью или компанию, чтобы увидеть свободные варианты на праздник."}
+  "בוחרים משפחה, זוג או קבוצה ורואים כאן דילים פנויים לתאריכי החג.": {"en":"Choose a couple, family or group to see available stays for the holiday.","fr":"Choisissez un couple, une famille ou un groupe pour voir les séjours disponibles pendant les fêtes.","ru":"Выберите пару, семью или компанию, чтобы увидеть свободные варианты на праздник."},
+  "חיפוש לפי הרכב": {"en":"Search by group size","fr":"Recherche selon le nombre de voyageurs","ru":"Поиск по числу гостей"},
+  "זמינות נבדקת בזמן אמת": {"en":"Live availability check","fr":"Disponibilités vérifiées en temps réel","ru":"Проверка наличия в реальном времени"}
 }

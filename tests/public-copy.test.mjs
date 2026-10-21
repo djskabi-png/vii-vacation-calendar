@@ -35,6 +35,14 @@ test("source boundaries apply the shared reviewed copy without broad body rewrit
 test("runtime holiday tabs use reviewed labels in every supported language", () => {
   for (const language of ["en", "fr", "ru"]) for (const name of ["סילבסטר", "רמאדן", "יום האהבה", "עיד אל פיטר"]) assert.doesNotMatch(lookupPublicCopy(name, language, dictionaries[language]), hebrew);
 });
+test("generic holiday pages localize dynamic headings, metadata, body and date proof", () => {
+  const samples = ["דילים לחג הנביא שועייב 2027", "דילים לחג הנביא שועייב 2027 | נופש בישראל", "מתכננים את חג הנביא שועייב בדרך שמתאימה לכם", "חיפוש נופש לחג הנביא שועייב 2027 לפי תאריך והרכב, עם מעבר ישיר לזמינות ולמחירים לתקופה שבחרתם.", "חג הנביא שועייב חל בין 24 באפריל 2027 לבין 25 באפריל 2027. אפשר להתחיל מחיפוש לזוג, למשפחה או לקבוצה, ולבדוק את הזמינות בפועל לתאריכים שבחרתם.", "24 באפריל 2027 עד 25 באפריל 2027"];
+  for (const language of ["en", "fr", "ru"]) for (const sample of samples) {
+    const translated = lookupPublicCopy(sample, language, dictionaries[language]);
+    assert.ok(translated, `${language}: ${sample}`);
+    assert.doesNotMatch(translated, hebrew);
+  }
+});
 test("localized alias destinations preserve language, query and hash without double prefixes", () => {
   for (const locale of ["he", "en", "fr", "ru"]) for (const path of ["/join", "/providers/chefs?location=haifa#results", "/discover/place/spa-193", "/guides/vacations-family-planning"]) {
     const expected = locale === "he" ? path : `/${locale}${path}`;

@@ -41,9 +41,63 @@ const knownSlugs: Array<[RegExp, string]> = [
   [/פסח|passover|pesach/i, "passover"],
   [/שבועות|shavuot/i, "shavuot"],
   [/פורים|purim/i, "purim"],
+  [/סילבסטר|new year/i, "new-years-eve"],
+  [/רמאדן|ramadan/i, "ramadan"],
+  [/יום האהבה|valentine/i, "valentines-day"],
+  [/עיד אל פיטר|eid al.?fitr/i, "eid-al-fitr"],
+  [/הנביא שועייב|nabi shuayb/i, "nabi-shuayb"],
+  [/מימונה|mimouna/i, "mimouna"],
+  [/יום הזיכרון|memorial day/i, "memorial-day"],
   [/יום העצמאות|independence/i, "independence-day"],
+  [/עיד אל אדחא|eid al.?adha/i, "eid-al-adha"],
+  [/לג בעומר|lag ba.?omer/i, "lag-baomer"],
+  [/יום כיפור|yom kippur/i, "yom-kippur"],
   [/סיגד|sigd/i, "sigd"],
 ];
+
+const holidayImages: Record<string, string> = {
+  sigd: "/images/holidays/sigd.webp",
+  hanukkah: "/images/holidays/hanukkah.webp",
+  "new-years-eve": "/images/holidays/new-years-eve.webp",
+  ramadan: "/images/holidays/ramadan.webp",
+  "valentines-day": "/images/holidays/valentines-day.webp",
+  "eid-al-fitr": "/images/holidays/eid-al-fitr.webp",
+  purim: "/images/holidays/purim.webp",
+  passover: "/images/holidays/passover.webp",
+  "nabi-shuayb": "/images/holidays/nabi-shuayb.webp",
+  mimouna: "/images/holidays/mimouna.webp",
+  "memorial-day": "/images/holidays/memorial-day.webp",
+  "independence-day": "/images/holidays/independence-day.webp",
+  "eid-al-adha": "/images/holidays/eid-al-adha.webp",
+  "lag-baomer": "/images/holidays/lag-baomer.webp",
+  shavuot: "/images/holidays/shavuot.webp",
+  "rosh-hashana": "/images/holidays/rosh-hashana.webp",
+  "yom-kippur": "/images/holidays/yom-kippur.webp",
+  sukkot: "/images/holidays/sukkot.webp",
+  "simchat-torah": "/images/holidays/simchat-torah.webp",
+};
+
+const holidayFallbacks: Record<string, HomeHoliday> = {
+  sigd: { id: 114, name: "חג הסיגד", from: "2026-11-08", till: "2026-11-09", nights: 1, windowSearch: false },
+  hanukkah: { id: 140, name: "חנוכה", from: "2026-12-04", till: "2026-12-11", nights: 2, windowSearch: false },
+  "new-years-eve": { id: 116, name: "סילבסטר", from: "2026-12-31", till: "2027-01-01", nights: 1, windowSearch: false },
+  ramadan: { id: 134, name: "רמאדן", from: "2027-02-07", till: "2027-03-08", nights: 2, windowSearch: false },
+  "valentines-day": { id: 139, name: "יום האהבה", from: "2027-02-13", till: "2027-02-14", nights: 1, windowSearch: false },
+  "eid-al-fitr": { id: 135, name: "עיד אל פיטר", from: "2027-03-10", till: "2027-03-12", nights: 2, windowSearch: false },
+  purim: { id: 121, name: "פורים", from: "2027-03-23", till: "2027-03-24", nights: 1, windowSearch: false },
+  passover: { id: 122, name: "פסח", from: "2027-04-21", till: "2027-04-28", nights: 2, windowSearch: false },
+  "nabi-shuayb": { id: 137, name: "חג הנביא שועייב", from: "2027-04-24", till: "2027-04-25", nights: 1, windowSearch: false },
+  mimouna: { id: 123, name: "מימונה", from: "2027-04-29", till: "2027-04-30", nights: 1, windowSearch: false },
+  "memorial-day": { id: 124, name: "יום הזיכרון", from: "2027-05-10", till: "2027-05-11", nights: 1, windowSearch: false },
+  "independence-day": { id: 125, name: "יום העצמאות", from: "2027-05-11", till: "2027-05-12", nights: 1, windowSearch: false },
+  "eid-al-adha": { id: 136, name: "עיד אל אדחא", from: "2027-05-16", till: "2027-05-19", nights: 2, windowSearch: false },
+  "lag-baomer": { id: 126, name: "לג בעומר", from: "2027-05-24", till: "2027-05-25", nights: 1, windowSearch: false },
+  shavuot: { id: 127, name: "שבועות", from: "2027-06-10", till: "2027-06-11", nights: 1, windowSearch: false },
+  "rosh-hashana": { id: 128, name: "ראש השנה", from: "2027-10-01", till: "2027-10-03", nights: 2, windowSearch: false },
+  "yom-kippur": { id: 129, name: "יום כיפור", from: "2027-10-10", till: "2027-10-11", nights: 1, windowSearch: false },
+  sukkot: { id: 131, name: "סוכות", from: "2027-10-15", till: "2027-10-21", nights: 2, windowSearch: false },
+  "simchat-torah": { id: 132, name: "שמחת תורה", from: "2027-10-22", till: "2027-10-23", nights: 1, windowSearch: false },
+};
 
 const dayMs = 86_400_000;
 const iso = (date: Date) => date.toISOString().slice(0, 10);
@@ -61,8 +115,14 @@ export function holidayWorldPath(name: string, id?: number) {
 }
 
 export function fallbackHolidayForSlug(slug: string): HomeHoliday | null {
-  if (slug !== "hanukkah") return null;
-  return { id: 0, name: "חנוכה", from: "2026-12-05", till: "2026-12-12", nights: 2, windowSearch: true };
+  const direct = holidayFallbacks[slug];
+  if (direct) return direct;
+  const legacyId = /^holiday-(\d+)$/.exec(slug)?.[1];
+  return legacyId ? Object.values(holidayFallbacks).find((holiday) => holiday.id === Number(legacyId)) || null : null;
+}
+
+export function holidayHeroImage(slug: string) {
+  return holidayImages[slug] || "/images/holidays/holiday-default.webp";
 }
 
 function searchCards(holiday: HomeHoliday): HolidaySearchCard[] {
@@ -88,8 +148,8 @@ function hanukkahCopy(holiday: HomeHoliday) {
     body: "נר ראשון של חנוכה תשפ״ז יודלק בערב יום שישי, 4 בדצמבר 2026. ימי החג יחולו מיום שבת, 5 בדצמבר, ועד יום שבת, 12 בדצמבר 2026. בגלל שהחג משתרע על פני כמה סופי שבוע וימי חול, חילקנו את החיפוש לחלונות קצרים וברורים במקום להציג רשימה אחת ארוכה ולא מדויקת.",
     metaTitle: "דילים לחנוכה 2026 | נופש לזוגות, משפחות וקבוצות",
     metaDescription: "מוצאים נופש לחנוכה 2026 לפי תאריך והרכב: זוגות, משפחות עד 6 וקבוצות עד 20 אורחים, בתחילת החג, באמצע או בסוף.",
-    heroImage: "https://www.vii.co.il/gallery/87686399e3d2342.jpg",
-    heroImageAlt: "הילת הנוף בגליל, תמונת המקום",
+    heroImage: holidayHeroImage("hanukkah"),
+    heroImageAlt: "חנוכה",
     proof: ["ערב 4 בדצמבר עד 12 בדצמבר 2026", "חיפוש לפי הרכב", "זמינות נבדקת בזמן אמת"] as [string, string, string],
   };
 }
@@ -105,8 +165,8 @@ export function defaultHolidayWorld(holiday: HomeHoliday): HolidayWorld {
     body: `${planningHoliday.name} חל בין ${dateLabel(planningHoliday.from)} לבין ${dateLabel(planningHoliday.till)}. אפשר להתחיל מחיפוש לזוג, למשפחה או לקבוצה, ולבדוק את הזמינות בפועל לתאריכים שבחרתם.`,
     metaTitle: `דילים ל${planningHoliday.name} ${year} | נופש בישראל`,
     metaDescription: `חיפוש נופש ל${planningHoliday.name} ${year} לפי תאריך והרכב, עם מעבר ישיר לזמינות ולמחירים לתקופה שבחרתם.`,
-    heroImage: "https://www.vii.co.il/gallery/46686f6045c9036.jpeg",
-    heroImageAlt: "מתחם נופש בישראל, תמונת המקום",
+    heroImage: holidayHeroImage(slug),
+    heroImageAlt: planningHoliday.name,
     proof: [`${dateLabel(holiday.from)} עד ${dateLabel(holiday.till)}`, "חיפוש לפי הרכב", "זמינות נבדקת בזמן אמת"] as [string, string, string],
   };
   return { id: holiday.id, slug, name: planningHoliday.name, year, from: planningHoliday.from, till: planningHoliday.till,
