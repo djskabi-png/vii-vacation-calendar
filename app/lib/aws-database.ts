@@ -24,6 +24,33 @@ type RemoteResult = {
   error?: string;
 };
 
+function sqlAliases(sql: string) {
+  const aliases = new Map<string, string>();
+  for (const match of sql.matchAll(/\bAS\s+(?:"([A-Za-z_][A-Za-z0-9_]*)"|([A-Za-z_][A-Za-z0-9_]*))/gi)) {
+    const alias = match[1] || match[2];
+    if (alias) aliases.set(alias.toLowerCase(), alias);
+  }
+  return aliases;
+}
+
+/** PostgreSQL folds unquoted aliases to lower case while D1 preserves the
+ * spelling written in SQL. Restore the D1 row contract at the adapter edge so
+ * application code does not silently lose camelCase fields after migration. */
+function restoreD1AliasCasing(sql: string, rows: Record<string, unknown>[] | undefined) {
+  if (!rows?.length) return rows || [];
+  const aliases = sqlAliases(sql);
+  if (![...aliases].some(([lower, alias]) => lower !== alias)) return rows;
+  return rows.map((source) => {
+    const row = { ...source };
+    for (const [lower, alias] of aliases) {
+      if (lower === alias || Object.hasOwn(row, alias) || !Object.hasOwn(row, lower)) continue;
+      row[alias] = row[lower];
+      delete row[lower];
+    }
+    return row;
+  });
+}
+
 function configured(env: AwsDatabaseEnv) {
   return env.VII_AWS_DB_MODE === "primary" && Boolean(env.VII_AWS_DB_ENDPOINT && env.VII_AWS_DB_TOKEN);
 }
@@ -72,12 +99,13 @@ class RemotePreparedStatement {
 
   async all<T = Record<string, unknown>>() {
     const [result] = await callBridge(this.env, [this.operation("all")]);
-    return { success: result.success, results: (result.results || []) as T[], meta: result.meta || {} };
+    return { success: result.success,
+      results: restoreD1AliasCasing(this.statement, result.results) as T[], meta: result.meta || {} };
   }
 
   async first<T = Record<string, unknown>>(column?: string) {
     const [result] = await callBridge(this.env, [this.operation("first")]);
-    const row = result.results?.[0] as T | undefined;
+    const row = restoreD1AliasCasing(this.statement, result.results)[0] as T | undefined;
     if (!row) return null;
     return column ? (row as Record<string, unknown>)[column] as T : row;
   }
@@ -89,7 +117,8 @@ class RemotePreparedStatement {
 
   async run<T = D1RunResult>() {
     const [result] = await callBridge(this.env, [this.operation("run")]);
-    return { success: result.success, results: result.results || [], meta: result.meta || {} } as T;
+    return { success: result.success,
+      results: restoreD1AliasCasing(this.statement, result.results), meta: result.meta || {} } as T;
   }
 }
 
@@ -112,7 +141,10 @@ class RemoteD1Database {
       // row set for writes, so requesting rows preserves both contracts.
       return remote.operation("all");
     });
-    return await callBridge(this.env, operations, true) as unknown as Awaited<ReturnType<D1Database["batch"]>>;
+    const results = await callBridge(this.env, operations, true);
+    return results.map((result, index) => ({ ...result,
+      results: restoreD1AliasCasing(operations[index].sql, result.results),
+    })) as unknown as Awaited<ReturnType<D1Database["batch"]>>;
   }
 
   async exec(sql: string) {

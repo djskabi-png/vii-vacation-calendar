@@ -41,3 +41,32 @@ test('AWS adapter leaves the original D1 binding active unless primary mode is c
   assert.equal(databaseForEnv({DB:fallback,VII_AWS_DB_MODE:'primary'}),fallback);
   assert.equal(databaseForEnv({DB:fallback,VII_AWS_DB_ENDPOINT:'https://bridge.example.test',VII_AWS_DB_TOKEN:'token'}),fallback);
 });
+
+test('AWS adapter restores D1 camelCase aliases folded by Aurora PostgreSQL', async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (_url, init) => {
+    const operations = JSON.parse(init.body).operations;
+    return Response.json({ok:true,results:operations.map(() => ({
+      success:true,
+      results:[{activerunid:'run-1',activecount:132,summaryjson:'{}'}],
+      meta:{changes:0},
+    }))});
+  };
+  try {
+    const env = {DB:{prepare(){}},VII_AWS_DB_ENDPOINT:'https://bridge.example.test',VII_AWS_DB_TOKEN:'token',VII_AWS_DB_MODE:'primary'};
+    const db = databaseForEnv(env);
+    const sql = 'SELECT active_run_id AS activeRunId, active_count AS activeCount, summary_json AS summaryJson FROM supplier_catalog_state';
+    assert.deepEqual((await db.prepare(sql).all()).results,[{
+      activeRunId:'run-1',activeCount:132,summaryJson:'{}',
+    }]);
+    assert.deepEqual(await db.prepare(sql).first(),{
+      activeRunId:'run-1',activeCount:132,summaryJson:'{}',
+    });
+    const batch = await db.batch([db.prepare(sql)]);
+    assert.deepEqual(batch[0].results,[{
+      activeRunId:'run-1',activeCount:132,summaryJson:'{}',
+    }]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
