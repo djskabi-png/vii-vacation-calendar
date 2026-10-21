@@ -12,6 +12,7 @@ import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { PinIcon } from "../site-header";
 import { trackBusinessEvent } from "../lib/analytics";
 import { DirectPhoneLink } from "./direct-phone-link";
+import { HorizontalChipRail } from "./horizontal-chip-rail";
 import { FavoriteButton } from "./favorite-button";
 import { WhatsAppLeadButton } from "./whatsapp-lead-button";
 import { ListingContactPreview, SampleListingDisclosure } from "./listing-contact-preview";
@@ -383,7 +384,7 @@ export function PropertyCard({ property, selectedStay = null, promotional = fals
         </div>
         <p className="stay-card__meta">{localizedType}{property.units && property.units > 1 ? `, ${interfaceCopy.units(property.units)}` : property.capacityScope === "unit" ? "" : `, ${interfaceCopy.whole}`} · {property.guests > 0 ? interfaceCopy.capacity(property.guests, property.capacityScope === "unit") : interfaceCopy.pending}</p>
         {cardHighlights.length ? <div className="stay-card__highlights-shell">
-          <div className="feature-chips stay-card__highlights" role="region" tabIndex={0} aria-label={interfaceCopy.highlights} data-horizontal-rail>{cardHighlights.map((feature) => <span key={feature}>{feature}</span>)}</div>
+          <HorizontalChipRail className="feature-chips stay-card__highlights" labels={cardHighlights} ariaLabel={interfaceCopy.highlights} />
         </div> : null}
         {isLiveAvailabilityLoading ? <div className="stay-card__date-status stay-card__date-status--checking" aria-live="polite"><strong>{copy.checking}</strong></div> : null}
         {isLiveAvailabilityError ? <div className="stay-card__date-status stay-card__date-status--error" aria-live="polite"><strong>{copy.unavailableSource}</strong></div> : null}

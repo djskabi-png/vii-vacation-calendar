@@ -91,6 +91,12 @@
       "requirement": "Unknown routes retain a dedicated noindex 404 with recovery paths.",
       "test_file": "tests/ten-part-polish-contract.test.mjs",
       "test_title": "404 has a dedicated noindex identity and recovery paths"
+    },
+    {
+      "id": "draggable-card-feature-row",
+      "requirement": "Clipped card feature chips remain reachable by mouse drag, touch swipe and keyboard without opening the card.",
+      "test_file": "tests/property-card-gallery.test.mjs",
+      "test_title": "feature rows support mouse drag, native touch swipe and keyboard scrolling without card navigation"
     }
   ]
 }

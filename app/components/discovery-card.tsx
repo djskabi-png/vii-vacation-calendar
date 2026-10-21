@@ -12,6 +12,7 @@ import { resolvePublicSliderMedia } from "../lib/public-media-policy";
 import { latinBusinessAlias, localizedBusinessText } from "../i18n/localized-business-content";
 import { PreviewCardGallery } from "./preview-card-gallery";
 import { CardContactActions } from "./card-contact-actions";
+import { HorizontalChipRail } from "./horizontal-chip-rail";
 
 const placeNames: Record<Exclude<SiteLanguage, "he">, Record<string, string>> = {
   en: { "תל אביב": "Tel Aviv", "ירושלים": "Jerusalem", "נהריה": "Nahariya", "חיפה": "Haifa", "רגבה": "Regba", "כמון": "Kamon", "רמת גן": "Ramat Gan", "אילת": "Eilat", "הרצליה": "Herzliya", "אשדוד": "Ashdod", "אשקלון": "Ashkelon", "טבריה": "Tiberias", "נתניה": "Netanya", "פתח תקווה": "Petah Tikva", "ראשון לציון": "Rishon LeZion", "רחובות": "Rehovot", "באר שבע": "Beersheba", "ים המלח": "Dead Sea", "מרכז": "Central Israel", "צפון": "Northern Israel", "דרום ונגב": "Southern Israel and the Negev", "ירושלים והסביבה": "Jerusalem area", "אילת והערבה": "Eilat and the Arava", "גליל מערבי": "Western Galilee", "חיפה והקריות": "Haifa area" },
@@ -108,7 +109,7 @@ export function DiscoveryCard({ item, mapActive = false, onActiveChange }: { ite
       <span className="discovery-card__meta"><PinIcon />{location}<small>{area}</small></span>
       <h3><Link className="discovery-card__stretched-link" href={detailsHref}>{localizedName}<span className="sr-only"></span></Link></h3>
       <p>{description}</p>
-      <div className="discovery-card__chips" role="region" tabIndex={0} aria-label={{he:"מאפיינים מרכזיים",en:"Key features",ru:"Основные удобства",fr:"Caractéristiques principales"}[language]}>{features.map((feature) => <span key={feature}>{feature}</span>)}</div>
+      <HorizontalChipRail className="discovery-card__chips" labels={features} ariaLabel={{he:"מאפיינים מרכזיים",en:"Key features",ru:"Основные удобства",fr:"Caractéristiques principales"}[language]} />
       <footer className={item.world === "hourly" ? "discovery-card__hourly-footer" : undefined}>
         {item.world === "hourly" ? <>
           <div className="preview-card-price-row"><strong>{price}</strong></div>
