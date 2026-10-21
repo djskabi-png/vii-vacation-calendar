@@ -21,7 +21,13 @@ import { regionalExpansionCopy } from "../i18n/regional-availability-copy";
 import { discoveryJson } from "../lib/discovery-client-cache.ts";
 import { orderDiscoveryRail } from "../lib/discovery-slider-order";
 import { useDocumentSeed } from "./use-document-seed";
-type DealResponse = { cache?:{status:string}; region?:string; expandedRegions?:Record<string,Partial<Record<SpaDealAudience,boolean>>>; checkedAt:string; days:string[]; offers:Record<string,Record<SpaDealAudience,SpaPackageDeal[]>> };
+type DealResponse = { cache?:{status:string}; availabilityStatus?:"verified"|"refreshing"; region?:string; expandedRegions?:Record<string,Partial<Record<SpaDealAudience,boolean>>>; checkedAt:string; days:string[]; offers:Record<string,Record<SpaDealAudience,SpaPackageDeal[]>> };
+const catalogNote = {
+ he:"החבילות והמחירים מוצגים מיד מהקטלוג. הזמינות מתעדכנת ברקע ונבדקת שוב בעמוד הספא.",
+ en:"Packages and catalog prices are shown immediately. Availability refreshes in the background and is checked again on the spa page.",
+ ru:"Пакеты и цены каталога показаны сразу. Наличие обновляется в фоне и снова проверяется на странице спа.",
+ fr:"Les forfaits et tarifs du catalogue s’affichent immédiatement. La disponibilité est actualisée en arrière-plan et revérifiée sur la page du spa.",
+} as const;
 const audiences:SpaDealAudience[] = ["single","couple","group"];
 export function SpaPackageDeals({sectionId="spa-package-deals",region}:{sectionId?:string;region?:string}) {
  const {language,translate} = useSiteLanguage();
@@ -82,7 +88,7 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region}:{sectionI
    {status==="error"?<div role="alert" className={`event-rail-status${data?" event-rail-status--overlay":""}`}><p>{text.error}</p><button type="button" className="button secondary" onClick={()=>{setStatus("loading");setAttempt(value=>value+1);}}>{text.retry}</button></div>:null}
    {status==="ready"&&!offers.length?<p className="event-rail-status">{text.empty}</p>:null}
    {expandedRegion && offers.length > 0 ? <p className="regional-availability__expansion">{regionalExpansionCopy[language]}</p> : null}
-   {offers.length?<><div className="spa-package-deals__context"><p>{text.requested}: {formatDate(date)}</p>{!expandedRegion ? <span>{text.order}</span> : null}</div><EventRail key={`${date}-${audience}`} title={title}>{offers.map(offer=>{
+   {offers.length?<><div className="spa-package-deals__context"><p>{data?.availabilityStatus==="refreshing"?catalogNote[language]:`${text.requested}: ${formatDate(date)}`}</p>{data?.availabilityStatus!=="refreshing"&&!expandedRegion ? <span>{text.order}</span> : null}</div><EventRail key={`${date}-${audience}`} title={title}>{offers.map(offer=>{
     const href=localizedPath(offer.href,language); const title=localizedSpaPackageTitle(offer,language,translate);
     const siteName=localizedBusinessText(offer.siteName,language,translate,latinBusinessAlias(offer.siteNameEN) || latinBusinessAlias(offer.siteName) || `Spa ${offer.siteId}`);
     const city=localizedBusinessText(offer.city,language,translate,"");

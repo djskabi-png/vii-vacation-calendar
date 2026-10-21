@@ -14,6 +14,9 @@ import { prioritizeOnlineFirst, isHomeDealOnlineEligible } from "../../../lib/va
 import { compareVacationPriority } from "../../../lib/vacation-priority.ts";
 import { runtimeDatabase } from "../../../lib/runtime-database.ts";
 import { VACATION_DISCOVERY_POLICY } from "../../../lib/warm-vacation-discovery-cache.ts";
+import { refreshVacationDiscoveryPeriod } from "../../../lib/warm-vacation-discovery-cache.ts";
+import { vacationCatalogFallbacks } from "../../../lib/discovery-catalog-fallback.ts";
+import { getRequestExecutionContext } from "vinext/shims/request-context";
 
 const noStore = { "Cache-Control": "no-store" };
 const publicDiscovery = { "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=86400" };
@@ -78,7 +81,17 @@ export async function GET(request: Request) {
     const selectedSnapshot = preparedSnapshots.find(snapshot => snapshot.period === requestedPeriod)
       ?? preparedSnapshots.find(snapshot => snapshot.period === display.defaultPeriod)
       ?? preparedSnapshots[0];
-    if (!selectedSnapshot) throw new Error("discovery_unavailable");
+    if (!selectedSnapshot) {
+      const allFallbackPlaces = vacationCatalogFallbacks(names, publicSiteIds);
+      const fallbackPlaces = region ? selectRegionalOffers(allFallbackPlaces, names.filter(place => publicSiteIds.has(place.supplierId)), region.label,
+        { placeId: place => place.siteID, key: place => String(place.siteID), limit: 20 }).offers : allFallbackPlaces;
+      const dates = homeDealDates(requestedPeriod, now);
+      const context = getRequestExecutionContext();
+      if (context && db) context.waitUntil(refreshVacationDiscoveryPeriod(db, requestedPeriod, guests, now).catch(() => undefined));
+      return Response.json({ period: requestedPeriod, requestedPeriod, dates, deals: [], fallbackPlaces, availabilityStatus: "refreshing",
+        ...(region ? { region: region.label, expandedRegion: false } : {}), display: { periods: display.periods, defaultPeriod: display.defaultPeriod } },
+      { headers: { ...publicDiscovery, "X-VII-Discovery-Cache": "catalog" } });
+    }
     const selectedPeriod = selectedSnapshot.period;
     const cached = selectedSnapshot.cached;
     const result = { ...cached.value, period: selectedPeriod };
@@ -87,7 +100,7 @@ export async function GET(request: Request) {
     const deals = prioritizeOnlineFirst(selected?.offers ?? ordered, deal => isHomeDealOnlineEligible(deal), (a, b) => compareVacationPriority(a, b, a.siteID, b.siteID, `home-deals:${selectedPeriod}`));
     const periods = display.periods.filter(item => availablePeriods.has(item.id));
     const defaultPeriod = availablePeriods.has(display.defaultPeriod) ? display.defaultPeriod : selectedPeriod;
-    return Response.json({ ...result, cache: cached.cache, requestedPeriod, ...(region ? { region: region.label, expandedRegion: selected!.expanded, regionalOrder: deals.map(deal => deal.siteID) } : {}), deals, display: { periods, defaultPeriod } }, { headers: { ...publicDiscovery, "X-VII-Discovery-Cache": cached.cache.status } });
+    return Response.json({ ...result, cache: cached.cache, requestedPeriod, availabilityStatus: "verified", ...(region ? { region: region.label, expandedRegion: selected!.expanded, regionalOrder: deals.map(deal => deal.siteID) } : {}), deals, display: { periods, defaultPeriod } }, { headers: { ...publicDiscovery, "X-VII-Discovery-Cache": cached.cache.status } });
   } catch {
     return Response.json({ error: "supplier_unavailable" }, { status: 503, headers: noStore });
   }

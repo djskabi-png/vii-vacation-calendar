@@ -1,0 +1,12 @@
+{
+  "status": "root_cause_confirmed_fix_in_progress",
+  "symptom": "Mobile visitors can remain on the branded loading skeleton or receive an availability retry box in the spa, holiday and near-vacation rails.",
+  "production_observations": [
+    "All five public /api/vii/home-deals period requests returned HTTP 503 supplier_unavailable.",
+    "The prior browser timeout fix only reuses an accepted value from the same browser session.",
+    "A first visitor has no session value, so a server cold miss still becomes an empty failure state."
+  ],
+  "root_cause": "The system had a bounded browser request but no truthful immediate server fallback for a cold or missing durable availability snapshot.",
+  "repair": "Return approved catalog cards immediately, schedule the exact live refresh in the request background, and replace catalog cards with verified dated offers when the durable snapshot becomes available.",
+  "truth_boundary": "Catalog fallback contains no invented dated availability. Booking and detail confirmation remain live."
+}

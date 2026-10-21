@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-discovery-immediate-fallback-20261021",
+  "project": "VII",
+  "task_type": "public discovery resilience repair and production release",
+  "goal": "Vacation, holiday and spa discovery rails must show useful truthful content immediately, self-heal availability in the background and never remain as a long-lived skeleton or empty retry box.",
+  "status": "in_progress",
+  "requirements": [
+    {"id":"immediate-useful-state","source":"user_request","statement":"A first visitor receives useful cards without waiting on the availability provider.","acceptance_check":"Cold provider failure returns HTTP 200 catalog fallback and the UI renders cards, not a skeleton or error-only panel.","status":"pending"},
+    {"id":"truthful-availability","source":"VII_FEEDBACK_STANDARD","statement":"Fallback cards must not claim dated availability or a live price.","acceptance_check":"Fallback projections contain catalog facts only and UI labels availability as updating/background checked.","status":"pending"},
+    {"id":"self-healing","source":"user_request","statement":"Availability refresh continues outside the visitor response and can populate the durable cache.","acceptance_check":"Each cold route schedules its bounded refresh through the request execution context.","status":"pending"},
+    {"id":"affected-family","source":"project_guidance","statement":"Near vacation, holiday vacation and spa package rails behave consistently on mobile and desktop.","acceptance_check":"Focused tests, production build and exact public release checks cover all three APIs and the homepage at desktop and mobile widths.","status":"pending"},
+    {"id":"public-release","source":"user_request","statement":"Publish the verified fix to the public VII site.","acceptance_check":"One exact Sites version is deployed with rollback identity and direct public verification.","status":"pending"}
+  ],
+  "predicted_rejections": [
+    "The loader is bounded but a first visitor still sees no content.",
+    "A catalog fallback is mislabeled as verified availability.",
+    "One rail is fixed while another shared availability rail still fails.",
+    "The local fix is not the exact version published publicly."
+  ],
+  "affected_family": ["homepage near-vacation rail","homepage holiday rail","spa package rail","regional variants","mobile horizontal rails","public discovery APIs"],
+  "rollback": "Redeploy public Sites release 558 if the candidate fails post-deploy checks."
+}

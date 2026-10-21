@@ -13,6 +13,22 @@ function hasDeals(value: unknown): value is Awaited<ReturnType<typeof getHomeDea
     && (value as { deals: unknown[] }).deals.length > 0;
 }
 
+export async function refreshVacationDiscoveryPeriod(db: D1Database, period: (typeof homeDealPeriods)[number]["id"], guests = 2, now = new Date()) {
+  const [places, publicSiteIds, token] = await Promise.all([
+    publicCatalogSummaries<DiscoveryVacationPlace>("vacations"),
+    publishedSupplierIds("vacations"),
+    supplierToken(),
+  ]);
+  const dates = homeDealDates(period, now);
+  return cachedDiscovery({
+    key: ["vacation-near", dates.from, dates.till, guests],
+    db,
+    policy: VACATION_DISCOVERY_POLICY,
+    load: () => getHomeDeals({ period, now, guests, token, publicSiteIds, publicNames: new Map(places.map(place => [place.supplierId, place.name])), resolveCatalog: discoveryVacationCatalog(places) }),
+    validate: hasDeals,
+  });
+}
+
 export async function warmVacationDiscoveryCache(db: D1Database, now = new Date()) {
   const [places, publicSiteIds, token] = await Promise.all([
     publicCatalogSummaries<DiscoveryVacationPlace>("vacations"),
@@ -34,14 +50,8 @@ export async function warmVacationDiscoveryCache(db: D1Database, now = new Date(
     seen.add(key);
     try {
       const cached = await cachedDiscovery({
-        key: ["vacation-near", dates.from, dates.till, 2],
-        db,
-        policy: VACATION_DISCOVERY_POLICY,
-        load: () => getHomeDeals({ period: period.id, now: clock, guests: 2, token, publicSiteIds, publicNames, resolveCatalog }),
-        // An empty refresh is not allowed to erase a known-good discovery rail.
-        // The public endpoint only reads accepted snapshots and never calls the
-        // supplier during a visitor request.
-        validate: hasDeals,
+        key: ["vacation-near", dates.from, dates.till, 2], db, policy: VACATION_DISCOVERY_POLICY,
+        load: () => getHomeDeals({ period: period.id, now: clock, guests: 2, token, publicSiteIds, publicNames, resolveCatalog }), validate: hasDeals,
       });
       warmed.push({ period: period.id, status: cached.cache.status, count: cached.value.deals.length });
     } catch {

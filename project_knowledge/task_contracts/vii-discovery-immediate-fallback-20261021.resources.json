@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-discovery-immediate-fallback-20261021",
+  "owned_processes": [],
+  "notes": "The bounded production preview was stopped and port 4174 was verified closed. Local runtime inspection was unavailable because vinext start does not supply the Cloudflare env binding object; build and route-level tests passed instead."
+}

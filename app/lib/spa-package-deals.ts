@@ -37,3 +37,20 @@ export function selectSpaPackageDeals(sites: SpaDealSite[], availability: SpaDay
     });
   }).sort((a, b) => a.price - b.price || a.siteId - b.siteId || a.packageId - b.packageId);
 }
+
+export function selectSpaCatalogPackages(sites: SpaDealSite[], date: string, audience: SpaDealAudience): SpaPackageDeal[] {
+  if (!validSpaDealDate(date)) return [];
+  const seen = new Set<string>();
+  return sites.flatMap(site => site.packages.flatMap(pack => {
+    const key = `${site.id}:${pack.id}`;
+    const matches = audience === "group" ? pack.group || (pack.people ?? 0) >= 3 : !pack.group && pack.people === (audience === "single" ? 1 : 2);
+    const image = pack.image || site.image || "";
+    if (!matches || !Number.isSafeInteger(site.id) || site.id <= 0 || !Number.isSafeInteger(pack.id) || pack.id <= 0
+      || !Number.isFinite(pack.price) || pack.price <= 0 || !pack.title?.trim()
+      || !/^https:\/\/www\.spaplus\.co\.il\/gallery\//.test(image) || seen.has(key)) return [];
+    seen.add(key);
+    return [{ siteId: site.id, packageId: pack.id, siteName: site.title, siteNameEN: site.titleEN || "", city: site.city,
+      title: pack.title, price: pack.price, people: pack.people, durationMinutes: pack.durationMinutes || null, image,
+      href: spaPackageDealHref(site.id, pack.id, date) }];
+  })).sort((a, b) => a.price - b.price || a.siteId - b.siteId || a.packageId - b.packageId);
+}
