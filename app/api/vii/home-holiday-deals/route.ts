@@ -16,6 +16,7 @@ import { compareVacationPriority } from "../../../lib/vacation-priority.ts";
 import { runtimeDatabase } from "../../../lib/runtime-database.ts";
 
 const headers = { "Cache-Control": "no-store" };
+const publicDiscovery = { "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=86400" };
 
 async function applyCuration(deals: Awaited<ReturnType<typeof getHomeHolidayDeals>>["deals"]) {
   try {
@@ -49,7 +50,7 @@ export async function GET(request: Request) {
     });
     const result = cached.value;
     const deals = prioritizeOnlineFirst((await applyCuration(result.deals)).filter(deal => publicSiteIds.has(deal.siteID) && deal.priceGuests === guests && eligibleDealDate(deal.from, now)), deal => isHomeDealOnlineEligible(deal), (a, b) => compareVacationPriority(a, b, a.siteID, b.siteID, `holiday:${id}:${part}`));
-    return Response.json({ ...result, deals, cache: cached.cache }, { headers: { ...headers, "X-VII-Discovery-Cache": cached.cache.status } });
+    return Response.json({ ...result, deals, cache: cached.cache }, { headers: { ...publicDiscovery, "X-VII-Discovery-Cache": cached.cache.status } });
   } catch (error) {
     const reason = error instanceof Error ? error.message : "supplier_unavailable";
     return Response.json({ error: reason }, { status: reason === "invalid_holiday" ? 404 : ["invalid_stay", "invalid_selection"].includes(reason) ? 400 : 503, headers });

@@ -16,6 +16,7 @@ import { runtimeDatabase } from "../../../lib/runtime-database.ts";
 import { VACATION_DISCOVERY_POLICY } from "../../../lib/warm-vacation-discovery-cache.ts";
 
 const noStore = { "Cache-Control": "no-store" };
+const publicDiscovery = { "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=86400" };
 
 type CachedHomeDeals = { dates: { from: string; till: string; nights: number }; checkedAt: string | null; deals: Parameters<typeof curateHomeDeals>[1] };
 
@@ -86,7 +87,7 @@ export async function GET(request: Request) {
     const deals = prioritizeOnlineFirst(selected?.offers ?? ordered, deal => isHomeDealOnlineEligible(deal), (a, b) => compareVacationPriority(a, b, a.siteID, b.siteID, `home-deals:${selectedPeriod}`));
     const periods = display.periods.filter(item => availablePeriods.has(item.id));
     const defaultPeriod = availablePeriods.has(display.defaultPeriod) ? display.defaultPeriod : selectedPeriod;
-    return Response.json({ ...result, cache: cached.cache, requestedPeriod, ...(region ? { region: region.label, expandedRegion: selected!.expanded, regionalOrder: deals.map(deal => deal.siteID) } : {}), deals, display: { periods, defaultPeriod } }, { headers: { ...noStore, "X-VII-Discovery-Cache": cached.cache.status } });
+    return Response.json({ ...result, cache: cached.cache, requestedPeriod, ...(region ? { region: region.label, expandedRegion: selected!.expanded, regionalOrder: deals.map(deal => deal.siteID) } : {}), deals, display: { periods, defaultPeriod } }, { headers: { ...publicDiscovery, "X-VII-Discovery-Cache": cached.cache.status } });
   } catch {
     return Response.json({ error: "supplier_unavailable" }, { status: 503, headers: noStore });
   }

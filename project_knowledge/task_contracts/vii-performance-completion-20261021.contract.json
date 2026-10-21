@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-performance-completion-20261021",
+  "project": "VII",
+  "goal": "Deliver the remaining server and loading performance work as a verified public VII release.",
+  "natural_destination": "https://vii.spaplus.co",
+  "authorization": "Implementation, testing, commit, push and public publication are authorized within the existing VII project; DNS, secrets, supplier records, payments and database migrations are excluded.",
+  "requirements": [
+    {"id": "performance", "statement": "Representative public routes provide useful content immediately and meet evidence-backed server, payload and media budgets.", "status": "passed_candidate", "evidence": ["Search first-paint HTML reduced from 1030516 to 890559 bytes (13.6%).", "Event-search first-paint HTML reduced from 889699 to 655276 bytes (26.3%).", "Exact candidate build and 1416-test suite passed."]},
+    {"id": "continuity", "statement": "Refreshes and navigation do not replace useful cached or SSR content with a blank screen or blocking transient error.", "status": "passed_candidate", "evidence": ["Accepted SSR seed and last successful catalog remain visible after a background refresh failure.", "Refresh enrichment begins after hydration through bounded idle/timer scheduling."]},
+    {"id": "cache-safety", "statement": "Anonymous response caching excludes private, session, admin, RSC, booking and transaction-authoritative responses.", "status": "passed_candidate", "evidence": ["Only anonymous public discovery GET snapshots gained reusable response policy.", "SPA time-bound deals, errors, POST and transaction paths remain no-store.", "Public edge-cache exclusion and booking test families passed in the full suite."]},
+    {"id": "booking-invariant", "statement": "Cached discovery remains fast while final dated booking availability is revalidated live.", "status": "passed_candidate", "evidence": ["Booking, stay quote, calendar and exact online-filter regression families passed.", "No booking or supplier-write response was made publicly cacheable."]},
+    {"id": "visual-stability", "statement": "Images, maps and Hebrew UI render with stable geometry and no degraded crop, blur or typography flash.", "status": "passed_candidate", "evidence": ["Existing image decode, gallery, map, RTL and responsive geometry families passed in the 1416-test gate.", "Initial search documents retain one verified primary image and enrich galleries after hydration."]},
+    {"id": "release", "statement": "The exact tested candidate is published and verified at the public domain on desktop and mobile with a known rollback source.", "status": "pending", "evidence": []},
+    {"id": "midpoint", "statement": "Record before and after evidence for the first home and search optimization before broadening the family.", "status": "passed", "evidence": ["Public baseline and local exact-candidate route/payload measurements are recorded in the release evidence."]},
+    {"id": "adversarial-close", "statement": "Attempt to disprove completion across cold, warm, reload, back, failure, private cache and final booking states.", "status": "passed_candidate", "evidence": ["Focused 37-test performance gate passed.", "Exact final candidate passed 1416 of 1416 tests and a clean production build.", "Public desktop/mobile verification remains coupled to the release requirement."]}
+  ],
+  "verification_status": "in_progress"
+}

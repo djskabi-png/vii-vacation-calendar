@@ -3,7 +3,7 @@ import { vacationSearchFilterIds } from "./vacation-search-filter-index.ts";
 
 // Search needs the complete filter and map inventory, but not depth-page
 // galleries, editorial sections or other heavy fields for every listing.
-export function publicVacationSearchProperties(properties: readonly Property[]): Property[] {
+export function publicVacationSearchProperties(properties: readonly Property[], imageLimit = 5): Property[] {
   return properties.map((property) => ({
     slug: property.slug,
     name: property.name,
@@ -14,7 +14,7 @@ export function publicVacationSearchProperties(properties: readonly Property[]):
     guests: property.guests,
     capacityScope: property.capacityScope,
     image: property.image,
-    images: (property.images?.length ? property.images : [property.image]).slice(0, 5),
+    images: (property.images?.length ? property.images : [property.image]).slice(0, Math.max(1, imageLimit)),
     description: "",
     features: property.features.slice(0, 3),
     searchFilterIds: vacationSearchFilterIds(property),

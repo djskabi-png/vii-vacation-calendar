@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-performance-completion-20261021",
+  "project": "VII",
+  "task_type": "production performance implementation and release",
+  "requested_outcome": "Finish the remaining server, loading and navigation work and deliver a publicly deployed VII product that responds immediately without blank screens or unnecessary live waits.",
+  "natural_destination": "https://vii.spaplus.co on desktop and 390px mobile, including home, search, result rails and representative place pages",
+  "authorization_boundary": "Implement, test, commit, push and publish the performance release. Do not change DNS, credentials, supplier data, database schema, payment behavior or submit a real booking.",
+  "lesson_bundle": [
+    {"lesson_id": "ADIR-MIND-001", "reason": "The request is an end-to-end outcome, not a single optimization.", "acceptance_impact": "Bind the work to public speed, loading continuity and release evidence."},
+    {"lesson_id": "ADIR-QA-001", "reason": "A build or synthetic benchmark alone cannot prove the public experience.", "acceptance_impact": "Exercise cold and warm desktop and mobile flows at the exact destination."},
+    {"lesson_id": "ADIR-DEPLOY-001", "reason": "The requested result must be published and rollback-safe.", "acceptance_impact": "Record candidate identity, public identity, direct links and rollback source."},
+    {"lesson_id": "ADIR-SEARCH-001", "reason": "Search payload and transitions are a major latency family.", "acceptance_impact": "Keep total-result truth while bounding initial SSR and preserving recovery states."},
+    {"lesson_id": "ADIR-MEDIA-001", "reason": "Images and maps materially affect LCP, CLS and perceived speed.", "acceptance_impact": "Verify sizing, caching, lazy behavior and identity integrity."},
+    {"lesson_id": "ADIR-ONLINE-BOOKING-001", "reason": "Speed work must not regress online availability or final booking truth.", "acceptance_impact": "Discovery may use accepted cache, while dated final booking remains live-authoritative."}
+  ],
+  "predicted_rejections": [
+    {"rejection": "Only the loading message changed while the application remains slow.", "prevention": "Measure server, document, bundle, image and interaction causes separately and change the proven bottleneck.", "acceptance_check": "Representative public cold and warm timings improve or meet the recorded budget."},
+    {"rejection": "The warm cache is fast but first visit still shows a blank or waits too long.", "prevention": "Test cold navigation and preserve useful stale or server-rendered content during refresh.", "acceptance_check": "No changed flow clears useful content while a refresh is pending."},
+    {"rejection": "Public caching leaks user, booking or dated data.", "prevention": "Fail closed for session, admin, booking, RSC and personalized responses.", "acceptance_check": "Cache-policy fixtures prove all private families are excluded."},
+    {"rejection": "Search still ships a huge initial document.", "prevention": "Bound initial SSR while retaining total counts and progressive loading.", "acceptance_check": "Initial HTML and embedded result count are measurably bounded."},
+    {"rejection": "Images or maps shift layout, blur or load large interactive code too early.", "prevention": "Reserve aspect ratios and defer interactive map code until intent.", "acceptance_check": "Desktop and mobile screenshots show stable geometry and network evidence shows deferred map code."},
+    {"rejection": "Code was committed but the public site is still the old version.", "prevention": "Publish one identified candidate and verify its behavior at the public domain.", "acceptance_check": "Public version identity and exact changed flows match the tested candidate."}
+  ],
+  "affected_family": ["home SSR", "search SSR", "navigation loading states", "home live rails", "online capability cache", "images", "maps", "worker response caching", "booking truth boundary"],
+  "family_inventory_complete": true,
+  "midpoint_gate": {"required": true, "trigger": "After home and search bottlenecks are measured and the first representative optimization is implemented.", "checks": ["Compare before and after HTML size and server timing.", "Verify the optimization preserves total counts, content and online availability behavior."]},
+  "adversarial_close": {"attack_questions": ["Does a cold visit still flash blank?", "Does reload or back navigation lose content?", "Can private or dated data enter public cache?", "Does final booking still revalidate live?", "Is the exact public deployment the tested candidate?"], "natural_destination_evidence": "Cold and warm public browser runs on desktop and 390px mobile with direct API checks.", "affected_family_evidence": "Automated tests, cache exclusion tests, build output, payload measurements and representative screenshots."},
+  "effectiveness": {"baseline": "Public interactions were reported as slow and availability rails repeatedly fell into blocking error states.", "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "cold_warm_route_timings", "initial_html_bytes", "layout_stability"], "target": "A verified public candidate with immediate useful feedback, bounded initial payloads, safe caching and no booking regression."},
+  "privacy": {"raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true},
+  "ready_to_start": true
+}

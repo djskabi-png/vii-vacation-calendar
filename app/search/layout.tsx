@@ -13,6 +13,8 @@ const searchDepthSeed = {
 };
 
 export default async function SearchLayout({ children }: { children: ReactNode }) {
-  const entries = publicVacationSearchProperties(await publicCatalogSummaries<Property>("vacations"));
+  // One verified primary image is enough for the first paint. The client
+  // enriches galleries from the cached search endpoint after hydration.
+  const entries = publicVacationSearchProperties(await publicCatalogSummaries<Property>("vacations"), 1);
   return <SearchDepthSeed value={searchDepthSeed}><PublishedCatalogSeed world="vacations" entries={entries}>{children}</PublishedCatalogSeed></SearchDepthSeed>;
 }

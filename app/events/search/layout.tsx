@@ -5,6 +5,7 @@ import type { EventPlace } from "../../data/site-data";
 import { SearchDepthSeed } from "../../components/search-depth-seed";
 import { trails } from "../../data/trail-data";
 import { providerProfiles } from "../../data/world-data";
+import { publicEventSearchPlaces } from "../../lib/public-event-search";
 
 const searchDepthSeed = {
   trails: trails.map((trail) => ({ slug: trail.slug, name: trail.name, mainArea: trail.mainArea, region: trail.region, areaTags: trail.areaTags, image: `/images/trails/${trail.slug}.jpg`, meta: `${trail.duration} · ${trail.difficulty}` })),
@@ -12,6 +13,6 @@ const searchDepthSeed = {
 };
 
 export default async function EventSearchLayout({ children }: { children: ReactNode }) {
-  const entries = await publicCatalogSummaries<EventPlace>("events");
+  const entries = publicEventSearchPlaces(await publicCatalogSummaries<EventPlace>("events"), 1);
   return <SearchDepthSeed value={searchDepthSeed}><PublishedCatalogSeed world="events" entries={entries}>{children}</PublishedCatalogSeed></SearchDepthSeed>;
 }

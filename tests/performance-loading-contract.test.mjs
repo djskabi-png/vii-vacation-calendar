@@ -116,11 +116,40 @@ test("vacation search serializes a compact catalog and only the visible card win
     readFile(new URL("app/components/progressive-results.tsx", root), "utf8"),
   ]);
   assert.match(layout, /publicVacationSearchProperties/);
-  assert.match(projection, /\.slice\(0, 5\)/);
+  assert.match(layout, /publicVacationSearchProperties\([^)]*[\s\S]*?, 1\)/);
+  assert.match(projection, /imageLimit = 5/);
   assert.doesNotMatch(projection, /sourceUrl/);
   assert.match(search, /displayedResults\.slice\(0, visibleResultCount\)/);
   assert.match(search, /totalCount=\{displayedResults\.length\}/);
   assert.match(progressive, /onShowMore/);
+});
+
+test("event search serializes a bounded discovery projection", async () => {
+  const [layout, projection] = await Promise.all([
+    readFile(new URL("app/events/search/layout.tsx", root), "utf8"),
+    readFile(new URL("app/lib/public-event-search.ts", root), "utf8"),
+  ]);
+  assert.match(layout, /publicEventSearchPlaces\([^)]*[\s\S]*?, 1\)/);
+  assert.match(projection, /imageLimit = 5/);
+  assert.match(projection, /description: ""/);
+  assert.doesNotMatch(projection, /roomOptions|dailyAvailability|dateQuotes|reviewHighlights/);
+});
+
+test("catalog refresh and public discovery caching preserve last-good content", async () => {
+  const [catalog, clientCache, homeDeals, spaDeals] = await Promise.all([
+    readFile(new URL("app/lib/use-published-catalog.ts", root), "utf8"),
+    readFile(new URL("app/lib/discovery-client-cache.ts", root), "utf8"),
+    readFile(new URL("app/api/vii/home-deals/route.ts", root), "utf8"),
+    readFile(new URL("app/api/spa/deals/route.ts", root), "utf8"),
+  ]);
+  assert.match(catalog, /if \(!hasAcceptedContent\.current\) setItems\(\[\]\)/);
+  assert.match(catalog, /hasAcceptedContent\.current = true/);
+  assert.match(catalog, /requestIdleCallback/);
+  assert.match(catalog, /setError\(!hasAcceptedContent\.current\)/);
+  assert.match(clientCache, /method === "GET" \? "default" : "no-store"/);
+  assert.match(homeDeals, /public, max-age=60, s-maxage=300, stale-while-revalidate=86400/);
+  assert.match(homeDeals, /status: 503, headers: .*noStore/s);
+  assert.match(spaDeals, /Cache-Control": "no-store"/);
 });
 
 test("shared navigation deliberately warms the localized homepage on capable connections", async () => {

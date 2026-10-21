@@ -7,6 +7,9 @@ import { legacyHolidaySearchPath } from "../../../lib/search-opportunities.ts";
 import { holidayWorldPath } from "../../../lib/holiday-world.ts";
 import { runtimeDatabase } from "../../../lib/runtime-database.ts";
 
+const publicDiscovery = { "Cache-Control": "public, max-age=300, s-maxage=900, stale-while-revalidate=86400" };
+const noStore = { "Cache-Control": "no-store" };
+
 async function displaySettings(locale: Parameters<typeof readHomeDisplaySettings>[1]) {
   try {
     return await readHomeDisplaySettings(await runtimeDatabase(), locale);
@@ -23,10 +26,10 @@ export async function GET(request: Request) {
       ...holiday,
       href: holidayWorldPath(holiday.name, holiday.id) || legacyHolidaySearchPath(holiday.name) || undefined,
     }));
-    if (params.get("all") === "1") return Response.json({ holidays }, { headers: { "Cache-Control": "no-store" } });
+    if (params.get("all") === "1") return Response.json({ holidays }, { headers: publicDiscovery });
     const settings = (await settingsPromise)!;
-    return Response.json({ holidays: applyHolidayDisplaySettings(holidays, settings), limit: settings.holidayLimit }, { headers: { "Cache-Control": "no-store" } });
+    return Response.json({ holidays: applyHolidayDisplaySettings(holidays, settings), limit: settings.holidayLimit }, { headers: publicDiscovery });
   } catch {
-    return Response.json({ error: "supplier_unavailable" }, { status: 503, headers: { "Cache-Control": "no-store" } });
+    return Response.json({ error: "supplier_unavailable" }, { status: 503, headers: noStore });
   }
 }

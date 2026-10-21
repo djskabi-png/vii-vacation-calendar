@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-performance-completion-20261021",
+  "recorded_at": "2026-10-21T05:35:00Z",
+  "target": "https://vii.spaplus.co",
+  "candidate_status": "tested_not_yet_publicly_verified",
+  "baseline_public": {
+    "home": {"first_ms": 2441, "bytes": 348593, "repeat_ms": 60},
+    "search": {"first_ms": 1115, "bytes": 1030516, "repeat_ms": 85},
+    "spas": {"first_ms": 1550, "bytes": 582023, "repeat_ms": 82},
+    "hourly": {"first_ms": 980, "bytes": 197758, "repeat_ms": 50},
+    "events_search": {"first_ms": 975, "bytes": 889699, "repeat_ms": 95},
+    "hourly_detail": {"first_ms": 837, "bytes": 186163, "repeat_ms": 61},
+    "data_origin": "aws-aurora"
+  },
+  "local_exact_candidate": {
+    "search": {"cold_ms": 551, "bytes": 890559, "payload_reduction_percent": 13.6},
+    "events_search": {"cold_ms": 86, "bytes": 655276, "payload_reduction_percent": 26.3},
+    "note": "Local built-worker timings are diagnostic and are not presented as public production timings. Payload reductions are deterministic against the recorded public documents."
+  },
+  "implemented": [
+    "Preserve accepted SSR or last-success catalog content during transient refresh failure.",
+    "Enrich compact first-paint search seeds after hydration.",
+    "Bound vacation and event first-paint media to one verified image while preserving filter and card truth.",
+    "Reuse safe anonymous GET discovery responses according to server policy while keeping POST and live transaction checks no-store.",
+    "Cache successful public vacation and holiday discovery snapshots with stale-while-revalidate; keep errors and SPA time-bound deals no-store."
+  ],
+  "verification": {
+    "focused_tests": {"passed": 37, "failed": 0},
+    "full_tests": {"passed": 1416, "failed": 0},
+    "production_build": "passed",
+    "rsc_manifests_agree": true,
+    "git_diff_check": "passed",
+    "public_desktop_mobile": "pending_publication"
+  },
+  "rollback_source": "release/vii-ten-part-polish-20261020 at 03fc6b27b0ea6c9cde423cbe1aa5dfaf5cb3c413",
+  "publication": {"status": "pending", "public_identity": null}
+}

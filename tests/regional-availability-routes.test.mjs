@@ -36,7 +36,7 @@ test('actual vacation handler validates scope before reads, joins publication an
   assert.equal(calls,0);
   const response=await get(request(`?${new URLSearchParams({period:'tomorrow',region:'צפון',guests:'6'})}`));
   const body=await response.json();
-  assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),'no-store');
+  assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),'public, max-age=60, s-maxage=300, stale-while-revalidate=86400');
   assert.equal(body.region,'צפון');assert.deepEqual(body.deals.map(deal=>deal.siteID),[2]);
 });
 

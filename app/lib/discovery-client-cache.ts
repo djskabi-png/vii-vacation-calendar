@@ -4,7 +4,10 @@ export async function discoveryJson<T>(url: string, scope: string, init: Request
   const key = JSON.stringify([url, scope, init.body ?? null]);
   const previous = entries.get(key);
   if (previous && previous.expires > Date.now()) return structuredClone(previous.value) as T;
-  const response = await fetch(url, { ...init, cache: "no-store" });
+  const method = (init.method || "GET").toUpperCase();
+  // Safe GET discovery snapshots may be reused by the browser according to
+  // their response policy. POST/live transaction checks remain uncached.
+  const response = await fetch(url, { ...init, cache: init.cache ?? (method === "GET" ? "default" : "no-store") });
   if (!response.ok) throw new Error("discovery_unavailable");
   const value = await response.json();
   if (init.signal?.aborted) throw new DOMException("Aborted", "AbortError");

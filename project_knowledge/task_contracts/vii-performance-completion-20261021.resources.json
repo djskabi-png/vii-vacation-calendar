@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-performance-completion-20261021",
+  "owned_processes": [
+    {"kind": "foreground-test", "session_id": 15262, "command": "pnpm test", "state": "finished_failed", "exit_code": 1, "started_at": "2026-10-21T05:00:00Z", "finished_at": "2026-10-21T05:02:00Z", "cleanup": "process exited; no listener or child process retained"},
+    {"kind": "foreground-test", "session_id": 12899, "command": "pnpm test", "state": "finished_passed", "exit_code": 0, "started_at": "2026-10-21T05:04:00Z", "finished_at": "2026-10-21T05:06:00Z", "reason": "single clean rerun after two contract assertions were updated for the intentional cache policy", "cleanup": "process exited; no listener or child process retained"},
+    {"kind": "foreground-test", "session_id": 42620, "command": "pnpm test", "state": "finished_passed", "exit_code": 0, "started_at": "2026-10-21T05:20:00Z", "finished_at": "2026-10-21T05:22:00Z", "reason": "full release gate after the compact first-paint seed change", "cleanup": "process exited; no listener or child process retained"},
+    {"kind": "foreground-build", "session_id": 38135, "command": "focused performance tests plus pnpm run build", "state": "finished_passed", "exit_code": 0, "started_at": "2026-10-21T05:31:00Z", "finished_at": "2026-10-21T05:32:00Z", "reason": "verify the last-good refresh correction before the final regression gate", "cleanup": "process exited; no listener or child process retained"},
+    {"kind": "foreground-test", "session_id": 79150, "command": "pnpm test", "state": "finished_passed", "exit_code": 0, "started_at": "2026-10-21T05:33:00Z", "finished_at": "2026-10-21T05:34:00Z", "reason": "exact final candidate release gate after the last-good refresh correction", "cleanup": "process exited; no listener or child process retained"}
+  ],
+  "owned_temp_paths": [],
+  "cleanup_status": "verified",
+  "notes": "Record only processes and temporary artifacts started by this task. Never stop uncertain or user-owned processes."
+}
