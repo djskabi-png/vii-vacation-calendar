@@ -31,11 +31,19 @@ export async function GET(request: Request) {
   return startingPricesResponse(request, {
     published: world => publishedSupplierIds(world, database),
     read: async world => cachedDiscovery({
-      key: ["supplier-starting-prices", 2, world],
+      key: ["supplier-starting-prices", 3, world],
       db: database,
-      load: async () => database
-        ? readAcceptedStartingPriceCatalog(database, world)
-        : fetchStartingPriceCatalog(world, await supplierToken()),
+      load: async () => {
+        const accepted = database ? await readAcceptedStartingPriceCatalog(database, world) : {};
+        if (Object.keys(accepted).length) return accepted;
+        // A generation created while the old projection was active can be
+        // complete yet contain no seasonal price fields. Rebuild the bounded
+        // public price cache from the authenticated supplier source instead
+        // of publishing a misleading empty map.
+        const fallback = await fetchStartingPriceCatalog(world, await supplierToken());
+        if (!Object.keys(fallback).length) throw new Error("starting_prices_unavailable");
+        return fallback;
+      },
       validate: value => validStartingPriceMap(world, value),
     }),
   });

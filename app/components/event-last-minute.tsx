@@ -23,6 +23,9 @@ import { normalizeDealDate } from "../lib/deal-clock";
 import { useDealClock } from "./use-deal-clock";
 import { orderDiscoveryRail } from "../lib/discovery-slider-order";
 import { useDocumentSeed } from "./use-document-seed";
+import { useStartingPrices } from "../lib/use-starting-prices";
+import { supplierStartingPrice } from "../lib/supplier-starting-price";
+import { CatalogStartingPrice } from "./catalog-starting-price";
 
 const copy = {
   he: { title: "מקומות לאירועים בתאריכים הקרובים", all: "לכל המקומות לאירועים", tabs: ["ברגע האחרון", "פנוי לחמישי", "פנוי לשישי"], loading: "בודקים זמינות ומחירים...", error: "לא הצלחנו לרענן זמינות כרגע", retry: "לנסות שוב", empty: "אין כרגע הצעה מאומתת לתאריך הזה. אפשר להמשיך למקומות נוספים ולבדוק זמינות בעמוד המקום.", available: "פנוי", price: "מחיר לאירוע", forGuests: "עבור", capacity: "עד", people: "משתתפים", check: "בדיקת זמינות בעמוד המקום" },
@@ -52,6 +55,7 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
   const presets = clock ? eventDealPresets(clock.now) : [];
   const date = clock && chosenDate ? (presets.find(preset => preset.id === selectedPreset)?.date || normalizeDealDate(chosenDate, clock.now)) : null;
   const search = useViiLiveSearch("events", date, date, guests, undefined, undefined, undefined, retry, true, scope?.label);
+  const startingPrices = useStartingPrices("events", true);
   const candidates = orderDiscoveryRail((search.places || places).flatMap((place) => {
     if (scope && !search.expandedRegion && !matchesSearchLocation(place, scope.label)) return [];
     const match = /^event-(\d+)$/.exec(place.slug);
@@ -97,7 +101,8 @@ export function EventLastMinute({ places, sectionId = "event-last-minute", regio
         return <PlacePreviewCard className="event-rail-card event-deals__card" contact={{ placeId: place.slug, phone: place.contact?.phone, whatsapp: place.contact?.whatsapp, serviceName: place.type, initialDate: offer.from || undefined, initialGuests: guests }} key={place.slug} name={labels.name} image={place.image} images={place.images} href={href} newTab><span className="event-rail-card__body"><small>{labels.location} · {labels.type}</small><strong>{labels.name}</strong><span>{text.capacity} {place.guests} {text.people}</span><span className="event-deals__availability">{text.available} · {new Intl.DateTimeFormat(language === "he" ? "he-IL" : language, { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${offer.from}T12:00:00Z`))} · {slots[offer.slot!]}</span><span>{text.forGuests} {guests} {text.people}</span><b>{offer.total!.toLocaleString(language === "he" ? "he-IL" : language)} ₪ <small>{text.price}</small></b></span></PlacePreviewCard>;
       })}{additionalPlaces.map((place) => {
         const labels = eventDealPlaceLabels(place, language, translate, geography);
-        return <PlacePreviewCard className="event-rail-card event-deals__card event-deals__card--browse" contact={{ placeId: place.slug, phone: place.contact?.phone, whatsapp: place.contact?.whatsapp, serviceName: place.type }} key={place.slug} name={labels.name} image={place.image} images={place.images} href={localizedPath(eventPlaceHref(place), language)}><span className="event-rail-card__body"><small>{labels.location} · {labels.type}</small><strong>{labels.name}</strong><span>{text.capacity} {place.guests} {text.people}</span><span className="event-deals__check">{text.check}</span></span></PlacePreviewCard>;
+        const startingPrice = supplierStartingPrice(startingPrices[place.slug] || place);
+        return <PlacePreviewCard className="event-rail-card event-deals__card event-deals__card--browse" contact={{ placeId: place.slug, phone: place.contact?.phone, whatsapp: place.contact?.whatsapp, serviceName: place.type }} key={place.slug} name={labels.name} image={place.image} images={place.images} href={localizedPath(eventPlaceHref(place), language)}><span className="event-rail-card__body"><small>{labels.location} · {labels.type}</small><strong>{labels.name}</strong><span>{text.capacity} {place.guests} {text.people}</span>{startingPrice ? <CatalogStartingPrice amount={startingPrice} /> : null}<span className="event-deals__check">{text.check}</span></span></PlacePreviewCard>;
       })}</EventRail> : null}
     </div>
   </section>;

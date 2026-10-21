@@ -1,5 +1,5 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
-import { readSupplierCatalogState } from "./supplier-catalog-store.ts";
+import { readSupplierCatalogState, readSupplierCatalogSummaries } from "./supplier-catalog-store.ts";
 
 /** Catalog advertising prices are not a quote or evidence of availability. */
 export type SeasonalStartingPrices = { startPriceWinter?: number; startPriceSummer?: number };
@@ -69,18 +69,17 @@ export function publishedStartingPrices(world: StartingPriceWorld, prices: Start
 export async function readAcceptedStartingPriceCatalog(db: D1Database, world: StartingPriceWorld): Promise<StartingPriceMap> {
   const state = await readSupplierCatalogState(db, world);
   if (!state?.activeRunId) throw new Error("starting_prices_unavailable");
-  const rows = await db.prepare(`SELECT supplier_id AS supplierId,
-    json_extract(summary_json, '$.startPriceWinter') AS startPriceWinter,
-    json_extract(summary_json, '$.startPriceSummer') AS startPriceSummer
-    FROM supplier_catalog_entries WHERE run_id = ? AND world = ? ORDER BY supplier_id`)
-    .bind(state.activeRunId, world).all<{ supplierId: number; startPriceWinter: unknown; startPriceSummer: unknown }>();
-  if (rows.results.length !== state.activeCount) throw new Error("catalog_active_generation_incomplete");
+  // Keep this projection portable across both the legacy D1 runtime and the
+  // Aurora bridge. The old SQLite-only json_extract query fails once Aurora is
+  // primary, which made the otherwise valid cached price catalog return 503.
+  const catalog = await readSupplierCatalogSummaries(db, world, state);
+  if (!catalog) throw new Error("starting_prices_unavailable");
   const prefix = world === "vacations" ? "vacation" : "event";
   const prices: StartingPriceMap = {};
-  for (const row of rows.results) {
-    if (!positive(row.supplierId)) throw new Error("starting_prices_unavailable");
-    const fields = startingPriceFields(row);
-    if (supplierStartingPrice(fields) !== null) prices[`${prefix}-${row.supplierId}`] = fields;
+  for (const entry of catalog.entries) {
+    if (!positive(entry.supplierId)) throw new Error("starting_prices_unavailable");
+    const fields = startingPriceFields(entry.summary);
+    if (supplierStartingPrice(fields) !== null) prices[`${prefix}-${entry.supplierId}`] = fields;
   }
   return prices;
 }

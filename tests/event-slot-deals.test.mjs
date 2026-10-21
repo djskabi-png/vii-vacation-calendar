@@ -91,6 +91,9 @@ test("event rail keeps only quick date tabs while further event refinement stays
   assert.match(slider, /additionalPlaces[\s\S]*20 - candidates\.length/);
   assert.match(slider, /confirmed\.has\(place\.slug\)/);
   assert.match(slider, /event-deals__card--browse/);
+  assert.match(slider, /useStartingPrices\("events", true\)/);
+  assert.match(slider, /supplierStartingPrice\(startingPrices\[place\.slug\] \|\| place\)/);
+  assert.match(slider, /<CatalogStartingPrice amount=\{startingPrice\}/);
   assert.match(slider, /text\.check/);
   assert.match(slider, /eventPlaceHref\(place\)/);
   assert.match(slider, /busy && !additionalPlaces\.length/);

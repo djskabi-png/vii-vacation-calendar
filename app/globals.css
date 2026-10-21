@@ -10150,6 +10150,8 @@ button[data-slider-boundary]:disabled { opacity: .32; color: #71898d; cursor: de
 .event-deals__card .event-rail-card__body > strong { min-height: 2.7em; }
 .event-deals__card .event-rail-card__body > b { margin-top: auto; }
 .event-deals__card .event-deals__availability { color: var(--teal-dark); font-weight: 750; min-height: 3em; }
+.event-deals__card--browse .catalog-starting-price { display: inline-flex; align-items: baseline; gap: 5px; color: var(--teal-dark); font-weight: 850; }
+.event-deals__card--browse .catalog-starting-price small { color: inherit; font-size: .76rem; font-weight: 750; }
 .event-deals__card--browse .event-deals__check { margin-top: auto; color: var(--teal-dark); font-weight: 750; }
 .event-deals__loading { min-height: 340px; }
 @media (max-width: 560px) {
