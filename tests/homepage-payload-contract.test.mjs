@@ -9,7 +9,7 @@ test("homepage sends only slider data to its hydrated showcase", () => {
   assert.match(page, /function homeShowcaseProperties\(properties: Property\[\]\)/);
   assert.match(page, /return \[\.\.\.selected\.values\(\)\]\.map\(\(\{ slug, name, location, area, image, videos \}\) =>/);
   assert.doesNotMatch(page, /const showcaseProperties = properties\.map/);
-  assert.match(page, /"home-events"\)\.slice\(0, 5\)/);
+  assert.match(page, /"home-events"\)\.slice\(0, 20\)/);
   assert.doesNotMatch(page, /spaPlaces=|publicCatalogSummaries<SpaPlusSite>/);
   assert.match(showcase, /<SpaPackageDeals \/>/);
   assert.match(page, /<HomeShowcase properties=\{showcaseProperties\} eventPlaces=\{showcaseEvents\}/);

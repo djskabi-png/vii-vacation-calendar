@@ -1,0 +1,55 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-event-rail-continuation-20261021",
+  "project": "VII",
+  "goal": "Publish a truthful event slider that continues beyond three verified offers.",
+  "natural_destination": "https://vii.spaplus.co",
+  "authorization": "Implementation, testing, commit, push and public publication are authorized for this correction.",
+  "requirements": [
+    {
+      "id": "continuation",
+      "statement": "The event rail exposes more than three real published venues and allows bounded continuation up to 20 cards.",
+      "status": "passed_candidate",
+      "evidence": [
+        "Candidate composes verified offers first and fills the remaining rail from the published event catalog up to 20.",
+        "Focused slider tests pass."
+      ]
+    },
+    {
+      "id": "truth",
+      "statement": "Only supplier-confirmed offers display availability, date, slot and price.",
+      "status": "passed_candidate",
+      "evidence": [
+        "Browse-only cards carry an explicit availability-check label and no verified-offer fields."
+      ]
+    },
+    {
+      "id": "interaction",
+      "statement": "The whole card opens the venue while phone and WhatsApp remain independent actions.",
+      "status": "passed_candidate",
+      "evidence": [
+        "The redundant details button was removed and PlacePreviewCard contact behavior was preserved."
+      ]
+    },
+    {
+      "id": "family",
+      "statement": "Homepage, events landing and regional event rails remain responsive and consistent.",
+      "status": "passed_candidate",
+      "evidence": [
+        "Shared EventLastMinute implementation changed once for all three surfaces.",
+        "Desktop and 390px candidate checks each rendered 20 cards, one enabled continuation control, no page overflow and no hydration error.",
+        "Production build and all 1,416 repository tests passed."
+      ]
+    },
+    {
+      "id": "release",
+      "statement": "The exact tested candidate is public and verified on desktop and 390px mobile with a rollback identity.",
+      "status": "pending",
+      "evidence": []
+    }
+  ],
+  "verification_status": "in_progress",
+  "last_freshness_check_at": "2026-10-21T04:32:21.850316Z",
+  "last_freshness_check_errors": [],
+  "updated_at": "2026-10-21T04:32:21.850341Z"
+}

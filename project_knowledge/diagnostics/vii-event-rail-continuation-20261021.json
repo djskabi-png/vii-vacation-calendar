@@ -1,0 +1,30 @@
+{
+  "status": "diagnosed",
+  "symptom": "The public event rail ended after exactly three cards and exposed no useful continuation.",
+  "expected_behavior": "The event rail should continue like the vacation rail, while never presenting an unverified venue as available for the selected date.",
+  "environment": "Public https://vii.spaplus.co before the 2026-10-21 correction; candidate branch release/vii-ten-part-polish-20261020.",
+  "reproduction": {"steps": ["Open the public event rail.", "Inspect the number of cards and continuation controls.", "POST the selected date to /api/vii/live-search with includePlaces=true."], "evidence": "The public endpoint returned HTTP 200 from a stale accepted snapshot with exactly three result and place records: supplier IDs 1161, 779 and 1085."},
+  "observations": [
+    {"observation": "The rail control component supports horizontal continuation.", "evidence": "EventRail renders SliderRailControls over a horizontally scrollable flex rail."},
+    {"observation": "The public catalog contains substantially more than three event venues.", "evidence": "The bundled guarded public baseline contains 129 event venues with images."},
+    {"observation": "The homepage serialized only five event venues for both its editorial area and the availability rail.", "evidence": "HomeCatalogShowcase sliced the event projection to five even though the accepted slider limit is 20."},
+    {"observation": "Only three cached offers are verified for the selected date.", "evidence": "Direct public API response contained exactly three truthful priced offers."}
+  ],
+  "hypotheses": [
+    {"id": "H1", "mechanism": "The slider UI is hard-capped at three.", "prediction": "Source would slice candidates to three or lack continuation controls.", "discriminating_test": "Inspect EventLastMinute and EventRail.", "result": "No three-card source cap exists and controls are present.", "status": "rejected"},
+    {"id": "H2", "mechanism": "The availability snapshot contains only three confirmed offers, while the homepage payload is capped below the accepted 20-card continuation pool.", "prediction": "The public API returns exactly the three rendered suppliers, the catalog contains more venues, and the homepage serializes only a small event subset.", "discriminating_test": "Compare the direct live-search response, guarded public inventory and HomeCatalogShowcase projection.", "result": "The response has three offers, the catalog baseline has 129 image-backed event venues, and the homepage sliced the reusable event pool to five.", "status": "supported"}
+  ],
+  "root_cause_hypothesis_id": "H2",
+  "fix": {"change": "Keep verified offers first, then continue the same rail with distinct real published venues up to the 20-card product limit. Browse-only cards explicitly request an availability check and never show a verified date, slot or price.", "evidence": "Focused event, localization, regional and mobile tests pass."},
+  "affected_family": ["Homepage event rail", "Events landing event rail", "Regional event rail", "Desktop arrow controls", "Mobile swipe rail", "Event contact actions"],
+  "regression_checks": [
+    {"check": "Verified offer contract", "status": "passed", "evidence": "event-slot-deals tests preserve supplier identity, slot, participant count and price truth."},
+    {"check": "Unverified-card truth", "status": "passed", "evidence": "Source contract rejects verified availability copy inside browse-only cards."},
+    {"check": "Localized all-results link", "status": "passed", "evidence": "slider-localized-all-links test passes."},
+    {"check": "Regional and mobile family", "status": "passed", "evidence": "regional-availability and home-mobile-polish tests pass."},
+    {"check": "Exact candidate close", "status": "passed", "evidence": "Production build and all 1,416 repository tests passed; desktop and 390px browser checks rendered 20 cards with working continuation, no document overflow and no hydration mismatch."}
+  ],
+  "confidence": "high",
+  "remaining_unknowns": ["The supplier may return more confirmed offers on other dates; browse-only cards remain deliberately distinct.", "Exact public behavior remains pending publication."],
+  "authorization_boundary": "Repair, test, publish and verify without inventing availability or submitting a booking."
+}

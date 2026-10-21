@@ -81,7 +81,7 @@ async function HomeCatalogShowcase() {
   ]);
   const showcaseProperties = homeShowcaseProperties(properties);
   const showcaseEvents = rotateDaily(eventPlaces.filter((place) => place.image),
-    (place) => place.slug, "home-events").slice(0, 5);
+    (place) => place.slug, "home-events").slice(0, 20);
   const showcaseHourly = hourlyPlacesFromCatalog(hourlyCatalogPlaces);
   return <HomeShowcase properties={showcaseProperties} eventPlaces={showcaseEvents}
     hourlyPlaces={showcaseHourly} providerPreview={providerProfiles[0]} attractionPreview={paidAttractions[0]} />;

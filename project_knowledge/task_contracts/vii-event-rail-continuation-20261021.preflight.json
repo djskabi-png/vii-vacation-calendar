@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-event-rail-continuation-20261021",
+  "project": "VII",
+  "task_type": "production UI correction and release",
+  "requested_outcome": "Make the event rail continue beyond the three currently verified offers, preserve truthful availability labels, and publish the verified correction.",
+  "natural_destination": "https://vii.spaplus.co on desktop and 390px mobile",
+  "authorization_boundary": "Implement, test, commit, push and publish the event-rail correction. Do not invent availability, submit a booking, change supplier records, DNS, credentials or database schema.",
+  "lesson_bundle": [
+    {"lesson_id": "ADIR-QA-001", "reason": "The same public defect was reported repeatedly.", "acceptance_impact": "Verify the exact public rail, controls and visible card count after publication."},
+    {"lesson_id": "ADIR-DEPLOY-001", "reason": "The user explicitly requested publication.", "acceptance_impact": "Record exact candidate, public release and rollback identity."},
+    {"lesson_id": "VII-SLIDER-020", "reason": "Accepted VII feedback allows up to 20 cards after filtering and forbids invented online or availability claims.", "acceptance_impact": "Fill the rail with real published venues, but reserve date and price labels for verified supplier offers."}
+  ],
+  "predicted_rejections": [
+    {"rejection": "The rail still ends after three cards.", "prevention": "Append real published event venues up to the 20-card product limit after verified offers.", "acceptance_check": "Desktop and mobile expose enabled continuation controls and more than three distinct cards."},
+    {"rejection": "Extra venues are falsely shown as available.", "prevention": "Give only supplier-confirmed offers date, slot and price; label other venues as requiring an availability check.", "acceptance_check": "No browse-only card contains the verified-availability label."},
+    {"rejection": "The code changed but the public site is still old.", "prevention": "Publish the exact tested commit and inspect the public destination.", "acceptance_check": "Public release identity and visible behavior match the candidate."}
+  ],
+  "affected_family": ["homepage event rail", "events landing rail", "regional event rail", "desktop controls", "mobile swipe rail", "event-card contact actions"],
+  "approved_precedents": {
+    "sources": [
+      {"label": "Vacation rail", "source": "app/components/home-live-deals.tsx uses bounded horizontal continuation and preserves useful cards during refresh."},
+      {"label": "VII feedback standard", "source": "VII_FEEDBACK_STANDARD.md permits up to 20 filtered cards and forbids invented availability eligibility."}
+    ]
+  },
+  "family_inventory_complete": true,
+  "midpoint_gate": {"required": true, "trigger": "After source diagnosis and the first focused tests.", "checks": ["Confirm the public API returns three verified offers.", "Confirm the candidate renders up to 20 real venues without adding availability claims."]},
+  "adversarial_close": {"attack_questions": ["Does the rail still stop at three?", "Can an unverified card look available?", "Do arrows disable incorrectly?", "Does mobile overflow the viewport?", "Is the public version the tested commit?"], "natural_destination_evidence": "Public desktop and 390px browser inspection after release.", "affected_family_evidence": "Focused tests, full suite, production build and public visual exercise."},
+  "effectiveness": {"baseline": "The public event rail returned three stale verified offers and therefore had no continuation.", "measurements": ["elapsed_time", "first_pass_acceptance", "prevented_failures", "repeated_corrections", "visible_card_count", "continuation_control_state", "availability_label_integrity", "desktop_mobile_overflow", "public_release_identity"], "target": "A truthful event rail with more than three real venues and working continuation on the public site."},
+  "privacy": {"raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true},
+  "ready_to_start": true
+}

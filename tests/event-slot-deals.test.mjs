@@ -88,5 +88,11 @@ test("event rail keeps only quick date tabs while further event refinement stays
   assert.match(slider, /event\.key === "Home"/);
   assert.doesNotMatch(slider, /ModernSelect|type="date"|<input/);
   assert.match(slider, /eventSearchHref\(scope\?\.label\)/);
-  assert.match(slider, /new URLSearchParams\(\{ from: date \|\| "", to: date \|\| "", guests: String\(guests\)/);
+  assert.match(slider, /additionalPlaces[\s\S]*20 - candidates\.length/);
+  assert.match(slider, /confirmed\.has\(place\.slug\)/);
+  assert.match(slider, /event-deals__card--browse/);
+  assert.match(slider, /text\.check/);
+  assert.match(slider, /eventPlaceHref\(place\)/);
+  assert.match(slider, /busy && !additionalPlaces\.length/);
+  assert.doesNotMatch(slider, /event-deals__card--browse[\s\S]{0,500}text\.available/);
 });
