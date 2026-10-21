@@ -116,6 +116,7 @@ test("holiday change-search handoff opens the real date editor after hydration w
   assert.match(searchBox, /new URLSearchParams\(window\.location\.search\)\.get\("editSearch"\) !== "dates"/);
   assert.match(searchBox, /handledEditSearchRef\.current = true;[\s\S]*setCalendarOpen\(true\)/);
   assert.match(searchBox, /const \[calendarOpen, setCalendarOpen\] = useState\(false\)/);
+  assert.doesNotMatch(searchBox, /leaveMobileEditor\(desktop\)/, "desktop hydration must not immediately close the requested date editor");
   assert.match(search, /const \[openDatesRequest, setOpenDatesRequest\] = useState\(0\)/);
   assert.doesNotMatch(search, /canonicalParams\.delete\("editSearch"\)/, "the editor intent must survive the initial mount");
   assert.doesNotMatch(search, /history\.replaceState/, "URL cleanup must not remount and immediately close the editor");

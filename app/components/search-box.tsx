@@ -388,7 +388,6 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
       if (event.matches) cancelMobileSearch();
     };
 
-    leaveMobileEditor(desktop);
     desktop.addEventListener("change", leaveMobileEditor);
     return () => desktop.removeEventListener("change", leaveMobileEditor);
   }, [cancelMobileSearch]);
