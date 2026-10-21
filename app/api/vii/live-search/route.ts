@@ -5,7 +5,7 @@ import { publicCatalogSelectedSummaries, publicCatalogSummaries } from "../../..
 import type { EventDealPlace } from "../../../lib/event-deal-labels";
 import { regionalAvailabilityRegion, selectRegionalOffers } from "../../../lib/regional-availability.ts";
 import { eligibleDealDate } from "../../../lib/deal-clock.ts";
-import { readCachedDiscovery } from "../../../lib/discovery-offer-cache.ts";
+import { cachedDiscovery, readCachedDiscovery } from "../../../lib/discovery-offer-cache.ts";
 import { runtimeCatalogDatabase } from "../../../lib/published-supplier-ids.ts";
 import { EVENT_DISCOVERY_POLICY } from "../../../lib/warm-event-discovery-cache.ts";
 
@@ -22,6 +22,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "invalid_search" }, { status: 400, headers: noStore });
   }
   const world = body.world;
+  const datedDiscovery = body.discoverySearch === true && body.includePlaces !== true;
   const region = regionalAvailabilityRegion(typeof body.region === "string" ? body.region : null);
   if (body.region !== undefined && (!region || world !== "events" || body.includePlaces !== true)) return Response.json({ error: "invalid_region" }, { status: 400, headers: noStore });
   if ((world !== "vacations" && world !== "events") || !validDate(body.from) || !validDate(body.till)) {
@@ -31,11 +32,12 @@ export async function POST(request: Request) {
     return Response.json({ error: "invalid_search" }, { status: 400, headers: noStore });
   }
   try {
-    const [publicIds, token, regionPlaces] = await Promise.all([
+    const [publicIds, token, regionPlaces, cacheDb] = await Promise.all([
       publishedSupplierIds(world), supplierToken(),
       region ? publicCatalogSummaries<{ supplierId: number; image?: string; location?: string; area?: string; lat?: number; lng?: number }>("events") : Promise.resolve([]),
+      datedDiscovery ? runtimeCatalogDatabase().catch(() => null) : Promise.resolve(null),
     ]);
-    // Only event discovery requests opt in. Detail/search/booking requests remain
+    // Discovery requests opt in explicitly. Detail and booking requests remain
     // realtime and must never inherit discovery's last-good fallback.
     const discovery = world === "events" && body.includePlaces === true;
     if (discovery && (!Number.isSafeInteger(body.guests) || Number(body.guests) < 1 || Number(body.guests) > 1000 || body.till !== body.from || body.slot !== undefined && body.slot !== "morning" && body.slot !== "evening")) throw new Error("invalid_search");
@@ -55,7 +57,14 @@ export async function POST(request: Request) {
         && (value as { results: Array<{ available?: boolean; total?: number; slot?: string }> }).results
           .some((offer) => offer?.available === true && Number(offer.total) > 0 && Boolean(offer.slot)),
     }) : null;
-    const result = discovery ? cached!.value : await load();
+    const dated = datedDiscovery ? await cachedDiscovery<LiveSearchPayload>({
+      key: ["dated-search", world, body.from, body.till, Number(body.guests), world === "vacations" ? body.rooms ?? null : body.slot ?? "both"],
+      db: cacheDb,
+      load,
+      policy: { freshMs: 60_000, staleMs: 30 * 60_000 },
+      validate: value => !!value && typeof value === "object" && Array.isArray((value as { results?: unknown }).results),
+    }) : null;
+    const result = discovery ? cached!.value : dated ? dated.value : await load();
     if (world === "events" && body.includePlaces === true) {
       const liveOffers = result.results.filter(offer => publicIds.has(offer.siteID) && offer.available === true && offer.total && offer.slot).sort((a, b) => a.total! - b.total!);
       const selected = region ? selectRegionalOffers(liveOffers, regionPlaces.filter(place => publicIds.has(place.supplierId) && place.image), region.label, { placeId: offer => offer.siteID, key: offer => String(offer.siteID), limit: 20 }) : null;
@@ -73,7 +82,7 @@ export async function POST(request: Request) {
         ...(place.contact ? { contact: { ...(place.contact.phone ? { phone: place.contact.phone } : {}), ...(place.contact.whatsapp ? { whatsapp: place.contact.whatsapp } : {}) } } : {}),
       })) }, { headers: { ...noStore, "X-VII-Discovery-Cache": cached!.cache.status } });
     }
-    return Response.json(result, { headers: noStore });
+    return Response.json(dated ? { ...result, cache: dated.cache } : result, { headers: dated ? { ...noStore, "X-VII-Discovery-Cache": dated.cache.status } : noStore });
   } catch (error) {
     const invalid = error instanceof Error && error.message === "invalid_search";
     return Response.json({ error: invalid ? "invalid_search" : "supplier_unavailable" }, { status: invalid ? 400 : 503, headers: noStore });

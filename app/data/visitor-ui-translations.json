@@ -293,5 +293,15 @@
   "שולחן פינג פונג": { "en": "Table tennis", "ru": "Стол для настольного тенниса", "fr": "Table de ping-pong" },
   "שולחן פוקר": { "en": "Poker table", "ru": "Покерный стол", "fr": "Table de poker" },
   "שולחן כדורגל": { "en": "Table football", "ru": "Настольный футбол", "fr": "Baby-foot" },
-  "הוקי אוויר": { "en": "Air hockey", "ru": "Аэрохоккей", "fr": "Air hockey" }
+  "הוקי אוויר": { "en": "Air hockey", "ru": "Аэрохоккей", "fr": "Air hockey" },
+  "לא נציג תוצאות רגילות כאילו הן פנויות. אפשר לנסות שוב או להמשיך בלי תאריך.": { "en": "We will not show ordinary results as if they were available. Try again or continue without a date.", "ru": "Мы не будем показывать обычные результаты как доступные. Повторите попытку или продолжите без даты.", "fr": "Nous n’afficherons pas des résultats ordinaires comme s’ils étaient disponibles. Réessayez ou continuez sans date." },
+  "המשך בלי תאריך": { "en": "Continue without a date", "ru": "Продолжить без даты", "fr": "Continuer sans date" },
+  "הצגת כל מתחמי הספא בלי תאריך": { "en": "Show all spas without a date", "ru": "Показать все спа без даты", "fr": "Afficher tous les spas sans date" },
+  "בודקים אילו מקומות פנויים למועד ולכמות המשתתפים שבחרתם...": { "en": "Checking which venues are available for your selected date and party size...", "ru": "Проверяем площадки на выбранную дату и количество участников...", "fr": "Vérification des lieux disponibles pour la date et le nombre de participants choisis..." },
+  "לא הצלחנו לבדוק זמינות כרגע. אפשר לנסות שוב או לשנות את החיפוש.": { "en": "We could not check availability right now. Try again or change your search.", "ru": "Сейчас не удалось проверить наличие. Повторите попытку или измените поиск.", "fr": "Impossible de vérifier les disponibilités pour le moment. Réessayez ou modifiez votre recherche." },
+  "מוצגות תוצאות הבדיקה האחרונה. הזמינות תאושר שוב לפני ההזמנה.": { "en": "Showing results from the latest check. Availability will be confirmed again before booking.", "ru": "Показаны результаты последней проверки. Наличие будет подтверждено повторно перед бронированием.", "fr": "Les résultats de la dernière vérification sont affichés. La disponibilité sera confirmée à nouveau avant la réservation." },
+  "לא נמצאו מקומות פנויים בבחירה הזו.": { "en": "No available places were found for this selection.", "ru": "Для выбранных условий свободных мест не найдено.", "fr": "Aucun lieu disponible n’a été trouvé pour cette sélection." },
+  "בודקים אילו מקומות פנויים לתאריכים שבחרתם...": { "en": "Checking which places are available for your selected dates...", "ru": "Проверяем свободные места на выбранные даты...", "fr": "Vérification des lieux disponibles aux dates choisies..." },
+  "לא הצלחנו לבדוק זמינות כרגע. אפשר לנסות שוב או לשנות תאריכים.": { "en": "We could not check availability right now. Try again or change the dates.", "ru": "Сейчас не удалось проверить наличие. Повторите попытку или измените даты.", "fr": "Impossible de vérifier les disponibilités pour le moment. Réessayez ou modifiez les dates." },
+  "בחירת תאריכים אחרים": { "en": "Choose different dates", "ru": "Выбрать другие даты", "fr": "Choisir d’autres dates" }
 }

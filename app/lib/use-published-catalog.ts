@@ -44,10 +44,10 @@ export function usePublishedCatalog<T>(world: SupplierCatalogWorld, map: (value:
       }
     }
     let idleHandle: number | undefined;
-    let timerHandle: number | undefined;
+    let timerHandle: ReturnType<typeof globalThis.setTimeout> | undefined;
     if (seed === null) void load();
     else if ("requestIdleCallback" in window) idleHandle = window.requestIdleCallback(() => void load(), { timeout: 2_500 });
-    else timerHandle = window.setTimeout(() => void load(), 1_000);
+    else timerHandle = globalThis.setTimeout(() => void load(), 1_000);
     const refreshOnReturn = () => {
       if (document.visibilityState === "visible" && Date.now() - seededAt.current >= 5 * 60_000) void load();
     };
@@ -55,7 +55,7 @@ export function usePublishedCatalog<T>(world: SupplierCatalogWorld, map: (value:
     return () => {
       controller.abort();
       if (idleHandle !== undefined && "cancelIdleCallback" in window) window.cancelIdleCallback(idleHandle);
-      if (timerHandle !== undefined) window.clearTimeout(timerHandle);
+      if (timerHandle !== undefined) globalThis.clearTimeout(timerHandle);
       document.removeEventListener("visibilitychange", refreshOnReturn);
     };
   }, [world, map, seed]);

@@ -23,10 +23,10 @@ test("every geographic search family shares non-truncating minimum completion", 
 
 test("event fallback reuses all hard predicates and updates on every filter", async () => {
   const source = await read("app/events/search/page.tsx");
-  assert.match(source, /eventPlaces\.filter\(\(place\) => matchesHardFilters\(place\)\)/);
+  assert.match(source, /eventPlaces\.filter\(\(place\) => matchesHardFilters\(place\) && confirmedEventPlace\(place\)\)/);
   const predicate = source.slice(source.indexOf("const matchesHardFilters"), source.indexOf("const filtered"));
   for (const field of ["eventType", "guests", "noNoiseLimit", "accessibleOnly", "type"]) assert.ok(predicate.includes(field), field);
-  assert.match(source, /\.available !== false/);
+  assert.match(source, /hasConfirmedEventAvailability/);
   assert.match(source, /NearbySearchNotice dated=\{Boolean\(eventFrom\)\}/);
 });
 
@@ -36,7 +36,7 @@ test("vacation fallback keeps amenities, live price and unavailability eligibili
   assert.match(nearby, /mapCandidates\.filter/);
   assert.match(nearby, /liveAvailabilityFor\(property\.slug\)/);
   assert.match(nearby, /price < minPrice \|\| price > maxPrice/);
-  assert.match(nearby, /availability !== "unavailable"/);
+  assert.match(nearby, /confirmedForSelectedStay\(property\)/);
   assert.match(nearby, /!selectedStay && !flexibleSearch/);
   assert.match(source, /NearbySearchNotice dated=\{Boolean\(selectedStay \|\| flexibleSearch\)\}/);
 });
@@ -56,7 +56,7 @@ test("dated spa expansion retains audience, amenity and available-site filtering
   const source = await read("app/components/world-map-results.tsx");
   assert.match(source, /const eligible = amenityFiltered\.filter/);
   assert.match(source, /availability\.sites\.has/);
-  assert.match(source, /filtered\.length >= 3 \|\| checkingDate/);
+  assert.match(source, /filtered\.length >= 3 \|\| checkingDate \|\| availabilityFailed/);
 });
 
 test("business recommendation reads are public, managed, parallel and failure isolated", async () => {

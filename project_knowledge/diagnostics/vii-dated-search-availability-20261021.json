@@ -1,0 +1,84 @@
+{
+  "status": "fixed_pending_public_verification",
+  "symptom": "A valid dated all-country vacation search presents the ordinary catalog count and cards until the user enables the online-booking filter.",
+  "expected_behavior": "Valid dates automatically activate availability filtering; online-only may further refine the confirmed available set but must not enable availability itself.",
+  "environment": "Public VII release 556 at https://vii.spaplus.co on 2026-10-21, future stay 2026-11-10 through 2026-11-12, two guests.",
+  "reproduction": {
+    "steps": [
+      "Open the public all-country vacation search with from, till and guests.",
+      "Wait for the live supplier request to settle with online-only off.",
+      "Compare the visible result count with the live-search API response.",
+      "Enable online-only and observe that the result set then narrows."
+    ],
+    "evidence": "The public heading showed 573 places while the matching supplier response contained 56 available, 30 unavailable and 253 unknown records; the quick filter was aria-pressed=false."
+  },
+  "observations": [
+    {
+      "observation": "The search page invokes live supplier search whenever valid dates exist.",
+      "evidence": "app/search/page.tsx lines 375-384."
+    },
+    {
+      "observation": "The main filter applies matchesOnline only when onlineOnly is true, while dated availability otherwise affects ordering rather than eligibility.",
+      "evidence": "app/search/page.tsx lines 641-682."
+    },
+    {
+      "observation": "Event dated search also ranks supplier availability but does not exclude unavailable or unknown venues from its main filtered set.",
+      "evidence": "app/events/search/page.tsx filtered memo and supplier rank logic."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "Dated eligibility is incorrectly coupled to the online-only filter, so the live response changes card labels and rank but not result membership.",
+      "prediction": "With dates and online-only off, result count remains near the full catalog even though the supplier returns unavailable and unknown records; enabling online-only reduces the set.",
+      "discriminating_test": "Compare public count and card states with the exact live-search response before and after online-only.",
+      "result": "Supported by direct public reproduction and source inspection.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The date parameters are not parsed or sent to the supplier at all.",
+      "prediction": "The search header would not restore the selected dates and no matching supplier request or dated card status would appear.",
+      "discriminating_test": "Inspect the public search header, supplier endpoint and search hook state for the exact URL.",
+      "result": "Rejected: selected dates were restored and the endpoint returned a keyed dated response.",
+      "status": "rejected"
+    },
+    {
+      "id": "H3",
+      "mechanism": "Only the all-country geography alias causes the full catalog result.",
+      "prediction": "Regional dated searches would filter unavailable records correctly with online-only off.",
+      "discriminating_test": "Inspect shared eligibility code and run regional dated cases.",
+      "result": "Source inspection rejects geography as the primary mechanism because availability filtering is absent before geography is applied; regional runtime verification remains part of the repair suite.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Dated eligibility is now independent of online-only. Vacation and event list, count, map and nearby recovery require an exact positive supplier result; spa fails closed when its requested date is not covered or the provider check fails. Explicit discovery calls receive a short keyed last-good cache while detail and booking remain realtime.",
+    "evidence": "The production build, TypeScript check, 17 regression guard groups, 1,433 project tests with the one discovered localization failure corrected and rechecked, and the focused 25-test dated-search suite pass. Public verification remains required on the frozen release."
+  },
+  "affected_family": [
+    "Vacation dated search",
+    "Vacation online-only filter",
+    "Vacation nearby recovery and map",
+    "Event dated search",
+    "Shared date state and async failure handling",
+    "Spa and hourly date-support classification"
+  ],
+  "regression_checks": [
+    "Exact-date positive-only vacation eligibility",
+    "Event unknown, unavailable and zero-price exclusion",
+    "Spa uncovered-date and provider-failure fail-closed states",
+    "List, count, map and nearby result-set parity",
+    "Online-only remains a refinement of dated eligibility",
+    "Date labels restore in vacation, event and spa search",
+    "Retry, stale and empty states are localized in Hebrew, English, Russian and French",
+    "Discovery cache key includes world, dates, party and room or event slot",
+    "Booking and detail flows do not opt into discovery cache"
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "The exact production UI and provider counts must be re-observed after publishing the frozen candidate; the local Vinext runtime cannot reproduce production database bindings."
+  ],
+  "authorization_boundary": "Diagnose, repair, test and publish one production release; do not create bookings, mutate supplier data, change DNS or invent unsupported availability."
+}

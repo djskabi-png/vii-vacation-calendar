@@ -109,16 +109,25 @@ function defaultDateLabel(mode: SearchMode) {
 }
 
 function dateLabelFromSearch(searchParams: { get(name: string): string | null }, mode: SearchMode, language: SiteLanguage) {
-  if (mode !== "vacation") return defaultDateLabel(mode);
+  const locale = { he: "he-IL", en: "en-GB", ru: "ru-RU", fr: "fr-FR" }[language];
+  const separator = { he: "עד", en: "to", ru: "по", fr: "au" }[language];
+  const formatter = new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" });
+  const parse = (value: string) => new Date(`${value}T12:00:00`);
+  if (mode === "spa") {
+    const date = searchParams.get("date");
+    return date ? formatter.format(parse(date)) : defaultDateLabel(mode);
+  }
+  if (mode === "events") {
+    const from = searchParams.get("from");
+    const till = searchParams.get("to") || from;
+    if (!from || !till) return defaultDateLabel(mode);
+    return from === till ? formatter.format(parse(from)) : `${formatter.format(parse(from))} ${separator} ${formatter.format(parse(till))}`;
+  }
   const flexibleSearch = flexibleSearchFromParams(searchParams);
   if (flexibleSearch) return flexibleDateLabel(flexibleSearch, language);
   const from = searchParams.get("from");
   const till = searchParams.get("till");
   if (!from || !till) return defaultDateLabel(mode);
-  const locale = { he: "he-IL", en: "en-GB", ru: "ru-RU", fr: "fr-FR" }[language];
-  const separator = { he: "עד", en: "to", ru: "по", fr: "au" }[language];
-  const formatter = new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" });
-  const parse = (value: string) => new Date(`${value}T12:00:00`);
   return `${formatter.format(parse(from))} ${separator} ${formatter.format(parse(till))}`;
 }
 
