@@ -97,6 +97,12 @@
       "requirement": "Clipped card feature chips remain reachable by mouse drag, touch swipe and keyboard without opening the card.",
       "test_file": "tests/property-card-gallery.test.mjs",
       "test_title": "feature rows support mouse drag, native touch swipe and keyboard scrolling without card navigation"
+    },
+    {
+      "id": "footer-app-install-entry",
+      "requirement": "The global footer always keeps a truthful install-app entry point with native prompting, installed state and localized fallback guidance.",
+      "test_file": "tests/pwa-experience.test.mjs",
+      "test_title": "the global footer always keeps a truthful install app entry point"
     }
   ]
 }

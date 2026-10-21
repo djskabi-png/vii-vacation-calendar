@@ -30,3 +30,14 @@ test("PWA controls cover install, iOS guidance, update and offline states in all
   assert.match(experience, /role="status"/);
   assert.match(experience, /role="dialog" aria-modal="true"/);
 });
+
+test("the global footer always keeps a truthful install app entry point", () => {
+  const experience = source("../app/components/pwa-experience.tsx");
+  const footer = source("../app/components/site-footer.tsx");
+  assert.match(footer, /<PwaInstallControl \/>/);
+  assert.doesNotMatch(experience, /if \(!state\.update && !state\.installPrompt && !state\.ios\) return null/);
+  assert.doesNotMatch(experience, /if \(state\.installed && !state\.update\) return null/);
+  assert.match(experience, /state\.ios \? copy\[language\]\.ios : copy\[language\]\.browser/);
+  assert.match(experience, /disabled=\{state\.installed && !state\.update\}/);
+  assert.match(experience, /if \(state\.installPrompt\) \{ await state\.installPrompt\.prompt\(\)/);
+});
