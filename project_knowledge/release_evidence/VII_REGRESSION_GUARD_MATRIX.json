@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "purpose": "Durable release coverage for VII defects that previously returned after otherwise successful changes.",
+  "rules": [
+    {
+      "id": "event-rail-continuation",
+      "requirement": "Event discovery keeps the complete eligible rail and is not reduced to three cards.",
+      "test_file": "tests/homepage-payload-contract.test.mjs",
+      "test_title": "homepage sends only slider data to its hydrated showcase"
+    },
+    {
+      "id": "event-undated-starting-price",
+      "requirement": "Undated event cards keep a verified starting price while dated and invalid selections suppress it.",
+      "test_file": "tests/undated-starting-prices.test.mjs",
+      "test_title": "only positive supplier seasonal integers form an undated advertising floor"
+    },
+    {
+      "id": "durable-last-good-discovery",
+      "requirement": "A refresh or provider failure cannot erase the last verified discovery result set.",
+      "test_file": "tests/discovery-offer-cache.test.mjs",
+      "test_title": "D1 cache serves stale data after failure and expires it"
+    },
+    {
+      "id": "online-capability-refresh",
+      "requirement": "Online capability refreshes on schedule and retains last-good evidence across supplier outages.",
+      "test_file": "tests/online-booking-capability.test.mjs",
+      "test_title": "capability discovery refreshes every half hour and retains last-good evidence across supplier outages"
+    },
+    {
+      "id": "online-filter-truth",
+      "requirement": "The online filter exposes only confirmed supported priced offers and has truthful recovery states.",
+      "test_file": "tests/vacation-online-booking-filter.test.mjs",
+      "test_title": "online filter is wired before primary and nearby results and has truthful date and retry states"
+    },
+    {
+      "id": "sparse-geography-recovery",
+      "requirement": "Known sparse searches recover to nearby results rather than a false 404.",
+      "test_file": "tests/geographic-search-family.test.mjs",
+      "test_title": "known sparse semantic routes reach nearby recovery instead of returning a false 404"
+    },
+    {
+      "id": "holiday-search-editor",
+      "requirement": "Holiday change-search opens the real date editor after hydration without duplicate navigation.",
+      "test_file": "tests/holiday-audience-deals.test.mjs",
+      "test_title": "holiday change-search handoff opens the real date editor after hydration without a second navigation"
+    },
+    {
+      "id": "holiday-editorial-media",
+      "requirement": "Current and future holiday pages retain distinct optimized editorial images and safe fallbacks.",
+      "test_file": "tests/holiday-world.test.mjs",
+      "test_title": "holiday editorial assets are distinct optimized WebP files with mobile variants"
+    },
+    {
+      "id": "map-preview-pipeline",
+      "requirement": "Place pages prefer a stored map snapshot and retain a passive real-map fallback.",
+      "test_file": "tests/map-snapshot-pipeline.test.mjs",
+      "test_title": "shared maps prefer a stored snapshot and use a passive real map on detail fallback"
+    },
+    {
+      "id": "trail-reverse-crosslinks",
+      "requirement": "Every trail detail retains vacation, spa, attraction and supplier discovery links.",
+      "test_file": "tests/trail-reverse-crosslinks.test.mjs",
+      "test_title": "trail crosslinks use one compact responsive grid instead of four heavy rails"
+    },
+    {
+      "id": "hourly-whole-card-navigation",
+      "requirement": "Hourly cards open from the card surface while phone and WhatsApp remain independent actions.",
+      "test_file": "tests/hourly-card-detail-parity.test.mjs",
+      "test_title": "hourly cards use one stretched place link and keep contacts separate"
+    },
+    {
+      "id": "shared-icon-centering",
+      "requirement": "Shared square icon frames and event checkmarks stay centered.",
+      "test_file": "tests/icon-centering.test.mjs",
+      "test_title": "shared square icon frames center the SVG box explicitly"
+    },
+    {
+      "id": "event-checkmark-centering",
+      "requirement": "Event feature cards retain one centered vector checkmark.",
+      "test_file": "tests/event-slider-checkmark-contract.test.mjs",
+      "test_title": "event place feature cards use one centered vector checkmark"
+    },
+    {
+      "id": "responsive-search-transition",
+      "requirement": "The search release audit continues to cover every entry point and responsive transition.",
+      "test_file": "tests/search-state-audit-contract.test.mjs",
+      "test_title": "the release audit covers every search entry point and responsive transition"
+    },
+    {
+      "id": "public-404-recovery",
+      "requirement": "Unknown routes retain a dedicated noindex 404 with recovery paths.",
+      "test_file": "tests/ten-part-polish-contract.test.mjs",
+      "test_title": "404 has a dedicated noindex identity and recovery paths"
+    }
+  ]
+}

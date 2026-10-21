@@ -12,6 +12,7 @@
     "test": "pnpm build && node --test tests/*.test.mjs",
     "audit:search": "node scripts/audit-search-state.cjs",
     "qa:site": "node scripts/audit-sitewide-release.cjs",
+    "qa:regression-guards": "node scripts/verify-regression-guard-matrix.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern .openai",
     "db:generate": "drizzle-kit generate"
   },
