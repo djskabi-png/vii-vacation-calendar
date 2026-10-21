@@ -1,0 +1,35 @@
+{
+  "status": "fixed",
+  "symptom": "Public vacation business pages intermittently returned HTTP 500 during a bounded three-request catalog sweep.",
+  "expected_behavior": "Every accepted public catalog place returns a stable HTTP 200 page with an H1 under bounded read concurrency.",
+  "environment": "Public VII release 567 at https://vii.spaplus.co on 2026-10-21, AWS Aurora database mode primary, three concurrent read-only requests.",
+  "reproduction": {
+    "steps": [
+      "Enumerate all four live lookup catalogs.",
+      "Request each of the 918 accepted detail URLs with concurrency three.",
+      "Record response status and H1 without retries."
+    ],
+    "evidence": "project_knowledge/release_evidence/vii-owned-validation-release-20261021/catalog/catalog-integrity.json recorded 90 transient HTTP 500 vacation pages; later direct requests to the same IDs returned 200."
+  },
+  "observations": [
+    {"observation":"The four runtime lookup and detail catalogs reconciled at 573 vacations, 133 events, 53 rooms and 159 spas.","evidence":"catalog-integrity.json world counts; the initial spa mismatch was an audit ID-normalization defect and has been corrected."},
+    {"observation":"Ninety vacation pages failed during the bounded concurrent sweep, then representative failed IDs 28, 65 and 2662 returned 200 immediately afterward.","evidence":"catalog-integrity.json plus direct post-sweep HTTP checks."},
+    {"observation":"The production environment is configured with VII_AWS_DB_MODE=primary and an AWS database endpoint.","evidence":"Authenticated Sites settings page; secret values were not read or stored."}
+  ],
+  "hypotheses": [
+    {"id":"H1","mechanism":"A transient AWS database bridge read failure propagates through uncaught catalog SELECT operations and aborts server rendering.","prediction":"Failures cluster under concurrent cold reads, the same entity later succeeds, and one bounded retry at the database adapter read boundary prevents the render failure without retrying writes.","discriminating_test":"Run an exhaustive no-retry public sweep, compare failed entity retests, then unit-test one 503 followed by success at the AWS adapter.","result":"Ninety 500s occurred under concurrency three; representative failed entities later returned 200; adapter test passed with exactly two SELECT attempts and one write attempt.","status":"supported"},
+    {"id":"H2","mechanism":"The failing vacation records contain malformed or missing catalog data.","prediction":"The same IDs fail consistently and lookup/detail reconciliation reports missing records.","discriminating_test":"Compare all lookup IDs to full catalog entries and retest failed IDs individually.","result":"Vacation lookup and detail counts matched 573 with no missing or orphan records, and failed IDs later returned 200.","status":"rejected"},
+    {"id":"H3","mechanism":"The BizOnline live-detail request throws and escapes the page fallback.","prediction":"Failures persist per supplier or track the external detail endpoint.","discriminating_test":"Inspect liveSupplierPlaceDetail error handling and retest affected suppliers.","result":"The live-detail function catches upstream errors and returns accepted fallback data; affected suppliers later rendered normally.","status":"rejected"}
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {"change":"Retry exactly once after 125 milliseconds only for non-transactional SQL SELECT calls when the AWS bridge fetch fails, returns 429, or returns 5xx. Never retry run operations, writes or transactional batches.","evidence":"tests/aws-database-adapter.test.mjs proves one transient SELECT retry succeeds, no third request is sent, and an uncertain UPDATE remains single-attempt. Public release 570 then passed 917 of 917 accepted entity pages and 859 of 859 unique primary-image checks with zero failures."},
+  "affected_family": ["All public routes reading accepted supplier catalogs through the AWS adapter","Vacation business pages","Search and discovery pages","Read-only admin and reporting queries using SELECT"],
+  "regression_checks": [
+    {"check":"AWS adapter read, write, raw and batch semantics","status":"passed","evidence":"tests/aws-database-adapter.test.mjs"},
+    {"check":"Removed supplier IDs are not resurrected","status":"passed","evidence":"tests/public-catalog-api.test.mjs and tests/published-supplier-ids.test.mjs"},
+    {"check":"Accepted detail and review snapshot behavior","status":"passed","evidence":"tests/review-preview-read-pipeline.test.mjs"}
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [],
+  "authorization_boundary": "Code repair, read-only production verification and publication are authorized; writes, booking, payments and messages are excluded."
+}

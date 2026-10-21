@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-owned-validation-release-20261021",
+  "project": "VII",
+  "task_type": "catalog control gallery and performance verification with public release",
+  "requested_outcome": "Close the four audit gaps owned by the VII team, fix any proven regression, publish an approved release, and verify the exact public version.",
+  "natural_destination": "https://vii.spaplus.co",
+  "authorization_boundary": "Local code, safe read-only production probes, publishing, and post-publication verification are authorized. Booking, payment, calls, WhatsApp sends, account or CMS mutation, and destructive infrastructure actions remain excluded.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-QA-001","reason":"Adir requires publication only after complete testing.","acceptance_impact":"Require exact-version public evidence, rollback identity, and affected-family regression."},
+    {"lesson_id":"ADIR-CONTROL-001","reason":"The open gap is safe control coverage.","acceptance_impact":"Create an explicit inventory and exercise safe visible controls by family and state."},
+    {"lesson_id":"ADIR-MOBILE-001","reason":"The gallery harness failed on mobile.","acceptance_impact":"Require stable 390px, low-height, touch and responsive-transition evidence."},
+    {"lesson_id":"ADIR-WEB-002","reason":"Search, filters, sliders and galleries have multiple states.","acceptance_impact":"Test action, boundary, reset, reload, close and recovery where applicable."},
+    {"lesson_id":"ADIR-CONSISTENCY-001","reason":"Catalog cards and controls repeat across worlds.","acceptance_impact":"A shared failure expands to every affected world and viewport."},
+    {"lesson_id":"ADIR-MEDIA-001","reason":"Catalog completeness includes media validity.","acceptance_impact":"Detect missing, undecodable and invalid primary media without claiming rights provenance."},
+    {"lesson_id":"ADIR-SEARCH-001","reason":"Search and discovery performance must remain measured and consistent across worlds.","acceptance_impact":"Use repeated bounded cold and warm measurements with percentile reporting and preserve search state."},
+    {"lesson_id":"VII-PROJECT-001","reason":"Search and catalog rules are VII-specific.","acceptance_impact":"Preserve online booking, undated price and world-specific search behavior."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"Only a sample of catalog records was checked.","prevention":"Enumerate live sitemap and catalog endpoints, record every checked entity and bounded exclusions.","acceptance_check":"The catalog report gives totals, per-world counts, failures and exact checked URLs."},
+    {"rejection":"Controls were counted but not used.","prevention":"Exercise safe controls and record the visible state change for each family.","acceptance_check":"Every inventoried safe control family has an interaction result or explicit external-action exclusion."},
+    {"rejection":"The gallery passed once and flakes again.","prevention":"Repair the harness around stable locators and context lifecycle, then run repeated isolated passes.","acceptance_check":"At least two clean isolated runs pass mobile, low-height, RTL/LTR, close and responsive transitions."},
+    {"rejection":"Averages hide a severe first-load spike.","prevention":"Record multiple cold and warm samples per route with p50, p95 and max.","acceptance_check":"No unexplained repeated timeout or blank-page observation remains."},
+    {"rejection":"A new version was published without proving it is the tested artifact.","prevention":"Bind commit, build artifact, deployment identity, rollback identity and post-publication URL evidence.","acceptance_check":"The exact public version survives build, automated gates and live regression checks."}
+  ],
+  "affected_family": [
+    "public catalog APIs and sitemap-discovered place URLs",
+    "cards, filters, sort, sliders, galleries, map/list and navigation controls",
+    "vacation unit and main property galleries",
+    "core Hebrew and localized public routes",
+    "cold and warm page and navigation responses",
+    "online booking, undated prices and availability presentation as invariants"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {"sources":[{"label":"VII platform decisions","source":"calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"},{"label":"VII feedback standard","source":"calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"},{"label":"Release 567 audit gaps","source":"project_knowledge/release_evidence/reconciled-full-component-audit-567-20261021.md"}],"no_precedent_reason":null},
+  "midpoint_gate": {"required":true,"trigger":"After the new catalog/control inventory and one stable gallery run complete, before any product edit or publication.","checks":["Confirm the inventory is based on live discoverable data","Confirm controls were exercised rather than merely found","Confirm gallery failure is product or harness before editing product code","Confirm performance sampling separates one outlier from a repeatable mechanism"],"not_required_reason":null},
+  "adversarial_close": {"attack_questions":["Which live entity, safe control family, gallery state or performance sample is missing?","Can the gallery harness pass twice in clean isolated browser contexts?","Can a search, online-booking, undated-price or slider regression be reproduced after the candidate build?","Does the exact public version and rollback identity match the verified candidate?"],"natural_destination_evidence":"Exact-version browser and HTTP evidence from https://vii.spaplus.co after publication.","affected_family_evidence":"Machine-readable catalog, control, gallery, performance and release manifests."},
+  "effectiveness": {"baseline":"Release 567 passed representative routes but left exhaustive catalog, safe controls, gallery harness stability and repeated performance measurement open.","measurements":["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],"target":"Close every team-owned gap with reproducible automation and publish only a candidate that passes pre- and post-release gates."},
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

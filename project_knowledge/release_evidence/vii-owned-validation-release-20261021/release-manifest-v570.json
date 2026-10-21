@@ -1,0 +1,31 @@
+{
+  "verdict": "ready",
+  "target": "https://vii.spaplus.co",
+  "release": {
+    "version": 570,
+    "versionId": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_5455a0b26a4c8191a7706bf27bbe6d62",
+    "deploymentId": "appgdep_6ad93605db7081919692439ddaa929c3",
+    "commit": "eceb881edf826d66f6401fd3ef8aeccd7247a2f7",
+    "status": "succeeded",
+    "publishedAtIsrael": "2026-10-22T01:05:20+03:00"
+  },
+  "requestedOutcome": "Complete the VII-owned catalog, safe-control, mobile-gallery and performance gaps, publish the passing product build, and verify the exact public release.",
+  "checks": [
+    {"name":"full catalog and primary media","status":"passed","evidence":"postdeploy-570/catalog/catalog-integrity.json","observed":"917 of 917 accepted entity pages and 859 of 859 unique primary images passed; 0 failures."},
+    {"name":"safe public controls","status":"passed","evidence":["postdeploy-570/controls-semantic-v3/safe-control-families.json","postdeploy-570/controls-semantic-focused-v6/safe-control-families.json"],"observed":"The broad pass cleared 95 stable or safely excluded families; the focused dynamic-state pass inventoried 97 families on the four affected route templates with 0 failures. Conditional rendering, real disabled states and external or mutating boundaries were recorded explicitly."},
+    {"name":"mobile unit gallery","status":"passed","evidence":["postdeploy-570/gallery/audit-run-1.json","postdeploy-570/gallery/audit-run-2.json"],"observed":"Two isolated 390 by 844 journeys passed arrows, gestures, all-images grid, exact-index return, scroll and focus return, second-unit reset, RTL and LTR, low-height, responsive transition, Escape and main gallery."},
+    {"name":"runtime performance distribution","status":"passed","evidence":"postdeploy-570/performance/runtime-distribution.json","observed":"80 cold and warm observations across 8 core and localized routes completed without request failures."},
+    {"name":"isolated public page and viewport audit","status":"passed","evidence":"postdeploy-570/isolated/audit.json","observed":"16 route and viewport combinations passed HTTP, H1, locale hydration, overflow, serious or critical axe, and JavaScript-error checks."},
+    {"name":"automated regression suite","status":"passed","observed":"1445 of 1445 tests passed; TypeScript and production build were clean; 17 release guards were verified."},
+    {"name":"direct public invariants","status":"passed","observed":"Core routes and vacation business detail returned HTTP 200 from Aurora; the internal vacation-389 QA fixture is absent from lookup and returns API 404."}
+  ],
+  "rollback": {
+    "available": true,
+    "version": 569,
+    "versionId": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_8f4d867832bc8191a6354dd7b699e4d2",
+    "deploymentId": "appgdep_6ad930b4e1e481919bd3fab4bc45f6a0",
+    "commit": "40145487ead879206e8960be59eaae0ea31442a6"
+  },
+  "authorizationBoundary": "The user explicitly authorized public deployment. Tests excluded bookings, payments, phone calls, WhatsApp messages, location permission and privileged mutations.",
+  "remainingBlockers": []
+}
