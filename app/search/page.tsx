@@ -343,7 +343,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const searchParams = useSearchParams();
   const searchQuery = searchParams.toString();
   const onlineOnly = searchParams.get("online") === "1";
-  const [openDatesRequest, setOpenDatesRequest] = useState(0);
+  const [openDatesRequest, setOpenDatesRequest] = useState(() => searchParams.get("editSearch") === "dates" ? 1 : 0);
   const [onlineSearchRetry, setOnlineSearchRetry] = useState(0);
   const { language, translate } = useSiteLanguage();
   const managedGeography = useManagedGeography();
@@ -369,14 +369,6 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const [draftFilters, setDraftFilters] = useState<VacationFilterState | null>(null);
   const [, setVisibleMapCount] = useState(0);
 
-  useEffect(() => {
-    if (searchParams.get("editSearch") !== "dates") return;
-    setOpenDatesRequest((value) => value + 1);
-    const canonicalParams = new URLSearchParams(searchQuery);
-    canonicalParams.delete("editSearch");
-    const canonicalQuery = canonicalParams.toString();
-    window.history.replaceState(window.history.state, "", `${pathname}${canonicalQuery ? `?${canonicalQuery}` : ""}`);
-  }, [pathname, searchParams, searchQuery]);
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
   const [activeMapPropertyId, setActiveMapPropertyId] = useState<string | null>(null);
 

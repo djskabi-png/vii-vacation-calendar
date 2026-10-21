@@ -110,13 +110,11 @@ test("advanced search uses supported exact dates and preserves party rather than
   }
 });
 
-test("holiday change-search handoff opens the date editor once and leaves a canonical shareable URL", () => {
+test("holiday change-search handoff initializes the real date editor without a second navigation", () => {
   const search = readFileSync(new URL("../app/search/page.tsx", import.meta.url), "utf8");
-  assert.match(search, /searchParams\.get\("editSearch"\) !== "dates"/);
-  assert.match(search, /setOpenDatesRequest\(\(value\) => value \+ 1\)/);
-  assert.match(search, /canonicalParams\.delete\("editSearch"\)/);
-  assert.match(search, /window\.history\.replaceState\(window\.history\.state, "", `\$\{pathname\}\$\{canonicalQuery/);
-  assert.doesNotMatch(search, /router\.replace\(`\$\{pathname\}\$\{canonicalQuery/, "canonical cleanup must not navigate and remount the open editor");
+  assert.match(search, /useState\(\(\) => searchParams\.get\("editSearch"\) === "dates" \? 1 : 0\)/);
+  assert.doesNotMatch(search, /canonicalParams\.delete\("editSearch"\)/, "the editor intent must survive the initial mount");
+  assert.doesNotMatch(search, /history\.replaceState/, "URL cleanup must not remount and immediately close the editor");
 });
 
 test("holiday UI replaces banners, carries complete quote context and guards late responses", () => {
