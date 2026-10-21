@@ -55,6 +55,10 @@ test('event and vacation result clients fall back from incomplete city coordinat
  assert.match(vacationSearch,/nearbySearchRecommendations\(eligible, area, managedGeography/);
  assert.match(vacationSearch,/nearbySearchRecommendations\(draftCandidates, shownFilters\.area, managedGeography/);
 });
+test('event nearby disclosure spans the full desktop results grid',()=>{
+ assert.match(read('app/components/nearby-search-notice.tsx'),/nearby-search-notice/);
+ assert.match(read('app/results-view.css'),/\.event-list\.results-view--grid > \.nearby-search-notice/);
+});
 test('new metro titles are localized and retain audience and feature constraints',()=>{
  const state=spaSearchStateFromValues('גוש דן','couple',['pool']);
  for(const language of ['en','fr','ru']) assert.doesNotMatch(spaSearchTitle(state,language),/[\u0590-\u05ff]|undefined/);

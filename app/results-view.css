@@ -51,6 +51,7 @@
 .event-list.results-view--grid { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; }
 .event-list.results-view--grid > .results-heading,
 .event-list.results-view--grid > .results-toolbar,
+.event-list.results-view--grid > .nearby-search-notice,
 .event-list.results-view--grid > .empty-state { grid-column: 1 / -1; }
 .event-list.results-view--grid > article { min-width: 0; display: flex; flex-direction: column; gap: 0; overflow: hidden; padding: 0; background: #fff; box-shadow: 0 10px 32px rgba(3, 39, 48, .07); }
 .event-list.results-view--grid > article > .event-card-gallery { padding: 0; }

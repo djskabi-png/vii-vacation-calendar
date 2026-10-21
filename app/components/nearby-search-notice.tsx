@@ -11,7 +11,7 @@ export function NearbySearchNotice({ regionalOnly = false, dated = false }: { re
     ru: { title: "Дополнительные варианты в окрестностях", date: "Уточните выбранные даты у мест, доступность которых ещё не подтверждена." },
     fr: { title: "D'autres choix dans les environs", date: "Vérifiez les dates choisies auprès des lieux dont la disponibilité n'a pas été confirmée." },
   }[language];
-  return <div className="availability-demo-summary availability-demo-summary--live" role="status">
+  return <div className="availability-demo-summary availability-demo-summary--live nearby-search-notice" role="status">
     <strong>{labels.title}</strong><span>{copy.expanded} {regionalOnly ? copy.regional : copy.places}</span>
     {dated && <small>{labels.date}</small>}
   </div>;
