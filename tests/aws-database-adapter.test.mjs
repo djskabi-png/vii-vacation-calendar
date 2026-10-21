@@ -86,6 +86,21 @@ test('AWS adapter retries one transient SELECT failure and never loops', async (
   } finally { globalThis.fetch = originalFetch; }
 });
 
+test('AWS adapter never makes a third SELECT request after network error then 503', async () => {
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async () => {
+    calls += 1;
+    if (calls === 1) throw new TypeError('temporary network failure');
+    return Response.json({ ok: false, error: 'temporary' }, { status: 503 });
+  };
+  try {
+    const db = databaseForEnv({DB:{prepare(){}},VII_AWS_DB_ENDPOINT:'https://bridge.example.test',VII_AWS_DB_TOKEN:'token',VII_AWS_DB_MODE:'primary'});
+    await assert.rejects(db.prepare('SELECT 7 AS value').first(), /temporary/);
+    assert.equal(calls, 2);
+  } finally { globalThis.fetch = originalFetch; }
+});
+
 test('AWS adapter does not retry an uncertain write', async () => {
   const originalFetch = globalThis.fetch;
   let calls = 0;

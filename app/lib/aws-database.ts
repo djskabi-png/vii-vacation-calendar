@@ -76,13 +76,15 @@ async function callBridge(env: AwsDatabaseEnv, operations: RemoteOperation[], tr
   if (!configured(env)) throw new Error("VII AWS database bridge is not configured");
   const canRetry = retryableRead(operations, transactional);
   let response: Response;
+  let retried = false;
   try {
     response = await bridgeRequest(env, operations, transactional);
   } catch (error) {
     if (!canRetry) throw error;
+    retried = true;
     response = await bridgeRequest(env, operations, transactional);
   }
-  if (canRetry && (response.status === 429 || response.status >= 500)) {
+  if (canRetry && !retried && (response.status === 429 || response.status >= 500)) {
     await response.body?.cancel();
     response = await bridgeRequest(env, operations, transactional);
   }
