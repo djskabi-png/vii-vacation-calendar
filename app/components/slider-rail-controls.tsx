@@ -99,7 +99,7 @@ export function SliderRailControls({
     className={className}
     role="group"
     aria-label={label}
-    aria-controls={railId}
+    aria-controls={disabled ? undefined : railId}
     data-slider-controls
     style={{ direction: language === "he" ? "rtl" : "ltr" }}
   >
