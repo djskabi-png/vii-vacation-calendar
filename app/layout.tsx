@@ -58,6 +58,20 @@ const baseMetadata: Metadata = {
   },
 };
 
+const localizedRootTitles = {
+  he: "וי פור ויקיישן | מוצאים את החופשה שמתאימה לכם",
+  en: "Vifor Vacation | Find the vacation that suits you",
+  ru: "Вифор Отпуск | Найдите отдых, который подходит именно вам",
+  fr: "Vifor Vacances | Trouvez les vacances qui vous conviennent",
+} as const;
+
+const localizedTitleTemplates = {
+  he: "%s | וי פור ויקיישן",
+  en: "%s | Vifor Vacation",
+  ru: "%s | Вифор Отпуск",
+  fr: "%s | Vifor Vacances",
+} as const;
+
 const adminFontCriticalCss = `
 @font-face {
   font-family: "VII Heebo";
@@ -88,10 +102,19 @@ function stripLocale(pathname: string) {
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
+  const locale = (requestHeaders.get("x-vii-locale") || "he") as keyof typeof localizedRootTitles;
   const pathname = requestHeaders.get("x-vii-pathname") || "/";
   const basePath = stripLocale(pathname);
   return {
     ...baseMetadata,
+    // The production worker localizes metadata for SEO. Rendering the root
+    // title in the same locale before hydration keeps React's title text node
+    // identical to the delivered HTML instead of collapsing the localized
+    // document after a hydration mismatch.
+    title: {
+      default: localizedRootTitles[locale],
+      template: localizedTitleTemplates[locale],
+    },
     alternates: {
       ...baseMetadata.alternates,
       canonical: pathname,
