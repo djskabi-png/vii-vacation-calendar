@@ -25,6 +25,7 @@ test("locale bootstrapping cannot leave a restored mobile tab blank", () => {
   assert.doesNotMatch(layout, /data-locale-pending[^']*true|localePending='true'/);
   assert.doesNotMatch(layout, /setTimeout\(reveal/);
   assert.doesNotMatch(css, /html\[data-locale-pending="true"\] body/);
+  assert.doesNotMatch(css, /html\[data-locale-pending\]\s+body\s*\{[^}]*visibility:\s*hidden/s);
   assert.doesNotMatch(css, /locale-pending-failsafe/);
   assert.match(layout, /d\.removeAttribute\('data-locale-pending'\)/);
 });

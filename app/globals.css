@@ -10513,10 +10513,6 @@ button[data-slider-boundary]:disabled { opacity: .32; color: #71898d; cursor: de
   .progressive-results > button span { font-size: .82rem; }
   .progressive-results > button small { font-size: .68rem; }
 }
-html[data-locale-pending] body {
-  visibility: hidden;
-}
-
 /* Keep directional glyphs literal; inherited RTL must not mirror the chevrons. */
 .property-gallery__mobile-arrow span,
 .story-gallery__tap::before { direction: ltr; unicode-bidi: isolate; }
