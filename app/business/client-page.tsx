@@ -385,6 +385,9 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
                   const roomInRecommendation = Boolean(effectiveVacationAvailability?.recommendation?.items.some((item) => item.index === roomIndex));
                   const roomNightlyPrice = roomAvailability?.nightlyPrice || 0;
                   const roomTotalPrice = (roomAvailability && "totalPrice" in roomAvailability ? roomAvailability.totalPrice : undefined) || (roomNightlyPrice && dateRange.from && dateRange.till ? roomNightlyPrice * Math.max(1, Math.round((Date.parse(`${dateRange.till}T12:00:00`) - Date.parse(`${dateRange.from}T12:00:00`)) / 86_400_000)) : 0);
+                  const minimumStayRestriction = effectiveVacationAvailability?.unavailableReason === "min_nights" && effectiveVacationAvailability.minimumNights
+                    ? `נדרשים לפחות ${effectiveVacationAvailability.minimumNights} לילות. בחרו תאריך עזיבה מאוחר יותר`
+                    : "";
                   const unitGalleryStart = property.roomOptions!.slice(0, roomIndex).reduce((total, option) => total + (option.images?.length || 1), 0);
                   const roomStatus = vacationAvailabilityMode === "inquiry"
                     ? unitCopy.inquiry
@@ -392,6 +395,8 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
                       ? "מעדכנים זמינות ומחיר"
                     : supplierSiteID && supplierQuote.status === "ready" && effectiveVacationAvailability?.availability === "available" && !roomAvailable
                       ? "ליחידה זו נדרשת בדיקת זמינות נפרדת"
+                    : supplierSiteID && supplierQuote.status === "ready" && minimumStayRestriction
+                      ? minimumStayRestriction
                     : supplierSiteID && supplierQuote.status === "ready" && !roomAvailable
                       ? "לא התקבל אישור זמינות ליחידה זו"
                     : (supplierSiteID ? supplierQuote.status : liveLegacyAvailability.status) === "error"
@@ -410,7 +415,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
                   {room.image ? <button className="room-card__image" type="button" data-gallery-trigger onClick={() => { setGalleryTopic(room.name); openGallery("units", unitGalleryStart); }} aria-label={`${translate("פתיחת גלריית")} ${localizedRoomName}`}><img src={room.image} alt={`${localizedRoomName}, ${localizedPropertyName}`} title={`${localizedRoomName}, ${localizedPropertyName}`} width="960" height="640" loading="lazy" decoding="async" /><span>{room.images?.length ? `${room.images.length} ${translate("תמונות")}` : translate("תמונת היחידה")}</span></button> : <div className="room-card__image room-card__image--missing"><img src={property.image} alt={`${localizedPropertyName}, ${localizedRoomName}`} title={`${localizedPropertyName}, ${localizedRoomName}`} width="960" height="640" loading="lazy" decoding="async" /><span>{translate("תמונת המתחם, לא היחידה")}</span></div>}
                   <div className="room-card__body">
                     <div className="room-card__facts"><span>{translate(`עד ${room.guests} אורחים`)}</span>{room.bedrooms > 0 ? <span>{translate(bedroomLabel(room.bedrooms))}</span> : null}{room.area ? <span>{room.area} {translate("מ״ר")}</span> : null}<button className="room-card__more" type="button" onClick={() => setSelectedRoomIndex(roomIndex)}>{translate("פרטי היחידה")}</button></div>
-                    {room.features?.length ? <div className="room-card__amenities" aria-label={translate("מתקנים ושירותים ביחידה")}>{localizedBusinessList(room.features.slice(0, 3), language, translate).map((feature) => <span key={feature}><PropertyHighlightIcon icon={highlightIconFor(feature)} /><b>{feature}</b></span>)}</div> : null}
+                    {room.features?.length ? <div className="room-card__amenities" aria-label={translate("מתקנים ושירותים ביחידה")}>{localizedBusinessList(room.features, language, translate).map((feature) => <span key={feature}><PropertyHighlightIcon icon={highlightIconFor(feature)} /><b>{feature}</b></span>)}</div> : null}
                     {activeWorld === "vacation" && hasSelectedDates ? <div className="room-card__availability" role="status"><strong>{roomStatus}</strong>{vacationAvailabilityMode === "live" && roomNightlyPrice ? <span>{roomNightlyPrice.toLocaleString(numberLocale)} ₪ {unitCopy.perNight}{roomTotalPrice ? ` · ${roomTotalPrice.toLocaleString(numberLocale)} ₪ ${unitCopy.total}` : ""}</span> : null}</div> : null}
                     <div className="room-card__actions">{activeWorld === "vacation"
                       ? canBookRoom ? <Link className="button primary" href={supplierSiteID ? `/booking?${bookingQuery}` : roomBookingHref(bookingQuery, roomIndex, roomNightlyPrice)}>{unitCopy.quick} {safeBusinessText(room.name, `${businessCopy.unit} ${roomIndex + 1}`)}</Link>

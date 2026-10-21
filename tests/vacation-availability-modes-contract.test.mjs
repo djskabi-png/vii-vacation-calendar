@@ -37,12 +37,17 @@ test("unit cards keep only compact facts and place status and price above the ac
   const actionPosition = page.indexOf("room-card__actions", statusPosition);
   assert.ok(statusPosition > 0 && actionPosition > statusPosition);
   assert.match(page, /room-card__facts[\s\S]*פרטי היחידה/);
+  assert.match(page, /localizedBusinessList\(room\.features, language, translate\)/);
+  assert.doesNotMatch(page, /room\.features\.slice\(/);
+  assert.match(page, /unavailableReason === "min_nights"/);
+  assert.match(page, /נדרשים לפחות \$\{effectiveVacationAvailability\.minimumNights\} לילות/);
   assert.doesNotMatch(page, /כל פרטי היחידה \+/);
   assert.doesNotMatch(page, /room-card__features/);
   assert.doesNotMatch(page, /room-card__sleeping/);
   assert.match(css, /grid-template-areas: "image identity" "image body"/);
   assert.match(css, /\.room-card__image \{[^}]*min-height: 318px/);
   assert.match(css, /\.room-card__actions \{[^}]*margin-top: auto/);
+  assert.match(css, /\.room-card__amenities \{[^}]*flex-wrap: nowrap;[^}]*overflow-x: auto;[^}]*touch-action: pan-x/);
 });
 
 test("the party recommendation is shown before the unit list", async () => {

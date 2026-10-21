@@ -335,7 +335,7 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
                               : isUnavailable ? <button className="button secondary vacation-booking-dialog__unit-action" type="button" onClick={openCalendar}>{unitCopy.checkOther}</button>
                                 : isAvailable && !unitFitsParty && ownerWhatsapp ? <WhatsAppLeadButton world="vacation" placeId={property.slug} placeName={property.name} businessPhone={ownerWhatsapp} serviceName={`${unitCopy.combinationCheck}: ${translate(room.name)}`} initialDate={from} initialTill={till} initialGuests={guests} buttonLabel={unitCopy.combinationCheck} buttonClassName="button secondary vacation-booking-dialog__unit-action" /> : null}
                     </div> : <button className="button secondary vacation-booking-dialog__unit-action vacation-booking-dialog__unit-action--dates" type="button" onClick={openCalendar}>{unitCopy.checkDates} {translate(room.name)}</button>}
-                    {room.features.length ? <details><summary>פרטי היחידה</summary><p>{room.features.slice(0, 5).join(" · ")}</p></details> : null}
+                    {room.features.length ? <details><summary>פרטי היחידה</summary><p>{room.features.join(" · ")}</p></details> : null}
                   </div>
                 </article>;
               })}

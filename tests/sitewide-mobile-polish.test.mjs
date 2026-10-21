@@ -23,6 +23,8 @@ test("full cards and compact depth cards retain bounded rail controls", () => {
 test("floating actions yield to actual booking sections and the footer", () => {
   for (const target of ["#event-booking", "#booking-summary", "#hourly-options", "#hourly-contact", "#reviews", ".site-footer"]) assert.ok(floating.includes(target));
   assert.match(floating, /observer\.disconnect\(\)/);
+  assert.match(floating, /matchMedia\("\(max-width: 767px\)"\)/);
+  assert.match(floating, /compactViewport \|\| target\.matches\("\.site-footer"\)/);
   assert.match(guard, /data-public-footer-visible/);
   assert.match(css, /body\[data-public-footer-visible\] :is\(\.mobile-map-fab,\.floating-contact-actions\)/);
   assert.match(css, /\.site-page > \.back-to-top\s*\{ position:static/);

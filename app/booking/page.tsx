@@ -105,6 +105,7 @@ async function resolveBooking(params: Awaited<Props["searchParams"]>) {
     demoOwnerEmail: property.demoOperations?.ownerEmail,
     demoProperty: property.demoOperations?.fictional === true,
     placeImage: property.image,
+    includedGuests: selectedUnit?.guests || property.guests,
     vacationProperty: property,
     };
   }

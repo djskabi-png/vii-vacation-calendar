@@ -89,7 +89,8 @@ test("the availability launcher opens date selection directly when no dates exis
 test("each multi-unit card exposes its own status price and direct booking action", async () => {
   const hub = await readFile(new URL("app/components/vacation-booking-hub.tsx", root), "utf8");
   assert.match(hub, /<details><summary>פרטי היחידה<\/summary>/);
-  assert.match(hub, /room\.features\.slice\(0, 5\)\.join/);
+  assert.match(hub, /room\.features\.join\(" · "\)/);
+  assert.doesNotMatch(hub, /room\.features\.slice\(/);
   assert.match(hub, /displayedAvailability\?\.units\?\.find\(\(unit\) => unit\.index === index\)/);
   assert.match(hub, /unitBookingHref\(bookingHref, index, unitNightlyPrice\)/);
   assert.doesNotMatch(hub, /params\.set\("unit", room\.name\)/);
@@ -109,4 +110,6 @@ test("the selected cabin is preserved in the booking summary", async () => {
   assert.match(page, /offerName: selectedUnit \? `בקשת הזמנה ל\$\{selectedUnit\.name\}`/);
   assert.doesNotMatch(page, /unit\?: string/);
   assert.match(client, /translate\(props\.offerName\)/);
+  assert.match(page, /includedGuests: selectedUnit\?\.guests \|\| property\.guests/);
+  assert.match(client, /המחיר כולל עד \$\{props\.includedGuests\} אורחים/);
 });

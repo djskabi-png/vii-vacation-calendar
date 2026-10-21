@@ -23,7 +23,11 @@ export function FloatingContactActions({ world, placeId, placeName, phone, whats
     // their fields, prices or primary actions on a small viewport.
     const targets = [...document.querySelectorAll<HTMLElement>("#event-booking, #booking, #booking-summary, #hourly-options, #hourly-contact, #reviews, .property-booking, .site-footer")];
     const intersections = new Set<Element>();
-    const update = () => setVisible(window.scrollY > 450 && intersections.size === 0);
+    const update = () => {
+      const compactViewport = window.matchMedia("(max-width: 767px)").matches;
+      const blocked = [...intersections].some((target) => compactViewport || target.matches(".site-footer"));
+      setVisible(window.scrollY > 450 && !blocked);
+    };
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => entry.isIntersecting ? intersections.add(entry.target) : intersections.delete(entry.target));
       update();
@@ -31,7 +35,8 @@ export function FloatingContactActions({ world, placeId, placeName, phone, whats
     targets.forEach((target) => observer.observe(target));
     update();
     window.addEventListener("scroll", update, { passive: true });
-    return () => { observer.disconnect(); window.removeEventListener("scroll", update); };
+    window.addEventListener("resize", update, { passive: true });
+    return () => { observer.disconnect(); window.removeEventListener("scroll", update); window.removeEventListener("resize", update); };
   }, []);
   const callable = phone?.replace(/[^\d+]/g, "");
   if ((!callable && !whatsapp) || !visible) return null;

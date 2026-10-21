@@ -42,6 +42,7 @@ type Props = {
   demoOwnerEmail?: string;
   demoProperty?: boolean;
   placeImage?: string;
+  includedGuests?: number;
   vacationPrice?: {
     nightlyPrice: number;
     nights: number;
@@ -180,6 +181,7 @@ export default function BookingPageClient(props: Props) {
     <strong>{currentTotal.toLocaleString(language === "he" ? "he-IL" : language)} ₪</strong>
     <small>{pricing.nightlyPrice.toLocaleString(language === "he" ? "he-IL" : language, { maximumFractionDigits: 2 })} ₪ {supplierSiteID ? ({ he: "בממוצע ללילה", en: "average per night", ru: "в среднем за ночь", fr: "en moyenne par nuit" })[language] : labels.night} · {currentNights === 1 ? labels.oneNight : `${currentNights} ${labels.nights}`}</small>
     <small>{pricing.wholeProperty ? `${labels.whole} · ` : props.offerName ? `${translate(props.offerName)} · ` : ""}{guests} {labels.guests}</small>
+    {props.includedGuests && props.includedGuests > 0 ? <small>{language === "he" ? `המחיר כולל עד ${props.includedGuests} אורחים` : `${props.includedGuests} guests included in the price`}</small> : null}
     <em>{pricing.taxesIncluded ? labels.taxIncluded : labels.taxPending}</em>
   </div> : null;
 
