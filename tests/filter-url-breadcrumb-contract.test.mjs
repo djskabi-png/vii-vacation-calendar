@@ -48,7 +48,7 @@ test("vacation and event filters serialize and restore their complete state", ()
   ["וילות", "דירות נופש", "סוויטות"].forEach((label) => assert.match(landings, new RegExp(`"${label}"`)));
 
   const events = read("app/events/search/page.tsx");
-  ["type", "eventType", "noise", "accessible", "sort"].forEach((key) => assert.match(events, new RegExp(`params\\.get\\(\"${key}\"\\)`)));
+  ["type", "eventType", "features", "noise", "accessible", "sort"].forEach((key) => assert.match(events, new RegExp(`params\\.get\\(\"${key}\"\\)`)));
   assert.match(events, /function changeFilter/);
 });
 

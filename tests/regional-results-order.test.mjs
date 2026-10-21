@@ -23,7 +23,7 @@ test('event rail follows all result cards and empty recovery and retains eligibi
   const source = read('app/events/search/page.tsx');
   ordered(source, ['<section className={`event-list', '{displayed.map((place)', '<div className="empty-state">', '<RegionalAvailability world="events"', '<SearchAfterResults world="events"']);
   assert.equal(source.match(/<RegionalAvailability world="events"/g)?.length, 1);
-  assert.match(source, /!mapOpen && !eventFrom && type === "הכל" && eventType === "הכל" && !noNoiseLimit && !accessibleOnly \? <RegionalAvailability world="events" region=\{area\} guests=\{guests \|\| 20\} embedded/);
+  assert.match(source, /!mapOpen && !eventFrom && type === "הכל" && eventType === "הכל" && facility === "הכל" && !noNoiseLimit && !accessibleOnly \? <RegionalAvailability world="events" region=\{area\} guests=\{guests \|\| 20\} embedded/);
 });
 
 test('regional Spa rail follows the complete world-results section; national slot stays before it', () => {

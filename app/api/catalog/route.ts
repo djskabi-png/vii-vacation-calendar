@@ -8,7 +8,8 @@ import { searchPlaceInventory } from "../../data/search-place-inventory.ts";
 import { projectSpaCatalogEntries } from "../../lib/spa-editorial-policy.ts";
 import type { SupplierCatalogEntry } from "../../lib/supplier-catalog-store.ts";
 import { publicVacationSearchProperties } from "../../lib/public-vacation-search.ts";
-import type { Property } from "../../data/site-data.ts";
+import { publicEventSearchPlaces } from "../../lib/public-event-search.ts";
+import type { EventPlace, Property } from "../../data/site-data.ts";
 import { safeHourlyDescription } from "../../lib/hourly-description.ts";
 import { readPublishedItems } from "../../lib/content-studio.ts";
 import { managedVacationPriority } from "../../lib/vacation-priority.ts";
@@ -74,7 +75,7 @@ export async function catalogResponse(request: Request, db: D1Database | null) {
   if (view !== null && view !== "lookup" && view !== "search") return Response.json({ error: "invalid_view" }, { status: 400, headers: noStore });
   const rawId = url.searchParams.get("id");
   if ((view === "lookup" || view === "search") && rawId !== null) return Response.json({ error: "invalid_request" }, { status: 400, headers: noStore });
-  if (view === "search" && world !== "vacations") return Response.json({ error: "invalid_request" }, { status: 400, headers: noStore });
+  if (view === "search" && world !== "vacations" && world !== "events") return Response.json({ error: "invalid_request" }, { status: 400, headers: noStore });
   const supplierId = rawId === null ? null : Number(rawId);
   if (rawId !== null && (!Number.isSafeInteger(supplierId) || supplierId! < 1)) {
     return Response.json({ error: "invalid_id" }, { status: 400, headers: noStore });
@@ -97,6 +98,8 @@ export async function catalogResponse(request: Request, db: D1Database | null) {
           places: searchPlaceInventory(world === "vacations" ? "vacation" : world === "rooms" ? "hourly" : world,
             entries.map((entry) => entry.summary)) }, { headers: publicCatalogCache });
         if (view === "search") {
+          if (world === "events") return Response.json({ world, source: "runtime", fetchedAt: catalog.acceptedAt,
+            entries: publicEventSearchPlaces(entries.map((entry) => entry.summary) as EventPlace[], 1).map((summary, index) => ({ ...entries[index], summary })) }, { headers: publicCatalogCache });
           const prioritized = withVacationSearchPriority(entries as { supplierId: number; summary: Property }[], await vacationSearchPriority(db));
           return Response.json({ world, source: "runtime", fetchedAt: catalog.acceptedAt,
             entries: publicVacationSearchProperties(prioritized.map((entry) => entry.summary)).map((summary, index) => ({ ...prioritized[index], summary })) }, { headers: publicCatalogCache });
@@ -118,6 +121,8 @@ export async function catalogResponse(request: Request, db: D1Database | null) {
     places: searchPlaceInventory(world === "vacations" ? "vacation" : world === "rooms" ? "hourly" : world,
       entries.map((entry) => entry.summary)) }, { headers: publicCatalogCache });
   if (view === "search") {
+    if (world === "events") return Response.json({ world, source: "bundled-fallback", fetchedAt,
+      entries: publicEventSearchPlaces(entries.map((entry) => entry.summary) as EventPlace[], 1).map((summary, index) => ({ ...entries[index], summary })) }, { headers: publicCatalogCache });
     const prioritized = withVacationSearchPriority(entries as { supplierId: number; summary: Property }[], await vacationSearchPriority(db));
     return Response.json({ world, source: "bundled-fallback", fetchedAt,
       entries: publicVacationSearchProperties(prioritized.map((entry) => entry.summary)).map((summary, index) => ({ ...prioritized[index], summary })) }, { headers: publicCatalogCache });

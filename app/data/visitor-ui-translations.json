@@ -278,5 +278,20 @@
   "בחרו את סוג החוויה, ואנחנו נציג את האפשרויות המתאימות להזמנה.": { "en": "Choose the experience you want and we’ll show suitable options to book.", "ru": "Выберите формат отдыха, и мы покажем подходящие варианты для бронирования.", "fr": "Choisissez votre expérience et nous vous proposerons des options adaptées à réserver." },
   "מתקנים ושירותים ביחידה": { "en": "Unit amenities and services", "ru": "Удобства и услуги номера", "fr": "Équipements et services de l’unité" },
   "העמוד לא נמצא": { "en": "Page not found", "ru": "Страница не найдена", "fr": "Page introuvable" },
-  "הקישור שביקשתם אינו זמין. אפשר לחזור לעמוד הבית או לפתוח חיפוש חדש.": { "en": "The link you requested is unavailable. You can return home or start a new search.", "ru": "Запрошенная ссылка недоступна. Вернитесь на главную страницу или начните новый поиск.", "fr": "Le lien demandé n’est pas disponible. Revenez à l’accueil ou lancez une nouvelle recherche." }
+  "הקישור שביקשתם אינו זמין. אפשר לחזור לעמוד הבית או לפתוח חיפוש חדש.": { "en": "The link you requested is unavailable. You can return home or start a new search.", "ru": "Запрошенная ссылка недоступна. Вернитесь на главную страницу или начните новый поиск.", "fr": "Le lien demandé n’est pas disponible. Revenez à l’accueil ou lancez une nouvelle recherche." },
+  "סינון תוצאות אירועים": { "en": "Filter event venues", "ru": "Фильтр площадок для мероприятий", "fr": "Filtrer les lieux d’événement" },
+  "חדרי קריוקי": { "en": "Karaoke rooms", "ru": "Караоке-залы", "fr": "Salles de karaoké" },
+  "מתחמי קיץ": { "en": "Summer venues", "ru": "Летние площадки", "fr": "Lieux d’été" },
+  "התארגנות כלה": { "en": "Bridal preparation", "ru": "Подготовка невесты", "fr": "Préparatifs de la mariée" },
+  "חצר או גינה": { "en": "Yard or garden", "ru": "Двор или сад", "fr": "Cour ou jardin" },
+  "ערכת קריוקי": { "en": "Karaoke system", "ru": "Караоке-система", "fr": "Système de karaoké" },
+  "מערכות תאורה": { "en": "Lighting systems", "ru": "Системы освещения", "fr": "Systèmes d’éclairage" },
+  "עמדת דיג׳יי": { "en": "DJ booth", "ru": "Диджейская стойка", "fr": "Régie DJ" },
+  "בר אלכוהול": { "en": "Drinks bar", "ru": "Бар с напитками", "fr": "Bar à boissons" },
+  "חדר קולנוע": { "en": "Cinema room", "ru": "Кинозал", "fr": "Salle de cinéma" },
+  "שולחן סנוקר": { "en": "Snooker table", "ru": "Стол для снукера", "fr": "Table de snooker" },
+  "שולחן פינג פונג": { "en": "Table tennis", "ru": "Стол для настольного тенниса", "fr": "Table de ping-pong" },
+  "שולחן פוקר": { "en": "Poker table", "ru": "Покерный стол", "fr": "Table de poker" },
+  "שולחן כדורגל": { "en": "Table football", "ru": "Настольный футбол", "fr": "Baby-foot" },
+  "הוקי אוויר": { "en": "Air hockey", "ru": "Аэрохоккей", "fr": "Air hockey" }
 }
