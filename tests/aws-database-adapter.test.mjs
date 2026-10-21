@@ -70,3 +70,29 @@ test('AWS adapter restores D1 camelCase aliases folded by Aurora PostgreSQL', as
     globalThis.fetch = originalFetch;
   }
 });
+
+test('AWS adapter retries one transient SELECT failure and never loops', async () => {
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async () => {
+    calls += 1;
+    if (calls === 1) return Response.json({ ok: false, error: 'temporary' }, { status: 503 });
+    return Response.json({ ok: true, results: [{ success: true, results: [{ value: 7 }] }] });
+  };
+  try {
+    const db = databaseForEnv({DB:{prepare(){}},VII_AWS_DB_ENDPOINT:'https://bridge.example.test',VII_AWS_DB_TOKEN:'token',VII_AWS_DB_MODE:'primary'});
+    assert.deepEqual(await db.prepare('SELECT 7 AS value').first(), { value: 7 });
+    assert.equal(calls, 2);
+  } finally { globalThis.fetch = originalFetch; }
+});
+
+test('AWS adapter does not retry an uncertain write', async () => {
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async () => { calls += 1; return Response.json({ ok: false, error: 'temporary' }, { status: 503 }); };
+  try {
+    const db = databaseForEnv({DB:{prepare(){}},VII_AWS_DB_ENDPOINT:'https://bridge.example.test',VII_AWS_DB_TOKEN:'token',VII_AWS_DB_MODE:'primary'});
+    await assert.rejects(db.prepare('UPDATE x SET y=1').run(), /temporary/);
+    assert.equal(calls, 1);
+  } finally { globalThis.fetch = originalFetch; }
+});

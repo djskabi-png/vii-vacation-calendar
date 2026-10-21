@@ -22,7 +22,7 @@ export function ListingAccessibility({ slug, features, compact = false }: { slug
       </button>
       <div className="place-accessibility__content" id={detailsId} hidden={!isOpen}>
         {information.arrangements.length > 0 && <ul>{information.arrangements.map((arrangement) => <li key={arrangement}>{arrangement}</li>)}</ul>}
-        <small>{information.sourceLabel}{information.verifiedAt ? `, עודכן ${information.verifiedAt}` : ""}</small>
+        <small>{information.sourceLabel}</small>
         <p className="place-accessibility__warning">לפני הזמנה מומלץ לאמת מול המקום את ההתאמות החשובות לכם.</p>
         <Link href="/accessibility">נגישות האתר והסדרי השירות</Link>
       </div>

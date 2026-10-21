@@ -60,16 +60,16 @@ const baseMetadata: Metadata = {
 
 const localizedRootTitles = {
   he: "וי פור ויקיישן | מוצאים את החופשה שמתאימה לכם",
-  en: "Vifor Vacation | Find the vacation that suits you",
-  ru: "Вифор Отпуск | Найдите отдых, который подходит именно вам",
-  fr: "Vifor Vacances | Trouvez les vacances qui vous conviennent",
+  en: "VII Vacation | Find the vacation that suits you",
+  ru: "VII Vacation | Найдите отдых, который подходит именно вам",
+  fr: "VII Vacation | Trouvez les vacances qui vous conviennent",
 } as const;
 
 const localizedTitleTemplates = {
   he: "%s | וי פור ויקיישן",
-  en: "%s | Vifor Vacation",
-  ru: "%s | Вифор Отпуск",
-  fr: "%s | Vifor Vacances",
+  en: "%s | VII Vacation",
+  ru: "%s | VII Vacation",
+  fr: "%s | VII Vacation",
 } as const;
 
 const adminFontCriticalCss = `

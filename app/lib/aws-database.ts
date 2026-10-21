@@ -55,9 +55,13 @@ function configured(env: AwsDatabaseEnv) {
   return env.VII_AWS_DB_MODE === "primary" && Boolean(env.VII_AWS_DB_ENDPOINT && env.VII_AWS_DB_TOKEN);
 }
 
-async function callBridge(env: AwsDatabaseEnv, operations: RemoteOperation[], transactional = false) {
-  if (!configured(env)) throw new Error("VII AWS database bridge is not configured");
-  const response = await fetch(env.VII_AWS_DB_ENDPOINT!, {
+function retryableRead(operations: RemoteOperation[], transactional: boolean) {
+  return !transactional && operations.length > 0 && operations.every(operation =>
+    operation.method !== "run" && /^\s*SELECT\b/i.test(operation.sql));
+}
+
+async function bridgeRequest(env: AwsDatabaseEnv, operations: RemoteOperation[], transactional: boolean) {
+  return fetch(env.VII_AWS_DB_ENDPOINT!, {
     method: "POST",
     headers: {
       authorization: `Bearer ${env.VII_AWS_DB_TOKEN}`,
@@ -66,6 +70,22 @@ async function callBridge(env: AwsDatabaseEnv, operations: RemoteOperation[], tr
     },
     body: JSON.stringify({ operations, transactional }),
   });
+}
+
+async function callBridge(env: AwsDatabaseEnv, operations: RemoteOperation[], transactional = false) {
+  if (!configured(env)) throw new Error("VII AWS database bridge is not configured");
+  const canRetry = retryableRead(operations, transactional);
+  let response: Response;
+  try {
+    response = await bridgeRequest(env, operations, transactional);
+  } catch (error) {
+    if (!canRetry) throw error;
+    response = await bridgeRequest(env, operations, transactional);
+  }
+  if (canRetry && (response.status === 429 || response.status >= 500)) {
+    await response.body?.cancel();
+    response = await bridgeRequest(env, operations, transactional);
+  }
   const payload = await response.json().catch(() => ({})) as {
     ok?: boolean;
     results?: RemoteResult[];
