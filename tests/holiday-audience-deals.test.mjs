@@ -115,7 +115,8 @@ test("holiday change-search handoff opens the date editor once and leaves a cano
   assert.match(search, /searchParams\.get\("editSearch"\) !== "dates"/);
   assert.match(search, /setOpenDatesRequest\(\(value\) => value \+ 1\)/);
   assert.match(search, /canonicalParams\.delete\("editSearch"\)/);
-  assert.match(search, /router\.replace\(`\$\{pathname\}\$\{canonicalQuery/);
+  assert.match(search, /window\.history\.replaceState\(window\.history\.state, "", `\$\{pathname\}\$\{canonicalQuery/);
+  assert.doesNotMatch(search, /router\.replace\(`\$\{pathname\}\$\{canonicalQuery/, "canonical cleanup must not navigate and remount the open editor");
 });
 
 test("holiday UI replaces banners, carries complete quote context and guards late responses", () => {

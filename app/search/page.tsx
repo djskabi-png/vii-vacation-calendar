@@ -375,8 +375,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     const canonicalParams = new URLSearchParams(searchQuery);
     canonicalParams.delete("editSearch");
     const canonicalQuery = canonicalParams.toString();
-    router.replace(`${pathname}${canonicalQuery ? `?${canonicalQuery}` : ""}`, { scroll: false });
-  }, [pathname, router, searchParams, searchQuery]);
+    window.history.replaceState(window.history.state, "", `${pathname}${canonicalQuery ? `?${canonicalQuery}` : ""}`);
+  }, [pathname, searchParams, searchQuery]);
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
   const [activeMapPropertyId, setActiveMapPropertyId] = useState<string | null>(null);
 
