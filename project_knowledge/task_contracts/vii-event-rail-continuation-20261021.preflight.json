@@ -8,8 +8,7 @@
   "authorization_boundary": "Implement, test, commit, push and publish the event-rail correction. Do not invent availability, submit a booking, change supplier records, DNS, credentials or database schema.",
   "lesson_bundle": [
     {"lesson_id": "ADIR-QA-001", "reason": "The same public defect was reported repeatedly.", "acceptance_impact": "Verify the exact public rail, controls and visible card count after publication."},
-    {"lesson_id": "ADIR-DEPLOY-001", "reason": "The user explicitly requested publication.", "acceptance_impact": "Record exact candidate, public release and rollback identity."},
-    {"lesson_id": "VII-SLIDER-020", "reason": "Accepted VII feedback allows up to 20 cards after filtering and forbids invented online or availability claims.", "acceptance_impact": "Fill the rail with real published venues, but reserve date and price labels for verified supplier offers."}
+    {"lesson_id": "ADIR-DEPLOY-001", "reason": "The user explicitly requested publication.", "acceptance_impact": "Record exact candidate, public release and rollback identity."}
   ],
   "predicted_rejections": [
     {"rejection": "The rail still ends after three cards.", "prevention": "Append real published event venues up to the 20-card product limit after verified offers.", "acceptance_check": "Desktop and mobile expose enabled continuation controls and more than three distinct cards."},

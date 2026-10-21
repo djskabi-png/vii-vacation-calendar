@@ -1,0 +1,33 @@
+{
+  "site": "https://vii.spaplus.co",
+  "version": 550,
+  "version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_7a61c2d0b4548191aaead337b7f2b619",
+  "deployment_id": "appgdep_6ad843efd71c8191ac0ef9b7ee96e8f6",
+  "commit": "a0713649d0221bed7fba6eb7ebd3e1865388f0b4",
+  "environment_revision": 25,
+  "deployed_at_israel": "2026-10-21T07:51:24+03:00",
+  "rollback": {
+    "version": 549,
+    "version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_1d0bcf4ddb00819193b94af087a04952",
+    "deployment_id": "appgdep_6ad82f19b3b0819186ad5ec8e3320d5a"
+  },
+  "public_verification": {
+    "desktop_event_cards": 20,
+    "mobile_event_cards": 20,
+    "desktop_continuation_enabled": true,
+    "mobile_continuation_enabled": true,
+    "desktop_scroll_before": -858,
+    "desktop_scroll_after_next": -1156,
+    "desktop_document_overflow": false,
+    "mobile_document_overflow": false,
+    "mobile_viewport": "390x844"
+  },
+  "settings_preserved": [
+    "PUBLIC audience",
+    "vii.spaplus.co and domains",
+    "environment revision 25",
+    "DB and UPLOADS bindings",
+    "Aurora primary configuration",
+    "permissions, secrets, schedules and production data"
+  ]
+}

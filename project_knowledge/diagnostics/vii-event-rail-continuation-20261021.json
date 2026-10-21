@@ -1,5 +1,5 @@
 {
-  "status": "diagnosed",
+  "status": "resolved_and_publicly_verified",
   "symptom": "The public event rail ended after exactly three cards and exposed no useful continuation.",
   "expected_behavior": "The event rail should continue like the vacation rail, while never presenting an unverified venue as available for the selected date.",
   "environment": "Public https://vii.spaplus.co before the 2026-10-21 correction; candidate branch release/vii-ten-part-polish-20261020.",
@@ -25,6 +25,6 @@
     {"check": "Exact candidate close", "status": "passed", "evidence": "Production build and all 1,416 repository tests passed; desktop and 390px browser checks rendered 20 cards with working continuation, no document overflow and no hydration mismatch."}
   ],
   "confidence": "high",
-  "remaining_unknowns": ["The supplier may return more confirmed offers on other dates; browse-only cards remain deliberately distinct.", "Exact public behavior remains pending publication."],
+  "remaining_unknowns": ["The supplier may return more confirmed offers on other dates; browse-only cards remain deliberately distinct."],
   "authorization_boundary": "Repair, test, publish and verify without inventing availability or submitting a booking."
 }
