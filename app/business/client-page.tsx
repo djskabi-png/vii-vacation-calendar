@@ -446,7 +446,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
 
             <GuestReviewStudio placeName={localizedPropertyName} subjectId={property.slug} rating={supplierDetail?.reviewScore ?? property.score} reviewCount={supplierDetail?.reviewCount ?? property.reviews} publishedReviews={property.reviewHighlights} supplierReviews={supplierDetail?.reviews} illustrative={property.reviewSource === "fictional-demo"} open={reviewOpen} onClose={() => setReviewOpen(false)} onOpenGallery={() => { setGalleryTopic(null); openGallery("guests", 0); }} />
 
-            <ListingAccessibility slug={property.slug} />
+            <ListingAccessibility slug={property.slug} features={property.features} />
 
             <section id="location" className="location-card location-card--map-only" aria-labelledby="property-location-title"><h2 id="property-location-title" className="sr-only">{businessCopy.locationTitle(localizedPropertyName, localizedLocation, localizedArea)}</h2>{typeof property.lat === "number" && typeof property.lng === "number" ? <ListingMap listings={[localizedMapProperty]} single /> : <p>{safeBusinessText("המיקום המדויק טרם נמסר על ידי המקום.", businessCopy.locationTitle(localizedPropertyName, localizedLocation, localizedArea))}</p>}</section>
 

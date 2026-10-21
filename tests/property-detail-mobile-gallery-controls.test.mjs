@@ -13,8 +13,9 @@ const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8
 test("place pages share mobile gallery arrows, position dots and touch navigation", () => {
   assert.match(business, /<PropertyGallery images=\{placeGalleryImages\}/);
   assert.match(events, /<PropertyGallery className="shell" images=\{place\.images\}/);
-  assert.match(gallery, /onTouchStart=/);
-  assert.match(gallery, /onTouchEnd=/);
+  assert.match(galleryExperience, /onPointerDown=\{startGesture\}/);
+  assert.match(galleryExperience, /onPointerUp=\{finishGesture\}/);
+  assert.match(galleryExperience, /Math\.abs\(distanceX\) <= Math\.abs\(distanceY\) \* 1\.2/);
   assert.match(gallery, /property-gallery__mobile-arrow--previous/);
   assert.match(gallery, /property-gallery__mobile-arrow--next/);
   assert.match(gallery, /property-gallery__mobile-arrow--previous[^>]*disabled=\{selected === 0\}[^>]*>[\s\S]*?›<\/span>/);
@@ -23,6 +24,16 @@ test("place pages share mobile gallery arrows, position dots and touch navigatio
   assert.match(gallery, /aria-live="polite"/);
   assert.match(css, /\.property-gallery button\.property-gallery__mobile-arrow/);
   assert.match(css, /\.property-gallery__mobile-dots i\.is-active/);
+});
+
+test("full-screen unit galleries expose visible mobile controls and keep grid and viewer mutually exclusive", () => {
+  assert.match(galleryExperience, /story-gallery__tap-icon/);
+  assert.match(galleryExperience, /story-gallery__mobile-position/);
+  assert.match(galleryExperience, /story-gallery__workspace\$\{mobileViewer \? " is-viewer" : ""\}/);
+  assert.match(css, /\.story-gallery__mobile-stage \{\s*display: none;/);
+  assert.match(css, /\.story-gallery__mobile-stage\.is-viewer \{[\s\S]*?display: grid;/);
+  assert.match(css, /\.story-gallery__mobile-stage \.story-gallery__tap \{[\s\S]*?width: 48px;[\s\S]*?height: 48px;/);
+  assert.match(css, /\.story-gallery__workspace\.is-viewer \{\s*overflow: hidden;/);
 });
 
 test("supplier cover remains first even when a unit gallery repeats it", () => {

@@ -1,32 +1,28 @@
-export type AccessibilityStatus = "accessible" | "partially_accessible" | "not_accessible" | "unknown";
+export const VERIFIED_ACCESSIBILITY_FEATURE = "נגישות לנכים";
 
 export type PlaceAccessibility = {
-  status: AccessibilityStatus;
+  status: "accessible";
   summary: string;
   arrangements: string[];
   sourceLabel: string;
-  verifiedAt?: string;
 };
 
-const informationNotProvided: PlaceAccessibility = {
-  status: "unknown",
-  summary: "טרם התקבל מבעל המקום מידע מאומת שמאפשר לקבוע אם המקום נגיש.",
-  arrangements: [],
-  sourceLabel: "המידע ממתין לאימות מול בעל המקום",
-};
-
-export const listingAccessibility: Record<string, PlaceAccessibility> = Object.fromEntries([
-  "aqua-resort", "kesem-harimon", "ahuzat-or", "ar-suites", "sol-gilgal", "magic-garden-gefen", "anael-estate", "perfumes-villa", "rose-estate",
-  "party-time", "black-loft", "sani-loft", "360-events", "loft-117", "fiesta", "details-events", "star-loft", "puzzle-club", "paphos-events",
-].map((slug) => [slug, informationNotProvided]));
-
-export function getPlaceAccessibility(slug: string): PlaceAccessibility {
-  return listingAccessibility[slug] || informationNotProvided;
+function normalizeFeature(feature: string) {
+  return feature.normalize("NFKC").trim().replace(/\s+/g, " ");
 }
 
-export const accessibilityLabels: Record<AccessibilityStatus, string> = {
-  accessible: "נגישות מאומתת",
-  partially_accessible: "נגישות חלקית",
-  not_accessible: "המקום אינו נגיש",
-  unknown: "מידע הנגישות טרם אומת",
-};
+export function hasVerifiedAccessibilityFeature(features: readonly string[] | null | undefined): boolean {
+  const expected = normalizeFeature(VERIFIED_ACCESSIBILITY_FEATURE);
+  return Boolean(features?.some((feature) => normalizeFeature(feature) === expected));
+}
+
+export function getPlaceAccessibility(features: readonly string[] | null | undefined): PlaceAccessibility | null {
+  if (!hasVerifiedAccessibilityFeature(features)) return null;
+
+  return {
+    status: "accessible",
+    summary: "המאפיין נגישות לנכים מופיע בנתוני המקום.",
+    arrangements: [],
+    sourceLabel: "מקור האימות: מאפייני המקום",
+  };
+}

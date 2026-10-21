@@ -9301,26 +9301,119 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   .story-gallery__workspace {
     background: #02090c;
   }
-  .story-gallery__mobile-stage,
-  .story-gallery__mobile-stage.is-viewer {
-    display: block;
+  .story-gallery__workspace.is-viewer {
+    overflow: hidden;
+  }
+  .story-gallery__mobile-stage {
+    display: none;
     min-height: 0;
     align-content: initial;
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .story-gallery__mobile-stage.is-viewer {
+    height: 100%;
+    display: block;
+    overflow: hidden;
+  }
+  .story-gallery__mobile-media {
+    position: relative;
+    width: 100%;
+    max-height: 100%;
   }
   .story-gallery__mobile-stage.is-viewer .story-gallery__mobile-image {
     width: 100%;
-    max-height: none;
+    height: auto;
+    max-height: 100%;
     margin: 0;
+    object-fit: contain;
+  }
+  .story-gallery__mobile-tour button:first-child:nth-last-child(odd) {
+    grid-column: auto;
+    aspect-ratio: 1 / .78;
   }
   .story-gallery__mobile-back {
     top: 14px;
-    right: 14px;
-    min-height: 40px;
+    right: auto;
+    left: auto;
+    inset-inline-start: 14px;
+    min-height: 44px;
     padding-inline: 12px;
     border-color: rgba(255,255,255,.34);
     background: rgba(2,9,12,.82);
     box-shadow: 0 8px 22px rgba(0,0,0,.22);
     backdrop-filter: blur(10px);
+  }
+  .story-gallery__mobile-stage .story-gallery__tap {
+    top: 50%;
+    bottom: auto;
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(255,255,255,.38);
+    border-radius: 50%;
+    color: #fff;
+    background: rgba(2,28,34,.82);
+    box-shadow: 0 8px 22px rgba(0,0,0,.3);
+    backdrop-filter: blur(10px);
+    transform: translateY(-50%);
+  }
+  .story-gallery__mobile-stage .story-gallery__tap:hover {
+    background: rgba(2,28,34,.94);
+    transform: translateY(-50%);
+  }
+  .story-gallery__mobile-stage .story-gallery__tap:disabled {
+    opacity: .52;
+    background: rgba(232,244,245,.34);
+    cursor: not-allowed;
+  }
+  .story-gallery__mobile-stage .story-gallery__tap--previous {
+    right: auto;
+    left: auto;
+    inset-inline-start: 14px;
+  }
+  .story-gallery__mobile-stage .story-gallery__tap--next {
+    right: auto;
+    left: auto;
+    inset-inline-end: 14px;
+  }
+  .story-gallery__tap-icon {
+    direction: ltr;
+    unicode-bidi: isolate;
+    display: block;
+    font-size: 2.15rem;
+    font-weight: 300;
+    line-height: 1;
+    transform: translateY(-1px);
+  }
+  [dir="rtl"] .story-gallery__tap-icon {
+    transform: translateY(-1px) scaleX(-1);
+  }
+  .story-gallery__mobile-position {
+    position: absolute;
+    z-index: 4;
+    top: 68px;
+    inset-inline-end: 14px;
+    min-width: 50px;
+    min-height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding-inline: 10px;
+    border: 1px solid rgba(255,255,255,.26);
+    border-radius: 999px;
+    color: #fff;
+    background: rgba(2,28,34,.76);
+    font-size: .78rem;
+    font-weight: 850;
+    direction: ltr;
+    unicode-bidi: isolate;
+    backdrop-filter: blur(10px);
+  }
+  .story-gallery__caption {
+    pointer-events: none;
   }
 }
 .vacation-booking-hub__launcher-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: stretch; gap: 10px; }

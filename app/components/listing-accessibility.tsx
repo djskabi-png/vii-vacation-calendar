@@ -2,20 +2,21 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { accessibilityLabels, getPlaceAccessibility } from "../data/accessibility-data";
+import { getPlaceAccessibility, VERIFIED_ACCESSIBILITY_FEATURE } from "../data/accessibility-data";
 
-export function ListingAccessibility({ slug, compact = false }: { slug: string; compact?: boolean }) {
-  const information = getPlaceAccessibility(slug);
+export function ListingAccessibility({ slug, features, compact = false }: { slug: string; features?: readonly string[]; compact?: boolean }) {
+  const information = getPlaceAccessibility(features);
   const [isOpen, setIsOpen] = useState(false);
   const detailsId = `accessibility-details-${slug}`;
-  if (compact) return <span className={`place-accessibility-badge place-accessibility-badge--${information.status}`}>{accessibilityLabels[information.status]}</span>;
+  if (!information) return null;
+  if (compact) return <span className="place-accessibility-badge place-accessibility-badge--accessible">{VERIFIED_ACCESSIBILITY_FEATURE}</span>;
 
   return <section className={`place-accessibility place-accessibility--${information.status}`} id="accessibility">
       <button className="place-accessibility__summary" type="button" aria-expanded={isOpen} aria-controls={detailsId} onClick={() => setIsOpen((open) => !open)}>
         <span className="place-accessibility__icon" aria-hidden="true">♿</span>
         <span className="place-accessibility__copy">
           <span className="eyebrow">נגישות במקום</span>
-          <strong role="heading" aria-level={2}>{accessibilityLabels[information.status]}</strong>
+          <strong role="heading" aria-level={2}>{VERIFIED_ACCESSIBILITY_FEATURE}</strong>
           <span>{information.summary}</span>
         </span>
       </button>

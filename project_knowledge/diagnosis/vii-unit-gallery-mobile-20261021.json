@@ -1,0 +1,35 @@
+{
+  "status": "fixed",
+  "symptom": "On iPhone, room and suite galleries are uncomfortable to swipe, have no visible arrows, and do not present a coherent mobile full-screen viewer and all-images flow.",
+  "expected_behavior": "Every vacation unit gallery provides a mobile-first full-screen viewer with visible arrows, deliberate one-image swipes, counts, category context, an all-images grid, and context-preserving close and return behavior.",
+  "environment": "Public-baseline release candidate 559 at commit 27e1fdb456c60dae5e7a5b331becc7af06c44b0c, iPhone-class 390px viewport, vacation business detail pages.",
+  "reproduction": {
+    "steps": ["Open a vacation place page on iPhone", "Open a room or suite image", "Attempt to navigate by finger and look for arrow controls", "Switch between the single-image and all-images views"],
+    "evidence": "User-supplied iPhone screenshots and direct source inspection of the shared gallery component and mobile CSS."
+  },
+  "observations": [
+    {"observation": "The shared component renders previous and next buttons without child content.", "evidence": "app/components/gallery-experience.tsx story-gallery__tap buttons are empty."},
+    {"observation": "Mobile CSS explicitly hides the pseudo-element that supplies the desktop arrow glyph.", "evidence": "app/globals.css sets .story-gallery__mobile-stage .story-gallery__tap::before { display: none; }."},
+    {"observation": "Swipe detection only compares touch-end X to touch-start X and does not discriminate vertical movement or pointer cancellation.", "evidence": "app/components/gallery-experience.tsx onTouchStart/onTouchEnd handlers."},
+    {"observation": "Two overlapping mobile breakpoint blocks assign conflicting display behavior to the tour and stage.", "evidence": "app/globals.css max-width 760 and later max-width 560 rules."}
+  ],
+  "hypotheses": [
+    {"id": "H1", "mechanism": "Mobile CSS converts arrow buttons into invisible edge tap zones by hiding their only glyph and removing the circular control styling.", "prediction": "Buttons exist and can receive clicks but no visible arrows appear on iPhone.", "discriminating_test": "Inspect rendered controls and computed mobile CSS, then add explicit glyph content independent of pseudo-elements.", "result": "Supported. Source inspection found empty buttons plus a mobile display:none rule for their pseudo-element. The repaired 390px screenshot shows explicit 48px circular arrows, including the disabled boundary state.", "status": "supported"},
+    {"id": "H2", "mechanism": "The simplistic touch delta handler treats diagonal gestures as navigation and has no vertical-intent guard.", "prediction": "A sufficiently large X delta can navigate even when vertical movement dominates, producing inconsistent finger behavior.", "discriminating_test": "Exercise horizontal, vertical, diagonal, short, and rapid gestures before and after a pointer-based gesture guard.", "result": "Supported. The original handler compared X only. The browser audit proves that a vertical-dominant gesture leaves the index unchanged and a horizontal gesture advances exactly one image.", "status": "supported"},
+    {"id": "H3", "mechanism": "Unit-specific state is lost because the shared component is reused without a unit topic.", "prediction": "Opening different units shows all unit images or stale titles.", "discriminating_test": "Trace both launch paths and component keys, then open two different units sequentially.", "result": "Rejected. Both launch paths set galleryTopic and key the component by topic; the browser audit opened two different units sequentially and observed fresh titles and indices.", "status": "rejected"}
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {"change": "Rendered explicit logical arrow glyphs inside 48px controls, separated the mobile grid and viewer states, added a media wrapper so the image begins directly below the tabs, normalized the all-images grid to two columns, and replaced X-only touch handling with guarded pointer gestures.", "evidence": "Build passed; 12 gallery-family tests passed; scripts/audit-mobile-unit-gallery.mjs passed 11 natural-destination checks and produced inspected 390px viewer and grid screenshots."},
+  "affected_family": ["Shared GalleryExperience", "vacation room-card launch", "unit-details launch", "main property gallery", "mobile and desktop responsive states"],
+  "regression_checks": [
+    {"check": "Unit room-card entry at 390x844", "status": "passed", "evidence": "Browser audit opened Terra Suite from vacation-2356 with its unit title, 1/33 count and focused viewer."},
+    {"check": "Horizontal versus vertical touch intent", "status": "passed", "evidence": "Synthetic touch-pointer audit kept the index on vertical movement and advanced exactly one on horizontal movement."},
+    {"check": "All-images grid and exact-index return", "status": "passed", "evidence": "Browser audit switched to the two-column grid, selected thumbnail 2 and returned to 2/33."},
+    {"check": "Second-unit state reset", "status": "passed", "evidence": "Browser audit opened the second room trigger and observed a different unit title."},
+    {"check": "RTL, LTR, low-height and responsive transitions", "status": "passed", "evidence": "Browser audit verified logical arrow sides in both directions, 390x640 containment and 390 to 1280 to 390 transition with scroll lock restored."},
+    {"check": "Main property gallery and desktop family", "status": "passed", "evidence": "Browser audit reopened the main property gallery without a stale unit topic; build and gallery tests passed."}
+  ],
+  "confidence": "high",
+  "remaining_unknowns": ["Physical-device iOS Safari was not directly controlled; Chromium mobile emulation plus pointer semantics and visual screenshots are the available local evidence."],
+  "authorization_boundary": "Local diagnosis and repair only; no public deployment."
+}

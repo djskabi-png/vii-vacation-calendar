@@ -23,7 +23,7 @@ import { useOnlineCapabilities } from "../lib/use-online-capabilities";
 import { hasOnlineCapability } from "../lib/online-booking-capability";
 import { useStartingPrices } from "../lib/use-starting-prices";
 import { hasSearchDate, supplierStartingPrice } from "../lib/supplier-starting-price";
-import { getPlaceAccessibility } from "../data/accessibility-data";
+import { hasVerifiedAccessibilityFeature } from "../data/accessibility-data";
 import { CloseIcon, MapIcon, PinIcon } from "../site-header";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
@@ -569,9 +569,9 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       const matchesPool = !pool || matchesVacationSearchFilter(property, "pool");
       const matchesSpa = !spa || ["spa", "jacuzzi", "sauna"].some((id) => matchesVacationSearchFilter(property, id));
       const matchesWhole = !whole || (property.capacityScope !== "unit" && property.scenario === "single");
-      const matchesAccessibility = !accessibleOnly || getPlaceAccessibility(property.slug).status === "accessible";
+      const matchesAccessibility = !accessibleOnly || hasVerifiedAccessibilityFeature(property.features);
       const matchesExtras = selectedExtras.every((id) => {
-        if (id === "accessible") return getPlaceAccessibility(property.slug).status === "accessible";
+        if (id === "accessible") return hasVerifiedAccessibilityFeature(property.features);
         return matchesVacationSearchFilter(property, id);
       });
       return matchesType && matchesGuests && matchesPrice && matchesPool && matchesSpa && matchesWhole && matchesAccessibility && matchesExtras;
@@ -743,7 +743,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     if (shownFilters.onlineOnly && ((!undatedSearch && shownFilters.guests !== guests) || !matchesOnline(property))) return false;
     const matchesType = !supplierTypeFilterAvailable || matchesAnyAccommodationType(property.type, shownFilters.selectedTypes, landing);
     const matchesExtras = shownFilters.selectedExtras.every((id) => {
-      if (id === "accessible") return getPlaceAccessibility(property.slug).status === "accessible";
+      if (id === "accessible") return hasVerifiedAccessibilityFeature(property.features);
       return matchesVacationSearchFilter(property, id);
     });
     const priceFilterActive = shownFilters.minPrice > VACATION_PRICE_MIN || shownFilters.maxPrice < VACATION_PRICE_MAX;
@@ -756,7 +756,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       && (!shownFilters.pool || matchesVacationSearchFilter(property, "pool"))
       && (!shownFilters.spa || ["spa", "jacuzzi", "sauna"].some((id) => matchesVacationSearchFilter(property, id)))
       && (!shownFilters.whole || (property.capacityScope !== "unit" && property.scenario === "single"))
-      && (!shownFilters.accessibleOnly || getPlaceAccessibility(property.slug).status === "accessible")
+      && (!shownFilters.accessibleOnly || hasVerifiedAccessibilityFeature(property.features))
       && matchesExtras;
   });
   const draftUsesLandingSet = Boolean(landing?.listingSlugs?.length
@@ -825,7 +825,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     pool ? { id: "pool", label: "בריכה", remove: () => changeBinaryFilter("pool", false) } : null,
     spa ? { id: "spa", label: "ספא וג'קוזי", remove: () => changeBinaryFilter("spa", false) } : null,
     whole ? { id: "whole", label: "מקום שלם", remove: () => changeBinaryFilter("whole", false) } : null,
-    accessibleOnly ? { id: "accessible", label: "נגישות מלאה ומאומתת", remove: () => changeBinaryFilter("accessible", false) } : null,
+    accessibleOnly ? { id: "accessible", label: "נגישות לנכים", remove: () => changeBinaryFilter("accessible", false) } : null,
     ...selectedExtras.map((id) => {
       const option = legacyExtraFilters.find((item) => item.id === id);
       return option ? { id: `extra-${id}`, label: option.label, remove: () => toggleExtraFilter(id) } : null;

@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import type { Property } from "../data/site-data";
 import { boundedSliderIndex } from "./slider-rail-controls";
 
@@ -44,7 +44,7 @@ function uniqueItems(items: GalleryItem[]) {
 export function GalleryExperience({ property, open, initialIndex = 0, initialTab = "all", initialTopic, guestPhotos = property.guestPhotos || [], onAddGuestContent, onSelectionChange, onClose }: { property: GallerySubject; open: boolean; initialIndex?: number; initialTab?: GalleryTab; initialTopic?: string | null; guestPhotos?: GuestPhoto[]; onAddGuestContent?: () => void; onSelectionChange?: (tab: GalleryTab, index: number) => void; onClose: () => void }) {
   const closeButton = useRef<HTMLButtonElement>(null);
   const dialog = useRef<HTMLDivElement>(null);
-  const touchStart = useRef(0);
+  const gestureStart = useRef<{ x: number; y: number; pointerId: number } | null>(null);
   const allItems = useMemo(() => {
     const unitItems = (property.roomOptions || []).flatMap((room) => (room.images?.length ? room.images : room.image ? [room.image] : []).map((src, index) => ({ src, label: `${room.name} ב${property.name}, תמונה ${index + 1}`, category: "units" as const, topic: room.name })));
     const unitBySource = new Map(unitItems.map((item) => [item.src, item]));
@@ -80,6 +80,22 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
     if (!visibleItems.length) return;
     setSelected((value) => boundedSliderIndex(value, direction, visibleItems.length));
   }, [visibleItems.length]);
+
+  const startGesture = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === "mouse" || (event.target as HTMLElement).closest("button")) return;
+    gestureStart.current = { x: event.clientX, y: event.clientY, pointerId: event.pointerId };
+    if (event.isPrimary) event.currentTarget.setPointerCapture?.(event.pointerId);
+  }, []);
+
+  const finishGesture = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    const start = gestureStart.current;
+    gestureStart.current = null;
+    if (!start || start.pointerId !== event.pointerId) return;
+    const distanceX = event.clientX - start.x;
+    const distanceY = event.clientY - start.y;
+    if (Math.abs(distanceX) < 48 || Math.abs(distanceX) <= Math.abs(distanceY) * 1.2) return;
+    move(distanceX > 0 ? -1 : 1);
+  }, [move]);
 
   useEffect(() => {
     if (open) onSelectionChange?.(tab, selected);
@@ -155,29 +171,26 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
         <video controls playsInline preload="metadata" poster={video.poster} aria-label={video.title}><source src={video.src} type="video/mp4" /></video>
         <div><h3>{video.title}</h3><p>{video.note}</p></div>
       </article>)}
-    </div> : <div className="story-gallery__workspace">
+    </div> : <div className={`story-gallery__workspace${mobileViewer ? " is-viewer" : ""}`}>
       <div className={`story-gallery__mobile-tour${mobileViewer ? " is-hidden" : ""}`} aria-label="סיור תמונות לפי נושאים">
         {mobileGroups.map(([topic, items]) => <section key={topic}><h3>{topic}</h3><div>{items.map(({ item, index }) => <button key={item.src} type="button" onClick={() => { setSelected(index); setMobileViewer(true); }} aria-label={`פתיחת ${item.label}`}><img src={item.src} alt={item.label} title={item.label} loading="lazy" /></button>)}</div></section>)}
       </div>
-      <div className={`story-gallery__mobile-stage${mobileViewer ? " is-viewer" : ""}`} onTouchStart={(event) => { touchStart.current = event.changedTouches[0].clientX; }} onTouchEnd={(event) => {
-        const distance = event.changedTouches[0].clientX - touchStart.current;
-        if (Math.abs(distance) > 45) move(distance > 0 ? -1 : 1);
-      }}>
-        <button className="story-gallery__mobile-back" type="button" onClick={() => setMobileViewer(false)}>חזרה לכל התמונות</button>
-        <div className="story-gallery__progress" aria-hidden="true">{visibleItems.map((item, index) => <i key={`mobile-${item.src}`} className={index <= selected ? "active" : ""} />)}</div>
-        {current ? <img className="story-gallery__mobile-image" src={current.src} alt={current.label} title={current.label} /> : null}
-        {visibleItems.length > 1 ? <><button className="story-gallery__tap story-gallery__tap--previous" type="button" disabled={selected === 0} data-slider-boundary onClick={() => move(-1)} aria-label="התמונה הקודמת" />
-        <button className="story-gallery__tap story-gallery__tap--next" type="button" disabled={selected >= visibleItems.length - 1} data-slider-boundary onClick={() => move(1)} aria-label="התמונה הבאה" /></> : null}
-        <div className="story-gallery__caption"><span>{tabLabels[current?.category || "place"]}</span><strong>{current?.label}</strong></div>
+      <div className={`story-gallery__mobile-stage${mobileViewer ? " is-viewer" : ""}`} onPointerDown={startGesture} onPointerUp={finishGesture} onPointerCancel={() => { gestureStart.current = null; }}>
+        <div className="story-gallery__mobile-media">
+          <button className="story-gallery__mobile-back" type="button" onClick={() => setMobileViewer(false)}>חזרה לכל התמונות</button>
+          <div className="story-gallery__progress" aria-hidden="true">{visibleItems.map((item, index) => <i key={`mobile-${item.src}`} className={index <= selected ? "active" : ""} />)}</div>
+          {current ? <img className="story-gallery__mobile-image" src={current.src} alt={current.label} title={current.label} /> : null}
+          {visibleItems.length > 1 ? <><button className="story-gallery__tap story-gallery__tap--previous" type="button" disabled={selected === 0} data-slider-boundary onClick={() => move(-1)} aria-label="התמונה הקודמת"><span className="story-gallery__tap-icon" aria-hidden="true">‹</span></button>
+          <button className="story-gallery__tap story-gallery__tap--next" type="button" disabled={selected >= visibleItems.length - 1} data-slider-boundary onClick={() => move(1)} aria-label="התמונה הבאה"><span className="story-gallery__tap-icon" aria-hidden="true">›</span></button></> : null}
+          <span className="story-gallery__mobile-position" aria-live="polite">{selected + 1}/{visibleItems.length}</span>
+          <div className="story-gallery__caption"><span>{tabLabels[current?.category || "place"]}</span><strong>{current?.label}</strong></div>
+        </div>
       </div>
-      <div className="story-gallery__story" onTouchStart={(event) => { touchStart.current = event.changedTouches[0].clientX; }} onTouchEnd={(event) => {
-        const distance = event.changedTouches[0].clientX - touchStart.current;
-        if (Math.abs(distance) > 45) move(distance > 0 ? -1 : 1);
-      }}>
+      <div className="story-gallery__story" onPointerDown={startGesture} onPointerUp={finishGesture} onPointerCancel={() => { gestureStart.current = null; }}>
         <div className="story-gallery__progress" aria-hidden="true">{visibleItems.map((item, index) => <i key={item.src} className={index <= selected ? "active" : ""} />)}</div>
         {current ? <img className="story-gallery__image" src={current.src} alt={current.label} title={current.label} /> : null}
-        {visibleItems.length > 1 ? <><button className="story-gallery__tap story-gallery__tap--previous" type="button" disabled={selected === 0} data-slider-boundary onClick={() => move(-1)} aria-label="התמונה הקודמת" />
-        <button className="story-gallery__tap story-gallery__tap--next" type="button" disabled={selected >= visibleItems.length - 1} data-slider-boundary onClick={() => move(1)} aria-label="התמונה הבאה" /></> : null}
+        {visibleItems.length > 1 ? <><button className="story-gallery__tap story-gallery__tap--previous" type="button" disabled={selected === 0} data-slider-boundary onClick={() => move(-1)} aria-label="התמונה הקודמת"><span className="story-gallery__tap-icon" aria-hidden="true">‹</span></button>
+        <button className="story-gallery__tap story-gallery__tap--next" type="button" disabled={selected >= visibleItems.length - 1} data-slider-boundary onClick={() => move(1)} aria-label="התמונה הבאה"><span className="story-gallery__tap-icon" aria-hidden="true">›</span></button></> : null}
         <div className="story-gallery__caption"><span>{tabLabels[current?.category || "place"]}</span><strong>{current?.label}</strong></div>
       </div>
 

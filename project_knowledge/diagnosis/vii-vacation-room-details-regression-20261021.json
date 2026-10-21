@@ -1,0 +1,67 @@
+{
+  "status": "diagnosed",
+  "symptom": "The public page for vacation-2566 no longer shows a visible titled sleeping section with the detailed information for each bedroom, although the supplier record contains that detail.",
+  "expected_behavior": "A vacation place with verified room-space data should visibly present a clear sleeping section and the detailed information for every bedroom without requiring visitors to discover a hidden secondary control.",
+  "environment": "Public production page https://vii.spaplus.co/business?id=vacation-2566 on 2026-10-21, served from the AWS Aurora data origin and compared with the current release worktree history.",
+  "reproduction": {
+    "steps": [
+      "Open the public vacation-2566 business page without dates.",
+      "Inspect the visible page text and the serialized initialProperty and supplierDetail payloads.",
+      "Compare the current room renderer with the earlier room presentation in git history."
+    ],
+    "evidence": "The rendered page contains the navigation label 'מבנה המקום' and a compact room card with 'פרטי היחידה', but contains neither 'איפה ישנים' nor a visible list of חדר שינה 1 through חדר שינה 5."
+  },
+  "observations": [
+    {
+      "observation": "The detailed bedroom data is still delivered to the browser.",
+      "evidence": "The production RSC payload for vacation-2566 includes supplierDetail.rooms[0].featureGroups with titles חדר שינה 1 through חדר שינה 5 and their amenity items."
+    },
+    {
+      "observation": "The public summary record lacks a top-level bedrooms field.",
+      "evidence": "The production initialProperty payload for vacation-2566 includes units and guests but no bedrooms or sleepingArrangements, while supplierDetail.rooms[0].bedrooms equals 5."
+    },
+    {
+      "observation": "The current single-property renderer deliberately omits the room-section heading and keeps full groups in a dialog.",
+      "evidence": "app/business/client-page.tsx renders units-heading only when property.scenario is multi and renders featureGroups only through UnitDetailsDialog after clicking 'פרטי היחידה'."
+    },
+    {
+      "observation": "The visible room presentation was compacted in an earlier release change.",
+      "evidence": "Git commit 0a99eef43d428b43a869f40dc7bd288fb3f0fb17 removed the single-property heading and inline room features and sleeping block, replacing them with the compact facts row and a details control."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "The supplier or Aurora data lost the bedroom information.",
+      "prediction": "The production payload would contain no per-bedroom titles, counts, or amenity groups.",
+      "discriminating_test": "Inspect the serialized supplierDetail payload returned by the exact public page.",
+      "result": "Rejected: the payload contains five named bedroom feature groups and five bedrooms in the supplier room record.",
+      "status": "rejected"
+    },
+    {
+      "id": "H2",
+      "mechanism": "A presentation regression hides existing room data and the explicit sleeping section depends on a missing top-level bedrooms field.",
+      "prediction": "Detailed groups would exist in the payload but be absent from visible page text, while source conditions suppress the heading and sleeping section.",
+      "discriminating_test": "Compare visible production text, serialized data, renderer conditions, and the commit that changed the room-card layout.",
+      "result": "Supported: all detailed groups are present, only the compact card is visible, single places receive no units heading, and the sleeping section condition fails because property.bedrooms is undefined.",
+      "status": "supported"
+    }
+  ],
+  "root_cause_hypothesis_id": "H2",
+  "fix": {
+    "change": "Not implemented in this diagnostic-only turn. Restore a visible 'איפה תישנו' presentation from room featureGroups, derive the bedroom count from supplier rooms, and keep the modal as an optional deeper view rather than the only access path.",
+    "evidence": "A fix must be proven on vacation-2566 and representative single-unit and multi-unit vacation pages before publication."
+  },
+  "affected_family": [
+    "All supplier-backed vacation business pages with room featureGroups",
+    "Single-property vacation pages whose summaries omit a top-level bedrooms field",
+    "Multi-unit vacation pages that expose detailed room groups only through the unit dialog",
+    "Desktop and mobile room-detail navigation, headings, cards, and galleries"
+  ],
+  "regression_checks": [],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "The intended final visual precedent for the restored section must be selected from the previously approved room or sleeping layouts before implementation."
+  ],
+  "authorization_boundary": "Read-only diagnosis of production and repository history; no code change, database write, deployment, or publication was authorized in this turn."
+}

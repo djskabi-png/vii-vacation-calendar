@@ -1,0 +1,155 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-accessibility-feature-source-20261021",
+  "project": "VII public discovery product",
+  "task_type": "accessibility data truth correction",
+  "goal": "Use the exact נגישות לנכים feature as the sole positive accessibility verification and remove negative fallback states.",
+  "created_at": "2026-10-21T15:09:54.253994Z",
+  "updated_at": "2026-10-21T15:10:13.212350Z",
+  "completed_at": "2026-10-21T15:10:13.212392Z",
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "a53f3cf6f221a2a2da458ce59681240effe0028a2744bf25317e1c3b162f9973"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "f1aa410611dd0fdb5adbb8a620832ee6ff9f9a3498a8108f74f1ccb86562379b"
+    },
+    "cognitive_model": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md",
+      "sha256": "708ce5d1b152afe220cf98008f571e7d27704c102624f7d7440dc85a1a6ba2d8"
+    },
+    "rulebook": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md",
+      "sha256": "eef33571725d590d0dadeeee9475422715279004fbc40356257d11e818039ab1"
+    },
+    "predictive_preflight": {
+      "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-discovery-release-20261021\\project_knowledge\\predictive_preflights\\vii-accessibility-feature-source-20261021.json",
+      "sha256": "a28b87c81900cf9823af58380a4a0c55ff948af1d1466608d52d05cbcee42029"
+    }
+  },
+  "predictive_preflight": {
+    "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\vii-discovery-release-20261021\\project_knowledge\\predictive_preflights\\vii-accessibility-feature-source-20261021.json",
+    "sha256": "a28b87c81900cf9823af58380a4a0c55ff948af1d1466608d52d05cbcee42029",
+    "predicted_rejection_count": 3,
+    "affected_family_count": 7,
+    "lesson_bundle_count": 0,
+    "midpoint_required": true,
+    "effectiveness_measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ]
+  },
+  "applicable_lessons": [],
+  "no_applicable_lessons_reason": "The project feedback standard and the user's explicit correction are the controlling product sources; no accepted account lesson adds a narrower rule.",
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Use the exact נגישות לנכים feature as the sole positive accessibility verification and remove negative fallback states.",
+      "acceptance_check": "Focused helper checks, affected-family source assertions, rendered accessibility regression and production build pass; public deployment remains excluded.",
+      "status": "passed",
+      "evidence": [
+        "Shared feature predicate implemented; five helper checks, focused rendered test, lint on core files and production build passed."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-21T15:10:12.676635Z"
+    },
+    {
+      "id": "preflight:prediction",
+      "source": "predictive_preflight",
+      "statement": "Predict likely Adir rejection reasons and bind prevention to observable evidence before implementation.",
+      "acceptance_check": "The bounded predictive manifest matches the task identity and selected lessons and passes deterministic validation.",
+      "status": "passed",
+      "evidence": [
+        "Predictive preflight C:\\Users\\Adir\\Documents\\vii.co.il\\vii-discovery-release-20261021\\project_knowledge\\predictive_preflights\\vii-accessibility-feature-source-20261021.json validated with sha256 a28b87c81900cf9823af58380a4a0c55ff948af1d1466608d52d05cbcee42029"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-21T15:09:54.253869Z"
+    },
+    {
+      "id": "preflight:midpoint",
+      "source": "predictive_preflight.midpoint_gate",
+      "statement": "After replacing the source helper and before the full build.",
+      "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
+      "status": "passed",
+      "evidence": [
+        "Exact, whitespace-normalized, near-match, missing and positive-state helper checks passed before the full build."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-21T15:10:11.186916Z"
+    },
+    {
+      "id": "preflight:adversarial",
+      "source": "predictive_preflight.adversarial_close",
+      "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
+      "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
+      "status": "passed",
+      "evidence": [
+        "Focused rendered accessibility-family test passed; local server visual check was unavailable because the existing runtime database bootstrap reads an undefined env object.",
+        "Production build passed; all filter and detail call sites use the shared predicate or feature-driven component.",
+        "Executed 3 specific completion attacks"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-21T15:10:11.614988Z"
+    },
+    {
+      "id": "preflight:effectiveness",
+      "source": "predictive_preflight.effectiveness",
+      "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
+      "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
+      "status": "passed",
+      "evidence": [
+        "Structured effectiveness result: first_pass=yes, repeated_corrections=0, prevented_failures=3, elapsed_minutes=22.0; Baseline used a manual slug table, unknown fallback copy and full-accessibility filter wording."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-21T15:10:11.939160Z"
+    },
+    {
+      "id": "project:VII-SOURCES",
+      "source": "project_guidance",
+      "statement": "VII master plan and feedback standard applied",
+      "acceptance_check": "VII master plan and feedback standard applied",
+      "status": "passed",
+      "evidence": [
+        "Master plan and feedback standard were applied; no public deployment or legal-compliance claim was made."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-21T15:10:12.265305Z"
+    }
+  ],
+  "verification_status": "verified",
+  "verification_errors": [],
+  "predictive_results": {
+    "midpoint": {
+      "observed_at": "2026-10-21T15:10:11.186884Z",
+      "evidence": [
+        "Exact, whitespace-normalized, near-match, missing and positive-state helper checks passed before the full build."
+      ],
+      "findings": [
+        "The prior implementation used a slug table and generated unknown-state copy; both were removed."
+      ]
+    },
+    "adversarial": {
+      "observed_at": "2026-10-21T15:10:11.614954Z",
+      "attacks": [
+        "Similar labels such as נגישות and נגישות מלאה were tested and rejected.",
+        "An empty feature list was tested and returned null without negative copy.",
+        "All vacation, event, spa and hourly callers were traced to the shared feature source."
+      ],
+      "natural_destination_evidence": "Focused rendered accessibility-family test passed; local server visual check was unavailable because the existing runtime database bootstrap reads an undefined env object.",
+      "affected_family_evidence": "Production build passed; all filter and detail call sites use the shared predicate or feature-driven component."
+    },
+    "effectiveness": {
+      "recorded_at": "2026-10-21T15:10:11.939064Z",
+      "first_pass_acceptance": "yes",
+      "repeated_corrections": 0,
+      "prevented_failures": 3,
+      "elapsed_minutes": 22.0,
+      "baseline_note": "Baseline used a manual slug table, unknown fallback copy and full-accessibility filter wording."
+    }
+  }
+}

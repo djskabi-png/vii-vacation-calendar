@@ -16,7 +16,7 @@ import type { EventPlace } from "../../data/site-data";
 import { eventOfferHref, eventPlaceHref } from "../../lib/event-place-href";
 import { supplierDisplayDescription } from "../../data/supplier-display-text";
 import { usePublishedCatalog } from "../../lib/use-published-catalog";
-import { getPlaceAccessibility } from "../../data/accessibility-data";
+import { hasVerifiedAccessibilityFeature } from "../../data/accessibility-data";
 import { CloseIcon, MapIcon, PinIcon } from "../../site-header";
 import { BreadcrumbTrail } from "../../components/breadcrumb-trail";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -171,7 +171,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
     && (!facilities.includes(facility) || facility === "הכל" || place.features.includes(facility))
     && (!guests || place.capacityScope === "unit" || place.guests >= guests)
     && (!noNoiseLimit || place.features.some((feature) => feature.includes("ללא הגבלת רעש")))
-    && (!accessibleOnly || getPlaceAccessibility(place.slug).status === "accessible");
+    && (!accessibleOnly || hasVerifiedAccessibilityFeature(place.features));
   const filtered = useMemo(() => {
     const result = eventPlaces.filter((place) => matchesSearchLocation(place, area) && matchesHardFilters(place) && confirmedEventPlace(place));
     return [...result].sort((a, b) => {
@@ -269,7 +269,7 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
               <ModernSelect label={slotCopy.label} value={slot || "both"} onChange={(value) => changeFilter("slot", value === "both" ? "" : value)} options={[{ value: "both", label: slotCopy.both }, { value: "morning", label: slotCopy.morning }, { value: "evening", label: slotCopy.evening }]} />
               {eventPlaces.some((place) => place.capacityScope !== "unit") && <fieldset><legend>כמות משתתפים</legend><input type="range" min="0" max="300" step="10" value={guests} aria-label="כמות משתתפים" onChange={(event) => changeFilter("guests", Number(event.target.value))} /></fieldset>}
               <label><input type="checkbox" checked={noNoiseLimit} onChange={(event) => changeFilter("noise", event.target.checked)} /> ללא הגבלת רעש</label>
-              <label><input type="checkbox" checked={accessibleOnly} onChange={(event) => changeFilter("accessible", event.target.checked)} /> נגישות מלאה ומאומתת</label>
+              <label><input type="checkbox" checked={accessibleOnly} onChange={(event) => changeFilter("accessible", event.target.checked)} /> נגישות לנכים</label>
               <div className="filter-panel__mobile-sort">
                 <ModernSelect label="מיון לפי" value={sort} onChange={(value) => changeFilter("sort", value)} options={sortOptions} />
               </div>
