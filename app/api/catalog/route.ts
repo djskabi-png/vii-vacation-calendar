@@ -14,6 +14,7 @@ import { safeHourlyDescription } from "../../lib/hourly-description.ts";
 import { readPublishedItems } from "../../lib/content-studio.ts";
 import { managedVacationPriority } from "../../lib/vacation-priority.ts";
 import { runtimeDatabase } from "../../lib/runtime-database.ts";
+import { publicCatalogEntryAllowed } from "../../lib/public-catalog-policy.ts";
 
 const noStore = { "Cache-Control": "no-store" };
 const publicCatalogCache = { "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=300" };
@@ -33,6 +34,12 @@ function bundledDetail(world: SupplierCatalogWorld, supplierId: number) {
   if (world !== "vacations" && world !== "events") return null;
   const slug = `${world === "vacations" ? "vacation" : "event"}-${supplierId}`;
   return (sergeyDetails.details as Record<string, unknown>)[slug] || null;
+}
+
+function publicEntryAllowed(world: SupplierCatalogWorld, entry: { summary: unknown }) {
+  // Spa has its own strict public projection below. It must see malformed rows
+  // so the complete response fails closed instead of silently hiding them.
+  return world === "spa" || publicCatalogEntryAllowed(entry.summary);
 }
 
 function projectHourlyEntry<T extends { supplierId: number; summary: { id?: string; description?: string | null } }>(entry: T): T {
@@ -87,13 +94,14 @@ export async function catalogResponse(request: Request, db: D1Database | null) {
       if (state?.activeRunId) {
         if (supplierId !== null) {
           const entry = await readSupplierCatalogEntry(db, world, supplierId);
-          if (!entry) return Response.json({ error: "not_found" }, { status: 404, headers: noStore });
+          if (!entry || !publicEntryAllowed(world, entry)) return Response.json({ error: "not_found" }, { status: 404, headers: noStore });
           const publicEntry = world === "spa" ? (await projectSpaCatalogEntries([entry]))[0] : world === "rooms" ? projectHourlyEntry(entry) : entry;
           return Response.json({ world, source: "runtime", fetchedAt: entry.acceptedAt, entry: publicEntry }, { headers: publicCatalogCache });
         }
         const catalog = await readSupplierCatalogSummaries(db, world);
         if (!catalog) throw new Error("catalog_active_generation_missing");
-        const entries = world === "spa" ? await projectSpaCatalogEntries(catalog.entries) : world === "rooms" ? catalog.entries.map((entry) => projectHourlyEntry(entry as { supplierId: number; summary: { id?: string; description?: string | null } })) : catalog.entries;
+        const publicEntries = catalog.entries.filter((entry) => publicEntryAllowed(world, entry));
+        const entries = world === "spa" ? await projectSpaCatalogEntries(publicEntries) : world === "rooms" ? publicEntries.map((entry) => projectHourlyEntry(entry as { supplierId: number; summary: { id?: string; description?: string | null } })) : publicEntries;
         if (view === "lookup") return Response.json({ world, source: "runtime", fetchedAt: catalog.acceptedAt,
           places: searchPlaceInventory(world === "vacations" ? "vacation" : world === "rooms" ? "hourly" : world,
             entries.map((entry) => entry.summary)) }, { headers: publicCatalogCache });
@@ -113,7 +121,7 @@ export async function catalogResponse(request: Request, db: D1Database | null) {
   }
 
   const fetchedAt = world === "spa" ? spa.generatedAt : world === "rooms" ? hourly.fetchedAt : sergey.fetchedAt;
-  const rawEntries = bundledEntries(world);
+  const rawEntries = bundledEntries(world).filter((entry) => publicEntryAllowed(world, entry));
   let entries: typeof rawEntries;
   try { entries = world === "spa" ? await projectSpaCatalogEntries(rawEntries as SupplierCatalogEntry[]) as typeof rawEntries : world === "rooms" ? rawEntries.map((entry) => projectHourlyEntry(entry as { supplierId: number; summary: { id?: string; description?: string | null } })) as typeof rawEntries : rawEntries; }
   catch { return Response.json({ error: "catalog_unavailable" }, { status: 503, headers: noStore }); }

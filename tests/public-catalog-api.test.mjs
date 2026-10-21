@@ -12,7 +12,8 @@ test("serves a clearly identified bundled catalog before runtime publication", a
   const body = await response.json();
   assert.equal(response.status, 200);
   assert.equal(body.source, "bundled-fallback");
-  assert.equal(body.entries.length, 573);
+  assert.ok(body.entries.length > 500);
+  assert.equal(body.entries.some((entry) => entry.summary?.name === "המתחם הקטלני של רועי"), false);
   assert.equal(body.entries[0].summary.world, "vacations");
 });
 
@@ -103,6 +104,30 @@ test("named-place lookup uses only the accepted D1 generation", async () => {
   const body = await response.json();
   assert.equal(body.source, "runtime");
   assert.deepEqual(body.places.map((place) => place.id), ["vacation-9999"]);
+});
+
+test("runtime fixture rows stay out of list, lookup, search, and direct detail responses", async () => {
+  const fixture = { slug: "vacation-389", supplierId: 389, world: "vacations", name: "המתחם הקטלני של רועי", location: "ראשון לציון", area: "מרכז", contact: { phone: "050-1234567" } };
+  const db = {
+    prepare(sql) {
+      return {
+        bind() { return this; },
+        async first() {
+          if (sql.includes("JOIN")) return { supplierId: 389, summaryJson: JSON.stringify(fixture), detailJson: JSON.stringify({}), acceptedAt: "2026-10-12T12:00:00Z" };
+          if (sql.includes("supplier_catalog_state")) return { activeRunId: "accepted", activeCount: 1, acceptedAt: "2026-10-12T12:00:00Z" };
+          return null;
+        },
+        async all() { return { results: [{ supplierId: 389, summaryJson: JSON.stringify(fixture) }] }; },
+      };
+    },
+  };
+  for (const query of ["world=vacations", "world=vacations&view=lookup", "world=vacations&view=search"]) {
+    const response = await catalogResponse(request(query), db);
+    const body = await response.json();
+    assert.equal(response.status, 200);
+    assert.equal((body.entries || body.places).length, 0);
+  }
+  assert.equal((await catalogResponse(request("world=vacations&id=389"), db)).status, 404);
 });
 
 test("search does not flash bundled supplier places before the accepted catalog loads", async () => {
