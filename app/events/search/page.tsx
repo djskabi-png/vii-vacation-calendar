@@ -36,8 +36,7 @@ import { eventLiveCopy } from "../../i18n/vii-live-search-copy";
 import { eventSlotCopy } from "../../i18n/event-slot-copy";
 import type { EventSlot } from "../../lib/vii-live-search";
 import { trackSearchResults } from "../../lib/analytics";
-import { nearbyPlacesForSelection } from "../../lib/geography-search";
-import { completeNearbyResults } from "../../lib/nearby-recommendations";
+import { completeNearbyResults, nearbySearchRecommendations } from "../../lib/nearby-recommendations";
 import { NearbySearchNotice } from "../../components/nearby-search-notice";
 import { useManagedGeography } from "../../components/use-managed-geography";
 import { RegionalAvailability } from "../../components/regional-availability";
@@ -169,9 +168,9 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
       return !eventFrom || !guests || supplierSearch.status !== "ready"
         || supplierSearch.results[Number(match?.[1] || -1)]?.available !== false;
     });
-    return nearbyPlacesForSelection(eligible, managedGeography, area, { limit: 12, maximumDistanceKm: 100, minimumResults: 3 });
+    return nearbySearchRecommendations(eligible, area, managedGeography, { key: (place) => place.slug });
   }, [accessibleOnly, area, eventFrom, eventPlaces, eventType, eventTypes, filtered.length, guests, managedGeography, noNoiseLimit, supplierSearch.results, supplierSearch.status, type, types]);
-  const resultSet = useMemo(() => completeNearbyResults(filtered, nearbyRecovery.map((candidate) => candidate.place), (place) => place.slug), [filtered, nearbyRecovery]);
+  const resultSet = useMemo(() => completeNearbyResults(filtered, nearbyRecovery, (place) => place.slug), [filtered, nearbyRecovery]);
 
   const displayed = useMemo(() => {
     if (!mapOpen || !mapVisibleIds) return resultSet;

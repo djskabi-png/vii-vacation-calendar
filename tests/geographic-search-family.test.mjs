@@ -47,6 +47,14 @@ test('known sparse semantic routes reach nearby recovery instead of returning a 
  assert.doesNotMatch(vacationRoute,/if \(!listings\.length\) notFound\(\)/);
  assert.match(vacationRoute,/nearbySearchRecommendations/);
 });
+test('event and vacation result clients fall back from incomplete city coordinates to regional nearest results',()=>{
+ const eventSearch=read('app/events/search/page.tsx');
+ const vacationSearch=read('app/search/page.tsx');
+ assert.match(eventSearch,/nearbySearchRecommendations\(eligible, area, managedGeography/);
+ assert.doesNotMatch(eventSearch,/nearbyPlacesForSelection\(eligible/);
+ assert.match(vacationSearch,/nearbySearchRecommendations\(eligible, area, managedGeography/);
+ assert.match(vacationSearch,/nearbySearchRecommendations\(draftCandidates, shownFilters\.area, managedGeography/);
+});
 test('new metro titles are localized and retain audience and feature constraints',()=>{
  const state=spaSearchStateFromValues('גוש דן','couple',['pool']);
  for(const language of ['en','fr','ru']) assert.doesNotMatch(spaSearchTitle(state,language),/[\u0590-\u05ff]|undefined/);

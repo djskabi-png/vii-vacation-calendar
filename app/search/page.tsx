@@ -45,8 +45,7 @@ import { ProgressiveResults } from "../components/progressive-results";
 import { trackSearchResults } from "../lib/analytics";
 import { matchesVacationSearchFilter } from "../lib/vacation-search-filter-index";
 import { vacationRoomGuests, vacationRoomsFromSearchParams } from "../lib/vacation-party";
-import { nearbyPlacesForSelection } from "../lib/geography-search";
-import { completeNearbyResults } from "../lib/nearby-recommendations";
+import { completeNearbyResults, nearbySearchRecommendations } from "../lib/nearby-recommendations";
 import { NearbySearchNotice } from "../components/nearby-search-notice";
 import { useManagedGeography } from "../components/use-managed-geography";
 import { matchesVacationOnlineBooking } from "../lib/vacation-online-booking-filter";
@@ -699,10 +698,10 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       if (!selectedStay && !flexibleSearch) return true;
       return liveAvailabilityFor(property.slug)?.quote?.availability !== "unavailable";
     });
-    return nearbyPlacesForSelection(eligible, managedGeography, area, { limit: 12, maximumDistanceKm: 100, minimumResults: 3 });
+    return nearbySearchRecommendations(eligible, area, managedGeography, { key: (property) => property.slug });
   }, [VACATION_PRICE_MAX, VACATION_PRICE_MIN, area, filtered.length, managedGeography, mapCandidates, maxPrice, minPrice, onlineOnly, onlineCapabilities, undatedSearch, selectedStay, flexibleSearch, supplierSearch.results, supplierSearch.status, liveAvailabilityBySlug, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug]);
   const resultSet = useMemo(() => prioritizeOnlineFirst(
-    completeNearbyResults(filtered, nearbyRecovery.map((candidate) => candidate.place), (place) => place.slug),
+    completeNearbyResults(filtered, nearbyRecovery, (place) => place.slug),
     property => matchesOnline(property),
     sort === "recommended" ? (a, b) => compareVacationPriority(a, b, a.slug, b.slug, "vacation-search") : undefined,
   // Availability helpers close over these same quote/selection inputs.
@@ -755,7 +754,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     && (landing.area ? shownFilters.area === landing.area : shownFilters.area === "הכל"));
   const draftMatches = draftCandidates.filter((property) => draftUsesLandingSet ? landing?.listingSlugs?.includes(property.slug) : matchesSearchLocation(property, shownFilters.area));
   const draftNearby = shownFilters.onlineOnly && draftMatches.length < 3 && !isWholeCountrySelection(shownFilters.area)
-    ? nearbyPlacesForSelection(draftCandidates, managedGeography, shownFilters.area, { limit: 12, maximumDistanceKm: 100, minimumResults: 3 }).map(candidate => candidate.place) : [];
+    ? nearbySearchRecommendations(draftCandidates, shownFilters.area, managedGeography, { key: (property) => property.slug }) : [];
   const draftResultCount = shownFilters.onlineOnly ? completeNearbyResults(draftMatches, draftNearby, place => place.slug).length : draftMatches.length;
   const draftResultLabel = shownFilters.onlineOnly && undatedCapabilityUnavailable ? "הצגת המקומות באזור"
     : shownFilters.onlineOnly && !undatedSearch && (supplierSearch.status !== "ready" || shownFilters.guests !== guests) ? "החלת סינונים"
