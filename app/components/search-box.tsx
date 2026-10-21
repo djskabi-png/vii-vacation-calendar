@@ -175,7 +175,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const [spaAudience, setSpaAudience] = useState<SpaAudience | null>(() => parseSpaAudience(searchParams.get("spaFor") || initialSpaAudience || null));
   const [guests, setGuests] = useState(() => Number(searchParams.get("guests")) || initialGuests || defaultGuestCount(mode));
   const [vacationParty, setVacationParty] = useState<VacationParty>(() => initialVacationParty(searchParams, Number(searchParams.get("guests")) || initialGuests || 2));
-  const [calendarOpen, setCalendarOpen] = useState(() => mode === "vacation" && searchParams.get("editSearch") === "dates");
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const [locationOpen, setLocationOpen] = useState(false);
   const [locationQuery, setLocationQuery] = useState("");
   const [browseKey, setBrowseKey] = useState<string | null | undefined>(undefined);
@@ -216,7 +216,18 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
   const [isSearching, setIsSearching] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState(false);
   const searchSurfaceRef = useRef<HTMLDivElement>(null);
+  const handledEditSearchRef = useRef(false);
   const [mobileStep, setMobileStep] = useState<"overview" | "location" | "dates" | "guests">("overview");
+  useEffect(() => {
+    if (handledEditSearchRef.current || mode !== "vacation") return;
+    if (new URLSearchParams(window.location.search).get("editSearch") !== "dates") return;
+    handledEditSearchRef.current = true;
+    setLocationOpen(false);
+    setGuestOpen(false);
+    setMobileStep("dates");
+    if (window.matchMedia("(max-width: 820px)").matches) setMobileExpanded(true);
+    setCalendarOpen(true);
+  }, [mode]);
   useEffect(() => {
     if (!openDatesRequest || mode !== "vacation") return;
     setLocationOpen(false);

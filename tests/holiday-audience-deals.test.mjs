@@ -110,10 +110,12 @@ test("advanced search uses supported exact dates and preserves party rather than
   }
 });
 
-test("holiday change-search handoff initializes the real date editor in SearchBox without a second navigation", () => {
+test("holiday change-search handoff opens the real date editor after hydration without a second navigation", () => {
   const search = readFileSync(new URL("../app/search/page.tsx", import.meta.url), "utf8");
   const searchBox = readFileSync(new URL("../app/components/search-box.tsx", import.meta.url), "utf8");
-  assert.match(searchBox, /useState\(\(\) => mode === "vacation" && searchParams\.get\("editSearch"\) === "dates"\)/);
+  assert.match(searchBox, /new URLSearchParams\(window\.location\.search\)\.get\("editSearch"\) !== "dates"/);
+  assert.match(searchBox, /handledEditSearchRef\.current = true;[\s\S]*setCalendarOpen\(true\)/);
+  assert.match(searchBox, /const \[calendarOpen, setCalendarOpen\] = useState\(false\)/);
   assert.match(search, /const \[openDatesRequest, setOpenDatesRequest\] = useState\(0\)/);
   assert.doesNotMatch(search, /canonicalParams\.delete\("editSearch"\)/, "the editor intent must survive the initial mount");
   assert.doesNotMatch(search, /history\.replaceState/, "URL cleanup must not remount and immediately close the editor");
