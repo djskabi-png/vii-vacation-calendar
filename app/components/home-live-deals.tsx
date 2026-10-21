@@ -136,7 +136,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
     discoveryJson<ResponseData>(url, clock.key, { signal: controller.signal, headers: { Accept: "application/json" } })
       .then((result) => {
         if (controller.signal.aborted) return;
-        if (!Array.isArray(result.deals) || (mode === "near" && (result.period !== period || result.region !== regionLabel)) || (mode === "holidays" && result.holiday?.id !== holidayId)) throw new Error("invalid_result");
+        if (!Array.isArray(result.deals) || (mode === "near" && (!homeDealPeriods.some(item => item.id === result.period) || result.region !== regionLabel)) || (mode === "holidays" && result.holiday?.id !== holidayId)) throw new Error("invalid_result");
         if (mode === "near" && result.display?.periods?.length) {
           setPeriodTabs(result.display.periods);
           if (!displaySettingsApplied.current) {

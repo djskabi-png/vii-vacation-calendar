@@ -5,7 +5,7 @@
   "task_type": "production booking flow repair",
   "goal": "Repair the complete vacation online-booking family without losing cached capability results or bypassing final live validation.",
   "created_at": "2026-10-20T15:01:04.043992Z",
-  "updated_at": "2026-10-20T15:20:25.208362Z",
+  "updated_at": "2026-10-21T03:48:42.356339Z",
   "completed_at": null,
   "source_hashes": {
     "working_profile": {
@@ -227,6 +227,15 @@
       "status": "pending",
       "evidence": [],
       "reason": null
+    },
+    {
+      "id": "public-default-rail-recovery",
+      "source": "user_correction_2026-10-21",
+      "statement": "The public vacation availability rail must never strand the visitor on an unavailable default cache key while another eligible accepted period snapshot exists.",
+      "acceptance_check": "On the exact public release, the initial rail selects a period with accepted cached deals, all five tabs recover without a permanent error, reload preserves usable results, and supplier failure does not erase last-good snapshots.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
     }
   ],
   "verification_status": "in_progress",
@@ -243,6 +252,6 @@
       ]
     }
   },
-  "last_freshness_check_at": "2026-10-20T15:20:13.944779Z",
+  "last_freshness_check_at": "2026-10-21T03:48:41.287973Z",
   "last_freshness_check_errors": []
 }

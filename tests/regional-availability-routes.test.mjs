@@ -40,6 +40,31 @@ test('actual vacation handler validates scope before reads, joins publication an
   assert.equal(body.region,'צפון');assert.deepEqual(body.deals.map(deal=>deal.siteID),[2]);
 });
 
+test('actual vacation handler recovers from a missing default snapshot and hides unusable tabs',async()=>{
+  const now=new Date();
+  const weekend=homeDealDates('weekend',now);
+  const get=handler('vii/home-deals','GET',{
+    regionalAvailabilityRegion,regionalPublishedIds,selectRegionalOffers,eligibleDealDate,isContentLocale:()=>true,
+    homeDealPeriods:[{id:'tomorrow'},{id:'weekend'},{id:'friday'}],
+    publicCatalogSummaries:async()=>[{supplierId:2,name:'North',area:'צפון'}],
+    publishedSupplierIds:async()=>new Set([2]),
+    readHomeDisplaySettings:async()=>({periods:[{id:'tomorrow',label:'ברגע האחרון'},{id:'weekend',label:'חמישי עד שבת'},{id:'friday',label:'לילה בשישי'}],defaultPeriod:'tomorrow'}),
+    readCachedDiscovery:async({key})=>{
+      if(key[1]!==weekend.from||key[2]!==weekend.till) throw new Error('missing_snapshot');
+      return {cache:{status:'stale',checkedAt:'2026-10-20T12:00:00Z'},value:{dates:weekend,deals:[{siteID:2,total:600,priceGuests:2,from:weekend.from,till:weekend.till}]}};
+    },
+  });
+  const response=await get(request('?period=tomorrow'));
+  const body=await response.json();
+  assert.equal(response.status,200);
+  assert.equal(response.headers.get('x-vii-discovery-cache'),'stale');
+  assert.equal(body.requestedPeriod,'tomorrow');
+  assert.equal(body.period,'weekend');
+  assert.equal(body.display.defaultPeriod,'weekend');
+  assert.deepEqual(body.display.periods.map(item=>item.id),['weekend']);
+  assert.deepEqual(body.deals.map(deal=>deal.siteID),[2]);
+});
+
 test('actual event handler selects regional public IDs before national top12 and echoes scope',async()=>{
   const places=Array.from({length:26},(_,i)=>({supplierId:i+1,slug:`event-${i+1}`,name:`Venue ${i+1}`,location:i<20?'נתניה':'צפת',area:i<20?'מרכז':'צפון',type:'Venue',guests:50,image:'https://www.vii.co.il/gallery/venue.jpg',images:[]}));
   places[20].contact={phone:'050-111-1111',whatsapp:'050-222-2222',privateNote:'must-not-be-projected'};

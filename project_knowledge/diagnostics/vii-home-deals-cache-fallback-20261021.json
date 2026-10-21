@@ -1,0 +1,94 @@
+{
+  "status": "diagnosed",
+  "symptom": "The public 'נופש פנוי בתאריכים הקרובים' rail rendered 'לא הצלחנו לבדוק זמינות כרגע' for several minutes instead of showing cached vacation offers.",
+  "expected_behavior": "A temporary miss for one date-period cache key must not strand the rail while another accepted, current vacation snapshot contains eligible offers; final booking validation remains live.",
+  "environment": "Public https://vii.spaplus.co before the 2026-10-21 repair candidate, source baseline b705ccdacb6c10c9ca3aa7ed26918771411c803e, Israel date 2026-10-21.",
+  "reproduction": {
+    "steps": [
+      "Open the public vacation availability rail while the default period is tomorrow.",
+      "Request /api/vii/home-deals?period=tomorrow&locale=he directly.",
+      "Compare the response with period=weekend and period=friday-weekend."
+    ],
+    "evidence": "The tomorrow request returned HTTP 503 supplier_unavailable, while weekend and friday-weekend returned HTTP 200 with X-VII-Discovery-Cache: stale and real eligible deals."
+  },
+  "observations": [
+    {
+      "observation": "The online-capability snapshot remained available and non-empty.",
+      "evidence": "GET /api/vii/online-capabilities returned HTTP 200, X-VII-Data-Origin: aws-aurora, and 21 vacation capabilities."
+    },
+    {
+      "observation": "The incident was limited to exact date-period discovery keys, not all cached discovery data.",
+      "evidence": "tomorrow, thursday and friday returned 503; weekend and friday-weekend returned 200 from accepted stale snapshots."
+    },
+    {
+      "observation": "The API read only the requested cache key and returned 503 when it was absent.",
+      "evidence": "The baseline home-deals route called readCachedDiscovery once using the requested period dates inside one fail-closed try/catch."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "All supplier and discovery cache data was unavailable.",
+      "prediction": "Every period request and the capability snapshot would fail or be empty.",
+      "discriminating_test": "Request every configured period plus online-capabilities from production.",
+      "result": "Two period snapshots and the capability snapshot were healthy and non-empty.",
+      "status": "rejected"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The browser alone rendered stale error state while the public API was healthy.",
+      "prediction": "A direct request for the selected period would return eligible deals.",
+      "discriminating_test": "Request the public home-deals endpoint directly for tomorrow.",
+      "result": "The public endpoint itself returned HTTP 503 supplier_unavailable.",
+      "status": "rejected"
+    },
+    {
+      "id": "H3",
+      "mechanism": "A missing exact default-period cache key was treated as a total discovery failure even though sibling accepted snapshots were usable.",
+      "prediction": "The selected key fails, sibling keys succeed, and a route-level fallback test recovers without any supplier call.",
+      "discriminating_test": "Simulate a missing tomorrow key and an accepted weekend key in the actual route handler.",
+      "result": "The baseline behavior failed closed; the repair returned HTTP 200, selected weekend, exposed only usable period tabs, and preserved the stale cache marker.",
+      "status": "supported"
+    }
+  ],
+  "root_cause_hypothesis_id": "H3",
+  "fix": {
+    "change": "Read configured accepted period snapshots in parallel, keep only public and currently eligible offers, prefer the requested period when usable, otherwise select an accepted sibling snapshot, and return only usable tabs so the client changes atomically to truthful data.",
+    "evidence": "The new actual-route regression test passes for a missing default snapshot; TypeScript, production build, typography audit and all 1,413 automated tests pass."
+  },
+  "affected_family": [
+    "Homepage near-term vacation availability rail",
+    "Regional near-term vacation availability rails",
+    "Period tab switching and retry behavior",
+    "Undated online-booking capability discovery",
+    "Dated final booking revalidation"
+  ],
+  "regression_checks": [
+    {
+      "check": "Missing default cache key with usable sibling snapshot",
+      "status": "passed",
+      "evidence": "tests/regional-availability-routes.test.mjs returns HTTP 200, actual period weekend, requestedPeriod tomorrow and only the usable tab."
+    },
+    {
+      "check": "No visitor-time supplier lookup was introduced",
+      "status": "passed",
+      "evidence": "tests/home-deal-parallel-reads.test.mjs confirms home-deals uses discovery cache and contains no supplierToken or getHomeDeals call."
+    },
+    {
+      "check": "Complete affected repository suite",
+      "status": "passed",
+      "evidence": "pnpm test completed the production build and 1,413/1,413 tests with zero failures."
+    },
+    {
+      "check": "Hebrew typography source gate",
+      "status": "passed",
+      "evidence": "audit_font_sources.py passed for the exact candidate tree."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "The upstream reason that three exact rolling date-period keys were missing remains unproven; the scheduled warmer must still be monitored independently.",
+    "Exact public success remains pending deployment and natural-destination verification."
+  ],
+  "authorization_boundary": "Diagnose, repair, test, publish and verify the public VII availability rail without submitting a booking, changing supplier data, changing DNS or changing database schema."
+}
