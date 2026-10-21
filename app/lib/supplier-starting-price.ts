@@ -88,7 +88,7 @@ export async function fetchStartingPriceCatalog(world: StartingPriceWorld, token
   if (!token) throw new Error("starting_prices_unavailable");
   const response = await fetchImpl(`https://bizonline.co.il/api/ai/vii/${world}`, {
     headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
-    cache: "no-store", redirect: "error", signal: AbortSignal.timeout(12_000),
+    cache: "no-store", redirect: "error", signal: AbortSignal.timeout(20_000),
   });
   if (!response.ok || !response.body) throw new Error("starting_prices_unavailable");
   const reader = response.body.getReader();
@@ -99,7 +99,10 @@ export async function fetchStartingPriceCatalog(world: StartingPriceWorld, token
       const part = await reader.read();
       if (part.done) break;
       size += part.value.byteLength;
-      if (size > 10 * 1024 * 1024) throw new Error("starting_prices_unavailable");
+      // The supplier list includes galleries and room summaries even though
+      // this projection retains only two numeric price fields. Keep the read
+      // bounded, but above the documented full-list payload size.
+      if (size > 32 * 1024 * 1024) throw new Error("starting_prices_unavailable");
       chunks.push(part.value);
     }
     const bytes = new Uint8Array(size);

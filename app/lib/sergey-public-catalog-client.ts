@@ -188,7 +188,15 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
           const index = cursor++;
           const id = ids[index];
           try {
-            entries[index] = normalizePlace(world, id, await get(`/${world}/${id}`), cities, areas);
+            const detail = await get(`/${world}/${id}`);
+            // Seasonal starting prices belong to the list contract. Preserve
+            // them in the accepted summary even when the detail response does
+            // not repeat them, so future catalog syncs cannot erase the
+            // undated browse price.
+            entries[index] = normalizePlace(world, id, {
+              ...detail,
+              ...startingPriceFields(active[index]),
+            }, cities, areas);
           } catch (error) {
             if (error instanceof Error && ["sergey_place_missing_media", "supplier_fixture_not_public"].includes(error.message)) {
               entries[index] = null;

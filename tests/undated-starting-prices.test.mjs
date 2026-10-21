@@ -73,7 +73,7 @@ test('one server list read uses only existing bearer auth and does not forward r
   assert.equal(calls,1);assert.deepEqual(prices,{'event-2':{startPriceWinter:1000}});
   await assert.rejects(()=>fetchStartingPriceCatalog('events',''),/unavailable/);
   await assert.rejects(()=>fetchStartingPriceCatalog('events','test',async()=>Response.json({error:'SQL'})),/unavailable/);
-  await assert.rejects(()=>fetchStartingPriceCatalog('events','test',async()=>new Response('x'.repeat(10*1024*1024+1))),/unavailable/);
+  await assert.rejects(()=>fetchStartingPriceCatalog('events','test',async()=>new Response('x'.repeat(32*1024*1024+1))),/unavailable/);
 });
 
 test('accepted generation projects only supplier seasonal fields with Aurora-portable SQL',async()=>{
@@ -126,7 +126,7 @@ test('all search card callers guard dates without changing live quotes, ranking 
   assert.match(route,/readAcceptedStartingPriceCatalog\(database, world\)/);
   assert.match(route,/fetchStartingPriceCatalog\(world, await supplierToken\(\)\)/);
   assert.match(route,/Object\.keys\(accepted\)\.length/);
-  assert.match(route,/\["supplier-starting-prices", 3, world\]/);
+  assert.match(route,/\["supplier-starting-prices", 4, world\]/);
 });
 
 test('actual client hook clears previous prices for malformed 200, wrong-world and failed responses',async()=>{

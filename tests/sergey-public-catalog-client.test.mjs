@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createSergeyPublicCatalogClient } from "../app/lib/sergey-public-catalog-client.ts";
 
-function client(override = {}, extraPlace = false) {
+function client(override = {}, extraPlace = false, listOverride = {}) {
   const pictures = Array.from({ length: 14 }, (_, index) => `/gallery/photo-${index}.jpg`);
   const detail = {
     id: 17, active: true, name: "מתחם בדיקה", location: { city: 1 },
@@ -18,7 +18,7 @@ function client(override = {}, extraPlace = false) {
     assert.equal(options.headers.Authorization, "Bearer test-key");
     const path = new URL(url).pathname.replace("/api/ai/vii", "");
     if (path === "/locations") return Response.json({ cities: [{ id: 1, title: "חיפה", area: 2 }], areas: [{ id: 2, title: "חיפה והקריות" }] });
-    if (path === "/vacations") return Response.json({ places: [{ siteID: 17, active: true }, ...(extraPlace ? [{ siteID: 18, active: true }] : [])] });
+    if (path === "/vacations") return Response.json({ places: [{ siteID: 17, active: true, ...listOverride }, ...(extraPlace ? [{ siteID: 18, active: true }] : [])] });
     if (path === "/vacations/17") return Response.json(detail);
     if (path === "/vacations/18") return Response.json({ ...detail, id: 18, galleries: { main: { title: "סוויטה", pictures } } });
     return new Response("", { status: 404 });
@@ -52,6 +52,12 @@ test("preserves only valid new seasonal starting prices without creating a quote
   const invalid=(await client({startPriceWinter:0,startPriceSummer:"1500"}).fetchCandidate("vacations")).entries[0].summary;
   assert.equal(Object.hasOwn(invalid,"startPriceWinter"),false);
   assert.equal(Object.hasOwn(invalid,"startPriceSummer"),false);
+});
+
+test("preserves seasonal starting prices from the supplier list when detail omits them", async () => {
+  const { summary } = (await client({}, false, { startPriceWinter: 900, startPriceSummer: 1400 }).fetchCandidate("vacations")).entries[0];
+  assert.equal(summary.startPriceWinter, 900);
+  assert.equal(summary.startPriceSummer, 1400);
 });
 
 test("keeps supplier gallery order and resolves the Suite Tohar naming difference", async () => {

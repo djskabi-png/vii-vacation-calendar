@@ -68,7 +68,7 @@ async function durableRead<T>(db: D1Database, key: string, options: Options<T>):
     // failure placeholders grow without limit or evict an active lease owner.
     // Long-lived daily evidence must not be evicted by a burst of short-lived
     // date/party offers. Still bounded by the same 512-row admission ceiling.
-    await db.prepare(`DELETE FROM ${TABLE} WHERE cache_key IN (SELECT cache_key FROM ${TABLE} WHERE lease_until <= ? ORDER BY (stale_until > ? AND stale_until - checked_at > ?) DESC, checked_at DESC, cache_key LIMIT -1 OFFSET 511)`).bind(now, now, STALE).run();
+    await db.prepare(`DELETE FROM ${TABLE} WHERE cache_key IN (SELECT cache_key FROM ${TABLE} WHERE lease_until <= ? ORDER BY (stale_until > ? AND stale_until - checked_at > ?) DESC, checked_at DESC, cache_key LIMIT 512 OFFSET 511)`).bind(now, now, STALE).run();
     await db.prepare(`INSERT OR IGNORE INTO ${TABLE} (cache_key) SELECT ? WHERE (SELECT COUNT(*) FROM ${TABLE}) < 512`).bind(key).run();
   }
   const token = crypto.randomUUID();
@@ -90,7 +90,7 @@ async function durableRead<T>(db: D1Database, key: string, options: Options<T>):
       const current = await read(db, key), currentValue = parse(current, options, clock());
       return current && currentValue !== undefined ? result(currentValue, current, "fresh") : unavailable();
     }
-    await db.prepare(`DELETE FROM ${TABLE} WHERE cache_key IN (SELECT cache_key FROM ${TABLE} WHERE lease_until <= ? ORDER BY (stale_until > ? AND stale_until - checked_at > ?) DESC, checked_at DESC, cache_key LIMIT -1 OFFSET 512)`).bind(checked, checked, STALE).run().catch(() => {});
+    await db.prepare(`DELETE FROM ${TABLE} WHERE cache_key IN (SELECT cache_key FROM ${TABLE} WHERE lease_until <= ? ORDER BY (stale_until > ? AND stale_until - checked_at > ?) DESC, checked_at DESC, cache_key LIMIT 512 OFFSET 512)`).bind(checked, checked, STALE).run().catch(() => {});
     return result(fresh, { payload: encoded, checked_at: checked, stale_until: checked + policy(options).staleMs, retry_after: 0, lease_until: 0 }, "refreshed");
   } catch {
     await db.prepare(`UPDATE ${TABLE} SET retry_after = ?, lease_until = 0, lease_token = NULL WHERE cache_key = ? AND lease_token = ?`).bind(clock() + COOLDOWN, key, token).run().catch(() => {});

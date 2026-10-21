@@ -5,6 +5,13 @@ import { createRequire } from "node:module";
 import { readFileSync } from "node:fs";
 import { runWithExecutionContext } from "vinext/shims/request-context";
 
+test("durable cache eviction SQL is portable to Aurora and D1", () => {
+  const source = readFileSync(new URL("../app/lib/discovery-offer-cache.ts", import.meta.url), "utf8");
+  assert.doesNotMatch(source, /LIMIT -1/);
+  assert.match(source, /LIMIT 512 OFFSET 511/);
+  assert.match(source, /LIMIT 512 OFFSET 512/);
+});
+
 test("local cache reuses fresh value and accepts successful empty result", async () => {
   let now = 1_000_000; let calls = 0;
   const load = async () => { calls++; return calls === 1 ? [] : [{ id: 2 }]; };

@@ -31,7 +31,7 @@ export async function GET(request: Request) {
   return startingPricesResponse(request, {
     published: world => publishedSupplierIds(world, database),
     read: async world => cachedDiscovery({
-      key: ["supplier-starting-prices", 3, world],
+      key: ["supplier-starting-prices", 4, world],
       db: database,
       load: async () => {
         const accepted = database ? await readAcceptedStartingPriceCatalog(database, world) : {};
