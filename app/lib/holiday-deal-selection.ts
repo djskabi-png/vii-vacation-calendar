@@ -47,5 +47,5 @@ export function holidayDealSearchHref(holiday: Pick<HomeHoliday, "from" | "till"
   const window = holidayDealWindow(holiday, selection.part);
   const guests = holidayAudiences.find((item) => item.id === selection.audience)!.guests;
   const till = new Date(Date.parse(`${window.from}T00:00:00Z`) + window.nights * 86_400_000).toISOString().slice(0, 10);
-  return `/search?${new URLSearchParams({ from: window.from, till, guests: String(guests) })}`;
+  return `/search?${new URLSearchParams({ from: window.from, till, guests: String(guests), editSearch: "dates" })}`;
 }

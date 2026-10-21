@@ -105,8 +105,17 @@ test("advanced search uses supported exact dates and preserves party rather than
     const params = new URL(holidayDealSearchHref(holiday, { audience: audience.id, part }), "https://vii.spaplus.co").searchParams;
     assert.equal(params.get("guests"), String(audience.guests));
     assert.equal((Date.parse(params.get("till")) - Date.parse(params.get("from"))) / 86400000, 2);
+    assert.equal(params.get("editSearch"), "dates", "the visible change-search action must open the real date editor");
     assert.equal(params.has("windowFrom"), false);
   }
+});
+
+test("holiday change-search handoff opens the date editor once and leaves a canonical shareable URL", () => {
+  const search = readFileSync(new URL("../app/search/page.tsx", import.meta.url), "utf8");
+  assert.match(search, /searchParams\.get\("editSearch"\) !== "dates"/);
+  assert.match(search, /setOpenDatesRequest\(\(value\) => value \+ 1\)/);
+  assert.match(search, /canonicalParams\.delete\("editSearch"\)/);
+  assert.match(search, /router\.replace\(`\$\{pathname\}\$\{canonicalQuery/);
 });
 
 test("holiday UI replaces banners, carries complete quote context and guards late responses", () => {

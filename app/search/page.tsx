@@ -368,6 +368,15 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const [selectedExtras, setSelectedExtras] = useState<string[]>((initialParams.get("features") || "").split(",").filter((id) => legacyExtraFilters.some((item) => item.id === id)));
   const [draftFilters, setDraftFilters] = useState<VacationFilterState | null>(null);
   const [, setVisibleMapCount] = useState(0);
+
+  useEffect(() => {
+    if (searchParams.get("editSearch") !== "dates") return;
+    setOpenDatesRequest((value) => value + 1);
+    const canonicalParams = new URLSearchParams(searchQuery);
+    canonicalParams.delete("editSearch");
+    const canonicalQuery = canonicalParams.toString();
+    router.replace(`${pathname}${canonicalQuery ? `?${canonicalQuery}` : ""}`, { scroll: false });
+  }, [pathname, router, searchParams, searchQuery]);
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);
   const [activeMapPropertyId, setActiveMapPropertyId] = useState<string | null>(null);
 
