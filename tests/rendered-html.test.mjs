@@ -984,7 +984,8 @@ test("ships the immersive media, review and concierge experiences", async () => 
   assert.match(gallery, /alt="" title=\{item\.label\}/);
   assert.match(gallery, /יחידות האירוח/);
   assert.match(gallery, /חדרי השינה/);
-  assert.match(gallery, /onTouchStart/);
+  assert.match(gallery, /onPointerDown=\{startGesture\}/);
+  assert.match(gallery, /onPointerUp=\{finishGesture\}/);
   assert.match(gallery, /<video controls playsInline/);
   assert.match(data, /אינו צילום וידאו רציף/);
   assert.match(reviews, /כל תוכן חדש עובר בדיקה לפני שהוא מוצג לציבור/);
