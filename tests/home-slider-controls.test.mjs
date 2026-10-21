@@ -15,6 +15,7 @@ test("homepage rails share one geometry-aware boundary control", () => {
   assert.match(sharedControls, /last\.left < bounds\.left - 2/);
   assert.match(sharedControls, /disabled=\{disabled \|\| !state\.previous\}/);
   assert.match(sharedControls, /disabled=\{disabled \|\| !state\.next\}/);
+  assert.match(sharedControls, /aria-controls=\{railId\}/);
   assert.match(sharedControls, /ResizeObserver/);
   assert.match(sharedControls, /MutationObserver/);
   assert.match(sharedControls, /window\.addEventListener\("resize", update\)/);
