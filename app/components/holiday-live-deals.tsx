@@ -72,7 +72,7 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
     if (currentHoliday.from >= holiday.till) { setResult({ key, status: "ready", deals: [] }); return () => controller.abort(); }
     if (holiday.id <= 0) { setResult({ key, status: "error", deals: [] }); return () => controller.abort(); }
     const params = new URLSearchParams({ id: String(holiday.id), guests: String(guests), part: normalizedSelection.part });
-    discoveryJson<{ holiday: HomeHoliday; deals: HomeDeal[]; cache?:{status:string} }>(`/api/vii/home-holiday-deals?${params}`, clock.key, { signal: controller.signal })
+    discoveryJson<{ holiday: HomeHoliday; deals: HomeDeal[]; cache?:{status:string} }>(`/api/vii/home-holiday-deals?${params}`, clock.key, { signal: controller.signal, persist: true })
       .then((data) => {
         if (data.holiday?.id !== holiday.id || !Array.isArray(data.deals) || data.deals.some((deal) => deal.priceGuests !== guests || deal.from < window.from || deal.till > window.till || !Number.isFinite(deal.total) || deal.total <= 0)) throw new Error("invalid_deals");
         return data;

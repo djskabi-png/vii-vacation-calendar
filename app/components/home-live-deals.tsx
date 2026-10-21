@@ -113,7 +113,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
     if (mode !== "holidays") return;
     const controller = new AbortController();
     setHolidayState("loading");
-    discoveryJson<{ holidays: HomeHoliday[] }>(`/api/vii/home-holidays?locale=${language}`, clock.key, { signal: controller.signal })
+    discoveryJson<{ holidays: HomeHoliday[] }>(`/api/vii/home-holidays?locale=${language}`, clock.key, { signal: controller.signal, persist: true })
       .then((result) => {
         if (!Array.isArray(result.holidays)) throw new Error("invalid_result");
         setHolidays(result.holidays);
@@ -133,7 +133,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
     const url = mode === "holidays"
       ? `/api/vii/home-holiday-deals?${new URLSearchParams({ id: String(holidayId), ...(selectedHoliday?.exactStay ? { from: selectedHoliday.from, till: selectedHoliday.till } : {}) })}`
       : `/api/vii/home-deals?${new URLSearchParams({ period, locale: language, ...(regionLabel ? { region: regionLabel } : {}), ...(guests !== 2 ? { guests: String(guests) } : {}) })}`;
-    discoveryJson<ResponseData>(url, clock.key, { signal: controller.signal, headers: { Accept: "application/json" } })
+    discoveryJson<ResponseData>(url, clock.key, { signal: controller.signal, headers: { Accept: "application/json" }, persist: true })
       .then((result) => {
         if (controller.signal.aborted) return;
         if (!Array.isArray(result.deals) || (mode === "near" && (!homeDealPeriods.some(item => item.id === result.period) || result.region !== regionLabel)) || (mode === "holidays" && result.holiday?.id !== holidayId)) throw new Error("invalid_result");

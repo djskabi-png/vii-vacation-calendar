@@ -43,6 +43,44 @@ test('browser navigation cache does not cross URL/body/clock selections or store
   assert.deepEqual(await discoveryJson('/api/test-discovery','day1'),{deals:[1]});assert.equal(calls,1);
   await discoveryJson('/api/test-discovery','day2');await discoveryJson('/api/test-discovery','day2',{method:'POST',body:'party6'});assert.equal(calls,3);
   globalThis.fetch=async()=>{calls++;return new Response('',{status:503});};
-  await assert.rejects(discoveryJson('/api/test-failure','day1'));await assert.rejects(discoveryJson('/api/test-failure','day1'));assert.equal(calls,5);
+  await assert.rejects(discoveryJson('/api/test-failure','day1'));await assert.rejects(discoveryJson('/api/test-failure','day1'));assert.equal(calls,7);
+ }finally{globalThis.fetch=original;}
+});
+
+test('browser discovery has a bounded deadline, one changed retry and a last-accepted fallback',async()=>{
+ const original=globalThis.fetch;let calls=0;
+ const hanging=signal=>new Promise((_,reject)=>signal?.addEventListener('abort',()=>reject(signal.reason),{once:true}));
+ try{
+  globalThis.fetch=async(_url,{signal})=>{calls++;return calls===1?hanging(signal):Response.json({deals:['recovered']});};
+  assert.deepEqual(await discoveryJson('/api/test-bounded-recovery','day1',{timeoutMs:20,retries:1}),{deals:['recovered']});
+  assert.equal(calls,2,'the retry must be bounded to one changed attempt');
+
+  calls=0;
+  globalThis.fetch=async(_url,{signal})=>{calls++;return hanging(signal);};
+  const started=Date.now();
+  await assert.rejects(discoveryJson('/api/test-bounded-failure','day1',{timeoutMs:20,retries:1}),error=>error?.name==='TimeoutError');
+  assert.equal(calls,2);
+  assert.ok(Date.now()-started<2_000,'a hung fetch must not leave the slider pending');
+
+  calls=0;
+  globalThis.fetch=async(_url,{signal})=>{calls++;return calls===1?Response.json({deals:['accepted']}):hanging(signal);};
+  assert.deepEqual(await discoveryJson('/api/test-stale-fallback','day1',{freshMs:1,staleMs:1_000,timeoutMs:20,retries:0}),{deals:['accepted']});
+  await new Promise(resolve=>setTimeout(resolve,5));
+  assert.deepEqual(await discoveryJson('/api/test-stale-fallback','day1',{freshMs:1,staleMs:1_000,timeoutMs:20,retries:0}),{deals:['accepted']});
+  await new Promise(resolve=>setTimeout(resolve,25));
+  assert.equal(calls,2,'the expired request should try once before using accepted stale data');
+
+  calls=0;
+  const controller=new AbortController();
+  globalThis.fetch=async(_url,{signal})=>{calls++;return hanging(signal);};
+  const request=discoveryJson('/api/test-external-abort','day1',{signal:controller.signal,timeoutMs:100,retries:1});
+  controller.abort(new DOMException('Aborted','AbortError'));
+  await assert.rejects(request,error=>error?.name==='AbortError');
+  assert.equal(calls,1,'component cleanup must never trigger another request');
+
+  calls=0;
+  globalThis.fetch=async()=>{calls++;return new Response('',{status:400});};
+  await assert.rejects(discoveryJson('/api/test-semantic-failure','day1',{timeoutMs:20,retries:1}));
+  assert.equal(calls,1,'a semantic client error must not be retried');
  }finally{globalThis.fetch=original;}
 });

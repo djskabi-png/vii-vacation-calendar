@@ -1,18 +1,143 @@
 // Navigation reuse is discovery-only. Final detail and booking checks never use it.
-const entries = new Map<string, { value: unknown; expires: number }>();
-export async function discoveryJson<T>(url: string, scope: string, init: RequestInit = {}): Promise<T> {
-  const key = JSON.stringify([url, scope, init.body ?? null]);
-  const previous = entries.get(key);
-  if (previous && previous.expires > Date.now()) return structuredClone(previous.value) as T;
-  const method = (init.method || "GET").toUpperCase();
-  // Safe GET discovery snapshots may be reused by the browser according to
-  // their response policy. POST/live transaction checks remain uncached.
-  const response = await fetch(url, { ...init, cache: init.cache ?? (method === "GET" ? "default" : "no-store") });
-  if (!response.ok) throw new Error("discovery_unavailable");
-  const value = await response.json();
-  if (init.signal?.aborted) throw new DOMException("Aborted", "AbortError");
-  entries.delete(key);
-  entries.set(key, { value, expires: Date.now() + 120_000 });
-  while (entries.size > 64) entries.delete(entries.keys().next().value!);
+type DiscoveryRequestInit = RequestInit & {
+  timeoutMs?: number;
+  retries?: number;
+  freshMs?: number;
+  staleMs?: number;
+  persist?: boolean;
+};
+
+type Entry = { value: unknown; freshUntil: number; staleUntil: number };
+const entries = new Map<string, Entry>();
+const storagePrefix = "vii-discovery-v2:";
+const defaultTimeoutMs = 5_000;
+const defaultFreshMs = 120_000;
+const defaultStaleMs = 86_400_000;
+
+class DiscoveryResponseError extends Error {
+  readonly status: number;
+
+  constructor(status: number) {
+    super("discovery_unavailable");
+    this.status = status;
+  }
+}
+
+function clone<T>(value: unknown) {
   return structuredClone(value) as T;
+}
+
+function storageKey(key: string) {
+  let hash = 2166136261;
+  for (let index = 0; index < key.length; index += 1) {
+    hash ^= key.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return `${storagePrefix}${(hash >>> 0).toString(36)}`;
+}
+
+function readPersisted(key: string): Entry | undefined {
+  if (typeof sessionStorage === "undefined") return undefined;
+  try {
+    const stored = sessionStorage.getItem(storageKey(key));
+    if (!stored) return undefined;
+    const parsed = JSON.parse(stored) as { key?: unknown; entry?: Partial<Entry> };
+    const entry = parsed.entry;
+    if (parsed.key !== key || !entry || !("value" in entry) || !Number.isFinite(entry.freshUntil)
+      || !Number.isFinite(entry.staleUntil) || Number(entry.staleUntil) <= Date.now()) {
+      sessionStorage.removeItem(storageKey(key));
+      return undefined;
+    }
+    return { value: entry.value, freshUntil: Number(entry.freshUntil), staleUntil: Number(entry.staleUntil) };
+  } catch { return undefined; }
+}
+
+function remember(key: string, entry: Entry, persist: boolean) {
+  entries.delete(key);
+  entries.set(key, entry);
+  while (entries.size > 64) entries.delete(entries.keys().next().value!);
+  if (!persist || typeof sessionStorage === "undefined") return;
+  try {
+    const encoded = JSON.stringify({ key, entry });
+    if (encoded.length <= 350_000) sessionStorage.setItem(storageKey(key), encoded);
+  } catch { /* A storage quota or privacy mode must not break discovery. */ }
+}
+
+function timeoutError() {
+  return new DOMException("Discovery request timed out", "TimeoutError");
+}
+
+async function fetchWithDeadline(url: string, init: RequestInit, timeoutMs: number) {
+  const callerSignal = init.signal;
+  if (callerSignal?.aborted) throw callerSignal.reason ?? new DOMException("Aborted", "AbortError");
+  const controller = new AbortController();
+  const abortFromCaller = () => controller.abort(callerSignal?.reason ?? new DOMException("Aborted", "AbortError"));
+  callerSignal?.addEventListener("abort", abortFromCaller, { once: true });
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const deadline = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      const error = timeoutError();
+      controller.abort(error);
+      reject(error);
+    }, timeoutMs);
+  });
+  try {
+    return await Promise.race([fetch(url, { ...init, signal: controller.signal }), deadline]);
+  } finally {
+    if (timer) clearTimeout(timer);
+    callerSignal?.removeEventListener("abort", abortFromCaller);
+  }
+}
+
+export async function discoveryJson<T>(url: string, scope: string, init: DiscoveryRequestInit = {}): Promise<T> {
+  const {
+    timeoutMs = defaultTimeoutMs,
+    retries = 1,
+    freshMs = defaultFreshMs,
+    staleMs = defaultStaleMs,
+    persist = false,
+    ...requestInit
+  } = init;
+  const key = JSON.stringify([url, scope, requestInit.body ?? null]);
+  const previous = entries.get(key) ?? (persist ? readPersisted(key) : undefined);
+  if (previous) {
+    entries.delete(key);
+    entries.set(key, previous);
+  }
+  const method = (requestInit.method || "GET").toUpperCase();
+  const allowedRetries = method === "GET" ? Math.max(0, Math.min(1, Math.trunc(retries))) : 0;
+  const boundedTimeout = Math.max(10, Math.min(20_000, Math.trunc(timeoutMs)));
+  const load = async () => {
+    let failure: unknown;
+    for (let attempt = 0; attempt <= allowedRetries; attempt += 1) {
+      if (requestInit.signal?.aborted) throw requestInit.signal.reason ?? new DOMException("Aborted", "AbortError");
+      try {
+        // The second read-only attempt deliberately bypasses a possibly wedged
+        // browser HTTP-cache path. POST/live transaction checks never retry.
+        const response = await fetchWithDeadline(url, {
+          ...requestInit,
+          cache: attempt ? "reload" : requestInit.cache ?? (method === "GET" ? "default" : "no-store"),
+        }, boundedTimeout);
+        if (!response.ok) throw new DiscoveryResponseError(response.status);
+        const value = await response.json();
+        if (requestInit.signal?.aborted) throw requestInit.signal.reason ?? new DOMException("Aborted", "AbortError");
+        const now = Date.now();
+        remember(key, { value, freshUntil: now + Math.max(1, freshMs), staleUntil: now + Math.max(freshMs, staleMs) }, persist && method === "GET");
+        return clone<T>(value);
+      } catch (error) {
+        if (requestInit.signal?.aborted) throw requestInit.signal.reason ?? new DOMException("Aborted", "AbortError");
+        failure = error;
+        if (error instanceof DiscoveryResponseError && error.status < 500) break;
+      }
+    }
+    if (previous && previous.staleUntil > Date.now()) return clone<T>(previous.value);
+    throw failure ?? new Error("discovery_unavailable");
+  };
+  if (requestInit.signal?.aborted) throw requestInit.signal.reason ?? new DOMException("Aborted", "AbortError");
+  if (previous?.freshUntil && previous.freshUntil > Date.now()) return clone<T>(previous.value);
+  if (previous?.staleUntil && previous.staleUntil > Date.now()) {
+    void load().catch(() => {});
+    return clone<T>(previous.value);
+  }
+  return load();
 }
