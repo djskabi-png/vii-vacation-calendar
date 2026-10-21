@@ -367,10 +367,11 @@ test("spa, hourly, event and attraction worlds expose interactive maps", async (
     readFile(new URL("../app/events/search/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
-  assert.match(mapSource, /scrollWheelZoom: true/);
+  assert.match(mapSource, /scrollWheelZoom: interactive/);
+  assert.match(mapSource, /const \[interactive, setInteractive\] = useState\(autoLoad\)/);
   assert.doesNotMatch(mapSource, /addEventListener\("wheel"/);
   assert.doesNotMatch(mapSource, /map\.flyTo\(/);
-  assert.match(mapSource, /touchZoom: true/);
+  assert.match(mapSource, /touchZoom: interactive/);
   assert.match(mapSource, /tile\.openstreetmap\.org/);
   assert.match(mapSource, /openstreetmap\.org\/copyright/);
   assert.match(mapSource, /מפה בעברית/);

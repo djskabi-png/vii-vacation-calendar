@@ -5,7 +5,7 @@ import { isWeeklyMapSnapshotWindow, mapSnapshotSourceHash, staticMapRequest } fr
 
 const read = path => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("inactive shared maps request a stored snapshot and fall back honestly without loading Leaflet", async () => {
+test("shared maps prefer a stored snapshot and use a passive real map on detail fallback", async () => {
   const [map, detail, url, css] = await Promise.all([
     read("app/components/listing-map.tsx"),
     read("app/discover/place/client-page.tsx"),
@@ -23,13 +23,18 @@ test("inactive shared maps request a stored snapshot and fall back honestly with
   assert.match(map, /placeFallback \? fallbackLabel : mapCopy\.preview/);
   assert.match(map, /if \(!placeFallback\) \{ setSnapshotUnavailable\(true\); if \(single\) setEnabled\(true\); \}/);
   assert.match(map, /image\.complete && image\.naturalWidth === 0/);
-  assert.match(map, /onClick=\{\(\) => setEnabled\(true\)\}/);
+  assert.match(map, /const \[interactive, setInteractive\] = useState\(autoLoad\)/);
+  assert.match(map, /const activateMap = useCallback\(\(\) => \{[\s\S]*setInteractive\(true\);[\s\S]*setEnabled\(true\)/);
+  assert.match(map, /scrollWheelZoom: interactive/);
+  assert.match(map, /single && mapReady && !interactive[\s\S]*map-passive-activate/);
+  assert.match(map, /onClick=\{activateMap\}/);
   assert.match(map, /!enabled[\s\S]*map-preview-card/);
   assert.match(detail, /<DiscoveryMap items=\{\[item\]\} tone=\{item\.world === "spa" \? "spa" : "hourly"\} single \/>/);
   assert.doesNotMatch(detail, /<DiscoveryMap items=\{\[item\]\}[^>]*single autoLoad/);
   assert.match(url, /\/api\/map-snapshot\?world=/);
   assert.match(css, /\.map-preview-image\.is-map-snapshot/);
   assert.match(css, /\.map-preview-attribution/);
+  assert.match(css, /\.map-passive-activate/);
 });
 test("snapshot generator uses approved static image APIs, never headless OSM tile scraping", async () => {
   const store = await read("app/lib/map-snapshot-store.ts");

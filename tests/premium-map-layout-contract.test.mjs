@@ -92,7 +92,8 @@ test("desktop search combines a synchronized result list, sticky map and quick f
 test("vacation markers prioritize verified price and map zoom is direct", () => {
   assert.match(component, /typeof listing\.price === "number"/);
   assert.match(component, /listing\.price\.toLocaleString/);
-  assert.match(component, /scrollWheelZoom: true/);
+  assert.match(component, /scrollWheelZoom: interactive/);
+  assert.match(component, /const \[interactive, setInteractive\] = useState\(autoLoad\)/);
   assert.match(component, /wheelPxPerZoomLevel: 80/);
   assert.match(component, /maxBoundsViscosity: 0\.72/);
   assert.match(component, /minZoom: 7/);

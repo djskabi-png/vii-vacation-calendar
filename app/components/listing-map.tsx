@@ -138,6 +138,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
   const initialSelectedId = single ? initialPlaceIds?.find((id) => places.some((place) => place.id === id)) ?? places[0]?.id ?? "" : "";
   const selectedIdRef = useRef(initialSelectedId);
   const [enabled, setEnabled] = useState(autoLoad);
+  const [interactive, setInteractive] = useState(autoLoad);
   const [mapReady, setMapReady] = useState(false);
   const [selectedId, setSelectedId] = useState(initialSelectedId);
   const [pendingVisibleIds, setPendingVisibleIds] = useState<string[]>([]);
@@ -149,6 +150,11 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
   const effectiveSelectedId = selectedId !== "" && places.some((place) => place.id === selectedId) ? selectedId : "";
   const selected = places.find((place) => place.id === effectiveSelectedId) ?? null;
   const focusKey = initialPlaceIds?.join("|") ?? "";
+
+  const activateMap = useCallback(() => {
+    setInteractive(true);
+    setEnabled(true);
+  }, []);
 
   useEffect(() => {
     setSnapshotUnavailable(true);
@@ -323,11 +329,11 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
       markerRegistry.clear();
 
       const map = L.map(container, {
-        scrollWheelZoom: true,
-        touchZoom: true,
-        doubleClickZoom: true,
-        boxZoom: true,
-        keyboard: true,
+        scrollWheelZoom: interactive,
+        touchZoom: interactive,
+        doubleClickZoom: interactive,
+        boxZoom: interactive,
+        keyboard: interactive,
         zoomSnap: 0.5,
         wheelDebounceTime: 40,
         wheelPxPerZoomLevel: 80,
@@ -364,21 +370,23 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
           : language === "fr"
             ? { street: "Plan", aerial: "Satellite", layers: "Choisir le type de carte" }
             : { street: "Map", aerial: "Satellite", layers: "Choose map style" };
-      L.control.zoom({
-        position: language === "he" ? "topleft" : "topright",
-        zoomInTitle: mapControlCopy.zoomIn,
-        zoomOutTitle: mapControlCopy.zoomOut,
-        zoomInText: "+",
-        zoomOutText: "\u2212",
-      }).addTo(map);
-      const layersControl = L.control.layers(
-        { [layerNames.street]: streetTiles, [layerNames.aerial]: aerialTiles },
-        undefined,
-        { position: "topright" },
-      ).addTo(map);
-      const layersToggle = layersControl.getContainer()?.querySelector<HTMLAnchorElement>(".leaflet-control-layers-toggle");
-      layersToggle?.setAttribute("title", layerNames.layers);
-      layersToggle?.setAttribute("aria-label", layerNames.layers);
+      if (interactive) {
+        L.control.zoom({
+          position: language === "he" ? "topleft" : "topright",
+          zoomInTitle: mapControlCopy.zoomIn,
+          zoomOutTitle: mapControlCopy.zoomOut,
+          zoomInText: "+",
+          zoomOutText: "\u2212",
+        }).addTo(map);
+        const layersControl = L.control.layers(
+          { [layerNames.street]: streetTiles, [layerNames.aerial]: aerialTiles },
+          undefined,
+          { position: "topright" },
+        ).addTo(map);
+        const layersToggle = layersControl.getContainer()?.querySelector<HTMLAnchorElement>(".leaflet-control-layers-toggle");
+        layersToggle?.setAttribute("title", layerNames.layers);
+        layersToggle?.setAttribute("aria-label", layerNames.layers);
+      }
 
       const showMap = () => {
         tilesReady = true;
@@ -644,7 +652,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
   // focusKey already represents every initial ID. Array identity alone is not
   // an instruction to rebuild the map during a marker hover or keyboard focus.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled, places, selectPlace, single, tone, language, focusKey, cardCopy.openCluster, mapControlCopy.cluster, mapControlCopy.zoomIn, mapControlCopy.zoomOut]);
+  }, [enabled, interactive, places, selectPlace, single, tone, language, focusKey, cardCopy.openCluster, mapControlCopy.cluster, mapControlCopy.zoomIn, mapControlCopy.zoomOut]);
 
   if (!preview) return null;
 
@@ -666,7 +674,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
           <h3>{single ? preview.name : `${places.length} מקומות על המפה`}</h3>
           <p>{single ? `${preview.location}, ${preview.area}` : "רואים את התוצאות ואת המפה יחד, ובוחרים מקום בלי לאבד את החיפוש"}</p>
         </div>
-        {!enabled && <button className="button map-load-button" type="button" onClick={() => setEnabled(true)}><MapPinned aria-hidden="true" />{mapCopy.open}</button>}
+        {!enabled && <button className="button map-load-button" type="button" onClick={activateMap}><MapPinned aria-hidden="true" />{mapCopy.open}</button>}
         {enabled && !mapReady && <span className="map-loading-pill">המפה נטענת...</span>}
         {single && previewRegional && <small className="map-precision-note">מוצג אזור המקום. נקודת ההגעה המדויקת נמסרת לאחר אישור.</small>}
       </div>
@@ -678,6 +686,10 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
 
   const mapCanvas = <div className={`listing-map-shell map-tone--${tone} ${single ? "single-map" : ""}`}>
     <div ref={mapElement} className={`listing-map ${mapReady ? "is-ready" : ""}`} aria-label={mapCopy.label} />
+    {single && mapReady && !interactive && <button className="map-passive-activate" type="button" onClick={activateMap} onWheel={activateMap} aria-label={mapCopy.open}>
+      <span className="map-consent-pin" aria-hidden="true"><MapPinned /></span>
+      <span>{mapCopy.open}</span>
+    </button>}
     {onClose && !single && <button className="map-mobile-close" type="button" onClick={onClose} aria-label={mapCopy.back}><span aria-hidden="true">×</span>{mapCopy.back}</button>}
     {mapReady && !viewportDirty && <span className="map-zoom-hint">{mapCopy.hint}</span>}
     {mapReady && !single && viewportDirty && <button className="map-search-area" type="button" onClick={applyVisibleArea}><span>{cardCopy.searchArea}</span><small>{pendingVisibleIds.length} {regional ? regionsCopy : cardCopy.visible}</small></button>}

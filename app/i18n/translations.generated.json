@@ -1,5 +1,6 @@
 {
   "en": {
+    "תצוגת המקום": "Place preview",
     "סליידרים של נופש בעמוד הבית": "Homepage stay sliders",
     "שליטה בלשוניות התאריכים, ברירת המחדל, מספר החגים והתאריכים שיוצגו בעמוד הבית.": "Control the date tabs, default selection, number of holidays and dates shown on the homepage.",
     "חיפושים פופולריים": "Popular searches",
@@ -8089,6 +8090,7 @@
     "Webhook מיידי, ובנוסף סנכרון השלמה מחזורי.": "Instant webhook, plus periodic completion sync."
   },
   "ru": {
+    "תצוגת המקום": "Вид места",
     "סליידרים של נופש בעמוד הבית": "Слайдеры жилья на главной странице",
     "שליטה בלשוניות התאריכים, ברירת המחדל, מספר החגים והתאריכים שיוצגו בעמוד הבית.": "Управление вкладками дат, выбором по умолчанию, количеством праздников и датами на главной странице.",
     "חיפושים פופולריים": "Популярные запросы",
@@ -16178,6 +16180,7 @@
     "Webhook מיידי, ובנוסף סנכרון השלמה מחזורי.": "Мгновенный вебхук и периодическая синхронизация завершения."
   },
   "fr": {
+    "תצוגת המקום": "Aperçu du lieu",
     "סליידרים של נופש בעמוד הבית": "Carrousels de séjours de la page d’accueil",
     "שליטה בלשוניות התאריכים, ברירת המחדל, מספר החגים והתאריכים שיוצגו בעמוד הבית.": "Gérez les onglets de dates, la sélection par défaut, le nombre de fêtes et les dates affichées sur la page d’accueil.",
     "חיפושים פופולריים": "Recherches populaires",
