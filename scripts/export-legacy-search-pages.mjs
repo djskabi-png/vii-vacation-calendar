@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { parse } from "parse5";
 
@@ -33,9 +33,15 @@ function visit(node, callback) {
   for (const child of node.childNodes || []) visit(child, callback);
 }
 
+function descendants(node, predicate) {
+  const result = [];
+  visit(node, (candidate) => { if (candidate !== node && predicate(candidate)) result.push(candidate); });
+  return result;
+}
+
 function extract(html) {
   const document = parse(html);
-  const found = { title: "", h1: "", metaDescription: "", robots: "", canonical: "", resultSummary: "", location: "", locationType: "", locationId: "" };
+  const found = { title: "", h1: "", metaDescription: "", robots: "", canonical: "", resultSummary: "", location: "", locationType: "", locationId: "", body: "", faq: [] };
   visit(document, (node) => {
     const attribute = attrs(node);
     const classNames = (attribute.class || "").split(/\s+/);
@@ -48,13 +54,29 @@ function extract(html) {
     if (attribute.id === "freeInput") found.location = clean(attribute.value);
     if (attribute.id === "freeSearchType") found.locationType = clean(attribute.value);
     if (attribute.id === "freeSearchParam") found.locationId = clean(attribute.value);
+    if (node.nodeName === "section" && classNames.includes("section-text") && !found.body) {
+      found.body = descendants(node, (candidate) => (attrs(candidate).class || "").split(/\s+/).includes("con"))
+        .map((candidate) => clean(textContent(candidate))).filter(Boolean).join("\n\n");
+    }
+    if (classNames.includes("faq") && classNames.includes("items") && !found.faq.length) {
+      found.faq = descendants(node, (candidate) => (attrs(candidate).class || "").split(/\s+/).includes("item")).flatMap((item) => {
+        const question = descendants(item, (candidate) => (attrs(candidate).class || "").split(/\s+/).includes("question"))[0];
+        const answer = descendants(item, (candidate) => (attrs(candidate).class || "").split(/\s+/).includes("answer"))[0];
+        const pair = { question: clean(textContent(question)), answer: clean(textContent(answer)) };
+        return pair.question && pair.answer ? [pair] : [];
+      }).slice(0, 8);
+    }
   });
   return found;
 }
 
 function normalizedPath(value) {
   const url = new URL(value);
-  return (url.pathname.replace(/\/+$/, "") || "/").toLowerCase();
+  const pathname = (url.pathname.replace(/\/+$/, "") || "/").toLowerCase();
+  const query = [...url.searchParams.entries()].sort(([leftKey, leftValue], [rightKey, rightValue]) =>
+    leftKey.localeCompare(rightKey) || leftValue.localeCompare(rightValue));
+  const search = new URLSearchParams(query).toString();
+  return search ? `${pathname}?${search}` : pathname;
 }
 
 function asciiSlug(sourceUrl) {
@@ -84,13 +106,27 @@ async function legacySitemapUrls() {
   return [...new Set(urls)];
 }
 
+async function legacyInventorySearchUrls() {
+  try {
+    const inventory = JSON.parse(await readFile(resolve(process.cwd(), "app/data/legacy-redirect-inventory.json"), "utf8"));
+    return (inventory.gone || [])
+      .filter((sourcePath) => /^\/s(?:\/|\?|$)/i.test(sourcePath))
+      .map((sourcePath) => new URL(sourcePath, "https://www.vii.co.il").toString());
+  } catch {
+    return [];
+  }
+}
+
 function csvCell(value) {
-  const string = value == null ? "" : String(value);
+  const string = value == null ? "" : typeof value === "object" ? JSON.stringify(value) : String(value);
   return /[",\r\n]/.test(string) ? `"${string.replace(/"/g, '""')}"` : string;
 }
 
 const allLegacyUrls = await legacySitemapUrls();
-const searchUrls = allLegacyUrls.filter((value) => /^\/s(?:\/|$)/i.test(new URL(value).pathname));
+const inventorySearchUrls = await legacyInventorySearchUrls();
+const searchUrls = [...new Map([...allLegacyUrls, ...inventorySearchUrls]
+  .filter((value) => /^\/s(?:\/|$)/i.test(new URL(value).pathname))
+  .map((value) => [normalizedPath(value), value])).values()];
 const rows = new Array(searchUrls.length);
 let cursor = 0;
 
@@ -102,7 +138,7 @@ async function worker() {
     const started = Date.now();
     try {
       const { response, body } = await fetchText(sourceUrl);
-      const extracted = response.ok ? extract(body) : { title: "", h1: "", metaDescription: "", robots: "", canonical: "", resultSummary: "", location: "", locationType: "", locationId: "" };
+      const extracted = response.ok ? extract(body) : { title: "", h1: "", metaDescription: "", robots: "", canonical: "", resultSummary: "", location: "", locationType: "", locationId: "", body: "", faq: [] };
       const slug = asciiSlug(sourceUrl);
       const targetPath = `/search/vacations/${slug}`;
       const ready = response.ok && extracted.h1.length >= 4 && extracted.metaDescription.length >= 30;
@@ -111,7 +147,7 @@ async function worker() {
         fetchedAt: new Date().toISOString(), elapsedMs: Date.now() - started };
     } catch (error) {
       const slug = asciiSlug(sourceUrl);
-      rows[index] = { sourceUrl, sourcePath, sourceStatus: null, finalSourceUrl: null, title: "", h1: "", metaDescription: "", robots: "", canonical: "", resultSummary: "", location: "", locationType: "", locationId: "",
+      rows[index] = { sourceUrl, sourcePath, sourceStatus: null, finalSourceUrl: null, title: "", h1: "", metaDescription: "", robots: "", canonical: "", resultSummary: "", location: "", locationType: "", locationId: "", body: "", faq: [],
         slug, targetPath: `/search/vacations/${slug}`, migrationStatus: "blocked", blocker: error instanceof Error ? error.message : String(error), fetchedAt: new Date().toISOString(), elapsedMs: Date.now() - started };
     }
     if ((index + 1) % 100 === 0) process.stderr.write(`exported ${index + 1}/${searchUrls.length}\n`);
@@ -125,6 +161,7 @@ const summary = {
   generatedAt: new Date().toISOString(),
   source: "https://www.vii.co.il/sitemap.php",
   legacyUrlCount: allLegacyUrls.length,
+  inventorySearchSeedCount: inventorySearchUrls.length,
   legacySearchUrlCount: searchUrls.length,
   exportedCount: rows.filter((row) => row?.migrationStatus === "content-exported").length,
   blockedCount: rows.filter((row) => row?.migrationStatus === "blocked").length,
@@ -137,6 +174,6 @@ const csvOutput = resolve(process.cwd(), csvArgument);
 await mkdir(dirname(output), { recursive: true });
 await mkdir(dirname(csvOutput), { recursive: true });
 await writeFile(output, `${JSON.stringify(summary, null, 2)}\n`, "utf8");
-const columns = ["sourceUrl", "sourcePath", "sourceStatus", "finalSourceUrl", "title", "h1", "metaDescription", "robots", "canonical", "resultSummary", "location", "locationType", "locationId", "slug", "targetPath", "migrationStatus", "blocker", "fetchedAt", "elapsedMs"];
+const columns = ["sourceUrl", "sourcePath", "sourceStatus", "finalSourceUrl", "title", "h1", "metaDescription", "robots", "canonical", "resultSummary", "location", "locationType", "locationId", "body", "faq", "slug", "targetPath", "migrationStatus", "blocker", "fetchedAt", "elapsedMs"];
 await writeFile(csvOutput, `${columns.join(",")}\n${rows.map((row) => columns.map((column) => csvCell(row[column])).join(",")).join("\n")}\n`, "utf8");
 console.log(JSON.stringify({ legacyUrlCount: summary.legacyUrlCount, legacySearchUrlCount: summary.legacySearchUrlCount, exportedCount: summary.exportedCount, blockedCount: summary.blockedCount, duplicateTargetCount: summary.duplicateTargetCount, output, csvOutput }));

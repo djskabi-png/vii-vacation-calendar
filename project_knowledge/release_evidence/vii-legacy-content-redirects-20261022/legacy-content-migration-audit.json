@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-22T03:45:28.491Z",
+  "scope": "Known legacy URL union: current legacy sitemap plus stored Search Console export. Place-detail URLs are excluded from the non-place migration requirement.",
+  "sourceCoverage": {
+    "knownLegacyUrls": 3528,
+    "currentLegacySitemapUrls": 2711,
+    "storedSearchConsoleUrls": 1000
+  },
+  "nonPlace": {
+    "migratedSearchPages": 2340,
+    "migratedStaticPages": 4,
+    "pagesWithRecoveredFaq": 1250,
+    "pagesWithCompleteBody": 2340,
+    "remainingIssues": 3
+  },
+  "excludedPlacePages": 423,
+  "redirectInventory": {
+    "total": 3528,
+    "redirects": 3102,
+    "gone": 426,
+    "managedSearchRedirects": 2340
+  },
+  "urlPolicy": {
+    "approvedCanonicalPathsAsciiOnly": true,
+    "redirectTargetsAsciiOnly": true
+  },
+  "staticPages": [
+    {
+      "oldPath": "/term_and_conditions",
+      "newPath": "/legal/terms",
+      "type": "legal"
+    },
+    {
+      "oldPath": "/privacy_policy",
+      "newPath": "/legal/privacy",
+      "type": "legal"
+    },
+    {
+      "oldPath": "/%d7%91%d7%99%d7%98%d7%95%d7%9c_%d7%94%d7%96%d7%9e%d7%a0%d7%94",
+      "newPath": "/legal/cancellation",
+      "type": "legal"
+    },
+    {
+      "oldPath": "/%d7%a6%d7%95%d7%a8_%d7%a7%d7%a9%d7%a8",
+      "newPath": "/join",
+      "type": "contact"
+    }
+  ],
+  "remainingNonPlaceIssues": [
+    {
+      "oldUrl": "https://www.vii.co.il/s/11487",
+      "oldPath": "/s/11487",
+      "sourceStatus": 200,
+      "issue": "העמוד הישן מחזיר מעטפת ריקה ללא כותרת, תיאור או תוכן שאפשר להעביר בבטחה",
+      "action": "נשאר 410 עד שיימצא מקור תוכן אמין או כוונת חיפוש מזוהה"
+    },
+    {
+      "oldUrl": "https://www.vii.co.il/s/gan_yavne/11857",
+      "oldPath": "/s/gan_yavne/11857",
+      "sourceStatus": 200,
+      "issue": "העמוד הישן מחזיר מעטפת ריקה ללא כותרת, תיאור או תוכן שאפשר להעביר בבטחה",
+      "action": "נשאר 410 עד שיימצא מקור תוכן אמין או כוונת חיפוש מזוהה"
+    },
+    {
+      "oldUrl": "https://www.vii.co.il/s/israel/12709",
+      "oldPath": "/s/israel/12709",
+      "sourceStatus": 200,
+      "issue": "העמוד הישן מחזיר מעטפת ריקה ללא כותרת, תיאור או תוכן שאפשר להעביר בבטחה",
+      "action": "נשאר 410 עד שיימצא מקור תוכן אמין או כוונת חיפוש מזוהה"
+    }
+  ],
+  "failures": [],
+  "passed": true
+}

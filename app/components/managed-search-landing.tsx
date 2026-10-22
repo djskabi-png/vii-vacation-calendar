@@ -10,6 +10,8 @@ import { hourlyPlacesFromCatalog, spaPlacesFromSites, type DiscoveryItem } from 
 import type { SpaPlusSite } from "../data/spaplus";
 import hourlyCatalog from "../data/sergey-hourly-catalog.json";
 import { matchesSearchLocation } from "../data/search-taxonomy";
+import { matchesVacationSearchFilter } from "../lib/vacation-search-filter-index";
+import { completeNearbyResults, nearbyRecommendations } from "../lib/nearby-recommendations";
 import { publicCatalogSummaries } from "../lib/public-catalog-read.ts";
 import type { SearchOpportunity } from "../lib/search-opportunities.ts";
 import { breadcrumbSchema, collectionSchema } from "../lib/seo";
@@ -24,13 +26,23 @@ function filterEvent(place: EventPlace, location: string, filters: Record<string
     (filters.noise !== true || place.features.some((feature) => feature.includes("ללא הגבלת רעש")));
 }
 
-async function resultsFor(world: string, location: string, filters: Record<string, string | number | boolean>): Promise<Result[]> {
-  if (world === "events") return (await publicCatalogSummaries<EventPlace>("events")).filter((place) => filterEvent(place, location, filters)).map((place) => ({ id: place.slug, name: place.name, location: place.location, area: place.area, description: place.description, image: place.image, images: place.images.slice(0, 10), href: `/events/place/${place.slug}` }));
-  if (world === "vacation") return (await publicCatalogSummaries<Property>("vacations")).filter((place) => matchesSearchLocation(place, location) && (typeof filters.type !== "string" || place.type === filters.type) && (typeof filters.guests !== "number" || place.guests >= filters.guests)).map((place) => ({ id: place.slug, name: place.name, location: place.location, area: place.area, description: place.description, image: place.image, images: place.images.slice(0, 10), href: `/business?id=${encodeURIComponent(place.slug)}` }));
+async function resultsFor(world: string, location: string, filters: Record<string, string | number | boolean>, fallbackMode?: "nearby"): Promise<{ items: Result[]; expanded: boolean }> {
+  if (world === "events") return { items: (await publicCatalogSummaries<EventPlace>("events")).filter((place) => filterEvent(place, location, filters)).map((place) => ({ id: place.slug, name: place.name, location: place.location, area: place.area, description: place.description, image: place.image, images: place.images.slice(0, 10), href: `/events/place/${place.slug}` })), expanded: false };
+  if (world === "vacation") {
+    const catalog = await publicCatalogSummaries<Property>("vacations");
+    const featureIds = typeof filters.features === "string" ? filters.features.split(",").filter(Boolean) : [];
+    const eligible = catalog.filter((place) => (typeof filters.type !== "string" || place.type === filters.type) &&
+      (typeof filters.guests !== "number" || place.guests >= filters.guests) && featureIds.every((id) => matchesVacationSearchFilter(place, id)));
+    const exact = eligible.filter((place) => matchesSearchLocation(place, location));
+    const nearby = fallbackMode === "nearby" && exact.length < 3
+      ? nearbyRecommendations(eligible, { location, area: location }, { key: (place) => place.slug, limit: 12, minimum: 3 }).items : [];
+    const selected = completeNearbyResults(exact, nearby, (place) => place.slug, fallbackMode === "nearby" ? 3 : exact.length);
+    return { items: selected.map((place) => ({ id: place.slug, name: place.name, location: place.location, area: place.area, description: place.description, image: place.image, images: place.images.slice(0, 10), href: `/business?id=${encodeURIComponent(place.slug)}` })), expanded: selected.some((place) => !exact.includes(place)) };
+  }
   let places: DiscoveryItem[] = [];
   if (world === "spa") places = spaPlacesFromSites(await publicCatalogSummaries<SpaPlusSite>("spa"));
   if (world === "hourly") places = hourlyPlacesFromCatalog(await publicCatalogSummaries<(typeof hourlyCatalog.places)[number]>("rooms"));
-  return places.filter((place) => matchesSearchLocation(place, location)).map((place) => ({ id: place.id, name: place.name, location: place.location, area: place.area, description: place.description, image: place.image, images: (place.images || []).slice(0, 10), href: `/discover/place/${place.id}` }));
+  return { items: places.filter((place) => matchesSearchLocation(place, location)).map((place) => ({ id: place.id, name: place.name, location: place.location, area: place.area, description: place.description, image: place.image, images: (place.images || []).slice(0, 10), href: `/discover/place/${place.id}` })), expanded: false };
 }
 
 export function managedSearchPageMetadata(page: SearchOpportunity): Metadata {
@@ -38,7 +50,8 @@ export function managedSearchPageMetadata(page: SearchOpportunity): Metadata {
 }
 
 export async function ManagedSearchLanding({ page }: { page: SearchOpportunity }) {
-  const results = await resultsFor(page.world, page.location, page.filters);
+  const resolved = await resultsFor(page.world, page.location, page.filters, page.fallbackMode);
+  const results = resolved.items;
   const worldLabel = page.world === "events" ? "אירועים" : page.world === "vacation" ? "נופש" : page.world === "spa" ? "ספא" : "חדרים לפי שעה";
   const variant = page.world === "vacation" ? "vacation" : page.world === "events" ? "events" : page.world === "hourly" ? "hourly" : "spa";
   return <PageShell variant={variant}><main id="main-content" className={styles.page} dir="rtl">
@@ -46,7 +59,7 @@ export async function ManagedSearchLanding({ page }: { page: SearchOpportunity }
     <StructuredData data={collectionSchema(page.h1, page.metaDescription, page.canonicalPath, results.map((result) => ({ name: result.name, path: result.href, image: result.image })))} />
     <div className={styles.shell}><BreadcrumbTrail items={[{ name: "ראשי", path: "/" }, { name: worldLabel, path: page.sourcePath.split("?")[0] }, { name: page.h1 }]} />
       <header className={styles.hero}><div><span>{worldLabel} · {page.location}</span><h1>{page.h1}</h1><p>{page.summary}</p></div><a href={page.sourcePath} className={styles.editSearch}>שינוי החיפוש</a></header>
-      <section className={styles.results} aria-labelledby="managed-results-title"><div className={styles.resultsHead}><div><h2 id="managed-results-title">מקומות שמתאימים לחיפוש</h2><p>{results.length.toLocaleString("he-IL")} תוצאות</p></div></div>{results.length ? <div className={`${styles.grid} managed-place-results`}>{results.slice(0, 24).map((result) => <article key={result.id}>
+      <section className={styles.results} aria-labelledby="managed-results-title"><div className={styles.resultsHead}><div><h2 id="managed-results-title">מקומות שמתאימים לחיפוש</h2><p>{results.length.toLocaleString("he-IL")} תוצאות</p></div></div>{resolved.expanded ? <p role="status">לא נמצאו מספיק מקומות בהתאמה המדויקת, ולכן הוספנו אפשרויות קרובות שעומדות בשאר הסינונים.</p> : null}{results.length ? <div className={`${styles.grid} managed-place-results`}>{results.slice(0, 24).map((result) => <article key={result.id}>
         {result.image || result.images.length ? <PreviewCardGallery className={styles.resultMedia} name={result.name} images={[result.image || "", ...result.images]} href={result.href} /> : <span className={styles.imageFallback} aria-hidden="true">VII</span>}
         <Link className={styles.resultBody} href={result.href}><small>{result.location} · {result.area}</small><h3>{result.name}</h3><p>{result.description}</p><strong>לפרטי המקום</strong></Link>
       </article>)}</div> : <div className={styles.empty}><h3>עדיין אין תוצאות שמתאימות לכל הבחירות</h3><p>אפשר לפתוח את החיפוש ולשנות אזור או מסנן.</p><a href={page.sourcePath}>שינוי החיפוש</a></div>}</section>

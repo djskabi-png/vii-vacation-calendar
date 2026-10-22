@@ -67,6 +67,10 @@ test("admin studio exposes demand, content, SEO, scheduling, history and recover
   assert.match(page, /כתובת ניהול פרטית/);
   assert.match(page, /כתובת שתופעל בפרסום/);
   assert.match(page, /url_conflict/);
+  assert.match(page, /function updateSlug/);
+  assert.match(page, /\[\^a-z0-9-\]/);
+  assert.match(page, /הכתובת לא השתנתה/);
+  assert.match(page, /aria-invalid=\{Boolean\(slugError\)\}/);
 });
 
 test("published opportunity has a natural public destination and sitemap source", () => {

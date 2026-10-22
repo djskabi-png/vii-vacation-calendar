@@ -41,7 +41,7 @@ export function nearbyRegion(value?: string): string | null {
   if (/ירושלים|הרי יהודה/.test(label)) return "ירושלים";
   if (/דרום|נגב|ערבה|ים המלח|אזור באר שבע/.test(label)) return "דרום ונגב";
   if (/צפון|גליל|גולן|חרמון/.test(label)) return "צפון";
-  if (/מרכז|שרון|שפלה|מישור החוף/.test(label)) return "מרכז";
+  if (/מרכז|שרון|שפלה|מישור החוף|הרצליה|רעננה|כפר סבא|נתניה|חדרה|פתח תקווה|ראשון לציון|רחובות|בת ים|רמת גן/.test(label)) return "מרכז";
   return null;
 }
 

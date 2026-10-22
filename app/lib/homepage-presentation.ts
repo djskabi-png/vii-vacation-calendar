@@ -13,6 +13,8 @@ export type HomeDiscoveryItem = {
   visible: boolean;
 };
 
+const vacationSearchHref = (params: Record<string, string>) => `/search?${new URLSearchParams(params).toString()}`;
+
 const defaults = {
   popular: [
     { id: "vacations", label: "מקומות נופש", note: "כל המקומות והאזורים", href: "/search", image: "/media/f18d7c0469633ca0.jpeg", visible: true },
@@ -21,18 +23,18 @@ const defaults = {
     { id: "north", label: "נופש בצפון", note: "גליל, גולן וכנרת", href: "/vacations/north", image: "/media/978e5fd5134b0831.jpeg", visible: true }
   ],
   cities: [
-    { id: "eilat", label: "אילת", note: "שמש, ים ומקומות שלמים", href: "/search?location=אילת", image: "/media/322de460abbda5c6.jpg", visible: true },
-    { id: "tiberias", label: "טבריה והכנרת", note: "חופשה קרובה למים", href: "/search?location=כנרת", image: "/media/9a403cb4d9d1cbde.jpg", visible: true },
-    { id: "jerusalem", label: "ירושלים", note: "אוויר הרים וחופשה עירונית", href: "/search?location=ירושלים והסביבה", image: "/media/231b0e706cc61cc1.jpg", visible: true },
-    { id: "netanya", label: "נתניה והשרון", note: "ים, מרכז ונגישות קלה", href: "/search?location=נתניה", image: "/media/verified/vacation/vacation-vila-tzukey-yam-1.jpg", imageAlt: "מתחם נופש באזור החוף, תמונת אווירה", visible: true },
-    { id: "galilee", label: "הגליל", note: "נוף ירוק ומתחמים למשפחות", href: "/search?location=גליל עליון", image: "/media/f18d7c0469633ca0.jpeg", visible: true }
+    { id: "eilat", label: "אילת", note: "שמש, ים ומקומות שלמים", href: "/vacations/eilat", image: "/media/322de460abbda5c6.jpg", visible: true },
+    { id: "tiberias", label: "טבריה והכנרת", note: "חופשה קרובה למים", href: "/vacations/kinneret", image: "/media/9a403cb4d9d1cbde.jpg", visible: true },
+    { id: "jerusalem", label: "ירושלים", note: "אוויר הרים וחופשה עירונית", href: "/vacations/jerusalem", image: "/media/231b0e706cc61cc1.jpg", visible: true },
+    { id: "netanya", label: "נתניה והשרון", note: "ים, מרכז ונגישות קלה", href: vacationSearchHref({ location: "נתניה" }), image: "/media/verified/vacation/vacation-vila-tzukey-yam-1.jpg", imageAlt: "מתחם נופש באזור החוף, תמונת אווירה", visible: true },
+    { id: "galilee", label: "הגליל", note: "נוף ירוק ומתחמים למשפחות", href: "/vacations/north", image: "/media/f18d7c0469633ca0.jpeg", visible: true }
   ],
   types: [
     { id: "villas", label: "וילות", note: "מקום שלם למשפחה או לקבוצה", href: "/villas", image: "/media/322de460abbda5c6.jpg", visible: true },
     { id: "suites", label: "סוויטות", note: "אירוח זוגי ומשפחתי", href: "/suite-complexes", image: "/media/051ff4fbc8d7d2ac.jpeg", visible: true },
-    { id: "cabins", label: "צימרים ובקתות", note: "אירוח אינטימי מול הנוף", href: "/search?types=צימרים", image: "/media/hilat-hanof/535f7c268ed1dc4.jpeg", visible: true },
+    { id: "cabins", label: "צימרים ובקתות", note: "אירוח אינטימי מול הנוף", href: vacationSearchHref({ types: "צימרים" }), image: "/media/hilat-hanof/535f7c268ed1dc4.jpeg", visible: true },
     { id: "apartments", label: "דירות נופש", note: "עצמאות ונוחות בעיר", href: "/vacation-apartments", image: "/media/88fcef4341b24a45.jpeg", visible: true },
-    { id: "complexes", label: "מתחמי אירוח", note: "כמה יחידות במקום אחד", href: "/search?types=מתחמי אירוח", image: "/media/978e5fd5134b0831.jpeg", visible: true }
+    { id: "complexes", label: "מתחמי אירוח", note: "כמה יחידות במקום אחד", href: "/suite-complexes", image: "/media/978e5fd5134b0831.jpeg", visible: true }
   ]
 } satisfies Record<string, HomeDiscoveryItem[]>;
 

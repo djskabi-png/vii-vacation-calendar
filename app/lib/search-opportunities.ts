@@ -48,33 +48,38 @@ export type SearchOpportunity = {
   updatedBy: string | null;
   readiness: number;
   priority: number;
+  fallbackMode?: "nearby";
 };
 
 type LegacySearchPageRecord = {
   id: string; legacySourcePath: string; sourcePath: string; location: string; slug: string;
   title: string; metaTitle: string; metaDescription: string; h1: string; summary: string;
   canonicalPath: string; latestResultCount: number; updatedAt: string;
+  body?: string; faq?: Array<{ question: string; answer: string }>;
+  filters?: Record<string, string | number | boolean>; fallbackMode?: "nearby";
 };
 type LegacySearchOpportunity = SearchOpportunity & { legacySourcePath: string };
 
 function legacyBody(page: LegacySearchPageRecord) {
-  return (legacySearchPublications.bodyTemplate as string[]).map((paragraph) => paragraph
-    .replaceAll("{{metaDescription}}", page.metaDescription)
-    .replaceAll("{{h1}}", page.h1)).join("\n\n");
+  if (page.body?.trim()) return page.body.trim();
+  return [page.metaDescription,
+    `בעמוד הזה ריכזנו אפשרויות שמתאימות ל${page.h1}. אפשר לפתוח כל מקום, לבדוק תמונות ופרטים, ולשנות את החיפוש אם תרצו להרחיב את האזור או את סוג המקום.`,
+    "מספר התוצאות עשוי להשתנות לפי מקומות שנוספו, עודכנו או הוסרו. לפני הזמנה מומלץ לבדוק בעמוד המקום את הפרטים העדכניים ולוודא זמינות ישירות בתהליך ההזמנה או הפנייה."
+  ].filter(Boolean).join("\n\n");
 }
 
 function hydrateLegacyPage(page: LegacySearchPageRecord): LegacySearchOpportunity {
   const generatedAt = legacySearchPublications.generatedAt;
-  return { ...page, origin: "managed", world: "vacation", locale: "he", filters: {},
+  return { ...page, origin: "managed", world: "vacation", locale: "he", filters: page.filters || {},
     proposedPath: page.canonicalPath, suggestedTitle: page.h1, firstSeenAt: generatedAt, lastSeenAt: generatedAt,
     searches: 0, uniqueSessions: 0, internalSearches: 0, internalUniqueSessions: 0, internalOnly: false,
-    zeroResults: 0, status: "published", assignee: null, body: legacyBody(page), faq: [], robotsIndex: true,
+    zeroResults: 0, status: "published", assignee: null, body: legacyBody(page), faq: page.faq || [], robotsIndex: true,
     scheduledAt: null, publishedAt: generatedAt, version: 1, updatedBy: "system-legacy-migration", readiness: 100, priority: 0 };
 }
 
-export function publicSearchOpportunityAllowed(page: Pick<SearchOpportunity, "title" | "metaTitle" | "metaDescription" | "h1" | "summary" | "body" | "latestResultCount">) {
+export function publicSearchOpportunityAllowed(page: Pick<SearchOpportunity, "title" | "metaTitle" | "metaDescription" | "h1" | "summary" | "body" | "latestResultCount" | "fallbackMode">) {
   const text = [page.title, page.metaTitle, page.metaDescription, page.h1, page.summary, page.body].join(" ");
-  if (page.latestResultCount < 1) return false;
+  if (page.latestResultCount < 1 && page.fallbackMode !== "nearby") return false;
   if (/מיזם\s+V(?:\s|\.{2,}|…|$)|(?:^|\s)ב\s+עם(?:\s|$)|(?:\.\.\.|…)\s*(?:$|["'׳״])/i.test(text)) return false;
   if (/\b(?:undefined|null|lorem ipsum|test\d*)\b/i.test(text)) return false;
   return true;

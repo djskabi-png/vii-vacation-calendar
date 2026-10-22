@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-legacy-content-redirects-20261022",
+  "project": "VII",
+  "task_type": "legacy-content-migration-and-redirects",
+  "requested_outcome": "Every known non-place legacy page has a verified equivalent ASCII URL on VII, complete retained content, correct breadcrumbs, and a direct tested 301 only after the destination is ready; the CMS rejects Hebrew slugs and the remaining gaps are reported per legacy URL.",
+  "natural_destination": "https://vii.spaplus.co and the authenticated VII search-page and redirect administration surfaces",
+  "authorization_boundary": "Local code, inventories, content recovery, validation and the production changes explicitly requested in this turn are authorized. No main-domain DNS cutover, unrelated place migration, legal assertion or invented content is authorized.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-QA-001","reason":"The request requires complete family coverage and natural-destination evidence.","acceptance_impact":"Every discovered legacy URL must resolve to passed evidence, a precise blocker or justified 410; live routes are checked after release."},
+    {"lesson_id":"ADIR-DEPLOY-001","reason":"The work changes production routing and indexable pages.","acceptance_impact":"Freeze one candidate, retain rollback identity and verify exact public status, Location and canonical responses."},
+    {"lesson_id":"ADIR-ADMIN-001","reason":"Slug, publication and redirects are managed in the CMS.","acceptance_impact":"Client and server validation, persistence, audit history and public reflection are required."},
+    {"lesson_id":"ADIR-SEO-001","reason":"This is an SEO migration with pages, canonicals, sitemap and redirects.","acceptance_impact":"Check status, canonical, robots, sitemap, structured breadcrumbs and redirect semantics."},
+    {"lesson_id":"ADIR-CONSISTENCY-001","reason":"Breadcrumbs and URL behavior span every world and content family.","acceptance_impact":"Audit the shared family, not a single route example."},
+    {"lesson_id":"ADIR-SCOPE-001","reason":"Existing public product behavior must not regress while migration logic changes.","acceptance_impact":"Preserve place pages and unrelated approved behavior; stage only the requested files."},
+    {"lesson_id":"ADIR-DATA-001","reason":"The inventory counts and status classifications must be traceable.","acceptance_impact":"Counts are reconciled to stored source rows with explicit source and timestamp."},
+    {"lesson_id":"ADIR-PREVIEW-001","reason":"The legacy site is the approved parity reference for retained non-place content.","acceptance_impact":"Record title, H1, description and body parity or a documented intentional difference for each migrated page."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"Some old content pages are silently omitted because only the sitemap or one export was used.","prevention":"Union the legacy sitemap, stored Search Console export and existing catalog map, then classify every known source.","acceptance_check":"The report reconciles every unique known source to redirect, 410, exclusion or blocker and reports source coverage."},
+    {"rejection":"A 301 points to a missing, generic or unrelated page.","prevention":"Require destination 200, self-canonical, intended content identity and no chain before enabling the redirect.","acceptance_check":"Automated complete-map validation finds zero missing destinations, chains, loops or homepage catch-alls."},
+    {"rejection":"Hebrew or malformed slugs can still be saved through the API even if the form cleans them.","prevention":"Enforce lowercase ASCII slug validation in shared policy and server parsing, with negative tests.","acceptance_check":"Hebrew, mixed, repeated-hyphen and empty slug attempts are rejected; a valid ASCII slug saves."},
+    {"rejection":"Breadcrumbs look right on one world but disagree with canonical routes or schema elsewhere.","prevention":"Inventory every indexable page family and compare visible breadcrumbs, links and BreadcrumbList output.","acceptance_check":"All representative families pass link resolution and visible/schema parity checks."},
+    {"rejection":"A local build is presented as a finished migration although production still serves the old behavior.","prevention":"Use the exact public candidate and verify the deployed routes after publication.","acceptance_check":"The final evidence names the live version and contains direct HTTP/browser results for pages, redirects and admin validation."}
+  ],
+  "affected_family": [
+    "legacy sitemap and stored Search Console URL sources",
+    "managed search pages and publications",
+    "legacy 301 and 410 routing",
+    "public sitemap, canonical and robots output",
+    "visible breadcrumbs and BreadcrumbList schema across vacations, events, spas, hourly, attractions, trails, guides, holidays, legal and static pages",
+    "authenticated search-page slug editor and server save validation",
+    "desktop and 390px mobile public page rendering"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label":"VII platform migration requirement","source":"calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md#legacy-url-migration"},
+      {"label":"VII accepted product behavior","source":"calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"},
+      {"label":"Legacy source site","source":"https://www.vii.co.il/"},
+      {"label":"Current public candidate destination","source":"https://vii.spaplus.co/"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After inventory reconciliation and one migrated page plus one redirect validate end to end, before broad publication or redirect activation.",
+    "checks": ["source content captured","ASCII destination exists","visible and schema breadcrumbs agree","destination returns 200 and redirect is direct"],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can any known non-place legacy URL escape the report?",
+      "Can any active 301 resolve to a non-200 page, another redirect, the homepage or unrelated content?",
+      "Can Hebrew still reach a published URL through a direct API request?",
+      "Can a breadcrumb link or BreadcrumbList item disagree with the canonical route?",
+      "Does production differ from the tested candidate?"
+    ],
+    "natural_destination_evidence": "Public HTTP and browser evidence on the exact deployed VII version plus authenticated admin persistence evidence.",
+    "affected_family_evidence": "Machine-readable full inventory and representative browser checks for every public page family, world and mobile/desktop surface."
+  },
+  "effectiveness": {
+    "baseline": "Stored inventory currently records 3,526 known legacy sources, 3,075 redirects, 451 gone entries, 2,313 migrated legacy search pages and an external requirement estimating 20,000 to 30,000 total legacy URLs; Search Console access is not verified.",
+    "measurements": ["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],
+    "target": "Zero unclassified URLs inside the known source union, zero invalid active redirects, zero accepted non-ASCII slugs and a precise blocker list for sources unavailable without external access."
+  },
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

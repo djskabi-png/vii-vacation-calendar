@@ -16,13 +16,15 @@ export type EventLandingSearchItem = {
 
 type HeroImage = { src: string; alt: string };
 
+const searchHref = (params: Record<string, string>) => `/events/search?${new URLSearchParams(params).toString()}`;
+
 const defaultQuickSearches: EventLandingSearchItem[] = [
-  { id: "birthdays", label: "ימי הולדת", note: "לופטים ומתחמים לחגיגה", href: "/events/search?eventType=יום+הולדת", image: "https://www.vii.co.il/gallery/5962a5b1c42c285.jpeg", imageAlt: "מתחם מעוצב לחגיגת יום הולדת", visible: true },
-  { id: "family", label: "אירועים משפחתיים", note: "מקום שמתאים לכל המשפחה", href: "/events/search?eventType=אירוע+משפחתי", image: "https://www.vii.co.il/gallery/44677127ddf2c2e.jpeg", imageAlt: "מתחם לאירוע משפחתי", visible: true },
+  { id: "birthdays", label: "ימי הולדת", note: "לופטים ומתחמים לחגיגה", href: searchHref({ eventType: "יום הולדת" }), image: "https://www.vii.co.il/gallery/5962a5b1c42c285.jpeg", imageAlt: "מתחם מעוצב לחגיגת יום הולדת", visible: true },
+  { id: "family", label: "אירועים משפחתיים", note: "מקום שמתאים לכל המשפחה", href: searchHref({ eventType: "אירוע משפחתי" }), image: "https://www.vii.co.il/gallery/44677127ddf2c2e.jpeg", imageAlt: "מתחם לאירוע משפחתי", visible: true },
   { id: "large", label: "מעל 100 משתתפים", note: "מתחמים שמתאימים לאירוע גדול", href: "/events/search?guests=100", image: "https://www.vii.co.il/gallery/67659401a5b852d.jpeg", imageAlt: "אולם לאירוע רב משתתפים", visible: true },
   { id: "noise", label: "ללא הגבלת רעש", note: "מקומות למסיבה שנמשכת", href: "/events/search?noise=1", image: "https://www.vii.co.il/gallery/9862975a4a90481.JPG", imageAlt: "מתחם למסיבה פרטית", visible: true },
-  { id: "center", label: "אירועים במרכז", note: "קרוב ונגיש לאורחים", href: "/events/search?location=מרכז", image: "https://www.vii.co.il/gallery/8266f8f7940fa93.jpg", imageAlt: "מקום לאירועים באזור המרכז", visible: true },
-  { id: "tel-aviv", label: "אירועים בתל אביב", note: "אווירה עירונית בלב העניינים", href: "/events/search?location=תל+אביב", image: "https://www.vii.co.il/gallery/3465c34aea44623.jpeg", imageAlt: "לופט לאירועים בתל אביב", visible: true }
+  { id: "center", label: "אירועים במרכז", note: "קרוב ונגיש לאורחים", href: "/events/search/center", image: "https://www.vii.co.il/gallery/8266f8f7940fa93.jpg", imageAlt: "מקום לאירועים באזור המרכז", visible: true },
+  { id: "tel-aviv", label: "אירועים בתל אביב", note: "אווירה עירונית בלב העניינים", href: "/events/search/tel-aviv", image: "https://www.vii.co.il/gallery/3465c34aea44623.jpeg", imageAlt: "לופט לאירועים בתל אביב", visible: true }
 ];
 
 export const defaultEventLandingPresentation = {

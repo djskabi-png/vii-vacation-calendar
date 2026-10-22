@@ -1,0 +1,43 @@
+{
+  "goal": "Migrate and approve every known non-place page from the legacy VII site to a content-equivalent ASCII URL, enable only verified direct permanent redirects, enforce correct breadcrumbs and prohibit Hebrew slugs in administration.",
+  "intent_model": {
+    "literal_request": "Advance everything possible, mirror all old non-place pages and content, create and approve missing search pages, add 301 redirects, report remaining problems per old URL, verify breadcrumbs and non-Hebrew URLs, and prevent Hebrew URL input.",
+    "implied_outcome": "A safe, exhaustive and maintainable SEO migration where no valuable old content is lost and no redirect hides a missing destination.",
+    "likely_rejections": ["Only a sample was checked","Missing legacy pages were redirected to generic destinations","The UI cleaned Hebrew but the API accepted it","Breadcrumbs were checked in only one world","Local changes were called live"],
+    "interpretation_rules": [{"phrase":"כל עמוד וכל תוכן","operational_meaning":"Build an explicit complete inventory of every known non-place source rather than a representative sample.","acceptance_impact":"Every known source receives a final status and evidence or an exact blocker."},{"phrase":"תעשה הכל עד הסוף","operational_meaning":"Continue through implementation, verification and public reflection within authorization.","acceptance_impact":"Code or build alone cannot close the task."}]
+  },
+  "cognitive_flow": {"current_layer":"The operator sees one reconciled migration queue with source, destination, readiness and problem.","current_decision":"Approve only content-equivalent destinations that pass readiness.","next_action":"Publish the ready batch and keep only exact blockers in the remaining list.","deferred_complexity":["Main-domain DNS cutover","Search Console ownership recovery","Place-page migration excluded by the user"],"preserved_depth":["version history","rollback","audit trail","full per-URL evidence"]},
+  "predictive_preflight": {"manifest_path":"project_knowledge/predictive_preflights/vii-legacy-content-redirects-20261022.json","lesson_bundle_ids":["ADIR-QA-001","ADIR-DEPLOY-001","ADIR-ADMIN-001","ADIR-SEO-001","ADIR-CONSISTENCY-001","ADIR-SCOPE-001","ADIR-DATA-001","ADIR-PREVIEW-001"],"no_applicable_lessons_reason":null,"midpoint_requirement":"preflight:midpoint","adversarial_requirement":"preflight:adversarial","effectiveness_requirement":"preflight:effectiveness"},
+  "actors":["VII visitor","VII content administrator","search crawler"],
+  "natural_destination":"https://vii.spaplus.co and the authenticated VII administration",
+  "facts":[
+    {"claim":"The approved plan expects approximately 20,000 to 30,000 legacy URLs and forbids unmatched homepage redirects.","evidence":"VII_PLATFORM_MASTER_PLAN.md Legacy URL migration section"},
+    {"claim":"The stored current inventory contains 3,526 known legacy sources and 2,313 migrated legacy search pages.","evidence":"app/data/legacy-redirect-inventory.json and app/data/legacy-search-page-publications.json"}
+  ],
+  "assumptions":[{"claim":"The union of legacy sitemap, stored Search Console export and catalog is the largest source currently available.","validation":"Reconcile source snapshots and report the unavailable complete export as a blocker rather than claiming exhaustiveness beyond it."}],
+  "in_scope":["Known non-place legacy page inventory","content parity and approval","ASCII slugs","breadcrumbs","301/410 mapping","admin validation","public destination verification","per-URL remaining issue report"],
+  "out_of_scope":["Legacy place pages except preservation regression checks","main-domain DNS cutover","invented content or business facts","legal compliance declaration"],
+  "invariants":["No homepage catch-all","No redirect chain or loop","No 301 before equivalent destination readiness","Existing place routes and booking behavior remain unchanged","Only lowercase ASCII English slugs are publishable"],
+  "affected_family":["legacy inventory","search page publication","redirect middleware","sitemaps","canonical metadata","breadcrumb UI and schema","admin slug editor and API","all public worlds and static content templates"],
+  "characteristics":{"stateful":true},
+  "requirements":[
+    {"id":"REQ-1","statement":"Classify every known legacy non-place URL and preserve its relevant content in the new destination.","source":"User request"},
+    {"id":"REQ-2","statement":"Create a direct 301 only when an equivalent final destination passes readiness; otherwise keep a precise blocker or justified 410.","source":"User request and master plan"},
+    {"id":"REQ-3","statement":"Approved public URLs use lowercase ASCII slugs and Hebrew input is rejected by both UI and server.","source":"User request and account SEO standard"},
+    {"id":"REQ-4","statement":"Visible breadcrumbs, links, canonical URL and BreadcrumbList schema agree across every public world and content family.","source":"User request and VII feedback standard"},
+    {"id":"REQ-5","statement":"The final report identifies each remaining legacy URL and its exact problem.","source":"User request"},
+    {"id":"REQ-6","statement":"Production changes are verified on the exact deployed version with rollback preserved.","source":"ADIR-DEPLOY-001"}
+  ],
+  "acceptance_checks":[
+    {"id":"AC-1","requirement_ids":["REQ-1","REQ-5"],"kind":"success","setup":"All available legacy sources are loaded.","action":"Run inventory reconciliation.","observable_result":"Every unique known non-place source appears once with source evidence, destination/status, parity state and issue."},
+    {"id":"AC-2","requirement_ids":["REQ-2"],"kind":"failure","setup":"A destination is missing, redirects again, is unrelated or is the homepage.","action":"Validate the redirect candidate.","observable_result":"Activation is rejected and the source remains listed with a precise reason."},
+    {"id":"AC-3","requirement_ids":["REQ-2","REQ-6"],"kind":"success","setup":"A ready mapping exists.","action":"Request the legacy URL on the deployed version.","observable_result":"It returns one direct permanent redirect to a 200 self-canonical equivalent page."},
+    {"id":"AC-4","requirement_ids":["REQ-3"],"kind":"failure","setup":"An editor submits Hebrew, mixed-script, malformed or empty slug text.","action":"Save through both the UI and direct API validation path.","observable_result":"No page is saved or published and a localized validation error explains the ASCII rule."},
+    {"id":"AC-5","requirement_ids":["REQ-3"],"kind":"persistence","setup":"A valid ASCII slug is saved.","action":"Reload the editor and open the public route.","observable_result":"The same slug persists and the public route and canonical use it."},
+    {"id":"AC-6","requirement_ids":["REQ-4"],"kind":"success","setup":"Representative indexable route from each family and world.","action":"Inspect visible breadcrumbs, links, canonical and structured data on desktop and mobile.","observable_result":"Labels and destinations match the route hierarchy, links resolve and no approved path contains Hebrew."},
+    {"id":"AC-7","requirement_ids":["REQ-6"],"kind":"rollback","setup":"A published candidate exists.","action":"Record candidate and prior deployment identities.","observable_result":"Rollback target is preserved and no unrelated dirty-tree file is included."}
+  ],
+  "open_questions":[{"question":"Can the full estimated 20,000 to 30,000 legacy URL corpus be exported from Search Console or server logs?","blocking":false,"resolution":"Complete all currently known sources and report this external source gap explicitly without claiming total historic coverage."}],
+  "authorization_boundary":"The user authorized implementing and approving the requested pages and redirects. Main-domain DNS cutover, unrelated place migration and fabricated replacements remain outside scope.",
+  "ready_for_implementation": true
+}
