@@ -93,6 +93,16 @@ test("public route filters current publication after cache and rejects parameter
   assert.equal((await onlineCapabilitiesResponse(new Request(request.url + "?from=2026-11-01"), deps)).status, 400);
   assert.equal((await onlineCapabilitiesResponse(request, { ...deps, published: async () => { throw Error("down"); } })).status, 503);
 });
+test("catalog administration exposes bounded online capability freshness without supplier payloads", () => {
+  const route = readFileSync(new URL("../app/api/admin/catalog-sync/route.ts", import.meta.url), "utf8");
+  const page = readFileSync(new URL("../app/admin/catalog-sync/page.tsx", import.meta.url), "utf8");
+  assert.match(route, /readCachedOnlineCapabilities\(db\)/);
+  assert.match(route, /publicOnlineCapabilities\(capabilitySnapshot\.value, vacationIds\)/);
+  assert.match(route, /targetFreshMinutes: 30/);
+  assert.doesNotMatch(route, /capabilitySnapshot\.value[^\n]*Response\.json/);
+  assert.match(page, /רשימת הזמנה אונליין ללא תאריך/);
+  assert.match(page, /הזמנה סופית תמיד נבדקת שוב מול הספק/);
+});
 test("search list, nearby, map, draft and badge share capability without changing price semantics", () => {
   const page = readFileSync(new URL("../app/search/page.tsx", import.meta.url), "utf8");
   assert.match(page, /const undatedSearch = !selectedStay && !hasSearchDate\(searchParams\);/);

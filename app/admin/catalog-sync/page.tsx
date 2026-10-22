@@ -16,7 +16,8 @@ type Run = { id: string; world: World; source: string; status: string; startedAt
 type RetryJob = { id: string; rootRunId: string; world: World; attempt: number; dueAt: string; status: string;
   resultStatus: string | null; errorCode: string | null };
 type Alert = { id: string; world: World; severity: "warning" | "critical"; kind: "review_required" | "retries_exhausted" | "stale"; status: "open" | "resolved"; errorCode: string | null; lastSeenAt: string };
-type Dashboard = { states: State[]; runs: Run[]; retryJobs: RetryJob[]; alerts: Alert[] };
+type OnlineCapabilities = { status: "fresh" | "refreshed" | "stale"; checkedAt: string; count: number; targetFreshMinutes: number; lastGoodMaxDays: number };
+type Dashboard = { states: State[]; runs: Run[]; retryJobs: RetryJob[]; alerts: Alert[]; onlineCapabilities: OnlineCapabilities | null };
 
 const worlds: { id: World; name: string }[] = [
   { id: "vacations", name: "נופש" }, { id: "events", name: "אירועים" },
@@ -114,6 +115,15 @@ export default function CatalogSyncPage() {
     {notice ? <p role="status">{notice}</p> : null}
     {loading && !dashboard ? <p role="status">טוענים נתונים...</p> : null}
     {dashboard ? <>
+      <section aria-labelledby="online-capabilities-title" style={{ marginBlock: 24, padding: 18, border: "1px solid #dce4e2", borderRadius: 12 }}>
+        <h2 id="online-capabilities-title" style={{ marginTop: 0, fontSize: "1.25rem" }}>רשימת הזמנה אונליין ללא תאריך</h2>
+        {dashboard.onlineCapabilities ? <>
+          <p><strong>{dashboard.onlineCapabilities.count.toLocaleString("he-IL")} מקומות</strong> עם יכולת הזמנה אונליין מאומתת נשמרים ברשימה המהירה.</p>
+          <p>בדיקה אחרונה שהתקבלה: {date(dashboard.onlineCapabilities.checkedAt)}. יעד הרענון הוא כל {dashboard.onlineCapabilities.targetFreshMinutes} דקות.</p>
+          {dashboard.onlineCapabilities.status === "stale" ? <p role="alert">הרענון האחרון לא התקבל בזמן. האתר ממשיך להציג את הרשימה התקינה האחרונה, והזמנה סופית תמיד נבדקת שוב מול הספק.</p> : <p role="status">הרשימה עדכנית. תקלה רגעית אצל הספק לא מוחקת את הדור התקין האחרון.</p>}
+          <small>דור תקין אחרון נשמר עד {dashboard.onlineCapabilities.lastGoodMaxDays} ימים לצורכי גילוי בלבד, ולעולם אינו משמש כאישור זמינות לתאריך.</small>
+        </> : <p role="alert">אין כרגע רשימת יכולת הזמנה תקינה. חיפוש עם תאריך ובדיקת הזמנה סופית ממשיכים להשתמש בבדיקה חיה.</p>}
+      </section>
       <section aria-labelledby="catalog-alerts-title" style={{ marginBlock: 24, padding: 18, border: "1px solid #dce4e2", borderRadius: 12 }}>
         <h2 id="catalog-alerts-title" style={{ marginTop: 0, fontSize: "1.25rem" }}>התראות תפעול</h2>
         {dashboard.alerts.filter((item) => item.status === "open").length ? <ul>{dashboard.alerts.filter((item) => item.status === "open").map((alert) => <li key={alert.id}>

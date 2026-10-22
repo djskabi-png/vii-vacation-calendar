@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-operational-closure-20261022",
+  "project": "VII production platform",
+  "task_type": "production integration, operational verification, booking proof and regression matrix",
+  "requested_outcome": "Complete the owner-authorized production work for a one-time Roy test booking, supplier conversion reporting, scheduled supplier refresh, Aurora operational verification, CMS verification and a durable availability matrix.",
+  "natural_destination": "The public VII booking journey and the authenticated VII administration at https://vii.spaplus.co.",
+  "authorization_boundary": "One idempotent non-payment booking test at Roy's designated place using Adir Naor's verified contact identity, server-side conversion integration, safe code and configuration changes, tests and publication are authorized. Payment, charge, DNS changes, credential rotation, destructive database or failover actions and legal compliance claims are excluded.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-QA-001","reason":"The request closes operational gaps that were previously described without natural-destination evidence.","acceptance_impact":"Every claimed completion needs exact public or authenticated operational evidence."},
+    {"lesson_id":"ADIR-DEPLOY-001","reason":"The work changes a live production application with several historical release sources.","acceptance_impact":"Freeze one source commit, preserve rollback and verify the exact deployed artifact."},
+    {"lesson_id":"ADIR-WEB-003","reason":"A booking creates a supplier-side record and must never be duplicated.","acceptance_impact":"Use one partner reference, pre-read it, submit once and resolve uncertainty by readback only."},
+    {"lesson_id":"ADIR-CONTROL-001","reason":"The admin report adds filters and controls with sensitive data behind them.","acceptance_impact":"Exercise loading, success, empty, validation, unauthorized and provider-failure states."},
+    {"lesson_id":"ADIR-SEARCH-001","reason":"The requested matrix must prevent recurring date, geography and availability regressions.","acceptance_impact":"Cover cross-world URL, result, cache and dated-authority contracts with stable oracles."},
+    {"lesson_id":"ADIR-MOBILE-001","reason":"The changed reporting and booking states must remain usable on mobile.","acceptance_impact":"Inspect the changed natural destinations at 390 pixels and through responsive transitions."},
+    {"lesson_id":"ADIR-CONSISTENCY-001","reason":"Conversions, local funnel metrics and availability states must use consistent terminology and scope.","acceptance_impact":"Document metric definitions and keep intent events separate from completed orders."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"The conversions endpoint is wired but the browser receives customer PII or the supplier token.","prevention":"Fetch only from an authorized server route and return aggregate summary fields by default.","acceptance_check":"Client source and browser response contain no token and no raw contact rows."},
+    {"rejection":"The test booking is submitted twice after a timeout or refresh.","prevention":"Reserve one stable partnerRef, read before write and never retry an uncertain POST.","acceptance_check":"One supplier booking identifier is observed for the partnerRef and no second POST occurs."},
+    {"rejection":"Scheduled refresh exists in source but is still presented as operational without production timestamps.","prevention":"Read the authenticated catalog dashboard and cache metadata from the deployed environment.","acceptance_check":"Each due process exposes a recent persisted run or remains explicitly not verified."},
+    {"rejection":"Aurora is declared complete from a response header while write, transaction or recovery behavior remains unknown.","prevention":"Separate public read origin from write, transaction, backup and failover evidence.","acceptance_check":"Each operational dimension is passed with evidence or remains a precise blocker without an inflated completion claim."},
+    {"rejection":"The availability matrix is a document rather than an executable guard.","prevention":"Add a bounded public audit script and automated contract tests with a saved machine-readable report.","acceptance_check":"The matrix runs against the exact public release and fails on URL, cache, result or dated-availability contradictions."},
+    {"rejection":"The release changes the admin report but regresses public booking, search or prior v570 behavior.","prevention":"Run focused tests, full suite, typography, release guards and post-deploy public checks against the frozen candidate.","acceptance_check":"All prior v570 invariants and the new operational checks pass on the deployed version."}
+  ],
+  "affected_family": [
+    "vacation search and booking",
+    "supplier API authentication and error handling",
+    "admin business performance and conversion reporting",
+    "scheduled catalog and capability refresh",
+    "Aurora database adapter and operational health",
+    "CMS authentication, role-scoped pages and persistence",
+    "cross-world availability and search regression coverage",
+    "desktop and mobile admin states"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label":"VII platform source of truth","source":"calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"},
+      {"label":"Accepted VII product behavior","source":"calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"},
+      {"label":"Supplier API conversions contract","source":"https://bizonline.co.il/api/ai/vii/Vii-Frontend.html#conversions"},
+      {"label":"Exact public baseline","source":"project_knowledge/release_evidence/vii-owned-validation-release-20261021/release-manifest-v570.json"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After focused conversion, booking-idempotency and matrix tests pass, before any supplier write or public deployment.",
+    "checks": [
+      "The conversions adapter rejects invalid worlds, IDs, dates and malformed supplier responses without leaking credentials.",
+      "The booking plan has one reserved partnerRef, verified site, room, live quote and verified contact fields.",
+      "The matrix covers every world and separates undated capability from dated availability.",
+      "Production refresh and Aurora claims are bounded to observed evidence."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a non-admin retrieve conversion summaries or raw customer details?",
+      "Can a stale response overwrite a newer report selection?",
+      "Can a booking timeout trigger a second supplier write?",
+      "Can a no-date online-capable result be mislabeled as date-available?",
+      "Can one failed supplier period blank all accepted discovery data?",
+      "Can a production header mask an unverified database write or scheduler?",
+      "Can the deployed artifact differ from the tested commit?"
+    ],
+    "natural_destination_evidence": "Authenticated admin report, exact public booking journey and exact public matrix report tied to the deployed version.",
+    "affected_family_evidence": "Focused tests, full suite, production scheduler/database readback, mobile/desktop inspection and release manifest."
+  },
+  "effectiveness": {
+    "baseline": "Previous VII releases repeatedly confused implemented code with deployed operation and allowed availability defects to recur across date and cache states.",
+    "measurements": ["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],
+    "target": "One release adds the conversions report and executable matrix, performs exactly one safe booking test, and reports operational gaps without overclaiming."
+  },
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

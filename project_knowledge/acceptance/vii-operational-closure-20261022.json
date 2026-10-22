@@ -1,0 +1,70 @@
+{
+  "goal": "Close the owner-authorized VII operational gaps with one verified test booking, a protected supplier conversion report, observed scheduler and Aurora status, verified CMS paths and an executable availability matrix.",
+  "intent_model": {
+    "literal_request": "Perform section 1 on Roy's place under Adir's name, treat Max's conversions endpoint as ready, explain and complete sections 3 to 5, defer legal and domain work, record media approval, and build section 9's matrix.",
+    "implied_outcome": "Adir should receive working operational features and exact evidence instead of another list of plans or unexplained blockers.",
+    "likely_rejections": ["A booking was not actually verified.","The report exposes private contact data.","Scheduler or Aurora status is inferred from code only.","The matrix cannot be rerun.","A deployment drops existing v570 behavior."],
+    "interpretation_rules": [
+      {"phrase":"תעשה את הסעיפים שתלויים בך","operational_meaning":"Implement and verify safe in-scope work without returning routine engineering tasks to Adir.","acceptance_impact":"Each section needs a concrete result or a genuinely human-only blocker."},
+      {"phrase":"על המקום של רועי והשם שלי","operational_meaning":"Use only the verified designated test place and Adir Naor's verified contact identity.","acceptance_impact":"No invented venue or identity and no payment or duplicate submission."}
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "The operator selects an existing business and sees trusted local funnel metrics plus verified supplier conversions.",
+    "current_decision": "Choose business and date range, then inspect aggregate source and order outcomes.",
+    "next_action": "Use the evidence to follow up with the business or investigate a failing source.",
+    "deferred_complexity": ["raw customer contact rows unless explicitly required","legal accessibility determination","main-domain cutover"],
+    "preserved_depth": ["source-specific totals","orders and revenue","median conversion delay","CSV export","provider error recovery","auditability"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/predictive_preflights/vii-operational-closure-20261022.json",
+    "lesson_bundle_ids": ["ADIR-QA-001","ADIR-DEPLOY-001","ADIR-WEB-003","ADIR-CONTROL-001","ADIR-SEARCH-001","ADIR-MOBILE-001","ADIR-CONSISTENCY-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["VII administrator","VII visitor","scheduled worker","supplier API","Aurora database bridge"],
+  "natural_destination": "https://vii.spaplus.co and its authenticated /admin/business-performance and /admin/catalog-sync routes.",
+  "facts": [
+    {"claim":"The public v570 read path identifies Aurora as its data origin.","evidence":"release-manifest-v570.json and postdeploy-570 evidence."},
+    {"claim":"The supplier documents server-only conversions for vacations, events and rooms.","evidence":"Vii-Frontend.html#conversions retrieved 2026-10-22."},
+    {"claim":"The worker source schedules capability refresh every tick and discovery warmers every 30 minutes.","evidence":"worker/index.ts scheduled handler."}
+  ],
+  "assumptions": [
+    {"claim":"Roy's designated supplier place can be identified from current supplier truth without publishing the internal fixture.","validation":"Read provider catalog and exact venue details through the authenticated server path before booking."},
+    {"claim":"The production admin session can expose scheduler and CMS readback without changing data.","validation":"Open authenticated admin routes and inspect persisted timestamps and role behavior."}
+  ],
+  "in_scope": ["one non-payment idempotent test booking","aggregate conversions integration","scheduler and cache freshness verification","Aurora read/write/transaction operational audit","CMS route and role audit","executable cross-world availability matrix","owner media-rights attestation record","publication and exact-version verification"],
+  "out_of_scope": ["payment or charge","legal accessibility signoff","main-domain DNS cutover","destructive failover","credential rotation","raw contact export"],
+  "invariants": ["v570 public behavior remains intact","supplier token and customer PII never reach public browser code","booking write is attempted at most once","undated capability never claims dated availability","Hebrew uses the approved modern sans-serif stack","all prices use ₪"],
+  "affected_family": ["vacation booking flow","administrator analytics report","supplier API integrations","scheduled data refresh","Aurora database adapter","content management system","search and availability across worlds","production release tooling"],
+  "characteristics": {"stateful":true},
+  "requirements": [
+    {"id":"REQ-1","statement":"Create at most one non-payment supplier test booking for Roy's verified place under Adir Naor's verified identity and read it back by partner reference.","source":"Current user instruction"},
+    {"id":"REQ-2","statement":"Show supplier conversion aggregates for an authorized selected business and range without exposing tokens or raw customer PII to the browser.","source":"Current user instruction and supplier docs"},
+    {"id":"REQ-3","statement":"Verify the production refresh scheduler and persisted cache/catalog timestamps rather than treating source code as runtime proof.","source":"Current user clarification"},
+    {"id":"REQ-4","statement":"Separate and verify Aurora public reads, writes, transactions and recovery evidence without destructive tests or inflated claims.","source":"Current user clarification and master plan"},
+    {"id":"REQ-5","statement":"Verify CMS authentication, role scope, loading, empty, error, save persistence and natural-destination reflection for the changed admin family.","source":"Current user clarification and product standard"},
+    {"id":"REQ-6","statement":"Persist the owner's attestation that reused media comes from the prior owned site while preserving per-asset provenance requirements.","source":"Current user instruction"},
+    {"id":"REQ-7","statement":"Provide and execute a durable risk-based availability matrix covering worlds, dates, geography, party, filters, cache and supplier failure.","source":"Current user instruction"},
+    {"id":"REQ-8","statement":"Publish only one frozen passing candidate and verify the exact live version with rollback identity.","source":"Sites and release requirements"}
+  ],
+  "acceptance_checks": [
+    {"id":"AC-1","requirement_ids":["REQ-1"],"kind":"success","setup":"Verified Roy site, available non-payment stay, verified contact fields and one reserved partnerRef","action":"Read partnerRef, submit once only if absent, then read it back","observable_result":"One confirmed or pending-approval booking identifier matches site, room, dates, price, guest and partnerRef; no payment and no second POST."},
+    {"id":"AC-2","requirement_ids":["REQ-1"],"kind":"retry","setup":"Supplier write result is uncertain","action":"Do not repeat POST; query the same partnerRef","observable_result":"Original status is resolved by readback or remains explicitly unknown without a duplicate booking."},
+    {"id":"AC-3","requirement_ids":["REQ-2","REQ-5"],"kind":"permission","setup":"Unauthorized and authorized sessions","action":"Request the business-performance conversion view","observable_result":"Unauthorized returns 403; authorized server route returns validated aggregate summary only and client receives neither token nor contact rows."},
+    {"id":"AC-4","requirement_ids":["REQ-2"],"kind":"failure","setup":"Invalid range, unsupported place or provider failure","action":"Load conversions","observable_result":"The UI shows a precise recoverable state and preserves the prior selection without invented zeros."},
+    {"id":"AC-5","requirement_ids":["REQ-3"],"kind":"persistence","setup":"Deployed scheduled worker and production database","action":"Read scheduler dashboard and cache/catalog state across reload","observable_result":"Recent persisted timestamps and statuses survive reload, or the exact unobserved process remains not verified."},
+    {"id":"AC-6","requirement_ids":["REQ-4"],"kind":"recovery","setup":"Production Aurora configuration","action":"Exercise safe read, isolated rollback-safe write/readback and transaction probes where an existing health path permits","observable_result":"Each dimension has exact evidence; destructive failover and backup restoration remain separately classified if not exercised."},
+    {"id":"AC-7","requirement_ids":["REQ-5"],"kind":"persistence","setup":"Authorized admin on changed report","action":"Change range/business, reload and revisit","observable_result":"Interface remains usable, protected and consistent; any actual saved CMS change is verified in its natural destination."},
+    {"id":"AC-8","requirement_ids":["REQ-6"],"kind":"success","setup":"Owner attestation from current message","action":"Record the scoped provenance decision","observable_result":"Project evidence identifies prior owned site as approved source without claiming unknown individual releases."},
+    {"id":"AC-9","requirement_ids":["REQ-7"],"kind":"failure","setup":"Executable matrix against frozen public release","action":"Run all P0 and P1 cases","observable_result":"World, URL, cache, dated availability, nearby fallback and supplier-failure contracts either pass or block release with exact case IDs."},
+    {"id":"AC-10","requirement_ids":["REQ-8"],"kind":"rollback","setup":"Passing frozen commit and previous live version","action":"Save, deploy and verify the exact production artifact","observable_result":"Deployment succeeds, live version/commit match, post-deploy checks pass and rollback version remains identified."}
+  ],
+  "open_questions": [
+    {"question":"Does the existing authenticated environment expose Roy's verified site and Adir's required contact fields for the test booking?","blocking":false,"resolution":"Inspect approved supplier/catalog sources and private contact store before any write; if a required human-only field is absent, only REQ-1 remains blocked."}
+  ],
+  "authorization_boundary": "Safe implementation, testing, one idempotent non-payment test booking and publication are authorized. No payment, DNS, destructive database/failover action, credential rotation or legal compliance claim.",
+  "ready_for_implementation": true
+}

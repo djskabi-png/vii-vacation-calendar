@@ -6,6 +6,9 @@ import { readSupplierCatalogDashboard } from "../../../lib/supplier-catalog-stor
 import type { D1Database } from "../../../../types/cloudflare-runtime";
 import { catalogFreshnessAlerts, readCatalogAlerts } from "../../../lib/supplier-catalog-alerts.ts";
 import { requiredRuntimeDatabase } from "../../../lib/runtime-database.ts";
+import { readCachedOnlineCapabilities } from "../../../lib/online-booking-capability-cache.ts";
+import { publicOnlineCapabilities } from "../../../lib/online-booking-capability.ts";
+import { publishedSupplierIds } from "../../../lib/published-supplier-ids.ts";
 
 const headers = { "Cache-Control": "no-store" };
 
@@ -24,9 +27,21 @@ export async function GET(request: Request) {
   if (!await authorized(request)) return Response.json({ error: "forbidden" }, { status: 403, headers });
   try {
     const db = await database();
-    const [dashboard, retryJobs, storedAlerts] = await Promise.all([readSupplierCatalogDashboard(db), readCatalogRetryJobs(db), readCatalogAlerts(db)]);
+    const [dashboard, retryJobs, storedAlerts, capabilitySnapshot, vacationIds] = await Promise.all([
+      readSupplierCatalogDashboard(db), readCatalogRetryJobs(db), readCatalogAlerts(db),
+      readCachedOnlineCapabilities(db).catch(() => null), publishedSupplierIds("vacations").catch(() => new Set<number>()),
+    ]);
     const alerts = [...catalogFreshnessAlerts(dashboard.states), ...storedAlerts];
-    return Response.json({ ...dashboard, retryJobs, alerts }, { headers });
+    const capabilityValue = capabilitySnapshot
+      ? publicOnlineCapabilities(capabilitySnapshot.value, vacationIds)
+      : {};
+    return Response.json({ ...dashboard, retryJobs, alerts, onlineCapabilities: capabilitySnapshot ? {
+      status: capabilitySnapshot.cache.status,
+      checkedAt: capabilitySnapshot.cache.checkedAt,
+      count: Object.keys(capabilityValue).length,
+      targetFreshMinutes: 30,
+      lastGoodMaxDays: 30,
+    } : null }, { headers });
   }
   catch (error) {
     console.error("VII catalog dashboard unavailable", error);

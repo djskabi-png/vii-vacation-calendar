@@ -1,0 +1,11 @@
+{
+  "decision": "The business owner confirms that media reused from the prior VII website is approved for reuse in the VII replacement product.",
+  "source": "Direct owner instruction in the VII task on 2026-10-22.",
+  "scope": "Media copied from the prior VII website owned and operated by the same business.",
+  "limits": [
+    "This attestation does not identify the rights holder for a new third-party, stock or generated asset.",
+    "It does not replace per-asset source and identity checks when a person, business, venue or completed work is represented.",
+    "It does not assert model releases or permissions that the owner did not explicitly provide."
+  ],
+  "status": "owner_attested"
+}

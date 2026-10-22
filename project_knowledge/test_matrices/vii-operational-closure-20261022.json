@@ -1,0 +1,35 @@
+{
+  "target": "VII cross-world search, availability, supplier refresh, conversions and booking closure",
+  "natural_destination": "The exact public release at https://vii.spaplus.co plus authenticated admin routes.",
+  "requirements": [
+    {"id":"REQ-1","statement":"Undated discovery uses last-known capability without claiming dated availability."},
+    {"id":"REQ-2","statement":"Dated searches show authoritative matching availability or an honest recovery state."},
+    {"id":"REQ-3","statement":"Location, party, filters, URL, count, cards and map remain consistent."},
+    {"id":"REQ-4","statement":"Supplier failures preserve safe cached discovery and block false transaction confirmation."},
+    {"id":"REQ-5","statement":"Conversions remain protected and validated."},
+    {"id":"REQ-6","statement":"Booking is idempotent and submitted at most once."}
+  ],
+  "risks": [
+    {"id":"RISK-1","risk":"A no-date search returns zero or waits on the provider despite a valid capability cache.","severity":"high"},
+    {"id":"RISK-2","risk":"A dated search shows unavailable or wrong-context results.","severity":"critical"},
+    {"id":"RISK-3","risk":"A valid city with no exact inventory returns 404 instead of nearby recovery.","severity":"high"},
+    {"id":"RISK-4","risk":"A provider or exact-period cache failure blanks all discovery.","severity":"high"},
+    {"id":"RISK-5","risk":"Sensitive conversion data leaks to an unauthorized client.","severity":"critical"},
+    {"id":"RISK-6","risk":"An uncertain booking is duplicated.","severity":"critical"}
+  ],
+  "characteristics": {"stateful":true,"asynchronous":true,"role_based":true,"responsive":true,"external_integration":true},
+  "cases": [
+    {"id":"TC-01","priority":"P0","requirement_ids":["REQ-1","REQ-3"],"risk_ids":["RISK-1"],"tags":["success","persistence","responsive"],"preconditions":"Vacation capability cache is populated","action":"Open undated all-country search, enable online booking, reload and return from a result","oracle":"Immediate non-empty online-capable results; URL, chip, count and state persist; no dated-availability claim","execution_status":"planned"},
+    {"id":"TC-02","priority":"P0","requirement_ids":["REQ-2","REQ-3"],"risk_ids":["RISK-2"],"tags":["success","persistence","dependency-failure"],"preconditions":"A live future vacation date and party have at least one supplier result","action":"Search by dates and party, open a result, return and reload","oracle":"Only matching available results appear and date/party/location state remains identical","execution_status":"planned"},
+    {"id":"TC-03","priority":"P0","requirement_ids":["REQ-2","REQ-3"],"risk_ids":["RISK-3"],"tags":["empty","failure","responsive"],"preconditions":"Valid hourly city with no exact inventory","action":"Search Haifa and Haifa/Carmel on desktop and mobile","oracle":"HTTP 200 with honest nearby recovery or empty guidance, never 404 or unrelated first record","execution_status":"planned"},
+    {"id":"TC-04","priority":"P0","requirement_ids":["REQ-4"],"risk_ids":["RISK-4"],"tags":["failure","retry","idempotency","dependency-failure"],"preconditions":"Requested period cache is absent but a sibling accepted snapshot exists","action":"Load home and regional near-term rails","oracle":"One bounded fallback selects truthful accepted data; no visitor-time retry loop and no blank rail","execution_status":"planned"},
+    {"id":"TC-05","priority":"P1","requirement_ids":["REQ-2","REQ-3"],"risk_ids":["RISK-2"],"tags":["success","responsive"],"preconditions":"Events, spa and hourly routes are public","action":"Run representative no-date and dated/filter searches in each world","oracle":"Each route returns 200 and the visible result state matches its world, URL and active filters","execution_status":"planned"},
+    {"id":"TC-06","priority":"P1","requirement_ids":["REQ-3"],"risk_ids":["RISK-2"],"tags":["persistence","responsive","failure"],"preconditions":"Search drawer, filters or calendar are open on mobile","action":"Resize to desktop, reload, return to mobile and rotate","oracle":"No stale lock, blank page, horizontal drift or lost valid search state","execution_status":"planned"},
+    {"id":"TC-07","priority":"P0","requirement_ids":["REQ-5"],"risk_ids":["RISK-5"],"tags":["permission","failure","dependency-failure"],"preconditions":"Conversions endpoint is deployed","action":"Request it without admin session and then with authorized session","oracle":"Unauthorized is 403; authorized aggregate is schema-valid; token and raw contacts never reach the client","execution_status":"planned"},
+    {"id":"TC-08","priority":"P1","requirement_ids":["REQ-5"],"risk_ids":["RISK-5"],"tags":["empty","success","persistence"],"preconditions":"Authorized admin selects a business with zero and non-zero periods","action":"Change source/date filters and reload","oracle":"True zero, loading and provider error are distinct; selection is preserved without invented metrics","execution_status":"planned"},
+    {"id":"TC-09","priority":"P0","requirement_ids":["REQ-6"],"risk_ids":["RISK-6"],"tags":["success","retry","idempotency","dependency-failure"],"preconditions":"Verified Roy place, quote and one reserved partnerRef","action":"Read ref, submit once if absent, read back; simulate uncertain response in automated test","oracle":"Exactly one booking exists; uncertainty triggers GET only and no second POST","execution_status":"planned"},
+    {"id":"TC-10","priority":"P1","requirement_ids":["REQ-1","REQ-2","REQ-4"],"risk_ids":["RISK-1","RISK-2","RISK-4"],"tags":["failure","persistence","dependency-failure"],"preconditions":"Capability, discovery and supplier timestamps are available","action":"Compare freshness, expiry and last-good boundaries","oracle":"Expired data is not called current; safe stale discovery remains usable; final booking always revalidates live","execution_status":"planned"}
+  ],
+  "out_of_scope": ["payment capture","destructive failover","legal accessibility certification","DNS cutover"],
+  "ready_for_execution": true
+}
