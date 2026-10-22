@@ -1,27 +1,11 @@
 import { publishedSupplierIds } from "../../../lib/published-supplier-ids.ts";
 import { BookingError, createSupplierBooking } from "../../../lib/vii-supplier-booking";
 import { supplierToken } from "../../../lib/vii-supplier-token";
-import type { D1Database } from "../../../../types/cloudflare-runtime";
 import { recordBookingAudit } from "../../../lib/operations-audit";
 import type { VacationSearchRoom } from "../../../lib/vacation-party";
-import { runtimeDatabase } from "../../../lib/runtime-database.ts";
+import { limitBookingRequests } from "../../../lib/booking-rate-limit.ts";
 
 const headers = { "Cache-Control": "no-store" };
-
-async function limitBookingRequests(request: Request) {
-  const ip = request.headers.get("cf-connecting-ip");
-  if (!ip) throw new BookingError("supplier_unavailable", 503);
-  const db = await runtimeDatabase();
-  if (!db) throw new BookingError("supplier_unavailable", 503);
-  const bytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`${await supplierToken()}:${ip}`));
-  const hashedIp = Array.from(new Uint8Array(bytes), (byte) => byte.toString(16).padStart(2, "0")).join("");
-  const hour = Math.floor(Date.now() / 3_600_000);
-  await db.prepare("CREATE TABLE IF NOT EXISTS vii_booking_rate (bucket TEXT PRIMARY KEY NOT NULL, attempts INTEGER NOT NULL, hour INTEGER NOT NULL)").run();
-  const result = await db.prepare(`INSERT INTO vii_booking_rate (bucket, attempts, hour) VALUES (?, 1, ?)
-    ON CONFLICT(bucket) DO UPDATE SET attempts = attempts + 1 WHERE attempts < 10`)
-    .bind(`${hour}:${hashedIp}`, hour).run();
-  if (result.meta.changes !== 1) throw new BookingError("rate_limited", 429);
-}
 
 export async function POST(request: Request) {
   let attemptedReference = "";
