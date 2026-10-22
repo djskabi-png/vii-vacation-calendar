@@ -369,11 +369,14 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
               onRetryAvailability={supplierSiteID ? supplierQuote.retry : liveLegacyAvailability.retry}
             /> : activeWorld === "vacation" ? <section id="booking-summary" className="property-about"><h2>בירור אירוח</h2><p>פרטי היחידות והקיבולת עדיין לא נמסרו. אפשר לפנות למקום לבירור.</p>{phoneHref ? <a className="button primary" href={phoneHref}>שיחה עם המקום</a> : null}</section> : null}
 
-            {property.roomOptions?.length ? <section id="rooms" className="units-section">
-              {property.scenario === "multi" ? <div className="units-heading units-heading--overview">
-                <h2>הסוויטות והיחידות</h2>
-                <span className="units-total">{roomQuantity === 1 ? "יחידת אירוח אחת" : `${roomQuantity} יחידות אירוח`}</span>
-              </div> : null}
+            {property.roomOptions?.length ? <section id="rooms" className="units-section" aria-labelledby="units-heading-title">
+              <div className={`units-heading${property.scenario === "multi" ? " units-heading--overview" : ""}`}>
+                <div>
+                  <span className="eyebrow">פרטי הלינה במקום</span>
+                  <h2 id="units-heading-title">איפה תשנו?</h2>
+                </div>
+                <span className="units-total">{property.scenario === "multi" ? (roomQuantity === 1 ? "יחידת אירוח אחת" : `${roomQuantity} יחידות אירוח`) : "המקום כולו עומד לרשותכם"}</span>
+              </div>
               <div className="room-card-list">
                 {property.roomOptions.map((room, roomIndex) => {
                   // A place sold as one whole property has one live quote. Its
