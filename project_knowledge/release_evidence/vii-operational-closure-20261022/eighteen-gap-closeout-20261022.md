@@ -6,7 +6,7 @@ Observed on 22 October 2026. `done` means evidence exists at the natural destina
 2. Test booking: open. The reserved partner reference has no booking and no payment; no repeated POST was made after the failed response.
 3. Booking readback: done for the safe read path, open for a real booking because none exists.
 4. Search and availability matrix: API/HTTP contract substantially done on public v574. TC-01, 02, 03, 04, 05 and 10 passed; responsive transition TC-06 and booking TC-09 remain open.
-5. Sales/conversions report: supplier conversions integration exists; unauthorized protection passed. The authenticated local funnel was diagnosed as an Aurora SQL-dialect regression and fixed in the candidate; public v574 remains broken until deployment.
+5. Sales/conversions report: the supplier conversion endpoint is verified in production for an authorized business/range and returns aggregate source totals only; anonymous access returns 403. The separate local VII funnel was diagnosed as an Aurora SQL-dialect regression and fixed in the candidate; that base table remains broken on public v574 until deployment.
 6. Scheduler/cache refresh: partially done. Manual protected refresh published rooms 53 and spa 159 and cleared their stale alerts. Vacation refresh failed safely and preserved 573 accepted places. Unattended scheduling remains open because overdue pending/running jobs prove it is not self-healing.
 7. Automated map snapshots: open. Representative public probes returned 404 with `warming` or `missing`; no saved production image was verified.
 8. Visual bug-batch reconciliation: candidate/public evidence exists for several individual families, but one complete exact-version public reconciliation remains open.
