@@ -124,13 +124,14 @@ export function VacationBookingHub({ property, dates, from, till, guests, select
   const state = bookingState(hasDates, guests, property, displayedAvailability, nightlyPrice, availabilityMode, availabilityStatus);
   const minimumStayNotMet = Boolean(hasDates && displayedAvailability?.minimumNights && nights < displayedAvailability.minimumNights);
   const restrictions = {
-    he: { minimum: (n: number) => `נדרשים לפחות ${n} לילות`, later: "בחרו תאריך עזיבה מאוחר יותר", closed: "אין כניסה בתאריך שבחרתם", another: "בחרו תאריך הגעה אחר", average: "בממוצע ללילה" },
-    en: { minimum: (n: number) => `Minimum stay: ${n} nights`, later: "Choose a later check-out date", closed: "Check-in is closed on this date", another: "Choose another arrival date", average: "average per night" },
-    ru: { minimum: (n: number) => `Минимум ${n} ночей`, later: "Выберите более позднюю дату выезда", closed: "Заезд в эту дату недоступен", another: "Выберите другую дату заезда", average: "в среднем за ночь" },
-    fr: { minimum: (n: number) => `Séjour minimum : ${n} nuits`, later: "Choisissez une date de départ plus tardive", closed: "Arrivée impossible à cette date", another: "Choisissez une autre date d’arrivée", average: "en moyenne par nuit" },
+    he: { minimum: (n: number) => `נדרשים לפחות ${n} לילות`, minimumUnknown: "קיימת מגבלת מינימום לילות", later: "בחרו תאריך עזיבה מאוחר יותר", closed: "אין כניסה בתאריך שבחרתם", another: "בחרו תאריך הגעה אחר", average: "בממוצע ללילה" },
+    en: { minimum: (n: number) => `Minimum stay: ${n} nights`, minimumUnknown: "A minimum stay applies", later: "Choose a later check-out date", closed: "Check-in is closed on this date", another: "Choose another arrival date", average: "average per night" },
+    ru: { minimum: (n: number) => `Минимум ${n} ночей`, minimumUnknown: "Действует минимальный срок проживания", later: "Выберите более позднюю дату выезда", closed: "Заезд в эту дату недоступен", another: "Выберите другую дату заезда", average: "в среднем за ночь" },
+    fr: { minimum: (n: number) => `Séjour minimum : ${n} nuits`, minimumUnknown: "Une durée minimale de séjour s’applique", later: "Choisissez une date de départ plus tardive", closed: "Arrivée impossible à cette date", another: "Choisissez une autre date d’arrivée", average: "en moyenne par nuit" },
   }[language];
   const summary = minimumStayNotMet
     ? { title: restrictions.minimum(displayedAvailability!.minimumNights!), text: restrictions.later }
+    : displayedAvailability?.unavailableReason === "min_nights" ? { title: restrictions.minimumUnknown, text: restrictions.later }
     : displayedAvailability?.unavailableReason === "closed_to_arrival" ? { title: restrictions.closed, text: restrictions.another }
     : stateCopy(state);
   const quickBooking = state === "available-price" && bookingEnabled && !minimumStayNotMet;

@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as
 import type { Property } from "../data/site-data";
 import { boundedSliderIndex } from "./slider-rail-controls";
 
-type GallerySubject = Pick<Property, "name" | "images"> & Partial<Pick<Property, "roomOptions" | "sleepingArrangements" | "videos" | "guestPhotos">>;
+type GallerySubject = Pick<Property, "name" | "images"> & Partial<Pick<Property, "galleryGroups" | "roomOptions" | "sleepingArrangements" | "videos" | "guestPhotos">>;
 
 type GalleryItem = {
   src: string;
@@ -48,9 +48,10 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
   const allItems = useMemo(() => {
     const unitItems = (property.roomOptions || []).flatMap((room) => (room.images?.length ? room.images : room.image ? [room.image] : []).map((src, index) => ({ src, label: `${room.name} ב${property.name}, תמונה ${index + 1}`, category: "units" as const, topic: room.name })));
     const unitBySource = new Map(unitItems.map((item) => [item.src, item]));
-    const placeItems = property.images.map((src, index) => index > 0 && unitBySource.has(src)
-      ? unitBySource.get(src)!
-      : { src, label: `${property.name}, תמונת המקום ${index + 1}`, category: "place" as const, topic: "המקום והמתקנים" });
+    const groupedPlaceItems = property.galleryGroups?.length
+      ? property.galleryGroups.flatMap((group) => group.images.map((src, index) => ({ src, label: `${group.title} ב${property.name}, תמונה ${index + 1}`, category: "place" as const, topic: group.title })))
+      : property.images.map((src, index) => ({ src, label: `${property.name}, תמונת המקום ${index + 1}`, category: "place" as const, topic: "המקום והמתקנים" }));
+    const placeItems = groupedPlaceItems.map((item) => unitBySource.get(item.src) || item);
     return uniqueItems([
       ...placeItems,
       ...unitItems,

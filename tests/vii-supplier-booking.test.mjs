@@ -27,7 +27,7 @@ function fakeFetch(get = new Response(null, { status: 404 }), check = Response.j
 test("creates a supplier booking with no payment and returns the supplier status", async () => {
   const { calls, fetchImpl } = fakeFetch();
   assert.deepEqual(await createSupplierBooking({ ...base, fetchImpl }), {
-    success: true, reference: base.partnerRef, status: "confirmed", bookingID: 7, systemOrderID: 8, replay: false,
+    success: true, reference: base.partnerRef, status: "confirmed", bookingID: 7, systemOrderID: 8, approvalRequired: false, replay: false,
   });
   assert.equal(calls.length, 4);
   assert.deepEqual(calls[3].body, {
@@ -50,6 +50,17 @@ test("price changes and disabled online bookings never reach create", async () =
     await assert.rejects(createSupplierBooking({ ...base, fetchImpl }), (error) => error instanceof BookingError && error.httpStatus === 409);
     assert.equal(calls.length, 3);
   }
+});
+
+test("preserves safe booking status fields and distinct supplier failures", async () => {
+  const accepted = { ...booking, status: "pending_approval", orderType: "preorder", approvalRequired: true, created: "2026-10-22T12:00:00+03:00" };
+  const result = await createSupplierBooking({ ...base, fetchImpl: fakeFetch(Response.json(accepted)).fetchImpl });
+  assert.equal(result.orderType, "preorder");
+  assert.equal(result.approvalRequired, true);
+  assert.equal(result.created, accepted.created);
+
+  const failed = fakeFetch(undefined, undefined, Response.json({ error_code: "online_booking_disabled" }, { status: 409 }));
+  await assert.rejects(createSupplierBooking({ ...base, fetchImpl: failed.fetchImpl }), (error) => error instanceof BookingError && error.code === "online_booking_disabled");
 });
 
 test("unknown create result is not automatically retried", async () => {

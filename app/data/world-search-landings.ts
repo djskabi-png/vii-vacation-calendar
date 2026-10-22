@@ -51,6 +51,16 @@ export function eventSearchHref(location?: string) {
   return locationHref("/events/search", "/events/search", location);
 }
 
+export function eventBreadcrumbForLocation(area: string, location?: string) {
+  const candidate = [area, location]
+    .map((value) => value?.trim())
+    .find((value): value is string => Boolean(value && value !== "הכל" && value !== "כל הארץ"));
+
+  return candidate
+    ? { name: `מקומות לאירועים ב${canonicalSearchLocation(candidate)}`, path: eventSearchHref(candidate) }
+    : { name: "מקומות לאירועים", path: "/events/search" };
+}
+
 export function hourlySearchHref(location?: string) {
   return locationHref("/hourly/search", "/hourly", location);
 }

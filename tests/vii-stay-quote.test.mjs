@@ -41,7 +41,20 @@ test("unpublished site IDs cannot reach the supplier", async () => {
 test('authoritative vacancy restrictions block invalid stays without a fallback price',async()=>{
  const f=supplier({siteID:base.siteID,available:true,cheapest:{from:base.from,till:base.till,rooms:[{roomID:4487}]}},{available:false,reason:'not_sellable',details:{roomID:4487,reasons:['min_nights']}});
  assert.deepEqual(await supplierStayQuote({...base,fetchImpl:f.fetchImpl}),{status:'unavailable',reason:'min_nights'});
- assert.equal(f.calls.length,2);assert.match(f.calls[1].url,/\/vacancy$/);
+ assert.equal(f.calls.length,9);assert.match(f.calls[1].url,/\/vacancy$/);assert.match(f.calls[2].url,/\/calendar\?/);
+});
+
+test('minimum-night rejection is resolved to the first authoritative sellable duration',async()=>{
+ const calls=[];
+ const fetchImpl=async(url,init)=>{
+  if(url.includes('/calendar?'))return Response.json({siteID:base.siteID,rooms:[{roomID:4487,dates:[{date:base.from,minNights:3}]}]});
+  const body=JSON.parse(init.body);calls.push(body.nights);
+  if(url.endsWith('/search'))return Response.json({sites:[{siteID:base.siteID,available:true,cheapest:{from:base.from,till:base.till,rooms:[{roomID:4487}]}}]});
+  if(body.nights<3)return Response.json({available:false,reason:'not_sellable',details:{roomID:4487,reasons:['min_nights']}});
+  return Response.json({available:true,summary:{siteID:base.siteID,from:base.from,till:'2026-10-18',nights:3,currency:'ILS',rooms:[{roomID:4487,pax:{adults:2,kids:0,infants:0}}],totals:{total:1800}}});
+ };
+ assert.deepEqual(await supplierStayQuote({...base,fetchImpl}),{status:'unavailable',reason:'min_nights',minimumNights:3});
+ assert.deepEqual(calls,[1,1]);
 });
 
 test('not_sellable reasons remain distinct and never acquire a fallback price',async()=>{

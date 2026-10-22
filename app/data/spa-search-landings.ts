@@ -60,6 +60,17 @@ export function spaSearchHref(state: SpaSearchState) {
   return segments.length ? `/spas/search/${segments.join("/")}` : "/spas";
 }
 
+export function spaBreadcrumbForLocation(area: string, location?: string) {
+  const candidate = [area, location]
+    .map((value) => value?.trim())
+    .find((value): value is string => Boolean(value && value !== "הכל" && value !== "כל הארץ"));
+  if (!candidate) return { name: "בתי ספא", path: "/spas" };
+  const state = spaSearchStateFromValues(candidate);
+  return state.region
+    ? { name: `ספא ב${state.region.label}`, path: spaSearchHref(state) }
+    : { name: `ספא ב${canonicalSearchLocation(candidate)}`, path: `/spas?location=${encodeURIComponent(canonicalSearchLocation(candidate))}` };
+}
+
 const localizedRegions: Record<Exclude<SpaSearchLanguage, "he">, Record<string, string>> = {
   en: { north: "Northern Israel", haifa: "Haifa", "haifa-carmel": "Haifa and Carmel", kinneret: "the Sea of Galilee", center: "Central Israel", "tel-aviv": "Tel Aviv", "tel-aviv-area": "Tel Aviv and Gush Dan", jerusalem: "Jerusalem", south: "Southern Israel", eilat: "Eilat" },
   fr: { north: "nord d’Israël", haifa: "Haïfa", "haifa-carmel": "Haïfa et Carmel", kinneret: "lac de Tibériade", center: "centre d’Israël", "tel-aviv": "Tel-Aviv", "tel-aviv-area": "Tel-Aviv et Gush Dan", jerusalem: "Jérusalem", south: "sud d’Israël", eilat: "Eilat" },

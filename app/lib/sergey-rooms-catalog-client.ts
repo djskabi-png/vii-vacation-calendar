@@ -1,6 +1,7 @@
 import { parseFragment } from "parse5";
 import type { SupplierCatalogEntry } from "./supplier-catalog-store.ts";
 import { SupplierCatalogRedirectError } from "./supplier-catalog-diagnostics.ts";
+import { buildSergeyAmenityIndex, sergeyAmenityGroups, sergeyAmenityLabels, sergeyRoomType } from "./sergey-amenities.ts";
 
 const root = "https://bizonline.co.il/api/ai/vii";
 
@@ -56,7 +57,7 @@ export function createSergeyRoomsCatalogClient(options: { apiKey: string; fetchI
 
   return {
     async fetchCandidate() {
-      const [listing, locations] = await Promise.all([get("/rooms"), get("/rooms/locations")]);
+      const [listing, locations, types] = await Promise.all([get("/rooms"), get("/rooms/locations"), get("/rooms/types")]);
       if (!Array.isArray(listing.places) || !Array.isArray(locations.cities) || !Array.isArray(locations.areas)) {
         throw new Error("invalid_rooms_catalog");
       }
@@ -67,6 +68,7 @@ export function createSergeyRoomsCatalogClient(options: { apiKey: string; fetchI
       }
       const cities = new Map(locations.cities.map((city) => [record(city).id, record(city)]));
       const areas = new Map(locations.areas.map((area) => [record(area).id, String(record(area).title || "")]));
+      const amenityIndex = buildSergeyAmenityIndex(types);
       const entries = new Array<SupplierCatalogEntry>(active.length);
       let cursor = 0;
       async function worker() {
@@ -77,6 +79,7 @@ export function createSergeyRoomsCatalogClient(options: { apiKey: string; fetchI
           const name = typeof detail.name === "string" ? detail.name.trim() : "";
           if (detail.id !== supplierId || detail.active !== true || !name) throw new Error("invalid_room_identity");
           const city = cities.get(record(detail.location).city);
+          const sharedFeatures = sergeyAmenityLabels(detail.shared_amenities, amenityIndex);
           const rooms = Array.isArray(detail.rooms) ? detail.rooms.map((value) => {
             const room = record(value);
             const id = positive(room.roomID);
@@ -88,10 +91,16 @@ export function createSergeyRoomsCatalogClient(options: { apiKey: string; fetchI
               name: roomName,
               count: positive(room.roomCount),
               maxGuests: positive(room.maxGuests),
-              features: [...new Set(spaces.flatMap((space) => {
+              maxAdults: positive(room.maxAdults),
+              maxKids: positive(room.maxKids),
+              showKidsAndAdults: room.showKidsAndAdults === 1 || room.showKidsAndAdults === true,
+              basisGuests: positive(room.basisGuests),
+              roomType: sergeyRoomType(room.roomType, amenityIndex),
+              features: [...new Set([...sergeyAmenityLabels(room.amenities, amenityIndex), ...spaces.flatMap((space) => {
                 const features = record(space).features;
                 return Array.isArray(features) ? features.map((feature) => plainText(record(feature).description)) : [];
-              }).filter(Boolean))],
+              }).filter(Boolean)])],
+              featureGroups: sergeyAmenityGroups(room.amenities, amenityIndex),
               rates: rates(room.basePrices),
             };
           }) : [];
@@ -103,6 +112,8 @@ export function createSergeyRoomsCatalogClient(options: { apiKey: string; fetchI
             location: String(city?.title || ""),
             area: areas.get(city?.area) || "",
             description: plainText(record(detail.meta).description) || plainText(detail.summary),
+            features: sharedFeatures,
+            featureGroups: sergeyAmenityGroups(detail.shared_amenities, amenityIndex),
             images: pictures(detail.galleries),
             phone: typeof record(detail.contact).phone === "string" ? record(detail.contact).phone : "",
             whatsapp: typeof record(detail.contact).whatsapp === "string" ? record(detail.contact).whatsapp : "",

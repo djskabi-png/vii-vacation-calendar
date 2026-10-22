@@ -89,7 +89,8 @@ export const spaPlacesFromSites = (sites: SpaPlusSite[]): DiscoveryItem[] => sit
 export const spaPlaces: DiscoveryItem[] = spaPlacesFromSites(spaPlusSites);
 
 export const hourlyPlacesFromCatalog = (places: typeof hourlyCatalog.places): DiscoveryItem[] => places.map((place) => {
-  const features = [...new Set(place.rooms.flatMap((room) => room.features))];
+  const catalogPlace = place as typeof place & { features?: string[] };
+  const features = [...new Set([...(catalogPlace.features || []), ...place.rooms.flatMap((room) => room.features)])];
   const oneHourPrices = place.rooms.flatMap((room) => room.rates.filter((rate) => rate.duration === "שעה")
     .flatMap((rate) => [rate.weekday, rate.weekend]).filter((price): price is number => typeof price === "number" && price > 0));
   const startingPrice = oneHourPrices.length ? Math.min(...oneHourPrices) : null;

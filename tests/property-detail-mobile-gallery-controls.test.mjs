@@ -36,9 +36,9 @@ test("full-screen unit galleries expose visible mobile controls and keep grid an
   assert.match(css, /\.story-gallery__workspace\.is-viewer \{\s*overflow: hidden;/);
 });
 
-test("supplier cover remains first even when a unit gallery repeats it", () => {
+test("supplier cover remains first while repeated unit media keeps one consistent unit count", () => {
   assert.match(business, /const placeGalleryImages = property\.images;/);
-  assert.match(galleryExperience, /property\.images\.map\(\(src, index\) => index > 0 && unitBySource\.has\(src\)/);
+  assert.match(galleryExperience, /const placeItems = groupedPlaceItems\.map\(\(item\) => unitBySource\.get\(item\.src\) \|\| item\)/);
 });
 
 test("desktop gallery remains a five-image composition", () => {

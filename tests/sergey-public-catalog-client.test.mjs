@@ -18,6 +18,16 @@ function client(override = {}, extraPlace = false, listOverride = {}) {
     assert.equal(options.headers.Authorization, "Bearer test-key");
     const path = new URL(url).pathname.replace("/api/ai/vii", "");
     if (path === "/locations") return Response.json({ cities: [{ id: 1, title: "חיפה", area: 2 }], areas: [{ id: 2, title: "חיפה והקריות" }] });
+    if (path === "/vacations/types") return Response.json({
+      roomTypes: [{ id: 2, title: "סוויטה" }],
+      amenity_categories: [{ categoryID: 1, categoryName: "מתקנים" }],
+      amenities: [
+        { id: 101, categoryID: 1, title: "חניה פרטית" },
+        { id: 102, categoryID: 1, title: "מכונת כביסה" },
+        { id: 103, categoryID: 1, title: "בריכה", filterTitle: "בריכה" },
+        { id: 104, parentID: 103, categoryID: 1, title: "בריכת אינפיניטי" },
+      ],
+    });
     if (path === "/vacations") return Response.json({ places: [{ siteID: 17, active: true, ...listOverride }, ...(extraPlace ? [{ siteID: 18, active: true }] : [])] });
     if (path === "/vacations/17") return Response.json(detail);
     if (path === "/vacations/18") return Response.json({ ...detail, id: 18, galleries: { main: { title: "סוויטה", pictures } } });
@@ -37,6 +47,36 @@ test("normalizes the full place gallery, rooms, reviews and explicit WhatsApp fi
   assert.equal(detail.reviews.length, 1);
   assert.ok(summary.contact.whatsapp);
   assert.equal(Object.hasOwn(summary, "available"), false);
+});
+
+test("resolves shared and room amenity IDs through the official types contract", async () => {
+  const result = await client({
+    shared_amenities: [{ id: 101, description: "" }],
+    rooms: [{ roomID: 55, roomName: "סוויטה", roomType: 2, roomCount: 1, maxGuests: 4,
+      maxAdults: 2, maxKids: 2, showKidsAndAdults: 1, basisGuests: 2,
+      amenities: [{ id: 102, shown: true, description: "" }], spaces: [] }],
+  }).fetchCandidate("vacations");
+  const { summary, detail } = result.entries[0];
+  assert.equal(summary.type, "סוויטה");
+  assert.ok(summary.features.includes("חניה פרטית"));
+  assert.ok(summary.features.includes("מכונת כביסה"));
+  assert.deepEqual(detail.features, ["חניה פרטית"]);
+  assert.equal(detail.rooms[0].basisGuests, 2);
+  assert.equal(detail.rooms[0].maxAdults, 2);
+  assert.equal(detail.rooms[0].maxKids, 2);
+  assert.equal(detail.rooms[0].showKidsAndAdults, true);
+  assert.equal(detail.rooms[0].roomType, "סוויטה");
+  assert.ok(detail.rooms[0].features.includes("מכונת כביסה"));
+});
+
+test("hidden child amenities remain searchable through the official parent tree without leaking into visible facts", async () => {
+  const result = await client({
+    shared_amenities: [{ id: 104, shown: false, description: "" }],
+  }).fetchCandidate("vacations");
+  const { summary, detail } = result.entries[0];
+  assert.equal(summary.features.includes("בריכת אינפיניטי"), false);
+  assert.equal(detail.features.includes("בריכת אינפיניטי"), false);
+  assert.ok(summary.searchFilterIds.includes("pool"));
 });
 
 test("rejects inactive or mismatched place details", async () => {
@@ -72,6 +112,10 @@ test("keeps supplier gallery order and resolves the Suite Tohar naming differenc
   const { summary, detail } = result.entries[0];
   assert.equal(summary.image, "https://www.vii.co.il/gallery/cover.jpg");
   assert.deepEqual(detail.images.slice(0, 2), ["https://www.vii.co.il/gallery/cover.jpg", "https://www.vii.co.il/gallery/second.jpg"]);
+  assert.deepEqual(detail.galleryGroups, [
+    { title: "גלריה ראשית", images: ["https://www.vii.co.il/gallery/cover.jpg", "https://www.vii.co.il/gallery/second.jpg"] },
+    { title: "סוויטה טוהר", images: ["https://www.vii.co.il/gallery/tohar.jpg"] },
+  ]);
   assert.deepEqual(detail.rooms[0].images, ["https://www.vii.co.il/gallery/tohar.jpg"]);
   assert.deepEqual(detail.rooms[0].featureGroups, [{ title: "סוויטת טוהר", items: ["ג׳קוזי זוגי"] }]);
 });

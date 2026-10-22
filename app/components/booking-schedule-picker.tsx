@@ -88,7 +88,6 @@ export function BookingSchedulePicker({ range, arrival, departure, time, onArriv
     </div>
     <div className="booking-schedule__time-optional">
       <ModernSelect
-        compact
         label={translate("שעת הגעה משוערת, לא חובה")}
         value={time}
         onChange={onTimeChange}

@@ -7,6 +7,13 @@ function object(value: unknown): Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 }
 
+async function supplierBookingError(response: Response) {
+  const value = object(await response.clone().json().catch(() => ({})));
+  const code = typeof value.error_code === "string" ? value.error_code : "";
+  const allowed = new Set(["not_available", "not_sellable", "online_booking_disabled", "booking_not_supported", "in_progress", "ref_used"]);
+  return allowed.has(code) ? code : "";
+}
+
 export class BookingError extends Error {
   code: string;
   httpStatus: number;
@@ -90,7 +97,7 @@ export async function createSupplierBooking(options: {
     throw new BookingError("booking_status_unknown", 503);
   }
   if (!created.ok) {
-    if (created.status === 409) throw new BookingError("not_available", 409);
+    if (created.status === 409) throw new BookingError(await supplierBookingError(created) || "not_available", 409);
     if (created.status === 422) throw new BookingError("invalid_booking", 400);
     throw new BookingError("supplier_unavailable", 503);
   }
@@ -121,6 +128,9 @@ function receipt(raw: unknown, expected: Parameters<typeof createSupplierBooking
     status: value.status as "confirmed" | "pending_approval",
     bookingID: Number.isSafeInteger(value.bookingID) ? value.bookingID as number : null,
     systemOrderID: Number.isSafeInteger(value.systemOrderID) ? value.systemOrderID as number : null,
+    ...(value.orderType === "order" || value.orderType === "preorder" ? { orderType: value.orderType } : {}),
+    approvalRequired: typeof value.approvalRequired === "boolean" ? value.approvalRequired : value.status === "pending_approval",
+    ...(typeof value.created === "string" && !Number.isNaN(Date.parse(value.created)) ? { created: value.created } : {}),
     replay,
   };
 }

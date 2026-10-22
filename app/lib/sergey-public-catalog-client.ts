@@ -3,9 +3,11 @@ import { supplierContactNumber } from "./supplier-contact.ts";
 import { supplierDisplayDescription } from "../data/supplier-display-text.ts";
 import type { SupplierCatalogEntry } from "./supplier-catalog-store.ts";
 import { SupplierCatalogRedirectError } from "./supplier-catalog-diagnostics.ts";
-import { sergeyPlaceImages, sergeyRoomImages, sergeyRoomFeatureGroups } from "./sergey-gallery.ts";
+import { sergeyPlaceGalleryGroups, sergeyPlaceImages, sergeyRoomImages, sergeyRoomFeatureGroups } from "./sergey-gallery.ts";
 import { startingPriceFields } from "./supplier-starting-price.ts";
 import { publicCatalogEntryAllowed } from "./public-catalog-policy.ts";
+import { buildSergeyAmenityIndex, sergeyAmenityGroups, sergeyAmenityLabels, sergeyAmenitySearchLabels, sergeyRoomType, type SergeyAmenityIndex } from "./sergey-amenities.ts";
+import { vacationSearchFilterIdsFromText } from "./vacation-search-filter-index.ts";
 
 type World = "vacations" | "events";
 const root = "https://bizonline.co.il/api/ai/vii";
@@ -35,7 +37,9 @@ function positive(value: unknown) {
   return Number.isSafeInteger(value) && (value as number) > 0 ? value as number : 0;
 }
 
-function accommodationType(name: string, rooms: Record<string, unknown>[], highlights: string[], features: string[]) {
+function accommodationType(name: string, rooms: Record<string, unknown>[], highlights: string[], features: string[], amenityIndex: SergeyAmenityIndex) {
+  const explicit = rooms.map((room) => sergeyRoomType(room.roomType, amenityIndex)).find(Boolean);
+  if (explicit) return explicit;
   const searchable = `${name} ${rooms.map((room) => text(room.roomName)).join(" ")} ${highlights.join(" ")} ${features.slice(0, 8).join(" ")}`;
   if (/וילה/.test(searchable)) return "וילה";
   if (/בקת/.test(searchable)) return "בקתות עץ";
@@ -57,7 +61,7 @@ function coordinates(gps: unknown) {
 }
 
 function normalizePlace(world: World, supplierId: number, rawValue: unknown,
-  cityById: Map<number, Record<string, unknown>>, areaById: Map<number, string>): SupplierCatalogEntry {
+  cityById: Map<number, Record<string, unknown>>, areaById: Map<number, string>, amenityIndex: SergeyAmenityIndex): SupplierCatalogEntry {
   const raw = record(rawValue);
   const name = text(raw.name);
   const images = sergeyPlaceImages(raw.galleries);
@@ -68,13 +72,21 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
   if (!images.length) throw new Error("sergey_place_missing_media");
   const area = areaById.get(Number(city?.area)) || "";
   const rooms = Array.isArray(raw.rooms) ? raw.rooms.map(record) : [];
-  const features = unique(rooms.flatMap((room) => {
+  const sharedAmenities = sergeyAmenitySearchLabels(raw.shared_amenities, amenityIndex);
+  const roomAmenityFilters = rooms.flatMap((room) => sergeyAmenitySearchLabels(room.amenities, amenityIndex));
+  const roomFeatures = unique(rooms.flatMap((room) => {
     const spaces = Array.isArray(room.spaces) ? room.spaces : [];
     return spaces.flatMap((space) => {
       const items = record(space).features;
       return Array.isArray(items) ? items.map((feature) => text(record(feature).description)) : [];
     });
   }));
+  const searchableFeatures = unique([...sharedAmenities, ...roomAmenityFilters, ...roomFeatures]);
+  const visibleFeatures = unique([
+    ...sergeyAmenityLabels(raw.shared_amenities, amenityIndex),
+    ...rooms.flatMap((room) => sergeyAmenityLabels(room.amenities, amenityIndex)),
+    ...roomFeatures,
+  ]);
   const highlights = Array.isArray(raw.highlights) ? raw.highlights.filter((item): item is string => typeof item === "string") : [];
   const units = rooms.reduce((total, room) => total + (positive(room.roomCount) || 1), 0);
   const guests = rooms.length ? Math.max(...rooms.map((room) => positive(room.maxGuests))) : 0;
@@ -88,6 +100,9 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
   const policy = record(raw.policy);
   const detail = {
     images,
+    galleryGroups: sergeyPlaceGalleryGroups(raw.galleries),
+    features: sergeyAmenityLabels(raw.shared_amenities, amenityIndex),
+    featureGroups: sergeyAmenityGroups(raw.shared_amenities, amenityIndex),
     summary: supplierDisplayDescription({ description: plainText(raw.summary), name, location: text(city?.title), area }),
     policy: { checkIn: text(policy.checkIn), checkOut: text(policy.checkOut),
       checkOutSat: text(policy.checkOutSat), remarks: plainText(policy.remarks) },
@@ -99,12 +114,18 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
         name: roomName || "יחידת אירוח",
         quantity: positive(room.roomCount) || 1,
         guests: positive(room.maxGuests),
+        maxAdults: positive(room.maxAdults),
+        maxKids: positive(room.maxKids),
+        showKidsAndAdults: room.showKidsAndAdults === 1 || room.showKidsAndAdults === true,
+        basisGuests: positive(room.basisGuests),
+        roomType: sergeyRoomType(room.roomType, amenityIndex),
         bedrooms: positive(room.bedrooms),
-        features: unique(spaces.flatMap((space) => {
+        area: positive(room.totalSize) || positive(room.roomSize) || undefined,
+        features: unique([...sergeyAmenityLabels(room.amenities, amenityIndex), ...spaces.flatMap((space) => {
           const values = record(space).features;
           return Array.isArray(values) ? values.map((value) => text(record(value).description)) : [];
-        })),
-        featureGroups: sergeyRoomFeatureGroups(room),
+        })]),
+        featureGroups: [...sergeyAmenityGroups(room.amenities, amenityIndex), ...sergeyRoomFeatureGroups(room)],
         images: positive(room.roomID) ? sergeyRoomImages(room, raw.galleries) : [],
       };
     }),
@@ -128,14 +149,17 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
     name,
     location: text(city?.title),
     area,
-    type: world === "vacations" ? accommodationType(name, rooms, highlights, features) : "מקום לאירועים",
+    type: world === "vacations"
+      ? accommodationType(name, rooms, highlights, searchableFeatures, amenityIndex)
+      : rooms.map((room) => sergeyRoomType(room.roomType, amenityIndex)).find(Boolean) || "מקום לאירועים",
     units,
     guests,
     capacityScope: "unit",
     image: images[0],
     images,
     description: text(record(raw.meta).description),
-    features: unique([...highlights, ...features]).slice(0, 24),
+    features: unique([...highlights, ...visibleFeatures]).slice(0, 24),
+    searchFilterIds: vacationSearchFilterIdsFromText([name, text(city?.title), area, text(record(raw.meta).description), ...searchableFeatures]),
     ...(world === "vacations" && highlights.length ? { highlights: highlights.slice(0, 5).map((label) => ({ label, icon: "default" })) } : {}),
     audiences: [],
     badges: [],
@@ -169,12 +193,13 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
 
   return {
     async fetchCandidate(world: World) {
-      const [locations, list] = await Promise.all([get("/locations"), get(`/${world}`)]);
+      const [locations, list, types] = await Promise.all([get("/locations"), get(`/${world}`), get(`/${world}/types`)]);
       if (!Array.isArray(locations.cities) || !Array.isArray(locations.areas) || !Array.isArray(list.places)) {
         throw new Error("invalid_sergey_catalog");
       }
       const cities = new Map(locations.cities.map((value) => [Number(record(value).id), record(value)]));
       const areas = new Map(locations.areas.map((value) => [Number(record(value).id), text(record(value).title)]));
+      const amenityIndex = buildSergeyAmenityIndex(types);
       const active = list.places.map(record).filter((place) => place.active === true);
       const ids = active.map((place) => positive(place.siteID));
       if (!active.length || ids.some((id) => !id) || new Set(ids).size !== ids.length) {
@@ -196,7 +221,7 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
             entries[index] = normalizePlace(world, id, {
               ...detail,
               ...startingPriceFields(active[index]),
-            }, cities, areas);
+            }, cities, areas, amenityIndex);
           } catch (error) {
             if (error instanceof Error && ["sergey_place_missing_media", "supplier_fixture_not_public"].includes(error.message)) {
               entries[index] = null;

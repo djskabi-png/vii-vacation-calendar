@@ -534,8 +534,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       else if (landing?.area) setArea(landing.area);
       else setArea("הכל");
       if (Number.isFinite(requestedGuests)) setGuests(Math.max(1, requestedGuests));
-      setMinPrice(supplierPriceFilterAvailable ? Math.min(requestedMinPrice, requestedMaxPrice) : VACATION_PRICE_MIN);
-      setMaxPrice(supplierPriceFilterAvailable ? Math.max(requestedMinPrice, requestedMaxPrice) : VACATION_PRICE_MAX);
+      setMinPrice(priceFilterAvailable ? Math.min(requestedMinPrice, requestedMaxPrice) : VACATION_PRICE_MIN);
+      setMaxPrice(priceFilterAvailable ? Math.max(requestedMinPrice, requestedMaxPrice) : VACATION_PRICE_MAX);
       if (requestedTypes.length) setSelectedTypes(requestedTypes);
       else if (landingType) setSelectedTypes([landingType]);
       else setSelectedTypes([]);
@@ -547,7 +547,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       setSort(VACATION_SORT_VALUES.includes((params.get("sort") || "recommended") as (typeof VACATION_SORT_VALUES)[number]) ? params.get("sort") || "recommended" : "recommended");
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [VACATION_PRICE_MAX, landing, landingType, language, properties, router, searchQuery, supplierPriceFilterAvailable, supplierTypeFilterAvailable]);
+  }, [VACATION_PRICE_MAX, landing, landingType, language, priceFilterAvailable, properties, router, searchQuery, supplierTypeFilterAvailable]);
 
   useEffect(() => {
     if (!filtersOpen) return;

@@ -20,6 +20,7 @@ export type Listing = {
   bedrooms?: number;
   image: string;
   images: string[];
+  galleryGroups?: Array<{ title: string; images: string[] }>;
   description: string;
   features: string[];
   searchFilterIds?: string[];
@@ -131,6 +132,11 @@ export type StayOption = {
   name: string;
   quantity: number;
   guests: number;
+  maxAdults?: number;
+  maxKids?: number;
+  showKidsAndAdults?: boolean;
+  basisGuests?: number;
+  roomType?: string;
   bedrooms: number;
   area?: number;
   image: string;

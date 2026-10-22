@@ -312,6 +312,7 @@ export default function BookingPageClient(props: Props) {
           if (result.error === "booking_status_unknown") throw new Error("booking_status_unknown");
           if (result.error === "price_changed") throw new Error("price_changed");
           if (result.error === "not_available") throw new Error("not_available");
+          if (["not_sellable", "online_booking_disabled", "booking_not_supported", "in_progress", "ref_used"].includes(result.error || "")) throw new Error(result.error);
           throw new Error("supplier_unavailable");
         }
         saveBooking({ id, reference: result.reference, world: props.world, placeName: props.placeName, offerName: props.offerName,
@@ -354,6 +355,10 @@ export default function BookingPageClient(props: Props) {
         ? "status_unknown"
         : error instanceof Error && error.message === "price_changed" ? "המחיר השתנה אצל המקום. חזרו לבחירת התאריכים כדי לראות מחיר מעודכן."
         : error instanceof Error && error.message === "not_available" ? "היחידה כבר אינה זמינה בתאריכים האלה. בחרו תאריך אחר."
+        : error instanceof Error && error.message === "not_sellable" ? "תנאי המקום אינם מאפשרים את ההרכב או התאריכים האלה. חזרו לעמוד המקום ושנו את הבחירה."
+        : error instanceof Error && ["online_booking_disabled", "booking_not_supported"].includes(error.message) ? "המקום אינו מאפשר להשלים את ההזמנה באתר כרגע. אפשר לפנות אליו ישירות."
+        : error instanceof Error && error.message === "in_progress" ? "בקשת ההזמנה הזו עדיין נבדקת אצל המקום. אל תשלחו אותה שוב; בדקו את הסטטוס בעוד רגע."
+        : error instanceof Error && error.message === "ref_used" ? "מספר הפנייה כבר שויך להזמנה אחרת. הפרטים נשמרו בטופס ולא נשלחה הזמנה נוספת."
         : "ההזמנה לא אושרה מול המקום. הפרטים נשארו בטופס; אפשר לנסות שוב עם אותו מספר פנייה.");
       setState("error");
     }

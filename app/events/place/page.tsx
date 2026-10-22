@@ -9,6 +9,7 @@ import { StructuredData } from "../../components/structured-data";
 import { breadcrumbSchema, eventVenueSchema } from "../../lib/seo";
 import { supplierLegacySlug, unavailableLegacySearchHref } from "../../data/supplier-legacy-links";
 import { liveSupplierPlaceDetail, type SupplierPlaceDetail } from "../../data/supplier-place-detail";
+import { eventBreadcrumbForLocation } from "../../data/world-search-landings";
 
 type Props = { searchParams: Promise<{ id?: string }> };
 
@@ -48,7 +49,7 @@ export default async function Page({ searchParams }: Props) {
     <StructuredData data={breadcrumbSchema([
       { name: "ראשי", path: "/" },
       { name: "אירועים", path: "/events/" },
-      { name: "מקומות לאירועים", path: "/events/search/" },
+      eventBreadcrumbForLocation(place.area, place.location),
       { name: place.name, path: eventPlaceHref(place) },
     ])} />
     <EventPlacePage initialSlug={place.slug} initialPlace={place} relatedPlaces={places} supplierDetail={supplierDetail} />

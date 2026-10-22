@@ -6,12 +6,15 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 import { vacationBreadcrumbForLocation } from "../data/vacation-landings";
+import { eventBreadcrumbForLocation, hourlyBreadcrumbForLocation } from "../data/world-search-landings";
+import { spaBreadcrumbForLocation } from "../data/spa-search-landings";
 import { CalendarDemo, currentSiteDay } from "../calendar-demo";
 import { ListingMap } from "../components/listing-map";
 import { PageShell } from "../components/page-shell";
 import { PropertyCard, resolveAvailabilityForStay } from "../components/property-card";
 import { DiscoveryCard } from "../components/discovery-card";
 import { ListingAccessibility } from "../components/listing-accessibility";
+import { hasVerifiedAccessibilityFeature } from "../data/accessibility-data";
 import { SleepingArrangements } from "../components/sleeping-arrangements";
 import { getListingOfferings, properties, propertyFaq, type BusinessWorld, type ListingFeatureGroup, type ListingHighlightIcon, type Property } from "../data/site-data";
 import { discoveryItems, type DiscoveryItem } from "../data/world-data";
@@ -155,12 +158,15 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
       images: supplierDetail.images.length ? supplierDetail.images : base.images, location: supplierDetail.location || base.location, area: supplierDetail.area || base.area,
       lat: supplierDetail.lat ?? base.lat, lng: supplierDetail.lng ?? base.lng, guests: supplierDetail.guests || base.guests,
       units: supplierDetail.units || base.units, contact: { ...base.contact, ...(supplierDetail.phone ? { phone: supplierDetail.phone } : {}), whatsapp: supplierDetail.whatsapp },
+      galleryGroups: supplierDetail.galleryGroups?.length ? supplierDetail.galleryGroups : base.galleryGroups,
       description: supplierDetail.summary || base.description,
       roomOptions: supplierDetail.rooms.length ? supplierDetail.rooms.map((room) => ({ name: room.name, quantity: room.quantity, guests: room.guests,
-        bedrooms: room.bedrooms, image: room.images?.[0] || "", images: room.images || [], features: room.features,
+        maxAdults: room.maxAdults, maxKids: room.maxKids, showKidsAndAdults: room.showKidsAndAdults, basisGuests: room.basisGuests, roomType: room.roomType,
+        bedrooms: room.bedrooms, area: room.area, image: room.images?.[0] || "", images: room.images || [], features: room.features,
         featureGroups: room.featureGroups,
         ...(room.id ? { supplierRoomID: room.id } : {}) })) : base.roomOptions,
-      features: [...new Set([...(supplierDetail.highlights || []), ...base.features, ...supplierDetail.rooms.flatMap((room) => room.features)])] } : base;
+      featureGroups: supplierDetail.featureGroups?.length ? supplierDetail.featureGroups : base.featureGroups,
+      features: [...new Set([...(supplierDetail.highlights || []), ...(supplierDetail.features || []), ...base.features, ...supplierDetail.rooms.flatMap((room) => room.features)])] } : base;
   }, [initialProperty, initialSlug, supplierDetail]);
   const businessCopy = {
     he: { name: "מקום אירוח מאומת", location: "ישראל", description: (name: string, location: string) => `${name} הוא מקום אירוח ב${location}. בעמוד תוכלו לראות תמונות, מתקנים, יחידות, זמינות ודרכי הזמנה.`, unit: "יחידת אירוח", feature: "מתקן במקום", faqQuestion: "מידע חשוב על המקום", faqAnswer: "הפרטים העדכניים, הזמינות ותנאי ההזמנה מאושרים מול המקום.", policy: "תנאי הביטול והשינויים נמסרים לפני אישור ההזמנה והתשלום.", checkIn: "כניסה", checkOut: "עזיבה", checkOutSat: "עזיבה בשבת", confirmHours: "יש לאשר את השעות מול המקום.", locationTitle: (name: string, location: string, area: string) => `המיקום של ${name} ב${location}, ${area}`, endcap: "אפשר להשוות מקומות נוספים באזור, לבחור מסלול לטיול או למצוא שירות שמגיע עד מקום האירוח.", moreArea: "עוד מקומות באזור" },
@@ -245,12 +251,12 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
     ...(property.roomOptions?.length ? [{ href: "#rooms" as const, label: translate(property.scenario === "multi" ? "סוויטות ויחידות" : "מבנה המקום") }] : []),
     ...(property.bedrooms ? [{ href: "#sleeping" as const, label: translate("איפה ישנים") }] : []),
     { href: "#features", label: translate("מאפיינים") },
-    { href: "#accessibility", label: translate("נגישות") },
+    ...(hasVerifiedAccessibilityFeature(property.features) ? [{ href: "#accessibility" as const, label: translate("נגישות") }] : []),
     { href: "#location", label: translate("מיקום") },
     { href: "#faq", label: translate("שאלות ותשובות") },
     { href: "#reviews", label: translate("חוות דעת") },
     { href: "#policies", label: translate("חשוב לדעת") },
-  ], [property.bedrooms, property.roomOptions?.length, property.scenario, translate]);
+  ], [property.bedrooms, property.features, property.roomOptions?.length, property.scenario, translate]);
   const roomQuantity = property.roomOptions?.reduce((total, room) => total + room.quantity, 0) || 0;
   const highlights = (property.highlights?.length ? property.highlights : property.features.map((label) => ({ label, icon: highlightIconFor(label) }))).slice(0, 5);
   const featureGroups = property.featureGroups?.length ? property.featureGroups : derivedFeatureGroups(property.features);
@@ -286,11 +292,11 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
       <main id="main-content" className="property-page">
         <ViewedItemTracker id={property.slug} world={activeWorld} name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={`/business?id=${property.slug}${activeWorld === offerings[0].world ? "" : `&mode=${activeWorld}`}`} meta={property.guests > 0 ? `${property.type} · עד ${property.guests} אורחים` : property.type} />
         <BreadcrumbTrail items={activeWorld === "events"
-          ? [{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, { name: "מקומות לאירועים", path: "/events/search" }, { name: localizedPropertyName }]
+          ? [{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, eventBreadcrumbForLocation(property.area, property.location), { name: localizedPropertyName }]
           : activeWorld === "spa"
-            ? [{ name: "ראשי", path: "/" }, { name: "בתי ספא", path: "/spas" }, { name: localizedPropertyName }]
+            ? [{ name: "ראשי", path: "/" }, { name: "בתי ספא", path: "/spas" }, spaBreadcrumbForLocation(property.area, property.location), { name: localizedPropertyName }]
             : activeWorld === "hourly"
-              ? [{ name: "ראשי", path: "/" }, { name: "חדרים לפי שעה", path: "/hourly" }, { name: localizedPropertyName }]
+              ? [{ name: "ראשי", path: "/" }, { name: "חדרים לפי שעה", path: "/hourly" }, hourlyBreadcrumbForLocation(property.area, property.location), { name: localizedPropertyName }]
               : [{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, vacationBreadcrumbForLocation(property.area),
                 ...(property.location && property.location !== property.area ? [{ name: `נופש ב${localizedLocation}`, path: `/search?location=${encodeURIComponent(property.location)}` }] : []),
                 { name: localizedPropertyName }]} />

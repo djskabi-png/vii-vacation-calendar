@@ -4,7 +4,8 @@ import { supplierDisplayDescription } from "./supplier-display-text.ts";
 import catalog from "./sergey-public-catalog.json" with { type: "json" };
 import { unknownReviewer } from "../i18n/vii-live-search-copy.ts";
 import { supplierContactNumber } from "../lib/supplier-contact.ts";
-import { sergeyPlaceImages, sergeyRoomImages, sergeyRoomFeatureGroups } from "../lib/sergey-gallery.ts";
+import { sergeyPlaceGalleryGroups, sergeyPlaceImages, sergeyRoomImages, sergeyRoomFeatureGroups } from "../lib/sergey-gallery.ts";
+import { buildSergeyAmenityIndex, sergeyAmenityGroups, sergeyAmenityLabels, sergeyRoomType } from "../lib/sergey-amenities.ts";
 
 export type SupplierPlaceDetail = {
   name?: string;
@@ -17,10 +18,13 @@ export type SupplierPlaceDetail = {
   phone?: string;
   whatsapp?: string;
   highlights?: string[];
+  features?: string[];
+  featureGroups?: Array<{ title: string; items: string[] }>;
   images: string[];
+  galleryGroups?: Array<{ title: string; images: string[] }>;
   summary: string;
   policy: { checkIn: string; checkOut: string; checkOutSat: string; remarks: string };
-  rooms: Array<{ id?: number; name: string; quantity: number; guests: number; bedrooms: number; features: string[]; featureGroups?: Array<{ title: string; items: string[] }>; images?: string[] }>;
+  rooms: Array<{ id?: number; name: string; quantity: number; guests: number; maxAdults?: number; maxKids?: number; showKidsAndAdults?: boolean; basisGuests?: number; roomType?: string; bedrooms: number; area?: number; features: string[]; featureGroups?: Array<{ title: string; items: string[] }>; images?: string[] }>;
   reviews: Array<{ id: number; author: string; title: string; text: string; date: string; score?: number; response: string; pictureFiles: string[] }>;
   sourceUrl: string;
   reviewCount?: number;
@@ -52,9 +56,10 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
     const fetchImpl = options.fetchImpl ?? fetch;
     const world = match[1] === "vacation" ? "vacations" : "events";
     const headers = { Authorization: `Bearer ${token}`, Accept: "application/json" };
-    const [response, locationResponse] = await Promise.all([
+    const [response, locationResponse, typesResponse] = await Promise.all([
       fetchImpl(`https://bizonline.co.il/api/ai/vii/${world}/${match[2]}`, { headers, cache: "no-store", signal: AbortSignal.timeout(12_000) }),
       fetchImpl("https://bizonline.co.il/api/ai/vii/locations", { headers, cache: "no-store", signal: AbortSignal.timeout(6_000) }).catch(() => null),
+      fetchImpl(`https://bizonline.co.il/api/ai/vii/${world}/types`, { headers, cache: "no-store", signal: AbortSignal.timeout(6_000) }).catch(() => null),
     ]);
     if (!response.ok) return fallback;
     const detail = record(await response.json());
@@ -68,6 +73,7 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
     const locations = locationResponse?.ok ? record(await locationResponse.json().catch(() => ({}))) : {};
     const cities = Array.isArray(locations.cities) ? locations.cities : [];
     const areas = Array.isArray(locations.areas) ? locations.areas : [];
+    const amenityIndex = buildSergeyAmenityIndex(typesResponse?.ok ? await typesResponse.json().catch(() => ({})) : {});
     const city = record(cities.find((value) => record(value).id === record(detail.location).city));
     const area = record(areas.find((value) => record(value).id === city.area));
     const gps = record(detail.gps);
@@ -88,7 +94,10 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
       ...(phone ? { phone } : {}),
       ...(whatsapp ? { whatsapp } : {}),
       highlights: Array.isArray(detail.highlights) ? detail.highlights.map(plain).filter(Boolean) : [],
+      features: sergeyAmenityLabels(detail.shared_amenities, amenityIndex),
+      featureGroups: sergeyAmenityGroups(detail.shared_amenities, amenityIndex),
       images,
+      galleryGroups: sergeyPlaceGalleryGroups(detail.galleries),
       summary: supplierDisplayDescription({ description: plain(detail.summary), name: typeof detail.name === "string" ? detail.name : listing.name, location: typeof city.title === "string" ? city.title : listing.location, area: typeof area.title === "string" ? area.title : listing.area }),
       policy: {
         checkIn: typeof policy.checkIn === "string" ? policy.checkIn : "",
@@ -107,12 +116,19 @@ export async function liveSupplierPlaceDetail(slug: string, options: { token?: s
           name: roomName || "יחידת אירוח",
           quantity: typeof room.roomCount === "number" && room.roomCount > 0 ? room.roomCount : 1,
           guests: typeof room.maxGuests === "number" && room.maxGuests > 0 ? room.maxGuests : 0,
+          maxAdults: typeof room.maxAdults === "number" && room.maxAdults > 0 ? room.maxAdults : undefined,
+          maxKids: typeof room.maxKids === "number" && room.maxKids > 0 ? room.maxKids : undefined,
+          showKidsAndAdults: room.showKidsAndAdults === 1 || room.showKidsAndAdults === true,
+          basisGuests: typeof room.basisGuests === "number" && room.basisGuests > 0 ? room.basisGuests : undefined,
+          roomType: sergeyRoomType(room.roomType, amenityIndex) || undefined,
           bedrooms: typeof room.bedrooms === "number" && room.bedrooms > 0 ? room.bedrooms : 0,
-          features: [...new Set(spaces.flatMap((value) => {
+          area: typeof room.totalSize === "number" && room.totalSize > 0 ? room.totalSize
+            : typeof room.roomSize === "number" && room.roomSize > 0 ? room.roomSize : undefined,
+          features: [...new Set([...sergeyAmenityLabels(room.amenities, amenityIndex), ...spaces.flatMap((value) => {
             const features = record(value).features;
             return Array.isArray(features) ? features.map((feature) => plain(record(feature).description)).filter(Boolean) : [];
-          }))],
-          featureGroups: sergeyRoomFeatureGroups(room),
+          })])],
+          featureGroups: [...sergeyAmenityGroups(room.amenities, amenityIndex), ...sergeyRoomFeatureGroups(room)],
           images: roomImages,
         };
       }) : fallback.rooms.map((room) => {

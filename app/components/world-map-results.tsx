@@ -77,6 +77,7 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
   useEffect(() => {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(requestedDate)) return;
     const controller = new AbortController();
+    const deadline = window.setTimeout(() => controller.abort(new DOMException("Spa availability timed out", "TimeoutError")), 6_000);
     const timer = window.setTimeout(() => setAvailability({ status: "loading", checkedDate: requestedDate, dates: [], sites: new Map() }), 0);
     fetch("/api/spa/availability", { signal: controller.signal })
       .then((response) => { if (!response.ok) throw new Error("availability_unavailable"); return response.json(); })
@@ -87,7 +88,7 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
         setAvailability({ status: "ready", checkedDate: requestedDate, dates, sites });
       })
       .catch(() => { if (!controller.signal.aborted) setAvailability({ status: "unavailable", checkedDate: requestedDate, dates: [], sites: new Map() }); });
-    return () => { window.clearTimeout(timer); controller.abort(); };
+    return () => { window.clearTimeout(timer); window.clearTimeout(deadline); controller.abort(); };
   }, [requestedDate, availabilityRetry]);
   const [visibleMapCount, setVisibleMapCount] = useState(0);
   const [mapVisibleIds, setMapVisibleIds] = useState<string[] | null>(null);

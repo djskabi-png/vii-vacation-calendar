@@ -57,6 +57,12 @@ function loadTranslations(language: GeneratedLanguage) {
 
 const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, string>> = {
   en: {
+    "תנאי המקום אינם מאפשרים את ההרכב או התאריכים האלה. חזרו לעמוד המקום ושנו את הבחירה.": "The property rules do not allow this party or these dates. Return to the property page and change your selection.",
+    "המקום אינו מאפשר להשלים את ההזמנה באתר כרגע. אפשר לפנות אליו ישירות.": "This property cannot complete the booking online right now. You can contact it directly.",
+    "בקשת ההזמנה הזו עדיין נבדקת אצל המקום. אל תשלחו אותה שוב; בדקו את הסטטוס בעוד רגע.": "This booking request is still being checked by the property. Do not send it again; check the status shortly.",
+    "מספר הפנייה כבר שויך להזמנה אחרת. הפרטים נשמרו בטופס ולא נשלחה הזמנה נוספת.": "This enquiry reference is already linked to another booking. Your details remain in the form and no additional booking was sent.",
+    "קיימת מגבלת מינימום לילות": "A minimum-stay restriction applies",
+    "גלריה": "Gallery",
     "לאגו סוויט": "Lago Suite",
     "הדיל שבחרתם": "Your selected deal",
     "בודקים שוב את המחיר והזמינות": "Rechecking price and availability",
@@ -179,6 +185,12 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "These cards are search shortcuts. Availability and final pricing are confirmed after selecting dates and guests.",
   },
   ru: {
+    "תנאי המקום אינם מאפשרים את ההרכב או התאריכים האלה. חזרו לעמוד המקום ושנו את הבחירה.": "Правила объекта не позволяют выбрать этот состав гостей или эти даты. Вернитесь на страницу объекта и измените выбор.",
+    "המקום אינו מאפשר להשלים את ההזמנה באתר כרגע. אפשר לפנות אליו ישירות.": "Сейчас этот объект не позволяет завершить бронирование на сайте. Можно связаться с ним напрямую.",
+    "בקשת ההזמנה הזו עדיין נבדקת אצל המקום. אל תשלחו אותה שוב; בדקו את הסטטוס בעוד רגע.": "Объект ещё проверяет этот запрос на бронирование. Не отправляйте его повторно; проверьте статус чуть позже.",
+    "מספר הפנייה כבר שויך להזמנה אחרת. הפרטים נשמרו בטופס ולא נשלחה הזמנה נוספת.": "Этот номер обращения уже связан с другим бронированием. Данные сохранены в форме, дополнительное бронирование не отправлено.",
+    "קיימת מגבלת מינימום לילות": "Действует ограничение на минимальный срок проживания",
+    "גלריה": "Галерея",
     "לאגו סוויט": "Lago Suite",
     "הדיל שבחרתם": "Выбранное предложение",
     "בודקים שוב את המחיר והזמינות": "Повторно проверяем цену и наличие",
@@ -311,6 +323,12 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "Карточки ведут к поиску. Наличие мест и итоговая цена подтверждаются после выбора дат и состава гостей.",
   },
   fr: {
+    "תנאי המקום אינם מאפשרים את ההרכב או התאריכים האלה. חזרו לעמוד המקום ושנו את הבחירה.": "Les règles de l’établissement ne permettent pas cette composition ou ces dates. Revenez à la page de l’établissement et modifiez votre choix.",
+    "המקום אינו מאפשר להשלים את ההזמנה באתר כרגע. אפשר לפנות אליו ישירות.": "Cet établissement ne permet pas de finaliser la réservation en ligne pour le moment. Vous pouvez le contacter directement.",
+    "בקשת ההזמנה הזו עדיין נבדקת אצל המקום. אל תשלחו אותה שוב; בדקו את הסטטוס בעוד רגע.": "Cette demande de réservation est encore en cours de vérification par l’établissement. Ne la renvoyez pas et consultez son statut dans un instant.",
+    "מספר הפנייה כבר שויך להזמנה אחרת. הפרטים נשמרו בטופס ולא נשלחה הזמנה נוספת.": "Cette référence est déjà liée à une autre réservation. Vos informations restent dans le formulaire et aucune réservation supplémentaire n’a été envoyée.",
+    "קיימת מגבלת מינימום לילות": "Une durée minimale de séjour s’applique",
+    "גלריה": "Galerie",
     "לאגו סוויט": "Lago Suite",
     "הדיל שבחרתם": "Votre offre",
     "בודקים שוב את המחיר והזמינות": "Nouvelle vérification du prix et de la disponibilité",

@@ -18,6 +18,13 @@ function images(galleries: Gallery[]): string[] {
     ? gallery.pictures.map(imageUrl).filter((url): url is string => Boolean(url)) : []))];
 }
 
+export function sergeyPlaceGalleryGroups(galleries: unknown): Array<{ title: string; images: string[] }> {
+  return galleryList(galleries).map((gallery, index) => ({
+    title: typeof gallery.title === "string" && gallery.title.trim() ? gallery.title.trim() : `גלריה ${index + 1}`,
+    images: images([gallery]),
+  })).filter((gallery) => gallery.images.length);
+}
+
 function comparableTitle(value: unknown): string {
   return typeof value === "string" ? value.trim().replace(/\s+/g, " ").replace(/^סוויטת(?=\s)/, "סוויטה") : "";
 }

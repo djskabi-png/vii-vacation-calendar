@@ -32,12 +32,7 @@ export function useViiLiveSearch(world: LiveSearchWorld, from: string | null, ti
       cache: "no-store" as const,
       signal: controller.signal,
     };
-    const request = includePlaces && world === "events"
-      ? discoveryJson("/api/vii/live-search", `${from}:${till}`, init)
-      : fetch("/api/vii/live-search", init).then(async (response) => {
-      if (!response.ok) throw new Error("supplier_unavailable");
-      return response.json();
-    });
+    const request = discoveryJson("/api/vii/live-search", `${world}:${from}:${till}:${includePlaces ? "places" : "results"}`, init);
     (request as Promise<{ cache?:{status:string}; region?: string; expandedRegion?: boolean; regionalOrder?: number[]; checkedAt: string | null; results: LiveSearchResult[]; places?: EventDealPlace[] }>).then((result) => {
       if (!Array.isArray(result.results) || (includePlaces && result.region !== region)) throw new Error("invalid_result");
       if (!controller.signal.aborted) setValue({ key, state: {

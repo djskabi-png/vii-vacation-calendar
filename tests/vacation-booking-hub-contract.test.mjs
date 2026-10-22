@@ -110,6 +110,6 @@ test("the selected cabin is preserved in the booking summary", async () => {
   assert.match(page, /offerName: selectedUnit \? `בקשת הזמנה ל\$\{selectedUnit\.name\}`/);
   assert.doesNotMatch(page, /unit\?: string/);
   assert.match(client, /translate\(props\.offerName\)/);
-  assert.match(page, /includedGuests: selectedUnit\?\.guests \|\| property\.guests/);
+  assert.match(page, /includedGuests: selectedUnit\?\.basisGuests \|\| selectedUnit\?\.guests \|\| property\.guests/);
   assert.match(client, /המחיר כולל עד \$\{props\.includedGuests\} אורחים/);
 });

@@ -70,3 +70,30 @@ test("a temporarily empty supplier room list does not erase accepted units", asy
   assert.equal(detail.units, 3);
   assert.equal(detail.guests, 7);
 });
+
+test("live detail restores supplier amenities and capacity fields from the types endpoint", async () => {
+  const detail = await liveSupplierPlaceDetail("vacation-1", {
+    token: "test-token",
+    fetchImpl: async (url) => {
+      if (url.endsWith("/locations")) return Response.json({});
+      if (url.endsWith("/vacations/types")) return Response.json({
+        roomTypes: [{ id: 7, title: "וילה" }],
+        amenity_categories: [{ categoryID: 9, categoryName: "אבזור" }],
+        amenities: [{ id: 70, categoryID: 9, title: "מייבש כביסה" }, { id: 71, categoryID: 9, title: "חניה פרטית" }],
+      });
+      return Response.json({
+        id: 1, active: true, name: "בדיקה", location: {}, galleries: { main: { pictures: ["/gallery/main.jpg"] } },
+        shared_amenities: [{ id: 71, description: "" }],
+        rooms: [{ roomID: 9, roomName: "הווילה", roomType: 7, roomCount: 1, maxGuests: 10,
+          maxAdults: 8, maxKids: 2, showKidsAndAdults: 1, basisGuests: 6,
+          amenities: [{ id: 70, shown: true, description: "" }], spaces: [] }],
+      });
+    },
+  });
+  assert.deepEqual(detail.features, ["חניה פרטית"]);
+  assert.equal(detail.rooms[0].roomType, "וילה");
+  assert.equal(detail.rooms[0].basisGuests, 6);
+  assert.equal(detail.rooms[0].maxAdults, 8);
+  assert.equal(detail.rooms[0].maxKids, 2);
+  assert.ok(detail.rooms[0].features.includes("מייבש כביסה"));
+});

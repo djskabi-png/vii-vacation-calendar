@@ -56,11 +56,15 @@ function searchablePropertyText(property: Property) {
     .toLocaleLowerCase("he");
 }
 
-export function vacationSearchFilterIds(property: Property) {
-  const searchable = searchablePropertyText(property);
+export function vacationSearchFilterIdsFromText(values: readonly string[]) {
+  const searchable = values.join(" ").toLocaleLowerCase("he");
   return Object.entries(vacationSearchFilterTerms)
     .filter(([, terms]) => terms.some((term) => searchable.includes(term.toLocaleLowerCase("he"))))
     .map(([id]) => id);
+}
+
+export function vacationSearchFilterIds(property: Property) {
+  return vacationSearchFilterIdsFromText([searchablePropertyText(property)]);
 }
 
 export function matchesVacationSearchFilter(property: Property, id: string) {
