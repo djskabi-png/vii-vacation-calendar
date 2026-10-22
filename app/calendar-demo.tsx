@@ -482,6 +482,21 @@ export function CalendarDemo({
           </div>
         )}
 
+        {mode === "business" ? <div className="dialog-date-summary" aria-label="סיכום בחירת התאריכים">
+          <div className={checkIn ? "selected" : ""}>
+            <span>הגעה</span>
+            <strong>{shortDate(checkIn, dateLocale)}</strong>
+            <small>{checkIn ? effectiveResolver(dateFromKey(checkIn)).label : "בחרו את הלילה הראשון"}</small>
+          </div>
+          <span className="date-arrow" aria-hidden="true">←</span>
+          <div className={checkOut ? "selected" : ""}>
+            <span>עזיבה</span>
+            <strong>{shortDate(checkOut, dateLocale)}</strong>
+            <small>{checkOut ? nights === 1 ? "לילה אחד" : `${nights} לילות` : selectedMin === 1 ? "לפחות לילה אחד" : `לפחות ${selectedMin} לילות`}</small>
+          </div>
+          <span className="night-count">{checkIn && checkOut ? nights === 1 ? "לילה אחד" : `${nights} לילות` : selectedMin > 1 ? `מינימום ${selectedMin} לילות` : "בחירת טווח"}</span>
+        </div> : null}
+
         {flexible ? (
           <div className="flexible-content">
             <p className="flexible-content__intro">{translate("לא חייבים לבחור ימים מדויקים. בחרו משך, חודש וטווח גמישות, ואנחנו נחפש את האפשרויות המתאימות.")}</p>
@@ -539,11 +554,11 @@ export function CalendarDemo({
                 <span>{translate(mode === "home" ? "חיפוש מהיר" : "מציאת טווח פנוי")}</span>
                 {QUICK_STAYS.map((stay) => <button type="button" key={stay.id} onClick={() => applyQuickStay(stay.id)}>{translate(stay.label)}</button>)}
               </div>
-              {mode === "home" && <div className="month-nav calendar-month-nav" aria-label={translate("ניווט בין חודשים")}>
+              <div className="month-nav calendar-month-nav" aria-label={translate("ניווט בין חודשים")}>
                 <button type="button" onClick={() => setVisibleMonthIndex((index) => Math.max(0, index - 1))} disabled={visibleMonthIndex === 0} aria-label={translate("הצגת החודשים הקודמים")}>‹</button>
                 <span>{monthLabel(visibleMonths[visibleMonthIndex], dateLocale)} · {monthLabel(visibleMonths[Math.min(visibleMonthIndex + 1, visibleMonths.length - 1)], dateLocale)}</span>
                 <button type="button" onClick={() => setVisibleMonthIndex((index) => Math.min(visibleMonths.length - 2, index + 1))} disabled={visibleMonthIndex >= visibleMonths.length - 2} aria-label={translate("הצגת החודשים הבאים")}>›</button>
-              </div>}
+              </div>
             </div>
 
             <div className="dialog-months" aria-label="אופן בחירת תאריכים">

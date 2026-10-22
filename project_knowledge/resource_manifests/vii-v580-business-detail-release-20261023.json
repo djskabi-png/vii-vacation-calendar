@@ -1,0 +1,8 @@
+{
+  "task": "vii-v580-business-detail-release-20261023",
+  "workspace": "C:/Users/Adir/Documents/vii.co.il/.release-v580-business-detail",
+  "owner": "current-codex-task",
+  "resources": [],
+  "status": "verified_no_owned_processes",
+  "cleanup": "No long-lived process may remain after verification. One-shot pnpm install, tests and build are allowed."
+}

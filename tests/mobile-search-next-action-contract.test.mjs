@@ -12,11 +12,11 @@ test("home date selection advances to guests instead of claiming to show results
   assert.match(css, /\.mode-home \.confirm-dates\s*\{[^}]*background:\s*#222;/);
 });
 
-test("vacation calendar uses continuous complete months and one footer summary", () => {
+test("vacation calendar keeps complete month data while business mode restores its selection summary and paging", () => {
   assert.match(calendar, /visibleMonths = Array\.from\(\{ length: 12 \}/);
   assert.match(calendar, /visibleMonths\.map/);
-  assert.doesNotMatch(calendar, /className="dialog-date-summary"/);
-  assert.doesNotMatch(calendar, /className="month-nav"/);
+  assert.match(calendar, /mode === "business" \? <div className="dialog-date-summary"/);
+  assert.match(calendar, /className="month-nav calendar-month-nav"/);
   assert.match(calendar, /longDate\(checkIn, dateLocale\).*longDate\(checkOut, dateLocale\)/);
   assert.doesNotMatch(css, /\.secondary-month\s*\{[^}]*display:\s*none/);
   assert.match(css, /scroll-snap-type:\s*y proximity/);
