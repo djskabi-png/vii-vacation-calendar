@@ -95,9 +95,13 @@ test("event rail keeps only quick date tabs while further event refinement stays
   assert.match(slider, /supplierStartingPrice\(startingPrices\[place\.slug\] \|\| place\)/);
   assert.match(slider, /priority: place => supplierStartingPrice\(startingPrices\[place\.slug\] \?\? place\) \? 0 : 1/);
   assert.match(slider, /<CatalogStartingPrice amount=\{startingPrice\}/);
-  assert.match(slider, /text\.check/);
+  assert.match(slider, /selectedAvailability/);
+  assert.match(slider, /text\.today/);
+  assert.match(slider, /text\.tomorrow/);
+  assert.match(slider, /text\.thursday/);
+  assert.match(slider, /text\.friday/);
   assert.match(slider, /eventPlaceHref\(place\)/);
   assert.match(slider, /busy && !additionalPlaces\.length/);
   assert.match(slider, /search\.status === "error" && !additionalPlaces\.length/);
-  assert.doesNotMatch(slider, /event-deals__card--browse[\s\S]{0,500}text\.available/);
+  assert.doesNotMatch(slider, /בדיקת זמינות בעמוד המקום/);
 });
