@@ -50,6 +50,15 @@ test("business performance provides filters, explicit funnel ratios and local ex
   assert.doesNotMatch(route, /response\.text\(|response\.json\(\).*console/);
 });
 
+test("admin booking status lookup is read-only, private and excludes guest details", async () => {
+  const route = await read("app/api/admin/booking-status/route.ts");
+  assert.match(route, /authorizedAdminSession/);
+  assert.match(route, /method:\s*"GET"|fetch\(`/);
+  assert.match(route, /found:\s*false/);
+  assert.match(route, /Cache-Control":\s*"private, no-store"/);
+  assert.doesNotMatch(route, /guest|phone|email|remarks|response\.text\(/i);
+});
+
 test("growth center reports verified local capabilities and honest external connection state", async () => {
   const [page, sitemapDetails, sitemapRoute] = await Promise.all([read("app/admin/growth/page.tsx"), read("app/admin/growth/sitemap-details.tsx"), read("app/api/admin/sitemap/route.ts")]);
   assert.match(page, /\/sitemap\.xml/);
