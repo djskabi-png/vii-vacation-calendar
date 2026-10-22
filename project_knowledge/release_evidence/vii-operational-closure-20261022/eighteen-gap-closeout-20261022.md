@@ -23,6 +23,6 @@ Observed on 22 October 2026. `done` means evidence exists at the natural destina
 
 Public identity: version 574, commit `7215b55156c9804bb4af7ac83055f4a1b6e262ec`, deployment `appgdep_6ad972fdf78c819185c771600e647274`.
 
-Candidate baseline: commit `c121f38ad27a047cc60d0e861629a6c80b9cb692`, plus the portable business-performance SQL repair recorded by `project_knowledge/diagnoses/vii-business-performance-aurora-20261022.json` in this closeout change.
+Candidate identity: the current release-branch HEAD contains the booking-fix baseline, the portable business-performance SQL repair and this closeout evidence. The causal repair commit is `67329bc`.
 
 Deployment state: two bounded version-575 attempts failed before build while retrieving pnpm from the external npm registry, first HTTP 502 and then timeout. The path was not retried a third time without a causal change.
