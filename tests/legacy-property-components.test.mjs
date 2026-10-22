@@ -26,5 +26,6 @@ test("highlight strip is a five-column desktop row and a safe mobile scroller", 
   assert.match(css, /\.property-highlights \{ display: grid; grid-template-columns: repeat\(5,minmax\(0,1fr\)\)/);
   assert.match(css, /grid-auto-columns: 132px/);
   assert.match(css, /scroll-snap-type: inline mandatory/);
-  assert.match(css, /\.property-feature-groups \{ grid-template-columns: 1fr; \}/);
+  assert.match(css, /\.property-feature-groups\s*\{[^}]*columns:\s*2/s);
+  assert.match(css, /@media[^{}]*max-width:[^{}]*\{[\s\S]*?\.property-feature-groups\s*\{\s*columns:\s*1;/s);
 });

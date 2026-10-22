@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
 import { resolve, relative } from "node:path";
 import ts from "typescript";
+import { hourlyEntryMode } from "../app/lib/hourly-entry.ts";
 
 const root = resolve(import.meta.dirname, "..");
 const internalCopy = /\bAPI\b|מקור הנתונים|ספק[י]? (?:הסליקה|סליקה)|לאחר (?:ה)?חיבור (?:המערכת|מערכת|מערכות|פרטי העסק)|יחוברו למערכת|בקטלוג הנוכחי|מהקטלוג הפעיל|מערכת (?:ההזמנות|הספק)|החיבור למערכת|מחיר או תאריך מחובר|מול המערכת לפני|תוצאה שחזרה מהמערכת|אומת מול האתר הרשמי של מאסו|מערכת האירועים|מערכת הלידים|לאחר שיוך ואימות|event system|системе мероприятий|מול ביז|נתוני זמינות מביז|מקומות שביז|משבצת פנויה|שנמסרו מספא פלוס|מנוע ההזמנות|מחיר מחובר|מקור המידע|שיוך מאומת|התמונות אומתו|נבדקו באוגוסט/iu;
@@ -72,7 +73,7 @@ test("hourly data and localized visitor guidance preserve useful truth without i
   const transpiled = ts.transpileModule(source.replace(/^import .*;\r?\n/gm, ""), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText;
   const module = { exports: {} };
   const catalog = JSON.parse(await readFile(resolve(root, "app/data/sergey-hourly-catalog.json"), "utf8"));
-  new Function("exports", "hourlyCatalog", transpiled)(module.exports, catalog);
+  new Function("exports", "hourlyCatalog", "hourlyEntryMode", transpiled)(module.exports, catalog, hourlyEntryMode);
   const realPlace = catalog.places.find((place) => place.id === "hourly-1891");
   assert.ok(realPlace);
   const details = module.exports.getHourlyDetails({ id: realPlace.id, description: "תיאור המקום", features: [] }, realPlace);
