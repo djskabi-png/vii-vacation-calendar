@@ -1,0 +1,46 @@
+{
+  "verdict": "blocked",
+  "release": "candidate 6dbe53fc4e208ab46c15d2f8faa667780d960435; public remains version 574 at 7215b55156c9804bb4af7ac83055f4a1b6e262ec",
+  "target": "https://vii.spaplus.co and authenticated /admin/business-performance",
+  "baseline": "Public version 574, deployment appgdep_6ad972fdf78c819185c771600e647274",
+  "requested_outcome": "Remove every immediately controllable item from the 18-gap list without claiming unpublished or unverified work as complete.",
+  "changed_components": [
+    "Aurora-backed booking rate limiter baseline",
+    "portable business-performance aggregate query",
+    "executable search/availability matrix evidence",
+    "public runtime distribution evidence",
+    "18-gap closeout record and current master-plan checkpoint"
+  ],
+  "affected_family": [
+    {"id":"FAM-1","surface":"authenticated business-performance report and supplier conversions"},
+    {"id":"FAM-2","surface":"public search, availability and route families"},
+    {"id":"FAM-3","surface":"catalog scheduler, safe refresh and accepted generations"},
+    {"id":"FAM-4","surface":"booking rate limit and readback"},
+    {"id":"FAM-5","surface":"public map snapshots"}
+  ],
+  "characteristics": {"stateful":true,"responsive":true},
+  "checks": [
+    {"id":"CHK-1","family_ids":["FAM-1"],"state":"permission","status":"passed","evidence":"Public v574 anonymous conversions returns 403/private no-store; authorized vacation-2566 aggregate for 2026-09-23 through 2026-10-22 returned 9 aggregate contacts without raw contacts or credentials."},
+    {"id":"CHK-2","family_ids":["FAM-1"],"state":"failure","status":"passed","evidence":"Public v574 base funnel 503 was reproduced, diagnosed as SUM(boolean) Aurora incompatibility, fixed with CASE WHEN, and validated by 14/14 focused tests plus TypeScript."},
+    {"id":"CHK-3","family_ids":["FAM-2"],"state":"success","status":"passed","evidence":"Public v574 availability runner passed TC-01, TC-02, TC-03, TC-04, TC-05 and TC-10; 48 cold/warm HTTP samples across eight route families passed."},
+    {"id":"CHK-4","family_ids":["FAM-2"],"state":"responsive","status":"blocked","evidence":"The browser interaction harness failed once from a destroyed navigation context and once because its first /events link was hidden. No third materially identical retry was made."},
+    {"id":"CHK-5","family_ids":["FAM-3"],"state":"persistence","status":"passed","evidence":"Fresh authenticated production readback shows rooms 53 accepted at 2026-10-22T03:04:45.365Z and spa 159 accepted at 2026-10-22T03:05:17.127Z."},
+    {"id":"CHK-6","family_ids":["FAM-3"],"state":"retry","status":"failed","evidence":"Overdue pending/running retry records remain and the vacation manual pull failed safely with supplier_sync_failed while preserving the prior 573-place generation."},
+    {"id":"CHK-7","family_ids":["FAM-4"],"state":"success","status":"blocked","evidence":"Booking fix is candidate-only; the reserved production partner reference remains absent and no duplicate POST or payment occurred."},
+    {"id":"CHK-8","family_ids":["FAM-5"],"state":"success","status":"failed","evidence":"Representative public map-snapshot probes returned 404 with warming or missing, so stored snapshot imagery is not production-ready."},
+    {"id":"CHK-9","family_ids":["FAM-1","FAM-2","FAM-3","FAM-4","FAM-5"],"state":"rollback","status":"passed","evidence":"Public version 574 remains unchanged and is the rollback baseline; the candidate was not partially published."}
+  ],
+  "rollback": {
+    "available": true,
+    "method": "Keep or restore public version 574, deployment appgdep_6ad972fdf78c819185c771600e647274.",
+    "verification": "Public release identity remained 574 throughout this closeout and the candidate build did not change production code."
+  },
+  "authorization_boundary": "Read-only production verification and safe guarded catalog refresh were authorized. No payment, DNS, destructive database operation, legal claim or credential change was performed.",
+  "remaining_blockers": [
+    "Candidate publication is blocked by the external pnpm registry failure observed in two bounded Sites deployment attempts.",
+    "Unattended catalog retry processing is not healthy.",
+    "Vacation supplier refresh still fails safely.",
+    "Production map snapshots are absent.",
+    "Exact booking and full responsive interaction evidence remain open."
+  ]
+}
