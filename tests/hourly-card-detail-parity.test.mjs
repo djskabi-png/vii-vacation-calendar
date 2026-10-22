@@ -21,14 +21,15 @@ test("hourly cards use one stretched place link and keep contacts separate", asy
   assert.doesNotMatch(protectedControls, /\.discovery-card__chips|\.discovery-card__hourly-footer/);
 });
 
-test("hourly detail breadcrumbs include a valid regional landing in UI and schema", async () => {
+test("hourly detail breadcrumbs include distinct area and city landings in UI and schema", async () => {
   const client = await read("app/discover/place/client-page.tsx");
   const page = await read("app/discover/place/[id]/page.tsx");
   const landings = await read("app/data/world-search-landings.ts");
-  assert.match(landings, /export function hourlyBreadcrumbForLocation/);
-  assert.match(client, /hourlyBreadcrumbForLocation\(item\.area, item\.location\)/);
+  assert.match(landings, /export function hourlyBreadcrumbsForLocation/);
+  assert.match(landings, /const distinct = \[\.\.\.new Set/);
+  assert.match(client, /\.\.\.hourlyBreadcrumbsForLocation\(item\.area, item\.location\)/);
   assert.match(page, /breadcrumbSchema\(itemBreadcrumbs\)/);
-  assert.match(page, /hourlyBreadcrumbForLocation\(item\.area, item\.location\)/);
+  assert.match(page, /\.\.\.hourlyBreadcrumbsForLocation\(item\.area, item\.location\)/);
 });
 
 test("hourly detail groups rooms, verified rates and amenities into polished sections", async () => {

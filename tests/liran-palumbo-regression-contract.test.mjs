@@ -29,7 +29,7 @@ test("place breadcrumbs include a canonical geographic search level in every loc
   const event = read("../app/events/place/client-page.tsx");
   const discovery = read("../app/discover/place/client-page.tsx");
   assert.match(business, /eventBreadcrumbForLocation\(property\.area, property\.location\)/);
-  assert.match(business, /hourlyBreadcrumbForLocation\(property\.area, property\.location\)/);
+  assert.match(business, /\.\.\.hourlyBreadcrumbsForLocation\(property\.area, property\.location\)/);
   assert.match(business, /spaBreadcrumbForLocation\(property\.area, property\.location\)/);
   assert.match(event, /eventBreadcrumbForLocation\(place\.area, place\.location\)/);
   assert.match(discovery, /spaBreadcrumbForLocation\(item\.area, item\.location\)/);

@@ -37,7 +37,7 @@ import { activityRegion, activityType } from "../../lib/activity-discovery-taxon
 import { HomeMobileRail } from "../../components/home-mobile-rail";
 import { useSiteLanguage } from "../../i18n/locale-provider";
 import { latinBusinessAlias, localizedBusinessList, localizedBusinessText } from "../../i18n/localized-business-content";
-import { hourlyBreadcrumbForLocation } from "../../data/world-search-landings";
+import { hourlyBreadcrumbsForLocation } from "../../data/world-search-landings";
 import { spaBreadcrumbForLocation } from "../../data/spa-search-landings";
 
 function hourlyRateLabel(value: string, language: "he" | "en" | "ru" | "fr", translate: (value: string) => string) {
@@ -292,7 +292,7 @@ export default function DiscoveryPlacePage({ initialId, initialItem, relatedItem
     <ViewedItemTracker id={item.id} world={item.world} name={item.name} location={`${item.location}, ${item.area}`} image={item.image} href={`/discover/place/${item.id}`} meta={item.priceLabel || item.duration} />
     <main id="main-content" className={`discovery-detail discovery-detail--${item.world}`}>
       <BreadcrumbTrail items={item.world === "hourly"
-        ? [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), hourlyBreadcrumbForLocation(item.area, item.location), { name: localizedItemName }]
+        ? [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), ...hourlyBreadcrumbsForLocation(item.area, item.location), { name: localizedItemName }]
         : item.world === "spa"
           ? [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), spaBreadcrumbForLocation(item.area, item.location), { name: localizedItemName }]
           : [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), { name: localizedItemName }]} />

@@ -16,7 +16,7 @@ import { spaEditorialDescription, spaEditorialTitle } from "../../../data/spa-ed
 import hourlyCatalog from "../../../data/sergey-hourly-catalog.json";
 import { managedDiscoveryItems } from "../../../lib/managed-public-content";
 import { serverLocalePath } from "../../../i18n/server-public-copy";
-import { hourlyBreadcrumbForLocation } from "../../../data/world-search-landings";
+import { hourlyBreadcrumbsForLocation } from "../../../data/world-search-landings";
 import { spaBreadcrumbForLocation } from "../../../data/spa-search-landings";
 
 type Props = { params: Promise<{ id: string }> };
@@ -74,7 +74,7 @@ export default async function Page({ params }: Props) {
   const { item, items, spaSite, hourlyPlace } = await resolveItem((await params).id);
   const indexable = item.indexable === true || (item.indexable !== false && (item.world === "spa" || item.world === "hourly" || item.world === "activities"));
   const itemBreadcrumbs = item.world === "hourly"
-    ? [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), hourlyBreadcrumbForLocation(item.area, item.location), { name: item.name, path: `/discover/place/${item.id}` }]
+    ? [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), ...hourlyBreadcrumbsForLocation(item.area, item.location), { name: item.name, path: `/discover/place/${item.id}` }]
     : item.world === "spa"
       ? [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), spaBreadcrumbForLocation(item.area, item.location), { name: item.name, path: `/discover/place/${item.id}` }]
     : [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), { name: item.name, path: `/discover/place/${item.id}` }];

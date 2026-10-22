@@ -1,4 +1,8 @@
 {
+  "חדרי השינה בתוך מקום האירוח": {"en":"Bedrooms in this accommodation","fr":"Chambres dans cet hébergement","ru":"Спальни в этом объекте"},
+  "חדר שינה אחד עם הפרטים שנמסרו על ידי המקום.": {"en":"One bedroom with the details provided by the property.","fr":"Une chambre avec les informations fournies par l’établissement.","ru":"Одна спальня с информацией, предоставленной объектом."},
+  "חדרי שינה. כל מלבן מציג חדר שינה נפרד ואת הפרטים שנמסרו עליו.": {"en":"bedrooms. Each card shows a separate bedroom and its supplied details.","fr":"chambres. Chaque carte présente une chambre distincte et les informations fournies.","ru":"спален. Каждая карточка показывает отдельную спальню и предоставленные сведения."},
+  "דפדוף בין חדרי השינה": {"en":"Browse bedrooms","fr":"Parcourir les chambres","ru":"Просмотреть спальни"},
   "פרטי הלינה במקום": {"en":"Accommodation details","fr":"Détails de l’hébergement","ru":"Сведения о размещении"},
   "איפה תשנו?": {"en":"Where will you stay?","fr":"Où séjournerez-vous ?","ru":"Где вы будете жить?"},
   "המקום כולו עומד לרשותכם": {"en":"The entire place is yours","fr":"Tout le lieu est à votre disposition","ru":"Весь объект в вашем распоряжении"},

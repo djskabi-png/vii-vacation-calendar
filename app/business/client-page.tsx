@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 import { vacationBreadcrumbForLocation } from "../data/vacation-landings";
-import { eventBreadcrumbForLocation, hourlyBreadcrumbForLocation } from "../data/world-search-landings";
+import { eventBreadcrumbForLocation, hourlyBreadcrumbsForLocation } from "../data/world-search-landings";
 import { spaBreadcrumbForLocation } from "../data/spa-search-landings";
 import { CalendarDemo, currentSiteDay } from "../calendar-demo";
 import { ListingMap } from "../components/listing-map";
@@ -16,6 +16,7 @@ import { DiscoveryCard } from "../components/discovery-card";
 import { ListingAccessibility } from "../components/listing-accessibility";
 import { hasVerifiedAccessibilityFeature } from "../data/accessibility-data";
 import { SleepingArrangements } from "../components/sleeping-arrangements";
+import { VerifiedSleepingDetails, type VerifiedSleepingRoom } from "../components/verified-sleeping-details";
 import { getListingOfferings, properties, propertyFaq, type BusinessWorld, type ListingFeatureGroup, type ListingHighlightIcon, type Property } from "../data/site-data";
 import { discoveryItems, type DiscoveryItem } from "../data/world-data";
 import { nearbyTrails, type Trail } from "../data/trail-data";
@@ -136,6 +137,18 @@ function roomBookingHref(bookingQuery: string, index: number, nightlyPrice: numb
   params.set("price", String(nightlyPrice));
   return `/booking?${params.toString()}`;
 }
+
+function comparableSleepingTitle(value: string) {
+  return value.trim().replace(/[?؟]/g, "").replace(/\s+/g, " ").toLocaleLowerCase("he");
+}
+
+function isVerifiedBedroomGroup(title: string) {
+  const normalized = comparableSleepingTitle(title);
+  return /^חדר שינה(?:\s+\d+)?$/.test(normalized)
+    || /^bedroom(?:\s+\d+)?$/.test(normalized)
+    || /^chambre(?:\s+\d+)?$/.test(normalized)
+    || /^спальня(?:\s+\d+)?$/.test(normalized);
+}
 export default function BusinessPage({ initialSlug, initialProperty, relatedProperties, trailInventory, complementaryInventory, supplierDetail, initialWorld = "vacation", initialDates, initialFrom, initialTill, initialGuests = "2", initialRooms, initialChildren, initialInfants, initialRoomID, initialPrice, initialIllustrative = false, initialSource, initialPeriod }: { initialSlug: string; initialProperty?: Property; relatedProperties?: Property[]; trailInventory?: Trail[]; complementaryInventory?: DiscoveryItem[]; supplierDetail?: SupplierPlaceDetail; initialWorld?: BusinessWorld; initialDates?: string; initialFrom?: string; initialTill?: string; initialGuests?: string; initialRooms?: string; initialChildren?: string; initialInfants?: string; initialRoomID?: string; initialPrice?: string; initialIllustrative?: boolean; initialSource?: string; initialPeriod?: string }) {
   const { language, translate } = useSiteLanguage();
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -246,17 +259,30 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
   const bookingQuery = new URLSearchParams({ world: activeWorld, place: property.slug, ...(dateRange.from ? { from: dateRange.from } : {}), ...(dateRange.till ? { till: dateRange.till } : {}), guests: String(guests), ...(initialRooms ? { rooms: initialRooms } : {}), ...(initialChildren ? { children: initialChildren } : {}), ...(initialInfants ? { infants: initialInfants } : {}), ...(resolvedSelectedPrice ? { price: resolvedSelectedPrice } : {}), ...(supplierSiteID && supplierQuote.roomIDs.length === 1 ? { roomID: String(supplierQuote.roomIDs[0]) } : {}), ...(verifiedLastMinuteDeal ? { period: initialPeriod || "last-minute", source: initialSource || "last-minute" } : {}), ...(initialIllustrative || property.demoOperations?.fictional || effectiveVacationAvailability?.illustrative ? { illustrative: "1" } : {}) }).toString();
   const ownerWhatsapp = property.contact?.whatsapp;
   const bookingActionHref = vacationPhoneFallback ? "#booking-summary" : `/booking?${bookingQuery}`;
+  const verifiedSleepingRooms = useMemo<VerifiedSleepingRoom[]>(() => (property.roomOptions || []).flatMap((room, roomIndex) =>
+    (room.featureGroups || []).flatMap((group, groupIndex) => {
+      if (!isVerifiedBedroomGroup(group.title) || !group.items.length) return [];
+      const galleryGroup = property.galleryGroups?.find((gallery) => comparableSleepingTitle(gallery.title) === comparableSleepingTitle(group.title));
+      return [{
+        key: `${roomIndex}-${groupIndex}-${group.title}`,
+        name: group.title,
+        unitName: property.scenario === "multi" ? room.name : undefined,
+        details: [...new Set(group.items)],
+        galleryImage: galleryGroup?.images[0],
+      }];
+    })
+  ), [property.galleryGroups, property.roomOptions, property.scenario]);
   const sectionLinks = useMemo<DetailSectionLink[]>(() => [
     { href: "#about", label: translate("על המקום") },
     ...(property.roomOptions?.length ? [{ href: "#rooms" as const, label: translate(property.scenario === "multi" ? "סוויטות ויחידות" : "מבנה המקום") }] : []),
-    ...(property.bedrooms ? [{ href: "#sleeping" as const, label: translate("איפה ישנים") }] : []),
+    ...(verifiedSleepingRooms.length || property.bedrooms ? [{ href: "#sleeping" as const, label: translate("איפה ישנים") }] : []),
     { href: "#features", label: translate("מאפיינים") },
     ...(hasVerifiedAccessibilityFeature(property.features) ? [{ href: "#accessibility" as const, label: translate("נגישות") }] : []),
     { href: "#location", label: translate("מיקום") },
     { href: "#faq", label: translate("שאלות ותשובות") },
     { href: "#reviews", label: translate("חוות דעת") },
     { href: "#policies", label: translate("חשוב לדעת") },
-  ], [property.bedrooms, property.features, property.roomOptions?.length, property.scenario, translate]);
+  ], [property.bedrooms, property.features, property.roomOptions?.length, property.scenario, translate, verifiedSleepingRooms.length]);
   const roomQuantity = property.roomOptions?.reduce((total, room) => total + room.quantity, 0) || 0;
   const highlights = (property.highlights?.length ? property.highlights : property.features.map((label) => ({ label, icon: highlightIconFor(label) }))).slice(0, 5);
   const featureGroups = property.featureGroups?.length ? property.featureGroups : derivedFeatureGroups(property.features);
@@ -296,7 +322,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
           : activeWorld === "spa"
             ? [{ name: "ראשי", path: "/" }, { name: "בתי ספא", path: "/spas" }, spaBreadcrumbForLocation(property.area, property.location), { name: localizedPropertyName }]
             : activeWorld === "hourly"
-              ? [{ name: "ראשי", path: "/" }, { name: "חדרים לפי שעה", path: "/hourly" }, hourlyBreadcrumbForLocation(property.area, property.location), { name: localizedPropertyName }]
+              ? [{ name: "ראשי", path: "/" }, { name: "חדרים לפי שעה", path: "/hourly" }, ...hourlyBreadcrumbsForLocation(property.area, property.location), { name: localizedPropertyName }]
               : [{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, vacationBreadcrumbForLocation(property.area),
                 ...(property.location && property.location !== property.area ? [{ name: `נופש ב${localizedLocation}`, path: `/search?location=${encodeURIComponent(property.location)}` }] : []),
                 { name: localizedPropertyName }]} />
@@ -373,7 +399,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
               <div className={`units-heading${property.scenario === "multi" ? " units-heading--overview" : ""}`}>
                 <div>
                   <span className="eyebrow">פרטי הלינה במקום</span>
-                  <h2 id="units-heading-title">איפה תשנו?</h2>
+                  <h2 id="units-heading-title">{translate(property.scenario === "multi" ? "הסוויטות והיחידות" : "מבנה המקום")}</h2>
                 </div>
                 <span className="units-total">{property.scenario === "multi" ? (roomQuantity === 1 ? "יחידת אירוח אחת" : `${roomQuantity} יחידות אירוח`) : "המקום כולו עומד לרשותכם"}</span>
               </div>
@@ -442,7 +468,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
               </div>
             </section> : null}
 
-            {property.sleepingArrangements?.length ? <SleepingArrangements placeName={property.name} arrangements={property.sleepingArrangements} /> : property.bedrooms ? <section id="sleeping" className="sleeping-summary" aria-labelledby="sleeping-summary-title"><span className="eyebrow">חדרי שינה אינם יחידות אירוח</span><h2 id="sleeping-summary-title">איפה ישנים?</h2><p>{property.scenario === "multi" ? `במתחם יש ${property.units || roomQuantity} יחידות אירוח ובהן ${property.bedrooms} חדרי שינה בסך הכול. פירוט השינה מופיע בתוך כל כרטיס יחידה.` : `במקום יש ${property.bedrooms} חדרי שינה. לפרטים על סוגי המיטות, בדקו מול המקום.`}</p></section> : null}
+            {verifiedSleepingRooms.length ? <VerifiedSleepingDetails placeName={localizedPropertyName} rooms={verifiedSleepingRooms} /> : property.sleepingArrangements?.length ? <SleepingArrangements placeName={property.name} arrangements={property.sleepingArrangements} /> : property.bedrooms ? <section id="sleeping" className="sleeping-summary" aria-labelledby="sleeping-summary-title"><span className="eyebrow">חדרי שינה אינם יחידות אירוח</span><h2 id="sleeping-summary-title">איפה ישנים?</h2><p>{property.scenario === "multi" ? `במתחם יש ${property.units || roomQuantity} יחידות אירוח ובהן ${property.bedrooms} חדרי שינה בסך הכול. פירוט השינה מופיע בתוך כל כרטיס יחידה.` : `במקום יש ${property.bedrooms} חדרי שינה. לפרטים על סוגי המיטות, בדקו מול המקום.`}</p></section> : null}
 
             <section id="features" className="feature-section">
               <span className="eyebrow">עיקרי המקום</span>

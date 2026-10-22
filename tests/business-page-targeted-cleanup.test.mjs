@@ -31,12 +31,15 @@ test("mobile amenities stay short until the visitor expands them", () => {
   assert.doesNotMatch(business, /<h2>מה מחכה לכם במקום<\/h2>/);
 });
 
-test("every vacation room section keeps the explicit where-you-will-sleep heading", () => {
+test("vacation units and verified bedrooms remain separate visible sections", () => {
   assert.doesNotMatch(business, /"המקום שמזמינים"/);
   assert.doesNotMatch(business, /property\.scenario === "single" \? "פרטי המקום"/);
   assert.doesNotMatch(business, /property\.scenario === "single" \? "מקום אירוח שלם"/);
   assert.match(business, /<section id="rooms" className="units-section" aria-labelledby="units-heading-title">/);
-  assert.match(business, /<h2 id="units-heading-title">איפה תשנו\?<\/h2>/);
+  assert.match(business, /property\.scenario === "multi" \? "הסוויטות והיחידות" : "מבנה המקום"/);
   assert.match(business, /property\.scenario === "multi" \? \(roomQuantity === 1/);
   assert.match(business, /"המקום כולו עומד לרשותכם"/);
+  assert.match(business, /room\.featureGroups/);
+  assert.match(business, /isVerifiedBedroomGroup/);
+  assert.match(business, /<VerifiedSleepingDetails placeName=\{localizedPropertyName\} rooms=\{verifiedSleepingRooms\} \/>/);
 });

@@ -8,7 +8,7 @@ import { publicCatalogDetail, publicCatalogSummaries } from "../lib/public-catal
 import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, faqSchema, lodgingSchema } from "../lib/seo";
 import { vacationBreadcrumbForLocation } from "../data/vacation-landings";
-import { eventBreadcrumbForLocation, hourlyBreadcrumbForLocation } from "../data/world-search-landings";
+import { eventBreadcrumbForLocation, hourlyBreadcrumbsForLocation } from "../data/world-search-landings";
 import { spaBreadcrumbForLocation } from "../data/spa-search-landings";
 import { ViewedItemBootstrap } from "../components/viewed-item-bootstrap";
 import { currentPeriodOffer } from "../data/last-minute-deals";
@@ -113,7 +113,7 @@ export default async function Page({ searchParams }: Props) {
     : primaryWorld === "spa"
       ? [{ name: "ראשי", path: "/" }, { name: "בתי ספא", path: "/spas" }, spaBreadcrumbForLocation(property.area, property.location)]
       : primaryWorld === "hourly"
-        ? [{ name: "ראשי", path: "/" }, { name: "חדרים לפי שעה", path: "/hourly" }, hourlyBreadcrumbForLocation(property.area, property.location)]
+        ? [{ name: "ראשי", path: "/" }, { name: "חדרים לפי שעה", path: "/hourly" }, ...hourlyBreadcrumbsForLocation(property.area, property.location)]
         : [{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, vacationArea,
           ...(property.location && property.location !== property.area ? [{ name: `נופש ב${property.location}`, path: `/search?location=${encodeURIComponent(property.location)}` }] : [])];
   return <>

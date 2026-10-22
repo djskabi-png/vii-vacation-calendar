@@ -12,6 +12,15 @@ const locationSlugs: Record<string, string> = {
   "מרכז": "center",
   "תל אביב": "tel-aviv",
   "תל אביב וגוש דן": "tel-aviv-area",
+  "ראשון לציון": "rishon-lezion",
+  "פתח תקווה": "petah-tikva",
+  "רמת גן": "ramat-gan",
+  "בת ים": "bat-yam",
+  "הרצליה": "herzliya",
+  "נתניה": "netanya",
+  "רחובות": "rehovot",
+  "אשדוד": "ashdod",
+  "באר שבע": "beer-sheva",
   "ירושלים והסביבה": "jerusalem",
   "ים המלח": "dead-sea",
   "דרום ונגב": "south",
@@ -73,4 +82,12 @@ export function hourlyBreadcrumbForLocation(area: string, location?: string) {
   return candidate
     ? { name: `חדרים לפי שעה ב${canonicalSearchLocation(candidate)}`, path: hourlySearchHref(candidate) }
     : { name: "חדרים לפי שעה", path: "/hourly" };
+}
+
+export function hourlyBreadcrumbsForLocation(area: string, location?: string) {
+  const values = [area, location]
+    .map((value) => value?.trim())
+    .filter((value): value is string => Boolean(value && value !== "הכל" && value !== "כל הארץ"));
+  const distinct = [...new Set(values.map(canonicalSearchLocation))];
+  return distinct.map((value) => ({ name: `חדרים לפי שעה ב${value}`, path: hourlySearchHref(value) }));
 }
