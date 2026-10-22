@@ -1,0 +1,43 @@
+{
+  "verdict": "blocked",
+  "release": "VII Sites version 576, version ID appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_7153599d10108191a7e5c832fe89ee9b, deployment appgdep_6ad98a7092448191914549573d1b8327, commit 4c678b88a97293af313ea56e55e344bfd9876aed",
+  "target": "Production application at https://vii.spaplus.co with pending legacy custom hosts vii.co.il and www.vii.co.il",
+  "baseline": "VII Sites version 574, version ID appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_a61c70631018819181debf4463b71a2e, deployment appgdep_6ad972f7dc888191952014c2a026990c, commit 7215b551bde6ab09734c21026e1e73e359435b76",
+  "requested_outcome": "Migrate every known non-place legacy page with recovered content, direct 301 mappings, ASCII-only approved URLs, correct breadcrumbs and an admin guard that rejects Hebrew URL input.",
+  "authorization_boundary": "The user explicitly authorized implementation and public publication. DNS changes are authorized in scope, but cannot be executed because the signed-in Cloudflare account does not contain the vii.co.il zone.",
+  "changed_components": [
+    "Legacy sitemap and query-aware content exporter",
+    "Legacy export merger and managed search publication generator",
+    "Managed search page rendering with recovered body, FAQ and nearby fallback disclosure",
+    "Legacy redirect inventory and direct permanent redirect handling",
+    "Search-page admin ASCII-only slug validation",
+    "Semantic ASCII quick links and breadcrumb regression coverage"
+  ],
+  "affected_family": [
+    {"id": "legacy-redirects", "surface": "Known non-place legacy URLs and their direct production redirect behavior"},
+    {"id": "managed-search", "surface": "Generated search landing pages across vacations, events, spas, hourly and discovery worlds"},
+    {"id": "breadcrumbs", "surface": "Visible breadcrumb links, canonical paths and schema across all public page families"},
+    {"id": "admin-slugs", "surface": "Search-page administration URL field and server-side ASCII path validation"},
+    {"id": "seo-index", "surface": "Production sitemap index and managed search-page sitemap membership"}
+  ],
+  "characteristics": {"stateful": true, "responsive": true},
+  "checks": [
+    {"id": "production-success", "state": "success", "status": "passed", "evidence": "Version 576 deployment appgdep_6ad98a7092448191914549573d1b8327 succeeded and the sampled migrated destination returned 200 with visible content at https://vii.spaplus.co/search/vacations/netanya-11266-7a5b7295.", "family_ids": ["managed-search", "breadcrumbs"]},
+    {"id": "source-empty-failure", "state": "failure", "status": "passed", "evidence": "The three source-empty legacy paths /s/11487, /s/gan_yavne/11857 and /s/israel/12709 each return an intentional 410 on production instead of fabricated content.", "family_ids": ["legacy-redirects"]},
+    {"id": "generation-persistence", "state": "persistence", "status": "passed", "evidence": "All 2,340 generated publications are stored in app/data/legacy-search-page-publications.json and the exact committed artifact was deployed as version 576.", "family_ids": ["managed-search", "admin-slugs"]},
+    {"id": "production-reload", "state": "reload", "status": "passed", "evidence": "A fresh public browser load of the version 576 migrated page rendered the same H1, 15 results, breadcrumbs, recovered body and FAQ after deployment.", "family_ids": ["managed-search", "breadcrumbs"]},
+    {"id": "responsive-regression", "state": "responsive", "status": "passed", "evidence": "The exact release candidate passed all 1,457 automated tests including responsive shared-family coverage; the public desktop destination was independently inspected after deployment.", "family_ids": ["managed-search", "breadcrumbs", "admin-slugs"]},
+    {"id": "sitemap-membership", "state": "success", "status": "passed", "evidence": "https://vii.spaplus.co/sitemap.xml returned 200 and its search-pages child sitemap contains the sampled ASCII canonical URL.", "family_ids": ["seo-index"]},
+    {"id": "legacy-host-cutover", "state": "recovery", "status": "blocked", "evidence": "https://www.vii.co.il/s/netanya/11266 still returns 200 from the legacy origin because the signed-in Cloudflare account does not contain the vii.co.il DNS zone required for the custom-host cutover.", "family_ids": ["legacy-redirects"]},
+    {"id": "rollback-identity", "state": "rollback", "status": "passed", "evidence": "Sites version 574 remains available with exact version, deployment and commit identities recorded for rollback from version 576.", "family_ids": ["legacy-redirects", "managed-search", "breadcrumbs", "admin-slugs", "seo-index"]}
+  ],
+  "rollback": {
+    "available": true,
+    "method": "Redeploy Sites version 574 using version ID appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_a61c70631018819181debf4463b71a2e.",
+    "verification": "Version 574 is the recorded pre-release baseline with deployment appgdep_6ad972f7dc888191952014c2a026990c and commit 7215b551bde6ab09734c21026e1e73e359435b76."
+  },
+  "remaining_blockers": [
+    "The live legacy domains vii.co.il and www.vii.co.il are still pending DNS changes; the current signed-in Cloudflare account does not own that zone, so public old-domain requests do not yet reach the deployed 301 inventory.",
+    "Historical coverage is bounded to 3,528 URLs from the current legacy sitemap, stored Search Console export and project catalog; a complete live Search Console or server-log export is unavailable for proving every historical URL beyond that union."
+  ]
+}

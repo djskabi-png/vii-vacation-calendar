@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-10-22T07:00:00+03:00",
+  "siteProjectId": "appgprj_6a71ccdca27481918bf04dd329d3eb21",
+  "hosts": {
+    "vii.spaplus.co": "active",
+    "vii.co.il": "pending_dns_changes",
+    "www.vii.co.il": "pending_dns_changes"
+  },
+  "dnsAuthority": {
+    "nameservers": ["stanley.ns.cloudflare.com", "sue.ns.cloudflare.com"],
+    "currentApexAddresses": ["104.21.86.121", "172.67.219.12"]
+  },
+  "requiredApexRecords": [
+    {"type": "A", "name": "@", "value": "162.159.143.30"},
+    {"type": "A", "name": "@", "value": "172.66.3.26"},
+    {"type": "TXT", "name": "_openai-site-verification.vii.co.il", "value": "openai-site-verification=8s1kytEeSOEWpwROu3TFmOs_xAJ9y0AVwgC0J4wEJCs"},
+    {"type": "TXT", "name": "_cf-custom-hostname.vii.co.il", "value": "84a5d4a0-3edf-4f07-a1a2-9710c6ce0ce1"}
+  ],
+  "blocker": "The Cloudflare account currently signed in as djskabi@gmail.com lists hatankala.co.il, mosesflower.co.il, qeravio.com and spaplus.co only. It does not contain the vii.co.il DNS zone, so this task cannot safely replace the live legacy DNS records.",
+  "effect": "The application contains the complete redirect inventory, but requests reaching the current legacy origin will not execute it until vii.co.il and www.vii.co.il are routed to the Sites project.",
+  "minimumHumanAction": "Open the Cloudflare account that owns the vii.co.il zone and apply the Sites DNS records shown in the project settings, then refresh both custom-domain statuses."
+}

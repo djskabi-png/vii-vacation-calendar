@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-10-22T07:04:00+03:00",
+  "release": {
+    "version": 576,
+    "versionId": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_7153599d10108191a7e5c832fe89ee9b",
+    "deploymentId": "appgdep_6ad98a7092448191914549573d1b8327",
+    "commit": "4c678b88a97293af313ea56e55e344bfd9876aed",
+    "environmentRevision": 25,
+    "status": "succeeded",
+    "publicOrigin": "https://vii.spaplus.co"
+  },
+  "checks": [
+    {
+      "url": "https://vii.spaplus.co/s/netanya/11266",
+      "expected": "301 direct redirect",
+      "observed": "301",
+      "location": "https://vii.spaplus.co/search/vacations/netanya-11266-7a5b7295",
+      "passed": true
+    },
+    {
+      "url": "https://vii.spaplus.co/search/vacations/netanya-11266-7a5b7295",
+      "expected": "200 self-canonical migrated page",
+      "observed": "200 with self canonical, ASCII path, 15 results, visible breadcrumbs, recovered body and four FAQs",
+      "passed": true
+    },
+    {
+      "url": "https://vii.spaplus.co/s/11487",
+      "expected": "410 because the source contains no usable content",
+      "observed": "410",
+      "passed": true
+    },
+    {
+      "url": "https://vii.spaplus.co/s/gan_yavne/11857",
+      "expected": "410 because the source contains no usable content",
+      "observed": "410",
+      "passed": true
+    },
+    {
+      "url": "https://vii.spaplus.co/s/israel/12709",
+      "expected": "410 because the source contains no usable content",
+      "observed": "410",
+      "passed": true
+    },
+    {
+      "url": "https://vii.spaplus.co/sitemap.xml",
+      "expected": "200 sitemap index containing the managed search sitemap",
+      "observed": "200; search-pages sitemap is present and contains the sampled migrated canonical",
+      "passed": true
+    },
+    {
+      "url": "https://www.vii.co.il/s/netanya/11266",
+      "expected": "301 after legacy-domain cutover",
+      "observed": "200 from the existing legacy origin",
+      "passed": false,
+      "blocker": "The signed-in Cloudflare account does not own the vii.co.il DNS zone, so the legacy host cannot yet be routed to the deployed redirect application."
+    }
+  ],
+  "visualObservation": "The public migrated page was opened in the in-app browser and visibly rendered the expected Hebrew heading, breadcrumb trail, 15 result cards and the recovered content sections without an error state.",
+  "scope": {
+    "knownLegacyUrls": 3528,
+    "directRedirects": 3102,
+    "migratedSearchPages": 2340,
+    "migratedPagesWithRecoveredFaq": 1250,
+    "excludedPlaceDetailUrls": 423,
+    "remainingNonPlaceSourceIssues": 3,
+    "coverageBasis": "Current legacy sitemap plus the stored Search Console export and the project catalog."
+  }
+}

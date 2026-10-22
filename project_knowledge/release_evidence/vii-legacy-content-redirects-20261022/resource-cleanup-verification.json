@@ -1,0 +1,6 @@
+{
+  "verifiedAt": "2026-10-22T07:03:55+03:00",
+  "verified": true,
+  "remainingOwnedProcesses": [],
+  "note": "All task-owned crawl and local preview processes had exited. PID 23620 was detected as a reused Chrome process with a different creation time and was not touched."
+}
