@@ -24,6 +24,7 @@ test("server conversion adapter authenticates, scopes to section and strips cont
   assert.match(calls[0].url, /\/vacations\/2566\/conversions\?from=2026-10-01&till=2026-10-22&domain=section$/);
   assert.equal(calls[0].init.headers.Authorization, "Bearer server-secret");
   assert.equal(calls[0].init.cache, "no-store");
+  assert.equal(calls[0].init.redirect, undefined);
   assert.equal("contacts" in result, false);
   assert.equal(result.summary.all.orders, 3);
 });
