@@ -187,6 +187,7 @@ function HourlyContent({ item, details }: { item: (typeof discoveryItems)[number
         <article><small>סוג שהייה</small><strong>אירוח פרטי לפי שעה</strong></article>
         <article><small>תיאום</small><strong>ישירות מול המקום</strong></article>
         <article><small>אישור</small><strong>לאחר בחירת שעה וחדר</strong></article>
+        {details.entryDisclosure ? <article><small>{translate("אופן הכניסה")}</small><strong>{translate(details.entryDisclosure.label)}</strong></article> : null}
       </div>
     </section>
     <section className="section section-tint hourly-rooms" id="hourly-options"><div className="shell">
