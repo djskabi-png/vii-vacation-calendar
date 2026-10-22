@@ -47,6 +47,8 @@ test("business performance provides filters, explicit funnel ratios and local ex
   assert.match(page, /data-label="עסק"/);
   assert.match(page, /text\/csv/);
   assert.match(route, /upstreamStatus:error\.status/);
+  assert.match(route, /SUM\(CASE WHEN name = 'impression' THEN 1 ELSE 0 END\)/);
+  assert.doesNotMatch(route, /SUM\(name\s*=/);
   assert.doesNotMatch(route, /response\.text\(|response\.json\(\).*console/);
 });
 

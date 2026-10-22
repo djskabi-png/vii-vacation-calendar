@@ -1,0 +1,649 @@
+{
+  "base": "https://vii.spaplus.co",
+  "checkedAt": "2026-10-22T03:01:55.636Z",
+  "requestedSamples": 3,
+  "rows": [
+    {
+      "route": "/",
+      "mode": "cold",
+      "samples": [
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 970,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 599207
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 435,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 599207
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 358,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 599207
+        }
+      ],
+      "summary": {
+        "count": 3,
+        "p50": 435,
+        "p95": 970,
+        "max": 970,
+        "min": 358
+      }
+    },
+    {
+      "route": "/",
+      "mode": "warm",
+      "samples": [
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 338,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 601716
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 364,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 601716
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 346,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 601716
+        }
+      ],
+      "summary": {
+        "count": 3,
+        "p50": 346,
+        "p95": 364,
+        "max": 364,
+        "min": 338
+      }
+    },
+    {
+      "route": "/search",
+      "mode": "cold",
+      "samples": [
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 555,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 875130
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 451,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 875130
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 537,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 875130
+        }
+      ],
+      "summary": {
+        "count": 3,
+        "p50": 537,
+        "p95": 555,
+        "max": 555,
+        "min": 451
+      }
+    },
+    {
+      "route": "/search",
+      "mode": "warm",
+      "samples": [
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 513,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 875066
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 450,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 875066
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 547,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 875066
+        }
+      ],
+      "summary": {
+        "count": 3,
+        "p50": 513,
+        "p95": 547,
+        "max": 547,
+        "min": 450
+      }
+    },
+    {
+      "route": "/events",
+      "mode": "cold",
+      "samples": [
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 584,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 1337023
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 644,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 1337023
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 702,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 1337023
+        }
+      ],
+      "summary": {
+        "count": 3,
+        "p50": 644,
+        "p95": 702,
+        "max": 702,
+        "min": 584
+      }
+    },
+    {
+      "route": "/events",
+      "mode": "warm",
+      "samples": [
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 530,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 1336992
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 675,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 1336992
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 552,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 1336992
+        }
+      ],
+      "summary": {
+        "count": 3,
+        "p50": 552,
+        "p95": 675,
+        "max": 675,
+        "min": 530
+      }
+    },
+    {
+      "route": "/spas",
+      "mode": "cold",
+      "samples": [
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 711,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 678616
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 698,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 678616
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 717,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 678616
+        }
+      ],
+      "summary": {
+        "count": 3,
+        "p50": 711,
+        "p95": 717,
+        "max": 717,
+        "min": 698
+      }
+    },
+    {
+      "route": "/spas",
+      "mode": "warm",
+      "samples": [
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 626,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 678351
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 633,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 678351
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 735,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 678351
+        }
+      ],
+      "summary": {
+        "count": 3,
+        "p50": 633,
+        "p95": 735,
+        "max": 735,
+        "min": 626
+      }
+    },
+    {
+      "route": "/hourly",
+      "mode": "cold",
+      "samples": [
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 1438,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 319459
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 476,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 319459
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 416,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 319459
+        }
+      ],
+      "summary": {
+        "count": 3,
+        "p50": 476,
+        "p95": 1438,
+        "max": 1438,
+        "min": 416
+      }
+    },
+    {
+      "route": "/hourly",
+      "mode": "warm",
+      "samples": [
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 441,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 319428
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 495,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 319428
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 405,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 319428
+        }
+      ],
+      "summary": {
+        "count": 3,
+        "p50": 441,
+        "p95": 495,
+        "max": 495,
+        "min": 405
+      }
+    },
+    {
+      "route": "/providers",
+      "mode": "cold",
+      "samples": [
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 477,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 115937
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 477,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 115937
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 454,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 115937
+        }
+      ],
+      "summary": {
+        "count": 3,
+        "p50": 477,
+        "p95": 477,
+        "max": 477,
+        "min": 454
+      }
+    },
+    {
+      "route": "/providers",
+      "mode": "warm",
+      "samples": [
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 463,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 115906
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 532,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 115906
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 467,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 115906
+        }
+      ],
+      "summary": {
+        "count": 3,
+        "p50": 467,
+        "p95": 532,
+        "max": 532,
+        "min": 463
+      }
+    },
+    {
+      "route": "/attractions",
+      "mode": "cold",
+      "samples": [
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 562,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 99210
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 572,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 99210
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 592,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 99210
+        }
+      ],
+      "summary": {
+        "count": 3,
+        "p50": 572,
+        "p95": 592,
+        "max": 592,
+        "min": 562
+      }
+    },
+    {
+      "route": "/attractions",
+      "mode": "warm",
+      "samples": [
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 607,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 99179
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 508,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 99179
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 507,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 99179
+        }
+      ],
+      "summary": {
+        "count": 3,
+        "p50": 508,
+        "p95": 607,
+        "max": 607,
+        "min": 507
+      }
+    },
+    {
+      "route": "/en",
+      "mode": "cold",
+      "samples": [
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 653,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 581125
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 596,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 581125
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 494,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 581125
+        }
+      ],
+      "summary": {
+        "count": 3,
+        "p50": 596,
+        "p95": 653,
+        "max": 653,
+        "min": 494
+      }
+    },
+    {
+      "route": "/en",
+      "mode": "warm",
+      "samples": [
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 498,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 583593
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 574,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 583593
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "elapsedMs": 512,
+          "cache": null,
+          "layer": null,
+          "origin": "aws-aurora",
+          "bytes": 583593
+        }
+      ],
+      "summary": {
+        "count": 3,
+        "p50": 512,
+        "p95": 574,
+        "max": 574,
+        "min": 498
+      }
+    }
+  ],
+  "failures": [],
+  "status": "passed"
+}

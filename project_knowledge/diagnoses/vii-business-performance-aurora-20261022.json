@@ -1,0 +1,82 @@
+{
+  "status": "fixed",
+  "symptom": "The authenticated production business-performance page on public version 574 shows 'לא הצלחנו לטעון את הדוח', and its days=30 API returns 503 business_performance_unavailable.",
+  "expected_behavior": "An authorized administrator receives the aggregate 30-day business funnel from Aurora without exposing raw contacts or credentials.",
+  "environment": "https://vii.spaplus.co public version 574, source 7215b55156c9804bb4af7ac83055f4a1b6e262ec, observed 2026-10-22 Israel time; repair applied to the local release candidate after c121f38ad27a047cc60d0e861629a6c80b9cb692.",
+  "reproduction": {
+    "steps": [
+      "Open the authenticated /admin/business-performance route.",
+      "Read /api/admin/business-performance?days=30 in the same authorized session."
+    ],
+    "evidence": "The page rendered its recovery state and the API returned {\"error\":\"business_performance_unavailable\"} with HTTP 503."
+  },
+  "observations": [
+    {
+      "observation": "The failing query used SUM(name='...') for five counters.",
+      "evidence": "app/api/admin/business-performance/route.ts at public source 7215b55."
+    },
+    {
+      "observation": "The authenticated backend-readiness route succeeded against Aurora and reported vii_business_events with 4111 rows.",
+      "evidence": "Authenticated production /api/admin/backend-readiness read on 2026-10-22."
+    },
+    {
+      "observation": "The working admin overview already uses portable SUM(CASE WHEN ... THEN 1 ELSE 0 END) expressions.",
+      "evidence": "app/api/admin/overview/route.ts."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "The report retained a SQLite boolean-sum expression after the read path moved to Aurora PostgreSQL.",
+      "prediction": "The report alone fails while another aggregate route using CASE WHEN and the same Aurora table succeeds; replacing boolean sums with CASE WHEN restores a portable query.",
+      "discriminating_test": "Compare the report SQL with the working overview SQL, apply the portable aggregate, run focused admin/Aurora tests and TypeScript.",
+      "result": "The report was the only SUM(name=...) occurrence; after replacement, 14 focused tests and TypeScript passed.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "Aurora or the vii_business_events table is unavailable.",
+      "prediction": "Backend readiness and other reads of vii_business_events would fail or report no table.",
+      "discriminating_test": "Read authenticated production backend readiness and inspect table metadata.",
+      "result": "Aurora readiness succeeded and reported the table with 4111 rows, so general database unavailability does not explain the route-specific failure.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Replace all five SUM(boolean predicate) expressions with SUM(CASE WHEN predicate THEN 1 ELSE 0 END), matching the already working overview route.",
+    "evidence": "tests/admin-command-center.test.mjs now enforces the portable expression and rejects SUM(name=...); focused tests and pnpm exec tsc --noEmit passed."
+  },
+  "affected_family": [
+    "authenticated business-performance aggregate",
+    "admin overview aggregate",
+    "Aurora D1-compatibility adapter"
+  ],
+  "regression_checks": [
+    {
+      "check": "Admin business-performance and command-center contract",
+      "status": "passed",
+      "evidence": "node --test tests/admin-command-center.test.mjs: 6/6 passed."
+    },
+    {
+      "check": "Admin overview authorization and route contract",
+      "status": "passed",
+      "evidence": "tests/admin-overview-route.test.mjs passed."
+    },
+    {
+      "check": "Aurora adapter read/write/batch/retry compatibility",
+      "status": "passed",
+      "evidence": "tests/aws-database-adapter.test.mjs passed; combined focused run 14/14."
+    },
+    {
+      "check": "TypeScript",
+      "status": "passed",
+      "evidence": "pnpm exec tsc --noEmit --pretty false exited 0."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "The fix is not yet public because the next Sites deployment remains blocked before build by external npm/pnpm retrieval failures; public 574 still shows the error."
+  ],
+  "authorization_boundary": "Read-only production diagnosis and local repair were authorized. No raw contact data, payment, DNS, destructive database operation or credential change was performed."
+}
