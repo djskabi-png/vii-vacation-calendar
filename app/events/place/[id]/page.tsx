@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import EventPlacePage from "../client-page";
@@ -8,13 +9,14 @@ import { StructuredData } from "../../../components/structured-data";
 import { breadcrumbSchema, eventVenueSchema } from "../../../lib/seo";
 import { ViewedItemBootstrap } from "../../../components/viewed-item-bootstrap";
 import { supplierLegacySlug, unavailableLegacySearchHref } from "../../../data/supplier-legacy-links";
-import { liveSupplierPlaceDetail, type SupplierPlaceDetail } from "../../../data/supplier-place-detail";
+import type { SupplierPlaceDetail } from "../../../data/supplier-place-detail";
 import { validDate } from "../../../lib/vii-live-search";
 import { eventBreadcrumbsForLocation } from "../../../data/world-search-landings";
+import { providerProfiles } from "../../../data/world-data";
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ from?: string; guests?: string }> };
 
-async function resolvePlace(id: string) {
+const resolvePlace = cache(async (id: string) => {
   const mappedSlug = supplierLegacySlug(id, "events");
   const locale = (await headers()).get("x-vii-locale");
   const prefix = locale && locale !== "he" ? `/${locale}` : "";
@@ -24,7 +26,7 @@ async function resolvePlace(id: string) {
   const place = (await publicCatalogSummaries<EventPlace>("events")).find((item) => item.slug === id);
   if (!place) notFound();
   return place;
-}
+});
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const place = await resolvePlace((await params).id);
@@ -57,7 +59,7 @@ export default async function Page({ params, searchParams }: Props) {
       ...eventBreadcrumbsForLocation(place.area, place.location),
       { name: place.name, path: eventPlaceHref(place) },
     ])} />
-    <EventPlacePage initialSlug={place.slug} initialPlace={place} relatedPlaces={places}
-      supplierDetail={await liveSupplierPlaceDetail(place.slug, { fallback: acceptedDetail, listing: place })} />
+    <EventPlacePage initialSlug={place.slug} initialPlace={place} relatedPlaces={places} providerInventory={providerProfiles}
+      supplierDetail={acceptedDetail || undefined} />
   </>;
 }

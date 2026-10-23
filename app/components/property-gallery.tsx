@@ -58,7 +58,7 @@ export function PropertyGallery({ images, name, onOpen, className = "" }: Proper
       aria-label={`${copy.open} ${name}, ${copy.position} ${imageIndex(index) + 1}`}
       onClick={() => onOpen(imageIndex(index))}
     >
-      <img alt={`${name}, ${copy.image} ${imageIndex(index) + 1}`} src={galleryImages[imageIndex(index)]} title={`${name}, ${copy.image} ${imageIndex(index) + 1}`} loading={index === 0 ? "eager" : "lazy"} />
+      <img alt={`${name}, ${copy.image} ${imageIndex(index) + 1}`} src={galleryImages[imageIndex(index)]} title={`${name}, ${copy.image} ${imageIndex(index) + 1}`} loading={index === 0 ? "eager" : "lazy"} fetchPriority={index === 0 ? "high" : "auto"} decoding="async" />
       {index === 4 && <span>{copy.full}</span>}
     </button>)}
 

@@ -3,7 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { PreviewGalleryStatus, usePreviewGallery } from "./use-preview-gallery";
 
@@ -32,6 +32,8 @@ export function PreviewCardGallery({
   imageLabel,
   linkLabel,
   countLabel,
+  priority = false,
+  onMediaUnavailable,
   children,
 }: {
   images: string[];
@@ -43,13 +45,17 @@ export function PreviewCardGallery({
   imageLabel?: string;
   linkLabel?: string;
   countLabel?: (count: number) => string;
+  priority?: boolean;
+  onMediaUnavailable?: () => void;
   children?: ReactNode;
 }) {
   const { language } = useSiteLanguage();
   const copy = galleryCopy[language];
   const galleryImages = [...new Set(images.filter(Boolean))].slice(0, 10);
+  const imageKey = galleryImages.join("\n");
   const { imageIndex, navigationIndex, setImageIndex, warmImages, pending, error } = usePreviewGallery(galleryImages);
   const [brokenImages, setBrokenImages] = useState<Set<string>>(() => new Set());
+  const [mediaUnavailable, setMediaUnavailable] = useState(false);
   const touchStart = useRef<number | null>(null);
   const didSwipe = useRef(false);
   const swipeResetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -60,11 +66,18 @@ export function PreviewCardGallery({
     ? { objectPosition: imagePosition, objectFit: imageFit }
     : undefined;
 
+  useEffect(() => {
+    setBrokenImages(new Set());
+    setMediaUnavailable(false);
+  }, [imageKey]);
+
   function moveImage(event: MouseEvent<HTMLButtonElement>, direction: -1 | 1) {
     event.preventDefault();
     event.stopPropagation();
     setImageIndex((current) => Math.max(0, Math.min(galleryImages.length - 1, current + direction)));
   }
+
+  if (!galleryImages.length || mediaUnavailable) return null;
 
   return <div
     className={`preview-card-gallery ${className}`}
@@ -91,8 +104,6 @@ export function PreviewCardGallery({
     <Link
       className="preview-card-gallery__link"
       href={href}
-      target="_blank"
-      rel="noopener noreferrer"
       aria-label={linkLabel || `${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`}
       onClick={(event) => {
         if (!didSwipe.current) return;
@@ -103,10 +114,17 @@ export function PreviewCardGallery({
         swipeResetTimer.current = null;
       }}
     >
-      {currentImage && !brokenImages.has(currentImage) ? <img src={currentImage} alt={`${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} title={imageLabel || `${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} width="900" height="667" loading="lazy" decoding="async" style={imageStyle} onError={() => {
-        setBrokenImages(previous => new Set(previous).add(currentImage));
-        if (imageIndex < galleryImages.length - 1) setImageIndex(imageIndex + 1);
-      }} /> : <span className="preview-card-gallery__missing">{language === "he" ? "תמונה לא זמינה" : language === "en" ? "Photo unavailable" : language === "ru" ? "Фото недоступно" : "Photo indisponible"}</span>}
+      <img src={currentImage} alt={`${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} title={imageLabel || `${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} width="900" height="667" loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : "auto"} decoding="async" style={imageStyle} onError={() => {
+        const failed = new Set(brokenImages).add(currentImage);
+        setBrokenImages(failed);
+        const nextIndex = galleryImages.findIndex((image, index) => index > imageIndex && !failed.has(image));
+        if (nextIndex >= 0) {
+          setImageIndex(nextIndex);
+          return;
+        }
+        setMediaUnavailable(true);
+        onMediaUnavailable?.();
+      }} />
     </Link>
     <PreviewGalleryStatus pending={pending} error={error} />
     {galleryImages.length > 1 ? <>

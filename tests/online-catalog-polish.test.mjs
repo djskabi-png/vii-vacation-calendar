@@ -77,18 +77,45 @@ test("map cards send only their primary image and room cards own stable media ge
   assert.match(css, /\.room-card \{ min-height: 318px;[\s\S]*grid-template-columns: minmax\(330px, 43%\)/);
 });
 
-test("card galleries advance past broken supplier images before showing the neutral fallback", async () => {
+test("card galleries advance past broken supplier images and withdraw media after complete exhaustion", async () => {
   const [gallery, hook, loader, css] = await Promise.all([
     read("app/components/preview-card-gallery.tsx"),
     read("app/components/use-preview-gallery.tsx"),
     read("app/lib/preview-image-loader.ts"),
     read("app/globals.css"),
   ]);
-  assert.match(gallery, /onError=\{\(\) => \{[\s\S]*setBrokenImages\(previous => new Set\(previous\)\.add\(currentImage\)\)[\s\S]*setImageIndex\(imageIndex \+ 1\)/);
+  assert.match(gallery, /onError=\{\(\) => \{[\s\S]*const failed = new Set\(brokenImages\)\.add\(currentImage\)[\s\S]*setImageIndex\(nextIndex\)/);
   assert.match(hook, /findReadyPreviewImage\(imagesRef\.current, target, direction\)/);
   assert.match(loader, /for \(let index = startIndex; index >= 0 && index < images\.length; index \+= direction\)/);
-  assert.match(gallery, /preview-card-gallery__missing/);
+  assert.match(gallery, /setMediaUnavailable\(true\)/);
+  assert.match(gallery, /onMediaUnavailable\?\.\(\)/);
+  assert.doesNotMatch(gallery, /preview-card-gallery__missing/);
   assert.match(css, /\.preview-card-gallery__missing \{[^}]*position:absolute;[^}]*place-items:center/);
+});
+
+test("business and event detail pages render accepted platform snapshots without live supplier requests", async () => {
+  const [business, businessClient, eventQuery, eventPath, eventClient] = await Promise.all([
+    read("app/business/page.tsx"),
+    read("app/business/client-page.tsx"),
+    read("app/events/place/page.tsx"),
+    read("app/events/place/[id]/page.tsx"),
+    read("app/events/place/client-page.tsx"),
+  ]);
+  for (const source of [business, eventQuery, eventPath]) {
+    assert.match(source, /publicCatalogDetail/);
+    assert.doesNotMatch(source, /liveSupplierPlaceDetail/);
+  }
+  assert.doesNotMatch(businessClient, /import \{[^}]*\bproperties\b[^}]*\} from "\.\.\/data\/site-data"/);
+  assert.doesNotMatch(businessClient, /import \{[^}]*\bdiscoveryItems\b[^}]*\} from "\.\.\/data\/world-data"/);
+  assert.doesNotMatch(eventClient, /import \{[^}]*\beventPlaces\b[^}]*\} from "\.\.\/\.\.\/data\/site-data"/);
+  assert.doesNotMatch(eventClient, /import \{[^}]*\bproviderProfiles\b[^}]*\} from "\.\.\/\.\.\/data\/world-data"/);
+});
+
+test("new-tab business navigation warms both app and document caches", async () => {
+  const warmup = await read("app/components/smart-navigation-warmup.tsx");
+  assert.match(warmup, /isBusinessDepthRoute\(basePath\)/);
+  assert.match(warmup, /fetch\(destination,[\s\S]*cache: "force-cache"/);
+  assert.match(warmup, /Accept: "text\/html,application\/xhtml\+xml"/);
 });
 
 test("public deal rails do not print cache implementation notes", async () => {

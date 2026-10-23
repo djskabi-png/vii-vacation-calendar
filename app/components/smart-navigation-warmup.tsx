@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { languageFromPathname, localizedPath, stripLanguagePrefix } from "../i18n/locale-routing";
+import { isBusinessDepthRoute } from "../lib/new-tab-policy";
 
 type NetworkInformation = { saveData?: boolean; effectiveType?: string };
 
@@ -29,7 +30,7 @@ export function SmartNavigationWarmup() {
     const warmAnchor = (target: EventTarget | null) => {
       if (!(target instanceof Element)) return;
       const anchor = target.closest<HTMLAnchorElement>("a[href]");
-      if (!anchor || anchor.target && anchor.target !== "_self" || anchor.hasAttribute("download")) return;
+      if (!anchor || anchor.hasAttribute("download")) return;
       const href = anchor.getAttribute("href");
       if (!href || !href.startsWith("/") || href.startsWith("//") || href.startsWith("/api/")) return;
       const destination = localizedPath(href, languageFromPathname(window.location.pathname));
@@ -37,6 +38,16 @@ export function SmartNavigationWarmup() {
       if (/^\/(?:admin|account|favorites|booking)(?:\/|$)/.test(basePath) || warmed.has(destination)) return;
       warmed.add(destination);
       router.prefetch(destination);
+      // Business/detail pages intentionally open in a new tab. App Router
+      // memory is tab-local, so also warm the browser/server document cache.
+      if (anchor.target === "_blank" || isBusinessDepthRoute(basePath)) {
+        void fetch(destination, {
+          method: "GET",
+          credentials: "same-origin",
+          cache: "force-cache",
+          headers: { Accept: "text/html,application/xhtml+xml" },
+        }).catch(() => undefined);
+      }
       if (warmed.size > 24) warmed.delete(warmed.values().next().value!);
     };
     const onPointerOver = (event: PointerEvent) => warmAnchor(event.target);

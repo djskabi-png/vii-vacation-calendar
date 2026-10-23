@@ -10,8 +10,9 @@ import { PageShell } from "../../components/page-shell";
 import { DiscoveryCard } from "../../components/discovery-card";
 import { PlacePreviewCard } from "../../components/place-preview-card";
 import { ListingAccessibility } from "../../components/listing-accessibility";
-import { eventPlaceHref, eventPlaces } from "../../data/site-data";
-import { providerProfiles } from "../../data/world-data";
+import type { EventPlace } from "../../data/site-data";
+import type { DiscoveryItem } from "../../data/world-data";
+import { eventPlaceHref } from "../../lib/event-place-href";
 import { HomeMobileRail } from "../../components/home-mobile-rail";
 import { CalendarIcon, PinIcon } from "../../site-header";
 import { GalleryExperience } from "../../components/gallery-experience";
@@ -40,7 +41,7 @@ function EventFeatureCheck() {
   return <span className="event-feature-check" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="m4.5 10.2 3.3 3.3 7.7-7.7" /></svg></span>;
 }
 
-export default function EventPlacePage({ initialSlug, initialPlace, relatedPlaces, supplierDetail }: { initialSlug: string; initialPlace?: (typeof eventPlaces)[number]; relatedPlaces?: typeof eventPlaces; supplierDetail?: SupplierPlaceDetail }) {
+export default function EventPlacePage({ initialSlug, initialPlace, relatedPlaces, providerInventory, supplierDetail }: { initialSlug: string; initialPlace: EventPlace; relatedPlaces: EventPlace[]; providerInventory: DiscoveryItem[]; supplierDetail?: SupplierPlaceDetail }) {
   const { language, translate } = useSiteLanguage();
   const searchParams = useSearchParams();
   const selectedDate = /^\d{4}-\d{2}-\d{2}$/.test(searchParams.get("from") || "") ? searchParams.get("from") || "" : "";
@@ -70,7 +71,7 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
   const [reference, setReference] = useState("");
   const [submissionId, setSubmissionId] = useState("");
   const place = useMemo(() => {
-    const base = initialPlace || eventPlaces.find((item) => item.slug === initialSlug) || eventPlaces[0];
+    const base = initialPlace;
     return supplierDetail ? { ...base, name: supplierDetail.name || base.name, image: supplierDetail.images[0] || base.image,
       images: supplierDetail.images, location: supplierDetail.location || base.location, area: supplierDetail.area || base.area,
       lat: supplierDetail.lat ?? base.lat, lng: supplierDetail.lng ?? base.lng, guests: supplierDetail.guests || base.guests,
@@ -101,11 +102,11 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
     { href: "#event-booking", label: translate("הזמנה") },
   ], [place.description, place.features, translate]);
   const eventProviders = useMemo(() => {
-    const masu = providerProfiles.find((item) => item.id === "masu-home-wellness");
-    const otherProviders = providerProfiles.filter((item) => item.id !== "masu-home-wellness");
+    const masu = providerInventory.find((item) => item.id === "masu-home-wellness");
+    const otherProviders = providerInventory.filter((item) => item.id !== "masu-home-wellness");
     const start = place.slug.length % otherProviders.length;
-    return [masu, ...otherProviders.slice(start), ...otherProviders.slice(0, start)].filter((item): item is (typeof providerProfiles)[number] => Boolean(item)).slice(0, 3);
-  }, [place.slug]);
+    return [masu, ...otherProviders.slice(start), ...otherProviders.slice(0, start)].filter((item): item is DiscoveryItem => Boolean(item)).slice(0, 3);
+  }, [place.slug, providerInventory]);
 
   async function submitInquiry(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -191,7 +192,7 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
           </div>
         </section>
 
-        <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים לאירוע</h2></div><HomeMobileRail shufflePlaces id="event-detail-nearby" label={translate("מקומות נוספים לאירוע")} className="event-more-grid">{nearbyRecommendations(relatedPlaces || eventPlaces, place, { key: (entry) => entry.slug, exclude: place.slug, limit: 3 }).items.map((item) => { const name = safeEventText(item.name, latinBusinessAlias(item.name) || eventContentCopy.name); const location = safeEventText(item.location, safeEventText(item.area, eventContentCopy.location)); return <PlacePreviewCard className="event-related-card" contact={{ placeId: item.slug, phone: item.contact?.phone, whatsapp: item.contact?.whatsapp, serviceName: item.type }} key={item.slug} name={name} image={item.image} images={item.images} href={eventPlaceHref(item)}><div><b>{name}</b><span>{location} · עד {item.guests} אורחים ביחידה הגדולה</span></div></PlacePreviewCard>; })}</HomeMobileRail></div></section>
+        <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים לאירוע</h2></div><HomeMobileRail shufflePlaces id="event-detail-nearby" label={translate("מקומות נוספים לאירוע")} className="event-more-grid">{nearbyRecommendations(relatedPlaces, place, { key: (entry) => entry.slug, exclude: place.slug, limit: 3 }).items.map((item) => { const name = safeEventText(item.name, latinBusinessAlias(item.name) || eventContentCopy.name); const location = safeEventText(item.location, safeEventText(item.area, eventContentCopy.location)); return <PlacePreviewCard className="event-related-card" contact={{ placeId: item.slug, phone: item.contact?.phone, whatsapp: item.contact?.whatsapp, serviceName: item.type }} key={item.slug} name={name} image={item.image} images={item.images} href={eventPlaceHref(item)}><div><b>{name}</b><span>{location} · עד {item.guests} אורחים ביחידה הגדולה</span></div></PlacePreviewCard>; })}</HomeMobileRail></div></section>
         <FloatingContactActions world="events" placeId={place.slug} placeName={place.name} phone={ownerPhone} whatsapp={ownerWhatsapp} serviceName={place.type} from={eventDate} guests={Number(eventGuests) || undefined} />
         <SearchAfterResults world="events" discoveryOnly location={place.location} inventory={[place, ...(relatedPlaces || [])].map(entry => ({ location: entry.location, area: entry.area, type: entry.type, eventTypes: entry.eventTypes }))} />
       </main>

@@ -17,8 +17,9 @@ import { ListingAccessibility } from "../components/listing-accessibility";
 import { hasVerifiedAccessibilityFeature } from "../data/accessibility-data";
 import { SleepingArrangements } from "../components/sleeping-arrangements";
 import { VerifiedSleepingDetails, type VerifiedSleepingRoom } from "../components/verified-sleeping-details";
-import { getListingOfferings, properties, propertyFaq, type BusinessWorld, type ListingFeatureGroup, type ListingHighlightIcon, type Property } from "../data/site-data";
-import { discoveryItems, type DiscoveryItem } from "../data/world-data";
+import type { BusinessWorld, ListingFeatureGroup, ListingHighlightIcon, Property } from "../data/site-data";
+import type { DiscoveryItem } from "../data/world-data";
+import { getListingOfferings } from "../lib/listing-offerings";
 import { nearbyTrails, type Trail } from "../data/trail-data";
 import { nearbyRecommendations, nearbyRecommendationCopy } from "../lib/nearby-recommendations";
 import { HomeMobileRail } from "../components/home-mobile-rail";
@@ -162,7 +163,7 @@ function isVerifiedBedroomGroup(title: string) {
     || /^chambre(?:\s+\d+)?$/.test(normalized)
     || /^спальня(?:\s+\d+)?$/.test(normalized);
 }
-export default function BusinessPage({ initialSlug, initialProperty, relatedProperties, trailInventory, complementaryInventory, supplierDetail, initialWorld = "vacation", initialDates, initialFrom, initialTill, initialGuests = "2", initialRooms, initialChildren, initialInfants, initialRoomID, initialPrice, initialIllustrative = false, initialSource, initialPeriod }: { initialSlug: string; initialProperty?: Property; relatedProperties?: Property[]; trailInventory?: Trail[]; complementaryInventory?: DiscoveryItem[]; supplierDetail?: SupplierPlaceDetail; initialWorld?: BusinessWorld; initialDates?: string; initialFrom?: string; initialTill?: string; initialGuests?: string; initialRooms?: string; initialChildren?: string; initialInfants?: string; initialRoomID?: string; initialPrice?: string; initialIllustrative?: boolean; initialSource?: string; initialPeriod?: string }) {
+export default function BusinessPage({ initialSlug, initialProperty, relatedProperties, trailInventory = [], complementaryInventory = [], providerInventory = [], faqItems, supplierDetail, initialWorld = "vacation", initialDates, initialFrom, initialTill, initialGuests = "2", initialRooms, initialChildren, initialInfants, initialRoomID, initialPrice, initialIllustrative = false, initialSource, initialPeriod }: { initialSlug: string; initialProperty: Property; relatedProperties: Property[]; trailInventory?: Trail[]; complementaryInventory?: DiscoveryItem[]; providerInventory?: DiscoveryItem[]; faqItems: Array<{ question: string; answer: string }>; supplierDetail?: SupplierPlaceDetail; initialWorld?: BusinessWorld; initialDates?: string; initialFrom?: string; initialTill?: string; initialGuests?: string; initialRooms?: string; initialChildren?: string; initialInfants?: string; initialRoomID?: string; initialPrice?: string; initialIllustrative?: boolean; initialSource?: string; initialPeriod?: string }) {
   const { language, translate } = useSiteLanguage();
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [dates, setDates] = useState(initialDates || "");
@@ -179,7 +180,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
   const [selectedRoomIndex, setSelectedRoomIndex] = useState<number | null>(null);
   const closeUnitDetails = useCallback(() => setSelectedRoomIndex(null), []);
   const property = useMemo<Property>(() => {
-    const base = initialProperty || properties.find((item) => item.slug === initialSlug) || properties[0];
+    const base = initialProperty;
     return supplierDetail ? { ...base, name: supplierDetail.name || base.name, image: supplierDetail.images[0] || base.image,
       images: supplierDetail.images.length ? supplierDetail.images : base.images, location: supplierDetail.location || base.location, area: supplierDetail.area || base.area,
       lat: supplierDetail.lat ?? base.lat, lng: supplierDetail.lng ?? base.lng, guests: supplierDetail.guests || base.guests,
@@ -306,15 +307,15 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
   const desktopFeatureColumns = balanceFeatureGroups(localizedFeatureGroups);
   const mobileFeaturePreview = featureGroups.flatMap((group) => group.items).slice(0, 4);
   const placeGalleryImages = property.images;
-  const complementSelection = useMemo(() => nearbyRecommendations((complementaryInventory || discoveryItems).filter((item) => item.world === "spa" || item.world === "activities"), property, { key: (item) => `${item.world}:${item.id}` }), [complementaryInventory, property]);
+  const complementSelection = useMemo(() => nearbyRecommendations(complementaryInventory.filter((item) => item.world === "spa" || item.world === "activities"), property, { key: (item) => `${item.world}:${item.id}` }), [complementaryInventory, property]);
   const complements = complementSelection.items;
   const localTrails = useMemo(() => nearbyTrails(property.area, property.location, 6, { inventory: trailInventory, lat: property.lat, lng: property.lng }), [trailInventory, property.area, property.location, property.lat, property.lng]);
   const nearbyCopy = nearbyRecommendationCopy[language];
   const regionalVacationLanding = useMemo(() => vacationBreadcrumbForLocation(property.area), [property.area]);
   const matchingProviders = useMemo(() => {
-    const providers = discoveryItems.filter((item) => item.world === "providers" && item.image);
+    const providers = providerInventory.filter((item) => item.world === "providers" && item.image);
     return [...providers.filter((item) => item.id === "masu-home-wellness"), ...providers.filter((item) => item.id !== "masu-home-wellness")].slice(0, 6);
-  }, []);
+  }, [providerInventory]);
   const unitCopy = {
     he: { available: "פנויה בתאריכים שבחרתם", unavailable: "לא פנויה בתאריכים שבחרתם", inquiry: "זמינות ומחיר באישור המקום", error: "לא הצלחנו לבדוק כרגע", combination: "פנויה כחלק מהשילוב המומלץ", tooSmall: "אינה מספיקה לבדה להרכב", quick: "הזמנה מהירה של", otherDate: "בדיקת תאריך אחר", enquire: "פנייה לבירור זמינות", retry: "בדיקה חוזרת", check: "בדיקת זמינות", dates: "בדיקת תאריכים ל", perNight: "ללילה", total: "לכל השהייה" },
     en: { available: "Available for your selected dates", unavailable: "Unavailable for your selected dates", inquiry: "Availability and price confirmed by the property", error: "We could not check right now", combination: "Available in the recommended combination", tooSmall: "Cannot host the whole party alone", quick: "Quick book", otherDate: "Check another date", enquire: "Enquire about availability", retry: "Try again", check: "Check availability for", dates: "Check dates for", perNight: "per night", total: "for the entire stay" },
@@ -520,7 +521,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
 
             <section id="location" className="location-card location-card--map-only" aria-labelledby="property-location-title"><h2 id="property-location-title" className="sr-only">{businessCopy.locationTitle(localizedPropertyName, localizedLocation, localizedArea)}</h2>{typeof property.lat === "number" && typeof property.lng === "number" ? <ListingMap listings={[localizedMapProperty]} single /> : <p>{safeBusinessText("המיקום המדויק טרם נמסר על ידי המקום.", businessCopy.locationTitle(localizedPropertyName, localizedLocation, localizedArea))}</p>}</section>
 
-            <section id="faq" className="faq-section"><h2>{translate("שאלות ותשובות")}</h2>{propertyFaq.map((item, index) => <article key={item.question} className={openFaq === index ? "open" : ""}><button type="button" aria-expanded={openFaq === index} onClick={() => setOpenFaq(openFaq === index ? null : index)}><span>{safeBusinessText(item.question, businessCopy.faqQuestion)}</span><b>{openFaq === index ? "−" : "+"}</b></button>{openFaq === index && <p>{safeBusinessText(item.answer, businessCopy.faqAnswer)}</p>}</article>)}</section>
+            <section id="faq" className="faq-section"><h2>{translate("שאלות ותשובות")}</h2>{faqItems.map((item, index) => <article key={item.question} className={openFaq === index ? "open" : ""}><button type="button" aria-expanded={openFaq === index} onClick={() => setOpenFaq(openFaq === index ? null : index)}><span>{safeBusinessText(item.question, businessCopy.faqQuestion)}</span><b>{openFaq === index ? "−" : "+"}</b></button>{openFaq === index && <p>{safeBusinessText(item.answer, businessCopy.faqAnswer)}</p>}</article>)}</section>
 
             <section id="policies" className="policies-section"><h2>{translate("כללים ותנאי הזמנה")}</h2><div><article><b>{translate("צ׳ק-אין וצ׳ק-אאוט")}</b><p>{supplierDetail?.policy.checkIn ? `${businessCopy.checkIn}: ${supplierDetail.policy.checkIn.slice(0, 5)}` : translate("שעת הכניסה נקבעת באישור ההזמנה")}{supplierDetail?.policy.checkOut ? ` · ${businessCopy.checkOut}: ${supplierDetail.policy.checkOut.slice(0, 5)}` : ""}{supplierDetail?.policy.checkOutSat ? ` · ${businessCopy.checkOutSat}: ${supplierDetail.policy.checkOutSat.slice(0, 5)}` : ""}. {businessCopy.confirmHours}</p></article><article><b>{translate("מחיר ותשלום")}</b><p>{translate("המחיר הסופי תלוי בתאריכים, בהרכב וביחידה שנבחרה.")}</p></article><article><b>{translate("ביטול ושינויים")}</b><p>{safeBusinessText(supplierDetail?.policy.remarks || "תנאי הביטול נמסרים לפני אישור ההזמנה והתשלום.", businessCopy.policy)}</p></article></div></section>
             {property.demoOperations?.fictional ? <section className="palumbo-practical" aria-labelledby="palumbo-practical-title"><h2 id="palumbo-practical-title">כל מה שצריך לדעת לפני ההזמנה</h2><div><article><strong>15:00</strong><span>כניסה החל משעה זו</span></article><article><strong>11:00</strong><span>עזיבה עד שעה זו</span></article><article><strong>2 לילות</strong><span>מינימום להזמנה</span></article><article><strong>8 אורחים</strong><span>תפוסה מרבית</span></article></div></section> : null}
@@ -544,7 +545,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
           </div>
         </section>
 
-        <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים שיכולים להתאים</h2></div><HomeMobileRail shufflePlaces id="vacation-detail-similar" label="מקומות נוספים שיכולים להתאים" className="card-grid">{(relatedProperties || properties).filter((item) => item.slug !== property.slug).slice(0, 3).map((item) => <PropertyCard key={item.slug} property={localizeRelatedProperty(item)} promotional />)}</HomeMobileRail></div></section>
+        <section className="section section-tint"><div className="shell"><div className="section-head"><h2>מקומות נוספים שיכולים להתאים</h2></div><HomeMobileRail shufflePlaces id="vacation-detail-similar" label="מקומות נוספים שיכולים להתאים" className="card-grid">{relatedProperties.filter((item) => item.slug !== property.slug).slice(0, 3).map((item) => <PropertyCard key={item.slug} property={localizeRelatedProperty(item)} promotional />)}</HomeMobileRail></div></section>
 
         <section className="property-page-endcap" aria-labelledby="property-endcap-title">
           <div className="shell property-page-endcap__inner">

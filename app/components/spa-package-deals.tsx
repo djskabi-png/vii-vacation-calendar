@@ -41,6 +41,7 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region}:{sectionI
  const clockKey=clock?.key;
  const [data,setData] = useState<DealResponse|null>(null);
  const [status,setStatus] = useState<"loading"|"ready"|"error">("loading");
+ const [unavailableMedia,setUnavailableMedia] = useState<Set<string>>(()=>new Set());
  const [attempt,setAttempt] = useState(0);
  const requestedDate = params.get("spaDealDate") || "";
  const requestedAudience = params.get("spaDealFor") as SpaDealAudience;
@@ -72,6 +73,7 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region}:{sectionI
  const requestPending=status==="loading" || Boolean(data && data.region!==regionLabel);
  const refreshing=requestPending && data!==null;
  const offers=data ? orderDiscoveryRail(data.offers[date]?.[audience] || [], { id: offer => `${offer.siteId}:${offer.packageId}`, seed: `${documentSeed}:spa:${date}:${audience}`, priority: offer => offer.price }) : [];
+ const visibleOffers=offers.filter(offer=>!unavailableMedia.has(`${offer.siteId}:${offer.packageId}:${offer.image}`));
  const expandedRegion=!!scope && status==="ready" && data?.region===regionLabel && data?.expandedRegions?.[date]?.[audience]===true;
  const linkDate=date || (clock && validSpaDealDate(requestedDate)?normalizeDealDate(requestedDate,clock.now):"");
  const allHref=scope ? `${spaSearchHref(spaSearchStateFromValues(scope.label,audience))}${linkDate?`?${new URLSearchParams({date:linkDate})}`:""}` : "/spas";
@@ -88,12 +90,13 @@ export function SpaPackageDeals({sectionId="spa-package-deals",region}:{sectionI
    {status==="error"?<div role="alert" className={`event-rail-status${data?" event-rail-status--overlay":""}`}><p>{text.error}</p><button type="button" className="button secondary" onClick={()=>{setStatus("loading");setAttempt(value=>value+1);}}>{text.retry}</button></div>:null}
    {status==="ready"&&!offers.length?<p className="event-rail-status">{text.empty}</p>:null}
    {expandedRegion && offers.length > 0 ? <p className="regional-availability__expansion">{regionalExpansionCopy[language]}</p> : null}
-   {offers.length?<><div className="spa-package-deals__context"><p>{data?.availabilityStatus==="refreshing"?catalogNote[language]:`${text.requested}: ${formatDate(date)}`}</p>{data?.availabilityStatus!=="refreshing"&&!expandedRegion ? <span>{text.order}</span> : null}</div><EventRail key={`${date}-${audience}`} title={title}>{offers.map(offer=>{
+   {visibleOffers.length?<><div className="spa-package-deals__context"><p>{data?.availabilityStatus==="refreshing"?catalogNote[language]:`${text.requested}: ${formatDate(date)}`}</p>{data?.availabilityStatus!=="refreshing"&&!expandedRegion ? <span>{text.order}</span> : null}</div><EventRail key={`${date}-${audience}`} title={title}>{visibleOffers.map((offer,index)=>{
     const href=localizedPath(offer.href,language); const title=localizedSpaPackageTitle(offer,language,translate);
     const siteName=localizedBusinessText(offer.siteName,language,translate,latinBusinessAlias(offer.siteNameEN) || latinBusinessAlias(offer.siteName) || `Spa ${offer.siteId}`);
     const city=localizedBusinessText(offer.city,language,translate,"");
+    const mediaKey=`${offer.siteId}:${offer.packageId}:${offer.image}`;
     return <article key={`${offer.siteId}-${offer.packageId}`} className="spa-deal-card" data-price={offer.price} data-site-id={offer.siteId} data-package-id={offer.packageId}>
-     <PreviewCardGallery className="spa-deal-card__image" images={[offer.image]} href={href} name={title}/>
+     <PreviewCardGallery className="spa-deal-card__image" images={[offer.image]} href={href} name={title} priority={index<2} onMediaUnavailable={()=>setUnavailableMedia(previous=>new Set(previous).add(mediaKey))}/>
      <Link className="spa-deal-card__body" href={href} target="_blank" rel="noopener noreferrer"><small>{siteName}{city?` · ${city}`:""}</small><h3>{title}</h3><span className="spa-deal-card__meta">{offer.people ? spaDealPeople(offer.people,language) : text.audiences[audience]}{offer.durationMinutes?` · ${offer.durationMinutes} ${text.minutes}`:""}</span><div className="spa-deal-card__bottom"><strong><small>{text.from}</small> <bdi>{offer.price.toLocaleString(language==="he"?"he-IL":language)} ₪</bdi></strong><span>{text.details} <span aria-hidden="true">{language==="he"?"←":"→"}</span></span></div></Link>
     </article>;
    })}</EventRail></>:null}

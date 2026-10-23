@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import BusinessPage from "./client-page";
@@ -13,7 +14,7 @@ import { spaBreadcrumbsForLocation } from "../data/spa-search-landings";
 import { ViewedItemBootstrap } from "../components/viewed-item-bootstrap";
 import { currentPeriodOffer } from "../data/last-minute-deals";
 import { supplierLegacySlug, unavailableLegacySearchHref } from "../data/supplier-legacy-links";
-import { liveSupplierPlaceDetail, type SupplierPlaceDetail } from "../data/supplier-place-detail";
+import type { SupplierPlaceDetail } from "../data/supplier-place-detail";
 import { trails } from "../data/trail-data";
 import { discoveryItems, spaPlacesFromSites } from "../data/world-data";
 import type { SpaPlusSite } from "../data/spaplus";
@@ -33,12 +34,12 @@ function normalizedParams(params: BusinessParams) {
   return Object.fromEntries(Object.entries(params).map(([key, value]) => [key, queryValue(value)])) as Record<keyof BusinessParams, string | undefined>;
 }
 
-async function resolveProperty(id?: string) {
+const resolveProperty = cache(async (id?: string) => {
   const properties = (await publicCatalogSummaries<Property>("vacations"))
     .map((item) => ({ ...item, description: supplierDisplayDescription(item) }));
   const property = id ? properties.find((item) => item.slug === (supplierLegacySlug(id, "vacations") || id)) : properties[0];
   return { property, properties };
-}
+});
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const { property } = await resolveProperty(queryValue((await searchParams).id));
@@ -83,9 +84,13 @@ export default async function Page({ searchParams }: Props) {
   ]);
   const supplierId = /^vacation-(\d+)$/.exec(property.slug)?.[1];
   const acceptedDetail = supplierId ? await publicCatalogDetail<SupplierPlaceDetail>("vacations", Number(supplierId)) : null;
-  const supplierDetail = await liveSupplierPlaceDetail(property.slug, { fallback: acceptedDetail, listing: property });
+  // Public pages render from the accepted platform snapshot. Supplier refreshes
+  // belong to the ingestion pipeline and must never sit on the visitor's
+  // critical path or turn a slow upstream API into a slow business page.
+  const supplierDetail = acceptedDetail || undefined;
   const [trailInventory, spaSites, attractions] = await recommendations;
   const complementaryInventory = [...spaPlacesFromSites(spaSites), ...attractions];
+  const providerInventory = discoveryItems.filter((item) => item.world === "providers");
   const relatedProperties = nearbyRecommendations(properties, property, { key: (item) => item.slug, exclude: property.slug, limit: 3 }).items;
   const currentOffer = property.capacityScope === "unit" ? undefined : currentPeriodOffer(property.slug, params.period);
   if (currentOffer && (params.from !== currentOffer.from || params.till !== currentOffer.till || Number(params.price) !== currentOffer.nightlyPrice)) {
@@ -124,6 +129,6 @@ export default async function Page({ searchParams }: Props) {
       { name: property.name, path: `/business?id=${property.slug}` },
     ])} />
     <StructuredData data={faqSchema(propertyFaq)} />
-    <BusinessPage initialSlug={property.slug} initialProperty={property} relatedProperties={relatedProperties} trailInventory={trailInventory} complementaryInventory={complementaryInventory} supplierDetail={supplierDetail} initialWorld={initialWorld} initialDates={params.dates} initialFrom={params.from} initialTill={params.till} initialGuests={params.guests} initialRooms={params.rooms} initialChildren={params.children} initialInfants={params.infants} initialRoomID={params.roomID} initialPrice={params.price} initialIllustrative={params.illustrative === "1"} initialSource={params.source} initialPeriod={params.period} />
+    <BusinessPage initialSlug={property.slug} initialProperty={property} relatedProperties={relatedProperties} trailInventory={trailInventory} complementaryInventory={complementaryInventory} providerInventory={providerInventory} faqItems={propertyFaq} supplierDetail={supplierDetail} initialWorld={initialWorld} initialDates={params.dates} initialFrom={params.from} initialTill={params.till} initialGuests={params.guests} initialRooms={params.rooms} initialChildren={params.children} initialInfants={params.infants} initialRoomID={params.roomID} initialPrice={params.price} initialIllustrative={params.illustrative === "1"} initialSource={params.source} initialPeriod={params.period} />
   </>;
 }

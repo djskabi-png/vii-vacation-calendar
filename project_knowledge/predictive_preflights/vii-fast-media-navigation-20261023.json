@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-fast-media-navigation-20261023",
+  "project": "VII",
+  "task_type": "production performance and media reliability repair",
+  "requested_outcome": "Remove unusable image-placeholder cards, make public navigation and business pages feel immediate, publish the exact tested release and verify it in production.",
+  "natural_destination": "https://vii.spaplus.co/ plus public search, spa rails and business or event detail pages on desktop and mobile",
+  "authorization_boundary": "The current request authorizes code changes, tests and one verified public deployment. Supplier writes, bookings, payments, outbound messages and destructive data operations are excluded.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-QA-001","reason":"The request explicitly requires publication and live proof.","acceptance_impact":"Local checks cannot complete the task; exact public routes must be retested after release."},
+    {"lesson_id":"ADIR-CONSISTENCY-001","reason":"Gallery media and detail loading are shared across several public worlds.","acceptance_impact":"The repair must cover the affected card and detail-page families, not the supplied screenshot alone."},
+    {"lesson_id":"ADIR-DATA-001","reason":"Speed must not come from fabricated or stale ad-hoc supplier data.","acceptance_impact":"Public rendering may use only the accepted platform snapshot and must retain truthful fallbacks."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"The broken card remains visible with a different placeholder.","prevention":"Withdraw the entire deal card when every real media source fails.","acceptance_check":"A forced image failure removes the card and no unavailable-image label is rendered."},
+    {"rejection":"Only warm repeat visits improve while first business-page visits still wait on the supplier.","prevention":"Remove live supplier calls from public detail rendering and use the accepted platform snapshot.","acceptance_check":"Source contract, build and production cold-route timing show no supplier request in the page critical path."},
+    {"rejection":"New-tab navigation bypasses every prefetch and still feels slow.","prevention":"Warm both App Router data and the browser document cache for business-depth destinations.","acceptance_check":"Intent events issue both router prefetch and a cacheable same-origin document warmup."},
+    {"rejection":"Performance work breaks galleries, search, home or event pages.","prevention":"Run focused affected-family tests, full build and fresh desktop/mobile public flows.","acceptance_check":"Home, search, business, event and spa routes render and navigate correctly after deployment."}
+  ],
+  "affected_family": ["vacation business pages","event detail pages","spa deal cards","shared preview galleries","home navigation","search navigation","mobile and desktop media loading"],
+  "family_inventory_complete": true,
+  "approved_precedents": {"sources":[{"label":"Public media must use approved real assets and no broken placeholder card may ship","source":"project_knowledge/VII_FEEDBACK_STANDARD.md"},{"label":"Supplier refresh is separated from the public read path","source":"project_knowledge/VII_PLATFORM_MASTER_PLAN.md"}],"no_precedent_reason":null},
+  "midpoint_gate": {"required":true,"trigger":"Focused media and navigation contracts pass before the production build.","checks":["all-failed media withdraws its deal card","accepted snapshots replace live supplier calls","new-tab detail targets receive document warmup","primary business media is high priority"],"not_required_reason":null},
+  "adversarial_close": {"attack_questions":["Can one failed image still leave an empty card shell?","Can any public business or event page still call the supplier live?","Does the new-tab policy prevent warming on touch or pointer intent?","Do cold, R2 and memory-cache paths all remain truthful?","Does mobile render real media without layout breakage?"],"natural_destination_evidence":"Fresh production timings and screenshots for home, search, business and spa surfaces after the deployed release becomes active.","affected_family_evidence":"Focused tests, full build, release identity and desktop/mobile production checks."},
+  "effectiveness": {"baseline":"A supplied spa card renders a large unavailable-image panel; browser-like cold business HTML was measured near two seconds and detail rendering could wait up to twelve seconds on a live supplier call.","measurements":["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time","cold_ttfb","warm_ttfb","visible_transition_time"],"target":"No empty media card ships, no live supplier call blocks public detail rendering, and representative warmed public navigations score at least 9/10."},
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import EventPlacePage from "./client-page";
@@ -8,12 +9,13 @@ import { publicCatalogDetail, publicCatalogSummaries } from "../../lib/public-ca
 import { StructuredData } from "../../components/structured-data";
 import { breadcrumbSchema, eventVenueSchema } from "../../lib/seo";
 import { supplierLegacySlug, unavailableLegacySearchHref } from "../../data/supplier-legacy-links";
-import { liveSupplierPlaceDetail, type SupplierPlaceDetail } from "../../data/supplier-place-detail";
+import type { SupplierPlaceDetail } from "../../data/supplier-place-detail";
 import { eventBreadcrumbsForLocation } from "../../data/world-search-landings";
+import { providerProfiles } from "../../data/world-data";
 
 type Props = { searchParams: Promise<{ id?: string }> };
 
-async function resolvePlace(id?: string) {
+const resolvePlace = cache(async (id?: string) => {
   const mappedSlug = supplierLegacySlug(id, "events");
   const locale = (await headers()).get("x-vii-locale");
   const prefix = locale && locale !== "he" ? `/${locale}` : "";
@@ -25,7 +27,7 @@ async function resolvePlace(id?: string) {
   const place = id ? places.find((item) => item.slug === id) : undefined;
   if (!place) notFound();
   return { place, places };
-}
+});
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const { place } = await resolvePlace((await searchParams).id);
@@ -43,7 +45,7 @@ export default async function Page({ searchParams }: Props) {
   if (place.sourcePropertySlug) redirect(eventPlaceHref(place));
   const supplierId = /^event-(\d+)$/.exec(place.slug)?.[1];
   const acceptedDetail = supplierId ? await publicCatalogDetail<SupplierPlaceDetail>("events", Number(supplierId)) : null;
-  const supplierDetail = await liveSupplierPlaceDetail(place.slug, { fallback: acceptedDetail, listing: place });
+  const supplierDetail = acceptedDetail || undefined;
   return <>
     <StructuredData data={eventVenueSchema(place)} />
     <StructuredData data={breadcrumbSchema([
@@ -52,6 +54,6 @@ export default async function Page({ searchParams }: Props) {
       ...eventBreadcrumbsForLocation(place.area, place.location),
       { name: place.name, path: eventPlaceHref(place) },
     ])} />
-    <EventPlacePage initialSlug={place.slug} initialPlace={place} relatedPlaces={places} supplierDetail={supplierDetail} />
+    <EventPlacePage initialSlug={place.slug} initialPlace={place} relatedPlaces={places} providerInventory={providerProfiles} supplierDetail={supplierDetail} />
   </>;
 }
