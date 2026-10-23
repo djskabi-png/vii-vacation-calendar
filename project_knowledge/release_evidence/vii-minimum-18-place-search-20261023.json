@@ -1,0 +1,56 @@
+{
+  "taskId": "vii-minimum-18-place-search-20261023",
+  "verdict": "verified",
+  "verifiedAt": "2026-10-23T07:16:10+03:00",
+  "naturalDestination": "https://vii.spaplus.co/search?location=%D7%9E%D7%A9%D7%9E%D7%A8%20%D7%94%D7%99%D7%A8%D7%93%D7%9F",
+  "release": {
+    "version": 589,
+    "versionId": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_4484449eb1a88191ba05d3d258d63bef",
+    "deploymentId": "appgdep_6adadeba62bc8191b4dd236240983dfb",
+    "commit": "1e19186e6a9479d7819e83f9c28de038a68fbd6d",
+    "environmentRevision": 25,
+    "status": "succeeded"
+  },
+  "rollback": {
+    "version": 588,
+    "versionId": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_d610087d591c819192d21d9750665fdb",
+    "deploymentId": "appgdep_6adadc733e14819185e87fd927ede6a3",
+    "commit": "cd43c8b5994fcfa65446713f03412774f98ce24b"
+  },
+  "publicVerification": {
+    "searchSummary": "18 מתחמים, 38 יחידות נופש",
+    "exactFirst": [
+      "סוויטות שילו - Shilo Suites",
+      "וילה מאיורי ריזורט",
+      "וילה מאיורי בוטיק"
+    ],
+    "nearestContinuationExample": "אחוזת הנרקיס 42",
+    "filterCheck": {
+      "filter": "pool=1",
+      "locationPreserved": true,
+      "summary": "18 מתחמים, 39 יחידות נופש",
+      "selectedStateVisible": true,
+      "exactFirstPreserved": true
+    },
+    "mapCheck": {
+      "mapModeActive": true,
+      "summary": "18 מתחמים, 39 יחידות נופש",
+      "uniqueCards": 18,
+      "mapVisible": true
+    }
+  },
+  "automatedEvidence": {
+    "fullSuite": "1495 passed, 0 failed, 0 skipped",
+    "focusedSuite": "60 passed",
+    "typecheck": "passed",
+    "productionBuild": "passed",
+    "diffCheck": "passed",
+    "releaseExecutor": "1494 passed and 1 browser test skipped because Chromium was unavailable; all non-browser release checks passed",
+    "resourceHygiene": "verified, no task-owned processes remain"
+  },
+  "failureAndCorrection": {
+    "candidate588": "failed the public natural-destination check because delayed managed geography left arbitrary city searches without an origin for nearest completion",
+    "candidate589": "uses the first exact catalog result with valid coordinates as the bounded fallback origin, then completes only from the already eligible filtered pool",
+    "regressionProtection": "a dedicated delayed-geography regression test requires 18 unique results and preserves the exact result first"
+  }
+}
