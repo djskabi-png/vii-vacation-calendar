@@ -130,6 +130,24 @@ test("place searches append nearest eligible distinct places until the shared mi
   assert.deepEqual(completed.slice(3).map(key), pool.slice(3, 18).map(key));
 });
 
+test("place searches use an exact catalog coordinate when managed geography is delayed", () => {
+  const exact = { id: "exact", location: "משמר הירדן", area: "גליל עליון", lat: 33.00488, lng: 35.59895 };
+  const pool = [exact, ...Array.from({ length: 24 }, (_, index) => ({
+    id: `nearby-${index}`,
+    location: `יישוב ${index}`,
+    area: "גליל עליון",
+    lat: 33.01 + index * 0.004,
+    lng: 35.6 + index * 0.004,
+  }))];
+
+  const nearby = nearbySearchRecommendations(pool, "משמר הירדן", [], { key });
+  const completed = completePlaceSearchResults([exact], nearby, key);
+
+  assert.equal(completed.length, PLACE_SEARCH_MINIMUM_RESULTS);
+  assert.equal(completed[0].id, "exact");
+  assert.equal(new Set(completed.map(key)).size, PLACE_SEARCH_MINIMUM_RESULTS);
+});
+
 test("place searches stop at truthful eligible inventory instead of fabricating eighteen", () => {
   const eligible = Array.from({ length: 7 }, (_, index) => make(`eligible-${index}`, 32.1 + index * .01));
   const completed = completePlaceSearchResults(eligible.slice(0, 2), [...eligible, ...eligible], key);

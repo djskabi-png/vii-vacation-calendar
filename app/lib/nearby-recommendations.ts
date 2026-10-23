@@ -71,7 +71,13 @@ export function nearbySearchRecommendations<T extends CoordinatePlace>(
   const managed = nearbyPlacesForSelection(pool, nodes, selection,
     { limit: PLACE_SEARCH_MINIMUM_RESULTS, maximumDistanceKm: 100, minimumResults: PLACE_SEARCH_MINIMUM_RESULTS });
   if (managed.length) return managed.map((candidate) => candidate.place);
-  const origin = options.origin || { location: selection, area: selection };
+  // The managed hierarchy is loaded independently in client searches. If it
+  // is delayed or temporarily unavailable, an exact catalog match with valid
+  // coordinates is still an authoritative anchor for the requested town.
+  const selectionText = text(selection);
+  const exactCatalogAnchor = pool.find((item) => exactPoint(item)
+    && (text(item.location) === selectionText || text(item.area) === selectionText));
+  const origin = options.origin || exactCatalogAnchor || { location: selection, area: selection };
   // An unknown city is not a geographic anchor. Never fill it in catalog order.
   if (!nearbyPoint(origin)) return [];
   return nearbyRecommendations(pool, origin, {
