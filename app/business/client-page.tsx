@@ -17,7 +17,7 @@ import { ListingAccessibility } from "../components/listing-accessibility";
 import { hasVerifiedAccessibilityFeature } from "../data/accessibility-data";
 import { SleepingArrangements } from "../components/sleeping-arrangements";
 import { VerifiedSleepingDetails, type VerifiedSleepingRoom } from "../components/verified-sleeping-details";
-import type { BusinessWorld, ListingFeatureGroup, ListingHighlightIcon, Property } from "../data/site-data";
+import type { BusinessWorld, ListingFeatureGroup, Property } from "../data/site-data";
 import type { DiscoveryItem } from "../data/world-data";
 import { getListingOfferings } from "../lib/listing-offerings";
 import { nearbyTrails, type Trail } from "../data/trail-data";
@@ -54,24 +54,10 @@ import { SearchAfterResults } from "../components/search-after-results";
 import type { SupplierPlaceDetail } from "../data/supplier-place-detail";
 import { trackBusinessEvent } from "../lib/analytics";
 import { DirectPhoneLink } from "../components/direct-phone-link";
-import { Accessibility, Bath, BedDouble, Check, CircleParking, CookingPot, Eye, Gamepad2, Sparkles, Trees, Waves } from "lucide-react";
+import { FeatureIcon } from "../components/feature-icon";
 
 function bedroomLabel(count: number) {
   return count === 1 ? "חדר שינה אחד" : `${count} חדרי שינה`;
-}
-
-function highlightIconFor(label: string): ListingHighlightIcon {
-  if (/בריכ/.test(label)) return "pool";
-  if (/ג׳קוזי|ג'קוזי|סאונה|ספא/.test(label)) return "spa";
-  if (/משחק|סנוקר|פינג פונג|קריוקי/.test(label)) return "games";
-  if (/חצר|גינה|מדשא|מרפסת/.test(label)) return "garden";
-  if (/מטבח|מטבחון/.test(label)) return "kitchen";
-  if (/נוף|ים/.test(label)) return "view";
-  if (/חניה/.test(label)) return "parking";
-  if (/נגיש/.test(label)) return "accessibility";
-  if (/אירוע/.test(label)) return "events";
-  if (/יחיד|סוויט|חדר/.test(label)) return "units";
-  return "default";
 }
 
 function derivedFeatureGroups(features: string[]): ListingFeatureGroup[] {
@@ -95,21 +81,6 @@ function balanceFeatureGroups(groups: DisplayFeatureGroup[]): [DisplayFeatureGro
     height[column] += 1 + Math.ceil(group.items.length / 2);
   }
   return columns;
-}
-
-function PropertyHighlightIcon({ icon }: { icon: ListingHighlightIcon }) {
-  const Icon = icon === "pool" ? Waves
-    : icon === "spa" ? Bath
-    : icon === "games" ? Gamepad2
-    : icon === "garden" ? Trees
-    : icon === "kitchen" ? CookingPot
-    : icon === "view" ? Eye
-    : icon === "parking" ? CircleParking
-    : icon === "accessibility" ? Accessibility
-    : icon === "events" ? Sparkles
-    : icon === "units" ? BedDouble
-    : Check;
-  return <span className={`property-highlight-icon property-highlight-icon--${icon}`} aria-hidden="true"><Icon strokeWidth={1.9} /></span>;
 }
 
 const worldLabels: Record<BusinessWorld, string> = {
@@ -298,7 +269,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
     { href: "#policies", label: translate("חשוב לדעת") },
   ], [property.bedrooms, property.features, property.roomOptions?.length, property.scenario, translate, verifiedSleepingRooms.length]);
   const roomQuantity = property.roomOptions?.reduce((total, room) => total + room.quantity, 0) || 0;
-  const highlights = (property.highlights?.length ? property.highlights : property.features.map((label) => ({ label, icon: highlightIconFor(label) }))).slice(0, 5);
+  const highlights = (property.highlights?.length ? property.highlights : property.features.map((label) => ({ label }))).slice(0, 5);
   const featureGroups = property.featureGroups?.length ? property.featureGroups : derivedFeatureGroups(property.features);
   const localizedFeatureGroups = featureGroups.flatMap((group) => {
     const items = localizedBusinessList(group.items, language, translate);
@@ -402,7 +373,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
 
         <div className={`shell property-layout ${activeWorld === "vacation" ? "property-layout--vacation" : ""}`}>
           <div className="property-content">
-            <section id="about" className="property-about"><h2>{translate("על המקום")}</h2><p>{localizedDescription}</p><div className="feature-chips audience-chips">{localizedBusinessList(property.audiences, language, translate).map((audience) => <span key={audience}>{translate("מתאים ל")} {audience}</span>)}</div>{highlights.length ? <div className="property-highlights" aria-label={translate("הדברים הבולטים במקום")}>{highlights.flatMap((highlight) => { const label = safeBusinessText(highlight.label, ""); return label ? [<article key={highlight.label}><PropertyHighlightIcon icon={highlight.icon} /><strong>{label}</strong></article>] : []; })}</div> : null}</section>
+            <section id="about" className="property-about"><h2>{translate("על המקום")}</h2><p>{localizedDescription}</p><div className="feature-chips audience-chips">{localizedBusinessList(property.audiences, language, translate).map((audience) => <span key={audience}>{translate("מתאים ל")} {audience}</span>)}</div>{highlights.length ? <div className="property-highlights" aria-label={translate("הדברים הבולטים במקום")}>{highlights.flatMap((highlight) => { const label = safeBusinessText(highlight.label, ""); return label ? [<article key={highlight.label}><FeatureIcon label={highlight.label} className="property-highlight-icon" /><strong>{label}</strong></article>] : []; })}</div> : null}</section>
 
             {activeWorld === "vacation" && (initialSource === "home-deals" || initialSource === "home-holidays") && /^vacation-\d+$/.test(property.slug) ? <HomeDealDetailStatus siteID={Number(property.slug.slice(9))} period={initialPeriod} source={initialSource} from={dateRange.from} till={dateRange.till} guests={guests} /> : null}
 
@@ -481,7 +452,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
                   {room.image ? <button className="room-card__image" type="button" data-gallery-trigger onClick={() => { setGalleryTopic(room.name); openGallery("units", unitGalleryStart); }} aria-label={`${translate("פתיחת גלריית")} ${localizedRoomName}`}><img src={room.image} alt={`${localizedRoomName}, ${localizedPropertyName}`} title={`${localizedRoomName}, ${localizedPropertyName}`} width="960" height="640" loading="lazy" decoding="async" /><span>{room.images?.length ? `${room.images.length} ${translate("תמונות")}` : translate("תמונת היחידה")}</span></button> : <div className="room-card__image room-card__image--missing"><img src={property.image} alt={`${localizedPropertyName}, ${localizedRoomName}`} title={`${localizedPropertyName}, ${localizedRoomName}`} width="960" height="640" loading="lazy" decoding="async" /><span>{translate("תמונת המתחם, לא היחידה")}</span></div>}
                   <div className="room-card__body">
                     <div className="room-card__facts"><span>{translate(`עד ${room.guests} אורחים`)}</span>{room.bedrooms > 0 ? <span>{translate(bedroomLabel(room.bedrooms))}</span> : null}{room.area ? <span>{room.area} {translate("מ״ר")}</span> : null}<button className="room-card__more" type="button" onClick={() => setSelectedRoomIndex(roomIndex)}>{translate("פרטי היחידה")}</button></div>
-                    {room.features?.length ? <div className="room-card__amenities" aria-label={translate("מתקנים ושירותים ביחידה")}>{localizedBusinessList(room.features, language, translate).map((feature) => <span key={feature}><PropertyHighlightIcon icon={highlightIconFor(feature)} /><b>{feature}</b></span>)}</div> : null}
+                    {room.features?.length ? <div className="room-card__amenities" aria-label={translate("מתקנים ושירותים ביחידה")}>{localizedBusinessList(room.features, language, translate).map((feature) => <span key={feature}><FeatureIcon label={feature} className="property-highlight-icon" /><b>{feature}</b></span>)}</div> : null}
                     {activeWorld === "vacation" && hasSelectedDates ? <div className="room-card__availability" role="status"><strong>{roomStatus}</strong>{vacationAvailabilityMode === "live" && roomNightlyPrice ? <span>{roomNightlyPrice.toLocaleString(numberLocale)} ₪ {unitCopy.perNight}{roomTotalPrice ? ` · ${roomTotalPrice.toLocaleString(numberLocale)} ₪ ${unitCopy.total}` : ""}</span> : null}</div> : null}
                     <div className="room-card__actions">{activeWorld === "vacation"
                       ? canBookRoom ? <Link className="button primary" href={supplierSiteID ? `/booking?${bookingQuery}` : roomBookingHref(bookingQuery, roomIndex, roomNightlyPrice)}>{unitCopy.quick} {safeBusinessText(room.name, `${businessCopy.unit} ${roomIndex + 1}`)}</Link>
@@ -505,12 +476,12 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
               <span className="eyebrow">עיקרי המקום</span>
               <h2>מתקנים ושירותים</h2>
               <div className="feature-section__mobile-preview" aria-label="הדברים הבולטים במקום">
-                {localizedBusinessList(mobileFeaturePreview, language, translate).map((feature) => <span key={feature}><PropertyHighlightIcon icon={highlightIconFor(feature)} /><b>{feature}</b></span>)}
+                {localizedBusinessList(mobileFeaturePreview, language, translate).map((feature) => <span key={feature}><FeatureIcon label={feature} className="property-highlight-icon" /><b>{feature}</b></span>)}
               </div>
-              <div className="property-feature-groups">{desktopFeatureColumns.map((column, columnIndex) => <div className="property-feature-groups__column" key={columnIndex}>{column.map((group) => <article key={group.title}><h3>{group.title}</h3><div className="feature-list">{group.items.map((feature) => <span key={feature}><PropertyHighlightIcon icon={highlightIconFor(feature)} /><b>{feature}</b></span>)}</div></article>)}</div>)}</div>
+              <div className="property-feature-groups">{desktopFeatureColumns.map((column, columnIndex) => <div className="property-feature-groups__column" key={columnIndex}>{column.map((group) => <article key={group.title}><h3>{group.title}</h3><div className="feature-list">{group.items.map((feature) => <span key={feature}><FeatureIcon label={feature} className="property-highlight-icon" /><b>{feature}</b></span>)}</div></article>)}</div>)}</div>
               <div className={`feature-section__mobile-details ${mobileFeaturesOpen ? "is-open" : ""}`}>
                 <button className="feature-section__mobile-toggle" type="button" aria-expanded={mobileFeaturesOpen} aria-controls="mobile-feature-groups" onClick={() => setMobileFeaturesOpen((open) => !open)}>{mobileFeaturesOpen ? "הסתרת כל המתקנים" : "הצגת כל המתקנים"}</button>
-                <div id="mobile-feature-groups" className="feature-section__mobile-groups" hidden={!mobileFeaturesOpen}>{featureGroups.map((group) => { const items = localizedBusinessList(group.items, language, translate); return items.length ? <section key={group.title}><h3>{safeBusinessText(group.title, businessCopy.feature)}</h3><div>{items.map((feature) => <span key={feature}><PropertyHighlightIcon icon={highlightIconFor(feature)} /><b>{feature}</b></span>)}</div></section> : null; })}</div>
+                <div id="mobile-feature-groups" className="feature-section__mobile-groups" hidden={!mobileFeaturesOpen}>{featureGroups.map((group) => { const items = localizedBusinessList(group.items, language, translate); return items.length ? <section key={group.title}><h3>{safeBusinessText(group.title, businessCopy.feature)}</h3><div>{items.map((feature) => <span key={feature}><FeatureIcon label={feature} className="property-highlight-icon" /><b>{feature}</b></span>)}</div></section> : null; })}</div>
               </div>
               <button className="button subtle feature-section__desktop-more" type="button" onClick={() => setAllFeaturesOpen(true)}>הצגת כל המתקנים</button>
             </section>
@@ -568,7 +539,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
       <GalleryExperience key={`${property.slug}-${galleryOpen ? `${galleryTab}-${galleryStart}-${galleryTopic || "all"}` : "closed"}`} property={localizedGalleryProperty} guestPhotos={property.guestPhotos} open={galleryOpen} initialIndex={galleryStart} initialTab={galleryTab} initialTopic={galleryTopic} onAddGuestContent={() => { closeGallery(); setReviewOpen(true); }} onSelectionChange={updateGallerySelection} onClose={closeGallery} />
       <UnitDetailsDialog propertyName={property.name} room={selectedRoomIndex === null ? null : property.roomOptions?.[selectedRoomIndex] || null} open={selectedRoomIndex !== null} onClose={closeUnitDetails} onOpenGallery={() => { if (selectedRoomIndex === null || !property.roomOptions) return; const room = property.roomOptions[selectedRoomIndex]; const start = property.roomOptions.slice(0, selectedRoomIndex).reduce((total, option) => total + (option.images?.length || 1), 0); setGalleryTopic(room.name); closeUnitDetails(); window.setTimeout(() => openGallery("units", start), 0); }} />
 
-      {allFeaturesOpen && <div className="simple-modal" onMouseDown={(event) => event.target === event.currentTarget && setAllFeaturesOpen(false)}><section role="dialog" aria-modal="true" aria-labelledby="features-title"><header><h2 id="features-title">המתקנים של {property.name}</h2><button type="button" onClick={() => setAllFeaturesOpen(false)}>סגירה</button></header><div className="modal-feature-groups">{featureGroups.map((group) => <section key={group.title}><h3>{group.title}</h3><div className="feature-list modal-features">{group.items.map((feature) => <span key={feature}><PropertyHighlightIcon icon={highlightIconFor(feature)} /><b>{feature}</b></span>)}</div></section>)}</div></section></div>}
+      {allFeaturesOpen && <div className="simple-modal" onMouseDown={(event) => event.target === event.currentTarget && setAllFeaturesOpen(false)}><section role="dialog" aria-modal="true" aria-labelledby="features-title"><header><h2 id="features-title">המתקנים של {property.name}</h2><button type="button" onClick={() => setAllFeaturesOpen(false)}>סגירה</button></header><div className="modal-feature-groups">{featureGroups.map((group) => <section key={group.title}><h3>{group.title}</h3><div className="feature-list modal-features">{group.items.map((feature) => <span key={feature}><FeatureIcon label={feature} className="property-highlight-icon" /><b>{feature}</b></span>)}</div></section>)}</div></section></div>}
     </PageShell>
   );
 }

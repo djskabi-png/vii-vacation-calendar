@@ -73,7 +73,7 @@ test("map cards send only their primary image and room cards own stable media ge
   assert.doesNotMatch(map, /images: item\.images\?\.slice/);
   assert.match(detail, /width="960" height="640"[\s\S]*decoding="async"/);
   assert.doesNotMatch(detail, /room-card__features/);
-  assert.match(detail, /property-feature-groups[\s\S]*PropertyHighlightIcon/);
+  assert.match(detail, /property-feature-groups[\s\S]*<FeatureIcon label=\{feature\} className="property-highlight-icon" \/>/);
   assert.match(css, /\.room-card \{ min-height: 318px;[\s\S]*grid-template-columns: minmax\(330px, 43%\)/);
 });
 

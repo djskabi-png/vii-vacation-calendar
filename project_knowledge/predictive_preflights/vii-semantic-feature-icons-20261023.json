@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-semantic-feature-icons-20261023",
+  "project": "VII",
+  "task_type": "shared public UI component repair",
+  "requested_outcome": "Every visible place feature and amenity on every VII detail-page world has a clear, centered semantic icon, including values not explicitly known in advance, and the verified change is published without regressing existing detail-page behavior.",
+  "natural_destination": "Public VII place pages at https://vii.spaplus.co",
+  "authorization_boundary": "Source changes, tests, production publication and post-deploy verification are explicitly authorized. No supplier-data edits, DNS changes, purchases or unrelated redesign are authorized.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "A shared visual defect must be repaired and verified across the full place-page family at the public destination.",
+      "acceptance_impact": "Require desktop and mobile public evidence for vacation, events, spa and hourly detail pages, plus automated family guards."
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "reason": "The requested result includes publication to the shared production destination.",
+      "acceptance_impact": "Build from the current production baseline, retain rollback identity, publish once and verify the exact deployed version."
+    },
+    {
+      "lesson_id": "ADIR-INTENT-001",
+      "reason": "The phrase every feature means the complete component family, not the single visible vacation example.",
+      "acceptance_impact": "Inventory all detail-page worlds and provide a deterministic fallback for future supplier labels."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "Only the specific vacation page is fixed while event, spa or hourly features remain generic or iconless.",
+      "prevention": "Use one shared semantic feature-icon component in all four detail-page families.",
+      "acceptance_check": "Source and live-page checks cover vacation, event, spa and hourly detail pages."
+    },
+    {
+      "rejection": "Plural Hebrew words containing the letters ים are incorrectly classified as sea or view features.",
+      "prevention": "Use ordered, phrase-aware matching and test חדרי שינה, אורחים and אחסון explicitly.",
+      "acceptance_check": "Classifier tests return bed, users and storage icons rather than view."
+    },
+    {
+      "rejection": "Known labels get icons but a new API label renders without one.",
+      "prevention": "Return a consistent semantic fallback icon for every non-empty label.",
+      "acceptance_check": "Unknown labels render the fallback vector inside the same centered wrapper."
+    },
+    {
+      "rejection": "The icon exists in the DOM but is clipped, off-center or visually inconsistent on mobile.",
+      "prevention": "Preserve the normalized icon wrappers and add shared SVG centering rules for every new consumer.",
+      "acceptance_check": "Desktop and 390-pixel screenshots show centered icons with no overflow."
+    },
+    {
+      "rejection": "A new deployment overwrites unrelated fixes from the current public version.",
+      "prevention": "Use the current release worktree, run the full regression suite and verify representative unchanged flows after publication.",
+      "acceptance_check": "Build, full tests and live detail routes pass on the exact deployed version with a recorded rollback."
+    }
+  ],
+  "affected_family": [
+    "vacation business highlights and grouped amenities",
+    "vacation room and sleeping amenity rows",
+    "event place and event-room features",
+    "spa facilities",
+    "hourly-room amenities",
+    "desktop and 390-pixel mobile detail layouts",
+    "Hebrew, English, Russian and French labels",
+    "unknown future supplier feature labels"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "All centered SVG feature icons use their own normalized wrapper",
+        "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md:75"
+      },
+      {
+        "label": "Existing vacation feature-card layout and visual treatment",
+        "source": "https://vii.spaplus.co/business?id=vacation-2566#features"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the shared classifier and vacation/event consumers are implemented",
+    "checks": [
+      "Verify representative Hebrew labels map to the intended semantic icons",
+      "Verify the shared component preserves existing wrappers and centered SVG geometry before expanding to spa and hourly"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Does any feature row in any detail-page world still render plain text without an icon?",
+      "Does any common Hebrew plural get an unrelated sea or view icon?",
+      "Does an unknown label disappear or render an empty wrapper?",
+      "Are icons centered and readable on desktop and 390-pixel mobile?",
+      "Did the deployment preserve galleries, booking, breadcrumbs, contact actions and feature expansion?"
+    ],
+    "natural_destination_evidence": "Exact public version and screenshots or live DOM observations for representative vacation, event, spa and hourly detail routes after deployment.",
+    "affected_family_evidence": "Automated tests, source inventory and live public checks covering every shared consumer and fallback behavior."
+  },
+  "effectiveness": {
+    "baseline": "The public vacation page shows a mix of semantic icons and generic checkmarks, event pages use only checkmarks, hourly pages use one generic symbol and spa facilities have no icon wrapper.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "One shared icon resolver removes iconless and misclassified features across all detail-page worlds in one release."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

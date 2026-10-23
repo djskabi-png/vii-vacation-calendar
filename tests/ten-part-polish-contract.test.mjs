@@ -31,7 +31,7 @@ test("room cards expose every verified amenity in a compact scrollable row witho
   assert.match(business, /className="room-card__amenities"/);
   assert.match(business, /localizedBusinessList\(room\.features, language, translate\)/);
   assert.doesNotMatch(business, /room\.features\.slice\(/);
-  assert.match(business, /PropertyHighlightIcon icon=\{highlightIconFor\(feature\)\}/);
+  assert.match(business, /<FeatureIcon label=\{feature\} className="property-highlight-icon" \/>/);
   assert.match(styles, /\.room-card__amenities \{[^}]*overflow-x: auto;[^}]*touch-action: pan-x/);
   assert.match(styles, /\.room-card__image img \{[^}]*width: 100%; height: 100%;[^}]*object-fit: cover/);
   assert.match(styles, /\.room-card__image \{[^}]*aspect-ratio: 16 \/ 10/);

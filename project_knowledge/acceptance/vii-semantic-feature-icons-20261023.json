@@ -1,0 +1,113 @@
+{
+  "goal": "Publish one shared semantic icon system so every visible feature and amenity on VII detail pages has an appropriate, centered vector icon.",
+  "intent_model": {
+    "literal_request": "Provide an icon for every feature, verify correctness and publish.",
+    "implied_outcome": "The complete detail-page family looks intentional rather than partly illustrated and partly generic.",
+    "likely_rejections": [
+      "Only one page is fixed",
+      "Generic checks remain for common features",
+      "A new API feature has no visual fallback",
+      "The icon is present but visually off-center",
+      "The local fix was not verified after publication"
+    ],
+    "interpretation_rules": [
+      {
+        "phrase": "every feature",
+        "operational_meaning": "Cover all detail-page worlds and unknown future labels through one shared resolver.",
+        "acceptance_impact": "The family inventory and fallback checks are mandatory."
+      },
+      {
+        "phrase": "publish after testing",
+        "operational_meaning": "Publication is authorized only after pre-release gates pass, followed by live checks on the exact version.",
+        "acceptance_impact": "Local build alone cannot satisfy the request."
+      }
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "Each feature label is paired with one immediately recognizable visual anchor.",
+    "current_decision": "No user decision is added; the icon improves scanning of existing information.",
+    "next_action": "The visitor continues reading or uses the existing detail-page action.",
+    "deferred_complexity": ["The internal keyword classification and supplier-specific values remain invisible to visitors."],
+    "preserved_depth": ["Full feature groups, room details, expandable lists and localized labels remain available."]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/predictive_preflights/vii-semantic-feature-icons-20261023.json",
+    "lesson_bundle_ids": ["ADIR-QA-001", "ADIR-DEPLOY-001", "ADIR-INTENT-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["Public visitor comparing a place", "Keyboard and screen-reader user"],
+  "natural_destination": "Public VII vacation, event, spa and hourly detail pages",
+  "facts": [
+    {
+      "claim": "The current vacation resolver recognizes only a small set of phrases and uses a generic check fallback.",
+      "evidence": "app/business/client-page.tsx highlightIconFor and PropertyHighlightIcon"
+    },
+    {
+      "claim": "Event details use a generic check, hourly amenities use one generic symbol, and spa facilities render text-only list items.",
+      "evidence": "app/events/place/client-page.tsx and app/discover/place/client-page.tsx"
+    },
+    {
+      "claim": "The existing shared SVG centering rule is an approved VII requirement.",
+      "evidence": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md:75"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "A semantic vector icon, rather than a photographic image, is the intended visual for a textual feature.",
+      "validation": "The approved current component and feedback standard use centered SVG icons for features."
+    }
+  ],
+  "in_scope": [
+    "Shared semantic feature classifier and icon component",
+    "Vacation highlights, grouped features, rooms and sleeping amenities",
+    "Event place and room features",
+    "Spa facilities",
+    "Hourly amenities",
+    "Unknown-label fallback",
+    "Desktop, mobile and multilingual-safe rendering",
+    "Production publication and live verification"
+  ],
+  "out_of_scope": [
+    "Changing supplier feature values",
+    "Redesigning feature layouts or page hierarchy",
+    "Changing search filters, URLs or booking behavior",
+    "Claiming full legal accessibility compliance"
+  ],
+  "invariants": [
+    "Feature text and grouping remain unchanged",
+    "Existing page order, booking, gallery, contact, breadcrumbs and navigation remain unchanged",
+    "Icons remain decorative and hidden from assistive technology because the adjacent text carries the meaning",
+    "Heebo typography and current RTL/LTR behavior remain unchanged",
+    "No feature is invented when supplier data is absent"
+  ],
+  "affected_family": [
+    "business detail features",
+    "event detail features",
+    "spa detail facilities",
+    "hourly detail amenities",
+    "room and sleeping amenity lists",
+    "all active languages",
+    "desktop and mobile"
+  ],
+  "characteristics": {"stateful": false},
+  "requirements": [
+    {"id": "REQ-1", "statement": "Every rendered feature or amenity has one visible vector icon.", "source": "User request"},
+    {"id": "REQ-2", "statement": "Common labels use a semantically appropriate icon and unknown labels use a non-empty fallback.", "source": "User request and VII product standard"},
+    {"id": "REQ-3", "statement": "The behavior is shared across vacation, events, spa and hourly detail pages without changing their content or flows.", "source": "VII shared-family rule"},
+    {"id": "REQ-4", "statement": "The exact release is built, tested, published and verified on desktop and mobile.", "source": "User request and release lessons"}
+  ],
+  "acceptance_checks": [
+    {"id": "AC-1", "requirement_ids": ["REQ-1", "REQ-3"], "kind": "success", "setup": "Representative detail pages in all four worlds", "action": "Inspect each visible feature and amenity row", "observable_result": "Each row contains exactly one non-empty centered SVG wrapper next to its unchanged label."},
+    {"id": "AC-2", "requirement_ids": ["REQ-2"], "kind": "success", "setup": "Known labels including bedrooms, storage, guests, pool, kitchen, parking, accessibility, Wi-Fi, sauna, barbecue and TV", "action": "Resolve their icon kinds", "observable_result": "Each maps to the intended semantic category and no Hebrew plural is mistaken for sea or view."},
+    {"id": "AC-3", "requirement_ids": ["REQ-2"], "kind": "empty", "setup": "A non-empty label unknown to the classifier", "action": "Render the feature", "observable_result": "A neutral circle-check icon is rendered; the wrapper is not empty and the label remains visible."},
+    {"id": "AC-3B", "requirement_ids": ["REQ-1", "REQ-2"], "kind": "failure", "setup": "A label contains punctuation, mixed language or a supplier phrase that matches no known semantic rule", "action": "Render the feature without a preferred icon", "observable_result": "The shared component renders the neutral fallback icon without throwing, hiding the label or producing an empty SVG."},
+    {"id": "AC-4", "requirement_ids": ["REQ-1", "REQ-3", "REQ-4"], "kind": "success", "setup": "Production candidate at desktop and 390-pixel mobile widths", "action": "Inspect vacation, event, spa and hourly feature sections", "observable_result": "Icons are centered, labels do not overlap, and no horizontal overflow or missing icon appears."},
+    {"id": "AC-5", "requirement_ids": ["REQ-3", "REQ-4"], "kind": "rollback", "setup": "Published release and recorded previous version", "action": "Verify representative unchanged flows and rollback identity", "observable_result": "Galleries, booking, contacts, breadcrumbs and feature expansion remain functional and the previous version can be restored."}
+  ],
+  "open_questions": [],
+  "authorization_boundary": "Implementation, testing and production publication are authorized; unrelated data, DNS, payment and supplier mutations are excluded.",
+  "ready_for_implementation": true
+}

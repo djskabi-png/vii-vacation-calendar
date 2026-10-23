@@ -4,6 +4,7 @@
 
 import { useId, useRef } from "react";
 import type { SleepingArrangement } from "../data/site-data";
+import { FeatureIcon } from "./feature-icon";
 import { SliderRailControls } from "./slider-rail-controls";
 
 type Props = {
@@ -42,7 +43,7 @@ export function SleepingArrangements({ placeName, arrangements }: Props) {
               <h3>{arrangement.name}</h3>
               <strong>{bedDescription(arrangement)}</strong>
               <div className="sleeping-card__amenities" aria-label={`אבזור ${arrangement.name}`}>
-                {arrangement.amenities.map((amenity) => <small key={amenity}>{amenity}</small>)}
+                {arrangement.amenities.map((amenity) => <small key={amenity}><FeatureIcon label={amenity} className="sleeping-amenity-icon" />{amenity}</small>)}
               </div>
             </div>
           </article>

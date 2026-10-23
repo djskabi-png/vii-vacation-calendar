@@ -6,11 +6,15 @@ const root = new URL("../", import.meta.url);
 const read = (path) => readFile(new URL(path, root), "utf8");
 
 test("property feature icons use one normalized icon library", async () => {
-  const page = await read("app/business/client-page.tsx");
-  for (const icon of ["Waves", "Bath", "Gamepad2", "Trees", "CookingPot", "Eye", "CircleParking", "Accessibility", "Sparkles", "BedDouble", "Check"]) {
-    assert.match(page, new RegExp(`\\b${icon}\\b`));
+  const [page, icons] = await Promise.all([
+    read("app/business/client-page.tsx"),
+    read("app/components/feature-icon.tsx"),
+  ]);
+  assert.match(page, /import \{ FeatureIcon \} from "\.\.\/components\/feature-icon"/);
+  for (const icon of ["Waves", "Bath", "Gamepad2", "Trees", "CookingPot", "Eye", "CircleParking", "Accessibility", "Sparkles", "BedDouble", "BadgeCheck"]) {
+    assert.match(icons, new RegExp(`\\b${icon}\\b`));
   }
-  assert.doesNotMatch(page, /const path = icon ===/);
+  assert.doesNotMatch(icons, /const path = icon ===/);
 });
 
 test("shared square icon frames center the SVG box explicitly", async () => {

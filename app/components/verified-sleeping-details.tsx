@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { useId, useRef } from "react";
+import { FeatureIcon } from "./feature-icon";
 import { SliderRailControls } from "./slider-rail-controls";
 
 export type VerifiedSleepingRoom = {
@@ -36,7 +37,7 @@ export function VerifiedSleepingDetails({ placeName, rooms }: { placeName: strin
           {room.unitName ? <span>{room.unitName}</span> : null}
           <h3>{room.name}</h3>
           <div className="sleeping-card__amenities" aria-label={`פרטי ${room.name}`}>
-            {room.details.map((detail) => <small key={detail}>{detail}</small>)}
+            {room.details.map((detail) => <small key={detail}><FeatureIcon label={detail} className="sleeping-amenity-icon" />{detail}</small>)}
           </div>
         </div>
       </article>)}

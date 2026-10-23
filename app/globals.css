@@ -4084,7 +4084,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .spa-package-card header span { color: var(--spa); font-weight: 800; }
 .spa-package-card h3 { margin: 18px 0 12px; font-size: 1.35rem; }
 .spa-package-card ul { margin: 0 0 24px; padding: 0; list-style: none; display: grid; gap: 8px; color: var(--ink-soft); }
-.spa-package-card li::before,.spa-facility-list li::before,.spa-visit-info li::before { content: "\2713"; margin-inline-end: 8px; color: var(--spa); font-weight: 900; }
+.spa-package-card li::before,.spa-visit-info li::before { content: "\2713"; margin-inline-end: 8px; color: var(--spa); font-weight: 900; }
 .spa-package-card footer { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .spa-package-card footer strong { font-size: 1.05rem; }
 .spa-package-card .button { padding: 11px 17px; }
@@ -4097,6 +4097,9 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .spa-treatment-list span,.spa-treatment-list small { color: var(--ink-soft); }
 .spa-facility-list,.spa-visit-info ul { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
 .spa-facility-list li,.spa-visit-info li { padding: 14px 16px; border-radius: 16px; background: var(--surface-soft); }
+.spa-facility-list li { display: flex; align-items: center; gap: 10px; }
+.spa-facility-icon { width: 30px; height: 30px; flex: 0 0 30px; display: grid; place-items: center; padding: 0; border-radius: 10px; color: var(--spa); background: #fae8f5; line-height: 0; }
+.spa-facility-icon svg { width: 17px; height: 17px; }
 .spa-visit-info { display: grid; grid-template-columns: .8fr 1.2fr; gap: 36px; align-items: start; }
 .spa-visit-info p { margin: 6px 0; font-weight: 700; }
 .spa-faq > div:last-child { display: grid; gap: 10px; }
@@ -5285,7 +5288,7 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .property-highlight-icon--garden { --feature-icon-color: #16775f; --feature-icon-bg: #e1f3eb; }
 .property-highlight-icon--events { --feature-icon-color: #a85c16; --feature-icon-bg: #fff0de; }
 /* Shared icon frames use the SVG box itself as the centering reference. */
-:is(.property-highlight-icon,.event-feature-check,.hourly-feature-icon,.spa-results__filter-icon,.search-depth__discovery-icon,.location-nearby__icon,.saved-viewed-menu__icon,.mobile-filter__icon) > svg { display: block; flex: none; margin: auto; overflow: visible; transform-origin: center; }
+:is(.property-highlight-icon,.event-feature-check,.hourly-feature-icon,.spa-facility-icon,.sleeping-amenity-icon,.spa-results__filter-icon,.search-depth__discovery-icon,.location-nearby__icon,.saved-viewed-menu__icon,.mobile-filter__icon) > svg { display: block; flex: none; margin: auto; overflow: visible; transform-origin: center; }
 .property-feature-groups { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); align-items: start; gap: 12px; margin: 18px 0; }
 .property-feature-groups__column { min-width: 0; display: grid; align-content: start; gap: 12px; }
 .property-feature-groups article { width: 100%; min-width: 0; margin: 0; padding: 18px; border: 1px solid var(--line); border-radius: 17px; background: #f8fbfb; box-sizing: border-box; }
@@ -5321,7 +5324,9 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .sleeping-card__body h3 { margin: 0; font-size: 1.1rem; }
 .sleeping-card__body strong { font-size: .9rem; }
 .sleeping-card__amenities { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
-.sleeping-card__amenities small { padding: 6px 8px; border-radius: 999px; background: #eff7f8; color: var(--ink-soft); font-size: .69rem; }
+.sleeping-card__amenities small { display: inline-flex; align-items: center; gap: 5px; padding: 6px 8px; border-radius: 999px; background: #eff7f8; color: var(--ink-soft); font-size: .69rem; }
+.sleeping-amenity-icon { width: 18px; height: 18px; flex: 0 0 18px; display: grid; place-items: center; color: var(--teal-dark); line-height: 0; }
+.sleeping-amenity-icon svg { width: 14px; height: 14px; }
 .sleeping-section__disclosure { margin: 12px 2px 0; color: var(--ink-soft); font-size: .76rem; line-height: 1.65; }
 .room-card__image img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; transition: transform .35s ease; }
 .room-card:hover .room-card__image img { transform: scale(1.035); }
