@@ -33,6 +33,13 @@ test("place-type cards use distinct relevant photography without the unavailable
   assert.match(typeBlock, /88fcef4341b24a45\.jpeg/);
 });
 
+test("place detail recommendation rails skip image-less cards and backfill from the ranked pool", async () => {
+  const detail = await source("app/discover/place/client-page.tsx");
+  assert.match(detail, /function hasListingMedia\(item: DiscoveryItem\)/);
+  assert.match(detail, /entry\.world === item\.world && hasListingMedia\(entry\)/);
+  assert.match(detail, /nearbyRecommendations\([\s\S]*hasListingMedia\(entry\)[\s\S]*exclude: item\.id/);
+});
+
 test("holiday, contact and card requirements remain explicit", async () => {
   const [deals, model, sharedCard] = await Promise.all([
     source("app/components/home-live-deals.tsx"),

@@ -58,6 +58,10 @@ function hourlyRateLabel(value: string, language: "he" | "en" | "ru" | "fr", tra
   return `${translate(room)} · ${durations[language][duration as keyof typeof durations.en] || duration} · ${days[language][day as keyof typeof days.en] || day}`;
 }
 
+function hasListingMedia(item: DiscoveryItem) {
+  return Boolean(item.image?.trim() || item.images?.some((image) => image?.trim()));
+}
+
 function SpaPackageCard({ pack, requestedDate }: { pack: SpaPackage; requestedDate?: string }) {
   const { language, translate } = useSiteLanguage();
   const text = spaDealCopy[language];
@@ -247,7 +251,7 @@ export default function DiscoveryPlacePage({ initialId, initialItem, relatedItem
   const localizedLocation = safeDetailText(item.location, localizedArea);
   const localizedDescription = safeDetailText(item.description, detailCopy.description(localizedItemName, localizedLocation));
   const localizedFeatures = localizedBusinessList(item.features, language, translate);
-  const related = nearbyRecommendations((relatedItems || discoveryItems).filter((entry) => entry.world === item.world), item,
+  const related = nearbyRecommendations((relatedItems || discoveryItems).filter((entry) => entry.world === item.world && hasListingMedia(entry)), item,
     { key: (entry) => entry.id, exclude: item.id }).items;
   const spaDetails = item.world === "spa" ? initialSpaDetails || getSpaDetails(item.id) : undefined;
   const providerDetails = item.world === "providers" ? getProviderDetails(item.id) : undefined;
