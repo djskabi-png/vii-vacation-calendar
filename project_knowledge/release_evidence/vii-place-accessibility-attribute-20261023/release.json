@@ -1,0 +1,50 @@
+{
+  "task_id": "vii-place-accessibility-attribute-20261023",
+  "released_at": "2026-10-23T08:23:00+03:00",
+  "public_url": "https://vii.spaplus.co",
+  "version": 593,
+  "version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_0ec394c583e08191a7609561dd7afec0",
+  "deployment_id": "appgdep_6adaef1f408c8191afc8bf64bdab2435",
+  "deployment_status": "succeeded",
+  "commit": "e9573c9d98554d9be0e0836953804e580ed02858",
+  "environment_revision": 25,
+  "rollback": {
+    "version": 592,
+    "version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_e35ca17d6504819193bf9be9b047a208",
+    "deployment_id": "appgdep_6adae964506081919917403b8c25f56b",
+    "commit": "0ed965808f1e337d640fe66b9186a8936f3717f2"
+  },
+  "local_verification": {
+    "tests": "1499 passed, 0 failed",
+    "typescript": "passed",
+    "production_build": "passed",
+    "diff_check": "passed"
+  },
+  "public_checks": [
+    {
+      "url": "https://vii.spaplus.co/business?id=vacation-1805",
+      "api_value": "נגישות לנכים",
+      "result": "prominent title badge, direct anchor, expandable detailed disclosure"
+    },
+    {
+      "url": "https://vii.spaplus.co/business?id=vacation-1977",
+      "api_value": "נגישות מלאה לנכים",
+      "result": "recognized and displayed through the canonical accessibility badge"
+    },
+    {
+      "url": "https://vii.spaplus.co/events/place/event-2575",
+      "api_value": "נגישות מלאה לנכים",
+      "result": "recognized and displayed in the event-place title area"
+    },
+    {
+      "url": "https://vii.spaplus.co/events/place/event-1085",
+      "api_value": "מיקום מרכזי נגיש",
+      "result": "negative control passed: no verified-accessibility badge or disclosure"
+    }
+  ],
+  "screenshots": [
+    "vacation-1805-desktop.png",
+    "vacation-1805-mobile.png",
+    "vacation-1805-accessibility-detail.png"
+  ]
+}

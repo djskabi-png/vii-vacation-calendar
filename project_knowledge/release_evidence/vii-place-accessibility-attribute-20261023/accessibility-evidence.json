@@ -1,0 +1,57 @@
+{
+  "release_url": "https://vii.spaplus.co/business?id=vacation-1805",
+  "release_id": "593 / e9573c9d98554d9be0e0836953804e580ed02858",
+  "public_version_tested": true,
+  "jurisdictions": [
+    {
+      "country": "Israel",
+      "applicable_law": "Equal Rights for Persons with Disabilities framework and Service Accessibility Regulations; exact operator applicability requires legal owner facts",
+      "applicable_standard": "Israeli Standard 5568; WCAG 2.2 AA used only as the internal quality floor for this delta",
+      "official_sources": [
+        {
+          "url": "https://www.gov.il/he/pages/website_accessibility?chapterIndex=3",
+          "checked_at": "2026-10-23",
+          "requirement_summary": "Official website accessibility guidance, updated 2026-03-16"
+        },
+        {
+          "url": "https://www.gov.il/he/pages/declaration_website_accessibility?chapterIndex=3",
+          "checked_at": "2026-10-23",
+          "requirement_summary": "Official accessibility statement and service-arrangements guidance, updated 2026-04-15"
+        }
+      ]
+    }
+  ],
+  "legal_applicability": {
+    "status": "blocked",
+    "owner_facts_complete": false,
+    "evidence": "The released signal reports a supplier attribute only and does not claim legal compliance. Exact exemption and coordinator obligations require operator and legal-owner facts.",
+    "exemptions": []
+  },
+  "checks": {
+    "automated_scan": {"status": "pass", "evidence": "1499 local regression tests passed; public DOM inspection confirmed the semantic link and disclosure."},
+    "keyboard": {"status": "pass", "evidence": "The compact signal is a native anchor and the detailed disclosure is a native button with expanded state."},
+    "focus": {"status": "pass", "evidence": "A dedicated focus-visible outline is included in the released CSS."},
+    "screen_reader": {"status": "blocked", "evidence": "No independent assistive-technology session was completed in this scoped release."},
+    "headings_landmarks": {"status": "pass", "evidence": "The detailed disclosure exposes a level-2 heading inside the place content."},
+    "names_labels": {"status": "pass", "evidence": "Public accessible name is 'נגישות לנכים: למידע נוסף'; detailed control exposes expanded/collapsed state."},
+    "contrast": {"status": "blocked", "evidence": "Visual inspection passed, but an independent numeric contrast audit was not run for the full site."},
+    "resize_zoom_reflow": {"status": "pass", "evidence": "The shared signal uses wrapping, max-width 100% and no fixed width."},
+    "mobile": {"status": "pass", "evidence": "Public 390x844 responsive inspection passed; the control has a 44px minimum target height."},
+    "forms_errors": {"status": "not_applicable", "reason": "This delta does not add or change a form.", "evidence": ""},
+    "media_documents": {"status": "not_applicable", "reason": "This delta does not add media or documents.", "evidence": ""},
+    "maps_third_party": {"status": "not_applicable", "reason": "This delta does not change the map implementation.", "evidence": ""},
+    "language_direction": {"status": "pass", "evidence": "Hebrew label and details render RTL and inherit the approved Heebo/Assistant/Rubik product typography stack."},
+    "accessibility_statement": {"status": "pass", "evidence": "Expanded disclosure links to https://vii.spaplus.co/accessibility without claiming the place is legally compliant."},
+    "contact_and_arrangements": {"status": "pass", "evidence": "Disclosure advises confirming required arrangements directly with the place before booking."}
+  },
+  "statement_truth_verified": true,
+  "independent_check": {
+    "status": "blocked",
+    "checker": "",
+    "checked_at": "",
+    "evidence": "No independent legal or screen-reader checker was assigned for this scoped data-visibility repair."
+  },
+  "blockers": [
+    "A full legal-compliance claim remains blocked pending operator facts, independent legal review and assistive-technology testing."
+  ]
+}
