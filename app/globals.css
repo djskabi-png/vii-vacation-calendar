@@ -3561,6 +3561,7 @@ h3 { font-size: 1.18rem; }
 .detail-sticky-dock__rating { padding-inline-end: 14px; border-inline-end: 1px solid #d8e8e9; }
 .detail-sticky-dock__rating b { color: var(--ink); font-size: 1.2rem; line-height: 1; font-variant-numeric: tabular-nums; }
 .detail-sticky-dock__rating > span { color: #d28a00; font-size: .85rem; line-height: 1; }
+.detail-sticky-dock__stars { direction: ltr; display: inline-block; letter-spacing: 1px; }
 .detail-sticky-dock__rating small, .detail-sticky-dock__review-count span { color: var(--muted); font-size: .68rem; font-weight: 720; }
 .detail-sticky-dock__review-count b { color: var(--teal-dark); font-size: .88rem; font-variant-numeric: tabular-nums; }
 .detail-sticky-dock__sections { min-width: 0; display: flex; gap: 4px; overflow-x: auto; padding: 5px; scrollbar-width: none; }

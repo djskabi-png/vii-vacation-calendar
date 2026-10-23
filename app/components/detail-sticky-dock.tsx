@@ -49,7 +49,7 @@ export function DetailStickyDock({
     <div className="detail-sticky-wrap">
       <div className={`shell detail-sticky-dock${hasReviewSummary ? "" : " detail-sticky-dock--no-review-summary"}`}>
         {hasReviewSummary ? <div className="detail-sticky-dock__review-summary" aria-label={`${formattedRating} ${outOfTenLabel}, ${formattedReviewCount} ${reviewsLabel}`}>
-          <span className="detail-sticky-dock__rating"><b>{formattedRating}</b><span aria-hidden="true">★</span><small>{outOfTenLabel}</small></span>
+          <span className="detail-sticky-dock__rating"><b>{formattedRating}</b><span className="detail-sticky-dock__stars" aria-hidden="true">★★★★★</span></span>
           <span className="detail-sticky-dock__review-count"><b>{formattedReviewCount}</b><span>{reviewsLabel}</span></span>
         </div> : null}
 

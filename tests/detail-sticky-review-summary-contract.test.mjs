@@ -16,6 +16,8 @@ test("review summary is rendered only from a real rating and a positive review c
   assert.match(dock, /typeof reviewCount === "number"/);
   assert.match(dock, /reviewCount > 0/);
   assert.match(dock, /hasReviewSummary \? <div className="detail-sticky-dock__review-summary"/);
+  assert.match(dock, /detail-sticky-dock__stars[^>]*>★★★★★<\/span>/);
+  assert.doesNotMatch(dock, /<small>\{outOfTenLabel\}<\/small>/);
 });
 
 test("business and event pages use the same verified values as their review section", () => {
@@ -23,4 +25,9 @@ test("business and event pages use the same verified values as their review sect
   assert.match(business, /reviewCount=\{supplierDetail\?\.reviewCount \?\? property\.reviews\}/);
   assert.match(events, /rating=\{supplierDetail\?\.reviewScore \?\? place\.score\}/);
   assert.match(events, /reviewCount=\{supplierDetail\?\.reviewCount \?\? place\.reviews\}/);
+});
+
+test("business about section does not repeat the place name below the gallery", () => {
+  assert.match(business, /className="property-about"><h2>\{translate\("על המקום"\)\}<\/h2>/);
+  assert.doesNotMatch(business, /className="property-about"><h2>\{translate\("על"\)\} \{localizedPropertyName\}<\/h2>/);
 });
