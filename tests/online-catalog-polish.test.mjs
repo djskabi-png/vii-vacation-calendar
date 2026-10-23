@@ -87,7 +87,7 @@ test("card galleries advance past broken supplier images and withdraw media afte
   assert.match(gallery, /onError=\{\(\) => \{[\s\S]*const failed = new Set\(brokenImages\)\.add\(currentImage\)[\s\S]*setImageIndex\(nextIndex\)/);
   assert.match(hook, /findReadyPreviewImage\(imagesRef\.current, target, direction\)/);
   assert.match(loader, /for \(let index = startIndex; index >= 0 && index < images\.length; index \+= direction\)/);
-  assert.match(gallery, /setMediaUnavailable\(true\)/);
+  assert.match(gallery, /galleryImages\.every\(\(image\) => brokenImages\.has\(image\)\)/);
   assert.match(gallery, /onMediaUnavailable\?\.\(\)/);
   assert.doesNotMatch(gallery, /preview-card-gallery__missing/);
   assert.match(css, /\.preview-card-gallery__missing \{[^}]*position:absolute;[^}]*place-items:center/);

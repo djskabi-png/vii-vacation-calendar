@@ -65,7 +65,7 @@ test("gallery interactions remain localized, bounded and separate from rail navi
   assert.match(gallery, /disabled=\{previousDisabled\}/);
   assert.match(gallery, /disabled=\{nextDisabled\}/);
   assert.match(gallery, /galleryImages\.length > 1/);
-  assert.match(gallery, /loading="lazy"/);
+  assert.match(gallery, /loading=\{priority \? "eager" : "lazy"\}/);
   assert.doesNotMatch(gallery, /fetch\(/);
   assert.doesNotMatch(gallery, /<img key=/, "keep the existing image element during next-photo loading");
   assert.doesNotMatch(read("app/components/property-card.tsx"), /<img key=/);

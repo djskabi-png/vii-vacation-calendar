@@ -78,7 +78,7 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
       units: supplierDetail.units || base.units, contact: { ...base.contact, ...(supplierDetail.phone ? { phone: supplierDetail.phone } : {}), whatsapp: supplierDetail.whatsapp },
       description: supplierDetail.summary || base.description,
       features: [...new Set([...(supplierDetail.highlights || []), ...base.features, ...supplierDetail.rooms.flatMap((room) => room.features)])] } : base;
-  }, [initialPlace, initialSlug, supplierDetail]);
+  }, [initialPlace, supplierDetail]);
   const eventContentCopy = {
     he: { name: "מתחם אירועים מאומת", location: "ישראל", description: (name: string, location: string) => `${name} הוא מתחם אירועים ב${location}. כאן תוכלו לראות תמונות, מתקנים, קיבולת ודרכי יצירת קשר.`, unit: "מתחם אירוח", policy: "הערות ותנאים נוספים מאושרים ישירות מול המקום." },
     en: { name: "Verified event venue", location: "Israel", description: (name: string, location: string) => `${name} is a verified event venue in ${location}. Explore its photos, amenities, capacity and contact options.`, unit: "Event space", policy: "Additional notes and terms are confirmed directly with the venue." },

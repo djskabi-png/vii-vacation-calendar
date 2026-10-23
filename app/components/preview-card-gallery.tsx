@@ -3,7 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
+import { useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { PreviewGalleryStatus, usePreviewGallery } from "./use-preview-gallery";
 
@@ -52,10 +52,8 @@ export function PreviewCardGallery({
   const { language } = useSiteLanguage();
   const copy = galleryCopy[language];
   const galleryImages = [...new Set(images.filter(Boolean))].slice(0, 10);
-  const imageKey = galleryImages.join("\n");
   const { imageIndex, navigationIndex, setImageIndex, warmImages, pending, error } = usePreviewGallery(galleryImages);
   const [brokenImages, setBrokenImages] = useState<Set<string>>(() => new Set());
-  const [mediaUnavailable, setMediaUnavailable] = useState(false);
   const touchStart = useRef<number | null>(null);
   const didSwipe = useRef(false);
   const swipeResetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -66,18 +64,13 @@ export function PreviewCardGallery({
     ? { objectPosition: imagePosition, objectFit: imageFit }
     : undefined;
 
-  useEffect(() => {
-    setBrokenImages(new Set());
-    setMediaUnavailable(false);
-  }, [imageKey]);
-
   function moveImage(event: MouseEvent<HTMLButtonElement>, direction: -1 | 1) {
     event.preventDefault();
     event.stopPropagation();
     setImageIndex((current) => Math.max(0, Math.min(galleryImages.length - 1, current + direction)));
   }
 
-  if (!galleryImages.length || mediaUnavailable) return null;
+  if (!galleryImages.length || galleryImages.every((image) => brokenImages.has(image))) return null;
 
   return <div
     className={`preview-card-gallery ${className}`}
@@ -117,12 +110,11 @@ export function PreviewCardGallery({
       <img src={currentImage} alt={`${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} title={imageLabel || `${name}, ${copy.image} ${imageIndex + 1}/${galleryImages.length}`} width="900" height="667" loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : "auto"} decoding="async" style={imageStyle} onError={() => {
         const failed = new Set(brokenImages).add(currentImage);
         setBrokenImages(failed);
-        const nextIndex = galleryImages.findIndex((image, index) => index > imageIndex && !failed.has(image));
+        const nextIndex = galleryImages.findIndex((image) => !failed.has(image));
         if (nextIndex >= 0) {
           setImageIndex(nextIndex);
           return;
         }
-        setMediaUnavailable(true);
         onMediaUnavailable?.();
       }} />
     </Link>

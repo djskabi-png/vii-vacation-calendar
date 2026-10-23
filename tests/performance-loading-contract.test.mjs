@@ -78,7 +78,7 @@ test("below-fold media does not compete with the first screen", async () => {
   assert.match(home, /preload="none"/);
   for (const source of [home, page, property]) assert.match(source, /loading="lazy"/);
   assert.match(discovery, /PreviewCardGallery/);
-  assert.match(previewGallery, /loading="lazy"/);
+  assert.match(previewGallery, /loading=\{priority \? "eager" : "lazy"\}/);
 });
 
 test("hashed assets receive a long immutable browser cache", async () => {
