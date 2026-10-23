@@ -19,8 +19,40 @@ type DetailStickyDockProps = {
   numberLocale?: string;
 };
 
+type DetailReviewSummaryProps = Pick<DetailStickyDockProps,
+  "rating" | "reviewCount" | "outOfTenLabel" | "reviewsLabel" | "numberLocale"
+> & {
+  className?: string;
+};
+
 function cleanPhone(phone: string) {
   return phone.replace(/[^\d+]/g, "");
+}
+
+export function DetailReviewSummary({
+  rating,
+  reviewCount,
+  outOfTenLabel = "מתוך 10",
+  reviewsLabel = "חוות דעת",
+  numberLocale = "he-IL",
+  className = "",
+}: DetailReviewSummaryProps) {
+  const hasReviewSummary = typeof rating === "number"
+    && Number.isFinite(rating)
+    && rating > 0
+    && typeof reviewCount === "number"
+    && Number.isFinite(reviewCount)
+    && reviewCount > 0;
+
+  if (!hasReviewSummary) return null;
+
+  const formattedRating = new Intl.NumberFormat(numberLocale, { maximumFractionDigits: 1 }).format(rating);
+  const formattedReviewCount = new Intl.NumberFormat(numberLocale).format(reviewCount);
+
+  return <div className={`detail-sticky-dock__review-summary ${className}`.trim()} aria-label={`${formattedRating} ${outOfTenLabel}, ${formattedReviewCount} ${reviewsLabel}`}>
+    <span className="detail-sticky-dock__rating"><b>{formattedRating}</b><span className="detail-sticky-dock__stars" aria-hidden="true">★★★★★</span></span>
+    <span className="detail-sticky-dock__review-count"><b>{formattedReviewCount}</b><span>{reviewsLabel}</span></span>
+  </div>;
 }
 
 export function DetailStickyDock({
@@ -42,16 +74,11 @@ export function DetailStickyDock({
     && typeof reviewCount === "number"
     && Number.isFinite(reviewCount)
     && reviewCount > 0;
-  const formattedRating = hasReviewSummary ? new Intl.NumberFormat(numberLocale, { maximumFractionDigits: 1 }).format(rating) : "";
-  const formattedReviewCount = hasReviewSummary ? new Intl.NumberFormat(numberLocale).format(reviewCount) : "";
 
   return (
     <div className="detail-sticky-wrap">
       <div className={`shell detail-sticky-dock${hasReviewSummary ? "" : " detail-sticky-dock--no-review-summary"}`}>
-        {hasReviewSummary ? <div className="detail-sticky-dock__review-summary" aria-label={`${formattedRating} ${outOfTenLabel}, ${formattedReviewCount} ${reviewsLabel}`}>
-          <span className="detail-sticky-dock__rating"><b>{formattedRating}</b><span className="detail-sticky-dock__stars" aria-hidden="true">★★★★★</span></span>
-          <span className="detail-sticky-dock__review-count"><b>{formattedReviewCount}</b><span>{reviewsLabel}</span></span>
-        </div> : null}
+        <DetailReviewSummary rating={rating} reviewCount={reviewCount} outOfTenLabel={outOfTenLabel} reviewsLabel={reviewsLabel} numberLocale={numberLocale} />
 
         <nav className="detail-sticky-dock__sections" aria-label="ניווט בתוך עמוד המקום">
           {sections.map((section) => <a key={section.href} href={section.href}>{section.label}</a>)}

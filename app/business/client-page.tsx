@@ -28,7 +28,7 @@ import { useGalleryDeepLink } from "../components/use-gallery-deep-link";
 import { GuestReviewStudio } from "../components/guest-review-studio";
 import { WhatsAppLeadButton } from "../components/whatsapp-lead-button";
 import { ListingContactPreview, SampleListingDisclosure } from "../components/listing-contact-preview";
-import { DetailStickyDock, type DetailSectionLink } from "../components/detail-sticky-dock";
+import { DetailReviewSummary, DetailStickyDock, type DetailSectionLink } from "../components/detail-sticky-dock";
 import { ModernSelect } from "../components/modern-select";
 import { FavoriteButton } from "../components/favorite-button";
 import { ShareButton } from "../components/share-dialog";
@@ -369,6 +369,14 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
           <PropertyGallery images={placeGalleryImages} name={localizedPropertyName} onOpen={(index) => { setGalleryTopic(null); openGallery("all", index); }} />
           <FavoriteButton compact className="property-gallery__favorite" id={property.slug} world={activeWorld} name={localizedPropertyName} location={`${localizedLocation}, ${localizedArea}`} image={property.image} href={`/business?id=${property.slug}${activeWorld === offerings[0].world ? "" : `&mode=${activeWorld}`}`} meta={safeBusinessText(property.type, businessCopy.name)} />
         </div>
+        <DetailReviewSummary
+          className="shell detail-mobile-review-summary"
+          rating={supplierDetail?.reviewScore ?? property.score}
+          reviewCount={supplierDetail?.reviewCount ?? property.reviews}
+          outOfTenLabel={translate("מתוך 10")}
+          reviewsLabel={translate("חוות דעת")}
+          numberLocale={numberLocale}
+        />
 
         {property.demoOperations?.fictional && property.videos?.[0] ? <section className="shell palumbo-media-story" aria-labelledby="palumbo-media-title">
           <header><div><h2 id="palumbo-media-title">רואים את הווילה לפני שבוחרים</h2><p>סיור מלא, חדרים, חללים ותמונות אורחים במקום אחד.</p></div><button type="button" data-gallery-trigger className="button secondary" onClick={() => { setGalleryTopic(null); openGallery("all", 0); }}>פתיחת הגלריה המלאה</button></header>
