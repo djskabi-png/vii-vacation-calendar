@@ -48,13 +48,30 @@ test("mobile gallery is a topic tour that opens a focused full-image viewer", as
   ]);
   assert.match(gallery, /story-gallery__mobile-tour/);
   assert.match(gallery, /mobileGroups\.map/);
+  assert.match(gallery, /const \[mobileViewer, setMobileViewer\] = useState\(false\)/);
+  assert.doesNotMatch(gallery, /useState\(initialIndex > 0 \|\| initialTab !== "all"\)/);
   assert.match(gallery, /setMobileViewer\(true\)/);
+  assert.match(gallery, /function selectTab\([\s\S]*?setMobileViewer\(false\)/);
   assert.match(gallery, /חזרה לכל התמונות/);
   assert.match(css, /\.story-gallery__mobile-tour section > div \{ display: grid; grid-template-columns: repeat\(2,minmax\(0,1fr\)\)/);
   assert.match(css, /\.story-gallery__mobile-stage \{\s*display: none;\s*min-height: 0;/);
   assert.match(css, /\.story-gallery__mobile-stage\.is-viewer \{[\s\S]*?display: block;[\s\S]*?overflow: hidden;/);
   assert.match(css, /\.story-gallery__mobile-tour button:first-child:nth-last-child\(odd\) \{\s*grid-column: auto;\s*aspect-ratio: 1 \/ \.78;/);
   assert.match(css, /\.story-gallery__tabs button\[aria-pressed="true"\] \{\s*color: white;\s*border-color: #25a9b8;\s*background: #087f8e;/);
+});
+
+test("every public place gallery caller uses the shared mobile overview", async () => {
+  const [business, eventPlace, discoveryPlace] = await Promise.all([
+    read("app/business/client-page.tsx"),
+    read("app/events/place/client-page.tsx"),
+    read("app/discover/place/client-page.tsx"),
+  ]);
+  for (const caller of [business, eventPlace, discoveryPlace]) {
+    assert.match(caller, /import \{ GalleryExperience \}/);
+    assert.match(caller, /<GalleryExperience/);
+    assert.match(caller, /initialIndex=\{galleryStart\}/);
+    assert.match(caller, /initialTab=\{galleryTab\}/);
+  }
 });
 
 test("guest gallery plus opens the accessible review and photo studio", async () => {

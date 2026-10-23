@@ -62,7 +62,10 @@ export function GalleryExperience({ property, open, initialIndex = 0, initialTab
   const [tab, setTab] = useState<GalleryTab>(initialTab);
   const [topic, setTopic] = useState<string | null>(initialTopic || null);
   const [selected, setSelected] = useState(initialTopic ? 0 : initialIndex);
-  const [mobileViewer, setMobileViewer] = useState(initialIndex > 0 || initialTab !== "all");
+  // Mobile always starts with the complete visual overview. The requested
+  // index and topic still select the right media for desktop and for the
+  // focused viewer after the visitor chooses an image.
+  const [mobileViewer, setMobileViewer] = useState(false);
 
   const visibleItems = useMemo(() => {
     const items = tab === "all" ? allItems : tab === "videos" ? [] : allItems.filter((item) => item.category === tab);
