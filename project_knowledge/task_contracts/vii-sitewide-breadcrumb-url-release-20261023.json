@@ -5,8 +5,8 @@
   "task_type": "sitewide-breadcrumb-search-url-redirect-release",
   "goal": "Publish a verified VII release with Home, World, Region, City, Place breadcrumbs and complete known search-page and legacy redirect integrity.",
   "created_at": "2026-10-23T02:58:50.323534Z",
-  "updated_at": "2026-10-23T03:02:11.729422Z",
-  "completed_at": null,
+  "updated_at": "2026-10-23T03:19:40.269585Z",
+  "completed_at": "2026-10-23T03:19:40.269585Z",
   "source_hashes": {
     "working_profile": {
       "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
@@ -92,9 +92,12 @@
       "source": "user_request",
       "statement": "Publish a verified VII release with Home, World, Region, City, Place breadcrumbs and complete known search-page and legacy redirect integrity.",
       "acceptance_check": "Exact public version shows the ordered hierarchy across all affected worlds and complete stored URL audits pass.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "גרסה 587 פורסמה לציבור בקומיט 5a43f16580a9e0ad039faba1c1063ca184bdb0f3; ארבעה עמודי מקום ציבוריים הציגו ראשי, עולם, אזור, עיר ומקום; שלוש הפניות היסטוריות עברו 301 ישיר ליעדי 200."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T03:19:15.743045Z"
     },
     {
       "id": "preflight:prediction",
@@ -125,156 +128,207 @@
       "source": "predictive_preflight.adversarial_close",
       "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
       "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "בגרסה הציבורית 587 נפתחו נופש 2566, חדרים לפי שעה 475, אירועים 2575 וספא 6; בכל אחד נצפו ראשי, עולם, אזור, עיר ומקום, וה-BreadcrumbList תאם. שלוש כתובות /s החזירו 301 ישיר ליעדי 200 בעלי canonical עצמי ונתיב ASCII.",
+        "11 בדיקות פירורים, 16 בדיקות URL ומיגרציה, בניית ייצור ורגרסיה מלאה של 1,490 בדיקות עברו ללא כשל; ביקורת 3,528 כתובות ידועות החזירה 0 בעיות non-place.",
+        "Executed 4 specific completion attacks"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T03:19:26.405167Z"
     },
     {
       "id": "preflight:effectiveness",
       "source": "predictive_preflight.effectiveness",
       "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
       "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "Structured effectiveness result: first_pass=yes, repeated_corrections=0, prevented_failures=4, elapsed_minutes=210.0; אין baseline מדיד למשימת פירורים קודמת; נספרו ארבעה כשלים שנמנעו: דילוג עיר, כפילות, שרשרת redirect וסתירת JSON-LD."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T03:19:26.519002Z"
     },
     {
       "id": "lesson:ADIR-QA-001",
       "source": "lesson:ADIR-QA-001",
       "statement": "שום פרויקט או תוצר אינם גמורים כאשר היעד הטבעי אינו מציג את התוצאה המבוקשת, כאשר מצב שנשמר לא שרד רענון, כאשר קיימים רכיבים מתים, מצבים מזויפים, מסלולים קטועים וחיבורים שלא נבדקו מקצה לקצה, או כאשר המבצע לא פתח בעצמו את הגרסה המדויקת ובדק אותה לפי סוג התוצר. לאחר כל תיקון מקומי חוזרים להבטחה המקורית ולמטרת העל, ובודקים מחדש את כל המסלול, משפחת המצבים והקריטריונים הקריטיים. הוכחה שתוקן הפרט האחרון אינה אישור שהמוצר, המסמך, המחקר, המדיה, האוטומציה או הפעולה העסקית המלאה מוכנים או שאדיר צפוי להיות מרוצה. מוצר ציבורי שמשרת לקוחות אינו מאושר למסירה רק על בסיס בדיקות המבצע: לאחר פרסום מועמד מותנה נדרשת קבוצת בדיקות מייצגת על הגרסה המדויקת, עם תרחישי לקוח, תפעול, עסק וסיכון. פרויקט מסוג אחר מפעיל בדיקות בעלי עניין מתאימות לסוגו או מנמק במדויק מדוע השער אינו חל. כל מסירה לאדיר כוללת קישור ישיר ושימושי לכל תוצאה שניתנת לפתיחה. אם אין קישור אפשרי, מציינים זאת במפורש ומוסרים את המיקום המדויק או דרך האחזור.",
       "acceptance_check": "Before any complete, ready or likely-to-satisfy judgment, the evidence must name the original promise, distinguish the latest repaired detail from the full outcome, map every critical journey and affected-family item to passed evidence, a precise blocker or justified exclusion, and inspect the exact final artifact at its natural destination. A fixture that proves only the most recent local correction must be blocked from full approval, regardless of project type. A deliberately incomplete review or task must be blocked. A public customer-facing review must also fail without five to ten passed post-deploy representative actor scenarios on the exact version and at least three applicable stakeholder perspectives. A justified non-public or non-customer artifact must remain valid without an irrelevant public cohort. A completed result with an addressable destination fails delivery when its direct link is omitted. A result without a possible link passes only when the exact location or retrieval path and a concrete no-link reason are present.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "היעד הציבורי נפתח ונבדק בארבעת העולמות; build עבר; 1,490 בדיקות עברו ללא כשל ובדיקת דפדפן אחת דולגה רק בשל Chromium חסר בסביבת השחרור."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T03:19:15.905275Z"
     },
     {
       "id": "lesson:ADIR-DEPLOY-001",
       "source": "lesson:ADIR-DEPLOY-001",
       "statement": "פריסה או שינוי דומיין דורשים גרסה שמורה, כתובת יעד מאומתת, בדיקת מסלולים, metadata ותוכנית חזרה לאחור. כאשר כמה מקורות יכולים לפרוס לאותו יעד, חייבים לזהות אותם, לאחד את קו הבסיס ולחסום פריסה ממקור מיושן שעלולה למחוק יכולות שכבר אושרו.",
       "acceptance_check": "A release cannot pass without live URL, route, status, metadata and rollback evidence. If multiple deploy sources share a destination, the chosen source must contain the complete approved baseline and a stale-source overwrite test must be blocked. Visual evidence from a release that was later replaced is invalid.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "גרסה 587 נפרסה פעם אחת ל-https://vii.spaplus.co ב-deployment appgdep_6adad10c21fc81919f59541866958e5c; rollback מלא לגרסה 586 תועד."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T03:19:16.195239Z"
     },
     {
       "id": "lesson:ADIR-ADMIN-001",
       "source": "lesson:ADIR-ADMIN-001",
       "statement": "מערכת ניהול מיועדת לעבודה יומיומית קצרה וברורה, ומנהלת בהרשאה הנכונה תוכן, חיפוש, SEO ו־GEO, סכמה, רובוטים, מפות אתר, מדידה, ניווט, פוטר, תמונות, כתובות והפניות, עם שמירה, גרסה, תצוגה מקדימה, השתקפות וחזרה לאחור. שינוי הרשאה נחשב תקין רק לאחר שהרשומה המתמידה הוחזרה מהשרת, נשמרה במקור האמת, שרדה רענון ללא מטמון ונבדקה במסלול הכניסה של תפקיד היעד בלי לפתוח אזורים שלא אושרו.",
       "acceptance_check": "מערכת ניהול אינה עוברת בלי מטריצת יכולות והרשאות, עריכה ותצוגה מקדימה של כל משפחת אתר מחייבת, שמירה ששרדה רענון, השתקפות ביעד הטבעי, יומן שינוי וחזרה לאחור לפעולות כלל־אתר. שינוי הרשאה נכשל אם חסרים הרשומה המתמידה במקור האמת, תגובת שרת עם המשתמש שנשמר, רענון ללא מטמון, אירוע ביקורת, כניסה מוצלחת של תפקיד היעד או הוכחה שאזור לא מורשה נשאר חסום.",
-      "status": "pending",
+      "status": "not_applicable",
       "evidence": [],
-      "reason": null
+      "reason": "לא בוצע שינוי במערכת ניהול, הרשאות או שמירה במסגרת תיקון פירורים והפניות זה.",
+      "updated_at": "2026-10-23T03:19:08.376372Z"
     },
     {
       "id": "lesson:ADIR-SEO-001",
       "source": "lesson:ADIR-SEO-001",
       "statement": "כל אתר ציבורי כולל כברירת מחדל SEO, GEO, נתונים מובנים, robots, sitemap, canonical, תוכנית מדידה, מילון אירועים, שכבת נתונים, ניהול תגיות והסכמה שנבדקו בגרסה החיה.",
       "acceptance_check": "שער השחרור נכשל אם חסרה אחת ממשפחות הקידום או המדידה, אם קיימת סתירה באינדוקס, אם נתונים מובנים אינם תואמים לתוכן, אם אירוע לא נראה בדיבוג ובזמן אמת, או אם נשלח מידע אישי.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "BreadcrumbList ציבורי תאם לפירורים הנראים בכל ארבעת העולמות; שלושת דפי היעד החזירו 200 עם canonical עצמי ונתיב ASCII."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T03:19:16.373700Z"
     },
     {
       "id": "lesson:ADIR-CONSISTENCY-001",
       "source": "lesson:ADIR-CONSISTENCY-001",
       "statement": "רכיבים ועמודים מאותה משפחה שומרים על היררכיה, סדר, צורה, מיקום והתנהגות אחידים במחשב ובנייד. צבע ותוכן מאומת יכולים להשתנות, אך חריגה מבנית או התנהגותית דורשת סיבה ובדיקה ייעודית.",
       "acceptance_check": "שער הראיות נכשל ללא נקודת ייחוס מאושרת, מטריצת משפחה, השוואות מחשב ונייד ורשימת חריגים. בקר ששינה מיקום, צורה, משמעות או התנהגות ללא חריג מאושר חוסם את כל המשפחה.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "אותו סדר גאוגרפי נצפה בציבורי בנופש, חדרים לפי שעה, אירועים וספא; 11 בדיקות משפחה ממוקדות עברו."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T03:19:16.684314Z"
     },
     {
       "id": "lesson:ADIR-SCOPE-001",
       "source": "lesson:ADIR-SCOPE-001",
       "statement": "כאשר אדיר מבקש להזיז, לנקות או לתקן רכיב, שומרים על העיצוב, התוכן והיכולות שלא התבקשו להשתנות. אין להפוך תיקון ממוקד לעיצוב מחדש ללא בקשה מפורשת.",
       "acceptance_check": "שער הראיות נכשל ללא תיאור שינוי, רשימת קבועים, השוואת לפני ואחרי ומלאי רכיבים שהשתנו, או כאשר נמצאה השתנות לא מבוקשת בעיצוב, בתוכן, בנתונים, במיקום או בהתנהגות.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "השינוי הוגבל לפירורים, JSON-LD והשלמת שלוש כתובות חיפוש ישנות; full regression עבר ללא כשל."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T03:19:16.841830Z"
     },
     {
       "id": "lesson:ADIR-WEB-001",
       "source": "lesson:ADIR-WEB-001",
       "statement": "לפני עיצוב מחדש ממפים כל יכולת ותוכן ומסמנים אותם כנשמרו, הוחלפו במכוון או חסומים.",
       "acceptance_check": "אין פריט ישן ללא סיווג, מקור והכרעה לפני אישור המוצר החדש.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "מלאי 3,528 כתובות מורשת מופו: 2,343 כתובות חיפוש מכוסות, 423 עמודי מקום ישנים מוחרגים במכוון, 0 בעיות non-place."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T03:19:17.208705Z"
     },
     {
       "id": "lesson:ADIR-MIND-001",
       "source": "lesson:ADIR-MIND-001",
       "statement": "לפני עבודה מהותית המבצע מתרגם את הבקשה לתוצאה המלאה, חוזה מה אדיר צפוי לבדוק, מאמת אמת והרשאה, ובונה בדיקות קבלה וראיה גלויה במקום שבו התוצאה אמורה לעבוד.",
       "acceptance_check": "A new representative version-two task contract cannot start without a valid matching predictive manifest, rejects a missing or oversized lesson bundle and private feedback storage, creates midpoint, adversarial and effectiveness requirements, detects manifest tampering and blocks completion while any predictive check is pending. A complete real contract must return VERIFIED, while an existing version-one contract must remain finishable.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "חוזה v2, preflight, midpoint, adversarial close, effectiveness וראיות יעד ציבורי נרשמו לפני סיום."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T03:19:17.404811Z"
     },
     {
       "id": "project:REQ-1",
       "source": "project_guidance",
       "statement": "Home, World, Region, City, Place order with duplicate suppression",
       "acceptance_check": "Home, World, Region, City, Place order with duplicate suppression",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "בציבורי: נופש, חדרים לפי שעה, אירועים וספא מציגים ראשי ← עולם ← אזור ← עיר ← מקום; בדיקות duplicate suppression עברו."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T03:19:17.764771Z"
     },
     {
       "id": "project:REQ-2",
       "source": "project_guidance",
       "statement": "Visible and structured breadcrumbs share canonical valid destinations",
       "acceptance_check": "Visible and structured breadcrumbs share canonical valid destinations",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "פירורים נראים ו-BreadcrumbList ציבורי תואמים בארבעת עמודי הדוגמה, וכל יעד אזור ועיר הוא canonical תקין."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T03:19:18.045726Z"
     },
     {
       "id": "project:REQ-3",
       "source": "project_guidance",
       "statement": "Complete known legacy and migrated search inventories remain valid",
       "acceptance_check": "Complete known legacy and migrated search inventories remain valid",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "ביקורת מלאה של 3,528 כתובות ידועות עברה עם 0 בעיות non-place; 2,343 כתובות חיפוש מכוסות."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T03:19:18.278514Z"
     },
     {
       "id": "project:REQ-4",
       "source": "project_guidance",
       "statement": "ASCII slug, sitemap, canonical and redirect integrity remain enforced",
       "acceptance_check": "ASCII slug, sitemap, canonical and redirect integrity remain enforced",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "שלושת יעדי החיפוש החדשים/הממופים מחזירים 200, canonical עצמי ונתיב ASCII; בדיקות sitemap ו-URL עברו."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T03:19:18.643094Z"
     },
     {
       "id": "project:REQ-5",
       "source": "project_guidance",
       "statement": "Unrelated approved capabilities remain unchanged and blocked map work is excluded",
       "acceptance_check": "Unrelated approved capabilities remain unchanged and blocked map work is excluded",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "רגרסיה מלאה ללא כשל; ספקים, אטרקציות ומסלולים לא קיבלו עיר מומצאת כשמקור הנתונים אינו גאוגרפי או חסר."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T03:19:18.797330Z"
     },
     {
       "id": "project:REQ-6",
       "source": "project_guidance",
       "statement": "Frozen candidate is published once, publicly reverified and has rollback",
       "acceptance_check": "Frozen candidate is published once, publicly reverified and has rollback",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "המועמד הקפוא 5a43f16580a9e0ad039faba1c1063ca184bdb0f3 פורסם פעם אחת כגרסה 587 ונבדק בציבורי; rollback לגרסה 586 זמין."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T03:19:19.133461Z"
     },
     {
       "id": "user:ordered-geography",
       "source": "user_correction",
       "statement": "בכל עמוד מקום בעל גאוגרפיה: ראשי ← עולם ← אזור ← עיר ← מקום; אין לדלג על העיר ואין לשכפל אזור ועיר זהים.",
       "acceptance_check": "בדיקות יחידה ודפדפן בציבורי מאמתות את הסדר בעולם נופש, חדרים לפי שעה, ספא ואירועים, כולל חסרים וכפילויות.",
-      "status": "pending",
-      "evidence": [],
-      "reason": null
+      "status": "passed",
+      "evidence": [
+        "בדיקה ציבורית ודאטה מובנה אימתו את הסדר המדויק בארבעת העולמות הגאוגרפיים, כולל עיר לפני מקום וללא כפילות זהה."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T03:19:19.276313Z"
     }
   ],
-  "verification_status": "in_progress",
+  "verification_status": "verified",
   "verification_errors": [],
   "predictive_results": {
     "midpoint": {
@@ -285,6 +339,25 @@
       "findings": [
         "העיר גן יבנה אומתה במאגר הגאוגרפי הציבורי תחת מישור החוף והשפלה ונוצר עבורה דף חיפוש; שני דפי מעטפת ריקים מוזגו ב-301 ישיר לדפים בעלי אותו מזהה ישן."
       ]
+    },
+    "adversarial": {
+      "observed_at": "2026-10-23T03:19:26.405167Z",
+      "attacks": [
+        "חיפוש עיר זהה לאזור או ערכי כל הארץ עלול ליצור פירור כפול או חסר.",
+        "הפניה היסטורית עלולה להגיע דרך שרשרת או אל 404 למרות שמלאי מקומי עבר.",
+        "הפירורים הנראים עלולים לא להתאים ל-BreadcrumbList או להשתמש בכתובת עברית.",
+        "פריסה ממקור ישן עלולה למחוק תיקונים קודמים."
+      ],
+      "natural_destination_evidence": "בגרסה הציבורית 587 נפתחו נופש 2566, חדרים לפי שעה 475, אירועים 2575 וספא 6; בכל אחד נצפו ראשי, עולם, אזור, עיר ומקום, וה-BreadcrumbList תאם. שלוש כתובות /s החזירו 301 ישיר ליעדי 200 בעלי canonical עצמי ונתיב ASCII.",
+      "affected_family_evidence": "11 בדיקות פירורים, 16 בדיקות URL ומיגרציה, בניית ייצור ורגרסיה מלאה של 1,490 בדיקות עברו ללא כשל; ביקורת 3,528 כתובות ידועות החזירה 0 בעיות non-place."
+    },
+    "effectiveness": {
+      "recorded_at": "2026-10-23T03:19:26.519002Z",
+      "first_pass_acceptance": "yes",
+      "repeated_corrections": 0,
+      "prevented_failures": 4,
+      "elapsed_minutes": 210.0,
+      "baseline_note": "אין baseline מדיד למשימת פירורים קודמת; נספרו ארבעה כשלים שנמנעו: דילוג עיר, כפילות, שרשרת redirect וסתירת JSON-LD."
     }
   }
 }

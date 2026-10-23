@@ -1,0 +1,38 @@
+{
+  "verdict": "ready",
+  "release": "VII version 587, commit 5a43f16580a9e0ad039faba1c1063ca184bdb0f3, deployment appgdep_6adad10c21fc81919f59541866958e5c",
+  "target": "Production https://vii.spaplus.co, environment revision 25",
+  "baseline": "VII version 586, commit e0bb2a4da9248a2193638421cc5c10fe345efbcc",
+  "requested_outcome": "Place breadcrumbs use Home, World, Region, City, Place across all geographic worlds, and all known legacy search URLs resolve to valid canonical destinations.",
+  "changed_components": [
+    "Shared geographic breadcrumb normalization",
+    "Vacation, hourly, events and spa place breadcrumbs and BreadcrumbList JSON-LD",
+    "Legacy search recovery overrides and generated redirect inventory",
+    "Breadcrumb, URL migration and regression tests"
+  ],
+  "affected_family": [
+    {"id": "FAM-1", "surface": "Vacation place pages"},
+    {"id": "FAM-2", "surface": "Hourly place pages"},
+    {"id": "FAM-3", "surface": "Event place pages"},
+    {"id": "FAM-4", "surface": "Spa place pages"},
+    {"id": "FAM-5", "surface": "Known legacy search URLs, canonical search pages, sitemap and redirects"}
+  ],
+  "characteristics": {"stateful": false, "responsive": true},
+  "checks": [
+    {"id": "CHK-1", "family_ids": ["FAM-1", "FAM-2", "FAM-3", "FAM-4"], "state": "success", "status": "passed", "evidence": "Production HTTP 200 and visible AX breadcrumbs verified on vacation-2566, hourly-475, event-2575 and spa-6; each contains Home, World, Region, City, Place in order."},
+    {"id": "CHK-2", "family_ids": ["FAM-1", "FAM-2", "FAM-3", "FAM-4"], "state": "failure", "status": "passed", "evidence": "Focused breadcrumb tests passed 11/11, including missing, whole-country and exact-duplicate geography suppression without inventing a city."},
+    {"id": "CHK-3", "family_ids": ["FAM-1", "FAM-2", "FAM-3", "FAM-4"], "state": "responsive", "status": "passed", "evidence": "The unchanged shared responsive breadcrumb component passed the full 1,490-test release suite; production accessibility trees expose the complete ordered list."},
+    {"id": "CHK-4", "family_ids": ["FAM-1", "FAM-2", "FAM-3", "FAM-4"], "state": "reload", "status": "passed", "evidence": "Fresh production requests after deployment returned HTTP 200 and matching visible and BreadcrumbList hierarchy for all four representative worlds."},
+    {"id": "CHK-5", "family_ids": ["FAM-5"], "state": "success", "status": "passed", "evidence": "All 3,528 known legacy URLs audited: 2,343 search URLs covered, 2,341 publication pages plus 2 direct aliases, and 0 remaining non-place issues."},
+    {"id": "CHK-6", "family_ids": ["FAM-5"], "state": "recovery", "status": "passed", "evidence": "/s/11487, /s/israel/12709 and /s/gan_yavne/11857 each return one direct HTTP 301 to a final HTTP 200 ASCII canonical URL."},
+    {"id": "CHK-7", "family_ids": ["FAM-1", "FAM-2", "FAM-3", "FAM-4", "FAM-5"], "state": "persistence", "status": "passed", "evidence": "Immutable version 587 was saved from exact commit 5a43f16580a9e0ad039faba1c1063ca184bdb0f3 and deployment reached succeeded before public verification."},
+    {"id": "CHK-8", "family_ids": ["FAM-1", "FAM-2", "FAM-3", "FAM-4", "FAM-5"], "state": "rollback", "status": "passed", "evidence": "Rollback identity retained: version 586 appgver_f82bef957088819198820a0e180ec6b3, deployment appgdep_6adac121c23c8191b12c2baab016c5f8, commit e0bb2a4da9248a2193638421cc5c10fe345efbcc."}
+  ],
+  "rollback": {
+    "available": true,
+    "method": "Redeploy immutable version 586: appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_f82bef957088819198820a0e180ec6b3",
+    "verification": "Version, deployment and commit identities were recorded from the previously succeeded production release before version 587 was deployed."
+  },
+  "authorization_boundary": "Adir explicitly requested implementation, publication and public verification. No database, environment, domain, secret, permission or schedule changes were authorized or made.",
+  "remaining_blockers": []
+}
