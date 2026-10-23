@@ -362,11 +362,15 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
 
         <DetailStickyDock
           name={localizedPropertyName}
-          location={`${localizedLocation}, ${localizedArea}`}
           sections={sectionLinks}
           onlineHref={activeWorld === "vacation" ? "#booking-summary" : onlineBooking || vacationPhoneFallback ? bookingActionHref : undefined}
           onlineLabel={activeWorld === "events" ? "בדיקת תאריך לאירוע" : activeWorld === "vacation" ? "בדיקת תאריך והזמנה" : "הזמנה אונליין"}
           phone={phoneBooking ? property.contact?.phone : undefined}
+          rating={supplierDetail?.reviewScore ?? property.score}
+          reviewCount={supplierDetail?.reviewCount ?? property.reviews}
+          outOfTenLabel={translate("מתוך 10")}
+          reviewsLabel={translate("חוות דעת")}
+          numberLocale={numberLocale}
         />
 
         <div className={`shell property-layout ${activeWorld === "vacation" ? "property-layout--vacation" : ""}`}>

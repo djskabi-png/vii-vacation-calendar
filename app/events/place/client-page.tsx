@@ -156,7 +156,17 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
 <section className="shell property-title event-title"><div><span className="eyebrow">{safeEventText(place.type, eventContentCopy.name)}</span><h1>{localizedPlaceName}</h1><p><PinIcon />{localizedLocation}, {localizedArea}</p></div><div className="property-title__side"><div className="property-title__actions property-title__actions--contact"><FavoriteButton compact={false} id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים ביחידה הגדולה`} />{phoneHref ? <DirectPhoneLink phone={ownerPhone} placeName={localizedPlaceName} className="property-phone-action" tracking={{ placeId: place.slug, placeName: place.name, world: "events", placement: "event_detail" }} /> : null}{ownerWhatsapp ? <WhatsAppLeadButton world="events" placeId={place.slug} placeName={place.name} businessPhone={ownerWhatsapp} serviceName={place.type} buttonClassName="property-whatsapp-action" /> : null}<ShareButton title={place.name} kind="event" image={place.image} /></div><a className="button primary" href="#event-booking">{translate("בדיקת אירוע")}</a></div></section>
         <PropertyGallery className="shell" images={place.images} name={localizedPlaceName} onOpen={(index) => openGallery("all", index)} />
 
-        <DetailStickyDock name={localizedPlaceName} location={`${localizedLocation}, ${localizedArea}`} sections={sectionLinks} onlineHref="#event-booking" onlineLabel="בדיקת תאריך לאירוע" />
+        <DetailStickyDock
+          name={localizedPlaceName}
+          sections={sectionLinks}
+          onlineHref="#event-booking"
+          onlineLabel="בדיקת תאריך לאירוע"
+          rating={supplierDetail?.reviewScore ?? place.score}
+          reviewCount={supplierDetail?.reviewCount ?? place.reviews}
+          outOfTenLabel={translate("מתוך 10")}
+          reviewsLabel={translate("חוות דעת")}
+          numberLocale={language === "he" ? "he-IL" : language === "en" ? "en-GB" : language === "ru" ? "ru-RU" : "fr-FR"}
+        />
 
         <div className="shell event-place-layout">
           <div>

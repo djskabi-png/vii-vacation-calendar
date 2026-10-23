@@ -8,11 +8,15 @@ export type DetailSectionLink = {
 
 type DetailStickyDockProps = {
   name: string;
-  location: string;
   sections: DetailSectionLink[];
   onlineHref?: string;
   onlineLabel?: string;
   phone?: string;
+  rating?: number;
+  reviewCount?: number;
+  outOfTenLabel?: string;
+  reviewsLabel?: string;
+  numberLocale?: string;
 };
 
 function cleanPhone(phone: string) {
@@ -21,21 +25,33 @@ function cleanPhone(phone: string) {
 
 export function DetailStickyDock({
   name,
-  location,
   sections,
   onlineHref,
   onlineLabel = "הזמנה אונליין",
   phone,
+  rating,
+  reviewCount,
+  outOfTenLabel = "מתוך 10",
+  reviewsLabel = "חוות דעת",
+  numberLocale = "he-IL",
 }: DetailStickyDockProps) {
   const phoneHref = phone ? `tel:${cleanPhone(phone)}` : undefined;
+  const hasReviewSummary = typeof rating === "number"
+    && Number.isFinite(rating)
+    && rating > 0
+    && typeof reviewCount === "number"
+    && Number.isFinite(reviewCount)
+    && reviewCount > 0;
+  const formattedRating = hasReviewSummary ? new Intl.NumberFormat(numberLocale, { maximumFractionDigits: 1 }).format(rating) : "";
+  const formattedReviewCount = hasReviewSummary ? new Intl.NumberFormat(numberLocale).format(reviewCount) : "";
 
   return (
     <div className="detail-sticky-wrap">
-      <div className="shell detail-sticky-dock">
-        <div className="detail-sticky-dock__identity">
-          <strong>{name}</strong>
-          <span>{location}</span>
-        </div>
+      <div className={`shell detail-sticky-dock${hasReviewSummary ? "" : " detail-sticky-dock--no-review-summary"}`}>
+        {hasReviewSummary ? <div className="detail-sticky-dock__review-summary" aria-label={`${formattedRating} ${outOfTenLabel}, ${formattedReviewCount} ${reviewsLabel}`}>
+          <span className="detail-sticky-dock__rating"><b>{formattedRating}</b><span aria-hidden="true">★</span><small>{outOfTenLabel}</small></span>
+          <span className="detail-sticky-dock__review-count"><b>{formattedReviewCount}</b><span>{reviewsLabel}</span></span>
+        </div> : null}
 
         <nav className="detail-sticky-dock__sections" aria-label="ניווט בתוך עמוד המקום">
           {sections.map((section) => <a key={section.href} href={section.href}>{section.label}</a>)}

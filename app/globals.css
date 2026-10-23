@@ -3555,9 +3555,14 @@ h3 { font-size: 1.18rem; }
 /* Place pages keep the conversion action and section context in view, not the global search. */
 .detail-sticky-wrap { position: sticky; top: 0; z-index: 35; margin-top: 20px; border-block: 1px solid rgba(12, 104, 118, .13); background: rgba(255, 255, 255, .94); box-shadow: 0 12px 32px rgba(5, 54, 64, .07); backdrop-filter: blur(18px); }
 .detail-sticky-dock { min-height: 76px; display: grid; grid-template-columns: minmax(230px, 320px) minmax(0, 1fr) max-content; align-items: center; gap: 16px; }
-.detail-sticky-dock__identity { min-width: 0; display: grid; gap: 2px; }
-.detail-sticky-dock__identity strong { overflow: hidden; display: -webkit-box; color: var(--ink); font-size: .88rem; line-height: 1.35; -webkit-box-orient: vertical; -webkit-line-clamp: 2; text-wrap: balance; }
-.detail-sticky-dock__identity span { overflow: hidden; color: var(--muted); font-size: .7rem; text-overflow: ellipsis; white-space: nowrap; }
+.detail-sticky-dock--no-review-summary { grid-template-columns: minmax(0, 1fr) max-content; }
+.detail-sticky-dock__review-summary { min-width: 230px; display: flex; align-items: center; gap: 14px; padding: 7px 13px; border: 1px solid #cfe3e5; border-radius: 15px; background: linear-gradient(135deg, #fff 0%, #f2faf9 100%); box-shadow: 0 8px 20px rgb(13 94 102 / 7%); }
+.detail-sticky-dock__rating, .detail-sticky-dock__review-count { display: flex; align-items: baseline; gap: 5px; white-space: nowrap; }
+.detail-sticky-dock__rating { padding-inline-end: 14px; border-inline-end: 1px solid #d8e8e9; }
+.detail-sticky-dock__rating b { color: var(--ink); font-size: 1.2rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.detail-sticky-dock__rating > span { color: #d28a00; font-size: .85rem; line-height: 1; }
+.detail-sticky-dock__rating small, .detail-sticky-dock__review-count span { color: var(--muted); font-size: .68rem; font-weight: 720; }
+.detail-sticky-dock__review-count b { color: var(--teal-dark); font-size: .88rem; font-variant-numeric: tabular-nums; }
 .detail-sticky-dock__sections { min-width: 0; display: flex; gap: 4px; overflow-x: auto; padding: 5px; scrollbar-width: none; }
 .detail-sticky-dock__sections::-webkit-scrollbar { display: none; }
 .detail-sticky-dock__sections a { flex: 0 0 auto; min-height: 38px; display: inline-flex; align-items: center; padding: 0 11px; color: var(--ink-soft); border-radius: 999px; font-size: .74rem; font-weight: 780; white-space: nowrap; }

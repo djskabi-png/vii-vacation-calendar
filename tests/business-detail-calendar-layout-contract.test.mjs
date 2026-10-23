@@ -19,7 +19,8 @@ test("real listings never fall back to invented business availability", () => {
   assert.match(calendar, /return calendar \? stayCalendarDay\(calendar, keyOf\(date\)\)\.minimumNights \?\? 1 : illustrative \? minimumNights\(date\) : 1/);
 });
 
-test("desktop detail header keeps long business names readable", () => {
+test("desktop detail dock replaces duplicate identity with verified review summary", () => {
   assert.match(css, /grid-template-columns: minmax\(230px, 320px\) minmax\(0, 1fr\) max-content/);
-  assert.match(css, /\.detail-sticky-dock__identity strong[^}]*-webkit-line-clamp: 2/);
+  assert.match(css, /\.detail-sticky-dock__review-summary[^}]*display: flex/);
+  assert.match(css, /\.detail-sticky-dock--no-review-summary \{ grid-template-columns: minmax\(0, 1fr\) max-content; \}/);
 });
