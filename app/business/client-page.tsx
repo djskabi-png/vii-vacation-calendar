@@ -155,7 +155,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
     return supplierDetail ? { ...base, name: supplierDetail.name || base.name, image: supplierDetail.images[0] || base.image,
       images: supplierDetail.images.length ? supplierDetail.images : base.images, location: supplierDetail.location || base.location, area: supplierDetail.area || base.area,
       lat: supplierDetail.lat ?? base.lat, lng: supplierDetail.lng ?? base.lng, guests: supplierDetail.guests || base.guests,
-      units: supplierDetail.units || base.units, contact: { ...base.contact, ...(supplierDetail.phone ? { phone: supplierDetail.phone } : {}), whatsapp: supplierDetail.whatsapp },
+      units: supplierDetail.units || base.units, contact: { ...base.contact, ...(supplierDetail.phone ? { phone: supplierDetail.phone } : {}), ...(supplierDetail.whatsapp ? { whatsapp: supplierDetail.whatsapp } : {}) },
       galleryGroups: supplierDetail.galleryGroups?.length ? supplierDetail.galleryGroups : base.galleryGroups,
       description: supplierDetail.summary || base.description,
       roomOptions: supplierDetail.rooms.length ? supplierDetail.rooms.map((room) => ({ name: room.name, quantity: room.quantity, guests: room.guests,
@@ -306,7 +306,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
   return (
     <PageShell variant={activeWorld}>
       <main id="main-content" className="property-page">
-        <ViewedItemTracker id={property.slug} world={activeWorld} name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={`/business?id=${property.slug}${activeWorld === offerings[0].world ? "" : `&mode=${activeWorld}`}`} meta={property.guests > 0 ? `${property.type} · עד ${property.guests} אורחים` : property.type} />
+        <ViewedItemTracker id={property.slug} world={activeWorld} name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={`/business?id=${property.slug}${activeWorld === offerings[0].world ? "" : `&mode=${activeWorld}`}`} meta={property.guests > 0 ? `${property.type} · עד ${property.guests} אורחים${property.capacityScope === "unit" ? " ביחידה הגדולה" : ""}` : property.type} />
         <BreadcrumbTrail items={activeWorld === "events"
           ? [{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, ...eventBreadcrumbsForLocation(property.area, property.location), { name: localizedPropertyName }]
           : activeWorld === "spa"
@@ -506,7 +506,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
             <section className="property-provider-strip" aria-labelledby="matching-providers-title"><div className="section-head"><div><h2 id="matching-providers-title">{translate("ספקים שמגיעים אליכם")}</h2></div><Link href="/providers">{translate("לכל הספקים")}</Link></div><HomeMobileRail shufflePlaces id="vacation-detail-providers" label={translate("ספקים שמגיעים אליכם")} className="property-provider-strip__rail">{matchingProviders.map((item) => <DiscoveryCard key={item.id} item={item} />)}</HomeMobileRail></section>
             <div className="property-complements__intro">
               <div className="section-head">
-                <div><h2>{translate("מה יש בסביבה של")} {localizedPropertyName}?</h2></div>
+                <div><h2>{`${translate("מה יש בסביבה של")} ${localizedPropertyName}?`}</h2></div>
                 <span className="section-head__links property-complements__nav"><Link href="/trails"><b aria-hidden="true">↗</b> מסלולי טיול</Link><Link href="/attractions"><b aria-hidden="true">✦</b> אטרקציות</Link></span>
               </div>
               <p className="property-complements__note">{complementSelection.expanded ? `${nearbyCopy.expanded} ` : ""}{complementSelection.regionalOnly ? nearbyCopy.regional : nearbyCopy.places}</p>
@@ -520,7 +520,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
 
         <section className="property-page-endcap" aria-labelledby="property-endcap-title">
           <div className="shell property-page-endcap__inner">
-            <div className="property-page-endcap__intro"><h2 id="property-endcap-title">{translate("עוד דרכים ליהנות באזור")} {localizedLocation}</h2><p>{businessCopy.endcap}</p></div>
+            <div className="property-page-endcap__intro"><h2 id="property-endcap-title">{`${translate("עוד דרכים ליהנות באזור")} ${localizedLocation}`}</h2><p>{businessCopy.endcap}</p></div>
             <nav className="property-page-endcap__links" aria-label="המשך תכנון החופשה">
               <Link href={regionalVacationLanding.path}><span aria-hidden="true">⌂</span><strong>{businessCopy.moreArea} {localizedArea}</strong><small>להשוואת מקומות ואפשרויות אירוח</small></Link>
               <Link href="/trails"><span aria-hidden="true">↗</span><strong>מסלולים באזור</strong><small>לבחירת טיול שמתאים ליום שלכם</small></Link>

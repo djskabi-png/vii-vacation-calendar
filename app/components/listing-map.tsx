@@ -163,12 +163,8 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
     void fetch(snapshotUrl, { cache: "force-cache", signal: controller.signal })
       .then((response) => {
         if (response.ok) setSnapshotUnavailable(false);
-        // A detail page must never substitute a venue photo for the promised
-        // map preview. Until a stored snapshot exists, load the real map in
-        // place so the visitor still sees the location and map controls.
-        else if (single) setEnabled(true);
       })
-      .catch(() => { if (single) setEnabled(true); });
+      .catch(() => undefined);
     return () => controller.abort();
   }, [single, snapshotUrl]);
 
@@ -657,7 +653,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
   if (!preview) return null;
 
   const previewRegional = preview.precision === "area";
-  const placeFallback = snapshotUnavailable && !single;
+  const placeFallback = snapshotUnavailable;
   const previewImage = placeFallback ? preview.image : snapshotUrl;
   const fallbackLabel = { he: "תצוגת המקום", en: "Place preview", ru: "Вид места", fr: "Aperçu du lieu" }[language];
   const previewContent = (
@@ -665,7 +661,7 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
       {(!snapshotUnavailable || placeFallback) && <>{/* eslint-disable-next-line @next/next/no-img-element */}<img ref={previewImageRef} className={`map-preview-image ${placeFallback ? "is-place-fallback" : "is-map-snapshot"}`} src={previewImage}
         alt={placeFallback ? preview.name : `${mapCopy.view} ${preview.name}`}
         title={placeFallback ? preview.name : `${mapCopy.view} ${preview.name}`}
-        onError={() => { if (!placeFallback) { setSnapshotUnavailable(true); if (single) setEnabled(true); } }} /></>}
+        onError={() => { if (!placeFallback) setSnapshotUnavailable(true); }} /></>}
       <span className="map-preview-shade" aria-hidden="true" />
       <div className="map-preview-content">
         <span className="map-preview-label">{placeFallback ? fallbackLabel : mapCopy.preview}</span>

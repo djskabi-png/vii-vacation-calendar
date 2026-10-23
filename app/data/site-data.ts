@@ -1,6 +1,7 @@
 import { supplierDisplayDescription } from "./supplier-display-text";
 import verifiedCatalog from "./verified-catalog.json";
 import sergeyPublicCatalog from "./sergey-public-catalog.json";
+import { publicFeatureLabels } from "../lib/public-feature-policy";
 import { legacyVacationProfiles, type LegacyReview } from "./legacy-vacation-profiles";
 import { getListingOfferings } from "../lib/listing-offerings";
 import { eventPlaceHref } from "../lib/event-place-href";
@@ -779,7 +780,11 @@ export function isPublicProperty(property: Property) {
 
 export const properties: Property[] = sergeyPublicCatalog.places
   .filter((place) => place.world === "vacations")
-  .map((place) => ({ ...place, description: supplierDisplayDescription(place) })) as unknown as Property[];
+  .map((place) => ({
+    ...place,
+    description: supplierDisplayDescription(place),
+    features: publicFeatureLabels(place.features, { maxGuests: place.guests }),
+  })) as unknown as Property[];
 
 export type EventPlace = Listing & { eventTypes: string[]; sourcePropertySlug?: string };
 

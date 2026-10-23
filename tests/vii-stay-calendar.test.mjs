@@ -53,11 +53,11 @@ test('calendar supplier request is bounded, no-store, fixed-origin and unpublish
 });
 test('real calendar plumbing is explicit and authoritative totals survive to checkout',()=>{
  const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
- const business=read('app/business/client-page.tsx'),calendar=read('app/calendar-demo.tsx'),checkout=read('app/booking/client-page.tsx');
+ const business=read('app/business/client-page.tsx'),calendar=read('app/calendar-demo.tsx'),checkout=read('app/booking/client-page.tsx'),returnHref=read('app/lib/booking-return-href.ts');
  assert.match(business,/calendarRequired=\{Boolean\(supplierSiteID\)\}/);assert.match(business,/liveCalendar=\{supplierCalendar.calendar\}/);
  assert.match(calendar,/illustrative \? minimumNights\(date\) : 1/);assert.match(calendar,/assessCalendarStay\(liveCalendar, checkIn, checkOut\).allowed/);
  assert.match(checkout,/totalPrice: supplierQuote.quote!\.totalPrice!/);assert.match(checkout,/const currentTotal = pricing \? pricing.totalPrice : 0/);
- for(const field of ['rooms','children','infants'])assert.match(checkout,new RegExp(`businessReturnParams.set\\("${field}"`));
+ for(const field of ['rooms','children','infants'])assert.match(returnHref,new RegExp(`params\\.set\\("${field}", input\\.${field}\\)`));
 });
 test('calendar failure does not dead-end selection because the stay quote revalidates',()=>{
  const source=readFileSync(new URL('../app/calendar-demo.tsx',import.meta.url),'utf8');

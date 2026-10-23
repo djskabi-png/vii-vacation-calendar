@@ -14,10 +14,8 @@ test("booking always exposes same-tab exits to the business and site", () => {
 });
 
 test("business return preserves the booking context without duplicate query strings", () => {
-  assert.match(client, /new URLSearchParams\(\{ id: props\.placeId \}\)/);
-  for (const field of ["from", "till", "guests", "price", "illustrative"]) {
-    assert.match(client, new RegExp(`businessReturnParams\\.set\\("${field}"`));
-  }
+  assert.match(client, /bookingReturnHref\(\{/);
+  for (const field of ["from", "till", "guests", "price", "illustrative"]) assert.match(client, new RegExp(`${field}:`));
   assert.doesNotMatch(client, /source=search&from=.*source=search/);
 });
 

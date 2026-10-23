@@ -5,6 +5,7 @@ import { spaPlusArea, spaPlusAudience, spaPlusSites, type SpaPlusSite } from "./
 import { supplierContactNumber } from "../lib/supplier-contact";
 import type { WorldId } from "./world-navigation";
 import { safeHourlyDescription } from "../lib/hourly-description";
+import { publicFeatureLabels } from "../lib/public-feature-policy";
 export { worlds, publicWorldNavigation } from "./world-navigation";
 export type { WorldId, WorldDefinition } from "./world-navigation";
 
@@ -209,7 +210,7 @@ const verifiedAttractions: DiscoveryItem[] = verifiedCatalog.attractions.flatMap
     location: item.location,
     area: item.area,
     description: item.description,
-    features: item.features,
+    features: publicFeatureLabels(item.features),
     image: media.image,
     images,
     imageFit: media.fit,

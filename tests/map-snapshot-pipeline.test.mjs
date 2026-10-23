@@ -16,12 +16,12 @@ test("shared maps prefer a stored snapshot and use a passive real map on detail 
   assert.match(map, /useState\(true\)/);
   assert.match(map, /fetch\(snapshotUrl, \{ cache: "force-cache"/);
   assert.match(map, /if \(response\.ok\) setSnapshotUnavailable\(false\)/);
-  assert.match(map, /else if \(single\) setEnabled\(true\)/);
-  assert.match(map, /const placeFallback = snapshotUnavailable && !single/);
+  assert.doesNotMatch(map, /else if \(single\) setEnabled\(true\)/);
+  assert.match(map, /const placeFallback = snapshotUnavailable/);
   assert.match(map, /const previewImage = placeFallback \? preview\.image : snapshotUrl/);
   assert.match(map, /\(!snapshotUnavailable \|\| placeFallback\) && <>/);
   assert.match(map, /placeFallback \? fallbackLabel : mapCopy\.preview/);
-  assert.match(map, /if \(!placeFallback\) \{ setSnapshotUnavailable\(true\); if \(single\) setEnabled\(true\); \}/);
+  assert.match(map, /if \(!placeFallback\) setSnapshotUnavailable\(true\)/);
   assert.match(map, /image\.complete && image\.naturalWidth === 0/);
   assert.match(map, /const \[interactive, setInteractive\] = useState\(autoLoad\)/);
   assert.match(map, /const activateMap = useCallback\(\(\) => \{[\s\S]*setInteractive\(true\);[\s\S]*setEnabled\(true\)/);

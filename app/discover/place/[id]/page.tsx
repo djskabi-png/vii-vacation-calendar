@@ -18,6 +18,7 @@ import { managedDiscoveryItems } from "../../../lib/managed-public-content";
 import { serverLocalePath } from "../../../i18n/server-public-copy";
 import { hourlyBreadcrumbsForLocation } from "../../../data/world-search-landings";
 import { spaBreadcrumbsForLocation } from "../../../data/spa-search-landings";
+import { discoveryBreadcrumbsForLocation } from "../../../lib/place-breadcrumb-locations";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -77,7 +78,9 @@ export default async function Page({ params }: Props) {
     ? [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), ...hourlyBreadcrumbsForLocation(item.area, item.location), { name: item.name, path: `/discover/place/${item.id}` }]
     : item.world === "spa"
       ? [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), ...spaBreadcrumbsForLocation(item.area, item.location), { name: item.name, path: `/discover/place/${item.id}` }]
-    : [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), { name: item.name, path: `/discover/place/${item.id}` }];
+    : item.world === "activities"
+      ? [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), ...discoveryBreadcrumbsForLocation("activities", item.area, item.location), { name: item.name, path: `/discover/place/${item.id}` }]
+      : [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), ...discoveryBreadcrumbsForLocation("providers", undefined, item.location), { name: item.name, path: `/discover/place/${item.id}` }];
   return <>
     <ViewedItemBootstrap id={item.id} world={item.world} name={item.name} location={`${item.location}, ${item.area}`} image={item.image} href={`/discover/place/${item.id}`} meta={item.priceLabel || item.duration} />
     {indexable ? <StructuredData data={discoverySchema(item)} /> : null}

@@ -333,5 +333,17 @@
   "האם הכניסה למקום היא ללא מפגש?": { "en": "Is entry contactless?", "ru": "Вход осуществляется без встречи?", "fr": "L’entrée se fait-elle sans rencontre ?" },
   "כן. לפי המידע שנמסר על ידי המקום, הכניסה דיסקרטית וללא מפגש.": { "en": "Yes. According to the information provided by the property, entry is discreet and contactless.", "ru": "Да. По информации объекта, вход конфиденциальный и не требует встречи.", "fr": "Oui. Selon les informations fournies par l’établissement, l’entrée est discrète et sans rencontre." },
   "האם הכניסה למקום כוללת מפגש?": { "en": "Does entry include an in-person handoff?", "ru": "Вход предусматривает встречу?", "fr": "L’entrée comprend-elle un accueil en personne ?" },
-  "כן. לפי המידע שנמסר על ידי המקום, הכניסה דיסקרטית וכוללת מפגש עם נציג המקום.": { "en": "Yes. According to the information provided by the property, entry is discreet and includes meeting a property representative.", "ru": "Да. По информации объекта, вход конфиденциальный и включает встречу с представителем.", "fr": "Oui. Selon les informations fournies par l’établissement, l’entrée est discrète et comprend un accueil par un représentant." }
+  "כן. לפי המידע שנמסר על ידי המקום, הכניסה דיסקרטית וכוללת מפגש עם נציג המקום.": { "en": "Yes. According to the information provided by the property, entry is discreet and includes meeting a property representative.", "ru": "Да. По информации объекта, вход конфиденциальный и включает встречу с представителем.", "fr": "Oui. Selon les informations fournies par l’établissement, l’entrée est discrète et comprend un accueil par un représentant." },
+  "פרטי הפעילות": { "en": "Activity details", "ru": "Детали активности", "fr": "Détails de l’activité" },
+  "פרטי האירוע": { "en": "Event details", "ru": "Детали мероприятия", "fr": "Détails de l’événement" },
+  "פרטי השירות": { "en": "Service details", "ru": "Детали услуги", "fr": "Détails du service" },
+  "פרטי הטיפול": { "en": "Treatment details", "ru": "Детали процедуры", "fr": "Détails du soin" },
+  "הזמינות והמחיר נבדקו לתאריכים ולהרכב שבחרתם, אך המקום אינו נשמר עד להשלמת ההזמנה וקבלת האישור שמוצג בסיום התהליך.": { "en": "Availability and price were checked for your selected dates and party, but the place is not held until the booking is completed and the confirmation shown at the end is received.", "ru": "Наличие и цена проверены для выбранных дат и состава гостей, но объект не удерживается до завершения бронирования и получения итогового подтверждения.", "fr": "La disponibilité et le prix ont été vérifiés pour les dates et la composition choisies, mais le lieu n’est pas retenu avant la finalisation de la réservation et la réception de la confirmation affichée à la fin." },
+  "הפעילות": { "en": "the activity", "ru": "активности", "fr": "l’activité" },
+  "האירוע": { "en": "the event", "ru": "мероприятия", "fr": "l’événement" },
+  "השירות": { "en": "the service", "ru": "услуги", "fr": "le service" },
+  "מועד": { "en": "Schedule", "ru": "Время", "fr": "Horaire" },
+  "שעה מועדפת, לא חובה": { "en": "Preferred time, optional", "ru": "Предпочтительное время, необязательно", "fr": "Horaire préféré, facultatif" },
+  "השעה המדויקת של": { "en": "The exact time of", "ru": "Точное время", "fr": "L’heure exacte de" },
+  "מופיעה באישור. אין להגיע לפני השעה שאושרה.": { "en": "appears in the confirmation. Do not arrive before the confirmed time.", "ru": "указано в подтверждении. Не приезжайте раньше подтверждённого времени.", "fr": "figure dans la confirmation. N’arrivez pas avant l’heure confirmée." }
 }

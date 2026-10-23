@@ -13,6 +13,14 @@ const ARRIVAL_PREFERENCES = [
   { value: "late", label: "הגעה מאוחרת יותר" },
 ];
 
+const APPOINTMENT_PREFERENCES = [
+  { value: "", label: "ללא העדפה" },
+  { value: "morning", label: "בוקר" },
+  { value: "noon", label: "צהריים" },
+  { value: "afternoon", label: "אחר הצהריים" },
+  { value: "evening", label: "ערב" },
+];
+
 function dateKey(date: Date) {
   return date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0") + "-" + String(date.getDate()).padStart(2, "0");
 }
@@ -27,8 +35,9 @@ function monthStart(date: Date) {
   return new Date(date.getFullYear(), date.getMonth(), 1);
 }
 
-export function BookingSchedulePicker({ range, arrival, departure, time, onArrivalChange, onDepartureChange, onTimeChange }: {
+export function BookingSchedulePicker({ range, purpose = "stay", arrival, departure, time, onArrivalChange, onDepartureChange, onTimeChange }: {
   range: boolean;
+  purpose?: "stay" | "activity" | "event" | "service";
   arrival: string;
   departure: string;
   time: string;
@@ -50,6 +59,7 @@ export function BookingSchedulePicker({ range, arrival, departure, time, onArriv
   }, [month]);
   const monthTitle = new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(month);
   const minimumMonth = monthStart(today);
+  const appointmentLabel = purpose === "activity" ? "הפעילות" : purpose === "event" ? "האירוע" : "השירות";
 
   function chooseDate(date: Date) {
     const key = dateKey(date);
@@ -68,7 +78,7 @@ export function BookingSchedulePicker({ range, arrival, departure, time, onArriv
   return <div className="booking-schedule form-wide">
     <div className="booking-schedule__heading">
       <CalendarIcon />
-      <div><strong>{translate(range ? "בחרו תאריכי שהייה" : "בחרו תאריך הגעה")}</strong><span>{translate(range ? "תחילה הגעה, אחר כך עזיבה" : "בחרו יום פנוי בלוח")}</span></div>
+      <div><strong>{translate(range ? "בחרו תאריכי שהייה" : `בחרו מועד ${appointmentLabel}`)}</strong><span>{translate(range ? "תחילה הגעה, אחר כך עזיבה" : "בחרו יום פנוי בלוח")}</span></div>
     </div>
     <div className="booking-schedule__calendar" aria-label={translate("בחירת תאריך")}>
       <header><button type="button" disabled={month <= minimumMonth} onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))} aria-label={translate("החודש הקודם")}>‹</button><strong>{monthTitle}</strong><button type="button" onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))} aria-label={translate("החודש הבא")}>›</button></header>
@@ -83,17 +93,17 @@ export function BookingSchedulePicker({ range, arrival, departure, time, onArriv
       })}</div>
     </div>
     <div className="booking-schedule__summary" aria-live="polite">
-      <span><small>{translate("הגעה")}</small><strong>{arrival ? new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" }).format(fromKey(arrival)!) : translate("בחרו תאריך")}</strong></span>
+      <span><small>{translate(range ? "הגעה" : "מועד")}</small><strong>{arrival ? new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" }).format(fromKey(arrival)!) : translate("בחרו תאריך")}</strong></span>
       {range ? <span><small>{translate("עזיבה")}</small><strong>{departure ? new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" }).format(fromKey(departure)!) : translate("בחרו תאריך")}</strong></span> : null}
     </div>
     <div className="booking-schedule__time-optional">
       <ModernSelect
-        label={translate("שעת הגעה משוערת, לא חובה")}
+        label={translate(range ? "שעת הגעה משוערת, לא חובה" : "שעה מועדפת, לא חובה")}
         value={time}
         onChange={onTimeChange}
-        options={ARRIVAL_PREFERENCES.map((option) => ({ value: option.value, label: translate(option.label) }))}
+        options={(range ? ARRIVAL_PREFERENCES : APPOINTMENT_PREFERENCES).map((option) => ({ value: option.value, label: translate(option.label) }))}
       />
-      <p>{translate("שעת הצ׳ק־אין המדויקת מופיעה באישור המקום. אין להגיע לפני השעה שאושרה.")}</p>
+      <p>{translate(range ? "שעת הצ׳ק־אין המדויקת מופיעה באישור המקום. אין להגיע לפני השעה שאושרה." : `השעה המדויקת של ${appointmentLabel} מופיעה באישור. אין להגיע לפני השעה שאושרה.`)}</p>
     </div>
     <input type="hidden" name="date" value={arrival} />
     {range ? <input type="hidden" name="till" value={departure} /> : null}

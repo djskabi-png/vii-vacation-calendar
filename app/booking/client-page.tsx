@@ -18,6 +18,7 @@ import { legacyAvailabilitySourceFor } from "../lib/legacy-availability-sources"
 import { trackBusinessEvent } from "../lib/analytics";
 import { DirectPhoneLink } from "../components/direct-phone-link";
 import { supplierPhoneLink } from "../lib/supplier-contact";
+import { bookingReturnHref } from "../lib/booking-return-href";
 
 type Props = {
   world: string;
@@ -120,6 +121,15 @@ export default function BookingPageClient(props: Props) {
   const usesSpaPayment = props.world === "spa" && !isManage;
   const localizedOfferIncludes = props.offerIncludes?.map((item) => translate(item));
   const paymentMethodLabel = paymentMethod === "pay_now" ? "תשלום בכרטיס עכשיו" : "תשלום במקום, כרטיס לביטחון";
+  const bookingSubject = props.world === "activities"
+    ? { details: "פרטי הפעילות", purpose: "activity" as const, participants: "משתתפים" }
+    : props.world === "events"
+      ? { details: "פרטי האירוע", purpose: "event" as const, participants: "משתתפים" }
+      : props.world === "providers"
+        ? { details: "פרטי השירות", purpose: "service" as const, participants: "משתתפים" }
+        : props.world === "spa"
+          ? { details: "פרטי הטיפול", purpose: "service" as const, participants: "משתתפים" }
+          : { details: "פרטי השהייה", purpose: "stay" as const, participants: "אורחים" };
   const currentNights = countStayNights(arrival, departure) || props.vacationPrice?.nights || 0;
   const pricing = supplierSiteID
     ? supplierBookingReady && currentNights > 0 ? {
@@ -145,17 +155,12 @@ export default function BookingPageClient(props: Props) {
     ru: { business: "Вернуться к", site: "Вернуться на сайт", label: "Выйти из бронирования" },
     fr: { business: "Retour à", site: "Retour au site", label: "Quitter la réservation" },
   }[language];
-  const businessReturnParams = new URLSearchParams({ id: props.placeId });
-  if (props.world) businessReturnParams.set("world", props.world);
-  if (arrival) businessReturnParams.set("from", arrival);
-  if (departure) businessReturnParams.set("till", departure);
-  if (guests) businessReturnParams.set("guests", guests);
-  if (props.initialRooms) businessReturnParams.set("rooms", props.initialRooms);
-  if (props.initialChildren) businessReturnParams.set("children", props.initialChildren);
-  if (props.initialInfants) businessReturnParams.set("infants", props.initialInfants);
-  if (pricing?.nightlyPrice) businessReturnParams.set("price", String(pricing.nightlyPrice));
-  if (props.illustrative) businessReturnParams.set("illustrative", "1");
-  const businessReturnHref = localizedPath(`/business?${businessReturnParams.toString()}`, language);
+  const businessReturnPath = bookingReturnHref({
+    world: props.world, placeId: props.placeId, from: arrival, till: departure, guests,
+    rooms: props.initialRooms, children: props.initialChildren, infants: props.initialInfants,
+    price: pricing?.nightlyPrice, illustrative: props.illustrative,
+  });
+  const businessReturnUrl = localizedPath(businessReturnPath, language);
   const viewedOfferParams = new URLSearchParams({ world: props.world, place: props.placeId });
   if (props.offerId) viewedOfferParams.set("package", props.offerId);
   if (props.initialFrom) viewedOfferParams.set("from", props.initialFrom);
@@ -170,7 +175,7 @@ export default function BookingPageClient(props: Props) {
     : null;
   const translatedPlaceName = translate(props.placeName);
   const bookingReturnNavigation = <nav className="booking-return-nav" aria-label={returnCopy.label} data-keep-same-tab="true">
-    <Link className="booking-return-nav__business" href={businessReturnHref}>
+    <Link className="booking-return-nav__business" href={businessReturnUrl}>
       <span aria-hidden="true">‹</span>
       <strong>{returnCopy.business}<small>{translatedPlaceName}</small></strong>
     </Link>
@@ -372,7 +377,7 @@ export default function BookingPageClient(props: Props) {
       <h1 id="booking-check-title">בודקים זמינות ומחיר עדכניים</h1>
       <p>בודקים שהמקום פנוי ושהמחיר מתאים לתאריכים שבחרתם.</p>
       <span className="booking-unavailable__loading" aria-hidden="true"></span>
-      <span data-keep-same-tab="true"><Link className="button secondary" href={businessReturnHref}>{returnCopy.business}</Link></span>
+      <span data-keep-same-tab="true"><Link className="button secondary" href={businessReturnUrl}>{returnCopy.business}</Link></span>
     </section>
   </main>;
 
@@ -384,7 +389,7 @@ export default function BookingPageClient(props: Props) {
       <h1 id="booking-phone-title">{supplierPhoneOnly ? "התאריכים פנויים, ההזמנה בטלפון" : supplierSiteID || liveSourceEnabled ? "התאריכים או היחידה כבר אינם זמינים להזמנה מהירה" : "חסר תאריך או מחיר להזמנה מקוונת"}</h1>
       <p>{supplierPhoneOnly ? `המחיר שנבדק כעת הוא ${supplierQuote.quote!.nightlyPrice!.toLocaleString("he-IL")} ₪ ללילה. המקום אינו מקבל הזמנות אונליין; התקשרו כדי להשלים את ההזמנה.` : supplierSiteID || liveSourceEnabled ? "לא ניתן להמשיך עם ההצעה הזו. אפשר לחזור למקום, לבחור תאריך אחר או לפנות אליו ישירות." : "לתיאום ההזמנה ולאישור המחיר והזמינות, פנו ישירות למקום."}</p>
       {supplierPhoneLink(props.phone) ? <DirectPhoneLink phone={props.phone} placeName={props.placeName} className="phone-reveal phone-reveal--visible" tracking={{ placeId: props.placeId, placeName: props.placeName, world: props.world, placement: "booking_phone_fallback" }} /> : <p role="status">{translate("מספר טלפון אינו זמין כרגע")}</p>}
-      <span data-keep-same-tab="true"><Link className="button secondary" href={businessReturnHref}>{returnCopy.business}</Link></span>
+      <span data-keep-same-tab="true"><Link className="button secondary" href={businessReturnUrl}>{returnCopy.business}</Link></span>
     </section>
   </main>;
 
@@ -444,7 +449,7 @@ export default function BookingPageClient(props: Props) {
     </div>
 
     <nav className="booking-steps" aria-label="שלבי ההזמנה">
-      {[1, 2, 3].map((number) => <button key={number} type="button" className={step === number ? "active" : step > number ? "complete" : ""} aria-current={step === number ? "step" : undefined} onClick={() => number < step && setStep(number as 1 | 2 | 3)}><b>{number}</b><span>{number === 1 ? "פרטי השהייה" : number === 2 ? "פרטי המזמין" : usesSpaPayment ? "תשלום וסיכום" : "סיכום ושליחה"}</span></button>)}
+      {[1, 2, 3].map((number) => <button key={number} type="button" className={step === number ? "active" : step > number ? "complete" : ""} aria-current={step === number ? "step" : undefined} onClick={() => number < step && setStep(number as 1 | 2 | 3)}><b>{number}</b><span>{number === 1 ? bookingSubject.details : number === 2 ? "פרטי המזמין" : usesSpaPayment ? "תשלום וסיכום" : "סיכום ושליחה"}</span></button>)}
     </nav>
 
     <div className="booking-flow booking-flow--steps">
@@ -464,7 +469,7 @@ export default function BookingPageClient(props: Props) {
 
       <form ref={formRef} className="booking-form booking-form--steps" onSubmit={submit}>
         <section data-booking-step="1" hidden={step !== 1} aria-labelledby="booking-step-one-title">
-          <header><span>שלב 1 מתוך 3</span><h2 id="booking-step-one-title">פרטי השהייה</h2></header>
+          <header><span>שלב 1 מתוך 3</span><h2 id="booking-step-one-title">{bookingSubject.details}</h2></header>
           {isManage ? <label className="form-wide">מספר הזמנה<input name="bookingReference" required /></label> : <>
             {props.world === "spa" ? <SpaAppointmentPicker initialDate={props.initialFrom} initialGuests={props.initialGuests} offerName={props.offerName} offerAudience={props.offerAudience} offerDuration={props.offerDuration} onSelectionChange={(selection) => {
               setSpaAppointmentReady(selection.ready);
@@ -472,7 +477,7 @@ export default function BookingPageClient(props: Props) {
               setGuests(String(selection.guests));
               setSpaComposition(selection.compositionLabel);
               setSpaTime(selection.time);
-            }} /> : <BookingSchedulePicker range={props.world === "vacation"} arrival={arrival} departure={departure} time={preferredTime} onArrivalChange={(value) => { setArrival(value); setScheduleError(""); }} onDepartureChange={(value) => { setDeparture(value); setScheduleError(""); }} onTimeChange={(value) => { setPreferredTime(value); setScheduleError(""); }} />}
+            }} /> : <BookingSchedulePicker range={props.world === "vacation"} purpose={bookingSubject.purpose} arrival={arrival} departure={departure} time={preferredTime} onArrivalChange={(value) => { setArrival(value); setScheduleError(""); }} onDepartureChange={(value) => { setDeparture(value); setScheduleError(""); }} onTimeChange={(value) => { setPreferredTime(value); setScheduleError(""); }} />}
             {props.world !== "spa" && scheduleError ? <p className="booking-form__schedule-error form-wide" role="alert">{translate(scheduleError)}</p> : null}
             {props.world !== "spa" ? <label>כמות אורחים או משתתפים<input name="guests" type="number" min="1" value={guests} onChange={(event) => setGuests(event.target.value)} required /></label> : null}
           </>}
@@ -496,7 +501,7 @@ export default function BookingPageClient(props: Props) {
           <header><span>שלב 3 מתוך 3</span><h2 id="booking-step-three-title">{usesSpaPayment ? "סיכום ואופן התשלום" : "סיכום ושליחת הבקשה"}</h2></header>
           <div className="booking-review form-wide">
             <article><span>מקום וחבילה</span><strong>{props.placeName}</strong><small>{props.offerName}{props.offerDuration ? " · " + props.offerDuration : ""}</small></article>
-            <article><span>מועד והרכב</span><strong>{arrival || "לפי הבחירה"}{spaTime ? " בשעה " + spaTime : departure ? " עד " + departure : ""}</strong><small>{props.world === "spa" ? guests + " משתתפים" + (spaComposition ? ", " + spaComposition : "") : guests + " אורחים או משתתפים"}</small></article>
+            <article><span>מועד והרכב</span><strong>{arrival || "לפי הבחירה"}{spaTime ? " בשעה " + spaTime : departure ? " עד " + departure : ""}</strong><small>{guests} {bookingSubject.participants}{props.world === "spa" && spaComposition ? ", " + spaComposition : ""}</small></article>
             <article><span>פרטי המזמין</span><strong>{name}</strong><small>{phone}{email ? " · " + email : ""}</small></article>
             <article className={pricing ? "booking-review__price" : undefined}><span>מחיר ההזמנה</span>{vacationPriceSummary || <strong>{props.price}</strong>}<small>{usesSpaPayment ? paymentMethod ? paymentMethodLabel : "אופן התשלום ייבחר כעת" : "ללא חיוב וללא אשראי בשלב זה"}</small></article>
           </div>

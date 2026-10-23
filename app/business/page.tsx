@@ -103,6 +103,10 @@ export default async function Page({ searchParams }: Props) {
   const providerInventory = discoveryItems.filter((item) => item.world === "providers");
   const relatedProperties = nearbyRecommendations(properties, property, { key: (item) => item.slug, exclude: property.slug, limit: 3 }).items;
   const currentOffer = property.capacityScope === "unit" ? undefined : currentPeriodOffer(property.slug, params.period);
+  const selectedDatesHaveLivePrice = Boolean(params.from && params.till && Number(params.price) > 0);
+  const resolvedPropertyFaq = propertyFaq.map((item, index) => index === 0 && selectedDatesHaveLivePrice
+    ? { question: item.question, answer: "הזמינות והמחיר נבדקו לתאריכים ולהרכב שבחרתם, אך המקום אינו נשמר עד להשלמת ההזמנה וקבלת האישור שמוצג בסיום התהליך." }
+    : item);
   if (currentOffer && (params.from !== currentOffer.from || params.till !== currentOffer.till || Number(params.price) !== currentOffer.nightlyPrice)) {
     const locale = (await headers()).get("x-vii-locale");
     const prefix = locale && locale !== "he" ? `/${locale}` : "";
@@ -138,7 +142,7 @@ export default async function Page({ searchParams }: Props) {
       ...hierarchy,
       { name: property.name, path: `/business?id=${property.slug}` },
     ])} />
-    <StructuredData data={faqSchema(propertyFaq)} />
-    <BusinessPage initialSlug={property.slug} initialProperty={property} relatedProperties={relatedProperties} trailInventory={trailInventory} complementaryInventory={complementaryInventory} providerInventory={providerInventory} faqItems={propertyFaq} supplierDetail={supplierDetail} initialWorld={initialWorld} initialDates={params.dates} initialFrom={params.from} initialTill={params.till} initialGuests={params.guests} initialRooms={params.rooms} initialChildren={params.children} initialInfants={params.infants} initialRoomID={params.roomID} initialPrice={params.price} initialIllustrative={params.illustrative === "1"} initialSource={params.source} initialPeriod={params.period} />
+    <StructuredData data={faqSchema(resolvedPropertyFaq)} />
+    <BusinessPage initialSlug={property.slug} initialProperty={property} relatedProperties={relatedProperties} trailInventory={trailInventory} complementaryInventory={complementaryInventory} providerInventory={providerInventory} faqItems={resolvedPropertyFaq} supplierDetail={supplierDetail} initialWorld={initialWorld} initialDates={params.dates} initialFrom={params.from} initialTill={params.till} initialGuests={params.guests} initialRooms={params.rooms} initialChildren={params.children} initialInfants={params.infants} initialRoomID={params.roomID} initialPrice={params.price} initialIllustrative={params.illustrative === "1"} initialSource={params.source} initialPeriod={params.period} />
   </>;
 }

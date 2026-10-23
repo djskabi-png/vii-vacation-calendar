@@ -18,6 +18,7 @@ import { TrailNearbyWorlds } from "../../components/trail-nearby-worlds";
 import { properties } from "../../data/site-data";
 import { discoveryItems } from "../../data/world-data";
 import { nearbyRecommendations, nearbyRegion } from "../../lib/nearby-recommendations";
+import { discoveryBreadcrumbsForLocation } from "../../lib/place-breadcrumb-locations";
 
 export function generateStaticParams() {
   return trails.map((trail) => ({ slug: trail.slug }));
@@ -58,6 +59,12 @@ export default async function TrailPage({ params }: { params: Promise<{ slug: st
     { question: "מה צריך לבדוק לפני היציאה?", answer: `${trail.safety.join(" ")} לפני היציאה בודקים גם עדכונים במקור הרשמי, תחזית והנחיות בשטח.` },
   ];
   const mapHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(trail.mapQuery)}`;
+  const trailBreadcrumbs = [
+    { name: "ראשי", path: "/" },
+    { name: "מסלולי טיול", path: "/trails/" },
+    ...discoveryBreadcrumbsForLocation("trails", trail.mainArea, trail.region),
+    { name: trail.name, path: `/trails/${trail.slug}/` },
+  ];
 
   return <PageShell variant="activities">
     <ViewedItemBootstrap id={trail.slug} world="trails" name={trail.name} location={`${trail.mainArea}, ${trail.region}`} href={`/trails/${trail.slug}`} meta={`${trail.duration} · ${trail.difficulty}`} />
@@ -65,12 +72,8 @@ export default async function TrailPage({ params }: { params: Promise<{ slug: st
     <main id="main-content" className="trail-detail">
       <StructuredData data={trailSchema(trail)} />
       <StructuredData data={faqSchema(trailFaqs)} />
-      <StructuredData data={breadcrumbSchema([
-        { name: "ראשי", path: "/" },
-        { name: "מסלולי טיול", path: "/trails/" },
-        { name: trail.name, path: `/trails/${trail.slug}/` },
-      ])} />
-      <BreadcrumbTrail items={[{ name: "ראשי", path: "/" }, { name: "מסלולי טיול", path: "/trails" }, { name: trail.name }]} />
+      <StructuredData data={breadcrumbSchema(trailBreadcrumbs)} />
+      <BreadcrumbTrail items={trailBreadcrumbs.map((item, index) => index === trailBreadcrumbs.length - 1 ? { name: item.name } : item)} />
       <section className="shell trail-detail__hero"><div className="trail-detail__intro"><div className="trail-detail__context"><span>{trail.mainArea}</span><span>{trail.region}</span><span>{trail.nature.slice(0, 2).join(" · ")}</span></div><div className="trail-detail__title-row"><h1>{trail.name}</h1><FavoriteButton id={trail.slug} world="trails" name={trail.name} location={`${trail.mainArea}, ${trail.region}`} href={`/trails/${trail.slug}`} meta={`${trail.duration} · ${trail.difficulty}`} compact={false} /></div><p>{trail.summary}</p><dl className="trail-detail__answer" aria-label="תקציר המסלול"><div><dt>איפה?</dt><dd>{trail.region}</dd></div><div><dt>כמה זמן?</dt><dd>{trail.duration}</dd></div><div><dt>מה הקושי?</dt><dd>{trail.difficulty}</dd></div><div><dt>למי מתאים?</dt><dd>{trail.familyFit}</dd></div></dl><div className="trail-detail__actions"><a className="button primary" href={mapHref} target="_blank" rel="noopener noreferrer">פתיחה במפה</a><a className="button secondary" href={trail.officialSource} target="_blank" rel="noopener noreferrer">בדיקה במקור הרשמי</a></div><p className="trail-detail__verification">נקודת החיפוש במפה: {trail.mapQuery}. מצב המסלול, שעות, תשלום ותנאי שטח נבדקים שוב ביום הטיול.</p></div><TrailVisual trail={trail} /></section>
 
       <div className="shell trail-detail__layout">
