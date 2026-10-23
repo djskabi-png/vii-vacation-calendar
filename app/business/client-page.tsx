@@ -83,6 +83,19 @@ function derivedFeatureGroups(features: string[]): ListingFeatureGroup[] {
   return [...(general.length ? [{ title: "כללי", items: general }] : []), ...groups.filter((group) => group.items.length)];
 }
 
+type DisplayFeatureGroup = { title: string; items: string[] };
+
+function balanceFeatureGroups(groups: DisplayFeatureGroup[]): [DisplayFeatureGroup[], DisplayFeatureGroup[]] {
+  const columns: [DisplayFeatureGroup[], DisplayFeatureGroup[]] = [[], []];
+  const height = [0, 0];
+  for (const group of groups) {
+    const column = height[0] <= height[1] ? 0 : 1;
+    columns[column].push(group);
+    height[column] += 1 + Math.ceil(group.items.length / 2);
+  }
+  return columns;
+}
+
 function PropertyHighlightIcon({ icon }: { icon: ListingHighlightIcon }) {
   const Icon = icon === "pool" ? Waves
     : icon === "spa" ? Bath
@@ -286,6 +299,11 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
   const roomQuantity = property.roomOptions?.reduce((total, room) => total + room.quantity, 0) || 0;
   const highlights = (property.highlights?.length ? property.highlights : property.features.map((label) => ({ label, icon: highlightIconFor(label) }))).slice(0, 5);
   const featureGroups = property.featureGroups?.length ? property.featureGroups : derivedFeatureGroups(property.features);
+  const localizedFeatureGroups = featureGroups.flatMap((group) => {
+    const items = localizedBusinessList(group.items, language, translate);
+    return items.length ? [{ title: safeBusinessText(group.title, businessCopy.feature), items }] : [];
+  });
+  const desktopFeatureColumns = balanceFeatureGroups(localizedFeatureGroups);
   const mobileFeaturePreview = featureGroups.flatMap((group) => group.items).slice(0, 4);
   const placeGalleryImages = property.images;
   const complementSelection = useMemo(() => nearbyRecommendations((complementaryInventory || discoveryItems).filter((item) => item.world === "spa" || item.world === "activities"), property, { key: (item) => `${item.world}:${item.id}` }), [complementaryInventory, property]);
@@ -480,7 +498,7 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
               <div className="feature-section__mobile-preview" aria-label="הדברים הבולטים במקום">
                 {localizedBusinessList(mobileFeaturePreview, language, translate).map((feature) => <span key={feature}><PropertyHighlightIcon icon={highlightIconFor(feature)} /><b>{feature}</b></span>)}
               </div>
-              <div className="property-feature-groups">{featureGroups.map((group) => { const items = localizedBusinessList(group.items, language, translate); return items.length ? <article key={group.title}><h3>{safeBusinessText(group.title, businessCopy.feature)}</h3><div className="feature-list">{items.map((feature) => <span key={feature}><PropertyHighlightIcon icon={highlightIconFor(feature)} /><b>{feature}</b></span>)}</div></article> : null; })}</div>
+              <div className="property-feature-groups">{desktopFeatureColumns.map((column, columnIndex) => <div className="property-feature-groups__column" key={columnIndex}>{column.map((group) => <article key={group.title}><h3>{group.title}</h3><div className="feature-list">{group.items.map((feature) => <span key={feature}><PropertyHighlightIcon icon={highlightIconFor(feature)} /><b>{feature}</b></span>)}</div></article>)}</div>)}</div>
               <div className={`feature-section__mobile-details ${mobileFeaturesOpen ? "is-open" : ""}`}>
                 <button className="feature-section__mobile-toggle" type="button" aria-expanded={mobileFeaturesOpen} aria-controls="mobile-feature-groups" onClick={() => setMobileFeaturesOpen((open) => !open)}>{mobileFeaturesOpen ? "הסתרת כל המתקנים" : "הצגת כל המתקנים"}</button>
                 <div id="mobile-feature-groups" className="feature-section__mobile-groups" hidden={!mobileFeaturesOpen}>{featureGroups.map((group) => { const items = localizedBusinessList(group.items, language, translate); return items.length ? <section key={group.title}><h3>{safeBusinessText(group.title, businessCopy.feature)}</h3><div>{items.map((feature) => <span key={feature}><PropertyHighlightIcon icon={highlightIconFor(feature)} /><b>{feature}</b></span>)}</div></section> : null; })}</div>

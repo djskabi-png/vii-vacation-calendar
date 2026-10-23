@@ -5271,8 +5271,9 @@ body:has(.share-dialog-layer) .smart-concierge { display: none; }
 .property-highlight-icon--events { --feature-icon-color: #a85c16; --feature-icon-bg: #fff0de; }
 /* Shared icon frames use the SVG box itself as the centering reference. */
 :is(.property-highlight-icon,.event-feature-check,.hourly-feature-icon,.spa-results__filter-icon,.search-depth__discovery-icon,.location-nearby__icon,.saved-viewed-menu__icon,.mobile-filter__icon) > svg { display: block; flex: none; margin: auto; overflow: visible; transform-origin: center; }
-.property-feature-groups { columns: 2; column-gap: 12px; margin: 18px 0; }
-.property-feature-groups article { width: 100%; display: inline-block; break-inside: avoid; margin: 0 0 12px; padding: 18px; border: 1px solid var(--line); border-radius: 17px; background: #f8fbfb; box-sizing: border-box; }
+.property-feature-groups { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); align-items: start; gap: 12px; margin: 18px 0; }
+.property-feature-groups__column { min-width: 0; display: grid; align-content: start; gap: 12px; }
+.property-feature-groups article { width: 100%; min-width: 0; margin: 0; padding: 18px; border: 1px solid var(--line); border-radius: 17px; background: #f8fbfb; box-sizing: border-box; }
 .property-feature-groups h3,.modal-feature-groups h3 { margin: 0 0 12px; font-size: 1rem; }
 .feature-section__mobile-preview,
 .feature-section__mobile-details { display: none; }
@@ -6459,7 +6460,8 @@ input[type="checkbox"],input[type="radio"] { min-width:24px; min-height:24px; }
   .property-highlights { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 132px; overflow-x: auto; margin-inline: -14px; padding: 2px 14px 10px; scroll-snap-type: inline mandatory; scrollbar-width: none; }
   .property-highlights::-webkit-scrollbar { display: none; }
   .property-highlights article { min-height: 122px; scroll-snap-align: start; }
-  .property-feature-groups { columns: 1; }
+  .property-feature-groups { grid-template-columns: 1fr; }
+  .property-feature-groups__column { display: contents; }
   .units-section { padding: 0 !important; border-radius: 0; }
   .sleeping-section { padding: 22px 16px !important; border-radius: 20px; }
   .sleeping-section__heading { align-items: flex-start; }
