@@ -29,6 +29,16 @@ export const qualityRegistry: readonly QualityCheck[] = [
   { checkId: "seo.sitemap.xml", family: "seo-legacy", world: "all", route: "/sitemap.xml", viewport: "server", severity: "high", cadenceMinutes: 60, timeoutMs: 10_000, expected: "Sitemap returns XML", releaseBlocking: true },
 ] as const;
 
+export function qualityHeartbeatWindow(now = new Date()) {
+  return new Date(Math.floor(now.getTime() / 600_000) * 600_000);
+}
+
+export function shouldStartQualityHeartbeat(request: Request) {
+  if (request.method !== "GET") return false;
+  if ((request.headers.get("user-agent") || "").includes("VII-Quality-Monitor/")) return false;
+  return (request.headers.get("accept") || "").includes("text/html");
+}
+
 const schema = [
   `CREATE TABLE IF NOT EXISTS quality_checks (
     check_id TEXT PRIMARY KEY, family TEXT NOT NULL, world TEXT NOT NULL, route TEXT NOT NULL,

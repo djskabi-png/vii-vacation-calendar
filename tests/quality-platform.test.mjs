@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { DatabaseSync } from "node:sqlite";
-import { incidentTransition, qualityRegistry, readQualityDashboard, runQualityChecks } from "../app/lib/quality-platform.ts";
+import { incidentTransition, qualityHeartbeatWindow, qualityRegistry, readQualityDashboard, runQualityChecks, shouldStartQualityHeartbeat } from "../app/lib/quality-platform.ts";
 
 function fixture() {
   const sqlite = new DatabaseSync(":memory:");
@@ -36,6 +36,19 @@ test("recurring registry is read-only and excludes accessibility and typography 
     assert.ok(check.cadenceMinutes >= 10);
   }
   assert.equal(qualityRegistry.find((check) => check.checkId === "world.vacations.html")?.route, "/search");
+});
+
+test("visitor heartbeat uses a stable ten-minute bucket and cannot recurse", () => {
+  assert.equal(qualityHeartbeatWindow(new Date("2026-10-23T18:53:42.000Z")).toISOString(), "2026-10-23T18:50:00.000Z");
+  assert.equal(shouldStartQualityHeartbeat(new Request("https://vii.spaplus.co/", {
+    headers: { accept: "text/html,application/xhtml+xml", "user-agent": "Mozilla/5.0" },
+  })), true);
+  assert.equal(shouldStartQualityHeartbeat(new Request("https://vii.spaplus.co/", {
+    headers: { accept: "text/html", "user-agent": "VII-Quality-Monitor/1.0" },
+  })), false);
+  assert.equal(shouldStartQualityHeartbeat(new Request("https://vii.spaplus.co/api/admin/quality", {
+    method: "POST", headers: { accept: "text/html" },
+  })), false);
 });
 
 test("incident transition deduplicates repeated failures and recovers the same incident", () => {

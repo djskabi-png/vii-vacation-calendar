@@ -26,7 +26,7 @@ import { rewriteOriginStream } from "./stream-origin.ts";
 import { editorialWorldLinks } from "../app/data/editorial-world-links";
 import { localizedSpaSearchSource } from "../app/data/spa-search-landings.ts";
 import { activateAwsDatabase, awsDatabaseMode, databaseForEnv } from "../app/lib/aws-database.ts";
-import { runQualityChecks } from "../app/lib/quality-platform.ts";
+import { qualityHeartbeatWindow, runQualityChecks, shouldStartQualityHeartbeat } from "../app/lib/quality-platform.ts";
 
 declare const __VII_CACHE_BUILD_ID__: string;
 const publicCacheBuild = typeof __VII_CACHE_BUILD_ID__ === "string" ? __VII_CACHE_BUILD_ID__ : "local";
@@ -226,6 +226,17 @@ const worker = {
     activateAwsDatabase(env);
     const database = databaseForEnv(env);
     const url = new URL(request.url);
+    if (database && shouldStartQualityHeartbeat(request)) {
+      ctx.waitUntil(runQualityChecks(database, {
+        origin: env.VII_QUALITY_ORIGIN || temporaryOrigin,
+        trigger: "scheduled",
+        scheduledAt: qualityHeartbeatWindow(),
+        releaseId: publicCacheBuild,
+        actor: "visitor-heartbeat",
+      }).catch((error) => {
+        console.error("VII visitor quality heartbeat unavailable", error);
+      }));
+    }
     const primary = url.hostname === "www.vii.co.il" || url.hostname === "vii.co.il";
     if (request.method === "GET" || request.method === "HEAD") {
       if (database && shouldCheckRedirect(url.pathname)) {
