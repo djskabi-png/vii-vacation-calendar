@@ -10170,40 +10170,12 @@ body:has(.vacation-booking-dialog-layer) .detail-sticky-wrap { display: none; }
   padding: clamp(26px,3vw,38px);
 }
 
-/* A restrained contact rail stays available while the place details scroll. */
+/* The mobile contact dock stays close without adding a duplicate desktop CTA. */
 .floating-contact-actions {
+  display: none;
   position: fixed;
   z-index: 80;
-  inset-inline-end: 18px;
-  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
-  display: flex;
-  gap: 8px;
-  max-width: calc(100vw - 96px);
-  padding: 6px;
-  border: 1px solid #cce1e3;
-  border-radius: 8px;
-  background: rgba(255,255,255,.98);
-  box-shadow: 0 10px 30px rgba(7,45,52,.16);
 }
-.floating-contact-actions > button,
-.floating-contact-actions > a {
-  min-height: 48px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  padding: 10px 15px;
-  border: 1px solid #bed6d9;
-  border-radius: 6px;
-  background: #fff;
-  color: var(--teal-dark);
-  font: 800 .9rem/1.2 var(--font-sans);
-  text-decoration: none;
-  white-space: nowrap;
-  cursor: pointer;
-}
-.floating-contact-actions .floating-contact-actions__whatsapp { border-color: #a6d3bd; background: #eef8f2; color: #087553; }
-.floating-contact-actions svg { width: 19px; height: 19px; flex: 0 0 19px; }
 .back-to-top {
   position: fixed;
   z-index: 79;
@@ -10221,8 +10193,8 @@ body:has(.vacation-booking-dialog-layer) .detail-sticky-wrap { display: none; }
   cursor: pointer;
 }
 .back-to-top svg { width: 18px; height: 18px; }
-body:has(.story-gallery, .share-dialog-layer, .review-studio, .vacation-booking-dialog-layer, .menu-layer) .floating-contact-actions,
-body:has(.story-gallery, .share-dialog-layer, .review-studio, .vacation-booking-dialog-layer, .menu-layer) .back-to-top { display: none; }
+body:has(.story-gallery, .share-dialog-layer, .review-studio, .vacation-booking-dialog-layer, .whatsapp-lead-layer, .menu-layer) .floating-contact-actions,
+body:has(.story-gallery, .share-dialog-layer, .review-studio, .vacation-booking-dialog-layer, .whatsapp-lead-layer, .menu-layer) .back-to-top { display: none; }
 
 .review-experience { border-radius: 8px; background: #f8fbfb; box-shadow: none; }
 .review-experience__score,
@@ -10286,12 +10258,62 @@ button[data-slider-boundary]:disabled { opacity: .32; color: #71898d; cursor: de
   .event-rail-controls { margin-bottom: 8px; }
 }
 
-@media (max-width: 560px) {
-  .floating-contact-actions { inset-inline-end: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); max-width: calc(100vw - 88px); gap: 5px; padding: 5px; }
+@media (max-width: 767px) {
+  .floating-contact-actions {
+    inset-inline: auto;
+    left: 50%;
+    bottom: max(12px,env(safe-area-inset-bottom,0px));
+    width: min(calc(100vw - 24px),420px);
+    max-width: none;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 8px;
+    padding: 8px;
+    border: 1px solid rgba(10,92,101,.18);
+    border-radius: 20px;
+    background: rgba(255,255,255,.96);
+    box-shadow: 0 16px 42px rgba(3,40,48,.22),0 2px 8px rgba(3,40,48,.08);
+    backdrop-filter: blur(14px) saturate(1.1);
+    transform: translateX(-50%);
+  }
   .floating-contact-actions > button,
-  .floating-contact-actions > a { min-height: 44px; padding-inline: 8px; font-size: .75rem; }
-  .floating-contact-actions svg { width: 16px; height: 16px; flex-basis: 16px; }
+  .floating-contact-actions > a {
+    min-width: 0;
+    min-height: 54px;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border: 1px solid transparent;
+    border-radius: 14px;
+    color: #fff;
+    background: linear-gradient(135deg,#075f6b,#087e89);
+    box-shadow: 0 7px 16px rgba(5,91,102,.2);
+    font: 800 clamp(.78rem,3.4vw,.9rem)/1.2 var(--font-sans);
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .floating-contact-actions > :only-child { grid-column: 1 / -1; }
+  .floating-contact-actions .floating-contact-actions__whatsapp {
+    border-color: #a9ddbd;
+    color: #075b37;
+    background: linear-gradient(135deg,#effbf4,#dcf5e6);
+    box-shadow: 0 7px 16px rgba(7,117,76,.12);
+  }
+  .floating-contact-actions > :is(button,a):active { transform: translateY(1px); }
+  .floating-contact-actions > :is(button,a):focus-visible { outline: 3px solid #f4b942; outline-offset: 2px; }
+  .floating-contact-actions svg { width: 20px; height: 20px; flex: 0 0 20px; }
   .back-to-top { inset-inline-start: 12px; bottom: calc(82px + env(safe-area-inset-bottom, 0px)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floating-contact-actions > :is(button,a) { transition: none; }
 }
 
 /* Give the mobile review experience room to breathe inside every frame. */

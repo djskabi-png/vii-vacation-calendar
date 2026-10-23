@@ -25,8 +25,8 @@ export function FloatingContactActions({ world, placeId, placeName, phone, whats
     const intersections = new Set<Element>();
     const update = () => {
       const compactViewport = window.matchMedia("(max-width: 767px)").matches;
-      const blocked = compactViewport && intersections.size > 0;
-      setVisible(window.scrollY > 450 && !blocked);
+      const blocked = intersections.size > 0;
+      setVisible(compactViewport && window.scrollY > 450 && !blocked);
     };
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => entry.isIntersecting ? intersections.add(entry.target) : intersections.delete(entry.target));
