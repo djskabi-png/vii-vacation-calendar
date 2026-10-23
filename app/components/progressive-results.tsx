@@ -101,7 +101,7 @@ function ProgressiveResultsWindow({
     <div className={className}>
       {featuredItem ? <>{visibleItems.slice(0, featuredAfter)}{featuredItem}{visibleItems.slice(featuredAfter)}</> : visibleItems}
     </div>
-    {remaining > 0 ? <div className="progressive-results" ref={sentinelRef} aria-busy={autoLoad || undefined}>
+    {remaining > 0 ? <div className="progressive-results" ref={sentinelRef} aria-busy={autoLoad && sentinelVisible || undefined}>
       <button type="button" onClick={() => controlled ? onShowMore?.() : setVisibleCount((current) => Math.min(items.length, current + increment))}>
         <span>{autoLoad ? labels.loading : labels.more(nextCount)}</span>
         <small aria-live="polite">{labels.progress(effectiveVisibleCount, effectiveTotalCount)}</small>

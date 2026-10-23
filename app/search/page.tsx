@@ -774,7 +774,9 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const resultWindowKey = [area, selectedTypes.join(","), minPrice, maxPrice, pool, spa, whole, accessibleOnly, selectedExtras.join(","), sort, searchQuery, mapOpen ? "map" : "list"].join("|");
   // Keep the initial SSR window small while preserving total, ranking,
   // filters and the progressive continuation.
-  const initialResultWindow = 6;
+  // A search page must open with a useful comparison set. Six cards made a
+  // healthy result set look truncated until the user reached the sentinel.
+  const initialResultWindow = 18;
   const [resultWindow, setResultWindow] = useState({ key: resultWindowKey, count: initialResultWindow });
   const visibleResultCount = resultWindow.key === resultWindowKey ? resultWindow.count : initialResultWindow;
   const visibleResults = mapOpen ? displayedResults : displayedResults.slice(0, visibleResultCount);
