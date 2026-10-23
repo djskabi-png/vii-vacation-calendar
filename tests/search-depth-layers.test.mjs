@@ -53,5 +53,5 @@ test("visual complementary rails are bounded, lazy and mobile sized", () => {
 test("unsupported complementary rows render nothing instead of empty sliders", () => {
   assert.match(component, /if \(!links\.length\) return null/);
   assert.match(component, /contextualComplementsAllowed/);
-  assert.match(component, /Boolean\(location\) && !isWholeCountrySelection\(location\)/);
+  assert.match(component, /Boolean\(resolvedLocation\) && !isWholeCountrySelection\(resolvedLocation\)/);
 });

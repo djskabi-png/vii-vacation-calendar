@@ -22,7 +22,7 @@ import { getHourlyDetails, type HourlyDetails } from "../../data/hourly-details"
 import { getActivityDetails, type ActivityDetails } from "../../data/activity-details";
 import { discoveryItems, worlds, type DiscoveryItem, type WorldId } from "../../data/world-data";
 import { PinIcon } from "../../site-header";
-import { DiscoveryMap } from "../../components/listing-map";
+import { DeferredDiscoveryMap } from "../../components/deferred-listing-map";
 import { MasuExperience } from "../../components/masu-experience";
 import { GalleryExperience } from "../../components/gallery-experience";
 import { useGalleryDeepLink } from "../../components/use-gallery-deep-link";
@@ -273,7 +273,9 @@ export default function DiscoveryPlacePage({ initialId, initialItem, relatedItem
     if (hourlyDetails) return [
       { href: "#hourly-about", label: "על המקום" }, { href: "#hourly-options", label: "אפשרויות שהייה" },
       { href: "#hourly-amenities", label: "מה במקום" }, { href: "#hourly-info", label: "לפני שמגיעים" },
-      { href: "#hourly-faq", label: translate("שאלות נפוצות") }, { href: "#location", label: translate("מפה") }, { href: "#reviews", label: translate("חוות דעת") },
+      { href: "#hourly-faq", label: translate("שאלות נפוצות") },
+      ...(item.lat && item.lng ? [{ href: "#location" as const, label: translate("מפה") }] : []),
+      { href: "#reviews", label: translate("חוות דעת") },
     ];
     return [
       { href: "#activity-about", label: "על החוויה" }, { href: "#activity-highlights", label: "מה מחכה בדרך" },
@@ -310,7 +312,7 @@ export default function DiscoveryPlacePage({ initialId, initialItem, relatedItem
       {providerDetails ? <ProviderContent itemId={item.id} providerName={item.name} details={providerDetails} priceLabel={item.priceLabel || "מחיר ייקבע לפני אישור"} /> : null}
       {hourlyDetails ? <HourlyContent item={item} details={hourlyDetails} /> : null}
       {activityDetails ? <ActivityContent itemId={item.id} details={activityDetails} /> : null}
-      {((spaDetails && item.lat && item.lng) || hourlyDetails) ? <section className={`section shell discovery-location discovery-location--${item.world}`} id="location"><div className="discovery-location__intro"><h2>המקום על המפה</h2><p>{item.world === "spa" ? "המיקום במפה הוא אזורי. הכתובת המדויקת מופיעה בפרטי המקום." : "רואים את אזור המקום ושומרים על פרטיות מלאה. פרטי ההגעה המדויקים נמסרים לאחר אישור."}</p></div><DiscoveryMap items={[item]} tone={item.world === "spa" ? "spa" : "hourly"} single /></section> : null}
+      {((spaDetails && item.lat && item.lng) || (hourlyDetails && item.lat && item.lng)) ? <section className={`section shell discovery-location discovery-location--${item.world}`} id="location"><div className="discovery-location__intro"><h2>המקום על המפה</h2><p>{item.world === "spa" ? "המיקום במפה הוא אזורי. הכתובת המדויקת מופיעה בפרטי המקום." : "רואים את אזור המקום ושומרים על פרטיות מלאה. פרטי ההגעה המדויקים נמסרים לאחר אישור."}</p></div><DeferredDiscoveryMap items={[item]} tone={item.world === "spa" ? "spa" : "hourly"} single /></section> : null}
       {(item.world === "spa" || item.world === "hourly") && <div className="shell discovery-detail__accessibility"><ListingAccessibility slug={item.id} features={item.features} /></div>}
       {(item.world === "spa" || item.world === "hourly") && item.id !== "masu-home-wellness" ? <div className="section shell"><MasuExperience context={item.world === "spa" ? "spa" : "hourly"} /></div> : null}
       <div className="section shell"><GuestReviewStudio placeName={localizedItemName} subjectId={item.id} rating={item.rating} /></div>

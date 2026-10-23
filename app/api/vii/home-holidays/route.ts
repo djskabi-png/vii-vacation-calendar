@@ -2,7 +2,6 @@ import { getDiscoveryHolidays } from "../../../lib/discovery-holidays.ts";
 import { supplierToken } from "../../../lib/vii-supplier-token";
 import { applyHolidayDisplaySettings, readHomeDisplaySettings } from "../../../lib/home-display-settings.ts";
 import { isContentLocale } from "../../../lib/content-studio.ts";
-import type { D1Database } from "../../../../types/cloudflare-runtime";
 import { legacyHolidaySearchPath } from "../../../lib/search-opportunities.ts";
 import { holidayWorldPath } from "../../../lib/holiday-world.ts";
 import { runtimeDatabase } from "../../../lib/runtime-database.ts";
@@ -28,7 +27,8 @@ export async function GET(request: Request) {
     }));
     if (params.get("all") === "1") return Response.json({ holidays }, { headers: publicDiscovery });
     const settings = (await settingsPromise)!;
-    return Response.json({ holidays: applyHolidayDisplaySettings(holidays, settings), limit: settings.holidayLimit }, { headers: publicDiscovery });
+    const visibleHolidays = applyHolidayDisplaySettings(holidays, settings);
+    return Response.json({ holidays: visibleHolidays, limit: visibleHolidays.length }, { headers: publicDiscovery });
   } catch {
     return Response.json({ error: "supplier_unavailable" }, { status: 503, headers: noStore });
   }

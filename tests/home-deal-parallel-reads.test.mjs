@@ -53,7 +53,8 @@ for(const route of ['home-deals','home-holiday-deals'])test(`${route} overlaps i
     assert.match(source,/const namesPromise = publicCatalogSummaries/);
     assert.match(source,/const publicSiteIdsPromise = publishedSupplierIds/);
     assert.match(source,/const \[names, publicSiteIds\] = await Promise\.all\(\[namesPromise, publicSiteIdsPromise\]\)/);
-    assert.match(source,/Promise\.all\(snapshots\.map/);
+    assert.match(source,/const cached = await readCachedDiscovery/);
+    assert.doesNotMatch(source,/candidatePeriods|selectedSnapshot = preparedSnapshots\.find/);
     assert.match(source,/readCachedDiscovery/);
     assert.doesNotMatch(source,/supplierToken|getHomeDeals/);
   } else {
@@ -66,9 +67,9 @@ for(const route of ['home-deals','home-holiday-deals'])test(`${route} overlaps i
 });
 test('display settings start before supplier requests while holiday all mode stays unfiltered',async()=>{
   const deals=await readFile(new URL('../app/api/vii/home-deals/route.ts',import.meta.url),'utf8');
-  assert.ok(deals.indexOf('const displayPromise =')<deals.indexOf('const snapshots ='));
+  assert.ok(deals.indexOf('const displayPromise =')<deals.indexOf('const cached = await readCachedDiscovery'));
   assert.match(deals,/const \[display, db\] = await Promise\.all\(\[displayPromise, runtimeCatalogDatabase\(\)\]\)/);
-  assert.match(deals,/applyCuration\(snapshot.cached.value.deals, snapshot.period\)/);
+  assert.match(deals,/applyCuration\(snapshot.cached.value.deals, requestedPeriod\)/);
   const holidays=await readFile(new URL('../app/api/vii/home-holidays/route.ts',import.meta.url),'utf8');
   assert.ok(holidays.indexOf('const settingsPromise =')<holidays.indexOf('await getDiscoveryHolidays'));
   assert.match(holidays,/params.get\("all"\) === "1" \? null : displaySettings/);

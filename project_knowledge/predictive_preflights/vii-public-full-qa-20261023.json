@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-public-full-qa-20261023",
+  "project": "VII",
+  "task_type": "proactive public production QA",
+  "requested_outcome": "Perform a fresh evidence-backed QA inspection of the live VII platform across all public page families, worlds, key journeys, controls, content states and responsive behaviors, and report every verified defect without treating this as a QA-tool implementation task.",
+  "natural_destination": "https://vii.spaplus.co/ and its public search, landing, place, gallery, booking-entry, account, content, legal and error routes on desktop and mobile",
+  "authorization_boundary": "Read-only public QA is authorized. Do not submit bookings, leads, reviews, messages or payments; do not publish, edit production data or use destructive operations. Accessibility compliance and typography review are explicitly excluded by Adir. Admin pages may be inspected read-only only if an already-authorized session is available.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-WEB-001",
+      "reason": "VII has a large legacy-content and redirect surface that can silently regress.",
+      "acceptance_impact": "Inspect legacy parity, redirects, metadata and bottom or FAQ content on representative non-place page families."
+    },
+    {
+      "lesson_id": "ADIR-WEB-002",
+      "reason": "Controls and async states have repeatedly disappeared or stopped responding after releases.",
+      "acceptance_impact": "Exercise visible controls and loading, success, empty, error, retry, reload and back states where safely possible."
+    },
+    {
+      "lesson_id": "VII-PROJECT-001",
+      "reason": "Each VII world has distinct product logic while vacation is the structural reference.",
+      "acceptance_impact": "Cover vacation, hourly, events, spa, activities, trails, providers, holidays and shared search or place families separately."
+    },
+    {
+      "lesson_id": "ADIR-WEB-003",
+      "reason": "Silent loading and misleading availability states were recurrent public defects.",
+      "acceptance_impact": "Verify that asynchronous search, availability and gallery flows provide truthful visible feedback and recovery."
+    },
+    {
+      "lesson_id": "ADIR-WEB-004",
+      "reason": "Price formatting is a repeated public acceptance requirement.",
+      "acceptance_impact": "Verify displayed prices use the approved shekel symbol and do not expose contradictory price states."
+    },
+    {
+      "lesson_id": "ADIR-WEB-005",
+      "reason": "Mobile layouts, sliders, galleries and fixed actions have repeatedly regressed independently of desktop.",
+      "acceptance_impact": "Inspect representative routes on desktop, 390x844 mobile and a short-height responsive transition."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The audit samples only the homepage and misses a broken world or place template.",
+      "prevention": "Build a route and template inventory before testing and map every family to live evidence or a precise blocker.",
+      "acceptance_check": "The final coverage ledger lists every public family and its tested route, status and evidence."
+    },
+    {
+      "rejection": "Desktop passes while mobile galleries, sliders or sticky actions remain broken.",
+      "prevention": "Run top-to-footer mobile passes and exercise touch-equivalent controls on the affected shared families.",
+      "acceptance_check": "Representative mobile screenshots and interaction results exist for each shared template family."
+    },
+    {
+      "rejection": "A page renders but its buttons, filters, tabs, arrows, back flow or retry action do not work.",
+      "prevention": "Inventory and exercise every safe visible control on representative pages instead of relying on render checks.",
+      "acceptance_check": "The control ledger records expected and observed behavior with defects linked to route and viewport."
+    },
+    {
+      "rejection": "Availability, prices or supplier-backed content are declared correct from static HTML alone.",
+      "prevention": "Verify public network responses and visible UI states together without submitting a commercial transaction.",
+      "acceptance_check": "Availability and price findings include the visible state and the supporting public request evidence."
+    },
+    {
+      "rejection": "The report says everything passed while some pages were not reachable or authenticated surfaces were not inspected.",
+      "prevention": "Use explicit passed, failed, blocked and not-applicable states and prohibit inferred coverage.",
+      "acceptance_check": "Every untested surface has a concrete reason and no broad completion claim exceeds observed evidence."
+    },
+    {
+      "rejection": "The QA drifts into accessibility or typography work after Adir explicitly excluded both.",
+      "prevention": "Keep both categories outside the evidence ledger and findings unless they directly block a functional interaction.",
+      "acceptance_check": "The final report states the exclusion and contains no compliance or typography verdict."
+    }
+  ],
+  "affected_family": [
+    "homepage and global navigation",
+    "vacation landing and search",
+    "hourly landing and search",
+    "events landing search and place pages",
+    "spa landing search and place pages",
+    "activities and attractions",
+    "trails and exploration pages",
+    "providers and provider categories",
+    "holiday and guide content",
+    "accommodation category landing pages",
+    "shared business and discover-place pages",
+    "galleries sliders maps and media fallbacks",
+    "booking entry and safe validation states",
+    "favorites account join contact questions legal and offline routes",
+    "search URLs metadata canonical breadcrumbs and redirects",
+    "not-found and error recovery",
+    "public API-backed loading and empty states",
+    "desktop mobile and short-height responsive transitions"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII product behavior and release standards",
+        "source": "project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "VII architecture, world logic and current target requirements",
+        "source": "project_knowledge/VII_PLATFORM_MASTER_PLAN.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the route inventory and one complete vacation journey have been inspected on desktop and mobile.",
+    "checks": [
+      "all public template families are inventoried",
+      "homepage to search to place to gallery to booking-entry journey is exercised",
+      "mobile place controls and sticky actions are exercised",
+      "initial defects expand testing to their full shared family"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Which page family is missing from the coverage ledger?",
+      "Which visible control was observed but not exercised?",
+      "Can reload, back, retry, empty or error behavior contradict the happy path?",
+      "Does a shared defect recur in another world or viewport?",
+      "Does the URL, H1, breadcrumbs, filters, result count and list represent the same search state?",
+      "Can missing media, reviews, WhatsApp, accessibility attribute, rooms or availability create a false claim or empty shell?",
+      "Are any conclusions based on source code rather than the live natural destination?"
+    ],
+    "natural_destination_evidence": "Fresh live screenshots, response and interaction logs from vii.spaplus.co with route, viewport, timestamp and release identity.",
+    "affected_family_evidence": "A reconciled route-family ledger mapping every family to passed, failed, blocked or not-applicable evidence."
+  },
+  "effectiveness": {
+    "baseline": "Repeated releases have caused previously working search, sliders, galleries, breadcrumbs, pricing, contact actions, maps and content sections to disappear or regress.",
+    "measurements": [
+      "families_inventoried",
+      "routes_inspected",
+      "controls_exercised",
+      "desktop_mobile_pairs",
+      "critical_defects",
+      "high_defects",
+      "coverage_gaps",
+      "reproduced_regressions",
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Every public family has current live evidence, every discovered defect has a reproducible route and expected-versus-observed description, and no unverified surface is reported as passed."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

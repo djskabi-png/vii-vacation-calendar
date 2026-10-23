@@ -65,8 +65,9 @@ function ProgressiveResultsWindow({
   const { language } = useSiteLanguage();
   const items = useMemo(() => Children.toArray(children), [children]);
   const [visibleCount, setVisibleCount] = useState(initialCount);
+  const [sentinelVisible, setSentinelVisible] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
-  const loadingRef = useRef(false);
+  const lastRequestedCount = useRef<number | null>(null);
 
   const controlled = typeof totalCount === "number" && typeof controlledVisibleCount === "number" && Boolean(onShowMore);
   const visibleItems = controlled ? items : items.slice(0, visibleCount);
@@ -81,14 +82,20 @@ function ProgressiveResultsWindow({
     const sentinel = sentinelRef.current;
     if (!autoLoad || !sentinel || remaining <= 0) return;
     const observer = new IntersectionObserver(([entry]) => {
-      if (!entry?.isIntersecting || loadingRef.current) return;
-      loadingRef.current = true;
-      if (controlled) onShowMore?.(); else setVisibleCount((current) => Math.min(items.length, current + increment));
-      window.setTimeout(() => { loadingRef.current = false; }, 180);
+      const visible = Boolean(entry?.isIntersecting);
+      if (controlled) setSentinelVisible(visible);
+      else if (visible) setVisibleCount((current) => Math.min(items.length, current + increment));
     }, { rootMargin: "500px 0px" });
     observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, [autoLoad, controlled, increment, items.length, onShowMore, remaining]);
+    return () => { observer.disconnect(); setSentinelVisible(false); };
+  }, [autoLoad, controlled, increment, items.length, remaining]);
+
+  useEffect(() => {
+    if (!autoLoad || !sentinelVisible || remaining <= 0) return;
+    if (lastRequestedCount.current === effectiveVisibleCount) return;
+    lastRequestedCount.current = effectiveVisibleCount;
+    onShowMore?.();
+  }, [autoLoad, controlled, effectiveVisibleCount, increment, items.length, onShowMore, remaining, sentinelVisible]);
 
   return <>
     <div className={className}>

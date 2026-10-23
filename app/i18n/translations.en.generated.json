@@ -8458,5 +8458,10 @@
   "אפשר לחזור לדף הבית או לנסות שוב כשהחיבור חוזר.": "Return home or try again when your connection is restored.",
   "עודכן ביום 20 באוקטובר 2026": "Updated on October 20, 2026",
   "ביום 20 באוקטובר 2026 הושלמה בדיקה אוטומטית של עמודי הליבה בעברית, באנגלית, בצרפתית וברוסית, בתצוגת מחשב ובתצוגת טלפון. הבדיקה כללה מבנה כותרות, ניגודיות, גלישה אופקית, יעדי הפעלה וכניסה לניווט באמצעות מקלדת. בדיקה אוטומטית אינה מחליפה בדיקה ידנית באמצעות טכנולוגיות מסייעות.": "On October 20, 2026, automated testing was completed for key pages in Hebrew, English, French and Russian on desktop and mobile. The checks covered heading structure, contrast, horizontal overflow, target sizes and keyboard entry. Automated testing does not replace manual testing with assistive technologies.",
-  "תקן ישראלי 5568 חלק 1, מהדורת ספטמבר 2023": "Israeli Standard 5568 Part 1, September 2023 edition"
+  "תקן ישראלי 5568 חלק 1, מהדורת ספטמבר 2023": "Israeli Standard 5568 Part 1, September 2023 edition",
+  "העמוד לא נטען במלואו": "The page did not load completely",
+  "המידע נשמר. אפשר לנסות לטעון שוב או לחזור לדף הבית.": "Your information is preserved. Try loading again or return to the homepage.",
+  "לטעון שוב": "Load again",
+  "לא הצלחנו להשלים את הטעינה": "We could not complete loading",
+  "אפשר לנסות שוב. אם התקלה נמשכת, חזרו לדף הבית.": "Try again. If the problem continues, return to the homepage."
 }

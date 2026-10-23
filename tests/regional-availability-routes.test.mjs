@@ -40,7 +40,7 @@ test('actual vacation handler validates scope before reads, joins publication an
   assert.equal(body.region,'צפון');assert.deepEqual(body.deals.map(deal=>deal.siteID),[2]);
 });
 
-test('actual vacation handler recovers from a missing default snapshot and hides unusable tabs',async()=>{
+test('actual vacation handler preserves every configured tab and never substitutes another period snapshot',async()=>{
   const now=new Date();
   const weekend=homeDealDates('weekend',now);
   const get=handler('vii/home-deals','GET',{
@@ -49,6 +49,7 @@ test('actual vacation handler recovers from a missing default snapshot and hides
     publicCatalogSummaries:async()=>[{supplierId:2,name:'North',area:'צפון'}],
     publishedSupplierIds:async()=>new Set([2]),
     readHomeDisplaySettings:async()=>({periods:[{id:'tomorrow',label:'ברגע האחרון'},{id:'weekend',label:'חמישי עד שבת'},{id:'friday',label:'לילה בשישי'}],defaultPeriod:'tomorrow'}),
+    getRequestExecutionContext:()=>null,
     readCachedDiscovery:async({key})=>{
       if(key[1]!==weekend.from||key[2]!==weekend.till) throw new Error('missing_snapshot');
       return {cache:{status:'stale',checkedAt:'2026-10-20T12:00:00Z'},value:{dates:weekend,deals:[{siteID:2,total:600,priceGuests:2,from:weekend.from,till:weekend.till}]}};
@@ -57,12 +58,13 @@ test('actual vacation handler recovers from a missing default snapshot and hides
   const response=await get(request('?period=tomorrow'));
   const body=await response.json();
   assert.equal(response.status,200);
-  assert.equal(response.headers.get('x-vii-discovery-cache'),'stale');
+  assert.equal(response.headers.get('x-vii-discovery-cache'),'refreshing');
   assert.equal(body.requestedPeriod,'tomorrow');
-  assert.equal(body.period,'weekend');
-  assert.equal(body.display.defaultPeriod,'weekend');
-  assert.deepEqual(body.display.periods.map(item=>item.id),['weekend']);
-  assert.deepEqual(body.deals.map(deal=>deal.siteID),[2]);
+  assert.equal(body.period,'tomorrow');
+  assert.equal(body.availabilityStatus,'refreshing');
+  assert.equal(body.display.defaultPeriod,'tomorrow');
+  assert.deepEqual(body.display.periods.map(item=>item.id),['tomorrow','weekend','friday']);
+  assert.deepEqual(body.deals,[]);
 });
 
 test('actual event handler selects regional public IDs before national top12 and echoes scope',async()=>{

@@ -29,8 +29,8 @@ test("shared maps prefer a stored snapshot and use a passive real map on detail 
   assert.match(map, /single && mapReady && !interactive[\s\S]*map-passive-activate/);
   assert.match(map, /onClick=\{activateMap\}/);
   assert.match(map, /!enabled[\s\S]*map-preview-card/);
-  assert.match(detail, /<DiscoveryMap items=\{\[item\]\} tone=\{item\.world === "spa" \? "spa" : "hourly"\} single \/>/);
-  assert.doesNotMatch(detail, /<DiscoveryMap items=\{\[item\]\}[^>]*single autoLoad/);
+  assert.match(detail, /<DeferredDiscoveryMap items=\{\[item\]\} tone=\{item\.world === "spa" \? "spa" : "hourly"\} single \/>/);
+  assert.doesNotMatch(detail, /<DeferredDiscoveryMap items=\{\[item\]\}[^>]*single autoLoad/);
   assert.match(url, /\/api\/map-snapshot\?world=/);
   assert.match(css, /\.map-preview-image\.is-map-snapshot/);
   assert.match(css, /\.map-preview-attribution/);

@@ -1,0 +1,41 @@
+{
+  "goal": "Publish a stable VII release that fixes all verified release-596 public defects and preserves the complete existing product.",
+  "intent_model": {
+    "literal_request": "Fix everything found, include anything not yet published, test the whole site except accessibility and typography, and release a stable version.",
+    "implied_outcome": "The public platform must stop losing tabs, stalling results and loading states, breaking media or diverging across worlds after updates.",
+    "likely_rejections": ["Only the latest slider symptom is fixed", "One tab or world is still missing", "Local tests pass but production remains broken", "The repair removes a previously working capability"],
+    "interpretation_rules": [{"phrase": "everything found", "operational_meaning": "Every verified audit finding is either fixed and passed or retained as an explicit release blocker", "acceptance_impact": "A numbered finding-to-fix ledger and no unresolved critical or high issue"}, {"phrase": "the whole site", "operational_meaning": "All distinct public route and component families, not every duplicated sitemap URL", "acceptance_impact": "A complete family inventory and representative data variants on desktop and mobile"}]
+  },
+  "cognitive_flow": {"current_layer": "Visitors see complete choices and stable results without understanding supplier or cache failures.", "current_decision": "Select world, dates, location or a clearly labeled period or holiday.", "next_action": "Open a verified result or recover from an explicit empty or error state.", "deferred_complexity": ["supplier cache mechanics", "retry policy", "regional nearest-result expansion"], "preserved_depth": ["all five nearby periods", "all future holidays", "all worlds", "map gallery rooms reviews phone WhatsApp and booking modes"]},
+  "predictive_preflight": {"manifest_path": "project_knowledge/predictive_preflights/vii-public-stability-repair-20261023.json", "lesson_bundle_ids": ["ADIR-WEB-001", "ADIR-WEB-002", "VII-PROJECT-001", "ADIR-WEB-003", "ADIR-WEB-004", "ADIR-WEB-005"], "no_applicable_lessons_reason": null, "midpoint_requirement": "preflight:midpoint", "adversarial_requirement": "preflight:adversarial", "effectiveness_requirement": "preflight:effectiveness"},
+  "actors": ["public visitor", "search visitor", "mobile visitor"],
+  "natural_destination": "https://vii.spaplus.co/",
+  "facts": [{"claim": "The nearby homepage API can return only one display period because it filters configured periods to available cache snapshots.", "evidence": "app/api/vii/home-deals/route.ts and release-596 live UI"}, {"claim": "The holiday API intentionally slices the result using a default limit of six.", "evidence": "app/lib/home-display-settings.ts and live /api/vii/home-holidays?locale=he"}],
+  "assumptions": [{"claim": "The intermittent blank document is downstream of uncontained async request or RSC failure rather than deterministic route markup.", "validation": "Worker logs, controlled failures and post-fix repeated navigation"}],
+  "in_scope": ["all release-596 audit findings", "all homepage and regional slider tabs", "all eligible future holidays", "search continuation to at least 18", "bounded async recovery", "media data map and public copy fixes", "build deploy rollback and live family QA"],
+  "out_of_scope": ["accessibility audit", "typography audit", "real booking payment lead review or message submission"],
+  "invariants": ["phone and WhatsApp remain visible where verified", "vacation room and sleeping-detail cards remain", "mobile full-screen galleries remain", "breadcrumbs remain world-region-city-place", "footer app installation remains", "all active languages and canonical URLs remain"],
+  "affected_family": ["home-live-deals", "home holidays", "regional availability", "search continuation", "place pages", "maps and galleries", "public APIs", "all public route templates"],
+  "characteristics": {"stateful": true},
+  "requirements": [
+    {"id": "REQ-1", "statement": "All five configured nearby tabs remain visible and independently truthful.", "source": "User correction"},
+    {"id": "REQ-2", "statement": "All eligible future holidays appear without a six-item public cap.", "source": "User request and prior accepted feedback"},
+    {"id": "REQ-3", "statement": "Search continuation reaches at least 18 results by nearest expansion when sufficient public records exist.", "source": "Prior accepted VII requirement"},
+    {"id": "REQ-4", "statement": "Every async search or slider request terminates in results, honest empty or actionable error without blanking the page.", "source": "Audit findings"},
+    {"id": "REQ-5", "statement": "Every verified media, data, map and price-format defect from release 596 is repaired across its shared family.", "source": "Audit findings"},
+    {"id": "REQ-6", "statement": "The exact tested commit is deployed with rollback and passes full public family QA on desktop and mobile.", "source": "User release request"}
+  ],
+  "acceptance_checks": [
+    {"id": "AC-1", "requirement_ids": ["REQ-1"], "kind": "success", "setup": "Fresh homepage with one or more unavailable cache periods", "action": "Load and select every nearby period", "observable_result": "Five tabs stay visible and each reports only its own results, empty or error state"},
+    {"id": "AC-2", "requirement_ids": ["REQ-2"], "kind": "persistence", "setup": "Supplier returns more than six eligible future holidays", "action": "Load endpoint and homepage, then reload", "observable_result": "Every eligible non-hidden holiday is returned and remains selectable"},
+    {"id": "AC-3", "requirement_ids": ["REQ-3"], "kind": "success", "setup": "Search for a location with fewer than 18 exact local matches", "action": "Wait and scroll continuation", "observable_result": "The list fills to at least 18 using nearest public matches or ends with an honest total when the entire corpus is smaller"},
+    {"id": "AC-4", "requirement_ids": ["REQ-4"], "kind": "retry", "setup": "A supplier-backed request returns 503", "action": "Observe automatic recovery and manual retry", "observable_result": "The existing document remains visible and the component ends in results, empty or an actionable error within a bounded time"},
+    {"id": "AC-4B", "requirement_ids": ["REQ-4"], "kind": "failure", "setup": "Automatic retries are exhausted", "action": "Observe the affected component and use its retry control", "observable_result": "The page remains intact, a localized actionable error replaces the loader, and retry starts one new bounded request cycle"},
+    {"id": "AC-5", "requirement_ids": ["REQ-5"], "kind": "success", "setup": "Representative affected pages in all worlds", "action": "Load media, maps, capacity and price content", "observable_result": "No broken provider image, zero capacity claim, legacy shekel text or cross-world map divergence remains"},
+    {"id": "AC-6", "requirement_ids": ["REQ-6"], "kind": "rollback", "setup": "Candidate has passed local checks", "action": "Save and deploy exact pushed commit", "observable_result": "Production reports the candidate release, full family QA passes and release 596 remains a verified rollback"},
+    {"id": "AC-7", "requirement_ids": ["REQ-6"], "kind": "recovery", "setup": "Fresh production navigation across changed families", "action": "Reload, back, retry and mobile-to-desktop transition", "observable_result": "No blank body, stale overlay, stuck loader or lost state appears"}
+  ],
+  "open_questions": [],
+  "authorization_boundary": "Implementation, testing, commit, push and public Sites deployment are authorized. External commercial submissions remain prohibited.",
+  "ready_for_implementation": true
+}

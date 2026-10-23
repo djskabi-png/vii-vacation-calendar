@@ -80,7 +80,7 @@ test("spa discovery cards lead to unique canonical landing pages", () => {
 
 test("dynamic location labels are localized and suppress whole-country aliases", () => {
   assert.match(component, /useSiteLanguage/);
-  assert.match(component, /translatedLocation = location \? translate\(location\)/);
+  assert.match(component, /translatedLocation = resolvedLocation \? translate\(resolvedLocation\)/);
   assert.match(component, /wholeCountryLabels/);
   assert.match(component, /"all-country", "all"/);
   assert.match(component, /\\u0432\\u0441\\u0435/);

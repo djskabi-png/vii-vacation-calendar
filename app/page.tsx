@@ -17,7 +17,7 @@ import type { EventPlace, Property } from "./data/site-data";
 import { hourlyPlacesFromCatalog, paidAttractions, providerProfiles } from "./data/world-data";
 import hourlyCatalog from "./data/sergey-hourly-catalog.json";
 import { publicCatalogReviewPreviews, publicCatalogSummaries } from "./lib/public-catalog-read.ts";
-import { dailyRotationCompare, rotateDaily, rotateWithinTiers } from "./lib/daily-rotation";
+import { dailyRotationCompare, rotateDaily } from "./lib/daily-rotation";
 import { GiftIcon, PeopleIcon } from "./site-header";
 import { HomeMobileRail } from "./components/home-mobile-rail";
 import "./home-mobile.css";
@@ -75,9 +75,9 @@ function homeShowcaseProperties(properties: Property[]) {
 
 async function HomeCatalogShowcase() {
   const [properties, eventPlaces, hourlyCatalogPlaces] = await Promise.all([
-    publicCatalogSummaries<Property>("vacations"),
-    publicCatalogSummaries<EventPlace>("events"),
-    publicCatalogSummaries<(typeof hourlyCatalog.places)[number]>("rooms"),
+    publicCatalogSummaries<Property>("vacations").catch(() => []),
+    publicCatalogSummaries<EventPlace>("events").catch(() => []),
+    publicCatalogSummaries<(typeof hourlyCatalog.places)[number]>("rooms").catch(() => []),
   ]);
   const showcaseProperties = homeShowcaseProperties(properties);
   const showcaseEvents = rotateDaily(eventPlaces.filter((place) => place.image),
@@ -88,13 +88,15 @@ async function HomeCatalogShowcase() {
 }
 
 async function HomeRatings() {
-  const properties = await publicCatalogSummaries<Property>("vacations");
-  return <HomeRatingsSection ratedPlaces={await homeRatedPlaces(properties)} />;
+  const properties = await publicCatalogSummaries<Property>("vacations").catch(() => []);
+  const ratedPlaces = await homeRatedPlaces(properties).catch(() => []);
+  return ratedPlaces.length ? <HomeRatingsSection ratedPlaces={ratedPlaces} /> : null;
 }
 
 async function HomeMagazineSection() {
   const locale = (await headers()).get("x-vii-locale") || "he";
-  const homeArticles = (await managedMagazineArticles(magazineArticles)).filter(article => !article.publishedLocales || article.publishedLocales.includes(locale)).slice(0,3);
+  const managedArticles = await managedMagazineArticles(magazineArticles).catch(() => magazineArticles);
+  const homeArticles = managedArticles.filter(article => !article.publishedLocales || article.publishedLocales.includes(locale)).slice(0,3);
   return <section className="section home-magazine" aria-labelledby="home-magazine-title"><div className="shell"><div className="section-head"><div><span className="eyebrow">מגזין וי</span><h2 id="home-magazine-title">רעיונות שממשיכים את החופשה</h2></div><Link href="/guides">לכל הכתבות</Link></div><HomeMobileRail id="home-magazine-rail" label="רעיונות שממשיכים את החופשה" className="home-magazine__grid">{homeArticles.map((article,index) => <article key={article.slug} className={index === 0 ? "featured" : ""}><Link href={`/guides/${article.slug}`}><EditorialCover slug={article.slug} src={article.image} alt={article.imageAlt} title={article.imageTitle} /><span>{article.category}</span><div><small>{article.readTime} דקות קריאה</small><h3>{article.title}</h3><p>{article.excerpt}</p></div></Link></article>)}</HomeMobileRail></div></section>;
 }
 

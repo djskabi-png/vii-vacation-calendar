@@ -15,7 +15,7 @@ test("homepage editors control nearby tab labels, order, visibility and default"
   assert.equal(settings.defaultPeriod, "weekend");
 });
 
-test("homepage holiday controls hide, shorten, sort and cap supplier holidays", () => {
+test("homepage holiday controls hide, shorten and sort every future supplier holiday without a public cap", () => {
   const settings = parseHomeDisplaySettings({
     homeHolidayLimit: "2",
     homeHolidayHidden: "20",
@@ -29,6 +29,7 @@ test("homepage holiday controls hide, shorten, sort and cap supplier holidays", 
   ];
   assert.deepEqual(applyHolidayDisplaySettings(holidays, settings).map((item) => [item.id, item.from, item.till, item.nights, item.exactStay === true]), [
     [10, "2026-11-01", "2026-11-03", 2, false], [30, "2026-12-05", "2026-12-06", 1, true],
+    [40, "2027-01-01", "2027-01-03", 2, false],
   ]);
 });
 

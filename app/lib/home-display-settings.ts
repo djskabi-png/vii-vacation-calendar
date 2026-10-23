@@ -89,6 +89,5 @@ export function applyHolidayDisplaySettings(holidays: HomeHoliday[], settings: H
       const nights = Math.round((new Date(`${dates.till}T00:00:00Z`).valueOf() - new Date(`${dates.from}T00:00:00Z`).valueOf()) / 86_400_000);
       return nights >= 1 && nights <= 2 ? { ...holiday, ...dates, nights, exactStay: true } : holiday;
     })
-    .sort((a, b) => a.from.localeCompare(b.from) || a.id - b.id)
-    .slice(0, settings.holidayLimit);
+    .sort((a, b) => a.from.localeCompare(b.from) || a.id - b.id);
 }

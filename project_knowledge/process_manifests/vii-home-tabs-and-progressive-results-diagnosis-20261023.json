@@ -1,0 +1,82 @@
+{
+  "status": "fixed",
+  "symptom": "The first homepage availability rail could collapse to one tab, and long search result sets could remain at six visible cards.",
+  "expected_behavior": "Every configured homepage period remains selectable and owns its own loading state; an in-view progressive result sentinel continues from 6 to 15 to the complete result count.",
+  "environment": "Public release 596 at vii.spaplus.co and release candidate source on 2026-10-23.",
+  "reproduction": {
+    "steps": [
+      "Open the homepage while only one home-deal cache period has an accepted snapshot.",
+      "Open a location search with at least 18 results and keep the continuation sentinel in view."
+    ],
+    "evidence": "Release 596 returned display.periods filtered by availablePeriods, and the public QA report recorded searches remaining at 6 of 18 and 6 of 48."
+  },
+  "observations": [
+    {
+      "observation": "The home-deals route filtered configured tabs against prepared cache snapshots and substituted another period when the requested snapshot was missing.",
+      "evidence": "Pre-fix app/api/vii/home-deals/route.ts used availablePeriods and selected fallback snapshots."
+    },
+    {
+      "observation": "ProgressiveResults kept a 180 ms loading lock while its observer was disconnected and recreated, so an already-visible sentinel did not necessarily emit another intersection event.",
+      "evidence": "Pre-fix app/components/progressive-results.tsx used loadingRef with a timer inside an observer whose dependencies changed after each controlled increment."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "Server-side cache availability was incorrectly treated as homepage tab configuration.",
+      "prediction": "A partial cache leaves only its accepted periods in display.periods and can label fallback data as the requested selection.",
+      "discriminating_test": "Execute the actual route with only a weekend snapshot while requesting tomorrow.",
+      "result": "The old contract returned only weekend; the repaired route keeps all configured tabs, returns tomorrow as refreshing and never substitutes weekend data.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The client initially defined only one homepage period.",
+      "prediction": "The first client render would contain one period before any API response.",
+      "discriminating_test": "Inspect the HomeLiveDeals initial state and render the local candidate with unavailable supplier APIs.",
+      "result": "The client initializes all five periods and the candidate retained five tabs even when every local supplier request returned 503.",
+      "status": "rejected"
+    },
+    {
+      "id": "H3",
+      "mechanism": "A timer-based observer lock loses the next controlled continuation while the sentinel remains visible.",
+      "prediction": "The parent count increases once but no later observer event occurs until the sentinel leaves and re-enters the viewport.",
+      "discriminating_test": "Trace the effect dependencies and replace the timer with sentinel visibility plus a last-requested-count guard.",
+      "result": "The new contract requests once for every new controlled visible count and prevents loops when the parent count does not advance.",
+      "status": "supported"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Return configured periods unchanged, load only the requested period, expose an honest refreshing state, and drive progressive continuation from persistent sentinel visibility and the last completed count.",
+    "evidence": "Targeted route and progression tests pass; local desktop and mobile QA show five homepage tabs, no stuck busy state and no stuck rails."
+  },
+  "affected_family": [
+    "Homepage nearby availability rail",
+    "Regional availability rails",
+    "Vacation search result lists",
+    "Other ProgressiveResults consumers"
+  ],
+  "regression_checks": [
+    {
+      "check": "Actual home-deals handler with a missing requested snapshot",
+      "status": "passed",
+      "evidence": "tests/regional-availability-routes.test.mjs"
+    },
+    {
+      "check": "Persistent controlled progressive result continuation",
+      "status": "passed",
+      "evidence": "tests/progressive-results-contract.test.mjs"
+    },
+    {
+      "check": "Whole-site desktop and mobile route inspection",
+      "status": "passed",
+      "evidence": "qa-reports/v597-local/public-inspection.json: 82 routes, zero script errors, zero overflow, zero stuck busy and zero stuck rails; local data-dependent failures are separately attributed to absent D1 tables."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "Production supplier-backed tab contents require post-deployment verification against the real D1 bindings."
+  ],
+  "authorization_boundary": "User authorized repair, regression testing and public publication of all in-scope VII defects, excluding accessibility and typography audits."
+}

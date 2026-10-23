@@ -286,7 +286,7 @@ function VisualDiscoveryRail({ title, links }: { title: string; links: VisualDis
     </div>
     <nav id={railId} ref={railRef} className="search-depth__rail search-depth__visual-rail" data-horizontal-rail aria-label={title}>
       {links.map((item) => <Link className="search-depth__visual-card" key={`${item.href}-${item.label}`} href={item.href}>
-        <span className="search-depth__visual-media"><Image src={item.image} alt={item.imageLabel ? `${item.label}, ${item.imageLabel}` : item.label} title={item.imageLabel ? `${item.label}, ${item.imageLabel}` : item.label} width={560} height={360} loading="lazy" /></span>
+        <span className="search-depth__visual-media"><Image src={item.image} alt={item.imageLabel ? `${item.label}, ${item.imageLabel}` : item.label} title={item.imageLabel ? `${item.label}, ${item.imageLabel}` : item.label} width={560} height={360} loading="lazy" unoptimized /></span>
         <span className="search-depth__visual-body"><strong>{item.label}</strong><small>{item.meta}</small><span aria-hidden="true">←</span></span>
       </Link>)}
     </nav>
@@ -429,27 +429,27 @@ export function SearchAfterResults({
   const { language, translate } = useSiteLanguage();
   // Supplier catalogs can contain non-geographic service labels. They are not
   // destinations, and must never become region or city landing suggestions.
-  if (world === "spa") inventory = inventory.filter(item => spaSearchRegions.some(region => region.label === item.area));
+  const effectiveInventory = world === "spa" ? inventory.filter(item => spaSearchRegions.some(region => region.label === item.area)) : inventory;
   const searchParams = useSearchParams();
   const content = contentByWorld[world === "trails" ? "activities" : world];
   const locationParam = depthLocationParam(world);
-  location = searchParams.get(locationParam) || location || baseParams[locationParam];
+  const resolvedLocation = searchParams.get(locationParam) || location || baseParams[locationParam];
   const discovery = discoveryCopy[language];
   const depthSeed = useSearchDepthSeed();
   const reviews = reviewHighlights.filter((item) => Number.isFinite(item.rating) && item.rating > 0).slice(0, 3);
-  const translatedLocation = location ? translate(location) : "";
+  const translatedLocation = resolvedLocation ? translate(resolvedLocation) : "";
   const normalizedLocation = translatedLocation.trim().toLocaleLowerCase();
   const wholeCountryLabels = ["\u05d4\u05db\u05dc", "\u05db\u05dc \u05d4\u05d0\u05e8\u05e5", "all-country", "all", "all israel", "whole country", "\u0432\u0441\u0435", "\u0432\u0441\u044f \u0441\u0442\u0440\u0430\u043d\u0430", "\u0432\u0435\u0441\u044c \u0438\u0437\u0440\u0430\u0438\u043b\u044c", "tous", "tout isra\u00ebl", "toute isra\u00ebl"];
   const locationPrefixes: Record<SiteLanguage, string> = { he: " \u05d1\u05d0\u05d6\u05d5\u05e8 ", en: " in ", ru: " \u0432 \u0440\u0435\u0433\u0438\u043e\u043d\u0435 ", fr: " dans la r\u00e9gion " };
-  const locationLabel = location && !wholeCountryLabels.includes(normalizedLocation) ? `${locationPrefixes[language]}${translatedLocation}` : "";
+  const locationLabel = resolvedLocation && !wholeCountryLabels.includes(normalizedLocation) ? `${locationPrefixes[language]}${translatedLocation}` : "";
   const titleLocationPrefixes: Record<SiteLanguage, string> = { he: " ב", en: " in ", ru: " в регионе ", fr: " dans la région " };
-  const titleLocationLabel = location && !wholeCountryLabels.includes(normalizedLocation) ? `${titleLocationPrefixes[language]}${translatedLocation}` : "";
+  const titleLocationLabel = resolvedLocation && !wholeCountryLabels.includes(normalizedLocation) ? `${titleLocationPrefixes[language]}${translatedLocation}` : "";
   const mergedQuery = new URLSearchParams(baseParams);
   searchParams.forEach((value, key) => mergedQuery.set(key, value));
-  const currentQuery = depthQuery(world, mergedQuery.toString(), {}, location).toString();
+  const currentQuery = depthQuery(world, mergedQuery.toString(), {}, resolvedLocation).toString();
   const mode: SearchMode | null = world === "vacation" || world === "events" || world === "spa" || world === "hourly" ? world : null;
-  const locationLayers = mode ? buildSearchDepthLocationLayers(mode, location, inventory) : secondaryDepthLayers(world, location, inventory);
-  const destinations = locationLayers.suitableRegions.length ? locationLayers.suitableRegions : destinationOptions(world, location, inventory);
+  const locationLayers = mode ? buildSearchDepthLocationLayers(mode, resolvedLocation, effectiveInventory) : secondaryDepthLayers(world, resolvedLocation, effectiveInventory);
+  const destinations = locationLayers.suitableRegions.length ? locationLayers.suitableRegions : destinationOptions(world, resolvedLocation, effectiveInventory);
   const regionLinks: DiscoveryLink[] = destinations.map((destination) => ({
     label: translate(destination),
     href: destinationHref(world, language, currentQuery, locationParam, destination),
@@ -458,7 +458,7 @@ export function SearchAfterResults({
   }));
   const cityLinks: DiscoveryLink[] = locationLayers.cities.map((destination) => ({ label: translate(destination), href: world === "activities" || world === "trails" ? contextualHref(world, language, currentQuery, { q: destination }) : destinationHref(world, language, currentQuery, locationParam, destination), meta: discovery.destinationMeta, topic: "city" }));
   const additionalRegionLinks: DiscoveryLink[] = locationLayers.additionalRegions.filter((destination) => !destinations.includes(destination)).map((destination) => ({ label: translate(destination), href: destinationHref(world, language, currentQuery, locationParam, destination), meta: discovery.destinationMeta, topic: depthTopicKey(destination, world) }));
-  const suggestions = searchSuggestions.length ? searchSuggestions : defaultDepthSuggestions(world, inventory);
+  const suggestions = searchSuggestions.length ? searchSuggestions : defaultDepthSuggestions(world, effectiveInventory);
   const translatedSuggestions = suggestions.filter(item => !Object.keys(item.params).length || !Object.entries(item.params).every(([key, value]) => new URLSearchParams(currentQuery).get(key) === value)).map((item) => ({ item, label: translate(item.label) }));
   const scopedLocation = locationLabel ? translatedLocation : "";
   const typesTitle = world === "providers" ? translate("סוג השירות") : world === "activities" ? translate("סוג חוויה") : world === "trails" ? translate("סוג טבע") : discovery.placeTypes;
@@ -467,15 +467,15 @@ export function SearchAfterResults({
     label: scopeSuggestionLabel(label, scopedLocation, language, "type"), href: contextualHref(world, language, currentQuery, item.params, item.path), meta: discovery.searchMeta, topic: depthTopicKey(item.label, world, item.params),
   }));
   const smartLinks: DiscoveryLink[] = translatedSuggestions.filter(({ item }) => !typeSuggestion(item)).map(({ item, label }) => ({ label: scopeSuggestionLabel(label, scopedLocation, language, "smart"), href: contextualHref(world, language, currentQuery, item.params, item.path), meta: discovery.searchMeta, topic: depthTopicKey(item.label, world, item.params) }));
-  const contextualComplementsAllowed = (world === "vacation" || world === "events") && Boolean(location) && !isWholeCountrySelection(location);
+  const contextualComplementsAllowed = (world === "vacation" || world === "events") && Boolean(resolvedLocation) && !isWholeCountrySelection(resolvedLocation);
   const trailLinks: VisualDiscoveryLink[] = contextualComplementsAllowed ? depthSeed.trails
-    .map((trail) => ({ trail, score: trail.areaTags.reduce((score, tag) => matchesDepthTerm(tag, location || "", locationLayers.contextArea) ? Math.max(score, tag === location ? 3 : 1) : score, 0) }))
+    .map((trail) => ({ trail, score: trail.areaTags.reduce((score, tag) => matchesDepthTerm(tag, resolvedLocation || "", locationLayers.contextArea) ? Math.max(score, tag === resolvedLocation ? 3 : 1) : score, 0) }))
     .filter(({ score }) => score > 0).sort((a, b) => b.score - a.score).slice(0, 8)
     .map(({ trail }) => ({ label: translate(trail.name), href: localizedPath(`/trails/${trail.slug}`, language), meta: language === "he" ? trail.meta : `${translate(trail.mainArea)} · ${translate(trail.region)}`, image: trail.image })) : [];
   const providerLinks: VisualDiscoveryLink[] = contextualComplementsAllowed ? depthSeed.providers
     .filter((provider) => {
       const coverage = [provider.location, ...provider.serviceAreas];
-      return coverage.some((value) => /כל הארץ|בכל הארץ|לפי מיקום/.test(value) || matchesDepthTerm(value, location || "", locationLayers.contextArea));
+      return coverage.some((value) => /כל הארץ|בכל הארץ|לפי מיקום/.test(value) || matchesDepthTerm(value, resolvedLocation || "", locationLayers.contextArea));
     }).slice(0, 8)
     .map((provider) => ({ label: provider.name, href: localizedPath(`/discover/place/${provider.id}`, language), meta: language === "he" ? provider.meta : translate(provider.area), image: provider.image })) : [];
 
@@ -501,7 +501,7 @@ export function SearchAfterResults({
 
       <section className="search-depth__related search-depth__discovery" aria-labelledby={`search-related-${world}`}>
         <div className="search-depth__discovery-intro"><h2 id={`search-related-${world}`}>{discovery.title}</h2></div>
-        <DiscoveryRail title={!location || isWholeCountrySelection(location) ? discovery.countryAreas : `${discovery.suitableRegions}${titleLocationLabel}`} links={regionLinks} />
+        <DiscoveryRail title={!resolvedLocation || isWholeCountrySelection(resolvedLocation) ? discovery.countryAreas : `${discovery.suitableRegions}${titleLocationLabel}`} links={regionLinks} />
         <DiscoveryRail title={`${world === "trails" ? discovery.additionalRegions : discovery.citiesInArea}${titleLocationLabel}`} links={cityLinks} />
         <DiscoveryRail title={`${typesTitle}${titleLocationLabel}`} links={typeLinks} />
         <DiscoveryRail title={`${searchSuggestions.length ? discovery.smartSearches : discovery.generalSearches}${titleLocationLabel}`} links={smartLinks} />

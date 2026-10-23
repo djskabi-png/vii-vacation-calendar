@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-public-stability-repair-20261023",
+  "project": "VII",
+  "task_type": "production stability repair and release",
+  "requested_outcome": "Repair every verified defect found in the full public QA, restore complete homepage and regional slider choices, preserve all working capabilities, deploy one stable public version, and verify the complete public route family again on desktop and mobile, excluding accessibility and typography.",
+  "natural_destination": "https://vii.spaplus.co/ across homepage, world and region pages, search, place pages, galleries, maps, content, booking entry, footer and error recovery",
+  "authorization_boundary": "Code changes, tests, commit, push, Sites version creation and public deployment are explicitly authorized. Do not create bookings, payments, reviews, leads or outbound messages. Accessibility and typography inspection remain excluded by Adir.",
+  "lesson_bundle": [
+    {"lesson_id": "ADIR-WEB-001", "reason": "The repair must not remove capabilities that previously worked.", "acceptance_impact": "Record the affected family and preserve all unaffected page, place, gallery, footer and conversion behavior."},
+    {"lesson_id": "ADIR-WEB-002", "reason": "Tabs, sliders and retry states repeatedly regress after releases.", "acceptance_impact": "Exercise every homepage and regional tab plus loading, empty, error, retry, reload and back states."},
+    {"lesson_id": "VII-PROJECT-001", "reason": "Vacation, hourly, events and spa share patterns but retain world-specific data and conversion rules.", "acceptance_impact": "Verify the repaired shared family in every world, not only on the homepage."},
+    {"lesson_id": "ADIR-WEB-003", "reason": "Supplier-backed requests currently expose stuck loading and intermittent 503 behavior.", "acceptance_impact": "Use bounded retry, last-known-good or clear recovery without hiding failures or crashing the page."},
+    {"lesson_id": "ADIR-WEB-004", "reason": "Legacy shekel copy was found on a public place page.", "acceptance_impact": "Normalize public rendered price copy to the ₪ symbol and add regression coverage."},
+    {"lesson_id": "ADIR-WEB-005", "reason": "Mobile galleries and responsive sliders have regressed separately from desktop.", "acceptance_impact": "Run fresh desktop/mobile and responsive-transition checks on all changed shared families."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection": "The first homepage slider still shows only one tab when only one cache snapshot exists.", "prevention": "Decouple the configured tab list from snapshot availability and make each tab own its loading or empty state.", "acceptance_check": "All five configured tabs remain visible before, during and after data failures, and each selects its own period."},
+    {"rejection": "The holiday slider still stops after six future holidays.", "prevention": "Remove the public six-item cap while preserving intentional hidden-holiday and date overrides.", "acceptance_check": "The public endpoint and slider expose every eligible future holiday returned by the configured source."},
+    {"rejection": "A repair masks 503 errors but search continuation or sliders still remain stuck.", "prevention": "Fix the request and state boundaries, add time-bounded recovery, and test the exact 6-of-18 and 6-of-48 cases.", "acceptance_check": "Search reaches at least 18 when enough nearby results exist, and every async state ends as results, honest empty or actionable error."},
+    {"rejection": "The fixes work locally but another world, place template or mobile state breaks.", "prevention": "Repeat the 41-family desktop/mobile production matrix and changed-control sweeps after deployment.", "acceptance_check": "No critical or high finding remains in the deployed release and all changed families have live evidence."},
+    {"rejection": "The published version differs from the tested commit or has no rollback.", "prevention": "Build, hash, save and deploy the exact pushed commit with Sites release evidence and retain release 596 as rollback.", "acceptance_check": "Candidate commit, saved version, deployment ID and rollback version are recorded and the live version matches the candidate."}
+  ],
+  "affected_family": [
+    "homepage nearby and holiday availability sliders",
+    "vacation regional availability sliders",
+    "events and spa availability sliders",
+    "search result continuation and nearest-result expansion",
+    "supplier and discovery API recovery",
+    "vacation event spa and hourly place templates",
+    "maps galleries images prices and capacity normalization",
+    "desktop mobile reload back and responsive transitions",
+    "all public route templates and active languages"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {"sources": [{"label": "VII accepted behavior", "source": "project_knowledge/VII_FEEDBACK_STANDARD.md"}, {"label": "VII architecture and product truth", "source": "project_knowledge/VII_PLATFORM_MASTER_PLAN.md"}, {"label": "Release 596 QA evidence", "source": "qa-reports/v596-full-qa/VII_PUBLIC_QA_REPORT_20261023.md"}], "no_precedent_reason": null},
+  "midpoint_gate": {"required": true, "trigger": "After tab completeness, holiday completeness and search continuation pass locally.", "checks": ["five nearby tabs remain visible", "all future holidays are returned", "sparse and dated search continue beyond six", "async failures end in recovery instead of a blank page"], "not_required_reason": null},
+  "adversarial_close": {"attack_questions": ["Can one missing cache snapshot hide another tab?", "Can repeated 503 responses leave an infinite loader or blank body?", "Can a sparse location remain below 18 despite available nearby records?", "Can a shared place fix break another world or mobile gallery?", "Does the deployed commit differ from the tested commit?"], "natural_destination_evidence": "Fresh deployed desktop and 390-pixel mobile results with version identity, network evidence and screenshots.", "affected_family_evidence": "Full public family ledger plus changed-control matrix and responsive-transition evidence."},
+  "effectiveness": {"baseline": "Release 596 contains two critical, four high and four medium verified defects, including a first homepage slider that can collapse to one tab.", "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time", "public_family_pass_rate", "slider_tab_completeness", "stuck_loading_count", "critical_high_defects"], "target": "The deployed candidate has all configured tabs, all future holidays, no stuck continuation or blank-document failure, and no critical or high defect in the complete public family sweep."},
+  "privacy": {"raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true},
+  "ready_to_start": true
+}

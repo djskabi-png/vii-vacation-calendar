@@ -1,0 +1,276 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-public-full-qa-20261023",
+  "project": "VII",
+  "task_type": "proactive public production QA",
+  "goal": "Perform a fresh evidence-backed functional QA inspection of every public VII page family and key journey on desktop and mobile, excluding accessibility and typography.",
+  "created_at": "2026-10-23T14:20:19.826103Z",
+  "updated_at": "2026-10-23T14:52:04.025662Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "a53f3cf6f221a2a2da458ce59681240effe0028a2744bf25317e1c3b162f9973"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "f1aa410611dd0fdb5adbb8a620832ee6ff9f9a3498a8108f74f1ccb86562379b"
+    },
+    "cognitive_model": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md",
+      "sha256": "708ce5d1b152afe220cf98008f571e7d27704c102624f7d7440dc85a1a6ba2d8"
+    },
+    "rulebook": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md",
+      "sha256": "eef33571725d590d0dadeeee9475422715279004fbc40356257d11e818039ab1"
+    },
+    "predictive_preflight": {
+      "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v596-regression-qa\\project_knowledge\\predictive_preflights\\vii-public-full-qa-20261023.json",
+      "sha256": "b77836b459e0f6e1a83e2b6e3a517a280c9b8915fe29931a2a34c183f5095c10"
+    }
+  },
+  "predictive_preflight": {
+    "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v596-regression-qa\\project_knowledge\\predictive_preflights\\vii-public-full-qa-20261023.json",
+    "sha256": "b77836b459e0f6e1a83e2b6e3a517a280c9b8915fe29931a2a34c183f5095c10",
+    "predicted_rejection_count": 6,
+    "affected_family_count": 18,
+    "lesson_bundle_count": 6,
+    "midpoint_required": true,
+    "effectiveness_measurements": [
+      "families_inventoried",
+      "routes_inspected",
+      "controls_exercised",
+      "desktop_mobile_pairs",
+      "critical_defects",
+      "high_defects",
+      "coverage_gaps",
+      "reproduced_regressions",
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ]
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-WEB-001",
+      "title": "מפת התאמה לפני החלפת מוצר קיים",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "ADIR-WEB-002",
+      "title": "מטריצת מצבי אינטראקציה",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "VII-PROJECT-001",
+      "title": "לוגיקת מוצר ייחודית ל-VII",
+      "scope": "project_guidance"
+    },
+    {
+      "lesson_id": "ADIR-WEB-003",
+      "title": "משוב מיידי לפעולה ממתינה",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "ADIR-WEB-004",
+      "title": "סמל שקל אחיד",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "ADIR-WEB-005",
+      "title": "Responsive transitions are release-critical state changes",
+      "scope": "account_rule_and_shared_skill"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Perform a fresh evidence-backed functional QA inspection of every public VII page family and key journey on desktop and mobile, excluding accessibility and typography.",
+      "acceptance_check": "Every inventoried family maps to current live pass, fail, blocked or not-applicable evidence; every defect has route, viewport, expected and observed behavior; no unverified surface is called passed.",
+      "status": "passed",
+      "evidence": [
+        "qa-reports/v596-full-qa/VII_PUBLIC_QA_REPORT_20261023.md maps every inventoried public family to pass, fail or bounded coverage and includes exact evidence links."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T14:52:01.788672Z"
+    },
+    {
+      "id": "preflight:prediction",
+      "source": "predictive_preflight",
+      "statement": "Predict likely Adir rejection reasons and bind prevention to observable evidence before implementation.",
+      "acceptance_check": "The bounded predictive manifest matches the task identity and selected lessons and passes deterministic validation.",
+      "status": "passed",
+      "evidence": [
+        "Predictive preflight C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v596-regression-qa\\project_knowledge\\predictive_preflights\\vii-public-full-qa-20261023.json validated with sha256 b77836b459e0f6e1a83e2b6e3a517a280c9b8915fe29931a2a34c183f5095c10"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T14:20:19.826103Z"
+    },
+    {
+      "id": "preflight:midpoint",
+      "source": "predictive_preflight.midpoint_gate",
+      "statement": "After the route inventory and one complete vacation journey have been inspected on desktop and mobile.",
+      "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
+      "status": "passed",
+      "evidence": [
+        "82 desktop/mobile page-view checks across 41 route families; vacation business journey and mobile gallery verified at the public destination."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T14:51:48.778501Z"
+    },
+    {
+      "id": "preflight:adversarial",
+      "source": "predictive_preflight.adversarial_close",
+      "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
+      "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
+      "status": "passed",
+      "evidence": [
+        "Live public routes reproduced blank-document failure, 6-of-18 and 6-of-48 continuation stalls, 503 responses and correct mobile gallery closure.",
+        "All 41 inventoried public route families were paired desktop/mobile; home and regional slider families were exercised separately; real RTL arrow clicks disproved two false-positive rail failures.",
+        "Executed 4 specific completion attacks"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T14:51:54.483479Z"
+    },
+    {
+      "id": "preflight:effectiveness",
+      "source": "predictive_preflight.effectiveness",
+      "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
+      "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
+      "status": "passed",
+      "evidence": [
+        "Structured effectiveness result: first_pass=no, repeated_corrections=1, prevented_failures=2, elapsed_minutes=210.0; No comparable prior full-family manual production QA baseline exists. Prevented failures counts two false positives removed before reporting: RTL rail movement and the broken sitemap-content harness."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T14:51:49.330865Z"
+    },
+    {
+      "id": "lesson:ADIR-WEB-001",
+      "source": "lesson:ADIR-WEB-001",
+      "statement": "לפני עיצוב מחדש ממפים כל יכולת ותוכן ומסמנים אותם כנשמרו, הוחלפו במכוון או חסומים.",
+      "acceptance_check": "אין פריט ישן ללא סיווג, מקור והכרעה לפני אישור המוצר החדש.",
+      "status": "passed",
+      "evidence": [
+        "41 public route families and their desktop/mobile states are inventoried in public-inspection.json and summarized in the final report."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T14:52:01.999656Z"
+    },
+    {
+      "id": "lesson:ADIR-WEB-002",
+      "source": "lesson:ADIR-WEB-002",
+      "statement": "שינוי אינטראקטיבי נבדק בכל המצבים הרלוונטיים במחשב, בנייד ובגובה מסך נמוך.",
+      "acceptance_check": "לכל אינטראקציה שהשתנתה יש ראיית מעבר לכל המצבים החלים עליה.",
+      "status": "passed",
+      "evidence": [
+        "slider-inspection.json covers tabs and rails across home and regional families; live RTL arrow tests removed false positives."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T14:52:02.404007Z"
+    },
+    {
+      "id": "lesson:VII-PROJECT-001",
+      "source": "lesson:VII-PROJECT-001",
+      "statement": "עולמות התוכן, לוגיקת ההזמנה, מבנה הרגע האחרון ומודל נתוני המקום נשארים בהנחיות פרויקט VII.",
+      "acceptance_check": "החלטות VII המדויקות מופיעות רק בהדרכת הפרויקט, כל נושא ממופה למקור ולבדיקה, והפרטים אינם מופיעים בספר החוקים הכללי.",
+      "status": "passed",
+      "evidence": [
+        "World-specific behavior was evaluated against VII_PLATFORM_MASTER_PLAN.md and VII_FEEDBACK_STANDARD.md without promoting it to account-wide rules."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T14:52:02.640862Z"
+    },
+    {
+      "id": "lesson:ADIR-WEB-003",
+      "source": "lesson:ADIR-WEB-003",
+      "statement": "כל פעולה אסינכרונית שיוצרת הזמנה, אישור, תשלום, הודעה או שינוי משמעותי מציגה מיד לואדר והסבר מקומי, מונעת שליחה כפולה ומסתיימת בהצלחה או בשגיאה ברורה.",
+      "acceptance_check": "בפעולת הזמנה אמיתית הכפתור משתנה מיד, הלואדר וההסבר מוצגים במשך ההמתנה, aria-busy פעיל, לחיצה כפולה חסומה, הצלחה מחליפה את הטעינה ושגיאה מחזירה כפתור פעיל עם הסבר.",
+      "status": "not_applicable",
+      "evidence": [],
+      "reason": "No real booking, payment, lead, review or outbound message was authorized in this read-only public QA; async public slider loading was inspected separately.",
+      "updated_at": "2026-10-23T14:52:02.938859Z"
+    },
+    {
+      "id": "lesson:ADIR-WEB-004",
+      "source": "lesson:ADIR-WEB-004",
+      "statement": "בכל תוצר קריא לאדם מציגים שקל חדש באמצעות הסמל ₪ בלבד ולא באמצעות הקיצורים ש״ח או ש\"ח.",
+      "acceptance_check": "סריקת המקור אינה מוצאת קיצורי שקל ישנים בתוכן הפונה למשתמש, וכל מחיר שקלי מייצג מוצג בדפדפן באמצעות ₪ בכיווניות תקינה.",
+      "status": "blocked",
+      "evidence": [],
+      "reason": "Production place content still exposes legacy שח text; the audit verified the violation and therefore the public release cannot pass this invariant.",
+      "updated_at": "2026-10-23T14:52:03.177753Z"
+    },
+    {
+      "id": "lesson:ADIR-WEB-005",
+      "source": "lesson:ADIR-WEB-005",
+      "statement": "Every responsive website must remain correct through mobile-to-desktop and desktop-to-mobile transitions, reloads, orientation changes and browser device-emulation changes, including while overlays and scroll locks are active.",
+      "acceptance_check": "A real public route passes fresh desktop, desktop reload, fresh 390-pixel mobile, mobile overlay open followed by desktop resize, desktop reload, breakpoint boundary, orientation change and return to mobile. At every step the page has meaningful visible content, scrollX is zero, document width does not exceed viewport width and desktop has no stale mobile lock, backdrop or expanded state.",
+      "status": "blocked",
+      "evidence": [],
+      "reason": "Fresh desktop/mobile and mobile gallery states were tested, but the full orientation and breakpoint-transition matrix was not completed; no release pass is claimed.",
+      "updated_at": "2026-10-23T14:52:03.413943Z"
+    },
+    {
+      "id": "project:vii-master-plan",
+      "source": "project_guidance",
+      "statement": "Use project_knowledge/VII_PLATFORM_MASTER_PLAN.md as the VII business and architecture source of truth.",
+      "acceptance_check": "Use project_knowledge/VII_PLATFORM_MASTER_PLAN.md as the VII business and architecture source of truth.",
+      "status": "passed",
+      "evidence": [
+        "Project master plan was used as the business and architecture source of truth for route-family and map behavior checks."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T14:52:03.626218Z"
+    },
+    {
+      "id": "project:vii-feedback-standard",
+      "source": "project_guidance",
+      "statement": "Use project_knowledge/VII_FEEDBACK_STANDARD.md as the accepted visible product behavior standard.",
+      "acceptance_check": "Use project_knowledge/VII_FEEDBACK_STANDARD.md as the accepted visible product behavior standard.",
+      "status": "passed",
+      "evidence": [
+        "Accepted feedback standard was used for availability sliders, search continuation, place pages, maps, galleries, breadcrumbs and price-copy checks."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T14:52:03.819903Z"
+    }
+  ],
+  "verification_status": "not_verified",
+  "verification_errors": [
+    "lesson:ADIR-WEB-004: blocked: Production place content still exposes legacy שח text; the audit verified the violation and therefore the public release cannot pass this invariant.",
+    "lesson:ADIR-WEB-005: blocked: Fresh desktop/mobile and mobile gallery states were tested, but the full orientation and breakpoint-transition matrix was not completed; no release pass is claimed."
+  ],
+  "predictive_results": {
+    "midpoint": {
+      "observed_at": "2026-10-23T14:51:48.778465Z",
+      "evidence": [
+        "82 desktop/mobile page-view checks across 41 route families; vacation business journey and mobile gallery verified at the public destination."
+      ],
+      "findings": [
+        "Early midpoint exposed stuck search continuation, intermittent loading states and cross-world map inconsistency, so coverage was expanded to network timelines and all slider families."
+      ]
+    },
+    "effectiveness": {
+      "recorded_at": "2026-10-23T14:51:49.330815Z",
+      "first_pass_acceptance": "no",
+      "repeated_corrections": 1,
+      "prevented_failures": 2,
+      "elapsed_minutes": 210.0,
+      "baseline_note": "No comparable prior full-family manual production QA baseline exists. Prevented failures counts two false positives removed before reporting: RTL rail movement and the broken sitemap-content harness."
+    },
+    "adversarial": {
+      "observed_at": "2026-10-23T14:51:54.483450Z",
+      "attacks": [
+        "Reloaded and timed the home and regional availability sliders after their first loading state.",
+        "Scrolled sparse and dated search results to the bottom and waited again to challenge the claimed continuation behavior.",
+        "Used the real next-arrow control on mobile RTL rails to challenge the automated stuck-rail result.",
+        "Opened, switched and closed a production vacation gallery at a 390-by-844 viewport to challenge the mobile gallery result."
+      ],
+      "natural_destination_evidence": "Live public routes reproduced blank-document failure, 6-of-18 and 6-of-48 continuation stalls, 503 responses and correct mobile gallery closure.",
+      "affected_family_evidence": "All 41 inventoried public route families were paired desktop/mobile; home and regional slider families were exercised separately; real RTL arrow clicks disproved two false-positive rail failures."
+    }
+  }
+}

@@ -54,34 +54,24 @@ export async function GET(request: Request) {
     const now = new Date();
     const [display, db] = await Promise.all([displayPromise, runtimeCatalogDatabase()]);
     const requestedPeriod = period as HomeDealPeriod;
-    const configuredPeriods = display.periods.map(item => item.id);
-    const candidatePeriods = [requestedPeriod, ...configuredPeriods.filter(id => id !== requestedPeriod)];
-    const snapshots = (await Promise.all(candidatePeriods.map(async candidatePeriod => {
-      const dates = homeDealDates(candidatePeriod, now);
-      try {
-        const cached = await readCachedDiscovery<CachedHomeDeals>({ key: ["vacation-near", dates.from, dates.till, guests], db,
-          policy: VACATION_DISCOVERY_POLICY,
-          validate: value => !!value && typeof value === "object" && Array.isArray((value as { deals?: unknown }).deals)
-            && (value as { deals: unknown[] }).deals.length > 0,
-        });
-        return { period: candidatePeriod, dates, cached };
-      } catch { return null; }
-    }))).filter((snapshot): snapshot is NonNullable<typeof snapshot> => snapshot !== null);
+    const dates = homeDealDates(requestedPeriod, now);
+    let snapshot: { period: HomeDealPeriod; dates: typeof dates; cached: Awaited<ReturnType<typeof readCachedDiscovery<CachedHomeDeals>>> } | null = null;
+    try {
+      const cached = await readCachedDiscovery<CachedHomeDeals>({ key: ["vacation-near", dates.from, dates.till, guests], db,
+        policy: VACATION_DISCOVERY_POLICY,
+        validate: value => !!value && typeof value === "object" && Array.isArray((value as { deals?: unknown }).deals)
+          && (value as { deals: unknown[] }).deals.length > 0,
+      });
+      snapshot = { period: requestedPeriod, dates, cached };
+    } catch { /* The requested tab remains visible while its own snapshot refreshes. */ }
     const [names, publicSiteIds] = await Promise.all([namesPromise, publicSiteIdsPromise]);
     const publicSummaryIds = new Set(names.map((place) => place.supplierId));
-    const preparedSnapshots = (await Promise.all(snapshots.map(async snapshot => {
-      const curatedSource = await applyCuration(snapshot.cached.value.deals, snapshot.period);
-      const deals = curatedSource.filter(deal => publicSiteIds.has(deal.siteID)
-        && publicSummaryIds.has(deal.siteID)
-        && deal.priceGuests === guests && deal.from === snapshot.dates.from && deal.till === snapshot.dates.till && eligibleDealDate(deal.from, now));
-      return deals.length ? { ...snapshot, deals } : null;
-    }))).filter((snapshot): snapshot is NonNullable<typeof snapshot> => snapshot !== null);
-    const availablePeriods = new Set(preparedSnapshots.map(snapshot => snapshot.period));
-    const selectedSnapshot = preparedSnapshots.find(snapshot => snapshot.period === requestedPeriod)
-      ?? preparedSnapshots.find(snapshot => snapshot.period === display.defaultPeriod)
-      ?? preparedSnapshots[0];
+    const curatedSource = snapshot ? await applyCuration(snapshot.cached.value.deals, requestedPeriod) : [];
+    const preparedDeals = curatedSource.filter(deal => publicSiteIds.has(deal.siteID)
+      && publicSummaryIds.has(deal.siteID)
+      && deal.priceGuests === guests && deal.from === dates.from && deal.till === dates.till && eligibleDealDate(deal.from, now));
+    const selectedSnapshot = snapshot && preparedDeals.length ? { ...snapshot, deals: preparedDeals } : null;
     if (!selectedSnapshot) {
-      const dates = homeDealDates(requestedPeriod, now);
       const context = getRequestExecutionContext();
       if (context && db) context.waitUntil(refreshVacationDiscoveryPeriod(db, requestedPeriod, guests, now).catch(() => undefined));
       return Response.json({ period: requestedPeriod, requestedPeriod, dates, deals: [], availabilityStatus: "refreshing",
@@ -94,9 +84,7 @@ export async function GET(request: Request) {
     const ordered = prioritizeOnlineFirst(selectedSnapshot.deals, deal => isHomeDealOnlineEligible(deal), (a, b) => compareVacationPriority(a, b, a.siteID, b.siteID, `home-deals:${selectedPeriod}`));
     const selected = region ? selectRegionalOffers(ordered, names.filter(place => publicSiteIds.has(place.supplierId)), region.label, { placeId: deal => deal.siteID, key: deal => String(deal.siteID) }) : null;
     const deals = prioritizeOnlineFirst(selected?.offers ?? ordered, deal => isHomeDealOnlineEligible(deal), (a, b) => compareVacationPriority(a, b, a.siteID, b.siteID, `home-deals:${selectedPeriod}`));
-    const periods = display.periods.filter(item => availablePeriods.has(item.id));
-    const defaultPeriod = availablePeriods.has(display.defaultPeriod) ? display.defaultPeriod : selectedPeriod;
-    return Response.json({ ...result, cache: cached.cache, requestedPeriod, availabilityStatus: "verified", ...(region ? { region: region.label, expandedRegion: selected!.expanded, regionalOrder: deals.map(deal => deal.siteID) } : {}), deals, display: { periods, defaultPeriod } }, { headers: { ...publicDiscovery, "X-VII-Discovery-Cache": cached.cache.status } });
+    return Response.json({ ...result, cache: cached.cache, requestedPeriod, availabilityStatus: "verified", ...(region ? { region: region.label, expandedRegion: selected!.expanded, regionalOrder: deals.map(deal => deal.siteID) } : {}), deals, display: { periods: display.periods, defaultPeriod: display.defaultPeriod } }, { headers: { ...publicDiscovery, "X-VII-Discovery-Cache": cached.cache.status } });
   } catch {
     return Response.json({ error: "supplier_unavailable" }, { status: 503, headers: noStore });
   }

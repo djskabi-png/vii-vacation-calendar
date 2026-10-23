@@ -9,7 +9,7 @@ import { vacationBreadcrumbForLocation } from "../data/vacation-landings";
 import { eventBreadcrumbsForLocation, hourlyBreadcrumbsForLocation } from "../data/world-search-landings";
 import { spaBreadcrumbsForLocation } from "../data/spa-search-landings";
 import { CalendarDemo, currentSiteDay } from "../calendar-demo";
-import { ListingMap } from "../components/listing-map";
+import { DeferredListingMap } from "../components/deferred-listing-map";
 import { PageShell } from "../components/page-shell";
 import { PropertyCard, resolveAvailabilityForStay } from "../components/property-card";
 import { DiscoveryCard } from "../components/discovery-card";
@@ -490,7 +490,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
 
             <ListingAccessibility slug={property.slug} features={property.features} />
 
-            <section id="location" className="location-card location-card--map-only" aria-labelledby="property-location-title"><h2 id="property-location-title" className="sr-only">{businessCopy.locationTitle(localizedPropertyName, localizedLocation, localizedArea)}</h2>{typeof property.lat === "number" && typeof property.lng === "number" ? <ListingMap listings={[localizedMapProperty]} single /> : <p>{safeBusinessText("המיקום המדויק טרם נמסר על ידי המקום.", businessCopy.locationTitle(localizedPropertyName, localizedLocation, localizedArea))}</p>}</section>
+            <section id="location" className="location-card location-card--map-only" aria-labelledby="property-location-title"><h2 id="property-location-title" className="sr-only">{businessCopy.locationTitle(localizedPropertyName, localizedLocation, localizedArea)}</h2>{typeof property.lat === "number" && typeof property.lng === "number" ? <DeferredListingMap listings={[localizedMapProperty]} single /> : <p>{safeBusinessText("המיקום המדויק טרם נמסר על ידי המקום.", businessCopy.locationTitle(localizedPropertyName, localizedLocation, localizedArea))}</p>}</section>
 
             <section id="faq" className="faq-section"><h2>{translate("שאלות ותשובות")}</h2>{faqItems.map((item, index) => <article key={item.question} className={openFaq === index ? "open" : ""}><button type="button" aria-expanded={openFaq === index} onClick={() => setOpenFaq(openFaq === index ? null : index)}><span>{safeBusinessText(item.question, businessCopy.faqQuestion)}</span><b>{openFaq === index ? "−" : "+"}</b></button>{openFaq === index && <p>{safeBusinessText(item.answer, businessCopy.faqAnswer)}</p>}</article>)}</section>
 
