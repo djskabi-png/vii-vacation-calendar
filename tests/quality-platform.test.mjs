@@ -35,6 +35,7 @@ test("recurring registry is read-only and excludes accessibility and typography 
     assert.doesNotMatch(`${check.checkId} ${check.family}`, /accessibility|typography/i);
     assert.ok(check.cadenceMinutes >= 10);
   }
+  assert.equal(qualityRegistry.find((check) => check.checkId === "world.vacations.html")?.route, "/search");
 });
 
 test("incident transition deduplicates repeated failures and recovers the same incident", () => {
