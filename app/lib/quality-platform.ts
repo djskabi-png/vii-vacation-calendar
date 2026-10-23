@@ -112,22 +112,24 @@ async function executeCheck(check: QualityCheck, origin: string, fetcher: typeof
 }
 
 async function reconcileIncident(db: D1Database, check: QualityCheck, result: { id: string; status: QualityStatus; observed: string }, now: string) {
+  if (result.status === "passed") {
+    const unresolved = await db.prepare(`SELECT id FROM quality_incidents WHERE check_id=? AND status!='resolved'`)
+      .bind(check.checkId).all<{ id: string }>();
+    for (const incident of unresolved.results || []) {
+      await db.prepare(`UPDATE quality_incidents SET status='resolved',last_seen_at=?,recovered_at=?,resolved_at=?,resolved_by='automatic-recovery',last_result_id=?,last_observed=? WHERE id=?`)
+        .bind(now, now, now, result.id, result.observed, incident.id).run();
+      await db.prepare(`INSERT INTO quality_notification_deliveries
+        (id,incident_id,channel,event_kind,status,provider_message_id,reason,created_at)
+        VALUES (?,?,'email','recovered','disabled',NULL,'verified_email_provider_not_configured',?)
+        ON CONFLICT(incident_id,channel,event_kind) DO NOTHING`).bind(crypto.randomUUID(), incident.id, now).run();
+    }
+    return;
+  }
   const key = fingerprint(check);
   const prior = await db.prepare(`SELECT id,status,occurrences FROM quality_incidents WHERE fingerprint=?`).bind(key)
     .first<{ id: string; status: string; occurrences: number }>();
   const transition = incidentTransition(prior, result.status);
   if (transition.action === "none") return;
-  if (transition.action === "recover") {
-    if (prior?.status !== "resolved") {
-      await db.prepare(`UPDATE quality_incidents SET status='resolved',last_seen_at=?,recovered_at=?,resolved_at=?,resolved_by='automatic-recovery',last_result_id=?,last_observed=? WHERE fingerprint=?`)
-        .bind(now, now, now, result.id, result.observed, key).run();
-      await db.prepare(`INSERT INTO quality_notification_deliveries
-        (id,incident_id,channel,event_kind,status,provider_message_id,reason,created_at)
-        VALUES (?,?,'email','recovered','disabled',NULL,'verified_email_provider_not_configured',?)
-        ON CONFLICT(incident_id,channel,event_kind) DO NOTHING`).bind(crypto.randomUUID(), prior!.id, now).run();
-    }
-    return;
-  }
   if (transition.action === "open") {
     const incidentId = crypto.randomUUID();
     await db.prepare(`INSERT INTO quality_incidents

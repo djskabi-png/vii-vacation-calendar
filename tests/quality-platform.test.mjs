@@ -58,6 +58,7 @@ test("two identical failures open one incident, recovery resolves it, and email 
     assert.equal(dashboard.deliveries.length, 1);
     assert.equal(dashboard.deliveries[0].status, "disabled");
     assert.equal(dashboard.deliveries[0].providerMessageId, null);
+    sqlite.prepare("UPDATE quality_incidents SET fingerprint='legacy-route-config'").run();
     await runQualityChecks(db, { origin: "https://example.test", trigger: "manual", fetcher: success, actor: "test" });
     dashboard = await readQualityDashboard(db);
     assert.equal(dashboard.incidents.length, 1);
