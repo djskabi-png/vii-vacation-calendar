@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { RefreshCw } from "lucide-react";
 
 type Booking = { id: string; world: string; placeId: string; placeName: string; destination: string;
@@ -10,7 +10,7 @@ type Review = { id: string; subjectType: string; subjectId: string; placeName: s
 type ManualCheck = { id: string; date: string; reporter: string; bookingDelivered: boolean;
   reviewDelivered: boolean; linkedToReferences: boolean };
 type Report = { bookings: Booking[]; reviews: Review[]; manualChecks: ManualCheck[];
-  bookingTotal: number; reviewTotal: number; offset: number };
+  bookingTotal: number; reviewTotal: number; offset: number; warnings?: string[] };
 
 const cell = { padding: "10px 8px", borderBottom: "1px solid #e0e6e4", whiteSpace: "nowrap" as const };
 const statusText: Record<string, string> = {
@@ -26,7 +26,7 @@ export default function OperationsPage() {
   const [error, setError] = useState("");
   const [forbidden, setForbidden] = useState(false);
   const [query, setQuery] = useState("");
-  async function refresh(offset = 0, search = query) {
+  const refresh = useCallback(async (offset = 0, search = "") => {
     setLoading(true);
     setError("");
     setForbidden(false);
@@ -41,21 +41,25 @@ export default function OperationsPage() {
         bookings: [...current.bookings, ...next.bookings], reviews: [...current.reviews, ...next.reviews] } : next);
     } catch (cause) { setError(cause instanceof Error ? cause.message : "לא ניתן לטעון את הדוח כרגע."); }
     finally { setLoading(false); }
-  }
-  useEffect(() => { void refresh(0, ""); }, []);
+  }, []);
+  useEffect(() => {
+    const timer = window.setTimeout(() => void refresh(0, ""), 0);
+    return () => window.clearTimeout(timer);
+  }, [refresh]);
 
   return <main dir="rtl" style={{ maxWidth: 1240, margin: "0 auto", padding: "32px 20px", minHeight: "80vh" }}>
     <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
       <div><h1 style={{ margin: 0, fontSize: "1.7rem" }}>הזמנות וחוות דעת</h1>
         <p>יומן בדיקה של פעולות VII. אישור של מערכת לידים אינו הוכחה שהספק קיבל את הבקשה.</p>
         <a href="/admin/catalog-sync">סנכרון קטלוגים</a></div>
-      <button type="button" onClick={() => void refresh(0)} disabled={loading} aria-label="רענון הדוח" title="רענון הדוח"><RefreshCw size={18} aria-hidden="true" /></button>
+      <button type="button" onClick={() => void refresh(0, query)} disabled={loading} aria-label="רענון הדוח" title="רענון הדוח"><RefreshCw size={18} aria-hidden="true" /></button>
     </header>
-    <form onSubmit={(event) => { event.preventDefault(); void refresh(0); }} style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBlock: 16 }}>
+    <form onSubmit={(event) => { event.preventDefault(); void refresh(0, query); }} style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBlock: 16 }}>
       <label htmlFor="operation-query">חיפוש לפי אסמכתה או מקום</label>
       <input id="operation-query" value={query} onChange={(event) => setQuery(event.target.value)} style={{ minWidth: 240 }} />
       <button type="submit" disabled={loading}>חיפוש</button>
     </form>
+    {report?.warnings?.length ? <p role="alert">חלק ממקורות הדוח אינם זמינים כרגע. הנתונים הזמינים מוצגים בלי להסתיר את התקלה.</p> : null}
     {report && !loading && !forbidden && !error ? report.manualChecks.map((check) =>
       <aside key={check.id} aria-label="בדיקה ידנית קודמת" style={{ borderInlineStart: "3px solid #167b78", paddingInlineStart: 14, marginBlock: 20 }}>
         <strong>בדיקה ידנית, {new Date(check.date + "T12:00:00Z").toLocaleDateString("he-IL")}</strong>
@@ -85,7 +89,7 @@ export default function OperationsPage() {
         {!report.reviews.length ? <p>לא נמצאו חוות דעת.</p> : null}
       </section>
       {(report.bookings.length < report.bookingTotal || report.reviews.length < report.reviewTotal) ?
-        <button type="button" onClick={() => void refresh(report.offset + 100)} disabled={loading} style={{ marginTop: 24 }}>עוד רשומות</button> : null}
+        <button type="button" onClick={() => void refresh(report.offset + 100, query)} disabled={loading} style={{ marginTop: 24 }}>עוד רשומות</button> : null}
     </> : null}
   </main>;
 }

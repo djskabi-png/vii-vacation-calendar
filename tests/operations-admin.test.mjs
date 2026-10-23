@@ -34,4 +34,7 @@ test("operations report distinguishes supplier receipt, lead acceptance and loca
   assert.match(reviews, /await authorizedAdminSession\(request\)/);
   assert.match(reviews, /if \(!session\)/);
   assert.doesNotMatch(reviews, /user_email|visitor_phone/);
+  assert.match(reviews, /Promise\.allSettled/);
+  assert.match(reviews, /warnings/);
+  assert.doesNotMatch(reviews, /\? = ''/);
 });
