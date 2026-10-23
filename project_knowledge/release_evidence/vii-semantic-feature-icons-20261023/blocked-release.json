@@ -1,0 +1,33 @@
+{
+  "task": "vii-semantic-feature-icons-20261023",
+  "status": "not_verified_not_published",
+  "candidate_commit": "1980308c842863f6849c8f449564015da0d36a97",
+  "candidate_archive": {
+    "path": ".openai/site-release-v594-semantic-feature-icons.tar.gz",
+    "bytes": 226277994,
+    "sha256": "5F90ECED131393965457CABB90201550936C5EFADBA3186683DFB1A01ECE332A"
+  },
+  "local_evidence": {
+    "production_build": "passed",
+    "test_suite": "1501 passed, 0 failed",
+    "typography_source_audit": "passed",
+    "resource_hygiene": "verified, 0 owned processes remaining"
+  },
+  "publication_attempt": {
+    "operation_identity": "vii-semantic-feature-icons-20261023-sites-publication",
+    "attempt": 1,
+    "result": "blocked before version save",
+    "evidence": [
+      "The configured Sites connector returned project_not_found for appgprj_6a71ccdca27481918bf04dd329d3eb21.",
+      "The signed-in ChatGPT browser visibly opened the same VII Site settings page, proving the Site exists but the connector is scoped to a different workspace.",
+      "The Sites Git remote returned HTTP 401 and no local credential was available. The uncertain push was interrupted and was not retried."
+    ],
+    "required_human_action": "Reconnect or select the ChatGPT workspace that owns the VII Site for the Sites connector, then resume the same candidate commit and archive."
+  },
+  "rollback": {
+    "version_number": 593,
+    "version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_0ec394c583e08191a7609561dd7afec0",
+    "deployment_id": "appgdep_6adaef1f408c8191afc8bf64bdab2435",
+    "commit": "e9573c9d98554d9be0e0836953804e580ed02858"
+  }
+}
