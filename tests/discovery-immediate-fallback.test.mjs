@@ -25,18 +25,22 @@ test("spa catalog fallback keeps real package facts but does not manufacture day
   assert.equal(selectSpaCatalogPackages(sites, "bad-date", "single").length, 0);
 });
 
-test("homepage rails render catalog cards immediately and identify background refresh truthfully", () => {
+test("availability rails never render catalog cards as date-bound offers while a refresh is pending", () => {
   const home = readFileSync(new URL("../app/components/home-live-deals.tsx", import.meta.url), "utf8");
   const spa = readFileSync(new URL("../app/components/spa-package-deals.tsx", import.meta.url), "utf8");
   const nearRoute = readFileSync(new URL("../app/api/vii/home-deals/route.ts", import.meta.url), "utf8");
   const holidayRoute = readFileSync(new URL("../app/api/vii/home-holiday-deals/route.ts", import.meta.url), "utf8");
   const spaRoute = readFileSync(new URL("../app/api/spa/deals/route.ts", import.meta.url), "utf8");
-  assert.match(home, /fallbackPlaces/);
-  assert.match(home, /promotional detailHref/);
-  assert.match(home, /הזמינות מתעדכנת ברקע/);
+  assert.doesNotMatch(home, /fallbackPlaces|promotional detailHref|הזמינות מתעדכנת ברקע/);
+  assert.match(home, /availabilityStatus === "refreshing"/);
+  assert.match(home, /shouldCache:[\s\S]*availabilityStatus === "verified"/);
   assert.match(spa, /החבילות והמחירים מוצגים מיד מהקטלוג/);
   for (const route of [nearRoute, holidayRoute, spaRoute]) {
     assert.match(route, /availabilityStatus: "refreshing"/);
     assert.match(route, /waitUntil/);
+  }
+  for (const route of [nearRoute, holidayRoute]) {
+    assert.doesNotMatch(route, /fallbackPlaces|vacationCatalogFallbacks/);
+    assert.match(route, /X-VII-Discovery-Cache": "refreshing"/);
   }
 });

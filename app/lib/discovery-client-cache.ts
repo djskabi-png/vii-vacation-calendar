@@ -5,6 +5,7 @@ type DiscoveryRequestInit = RequestInit & {
   freshMs?: number;
   staleMs?: number;
   persist?: boolean;
+  shouldCache?: (value: unknown) => boolean;
 };
 
 type Entry = { value: unknown; freshUntil: number; staleUntil: number };
@@ -111,6 +112,7 @@ export async function discoveryJson<T>(url: string, scope: string, init: Discove
     freshMs = defaultFreshMs,
     staleMs = defaultStaleMs,
     persist = false,
+    shouldCache = () => true,
     ...requestInit
   } = init;
   const key = JSON.stringify([url, scope, requestInit.body ?? null]);
@@ -136,8 +138,10 @@ export async function discoveryJson<T>(url: string, scope: string, init: Discove
         if (!response.ok) throw new DiscoveryResponseError(response.status);
         const value = await response.json();
         if (requestInit.signal?.aborted) throw requestInit.signal.reason ?? new DOMException("Aborted", "AbortError");
-        const now = Date.now();
-        remember(key, { value, freshUntil: now + Math.max(1, freshMs), staleUntil: now + Math.max(freshMs, staleMs) }, persist && method === "GET");
+        if (shouldCache(value)) {
+          const now = Date.now();
+          remember(key, { value, freshUntil: now + Math.max(1, freshMs), staleUntil: now + Math.max(freshMs, staleMs) }, persist && method === "GET");
+        }
         return clone<T>(value);
       } catch (error) {
         if (requestInit.signal?.aborted) throw requestInit.signal.reason ?? new DOMException("Aborted", "AbortError");

@@ -47,6 +47,19 @@ test('browser navigation cache does not cross URL/body/clock selections or store
  }finally{globalThis.fetch=original;}
 });
 
+test('browser discovery does not remember a response rejected by the semantic cache policy',async()=>{
+ const original=globalThis.fetch;let calls=0;
+ try{
+  globalThis.fetch=async()=>{calls++;return Response.json(calls===1?{availabilityStatus:'refreshing',deals:[]}:{availabilityStatus:'verified',deals:[{total:900}]});};
+  const options={shouldCache:value=>value?.availabilityStatus==='verified'};
+  assert.deepEqual(await discoveryJson('/api/test-cache-policy','proof-v1',options),{availabilityStatus:'refreshing',deals:[]});
+  assert.deepEqual(await discoveryJson('/api/test-cache-policy','proof-v1',options),{availabilityStatus:'verified',deals:[{total:900}]});
+  assert.equal(calls,2);
+  assert.deepEqual(await discoveryJson('/api/test-cache-policy','proof-v1',options),{availabilityStatus:'verified',deals:[{total:900}]});
+  assert.equal(calls,2);
+ }finally{globalThis.fetch=original;}
+});
+
 test('browser discovery has a bounded deadline, one changed retry and a last-accepted fallback',async()=>{
  const original=globalThis.fetch;let calls=0;
  const hanging=signal=>new Promise((_,reject)=>signal?.addEventListener('abort',()=>reject(signal.reason),{once:true}));

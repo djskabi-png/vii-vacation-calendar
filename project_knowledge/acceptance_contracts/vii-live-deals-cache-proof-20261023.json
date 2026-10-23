@@ -1,0 +1,104 @@
+{
+  "goal": "Restore truthful, fast nearby-vacation availability cards with prices on the public homepage and prevent a cached catalog fallback from masquerading as availability.",
+  "intent_model": {
+    "literal_request": "Fix immediately the public last-minute slider state shown in the screenshot.",
+    "implied_outcome": "The slider must reliably show real cached availability and prices on every date tab, recover without user intervention, and stop repeating this regression.",
+    "likely_rejections": [
+      "Only the explanatory banner changed while unpriced cards remained.",
+      "The current browser still displayed the broken state because its cache was not invalidated.",
+      "Only one date tab or viewport was tested.",
+      "The fix was built but not verified on the public site."
+    ],
+    "interpretation_rules": [
+      {
+        "phrase": "תקן מייד",
+        "operational_meaning": "Proceed with the smallest causal repair and public release without reopening product decisions.",
+        "acceptance_impact": "The exact public route must visibly show verified priced offers after deployment."
+      }
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "The visitor sees available places for the selected near-term dates.",
+    "current_decision": "Compare places by real date-bound availability and total price.",
+    "next_action": "Open one place to recheck live availability and continue booking.",
+    "deferred_complexity": [
+      "Background supplier refresh details",
+      "Cache age and retry mechanics"
+    ],
+    "preserved_depth": [
+      "Every date tab",
+      "Place detail live recheck",
+      "Online booking and contact actions",
+      "Regional and holiday modes"
+    ]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/predictive_preflights/vii-live-deals-cache-proof-20261023.json",
+    "lesson_bundle_ids": ["ADIR-QA-001", "ADIR-DEPLOY-001", "ADIR-WEB-006", "ADIR-WEB-004"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["Public vacation visitor", "Background discovery cache refresher"],
+  "natural_destination": "https://vii.spaplus.co homepage nearby-vacation availability slider",
+  "facts": [
+    {
+      "claim": "The reported page rendered availabilityStatus refreshing with fallbackPlaces instead of dated offers.",
+      "evidence": "Public screenshot and current route/component source show the catalog fallback branch."
+    },
+    {
+      "claim": "The same public endpoint currently has verified cached offers, so the broken state persisted beyond backend recovery.",
+      "evidence": "Production API returned availabilityStatus verified with 41 deals for the tomorrow period on 2026-10-23."
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "A persisted browser fallback and cacheable refreshing response are the reason the stale unpriced cards remained visible.",
+      "validation": "Seed the former refreshing payload in browser storage, load the repaired candidate and verify that it is ignored and replaced by verified offers."
+    }
+  ],
+  "in_scope": [
+    "Prevent refreshing catalog responses from being cached as last-known-good availability.",
+    "Never render generic catalog cards inside the availability rail.",
+    "Keep the previous verified data visible while a refresh is in progress.",
+    "Retry a cold refreshing response automatically within a bounded period.",
+    "Publish and verify desktop and mobile public behavior."
+  ],
+  "out_of_scope": [
+    "Changing supplier pricing or availability data",
+    "Redesigning card appearance",
+    "Changing booking rules or unrelated page sections"
+  ],
+  "invariants": [
+    "Existing tab labels, slider controls and card layout remain unchanged.",
+    "Only supplier-backed date-bound offers may display availability and price.",
+    "Place detail continues to perform a live recheck before booking.",
+    "A temporary supplier failure never erases an already verified valid snapshot."
+  ],
+  "affected_family": [
+    "Nearby-vacation homepage slider",
+    "Holiday vacation slider sharing HomeLiveDeals",
+    "Home-deals API refreshing and verified states",
+    "Browser discovery persistence",
+    "All supported locales and desktop/mobile viewports"
+  ],
+  "characteristics": { "stateful": true },
+  "requirements": [
+    { "id": "REQ-1", "statement": "The availability rail renders only verified date-bound offers with real prices.", "source": "User screenshot and VII feedback standard" },
+    { "id": "REQ-2", "statement": "A cold refresh or transient supplier failure does not expose generic catalog cards and recovers automatically.", "source": "User correction and cache reliability decision" },
+    { "id": "REQ-3", "statement": "Existing approved slider, booking and contact behavior remains intact across the shared family.", "source": "Project regression standard" },
+    { "id": "REQ-4", "statement": "The exact repaired release is published and verified on the public desktop and mobile site.", "source": "User publication authorization and account release rules" }
+  ],
+  "acceptance_checks": [
+    { "id": "AC-1", "requirement_ids": ["REQ-1"], "kind": "success", "setup": "Verified cached offers exist for a selected date tab.", "action": "Open the public homepage and select the tab.", "observable_result": "Every displayed card has selected dates, a positive price with ₪ and an available quote; no catalog-refresh banner appears." },
+    { "id": "AC-2", "requirement_ids": ["REQ-2"], "kind": "recovery", "setup": "The route initially returns a refreshing state while the background refresh runs.", "action": "Keep the page open without clearing browser storage or pressing retry.", "observable_result": "No generic place cards appear, the UI keeps prior verified offers or a bounded loader, and it automatically transitions to verified priced offers." },
+    { "id": "AC-3", "requirement_ids": ["REQ-2"], "kind": "persistence", "setup": "A legacy refreshing payload is present in session storage.", "action": "Reload the repaired homepage.", "observable_result": "The legacy fallback is not accepted as good data and the rail resolves to verified offers without manual storage clearing." },
+    { "id": "AC-3B", "requirement_ids": ["REQ-2"], "kind": "failure", "setup": "The supplier refresh fails and no verified snapshot is available for the requested dates.", "action": "Open or keep the nearby-vacation rail visible.", "observable_result": "The rail shows a localized actionable failure state without generic catalog cards, invented availability or invented prices." },
+    { "id": "AC-4", "requirement_ids": ["REQ-3"], "kind": "success", "setup": "The repaired build is running.", "action": "Exercise all nearby date tabs, holiday mode, slider controls and one place link.", "observable_result": "Tabs and slider controls work, cards retain contact and booking behavior, and the detail URL keeps dates, guests, room and source." },
+    { "id": "AC-5", "requirement_ids": ["REQ-4"], "kind": "rollback", "setup": "A frozen candidate and prior production commit are recorded.", "action": "Publish the candidate and run the live checks.", "observable_result": "The public site passes desktop and 390-pixel mobile checks; otherwise the prior version is available for rollback." }
+  ],
+  "open_questions": [],
+  "authorization_boundary": "The user authorized the immediate repair and public deployment of this availability-slider defect; no unrelated content, configuration or external data mutation is authorized.",
+  "ready_for_implementation": true
+}

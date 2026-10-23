@@ -14,7 +14,6 @@ import { validDate } from "../../../lib/vii-live-search.ts";
 import { prioritizeOnlineFirst, isHomeDealOnlineEligible } from "../../../lib/vacation-online-first.ts";
 import { compareVacationPriority } from "../../../lib/vacation-priority.ts";
 import { runtimeDatabase } from "../../../lib/runtime-database.ts";
-import { vacationCatalogFallbacks } from "../../../lib/discovery-catalog-fallback.ts";
 import { getRequestExecutionContext } from "vinext/shims/request-context";
 
 const headers = { "Cache-Control": "no-store" };
@@ -56,8 +55,8 @@ export async function GET(request: Request) {
     if (!cached) {
       getRequestExecutionContext()?.waitUntil(refresh.then(() => undefined));
       return Response.json({ holiday, dates: { from: holiday.from, till: holiday.till, nights: holiday.nights }, deals: [],
-        fallbackPlaces: vacationCatalogFallbacks(names, publicSiteIds), availabilityStatus: "refreshing" },
-      { headers: { ...publicDiscovery, "X-VII-Discovery-Cache": "catalog" } });
+        availabilityStatus: "refreshing" },
+      { headers: { ...headers, "X-VII-Discovery-Cache": "refreshing" } });
     }
     const result = cached.value;
     const deals = prioritizeOnlineFirst((await applyCuration(result.deals)).filter(deal => publicSiteIds.has(deal.siteID) && deal.priceGuests === guests && eligibleDealDate(deal.from, now)), deal => isHomeDealOnlineEligible(deal), (a, b) => compareVacationPriority(a, b, a.siteID, b.siteID, `holiday:${id}:${part}`));

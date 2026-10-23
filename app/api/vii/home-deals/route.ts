@@ -15,7 +15,6 @@ import { compareVacationPriority } from "../../../lib/vacation-priority.ts";
 import { runtimeDatabase } from "../../../lib/runtime-database.ts";
 import { VACATION_DISCOVERY_POLICY } from "../../../lib/warm-vacation-discovery-cache.ts";
 import { refreshVacationDiscoveryPeriod } from "../../../lib/warm-vacation-discovery-cache.ts";
-import { vacationCatalogFallbacks } from "../../../lib/discovery-catalog-fallback.ts";
 import { getRequestExecutionContext } from "vinext/shims/request-context";
 
 const noStore = { "Cache-Control": "no-store" };
@@ -82,15 +81,12 @@ export async function GET(request: Request) {
       ?? preparedSnapshots.find(snapshot => snapshot.period === display.defaultPeriod)
       ?? preparedSnapshots[0];
     if (!selectedSnapshot) {
-      const allFallbackPlaces = vacationCatalogFallbacks(names, publicSiteIds);
-      const fallbackPlaces = region ? selectRegionalOffers(allFallbackPlaces, names.filter(place => publicSiteIds.has(place.supplierId)), region.label,
-        { placeId: place => place.siteID, key: place => String(place.siteID), limit: 20 }).offers : allFallbackPlaces;
       const dates = homeDealDates(requestedPeriod, now);
       const context = getRequestExecutionContext();
       if (context && db) context.waitUntil(refreshVacationDiscoveryPeriod(db, requestedPeriod, guests, now).catch(() => undefined));
-      return Response.json({ period: requestedPeriod, requestedPeriod, dates, deals: [], fallbackPlaces, availabilityStatus: "refreshing",
+      return Response.json({ period: requestedPeriod, requestedPeriod, dates, deals: [], availabilityStatus: "refreshing",
         ...(region ? { region: region.label, expandedRegion: false } : {}), display: { periods: display.periods, defaultPeriod: display.defaultPeriod } },
-      { headers: { ...publicDiscovery, "X-VII-Discovery-Cache": "catalog" } });
+      { headers: { ...noStore, "X-VII-Discovery-Cache": "refreshing" } });
     }
     const selectedPeriod = selectedSnapshot.period;
     const cached = selectedSnapshot.cached;

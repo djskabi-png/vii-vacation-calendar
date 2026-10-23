@@ -28,6 +28,7 @@ const copy = {
 } as const;
 const icons = { family: Users, couple: Heart, group: UsersRound };
 type Result = { key: string; status: "loading" | "ready" | "error"; deals: HomeDeal[]; stale?: boolean };
+type HolidayDealResponse = { holiday: HomeHoliday; deals: HomeDeal[]; cache?: { status: string }; availabilityStatus?: "verified" | "refreshing" };
 
 export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeHoliday; initialSelection: HolidaySelection }) {
   const clock = useDealClock();
@@ -38,6 +39,7 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
   const [retry, setRetry] = useState(0);
   const [result, setResult] = useState<Result>({ key: "", status: "loading", deals: [] });
   const generation = useRef(0);
+  const automaticRetries = useRef(new Map<string, number>());
   const guests = holidayAudiences.find((item) => item.id === selection.audience)!.guests;
   const earliest = clock ? firstDealDate(clock.now) : holiday.from;
   const currentHoliday = holiday.from < earliest ? { ...holiday, from: earliest, nights: Math.min(2, Math.max(1, Math.round((Date.parse(`${holiday.till}T00:00:00Z`) - Date.parse(`${earliest}T00:00:00Z`)) / 86_400_000))) } : holiday;
@@ -71,19 +73,34 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
     setResult((current) => ({ ...current, key, status: "loading" }));
     if (currentHoliday.from >= holiday.till) { setResult({ key, status: "ready", deals: [] }); return () => controller.abort(); }
     if (holiday.id <= 0) { setResult({ key, status: "error", deals: [] }); return () => controller.abort(); }
-    const params = new URLSearchParams({ id: String(holiday.id), guests: String(guests), part: normalizedSelection.part });
-    discoveryJson<{ holiday: HomeHoliday; deals: HomeDeal[]; cache?:{status:string} }>(`/api/vii/home-holiday-deals?${params}`, clock.key, { signal: controller.signal, persist: true })
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
+    const params = new URLSearchParams({ id: String(holiday.id), guests: String(guests), part: normalizedSelection.part, proof: "verified-offers-v1" });
+    discoveryJson<HolidayDealResponse>(`/api/vii/home-holiday-deals?${params}`, `${clock.key}:verified-offers-v1`, { signal: controller.signal, persist: true,
+      shouldCache: (value) => (value as HolidayDealResponse | null)?.availabilityStatus === "verified" })
       .then((data) => {
         if (data.holiday?.id !== holiday.id || !Array.isArray(data.deals) || data.deals.some((deal) => deal.priceGuests !== guests || deal.from < window.from || deal.till > window.till || !Number.isFinite(deal.total) || deal.total <= 0)) throw new Error("invalid_deals");
         return data;
       })
-      .then((data) => { if (!controller.signal.aborted && request === generation.current) setResult({ key, status: "ready", deals: data.deals, stale: data.cache?.status === "stale" }); })
+      .then((data) => {
+        if (controller.signal.aborted || request !== generation.current) return;
+        if (data.availabilityStatus === "refreshing" && data.deals.length === 0) {
+          const attempts = automaticRetries.current.get(key) || 0;
+          if (attempts >= 3) setResult((current) => ({ ...current, key, status: "error" }));
+          else {
+            automaticRetries.current.set(key, attempts + 1);
+            retryTimer = setTimeout(() => setRetry((value) => value + 1), 1_500);
+          }
+          return;
+        }
+        automaticRetries.current.delete(key);
+        setResult({ key, status: "ready", deals: data.deals, stale: data.cache?.status === "stale" });
+      })
       .catch(() => {
         if (!controller.signal.aborted && request === generation.current) {
           setResult((current) => ({ ...current, key, status: "error" }));
         }
       });
-    return () => controller.abort();
+    return () => { controller.abort(); if (retryTimer) clearTimeout(retryTimer); };
   }, [key, retry, holiday.id, guests, normalizedSelection.part, window.from, window.till, clock?.key]);
 
   function choose(next: HolidaySelection) {
@@ -118,7 +135,7 @@ export function HolidayLiveDeals({ holiday, initialSelection }: { holiday: HomeH
       {normalizedSelection.part === "all" ? <p className="holiday-window-note">{text.window}</p> : null}
       <div id="holiday-deal-results" className={`holiday-deals__surface${state === "loading" && result.deals.length ? " is-refreshing" : ""}`} role="tabpanel" tabIndex={0} aria-labelledby={`holiday-tab-${selection.audience}`} aria-busy={state === "loading"}>
         {state === "loading" && !result.deals.length ? <div className="holiday-deals__loading" role="status"><span className="holiday-deals__spinner" aria-hidden="true" /><strong>{text.loading}</strong><small>{guests} {text.guests} · {formatDate(window.from)} / {formatDate(window.till)}</small></div> : null}
-        {state === "error" ? <div className="holiday-deals__message" role="alert"><strong>{text.error}</strong><button type="button" onClick={() => holiday.id <= 0 ? globalThis.location.reload() : setRetry((value) => value + 1)}>{text.retry}</button><Link href={searchHref}>{text.search}</Link></div> : null}
+        {state === "error" ? <div className="holiday-deals__message" role="alert"><strong>{text.error}</strong><button type="button" onClick={() => { if (holiday.id <= 0) { globalThis.location.reload(); return; } automaticRetries.current.delete(key); setRetry((value) => value + 1); }}>{text.retry}</button><Link href={searchHref}>{text.search}</Link></div> : null}
         {state === "ready" && !deals.length ? <div className="holiday-deals__message"><strong>{text.empty}</strong><p>{text.emptyHelp}</p>{selection.part !== "all" ? <button type="button" onClick={() => choose({ ...selection, part: "all" })}>{text.reset}</button> : null}<Link href={searchHref}>{text.search}</Link></div> : null}
         {(state === "ready" ? deals : result.deals).length ? <><p className="holiday-deals__count" role="status">{(state === "ready" ? deals : result.deals).length} {text.count}</p><div className="holiday-deals__grid" inert={state === "loading" || undefined} aria-hidden={state === "loading" || undefined}>{(state === "ready" ? deals : result.deals).map((deal) => {
           const href = localizedPath(`/business?${new URLSearchParams({ id: `vacation-${deal.siteID}`, from: deal.from, till: deal.till, guests: String(deal.priceGuests), ...(deal.roomID ? { roomID: String(deal.roomID) } : {}), source: "home-holidays", period: String(holiday.id) }).toString()}`, language);

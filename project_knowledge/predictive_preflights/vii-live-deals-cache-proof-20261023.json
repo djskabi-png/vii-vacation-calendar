@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-live-deals-cache-proof-20261023",
+  "project": "VII",
+  "task_type": "production availability slider repair and release",
+  "requested_outcome": "The public nearby-vacation slider always shows date-bound verified or last-known-good offers with prices, never ordinary catalog cards presented under an availability heading, and recovers automatically after a cache refresh.",
+  "natural_destination": "https://vii.spaplus.co homepage nearby-vacation slider on desktop and 390-pixel mobile",
+  "authorization_boundary": "Authorized to diagnose, change code, test, deploy the repair to the public VII site, and verify it live; unrelated product changes are excluded.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "A shared availability component failed publicly and the repaired detail must be checked across its full slider family.",
+      "acceptance_impact": "Requires exact public-route verification, all affected date tabs, loading and recovery states, plus an independent release verdict."
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "reason": "The user explicitly requested an immediate production correction.",
+      "acceptance_impact": "Requires a frozen release identity, rollback point and verification of the exact deployed public version."
+    },
+    {
+      "lesson_id": "ADIR-WEB-006",
+      "reason": "The defect is visible in a responsive homepage rail and was reported by screenshot.",
+      "acceptance_impact": "Requires inspected public screenshots on desktop and 390-pixel mobile, not code-only evidence."
+    },
+    {
+      "lesson_id": "ADIR-WEB-004",
+      "reason": "Every restored availability card must expose a real price with the approved currency convention.",
+      "acceptance_impact": "Requires visible prices formatted with the ₪ symbol and correct right-to-left geometry."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The banner is hidden but the cards still have no date-bound price or availability proof.",
+      "prevention": "Remove catalog fallback cards from the availability rail and accept only verified offer snapshots for rendering.",
+      "acceptance_check": "Every visible card on every enabled tab contains a price, selected dates and an available quote object."
+    },
+    {
+      "rejection": "An old browser session keeps the broken fallback after the server cache is healthy.",
+      "prevention": "Version the client discovery cache and prevent refreshing responses from being persisted as last-known-good evidence.",
+      "acceptance_check": "A browser with a seeded stale fallback refreshes to verified cards without manual storage clearing."
+    },
+    {
+      "rejection": "The repair works for the first tab only and another date tab falls back to generic cards.",
+      "prevention": "Exercise every configured nearby-vacation period and shared holiday rail behavior.",
+      "acceptance_check": "All configured period endpoints and tab transitions either show verified priced offers or a bounded loading/recovery state, never generic cards."
+    },
+    {
+      "rejection": "A deployment overwrites recent approved business-page fixes.",
+      "prevention": "Release only from the current production-aligned v581 worktree and preserve unrelated files and behavior.",
+      "acceptance_check": "Git diff contains only the availability cache repair and its tests, and the public business route still renders after deployment."
+    }
+  ],
+  "affected_family": [
+    "app/components/home-live-deals.tsx nearby vacation and holiday modes",
+    "app/api/vii/home-deals/route.ts cached and refreshing responses",
+    "browser discovery cache persistence for availability rails",
+    "all configured nearby vacation date tabs in Hebrew and localized UI",
+    "desktop and 390-pixel mobile homepage slider rendering"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "Last-known-good availability and background refresh product decision",
+        "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md section אמת, נתונים ופרסום"
+      },
+      {
+        "label": "Reported broken public state",
+        "source": "codex-clipboard-8a4a9540-fffb-4f4a-b24a-b99ed17d9f7b.png"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the route and component tests prove that refreshing responses cannot become visible availability cards, before build and deployment.",
+    "checks": [
+      "Run the targeted availability rail tests.",
+      "Open a local or temporary public candidate with a forced refreshing response and verify no generic card rail appears."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a prior sessionStorage fallback still reappear after reload?",
+      "Can any date tab show cards without price or date-bound availability?",
+      "Does a supplier refresh failure erase the last verified snapshot?",
+      "Did the deployment regress the recent public business-detail fixes?"
+    ],
+    "natural_destination_evidence": "Public homepage screenshot and DOM inspection on the exact deployed release at desktop and 390-pixel mobile.",
+    "affected_family_evidence": "Endpoint matrix for every period, targeted automated tests, shared component checks and public tab transitions."
+  },
+  "effectiveness": {
+    "baseline": "The public screenshot showed three ordinary catalog cards without prices beneath a background-refresh banner in an availability slider.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Zero generic catalog cards in availability rails, all visible offer cards priced and date-bound, and no manual browser-cache clearing required."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

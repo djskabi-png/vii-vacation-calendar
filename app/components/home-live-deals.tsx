@@ -21,22 +21,15 @@ import { useDealClock } from "./use-deal-clock";
 import { discoveryJson } from "../lib/discovery-client-cache.ts";
 import { orderDiscoveryRail } from "../lib/discovery-slider-order.ts";
 import { useDocumentSeed } from "./use-document-seed.ts";
-import type { VacationCatalogFallback } from "../lib/discovery-catalog-fallback.ts";
 
-type ResponseData = { cache?: { status: string }; availabilityStatus?: "verified" | "refreshing"; fallbackPlaces?: VacationCatalogFallback[]; region?: string; expandedRegion?: boolean; regionalOrder?: number[]; period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[]; display?: { periods: HomePeriodTab[]; defaultPeriod: HomeDealPeriod } };
+type ResponseData = { cache?: { status: string }; availabilityStatus?: "verified" | "refreshing"; region?: string; expandedRegion?: boolean; regionalOrder?: number[]; period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[]; display?: { periods: HomePeriodTab[]; defaultPeriod: HomeDealPeriod } };
 
 const copy = {
-  he: { title: "נופש פנוי בתאריכים הקרובים", all: "לכל מקומות הנופש", loading: "בודקים זמינות ומחירים", empty: "לא נמצאו מקומות פנויים לתאריכים האלה", error: "לא הצלחנו לבדוק זמינות כרגע", retry: "לנסות שוב", fallback: "הזמינות מתעדכנת ברקע. בינתיים אפשר להכיר מקומות ולבדוק זמינות בעמוד המקום.", updating: "הזמינות מתעדכנת", total: "מחיר כולל", details: "לפרטי המקום", call: "חיוג למקום", whatsapp: "וואטסאפ", available: "פנוי לתאריכים שבחרתם", forGuests: "עבור 2 אורחים", night: "לילה", nights: "לילות", bedrooms: "חדרי שינה", guests: "אורחים", reviews: "חוות דעת", dateTo: "עד", tabs: ["ברגע האחרון", "חמישי עד שבת", "שישי עד ראשון", "לילה בחמישי", "לילה בשישי"] },
-  en: { title: "Available stays ahead", all: "All stays", loading: "Checking availability and prices", empty: "No available stays for these dates", error: "Availability could not be checked", retry: "Try again", fallback: "Availability is refreshing in the background. Meanwhile, browse places and check availability on the place page.", updating: "Availability is updating", total: "Total price", details: "Place details", call: "Call the property", whatsapp: "WhatsApp", available: "Available for your dates", forGuests: "for 2 guests", night: "night", nights: "nights", bedrooms: "bedrooms", guests: "guests", reviews: "reviews", dateTo: "to", tabs: ["Last minute", "Thursday to Saturday", "Friday to Sunday", "Thursday night", "Friday night"] },
-  ru: { title: "Свободное жилье на ближайшие даты", all: "Все варианты", loading: "Проверяем наличие и цены", empty: "На эти даты свободных мест нет", error: "Не удалось проверить наличие", retry: "Повторить", fallback: "Наличие обновляется в фоне. Пока можно посмотреть объекты и проверить наличие на странице объекта.", updating: "Наличие обновляется", total: "Полная стоимость", details: "Подробнее", call: "Позвонить", whatsapp: "WhatsApp", available: "Свободно на выбранные даты", forGuests: "для 2 гостей", night: "ночь", nights: "ночи", bedrooms: "спальни", guests: "гостей", reviews: "отзывов", dateTo: "до", tabs: ["В последний момент", "Чт–Сб", "Пт–Вс", "Ночь в четверг", "Ночь в пятницу"] },
-  fr: { title: "Séjours disponibles prochainement", all: "Tous les séjours", loading: "Vérification des disponibilités", empty: "Aucun séjour disponible à ces dates", error: "Disponibilité indisponible", retry: "Réessayer", fallback: "Les disponibilités se mettent à jour en arrière-plan. Consultez les lieux et vérifiez sur leur page.", updating: "Mise à jour des disponibilités", total: "Prix total", details: "Voir le lieu", call: "Appeler le lieu", whatsapp: "WhatsApp", available: "Disponible à ces dates", forGuests: "pour 2 voyageurs", night: "nuit", nights: "nuits", bedrooms: "chambres", guests: "voyageurs", reviews: "avis", dateTo: "au", tabs: ["Dernière minute", "Jeudi à samedi", "Vendredi à dimanche", "Nuit de jeudi", "Nuit de vendredi"] },
+  he: { title: "נופש פנוי בתאריכים הקרובים", all: "לכל מקומות הנופש", loading: "בודקים זמינות ומחירים", empty: "לא נמצאו מקומות פנויים לתאריכים האלה", error: "לא הצלחנו לבדוק זמינות כרגע", retry: "לנסות שוב", total: "מחיר כולל", details: "לפרטי המקום", call: "חיוג למקום", whatsapp: "וואטסאפ", available: "פנוי לתאריכים שבחרתם", forGuests: "עבור 2 אורחים", night: "לילה", nights: "לילות", bedrooms: "חדרי שינה", guests: "אורחים", reviews: "חוות דעת", dateTo: "עד", tabs: ["ברגע האחרון", "חמישי עד שבת", "שישי עד ראשון", "לילה בחמישי", "לילה בשישי"] },
+  en: { title: "Available stays ahead", all: "All stays", loading: "Checking availability and prices", empty: "No available stays for these dates", error: "Availability could not be checked", retry: "Try again", total: "Total price", details: "Place details", call: "Call the property", whatsapp: "WhatsApp", available: "Available for your dates", forGuests: "for 2 guests", night: "night", nights: "nights", bedrooms: "bedrooms", guests: "guests", reviews: "reviews", dateTo: "to", tabs: ["Last minute", "Thursday to Saturday", "Friday to Sunday", "Thursday night", "Friday night"] },
+  ru: { title: "Свободное жилье на ближайшие даты", all: "Все варианты", loading: "Проверяем наличие и цены", empty: "На эти даты свободных мест нет", error: "Не удалось проверить наличие", retry: "Повторить", total: "Полная стоимость", details: "Подробнее", call: "Позвонить", whatsapp: "WhatsApp", available: "Свободно на выбранные даты", forGuests: "для 2 гостей", night: "ночь", nights: "ночи", bedrooms: "спальни", guests: "гостей", reviews: "отзывов", dateTo: "до", tabs: ["В последний момент", "Чт–Сб", "Пт–Вс", "Ночь в четверг", "Ночь в пятницу"] },
+  fr: { title: "Séjours disponibles prochainement", all: "Tous les séjours", loading: "Vérification des disponibilités", empty: "Aucun séjour disponible à ces dates", error: "Disponibilité indisponible", retry: "Réessayer", total: "Prix total", details: "Voir le lieu", call: "Appeler le lieu", whatsapp: "WhatsApp", available: "Disponible à ces dates", forGuests: "pour 2 voyageurs", night: "nuit", nights: "nuits", bedrooms: "chambres", guests: "voyageurs", reviews: "avis", dateTo: "au", tabs: ["Dernière minute", "Jeudi à samedi", "Vendredi à dimanche", "Nuit de jeudi", "Nuit de vendredi"] },
 } as const;
-
-function fallbackProperty(place: VacationCatalogFallback, updating: string): Property {
-  return { slug: `vacation-${place.siteID}`, name: place.name, location: place.city, area: place.area, type: "מקום נופש", guests: 0,
-    image: place.image, images: place.images, description: "", features: [], audiences: [], badges: [], scenario: "single",
-    cardNote: updating, contact: { phone: place.phone, whatsapp: place.whatsapp } };
-}
 
 const allPeriodCopy = {
   he: { tomorrow: "לכל מקומות הנופש ברגע האחרון", weekend: "לכל מקומות הנופש מחמישי עד שבת", "friday-weekend": "לכל מקומות הנופש משישי עד ראשון", thursday: "לכל מקומות הנופש ללילה בחמישי", friday: "לכל מקומות הנופש ללילה בשישי", holiday: "לכל מקומות הנופש ב" },
@@ -104,13 +97,15 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
   const [holidayId, setHolidayId] = useState<number | null>(null);
   const [holidayState, setHolidayState] = useState<"loading" | "ready" | "error">("loading");
   const track = useRef<HTMLDivElement>(null);
-  const lastGoodData = useRef<ResponseData | null>(null);
+  const lastGoodData = useRef(new Map<string, ResponseData>());
+  const automaticRetries = useRef(new Map<string, number>());
   const displaySettingsApplied = useRef(false);
   const text = copy[language];
   const title = scope ? regionalAvailabilityTitle("vacation", scope, language) : mode === "holidays" ? { he: "נופש פנוי בחגים", en: "Available stays for holidays", ru: "Отдых в праздники", fr: "Séjours disponibles pendant les fêtes" }[language] : text.title;
   const selectedDates = mode === "holidays" ? data?.deals[0] ?? data?.dates : data?.dates;
   const searchDates = clock && selectedDates && eligibleDealDate(selectedDates.from, clock.now) ? selectedDates : undefined;
   const currentHoliday = holidays.find((item) => item.id === holidayId);
+  const selectionKey = mode === "holidays" ? `holiday:${holidayId ?? "loading"}` : `near:${regionLabel || "all"}:${period}:${guests}`;
   const searchHref = mode === "holidays" && currentHoliday?.href
     ? currentHoliday.href
     : searchDates ? `/search?${new URLSearchParams({ from: searchDates.from, till: searchDates.till, guests: String(guests), ...(regionLabel ? { location: regionLabel } : {}) })}` : regionLabel ? `/search?${new URLSearchParams({ location: regionLabel, guests: String(guests) })}` : "/search";
@@ -135,12 +130,16 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
     if (!clock) return;
     if (mode === "holidays" && (holidayState !== "ready" || holidayId === null)) return;
     const controller = new AbortController();
-    setState("loading");
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
+    const accepted = lastGoodData.current.get(selectionKey);
+    setData(accepted ?? null);
+    setState(accepted ? "ready" : "loading");
     const selectedHoliday = holidays.find((item) => item.id === holidayId);
     const url = mode === "holidays"
-      ? `/api/vii/home-holiday-deals?${new URLSearchParams({ id: String(holidayId), ...(selectedHoliday?.exactStay ? { from: selectedHoliday.from, till: selectedHoliday.till } : {}) })}`
-      : `/api/vii/home-deals?${new URLSearchParams({ period, locale: language, ...(regionLabel ? { region: regionLabel } : {}), ...(guests !== 2 ? { guests: String(guests) } : {}) })}`;
-    discoveryJson<ResponseData>(url, clock.key, { signal: controller.signal, headers: { Accept: "application/json" }, persist: true })
+      ? `/api/vii/home-holiday-deals?${new URLSearchParams({ id: String(holidayId), proof: "verified-offers-v1", ...(selectedHoliday?.exactStay ? { from: selectedHoliday.from, till: selectedHoliday.till } : {}) })}`
+      : `/api/vii/home-deals?${new URLSearchParams({ period, locale: language, proof: "verified-offers-v1", ...(regionLabel ? { region: regionLabel } : {}), ...(guests !== 2 ? { guests: String(guests) } : {}) })}`;
+    discoveryJson<ResponseData>(url, `${clock.key}:verified-offers-v1`, { signal: controller.signal, headers: { Accept: "application/json" }, persist: true,
+      shouldCache: (value) => (value as ResponseData | null)?.availabilityStatus === "verified" })
       .then((result) => {
         if (controller.signal.aborted) return;
         if (!Array.isArray(result.deals) || (mode === "near" && (!homeDealPeriods.some(item => item.id === result.period) || result.region !== regionLabel)) || (mode === "holidays" && result.holiday?.id !== holidayId)) throw new Error("invalid_result");
@@ -151,13 +150,23 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
             if (result.display.defaultPeriod !== period) { setPeriod(result.display.defaultPeriod); return; }
           } else if (!result.display.periods.some((item) => item.id === period)) { setPeriod(result.display.defaultPeriod); return; }
         }
-        lastGoodData.current = result;
+        if (result.availabilityStatus === "refreshing" && result.deals.length === 0) {
+          const attempts = automaticRetries.current.get(selectionKey) || 0;
+          if (attempts >= 3) setState(accepted ? "ready" : "error");
+          else {
+            automaticRetries.current.set(selectionKey, attempts + 1);
+            retryTimer = setTimeout(() => setRetry((value) => value + 1), 1_500);
+          }
+          return;
+        }
+        automaticRetries.current.delete(selectionKey);
+        lastGoodData.current.set(selectionKey, result);
         setData(result);
         setState("ready");
       })
-      .catch((error) => { if (error?.name !== "AbortError") setState(lastGoodData.current ? "ready" : "error"); });
-    return () => controller.abort();
-  }, [period, holidayId, holidayState, holidays, language, mode, retry, regionLabel, guests, clock?.key]);
+      .catch((error) => { if (error?.name !== "AbortError") setState(accepted ? "ready" : "error"); });
+    return () => { controller.abort(); if (retryTimer) clearTimeout(retryTimer); };
+  }, [period, holidayId, holidayState, holidays, language, mode, retry, regionLabel, guests, selectionKey, clock?.key]);
 
   function choose(value: HomeDealPeriod) {
     if (value !== period) setState("loading");
@@ -174,11 +183,10 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
   const sectionId = scope ? `regional-vacation-${scope.key}` : mode === "holidays" ? "home-holiday-deals" : "home-live-deals";
   const eligibleDeals = clock ? (data?.deals || []).filter(deal => eligibleDealDate(deal.from, clock.now)) : [];
   const displayedDeals = orderDiscoveryRail(eligibleDeals, { id: deal => deal.siteID, seed: `${documentSeed}:home:${mode}:${mode === "holidays" ? holidayId : period}`, online: deal => isHomeDealOnlineEligible(deal), priority: deal => managedVacationPriority((deal as HomeDeal & { curatedRank?: number }).curatedRank) });
-  const displayedFallbacks = orderDiscoveryRail(data?.fallbackPlaces || [], { id: place => place.siteID, seed: `${documentSeed}:home:${mode}:catalog` });
   const displayState = mode === "holidays" && holidayState !== "ready" ? holidayState : state;
   const refreshing = displayState === "loading" && data !== null;
   const allLabel = mode === "holidays" && currentHoliday ? `${allPeriodCopy[language].holiday}${translate(currentHoliday.name)}` : mode === "near" ? allPeriodCopy[language][period] : text.all;
-  const displayedDealCount = displayedDeals.length || displayedFallbacks.length;
+  const displayedDealCount = displayedDeals.length;
 
   return <section className={`section home-recommended home-live-deals ${sectionId}`} aria-labelledby={`${sectionId}-title`}>
     <div className="shell">
@@ -207,9 +215,8 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
           </div>
           <div className="home-live-deals__loading-cards" aria-hidden="true">{[0, 1, 2].map((index) => <div className="home-live-deals__loading-card" key={index}><div className="home-live-deals__loading-image" /><div className="home-live-deals__loading-lines"><span /><span /><span /></div></div>)}</div>
         </div> : null}
-        {displayState === "error" ? <div className={`home-live-deals__status${data ? " home-live-deals__status--overlay" : ""}`}><p>{text.error}</p><button type="button" onClick={() => setRetry((value) => value + 1)}>{text.retry}</button></div> : null}
-        {displayState === "ready" && data?.availabilityStatus === "refreshing" && displayedFallbacks.length ? <p className="home-live-deals__catalog-note" role="status">{text.fallback}</p> : null}
-        {displayState === "ready" && (mode === "holidays" && !holidays.length || data?.deals.length === 0 && !displayedFallbacks.length) ? <p className="home-live-deals__status">{text.empty}</p> : null}
+        {displayState === "error" ? <div className={`home-live-deals__status${data ? " home-live-deals__status--overlay" : ""}`}><p>{text.error}</p><button type="button" onClick={() => { automaticRetries.current.delete(selectionKey); setRetry((value) => value + 1); }}>{text.retry}</button></div> : null}
+        {displayState === "ready" && (mode === "holidays" && !holidays.length || data?.deals.length === 0) ? <p className="home-live-deals__status">{text.empty}</p> : null}
         {data?.deals.length ? <div id={`${sectionId}-rail`} className="home-live-deals__track" ref={track} data-horizontal-rail inert={refreshing || undefined} aria-hidden={refreshing || undefined}>
           {displayedDeals.map((deal) => {
             const href = `/business?${new URLSearchParams({ id: `vacation-${deal.siteID}`, from: deal.from, till: deal.till, guests: String(deal.priceGuests), ...(deal.roomID ? { roomID: String(deal.roomID) } : {}), source: mode === "holidays" ? "home-holidays" : "home-deals", period: mode === "holidays" ? String(currentHoliday?.id ?? "") : period }).toString()}`;
@@ -222,11 +229,6 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
               />
             </div>;
           })}
-        </div> : null}
-        {!displayedDeals.length && displayedFallbacks.length ? <div id={`${sectionId}-rail`} className="home-live-deals__track" ref={track} data-horizontal-rail>
-          {displayedFallbacks.map((place) => <div className="home-live-deals__item" key={`catalog-${place.siteID}`}>
-            <PropertyCard property={fallbackProperty(place, text.updating)} promotional detailHref={`/business?id=vacation-${place.siteID}`} />
-          </div>)}
         </div> : null}
       </div>
     </div>
