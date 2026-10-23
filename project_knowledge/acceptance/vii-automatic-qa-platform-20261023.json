@@ -1,0 +1,35 @@
+{
+  "goal":"QA אוטומטי ומתוזמן ל-VII עם תוצאות, אירועים ומסך ניהול אמינים",
+  "intent_model":{"literal_request":"לסגור את ה-QA האוטומטי שסוכם","implied_outcome":"מנגנון קבוע שמתריע על רגרסיות ולא עוד דוח ידני","likely_rejections":["אין תזמון אמיתי","אין מסך ניהול","כפילויות אירועים","מייל מדומה","בדיקות משנות נתוני לקוח"],"interpretation_rules":[{"phrase":"אפשר לסגור את ה-QA האוטומטי","operational_meaning":"ליישם ולבדוק ביעד הטבעי","acceptance_impact":"נדרשת הוכחת cron, מסד ומסך ציבורי"}]},
+  "cognitive_flow":{"current_layer":"מצב בריאות האתר","current_decision":"איזה אירוע דורש טיפול עכשיו","next_action":"פתיחת הראיה או הרצה בטוחה מחדש","deferred_complexity":["כיול ספי ביצועים אחרי בסיס של שבעה ימים"],"preserved_depth":["היסטוריית ריצות","השוואת שחרורים","מסירות התראה"]},
+  "predictive_preflight":{"manifest_path":"project_knowledge/predictive_preflights/vii-automatic-qa-platform-20261023.json","lesson_bundle_ids":["ADIR-WEB-001","ADIR-WEB-002","ADIR-WEB-003","ADIR-WEB-005","VII-PROJECT-001"],"no_applicable_lessons_reason":null,"midpoint_requirement":"preflight:midpoint","adversarial_requirement":"preflight:adversarial","effectiveness_requirement":"preflight:effectiveness"},
+  "actors":["מנהל VII","Cloudflare scheduler"],
+  "natural_destination":"https://vii.spaplus.co/admin/quality",
+  "facts":[{"claim":"ה-Worker כבר רץ כל עשר דקות","evidence":"vite.config.ts triggers.crons"},{"claim":"אין ספק מייל מאומת בקוד","evidence":"חיפוש ספקי מייל בקוד ב-2026-10-23"}],
+  "assumptions":[{"claim":"מסד runtime זמין בפרודקשן","validation":"ריצת smoke שומרת ומחזירה quality run"}],
+  "in_scope":["רג'יסטרי בדיקות קבוע","cron בטוח","ריצות ותוצאות","אירועים ללא כפילות","התאוששות","מסך ניהול","הרצה ידנית מורשית","מצב חיבור התראות"],
+  "out_of_scope":["בדיקות נגישות","בדיקות טיפוגרפיה","יצירת הזמנה או ליד אמיתי","שליחת מייל ללא ספק ונמענים מאומתים"],
+  "invariants":["זרימות ציבוריות קיימות נשארות ללא שינוי","cron קטלוג, cache ומפות ממשיך לעבוד","משתמש לא מורשה אינו נחשף לנתוני QA"],
+  "affected_family":["worker scheduled handler","quality database tables","admin quality route","public smoke routes","notification delivery ledger"],
+  "characteristics":{"stateful":true},
+  "requirements":[
+    {"id":"REQ-1","statement":"cron מריץ בדיקות קריאה בטוחות ושומר תוצאות","source":"user/project decision"},
+    {"id":"REQ-2","statement":"כשל נפתח כאירוע יחיד והתאוששות סוגרת אותו","source":"project decision"},
+    {"id":"REQ-3","statement":"מסך הניהול מציג מצב, ריצות, אירועים וראיות","source":"user/project decision"},
+    {"id":"REQ-4","statement":"גישה והרצה ידנית מוגנות בהרשאות ומקור","source":"project security"},
+    {"id":"REQ-5","statement":"התראות אינן מסומנות כנשלחו ללא ספק מאומת ומזהה ספק","source":"project decision"}
+  ],
+  "acceptance_checks":[
+    {"id":"AC-1","requirement_ids":["REQ-1"],"kind":"success","setup":"מסד נקי ורג'יסטרי פעיל","action":"הפעלת quality tick","observable_result":"נשמר run עם result לכל check פעיל"},
+    {"id":"AC-2","requirement_ids":["REQ-2"],"kind":"retry","setup":"בדיקה נכשלת פעמיים","action":"הפעלת runner פעמיים עם אותה תוצאת כשל ואותו fingerprint","observable_result":"נשאר אירוע פתוח אחד עם occurrences=2"},
+    {"id":"AC-3","requirement_ids":["REQ-2"],"kind":"recovery","setup":"אירוע פתוח","action":"הבדיקה חוזרת לעבור","observable_result":"אותו אירוע נסגר ונשמר recovered_at"},
+    {"id":"AC-4","requirement_ids":["REQ-3"],"kind":"success","setup":"מנהל מורשה","action":"פתיחת /admin/quality","observable_result":"מוצגים סטטוס, אירועים וריצות עדכניות"},
+    {"id":"AC-5","requirement_ids":["REQ-4"],"kind":"permission","setup":"ללא session","action":"GET/POST ל-API","observable_result":"403 וללא ריצה"},
+    {"id":"AC-6","requirement_ids":["REQ-1","REQ-2","REQ-3"],"kind":"persistence","setup":"ריצה הושלמה","action":"טעינה מחדש","observable_result":"התוצאות והאירועים נשמרים"},
+    {"id":"AC-7","requirement_ids":["REQ-5"],"kind":"failure","setup":"ספק מייל חסר","action":"פתיחת אירוע קריטי","observable_result":"המסירה מסומנת disabled ולא sent"},
+    {"id":"AC-8","requirement_ids":["REQ-1","REQ-3"],"kind":"rollback","setup":"שחרור קודם ידוע","action":"כשל שער שחרור","observable_result":"אין פרסום ונשמרת זהות rollback"}
+  ],
+  "open_questions":[{"question":"איזה ספק מייל וכתובות נמענים יאושרו?","blocking":false,"resolution":"המסך יציג לא מחובר עד להגדרה מאומתת"}],
+  "authorization_boundary":"פרסום המנגנון מותר; פעילות עסקית ושליחת מייל אמיתי חסומות עד חיבור מאומת",
+  "ready_for_implementation":true
+}

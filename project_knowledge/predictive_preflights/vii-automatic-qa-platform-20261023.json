@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-automatic-qa-platform-20261023",
+  "project": "VII",
+  "task_type": "production-quality-platform",
+  "requested_outcome": "מערכת QA אוטומטית מתוזמנת שמזהה תקלות בטוחות לבדיקה, שומרת תוצאות ואירועים, ומציגה אותם במערכת הניהול בלי כפילויות",
+  "natural_destination": "האתר הציבורי vii.spaplus.co ומסך /admin/quality",
+  "authorization_boundary": "מותר לממש, לבדוק ולפרסם בדיקות קריאה בטוחות; אין ליצור הזמנות, לידים, חוות דעת, תשלומים או הודעות אמיתיות; מייל פעיל רק עם ספק ונמענים מאומתים",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-WEB-001","reason":"הבדיקות חייבות לכסות משפחות ולא מסך יחיד","acceptance_impact":"רישום קבוע של משפחות, עולמות ונתיבים"},
+    {"lesson_id":"ADIR-WEB-002","reason":"תקלות VII חזרו במצבים ובתצוגות שונות","acceptance_impact":"מטריצת הצלחה, כשל, חזרה והתאוששות"},
+    {"lesson_id":"ADIR-WEB-003","reason":"הרצה ידנית היא פעולה אסינכרונית","acceptance_impact":"מצב busy, חסימת לחיצה כפולה ותוצאת הצלחה או שגיאה"},
+    {"lesson_id":"ADIR-WEB-005","reason":"בדיקות ציבוריות נדרשות במחשב ובנייד","acceptance_impact":"viewport נשמר בכל בדיקה ואירוע"},
+    {"lesson_id":"VII-PROJECT-001","reason":"עולמות וזרימות VII מוגדרים במקורות הפרויקט","acceptance_impact":"הרג'יסטרי נשען על תכנית האב ותקן המשוב"}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"הוצגה עוד בדיקה חד פעמית במקום מנגנון קבוע","prevention":"חיבור לריצת cron הקיימת ושמירת תוצאות במסד","acceptance_check":"ריצה מתוזמנת יוצרת quality_run ותוצאות"},
+    {"rejection":"כל כשל יוצר עשרות התראות כפולות","prevention":"fingerprint קבוע ו-upsert של אירוע פתוח","acceptance_check":"שתי ריצות כושלות זהות משאירות אירוע פעיל אחד"},
+    {"rejection":"המערכת טוענת שנשלח מייל בלי הוכחה","prevention":"fail closed כאשר ספק משלוח אינו מוגדר","acceptance_check":"סטטוס המייל מוצג כלא מחובר ואין רשומת sent ללא provider id"},
+    {"rejection":"ה-QA עצמו מכביד על האתר או יוצר פעילות עסקית","prevention":"בדיקות GET/HEAD בלבד, timeout וקצב מוגבל","acceptance_check":"הרג'יסטרי אינו כולל נתיב כתיבה ציבורי"}
+  ],
+  "affected_family": ["worker cron","quality registry","quality persistence","incident lifecycle","admin permissions","admin dashboard","notification adapter","public routes"],
+  "family_inventory_complete": true,
+  "approved_precedents": {"sources":[{"label":"תכנית מערכת QA רציפה","source":"project_knowledge/decisions/vii-continuous-quality-platform-20261023.md"},{"label":"תקן מוצר VII","source":"calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"}],"no_precedent_reason":null},
+  "midpoint_gate": {"required":true,"trigger":"אחרי שהרג'יסטרי, המסד והרצה מקומית עוברים בדיקות לפני בניית מסך הניהול","checks":["כשל כפול יוצר אירוע אחד","התאוששות סוגרת אותו אירוע","בדיקה לא מורשית נחסמת"],"not_required_reason":null},
+  "adversarial_close": {"attack_questions":["האם ריצה כפולה במקביל מייצרת כפילות?","האם משתמש לא מורשה קורא או מפעיל QA?","האם כשל רשת מסומן failed ולא passed?","האם cron מפעיל רק בדיקות קריאה?"],"natural_destination_evidence":"מסך /admin/quality ציבורי מאומת וריצת cron שמורה","affected_family_evidence":"בדיקות אוטומטיות לרג'יסטרי, הרשאות, idempotency והתאוששות"},
+  "effectiveness": {"baseline":"קיימות בדיקות שחרור רבות אך אין יומן רציף, אירועים ומסך ניהול","measurements":["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],"target":"כל תקלה מתוזמנת נראית כאירוע יחיד עם ראיה והתאוששות"},
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

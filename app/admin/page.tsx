@@ -34,6 +34,7 @@ const modules = [
   { title: "הפניות וכתובות", description: "ניהול 301 ו־410 עם גרסאות ותיעוד.", href: "/admin/redirects", icon: Route },
   { title: "הזמנות וחוות דעת", description: "בקשות, סטטוסים, אסמכתאות וטיפול.", href: "/admin/operations", icon: Star },
   { title: "פניות וואטסאפ", description: "פניות שנשמרו לפני המעבר לשיחה.", href: "/admin/whatsapp-leads", icon: MessageCircle },
+  { title: "איכות ויציבות", description: "בדיקות אוטומטיות, אירועים, התאוששות וראיות.", href: "/admin/quality", icon: ShieldCheck },
 ];
 
 export default function AdminHome() {

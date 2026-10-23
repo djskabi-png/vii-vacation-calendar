@@ -26,6 +26,7 @@ import { rewriteOriginStream } from "./stream-origin.ts";
 import { editorialWorldLinks } from "../app/data/editorial-world-links";
 import { localizedSpaSearchSource } from "../app/data/spa-search-landings.ts";
 import { activateAwsDatabase, awsDatabaseMode, databaseForEnv } from "../app/lib/aws-database.ts";
+import { runQualityChecks } from "../app/lib/quality-platform.ts";
 
 declare const __VII_CACHE_BUILD_ID__: string;
 const publicCacheBuild = typeof __VII_CACHE_BUILD_ID__ === "string" ? __VII_CACHE_BUILD_ID__ : "local";
@@ -157,6 +158,7 @@ interface Env {
   VII_STATIC_MAP_PROVIDER?: string;
   VII_MAPBOX_STATIC_TOKEN?: string;
   VII_MAPTILER_API_KEY?: string;
+  VII_QUALITY_ORIGIN?: string;
 }
 
 interface ExecutionContext {
@@ -174,6 +176,16 @@ const worker = {
   scheduled(controller: { scheduledTime: number }, env: Env, ctx: ExecutionContext) {
     activateAwsDatabase(env);
     const database = databaseForEnv(env);
+    const scheduledAt = new Date(controller.scheduledTime);
+    ctx.waitUntil(runQualityChecks(database, {
+      origin: env.VII_QUALITY_ORIGIN || temporaryOrigin,
+      trigger: "scheduled",
+      scheduledAt,
+      releaseId: publicCacheBuild,
+      actor: "cloudflare-scheduler",
+    }).catch((error) => {
+      console.error("VII automatic quality run unavailable", error);
+    }));
     // One shared, leased daily probe, not a probe per visitor or geography.
     ctx.waitUntil(cachedOnlineCapabilities(database).catch(() => {
       console.error("VII online capability refresh unavailable");
@@ -182,7 +194,6 @@ const worker = {
     // refreshed only on the half hour and visitors always read the last
     // accepted snapshot instead of waiting on the supplier.
     if (Math.floor(controller.scheduledTime / 60_000) % 30 === 0) {
-      const scheduledAt = new Date(controller.scheduledTime);
       ctx.waitUntil(Promise.allSettled([
         warmVacationDiscoveryCache(database, scheduledAt),
         warmEventDiscoveryCache(database, scheduledAt),
@@ -191,7 +202,6 @@ const worker = {
         if (results[1].status === "rejected") console.error("VII event discovery refresh unavailable");
       }));
     }
-    const scheduledAt = new Date(controller.scheduledTime);
     if (isWeeklyMapSnapshotWindow(scheduledAt)) {
       ctx.waitUntil(reconcileMapSnapshots({
         db: database,

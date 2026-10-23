@@ -1,6 +1,7 @@
 // Admin-only shared policy. No credentials, database access or owner identity.
 export const adminModules = [
   { id: "overview", label: "תמונת מצב וקידום", editable: true, pages: ["/admin", "/admin/growth"], apis: ["overview", "sitemap"] },
+  { id: "quality", label: "איכות ויציבות", editable: true, pages: ["/admin/quality"], apis: ["quality"] },
   { id: "content", label: "סטודיו תוכן", editable: true, pages: ["/admin/content-studio"], apis: ["content-studio"] },
   { id: "worlds", label: "בקרת עולמות", editable: true, pages: ["/admin/worlds"], apis: ["worlds"] },
   { id: "search", label: "עמודי חיפוש ותור אישורים", editable: true, pages: ["/admin/search-pages", "/admin/content-queue"], apis: ["search-pages", "content-queue"] },

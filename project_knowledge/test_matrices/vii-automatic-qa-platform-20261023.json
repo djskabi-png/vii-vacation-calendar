@@ -1,0 +1,18 @@
+{
+  "target":"VII continuous automatic QA",
+  "natural_destination":"worker cron and /admin/quality",
+  "requirements":[{"id":"REQ-1","statement":"scheduled safe checks persist"},{"id":"REQ-2","statement":"incidents dedupe and recover"},{"id":"REQ-3","statement":"admin dashboard reports truth"},{"id":"REQ-4","statement":"admin actions are protected"},{"id":"REQ-5","statement":"notifications fail closed"}],
+  "risks":[{"id":"RISK-1","risk":"QA creates public side effects","severity":"critical"},{"id":"RISK-2","risk":"duplicate incident storm","severity":"high"},{"id":"RISK-3","risk":"false pass after network failure","severity":"high"},{"id":"RISK-4","risk":"unauthorized run or data read","severity":"high"},{"id":"RISK-5","risk":"claimed email without delivery evidence","severity":"high"}],
+  "characteristics":{"stateful":true,"asynchronous":true,"role_based":true,"responsive":true,"external_integration":true},
+  "cases":[
+    {"id":"TC-1","priority":"P0","requirement_ids":["REQ-1"],"risk_ids":["RISK-1"],"tags":["success","persistence"],"preconditions":"safe registry","action":"invoke runQualityChecks with a deterministic fetch stub and inspect database writes","oracle":"only GET/HEAD checks run and results persist","execution_status":"planned"},
+    {"id":"TC-2","priority":"P0","requirement_ids":["REQ-2"],"risk_ids":["RISK-2"],"tags":["failure","retry","idempotency","persistence"],"preconditions":"same failing check","action":"invoke the runner twice with the same failed check and fingerprint","oracle":"one open incident with occurrence count two","execution_status":"planned"},
+    {"id":"TC-3","priority":"P0","requirement_ids":["REQ-2"],"risk_ids":["RISK-3"],"tags":["recovery","persistence"],"preconditions":"open incident","action":"invoke the runner once with that check passing","oracle":"same incident resolves","execution_status":"planned"},
+    {"id":"TC-4","priority":"P0","requirement_ids":["REQ-4"],"risk_ids":["RISK-4"],"tags":["permission","failure"],"preconditions":"no admin session","action":"read and run APIs","oracle":"403 without database mutation","execution_status":"planned"},
+    {"id":"TC-5","priority":"P1","requirement_ids":["REQ-3"],"risk_ids":["RISK-3"],"tags":["success","responsive"],"preconditions":"stored run and incident","action":"open dashboard desktop and mobile","oracle":"truthful status and evidence remain usable","execution_status":"planned"},
+    {"id":"TC-6","priority":"P0","requirement_ids":["REQ-5"],"risk_ids":["RISK-5"],"tags":["dependency-failure","failure","idempotency"],"preconditions":"no verified provider","action":"record critical incident","oracle":"notification status disabled and never sent","execution_status":"planned"},
+    {"id":"TC-7","priority":"P1","requirement_ids":["REQ-1"],"risk_ids":["RISK-3"],"tags":["retry","dependency-failure"],"preconditions":"target fetch exceeds timeout","action":"invoke the runner and wait for the configured timeout","oracle":"failed result with timeout evidence, runner continues","execution_status":"planned"}
+  ],
+  "out_of_scope":["accessibility audit","typography audit","real booking/lead/review/payment/message creation"],
+  "ready_for_execution":true
+}
