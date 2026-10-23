@@ -1,0 +1,31 @@
+{
+  "goal": "Publish a narrow, truthful and prominent physical-accessibility signal driven only by the supplier feature.",
+  "actors": ["Public VII visitor"],
+  "natural_destination": "Public VII place detail pages on desktop and mobile",
+  "facts": [
+    {"claim":"Production API returns 'נגישות לנכים' for vacation-1805 and event-486.","evidence":"Fresh public /api/catalog reads on 2026-10-23."},
+    {"claim":"Production API returns 'נגישות מלאה לנכים' for vacation-1977 and event-2575.","evidence":"Fresh public /api/catalog reads on 2026-10-23."},
+    {"claim":"Production vacation-1805 currently shows its disclosure only after reviews.","evidence":"Fresh in-app browser accessibility tree on 2026-10-23."}
+  ],
+  "assumptions": [],
+  "in_scope": ["Approved-value recognition", "Prominent top signal", "Detailed disclosure", "Vacation, event, spa and hourly place templates", "Public deployment and verification"],
+  "out_of_scope": ["Supplier data edits", "Legal accessibility certification", "Bookings, leads or payments"],
+  "invariants": ["No negative or unknown accessibility copy when the feature is absent", "No broad matching of generic text containing נגיש", "Existing title, gallery, booking and feature content remain unchanged"],
+  "affected_family": ["business detail", "event detail", "spa discovery detail", "hourly discovery detail"],
+  "characteristics": {"stateful":false,"asynchronous":false,"responsive":true},
+  "requirements": [
+    {"id":"REQ-1","statement":"Only approved supplier feature values establish the positive accessibility state.","source":"User and VII feedback standard"},
+    {"id":"REQ-2","statement":"A qualifying place shows a clear signal near its title and a linked detailed disclosure.","source":"User request"},
+    {"id":"REQ-3","statement":"Absent or unrelated accessibility wording produces no claim.","source":"User and VII feedback standard"},
+    {"id":"REQ-4","statement":"The exact tested release is published and verified on desktop and mobile.","source":"User request"}
+  ],
+  "acceptance_checks": [
+    {"id":"AC-1","requirement_ids":["REQ-1"],"kind":"success","setup":"Features include either approved value","action":"Resolve accessibility","observable_result":"Positive accessibility information is returned"},
+    {"id":"AC-2","requirement_ids":["REQ-3"],"kind":"failure","setup":"Features include only 'מיקום מרכזי נגיש' or no feature","action":"Resolve accessibility","observable_result":"No badge or disclosure is rendered"},
+    {"id":"AC-3","requirement_ids":["REQ-2","REQ-4"],"kind":"persistence","setup":"Open public place desktop and 390px mobile","action":"Load, follow accessibility link and reload","observable_result":"Top signal stays visible and detailed section is reachable"},
+    {"id":"AC-4","requirement_ids":["REQ-4"],"kind":"rollback","setup":"Prior public version recorded","action":"Publish exact candidate once","observable_result":"Terminal success with retained rollback identity"}
+  ],
+  "open_questions": [],
+  "authorization_boundary": "Implementation and publication are authorized; no external messages or data mutations are authorized.",
+  "ready_for_implementation": true
+}

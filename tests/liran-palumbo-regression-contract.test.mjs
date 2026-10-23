@@ -44,6 +44,22 @@ test("booking price basis and accessibility navigation use the authoritative fie
   assert.match(event, /hasVerifiedAccessibilityFeature\(place\.features\)/);
 });
 
+test("verified physical accessibility is recognized narrowly and shown before the long place content", () => {
+  const data = read("../app/data/accessibility-data.ts");
+  const listing = read("../app/components/listing-accessibility.tsx");
+  const business = read("../app/business/client-page.tsx");
+  const event = read("../app/events/place/client-page.tsx");
+  const discovery = read("../app/discover/place/client-page.tsx");
+  assert.match(data, /"נגישות לנכים"/);
+  assert.match(data, /"נגישות מלאה לנכים"/);
+  assert.match(data, /verified\.has\(normalizeFeature\(feature\)\)/);
+  assert.doesNotMatch(data, /includes\("נגיש"\)/);
+  assert.match(listing, /compact\).*href="#accessibility"/s);
+  assert.match(business, /property-title__trust-signals[\s\S]*ListingAccessibility slug=\{property\.slug\}[\s\S]*compact/);
+  assert.match(event, /property-title__trust-signals[\s\S]*ListingAccessibility slug=\{place\.slug\}[\s\S]*compact/);
+  assert.match(discovery, /ListingAccessibility slug=\{item\.id\} features=\{item\.features\} compact/);
+});
+
 test("vacation price URL state survives supplier starting-price hydration", () => {
   const search = read("../app/search/page.tsx");
   assert.match(search, /setMinPrice\(priceFilterAvailable \?/);

@@ -6530,8 +6530,12 @@ input[type="checkbox"],input[type="radio"] { min-width:24px; min-height:24px; }
 .accessibility-panel footer { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 22px; padding-top: 18px; border-top: 1px solid #dce9eb; }
 .accessibility-panel footer a { color: var(--teal-dark); font-weight: 750; text-decoration: underline; }
 
-.place-accessibility-badge { display: inline-flex; align-items: center; width: fit-content; margin-block: 6px; padding: 6px 10px; border: 1px solid #c7dfe3; border-radius: 999px; color: #23464e; background: #f1f8f9; font-size: .75rem; font-weight: 750; }
+.property-title__trust-signals { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+.place-accessibility-badge { display: inline-flex; align-items: center; gap: 7px; width: fit-content; max-width: 100%; min-height: 44px; margin-block: 6px; padding: 7px 11px; border: 1px solid #c7dfe3; border-radius: 999px; color: #23464e; background: #f1f8f9; font-size: .79rem; font-weight: 850; text-decoration: none; box-shadow: 0 5px 16px rgba(18,91,56,.08); }
 .place-accessibility-badge::before { content: "\267F"; margin-inline-end: 6px; font-size: .95rem; }
+.place-accessibility-badge small { padding-inline-start: 7px; border-inline-start: 1px solid currentColor; color: inherit; font-size: .69rem; font-weight: 720; opacity: .78; }
+.place-accessibility-badge:hover { border-color: #62b88a; background: #ddf4e7; }
+.place-accessibility-badge:focus-visible { outline: 3px solid rgba(18,91,56,.24); outline-offset: 3px; }
 .place-accessibility-badge--accessible { color: #125b38; border-color: #8fd0ac; background: #eaf8f0; }
 .place-accessibility-badge--partially_accessible { color: #70531b; border-color: #e6ca8f; background: #fff7e7; }
 .place-accessibility-badge--not_accessible { color: #7b2525; border-color: #e7a8a8; background: #fff0f0; }

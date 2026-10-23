@@ -1,0 +1,14 @@
+{
+  "task_id":"vii-place-accessibility-attribute-20261023",
+  "observed_failure":"Verified physical accessibility is difficult to notice, and places carrying the live API alias 'נגישות מלאה לנכים' are not recognized.",
+  "reproduction":["Read production catalog records 1805, 1977, 486 and 2575","Open vacation-1805 and event-486","Observe the disclosure after long feature/review content"],
+  "hypotheses":[
+    {"id":"H1","statement":"The supplier field is dropped before rendering.","test":"Compare public API feature arrays with the rendered feature list.","result":"Rejected: exact-value places retain the feature through rendering."},
+    {"id":"H2","statement":"The detector accepts only one literal value.","test":"Compare detector implementation with live API variants.","result":"Confirmed: strict equality misses 'נגישות מלאה לנכים'."},
+    {"id":"H3","statement":"The component exists but its placement makes it effectively invisible.","test":"Inspect public page reading order.","result":"Confirmed: vacation disclosure follows the full review section."}
+  ],
+  "root_cause":"A one-value equality check diverged from two authoritative supplier values, while the only positive disclosure was placed deep in the content hierarchy.",
+  "repair":"Use an explicit two-value allowlist and add the shared compact component to the title area while preserving the detailed disclosure.",
+  "affected_family":["vacation", "events", "spa", "hourly"],
+  "status":"repair_in_progress"
+}

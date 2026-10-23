@@ -1,0 +1,170 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-place-accessibility-attribute-20261023",
+  "project": "VII",
+  "task_type": "production place-data and visibility repair",
+  "goal": "Publish a truthful prominent physical-accessibility signal driven only by the supplier feature.",
+  "created_at": "2026-10-23T05:12:38.278586Z",
+  "updated_at": "2026-10-23T05:12:48.681019Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "a53f3cf6f221a2a2da458ce59681240effe0028a2744bf25317e1c3b162f9973"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "f1aa410611dd0fdb5adbb8a620832ee6ff9f9a3498a8108f74f1ccb86562379b"
+    },
+    "cognitive_model": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md",
+      "sha256": "708ce5d1b152afe220cf98008f571e7d27704c102624f7d7440dc85a1a6ba2d8"
+    },
+    "rulebook": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md",
+      "sha256": "eef33571725d590d0dadeeee9475422715279004fbc40356257d11e818039ab1"
+    },
+    "predictive_preflight": {
+      "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v587-sitewide-breadcrumbs\\project_knowledge\\predictive_preflights\\vii-place-accessibility-attribute-20261023.json",
+      "sha256": "4e254d96d3865ba0bb436cb89248cef03688be2a0a57609065a9ae7e1b6ac253"
+    }
+  },
+  "predictive_preflight": {
+    "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v587-sitewide-breadcrumbs\\project_knowledge\\predictive_preflights\\vii-place-accessibility-attribute-20261023.json",
+    "sha256": "4e254d96d3865ba0bb436cb89248cef03688be2a0a57609065a9ae7e1b6ac253",
+    "predicted_rejection_count": 4,
+    "affected_family_count": 6,
+    "lesson_bundle_count": 3,
+    "midpoint_required": true,
+    "effectiveness_measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ]
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "title": "מסירה דורשת תוצאה מלאה ובדיקת רגרסיה",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-DATA-001",
+      "title": "כל מדד גלוי הוא חוזה נתונים אמיתי",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-CONSISTENCY-001",
+      "title": "אחידות מחייבת במשפחות עמודים ורכיבים",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Publish a truthful prominent physical-accessibility signal driven only by the supplier feature.",
+      "acceptance_check": "The exact public API and qualifying/non-qualifying desktop/mobile place pages pass after deployment.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:prediction",
+      "source": "predictive_preflight",
+      "statement": "Predict likely Adir rejection reasons and bind prevention to observable evidence before implementation.",
+      "acceptance_check": "The bounded predictive manifest matches the task identity and selected lessons and passes deterministic validation.",
+      "status": "passed",
+      "evidence": [
+        "Predictive preflight C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v587-sitewide-breadcrumbs\\project_knowledge\\predictive_preflights\\vii-place-accessibility-attribute-20261023.json validated with sha256 4e254d96d3865ba0bb436cb89248cef03688be2a0a57609065a9ae7e1b6ac253"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T05:12:38.278586Z"
+    },
+    {
+      "id": "preflight:midpoint",
+      "source": "predictive_preflight.midpoint_gate",
+      "statement": "Authoritative API samples and focused tests pass before build.",
+      "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
+      "status": "passed",
+      "evidence": [
+        "Fresh production API samples prove two authoritative values: נגישות לנכים and נגישות מלאה לנכים.",
+        "Focused helper execution accepts both and rejects מיקום מרכזי נגיש and generic נגיש.",
+        "Focused 97-test set and TypeScript check pass after the shared top-signal implementation."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T05:12:48.681019Z"
+    },
+    {
+      "id": "preflight:adversarial",
+      "source": "predictive_preflight.adversarial_close",
+      "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
+      "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:effectiveness",
+      "source": "predictive_preflight.effectiveness",
+      "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
+      "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-QA-001",
+      "source": "lesson:ADIR-QA-001",
+      "statement": "שום פרויקט או תוצר אינם גמורים כאשר היעד הטבעי אינו מציג את התוצאה המבוקשת, כאשר מצב שנשמר לא שרד רענון, כאשר קיימים רכיבים מתים, מצבים מזויפים, מסלולים קטועים וחיבורים שלא נבדקו מקצה לקצה, או כאשר המבצע לא פתח בעצמו את הגרסה המדויקת ובדק אותה לפי סוג התוצר. לאחר כל תיקון מקומי חוזרים להבטחה המקורית ולמטרת העל, ובודקים מחדש את כל המסלול, משפחת המצבים והקריטריונים הקריטיים. הוכחה שתוקן הפרט האחרון אינה אישור שהמוצר, המסמך, המחקר, המדיה, האוטומציה או הפעולה העסקית המלאה מוכנים או שאדיר צפוי להיות מרוצה. מוצר ציבורי שמשרת לקוחות אינו מאושר למסירה רק על בסיס בדיקות המבצע: לאחר פרסום מועמד מותנה נדרשת קבוצת בדיקות מייצגת על הגרסה המדויקת, עם תרחישי לקוח, תפעול, עסק וסיכון. פרויקט מסוג אחר מפעיל בדיקות בעלי עניין מתאימות לסוגו או מנמק במדויק מדוע השער אינו חל. כל מסירה לאדיר כוללת קישור ישיר ושימושי לכל תוצאה שניתנת לפתיחה. אם אין קישור אפשרי, מציינים זאת במפורש ומוסרים את המיקום המדויק או דרך האחזור.",
+      "acceptance_check": "Before any complete, ready or likely-to-satisfy judgment, the evidence must name the original promise, distinguish the latest repaired detail from the full outcome, map every critical journey and affected-family item to passed evidence, a precise blocker or justified exclusion, and inspect the exact final artifact at its natural destination. A fixture that proves only the most recent local correction must be blocked from full approval, regardless of project type. A deliberately incomplete review or task must be blocked. A public customer-facing review must also fail without five to ten passed post-deploy representative actor scenarios on the exact version and at least three applicable stakeholder perspectives. A justified non-public or non-customer artifact must remain valid without an irrelevant public cohort. A completed result with an addressable destination fails delivery when its direct link is omitted. A result without a possible link passes only when the exact location or retrieval path and a concrete no-link reason are present.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-DATA-001",
+      "source": "lesson:ADIR-DATA-001",
+      "statement": "כל מספר, מונה, דירוג וסטטוס שמוצגים למשתמש או למנהל מגיעים ממקור שמור ומתועד, עם נוסחה, ישות, היקף, תקופה, אזור זמן והגדרת הכול או ייחודי. פעולת כוונה אינה מוצגת כתוצאה שהושלמה, ונתוני דמה אינם מתערבבים בייצור.",
+      "acceptance_check": "שער הראיות נכשל כאשר למדד חסרים מקור, נוסחה, ישות, תקופה או מצב ייחודיות; כאשר המספר אינו מתיישב עם רשומות המקור; כאשר ערך דמה מופיע בייצור; או כאשר חשיפה, לחיצה או מעבר לאפליקציה מוצגים כשיחה, הודעה או ליד שהושלמו.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-CONSISTENCY-001",
+      "source": "lesson:ADIR-CONSISTENCY-001",
+      "statement": "רכיבים ועמודים מאותה משפחה שומרים על היררכיה, סדר, צורה, מיקום והתנהגות אחידים במחשב ובנייד. צבע ותוכן מאומת יכולים להשתנות, אך חריגה מבנית או התנהגותית דורשת סיבה ובדיקה ייעודית.",
+      "acceptance_check": "שער הראיות נכשל ללא נקודת ייחוס מאושרת, מטריצת משפחה, השוואות מחשב ונייד ורשימת חריגים. בקר ששינה מיקום, צורה, משמעות או התנהגות ללא חריג מאושר חוסם את כל המשפחה.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:vii-guidance",
+      "source": "project_guidance",
+      "statement": "VII master plan and feedback standard applied",
+      "acceptance_check": "VII master plan and feedback standard applied",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    }
+  ],
+  "verification_status": "in_progress",
+  "verification_errors": [],
+  "predictive_results": {
+    "midpoint": {
+      "observed_at": "2026-10-23T05:12:48.681019Z",
+      "evidence": [
+        "Fresh production API samples prove two authoritative values: נגישות לנכים and נגישות מלאה לנכים.",
+        "Focused helper execution accepts both and rejects מיקום מרכזי נגיש and generic נגיש.",
+        "Focused 97-test set and TypeScript check pass after the shared top-signal implementation."
+      ],
+      "findings": [
+        "The smallest causal repair is an exact two-value allowlist plus shared compact title placement; no supplier or unrelated layout change is needed."
+      ]
+    }
+  }
+}

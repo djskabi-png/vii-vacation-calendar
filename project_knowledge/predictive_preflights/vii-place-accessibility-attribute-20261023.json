@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-place-accessibility-attribute-20261023",
+  "project": "VII",
+  "task_type": "production place-data and visibility repair",
+  "requested_outcome": "Identify the authoritative physical-accessibility feature in the live supplier API, show it clearly near the top of every supported place detail page, keep the detailed disclosure, publish, and verify the exact public release.",
+  "natural_destination": "https://vii.spaplus.co/business?id=vacation-1805 and equivalent event, spa and hourly place templates",
+  "authorization_boundary": "Code, tests and public VII deployment are authorized. Supplier data mutation, bookings, messages, payments and legal-compliance claims are excluded.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-QA-001","reason":"The user requires end-to-end public proof.","acceptance_impact":"Completion requires exact production API and visible desktop/mobile page evidence."},
+    {"lesson_id":"ADIR-DATA-001","reason":"Physical accessibility may only be inferred from the approved supplier attribute.","acceptance_impact":"Only exact approved aliases qualify; broad text matching is forbidden."},
+    {"lesson_id":"ADIR-CONSISTENCY-001","reason":"Place details are a shared family.","acceptance_impact":"Vacation, event, spa and hourly detail templates must use the same component contract."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"The feature exists but remains buried below long content.","prevention":"Add a compact linked signal beside the title metadata and retain the expandable section.","acceptance_check":"Desktop and 390px mobile first viewport expose the signal for a verified place."},
+    {"rejection":"Places using the API value 'נגישות מלאה לנכים' remain invisible.","prevention":"Normalize only the two observed authoritative supplier values.","acceptance_check":"Focused tests and public API samples prove both values qualify."},
+    {"rejection":"A phrase such as 'מיקום מרכזי נגיש' creates a false accessibility claim.","prevention":"Use an explicit allowlist instead of substring matching.","acceptance_check":"Negative regression proves unrelated 'נגיש' text does not qualify."},
+    {"rejection":"The local fix is not the public behavior.","prevention":"Publish the exact tested commit once with a recorded rollback and re-open public pages.","acceptance_check":"Public version identity, API evidence and screenshots match the candidate."}
+  ],
+  "affected_family": ["vacation business detail", "event detail", "spa detail", "hourly detail", "accessibility section navigation", "desktop and 390px mobile"],
+  "family_inventory_complete": true,
+  "approved_precedents": {"sources":[{"label":"The feature 'נגישות לנכים' is the verification source and absent values render nothing","source":"project_knowledge/VII_FEEDBACK_STANDARD.md"}],"no_precedent_reason":null},
+  "midpoint_gate": {"required":true,"trigger":"Authoritative API samples and focused tests pass before build.","checks":["both approved feature values qualify","generic accessible wording does not qualify","top signal links to detailed disclosure","missing feature renders no claim"],"not_required_reason":null},
+  "adversarial_close": {"attack_questions":["Can an unverified place receive the badge?","Can an approved API alias still be missed?","Is the badge below the long content on mobile?","Does the anchor reach the detailed disclosure?","Can production still serve the old bundle?"],"natural_destination_evidence":"Fresh public desktop and mobile evidence after deployment.","affected_family_evidence":"Focused tests, build and representative public vacation/event pages plus absent-feature control."},
+  "effectiveness": {"baseline":"The exact feature is buried after reviews; the full-accessibility API alias is not recognized.","measurements":["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],"target":"Every qualifying place has a visible top signal and detailed disclosure, with zero false positives in the tested family."},
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

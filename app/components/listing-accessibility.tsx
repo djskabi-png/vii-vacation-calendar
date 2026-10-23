@@ -3,13 +3,18 @@
 import Link from "next/link";
 import { useState } from "react";
 import { getPlaceAccessibility, VERIFIED_ACCESSIBILITY_FEATURE } from "../data/accessibility-data";
+import { useSiteLanguage } from "../i18n/locale-provider";
 
 export function ListingAccessibility({ slug, features, compact = false }: { slug: string; features?: readonly string[]; compact?: boolean }) {
   const information = getPlaceAccessibility(features);
   const [isOpen, setIsOpen] = useState(false);
+  const { translate } = useSiteLanguage();
   const detailsId = `accessibility-details-${slug}`;
   if (!information) return null;
-  if (compact) return <span className="place-accessibility-badge place-accessibility-badge--accessible">{VERIFIED_ACCESSIBILITY_FEATURE}</span>;
+  if (compact) return <a className="place-accessibility-badge place-accessibility-badge--accessible" href="#accessibility" aria-label={`${translate(VERIFIED_ACCESSIBILITY_FEATURE)}: ${translate("למידע נוסף")}`}>
+    <span>{translate(VERIFIED_ACCESSIBILITY_FEATURE)}</span>
+    <small>{translate("למידע נוסף")}</small>
+  </a>;
 
   return <section className={`place-accessibility place-accessibility--${information.status}`} id="accessibility">
       <button className="place-accessibility__summary" type="button" aria-expanded={isOpen} aria-controls={detailsId} onClick={() => setIsOpen((open) => !open)}>

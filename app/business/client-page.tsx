@@ -347,7 +347,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
                 { name: localizedPropertyName }]} />
 
         <section className="shell property-title">
-          <div><span className="eyebrow">{safeBusinessText(property.type, businessCopy.name)} · {safeBusinessText(activeOffering.label, translate(worldLabels[activeWorld]))}</span><h1>{localizedPropertyName}</h1><p><PinIcon />{localizedLocation}, {localizedArea}</p><OnlineBookingBadge eligible={onlineBookingEligible} />{property.demoOperations?.fictional ? <SampleListingDisclosure /> : null}</div>
+          <div><span className="eyebrow">{safeBusinessText(property.type, businessCopy.name)} · {safeBusinessText(activeOffering.label, translate(worldLabels[activeWorld]))}</span><h1>{localizedPropertyName}</h1><p><PinIcon />{localizedLocation}, {localizedArea}</p><div className="property-title__trust-signals"><OnlineBookingBadge eligible={onlineBookingEligible} /><ListingAccessibility slug={property.slug} features={property.features} compact /></div>{property.demoOperations?.fictional ? <SampleListingDisclosure /> : null}</div>
           <div className="property-title__side">
             <div className="property-title__actions property-title__actions--contact">
               {property.demoOperations?.fictional && !vacationOnlineReady ? <ListingContactPreview placeName={property.name} className="listing-contact-preview--title" /> : null}

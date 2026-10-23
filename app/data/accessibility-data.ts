@@ -1,4 +1,8 @@
 export const VERIFIED_ACCESSIBILITY_FEATURE = "נגישות לנכים";
+export const VERIFIED_ACCESSIBILITY_FEATURE_ALIASES = [
+  VERIFIED_ACCESSIBILITY_FEATURE,
+  "נגישות מלאה לנכים",
+] as const;
 
 export type PlaceAccessibility = {
   status: "accessible";
@@ -12,8 +16,8 @@ function normalizeFeature(feature: string) {
 }
 
 export function hasVerifiedAccessibilityFeature(features: readonly string[] | null | undefined): boolean {
-  const expected = normalizeFeature(VERIFIED_ACCESSIBILITY_FEATURE);
-  return Boolean(features?.some((feature) => normalizeFeature(feature) === expected));
+  const verified = new Set(VERIFIED_ACCESSIBILITY_FEATURE_ALIASES.map(normalizeFeature));
+  return Boolean(features?.some((feature) => verified.has(normalizeFeature(feature))));
 }
 
 export function getPlaceAccessibility(features: readonly string[] | null | undefined): PlaceAccessibility | null {
