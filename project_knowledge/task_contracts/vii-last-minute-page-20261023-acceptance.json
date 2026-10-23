@@ -1,0 +1,91 @@
+{
+  "goal": "A permanent, polished Last Minute Vacation page opens from the homepage slider and shows the real last-minute vacation offer journey.",
+  "intent_model": {
+    "literal_request": "Turn the last-minute all-results link into a permanent page named Last Minute Vacation, designed like a holiday page but suitable for last minute rather than a holiday.",
+    "implied_outcome": "The visitor gets a stable editorial destination with a clear explanation, current verified offers and a direct path into a place or broader search.",
+    "likely_rejections": [
+      "Generic search remains the destination",
+      "Holiday copy or visuals are reused",
+      "The page has no live offers",
+      "Mobile layout regresses",
+      "Existing holiday and homepage deal behavior changes"
+    ],
+    "interpretation_rules": [
+      {
+        "phrase": "כמו בחגים",
+        "operational_meaning": "Reuse the approved information hierarchy and polish, not the holiday identity or wording.",
+        "acceptance_impact": "Compare hero, live results, guidance, FAQ, responsive layout and SEO structure while documenting the distinct theme."
+      }
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "Understand that these are near-term stays available for the next night.",
+    "current_decision": "Choose a verified available place or continue to the dated results.",
+    "next_action": "Open a place card or the complete last-minute search.",
+    "deferred_complexity": ["Exact room choice and final booking validation happen on the place and booking pages."],
+    "preserved_depth": ["Dates, price, party size, phone, WhatsApp and online booking remain available through existing components."]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/task_contracts/vii-last-minute-page-20261023-preflight.json",
+    "lesson_bundle_ids": ["ADIR-MIND-001", "ADIR-QA-001", "ADIR-WEB-005", "ADIR-WEB-006"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["Public visitor looking for an immediate vacation"],
+  "natural_destination": "Homepage last-minute slider and /last-minute",
+  "facts": [
+    {"claim": "Tomorrow is the current product meaning of the last-minute deal period.", "evidence": "app/lib/vii-home-deals.ts"},
+    {"claim": "Holiday detail pages provide the approved page-family precedent.", "evidence": "app/holidays/[slug]/page.tsx"}
+  ],
+  "assumptions": [
+    {"claim": "The permanent route should be /last-minute.", "validation": "It is lowercase ASCII, concise and matches the existing product term."}
+  ],
+  "in_scope": [
+    "Create the permanent /last-minute page",
+    "Give it dedicated non-holiday copy and media",
+    "Lock live results to the last-minute tomorrow period",
+    "Route the homepage last-minute all-results link to the new page",
+    "Add metadata, canonical URL, breadcrumbs, FAQ structured data and responsive styling",
+    "Test the affected homepage and holiday family"
+  ],
+  "out_of_scope": [
+    "Changing supplier API semantics",
+    "Changing other date-period destinations",
+    "Production deployment without explicit publication authorization"
+  ],
+  "invariants": [
+    "Other homepage date tabs keep their current dated-search destinations",
+    "Holiday pages keep their current design and behavior",
+    "Only verified offer data can be presented as available",
+    "Final availability is revalidated before booking"
+  ],
+  "affected_family": [
+    "Homepage live-deals section",
+    "HomeLiveDeals shared component",
+    "Holiday-style content pages",
+    "Localized public routing",
+    "Metadata and structured data",
+    "Desktop and mobile layouts"
+  ],
+  "characteristics": {"stateful": true},
+  "requirements": [
+    {"id": "REQ-1", "statement": "The homepage last-minute all-results link opens /last-minute.", "source": "User request"},
+    {"id": "REQ-2", "statement": "The page is named Last Minute Vacation and has a distinct non-holiday identity.", "source": "User request"},
+    {"id": "REQ-3", "statement": "The page shows verified last-minute vacation offers and useful loading, empty and error states.", "source": "User request and VII product truth"},
+    {"id": "REQ-4", "statement": "The page has complete SEO, content and responsive behavior comparable to holiday detail pages.", "source": "VII feedback standard"},
+    {"id": "REQ-5", "statement": "Existing homepage and holiday behavior remains intact.", "source": "Regression invariant"}
+  ],
+  "acceptance_checks": [
+    {"id": "AC-1", "requirement_ids": ["REQ-1"], "kind": "success", "setup": "Homepage last-minute tab is active", "action": "Activate the all-results link", "observable_result": "The browser opens /last-minute with no generic-search redirect."},
+    {"id": "AC-2", "requirement_ids": ["REQ-2", "REQ-4"], "kind": "success", "setup": "Open /last-minute", "action": "Inspect hero, metadata, breadcrumbs and body", "observable_result": "The page says נופש ברגע האחרון and contains no holiday-specific identity."},
+    {"id": "AC-3", "requirement_ids": ["REQ-3"], "kind": "success", "setup": "The supplier endpoint returns current offers", "action": "Load the page", "observable_result": "Verified tomorrow offers, prices and actions render."},
+    {"id": "AC-4", "requirement_ids": ["REQ-3"], "kind": "failure", "setup": "The offers request fails or returns empty", "action": "Load or retry the results area", "observable_result": "A localized retry or empty state appears and the page remains usable."},
+    {"id": "AC-5", "requirement_ids": ["REQ-4"], "kind": "persistence", "setup": "Open /last-minute on mobile and desktop", "action": "Reload and cross the breakpoint", "observable_result": "The route, fixed period and usable layout persist without horizontal document overflow."},
+    {"id": "AC-6", "requirement_ids": ["REQ-5"], "kind": "recovery", "setup": "Open the existing homepage and a holiday page", "action": "Use the existing date and holiday tabs", "observable_result": "Existing tabs, result loading and links retain their prior behavior."}
+  ],
+  "open_questions": [],
+  "authorization_boundary": "Implementation and verification are authorized; production deployment remains excluded until explicitly requested.",
+  "ready_for_implementation": true
+}

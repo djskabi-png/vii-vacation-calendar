@@ -1,0 +1,43 @@
+{
+  "verdict": "not_ready",
+  "release": "unpublished working-tree candidate based on public release 600, commit 14ff6c0a2714719cd2ddb27e36d6126d56697d87",
+  "target": "production https://vii.spaplus.co/last-minute and the homepage last-minute slider",
+  "baseline": "Public release 600 links the homepage last-minute all-results action to a generic dated search and has no permanent /last-minute page.",
+  "requested_outcome": "A permanent Last Minute Vacation page, styled to the holiday-page quality level without holiday identity, opened from the homepage last-minute slider.",
+  "changed_components": [
+    "app/components/home-live-deals.tsx",
+    "app/last-minute/page.tsx",
+    "app/last-minute/last-minute.css",
+    "public/images/last-minute/last-minute-escape.webp",
+    "public/images/last-minute/last-minute-escape-mobile.webp",
+    "tests/last-minute-page.test.mjs"
+  ],
+  "affected_family": [
+    {"id": "FAM-1", "surface": "Homepage last-minute all-results link"},
+    {"id": "FAM-2", "surface": "New permanent last-minute content and live-results page"},
+    {"id": "FAM-3", "surface": "Shared homepage near-date and holiday deal component"},
+    {"id": "FAM-4", "surface": "Desktop and mobile responsive presentation"},
+    {"id": "FAM-5", "surface": "Metadata, canonical URL, breadcrumbs and FAQ structured data"}
+  ],
+  "characteristics": {"stateful": true, "responsive": true},
+  "checks": [
+    {"id": "CHK-1", "family_ids": ["FAM-1", "FAM-2"], "state": "success", "status": "passed", "evidence": "Local browser click on 2026-10-23: link label לכל מקומות הנופש ברגע האחרון had href /last-minute and opened H1 נופש ברגע האחרון."},
+    {"id": "CHK-2", "family_ids": ["FAM-2", "FAM-5"], "state": "success", "status": "passed", "evidence": "qa-reports/last-minute-candidate/report.json: title, H1, canonical, hero and results heading verified at 1440px and 390px."},
+    {"id": "CHK-3", "family_ids": ["FAM-2"], "state": "failure", "status": "passed", "evidence": "Local browser without deployed Cloudflare supplier bindings displayed a compact localized error and visible retry action instead of a blank or broken page."},
+    {"id": "CHK-4", "family_ids": ["FAM-2"], "state": "success", "status": "passed", "evidence": "Public release-600 API /api/vii/home-deals?period=tomorrow returned availabilityStatus verified, dates 2026-10-24 to 2026-10-25, 40 positive-price deals."},
+    {"id": "CHK-5", "family_ids": ["FAM-3"], "state": "recovery", "status": "passed", "evidence": "58 targeted tests passed, including existing homepage tabs, deal clock, slider refresh and owner-review contracts."},
+    {"id": "CHK-6", "family_ids": ["FAM-4"], "state": "responsive", "status": "passed", "evidence": "qa-reports/last-minute-candidate/last-minute-desktop.png and last-minute-mobile.png inspected; no horizontal document overflow at 1440px or 390px."},
+    {"id": "CHK-7", "family_ids": ["FAM-1", "FAM-2", "FAM-3", "FAM-4", "FAM-5"], "state": "reload", "status": "passed", "evidence": "pnpm build passed after final CSS correction and emitted the /last-minute route; RSC manifests agreed."},
+    {"id": "CHK-8", "family_ids": ["FAM-1", "FAM-2", "FAM-3", "FAM-4", "FAM-5"], "state": "permission", "status": "blocked", "evidence": "The current request authorized the product change but did not explicitly authorize production publication."}
+  ],
+  "rollback": {
+    "available": true,
+    "method": "No production mutation has occurred. Discard the bounded candidate files or publish only after preserving production release 600 as rollback.",
+    "verification": "Public production remains on release 600 and /last-minute has not been published from this candidate."
+  },
+  "authorization_boundary": "Implementation and candidate verification are authorized; production publication requires Adir's explicit instruction.",
+  "remaining_blockers": [
+    "Production publication is not authorized in the current request.",
+    "The exact deployed candidate cannot receive a public-domain verification verdict until publication is explicitly authorized."
+  ]
+}

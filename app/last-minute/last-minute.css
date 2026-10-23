@@ -1,0 +1,11 @@
+.last-minute-world{background:#f7fbfb}
+.last-minute-hero{background:radial-gradient(circle at 8% 18%,#d8f3f0 0 8%,transparent 31%),linear-gradient(115deg,#f5fbfa,#fff8ee 72%)}
+.last-minute-hero .eyebrow{color:#0d7468}
+.last-minute-hero .holiday-hero__proof span{display:inline-flex;align-items:center;min-height:30px;padding:5px 10px;border:1px solid #badbd4;border-radius:999px;background:#ffffffb8;color:#315e56;font-weight:750}
+.last-minute-world .last-minute-page-deals{padding-top:34px;background:#f7fbfb}
+.last-minute-world .last-minute-page-deals .section-head{align-items:end}
+.last-minute-world .last-minute-page-deals .home-live-deals__results{min-height:220px}
+.last-minute-world .last-minute-page-deals .home-live-deals__status{min-height:190px}
+.last-minute-story{padding-top:50px}
+.last-minute-faq{background:#eef7f5}
+@media(max-width:760px){.last-minute-world .last-minute-page-deals{padding-top:22px}.last-minute-world .last-minute-page-deals .section-head{align-items:start}.last-minute-story{padding-top:34px}.last-minute-hero .holiday-hero__proof{gap:6px}.last-minute-hero .holiday-hero__proof span{font-size:.67rem}}

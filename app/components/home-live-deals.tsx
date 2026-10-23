@@ -82,13 +82,13 @@ export function dealAvailability(deal: HomeDeal): ResolvedAvailability {
   };
 }
 
-export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "near" | "holidays"; region?: string; guests?: number }) {
+export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, sectionTitle, allLinkLabel }: { mode?: "near" | "holidays"; region?: string; guests?: number; fixedPeriod?: HomeDealPeriod; sectionTitle?: string; allLinkLabel?: string }) {
   const clock = useDealClock();
   const scope = mode === "near" ? regionalAvailabilityRegion(region) : null;
   const regionLabel = scope?.label;
   const { language, translate } = useSiteLanguage();
   const documentSeed = useDocumentSeed();
-  const [period, setPeriod] = useState<HomeDealPeriod>("tomorrow");
+  const [period, setPeriod] = useState<HomeDealPeriod>(fixedPeriod ?? "tomorrow");
   const [periodTabs, setPeriodTabs] = useState<HomePeriodTab[]>(() => homeDealPeriods.map((item, index) => ({ id: item.id, label: copy[language].tabs[index] })));
   const [retry, setRetry] = useState(0);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
@@ -101,14 +101,16 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
   const automaticRetries = useRef(new Map<string, number>());
   const displaySettingsApplied = useRef(false);
   const text = copy[language];
-  const title = scope ? regionalAvailabilityTitle("vacation", scope, language) : mode === "holidays" ? { he: "נופש פנוי בחגים", en: "Available stays for holidays", ru: "Отдых в праздники", fr: "Séjours disponibles pendant les fêtes" }[language] : text.title;
+  const title = sectionTitle || (scope ? regionalAvailabilityTitle("vacation", scope, language) : mode === "holidays" ? { he: "נופש פנוי בחגים", en: "Available stays for holidays", ru: "Отдых в праздники", fr: "Séjours disponibles pendant les fêtes" }[language] : text.title);
   const selectedDates = mode === "holidays" ? data?.deals[0] ?? data?.dates : data?.dates;
   const searchDates = clock && selectedDates && eligibleDealDate(selectedDates.from, clock.now) ? selectedDates : undefined;
   const currentHoliday = holidays.find((item) => item.id === holidayId);
   const selectionKey = mode === "holidays" ? `holiday:${holidayId ?? "loading"}` : `near:${regionLabel || "all"}:${period}:${guests}`;
   const searchHref = mode === "holidays" && currentHoliday?.href
     ? currentHoliday.href
-    : searchDates ? `/search?${new URLSearchParams({ from: searchDates.from, till: searchDates.till, guests: String(guests), ...(regionLabel ? { location: regionLabel } : {}) })}` : regionLabel ? `/search?${new URLSearchParams({ location: regionLabel, guests: String(guests) })}` : "/search";
+    : mode === "near" && !fixedPeriod && !regionLabel && period === "tomorrow"
+      ? "/last-minute"
+      : searchDates ? `/search?${new URLSearchParams({ from: searchDates.from, till: searchDates.till, guests: String(guests), ...(regionLabel ? { location: regionLabel } : {}) })}` : regionLabel ? `/search?${new URLSearchParams({ location: regionLabel, guests: String(guests) })}` : "/search";
 
   useEffect(() => {
     if (!clock) return;
@@ -143,7 +145,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
       .then((result) => {
         if (controller.signal.aborted) return;
         if (!Array.isArray(result.deals) || (mode === "near" && (!homeDealPeriods.some(item => item.id === result.period) || result.region !== regionLabel)) || (mode === "holidays" && result.holiday?.id !== holidayId)) throw new Error("invalid_result");
-        if (mode === "near" && result.display?.periods?.length) {
+        if (mode === "near" && !fixedPeriod && result.display?.periods?.length) {
           setPeriodTabs(result.display.periods);
           if (!displaySettingsApplied.current) {
             displaySettingsApplied.current = true;
@@ -166,7 +168,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
       })
       .catch((error) => { if (error?.name !== "AbortError") setState(accepted ? "ready" : "error"); });
     return () => { controller.abort(); if (retryTimer) clearTimeout(retryTimer); };
-  }, [period, holidayId, holidayState, holidays, language, mode, retry, regionLabel, guests, selectionKey, clock?.key]);
+  }, [period, fixedPeriod, holidayId, holidayState, holidays, language, mode, retry, regionLabel, guests, selectionKey, clock?.key]);
 
   function choose(value: HomeDealPeriod) {
     if (value !== period) setState("loading");
@@ -185,13 +187,13 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
   const displayedDeals = orderDiscoveryRail(eligibleDeals, { id: deal => deal.siteID, seed: `${documentSeed}:home:${mode}:${mode === "holidays" ? holidayId : period}`, online: deal => isHomeDealOnlineEligible(deal), priority: deal => managedVacationPriority((deal as HomeDeal & { curatedRank?: number }).curatedRank) });
   const displayState = mode === "holidays" && holidayState !== "ready" ? holidayState : state;
   const refreshing = displayState === "loading" && data !== null;
-  const allLabel = mode === "holidays" && currentHoliday ? `${allPeriodCopy[language].holiday}${translate(currentHoliday.name)}` : mode === "near" ? allPeriodCopy[language][period] : text.all;
+  const allLabel = allLinkLabel || (mode === "holidays" && currentHoliday ? `${allPeriodCopy[language].holiday}${translate(currentHoliday.name)}` : mode === "near" ? allPeriodCopy[language][period] : text.all);
   const displayedDealCount = displayedDeals.length;
 
-  return <section className={`section home-recommended home-live-deals ${sectionId}`} aria-labelledby={`${sectionId}-title`}>
+  return <section className={`section home-recommended home-live-deals ${sectionId}${fixedPeriod ? " last-minute-page-deals" : ""}`} aria-labelledby={`${sectionId}-title`}>
     <div className="shell">
       <div className="section-head"><div><h2 id={`${sectionId}-title`}>{title}</h2></div><div><Link href={localizedPath(searchHref, language)} prefetch={false} className="home-live-deals__all-link" suppressHydrationWarning>{allLabel}</Link><HomeSliderControls railId={`${sectionId}-rail`} label={title} itemSelector=".home-live-deals__item" disabled={displayState !== "ready" || !displayedDealCount} /></div></div>
-      <div className={`home-live-deals__tabs${mode === "near" ? " home-live-deals__tabs--near" : ""}`} role="tablist" aria-label={title}>
+      {!fixedPeriod ? <div className={`home-live-deals__tabs${mode === "near" ? " home-live-deals__tabs--near" : ""}`} role="tablist" aria-label={title}>
         {mode === "near" ? periodTabs.map((item, index) => <button key={item.id} type="button" role="tab" aria-controls={`${sectionId}-results`} aria-selected={period === item.id} tabIndex={period === item.id ? 0 : -1} onClick={() => choose(item.id)} onKeyDown={(event) => {
           const next = event.key === "Home" ? 0 : event.key === "End" ? periodTabs.length - 1 : event.key === "ArrowRight" ? (index + (language === "he" ? -1 : 1) + periodTabs.length) % periodTabs.length : event.key === "ArrowLeft" ? (index + (language === "he" ? 1 : -1) + periodTabs.length) % periodTabs.length : -1;
           if (next < 0) return;
@@ -205,7 +207,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2 }: { mode?: "n
           chooseHoliday(holidays[next].id);
           event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();
         }}><strong>{item.name}</strong></button>)}
-      </div>
+      </div> : null}
       <div className={`home-live-deals__results${refreshing ? " is-refreshing" : ""}`} id={`${sectionId}-results`} role="tabpanel" aria-live="polite" aria-busy={displayState === "loading"}>
         {scope && displayState === "ready" && data?.expandedRegion && displayedDealCount > 0 ? <p className="regional-availability__expansion" data-no-translate>{regionalExpansionCopy[language]}</p> : null}
         {displayState === "loading" && !data ? <div className="home-live-deals__loading" role="status" aria-label={text.loading}>

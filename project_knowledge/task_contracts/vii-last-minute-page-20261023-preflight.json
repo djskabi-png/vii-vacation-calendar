@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-last-minute-page-20261023",
+  "project": "VII",
+  "task_type": "public_web_product_change",
+  "requested_outcome": "Create a permanent Last Minute Vacation page, visually aligned with the holiday detail family but with a distinct non-holiday identity, and route the homepage last-minute all-results link to it.",
+  "natural_destination": "VII homepage last-minute slider and the new public /last-minute page",
+  "authorization_boundary": "Implementation and local verification are authorized. Production publication requires a separate explicit instruction.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-MIND-001",
+      "reason": "The short request implies a complete user journey from the homepage slider to a useful permanent destination.",
+      "acceptance_impact": "Verify the link, page meaning, live results and next action as one journey."
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "A shared homepage and results component is changing and regressions have recurred in this family.",
+      "acceptance_impact": "Retest the existing date tabs, holiday page family, failure state, mobile and desktop before release."
+    },
+    {
+      "lesson_id": "ADIR-WEB-005",
+      "reason": "The page uses responsive live-result rails and must survive viewport transitions.",
+      "acceptance_impact": "Test mobile, desktop, resize, reload and horizontal overflow."
+    },
+    {
+      "lesson_id": "ADIR-WEB-006",
+      "reason": "The new public mobile destination needs visible rendered evidence, not DOM-only checks.",
+      "acceptance_impact": "Capture and inspect the mobile and desktop page at the natural destination."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The homepage link still opens a generic dated search instead of a permanent page.",
+      "prevention": "Change only the last-minute all-results target and verify the rendered anchor.",
+      "acceptance_check": "Clicking the last-minute all-results link opens /last-minute and reload preserves that route."
+    },
+    {
+      "rejection": "The page looks like a renamed Hanukkah page and uses holiday language or symbols.",
+      "prevention": "Use dedicated spontaneous-travel imagery and copy with no holiday terminology.",
+      "acceptance_check": "Hero, metadata, content and image are about near-term spontaneous travel and contain no holiday-specific copy."
+    },
+    {
+      "rejection": "The page is decorative but does not show verified last-minute availability and prices.",
+      "prevention": "Reuse the verified home-deals data path, locked to the tomorrow period.",
+      "acceptance_check": "The page loads the tomorrow API, renders real cards when available and retains loading, empty and retry states."
+    },
+    {
+      "rejection": "The shared deal slider or holiday pages regress.",
+      "prevention": "Make the fixed-period behavior opt-in and test existing near and holiday modes unchanged.",
+      "acceptance_check": "Homepage near-date tabs and a holiday detail page still render and interact."
+    },
+    {
+      "rejection": "The page is cramped or overflows on mobile.",
+      "prevention": "Reuse the approved holiday layout rhythm and test live breakpoint transitions.",
+      "acceptance_check": "At 390px and desktop the hero, cards and actions are visible without horizontal document overflow."
+    }
+  ],
+  "affected_family": [
+    "homepage last-minute all-results link",
+    "new /last-minute route and localized variants",
+    "HomeLiveDeals shared component near mode",
+    "holiday deal pages sharing the deal card family",
+    "metadata, breadcrumbs, structured FAQ and canonical URL",
+    "mobile and desktop responsive states"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "Approved holiday detail layout and live availability journey",
+        "source": "app/holidays/[slug]/page.tsx and app/holidays/holiday-world.css"
+      },
+      {
+        "label": "Accepted verified last-minute deal source",
+        "source": "app/components/home-live-deals.tsx and app/api/vii/home-deals/route.ts"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "The new route renders with the fixed tomorrow period and the homepage link points to it.",
+    "checks": [
+      "The page has the requested title and non-holiday hero.",
+      "The page requests only the last-minute period.",
+      "The homepage link target is /last-minute."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can the link fall back to generic search after hydration?",
+      "Can admin default-period settings change this page away from last minute?",
+      "Does an API error leave a dead or blank page?",
+      "Does resizing leave a locked or overflowing rail?",
+      "Did the opt-in change alter existing homepage or holiday behavior?"
+    ],
+    "natural_destination_evidence": "Rendered browser evidence for the homepage click and the /last-minute page on desktop and mobile.",
+    "affected_family_evidence": "Build, targeted tests, existing homepage tab checks and representative holiday-page regression."
+  },
+  "effectiveness": {
+    "baseline": "The last-minute all-results link currently opens a dated generic search and no permanent /last-minute editorial page exists.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "One direct homepage-to-page journey with zero missing-route, wrong-period or responsive regressions."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}
