@@ -1,0 +1,56 @@
+{
+  "release": 596,
+  "status": "succeeded",
+  "version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_e1a0a33fe5ec8191ace1a39e8a81993c",
+  "deployment_id": "appgdep_6adb6a26848c81919e12de2d1d6f9d46",
+  "published_sha": "79a923185f836eb80eb14f7879782f68932e8e20",
+  "public_url": "https://vii.spaplus.co/",
+  "rollback": {
+    "release": 595,
+    "version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_48ee8e7fd5548191bda716c4e1920761",
+    "deployment_id": "appgdep_6adb56cf7d188191aa652fac96606a5b"
+  },
+  "candidate_evidence": {
+    "production_build": "passed",
+    "typescript": "passed",
+    "tests": "1509/1509 passed",
+    "independent_release_check": "READY"
+  },
+  "public_observations": [
+    {
+      "url": "https://vii.spaplus.co/business?id=vacation-116",
+      "status": "passed",
+      "observed": [
+        "breadcrumb includes world, area and locality before place",
+        "phone and WhatsApp controls are present",
+        "rating and review count are present below the gallery",
+        "room structure and eight separate sleeping-room cards are present",
+        "passive location preview and explicit map-open control are present",
+        "availability FAQ does not claim that availability is held"
+      ]
+    },
+    {
+      "url": "https://vii.spaplus.co/discover/place/spa-151",
+      "status": "passed",
+      "observed": [
+        "breadcrumb order is home, world, area, locality, place",
+        "spa packages, prices and booking actions are present"
+      ]
+    },
+    {
+      "url": "https://vii.spaplus.co/discover/place/kfar-blum-kayaks",
+      "status": "passed",
+      "observed": [
+        "breadcrumb order is home, world, area, locality, place",
+        "activity booking URL carries world=activities",
+        "booking return link points to /discover/place/kfar-blum-kayaks"
+      ]
+    }
+  ],
+  "publication_constraints": {
+    "publication_requests": 1,
+    "code_changed_by_publisher": false,
+    "untracked_files_included": false,
+    "database_or_secret_changes": false
+  }
+}
