@@ -36,7 +36,7 @@ import { eventLiveCopy } from "../../i18n/vii-live-search-copy";
 import { eventSlotCopy } from "../../i18n/event-slot-copy";
 import type { EventSlot } from "../../lib/vii-live-search";
 import { trackSearchResults } from "../../lib/analytics";
-import { completeNearbyResults, nearbySearchRecommendations } from "../../lib/nearby-recommendations";
+import { completePlaceSearchResults, nearbySearchRecommendations, PLACE_SEARCH_MINIMUM_RESULTS } from "../../lib/nearby-recommendations";
 import { NearbySearchNotice } from "../../components/nearby-search-notice";
 import { useManagedGeography } from "../../components/use-managed-geography";
 import { RegionalAvailability } from "../../components/regional-availability";
@@ -187,12 +187,12 @@ export default function EventSearchPage({ initialArea, landingTitle, landingDesc
   }, [accessibleOnly, area, eventFrom, eventPlaces, eventType, eventTypes, facilities, facility, guests, noNoiseLimit, sort, startingPrices, supplierSearch.results, supplierSearch.status, type, types, undatedSearch]);
 
   const nearbyRecovery = useMemo(() => {
-    if (filtered.length >= 3 || area === "הכל" || area === "כל הארץ") return [];
+    if (filtered.length >= PLACE_SEARCH_MINIMUM_RESULTS || area === "הכל" || area === "כל הארץ") return [];
     // Broaden geography only; a supplier-confirmed unavailable venue remains excluded.
     const eligible = eventPlaces.filter((place) => matchesHardFilters(place) && confirmedEventPlace(place));
     return nearbySearchRecommendations(eligible, area, managedGeography, { key: (place) => place.slug });
   }, [accessibleOnly, area, eventFrom, eventPlaces, eventType, eventTypes, facilities, facility, filtered.length, guests, managedGeography, noNoiseLimit, supplierSearch.results, supplierSearch.status, type, types]);
-  const resultSet = useMemo(() => completeNearbyResults(filtered, nearbyRecovery, (place) => place.slug), [filtered, nearbyRecovery]);
+  const resultSet = useMemo(() => completePlaceSearchResults(filtered, nearbyRecovery, (place) => place.slug), [filtered, nearbyRecovery]);
 
   const displayed = useMemo(() => {
     if (!mapOpen || !mapVisibleIds) return resultSet;

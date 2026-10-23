@@ -16,7 +16,7 @@ import { ResultsViewToggle, useResultsViewMode } from "./results-view-toggle";
 import { ProgressiveResults } from "./progressive-results";
 import { rotateWithinTiers } from "../lib/daily-rotation";
 import { trackSearchResults } from "../lib/analytics";
-import { nearbySearchRecommendations, completeNearbyResults } from "../lib/nearby-recommendations";
+import { nearbySearchRecommendations, completePlaceSearchResults, PLACE_SEARCH_MINIMUM_RESULTS } from "../lib/nearby-recommendations";
 import { useManagedGeography } from "./use-managed-geography";
 import { NearbySearchNotice } from "./nearby-search-notice";
 import { publicAvailabilityNotice } from "../lib/public-availability-notice";
@@ -131,13 +131,13 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
   (item) => item.id, "spa-search"), [amenityFiltered, location, requestedDate, datedAvailabilityReady, checkingDate, availabilityFailed, availability.sites]);
 
   const nearbyRecovery = useMemo(() => {
-    if (filtered.length >= 3 || checkingDate || availabilityFailed || location === "כל הארץ") return [];
+    if (filtered.length >= PLACE_SEARCH_MINIMUM_RESULTS || checkingDate || availabilityFailed || location === "כל הארץ") return [];
     const origin = items.find((item) => matchesSearchLocation(item, location));
     const eligible = amenityFiltered.filter((item) => !requestedDate || (datedAvailabilityReady && availability.sites.has(Number(item.id.replace("spa-", "")))));
     return nearbySearchRecommendations(eligible, location, managedGeography, { key: (item) => item.id,
       origin: { location, area: location, lat: origin?.location === location ? origin.lat : undefined, lng: origin?.location === location ? origin.lng : undefined } });
   }, [amenityFiltered, availability.sites, availabilityFailed, checkingDate, datedAvailabilityReady, filtered.length, items, location, managedGeography, requestedDate]);
-  const resultItems = useMemo(() => completeNearbyResults(filtered, nearbyRecovery, (item) => item.id), [filtered, nearbyRecovery]);
+  const resultItems = useMemo(() => completePlaceSearchResults(filtered, nearbyRecovery, (item) => item.id), [filtered, nearbyRecovery]);
 
   useEffect(() => {
     if (checkingDate || availabilityFailed) return;

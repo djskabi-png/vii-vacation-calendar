@@ -1,0 +1,32 @@
+{
+  "target": "Shared minimum-18 geographic completion for VII place searches",
+  "natural_destination": "Public VII vacation, events, spa and hourly result pages",
+  "requirements": [
+    {"id": "REQ-1", "statement": "Sparse recognized locations fill to 18 eligible distinct places"},
+    {"id": "REQ-2", "statement": "Exact first, nearby distance ordered"},
+    {"id": "REQ-3", "statement": "Hard filters and availability remain enforced"},
+    {"id": "REQ-4", "statement": "Counts, list, map and disclosure agree"},
+    {"id": "REQ-5", "statement": "All place-search families share behavior"},
+    {"id": "REQ-6", "statement": "Public deployment is verified and rollback retained"}
+  ],
+  "risks": [
+    {"id": "RISK-1", "risk": "Nearby fill introduces ineligible or unavailable places", "severity": "high"},
+    {"id": "RISK-2", "risk": "Global sorting moves nearby places ahead of exact matches", "severity": "high"},
+    {"id": "RISK-3", "risk": "One world or structured data keeps the old three-result contract", "severity": "high"},
+    {"id": "RISK-4", "risk": "Unknown or whole-country searches are padded incorrectly", "severity": "medium"},
+    {"id": "RISK-5", "risk": "Public release serves stale assets", "severity": "high"}
+  ],
+  "characteristics": {"stateful": true, "asynchronous": true, "role_based": false, "responsive": true, "external_integration": false},
+  "cases": [
+    {"id": "TC-1", "priority": "P0", "requirement_ids": ["REQ-1", "REQ-2"], "risk_ids": ["RISK-2"], "tags": ["success"], "preconditions": "3 exact and 30 anchored eligible places", "action": "Complete the location search", "oracle": "18 distinct items with exact three first and appended items nearest-first", "execution_status": "planned"},
+    {"id": "TC-2", "priority": "P0", "requirement_ids": ["REQ-3"], "risk_ids": ["RISK-1"], "tags": ["failure"], "preconditions": "Restrictive dates and filters leave 7 eligible places", "action": "Complete from the filtered eligible pool", "oracle": "Exactly the 7 eligible places appear; no unavailable item is added", "execution_status": "planned"},
+    {"id": "TC-3", "priority": "P0", "requirement_ids": ["REQ-5"], "risk_ids": ["RISK-3"], "tags": ["success", "responsive"], "preconditions": "Representative sparse routes in all four worlds", "action": "Load desktop and 390px mobile results", "oracle": "Every family uses the shared 18-result contract without layout overflow", "execution_status": "planned"},
+    {"id": "TC-4", "priority": "P0", "requirement_ids": ["REQ-4"], "risk_ids": ["RISK-3"], "tags": ["persistence"], "preconditions": "Expanded result set is visible", "action": "Toggle map, reload, back and reopen", "oracle": "URL state persists and count, list, markers and disclosure agree", "execution_status": "planned"},
+    {"id": "TC-5", "priority": "P1", "requirement_ids": ["REQ-1"], "risk_ids": ["RISK-4"], "tags": ["empty", "failure"], "preconditions": "Unknown location or eligible inventory under 18", "action": "Submit the unknown or genuinely short location through the public search control", "oracle": "Unknown location is not padded; genuine shortage returns only real eligible items", "execution_status": "planned"},
+    {"id": "TC-6", "priority": "P1", "requirement_ids": ["REQ-1"], "risk_ids": ["RISK-4"], "tags": ["success"], "preconditions": "Whole-country or exact location already has at least 18", "action": "Submit the whole-country or dense-location search through its normal route", "oracle": "No sparse-location padding or truncation is applied", "execution_status": "planned"},
+    {"id": "TC-7", "priority": "P0", "requirement_ids": ["REQ-6"], "risk_ids": ["RISK-5"], "tags": ["retry", "idempotency"], "preconditions": "Exact candidate hash and prior rollback identity recorded", "action": "Deploy once and poll bounded terminal state", "oracle": "One succeeded deployment identity is recorded; uncertain result is not retried", "execution_status": "planned"},
+    {"id": "TC-8", "priority": "P0", "requirement_ids": ["REQ-6"], "risk_ids": ["RISK-5"], "tags": ["success", "responsive"], "preconditions": "Deployment succeeded", "action": "Open the supplied production URL fresh on desktop and mobile", "oracle": "At least 18 results are exposed and the first exact משמר הירדן places remain first", "execution_status": "planned"}
+  ],
+  "out_of_scope": ["Attraction discovery search minimums", "Trail discovery search minimums", "Mutating supplier catalog records or coordinates", "Creating bookings, payments or outbound customer messages"],
+  "ready_for_execution": true
+}

@@ -45,7 +45,7 @@ import { ProgressiveResults } from "../components/progressive-results";
 import { trackSearchResults } from "../lib/analytics";
 import { matchesVacationSearchFilter } from "../lib/vacation-search-filter-index";
 import { vacationRoomGuests, vacationRoomsFromSearchParams } from "../lib/vacation-party";
-import { completeNearbyResults, nearbySearchRecommendations } from "../lib/nearby-recommendations";
+import { completePlaceSearchResults, nearbySearchRecommendations, PLACE_SEARCH_MINIMUM_RESULTS } from "../lib/nearby-recommendations";
 import { NearbySearchNotice } from "../components/nearby-search-notice";
 import { useManagedGeography } from "../components/use-managed-geography";
 import { matchesVacationOnlineBooking } from "../lib/vacation-online-booking-filter";
@@ -693,7 +693,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   }, [area, availabilityDemoActive, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, guests, landing, liveAvailabilityBySlug, maxPrice, minPrice, supplierSearch, mapCandidates, onlineOnly, onlineCapabilities, undatedSearch, pathname, requestedLocation, selectedStay, selectedTypes, sort]);
 
   const nearbyRecovery = useMemo(() => {
-    if (filtered.length >= 3 || isWholeCountrySelection(area)) return [];
+    if (filtered.length >= PLACE_SEARCH_MINIMUM_RESULTS || isWholeCountrySelection(area)) return [];
     // A nearby fallback may broaden geography only. An explicit supplier
     // unavailability for the selected dates remains a hard exclusion.
     const eligible = mapCandidates.filter((property) => {
@@ -709,13 +709,9 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
     });
     return nearbySearchRecommendations(eligible, area, managedGeography, { key: (property) => property.slug });
   }, [VACATION_PRICE_MAX, VACATION_PRICE_MIN, area, filtered.length, managedGeography, mapCandidates, maxPrice, minPrice, onlineOnly, onlineCapabilities, undatedSearch, selectedStay, flexibleSearch, supplierSearch.results, supplierSearch.status, liveAvailabilityBySlug, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug]);
-  const resultSet = useMemo(() => prioritizeOnlineFirst(
-    completeNearbyResults(filtered, nearbyRecovery, (place) => place.slug),
-    property => matchesOnline(property),
-    sort === "recommended" ? (a, b) => compareVacationPriority(a, b, a.slug, b.slug, "vacation-search") : undefined,
-  // Availability helpers close over these same quote/selection inputs.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  ), [filtered, nearbyRecovery, onlineCapabilities, undatedSearch, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, liveAvailabilityBySlug, selectedStay, supplierSearch, sort]);
+  // Keep the exact location cohort first. The exact cohort is already ranked by
+  // the selected sort and booking priority; nearby recovery is distance-ranked.
+  const resultSet = useMemo(() => completePlaceSearchResults(filtered, nearbyRecovery, (place) => place.slug), [filtered, nearbyRecovery]);
 
   useEffect(() => {
     if (catalogLoading || catalogError || onlineCheckPending || datedAvailabilityPending || datedAvailabilityError) return;
@@ -763,9 +759,9 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
       && (!landingType || (shownFilters.selectedTypes.length === 1 && shownFilters.selectedTypes[0] === landingType))
     && (landing.area ? shownFilters.area === landing.area : shownFilters.area === "הכל"));
   const draftMatches = draftCandidates.filter((property) => draftUsesLandingSet ? landing?.listingSlugs?.includes(property.slug) : matchesSearchLocation(property, shownFilters.area));
-  const draftNearby = (shownFilters.onlineOnly || Boolean(selectedStay)) && shownFilters.guests === guests && draftMatches.length < 3 && !isWholeCountrySelection(shownFilters.area)
+  const draftNearby = (shownFilters.onlineOnly || Boolean(selectedStay)) && shownFilters.guests === guests && draftMatches.length < PLACE_SEARCH_MINIMUM_RESULTS && !isWholeCountrySelection(shownFilters.area)
     ? nearbySearchRecommendations(draftCandidates, shownFilters.area, managedGeography, { key: (property) => property.slug }) : [];
-  const draftResultCount = shownFilters.onlineOnly || selectedStay ? completeNearbyResults(draftMatches, draftNearby, place => place.slug).length : draftMatches.length;
+  const draftResultCount = shownFilters.onlineOnly || selectedStay ? completePlaceSearchResults(draftMatches, draftNearby, place => place.slug).length : draftMatches.length;
   const draftResultLabel = shownFilters.onlineOnly && undatedCapabilityUnavailable ? "הצגת המקומות באזור"
     : !undatedSearch && (datedAvailabilityPending || shownFilters.guests !== guests) ? "החלת סינונים"
     : draftResultCount === 1 ? "הצגת מקום אחד" : `הצגת ${draftResultCount} מקומות`;

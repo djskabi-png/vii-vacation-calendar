@@ -8,7 +8,7 @@ import { breadcrumbSchema, collectionSchema } from "../lib/seo";
 import { matchesSearchLocation } from "../data/search-taxonomy";
 import { hourlySearchHref } from "../data/world-search-landings";
 import { publishedSearchPage } from "../lib/search-page-content.ts";
-import { completeNearbyResults, nearbySearchRecommendations } from "../lib/nearby-recommendations.ts";
+import { completePlaceSearchResults, nearbySearchRecommendations } from "../lib/nearby-recommendations.ts";
 
 export const dynamic = "force-dynamic";
 
@@ -31,7 +31,7 @@ export async function HourlyLanding({ initialLocation }: { initialLocation?: str
     ? hourlyPlaces.filter((place) => matchesSearchLocation(place, initialLocation))
     : hourlyPlaces;
   const representedItems = initialLocation
-    ? completeNearbyResults(matchingItems, nearbySearchRecommendations(hourlyPlaces, initialLocation, [], {
+    ? completePlaceSearchResults(matchingItems, nearbySearchRecommendations(hourlyPlaces, initialLocation, [], {
       key: (place) => place.id,
       origin: { location: initialLocation, area: initialLocation },
     }), (place) => place.id)

@@ -8,7 +8,7 @@ import { publicVacationSearchProperties } from "../lib/public-vacation-search";
 import { StructuredData } from "./structured-data";
 import { breadcrumbSchema, collectionSchema } from "../lib/seo";
 import { vacationRegionBySlug, vacationRegionListings } from "../data/vacation-landings";
-import { completeNearbyResults, nearbySearchRecommendations } from "../lib/nearby-recommendations.ts";
+import { completePlaceSearchResults, nearbySearchRecommendations } from "../lib/nearby-recommendations.ts";
 
 export async function vacationLandingMetadata(regionSlug?: string | null): Promise<Metadata> {
   const region = vacationRegionBySlug(regionSlug);
@@ -24,7 +24,7 @@ export async function VacationLandingRoute({ regionSlug }: { regionSlug?: string
   const region = vacationRegionBySlug(regionSlug);
   if (!region) notFound();
   const listings = vacationRegionListings(region, publishedProperties);
-  const represented = completeNearbyResults(listings, nearbySearchRecommendations(publishedProperties, region.label, [], {
+  const represented = completePlaceSearchResults(listings, nearbySearchRecommendations(publishedProperties, region.label, [], {
     key: (property) => property.slug,
     origin: { location: region.label, area: region.label },
   }), (property) => property.slug);

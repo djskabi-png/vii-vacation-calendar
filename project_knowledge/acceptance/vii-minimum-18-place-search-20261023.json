@@ -1,0 +1,102 @@
+{
+  "goal": "Publish a verified shared geographic-search repair that fills recognized sparse city, town and region searches to at least 18 eligible places whenever the available eligible catalog permits it.",
+  "intent_model": {
+    "literal_request": "Always try to show at least 18 places, then continue with the closest places to the searched area, fix and publish with proof and no regression.",
+    "implied_outcome": "Sparse location searches remain useful and truthful across the whole VII place-search product.",
+    "likely_rejections": [
+      "Only משמר הירדן was patched",
+      "Exact matches lost first position",
+      "Dates or filters were bypassed",
+      "The public page still shows three",
+      "Map and list disagree"
+    ],
+    "interpretation_rules": [
+      {
+        "phrase": "תמיד תחפש להציג לפחות 18 מקומות",
+        "operational_meaning": "Use a shared minimum for recognized city, town and region place searches, capped by the truthful eligible inventory.",
+        "acceptance_impact": "The full affected family must be tested and the public result count must reach 18 when at least 18 eligible places exist."
+      },
+      {
+        "phrase": "תפרסם עד שיש הוכחת תקינות",
+        "operational_meaning": "Deployment is part of the outcome and local-only evidence is insufficient.",
+        "acceptance_impact": "The exact deployed release and public natural destination require fresh verification."
+      }
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "Search results for a selected location",
+    "current_decision": "Show exact matches first and automatically extend with nearest eligible places",
+    "next_action": "Open a result without needing to restart the search",
+    "deferred_complexity": ["Advanced filters", "Map viewport filtering"],
+    "preserved_depth": ["Selected arrival and departure dates", "Adult and child guest composition", "Supplier-confirmed availability state", "Price, type and amenity filters", "Map viewport result filtering", "User-selected result sorting"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/predictive_preflights/vii-minimum-18-place-search-20261023.json",
+    "lesson_bundle_ids": ["ADIR-QA-001", "ADIR-CONSISTENCY-001", "ADIR-DATA-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["Public VII visitor"],
+  "natural_destination": "Public VII result pages on desktop and mobile, starting with the supplied משמר הירדן URL",
+  "facts": [
+    {
+      "claim": "The current public supplied URL shows 3 exact places.",
+      "evidence": "Fresh in-app browser accessibility snapshot on 2026-10-23."
+    },
+    {
+      "claim": "The shared implementation currently completes sparse place searches to 3 and caps recommendations at 12.",
+      "evidence": "app/lib/nearby-recommendations.ts and its place-search callers."
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "At least 18 eligible vacation places have geographic anchors relative to משמר הירדן.",
+      "validation": "Focused catalog test and public post-deploy result count."
+    }
+  ],
+  "in_scope": [
+    "Shared 18-result minimum for recognized sparse place searches",
+    "Exact-first and distance-ordered nearby completion",
+    "Preservation of dates, availability and filters",
+    "Vacation, events, spa, hourly and managed search landings",
+    "Counts, list, map, disclosure and structured data consistency",
+    "Public deployment and post-deploy verification"
+  ],
+  "out_of_scope": [
+    "Attractions and trails discovery minimums",
+    "Supplier catalog mutation",
+    "Bookings, payments or outbound messages",
+    "Unrelated visual redesign"
+  ],
+  "invariants": [
+    "Unknown locations never receive arbitrary catalog-order results",
+    "Whole-country searches are not padded or limited by the sparse-location contract",
+    "No unavailable or filter-ineligible item is introduced",
+    "No duplicates are displayed",
+    "The searched location remains in the URL, heading and breadcrumbs",
+    "Existing card design and content remain intact"
+  ],
+  "affected_family": ["Vacation location result pages and semantic regional routes", "Event venue location result pages and semantic regional routes", "Spa location result pages and semantic regional routes", "Hourly-room location result pages and semantic regional routes", "CMS-managed location search landing pages", "Shared list, map, result-count, disclosure and structured-data inventory"],
+  "characteristics": {"stateful": true, "asynchronous": true, "responsive": true},
+  "requirements": [
+    {"id": "REQ-1", "statement": "Recognized sparse city, town or region searches append nearest eligible distinct places until 18 results or eligible inventory exhaustion.", "source": "User request"},
+    {"id": "REQ-2", "statement": "Exact matches remain first and nearby additions are ordered nearest to farthest.", "source": "User request"},
+    {"id": "REQ-3", "statement": "Dates, availability, online-only, capacity, price, type and feature filters remain hard constraints.", "source": "VII_FEEDBACK_STANDARD.md"},
+    {"id": "REQ-4", "statement": "List, map, count, disclosure and structured result data agree with the completed inventory.", "source": "VII_FEEDBACK_STANDARD.md"},
+    {"id": "REQ-5", "statement": "The change applies consistently across vacation, events, spa, hourly and managed place-search pages.", "source": "Affected-family rule"},
+    {"id": "REQ-6", "statement": "The exact tested release is published and verified on the supplied public URL on desktop and mobile.", "source": "User request"}
+  ],
+  "acceptance_checks": [
+    {"id": "AC-1", "requirement_ids": ["REQ-1", "REQ-2"], "kind": "success", "setup": "Known location with 3 exact and at least 18 eligible anchored places", "action": "Run shared completion", "observable_result": "18 distinct results, exact three first, remaining 15 ordered by distance"},
+    {"id": "AC-2", "requirement_ids": ["REQ-1"], "kind": "empty", "setup": "Eligible pool contains fewer than 18 places", "action": "Run shared completion", "observable_result": "Every eligible distinct place is shown and no result is fabricated"},
+    {"id": "AC-3", "requirement_ids": ["REQ-3"], "kind": "failure", "setup": "Nearby inventory contains unavailable and filter-ineligible places", "action": "Apply dated or filtered search", "observable_result": "Only the prefiltered eligible pool can appear"},
+    {"id": "AC-4", "requirement_ids": ["REQ-4", "REQ-5"], "kind": "persistence", "setup": "Representative routes in each place world", "action": "Search, open map, reload and revisit", "observable_result": "Completed inventory and selected state remain consistent"},
+    {"id": "AC-5", "requirement_ids": ["REQ-6"], "kind": "retry", "setup": "Exact immutable release candidate passed all gates", "action": "Publish once and poll bounded deployment state", "observable_result": "Terminal successful deployment or fail closed without an uncertain retry"},
+    {"id": "AC-6", "requirement_ids": ["REQ-6"], "kind": "rollback", "setup": "Prior production release identity recorded", "action": "Verify retained rollback target before publishing", "observable_result": "Previous immutable version remains deployable"}
+  ],
+  "open_questions": [],
+  "authorization_boundary": "The current request authorizes implementation and public deployment after gates pass; no supplier write, booking, payment, message, secret or destructive operation is authorized.",
+  "ready_for_implementation": true
+}

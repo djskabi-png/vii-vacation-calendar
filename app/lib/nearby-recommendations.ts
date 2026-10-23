@@ -17,6 +17,8 @@ export const nearbyRecommendationCopy = {
 };
 
 const text = (value?: string) => canonicalSearchLocation(value).replace(/[־–-]/g, " ");
+export const PLACE_SEARCH_MINIMUM_RESULTS = 18;
+
 export function completeNearbyResults<T>(exact: readonly T[], nearby: readonly T[], key: (item: T) => string, minimum = 3): T[] {
   const seen = new Set<string>();
   const result = exact.filter((item) => !seen.has(key(item)) && !!seen.add(key(item)));
@@ -28,6 +30,11 @@ export function completeNearbyResults<T>(exact: readonly T[], nearby: readonly T
     if (result.length >= minimum) break;
   }
   return result;
+}
+
+/** Place searches keep exact matches first, then add the nearest eligible places. */
+export function completePlaceSearchResults<T>(exact: readonly T[], nearby: readonly T[], key: (item: T) => string): T[] {
+  return completeNearbyResults(exact, nearby, key, PLACE_SEARCH_MINIMUM_RESULTS);
 }
 
 export function nearbyRegion(value?: string): string | null {
@@ -62,12 +69,16 @@ export function nearbySearchRecommendations<T extends CoordinatePlace>(
   options: { key: (item: T) => string; origin?: CoordinatePlace },
 ): T[] {
   const managed = nearbyPlacesForSelection(pool, nodes, selection,
-    { limit: 12, maximumDistanceKm: 100, minimumResults: 3 });
+    { limit: PLACE_SEARCH_MINIMUM_RESULTS, maximumDistanceKm: 100, minimumResults: PLACE_SEARCH_MINIMUM_RESULTS });
   if (managed.length) return managed.map((candidate) => candidate.place);
   const origin = options.origin || { location: selection, area: selection };
   // An unknown city is not a geographic anchor. Never fill it in catalog order.
   if (!nearbyPoint(origin)) return [];
-  return nearbyRecommendations(pool, origin, { key: options.key, limit: 12 }).items;
+  return nearbyRecommendations(pool, origin, {
+    key: options.key,
+    limit: PLACE_SEARCH_MINIMUM_RESULTS,
+    minimum: PLACE_SEARCH_MINIMUM_RESULTS,
+  }).items;
 }
 
 /** Only geography is relaxed. Callers must supply their already eligible public pool. */

@@ -8,7 +8,7 @@ import { eventSearchHref, searchLocationFromSlug } from "../../../data/world-sea
 import { StructuredData } from "../../../components/structured-data";
 import { breadcrumbSchema, collectionSchema } from "../../../lib/seo";
 import { publishedSearchPage } from "../../../lib/search-page-content.ts";
-import { completeNearbyResults, nearbySearchRecommendations } from "../../../lib/nearby-recommendations.ts";
+import { completePlaceSearchResults, nearbySearchRecommendations } from "../../../lib/nearby-recommendations.ts";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +40,7 @@ export default async function EventRegionPage({ params }: PageProps) {
   if (!location) notFound();
   const places = await publicCatalogSummaries<EventPlace>("events");
   const matching = places.filter((place) => matchesSearchLocation(place, location));
-  const represented = completeNearbyResults(matching, nearbySearchRecommendations(places, location, [], {
+  const represented = completePlaceSearchResults(matching, nearbySearchRecommendations(places, location, [], {
     key: (place) => place.slug,
     origin: { location, area: location },
   }), (place) => place.slug);

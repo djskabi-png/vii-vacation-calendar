@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { nearbyRecommendations, nearbySearchRecommendations, nearbyRecommendationCopy, completeNearbyResults } from "../app/lib/nearby-recommendations.ts";
+import { nearbyRecommendations, nearbySearchRecommendations, nearbyRecommendationCopy, completeNearbyResults, completePlaceSearchResults, PLACE_SEARCH_MINIMUM_RESULTS } from "../app/lib/nearby-recommendations.ts";
 import { nearbyTrails, trails } from "../app/data/trail-data.ts";
 
 const origin = { location: "תל אביב", area: "מרכז", lat: 32.08, lng: 34.78 };
@@ -104,4 +104,35 @@ test("search topup never caps a complete catalog and preserves exact matches fir
   assert.deepEqual(completeNearbyResults(exact, [], key), exact);
   assert.deepEqual(completeNearbyResults(exact.slice(0, 2), [exact[1], exact[2], exact[3]], key).map(key), ["0", "1", "2"]);
   assert.deepEqual(completeNearbyResults([], [exact[1], exact[1], exact[2]], key).map(key), ["1", "2"]);
+});
+
+test("place searches append nearest eligible distinct places until the shared minimum of18", () => {
+  const cities = Array.from({ length: 24 }, (_, index) => ({
+    key: `city:${index}`,
+    level: "city",
+    parentKey: null,
+    title: index === 0 ? "משמר הירדן" : `יישוב ${index}`,
+    titleEn: `City ${index}`,
+    slug: `city-${index}`,
+    featured: false,
+    gpsLat: 32.96 + index * 0.01,
+    gpsLong: 35.60,
+    unassigned: false,
+  }));
+  const pool = cities.map((city, index) => ({ id: `place-${index}`, location: city.title }));
+  const exact = pool.slice(0, 3);
+  const nearby = nearbySearchRecommendations(pool, "משמר הירדן", cities, { key });
+  const completed = completePlaceSearchResults(exact, nearby, key);
+  assert.equal(PLACE_SEARCH_MINIMUM_RESULTS, 18);
+  assert.equal(completed.length, 18);
+  assert.deepEqual(completed.slice(0, 3), exact);
+  assert.equal(new Set(completed.map(key)).size, 18);
+  assert.deepEqual(completed.slice(3).map(key), pool.slice(3, 18).map(key));
+});
+
+test("place searches stop at truthful eligible inventory instead of fabricating eighteen", () => {
+  const eligible = Array.from({ length: 7 }, (_, index) => make(`eligible-${index}`, 32.1 + index * .01));
+  const completed = completePlaceSearchResults(eligible.slice(0, 2), [...eligible, ...eligible], key);
+  assert.equal(completed.length, 7);
+  assert.deepEqual(new Set(completed.map(key)), new Set(eligible.map(key)));
 });

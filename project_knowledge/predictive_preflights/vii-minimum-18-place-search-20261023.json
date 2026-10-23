@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-minimum-18-place-search-20261023",
+  "project": "VII",
+  "task_type": "production search repair",
+  "requested_outcome": "Every recognized city, town or region search keeps exact eligible places first and appends the nearest eligible places until at least 18 results are shown when the eligible catalog allows it, then publishes and verifies the change in production.",
+  "natural_destination": "https://vii.spaplus.co/search?location=%D7%9E%D7%A9%D7%9E%D7%A8%20%D7%94%D7%99%D7%A8%D7%93%D7%9F and the equivalent vacation, events, spa and hourly search families",
+  "authorization_boundary": "Code, tests and public VII deployment are authorized by the current request. Supplier records, bookings, payments, messages, secrets and destructive database operations are excluded.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "The user requires public proof and no regression.",
+      "acceptance_impact": "Blocks completion until the exact production URL and affected search family pass post-deploy checks."
+    },
+    {
+      "lesson_id": "ADIR-CONSISTENCY-001",
+      "reason": "The behavior belongs to a shared geographic-search family.",
+      "acceptance_impact": "The repair must cover vacation, events, spa and hourly place searches rather than one URL."
+    },
+    {
+      "lesson_id": "ADIR-DATA-001",
+      "reason": "Nearby completion must not fabricate availability or bypass hard filters.",
+      "acceptance_impact": "Only the already-eligible pool may be expanded and shortages remain truthful."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "Only the supplied URL is fixed while another world still stops at three results.",
+      "prevention": "Inventory every caller of the shared nearby-search helper and apply one named 18-result contract to place-search callers.",
+      "acceptance_check": "Automated family contract and representative production routes cover all four place worlds."
+    },
+    {
+      "rejection": "Nearby places appear before exact city results or are not ordered by distance.",
+      "prevention": "Keep exact results as the first cohort and append the distance-ranked nearby cohort without globally resorting the combined list.",
+      "acceptance_check": "Unit tests prove exact-first, distinct and ascending-distance completion."
+    },
+    {
+      "rejection": "The change reaches 18 by showing places that fail dates, availability or filters.",
+      "prevention": "Build the nearby candidate pool only after applying the same hard eligibility predicates.",
+      "acceptance_check": "Dated and filtered regression tests plus source-family checks prove geography is the only relaxed dimension."
+    },
+    {
+      "rejection": "A local build passes but the public page still shows three results.",
+      "prevention": "Deploy the exact tested commit and re-open the natural destination in a fresh production browser session.",
+      "acceptance_check": "Production result count is at least 18 and the first three exact משמר הירדן places remain first."
+    }
+  ],
+  "affected_family": [
+    "vacation search",
+    "event search",
+    "spa search",
+    "hourly search",
+    "managed search landings",
+    "map and list inventory",
+    "result counts and nearby disclosure",
+    "structured collection data"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "Geographic expansion preserves hard filters and only broadens geography",
+        "source": "project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "Previously verified automatic vacation result expansion from 9 to 18",
+        "source": "project_knowledge/release_evidence/vii-palumbo-complete-22eea31.json"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "The shared helper and family callers pass focused unit tests before a full build or deployment.",
+    "checks": [
+      "18-result exact-first completion",
+      "unknown locations remain unpadded",
+      "hard-filter pools are not widened",
+      "all four place-search families call the shared contract"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a whole-country search be incorrectly limited or padded?",
+      "Can a restrictive dated search receive an unavailable nearby property?",
+      "Can a sparse catalog create duplicates or fake an eighteenth result?",
+      "Can map count, list count and visible cards disagree?",
+      "Can production still serve the old three-result bundle after deployment?"
+    ],
+    "natural_destination_evidence": "Fresh production browser evidence for the supplied משמר הירדן URL after the deployment reaches terminal success.",
+    "affected_family_evidence": "Focused family tests, full build and representative production checks for vacation, events, spa and hourly routes."
+  },
+  "effectiveness": {
+    "baseline": "Production version 587 shows exactly 3 vacation results for משמר הירדן.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "The supplied production search shows at least 18 eligible results without changing the first three exact matches or breaking the affected family."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

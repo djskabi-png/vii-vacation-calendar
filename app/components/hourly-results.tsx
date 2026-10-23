@@ -17,7 +17,7 @@ import { ResultsViewToggle, useResultsViewMode } from "./results-view-toggle";
 import { ProgressiveResults } from "./progressive-results";
 import { rotateWithinTiers } from "../lib/daily-rotation";
 import { trackSearchResults } from "../lib/analytics";
-import { nearbySearchRecommendations, completeNearbyResults } from "../lib/nearby-recommendations";
+import { nearbySearchRecommendations, completePlaceSearchResults, PLACE_SEARCH_MINIMUM_RESULTS } from "../lib/nearby-recommendations";
 import { useManagedGeography } from "./use-managed-geography";
 import { NearbySearchNotice } from "./nearby-search-notice";
 
@@ -73,7 +73,7 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
   }), (item) => Number.isFinite(twoHourPrice(item)) && item.image ? 0 : Number.isFinite(twoHourPrice(item)) ? 1 : 2,
   (item) => item.id, "hourly-search"), [features, items, location, maximumPrice]);
   const nearbyRecovery = useMemo(() => {
-    if (filtered.length >= 3 || location === "כל הארץ") return [];
+    if (filtered.length >= PLACE_SEARCH_MINIMUM_RESULTS || location === "כל הארץ") return [];
     const anchors = items.filter((item) => matchesSearchLocation(item, location) && Number.isFinite(item.lat) && Number.isFinite(item.lng));
     const center = anchors.length ? {
       lat: anchors.reduce((sum, item) => sum + (item.lat as number), 0) / anchors.length,
@@ -87,7 +87,7 @@ function HourlyResultsPanel({ items, requestedLocation, requestedPrice, requeste
     });
     return nearbySearchRecommendations(eligible, location, managedGeography, { key: (item) => item.id, origin: { location, area: location, ...center } });
   }, [features, filtered, items, location, managedGeography, maximumPrice]);
-  const resultItems = useMemo(() => completeNearbyResults(filtered, nearbyRecovery, (item) => item.id), [filtered, nearbyRecovery]);
+  const resultItems = useMemo(() => completePlaceSearchResults(filtered, nearbyRecovery, (item) => item.id), [filtered, nearbyRecovery]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => trackSearchResults({

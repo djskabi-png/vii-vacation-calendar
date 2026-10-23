@@ -12,13 +12,30 @@ test("spa and hourly anchor city expansion to managed geography before any regio
   }
 });
 
-test("every geographic search family shares non-truncating minimum completion", async () => {
-  for (const path of ["app/search/page.tsx", "app/events/search/page.tsx", "app/components/world-map-results.tsx", "app/components/hourly-results.tsx", "app/attractions/attractions-explorer.tsx", "app/trails/trails-explorer.tsx"]) {
+test("every place-search family shares the minimum-eighteen completion contract", async () => {
+  for (const path of ["app/search/page.tsx", "app/events/search/page.tsx", "app/components/world-map-results.tsx", "app/components/hourly-results.tsx"]) {
     const source = await read(path);
-    assert.match(source, /completeNearbyResults\(filtered,/ , path);
+    assert.match(source, /completePlaceSearchResults\(filtered,/ , path);
+    assert.match(source, /PLACE_SEARCH_MINIMUM_RESULTS/, path);
     assert.match(source, /NearbySearchNotice/, path);
     assert.doesNotMatch(source, /const result(?:Items|Trails|Set)[^;]*=> \[\.\.\.filtered[^;]*slice\(0, 12\)/, path);
   }
+  for (const path of ["app/attractions/attractions-explorer.tsx", "app/trails/trails-explorer.tsx"]) {
+    const source = await read(path);
+    assert.match(source, /completeNearbyResults\(filtered,/ , path);
+    assert.doesNotMatch(source, /PLACE_SEARCH_MINIMUM_RESULTS/, path);
+  }
+});
+
+test("SSR and managed place-search surfaces use the same minimum-eighteen inventory", async () => {
+  for (const path of ["app/components/vacation-landing-route.tsx", "app/events/search/[region]/page.tsx", "app/hourly/page.tsx", "app/components/managed-search-landing.tsx"]) {
+    const source = await read(path);
+    assert.match(source, /completePlaceSearchResults/, path);
+  }
+  const shared = await read("app/lib/nearby-recommendations.ts");
+  assert.match(shared, /PLACE_SEARCH_MINIMUM_RESULTS = 18/);
+  assert.match(shared, /limit: PLACE_SEARCH_MINIMUM_RESULTS/);
+  assert.match(shared, /minimumResults: PLACE_SEARCH_MINIMUM_RESULTS/);
 });
 
 test("event fallback reuses all hard predicates and updates on every filter", async () => {
@@ -56,7 +73,7 @@ test("dated spa expansion retains audience, amenity and available-site filtering
   const source = await read("app/components/world-map-results.tsx");
   assert.match(source, /const eligible = amenityFiltered\.filter/);
   assert.match(source, /availability\.sites\.has/);
-  assert.match(source, /filtered\.length >= 3 \|\| checkingDate \|\| availabilityFailed/);
+  assert.match(source, /filtered\.length >= PLACE_SEARCH_MINIMUM_RESULTS \|\| checkingDate \|\| availabilityFailed/);
 });
 
 test("business recommendation reads are public, managed, parallel and failure isolated", async () => {
