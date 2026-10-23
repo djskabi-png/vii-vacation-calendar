@@ -92,10 +92,12 @@ function normalizedPublicQuery(url: URL, allowed: ReadonlySet<string>) {
   return query ? `?${query}` : "";
 }
 
-function publicDocumentTtl(pathname: string) {
+function publicDocumentTtl(pathname: string, url: URL) {
   const path = pathname.replace(/^\/(?:en|ru|fr)(?=\/|$)/, "") || "/";
   if (path === "/") return 300;
   if (/^\/(?:admin|account|favorites|booking|handoff|join)(?:\/|$)/.test(path)) return null;
+  if (/^\/(?:business|events\/place|discover\/place)(?:\/|$)/.test(path)
+    && !url.searchParams.has("from") && !url.searchParams.has("till")) return 900;
   if (/^\/(?:business|search|holidays|hourly|events|spas|providers|attractions|activities|trails|destinations|guides|questions|corporate|gift-card|contact|accessibility)(?:\/|$)/.test(path)) return 180;
   if (/^\/(?:vacations|villas|luxury-suites|suite-complexes|vacation-apartments|discover\/place)(?:\/|$)/.test(path)) return 180;
   if (/^\/legal(?:\/|$)/.test(path)) return 900;
@@ -126,7 +128,7 @@ export async function publicCachePolicy(request: Request, url: URL, build: strin
   } else {
     const navigation = url.pathname.endsWith(".rsc");
     const path = navigation ? url.pathname.slice(0, -4) || "/" : url.pathname;
-    const ttl = publicDocumentTtl(path);
+    const ttl = publicDocumentTtl(path, url);
     if (!ttl) return null;
     ttlSeconds = ttl;
     if (navigation) {

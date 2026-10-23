@@ -78,7 +78,7 @@ test("dated spa expansion retains audience, amenity and available-site filtering
 
 test("business recommendation reads are public, managed, parallel and failure isolated", async () => {
   const page = await read("app/business/page.tsx");
-  assert.match(page, /const recommendations = Promise\.all/);
+  assert.match(page, /const \[property, properties, acceptedDetail, trailInventory, spaSites, attractions\] = await Promise\.all/);
   assert.match(page, /managedTrails\(trails\)/);
   assert.match(page, /publicCatalogSummaries<SpaPlusSite>\("spa"\)\.catch/);
   assert.match(page, /managedDiscoveryItems/);

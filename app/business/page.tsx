@@ -5,7 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import BusinessPage from "./client-page";
 import { getListingOfferings, propertyFaq, type BusinessWorld, type Property } from "../data/site-data";
 import { supplierDisplayDescription } from "../data/supplier-display-text";
-import { publicCatalogDetail, publicCatalogSummaries } from "../lib/public-catalog-read.ts";
+import { publicCatalogDetail, publicCatalogSelectedSummaries, publicCatalogSummaries } from "../lib/public-catalog-read.ts";
 import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, faqSchema, lodgingSchema } from "../lib/seo";
 import { vacationBreadcrumbForLocation } from "../data/vacation-landings";
@@ -34,15 +34,24 @@ function normalizedParams(params: BusinessParams) {
   return Object.fromEntries(Object.entries(params).map(([key, value]) => [key, queryValue(value)])) as Record<keyof BusinessParams, string | undefined>;
 }
 
+const loadProperties = cache(async () => {
+  const properties = await publicCatalogSummaries<Property>("vacations");
+  return properties.map((item) => ({ ...item, description: supplierDisplayDescription(item) }));
+});
+
 const resolveProperty = cache(async (id?: string) => {
-  const properties = (await publicCatalogSummaries<Property>("vacations"))
-    .map((item) => ({ ...item, description: supplierDisplayDescription(item) }));
-  const property = id ? properties.find((item) => item.slug === (supplierLegacySlug(id, "vacations") || id)) : properties[0];
-  return { property, properties };
+  const slug = supplierLegacySlug(id, "vacations") || id;
+  const supplierId = /^vacation-(\d+)$/.exec(slug || "")?.[1];
+  if (supplierId) {
+    const [property] = await publicCatalogSelectedSummaries<Property>("vacations", [Number(supplierId)]);
+    if (property) return { ...property, description: supplierDisplayDescription(property) };
+  }
+  const properties = await loadProperties();
+  return id ? properties.find((item) => item.slug === slug) : properties[0];
 });
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const { property } = await resolveProperty(queryValue((await searchParams).id));
+  const property = await resolveProperty(queryValue((await searchParams).id));
   if (!property) return { title: "המקום אינו זמין", robots: { index: false, follow: false } };
   const { translate } = await serverPublicCopy();
   const name = translate(property.name);
@@ -73,22 +82,23 @@ export default async function Page({ searchParams }: Props) {
     const locale = (await headers()).get("x-vii-locale");
     redirect(`${locale && locale !== "he" ? `/${locale}` : ""}${url.pathname}${url.search}`);
   }
-  const { property, properties } = await resolveProperty(params.id);
-  if (!property) notFound();
-  const recommendations = Promise.all([
-    managedTrails(trails), publicCatalogSummaries<SpaPlusSite>("spa").catch(() => {
+  const supplierId = /^vacation-(\d+)$/.exec(params.id || "")?.[1];
+  const [property, properties, acceptedDetail, trailInventory, spaSites, attractions] = await Promise.all([
+    resolveProperty(params.id),
+    loadProperties(),
+    supplierId ? publicCatalogDetail<SupplierPlaceDetail>("vacations", Number(supplierId)) : null,
+    managedTrails(trails),
+    publicCatalogSummaries<SpaPlusSite>("spa").catch(() => {
       console.warn("nearby_spa_catalog_unavailable");
       return [] as SpaPlusSite[];
     }),
     managedDiscoveryItems(discoveryItems.filter((item) => item.world === "activities"), "attractions"),
   ]);
-  const supplierId = /^vacation-(\d+)$/.exec(property.slug)?.[1];
-  const acceptedDetail = supplierId ? await publicCatalogDetail<SupplierPlaceDetail>("vacations", Number(supplierId)) : null;
+  if (!property) notFound();
   // Public pages render from the accepted platform snapshot. Supplier refreshes
   // belong to the ingestion pipeline and must never sit on the visitor's
   // critical path or turn a slow upstream API into a slow business page.
   const supplierDetail = acceptedDetail || undefined;
-  const [trailInventory, spaSites, attractions] = await recommendations;
   const complementaryInventory = [...spaPlacesFromSites(spaSites), ...attractions];
   const providerInventory = discoveryItems.filter((item) => item.world === "providers");
   const relatedProperties = nearbyRecommendations(properties, property, { key: (item) => item.slug, exclude: property.slug, limit: 3 }).items;

@@ -5,15 +5,19 @@ import { notFound, redirect } from "next/navigation";
 import EventPlacePage from "./client-page";
 import { eventPlaceHref, type EventPlace } from "../../data/site-data";
 import { supplierDisplayDescription } from "../../data/supplier-display-text";
-import { publicCatalogDetail, publicCatalogSummaries } from "../../lib/public-catalog-read.ts";
+import { publicCatalogDetail, publicCatalogSelectedSummaries, publicCatalogSummaries } from "../../lib/public-catalog-read.ts";
 import { StructuredData } from "../../components/structured-data";
 import { breadcrumbSchema, eventVenueSchema } from "../../lib/seo";
 import { supplierLegacySlug, unavailableLegacySearchHref } from "../../data/supplier-legacy-links";
 import type { SupplierPlaceDetail } from "../../data/supplier-place-detail";
 import { eventBreadcrumbsForLocation } from "../../data/world-search-landings";
 import { providerProfiles } from "../../data/world-data";
+import { nearbyRecommendations } from "../../lib/nearby-recommendations";
 
 type Props = { searchParams: Promise<{ id?: string }> };
+
+const loadPlaces = cache(async () => (await publicCatalogSummaries<EventPlace>("events"))
+  .map((item) => ({ ...item, description: supplierDisplayDescription(item) })));
 
 const resolvePlace = cache(async (id?: string) => {
   const mappedSlug = supplierLegacySlug(id, "events");
@@ -22,15 +26,18 @@ const resolvePlace = cache(async (id?: string) => {
   if (mappedSlug) redirect(`${prefix}/events/place/${mappedSlug}`);
   const unavailable = unavailableLegacySearchHref(id, "events");
   if (unavailable) redirect(`${prefix}${unavailable}`);
-  const places = (await publicCatalogSummaries<EventPlace>("events"))
-    .map((item) => ({ ...item, description: supplierDisplayDescription(item) }));
-  const place = id ? places.find((item) => item.slug === id) : undefined;
+  const supplierId = /^event-(\d+)$/.exec(id || "")?.[1];
+  const [selected] = supplierId
+    ? await publicCatalogSelectedSummaries<EventPlace>("events", [Number(supplierId)])
+    : [];
+  const place = selected ? { ...selected, description: supplierDisplayDescription(selected) }
+    : id ? (await loadPlaces()).find((item) => item.slug === id) : undefined;
   if (!place) notFound();
-  return { place, places };
+  return place;
 });
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const { place } = await resolvePlace((await searchParams).id);
+  const place = await resolvePlace((await searchParams).id);
   return {
     title: place.name,
     description: place.description,
@@ -41,11 +48,16 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 }
 
 export default async function Page({ searchParams }: Props) {
-  const { place, places } = await resolvePlace((await searchParams).id);
+  const id = (await searchParams).id;
+  const supplierId = /^event-(\d+)$/.exec(id || "")?.[1];
+  const [place, places, acceptedDetail] = await Promise.all([
+    resolvePlace(id),
+    loadPlaces(),
+    supplierId ? publicCatalogDetail<SupplierPlaceDetail>("events", Number(supplierId)) : null,
+  ]);
   if (place.sourcePropertySlug) redirect(eventPlaceHref(place));
-  const supplierId = /^event-(\d+)$/.exec(place.slug)?.[1];
-  const acceptedDetail = supplierId ? await publicCatalogDetail<SupplierPlaceDetail>("events", Number(supplierId)) : null;
   const supplierDetail = acceptedDetail || undefined;
+  const relatedPlaces = nearbyRecommendations(places, place, { key: (entry) => entry.slug, exclude: place.slug, limit: 3 }).items;
   return <>
     <StructuredData data={eventVenueSchema(place)} />
     <StructuredData data={breadcrumbSchema([
@@ -54,6 +66,6 @@ export default async function Page({ searchParams }: Props) {
       ...eventBreadcrumbsForLocation(place.area, place.location),
       { name: place.name, path: eventPlaceHref(place) },
     ])} />
-    <EventPlacePage initialSlug={place.slug} initialPlace={place} relatedPlaces={places} providerInventory={providerProfiles} supplierDetail={supplierDetail} />
+    <EventPlacePage initialSlug={place.slug} initialPlace={place} relatedPlaces={relatedPlaces} providerInventory={providerProfiles} supplierDetail={supplierDetail} />
   </>;
 }

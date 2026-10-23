@@ -103,8 +103,12 @@ test("business and event detail pages render accepted platform snapshots without
   ]);
   for (const source of [business, eventQuery, eventPath]) {
     assert.match(source, /publicCatalogDetail/);
+    assert.match(source, /publicCatalogSelectedSummaries/);
     assert.doesNotMatch(source, /liveSupplierPlaceDetail/);
   }
+  assert.match(business, /Promise\.all\(\[/);
+  assert.match(eventQuery, /relatedPlaces = nearbyRecommendations/);
+  assert.match(eventPath, /relatedPlaces = nearbyRecommendations/);
   assert.doesNotMatch(businessClient, /import \{[^}]*\bproperties\b[^}]*\} from "\.\.\/data\/site-data"/);
   assert.doesNotMatch(businessClient, /import \{[^}]*\bdiscoveryItems\b[^}]*\} from "\.\.\/data\/world-data"/);
   assert.doesNotMatch(eventClient, /import \{[^}]*\beventPlaces\b[^}]*\} from "\.\.\/\.\.\/data\/site-data"/);

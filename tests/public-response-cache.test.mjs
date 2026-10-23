@@ -42,6 +42,13 @@ test("private, transaction, actions and refresh paths bypass every tier", async 
   assert.equal(await publicCachePolicy(write, new URL(write.url), "write"), null);
 });
 
+test("undated place documents keep a longer smart-cache window while dated visits stay fresh", async () => {
+  for (const path of ["/business?id=vacation-2566", "/events/place/event-2", "/discover/place/hourly-475"]) {
+    assert.equal((await policy(path))?.ttlSeconds, 900, path);
+  }
+  assert.equal((await policy("/business?id=vacation-2566&from=2026-10-24&till=2026-10-25"))?.ttlSeconds, 180);
+});
+
 test("identity isolates builds, hosts, locales, filters and every Flight routing variant", async () => {
   const base = await policy("/spas", {}, "same");
   assert.notEqual((await policy("/spas", {}, "new-release")).key, base.key);
