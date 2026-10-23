@@ -27,7 +27,9 @@ test("every place-detail feature family consumes the shared semantic icon", () =
   assert.match(events, /<FeatureIcon label=\{feature\} className="event-feature-check" \/>/);
   assert.match(discover, /<FeatureIcon label=\{facility\} className="spa-facility-icon" \/>/);
   assert.match(discover, /<FeatureIcon label=\{entry\} className="hourly-feature-icon" \/>/);
+  assert.match(discover, /<FeatureIcon label=\{feature\} className="discovery-card__chip-icon" \/>/);
   assert.match(sleeping, /<FeatureIcon label=\{amenity\} className="sleeping-amenity-icon" \/>/);
   assert.match(verifiedSleeping, /<FeatureIcon label=\{detail\} className="sleeping-amenity-icon" \/>/);
   assert.match(css, /\.sleeping-amenity-icon svg \{ width: 14px; height: 14px; \}/);
+  assert.match(css, /\.discovery-card__chip-icon \{ width: 16px; height: 16px; flex: 0 0 16px; \}/);
 });
