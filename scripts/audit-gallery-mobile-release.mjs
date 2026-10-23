@@ -39,7 +39,8 @@ try {
       const response = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
       result.checks.http = response?.status() || 0;
       await page.locator(".story-gallery").waitFor({ state: "visible", timeout: 30000 });
-      await page.waitForTimeout(1200);
+      await page.waitForFunction(() => [...document.querySelectorAll(".story-gallery__mobile-tour img")]
+        .some((image) => image.complete && image.naturalWidth > 0), null, { timeout: 15000 });
 
       result.checks.initial = await page.locator(".story-gallery").evaluate((gallery) => {
         const tour = gallery.querySelector(".story-gallery__mobile-tour");

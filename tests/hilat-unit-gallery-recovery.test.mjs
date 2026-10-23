@@ -58,6 +58,7 @@ test("mobile gallery is a topic tour that opens a focused full-image viewer", as
   assert.match(css, /\.story-gallery__mobile-stage\.is-viewer \{[\s\S]*?display: block;[\s\S]*?overflow: hidden;/);
   assert.match(css, /\.story-gallery__mobile-tour button:first-child:nth-last-child\(odd\) \{\s*grid-column: auto;\s*aspect-ratio: 1 \/ \.78;/);
   assert.match(css, /\.story-gallery__tabs button\[aria-pressed="true"\] \{\s*color: white;\s*border-color: #25a9b8;\s*background: #087f8e;/);
+  assert.match(css, /\.story-gallery__tabs button\[aria-pressed="true"\] small \{\s*background: #075d69;/);
 });
 
 test("every public place gallery caller uses the shared mobile overview", async () => {

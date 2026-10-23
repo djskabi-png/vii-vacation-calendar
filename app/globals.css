@@ -9313,7 +9313,7 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
     background: rgba(255,255,255,.1);
   }
   .story-gallery__tabs button[aria-pressed="true"] small {
-    background: rgba(255,255,255,.18);
+    background: #075d69;
   }
   .story-gallery__workspace {
     background: #02090c;
