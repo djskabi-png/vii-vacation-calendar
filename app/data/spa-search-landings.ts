@@ -1,6 +1,7 @@
 import type { DiscoveryItem } from "./world-data";
 import { matchesSearchLocation } from "./search-taxonomy.ts";
 import { canonicalSearchLocation } from "../lib/geographic-names.ts";
+import { orderedPlaceLocations } from "../lib/place-breadcrumb-locations.ts";
 import { getSpaLanding, spaItemMatches, spaLandingHref, spaLandings, type SpaLanding } from "./spa-landings.ts";
 
 export const spaSearchRegions = [
@@ -61,14 +62,17 @@ export function spaSearchHref(state: SpaSearchState) {
 }
 
 export function spaBreadcrumbForLocation(area: string, location?: string) {
-  const candidate = [area, location]
-    .map((value) => value?.trim())
-    .find((value): value is string => Boolean(value && value !== "הכל" && value !== "כל הארץ"));
-  if (!candidate) return { name: "בתי ספא", path: "/spas" };
-  const state = spaSearchStateFromValues(candidate);
-  return state.region
-    ? { name: `ספא ב${state.region.label}`, path: spaSearchHref(state) }
-    : { name: `ספא ב${canonicalSearchLocation(candidate)}`, path: `/spas?location=${encodeURIComponent(canonicalSearchLocation(candidate))}` };
+  return spaBreadcrumbsForLocation(area, location).at(-1)
+    ?? { name: "בתי ספא", path: "/spas" };
+}
+
+export function spaBreadcrumbsForLocation(area: string, location?: string) {
+  return orderedPlaceLocations(area, location).map((value) => {
+    const state = spaSearchStateFromValues(value);
+    return state.region
+      ? { name: `ספא ב${state.region.label}`, path: spaSearchHref(state) }
+      : { name: `ספא ב${value}`, path: `/spas?location=${encodeURIComponent(value)}` };
+  });
 }
 
 const localizedRegions: Record<Exclude<SpaSearchLanguage, "he">, Record<string, string>> = {

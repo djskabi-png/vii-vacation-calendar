@@ -17,7 +17,7 @@ import hourlyCatalog from "../../../data/sergey-hourly-catalog.json";
 import { managedDiscoveryItems } from "../../../lib/managed-public-content";
 import { serverLocalePath } from "../../../i18n/server-public-copy";
 import { hourlyBreadcrumbsForLocation } from "../../../data/world-search-landings";
-import { spaBreadcrumbForLocation } from "../../../data/spa-search-landings";
+import { spaBreadcrumbsForLocation } from "../../../data/spa-search-landings";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -76,7 +76,7 @@ export default async function Page({ params }: Props) {
   const itemBreadcrumbs = item.world === "hourly"
     ? [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), ...hourlyBreadcrumbsForLocation(item.area, item.location), { name: item.name, path: `/discover/place/${item.id}` }]
     : item.world === "spa"
-      ? [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), spaBreadcrumbForLocation(item.area, item.location), { name: item.name, path: `/discover/place/${item.id}` }]
+      ? [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), ...spaBreadcrumbsForLocation(item.area, item.location), { name: item.name, path: `/discover/place/${item.id}` }]
     : [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), { name: item.name, path: `/discover/place/${item.id}` }];
   return <>
     <ViewedItemBootstrap id={item.id} world={item.world} name={item.name} location={`${item.location}, ${item.area}`} image={item.image} href={`/discover/place/${item.id}`} meta={item.priceLabel || item.duration} />

@@ -23,5 +23,6 @@ test("vacation bedroom facts render as separate visible cards sourced from suppl
 test("hourly breadcrumb city uses an ASCII canonical landing", () => {
   const landings = read("../app/data/world-search-landings.ts");
   assert.match(landings, /"ראשון לציון": "rishon-lezion"/);
-  assert.match(landings, /return distinct\.map\(\(value\) => \(\{ name: `חדרים לפי שעה ב\$\{value\}`, path: hourlySearchHref\(value\) \}\)\)/);
+  assert.match(landings, /orderedPlaceLocations\(area, location\)/);
+  assert.match(landings, /name: `חדרים לפי שעה ב\$\{value\}`, path: hourlySearchHref\(value\)/);
 });

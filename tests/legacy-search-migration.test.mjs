@@ -12,7 +12,9 @@ const opportunitySource = readFileSync(new URL("../app/lib/search-opportunities.
 test("every legacy sitemap search page has one unique published replacement", () => {
   assert.ok(exported.legacySearchUrlCount >= 2313);
   assert.equal(exported.rows.length, exported.legacySearchUrlCount);
-  assert.equal(publications.count, exported.legacySearchUrlCount - 3);
+  assert.equal(publications.count, exported.legacySearchUrlCount - 2);
+  assert.equal(publications.aliases.length, 2);
+  assert.equal(publications.count + publications.aliases.length, exported.legacySearchUrlCount);
   assert.equal(new Set(publications.pages.map((page) => page.id)).size, publications.count);
   assert.equal(new Set(publications.pages.map((page) => page.canonicalPath)).size, publications.count);
 });
@@ -22,15 +24,18 @@ test("every migrated search source has a direct 301 target and is no longer gone
   const bySource = new Map(publications.pages.map((page) => [page.legacySourcePath, page]));
   for (const source of exported.rows.map((row) => row.sourcePath)) {
     const page = bySource.get(source);
-    if (!page) {
-      assert.equal(gone.has(source), true, source);
-      continue;
-    }
+    if (!page) continue;
     assert.equal(redirects.redirects[source], page.canonicalPath, source);
     assert.equal(gone.has(source), false, source);
   }
-  assert.equal(redirects.stats.managedSearchRedirects, publications.count);
-  assert.deepEqual(redirects.gone.filter((source) => /^\/s(?:\/|\?|$)/.test(source)), ["/s/11487", "/s/gan_yavne/11857", "/s/israel/12709"]);
+  for (const alias of publications.aliases) {
+    const target = bySource.get(alias.targetSourcePath)?.canonicalPath;
+    assert.ok(target, alias.targetSourcePath);
+    assert.equal(redirects.redirects[alias.sourcePath], target, alias.sourcePath);
+    assert.equal(gone.has(alias.sourcePath), false, alias.sourcePath);
+  }
+  assert.equal(redirects.stats.managedSearchRedirects, publications.count + publications.aliases.length);
+  assert.deepEqual(redirects.gone.filter((source) => /^\/s(?:\/|\?|$)/.test(source)), []);
   assert.equal(redirects.stats.total, Object.keys(redirects.redirects).length + redirects.gone.length);
 });
 

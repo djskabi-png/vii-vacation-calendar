@@ -1,9 +1,7 @@
 "use client";
 import { nearbyRecommendations } from "../../lib/nearby-recommendations";
-import { eventBreadcrumbForLocation } from "../../data/world-search-landings";
+import { eventBreadcrumbsForLocation } from "../../data/world-search-landings";
 import { hasVerifiedAccessibilityFeature } from "../../data/accessibility-data";
-
-/* eslint-disable @next/next/no-img-element */
 
 import { FormEvent, useMemo, useState } from "react";
 import Link from "next/link";
@@ -37,10 +35,6 @@ import type { EventSlot } from "../../lib/vii-live-search";
 import { DirectPhoneLink } from "../../components/direct-phone-link";
 import { useSiteLanguage } from "../../i18n/locale-provider";
 import { latinBusinessAlias, localizedBusinessList, localizedBusinessText } from "../../i18n/localized-business-content";
-
-function PhoneIcon() {
-  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.7 3.5 9 3a1.6 1.6 0 0 1 1.8 1l1 3a1.6 1.6 0 0 1-.5 1.7L9.7 10a14 14 0 0 0 4.3 4.3l1.3-1.6a1.6 1.6 0 0 1 1.7-.5l3 1a1.6 1.6 0 0 1 1 1.8l-.5 2.3a3 3 0 0 1-3 2.4A15.5 15.5 0 0 1 4.3 6.5a3 3 0 0 1 2.4-3Z" /></svg>;
-}
 
 function EventFeatureCheck() {
   return <span className="event-feature-check" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="m4.5 10.2 3.3 3.3 7.7-7.7" /></svg></span>;
@@ -152,7 +146,7 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
     <PageShell variant="events">
       <ViewedItemTracker id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים ביחידה הגדולה`} />
       <main id="main-content" className="event-place-page">
-        <BreadcrumbTrail items={[{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, eventBreadcrumbForLocation(place.area, place.location), { name: localizedPlaceName }]} />
+        <BreadcrumbTrail items={[{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, ...eventBreadcrumbsForLocation(place.area, place.location), { name: localizedPlaceName }]} />
 <section className="shell property-title event-title"><div><span className="eyebrow">{safeEventText(place.type, eventContentCopy.name)}</span><h1>{localizedPlaceName}</h1><p><PinIcon />{localizedLocation}, {localizedArea}</p></div><div className="property-title__side"><div className="property-title__actions property-title__actions--contact"><FavoriteButton compact={false} id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים ביחידה הגדולה`} />{phoneHref ? <DirectPhoneLink phone={ownerPhone} placeName={localizedPlaceName} className="property-phone-action" tracking={{ placeId: place.slug, placeName: place.name, world: "events", placement: "event_detail" }} /> : null}{ownerWhatsapp ? <WhatsAppLeadButton world="events" placeId={place.slug} placeName={place.name} businessPhone={ownerWhatsapp} serviceName={place.type} buttonClassName="property-whatsapp-action" /> : null}<ShareButton title={place.name} kind="event" image={place.image} /></div><a className="button primary" href="#event-booking">{translate("בדיקת אירוע")}</a></div></section>
         <PropertyGallery className="shell" images={place.images} name={localizedPlaceName} onOpen={(index) => openGallery("all", index)} />
         <DetailReviewSummary

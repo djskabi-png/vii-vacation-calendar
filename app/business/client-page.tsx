@@ -6,8 +6,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 import { vacationBreadcrumbForLocation } from "../data/vacation-landings";
-import { eventBreadcrumbForLocation, hourlyBreadcrumbsForLocation } from "../data/world-search-landings";
-import { spaBreadcrumbForLocation } from "../data/spa-search-landings";
+import { eventBreadcrumbsForLocation, hourlyBreadcrumbsForLocation } from "../data/world-search-landings";
+import { spaBreadcrumbsForLocation } from "../data/spa-search-landings";
 import { CalendarDemo, currentSiteDay } from "../calendar-demo";
 import { ListingMap } from "../components/listing-map";
 import { PageShell } from "../components/page-shell";
@@ -336,9 +336,9 @@ export default function BusinessPage({ initialSlug, initialProperty, relatedProp
       <main id="main-content" className="property-page">
         <ViewedItemTracker id={property.slug} world={activeWorld} name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={`/business?id=${property.slug}${activeWorld === offerings[0].world ? "" : `&mode=${activeWorld}`}`} meta={property.guests > 0 ? `${property.type} · עד ${property.guests} אורחים` : property.type} />
         <BreadcrumbTrail items={activeWorld === "events"
-          ? [{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, eventBreadcrumbForLocation(property.area, property.location), { name: localizedPropertyName }]
+          ? [{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, ...eventBreadcrumbsForLocation(property.area, property.location), { name: localizedPropertyName }]
           : activeWorld === "spa"
-            ? [{ name: "ראשי", path: "/" }, { name: "בתי ספא", path: "/spas" }, spaBreadcrumbForLocation(property.area, property.location), { name: localizedPropertyName }]
+            ? [{ name: "ראשי", path: "/" }, { name: "בתי ספא", path: "/spas" }, ...spaBreadcrumbsForLocation(property.area, property.location), { name: localizedPropertyName }]
             : activeWorld === "hourly"
               ? [{ name: "ראשי", path: "/" }, { name: "חדרים לפי שעה", path: "/hourly" }, ...hourlyBreadcrumbsForLocation(property.area, property.location), { name: localizedPropertyName }]
               : [{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, vacationBreadcrumbForLocation(property.area),

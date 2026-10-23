@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-sitewide-breadcrumb-url-release-20261023",
+  "project": "VII",
+  "task_type": "sitewide-breadcrumb-search-url-redirect-release",
+  "requested_outcome": "Every relevant VII place page uses the verified hierarchy Home, World, Region, City, Place; all known search pages, canonical URLs, sitemaps and legacy redirects remain complete and correct; the exact verified candidate is published and rechecked on the public site.",
+  "natural_destination": "https://vii.spaplus.co across all public place, search and legacy redirect families",
+  "authorization_boundary": "Implementation, publication to the existing VII Sites project and public verification are explicitly authorized. DNS cutover, fabricated geography and unrelated blocked map-snapshot work are excluded.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-QA-001","reason":"The user requires a complete public result, not a code-only change.","acceptance_impact":"Every affected family item must have public evidence, a precise blocker or justified exclusion."},
+    {"lesson_id":"ADIR-DEPLOY-001","reason":"The task includes a production publication.","acceptance_impact":"Freeze one candidate, preserve rollback and verify the exact deployed version and public URLs."},
+    {"lesson_id":"ADIR-ADMIN-001","reason":"Search URLs and redirects have existing managed administration and server validation.","acceptance_impact":"Verify ASCII slug validation, persistence and public reflection without weakening permissions."},
+    {"lesson_id":"ADIR-SEO-001","reason":"Breadcrumbs, canonicals, sitemaps and redirects are technical SEO contracts.","acceptance_impact":"Visible breadcrumbs, BreadcrumbList, canonical, sitemap and status semantics must agree."},
+    {"lesson_id":"ADIR-CONSISTENCY-001","reason":"The requested hierarchy must be identical across world families.","acceptance_impact":"Use vacation and hourly as the approved structure and compare every place family on desktop and mobile."},
+    {"lesson_id":"ADIR-SCOPE-001","reason":"A shared routing repair can unintentionally alter approved pages.","acceptance_impact":"Preserve design, booking, gallery, contact, availability and unrelated content behavior."},
+    {"lesson_id":"ADIR-WEB-001","reason":"The request includes complete old-to-new page and redirect parity.","acceptance_impact":"Classify the full known legacy inventory and reject unclassified or generic replacements."},
+    {"lesson_id":"ADIR-MIND-001","reason":"The broad word all requires an explicit affected-family and natural-destination proof.","acceptance_impact":"Inventory worlds, route states and URL systems before editing and attack the release claim after deployment."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"Spa or event detail still omits the city because the resolver prefers the region.","prevention":"Build one ordered geographic breadcrumb resolver that deduplicates only identical verified levels.","acceptance_check":"Representative and catalog-wide place cases emit Region before City before Place in UI and BreadcrumbList."},
+    {"rejection":"A breadcrumb city link leads to a query-only, missing or unrelated search page.","prevention":"Resolve each crumb through the canonical search-page registry and validate the destination before release.","acceptance_check":"Every generated geographic crumb has an ASCII internal path, 200 destination and matching search state."},
+    {"rejection":"The fix changes visible breadcrumbs but leaves structured data, canonical or sitemap inconsistent.","prevention":"Generate UI and schema from the same hierarchy and run route-level SEO checks.","acceptance_check":"Visible trail, JSON-LD, H1, canonical and sitemap classification describe the same state."},
+    {"rejection":"Only a sample of old URLs is checked and a broken 301 remains.","prevention":"Run the complete stored legacy inventory and publication audits, not a representative sample.","acceptance_check":"All 3,526 currently known sources are classified and every enabled redirect is direct, internal, non-homepage and resolves to a 200 self-canonical destination or an explicit gone outcome."},
+    {"rejection":"A stale or dirty source overwrites newer public fixes.","prevention":"Use a clean isolated worktree based on the latest approved candidate and exclude uncommitted map work.","acceptance_check":"Candidate status is clean before freeze, changed-file inventory is scoped and public release identity matches the frozen commit."},
+    {"rejection":"The release passes tests but is still wrong on mobile or public production.","prevention":"Inspect exact public desktop and 390px mobile place/search routes after deployment and retest redirects.","acceptance_check":"Public screenshots and HTTP evidence show the required hierarchy and no responsive regression."}
+  ],
+  "affected_family": [
+    "vacation business detail",
+    "hourly business and discovery detail",
+    "spa business and discovery detail",
+    "event business and event-place detail",
+    "other location-bearing detail worlds including attractions, suppliers and trails when verified city data exists",
+    "visible breadcrumb component and BreadcrumbList schema",
+    "canonical search-page routes and managed search publications",
+    "XML sitemaps and internal links",
+    "legacy redirect and gone inventories",
+    "search-page URL editor and server-side ASCII validation",
+    "Hebrew, English, French and Russian route rendering",
+    "desktop and 390px mobile"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label":"Required hierarchy clarified by Adir","source":"Current task requirement: Home, World, Region, City, Place"},
+      {"label":"Mature vacation and hourly place hierarchy","source":"app/business/page.tsx and app/business/client-page.tsx"},
+      {"label":"Existing legacy migration contract","source":"project_knowledge/acceptance/vii-legacy-content-redirects-20261022.json"},
+      {"label":"VII accepted product decisions","source":"calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After one shared hierarchy implementation passes vacation, hourly, spa and events plus one end-to-end legacy redirect, before broad release audit.",
+    "checks": ["ordered region and city with duplicate suppression","valid canonical city and region destinations","visible and schema parity","no change to unrelated place-page controls"],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can any location-bearing place route still skip a verified region or city?",
+      "Can any breadcrumb link return 404, redirect again, use a Hebrew slug or describe a different search state?",
+      "Can any active legacy redirect end at the homepage, a non-200 response, a chain or unrelated content?",
+      "Can visible breadcrumbs and BreadcrumbList disagree after language change or reload?",
+      "Did publication omit a later approved fix or include the blocked map changes?"
+    ],
+    "natural_destination_evidence": "Exact public version plus desktop and 390px browser captures and HTTP/JSON-LD checks on representative routes in every affected world.",
+    "affected_family_evidence": "Complete catalog/source audit for geographic breadcrumbs and complete stored legacy/search-page inventory validators, with explicit counts and zero unresolved enabled mappings."
+  },
+  "effectiveness": {
+    "baseline": "Vacation and hourly retain region/city levels, while spa and events use a single resolver that currently prefers area; 3,526 known legacy sources and 2,313 migrated search pages already exist in the candidate.",
+    "measurements": ["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],
+    "target": "One shared ordered hierarchy with zero missing verified city levels, zero invalid geographic crumb destinations and zero regressions in the complete known redirect/search-page inventories."
+  },
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

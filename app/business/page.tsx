@@ -8,8 +8,8 @@ import { publicCatalogDetail, publicCatalogSummaries } from "../lib/public-catal
 import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, faqSchema, lodgingSchema } from "../lib/seo";
 import { vacationBreadcrumbForLocation } from "../data/vacation-landings";
-import { eventBreadcrumbForLocation, hourlyBreadcrumbsForLocation } from "../data/world-search-landings";
-import { spaBreadcrumbForLocation } from "../data/spa-search-landings";
+import { eventBreadcrumbsForLocation, hourlyBreadcrumbsForLocation } from "../data/world-search-landings";
+import { spaBreadcrumbsForLocation } from "../data/spa-search-landings";
 import { ViewedItemBootstrap } from "../components/viewed-item-bootstrap";
 import { currentPeriodOffer } from "../data/last-minute-deals";
 import { supplierLegacySlug, unavailableLegacySearchHref } from "../data/supplier-legacy-links";
@@ -109,9 +109,9 @@ export default async function Page({ searchParams }: Props) {
   const primaryWorld = getListingOfferings(property)[0].world;
   const vacationArea = vacationBreadcrumbForLocation(property.area);
   const hierarchy = primaryWorld === "events"
-    ? [{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, eventBreadcrumbForLocation(property.area, property.location)]
+    ? [{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, ...eventBreadcrumbsForLocation(property.area, property.location)]
     : primaryWorld === "spa"
-      ? [{ name: "ראשי", path: "/" }, { name: "בתי ספא", path: "/spas" }, spaBreadcrumbForLocation(property.area, property.location)]
+      ? [{ name: "ראשי", path: "/" }, { name: "בתי ספא", path: "/spas" }, ...spaBreadcrumbsForLocation(property.area, property.location)]
       : primaryWorld === "hourly"
         ? [{ name: "ראשי", path: "/" }, { name: "חדרים לפי שעה", path: "/hourly" }, ...hourlyBreadcrumbsForLocation(property.area, property.location)]
         : [{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, vacationArea,

@@ -1,5 +1,6 @@
 import type { SearchMode } from "./search-taxonomy";
 import { canonicalSearchLocation } from "../lib/geographic-names.ts";
+import { orderedPlaceLocations } from "../lib/place-breadcrumb-locations.ts";
 
 const locationSlugs: Record<string, string> = {
   "צפון": "north",
@@ -61,13 +62,13 @@ export function eventSearchHref(location?: string) {
 }
 
 export function eventBreadcrumbForLocation(area: string, location?: string) {
-  const candidate = [area, location]
-    .map((value) => value?.trim())
-    .find((value): value is string => Boolean(value && value !== "הכל" && value !== "כל הארץ"));
+  return eventBreadcrumbsForLocation(area, location).at(-1)
+    ?? { name: "מקומות לאירועים", path: "/events/search" };
+}
 
-  return candidate
-    ? { name: `מקומות לאירועים ב${canonicalSearchLocation(candidate)}`, path: eventSearchHref(candidate) }
-    : { name: "מקומות לאירועים", path: "/events/search" };
+export function eventBreadcrumbsForLocation(area: string, location?: string) {
+  return orderedPlaceLocations(area, location)
+    .map((value) => ({ name: `מקומות לאירועים ב${value}`, path: eventSearchHref(value) }));
 }
 
 export function hourlySearchHref(location?: string) {
@@ -85,9 +86,6 @@ export function hourlyBreadcrumbForLocation(area: string, location?: string) {
 }
 
 export function hourlyBreadcrumbsForLocation(area: string, location?: string) {
-  const values = [area, location]
-    .map((value) => value?.trim())
-    .filter((value): value is string => Boolean(value && value !== "הכל" && value !== "כל הארץ"));
-  const distinct = [...new Set(values.map(canonicalSearchLocation))];
-  return distinct.map((value) => ({ name: `חדרים לפי שעה ב${value}`, path: hourlySearchHref(value) }));
+  return orderedPlaceLocations(area, location)
+    .map((value) => ({ name: `חדרים לפי שעה ב${value}`, path: hourlySearchHref(value) }));
 }

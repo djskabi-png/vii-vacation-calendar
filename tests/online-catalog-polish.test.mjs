@@ -39,7 +39,9 @@ test("vacation discovery keeps last-good rails and the authenticated scheduler w
   assert.match(warmer, /if \(!warmed\.some\(item => item\.count > 0\)\)/);
   assert.match(worker, /scheduledTime \/ 60_000\) % 30 === 0[\s\S]*warmVacationDiscoveryCache/);
   assert.match(mcp, /warmVacationDiscoveryCache\(db\)/);
-  assert.match(rail, /lastGoodData\.current \? "ready"/);
+  assert.match(rail, /const accepted = lastGoodData\.current\.get\(selectionKey\)/);
+  assert.match(rail, /setState\(accepted \? "ready" : "loading"\)/);
+  assert.match(rail, /lastGoodData\.current\.set\(selectionKey, result\)/);
 });
 
 test("event discovery is prewarmed for a rolling week and visitor requests never call the supplier", async () => {

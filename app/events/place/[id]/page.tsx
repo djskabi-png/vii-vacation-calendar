@@ -10,7 +10,7 @@ import { ViewedItemBootstrap } from "../../../components/viewed-item-bootstrap";
 import { supplierLegacySlug, unavailableLegacySearchHref } from "../../../data/supplier-legacy-links";
 import { liveSupplierPlaceDetail, type SupplierPlaceDetail } from "../../../data/supplier-place-detail";
 import { validDate } from "../../../lib/vii-live-search";
-import { eventBreadcrumbForLocation } from "../../../data/world-search-landings";
+import { eventBreadcrumbsForLocation } from "../../../data/world-search-landings";
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ from?: string; guests?: string }> };
 
@@ -54,7 +54,7 @@ export default async function Page({ params, searchParams }: Props) {
     <StructuredData data={breadcrumbSchema([
       { name: "ראשי", path: "/" },
       { name: "אירועים", path: "/events/" },
-      eventBreadcrumbForLocation(place.area, place.location),
+      ...eventBreadcrumbsForLocation(place.area, place.location),
       { name: place.name, path: eventPlaceHref(place) },
     ])} />
     <EventPlacePage initialSlug={place.slug} initialPlace={place} relatedPlaces={places}

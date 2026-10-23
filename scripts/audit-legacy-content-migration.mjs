@@ -10,7 +10,6 @@ const exported = JSON.parse(await readFile(resolve(root, "project_knowledge/laun
 
 const asciiPath = (value) => !/[\u0590-\u05ff]/.test(String(value || ""));
 const searchPath = (value) => /^\/s(?:\/|\?|$)/.test(value);
-const pageBySource = new Map(publications.pages.map((page) => [page.legacySourcePath, page]));
 const exportBySource = new Map(exported.rows.map((row) => [row.sourcePath, row]));
 const staticPages = [
   { oldPath: "/term_and_conditions", newPath: "/legal/terms", type: "legal" },
@@ -56,6 +55,8 @@ const audit = {
   },
   nonPlace: {
     migratedSearchPages: publications.count,
+    migratedSearchAliases: publications.aliases?.length || 0,
+    migratedSearchUrls: publications.count + (publications.aliases?.length || 0),
     migratedStaticPages: staticPages.length,
     pagesWithRecoveredFaq: publications.pages.filter((page) => page.faq.length > 0).length,
     pagesWithCompleteBody: publications.pages.filter((page) => page.body.length >= 120).length,

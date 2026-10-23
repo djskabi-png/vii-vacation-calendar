@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "aliases": [
+    {
+      "sourcePath": "/s/11487",
+      "targetSourcePath": "/s/hefer_valley/11487",
+      "evidence": "אותו מזהה חיפוש ישן 11487; המקור המלא מזוהה כנופש בעמק חפר"
+    },
+    {
+      "sourcePath": "/s/israel/12709",
+      "targetSourcePath": "/s/north/12709",
+      "evidence": "אותו מזהה חיפוש ישן 12709; המקור המלא מזוהה כסוויטות בצפון"
+    }
+  ],
+  "pages": [
+    {
+      "sourcePath": "/s/gan_yavne/11857",
+      "location": "גן יבנה",
+      "area": "מישור החוף והשפלה",
+      "title": "נופש בגן יבנה",
+      "metaDescription": "נופש בגן יבנה והסביבה עם מקומות אירוח, תמונות, פרטים ואפשרות לבדוק זמינות. אם אין תוצאה מתאימה, מוצגות אפשרויות קרובות לפי מיקום.",
+      "slug": "gan-yavne-11857-22d83826",
+      "targetPath": "/search/vacations/gan-yavne-11857-22d83826",
+      "evidence": "נתיב החיפוש הישן והעיר המאומתת city:550 במאגר הגאוגרפי הציבורי, תחת area:6 מישור החוף והשפלה"
+    }
+  ]
+}

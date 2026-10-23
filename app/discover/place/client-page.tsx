@@ -38,7 +38,7 @@ import { HomeMobileRail } from "../../components/home-mobile-rail";
 import { useSiteLanguage } from "../../i18n/locale-provider";
 import { latinBusinessAlias, localizedBusinessList, localizedBusinessText } from "../../i18n/localized-business-content";
 import { hourlyBreadcrumbsForLocation } from "../../data/world-search-landings";
-import { spaBreadcrumbForLocation } from "../../data/spa-search-landings";
+import { spaBreadcrumbsForLocation } from "../../data/spa-search-landings";
 
 function hourlyRateLabel(value: string, language: "he" | "en" | "ru" | "fr", translate: (value: string) => string) {
   const [room, duration, day] = value.split(" · ");
@@ -295,7 +295,7 @@ export default function DiscoveryPlacePage({ initialId, initialItem, relatedItem
       <BreadcrumbTrail items={item.world === "hourly"
         ? [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), ...hourlyBreadcrumbsForLocation(item.area, item.location), { name: localizedItemName }]
         : item.world === "spa"
-          ? [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), spaBreadcrumbForLocation(item.area, item.location), { name: localizedItemName }]
+          ? [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), ...spaBreadcrumbsForLocation(item.area, item.location), { name: localizedItemName }]
           : [{ name: "ראשי", path: "/" }, worldBreadcrumb(item.world), { name: localizedItemName }]} />
       <section className="shell discovery-detail__hero">
         <div className="discovery-detail__copy"><span className="eyebrow">{translate(world.label)}</span><h1>{localizedItemName}</h1><p className="discovery-detail__location"><PinIcon />{localizedLocation}, {localizedArea}</p><p>{localizedDescription}</p><div className="discovery-card__chips">{localizedFeatures.map((feature) => <span key={feature}>{feature}</span>)}</div><div className="discovery-detail__actions">{spaDetails ? <a className="button primary" href="#spa-packages">{translate("לבחירת חבילה")}</a> : providerDetails ? <a className="button primary" href="#provider-services">{translate("לבחירת שירות")}</a> : hourlyDetails ? <DirectPhoneLink phone={item.phone} placeName={localizedItemName} className="button primary" tracking={{ placeId: item.id, placeName: item.name, world: "hourly", placement: "hourly_title" }} /> : activityDetails?.booking ? <a className="button primary" href="#activity-booking">{translate("איך מזמינים")}</a> : activityDetails ? <a className="button primary" href="#activity-plan">{translate("לתכנון המלא")}</a> : <Link className="button primary" href={world.href}>{translate("לכל האפשרויות")}</Link>}<FavoriteButton id={item.id} world={item.world} name={item.name} location={`${item.location}, ${item.area}`} image={item.image} href={`/discover/place/${item.id}`} meta={item.priceLabel || item.duration} compact={false} /><Link className="button secondary" href={world.href}>{translate("חזרה לרשימה")}</Link></div></div>

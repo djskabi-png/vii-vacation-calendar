@@ -1,0 +1,68 @@
+{
+  "goal": "Publish one verified VII release in which every location-bearing place page shows Home, World, Region, City, Place and the complete known search-page and legacy URL systems remain correct.",
+  "intent_model": {
+    "literal_request": "Apply the vacation/hourly breadcrumb model to spa, events and the whole site, then fix and republish all search pages and old-to-new redirects after thorough testing.",
+    "implied_outcome": "A single trustworthy public information architecture where navigation, URL state, schema, sitemap and redirects agree without erasing previously approved work.",
+    "likely_rejections": ["Spa or events still shows only area","Region and city are reversed or duplicated","A crumb opens a missing search page","Old redirects were assumed instead of exhaustively validated","A local or stale candidate was called public","Another approved feature disappeared"],
+    "interpretation_rules": [
+      {"phrase":"all sitewide","operational_meaning":"Inventory every affected world, route family, known legacy source and migrated search page.","acceptance_impact":"No representative-sample claim may replace the complete stored-inventory audit."},
+      {"phrase":"after testing","operational_meaning":"Test the frozen candidate, publish that exact artifact, then repeat critical checks on production.","acceptance_impact":"Build output alone cannot satisfy any public requirement."},
+      {"phrase":"without breaking the site","operational_meaning":"Preserve every unrelated approved capability and isolate the release from blocked map work.","acceptance_impact":"Changed-component inventory, before/after checks and family regression are required."}
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "The visitor sees one predictable geographic path and can open each location level.",
+    "current_decision": "No new user decision is introduced; the hierarchy only clarifies where the place belongs.",
+    "next_action": "Open the relevant region or city results page from the breadcrumb.",
+    "deferred_complexity": ["CMS redirect administration","inventory provenance","sitemap generation"],
+    "preserved_depth": ["all search filters and availability state","all booking and contact flows","all managed SEO and redirect operations"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/predictive_preflights/vii-sitewide-breadcrumb-url-release-20261023.json",
+    "lesson_bundle_ids": ["ADIR-QA-001","ADIR-DEPLOY-001","ADIR-ADMIN-001","ADIR-SEO-001","ADIR-CONSISTENCY-001","ADIR-SCOPE-001","ADIR-WEB-001","ADIR-MIND-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["VII visitor","search engine crawler","authorized VII administrator"],
+  "natural_destination": "https://vii.spaplus.co",
+  "facts": [
+    {"claim":"The current spa and event helpers choose area before location and emit one geographic crumb.","evidence":"app/data/spa-search-landings.ts and app/data/world-search-landings.ts"},
+    {"claim":"The candidate contains 3,526 known legacy sources and 2,313 migrated search pages.","evidence":"project_knowledge/acceptance/vii-legacy-content-redirects-20261022.json"},
+    {"claim":"Uncommitted map work exists in another worktree and is excluded.","evidence":"Clean isolated worktree release/v587-sitewide-breadcrumbs from e0bb2a4"}
+  ],
+  "assumptions": [
+    {"claim":"A place's area and location fields represent region and city respectively when both are verified and distinct.","validation":"Audit representative and catalog-wide records; omit a level when the source does not provide it instead of inferring."},
+    {"claim":"Existing managed search publications are the canonical destination registry for migrated legacy search pages.","validation":"Run publication, sitemap and redirect validators and inspect public destinations."}
+  ],
+  "in_scope": ["ordered place breadcrumbs","visible/schema parity","canonical geographic search links","search-page URL integrity","sitemap membership","legacy redirect and gone inventory","ASCII slug guards","publication and public verification"],
+  "out_of_scope": ["DNS cutover","new business facts","blocked map-snapshot provider credentials","unrelated visual redesign","actual booking or outbound lead submission"],
+  "invariants": ["No duplicate breadcrumb levels","No invented region or city","No Hebrew canonical slugs","No 301 chain, loop or homepage catch-all","Vacation/hourly approved behavior remains correct","Booking, gallery, contact, review and availability behavior remain unchanged","Only the frozen tested candidate is published"],
+  "affected_family": ["vacation details","hourly details","spa details","event details","other verified location-bearing detail pages","all supported languages","desktop/mobile","managed search pages","sitemaps","legacy redirects","search-page administration"],
+  "characteristics": {"stateful":true},
+  "requirements": [
+    {"id":"REQ-1","statement":"Every place page with verified geography renders Home, World, Region, City, Place in that order, suppressing only missing or identical levels.","source":"User clarification"},
+    {"id":"REQ-2","statement":"Every visible geographic crumb and BreadcrumbList item use the same valid canonical destination and page identity.","source":"User request and SEO standard"},
+    {"id":"REQ-3","statement":"Every currently known legacy URL and migrated search page remains classified, reachable through its intended status and free of unsafe redirect behavior.","source":"User request and existing migration contract"},
+    {"id":"REQ-4","statement":"Search-page slugs remain lowercase ASCII, publishable pages remain in the correct sitemap and URL changes retain direct redirects.","source":"User request and SEO standard"},
+    {"id":"REQ-5","statement":"The targeted change preserves all unrelated approved site capabilities and excludes unapproved work.","source":"User instruction not to break the site"},
+    {"id":"REQ-6","statement":"The exact tested candidate is published and the affected family is reverified on the public site with rollback available.","source":"User publication instruction"}
+  ],
+  "acceptance_checks": [
+    {"id":"AC-1","requirement_ids":["REQ-1"],"kind":"success","setup":"A place has distinct verified area and city values.","action":"Open its detail page in each affected world.","observable_result":"The visible trail and JSON-LD show Home, World, Region, City, Place in order."},
+    {"id":"AC-2","requirement_ids":["REQ-1"],"kind":"empty","setup":"A place is missing one level or area equals city.","action":"Open its detail page.","observable_result":"The trail omits only the unavailable or duplicate level and never invents geography."},
+    {"id":"AC-3","requirement_ids":["REQ-2","REQ-4"],"kind":"success","setup":"A geographic crumb is rendered.","action":"Open the link and inspect response, canonical, H1, search state and sitemap classification.","observable_result":"The ASCII URL returns the matching 200 page with consistent state and canonical."},
+    {"id":"AC-4","requirement_ids":["REQ-3"],"kind":"success","setup":"The complete stored legacy inventory is loaded.","action":"Run the migration and redirect audit.","observable_result":"All known sources are classified; enabled redirects are direct and valid; gone outcomes are explicit; no chain, loop or homepage catch-all exists."},
+    {"id":"AC-5","requirement_ids":["REQ-4"],"kind":"failure","setup":"Hebrew, mixed or malformed slug input is submitted through UI or API.","action":"Attempt to save or publish.","observable_result":"The request is rejected and no public URL is created."},
+    {"id":"AC-6","requirement_ids":["REQ-4"],"kind":"persistence","setup":"A valid managed search page and any required direct redirect exist.","action":"Reload administration, sitemap and public route.","observable_result":"The ASCII slug, publication state, canonical and redirect remain unchanged."},
+    {"id":"AC-7","requirement_ids":["REQ-5"],"kind":"recovery","setup":"Compare frozen candidate with baseline and blocked map worktree.","action":"Inspect changed files and run family regression.","observable_result":"Only scoped breadcrumb/search/redirect changes are included and unrelated place functions still pass."},
+    {"id":"AC-8","requirement_ids":["REQ-6"],"kind":"rollback","setup":"The candidate is frozen and all predeploy checks pass.","action":"Record prior public version and deploy once.","observable_result":"Rollback identity is available and public version matches the frozen candidate."},
+    {"id":"AC-9","requirement_ids":["REQ-1","REQ-2","REQ-3","REQ-6"],"kind":"retry","setup":"The first public verification encounters a transient or real defect.","action":"Diagnose once and retry only after a causal change.","observable_result":"The release is either verified after a distinct fix or reported not verified without repeated blind deployment."}
+  ],
+  "open_questions": [
+    {"question":"Does the full historical old-site corpus exceed the 3,526 currently stored sources?","blocking":false,"resolution":"Verify the complete stored union and report any unavailable external source separately; do not claim unseen historic URLs."}
+  ],
+  "authorization_boundary": "Code, tests, production publication and public verification are authorized. DNS cutover, external messages, real bookings and unrelated feature changes are not.",
+  "ready_for_implementation": true
+}

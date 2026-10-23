@@ -9,6 +9,7 @@ const [, , exportArgument = "project_knowledge/launch/legacy-search-pages-202610
 const root = process.cwd();
 const exported = JSON.parse(await readFile(resolve(root, exportArgument), "utf8"));
 const inventory = JSON.parse(await readFile(resolve(root, redirectArgument), "utf8"));
+const recoveryOverrides = JSON.parse(await readFile(resolve(root, "app/data/legacy-search-recovery-overrides.json"), "utf8"));
 
 function clip(value, limit, ellipsize = true) {
   const text = String(value || "").replace(/\s+/g, " ").trim();
@@ -106,8 +107,24 @@ function bodyFor(row) {
   return [recovered, first, second, third].filter(Boolean).join("\n\n").slice(0, 8000);
 }
 
-const readyRows = exported.rows.filter((row) => row.migrationStatus === "content-exported" ||
-  (row.sourceStatus === 200 && row.blocker === "missing_required_content" && headingFor(row).length >= 8));
+const recoveredPages = new Map(recoveryOverrides.pages.map((page) => [page.sourcePath, {
+  ...exported.rows.find((row) => row.sourcePath === page.sourcePath),
+  migrationStatus: "content-recovered-from-verified-geography",
+  h1: page.title,
+  title: `${page.title} - וי פור ויקיישן`,
+  metaDescription: page.metaDescription,
+  location: page.location,
+  area: page.area,
+  slug: page.slug,
+  targetPath: page.targetPath,
+  recoveryEvidence: page.evidence,
+}]));
+const readyRows = exported.rows.flatMap((row) => {
+  const recovered = recoveredPages.get(row.sourcePath);
+  if (recovered) return [recovered];
+  return row.migrationStatus === "content-exported" ||
+    (row.sourceStatus === 200 && row.blocker === "missing_required_content" && headingFor(row).length >= 8) ? [row] : [];
+});
 const generatedAt = exported.generatedAt || new Date().toISOString();
 const publications = readyRows.map((row) => ({
   id: stableId(row.sourcePath),
@@ -118,7 +135,10 @@ const publications = readyRows.map((row) => ({
   filters: filtersFor(row),
   sourcePath: sourceSearchPath(row),
   legacySourcePath: row.sourcePath,
-  contentRecovery: row.migrationStatus === "content-exported" ? null : "description-derived-from-source-h1",
+  contentRecovery: row.migrationStatus === "content-exported" ? null
+    : row.migrationStatus === "content-recovered-from-verified-geography" ? "verified-geography-and-legacy-path"
+    : "description-derived-from-source-h1",
+  recoveryEvidence: row.recoveryEvidence || null,
   proposedPath: row.targetPath,
   suggestedTitle: clip(headingFor(row), 90),
   latestResultCount: Number((row.resultSummary || "").match(/\d+/)?.[0] || 0),
@@ -171,6 +191,13 @@ for (const row of publications) {
   redirects[row.legacySourcePath] = row.canonicalPath;
   gone.delete(row.legacySourcePath);
 }
+const publicationBySource = new Map(publications.map((row) => [row.legacySourcePath, row]));
+for (const alias of recoveryOverrides.aliases) {
+  const target = publicationBySource.get(alias.targetSourcePath)?.canonicalPath;
+  if (!target) throw new Error(`legacy_alias_target_missing ${alias.sourcePath} -> ${alias.targetSourcePath}`);
+  redirects[alias.sourcePath] = target;
+  gone.delete(alias.sourcePath);
+}
 const orderedRedirects = Object.fromEntries(Object.entries(redirects).sort(([left], [right]) => left.localeCompare(right, "en")));
 const orderedGone = [...gone].sort((left, right) => left.localeCompare(right, "en"));
 const updatedInventory = {
@@ -182,13 +209,15 @@ const updatedInventory = {
     legacySearchPageExport: exportArgument.replace(/\\/g, "/"),
     legacySearchPageCount: exported.legacySearchUrlCount,
     migratedLegacySearchPageCount: publications.length,
-    blockedLegacySearchPageCount: exported.legacySearchUrlCount - publications.length,
+    migratedLegacySearchAliasCount: recoveryOverrides.aliases.length,
+    blockedLegacySearchPageCount: exported.legacySearchUrlCount - publications.length - recoveryOverrides.aliases.length,
   },
   stats: {
     total: Object.keys(orderedRedirects).length + orderedGone.length,
     redirects: Object.keys(orderedRedirects).length,
     gone: orderedGone.length,
-    managedSearchRedirects: publications.length,
+    managedSearchRedirects: publications.length + recoveryOverrides.aliases.length,
+    managedSearchAliases: recoveryOverrides.aliases.length,
   },
   redirects: orderedRedirects,
   gone: orderedGone,
@@ -198,6 +227,7 @@ const compactPages = publications.map((page) => ({
   id: page.id,
   legacySourcePath: page.legacySourcePath,
   contentRecovery: page.contentRecovery,
+  recoveryEvidence: page.recoveryEvidence,
   sourcePath: page.sourcePath,
   location: page.location,
   filters: page.filters,
@@ -214,6 +244,7 @@ const compactPages = publications.map((page) => ({
   latestResultCount: page.latestResultCount,
   updatedAt: page.updatedAt,
 }));
-await writeFile(resolve(root, publicationsArgument), `${JSON.stringify({ schemaVersion: 3, generatedAt, source: exportArgument.replace(/\\/g, "/"), count: compactPages.length, pages: compactPages })}\n`, "utf8");
+await writeFile(resolve(root, publicationsArgument), `${JSON.stringify({ schemaVersion: 4, generatedAt, source: exportArgument.replace(/\\/g, "/"), count: compactPages.length,
+  aliases: recoveryOverrides.aliases, pages: compactPages })}\n`, "utf8");
 await writeFile(resolve(root, redirectArgument), `${JSON.stringify(updatedInventory, null, 2)}\n`, "utf8");
 console.log(JSON.stringify({ publications: publications.length, redirects: updatedInventory.stats.redirects, gone: updatedInventory.stats.gone, total: updatedInventory.stats.total }));

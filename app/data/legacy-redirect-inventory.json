@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-22T03:38:49.435Z",
+  "generatedAt": "2026-10-23T03:02:02.764Z",
   "sourceSnapshots": {
     "legacySitemap": "https://www.vii.co.il/sitemap.php",
     "legacySitemapUrlCount": 2711,
@@ -10,14 +10,16 @@
     "newSitemapUrlCount": 5280,
     "legacySearchPageExport": "project_knowledge/launch/legacy-search-pages-complete-merged-20261022.json",
     "legacySearchPageCount": 2343,
-    "migratedLegacySearchPageCount": 2340,
-    "blockedLegacySearchPageCount": 3
+    "migratedLegacySearchPageCount": 2341,
+    "blockedLegacySearchPageCount": 0,
+    "migratedLegacySearchAliasCount": 2
   },
   "stats": {
     "total": 3528,
-    "redirects": 3102,
-    "gone": 426,
-    "managedSearchRedirects": 2340
+    "redirects": 3105,
+    "gone": 423,
+    "managedSearchRedirects": 2343,
+    "managedSearchAliases": 2
   },
   "redirects": {
     "/%d7%91%d7%99%d7%98%d7%95%d7%9c_%d7%94%d7%96%d7%9e%d7%a0%d7%94": "/legal/cancellation",
@@ -504,6 +506,7 @@
     "/s?sett=727": "/search/vacations/legacy-search-b2122c9a",
     "/s/11306": "/search/vacations/11306-bb0d3546",
     "/s/11338/11338": "/search/vacations/11338-11338-cbedf94e",
+    "/s/11487": "/search/vacations/hefer-valley-11487-fa3b96a0",
     "/s/12318": "/search/vacations/12318-3b67a45c",
     "/s/abu_abdun/11388": "/search/vacations/abu-abdun-11388-692f3960",
     "/s/abu_abdun/12631": "/search/vacations/abu-abdun-12631-926b6361",
@@ -970,6 +973,7 @@
     "/s/even_menahem/15822": "/search/vacations/even-menahem-15822-028da139",
     "/s/even_menahem/47395": "/search/vacations/even-menahem-47395-13e37009",
     "/s/even_sappir/11415": "/search/vacations/even-sappir-11415-07c88ffa",
+    "/s/gan_yavne/11857": "/search/vacations/gan-yavne-11857-22d83826",
     "/s/gefen/11742": "/search/vacations/gefen-11742-3686d3fa",
     "/s/gefen/47169": "/search/vacations/gefen-47169-49ee5f88",
     "/s/gefen/70177": "/search/vacations/gefen-70177-1fe3b79b",
@@ -1238,6 +1242,7 @@
     "/s/isifya/12267": "/search/vacations/isifya-12267-bf10c902",
     "/s/isifya/24032": "/search/vacations/isifya-24032-046b84b0",
     "/s/isifya/24988": "/search/vacations/isifya-24988-880245eb",
+    "/s/israel/12709": "/search/vacations/north-12709-adc6ffce",
     "/s/israel/133855": "/search/vacations/israel-133855-efb6d467",
     "/s/israel/136171": "/search/vacations/israel-136171-342e5c5a",
     "/s/israel/136173": "/search/vacations/israel-136173-bba7b74b",
@@ -3363,9 +3368,6 @@
     "/room_premium",
     "/royal_penthouse_on_the_sea_of_%e2%80%8b%e2%80%8bgalilee",
     "/royal_twins_boutique_villa?from=2025-08-19&till=2025-08-20",
-    "/s/11487",
-    "/s/gan_yavne/11857",
-    "/s/israel/12709",
     "/sadot_eruah_bateva",
     "/sakura_suites",
     "/satai_sky_bar",

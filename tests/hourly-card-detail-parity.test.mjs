@@ -26,7 +26,7 @@ test("hourly detail breadcrumbs include distinct area and city landings in UI an
   const page = await read("app/discover/place/[id]/page.tsx");
   const landings = await read("app/data/world-search-landings.ts");
   assert.match(landings, /export function hourlyBreadcrumbsForLocation/);
-  assert.match(landings, /const distinct = \[\.\.\.new Set/);
+  assert.match(landings, /orderedPlaceLocations\(area, location\)/);
   assert.match(client, /\.\.\.hourlyBreadcrumbsForLocation\(item\.area, item\.location\)/);
   assert.match(page, /breadcrumbSchema\(itemBreadcrumbs\)/);
   assert.match(page, /\.\.\.hourlyBreadcrumbsForLocation\(item\.area, item\.location\)/);
