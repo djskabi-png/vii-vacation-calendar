@@ -2,6 +2,7 @@ import type { D1Database } from "../../types/cloudflare-runtime";
 
 export type QualitySeverity = "critical" | "high" | "medium" | "low";
 export type QualityStatus = "passed" | "failed" | "degraded" | "blocked";
+export type QualityContentKind = "html" | "xml" | "json" | "image";
 export type QualityCheck = {
   checkId: string;
   family: string;
@@ -13,24 +14,65 @@ export type QualityCheck = {
   timeoutMs: number;
   expected: string;
   releaseBlocking: boolean;
+  contentKind?: QualityContentKind;
+  minBytes?: number;
+  requiredAll?: readonly string[];
+  requiredAny?: readonly string[];
+  forbidden?: readonly string[];
 };
 
 // Production synthetics are intentionally read-only. Browser interaction and
 // visual checks remain release-gate jobs; the recurring worker never creates a
 // booking, lead, review, payment or message.
+const html = (input: Omit<QualityCheck, "contentKind" | "minBytes"> & Partial<Pick<QualityCheck, "minBytes">>): QualityCheck => ({ contentKind: "html", minBytes: 2_000, ...input });
+const json = (input: Omit<QualityCheck, "contentKind" | "minBytes" | "viewport"> & Partial<Pick<QualityCheck, "minBytes">>): QualityCheck => ({ contentKind: "json", minBytes: 20, viewport: "server", ...input });
+const image = (input: Omit<QualityCheck, "contentKind" | "minBytes" | "viewport"> & Partial<Pick<QualityCheck, "minBytes">>): QualityCheck => ({ contentKind: "image", minBytes: 8_000, viewport: "server", ...input });
+
+// This is the production-safe layer of the VII QA pyramid. It validates the
+// public contract without creating bookings, leads, calls, WhatsApp messages,
+// payments or reviews. Browser interaction and visual matrices run separately.
 export const qualityRegistry: readonly QualityCheck[] = [
-  { checkId: "global.home.html", family: "global-shell", world: "all", route: "/", viewport: "server", severity: "critical", cadenceMinutes: 10, timeoutMs: 8_000, expected: "HTML 200 with a non-empty document", releaseBlocking: true },
-  { checkId: "search.location.html", family: "search", world: "all", route: "/search?location=%D7%9E%D7%A9%D7%9E%D7%A8%20%D7%94%D7%99%D7%A8%D7%93%D7%9F", viewport: "desktop", severity: "critical", cadenceMinutes: 10, timeoutMs: 10_000, expected: "Search returns HTML and never a 404/5xx", releaseBlocking: true },
-  { checkId: "world.vacations.html", family: "global-shell", world: "vacations", route: "/search", viewport: "mobile", severity: "high", cadenceMinutes: 60, timeoutMs: 10_000, expected: "Vacation search world returns HTML", releaseBlocking: true },
-  { checkId: "world.events.html", family: "global-shell", world: "events", route: "/events", viewport: "mobile", severity: "high", cadenceMinutes: 60, timeoutMs: 10_000, expected: "Events world returns HTML", releaseBlocking: true },
-  { checkId: "world.hourly.html", family: "global-shell", world: "rooms", route: "/hourly", viewport: "mobile", severity: "high", cadenceMinutes: 60, timeoutMs: 10_000, expected: "Hourly world returns HTML", releaseBlocking: true },
-  { checkId: "world.spas.html", family: "global-shell", world: "spa", route: "/spas", viewport: "mobile", severity: "high", cadenceMinutes: 60, timeoutMs: 10_000, expected: "Spa world returns HTML", releaseBlocking: true },
-  { checkId: "place.vacation.sample", family: "place-pages", world: "vacations", route: "/business?id=vacation-116", viewport: "desktop", severity: "critical", cadenceMinutes: 60, timeoutMs: 12_000, expected: "Known place page returns HTML", releaseBlocking: true },
-  { checkId: "seo.sitemap.xml", family: "seo-legacy", world: "all", route: "/sitemap.xml", viewport: "server", severity: "high", cadenceMinutes: 60, timeoutMs: 10_000, expected: "Sitemap returns XML", releaseBlocking: true },
+  html({ checkId: "global.home.semantic", family: "global-shell", world: "all", route: "/", viewport: "desktop", severity: "critical", cadenceMinutes: 5, timeoutMs: 10_000, expected: "Home contains the public shell, search and discovery results", releaseBlocking: true, requiredAll: ["<main", "discovery-card"], requiredAny: ["\u05d7\u05d9\u05e4\u05d5\u05e9", "\u05e0\u05d5\u05e4\u05e9"] }),
+  html({ checkId: "search.location.semantic", family: "search", world: "vacations", route: "/search?location=%D7%9E%D7%A9%D7%9E%D7%A8%20%D7%94%D7%99%D7%A8%D7%93%D7%9F", viewport: "desktop", severity: "critical", cadenceMinutes: 5, timeoutMs: 12_000, expected: "Sparse-location search remains a result page with place cards and no error surface", releaseBlocking: true, requiredAll: ["<main", "discovery-card"], forbidden: ["Error 1102", "Worker exceeded resource limits", "404 Not Found"] }),
+  html({ checkId: "place.vacation.semantic", family: "place-pages", world: "vacations", route: "/business?id=vacation-116", viewport: "mobile", severity: "critical", cadenceMinutes: 5, timeoutMs: 14_000, expected: "Vacation place contains gallery, contacts, reviews and location", releaseBlocking: true, requiredAll: ["property-gallery", "tel:", "\u05d7\u05d5\u05d5\u05ea \u05d3\u05e2\u05ea", "\u05de\u05d9\u05e7\u05d5\u05dd"], requiredAny: ["\u05d5\u05d5\u05d0\u05d8\u05e1\u05d0\u05e4", "WhatsApp"] }),
+
+  html({ checkId: "world.vacations.semantic", family: "world-landings", world: "vacations", route: "/search", viewport: "mobile", severity: "critical", cadenceMinutes: 10, timeoutMs: 12_000, expected: "Vacation results render cards and controls", releaseBlocking: true, requiredAll: ["<main", "discovery-card"] }),
+  html({ checkId: "world.events.semantic", family: "world-landings", world: "events", route: "/events", viewport: "mobile", severity: "critical", cadenceMinutes: 10, timeoutMs: 14_000, expected: "Events landing renders cards and search controls", releaseBlocking: true, requiredAll: ["<main", "discovery-card"], requiredAny: ["\u05d0\u05d9\u05e8\u05d5\u05e2\u05d9\u05dd", "\u05de\u05e7\u05d5\u05de\u05d5\u05ea \u05dc\u05d0\u05d9\u05e8\u05d5\u05e2\u05d9\u05dd"] }),
+  html({ checkId: "world.hourly.semantic", family: "world-landings", world: "hourly", route: "/hourly", viewport: "mobile", severity: "critical", cadenceMinutes: 10, timeoutMs: 12_000, expected: "Hourly landing renders cards and filters", releaseBlocking: true, requiredAll: ["<main", "discovery-card"], requiredAny: ["\u05d7\u05d3\u05e8\u05d9\u05dd \u05dc\u05e4\u05d9 \u05e9\u05e2\u05d4", "\u05e9\u05d4\u05d9\u05d9\u05d4 \u05dc\u05e4\u05d9 \u05e9\u05e2\u05d4"] }),
+  html({ checkId: "world.spas.semantic", family: "world-landings", world: "spa", route: "/spas", viewport: "mobile", severity: "critical", cadenceMinutes: 10, timeoutMs: 12_000, expected: "Spa landing renders packages or spa cards", releaseBlocking: true, requiredAll: ["<main", "discovery-card"], requiredAny: ["\u05e1\u05e4\u05d0", "\u05d7\u05d1\u05d9\u05dc\u05d5\u05ea"] }),
+  html({ checkId: "world.attractions.semantic", family: "world-landings", world: "activities", route: "/attractions", viewport: "mobile", severity: "high", cadenceMinutes: 10, timeoutMs: 12_000, expected: "Attractions landing renders paid experience cards", releaseBlocking: true, requiredAll: ["<main", "discovery-card"], requiredAny: ["\u05d0\u05d8\u05e8\u05e7\u05e6\u05d9\u05d5\u05ea", "\u05d7\u05d5\u05d5\u05d9\u05d5\u05ea"] }),
+
+  html({ checkId: "place.event.semantic", family: "place-pages", world: "events", route: "/events/place/event-2575", viewport: "mobile", severity: "high", cadenceMinutes: 60, timeoutMs: 14_000, expected: "Event place contains gallery, contacts, reviews and booking inquiry", releaseBlocking: true, requiredAll: ["property-gallery", "tel:", "\u05d7\u05d5\u05d5\u05ea \u05d3\u05e2\u05ea", "event-booking"] }),
+  html({ checkId: "place.hourly.semantic", family: "place-pages", world: "hourly", route: "/discover/place/hourly-475", viewport: "mobile", severity: "high", cadenceMinutes: 60, timeoutMs: 14_000, expected: "Hourly place contains gallery, contacts and location", releaseBlocking: true, requiredAll: ["tel:", "\u05de\u05d9\u05e7\u05d5\u05dd"], requiredAny: ["\u05d5\u05d5\u05d0\u05d8\u05e1\u05d0\u05e4", "WhatsApp", "\u05db\u05e0\u05d9\u05e1\u05d4 \u05d3\u05d9\u05e1\u05e7\u05e8\u05d8\u05d9\u05ea"] }),
+  html({ checkId: "place.spa.semantic", family: "place-pages", world: "spa", route: "/discover/place/spa-6", viewport: "mobile", severity: "high", cadenceMinutes: 60, timeoutMs: 14_000, expected: "Spa place contains gallery or packages and location", releaseBlocking: true, requiredAll: ["\u05de\u05d9\u05e7\u05d5\u05dd"], requiredAny: ["\u05d7\u05d1\u05d9\u05dc\u05d5\u05ea", "\u05d8\u05d9\u05e4\u05d5\u05dc\u05d9\u05dd", "\u05d2\u05dc\u05e8"] }),
+  html({ checkId: "world.trails.semantic", family: "world-landings", world: "trails", route: "/trails", viewport: "desktop", severity: "high", cadenceMinutes: 60, timeoutMs: 12_000, expected: "Trails explorer renders", releaseBlocking: true, requiredAll: ["<main"], requiredAny: ["\u05d8\u05d9\u05d5\u05dc\u05d9\u05dd", "\u05de\u05e1\u05dc\u05d5\u05dc\u05d9\u05dd"] }),
+  html({ checkId: "world.providers.semantic", family: "world-landings", world: "providers", route: "/providers", viewport: "desktop", severity: "high", cadenceMinutes: 60, timeoutMs: 12_000, expected: "Providers catalog renders", releaseBlocking: true, requiredAll: ["<main"], requiredAny: ["\u05e1\u05e4\u05e7\u05d9\u05dd", "\u05e9\u05d9\u05e8\u05d5\u05ea\u05d9\u05dd"] }),
+  html({ checkId: "world.holidays.semantic", family: "editorial-landings", world: "vacations", route: "/holidays", viewport: "mobile", severity: "high", cadenceMinutes: 60, timeoutMs: 12_000, expected: "Holiday index renders future holiday links", releaseBlocking: true, requiredAll: ["<main"], requiredAny: ["\u05d7\u05d2\u05d9\u05dd", "\u05e0\u05d5\u05e4\u05e9"] }),
+  html({ checkId: "world.last-minute.semantic", family: "editorial-landings", world: "vacations", route: "/last-minute", viewport: "mobile", severity: "high", cadenceMinutes: 60, timeoutMs: 12_000, expected: "Last-minute permanent landing renders", releaseBlocking: true, requiredAll: ["<main"], requiredAny: ["\u05e8\u05d2\u05e2 \u05d4\u05d0\u05d7\u05e8\u05d5\u05df", "\u05e0\u05d5\u05e4\u05e9"] }),
+
+  image({ checkId: "map.snapshot.vacation", family: "maps", world: "vacations", route: "/api/map-snapshot?world=vacation&id=vacation-116", severity: "critical", cadenceMinutes: 60, timeoutMs: 12_000, expected: "Stored vacation map snapshot is a valid image", releaseBlocking: true }),
+  image({ checkId: "map.snapshot.event", family: "maps", world: "events", route: "/api/map-snapshot?world=events&id=event-2575", severity: "high", cadenceMinutes: 360, timeoutMs: 12_000, expected: "Stored event map snapshot is a valid image", releaseBlocking: true }),
+  image({ checkId: "map.snapshot.hourly", family: "maps", world: "hourly", route: "/api/map-snapshot?world=hourly&id=hourly-475", severity: "high", cadenceMinutes: 360, timeoutMs: 12_000, expected: "Stored hourly map snapshot is a valid image", releaseBlocking: true }),
+  image({ checkId: "map.snapshot.spa", family: "maps", world: "spa", route: "/api/map-snapshot?world=spa&id=spa-6", severity: "high", cadenceMinutes: 360, timeoutMs: 12_000, expected: "Stored spa map snapshot is a valid image", releaseBlocking: true }),
+
+  json({ checkId: "api.catalog.vacations", family: "catalog-apis", world: "vacations", route: "/api/catalog?world=vacations&view=search", severity: "critical", cadenceMinutes: 10, timeoutMs: 14_000, expected: "Vacation search catalog is valid JSON with entries", releaseBlocking: true, requiredAll: ["\"world\":\"vacations\"", "\"entries\":"] }),
+  json({ checkId: "api.catalog.events", family: "catalog-apis", world: "events", route: "/api/catalog?world=events&view=search", severity: "critical", cadenceMinutes: 10, timeoutMs: 14_000, expected: "Event search catalog is valid JSON with entries", releaseBlocking: true, requiredAll: ["\"world\":\"events\"", "\"entries\":"] }),
+  json({ checkId: "api.catalog.hourly", family: "catalog-apis", world: "hourly", route: "/api/catalog?world=rooms", severity: "high", cadenceMinutes: 60, timeoutMs: 14_000, expected: "Hourly catalog is valid JSON with entries", releaseBlocking: true, requiredAll: ["\"world\":\"rooms\"", "\"entries\":"] }),
+  json({ checkId: "api.catalog.spa", family: "catalog-apis", world: "spa", route: "/api/catalog?world=spa", severity: "high", cadenceMinutes: 60, timeoutMs: 14_000, expected: "Spa catalog is valid JSON with entries", releaseBlocking: true, requiredAll: ["\"world\":\"spa\"", "\"entries\":"] }),
+  json({ checkId: "api.home.presentation", family: "home-sliders", world: "all", route: "/api/vii/homepage-presentation", severity: "high", cadenceMinutes: 60, timeoutMs: 10_000, expected: "Home slider presentation JSON is available", releaseBlocking: true, requiredAny: ["slider", "section", "world"] }),
+  json({ checkId: "api.starting-prices", family: "pricing", world: "vacations", route: "/api/vii/starting-prices?world=vacations", severity: "high", cadenceMinutes: 60, timeoutMs: 12_000, expected: "Starting-price cache returns JSON", releaseBlocking: true, requiredAny: ["prices", "vacation-"] }),
+  json({ checkId: "api.reviews.read", family: "reviews", world: "vacations", route: "/api/reviews?subjectId=vacation-116", severity: "medium", cadenceMinutes: 360, timeoutMs: 10_000, expected: "Review read API returns a JSON collection", releaseBlocking: false, requiredAny: ["reviews", "items", "[]"] }),
+
+  html({ checkId: "content.guides", family: "content-pages", world: "all", route: "/guides", viewport: "desktop", severity: "medium", cadenceMinutes: 360, timeoutMs: 10_000, expected: "Guides index renders", releaseBlocking: false, requiredAll: ["<main"] }),
+  html({ checkId: "content.questions", family: "content-pages", world: "all", route: "/questions", viewport: "desktop", severity: "medium", cadenceMinutes: 360, timeoutMs: 10_000, expected: "Questions page renders", releaseBlocking: false, requiredAll: ["<main"], requiredAny: ["\u05e9\u05d0\u05dc\u05d5\u05ea", "\u05ea\u05e9\u05d5\u05d1\u05d5\u05ea"] }),
+  html({ checkId: "content.contact", family: "content-pages", world: "all", route: "/contact", viewport: "mobile", severity: "medium", cadenceMinutes: 360, timeoutMs: 10_000, expected: "Contact page renders", releaseBlocking: false, requiredAll: ["<main"], requiredAny: ["\u05d9\u05e6\u05d9\u05e8\u05ea \u05e7\u05e9\u05e8", "\u05e4\u05e0\u05d9\u05d9\u05d4"] }),
+  html({ checkId: "legal.terms", family: "public-trust", world: "all", route: "/legal/terms", viewport: "server", severity: "high", cadenceMinutes: 1440, timeoutMs: 10_000, expected: "Terms page renders", releaseBlocking: true, requiredAll: ["<main"], requiredAny: ["\u05ea\u05e7\u05e0\u05d5\u05df", "\u05ea\u05e0\u05d0\u05d9 \u05e9\u05d9\u05de\u05d5\u05e9"] }),
+  html({ checkId: "legal.privacy", family: "public-trust", world: "all", route: "/legal/privacy", viewport: "server", severity: "high", cadenceMinutes: 1440, timeoutMs: 10_000, expected: "Privacy page renders", releaseBlocking: true, requiredAll: ["<main"], requiredAny: ["\u05e4\u05e8\u05d8\u05d9\u05d5\u05ea", "\u05de\u05d9\u05d3\u05e2"] }),
+  { checkId: "seo.sitemap.xml", family: "seo-legacy", world: "all", route: "/sitemap.xml", viewport: "server", severity: "high", cadenceMinutes: 360, timeoutMs: 12_000, expected: "Sitemap returns populated XML", releaseBlocking: true, contentKind: "xml", minBytes: 1_000, requiredAny: ["<urlset", "<sitemapindex"] },
 ] as const;
 
 export function qualityHeartbeatWindow(now = new Date()) {
-  return new Date(Math.floor(now.getTime() / 600_000) * 600_000);
+  return new Date(Math.floor(now.getTime() / 300_000) * 300_000);
 }
 
 export function shouldStartQualityHeartbeat(request: Request) {
@@ -106,15 +148,28 @@ async function executeCheck(check: QualityCheck, origin: string, fetcher: typeof
     const response = await fetcher(url, {
       method: "GET",
       redirect: "follow",
-      headers: { "user-agent": "VII-Quality-Monitor/1.0", accept: check.route.endsWith(".xml") ? "application/xml,text/xml" : "text/html" },
+      headers: { "user-agent": "VII-Quality-Monitor/2.0", accept: check.contentKind === "image" ? "image/avif,image/webp,image/png,image/jpeg" : check.contentKind === "json" ? "application/json" : check.contentKind === "xml" ? "application/xml,text/xml" : "text/html" },
       signal: AbortSignal.timeout(check.timeoutMs),
     });
     const type = response.headers.get("content-type") || "";
-    const body = await response.text();
-    const expectedType = check.route.endsWith(".xml") ? /xml/i.test(type) || /^\s*<\?xml|<urlset|<sitemapindex/i.test(body) : /html/i.test(type) || /<!doctype html|<html/i.test(body);
-    const passed = response.status >= 200 && response.status < 400 && expectedType && body.length >= 256;
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    const body = check.contentKind === "image" ? "" : new TextDecoder().decode(bytes);
+    const expectedType = check.contentKind === "image" ? /^image\/(?:avif|webp|png|jpeg)/i.test(type)
+      : check.contentKind === "json" ? /json/i.test(type) && (() => { try { JSON.parse(body); return true; } catch { return false; } })()
+      : check.contentKind === "xml" ? /xml/i.test(type) || /^\s*<\?xml|<urlset|<sitemapindex/i.test(body)
+      : /html/i.test(type) || /<!doctype html|<html/i.test(body);
+    const missingAll = (check.requiredAll || []).filter((token) => !body.includes(token));
+    const hasAny = !check.requiredAny?.length || check.requiredAny.some((token) => body.includes(token));
+    const forbidden = (check.forbidden || []).filter((token) => body.includes(token));
+    const passed = response.status >= 200 && response.status < 400 && expectedType && bytes.byteLength >= (check.minBytes || 256)
+      && missingAll.length === 0 && hasAny && forbidden.length === 0;
+    const assertions = [
+      missingAll.length ? `missing:${missingAll.join("|")}` : null,
+      !hasAny ? `missing-any:${check.requiredAny?.join("|")}` : null,
+      forbidden.length ? `forbidden:${forbidden.join("|")}` : null,
+    ].filter(Boolean).join("; ");
     return { status: passed ? "passed" as const : "failed" as const, statusCode: response.status,
-      durationMs: Date.now() - started, observed: passed ? `${response.status} ${type}; ${body.length} bytes` : `${response.status} ${type || "unknown"}; ${body.length} bytes`, url };
+      durationMs: Date.now() - started, observed: `${response.status} ${type || "unknown"}; ${bytes.byteLength} bytes${assertions ? `; ${assertions}` : ""}`, url };
   } catch (error) {
     return { status: "failed" as const, statusCode: null, durationMs: Date.now() - started,
       observed: error instanceof Error ? error.message.slice(0, 500) : "unknown fetch failure", url };
@@ -165,7 +220,7 @@ export async function runQualityChecks(db: D1Database, options: {
   const now = nowDate.toISOString();
   const runId = crypto.randomUUID();
   const operationKey = options.trigger === "scheduled"
-    ? `scheduled:${Math.floor(nowDate.getTime() / 600_000)}`
+    ? `scheduled:${Math.floor(nowDate.getTime() / 300_000)}`
     : `manual:${runId}`;
   const started = Date.now();
   await ensureQualitySchema(db);

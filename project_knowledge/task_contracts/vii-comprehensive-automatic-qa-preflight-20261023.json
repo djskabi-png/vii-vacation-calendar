@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-comprehensive-automatic-qa-20261023",
+  "project": "VII",
+  "task_type": "production quality monitoring expansion",
+  "requested_outcome": "A comprehensive automatic QA system that detects functional regressions across VII, explicitly including maps, at risk-based frequencies without testing accessibility or typography.",
+  "natural_destination": "The public VII site and the authenticated /admin/quality command center.",
+  "authorization_boundary": "Read-only production probes, repository changes, tests and the previously authorized VII publication are allowed. No bookings, leads, reviews, payments, messages or destructive actions may be created.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-WEB-001","reason":"The requested scope is the whole existing product family.","acceptance_impact":"Inventory every page and shared component family instead of sampling only eight URLs."},
+    {"lesson_id":"ADIR-WEB-002","reason":"Maps, sliders, galleries, filters and dialogs fail in nested interaction states.","acceptance_impact":"Add a scheduled browser interaction matrix for desktop, mobile and low-height states."},
+    {"lesson_id":"ADIR-WEB-005","reason":"Responsive state transitions have repeatedly caused public regressions.","acceptance_impact":"Include breakpoint, reload and overlay cleanup in deep browser QA."},
+    {"lesson_id":"ADIR-WEB-006","reason":"Technical success alone previously missed obvious public mobile defects.","acceptance_impact":"Require public screenshots and meaningful visible content in deep QA reports."},
+    {"lesson_id":"VII-PROJECT-001","reason":"VII has project-specific map, search, availability, gallery and place-page contracts.","acceptance_impact":"Use VII_PLATFORM_MASTER_PLAN.md and VII_FEEDBACK_STANDARD.md as semantic oracles."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"The dashboard is green while a map is missing.","prevention":"Probe the static map image endpoint and run browser checks that activate the live map.","acceptance_check":"A missing snapshot or failed map activation creates a named incident."},
+    {"rejection":"Only representative pages were tested.","prevention":"Publish a registry covering every public template, world and critical API family.","acceptance_check":"The admin registry exposes the complete family inventory and cadence."},
+    {"rejection":"A 200 response passes although the required component disappeared.","prevention":"Use semantic response assertions for required and forbidden content, content type and minimum size.","acceptance_check":"A fixture returning generic HTML fails a component-specific check."},
+    {"rejection":"The automatic schedule exists only in code and never runs.","prevention":"Verify a new public scheduled run after deployment and retain an idempotent visitor heartbeat fallback.","acceptance_check":"The production dashboard records a scheduled run with the expanded registry."},
+    {"rejection":"Monitoring creates real customer actions.","prevention":"Keep recurring probes GET-only and make deep browser tests inspect contact targets without sending.","acceptance_check":"The test matrix contains no mutation, call, message, lead, review, booking or payment action."}
+  ],
+  "affected_family": ["home route /","search route /search","vacation place route /business","event routes /events and /events/place","hourly routes /hourly and /discover/place/hourly-*","spa routes /spas and /discover/place/spa-*","attraction routes /attractions and /discover/place/activities-*","map snapshot API /api/map-snapshot","shared slider components","shared gallery components","availability read APIs","reviews read API","phone and WhatsApp link rendering","sitemap and legacy redirects","admin quality routes","production quality scheduler"],
+  "family_inventory_complete": true,
+  "approved_precedents": {"sources":[{"label":"VII product behavior","source":"calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"},{"label":"VII architecture and operating truth","source":"calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"}],"no_precedent_reason":null},
+  "midpoint_gate": {"required":true,"trigger":"After semantic registry and map probes pass locally but before public deployment.","checks":["Registry coverage and cadence validation","Map endpoint negative fixture detection","No write-capable production probe"],"not_required_reason":null},
+  "adversarial_close": {"attack_questions":["Can a generic 200 HTML page still pass a map or component check?","Can the same scheduled window run twice?","Can a missing map snapshot remain invisible?","Can an accessibility or typography audit slip into the registry?","Can production monitoring create an external side effect?"],"natural_destination_evidence":"A public /admin/quality run containing expanded checks and explicit map results.","affected_family_evidence":"Automated matrix plus public desktop/mobile evidence for every scheduled tier."},
+  "effectiveness": {"baseline":"Version 606 has eight status/content-type probes and cannot detect missing maps or components.","measurements":["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],"target":"Every critical family is represented, semantic failures open incidents, and the observed missing map is no longer silently green."},
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

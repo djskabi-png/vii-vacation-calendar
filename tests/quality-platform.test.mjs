@@ -25,20 +25,28 @@ function fixture() {
   return { sqlite, db };
 }
 
-const success = async (url) => new Response(url.endsWith(".xml") ? "<?xml version=\"1.0\"?><urlset>" + "x".repeat(300) + "</urlset>" : "<!doctype html><html><body>" + "x".repeat(300) + "</body></html>", { status: 200, headers: { "content-type": url.endsWith(".xml") ? "application/xml" : "text/html" } });
+const success = async (url) => {
+  if (url.includes("/api/map-snapshot")) return new Response(new Uint8Array(9_000), { status: 200, headers: { "content-type": "image/webp" } });
+  if (url.includes("/api/")) return Response.json({ world: url.includes("events") ? "events" : url.includes("rooms") ? "rooms" : url.includes("spa") ? "spa" : "vacations", entries: [{ id: "vacation-1" }], prices: {}, reviews: [], items: [], slider: [], section: [], capabilities: {} });
+  if (url.endsWith(".xml")) return new Response("<?xml version=\"1.0\"?><urlset>" + "x".repeat(1_200) + "</urlset>", { status: 200, headers: { "content-type": "application/xml" } });
+  const tokens = ["<main", "discovery-card", "חיפוש", "נופש", "property-gallery", "tel:", "חוות דעת", "מיקום", "וואטסאפ", "אירועים", "חדרים לפי שעה", "ספא", "חבילות", "אטרקציות", "event-booking", "טיולים", "ספקים", "חגים", "רגע האחרון", "שאלות", "יצירת קשר", "תקנון", "פרטיות"];
+  return new Response(`<!doctype html><html><body>${tokens.join(" ")}${"x".repeat(3_000)}</body></html>`, { status: 200, headers: { "content-type": "text/html" } });
+};
 
-test("recurring registry is read-only and excludes accessibility and typography audits", () => {
-  assert.ok(qualityRegistry.length >= 8);
+test("recurring registry is comprehensive, read-only and excludes accessibility and typography audits", () => {
+  assert.ok(qualityRegistry.length >= 30);
   assert.equal(new Set(qualityRegistry.map((check) => check.checkId)).size, qualityRegistry.length);
   for (const check of qualityRegistry) {
     assert.ok(check.route.startsWith("/"));
     assert.doesNotMatch(`${check.checkId} ${check.family}`, /accessibility|typography/i);
-    assert.ok(check.cadenceMinutes >= 10);
+    assert.ok(check.cadenceMinutes >= 5);
   }
-  assert.equal(qualityRegistry.find((check) => check.checkId === "world.vacations.html")?.route, "/search");
+  assert.equal(qualityRegistry.find((check) => check.checkId === "world.vacations.semantic")?.route, "/search");
+  assert.ok(qualityRegistry.filter((check) => check.family === "maps").length >= 4);
+  assert.ok(new Set(qualityRegistry.map((check) => check.family)).size >= 10);
 });
 
-test("visitor heartbeat uses a stable ten-minute bucket and cannot recurse", () => {
+test("visitor heartbeat uses a stable five-minute bucket and cannot recurse", () => {
   assert.equal(qualityHeartbeatWindow(new Date("2026-10-23T18:53:42.000Z")).toISOString(), "2026-10-23T18:50:00.000Z");
   assert.equal(shouldStartQualityHeartbeat(new Request("https://vii.spaplus.co/", {
     headers: { accept: "text/html,application/xhtml+xml", "user-agent": "Mozilla/5.0" },
@@ -82,7 +90,7 @@ test("two identical failures open one incident, recovery resolves it, and email 
   } finally { sqlite.close(); }
 });
 
-test("scheduled ten-minute tick runs only the due critical probes", async () => {
+test("scheduled tick runs only the due risk-tier probes", async () => {
   const { sqlite, db } = fixture();
   try {
     const scheduledAt = new Date("2026-10-23T10:10:00.000Z");
@@ -92,5 +100,20 @@ test("scheduled ten-minute tick runs only the due critical probes", async () => 
     const duplicate = await runQualityChecks(db, { origin: "https://example.test", trigger: "scheduled", scheduledAt, fetcher: async () => { throw new Error("duplicate must not fetch"); } });
     assert.equal(duplicate.status, "skipped");
     assert.equal(duplicate.runId, result.runId);
+  } finally { sqlite.close(); }
+});
+
+test("semantic checks reject generic HTML and map snapshots reject non-images", async () => {
+  const { sqlite, db } = fixture();
+  try {
+    const generic = async (url) => url.includes("/api/map-snapshot")
+      ? new Response("not an image".repeat(800), { status: 200, headers: { "content-type": "text/html" } })
+      : url.includes("/api/") ? Response.json({ ok: true })
+        : new Response(`<!doctype html><html><body>${"x".repeat(3_000)}</body></html>`, { status: 200, headers: { "content-type": "text/html" } });
+    const result = await runQualityChecks(db, { origin: "https://example.test", trigger: "manual", fetcher: generic, actor: "semantic-negative" });
+    assert.equal(result.status, "failed");
+    const dashboard = await readQualityDashboard(db);
+    assert.ok(dashboard.incidents.some((incident) => incident.checkId === "map.snapshot.vacation"));
+    assert.ok(dashboard.incidents.some((incident) => incident.checkId === "global.home.semantic"));
   } finally { sqlite.close(); }
 });

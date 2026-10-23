@@ -1,0 +1,221 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-comprehensive-automatic-qa-20261023",
+  "project": "VII",
+  "task_type": "production quality monitoring expansion",
+  "goal": "Comprehensive frequency-based automatic QA for VII including maps and all public families",
+  "created_at": "2026-10-23T19:28:37.166169Z",
+  "updated_at": "2026-10-23T20:13:41.755324Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "a53f3cf6f221a2a2da458ce59681240effe0028a2744bf25317e1c3b162f9973"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "f1aa410611dd0fdb5adbb8a620832ee6ff9f9a3498a8108f74f1ccb86562379b"
+    },
+    "cognitive_model": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md",
+      "sha256": "708ce5d1b152afe220cf98008f571e7d27704c102624f7d7440dc85a1a6ba2d8"
+    },
+    "rulebook": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md",
+      "sha256": "eef33571725d590d0dadeeee9475422715279004fbc40356257d11e818039ab1"
+    },
+    "predictive_preflight": {
+      "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v596-regression-qa\\project_knowledge\\task_contracts\\vii-comprehensive-automatic-qa-preflight-20261023.json",
+      "sha256": "627ef26f91bb54159a61c83efbd8100e8405a2773ab3d699beed23e401789bed"
+    }
+  },
+  "predictive_preflight": {
+    "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v596-regression-qa\\project_knowledge\\task_contracts\\vii-comprehensive-automatic-qa-preflight-20261023.json",
+    "sha256": "627ef26f91bb54159a61c83efbd8100e8405a2773ab3d699beed23e401789bed",
+    "predicted_rejection_count": 5,
+    "affected_family_count": 16,
+    "lesson_bundle_count": 5,
+    "midpoint_required": true,
+    "effectiveness_measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ]
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-WEB-001",
+      "title": "מפת התאמה לפני החלפת מוצר קיים",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "ADIR-WEB-002",
+      "title": "מטריצת מצבי אינטראקציה",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "ADIR-WEB-005",
+      "title": "Responsive transitions are release-critical state changes",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "ADIR-WEB-006",
+      "title": "Public mobile screenshots are required release evidence",
+      "scope": "shared_skill_and_acceptance_check"
+    },
+    {
+      "lesson_id": "VII-PROJECT-001",
+      "title": "לוגיקת מוצר ייחודית ל-VII",
+      "scope": "project_guidance"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Comprehensive frequency-based automatic QA for VII including maps and all public families",
+      "acceptance_check": "Public admin quality shows expanded semantic and map checks with verified scheduled execution",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:prediction",
+      "source": "predictive_preflight",
+      "statement": "Predict likely Adir rejection reasons and bind prevention to observable evidence before implementation.",
+      "acceptance_check": "The bounded predictive manifest matches the task identity and selected lessons and passes deterministic validation.",
+      "status": "passed",
+      "evidence": [
+        "Predictive preflight C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v596-regression-qa\\project_knowledge\\task_contracts\\vii-comprehensive-automatic-qa-preflight-20261023.json validated with sha256 627ef26f91bb54159a61c83efbd8100e8405a2773ab3d699beed23e401789bed"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T19:28:37.166169Z"
+    },
+    {
+      "id": "preflight:midpoint",
+      "source": "predictive_preflight.midpoint_gate",
+      "statement": "After semantic registry and map probes pass locally but before public deployment.",
+      "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
+      "status": "passed",
+      "evidence": [
+        "1,525 local tests passed; semantic monitor tests 6/6 passed; public browser audit completed 36 cases with exact failures; public map snapshot endpoints return 404."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T20:13:41.755324Z"
+    },
+    {
+      "id": "preflight:adversarial",
+      "source": "predictive_preflight.adversarial_close",
+      "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
+      "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:effectiveness",
+      "source": "predictive_preflight.effectiveness",
+      "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
+      "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-001",
+      "source": "lesson:ADIR-WEB-001",
+      "statement": "לפני עיצוב מחדש ממפים כל יכולת ותוכן ומסמנים אותם כנשמרו, הוחלפו במכוון או חסומים.",
+      "acceptance_check": "אין פריט ישן ללא סיווג, מקור והכרעה לפני אישור המוצר החדש.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-002",
+      "source": "lesson:ADIR-WEB-002",
+      "statement": "שינוי אינטראקטיבי נבדק בכל המצבים הרלוונטיים במחשב, בנייד ובגובה מסך נמוך.",
+      "acceptance_check": "לכל אינטראקציה שהשתנתה יש ראיית מעבר לכל המצבים החלים עליה.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-005",
+      "source": "lesson:ADIR-WEB-005",
+      "statement": "Every responsive website must remain correct through mobile-to-desktop and desktop-to-mobile transitions, reloads, orientation changes and browser device-emulation changes, including while overlays and scroll locks are active.",
+      "acceptance_check": "A real public route passes fresh desktop, desktop reload, fresh 390-pixel mobile, mobile overlay open followed by desktop resize, desktop reload, breakpoint boundary, orientation change and return to mobile. At every step the page has meaningful visible content, scrollX is zero, document width does not exceed viewport width and desktop has no stale mobile lock, backdrop or expanded state.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-006",
+      "source": "lesson:ADIR-WEB-006",
+      "statement": "A mobile search product is not visually approved until meaningful content is visible in the viewport and an independent checker inspects both a public-domain screenshot and the live page. DOM presence, text length, build output and overflow measurements alone are insufficient.",
+      "acceptance_check": "A public Spa results route with an artificially empty results control must fail with no-visible-results-state or excessive-empty-band, and the report must contain a screenshot path inspected by the independent checker.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:VII-PROJECT-001",
+      "source": "lesson:VII-PROJECT-001",
+      "statement": "עולמות התוכן, לוגיקת ההזמנה, מבנה הרגע האחרון ומודל נתוני המקום נשארים בהנחיות פרויקט VII.",
+      "acceptance_check": "החלטות VII המדויקות מופיעות רק בהדרכת הפרויקט, כל נושא ממופה למקור ולבדיקה, והפרטים אינם מופיעים בספר החוקים הכללי.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:coverage",
+      "source": "project_guidance",
+      "statement": "Expanded registry covers all listed public families",
+      "acceptance_check": "Expanded registry covers all listed public families",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:maps",
+      "source": "project_guidance",
+      "statement": "Missing map image or activation fails explicitly",
+      "acceptance_check": "Missing map image or activation fails explicitly",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:cadence",
+      "source": "project_guidance",
+      "statement": "Risk tiers and idempotency are verified",
+      "acceptance_check": "Risk tiers and idempotency are verified",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:production",
+      "source": "project_guidance",
+      "statement": "Exact public release and rollback are verified",
+      "acceptance_check": "Exact public release and rollback are verified",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    }
+  ],
+  "verification_status": "in_progress",
+  "verification_errors": [],
+  "predictive_results": {
+    "midpoint": {
+      "observed_at": "2026-10-23T20:13:41.755324Z",
+      "evidence": [
+        "1,525 local tests passed; semantic monitor tests 6/6 passed; public browser audit completed 36 cases with exact failures; public map snapshot endpoints return 404."
+      ],
+      "findings": [
+        "The previous shallow HTTP monitor would miss generic 200 responses and map failures. Expanded semantic registry and browser audit detect them."
+      ]
+    }
+  }
+}

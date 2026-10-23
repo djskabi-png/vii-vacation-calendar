@@ -1,0 +1,32 @@
+{
+  "goal":"Deliver comprehensive, frequency-based automatic QA for the public VII product, including maps, with visible incidents in the administration system.",
+  "intent_model":{"literal_request":"Expand automatic QA because known defects, such as maps, are being missed.","implied_outcome":"A durable regression safety net that tests functions, not merely HTTP availability.","likely_rejections":["Map omitted","Only a few URLs tested","No real schedule","Green false positive","Unverified public deployment"],"interpretation_rules":[{"phrase":"מקיפה ביותר","operational_meaning":"Inventory all public families and critical states.","acceptance_impact":"No broad claim without a coverage ledger."}]},
+  "cognitive_flow":{"current_layer":"System reliability","current_decision":"Risk-based QA frequency tiers","next_action":"Inspect incidents in /admin/quality","deferred_complexity":["Email delivery until a verified provider and recipients exist"],"preserved_depth":["Manual full run","release gate","rollback","incident history"]},
+  "predictive_preflight":{"manifest_path":"project_knowledge/task_contracts/vii-comprehensive-automatic-qa-preflight-20261023.json","lesson_bundle_ids":["ADIR-WEB-001","ADIR-WEB-002","ADIR-WEB-005","ADIR-WEB-006","VII-PROJECT-001"],"no_applicable_lessons_reason":null,"midpoint_requirement":"preflight:midpoint","adversarial_requirement":"preflight:adversarial","effectiveness_requirement":"preflight:effectiveness"},
+  "actors":["VII operator","automatic production monitor","release checker"],
+  "natural_destination":"https://vii.spaplus.co/admin/quality and the public VII routes",
+  "facts":[{"claim":"The current registry contains only eight GET probes.","evidence":"app/lib/quality-platform.ts at task start"},{"claim":"The public map snapshot probe for vacation-116 currently returns 404.","evidence":"GET https://vii.spaplus.co/api/map-snapshot?world=vacation&id=vacation-116 on 2026-10-23"}],
+  "assumptions":[{"claim":"Risk-tier frequencies may be defined by engineering judgment.","validation":"Admin registry exposes each cadence and user can request a change."}],
+  "in_scope":["Semantic public probes","Explicit map probes","All worlds and major templates","Critical APIs","Images and redirects","Risk-based frequencies","Incident deduplication and recovery","Scheduled and manual execution","Public verification"],
+  "out_of_scope":["Accessibility audits","Typography audits","Real bookings, leads, calls, messages, reviews or payments","Unverified email delivery claims"],
+  "invariants":["Existing public functionality remains unchanged","Monitoring is read-only","One operation per scheduled bucket","Rollback remains available"],
+  "affected_family":["home route /","search route /search","vacation place route /business","event routes /events and /events/place","hourly route /hourly","spa route /spas","attraction route /attractions","trail route /trails","provider route /providers","holiday route /holidays","map snapshot API /api/map-snapshot","shared slider components","shared gallery components","phone and WhatsApp link rendering","sitemap and legacy redirects","admin quality routes"],
+  "characteristics":{"stateful":true},
+  "requirements":[
+    {"id":"REQ-1","statement":"The automatic registry covers every critical public family and API with semantic oracles.","source":"User request"},
+    {"id":"REQ-2","statement":"Map snapshot and live-map readiness are explicit monitored outcomes.","source":"User correction"},
+    {"id":"REQ-3","statement":"Checks run in documented risk-based frequency tiers and are idempotent.","source":"User request"},
+    {"id":"REQ-4","statement":"The admin dashboard shows cadence, result evidence and incidents for the expanded registry.","source":"Requested QA system"},
+    {"id":"REQ-5","statement":"The exact public release is verified after deployment and can roll back.","source":"Project release standard"}
+  ],
+  "acceptance_checks":[
+    {"id":"AC-1","requirement_ids":["REQ-1"],"kind":"success","setup":"Expanded registry loaded","action":"Run a manual full QA","observable_result":"Every registered check produces one result and generic 200 fixtures cannot satisfy semantic checks."},
+    {"id":"AC-2","requirement_ids":["REQ-2"],"kind":"failure","setup":"Map snapshot returns 404 or non-image","action":"Run map probes","observable_result":"Named map check fails and opens one deduplicated incident."},
+    {"id":"AC-3","requirement_ids":["REQ-3"],"kind":"retry","setup":"Same scheduled bucket is invoked twice","action":"Run both invocations","observable_result":"Second invocation is skipped and performs no fetch."},
+    {"id":"AC-4","requirement_ids":["REQ-4"],"kind":"persistence","setup":"A scheduled run completes","action":"Reload /admin/quality","observable_result":"The expanded run, checks and incident state remain visible."},
+    {"id":"AC-5","requirement_ids":["REQ-5"],"kind":"rollback","setup":"Immutable candidate and previous production version recorded","action":"Verify the public version","observable_result":"Public evidence identifies candidate, active release and rollback identity."}
+  ],
+  "open_questions":[{"question":"Which verified email provider and recipient addresses should receive incidents?","blocking":false,"resolution":"Keep delivery visibly disabled until provider and recipients are verified; do not fake sending."}],
+  "authorization_boundary":"Repository work, read-only production tests and the already requested public deployment are authorized. Outbound messages and real customer transactions are not.",
+  "ready_for_implementation":true
+}

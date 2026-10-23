@@ -1,0 +1,17 @@
+{
+  "target":"Comprehensive automatic VII QA",
+  "natural_destination":"Public VII and /admin/quality",
+  "requirements":[{"id":"REQ-1","statement":"Semantic family coverage"},{"id":"REQ-2","statement":"Explicit map monitoring"},{"id":"REQ-3","statement":"Frequency and idempotency"},{"id":"REQ-4","statement":"Persistent incidents"},{"id":"REQ-5","statement":"Verified release"}],
+  "risks":[{"id":"RISK-1","risk":"False green from generic HTTP 200","severity":"high"},{"id":"RISK-2","risk":"Missing or broken map is not detected","severity":"high"},{"id":"RISK-3","risk":"Scheduler duplicates load or never fires","severity":"high"},{"id":"RISK-4","risk":"Monitoring causes customer side effects","severity":"high"},{"id":"RISK-5","risk":"One world or responsive state is omitted","severity":"high"}],
+  "characteristics":{"stateful":true,"asynchronous":true,"role_based":true,"responsive":true,"external_integration":true},
+  "cases":[
+    {"id":"TC-1","priority":"P0","requirement_ids":["REQ-1"],"risk_ids":["RISK-1"],"tags":["success","failure"],"preconditions":"Registry loaded","action":"Return generic HTML for all routes","oracle":"Semantic checks fail with a precise missing assertion","execution_status":"planned"},
+    {"id":"TC-2","priority":"P0","requirement_ids":["REQ-2"],"risk_ids":["RISK-2"],"tags":["success","failure","dependency-failure"],"preconditions":"Known map candidate","action":"Probe valid image then 404/non-image variants","oracle":"Image passes; missing or wrong content type opens an incident","execution_status":"planned"},
+    {"id":"TC-3","priority":"P0","requirement_ids":["REQ-3"],"risk_ids":["RISK-3"],"tags":["retry","idempotency","persistence"],"preconditions":"Fixed clock bucket","action":"Invoke scheduled runner twice","oracle":"Exactly one run persists and the second skips without fetching","execution_status":"planned"},
+    {"id":"TC-4","priority":"P0","requirement_ids":["REQ-4"],"risk_ids":["RISK-4"],"tags":["permission","failure"],"preconditions":"Anonymous session","action":"Read admin API and execute recurring probes","oracle":"Admin is denied and every recurring probe is GET-only","execution_status":"planned"},
+    {"id":"TC-5","priority":"P1","requirement_ids":["REQ-1","REQ-2"],"risk_ids":["RISK-5"],"tags":["responsive","success","failure"],"preconditions":"Public desktop, 390px mobile and low-height browser","action":"Exercise search, list/map, map activation, marker/card, sliders, galleries, filters, back and reload","oracle":"All family-ledger outcomes pass with screenshots and no missing component","execution_status":"planned"},
+    {"id":"TC-6","priority":"P0","requirement_ids":["REQ-5"],"risk_ids":["RISK-3","RISK-5"],"tags":["success","persistence"],"preconditions":"Immutable deployed candidate","action":"Run public manual and scheduled QA then reload dashboard","oracle":"Expanded results persist and rollback identity is recorded","execution_status":"planned"}
+  ],
+  "out_of_scope":["Accessibility testing","Typography testing","Real conversion side effects"],
+  "ready_for_execution":true
+}
