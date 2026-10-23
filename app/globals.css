@@ -9235,6 +9235,8 @@ html[data-locale="fr"] :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, lege
   .unit-details-dialog__groups { grid-template-columns: 1fr; padding: 0 14px 20px; }
 
   .story-gallery__workspace { overflow-y: auto; }
+  .story-gallery__story,
+  .story-gallery__grid { display: none !important; }
   .story-gallery__mobile-tour { display: grid; gap: 28px; padding: 14px 14px 36px; background: #fff; color: var(--ink); }
   .story-gallery__mobile-tour.is-hidden { display: none; }
   .story-gallery__mobile-tour section { display: grid; gap: 12px; }
