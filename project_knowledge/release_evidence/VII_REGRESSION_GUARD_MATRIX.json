@@ -78,7 +78,7 @@
       "id": "event-checkmark-centering",
       "requirement": "Event feature cards retain one centered vector checkmark.",
       "test_file": "tests/event-slider-checkmark-contract.test.mjs",
-      "test_title": "event place feature cards use one centered vector checkmark"
+      "test_title": "event place feature cards use the shared centered semantic icon"
     },
     {
       "id": "responsive-search-transition",

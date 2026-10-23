@@ -16,6 +16,7 @@ import { activityDepthTopics, trailDepthTopics } from "../lib/world-depth-topics
 import { SliderRailControls } from "./slider-rail-controls";
 import { buildSearchDepthLocationLayers, isPlaceTypeSuggestion, type SearchDepthInventoryPlace } from "../lib/search-depth-model";
 import { useSearchDepthSeed } from "./search-depth-seed";
+import { useWorldAvailability } from "./world-availability-provider";
 
 export type SearchContentWorld = DepthWorld;
 
@@ -427,6 +428,7 @@ export function SearchAfterResults({
   baseParams?: Record<string, string>;
 }) {
   const { language, translate } = useSiteLanguage();
+  const { enabled } = useWorldAvailability();
   // Supplier catalogs can contain non-geographic service labels. They are not
   // destinations, and must never become region or city landing suggestions.
   const effectiveInventory = world === "spa" ? inventory.filter(item => spaSearchRegions.some(region => region.label === item.area)) : inventory;
@@ -468,11 +470,11 @@ export function SearchAfterResults({
   }));
   const smartLinks: DiscoveryLink[] = translatedSuggestions.filter(({ item }) => !typeSuggestion(item)).map(({ item, label }) => ({ label: scopeSuggestionLabel(label, scopedLocation, language, "smart"), href: contextualHref(world, language, currentQuery, item.params, item.path), meta: discovery.searchMeta, topic: depthTopicKey(item.label, world, item.params) }));
   const contextualComplementsAllowed = (world === "vacation" || world === "events") && Boolean(resolvedLocation) && !isWholeCountrySelection(resolvedLocation);
-  const trailLinks: VisualDiscoveryLink[] = contextualComplementsAllowed ? depthSeed.trails
+  const trailLinks: VisualDiscoveryLink[] = contextualComplementsAllowed && enabled("trails") ? depthSeed.trails
     .map((trail) => ({ trail, score: trail.areaTags.reduce((score, tag) => matchesDepthTerm(tag, resolvedLocation || "", locationLayers.contextArea) ? Math.max(score, tag === resolvedLocation ? 3 : 1) : score, 0) }))
     .filter(({ score }) => score > 0).sort((a, b) => b.score - a.score).slice(0, 8)
     .map(({ trail }) => ({ label: translate(trail.name), href: localizedPath(`/trails/${trail.slug}`, language), meta: language === "he" ? trail.meta : `${translate(trail.mainArea)} · ${translate(trail.region)}`, image: trail.image })) : [];
-  const providerLinks: VisualDiscoveryLink[] = contextualComplementsAllowed ? depthSeed.providers
+  const providerLinks: VisualDiscoveryLink[] = contextualComplementsAllowed && enabled("providers") ? depthSeed.providers
     .filter((provider) => {
       const coverage = [provider.location, ...provider.serviceAreas];
       return coverage.some((value) => /כל הארץ|בכל הארץ|לפי מיקום/.test(value) || matchesDepthTerm(value, resolvedLocation || "", locationLayers.contextArea));

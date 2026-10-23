@@ -23,11 +23,13 @@ export async function whatsappLeadDatabase() {
       guests TEXT,
       service_name TEXT,
       source_page TEXT,
+      handoff_started_at TEXT,
       created_at TEXT NOT NULL
     )`),
     db.prepare("CREATE INDEX IF NOT EXISTS idx_whatsapp_leads_created ON whatsapp_leads(created_at)"),
     db.prepare("CREATE INDEX IF NOT EXISTS idx_whatsapp_leads_place ON whatsapp_leads(world, place_id, created_at)"),
   ]);
+  try { await db.prepare("ALTER TABLE whatsapp_leads ADD COLUMN handoff_started_at TEXT").run(); } catch { /* Existing production table already has the column. */ }
   return db;
 }
 
@@ -48,4 +50,12 @@ export async function saveWhatsAppLead(payload: LeadPayload, reference: string) 
       payload.sourcePage ? String(payload.sourcePage).slice(0, 500) : null,
       new Date().toISOString(),
     ).run();
+}
+
+export async function markWhatsAppHandoff(submissionId: string, reference: string) {
+  const db = await whatsappLeadDatabase();
+  const result = await db.prepare(`UPDATE whatsapp_leads SET handoff_started_at = ?
+    WHERE submission_id = ? AND reference = ? AND handoff_started_at IS NULL`)
+    .bind(new Date().toISOString(), submissionId.slice(0, 100), reference.slice(0, 100)).run();
+  return Number(result.meta?.changes || 0) > 0;
 }

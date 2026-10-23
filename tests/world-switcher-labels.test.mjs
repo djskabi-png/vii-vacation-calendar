@@ -21,7 +21,7 @@ test('every active world has its own non-search name in all four languages',()=>
 test('native disclosure, close/focus behavior and localized direct navigation remain intact',()=>{
  const component=readFileSync('app/components/world-switcher.tsx','utf8');
  assert.match(component,/<summary ref=\{triggerRef\}><span><strong className="world-label-full">\{headerWorldLabel\(active, language\)\}/);
- assert.match(component,/headerWorldOptions\(language\)\.map/);
+ assert.match(component,/headerWorldOptions\(language\)\.filter\(\(world\) => enabled\(world\.id\)\)\.map/);
  for(const invariant of ['localizedPath(world.href, language)','closeOnOutsideClick','closeOnEscape','triggerRef.current?.focus()','onPointerDown={navigateFromSwitcherPointer}','onClick={navigateFromSwitcher}'])assert.ok(component.includes(invariant),invariant);
  assert.match(component,/aria-current=\{isActive \? "page" : undefined\}/);
 });

@@ -15,6 +15,7 @@ const groups = [
   ] },
   { label: "תוכן וגילוי", links: [
     { href: "/admin/content-studio", label: "סטודיו תוכן", icon: LibraryBig },
+    { href: "/admin/worlds", label: "הפעלת עולמות", icon: Sparkles },
     { href: "/admin/search-analytics", label: "מודיעין חיפושים", icon: Search },
     { href: "/admin/content-queue", label: "תור אישורים", icon: ListChecks },
     { href: "/admin/discovery-promotions", label: "קידום מקומות", icon: TrendingUp },

@@ -49,10 +49,10 @@ export function DetailReviewSummary({
   const formattedRating = new Intl.NumberFormat(numberLocale, { maximumFractionDigits: 1 }).format(rating);
   const formattedReviewCount = new Intl.NumberFormat(numberLocale).format(reviewCount);
 
-  return <div className={`detail-sticky-dock__review-summary ${className}`.trim()} aria-label={`${formattedRating} ${outOfTenLabel}, ${formattedReviewCount} ${reviewsLabel}`}>
+  return <a href="#reviews" className={`detail-sticky-dock__review-summary ${className}`.trim()} aria-label={`${formattedRating} ${outOfTenLabel}, ${formattedReviewCount} ${reviewsLabel}`}>
     <span className="detail-sticky-dock__rating"><b>{formattedRating}</b><span className="detail-sticky-dock__stars" aria-hidden="true">★★★★★</span></span>
     <span className="detail-sticky-dock__review-count"><b>{formattedReviewCount}</b><span>{reviewsLabel}</span></span>
-  </div>;
+  </a>;
 }
 
 export function DetailStickyDock({

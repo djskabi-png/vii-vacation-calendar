@@ -15,7 +15,7 @@ import { ViewedItemBootstrap } from "../components/viewed-item-bootstrap";
 import { currentPeriodOffer } from "../data/last-minute-deals";
 import { supplierLegacySlug, unavailableLegacySearchHref } from "../data/supplier-legacy-links";
 import type { SupplierPlaceDetail } from "../data/supplier-place-detail";
-import { trails } from "../data/trail-data";
+import { nearbyTrails, trails } from "../data/trail-data";
 import { discoveryItems, spaPlacesFromSites } from "../data/world-data";
 import type { SpaPlusSite } from "../data/spaplus";
 import { managedTrails, managedDiscoveryItems } from "../lib/managed-public-content";
@@ -102,6 +102,12 @@ export default async function Page({ searchParams }: Props) {
   const complementaryInventory = [...spaPlacesFromSites(spaSites), ...attractions];
   const providerInventory = discoveryItems.filter((item) => item.world === "providers");
   const relatedProperties = nearbyRecommendations(properties, property, { key: (item) => item.slug, exclude: property.slug, limit: 3 }).items;
+  const nearbyComplementaryInventory = nearbyRecommendations(complementaryInventory, property, { key: (item) => `${item.world}:${item.id}`, limit: 6 }).items;
+  const nearbyTrailInventory = nearbyTrails(property.area, property.location, 6, { inventory: trailInventory, lat: property.lat, lng: property.lng });
+  const nearbyProviderInventory = [...providerInventory.filter((item) => item.image && item.id === "masu-home-wellness"), ...providerInventory.filter((item) => item.image && item.id !== "masu-home-wellness")].slice(0, 6);
+  // The accepted detail already owns the full galleries, room data and features.
+  // Avoid serializing the same large media arrays twice into the business-page RSC payload.
+  const initialProperty = supplierDetail ? { ...property, images: property.images.slice(0, 1), galleryGroups: undefined, roomOptions: undefined, featureGroups: undefined } : property;
   const currentOffer = property.capacityScope === "unit" ? undefined : currentPeriodOffer(property.slug, params.period);
   const selectedDatesHaveLivePrice = Boolean(params.from && params.till && Number(params.price) > 0);
   const resolvedPropertyFaq = propertyFaq.map((item, index) => index === 0 && selectedDatesHaveLivePrice
@@ -143,6 +149,6 @@ export default async function Page({ searchParams }: Props) {
       { name: property.name, path: `/business?id=${property.slug}` },
     ])} />
     <StructuredData data={faqSchema(resolvedPropertyFaq)} />
-    <BusinessPage initialSlug={property.slug} initialProperty={property} relatedProperties={relatedProperties} trailInventory={trailInventory} complementaryInventory={complementaryInventory} providerInventory={providerInventory} faqItems={resolvedPropertyFaq} supplierDetail={supplierDetail} initialWorld={initialWorld} initialDates={params.dates} initialFrom={params.from} initialTill={params.till} initialGuests={params.guests} initialRooms={params.rooms} initialChildren={params.children} initialInfants={params.infants} initialRoomID={params.roomID} initialPrice={params.price} initialIllustrative={params.illustrative === "1"} initialSource={params.source} initialPeriod={params.period} />
+    <BusinessPage initialSlug={property.slug} initialProperty={initialProperty} relatedProperties={relatedProperties} trailInventory={nearbyTrailInventory} complementaryInventory={nearbyComplementaryInventory} providerInventory={nearbyProviderInventory} faqItems={resolvedPropertyFaq} supplierDetail={supplierDetail} initialWorld={initialWorld} initialDates={params.dates} initialFrom={params.from} initialTill={params.till} initialGuests={params.guests} initialRooms={params.rooms} initialChildren={params.children} initialInfants={params.infants} initialRoomID={params.roomID} initialPrice={params.price} initialIllustrative={params.illustrative === "1"} initialSource={params.source} initialPeriod={params.period} />
   </>;
 }

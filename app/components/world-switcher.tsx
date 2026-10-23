@@ -10,6 +10,7 @@ import { cleanVacationPath } from "../data/vacation-landings";
 import { spaSearchHref, spaSearchStateFromValues } from "../data/spa-search-landings";
 import { eventSearchHref, hourlySearchHref } from "../data/world-search-landings";
 import { headerWorldCompactLabel, headerWorldLabel, headerWorldOptions } from "../data/world-switcher-labels";
+import { useWorldAvailability } from "./world-availability-provider";
 
 function searchWorldHref(world: "vacation" | "spa" | "events" | "hourly", location?: string) {
   if (!location || location === "כל הארץ") return worlds.find((item) => item.id === world)!.href;
@@ -27,6 +28,7 @@ export function WorldSwitcher({ active = "vacation" }: { active?: PublicWorldId 
   const lastNavigationRef = useRef<{ href: string; until: number } | null>(null);
   const router = useRouter();
   const { language, translate } = useSiteLanguage();
+  const { enabled } = useWorldAvailability();
 
   useEffect(() => {
     const closeOnOutsideClick = (event: globalThis.MouseEvent) => {
@@ -72,7 +74,7 @@ export function WorldSwitcher({ active = "vacation" }: { active?: PublicWorldId 
       <summary ref={triggerRef}><span><strong className="world-label-full">{headerWorldLabel(active, language)}</strong><strong className="world-label-compact">{headerWorldCompactLabel(active, language)}</strong></span><WorldToggleIcon /></summary>
       <nav className="world-dock__panel" aria-label={translate("חיפוש ומעבר בין עולמות")}>
         <header><span>{translate("כל מה שכיף לעשות")}</span><strong>{translate("מה תרצו לחפש?")}</strong></header>
-        {headerWorldOptions(language).map((world) => { const href = localizedPath(world.href, language); const isActive = world.id === (active === "activities" ? "attractions" : active); return <Link key={world.id} className={isActive ? "active" : ""} aria-current={isActive ? "page" : undefined} href={href} onPointerDown={navigateFromSwitcherPointer} onClick={navigateFromSwitcher}><span className={`world-mark world-mark--${world.id}`} aria-hidden="true" /><span><b>{world.label}</b><small>{translate(world.description)}</small></span></Link>; })}
+        {headerWorldOptions(language).filter((world) => enabled(world.id)).map((world) => { const href = localizedPath(world.href, language); const isActive = world.id === (active === "activities" ? "attractions" : active); return <Link key={world.id} className={isActive ? "active" : ""} aria-current={isActive ? "page" : undefined} href={href} onPointerDown={navigateFromSwitcherPointer} onClick={navigateFromSwitcher}><span className={`world-mark world-mark--${world.id}`} aria-hidden="true" /><span><b>{world.label}</b><small>{translate(world.description)}</small></span></Link>; })}
       </nav>
     </details>
   );
@@ -88,8 +90,9 @@ export function SearchWorldTabs({ active, location, onNavigate }: { active: Publ
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDetailsElement>(null);
   const moreSummaryRef = useRef<HTMLElement>(null);
+  const { enabled } = useWorldAvailability();
   const primaryWorlds = ["vacation", "spa", "events", "hourly"] as const;
-  const moreWorlds = publicWorldNavigation.filter((world) => !primaryWorlds.includes(world.id as typeof primaryWorlds[number]));
+  const moreWorlds = publicWorldNavigation.filter((world) => !primaryWorlds.includes(world.id as typeof primaryWorlds[number]) && enabled(world.id));
 
   useEffect(() => {
     if (!moreOpen) return;
@@ -127,7 +130,7 @@ export function SearchWorldTabs({ active, location, onNavigate }: { active: Publ
   return <nav className="search-world-tabs" aria-label={translate("בחירת עולם לחיפוש")}>
     <span className="search-world-tabs__prompt">{translate("מה מחפשים?")}</span>
     <div className="search-world-tabs__options">
-      {primaryWorlds.map((worldId) => {
+      {primaryWorlds.filter(enabled).map((worldId) => {
         const world = worlds.find((item) => item.id === worldId)!;
         const destination = searchWorldHref(worldId, location || undefined);
         if (!destination) return null;

@@ -14,6 +14,7 @@ import { WorldSwitcher } from "./components/world-switcher";
 import { useAccountAccess } from "./components/account-access";
 import { SavedViewedMenu } from "./components/saved-viewed-menu";
 import type { ManagedLink } from "./lib/content-studio";
+import { useWorldAvailability } from "./components/world-availability-provider";
 
 const defaultNav = publicWorldNavigation.map((world) => ({ id: String(world.id), href: world.href, label: world.shortLabel, description: world.description }));
 const defaultSecondary: ManagedLink[] = [
@@ -32,9 +33,10 @@ export function SiteHeader({ variant = "vacation" }: { variant?: WorldId }) {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const pathname = stripLanguagePrefix(usePathname());
   const { language, translate } = useSiteLanguage();
-  const managedNav = managedChrome?.language === language && managedChrome.primary?.length
+  const { enabled } = useWorldAvailability();
+  const managedNav = (managedChrome?.language === language && managedChrome.primary?.length
     ? managedChrome.primary.filter((item) => item.visible).map((item) => ({ ...item, description: defaultNav.find((entry) => entry.id === item.id)?.description || item.group }))
-    : defaultNav;
+    : defaultNav).filter((item) => enabled(item.id === "activities" ? "attractions" : item.id));
   const secondaryNav = managedChrome?.language === language && managedChrome.secondary?.length
     ? managedChrome.secondary.filter((item) => item.visible)
     : defaultSecondary;

@@ -2,6 +2,7 @@
 export const adminModules = [
   { id: "overview", label: "תמונת מצב וקידום", editable: true, pages: ["/admin", "/admin/growth"], apis: ["overview", "sitemap"] },
   { id: "content", label: "סטודיו תוכן", editable: true, pages: ["/admin/content-studio"], apis: ["content-studio"] },
+  { id: "worlds", label: "בקרת עולמות", editable: true, pages: ["/admin/worlds"], apis: ["worlds"] },
   { id: "search", label: "עמודי חיפוש ותור אישורים", editable: true, pages: ["/admin/search-pages", "/admin/content-queue"], apis: ["search-pages", "content-queue"] },
   { id: "analytics", label: "דוחות וביצועי עסקים", editable: true, pages: ["/admin/search-analytics", "/admin/business-performance"], apis: ["search-analytics", "business-performance"] },
   { id: "promotions", label: "קידום מקומות", editable: true, pages: ["/admin/discovery-promotions"], apis: ["discovery-promotions"] },

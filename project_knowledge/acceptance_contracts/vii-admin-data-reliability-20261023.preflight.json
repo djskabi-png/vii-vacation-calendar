@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-admin-data-reliability-20261023",
+  "project": "VII",
+  "task_type": "production admin, analytics and reliability repair",
+  "requested_outcome": "Repair the public review jump, persist and report contact and booking activity accurately, deliver a usable date-filtered cross-world management system with world activation controls, remove confusing pending-page states, eliminate the observed business-page Worker failure mechanism, publish the exact candidate, and rerun full QA excluding accessibility and typography.",
+  "natural_destination": "https://vii.spaplus.co business pages and the authenticated https://vii.spaplus.co/admin management surfaces",
+  "authorization_boundary": "Implementation, production publication and non-destructive verification are explicitly authorized. No real customer message, call, review, booking, payment, destructive data operation or accessibility/typography audit is authorized.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-QA-001","reason":"The request combines many related outcomes and explicitly rejects missed items.","acceptance_impact":"Every requirement must map to public or authenticated destination evidence, a precise blocker or an explicit exclusion."},
+    {"lesson_id":"ADIR-WEB-001","reason":"The management product and public site already contain capabilities that must be preserved.","acceptance_impact":"Inventory current data sources, controls and surfaces before replacing or consolidating them."},
+    {"lesson_id":"ADIR-WEB-002","reason":"The review row and management filters are interactive across desktop and mobile.","acceptance_impact":"Exercise click, loading, empty, error, reload and responsive states."},
+    {"lesson_id":"ADIR-WEB-003","reason":"Lead, report refresh and world-state saves are asynchronous material actions.","acceptance_impact":"Require immediate busy state, duplicate protection and recoverable errors."},
+    {"lesson_id":"ADIR-WEB-005","reason":"Shared public and admin controls must survive viewport transitions.","acceptance_impact":"Run mobile, desktop, reload and breakpoint transition checks on changed surfaces."},
+    {"lesson_id":"ADIR-WEB-006","reason":"Visible public mobile behavior is part of the supplied evidence.","acceptance_impact":"Require deployed mobile screenshots and live inspection for changed public UI."},
+    {"lesson_id":"ADIR-ANALYTICS-001","reason":"The request is explicitly about trustworthy operational and conversion reporting.","acceptance_impact":"Separate intent from outcome, exclude internal/bot activity and label unique browsers honestly."},
+    {"lesson_id":"VII-PROJECT-001","reason":"Worlds, suppliers, bookings and place pages follow VII-specific product rules.","acceptance_impact":"Use VII master plan and feedback standard as project truth and test the affected world family."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"A feature exists in code but the public or authenticated production destination still shows old behavior.","prevention":"Freeze one candidate, publish once, verify the exact public release and reload the natural destinations.","acceptance_check":"Production release identity matches the candidate and changed flows work after reload."},
+    {"rejection":"WhatsApp or phone numbers are shown as completed conversations or calls instead of tracked intent.","prevention":"Use distinct persisted event names and plain-language labels for lead saved, chat handoff, phone reveal/click and verified booking.","acceptance_check":"Reports expose separate columns and formulas with no inflated outcome claim."},
+    {"rejection":"The report supports only preset days or one world and lacks opening-date versus arrival-date filtering.","prevention":"Add explicit from/till, date basis, world, supplier and place filters with CSV parity.","acceptance_check":"Changing each filter changes the server query and visible/exported result set."},
+    {"rejection":"World off hides one menu link but leaks through footer, search, homepage, cross-sells or sitemap.","prevention":"Create one persisted canonical world-state source and consume it across every mapped surface.","acceptance_check":"An inactive test world disappears from the complete mapped family and returns after reactivation without data loss."},
+    {"rejection":"Worker 1102 returns or business pages remain several seconds and hundreds of kilobytes unnecessarily.","prevention":"Measure the route, isolate CPU/payload causes and reduce work and serialized props on the critical path.","acceptance_check":"Repeated public probes return 200 without 1102 and document size/latency materially improve or an exact external blocker is recorded."},
+    {"rejection":"Pending 301-backed pages remain unexplained or unmanageable.","prevention":"Separate legacy redirect coverage from editorial publication status and show actionable reasons and destination state.","acceptance_check":"Admin distinguishes redirect-only, draft, review, scheduled and published records with direct actions."},
+    {"rejection":"A broad admin makeover breaks public search, booking, reviews, galleries or prior last-minute work.","prevention":"Preserve existing contracts, add focused tests and run the sitewide affected-family matrix before and after publication.","acceptance_check":"All existing regression suites plus new admin/public tests pass on the exact candidate and public release."}
+  ],
+  "affected_family": [
+    "public business review summaries and review sections",
+    "phone reveal and phone click tracking",
+    "WhatsApp lead persistence and handoff",
+    "local VII booking and guest review operations",
+    "BizOnline conversions and booking reconciliation",
+    "business performance and WhatsApp lead administration",
+    "admin overview, operations, content studio, content queue and search-page approval",
+    "canonical world navigation, header, footer, home, search, cross-sells and sitemap",
+    "business-page worker execution, HTML payload and caches",
+    "vacation, events, hourly, spa and inactive future worlds",
+    "desktop, mobile, loading, empty, error, reload and rollback states",
+    "previous unpublished last-minute page candidate"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label":"Whole rating row and supplied score/review composition","source":"user screenshots codex-clipboard-9cf2c83a-5a08-4377-a789-60945c2825d5.png and project VII feedback standard"},
+      {"label":"Conversions endpoint contract","source":"https://bizonline.co.il/api/ai/vii/Vii-Frontend.html#conversions"},
+      {"label":"Existing VII product and operational decisions","source":"calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md and VII_FEEDBACK_STANDARD.md"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the first end-to-end slice persists a lead/contact event and renders it in the consolidated report, and the review row jumps correctly, before world controls and broad admin expansion.",
+    "checks": ["persisted source-of-truth row is returned by an authorized report query","intent and outcome labels are distinct","review summary activates the real review section","no public business-page data regression"],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a WhatsApp handoff open without a retrievable persisted lead, or can a failed save still open WhatsApp?",
+      "Can phone reveal, phone click, VII booking and Biz booking be confused or double-counted?",
+      "Can an inactive world remain visible through any header, footer, home, search, cross-sell or sitemap surface?",
+      "Can an unauthorized user read private reports or personal lead rows?",
+      "Can business?id=vacation-2566 still produce Worker 1102, oversized HTML or a long critical-path supplier wait?",
+      "Do date-basis filters, empty states, reload and CSV preserve the same result semantics?",
+      "Did publishing overwrite the last-minute page or any previously verified public fix?"
+    ],
+    "natural_destination_evidence": "Exact public release identity, repeated public business-page probes, live desktop/mobile review jump, and authenticated admin screenshots/API reads.",
+    "affected_family_evidence": "Automated full regression excluding accessibility and typography plus mapped public/admin world and data-source matrix."
+  },
+  "effectiveness": {
+    "baseline": "Public vacation-2566 was observed once as Cloudflare Worker 1102 and later returned 200 in about 4 seconds with roughly 818 KB HTML; management exposes fragmented preset-period reports and an unstyled last-100 WhatsApp table.",
+    "measurements": ["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],
+    "target": "One coherent, queryable and truthful admin flow; no reproducible 1102; materially lower business-page critical cost; complete world visibility control; all changed and preserved flows verified on the published release."
+  },
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

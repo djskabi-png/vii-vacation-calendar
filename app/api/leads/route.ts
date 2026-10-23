@@ -84,7 +84,9 @@ export async function POST(request: Request) {
       try {
         await recordBookingAudit({ id: reference, world: String(payload.world || "unknown"),
           placeId: String(payload.placeId || payload.organization || "unknown"),
-          placeName: String(payload.organization || ""), destination: "vii_leads", status: "lead_service_accepted" });
+          placeName: String(payload.organization || ""), destination: "vii_leads", status: "lead_service_accepted",
+          arrivalDate: typeof payload.requestedDate === "string" ? payload.requestedDate : null,
+          departureDate: typeof payload.requestedTill === "string" ? payload.requestedTill : null });
       } catch (error) { console.error("VII lead booking audit unavailable after acceptance", error); }
     }
     return json({

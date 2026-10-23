@@ -35,7 +35,8 @@ export async function POST(request: Request) {
     try {
       await recordBookingAudit({ id: receipt.reference, world: "vacation", placeId: `vacation-${body.siteID}`,
         placeName: `vacation-${body.siteID}`, destination: "sergey", status: "supplier_accepted",
-        supplierId: String(receipt.bookingID ?? receipt.systemOrderID ?? "") });
+        supplierId: String(receipt.bookingID ?? receipt.systemOrderID ?? ""), arrivalDate: String(body.from || ""),
+        departureDate: String(body.till || "") });
     } catch (error) { console.error("VII booking audit unavailable after supplier acceptance", error); }
     return Response.json(receipt, { headers });
   } catch (error) {

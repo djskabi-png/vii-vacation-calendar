@@ -50,7 +50,9 @@ test("completed WhatsApp popups are counted once and visible only to approved ad
   assert.match(report, /import \{ authorizedAdminSession \} from "\.\.\/\.\.\/\.\.\/lib\/admin-session\.ts"/);
   assert.match(report, /if \(!session\)/);
   assert.match(report, /SELECT COUNT\(\*\) AS count FROM whatsapp_leads/);
-  assert.match(page, /אין אפשרות לדעת מכאן אם ההודעה נשלחה בוואטסאפ/);
+  assert.match(page, /המעבר אינו הוכחה שהלקוח שלח את ההודעה/);
+  assert.match(storage, /handoff_started_at/);
+  assert.match(page, /מעבר ל־WhatsApp/);
   assert.match(page, /\/api\/auth\/google\?returnTo=%2Fadmin%2Fwhatsapp-leads/);
 });
 
@@ -140,10 +142,10 @@ test("isolated enquiry handler preserves optional context and never navigates on
   const handler = source.slice(source.indexOf("  async function submit("), source.indexOf("\n  return <>"))
     .replace("event: FormEvent<HTMLFormElement>", "event")
     .replace(/ as \{ success\?: boolean; reference\?: string \}/, "");
-  const run = new Function("deps", `const {setState,state,submissionId,setSubmissionId,crypto,FormData,labels,world,placeId,placeName,serviceName,window,fetch,localizedPlaceName,trackWhatsAppLeadSaved,businessPhone,whatsappNumber} = deps; ${handler}; return submit({preventDefault(){},currentTarget:{}});`);
+  const run = new Function("deps", `const {setState,state,submissionId,setSubmissionId,crypto,FormData,labels,world,placeId,placeName,serviceName,window,fetch,localizedPlaceName,trackWhatsAppLeadSaved,trackWhatsAppHandoff,businessPhone,whatsappNumber} = deps; ${handler}; return submit({preventDefault(){},currentTarget:{}});`);
   for (const mode of ["success", "error", "retry", "busy"]) {
     const calls = [], states = [], navigations = [];
-    let payload;
+    const payloads = [];
     const deps = {
       state: mode === "busy" ? "submitting" : "idle", submissionId: mode === "retry" ? "stable-id" : "", setSubmissionId: id => calls.push(`id:${id}`),
       crypto: { randomUUID: () => "new-id" }, setState: state => states.push(state),
@@ -151,11 +153,13 @@ test("isolated enquiry handler preserves optional context and never navigates on
       labels: new Proxy({}, {get: (_, key) => key === "messageIntro" ? name => `Hello ${name}` : key}),
       world:"vacation",placeId:"test-only",placeName:"Fixture",localizedPlaceName:"Fixture",serviceName:"Selected unit",businessPhone:"0500000000",whatsappNumber: () => "972500000000",
       window:{location:{href:"https://example.test/fixture",assign:url => navigations.push(url)}},
-      fetch: async (url, options) => { calls.push(url); payload = JSON.parse(options.body); return {ok:mode !== "error",json:async () => ({success:mode !== "error",reference:"fixture-ref"})}; },
+      fetch: async (url, options) => { calls.push(url); payloads.push(JSON.parse(options.body)); return {ok:mode !== "error",json:async () => ({success:mode !== "error",reference:"fixture-ref"})}; },
       trackWhatsAppLeadSaved: () => calls.push("tracked"),
+      trackWhatsAppHandoff: () => calls.push("handoff-tracked"),
     };
     await run(deps);
     if (mode === "busy") { assert.deepEqual(calls, []); assert.deepEqual(navigations, []); continue; }
+    const payload = payloads[0];
     assert.equal(payload.requestedDate, "2026-12-10");
     assert.equal(payload.requestedTill, "2026-12-12");
     assert.equal(payload.guests, "6");
@@ -163,7 +167,7 @@ test("isolated enquiry handler preserves optional context and never navigates on
     assert.equal(payload.privacyAccepted, true);
     assert.equal(payload.submissionId, mode === "retry" ? "stable-id" : "new-id");
     if (mode === "error") { assert.deepEqual(navigations, []); assert.equal(states.at(-1), "error"); assert.ok(!calls.includes("tracked")); }
-    else { assert.equal(navigations.length, 1); assert.match(decodeURIComponent(navigations[0]), /2026-12-10[\s\S]*2026-12-12[\s\S]*6[\s\S]*Selected unit[\s\S]*fixture-ref/); assert.equal(calls.at(-1), "tracked"); }
+    else { assert.equal(navigations.length, 1); assert.match(decodeURIComponent(navigations[0]), /2026-12-10[\s\S]*2026-12-12[\s\S]*6[\s\S]*Selected unit[\s\S]*fixture-ref/); assert.equal(payloads[1].reference, "fixture-ref"); assert.ok(calls.includes("tracked")); assert.ok(calls.includes("handoff-tracked")); }
   }
 });
 

@@ -9,6 +9,8 @@ export type BookingAudit = {
   destination: "sergey" | "vii_leads";
   status: "supplier_accepted" | "lead_service_accepted" | "status_unknown";
   supplierId?: string | null;
+  arrivalDate?: string | null;
+  departureDate?: string | null;
 };
 
 export async function operationsDatabase(): Promise<D1Database> {
@@ -20,6 +22,11 @@ export async function operationsDatabase(): Promise<D1Database> {
       supplier_id TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
     )`),
     db.prepare("CREATE INDEX IF NOT EXISTS idx_vii_booking_audit_created ON vii_booking_audit(created_at)"),
+    db.prepare(`CREATE TABLE IF NOT EXISTS vii_booking_context (
+      id TEXT PRIMARY KEY NOT NULL, arrival_date TEXT, departure_date TEXT,
+      updated_at TEXT NOT NULL
+    )`),
+    db.prepare("CREATE INDEX IF NOT EXISTS idx_vii_booking_context_arrival ON vii_booking_context(arrival_date)"),
   ]);
   return db;
 }
@@ -35,4 +42,10 @@ export async function recordBookingAudit(entry: BookingAudit) {
     .bind(entry.id.slice(0, 100), entry.world.slice(0, 40), entry.placeId.slice(0, 100),
       entry.placeName.slice(0, 160), entry.destination, entry.status,
       entry.supplierId?.slice(0, 100) || null, now, now).run();
+  if (entry.arrivalDate || entry.departureDate) {
+    await db.prepare(`INSERT INTO vii_booking_context (id, arrival_date, departure_date, updated_at)
+      VALUES (?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET arrival_date = excluded.arrival_date,
+      departure_date = excluded.departure_date, updated_at = excluded.updated_at`)
+      .bind(entry.id.slice(0, 100), entry.arrivalDate || null, entry.departureDate || null, now).run();
+  }
 }

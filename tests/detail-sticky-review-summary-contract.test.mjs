@@ -19,6 +19,8 @@ test("review summary is rendered only from a real rating and a positive review c
   assert.match(dock, /export function DetailReviewSummary/);
   assert.match(dock, /if \(!hasReviewSummary\) return null/);
   assert.match(dock, /detail-sticky-dock__stars[^>]*>★★★★★<\/span>/);
+  assert.match(dock, /<a href="#reviews" className=/);
+  assert.match(css, /detail-sticky-dock__review-summary[^}]*cursor:\s*pointer/);
   assert.doesNotMatch(dock, /<small>\{outOfTenLabel\}<\/small>/);
 });
 

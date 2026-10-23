@@ -23,6 +23,7 @@ import { HomeMobileRail } from "./components/home-mobile-rail";
 import "./home-mobile.css";
 import { serverPublicCopy } from "./i18n/server-public-copy";
 import { eligibleHomeTourProperties } from "./lib/home-video-selection";
+import { readWorldAvailability } from "./lib/world-availability";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -102,6 +103,7 @@ async function HomeMagazineSection() {
 
 export default async function HomePage() {
   const { translate } = await serverPublicCopy();
+  const worldAvailability = await readWorldAvailability();
   return (
     <PageShell>
       <main id="main-content" className="home-page">
@@ -118,7 +120,7 @@ export default async function HomePage() {
         <Suspense fallback={<HomeCatalogLoading />}><HomeCatalogShowcase /></Suspense>
         <Suspense fallback={null}><HomeRatings /></Suspense>
 
-        <section className="section home-corporate-gift"><div className="shell"><Link className="home-corporate-gift__card home-corporate-gift__card--gift" href="/gift-card"><span className="home-corporate-gift__visual"><GiftIcon /></span><div><h2>גיפט קארד לכל העולמות של וי</h2><p>נופש, ספא, אירועים, אטרקציות ושירותים, במתנה אחת.</p><strong>יוצרים גיפט קארד</strong></div></Link><Link className="home-corporate-gift__card home-corporate-gift__card--corporate" href="/corporate"><span className="home-corporate-gift__visual"><PeopleIcon /></span><div><span className="eyebrow">למנהלות רווחה ולעסקים</span><h2>אירועי חברה, רווחה ומתנות לעובדים</h2><p>מקום, תוכן, ספקים וגיפט קארד במסלול אחד.</p><strong>למרכז הארגוני</strong></div></Link></div></section>
+        <section className="section home-corporate-gift"><div className="shell"><Link className="home-corporate-gift__card home-corporate-gift__card--gift" href="/gift-card"><span className="home-corporate-gift__visual"><GiftIcon /></span><div><h2>גיפט קארד לכל העולמות של וי</h2><p>נופש, ספא, אירועים, אטרקציות ושירותים, במתנה אחת.</p><strong>יוצרים גיפט קארד</strong></div></Link>{worldAvailability.corporate ? <Link className="home-corporate-gift__card home-corporate-gift__card--corporate" href="/corporate"><span className="home-corporate-gift__visual"><PeopleIcon /></span><div><span className="eyebrow">למנהלות רווחה ולעסקים</span><h2>אירועי חברה, רווחה ומתנות לעובדים</h2><p>מקום, תוכן, ספקים וגיפט קארד במסלול אחד.</p><strong>למרכז הארגוני</strong></div></Link> : null}</div></section>
 
         <div className="section shell home-page-section"><MasuExperience context="stay" /></div>
 

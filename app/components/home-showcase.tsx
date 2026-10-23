@@ -27,11 +27,13 @@ import { worldTopicMedia, worldTopicImageCopy } from "../lib/world-topic-media";
 import { orderDiscoveryRail } from "../lib/discovery-slider-order";
 import { useDocumentSeed } from "./use-document-seed";
 import { homeTourVideos } from "../lib/home-video-selection";
+import { useWorldAvailability } from "./world-availability-provider";
 
 // These sliders fetch their own availability. They must not wait for the
 // unrelated four-world catalog or below-the-fold review queries.
 export function HomeLiveSections() {
-  return <><HomeLiveDeals /><HomeLiveDeals mode="holidays" /></>;
+  const { enabled } = useWorldAvailability();
+  return enabled("vacation") ? <><HomeLiveDeals /><HomeLiveDeals mode="holidays" /></> : null;
 }
 
 export function HomeCatalogLoading() {
@@ -87,9 +89,10 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, providerPr
   const router = useRouter();
   const documentSeed = useDocumentSeed();
   const { language } = useSiteLanguage();
+  const { enabled } = useWorldAvailability();
   const destinationLoading = destinationLoadingCopy[language];
   const [pendingDestination, setPendingDestination] = useState<string | null>(null);
-  const worldCards = publicWorldNavigation.filter((world) => !["vacation", "events", "spa", "hourly"].includes(world.id));
+  const worldCards = publicWorldNavigation.filter((world) => !["vacation", "events", "spa", "hourly"].includes(world.id) && enabled(world.id));
   const featuredTours = orderDiscoveryRail(properties.flatMap((property) => homeTourVideos(property.videos).map((video) => ({ property, video }))),
     { id: ({ property, video }) => `${property.slug}:${video.src}`, seed: `${documentSeed}:home-tours`, limit: 7 });
   const destinationImages = rotateDaily(properties.filter((property) => property.image), (property) => property.slug, "home-destination-images");
@@ -170,11 +173,11 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, providerPr
       </div>
     </section> : null}
 
-    <SpaPackageDeals />
+    {enabled("spa") ? <SpaPackageDeals /> : null}
 
-    <section className="section home-short-stay" aria-labelledby="home-short-title"><div className="shell"><div className="section-head"><div><h2 id="home-short-title">חדרים לכמה שעות</h2><p>שהייה קצרה, פרטית וגמישה. בוחרים מקום ובודקים את מסגרת הזמן והמחיר.</p></div><div><Link href="/hourly">לכל החדרים</Link><HomeSliderControls railId="home-hourly-rail" label="חדרים לפי שעה" itemSelector=".home-slider__item" /></div></div><div id="home-hourly-rail" className="home-slider__track home-slider__track--discovery" data-horizontal-rail>{featuredHourly.map((item) => <div className="home-slider__item" key={item.id}><DiscoveryCard item={item} /></div>)}</div></div></section>
+    {enabled("hourly") ? <section className="section home-short-stay" aria-labelledby="home-short-title"><div className="shell"><div className="section-head"><div><h2 id="home-short-title">חדרים לכמה שעות</h2><p>שהייה קצרה, פרטית וגמישה. בוחרים מקום ובודקים את מסגרת הזמן והמחיר.</p></div><div><Link href="/hourly">לכל החדרים</Link><HomeSliderControls railId="home-hourly-rail" label="חדרים לפי שעה" itemSelector=".home-slider__item" /></div></div><div id="home-hourly-rail" className="home-slider__track home-slider__track--discovery" data-horizontal-rail>{featuredHourly.map((item) => <div className="home-slider__item" key={item.id}><DiscoveryCard item={item} /></div>)}</div></div></section> : null}
 
-    <EventLastMinute places={eventPlaces} sectionId="home-event-deals" />
+    {enabled("events") ? <><EventLastMinute places={eventPlaces} sectionId="home-event-deals" />
     <section className="home-events-world" aria-labelledby="home-events-title">
       <div className="shell home-events-world__head"><div><span className="eyebrow">עולם האירועים</span><h2 id="home-events-title">כל סיבה טובה הופכת כאן לאירוע</h2><p>לופטים ומתחמים לימי הולדת, מסיבות, אירועי חברה וחגיגות פרטיות, עם חיפוש לפי כמות ואופי האירוע.</p></div><Link className="button" href="/events">נכנסים לעולם האירועים</Link></div>
       <div className="shell home-mobile-rail-controls"><HomeSliderControls railId="home-event-stories" label="מקומות לאירועים" itemSelector=".home-event-feature, .home-event-list__card" /></div>
@@ -182,7 +185,7 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, providerPr
         {featuredEvents[0] ? <PlacePreviewCard className="home-event-feature" contact={{ placeId: featuredEvents[0].slug, phone: featuredEvents[0].contact?.phone, whatsapp: featuredEvents[0].contact?.whatsapp, serviceName: featuredEvents[0].type }} name={featuredEvents[0].name} image={featuredEvents[0].image} images={featuredEvents[0].images} href={eventPlaceHref(featuredEvents[0])}><span className="home-event-feature__type">{featuredEvents[0].type}</span><div><small><PinIcon />{featuredEvents[0].location}</small><h3>{featuredEvents[0].name}</h3>{featuredEvents[0].description ? <p>{featuredEvents[0].description}</p> : null}<b>עד {featuredEvents[0].guests} אורחים ביחידה הגדולה</b></div></PlacePreviewCard> : null}
         <div className="home-event-list">{featuredEvents.slice(1, 5).map((place) => <PlacePreviewCard className="home-event-list__card" contact={{ placeId: place.slug, phone: place.contact?.phone, whatsapp: place.contact?.whatsapp, serviceName: place.type }} key={place.slug} name={place.name} image={place.image} images={place.images} href={eventPlaceHref(place)}><div><span>{place.type}</span><h3>{place.name}</h3><small>{place.location}, עד {place.guests} אורחים ביחידה הגדולה</small></div></PlacePreviewCard>)}</div>
       </div>
-    </section>
+    </section></> : null}
 
     <section className="section home-worlds" aria-labelledby="home-worlds-title">
       <div className="shell"><div className="section-head"><div><h2 id="home-worlds-title">ממשיכים לכל העולמות</h2><p>לא רק מקום לישון. בונים את כל החופשה, הטיפול, השהייה הקצרה, הספקים והיום שמסביב.</p></div></div>
@@ -218,6 +221,8 @@ export function HomeRatingsSection({ ratedPlaces }: { ratedPlaces: HomeRatedPlac
 
 export function HomeTrails() {
   const documentSeed = useDocumentSeed();
+  const { enabled } = useWorldAvailability();
+  if (!enabled("trails")) return null;
   return <section className="section home-trails" aria-labelledby="home-trails-title">
     <div className="shell"><div className="section-head"><div><h2 id="home-trails-title">מסלולים ליד החופשה</h2><p>מדריכי טיול עצמאיים עם זמן, קושי, עונה, בטיחות ומקור רשמי לבדיקה ביום היציאה.</p></div><Link href="/trails">לכל המסלולים</Link></div>
       <HomeMobileRail id="home-trails-rail" label="מסלולים ליד החופשה" className="trail-grid trail-grid--home">{orderDiscoveryRail(trails, { id: trail => trail.slug, seed: `${documentSeed}:home-trails`, limit: 20 }).map((trail) => <TrailCard key={trail.slug} trail={trail} compact />)}</HomeMobileRail>

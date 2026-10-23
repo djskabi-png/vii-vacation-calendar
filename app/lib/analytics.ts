@@ -22,6 +22,7 @@ export function trackPhoneClick(details: PhoneClickDetails) {
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push(event);
     window.dispatchEvent(new CustomEvent("vii:phone-click", { detail: event }));
+    trackBusinessEvent("phone_click", details);
   } catch { /* Optional measurement must never interrupt a native tel link. */ }
 }
 
@@ -39,7 +40,7 @@ declare global {
 }
 
 const businessSession = () => { const key = "vii-business-session"; let id = sessionStorage.getItem(key); if (!id) { id = crypto.randomUUID(); sessionStorage.setItem(key, id); } return id; };
-export function trackBusinessEvent(name: "impression" | "page_view" | "phone_reveal" | "whatsapp_lead" | "booking_request", details: { placeId: string; placeName: string; world: string }) {
+export function trackBusinessEvent(name: "impression" | "page_view" | "phone_reveal" | "phone_click" | "whatsapp_lead" | "whatsapp_handoff" | "booking_request", details: { placeId: string; placeName: string; world: string }) {
   if (typeof window === "undefined" || window.localStorage.getItem("vii-cookie-choice") !== "all") return;
   const event = { eventId: crypto.randomUUID(), name, ...details, pagePath: `${window.location.pathname}${window.location.search}`, sessionId: businessSession() };
   void fetch("/api/analytics/business", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(event), keepalive: true, credentials: "same-origin" }).catch(() => undefined);
@@ -84,6 +85,24 @@ export function trackWhatsAppLeadSaved(details: WhatsAppLeadDetails) {
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push(eventDetails);
     trackBusinessEvent("whatsapp_lead", details);
+  }
+}
+
+export function trackWhatsAppHandoff(details: WhatsAppLeadDetails) {
+  if (typeof window === "undefined") return;
+  const eventDetails = {
+    event: "vii_whatsapp_handoff",
+    place_id: details.placeId,
+    place_name: details.placeName,
+    world: details.world,
+    lead_reference: details.reference,
+    page_path: `${window.location.pathname}${window.location.search}`,
+  };
+  window.dispatchEvent(new CustomEvent("vii:whatsapp-handoff", { detail: eventDetails }));
+  if (window.localStorage.getItem("vii-cookie-choice") === "all") {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push(eventDetails);
+    trackBusinessEvent("whatsapp_handoff", details);
   }
 }
 

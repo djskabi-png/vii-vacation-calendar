@@ -1,0 +1,294 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-admin-data-reliability-20261023",
+  "project": "VII",
+  "task_type": "production admin, analytics and reliability repair",
+  "goal": "Deliver and publish the complete VII admin, data truth, world control, public review navigation and business-page reliability repair, then verify production excluding accessibility and typography.",
+  "created_at": "2026-10-23T16:47:00.848080Z",
+  "updated_at": "2026-10-23T16:47:00.848080Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "a53f3cf6f221a2a2da458ce59681240effe0028a2744bf25317e1c3b162f9973"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "f1aa410611dd0fdb5adbb8a620832ee6ff9f9a3498a8108f74f1ccb86562379b"
+    },
+    "cognitive_model": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md",
+      "sha256": "708ce5d1b152afe220cf98008f571e7d27704c102624f7d7440dc85a1a6ba2d8"
+    },
+    "rulebook": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md",
+      "sha256": "eef33571725d590d0dadeeee9475422715279004fbc40356257d11e818039ab1"
+    },
+    "predictive_preflight": {
+      "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v596-regression-qa\\project_knowledge\\acceptance_contracts\\vii-admin-data-reliability-20261023.preflight.json",
+      "sha256": "bd58b091d2389ee285bcd3e7f2474ce8c3c1b00fc9822cdb9bc2e47e6bc1495e"
+    }
+  },
+  "predictive_preflight": {
+    "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v596-regression-qa\\project_knowledge\\acceptance_contracts\\vii-admin-data-reliability-20261023.preflight.json",
+    "sha256": "bd58b091d2389ee285bcd3e7f2474ce8c3c1b00fc9822cdb9bc2e47e6bc1495e",
+    "predicted_rejection_count": 7,
+    "affected_family_count": 12,
+    "lesson_bundle_count": 8,
+    "midpoint_required": true,
+    "effectiveness_measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ]
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "title": "מסירה דורשת תוצאה מלאה ובדיקת רגרסיה",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-WEB-001",
+      "title": "מפת התאמה לפני החלפת מוצר קיים",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "ADIR-WEB-002",
+      "title": "מטריצת מצבי אינטראקציה",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "ADIR-WEB-003",
+      "title": "משוב מיידי לפעולה ממתינה",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "ADIR-WEB-005",
+      "title": "Responsive transitions are release-critical state changes",
+      "scope": "account_rule_and_shared_skill"
+    },
+    {
+      "lesson_id": "ADIR-WEB-006",
+      "title": "Public mobile screenshots are required release evidence",
+      "scope": "shared_skill_and_acceptance_check"
+    },
+    {
+      "lesson_id": "ADIR-ANALYTICS-001",
+      "title": "דוחות תנועה מובילים באומדן אנושי מסונן ולא בבקשות גולמיות",
+      "scope": "account_rule_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "VII-PROJECT-001",
+      "title": "לוגיקת מוצר ייחודית ל-VII",
+      "scope": "project_guidance"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Deliver and publish the complete VII admin, data truth, world control, public review navigation and business-page reliability repair, then verify production excluding accessibility and typography.",
+      "acceptance_check": "All eight requirements pass at their natural public or authenticated destination on the exact published release, with rollback and no prohibited real transaction.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:prediction",
+      "source": "predictive_preflight",
+      "statement": "Predict likely Adir rejection reasons and bind prevention to observable evidence before implementation.",
+      "acceptance_check": "The bounded predictive manifest matches the task identity and selected lessons and passes deterministic validation.",
+      "status": "passed",
+      "evidence": [
+        "Predictive preflight C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v596-regression-qa\\project_knowledge\\acceptance_contracts\\vii-admin-data-reliability-20261023.preflight.json validated with sha256 bd58b091d2389ee285bcd3e7f2474ce8c3c1b00fc9822cdb9bc2e47e6bc1495e"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-23T16:47:00.848080Z"
+    },
+    {
+      "id": "preflight:midpoint",
+      "source": "predictive_preflight.midpoint_gate",
+      "statement": "After the first end-to-end slice persists a lead/contact event and renders it in the consolidated report, and the review row jumps correctly, before world controls and broad admin expansion.",
+      "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:adversarial",
+      "source": "predictive_preflight.adversarial_close",
+      "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
+      "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "preflight:effectiveness",
+      "source": "predictive_preflight.effectiveness",
+      "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
+      "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-QA-001",
+      "source": "lesson:ADIR-QA-001",
+      "statement": "שום פרויקט או תוצר אינם גמורים כאשר היעד הטבעי אינו מציג את התוצאה המבוקשת, כאשר מצב שנשמר לא שרד רענון, כאשר קיימים רכיבים מתים, מצבים מזויפים, מסלולים קטועים וחיבורים שלא נבדקו מקצה לקצה, או כאשר המבצע לא פתח בעצמו את הגרסה המדויקת ובדק אותה לפי סוג התוצר. לאחר כל תיקון מקומי חוזרים להבטחה המקורית ולמטרת העל, ובודקים מחדש את כל המסלול, משפחת המצבים והקריטריונים הקריטיים. הוכחה שתוקן הפרט האחרון אינה אישור שהמוצר, המסמך, המחקר, המדיה, האוטומציה או הפעולה העסקית המלאה מוכנים או שאדיר צפוי להיות מרוצה. מוצר ציבורי שמשרת לקוחות אינו מאושר למסירה רק על בסיס בדיקות המבצע: לאחר פרסום מועמד מותנה נדרשת קבוצת בדיקות מייצגת על הגרסה המדויקת, עם תרחישי לקוח, תפעול, עסק וסיכון. פרויקט מסוג אחר מפעיל בדיקות בעלי עניין מתאימות לסוגו או מנמק במדויק מדוע השער אינו חל. כל מסירה לאדיר כוללת קישור ישיר ושימושי לכל תוצאה שניתנת לפתיחה. אם אין קישור אפשרי, מציינים זאת במפורש ומוסרים את המיקום המדויק או דרך האחזור.",
+      "acceptance_check": "Before any complete, ready or likely-to-satisfy judgment, the evidence must name the original promise, distinguish the latest repaired detail from the full outcome, map every critical journey and affected-family item to passed evidence, a precise blocker or justified exclusion, and inspect the exact final artifact at its natural destination. A fixture that proves only the most recent local correction must be blocked from full approval, regardless of project type. A deliberately incomplete review or task must be blocked. A public customer-facing review must also fail without five to ten passed post-deploy representative actor scenarios on the exact version and at least three applicable stakeholder perspectives. A justified non-public or non-customer artifact must remain valid without an irrelevant public cohort. A completed result with an addressable destination fails delivery when its direct link is omitted. A result without a possible link passes only when the exact location or retrieval path and a concrete no-link reason are present.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-001",
+      "source": "lesson:ADIR-WEB-001",
+      "statement": "לפני עיצוב מחדש ממפים כל יכולת ותוכן ומסמנים אותם כנשמרו, הוחלפו במכוון או חסומים.",
+      "acceptance_check": "אין פריט ישן ללא סיווג, מקור והכרעה לפני אישור המוצר החדש.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-002",
+      "source": "lesson:ADIR-WEB-002",
+      "statement": "שינוי אינטראקטיבי נבדק בכל המצבים הרלוונטיים במחשב, בנייד ובגובה מסך נמוך.",
+      "acceptance_check": "לכל אינטראקציה שהשתנתה יש ראיית מעבר לכל המצבים החלים עליה.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-003",
+      "source": "lesson:ADIR-WEB-003",
+      "statement": "כל פעולה אסינכרונית שיוצרת הזמנה, אישור, תשלום, הודעה או שינוי משמעותי מציגה מיד לואדר והסבר מקומי, מונעת שליחה כפולה ומסתיימת בהצלחה או בשגיאה ברורה.",
+      "acceptance_check": "בפעולת הזמנה אמיתית הכפתור משתנה מיד, הלואדר וההסבר מוצגים במשך ההמתנה, aria-busy פעיל, לחיצה כפולה חסומה, הצלחה מחליפה את הטעינה ושגיאה מחזירה כפתור פעיל עם הסבר.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-005",
+      "source": "lesson:ADIR-WEB-005",
+      "statement": "Every responsive website must remain correct through mobile-to-desktop and desktop-to-mobile transitions, reloads, orientation changes and browser device-emulation changes, including while overlays and scroll locks are active.",
+      "acceptance_check": "A real public route passes fresh desktop, desktop reload, fresh 390-pixel mobile, mobile overlay open followed by desktop resize, desktop reload, breakpoint boundary, orientation change and return to mobile. At every step the page has meaningful visible content, scrollX is zero, document width does not exceed viewport width and desktop has no stale mobile lock, backdrop or expanded state.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-WEB-006",
+      "source": "lesson:ADIR-WEB-006",
+      "statement": "A mobile search product is not visually approved until meaningful content is visible in the viewport and an independent checker inspects both a public-domain screenshot and the live page. DOM presence, text length, build output and overflow measurements alone are insufficient.",
+      "acceptance_check": "A public Spa results route with an artificially empty results control must fail with no-visible-results-state or excessive-empty-band, and the report must contain a screenshot path inspected by the independent checker.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:ADIR-ANALYTICS-001",
+      "source": "lesson:ADIR-ANALYTICS-001",
+      "statement": "בכל דוח תנועה, קהל או שימוש מסננים כברירת מחדל את אדיר, קודקס, בדיקות פנימיות, ניטור, אוטומציה ורובוטים שניתן לזהות בוודאות. טעינות עמוד, תנועה חשודה ובקשות לא מסווגות אינן מוצגות כאנשים. דפדפנים ייחודיים בהסכמה מוצגים בנפרד, וכל תנועה שלא ניתן לסווג בוודאות נשארת בשכבה נפרדת עם גבול המדידה.",
+      "acceptance_check": "A traffic report passes only when its leading number excludes owner, Codex, internal tests, monitoring, automation and verified bots; labels consented unique browsers separately; labels page loads as requests rather than people; and isolates unclassified or suspicious traffic with an explicit uncertainty boundary. A report that combines any excluded class or calls unclassified requests people fails.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "lesson:VII-PROJECT-001",
+      "source": "lesson:VII-PROJECT-001",
+      "statement": "עולמות התוכן, לוגיקת ההזמנה, מבנה הרגע האחרון ומודל נתוני המקום נשארים בהנחיות פרויקט VII.",
+      "acceptance_check": "החלטות VII המדויקות מופיעות רק בהדרכת הפרויקט, כל נושא ממופה למקור ולבדיקה, והפרטים אינם מופיעים בספר החוקים הכללי.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:req-1",
+      "source": "project_guidance",
+      "statement": "Whole rating row navigates to real reviews.",
+      "acceptance_check": "Whole rating row navigates to real reviews.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:req-2",
+      "source": "project_guidance",
+      "statement": "WhatsApp and phone actions persist and appear with truthful statuses.",
+      "acceptance_check": "WhatsApp and phone actions persist and appear with truthful statuses.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:req-3",
+      "source": "project_guidance",
+      "statement": "Admin exposes leads, phone, bookings, reviews and verified conversions.",
+      "acceptance_check": "Admin exposes leads, phone, bookings, reviews and verified conversions.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:req-4",
+      "source": "project_guidance",
+      "statement": "Reports support date range, date basis, world, supplier and business.",
+      "acceptance_check": "Reports support date range, date basis, world, supplier and business.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:req-5",
+      "source": "project_guidance",
+      "statement": "World activation applies across every mapped public surface and restores safely.",
+      "acceptance_check": "World activation applies across every mapped public surface and restores safely.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:req-6",
+      "source": "project_guidance",
+      "statement": "Content and pending or redirect page workflows are understandable and operable.",
+      "acceptance_check": "Content and pending or redirect page workflows are understandable and operable.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:req-7",
+      "source": "project_guidance",
+      "statement": "Business route no longer reproduces Worker 1102 and critical cost improves.",
+      "acceptance_check": "Business route no longer reproduces Worker 1102 and critical cost improves.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:req-8",
+      "source": "project_guidance",
+      "statement": "Exact candidate including last-minute page is published and post-deploy verified.",
+      "acceptance_check": "Exact candidate including last-minute page is published and post-deploy verified.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    },
+    {
+      "id": "project:exclusions",
+      "source": "project_guidance",
+      "statement": "Accessibility and typography audits, real calls, messages, bookings, reviews and payments are excluded.",
+      "acceptance_check": "Accessibility and typography audits, real calls, messages, bookings, reviews and payments are excluded.",
+      "status": "pending",
+      "evidence": [],
+      "reason": null
+    }
+  ],
+  "verification_status": "in_progress",
+  "verification_errors": []
+}

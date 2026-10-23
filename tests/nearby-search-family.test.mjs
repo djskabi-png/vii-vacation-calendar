@@ -82,5 +82,7 @@ test("business recommendation reads are public, managed, parallel and failure is
   assert.match(page, /managedTrails\(trails\)/);
   assert.match(page, /publicCatalogSummaries<SpaPlusSite>\("spa"\)\.catch/);
   assert.match(page, /managedDiscoveryItems/);
-  assert.match(page, /trailInventory=\{trailInventory\}/);
+  assert.match(page, /const nearbyTrailInventory = nearbyTrails/);
+  assert.match(page, /trailInventory=\{nearbyTrailInventory\}/);
+  assert.match(page, /complementaryInventory=\{nearbyComplementaryInventory\}/);
 });

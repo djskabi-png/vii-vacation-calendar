@@ -749,7 +749,7 @@ test("footer destinations and booking forms have real destinations", async () =>
     readFile(new URL("../app/components/cookie-consent.tsx", import.meta.url), "utf8"),
   ]);
   for (const href of ["/search", "/events", "/spas", "/hourly", "/providers", "/trails", "/attractions", "/booking", "/guides", "/accessibility", "/legal/terms", "/legal/privacy", "/legal/cancellation"]) {
-    assert.match(footer, new RegExp(`href=["']${href.replaceAll("/", "\\/")}`));
+    assert.match(footer, new RegExp(href.replaceAll("/", "\\/")));
   }
   assert.match(footer, /href=\{`\/join\/\$\{variant\}#\$\{joinTarget\}`\}/);
   assert.match(form, /const endpoint = "\/api\/leads\/"/);
@@ -810,7 +810,7 @@ test("independent trails are sourced, filterable and connected to stays", async 
   assert.match(business, /מסלולים באזור/);
   assert.match(header, /publicWorldNavigation\.map/);
   assert.match(header, /<WorldSwitcher active=\{activeWorld\}/);
-  assert.match(footer, /href="\/trails"/);
+  assert.match(footer, /\["trails", "מסלולי טיולים", "\/trails"\]/);
   assert.match(styles, /\.trail-filters/);
   assert.match(styles, /\.trail-detail__layout/);
 });

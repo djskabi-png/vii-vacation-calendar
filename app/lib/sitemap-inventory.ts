@@ -4,6 +4,7 @@ import type { SitemapUrlEntry } from "./sitemap-xml.ts";
 import { activityDepthTopics, trailDepthTopics } from "./world-depth-topics.ts";
 import { activityMatchesTopic } from "./activity-discovery-taxonomy.ts";
 import { runtimeDatabase } from "./runtime-database.ts";
+import { readWorldAvailability, worldForPath } from "./world-availability.ts";
 
 export const sitemapSectionOrder = ["core", "holidays", "vacations", "events", "spas", "hourly", "discovery", "search-pages"] as const;
 export type SitemapSection = (typeof sitemapSectionOrder)[number];
@@ -33,12 +34,14 @@ function unique(entries: SitemapUrlEntry[]) {
 }
 
 export async function sitemapSection(section: SitemapSection): Promise<SitemapUrlEntry[]> {
+  const availability = await readWorldAvailability();
   const expand = (rows: Array<{ path: string; images?: string[] }>) => rows.flatMap((row) => localizedEntries(row.path, row.images));
   if (section === "core") { const { joinWorlds } = await import("../join/worlds.ts"); return unique(expand([
       { path: "/" }, { path: "/gift-card" }, { path: "/corporate" }, { path: "/destinations" }, { path: "/questions" }, { path: "/join" },
       ...joinWorlds.map((world) => ({ path: `/join/${world}` })), { path: "/accessibility" }, { path: "/legal/terms" }, { path: "/legal/privacy" }, { path: "/legal/cancellation" },
-  ])); }
+  ].filter(({ path }) => path !== "/corporate" || availability.corporate))); }
   if (section === "holidays") {
+    if (!availability.vacation) return [];
     const [{ getHomeHolidays }, { supplierToken }, { holidayWorldPath, readHolidayWorld }] = await Promise.all([
       import("./vii-home-holidays.ts"), import("./vii-supplier-token.ts"), import("./holiday-world.ts")]);
     const holidays = await getHomeHolidays({ token: await supplierToken() }).catch(() => []);
@@ -49,6 +52,7 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
     return unique(worlds.filter((world) => world.indexable).map((world) => ({ url: absoluteUrl(holidayWorldPath(world.name, world.id)) })));
   }
   if (section === "vacations") {
+    if (!availability.vacation) return [];
     const [{ publicCatalogSummaries }, { indexableAccommodationLandings }, { indexableVacationLandings }] = await Promise.all([
       import("./public-catalog-read.ts"), import("../data/accommodation-landings.ts"), import("../data/vacation-landings.ts")]);
     const properties = await publicCatalogSummaries<Property>("vacations");
@@ -58,6 +62,7 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
     ]));
   }
   if (section === "events") {
+    if (!availability.events) return [];
     const [{ publicCatalogSummaries }, { matchesSearchLocation, searchLocationOptions }, { eventSearchHref }] = await Promise.all([
       import("./public-catalog-read.ts"), import("../data/search-taxonomy.ts"), import("../data/world-search-landings.ts")]);
     const eventPlaces = await publicCatalogSummaries<EventPlace>("events");
@@ -68,6 +73,7 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
     ]));
   }
   if (section === "spas") {
+    if (!availability.spa) return [];
     const [{ publicCatalogSummaries }, { spaPlacesFromSites }, { spaLandings, spaLandingHref }, { indexableSpaSearchStates, spaSearchHref }] = await Promise.all([
       import("./public-catalog-read.ts"), import("../data/world-data.ts"), import("../data/spa-landings.ts"), import("../data/spa-search-landings.ts")]);
     const spaSites = await publicCatalogSummaries<SpaPlusSite>("spa");
@@ -79,6 +85,7 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
     ]));
   }
   if (section === "hourly") {
+    if (!availability.hourly) return [];
     const [{ publicCatalogSummaries }, { hourlyPlacesFromCatalog }, { matchesSearchLocation, searchLocationOptions }, { hourlySearchHref }] = await Promise.all([
       import("./public-catalog-read.ts"), import("../data/world-data.ts"), import("../data/search-taxonomy.ts"), import("../data/world-search-landings.ts")]);
     type HourlyCatalogPlace = Parameters<typeof hourlyPlacesFromCatalog>[0][number];
@@ -96,14 +103,17 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
       ? [{ url: absoluteUrl(`/guides/${article.slug}`), images: [absoluteUrl(article.image)], lastModified: article.modifiedAt }]
       : localizedEntries(`/guides/${article.slug}`, [article.image]));
     return unique([...expand([
-      { path: "/trails" }, { path: "/attractions" }, { path: "/guides" },
-      ...activityDepthTopics.filter(topic => discoveryItems.some(item => item.world === "activities" && item.indexable !== false && activityMatchesTopic(item, topic.params))).map(topic => ({ path: `/attractions/explore/${topic.slug}` })),
-      ...trailDepthTopics.map(topic => ({ path: `/trails/explore/${topic.slug}` })),
-      ...discoveryItems.filter((place) => place.world !== "spa" && place.world !== "hourly" && (place.indexable === true || (place.indexable !== false && place.world === "activities"))).map((place) => ({ path: `/discover/place/${place.id}`, images: place.image ? [place.image] : [] })),
-      ...trails.map((trail) => ({ path: `/trails/${trail.slug}` })),
+      ...(availability.trails ? [{ path: "/trails" }] : []), ...(availability.attractions ? [{ path: "/attractions" }] : []), { path: "/guides" },
+      ...(availability.attractions ? activityDepthTopics.filter(topic => discoveryItems.some(item => item.world === "activities" && item.indexable !== false && activityMatchesTopic(item, topic.params))).map(topic => ({ path: `/attractions/explore/${topic.slug}` })) : []),
+      ...(availability.trails ? trailDepthTopics.map(topic => ({ path: `/trails/explore/${topic.slug}` })) : []),
+      ...discoveryItems.filter((place) => place.world !== "spa" && place.world !== "hourly" && (place.indexable === true || (place.indexable !== false && place.world === "activities")) && availability[(place.world === "activities" ? "attractions" : place.world) as keyof typeof availability] !== false).map((place) => ({ path: `/discover/place/${place.id}`, images: place.image ? [place.image] : [] })),
+      ...(availability.trails ? trails.map((trail) => ({ path: `/trails/${trail.slug}` })) : []),
   ]), ...articleEntries]); }
   const { publishedOpportunityPaths } = await import("./search-opportunities.ts");
-  const opportunityPaths = await publishedOpportunityPaths();
+  const opportunityPaths = (await publishedOpportunityPaths()).filter(({ path }) => {
+    const world = worldForPath(path);
+    return !world || availability[world] !== false;
+  });
   return unique(opportunityPaths.map(({ path, updatedAt }) => ({ url: absoluteUrl(path), lastModified: updatedAt || undefined })));
 }
 

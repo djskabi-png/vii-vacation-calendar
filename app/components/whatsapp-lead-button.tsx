@@ -4,7 +4,7 @@ import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
-import { trackWhatsAppLeadSaved } from "../lib/analytics";
+import { trackWhatsAppHandoff, trackWhatsAppLeadSaved } from "../lib/analytics";
 import { useAccountAccess } from "./account-access";
 
 type Copy = {
@@ -134,13 +134,14 @@ export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, s
   const [state, setState] = useState<"idle" | "submitting" | "error">("idle");
   const [submissionId, setSubmissionId] = useState("");
   const stateRef = useRef(state);
-  stateRef.current = state;
   const triggerRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLElement>(null);
   const errorRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
   const descriptionId = useId();
+
+  useEffect(() => { stateRef.current = state; }, [state]);
 
   const closeDialog = useCallback(() => {
     if (stateRef.current === "submitting") return;
@@ -248,6 +249,9 @@ export function WhatsAppLeadButton({ world, placeId, placeName, businessPhone, s
         labels.messageOutro,
       ].filter(Boolean).join("\n");
       trackWhatsAppLeadSaved({ placeId, placeName, world, reference });
+      const handoff = await fetch("/api/leads/handoff", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "same-origin", body: JSON.stringify({ submissionId, reference }) });
+      if (!handoff.ok) throw new Error("handoff_not_recorded");
+      trackWhatsAppHandoff({ placeId, placeName, world, reference });
       window.location.assign(`https://wa.me/${whatsappNumber(businessPhone)}?text=${encodeURIComponent(whatsappMessage)}`);
     } catch {
       setState("error");

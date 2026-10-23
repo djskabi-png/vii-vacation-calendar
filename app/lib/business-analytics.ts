@@ -1,7 +1,7 @@
 import type { D1Database } from "../../types/cloudflare-runtime";
 import { requiredRuntimeDatabase } from "./runtime-database.ts";
 
-export const businessEventNames = ["impression", "page_view", "phone_reveal", "whatsapp_lead", "booking_request"] as const;
+export const businessEventNames = ["impression", "page_view", "phone_reveal", "phone_click", "whatsapp_lead", "whatsapp_handoff", "booking_request"] as const;
 export type BusinessEventName = typeof businessEventNames[number];
 export type BusinessEvent = { eventId: string; name: BusinessEventName; placeId: string; placeName: string; world: string; pagePath: string; sessionId: string };
 
