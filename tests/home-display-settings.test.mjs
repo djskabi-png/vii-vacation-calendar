@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { applyHolidayDisplaySettings, parseHomeDisplaySettings } from "../app/lib/home-display-settings.ts";
 
-test("homepage editors control nearby tab labels, order, visibility and default", () => {
+test("homepage editors control nearby tab labels, order and default while all required tabs remain visible", () => {
   const settings = parseHomeDisplaySettings({
     homePeriodOrder: "weekend,tomorrow,friday,thursday,friday-weekend",
     homePeriodHidden: "thursday",
@@ -10,7 +10,7 @@ test("homepage editors control nearby tab labels, order, visibility and default"
     homePeriodLabels: JSON.stringify({ weekend: "סופ״ש פנוי" }),
   });
   assert.deepEqual(settings.periods.map((item) => [item.id, item.label]), [
-    ["weekend", "סופ״ש פנוי"], ["tomorrow", "ברגע האחרון"], ["friday", "לילה בשישי"], ["friday-weekend", "שישי עד ראשון"],
+    ["weekend", "סופ״ש פנוי"], ["tomorrow", "ברגע האחרון"], ["friday", "לילה בשישי"], ["thursday", "לילה בחמישי"], ["friday-weekend", "שישי עד ראשון"],
   ]);
   assert.equal(settings.defaultPeriod, "weekend");
 });
@@ -33,9 +33,9 @@ test("homepage holiday controls hide, shorten and sort every future supplier hol
   ]);
 });
 
-test("invalid settings fail safely to a visible default", () => {
+test("legacy hidden settings cannot remove required nearby-date tabs", () => {
   const settings = parseHomeDisplaySettings({ homePeriodHidden: "tomorrow,weekend,friday-weekend,thursday,friday", homeHolidayLimit: "999", homeHolidayDates: "broken" }, "en");
-  assert.deepEqual(settings.periods, [{ id: "tomorrow", label: "Last minute" }]);
+  assert.deepEqual(settings.periods.map((item) => item.id), ["tomorrow", "weekend", "friday-weekend", "thursday", "friday"]);
   assert.equal(settings.defaultPeriod, "tomorrow");
   assert.equal(settings.holidayLimit, 12);
 });

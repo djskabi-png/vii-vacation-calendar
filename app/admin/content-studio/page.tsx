@@ -124,10 +124,6 @@ export default function ContentStudioPage() {
   function updateHomePeriodLabel(id: string, value: string) {
     if (!draft) return; const labels = jsonAttributes(draft.attributes.homePeriodLabels); labels[id] = value; updateAttribute("homePeriodLabels", JSON.stringify(labels));
   }
-  function updateHomePeriodVisibility(id: string, visible: boolean) {
-    if (!draft) return; const hidden = new Set((draft.attributes.homePeriodHidden || "").split(",").filter(Boolean));
-    if (visible) hidden.delete(id); else hidden.add(id); updateAttribute("homePeriodHidden", [...hidden].join(","));
-  }
   function updateHolidayVisibility(id: number, visible: boolean) {
     if (!draft) return; const hidden = new Set((draft.attributes.homeHolidayHidden || "").split(",").filter(Boolean));
     if (visible) hidden.delete(String(id)); else hidden.add(String(id)); updateAttribute("homeHolidayHidden", [...hidden].join(","));
@@ -218,12 +214,12 @@ export default function ContentStudioPage() {
           {selected.contentType === "homepage" ? <fieldset className={`${extras.homeDeals} ${extras.homeSliderControl} ${styles.wide}`}>
             <legend>שליטה בלשוניות ובחגים של סליידרי הנופש</legend>
             <p>השינויים נשמרים כגרסה. רק גרסה שפורסמה משפיעה על עמוד הבית, בלי לשנות את נתוני הזמינות של הספק.</p>
-            <section className={extras.controlSection} aria-labelledby="near-tabs-control"><div className={extras.controlHead}><div><strong id="near-tabs-control">לשוניות תאריכים קרובים</strong><small>עריכת שם, סדר, תצוגה ולשונית ברירת מחדל</small></div></div>
+            <section className={extras.controlSection} aria-labelledby="near-tabs-control"><div className={extras.controlHead}><div><strong id="near-tabs-control">לשוניות תאריכים קרובים</strong><small>כל חמש הלשוניות קבועות. אפשר לערוך שם, סדר ולשונית ברירת מחדל.</small></div></div>
               <div className={extras.periodControlList}>{[...homePeriodDefaults].sort(([left], [right]) => {
                 const order = (draft.attributes.homePeriodOrder || homePeriodDefaults.map(([id]) => id).join(",")).split(","); return order.indexOf(left) - order.indexOf(right);
               }).map(([id, fallback], index, rows) => {
-                const labels = jsonAttributes(draft.attributes.homePeriodLabels); const hidden = (draft.attributes.homePeriodHidden || "").split(",").includes(id);
-                return <div className={extras.periodControlRow} key={id}><label className={extras.visibilityToggle}><input type="checkbox" checked={!hidden} onChange={(event) => updateHomePeriodVisibility(id, event.target.checked)} /><span>{hidden ? "מוסתר" : "מוצג"}</span></label><label className={extras.periodLabel}><span>שם הלשונית</span><input value={typeof labels[id] === "string" ? String(labels[id]) : fallback} onChange={(event) => updateHomePeriodLabel(id, event.target.value)} /></label><label className={extras.defaultPeriod}><input type="radio" name="home-default-period" checked={(draft.attributes.homePeriodDefault || "tomorrow") === id} disabled={hidden} onChange={() => updateAttribute("homePeriodDefault", id)} /> ברירת מחדל</label><div className={extras.orderButtons} aria-label={`סדר ${fallback}`}><button type="button" disabled={index === 0} onClick={() => moveHomePeriod(id, -1)}>העלאה</button><button type="button" disabled={index === rows.length - 1} onClick={() => moveHomePeriod(id, 1)}>הורדה</button></div></div>;
+                const labels = jsonAttributes(draft.attributes.homePeriodLabels);
+                return <div className={extras.periodControlRow} key={id}><span className={extras.visibilityToggle}>לשונית חובה</span><label className={extras.periodLabel}><span>שם הלשונית</span><input value={typeof labels[id] === "string" ? String(labels[id]) : fallback} onChange={(event) => updateHomePeriodLabel(id, event.target.value)} /></label><label className={extras.defaultPeriod}><input type="radio" name="home-default-period" checked={(draft.attributes.homePeriodDefault || "tomorrow") === id} onChange={() => updateAttribute("homePeriodDefault", id)} /> ברירת מחדל</label><div className={extras.orderButtons} aria-label={`סדר ${fallback}`}><button type="button" disabled={index === 0} onClick={() => moveHomePeriod(id, -1)}>העלאה</button><button type="button" disabled={index === rows.length - 1} onClick={() => moveHomePeriod(id, 1)}>הורדה</button></div></div>;
               })}</div>
             </section>
             <section className={extras.controlSection} aria-labelledby="holiday-tabs-control"><div className={extras.controlHead}><div><strong id="holiday-tabs-control">לשוניות חגים</strong><small>החגים מגיעים מהספק. כאן מחליטים כמה יוצגו, מסתירים חג או מצמצמים את חלון התאריך שלו.</small></div><label className={extras.limitField}><span>מספר חגים להצגה</span><input type="number" min="1" max="12" value={draft.attributes.homeHolidayLimit || "6"} onChange={(event) => updateAttribute("homeHolidayLimit", event.target.value.replace(/\D/g, "").slice(0, 2))} /></label></div>

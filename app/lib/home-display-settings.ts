@@ -44,11 +44,13 @@ export function parseHomeDisplaySettings(attributes: Record<string, string> | un
   const defaults = defaultHomeDisplaySettings(locale);
   if (!attributes) return defaults;
   const labels = jsonRecord(attributes.homePeriodLabels);
-  const hidden = new Set((attributes.homePeriodHidden || "").split(",").filter((id): id is HomeDealPeriod => ids.has(id as HomeDealPeriod)));
   const ordered = (attributes.homePeriodOrder || "").split(",").filter((id): id is HomeDealPeriod => ids.has(id as HomeDealPeriod));
   const completeOrder = [...new Set([...ordered, ...homeDealPeriods.map((item) => item.id)])];
-  const periods = completeOrder.filter((id) => !hidden.has(id)).map((id) => ({ id, label: typeof labels[id] === "string" && labels[id]!.trim() ? String(labels[id]).trim().slice(0, 40) : defaultLabels[locale][id] }));
-  if (!periods.length) periods.push(defaults.periods[0]);
+  // All five nearby-date tabs are a required part of the public homepage.
+  // Legacy CMS records may still contain homePeriodHidden values from an
+  // earlier editor, but they must never be allowed to collapse this search
+  // surface to a single tab again.
+  const periods = completeOrder.map((id) => ({ id, label: typeof labels[id] === "string" && labels[id]!.trim() ? String(labels[id]).trim().slice(0, 40) : defaultLabels[locale][id] }));
   const requestedDefault = attributes.homePeriodDefault as HomeDealPeriod;
   const defaultPeriod = periods.some((item) => item.id === requestedDefault) ? requestedDefault : periods[0].id;
   const holidayLimit = Math.min(12, Math.max(1, Number.parseInt(attributes.homeHolidayLimit || "6", 10) || 6));
