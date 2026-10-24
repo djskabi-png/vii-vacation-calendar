@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   if (!session) return Response.json({ error: "forbidden" }, { status: 403, headers });
   try {
     const report = await readOpportunityDashboard(await opportunityDatabase(), 30);
-    const queue = report.opportunities.filter((item) => ["pending", "draft", "review", "scheduled"].includes(item.status)).map((item) => ({
+    const queue = report.opportunities.filter((item) => !item.internalOnly && ["pending", "draft", "review", "scheduled"].includes(item.status)).map((item) => ({
       id: item.id, path: item.canonicalPath || item.proposedPath, title: item.title || item.suggestedTitle,
       world: item.world, location: item.location, searches: item.searches, uniqueSessions: item.uniqueSessions,
       results: item.latestResultCount, readiness: item.readiness, priority: item.priority, status: item.status,

@@ -35,7 +35,7 @@ async function readSearchSummary(db: D1Database, since: string) {
   const [searches, sessions, pending, published, zeroResults] = await Promise.all([
     db.prepare("SELECT COUNT(*) AS total FROM vii_search_demand_events WHERE created_at >= ? AND internal = 0").bind(since).first<{ total: number }>(),
     db.prepare("SELECT COUNT(DISTINCT session_id) AS total FROM vii_search_demand_events WHERE created_at >= ? AND internal = 0 AND session_id IS NOT NULL").bind(since).first<{ total: number }>(),
-    db.prepare("SELECT COUNT(*) AS total FROM vii_search_page_opportunities WHERE status IN ('pending','draft','review','scheduled')").first<{ total: number }>(),
+    db.prepare("SELECT COUNT(*) AS total FROM vii_search_page_opportunities WHERE status IN ('draft','review','scheduled') OR (status = 'pending' AND search_count > 0)").first<{ total: number }>(),
     db.prepare("SELECT COUNT(*) AS total FROM vii_search_page_opportunities WHERE status = 'published'").first<{ total: number }>(),
     db.prepare("SELECT COUNT(*) AS total FROM vii_search_demand_events WHERE created_at >= ? AND internal = 0 AND zero_result = 1").bind(since).first<{ total: number }>(),
   ]);

@@ -137,6 +137,10 @@ export function opportunityReadiness(row: Pick<SearchOpportunity, "title" | "met
   return Math.round(checks.filter(Boolean).length / checks.length * 100);
 }
 
+export function opportunityInternalOnly(row: Pick<OpportunityRow, "searchCount" | "status" | "canonicalKey">) {
+  return Number(row.searchCount || 0) === 0 && row.status === "pending" && !row.canonicalKey.startsWith("managed:");
+}
+
 function hydrate(row: OpportunityRow): SearchOpportunity {
   const filters = safeJson<Record<string, string | number | boolean>>(row.filtersJson, {});
   const faq = safeJson<Array<{ question: string; answer: string }>>(row.faqJson, []);
@@ -162,7 +166,11 @@ function hydrate(row: OpportunityRow): SearchOpportunity {
     filters, sourcePath: row.sourcePath, proposedPath: row.proposedPath, suggestedTitle: row.suggestedTitle,
     latestResultCount: Number(row.latestResultCount || 0), firstSeenAt: row.firstSeenAt, lastSeenAt: row.lastSeenAt,
     searches, uniqueSessions, internalSearches, internalUniqueSessions,
-    internalOnly: searches === 0 && internalSearches > 0 && !row.canonicalKey.startsWith("managed:"),
+    // A test opportunity stays internal even after its internal events age out of the
+    // selected dashboard window.  Using the windowed internalSearches value here made
+    // old administrator checks silently reappear as public content work after 30 days.
+    // Once an editor deliberately advances an item, keep it visible as authored work.
+    internalOnly: opportunityInternalOnly(row),
     zeroResults, status: row.status, assignee: row.assignee,
     ...content, faq, canonicalPath: row.canonicalPath || row.proposedPath, robotsIndex: row.robotsIndex === 1,
     scheduledAt: row.scheduledAt, publishedAt: row.publishedAt, version: Number(row.version || 0),

@@ -195,7 +195,7 @@ export async function readSearchAnalytics(db: D1Database, days: number) {
     db.prepare("SELECT world, COUNT(*) AS count FROM vii_search_demand_events WHERE created_at >= ? AND internal = 0 GROUP BY world ORDER BY count DESC").bind(since).all<{ world: string; count: number }>(),
     db.prepare("SELECT location, COUNT(*) AS count FROM vii_search_demand_events WHERE created_at >= ? AND internal = 0 GROUP BY location ORDER BY count DESC LIMIT 12").bind(since).all<{ location: string; count: number }>(),
     db.prepare("SELECT substr(created_at, 1, 10) AS date, COUNT(*) AS count FROM vii_search_demand_events WHERE created_at >= ? AND internal = 0 GROUP BY substr(created_at, 1, 10) ORDER BY date DESC LIMIT 31").bind(since).all<{ date: string; count: number }>(),
-    db.prepare("SELECT COUNT(*) AS count FROM vii_search_page_opportunities WHERE status IN ('pending','draft','review')").first<{ count: number }>(),
+    db.prepare("SELECT COUNT(*) AS count FROM vii_search_page_opportunities WHERE status IN ('draft','review') OR (status = 'pending' AND search_count > 0)").first<{ count: number }>(),
     db.prepare("SELECT COUNT(*) AS count FROM vii_search_demand_events WHERE created_at >= ? AND internal = 0 AND zero_result = 1").bind(since).first<{ count: number }>(),
     db.prepare("SELECT COUNT(*) AS count FROM vii_search_demand_events WHERE created_at >= ? AND internal = 1").bind(since).first<{ count: number }>(),
     db.prepare(`SELECT ${recentColumns} FROM vii_search_demand_events e JOIN vii_search_page_opportunities o ON o.id = e.opportunity_id

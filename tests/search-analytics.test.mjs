@@ -5,6 +5,7 @@ import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
 import { POST, searchCaptureMode } from "../app/api/analytics/search/route.ts";
 import { GET } from "../app/api/admin/search-analytics/route.ts";
+import { opportunityInternalOnly } from "../app/lib/search-opportunities.ts";
 
 const eventId = "d5e63378-217c-4c08-9f62-7bccb8b4fd2e";
 
@@ -49,6 +50,17 @@ test("administrator search is retained as a separate test opportunity without in
   assert.equal(opportunity.publicCount, 0);
   assert.equal(opportunity.results, 4);
   assert.equal(demand.internal, 1);
+});
+
+test("expired administrator checks never become public pending content", async () => {
+  const queueRoute = fs.readFileSync(new URL("../app/api/admin/content-queue/route.ts", import.meta.url), "utf8");
+  const overviewRoute = fs.readFileSync(new URL("../app/api/admin/overview/route.ts", import.meta.url), "utf8");
+  assert.equal(opportunityInternalOnly({ searchCount: 0, status: "pending", canonicalKey: "public-intent-hash" }), true);
+  assert.equal(opportunityInternalOnly({ searchCount: 0, status: "draft", canonicalKey: "public-intent-hash" }), false);
+  assert.equal(opportunityInternalOnly({ searchCount: 1, status: "pending", canonicalKey: "public-intent-hash" }), false);
+  assert.equal(opportunityInternalOnly({ searchCount: 0, status: "pending", canonicalKey: "managed:/vacations/north" }), false);
+  assert.match(queueRoute, /!item\.internalOnly/);
+  assert.match(overviewRoute, /status = 'pending' AND search_count > 0/);
 });
 
 test("no-consent search capture is allowed only for an authenticated administrator test", () => {
