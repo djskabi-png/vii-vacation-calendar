@@ -24,7 +24,6 @@ for (const [id, args] of suites) {
   process.stdout.write(result.stdout || "");
   process.stderr.write(result.stderr || "");
   report.suites.push({ id, status: result.status === 0 ? "passed" : "failed", exitCode: result.status, durationMs: Date.now() - started });
-  if (result.status !== 0) break;
 }
 report.finishedAt = new Date().toISOString();
 report.status = report.suites.length === suites.length && report.suites.every((suite) => suite.status === "passed") ? "passed" : "failed";

@@ -8,10 +8,11 @@ const [packageJson, runner] = await Promise.all([
   readFile(new URL("scripts/run-qqqaaa.cjs", root), "utf8"),
 ]);
 
-test("QQQAAA has one durable fail-closed package entry point", () => {
+test("QQQAAA has one durable aggregate package entry point", () => {
   assert.equal(packageJson.scripts["qa:qqqaaa"], "node scripts/run-qqqaaa.cjs");
   assert.match(runner, /trigger: "QQQAAA"/);
-  assert.match(runner, /if \(result\.status !== 0\) break/);
+  assert.doesNotMatch(runner, /if \(result\.status !== 0\) break/);
+  assert.match(runner, /report\.suites\.every\(\(suite\) => suite\.status === "passed"\)/);
 });
 
 test("QQQAAA retains every broad VII suite and the approved exclusions", () => {
