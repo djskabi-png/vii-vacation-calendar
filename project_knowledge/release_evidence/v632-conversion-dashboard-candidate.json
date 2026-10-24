@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "candidate": "v632-conversion-dashboard",
+  "source_commit": "ee736339829d74f5a337cc32cc0c6ba3201ae4de",
+  "branch": "release/v628-slider-state-machine",
+  "verification": {
+    "focused_tests": "12/12 passed",
+    "full_tests": "1578/1578 passed",
+    "build": "passed",
+    "resource_hygiene": "verified, no owned process remains"
+  },
+  "production_observation": {
+    "url": "https://vii.spaplus.co/admin/business-performance",
+    "state": "still serving v631",
+    "evidence": "The signed-in public admin page showed the old heading, the 2026-09-25 through 2026-10-24 default range, and the old aggregate Biz controls."
+  },
+  "publication": {
+    "state": "blocked",
+    "reason": "The connected Sites account returned project not found for appgprj_6a71ccdca27481918bf04dd329d3eb21 and the Sites Git remote requested unavailable credentials.",
+    "safe_next_action": "Select the Sites workspace that owns the VII project, then publish the already pushed GitHub candidate once and verify the authenticated admin route."
+  }
+}
