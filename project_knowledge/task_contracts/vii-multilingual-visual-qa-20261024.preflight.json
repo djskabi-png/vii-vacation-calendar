@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-multilingual-visual-qa-20261024",
+  "project": "VII",
+  "task_type": "production QA expansion",
+  "requested_outcome": "Add automated multilingual visual and localization-integrity checks that detect mixed-language content, layout collisions, clipping, direction errors and locale-loss navigation across VII public page families.",
+  "natural_destination": "The recurring VII production browser QA run and its generated evidence reports.",
+  "authorization_boundary": "May change and test the read-only QA runner and its scheduled prompts. No public-site content repair, deployment, booking, lead, call, WhatsApp, review, payment or other external write is authorized by this task.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "The current production QA passed while an obvious public multilingual defect remained visible.",
+      "acceptance_impact": "The exact public destination and representative route families must be exercised in every supported language on desktop and mobile, with reproducible failure evidence."
+    },
+    {
+      "lesson_id": "ADIR-COPY-001",
+      "reason": "The screenshots show Hebrew content and literal French strings inside an active French experience.",
+      "acceptance_impact": "The QA must fail on mixed-language leftovers, untranslated public content, rejected literal strings and locale-loss navigation."
+    },
+    {
+      "lesson_id": "ADIR-VISUAL-001",
+      "reason": "The preceding screenshot exposed a visual collision that whole-page overflow checks could not detect.",
+      "acceptance_impact": "The QA must measure clipping, off-screen elements and meaningful element collisions instead of relying only on screenshots or document width."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The checker tests the language selector but misses Hebrew content inside French cards and articles.",
+      "prevention": "Inspect visible text nodes outside explicitly marked language-picker controls and report offending selectors and excerpts.",
+      "acceptance_check": "A synthetic French fixture containing Hebrew review and article text fails with locale_script_leak evidence."
+    },
+    {
+      "rejection": "The checker catches page overflow but misses a card covering a headline.",
+      "prevention": "Measure visible element rectangles and clipping, then test declared high-risk hero and card regions for intersections.",
+      "acceptance_check": "A collision fixture fails while a deliberately layered overlay and a clean fixture pass."
+    },
+    {
+      "rejection": "Only the home page or only French is checked.",
+      "prevention": "Run Hebrew, English, Russian and French against representative home, search, world, guide, gift-card and place-page routes on desktop and mobile.",
+      "acceptance_check": "The report inventory contains every language, viewport and route-family combination."
+    },
+    {
+      "rejection": "A click from a localized page silently returns to Hebrew.",
+      "prevention": "Exercise representative internal card links and assert that the destination URL retains the active locale.",
+      "acceptance_check": "A locale-dropping link fixture fails and the live navigation evidence records the final localized URL."
+    },
+    {
+      "rejection": "The run reports only a generic failure with no usable evidence.",
+      "prevention": "Save a screenshot and structured JSON with URL, language, viewport, selector, text sample and bounding boxes for each failure.",
+      "acceptance_check": "Every failed case has a screenshot path and structured diagnostics."
+    }
+  ],
+  "affected_family": [
+    "Hebrew, English, Russian and French public locales",
+    "desktop and mobile viewports",
+    "home, search, world landing, guide, gift-card and place-page templates",
+    "visible text, direction, clipping, overlap and localized internal navigation",
+    "six-hour production QA and daily regression automation"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "Five user screenshots showing an active French locale with Hebrew content and mixed directions",
+        "source": "codex-clipboard screenshots supplied on 2026-10-24"
+      },
+      {
+        "label": "VII accepted multilingual and release behavior",
+        "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the detector and synthetic tests exist, before integrating it into the recurring production run.",
+    "checks": [
+      "A clean localized fixture passes",
+      "Hebrew leakage, clipping, collision and locale-loss fixtures fail with specific evidence",
+      "The supplied French public page is detected as failing rather than incorrectly passing"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can Hebrew text inside a French review card evade the scanner through nested elements or lang attributes?",
+      "Can an absolutely positioned card obscure a headline without increasing document scroll width?",
+      "Can internal navigation keep translated text but drop the locale in the destination URL?",
+      "Can a language-picker native label create a false positive?",
+      "Can a failure be reproduced from the saved screenshot and selector evidence?"
+    ],
+    "natural_destination_evidence": "A production-mode QA report generated against https://vii.spaplus.co with failing French evidence and complete language/viewport inventory.",
+    "affected_family_evidence": "Unit fixtures plus production browser cases across all four languages and representative route families."
+  },
+  "effectiveness": {
+    "baseline": "The existing production runner checks document-level overflow and Hebrew-only page families; it does not detect nested script leakage or arbitrary element collisions.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "The supplied French defects produce deterministic failed cases with actionable evidence, while clean fixtures and native language-picker labels pass."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

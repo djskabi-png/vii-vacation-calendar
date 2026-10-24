@@ -5,6 +5,7 @@ const { chromium } = require("playwright");
 const { mkdirSync, writeFileSync } = require("node:fs");
 const { existsSync } = require("node:fs");
 const { join } = require("node:path");
+const { analyzeTextSamples, localizedRoute } = require("./multilingual-qa-rules.cjs");
 
 const baseUrl = (process.env.BASE_URL || "https://vii.spaplus.co").replace(/\/$/, "");
 const outputDir = process.env.QA_OUTPUT_DIR || join(process.cwd(), "qa-reports", "comprehensive-production");
@@ -18,15 +19,17 @@ function record(id, surface, viewport, status, evidence, durationMs) {
 
 async function observed(id, surface, viewport, fn) {
   const started = Date.now();
+  let timeoutId;
   try {
     const evidence = await Promise.race([
       fn(),
-      new Promise((_, reject) => setTimeout(() => reject(new Error(`case_timeout_${caseTimeoutMs}`)), caseTimeoutMs)),
+      new Promise((_, reject) => { timeoutId = setTimeout(() => reject(new Error(`case_timeout_${caseTimeoutMs}`)), caseTimeoutMs); }),
     ]);
     record(id, surface, viewport, "passed", evidence || "verified", Date.now() - started);
   } catch (error) {
     record(id, surface, viewport, "failed", error instanceof Error ? error.message : String(error), Date.now() - started);
   } finally {
+    if (timeoutId) clearTimeout(timeoutId);
     const last = report.cases.at(-1);
     process.stdout.write(`${last?.status === "passed" ? "PASS" : "FAIL"} ${id} ${Date.now() - started}ms${last?.status === "failed" ? ` ${last.evidence}` : ""}\n`);
   }
@@ -42,7 +45,17 @@ async function assertNaturalPage(page, path) {
   await page.waitForSelector("main", { state: "visible", timeout: 15_000 });
   const body = await page.locator("body").innerText();
   if (/Error 1102|Worker exceeded resource limits|Application error|Internal Server Error/i.test(body)) throw new Error("provider_or_application_error_surface");
-  const metrics = await page.evaluate(() => ({ width: document.documentElement.scrollWidth, client: document.documentElement.clientWidth, text: (document.body.innerText || "").trim().length }));
+  const readMetrics = () => page.evaluate(() => ({ width: document.documentElement.scrollWidth, client: document.documentElement.clientWidth, text: (document.body.innerText || "").trim().length }));
+  let metrics;
+  try {
+    metrics = await readMetrics();
+  } catch (error) {
+    if (!String(error).includes("Execution context was destroyed")) throw error;
+    await page.waitForLoadState("domcontentloaded", { timeout: 15_000 }).catch(() => undefined);
+    await page.waitForSelector("main", { state: "visible", timeout: 15_000 });
+    await page.waitForTimeout(350);
+    metrics = await readMetrics();
+  }
   if (metrics.text < 120) throw new Error("insufficient_visible_content");
   if (metrics.width > metrics.client + 1) throw new Error(`horizontal_overflow_${metrics.width}_${metrics.client}`);
   return { status: response.status(), ...metrics };
@@ -59,6 +72,177 @@ async function verifyImages(page) {
     if (broken.length) throw new Error(`broken_images:${broken.slice(0, 3).join("|")}`);
     return { visibleImages: visible.length };
   });
+}
+
+async function verifyLocaleExperience(page, path, locale) {
+  const base = await assertNaturalPage(page, path);
+  await page.waitForFunction((expected) => document.documentElement.lang === expected && !document.documentElement.hasAttribute("data-locale-pending"), locale, { timeout: 15_000 });
+  await page.waitForTimeout(450);
+  const collectLocaleSurface = (expectedLocale) => {
+    const visible = (element) => {
+      const style = getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      return style.display !== "none" && style.visibility !== "hidden" && Number(style.opacity) !== 0 && rect.width > 2 && rect.height > 2;
+    };
+    const selector = (element) => {
+      if (element.id) return `${element.tagName.toLowerCase()}#${CSS.escape(element.id)}`;
+      const classes = [...element.classList].slice(0, 3).map((name) => `.${CSS.escape(name)}`).join("");
+      return `${element.tagName.toLowerCase()}${classes}`;
+    };
+    const textSamples = [];
+    for (const element of document.querySelectorAll("body *")) for (const node of element.childNodes) {
+      if (node.nodeType !== 3) continue;
+      const text = node.textContent?.replace(/\s+/g, " ").trim() || "";
+      if (text.length < 2 || !visible(element) || element.closest("script,style,noscript,svg,[data-no-translate]")) continue;
+      textSamples.push({ selector: selector(element), text: text.slice(0, 220) });
+    }
+
+    const insideHorizontalScroller = (element) => {
+      for (let parent = element.parentElement; parent && parent !== document.body; parent = parent.parentElement) {
+        const style = getComputedStyle(parent);
+        if ((style.overflowX === "auto" || style.overflowX === "scroll") && parent.scrollWidth > parent.clientWidth + 4) return true;
+      }
+      return false;
+    };
+
+    const clipped = [...document.querySelectorAll("main h1,main h2,main h3,main button,main [role='tab'],main [role='button']")]
+      .filter((element) => visible(element) && !element.closest("[data-horizontal-rail]"))
+      .flatMap((element) => {
+        const style = getComputedStyle(element);
+        const intentionallyTruncated = style.textOverflow === "ellipsis" || Number.parseInt(style.webkitLineClamp || "0", 10) > 0;
+        const clipsX = (style.overflowX === "hidden" || style.overflowX === "clip") && element.scrollWidth > element.clientWidth + 2;
+        const clipsY = (style.overflowY === "hidden" || style.overflowY === "clip") && element.scrollHeight > element.clientHeight + 2;
+        const isClipped = clipsX || clipsY;
+        return isClipped && !intentionallyTruncated ? [{ kind: "clipped_text", selector: selector(element), text: (element.textContent || "").trim().slice(0, 160), client: [element.clientWidth, element.clientHeight], scroll: [element.scrollWidth, element.scrollHeight] }] : [];
+      });
+
+    const offscreen = [...document.querySelectorAll("main h1,main h2,main h3,main button,main [role='tab']")]
+      .filter((element) => visible(element) && !element.closest("[data-horizontal-rail]") && !insideHorizontalScroller(element))
+      .flatMap((element) => {
+        const rect = element.getBoundingClientRect();
+        return rect.left < -2 || rect.right > innerWidth + 2 ? [{ kind: "offscreen_element", selector: selector(element), text: (element.textContent || "").trim().slice(0, 160), rect: { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom } }] : [];
+      });
+
+    const headings = [...document.querySelectorAll("main h1,main h2,main h3")].filter(visible);
+    const surfaces = [...document.querySelectorAll("main article,main [class*='hero__card'],main [class*='hero-card'],main .gift-hero__card")].filter(visible);
+    const collisions = [];
+    for (const heading of headings) for (const surface of surfaces) {
+      if (heading === surface || heading.contains(surface) || surface.contains(heading)) continue;
+      const a = heading.getBoundingClientRect();
+      const b = surface.getBoundingClientRect();
+      const width = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
+      const height = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+      const ratio = width * height / Math.max(1, a.width * a.height);
+      if (ratio > 0.06) collisions.push({ kind: "visual_collision", heading: selector(heading), surface: selector(surface), text: (heading.textContent || "").trim().slice(0, 160), ratio: Number(ratio.toFixed(4)), headingRect: { left: a.left, right: a.right, top: a.top, bottom: a.bottom }, surfaceRect: { left: b.left, right: b.right, top: b.top, bottom: b.bottom } });
+    }
+
+    const direction = document.documentElement.dir;
+    const expectedDirection = expectedLocale === "he" ? "rtl" : "ltr";
+    const directionProblems = direction === expectedDirection ? [] : [{ kind: "document_direction", expected: expectedDirection, actual: direction }];
+    if (expectedLocale !== "he") {
+      for (const element of document.querySelectorAll("main [dir='rtl']")) {
+        if (!visible(element) || element.closest("[data-no-translate]")) continue;
+        const text = (element.textContent || "").replace(/\s+/g, " ").trim();
+        if (text.length > 2) directionProblems.push({ kind: "unexpected_rtl_content", selector: selector(element), text: text.slice(0, 160) });
+      }
+    }
+
+    const sliderProblems = [];
+    for (const controls of document.querySelectorAll("[data-slider-controls][aria-controls='home-ratings-rail']")) {
+      if (!visible(controls)) continue;
+      const railId = controls.getAttribute("aria-controls");
+      const rail = railId ? document.getElementById(railId) : null;
+      const buttons = controls.querySelectorAll("button");
+      if (!rail || buttons.length < 2 || rail.scrollWidth <= rail.clientWidth + 4) continue;
+      const expectedRailDirection = expectedLocale === "he" ? "rtl" : "ltr";
+      const actualRailDirection = getComputedStyle(rail).direction;
+      if (actualRailDirection !== expectedRailDirection || !buttons[0].disabled || buttons[1].disabled) sliderProblems.push({ kind: "initial_slider_boundary", selector: selector(controls), rail: railId, previousDisabled: buttons[0].disabled, nextDisabled: buttons[1].disabled, expectedRailDirection, actualRailDirection });
+    }
+
+    return { root: { lang: document.documentElement.lang, direction }, textSamples, layoutProblems: [...clipped, ...offscreen, ...collisions, ...directionProblems, ...sliderProblems] };
+  };
+  let observed;
+  try {
+    observed = await page.evaluate(collectLocaleSurface, locale);
+  } catch (error) {
+    if (!String(error).includes("Execution context was destroyed")) throw error;
+    await page.waitForLoadState("domcontentloaded", { timeout: 15_000 }).catch(() => undefined);
+    await page.waitForFunction((expected) => document.documentElement.lang === expected && !document.documentElement.hasAttribute("data-locale-pending"), locale, { timeout: 15_000 });
+    await page.waitForTimeout(350);
+    observed = await page.evaluate(collectLocaleSurface, locale);
+  }
+
+  const textProblems = analyzeTextSamples(observed.textSamples, locale);
+  const problems = [...textProblems, ...observed.layoutProblems];
+  if (problems.length) throw new Error(`multilingual_visual_integrity:${JSON.stringify({ locale, count: problems.length, problems: problems.slice(0, 12) })}`);
+  return { ...base, locale, lang: observed.root.lang, direction: observed.root.direction, visibleTextNodes: observed.textSamples.length };
+}
+
+async function verifyLocalizedNavigation(page, locale) {
+  if (locale === "he") return { skipped: "canonical Hebrew route" };
+  const link = page.locator(".home-magazine a,.home-rating-card__cta").first();
+  if (!await link.count()) throw new Error("localized_navigation_candidate_missing");
+  await link.click();
+  await page.waitForLoadState("domcontentloaded");
+  const pathname = new URL(page.url()).pathname;
+  if (!(pathname === `/${locale}` || pathname.startsWith(`/${locale}/`))) throw new Error(`locale_lost_after_navigation:${page.url()}`);
+  return { url: page.url() };
+}
+
+async function runLocaleMatrix(browser, viewport, routeSubset) {
+  const requestedLocales = (process.env.QA_LOCALES || "he,en,ru,fr").split(",").map((locale) => locale.trim()).filter(Boolean);
+  const locales = requestedLocales.filter((locale) => ["he", "en", "ru", "fr"].includes(locale));
+  if (!locales.length) throw new Error("qa_locales_empty_or_invalid");
+  const routes = routeSubset || [
+    ["home", "/"],
+    ["vacation-search", "/search"],
+    ["events", "/events"],
+    ["hourly", "/hourly"],
+    ["spa", "/spas"],
+    ["guides", "/guides"],
+    ["gift-card", "/gift-card"],
+    ["vacation-place", "/business?id=vacation-116"],
+    ["event-place", "/events/place/event-2575"],
+    ["hourly-place", "/discover/place/hourly-475"],
+    ["spa-place", "/discover/place/spa-6"],
+  ];
+  for (const locale of locales) {
+    const context = await browser.newContext({ viewport: viewport.size, locale: locale === "he" ? "he-IL" : locale === "en" ? "en-GB" : locale === "ru" ? "ru-RU" : "fr-FR", timezoneId: "Asia/Jerusalem", reducedMotion: "reduce" });
+    for (const [surface, canonicalRoute] of routes) {
+      const route = localizedRoute(canonicalRoute, locale);
+      const id = `locale-${locale}-${surface}-${viewport.id}`;
+      const page = await context.newPage();
+      page.on("dialog", (dialog) => dialog.dismiss());
+      await observed(id, surface, viewport.id, async () => {
+        try {
+          const result = await verifyLocaleExperience(page, route, locale);
+          return result;
+        } catch (error) {
+          const screenshot = join(outputDir, `${id}.png`);
+          await page.screenshot({ path: screenshot, fullPage: true }).catch(() => undefined);
+          throw new Error(`${error instanceof Error ? error.message : String(error)};screenshot=${screenshot}`);
+        }
+      });
+      await page.close({ runBeforeUnload: false }).catch(() => undefined);
+    }
+    if (locale !== "he") {
+      const id = `locale-${locale}-navigation-${viewport.id}`;
+      const page = await context.newPage();
+      await observed(id, "localized navigation", viewport.id, async () => {
+        try {
+          await assertNaturalPage(page, localizedRoute("/", locale));
+          await page.waitForFunction((expected) => document.documentElement.lang === expected && !document.documentElement.hasAttribute("data-locale-pending"), locale, { timeout: 15_000 });
+          return await verifyLocalizedNavigation(page, locale);
+        } catch (error) {
+          const screenshot = join(outputDir, `${id}.png`);
+          await page.screenshot({ path: screenshot, fullPage: true }).catch(() => undefined);
+          throw new Error(`${error instanceof Error ? error.message : String(error)};screenshot=${screenshot}`);
+        }
+      });
+      await page.close({ runBeforeUnload: false }).catch(() => undefined);
+    }
+    await context.close().catch(() => undefined);
+  }
 }
 
 async function verifyResultsMap(page) {
@@ -174,9 +358,20 @@ async function runViewport(browser, viewport) {
     ? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" : undefined;
   const browser = await chromium.launch({ headless: true, ...(systemChrome ? { executablePath: systemChrome } : {}) });
   try {
-    await runViewport(browser, { id: "desktop", size: { width: 1440, height: 900 } });
-    await runViewport(browser, { id: "mobile", size: { width: 390, height: 844 } });
-    await runViewport(browser, { id: "low-height", size: { width: 390, height: 620 } });
+    if (process.env.QA_LOCALE_ONLY !== "1") {
+      await runViewport(browser, { id: "desktop", size: { width: 1440, height: 900 } });
+      await runViewport(browser, { id: "mobile", size: { width: 390, height: 844 } });
+      await runViewport(browser, { id: "low-height", size: { width: 390, height: 620 } });
+    }
+    if (process.env.QA_LOCALE_STRESS_ONLY !== "1") {
+      await runLocaleMatrix(browser, { id: "desktop", size: { width: 1440, height: 900 } });
+      await runLocaleMatrix(browser, { id: "mobile", size: { width: 390, height: 844 } });
+    }
+    await runLocaleMatrix(browser, { id: "desktop-1365", size: { width: 1365, height: 768 } }, [
+      ["home", "/"],
+      ["guides", "/guides"],
+      ["gift-card", "/gift-card"],
+    ]);
   } finally {
     await browser.close();
   }
