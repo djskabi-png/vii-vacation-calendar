@@ -37,6 +37,15 @@ test("the shared content includes guide, verified review context, FAQ schema and
   assert.match(events, /searchSuggestions=\{contextualSearchSuggestions\}/);
 });
 
+test("review summary labels are native in every supported language", () => {
+  for (const language of ["he", "en", "ru", "fr"]) assert.match(component, new RegExp(`${language}: \\{ ratedTitle:`));
+  assert.match(component, /reviewCopy\.ratedTitle/);
+  assert.match(component, /reviewCopy\.context/);
+  assert.match(component, /reviewCopy\.published\(review\.reviews\)/);
+  assert.match(component, /reviewCopy\.full/);
+  assert.doesNotMatch(component, /review\.reviews \? <p>\{review\.reviews\} חוות דעת שפורסמו<\/p>/);
+});
+
 test("below-results content stays readable and complete on mobile", () => {
   assert.match(css, /\.search-depth__review-grid \{[^}]*grid-template-columns: repeat\(3/);
   assert.match(css, /\.search-depth__faq > div \{[^}]*grid-template-columns: repeat\(3/);

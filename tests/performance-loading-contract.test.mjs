@@ -144,6 +144,15 @@ test("cold public documents do not read whole runtime catalogs before sending HT
   assert.match(business, /publicCatalogDetail/);
 });
 
+test("spa and hourly place pages select one accepted supplier instead of reading a whole runtime catalog", async () => {
+  const source = await readFile(new URL("app/discover/place/[id]/page.tsx", root), "utf8");
+  assert.match(source, /cache\(async \(id: string\)/);
+  assert.match(source, /publicCatalogSelectedSummaries<SpaPlusSite>/);
+  assert.match(source, /publicCatalogSelectedSummaries<\(typeof hourlyCatalog\.places\)\[number\]>/);
+  assert.match(source, /bundledPublicCatalogSummaries<SpaPlusSite>/);
+  assert.doesNotMatch(source, /publicCatalogSummaries</);
+});
+
 test("event search serializes a bounded discovery projection", async () => {
   const [layout, projection] = await Promise.all([
     readFile(new URL("app/events/search/layout.tsx", root), "utf8"),

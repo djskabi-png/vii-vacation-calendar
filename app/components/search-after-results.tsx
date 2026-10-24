@@ -441,6 +441,12 @@ export function SearchAfterResults({
   const discovery = discoveryCopy[language];
   const depthSeed = useSearchDepthSeed();
   const reviews = reviewHighlights.filter((item) => Number.isFinite(item.rating) && item.rating > 0).slice(0, 3);
+  const reviewCopy = {
+    he: { ratedTitle: "דירוגים ממקומות שמופיעים בתוצאות", ratedBody: "לקריאת חוות הדעת המלאות, היכנסו לעמוד המקום.", checklistTitle: "מה כדאי לבדוק בחוות הדעת", checklistBody: "לפני שמחליטים, מחפשים בחוות הדעת מידע עקבי על הדברים שמשפיעים באמת על החוויה.", context: "דירוג המקום", published: (count: number) => `${count} חוות דעת שפורסמו`, full: "לחוות הדעת המלאות" },
+    en: { ratedTitle: "Ratings from places in these results", ratedBody: "Open the place page to read the full reviews.", checklistTitle: "What to look for in reviews", checklistBody: "Before deciding, look for consistent details about the things that shape the experience.", context: "Property rating", published: (count: number) => `${count} published reviews`, full: "Read the full reviews" },
+    ru: { ratedTitle: "Оценки мест из результатов", ratedBody: "Откройте страницу места, чтобы прочитать отзывы полностью.", checklistTitle: "На что обратить внимание в отзывах", checklistBody: "Перед выбором ищите повторяющиеся сведения о том, что действительно влияет на впечатления.", context: "Оценка объекта", published: (count: number) => `Опубликовано отзывов: ${count}`, full: "Читать все отзывы" },
+    fr: { ratedTitle: "Notes des établissements affichés", ratedBody: "Ouvrez la page de l’établissement pour lire les avis complets.", checklistTitle: "Que vérifier dans les avis", checklistBody: "Avant de choisir, recherchez des informations cohérentes sur les éléments qui influencent réellement l’expérience.", context: "Note de l’établissement", published: (count: number) => `${count} avis publiés`, full: "Lire tous les avis" },
+  }[language];
   const translatedLocation = resolvedLocation ? localizedEntity(resolvedLocation) : "";
   const normalizedLocation = translatedLocation.trim().toLocaleLowerCase();
   const wholeCountryLabels = ["\u05d4\u05db\u05dc", "\u05db\u05dc \u05d4\u05d0\u05e8\u05e5", "all-country", "all", "all israel", "whole country", "\u0432\u0441\u0435", "\u0432\u0441\u044f \u0441\u0442\u0440\u0430\u043d\u0430", "\u0432\u0435\u0441\u044c \u0438\u0437\u0440\u0430\u0438\u043b\u044c", "tous", "tout isra\u00ebl", "toute isra\u00ebl"];
@@ -493,8 +499,8 @@ export function SearchAfterResults({
       </section> : null}
 
       {!discoveryOnly ? <section className="search-depth__reviews" aria-labelledby={`search-reviews-${world}`}>
-        <div className="search-depth__section-head"><h2 id={`search-reviews-${world}`}>{reviews.length ? "דירוגים ממקומות שמופיעים בתוצאות" : "מה כדאי לבדוק בחוות הדעת"}</h2><p>{reviews.length ? "לקריאת חוות הדעת המלאות, היכנסו לעמוד המקום." : "לפני שמחליטים, מחפשים בחוות הדעת מידע עקבי על הדברים שמשפיעים באמת על החוויה."}</p></div>
-        {reviews.length ? <div className="search-depth__review-grid">{reviews.map((review) => <Link key={review.href} href={review.href}><span>{review.context || "דירוג המקום"}</span><strong><bdi dir="ltr">{review.rating.toLocaleString(language === "he" ? "he-IL" : language, { maximumFractionDigits: 1 })}</bdi><small aria-hidden="true">★</small></strong><h3>{localizedEntity(review.name)}</h3>{review.reviews ? <p>{review.reviews} חוות דעת שפורסמו</p> : <p>לחוות הדעת המלאות</p>}</Link>)}</div> : <ul className="search-depth__review-checklist">{content.reviewCriteria.map((criterion) => <li key={criterion}>{criterion}</li>)}</ul>}
+        <div className="search-depth__section-head"><h2 id={`search-reviews-${world}`}>{reviews.length ? reviewCopy.ratedTitle : reviewCopy.checklistTitle}</h2><p>{reviews.length ? reviewCopy.ratedBody : reviewCopy.checklistBody}</p></div>
+        {reviews.length ? <div className="search-depth__review-grid">{reviews.map((review) => <Link key={review.href} href={review.href}><span>{review.context ? translate(review.context) : reviewCopy.context}</span><strong><bdi dir="ltr">{review.rating.toLocaleString(language === "he" ? "he-IL" : language, { maximumFractionDigits: 1 })}</bdi><small aria-hidden="true">★</small></strong><h3>{localizedEntity(review.name)}</h3>{review.reviews ? <p>{reviewCopy.published(review.reviews)}</p> : <p>{reviewCopy.full}</p>}</Link>)}</div> : <ul className="search-depth__review-checklist">{content.reviewCriteria.map((criterion) => <li key={criterion}>{criterion}</li>)}</ul>}
       </section> : null}
 
       {!hideGuideAndFaq && !discoveryOnly ? <section className="search-depth__faq" aria-labelledby={`search-faq-${world}`}>

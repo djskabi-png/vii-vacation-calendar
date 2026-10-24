@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import { notFound, redirect } from "next/navigation";
 import DiscoveryPlacePage from "../client-page";
 import { discoveryItems, hourlyPlacesFromCatalog, spaPlacesFromSites, type DiscoveryItem } from "../../../data/world-data";
@@ -10,7 +11,7 @@ import { getProviderDetails } from "../../../data/provider-details";
 import { getHourlyDetails } from "../../../data/hourly-details";
 import { getActivityDetails } from "../../../data/activity-details";
 import spaLegacyAliases from "../../../data/spaplus-legacy-aliases.json";
-import { publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
+import { bundledPublicCatalogSummaries, publicCatalogSelectedSummaries } from "../../../lib/public-catalog-read.ts";
 import type { SpaPlusSite } from "../../../data/spaplus";
 import { spaEditorialDescription, spaEditorialTitle } from "../../../data/spa-editorial";
 import hourlyCatalog from "../../../data/sergey-hourly-catalog.json";
@@ -22,18 +23,32 @@ import { discoveryBreadcrumbsForLocation } from "../../../lib/place-breadcrumb-l
 
 type Props = { params: Promise<{ id: string }> };
 
-async function resolveItem(id: string) {
+const resolveItem = cache(async (id: string) => {
   const spaAlias = (spaLegacyAliases as Record<string, string>)[id];
   if (spaAlias) redirect(await serverLocalePath(`/discover/place/${spaAlias}`));
   let items: DiscoveryItem[] = discoveryItems;
   let spaSite: SpaPlusSite | undefined;
   let hourlyPlace: (typeof hourlyCatalog.places)[number] | undefined;
   if (/^spa-\d+$/.test(id)) {
-    const sites = await publicCatalogSummaries<SpaPlusSite>("spa");
+    const supplierId = Number(id.slice("spa-".length));
+    const [acceptedSite, bundledSites] = await Promise.all([
+      publicCatalogSelectedSummaries<SpaPlusSite>("spa", [supplierId]).then((sites) => sites[0]),
+      bundledPublicCatalogSummaries<SpaPlusSite>("spa"),
+    ]);
+    const sites = acceptedSite
+      ? [acceptedSite, ...bundledSites.filter((site) => site.id !== acceptedSite.id)]
+      : bundledSites;
     items = spaPlacesFromSites(sites);
     spaSite = sites.find((site) => `spa-${site.id}` === id);
   } else if (/^hourly-\d+$/.test(id)) {
-    const places = await publicCatalogSummaries<(typeof hourlyCatalog.places)[number]>("rooms");
+    const supplierId = Number(id.slice("hourly-".length));
+    const [acceptedPlace, bundledPlaces] = await Promise.all([
+      publicCatalogSelectedSummaries<(typeof hourlyCatalog.places)[number]>("rooms", [supplierId]).then((places) => places[0]),
+      bundledPublicCatalogSummaries<(typeof hourlyCatalog.places)[number]>("rooms"),
+    ]);
+    const places = acceptedPlace
+      ? [acceptedPlace, ...bundledPlaces.filter((place) => place.id !== acceptedPlace.id)]
+      : bundledPlaces;
     items = hourlyPlacesFromCatalog(places);
     hourlyPlace = places.find((place) => place.id === id);
   } else {
@@ -47,7 +62,7 @@ async function resolveItem(id: string) {
   const item = items.find((entry) => entry.id === id);
   if (!item) notFound();
   return { item: spaSite ? { ...item, description: spaSite.shortDescription || spaEditorialDescription(spaSite) } : item, items, spaSite, hourlyPlace };
-}
+});
 
 function itemFaq(item: DiscoveryItem, spaSite?: SpaPlusSite, hourlyPlace?: (typeof hourlyCatalog.places)[number]) {
   if (item.world === "spa") return getSpaDetails(item.id, spaSite)?.faq || [];
