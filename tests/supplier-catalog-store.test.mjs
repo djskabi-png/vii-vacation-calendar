@@ -60,6 +60,40 @@ test("first generation compares allowed removals with the bundled baseline", asy
   } finally { db.close(); }
 });
 
+test("accepted generations are read in bounded keyset pages instead of one oversized D1 result", async () => {
+  const db = await database();
+  try {
+    const entries = Array.from({ length: 19 }, (_, index) => ({
+      supplierId: index + 1,
+      summary: { id: index + 1 },
+      detail: { body: `detail-${index + 1}` },
+    }));
+    await beginSupplierCatalogRun(db, run("paged-active"));
+    await stageSupplierCatalogEntries(db, "paged-active", "spa", entries);
+    await acceptSupplierCatalogRun(db, {
+      id: "paged-active", world: "spa", expectedCount: entries.length,
+      added: entries.length, changed: 0, removed: 0,
+      finishedAt: "2026-10-12T12:03:00Z",
+    });
+    let detailPageReads = 0;
+    const bounded = {
+      ...db,
+      prepare(sql) {
+        if (/SELECT supplier_id AS supplierId, summary_json AS summaryJson,\s*detail_json AS detailJson/.test(sql)) {
+          detailPageReads += 1;
+          assert.match(sql, /supplier_id > \?/);
+          assert.match(sql, /LIMIT \?/);
+        }
+        return db.prepare(sql);
+      },
+    };
+    const catalog = await readSupplierCatalog(bounded, "spa");
+    assert.equal(catalog.entries.length, entries.length);
+    assert.equal(catalog.entries.at(-1).detail.body, "detail-19");
+    assert.equal(detailPageReads, 3);
+  } finally { db.close(); }
+});
+
 test("first generation still rejects excessive removals from the bundled baseline", async () => {
   const db = await database();
   try {

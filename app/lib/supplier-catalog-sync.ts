@@ -70,7 +70,7 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
   world: SupplierCatalogWorld;
   source: string;
   baseline: SupplierCatalogEntry[];
-  fetchCandidate: () => Promise<CatalogCandidate>;
+  fetchCandidate: (previous: SupplierCatalogEntry[]) => Promise<CatalogCandidate>;
   validateCandidate?: (entries: SupplierCatalogEntry[]) => Promise<void>;
   now?: () => Date;
 }) {
@@ -86,16 +86,17 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
   let completed = 0;
   let total: number | undefined;
   try {
-    const candidate = await input.fetchCandidate();
+    stage = "catalog_read";
+    const active = await readSupplierCatalog(db, input.world);
+    if (!active && !input.baseline.length) throw new Error("missing_catalog_baseline");
+    const previous = active?.entries || input.baseline;
+    stage = "source_fetch";
+    const candidate = await input.fetchCandidate(previous);
     stage = "candidate_validation";
     total = candidate.entries.length;
     if (!Number.isFinite(Date.parse(candidate.fetchedAt)) || Date.parse(candidate.fetchedAt) > now().getTime()) {
       throw new Error("invalid_catalog_timestamp");
     }
-    stage = "catalog_read";
-    const active = await readSupplierCatalog(db, input.world);
-    if (!active && !input.baseline.length) throw new Error("missing_catalog_baseline");
-    const previous = active?.entries || input.baseline;
     stage = "candidate_compare";
     const diff = compareSupplierCatalogEntries(input.world, previous, candidate.entries);
     diagnostics = catalogInventoryDiagnostics(input.world, previous, candidate.entries, diff.changed);

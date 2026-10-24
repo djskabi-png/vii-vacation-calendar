@@ -197,6 +197,26 @@ test("one guarded runner serves manual and scheduled triggers without replacing 
   }
 });
 
+test("the guarded runner reads the accepted generation before supplier fetch and passes it to the candidate builder", async () => {
+  const db = await database();
+  try {
+    await runSupplierCatalogSync(db, {
+      id: "previous-first", world: "spa", source: "test", baseline, now: at,
+      fetchCandidate: async () => ({ fetchedAt: at().toISOString(), entries: baseline }),
+    });
+    let observedPrevious;
+    const result = await runSupplierCatalogSync(db, {
+      id: "previous-second", world: "spa", source: "test", baseline: [], now: at,
+      fetchCandidate: async (previous) => {
+        observedPrevious = previous;
+        return { fetchedAt: at().toISOString(), entries: previous };
+      },
+    });
+    assert.equal(result.status, "accepted");
+    assert.deepEqual(observedPrevious, baseline.map((entry) => ({ ...entry, detail: null })));
+  } finally { db.close(); }
+});
+
 test("a small withdrawal is published, while a catalog collapse stays blocked", async () => {
   const db = await database();
   const many = Array.from({ length: 100 }, (_, index) => ({

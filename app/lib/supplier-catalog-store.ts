@@ -16,6 +16,10 @@ type StateRow = { activeRunId: string | null; activeCount: number; acceptedAt: s
 type EntryRow = { supplierId: number; summaryJson: string; detailJson: string | null };
 
 const rowLimitBytes = 1_800_000;
+// A single accepted vacation generation can contain hundreds of large detail
+// documents. D1 caps the bytes returned by one statement, so the guarded sync
+// reader must never request the full generation in one result set.
+export const CATALOG_SYNC_READ_PAGE_SIZE = 8;
 
 function validWorld(world: string): world is SupplierCatalogWorld {
   return ["vacations", "events", "rooms", "spa"].includes(world);
@@ -233,13 +237,25 @@ export async function readSupplierCatalog(db: D1Database, world: SupplierCatalog
     accepted_at AS acceptedAt FROM supplier_catalog_state WHERE world = ?`)
     .bind(world).first<StateRow>();
   if (!state?.activeRunId) return null;
-  const rows = await db.prepare(`SELECT supplier_id AS supplierId, summary_json AS summaryJson,
-    detail_json AS detailJson FROM supplier_catalog_entries WHERE run_id = ? AND world = ? ORDER BY supplier_id`)
-    .bind(state.activeRunId, world).all<EntryRow>();
-  if (rows.results.length !== state.activeCount) throw new Error("catalog_active_generation_incomplete");
+  const results: EntryRow[] = [];
+  let afterSupplierId = 0;
+  while (results.length < state.activeCount) {
+    const page = await db.prepare(`SELECT supplier_id AS supplierId, summary_json AS summaryJson,
+      detail_json AS detailJson FROM supplier_catalog_entries
+      WHERE run_id = ? AND world = ? AND supplier_id > ? ORDER BY supplier_id LIMIT ?`)
+      .bind(state.activeRunId, world, afterSupplierId, CATALOG_SYNC_READ_PAGE_SIZE).all<EntryRow>();
+    if (!page.results.length) break;
+    results.push(...page.results);
+    const lastSupplierId = page.results.at(-1)?.supplierId;
+    if (!Number.isSafeInteger(lastSupplierId) || Number(lastSupplierId) <= afterSupplierId) {
+      throw new Error("catalog_active_generation_incomplete");
+    }
+    afterSupplierId = Number(lastSupplierId);
+  }
+  if (results.length !== state.activeCount) throw new Error("catalog_active_generation_incomplete");
   return {
     acceptedAt: state.acceptedAt,
-    entries: rows.results.map((row) => ({ supplierId: row.supplierId, summary: JSON.parse(row.summaryJson),
+    entries: results.map((row) => ({ supplierId: row.supplierId, summary: JSON.parse(row.summaryJson),
       detail: row.detailJson ? JSON.parse(row.detailJson) : null })),
   };
 }

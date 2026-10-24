@@ -8,7 +8,7 @@ import { createSergeyRoomsCatalogClient } from "./sergey-rooms-catalog-client.ts
 import { createSpaPlusCatalogClient } from "./spaplus-catalog-client.ts";
 import { runSupplierCatalogSync } from "./supplier-catalog-sync.ts";
 import { validateSpaEditorialCandidate } from "./spa-editorial-policy.ts";
-import { readSupplierCatalog, type SupplierCatalogEntry, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
+import { type SupplierCatalogEntry, type SupplierCatalogWorld } from "./supplier-catalog-store.ts";
 
 export const catalogWorlds: SupplierCatalogWorld[] = ["vacations", "events", "rooms", "spa"];
 
@@ -39,9 +39,6 @@ export async function syncSupplierCatalogWorld(db: D1Database, world: SupplierCa
   source: "manual" | "scheduled" | "retry", options?: { fetchImpl?: typeof fetch; now?: () => Date; runId?: string }) {
   const apiKey = await secret(world === "spa" ? "SPAPLUS_VII_API_KEY" : "SERGEY_VII_API_TOKEN");
   const baseline = bundledCatalogBaseline(world);
-  const previous = world === "vacations" || world === "events"
-    ? (await readSupplierCatalog(db, world).catch(() => null))?.entries || baseline
-    : baseline;
   const client = world === "spa"
     ? createSpaPlusCatalogClient({ apiKey, fetchImpl: options?.fetchImpl })
     : world === "rooms"
@@ -51,7 +48,7 @@ export async function syncSupplierCatalogWorld(db: D1Database, world: SupplierCa
     id: options?.runId || crypto.randomUUID(), world, source,
     baseline,
     validateCandidate: world === "spa" ? validateSpaEditorialCandidate : undefined,
-    fetchCandidate: () => world === "vacations" || world === "events"
+    fetchCandidate: (previous) => world === "vacations" || world === "events"
       ? (client as ReturnType<typeof createSergeyPublicCatalogClient>).fetchCandidate(world, previous)
       : (client as ReturnType<typeof createSpaPlusCatalogClient> | ReturnType<typeof createSergeyRoomsCatalogClient>).fetchCandidate(),
     now: options?.now,
