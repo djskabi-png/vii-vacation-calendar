@@ -5,8 +5,8 @@
   "task_type": "production QA expansion",
   "goal": "Add automated multilingual visual and localization-integrity checks to VII production QA.",
   "created_at": "2026-10-24T00:48:50.790388Z",
-  "updated_at": "2026-10-24T01:34:54.391490Z",
-  "completed_at": "2026-10-24T01:34:54.391490Z",
+  "updated_at": "2026-10-24T01:50:11.688612Z",
+  "completed_at": "2026-10-24T01:50:11.688612Z",
   "source_hashes": {
     "working_profile": {
       "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
@@ -219,6 +219,18 @@
       ],
       "reason": null,
       "updated_at": "2026-10-24T01:34:54.284874Z"
+    },
+    {
+      "id": "user:comprehensive-post-change-qa",
+      "source": "user_request",
+      "statement": "After adding multilingual and localized-addressability checks, run a comprehensive read-only QA pass across the entire public VII product.",
+      "acceptance_check": "Unit, regression-guard and comprehensive production suites run; every failure is preserved with exact evidence, and no all-clear is claimed while failures remain.",
+      "status": "passed",
+      "evidence": [
+        "pnpm test passed 1533/1533; qa:regression-guards passed 17/17; public report qa-reports/comprehensive-public-post-language-20261024/comprehensive-1792806588955.json completed 145 cases with 33 passed and 112 failed, all retained with screenshots/evidence; verdict NOT_READY."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-24T01:50:11.579749Z"
     }
   ],
   "verification_status": "verified",
@@ -252,6 +264,6 @@
       "baseline_note": "Prior production QA checked Hebrew routes and document width only; calibration removed false positives from hidden nodes and horizontal rails before recurring integration."
     }
   },
-  "last_freshness_check_at": "2026-10-24T01:10:40.619041Z",
+  "last_freshness_check_at": "2026-10-24T01:35:16.753580Z",
   "last_freshness_check_errors": []
 }

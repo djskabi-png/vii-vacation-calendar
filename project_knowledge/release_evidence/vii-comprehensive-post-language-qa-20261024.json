@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "taskId": "vii-comprehensive-post-language-qa-20261024",
+  "productionBaseUrl": "https://vii.spaplus.co",
+  "exclusions": ["accessibility", "typography"],
+  "localVerification": {
+    "buildAndUnitTests": {"passed": 1533, "failed": 0},
+    "regressionGuards": {"passed": 17, "failed": 0}
+  },
+  "productionReport": "qa-reports/comprehensive-public-post-language-20261024/comprehensive-1792806588955.json",
+  "productionSummary": {"total": 145, "passed": 33, "failed": 112},
+  "failureCaseCounts": {
+    "caseTimeout": 13,
+    "mapToggleMissing": 10,
+    "shareUrlMissing": 56,
+    "shareUrlLocaleMismatch": 24,
+    "localeScriptLeak": 47,
+    "unlocalizedDate": 6,
+    "rejectedLiteralCopy": 1,
+    "visualCollision": 2,
+    "initialSliderBoundary": 2,
+    "homeSliderContract": 1,
+    "executionContextDestroyed": 1,
+    "backNavigationTimeout": 1
+  },
+  "viewportResults": {
+    "desktop": {"passed": 10, "failed": 49},
+    "mobile": {"passed": 14, "failed": 45},
+    "lowHeight": {"passed": 6, "failed": 6},
+    "desktop1365": {"passed": 3, "failed": 12}
+  },
+  "verdict": "NOT_READY",
+  "reason": "Local tests pass, but the exact public destination has widespread map, loading, multilingual content, share metadata, slider and navigation failures."
+}
