@@ -43,6 +43,8 @@ async function assertNaturalPage(page, path) {
   }
   if (!response || response.status() >= 400) throw new Error(`http_${response?.status() || "no_response"}`);
   await page.waitForSelector("main", { state: "visible", timeout: 15_000 });
+  await page.waitForSelector('html[data-vii-hydrated="true"]', { state: "attached", timeout: 20_000 });
+  await page.waitForTimeout(800);
   const body = await page.locator("body").innerText();
   if (/Error 1102|Worker exceeded resource limits|Application error|Internal Server Error/i.test(body)) throw new Error("provider_or_application_error_surface");
   const readMetrics = () => page.evaluate(() => ({ width: document.documentElement.scrollWidth, client: document.documentElement.clientWidth, text: (document.body.innerText || "").trim().length }));
@@ -267,7 +269,7 @@ async function verifyResultsMap(page) {
   const state = await page.evaluate(() => ({ tiles: document.querySelectorAll(".leaflet-tile").length, markers: document.querySelectorAll(".vii-map-marker").length, selectedCards: document.querySelectorAll(".map-selection-card").length }));
   if (!state.markers) throw new Error("map_markers_missing");
   const clickableBox = (selector) => page.locator(selector).evaluateAll((elements) => {
-    const element = elements.find((candidate) => {
+    const index = elements.findIndex((candidate) => {
       const box = candidate.getBoundingClientRect();
       if (!box.width || !box.height || box.bottom <= 0 || box.top >= innerHeight || box.right <= 0 || box.left >= innerWidth) return false;
       const x = Math.max(0, Math.min(innerWidth - 1, box.left + box.width / 2));
@@ -275,23 +277,24 @@ async function verifyResultsMap(page) {
       const topmost = document.elementFromPoint(x, y);
       return Boolean(topmost && (topmost === candidate || candidate.contains(topmost)));
     });
-    if (!element) return null;
+    if (index < 0) return null;
+    const element = elements[index];
     const box = element.getBoundingClientRect();
-    return { x: box.left + box.width / 2, y: box.top + box.height / 2 };
+    return { index, x: box.left + box.width / 2, y: box.top + box.height / 2 };
   });
   let markerBox = await clickableBox(".vii-map-marker-wrap:not(.is-cluster)");
   for (let attempt = 0; !markerBox && attempt < 3; attempt += 1) {
     const clusterBox = await clickableBox(".vii-map-marker-wrap.is-cluster");
     if (!clusterBox) break;
-    await page.mouse.click(clusterBox.x, clusterBox.y);
+    await page.locator(".vii-map-marker-wrap.is-cluster").nth(clusterBox.index).click({ timeout: 5_000 });
     await page.waitForTimeout(650);
     markerBox = await clickableBox(".vii-map-marker-wrap:not(.is-cluster)");
   }
   if (!markerBox) throw new Error("map_selectable_marker_missing");
-  await page.mouse.click(markerBox.x, markerBox.y);
+  await page.locator(".vii-map-marker-wrap:not(.is-cluster)").nth(markerBox.index).click({ timeout: 5_000 });
   await page.waitForSelector(".map-selection-card", { state: "visible", timeout: 10_000 });
   state.selectedCards = await page.locator(".map-selection-card").count();
-  const close = page.locator(".map-mobile-close").first();
+  const close = page.locator(".map-mobile-close:visible").first();
   if (await close.count()) await close.click();
   else await toggle.click();
   return state;
@@ -301,6 +304,7 @@ async function verifyPlace(page, path, expectations) {
   const base = await assertNaturalPage(page, path);
   const location = page.locator("#location,#event-map").first();
   if (await location.count()) { await location.scrollIntoViewIfNeeded(); await page.waitForTimeout(1_200); }
+  if (expectations.map) await page.waitForSelector(".map-preview-card,.listing-map-shell", { state: "attached", timeout: 15_000 });
   const state = await page.evaluate(() => ({
     phone: Boolean(document.querySelector('a[href^="tel:"]')),
     whatsapp: Boolean(document.querySelector('.property-whatsapp-action,[class*="whatsapp"]')),
@@ -375,7 +379,7 @@ async function runViewport(browser, viewport) {
     const link = page.locator('a[href="/search"],a[href^="/search?"]').first();
     if (!await link.count()) throw new Error("home_search_link_missing");
     await link.click();
-    await page.waitForURL(/\/search(?:\?|$)/, { timeout: 15_000 });
+    await page.waitForFunction(() => location.pathname === "/search", null, { timeout: 15_000 });
     await page.goBack({ waitUntil: "domcontentloaded" });
     if (new URL(page.url()).pathname !== "/") throw new Error(`back_wrong_route:${page.url()}`);
     return { url: page.url() };

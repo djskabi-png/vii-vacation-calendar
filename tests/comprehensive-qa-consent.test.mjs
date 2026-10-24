@@ -8,6 +8,8 @@ test("comprehensive QA verifies first-visit consent before interaction checks", 
   assert.match(source, /privacy-consent-\$\{viewport\.id\}/);
   assert.match(source, /essential_cookie_choice_not_persisted/);
   assert.match(source, /await card\.waitFor\(\{ state: "detached"/);
+  assert.match(source, /html\[data-vii-hydrated="true"\]/);
+  assert.match(source, /waitForTimeout\(800\)/);
 });
 
 test("locale QA starts with a deterministic essential-only consent state", () => {
@@ -19,7 +21,10 @@ test("map QA observes the live map and clicks a topmost marker wrapper", () => {
   assert.doesNotMatch(source, /waitForSelector\("\.leaflet-container"/);
   assert.match(source, /document\.elementFromPoint\(x, y\)/);
   assert.match(source, /\.vii-map-marker-wrap\.is-cluster/);
-  assert.match(source, /page\.mouse\.click\(markerBox\.x, markerBox\.y\)/);
+  assert.match(source, /\.vii-map-marker-wrap:not\(\.is-cluster\)[^\n]+\.nth\(markerBox\.index\)\.click/);
+  assert.match(source, /page\.locator\("\.map-mobile-close:visible"\)/);
+  assert.match(source, /waitForSelector\("\.map-preview-card,\.listing-map-shell"/);
+  assert.match(source, /waitForFunction\(\(\) => location\.pathname === "\/search"/);
 });
 
 test("production QA supports bounded viewport and core-only reruns", () => {
