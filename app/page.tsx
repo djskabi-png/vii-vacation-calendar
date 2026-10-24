@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
 
-import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import { PageShell } from "./components/page-shell";
@@ -24,10 +23,6 @@ import "./home-mobile.css";
 import { serverPublicCopy } from "./i18n/server-public-copy";
 import { eligibleHomeTourProperties } from "./lib/home-video-selection";
 import { readWorldAvailability } from "./lib/world-availability";
-
-export const metadata: Metadata = {
-  alternates: { canonical: "/" },
-};
 
 type SupplierReview = { author?: string; text?: string; date?: string };
 type SupplierReviewDetail = { reviews?: SupplierReview[] };

@@ -13,6 +13,10 @@ export async function GET(request: Request) {
   try { return Response.json(await readSearchAnalytics(await searchAnalyticsDatabase(), days), { headers }); }
   catch (error) {
     console.error("VII search analytics report unavailable", error);
-    return Response.json({ error: "search_analytics_unavailable" }, { status: 503, headers });
+    // This endpoint is restricted to an authenticated administrator. Keep a
+    // bounded diagnostic with the failed report so production schema drift can
+    // be identified without exposing stack traces or credentials publicly.
+    const detail = error instanceof Error ? error.message.slice(0, 240) : "unknown_error";
+    return Response.json({ error: "search_analytics_unavailable", detail }, { status: 503, headers });
   }
 }

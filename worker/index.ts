@@ -298,9 +298,16 @@ const worker = {
     // server-side lang/dir, canonical URL and hreflang alternates. Forwarding
     // these values as internal request headers preserves the URL and query
     // string, so search and filter routes keep working normally.
-    const localeMatch = url.pathname.match(/^\/(en|ru|fr)(?:\/|$)/);
+    // Vinext asks for React Server Component payloads by appending `.rsc` to
+    // the public pathname.  Treat that suffix as a transport detail.  Passing
+    // `/en.rsc` to the application made the locale detector fall back to
+    // Hebrew and also leaked the transport URL into canonical/OG metadata.
+    const documentPathname = url.pathname.endsWith(".rsc")
+      ? url.pathname.slice(0, -4) || "/"
+      : url.pathname;
+    const localeMatch = documentPathname.match(/^\/(en|ru|fr)(?:\/|$)/);
     const requestHeaders = new Headers(request.headers);
-    requestHeaders.set("x-vii-pathname", url.pathname);
+    requestHeaders.set("x-vii-pathname", documentPathname);
     requestHeaders.set("x-vii-locale", localeMatch?.[1] || "he");
 
     const response = await handler.fetch(new Request(request, { headers: requestHeaders }), env, ctx);
@@ -321,7 +328,7 @@ const worker = {
 
     const locale = (localeMatch?.[1] || "he") as PublicLocale;
     const makeLocaleLinks = (currentHref: string) => {
-      const canonicalUrl = new URL(currentHref || url.pathname, url.origin);
+      const canonicalUrl = new URL(currentHref || documentPathname, url.origin);
       const basePathname = canonicalUrl.pathname.replace(/^\/(en|ru|fr)(?=\/|$)/, "") || "/";
       const basePath = `${basePathname}${canonicalUrl.search}`;
       const hebrewOnlyArticle = editorialWorldLinks.some(article => basePathname.replace(/\/$/, "") === `/guides/${article.slug}`);
@@ -347,7 +354,7 @@ const worker = {
       const rewriter = new HTMLRewriter()
         .on('link[rel="canonical"]', {
           element(element) {
-            const links = makeLocaleLinks(element.getAttribute("href") || url.pathname);
+            const links = makeLocaleLinks(element.getAttribute("href") || documentPathname);
             element.setAttribute("href", links.canonical);
             element.after(links.alternates, { html: true });
           },

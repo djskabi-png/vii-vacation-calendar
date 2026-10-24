@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import rules from "../scripts/multilingual-qa-rules.cjs";
 
 const { analyzeLocaleSeo, analyzeTextSamples, findProhibitedCollisions, localizedRoute } = rules;
@@ -42,6 +43,15 @@ test("localized routes preserve query strings", () => {
   assert.equal(localizedRoute("/business?id=vacation-116", "fr"), "/fr/business?id=vacation-116");
   assert.equal(localizedRoute("/", "ru"), "/ru");
   assert.equal(localizedRoute("/guides", "he"), "/guides");
+});
+
+test("locale metadata ignores Vinext RSC transport suffixes", () => {
+  const worker = readFileSync(new URL("../worker/index.ts", import.meta.url), "utf8");
+  const home = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
+  assert.match(worker, /documentPathname = url\.pathname\.endsWith\("\.rsc"\)/);
+  assert.match(worker, /x-vii-pathname", documentPathname/);
+  assert.match(worker, /documentPathname\.match\(\/\^\\\/\(en\|ru\|fr\)/);
+  assert.doesNotMatch(home, /export const metadata:[\s\S]{0,120}canonical:\s*"\/"/);
 });
 
 test("multilingual SEO requires a unique locale URL, self canonical, hreflang and share URL", () => {
