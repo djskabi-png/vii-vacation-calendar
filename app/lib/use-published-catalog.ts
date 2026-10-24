@@ -5,10 +5,12 @@ import type { SupplierCatalogWorld } from "./supplier-catalog-store.ts";
 import { usePublishedCatalogSeed } from "./published-catalog-seed";
 
 export function usePublishedCatalog<T>(world: SupplierCatalogWorld, map: (value: unknown) => T) {
-  const seed = usePublishedCatalogSeed(world);
+  const seedState = usePublishedCatalogSeed(world);
+  const seed = seedState?.entries ?? null;
+  const seedComplete = seedState?.complete ?? false;
   const [items, setItems] = useState<T[]>(() => (seed || []).map(map));
   const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(seed === null);
+  const [loading, setLoading] = useState(seed === null || !seedComplete);
   const seededAt = useRef(Date.now());
   const hasAcceptedContent = useRef(seed !== null);
   useEffect(() => {
@@ -45,7 +47,7 @@ export function usePublishedCatalog<T>(world: SupplierCatalogWorld, map: (value:
     }
     let idleHandle: number | undefined;
     let timerHandle: ReturnType<typeof globalThis.setTimeout> | undefined;
-    if (seed === null) void load();
+    if (seed === null || !seedComplete) void load();
     else if ("requestIdleCallback" in window) idleHandle = window.requestIdleCallback(() => void load(), { timeout: 2_500 });
     else timerHandle = globalThis.setTimeout(() => void load(), 1_000);
     const refreshOnReturn = () => {
@@ -58,6 +60,6 @@ export function usePublishedCatalog<T>(world: SupplierCatalogWorld, map: (value:
       if (timerHandle !== undefined) globalThis.clearTimeout(timerHandle);
       document.removeEventListener("visibilitychange", refreshOnReturn);
     };
-  }, [world, map, seed]);
+  }, [world, map, seed, seedComplete]);
   return { items, error, loading };
 }

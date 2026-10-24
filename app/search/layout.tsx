@@ -13,8 +13,10 @@ const searchDepthSeed = {
 };
 
 export default async function SearchLayout({ children }: { children: ReactNode }) {
-  // One verified primary image is enough for the first paint. The client
-  // enriches galleries from the cached search endpoint after hydration.
-  const entries = publicVacationSearchProperties(await publicCatalogSummaries<Property>("vacations"), 1);
-  return <SearchDepthSeed value={searchDepthSeed}><PublishedCatalogSeed world="vacations" entries={entries}>{children}</PublishedCatalogSeed></SearchDepthSeed>;
+  // Keep the first document bounded so a cold Worker does not serialize the
+  // full catalog twice (HTML and Flight) before it can answer. The partial
+  // seed still paints many useful cards immediately; the client deliberately
+  // fetches the complete, cached search catalog as soon as it hydrates.
+  const entries = publicVacationSearchProperties(await publicCatalogSummaries<Property>("vacations"), 1).slice(0, 60);
+  return <SearchDepthSeed value={searchDepthSeed}><PublishedCatalogSeed world="vacations" entries={entries} complete={false}>{children}</PublishedCatalogSeed></SearchDepthSeed>;
 }

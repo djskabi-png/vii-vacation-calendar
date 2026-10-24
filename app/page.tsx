@@ -82,7 +82,12 @@ async function HomeCatalogShowcase() {
   ]);
   const showcaseProperties = homeShowcaseProperties(properties);
   const showcaseEvents = rotateDaily(eventPlaces.filter((place) => place.image),
-    (place) => place.slug, "home-events").slice(0, 20);
+    (place) => place.slug, "home-events").slice(0, 20).map((place) => ({
+      ...place,
+      images: (place.images?.length ? place.images : [place.image]).slice(0, 3),
+      description: place.description?.slice(0, 220) || "",
+      features: place.features?.slice(0, 4) || [],
+    }));
   const showcaseHourly = hourlyPlacesFromCatalog(hourlyCatalogPlaces);
   return <HomeShowcase properties={showcaseProperties} eventPlaces={showcaseEvents}
     hourlyPlaces={showcaseHourly} providerPreview={providerProfiles[0]} attractionPreview={paidAttractions[0]} />;

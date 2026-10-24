@@ -40,6 +40,12 @@ export function useSliderRailBoundaries({ railId, railRef, itemSelector = ":scop
     const rail = resolveRail();
     if (!rail) return;
 
+    // Streaming sections can appear after the browser has already restored a
+    // stale logical scroll position. Normalize the new rail before observers
+    // publish button boundaries, so RTL controls never flash as if the user
+    // were already at the opposite end.
+    rail.scrollLeft = 0;
+    update();
     const resizeObserver = new ResizeObserver(update);
     const observeItems = () => rail.querySelectorAll<HTMLElement>(itemSelector).forEach((item) => resizeObserver.observe(item));
     const mutationObserver = new MutationObserver(() => {

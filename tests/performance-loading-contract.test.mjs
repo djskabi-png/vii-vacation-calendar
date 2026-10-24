@@ -117,6 +117,9 @@ test("vacation search serializes a compact catalog and only the visible card win
   ]);
   assert.match(layout, /publicVacationSearchProperties/);
   assert.match(layout, /publicVacationSearchProperties\([^)]*[\s\S]*?, 1\)/);
+  assert.match(layout, /\.slice\(0, 60\)/);
+  assert.match(layout, /complete=\{false\}/);
+  assert.match(search, /displayedResults\.slice\(0, visibleResultCount\)/);
   assert.match(projection, /imageLimit = 5/);
   assert.doesNotMatch(projection, /sourceUrl/);
   assert.match(search, /displayedResults\.slice\(0, visibleResultCount\)/);
@@ -145,11 +148,17 @@ test("catalog refresh and public discovery caching preserve last-good content", 
   assert.match(catalog, /if \(!hasAcceptedContent\.current\) setItems\(\[\]\)/);
   assert.match(catalog, /hasAcceptedContent\.current = true/);
   assert.match(catalog, /requestIdleCallback/);
+  assert.match(catalog, /seed === null \|\| !seedComplete/);
   assert.match(catalog, /setError\(!hasAcceptedContent\.current\)/);
   assert.match(clientCache, /method === "GET" \? "default" : "no-store"/);
   assert.match(homeDeals, /public, max-age=60, s-maxage=300, stale-while-revalidate=86400/);
   assert.match(homeDeals, /status: 503, headers: .*noStore/s);
   assert.match(spaDeals, /Cache-Control": "no-store"/);
+});
+
+test("streamed sliders normalize their initial boundary before observers publish controls", async () => {
+  const controls = await readFile(new URL("app/components/slider-rail-controls.tsx", root), "utf8");
+  assert.match(controls, /rail\.scrollLeft = 0;\s*update\(\);\s*const resizeObserver/);
 });
 
 test("shared navigation deliberately warms the localized homepage on capable connections", async () => {

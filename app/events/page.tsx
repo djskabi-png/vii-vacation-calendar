@@ -52,11 +52,21 @@ function eventRegionItems(eventPlaces: EventPlace[], translate: (value: string) 
 }
 
 export default async function EventsPage() {
-  const [eventPlaces, sourcePresentation, { language, translate }] = await Promise.all([
+  const [sourceEventPlaces, sourcePresentation, { language, translate }] = await Promise.all([
     publicCatalogSummaries<EventPlace>("events"),
     readEventLandingPresentation(),
     serverPublicCopy(),
   ]);
+  // Listing rails need a short preview gallery, not every supplier image for
+  // every venue. The complete gallery remains available on the place page.
+  // Bounding these client props prevents cold multilingual renders from
+  // exceeding the Worker resource limit while preserving every venue.
+  const eventPlaces = sourceEventPlaces.map((place) => ({
+    ...place,
+    images: (place.images?.length ? place.images : [place.image]).slice(0, 3),
+    description: place.description?.slice(0, 260) || "",
+    features: place.features?.slice(0, 6) || [],
+  }));
   const presentation = {
     ...sourcePresentation,
     title: translate(sourcePresentation.title),
