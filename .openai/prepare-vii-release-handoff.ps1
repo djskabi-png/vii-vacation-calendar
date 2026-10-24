@@ -16,9 +16,9 @@ $publicationChat = "https://chatgpt.com/g/g-p-6ab2e9ea51548191856f299d727d8611-v
 $outputDirectory = Join-Path $project "project_knowledge\release_handoffs"
 $outputPath = Join-Path $outputDirectory "v$VersionNumber.json"
 
-function Git([Parameter(ValueFromRemainingArguments = $true)][string[]]$Arguments) {
-  $result = & git -C $project @Arguments
-  if ($LASTEXITCODE -ne 0) { throw "Git validation failed: git $($Arguments -join ' ')" }
+function Invoke-GitCommand([Parameter(ValueFromRemainingArguments = $true)][string[]]$GitArguments) {
+  $result = & git.exe -C $project @GitArguments
+  if ($LASTEXITCODE -ne 0) { throw "Git validation failed: git $($GitArguments -join ' ')" }
   return ($result | Out-String).Trim()
 }
 
@@ -26,13 +26,12 @@ if (Test-Path -LiteralPath $outputPath) {
   throw "Release handoff v$VersionNumber already exists. Inspect the existing outcome instead of creating a duplicate."
 }
 
-$status = Git status --porcelain --untracked-files=all
+$status = Invoke-GitCommand status --porcelain --untracked-files=normal
 if ($status) { throw "The release source is not clean. Commit or remove unrelated changes before preparing publication." }
 
-$commit = Git rev-parse HEAD
-$tree = Git show -s --format=%T HEAD
-$remoteCommit = Git ls-remote origin "refs/heads/$Branch"
-$remoteSha = ($remoteCommit -split "\s+")[0]
+$commit = Invoke-GitCommand rev-parse HEAD
+$tree = Invoke-GitCommand show -s --format=%T HEAD
+$remoteSha = Invoke-GitCommand rev-parse "refs/remotes/origin/$Branch"
 if (-not $remoteSha -or $remoteSha -ne $commit) {
   throw "origin/$Branch does not match HEAD. Push and verify the exact source before publication."
 }
