@@ -323,6 +323,10 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הכרטיסים הם קיצורי חיפוש. זמינות ומחיר סופי יאומתו לאחר בחירת תאריך והרכב.": "Карточки ведут к поиску. Наличие мест и итоговая цена подтверждаются после выбора дат и состава гостей.",
   },
   fr: {
+    "מי מגיע": "Participants",
+    "רעיונות שממשיכים את החופשה": "Des idées pour prolonger les vacances",
+    "לכל הכתבות": "Voir tous les articles",
+    "טיפול שמגיע אליכם בתיאום מראש": "Un soin sur place, sur rendez-vous",
     "תנאי המקום אינם מאפשרים את ההרכב או התאריכים האלה. חזרו לעמוד המקום ושנו את הבחירה.": "Les règles de l’établissement ne permettent pas cette composition ou ces dates. Revenez à la page de l’établissement et modifiez votre choix.",
     "המקום אינו מאפשר להשלים את ההזמנה באתר כרגע. אפשר לפנות אליו ישירות.": "Cet établissement ne permet pas de finaliser la réservation en ligne pour le moment. Vous pouvez le contacter directement.",
     "בקשת ההזמנה הזו עדיין נבדקת אצל המקום. אל תשלחו אותה שוב; בדקו את הסטטוס בעוד רגע.": "Cette demande de réservation est encore en cours de vérification par l’établissement. Ne la renvoyez pas et consultez son statut dans un instant.",
@@ -972,6 +976,14 @@ const spaBookingTranslations: Record<Exclude<SiteLanguage, "he">, Record<string,
 };
 
 for (const language of ["en", "ru", "fr"] as const) Object.assign(finalUiTranslations[language], spaBookingTranslations[language]);
+Object.assign(finalUiTranslations.fr, {
+  "מי מגיע": "Participants",
+  "מי מגיע?": "Participants",
+  "מי מגיע ומתי?": "Participants et horaire",
+  "רעיונות שממשיכים את החופשה": "Des idées pour prolonger les vacances",
+  "לכל הכתבות": "Voir tous les articles",
+  "טיפול שמגיע אליכם בתיאום מראש": "Un soin sur place, sur rendez-vous",
+});
 
 function dictionary(language: SiteLanguage): Record<string, string> {
   return language === "he" ? {} : loadedTranslations[language] || {};

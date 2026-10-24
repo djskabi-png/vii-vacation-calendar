@@ -5811,8 +5811,8 @@ div.home-slider__item > :is(.stay-card, .discovery-card) { height: 100%; }
 .home-world-gate--activities .home-world-gate__visual { background: linear-gradient(135deg,#1b7894,#214c83); }
 .home-world-gate > div { max-width: 650px; padding: clamp(24px,4vw,38px); }
 .home-world-gate > div > span { color: #9ce3e8; font-size: .78rem; font-weight: 850; }
-.home-world-gate h3 { margin: 8px 0; color: white; font-size: clamp(1.8rem,3vw,3rem); }
-.home-world-gate p { margin: 0 0 18px; color: rgba(255,255,255,.72); line-height: 1.6; }
+.home-world-gate h3 { margin: 8px 0; color: white; font-size: clamp(1.8rem,3vw,3rem); line-height: 1.08; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; overflow-wrap: anywhere; }
+.home-world-gate p { margin: 0 0 18px; color: rgba(255,255,255,.72); line-height: 1.6; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
 .home-world-gate b { color: white; border-bottom: 1px solid rgba(255,255,255,.5); }
 .home-spa-strip { overflow: hidden; padding-block: 64px; background: linear-gradient(180deg,#fff,#f7fbfa); }
 .home-short-stay { overflow: hidden; padding-block: 64px; background: linear-gradient(180deg,#fff9f4,#fff); }

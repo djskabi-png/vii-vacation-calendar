@@ -90,6 +90,15 @@ export function SliderRailControls({
 }: SliderRailTarget & { label: string; className: string }) {
   const { language } = useSiteLanguage();
   const state = useSliderRailBoundaries({ railId, railRef, itemSelector, disabled });
+  useEffect(() => {
+    const rail = railRef?.current || (railId ? document.getElementById(railId) : null);
+    if (!rail || disabled) return;
+    const frame = window.requestAnimationFrame(() => {
+      rail.scrollTo({ left: 0, behavior: "instant" });
+      state.update();
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [disabled, language, railId, railRef, state.update]);
   const previous = { he: "הקודם", en: "Previous", ru: "Назад", fr: "Précédent" }[language];
   const next = { he: "הבא", en: "Next", ru: "Далее", fr: "Suivant" }[language];
   const PreviousIcon = language === "he" ? ChevronRight : ChevronLeft;

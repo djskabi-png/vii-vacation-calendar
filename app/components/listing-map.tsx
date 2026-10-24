@@ -9,6 +9,7 @@ import type { DiscoveryItem } from "../data/world-data";
 import type { Trail } from "../data/trail-data";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";
+import { latinBusinessAlias, localizedBusinessText } from "../i18n/localized-business-content";
 import { PreviewCardGallery } from "./preview-card-gallery";
 import { mapSnapshotPublicUrl } from "../lib/map-snapshot-url";
 import "leaflet/dist/leaflet.css";
@@ -720,11 +721,17 @@ export function ListingMap({ listings, initialListings, mode = "vacation", singl
     ru: { bedrooms: "спален", units: "номеров", guests: "гостей", upTo: "До" },
     fr: { bedrooms: "chambres", units: "logements", guests: "personnes", upTo: "Jusqu’à" },
   })[language], [language]);
+  const fallback = useMemo(() => ({
+    he: { place: "מקום", location: "ישראל", area: "ישראל" },
+    en: { place: "Place", location: "Israel", area: "Israel" },
+    ru: { place: "Место", location: "Израиль", area: "Израиль" },
+    fr: { place: "Lieu", location: "Israël", area: "Israël" },
+  })[language], [language]);
   const places = useMemo<MapPlace[]>(() => listings.filter((listing) => typeof listing.lat === "number" && typeof listing.lng === "number").map((listing) => ({
     id: listing.slug,
-    name: listing.name,
-    location: listing.location,
-    area: listing.area,
+    name: localizedBusinessText(listing.name, language, translate, latinBusinessAlias(listing.name) || fallback.place),
+    location: localizedBusinessText(listing.location, language, translate, latinBusinessAlias(listing.location) || fallback.location),
+    area: localizedBusinessText(listing.area, language, translate, latinBusinessAlias(listing.area) || fallback.area),
     category: translate(listing.type),
     meta: [
       listing.bedrooms ? `${listing.bedrooms} ${units.bedrooms}` : null,
@@ -743,13 +750,13 @@ export function ListingMap({ listings, initialListings, mode = "vacation", singl
           : `₪${listing.price.toLocaleString(language === "fr" ? "fr-FR" : language === "ru" ? "ru-RU" : "en-US")}`
         : translate(listing.type),
     precision: "exact",
-  })), [detailQuery, language, listings, mode, translate, units]);
+  })), [detailQuery, fallback, language, listings, mode, translate, units]);
   const initialPlaceIds = useMemo(() => initialListings?.map((listing) => listing.slug), [initialListings]);
   return <PlacesMap key={initialPlaceIds?.join("|") || "all"} places={places} initialPlaceIds={initialPlaceIds} tone={mode} single={single} autoLoad={autoLoad} onClose={onClose} onVisibleCountChange={onVisibleCountChange} onVisiblePlaceIdsChange={onVisiblePlaceIdsChange} activePlaceId={activePlaceId} onActivePlaceChange={onActivePlaceChange} />;
 }
 
 export function DiscoveryMap({ items, initialItems, tone, single = false, autoLoad = false, onClose, onVisibleCountChange, onVisiblePlaceIdsChange, activePlaceId, onActivePlaceChange }: { items: DiscoveryItem[]; initialItems?: DiscoveryItem[]; tone: "spa" | "hourly" | "activities"; single?: boolean; autoLoad?: boolean; onClose?: () => void; onVisibleCountChange?: (count: number) => void; onVisiblePlaceIdsChange?: (ids: string[]) => void; activePlaceId?: string | null; onActivePlaceChange?: (id: string | null) => void }) {
-  const { language } = useSiteLanguage();
+  const { language, translate } = useSiteLanguage();
   const localized = useMemo(() => language === "en"
     ? { spa: "Spa and treatments", hourly: "Hourly stay", packages: "Packages and treatments", short: "Short stay", from: "From" }
     : language === "ru"
@@ -757,15 +764,21 @@ export function DiscoveryMap({ items, initialItems, tone, single = false, autoLo
       : language === "fr"
         ? { spa: "Spa et soins", hourly: "Séjour à l'heure", packages: "Forfaits et soins", short: "Court séjour", from: "À partir de" }
         : null, [language]);
+  const fallback = useMemo(() => ({
+    he: { place: "מקום", location: "ישראל", area: "ישראל" },
+    en: { place: "Place", location: "Israel", area: "Israel" },
+    ru: { place: "Место", location: "Израиль", area: "Израиль" },
+    fr: { place: "Lieu", location: "Israël", area: "Israël" },
+  })[language], [language]);
   const places = useMemo<MapPlace[]>(() => items.filter((item) => typeof item.lat === "number" && typeof item.lng === "number").map((item) => {
     const price = item.priceLabel?.match(/[\d,.]+/)?.[0];
     return {
       id: item.id,
-      name: item.name,
-      location: item.location,
-      area: item.area,
-      category: tone === "activities" ? item.area : localized ? (tone === "spa" ? localized.spa : localized.hourly) : tone === "spa" ? "ספא וטיפולים" : "שהייה לפי שעה",
-      meta: localized ? (price ? `${localized.from} ₪${price}` : tone === "spa" ? localized.packages : tone === "activities" ? item.priceLabel || item.location : localized.short) : item.priceLabel || (tone === "spa" ? "חבילות וטיפולים" : tone === "activities" ? "חוויה בתשלום" : "שהייה קצרה"),
+      name: localizedBusinessText(item.name, language, translate, latinBusinessAlias(item.name) || fallback.place),
+      location: localizedBusinessText(item.location, language, translate, latinBusinessAlias(item.location) || fallback.location),
+      area: localizedBusinessText(item.area, language, translate, latinBusinessAlias(item.area) || fallback.area),
+      category: tone === "activities" ? localizedBusinessText(item.area, language, translate, latinBusinessAlias(item.area) || fallback.area) : localized ? (tone === "spa" ? localized.spa : localized.hourly) : tone === "spa" ? "ספא וטיפולים" : "שהייה לפי שעה",
+      meta: localized ? (price ? `${localized.from} ₪${price}` : tone === "spa" ? localized.packages : tone === "activities" ? localizedBusinessText(item.priceLabel || item.location, language, translate, fallback.location) : localized.short) : item.priceLabel || (tone === "spa" ? "חבילות וטיפולים" : tone === "activities" ? "חוויה בתשלום" : "שהייה קצרה"),
       image: item.image || "/vii-logo.png",
       lat: item.lat!,
       lng: item.lng!,
@@ -773,7 +786,7 @@ export function DiscoveryMap({ items, initialItems, tone, single = false, autoLo
       markerLabel: price ? `${price} ₪` : tone === "spa" ? "ספא" : tone === "activities" ? "אטרקציה" : "לפי שעה",
       precision: item.mapPrecision || "area",
     };
-  }), [items, tone, localized]);
+  }), [fallback, items, language, localized, tone, translate]);
   const initialPlaceIds = useMemo(() => initialItems?.map((item) => item.id), [initialItems]);
   return <PlacesMap key={initialPlaceIds?.join("|") || "all"} places={places} initialPlaceIds={initialPlaceIds} tone={tone} single={single} autoLoad={autoLoad} onClose={onClose} onVisibleCountChange={onVisibleCountChange} onVisiblePlaceIdsChange={onVisiblePlaceIdsChange} activePlaceId={activePlaceId} onActivePlaceChange={onActivePlaceChange} />;
 }
