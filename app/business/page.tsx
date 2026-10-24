@@ -5,7 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import BusinessPage from "./client-page";
 import { getListingOfferings, propertyFaq, type BusinessWorld, type Property } from "../data/site-data";
 import { supplierDisplayDescription } from "../data/supplier-display-text";
-import { publicCatalogDetail, publicCatalogSelectedSummaries, publicCatalogSummaries } from "../lib/public-catalog-read.ts";
+import { bundledPublicCatalogSummaries, publicCatalogDetail, publicCatalogSelectedSummaries } from "../lib/public-catalog-read.ts";
 import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, faqSchema, lodgingSchema } from "../lib/seo";
 import { vacationBreadcrumbForLocation } from "../data/vacation-landings";
@@ -36,7 +36,7 @@ function normalizedParams(params: BusinessParams) {
 }
 
 const loadProperties = cache(async () => {
-  const properties = await publicCatalogSummaries<Property>("vacations");
+  const properties = await bundledPublicCatalogSummaries<Property>("vacations");
   return properties.map((item) => ({ ...item, description: supplierDisplayDescription(item) }));
 });
 
@@ -90,7 +90,7 @@ export default async function Page({ searchParams }: Props) {
     loadProperties(),
     supplierId ? publicCatalogDetail<SupplierPlaceDetail>("vacations", Number(supplierId)) : null,
     managedTrails(trails),
-    publicCatalogSummaries<SpaPlusSite>("spa").catch(() => {
+    bundledPublicCatalogSummaries<SpaPlusSite>("spa").catch(() => {
       console.warn("nearby_spa_catalog_unavailable");
       return [] as SpaPlusSite[];
     }),

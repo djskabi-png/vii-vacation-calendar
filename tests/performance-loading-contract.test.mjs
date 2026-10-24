@@ -119,12 +119,29 @@ test("vacation search serializes a compact catalog and only the visible card win
   assert.match(layout, /publicVacationSearchProperties\([^)]*[\s\S]*?, 1\)/);
   assert.match(layout, /\.slice\(0, 60\)/);
   assert.match(layout, /complete=\{false\}/);
+  assert.match(layout, /bundledPublicCatalogSummaries/);
+  assert.doesNotMatch(layout, /publicCatalogSummaries<Property>/);
   assert.match(search, /displayedResults\.slice\(0, visibleResultCount\)/);
   assert.match(projection, /imageLimit = 5/);
   assert.doesNotMatch(projection, /sourceUrl/);
   assert.match(search, /displayedResults\.slice\(0, visibleResultCount\)/);
   assert.match(search, /totalCount=\{displayedResults\.length\}/);
   assert.match(progressive, /onShowMore/);
+});
+
+test("cold public documents do not read whole runtime catalogs before sending HTML", async () => {
+  const [home, business, spas, search] = await Promise.all([
+    readFile(new URL("app/page.tsx", root), "utf8"),
+    readFile(new URL("app/business/page.tsx", root), "utf8"),
+    readFile(new URL("app/spas/page.tsx", root), "utf8"),
+    readFile(new URL("app/search/layout.tsx", root), "utf8"),
+  ]);
+  for (const source of [home, business, spas, search]) {
+    assert.match(source, /bundledPublicCatalogSummaries/);
+    assert.doesNotMatch(source, /publicCatalogSummaries</);
+  }
+  assert.match(business, /publicCatalogSelectedSummaries/);
+  assert.match(business, /publicCatalogDetail/);
 });
 
 test("event search serializes a bounded discovery projection", async () => {

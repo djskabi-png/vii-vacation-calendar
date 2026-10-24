@@ -80,7 +80,7 @@ test("business recommendation reads are public, managed, parallel and failure is
   const page = await read("app/business/page.tsx");
   assert.match(page, /const \[property, properties, acceptedDetail, trailInventory, spaSites, attractions\] = await Promise\.all/);
   assert.match(page, /managedTrails\(trails\)/);
-  assert.match(page, /publicCatalogSummaries<SpaPlusSite>\("spa"\)\.catch/);
+  assert.match(page, /bundledPublicCatalogSummaries<SpaPlusSite>\("spa"\)\.catch/);
   assert.match(page, /managedDiscoveryItems/);
   assert.match(page, /const nearbyTrailInventory = nearbyTrails/);
   assert.match(page, /trailInventory=\{nearbyTrailInventory\}/);

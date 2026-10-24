@@ -130,7 +130,7 @@ test("runtime fixture rows stay out of list, lookup, search, and direct detail r
   assert.equal((await catalogResponse(request("world=vacations&id=389"), db)).status, 404);
 });
 
-test("search does not flash bundled supplier places before the accepted catalog loads", async () => {
+test("search paints bounded snapshots and replaces them with the accepted catalog", async () => {
   const root = new URL("../", import.meta.url);
   const [hook, vacation, events, recommendations, vacationLayout, eventLayout] = await Promise.all([
     readFile(new URL("app/lib/use-published-catalog.ts", root), "utf8"),
@@ -143,8 +143,10 @@ test("search does not flash bundled supplier places before the accepted catalog 
   assert.match(hook, /useState<T\[\]>\(\(\) => \(seed \|\| \[\]\)\.map\(map\)\)/);
   assert.match(hook, /if \(seed === null \|\| !seedComplete\) void load\(\)/);
   assert.match(hook, /visibilitychange/);
-  assert.match(vacationLayout, /publicCatalogSummaries<Property>\("vacations"\)/);
-  assert.match(eventLayout, /publicCatalogSummaries<EventPlace>\("events"\)/);
+  assert.match(vacationLayout, /bundledPublicCatalogSummaries<Property>\("vacations"\)/);
+  assert.match(eventLayout, /bundledPublicCatalogSummaries<EventPlace>\("events"\)/);
+  assert.match(vacationLayout, /complete=\{false\}/);
+  assert.match(eventLayout, /complete=\{false\}/);
   assert.match(hook, /if \(!hasAcceptedContent\.current\) setItems\(\[\]\);\s*setError\(!hasAcceptedContent\.current\)/);
   assert.match(hook, /hasAcceptedContent\.current = true/);
   assert.match(hook, /requestIdleCallback/);

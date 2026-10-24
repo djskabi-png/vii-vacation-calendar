@@ -68,7 +68,9 @@ test("SSR seed and API both project the existing published management priority",
   assert.match(read("app/lib/public-catalog-read.ts"),/curatedRank: managedVacationPriority\(content.attributes.homeDealOrder\)/);
   assert.match(read("app/api/catalog/route.ts"),/managedVacationPriority\(item.content.attributes.homeDealOrder\)/);
   assert.match(read("app/lib/public-vacation-search.ts"),/curatedRank: property.curatedRank/);
-  for(const file of ["app/search/layout.tsx","app/components/vacation-landing-route.tsx","app/components/accommodation-landing-route.tsx"]) assert.match(read(file),/publicCatalogSummaries/);
+  assert.match(read("app/search/layout.tsx"),/bundledPublicCatalogSummaries/);
+  assert.match(read("app/search/layout.tsx"),/complete=\{false\}/);
+  for(const file of ["app/components/vacation-landing-route.tsx","app/components/accommodation-landing-route.tsx"]) assert.match(read(file),/publicCatalogSummaries/);
   const route=read("app/api/vii/home-deals/route.ts");
   assert.ok(route.indexOf("const ordered = prioritizeOnlineFirst")<route.indexOf("selectRegionalOffers(ordered"));
   assert.match(route,/selected\?\.offers \?\? ordered/);

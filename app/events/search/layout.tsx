@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { publicCatalogSummaries } from "../../lib/public-catalog-read.ts";
+import { bundledPublicCatalogSummaries } from "../../lib/public-catalog-read.ts";
 import { PublishedCatalogSeed } from "../../lib/published-catalog-seed";
 import type { EventPlace } from "../../data/site-data";
 import { SearchDepthSeed } from "../../components/search-depth-seed";
@@ -13,6 +13,6 @@ const searchDepthSeed = {
 };
 
 export default async function EventSearchLayout({ children }: { children: ReactNode }) {
-  const entries = publicEventSearchPlaces(await publicCatalogSummaries<EventPlace>("events"), 1);
-  return <SearchDepthSeed value={searchDepthSeed}><PublishedCatalogSeed world="events" entries={entries}>{children}</PublishedCatalogSeed></SearchDepthSeed>;
+  const entries = publicEventSearchPlaces(await bundledPublicCatalogSummaries<EventPlace>("events"), 1);
+  return <SearchDepthSeed value={searchDepthSeed}><PublishedCatalogSeed world="events" entries={entries} complete={false}>{children}</PublishedCatalogSeed></SearchDepthSeed>;
 }

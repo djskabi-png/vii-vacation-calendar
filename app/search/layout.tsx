@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { publicCatalogSummaries } from "../lib/public-catalog-read.ts";
+import { bundledPublicCatalogSummaries } from "../lib/public-catalog-read.ts";
 import { PublishedCatalogSeed } from "../lib/published-catalog-seed";
 import type { Property } from "../data/site-data";
 import { publicVacationSearchProperties } from "../lib/public-vacation-search";
@@ -17,6 +17,6 @@ export default async function SearchLayout({ children }: { children: ReactNode }
   // full catalog twice (HTML and Flight) before it can answer. The partial
   // seed still paints many useful cards immediately; the client deliberately
   // fetches the complete, cached search catalog as soon as it hydrates.
-  const entries = publicVacationSearchProperties(await publicCatalogSummaries<Property>("vacations"), 1).slice(0, 60);
+  const entries = publicVacationSearchProperties(await bundledPublicCatalogSummaries<Property>("vacations"), 1).slice(0, 60);
   return <SearchDepthSeed value={searchDepthSeed}><PublishedCatalogSeed world="vacations" entries={entries} complete={false}>{children}</PublishedCatalogSeed></SearchDepthSeed>;
 }

@@ -16,7 +16,7 @@ import { destinations, visualTourProperties } from "./data/site-data";
 import type { EventPlace, Property } from "./data/site-data";
 import { hourlyPlacesFromCatalog, paidAttractions, providerProfiles } from "./data/world-data";
 import hourlyCatalog from "./data/sergey-hourly-catalog.json";
-import { publicCatalogReviewPreviews, publicCatalogSummaries } from "./lib/public-catalog-read.ts";
+import { bundledPublicCatalogSummaries, publicCatalogReviewPreviews } from "./lib/public-catalog-read.ts";
 import { dailyRotationCompare, rotateDaily } from "./lib/daily-rotation";
 import { GiftIcon, PeopleIcon } from "./site-header";
 import { HomeMobileRail } from "./components/home-mobile-rail";
@@ -76,9 +76,9 @@ function homeShowcaseProperties(properties: Property[]) {
 
 async function HomeCatalogShowcase() {
   const [properties, eventPlaces, hourlyCatalogPlaces] = await Promise.all([
-    publicCatalogSummaries<Property>("vacations").catch(() => []),
-    publicCatalogSummaries<EventPlace>("events").catch(() => []),
-    publicCatalogSummaries<(typeof hourlyCatalog.places)[number]>("rooms").catch(() => []),
+    bundledPublicCatalogSummaries<Property>("vacations").catch(() => []),
+    bundledPublicCatalogSummaries<EventPlace>("events").catch(() => []),
+    bundledPublicCatalogSummaries<(typeof hourlyCatalog.places)[number]>("rooms").catch(() => []),
   ]);
   const showcaseProperties = homeShowcaseProperties(properties);
   const showcaseEvents = rotateDaily(eventPlaces.filter((place) => place.image),
@@ -94,7 +94,7 @@ async function HomeCatalogShowcase() {
 }
 
 async function HomeRatings() {
-  const properties = await publicCatalogSummaries<Property>("vacations").catch(() => []);
+  const properties = await bundledPublicCatalogSummaries<Property>("vacations").catch(() => []);
   const ratedPlaces = await homeRatedPlaces(properties).catch(() => []);
   return ratedPlaces.length ? <HomeRatingsSection ratedPlaces={ratedPlaces} /> : null;
 }

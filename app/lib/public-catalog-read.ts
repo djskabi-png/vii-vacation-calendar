@@ -19,6 +19,18 @@ function bundled(world: SupplierCatalogWorld): unknown[] {
   return sergey.places.filter((place) => place.world === world);
 }
 
+/**
+ * A bounded, build-local public snapshot for the first document only.
+ *
+ * Listing pages refresh from /api/catalog after hydration and business pages
+ * still resolve the selected supplier from the accepted runtime generation.
+ * Keeping discovery-only recommendations on this snapshot prevents a cold
+ * Worker from reading and parsing every catalog row before it can send HTML.
+ */
+export async function bundledPublicCatalogSummaries<T>(world: SupplierCatalogWorld): Promise<T[]> {
+  return await publicSummaries(world, bundled(world)) as T[];
+}
+
 export async function publicCatalogSummaries<T>(world: SupplierCatalogWorld): Promise<T[]> {
   const db = await runtimeCatalogDatabase();
   if (!db) return await publicSummaries(world, bundled(world)) as T[];

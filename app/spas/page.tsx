@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { WorldLanding } from "../components/world-landing";
 import { spaPlacesFromSites } from "../data/world-data";
-import { publicCatalogSummaries } from "../lib/public-catalog-read.ts";
+import { bundledPublicCatalogSummaries } from "../lib/public-catalog-read.ts";
 import type { SpaPlusSite } from "../data/spaplus";
 import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, collectionSchema } from "../lib/seo";
@@ -23,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function SpasPage() {
   const page = await publishedSearchPage("/spas");
   const { translate } = await serverPublicCopy();
-  const spaPlaces = spaPlacesFromSites(await publicCatalogSummaries<SpaPlusSite>("spa"));
+  const spaPlaces = spaPlacesFromSites(await bundledPublicCatalogSummaries<SpaPlusSite>("spa"));
   return <>
     <StructuredData data={breadcrumbSchema([
       { name: "ראשי", path: "/" },
