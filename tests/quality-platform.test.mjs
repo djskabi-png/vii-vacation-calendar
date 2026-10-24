@@ -49,7 +49,9 @@ test("recurring registry is comprehensive, read-only and excludes accessibility 
   assert.deepEqual(qualityRegistry.find((check) => check.checkId === "api.reviews.read")?.requiredAll, ["\"review\":", "\"authenticated\":"]);
   assert.deepEqual(qualityRegistry.find((check) => check.checkId === "content.contact")?.requiredAny, ["מצטרפים", "פרסום עסק"]);
   assert.equal(qualityRegistry.find((check) => check.checkId === "seo.sitemap.xml")?.minBytes, 500);
+  assert.equal(qualityRegistry.find((check) => check.checkId === "seo.sitemap.xml")?.timeoutMs, 45_000);
   assert.deepEqual(qualityRegistry.find((check) => check.checkId === "seo.sitemap.xml")?.requiredAll, ["<sitemapindex", "<loc>"]);
+  assert.ok(qualityRegistry.filter((check) => check.family === "seo-legacy").every((check) => check.timeoutMs === 45_000));
   assert.ok(qualityRegistry.filter((check) => check.family === "maps").length >= 4);
   assert.ok(new Set(qualityRegistry.map((check) => check.family)).size >= 10);
 });
@@ -140,7 +142,7 @@ test("quality runs use bounded concurrency and close abandoned running records",
     };
     const result = await runQualityChecks(db, { origin: "https://example.test", trigger: "manual", scheduledAt: new Date("2026-10-24T09:20:00.000Z"), fetcher: bounded });
     assert.equal(result.status, "passed");
-    assert.ok(maximum > 1 && maximum <= 6, `expected bounded concurrency, observed ${maximum}`);
+    assert.ok(maximum > 1 && maximum <= 3, `expected bounded concurrency, observed ${maximum}`);
     const stale = sqlite.prepare("SELECT status,finished_at,blocked_count FROM quality_runs WHERE id='stale-run'").get();
     assert.equal(stale.status, "blocked");
     assert.ok(stale.finished_at);

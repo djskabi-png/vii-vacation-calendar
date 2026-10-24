@@ -37,7 +37,10 @@ type QualityIncidentEvent = {
 };
 
 const RUN_STALE_AFTER_MS = 15 * 60_000;
-const CHECK_CONCURRENCY = 6;
+// Keep production QA from becoming its own traffic spike. The manual run reads
+// several multi-megabyte sitemap files, so a smaller batch is deliberately
+// preferred over faster but noisy false incidents.
+const CHECK_CONCURRENCY = 3;
 
 // Production synthetics are intentionally read-only. Browser interaction and
 // visual checks remain release-gate jobs; the recurring worker never creates a
@@ -93,10 +96,10 @@ export const qualityRegistry: readonly QualityCheck[] = [
   html({ checkId: "content.contact", family: "content-pages", world: "all", route: "/contact", viewport: "mobile", severity: "medium", cadenceMinutes: 360, timeoutMs: 10_000, expected: "Business publishing and joining page renders at the retained contact route", releaseBlocking: false, requiredAll: ["<main"], requiredAny: ["\u05de\u05e6\u05d8\u05e8\u05e4\u05d9\u05dd", "\u05e4\u05e8\u05e1\u05d5\u05dd \u05e2\u05e1\u05e7"] }),
   html({ checkId: "legal.terms", family: "public-trust", world: "all", route: "/legal/terms", viewport: "server", severity: "high", cadenceMinutes: 1440, timeoutMs: 10_000, expected: "Terms page renders", releaseBlocking: true, requiredAll: ["<main"], requiredAny: ["\u05ea\u05e7\u05e0\u05d5\u05df", "\u05ea\u05e0\u05d0\u05d9 \u05e9\u05d9\u05de\u05d5\u05e9"] }),
   html({ checkId: "legal.privacy", family: "public-trust", world: "all", route: "/legal/privacy", viewport: "server", severity: "high", cadenceMinutes: 1440, timeoutMs: 10_000, expected: "Privacy page renders", releaseBlocking: true, requiredAll: ["<main"], requiredAny: ["\u05e4\u05e8\u05d8\u05d9\u05d5\u05ea", "\u05de\u05d9\u05d3\u05e2"] }),
-  { checkId: "seo.sitemap.xml", family: "seo-legacy", world: "all", route: "/sitemap.xml", viewport: "server", severity: "high", cadenceMinutes: 360, timeoutMs: 12_000, expected: "Sitemap index returns populated XML and delegates to section maps", releaseBlocking: true, contentKind: "xml", minBytes: 500, requiredAll: ["<sitemapindex", "<loc>"], requiredAny: ["/sitemaps/core/", "/sitemaps/vacations/"] },
+  { checkId: "seo.sitemap.xml", family: "seo-legacy", world: "all", route: "/sitemap.xml", viewport: "server", severity: "high", cadenceMinutes: 360, timeoutMs: 45_000, expected: "Sitemap index returns populated XML and delegates to section maps", releaseBlocking: true, contentKind: "xml", minBytes: 500, requiredAll: ["<sitemapindex", "<loc>"], requiredAny: ["/sitemaps/core/", "/sitemaps/vacations/"] },
   ...(["core", "holidays", "vacations", "events", "spas", "hourly", "discovery", "search-pages"] as const).map((section): QualityCheck => ({
     checkId: `seo.sitemap.${section}`, family: "seo-legacy", world: "all", route: `/sitemaps/${section}/1.xml`, viewport: "server",
-    severity: "high", cadenceMinutes: 360, timeoutMs: 30_000, expected: `${section} sitemap returns a populated URL set`,
+    severity: "high", cadenceMinutes: 360, timeoutMs: 45_000, expected: `${section} sitemap returns a populated URL set`,
     releaseBlocking: true, contentKind: "xml", minBytes: 200, requiredAll: ["<urlset", "<loc>"],
   })),
 ] as const;
