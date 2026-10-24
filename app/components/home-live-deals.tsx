@@ -21,6 +21,7 @@ import { useDealClock } from "./use-deal-clock";
 import { discoveryJson } from "../lib/discovery-client-cache.ts";
 import { orderDiscoveryRail } from "../lib/discovery-slider-order.ts";
 import { useDocumentSeed } from "./use-document-seed.ts";
+import { capHomeHolidayTabs } from "../lib/home-slider-contract.ts";
 
 type ResponseData = { cache?: { status: string }; availabilityStatus?: "verified" | "refreshing"; region?: string; expandedRegion?: boolean; regionalOrder?: number[]; period?: HomeDealPeriod; holiday?: HomeHoliday; dates: { from: string; till: string; nights: number }; deals: HomeDeal[]; display?: { periods: HomePeriodTab[]; defaultPeriod: HomeDealPeriod } };
 
@@ -121,8 +122,12 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
     discoveryJson<{ holidays: HomeHoliday[] }>(`/api/vii/home-holidays?locale=${language}`, clock.key, { signal: controller.signal, persist: true, timeoutMs: 4_000, retries: 0 })
       .then((result) => {
         if (!Array.isArray(result.holidays)) throw new Error("invalid_result");
-        setHolidays(result.holidays);
-        setHolidayId(previous => result.holidays.some(item => item.id === previous) ? previous : result.holidays[0]?.id ?? null);
+        // The API and CMS both cap the public rail, but a browser can still
+        // hold a previously accepted pre-cap session snapshot. Enforce the
+        // same invariant at the final rendering boundary as well.
+        const visibleHolidays = capHomeHolidayTabs(result.holidays);
+        setHolidays(visibleHolidays);
+        setHolidayId(previous => visibleHolidays.some(item => item.id === previous) ? previous : visibleHolidays[0]?.id ?? null);
         setHolidayState("ready");
       })
       .catch((error) => { if (error?.name !== "AbortError") setHolidayState("error"); });

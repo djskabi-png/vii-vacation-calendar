@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { applyHolidayDisplaySettings, parseHomeDisplaySettings } from "../app/lib/home-display-settings.ts";
+import { capHomeHolidayTabs } from "../app/lib/home-slider-contract.ts";
 
 test("homepage editors control nearby tab labels, order and default while all required tabs remain visible", () => {
   const settings = parseHomeDisplaySettings({
@@ -37,6 +38,12 @@ test("homepage never exposes more than the first six visible holidays, including
   const holidays = Array.from({ length: 9 }, (_, index) => ({ id: index + 1, name: String(index + 1), from: `2027-01-${String(index + 1).padStart(2, "0")}`, till: `2027-01-${String(index + 2).padStart(2, "0")}`, nights: 1, windowSearch: false })).reverse();
   assert.equal(settings.holidayLimit, 6);
   assert.deepEqual(applyHolidayDisplaySettings(holidays, settings).map((item) => item.id), [1, 3, 4, 5, 6, 7]);
+});
+
+test("the client render boundary caps a stale pre-limit holiday snapshot", () => {
+  const stale = Array.from({ length: 21 }, (_, index) => ({ id: index + 1 }));
+  assert.deepEqual(capHomeHolidayTabs(stale).map((item) => item.id), [1, 2, 3, 4, 5, 6]);
+  assert.equal(stale.length, 21, "the cached source value is not mutated");
 });
 
 test("legacy hidden settings cannot remove required nearby-date tabs", () => {
