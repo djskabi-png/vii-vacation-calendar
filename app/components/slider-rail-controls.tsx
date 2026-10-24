@@ -89,11 +89,15 @@ export function SliderRailControls({
   useEffect(() => {
     const rail = railRef?.current || (railId ? document.getElementById(railId) : null);
     if (!rail || disabled) return;
+    let settleFrame = 0;
     const frame = window.requestAnimationFrame(() => {
       rail.scrollTo({ left: 0, behavior: "auto" });
-      state.update();
+      settleFrame = window.requestAnimationFrame(state.update);
     });
-    return () => window.cancelAnimationFrame(frame);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.cancelAnimationFrame(settleFrame);
+    };
   }, [disabled, language, railId, railRef, state.update]);
   const previous = { he: "הקודם", en: "Previous", ru: "Назад", fr: "Précédent" }[language];
   const next = { he: "הבא", en: "Next", ru: "Далее", fr: "Suivant" }[language];
