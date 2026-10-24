@@ -49,7 +49,7 @@ export default function BusinessPerformance() {
   const conversionRequest = useRef<AbortController | null>(null);
   const conversionBatchRequest = useRef<AbortController | null>(null);
   const [bizByPlace, setBizByPlace] = useState<Record<string, BizSummary>>({});
-  const [bizBatchProgress, setBizBatchProgress] = useState({ loaded: 0, total: 0, running: false });
+  const [bizBatchProgress, setBizBatchProgress] = useState({ loaded: 0, total: 0, running: false, stopped: false });
   const [bizBatchError, setBizBatchError] = useState("");
   const [bizBatchJob, setBizBatchJob] = useState<BizBatchJob | null>(null);
 
@@ -91,13 +91,13 @@ export default function BusinessPerformance() {
 
   const stopBizBatch = () => {
     conversionBatchRequest.current?.abort();
-    setBizBatchProgress((current) => ({ ...current, running: false }));
+    setBizBatchProgress((current) => ({ ...current, running: false, stopped: current.loaded < current.total }));
   };
 
   useEffect(() => {
     conversionBatchRequest.current?.abort();
     setBizBatchJob(null);
-    setBizBatchProgress({ loaded: 0, total: 0, running: false });
+    setBizBatchProgress({ loaded: 0, total: 0, running: false, stopped: false });
     setBizBatchError("");
   }, [from, till, world]);
 
@@ -107,7 +107,7 @@ export default function BusinessPerformance() {
     const controller = new AbortController();
     conversionBatchRequest.current = controller;
     setBizBatchError("");
-    setBizBatchProgress({ loaded: 0, total: bizBatchJob.targets.length, running: bizBatchJob.targets.length > 0 });
+    setBizBatchProgress({ loaded: 0, total: bizBatchJob.targets.length, running: bizBatchJob.targets.length > 0, stopped: false });
     const loadAll = async () => {
       const collected: Record<string, BizSummary> = {};
       for (let offset = 0; offset < bizBatchJob.targets.length; offset += 4) {
@@ -126,12 +126,12 @@ export default function BusinessPerformance() {
             : { orders: 0, revenue: 0, converted: 0, contacts: 0, error: result.error || "supplier_unavailable" };
         }
         setBizByPlace((current) => ({ ...current, ...collected }));
-        setBizBatchProgress({ loaded: Math.min(offset + group.length, bizBatchJob.targets.length), total: bizBatchJob.targets.length, running: offset + group.length < bizBatchJob.targets.length });
+        setBizBatchProgress({ loaded: Math.min(offset + group.length, bizBatchJob.targets.length), total: bizBatchJob.targets.length, running: offset + group.length < bizBatchJob.targets.length, stopped: false });
       }
     };
     void loadAll().catch((cause) => {
       if (!controller.signal.aborted) {
-        setBizBatchProgress((current) => ({ ...current, running: false }));
+        setBizBatchProgress((current) => ({ ...current, running: false, stopped: current.loaded < current.total }));
         setBizBatchError(cause instanceof Error ? cause.message : "שגיאת טעינת נתוני Biz");
       }
     });
@@ -183,7 +183,7 @@ export default function BusinessPerformance() {
     <header className={styles.header}><div><span>מדידה וביצועים</span><h1>ביצועי עסקים</h1><p>משפך החשיפה של VII לצד פניות והזמנות שאומתו במערכת הספק. נתוני האתר אינם מציגים פתיחת WhatsApp כשיחה שנשלחה, ופתיחת טלפון או WhatsApp אינה נספרת כהזמנה.</p></div><div className={styles.headerActions}><button type="button" onClick={exportCsv} disabled={!filtered.length}><ArrowDownToLine size={16} /> ייצוא CSV</button><button type="button" className={styles.iconButton} onClick={() => void load()} disabled={loading} aria-label="רענון"><RefreshCw size={17} className={loading ? styles.spin : ""} /></button></div></header>
     <section className={styles.funnel} aria-label="סיכום משפך"><article><span><Eye size={17} /> חשיפות</span><strong>{num(totals.impressions)}</strong><small>הופעות כרטיסי עסק</small></article><i aria-hidden="true">←</i><article><span><MousePointerClick size={17} /> כניסות</span><strong>{num(totals.pageViews)}</strong><small>{percent(totals.pageViews, totals.impressions)}% מהחשיפות</small></article><i aria-hidden="true">←</i><article><span><BarChart3 size={17} /> פעולות</span><strong>{num(totalActions)}</strong><small>{percent(totalActions, totals.pageViews)}% מהכניסות</small></article><i aria-hidden="true">←</i><article className={styles.funnelAccent}><span><ShoppingBag size={17} /> הזמנות מ־VII</span><strong>{num(totals.viiBookings)}</strong><small>הזמנות שנשמרו במערכת</small></article></section>
     <section className={styles.breakdown} aria-label="פירוט פעולות"><div><Users size={16} /><span>דפדפנים ייחודיים</span><strong>{num(totals.uniqueBrowsers)}</strong></div><div><Phone size={16} /><span>לחיצות על טלפון</span><strong>{num(totals.phoneClicks)}</strong></div><div><MessageCircle size={16} /><span>מעברים ל־WhatsApp</span><strong>{num(totals.whatsappHandoffs)}</strong></div><div><Star size={16} /><span>חוות דעת</span><strong>{num(totals.reviews)}</strong></div></section>
-    <section className={styles.toolbar} aria-label="סינון הדוח"><label className={styles.search}><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="חיפוש עסק" /></label><label><span>משפחת עסקים</span><select value={world} onChange={(event) => setWorld(event.target.value)}>{businessReportScopes.map((value) => <option key={value} value={value}>{scopeLabels[value]}</option>)}</select></label><label><span>חיתוך</span><select value={basis} onChange={(event) => setBasis(event.target.value as "created" | "arrival")}><option value="created">תאריך פתיחת פנייה</option><option value="arrival">תאריך הגעה</option></select></label><label><span>מתאריך</span><input type="date" value={from} max={till} onChange={(event) => setFrom(event.target.value)} /></label><label><span>עד תאריך</span><input type="date" value={till} min={from} max={today} onChange={(event) => setTill(event.target.value)} /></label><label><span>מיון</span><select value={sort} onChange={(event) => setSort(event.target.value as SortKey)}><option value="pageViews">כניסות</option><option value="impressions">חשיפות</option><option value="actions">פעולות</option><option value="entryRate">יחס כניסה</option><option value="actionRate">יחס פעולה</option></select></label><div className={styles.bizBatchControls}><span>נתוני Biz: הזמנות לכל המשפחה</span><div><button type="button" onClick={startBizBatch} disabled={!conversionRows.length || bizBatchProgress.running}>{bizBatchProgress.loaded ? "טעינה מחדש" : "טעינת נתונים"}</button>{bizBatchProgress.running ? <button type="button" className={styles.secondaryAction} onClick={stopBizBatch}>עצירה</button> : null}</div>{bizBatchProgress.total ? <small role="status">{bizBatchProgress.loaded} מתוך {bizBatchProgress.total}{bizBatchProgress.running ? " נטענים" : " הושלמו"}</small> : <small>הטעינה מתחילה רק בלחיצה, כדי לא להעמיס על הספק.</small>}{bizBatchError ? <small role="alert" className={styles.batchError}>{bizBatchError} אפשר להמשיך בטעינה מחדש.</small> : null}</div></section>
+    <section className={styles.toolbar} aria-label="סינון הדוח"><label className={styles.search}><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="חיפוש עסק" /></label><label><span>משפחת עסקים</span><select value={world} onChange={(event) => setWorld(event.target.value)}>{businessReportScopes.map((value) => <option key={value} value={value}>{scopeLabels[value]}</option>)}</select></label><label><span>חיתוך</span><select value={basis} onChange={(event) => setBasis(event.target.value as "created" | "arrival")}><option value="created">תאריך פתיחת פנייה</option><option value="arrival">תאריך הגעה</option></select></label><label><span>מתאריך</span><input type="date" value={from} max={till} onChange={(event) => setFrom(event.target.value)} /></label><label><span>עד תאריך</span><input type="date" value={till} min={from} max={today} onChange={(event) => setTill(event.target.value)} /></label><label><span>מיון</span><select value={sort} onChange={(event) => setSort(event.target.value as SortKey)}><option value="pageViews">כניסות</option><option value="impressions">חשיפות</option><option value="actions">פעולות</option><option value="entryRate">יחס כניסה</option><option value="actionRate">יחס פעולה</option></select></label><div className={styles.bizBatchControls}><span>נתוני Biz: הזמנות לכל המשפחה</span><div><button type="button" onClick={startBizBatch} disabled={!conversionRows.length || bizBatchProgress.running}>{bizBatchProgress.loaded ? "טעינה מחדש" : "טעינת נתונים"}</button>{bizBatchProgress.running ? <button type="button" className={styles.secondaryAction} onClick={stopBizBatch}>עצירה</button> : null}</div>{bizBatchProgress.total ? <small role="status">{bizBatchProgress.loaded} מתוך {bizBatchProgress.total}{bizBatchProgress.running ? " נטענים" : bizBatchProgress.stopped ? " נעצרו" : " הושלמו"}</small> : <small>הטעינה מתחילה רק בלחיצה, כדי לא להעמיס על הספק.</small>}{bizBatchError ? <small role="alert" className={styles.batchError}>{bizBatchError} אפשר להמשיך בטעינה מחדש.</small> : null}</div></section>
     {forbidden ? <section className={styles.state}><h2>נדרשת הרשאת מנהל</h2><p>הדוח אינו חושף מידע למשתמשים שאינם מורשים.</p><a href="/api/auth/google?returnTo=%2Fadmin%2Fbusiness-performance">כניסה עם Google</a></section> : null}
     {error ? <section className={styles.state} role="alert"><h2>לא הצלחנו לטעון את הדוח</h2><p>{error}</p><button type="button" onClick={() => void load()}>ניסיון חוזר</button></section> : null}
     {loading && !rows.length ? <section className={styles.state} role="status"><RefreshCw className={styles.spin} /><p>טוענים את משפך הביצועים...</p></section> : null}

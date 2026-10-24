@@ -59,6 +59,7 @@ test("business performance provides filters, explicit funnel ratios and local ex
   assert.match(page, /startBizBatch/);
   assert.match(page, /stopBizBatch/);
   assert.match(page, /לא נטען/);
+  assert.match(page, /נעצרו/);
   assert.doesNotMatch(page, /setBizBatchProgress\(\{ loaded: 0, total: supportedRows\.length/);
   assert.match(page, /bizByPlace\[row\.placeId\]/);
   assert.doesNotMatch(route, /SUM\(name\s*=/);
