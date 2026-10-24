@@ -256,13 +256,14 @@ async function runLocaleMatrix(browser, viewport, routeSubset) {
 }
 
 async function verifyResultsMap(page) {
-  const firstCard = page.locator(".discovery-card,.stay-card,.event-card").first();
-  if (await firstCard.count()) { await firstCard.scrollIntoViewIfNeeded(); await page.waitForTimeout(650); }
-  const region = page.locator(".results-list,.event-list,.hourly-results,.spa-results,.attraction-explorer,.world-map-results").first();
-  if (await region.count()) { await region.scrollIntoViewIfNeeded(); await page.waitForTimeout(500); }
-  const toggle = page.locator(".mobile-map-fab:visible").first();
-  if (!await toggle.count()) throw new Error("map_toggle_missing");
+  // Results hydrate and progressively replace cards. Scrolling a captured
+  // card/region locator races that replacement and creates detached-element
+  // failures unrelated to the map. Wait for the stable public control and
+  // resolve it again immediately before each action.
+  await page.waitForSelector(".mobile-map-fab", { state: "visible", timeout: 20_000 });
+  let toggle = page.locator(".mobile-map-fab:visible").first();
   await toggle.scrollIntoViewIfNeeded();
+  toggle = page.locator(".mobile-map-fab:visible").first();
   await toggle.click({ timeout: 10_000 });
   await page.waitForSelector(".listing-map", { state: "visible", timeout: 20_000 });
   await page.waitForFunction(() => document.querySelectorAll(".leaflet-tile").length > 0, null, { timeout: 20_000 });
@@ -291,7 +292,7 @@ async function verifyResultsMap(page) {
     markerBox = await clickableBox(".vii-map-marker-wrap:not(.is-cluster)");
   }
   if (!markerBox) throw new Error("map_selectable_marker_missing");
-  await page.locator(".vii-map-marker-wrap:not(.is-cluster)").nth(markerBox.index).click({ timeout: 5_000 });
+  await page.mouse.click(markerBox.x, markerBox.y);
   await page.waitForSelector(".map-selection-card", { state: "visible", timeout: 10_000 });
   state.selectedCards = await page.locator(".map-selection-card").count();
   const close = page.locator(".map-mobile-close:visible").first();

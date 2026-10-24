@@ -20,6 +20,13 @@ const joinCopy: Record<SiteLanguage, { slot: string; title: string; description:
   fr: { slot: "Une place pour le prochain prestataire", title: "Votre activité pourrait être ici", description: "Vous proposez des services pour les séjours ou les événements ? Présentez votre activité aux personnes qui cherchent un prestataire adapté.", action: "Modalités pour les prestataires" },
 };
 
+const resultCountCopy: Record<SiteLanguage, { one: string; many: (count: number) => string }> = {
+  he: { one: "ספק אחד מתאים", many: (count) => `${count} ספקים מתאימים` },
+  en: { one: "1 matching provider", many: (count) => `${count} matching providers` },
+  ru: { one: "1 подходящий поставщик", many: (count) => `${count} подходящих поставщиков` },
+  fr: { one: "1 prestataire correspondant", many: (count) => `${count} prestataires correspondants` },
+};
+
 function ProviderJoinCard() {
   const { language } = useSiteLanguage();
   const copy = joinCopy[language];
@@ -102,7 +109,7 @@ export function ProviderResults({ items, category = "all" }: { items: DiscoveryI
         {(query || region !== "כל הארץ") ? <button type="button" className="provider-reset" onClick={resetFilters}>ניקוי סינונים</button> : null}
       </div>
     </div>
-    <p className="provider-results-count" aria-live="polite">{filtered.length === 1 ? "ספק אחד מתאים" : `${filtered.length} ספקים מתאימים`}</p>
+    <p className="provider-results-count" aria-live="polite">{filtered.length === 1 ? resultCountCopy[language].one : resultCountCopy[language].many(filtered.length)}</p>
     {filtered.length ? <ProgressiveResults className="discovery-grid" kind="providers" featuredItem={<ProviderJoinCard />} resetKey={`${category}|${query}|${region}|${sort}`}>{filtered.map((item) => <DiscoveryCard key={item.id} item={item} />)}</ProgressiveResults> : <div className="provider-empty"><h3>לא מצאנו התאמה מדויקת</h3><p>אפשר לנקות את החיפוש או לבחור תחום אחר.</p><Link href="/join/providers#provider-pricing">לפרטי הצטרפות כספק</Link></div>}
   </div>;
 }

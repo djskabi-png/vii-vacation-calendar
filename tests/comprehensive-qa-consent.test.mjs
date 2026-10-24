@@ -21,7 +21,7 @@ test("map QA observes the live map and clicks a topmost marker wrapper", () => {
   assert.doesNotMatch(source, /waitForSelector\("\.leaflet-container"/);
   assert.match(source, /document\.elementFromPoint\(x, y\)/);
   assert.match(source, /\.vii-map-marker-wrap\.is-cluster/);
-  assert.match(source, /\.vii-map-marker-wrap:not\(\.is-cluster\)[^\n]+\.nth\(markerBox\.index\)\.click/);
+  assert.match(source, /page\.mouse\.click\(markerBox\.x, markerBox\.y\)/);
   assert.match(source, /page\.locator\("\.map-mobile-close:visible"\)/);
   assert.match(source, /waitForSelector\("\.map-preview-card,\.listing-map-shell"/);
   assert.match(source, /waitForFunction\(\(\) => location\.pathname === "\/search"/);

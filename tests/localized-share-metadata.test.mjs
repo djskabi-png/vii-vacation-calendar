@@ -22,6 +22,10 @@ test("shared listing and content pages localize canonical and social URLs", asyn
     ["app/spas/page.tsx", "/spas"],
     ["app/gift-card/page.tsx", "/gift-card/"],
     ["app/guides/page.tsx", "/guides"],
+    ["app/attractions/page.tsx", "/attractions"],
+    ["app/trails/page.tsx", "/trails"],
+    ["app/activities/page.tsx", "/activities"],
+    ["app/providers/page.tsx", "/providers"],
   ]) {
     const source = await read(path);
     assert.ok(source.includes(`serverLocalePath(\"${route}\")`), `${path} must localize ${route}`);

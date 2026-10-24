@@ -8,12 +8,12 @@ import { getProviderCategory, providerCategoryHref } from "../data/provider-cate
 import { managedDiscoveryItems } from "../lib/managed-public-content";
 import { serverLocalePath } from "../i18n/server-public-copy";
 
-export const metadata: Metadata = {
-  title: "ספקים לחופשה ולאירוע במקום אחד",
-  description: "שפים פרטיים, תקליטנים, צילום, ברים, עיצוב ופעילויות שמגיעים עד מקום האירוח.",
-  alternates: { canonical: "/providers" },
-  robots: { index: false, follow: true },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const canonical = await serverLocalePath("/providers");
+  const title = "ספקים לחופשה ולאירוע במקום אחד";
+  const description = "שפים פרטיים, תקליטנים, צילום, ברים, עיצוב ופעילויות שמגיעים עד מקום האירוח.";
+  return { title, description, alternates: { canonical }, robots: { index: false, follow: true }, openGraph: { type: "website", url: canonical, title, description } };
+}
 
 type ProvidersPageProps = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 

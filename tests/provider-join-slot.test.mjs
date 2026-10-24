@@ -13,7 +13,11 @@ test("provider join slot is visible among results without counting as a provider
   assert.match(providers, /href="\/join\/providers#provider-pricing"/);
   assert.match(providers, /העסק שלכם יכול להיות כאן/);
   assert.match(providers, /פרטי הצטרפות כספק/);
-  assert.match(providers, /filtered\.length} ספקים מתאימים/);
+  assert.match(providers, /const resultCountCopy: Record<SiteLanguage/);
+  assert.match(providers, /matching providers/);
+  assert.match(providers, /подходящих поставщиков/);
+  assert.match(providers, /prestataires correspondants/);
+  assert.match(providers, /provider-results-count[^\n]+resultCountCopy\[language\]/);
   assert.match(progressive, /visibleItems\.slice\(0, featuredAfter\)\}\{featuredItem\}\{visibleItems\.slice\(featuredAfter\)/);
   assert.match(progressive, /items\.length - visibleItems\.length/);
 });

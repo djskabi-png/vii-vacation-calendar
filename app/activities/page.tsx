@@ -8,12 +8,14 @@ import { BreadcrumbTrail } from "../components/breadcrumb-trail";
 import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, collectionSchema } from "../lib/seo";
 import { HomeMobileRail } from "../components/home-mobile-rail";
+import { serverLocalePath } from "../i18n/server-public-copy";
 
-export const metadata: Metadata = {
-  title: "מסלולי טיול ואטרקציות בישראל",
-  description: "מסלולי טיול עצמאיים ואטרקציות בתשלום לפי אזור, זמן ואופי החופשה.",
-  alternates: { canonical: "/activities" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const canonical = await serverLocalePath("/activities");
+  const title = "מסלולי טיול ואטרקציות בישראל";
+  const description = "מסלולי טיול עצמאיים ואטרקציות בתשלום לפי אזור, זמן ואופי החופשה.";
+  return { title, description, alternates: { canonical }, openGraph: { type: "website", url: canonical, title, description } };
+}
 
 export default function ActivitiesPage() {
   return <PageShell variant="activities">

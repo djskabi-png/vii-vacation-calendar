@@ -14,12 +14,14 @@ import { SearchAfterResults } from "../components/search-after-results";
 import type { WorldDepthTopic } from "../lib/world-depth-topics";
 import { headers } from "next/headers";
 import { worldDepthCopy } from "../lib/world-depth-copy";
+import { serverLocalePath } from "../i18n/server-public-copy";
 
-export const metadata: Metadata = {
-  title: "מסלולי טיול בישראל למטייל העצמאי",
-  description: "מסלולי מים, מפלים, חופים, יערות ומדבר עם דרגת קושי, משך, עונה ומידע בטיחותי ממקורות רשמיים.",
-  alternates: { canonical: "/trails" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const canonical = await serverLocalePath("/trails");
+  const title = "מסלולי טיול בישראל למטייל העצמאי";
+  const description = "מסלולי מים, מפלים, חופים, יערות ומדבר עם דרגת קושי, משך, עונה ומידע בטיחותי ממקורות רשמיים.";
+  return { title, description, alternates: { canonical }, openGraph: { type: "website", url: canonical, title, description } };
+}
 
 export default async function TrailsPage({ topic }: { topic?: WorldDepthTopic } = {}) {
   const publishedTrails = await managedTrails(trails);

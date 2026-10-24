@@ -1,0 +1,943 @@
+{
+  "baseUrl": "http://127.0.0.1:4311",
+  "startedAt": "2026-10-24T21:46:52.310Z",
+  "cases": [
+    {
+      "id": "raw-he-/",
+      "status": "passed",
+      "durationMs": 280,
+      "evidence": {
+        "canonical": "https://vii.spaplus.co/",
+        "og": "https://vii.spaplus.co/",
+        "alternates": [
+          "he-IL",
+          "en",
+          "ru",
+          "fr",
+          "x-default"
+        ]
+      }
+    },
+    {
+      "id": "raw-he-/search",
+      "status": "passed",
+      "durationMs": 221,
+      "evidence": {
+        "canonical": "https://vii.spaplus.co/search",
+        "og": "https://vii.spaplus.co/search",
+        "alternates": [
+          "he-IL",
+          "en",
+          "ru",
+          "fr",
+          "x-default"
+        ]
+      }
+    },
+    {
+      "id": "raw-he-/attractions",
+      "status": "passed",
+      "durationMs": 103,
+      "evidence": {
+        "canonical": "https://vii.spaplus.co/attractions",
+        "og": "https://vii.spaplus.co/attractions",
+        "alternates": [
+          "he-IL",
+          "en",
+          "ru",
+          "fr",
+          "x-default"
+        ]
+      }
+    },
+    {
+      "id": "raw-he-/trails",
+      "status": "passed",
+      "durationMs": 124,
+      "evidence": {
+        "canonical": "https://vii.spaplus.co/trails",
+        "og": "https://vii.spaplus.co/trails",
+        "alternates": [
+          "he-IL",
+          "en",
+          "ru",
+          "fr",
+          "x-default"
+        ]
+      }
+    },
+    {
+      "id": "raw-he-/activities",
+      "status": "passed",
+      "durationMs": 79,
+      "evidence": {
+        "canonical": "https://vii.spaplus.co/activities",
+        "og": "https://vii.spaplus.co/activities",
+        "alternates": [
+          "he-IL",
+          "en",
+          "ru",
+          "fr",
+          "x-default"
+        ]
+      }
+    },
+    {
+      "id": "raw-he-/providers",
+      "status": "passed",
+      "durationMs": 107,
+      "evidence": {
+        "canonical": "https://vii.spaplus.co/providers",
+        "og": "https://vii.spaplus.co/providers",
+        "alternates": [
+          "he-IL",
+          "en",
+          "ru",
+          "fr",
+          "x-default"
+        ]
+      }
+    },
+    {
+      "id": "raw-en-/",
+      "status": "passed",
+      "durationMs": 160,
+      "evidence": {
+        "canonical": "https://vii.spaplus.co/en",
+        "og": "https://vii.spaplus.co/en",
+        "alternates": [
+          "he-IL",
+          "en",
+          "ru",
+          "fr",
+          "x-default"
+        ]
+      }
+    },
+    {
+      "id": "raw-en-/search",
+      "status": "passed",
+      "durationMs": 192,
+      "evidence": {
+        "canonical": "https://vii.spaplus.co/en/search",
+        "og": "https://vii.spaplus.co/en/search",
+        "alternates": [
+          "he-IL",
+          "en",
+          "ru",
+          "fr",
+          "x-default"
+        ]
+      }
+    },
+    {
+      "id": "raw-en-/attractions",
+      "status": "passed",
+      "durationMs": 104,
+      "evidence": {
+        "canonical": "https://vii.spaplus.co/en/attractions",
+        "og": "https://vii.spaplus.co/en/attractions",
+        "alternates": [
+          "he-IL",
+          "en",
+          "ru",
+          "fr",
+          "x-default"
+        ]
+      }
+    },
+    {
+      "id": "raw-en-/trails",
+      "status": "passed",
+      "durationMs": 176,
+      "evidence": {
+        "canonical": "https://vii.spaplus.co/en/trails",
+        "og": "https://vii.spaplus.co/en/trails",
+        "alternates": [
+          "he-IL",
+          "en",
+          "ru",
+          "fr",
+          "x-default"
+        ]
+      }
+    },
+    {
+      "id": "raw-en-/activities",
+      "status": "passed",
+      "durationMs": 106,
+      "evidence": {
+        "canonical": "https://vii.spaplus.co/en/activities",
+        "og": "https://vii.spaplus.co/en/activities",
+        "alternates": [
+          "he-IL",
+          "en",
+          "ru",
+          "fr",
+          "x-default"
+        ]
+      }
+    },
+    {
+      "id": "raw-en-/providers",
+      "status": "passed",
+      "durationMs": 126,
+      "evidence": {
+        "canonical": "https://vii.spaplus.co/en/providers",
+        "og": "https://vii.spaplus.co/en/providers",
+        "alternates": [
+          "he-IL",
+          "en",
+          "ru",
+          "fr",
+          "x-default"
+        ]
+      }
+    },
+    {
+      "id": "raw-ru-/",
+      "status": "passed",
+      "durationMs": 216,
+      "evidence": {
+        "canonical": "https://vii.spaplus.co/ru",
+        "og": "https://vii.spaplus.co/ru",
+        "alternates": [
+          "he-IL",
+          "en",
+          "ru",
+          "fr",
+          "x-default"
+        ]
+      }
+    },
+    {
+      "id": "raw-ru-/search",
+      "status": "passed",
+      "durationMs": 173,
+      "evidence": {
+        "canonical": "https://vii.spaplus.co/ru/search",
+        "og": "https://vii.spaplus.co/ru/search",
+        "alternates": [
+          "he-IL",
+          "en",
+          "ru",
+          "fr",
+          "x-default"
+        ]
+      }
+    },
+    {
+      "id": "raw-ru-/attractions",
+      "status": "passed",
+      "durationMs": 123,
+      "evidence": {
+        "canonical": "https://vii.spaplus.co/ru/attractions",
+        "og": "https://vii.spaplus.co/ru/attractions",
+        "alternates": [
+          "he-IL",
+          "en",
+          "ru",
+          "fr",
+          "x-default"
+        ]
+      }
+    },
+    {
+      "id": "raw-ru-/trails",
+      "status": "passed",
+      "durationMs": 166,
+      "evidence": {
+        "canonical": "https://vii.spaplus.co/ru/trails",
+        "og": "https://vii.spaplus.co/ru/trails",
+        "alternates": [
+          "he-IL",
+          "en",
+          "ru",
+          "fr",
+          "x-default"
+        ]
+      }
+    },
+    {
+      "id": "raw-ru-/activities",
+      "status": "passed",
+      "durationMs": 125,
+      "evidence": {
+        "canonical": "https://vii.spaplus.co/ru/activities",
+        "og": "https://vii.spaplus.co/ru/activities",
+        "alternates": [
+          "he-IL",
+          "en",
+          "ru",
+          "fr",
+          "x-default"
+        ]
+      }
+    },
+    {
+      "id": "raw-ru-/providers",
+      "status": "passed",
+      "durationMs": 134,
+      "evidence": {
+        "canonical": "https://vii.spaplus.co/ru/providers",
+        "og": "https://vii.spaplus.co/ru/providers",
+        "alternates": [
+          "he-IL",
+          "en",
+          "ru",
+          "fr",
+          "x-default"
+        ]
+      }
+    },
+    {
+      "id": "raw-fr-/",
+      "status": "passed",
+      "durationMs": 229,
+      "evidence": {
+        "canonical": "https://vii.spaplus.co/fr",
+        "og": "https://vii.spaplus.co/fr",
+        "alternates": [
+          "he-IL",
+          "en",
+          "ru",
+          "fr",
+          "x-default"
+        ]
+      }
+    },
+    {
+      "id": "raw-fr-/search",
+      "status": "passed",
+      "durationMs": 202,
+      "evidence": {
+        "canonical": "https://vii.spaplus.co/fr/search",
+        "og": "https://vii.spaplus.co/fr/search",
+        "alternates": [
+          "he-IL",
+          "en",
+          "ru",
+          "fr",
+          "x-default"
+        ]
+      }
+    },
+    {
+      "id": "raw-fr-/attractions",
+      "status": "passed",
+      "durationMs": 94,
+      "evidence": {
+        "canonical": "https://vii.spaplus.co/fr/attractions",
+        "og": "https://vii.spaplus.co/fr/attractions",
+        "alternates": [
+          "he-IL",
+          "en",
+          "ru",
+          "fr",
+          "x-default"
+        ]
+      }
+    },
+    {
+      "id": "raw-fr-/trails",
+      "status": "passed",
+      "durationMs": 153,
+      "evidence": {
+        "canonical": "https://vii.spaplus.co/fr/trails",
+        "og": "https://vii.spaplus.co/fr/trails",
+        "alternates": [
+          "he-IL",
+          "en",
+          "ru",
+          "fr",
+          "x-default"
+        ]
+      }
+    },
+    {
+      "id": "raw-fr-/activities",
+      "status": "passed",
+      "durationMs": 98,
+      "evidence": {
+        "canonical": "https://vii.spaplus.co/fr/activities",
+        "og": "https://vii.spaplus.co/fr/activities",
+        "alternates": [
+          "he-IL",
+          "en",
+          "ru",
+          "fr",
+          "x-default"
+        ]
+      }
+    },
+    {
+      "id": "raw-fr-/providers",
+      "status": "passed",
+      "durationMs": 121,
+      "evidence": {
+        "canonical": "https://vii.spaplus.co/fr/providers",
+        "og": "https://vii.spaplus.co/fr/providers",
+        "alternates": [
+          "he-IL",
+          "en",
+          "ru",
+          "fr",
+          "x-default"
+        ]
+      }
+    },
+    {
+      "id": "provider-he-desktop",
+      "status": "passed",
+      "durationMs": 3071,
+      "evidence": {
+        "text": "14 ספקים מתאימים"
+      }
+    },
+    {
+      "id": "attractions-og-he-desktop",
+      "status": "passed",
+      "durationMs": 1729,
+      "evidence": {
+        "og": "https://vii.spaplus.co/attractions"
+      }
+    },
+    {
+      "id": "map-he-desktop",
+      "status": "passed",
+      "durationMs": 2975,
+      "evidence": {
+        "markers": 4,
+        "selectedCards": 1
+      }
+    },
+    {
+      "id": "history-he-desktop",
+      "status": "passed",
+      "durationMs": 4881,
+      "evidence": {
+        "url": "http://127.0.0.1:4311/search"
+      }
+    },
+    {
+      "id": "provider-en-desktop",
+      "status": "passed",
+      "durationMs": 1395,
+      "evidence": {
+        "text": "14 matching providers"
+      }
+    },
+    {
+      "id": "attractions-og-en-desktop",
+      "status": "passed",
+      "durationMs": 1561,
+      "evidence": {
+        "og": "https://vii.spaplus.co/en/attractions"
+      }
+    },
+    {
+      "id": "map-en-desktop",
+      "status": "passed",
+      "durationMs": 3891,
+      "evidence": {
+        "markers": 55,
+        "selectedCards": 1
+      }
+    },
+    {
+      "id": "history-en-desktop",
+      "status": "passed",
+      "durationMs": 5194,
+      "evidence": {
+        "url": "http://127.0.0.1:4311/en/search"
+      }
+    },
+    {
+      "id": "provider-ru-desktop",
+      "status": "passed",
+      "durationMs": 1650,
+      "evidence": {
+        "text": "14 подходящих поставщиков"
+      }
+    },
+    {
+      "id": "attractions-og-ru-desktop",
+      "status": "passed",
+      "durationMs": 1463,
+      "evidence": {
+        "og": "https://vii.spaplus.co/ru/attractions"
+      }
+    },
+    {
+      "id": "map-ru-desktop",
+      "status": "passed",
+      "durationMs": 3095,
+      "evidence": {
+        "markers": 5,
+        "selectedCards": 1
+      }
+    },
+    {
+      "id": "history-ru-desktop",
+      "status": "passed",
+      "durationMs": 4627,
+      "evidence": {
+        "url": "http://127.0.0.1:4311/ru/search"
+      }
+    },
+    {
+      "id": "provider-fr-desktop",
+      "status": "passed",
+      "durationMs": 1545,
+      "evidence": {
+        "text": "14 prestataires correspondants"
+      }
+    },
+    {
+      "id": "attractions-og-fr-desktop",
+      "status": "passed",
+      "durationMs": 1477,
+      "evidence": {
+        "og": "https://vii.spaplus.co/fr/attractions"
+      }
+    },
+    {
+      "id": "map-fr-desktop",
+      "status": "passed",
+      "durationMs": 3198,
+      "evidence": {
+        "markers": 5,
+        "selectedCards": 1
+      }
+    },
+    {
+      "id": "history-fr-desktop",
+      "status": "passed",
+      "durationMs": 5065,
+      "evidence": {
+        "url": "http://127.0.0.1:4311/fr/search"
+      }
+    },
+    {
+      "id": "provider-he-mobile",
+      "status": "passed",
+      "durationMs": 984,
+      "evidence": {
+        "text": "14 ספקים מתאימים"
+      }
+    },
+    {
+      "id": "attractions-og-he-mobile",
+      "status": "passed",
+      "durationMs": 1297,
+      "evidence": {
+        "og": "https://vii.spaplus.co/attractions"
+      }
+    },
+    {
+      "id": "map-he-mobile",
+      "status": "passed",
+      "durationMs": 2555,
+      "evidence": {
+        "markers": 4,
+        "selectedCards": 1
+      }
+    },
+    {
+      "id": "history-he-mobile",
+      "status": "passed",
+      "durationMs": 3464,
+      "evidence": {
+        "url": "http://127.0.0.1:4311/search"
+      }
+    },
+    {
+      "id": "provider-en-mobile",
+      "status": "passed",
+      "durationMs": 1469,
+      "evidence": {
+        "text": "14 matching providers"
+      }
+    },
+    {
+      "id": "attractions-og-en-mobile",
+      "status": "passed",
+      "durationMs": 1238,
+      "evidence": {
+        "og": "https://vii.spaplus.co/en/attractions"
+      }
+    },
+    {
+      "id": "map-en-mobile",
+      "status": "passed",
+      "durationMs": 2752,
+      "evidence": {
+        "markers": 4,
+        "selectedCards": 1
+      }
+    },
+    {
+      "id": "history-en-mobile",
+      "status": "passed",
+      "durationMs": 4660,
+      "evidence": {
+        "url": "http://127.0.0.1:4311/en/search"
+      }
+    },
+    {
+      "id": "provider-ru-mobile",
+      "status": "passed",
+      "durationMs": 1455,
+      "evidence": {
+        "text": "14 подходящих поставщиков"
+      }
+    },
+    {
+      "id": "attractions-og-ru-mobile",
+      "status": "passed",
+      "durationMs": 1482,
+      "evidence": {
+        "og": "https://vii.spaplus.co/ru/attractions"
+      }
+    },
+    {
+      "id": "map-ru-mobile",
+      "status": "passed",
+      "durationMs": 2809,
+      "evidence": {
+        "markers": 5,
+        "selectedCards": 1
+      }
+    },
+    {
+      "id": "history-ru-mobile",
+      "status": "passed",
+      "durationMs": 4047,
+      "evidence": {
+        "url": "http://127.0.0.1:4311/ru/search"
+      }
+    },
+    {
+      "id": "provider-fr-mobile",
+      "status": "passed",
+      "durationMs": 1429,
+      "evidence": {
+        "text": "14 prestataires correspondants"
+      }
+    },
+    {
+      "id": "attractions-og-fr-mobile",
+      "status": "passed",
+      "durationMs": 1249,
+      "evidence": {
+        "og": "https://vii.spaplus.co/fr/attractions"
+      }
+    },
+    {
+      "id": "map-fr-mobile",
+      "status": "passed",
+      "durationMs": 2543,
+      "evidence": {
+        "markers": 4,
+        "selectedCards": 1
+      }
+    },
+    {
+      "id": "history-fr-mobile",
+      "status": "passed",
+      "durationMs": 4072,
+      "evidence": {
+        "url": "http://127.0.0.1:4311/fr/search"
+      }
+    },
+    {
+      "id": "provider-he-low-height",
+      "status": "passed",
+      "durationMs": 1565,
+      "evidence": {
+        "text": "14 ספקים מתאימים"
+      }
+    },
+    {
+      "id": "attractions-og-he-low-height",
+      "status": "passed",
+      "durationMs": 1622,
+      "evidence": {
+        "og": "https://vii.spaplus.co/attractions"
+      }
+    },
+    {
+      "id": "map-he-low-height",
+      "status": "passed",
+      "durationMs": 3153,
+      "evidence": {
+        "markers": 3,
+        "selectedCards": 1
+      }
+    },
+    {
+      "id": "history-he-low-height",
+      "status": "passed",
+      "durationMs": 5034,
+      "evidence": {
+        "url": "http://127.0.0.1:4311/search"
+      }
+    },
+    {
+      "id": "provider-en-low-height",
+      "status": "passed",
+      "durationMs": 1549,
+      "evidence": {
+        "text": "14 matching providers"
+      }
+    },
+    {
+      "id": "attractions-og-en-low-height",
+      "status": "passed",
+      "durationMs": 1734,
+      "evidence": {
+        "og": "https://vii.spaplus.co/en/attractions"
+      }
+    },
+    {
+      "id": "map-en-low-height",
+      "status": "passed",
+      "durationMs": 2892,
+      "evidence": {
+        "markers": 3,
+        "selectedCards": 1
+      }
+    },
+    {
+      "id": "history-en-low-height",
+      "status": "passed",
+      "durationMs": 3554,
+      "evidence": {
+        "url": "http://127.0.0.1:4311/en/search"
+      }
+    },
+    {
+      "id": "provider-ru-low-height",
+      "status": "passed",
+      "durationMs": 1379,
+      "evidence": {
+        "text": "14 подходящих поставщиков"
+      }
+    },
+    {
+      "id": "attractions-og-ru-low-height",
+      "status": "passed",
+      "durationMs": 1179,
+      "evidence": {
+        "og": "https://vii.spaplus.co/ru/attractions"
+      }
+    },
+    {
+      "id": "map-ru-low-height",
+      "status": "passed",
+      "durationMs": 2737,
+      "evidence": {
+        "markers": 3,
+        "selectedCards": 1
+      }
+    },
+    {
+      "id": "history-ru-low-height",
+      "status": "passed",
+      "durationMs": 3715,
+      "evidence": {
+        "url": "http://127.0.0.1:4311/ru/search"
+      }
+    },
+    {
+      "id": "provider-fr-low-height",
+      "status": "passed",
+      "durationMs": 1449,
+      "evidence": {
+        "text": "14 prestataires correspondants"
+      }
+    },
+    {
+      "id": "attractions-og-fr-low-height",
+      "status": "passed",
+      "durationMs": 1230,
+      "evidence": {
+        "og": "https://vii.spaplus.co/fr/attractions"
+      }
+    },
+    {
+      "id": "map-fr-low-height",
+      "status": "passed",
+      "durationMs": 2676,
+      "evidence": {
+        "markers": 3,
+        "selectedCards": 1
+      }
+    },
+    {
+      "id": "history-fr-low-height",
+      "status": "passed",
+      "durationMs": 3669,
+      "evidence": {
+        "url": "http://127.0.0.1:4311/fr/search"
+      }
+    },
+    {
+      "id": "provider-he-desktop-1365",
+      "status": "passed",
+      "durationMs": 1429,
+      "evidence": {
+        "text": "14 ספקים מתאימים"
+      }
+    },
+    {
+      "id": "attractions-og-he-desktop-1365",
+      "status": "passed",
+      "durationMs": 739,
+      "evidence": {
+        "og": "https://vii.spaplus.co/attractions"
+      }
+    },
+    {
+      "id": "map-he-desktop-1365",
+      "status": "passed",
+      "durationMs": 3603,
+      "evidence": {
+        "markers": 20,
+        "selectedCards": 1
+      }
+    },
+    {
+      "id": "history-he-desktop-1365",
+      "status": "passed",
+      "durationMs": 4400,
+      "evidence": {
+        "url": "http://127.0.0.1:4311/search"
+      }
+    },
+    {
+      "id": "provider-en-desktop-1365",
+      "status": "passed",
+      "durationMs": 904,
+      "evidence": {
+        "text": "14 matching providers"
+      }
+    },
+    {
+      "id": "attractions-og-en-desktop-1365",
+      "status": "passed",
+      "durationMs": 876,
+      "evidence": {
+        "og": "https://vii.spaplus.co/en/attractions"
+      }
+    },
+    {
+      "id": "map-en-desktop-1365",
+      "status": "passed",
+      "durationMs": 2692,
+      "evidence": {
+        "markers": 4,
+        "selectedCards": 1
+      }
+    },
+    {
+      "id": "history-en-desktop-1365",
+      "status": "passed",
+      "durationMs": 3956,
+      "evidence": {
+        "url": "http://127.0.0.1:4311/en/search"
+      }
+    },
+    {
+      "id": "provider-ru-desktop-1365",
+      "status": "passed",
+      "durationMs": 907,
+      "evidence": {
+        "text": "14 подходящих поставщиков"
+      }
+    },
+    {
+      "id": "attractions-og-ru-desktop-1365",
+      "status": "passed",
+      "durationMs": 844,
+      "evidence": {
+        "og": "https://vii.spaplus.co/ru/attractions"
+      }
+    },
+    {
+      "id": "map-ru-desktop-1365",
+      "status": "passed",
+      "durationMs": 3362,
+      "evidence": {
+        "markers": 51,
+        "selectedCards": 1
+      }
+    },
+    {
+      "id": "history-ru-desktop-1365",
+      "status": "passed",
+      "durationMs": 4165,
+      "evidence": {
+        "url": "http://127.0.0.1:4311/ru/search"
+      }
+    },
+    {
+      "id": "provider-fr-desktop-1365",
+      "status": "passed",
+      "durationMs": 851,
+      "evidence": {
+        "text": "14 prestataires correspondants"
+      }
+    },
+    {
+      "id": "attractions-og-fr-desktop-1365",
+      "status": "passed",
+      "durationMs": 854,
+      "evidence": {
+        "og": "https://vii.spaplus.co/fr/attractions"
+      }
+    },
+    {
+      "id": "map-fr-desktop-1365",
+      "status": "passed",
+      "durationMs": 3250,
+      "evidence": {
+        "markers": 11,
+        "selectedCards": 1
+      }
+    },
+    {
+      "id": "history-fr-desktop-1365",
+      "status": "passed",
+      "durationMs": 3433,
+      "evidence": {
+        "url": "http://127.0.0.1:4311/fr/search"
+      }
+    },
+    {
+      "id": "events-he-desktop-load",
+      "status": "passed",
+      "durationMs": 695,
+      "evidence": {
+        "status": 200,
+        "text": 92
+      }
+    },
+    {
+      "id": "map-en-events-mobile",
+      "status": "passed",
+      "durationMs": 3440,
+      "evidence": {
+        "markers": 14,
+        "selectedCards": 1
+      }
+    }
+  ],
+  "finishedAt": "2026-10-24T21:49:40.689Z",
+  "summary": {
+    "total": 90,
+    "passed": 90,
+    "failed": 0
+  },
+  "status": "passed"
+}

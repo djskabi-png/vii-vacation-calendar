@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "task_id": "v635-qa53-repair",
+  "project": "VII",
+  "task_type": "production defect repair and release",
+  "requested_outcome": "Map all 53 failed audit cases to root causes, repair every remaining product defect, verify the affected families across four locales and four viewports, publish one stable release, and verify the exact public version.",
+  "natural_destination": "https://vii.spaplus.co",
+  "authorization_boundary": "Repair, test and publish the delegated VII QA scope. Do not perform booking, contact, phone, WhatsApp, review or payment actions. Accessibility and typography audits are explicitly excluded.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-QA-001","reason":"The request requires full affected-family proof, not isolated fixes.","acceptance_impact":"Every failed case is mapped and the exact published version is exercised."},
+    {"lesson_id":"ADIR-CONTROL-001","reason":"Map, locale, slider and history failures concern visible controls.","acceptance_impact":"Visible controls are exercised in applicable loading, success, failure, reload and back states."},
+    {"lesson_id":"ADIR-SEO-001","reason":"Canonical, Open Graph and hreflang defects affect indexation and sharing.","acceptance_impact":"Raw and rendered HTML contain one correct canonical, self OG URL and one reciprocal hreflang set."},
+    {"lesson_id":"ADIR-DEPLOY-001","reason":"Repairs require a production release.","acceptance_impact":"Freeze one candidate, keep rollback identity and verify the exact deployed release."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"Some of the 53 failures are silently ignored as test flakiness.","prevention":"Preserve every case ID and require product evidence or a causal harness diagnosis.","acceptance_check":"The final case matrix contains 53 mapped IDs with no unclassified result."},
+    {"rejection":"A local metadata fix still leaves duplicate or Hebrew locale URLs in production.","prevention":"Test raw worker HTML and rendered DOM for HE, EN, RU and FR.","acceptance_check":"Exactly one canonical, one OG URL and one alternate per language are present with locale-correct URLs."},
+    {"rejection":"Provider and map fixes work only on desktop Hebrew.","prevention":"Run the four-locale, four-viewport matrix.","acceptance_check":"Provider counts, map toggle, marker selection and selection card pass the whole matrix."},
+    {"rejection":"Publishing the repair causes another transient outage.","prevention":"Require build, regression suite, repeated route probes and rollback identity before publication.","acceptance_check":"Exact release passes representative routes and repeated availability probes after publication."}
+  ],
+  "affected_family": [
+    "home and search multilingual metadata",
+    "attractions, trails, activities and providers metadata",
+    "localized provider result counts",
+    "map toggle, layers, marker selection and selection card",
+    "browser back and search history",
+    "production availability and worker resource limits",
+    "QA timing and detached-element resilience"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {"sources":[
+    {"label":"VII platform master plan","source":"calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"},
+    {"label":"VII accepted product decisions","source":"calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"},
+    {"label":"53-case source report","source":".release-v596-regression-qa/qa-reports/automation-vii-6-20261024-231932/failures.md"}
+  ],"no_precedent_reason":null},
+  "midpoint_gate": {"required":true,"trigger":"Root causes are reproduced and focused repairs pass before the full build and production release.","checks":["All 53 IDs are grouped without loss","Focused metadata and provider tests pass","Map and history failures are reproduced or causally classified"],"not_required_reason":null},
+  "adversarial_close": {"attack_questions":["Can any locale emit duplicate hreflang or a Hebrew canonical?","Can a provider count leak Hebrew?","Can map controls block marker selection?","Can Back remain on search?","Can the public worker return a resource-limit failure under repeated probes?"],"natural_destination_evidence":"Exact public release, repeated route probes and live browser observations.","affected_family_evidence":"Four locales by four viewports plus raw metadata and history/map interaction evidence."},
+  "effectiveness": {"baseline":"The prior audit recorded 53 failed cases out of 628 checks, with duplicates across root families; v633 is currently public.","measurements":["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],"target":"All 53 IDs classified, all true product defects repaired, no unclassified failure and one verified stable release."},
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

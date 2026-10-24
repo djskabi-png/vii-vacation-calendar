@@ -1,0 +1,46 @@
+{
+  "releaseCandidate": "v635",
+  "sourceReport": "C:/Users/Adir/Documents/vii.co.il/.release-v596-regression-qa/qa-reports/automation-vii-6-20261024-231932/failure-index.json",
+  "sourceFailedCases": 53,
+  "mappedCases": 53,
+  "unmappedCases": [],
+  "verification": {
+    "focusedMatrix": "qa-reports/v635-failed-cases/v635-1792878580689.json (90/90 passed)",
+    "locales": ["he", "en", "ru", "fr"],
+    "viewports": ["1440x900", "390x844", "390x620", "1365x768"],
+    "regression": "1586/1586 passed",
+    "build": "vinext five-stage production build passed"
+  },
+  "groups": [
+    {
+      "rootCause": "Worker and application both emitted hreflang alternates",
+      "repair": "Remove pre-existing alternate tags before inserting one worker-owned five-link set in both streaming paths",
+      "focusedEvidence": ["raw-he-/", "raw-he-/search", "raw-en-/", "raw-en-/search", "raw-ru-/", "raw-ru-/search", "raw-fr-/", "raw-fr-/search"],
+      "caseIds": ["metadata-he-0", "metadata-he-1", "metadata-en-0", "metadata-en-1", "metadata-ru-0", "metadata-ru-1", "metadata-fr-0", "metadata-fr-1"]
+    },
+    {
+      "rootCause": "Four discovery routes owned fixed Hebrew canonicals instead of request-locale canonicals",
+      "repair": "Generate server metadata from the request locale with matching canonical and Open Graph URL",
+      "focusedEvidence": ["raw-en-/attractions", "raw-en-/trails", "raw-en-/activities", "raw-en-/providers", "raw-ru-/attractions", "raw-ru-/trails", "raw-ru-/activities", "raw-ru-/providers", "raw-fr-/attractions", "raw-fr-/trails", "raw-fr-/activities", "raw-fr-/providers"],
+      "caseIds": ["metadata-en-11", "metadata-en-12", "metadata-en-13", "metadata-en-14", "metadata-ru-11", "metadata-ru-12", "metadata-ru-13", "metadata-ru-14", "metadata-fr-11", "metadata-fr-12", "metadata-fr-13", "metadata-fr-14"]
+    },
+    {
+      "rootCause": "Attractions Open Graph URL did not follow the active locale",
+      "repair": "Use route-owned localized metadata and verify rendered OG URL across every locale and viewport",
+      "focusedEvidence": ["attractions-og-en-desktop", "attractions-og-ru-desktop", "attractions-og-fr-desktop", "attractions-og-en-mobile", "attractions-og-ru-mobile", "attractions-og-fr-mobile", "attractions-og-en-low-height", "attractions-og-ru-low-height", "attractions-og-fr-low-height", "attractions-og-en-desktop-1365", "attractions-og-ru-desktop-1365", "attractions-og-fr-desktop-1365"],
+      "caseIds": ["locale-en-attractions-desktop", "locale-ru-attractions-desktop", "locale-fr-attractions-desktop", "locale-en-attractions-mobile", "locale-ru-attractions-mobile", "locale-fr-attractions-mobile", "locale-en-attractions-low-height", "locale-ru-attractions-low-height", "locale-fr-attractions-low-height", "locale-en-attractions-desktop-1365", "locale-ru-attractions-desktop-1365", "locale-fr-attractions-desktop-1365"]
+    },
+    {
+      "rootCause": "Provider result count was hard-coded in Hebrew",
+      "repair": "Render singular and plural count copy from the active locale",
+      "focusedEvidence": ["provider-en-desktop", "provider-ru-desktop", "provider-fr-desktop", "provider-en-mobile", "provider-ru-mobile", "provider-fr-mobile", "provider-en-low-height", "provider-ru-low-height", "provider-fr-low-height", "provider-en-desktop-1365", "provider-ru-desktop-1365", "provider-fr-desktop-1365"],
+      "caseIds": ["locale-en-providers-desktop", "locale-ru-providers-desktop", "locale-fr-providers-desktop", "locale-en-providers-mobile", "locale-ru-providers-mobile", "locale-fr-providers-mobile", "locale-en-providers-low-height", "locale-ru-providers-low-height", "locale-fr-providers-low-height", "locale-en-providers-desktop-1365", "locale-ru-providers-desktop-1365", "locale-fr-providers-desktop-1365"]
+    },
+    {
+      "rootCause": "One real Leaflet control collision plus unstable QA locators and history timing",
+      "repair": "Place layers and zoom controls on opposite sides, resolve visible map controls after hydration, click the current topmost marker, and await committed history URLs",
+      "focusedEvidence": ["events-he-desktop-load", "map-he-desktop", "map-en-events-mobile", "history-en-mobile", "map-ru-mobile", "map-fr-mobile", "map-fr-low-height", "history-ru-desktop-1365", "map-fr-desktop-1365"],
+      "caseIds": ["locale-he-events-desktop", "interaction-map-he-vacations-desktop", "interaction-map-en-events-mobile", "history-en-mobile", "interaction-map-ru-vacations-mobile", "interaction-map-fr-vacations-mobile", "interaction-map-fr-vacations-low-height", "history-ru-desktop-1365", "interaction-map-fr-vacations-desktop-1365"]
+    }
+  ]
+}

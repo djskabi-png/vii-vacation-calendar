@@ -381,7 +381,11 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
         const layersControl = L.control.layers(
           { [layerNames.street]: streetTiles, [layerNames.aerial]: aerialTiles },
           undefined,
-          { position: "topright" },
+          // Keep the style selector opposite the zoom controls. In LTR
+          // locales both controls previously occupied the top-right corner;
+          // the expanding layers panel could cover a real place marker and
+          // make that marker impossible to select on narrow viewports.
+          { position: language === "he" ? "topright" : "topleft" },
         ).addTo(map);
         const layersToggle = layersControl.getContainer()?.querySelector<HTMLAnchorElement>(".leaflet-control-layers-toggle");
         layersToggle?.setAttribute("title", layerNames.layers);

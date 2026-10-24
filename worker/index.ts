@@ -352,6 +352,15 @@ const worker = {
 
     if (typeof HTMLRewriter !== "undefined") {
       const rewriter = new HTMLRewriter()
+        // The application already emits a complete locale-aware alternate set.
+        // Replace it at the worker boundary instead of appending a second set.
+        // This also normalizes absolute production origins without duplicate
+        // hreflang entries in raw HTML or the rendered document.
+        .on('link[rel="alternate"][hreflang]', {
+          element(element) {
+            element.remove();
+          },
+        })
         .on('link[rel="canonical"]', {
           element(element) {
             const links = makeLocaleLinks(element.getAttribute("href") || documentPathname);
@@ -413,7 +422,11 @@ const worker = {
       return storePublicCache(await withLaunchSeo(output, url, primary), cachePolicy, env, ctx);
     }
     const html = await response.text();
-    const rewritten = html.replace(
+    const htmlWithoutAlternates = html.replace(
+      /<link\b(?=[^>]*\brel=["']alternate["'])(?=[^>]*\bhreflang=)[^>]*>/gi,
+      "",
+    );
+    const rewritten = htmlWithoutAlternates.replace(
       /<link rel="canonical" href="([^"]+)"\s*\/?>/,
       (_match, currentHref: string) => {
         const links = makeLocaleLinks(currentHref);

@@ -15,18 +15,22 @@ import type { WorldDepthTopic } from "../lib/world-depth-topics";
 import { activityRegion, activityType } from "../lib/activity-discovery-taxonomy";
 import { headers } from "next/headers";
 import { worldDepthCopy } from "../lib/world-depth-copy";
+import { serverLocalePath } from "../i18n/server-public-copy";
 
-export const metadata: Metadata = {
-  title: "אטרקציות בתשלום בישראל לפי אזור וסוג חוויה",
-  description: "אטרקציות, סיורים וחוויות בתשלום לפי אזור, הרכב וסוג פעילות, עם התאמת ספק ותהליך הזמנה ברור באתר.",
-  alternates: { canonical: "/attractions" },
-  openGraph: {
-    type: "website",
-    url: "/attractions/",
-    title: "אטרקציות בישראל",
-    description: "בוחרים אזור וסוג פעילות ומוצאים חוויות שמתאימות בדיוק להרכב שלכם.",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const canonical = await serverLocalePath("/attractions");
+  return {
+    title: "אטרקציות בתשלום בישראל לפי אזור וסוג חוויה",
+    description: "אטרקציות, סיורים וחוויות בתשלום לפי אזור, הרכב וסוג פעילות, עם התאמת ספק ותהליך הזמנה ברור באתר.",
+    alternates: { canonical },
+    openGraph: {
+      type: "website",
+      url: canonical,
+      title: "אטרקציות בישראל",
+      description: "בוחרים אזור וסוג פעילות ומוצאים חוויות שמתאימות בדיוק להרכב שלכם.",
+    },
+  };
+}
 
 export default async function AttractionsPage({ topic }: { topic?: WorldDepthTopic } = {}) {
   const attractions = await managedDiscoveryItems(paidAttractions, "attractions");
