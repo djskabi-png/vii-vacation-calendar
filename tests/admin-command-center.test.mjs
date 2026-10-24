@@ -43,7 +43,7 @@ test("overview is an operational command center with truthful funnel labels", as
 
 test("business performance provides filters, explicit funnel ratios and local export", async () => {
   const [page, route] = await Promise.all([read("app/admin/business-performance/page.tsx"), read("app/api/admin/business-performance/route.ts")]);
-  for (const behavior of ["exportCsv", "כניסה מתוך חשיפה", "פעולה מתוך כניסה", "מעברים ל-WhatsApp", "אינם מציגים פתיחת WhatsApp כשיחה שנשלחה", "הזמנות מ־VII", "הזמנות מ־Biz", "תאריך הגעה"]) assert.match(page, new RegExp(behavior));
+  for (const behavior of ["exportCsv", "כניסה מתוך חשיפה", "פעולה מתוך כניסה", "מעברים ל-WhatsApp", "אינם מציגים פתיחת WhatsApp כשיחה שנשלחה", "הזמנות מ־VII", "הזמנות מ־Biz", "תאריך הגעה", "משפחת עסקים", "businessReportScopes", "canonicalBusinessReportScope", "מקור ההמרות של Biz תומך כרגע"]) assert.match(page, new RegExp(behavior));
   assert.match(page, /data-label="עסק"/);
   assert.match(page, /text\/csv/);
   assert.match(route, /upstreamStatus:\s*error\.status/);

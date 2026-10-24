@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-conversion-families-public-release-20261024",
+  "project": "VII",
+  "task_type": "conversion-report-family-filters-and-production-release",
+  "requested_outcome": "Add stable all-business and canonical family filters to the VII conversion report, release the complete frozen candidate, and verify the public and authenticated natural destinations.",
+  "natural_destination": "https://vii.spaplus.co and the authenticated VII business-performance administration report",
+  "authorization_boundary": "Code changes, tests, exact candidate publication and post-deploy verification are authorized. DNS, secrets, external messages, destructive data operations and real bookings remain unauthorized.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-QA-001","reason":"The user requires a complete tested public result rather than code-only completion.","acceptance_impact":"The exact deployed version must pass public, admin and rollback checks."},
+    {"lesson_id":"ADIR-ADMIN-001","reason":"The changed surface is an operational administration report.","acceptance_impact":"Loading, empty, error, permission, persistence and visible filter behavior are separate gates."},
+    {"lesson_id":"ADIR-CONSISTENCY-001","reason":"Several raw world identifiers must behave as seven canonical business families.","acceptance_impact":"Aliases must normalize without lost or duplicate businesses."},
+    {"lesson_id":"ADIR-DATA-001","reason":"The report combines VII analytics with supplier conversions.","acceptance_impact":"Every metric keeps source, scope, period and truthful availability semantics."},
+    {"lesson_id":"ADIR-SEO-001","reason":"The release also contains the previously prepared multilingual sitemap and crawl repairs.","acceptance_impact":"Public sitemaps, canonical, hreflang, robots and redirects must be rechecked after deployment."},
+    {"lesson_id":"ADIR-VISUAL-001","reason":"The user expects the administration surface to match the platform-level space visual system.","acceptance_impact":"The exact deployed report and administration shell require visual inspection."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"The family list is derived from current rows, so empty families disappear.","prevention":"Use a stable canonical registry for all seven families plus all businesses.","acceptance_check":"Every option remains visible with zero, one or many matching rows."},
+    {"rejection":"Aliases such as vacation/vacations or room/hourly split one family.","prevention":"Normalize raw world values before filtering.","acceptance_check":"Contract tests prove every alias maps to exactly one requested family."},
+    {"rejection":"Families unsupported by the Biz supplier endpoint are shown as if supplier conversions exist.","prevention":"Keep VII report filtering available for every family while presenting Biz aggregates only for supported business targets.","acceptance_check":"Unsupported families show an honest empty/unavailable supplier state without fabricated totals."},
+    {"rejection":"The release publishes unrelated dirty files or a different build than the tested commit.","prevention":"Stage only owned files, commit, push that SHA, package its build and save/deploy that exact SHA.","acceptance_check":"Sites version provenance, archive and deployed SHA agree and rollback identity is recorded."},
+    {"rejection":"Local tests pass but production still has old sitemap/admin/report behavior.","prevention":"Run bounded post-deploy public and authenticated checks on the exact release.","acceptance_check":"Public URLs and authenticated report visibly expose the released behavior with no critical regression."}
+  ],
+  "affected_family": [
+    "authenticated business performance and conversion report",
+    "vacation, events, spa, hourly rooms, activities, trails and providers family filters",
+    "date basis, date range, business search, sorting and CSV export",
+    "VII analytics rows and Biz conversion aggregates",
+    "administration visual shell",
+    "multilingual sitemap, canonical, hreflang, robots and legacy redirect candidate changes",
+    "desktop and mobile public release smoke paths"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label":"VII platform source of truth","source":"calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"},
+      {"label":"VII accepted behavior","source":"calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"},
+      {"label":"Supplier conversions contract","source":"app/lib/vii-conversions.ts and https://bizonline.co.il/api/ai/vii/Vii-Frontend.html#conversions"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After canonical family filtering and focused tests pass, before full build and publication.",
+    "checks": ["All eight filter choices are present.","Every alias maps to the intended family.","Supplier conversion limitations remain explicit."],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": ["Can a family disappear when it has no activity?","Can an alias leak into the wrong family or duplicate a business?","Can unsupported Biz data appear as zero rather than unavailable?","Can the deployed SHA differ from the tested candidate?","Can the SEO candidate regress after the report change?"],
+    "natural_destination_evidence": "Exact public production URLs plus authenticated administration report after deployment.",
+    "affected_family_evidence": "Focused tests, full suite/build, Sites provenance, public SEO smoke and report-state checks."
+  },
+  "effectiveness": {
+    "baseline": "The report currently derives domain options from the selected period and supports supplier conversions only for individual vacation, event and room businesses.",
+    "measurements": ["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],
+    "target": "Deliver one stable release in which all requested families are always filterable and no unsupported supplier total is invented."
+  },
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}
