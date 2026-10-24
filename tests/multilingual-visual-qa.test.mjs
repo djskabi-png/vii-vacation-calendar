@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import rules from "../scripts/multilingual-qa-rules.cjs";
 
-const { analyzeTextSamples, findProhibitedCollisions, localizedRoute } = rules;
+const { analyzeLocaleSeo, analyzeTextSamples, findProhibitedCollisions, localizedRoute } = rules;
 
 test("French QA rejects Hebrew leakage, raw dates and rejected literal copy", () => {
   const result = analyzeTextSamples([
@@ -42,4 +42,36 @@ test("localized routes preserve query strings", () => {
   assert.equal(localizedRoute("/business?id=vacation-116", "fr"), "/fr/business?id=vacation-116");
   assert.equal(localizedRoute("/", "ru"), "/ru");
   assert.equal(localizedRoute("/guides", "he"), "/guides");
+});
+
+test("multilingual SEO requires a unique locale URL, self canonical, hreflang and share URL", () => {
+  const result = analyzeLocaleSeo({
+    currentUrl: "https://vii.spaplus.co/fr/business?id=vacation-116",
+    canonical: "https://vii.spaplus.co/fr/business?id=vacation-116",
+    ogUrl: "https://vii.spaplus.co/business?id=vacation-116",
+    alternates: [
+      { hreflang: "he-IL", href: "https://vii.spaplus.co/business?id=vacation-116" },
+      { hreflang: "en", href: "https://vii.spaplus.co/en/business?id=vacation-116" },
+      { hreflang: "ru", href: "https://vii.spaplus.co/ru/business?id=vacation-116" },
+      { hreflang: "fr", href: "https://vii.spaplus.co/fr/business?id=vacation-116" },
+      { hreflang: "x-default", href: "https://vii.spaplus.co/business?id=vacation-116" },
+    ],
+  }, "fr");
+  assert.deepEqual(result.map((item) => item.kind), ["share_url_locale_mismatch"]);
+});
+
+test("multilingual SEO passes fully localized addressability metadata", () => {
+  const result = analyzeLocaleSeo({
+    currentUrl: "https://vii.spaplus.co/fr/gift-card",
+    canonical: "https://vii.spaplus.co/fr/gift-card/",
+    ogUrl: "https://vii.spaplus.co/fr/gift-card/",
+    alternates: [
+      { hreflang: "he-IL", href: "https://vii.spaplus.co/gift-card/" },
+      { hreflang: "en", href: "https://vii.spaplus.co/en/gift-card/" },
+      { hreflang: "ru", href: "https://vii.spaplus.co/ru/gift-card/" },
+      { hreflang: "fr", href: "https://vii.spaplus.co/fr/gift-card/" },
+      { hreflang: "x-default", href: "https://vii.spaplus.co/gift-card/" },
+    ],
+  }, "fr");
+  assert.deepEqual(result, []);
 });

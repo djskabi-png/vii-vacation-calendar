@@ -8,7 +8,7 @@
     "fullViewports": ["1440x900", "390x844"],
     "layoutStressViewport": "1365x768",
     "routeFamilies": ["home", "vacation search", "events", "hourly", "spa", "guides", "gift card", "vacation place", "event place", "hourly place", "spa place"],
-    "checks": ["script leakage", "raw ISO dates", "rejected literal copy", "document direction", "unexpected RTL content", "clipped text", "off-screen controls", "heading/card collision", "home ratings slider boundary", "locale-preserving navigation"]
+    "checks": ["script leakage", "raw ISO dates", "rejected literal copy", "unique locale URL", "self canonical", "hreflang alternates", "localized social share URL", "document direction", "unexpected RTL content", "clipped text", "off-screen controls", "heading/card collision", "home ratings slider boundary", "locale-preserving navigation"]
   },
   "verification": {
     "unitCommand": "node --test tests/multilingual-visual-qa.test.mjs",
@@ -18,7 +18,9 @@
     "layoutStressReport": "qa-reports/multilingual-layout-stress-public-20261024-v2/comprehensive-1792804185843.json",
     "layoutStressSummary": {"total": 15, "passed": 11, "failed": 4},
     "hebrewStressRerun": "qa-reports/multilingual-layout-stress-public-20261024-v3/comprehensive-1792804219819.json",
-    "hebrewStressRerunSummary": {"total": 3, "passed": 3, "failed": 0}
+    "hebrewStressRerunSummary": {"total": 3, "passed": 3, "failed": 0},
+    "frenchSeoReport": "qa-reports/multilingual-seo-public-20261024-full-fr/comprehensive-1792805676420.json",
+    "frenchSeoSummary": {"total": 28, "passed": 3, "failed": 25}
   },
   "productionFindings": [
     "Non-Hebrew home pages expose Hebrew catalog, review and editorial content.",
@@ -26,7 +28,9 @@
     "French still exposes rejected literal labels such as Séjours à l'heure, quand sors-tu and qui vient.",
     "Representative localized navigation preserved the active locale in completed desktop and mobile checks.",
     "The supplied gift-card overlap did not reproduce on the current public build at 1365x768, but the geometric collision detector is now part of every recurring run.",
-    "Search and spa routes can exceed the configured 20-second case budget, which is retained as a production performance/reliability finding rather than hidden."
+    "Search and spa routes can exceed the configured 20-second case budget, which is retained as a production performance/reliability finding rather than hidden.",
+    "Localized path prefixes, self canonicals and hreflang alternates exist on the sampled French URLs, so the statement that no unique language URL exists is not accurate for the current build.",
+    "Social sharing metadata is not fully localized: og:url is missing on guides, gift-card and a sampled spa place, and points to the Hebrew URL on sampled hourly and spa listing pages and place pages."
   ],
   "automationsUpdated": ["vii-3", "vii-6"]
 }

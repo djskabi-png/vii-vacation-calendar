@@ -5,7 +5,7 @@ const { chromium } = require("playwright");
 const { mkdirSync, writeFileSync } = require("node:fs");
 const { existsSync } = require("node:fs");
 const { join } = require("node:path");
-const { analyzeTextSamples, localizedRoute } = require("./multilingual-qa-rules.cjs");
+const { analyzeLocaleSeo, analyzeTextSamples, localizedRoute } = require("./multilingual-qa-rules.cjs");
 
 const baseUrl = (process.env.BASE_URL || "https://vii.spaplus.co").replace(/\/$/, "");
 const outputDir = process.env.QA_OUTPUT_DIR || join(process.cwd(), "qa-reports", "comprehensive-production");
@@ -159,7 +159,13 @@ async function verifyLocaleExperience(page, path, locale) {
       if (actualRailDirection !== expectedRailDirection || !buttons[0].disabled || buttons[1].disabled) sliderProblems.push({ kind: "initial_slider_boundary", selector: selector(controls), rail: railId, previousDisabled: buttons[0].disabled, nextDisabled: buttons[1].disabled, expectedRailDirection, actualRailDirection });
     }
 
-    return { root: { lang: document.documentElement.lang, direction }, textSamples, layoutProblems: [...clipped, ...offscreen, ...collisions, ...directionProblems, ...sliderProblems] };
+    const seo = {
+      currentUrl: location.href,
+      canonical: document.querySelector("link[rel='canonical']")?.href || "",
+      ogUrl: document.querySelector("meta[property='og:url']")?.content || "",
+      alternates: [...document.querySelectorAll("link[rel='alternate'][hreflang]")].map((link) => ({ hreflang: link.getAttribute("hreflang"), href: link.href })),
+    };
+    return { root: { lang: document.documentElement.lang, direction }, seo, textSamples, layoutProblems: [...clipped, ...offscreen, ...collisions, ...directionProblems, ...sliderProblems] };
   };
   let observed;
   try {
@@ -173,7 +179,8 @@ async function verifyLocaleExperience(page, path, locale) {
   }
 
   const textProblems = analyzeTextSamples(observed.textSamples, locale);
-  const problems = [...textProblems, ...observed.layoutProblems];
+  const seoProblems = analyzeLocaleSeo(observed.seo, locale);
+  const problems = [...seoProblems, ...textProblems, ...observed.layoutProblems];
   if (problems.length) throw new Error(`multilingual_visual_integrity:${JSON.stringify({ locale, count: problems.length, problems: problems.slice(0, 12) })}`);
   return { ...base, locale, lang: observed.root.lang, direction: observed.root.direction, visibleTextNodes: observed.textSamples.length };
 }

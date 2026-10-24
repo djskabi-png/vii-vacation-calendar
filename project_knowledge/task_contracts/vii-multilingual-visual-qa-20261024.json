@@ -5,8 +5,8 @@
   "task_type": "production QA expansion",
   "goal": "Add automated multilingual visual and localization-integrity checks to VII production QA.",
   "created_at": "2026-10-24T00:48:50.790388Z",
-  "updated_at": "2026-10-24T01:10:53.141239Z",
-  "completed_at": "2026-10-24T01:10:53.141239Z",
+  "updated_at": "2026-10-24T01:34:54.391490Z",
+  "completed_at": "2026-10-24T01:34:54.391490Z",
   "source_hashes": {
     "working_profile": {
       "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
@@ -207,6 +207,18 @@
       ],
       "reason": null,
       "updated_at": "2026-10-24T01:10:47.572415Z"
+    },
+    {
+      "id": "user:localized-addressability",
+      "source": "user_correction",
+      "statement": "The recurring multilingual QA must verify that every language has an independently addressable URL suitable for SEO and sharing.",
+      "acceptance_check": "For every sampled locale route, fail when the URL prefix, self canonical, hreflang family or social share URL is missing, duplicated or points to another locale.",
+      "status": "passed",
+      "evidence": [
+        "Eight unit tests passed; production French run qa-reports/multilingual-seo-public-20261024-full-fr/comprehensive-1792805676420.json detected missing or Hebrew og:url while sampled locale URLs, canonicals and hreflang remained distinct."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-24T01:34:54.284874Z"
     }
   ],
   "verification_status": "verified",

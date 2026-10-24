@@ -61,4 +61,31 @@ function localizedRoute(route, locale) {
   return `/${locale}${path === "/" ? "" : path}${query}${hash ? `#${hash}` : ""}`;
 }
 
-module.exports = { analyzeTextSamples, findProhibitedCollisions, intersectionRatio, localizedRoute };
+function hasLocalePath(url, locale) {
+  if (!url) return false;
+  const pathname = new URL(url, "https://vii.spaplus.co").pathname.replace(/\/+$/, "") || "/";
+  if (locale === "he") return !/^\/(?:en|ru|fr)(?:\/|$)/.test(pathname);
+  return pathname === `/${locale}` || pathname.startsWith(`/${locale}/`);
+}
+
+function analyzeLocaleSeo({ currentUrl, canonical, ogUrl, alternates = [] }, locale) {
+  const problems = [];
+  if (!hasLocalePath(currentUrl, locale)) problems.push({ kind: "locale_url_not_unique", locale, currentUrl });
+  if (!canonical) problems.push({ kind: "canonical_missing", locale, currentUrl });
+  else if (!hasLocalePath(canonical, locale)) problems.push({ kind: "canonical_locale_mismatch", locale, currentUrl, canonical });
+  if (!ogUrl) problems.push({ kind: "share_url_missing", locale, currentUrl });
+  else if (!hasLocalePath(ogUrl, locale)) problems.push({ kind: "share_url_locale_mismatch", locale, currentUrl, ogUrl });
+
+  const expected = { "he-IL": "he", en: "en", ru: "ru", fr: "fr", "x-default": "he" };
+  const byLanguage = new Map(alternates.map((item) => [String(item.hreflang || "").toLowerCase(), item.href]));
+  for (const [hreflang, expectedLocale] of Object.entries(expected)) {
+    const href = byLanguage.get(hreflang.toLowerCase());
+    if (!href) problems.push({ kind: "hreflang_missing", locale, hreflang, currentUrl });
+    else if (!hasLocalePath(href, expectedLocale)) problems.push({ kind: "hreflang_locale_mismatch", locale, hreflang, href, currentUrl });
+  }
+  const localizedHrefs = ["he-il", "en", "ru", "fr"].map((key) => byLanguage.get(key)).filter(Boolean);
+  if (new Set(localizedHrefs).size !== localizedHrefs.length) problems.push({ kind: "hreflang_urls_not_unique", locale, currentUrl });
+  return problems;
+}
+
+module.exports = { analyzeLocaleSeo, analyzeTextSamples, findProhibitedCollisions, hasLocalePath, intersectionRatio, localizedRoute };
