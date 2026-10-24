@@ -3,10 +3,34 @@ import { businessAnalyticsDatabase } from "../../../lib/business-analytics.ts";
 import { operationsDatabase } from "../../../lib/operations-audit.ts";
 import { conversionTarget, fetchViiConversions, ViiConversionsError } from "../../../lib/vii-conversions.ts";
 import { supplierToken } from "../../../lib/vii-supplier-token.ts";
+import { publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
 
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 const validDay = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`));
 const nextDay = (value: string) => { const date = new Date(`${value}T00:00:00Z`); date.setUTCDate(date.getUTCDate() + 1); return date.toISOString(); };
+
+type InventoryPlace = { supplierId?: number; id?: string; name?: string; title?: string };
+
+async function supportedInventory() {
+  const [vacations, events, rooms, spa] = await Promise.all([
+    publicCatalogSummaries<InventoryPlace>("vacations"),
+    publicCatalogSummaries<InventoryPlace>("events"),
+    publicCatalogSummaries<InventoryPlace>("rooms"),
+    publicCatalogSummaries<InventoryPlace>("spa"),
+  ]);
+  return [
+    ...vacations.flatMap((place) => Number.isSafeInteger(place.supplierId) && Number(place.supplierId) > 0 ? [{ placeId: `vacation-${place.supplierId}`, placeName: place.name || `נופש ${place.supplierId}`, world: "vacations" }] : []),
+    ...events.flatMap((place) => Number.isSafeInteger(place.supplierId) && Number(place.supplierId) > 0 ? [{ placeId: `event-${place.supplierId}`, placeName: place.name || `אירוע ${place.supplierId}`, world: "events" }] : []),
+    ...rooms.flatMap((place) => {
+      const supplierId = Number(place.supplierId || (typeof place.id === "string" ? place.id.match(/\d+$/)?.[0] : 0));
+      return Number.isSafeInteger(supplierId) && supplierId > 0 ? [{ placeId: `hourly-${supplierId}`, placeName: place.name || place.title || `חדר ${supplierId}`, world: "rooms" }] : [];
+    }),
+    ...spa.flatMap((place) => {
+      const supplierId = Number(place.supplierId || place.id);
+      return Number.isSafeInteger(supplierId) && supplierId > 0 ? [{ placeId: `spa-${supplierId}`, placeName: place.title || place.name || `ספא ${supplierId}`, world: "spa" }] : [];
+    }),
+  ];
+}
 
 export async function GET(request: Request) {
   const session = await authorizedAdminSession(request).catch(() => null);
@@ -17,8 +41,14 @@ export async function GET(request: Request) {
     const from = url.searchParams.get("from") || "";
     const till = url.searchParams.get("till") || "";
     if (!target) return Response.json({ error: "conversion_not_supported" }, { status: 400, headers });
+    const source = url.searchParams.get("source");
+    const converted = url.searchParams.get("converted");
+    const includeContacts = url.searchParams.get("details") === "1";
+    if (source !== null && source !== "whatsapp" && source !== "maskyoo" && source !== "form") return Response.json({ error: "invalid_request" }, { status: 400, headers });
+    if (converted !== null && converted !== "yes" && converted !== "no") return Response.json({ error: "invalid_request" }, { status: 400, headers });
     try {
-      const conversions = await fetchViiConversions({ ...target, from, till, token: await supplierToken(), sectionOnly: true });
+      const conversions = await fetchViiConversions({ ...target, from, till, token: await supplierToken(), sectionOnly: true,
+        source: source || undefined, converted: converted || undefined, includeContacts });
       return Response.json({ conversions }, { headers });
     } catch (error) {
       if (error instanceof ViiConversionsError) {
@@ -39,8 +69,7 @@ export async function GET(request: Request) {
   const since = `${from}T00:00:00.000Z`;
   const until = nextDay(till);
   try {
-    const analyticsDb = await businessAnalyticsDatabase();
-    const operationsDb = await operationsDatabase();
+    const [analyticsDb, operationsDb, inventory] = await Promise.all([businessAnalyticsDatabase(), operationsDatabase(), supportedInventory()]);
     const analytics = basis === "created" ? await analyticsDb.prepare(`SELECT place_id AS placeId, MAX(place_name) AS placeName, world,
       SUM(CASE WHEN name = 'impression' THEN 1 ELSE 0 END) AS impressions,
       SUM(CASE WHEN name = 'page_view' THEN 1 ELSE 0 END) AS pageViews,
@@ -62,6 +91,7 @@ export async function GET(request: Request) {
       FROM guest_reviews WHERE created_at >= ? AND created_at < ? GROUP BY subject_id`).bind(since, until).all<{ placeId: string; reviews: number }>() : { results: [] as { placeId: string; reviews: number }[] };
     const rows = new Map<string, Record<string, unknown>>();
     const base = { impressions: 0, pageViews: 0, phoneReveals: 0, phoneClicks: 0, whatsappLeads: 0, whatsappHandoffs: 0, bookingRequests: 0, uniqueBrowsers: 0, viiBookings: 0, reviews: 0 };
+    for (const row of inventory) rows.set(`${row.world}:${row.placeId}`, { ...base, ...row });
     for (const row of analytics.results) rows.set(`${row.world}:${row.placeId}`, { ...base, ...row });
     for (const row of bookings.results) { const key = `${row.world}:${row.placeId}`; rows.set(key, { ...base, ...(rows.get(key) || {}), ...row }); }
     const reviewMap = new Map(reviews.results.map((row) => [row.placeId, Number(row.reviews || 0)]));

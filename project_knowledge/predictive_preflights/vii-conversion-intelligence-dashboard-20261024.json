@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-conversion-intelligence-dashboard-20261024",
+  "project": "VII",
+  "task_type": "authenticated administration reporting and supplier integration",
+  "requested_outcome": "Turn the existing aggregate BizOnline conversion report into a complete authorized operations dashboard that shows Maskyoo calls, WhatsApp contacts, matched Biz orders, revenue, world and business breakdowns, and date-range filtering without confusing clicks with completed outcomes.",
+  "natural_destination": "The authenticated VII business-performance administration surface and its private server API.",
+  "authorization_boundary": "Local implementation, tests and a frozen preview candidate are authorized. Production publication, real customer contact, supplier writes, bookings, payments and destructive data changes require separate explicit authorization.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-ANALYTICS-001","reason":"The request is about trustworthy calls, messages, orders and revenue.","acceptance_impact":"Every metric must name its source, formula, period, timezone, uniqueness and intent-versus-outcome meaning."},
+    {"lesson_id":"ADIR-ADMIN-001","reason":"The result is a daily operational administration product.","acceptance_impact":"Filters, drill-down, loading, failure, reload, export and authorization must work at the natural destination."},
+    {"lesson_id":"ADIR-QA-001","reason":"A partial aggregate view would be rejected as incomplete.","acceptance_impact":"The full journey from supplier contact through matched order and grouped totals requires evidence."},
+    {"lesson_id":"ADIR-CONTROL-001","reason":"Every filter, row and drill-down promises an action.","acceptance_impact":"Visible controls need real loading, success, empty, error and disabled behavior."},
+    {"lesson_id":"VII-PROJECT-001","reason":"VII worlds and BizOnline supplier identities have project-specific semantics.","acceptance_impact":"Use the documented vacations, events and rooms conversion contracts and preserve unsupported-world truthfulness."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"The dashboard still shows only totals and Adir cannot inspect the actual Maskyoo phone that did or did not convert.","prevention":"Add a protected minimized contact drill-down with phone, call state, duration, first matched order, delay and later order IDs.","acceptance_check":"A selected business returns and renders each supplier contact with explicit converted and not-converted states."},
+    {"rejection":"A click is counted as a call, WhatsApp conversation or order.","prevention":"Keep VII click metrics separate from supplier contacts and Biz orders, with explicit labels and formulas.","acceptance_check":"Dashboard cards and tables distinguish click, contact, converted contact, distinct order and revenue."},
+    {"rejection":"The totals include only businesses that happened to have VII activity rows.","prevention":"Merge the complete public catalog inventory into the report before analytics and booking facts.","acceptance_check":"Supported catalog businesses remain selectable even with zero local VII activity."},
+    {"rejection":"All-business loading overloads BizOnline or repeats hundreds of calls on every visit.","prevention":"Keep supplier requests bounded, user-controlled and progressively accumulated; never issue unbounded fan-out.","acceptance_check":"Batch size is capped, cancellation works, progress is visible and previous results remain usable on a partial failure."},
+    {"rejection":"Raw upstream data or the supplier token leaks to an unauthorized browser.","prevention":"Call BizOnline server-to-server, require an authorized admin session, validate the schema and return only the minimized fields required by the report.","acceptance_check":"Anonymous calls return 403 and responses never include token, e-mail or free-text message fields."},
+    {"rejection":"Date and world filters change the screen but not the data and export.","prevention":"Use one filter contract for API queries, totals, breakdowns, detail and CSV.","acceptance_check":"Today, month and custom from/till changes produce matching server requests, visible totals and exports."}
+  ],
+  "affected_family": [
+    "BizOnline conversions adapter",
+    "authorized business-performance API",
+    "business-performance dashboard",
+    "vacations, events and hourly rooms",
+    "Maskyoo, WhatsApp and form contacts",
+    "Biz orders, revenue and conversion delay",
+    "VII phone, WhatsApp and booking intent metrics",
+    "date, world, business and source filters",
+    "desktop and mobile administration layouts",
+    "loading, partial, empty, failure, reload and export states"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label":"Supplier conversion response and matching contract","source":"https://bizonline.co.il/api/ai/vii/Vii-Frontend.html#conversions retrieved 2026-10-24"},
+      {"label":"Existing protected aggregate report","source":"app/admin/business-performance/page.tsx and app/api/admin/business-performance/route.ts"},
+      {"label":"VII product truth","source":"project_knowledge/VII_PLATFORM_MASTER_PLAN.md and VII_FEEDBACK_STANDARD.md"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the adapter validates and minimizes detailed contacts and the protected API returns a fixture, before the dashboard redesign.",
+    "checks": ["Maskyoo answered and unanswered calls validate","matched and unmatched orders remain distinct","PII is minimized","unauthorized access remains forbidden"],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can two contacts that lead to one order inflate revenue?",
+      "Can an unmatched click appear as a call or message?",
+      "Can a malformed supplier contact or order poison the whole report?",
+      "Can an unauthorized user retrieve phone-level rows?",
+      "Can a stopped or partially failed batch erase already loaded truthful totals?",
+      "Do today, month and custom periods agree between cards, breakdowns, detail and CSV?"
+    ],
+    "natural_destination_evidence": "Authenticated preview screenshots and API probes for aggregate, source and contact-level views.",
+    "affected_family_evidence": "Focused adapter/API/UI tests, full repository regression and desktop/mobile administration inspection."
+  },
+  "effectiveness": {
+    "baseline": "The current report validates and displays aggregate supplier summaries but discards contacts[], selects only businesses present in local VII activity rows, and has no phone-level Maskyoo-to-order investigation table.",
+    "measurements": ["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],
+    "target": "One truthful operations dashboard exposes period and world totals plus authorized phone-level evidence without unbounded supplier fan-out or PII leakage."
+  },
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

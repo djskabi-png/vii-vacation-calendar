@@ -43,7 +43,7 @@ test("overview is an operational command center with truthful funnel labels", as
 
 test("business performance provides filters, explicit funnel ratios and local export", async () => {
   const [page, route] = await Promise.all([read("app/admin/business-performance/page.tsx"), read("app/api/admin/business-performance/route.ts")]);
-  for (const behavior of ["exportCsv", "כניסה מתוך חשיפה", "פעולה מתוך כניסה", "מעברים ל-WhatsApp", "אינם מציגים פתיחת WhatsApp כשיחה שנשלחה", "הזמנות מ־VII", "הזמנות מ־Biz", "תאריך הגעה", "משפחת עסקים", "businessReportScopes", "canonicalBusinessReportScope", "conversionFamilySupported", "אין עסקים עם נתוני VII במשפחה ובתקופה שנבחרו", "מקור ההמרות של Biz תומך כרגע"]) assert.match(page, new RegExp(behavior));
+  for (const behavior of ["exportCsv", "כניסה מתוך חשיפה", "פעולה מתוך כניסה", "מעברים ל-WhatsApp", "ואינן מופיעות כאן כשיחה", "הזמנות מ־VII", "הזמנות מ־Biz", "תאריך הגעה", "משפחת עסקים", "businessReportScopes", "canonicalBusinessReportScope", "conversionFamilySupported", "אין עסקים עם נתוני VII במשפחה ובתקופה שנבחרו", "מקור ההמרות של Biz תומך כרגע", "כל שיחות מסקיו", "כל פניות WhatsApp", "תמונת מצב לתקופה", "פניות והזמנות לפי עסק", "נמצאה הזמנה", "לא נמצאה הזמנה", "פרטי דואר והודעות חופשיות אינם מועברים לדפדפן"]) assert.match(page, new RegExp(behavior));
   assert.match(page, /data-label="עסק"/);
   assert.match(page, /text\/csv/);
   assert.match(route, /upstreamStatus:\s*error\.status/);
@@ -54,8 +54,17 @@ test("business performance provides filters, explicit funnel ratios and local ex
   assert.match(route, /body\.targets\.length > 4/);
   assert.match(route, /Promise\.all\(targets\.map/);
   assert.match(route, /sectionOnly: true/);
+  assert.match(route, /includeContacts/);
+  assert.match(route, /supportedInventory/);
+  assert.match(route, /publicCatalogSummaries/);
+  assert.match(route, /publicCatalogSummaries<InventoryPlace>\("spa"\)/);
+  assert.match(page, /useState\(today\)/);
+  assert.match(page, /לא נתמך ב־Biz/);
+  assert.match(page, /details: "1"/);
+  assert.match(page, /params\.set\("source", contactSource\)/);
+  assert.match(page, /params\.set\("converted", contactConverted\)/);
   assert.doesNotMatch(route, /contacts:\s*conversions\.contacts/);
-  assert.match(page, /נתוני Biz:/);
+  assert.match(page, /נתוני Biz מאומתים/);
   assert.match(page, /startBizBatch/);
   assert.match(page, /stopBizBatch/);
   assert.match(page, /לא נטען/);

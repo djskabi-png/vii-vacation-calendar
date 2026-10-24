@@ -9,6 +9,17 @@ function fixture() {
     contacts: [{ name: "must not leave the server", phone: "050-0000000", email: "private@example.com" }] };
 }
 
+function detailedFixture() {
+  const base = fixture();
+  return { ...base, count: 2, contacts: [
+    { source: "maskyoo", id: 11, domainID: 6, time: "2026-10-01 09:00:00", name: "", phone: "050-2222222", email: null,
+      details: { status: "ANSWER", duration: 95 }, order: null, delay: null, moreOrders: [] },
+    { source: "whatsapp", id: 12, domainID: 6, time: "2026-10-01 10:00:00", name: "Dana", phone: "050-1111111", email: "private@example.com",
+      details: { date: "2026-10-21", guests: 2, note: "must not leave the server" },
+      order: { orderID: 101, orderIDBySite: "A-17", created: "2026-10-02 12:00:00", customerName: "Dana", price: 1000 }, delay: 93600, moreOrders: [102] },
+  ] };
+}
+
 test("conversion target accepts only supported world and numeric supplier slug", () => {
   assert.deepEqual(conversionTarget("vacation-2566", "vacation"), { world: "vacations", siteID: 2566 });
   assert.deepEqual(conversionTarget("event-42", "events"), { world: "events", siteID: 42 });
@@ -27,6 +38,25 @@ test("server conversion adapter authenticates, scopes to section and strips cont
   assert.equal(calls[0].init.redirect, undefined);
   assert.equal("contacts" in result, false);
   assert.equal(result.summary.all.orders, 3);
+});
+
+test("authorized detail mode returns minimized contact and order evidence", async () => {
+  const result = await fetchViiConversions({ world: "vacations", siteID: 2566, from: "2026-10-01", till: "2026-10-22", token: "server-secret", sectionOnly: true, includeContacts: true,
+    fetchImpl: async () => Response.json(detailedFixture()) });
+  assert.equal(result.contacts.length, 2);
+  assert.deepEqual(result.contacts[0], { source: "maskyoo", id: 11, domainID: 6, time: "2026-10-01 09:00:00", phone: "050-2222222", details: { status: "ANSWER", duration: 95 }, order: null, delay: null, moreOrders: [] });
+  assert.equal(result.contacts[1].order.price, 1000);
+  assert.deepEqual(result.contacts[1].moreOrders, ["102"]);
+  assert.equal("email" in result.contacts[1], false);
+  assert.equal("name" in result.contacts[1], false);
+  assert.equal("customerName" in result.contacts[1].order, false);
+  assert.equal("note" in result.contacts[1].details, false);
+});
+
+test("detail mode rejects malformed contacts instead of leaking raw provider rows", async () => {
+  await assert.rejects(fetchViiConversions({ world: "vacations", siteID: 2566, from: "2026-10-01", till: "2026-10-22", token: "secret", includeContacts: true,
+    fetchImpl: async () => Response.json({ ...detailedFixture(), contacts: [{ source: "maskyoo", id: 1, phone: "050-0000000", details: { status: "ANSWER", duration: -1 } }] }) }),
+  (error) => error instanceof ViiConversionsError && error.code === "invalid_response");
 });
 
 test("invalid ranges and malformed provider data fail closed without token disclosure", async () => {
