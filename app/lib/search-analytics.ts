@@ -207,7 +207,10 @@ export async function readSearchAnalytics(db: D1Database, days: number) {
       COUNT(*) AS searches, COUNT(DISTINCT e.session_id) AS uniqueSessions,
       SUM(e.zero_result) AS zeroResults, MAX(e.created_at) AS lastSeenAt, o.status
       FROM vii_search_demand_events e JOIN vii_search_page_opportunities o ON o.id = e.opportunity_id
-      WHERE e.created_at >= ? AND e.internal = 0 GROUP BY e.opportunity_id ORDER BY searches DESC, lastSeenAt DESC LIMIT 12`).bind(since).all<Record<string, unknown>>(),
+      WHERE e.created_at >= ? AND e.internal = 0
+      GROUP BY e.opportunity_id, o.suggested_title, e.world, e.location, o.filters_json,
+        o.source_path, o.latest_result_count, o.status
+      ORDER BY searches DESC, lastSeenAt DESC LIMIT 12`).bind(since).all<Record<string, unknown>>(),
   ]);
   const hydrateRecent = (rows: Array<Record<string, unknown>>) => rows.map((row) => {
     const { filtersJson, ...rest } = row;

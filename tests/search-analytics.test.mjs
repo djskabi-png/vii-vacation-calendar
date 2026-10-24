@@ -90,6 +90,11 @@ test("search intelligence returns recent public and internal rows without mixing
   assert.equal(report.recentInternal[0].world, "spa");
 });
 
+test("top intent analytics query groups every non-aggregate field for PostgreSQL", () => {
+  const source = fs.readFileSync(new URL("../app/lib/search-analytics.ts", import.meta.url), "utf8");
+  assert.match(source, /GROUP BY e\.opportunity_id, o\.suggested_title, e\.world, e\.location, o\.filters_json,\s*o\.source_path, o\.latest_result_count, o\.status/);
+});
+
 test("all four commercial result families emit detailed demand events", () => {
   const files = [
     fs.readFileSync(new URL("../app/search/page.tsx", import.meta.url), "utf8"),
