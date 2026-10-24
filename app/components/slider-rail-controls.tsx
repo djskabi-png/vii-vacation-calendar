@@ -29,13 +29,9 @@ export function useSliderRailBoundaries({ railId, railRef, itemSelector = ":scop
       return;
     }
 
-    const bounds = rail.getBoundingClientRect();
-    const first = items[0].getBoundingClientRect();
-    const last = items[items.length - 1].getBoundingClientRect();
-    const rtl = getComputedStyle(rail).direction === "rtl";
-    const nextState = rtl
-      ? { previous: first.right > bounds.right + 2, next: last.left < bounds.left - 2 }
-      : { previous: first.left < bounds.left - 2, next: last.right > bounds.right + 2 };
+    const maxScroll = Math.max(0, rail.scrollWidth - rail.clientWidth);
+    const progress = Math.min(maxScroll, Math.abs(rail.scrollLeft));
+    const nextState = { previous: progress > 2, next: progress < maxScroll - 2 };
 
     setState((current) => current.previous === nextState.previous && current.next === nextState.next ? current : nextState);
   }, [disabled, itemSelector, resolveRail]);
@@ -94,7 +90,7 @@ export function SliderRailControls({
     const rail = railRef?.current || (railId ? document.getElementById(railId) : null);
     if (!rail || disabled) return;
     const frame = window.requestAnimationFrame(() => {
-      rail.scrollTo({ left: 0, behavior: "instant" });
+      rail.scrollTo({ left: 0, behavior: "auto" });
       state.update();
     });
     return () => window.cancelAnimationFrame(frame);

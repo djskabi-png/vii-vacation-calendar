@@ -16,7 +16,8 @@ test("events first paint is translated on the server and keeps locale in discove
   assert.match(events, /description: translate\(sourcePresentation\.description\)/);
   assert.match(events, /quickSearches: sourcePresentation\.quickSearches\.map/);
   assert.match(events, /localizedPath\(item\.href, language\)/);
-  assert.match(events, /name: translate\(place\.name\)/);
+  assert.match(events, /name: localizePlace\(place\)\.name/);
+  assert.match(events, /localizedBusinessText\(place\.name, language, translate/);
 });
 
 test("context-free booking routes recover into a useful world chooser", () => {

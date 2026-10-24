@@ -193,13 +193,15 @@ h1, h2, h3, h4 { letter-spacing: 0; }
 }
 .stay-card__gallery-arrow svg { width: 21px; height: 21px; }
 
-/* The long lower half of the homepage need not render before it approaches the viewport. */
+/* Keep the complete homepage layout measurable and stable before it enters the viewport.
+   Media remains lazy-loaded, so this avoids blank/overlapping sections without eagerly
+   downloading every image. */
 .home-worlds,
 .home-magazine,
 .home-trails,
 .home-corporate-gift {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 540px;
+  content-visibility: visible;
+  contain-intrinsic-size: none;
 }
 
 @media (max-width: 820px) {

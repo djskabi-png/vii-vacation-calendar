@@ -25,6 +25,7 @@ import { useManagedGeography } from "./use-managed-geography";
 import { destinationInventory, matchingDestinations, destinationChildren, destinationPage, recentDestinations, QUICK_DESTINATIONS, DESTINATION_PAGE_SIZE } from "../lib/destination-picker";
 import { destinationPickerCopy } from "../i18n/destination-picker-copy";
 import { nearestSearchLocation } from "../lib/nearby-search-location.ts";
+import { latinBusinessAlias, localizedBusinessText } from "../i18n/localized-business-content";
 
 type SpaAudience = "single" | "couple" | "group" | "day-pass";
 
@@ -607,7 +608,7 @@ export function SearchBox({ mode = "vacation", compact = false, showWorlds = tru
                 {visibleDestinations.length > 0 ? <h3>{translate("אזורים ויישובים")}</h3> : null}
                 {visibleDestinations.map((place) => <button type="button" key={place.key} className={place.value === locationValue ? "selected" : ""} onClick={() => chooseLocation(place.value)}><PinIcon /><span>{translate(place.value)}<small>{destinationKind(place.level)}</small></span></button>)}
                 {visibleNamedPlaces.length > 0 ? <h3>{translate("מקומות מתאימים")}</h3> : null}
-                {visibleNamedPlaces.map((place) => <Link key={`${mode}-${place.id}`} className="location-place-result" href={localizedPath(place.href, language)}><PinIcon /><span><strong>{translate(place.name)}</strong><small>{translate(place.kind)} · {translate(place.location)}</small></span></Link>)}
+                {visibleNamedPlaces.map((place) => { const name = localizedBusinessText(place.name, language, translate, latinBusinessAlias(place.name) || ({ he: "מקום", en: "Place", ru: "Место", fr: "Lieu" }[language])); const kind = localizedBusinessText(place.kind, language, translate, ({ he: "מקום", en: "Place", ru: "Место", fr: "Lieu" }[language])); const location = localizedBusinessText(place.location, language, translate, latinBusinessAlias(place.location) || ({ he: "ישראל", en: "Israel", ru: "Израиль", fr: "Israël" }[language])); return <Link key={`${mode}-${place.id}`} className="location-place-result" href={localizedPath(place.href, language)}><PinIcon /><span><strong>{name}</strong><small>{kind} · {location}</small></span></Link>; })}
                 {placeInventoryError ? <p role="alert">{translate("לא ניתן לטעון את המקומות כרגע.")}</p> : null}
                 {!placeInventoryLoading && !placeInventoryError && visibleDestinations.length === 0 && visibleNamedPlaces.length === 0 ? <p>{translate("לא מצאנו יעד או מקום מתאים.")}</p> : null}
               </div>

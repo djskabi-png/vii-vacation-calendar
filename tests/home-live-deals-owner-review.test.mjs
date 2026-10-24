@@ -29,8 +29,8 @@ test("period navigation and carousel controls reflect the active context and rea
   assert.match(component, /HomeSliderControls/);
   assert.match(component, /const sectionId = scope \? `regional-vacation-\$\{scope.key\}` : mode === "holidays" \? "home-holiday-deals" : "home-live-deals"/);
   assert.match(component, /railId=\{`\$\{sectionId\}-rail`\}/);
-  assert.match(controls, /first\.right > bounds\.right/);
-  assert.match(controls, /last\.left < bounds\.left/);
+  assert.match(controls, /rail\.scrollWidth - rail\.clientWidth/);
+  assert.match(controls, /Math\.abs\(rail\.scrollLeft\)/);
   assert.match(controls, /!state\.previous/);
   assert.match(controls, /!state\.next/);
 });

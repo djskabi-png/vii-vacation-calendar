@@ -9,10 +9,10 @@ const discovery = readFileSync(new URL("../app/components/home-discovery-section
 const deals = readFileSync(new URL("../app/components/home-live-deals.tsx", import.meta.url), "utf8");
 const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
 
-test("homepage rails share one geometry-aware boundary control", () => {
+test("homepage rails share one direction-safe scroll boundary control", () => {
   assert.match(controls, /<SliderRailControls/);
-  assert.match(sharedControls, /first\.right > bounds\.right \+ 2/);
-  assert.match(sharedControls, /last\.left < bounds\.left - 2/);
+  assert.match(sharedControls, /maxScroll = Math\.max\(0, rail\.scrollWidth - rail\.clientWidth\)/);
+  assert.match(sharedControls, /Math\.abs\(rail\.scrollLeft\)/);
   assert.match(sharedControls, /disabled=\{disabled \|\| !state\.previous\}/);
   assert.match(sharedControls, /disabled=\{disabled \|\| !state\.next\}/);
   assert.match(sharedControls, /aria-controls=\{disabled \? undefined : railId\}/);
