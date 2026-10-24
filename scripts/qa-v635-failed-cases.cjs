@@ -17,6 +17,7 @@ const viewports = [
   { id: "desktop-1365", width: 1365, height: 768 },
 ];
 const report = { baseUrl, startedAt: new Date().toISOString(), cases: [] };
+const caseFilter = process.env.QA_CASE_FILTER ? new RegExp(process.env.QA_CASE_FILTER) : null;
 const localized = (path, locale) => locale === "he" ? path : `/${locale}${path === "/" ? "" : path}`;
 const expectedCount = {
   he: /ספק(?:ים| אחד)/,
@@ -26,6 +27,7 @@ const expectedCount = {
 };
 
 async function observed(id, fn) {
+  if (caseFilter && !caseFilter.test(id)) return;
   const started = Date.now();
   try {
     const evidence = await fn();
@@ -65,16 +67,22 @@ async function clickTopmost(page, selector) {
 
 async function verifyMap(page) {
   await page.waitForSelector(".mobile-map-fab", { state: "visible", timeout: 20_000 });
-  await page.locator(".mobile-map-fab:visible").first().click();
+  let toggle = page.locator(".mobile-map-fab:visible").first();
+  await toggle.hover({ timeout: 10_000 });
+  await page.waitForTimeout(350);
+  toggle = page.locator(".mobile-map-fab:visible").first();
+  await toggle.click({ timeout: 10_000 });
   await page.waitForSelector(".listing-map.is-ready", { state: "visible", timeout: 25_000 });
   await page.waitForSelector(".vii-map-marker-wrap", { state: "visible", timeout: 20_000 });
-  let selected = await clickTopmost(page, ".vii-map-marker-wrap:not(.is-cluster)");
-  for (let attempt = 0; !selected && attempt < 3; attempt += 1) {
-    if (!await clickTopmost(page, ".vii-map-marker-wrap.is-cluster")) break;
-    await page.waitForTimeout(700);
-    selected = await clickTopmost(page, ".vii-map-marker-wrap:not(.is-cluster)");
+  for (let attempt = 0; attempt < 6; attempt += 1) {
+    const selected = await clickTopmost(page, ".vii-map-marker-wrap:not(.is-cluster)");
+    if (selected) {
+      await page.waitForTimeout(700);
+      if (await page.locator(".map-selection-card:visible").count()) break;
+    }
+    const expanded = await clickTopmost(page, ".vii-map-marker-wrap.is-cluster");
+    await page.waitForTimeout(expanded ? 900 : 500);
   }
-  if (!selected) throw new Error("no_topmost_selectable_marker");
   await page.waitForSelector(".map-selection-card", { state: "visible", timeout: 12_000 });
   return { markers: await page.locator(".vii-map-marker-wrap").count(), selectedCards: await page.locator(".map-selection-card").count() };
 }

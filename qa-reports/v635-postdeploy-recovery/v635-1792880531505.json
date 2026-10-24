@@ -1,0 +1,40 @@
+{
+  "baseUrl": "https://vii.spaplus.co",
+  "startedAt": "2026-10-24T22:21:48.573Z",
+  "cases": [
+    {
+      "id": "map-he-low-height",
+      "status": "passed",
+      "durationMs": 9017,
+      "evidence": {
+        "markers": 425,
+        "selectedCards": 1
+      }
+    },
+    {
+      "id": "map-ru-low-height",
+      "status": "passed",
+      "durationMs": 7065,
+      "evidence": {
+        "markers": 425,
+        "selectedCards": 1
+      }
+    },
+    {
+      "id": "map-en-events-mobile",
+      "status": "passed",
+      "durationMs": 6381,
+      "evidence": {
+        "markers": 14,
+        "selectedCards": 1
+      }
+    }
+  ],
+  "finishedAt": "2026-10-24T22:22:11.505Z",
+  "summary": {
+    "total": 3,
+    "passed": 3,
+    "failed": 0
+  },
+  "status": "passed"
+}

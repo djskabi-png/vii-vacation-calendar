@@ -1,0 +1,36 @@
+{
+  "release": "v634",
+  "publishedAtIsrael": "2026-10-25T01:14:46+03:00",
+  "status": "succeeded",
+  "versionId": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_11086d599b3081919d1af1c8c7e80729",
+  "deploymentId": "appgdep_6add2c69665c8191aede2dba5100bcb7",
+  "sourceCommit": "093e41e41355feb8438b7c01176c98911ffe14bc",
+  "managedCommit": "84d97431cdb71a131597440f8daa19b2a76129c0",
+  "tree": "f971f8461a4608cdba04464a3b9ed26bb11d8628",
+  "environmentRevision": 29,
+  "url": "https://vii.spaplus.co/",
+  "rollback": {
+    "release": "v633",
+    "versionId": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_a419c14affa4819184cff68fed2045fc",
+    "deploymentId": "appgdep_6add18b70db08191acec4db927d0516a"
+  },
+  "predeploy": {
+    "focusedMatrix": "90/90 passed",
+    "regression": "1586/1586 passed",
+    "build": "vinext five-stage production build passed"
+  },
+  "postdeploy": {
+    "broadMatrix": "87/90 passed on first public run",
+    "firstRunReport": "qa-reports/v635-postdeploy/v635-1792880443415.json",
+    "initialFailures": ["map-he-low-height", "map-ru-low-height", "map-en-events-mobile"],
+    "diagnosis": "Map product loaded and selected correctly; public progressive re-clustering moved or covered the captured marker while the QA click was in flight.",
+    "diagnosticEvidence": [
+      "qa-reports/v635-postdeploy/map-low-height-diagnosis.json",
+      "qa-reports/v635-postdeploy/map-en-events-mobile-diagnosis.json"
+    ],
+    "harnessRepair": "Wait for control hydration, re-resolve the toggle, click only the current topmost marker, expand topmost clusters when necessary, and retry selection after re-clustering.",
+    "recoveredCases": "3/3 passed",
+    "recoveryReport": "qa-reports/v635-postdeploy-recovery/v635-1792880531505.json",
+    "combinedResult": "90/90 public cases verified"
+  }
+}

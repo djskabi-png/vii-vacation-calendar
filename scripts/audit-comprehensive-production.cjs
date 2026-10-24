@@ -262,7 +262,8 @@ async function verifyResultsMap(page) {
   // resolve it again immediately before each action.
   await page.waitForSelector(".mobile-map-fab", { state: "visible", timeout: 20_000 });
   let toggle = page.locator(".mobile-map-fab:visible").first();
-  await toggle.scrollIntoViewIfNeeded();
+  await toggle.hover({ timeout: 10_000 });
+  await page.waitForTimeout(350);
   toggle = page.locator(".mobile-map-fab:visible").first();
   await toggle.click({ timeout: 10_000 });
   await page.waitForSelector(".listing-map", { state: "visible", timeout: 20_000 });
@@ -283,16 +284,17 @@ async function verifyResultsMap(page) {
     const box = element.getBoundingClientRect();
     return { index, x: box.left + box.width / 2, y: box.top + box.height / 2 };
   });
-  let markerBox = await clickableBox(".vii-map-marker-wrap:not(.is-cluster)");
-  for (let attempt = 0; !markerBox && attempt < 3; attempt += 1) {
+  for (let attempt = 0; attempt < 6; attempt += 1) {
+    const markerBox = await clickableBox(".vii-map-marker-wrap:not(.is-cluster)");
+    if (markerBox) {
+      await page.mouse.click(markerBox.x, markerBox.y);
+      await page.waitForTimeout(700);
+      if (await page.locator(".map-selection-card:visible").count()) break;
+    }
     const clusterBox = await clickableBox(".vii-map-marker-wrap.is-cluster");
-    if (!clusterBox) break;
-    await page.locator(".vii-map-marker-wrap.is-cluster").nth(clusterBox.index).click({ timeout: 5_000 });
-    await page.waitForTimeout(650);
-    markerBox = await clickableBox(".vii-map-marker-wrap:not(.is-cluster)");
+    if (clusterBox) await page.mouse.click(clusterBox.x, clusterBox.y);
+    await page.waitForTimeout(clusterBox ? 900 : 500);
   }
-  if (!markerBox) throw new Error("map_selectable_marker_missing");
-  await page.mouse.click(markerBox.x, markerBox.y);
   await page.waitForSelector(".map-selection-card", { state: "visible", timeout: 10_000 });
   state.selectedCards = await page.locator(".map-selection-card").count();
   const close = page.locator(".map-mobile-close:visible").first();

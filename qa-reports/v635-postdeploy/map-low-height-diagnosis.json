@@ -1,0 +1,108 @@
+{
+  "baseUrl": "https://vii.spaplus.co",
+  "generatedAt": "2026-10-24T22:20:57.184Z",
+  "results": [
+    {
+      "viewportId": "low-height",
+      "viewport": {
+        "width": 390,
+        "height": 620
+      },
+      "world": "vacations",
+      "path": "/search?location=%D7%9B%D7%9C%20%D7%94%D7%90%D7%A8%D7%A5",
+      "startedAt": "2026-10-24T22:20:53.270Z",
+      "timeline": [
+        {
+          "second": 1,
+          "url": "https://vii.spaplus.co/search?location=%D7%9B%D7%9C%20%D7%94%D7%90%D7%A8%D7%A5",
+          "cards": 60,
+          "toggleCount": 1,
+          "visibleToggles": 0,
+          "pressed": "true",
+          "deferredLoaders": 0,
+          "shells": 1,
+          "maps": 1,
+          "readyMaps": 1,
+          "tiles": 9,
+          "loadedTiles": 9,
+          "markers": 3,
+          "selectableMarkers": 1,
+          "selectedCards": 0,
+          "mapExperience": 1,
+          "bodyMapVisible": true
+        }
+      ],
+      "consoleErrors": [],
+      "failedRequests": [],
+      "statusCode": 200,
+      "before": {
+        "url": "https://vii.spaplus.co/search?location=%D7%9B%D7%9C%20%D7%94%D7%90%D7%A8%D7%A5",
+        "cards": 18,
+        "toggleCount": 1,
+        "visibleToggles": 1,
+        "pressed": "false",
+        "deferredLoaders": 0,
+        "shells": 0,
+        "maps": 0,
+        "readyMaps": 0,
+        "tiles": 0,
+        "loadedTiles": 0,
+        "markers": 0,
+        "selectableMarkers": 0,
+        "selectedCards": 0,
+        "mapExperience": 0,
+        "bodyMapVisible": true
+      },
+      "toggleBox": {
+        "left": 153.15625,
+        "top": 558,
+        "width": 83.6875,
+        "height": 44
+      },
+      "afterClick": {
+        "url": "https://vii.spaplus.co/search?location=%D7%9B%D7%9C%20%D7%94%D7%90%D7%A8%D7%A5",
+        "cards": 60,
+        "toggleCount": 1,
+        "visibleToggles": 0,
+        "pressed": "true",
+        "deferredLoaders": 1,
+        "shells": 0,
+        "maps": 0,
+        "readyMaps": 0,
+        "tiles": 0,
+        "loadedTiles": 0,
+        "markers": 0,
+        "selectableMarkers": 0,
+        "selectedCards": 0,
+        "mapExperience": 0,
+        "bodyMapVisible": true
+      },
+      "markerBox": {
+        "left": 163,
+        "top": 455,
+        "width": 54,
+        "height": 58
+      },
+      "final": {
+        "url": "https://vii.spaplus.co/search?location=%D7%9B%D7%9C%20%D7%94%D7%90%D7%A8%D7%A5",
+        "cards": 60,
+        "toggleCount": 1,
+        "visibleToggles": 0,
+        "pressed": "true",
+        "deferredLoaders": 0,
+        "shells": 1,
+        "maps": 1,
+        "readyMaps": 1,
+        "tiles": 9,
+        "loadedTiles": 9,
+        "markers": 3,
+        "selectableMarkers": 1,
+        "selectedCards": 1,
+        "mapExperience": 1,
+        "bodyMapVisible": true
+      },
+      "status": "passed",
+      "finishedAt": "2026-10-24T22:20:57.049Z"
+    }
+  ]
+}

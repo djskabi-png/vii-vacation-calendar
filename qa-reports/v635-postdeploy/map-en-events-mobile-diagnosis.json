@@ -1,0 +1,121 @@
+{
+  "baseUrl": "https://vii.spaplus.co/en",
+  "generatedAt": "2026-10-24T22:21:24.236Z",
+  "results": [
+    {
+      "viewportId": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "world": "events",
+      "path": "/events/search?location=%D7%9B%D7%9C%20%D7%94%D7%90%D7%A8%D7%A5",
+      "startedAt": "2026-10-24T22:21:07.811Z",
+      "timeline": [
+        {
+          "second": 1,
+          "url": "https://vii.spaplus.co/en/events/search?location=%D7%9B%D7%9C%20%D7%94%D7%90%D7%A8%D7%A5",
+          "cards": 0,
+          "toggleCount": 1,
+          "visibleToggles": 0,
+          "pressed": "true",
+          "deferredLoaders": 0,
+          "shells": 1,
+          "maps": 1,
+          "readyMaps": 1,
+          "tiles": 20,
+          "loadedTiles": 20,
+          "markers": 15,
+          "selectableMarkers": 5,
+          "selectedCards": 0,
+          "mapExperience": 1,
+          "bodyMapVisible": true
+        }
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 ()",
+        "Failed to load resource: the server responded with a status of 403 ()"
+      ],
+      "failedRequests": [
+        {
+          "url": "https://vii.spaplus.co/api/map-snapshot?world=events&id=event-779",
+          "reason": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://vii.spaplus.co/api/analytics/search",
+          "reason": "net::ERR_ABORTED"
+        }
+      ],
+      "statusCode": 200,
+      "before": {
+        "url": "https://vii.spaplus.co/en/events/search?location=%D7%9B%D7%9C%20%D7%94%D7%90%D7%A8%D7%A5",
+        "cards": 0,
+        "toggleCount": 1,
+        "visibleToggles": 1,
+        "pressed": "false",
+        "deferredLoaders": 0,
+        "shells": 0,
+        "maps": 0,
+        "readyMaps": 0,
+        "tiles": 0,
+        "loadedTiles": 0,
+        "markers": 0,
+        "selectableMarkers": 0,
+        "selectedCards": 0,
+        "mapExperience": 0,
+        "bodyMapVisible": true
+      },
+      "toggleBox": {
+        "left": 153.15625,
+        "top": 782,
+        "width": 83.6875,
+        "height": 44
+      },
+      "afterClick": {
+        "url": "https://vii.spaplus.co/en/events/search?location=%D7%9B%D7%9C%20%D7%94%D7%90%D7%A8%D7%A5",
+        "cards": 0,
+        "toggleCount": 1,
+        "visibleToggles": 0,
+        "pressed": "true",
+        "deferredLoaders": 1,
+        "shells": 0,
+        "maps": 0,
+        "readyMaps": 0,
+        "tiles": 0,
+        "loadedTiles": 0,
+        "markers": 0,
+        "selectableMarkers": 0,
+        "selectedCards": 0,
+        "mapExperience": 0,
+        "bodyMapVisible": true
+      },
+      "markerBox": {
+        "left": 124,
+        "top": 105,
+        "width": 140,
+        "height": 54
+      },
+      "status": "failed",
+      "error": "locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.vii-map-marker-wrap:not(.is-cluster):visible').first()\u001b[22m\n\u001b[2m    - locator resolved to <div tabindex=\"0\" role=\"button\" aria-pressed=\"false\" data-map-place-id=\"event-486\" aria-label=\"Mtkhm Ayrvaym Alvn Vzyt\" class=\"leaflet-marker-icon vii-map-marker-wrap map-tone--events is-text leaflet-zoom-animated leaflet-interactive\">…</div>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <span class=\"vii-map-marker\">…</span> from <div tabindex=\"0\" role=\"button\" aria-pressed=\"false\" aria-label=\"12, Zoom in to grouped places\" class=\"leaflet-marker-icon vii-map-marker-wrap map-tone--events is-cluster is-text leaflet-zoom-animated leaflet-interactive\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <span class=\"vii-map-marker\">…</span> from <div tabindex=\"0\" role=\"button\" aria-pressed=\"false\" aria-label=\"12, Zoom in to grouped places\" class=\"leaflet-marker-icon vii-map-marker-wrap map-tone--events is-cluster is-text leaflet-zoom-animated leaflet-interactive\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - <span class=\"vii-map-marker\">…</span> from <div tabindex=\"0\" role=\"button\" aria-pressed=\"false\" aria-label=\"12, Zoom in to grouped places\" class=\"leaflet-marker-icon vii-map-marker-wrap map-tone--events is-cluster is-text leaflet-zoom-animated leaflet-interactive\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting 500ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m  - element was detached from the DOM, retrying\u001b[22m\n\u001b[2m    - locator resolved to <div tabindex=\"0\" role=\"button\" data-map-place-id=\"event-486\" aria-label=\"Mtkhm Ayrvaym Alvn Vzyt\" class=\"leaflet-marker-icon vii-map-marker-wrap map-tone--events is-text leaflet-zoom-animated leaflet-interactive\">…</div>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <span class=\"vii-map-marker\">…</span> from <div tabindex=\"0\" role=\"button\" aria-pressed=\"false\" aria-label=\"13, Zoom in to grouped places\" class=\"leaflet-marker-icon vii-map-marker-wrap map-tone--events is-cluster is-text leaflet-zoom-animated leaflet-interactive\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <span class=\"vii-map-marker\">…</span> from <div tabindex=\"0\" role=\"button\" aria-pressed=\"false\" aria-label=\"13, Zoom in to grouped places\" class=\"leaflet-marker-icon vii-map-marker-wrap map-tone--events is-cluster is-text leaflet-zoom-animated leaflet-interactive\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    17 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <span class=\"vii-map-marker\">…</span> from <div tabindex=\"0\" role=\"button\" aria-pressed=\"false\" aria-label=\"13, Zoom in to grouped places\" class=\"leaflet-marker-icon vii-map-marker-wrap map-tone--events is-cluster is-text leaflet-zoom-animated leaflet-interactive\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+      "final": {
+        "url": "https://vii.spaplus.co/en/events/search?location=%D7%9B%D7%9C%20%D7%94%D7%90%D7%A8%D7%A5",
+        "cards": 0,
+        "toggleCount": 1,
+        "visibleToggles": 0,
+        "pressed": "true",
+        "deferredLoaders": 0,
+        "shells": 1,
+        "maps": 1,
+        "readyMaps": 1,
+        "tiles": 20,
+        "loadedTiles": 20,
+        "markers": 15,
+        "selectableMarkers": 5,
+        "selectedCards": 0,
+        "mapExperience": 1,
+        "bodyMapVisible": true
+      },
+      "finishedAt": "2026-10-24T22:21:24.100Z"
+    }
+  ]
+}
