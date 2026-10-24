@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "task_id": "v634-platform-closure",
+  "project": "VII",
+  "task_type": "admin-seo-measurement-production-closure",
+  "requested_outcome": "Close items 2 through 5 in order: verify and complete the conversion administration, verify and complete slider and holiday administration, complete the evidence-backed legacy redirect corpus, and connect or truthfully diagnose GA4, Search Console and Tag Manager with production evidence.",
+  "natural_destination": "The authenticated VII administration, the public VII site, legacy URLs, Google measurement products and their live diagnostic surfaces.",
+  "authorization_boundary": "Adir explicitly authorized implementation and publication for these four items. Safe code, configuration and verified production changes are allowed. Do not create analytics properties, containers, credentials, destructive redirect rules or fabricated historic URLs without verified ownership and exact evidence.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "Each item must be proven at its natural destination, not by source code alone.",
+      "acceptance_impact": "Require end-to-end operator, public, redirect and measurement evidence plus rollback before completion."
+    },
+    {
+      "lesson_id": "ADIR-ADMIN-001",
+      "reason": "Items two and three are daily administration workflows with permissions and persistence.",
+      "acceptance_impact": "Require signed-in role checks, saved authoritative state, reload, audit evidence and public reflection."
+    },
+    {
+      "lesson_id": "ADIR-DATA-001",
+      "reason": "Conversion totals and supplier/order attribution must reconcile to documented source records.",
+      "acceptance_impact": "Require metric definitions, source reconciliation, date boundaries and no intent-to-outcome inflation."
+    },
+    {
+      "lesson_id": "ADIR-SEO-001",
+      "reason": "Redirect coverage and live measurement are mandatory release families.",
+      "acceptance_impact": "Require complete known-source classification, live HTTP verification, event dictionary, consent and realtime evidence."
+    },
+    {
+      "lesson_id": "ADIR-WEB-CMS-001",
+      "reason": "Global slider, redirect and measurement settings must be safely manageable.",
+      "acceptance_impact": "Require validation, preview, versioning, reflection and rollback for each administration module."
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "reason": "The work changes production administration, public behavior and measurement.",
+      "acceptance_impact": "Require one frozen candidate, one verified deployment, exact live identity and rollback."
+    },
+    {
+      "lesson_id": "ADIR-CONSISTENCY-001",
+      "reason": "Admin and public state must agree across all worlds and languages.",
+      "acceptance_impact": "Require one canonical family model and no world-specific silent gaps."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The dashboard is visible but totals, date filters or Biz attribution are stale, aggregated incorrectly or unverifiable.",
+      "prevention": "Reconcile each displayed metric against the authenticated endpoint and stored VII events using explicit date and family scopes.",
+      "acceptance_check": "The operator can drill from totals to source rows and the same date/family scope reconciles without fabricated values."
+    },
+    {
+      "rejection": "The holiday limit works in code but cannot be saved, survives no reload or does not affect the public slider.",
+      "prevention": "Exercise edit, validation, save, no-cache reload, audit state and public reflection through the authorized administration.",
+      "acceptance_check": "A value from one through six persists and the public slider exposes no more than that number of eligible holidays."
+    },
+    {
+      "rejection": "Redirect completion is claimed from an incomplete hand-curated list.",
+      "prevention": "Merge every authorized historic source, classify every source URL and distinguish complete known coverage from unavailable external history.",
+      "acceptance_check": "Every known source has one final direct status and any unavailable corpus is named with exact owner and recovery route."
+    },
+    {
+      "rejection": "Analytics code exists but no event appears in the owned Google property or personal data is leaked.",
+      "prevention": "Discover the exact owned properties and containers, verify consent and event payloads, then use debug and realtime surfaces.",
+      "acceptance_check": "The exact production event appears once with approved parameters and no prohibited personal data."
+    },
+    {
+      "rejection": "A new release regresses the public discovery, booking, language or catalog fixes already in v632.",
+      "prevention": "Freeze from the v632 source identity and run the full affected-family suite plus public regression before deployment.",
+      "acceptance_check": "The candidate contains the v632 tree ancestry, passes the full suite and preserves critical public journeys."
+    }
+  ],
+  "affected_family": [
+    "admin business-performance dashboard",
+    "Maskyoo contacts and Biz order attribution",
+    "date, month, family and supplier filters",
+    "admin content studio slider settings",
+    "homepage near-date and holiday sliders",
+    "all known legacy URL sources and redirect rules",
+    "sitemaps, canonicals and internal links after redirects",
+    "GA4 property, data stream and production events",
+    "Search Console property and sitemap ownership",
+    "Tag Manager container, consent state, preview, version and rollback",
+    "Hebrew, English, French and Russian public routes",
+    "desktop and mobile public and administration states"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII platform architecture and current truth",
+        "source": "project_knowledge/VII_PLATFORM_MASTER_PLAN.md"
+      },
+      {
+        "label": "VII accepted product decisions",
+        "source": "project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "Published v632 release identity",
+        "source": "project_knowledge/release_handoffs/v632.json"
+      },
+      {
+        "label": "Existing conversion dashboard candidate",
+        "source": "project_knowledge/release_evidence/v632-conversion-dashboard-candidate.json"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "The signed-in conversion dashboard reconciles one representative date/family slice and the holiday administration setting persists before redirect and Google work begins.",
+    "checks": [
+      "Dashboard totals reconcile to source rows for one representative slice.",
+      "Holiday count saves, reloads and changes the public response.",
+      "No v632 public regression appears in focused tests."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a date or family filter show a total that does not match its drill-down?",
+      "Can a manager save a holiday count that disappears on reload or fails to reflect publicly?",
+      "Can any known legacy URL chain, loop, land on the homepage or return unrelated content?",
+      "Can GA4 or GTM fire twice, fire before consent or include personal data?",
+      "Can Search Console ownership, sitemap submission or live indexing status be claimed without the owned property?",
+      "Can the production release lose any v632 discovery, catalog or multilingual capability?"
+    ],
+    "natural_destination_evidence": "Signed-in administration, public VII pages, sampled live legacy URLs and the exact owned Google debug/realtime surfaces.",
+    "affected_family_evidence": "Full automated suite, redirect corpus validator, analytics payload tests and representative desktop/mobile public and admin checks."
+  },
+  "effectiveness": {
+    "baseline": "v632 is public, but authenticated admin persistence, complete historic redirect evidence and owned Google measurement connections are not yet fully certified.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "All four items have natural-destination evidence, or a precisely evidenced human-only external dependency after every authorized route is exhausted."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

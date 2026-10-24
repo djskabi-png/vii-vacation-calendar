@@ -37,6 +37,10 @@ test("every migrated search source has a direct 301 target and is no longer gone
   assert.equal(redirects.stats.managedSearchRedirects, publications.count + publications.aliases.length);
   assert.deepEqual(redirects.gone.filter((source) => /^\/s(?:\/|\?|$)/.test(source)), []);
   assert.equal(redirects.stats.total, Object.keys(redirects.redirects).length + redirects.gone.length);
+  const yavneel = bySource.get("/s/yavneel/13690");
+  assert.ok(yavneel, "new live legacy Yavneel search page must be preserved");
+  assert.equal(yavneel.canonicalPath, "/search/vacations/yavneel-13690-ca826506");
+  assert.equal(redirects.redirects["/s/yavneel/13690"], yavneel.canonicalPath);
 });
 
 test("migrated pages satisfy publication content and URL requirements", () => {

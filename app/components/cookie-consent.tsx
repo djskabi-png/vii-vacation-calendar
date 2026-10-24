@@ -4,6 +4,7 @@ import { useEffect, useState, type MouseEvent } from "react";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 
 const STORAGE_KEY = "vii-cookie-choice";
+const CHOICE_EVENT = "vii-cookie-choice-changed";
 const OPEN_EVENT = "vii-open-cookie-settings";
 const SETTINGS_HASH = "#privacy-settings";
 
@@ -92,6 +93,7 @@ export function CookieConsent() {
 
   function choose(value: "all" | "essential") {
     localStorage.setItem(STORAGE_KEY, value);
+    window.dispatchEvent(new CustomEvent(CHOICE_EVENT, { detail: value }));
     setAnalytics(value === "all");
     setVisible(false);
     if (window.location.hash === SETTINGS_HASH) {

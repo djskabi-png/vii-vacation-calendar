@@ -237,8 +237,8 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
             summary: record(old.detail).summary || "", meta: { description: record(old.summary).description || "" },
           }, cities, areas, amenityIndex);
           entries[index] = { supplierId: ids[index], summary: {
-            ...old.summary,
-            ...normalized.summary,
+            ...record(old.summary),
+            ...record(normalized.summary),
             description: record(old.summary).description || record(normalized.summary).description,
             ...("highlights" in record(old.summary) ? { highlights: record(old.summary).highlights } : {}),
           }, detail: old.detail };

@@ -1,0 +1,100 @@
+{
+  "goal": "Complete and verify VII administration, slider control, legacy redirects and Google measurement in the requested order.",
+  "intent_model": {
+    "literal_request": "Do items 2, 3, 4 and 5 immediately and in order.",
+    "implied_outcome": "No earlier discussed operational, redirect or measurement capability remains merely present in code; each works and is provable in its real destination.",
+    "likely_rejections": [
+      "A feature is described as done without signed-in persistence or source reconciliation.",
+      "A partial historic URL list is called complete.",
+      "Tracking code is called connected without owned-property evidence.",
+      "A new production release regresses v632."
+    ],
+    "interpretation_rules": [
+      {
+        "phrase": "תעשה את הכל עד הסוף",
+        "operational_meaning": "Inventory and close every affected family for the four named items.",
+        "acceptance_impact": "Every family member receives passed evidence, a precise external blocker or justified non-applicability."
+      },
+      {
+        "phrase": "לפי הסדר",
+        "operational_meaning": "Do not begin the next implementation family before the current one reaches its midpoint evidence or exact external dependency.",
+        "acceptance_impact": "Evidence is recorded sequentially for admin conversions, sliders, redirects and measurement."
+      }
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "Operators see truthful totals and manageable controls before infrastructure diagnostics.",
+    "current_decision": "Choose one date/family or one setting and see its exact effect.",
+    "next_action": "Drill to source evidence or publish the validated setting.",
+    "deferred_complexity": ["raw provider contracts", "technical redirect generation", "Google implementation internals"],
+    "preserved_depth": ["source reconciliation", "audit history", "rollback", "property and container diagnostics"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/preflight/v634-platform-closure.json",
+    "lesson_bundle_ids": ["ADIR-QA-001", "ADIR-ADMIN-001", "ADIR-DATA-001", "ADIR-SEO-001", "ADIR-WEB-CMS-001", "ADIR-DEPLOY-001", "ADIR-CONSISTENCY-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["Authorized VII administrator", "Authorized VII content manager", "Authorized VII SEO operator", "Authorized VII business analyst", "Unauthenticated public VII visitor"],
+  "natural_destination": "Authenticated VII administration, public VII routes, historic URLs and owned Google product diagnostics.",
+  "facts": [
+    {"claim": "Production v632 is the active verified public baseline.", "evidence": "project_knowledge/release_handoffs/v632.json"},
+    {"claim": "Conversion and slider implementations are ancestors of the v632 source commit.", "evidence": "Git ancestry checks in release/v628-slider-state-machine"},
+    {"claim": "The currently known legacy corpus contains 3,528 classified source URLs.", "evidence": "project_knowledge/task_contracts/vii-seo-navigation-admin-audit-20261024.contract.json"}
+  ],
+  "assumptions": [
+    {"claim": "An authorized signed-in VII administration route remains available.", "validation": "Open the admin route in an authorized session and verify the role without exposing credentials."},
+    {"claim": "Adir owns or can access the relevant Google properties and container.", "validation": "Discover connected sessions and exact property/container identity before any mutation."}
+  ],
+  "in_scope": [
+    "Conversion dashboard reconciliation, filters, drill-down, permissions and persistence",
+    "Holiday and slider administration save, reload, public reflection and failure states",
+    "All authorized historic URL corpus sources, redirect validation, canonical and sitemap consistency",
+    "GA4, Search Console and Tag Manager discovery, connection, consent, event validation and live evidence",
+    "Production publication and rollback when the exact candidate passes"
+  ],
+  "out_of_scope": [
+    "Inventing historic URLs absent from an authorized source",
+    "Creating a new Google organization, property or container under an unverified owner",
+    "Storing or exposing credentials",
+    "Accessibility and typography audit, per Adir's standing exclusion for this QA program"
+  ],
+  "invariants": [
+    "Preserve v632 discovery sorting and refresh rotation.",
+    "Preserve catalog generation and supplier failure fallbacks.",
+    "Do not fabricate conversion, order, availability or tracking data.",
+    "Do not redirect unrelated URLs to the homepage.",
+    "Do not send personal data to analytics.",
+    "Keep HE, EN, FR and RU routes and canonical state intact."
+  ],
+  "affected_family": [
+    "VII administration business-performance dashboard", "VII administration content-studio slider controls", "VII public homepage availability and holiday sliders", "VII historic legacy redirect corpus", "VII public XML sitemap family", "VII public canonical and hreflang family", "Owned Google Analytics 4 property and web stream", "Owned Google Search Console domain or URL-prefix property", "Owned Google Tag Manager web container", "Production analytics consent states", "All VII public worlds and supported languages"
+  ],
+  "characteristics": {"stateful": true, "role_based": true, "asynchronous": true, "externally_integrated": true, "responsive": true},
+  "requirements": [
+    {"id": "REQ-2", "statement": "Conversion administration is truthful, filterable, drillable, role-safe and persistent.", "source": "User item 2 and VII data/admin standards"},
+    {"id": "REQ-3", "statement": "Slider and holiday administration persists a one-through-six limit and safely controls public behavior.", "source": "User item 3 and accepted VII slider decision"},
+    {"id": "REQ-4", "statement": "Every authorized historic URL source is classified and redirects directly to an equivalent final route.", "source": "User item 4 and VII legacy migration plan"},
+    {"id": "REQ-5", "statement": "GA4, Search Console and GTM are connected and verified in their owned natural surfaces, or an exact human-only ownership dependency is proven.", "source": "User item 5 and VII measurement standard"},
+    {"id": "REQ-R", "statement": "The exact production release preserves v632 and has a tested rollback.", "source": "VII release standard"}
+  ],
+  "acceptance_checks": [
+    {"id": "AC-2A", "requirement_ids": ["REQ-2"], "kind": "success", "setup": "Authorized operator and a date/family with source data", "action": "Filter and open the drill-down", "observable_result": "Totals reconcile to the same scoped source rows and distinguish contacts from completed orders."},
+    {"id": "AC-2B", "requirement_ids": ["REQ-2"], "kind": "permission", "setup": "Authorized and unauthorized roles", "action": "Open dashboard and data endpoints", "observable_result": "Authorized role succeeds and unrelated role is denied without data exposure."},
+    {"id": "AC-3A", "requirement_ids": ["REQ-3"], "kind": "persistence", "setup": "Authorized content manager", "action": "Save a valid holiday count and reload without cache", "observable_result": "The authoritative value persists with save feedback and audit evidence."},
+    {"id": "AC-3B", "requirement_ids": ["REQ-3"], "kind": "failure", "setup": "Invalid count or supplier failure", "action": "Save or load the slider", "observable_result": "Invalid input is blocked and the public slider shows last-good cards or an actionable bounded state."},
+    {"id": "AC-4A", "requirement_ids": ["REQ-4"], "kind": "success", "setup": "Merged authorized legacy corpus", "action": "Validate every source URL", "observable_result": "Each source is direct permanent redirect, intentional live route, gone or explicit unresolved item with no loops or chains."},
+    {"id": "AC-4B", "requirement_ids": ["REQ-4"], "kind": "recovery", "setup": "Unavailable external history", "action": "Inspect every authorized recovery route", "observable_result": "Missing corpus is recovered or documented as one exact ownership dependency without a false completeness claim."},
+    {"id": "AC-5A", "requirement_ids": ["REQ-5"], "kind": "success", "setup": "Verified owned Google property/container and consent state", "action": "Trigger one production test event", "observable_result": "The event appears exactly once in debug/realtime with approved parameters and no personal data."},
+    {"id": "AC-5B", "requirement_ids": ["REQ-5"], "kind": "permission", "setup": "Connected Google account discovery", "action": "Inspect property/container ownership", "observable_result": "Exact owned identities and access levels are known before any change."},
+    {"id": "AC-R", "requirement_ids": ["REQ-R"], "kind": "rollback", "setup": "Frozen candidate after all prior checks", "action": "Publish once and exercise public/admin checks", "observable_result": "Deployment succeeds, exact version is live, v632 invariants pass and rollback identity is preserved."}
+  ],
+  "open_questions": [
+    {"question": "Which Google property, stream and GTM container are owned by VII?", "blocking": false, "resolution": "Discover connected account state and existing production identifiers before item 5."},
+    {"question": "Is a complete historic Search Console or server-log export accessible?", "blocking": false, "resolution": "Inspect connected Google services, repository imports and existing authorized exports during item 4."}
+  ],
+  "authorization_boundary": "Implementation, verified configuration and one production publication are authorized. No account creation, credential disclosure, destructive global redirect or uncertain duplicate publication is allowed.",
+  "ready_for_implementation": true
+}

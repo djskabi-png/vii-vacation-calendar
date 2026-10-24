@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-22T03:32:55.960Z",
+  "generatedAt": "2026-10-24T20:18:09.145Z",
   "source": [
     "project_knowledge/launch/legacy-search-pages-20261015.json",
     "project_knowledge/launch/legacy-search-pages-20261022-complete.json"
@@ -9,9 +9,9 @@
     "historical": 2313,
     "current": 2327
   },
-  "legacyUrlCount": 2710,
-  "legacySearchUrlCount": 2343,
-  "exportedCount": 2309,
+  "legacyUrlCount": 2703,
+  "legacySearchUrlCount": 2344,
+  "exportedCount": 2310,
   "blockedCount": 34,
   "historicalOnlyCount": 16,
   "duplicateTargetCount": 0,
@@ -82157,6 +82157,32 @@
       ],
       "body": "",
       "faq": []
+    },
+    {
+      "sourceUrl": "https://www.vii.co.il/s/yavneel/13690",
+      "sourcePath": "/s/yavneel/13690",
+      "sourceStatus": 200,
+      "finalSourceUrl": "https://www.vii.co.il/s/yavneel/13690",
+      "title": "נופש ביבנאל עם מבודדת - וי פור ויקיישן",
+      "h1": "נופש ביבנאל עם מבודדת",
+      "metaDescription": "מבחר עם מבודדת שנבדקו ואושרו ע\"י מיזם V שמציג עם מבודדת בהזמנה מיידית",
+      "robots": "",
+      "canonical": "https://www.vii.co.il/s/yavneel/13690",
+      "resultSummary": "התקבלו 1 מתחמים, 1 יחידות נופש",
+      "location": "יבנאל",
+      "locationType": "city",
+      "locationId": "",
+      "body": "",
+      "faq": [],
+      "slug": "yavneel-13690-ca826506",
+      "targetPath": "/search/vacations/yavneel-13690-ca826506",
+      "migrationStatus": "content-exported",
+      "blocker": null,
+      "fetchedAt": "2026-10-24T20:18:09.145Z",
+      "elapsedMs": 0,
+      "sourceSnapshots": [
+        "2026-10-24T20:18:09.145Z"
+      ]
     },
     {
       "sourceUrl": "https://www.vii.co.il/s/Yavneel/13776",

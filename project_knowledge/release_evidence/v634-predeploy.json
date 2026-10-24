@@ -1,0 +1,61 @@
+{
+  "release": "v634-platform-closure",
+  "recorded_at": "2026-10-24T23:38:00+03:00",
+  "baseline_commit": "fe027a3",
+  "candidate_status": "verified_locally_pending_deploy",
+  "requested_items": {
+    "2_admin_and_conversions": {
+      "status": "passed",
+      "evidence": [
+        "Signed-in /admin/business-performance verified family, date basis, date range, source, converted and supplier filters, totals, drill-down, empty state and persistence.",
+        "Representative vacation-2566 slice reconciled with source records without exposing phone PII.",
+        "node --test tests/vii-conversions.test.mjs tests/admin-command-center.test.mjs passed."
+      ]
+    },
+    "3_slider_and_holiday_management": {
+      "status": "passed",
+      "evidence": [
+        "Signed-in /admin/content-studio exposes five required near-date tabs plus holiday visibility and date-window controls.",
+        "holidayLimit is bounded from 1 through 6 and the public home page rendered exactly six holiday tabs.",
+        "node --test tests/home-display-settings.test.mjs tests/vii-home-holidays.test.mjs tests/content-studio.test.mjs passed 12 of 12."
+      ]
+    },
+    "4_legacy_url_corpus": {
+      "status": "passed",
+      "evidence": [
+        "Live legacy sitemap has two child sitemaps and 2702 non-root URLs; every URL is classified and missing is empty.",
+        "Legacy inventory now contains 3533 sources: 3110 direct redirects and 423 intentional gone responses.",
+        "The final uncovered search URL now maps to /search/vacations/yavneel-13690-ca826506 and the four final place URLs map to matching new business pages.",
+        "node --test tests/legacy-search-migration.test.mjs tests/launch-seo.test.mjs passed 8 of 8."
+      ]
+    },
+    "5_google_measurement": {
+      "status": "partially_passed_external_permission_blocked",
+      "evidence": [
+        "Verified Search Console domain property sc-domain:vii.co.il and successful legacy sitemap with 2703 discovered pages.",
+        "Verified GA4 property 255021049, stream 2190594582 and measurement ID G-6DMS0FKGYK.",
+        "Added consent-gated GTM-WG8VXDB loading to the public application; administrators are excluded and no PII is added.",
+        "node --test tests/google-tag-manager.test.mjs tests/admin-command-center.test.mjs passed."
+      ],
+      "blocker": "The authenticated account can read the correct GA4 and Search Console properties but lacks the GA4 property role needed to create the direct Search Console link.",
+      "recovery": "A GA4 property administrator must grant Adir's account Editor on property 255021049 or create the link to sc-domain:vii.co.il."
+    }
+  },
+  "verification": {
+    "focused_tests": {
+      "passed": 40,
+      "failed": 0
+    },
+    "full_suite": {
+      "command": "pnpm test",
+      "passed": 1585,
+      "failed": 0,
+      "build": "passed"
+    },
+    "typescript": "pnpm exec tsc --noEmit passed"
+  },
+  "rollback": {
+    "previous_public_commit": "6298970de91130f298802c62f5e17d8499cdd115",
+    "previous_deployment": "appgdep_6add0c8d1b3c81918a66dcb7dec3c304"
+  }
+}

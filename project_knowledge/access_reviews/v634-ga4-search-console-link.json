@@ -1,0 +1,34 @@
+{
+  "observed_error": "The live VII GA4 property shows an empty Search Console links table and a disabled create-link control. Opening property access management returns an insufficient-permissions dialog.",
+  "category": "permission",
+  "diagnosis": "The authenticated Adir account can read GA4 property 255021049 and owns the vii.co.il Search Console domain property, but it does not have the GA4 property role required to create a Search Console link.",
+  "authorization_boundary": "Read-only inspection of the existing VII Google properties and local implementation work. No access request, permission change, new account, property or container was submitted.",
+  "routes": [
+    {
+      "kind": "connector",
+      "status": "unavailable",
+      "evidence": "No installed connector exposes Google Analytics or Search Console administration."
+    },
+    {
+      "kind": "authorized_session",
+      "status": "checked",
+      "result": "human_required",
+      "evidence": "The signed-in Google session reads V FOR VACATION / vii.co.il - GA4 and sc-domain:vii.co.il, but GA4 property access management reports insufficient permissions and the create-link control is disabled."
+    },
+    {
+      "kind": "project_cli_api",
+      "status": "unavailable",
+      "evidence": "The project contains no authorized Google Analytics Admin API credentials or OAuth configuration; no secret was inferred or created."
+    },
+    {
+      "kind": "official_connection",
+      "status": "checked",
+      "result": "human_required",
+      "evidence": "Google Analytics requires a property role with link-management permission before the Search Console integration can be created."
+    }
+  ],
+  "outcome": "human_required",
+  "ready_work_remaining": false,
+  "minimum_human_action": "A GA4 property administrator must grant djskabi@gmail.com an Editor role, or create the Search Console link for property 255021049 to sc-domain:vii.co.il.",
+  "resume_when": "The GA4 Search Console links page enables the create-link control or shows the completed vii.co.il link."
+}

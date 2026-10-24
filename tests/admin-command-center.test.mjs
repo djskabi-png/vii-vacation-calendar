@@ -90,8 +90,9 @@ test("growth center reports verified local capabilities and honest external conn
   assert.match(page, /\/robots\.txt/);
   assert.match(page, /Google Search Console/);
   assert.match(page, /Google Analytics 4/);
-  assert.match(page, /לא הוכח חיבור פעיל/);
-  assert.match(page, /לא אומת/);
+  assert.match(page, /G-6DMS0FKGYK/);
+  assert.match(page, /GTM-WG8VXDB/);
+  assert.match(page, /מחובר בהסכמה/);
   assert.match(sitemapDetails, /מה יש בכל קובץ מפת אתר/);
   assert.match(sitemapDetails, /ממגבלת Google/);
   assert.match(sitemapDetails, /דוגמאות לכתובות/);
