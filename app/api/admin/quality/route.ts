@@ -1,12 +1,22 @@
 import { authorizedAdminSession } from "../../../lib/admin-session.ts";
-import { readQualityDashboard, runQualityChecks, updateQualityIncident } from "../../../lib/quality-platform.ts";
+import { readQualityDashboard, runQualityChecks, updateQualityIncident, type QualityNotificationEnvironment } from "../../../lib/quality-platform.ts";
 import { requiredRuntimeDatabase } from "../../../lib/runtime-database.ts";
 
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 
+async function notificationEnvironment(): Promise<QualityNotificationEnvironment> {
+  try {
+    const runtimeName = "cloudflare:workers";
+    const runtime = await import(/* @vite-ignore */ runtimeName);
+    return (runtime.env || {}) as QualityNotificationEnvironment;
+  } catch {
+    return process.env as QualityNotificationEnvironment;
+  }
+}
+
 export async function GET(request: Request) {
   if (!await authorizedAdminSession(request).catch(() => null)) return Response.json({ error: "forbidden" }, { status: 403, headers });
-  try { return Response.json(await readQualityDashboard(await requiredRuntimeDatabase("quality_database_unavailable")), { headers }); }
+  try { return Response.json(await readQualityDashboard(await requiredRuntimeDatabase("quality_database_unavailable"), await notificationEnvironment()), { headers }); }
   catch { return Response.json({ error: "quality_unavailable" }, { status: 503, headers }); }
 }
 
@@ -17,7 +27,7 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null) as { action?: unknown; incidentId?: unknown } | null;
   try {
     const db = await requiredRuntimeDatabase("quality_database_unavailable");
-    if (body?.action === "run") return Response.json({ run: await runQualityChecks(db, { origin: new URL(request.url).origin, trigger: "manual", actor: session.email }) }, { headers });
+    if (body?.action === "run") return Response.json({ run: await runQualityChecks(db, { origin: new URL(request.url).origin, trigger: "manual", actor: session.email, notificationEnv: await notificationEnvironment() }) }, { headers });
     if ((body?.action === "acknowledge" || body?.action === "resolve" || body?.action === "reopen") && typeof body.incidentId === "string" && body.incidentId.length < 100) {
       return Response.json({ incident: await updateQualityIncident(db, { incidentId: body.incidentId, action: body.action, actor: session.email }) }, { headers });
     }

@@ -25,7 +25,7 @@ async function collectSourcePhrases(directory, phrases) {
     // Editorial bodies are explicitly Hebrew-only publications, not approved
     // translations. Image metadata uses its own four-language typed inventory.
     // Their visibility/indexability is tested in editorial-worlds.test.mjs.
-    if (!/\.(?:ts|tsx)$/.test(entry.name) || ["legacy-vacation-profiles.ts", "editorial-world-articles.ts", "editorial-world-links.ts", "editorial-image-copy.ts", "editorial-cover.tsx", "world-editorial-links.tsx", "quality-platform.ts"].includes(entry.name)) continue;
+    if (!/\.(?:ts|tsx)$/.test(entry.name) || ["legacy-vacation-profiles.ts", "editorial-world-articles.ts", "editorial-world-links.ts", "editorial-image-copy.ts", "editorial-cover.tsx", "world-editorial-links.tsx", "quality-platform.ts", "homepage-content-inventory.ts", "search-filter-labels.ts"].includes(entry.name)) continue;
     const source = await readFile(path, "utf8");
     const sourceFile = ts.createSourceFile(path, source, ts.ScriptTarget.Latest, true, entry.name.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
     const visit = (node) => {

@@ -72,3 +72,38 @@ export async function GET(request: Request) {
     return Response.json({ error: "business_performance_unavailable" }, { status: 503, headers });
   }
 }
+
+type BatchTarget = { placeId: string; world: string };
+
+export async function POST(request: Request) {
+  const session = await authorizedAdminSession(request).catch(() => null);
+  if (!session) return Response.json({ error: "forbidden" }, { status: 403, headers });
+  if (request.headers.get("origin") !== new URL(request.url).origin) return Response.json({ error: "invalid_origin" }, { status: 403, headers });
+  const body = await request.json().catch(() => null) as { from?: unknown; till?: unknown; targets?: unknown } | null;
+  const from = typeof body?.from === "string" ? body.from : "";
+  const till = typeof body?.till === "string" ? body.till : "";
+  if (!validDay(from) || !validDay(till) || Date.parse(from) > Date.parse(till) || (Date.parse(till) - Date.parse(from)) / 86_400_000 > 365 || !Array.isArray(body?.targets) || body.targets.length > 20) {
+    return Response.json({ error: "invalid_request" }, { status: 400, headers });
+  }
+  const targets = (body.targets as BatchTarget[]).flatMap((row) => {
+    if (!row || typeof row.placeId !== "string" || typeof row.world !== "string") return [];
+    const target = conversionTarget(row.placeId, row.world);
+    return target ? [{ placeId: row.placeId, world: row.world, target }] : [];
+  });
+  if (targets.length !== body.targets.length) return Response.json({ error: "conversion_not_supported" }, { status: 400, headers });
+  const token = await supplierToken().catch(() => "");
+  if (!token) return Response.json({ error: "supplier_unavailable" }, { status: 503, headers });
+  const results: Array<{ placeId: string; conversions?: Awaited<ReturnType<typeof fetchViiConversions>>; error?: string }> = [];
+  for (let offset = 0; offset < targets.length; offset += 4) {
+    const group = targets.slice(offset, offset + 4);
+    const settled = await Promise.all(group.map(async ({ placeId, target }) => {
+      try {
+        return { placeId, conversions: await fetchViiConversions({ ...target, from, till, token, sectionOnly: true }) };
+      } catch (error) {
+        return { placeId, error: error instanceof ViiConversionsError ? error.code : "supplier_unavailable" };
+      }
+    }));
+    results.push(...settled);
+  }
+  return Response.json({ from, till, results }, { headers });
+}

@@ -138,7 +138,10 @@ function PlacesMap({ places: incomingPlaces, initialPlaceIds, tone = "vacation",
   const suppressViewportPrompt = useRef(false);
   const initialSelectedId = single ? initialPlaceIds?.find((id) => places.some((place) => place.id === id)) ?? places[0]?.id ?? "" : "";
   const selectedIdRef = useRef(initialSelectedId);
-  const [enabled, setEnabled] = useState(autoLoad);
+  // A place page must display a real map, not a venue photo pretending to be
+  // one. Search maps remain opt-in; a single-place map loads passively and
+  // becomes fully interactive only after the visitor activates it.
+  const [enabled, setEnabled] = useState(autoLoad || single);
   const [interactive, setInteractive] = useState(autoLoad);
   const [mapReady, setMapReady] = useState(false);
   const [selectedId, setSelectedId] = useState(initialSelectedId);

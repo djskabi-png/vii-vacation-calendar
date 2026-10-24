@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { DatabaseSync } from "node:sqlite";
-import { incidentTransition, qualityHeartbeatWindow, qualityRegistry, readQualityDashboard, runQualityChecks, shouldStartQualityHeartbeat } from "../app/lib/quality-platform.ts";
+import { incidentTransition, qualityHeartbeatWindow, qualityNotificationProviderStatus, qualityRegistry, readQualityDashboard, runQualityChecks, shouldStartQualityHeartbeat } from "../app/lib/quality-platform.ts";
 
 function fixture() {
   const sqlite = new DatabaseSync(":memory:");
@@ -26,8 +26,7 @@ function fixture() {
 }
 
 const success = async (url) => {
-  if (url.includes("/api/map-snapshot")) return new Response(new Uint8Array(9_000), { status: 200, headers: { "content-type": "image/webp" } });
-  if (url.includes("/api/")) return Response.json({ world: url.includes("events") ? "events" : url.includes("rooms") ? "rooms" : url.includes("spa") ? "spa" : "vacations", entries: [{ id: "vacation-1" }], prices: {}, reviews: [], items: [], slider: [], section: [], capabilities: {} });
+  if (url.includes("/api/")) return Response.json({ world: url.includes("events") ? "events" : url.includes("rooms") ? "rooms" : url.includes("spa") ? "spa" : "vacations", entries: [{ id: "vacation-1" }], prices: {}, reviews: [], items: [], slider: [], section: [], capabilities: {}, coordinatesReady: true, interactiveMap: true });
   if (url.endsWith(".xml")) return new Response("<?xml version=\"1.0\"?><urlset><loc>https://example.test/</loc>" + "x".repeat(1_200) + "</urlset>", { status: 200, headers: { "content-type": "application/xml" } });
   const tokens = ["<main", "discovery-card", "חיפוש", "נופש", "property-gallery", "tel:", "חוות דעת", "מיקום", "וואטסאפ", "אירועים", "חדרים לפי שעה", "ספא", "חבילות", "אטרקציות", "event-booking", "טיולים", "ספקים", "חגים", "רגע האחרון", "שאלות", "יצירת קשר", "תקנון", "פרטיות"];
   const locale = new URL(url).pathname.match(/^\/(en|fr|ru)(?:\/|$)/)?.[1] || "he";
@@ -107,8 +106,8 @@ test("scheduled tick runs only the due risk-tier probes", async () => {
 test("semantic checks reject generic HTML and map snapshots reject non-images", async () => {
   const { sqlite, db } = fixture();
   try {
-    const generic = async (url) => url.includes("/api/map-snapshot")
-      ? new Response("not an image".repeat(800), { status: 200, headers: { "content-type": "text/html" } })
+    const generic = async (url) => url.includes("/api/map-health")
+      ? Response.json({ coordinatesReady: false, interactiveMap: false })
       : url.includes("/api/") ? Response.json({ ok: true })
         : new Response(`<!doctype html><html><body>${"x".repeat(3_000)}</body></html>`, { status: 200, headers: { "content-type": "text/html" } });
     const result = await runQualityChecks(db, { origin: "https://example.test", trigger: "manual", fetcher: generic, actor: "semantic-negative" });
@@ -117,4 +116,36 @@ test("semantic checks reject generic HTML and map snapshots reject non-images", 
     assert.ok(dashboard.incidents.some((incident) => incident.checkId === "map.snapshot.vacation"));
     assert.ok(dashboard.incidents.some((incident) => incident.checkId === "global.home.semantic"));
   } finally { sqlite.close(); }
+});
+
+test("quality runs use bounded concurrency and close abandoned running records", async () => {
+  const { sqlite, db } = fixture();
+  try {
+    await runQualityChecks(db, { origin: "https://example.test", trigger: "scheduled", scheduledAt: new Date("2026-10-24T09:10:00.000Z"), fetcher: success });
+    sqlite.prepare(`INSERT INTO quality_runs (id,operation_key,trigger_kind,status,started_at,passed_count,failed_count,degraded_count,blocked_count)
+      VALUES ('stale-run','stale-operation','scheduled','running','2026-10-24T08:00:00.000Z',0,0,0,0)`).run();
+    let active = 0; let maximum = 0;
+    const bounded = async (url, options) => {
+      active += 1; maximum = Math.max(maximum, active);
+      await new Promise((resolve) => setTimeout(resolve, 2));
+      try { return await success(url, options); } finally { active -= 1; }
+    };
+    const result = await runQualityChecks(db, { origin: "https://example.test", trigger: "manual", scheduledAt: new Date("2026-10-24T09:20:00.000Z"), fetcher: bounded });
+    assert.equal(result.status, "passed");
+    assert.ok(maximum > 1 && maximum <= 6, `expected bounded concurrency, observed ${maximum}`);
+    const stale = sqlite.prepare("SELECT status,finished_at,blocked_count FROM quality_runs WHERE id='stale-run'").get();
+    assert.equal(stale.status, "blocked");
+    assert.ok(stale.finished_at);
+    assert.equal(stale.blocked_count, 1);
+  } finally { sqlite.close(); }
+});
+
+test("notification provider fails closed until every verified Resend setting exists", () => {
+  assert.equal(qualityNotificationProviderStatus({}), "not_configured");
+  assert.equal(qualityNotificationProviderStatus({ VII_QUALITY_EMAIL_PROVIDER: "smtp" }), "unsupported_provider");
+  assert.equal(qualityNotificationProviderStatus({ VII_QUALITY_EMAIL_PROVIDER: "resend", VII_QUALITY_EMAIL_API_KEY: "secret" }), "incomplete_configuration");
+  assert.equal(qualityNotificationProviderStatus({
+    VII_QUALITY_EMAIL_PROVIDER: "resend", VII_QUALITY_EMAIL_API_KEY: "secret",
+    VII_QUALITY_EMAIL_FROM: "VII QA <qa@example.test>", VII_QUALITY_EMAIL_RECIPIENTS: "adir@example.test,liran@example.test",
+  }), "configured");
 });

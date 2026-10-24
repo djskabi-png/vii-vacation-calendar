@@ -21,12 +21,29 @@ export type QualityCheck = {
   forbidden?: readonly string[];
 };
 
+export type QualityNotificationEnvironment = {
+  VII_QUALITY_EMAIL_PROVIDER?: string;
+  VII_QUALITY_EMAIL_API_KEY?: string;
+  VII_QUALITY_EMAIL_FROM?: string;
+  VII_QUALITY_EMAIL_RECIPIENTS?: string;
+};
+
+type QualityIncidentEvent = {
+  incidentId: string;
+  eventKind: "opened" | "recovered";
+  check: QualityCheck;
+  observed: string;
+  origin: string;
+};
+
+const RUN_STALE_AFTER_MS = 15 * 60_000;
+const CHECK_CONCURRENCY = 6;
+
 // Production synthetics are intentionally read-only. Browser interaction and
 // visual checks remain release-gate jobs; the recurring worker never creates a
 // booking, lead, review, payment or message.
 const html = (input: Omit<QualityCheck, "contentKind" | "minBytes"> & Partial<Pick<QualityCheck, "minBytes">>): QualityCheck => ({ contentKind: "html", minBytes: 2_000, ...input });
 const json = (input: Omit<QualityCheck, "contentKind" | "minBytes" | "viewport"> & Partial<Pick<QualityCheck, "minBytes">>): QualityCheck => ({ contentKind: "json", minBytes: 20, viewport: "server", ...input });
-const image = (input: Omit<QualityCheck, "contentKind" | "minBytes" | "viewport"> & Partial<Pick<QualityCheck, "minBytes">>): QualityCheck => ({ contentKind: "image", minBytes: 8_000, viewport: "server", ...input });
 
 // This is the production-safe layer of the VII QA pyramid. It validates the
 // public contract without creating bookings, leads, calls, WhatsApp messages,
@@ -36,6 +53,11 @@ export const qualityRegistry: readonly QualityCheck[] = [
   html({ checkId: "global.home.en.semantic", family: "multilingual-shell", world: "all", route: "/en", viewport: "desktop", severity: "high", cadenceMinutes: 60, timeoutMs: 10_000, expected: "English home has its unique URL and server-rendered English document", releaseBlocking: true, requiredAll: ["<html lang=\"en\"", "<main", "hreflang=\"en\""] }),
   html({ checkId: "global.home.fr.semantic", family: "multilingual-shell", world: "all", route: "/fr", viewport: "desktop", severity: "high", cadenceMinutes: 60, timeoutMs: 10_000, expected: "French home has its unique URL and server-rendered French document", releaseBlocking: true, requiredAll: ["<html lang=\"fr\"", "<main", "hreflang=\"fr\""] }),
   html({ checkId: "global.home.ru.semantic", family: "multilingual-shell", world: "all", route: "/ru", viewport: "desktop", severity: "high", cadenceMinutes: 60, timeoutMs: 10_000, expected: "Russian home has its unique URL and server-rendered Russian document", releaseBlocking: true, requiredAll: ["<html lang=\"ru\"", "<main", "hreflang=\"ru\""] }),
+  ...(["en", "fr", "ru"] as const).flatMap((locale): QualityCheck[] => [
+    html({ checkId: `locale.${locale}.gift-card.semantic`, family: "multilingual-pages", world: "all", route: `/${locale}/gift-card`, viewport: "desktop", severity: "high", cadenceMinutes: 360, timeoutMs: 12_000, expected: `${locale} gift-card page has a unique locale URL and translated document shell`, releaseBlocking: true, requiredAll: [`<html lang=\"${locale}\"`, "<main", `hreflang=\"${locale}\"`] }),
+    html({ checkId: `locale.${locale}.guides.semantic`, family: "multilingual-pages", world: "all", route: `/${locale}/guides`, viewport: "desktop", severity: "high", cadenceMinutes: 360, timeoutMs: 12_000, expected: `${locale} guides page has a unique locale URL and translated document shell`, releaseBlocking: true, requiredAll: [`<html lang=\"${locale}\"`, "<main", `hreflang=\"${locale}\"`] }),
+    html({ checkId: `locale.${locale}.place.semantic`, family: "multilingual-pages", world: "vacations", route: `/${locale}/business?id=vacation-116`, viewport: "mobile", severity: "high", cadenceMinutes: 360, timeoutMs: 14_000, expected: `${locale} place page has a unique locale URL and keeps the core place contract`, releaseBlocking: true, requiredAll: [`<html lang=\"${locale}\"`, "<main", `hreflang=\"${locale}\"`, "property-gallery", "tel:"] }),
+  ]),
   html({ checkId: "search.location.semantic", family: "search", world: "vacations", route: "/search?location=%D7%9E%D7%A9%D7%9E%D7%A8%20%D7%94%D7%99%D7%A8%D7%93%D7%9F", viewport: "desktop", severity: "critical", cadenceMinutes: 5, timeoutMs: 12_000, expected: "Sparse-location search remains a result page with place cards and no error surface", releaseBlocking: true, requiredAll: ["<main", "discovery-card"], forbidden: ["Error 1102", "Worker exceeded resource limits", "404 Not Found"] }),
   html({ checkId: "place.vacation.semantic", family: "place-pages", world: "vacations", route: "/business?id=vacation-116", viewport: "mobile", severity: "critical", cadenceMinutes: 5, timeoutMs: 14_000, expected: "Vacation place contains gallery, contacts, reviews and location", releaseBlocking: true, requiredAll: ["property-gallery", "tel:", "\u05d7\u05d5\u05d5\u05ea \u05d3\u05e2\u05ea", "\u05de\u05d9\u05e7\u05d5\u05dd"], requiredAny: ["\u05d5\u05d5\u05d0\u05d8\u05e1\u05d0\u05e4", "WhatsApp"] }),
 
@@ -53,10 +75,10 @@ export const qualityRegistry: readonly QualityCheck[] = [
   html({ checkId: "world.holidays.semantic", family: "editorial-landings", world: "vacations", route: "/holidays", viewport: "mobile", severity: "high", cadenceMinutes: 60, timeoutMs: 12_000, expected: "Holiday index renders future holiday links", releaseBlocking: true, requiredAll: ["<main"], requiredAny: ["\u05d7\u05d2\u05d9\u05dd", "\u05e0\u05d5\u05e4\u05e9"] }),
   html({ checkId: "world.last-minute.semantic", family: "editorial-landings", world: "vacations", route: "/last-minute", viewport: "mobile", severity: "high", cadenceMinutes: 60, timeoutMs: 12_000, expected: "Last-minute permanent landing renders", releaseBlocking: true, requiredAll: ["<main"], requiredAny: ["\u05e8\u05d2\u05e2 \u05d4\u05d0\u05d7\u05e8\u05d5\u05df", "\u05e0\u05d5\u05e4\u05e9"] }),
 
-  image({ checkId: "map.snapshot.vacation", family: "maps", world: "vacations", route: "/api/map-snapshot?world=vacation&id=vacation-116", severity: "critical", cadenceMinutes: 60, timeoutMs: 12_000, expected: "Stored vacation map snapshot is a valid image", releaseBlocking: true }),
-  image({ checkId: "map.snapshot.event", family: "maps", world: "events", route: "/api/map-snapshot?world=events&id=event-2575", severity: "high", cadenceMinutes: 360, timeoutMs: 12_000, expected: "Stored event map snapshot is a valid image", releaseBlocking: true }),
-  image({ checkId: "map.snapshot.hourly", family: "maps", world: "hourly", route: "/api/map-snapshot?world=hourly&id=hourly-475", severity: "high", cadenceMinutes: 360, timeoutMs: 12_000, expected: "Stored hourly map snapshot is a valid image", releaseBlocking: true }),
-  image({ checkId: "map.snapshot.spa", family: "maps", world: "spa", route: "/api/map-snapshot?world=spa&id=spa-6", severity: "high", cadenceMinutes: 360, timeoutMs: 12_000, expected: "Stored spa map snapshot is a valid image", releaseBlocking: true }),
+  json({ checkId: "map.snapshot.vacation", family: "maps", world: "vacations", route: "/api/map-health?world=vacation&id=vacation-116", severity: "critical", cadenceMinutes: 60, timeoutMs: 12_000, expected: "Vacation place has valid coordinates and a real interactive map path", releaseBlocking: true, requiredAll: ["\"coordinatesReady\":true", "\"interactiveMap\":true"] }),
+  json({ checkId: "map.snapshot.event", family: "maps", world: "events", route: "/api/map-health?world=events&id=event-2575", severity: "high", cadenceMinutes: 360, timeoutMs: 12_000, expected: "Event place has valid coordinates and a real interactive map path", releaseBlocking: true, requiredAll: ["\"coordinatesReady\":true", "\"interactiveMap\":true"] }),
+  json({ checkId: "map.snapshot.hourly", family: "maps", world: "hourly", route: "/api/map-health?world=hourly&id=hourly-475", severity: "high", cadenceMinutes: 360, timeoutMs: 12_000, expected: "Hourly place has valid coordinates and a real interactive map path", releaseBlocking: true, requiredAll: ["\"coordinatesReady\":true", "\"interactiveMap\":true"] }),
+  json({ checkId: "map.snapshot.spa", family: "maps", world: "spa", route: "/api/map-health?world=spa&id=spa-6", severity: "high", cadenceMinutes: 360, timeoutMs: 12_000, expected: "Spa place has valid coordinates and a real interactive map path", releaseBlocking: true, requiredAll: ["\"coordinatesReady\":true", "\"interactiveMap\":true"] }),
 
   json({ checkId: "api.catalog.vacations", family: "catalog-apis", world: "vacations", route: "/api/catalog?world=vacations&view=search", severity: "critical", cadenceMinutes: 10, timeoutMs: 14_000, expected: "Vacation search catalog is valid JSON with entries", releaseBlocking: true, requiredAll: ["\"world\":\"vacations\"", "\"entries\":"] }),
   json({ checkId: "api.catalog.events", family: "catalog-apis", world: "events", route: "/api/catalog?world=events&view=search", severity: "critical", cadenceMinutes: 10, timeoutMs: 14_000, expected: "Event search catalog is valid JSON with entries", releaseBlocking: true, requiredAll: ["\"world\":\"events\"", "\"entries\":"] }),
@@ -184,17 +206,74 @@ async function executeCheck(check: QualityCheck, origin: string, fetcher: typeof
   }
 }
 
-async function reconcileIncident(db: D1Database, check: QualityCheck, result: { id: string; status: QualityStatus; observed: string }, now: string) {
+function emailConfiguration(env: QualityNotificationEnvironment = {}) {
+  const provider = (env.VII_QUALITY_EMAIL_PROVIDER || "").trim().toLowerCase();
+  const apiKey = (env.VII_QUALITY_EMAIL_API_KEY || "").trim();
+  const from = (env.VII_QUALITY_EMAIL_FROM || "").trim();
+  const recipients = (env.VII_QUALITY_EMAIL_RECIPIENTS || "").split(",").map((value) => value.trim().toLowerCase())
+    .filter((value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value));
+  const supported = provider === "resend";
+  return { provider, apiKey, from, recipients, configured: supported && Boolean(apiKey && from && recipients.length) };
+}
+
+export function qualityNotificationProviderStatus(env: QualityNotificationEnvironment = {}) {
+  const configuration = emailConfiguration(env);
+  if (!configuration.provider) return "not_configured";
+  if (configuration.provider !== "resend") return "unsupported_provider";
+  return configuration.configured ? "configured" : "incomplete_configuration";
+}
+
+async function deliverIncidentEmail(event: QualityIncidentEvent, env: QualityNotificationEnvironment, fetcher: typeof fetch) {
+  const configuration = emailConfiguration(env);
+  if (!configuration.configured) return { status: "disabled", providerMessageId: null, reason: qualityNotificationProviderStatus(env) };
+  const recovered = event.eventKind === "recovered";
+  const subject = recovered ? `[VII QA] נפתרה תקלה: ${event.check.checkId}` : `[VII QA] תקלה חדשה: ${event.check.checkId}`;
+  const dashboardUrl = new URL("/admin/quality", event.origin).toString();
+  const text = [
+    recovered ? "תקלה אוטומטית נפתרה בבדיקה חוזרת." : "בדיקת איכות אוטומטית זיהתה תקלה חדשה.",
+    `בדיקה: ${event.check.checkId}`,
+    `חומרה: ${event.check.severity}`,
+    `עולם: ${event.check.world}`,
+    `כתובת: ${new URL(event.check.route, event.origin).toString()}`,
+    `תוצאה: ${event.observed}`,
+    `מערכת ניהול: ${dashboardUrl}`,
+  ].join("\n");
+  try {
+    const response = await fetcher("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${configuration.apiKey}`, "Content-Type": "application/json", "Idempotency-Key": `vii-quality:${event.incidentId}:${event.eventKind}` },
+      body: JSON.stringify({ from: configuration.from, to: configuration.recipients, subject, text }),
+      signal: AbortSignal.timeout(10_000),
+    });
+    const payload = await response.json().catch(() => null) as { id?: unknown; message?: unknown } | null;
+    const providerMessageId = typeof payload?.id === "string" ? payload.id : null;
+    if (!response.ok || !providerMessageId) return { status: "failed", providerMessageId: null, reason: `provider_http_${response.status}` };
+    return { status: "sent", providerMessageId, reason: null };
+  } catch (error) {
+    return { status: "failed", providerMessageId: null, reason: error instanceof Error ? error.message.slice(0, 160) : "provider_request_failed" };
+  }
+}
+
+async function recordNotification(db: D1Database, event: QualityIncidentEvent, env: QualityNotificationEnvironment, fetcher: typeof fetch, now: string) {
+  const existing = await db.prepare(`SELECT id FROM quality_notification_deliveries WHERE incident_id=? AND channel='email' AND event_kind=?`)
+    .bind(event.incidentId, event.eventKind).first<{ id: string }>();
+  if (existing) return;
+  const delivery = await deliverIncidentEmail(event, env, fetcher);
+  await db.prepare(`INSERT INTO quality_notification_deliveries
+    (id,incident_id,channel,event_kind,status,provider_message_id,reason,created_at)
+    VALUES (?,?,'email',?,?,?,?,?) ON CONFLICT(incident_id,channel,event_kind) DO NOTHING`)
+    .bind(crypto.randomUUID(), event.incidentId, event.eventKind, delivery.status, delivery.providerMessageId, delivery.reason, now).run();
+}
+
+async function reconcileIncident(db: D1Database, check: QualityCheck, result: { id: string; status: QualityStatus; observed: string }, now: string,
+  options: { origin: string; notificationEnv: QualityNotificationEnvironment; fetcher: typeof fetch }) {
   if (result.status === "passed") {
     const unresolved = await db.prepare(`SELECT id FROM quality_incidents WHERE check_id=? AND status!='resolved'`)
       .bind(check.checkId).all<{ id: string }>();
     for (const incident of unresolved.results || []) {
       await db.prepare(`UPDATE quality_incidents SET status='resolved',last_seen_at=?,recovered_at=?,resolved_at=?,resolved_by='automatic-recovery',last_result_id=?,last_observed=? WHERE id=?`)
         .bind(now, now, now, result.id, result.observed, incident.id).run();
-      await db.prepare(`INSERT INTO quality_notification_deliveries
-        (id,incident_id,channel,event_kind,status,provider_message_id,reason,created_at)
-        VALUES (?,?,'email','recovered','disabled',NULL,'verified_email_provider_not_configured',?)
-        ON CONFLICT(incident_id,channel,event_kind) DO NOTHING`).bind(crypto.randomUUID(), incident.id, now).run();
+      await recordNotification(db, { incidentId: incident.id, eventKind: "recovered", check, observed: result.observed, origin: options.origin }, options.notificationEnv, options.fetcher, now);
     }
     return;
   }
@@ -210,10 +289,7 @@ async function reconcileIncident(db: D1Database, check: QualityCheck, result: { 
        acknowledged_at,acknowledged_by,resolved_at,resolved_by,occurrences,last_result_id,last_observed)
       VALUES (?,?,?,?,?,?,?,?,'open',?,?,NULL,NULL,NULL,NULL,NULL,1,?,?)`)
       .bind(incidentId, key, check.checkId, check.family, check.world, check.route, check.viewport, check.severity, now, now, result.id, result.observed).run();
-    await db.prepare(`INSERT INTO quality_notification_deliveries
-      (id,incident_id,channel,event_kind,status,provider_message_id,reason,created_at)
-      VALUES (?,?,'email','opened','disabled',NULL,'verified_email_provider_not_configured',?)
-      ON CONFLICT(incident_id,channel,event_kind) DO NOTHING`).bind(crypto.randomUUID(), incidentId, now).run();
+    await recordNotification(db, { incidentId, eventKind: "opened", check, observed: result.observed, origin: options.origin }, options.notificationEnv, options.fetcher, now);
     return;
   }
   await db.prepare(`UPDATE quality_incidents SET status='open',last_seen_at=?,recovered_at=NULL,resolved_at=NULL,resolved_by=NULL,
@@ -223,6 +299,7 @@ async function reconcileIncident(db: D1Database, check: QualityCheck, result: { 
 
 export async function runQualityChecks(db: D1Database, options: {
   origin: string; trigger: "scheduled" | "manual"; scheduledAt?: Date; releaseId?: string; actor?: string; fetcher?: typeof fetch;
+  notificationEnv?: QualityNotificationEnvironment;
 }) {
   const nowDate = options.scheduledAt || new Date();
   const now = nowDate.toISOString();
@@ -232,6 +309,10 @@ export async function runQualityChecks(db: D1Database, options: {
     : `manual:${runId}`;
   const started = Date.now();
   await ensureQualitySchema(db);
+  const staleBefore = new Date(nowDate.getTime() - RUN_STALE_AFTER_MS).toISOString();
+  await db.prepare(`UPDATE quality_runs SET status='blocked',finished_at=?,duration_ms=?,
+    blocked_count=CASE WHEN blocked_count<1 THEN 1 ELSE blocked_count END
+    WHERE status='running' AND started_at<?`).bind(now, RUN_STALE_AFTER_MS, staleBefore).run();
   await registerChecks(db, now);
   const due = checksDue(nowDate, options.trigger);
   await db.prepare(`INSERT INTO quality_runs (id,operation_key,trigger_kind,release_id,status,started_at,actor) VALUES (?,?,?,?,'running',?,?)
@@ -239,14 +320,20 @@ export async function runQualityChecks(db: D1Database, options: {
   const claimed = await db.prepare(`SELECT id,status FROM quality_runs WHERE operation_key=?`).bind(operationKey).first<{ id: string; status: string }>();
   if (!claimed || claimed.id !== runId) return { runId: claimed?.id || null, status: "skipped" as const, counts: null, checkCount: 0, startedAt: now, finishedAt: null };
   const counts = { passed: 0, failed: 0, degraded: 0, blocked: 0 };
-  for (const check of due) {
-    const observed = await executeCheck(check, options.origin, options.fetcher || fetch);
-    const resultId = crypto.randomUUID();
-    counts[observed.status] += 1;
-    await db.prepare(`INSERT INTO quality_results (id,run_id,check_id,status,status_code,duration_ms,observed,evidence_url,checked_at)
-      VALUES (?,?,?,?,?,?,?,?,?)`).bind(resultId, runId, check.checkId, observed.status, observed.statusCode,
-      observed.durationMs, observed.observed, observed.url, new Date().toISOString()).run();
-    await reconcileIncident(db, check, { id: resultId, status: observed.status, observed: observed.observed }, new Date().toISOString());
+  const fetcher = options.fetcher || fetch;
+  for (let offset = 0; offset < due.length; offset += CHECK_CONCURRENCY) {
+    const batch = due.slice(offset, offset + CHECK_CONCURRENCY);
+    const observations = await Promise.all(batch.map(async (check) => ({ check, observed: await executeCheck(check, options.origin, fetcher) })));
+    for (const { check, observed } of observations) {
+      const resultId = crypto.randomUUID();
+      counts[observed.status] += 1;
+      await db.prepare(`INSERT INTO quality_results (id,run_id,check_id,status,status_code,duration_ms,observed,evidence_url,checked_at)
+        VALUES (?,?,?,?,?,?,?,?,?)`).bind(resultId, runId, check.checkId, observed.status, observed.statusCode,
+        observed.durationMs, observed.observed, observed.url, new Date().toISOString()).run();
+      await reconcileIncident(db, check, { id: resultId, status: observed.status, observed: observed.observed }, new Date().toISOString(), {
+        origin: options.origin, notificationEnv: options.notificationEnv || {}, fetcher,
+      });
+    }
   }
   const finished = new Date().toISOString();
   const status = counts.failed || counts.blocked ? "failed" : counts.degraded ? "degraded" : "passed";
@@ -255,7 +342,7 @@ export async function runQualityChecks(db: D1Database, options: {
   return { runId, status, counts, checkCount: due.length, startedAt: now, finishedAt: finished };
 }
 
-export async function readQualityDashboard(db: D1Database) {
+export async function readQualityDashboard(db: D1Database, notificationEnv: QualityNotificationEnvironment = {}) {
   await ensureQualitySchema(db);
   const [runs, incidents, deliveries, checks] = await Promise.all([
     db.prepare(`SELECT id,operation_key AS operationKey,trigger_kind AS triggerKind,release_id AS releaseId,status,started_at AS startedAt,finished_at AS finishedAt,
@@ -269,7 +356,7 @@ export async function readQualityDashboard(db: D1Database) {
     db.prepare(`SELECT check_id AS checkId,family,world,route,viewport,severity,cadence_minutes AS cadenceMinutes,expected,release_blocking AS releaseBlocking,active,updated_at AS updatedAt
       FROM quality_checks ORDER BY severity,check_id`).all(),
   ]);
-  return { generatedAt: new Date().toISOString(), notificationProvider: { email: "not_configured" }, checks: checks.results, runs: runs.results, incidents: incidents.results, deliveries: deliveries.results };
+  return { generatedAt: new Date().toISOString(), notificationProvider: { email: qualityNotificationProviderStatus(notificationEnv) }, checks: checks.results, runs: runs.results, incidents: incidents.results, deliveries: deliveries.results };
 }
 
 export async function updateQualityIncident(db: D1Database, input: { incidentId: string; action: "acknowledge" | "resolve" | "reopen"; actor: string }) {

@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import styles from "./content-studio.module.css";
 import extras from "./content-studio-extras.module.css";
 import { defaultHomepagePresentation, type HomeDiscoveryItem } from "../../lib/homepage-presentation";
+import { homepageContentInventory } from "../../data/homepage-content-inventory";
 import { defaultEventLandingPresentation, eventLandingSourceAttributes, type EventLandingSearchItem } from "../../lib/event-landing-presentation";
 import { defaultWorldLandingPresentations, isManagedWorldLandingType, worldLandingSourceAttributes } from "../../lib/world-landing-presentation";
 
@@ -167,6 +168,7 @@ export default function ContentStudioPage() {
           {selected.contentType === "homepage" ? <fieldset className={`${extras.homeDeals} ${extras.homeSliderControl} ${styles.wide}`}>
             <legend>שליטה בחיפושים ובסליידרים בעמוד הבית</legend>
             <p>כל פריט כולל תמונה, טקסט ויעד. אפשר להסתיר, לערוך ולשנות סדר. רק פרסום מעדכן את האתר.</p>
+            <section className={extras.controlSection}><div className={extras.controlHead}><div><strong>מפת כל רכיבי עמוד הבית</strong><small>כך יודעים מה מנוהל כאן, מה מגיע חי ממקור נתונים ואיפה מכבים עולם שלם.</small></div></div><div className={extras.discoveryControlList}>{homepageContentInventory.map((item) => <div className={extras.periodControlRow} key={item.id}><strong>{item.label}</strong><span>{item.owner}</span><span className={extras.visibilityToggle}>{item.mode === "managed" ? "מנוהל תוכן" : item.mode === "live" ? "נתונים חיים" : item.mode === "managed-live" ? "ניהול + נתונים חיים" : "טקסט מערכת"}</span></div>)}</div></section>
             {([
               ["homePopularSearches", "חיפושים פופולריים", defaultHomepagePresentation.popular],
               ["homeCitySearches", "חיפוש לפי עיר ואזור", defaultHomepagePresentation.cities],

@@ -159,6 +159,10 @@ interface Env {
   VII_MAPBOX_STATIC_TOKEN?: string;
   VII_MAPTILER_API_KEY?: string;
   VII_QUALITY_ORIGIN?: string;
+  VII_QUALITY_EMAIL_PROVIDER?: string;
+  VII_QUALITY_EMAIL_API_KEY?: string;
+  VII_QUALITY_EMAIL_FROM?: string;
+  VII_QUALITY_EMAIL_RECIPIENTS?: string;
 }
 
 interface ExecutionContext {
@@ -183,6 +187,7 @@ const worker = {
       scheduledAt,
       releaseId: publicCacheBuild,
       actor: "cloudflare-scheduler",
+      notificationEnv: env,
     }).catch((error) => {
       console.error("VII automatic quality run unavailable", error);
     }));
@@ -237,6 +242,7 @@ const worker = {
         scheduledAt: qualityHeartbeatWindow(),
         releaseId: publicCacheBuild,
         actor: "visitor-heartbeat",
+        notificationEnv: env,
       }).catch((error) => {
         console.error("VII visitor quality heartbeat unavailable", error);
       }));
