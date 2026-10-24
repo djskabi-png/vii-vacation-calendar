@@ -174,9 +174,15 @@ function normalizePlace(world: World, supplierId: number, rawValue: unknown,
   return { supplierId, summary, detail };
 }
 
-export function createSergeyPublicCatalogClient(options: { apiKey: string; fetchImpl?: typeof fetch }) {
+export const SERGEY_DETAIL_REFRESH_LIMIT = 24;
+
+export function createSergeyPublicCatalogClient(options: { apiKey: string; fetchImpl?: typeof fetch; now?: () => Date;
+  detailRefreshLimit?: number }) {
   const apiKey = options.apiKey.trim();
   const fetchImpl = options.fetchImpl || fetch;
+  const now = options.now || (() => new Date());
+  const detailRefreshLimit = Number.isSafeInteger(options.detailRefreshLimit)
+    ? Math.max(0, Math.min(48, options.detailRefreshLimit as number)) : SERGEY_DETAIL_REFRESH_LIMIT;
   async function get(path: string): Promise<Record<string, unknown>> {
     if (!apiKey) throw new Error("missing_sergey_key");
     let response: Response;
@@ -192,7 +198,7 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
   }
 
   return {
-    async fetchCandidate(world: World) {
+    async fetchCandidate(world: World, previousEntries: SupplierCatalogEntry[] = []) {
       const [locations, list, types] = await Promise.all([get("/locations"), get(`/${world}`), get(`/${world}/types`)]);
       if (!Array.isArray(locations.cities) || !Array.isArray(locations.areas) || !Array.isArray(list.places)) {
         throw new Error("invalid_sergey_catalog");
@@ -207,10 +213,44 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
       }
       const entries = new Array<SupplierCatalogEntry | null>(active.length);
       const excludedMediaIds: number[] = [];
+      const previous = new Map(previousEntries.map((entry) => [entry.supplierId, entry]));
+      const existingIndexes = ids.map((id, index) => previous.has(id) ? index : -1).filter((index) => index >= 0);
+      const refreshIndexes = new Set<number>();
+      if (existingIndexes.length && detailRefreshLimit) {
+        const window = Math.floor(now().getTime() / 600_000);
+        const start = (window * detailRefreshLimit) % existingIndexes.length;
+        for (let offset = 0; offset < Math.min(detailRefreshLimit, existingIndexes.length); offset += 1) {
+          refreshIndexes.add(existingIndexes[(start + offset) % existingIndexes.length]);
+        }
+      }
+      const detailIndexes = active.map((_place, index) => index)
+        .filter((index) => !previous.has(ids[index]) || !previous.get(ids[index])?.detail || refreshIndexes.has(index));
+      for (let index = 0; index < active.length; index += 1) {
+        const old = previous.get(ids[index]);
+        if (!old || detailIndexes.includes(index)) continue;
+        try {
+          const listPlace = active[index];
+          const location = record(listPlace.location);
+          const normalized = normalizePlace(world, ids[index], {
+            ...listPlace,
+            id: ids[index], name: listPlace.siteName, location: { city: location.cityID },
+            summary: record(old.detail).summary || "", meta: { description: record(old.summary).description || "" },
+          }, cities, areas, amenityIndex);
+          entries[index] = { supplierId: ids[index], summary: {
+            ...old.summary,
+            ...normalized.summary,
+            description: record(old.summary).description || record(normalized.summary).description,
+            ...("highlights" in record(old.summary) ? { highlights: record(old.summary).highlights } : {}),
+          }, detail: old.detail };
+        } catch {
+          // A list-card omission must not erase a previously accepted detail page.
+          entries[index] = old;
+        }
+      }
       let cursor = 0;
       async function worker() {
-        while (cursor < active.length) {
-          const index = cursor++;
+        while (cursor < detailIndexes.length) {
+          const index = detailIndexes[cursor++];
           const id = ids[index];
           try {
             const detail = await get(`/${world}/${id}`);
@@ -224,13 +264,24 @@ export function createSergeyPublicCatalogClient(options: { apiKey: string; fetch
             }, cities, areas, amenityIndex);
           } catch (error) {
             if (error instanceof Error && ["sergey_place_missing_media", "supplier_fixture_not_public"].includes(error.message)) {
-              entries[index] = null;
+              entries[index] = previous.get(id) || null;
               excludedMediaIds.push(id);
+            } else if (previous.has(id)) {
+              entries[index] = previous.get(id)!;
+              console.warn("VII supplier detail refresh retained previous entry", { world, siteID: id,
+                code: error instanceof Error && /^[a-z_]{3,100}$/.test(error.message) ? error.message : "supplier_detail_refresh_failed" });
+            } else if (error instanceof Error && ["sergey_transport_error", "sergey_provider_error"].includes(error.message)) {
+              // A single new place must not make hundreds of already accepted
+              // places disappear. It remains unpublished until a later bounded
+              // detail refresh succeeds.
+              entries[index] = null;
+              console.warn("VII new supplier place deferred after detail failure", { world, siteID: id,
+                code: error instanceof Error && /^[a-z_]{3,100}$/.test(error.message) ? error.message : "supplier_detail_refresh_failed" });
             } else throw error;
           }
         }
       }
-      await Promise.all(Array.from({ length: Math.min(6, active.length) }, worker));
+      await Promise.all(Array.from({ length: Math.min(4, detailIndexes.length) }, worker));
       if (entries.some((entry) => entry === undefined)) throw new Error("invalid_sergey_catalog");
       if (excludedMediaIds.length) console.warn("VII supplier places withheld without media", { world, siteIDs: excludedMediaIds.sort((a, b) => a - b) });
       return { fetchedAt: new Date().toISOString(), entries: entries.filter((entry): entry is SupplierCatalogEntry => entry !== null) };

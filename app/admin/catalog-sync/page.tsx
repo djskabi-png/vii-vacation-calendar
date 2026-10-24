@@ -33,6 +33,7 @@ function RunDiagnostics({ world, value }: { world: World; value?: CatalogSyncDia
   const labels = catalogDiagnosticLabels(world);
   return <details>
     <summary>אבחון {worlds.find((item) => item.id === world)?.name}</summary>
+    {value.failure ? <p><strong>שלב הכשל:</strong> <code dir="ltr">{value.failure.stage}</code> · <strong>סוג:</strong> <code dir="ltr">{value.failure.category}</code> · <strong>משך:</strong> {(value.failure.elapsedMs / 1000).toLocaleString("he-IL", { maximumFractionDigits: 1 })} שניות{value.failure.total !== undefined ? <> · <strong>הושלמו:</strong> {value.failure.completed || 0} מתוך {value.failure.total}</> : null} · {value.failure.retryable ? "מתאים לניסיון חוזר" : "דורש תיקון לפני ניסיון נוסף"}</p> : null}
     {value.before !== undefined ? <p><span>{labels.places.plural} לפני:</span> {value.before} · <span>התקבלו מהספק:</span> {value.candidate}</p> : null}
     {value.addedIds ? <p><span>נוספו:</span> {value.addedCount} · <span dir="ltr" style={{ overflowWrap: "anywhere" }}>{value.addedIds.join(", ") || "—"}</span></p> : null}
     {value.removedIds ? <p><span>נגרעו:</span> {value.removedCount} · <span dir="ltr" style={{ overflowWrap: "anywhere" }}>{value.removedIds.join(", ") || "—"}</span></p> : null}

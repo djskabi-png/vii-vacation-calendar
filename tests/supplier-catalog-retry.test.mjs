@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { DatabaseSync } from "node:sqlite";
 import test from "node:test";
 import { runCatalogPullWithRetryPlan, runSupplierCatalogScheduleTick } from "../app/lib/supplier-catalog-retry-runner.ts";
-import { readCatalogRetryJobs } from "../app/lib/supplier-catalog-retry.ts";
+import { claimDueCatalogRetries, readCatalogRetryJobs, scheduleCatalogRetry } from "../app/lib/supplier-catalog-retry.ts";
 import { catalogFreshnessAlerts, readCatalogAlerts } from "../app/lib/supplier-catalog-alerts.ts";
 
 async function database() {
@@ -86,6 +86,39 @@ test("two failed retries exhaust the bounded retry budget and preserve an audita
 test("the runtime checks durable retry work every 10 minutes", async () => {
   const config = await readFile(new URL("../vite.config.ts", import.meta.url), "utf8");
   assert.match(config, /crons: \["\*\/10 \* \* \* \*"\]/);
+});
+
+test("an expired running retry is closed without blindly repeating an uncertain supplier pull", async () => {
+  const db = await database();
+  try {
+    await scheduleCatalogRetry(db, { rootRunId: "manual_stale_fixture", world: "vacations", attempt: 1,
+      dueAt: "2026-10-14T10:00:00.000Z", createdAt: "2026-10-14T09:50:00.000Z" });
+    assert.equal((await claimDueCatalogRetries(db, "2026-10-14T10:00:00.000Z", 1)).length, 1);
+    assert.equal((await claimDueCatalogRetries(db, "2026-10-14T10:31:00.000Z", 1)).length, 0);
+    const jobs = await readCatalogRetryJobs(db);
+    assert.equal(jobs[0].status, "exhausted");
+    assert.equal(jobs[0].resultStatus, "interrupted");
+    assert.equal(jobs[0].errorCode, "retry_lease_expired");
+  } finally { db.close(); }
+});
+
+test("stale retry reconciliation cancels a queued follow-up when the durable run already succeeded", async () => {
+  const db = await database();
+  try {
+    const rootRunId = "manual_stale_accepted";
+    await scheduleCatalogRetry(db, { rootRunId, world: "vacations", attempt: 1,
+      dueAt: "2026-10-14T10:00:00.000Z", createdAt: "2026-10-14T09:50:00.000Z" });
+    await scheduleCatalogRetry(db, { rootRunId, world: "vacations", attempt: 2,
+      dueAt: "2026-10-14T10:20:00.000Z", createdAt: "2026-10-14T10:00:00.000Z" });
+    assert.equal((await claimDueCatalogRetries(db, "2026-10-14T10:00:00.000Z", 1)).length, 1);
+    await db.prepare(`INSERT INTO supplier_catalog_runs (id, world, source, status, started_at, finished_at)
+      VALUES (?, 'vacations', 'retry', 'accepted', ?, ?)`).bind(`${rootRunId}_retry_1`,
+        "2026-10-14T10:00:00.000Z", "2026-10-14T10:01:00.000Z").run();
+    await claimDueCatalogRetries(db, "2026-10-14T10:31:00.000Z", 1);
+    const jobs = await readCatalogRetryJobs(db);
+    assert.equal(jobs.find((job) => job.attempt === 1).status, "completed");
+    assert.equal(jobs.find((job) => job.attempt === 2).status, "cancelled");
+  } finally { db.close(); }
 });
 
 test("dashboard derives a critical freshness alert after 24 hours and clears it after a current publication", () => {

@@ -65,5 +65,17 @@ export function catalogRunExplanation(world: SupplierCatalogWorld, errorCode: st
   if (errorCode === "spa_transport_error" || errorCode === "spa_provider_error") {
     return "לא ניתן היה לקבל נתונים מספק הספא. לא בוצע שינוי בקטלוג.";
   }
-  return "המשיכה לא אושרה. הנתונים הקודמים נשמרו, ואפשר לפתוח את פרטי האבחון למידע נוסף.";
+  const failure = diagnostics?.failure;
+  if (failure?.stage === "source_fetch") {
+    if (failure.category === "authorization") return "החיבור המאובטח לספק אינו מורשה. הקטלוג הקודם נשמר ויש לבדוק את מפתח החיבור.";
+    if (failure.category === "invalid_response") return "הספק החזיר מידע במבנה שאינו תקין. הקטלוג הקודם נשמר ולא פורסם מידע חלקי.";
+    if (failure.category === "transport" || failure.category === "provider") return "הקשר עם הספק נכשל לפני שהתקבל קטלוג מלא. הקטלוג הקודם נשמר וניתן לנסות שוב אוטומטית.";
+    if (failure.category === "resource_or_runtime") return "משיכת הספק הייתה גדולה מדי לריצה אחת ונעצרה לפני יצירת קטלוג מלא. הקטלוג הקודם נשמר.";
+  }
+  if (failure?.stage === "candidate_stage" || failure?.stage === "catalog_read" || failure?.stage === "publish") {
+    const progress = failure.total !== undefined ? ` (${failure.completed || 0} מתוך ${failure.total})` : "";
+    return `שמירת הקטלוג נקטעה בשלב מסד הנתונים${progress}. הדור הקודם נשמר ולא פורסם דור חלקי.`;
+  }
+  if (failure) return "המשיכה נעצרה לפני פרסום. הקטלוג הקודם נשמר ופרטי השלב מופיעים באבחון.";
+  return "המשיכה לא אושרה והקטלוג הקודם נשמר. בריצה הישנה הזאת לא נשמר אבחון מפורט.";
 }

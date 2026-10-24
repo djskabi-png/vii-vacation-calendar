@@ -54,6 +54,17 @@ function errorCode(error: unknown) {
   return /^[a-z_]{3,100}$/.test(message) ? message : "supplier_sync_failed";
 }
 
+function failureCategory(code: string, stage: NonNullable<CatalogSyncDiagnostics["failure"]>["stage"]): NonNullable<CatalogSyncDiagnostics["failure"]>["category"] {
+  if (code.includes("not_authorized") || code.includes("missing_sergey_key")) return "authorization";
+  if (code.includes("transport") || code.includes("timeout")) return "transport";
+  if (code.includes("provider")) return "provider";
+  if (code.includes("invalid_sergey") || code.includes("invalid_spa_response")) return "invalid_response";
+  if (code.startsWith("invalid_catalog") || code.includes("missing_catalog")) return "invalid_data";
+  if (stage === "catalog_read" || stage === "candidate_stage" || stage === "publish") return "database";
+  if (stage === "source_fetch" && code === "supplier_sync_failed") return "resource_or_runtime";
+  return "unknown";
+}
+
 export async function runSupplierCatalogSync(db: D1Database, input: {
   id: string;
   world: SupplierCatalogWorld;
@@ -65,19 +76,27 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
 }) {
   const now = input.now || (() => new Date());
   const startedAt = now().toISOString();
+  const startedMs = Date.parse(startedAt);
   const lockUntil = new Date(Date.parse(startedAt) + 15 * 60_000).toISOString();
   const acquired = await beginSupplierCatalogRun(db, { id: input.id, world: input.world,
     source: input.source, startedAt, lockUntil });
   if (!acquired) return { status: "skipped" as const, world: input.world, id: input.id };
   let diagnostics: CatalogSyncDiagnostics | undefined;
+  let stage: NonNullable<CatalogSyncDiagnostics["failure"]>["stage"] = "source_fetch";
+  let completed = 0;
+  let total: number | undefined;
   try {
     const candidate = await input.fetchCandidate();
+    stage = "candidate_validation";
+    total = candidate.entries.length;
     if (!Number.isFinite(Date.parse(candidate.fetchedAt)) || Date.parse(candidate.fetchedAt) > now().getTime()) {
       throw new Error("invalid_catalog_timestamp");
     }
+    stage = "catalog_read";
     const active = await readSupplierCatalog(db, input.world);
     if (!active && !input.baseline.length) throw new Error("missing_catalog_baseline");
     const previous = active?.entries || input.baseline;
+    stage = "candidate_compare";
     const diff = compareSupplierCatalogEntries(input.world, previous, candidate.entries);
     diagnostics = catalogInventoryDiagnostics(input.world, previous, candidate.entries, diff.changed);
     const previousChildCount = previous.reduce((count, entry) => count + children(input.world, entry).length, 0);
@@ -89,9 +108,12 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
       throw new Error("catalog_media_requires_review");
     }
     await input.validateCandidate?.(candidate.entries);
+    stage = "candidate_stage";
     for (let index = 0; index < candidate.entries.length; index += 40) {
       await stageSupplierCatalogEntries(db, input.id, input.world, candidate.entries.slice(index, index + 40));
+      completed = Math.min(candidate.entries.length, index + 40);
     }
+    stage = "publish";
     await acceptSupplierCatalogRun(db, { id: input.id, world: input.world,
       expectedCount: candidate.entries.length, added: diff.added, changed: diff.changed,
       removed: diff.removed.length, finishedAt: now().toISOString(), baseline: input.baseline,
@@ -101,6 +123,12 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
     if (error instanceof SpaEditorialReviewError) diagnostics = { ...diagnostics, ...error.diagnostics };
     if (error instanceof SupplierCatalogRedirectError || error instanceof SpaCatalogJsonError) diagnostics = error.diagnostics;
     const code = errorCode(error);
+    diagnostics = { ...diagnostics, failure: {
+      stage, category: failureCategory(code, stage),
+      elapsedMs: Math.max(0, now().getTime() - startedMs),
+      ...(stage === "candidate_stage" ? { completed, ...(total !== undefined ? { total } : {}) } : {}),
+      retryable: ["transport", "provider", "resource_or_runtime", "database", "unknown"].includes(failureCategory(code, stage)),
+    } };
     const status = code.includes("removal") || code === "catalog_media_requires_review" || code === "catalog_editorial_requires_review"
       || code.startsWith("invalid_catalog") ? "rejected" : "failed";
     await finishSupplierCatalogRun(db, { id: input.id, world: input.world,

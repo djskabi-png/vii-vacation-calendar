@@ -4,6 +4,14 @@ export const catalogDiagnosticLimit = 100;
 export const spaEditorialDiagnosticFields = ["title", "titleEN", "address", "city", "shortDescription", "about", "opening"] as const;
 export type SpaEditorialDiagnosticField = typeof spaEditorialDiagnosticFields[number];
 export type CatalogSyncDiagnostics = {
+  failure?: {
+    stage: "source_fetch" | "candidate_validation" | "catalog_read" | "candidate_compare" | "candidate_stage" | "publish";
+    category: "transport" | "provider" | "authorization" | "invalid_response" | "resource_or_runtime" | "database" | "invalid_data" | "unknown";
+    elapsedMs: number;
+    completed?: number;
+    total?: number;
+    retryable: boolean;
+  };
   spaEditorialReview?: {
     total: number;
     rejected: { supplierId: number; fields: SpaEditorialDiagnosticField[];
@@ -60,6 +68,19 @@ function hostname(value: unknown) {
 export function sanitizeCatalogDiagnostics(value: unknown): CatalogSyncDiagnostics | undefined {
   const input = object(value);
   const output: CatalogSyncDiagnostics = {};
+  const failure = object(input.failure);
+  const stages = new Set(["source_fetch", "candidate_validation", "catalog_read", "candidate_compare", "candidate_stage", "publish"]);
+  const categories = new Set(["transport", "provider", "authorization", "invalid_response", "resource_or_runtime", "database", "invalid_data", "unknown"]);
+  if (stages.has(String(failure.stage)) && categories.has(String(failure.category)) && count(failure.elapsedMs)) {
+    output.failure = {
+      stage: failure.stage as NonNullable<CatalogSyncDiagnostics["failure"]>["stage"],
+      category: failure.category as NonNullable<CatalogSyncDiagnostics["failure"]>["category"],
+      elapsedMs: failure.elapsedMs,
+      ...(count(failure.completed) ? { completed: failure.completed } : {}),
+      ...(count(failure.total) ? { total: failure.total } : {}),
+      retryable: failure.retryable === true,
+    };
+  }
   const editorial = object(input.spaEditorialReview);
   if (count(editorial.total) && Array.isArray(editorial.rejected)) {
     const allowedFields = new Set<string>(spaEditorialDiagnosticFields);

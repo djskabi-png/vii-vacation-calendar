@@ -1,0 +1,106 @@
+{
+  "status": "fixed",
+  "symptom": "The vacations catalog sync is shown as failed in the administration system without an actionable diagnosis or next step.",
+  "expected_behavior": "A vacations pull either publishes a complete safe catalog or preserves the previous catalog and explains the exact safe failure stage, cause category, and operator action.",
+  "environment": "Public VII administration catalog-sync page and production source preflight on 2026-10-24; local candidate branch release/v628-slider-state-machine.",
+  "reproduction": {
+    "steps": [
+      "Read the latest vacations catalog run from the authenticated administration API.",
+      "Run the authenticated read-only catalog source preflight.",
+      "Compare the supplier API contract with the vacations catalog client and retry runner."
+    ],
+    "evidence": "The latest manual vacations run failed after about 19 seconds with supplier_sync_failed and no diagnostics. The source preflight returned locations 200 in 290 ms, while vacations exceeded the probe's 2 MiB safety budget after 7.8 seconds. The client then requests one detail document for each of about 576 active places in the same Worker invocation."
+  },
+  "observations": [
+    {
+      "observation": "The supplier locations endpoint is healthy and contract-valid.",
+      "evidence": "Authenticated production preflight on 2026-10-24T18:06:22.865Z returned HTTP 200 JSON, 1,245 cities and 25 areas in 290 ms."
+    },
+    {
+      "observation": "The vacations list is a large unpaginated payload.",
+      "evidence": "The production preflight classified the vacations response as oversize after crossing 2 MiB at 7,801 ms. Official documentation exposes GET /vacations without pagination and states that it includes the result-card inventory."
+    },
+    {
+      "observation": "The implementation fans the list out into hundreds of detail requests in one Worker execution.",
+      "evidence": "createSergeyPublicCatalogClient.fetchCandidate filters the active list and starts six workers that call /vacations/{siteID} for every active place."
+    },
+    {
+      "observation": "The administration layer discards useful failure context.",
+      "evidence": "runSupplierCatalogSync persists only a restricted error string and only carries structured diagnostics for Spa editorial, redirect and Spa JSON failures. catalogRunExplanation has no vacations transport, provider, response, timeout or resource-limit cases."
+    },
+    {
+      "observation": "The automatic retry queue contains stale pending and running jobs.",
+      "evidence": "The authenticated administration API showed pending retries from 2026-10-21 through 2026-10-24 and running jobs that had not finished since 2026-10-20. The queue has no lease expiry or stale-job reclamation."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "A large unpaginated vacations list followed by roughly 576 per-place detail requests exhausts the practical time or resource budget of one Cloudflare Worker catalog run.",
+      "prediction": "Locations succeeds quickly, the vacations source is large, the run fails before a candidate count exists, and smaller worlds can still complete.",
+      "discriminating_test": "Compare the production source preflight, latest run stage, official endpoint contract, and the client fan-out implementation.",
+      "result": "Supported: locations succeeded in 290 ms; vacations exceeded 2 MiB after 7.8 seconds; the failed run has no candidate count; the implementation performs one detail request per active vacations place in one invocation.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The supplier changed the vacations list schema or authentication contract.",
+      "prediction": "The preflight returns a non-200 response, wrapped arrays, invalid IDs or an authorization failure.",
+      "discriminating_test": "Inspect the authenticated preflight response and the current official API documentation.",
+      "result": "Not supported by current evidence: the response is JSON and no authorization or schema error was observed before the probe stopped on size. The endpoint remains documented without pagination.",
+      "status": "rejected"
+    },
+    {
+      "id": "H3",
+      "mechanism": "Missing generic failure diagnostics make an otherwise classifiable failure appear as supplier_sync_failed with no operator guidance.",
+      "prediction": "Non-Spa failures before candidate comparison have no persisted diagnostics and fall through to a generic UI message.",
+      "discriminating_test": "Trace the catch path through supplier-catalog-sync, diagnostic sanitization and catalog-sync presentation.",
+      "result": "Supported exactly by the current code and the latest production run record.",
+      "status": "supported"
+    },
+    {
+      "id": "H4",
+      "mechanism": "Retry jobs can remain running forever after an interrupted Worker because the queue has no lease expiry or recovery path.",
+      "prediction": "The database contains old running jobs and old pending jobs that are not drained.",
+      "discriminating_test": "Read retry state from the authenticated administration API and inspect claim/finish transitions.",
+      "result": "Supported: old running and pending jobs exist, and the implementation only claims pending jobs and only finishes running jobs without reclaiming stale leases.",
+      "status": "supported"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Split the card-catalog refresh from a bounded rotating detail window of at most 24 existing places, preserve each last accepted detail snapshot on an isolated supplier failure, persist safe stage/category/progress diagnostics for every failure, and close expired retry leases without blindly repeating an uncertain operation.",
+    "evidence": "Focused catalog, sync and retry tests passed 25/25; the full repository suite passed 1,571/1,571; the final production build completed and its RSC asset manifests agree."
+  },
+  "affected_family": [
+    "vacations catalog scheduled sync",
+    "vacations manual sync",
+    "catalog retry runner",
+    "catalog administration diagnostics",
+    "vacations search and place data freshness"
+  ],
+  "regression_checks": [
+    {
+      "check": "Catalog client, guarded publication and retry queue",
+      "status": "passed",
+      "evidence": "25/25 focused tests passed, including bounded rotating detail refresh, accepted-detail fallback and expired retry lease closure."
+    },
+    {
+      "check": "Full affected repository family",
+      "status": "passed",
+      "evidence": "1,571/1,571 tests passed after the localization correction."
+    },
+    {
+      "check": "Production build",
+      "status": "passed",
+      "evidence": "vinext production build completed; RSC manifests agree with 217 references."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "The exact decompressed byte size of the complete vacations list is not exposed by the current safe preflight.",
+    "The exact Worker limit category is not available from this task's Sites workspace logs, but the observed source size and fan-out mechanism are sufficient to reject the current single-run design.",
+    "Production behavior remains unverified until this candidate is deployed and a controlled vacations sync is observed at its natural destination."
+  ],
+  "authorization_boundary": "Read-only production diagnosis and local repair are authorized. Do not start another manual supplier pull while the queued retry state is unresolved; production publication requires the active release workflow."
+}

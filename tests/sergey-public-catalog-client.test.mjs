@@ -124,3 +124,41 @@ test("withholds a place without photos without discarding the rest of the catalo
   const result = await client({ galleries: [] }, true).fetchCandidate("vacations");
   assert.deepEqual(result.entries.map((entry) => entry.supplierId), [18]);
 });
+
+test("an existing large catalog refreshes only a bounded rotating detail window and keeps accepted details", async () => {
+  const requested = [];
+  const previous = Array.from({ length: 100 }, (_, index) => ({ supplierId: index + 1,
+    summary: { slug: `vacation-${index + 1}`, name: `מקום ${index + 1}`, image: "https://www.vii.co.il/gallery/old.jpg" },
+    detail: { images: ["https://www.vii.co.il/gallery/old.jpg"], marker: index + 1 } }));
+  const fetchImpl = async (url) => {
+    const path = new URL(url).pathname.replace("/api/ai/vii", "");
+    if (path === "/locations") return Response.json({ cities: [{ id: 1, title: "חיפה", area: 2 }], areas: [{ id: 2, title: "חיפה והקריות" }] });
+    if (path === "/vacations/types") return Response.json({ roomTypes: [], amenities: [], amenity_categories: [] });
+    if (path === "/vacations") return Response.json({ places: previous.map((entry) => ({ siteID: entry.supplierId,
+      siteName: entry.summary.name, active: true, location: { cityID: 1 }, galleries: [{ pictures: ["/gallery/list.jpg"] }], rooms: [] })) });
+    const id = Number(path.split("/").at(-1)); requested.push(id);
+    return Response.json({ id, active: true, name: `מקום ${id}`, location: { city: 1 },
+      galleries: [{ pictures: ["/gallery/fresh.jpg"] }], rooms: [] });
+  };
+  const result = await createSergeyPublicCatalogClient({ apiKey: "test-key", fetchImpl,
+    detailRefreshLimit: 7, now: () => new Date("2026-10-24T12:00:00Z") }).fetchCandidate("vacations", previous);
+  assert.equal(result.entries.length, 100);
+  assert.equal(requested.length, 7);
+  assert.equal(result.entries.filter((entry) => entry.detail?.marker).length, 93);
+});
+
+test("a failing detail refresh preserves the accepted place instead of failing the whole generation", async () => {
+  const old = (await client().fetchCandidate("vacations")).entries;
+  const fetchImpl = async (url) => {
+    const path = new URL(url).pathname.replace("/api/ai/vii", "");
+    if (path === "/locations") return Response.json({ cities: [{ id: 1, title: "חיפה", area: 2 }], areas: [{ id: 2, title: "חיפה והקריות" }] });
+    if (path === "/vacations/types") return Response.json({ roomTypes: [], amenities: [], amenity_categories: [] });
+    if (path === "/vacations") return Response.json({ places: [{ siteID: 17, siteName: "מתחם בדיקה", active: true,
+      location: { cityID: 1 }, galleries: [{ pictures: ["/gallery/list.jpg"] }], rooms: [] }] });
+    return new Response("temporary", { status: 503 });
+  };
+  const result = await createSergeyPublicCatalogClient({ apiKey: "test-key", fetchImpl,
+    detailRefreshLimit: 1 }).fetchCandidate("vacations", old);
+  assert.equal(result.entries.length, 1);
+  assert.deepEqual(result.entries[0].detail, old[0].detail);
+});

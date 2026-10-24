@@ -128,7 +128,8 @@ test("redirect diagnostics store only status and hostname, never credentials or 
         "https://private-user:private-password@abuse.spd.co.il/private-path?key=private-key#private-fragment",
         "https://www.spaplus.co.il/vii/?key=private-base-key"); } });
     assert.equal(result.status, "failed");
-    assert.deepEqual(result.diagnostics, { redirect: { status: 302, hostname: "abuse.spd.co.il" } });
+    assert.deepEqual(result.diagnostics.redirect, { status: 302, hostname: "abuse.spd.co.il" });
+    assert.deepEqual(result.diagnostics.failure, { stage: "source_fetch", category: "unknown", elapsedMs: 0, retryable: true });
     const run = (await readSupplierCatalogDashboard(db)).runs.find((item) => item.id === "redirect-private");
     assert.deepEqual(run.diagnostics, result.diagnostics);
     assert.doesNotMatch(JSON.stringify(run.diagnostics), /private|https|\?|#/);
