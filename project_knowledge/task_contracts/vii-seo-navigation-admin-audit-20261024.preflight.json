@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-seo-navigation-admin-audit-20261024",
+  "project": "VII",
+  "task_type": "seo-navigation-localization-admin-audit-and-repair",
+  "requested_outcome": "Audit and safely repair the complete VII public routing, multilingual crawl surfaces, legacy redirects, breadcrumbs, and administration experience, then produce a frozen release candidate with evidence without publishing it.",
+  "natural_destination": "The VII public site and protected administration system represented by the exact frozen candidate, with production left unchanged until explicit publication approval.",
+  "authorization_boundary": "Read-only production checks and local code changes, builds and tests are authorized. Production publication, DNS, indexing changes, cloud infrastructure and external messaging are not authorized in this request.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-QA-001","reason":"The request asks whether everything is done and requires a complete family-wide proof, not a point fix.","acceptance_impact":"Every route family and changed capability must map to evidence, a precise blocker or a justified exclusion, with exact candidate identity."},
+    {"lesson_id":"ADIR-ADMIN-001","reason":"The user explicitly requires the administration system to operate and look like the platform.","acceptance_impact":"Administration capability, persistence, authorization, reflection and visual-state evidence are separate gates."},
+    {"lesson_id":"ADIR-SEO-001","reason":"Sitemaps, crawl files, languages, redirects and indexability are the core request.","acceptance_impact":"Canonical, hreflang, robots, sitemap, schema, status and measurement families must be audited from real responses."},
+    {"lesson_id":"ADIR-WEB-CMS-001","reason":"The request includes all tools and multilingual site-management coverage.","acceptance_impact":"CMS modules for content, SEO, navigation, media, URLs and redirects require explicit inventory and evidence."},
+    {"lesson_id":"ADIR-VISUAL-001","reason":"The user expects a premium futuristic platform-level administration appearance.","acceptance_impact":"Admin desktop and mobile visual hierarchy, spacing, empty states and full-page composition must be inspected."},
+    {"lesson_id":"ADIR-CONSISTENCY-001","reason":"Navigation and breadcrumbs must be consistent across all worlds and languages.","acceptance_impact":"Vacation is the structural reference and every parallel world and locale must be compared against it."},
+    {"lesson_id":"ADIR-COPY-001","reason":"The earlier multilingual defects included mixed-language content and non-native public copy.","acceptance_impact":"Every language must be checked for mixed-language leftovers in navigation, metadata, cards and public interface copy."},
+    {"lesson_id":"ADIR-MOBILE-001","reason":"The affected public and admin families have repeatedly failed on mobile.","acceptance_impact":"Representative public and admin routes require 390-pixel and low-height evidence in addition to desktop."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"Only the sitemap index is checked while child maps, localized routes or excluded pages are missed.","prevention":"Inventory every sitemap and compare canonical URLs, locale alternates, route existence and indexability.","acceptance_check":"A machine-readable sitemap matrix records every discovered sitemap, URL count, language, status and defect."},
+    {"rejection":"Breadcrumb labels are repaired but URL, canonical, schema or redirect state still disagrees.","prevention":"Treat URL, canonical, breadcrumb UI, BreadcrumbList and legacy redirect as one contract.","acceptance_check":"Cross-world samples in all four languages have matching route, canonical, schema and hierarchy, and changed paths have direct permanent redirects."},
+    {"rejection":"Known redirects pass but the full legacy inventory still has missing, chained, looping or homepage fallbacks.","prevention":"Run the complete stored legacy inventory and migration audits, then classify every unresolved source.","acceptance_check":"The redirect report has zero loops, chains, non-ASCII destinations and accidental homepage catch-alls, with unresolved sources listed precisely."},
+    {"rejection":"The administration system gets cosmetic styling but daily tasks, modules, permissions or persistence remain incomplete.","prevention":"Inventory the complete admin route and capability family before changing shared presentation.","acceptance_check":"Admin evidence covers sign-in, authorization, navigation, loading, empty, error, save/reload and natural-surface reflection for supported modules."},
+    {"rejection":"The candidate passes source tests but is not visually inspected on desktop and mobile.","prevention":"Create deterministic local candidate captures and inspect full pages for public and admin representative routes.","acceptance_check":"Opened desktop, 390-pixel and low-height captures exist for every changed template family and no unexplained visual defects remain."},
+    {"rejection":"The work is reported as live even though no publication was authorized.","prevention":"Keep production unchanged and label the result as a candidate until a separate explicit publish instruction.","acceptance_check":"Final evidence names the commit/build identity, states production unchanged and records publication as not authorized."}
+  ],
+  "affected_family": [
+    "public route templates for vacations, events, rooms VIP, spa, discovery, suppliers, guides, gift cards, search and managed pages",
+    "Hebrew, English, French and Russian localized routes",
+    "visual breadcrumbs and BreadcrumbList structured data",
+    "canonical, hreflang, robots, sitemap and metadata output",
+    "legacy redirect inventory and changed canonical paths",
+    "desktop header, mobile menu, footer and internal links",
+    "administration shell and content, growth, navigation, redirect, sitemap, analytics and operational modules",
+    "desktop, 390-pixel mobile and low-height states"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {"label":"VII platform source of truth","source":"calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"},
+      {"label":"VII accepted product behavior","source":"calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"},
+      {"label":"Vacation breadcrumb reference","source":"Approved order: home, world, region, city, place"}
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After the first complete route, sitemap, redirect and admin inventory is generated, before modifying shared routing or visual-system code.",
+    "checks": ["Confirm whether breadcrumb changes actually changed URLs.","Confirm the exact missing multilingual and redirect families.","Inspect one admin desktop and mobile route before expanding any visual change."],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": ["Can any sitemap URL return non-200, wrong canonical, wrong language or unexpected noindex?","Can any legacy source redirect through a chain, loop, homepage fallback or non-equivalent destination?","Can any world or language show a breadcrumb hierarchy that disagrees with URL or structured data?","Can any promised admin module look polished but fail authorization, persistence or reflection?","Does any representative desktop, mobile or low-height route remain visually broken or mixed-language?"],
+    "natural_destination_evidence": "Exact candidate routes opened and inspected in a real browser, plus read-only production comparison where safe.",
+    "affected_family_evidence": "Complete route, language, sitemap, redirect, navigation and admin matrices with test output and screenshots."
+  },
+  "effectiveness": {
+    "baseline": "Earlier QA found multilingual metadata and map defects, and the complete current sitemap, redirect and admin visual families have not yet been re-certified together.",
+    "measurements": ["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],
+    "target": "Prevent incomplete done claims by producing one reproducible candidate and a precise remaining-blocker list before any publication request."
+  },
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

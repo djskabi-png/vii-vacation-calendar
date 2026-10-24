@@ -1,0 +1,17 @@
+[vinext] Route handler error: Error: D1_ERROR: no such table: supplier_catalog_state: SQLITE_ERROR
+    at D1DatabaseSessionAlwaysPrimary._sendOrThrow (cloudflare-internal:d1-api:139:19)
+    at cloudflare-internal:d1-api:323:39
+    ... 7 lines matching cause stack trace ...
+    at handleRequest (C:/Users/Adir/Documents/vii.co.il/.release-v596-regression-qa/node_modules/.pnpm/vinext@0.0.50_@vitejs+plugi_67aa13a041cb340aa114f5f24aa08bf9/node_modules/vinext/src/server/app-router-entry.ts:85:18) {
+  [cause]: Error: no such table: supplier_catalog_state: SQLITE_ERROR
+      at D1DatabaseSessionAlwaysPrimary._sendOrThrow (cloudflare-internal:d1-api:140:24)
+      at cloudflare-internal:d1-api:323:39
+      at publicCatalogSummaries (C:/Users/Adir/Documents/vii.co.il/.release-v596-regression-qa/app/lib/public-catalog-read.ts:28:17)
+      at sitemapSection (C:/Users/Adir/Documents/vii.co.il/.release-v596-regression-qa/app/lib/sitemap-inventory.ts:60:24)
+      at sitemapManifest (C:/Users/Adir/Documents/vii.co.il/.release-v596-regression-qa/app/lib/sitemap-inventory.ts:124:79)
+      at Object.GET [as handlerFn] (C:/Users/Adir/Documents/vii.co.il/.release-v596-regression-qa/app/sitemap.xml/route.ts:9:20)
+      at runAppRouteHandler (C:/Users/Adir/Documents/vii.co.il/.release-v596-regression-qa/node_modules/.pnpm/vinext@0.0.50_@vitejs+plugi_67aa13a041cb340aa114f5f24aa08bf9/node_modules/vinext/src/server/app-route-handler-execution.ts:127:20)
+      at executeAppRouteHandler (C:/Users/Adir/Documents/vii.co.il/.release-v596-regression-qa/node_modules/.pnpm/vinext@0.0.50_@vitejs+plugi_67aa13a041cb340aa114f5f24aa08bf9/node_modules/vinext/src/server/app-route-handler-execution.ts:143:48)
+      at route (C:/Users/Adir/Documents/vii.co.il/.release-v596-regression-qa/node_modules/.pnpm/vinext@0.0.50_@vitejs+plugi_67aa13a041cb340aa114f5f24aa08bf9/node_modules/vinext/src/server/app-rsc-handler.ts:582:24)
+      at handleRequest (C:/Users/Adir/Documents/vii.co.il/.release-v596-regression-qa/node_modules/.pnpm/vinext@0.0.50_@vitejs+plugi_67aa13a041cb340aa114f5f24aa08bf9/node_modules/vinext/src/server/app-router-entry.ts:85:18)
+}

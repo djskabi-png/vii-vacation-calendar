@@ -49,7 +49,9 @@ export async function sitemapSection(section: SitemapSection): Promise<SitemapUr
     try { db = await runtimeDatabase(); }
     catch { db = undefined; }
     const worlds = await Promise.all(holidays.map((holiday) => readHolidayWorld(holiday, db)));
-    return unique(worlds.filter((world) => world.indexable).map((world) => ({ url: absoluteUrl(holidayWorldPath(world.name, world.id)) })));
+    return unique(worlds
+      .filter((world) => world.indexable)
+      .flatMap((world) => localizedEntries(holidayWorldPath(world.name, world.id))));
   }
   if (section === "vacations") {
     if (!availability.vacation) return [];

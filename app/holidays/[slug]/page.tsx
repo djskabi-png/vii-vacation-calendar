@@ -14,7 +14,7 @@ import { supplierToken } from "../../lib/vii-supplier-token.ts";
 import type { D1Database } from "../../../types/cloudflare-runtime.ts";
 import { runtimeDatabase } from "../../lib/runtime-database.ts";
 import "../holiday-world.css";
-import { serverPublicCopy } from "../../i18n/server-public-copy";
+import { serverLocalePath, serverPublicCopy } from "../../i18n/server-public-copy";
 
 type Props = { params: Promise<{ slug: string }>; searchParams?: Promise<Record<string, string | string[] | undefined>> };
 
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { language, translate } = await serverPublicCopy();
   const source = await readHolidayWorld(holiday, await database(), language);
   const world = { ...source, metaTitle: translate(source.metaTitle), metaDescription: translate(source.metaDescription), heroImageAlt: translate(source.heroImageAlt) };
-  const canonical = `/holidays/${world.slug}`;
+  const canonical = await serverLocalePath(`/holidays/${world.slug}`);
   return { title: world.metaTitle, description: world.metaDescription, robots: { index: world.indexable, follow: true }, alternates: { canonical },
     openGraph: { type: "website", url: canonical, title: world.metaTitle, description: world.metaDescription, images: [{ url: world.heroImage, alt: world.heroImageAlt }] } };
 }

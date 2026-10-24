@@ -1,0 +1,344 @@
+{
+  "schema_version": 2,
+  "task_id": "vii-seo-navigation-admin-audit-20261024",
+  "project": "VII",
+  "task_type": "seo-navigation-localization-admin-audit-and-repair",
+  "goal": "Audit and safely repair the complete VII public routing, multilingual crawl surfaces, legacy redirects, breadcrumbs, and administration experience, then produce a frozen release candidate with evidence without publishing it.",
+  "created_at": "2026-10-24T02:26:28.813953Z",
+  "updated_at": "2026-10-24T02:42:46.971417Z",
+  "completed_at": null,
+  "source_hashes": {
+    "working_profile": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
+      "sha256": "a53f3cf6f221a2a2da458ce59681240effe0028a2744bf25317e1c3b162f9973"
+    },
+    "lesson_register": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_LEARNING_REGISTER.json",
+      "sha256": "f1aa410611dd0fdb5adbb8a620832ee6ff9f9a3498a8108f74f1ccb86562379b"
+    },
+    "cognitive_model": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_COGNITIVE_OPERATING_MODEL.md",
+      "sha256": "708ce5d1b152afe220cf98008f571e7d27704c102624f7d7440dc85a1a6ba2d8"
+    },
+    "rulebook": {
+      "path": "C:\\Users\\Adir\\.codex\\ADIR_AI_RULEBOOK.md",
+      "sha256": "eef33571725d590d0dadeeee9475422715279004fbc40356257d11e818039ab1"
+    },
+    "predictive_preflight": {
+      "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v596-regression-qa\\project_knowledge\\task_contracts\\vii-seo-navigation-admin-audit-20261024.preflight.json",
+      "sha256": "ef3736020a727005eff45f45a9591a3058253b3fea9380429103286b51c95b5f"
+    }
+  },
+  "predictive_preflight": {
+    "path": "C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v596-regression-qa\\project_knowledge\\task_contracts\\vii-seo-navigation-admin-audit-20261024.preflight.json",
+    "sha256": "ef3736020a727005eff45f45a9591a3058253b3fea9380429103286b51c95b5f",
+    "predicted_rejection_count": 6,
+    "affected_family_count": 8,
+    "lesson_bundle_count": 8,
+    "midpoint_required": true,
+    "effectiveness_measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ]
+  },
+  "applicable_lessons": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "title": "מסירה דורשת תוצאה מלאה ובדיקת רגרסיה",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-ADMIN-001",
+      "title": "מערכת ניהול היא מוצר תפעולי מלא",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-SEO-001",
+      "title": "כל אתר יוצא עם תשתית קידום ומדידה מלאה",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-WEB-CMS-001",
+      "title": "מערכת הניהול שולטת בכל שכבות האתר בבטחה",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-VISUAL-001",
+      "title": "ריסון חזותי וקצב ריווח מדוד",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-CONSISTENCY-001",
+      "title": "אחידות מחייבת במשפחות עמודים ורכיבים",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-COPY-001",
+      "title": "תוכן ציבורי חייב להיות טבעי ומאומת",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    },
+    {
+      "lesson_id": "ADIR-MOBILE-001",
+      "title": "נייד הוא משטח מוצר ראשי",
+      "scope": "account_rule_and_shared_skill_and_acceptance_gate"
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "requirements": [
+    {
+      "id": "goal",
+      "source": "user_request",
+      "statement": "Audit and safely repair the complete VII public routing, multilingual crawl surfaces, legacy redirects, breadcrumbs, and administration experience, then produce a frozen release candidate with evidence without publishing it.",
+      "acceptance_check": "Exact frozen candidate has complete route, locale, sitemap, redirect, breadcrumb, admin and visual evidence, while production remains unchanged.",
+      "status": "blocked",
+      "evidence": [],
+      "reason": "Safe local repairs and a frozen candidate are ready; exact production deployment, post-deploy verification and the unavailable historic URL corpus prevent a complete claim.",
+      "updated_at": "2026-10-24T02:42:39.706507Z"
+    },
+    {
+      "id": "preflight:prediction",
+      "source": "predictive_preflight",
+      "statement": "Predict likely Adir rejection reasons and bind prevention to observable evidence before implementation.",
+      "acceptance_check": "The bounded predictive manifest matches the task identity and selected lessons and passes deterministic validation.",
+      "status": "passed",
+      "evidence": [
+        "Predictive preflight C:\\Users\\Adir\\Documents\\vii.co.il\\.release-v596-regression-qa\\project_knowledge\\task_contracts\\vii-seo-navigation-admin-audit-20261024.preflight.json validated with sha256 ef3736020a727005eff45f45a9591a3058253b3fea9380429103286b51c95b5f"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-24T02:26:28.812921Z"
+    },
+    {
+      "id": "preflight:midpoint",
+      "source": "predictive_preflight.midpoint_gate",
+      "statement": "After the first complete route, sitemap, redirect and admin inventory is generated, before modifying shared routing or visual-system code.",
+      "acceptance_check": "Record observed evidence from the planned midpoint checks before broadening or finishing the affected family.",
+      "status": "passed",
+      "evidence": [
+        "Public sitemap index has 8 children and 8,212 URLs; holiday sitemap has 19 Hebrew URLs and zero EN/FR/RU despite localized holiday pages returning 200 with self canonicals. Stored legacy audit passes 2,341 migrated search pages, 0 remaining non-place issues and 423 explicitly excluded place pages. Admin source inventory exposes the required operational modules and a shared visual shell."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-24T02:27:52.220737Z"
+    },
+    {
+      "id": "preflight:adversarial",
+      "source": "predictive_preflight.adversarial_close",
+      "statement": "Attempt to disprove completion using the planned rejection questions at the natural destination and across the affected family.",
+      "acceptance_check": "Record the attacks performed and the exact natural-destination and affected-family evidence that survived them.",
+      "status": "passed",
+      "evidence": [
+        "Production sample crawl passed 80/80; public home, sitemap and robots recovered to 200 after the bounded crawl stopped; authenticated administration opened and rendered the operational command center.",
+        "Candidate full suite passed 1,546/1,546 before additive QA/CSS changes; focused post-change suites passed; final build passed; complete stored legacy migration audit passed with 0 known non-place issues.",
+        "Executed 4 specific completion attacks"
+      ],
+      "reason": null,
+      "updated_at": "2026-10-24T02:42:38.640014Z"
+    },
+    {
+      "id": "preflight:effectiveness",
+      "source": "predictive_preflight.effectiveness",
+      "statement": "Measure whether the proactive gate reduced repeated correction work for this task.",
+      "acceptance_check": "Record first-pass acceptance state, repeated corrections, prevented failures, and elapsed time or a precise unavailable baseline.",
+      "status": "passed",
+      "evidence": [
+        "Structured effectiveness result: first_pass=no, repeated_corrections=3, prevented_failures=6, elapsed_minutes=85.0; No comparable prior end-to-end sitemap URL crawler existed; the previous audit inspected sitemap XML endpoints rather than contained pages."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-24T02:42:38.767168Z"
+    },
+    {
+      "id": "lesson:ADIR-QA-001",
+      "source": "lesson:ADIR-QA-001",
+      "statement": "שום פרויקט או תוצר אינם גמורים כאשר היעד הטבעי אינו מציג את התוצאה המבוקשת, כאשר מצב שנשמר לא שרד רענון, כאשר קיימים רכיבים מתים, מצבים מזויפים, מסלולים קטועים וחיבורים שלא נבדקו מקצה לקצה, או כאשר המבצע לא פתח בעצמו את הגרסה המדויקת ובדק אותה לפי סוג התוצר. לאחר כל תיקון מקומי חוזרים להבטחה המקורית ולמטרת העל, ובודקים מחדש את כל המסלול, משפחת המצבים והקריטריונים הקריטיים. הוכחה שתוקן הפרט האחרון אינה אישור שהמוצר, המסמך, המחקר, המדיה, האוטומציה או הפעולה העסקית המלאה מוכנים או שאדיר צפוי להיות מרוצה. מוצר ציבורי שמשרת לקוחות אינו מאושר למסירה רק על בסיס בדיקות המבצע: לאחר פרסום מועמד מותנה נדרשת קבוצת בדיקות מייצגת על הגרסה המדויקת, עם תרחישי לקוח, תפעול, עסק וסיכון. פרויקט מסוג אחר מפעיל בדיקות בעלי עניין מתאימות לסוגו או מנמק במדויק מדוע השער אינו חל. כל מסירה לאדיר כוללת קישור ישיר ושימושי לכל תוצאה שניתנת לפתיחה. אם אין קישור אפשרי, מציינים זאת במפורש ומוסרים את המיקום המדויק או דרך האחזור.",
+      "acceptance_check": "Before any complete, ready or likely-to-satisfy judgment, the evidence must name the original promise, distinguish the latest repaired detail from the full outcome, map every critical journey and affected-family item to passed evidence, a precise blocker or justified exclusion, and inspect the exact final artifact at its natural destination. A fixture that proves only the most recent local correction must be blocked from full approval, regardless of project type. A deliberately incomplete review or task must be blocked. A public customer-facing review must also fail without five to ten passed post-deploy representative actor scenarios on the exact version and at least three applicable stakeholder perspectives. A justified non-public or non-customer artifact must remain valid without an irrelevant public cohort. A completed result with an addressable destination fails delivery when its direct link is omitted. A result without a possible link passes only when the exact location or retrieval path and a concrete no-link reason are present.",
+      "status": "blocked",
+      "evidence": [],
+      "reason": "Candidate is not deployed, so exact post-deploy representative actor evidence is unavailable.",
+      "updated_at": "2026-10-24T02:42:45.911472Z"
+    },
+    {
+      "id": "lesson:ADIR-ADMIN-001",
+      "source": "lesson:ADIR-ADMIN-001",
+      "statement": "מערכת ניהול מיועדת לעבודה יומיומית קצרה וברורה, ומנהלת בהרשאה הנכונה תוכן, חיפוש, SEO ו־GEO, סכמה, רובוטים, מפות אתר, מדידה, ניווט, פוטר, תמונות, כתובות והפניות, עם שמירה, גרסה, תצוגה מקדימה, השתקפות וחזרה לאחור. שינוי הרשאה נחשב תקין רק לאחר שהרשומה המתמידה הוחזרה מהשרת, נשמרה במקור האמת, שרדה רענון ללא מטמון ונבדקה במסלול הכניסה של תפקיד היעד בלי לפתוח אזורים שלא אושרו.",
+      "acceptance_check": "מערכת ניהול אינה עוברת בלי מטריצת יכולות והרשאות, עריכה ותצוגה מקדימה של כל משפחת אתר מחייבת, שמירה ששרדה רענון, השתקפות ביעד הטבעי, יומן שינוי וחזרה לאחור לפעולות כלל־אתר. שינוי הרשאה נכשל אם חסרים הרשומה המתמידה במקור האמת, תגובת שרת עם המשתמש שנשמר, רענון ללא מטמון, אירוע ביקורת, כניסה מוצלחת של תפקיד היעד או הוכחה שאזור לא מורשה נשאר חסום.",
+      "status": "blocked",
+      "evidence": [],
+      "reason": "Administration capability and authorization tests pass, but exact candidate persistence and rollback cannot be verified in production before deployment.",
+      "updated_at": "2026-10-24T02:42:46.037254Z"
+    },
+    {
+      "id": "lesson:ADIR-SEO-001",
+      "source": "lesson:ADIR-SEO-001",
+      "statement": "כל אתר ציבורי כולל כברירת מחדל SEO, GEO, נתונים מובנים, robots, sitemap, canonical, תוכנית מדידה, מילון אירועים, שכבת נתונים, ניהול תגיות והסכמה שנבדקו בגרסה החיה.",
+      "acceptance_check": "שער השחרור נכשל אם חסרה אחת ממשפחות הקידום או המדידה, אם קיימת סתירה באינדוקס, אם נתונים מובנים אינם תואמים לתוכן, אם אירוע לא נראה בדיבוג ובזמן אמת, או אם נשלח מידע אישי.",
+      "status": "blocked",
+      "evidence": [],
+      "reason": "Core SEO surfaces pass, but Search Console, GA4 and GTM are still unverified external connections and the historic URL corpus is incomplete.",
+      "updated_at": "2026-10-24T02:42:46.160712Z"
+    },
+    {
+      "id": "lesson:ADIR-WEB-CMS-001",
+      "source": "lesson:ADIR-WEB-CMS-001",
+      "statement": "כל אתר מנהל תוכן ושפות, חיפוש, SEO ו־GEO, סכמה, רובוטים, מפות אתר, מדידה, תפריטים, פוטר, מטא־נתוני תמונות, כתובות והפניות דרך מודולים מאובטחים ומבוקרים.",
+      "acceptance_check": "שער הראיות דורש לכל מודול עריכה, ולידציה, הרשאה, שמירה, רענון, תצוגה מקדימה, השתקפות חיה ודרך חזרה; חסר באחת השכבות חוסם אישור.",
+      "status": "blocked",
+      "evidence": [],
+      "reason": "Modules exist and tests pass; exact candidate save, refresh, preview, reflection and rollback at the natural destination require deployment.",
+      "updated_at": "2026-10-24T02:42:46.286906Z"
+    },
+    {
+      "id": "lesson:ADIR-VISUAL-001",
+      "source": "lesson:ADIR-VISUAL-001",
+      "statement": "כל ממשק משתמש בהיררכיה נקייה ובקצב ריווח מדוד, ללא כותרות כפולות, טקסטי מילוי, קווים ללא תפקיד, מסגרות בתוך מסגרות, שטחים ריקים ללא סיבה או תוכן ובקרים הצמודים לגבולות.",
+      "acceptance_check": "שער הראיות נכשל ללא אסימוני ריווח, מדידות של מעברים סמוכים, צילום עמוד מלא במחשב ובנייד, סריקת תוכן כפול ומלאי מסגרות וקווים שעברו בדיקה עצמאית.",
+      "status": "blocked",
+      "evidence": [],
+      "reason": "Production admin was visually inspected and candidate styling built, but no authenticated screenshot of the exact candidate exists before deployment.",
+      "updated_at": "2026-10-24T02:42:46.416203Z"
+    },
+    {
+      "id": "lesson:ADIR-CONSISTENCY-001",
+      "source": "lesson:ADIR-CONSISTENCY-001",
+      "statement": "רכיבים ועמודים מאותה משפחה שומרים על היררכיה, סדר, צורה, מיקום והתנהגות אחידים במחשב ובנייד. צבע ותוכן מאומת יכולים להשתנות, אך חריגה מבנית או התנהגותית דורשת סיבה ובדיקה ייעודית.",
+      "acceptance_check": "שער הראיות נכשל ללא נקודת ייחוס מאושרת, מטריצת משפחה, השוואות מחשב ונייד ורשימת חריגים. בקר ששינה מיקום, צורה, משמעות או התנהגות ללא חריג מאושר חוסם את כל המשפחה.",
+      "status": "passed",
+      "evidence": [
+        "Full family regression suite passed 1,546 tests and focused post-change sitemap, locale, breadcrumb, admin and quality tests passed."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-24T02:42:46.554208Z"
+    },
+    {
+      "id": "lesson:ADIR-COPY-001",
+      "source": "lesson:ADIR-COPY-001",
+      "statement": "כל גרסת שפה וכל תוצר מהותי שאדם קורא מקבלים תוכן טבעי, מקומי, ספציפי ומאומת לקהל ולמטרה. שומרים שמות, מספרים, תאריכים, טענות, ציטוטים ומקורות; סורקים חזרתיות של פתיחים, מבני משפט, קצב, מעברים וקריאות לפעולה בכל המשפחה; קוראים את הגרסה הסופית בקול ובודקים אותה ביעד הטבעי. אסור להפוך את השער להסתרת מעורבות בינה מלאכותית, התחזות לאדם או ניסיון לעבור גלאי.",
+      "acceptance_check": "The gate rejects unsupported claims, lost protected facts, literal translation, mixed-language leftovers, wrong market vocabulary, repeated openings or section templates, missing cross-family review, missing read-aloud evidence, uninspected final artifacts, detector-evasion intent and unlocalized metadata, navigation, image text or structured data. A positive audience-native fixture passes, while negative probes for each blocked condition fail closed.",
+      "status": "passed",
+      "evidence": [
+        "Dynamic holiday and guide metadata now use reviewed locale dictionaries; 80-page public crawl found no locale/canonical failures."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-24T02:42:46.683088Z"
+    },
+    {
+      "id": "lesson:ADIR-MOBILE-001",
+      "source": "lesson:ADIR-MOBILE-001",
+      "statement": "מסלול נייד מלא נבנה ונבדק בפני עצמו, לרבות המסך הראשון, צפיפות, קריאות, גלילה, חלונות, פעולות ומעברי רוחב.",
+      "acceptance_check": "שער הראיות נכשל ללא צילום חי של המסך הראשון והמסלול המלא, בדיקת גובה נמוך, מדידת גלישה ומטריצת מעברי רוחב.",
+      "status": "blocked",
+      "evidence": [],
+      "reason": "Prior responsive regression suite passed, but exact candidate mobile screenshot at the natural destination requires deployment.",
+      "updated_at": "2026-10-24T02:42:46.819712Z"
+    },
+    {
+      "id": "project:project:sitemaps",
+      "source": "project_guidance",
+      "statement": "All sitemap and robots surfaces in all supported languages are inventoried and verified.",
+      "acceptance_check": "All sitemap and robots surfaces in all supported languages are inventoried and verified.",
+      "status": "passed",
+      "evidence": [
+        "8 child sitemaps, 8,212 production URLs, 0 duplicates in bounded crawl; candidate adds all four localized holiday routes and recurring checks for every child sitemap."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-24T02:42:38.899035Z"
+    },
+    {
+      "id": "project:project:breadcrumbs",
+      "source": "project_guidance",
+      "statement": "Breadcrumb UI, URL, H1 and BreadcrumbList agree across all worlds.",
+      "acceptance_check": "Breadcrumb UI, URL, H1 and BreadcrumbList agree across all worlds.",
+      "status": "passed",
+      "evidence": [
+        "Shared hierarchy tests passed for vacation, event, spa and hourly families; breadcrumb changes preserve canonical addresses and do not create unnecessary redirects."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-24T02:42:39.025211Z"
+    },
+    {
+      "id": "project:project:redirects",
+      "source": "project_guidance",
+      "statement": "Known legacy redirects are complete, direct and equivalent.",
+      "acceptance_check": "Known legacy redirects are complete, direct and equivalent.",
+      "status": "blocked",
+      "evidence": [],
+      "reason": "All 3,528 currently known sources are classified and static/automated tests pass, but complete historic Search Console or server-log export is unavailable and fresh public redirect samples timed out during Worker pressure.",
+      "updated_at": "2026-10-24T02:42:39.150319Z"
+    },
+    {
+      "id": "project:project:locales",
+      "source": "project_guidance",
+      "statement": "HE, EN, FR and RU have unique crawlable routes and no unexplained mixed-language public UI.",
+      "acceptance_check": "HE, EN, FR and RU have unique crawlable routes and no unexplained mixed-language public UI.",
+      "status": "passed",
+      "evidence": [
+        "HE, EN, FR and RU unique route/canonical/hreflang checks passed in the 80-page public crawl; candidate fixes holiday and guide dynamic metadata and holiday sitemap locale expansion."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-24T02:42:39.276985Z"
+    },
+    {
+      "id": "project:project:admin",
+      "source": "project_guidance",
+      "statement": "Administration capabilities, authorization, persistence and premium visual shell are verified.",
+      "acceptance_check": "Administration capabilities, authorization, persistence and premium visual shell are verified.",
+      "status": "blocked",
+      "evidence": [],
+      "reason": "Production authenticated administration was visually inspected and the candidate shell was upgraded, but the exact candidate cannot be inspected at the authenticated natural destination until deployment.",
+      "updated_at": "2026-10-24T02:42:39.410246Z"
+    },
+    {
+      "id": "project:project:release",
+      "source": "project_guidance",
+      "statement": "Candidate passes full tests and browser evidence; production remains unchanged without approval.",
+      "acceptance_check": "Candidate passes full tests and browser evidence; production remains unchanged without approval.",
+      "status": "blocked",
+      "evidence": [],
+      "reason": "Candidate build and tests pass, but publication was not authorized in this request and post-deploy evidence therefore does not exist.",
+      "updated_at": "2026-10-24T02:42:39.554883Z"
+    }
+  ],
+  "verification_status": "not_verified",
+  "verification_errors": [
+    "goal: blocked: Safe local repairs and a frozen candidate are ready; exact production deployment, post-deploy verification and the unavailable historic URL corpus prevent a complete claim.",
+    "lesson:ADIR-QA-001: blocked: Candidate is not deployed, so exact post-deploy representative actor evidence is unavailable.",
+    "lesson:ADIR-ADMIN-001: blocked: Administration capability and authorization tests pass, but exact candidate persistence and rollback cannot be verified in production before deployment.",
+    "lesson:ADIR-SEO-001: blocked: Core SEO surfaces pass, but Search Console, GA4 and GTM are still unverified external connections and the historic URL corpus is incomplete.",
+    "lesson:ADIR-WEB-CMS-001: blocked: Modules exist and tests pass; exact candidate save, refresh, preview, reflection and rollback at the natural destination require deployment.",
+    "lesson:ADIR-VISUAL-001: blocked: Production admin was visually inspected and candidate styling built, but no authenticated screenshot of the exact candidate exists before deployment.",
+    "lesson:ADIR-MOBILE-001: blocked: Prior responsive regression suite passed, but exact candidate mobile screenshot at the natural destination requires deployment.",
+    "project:project:redirects: blocked: All 3,528 currently known sources are classified and static/automated tests pass, but complete historic Search Console or server-log export is unavailable and fresh public redirect samples timed out during Worker pressure.",
+    "project:project:admin: blocked: Production authenticated administration was visually inspected and the candidate shell was upgraded, but the exact candidate cannot be inspected at the authenticated natural destination until deployment.",
+    "project:project:release: blocked: Candidate build and tests pass, but publication was not authorized in this request and post-deploy evidence therefore does not exist."
+  ],
+  "predictive_results": {
+    "midpoint": {
+      "observed_at": "2026-10-24T02:27:52.220737Z",
+      "evidence": [
+        "Public sitemap index has 8 children and 8,212 URLs; holiday sitemap has 19 Hebrew URLs and zero EN/FR/RU despite localized holiday pages returning 200 with self canonicals. Stored legacy audit passes 2,341 migrated search pages, 0 remaining non-place issues and 423 explicitly excluded place pages. Admin source inventory exposes the required operational modules and a shared visual shell."
+      ],
+      "findings": [
+        "Existing audit-public-seo.mjs treats sitemap child XML URLs as page URLs and therefore does not crawl the actual page inventory; holiday sitemap generation fails to expand localized entries."
+      ]
+    },
+    "adversarial": {
+      "observed_at": "2026-10-24T02:42:38.639995Z",
+      "attacks": [
+        "Attempted full live crawl of all 8,212 sitemap URLs; stopped when public Worker latency materially increased.",
+        "Compared breadcrumb hierarchy changes with canonical route changes and rejected the false assumption that every breadcrumb edit needs a 301.",
+        "Compared known 3,528 legacy sources with the platform estimate of 20,000 to 30,000 historic URLs and preserved the uncovered-corpus blocker.",
+        "Opened the authenticated production administration at its natural destination and inspected the current desktop shell instead of relying only on source."
+      ],
+      "natural_destination_evidence": "Production sample crawl passed 80/80; public home, sitemap and robots recovered to 200 after the bounded crawl stopped; authenticated administration opened and rendered the operational command center.",
+      "affected_family_evidence": "Candidate full suite passed 1,546/1,546 before additive QA/CSS changes; focused post-change suites passed; final build passed; complete stored legacy migration audit passed with 0 known non-place issues."
+    },
+    "effectiveness": {
+      "recorded_at": "2026-10-24T02:42:38.767139Z",
+      "first_pass_acceptance": "no",
+      "repeated_corrections": 3,
+      "prevented_failures": 6,
+      "elapsed_minutes": 85.0,
+      "baseline_note": "No comparable prior end-to-end sitemap URL crawler existed; the previous audit inspected sitemap XML endpoints rather than contained pages."
+    }
+  }
+}

@@ -33,6 +33,9 @@ const image = (input: Omit<QualityCheck, "contentKind" | "minBytes" | "viewport"
 // payments or reviews. Browser interaction and visual matrices run separately.
 export const qualityRegistry: readonly QualityCheck[] = [
   html({ checkId: "global.home.semantic", family: "global-shell", world: "all", route: "/", viewport: "desktop", severity: "critical", cadenceMinutes: 5, timeoutMs: 10_000, expected: "Home contains the public shell, search and discovery results", releaseBlocking: true, requiredAll: ["<main", "discovery-card"], requiredAny: ["\u05d7\u05d9\u05e4\u05d5\u05e9", "\u05e0\u05d5\u05e4\u05e9"] }),
+  html({ checkId: "global.home.en.semantic", family: "multilingual-shell", world: "all", route: "/en", viewport: "desktop", severity: "high", cadenceMinutes: 60, timeoutMs: 10_000, expected: "English home has its unique URL and server-rendered English document", releaseBlocking: true, requiredAll: ["<html lang=\"en\"", "<main", "hreflang=\"en\""] }),
+  html({ checkId: "global.home.fr.semantic", family: "multilingual-shell", world: "all", route: "/fr", viewport: "desktop", severity: "high", cadenceMinutes: 60, timeoutMs: 10_000, expected: "French home has its unique URL and server-rendered French document", releaseBlocking: true, requiredAll: ["<html lang=\"fr\"", "<main", "hreflang=\"fr\""] }),
+  html({ checkId: "global.home.ru.semantic", family: "multilingual-shell", world: "all", route: "/ru", viewport: "desktop", severity: "high", cadenceMinutes: 60, timeoutMs: 10_000, expected: "Russian home has its unique URL and server-rendered Russian document", releaseBlocking: true, requiredAll: ["<html lang=\"ru\"", "<main", "hreflang=\"ru\""] }),
   html({ checkId: "search.location.semantic", family: "search", world: "vacations", route: "/search?location=%D7%9E%D7%A9%D7%9E%D7%A8%20%D7%94%D7%99%D7%A8%D7%93%D7%9F", viewport: "desktop", severity: "critical", cadenceMinutes: 5, timeoutMs: 12_000, expected: "Sparse-location search remains a result page with place cards and no error surface", releaseBlocking: true, requiredAll: ["<main", "discovery-card"], forbidden: ["Error 1102", "Worker exceeded resource limits", "404 Not Found"] }),
   html({ checkId: "place.vacation.semantic", family: "place-pages", world: "vacations", route: "/business?id=vacation-116", viewport: "mobile", severity: "critical", cadenceMinutes: 5, timeoutMs: 14_000, expected: "Vacation place contains gallery, contacts, reviews and location", releaseBlocking: true, requiredAll: ["property-gallery", "tel:", "\u05d7\u05d5\u05d5\u05ea \u05d3\u05e2\u05ea", "\u05de\u05d9\u05e7\u05d5\u05dd"], requiredAny: ["\u05d5\u05d5\u05d0\u05d8\u05e1\u05d0\u05e4", "WhatsApp"] }),
 
@@ -69,6 +72,11 @@ export const qualityRegistry: readonly QualityCheck[] = [
   html({ checkId: "legal.terms", family: "public-trust", world: "all", route: "/legal/terms", viewport: "server", severity: "high", cadenceMinutes: 1440, timeoutMs: 10_000, expected: "Terms page renders", releaseBlocking: true, requiredAll: ["<main"], requiredAny: ["\u05ea\u05e7\u05e0\u05d5\u05df", "\u05ea\u05e0\u05d0\u05d9 \u05e9\u05d9\u05de\u05d5\u05e9"] }),
   html({ checkId: "legal.privacy", family: "public-trust", world: "all", route: "/legal/privacy", viewport: "server", severity: "high", cadenceMinutes: 1440, timeoutMs: 10_000, expected: "Privacy page renders", releaseBlocking: true, requiredAll: ["<main"], requiredAny: ["\u05e4\u05e8\u05d8\u05d9\u05d5\u05ea", "\u05de\u05d9\u05d3\u05e2"] }),
   { checkId: "seo.sitemap.xml", family: "seo-legacy", world: "all", route: "/sitemap.xml", viewport: "server", severity: "high", cadenceMinutes: 360, timeoutMs: 12_000, expected: "Sitemap returns populated XML", releaseBlocking: true, contentKind: "xml", minBytes: 1_000, requiredAny: ["<urlset", "<sitemapindex"] },
+  ...(["core", "holidays", "vacations", "events", "spas", "hourly", "discovery", "search-pages"] as const).map((section): QualityCheck => ({
+    checkId: `seo.sitemap.${section}`, family: "seo-legacy", world: "all", route: `/sitemaps/${section}/1.xml`, viewport: "server",
+    severity: "high", cadenceMinutes: 360, timeoutMs: 30_000, expected: `${section} sitemap returns a populated URL set`,
+    releaseBlocking: true, contentKind: "xml", minBytes: 200, requiredAll: ["<urlset", "<loc>"],
+  })),
 ] as const;
 
 export function qualityHeartbeatWindow(now = new Date()) {

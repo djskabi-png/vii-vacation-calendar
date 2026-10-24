@@ -1,0 +1,10 @@
+[vinext] Server error: TypeError: Cannot read properties of undefined (reading 'VII_AWS_DB_MODE')
+    at configured (file:///C:/Users/Adir/Documents/vii.co.il/.release-v596-regression-qa/dist/server/assets/runtime-database-calendar-close-v25-BPgd1O-7.js:29:13)
+    at activateAwsDatabase (file:///C:/Users/Adir/Documents/vii.co.il/.release-v596-regression-qa/dist/server/assets/runtime-database-calendar-close-v25-BPgd1O-7.js:168:7)
+    at Object.fetch (file:///C:/Users/Adir/Documents/vii.co.il/.release-v596-regression-qa/dist/server/index.js?t=1792809016903.349:177335:3)
+    at file:///C:/Users/Adir/Documents/vii.co.il/.release-v596-regression-qa/node_modules/.pnpm/vinext@0.0.50_@vitejs+plugi_67aa13a041cb340aa114f5f24aa08bf9/node_modules/vinext/dist/server/prod-server.js:581:96
+    at handleRequest (file:///C:/Users/Adir/Documents/vii.co.il/.release-v596-regression-qa/node_modules/.pnpm/vinext@0.0.50_@vitejs+plugi_67aa13a041cb340aa114f5f24aa08bf9/node_modules/vinext/dist/server/prod-server.js:666:27)
+    at Server.<anonymous> (file:///C:/Users/Adir/Documents/vii.co.il/.release-v596-regression-qa/node_modules/.pnpm/vinext@0.0.50_@vitejs+plugi_67aa13a041cb340aa114f5f24aa08bf9/node_modules/vinext/dist/server/prod-server.js:697:3)
+    at Server.emit (node:events:509:28)
+    at parserOnIncoming (node:_http_server:1282:12)
+    at HTTPParser.parserOnHeadersComplete (node:_http_common:125:17)

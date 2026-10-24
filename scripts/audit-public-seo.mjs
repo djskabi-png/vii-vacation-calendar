@@ -1,11 +1,57 @@
 const base = (process.argv[2] || "http://127.0.0.1:4272").replace(/\/$/, "");
+const requestedLimit = Number(process.argv[3] || 0);
+const supportedLocales = ["he", "en", "ru", "fr"];
 
-const sitemap = await fetch(`${base}/sitemap.xml`).then((response) => response.text());
-const urls = [...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => new URL(match[1]).pathname + new URL(match[1]).search);
+function xmlUrls(xml) {
+  return [...xml.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1].replaceAll("&amp;", "&"));
+}
+
+function routeFor(url) {
+  const parsed = new URL(url, base);
+  const pathname = parsed.pathname === "/" ? "/" : parsed.pathname.replace(/\/+$/, "");
+  return `${pathname}${parsed.search}`;
+}
+
+async function fetchAtBase(url, init = {}) {
+  return fetch(`${base}${routeFor(url)}`, { signal: AbortSignal.timeout(30_000), ...init });
+}
+
+const indexResponse = await fetchAtBase("/sitemap.xml");
+if (!indexResponse.ok) throw new Error(`sitemap_index_${indexResponse.status}`);
+const sitemapIndex = await indexResponse.text();
+const childSitemaps = xmlUrls(sitemapIndex);
+if (!childSitemaps.length) throw new Error("sitemap_children_missing");
+
+const sitemapDocuments = await Promise.all(childSitemaps.map(async (url) => {
+  try {
+    const response = await fetchAtBase(url);
+    if (!response.ok) return { url, urls: [], error: `HTTP ${response.status}` };
+    const body = await response.text();
+    if (!/application\/xml/i.test(response.headers.get("content-type") || "")) return { url, urls: [], error: "content_type" };
+    return { url, urls: xmlUrls(body), error: "" };
+  } catch (error) {
+    return { url, urls: [], error: `request_failed:${error instanceof Error ? error.name : "unknown"}` };
+  }
+}));
+
+const sitemapFailures = sitemapDocuments.filter((document) => document.error)
+  .map((document) => ({ path: routeFor(document.url), error: document.error }));
+
+const allUrls = sitemapDocuments.flatMap((document) => document.urls);
+const duplicateUrls = allUrls.length - new Set(allUrls).size;
+const completeUrls = [...new Set(allUrls)];
+const urls = requestedLimit > 0 ? completeUrls.slice(0, requestedLimit) : completeUrls;
 
 async function inspect(path) {
-  const response = await fetch(`${base}${path}`, { redirect: "follow" });
-  const html = await response.text();
+  const route = routeFor(path);
+  let response;
+  let html;
+  try {
+    response = await fetchAtBase(path, { redirect: "follow" });
+    html = await response.text();
+  } catch (error) {
+    return { path: route, errors: [`request_failed:${error instanceof Error ? error.name : "unknown"}`], names: [], canonical: "", language: "" };
+  }
   const schemas = [...html.matchAll(/<script[^>]+type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)]
     .flatMap((match) => {
       try { return [JSON.parse(match[1])]; } catch { return []; }
@@ -15,22 +61,37 @@ async function inspect(path) {
   const names = breadcrumb?.itemListElement?.map((item) => item.name) || [];
   const h1Count = (html.match(/<h1(?:\s|>)/g) || []).length;
   const canonical = /<link[^>]+rel="canonical"[^>]+href="[^"]+"/.test(html) || /<link[^>]+href="[^"]+"[^>]+rel="canonical"/.test(html);
+  const canonicalHref = html.match(/<link[^>]+rel="canonical"[^>]+href="([^"]+)"/i)?.[1]
+    || html.match(/<link[^>]+href="([^"]+)"[^>]+rel="canonical"/i)?.[1]
+    || "";
+  const htmlLanguage = html.match(/<html[^>]+lang="([^"]+)"/i)?.[1] || "";
+  const expectedLocale = route.match(/^\/(en|ru|fr)(?=\/|\?|$)/)?.[1] || "he";
+  const alternates = [...html.matchAll(/<link[^>]+rel="alternate"[^>]+hreflang="([^"]+)"[^>]+href="([^"]+)"/gi)]
+    .map((match) => ({ locale: match[1], href: match[2] }));
   const visibleBreadcrumb = /aria-label="פירורי לחם"/.test(html);
-  const vacationPath = /^\/(search|vacations|villas|luxury-suites|suite-complexes|vacation-apartments)(\/|\?|$)/.test(path);
+  const localeFreeRoute = route.replace(/^\/(en|ru|fr)(?=\/|\?|$)/, "") || "/";
+  const vacationPath = /^\/(search|vacations|villas|luxury-suites|suite-complexes|vacation-apartments)(\/|\?|$)/.test(localeFreeRoute);
   const errors = [];
   if (!response.ok) errors.push(`HTTP ${response.status}`);
   if (h1Count !== 1) errors.push(`H1=${h1Count}`);
   if (!canonical) errors.push("canonical חסר");
-  if (path !== "/" && !visibleBreadcrumb) errors.push("פירורים נראים חסרים");
-  if (path !== "/" && !schemaTypes.includes("BreadcrumbList")) errors.push("סכמת פירורים חסרה");
+  if (canonicalHref && routeFor(canonicalHref) !== route) errors.push(`canonical לא עצמי: ${canonicalHref}`);
+  if (htmlLanguage !== expectedLocale) errors.push(`lang=${htmlLanguage || "missing"}, expected=${expectedLocale}`);
+  for (const locale of supportedLocales) {
+    const hreflang = locale === "he" ? "he-IL" : locale;
+    if (!alternates.some((entry) => entry.locale === hreflang)) errors.push(`hreflang ${hreflang} חסר`);
+  }
+  if (!alternates.some((entry) => entry.locale === "x-default")) errors.push("hreflang x-default חסר");
+  if (!/^\/(?:en|ru|fr)?$/.test(route) && !visibleBreadcrumb) errors.push("פירורים נראים חסרים");
+  if (!/^\/(?:en|ru|fr)?$/.test(route) && !schemaTypes.includes("BreadcrumbList")) errors.push("סכמת פירורים חסרה");
   if (vacationPath && !names.includes("נופש")) errors.push("היררכיית נופש חסרה בסכמה");
-  if (path.startsWith("/business?") && !names.some((name) => ["נופש", "אירועים", "בתי ספא", "חדרים לפי שעה"].includes(name))) errors.push("עולם תוכן חסר בדף מקום");
-  if (path.startsWith("/business?") && !schemaTypes.some((type) => ["LodgingBusiness", "Hotel", "VacationRental"].includes(type))) errors.push("סכמת מקום אירוח חסרה");
-  if (path.startsWith("/events/place?") && !schemaTypes.includes("EventVenue")) errors.push("סכמת מתחם אירועים חסרה");
-  if (path.startsWith("/guides/") && path !== "/guides/" && !schemaTypes.includes("Article")) errors.push("סכמת כתבה חסרה");
-  if (path.startsWith("/trails/") && path !== "/trails/" && !schemaTypes.includes("TouristTrip")) errors.push("סכמת מסלול חסרה");
+  if (localeFreeRoute.startsWith("/business?") && !names.some((name) => ["נופש", "אירועים", "בתי ספא", "חדרים לפי שעה", "Stays", "Events", "Spa", "Hourly stays"].includes(name))) errors.push("עולם תוכן חסר בדף מקום");
+  if (localeFreeRoute.startsWith("/business?") && !schemaTypes.some((type) => ["LodgingBusiness", "Hotel", "VacationRental"].includes(type))) errors.push("סכמת מקום אירוח חסרה");
+  if (localeFreeRoute.startsWith("/events/place?") && !schemaTypes.includes("EventVenue")) errors.push("סכמת מתחם אירועים חסרה");
+  if (localeFreeRoute.startsWith("/guides/") && localeFreeRoute !== "/guides/" && !schemaTypes.includes("Article")) errors.push("סכמת כתבה חסרה");
+  if (localeFreeRoute.startsWith("/trails/") && localeFreeRoute !== "/trails/" && !schemaTypes.includes("TouristTrip")) errors.push("סכמת מסלול חסרה");
   if (breadcrumb && breadcrumb.itemListElement.some((item, index) => item.position !== index + 1 || !item.name || !item.item?.startsWith("http"))) errors.push("סכמת פירורים לא תקינה");
-  return { path, errors, names };
+  return { path: route, errors, names, canonical: canonicalHref, language: htmlLanguage };
 }
 
 const results = [];
@@ -39,5 +100,17 @@ for (let index = 0; index < urls.length; index += 12) {
 }
 
 const failures = results.filter((result) => result.errors.length);
-console.log(JSON.stringify({ audited: results.length, passed: results.length - failures.length, failed: failures.length, failures: failures.slice(0, 80) }, null, 2));
-if (failures.length) process.exitCode = 1;
+const report = {
+  base,
+  sitemapChildren: childSitemaps.length,
+  sitemapUrls: completeUrls.length,
+  audited: results.length,
+  limited: requestedLimit > 0,
+  duplicateUrls,
+  sitemapFailures,
+  passed: results.length - failures.length,
+  failed: failures.length,
+  failures: failures.slice(0, 200),
+};
+console.log(JSON.stringify(report, null, 2));
+if (failures.length || duplicateUrls || sitemapFailures.length) process.exitCode = 1;

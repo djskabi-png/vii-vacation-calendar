@@ -1,0 +1,12 @@
+{
+  "base": "https://vii.spaplus.co",
+  "sitemapChildren": 8,
+  "sitemapUrls": 8212,
+  "audited": 80,
+  "limited": true,
+  "duplicateUrls": 0,
+  "sitemapFailures": [],
+  "passed": 80,
+  "failed": 0,
+  "failures": []
+}

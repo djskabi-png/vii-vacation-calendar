@@ -261,23 +261,23 @@ export function articlePublishedDate(dateLabel: string) {
   return year && hebrewMonths[month] ? `${year}-${hebrewMonths[month]}-${day.padStart(2, "0")}` : "2026-08-05";
 }
 
-export function articleSchema(article: MagazineArticle) {
-  const url = `${SITE_URL}/guides/${article.slug}`;
+export function articleSchema(article: MagazineArticle, canonicalPath = `/guides/${article.slug}`, language = "he-IL", translate: (value: string) => string = (value) => value) {
+  const url = absoluteUrl(canonicalPath);
   return {
     "@context": "https://schema.org",
     "@type": "Article",
     "@id": `${url}#article`,
-    headline: article.title,
-    description: article.excerpt,
+    headline: translate(article.title),
+    description: translate(article.excerpt),
     image: absoluteUrl(article.image),
     datePublished: article.publishedAt || articlePublishedDate(article.dateLabel),
     ...(article.modifiedAt ? { dateModified: article.modifiedAt } : {}),
-    inLanguage: "he-IL",
+    inLanguage: language === "he" ? "he-IL" : language,
     mainEntityOfPage: url,
     author: { "@id": ORGANIZATION_ID },
     publisher: { "@id": ORGANIZATION_ID },
-    articleSection: article.category,
-    keywords: article.tags.join(", "),
+    articleSection: translate(article.category),
+    keywords: article.tags.map(translate).join(", "),
     isAccessibleForFree: true,
     wordCount: [article.intro, ...article.sections.flatMap((section) => section.paragraphs)].join(" ").split(/\s+/).filter(Boolean).length,
     ...(article.sourceLinks?.length ? { citation: article.sourceLinks.map((source) => source.url) } : {}),

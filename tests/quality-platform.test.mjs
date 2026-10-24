@@ -28,9 +28,10 @@ function fixture() {
 const success = async (url) => {
   if (url.includes("/api/map-snapshot")) return new Response(new Uint8Array(9_000), { status: 200, headers: { "content-type": "image/webp" } });
   if (url.includes("/api/")) return Response.json({ world: url.includes("events") ? "events" : url.includes("rooms") ? "rooms" : url.includes("spa") ? "spa" : "vacations", entries: [{ id: "vacation-1" }], prices: {}, reviews: [], items: [], slider: [], section: [], capabilities: {} });
-  if (url.endsWith(".xml")) return new Response("<?xml version=\"1.0\"?><urlset>" + "x".repeat(1_200) + "</urlset>", { status: 200, headers: { "content-type": "application/xml" } });
+  if (url.endsWith(".xml")) return new Response("<?xml version=\"1.0\"?><urlset><loc>https://example.test/</loc>" + "x".repeat(1_200) + "</urlset>", { status: 200, headers: { "content-type": "application/xml" } });
   const tokens = ["<main", "discovery-card", "חיפוש", "נופש", "property-gallery", "tel:", "חוות דעת", "מיקום", "וואטסאפ", "אירועים", "חדרים לפי שעה", "ספא", "חבילות", "אטרקציות", "event-booking", "טיולים", "ספקים", "חגים", "רגע האחרון", "שאלות", "יצירת קשר", "תקנון", "פרטיות"];
-  return new Response(`<!doctype html><html><body>${tokens.join(" ")}${"x".repeat(3_000)}</body></html>`, { status: 200, headers: { "content-type": "text/html" } });
+  const locale = new URL(url).pathname.match(/^\/(en|fr|ru)(?:\/|$)/)?.[1] || "he";
+  return new Response(`<!doctype html><html lang="${locale}"><head><link rel="alternate" hreflang="${locale}"></head><body>${tokens.join(" ")}${"x".repeat(3_000)}</body></html>`, { status: 200, headers: { "content-type": "text/html" } });
 };
 
 test("recurring registry is comprehensive, read-only and excludes accessibility and typography audits", () => {
