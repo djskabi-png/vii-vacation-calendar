@@ -1,0 +1,594 @@
+{
+  "schemaVersion": 1,
+  "baseUrl": "https://vii.spaplus.co",
+  "startedAt": "2026-10-24T22:33:37.903Z",
+  "exclusions": [
+    "accessibility",
+    "typography"
+  ],
+  "cases": [
+    {
+      "id": "desktop-he-discover-place-hourly-475",
+      "path": "/discover/place/hourly-475",
+      "viewport": "desktop",
+      "locale": "he",
+      "status": "passed",
+      "evidence": {
+        "icons": 24,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\desktop-he-discover-place-hourly-475.png"
+      }
+    },
+    {
+      "id": "desktop-he-discover-place-spa-6",
+      "path": "/discover/place/spa-6",
+      "viewport": "desktop",
+      "locale": "he",
+      "status": "passed",
+      "evidence": {
+        "icons": 3,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\desktop-he-discover-place-spa-6.png"
+      }
+    },
+    {
+      "id": "desktop-he-business",
+      "path": "/business?id=vacation-116",
+      "viewport": "desktop",
+      "locale": "he",
+      "status": "passed",
+      "evidence": {
+        "icons": 74,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\desktop-he-business.png"
+      }
+    },
+    {
+      "id": "desktop-he-events-place-event-2575",
+      "path": "/events/place/event-2575",
+      "viewport": "desktop",
+      "locale": "he",
+      "status": "passed",
+      "evidence": {
+        "icons": 77,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\desktop-he-events-place-event-2575.png"
+      }
+    },
+    {
+      "id": "desktop-en-discover-place-hourly-475",
+      "path": "/en/discover/place/hourly-475",
+      "viewport": "desktop",
+      "locale": "en",
+      "status": "passed",
+      "evidence": {
+        "icons": 24,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\desktop-en-discover-place-hourly-475.png"
+      }
+    },
+    {
+      "id": "desktop-en-discover-place-spa-6",
+      "path": "/en/discover/place/spa-6",
+      "viewport": "desktop",
+      "locale": "en",
+      "status": "passed",
+      "evidence": {
+        "icons": 3,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\desktop-en-discover-place-spa-6.png"
+      }
+    },
+    {
+      "id": "desktop-en-business",
+      "path": "/en/business?id=vacation-116",
+      "viewport": "desktop",
+      "locale": "en",
+      "status": "passed",
+      "evidence": {
+        "icons": 60,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\desktop-en-business.png"
+      }
+    },
+    {
+      "id": "desktop-en-events-place-event-2575",
+      "path": "/en/events/place/event-2575",
+      "viewport": "desktop",
+      "locale": "en",
+      "status": "passed",
+      "evidence": {
+        "icons": 45,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\desktop-en-events-place-event-2575.png"
+      }
+    },
+    {
+      "id": "desktop-ru-discover-place-hourly-475",
+      "path": "/ru/discover/place/hourly-475",
+      "viewport": "desktop",
+      "locale": "ru",
+      "status": "passed",
+      "evidence": {
+        "icons": 24,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\desktop-ru-discover-place-hourly-475.png"
+      }
+    },
+    {
+      "id": "desktop-ru-discover-place-spa-6",
+      "path": "/ru/discover/place/spa-6",
+      "viewport": "desktop",
+      "locale": "ru",
+      "status": "passed",
+      "evidence": {
+        "icons": 3,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\desktop-ru-discover-place-spa-6.png"
+      }
+    },
+    {
+      "id": "desktop-ru-business",
+      "path": "/ru/business?id=vacation-116",
+      "viewport": "desktop",
+      "locale": "ru",
+      "status": "passed",
+      "evidence": {
+        "icons": 60,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\desktop-ru-business.png"
+      }
+    },
+    {
+      "id": "desktop-ru-events-place-event-2575",
+      "path": "/ru/events/place/event-2575",
+      "viewport": "desktop",
+      "locale": "ru",
+      "status": "passed",
+      "evidence": {
+        "icons": 45,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\desktop-ru-events-place-event-2575.png"
+      }
+    },
+    {
+      "id": "desktop-fr-discover-place-hourly-475",
+      "path": "/fr/discover/place/hourly-475",
+      "viewport": "desktop",
+      "locale": "fr",
+      "status": "passed",
+      "evidence": {
+        "icons": 24,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\desktop-fr-discover-place-hourly-475.png"
+      }
+    },
+    {
+      "id": "desktop-fr-discover-place-spa-6",
+      "path": "/fr/discover/place/spa-6",
+      "viewport": "desktop",
+      "locale": "fr",
+      "status": "passed",
+      "evidence": {
+        "icons": 3,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\desktop-fr-discover-place-spa-6.png"
+      }
+    },
+    {
+      "id": "desktop-fr-business",
+      "path": "/fr/business?id=vacation-116",
+      "viewport": "desktop",
+      "locale": "fr",
+      "status": "passed",
+      "evidence": {
+        "icons": 60,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\desktop-fr-business.png"
+      }
+    },
+    {
+      "id": "desktop-fr-events-place-event-2575",
+      "path": "/fr/events/place/event-2575",
+      "viewport": "desktop",
+      "locale": "fr",
+      "status": "passed",
+      "evidence": {
+        "icons": 45,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\desktop-fr-events-place-event-2575.png"
+      }
+    },
+    {
+      "id": "mobile-he-discover-place-hourly-475",
+      "path": "/discover/place/hourly-475",
+      "viewport": "mobile",
+      "locale": "he",
+      "status": "passed",
+      "evidence": {
+        "icons": 24,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\mobile-he-discover-place-hourly-475.png"
+      }
+    },
+    {
+      "id": "mobile-he-discover-place-spa-6",
+      "path": "/discover/place/spa-6",
+      "viewport": "mobile",
+      "locale": "he",
+      "status": "passed",
+      "evidence": {
+        "icons": 3,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\mobile-he-discover-place-spa-6.png"
+      }
+    },
+    {
+      "id": "mobile-he-business",
+      "path": "/business?id=vacation-116",
+      "viewport": "mobile",
+      "locale": "he",
+      "status": "passed",
+      "evidence": {
+        "icons": 49,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\mobile-he-business.png"
+      }
+    },
+    {
+      "id": "mobile-he-events-place-event-2575",
+      "path": "/events/place/event-2575",
+      "viewport": "mobile",
+      "locale": "he",
+      "status": "passed",
+      "evidence": {
+        "icons": 77,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\mobile-he-events-place-event-2575.png"
+      }
+    },
+    {
+      "id": "mobile-en-discover-place-hourly-475",
+      "path": "/en/discover/place/hourly-475",
+      "viewport": "mobile",
+      "locale": "en",
+      "status": "passed",
+      "evidence": {
+        "icons": 24,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\mobile-en-discover-place-hourly-475.png"
+      }
+    },
+    {
+      "id": "mobile-en-discover-place-spa-6",
+      "path": "/en/discover/place/spa-6",
+      "viewport": "mobile",
+      "locale": "en",
+      "status": "passed",
+      "evidence": {
+        "icons": 3,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\mobile-en-discover-place-spa-6.png"
+      }
+    },
+    {
+      "id": "mobile-en-business",
+      "path": "/en/business?id=vacation-116",
+      "viewport": "mobile",
+      "locale": "en",
+      "status": "passed",
+      "evidence": {
+        "icons": 41,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\mobile-en-business.png"
+      }
+    },
+    {
+      "id": "mobile-en-events-place-event-2575",
+      "path": "/en/events/place/event-2575",
+      "viewport": "mobile",
+      "locale": "en",
+      "status": "passed",
+      "evidence": {
+        "icons": 45,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\mobile-en-events-place-event-2575.png"
+      }
+    },
+    {
+      "id": "mobile-ru-discover-place-hourly-475",
+      "path": "/ru/discover/place/hourly-475",
+      "viewport": "mobile",
+      "locale": "ru",
+      "status": "passed",
+      "evidence": {
+        "icons": 24,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\mobile-ru-discover-place-hourly-475.png"
+      }
+    },
+    {
+      "id": "mobile-ru-discover-place-spa-6",
+      "path": "/ru/discover/place/spa-6",
+      "viewport": "mobile",
+      "locale": "ru",
+      "status": "passed",
+      "evidence": {
+        "icons": 3,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\mobile-ru-discover-place-spa-6.png"
+      }
+    },
+    {
+      "id": "mobile-ru-business",
+      "path": "/ru/business?id=vacation-116",
+      "viewport": "mobile",
+      "locale": "ru",
+      "status": "passed",
+      "evidence": {
+        "icons": 41,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\mobile-ru-business.png"
+      }
+    },
+    {
+      "id": "mobile-ru-events-place-event-2575",
+      "path": "/ru/events/place/event-2575",
+      "viewport": "mobile",
+      "locale": "ru",
+      "status": "passed",
+      "evidence": {
+        "icons": 45,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\mobile-ru-events-place-event-2575.png"
+      }
+    },
+    {
+      "id": "mobile-fr-discover-place-hourly-475",
+      "path": "/fr/discover/place/hourly-475",
+      "viewport": "mobile",
+      "locale": "fr",
+      "status": "passed",
+      "evidence": {
+        "icons": 24,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\mobile-fr-discover-place-hourly-475.png"
+      }
+    },
+    {
+      "id": "mobile-fr-discover-place-spa-6",
+      "path": "/fr/discover/place/spa-6",
+      "viewport": "mobile",
+      "locale": "fr",
+      "status": "passed",
+      "evidence": {
+        "icons": 3,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\mobile-fr-discover-place-spa-6.png"
+      }
+    },
+    {
+      "id": "mobile-fr-business",
+      "path": "/fr/business?id=vacation-116",
+      "viewport": "mobile",
+      "locale": "fr",
+      "status": "passed",
+      "evidence": {
+        "icons": 41,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\mobile-fr-business.png"
+      }
+    },
+    {
+      "id": "mobile-fr-events-place-event-2575",
+      "path": "/fr/events/place/event-2575",
+      "viewport": "mobile",
+      "locale": "fr",
+      "status": "passed",
+      "evidence": {
+        "icons": 45,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\mobile-fr-events-place-event-2575.png"
+      }
+    },
+    {
+      "id": "low-height-he-discover-place-hourly-475",
+      "path": "/discover/place/hourly-475",
+      "viewport": "low-height",
+      "locale": "he",
+      "status": "passed",
+      "evidence": {
+        "icons": 24,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\low-height-he-discover-place-hourly-475.png"
+      }
+    },
+    {
+      "id": "low-height-he-discover-place-spa-6",
+      "path": "/discover/place/spa-6",
+      "viewport": "low-height",
+      "locale": "he",
+      "status": "passed",
+      "evidence": {
+        "icons": 3,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\low-height-he-discover-place-spa-6.png"
+      }
+    },
+    {
+      "id": "low-height-he-business",
+      "path": "/business?id=vacation-116",
+      "viewport": "low-height",
+      "locale": "he",
+      "status": "passed",
+      "evidence": {
+        "icons": 49,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\low-height-he-business.png"
+      }
+    },
+    {
+      "id": "low-height-he-events-place-event-2575",
+      "path": "/events/place/event-2575",
+      "viewport": "low-height",
+      "locale": "he",
+      "status": "passed",
+      "evidence": {
+        "icons": 77,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\low-height-he-events-place-event-2575.png"
+      }
+    },
+    {
+      "id": "low-height-en-discover-place-hourly-475",
+      "path": "/en/discover/place/hourly-475",
+      "viewport": "low-height",
+      "locale": "en",
+      "status": "passed",
+      "evidence": {
+        "icons": 24,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\low-height-en-discover-place-hourly-475.png"
+      }
+    },
+    {
+      "id": "low-height-en-discover-place-spa-6",
+      "path": "/en/discover/place/spa-6",
+      "viewport": "low-height",
+      "locale": "en",
+      "status": "passed",
+      "evidence": {
+        "icons": 3,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\low-height-en-discover-place-spa-6.png"
+      }
+    },
+    {
+      "id": "low-height-en-business",
+      "path": "/en/business?id=vacation-116",
+      "viewport": "low-height",
+      "locale": "en",
+      "status": "passed",
+      "evidence": {
+        "icons": 41,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\low-height-en-business.png"
+      }
+    },
+    {
+      "id": "low-height-en-events-place-event-2575",
+      "path": "/en/events/place/event-2575",
+      "viewport": "low-height",
+      "locale": "en",
+      "status": "passed",
+      "evidence": {
+        "icons": 45,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\low-height-en-events-place-event-2575.png"
+      }
+    },
+    {
+      "id": "low-height-ru-discover-place-hourly-475",
+      "path": "/ru/discover/place/hourly-475",
+      "viewport": "low-height",
+      "locale": "ru",
+      "status": "passed",
+      "evidence": {
+        "icons": 24,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\low-height-ru-discover-place-hourly-475.png"
+      }
+    },
+    {
+      "id": "low-height-ru-discover-place-spa-6",
+      "path": "/ru/discover/place/spa-6",
+      "viewport": "low-height",
+      "locale": "ru",
+      "status": "passed",
+      "evidence": {
+        "icons": 3,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\low-height-ru-discover-place-spa-6.png"
+      }
+    },
+    {
+      "id": "low-height-ru-business",
+      "path": "/ru/business?id=vacation-116",
+      "viewport": "low-height",
+      "locale": "ru",
+      "status": "passed",
+      "evidence": {
+        "icons": 41,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\low-height-ru-business.png"
+      }
+    },
+    {
+      "id": "low-height-ru-events-place-event-2575",
+      "path": "/ru/events/place/event-2575",
+      "viewport": "low-height",
+      "locale": "ru",
+      "status": "passed",
+      "evidence": {
+        "icons": 45,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\low-height-ru-events-place-event-2575.png"
+      }
+    },
+    {
+      "id": "low-height-fr-discover-place-hourly-475",
+      "path": "/fr/discover/place/hourly-475",
+      "viewport": "low-height",
+      "locale": "fr",
+      "status": "passed",
+      "evidence": {
+        "icons": 24,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\low-height-fr-discover-place-hourly-475.png"
+      }
+    },
+    {
+      "id": "low-height-fr-discover-place-spa-6",
+      "path": "/fr/discover/place/spa-6",
+      "viewport": "low-height",
+      "locale": "fr",
+      "status": "passed",
+      "evidence": {
+        "icons": 3,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\low-height-fr-discover-place-spa-6.png"
+      }
+    },
+    {
+      "id": "low-height-fr-business",
+      "path": "/fr/business?id=vacation-116",
+      "viewport": "low-height",
+      "locale": "fr",
+      "status": "passed",
+      "evidence": {
+        "icons": 41,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\low-height-fr-business.png"
+      }
+    },
+    {
+      "id": "low-height-fr-events-place-event-2575",
+      "path": "/fr/events/place/event-2575",
+      "viewport": "low-height",
+      "locale": "fr",
+      "status": "passed",
+      "evidence": {
+        "icons": 45,
+        "problems": [],
+        "screenshot": "qa-reports\\qqqaaa-icon-full-candidate\\low-height-fr-events-place-event-2575.png"
+      }
+    }
+  ],
+  "finishedAt": "2026-10-24T22:38:54.493Z",
+  "summary": {
+    "total": 48,
+    "passed": 48,
+    "failed": 0
+  },
+  "status": "passed"
+}

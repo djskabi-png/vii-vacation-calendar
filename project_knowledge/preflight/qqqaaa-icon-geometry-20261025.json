@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "task_id": "qqqaaa-icon-geometry-20261025",
+  "project": "VII",
+  "task_type": "shared visual defect repair and QA expansion",
+  "requested_outcome": "Repair amenity icon geometry across the shared VII detail surfaces and make QQQAAA the durable trigger and executable command for the broadest approved VII QA suite.",
+  "natural_destination": "VII public place pages and the repository QA command pnpm qa:qqqaaa",
+  "authorization_boundary": "Repair source and automated QA. Do not publish a new production release without a separate publication authorization. Preserve the existing explicit exclusions for accessibility and typography audits.",
+  "lesson_bundle": [
+    {"lesson_id":"ADIR-QA-001","reason":"A shared visual defect must expand to the affected component family.","acceptance_impact":"The shared icon family is checked across routes, locales and viewports."},
+    {"lesson_id":"ADIR-CONTROL-001","reason":"Every visible icon-label control must remain readable and geometrically valid.","acceptance_impact":"QA measures SVG containment, centering and icon-label intersection."},
+    {"lesson_id":"ADIR-MOBILE-001","reason":"The same shared family must remain stable on the primary mobile surface.","acceptance_impact":"The matrix includes desktop, 390-pixel mobile and low-height mobile."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection":"Only the photographed hourly page is fixed.","prevention":"Repair the shared semantic icon class and scan every rendered data-feature-icon.","acceptance_check":"All representative place families and four locales pass icon geometry checks."},
+    {"rejection":"The icon no longer overlaps but remains visibly off-center.","prevention":"Measure the SVG center against its frame, not only CSS declarations.","acceptance_check":"Every visible semantic feature icon stays contained and within the centering tolerance."},
+    {"rejection":"QQQAAA is remembered only in this chat and cannot be executed consistently.","prevention":"Record the trigger in the VII feedback standard and add a single fail-closed package command.","acceptance_check":"A fresh agent reading the project standard can discover the trigger and pnpm qa:qqqaaa invokes the broad suite."},
+    {"rejection":"The broad suite silently includes previously excluded accessibility and typography audits.","prevention":"Preserve and document the existing exclusions in the trigger contract and report.","acceptance_check":"The comprehensive report continues to declare those two exclusions."}
+  ],
+  "affected_family": [
+    "hourly place hero amenity chips",
+    "spa place feature chips",
+    "vacation place feature groups and room amenities",
+    "event feature icons",
+    "localized Hebrew, English, Russian and French place routes",
+    "desktop, 390-pixel mobile and low-height mobile viewports",
+    "QQQAAA project trigger and executable QA entry point"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {"sources":[
+    {"label":"User supplied defect screenshot","source":"C:/Users/Adir/AppData/Local/Temp/codex-clipboard-47918bd1-846b-47ea-a842-b1e155451c50.png"},
+    {"label":"VII accepted product decisions","source":"calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"}
+  ],"no_precedent_reason":null},
+  "midpoint_gate": {"required":true,"trigger":"The exact hourly page renders with measured icon containment before running the full family.","checks":["Focused CSS contract passes","Hourly place icon geometry passes at desktop and mobile","No unrelated component delta"],"not_required_reason":null},
+  "adversarial_close": {"attack_questions":["Can any SVG escape its frame?","Can an icon intersect its label?","Can a long translated label break containment?","Can QQQAAA omit a required existing suite?"],"natural_destination_evidence":"Rendered representative place pages and the QQQAAA command output.","affected_family_evidence":"Four locales and the desktop, mobile and low-height matrix."},
+  "effectiveness": {"baseline":"The supplied hourly desktop screenshot shows semantic amenity icons overlapping their labels.","measurements":["first_pass_acceptance","repeated_corrections","prevented_failures","elapsed_time"],"target":"Zero icon containment, centering or label-collision defects in the affected matrix and one durable QQQAAA entry point."},
+  "privacy": {"raw_feedback_stored":false,"secret_storage":false,"normalized_summary_only":true},
+  "ready_to_start": true
+}

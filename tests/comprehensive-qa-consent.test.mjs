@@ -32,3 +32,12 @@ test("production QA supports bounded viewport and core-only reruns", () => {
   assert.match(source, /process\.env\.QA_CORE_ONLY/);
   assert.match(source, /qa_viewports_empty_or_invalid/);
 });
+
+test("QQQAAA geometry gate measures every visible semantic feature icon", () => {
+  assert.match(source, /async function verifyFeatureIconGeometry\(page\)/);
+  assert.match(source, /feature_icon_escapes_frame/);
+  assert.match(source, /feature_icon_off_center/);
+  assert.match(source, /feature_icon_label_collision/);
+  assert.match(source, /document\.querySelectorAll\("\[data-feature-icon\]"\)/);
+  assert.match(source, /await verifyFeatureIconGeometry\(page\)/);
+});

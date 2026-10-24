@@ -1,0 +1,30 @@
+{
+  "status": "verified_candidate_not_published",
+  "task": "qqqaaa-icon-geometry-20261025",
+  "target": "VII shared semantic feature icons and QQQAAA QA entry point",
+  "baseline": "v634 public production",
+  "authorization": "source repair and QA only; no new publication authorization in the current request",
+  "changes": [
+    "Semantic feature icon frames are real 18px centered grid boxes with contained 15px SVGs",
+    "The comprehensive public QA measures SVG containment, centering and label collisions",
+    "A dedicated 48-case icon geometry matrix covers four place families, four locales and three viewports",
+    "pnpm qa:qqqaaa is the fail-closed broad VII QA entry point"
+  ],
+  "checks": {
+    "focused_contract_tests": "11/11 passed",
+    "full_regression": "1587/1587 passed",
+    "production_build": "passed",
+    "icon_geometry_family": "48/48 passed",
+    "resource_cleanup": "verified; no owned process remained"
+  },
+  "visualEvidence": [
+    "qa-reports/qqqaaa-icon-full-candidate/desktop-he-discover-place-hourly-475.png",
+    "qa-reports/qqqaaa-icon-full-candidate/mobile-he-discover-place-hourly-475.png"
+  ],
+  "matrixReport": "qa-reports/qqqaaa-icon-full-candidate/feature-icons-1792881534493.json",
+  "exclusions": ["accessibility", "typography"],
+  "production": {
+    "changed": false,
+    "reason": "A new production publication requires separate authorization."
+  }
+}

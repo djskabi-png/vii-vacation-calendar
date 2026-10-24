@@ -3840,9 +3840,10 @@ body:has(.filter-panel.open) .mobile-map-fab { display: none; }
 .discovery-card h3 { min-height: 3.2em; display: -webkit-box; overflow: hidden; margin: 10px 0 8px; font-size: 1.3rem; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .discovery-card p { min-height: 77px; margin-bottom: 14px; color: var(--ink-soft); font-size: .9rem; }
 .discovery-card__chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.discovery-card__chips > span { align-items: center; display: inline-flex; gap: 6px; padding: 5px 9px; border: 1px solid var(--line); border-radius: 50px; color: var(--ink-soft); background: var(--mist); font-size: .72rem; }
-.discovery-card__chips > span > span { min-width: 0; }
-.discovery-card__chip-icon { width: 16px; height: 16px; flex: 0 0 16px; }
+.discovery-card__chips > span { min-width: 0; align-items: center; display: inline-flex; gap: 7px; padding: 5px 9px; border: 1px solid var(--line); border-radius: 50px; color: var(--ink-soft); background: var(--mist); font-size: .72rem; line-height: 1.35; }
+.discovery-card__chips > span > span:not(.discovery-card__chip-icon) { min-width: 0; }
+.discovery-card__chip-icon { width: 18px; height: 18px; flex: 0 0 18px; display: grid; place-items: center; overflow: hidden; line-height: 0; }
+.discovery-card__chip-icon > svg { width: 15px; height: 15px; display: block; margin: auto; }
 .discovery-card footer { margin-top: auto; padding-top: 14px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--line); }
 .discovery-card footer strong { font-size: .92rem; }
 .discovery-card footer a { color: var(--teal-dark); font-size: .84rem; font-weight: 800; text-decoration: underline; text-underline-offset: 4px; }

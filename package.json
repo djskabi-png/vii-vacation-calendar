@@ -16,6 +16,8 @@
     "qa:production": "node scripts/audit-comprehensive-production.cjs",
     "qa:locales": "node scripts/audit-multilingual-production.cjs",
     "qa:regression-guards": "node scripts/verify-regression-guard-matrix.mjs",
+    "qa:icon-geometry": "node scripts/audit-feature-icon-geometry.cjs",
+    "qa:qqqaaa": "node scripts/run-qqqaaa.cjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern .openai",
     "db:generate": "drizzle-kit generate"
   },

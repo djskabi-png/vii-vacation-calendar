@@ -76,6 +76,43 @@ async function verifyImages(page) {
   });
 }
 
+async function verifyFeatureIconGeometry(page) {
+  return page.evaluate(() => {
+    const visible = (element) => {
+      const style = getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      return style.display !== "none" && style.visibility !== "hidden" && Number(style.opacity) !== 0 && rect.width > 2 && rect.height > 2;
+    };
+    const rectOf = (rect) => ({ left: Number(rect.left.toFixed(2)), right: Number(rect.right.toFixed(2)), top: Number(rect.top.toFixed(2)), bottom: Number(rect.bottom.toFixed(2)), width: Number(rect.width.toFixed(2)), height: Number(rect.height.toFixed(2)) });
+    const problems = [];
+    const icons = [...document.querySelectorAll("[data-feature-icon]")].filter(visible);
+    for (const icon of icons) {
+      const svg = icon.querySelector("svg");
+      if (!svg || !visible(svg)) {
+        problems.push({ kind: "feature_icon_missing_svg", label: icon.parentElement?.textContent?.trim().slice(0, 100) || "" });
+        continue;
+      }
+      const frame = icon.getBoundingClientRect();
+      const graphic = svg.getBoundingClientRect();
+      const tolerance = 1.25;
+      if (graphic.left < frame.left - tolerance || graphic.right > frame.right + tolerance || graphic.top < frame.top - tolerance || graphic.bottom > frame.bottom + tolerance) {
+        problems.push({ kind: "feature_icon_escapes_frame", label: icon.parentElement?.textContent?.trim().slice(0, 100) || "", frame: rectOf(frame), graphic: rectOf(graphic) });
+      }
+      const centerDelta = { x: Math.abs((frame.left + frame.width / 2) - (graphic.left + graphic.width / 2)), y: Math.abs((frame.top + frame.height / 2) - (graphic.top + graphic.height / 2)) };
+      if (centerDelta.x > 2.25 || centerDelta.y > 2.25) problems.push({ kind: "feature_icon_off_center", label: icon.parentElement?.textContent?.trim().slice(0, 100) || "", delta: { x: Number(centerDelta.x.toFixed(2)), y: Number(centerDelta.y.toFixed(2)) }, frame: rectOf(frame), graphic: rectOf(graphic) });
+      const label = [...(icon.parentElement?.children || [])].find((candidate) => candidate !== icon && visible(candidate));
+      if (label) {
+        const text = label.getBoundingClientRect();
+        const overlapWidth = Math.max(0, Math.min(frame.right, text.right) - Math.max(frame.left, text.left));
+        const overlapHeight = Math.max(0, Math.min(frame.bottom, text.bottom) - Math.max(frame.top, text.top));
+        if (overlapWidth * overlapHeight > 1) problems.push({ kind: "feature_icon_label_collision", label: label.textContent?.trim().slice(0, 100) || "", frame: rectOf(frame), text: rectOf(text) });
+      }
+    }
+    if (problems.length) throw new Error(`feature_icon_geometry:${JSON.stringify(problems.slice(0, 12))}`);
+    return { visibleFeatureIcons: icons.length, iconGeometryProblems: 0 };
+  });
+}
+
 async function verifyLocaleExperience(page, path, locale) {
   const base = await assertNaturalPage(page, path);
   await page.waitForFunction((expected) => document.documentElement.lang === expected && !document.documentElement.hasAttribute("data-locale-pending"), locale, { timeout: 15_000 });
@@ -184,7 +221,7 @@ async function verifyLocaleExperience(page, path, locale) {
   const seoProblems = analyzeLocaleSeo(observed.seo, locale);
   const problems = [...seoProblems, ...textProblems, ...observed.layoutProblems];
   if (problems.length) throw new Error(`multilingual_visual_integrity:${JSON.stringify({ locale, count: problems.length, problems: problems.slice(0, 12) })}`);
-  return { ...base, locale, lang: observed.root.lang, direction: observed.root.direction, visibleTextNodes: observed.textSamples.length };
+  return { ...base, locale, lang: observed.root.lang, direction: observed.root.direction, visibleTextNodes: observed.textSamples.length, ...(await verifyFeatureIconGeometry(page)) };
 }
 
 async function verifyLocalizedNavigation(page, locale) {
@@ -316,7 +353,8 @@ async function verifyPlace(page, path, expectations) {
     mapPreview: Boolean(document.querySelector(".map-preview-card,.listing-map-shell")),
   }));
   if (expectations.phone && !state.phone || expectations.gallery && !state.galleryTrigger || expectations.map && !state.mapPreview) throw new Error(`place_contract:${JSON.stringify(state)}`);
-  if (!expectations.gallery || !state.galleryTrigger) return { ...base, ...state, galleryTabs: 0 };
+  const iconGeometry = await verifyFeatureIconGeometry(page);
+  if (!expectations.gallery || !state.galleryTrigger) return { ...base, ...state, ...iconGeometry, galleryTabs: 0 };
   const gallery = page.locator(".property-gallery button").first();
   await gallery.click({ timeout: 10_000 });
   await page.waitForSelector(".story-gallery", { state: "visible", timeout: 15_000 });
@@ -324,7 +362,7 @@ async function verifyPlace(page, path, expectations) {
   if (!tabs) throw new Error("gallery_tabs_missing");
   const close = page.locator(".story-gallery__close").first();
   if (await close.count()) await close.click(); else await page.keyboard.press("Escape");
-  return { ...base, ...state, galleryTabs: tabs };
+  return { ...base, ...state, ...iconGeometry, galleryTabs: tabs };
 }
 
 async function runViewport(browser, viewport) {
