@@ -118,6 +118,7 @@ export async function runSupplierCatalogSync(db: D1Database, input: {
     await acceptSupplierCatalogRun(db, { id: input.id, world: input.world,
       expectedCount: candidate.entries.length, added: diff.added, changed: diff.changed,
       removed: diff.removed.length, finishedAt: now().toISOString(), baseline: input.baseline,
+      previous, candidate: candidate.entries,
       approvedRemoval: input.world === "spa" && approvedSpaCatalogTransition(previous, candidate.entries) });
     return { status: "accepted" as const, world: input.world, id: input.id, diff, fetchedAt: candidate.fetchedAt };
   } catch (error) {

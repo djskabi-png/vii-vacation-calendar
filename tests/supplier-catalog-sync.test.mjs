@@ -217,6 +217,34 @@ test("the guarded runner reads the accepted generation before supplier fetch and
   } finally { db.close(); }
 });
 
+test("publication reuses the pinned in-memory generations and never rereads full JSON documents", async () => {
+  const db = await database();
+  const many = Array.from({ length: 81 }, (_, index) => ({
+    supplierId: index + 1,
+    summary: { id: index + 1, packages: [] },
+    detail: { body: `large-detail-${index + 1}` },
+  }));
+  let fullGenerationReads = 0;
+  const bounded = {
+    ...db,
+    prepare(sql) {
+      if (/FROM supplier_catalog_entries WHERE run_id = \? AND world = \?/.test(sql)
+        && /summary_json AS summaryJson/.test(sql)
+        && !/supplier_id > \?/.test(sql)) fullGenerationReads += 1;
+      return db.prepare(sql);
+    },
+  };
+  try {
+    const result = await runSupplierCatalogSync(bounded, {
+      id: "publish-without-json-reread", world: "spa", source: "test", baseline: many, now: at,
+      fetchCandidate: async () => ({ fetchedAt: at().toISOString(), entries: many }),
+    });
+    assert.equal(result.status, "accepted");
+    assert.equal(fullGenerationReads, 0);
+    assert.equal((await readSupplierCatalog(db, "spa")).entries.length, many.length);
+  } finally { db.close(); }
+});
+
 test("a small withdrawal is published, while a catalog collapse stays blocked", async () => {
   const db = await database();
   const many = Array.from({ length: 100 }, (_, index) => ({

@@ -146,6 +146,8 @@ export async function acceptSupplierCatalogRun(db: D1Database, input: {
   removed: number;
   finishedAt: string;
   baseline?: SupplierCatalogEntry[];
+  previous?: SupplierCatalogEntry[];
+  candidate?: SupplierCatalogEntry[];
   approvedRemoval?: boolean;
 }) {
   const state = await db.prepare(`SELECT active_run_id AS activeRunId, active_count AS activeCount,
@@ -159,7 +161,23 @@ export async function acceptSupplierCatalogRun(db: D1Database, input: {
     || input.expectedCount < 1 || staged?.count !== input.expectedCount || input.removed < 0) {
     throw new Error("catalog_candidate_not_accepted");
   }
-  const oldRows = state.activeRunId
+  const suppliedPrevious = input.previous?.map((entry): EntryRow => ({
+    supplierId: entry.supplierId, summaryJson: JSON.stringify(entry.summary),
+    detailJson: entry.detail === undefined ? null : JSON.stringify(entry.detail),
+  }));
+  const suppliedCandidate = input.candidate?.map((entry): EntryRow => ({
+    supplierId: entry.supplierId, summaryJson: JSON.stringify(entry.summary),
+    detailJson: entry.detail === undefined ? null : JSON.stringify(entry.detail),
+  }));
+  if (suppliedPrevious && state.activeRunId && suppliedPrevious.length !== state.activeCount) {
+    throw new Error("catalog_candidate_not_accepted");
+  }
+  if (suppliedCandidate && suppliedCandidate.length !== input.expectedCount) {
+    throw new Error("catalog_candidate_not_accepted");
+  }
+  const oldRows = suppliedPrevious
+    ? { results: suppliedPrevious }
+    : state.activeRunId
     ? await db.prepare(`SELECT supplier_id AS supplierId, summary_json AS summaryJson, detail_json AS detailJson
       FROM supplier_catalog_entries WHERE run_id = ? AND world = ?`)
       .bind(state.activeRunId, input.world).all<EntryRow>()
@@ -167,9 +185,23 @@ export async function acceptSupplierCatalogRun(db: D1Database, input: {
       supplierId: entry.supplierId, summaryJson: JSON.stringify(entry.summary),
       detailJson: entry.detail === undefined ? null : JSON.stringify(entry.detail),
     })) };
-  const nextRows = await db.prepare(`SELECT supplier_id AS supplierId, summary_json AS summaryJson,
-    detail_json AS detailJson FROM supplier_catalog_entries WHERE run_id = ? AND world = ?`)
-    .bind(input.id, input.world).all<EntryRow>();
+  const nextRows = suppliedCandidate
+    ? { results: suppliedCandidate }
+    : await db.prepare(`SELECT supplier_id AS supplierId, summary_json AS summaryJson,
+      detail_json AS detailJson FROM supplier_catalog_entries WHERE run_id = ? AND world = ?`)
+      .bind(input.id, input.world).all<EntryRow>();
+  if (suppliedCandidate) {
+    // A small ID-only read proves the complete staged generation matches the
+    // in-memory candidate without returning hundreds of large JSON documents.
+    const stagedIds = await db.prepare(`SELECT supplier_id AS supplierId FROM supplier_catalog_entries
+      WHERE run_id = ? AND world = ? ORDER BY supplier_id`)
+      .bind(input.id, input.world).all<{ supplierId: number }>();
+    const expectedIds = suppliedCandidate.map((row) => row.supplierId).sort((a, b) => a - b);
+    if (stagedIds.results.length !== expectedIds.length
+      || stagedIds.results.some((row, index) => row.supplierId !== expectedIds[index])) {
+      throw new Error("catalog_candidate_not_accepted");
+    }
+  }
   const next = new Map(nextRows.results.map((row) => [row.supplierId, row]));
   for (const row of nextRows.results) childIds(input.world, row);
   let removed = 0;
