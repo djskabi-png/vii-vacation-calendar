@@ -26,9 +26,9 @@ function fixture() {
 }
 
 const success = async (url) => {
-  if (url.includes("/api/")) return Response.json({ world: url.includes("events") ? "events" : url.includes("rooms") ? "rooms" : url.includes("spa") ? "spa" : "vacations", entries: [{ id: "vacation-1" }], prices: {}, reviews: [], items: [], slider: [], section: [], capabilities: {}, coordinatesReady: true, interactiveMap: true });
+  if (url.includes("/api/")) return Response.json({ world: url.includes("events") ? "events" : url.includes("rooms") ? "rooms" : url.includes("spa") ? "spa" : "vacations", entries: [{ id: "vacation-1" }], prices: {}, reviews: [], items: [], slider: [], section: [], popular: [], cities: [], types: [], capabilities: {}, coordinatesReady: true, interactiveMap: true });
   if (url.endsWith(".xml")) return new Response("<?xml version=\"1.0\"?><urlset><loc>https://example.test/</loc>" + "x".repeat(1_200) + "</urlset>", { status: 200, headers: { "content-type": "application/xml" } });
-  const tokens = ["<main", "discovery-card", "חיפוש", "נופש", "property-gallery", "tel:", "חוות דעת", "מיקום", "וואטסאפ", "אירועים", "חדרים לפי שעה", "ספא", "חבילות", "אטרקציות", "event-booking", "טיולים", "ספקים", "חגים", "רגע האחרון", "שאלות", "יצירת קשר", "תקנון", "פרטיות"];
+  const tokens = ["<main", "discovery-card", "results-list", "חיפוש", "נופש", "property-gallery", "tel:", "חוות דעת", "מיקום", "וואטסאפ", "אירועים", "חדרים לפי שעה", "ספא", "חבילות", "אטרקציות", "event-booking", "טיולים", "ספקים", "חגים", "רגע האחרון", "שאלות", "יצירת קשר", "תקנון", "פרטיות"];
   const locale = new URL(url).pathname.match(/^\/(en|fr|ru)(?:\/|$)/)?.[1] || "he";
   return new Response(`<!doctype html><html lang="${locale}"><head><link rel="alternate" hreflang="${locale}"></head><body>${tokens.join(" ")}${"x".repeat(3_000)}</body></html>`, { status: 200, headers: { "content-type": "text/html" } });
 };
@@ -42,6 +42,9 @@ test("recurring registry is comprehensive, read-only and excludes accessibility 
     assert.ok(check.cadenceMinutes >= 5);
   }
   assert.equal(qualityRegistry.find((check) => check.checkId === "world.vacations.semantic")?.route, "/search");
+  assert.deepEqual(qualityRegistry.find((check) => check.checkId === "world.vacations.semantic")?.requiredAll, ["<main", "results-list"]);
+  assert.deepEqual(qualityRegistry.find((check) => check.checkId === "search.location.semantic")?.requiredAll, ["<main", "results-list"]);
+  assert.deepEqual(qualityRegistry.find((check) => check.checkId === "api.home.presentation")?.requiredAll, ["\"popular\":", "\"cities\":", "\"types\":"]);
   assert.ok(qualityRegistry.filter((check) => check.family === "maps").length >= 4);
   assert.ok(new Set(qualityRegistry.map((check) => check.family)).size >= 10);
 });
