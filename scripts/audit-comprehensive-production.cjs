@@ -215,6 +215,7 @@ async function runLocaleMatrix(browser, viewport, routeSubset) {
   ];
   for (const locale of locales) {
     const context = await browser.newContext({ viewport: viewport.size, locale: locale === "he" ? "he-IL" : locale === "en" ? "en-GB" : locale === "ru" ? "ru-RU" : "fr-FR", timezoneId: "Asia/Jerusalem", reducedMotion: "reduce" });
+    await context.addInitScript(() => localStorage.setItem("vii-cookie-choice", "essential"));
     for (const [surface, canonicalRoute] of routes) {
       const route = localizedRoute(canonicalRoute, locale);
       const id = `locale-${locale}-${surface}-${viewport.id}`;
@@ -261,13 +262,33 @@ async function verifyResultsMap(page) {
   if (!await toggle.count()) throw new Error("map_toggle_missing");
   await toggle.scrollIntoViewIfNeeded();
   await toggle.click({ timeout: 10_000 });
-  await page.waitForSelector(".leaflet-container", { state: "visible", timeout: 20_000 });
+  await page.waitForSelector(".listing-map", { state: "visible", timeout: 20_000 });
   await page.waitForFunction(() => document.querySelectorAll(".leaflet-tile").length > 0, null, { timeout: 20_000 });
   const state = await page.evaluate(() => ({ tiles: document.querySelectorAll(".leaflet-tile").length, markers: document.querySelectorAll(".vii-map-marker").length, selectedCards: document.querySelectorAll(".map-selection-card").length }));
   if (!state.markers) throw new Error("map_markers_missing");
-  const marker = page.locator(".vii-map-marker-wrap:not(.is-cluster) .vii-map-marker").first();
-  if (!await marker.count()) throw new Error("map_selectable_marker_missing");
-  await marker.click({ timeout: 10_000 });
+  const clickableBox = (selector) => page.locator(selector).evaluateAll((elements) => {
+    const element = elements.find((candidate) => {
+      const box = candidate.getBoundingClientRect();
+      if (!box.width || !box.height || box.bottom <= 0 || box.top >= innerHeight || box.right <= 0 || box.left >= innerWidth) return false;
+      const x = Math.max(0, Math.min(innerWidth - 1, box.left + box.width / 2));
+      const y = Math.max(0, Math.min(innerHeight - 1, box.top + box.height / 2));
+      const topmost = document.elementFromPoint(x, y);
+      return Boolean(topmost && (topmost === candidate || candidate.contains(topmost)));
+    });
+    if (!element) return null;
+    const box = element.getBoundingClientRect();
+    return { x: box.left + box.width / 2, y: box.top + box.height / 2 };
+  });
+  let markerBox = await clickableBox(".vii-map-marker-wrap:not(.is-cluster)");
+  for (let attempt = 0; !markerBox && attempt < 3; attempt += 1) {
+    const clusterBox = await clickableBox(".vii-map-marker-wrap.is-cluster");
+    if (!clusterBox) break;
+    await page.mouse.click(clusterBox.x, clusterBox.y);
+    await page.waitForTimeout(650);
+    markerBox = await clickableBox(".vii-map-marker-wrap:not(.is-cluster)");
+  }
+  if (!markerBox) throw new Error("map_selectable_marker_missing");
+  await page.mouse.click(markerBox.x, markerBox.y);
   await page.waitForSelector(".map-selection-card", { state: "visible", timeout: 10_000 });
   state.selectedCards = await page.locator(".map-selection-card").count();
   const close = page.locator(".map-mobile-close").first();
@@ -312,6 +333,19 @@ async function runViewport(browser, viewport) {
       ]);
     }
   };
+
+  await browserCase(`privacy-consent-${viewport.id}`, "privacy consent", async (page) => {
+    await assertNaturalPage(page, "/");
+    const card = page.locator(".cookie-card").first();
+    await card.waitFor({ state: "visible", timeout: 5_000 });
+    const essentials = card.locator(".cookie-actions .button.subtle").first();
+    if (!await essentials.count()) throw new Error("essential_cookie_choice_missing");
+    await essentials.click();
+    await card.waitFor({ state: "detached", timeout: 5_000 });
+    const choice = await page.evaluate(() => localStorage.getItem("vii-cookie-choice"));
+    if (choice !== "essential") throw new Error(`essential_cookie_choice_not_persisted:${choice}`);
+    return { choice, dismissed: true };
+  });
 
   await browserCase(`shell-home-${viewport.id}`, "/", async (page) => {
     const result = await assertNaturalPage(page, "/");
@@ -366,19 +400,26 @@ async function runViewport(browser, viewport) {
   const browser = await chromium.launch({ headless: true, ...(systemChrome ? { executablePath: systemChrome } : {}) });
   try {
     if (process.env.QA_LOCALE_ONLY !== "1") {
-      await runViewport(browser, { id: "desktop", size: { width: 1440, height: 900 } });
-      await runViewport(browser, { id: "mobile", size: { width: 390, height: 844 } });
-      await runViewport(browser, { id: "low-height", size: { width: 390, height: 620 } });
+      const requestedViewports = new Set((process.env.QA_VIEWPORTS || "desktop,mobile,low-height").split(",").map((value) => value.trim()).filter(Boolean));
+      const coreViewports = [
+        { id: "desktop", size: { width: 1440, height: 900 } },
+        { id: "mobile", size: { width: 390, height: 844 } },
+        { id: "low-height", size: { width: 390, height: 620 } },
+      ].filter((viewport) => requestedViewports.has(viewport.id));
+      if (!coreViewports.length) throw new Error("qa_viewports_empty_or_invalid");
+      for (const viewport of coreViewports) await runViewport(browser, viewport);
     }
-    if (process.env.QA_LOCALE_STRESS_ONLY !== "1") {
+    if (process.env.QA_CORE_ONLY !== "1" && process.env.QA_LOCALE_STRESS_ONLY !== "1") {
       await runLocaleMatrix(browser, { id: "desktop", size: { width: 1440, height: 900 } });
       await runLocaleMatrix(browser, { id: "mobile", size: { width: 390, height: 844 } });
     }
-    await runLocaleMatrix(browser, { id: "desktop-1365", size: { width: 1365, height: 768 } }, [
-      ["home", "/"],
-      ["guides", "/guides"],
-      ["gift-card", "/gift-card"],
-    ]);
+    if (process.env.QA_CORE_ONLY !== "1") {
+      await runLocaleMatrix(browser, { id: "desktop-1365", size: { width: 1365, height: 768 } }, [
+        ["home", "/"],
+        ["guides", "/guides"],
+        ["gift-card", "/gift-card"],
+      ]);
+    }
   } finally {
     await browser.close();
   }

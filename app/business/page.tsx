@@ -21,6 +21,7 @@ import type { SpaPlusSite } from "../data/spaplus";
 import { managedTrails, managedDiscoveryItems } from "../lib/managed-public-content";
 import { nearbyRecommendations } from "../lib/nearby-recommendations";
 import { serverPublicCopy } from "../i18n/server-public-copy";
+import { localizedPath } from "../i18n/locale-routing";
 
 type QueryValue = string | string[] | undefined;
 type BusinessParams = { id?: QueryValue; mode?: QueryValue; dates?: QueryValue; from?: QueryValue; till?: QueryValue; guests?: QueryValue; rooms?: QueryValue; adults?: QueryValue; children?: QueryValue; infants?: QueryValue; roomID?: QueryValue; price?: QueryValue; illustrative?: QueryValue; source?: QueryValue; period?: QueryValue };
@@ -53,14 +54,15 @@ const resolveProperty = cache(async (id?: string) => {
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const property = await resolveProperty(queryValue((await searchParams).id));
   if (!property) return { title: "המקום אינו זמין", robots: { index: false, follow: false } };
-  const { translate } = await serverPublicCopy();
+  const { language, translate } = await serverPublicCopy();
   const name = translate(property.name);
   const description = translate(property.description);
+  const canonical = localizedPath(`/business?id=${property.slug}`, language);
   return {
     title: name,
     description,
-    alternates: { canonical: `/business?id=${property.slug}` },
-    openGraph: { type: "website", url: `/business?id=${property.slug}`, title: name, description, images: [{ url: property.image, alt: name }] },
+    alternates: { canonical },
+    openGraph: { type: "website", url: canonical, title: name, description, images: [{ url: property.image, alt: name }] },
     twitter: { card: "summary_large_image", title: name, description, images: [property.image] },
     robots: property.demoOperations?.fictional ? { index: false, follow: false } : undefined,
   };

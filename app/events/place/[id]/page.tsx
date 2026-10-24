@@ -14,6 +14,7 @@ import { validDate } from "../../../lib/vii-live-search";
 import { eventBreadcrumbsForLocation } from "../../../data/world-search-landings";
 import { providerProfiles } from "../../../data/world-data";
 import { nearbyRecommendations } from "../../../lib/nearby-recommendations";
+import { serverLocalePath, serverPublicCopy } from "../../../i18n/server-public-copy";
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ from?: string; guests?: string }> };
 
@@ -37,12 +38,16 @@ const resolvePlace = cache(async (id: string) => {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const place = await resolvePlace((await params).id);
+  const canonical = await serverLocalePath(eventPlaceHref(place));
+  const { translate } = await serverPublicCopy();
+  const title = translate(place.name);
+  const description = translate(place.description);
   return {
-    title: place.name,
-    description: place.description,
-    alternates: { canonical: eventPlaceHref(place) },
-    openGraph: { type: "website", url: eventPlaceHref(place), title: place.name, description: place.description, images: [{ url: place.image, alt: place.name }] },
-    twitter: { card: "summary_large_image", title: place.name, description: place.description, images: [place.image] },
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: { type: "website", url: canonical, title, description, images: [{ url: place.image, alt: title }] },
+    twitter: { card: "summary_large_image", title, description, images: [place.image] },
   };
 }
 

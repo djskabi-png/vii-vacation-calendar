@@ -6,12 +6,15 @@ import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema } from "../lib/seo";
 import { GiftCardBuilder } from "./gift-card-builder";
 import { BreadcrumbTrail } from "../components/breadcrumb-trail";
+import { serverLocalePath, serverPublicCopy } from "../i18n/server-public-copy";
 
-export const metadata: Metadata = {
-  title: "גיפט קארד לחופשה, ספא וחוויות",
-  description: "גיפט קארד אחד לבחירת נופש, ספא, אירועים, אטרקציות ושירותים מתוך העולמות של וי.",
-  alternates: { canonical: "/gift-card/" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const canonical = await serverLocalePath("/gift-card/");
+  const { translate } = await serverPublicCopy();
+  const title = translate("גיפט קארד לחופשה, ספא וחוויות");
+  const description = translate("גיפט קארד אחד לבחירת נופש, ספא, אירועים, אטרקציות ושירותים מתוך העולמות של וי.");
+  return { title, description, alternates: { canonical }, openGraph: { type: "website", url: canonical, title, description } };
+}
 
 const worlds = [
   ["נופש", "וילות, צימרים וסוויטות"],

@@ -5,8 +5,8 @@
   "task_type": "production QA expansion",
   "goal": "Add automated multilingual visual and localization-integrity checks to VII production QA.",
   "created_at": "2026-10-24T00:48:50.790388Z",
-  "updated_at": "2026-10-24T01:50:11.688612Z",
-  "completed_at": "2026-10-24T01:50:11.688612Z",
+  "updated_at": "2026-10-24T02:23:16.806083Z",
+  "completed_at": "2026-10-24T02:23:16.806083Z",
   "source_hashes": {
     "working_profile": {
       "path": "C:\\Users\\Adir\\.codex\\ADIR_WORKING_PROFILE.md",
@@ -231,6 +231,18 @@
       ],
       "reason": null,
       "updated_at": "2026-10-24T01:50:11.579749Z"
+    },
+    {
+      "id": "user:repair-safe-public-findings",
+      "source": "user_correction",
+      "statement": "Repair every certain, safe, in-scope defect found by the expanded QA before merely reporting it.",
+      "acceptance_check": "Each repaired defect has a source regression check and successful build; uncertain findings remain explicitly separated and are not changed by guesswork.",
+      "status": "passed",
+      "evidence": [
+        "Safe localized share metadata repairs passed build and 98 focused rendered/localization checks; corrected consent/map QA passed unit checks and all five public mobile map journeys. Remaining desktop map performance and untranslated external catalog content are explicitly not classified as fixed."
+      ],
+      "reason": null,
+      "updated_at": "2026-10-24T02:23:16.659911Z"
     }
   ],
   "verification_status": "verified",

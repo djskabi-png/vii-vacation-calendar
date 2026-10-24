@@ -1,0 +1,82 @@
+{
+  "verdict": "not_ready",
+  "release": "Local candidate on plan/vii-continuous-quality-20261023 before publication",
+  "target": "https://vii.spaplus.co across Hebrew, English, Russian and French public routes",
+  "baseline": "Production comprehensive report comprehensive-1792806588955.json recorded 112 failures out of 145 cases, including 80 social URL failures and 10 false missing-map-button failures.",
+  "requested_outcome": "Repair every certain safe in-scope defect instead of only reporting it, while keeping uncertain or externally dependent findings explicit.",
+  "changed_components": [
+    "Localized canonical and social metadata for root, business, hourly, spa, guides, gift card, discover and event place routes",
+    "Localized server metadata copy for guides, gift card, hourly, spa, discover and event place routes",
+    "Comprehensive production QA privacy-state sequencing",
+    "Comprehensive map DOM, cluster and pointer-target verification",
+    "Bounded QA core-only and viewport rerun controls"
+  ],
+  "affected_family": [
+    { "id": "FAM-1", "surface": "Localized metadata and share URLs across all four languages" },
+    { "id": "FAM-2", "surface": "Vacation, event, hourly, spa and attraction result maps across responsive viewports" },
+    { "id": "FAM-3", "surface": "First-visit privacy consent and subsequent interaction journeys" }
+  ],
+  "characteristics": { "stateful": true, "responsive": true },
+  "checks": [
+    {
+      "id": "CHK-1",
+      "family_ids": ["FAM-1"],
+      "state": "success",
+      "status": "passed",
+      "evidence": "pnpm build passed; 98 focused rendered HTML, localization and metadata tests passed after rebuilding the candidate."
+    },
+    {
+      "id": "CHK-2",
+      "family_ids": ["FAM-1"],
+      "state": "failure",
+      "status": "passed",
+      "evidence": "The full suite initially rejected two newly introduced Hebrew-only guide metadata strings; the source was changed to reviewed translated copy and both failed families passed on the rebuilt candidate."
+    },
+    {
+      "id": "CHK-3",
+      "family_ids": ["FAM-2", "FAM-3"],
+      "state": "responsive",
+      "status": "passed",
+      "evidence": "Public rerun comprehensive-1792808296418.json passed privacy consent and all five map families at 390x844; four of five map families passed at 390x620."
+    },
+    {
+      "id": "CHK-4",
+      "family_ids": ["FAM-3"],
+      "state": "persistence",
+      "status": "passed",
+      "evidence": "The QA selected essential-only consent, verified localStorage vii-cookie-choice=essential and used the persisted choice on subsequent journeys."
+    },
+    {
+      "id": "CHK-5",
+      "family_ids": ["FAM-2"],
+      "state": "success",
+      "status": "failed",
+      "evidence": "Desktop map journeys still exceeded the 30-second case budget; low-height vacation marker selection also remains unresolved."
+    },
+    {
+      "id": "CHK-6",
+      "family_ids": ["FAM-1"],
+      "state": "reload",
+      "status": "pending",
+      "evidence": "The exact public metadata cannot be reloaded and verified until publication is explicitly authorized and completed."
+    },
+    {
+      "id": "CHK-7",
+      "family_ids": ["FAM-1", "FAM-2", "FAM-3"],
+      "state": "rollback",
+      "status": "passed",
+      "evidence": "The changes are isolated in the local Git candidate and can be reverted by the exact eventual release commit before publication."
+    }
+  ],
+  "rollback": {
+    "available": true,
+    "method": "Revert the eventual isolated safe-repairs commit if a post-publication regression is observed.",
+    "verification": "No deployment has occurred; production remains on the prior release and the candidate diff is isolated locally."
+  },
+  "authorization_boundary": "Local repair and read-only public verification are authorized. Publication was not requested in the current instruction and has not been performed.",
+  "remaining_blockers": [
+    "The candidate is not published, so localized social URLs are not yet verified at the public destination.",
+    "Desktop result-map journeys exceed the 30-second QA budget and require a separate performance root-cause repair.",
+    "External catalog and CMS content still contains untranslated Hebrew fields on non-Hebrew pages; it must be supplied or reviewed rather than invented."
+  ]
+}

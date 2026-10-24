@@ -7,13 +7,17 @@ import { StructuredData } from "../components/structured-data";
 import { breadcrumbSchema, collectionSchema } from "../lib/seo";
 import { publishedSearchPage } from "../lib/search-page-content.ts";
 import { SpaPackageDeals } from "../components/spa-package-deals";
-import { serverPublicCopy } from "../i18n/server-public-copy";
+import { serverLocalePath, serverPublicCopy } from "../i18n/server-public-copy";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await publishedSearchPage("/spas");
-  return { title: page?.title, description: page?.description, alternates: { canonical: "/spas" }, openGraph: { type: "website", url: "/spas", title: page?.title, description: page?.description } };
+  const canonical = await serverLocalePath("/spas");
+  const { translate } = await serverPublicCopy();
+  const title = page?.title ? translate(page.title) : undefined;
+  const description = page?.description ? translate(page.description) : undefined;
+  return { title, description, alternates: { canonical }, openGraph: { type: "website", url: canonical, title, description } };
 }
 
 export default async function SpasPage() {

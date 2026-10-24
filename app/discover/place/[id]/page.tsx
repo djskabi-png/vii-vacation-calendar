@@ -15,7 +15,7 @@ import type { SpaPlusSite } from "../../../data/spaplus";
 import { spaEditorialDescription, spaEditorialTitle } from "../../../data/spa-editorial";
 import hourlyCatalog from "../../../data/sergey-hourly-catalog.json";
 import { managedDiscoveryItems } from "../../../lib/managed-public-content";
-import { serverLocalePath } from "../../../i18n/server-public-copy";
+import { serverLocalePath, serverPublicCopy } from "../../../i18n/server-public-copy";
 import { hourlyBreadcrumbsForLocation } from "../../../data/world-search-landings";
 import { spaBreadcrumbsForLocation } from "../../../data/spa-search-landings";
 import { discoveryBreadcrumbsForLocation } from "../../../lib/place-breadcrumb-locations";
@@ -60,13 +60,15 @@ function itemFaq(item: DiscoveryItem, spaSite?: SpaPlusSite, hourlyPlace?: (type
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { item, spaSite } = await resolveItem((await params).id);
   const indexable = item.indexable === true || (item.indexable !== false && (item.world === "spa" || item.world === "hourly" || item.world === "activities"));
-  const title = spaSite ? spaEditorialTitle(spaSite) : item.name;
-  const description = spaSite ? spaSite.shortDescription || spaEditorialDescription(spaSite) : item.description;
+  const { translate } = await serverPublicCopy();
+  const title = translate(spaSite ? spaEditorialTitle(spaSite) : item.name);
+  const description = translate(spaSite ? spaSite.shortDescription || spaEditorialDescription(spaSite) : item.description);
+  const canonical = await serverLocalePath(`/discover/place/${item.id}`);
   return {
     title,
     description,
-    alternates: { canonical: `/discover/place/${item.id}` },
-    openGraph: item.image ? { title, description, images: [{ url: item.image }] } : undefined,
+    alternates: { canonical },
+    openGraph: item.image ? { type: "website", url: canonical, title, description, images: [{ url: item.image }] } : { type: "website", url: canonical, title, description },
     robots: indexable ? { index: true, follow: true } : { index: false, follow: true },
   };
 }

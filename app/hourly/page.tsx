@@ -9,12 +9,17 @@ import { matchesSearchLocation } from "../data/search-taxonomy";
 import { hourlySearchHref } from "../data/world-search-landings";
 import { publishedSearchPage } from "../lib/search-page-content.ts";
 import { completePlaceSearchResults, nearbySearchRecommendations } from "../lib/nearby-recommendations.ts";
+import { serverLocalePath, serverPublicCopy } from "../i18n/server-public-copy";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await publishedSearchPage("/hourly");
-  return { title: page?.title, description: page?.description, alternates: { canonical: "/hourly" }, openGraph: { type: "website", url: "/hourly", title: page?.title, description: page?.description } };
+  const canonical = await serverLocalePath("/hourly");
+  const { translate } = await serverPublicCopy();
+  const title = page?.title ? translate(page.title) : undefined;
+  const description = page?.description ? translate(page.description) : undefined;
+  return { title, description, alternates: { canonical }, openGraph: { type: "website", url: canonical, title, description } };
 }
 
 export async function HourlyLanding({ initialLocation }: { initialLocation?: string }) {

@@ -108,6 +108,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const locale = (requestHeaders.get("x-vii-locale") || "he") as keyof typeof localizedRootTitles;
   const pathname = requestHeaders.get("x-vii-pathname") || "/";
   const basePath = stripLocale(pathname);
+  const openGraphLocale = locale === "he" ? "he_IL" : locale === "en" ? "en_US" : locale === "ru" ? "ru_RU" : "fr_FR";
   return {
     ...baseMetadata,
     // The production worker localizes metadata for SEO. Rendering the root
@@ -117,6 +118,11 @@ export async function generateMetadata(): Promise<Metadata> {
     title: {
       default: localizedRootTitles[locale],
       template: localizedTitleTemplates[locale],
+    },
+    openGraph: {
+      ...baseMetadata.openGraph,
+      url: pathname,
+      locale: openGraphLocale,
     },
     alternates: {
       ...baseMetadata.alternates,

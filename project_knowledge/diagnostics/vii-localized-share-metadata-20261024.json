@@ -1,0 +1,71 @@
+{
+  "status": "fixed",
+  "symptom": "Localized VII pages have distinct locale-prefixed URLs and self canonicals, but several omit og:url or expose the unprefixed Hebrew route as the social sharing URL.",
+  "expected_behavior": "Every Hebrew, English, Russian and French page exposes a social sharing URL for the same locale and route as the current page.",
+  "environment": "Public VII production at https://vii.spaplus.co on 2026-10-24 and local branch plan/vii-continuous-quality-20261023.",
+  "reproduction": {
+    "steps": [
+      "Open French hourly, spa, business, guides, gift-card and discover place routes.",
+      "Inspect the current URL, canonical link, hreflang family and og:url metadata.",
+      "Compare the locale represented by each address."
+    ],
+    "evidence": "The completed public report qa-reports/comprehensive-public-post-language-20261024/comprehensive-1792806588955.json records missing social URLs and social URLs that point from French pages to unprefixed Hebrew paths."
+  },
+  "observations": [
+    {
+      "observation": "Locale-prefixed public routes, self canonicals and hreflang families already exist.",
+      "evidence": "The multilingual production audit reached /en, /ru and /fr routes and did not classify the sampled URLs or canonicals as missing locale identity."
+    },
+    {
+      "observation": "Several page-level metadata generators omit openGraph.url or hardcode an unprefixed route.",
+      "evidence": "Source inspection of app/hourly/page.tsx, app/spas/page.tsx, app/business/page.tsx, app/guides/page.tsx, app/gift-card/page.tsx and dynamic place metadata before the repair."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "Page-level metadata overrides either omit openGraph.url or hardcode a Hebrew unprefixed path instead of deriving it from the request locale.",
+      "prediction": "Localized routing and canonicals remain correct while og:url is missing or points to the Hebrew route on only the affected page families.",
+      "discriminating_test": "Compare public URL and canonical identity with page-level metadata source and emitted og:url across the affected route families.",
+      "result": "Supported: the locale route and canonical were distinct, while the exact affected generators omitted or hardcoded openGraph.url.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The application has no unique locale routing, so all metadata necessarily resolves to one shared URL.",
+      "prediction": "French, English and Russian requests would lack locale-prefixed URLs, self canonicals and hreflang alternates.",
+      "discriminating_test": "Inspect the public localized request URL, canonical and hreflang family independently of og:url.",
+      "result": "Rejected: unique locale-prefixed routes, self canonicals and hreflang alternates are present; the defect is limited to social metadata generation.",
+      "status": "rejected"
+    }
+  ],
+  "root_cause_hypothesis_id": "H1",
+  "fix": {
+    "change": "Derive canonical and openGraph.url from the active request locale for the shared root, listings, gift card, guides, business and dynamic place families.",
+    "evidence": "The focused metadata and multilingual suites passed 14 of 14 checks, and pnpm build completed successfully after the repair."
+  },
+  "affected_family": [
+    "Root pages in all four locales",
+    "Vacation business pages",
+    "Hourly and spa listings",
+    "Discover and event place pages",
+    "Gift card and guides pages"
+  ],
+  "regression_checks": [
+    {
+      "check": "Root, business, listing, content and dynamic place metadata derive canonical and og:url from the active locale.",
+      "status": "passed",
+      "evidence": "node --test tests/localized-share-metadata.test.mjs tests/localized-root-hydration.test.mjs tests/multilingual-visual-qa.test.mjs passed 14 of 14."
+    },
+    {
+      "check": "Production candidate still compiles and emits the complete route family.",
+      "status": "passed",
+      "evidence": "pnpm build completed successfully with manifestsAgree=true and 217 RSC references."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "Exact production metadata remains unchanged until an explicitly authorized release is published and rechecked."
+  ],
+  "authorization_boundary": "Repair and verify safe in-scope code defects locally; do not publish without explicit release authorization and do not invent missing localized business content."
+}

@@ -1,0 +1,559 @@
+{
+  "schemaVersion": 1,
+  "baseUrl": "https://vii.spaplus.co",
+  "startedAt": "2026-10-24T02:13:14.067Z",
+  "exclusions": [
+    "accessibility",
+    "typography"
+  ],
+  "cases": [
+    {
+      "id": "privacy-consent-desktop",
+      "surface": "privacy consent",
+      "viewport": "desktop",
+      "status": "passed",
+      "evidence": {
+        "choice": "essential",
+        "dismissed": true
+      },
+      "durationMs": 3571
+    },
+    {
+      "id": "shell-home-desktop",
+      "surface": "/",
+      "viewport": "desktop",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 1425,
+        "client": 1440,
+        "text": 12445,
+        "rails": 30,
+        "tabs": 5,
+        "visibleImages": 7
+      },
+      "durationMs": 1716
+    },
+    {
+      "id": "map-vacations-desktop",
+      "surface": "/search?location=%D7%9B%D7%9C%20%D7%94%D7%90%D7%A8%D7%A5",
+      "viewport": "desktop",
+      "status": "failed",
+      "evidence": "case_timeout_30000",
+      "durationMs": 30005
+    },
+    {
+      "id": "map-events-desktop",
+      "surface": "/events/search?location=%D7%9B%D7%9C%20%D7%94%D7%90%D7%A8%D7%A5",
+      "viewport": "desktop",
+      "status": "failed",
+      "evidence": "case_timeout_30000",
+      "durationMs": 30002
+    },
+    {
+      "id": "map-hourly-desktop",
+      "surface": "/hourly",
+      "viewport": "desktop",
+      "status": "failed",
+      "evidence": "case_timeout_30000",
+      "durationMs": 30008
+    },
+    {
+      "id": "map-spa-desktop",
+      "surface": "/spas",
+      "viewport": "desktop",
+      "status": "failed",
+      "evidence": "case_timeout_30000",
+      "durationMs": 30002
+    },
+    {
+      "id": "map-activities-desktop",
+      "surface": "/attractions",
+      "viewport": "desktop",
+      "status": "failed",
+      "evidence": "case_timeout_30000",
+      "durationMs": 30002
+    },
+    {
+      "id": "place-vacation-desktop",
+      "surface": "/business?id=vacation-116",
+      "viewport": "desktop",
+      "status": "failed",
+      "evidence": "place_contract:{\"phone\":true,\"whatsapp\":true,\"galleryTrigger\":true,\"reviewSummary\":true,\"mapPreview\":false}",
+      "durationMs": 2100
+    },
+    {
+      "id": "place-event-desktop",
+      "surface": "/events/place/event-2575",
+      "viewport": "desktop",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 1425,
+        "client": 1440,
+        "text": 5813,
+        "phone": true,
+        "whatsapp": true,
+        "galleryTrigger": true,
+        "reviewSummary": false,
+        "mapPreview": true,
+        "galleryTabs": 3
+      },
+      "durationMs": 2726
+    },
+    {
+      "id": "place-hourly-desktop",
+      "surface": "/discover/place/hourly-475",
+      "viewport": "desktop",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 1425,
+        "client": 1440,
+        "text": 7054,
+        "phone": true,
+        "whatsapp": true,
+        "galleryTrigger": false,
+        "reviewSummary": false,
+        "mapPreview": true,
+        "galleryTabs": 0
+      },
+      "durationMs": 2241
+    },
+    {
+      "id": "place-spa-desktop",
+      "surface": "/discover/place/spa-6",
+      "viewport": "desktop",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 1425,
+        "client": 1440,
+        "text": 6056,
+        "phone": false,
+        "whatsapp": false,
+        "galleryTrigger": false,
+        "reviewSummary": false,
+        "mapPreview": true,
+        "galleryTabs": 0
+      },
+      "durationMs": 2104
+    },
+    {
+      "id": "navigation-back-desktop",
+      "surface": "public navigation",
+      "viewport": "desktop",
+      "status": "passed",
+      "evidence": {
+        "url": "https://vii.spaplus.co/"
+      },
+      "durationMs": 2951
+    },
+    {
+      "id": "screenshot-desktop",
+      "surface": "/",
+      "viewport": "desktop",
+      "status": "passed",
+      "evidence": "qa-reports\\safe-repairs-public-rerun-20261024\\public-desktop.png",
+      "durationMs": 3051
+    },
+    {
+      "id": "privacy-consent-mobile",
+      "surface": "privacy consent",
+      "viewport": "mobile",
+      "status": "passed",
+      "evidence": {
+        "choice": "essential",
+        "dismissed": true
+      },
+      "durationMs": 1593
+    },
+    {
+      "id": "shell-home-mobile",
+      "surface": "/",
+      "viewport": "mobile",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 390,
+        "client": 390,
+        "text": 12428,
+        "rails": 30,
+        "tabs": 5,
+        "visibleImages": 3
+      },
+      "durationMs": 1606
+    },
+    {
+      "id": "map-vacations-mobile",
+      "surface": "/search?location=%D7%9B%D7%9C%20%D7%94%D7%90%D7%A8%D7%A5",
+      "viewport": "mobile",
+      "status": "passed",
+      "evidence": {
+        "tiles": 15,
+        "markers": 7,
+        "selectedCards": 1,
+        "visibleImages": 3
+      },
+      "durationMs": 5219
+    },
+    {
+      "id": "map-events-mobile",
+      "surface": "/events/search?location=%D7%9B%D7%9C%20%D7%94%D7%90%D7%A8%D7%A5",
+      "viewport": "mobile",
+      "status": "passed",
+      "evidence": {
+        "tiles": 20,
+        "markers": 16,
+        "selectedCards": 1,
+        "visibleImages": 3
+      },
+      "durationMs": 3916
+    },
+    {
+      "id": "map-hourly-mobile",
+      "surface": "/hourly",
+      "viewport": "mobile",
+      "status": "passed",
+      "evidence": {
+        "tiles": 18,
+        "markers": 9,
+        "selectedCards": 1,
+        "visibleImages": 3
+      },
+      "durationMs": 3869
+    },
+    {
+      "id": "map-spa-mobile",
+      "surface": "/spas",
+      "viewport": "mobile",
+      "status": "passed",
+      "evidence": {
+        "tiles": 10,
+        "markers": 6,
+        "selectedCards": 1,
+        "visibleImages": 3
+      },
+      "durationMs": 4943
+    },
+    {
+      "id": "map-activities-mobile",
+      "surface": "/attractions",
+      "viewport": "mobile",
+      "status": "passed",
+      "evidence": {
+        "tiles": 10,
+        "markers": 4,
+        "selectedCards": 1,
+        "visibleImages": 3
+      },
+      "durationMs": 3786
+    },
+    {
+      "id": "place-vacation-mobile",
+      "surface": "/business?id=vacation-116",
+      "viewport": "mobile",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 390,
+        "client": 390,
+        "text": 11415,
+        "phone": true,
+        "whatsapp": true,
+        "galleryTrigger": true,
+        "reviewSummary": true,
+        "mapPreview": true,
+        "galleryTabs": 4
+      },
+      "durationMs": 3101
+    },
+    {
+      "id": "place-event-mobile",
+      "surface": "/events/place/event-2575",
+      "viewport": "mobile",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 390,
+        "client": 390,
+        "text": 5742,
+        "phone": true,
+        "whatsapp": true,
+        "galleryTrigger": true,
+        "reviewSummary": false,
+        "mapPreview": true,
+        "galleryTabs": 3
+      },
+      "durationMs": 2591
+    },
+    {
+      "id": "place-hourly-mobile",
+      "surface": "/discover/place/hourly-475",
+      "viewport": "mobile",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 390,
+        "client": 390,
+        "text": 6958,
+        "phone": true,
+        "whatsapp": true,
+        "galleryTrigger": false,
+        "reviewSummary": false,
+        "mapPreview": true,
+        "galleryTabs": 0
+      },
+      "durationMs": 2763
+    },
+    {
+      "id": "place-spa-mobile",
+      "surface": "/discover/place/spa-6",
+      "viewport": "mobile",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 390,
+        "client": 390,
+        "text": 5993,
+        "phone": false,
+        "whatsapp": false,
+        "galleryTrigger": false,
+        "reviewSummary": false,
+        "mapPreview": true,
+        "galleryTabs": 0
+      },
+      "durationMs": 3229
+    },
+    {
+      "id": "navigation-back-mobile",
+      "surface": "public navigation",
+      "viewport": "mobile",
+      "status": "passed",
+      "evidence": {
+        "url": "https://vii.spaplus.co/"
+      },
+      "durationMs": 2002
+    },
+    {
+      "id": "screenshot-mobile",
+      "surface": "/",
+      "viewport": "mobile",
+      "status": "passed",
+      "evidence": "qa-reports\\safe-repairs-public-rerun-20261024\\public-mobile.png",
+      "durationMs": 2288
+    },
+    {
+      "id": "privacy-consent-low-height",
+      "surface": "privacy consent",
+      "viewport": "low-height",
+      "status": "passed",
+      "evidence": {
+        "choice": "essential",
+        "dismissed": true
+      },
+      "durationMs": 2241
+    },
+    {
+      "id": "shell-home-low-height",
+      "surface": "/",
+      "viewport": "low-height",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 390,
+        "client": 390,
+        "text": 12428,
+        "rails": 30,
+        "tabs": 5,
+        "visibleImages": 2
+      },
+      "durationMs": 1825
+    },
+    {
+      "id": "map-vacations-low-height",
+      "surface": "/search?location=%D7%9B%D7%9C%20%D7%94%D7%90%D7%A8%D7%A5",
+      "viewport": "low-height",
+      "status": "failed",
+      "evidence": "locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.vii-map-marker-wrap:not(.is-cluster)').nth(41)\u001b[22m\n\u001b[2m    - locator resolved to <div tabindex=\"0\" role=\"button\" aria-label=\"נווה בגליל\" data-map-place-id=\"vacation-1469\" class=\"leaflet-marker-icon vii-map-marker-wrap map-tone--vacation is-icon leaflet-zoom-animated leaflet-interactive\">…</div>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <button type=\"button\" class=\"map-search-area\">…</button> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <button type=\"button\" class=\"map-search-area\">…</button> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    18 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <button type=\"button\" class=\"map-search-area\">…</button> intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+      "durationMs": 14631
+    },
+    {
+      "id": "map-events-low-height",
+      "surface": "/events/search?location=%D7%9B%D7%9C%20%D7%94%D7%90%D7%A8%D7%A5",
+      "viewport": "low-height",
+      "status": "passed",
+      "evidence": {
+        "tiles": 8,
+        "markers": 11,
+        "selectedCards": 1,
+        "visibleImages": 2
+      },
+      "durationMs": 3388
+    },
+    {
+      "id": "map-hourly-low-height",
+      "surface": "/hourly",
+      "viewport": "low-height",
+      "status": "passed",
+      "evidence": {
+        "tiles": 15,
+        "markers": 9,
+        "selectedCards": 1,
+        "visibleImages": 3
+      },
+      "durationMs": 4436
+    },
+    {
+      "id": "map-spa-low-height",
+      "surface": "/spas",
+      "viewport": "low-height",
+      "status": "passed",
+      "evidence": {
+        "tiles": 15,
+        "markers": 3,
+        "selectedCards": 1,
+        "visibleImages": 3
+      },
+      "durationMs": 4575
+    },
+    {
+      "id": "map-activities-low-height",
+      "surface": "/attractions",
+      "viewport": "low-height",
+      "status": "passed",
+      "evidence": {
+        "tiles": 15,
+        "markers": 3,
+        "selectedCards": 1,
+        "visibleImages": 3
+      },
+      "durationMs": 3854
+    },
+    {
+      "id": "place-vacation-low-height",
+      "surface": "/business?id=vacation-116",
+      "viewport": "low-height",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 390,
+        "client": 390,
+        "text": 11415,
+        "phone": true,
+        "whatsapp": true,
+        "galleryTrigger": true,
+        "reviewSummary": true,
+        "mapPreview": true,
+        "galleryTabs": 4
+      },
+      "durationMs": 2401
+    },
+    {
+      "id": "place-event-low-height",
+      "surface": "/events/place/event-2575",
+      "viewport": "low-height",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 390,
+        "client": 390,
+        "text": 5742,
+        "phone": true,
+        "whatsapp": true,
+        "galleryTrigger": true,
+        "reviewSummary": false,
+        "mapPreview": true,
+        "galleryTabs": 3
+      },
+      "durationMs": 2655
+    },
+    {
+      "id": "place-hourly-low-height",
+      "surface": "/discover/place/hourly-475",
+      "viewport": "low-height",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 390,
+        "client": 390,
+        "text": 6958,
+        "phone": true,
+        "whatsapp": true,
+        "galleryTrigger": false,
+        "reviewSummary": false,
+        "mapPreview": true,
+        "galleryTabs": 0
+      },
+      "durationMs": 2353
+    },
+    {
+      "id": "place-spa-low-height",
+      "surface": "/discover/place/spa-6",
+      "viewport": "low-height",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 390,
+        "client": 390,
+        "text": 5993,
+        "phone": false,
+        "whatsapp": false,
+        "galleryTrigger": false,
+        "reviewSummary": false,
+        "mapPreview": true,
+        "galleryTabs": 0
+      },
+      "durationMs": 3763
+    },
+    {
+      "id": "navigation-back-low-height",
+      "surface": "public navigation",
+      "viewport": "low-height",
+      "status": "passed",
+      "evidence": {
+        "url": "https://vii.spaplus.co/"
+      },
+      "durationMs": 2261
+    },
+    {
+      "id": "screenshot-low-height",
+      "surface": "/",
+      "viewport": "low-height",
+      "status": "passed",
+      "evidence": "qa-reports\\safe-repairs-public-rerun-20261024\\public-low-height.png",
+      "durationMs": 2613
+    },
+    {
+      "id": "locale-he-home-desktop-1365",
+      "surface": "home",
+      "viewport": "desktop-1365",
+      "status": "failed",
+      "evidence": "case_timeout_30000",
+      "durationMs": 30005
+    },
+    {
+      "id": "locale-he-guides-desktop-1365",
+      "surface": "guides",
+      "viewport": "desktop-1365",
+      "status": "failed",
+      "evidence": "multilingual_visual_integrity:{\"locale\":\"he\",\"count\":1,\"problems\":[{\"kind\":\"share_url_missing\",\"locale\":\"he\",\"currentUrl\":\"https://vii.spaplus.co/guides\"}]};screenshot=qa-reports\\safe-repairs-public-rerun-20261024\\locale-he-guides-desktop-1365.png",
+      "durationMs": 2833
+    },
+    {
+      "id": "locale-he-gift-card-desktop-1365",
+      "surface": "gift-card",
+      "viewport": "desktop-1365",
+      "status": "failed",
+      "evidence": "multilingual_visual_integrity:{\"locale\":\"he\",\"count\":1,\"problems\":[{\"kind\":\"share_url_missing\",\"locale\":\"he\",\"currentUrl\":\"https://vii.spaplus.co/gift-card\"}]};screenshot=qa-reports\\safe-repairs-public-rerun-20261024\\locale-he-gift-card-desktop-1365.png",
+      "durationMs": 2128
+    }
+  ],
+  "finishedAt": "2026-10-24T02:18:16.418Z",
+  "summary": {
+    "total": 42,
+    "passed": 32,
+    "failed": 10
+  },
+  "status": "failed"
+}

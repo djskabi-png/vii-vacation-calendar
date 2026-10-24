@@ -1,0 +1,543 @@
+{
+  "schemaVersion": 1,
+  "baseUrl": "https://vii.spaplus.co",
+  "startedAt": "2026-10-24T02:05:31.921Z",
+  "exclusions": [
+    "accessibility",
+    "typography"
+  ],
+  "cases": [
+    {
+      "id": "privacy-consent-desktop",
+      "surface": "privacy consent",
+      "viewport": "desktop",
+      "status": "passed",
+      "evidence": {
+        "choice": "essential",
+        "dismissed": true
+      },
+      "durationMs": 3489
+    },
+    {
+      "id": "shell-home-desktop",
+      "surface": "/",
+      "viewport": "desktop",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 1425,
+        "client": 1440,
+        "text": 12445,
+        "rails": 30,
+        "tabs": 5,
+        "visibleImages": 7
+      },
+      "durationMs": 1571
+    },
+    {
+      "id": "map-vacations-desktop",
+      "surface": "/search?location=%D7%9B%D7%9C%20%D7%94%D7%90%D7%A8%D7%A5",
+      "viewport": "desktop",
+      "status": "failed",
+      "evidence": "page.waitForSelector: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.leaflet-container') to be visible\u001b[22m\n",
+      "durationMs": 23094
+    },
+    {
+      "id": "map-events-desktop",
+      "surface": "/events/search?location=%D7%9B%D7%9C%20%D7%94%D7%90%D7%A8%D7%A5",
+      "viewport": "desktop",
+      "status": "failed",
+      "evidence": "case_timeout_30000",
+      "durationMs": 30017
+    },
+    {
+      "id": "map-hourly-desktop",
+      "surface": "/hourly",
+      "viewport": "desktop",
+      "status": "failed",
+      "evidence": "case_timeout_30000",
+      "durationMs": 30015
+    },
+    {
+      "id": "map-spa-desktop",
+      "surface": "/spas",
+      "viewport": "desktop",
+      "status": "failed",
+      "evidence": "map_selectable_marker_missing",
+      "durationMs": 4907
+    },
+    {
+      "id": "map-activities-desktop",
+      "surface": "/attractions",
+      "viewport": "desktop",
+      "status": "failed",
+      "evidence": "page.waitForSelector: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.leaflet-container') to be visible\u001b[22m\n",
+      "durationMs": 22942
+    },
+    {
+      "id": "place-vacation-desktop",
+      "surface": "/business?id=vacation-116",
+      "viewport": "desktop",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 1425,
+        "client": 1440,
+        "text": 11577,
+        "phone": true,
+        "whatsapp": true,
+        "galleryTrigger": true,
+        "reviewSummary": true,
+        "mapPreview": true,
+        "galleryTabs": 4
+      },
+      "durationMs": 3511
+    },
+    {
+      "id": "place-event-desktop",
+      "surface": "/events/place/event-2575",
+      "viewport": "desktop",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 1425,
+        "client": 1440,
+        "text": 5813,
+        "phone": true,
+        "whatsapp": true,
+        "galleryTrigger": true,
+        "reviewSummary": false,
+        "mapPreview": true,
+        "galleryTabs": 3
+      },
+      "durationMs": 3218
+    },
+    {
+      "id": "place-hourly-desktop",
+      "surface": "/discover/place/hourly-475",
+      "viewport": "desktop",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 1425,
+        "client": 1440,
+        "text": 7054,
+        "phone": true,
+        "whatsapp": true,
+        "galleryTrigger": false,
+        "reviewSummary": false,
+        "mapPreview": true,
+        "galleryTabs": 0
+      },
+      "durationMs": 2462
+    },
+    {
+      "id": "place-spa-desktop",
+      "surface": "/discover/place/spa-6",
+      "viewport": "desktop",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 1425,
+        "client": 1440,
+        "text": 6056,
+        "phone": false,
+        "whatsapp": false,
+        "galleryTrigger": false,
+        "reviewSummary": false,
+        "mapPreview": true,
+        "galleryTabs": 0
+      },
+      "durationMs": 2909
+    },
+    {
+      "id": "navigation-back-desktop",
+      "surface": "public navigation",
+      "viewport": "desktop",
+      "status": "passed",
+      "evidence": {
+        "url": "https://vii.spaplus.co/"
+      },
+      "durationMs": 2607
+    },
+    {
+      "id": "screenshot-desktop",
+      "surface": "/",
+      "viewport": "desktop",
+      "status": "passed",
+      "evidence": "qa-reports\\safe-repairs-public-20261024\\public-desktop.png",
+      "durationMs": 2778
+    },
+    {
+      "id": "privacy-consent-mobile",
+      "surface": "privacy consent",
+      "viewport": "mobile",
+      "status": "passed",
+      "evidence": {
+        "choice": "essential",
+        "dismissed": true
+      },
+      "durationMs": 1847
+    },
+    {
+      "id": "shell-home-mobile",
+      "surface": "/",
+      "viewport": "mobile",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 390,
+        "client": 390,
+        "text": 12428,
+        "rails": 30,
+        "tabs": 8,
+        "visibleImages": 3
+      },
+      "durationMs": 1765
+    },
+    {
+      "id": "map-vacations-mobile",
+      "surface": "/search?location=%D7%9B%D7%9C%20%D7%94%D7%90%D7%A8%D7%A5",
+      "viewport": "mobile",
+      "status": "failed",
+      "evidence": "case_timeout_30000",
+      "durationMs": 30004
+    },
+    {
+      "id": "map-events-mobile",
+      "surface": "/events/search?location=%D7%9B%D7%9C%20%D7%94%D7%90%D7%A8%D7%A5",
+      "viewport": "mobile",
+      "status": "passed",
+      "evidence": {
+        "tiles": 20,
+        "markers": 16,
+        "selectedCards": 1,
+        "visibleImages": 3
+      },
+      "durationMs": 4063
+    },
+    {
+      "id": "map-hourly-mobile",
+      "surface": "/hourly",
+      "viewport": "mobile",
+      "status": "passed",
+      "evidence": {
+        "tiles": 18,
+        "markers": 9,
+        "selectedCards": 1,
+        "visibleImages": 3
+      },
+      "durationMs": 3846
+    },
+    {
+      "id": "map-spa-mobile",
+      "surface": "/spas",
+      "viewport": "mobile",
+      "status": "failed",
+      "evidence": "case_timeout_30000",
+      "durationMs": 30011
+    },
+    {
+      "id": "map-activities-mobile",
+      "surface": "/attractions",
+      "viewport": "mobile",
+      "status": "failed",
+      "evidence": "locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.vii-map-marker-wrap:not(.is-cluster) .vii-map-marker').first()\u001b[22m\n\u001b[2m    - locator resolved to <span class=\"vii-map-marker\">…</span>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <button type=\"button\" class=\"map-mobile-close\" aria-label=\"חזרה לרשימה\">…</button> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m  - element was detached from the DOM, retrying\u001b[22m\n\u001b[2m    - locator resolved to <span class=\"vii-map-marker\">…</span>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <button type=\"button\" class=\"map-mobile-close\" aria-label=\"חזרה לרשימה\">…</button> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <button type=\"button\" class=\"map-mobile-close\" aria-label=\"חזרה לרשימה\">…</button> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    18 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <button type=\"button\" class=\"map-mobile-close\" aria-label=\"חזרה לרשימה\">…</button> intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n",
+      "durationMs": 12730
+    },
+    {
+      "id": "place-vacation-mobile",
+      "surface": "/business?id=vacation-116",
+      "viewport": "mobile",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 390,
+        "client": 390,
+        "text": 11415,
+        "phone": true,
+        "whatsapp": true,
+        "galleryTrigger": true,
+        "reviewSummary": true,
+        "mapPreview": true,
+        "galleryTabs": 4
+      },
+      "durationMs": 2470
+    },
+    {
+      "id": "place-event-mobile",
+      "surface": "/events/place/event-2575",
+      "viewport": "mobile",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 390,
+        "client": 390,
+        "text": 5742,
+        "phone": true,
+        "whatsapp": true,
+        "galleryTrigger": true,
+        "reviewSummary": false,
+        "mapPreview": true,
+        "galleryTabs": 3
+      },
+      "durationMs": 2574
+    },
+    {
+      "id": "place-hourly-mobile",
+      "surface": "/discover/place/hourly-475",
+      "viewport": "mobile",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 390,
+        "client": 390,
+        "text": 6958,
+        "phone": true,
+        "whatsapp": true,
+        "galleryTrigger": false,
+        "reviewSummary": false,
+        "mapPreview": true,
+        "galleryTabs": 0
+      },
+      "durationMs": 3115
+    },
+    {
+      "id": "place-spa-mobile",
+      "surface": "/discover/place/spa-6",
+      "viewport": "mobile",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 390,
+        "client": 390,
+        "text": 5993,
+        "phone": false,
+        "whatsapp": false,
+        "galleryTrigger": false,
+        "reviewSummary": false,
+        "mapPreview": true,
+        "galleryTabs": 0
+      },
+      "durationMs": 2413
+    },
+    {
+      "id": "navigation-back-mobile",
+      "surface": "public navigation",
+      "viewport": "mobile",
+      "status": "failed",
+      "evidence": "page.waitForURL: Timeout 15000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================",
+      "durationMs": 15866
+    },
+    {
+      "id": "screenshot-mobile",
+      "surface": "/",
+      "viewport": "mobile",
+      "status": "passed",
+      "evidence": "qa-reports\\safe-repairs-public-20261024\\public-mobile.png",
+      "durationMs": 2381
+    },
+    {
+      "id": "privacy-consent-low-height",
+      "surface": "privacy consent",
+      "viewport": "low-height",
+      "status": "passed",
+      "evidence": {
+        "choice": "essential",
+        "dismissed": true
+      },
+      "durationMs": 1643
+    },
+    {
+      "id": "shell-home-low-height",
+      "surface": "/",
+      "viewport": "low-height",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 390,
+        "client": 390,
+        "text": 12428,
+        "rails": 30,
+        "tabs": 5,
+        "visibleImages": 2
+      },
+      "durationMs": 1653
+    },
+    {
+      "id": "map-vacations-low-height",
+      "surface": "/search?location=%D7%9B%D7%9C%20%D7%94%D7%90%D7%A8%D7%A5",
+      "viewport": "low-height",
+      "status": "failed",
+      "evidence": "map_selectable_marker_missing",
+      "durationMs": 3372
+    },
+    {
+      "id": "map-events-low-height",
+      "surface": "/events/search?location=%D7%9B%D7%9C%20%D7%94%D7%90%D7%A8%D7%A5",
+      "viewport": "low-height",
+      "status": "failed",
+      "evidence": "locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.vii-map-marker-wrap:not(.is-cluster) .vii-map-marker').first()\u001b[22m\n\u001b[2m    - locator resolved to <span class=\"vii-map-marker\">…</span>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m  - element was detached from the DOM, retrying\u001b[22m\n\u001b[2m    - locator resolved to <span class=\"vii-map-marker\">…</span>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div tabindex=\"0\" role=\"button\" aria-pressed=\"false\" data-map-place-id=\"event-1982\" aria-label=\"וילה אצולת טבריה בוטיק\" class=\"leaflet-marker-icon vii-map-marker-wrap map-tone--events is-text leaflet-zoom-animated leaflet-interactive\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div tabindex=\"0\" role=\"button\" aria-pressed=\"false\" data-map-place-id=\"event-1982\" aria-label=\"וילה אצולת טבריה בוטיק\" class=\"leaflet-marker-icon vii-map-marker-wrap map-tone--events is-text leaflet-zoom-animated leaflet-interactive\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    19 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div tabindex=\"0\" role=\"button\" aria-pressed=\"false\" data-map-place-id=\"event-1982\" aria-label=\"וילה אצולת טבריה בוטיק\" class=\"leaflet-marker-icon vii-map-marker-wrap map-tone--events is-text leaflet-zoom-animated leaflet-interactive\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+      "durationMs": 12654
+    },
+    {
+      "id": "map-hourly-low-height",
+      "surface": "/hourly",
+      "viewport": "low-height",
+      "status": "passed",
+      "evidence": {
+        "tiles": 15,
+        "markers": 9,
+        "selectedCards": 1,
+        "visibleImages": 3
+      },
+      "durationMs": 4079
+    },
+    {
+      "id": "map-spa-low-height",
+      "surface": "/spas",
+      "viewport": "low-height",
+      "status": "failed",
+      "evidence": "case_timeout_30000",
+      "durationMs": 30003
+    },
+    {
+      "id": "map-activities-low-height",
+      "surface": "/attractions",
+      "viewport": "low-height",
+      "status": "passed",
+      "evidence": {
+        "tiles": 15,
+        "markers": 3,
+        "selectedCards": 1,
+        "visibleImages": 3
+      },
+      "durationMs": 7404
+    },
+    {
+      "id": "place-vacation-low-height",
+      "surface": "/business?id=vacation-116",
+      "viewport": "low-height",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 390,
+        "client": 390,
+        "text": 11415,
+        "phone": true,
+        "whatsapp": true,
+        "galleryTrigger": true,
+        "reviewSummary": true,
+        "mapPreview": true,
+        "galleryTabs": 4
+      },
+      "durationMs": 2362
+    },
+    {
+      "id": "place-event-low-height",
+      "surface": "/events/place/event-2575",
+      "viewport": "low-height",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 390,
+        "client": 390,
+        "text": 5742,
+        "phone": true,
+        "whatsapp": true,
+        "galleryTrigger": true,
+        "reviewSummary": false,
+        "mapPreview": true,
+        "galleryTabs": 3
+      },
+      "durationMs": 2135
+    },
+    {
+      "id": "place-hourly-low-height",
+      "surface": "/discover/place/hourly-475",
+      "viewport": "low-height",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 390,
+        "client": 390,
+        "text": 6958,
+        "phone": true,
+        "whatsapp": true,
+        "galleryTrigger": false,
+        "reviewSummary": false,
+        "mapPreview": true,
+        "galleryTabs": 0
+      },
+      "durationMs": 2040
+    },
+    {
+      "id": "place-spa-low-height",
+      "surface": "/discover/place/spa-6",
+      "viewport": "low-height",
+      "status": "passed",
+      "evidence": {
+        "status": 200,
+        "width": 390,
+        "client": 390,
+        "text": 5993,
+        "phone": false,
+        "whatsapp": false,
+        "galleryTrigger": false,
+        "reviewSummary": false,
+        "mapPreview": true,
+        "galleryTabs": 0
+      },
+      "durationMs": 2121
+    },
+    {
+      "id": "navigation-back-low-height",
+      "surface": "public navigation",
+      "viewport": "low-height",
+      "status": "passed",
+      "evidence": {
+        "url": "https://vii.spaplus.co/"
+      },
+      "durationMs": 2976
+    },
+    {
+      "id": "screenshot-low-height",
+      "surface": "/",
+      "viewport": "low-height",
+      "status": "passed",
+      "evidence": "qa-reports\\safe-repairs-public-20261024\\public-low-height.png",
+      "durationMs": 2969
+    },
+    {
+      "id": "locale-he-home-desktop-1365",
+      "surface": "home",
+      "viewport": "desktop-1365",
+      "status": "failed",
+      "evidence": "multilingual_visual_integrity:{\"locale\":\"he\",\"count\":1,\"problems\":[{\"kind\":\"share_url_missing\",\"locale\":\"he\",\"currentUrl\":\"https://vii.spaplus.co/\"}]};screenshot=qa-reports\\safe-repairs-public-20261024\\locale-he-home-desktop-1365.png",
+      "durationMs": 2993
+    },
+    {
+      "id": "locale-he-guides-desktop-1365",
+      "surface": "guides",
+      "viewport": "desktop-1365",
+      "status": "failed",
+      "evidence": "multilingual_visual_integrity:{\"locale\":\"he\",\"count\":1,\"problems\":[{\"kind\":\"share_url_missing\",\"locale\":\"he\",\"currentUrl\":\"https://vii.spaplus.co/guides\"}]};screenshot=qa-reports\\safe-repairs-public-20261024\\locale-he-guides-desktop-1365.png",
+      "durationMs": 2380
+    },
+    {
+      "id": "locale-he-gift-card-desktop-1365",
+      "surface": "gift-card",
+      "viewport": "desktop-1365",
+      "status": "failed",
+      "evidence": "multilingual_visual_integrity:{\"locale\":\"he\",\"count\":1,\"problems\":[{\"kind\":\"share_url_missing\",\"locale\":\"he\",\"currentUrl\":\"https://vii.spaplus.co/gift-card\"}]};screenshot=qa-reports\\safe-repairs-public-20261024\\locale-he-gift-card-desktop-1365.png",
+      "durationMs": 2414
+    }
+  ],
+  "finishedAt": "2026-10-24T02:11:06.455Z",
+  "summary": {
+    "total": 42,
+    "passed": 27,
+    "failed": 15
+  },
+  "status": "failed"
+}

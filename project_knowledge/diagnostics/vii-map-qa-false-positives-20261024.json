@@ -1,0 +1,78 @@
+{
+  "status": "fixed",
+  "symptom": "The comprehensive public QA reported every mobile results map as missing and several loaded maps as absent or unclickable.",
+  "expected_behavior": "The QA must verify first-visit privacy state, then recognize the live map DOM and click a pointer-accessible marker without confusing an overlay or cluster with a broken map.",
+  "environment": "Public VII production at https://vii.spaplus.co on 2026-10-24, Chromium desktop, 390x844 mobile and 390x620 low-height viewports.",
+  "reproduction": {
+    "steps": [
+      "Open a fresh mobile results page without a stored cookie choice.",
+      "Scroll the results region and inspect the map control.",
+      "Choose essential-only privacy, open the map and inspect map tiles and markers.",
+      "Compare the rendered map DOM with the selectors and click target used by the QA."
+    ],
+    "evidence": "Before consent the map control existed but display was none because the visible privacy card intentionally occupied the fixed control area. After essential-only consent it was visible. A loaded vacation map exposed 25 tiles and 7 markers while the QA's obsolete .leaflet-container selector matched zero nodes."
+  },
+  "observations": [
+    {
+      "observation": "The product intentionally suppresses the fixed mobile map button while the cookie card is displayed.",
+      "evidence": "Computed style was display:none with a present .cookie-card; after localStorage vii-cookie-choice=essential, the same button was display:flex and visible."
+    },
+    {
+      "observation": "The live map may render tiles and markers without the legacy .leaflet-container class used by the QA.",
+      "evidence": "Targeted public observation found .map-results-experience=1, 25 .leaflet-tile nodes and 7 marker nodes while .leaflet-container=0."
+    },
+    {
+      "observation": "Clicking the inner marker span or an arbitrary first marker can be intercepted by the mobile close or search-area control.",
+      "evidence": "Playwright reported pointer interception by .map-mobile-close and .map-search-area during the previous QA implementation."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "The maps are absent from the product.",
+      "prediction": "No map button, map experience, tiles or markers will exist after privacy choice and map activation.",
+      "discriminating_test": "Persist essential-only consent, activate the map and inspect its DOM and computed styles.",
+      "result": "Rejected: the map control became visible and the public map rendered tiles and markers.",
+      "status": "rejected"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The QA checks interaction state in the wrong order and targets obsolete or geometrically covered elements.",
+      "prediction": "Closing first-visit consent, observing .listing-map and selecting a topmost marker wrapper will remove the missing-map and pointer-interception false positives.",
+      "discriminating_test": "Run the corrected public core QA across mobile and low-height map families.",
+      "result": "Supported: all five mobile map families passed; four of five low-height families passed, with the remaining vacation case isolated from the original missing-toggle failure.",
+      "status": "supported"
+    }
+  ],
+  "root_cause_hypothesis_id": "H2",
+  "fix": {
+    "change": "The QA now verifies and persists essential-only consent before other journeys, recognizes .listing-map plus real tiles, expands clusters when needed and clicks a topmost marker wrapper by viewport coordinates.",
+    "evidence": "The focused QA contract suite passed 4 of 4 checks. Public rerun qa-reports/safe-repairs-public-rerun-20261024/comprehensive-1792808296418.json passed all five mobile map families and improved the overall core result from 27/42 to 32/42."
+  },
+  "affected_family": [
+    "Vacation results map",
+    "Event results map",
+    "Hourly results map",
+    "Spa results map",
+    "Attraction results map",
+    "Desktop, mobile and low-height interaction viewports"
+  ],
+  "regression_checks": [
+    {
+      "check": "First-visit privacy choice is explicitly tested and persists essential-only state.",
+      "status": "passed",
+      "evidence": "tests/comprehensive-qa-consent.test.mjs"
+    },
+    {
+      "check": "All five mobile map families open, render and select a map result on public production.",
+      "status": "passed",
+      "evidence": "qa-reports/safe-repairs-public-rerun-20261024/comprehensive-1792808296418.json"
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [
+    "Desktop map cases still exceed the 30-second journey budget and remain a real performance or rendering investigation; this repair does not classify them as healthy.",
+    "The low-height vacation map still lacks a pointer-accessible non-cluster marker after the initial cluster expansion and remains open."
+  ],
+  "authorization_boundary": "Repair deterministic QA false positives and verify public read-only behavior; do not publish product changes or relax a genuine performance failure."
+}
