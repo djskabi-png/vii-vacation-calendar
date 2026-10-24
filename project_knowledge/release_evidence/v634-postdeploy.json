@@ -1,0 +1,76 @@
+{
+  "release": "v634-platform-closure",
+  "recorded_at": "2026-10-24T23:54:35+03:00",
+  "public_version_label": "v633",
+  "version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_a419c14affa4819184cff68fed2045fc",
+  "deployment_id": "appgdep_6add18b70db08191acec4db927d0516a",
+  "deployment_status": "succeeded",
+  "source_commit": "eb5cb9ed6c460b5f6803b0ed9d6d76fcacc28d2c",
+  "source_tree": "0ac658f554ae24838358f0050b0a07b8ef042b2f",
+  "managed_commit": "3b8183f9f15af59d2126a8012a6df9b85242d7ab",
+  "public_url": "https://vii.spaplus.co/",
+  "environment_revision": 29,
+  "verified": {
+    "home_holiday_slider": {
+      "status": "passed",
+      "observed_tabs": [
+        "חג הסיגד",
+        "חנוכה",
+        "סילבסטר",
+        "רמאדן",
+        "יום האהבה",
+        "עיד אל פיטר"
+      ],
+      "count": 6,
+      "loading_state_cleared": true
+    },
+    "admin_business_performance": {
+      "status": "passed",
+      "url": "https://vii.spaplus.co/admin/business-performance",
+      "evidence": "Signed-in filters, totals, supplier drill-down, empty state and date preset persistence were exercised before publication; the exact code and data contract were included in the published source commit."
+    },
+    "admin_content_studio": {
+      "status": "passed",
+      "url": "https://vii.spaplus.co/admin/content-studio",
+      "evidence": "Five near-date tabs and holiday visibility, date-window and bounded 1-6 holiday limit controls were visible in the signed-in production destination."
+    },
+    "admin_growth": {
+      "status": "passed_with_external_dependency",
+      "url": "https://vii.spaplus.co/admin/growth",
+      "evidence": "The live destination shows Search Console ownership and sitemap discovery, GA4 G-6DMS0FKGYK, and consent-gated GTM-WG8VXDB. The separate direct GA4-to-Search-Console link remains permission-blocked."
+    },
+    "legacy_redirects": {
+      "status": "passed",
+      "checks": [
+        {"source": "/tzimar_beshadot_shel_hamushev", "status": 301, "destination": "/business?id=vacation-2197"},
+        {"source": "/dream_eilat_villa", "status": 301, "destination": "/business?id=vacation-2709"},
+        {"source": "/gesher_laahava", "status": 301, "destination": "/business?id=vacation-2728"},
+        {"source": "/vila_bereshit", "status": 301, "destination": "/business?id=vacation-2730"},
+        {"source": "/s/yavneel/13690", "status": 301, "destination": "/search/vacations/yavneel-13690-ca826506"}
+      ],
+      "destination_status": 200,
+      "client_render_note": "The destination is a client-rendered application. HTTP 200 and redirect behavior were verified live; the local migration and publication tests verified the expected title and H1. Two independent in-app-browser navigation attempts timed out before a visual assertion, so no unsupported live visual claim is made for that one title."
+    },
+    "automated_verification": {
+      "full_suite_passed": 1585,
+      "full_suite_failed": 0,
+      "focused_passed": 40,
+      "focused_failed": 0,
+      "typescript": "passed",
+      "production_build": "passed"
+    }
+  },
+  "external_dependency": {
+    "status": "human_permission_required",
+    "system": "Google Analytics",
+    "property_id": "255021049",
+    "search_console_property": "sc-domain:vii.co.il",
+    "minimum_action": "A GA4 property administrator must grant Adir's account Editor on property 255021049 or create the Search Console link.",
+    "resume_condition": "The GA4 Search Console links page enables Create or displays the vii.co.il link."
+  },
+  "rollback": {
+    "previous_public_commit": "6298970de91130f298802c62f5e17d8499cdd115",
+    "previous_version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_8e673561b1f08191a3741e27bec4d8f3",
+    "previous_deployment_id": "appgdep_6add0c8d1b3c81918a66dcb7dec3c304"
+  }
+}

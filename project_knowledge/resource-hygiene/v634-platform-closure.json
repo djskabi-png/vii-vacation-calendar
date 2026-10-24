@@ -477,6 +477,15 @@
     4052
   ],
   "ownedProcesses": [],
+  "completedAt": "2026-10-24T23:54:35.4112959+03:00",
+  "cleanupStatus": "passed",
+  "cleanupEvidence": "No long-lived server, watcher, browser test, Node or Python process was started or left owned by this task. All validation commands exited. AI-created in-app-browser tabs are closed during finalization; the user's original business tab is preserved.",
+  "after": {
+    "timestamp": "2026-10-24T23:54:35.4112959+03:00",
+    "memoryUsedPercent": 75.6,
+    "freeMemoryMB": 15912.1,
+    "processCount": 505
+  },
   "before": {
     "timestamp": "2026-10-24T23:09:37.2859341+03:00",
     "cpuPercent": 45.0,
