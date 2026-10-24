@@ -7,12 +7,17 @@ const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf
 test("public event rails and named-place suggestions never rely on raw supplier identity translation", () => {
   const events = read("app/events/page.tsx");
   const search = read("app/components/search-box.tsx");
+  const searchDepth = read("app/components/search-after-results.tsx");
+  const hourly = read("app/discover/place/client-page.tsx");
   assert.match(events, /localizedBusinessText\(place\.name/);
   assert.match(events, /latinBusinessAlias\(place\.name\)/);
   assert.doesNotMatch(events, /name=\{translate\(place\.name\)\}/);
   assert.doesNotMatch(events, /<h3>\{translate\(place\.name\)\}<\/h3>/);
   assert.match(search, /localizedBusinessText\(place\.name/);
   assert.doesNotMatch(search, /<strong>\{translate\(place\.name\)\}<\/strong>/);
+  assert.match(searchDepth, /label: localizedEntity\(item\.label, discovery\.searchMeta\)/);
+  assert.match(hourly, /const roomLabel = localizedBusinessText\(room, language, translate/);
+  assert.match(hourly, /return `\$\{roomLabel\} ·/);
 });
 
 test("homepage keeps full layout measurable while media remains lazy", () => {
@@ -25,5 +30,7 @@ test("slider boundaries are calculated from actual scroll progress in both direc
   const controls = read("app/components/slider-rail-controls.tsx");
   assert.match(controls, /maxScroll = Math\.max\(0, rail\.scrollWidth - rail\.clientWidth\)/);
   assert.match(controls, /Math\.abs\(rail\.scrollLeft\)/);
+  assert.match(controls, /useState<SliderRailState>\(\{ previous: false, next: true \}\)/);
   assert.match(controls, /settleFrame = window\.requestAnimationFrame\(state\.update\)/);
+  assert.match(controls, /settleTimer = window\.setTimeout\(\(\) => \{[\s\S]*rail\.scrollLeft = 0;[\s\S]*state\.update\(\);[\s\S]*\}, 250\)/);
 });

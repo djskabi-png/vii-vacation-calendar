@@ -45,6 +45,8 @@ import { discoveryBreadcrumbsForLocation } from "../../lib/place-breadcrumb-loca
 function hourlyRateLabel(value: string, language: "he" | "en" | "ru" | "fr", translate: (value: string) => string) {
   const [room, duration, day] = value.split(" · ");
   if (language === "he" || !room || !duration || !day) return value;
+  const roomFallback = { en: "Private room", ru: "Отдельный номер", fr: "Chambre privée" }[language];
+  const roomLabel = localizedBusinessText(room, language, translate, latinBusinessAlias(room) || roomFallback);
   const durations = {
     en: { "שעה": "1 hour", "שעתיים": "2 hours", "3 שעות": "3 hours" },
     ru: { "שעה": "1 час", "שעתיים": "2 часа", "3 שעות": "3 часа" },
@@ -55,7 +57,7 @@ function hourlyRateLabel(value: string, language: "he" | "en" | "ru" | "fr", tra
     ru: { "יום חול": "будний день", "סוף שבוע": "выходные" },
     fr: { "יום חול": "en semaine", "סוף שבוע": "week-end" },
   };
-  return `${translate(room)} · ${durations[language][duration as keyof typeof durations.en] || duration} · ${days[language][day as keyof typeof days.en] || day}`;
+  return `${roomLabel} · ${durations[language][duration as keyof typeof durations.en] || duration} · ${days[language][day as keyof typeof days.en] || day}`;
 }
 
 function hasListingMedia(item: DiscoveryItem) {

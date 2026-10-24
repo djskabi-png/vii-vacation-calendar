@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, type RefObject } from "react";
+import { useCallback, useLayoutEffect, useState, type RefObject } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useSiteLanguage } from "../i18n/locale-provider";
 
@@ -18,7 +18,7 @@ export function boundedSliderIndex(current: number, direction: -1 | 1, length: n
 }
 
 export function useSliderRailBoundaries({ railId, railRef, itemSelector = ":scope > *", disabled = false }: SliderRailTarget) {
-  const [state, setState] = useState<SliderRailState>({ previous: false, next: false });
+  const [state, setState] = useState<SliderRailState>({ previous: false, next: true });
   const resolveRail = useCallback(() => railRef?.current || (railId ? document.getElementById(railId) : null), [railId, railRef]);
 
   const update = useCallback(() => {
@@ -36,7 +36,7 @@ export function useSliderRailBoundaries({ railId, railRef, itemSelector = ":scop
     setState((current) => current.previous === nextState.previous && current.next === nextState.next ? current : nextState);
   }, [disabled, itemSelector, resolveRail]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const rail = resolveRail();
     if (!rail) return;
 
@@ -86,17 +86,23 @@ export function SliderRailControls({
 }: SliderRailTarget & { label: string; className: string }) {
   const { language } = useSiteLanguage();
   const state = useSliderRailBoundaries({ railId, railRef, itemSelector, disabled });
-  useEffect(() => {
+  useLayoutEffect(() => {
     const rail = railRef?.current || (railId ? document.getElementById(railId) : null);
     if (!rail || disabled) return;
     let settleFrame = 0;
+    let settleTimer = 0;
     const frame = window.requestAnimationFrame(() => {
-      rail.scrollTo({ left: 0, behavior: "auto" });
+      rail.scrollLeft = 0;
       settleFrame = window.requestAnimationFrame(state.update);
+      settleTimer = window.setTimeout(() => {
+        rail.scrollLeft = 0;
+        state.update();
+      }, 250);
     });
     return () => {
       window.cancelAnimationFrame(frame);
       window.cancelAnimationFrame(settleFrame);
+      window.clearTimeout(settleTimer);
     };
   }, [disabled, language, railId, railRef, state.update]);
   const previous = { he: "הקודם", en: "Previous", ru: "Назад", fr: "Précédent" }[language];
