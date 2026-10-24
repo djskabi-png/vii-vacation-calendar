@@ -90,7 +90,8 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
   const documentSeed = useDocumentSeed();
   const [period, setPeriod] = useState<HomeDealPeriod>(fixedPeriod ?? "tomorrow");
   const [periodTabs, setPeriodTabs] = useState<HomePeriodTab[]>(() => homeDealPeriods.map((item, index) => ({ id: item.id, label: copy[language].tabs[index] })));
-  const [retry, setRetry] = useState(0);
+  const [dealRetry, setDealRetry] = useState(0);
+  const [holidayListRetry, setHolidayListRetry] = useState(0);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [data, setData] = useState<ResponseData | null>(null);
   const [holidays, setHolidays] = useState<HomeHoliday[]>([]);
@@ -126,7 +127,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
       })
       .catch((error) => { if (error?.name !== "AbortError") setHolidayState("error"); });
     return () => controller.abort();
-  }, [language, mode, retry, clock?.key]);
+  }, [language, mode, holidayListRetry, clock?.key]);
 
   useEffect(() => {
     if (!clock) return;
@@ -157,7 +158,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
           if (attempts >= 1) setState(accepted ? "ready" : "error");
           else {
             automaticRetries.current.set(selectionKey, attempts + 1);
-            retryTimer = setTimeout(() => setRetry((value) => value + 1), 1_500);
+            retryTimer = setTimeout(() => setDealRetry((value) => value + 1), 1_500);
           }
           return;
         }
@@ -168,7 +169,7 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
       })
       .catch((error) => { if (error?.name !== "AbortError") setState(accepted ? "ready" : "error"); });
     return () => { controller.abort(); if (retryTimer) clearTimeout(retryTimer); };
-  }, [period, fixedPeriod, holidayId, holidayState, holidays, language, mode, retry, regionLabel, guests, selectionKey, clock?.key]);
+  }, [period, fixedPeriod, holidayId, holidayState, holidays, language, mode, dealRetry, regionLabel, guests, selectionKey, clock?.key]);
 
   function choose(value: HomeDealPeriod) {
     if (value !== period) setState("loading");
@@ -217,7 +218,10 @@ export function HomeLiveDeals({ mode = "near", region, guests = 2, fixedPeriod, 
           </div>
           <div className="home-live-deals__loading-cards" aria-hidden="true">{[0, 1, 2].map((index) => <div className="home-live-deals__loading-card" key={index}><div className="home-live-deals__loading-image" /><div className="home-live-deals__loading-lines"><span /><span /><span /></div></div>)}</div>
         </div> : null}
-        {displayState === "error" ? <div className={`home-live-deals__status${data ? " home-live-deals__status--overlay" : ""}`}><p>{text.error}</p><button type="button" onClick={() => { automaticRetries.current.delete(selectionKey); setRetry((value) => value + 1); }}>{text.retry}</button></div> : null}
+        {displayState === "error" ? <div className={`home-live-deals__status${data ? " home-live-deals__status--overlay" : ""}`}><p>{text.error}</p><button type="button" onClick={() => {
+          if (mode === "holidays" && holidayState === "error") setHolidayListRetry((value) => value + 1);
+          else { automaticRetries.current.delete(selectionKey); setDealRetry((value) => value + 1); }
+        }}>{text.retry}</button></div> : null}
         {displayState === "ready" && (mode === "holidays" && !holidays.length || data?.deals.length === 0) ? <p className="home-live-deals__status">{text.empty}</p> : null}
         {data?.deals.length ? <div id={`${sectionId}-rail`} className="home-live-deals__track" ref={track} data-horizontal-rail inert={refreshing || undefined} aria-hidden={refreshing || undefined}>
           {displayedDeals.map((deal) => {
