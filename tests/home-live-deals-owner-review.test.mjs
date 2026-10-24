@@ -51,6 +51,9 @@ test("content studio owns homepage period tabs and supplier holiday presentation
   assert.match(inventory, /type: "homepage", key: "vacation-sliders"/);
   for (const field of ["homePeriodOrder", "homePeriodDefault", "homePeriodLabels", "homeHolidayLimit", "homeHolidayHidden", "homeHolidayDates"]) assert.match(admin, new RegExp(field));
   assert.match(admin, /כל חמש הלשוניות קבועות/);
+  assert.match(admin, /max=\{maxHomeHolidayTabs\}/);
+  assert.match(admin, /clampHomeHolidayLimit/);
+  assert.match(admin, /עד שישה חגים קרובים לפי תאריך/);
   assert.doesNotMatch(admin, /updateHomePeriodVisibility/);
   assert.match(component, /result\.display\?\.periods/);
   assert.match(component, /selectedHoliday\.from/);

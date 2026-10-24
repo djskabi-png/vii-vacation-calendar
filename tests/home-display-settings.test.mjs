@@ -15,7 +15,7 @@ test("homepage editors control nearby tab labels, order and default while all re
   assert.equal(settings.defaultPeriod, "weekend");
 });
 
-test("homepage holiday controls hide, shorten and sort every future supplier holiday without a public cap", () => {
+test("homepage holiday controls hide, shorten, sort and cap the public holiday tabs", () => {
   const settings = parseHomeDisplaySettings({
     homeHolidayLimit: "2",
     homeHolidayHidden: "20",
@@ -29,13 +29,19 @@ test("homepage holiday controls hide, shorten and sort every future supplier hol
   ];
   assert.deepEqual(applyHolidayDisplaySettings(holidays, settings).map((item) => [item.id, item.from, item.till, item.nights, item.exactStay === true]), [
     [10, "2026-11-01", "2026-11-03", 2, false], [30, "2026-12-05", "2026-12-06", 1, true],
-    [40, "2027-01-01", "2027-01-03", 2, false],
   ]);
+});
+
+test("homepage never exposes more than the first six visible holidays, including legacy CMS values", () => {
+  const settings = parseHomeDisplaySettings({ homeHolidayLimit: "999", homeHolidayHidden: "2" });
+  const holidays = Array.from({ length: 9 }, (_, index) => ({ id: index + 1, name: String(index + 1), from: `2027-01-${String(index + 1).padStart(2, "0")}`, till: `2027-01-${String(index + 2).padStart(2, "0")}`, nights: 1, windowSearch: false })).reverse();
+  assert.equal(settings.holidayLimit, 6);
+  assert.deepEqual(applyHolidayDisplaySettings(holidays, settings).map((item) => item.id), [1, 3, 4, 5, 6, 7]);
 });
 
 test("legacy hidden settings cannot remove required nearby-date tabs", () => {
   const settings = parseHomeDisplaySettings({ homePeriodHidden: "tomorrow,weekend,friday-weekend,thursday,friday", homeHolidayLimit: "999", homeHolidayDates: "broken" }, "en");
   assert.deepEqual(settings.periods.map((item) => item.id), ["tomorrow", "weekend", "friday-weekend", "thursday", "friday"]);
   assert.equal(settings.defaultPeriod, "tomorrow");
-  assert.equal(settings.holidayLimit, 12);
+  assert.equal(settings.holidayLimit, 6);
 });

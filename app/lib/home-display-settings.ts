@@ -3,6 +3,7 @@ import type { ContentLocale } from "./content-studio.ts";
 import { readPublishedContent } from "./content-studio.ts";
 import { homeDealPeriods, type HomeDealPeriod } from "./vii-home-deals.ts";
 import type { HomeHoliday } from "./vii-home-holidays.ts";
+import { clampHomeHolidayLimit } from "./home-slider-contract.ts";
 
 export type HomePeriodTab = { id: HomeDealPeriod; label: string };
 export type HomeDisplaySettings = {
@@ -53,7 +54,7 @@ export function parseHomeDisplaySettings(attributes: Record<string, string> | un
   const periods = completeOrder.map((id) => ({ id, label: typeof labels[id] === "string" && labels[id]!.trim() ? String(labels[id]).trim().slice(0, 40) : defaultLabels[locale][id] }));
   const requestedDefault = attributes.homePeriodDefault as HomeDealPeriod;
   const defaultPeriod = periods.some((item) => item.id === requestedDefault) ? requestedDefault : periods[0].id;
-  const holidayLimit = Math.min(12, Math.max(1, Number.parseInt(attributes.homeHolidayLimit || "6", 10) || 6));
+  const holidayLimit = clampHomeHolidayLimit(attributes.homeHolidayLimit);
   const hiddenHolidayIds = new Set((attributes.homeHolidayHidden || "").split(",").map(Number).filter((id) => Number.isSafeInteger(id) && id > 0));
   const rawDates = jsonRecord(attributes.homeHolidayDates);
   const holidayDates = new Map<number, { from: string; till: string }>();
@@ -91,5 +92,6 @@ export function applyHolidayDisplaySettings(holidays: HomeHoliday[], settings: H
       const nights = Math.round((new Date(`${dates.till}T00:00:00Z`).valueOf() - new Date(`${dates.from}T00:00:00Z`).valueOf()) / 86_400_000);
       return nights >= 1 && nights <= 2 ? { ...holiday, ...dates, nights, exactStay: true } : holiday;
     })
-    .sort((a, b) => a.from.localeCompare(b.from) || a.id - b.id);
+    .sort((a, b) => a.from.localeCompare(b.from) || a.id - b.id)
+    .slice(0, settings.holidayLimit);
 }

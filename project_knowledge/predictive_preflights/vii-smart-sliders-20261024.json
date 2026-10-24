@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-smart-sliders-20261024",
+  "project": "VII",
+  "task_type": "production slider reliability and administration",
+  "requested_outcome": "The homepage availability and holiday sliders load reliably, never expose more than six holiday tabs, and can be managed safely from the administration interface.",
+  "natural_destination": "https://vii.spaplus.co and https://vii.spaplus.co/admin/content-studio",
+  "authorization_boundary": "Implement, test, save and publish the VII Sites change while preserving supplier truth, existing worlds, dates, booking validation and current site audience.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-WEB-002",
+      "reason": "The defect is an interactive slider family regression.",
+      "acceptance_impact": "Test every tab, arrows, loading, retry, reload and responsive transition on desktop and mobile."
+    },
+    {
+      "lesson_id": "ADIR-WEB-003",
+      "reason": "The screenshots show an asynchronous surface that can remain in loading or error.",
+      "acceptance_impact": "Require immediate bounded loading, successful completion or a usable retry state without duplicate requests."
+    },
+    {
+      "lesson_id": "ADIR-MIND-001",
+      "reason": "Adir asked for one complete system fix rather than another local patch.",
+      "acceptance_impact": "Verify the public slider, its API, and the administration workflow as one end-to-end result."
+    },
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "A prior implementation existed but was not actually enforced at the public destination.",
+      "acceptance_impact": "Reject completion unless the saved setting survives reload and changes the exact public site without breaking adjacent sliders."
+    },
+    {
+      "lesson_id": "ADIR-DEPLOY-001",
+      "reason": "The result must be released from the exact current public baseline.",
+      "acceptance_impact": "Preserve rollback identity and verify the deployed version, API and public/admin routes after publication."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The code says six but the public API still returns all future holidays.",
+      "prevention": "Apply the cap after filtering and chronological sorting in the shared display-settings function.",
+      "acceptance_check": "The public API and rendered tablist expose at most six holidays."
+    },
+    {
+      "rejection": "The management control exists but allows values that contradict the six-holiday maximum or does not persist.",
+      "prevention": "Clamp both parser and editor to one through six and verify publish, reload and public reflection.",
+      "acceptance_check": "Admin shows a maximum of six, rejects larger persisted legacy values, and a saved value survives reload."
+    },
+    {
+      "rejection": "The first slider or holiday slider remains stuck on skeletons or shows a generic error after a temporary refresh.",
+      "prevention": "Preserve last-good results, bound refresh retries, and test verified, refreshing, empty and error responses.",
+      "acceptance_check": "Each state ends in cards or a clear usable state, with one retry action and no indefinite skeleton."
+    },
+    {
+      "rejection": "Only the shown screenshot is repaired and another homepage or regional slider breaks.",
+      "prevention": "Inventory and test the shared HomeLiveDeals family, fixed-period and regional callers.",
+      "acceptance_check": "Homepage near-date, holiday, regional and fixed-period consumers pass focused regression tests."
+    },
+    {
+      "rejection": "A clean code build is reported without proving the public and admin destinations.",
+      "prevention": "Publish the exact tested candidate and inspect public desktop/mobile plus the authenticated editor.",
+      "acceptance_check": "Live screenshots and endpoint responses belong to the final deployed version."
+    }
+  ],
+  "affected_family": [
+    "home holiday tabs API",
+    "home holiday deals slider",
+    "near-date home deals slider",
+    "regional and fixed-period HomeLiveDeals callers",
+    "content studio homepage slider controls",
+    "Hebrew English French Russian labels",
+    "loading refreshing empty error retry reload and responsive states"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII accepted product and slider behavior",
+        "source": "calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "Owner instruction to show the first six holidays and manage them in the back office",
+        "source": "current task screenshots and request, 2026-10-24"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After focused unit tests prove the six-item cap and editor clamp, before packaging the full Site.",
+    "checks": [
+      "API selection is chronological, hidden-aware and capped",
+      "legacy limits above six are clamped",
+      "shared slider state tests still pass"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can a legacy CMS value or all=1 path leak more than six tabs to the public slider?",
+      "Can a refresh or tab change leave the slider in an indefinite skeleton or erase last-good cards?",
+      "Does publishing or reloading the admin control lose the selected limit?",
+      "Did the repair alter nearby-date, regional or fixed-period sliders?",
+      "Does the exact public deployment show the repaired behavior on desktop and mobile?"
+    ],
+    "natural_destination_evidence": "Final public homepage/API and authenticated content-studio observations from the exact deployed version.",
+    "affected_family_evidence": "Focused tests plus desktop/mobile interaction evidence across the shared slider callers and all meaningful states."
+  },
+  "effectiveness": {
+    "baseline": "Production returned 21 holiday tabs despite a nominal default of six, and screenshots showed loading/error instability.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "One release leaves no public path with more than six holiday tabs and no tested slider state stuck indefinitely."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

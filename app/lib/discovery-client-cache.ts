@@ -17,15 +17,16 @@ const defaultStaleMs = 86_400_000;
 let initialDocumentReady: Promise<void> | undefined;
 
 /** Start discovery I/O immediately, but never commit a cached or network
- * result while React is still hydrating streamed HTML. Fast cache responses
- * used to win that race and replace rail text before its boundary hydrated. */
+ * result while the initial document is still being parsed. Waiting for the
+ * full window load also waits for unrelated images and can strand rails on a
+ * skeleton even though their JSON is already available. */
 function waitForInitialDocument(): Promise<void> {
   if (typeof window === "undefined" || typeof document === "undefined") return Promise.resolve();
   if (initialDocumentReady) return initialDocumentReady;
   initialDocumentReady = new Promise((resolve) => {
     const afterLoad = () => requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
-    if (document.readyState === "complete") afterLoad();
-    else window.addEventListener("load", afterLoad, { once: true });
+    if (document.readyState !== "loading") afterLoad();
+    else document.addEventListener("DOMContentLoaded", afterLoad, { once: true });
   });
   return initialDocumentReady;
 }
