@@ -1,0 +1,36 @@
+{
+  "verdict": "ready",
+  "release": "VII production v632, source commit 6298970de91130f298802c62f5e17d8499cdd115, tree 38d894dd207613ee46a45a4b5a413ecaf9ee2ae9",
+  "target": "https://vii.spaplus.co/ public discovery and search surfaces",
+  "baseline": "Production v631, Version ID appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_e8621c04abf08191a343757ba9fcde44, Deployment ID appgdep_6adcfe7fd38881918c4d8156409416e6, environment revision 29",
+  "requested_outcome": "Expose truthful sorting in every world and rotate default results and homepage discovery positions between fresh visits without breaking search state or unsupported-data truth.",
+  "changed_components": [
+    "Shared discovery result sort model",
+    "Vacation, event, spa, hourly, attraction, trail and provider result ordering",
+    "Homepage vacation, destination, event, tour and rating rails",
+    "Localized sort labels and responsive controls"
+  ],
+  "affected_family": [
+    {"id": "FAM-SEARCH", "surface": "Vacation, event, spa, hourly, attraction, trail and provider result pages"},
+    {"id": "FAM-HOME", "surface": "Homepage place and content discovery rails"},
+    {"id": "FAM-STATE", "surface": "Sort URL state, reload behavior and map/list result parity"},
+    {"id": "FAM-I18N", "surface": "Hebrew, English, Russian and French sort copy"}
+  ],
+  "characteristics": {"stateful": true, "responsive": true},
+  "checks": [
+    {"id": "CHK-FULL", "family_ids": ["FAM-SEARCH", "FAM-HOME", "FAM-STATE", "FAM-I18N"], "state": "success", "status": "passed", "evidence": "The exact candidate passed 1,582 of 1,582 repository tests and the production build."},
+    {"id": "CHK-ROTATION", "family_ids": ["FAM-SEARCH", "FAM-HOME"], "state": "reload", "status": "passed", "evidence": "Two fresh production vacation search documents returned different first-result sets; two fresh production home documents returned different first 20 place-card orders."},
+    {"id": "CHK-SORT", "family_ids": ["FAM-SEARCH", "FAM-STATE"], "state": "persistence", "status": "passed", "evidence": "Production /search?sort=popular retained the URL and visible פופולריים state after reload; equal-ranked places may rotate while the selected ranking criterion remains applied."},
+    {"id": "CHK-WORLDS", "family_ids": ["FAM-SEARCH"], "state": "success", "status": "passed", "evidence": "Production events/search, spas, attractions, trails, providers and hourly with a location each rendered one active sort control labeled מומלצים מתחלפים with no error surface."},
+    {"id": "CHK-FAILURE", "family_ids": ["FAM-SEARCH", "FAM-HOME"], "state": "failure", "status": "passed", "evidence": "The verified production routes showed no Error 1102, generic error or failed-state surface; capability-driven tests prevent unsupported price, rating or popularity sorts from appearing."},
+    {"id": "CHK-RESPONSIVE", "family_ids": ["FAM-SEARCH", "FAM-HOME", "FAM-I18N"], "state": "responsive", "status": "passed", "evidence": "Shared responsive regression tests, localized label tests and the final production build passed; the deployed controls remained visible in the production browser."},
+    {"id": "CHK-ROLLBACK", "family_ids": ["FAM-SEARCH", "FAM-HOME", "FAM-STATE", "FAM-I18N"], "state": "rollback", "status": "passed", "evidence": "v631 rollback Version ID and Deployment ID were preserved before the single v632 deployment."}
+  ],
+  "rollback": {
+    "available": true,
+    "method": "Restore v631 with Version ID appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_e8621c04abf08191a343757ba9fcde44 and Deployment ID appgdep_6adcfe7fd38881918c4d8156409416e6.",
+    "verification": "The release channel read the terminal v631 deployment before saving v632 and preserved environment revision 29."
+  },
+  "authorization_boundary": "Adir authorized implementation and publication. One exact production deployment was made; no database, environment, schedule, DNS, permission, CMS, supplier data or business-action mutation was performed.",
+  "remaining_blockers": []
+}

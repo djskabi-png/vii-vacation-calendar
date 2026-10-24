@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "release": "v632",
+  "project_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21",
+  "branch": "release/v628-slider-state-machine",
+  "source_commit": "6298970de91130f298802c62f5e17d8499cdd115",
+  "tree": "38d894dd207613ee46a45a4b5a413ecaf9ee2ae9",
+  "rollback_version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_e8621c04abf08191a343757ba9fcde44",
+  "rollback_deployment_id": "appgdep_6adcfe7fd3888191a7cdfd6d1e5b0d84",
+  "environment_revision": 29,
+  "focused_tests": 30,
+  "full_tests": 1582,
+  "publication_chat": "https://chatgpt.com/g/g-p-6ab2e9ea51548191856f299d727d8611-vii/c/6ad6ad51-1850-83ed-9b72-689fddf553fb",
+  "prompt": "המשך את אותו פרויקט VII ופרסם פעם אחת בלבד גרסת production חדשה v632 לאחר v631. המשתמש אישר במפורש לסיים ולפרסם.\r\n\r\nPublish the already verified v632 conversion dashboard together with truthful sorting and per-refresh discovery rotation across vacation, events, spa, hourly, attractions, trails, providers and homepage sliders. Explicit sorts remain deterministic and capability-driven; default discovery order changes between fresh documents while staying stable during interaction.\r\n\r\nמקור רשמי: repo djskabi-png/vii-vacation-calendar, branch release/v628-slider-state-machine, source commit מדויק 6298970de91130f298802c62f5e17d8499cdd115, tree מדויק 38d894dd207613ee46a45a4b5a413ecaf9ee2ae9. ראש origin כבר נדחף ונבדק. הבנייה המקומית עברה, 30 בדיקות ממוקדות עברו ו-1582 מתוך 1582 בדיקות האתר עברו. המשך במסלול remote build fallback המוכח, בלי לערוך קוד.\r\n\r\nלפני שינוי אמת שאין כבר version או deployment עבור source commit זה ושאין פעולה ממתינה או לא ודאית. v631 הפעילה וה-rollback היא Version ID appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_e8621c04abf08191a343757ba9fcde44, Deployment ID appgdep_6adcfe7fd3888191a7cdfd6d1e5b0d84. אמת את העץ המנוהל, שמור version אחת בלבד ופרוס deployment אחד בלבד. אם תוצאה לא ודאית, בדוק אותה ואל תנסה שוב.\r\n\r\nאין לשנות DB, schema, secrets, env, schedules, DNS, domains, sharing, permissions, catalog data, הגדרות גישה או תוכן CMS. אין לבצע הזמנות, לידים, שיחות, WhatsApp, חוות דעת, תשלומים או שליחת מייל. שמור environment revision 29. המתן ל-succeeded ודווח מספר גרסה, Version ID, Deployment ID, source commit, managed commit, tree, environment revision, URL ציבורי וזהות rollback.",
+  "state": "published_and_verified",
+  "version_id": "appgprj_6a71ccdca27481918bf04dd329d3eb21~appgver_8e673561b1f08191a3741e27bec4d8f3",
+  "deployment_id": "appgdep_6add0c8d1b3c81918a66dcb7dec3c304",
+  "managed_commit": "502440f9394cfcae78fb80c2049d17607ce83929",
+  "public_url": "https://vii.spaplus.co/",
+  "prepared_at": "2026-10-24T19:49:03.5344699Z",
+  "published_at": "2026-10-24T22:57:08+03:00"
+}

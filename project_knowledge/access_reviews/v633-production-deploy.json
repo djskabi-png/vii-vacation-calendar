@@ -1,0 +1,34 @@
+{
+  "observed_error": "The selected Sites connector returned project_not_found for the VII project and the direct Sites Git remote requested unavailable credentials.",
+  "category": "permission",
+  "diagnosis": "The active connector account did not own the VII Sites project, while the project-specific durable Publish VII Release conversation retained the correct Sites workspace.",
+  "authorization_boundary": "Publish the exact tested and pushed source commit once without changing database, secrets, environment variables, schedules, DNS, sharing, permissions, CMS or supplier data.",
+  "routes": [
+    {
+      "kind": "connector",
+      "status": "unavailable",
+      "evidence": "get_site returned project_not_found and owned/editor/workspace listings did not contain the VII project."
+    },
+    {
+      "kind": "authorized_session",
+      "status": "checked",
+      "result": "succeeded",
+      "evidence": "The existing project-specific Publish VII Release conversation loaded with prior VII release history and the active VII Site context."
+    },
+    {
+      "kind": "project_cli_api",
+      "status": "checked",
+      "result": "succeeded",
+      "evidence": "The GitHub origin accepted and exposed source commit 6298970de91130f298802c62f5e17d8499cdd115 on the official release branch. The optional Sites remote requested unavailable credentials and was not used."
+    },
+    {
+      "kind": "official_connection",
+      "status": "checked",
+      "result": "succeeded",
+      "evidence": "The documented durable release channel saved v632 once and deployed it once to terminal succeeded."
+    }
+  ],
+  "outcome": "recovered",
+  "verified_result": "Production v632 reached succeeded at https://vii.spaplus.co/ with source commit 6298970de91130f298802c62f5e17d8499cdd115 and deployment appgdep_6add0c8d1b3c81918a66dcb7dec3c304.",
+  "ready_work_remaining": false
+}
