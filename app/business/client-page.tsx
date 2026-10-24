@@ -173,10 +173,21 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
     fr: { name: "Hébergement vérifié", location: "Israël", description: (name: string, location: string) => `${name} est un hébergement vérifié situé en ${location}. Consultez les photos, les équipements, les unités, les disponibilités et les options de réservation.`, unit: "Unité d’hébergement", feature: "Équipement sur place", faqQuestion: "Informations importantes sur l’établissement", faqAnswer: "Les informations, les disponibilités et les conditions de réservation sont confirmées directement avec l’établissement.", policy: "Les conditions d’annulation et de modification sont communiquées avant la confirmation et le paiement.", checkIn: "Arrivée", checkOut: "Départ", checkOutSat: "Départ le samedi", confirmHours: "Veuillez confirmer les horaires auprès de l’établissement.", locationTitle: (name: string, location: string, area: string) => `Emplacement de ${name} à ${location}, ${area}`, endcap: "Comparez d’autres hébergements à proximité, choisissez un itinéraire de promenade ou trouvez un service qui se déplace jusqu’à votre hébergement.", moreArea: "Autres hébergements dans la région" },
   }[language];
   const safeBusinessText = (value: string | undefined | null, fallback: string) => localizedBusinessText(value, language, translate, fallback);
-  const localizedPropertyName = safeBusinessText(property.name, property.name);
+  const localizedPropertyName = safeBusinessText(property.name, latinBusinessAlias(property.name) || businessCopy.name);
   const localizedArea = safeBusinessText(property.area, businessCopy.location);
   const localizedLocation = safeBusinessText(property.location, localizedArea);
   const localizedDescription = safeBusinessText(property.description, businessCopy.description(localizedPropertyName, localizedLocation));
+  const breadcrumbPrefixes = {
+    he: { events: "מקומות לאירועים ב", spa: "ספא ב", hourly: "חדרים לפי שעה ב", vacation: "נופש ב" },
+    en: { events: "Event venues in ", spa: "Spas in ", hourly: "Hourly rooms in ", vacation: "Stays in " },
+    ru: { events: "Площадки для мероприятий в ", spa: "Спа в ", hourly: "Почасовые номера в ", vacation: "Отдых в " },
+    fr: { events: "Lieux événementiels à ", spa: "Spas à ", hourly: "Chambres à l’heure à ", vacation: "Séjours à " },
+  }[language];
+  const localizedLocationBreadcrumbs = (items: Array<{ name: string; path?: string }>, prefix: string) => items.map((item) => {
+    const rawLocation = item.path ? new URL(item.path, "https://vii.local").searchParams.get("location") : null;
+    const localized = rawLocation ? safeBusinessText(rawLocation, latinBusinessAlias(rawLocation) || businessCopy.location) : businessCopy.location;
+    return { ...item, name: `${prefix}${localized}` };
+  });
   const localizedMapProperty: Property = { ...property, name: localizedPropertyName, location: localizedLocation, area: localizedArea, description: localizedDescription };
   const localizedGalleryProperty: Property = {
     ...localizedMapProperty,
@@ -308,13 +319,13 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
       <main id="main-content" className="property-page">
         <ViewedItemTracker id={property.slug} world={activeWorld} name={property.name} location={`${property.location}, ${property.area}`} image={property.image} href={`/business?id=${property.slug}${activeWorld === offerings[0].world ? "" : `&mode=${activeWorld}`}`} meta={property.guests > 0 ? `${property.type} · עד ${property.guests} אורחים${property.capacityScope === "unit" ? " ביחידה הגדולה" : ""}` : property.type} />
         <BreadcrumbTrail items={activeWorld === "events"
-          ? [{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, ...eventBreadcrumbsForLocation(property.area, property.location), { name: localizedPropertyName }]
+          ? [{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, ...localizedLocationBreadcrumbs(eventBreadcrumbsForLocation(property.area, property.location), breadcrumbPrefixes.events), { name: localizedPropertyName }]
           : activeWorld === "spa"
-            ? [{ name: "ראשי", path: "/" }, { name: "בתי ספא", path: "/spas" }, ...spaBreadcrumbsForLocation(property.area, property.location), { name: localizedPropertyName }]
+            ? [{ name: "ראשי", path: "/" }, { name: "בתי ספא", path: "/spas" }, ...localizedLocationBreadcrumbs(spaBreadcrumbsForLocation(property.area, property.location), breadcrumbPrefixes.spa), { name: localizedPropertyName }]
             : activeWorld === "hourly"
-              ? [{ name: "ראשי", path: "/" }, { name: "חדרים לפי שעה", path: "/hourly" }, ...hourlyBreadcrumbsForLocation(property.area, property.location), { name: localizedPropertyName }]
-              : [{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, vacationBreadcrumbForLocation(property.area),
-                ...(property.location && property.location !== property.area ? [{ name: `נופש ב${localizedLocation}`, path: `/search?location=${encodeURIComponent(property.location)}` }] : []),
+              ? [{ name: "ראשי", path: "/" }, { name: "חדרים לפי שעה", path: "/hourly" }, ...localizedLocationBreadcrumbs(hourlyBreadcrumbsForLocation(property.area, property.location), breadcrumbPrefixes.hourly), { name: localizedPropertyName }]
+              : [{ name: "ראשי", path: "/" }, { name: "נופש", path: "/search" }, { ...vacationBreadcrumbForLocation(property.area), name: `${breadcrumbPrefixes.vacation}${localizedArea}` },
+                ...(property.location && property.location !== property.area ? [{ name: `${breadcrumbPrefixes.vacation}${localizedLocation}`, path: `/search?location=${encodeURIComponent(property.location)}` }] : []),
                 { name: localizedPropertyName }]} />
 
         <section className="shell property-title">

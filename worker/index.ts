@@ -223,6 +223,10 @@ const worker = {
     }));
   },
   async fetch(request: Request, env: Env, ctx: ExecutionContext, refreshPublic = false): Promise<Response> {
+    // Vinext's local production server does not provide Cloudflare bindings.
+    // Keep the public bundled-data paths testable locally while production
+    // continues to receive the real Env object from Cloudflare.
+    env = env || ({} as Env);
     activateAwsDatabase(env);
     const database = databaseForEnv(env);
     const url = new URL(request.url);

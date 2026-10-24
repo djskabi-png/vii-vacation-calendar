@@ -8,6 +8,7 @@ import { FavoriteButton } from "./favorite-button";
 import { PreviewCardGallery } from "./preview-card-gallery";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
 import { CatalogStartingPrice } from "./catalog-starting-price";
+import { latinBusinessAlias, localizedBusinessText } from "../i18n/localized-business-content";
 
 const photoCountCopy: Record<SiteLanguage, string> = {
   he: "תמונות",
@@ -24,7 +25,18 @@ export function EventResultCard({ place, href, supplierStatus, startingPrice, ma
   mapActive?: boolean;
   onActiveChange?: (active: boolean) => void;
 }) {
-  const { language } = useSiteLanguage();
+  const { language, translate } = useSiteLanguage();
+  const copy = {
+    he: { venue: "מתחם אירועים", location: "ישראל", guests: "אורחים ביחידה הגדולה" },
+    en: { venue: "Event venue", location: "Israel", guests: "guests in the largest unit" },
+    ru: { venue: "Площадка для мероприятий", location: "Израиль", guests: "гостей в самой большой зоне" },
+    fr: { venue: "Lieu événementiel", location: "Israël", guests: "personnes dans le plus grand espace" },
+  }[language];
+  const safe = (value: string, fallback: string) => localizedBusinessText(value, language, translate, fallback);
+  const name = safe(place.name, latinBusinessAlias(place.name) || copy.venue);
+  const type = safe(place.type, copy.venue);
+  const location = safe(place.location, safe(place.area, copy.location));
+  const area = safe(place.area, copy.location);
 
   return <article
     className={`event-result-card${mapActive ? " is-map-active" : ""}`}
@@ -34,16 +46,16 @@ export function EventResultCard({ place, href, supplierStatus, startingPrice, ma
     onFocusCapture={() => onActiveChange?.(true)}
     onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) onActiveChange?.(false); }}
   >
-    <PreviewCardGallery className="event-card-gallery" href={href} name={place.name} images={[place.image, ...place.images]} countLabel={(count) => `${count} ${photoCountCopy[language]}`}>
-      <FavoriteButton id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={href} meta={`${place.type} · עד ${place.guests} אורחים ביחידה הגדולה`} />
+    <PreviewCardGallery className="event-card-gallery" href={href} name={name} images={[place.image, ...place.images]} countLabel={(count) => `${count} ${photoCountCopy[language]}`}>
+      <FavoriteButton id={place.slug} world="events" name={name} location={`${location}, ${area}`} image={place.image} href={href} meta={`${type} · ${place.guests} ${copy.guests}`} />
     </PreviewCardGallery>
     <div className="event-result-card__body">
-      <small className="event-result-card__type">{place.type}</small>
-      <h3 className="event-result-card__title"><Link className="event-result-card__stretched-link" href={href} title={place.name}>{place.name}</Link></h3>
-      <p className="event-result-card__location"><PinIcon /><span>{place.location}, {place.area}</span></p>
-      <div className="event-capacity">עד {place.guests} אורחים ביחידה הגדולה</div>
+      <small className="event-result-card__type">{type}</small>
+      <h3 className="event-result-card__title"><Link className="event-result-card__stretched-link" href={href} title={name}>{name}</Link></h3>
+      <p className="event-result-card__location"><PinIcon /><span>{location}, {area}</span></p>
+      <div className="event-capacity">{language === "he" ? "עד" : language === "en" ? "Up to" : language === "ru" ? "До" : "Jusqu’à"} {place.guests} {copy.guests}</div>
       <div className="event-result-card__offer">{supplierStatus ? <p className="event-live-status" role="status">{supplierStatus}</p> : startingPrice ? <CatalogStartingPrice amount={startingPrice} /> : null}</div>
-      <div className="stay-card__actions event-card__actions"><EventCardContactActions placeId={place.slug} placeName={place.name} phone={place.contact?.phone} whatsapp={place.contact?.whatsapp} serviceName={place.type} /></div>
+      <div className="stay-card__actions event-card__actions"><EventCardContactActions placeId={place.slug} placeName={name} phone={place.contact?.phone} whatsapp={place.contact?.whatsapp} serviceName={type} /></div>
     </div>
   </article>;
 }

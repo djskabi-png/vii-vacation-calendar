@@ -28,11 +28,11 @@ test("place breadcrumbs include a canonical geographic search level in every loc
   const business = read("../app/business/client-page.tsx");
   const event = read("../app/events/place/client-page.tsx");
   const discovery = read("../app/discover/place/client-page.tsx");
-  assert.match(business, /\.\.\.eventBreadcrumbsForLocation\(property\.area, property\.location\)/);
-  assert.match(business, /\.\.\.hourlyBreadcrumbsForLocation\(property\.area, property\.location\)/);
-  assert.match(business, /\.\.\.spaBreadcrumbsForLocation\(property\.area, property\.location\)/);
-  assert.match(event, /\.\.\.eventBreadcrumbsForLocation\(place\.area, place\.location\)/);
-  assert.match(discovery, /\.\.\.spaBreadcrumbsForLocation\(item\.area, item\.location\)/);
+  assert.match(business, /localizedLocationBreadcrumbs\(eventBreadcrumbsForLocation\(property\.area, property\.location\), breadcrumbPrefixes\.events\)/);
+  assert.match(business, /localizedLocationBreadcrumbs\(hourlyBreadcrumbsForLocation\(property\.area, property\.location\), breadcrumbPrefixes\.hourly\)/);
+  assert.match(business, /localizedLocationBreadcrumbs\(spaBreadcrumbsForLocation\(property\.area, property\.location\), breadcrumbPrefixes\.spa\)/);
+  assert.match(event, /localizedEventBreadcrumbs = eventBreadcrumbsForLocation\(place\.area, place\.location\)\.map/);
+  assert.match(discovery, /localizedBreadcrumbs\(spaBreadcrumbsForLocation\(item\.area, item\.location\), breadcrumbPrefix\.spa\)/);
 });
 
 test("booking price basis and accessibility navigation use the authoritative fields", () => {

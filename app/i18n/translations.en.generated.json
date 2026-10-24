@@ -1,4 +1,7 @@
 {
+  "מתחם לאירועים פרטיים ועסקיים": "Venue for private and business events",
+  "חוות דעת מאומתת": "Verified review",
+  "אורח מאומת": "Verified guest",
   "נגישות מלאה לנכים": "Full accessibility for people with disabilities",
   "למידע נוסף": "More information",
   "סיכום בחירת התאריכים": "Date selection summary",
@@ -8463,5 +8466,15 @@
   "המידע נשמר. אפשר לנסות לטעון שוב או לחזור לדף הבית.": "Your information is preserved. Try loading again or return to the homepage.",
   "לטעון שוב": "Load again",
   "לא הצלחנו להשלים את הטעינה": "We could not complete loading",
-  "אפשר לנסות שוב. אם התקלה נמשכת, חזרו לדף הבית.": "Try again. If the problem continues, return to the homepage."
+  "אפשר לנסות שוב. אם התקלה נמשכת, חזרו לדף הבית.": "Try again. If the problem continues, return to the homepage.",
+  "אין כרגע הצעה מאומתת לתאריך הזה. אפשר להמשיך לכל המקומות לאירועים.": "There is no verified offer for this date yet. You can continue to all event venues.",
+  "פנוי להיום": "Available today",
+  "פנוי למחר": "Available tomorrow",
+  "הכתובת המלאה מופיעה בפרטי המקום.": "The full address appears in the place details.",
+  "המידע והמחירים מאושרים ישירות מול המקום.": "Information and prices are confirmed directly with the property.",
+  "חדר פרטי": "Private room",
+  "אפשרות אירוח פרטית לפי שעה.": "A private hourly-stay option.",
+  "יש לאשר את הפרטים מול המקום.": "Please confirm the details directly with the property.",
+  "אטרקציות ב": "Activities in ",
+  "ספקים ב": "Providers in "
 }

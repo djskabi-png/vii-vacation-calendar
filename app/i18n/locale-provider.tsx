@@ -434,7 +434,7 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "\u05d5\u05d9 \u05e4\u05d5\u05e8 \u05d5\u05d9\u05e7\u05d9\u05d9\u05e9\u05df": "VII Vacation",
     "\u05db\u05dc \u05d4\u05d7\u05d5\u05e4\u05e9\u05d4, \u05d1\u05de\u05e7\u05d5\u05dd \u05d0\u05d7\u05d3": "Toutes vos vacances, au même endroit",
     "\u05de\u05d5\u05e6\u05d0\u05d9\u05dd \u05d0\u05ea \u05d4\u05d7\u05d5\u05e4\u05e9\u05d4 \u05e9\u05de\u05ea\u05d0\u05d9\u05de\u05d4 \u05dc\u05db\u05dd": "Trouvez le séjour qui vous correspond",
-    "\u05e0\u05d5\u05e4\u05e9": "Séjours", "\u05d0\u05d9\u05e8\u05d5\u05e2\u05d9\u05dd": "Événements", "\u05e1\u05e4\u05d0": "Spa", "\u05dc\u05e4\u05d9 \u05e9\u05e2\u05d4": "Séjours à l'heure", "\u05e1\u05e4\u05e7\u05d9\u05dd": "Services", "\u05de\u05d4 \u05e2\u05d5\u05e9\u05d9\u05dd": "À faire",
+    "\u05e0\u05d5\u05e4\u05e9": "Séjours", "\u05d0\u05d9\u05e8\u05d5\u05e2\u05d9\u05dd": "Événements", "\u05e1\u05e4\u05d0": "Spa", "\u05dc\u05e4\u05d9 \u05e9\u05e2\u05d4": "Chambres à l’heure", "\u05e1\u05e4\u05e7\u05d9\u05dd": "Services", "\u05de\u05d4 \u05e2\u05d5\u05e9\u05d9\u05dd": "À faire",
     "אטרקציות": "Attractions", "גיפט קארד": "Carte cadeau", "עוד": "Plus", "עוד ב־VII": "Plus sur VII", "כל העולמות והתוכן": "Tous les univers et les guides",
     "אירועי חברה ורווחה": "Événements d’entreprise et bien-être", "חבילות מלאות לארגונים": "Formules complètes pour les organisations", "שפים, תקליטנים ושירותים": "Chefs, DJ et services",
     "מה עושים בסביבה": "À faire à proximité", "כל הרעיונות במקום אחד": "Toutes les idées au même endroit", "מסלולי טיול": "Itinéraires", "טיולים עצמאיים לפי אזור": "Itinéraires autonomes par région",
@@ -984,12 +984,73 @@ function translateDynamic(value: string, language: Exclude<SiteLanguage, "he">):
     || dictionary(language)[source]
     || source;
 
+  // These are shared, verified catalog facts rather than business identity.
+  // Localize only unambiguous fact tokens and leave names or free supplier
+  // copy untouched unless an approved translation exists.
+  const sharedFactTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, string>> = {
+    en: {
+      "חדר ילדים": "Children's room", "מסך LCD": "LCD screen", "מזגן": "Air conditioning",
+      "שידות לאחסון": "Storage cabinets", "אמבטיה": "Bathtub", "ג'קוזי זוגי מפנק": "Couples' hot tub",
+      "עד 2 אורחים ביחידה": "Up to 2 guests per unit", "עד 100 משתתפים ביחידה": "Up to 100 guests per unit",
+      "1 מתחם": "1 venue", "יום חול": "Weekday", "ראשון": "Sunday", "שני": "Monday", "שלישי": "Tuesday",
+      "רביעי": "Wednesday", "חמישי": "Thursday", "שישי": "Friday", "שבת": "Saturday",
+    },
+    fr: {
+      "חדר ילדים": "Chambre d’enfants", "מסך LCD": "Écran LCD", "מזגן": "Climatisation",
+      "שידות לאחסון": "Meubles de rangement", "אמבטיה": "Baignoire", "ג'קוזי זוגי מפנק": "Jacuzzi pour couples",
+      "עד 2 אורחים ביחידה": "Jusqu’à 2 personnes par unité", "עד 100 משתתפים ביחידה": "Jusqu’à 100 personnes par unité",
+      "1 מתחם": "1 lieu", "יום חול": "Jour de semaine", "ראשון": "Dimanche", "שני": "Lundi", "שלישי": "Mardi",
+      "רביעי": "Mercredi", "חמישי": "Jeudi", "שישי": "Vendredi", "שבת": "Samedi",
+    },
+    ru: {
+      "חדר ילדים": "Детская комната", "מסך LCD": "ЖК-экран", "מזגן": "Кондиционер",
+      "שידות לאחסון": "Шкафы для хранения", "אמבטיה": "Ванна", "ג'קוזי זוגי מפנק": "Джакузи для двоих",
+      "עד 2 אורחים ביחידה": "До 2 гостей в номере", "עד 100 משתתפים ביחידה": "До 100 гостей в помещении",
+      "1 מתחם": "1 площадка", "יום חול": "Будний день", "ראשון": "Воскресенье", "שני": "Понедельник", "שלישי": "Вторник",
+      "רביעי": "Среда", "חמישי": "Четверг", "שישי": "Пятница", "שבת": "Суббота",
+    },
+  };
+  const sharedFact = sharedFactTranslations[language][value.trim()];
+  if (sharedFact) return sharedFact;
+
   const separatedParts = value.split(/\s*[\u00b7\u2022]\s*/);
   if (separatedParts.length > 1) {
     return separatedParts
       .map((part) => translateValue(part, language).trim())
       .join(" · ");
   }
+
+  const bedroomsMatch = value.match(/^(\d+) חדרי שינה(?:\. כל מלבן מציג חדר שינה נפרד ואת הפרטים שנמסרו עליו\.)?$/);
+  if (bedroomsMatch) {
+    const count = bedroomsMatch[1];
+    const suffix = value.includes("כל מלבן")
+      ? language === "en" ? " Each card represents a separate bedroom and its verified details."
+        : language === "fr" ? " Chaque carte représente une chambre distincte et ses informations vérifiées."
+          : " Каждая карточка представляет отдельную спальню и подтверждённые сведения о ней."
+      : "";
+    return language === "en" ? `${count} bedrooms.${suffix}`
+      : language === "fr" ? `${count} chambres.${suffix}`
+        : `${count} спален.${suffix}`;
+  }
+
+  const guestsPerUnitMatch = value.match(/^עד (\d+) (אורחים|משתתפים) ביחידה(?: הגדולה)?$/);
+  if (guestsPerUnitMatch) {
+    const count = guestsPerUnitMatch[1];
+    return language === "en" ? `Up to ${count} guests per unit`
+      : language === "fr" ? `Jusqu’à ${count} personnes par unité`
+        : `До ${count} гостей в одном помещении`;
+  }
+
+  const venueCountMatch = value.match(/^(\d+) מתח(?:ם|מים)$/);
+  if (venueCountMatch) {
+    const count = venueCountMatch[1];
+    return language === "en" ? `${count} ${count === "1" ? "venue" : "venues"}`
+      : language === "fr" ? `${count} lieu${count === "1" ? "" : "x"}`
+        : `${count} площадок`;
+  }
+
+  const hoursMatch = value.match(/^(ראשון|שני|שלישי|רביעי|חמישי|שישי|שבת):\s*(.+)$/);
+  if (hoursMatch) return `${sharedFactTranslations[language][hoursMatch[1]] || hoursMatch[1]}: ${hoursMatch[2]}`;
 
   const spaSemanticMatch = value.match(/^ספא(?: (ליחיד|לזוג|לקבוצה|ליום כיף))? ב(.+?)(?: עם (.+?))?(, עם חבילות וטיפולים מאומתים, פרטי מקום ברורים ואפשרות להמשיך לבקשת הזמנה באתר\.)?$/);
   if (spaSemanticMatch) {
@@ -1399,6 +1460,11 @@ export function LocaleProvider({ children, initialLanguage = "he" }: { children:
   const [language, setLanguageState] = useState<SiteLanguage>(initialLanguage);
   const [translationVersion, setTranslationVersion] = useState(0);
   const observer = useRef<MutationObserver | null>(null);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-vii-hydrated", "true");
+    return () => document.documentElement.removeAttribute("data-vii-hydrated");
+  }, []);
 
   const setLanguage = (nextLanguage: SiteLanguage) => {
     localStorage.setItem(languageStorageKey, nextLanguage);

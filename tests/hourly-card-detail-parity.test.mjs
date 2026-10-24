@@ -27,7 +27,7 @@ test("hourly detail breadcrumbs include distinct area and city landings in UI an
   const landings = await read("app/data/world-search-landings.ts");
   assert.match(landings, /export function hourlyBreadcrumbsForLocation/);
   assert.match(landings, /orderedPlaceLocations\(area, location\)/);
-  assert.match(client, /\.\.\.hourlyBreadcrumbsForLocation\(item\.area, item\.location\)/);
+  assert.match(client, /\.\.\.localizedBreadcrumbs\(hourlyBreadcrumbsForLocation\(item\.area, item\.location\), breadcrumbPrefix\.hourly\)/);
   assert.match(page, /breadcrumbSchema\(itemBreadcrumbs\)/);
   assert.match(page, /\.\.\.hourlyBreadcrumbsForLocation\(item\.area, item\.location\)/);
 });

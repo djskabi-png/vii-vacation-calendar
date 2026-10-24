@@ -17,6 +17,7 @@ import { SliderRailControls } from "./slider-rail-controls";
 import { buildSearchDepthLocationLayers, isPlaceTypeSuggestion, type SearchDepthInventoryPlace } from "../lib/search-depth-model";
 import { useSearchDepthSeed } from "./search-depth-seed";
 import { useWorldAvailability } from "./world-availability-provider";
+import { latinBusinessAlias, localizedBusinessText } from "../i18n/localized-business-content";
 
 export type SearchContentWorld = DepthWorld;
 
@@ -428,6 +429,7 @@ export function SearchAfterResults({
   baseParams?: Record<string, string>;
 }) {
   const { language, translate } = useSiteLanguage();
+  const localizedEntity = (value: string, fallback = "Israel") => localizedBusinessText(value, language, translate, latinBusinessAlias(value) || fallback);
   const { enabled } = useWorldAvailability();
   // Supplier catalogs can contain non-geographic service labels. They are not
   // destinations, and must never become region or city landing suggestions.
@@ -439,7 +441,7 @@ export function SearchAfterResults({
   const discovery = discoveryCopy[language];
   const depthSeed = useSearchDepthSeed();
   const reviews = reviewHighlights.filter((item) => Number.isFinite(item.rating) && item.rating > 0).slice(0, 3);
-  const translatedLocation = resolvedLocation ? translate(resolvedLocation) : "";
+  const translatedLocation = resolvedLocation ? localizedEntity(resolvedLocation) : "";
   const normalizedLocation = translatedLocation.trim().toLocaleLowerCase();
   const wholeCountryLabels = ["\u05d4\u05db\u05dc", "\u05db\u05dc \u05d4\u05d0\u05e8\u05e5", "all-country", "all", "all israel", "whole country", "\u0432\u0441\u0435", "\u0432\u0441\u044f \u0441\u0442\u0440\u0430\u043d\u0430", "\u0432\u0435\u0441\u044c \u0438\u0437\u0440\u0430\u0438\u043b\u044c", "tous", "tout isra\u00ebl", "toute isra\u00ebl"];
   const locationPrefixes: Record<SiteLanguage, string> = { he: " \u05d1\u05d0\u05d6\u05d5\u05e8 ", en: " in ", ru: " \u0432 \u0440\u0435\u0433\u0438\u043e\u043d\u0435 ", fr: " dans la r\u00e9gion " };
@@ -453,13 +455,13 @@ export function SearchAfterResults({
   const locationLayers = mode ? buildSearchDepthLocationLayers(mode, resolvedLocation, effectiveInventory) : secondaryDepthLayers(world, resolvedLocation, effectiveInventory);
   const destinations = locationLayers.suitableRegions.length ? locationLayers.suitableRegions : destinationOptions(world, resolvedLocation, effectiveInventory);
   const regionLinks: DiscoveryLink[] = destinations.map((destination) => ({
-    label: translate(destination),
+    label: localizedEntity(destination),
     href: destinationHref(world, language, currentQuery, locationParam, destination),
     meta: discovery.destinationMeta,
     topic: depthTopicKey(destination, world),
   }));
-  const cityLinks: DiscoveryLink[] = locationLayers.cities.map((destination) => ({ label: translate(destination), href: world === "activities" || world === "trails" ? contextualHref(world, language, currentQuery, { q: destination }) : destinationHref(world, language, currentQuery, locationParam, destination), meta: discovery.destinationMeta, topic: "city" }));
-  const additionalRegionLinks: DiscoveryLink[] = locationLayers.additionalRegions.filter((destination) => !destinations.includes(destination)).map((destination) => ({ label: translate(destination), href: destinationHref(world, language, currentQuery, locationParam, destination), meta: discovery.destinationMeta, topic: depthTopicKey(destination, world) }));
+  const cityLinks: DiscoveryLink[] = locationLayers.cities.map((destination) => ({ label: localizedEntity(destination), href: world === "activities" || world === "trails" ? contextualHref(world, language, currentQuery, { q: destination }) : destinationHref(world, language, currentQuery, locationParam, destination), meta: discovery.destinationMeta, topic: "city" }));
+  const additionalRegionLinks: DiscoveryLink[] = locationLayers.additionalRegions.filter((destination) => !destinations.includes(destination)).map((destination) => ({ label: localizedEntity(destination), href: destinationHref(world, language, currentQuery, locationParam, destination), meta: discovery.destinationMeta, topic: depthTopicKey(destination, world) }));
   const suggestions = searchSuggestions.length ? searchSuggestions : defaultDepthSuggestions(world, effectiveInventory);
   const translatedSuggestions = suggestions.filter(item => !Object.keys(item.params).length || !Object.entries(item.params).every(([key, value]) => new URLSearchParams(currentQuery).get(key) === value)).map((item) => ({ item, label: translate(item.label) }));
   const scopedLocation = locationLabel ? translatedLocation : "";
@@ -479,7 +481,7 @@ export function SearchAfterResults({
       const coverage = [provider.location, ...provider.serviceAreas];
       return coverage.some((value) => /כל הארץ|בכל הארץ|לפי מיקום/.test(value) || matchesDepthTerm(value, resolvedLocation || "", locationLayers.contextArea));
     }).slice(0, 8)
-    .map((provider) => ({ label: provider.name, href: localizedPath(`/discover/place/${provider.id}`, language), meta: language === "he" ? provider.meta : translate(provider.area), image: provider.image })) : [];
+    .map((provider) => ({ label: localizedEntity(provider.name, discovery.providers), href: localizedPath(`/discover/place/${provider.id}`, language), meta: language === "he" ? provider.meta : localizedEntity(provider.area), image: provider.image })) : [];
 
   return <section className={`search-depth search-depth--${world}`} aria-label={`מידע נוסף לתכנון${locationLabel}`}>
     {!hideGuideAndFaq && !discoveryOnly ? <StructuredData data={faqSchema(content.faqs)} /> : null}
@@ -492,7 +494,7 @@ export function SearchAfterResults({
 
       {!discoveryOnly ? <section className="search-depth__reviews" aria-labelledby={`search-reviews-${world}`}>
         <div className="search-depth__section-head"><h2 id={`search-reviews-${world}`}>{reviews.length ? "דירוגים ממקומות שמופיעים בתוצאות" : "מה כדאי לבדוק בחוות הדעת"}</h2><p>{reviews.length ? "לקריאת חוות הדעת המלאות, היכנסו לעמוד המקום." : "לפני שמחליטים, מחפשים בחוות הדעת מידע עקבי על הדברים שמשפיעים באמת על החוויה."}</p></div>
-        {reviews.length ? <div className="search-depth__review-grid">{reviews.map((review) => <Link key={review.href} href={review.href}><span>{review.context || "דירוג המקום"}</span><strong><bdi dir="ltr">{review.rating.toLocaleString("he-IL", { maximumFractionDigits: 1 })}</bdi><small aria-hidden="true">★</small></strong><h3>{review.name}</h3>{review.reviews ? <p>{review.reviews} חוות דעת שפורסמו</p> : <p>לחוות הדעת המלאות</p>}</Link>)}</div> : <ul className="search-depth__review-checklist">{content.reviewCriteria.map((criterion) => <li key={criterion}>{criterion}</li>)}</ul>}
+        {reviews.length ? <div className="search-depth__review-grid">{reviews.map((review) => <Link key={review.href} href={review.href}><span>{review.context || "דירוג המקום"}</span><strong><bdi dir="ltr">{review.rating.toLocaleString(language === "he" ? "he-IL" : language, { maximumFractionDigits: 1 })}</bdi><small aria-hidden="true">★</small></strong><h3>{localizedEntity(review.name)}</h3>{review.reviews ? <p>{review.reviews} חוות דעת שפורסמו</p> : <p>לחוות הדעת המלאות</p>}</Link>)}</div> : <ul className="search-depth__review-checklist">{content.reviewCriteria.map((criterion) => <li key={criterion}>{criterion}</li>)}</ul>}
       </section> : null}
 
       {!hideGuideAndFaq && !discoveryOnly ? <section className="search-depth__faq" aria-labelledby={`search-faq-${world}`}>

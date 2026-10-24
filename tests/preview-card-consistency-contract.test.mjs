@@ -8,7 +8,8 @@ const views=read('app/results-view.css');
 test('event preview has explicit compact title and no redundant teaser prose',()=>{
  assert.match(card,/<h3 className="event-result-card__title">/);
  assert.doesNotMatch(card,/<h2>|place\.description|place\.features\.slice/);
- assert.match(card,/title=\{place.name\}/);
+ assert.match(card,/title=\{name\}>\{name\}<\/Link>/);
+ assert.match(card,/FavoriteButton[^>]+name=\{name\}[^>]+location=\{`\$\{location\}, \$\{area\}`\}/);
  assert.match(card,/אורחים ביחידה הגדולה/);
  assert.match(card,/supplierStatus.*event-live-status/s);
 });

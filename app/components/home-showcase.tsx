@@ -28,6 +28,7 @@ import { orderDiscoveryRail } from "../lib/discovery-slider-order";
 import { useDocumentSeed } from "./use-document-seed";
 import { homeTourVideos } from "../lib/home-video-selection";
 import { useWorldAvailability } from "./world-availability-provider";
+import { latinBusinessAlias, localizedBusinessText } from "../i18n/localized-business-content";
 
 // These sliders fetch their own availability. They must not wait for the
 // unrelated four-world catalog or below-the-fold review queries.
@@ -37,7 +38,7 @@ export function HomeLiveSections() {
 }
 
 export function HomeCatalogLoading() {
-  const { language } = useSiteLanguage();
+  const { language, translate } = useSiteLanguage();
   const label = { he: "טוענים מקומות", en: "Loading places", ru: "Загружаем места", fr: "Chargement des lieux" }[language];
   return <div className="section shell home-live-deals__loading" role="status" aria-label={label}>
     <div className="home-live-deals__loading-cards" aria-hidden="true">{[0, 1, 2].map((index) =>
@@ -88,7 +89,7 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, providerPr
 }) {
   const router = useRouter();
   const documentSeed = useDocumentSeed();
-  const { language } = useSiteLanguage();
+  const { language, translate } = useSiteLanguage();
   const { enabled } = useWorldAvailability();
   const destinationLoading = destinationLoadingCopy[language];
   const [pendingDestination, setPendingDestination] = useState<string | null>(null);
@@ -106,6 +107,13 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, providerPr
   const featuredHourly = orderDiscoveryRail(hourlyPlaces, { id: item => item.id, seed: `${documentSeed}:home-hourly`,
     compare: (a, b) => Number(!(a.image && a.priceLabel)) - Number(!(b.image && b.priceLabel)) });
   const featuredEvents = orderDiscoveryRail(eventPlaces.filter((place) => place.image).map(homeEventPhotography), { id: place => place.slug, seed: `${documentSeed}:home-events` });
+  const eventFallback = { he: { venue: "מתחם אירועים", location: "ישראל", description: "מתחם לאירועים פרטיים ועסקיים", guests: "אורחים ביחידה הגדולה" }, en: { venue: "Event venue", location: "Israel", description: "Venue for private and business events", guests: "guests in the largest unit" }, ru: { venue: "Площадка для мероприятий", location: "Израиль", description: "Площадка для частных и деловых мероприятий", guests: "гостей в самой большой зоне" }, fr: { venue: "Lieu événementiel", location: "Israël", description: "Lieu pour événements privés et professionnels", guests: "personnes dans le plus grand espace" } }[language];
+  const localizeEvent = (place: EventPlace) => ({
+    name: localizedBusinessText(place.name, language, translate, latinBusinessAlias(place.name) || eventFallback.venue),
+    type: localizedBusinessText(place.type, language, translate, eventFallback.venue),
+    location: localizedBusinessText(place.location, language, translate, eventFallback.location),
+    description: localizedBusinessText(place.description, language, translate, eventFallback.description),
+  });
 
   function warmDestination(href: string) {
     router.prefetch(href);
@@ -182,8 +190,8 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, providerPr
       <div className="shell home-events-world__head"><div><span className="eyebrow">עולם האירועים</span><h2 id="home-events-title">כל סיבה טובה הופכת כאן לאירוע</h2><p>לופטים ומתחמים לימי הולדת, מסיבות, אירועי חברה וחגיגות פרטיות, עם חיפוש לפי כמות ואופי האירוע.</p></div><Link className="button" href="/events">נכנסים לעולם האירועים</Link></div>
       <div className="shell home-mobile-rail-controls"><HomeSliderControls railId="home-event-stories" label="מקומות לאירועים" itemSelector=".home-event-feature, .home-event-list__card" /></div>
       <div id="home-event-stories" className="shell home-events-world__layout" data-horizontal-rail>
-        {featuredEvents[0] ? <PlacePreviewCard className="home-event-feature" contact={{ placeId: featuredEvents[0].slug, phone: featuredEvents[0].contact?.phone, whatsapp: featuredEvents[0].contact?.whatsapp, serviceName: featuredEvents[0].type }} name={featuredEvents[0].name} image={featuredEvents[0].image} images={featuredEvents[0].images} href={eventPlaceHref(featuredEvents[0])}><span className="home-event-feature__type">{featuredEvents[0].type}</span><div><small><PinIcon />{featuredEvents[0].location}</small><h3>{featuredEvents[0].name}</h3>{featuredEvents[0].description ? <p>{featuredEvents[0].description}</p> : null}<b>עד {featuredEvents[0].guests} אורחים ביחידה הגדולה</b></div></PlacePreviewCard> : null}
-        <div className="home-event-list">{featuredEvents.slice(1, 5).map((place) => <PlacePreviewCard className="home-event-list__card" contact={{ placeId: place.slug, phone: place.contact?.phone, whatsapp: place.contact?.whatsapp, serviceName: place.type }} key={place.slug} name={place.name} image={place.image} images={place.images} href={eventPlaceHref(place)}><div><span>{place.type}</span><h3>{place.name}</h3><small>{place.location}, עד {place.guests} אורחים ביחידה הגדולה</small></div></PlacePreviewCard>)}</div>
+        {featuredEvents[0] ? (() => { const localized = localizeEvent(featuredEvents[0]); return <PlacePreviewCard className="home-event-feature" contact={{ placeId: featuredEvents[0].slug, phone: featuredEvents[0].contact?.phone, whatsapp: featuredEvents[0].contact?.whatsapp, serviceName: featuredEvents[0].type }} name={localized.name} image={featuredEvents[0].image} images={featuredEvents[0].images} href={eventPlaceHref(featuredEvents[0])}><span className="home-event-feature__type">{localized.type}</span><div><small><PinIcon />{localized.location}</small><h3>{localized.name}</h3><p>{localized.description}</p><b>{language === "he" ? "עד" : language === "en" ? "Up to" : language === "ru" ? "До" : "Jusqu’à"} {featuredEvents[0].guests} {eventFallback.guests}</b></div></PlacePreviewCard>; })() : null}
+        <div className="home-event-list">{featuredEvents.slice(1, 5).map((place) => { const localized = localizeEvent(place); return <PlacePreviewCard className="home-event-list__card" contact={{ placeId: place.slug, phone: place.contact?.phone, whatsapp: place.contact?.whatsapp, serviceName: place.type }} key={place.slug} name={localized.name} image={place.image} images={place.images} href={eventPlaceHref(place)}><div><span>{localized.type}</span><h3>{localized.name}</h3><small>{localized.location}, {language === "he" ? "עד" : language === "en" ? "up to" : language === "ru" ? "до" : "jusqu’à"} {place.guests} {eventFallback.guests}</small></div></PlacePreviewCard>; })}</div>
       </div>
     </section></> : null}
 
@@ -206,15 +214,22 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, providerPr
 
 export function HomeRatingsSection({ ratedPlaces }: { ratedPlaces: HomeRatedPlace[] }) {
   const documentSeed = useDocumentSeed();
+  const { language, translate } = useSiteLanguage();
+  const copy = {
+    he: { location: "ישראל", review: "חוות דעת מאומתת", author: "אורח מאומת", reviews: "חוות דעת", details: "לפרטי המקום", rating: "ציון", outOf: "מתוך 10" },
+    en: { location: "Israel", review: "Verified guest review available in Hebrew", author: "Verified guest", reviews: "reviews", details: "View place details", rating: "Rating", outOf: "out of 10" },
+    ru: { location: "Израиль", review: "Проверенный отзыв гостя доступен на иврите", author: "Проверенный гость", reviews: "отзывов", details: "Подробнее о месте", rating: "Оценка", outOf: "из 10" },
+    fr: { location: "Israël", review: "Avis vérifié disponible en hébreu", author: "Client vérifié", reviews: "avis", details: "Voir le lieu", rating: "Note", outOf: "sur 10" },
+  }[language];
   const featuredRatings = orderDiscoveryRail(ratedPlaces, { id: item => item.place.slug, seed: `${documentSeed}:home-ratings`,
     compare: (a, b) => (b.place.score || 0) - (a.place.score || 0) });
   if (!featuredRatings.length) return null;
   return <section className="section home-trust-discovery" aria-labelledby="home-ratings-title"><div className="shell"><div className="home-trust-strip">
     <div className="home-vacation-strip__head"><div><span>דירוגי מקומות</span><h2 id="home-ratings-title">חוות דעת מובילות</h2></div><HomeSliderControls railId="home-ratings-rail" label="חוות דעת מובילות" itemSelector=".home-slider__item" /></div>
     <div id="home-ratings-rail" className="home-slider__track home-slider__track--trust home-slider__track--ratings" data-horizontal-rail aria-labelledby="home-ratings-title">
-      {featuredRatings.map(({ place, reviewText, reviewAuthor, reviewDate }) => <article className="home-rating-card home-slider__item" key={place.slug}>
-        <div className="home-rating-card__top"><Link className="home-rating-card__gallery" href={`/business?id=${place.slug}`} target="_blank" rel="noopener noreferrer"><img src={place.image} alt={place.name} title={place.name} width="640" height="426" loading="lazy" decoding="async" /></Link><div><span title={place.location}>{place.location}</span><h3><Link href={`/business?id=${place.slug}`} title={place.name}>{place.name}</Link></h3><strong aria-label={`ציון ${place.score} מתוך 10, ${place.reviews} חוות דעת`}><b>{place.score}</b><small>{place.reviews} חוות דעת</small></strong></div></div><p lang="he" dir="rtl">{homeReviewExcerpt(reviewText)}</p><small className="home-rating-card__byline"><span title={reviewAuthor}>{reviewAuthor}</span>{reviewDate ? <time dateTime={reviewDate} dir="ltr">{reviewDate}</time> : null}</small><Link className="home-rating-card__cta" href={`/business?id=${place.slug}`}>לפרטי המקום</Link>
-      </article>)}
+      {featuredRatings.map(({ place, reviewText, reviewAuthor, reviewDate }) => { const name = localizedBusinessText(place.name, language, translate, latinBusinessAlias(place.name) || copy.details); const location = localizedBusinessText(place.location, language, translate, copy.location); const review = language === "he" ? homeReviewExcerpt(reviewText) : copy.review; const author = language === "he" ? reviewAuthor : copy.author; return <article className="home-rating-card home-slider__item" key={place.slug}>
+        <div className="home-rating-card__top"><Link className="home-rating-card__gallery" href={`/business?id=${place.slug}`} target="_blank" rel="noopener noreferrer"><img src={place.image} alt={name} title={name} width="640" height="426" loading="lazy" decoding="async" /></Link><div><span title={location}>{location}</span><h3><Link href={`/business?id=${place.slug}`} title={name}>{name}</Link></h3><strong aria-label={`${copy.rating} ${place.score} ${copy.outOf}, ${place.reviews} ${copy.reviews}`}><b>{place.score}</b><small>{place.reviews} {copy.reviews}</small></strong></div></div><p>{review}</p><small className="home-rating-card__byline"><span title={author}>{author}</span>{reviewDate ? <time dateTime={reviewDate} dir="ltr">{new Intl.DateTimeFormat(language === "he" ? "he-IL" : language, { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" }).format(new Date(`${reviewDate}T12:00:00Z`))}</time> : null}</small><Link className="home-rating-card__cta" href={`/business?id=${place.slug}`}>{copy.details}</Link>
+      </article>; })}
     </div>
   </div></div></section>;
 }

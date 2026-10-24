@@ -10,8 +10,9 @@ test('review cards protect common header, quote, author/date and CTA rows',()=>{
  assert.doesNotMatch(css,/\.home-rating-card__top \{[^}]*grid-template-columns: 84px/);
  assert.match(css,/\.home-rating-card__top h3 \{[^}]*min-block-size: 2\.7em;[^}]*-webkit-line-clamp: 2/);
  assert.match(css,/\.home-rating-card__byline > time \{ flex: 0 0 auto; white-space: nowrap/);
- assert.match(source,/<time dateTime=\{reviewDate\} dir="ltr">\{reviewDate\}<\/time>/);
- assert.match(source,/title=\{place.name\}>\{place.name\}<\/Link>/);
+ assert.match(source,/<time dateTime=\{reviewDate\} dir="ltr">\{new Intl\.DateTimeFormat/);
+ assert.match(source,/title=\{name\}>\{name\}<\/Link>/);
+ assert.match(source,/language === "he" \? homeReviewExcerpt\(reviewText\) : copy\.review/);
  assert.match(source,/homeReviewExcerpt\(reviewText\)/);
 });
 test('trust and adjacent spa section share the parent background and one bounded section gap',()=>{

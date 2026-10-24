@@ -84,6 +84,12 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
   }[language];
   const safeEventText = (value: string | undefined | null, fallback: string) => localizedBusinessText(value, language, translate, fallback);
   const localizedPlaceName = safeEventText(place.name, latinBusinessAlias(place.name) || place.name);
+  const eventBreadcrumbPrefix = { he: "מקומות לאירועים ב", en: "Event venues in ", ru: "Площадки для мероприятий в ", fr: "Lieux événementiels à " }[language];
+  const localizedEventBreadcrumbs = eventBreadcrumbsForLocation(place.area, place.location).map((item) => {
+    const rawLocation = item.path ? new URL(item.path, "https://vii.local").searchParams.get("location") : null;
+    const localized = rawLocation ? safeEventText(rawLocation, latinBusinessAlias(rawLocation) || eventContentCopy.location) : eventContentCopy.location;
+    return { ...item, name: `${eventBreadcrumbPrefix}${localized}` };
+  });
   const localizedArea = safeEventText(place.area, eventContentCopy.location);
   const localizedLocation = safeEventText(place.location, localizedArea);
   const localizedDescription = safeEventText(place.description, eventContentCopy.description(localizedPlaceName, localizedLocation));
@@ -144,7 +150,7 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
     <PageShell variant="events">
       <ViewedItemTracker id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים ביחידה הגדולה`} />
       <main id="main-content" className="event-place-page">
-        <BreadcrumbTrail items={[{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, ...eventBreadcrumbsForLocation(place.area, place.location), { name: localizedPlaceName }]} />
+        <BreadcrumbTrail items={[{ name: "ראשי", path: "/" }, { name: "אירועים", path: "/events" }, ...localizedEventBreadcrumbs, { name: localizedPlaceName }]} />
 <section className="shell property-title event-title"><div><span className="eyebrow">{safeEventText(place.type, eventContentCopy.name)}</span><h1>{localizedPlaceName}</h1><p><PinIcon />{localizedLocation}, {localizedArea}</p><div className="property-title__trust-signals"><ListingAccessibility slug={place.slug} features={place.features} compact /></div></div><div className="property-title__side"><div className="property-title__actions property-title__actions--contact"><FavoriteButton compact={false} id={place.slug} world="events" name={place.name} location={`${place.location}, ${place.area}`} image={place.image} href={eventPlaceHref(place)} meta={`${place.type} · עד ${place.guests} אורחים ביחידה הגדולה`} />{phoneHref ? <DirectPhoneLink phone={ownerPhone} placeName={localizedPlaceName} className="property-phone-action" tracking={{ placeId: place.slug, placeName: place.name, world: "events", placement: "event_detail" }} /> : null}{ownerWhatsapp ? <WhatsAppLeadButton world="events" placeId={place.slug} placeName={place.name} businessPhone={ownerWhatsapp} serviceName={place.type} buttonClassName="property-whatsapp-action" /> : null}<ShareButton title={place.name} kind="event" image={place.image} /></div><a className="button primary" href="#event-booking">{translate("בדיקת אירוע")}</a></div></section>
         <PropertyGallery className="shell" images={place.images} name={localizedPlaceName} onOpen={(index) => openGallery("all", index)} />
         <DetailReviewSummary

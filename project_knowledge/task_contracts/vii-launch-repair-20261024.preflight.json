@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-launch-repair-20261024",
+  "project": "VII",
+  "task_type": "production-launch-blocker-repair-and-release",
+  "requested_outcome": "Repair the remaining verified multilingual and map defects, publish one frozen production release, and approve only after full post-deploy verification.",
+  "natural_destination": "https://vii.spaplus.co across Hebrew, English, Russian and French homepage, search, map and representative detail routes",
+  "authorization_boundary": "Code repair, testing and production publication are authorized. Accessibility and typography testing are explicitly excluded. No supplier-data invention, legal claim, payment, booking, lead or destructive infrastructure action is authorized.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "The user is launching and explicitly asked for end-to-end repair rather than a scoped code claim.",
+      "acceptance_impact": "The exact deployed version must pass the affected family at its public destination and receive an independent verdict."
+    },
+    {
+      "lesson_id": "ADIR-CONSISTENCY-001",
+      "reason": "Multilingual leakage and map behavior occur in shared page families.",
+      "acceptance_impact": "A shared fix must be verified across every affected locale, world and viewport."
+    },
+    {
+      "lesson_id": "ADIR-DATA-001",
+      "reason": "Localized supplier content must remain truthful and maps must use real eligible records.",
+      "acceptance_impact": "No fabricated translations, business names, locations, availability or map records may be introduced."
+    },
+    {
+      "lesson_id": "ADIR-SEO-001",
+      "reason": "Localized public routes and launch readiness affect canonical, hreflang, sitemap and crawl behavior.",
+      "acceptance_impact": "Post-deploy locale SEO, sitemap, robots and representative routes must remain correct."
+    },
+    {
+      "lesson_id": "ADIR-VISUAL-001",
+      "reason": "The defects include mixed-language layouts, card collisions and map selected-card behavior.",
+      "acceptance_impact": "Desktop, mobile and low-height screenshots must remain coherent without hiding content to make tests pass."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "The language switch changes the chrome but leaves Hebrew supplier content inside English, Russian or French pages.",
+      "prevention": "Trace every leaked node to a shared localization boundary and use truthful localized source data or explicit neutral fallbacks without inventing business facts.",
+      "acceptance_check": "The multilingual production matrix reports no Hebrew script leakage or rejected French literals on the affected routes."
+    },
+    {
+      "rejection": "The map appears to work on one phone but hangs or cannot select a place on desktop or a short viewport.",
+      "prevention": "Instrument the full map state transition and distinguish missing results, dynamic import, tile readiness, marker interaction and selected-card rendering.",
+      "acceptance_check": "Vacation, events, hourly, spa and activities map cases pass on desktop, 390-pixel mobile and low-height viewport."
+    },
+    {
+      "rejection": "A broad localization fix hides business identity or replaces missing translations with invented marketing copy.",
+      "prevention": "Preserve verified names and facts, use existing translations or deterministic honest fallbacks, and keep unsupported content visibly unavailable rather than fabricated.",
+      "acceptance_check": "Representative cards and detail pages retain identity, contact actions, photos and factual data in all supported locales."
+    },
+    {
+      "rejection": "The repair passes locally but the public release still serves the old behavior or regresses SEO and conversions.",
+      "prevention": "Freeze one commit, run the complete local gate, deploy that exact commit once, then repeat public QA, SEO and authenticated report checks with rollback recorded.",
+      "acceptance_check": "Public release identity matches the tested commit, critical routes pass, and the independent checker approves the exact deployed version."
+    },
+    {
+      "rejection": "The task is called finished even though the comprehensive QA still contains failed cases.",
+      "prevention": "Reconcile every prior failure as fixed, disproven with stronger evidence, or a precise launch blocker.",
+      "acceptance_check": "The final report contains zero in-scope failures; otherwise the release verdict remains not ready."
+    }
+  ],
+  "affected_family": [
+    "Hebrew, English, Russian and French homepage routes",
+    "vacation, event, hourly and spa search/list routes",
+    "vacation, event, hourly and spa detail routes",
+    "vacation, event, hourly, spa and activities result maps",
+    "desktop, 390 by 844 mobile and 390 by 620 low-height viewports",
+    "localized metadata, canonical, hreflang, sitemap and robots",
+    "conversion report release 609 invariants"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII accepted multilingual, map and publication behavior",
+        "source": "C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "VII platform truth and open launch gates",
+        "source": "C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "After one representative non-Hebrew page and one representative map pass with causal evidence, before expanding the fix or publishing.",
+    "checks": [
+      "No Hebrew supplier content leaks on the representative localized page without hiding business identity",
+      "Map trace proves the exact failed stage and the representative world completes selection",
+      "Focused regression tests pass for shared localization and map components"
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Does a cold direct request still expose Hebrew after hydration in any non-Hebrew route?",
+      "Can each map open, load markers, select a marker, show a card and close on every required viewport?",
+      "Did the fix remove or falsify business identity, content, phone, WhatsApp, booking or SEO data?",
+      "Does reload, back navigation or a locale switch restore the correct route and state?",
+      "Does the exact public release pass the same comprehensive audit that previously failed?"
+    ],
+    "natural_destination_evidence": "Exact production release URL, version and screenshots or browser observations for the affected routes",
+    "affected_family_evidence": "Complete automated matrix plus independent checker across locales, worlds and viewports"
+  },
+  "effectiveness": {
+    "baseline": "Production version 609 comprehensive audit: 148 cases, 88 passed and 60 failed; core rerun: 39 cases, 32 passed and 7 failed.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "Zero in-scope failures on the frozen post-deploy candidate without loss of verified business or conversion behavior."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}
