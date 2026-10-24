@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "task_id": "v633-cross-world-discovery-ordering",
+  "project": "VII",
+  "task_type": "cross-world-search-and-slider-ordering",
+  "requested_outcome": "Every public discovery world offers useful truth-based sorting, while default result lists and place sliders rotate to a different stable order on each fresh browser document without changing during interaction.",
+  "natural_destination": "VII public search/result pages and place recommendation sliders across vacations, events, spa, hourly rooms, attractions, trails and providers on desktop and mobile.",
+  "authorization_boundary": "Implementation, tests and release-candidate preparation are authorized. Production publication remains conditional on the exact candidate passing the VII temporary-public release gate and verified production access.",
+  "lesson_bundle": [
+    {
+      "lesson_id": "ADIR-QA-001",
+      "reason": "A cross-world change is not complete until the exact candidate is exercised across the whole affected family.",
+      "acceptance_impact": "Require full family tests, a temporary public candidate, exact-version inspection and rollback evidence before a release claim."
+    },
+    {
+      "lesson_id": "ADIR-SEARCH-001",
+      "reason": "Sorting and refresh rotation are part of search ranking and URL-backed discovery state.",
+      "acceptance_impact": "Require relevant ordering, honest missing-data behavior, URL persistence and result/map agreement."
+    },
+    {
+      "lesson_id": "ADIR-CONSISTENCY-001",
+      "reason": "Equivalent result families must expose the same interaction model across worlds and viewports.",
+      "acceptance_impact": "Require a world matrix and shared sorting primitives rather than one-off controls."
+    },
+    {
+      "lesson_id": "ADIR-CONTROL-001",
+      "reason": "Every visible sorting control must work in all applicable states.",
+      "acceptance_impact": "Require every visible option to produce the promised order and omit unsupported comparisons."
+    }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {
+      "rejection": "Only vacation and event results receive sorting while spa, hourly, attractions, trails or providers remain unchanged.",
+      "prevention": "Inventory every public result component and apply one shared option model with world-specific capabilities.",
+      "acceptance_check": "Automated family test names every world result component and verifies its sort control and ordering path."
+    },
+    {
+      "rejection": "Random order changes during a render, filter edit or scroll and makes the interface jump.",
+      "prevention": "Generate one browser-document seed after hydration and keep it stable until a true refresh or new document.",
+      "acceptance_check": "Unit tests prove identical seed stability and different-seed rotation, while interaction tests preserve the order until refresh."
+    },
+    {
+      "rejection": "A price or popularity option is shown where the underlying world has no verified numeric signal.",
+      "prevention": "Derive options from the actual inventory and keep missing numeric values last instead of inventing them.",
+      "acceptance_check": "Unsupported options are absent and missing values remain visible after verified values without fabricated numbers."
+    },
+    {
+      "rejection": "Sliders rotate but search results remain daily-static, or vice versa.",
+      "prevention": "Use the same seeded ordering primitive at slider and default-result boundaries.",
+      "acceptance_check": "Tests cover shared rails plus all result families with different document seeds."
+    },
+    {
+      "rejection": "Sorting breaks URL reload, back navigation, map/list parity or existing availability priorities.",
+      "prevention": "Persist explicit sorts in the URL, keep default rotation within existing eligibility/priority tiers and feed map/list from the same ordered set.",
+      "acceptance_check": "Reload/back tests preserve explicit sort and map/list use identical ordered identifiers."
+    }
+  ],
+  "affected_family": [
+    "vacation search results",
+    "event search results",
+    "spa results",
+    "hourly-room results",
+    "attraction results",
+    "trail results",
+    "provider results",
+    "home and world place sliders",
+    "detail-page related-place sliders",
+    "Hebrew, English, Russian and French labels",
+    "desktop, mobile, list, grid and map result states",
+    "URL sort persistence and browser refresh behavior"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": {
+    "sources": [
+      {
+        "label": "VII shared-family and search behavior",
+        "source": "project_knowledge/VII_FEEDBACK_STANDARD.md"
+      },
+      {
+        "label": "Current seeded discovery rail ordering",
+        "source": "app/lib/discovery-slider-order.ts"
+      }
+    ],
+    "no_precedent_reason": null
+  },
+  "midpoint_gate": {
+    "required": true,
+    "trigger": "Shared ordering utility plus one vacation result page and one DiscoveryItem world are working before expanding to the remaining worlds.",
+    "checks": [
+      "A default order is stable inside one document and changes with a new seed.",
+      "An explicit price or rating sort overrides rotation and keeps unknown values last.",
+      "The URL stores an explicit sort but omits the default rotation value."
+    ],
+    "not_required_reason": null
+  },
+  "adversarial_close": {
+    "attack_questions": [
+      "Can any world still render results without a sorting control?",
+      "Can a re-render or filter change reshuffle cards without a true refresh?",
+      "Can an option claim price, rating or popularity when the inventory cannot support it?",
+      "Can map and list show the same results in a different order or explicit sort disappear after reload?",
+      "Can a slider still use a fixed catalog order after a fresh browser document?"
+    ],
+    "natural_destination_evidence": "Exact temporary public candidate opened on representative desktop and mobile result pages, refreshed twice, sorted explicitly and switched between list and map.",
+    "affected_family_evidence": "Automated cross-world matrix plus live representative routes for all public worlds and shared slider families."
+  },
+  "effectiveness": {
+    "baseline": "Vacation and events have partial sort controls, several DiscoveryItem worlds have none, and default result rotation is mostly daily rather than per refresh.",
+    "measurements": [
+      "first_pass_acceptance",
+      "repeated_corrections",
+      "prevented_failures",
+      "elapsed_time"
+    ],
+    "target": "One shared model covers every world, explicit sorts persist, and a true refresh changes the default order without interaction-time instability."
+  },
+  "privacy": {
+    "raw_feedback_stored": false,
+    "secret_storage": false,
+    "normalized_summary_only": true
+  },
+  "ready_to_start": true
+}

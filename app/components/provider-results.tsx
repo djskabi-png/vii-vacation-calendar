@@ -9,8 +9,9 @@ import { DiscoveryCard } from "./discovery-card";
 import { ModernSelect } from "./modern-select";
 import { ProgressiveResults } from "./progressive-results";
 import { useSiteLanguage, type SiteLanguage } from "../i18n/locale-provider";
-import { rotateWithinTiers } from "../lib/daily-rotation";
 import { SliderRailControls } from "./slider-rail-controls";
+import { useDocumentSeed } from "./use-document-seed";
+import { discoverySortLabel, discoverySortOptions, numericPriceLabel, orderDiscoveryResults, type DiscoverySortKey } from "../lib/discovery-result-sort";
 
 const joinCopy: Record<SiteLanguage, { slot: string; title: string; description: string; action: string }> = {
   he: { slot: "מקום לספק הבא", title: "העסק שלכם יכול להיות כאן", description: "נותנים שירות לנופש או לאירועים? הציגו את העסק שלכם למי שמחפש ספק מתאים.", action: "פרטי הצטרפות כספק" },
@@ -38,19 +39,25 @@ export function ProviderResults({ items, category = "all" }: { items: DiscoveryI
   const searchQuery = searchParams.toString();
   const categoryNavRef = useRef<HTMLElement>(null);
   const categoryRailId = useId();
+  const { language } = useSiteLanguage();
+  const documentSeed = useDocumentSeed();
   const [query, setQuery] = useState(searchParams.get("q") || "");
   const [region, setRegion] = useState(searchParams.get("region") || "כל הארץ");
+  const sortModel = useMemo(() => ({ id: (item: DiscoveryItem) => item.id, name: (item: DiscoveryItem) => item.name, price: (item: DiscoveryItem) => numericPriceLabel(item.priceLabel), rating: (item: DiscoveryItem) => item.rating }), []);
+  const sortOptions = useMemo(() => discoverySortOptions(items, sortModel, language), [items, language, sortModel]);
+  const requestedSort = searchParams.get("sort") || "recommended";
+  const [sort, setSort] = useState<DiscoverySortKey>(sortOptions.some((option) => option.value === requestedSort) ? requestedSort as DiscoverySortKey : "recommended");
   const regions = useMemo(() => ["כל הארץ", ...Array.from(new Set(items.flatMap((item) => item.serviceAreas || [item.area])))], [items]);
   const filtered = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase("he");
-    return rotateWithinTiers(items.filter((item) => {
+    const matches = items.filter((item) => {
       const text = `${item.name} ${(item.searchTerms || []).join(" ")} ${item.area} ${item.description} ${item.features.join(" ")}`;
       const matchesQuery = !normalized || text.toLocaleLowerCase("he").includes(normalized);
       const matchesRegion = region === "כל הארץ" || (item.serviceAreas || [item.area]).includes(region);
       return matchesQuery && matchesRegion;
-    }), (item) => (normalized && !item.name.toLocaleLowerCase("he").includes(normalized) ? 2 : 0) + (item.image ? 0 : 1),
-    (item) => item.id, `provider-search:${category}`);
-  }, [category, items, query, region]);
+    });
+    return orderDiscoveryResults(matches, sort, `${documentSeed}:provider-search:${category}`, { ...sortModel, priority: item => (normalized && !item.name.toLocaleLowerCase("he").includes(normalized) ? 2 : 0) + (item.image ? 0 : 1) });
+  }, [category, documentSeed, items, query, region, sort, sortModel]);
 
   function updateUrl(updates: Record<string, string>) {
     const params = new URLSearchParams(window.location.search);
@@ -61,7 +68,8 @@ export function ProviderResults({ items, category = "all" }: { items: DiscoveryI
   function resetFilters() {
     setQuery("");
     setRegion("כל הארץ");
-    updateUrl({ q: "", region: "" });
+    setSort("recommended");
+    updateUrl({ q: "", region: "", sort: "" });
   }
 
   useEffect(() => {
@@ -69,9 +77,11 @@ export function ProviderResults({ items, category = "all" }: { items: DiscoveryI
       const params = new URLSearchParams(searchQuery);
       setQuery(params.get("q") || "");
       setRegion(params.get("region") || "כל הארץ");
+      const nextSort = params.get("sort") || "recommended";
+      setSort(sortOptions.some((option) => option.value === nextSort) ? nextSort as DiscoverySortKey : "recommended");
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [searchQuery]);
+  }, [searchQuery, sortOptions]);
 
   useEffect(() => {
     categoryNavRef.current?.querySelector<HTMLElement>('[aria-current="page"]')?.scrollIntoView({ block: "nearest", inline: "center" });
@@ -81,6 +91,7 @@ export function ProviderResults({ items, category = "all" }: { items: DiscoveryI
     <div className="provider-toolbar">
       <label className="provider-search"><span>חיפוש ספק</span><input value={query} onChange={(event) => { const value = event.target.value; setQuery(value); updateUrl({ q: value.trim() }); }} placeholder="שם, שירות או תחום" /></label>
       <ModernSelect label="אזור שירות" value={region} onChange={(value) => { setRegion(value); updateUrl({ region: value }); }} options={regions.map((option) => ({ value: option, label: option }))} />
+      <ModernSelect compact label={discoverySortLabel(language)} value={sort} onChange={(value) => { const next = sortOptions.some((option) => option.value === value) ? value as DiscoverySortKey : "recommended"; setSort(next); updateUrl({ sort: next === "recommended" ? "" : next }); }} options={sortOptions} />
       <div className="provider-filter-options">
         <div className="provider-categories-shell">
           <nav id={categoryRailId} ref={categoryNavRef} className="provider-categories" aria-label="עמודי ספקים לפי תחום" data-horizontal-rail>
@@ -92,6 +103,6 @@ export function ProviderResults({ items, category = "all" }: { items: DiscoveryI
       </div>
     </div>
     <p className="provider-results-count" aria-live="polite">{filtered.length === 1 ? "ספק אחד מתאים" : `${filtered.length} ספקים מתאימים`}</p>
-    {filtered.length ? <ProgressiveResults className="discovery-grid" kind="providers" featuredItem={<ProviderJoinCard />} resetKey={`${category}|${query}|${region}`}>{filtered.map((item) => <DiscoveryCard key={item.id} item={item} />)}</ProgressiveResults> : <div className="provider-empty"><h3>לא מצאנו התאמה מדויקת</h3><p>אפשר לנקות את החיפוש או לבחור תחום אחר.</p><Link href="/join/providers#provider-pricing">לפרטי הצטרפות כספק</Link></div>}
+    {filtered.length ? <ProgressiveResults className="discovery-grid" kind="providers" featuredItem={<ProviderJoinCard />} resetKey={`${category}|${query}|${region}|${sort}`}>{filtered.map((item) => <DiscoveryCard key={item.id} item={item} />)}</ProgressiveResults> : <div className="provider-empty"><h3>לא מצאנו התאמה מדויקת</h3><p>אפשר לנקות את החיפוש או לבחור תחום אחר.</p><Link href="/join/providers#provider-pricing">לפרטי הצטרפות כספק</Link></div>}
   </div>;
 }

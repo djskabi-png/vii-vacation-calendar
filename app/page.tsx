@@ -16,7 +16,7 @@ import type { EventPlace, Property } from "./data/site-data";
 import { hourlyPlacesFromCatalog, paidAttractions, providerProfiles } from "./data/world-data";
 import hourlyCatalog from "./data/sergey-hourly-catalog.json";
 import { bundledPublicCatalogSummaries, publicCatalogReviewPreviews } from "./lib/public-catalog-read.ts";
-import { dailyRotationCompare, rotateDaily } from "./lib/daily-rotation";
+import { rotateDaily } from "./lib/daily-rotation";
 import { GiftIcon, PeopleIcon } from "./site-header";
 import { HomeMobileRail } from "./components/home-mobile-rail";
 import "./home-mobile.css";
@@ -30,7 +30,7 @@ type SupplierReviewDetail = { reviews?: SupplierReview[] };
 async function homeRatedPlaces(properties: Property[]): Promise<HomeRatedPlace[]> {
   const candidates = properties
     .filter((place) => place.image && Number(place.score) > 0 && Number(place.reviews) >= 5 && /^vacation-\d+$/.test(place.slug))
-    .sort((a, b) => Number(b.score) - Number(a.score) || dailyRotationCompare(a.slug, b.slug, "home-reviews"))
+    .sort((a, b) => Number(b.score) - Number(a.score) || a.slug.localeCompare(b.slug))
     .slice(0, 14);
   const details = await publicCatalogReviewPreviews<SupplierReviewDetail>("vacations", candidates.map((place) => Number(place.slug.slice("vacation-".length))));
   const withReviews = candidates.map((place) => {
@@ -39,7 +39,7 @@ async function homeRatedPlaces(properties: Property[]): Promise<HomeRatedPlace[]
     const review = detail?.reviews?.find((entry) => typeof entry.text === "string" && entry.text.trim().length >= 30);
     return review ? { place, reviewText: review.text!.trim(), reviewAuthor: review.author?.trim() || "אורח", reviewDate: review.date || "" } : null;
   });
-  return withReviews.filter((entry): entry is HomeRatedPlace => entry !== null).slice(0, 7);
+  return withReviews.filter((entry): entry is HomeRatedPlace => entry !== null);
 }
 
 const destinationMatchers = [
@@ -52,18 +52,13 @@ const destinationMatchers = [
 ];
 
 function homeShowcaseProperties(properties: Property[]) {
-  const destinationCandidates = rotateDaily(properties.filter((place) => place.image), (place) => place.slug, "home-destination-images");
-  const usedImages = new Set<string>();
-  const destinationPlaces = destinationMatchers.map((matches) => {
-    const candidates = destinationCandidates.filter((place) => matches(place.area, place.location));
-    const place = candidates.find((candidate) => !usedImages.has(candidate.image)) || candidates[0];
-    if (place?.image) usedImages.add(place.image);
-    return place;
-  }).filter((place): place is Property => Boolean(place));
+  const destinationPlaces = destinationMatchers.flatMap((matches) => properties
+    .filter((place) => place.image && matches(place.area, place.location))
+    .slice(0, 5));
   const tourPlaces = rotateDaily(eligibleHomeTourProperties([
     ...properties,
     ...visualTourProperties,
-  ]), (place) => place.slug, "home-tours").slice(0, 7);
+  ]), (place) => place.slug, "home-tours").slice(0, 20);
   const selected = new Map<string, Property>();
   [...destinationPlaces, ...tourPlaces].forEach((place) => selected.set(place.slug, place));
   return [...selected.values()].map(({ slug, name, location, area, image, videos }) => ({ slug, name, location, area, image, videos }));

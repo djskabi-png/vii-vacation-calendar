@@ -6,7 +6,6 @@ import type { EventPlace } from "../data/site-data";
 import { eventOfferHref, eventPlaceHref } from "../lib/event-place-href";
 import { useViiLiveSearch } from "./use-vii-live-search";
 import { EventRail } from "./event-rail";
-import { dailyRotationCompare } from "../lib/daily-rotation";
 import { PlacePreviewCard } from "./place-preview-card";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { localizedPath } from "../i18n/locale-routing";

@@ -16,7 +16,6 @@ import { PinIcon } from "../site-header";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { HomeLiveDeals } from "./home-live-deals";
 import { EventLastMinute } from "./event-last-minute";
-import { rotateDaily } from "../lib/daily-rotation";
 import { HomeManagedDiscovery } from "./home-discovery-sections";
 import { HomeSliderControls } from "./home-slider-controls";
 import { PlacePreviewCard } from "./place-preview-card";
@@ -96,7 +95,7 @@ export function HomeShowcase({ properties, eventPlaces, hourlyPlaces, providerPr
   const worldCards = publicWorldNavigation.filter((world) => !["vacation", "events", "spa", "hourly"].includes(world.id) && enabled(world.id));
   const featuredTours = orderDiscoveryRail(properties.flatMap((property) => homeTourVideos(property.videos).map((video) => ({ property, video }))),
     { id: ({ property, video }) => `${property.slug}:${video.src}`, seed: `${documentSeed}:home-tours`, limit: 7 });
-  const destinationImages = rotateDaily(properties.filter((property) => property.image), (property) => property.slug, "home-destination-images");
+  const destinationImages = orderDiscoveryRail(properties.filter((property) => property.image), { id: property => property.slug, seed: `${documentSeed}:home-destination-images` });
   const usedDestinationImages = new Set<string>();
   const destinationPlaces = vacationDestinations.map((_destination, index) => {
     const matches = destinationImages.filter((candidate) => destinationMatchers[index](candidate.area, candidate.location));
@@ -221,8 +220,7 @@ export function HomeRatingsSection({ ratedPlaces }: { ratedPlaces: HomeRatedPlac
     ru: { location: "Израиль", review: "Проверенный отзыв гостя доступен на иврите", author: "Проверенный гость", reviews: "отзывов", details: "Подробнее о месте", rating: "Оценка", outOf: "из 10" },
     fr: { location: "Israël", review: "Avis vérifié disponible en hébreu", author: "Client vérifié", reviews: "avis", details: "Voir le lieu", rating: "Note", outOf: "sur 10" },
   }[language];
-  const featuredRatings = orderDiscoveryRail(ratedPlaces, { id: item => item.place.slug, seed: `${documentSeed}:home-ratings`,
-    compare: (a, b) => (b.place.score || 0) - (a.place.score || 0) });
+  const featuredRatings = orderDiscoveryRail(ratedPlaces, { id: item => item.place.slug, seed: `${documentSeed}:home-ratings`, limit: 7 });
   if (!featuredRatings.length) return null;
   return <section className="section home-trust-discovery" aria-labelledby="home-ratings-title"><div className="shell"><div className="home-trust-strip">
     <div className="home-vacation-strip__head"><div><span>דירוגי מקומות</span><h2 id="home-ratings-title">חוות דעת מובילות</h2></div><HomeSliderControls railId="home-ratings-rail" label="חוות דעת מובילות" itemSelector=".home-slider__item" /></div>

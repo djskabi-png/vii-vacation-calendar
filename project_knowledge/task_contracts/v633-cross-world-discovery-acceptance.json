@@ -1,0 +1,118 @@
+{
+  "goal": "Consistent truth-based sorting and stable per-refresh discovery rotation across every VII public world and place slider.",
+  "intent_model": {
+    "literal_request": "Add sorting such as popular, lower price, higher price and top rated in every world, and randomize locations and places on every refresh across search and sliders.",
+    "implied_outcome": "Visitors can deliberately order results using meaningful data while the default discovery experience fairly rotates inventory on each new page load without flicker or loss of context.",
+    "likely_rejections": [
+      "One world or slider family is missed.",
+      "Randomness causes cards to jump during interaction.",
+      "Unsupported or invented sort signals are exposed.",
+      "Sort state is lost on refresh or disagrees with the map."
+    ],
+    "interpretation_rules": [
+      {
+        "phrase": "בכל עולם / כלל העולמות",
+        "operational_meaning": "Inventory and cover all public result and place-slider families, not a representative sample.",
+        "acceptance_impact": "A named cross-world matrix is required."
+      },
+      {
+        "phrase": "כל ריפרש",
+        "operational_meaning": "Choose a new order for a genuinely new browser document and keep it fixed for the lifetime of that document.",
+        "acceptance_impact": "Different seeds must rotate order; re-renders with the same seed must not."
+      }
+    ]
+  },
+  "cognitive_flow": {
+    "current_layer": "A compact 'sort by' control beside the result count and view controls.",
+    "current_decision": "Choose the default refreshed discovery order or one supported explicit sort.",
+    "next_action": "Browse or open a place from the now-ordered results.",
+    "deferred_complexity": [
+      "World-specific filters remain in their existing panels.",
+      "Advanced ranking administration remains behind the management system."
+    ],
+    "preserved_depth": [
+      "Map/list switching, filtering, availability eligibility, nearby recovery, progressive loading and URL sharing remain available."
+    ]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/preflight/v633-cross-world-discovery-ordering.json",
+    "lesson_bundle_ids": ["ADIR-QA-001", "ADIR-SEARCH-001", "ADIR-CONSISTENCY-001", "ADIR-CONTROL-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["public visitor", "content operator", "release checker"],
+  "natural_destination": "VII public result pages and discovery sliders",
+  "facts": [
+    {
+      "claim": "Vacation and event search already expose partial sorting.",
+      "evidence": "app/search/page.tsx and app/events/search/page.tsx"
+    },
+    {
+      "claim": "Discovery sliders already have a stable per-document seeded ordering primitive.",
+      "evidence": "app/lib/discovery-slider-order.ts and app/components/use-document-seed.ts"
+    }
+  ],
+  "assumptions": [
+    {
+      "claim": "Popularity must only be offered when a verified review-count or equivalent signal exists.",
+      "validation": "Inspect each world data model and conditionally expose the option."
+    }
+  ],
+  "in_scope": [
+    "Shared sorting primitives",
+    "Default stable per-refresh rotation",
+    "World-specific supported sort options",
+    "URL persistence for explicit sorts",
+    "Map/list/result parity",
+    "Shared place slider rotation",
+    "Localized sort labels"
+  ],
+  "out_of_scope": [
+    "Changing eligibility, availability or publication rules",
+    "Inventing prices, ratings, popularity or booking status",
+    "Redesigning cards, filters or maps",
+    "Accessibility and typography audits beyond preserving the current controls"
+  ],
+  "invariants": [
+    "Existing hard filters and availability exclusions remain authoritative.",
+    "Nearby completion broadens only geography.",
+    "Explicit price and rating sorts keep missing values last.",
+    "One document never reshuffles merely because state re-rendered.",
+    "Calendar, gallery and non-place semantic rails keep their intentional order."
+  ],
+  "affected_family": [
+    "vacation search result routes and cards",
+    "event search result routes and cards",
+    "spa result routes and cards",
+    "hourly-room result routes and cards",
+    "attraction result routes and cards",
+    "trail result routes and cards",
+    "provider result routes and cards",
+    "home, world and detail-page place sliders",
+    "Hebrew, English, Russian and French sort labels",
+    "desktop and mobile result toolbars",
+    "list, grid and map result views"
+  ],
+  "characteristics": { "stateful": true },
+  "requirements": [
+    { "id": "REQ-1", "statement": "Every public result world exposes a useful supported sort model.", "source": "User request" },
+    { "id": "REQ-2", "statement": "Default results and place sliders rotate per fresh document but remain stable during interaction.", "source": "User request" },
+    { "id": "REQ-3", "statement": "Explicit sorts persist in the URL and survive reload/back navigation.", "source": "ADIR-SEARCH-001" },
+    { "id": "REQ-4", "statement": "Ordering never invents unsupported data or overrides eligibility and availability.", "source": "VII project truth" },
+    { "id": "REQ-5", "statement": "Map, list and progressive views share one ordered result set.", "source": "ADIR-CONSISTENCY-001" }
+  ],
+  "acceptance_checks": [
+    { "id": "AC-1", "requirement_ids": ["REQ-1"], "kind": "success", "setup": "Open each world with representative inventory.", "action": "Inspect and use every offered sort.", "observable_result": "The promised ordering is visible and unsupported options are absent." },
+    { "id": "AC-2", "requirement_ids": ["REQ-2"], "kind": "persistence", "setup": "Open a result page and slider with at least four eligible items.", "action": "Re-render through filter/view changes, then perform a true browser refresh.", "observable_result": "Order is stable before refresh and rotates after a new document." },
+    { "id": "AC-3", "requirement_ids": ["REQ-3"], "kind": "persistence", "setup": "Choose a non-default sort.", "action": "Reload and navigate back.", "observable_result": "The URL and visible result order preserve the selection." },
+    { "id": "AC-4", "requirement_ids": ["REQ-4"], "kind": "empty", "setup": "Use inventory with missing price or rating values.", "action": "Choose the relevant explicit sort.", "observable_result": "Known values sort correctly, unknown values remain last and no value is fabricated." },
+    { "id": "AC-5", "requirement_ids": ["REQ-5"], "kind": "success", "setup": "Choose an explicit sort then switch between list and map.", "action": "Compare identifiers and order.", "observable_result": "The same eligible ordered set drives both views." },
+    { "id": "AC-6", "requirement_ids": ["REQ-4"], "kind": "failure", "setup": "A world has no verified numeric signal for an ordering option.", "action": "Open its sort control and exercise available options.", "observable_result": "The unsupported option is absent and the result family remains usable." },
+    { "id": "AC-7", "requirement_ids": ["REQ-1", "REQ-2", "REQ-3", "REQ-4", "REQ-5"], "kind": "rollback", "setup": "Freeze an exact release candidate.", "action": "Record baseline and rollback identity before publication.", "observable_result": "The candidate can be rolled back without losing the last verified public version." }
+  ],
+  "open_questions": [],
+  "authorization_boundary": "Implementation and candidate verification are authorized; production publication requires the exact candidate release gate and verified deployment route.",
+  "ready_for_implementation": true
+}

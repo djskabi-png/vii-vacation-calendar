@@ -14,13 +14,15 @@ import { localizedPath } from "../i18n/locale-routing";
 import { useSiteLanguage } from "../i18n/locale-provider";
 import { ResultsViewToggle, useResultsViewMode } from "./results-view-toggle";
 import { ProgressiveResults } from "./progressive-results";
-import { rotateWithinTiers } from "../lib/daily-rotation";
 import { trackSearchResults } from "../lib/analytics";
 import { nearbySearchRecommendations, completePlaceSearchResults, PLACE_SEARCH_MINIMUM_RESULTS } from "../lib/nearby-recommendations";
 import { useManagedGeography } from "./use-managed-geography";
 import { NearbySearchNotice } from "./nearby-search-notice";
 import { publicAvailabilityNotice } from "../lib/public-availability-notice";
 import { matchesSearchLocation } from "../data/search-taxonomy";
+import { ModernSelect } from "./modern-select";
+import { useDocumentSeed } from "./use-document-seed";
+import { discoverySortLabel, discoverySortOptions, numericPriceLabel, orderDiscoveryResults, type DiscoverySortKey } from "../lib/discovery-result-sort";
 
 const spaFilters = spaLandings;
 
@@ -55,6 +57,7 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
   const router = useRouter();
   const searchParams = useSearchParams();
   const { language } = useSiteLanguage();
+  const documentSeed = useDocumentSeed();
   const searchQuery = searchParams.toString();
   const requestedLocation = searchParams.get("location") || initialLocation || "כל הארץ";
   const requestedAudience = searchParams.get("spaFor") || initialSpaAudience;
@@ -70,6 +73,10 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
     const requested = (searchParams.get("features") || "").split(",").filter(Boolean);
     return (requested.length ? requested : initialSpaFilters || []).filter((id) => spaFilters.some((filter) => filter.id === id));
   });
+  const sortModel = useMemo(() => ({ id: (item: DiscoveryItem) => item.id, name: (item: DiscoveryItem) => item.name, price: (item: DiscoveryItem) => numericPriceLabel(item.priceLabel), rating: (item: DiscoveryItem) => item.rating, priority: (item: DiscoveryItem) => item.image && item.priceLabel ? 0 : item.image ? 1 : 2 }), []);
+  const sortOptions = useMemo(() => discoverySortOptions(items, sortModel, language), [items, language, sortModel]);
+  const requestedSort = searchParams.get("sort") || "recommended";
+  const [sort, setSort] = useState<DiscoverySortKey>(sortOptions.some((option) => option.value === requestedSort) ? requestedSort as DiscoverySortKey : "recommended");
   const [filtersOpen, setFiltersOpen] = useState(true);
   const [pendingFilterId, setPendingFilterId] = useState<string | null>(null);
   const { mapOpen, openMap, closeMap } = useMapViewState();
@@ -122,13 +129,12 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
   const checkingDate = Boolean(requestedDate) && (availability.checkedDate !== requestedDate || availability.status === "idle" || availability.status === "loading");
   const availabilityFailed = Boolean(requestedDate) && availability.status === "unavailable";
   const datedAvailabilityReady = Boolean(requestedDate) && dateCovered;
-  const filtered = useMemo(() => rotateWithinTiers(amenityFiltered.filter((item) => (
+  const filtered = useMemo(() => amenityFiltered.filter((item) => (
     !checkingDate &&
     !availabilityFailed &&
     matchesSearchLocation(item, location)
     && (!requestedDate || (datedAvailabilityReady && availability.sites.has(Number(item.id.replace("spa-", "")))))
-  )), (item) => item.image && item.priceLabel ? 0 : item.image ? 1 : 2,
-  (item) => item.id, "spa-search"), [amenityFiltered, location, requestedDate, datedAvailabilityReady, checkingDate, availabilityFailed, availability.sites]);
+  )), [amenityFiltered, location, requestedDate, datedAvailabilityReady, checkingDate, availabilityFailed, availability.sites]);
 
   const nearbyRecovery = useMemo(() => {
     if (filtered.length >= PLACE_SEARCH_MINIMUM_RESULTS || checkingDate || availabilityFailed || location === "כל הארץ") return [];
@@ -137,7 +143,7 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
     return nearbySearchRecommendations(eligible, location, managedGeography, { key: (item) => item.id,
       origin: { location, area: location, lat: origin?.location === location ? origin.lat : undefined, lng: origin?.location === location ? origin.lng : undefined } });
   }, [amenityFiltered, availability.sites, availabilityFailed, checkingDate, datedAvailabilityReady, filtered.length, items, location, managedGeography, requestedDate]);
-  const resultItems = useMemo(() => completePlaceSearchResults(filtered, nearbyRecovery, (item) => item.id), [filtered, nearbyRecovery]);
+  const resultItems = useMemo(() => orderDiscoveryResults(completePlaceSearchResults(filtered, nearbyRecovery, (item) => item.id), sort, `${documentSeed}:spa-search`, sortModel), [documentSeed, filtered, nearbyRecovery, sort, sortModel]);
 
   useEffect(() => {
     if (checkingDate || availabilityFailed) return;
@@ -149,16 +155,19 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
       filters: {
         ...(spaAudience ? { package: spaAudiences[spaAudience].label } : {}),
         ...(selectedFilters.length ? { experience: selectedFilters.join(",") } : {}),
+        ...(sort !== "recommended" ? { sort } : {}),
       },
     }), 650);
     return () => window.clearTimeout(timer);
-  }, [availabilityFailed, checkingDate, resultItems.length, location, requestedDate, selectedFilters, spaAudience]);
+  }, [availabilityFailed, checkingDate, resultItems.length, location, requestedDate, selectedFilters, sort, spaAudience]);
 
-  function updateUrl(nextLocation: string, nextAudience: SpaAudienceId | "", nextFilters: string[]) {
+  function updateUrl(nextLocation: string, nextAudience: SpaAudienceId | "", nextFilters: string[], nextSort: DiscoverySortKey = sort) {
     const params = new URLSearchParams(window.location.search);
     params.delete("location");
     params.delete("spaFor");
     params.delete("features");
+    if (nextSort === "recommended") params.delete("sort");
+    else params.set("sort", nextSort);
     const path = spaSearchHref(spaSearchStateFromValues(nextLocation, nextAudience, nextFilters));
     const query = params.toString();
     router.push(localizedPath(`${path}${query ? `?${query}` : ""}`, language));
@@ -166,6 +175,7 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
 
   function changeLocation(value: string) { setLocation(value); updateUrl(value, spaAudience, selectedFilters); }
   function changeAudience(value: SpaAudienceId | "") { setSpaAudience(value); updateUrl(location, value, selectedFilters); }
+  function changeSort(value: string) { const next = sortOptions.some((option) => option.value === value) ? value as DiscoverySortKey : "recommended"; setSort(next); updateUrl(location, spaAudience, selectedFilters, next); }
 
   function toggleFilter(id: string) {
     setSelectedFilters((current) => {
@@ -179,7 +189,8 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
     setLocation("כל הארץ");
     setSpaAudience("");
     setSelectedFilters([]);
-    updateUrl("כל הארץ", "", []);
+    setSort("recommended");
+    updateUrl("כל הארץ", "", [], "recommended");
   }
 
   function clearDateAndFilters() {
@@ -191,6 +202,8 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
     params.delete("location");
     params.delete("spaFor");
     params.delete("features");
+    params.delete("sort");
+    setSort("recommended");
     router.push(localizedPath(spaSearchHref(spaSearchStateFromValues("כל הארץ", "", [])) + (params.toString() ? `?${params}` : ""), language));
   }
 
@@ -204,7 +217,7 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
   useEffect(() => {
     const timer = window.setTimeout(() => { setMapVisibleIds(null); setActiveMapPlaceId(null); }, 0);
     return () => window.clearTimeout(timer);
-  }, [location, selectedFilters, spaAudience, requestedDate]);
+  }, [location, selectedFilters, sort, spaAudience, requestedDate]);
 
   function toggleResultsMap() {
     setMapVisibleIds(null);
@@ -230,10 +243,12 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
       setSpaAudience(nextAudience && nextAudience in spaAudiences ? nextAudience as SpaAudienceId : "");
       const requestedFilters = (params.get("features") || "").split(",").filter(Boolean);
       setSelectedFilters((requestedFilters.length ? requestedFilters : initialSpaFilters || []).filter((id) => spaFilters.some((filter) => filter.id === id)));
+      const nextSort = params.get("sort") || "recommended";
+      setSort(sortOptions.some((option) => option.value === nextSort) ? nextSort as DiscoverySortKey : "recommended");
       setPendingFilterId(null);
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [initialLocation, initialSpaAudience, initialSpaFilters, searchQuery]);
+  }, [initialLocation, initialSpaAudience, initialSpaFilters, searchQuery, sortOptions]);
   const expandedResultLabel = { he: `${displayed.length} בתי ספא באזור ובסביבה`, en: `${displayed.length} spas in the area and nearby`, ru: `${displayed.length} спа в выбранном районе и окрестностях`, fr: `${displayed.length} spas dans le secteur et aux alentours` }[language];
   const resultLabel = !mapOpen && resultItems.length > filtered.length ? expandedResultLabel : mapOpen
     ? `${visibleMapCount} בתי ספא באזור המוצג במפה`
@@ -253,11 +268,12 @@ function SpaResults({ items, activeSpaFilter, initialLocation, initialSpaAudienc
     <div className="spa-results__heading">
       <h2 aria-live="polite">{resultLabel}</h2>
       <div className="spa-results__view-actions">
+        <ModernSelect compact label={discoverySortLabel(language)} value={sort} onChange={changeSort} options={sortOptions} />
         <button className="spa-results__filter-toggle" type="button" aria-controls="spa-result-filters" aria-expanded={filtersOpen} onClick={() => setFiltersOpen((open) => !open)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M7 12h10M10 17h4" /></svg><span>סינון</span></button>
         {resultItems.length > 0 && <button className={`button map-button mobile-map-fab ${mapOpen ? "active" : ""}`} type="button" aria-label={mapOpen ? "חזרה לתצוגת רשימה" : "הצגת תוצאות על המפה"} aria-pressed={mapOpen} onPointerEnter={preloadListingMap} onFocus={preloadListingMap} onTouchStart={preloadListingMap} onPointerDown={(event) => event.stopPropagation()} onPointerUp={(event) => event.stopPropagation()} onClick={(event) => { event.preventDefault(); event.stopPropagation(); toggleResultsMap(); }}><MapIcon /><span className="map-button__desktop-label">{mapOpen ? "תצוגת רשימה" : "תצוגה על מפה"}</span><span className="map-button__mobile-label" aria-hidden="true">מפה</span></button>}
       </div>
     </div>
-    {checkingDate ? <div className="spa-results__empty" role="status">בודקים מקומות פנויים לתאריך שבחרתם...</div> : availabilityFailed ? <div className="spa-results__empty" role="alert"><strong>לא הצלחנו לבדוק זמינות כרגע</strong><p>לא נציג תוצאות רגילות כאילו הן פנויות. אפשר לנסות שוב או להמשיך בלי תאריך.</p><button type="button" className="button secondary" onClick={() => setAvailabilityRetry((value) => value + 1)}>לנסות שוב</button><button type="button" className="button subtle" onClick={clearDateAndFilters}>המשך בלי תאריך</button></div> : resultItems.length > 0 ? mapOpen ? <div className="airbnb-map-split world-map-split"><div className={`airbnb-map-split__results discovery-grid results-view results-view--${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} mapActive={activeMapPlaceId === item.id} onActiveChange={(active) => setActiveMapPlaceId(active ? item.id : null)} />)}</div><div className="airbnb-map-split__map"><DeferredDiscoveryMap items={resultItems} initialItems={resultItems} tone="spa" autoLoad onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPlaceId} onActivePlaceChange={setActiveMapPlaceId} /></div></div> : <ProgressiveResults className={`discovery-grid results-view results-view--${viewMode}`} resetKey={`${location}|${spaAudience}|${requestedDate}|${availability.status}|${selectedFilters.join(",")}|${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</ProgressiveResults> : <div className="spa-results__empty"><strong>לא נמצאו מתחמים שמתאימים לתאריך ולסינונים</strong><p>אפשר לבחור תאריך או אזור אחר.</p><button type="button" className="button secondary" onClick={clearDateAndFilters}>הצגת כל מתחמי הספא בלי תאריך</button></div>}
+    {checkingDate ? <div className="spa-results__empty" role="status">בודקים מקומות פנויים לתאריך שבחרתם...</div> : availabilityFailed ? <div className="spa-results__empty" role="alert"><strong>לא הצלחנו לבדוק זמינות כרגע</strong><p>לא נציג תוצאות רגילות כאילו הן פנויות. אפשר לנסות שוב או להמשיך בלי תאריך.</p><button type="button" className="button secondary" onClick={() => setAvailabilityRetry((value) => value + 1)}>לנסות שוב</button><button type="button" className="button subtle" onClick={clearDateAndFilters}>המשך בלי תאריך</button></div> : resultItems.length > 0 ? mapOpen ? <div className="airbnb-map-split world-map-split"><div className={`airbnb-map-split__results discovery-grid results-view results-view--${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} mapActive={activeMapPlaceId === item.id} onActiveChange={(active) => setActiveMapPlaceId(active ? item.id : null)} />)}</div><div className="airbnb-map-split__map"><DeferredDiscoveryMap items={resultItems} initialItems={resultItems} tone="spa" autoLoad onClose={closeResultsMap} onVisibleCountChange={setVisibleMapCount} onVisiblePlaceIdsChange={setMapVisibleIds} activePlaceId={activeMapPlaceId} onActivePlaceChange={setActiveMapPlaceId} /></div></div> : <ProgressiveResults className={`discovery-grid results-view results-view--${viewMode}`} resetKey={`${location}|${spaAudience}|${requestedDate}|${availability.status}|${selectedFilters.join(",")}|${sort}|${viewMode}`}>{displayed.map((item) => <DiscoveryCard key={item.id} item={item} />)}</ProgressiveResults> : <div className="spa-results__empty"><strong>לא נמצאו מתחמים שמתאימים לתאריך ולסינונים</strong><p>אפשר לבחור תאריך או אזור אחר.</p><button type="button" className="button secondary" onClick={clearDateAndFilters}>הצגת כל מתחמי הספא בלי תאריך</button></div>}
   </div>;
 }
 

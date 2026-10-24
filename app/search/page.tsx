@@ -34,7 +34,6 @@ import { cleanVacationPath } from "../data/vacation-landings";
 import { buildVacationSearchUrl } from "../lib/vacation-search-url";
 import { vacationInventorySummary } from "../lib/vacation-inventory";
 import { vacationStayFromSearch } from "../lib/vacation-date-range";
-import { dailyRotationCompare } from "../lib/daily-rotation";
 import { flexibleVacationCandidates, flexibleVacationSearchFromParams } from "../lib/flexible-vacation-search";
 import { useMapViewState } from "../components/map-view-state";
 import { useViiLiveSearch } from "../components/use-vii-live-search";
@@ -50,9 +49,12 @@ import { NearbySearchNotice } from "../components/nearby-search-notice";
 import { useManagedGeography } from "../components/use-managed-geography";
 import { matchesVacationOnlineBooking } from "../lib/vacation-online-booking-filter";
 import { prioritizeOnlineFirst } from "../lib/vacation-online-first";
-import { compareVacationPriority } from "../lib/vacation-priority.ts";
+import { managedVacationPriority } from "../lib/vacation-priority.ts";
 import { RegionalAvailability } from "../components/regional-availability";
 import { hasConfirmedDatedAvailability } from "../lib/dated-availability-eligibility";
+import { useDocumentSeed } from "../components/use-document-seed";
+import { discoverySeedCompare } from "../lib/discovery-slider-order";
+import { discoverySortOptionLabel } from "../lib/discovery-result-sort";
 
 export type SearchLandingContext = {
   path: string;
@@ -179,7 +181,7 @@ type LegacyExtraFilter = { id: string; label: string; matches: readonly string[]
 const legacyExtraFilters = legacyExtraFilterGroups.reduce<LegacyExtraFilter[]>((items, group) => [...items, ...group.options], []);
 
 const VACATION_PRICE_MIN = 0;
-const VACATION_SORT_VALUES = ["recommended", "price-asc", "price-desc", "rating-desc", "rating-asc", "capacity", "units", "name"] as const;
+const VACATION_SORT_VALUES = ["recommended", "popular", "price-asc", "price-desc", "rating-desc", "rating-asc", "capacity", "units", "name"] as const;
 
 function compareOptionalNumber(first: number | undefined, second: number | undefined, direction: "asc" | "desc") {
   const firstKnown = typeof first === "number" && Number.isFinite(first);
@@ -190,8 +192,9 @@ function compareOptionalNumber(first: number | undefined, second: number | undef
   return direction === "asc" ? first - second : second - first;
 }
 
-function compareVacationProperties(a: Property, b: Property, sort: string, order: Property[]) {
-  if (sort === "recommended") return dailyRotationCompare(a.slug, b.slug, "vacation-search");
+function compareVacationProperties(a: Property, b: Property, sort: string, order: Property[], seed: string) {
+  if (sort === "recommended") return discoverySeedCompare(a.slug, b.slug, `${seed}:vacation-search`);
+  if (sort === "popular") return compareOptionalNumber(a.reviews, b.reviews, "desc") || compareOptionalNumber(a.score, b.score, "desc") || discoverySeedCompare(a.slug, b.slug, `${seed}:vacation-popular`);
   if (sort === "price-asc") return compareOptionalNumber(a.price, b.price, "asc") || order.indexOf(a) - order.indexOf(b);
   if (sort === "price-desc") return compareOptionalNumber(a.price, b.price, "desc") || order.indexOf(a) - order.indexOf(b);
   if (sort === "rating-desc") return compareOptionalNumber(a.score, b.score, "desc") || order.indexOf(a) - order.indexOf(b);
@@ -327,17 +330,18 @@ function runtimeProperty(value: unknown): Property {
 
 export function SearchExperience({ landing }: { landing?: SearchLandingContext }) {
   const { items: properties, error: catalogError, loading: catalogLoading } = usePublishedCatalog("vacations", runtimeProperty);
+  const { language, translate } = useSiteLanguage();
   const supplierTypeFilterAvailable = useMemo(() => properties.some((property) => property.type !== "מקום אירוח"), [properties]);
   const supplierPriceFilterAvailable = useMemo(() => properties.some((property) => typeof property.price === "number"), [properties]);
   const VACATION_PRICE_MAX = useMemo(() => Math.max(5000, ...properties.map((property) => property.price || 0)), [properties]);
   const vacationSortOptions = [
-    { value: "recommended", label: "התאמה מומלצת" },
-    ...(supplierPriceFilterAvailable ? [{ value: "price-asc", label: "מחיר מהנמוך לגבוה" }, { value: "price-desc", label: "מחיר מהגבוה לנמוך" }] : []),
-    { value: "rating-desc", label: "דירוג מהגבוה לנמוך" },
-    { value: "rating-asc", label: "דירוג מהנמוך לגבוה" },
+    { value: "recommended", label: discoverySortOptionLabel("recommended", language) },
+    { value: "popular", label: discoverySortOptionLabel("popular", language) },
+    ...(supplierPriceFilterAvailable ? [{ value: "price-asc", label: "מחיר מהנמוך לגבוה" }, { value: "price-desc", label: "מחיר מהגבוה לנמוך" }].map((option) => ({ ...option, label: translate(option.label) })) : []),
+    ...[{ value: "rating-desc", label: "דירוג מהגבוה לנמוך" }, { value: "rating-asc", label: "דירוג מהנמוך לגבוה" }].map((option) => ({ ...option, label: translate(option.label) })),
     ...(properties.some((property) => property.capacityScope !== "unit") ? [{ value: "capacity", label: "קיבולת גבוהה" }] : []),
     { value: "units", label: "מספר יחידות" },
-    { value: "name", label: "א-ב (סדר עולה)" },
+    { value: "name", label: translate("א-ב (סדר עולה)") },
   ];
   const router = useRouter();
   const pathname = usePathname();
@@ -346,7 +350,7 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
   const onlineOnly = searchParams.get("online") === "1";
   const [openDatesRequest, setOpenDatesRequest] = useState(0);
   const [onlineSearchRetry, setOnlineSearchRetry] = useState(0);
-  const { language, translate } = useSiteLanguage();
+  const documentSeed = useDocumentSeed();
   const managedGeography = useManagedGeography();
   const landingType = normalizedLandingType(landing);
   const initialParams = new URLSearchParams(searchQuery);
@@ -665,7 +669,8 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
         return sort === "price-asc" ? aPrice - bPrice : bPrice - aPrice;
       }
       if (sort === "recommended") {
-        return compareVacationPriority(a, b, a.slug, b.slug, "vacation-search");
+        return Number(managedVacationPriority(a.curatedRank) === undefined) - Number(managedVacationPriority(b.curatedRank) === undefined)
+          || discoverySeedCompare(a.slug, b.slug, `${documentSeed}:vacation-search`);
       }
       const liveRank = (property: typeof properties[number]) => {
         if (!selectedStay || !/^vacation-\d+$/.test(property.slug) || supplierSearch.status !== "ready") return 1;
@@ -684,13 +689,13 @@ export function SearchExperience({ landing }: { landing?: SearchLandingContext }
           return aDemoIndex - bDemoIndex;
         }
       }
-      return compareVacationProperties(a, b, sort, properties);
+      return compareVacationProperties(a, b, sort, properties, documentSeed);
     };
     return prioritizeOnlineFirst(matches, property => matchesOnline(property), compareMatches);
   // landingType is derived from the immutable landing prop. Keeping the prop in
   // the dependency list lets the compiler preserve this memo across renders.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [area, availabilityDemoActive, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, guests, landing, liveAvailabilityBySlug, maxPrice, minPrice, supplierSearch, mapCandidates, onlineOnly, onlineCapabilities, undatedSearch, pathname, requestedLocation, selectedStay, selectedTypes, sort]);
+  }, [area, availabilityDemoActive, documentSeed, flexibleAvailabilityBySlug, flexibleLocalAvailabilityBySlug, flexibleSearch, guests, landing, liveAvailabilityBySlug, maxPrice, minPrice, supplierSearch, mapCandidates, onlineOnly, onlineCapabilities, undatedSearch, pathname, requestedLocation, selectedStay, selectedTypes, sort]);
 
   const nearbyRecovery = useMemo(() => {
     if (filtered.length >= PLACE_SEARCH_MINIMUM_RESULTS || isWholeCountrySelection(area)) return [];
