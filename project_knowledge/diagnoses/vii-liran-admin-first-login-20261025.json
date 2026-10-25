@@ -1,0 +1,44 @@
+{
+  "task": "vii-liran-admin-first-login-20261025",
+  "observed_failure": "Liran reports the administrator login page says that the selected account is unauthorized.",
+  "reproduction_state": "Production grant read through the authenticated /api/admin/users endpoint.",
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "The Google account selected in the failed attempt does not have the invited email.",
+      "prediction": "The saved grant remains active but identityBound remains false and no identity_bound audit event is created.",
+      "evidence": "Production grant for vila4uservice@gmail.com is active, version 3, covers all 12 delegated modules, identityBound is false, and audit contains grant/revoke/update only.",
+      "status": "supported"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The invited email was entered incorrectly.",
+      "prediction": "The grant email differs from the known Liran address.",
+      "evidence": "The live grant and Adir's saved Google contact for Liran Swissa both equal vila4uservice@gmail.com.",
+      "status": "rejected"
+    },
+    {
+      "id": "H3",
+      "mechanism": "The grant exists but has no module permissions or is inactive.",
+      "prediction": "The API reports inactive state or an empty permission object.",
+      "evidence": "The live grant is active and has edit access to overview, quality, content, worlds, search, analytics, promotions, redirects, catalogs, geography, operations and leads.",
+      "status": "rejected"
+    },
+    {
+      "id": "H4",
+      "mechanism": "The first-login binding code cannot persist a Google subject.",
+      "prediction": "A synthetic D1 first login with the exact email and subject fails to bind.",
+      "evidence": "The existing D1 authorization test binds the first exact subject, persists identity_bound, and denies a different subject; it will be rerun for the candidate.",
+      "status": "not_observed_in_fixture"
+    }
+  ],
+  "root_cause": "The live attempt did not match the invited Google identity, while the failure UI hid the selected Google email and gave no actionable recovery context.",
+  "repair": "Show the verified selected administrator-session email only on the forbidden admin screen, offer account switching, and preserve the requested safe admin return path. Do not change the invited email, permission scopes or subject-binding policy.",
+  "verification_plan": [
+    "Focused customer/admin audience separation test",
+    "D1 first-login subject binding and mismatch denial test",
+    "Production build and changed-file lint",
+    "Desktop and 390-pixel login failure inspection",
+    "Post-deploy grant readback and public login route inspection"
+  ]
+}

@@ -26,7 +26,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const session = await readAdminSession(request).catch(() => null);
   if (!session) redirect(`/admin/login?returnTo=${encodeURIComponent(pathname)}`);
   const access = await resolveAdminAccess(session.email, undefined, session.sub);
-  if (!access) redirect("/admin/login?authError=admin_forbidden");
+  if (!access) redirect(`/admin/login?authError=admin_forbidden&returnTo=${encodeURIComponent(pathname)}`);
   if (!adminRouteAllowed(access, pathname)) redirect(adminLanding(access));
   return <div className={styles.shell}><AdminNav access={access} /><div className={styles.workspace}><AdminCommandBar access={access} /><AdminAccessProvider access={access}>{children}</AdminAccessProvider></div></div>;
 }

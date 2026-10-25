@@ -63,9 +63,13 @@ test("admin rendering excludes the public account provider and both login surfac
   assert.doesNotMatch(publicSession, /readAdminSession/);
   assert.match(adminLayout, /pathname === "\/admin\/login"/);
   assert.match(adminLayout, /readAdminSession/);
+  assert.match(adminLayout, /authError=admin_forbidden&returnTo=/);
   assert.doesNotMatch(adminLayout, /\/account\?authError/);
   assert.match(adminLogin, /priority unoptimized/);
   assert.match(adminLogin, /audience=admin/);
+  assert.match(adminLogin, /attemptedAccount/);
+  assert.match(adminLogin, /החשבון שנבחר:/);
+  assert.match(adminLogin, /בחירת חשבון Google אחר/);
   assert.match(adminCommand, /\/api\/auth\/admin\/session/);
   assert.match(adminCommand, /\/api\/auth\/admin\/logout/);
   assert.doesNotMatch(adminCommand, /\/account\?loggedOut/);

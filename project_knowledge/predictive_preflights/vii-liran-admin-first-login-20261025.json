@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-liran-admin-first-login-20261025",
+  "project": "VII",
+  "task_type": "authentication-repair",
+  "requested_outcome": "An invited VII administrator can understand and recover from a Google-account mismatch, while the correct invited account receives only its saved permissions.",
+  "natural_destination": "https://vii.spaplus.co/admin/login and https://vii.spaplus.co/admin/users",
+  "authorization_boundary": "Diagnose, implement, test and publish the requested administrator-login repair without changing the approved email or widening permissions.",
+  "lesson_bundle": [
+    { "lesson_id": "ADIR-ADMIN-001", "reason": "The failure is in an operational administrator access flow.", "acceptance_impact": "Requires persisted grant evidence, exact role boundaries, visible recovery guidance and a successful first-login contract test." },
+    { "lesson_id": "ADIR-QA-001", "reason": "Authentication is a shared high-risk family.", "acceptance_impact": "Requires authorized, unauthorized, wrong-account, reload and existing customer-session regression checks." },
+    { "lesson_id": "ADIR-MIND-001", "reason": "A generic unauthorized message is not an operational resolution.", "acceptance_impact": "Requires one clear current fact and one next action on the failure screen." },
+    { "lesson_id": "ADIR-DEPLOY-001", "reason": "The repair must work on the exact public release.", "acceptance_impact": "Requires one identified candidate, public route checks and a known rollback release." }
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    { "rejection": "Liran still sees only a generic unauthorized message.", "prevention": "Show the verified Google email selected for the failed admin attempt and tell the user to choose the invited account.", "acceptance_check": "The forbidden admin screen visibly contains the selected account and the account-switch action." },
+    { "rejection": "The repair grants access to a different Google account.", "prevention": "Keep verified-email and Google-subject matching unchanged.", "acceptance_check": "A mismatched email or subject remains denied in focused authorization tests." },
+    { "rejection": "The correct account loses its intended destination after retry.", "prevention": "Preserve the requested admin return path through the failure and retry flow.", "acceptance_check": "The layout redirects to login with a safe admin returnTo value." },
+    { "rejection": "The code passes locally but production still has the opaque message.", "prevention": "Inspect the exact deployed admin login route after publication.", "acceptance_check": "The public release contains the diagnostic copy and the live grant remains active and unbound until the correct account logs in." }
+  ],
+  "affected_family": [
+    "administrator login page",
+    "administrator layout authorization redirect",
+    "Google OAuth account selection and callback",
+    "administrator grant resolution and first identity binding",
+    "administrator session cookie",
+    "administrator users dashboard and audit trail",
+    "public customer authentication boundary",
+    "desktop and mobile administrator login states"
+  ],
+  "family_inventory_complete": true,
+  "approved_precedents": { "sources": [
+    { "label": "VII authentication separation contract", "source": "project_knowledge/task_contracts/vii-admin-customer-auth-separation-20261025.contract.json" },
+    { "label": "Live administrator grant and audit response", "source": "https://vii.spaplus.co/api/admin/users" }
+  ], "no_precedent_reason": null },
+  "midpoint_gate": { "required": true, "trigger": "After focused source and authorization tests pass, before the production build.", "checks": [
+    "the failed login identifies the selected verified Google account",
+    "the retry stays in the administrator flow and preserves returnTo",
+    "email and subject mismatches remain denied"
+  ], "not_required_reason": null },
+  "adversarial_close": { "attack_questions": [
+    "Can the message leak the invited administrator list to an arbitrary visitor?",
+    "Can a customer cookie appear as the failed administrator identity?",
+    "Can a wrong Google account gain access after seeing the diagnostic?",
+    "Does the exact public login route still show an unexplained generic failure?"
+  ], "natural_destination_evidence": "The exact public admin login and users routes on the deployed candidate.", "affected_family_evidence": "Focused auth tests, full production build, live grant readback and desktop/mobile visual inspection." },
+  "effectiveness": { "baseline": "Production stores Liran's active full-scope grant but shows only a generic unauthorized message; the grant audit has no identity_bound event.", "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time"], "target": "A wrong-account attempt is self-diagnosing without weakening authorization, and the invited account path remains intact." },
+  "privacy": { "raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true },
+  "ready_to_start": true
+}

@@ -8,7 +8,9 @@
 .publicLink { color: #0b6672; font-weight: 750; text-underline-offset: 4px; }
 .success, .error { width: 100%; padding: 12px 14px; border-radius: 14px; line-height: 1.55; }
 .success { color: #176442; background: #edf9f3; border: 1px solid #bce8d0; }
-.error { color: #9c302d; background: #fff2f0; border: 1px solid #f2c5c1; }
+.error { color: #9c302d; background: #fff2f0; border: 1px solid #f2c5c1; display: grid; gap: 5px; }
+.error bdi { color: #6f211f; font-weight: 850; direction: ltr; unicode-bidi: isolate; }
+.error span { color: #713936; }
 @media (max-width: 560px) {
   .page { align-items: end; padding: 12px; }
   .card { padding: 30px 20px calc(26px + env(safe-area-inset-bottom)); border-radius: 24px; }

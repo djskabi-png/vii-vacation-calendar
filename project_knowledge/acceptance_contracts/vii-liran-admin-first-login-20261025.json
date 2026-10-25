@@ -1,0 +1,52 @@
+{
+  "goal": "Make Liran's administrator login failure self-diagnosing and recoverable without changing her approved account or permissions.",
+  "intent_model": {
+    "literal_request": "Liran receives an unauthorized error and cannot enter.",
+    "implied_outcome": "Liran can enter with the approved Google account, and a wrong account clearly explains what happened and how to recover.",
+    "likely_rejections": ["Only changing the wording", "Widening access to another account", "Losing the intended destination", "Claiming success without public evidence"],
+    "interpretation_rules": [{ "phrase": "לא מצליחה", "operational_meaning": "Diagnose the persisted grant, identity binding and live failure path end to end.", "acceptance_impact": "Requires live readback and a recovery state, not only a source change." }]
+  },
+  "cognitive_flow": {
+    "current_layer": "Which Google account was selected and whether it matches an approved administrator.",
+    "current_decision": "Choose the invited Google account.",
+    "next_action": "Start Google login again and select the approved account.",
+    "deferred_complexity": ["Grant versions", "Google subject binding", "audit implementation"],
+    "preserved_depth": ["Role-scoped modules", "audit history", "revocation", "protected owner accounts"]
+  },
+  "predictive_preflight": {
+    "manifest_path": "project_knowledge/predictive_preflights/vii-liran-admin-first-login-20261025.json",
+    "lesson_bundle_ids": ["ADIR-ADMIN-001", "ADIR-QA-001", "ADIR-MIND-001", "ADIR-DEPLOY-001"],
+    "no_applicable_lessons_reason": null,
+    "midpoint_requirement": "preflight:midpoint",
+    "adversarial_requirement": "preflight:adversarial",
+    "effectiveness_requirement": "preflight:effectiveness"
+  },
+  "actors": ["Liran as delegated administrator", "VII protected owners"],
+  "natural_destination": "https://vii.spaplus.co/admin/login",
+  "facts": [
+    { "claim": "Liran has an active grant for all 12 delegated modules.", "evidence": "Live /api/admin/users response, version 3." },
+    { "claim": "The grant is not bound to a Google identity and no identity_bound audit event exists.", "evidence": "Live /api/admin/users response on 2026-10-25." },
+    { "claim": "The approved email is vila4uservice@gmail.com.", "evidence": "Live grant and Adir's saved Google contact for Liran Swissa." }
+  ],
+  "assumptions": [{ "claim": "The rejected attempt selected a different Google identity or never reached a matching first-login bind.", "validation": "Show the verified selected email on the failure screen and inspect the next live audit event." }],
+  "in_scope": ["Failure diagnosis", "Safe retry guidance", "Return-path preservation", "Focused and live verification"],
+  "out_of_scope": ["Changing Liran's approved email without evidence", "Granting user-management permission", "Impersonating Liran's Google login"],
+  "invariants": ["Customer and administrator sessions remain separate", "Only verified Google profiles can bind", "Wrong email or Google subject stays denied", "Saved module permissions do not widen"],
+  "affected_family": ["admin login", "admin layout", "Google OAuth", "admin session", "admin grants", "admin users audit", "desktop and mobile failure UI"],
+  "characteristics": { "stateful": true },
+  "requirements": [
+    { "id": "REQ-1", "statement": "The forbidden admin state identifies the selected Google account and gives a single account-switch action.", "source": "User request" },
+    { "id": "REQ-2", "statement": "The correct invited account can bind on first successful login while mismatches remain denied.", "source": "VII authorization policy" },
+    { "id": "REQ-3", "statement": "The retry preserves the intended safe administrator destination.", "source": "Observed flow" }
+  ],
+  "acceptance_checks": [
+    { "id": "AC-1", "requirement_ids": ["REQ-1"], "kind": "failure", "setup": "Valid admin session cookie for an unapproved Google account", "action": "Open an admin route", "observable_result": "The admin login page displays that email and offers choosing another Google account." },
+    { "id": "AC-2", "requirement_ids": ["REQ-2"], "kind": "success", "setup": "Active unbound grant", "action": "Resolve the exact email and subject", "observable_result": "The first identity binds and receives only saved modules." },
+    { "id": "AC-2B", "requirement_ids": ["REQ-2"], "kind": "permission", "setup": "An already-bound grant", "action": "Resolve the same email with a different Google subject", "observable_result": "The mismatched identity is denied." },
+    { "id": "AC-3", "requirement_ids": ["REQ-3"], "kind": "recovery", "setup": "Forbidden visit to a delegated admin route", "action": "Retry Google login", "observable_result": "The safe original admin route is retained." },
+    { "id": "AC-4", "requirement_ids": ["REQ-1", "REQ-2"], "kind": "persistence", "setup": "Published candidate", "action": "Reload admin users and login routes without cache", "observable_result": "The grant remains active, audit remains intact and the diagnostic UI is served by the public release." }
+  ],
+  "open_questions": [{ "question": "Which Google account did Liran select in the failed attempt?", "blocking": false, "resolution": "The repaired failure screen exposes the verified selected account without granting access." }],
+  "authorization_boundary": "Code, tests and publication are authorized by the request; no outbound message or change to Liran's approved identity is authorized.",
+  "ready_for_implementation": true
+}
