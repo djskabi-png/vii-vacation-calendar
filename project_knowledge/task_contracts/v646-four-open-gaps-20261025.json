@@ -25,7 +25,8 @@
     { "id": "REQ-1", "statement": "Unapproved supplier and CMS translations cannot leak Hebrew into non-Hebrew public pages and are never invented.", "source": "User item 1" },
     { "id": "REQ-2", "statement": "Stored map images are operational and evidenced in production.", "source": "User item 2" },
     { "id": "REQ-3", "statement": "All supplier catalog worlds refresh automatically and recover from a delayed tick.", "source": "User item 3" },
-    { "id": "REQ-4", "statement": "Open gallery, map and filter states survive the complete responsive transition matrix across affected templates.", "source": "User item 4" }
+    { "id": "REQ-4", "statement": "Open gallery, map and filter states survive the complete responsive transition matrix across affected templates.", "source": "User item 4" },
+    { "id": "access:map-provider", "statement": "Diagnose the missing production static-map provider configuration and recover it through an existing authorized VII route or establish the exact human-only dependency.", "source": "access_obstacle" }
   ],
   "acceptance_checks": [
     { "id": "AC-1", "requirement_ids": ["REQ-1"], "kind": "failure", "setup": "A non-Hebrew CMS item contains Hebrew in any public field.", "action": "Attempt publish or schedule.", "observable_result": "The change is rejected; draft editing remains available." },
@@ -33,7 +34,8 @@
     { "id": "AC-3", "requirement_ids": ["REQ-2"], "kind": "recovery", "setup": "A failed snapshot record and configured licensed provider.", "action": "Run authorized reconciliation.", "observable_result": "Retry lock is bypassed safely and representative public endpoints serve cached images." },
     { "id": "AC-4", "requirement_ids": ["REQ-3"], "kind": "retry", "setup": "A scheduler tick arrives after an approved slot.", "action": "Run the ten-minute tick.", "observable_result": "One deterministic latest missed slot is recovered with an idempotent run ID; safety rejections are not retried." },
     { "id": "AC-5", "requirement_ids": ["REQ-3"], "kind": "persistence", "setup": "Production scheduler has run.", "action": "Read the authenticated catalog dashboard.", "observable_result": "All four worlds have accepted timestamps inside the freshness threshold or an explicit evidenced supplier blocker." },
-    { "id": "AC-6", "requirement_ids": ["REQ-4"], "kind": "success", "setup": "Each tested overlay is open.", "action": "Move mobile to landscape to tablet to desktop and back to mobile, then close.", "observable_result": "The surface remains visible and contained with no horizontal overflow or stale viewport/body lock." }
+    { "id": "AC-6", "requirement_ids": ["REQ-4"], "kind": "success", "setup": "Each tested overlay is open.", "action": "Move mobile to landscape to tablet to desktop and back to mobile, then close.", "observable_result": "The surface remains visible and contained with no horizontal overflow or stale viewport/body lock." },
+    { "id": "AC-7", "requirement_ids": ["access:map-provider"], "kind": "permission", "setup": "Production reports providerConfigured=false.", "action": "Inspect project configuration, existing authorized sessions and the official provider connection path without exposing secrets.", "observable_result": "An existing authorized credential is configured and verified, or the minimum human-only credential action is evidenced." }
   ],
   "open_questions": [{ "question": "Which licensed static-map provider is configured in the public environment?", "blocking": false, "resolution": "Read only the boolean provider readiness from the authenticated diagnostic endpoint; never expose a secret." }],
   "authorization_boundary": "Adir authorized implementation and production publication in this request; external purchases, invented copy and unrelated infrastructure remain unauthorized.",

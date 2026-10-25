@@ -170,6 +170,14 @@ interface ExecutionContext {
   passThroughOnException(): void;
 }
 
+function catalogWorldForPublicPath(pathname: string) {
+  if (/^\/(?:[a-z]{2}\/)?events(?:\/|$)/.test(pathname)) return "events" as const;
+  if (/^\/(?:[a-z]{2}\/)?hourly(?:\/|$)/.test(pathname)) return "rooms" as const;
+  if (/^\/(?:[a-z]{2}\/)?spa(?:\/|$)/.test(pathname)) return "spa" as const;
+  if (/^\/(?:[a-z]{2}\/)?(?:vacation|business)(?:\/|$)/.test(pathname)) return "vacations" as const;
+  return undefined;
+}
+
 // Image security config. SVG sources with .svg extension auto-skip the
 // optimization endpoint on the client side (served directly, no proxy).
 // To route SVGs through the optimizer (with security headers), set
@@ -235,6 +243,18 @@ const worker = {
     activateAwsDatabase(env);
     const database = databaseForEnv(env);
     const url = new URL(request.url);
+    if (database && shouldStartQualityHeartbeat(request)) {
+      ctx.waitUntil(runSupplierCatalogScheduleTick(database, {
+        now: new Date(),
+        preferredWorld: catalogWorldForPublicPath(url.pathname),
+      }).then(({ scheduled, retries }) => {
+        for (const result of [...retries, ...scheduled]) if (result.status !== "accepted" && result.status !== "skipped") {
+          console.error("VII visitor catalog heartbeat did not publish", result.id, result.errorCode);
+        }
+      }).catch((error) => {
+        console.error("VII visitor catalog heartbeat unavailable", error);
+      }));
+    }
     if (database && shouldStartQualityHeartbeat(request)) {
       ctx.waitUntil(runQualityChecks(database, {
         origin: env.VII_QUALITY_ORIGIN || temporaryOrigin,

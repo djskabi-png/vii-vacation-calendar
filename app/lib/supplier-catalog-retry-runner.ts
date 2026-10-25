@@ -79,11 +79,17 @@ export async function runDueCatalogRetries(db: D1Database, input: { now?: Date; 
   return results;
 }
 
-export async function runSupplierCatalogScheduleTick(db: D1Database, input: { now?: Date; sync?: Sync } = {}) {
+export async function runSupplierCatalogScheduleTick(db: D1Database, input: {
+  now?: Date;
+  sync?: Sync;
+  preferredWorld?: SupplierCatalogWorld;
+} = {}) {
   const now = input.now || new Date();
   const retries = await runDueCatalogRetries(db, { now, sync: input.sync });
   const exactWorld = scheduledCatalogWorld(now);
-  const recoveryWorld = !exactWorld && !retries.length ? catalogWorlds[Math.floor(now.getUTCMinutes() / 10) % catalogWorlds.length] : null;
+  const recoveryWorld = !exactWorld && !retries.length
+    ? input.preferredWorld || catalogWorlds[Math.floor(now.getUTCMinutes() / 10) % catalogWorlds.length]
+    : null;
   const recoverySlot = recoveryWorld ? catalogPullSlot(now, recoveryWorld) : null;
   const due = exactWorld ? [{ world: exactWorld, runId: scheduledCatalogRunId(now, exactWorld) }]
     : recoveryWorld && recoverySlot ? [{ world: recoveryWorld, runId: recoverySlot.id }] : [];

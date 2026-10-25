@@ -80,6 +80,17 @@ test("a delayed ten-minute tick recovers one latest supplier slot without caller
   } finally { db.close(); }
 });
 
+test("a visitor heartbeat recovers its requested world without waiting for that minute bucket", async () => {
+  const db = await database(); const calls = [];
+  const sync = async (world, source, runId) => { calls.push({ world, source, runId }); return { status: "accepted", id: runId }; };
+  try {
+    await runSupplierCatalogScheduleTick(db, {
+      now: new Date("2026-10-14T10:40:00Z"), preferredWorld: "spa", sync,
+    });
+    assert.deepEqual(calls, [{ world: "spa", source: "scheduled", runId: "mcp_20261014_spa_1330" }]);
+  } finally { db.close(); }
+});
+
 test("two failed retries exhaust the bounded retry budget and preserve an auditable record", async () => {
   const db = await database();
   const sync = async (_world, _source, runId) => ({ status: "failed", id: runId, errorCode: "supplier_sync_failed" });
