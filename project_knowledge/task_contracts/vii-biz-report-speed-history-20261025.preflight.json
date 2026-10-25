@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "task_id": "vii-biz-report-speed-history-20261025",
+  "project": "VII",
+  "task_type": "admin performance and audit history",
+  "requested_outcome": "Make long Biz report pulls materially faster, visibly understandable, and durably attributable to the admin who started them.",
+  "natural_destination": "The authenticated VII business-performance administration report.",
+  "authorization_boundary": "Implement and verify in the current candidate. Production publication still requires an explicit deploy instruction and verified production route.",
+  "lesson_bundle": [
+    {"lesson_id": "ADIR-ADMIN-001", "reason": "The admin must behave as an operational product with durable history.", "acceptance_impact": "Require actor, range, status, progress, reload and permission evidence."},
+    {"lesson_id": "ADIR-QA-001", "reason": "A faster loop must also prove failure and interruption behavior.", "acceptance_impact": "Test completion, stop, reload, failure counts and the affected report family."},
+    {"lesson_id": "ADIR-SIMPLICITY-001", "reason": "The operator needs one current progress view and one next action.", "acceptance_impact": "Show a clear percentage, counts and a compact history instead of raw background requests."}
+  ],
+  "no_applicable_lessons_reason": null,
+  "predicted_rejections": [
+    {"rejection": "The month pull is still serial enough to take around twenty minutes.", "prevention": "Increase bounded supplier fan-out from four to twelve targets per wave while keeping wave boundaries.", "acceptance_check": "Source and tests prove twelve-target waves and a twelve-target server cap."},
+    {"rejection": "The operator sees only a spinner and cannot tell if work is moving.", "prevention": "Render completed count, total and percentage as the batch advances.", "acceptance_check": "The report contains a semantic progress visualization tied to live batch state."},
+    {"rejection": "A reload loses who ran the report and what happened.", "prevention": "Persist every run with actor, date range, scope, force flag, progress, result counts and timestamps.", "acceptance_check": "A new report request returns the stored history for all authorized admins."},
+    {"rejection": "Stopping one admin's job can stop another admin's run.", "prevention": "Bind stop and progress writes to both job ID and normalized actor email.", "acceptance_check": "A different actor cannot stop the stored run in the ownership test."},
+    {"rejection": "The system claims it can reconstruct the already-finished legacy action.", "prevention": "State that history starts when the durable audit version is deployed and never fabricate prior events.", "acceptance_check": "No synthetic historic run is inserted or displayed."}
+  ],
+  "affected_family": ["Biz summary pulls for vacations, events and hourly rooms.", "Business-performance batch progress, stop and reload states.", "Authorized administration users and shared run history."],
+  "family_inventory_complete": true,
+  "approved_precedents": {"sources": [{"label": "VII platform operations and audit rules", "source": "C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_PLATFORM_MASTER_PLAN.md"}, {"label": "VII accepted administration behavior", "source": "C:/Users/Adir/Documents/vii.co.il/calendar-airbnb/project_knowledge/VII_FEEDBACK_STANDARD.md"}], "no_precedent_reason": null},
+  "midpoint_gate": {"required": true, "trigger": "The first persisted report run can be read after a new request.", "checks": ["Verify actor, range, scope, status and result counts survive reload.", "Verify the same UI presents bounded progress rather than an indefinite spinner."], "not_required_reason": null},
+  "adversarial_close": {"attack_questions": ["Can a different admin stop the run?", "Can a repeated chunk reduce or double-count progress?", "Does an interrupted run falsely appear completed?", "Does history disappear on reload?", "Did higher concurrency remove the server-side cap?"], "natural_destination_evidence": "Open the authenticated business-performance report and inspect progress and history after starting, stopping and reloading a run.", "affected_family_evidence": "Run report history, conversion cache, admin permission, full regression and production build checks."},
+  "effectiveness": {"baseline": "Four businesses per sequential wave and no durable run history or progress visualization.", "measurements": ["first_pass_acceptance", "repeated_corrections", "prevented_failures", "elapsed_time", "targets per wave", "persisted run fields", "history after reload"], "target": "Three times the bounded parallelism, durable per-user run history and a truthful progress view without supplier overload or permission regression."},
+  "privacy": {"raw_feedback_stored": false, "secret_storage": false, "normalized_summary_only": true},
+  "ready_to_start": true
+}

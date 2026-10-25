@@ -12,7 +12,8 @@ type ConversionContact = { source: ConversionSource; id: number; domainID: numbe
 type Conversions = { siteID: number; from: string; till: string; created: string; count: number; summary: Record<"all" | ConversionSource, ConversionBucket>; clicks: { whatsapp: number; showphone: number; phone: number }; contacts?: ConversionContact[] };
 type BizCache = { status: "saved" | "fresh" | "stale_fallback"; savedAt: string; stale: boolean };
 type BizSummary = { summary: Conversions["summary"]; clicks: Conversions["clicks"]; cache?: BizCache; error?: string };
-type BizBatchJob = { id: number; from: string; till: string; forceRefresh: boolean; targets: Array<{ placeId: string; world: string }> };
+type BizBatchJob = { id: string; from: string; till: string; scope: string; forceRefresh: boolean; targets: Array<{ placeId: string; world: string }> };
+type BizReportRun = { jobId: string; actorEmail: string; from: string; till: string; scope: string; forceRefresh: boolean; total: number; processed: number; succeeded: number; failed: number; status: "running" | "completed" | "stopped"; startedAt: string; updatedAt: string };
 type SortKey = "pageViews" | "impressions" | "actions" | "entryRate" | "actionRate" | "bizOrders" | "bizRevenue";
 
 const worldLabels: Record<string, string> = { vacation: "נופש", vacations: "נופש", events: "אירועים", event: "אירועים", rooms: "חדרים לפי שעה", hourly: "חדרים לפי שעה", room: "חדרים לפי שעה", spa: "ספא", activities: "אטרקציות", attractions: "אטרקציות", trails: "טיולים", providers: "ספקים" };
@@ -53,6 +54,12 @@ function contactStatus(contact: ConversionContact) {
   return "טופס נשלח";
 }
 
+function reportRunStatus(run: BizReportRun) {
+  if (run.status === "completed") return "הושלם";
+  if (run.status === "stopped") return "נעצר בבטחה";
+  return Date.now() - Date.parse(run.updatedAt) > 30 * 60 * 1000 ? "נקטע לפני השלמה" : "מתבצע כעת";
+}
+
 export default function BusinessPerformance() {
   const today = isoDay(new Date());
   const priorMonth = previousMonth(today);
@@ -78,6 +85,7 @@ export default function BusinessPerformance() {
   const [bizBatchProgress, setBizBatchProgress] = useState({ loaded: 0, total: 0, running: false, stopped: false });
   const [bizBatchError, setBizBatchError] = useState("");
   const [bizBatchJob, setBizBatchJob] = useState<BizBatchJob | null>(null);
+  const [runHistory, setRunHistory] = useState<BizReportRun[]>([]);
 
   const load = useCallback(async () => {
     setLoading(true); setError("");
@@ -85,9 +93,9 @@ export default function BusinessPerformance() {
       const response = await fetch(`/api/admin/business-performance?from=${from}&till=${till}&basis=${basis}`, { cache: "no-store" });
       if (response.status === 403) { setForbidden(true); return; }
       if (!response.ok) throw new Error("נתוני הביצועים עדיין אינם זמינים.");
-      const payload = await response.json() as { rows: Row[]; bizSnapshots?: Record<string, BizSummary> };
+      const payload = await response.json() as { rows: Row[]; bizSnapshots?: Record<string, BizSummary>; runHistory?: BizReportRun[] };
       const next = payload.rows;
-      setForbidden(false); setRows(next); setBizByPlace(payload.bizSnapshots || {});
+      setForbidden(false); setRows(next); setBizByPlace(payload.bizSnapshots || {}); setRunHistory(payload.runHistory || []);
       setSelectedPlaceId((current) => current && next.some((row) => row.placeId === current && conversionSupported(row)) ? current : next.find(conversionSupported)?.placeId || "");
     } catch (cause) { setError(cause instanceof Error ? cause.message : "שגיאת טעינה"); }
     finally { setLoading(false); }
@@ -111,17 +119,26 @@ export default function BusinessPerformance() {
     const unresolved = conversionRows.filter(({ placeId }) => !bizByPlace[placeId] || bizByPlace[placeId].error || bizByPlace[placeId].cache?.stale);
     const targets = unresolved.length ? unresolved : conversionRows;
     setBizBatchJob({
-      id: Date.now(),
+      id: crypto.randomUUID(),
       from,
       till,
+      scope: world,
       forceRefresh,
       targets: targets.map(({ placeId, world: rowWorld }) => ({ placeId, world: rowWorld })),
     });
   };
 
+  const loadRunHistory = useCallback(async () => {
+    const response = await fetch("/api/admin/business-performance?mode=run-history", { cache: "no-store" });
+    if (response.ok) setRunHistory((await response.json() as { runHistory: BizReportRun[] }).runHistory);
+  }, []);
+
   const stopBizBatch = () => {
+    const jobId = bizBatchJob?.id;
     conversionBatchRequest.current?.abort();
     setBizBatchProgress((current) => ({ ...current, running: false, stopped: current.loaded < current.total }));
+    if (jobId) void fetch("/api/admin/business-performance", { method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action: "stop", jobId }) }).then(() => loadRunHistory()).catch(() => undefined);
   };
 
   useEffect(() => {
@@ -142,12 +159,16 @@ export default function BusinessPerformance() {
     setBizBatchProgress({ loaded: 0, total: bizBatchJob.targets.length, running: bizBatchJob.targets.length > 0, stopped: false });
     const loadAll = async () => {
       const collected: Record<string, BizSummary> = {};
-      for (let offset = 0; offset < bizBatchJob.targets.length; offset += 4) {
+      let succeeded = 0;
+      let failed = 0;
+      for (let offset = 0; offset < bizBatchJob.targets.length; offset += 12) {
         if (controller.signal.aborted) return;
-        const group = bizBatchJob.targets.slice(offset, offset + 4);
+        const group = bizBatchJob.targets.slice(offset, offset + 12);
         const response = await fetch("/api/admin/business-performance", {
           method: "POST", signal: controller.signal, headers: { "content-type": "application/json" },
-          body: JSON.stringify({ from: bizBatchJob.from, till: bizBatchJob.till, targets: group, forceRefresh: bizBatchJob.forceRefresh }),
+          body: JSON.stringify({ jobId: bizBatchJob.id, from: bizBatchJob.from, till: bizBatchJob.till,
+            scope: bizBatchJob.scope, total: bizBatchJob.targets.length, processedBefore: offset,
+            succeededBefore: succeeded, failedBefore: failed, targets: group, forceRefresh: bizBatchJob.forceRefresh }),
         });
         if (!response.ok) throw new Error("לא ניתן להשלים את נתוני Biz לכל העסקים כרגע.");
         const payload = await response.json() as { results: Array<{ placeId: string; conversions?: Conversions; cache?: BizCache; error?: string }> };
@@ -157,9 +178,12 @@ export default function BusinessPerformance() {
             ? { summary: result.conversions.summary, clicks: result.conversions.clicks, cache: result.cache }
             : { summary: { all: emptyBucket(), whatsapp: emptyBucket(), maskyoo: emptyBucket(), form: emptyBucket() }, clicks: { whatsapp: 0, showphone: 0, phone: 0 }, error: result.error || "supplier_unavailable" };
         }
+        succeeded += payload.results.filter((result) => result.conversions).length;
+        failed += payload.results.filter((result) => !result.conversions).length;
         setBizByPlace((current) => ({ ...current, ...collected }));
         setBizBatchProgress({ loaded: Math.min(offset + group.length, bizBatchJob.targets.length), total: bizBatchJob.targets.length, running: offset + group.length < bizBatchJob.targets.length, stopped: false });
       }
+      await loadRunHistory();
     };
     void loadAll().catch((cause) => {
       if (!controller.signal.aborted) {
@@ -168,7 +192,7 @@ export default function BusinessPerformance() {
       }
     });
     return () => controller.abort();
-  }, [bizBatchJob]);
+  }, [bizBatchJob, loadRunHistory]);
 
   const loadConversions = useCallback(async () => {
     if (!selectedRow) { setConversions(null); setConversionError(""); setConversionLoading(false); return; }
@@ -230,7 +254,8 @@ export default function BusinessPerformance() {
     <section className={styles.funnel} aria-label="סיכום משפך"><article><span><Eye size={17} /> חשיפות</span><strong>{num(totals.impressions)}</strong><small>הופעות כרטיסי עסק</small></article><i aria-hidden="true">←</i><article><span><MousePointerClick size={17} /> כניסות</span><strong>{num(totals.pageViews)}</strong><small>{percent(totals.pageViews, totals.impressions)}% מהחשיפות</small></article><i aria-hidden="true">←</i><article><span><BarChart3 size={17} /> פעולות</span><strong>{num(totalActions)}</strong><small>{percent(totalActions, totals.pageViews)}% מהכניסות</small></article><i aria-hidden="true">←</i><article className={styles.funnelAccent}><span><ShoppingBag size={17} /> הזמנות מ־VII</span><strong>{num(totals.viiBookings)}</strong><small>הזמנות שנשמרו במערכת</small></article></section>
     <section className={styles.breakdown} aria-label="פירוט פעולות"><div><Users size={16} /><span>דפדפנים ייחודיים</span><strong>{num(totals.uniqueBrowsers)}</strong></div><div><Phone size={16} /><span>לחיצות על טלפון</span><strong>{num(totals.phoneClicks)}</strong></div><div><MessageCircle size={16} /><span>מעברים ל־WhatsApp</span><strong>{num(totals.whatsappHandoffs)}</strong></div><div><Star size={16} /><span>חוות דעת</span><strong>{num(totals.reviews)}</strong></div></section>
     <section className={styles.salesDashboard} aria-labelledby="sales-dashboard-title"><header><div><span>נתוני Biz מאומתים</span><h2 id="sales-dashboard-title">תמונת מצב לתקופה</h2><p>המספרים נשמרים במסד הנתונים ונפתחים מיד גם אחרי יציאה או רענון. הזמנה נספרת פעם אחת לפי סיכום הספק.</p>{latestBizSave ? <small role="status">נשמר לאחרונה: {new Date(latestBizSave).toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" })}{staleBiz.length ? ` · ${staleBiz.length} עסקים מוצגים מהשמירה האחרונה כי Biz לא היה זמין` : ""}</small> : null}</div><div className={styles.coverage}><strong>{loadedBiz.length} / {reportConversionRows.length}</strong><span>עסקים נתמכים נטענו</span></div></header><div className={styles.salesCards}><article data-tone="call"><span><PhoneCall size={18} /> כל שיחות מסקיו</span><strong>{num(bizTotals.maskyoo.contacts)}</strong><small>{num(bizTotals.maskyoo.converted)} הפכו להזמנה</small></article><article data-tone="whatsapp"><span><MessageCircle size={18} /> כל פניות WhatsApp</span><strong>{num(bizTotals.whatsapp.contacts)}</strong><small>{num(bizTotals.whatsapp.converted)} הפכו להזמנה</small></article><article data-tone="orders"><span><ShoppingBag size={18} /> הזמנות Biz</span><strong>{num(bizTotals.all.orders)}</strong><small>{num(bizTotals.all.customers)} לקוחות מזמינים</small></article><article data-tone="revenue"><span><BarChart3 size={18} /> הכנסות Biz</span><strong>{money(bizTotals.all.revenue)}</strong><small>{bizTotals.all.rate === null ? "אין עדיין בסיס לחישוב" : `${bizTotals.all.rate.toLocaleString("he-IL")}% המרה מכל הפניות`}</small></article></div><div className={styles.worldMatrix}><table><thead><tr><th>עולם</th><th>כיסוי Biz</th><th>מסקיו</th><th>WhatsApp</th><th>הומרו</th><th>הזמנות</th><th>הכנסות</th></tr></thead><tbody>{worldBreakdown.filter((item) => world === "all" || item.scope === world).map((item) => <tr key={item.scope}><td data-label="עולם"><strong>{scopeLabels[item.scope]}</strong></td><td data-label="כיסוי Biz">{item.supported ? `${item.loaded} / ${item.businesses}` : "לא נתמך ב־Biz"}</td><td data-label="מסקיו">{item.supported ? num(item.maskyoo.contacts) : "—"}</td><td data-label="WhatsApp">{item.supported ? num(item.whatsapp.contacts) : "—"}</td><td data-label="הומרו">{item.supported ? num(item.all.converted) : "—"}</td><td data-label="הזמנות">{item.supported ? num(item.all.orders) : "—"}</td><td data-label="הכנסות">{item.supported ? money(item.all.revenue) : "—"}</td></tr>)}</tbody></table></div></section>
-    <section className={styles.toolbar} aria-label="סינון הדוח"><label className={styles.search}><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="חיפוש עסק" /></label><label><span>משפחת עסקים</span><select value={world} onChange={(event) => setWorld(event.target.value)}>{businessReportScopes.map((value) => <option key={value} value={value}>{scopeLabels[value]}</option>)}</select></label><label><span>חיתוך נתוני VII</span><select value={basis} onChange={(event) => setBasis(event.target.value as "created" | "arrival")}><option value="created">תאריך פתיחת פנייה</option><option value="arrival">תאריך הגעה</option></select></label><label><span>מתאריך</span><input type="date" value={from} max={till} onChange={(event) => setFrom(event.target.value)} /></label><label><span>עד תאריך</span><input type="date" value={till} min={from} max={today} onChange={(event) => setTill(event.target.value)} /></label><label><span>מיון</span><select value={sort} onChange={(event) => setSort(event.target.value as SortKey)}><option value="pageViews">כניסות</option><option value="impressions">חשיפות</option><option value="actions">פעולות</option><option value="bizOrders">הזמנות Biz</option><option value="bizRevenue">הכנסות Biz</option><option value="entryRate">יחס כניסה</option><option value="actionRate">יחס פעולה</option></select></label><div className={styles.bizBatchControls}><span>נתוני Biz לכל העסקים במסנן</span><div><button type="button" onClick={() => startBizBatch(false)} disabled={!conversionRows.length || bizBatchProgress.running}>{loadedBiz.length ? "השלמת נתונים חסרים" : "טעינת תמונת מצב מלאה"}</button>{loadedBiz.length && !bizBatchProgress.running ? <button type="button" className={styles.secondaryAction} onClick={() => startBizBatch(true)}>רענון כפוי מ־Biz</button> : null}{bizBatchProgress.running ? <button type="button" className={styles.secondaryAction} onClick={stopBizBatch}>עצירה בטוחה</button> : null}</div>{bizBatchProgress.total ? <small role="status">{bizBatchProgress.loaded} מתוך {bizBatchProgress.total}{bizBatchProgress.running ? " נטענים כעת" : bizBatchProgress.stopped ? " נעצרו, התוצאות שכבר נטענו נשמרו" : " הושלמו ונשמרו"}</small> : <small>נתונים שכבר נמשכו נשמרים בשרת. טעינה חוזרת משתמשת בהם ומושכת רק נתון חסר או נתון שדורש רענון.</small>}{bizBatchError ? <small role="alert" className={styles.batchError}>{bizBatchError} התוצאות שכבר נטענו נשמרו ואפשר להמשיך.</small> : null}</div></section>
+    <section className={styles.toolbar} aria-label="סינון הדוח"><label className={styles.search}><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="חיפוש עסק" /></label><label><span>משפחת עסקים</span><select value={world} onChange={(event) => setWorld(event.target.value)}>{businessReportScopes.map((value) => <option key={value} value={value}>{scopeLabels[value]}</option>)}</select></label><label><span>חיתוך נתוני VII</span><select value={basis} onChange={(event) => setBasis(event.target.value as "created" | "arrival")}><option value="created">תאריך פתיחת פנייה</option><option value="arrival">תאריך הגעה</option></select></label><label><span>מתאריך</span><input type="date" value={from} max={till} onChange={(event) => setFrom(event.target.value)} /></label><label><span>עד תאריך</span><input type="date" value={till} min={from} max={today} onChange={(event) => setTill(event.target.value)} /></label><label><span>מיון</span><select value={sort} onChange={(event) => setSort(event.target.value as SortKey)}><option value="pageViews">כניסות</option><option value="impressions">חשיפות</option><option value="actions">פעולות</option><option value="bizOrders">הזמנות Biz</option><option value="bizRevenue">הכנסות Biz</option><option value="entryRate">יחס כניסה</option><option value="actionRate">יחס פעולה</option></select></label><div className={styles.bizBatchControls}><span>נתוני Biz לכל העסקים במסנן</span><div><button type="button" onClick={() => startBizBatch(false)} disabled={!conversionRows.length || bizBatchProgress.running}>{loadedBiz.length ? "השלמת נתונים חסרים" : "טעינת תמונת מצב מלאה"}</button>{loadedBiz.length && !bizBatchProgress.running ? <button type="button" className={styles.secondaryAction} onClick={() => startBizBatch(true)}>רענון כפוי מ־Biz</button> : null}{bizBatchProgress.running ? <button type="button" className={styles.secondaryAction} onClick={stopBizBatch}>עצירה בטוחה</button> : null}</div>{bizBatchProgress.total ? <small role="status">{bizBatchProgress.loaded} מתוך {bizBatchProgress.total}{bizBatchProgress.running ? " נטענים כעת" : bizBatchProgress.stopped ? " נעצרו, התוצאות שכבר נטענו נשמרו" : " הושלמו ונשמרו"}</small> : <small>נתונים שכבר נמשכו נשמרים בשרת. טעינה חוזרת משתמשת בהם ומושכת רק נתון חסר או נתון שדורש רענון.</small>}{bizBatchError ? <small role="alert" className={styles.batchError}>{bizBatchError} התוצאות שכבר נטענו נשמרו ואפשר להמשיך.</small> : null}{bizBatchProgress.total ? <div className={styles.batchVisualization} aria-label={`התקדמות ${bizBatchProgress.loaded} מתוך ${bizBatchProgress.total}`}><span><i style={{ width: `${Math.round(bizBatchProgress.loaded / bizBatchProgress.total * 100)}%` }} /></span><strong>{Math.round(bizBatchProgress.loaded / bizBatchProgress.total * 100)}%</strong></div> : null}</div></section>
+    <section className={styles.runHistory} aria-labelledby="run-history-title"><header><div><h2 id="run-history-title">היסטוריית משיכות Biz</h2><p>מי הפעיל, איזה טווח נבדק, ומה הושלם בפועל. הרשימה נשמרת לכל משתמשי הניהול.</p></div><button type="button" className={styles.iconButton} onClick={() => void loadRunHistory()} aria-label="רענון היסטוריה"><RefreshCw size={16} /></button></header>{runHistory.length ? <div><table><thead><tr><th>זמן</th><th>משתמש</th><th>טווח</th><th>תחום</th><th>מצב</th><th>התקדמות</th><th>הצליחו</th><th>נכשלו</th></tr></thead><tbody>{runHistory.map((run) => <tr key={run.jobId}><td><time dateTime={run.startedAt}>{new Date(run.startedAt).toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" })}</time></td><td dir="ltr">{run.actorEmail}</td><td>{run.from} עד {run.till}</td><td>{scopeLabels[run.scope as keyof typeof scopeLabels] || run.scope}{run.forceRefresh ? " · רענון כפוי" : ""}</td><td><span className={styles.runState}>{reportRunStatus(run)}</span></td><td>{run.processed} / {run.total}</td><td>{run.succeeded}</td><td>{run.failed}</td></tr>)}</tbody></table></div> : <div className={styles.runHistoryEmpty}>עדיין אין משיכות מתועדות. ההפעלה הבאה תופיע כאן מיד.</div>}</section>
     {forbidden ? <section className={styles.state}><h2>נדרשת הרשאת מנהל</h2><p>הדוח אינו חושף מידע למשתמשים שאינם מורשים.</p><a href="/api/auth/google?returnTo=%2Fadmin%2Fbusiness-performance">כניסה עם Google</a></section> : null}
     {error ? <section className={styles.state} role="alert"><h2>לא הצלחנו לטעון את הדוח</h2><p>{error}</p><button type="button" onClick={() => void load()}>ניסיון חוזר</button></section> : null}
     {loading && !rows.length ? <section className={styles.state} role="status"><RefreshCw className={styles.spin} /><p>טוענים את משפך הביצועים...</p></section> : null}

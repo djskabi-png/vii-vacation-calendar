@@ -51,7 +51,6 @@ test("business performance provides filters, explicit funnel ratios and local ex
   assert.match(route, /name = 'phone_click'/);
   assert.match(route, /name = 'whatsapp_handoff'/);
   assert.match(route, /export async function POST/);
-  assert.match(route, /body\.targets\.length > 4/);
   assert.match(route, /Promise\.all\(targets\.map/);
   assert.match(route, /sectionOnly: true/);
   assert.match(route, /includeContacts/);
@@ -68,6 +67,10 @@ test("business performance provides filters, explicit funnel ratios and local ex
   assert.match(page, /startBizBatch/);
   assert.match(page, /נתונים שכבר נמשכו נשמרים בשרת/);
   assert.match(page, /רענון כפוי מ־Biz/);
+  assert.match(page, /היסטוריית משיכות Biz/);
+  assert.match(page, /offset \+= 12/);
+  assert.match(route, /body\.targets\.length > 12/);
+  assert.match(route, /session\.email/);
   assert.match(page, /stopBizBatch/);
   assert.match(page, /לא נטען/);
   assert.match(page, /נעצרו/);

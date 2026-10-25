@@ -1,0 +1,19 @@
+{
+  "taskId": "vii-biz-report-speed-history-20261025",
+  "status": "verified_candidate_not_published",
+  "verifiedAt": "2026-10-25T09:10:00+02:00",
+  "evidence": {
+    "focusedTests": "11 passed, 0 failed",
+    "fullRegression": "1606 passed, 0 failed",
+    "productionBuild": "passed",
+    "durableHistory": "tested with actor attribution, exact period, scope, progress, results and actor-bound stop",
+    "boundedParallelism": "client waves and server cap both set to 12",
+    "failureIsolation": "cache history and snapshot reads fail independently"
+  },
+  "notVerified": [
+    "The candidate has not been published to production.",
+    "The authenticated production screen has not been visually exercised after publication.",
+    "The elapsed-time improvement has not been measured against the live Biz supplier."
+  ],
+  "legacyTruth": "A report action completed before this version cannot be reconstructed if the previous version did not persist it."
+}

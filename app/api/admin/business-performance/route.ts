@@ -5,6 +5,7 @@ import { conversionTarget, fetchViiConversions, ViiConversionsError } from "../.
 import { supplierToken } from "../../../lib/vii-supplier-token.ts";
 import { publicCatalogSummaries } from "../../../lib/public-catalog-read.ts";
 import { bizConversionDatabase, cachedBizConversions, loadCachedBizConversions } from "../../../lib/biz-conversion-cache.ts";
+import { readBizReportRuns, startBizReportRun, stopBizReportRun, updateBizReportRun } from "../../../lib/biz-report-runs.ts";
 
 const headers = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
 const validDay = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`));
@@ -37,6 +38,14 @@ export async function GET(request: Request) {
   const session = await authorizedAdminSession(request).catch(() => null);
   if (!session) return Response.json({ error: "forbidden" }, { status: 403, headers });
   const url = new URL(request.url);
+  if (url.searchParams.get("mode") === "run-history") {
+    try {
+      const database = await bizConversionDatabase();
+      return Response.json({ runHistory: await readBizReportRuns(database, 20) }, { headers });
+    } catch {
+      return Response.json({ error: "biz_report_history_unavailable" }, { status: 503, headers });
+    }
+  }
   if (url.searchParams.get("mode") === "conversions") {
     const target = conversionTarget(url.searchParams.get("placeId") || "", url.searchParams.get("world") || "");
     const from = url.searchParams.get("from") || "";
@@ -97,15 +106,22 @@ export async function GET(request: Request) {
     for (const row of bookings.results) { const key = `${row.world}:${row.placeId}`; rows.set(key, { ...base, ...(rows.get(key) || {}), ...row }); }
     const reviewMap = new Map(reviews.results.map((row) => [row.placeId, Number(row.reviews || 0)]));
     for (const row of rows.values()) row.reviews = reviewMap.get(String(row.placeId)) || 0;
-    const cached = await bizConversionDatabase().then((database) => loadCachedBizConversions(database, from, till)).catch((error) => {
-      console.warn("biz_conversion_cache_read_failed", { error: error instanceof Error ? error.name : "unknown" });
-      return [];
-    });
+    const database = await bizConversionDatabase();
+    const [cached, runHistory] = await Promise.all([
+      loadCachedBizConversions(database, from, till).catch((error) => {
+        console.warn("biz_conversion_cache_read_failed", { error: error instanceof Error ? error.name : "unknown" });
+        return [];
+      }),
+      readBizReportRuns(database, 20).catch((error) => {
+        console.warn("biz_report_history_read_failed", { error: error instanceof Error ? error.name : "unknown" });
+        return [];
+      }),
+    ]);
     const bizSnapshots = Object.fromEntries(cached.map((item) => {
       const prefix = item.world === "vacations" ? "vacation" : item.world === "events" ? "event" : "hourly";
       return [`${prefix}-${item.siteID}`, { summary: item.conversions.summary, clicks: item.conversions.clicks, cache: item.cache }];
     }));
-    return Response.json({ basis, from, till, rows: [...rows.values()], bizSnapshots }, { headers });
+    return Response.json({ basis, from, till, rows: [...rows.values()], bizSnapshots, runHistory }, { headers });
   } catch (error) {
     console.error("business_performance_unavailable", error);
     return Response.json({ error: "business_performance_unavailable" }, { status: 503, headers });
@@ -118,10 +134,30 @@ export async function POST(request: Request) {
   const session = await authorizedAdminSession(request).catch(() => null);
   if (!session) return Response.json({ error: "forbidden" }, { status: 403, headers });
   if (request.headers.get("origin") !== new URL(request.url).origin) return Response.json({ error: "invalid_origin" }, { status: 403, headers });
-  const body = await request.json().catch(() => null) as { from?: unknown; till?: unknown; targets?: unknown; forceRefresh?: unknown } | null;
+  const body = await request.json().catch(() => null) as { action?: unknown; jobId?: unknown; from?: unknown; till?: unknown;
+    scope?: unknown; total?: unknown; processedBefore?: unknown; succeededBefore?: unknown; failedBefore?: unknown;
+    targets?: unknown; forceRefresh?: unknown } | null;
+  const jobId = typeof body?.jobId === "string" ? body.jobId : "";
+  const validJobId = /^[0-9a-f]{8}-[0-9a-f-]{27,40}$/i.test(jobId);
+  if (body?.action === "stop") {
+    if (!validJobId) return Response.json({ error: "invalid_request" }, { status: 400, headers });
+    const cacheDb = await bizConversionDatabase().catch(() => null);
+    if (!cacheDb) return Response.json({ error: "biz_conversion_cache_unavailable" }, { status: 503, headers });
+    await stopBizReportRun(cacheDb, jobId, session.email);
+    return Response.json({ ok: true }, { headers });
+  }
   const from = typeof body?.from === "string" ? body.from : "";
   const till = typeof body?.till === "string" ? body.till : "";
-  if (!validDay(from) || !validDay(till) || Date.parse(from) > Date.parse(till) || (Date.parse(till) - Date.parse(from)) / 86_400_000 > 365 || !Array.isArray(body?.targets) || body.targets.length > 4
+  const scope = typeof body?.scope === "string" ? body.scope : "all";
+  const total = Number(body?.total);
+  const processedBefore = Number(body?.processedBefore);
+  const succeededBefore = Number(body?.succeededBefore);
+  const failedBefore = Number(body?.failedBefore);
+  if (!validJobId || !validDay(from) || !validDay(till) || Date.parse(from) > Date.parse(till) || (Date.parse(till) - Date.parse(from)) / 86_400_000 > 365
+    || !/^(all|vacations|events|rooms)$/.test(scope) || !Number.isSafeInteger(total) || total < 1 || total > 5000
+    || !Number.isSafeInteger(processedBefore) || processedBefore < 0 || !Number.isSafeInteger(succeededBefore) || succeededBefore < 0
+    || !Number.isSafeInteger(failedBefore) || failedBefore < 0 || succeededBefore + failedBefore !== processedBefore
+    || !Array.isArray(body?.targets) || body.targets.length < 1 || body.targets.length > 12 || processedBefore + body.targets.length > total
     || (body?.forceRefresh !== undefined && typeof body.forceRefresh !== "boolean")) {
     return Response.json({ error: "invalid_request" }, { status: 400, headers });
   }
@@ -134,6 +170,8 @@ export async function POST(request: Request) {
   const token = await supplierToken().catch(() => "");
   const cacheDb = await bizConversionDatabase().catch(() => null);
   if (!cacheDb) return Response.json({ error: "biz_conversion_cache_unavailable" }, { status: 503, headers });
+  await startBizReportRun(cacheDb, { jobId, actorEmail: session.email, from, till, scope,
+    forceRefresh: body.forceRefresh === true, total });
   const results: Array<{ placeId: string; conversions?: Awaited<ReturnType<typeof fetchViiConversions>>; error?: string }> = [];
   const settled = await Promise.all(targets.map(async ({ placeId, target }) => {
       try {
@@ -145,5 +183,11 @@ export async function POST(request: Request) {
       }
     }));
   results.push(...settled);
-  return Response.json({ from, till, results }, { headers });
+  const failedInBatch = settled.filter((item) => item.error).length;
+  const processed = processedBefore + settled.length;
+  const succeeded = succeededBefore + settled.length - failedInBatch;
+  const failed = failedBefore + failedInBatch;
+  const status = processed >= total ? "completed" : "running";
+  await updateBizReportRun(cacheDb, { jobId, actorEmail: session.email, processed, succeeded, failed, status });
+  return Response.json({ from, till, results, run: { jobId, processed, succeeded, failed, total, status } }, { headers });
 }

@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "taskId": "vii-biz-report-speed-history-20261025",
+  "status": "verified_candidate",
+  "outcome": "Authenticated operators can run a faster Biz report, see bounded progress, and review durable run history attributed to each admin.",
+  "naturalDestination": "/admin/business-performance",
+  "authorizationBoundary": "Candidate implementation and verification only; no production publication without explicit instruction.",
+  "affectedFamily": ["Biz aggregate pulls", "business-performance progress and stop states", "authorized admin run history"],
+  "invariants": ["Supplier remains authoritative", "cached summaries do not confirm bookings", "admin authorization and same-origin checks remain", "concurrency remains bounded", "legacy actions are not fabricated"],
+  "acceptance": ["Twelve targets are processed per bounded wave.", "Progress shows processed, total and percentage.", "Every started run persists actor, period, scope, status and counts.", "History survives reload and is visible only to authorized admins.", "Stop is actor-bound and cannot stop another admin's run.", "Complete regressions and build pass."]
+}

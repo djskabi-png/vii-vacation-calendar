@@ -24,6 +24,25 @@ export const bizConversionSnapshots = sqliteTable("vii_biz_conversion_snapshots_
   index("idx_vii_biz_conversion_range").on(table.fromDay, table.tillDay, table.world, table.siteId),
 ]);
 
+export const bizReportRuns = sqliteTable("vii_biz_report_runs_v1", {
+  jobId: text("job_id").primaryKey().notNull(),
+  actorEmail: text("actor_email").notNull(),
+  fromDay: text("from_day").notNull(),
+  tillDay: text("till_day").notNull(),
+  scope: text("scope").notNull(),
+  forceRefresh: integer("force_refresh").notNull().default(0),
+  total: integer("total").notNull(),
+  processed: integer("processed").notNull().default(0),
+  succeeded: integer("succeeded").notNull().default(0),
+  failedCount: integer("failed_count").notNull().default(0),
+  status: text("status").notNull(),
+  startedAt: text("started_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+}, (table) => [
+  index("idx_vii_biz_report_runs_actor_time").on(table.actorEmail, table.startedAt),
+  index("idx_vii_biz_report_runs_time").on(table.startedAt),
+]);
+
 export const mapSnapshots = sqliteTable("vii_map_snapshots_v1", {
   entityKey: text("entity_key").primaryKey().notNull(),
   world: text("world").notNull(),

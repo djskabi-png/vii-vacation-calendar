@@ -1,0 +1,14 @@
+{
+  "mode": "architecture",
+  "goal": "Reduce long Biz report waits while adding durable per-admin run history and truthful progress.",
+  "decision": "proceed_with_conditions",
+  "facts": [{"claim": "The existing client sends sequential waves of four targets.", "evidence": "Observed source in app/admin/business-performance/page.tsx."}, {"claim": "The supplier contract is per business, not a verified bulk-all-business endpoint.", "evidence": "Observed fetchViiConversions URL contract in app/lib/vii-conversions.ts."}],
+  "assumptions": [{"claim": "A bounded wave of twelve is acceptable to the supplier.", "status": "supported", "evidence_or_test": "Keep a hard server cap, per-target timeout and isolated result errors; do not use unbounded Promise.all."}],
+  "risks": [{"risk": "Higher concurrency can pressure Biz.", "severity": "high", "mitigation": "Hard cap each request at twelve, retain waves and cache hits, never retry uncertain requests automatically.", "verification": "Server rejects more than twelve targets and tests cover the cap."}, {"risk": "Mutable progress can be overwritten out of order.", "severity": "medium", "mitigation": "Update only while running and only when stored progress is not ahead of the new absolute progress.", "verification": "Run-history tests cover ordered absolute progress and actor-bound stop."}],
+  "alternatives": [{"option": "Keep four-target waves", "tradeoff": "Lowest supplier pressure but preserves the reported twenty-minute operator experience."}, {"option": "Unbounded parallel pull", "tradeoff": "Potentially faster but unsafe for supplier limits and Worker timeouts."}, {"option": "Durable background queue", "tradeoff": "Best eventual architecture for very large runs, but adds queue infrastructure not currently verified or authorized for this scoped correction."}],
+  "acceptance_checks": [{"check": "Twelve-target bounded waves pass focused tests.", "status": "passed", "evidence_or_reason": "Focused admin and batch tests passed; the client uses twelve-target waves and the route rejects larger requests."}, {"check": "History survives a new request with actor and exact run fields.", "status": "passed", "evidence_or_reason": "The persistence tests passed for actor, range, scope, progress, result counts and actor-bound stop."}, {"check": "Natural destination displays progress and history.", "status": "pending", "evidence_or_reason": "The production build passed, but the authenticated natural destination has not been published or visually exercised in this candidate."}],
+  "natural_destination": "/admin/business-performance",
+  "affected_family": "Biz batch API, cache, admin progress UI, stop flow and all authorized admin identities.",
+  "authorization_boundary": "Candidate implementation and tests only; publication remains separate.",
+  "remaining_blockers": ["Natural-destination visual verification and public deployment are pending."]
+}
