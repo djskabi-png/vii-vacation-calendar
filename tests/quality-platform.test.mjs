@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { DatabaseSync } from "node:sqlite";
-import { incidentTransition, qualityHeartbeatWindow, qualityNotificationProviderStatus, qualityRegistry, readQualityDashboard, runQualityChecks, shouldStartQualityHeartbeat } from "../app/lib/quality-platform.ts";
+import { incidentTransition, qualityHeartbeatWindow, qualityNotificationProviderStatus, qualityRegistry, readQualityDashboard, runQualityChecks, shouldStartQualityHeartbeat, updateQualitySchedule } from "../app/lib/quality-platform.ts";
 
 function fixture() {
   const sqlite = new DatabaseSync(":memory:");
@@ -110,6 +110,22 @@ test("scheduled tick runs only the due risk-tier probes", async () => {
     const duplicate = await runQualityChecks(db, { origin: "https://example.test", trigger: "scheduled", scheduledAt, fetcher: async () => { throw new Error("duplicate must not fetch"); } });
     assert.equal(duplicate.status, "skipped");
     assert.equal(duplicate.runId, result.runId);
+  } finally { sqlite.close(); }
+});
+
+test("an administrator schedule override persists and controls the next scheduled run", async () => {
+  const { sqlite, db } = fixture();
+  try {
+    const check = qualityRegistry.find((entry) => entry.cadenceMinutes === 5);
+    assert.ok(check);
+    await updateQualitySchedule(db, { checkId: check.checkId, cadenceMinutes: 1440, actor: "adir@example.test" });
+    const scheduledAt = new Date("2026-10-23T10:10:00.000Z");
+    const baseline = qualityRegistry.filter((entry) => 10 % entry.cadenceMinutes === 0).length;
+    const result = await runQualityChecks(db, { origin: "https://example.test", trigger: "scheduled", scheduledAt, fetcher: success });
+    assert.equal(result.checkCount, baseline - 1);
+    const dashboard = await readQualityDashboard(db);
+    assert.equal(dashboard.checks.find((entry) => entry.checkId === check.checkId)?.cadenceMinutes, 1440);
+    await assert.rejects(() => updateQualitySchedule(db, { checkId: check.checkId, cadenceMinutes: 7, actor: "adir@example.test" }), /invalid_quality_schedule/);
   } finally { sqlite.close(); }
 });
 

@@ -398,7 +398,7 @@
     {
       "id": "vacation-vila-harel",
       "sourceUrl": "https://www.vii.co.il/vila_harel",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "וילה הראל",
       "location": "גליל מערבי שלומי וילה 8 חדרים עד 30 אורחים",
       "area": "צפון",
@@ -424,7 +424,7 @@
     {
       "id": "vacation-villa-circle",
       "sourceUrl": "https://www.vii.co.il/Villa_Circle",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "וילה סירקל – Villa Circle",
       "location": "גליל עליון נוף כנרת 3 וילות לזוגות ומשפחות",
       "area": "צפון",
@@ -450,7 +450,7 @@
     {
       "id": "vacation-hamata-begalil-primium",
       "sourceUrl": "https://www.vii.co.il/hamata_begalil_primium",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "המטע בגליל פרימיום",
       "location": "גליל מערבי ירכא 4 יחידות לזוגות ומשפחות",
       "area": "צפון",
@@ -476,7 +476,7 @@
     {
       "id": "vacation-gesthouse-royal",
       "sourceUrl": "https://www.vii.co.il/gesthouse_royal",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "גאסטהאוס רויאל",
       "location": "קריות קרית אתא וילה 5 חדרים עד 20 אורחים",
       "area": "צפון",
@@ -502,7 +502,7 @@
     {
       "id": "vacation-como-boutique",
       "sourceUrl": "https://www.vii.co.il/Como_Boutique",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "אחוזת קומו בוטיק - Como Boutique",
       "location": "כנרת טפחות 2 וילות לזוגות ומשפחות",
       "area": "צפון",
@@ -528,7 +528,7 @@
     {
       "id": "vacation-villa-exodus",
       "sourceUrl": "https://www.vii.co.il/villa_exodus",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "וילה אקסודוס",
       "location": "ירושלים והרי יהודה שדות מיכה וילה 4 חדרים עד 30 אורחים",
       "area": "מרכז",
@@ -554,7 +554,7 @@
     {
       "id": "vacation-tepers-estate",
       "sourceUrl": "https://www.vii.co.il/Tepers_estate",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "אחוזת טפרס",
       "location": "מישור החוף הצפוני עמק חפר וילה 9 חדרים עד 35 אורחים",
       "area": "מרכז",
@@ -580,7 +580,7 @@
     {
       "id": "vacation-villa-esem-harimon",
       "sourceUrl": "https://www.vii.co.il/villa_esem_harimon",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "קסם הרימון",
       "location": "מישור החוף והשפלה עזריקם 4 יחידות לזוגות ומשפחות",
       "area": "מרכז",
@@ -606,7 +606,7 @@
     {
       "id": "vacation-sea-view-penthouse-26-spa-netanya",
       "sourceUrl": "https://www.vii.co.il/Sea_view_penthouse_%26_spa_Netanya",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "סי וויו פנטהאוז וספא נתניה - Sea view penthouse & spa Netanya",
       "location": "שרון נתניה 2 וילות לזוגות ומשפחות",
       "area": "מרכז",
@@ -632,7 +632,7 @@
     {
       "id": "vacation-daniel",
       "sourceUrl": "https://www.vii.co.il/Daniel",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "אחוזת דניאל",
       "location": "ירושלים והרי יהודה זכריה וילה 3 חדרים עד 15 אורחים",
       "area": "מרכז",
@@ -658,7 +658,7 @@
     {
       "id": "vacation-aqua-sol-dreamy-rent",
       "sourceUrl": "https://www.vii.co.il/Aqua_Sol_Dreamy_Rent",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "וילה אקווה סול - Dreamy Rent",
       "location": "אילת והערבה אילת וילה 5 חדרים עד 14 אורחים",
       "area": "דרום ונגב",
@@ -684,7 +684,7 @@
     {
       "id": "vacation-ahuzat-shaked",
       "sourceUrl": "https://www.vii.co.il/Ahuzat_Shaked",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "אחוזת השקד שדה צבי",
       "location": "מישור החוף הדרומי שדה צבי וילה 5 חדרים עד 16 אורחים",
       "area": "דרום ונגב",
@@ -710,7 +710,7 @@
     {
       "id": "vacation-villa-white-house",
       "sourceUrl": "https://www.vii.co.il/Villa_White_House",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "וילה איתן",
       "location": "אילת והערבה אילת וילה 4 חדרים עד 14 אורחים",
       "area": "דרום ונגב",
@@ -736,7 +736,7 @@
     {
       "id": "vacation-villa-yotam",
       "sourceUrl": "https://www.vii.co.il/villa_yotam",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "וילה יותם בריכה מחוממת",
       "location": "אילת והערבה אילת וילה 4 חדרים עד 11 אורחים",
       "area": "דרום ונגב",
@@ -762,7 +762,7 @@
     {
       "id": "vacation-villa-marrakesh",
       "sourceUrl": "https://www.vii.co.il/Villa_Marrakesh",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "וילה מרקש",
       "location": "אילת והערבה אילת וילה 7 חדרים עד 30 אורחים",
       "area": "דרום ונגב",
@@ -790,7 +790,7 @@
     {
       "id": "events-star-loft",
       "sourceUrl": "https://www.vii.co.il/events/Star_Loft",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "סטאר לופט",
       "location": "חיפה וחוף הכרמל נשר 1 לופט עד 40 אורחים",
       "area": "צפון",
@@ -816,7 +816,7 @@
     {
       "id": "events-black-loft",
       "sourceUrl": "https://www.vii.co.il/events/Black_Loft",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "בלאק לופט - Black Loft",
       "location": "חיפה וחוף הכרמל נשר 1 לופט עד 80 אורחים",
       "area": "צפון",
@@ -842,7 +842,7 @@
     {
       "id": "events-king-loft",
       "sourceUrl": "https://www.vii.co.il/events/King_Loft",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "קינג לופט",
       "location": "קריות קרית אתא 1 לופט עד 100 אורחים",
       "area": "צפון",
@@ -868,7 +868,7 @@
     {
       "id": "events-loft-golden-r",
       "sourceUrl": "https://www.vii.co.il/events/LOFT_GOLDEN_R",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "לופט גולדן R",
       "location": "גליל מערבי עבדון וילה עד 30 אורחים",
       "area": "צפון",
@@ -894,7 +894,7 @@
     {
       "id": "events-gutman-concept-events",
       "sourceUrl": "https://www.vii.co.il/events/Gutman_Concept_Events",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "גוטמן - לופט לאירועי קונספט",
       "location": "קריות קרית חיים 1 לופט עד 80 אורחים",
       "area": "צפון",
@@ -920,7 +920,7 @@
     {
       "id": "events-infinity-loft",
       "sourceUrl": "https://www.vii.co.il/events/infinity_loft",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "אינפיניטי לופט",
       "location": "מישור החוף והשפלה ראשון לציון 1 לופט עד 150 אורחים",
       "area": "מרכז",
@@ -946,7 +946,7 @@
     {
       "id": "events-santorini-loft",
       "sourceUrl": "https://www.vii.co.il/events/Santorini_Loft",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "לופט סנטוריני",
       "location": "מישור החוף והשפלה בת ים 2 לופטים עד 215 אורחים",
       "area": "מרכז",
@@ -972,7 +972,7 @@
     {
       "id": "events-havilla-bemishmar-hashiva",
       "sourceUrl": "https://www.vii.co.il/events/havilla_bemishmar_hashiva",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "הוילה במשמר השבעה",
       "location": "מישור החוף והשפלה משמר השבעה 1 לופט עד 350 אורחים",
       "area": "מרכז",
@@ -998,7 +998,7 @@
     {
       "id": "events-loft-tokyo",
       "sourceUrl": "https://www.vii.co.il/events/Loft_Tokyo",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "לופט טוקיו - Loft Tokyo",
       "location": "מישור החוף והשפלה ראשון לציון 1 לופט עד 200 אורחים",
       "area": "מרכז",
@@ -1024,7 +1024,7 @@
     {
       "id": "events-loft-casa-boutique",
       "sourceUrl": "https://www.vii.co.il/events/Loft_Casa_Boutique",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "Loft Casa Boutique - לופט קאסה בוטיק",
       "location": "שרון נתניה 1 לופט עד 100 אורחים",
       "area": "מרכז",
@@ -1050,7 +1050,7 @@
     {
       "id": "events-oasis",
       "sourceUrl": "https://www.vii.co.il/events/oasis",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "אואזיס",
       "location": "מישור החוף הדרומי שדה צבי וילה עד 250 אורחים",
       "area": "דרום ונגב",
@@ -1076,7 +1076,7 @@
     {
       "id": "events-noni-loft",
       "sourceUrl": "https://www.vii.co.il/events/Noni_Loft",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "נוני לופט - Noni Loft",
       "location": "נגב באר שבע 1 לופט עד 100 אורחים",
       "area": "דרום ונגב",
@@ -1102,7 +1102,7 @@
     {
       "id": "events-fatamorgana-loft-40gmail-com",
       "sourceUrl": "https://www.vii.co.il/events/fatamorgana.loft%40gmail.com",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "אואזיס פאטה מורגנה",
       "location": "נגב באר שבע 1 לופט עד 90 אורחים",
       "area": "דרום ונגב",
@@ -1128,7 +1128,7 @@
     {
       "id": "events-monkata",
       "sourceUrl": "https://www.vii.co.il/events/Monkata",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "מונקאטה",
       "location": "מישור החוף הדרומי שדה דוד וילה עד 20 אורחים",
       "area": "דרום ונגב",
@@ -1154,7 +1154,7 @@
     {
       "id": "events-loft-98-beer-sheva",
       "sourceUrl": "https://www.vii.co.il/events/Loft_98_Beer_Sheva",
-      "sourceName": "VII",
+      "sourceName": "V",
       "name": "לופט 98 באר שבע",
       "location": "נגב באר שבע 1 לופט עד 100 אורחים",
       "area": "דרום ונגב",

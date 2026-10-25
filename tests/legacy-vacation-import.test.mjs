@@ -29,7 +29,7 @@ test("verified legacy vacation profiles keep complete content, reviews and comme
   assert.match(siteData, /reviewHighlights: legacyProfile\?\.reviews/);
   assert.match(siteData, /featureGroups: legacyProfile\?\.featureGroups/);
   assert.match(reviewStudio, /publishedReviews\.map/);
-  assert.match(reviewStudio, /תמצית חוות דעת מאומתת מארכיון VII/);
+  assert.match(reviewStudio, /תמצית חוות דעת מאומתת מארכיון V/);
   assert.match(card, /"vacation-villa-esem-harimon": "available-price"/);
   assert.match(card, /"vacation-gesthouse-royal": "price-only"/);
   assert.match(card, /"vacation-vila-harel": "available-no-price"/);

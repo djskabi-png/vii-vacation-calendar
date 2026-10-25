@@ -3,7 +3,7 @@ import { daysBetween, validDate } from "./vii-live-search.ts";
 export type StayCalendarDay = { date: string; availableUnitCount: number; availableUnits: number[]; minNights: number; closedArrival: boolean };
 export type StayCalendarPrice = { date: string; total: number; nights: number };
 export type StayCalendar = { siteID: number; from: string; till: string; rooms: { roomID: number; dates: StayCalendarDay[] }[]; prices: StayCalendarPrice[] };
-export type StayRuleResult = { allowed: boolean; reason: "min_nights" | "closed_to_arrival" | "not_available" | "calendar_unknown" | null; minimumNights?: number; roomIDs: number[] };
+export type StayRuleResult = { allowed: boolean; reason: "min_nights" | "closed_to_arrival" | "not_available" | "calendar_unknown" | null; minimumNights?: number; roomIDs: number[]; availableUnitCounts: Record<number, number> };
 export class SupplierCalendarError extends Error {
   readonly diagnostic: string;
   readonly upstreamStatus?: number;
@@ -161,31 +161,32 @@ export async function enrichStayCalendarPrices(options: {
 
 export function assessCalendarStay(calendar: StayCalendar, from: string, till: string, roomID?: number): StayRuleResult {
   const nights = validDate(from) && validDate(till) ? daysBetween(from, till) : 0;
-  if (nights < 1 || nights > 30) return { allowed: false, reason: "calendar_unknown", roomIDs: [] };
+  if (nights < 1 || nights > 30) return { allowed: false, reason: "calendar_unknown", roomIDs: [], availableUnitCounts: {} };
   const rooms = calendar.rooms.filter((room) => roomID === undefined || room.roomID === roomID);
   const results = rooms.map((room) => {
     const arrival = dayIndex(room).get(from);
-    if (!arrival) return { roomID: room.roomID, reason: "calendar_unknown" as const };
-    if (arrival.closedArrival || arrival.minNights === 0) return { roomID: room.roomID, reason: "closed_to_arrival" as const };
-    if (arrival.availableUnitCount === 0) return { roomID: room.roomID, reason: "not_available" as const };
-    if (nights < arrival.minNights) return { roomID: room.roomID, reason: "min_nights" as const, minimumNights: arrival.minNights };
+    if (!arrival) return { roomID: room.roomID, reason: "calendar_unknown" as const, availableUnitCount: 0 };
+    if (arrival.closedArrival || arrival.minNights === 0) return { roomID: room.roomID, reason: "closed_to_arrival" as const, availableUnitCount: 0 };
+    if (arrival.availableUnitCount === 0) return { roomID: room.roomID, reason: "not_available" as const, availableUnitCount: 0 };
+    if (nights < arrival.minNights) return { roomID: room.roomID, reason: "min_nights" as const, minimumNights: arrival.minNights, availableUnitCount: 0 };
     let availableUnits = new Set(arrival.availableUnits);
     for (let n = 1; n < nights; n++) {
       const date = new Date(`${from}T00:00:00Z`);
       date.setUTCDate(date.getUTCDate() + n);
       const day = dayIndex(room).get(date.toISOString().slice(0, 10));
-      if (!day) return { roomID: room.roomID, reason: "calendar_unknown" as const };
+      if (!day) return { roomID: room.roomID, reason: "calendar_unknown" as const, availableUnitCount: 0 };
       availableUnits = new Set(day.availableUnits.filter((id) => availableUnits.has(id)));
     }
-    return { roomID: room.roomID, reason: availableUnits.size ? null : "not_available" as const };
+    return { roomID: room.roomID, reason: availableUnits.size ? null : "not_available" as const, availableUnitCount: availableUnits.size };
   });
-  if (results.some((result) => result.reason === "calendar_unknown")) return { allowed: false, reason: "calendar_unknown", roomIDs: [] };
+  if (results.some((result) => result.reason === "calendar_unknown")) return { allowed: false, reason: "calendar_unknown", roomIDs: [], availableUnitCounts: {} };
   const roomIDs = results.filter((result) => result.reason === null).map((result) => result.roomID);
-  if (roomIDs.length) return { allowed: true, reason: null, roomIDs };
-  if (!results.length || results.some((result) => result.reason === "calendar_unknown")) return { allowed: false, reason: "calendar_unknown", roomIDs: [] };
+  const availableUnitCounts = Object.fromEntries(results.filter((result) => result.reason === null).map((result) => [result.roomID, result.availableUnitCount]));
+  if (roomIDs.length) return { allowed: true, reason: null, roomIDs, availableUnitCounts };
+  if (!results.length || results.some((result) => result.reason === "calendar_unknown")) return { allowed: false, reason: "calendar_unknown", roomIDs: [], availableUnitCounts: {} };
   const minimums = results.filter((result) => result.reason === "min_nights").map((result) => result.minimumNights!);
-  if (minimums.length) return { allowed: false, reason: "min_nights", minimumNights: Math.min(...minimums), roomIDs: [] };
-  return { allowed: false, reason: results.every((result) => result.reason === "closed_to_arrival") ? "closed_to_arrival" : "not_available", roomIDs: [] };
+  if (minimums.length) return { allowed: false, reason: "min_nights", minimumNights: Math.min(...minimums), roomIDs: [], availableUnitCounts: {} };
+  return { allowed: false, reason: results.every((result) => result.reason === "closed_to_arrival") ? "closed_to_arrival" : "not_available", roomIDs: [], availableUnitCounts: {} };
 }
 
 export async function supplierStayCalendar(options: { siteID: number; from: string; till: string; token: string; publishedIds: ReadonlySet<number>; fetchImpl?: typeof fetch }) {

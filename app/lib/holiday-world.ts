@@ -185,7 +185,7 @@ function applyContent(world: HolidayWorld, content?: EditorialContent | null): H
 
 export function holidayContentSource(holiday: HomeHoliday, locale: ContentLocale = "he"): ContentSource {
   const world = defaultHolidayWorld(holiday);
-  return { type: "holiday", key: world.slug, world: "vacation", locale, sourceLabel: "VII holiday calendar",
+  return { type: "holiday", key: world.slug, world: "vacation", locale, sourceLabel: "V holiday calendar",
     title: world.title, summary: world.summary, body: world.body, slug: world.slug, imageAlt: world.heroImageAlt,
     indexable: world.indexable, attributes: { holidayEyebrow: world.eyebrow, holidayHeroImage: world.heroImage,
       holidayProof1: world.proof[0], holidayProof2: world.proof[1], holidayProof3: world.proof[2], holidayId: String(world.id), holidayFrom: world.from, holidayTill: world.till } };

@@ -64,15 +64,15 @@ export async function contentStudioSources(db: D1Database, locale: ContentLocale
     catalogRows(db, "vacations"), catalogRows(db, "events"), catalogRows(db, "rooms"), catalogRows(db, "spa"),
   ]);
   const sources: ContentSource[] = [
-    { type: "homepage", key: "vacation-sliders", world: "global", locale, sourceLabel: "VII homepage controls", title: "סליידרים של נופש בעמוד הבית",
+    { type: "homepage", key: "vacation-sliders", world: "global", locale, sourceLabel: "V homepage controls", title: "סליידרים של נופש בעמוד הבית",
       summary: "שליטה בלשוניות התאריכים, ברירת המחדל, מספר החגים והתאריכים שיוצגו בעמוד הבית.", indexable: false,
       attributes: { homePeriodOrder: "tomorrow,weekend,friday-weekend,thursday,friday", homePeriodDefault: "tomorrow", homePeriodHidden: "", homePeriodLabels: "{}", homeHolidayLimit: "6", homeHolidayHidden: "", homeHolidayDates: "{}" } },
-    { type: "events", key: "landing", world: "events", locale, sourceLabel: "VII events landing controls", title: defaultEventLandingPresentation.title,
+    { type: "events", key: "landing", world: "events", locale, sourceLabel: "V events landing controls", title: defaultEventLandingPresentation.title,
       summary: defaultEventLandingPresentation.description, body: "", slug: "events", imageAlt: defaultEventLandingPresentation.heroImages[0].alt,
       indexable: true, attributes: eventLandingSourceAttributes() },
     ...managedWorldLandingTypes.map((type) => {
       const presentation = defaultWorldLandingPresentations[type];
-      return { type, key: "landing", world: type === "attractions" || type === "trails" ? "activities" : type, locale, sourceLabel: "VII world landing controls",
+      return { type, key: "landing", world: type === "attractions" || type === "trails" ? "activities" : type, locale, sourceLabel: "V world landing controls",
         title: presentation.title, summary: presentation.description, body: "", slug: type, imageAlt: presentation.heroImages[0].alt,
         indexable: true, attributes: worldLandingSourceAttributes(type) } satisfies ContentSource;
     }),
@@ -80,10 +80,10 @@ export async function contentStudioSources(db: D1Database, locale: ContentLocale
     ...events.map((row) => source("events", "events", row, String(numeric(row.supplierId) || text(row.slug).replace(/^event-/, "")), "Sergey API", locale)),
     ...rooms.map((row) => source("hourly", "hourly", row, text(row.id) || String(numeric(row.supplierId)), "Sergey Rooms API", locale)),
     ...spas.map((row) => source("spa", "spa", row, String(numeric(row.id)), "Gal / Spa Plus API", locale)),
-    ...providerProfiles.map((row) => source("providers", "providers", row as unknown as UnknownRow, row.id, row.sourceName || "VII verified catalog", locale)),
-    ...paidAttractions.map((row) => source("attractions", "activities", row as unknown as UnknownRow, row.id, row.sourceName || "VII verified catalog", locale)),
+    ...providerProfiles.map((row) => source("providers", "providers", row as unknown as UnknownRow, row.id, row.sourceName || "V verified catalog", locale)),
+    ...paidAttractions.map((row) => source("attractions", "activities", row as unknown as UnknownRow, row.id, row.sourceName || "V verified catalog", locale)),
     ...trails.map((row) => source("trails", "activities", row as unknown as UnknownRow, row.slug, row.sourceName, locale)),
-    ...magazineArticles.map((row) => source("magazine", "magazine", row as unknown as UnknownRow, row.slug, "VII editorial", locale)),
+    ...magazineArticles.map((row) => source("magazine", "magazine", row as unknown as UnknownRow, row.slug, "V editorial", locale)),
   ];
   const primaryLinks = publicWorldNavigation.map((row, index) => managedLink(String(row.id), row.shortLabel, row.href, "עולמות", index + 1));
   const secondaryLinks = [
@@ -100,11 +100,11 @@ export async function contentStudioSources(db: D1Database, locale: ContentLocale
     managedLink("terms", "תקנון האתר", "/legal/terms", "מידע ושירות", 5), managedLink("privacy", "מדיניות פרטיות", "/legal/privacy", "מידע ושירות", 6),
   ];
   sources.push(
-    { type: "navigation", key: "primary", world: "global", locale, sourceLabel: "VII canonical navigation", title: "תפריט עולמות", links: primaryLinks },
-    { type: "navigation", key: "secondary", world: "global", locale, sourceLabel: "VII canonical navigation", title: "תפריט משני והמבורגר", links: secondaryLinks },
-    { type: "footer", key: "contextual", world: "global", locale, sourceLabel: "VII contextual footer", title: "קישורים הקשריים בפוטר", links: worldLinks },
-    { type: "footer", key: "worlds", world: "global", locale, sourceLabel: "VII canonical navigation", title: "העולמות שלנו בפוטר", links: footerWorldLinks },
-    { type: "footer", key: "service", world: "global", locale, sourceLabel: "VII service footer", title: "מידע ושירות בפוטר", links: serviceLinks },
+    { type: "navigation", key: "primary", world: "global", locale, sourceLabel: "V canonical navigation", title: "תפריט עולמות", links: primaryLinks },
+    { type: "navigation", key: "secondary", world: "global", locale, sourceLabel: "V canonical navigation", title: "תפריט משני והמבורגר", links: secondaryLinks },
+    { type: "footer", key: "contextual", world: "global", locale, sourceLabel: "V contextual footer", title: "קישורים הקשריים בפוטר", links: worldLinks },
+    { type: "footer", key: "worlds", world: "global", locale, sourceLabel: "V canonical navigation", title: "העולמות שלנו בפוטר", links: footerWorldLinks },
+    { type: "footer", key: "service", world: "global", locale, sourceLabel: "V service footer", title: "מידע ושירות בפוטר", links: serviceLinks },
   );
   return sources.filter((item) => item.key && /^[A-Za-z0-9._-]+$/.test(item.key));
 }

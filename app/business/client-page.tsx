@@ -15,7 +15,6 @@ import { PageShell } from "../components/page-shell";
 import { PropertyCard, resolveAvailabilityForStay } from "../components/property-card";
 import { DiscoveryCard } from "../components/discovery-card";
 import { ListingAccessibility } from "../components/listing-accessibility";
-import { hasVerifiedAccessibilityFeature } from "../data/accessibility-data";
 import { SleepingArrangements } from "../components/sleeping-arrangements";
 import { VerifiedSleepingDetails, type VerifiedSleepingRoom } from "../components/verified-sleeping-details";
 import type { BusinessWorld, ListingFeatureGroup, Property } from "../data/site-data";
@@ -64,13 +63,9 @@ function bedroomLabel(count: number) {
 }
 
 function derivedFeatureGroups(features: string[]): ListingFeatureGroup[] {
-  const groups: ListingFeatureGroup[] = [
-    { title: "מתחם חיצוני", items: features.filter((item) => /בריכ|ג׳קוזי|ג'קוזי|סאונה|חצר|גינה|מדשא|מרפסת|מנגל/.test(item)) },
-    { title: "מתחם פנימי", items: features.filter((item) => /מטבח|מטבחון|סלון|מיזוג|טלוויז|מסך|חדר רחצה/.test(item)) },
-  ];
-  const assigned = new Set(groups.flatMap((group) => group.items));
-  const general = features.filter((item) => !assigned.has(item));
-  return [...(general.length ? [{ title: "כללי", items: general }] : []), ...groups.filter((group) => group.items.length)];
+  // A missing taxonomy is not permission to invent one from keywords.
+  // Preserve the verified source order in one honest fallback group.
+  return features.length ? [{ title: "כללי", items: [...new Set(features)] }] : [];
 }
 
 type DisplayFeatureGroup = { title: string; items: string[] };
@@ -145,8 +140,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
   const [dateRange, setDateRange] = useState({ from: initialFrom || "", till: initialTill || "" });
   const [guests, setGuests] = useState(Math.max(1, Number(initialGuests) || 2));
   const [selectedPrice, setSelectedPrice] = useState(initialPrice || "");
-  const { galleryOpen, galleryStart, galleryTab, openGallery, closeGallery, updateGallerySelection } = useGalleryDeepLink();
-  const [galleryTopic, setGalleryTopic] = useState<string | null>(null);
+  const { galleryOpen, galleryStart, galleryTab, galleryTopic, openGallery, closeGallery, updateGallerySelection } = useGalleryDeepLink();
   const [reviewOpen, setReviewOpen] = useState(false);
   const [allFeaturesOpen, setAllFeaturesOpen] = useState(false);
   const [aboutExpanded, setAboutExpanded] = useState(false);
@@ -281,15 +275,18 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
         unitName: property.scenario === "multi" ? room.name : undefined,
         details: [...new Set(group.items)],
         galleryImage: galleryGroup?.images[0],
+        totalUnits: room.quantity,
+        availableUnits: room.supplierRoomID && supplierCalendarStay?.allowed
+          ? Math.min(room.quantity, supplierCalendarStay.availableUnitCounts[room.supplierRoomID] || 0)
+          : undefined,
       }];
     })
-  ), [property.galleryGroups, property.roomOptions, property.scenario]);
+  ), [property.galleryGroups, property.roomOptions, property.scenario, supplierCalendarStay]);
   const sectionLinks = useMemo<DetailSectionLink[]>(() => [
     { href: "#about", label: translate("על המקום") },
     ...(property.roomOptions?.length ? [{ href: "#rooms" as const, label: translate(property.scenario === "multi" ? "סוויטות ויחידות" : "מבנה המקום") }] : []),
     ...(verifiedSleepingRooms.length || property.bedrooms ? [{ href: "#sleeping" as const, label: translate("איפה ישנים") }] : []),
     { href: "#features", label: translate("מאפיינים") },
-    ...(hasVerifiedAccessibilityFeature(property.features) ? [{ href: "#accessibility" as const, label: translate("נגישות") }] : []),
     { href: "#location", label: translate("מיקום") },
     { href: "#faq", label: translate("שאלות ותשובות") },
     { href: "#reviews", label: translate("חוות דעת") },
@@ -365,7 +362,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
         </section> : null}
 
         <div className="shell property-gallery-wrap">
-          <PropertyGallery images={placeGalleryImages} name={localizedPropertyName} onOpen={(index) => { setGalleryTopic(null); openGallery("all", index); }} />
+          <PropertyGallery images={placeGalleryImages} name={localizedPropertyName} onOpen={(index) => openGallery("all", index)} />
           <FavoriteButton compact className="property-gallery__favorite" id={property.slug} world={activeWorld} name={localizedPropertyName} location={`${localizedLocation}, ${localizedArea}`} image={property.image} href={`/business?id=${property.slug}${activeWorld === offerings[0].world ? "" : `&mode=${activeWorld}`}`} meta={safeBusinessText(property.type, businessCopy.name)} />
         </div>
         <DetailReviewSummary
@@ -378,7 +375,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
         />
 
         {property.demoOperations?.fictional && property.videos?.[0] ? <section className="shell palumbo-media-story" aria-labelledby="palumbo-media-title">
-          <header><div><h2 id="palumbo-media-title">רואים את הווילה לפני שבוחרים</h2><p>סיור מלא, חדרים, חללים ותמונות אורחים במקום אחד.</p></div><button type="button" data-gallery-trigger className="button secondary" onClick={() => { setGalleryTopic(null); openGallery("all", 0); }}>פתיחת הגלריה המלאה</button></header>
+          <header><div><h2 id="palumbo-media-title">רואים את הווילה לפני שבוחרים</h2><p>סיור מלא, חדרים, חללים ותמונות אורחים במקום אחד.</p></div><button type="button" data-gallery-trigger className="button secondary" onClick={() => openGallery("all", 0)}>פתיחת הגלריה המלאה</button></header>
           <div className="palumbo-media-story__grid">
             <article className="palumbo-media-story__video"><video controls playsInline preload="metadata" poster={property.videos[0].poster} aria-label={property.videos[0].title}><source src={property.videos[0].src} type="video/mp4" /></video><div><span>סיור בווידאו</span><h3>{property.videos[0].title}</h3><p>עוברים בין החללים ומכירים את מבנה הווילה לפני הבחירה.</p></div></article>
             <aside className="palumbo-media-story__guests"><div className="palumbo-media-story__guests-heading"><span className="eyebrow">גלריית אורחים</span><h3>רגעים מהאירוח</h3><p>תמונות אורחים מוצגות לאחר אימות ואישור לפרסום.</p></div><div>{property.guestPhotos?.map((photo) => <button type="button" data-gallery-trigger key={photo.src} onClick={() => openGallery("guests", 0)}><img src={photo.src} alt={photo.alt} title={photo.alt} /><span>{photo.author}</span></button>)}</div></aside>
@@ -444,6 +441,9 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
                     ? effectiveVacationAvailability
                     : effectiveVacationAvailability?.units?.find((unit) => unit.index === roomIndex);
                   const roomAvailable = roomAvailability?.availability === "available" || supplierAvailableRoomIDs.includes(room.supplierRoomID || 0);
+                  const availableIdenticalUnits = room.supplierRoomID && supplierCalendarStay?.allowed
+                    ? Math.min(room.quantity, supplierCalendarStay.availableUnitCounts[room.supplierRoomID] || 0)
+                    : undefined;
                   const roomUnavailable = supplierSiteID && supplierUnitQuote?.status === "ready"
                     ? roomAvailability?.availability === "unavailable"
                     : roomAvailability?.availability === "unavailable";
@@ -452,7 +452,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
                   const roomInRecommendation = Boolean(effectiveVacationAvailability?.recommendation?.items.some((item) => item.index === roomIndex));
                   const roomNightlyPrice = roomAvailability?.nightlyPrice || 0;
                   const roomTotalPrice = (roomAvailability && "totalPrice" in roomAvailability ? roomAvailability.totalPrice : undefined) || (roomNightlyPrice && dateRange.from && dateRange.till ? roomNightlyPrice * Math.max(1, Math.round((Date.parse(`${dateRange.till}T12:00:00`) - Date.parse(`${dateRange.from}T12:00:00`)) / 86_400_000)) : 0);
-                  const minimumStayRestriction = roomAvailability?.unavailableReason === "min_nights" && roomAvailability.minimumNights
+                  const minimumStayRestriction = roomAvailability && "unavailableReason" in roomAvailability && roomAvailability.unavailableReason === "min_nights" && roomAvailability.minimumNights
                     ? `נדרשים לפחות ${roomAvailability.minimumNights} לילות. בחרו תאריך עזיבה מאוחר יותר`
                     : "";
                   const unitGalleryStart = property.roomOptions!.slice(0, roomIndex).reduce((total, option) => total + (option.images?.length || 1), 0);
@@ -478,14 +478,16 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
                     unitBookingQuery.set("price", String(roomNightlyPrice));
                   }
                   const localizedRoomName = safeBusinessText(room.name, `${businessCopy.unit} ${roomIndex + 1}`);
+                  const roomSleepingGroups = (room.featureGroups || []).filter((group) => isVerifiedBedroomGroup(group.title) && group.items.length);
                   const highlightedFromDeal = room.supplierRoomID === highlightedSupplierRoomID;
                   return <article className={`room-card${roomAvailable ? " room-card--available" : roomUnavailable ? " room-card--unavailable" : ""}${highlightedFromDeal ? " room-card--highlighted" : ""}${vacationAvailabilityMode === "inquiry" ? " room-card--inquiry" : ""}`} key={room.name}>
                   <div className="room-card__identity"><span>{highlightedFromDeal ? "היחידה שממנה הגעתם · כל יחידות המתחם נבדקות" : safeBusinessText(property.type, businessCopy.name)}</span><h3>{localizedRoomName}</h3></div>
-                  {room.image ? <button className="room-card__image" type="button" data-gallery-trigger onClick={() => { setGalleryTopic(room.name); openGallery("units", unitGalleryStart); }} aria-label={`${translate("פתיחת גלריית")} ${localizedRoomName}`}><img src={room.image} alt={`${localizedRoomName}, ${localizedPropertyName}`} title={`${localizedRoomName}, ${localizedPropertyName}`} width="960" height="640" loading="lazy" decoding="async" /><span>{room.images?.length ? `${room.images.length} ${translate("תמונות")}` : translate("תמונת היחידה")}</span></button> : <div className="room-card__image room-card__image--missing"><img src={property.image} alt={`${localizedPropertyName}, ${localizedRoomName}`} title={`${localizedPropertyName}, ${localizedRoomName}`} width="960" height="640" loading="lazy" decoding="async" /><span>{translate("תמונת המתחם, לא היחידה")}</span></div>}
+                  {room.image ? <button className="room-card__image" type="button" data-gallery-trigger onClick={() => openGallery("units", unitGalleryStart, room.name)} aria-label={`${translate("פתיחת גלריית")} ${localizedRoomName}`}><img src={room.image} alt={`${localizedRoomName}, ${localizedPropertyName}`} title={`${localizedRoomName}, ${localizedPropertyName}`} width="960" height="640" loading="lazy" decoding="async" /><span>{room.images?.length ? `${room.images.length} ${translate("תמונות")}` : translate("תמונת היחידה")}</span></button> : <div className="room-card__image room-card__image--missing"><img src={property.image} alt={`${localizedPropertyName}, ${localizedRoomName}`} title={`${localizedPropertyName}, ${localizedRoomName}`} width="960" height="640" loading="lazy" decoding="async" /><span>{translate("תמונת המתחם, לא היחידה")}</span></div>}
                   <div className="room-card__body">
                     <div className="room-card__facts"><span>{translate(`עד ${room.guests} אורחים`)}</span>{room.roomType ? <span>{translate(room.roomType)}</span> : null}{room.quantity > 1 ? <span>{room.quantity} יחידות זהות מסוג זה</span> : null}{room.bedrooms > 0 ? <span>{translate(bedroomLabel(room.bedrooms))}</span> : null}{room.area ? <span>{room.area} {translate("מ״ר")}</span> : null}<button className="room-card__more" type="button" onClick={() => setSelectedRoomIndex(roomIndex)}><Info aria-hidden="true" size={18} />{translate("כל פרטי היחידה")}</button></div>
+                    {roomSleepingGroups.length ? <section className="room-card__sleeping" aria-label={`איפה תשנו ב${localizedRoomName}`}><strong>איפה תשנו ביחידה?</strong>{roomSleepingGroups.map((group) => <div key={group.title}><b>{group.title}</b><span>{group.items.join(" · ")}</span></div>)}</section> : room.bedrooms > 0 ? <section className="room-card__sleeping" aria-label={`איפה תשנו ב${localizedRoomName}`}><strong>איפה תשנו ביחידה?</strong><div><b>{translate(bedroomLabel(room.bedrooms))}</b><span>סוגי המיטות נמסרים באישור המקום.</span></div></section> : null}
                     {room.features?.length ? <div className="room-card__amenities" aria-label={translate("מתקנים ושירותים ביחידה")}>{localizedBusinessList(room.features, language, translate).map((feature) => <span key={feature}><FeatureIcon label={feature} className="property-highlight-icon" /><b>{feature}</b></span>)}</div> : null}
-                    {activeWorld === "vacation" && hasSelectedDates ? <div className="room-card__availability" role="status"><strong>{roomStatus}</strong>{room.quantity > 1 && roomAvailable ? <small>נמצאה זמינות בסוג הכולל {room.quantity} יחידות זהות. הכמות המדויקת תאושר בבחירה.</small> : null}{vacationAvailabilityMode === "live" && roomNightlyPrice ? <span>{roomNightlyPrice.toLocaleString(numberLocale)} ₪ {unitCopy.perNight}{roomTotalPrice ? ` · ${roomTotalPrice.toLocaleString(numberLocale)} ₪ ${unitCopy.total}` : ""}</span> : null}</div> : null}
+                    {activeWorld === "vacation" && hasSelectedDates ? <div className="room-card__availability" role="status"><strong>{roomStatus}</strong>{room.quantity > 1 && availableIdenticalUnits !== undefined ? <small>{availableIdenticalUnits} מתוך {room.quantity} יחידות זהות פנויות בתאריכים שנבחרו</small> : null}{vacationAvailabilityMode === "live" && roomNightlyPrice ? <span>{roomNightlyPrice.toLocaleString(numberLocale)} ₪ {unitCopy.perNight}{roomTotalPrice ? ` · ${roomTotalPrice.toLocaleString(numberLocale)} ₪ ${unitCopy.total}` : ""}</span> : null}</div> : null}
                     <div className="room-card__actions">{activeWorld === "vacation"
                       ? canBookRoom ? <Link className="button primary" href={supplierSiteID ? `/booking?${unitBookingQuery.toString()}` : roomBookingHref(bookingQuery, roomIndex, roomNightlyPrice)}>{unitCopy.quick} {safeBusinessText(room.name, `${businessCopy.unit} ${roomIndex + 1}`)}</Link>
                         : supplierSiteID && roomAvailable && roomFitsParty && roomNightlyPrice > 0 && phoneHref ? <a className="button primary" href={phoneHref}>הזמנה בטלפון</a>
@@ -518,7 +520,7 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
               <button className="button subtle feature-section__desktop-more" type="button" onClick={() => setAllFeaturesOpen(true)}>הצגת כל המתקנים</button>
             </section>
 
-            <GuestReviewStudio placeName={localizedPropertyName} subjectId={property.slug} rating={supplierDetail?.reviewScore ?? property.score} reviewCount={supplierDetail?.reviewCount ?? property.reviews} publishedReviews={property.reviewHighlights} supplierReviews={supplierDetail?.reviews} illustrative={property.reviewSource === "fictional-demo"} open={reviewOpen} onClose={() => setReviewOpen(false)} onOpenGallery={() => { setGalleryTopic(null); openGallery("guests", 0); }} />
+            <GuestReviewStudio placeName={localizedPropertyName} subjectId={property.slug} rating={supplierDetail?.reviewScore ?? property.score} reviewCount={supplierDetail?.reviewCount ?? property.reviews} publishedReviews={property.reviewHighlights} supplierReviews={supplierDetail?.reviews} illustrative={property.reviewSource === "fictional-demo"} open={reviewOpen} onClose={() => setReviewOpen(false)} onOpenGallery={() => openGallery("guests", 0)} />
 
             <ListingAccessibility slug={property.slug} features={property.features} />
 
@@ -564,12 +566,12 @@ export default function BusinessPage({ initialProperty, relatedProperties, trail
         <SearchAfterResults world={activeWorld} discoveryOnly location={property.location} inventory={[property, ...(relatedProperties || [])].map(entry => ({ location: entry.location, area: entry.area, type: entry.type }))} />
       </main>
 
-      <CalendarDemo mode="business" businessKind={property.scenario} businessName={property.name} open={calendarOpen && activeWorld === "vacation"} onClose={() => setCalendarOpen(false)} guests={guests} maxGuests={activeOffering.maxGuests || property.guests} onGuestsChange={setGuests}
+      <CalendarDemo mode="business" businessKind={property.scenario} businessName={property.name} open={calendarOpen && activeWorld === "vacation"} onClose={() => setCalendarOpen(false)} guests={guests} maxGuests={activeOffering.maxGuests || property.guests} onGuestsChange={setGuests} totalUnits={roomQuantity}
         liveCalendar={supplierCalendar.calendar} calendarRequired={Boolean(supplierSiteID)} calendarStatus={supplierCalendar.status} onRetryCalendar={supplierCalendar.retry} illustrative={Boolean(property.demoOperations?.fictional)}
         availabilityResolver={property.demoOperations?.fictional ? demoAvailabilityForDate : undefined} priceResolver={property.demoOperations?.fictional ? (date) => demoNightlyPrice(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`, property.demoOperations!.weekdayNightlyPrice, property.demoOperations!.weekendNightlyPrice) : supplierCalendar.calendar ? (date) => stayCalendarDay(supplierCalendar.calendar!, `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`).minimumStayTotal : undefined} onConfirm={(result) => { const from = result.checkIn || ""; setDates(result.summary); setDateRange({ from, till: result.checkOut || "" }); setSelectedPrice(property.demoOperations?.fictional && from ? String(demoNightlyPrice(from, property.demoOperations.weekdayNightlyPrice, property.demoOperations.weekendNightlyPrice)) : ""); }} />
 
       <GalleryExperience key={`${property.slug}-${galleryOpen ? `${galleryTab}-${galleryStart}-${galleryTopic || "all"}` : "closed"}`} property={localizedGalleryProperty} guestPhotos={property.guestPhotos} open={galleryOpen} initialIndex={galleryStart} initialTab={galleryTab} initialTopic={galleryTopic} onAddGuestContent={() => { closeGallery(); setReviewOpen(true); }} onSelectionChange={updateGallerySelection} onClose={closeGallery} />
-      <UnitDetailsDialog propertyName={property.name} room={selectedRoomIndex === null ? null : property.roomOptions?.[selectedRoomIndex] || null} open={selectedRoomIndex !== null} onClose={closeUnitDetails} onOpenGallery={() => { if (selectedRoomIndex === null || !property.roomOptions) return; const room = property.roomOptions[selectedRoomIndex]; const start = property.roomOptions.slice(0, selectedRoomIndex).reduce((total, option) => total + (option.images?.length || 1), 0); setGalleryTopic(room.name); closeUnitDetails(); window.setTimeout(() => openGallery("units", start), 0); }} />
+      <UnitDetailsDialog propertyName={property.name} room={selectedRoomIndex === null ? null : property.roomOptions?.[selectedRoomIndex] || null} open={selectedRoomIndex !== null} onClose={closeUnitDetails} onOpenGallery={() => { if (selectedRoomIndex === null || !property.roomOptions) return; const room = property.roomOptions[selectedRoomIndex]; const start = property.roomOptions.slice(0, selectedRoomIndex).reduce((total, option) => total + (option.images?.length || 1), 0); closeUnitDetails(); window.setTimeout(() => openGallery("units", start, room.name), 0); }} />
 
       {allFeaturesOpen && <div className="simple-modal" onMouseDown={(event) => event.target === event.currentTarget && setAllFeaturesOpen(false)}><section role="dialog" aria-modal="true" aria-labelledby="features-title"><header><h2 id="features-title">המתקנים של {property.name}</h2><button type="button" onClick={() => setAllFeaturesOpen(false)}>סגירה</button></header><div className="modal-feature-groups">{featureGroups.map((group) => <section key={group.title}><h3>{group.title}</h3><div className="feature-list modal-features">{group.items.map((feature) => <span key={feature}><FeatureIcon label={feature} className="property-highlight-icon" /><b>{feature}</b></span>)}</div></section>)}</div></section></div>}
     </PageShell>

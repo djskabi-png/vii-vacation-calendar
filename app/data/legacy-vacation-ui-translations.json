@@ -272,10 +272,10 @@
     "ru": "Настольный футбол",
     "fr": "Baby-foot"
   },
-  "תמצית חוות דעת מאומתת מארכיון VII": {
-    "en": "Summary of a verified review from the VII archive",
-    "ru": "Краткое содержание проверенного отзыва из архива VII",
-    "fr": "Résumé d’un avis vérifié provenant des archives VII"
+  "תמצית חוות דעת מאומתת מארכיון V": {
+    "en": "Summary of a verified review from the V archive",
+    "ru": "Краткое содержание проверенного отзыва из архива V",
+    "fr": "Résumé d’un avis vérifié provenant des archives V"
   },
   "תצוגה מקדימה בלבד": {
     "en": "Preview only",
@@ -877,7 +877,7 @@
   "· עזיבה:": { "en": "· Check-out:", "ru": "· Выезд:", "fr": "· Départ :" },
   "· עזיבה בשבת:": { "en": "· Saturday check-out:", "ru": "· Выезд в субботу:", "fr": "· Départ le samedi :" },
   ". יש לאשר את השעות מול המקום.": { "en": ". Please confirm times with the venue.", "ru": ". Уточните время у объекта.", "fr": ". Veuillez confirmer les horaires auprès de l'établissement." },
-  "חוות דעת מארכיון VII": { "en": "Review from the VII archive", "ru": "Отзыв из архива VII", "fr": "Avis provenant des archives VII" },
+  "חוות דעת מארכיון V": { "en": "Review from the V archive", "ru": "Отзыв из архива V", "fr": "Avis provenant des archives V" },
   "עוד חוות דעת (": { "en": "More reviews (", "ru": "Другие отзывы (", "fr": "Plus d'avis (" },
   "חוות דעת בארכיון המקום": { "en": "Reviews in the venue archive", "ru": "Отзывы в архиве объекта", "fr": "Avis dans les archives de l'établissement" },
   "טקסט חוות הדעת אינו זמין במקור הנתונים הנוכחי.": { "en": "Review text is unavailable in the current data source.", "ru": "Текст отзыва недоступен в текущем источнике данных.", "fr": "Le texte de l'avis n'est pas disponible dans la source actuelle." },
@@ -910,7 +910,7 @@
   "לא נמצאה התאמה או מקום קרוב": { "en": "No match or nearby place found", "ru": "Подходящих или ближайших мест не найдено", "fr": "Aucune correspondance ni lieu proche trouvé" },
   "מתי": { "en": "When", "ru": "Когда", "fr": "Quand" },
   "איך מוצאים מקום פנוי ל": { "en": "How do I find an available stay for ", "ru": "Как найти свободное место на ", "fr": "Comment trouver un séjour disponible pour " },
-  "בוחרים כאן חלון תאריכים והרכב. בעמוד התוצאות VII בודקת זמינות ומחיר מול המערכת לפני הצגת דיל מאומת.": { "en": "Choose a date window and party here. On the results page, VII checks availability and price with the system before showing a verified deal.", "ru": "Выберите даты и состав гостей. На странице результатов VII проверит доступность и цену в системе перед показом подтверждённого предложения.", "fr": "Choisissez ici une période et la composition du groupe. Sur la page de résultats, VII vérifie les disponibilités et le prix avant d’afficher une offre vérifiée." },
+  "בוחרים כאן חלון תאריכים והרכב. בעמוד התוצאות V בודקת זמינות ומחיר מול המערכת לפני הצגת דיל מאומת.": { "en": "Choose a date window and party here. On the results page, V checks availability and price with the system before showing a verified deal.", "ru": "Выберите даты и состав гостей. На странице результатов V проверит доступность и цену в системе перед показом подтверждённого предложения.", "fr": "Choisissez ici une période et la composition du groupe. Sur la page de résultats, V vérifie les disponibilités et le prix avant d’afficher une offre vérifiée." },
   "אפשר לחפש מקום לקבוצה גדולה?": { "en": "Can I search for a large group?", "ru": "Можно искать вариант для большой группы?", "fr": "Puis-je rechercher pour un grand groupe ?" },
   "כן. החיפוש לקבוצות מוגדר לעד 20 אורחים, ובעמוד התוצאות אפשר לשנות את מספר האורחים בהתאם להרכב המדויק.": { "en": "Yes. Group search is set for up to 20 guests, and you can adjust the exact party size on the results page.", "ru": "Да. Поиск для групп рассчитан на состав до 20 гостей, а точное число можно изменить на странице результатов.", "fr": "Oui. La recherche de groupe est configurée pour jusqu’à 20 personnes, et vous pouvez ajuster le nombre exact sur la page de résultats." },
   "חגים ומועדים": { "en": "Holidays and special dates", "ru": "Праздники и особые даты", "fr": "Fêtes et dates spéciales" },

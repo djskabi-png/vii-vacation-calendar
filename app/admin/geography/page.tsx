@@ -95,7 +95,7 @@ export default function GeographyAdminPage() {
   const parent = draft?.parentKey ? nodes.find((node) => node.key === draft.parentKey) : null;
 
   return <main className={styles.page} dir="rtl">
-    <header className={styles.hero}><div><span>מפת התוכן של VII</span><h1>ערים, אזורים ומחוזות</h1><p>מקור אמת אחד לנתוני ה־API, לחיפוש, למפות ולדפי הקידום. אפשר לכפות שם, כתובת ונראות בלי לאבד את נתוני הספק.</p></div>
+    <header className={styles.hero}><div><span>מפת התוכן של V</span><h1>ערים, אזורים ומחוזות</h1><p>מקור אמת אחד לנתוני ה־API, לחיפוש, למפות ולדפי הקידום. אפשר לכפות שם, כתובת ונראות בלי לאבד את נתוני הספק.</p></div>
       <button type="button" onClick={() => void refresh()} disabled={!canEdit || (Boolean(working))} aria-busy={working === "refresh"}><RefreshCw className={working === "refresh" ? styles.spin : ""} size={18} />{working === "refresh" ? "מושכים נתונים..." : "רענון מה־API"}</button></header>
     {message ? <p className={message.kind === "success" ? styles.success : styles.error} role={message.kind === "error" ? "alert" : "status"}>{message.kind === "success" ? <CheckCircle2 size={18} /> : null}{message.text}</p> : null}
     <section className={styles.metrics} aria-label="סיכום נתוני אזורים">

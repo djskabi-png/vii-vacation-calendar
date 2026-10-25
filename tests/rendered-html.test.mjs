@@ -62,7 +62,7 @@ test("all ten legacy editorial SEO titles use the same reviewed localized headli
       const html=await response.text();
       assert.equal(response.status,200);
       const expected=overrides[title][locale];
-      assert.ok(html.includes("<title>"+expected+" | VII Vacation</title>"),locale+" / "+slug);
+      assert.ok(html.includes("<title>"+expected+" | V Vacation</title>"),locale+" / "+slug);
     }
   }
 });
@@ -1264,7 +1264,9 @@ test("gallery sharing uses a fragment and every meaningful gallery image has tex
   ]);
   assert.match(hook, /#gallery=all&photo=2/);
   assert.match(hook, /window\.history\.replaceState/);
-  assert.match(hook, /url\.hash = `gallery=\$\{tab\}&photo=/);
+  assert.match(hook, /new URLSearchParams\(\{ gallery: tab, photo:/);
+  assert.match(hook, /if \(topic\) params\.set\("topic", topic\)/);
+  assert.match(hook, /url\.hash = params\.toString\(\)/);
   assert.match(hook, /url\.hash = ""/);
   assert.match(hook, /\[data-gallery-trigger\]/);
   const propertyGallery = await readFile(new URL("../app/components/property-gallery.tsx", import.meta.url), "utf8");

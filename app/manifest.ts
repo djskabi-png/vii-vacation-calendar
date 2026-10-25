@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
     name: "וי פור ויקיישן",
-    short_name: "VII",
+    short_name: "V",
     description: "נופש, אירועים, ספא וחוויות בישראל, עם מידע שמאפשר לבחור נכון.",
     start_url: "/",
     scope: "/",

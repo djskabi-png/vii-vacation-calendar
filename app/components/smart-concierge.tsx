@@ -32,34 +32,34 @@ const ui = {
     footer: "רוצים להמשיך עם שירות הלקוחות?", whatsapp: "מעבר לוואטסאפ", triggerTop: "נציג החופשה שלכם", triggerBottom: "איך אפשר לעזור?", unread: "הודעה חדשה",
     opening: "היי, אני הנציג החכם של וי. ספרו לי בחופשיות מה אתם מתכננים, למי, איפה ומתי. אעזור לכם להתמקד ואמצא את העמוד הנכון באתר.",
     quick: ["מחפשים נופש", "אירוע או חגיגה", "ספא או יום כיף", "אטרקציות באזור", "חדר לכמה שעות"],
-    whatsappEmpty: "היי, הגעתי מהנציג החכם באתר VII ואשמח לעזרה.", whatsappWith: "היי, דיברתי עם הנציג החכם באתר VII. אני מחפש/ת: ",
+    whatsappEmpty: "היי, הגעתי מהנציג החכם באתר V ואשמח לעזרה.", whatsappWith: "היי, דיברתי עם הנציג החכם באתר V. אני מחפש/ת: ",
   },
   en: {
-    aria: "Site concierge", title: "Your VII vacation concierge", status: "Online on the site", close: "Close concierge",
+    aria: "Site concierge", title: "Your V vacation concierge", status: "Online on the site", close: "Close concierge",
     introTitle: "Planning something special?", introBody: "Tell me freely. I know every part of the site.", topics: "Popular topics",
     inputLabel: "Tell the concierge what you want to find", placeholder: "You can ask me anything...", send: "Send message",
     footer: "Prefer customer service?", whatsapp: "Continue on WhatsApp", triggerTop: "Your vacation concierge", triggerBottom: "How can I help?", unread: "New message",
-    opening: "Hi, I’m VII’s smart concierge. Tell me what you are planning, for whom, where and when. I’ll help you focus and find the right page on the site.",
+    opening: "Hi, I’m V’s smart concierge. Tell me what you are planning, for whom, where and when. I’ll help you focus and find the right page on the site.",
     quick: ["Find a vacation", "Event or celebration", "Spa or day pass", "Things to do nearby", "A room for a few hours"],
-    whatsappEmpty: "Hi, I came from the smart concierge on the VII website and would like some help.", whatsappWith: "Hi, I spoke with the smart concierge on the VII website. I am looking for: ",
+    whatsappEmpty: "Hi, I came from the smart concierge on the V website and would like some help.", whatsappWith: "Hi, I spoke with the smart concierge on the V website. I am looking for: ",
   },
   ru: {
-    aria: "Умный консультант сайта", title: "Ваш консультант VII", status: "Сейчас онлайн", close: "Закрыть консультанта",
+    aria: "Умный консультант сайта", title: "Ваш консультант V", status: "Сейчас онлайн", close: "Закрыть консультанта",
     introTitle: "Планируете что-то особенное?", introBody: "Пишите свободно. Я знаю все разделы сайта.", topics: "Популярные темы",
     inputLabel: "Напишите консультанту, что вы хотите найти", placeholder: "Спросите меня о чём угодно...", send: "Отправить сообщение",
     footer: "Хотите продолжить со службой поддержки?", whatsapp: "Перейти в WhatsApp", triggerTop: "Ваш консультант по отдыху", triggerBottom: "Чем помочь?", unread: "Новое сообщение",
-    opening: "Здравствуйте, я умный консультант VII. Расскажите, что вы планируете, для кого, где и когда. Я помогу уточнить запрос и найти нужную страницу сайта.",
+    opening: "Здравствуйте, я умный консультант V. Расскажите, что вы планируете, для кого, где и когда. Я помогу уточнить запрос и найти нужную страницу сайта.",
     quick: ["Найти отдых", "Мероприятие", "Спа или день отдыха", "Что делать рядом", "Номер на несколько часов"],
-    whatsappEmpty: "Здравствуйте, я пришёл с сайта VII и хотел бы получить помощь.", whatsappWith: "Здравствуйте, я общался с умным консультантом на сайте VII. Я ищу: ",
+    whatsappEmpty: "Здравствуйте, я пришёл с сайта V и хотел бы получить помощь.", whatsappWith: "Здравствуйте, я общался с умным консультантом на сайте V. Я ищу: ",
   },
   fr: {
-    aria: "Concierge intelligent du site", title: "Votre concierge VII", status: "Disponible sur le site", close: "Fermer le concierge",
+    aria: "Concierge intelligent du site", title: "Votre concierge V", status: "Disponible sur le site", close: "Fermer le concierge",
     introTitle: "Vous préparez un beau projet ?", introBody: "Parlez-moi librement. Je connais tous les univers du site.", topics: "Sujets populaires",
     inputLabel: "Dites au concierge ce que vous recherchez", placeholder: "Vous pouvez tout me demander...", send: "Envoyer le message",
     footer: "Vous préférez le service client ?", whatsapp: "Continuer sur WhatsApp", triggerTop: "Votre concierge vacances", triggerBottom: "Comment vous aider ?", unread: "Nouveau message",
-    opening: "Bonjour, je suis le concierge intelligent de VII. Dites-moi ce que vous préparez, pour qui, où et quand. Je vous aiderai à préciser votre recherche et à trouver la bonne page.",
+    opening: "Bonjour, je suis le concierge intelligent de V. Dites-moi ce que vous préparez, pour qui, où et quand. Je vous aiderai à préciser votre recherche et à trouver la bonne page.",
     quick: ["Trouver un séjour", "Événement ou fête", "Spa ou journée détente", "Que faire à proximité", "Une chambre pour quelques heures"],
-    whatsappEmpty: "Bonjour, je viens du concierge intelligent du site VII et je souhaite être aidé.", whatsappWith: "Bonjour, j’ai échangé avec le concierge intelligent du site VII. Je recherche : ",
+    whatsappEmpty: "Bonjour, je viens du concierge intelligent du site V et je souhaite être aidé.", whatsappWith: "Bonjour, j’ai échangé avec le concierge intelligent du site V. Je recherche : ",
   },
 } as const;
 
@@ -214,7 +214,7 @@ export function SmartConcierge() {
   return <aside className={`smart-concierge ${open ? "open" : ""} ${footerVisible ? "is-over-footer" : ""}`} aria-label={copy.aria}>
     {open ? <section id="smart-concierge-panel" className="smart-concierge__panel" role="dialog" aria-modal="false" aria-labelledby="smart-concierge-title">
       <header className="smart-concierge__header">
-        <div className="smart-concierge__identity"><span className="smart-concierge__avatar" aria-hidden="true">VII<i /></span><div><strong id="smart-concierge-title">{copy.title}</strong><small><i /> {copy.status}</small></div></div>
+        <div className="smart-concierge__identity"><span className="smart-concierge__avatar" aria-hidden="true">V<i /></span><div><strong id="smart-concierge-title">{copy.title}</strong><small><i /> {copy.status}</small></div></div>
         <button className="smart-concierge__close" type="button" onClick={() => setOpen(false)} aria-label={copy.close}>×</button>
       </header>
       <div className="smart-concierge__intro"><strong>{copy.introTitle}</strong><span>{copy.introBody}</span></div>

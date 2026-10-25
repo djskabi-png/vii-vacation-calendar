@@ -1,7 +1,7 @@
 /**
- * Editorial seed for the eight public VII worlds.
+ * Editorial seed for the eight public V worlds.
  *
- * These are VII-owned editorial articles, intentionally separated from supplier
+ * These are V-owned editorial articles, intentionally separated from supplier
  * records. Images are resolved by the publishing layer from approved world
  * artwork or an approved legacy asset; no supplier place is implied by an
  * editorial thumbnail.

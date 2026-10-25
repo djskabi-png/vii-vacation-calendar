@@ -18,10 +18,12 @@ test("live availability requests have bounded exits instead of permanent loading
 test("unit gallery sources keep one classification and the supplier group titles", () => {
   const gallery = read("../app/components/gallery-experience.tsx");
   assert.match(gallery, /property\.galleryGroups\?\.length/);
-  assert.match(gallery, /const unitBySource = new Map/);
   assert.match(gallery, /group\.title/);
-  assert.match(gallery, /groupedPlaceItems\.map\(\(item\) => unitBySource\.get\(item\.src\) \|\| item\)/);
-  assert.doesNotMatch(gallery, /index > 0.*unitBySource/);
+  assert.match(gallery, /const groupedSources = new Set/);
+  assert.match(gallery, /\.\.\.groupedPlaceItems/);
+  assert.match(gallery, /unitItems\.filter\(\(item\) => !groupedSources\.has\(item\.src\)\)/);
+  assert.match(gallery, /topicTabs\.map/);
+  assert.doesNotMatch(gallery, /groupedPlaceItems\.map\(\(item\) => unitBySource/);
 });
 
 test("place breadcrumbs include a canonical geographic search level in every location world", () => {
@@ -35,13 +37,13 @@ test("place breadcrumbs include a canonical geographic search level in every loc
   assert.match(discovery, /localizedBreadcrumbs\(spaBreadcrumbsForLocation\(item\.area, item\.location\), breadcrumbPrefix\.spa\)/);
 });
 
-test("booking price basis and accessibility navigation use the authoritative fields", () => {
+test("booking price basis stays authoritative and accessibility is not a misleading anchor", () => {
   const booking = read("../app/booking/page.tsx");
   const business = read("../app/business/client-page.tsx");
   const event = read("../app/events/place/client-page.tsx");
   assert.match(booking, /selectedUnit\?\.basisGuests \|\| selectedUnit\?\.guests/);
-  assert.match(business, /hasVerifiedAccessibilityFeature\(property\.features\)/);
-  assert.match(event, /hasVerifiedAccessibilityFeature\(place\.features\)/);
+  assert.doesNotMatch(business, /href: "#accessibility"/);
+  assert.doesNotMatch(event, /href: "#accessibility"/);
 });
 
 test("verified physical accessibility is recognized narrowly and shown before the long place content", () => {

@@ -119,7 +119,7 @@ export default function DiscoveryPromotionsPage() {
 
   return <main dir="rtl" className={styles.page}>
     <header className={styles.header}>
-      <div><p className={styles.eyebrow}>VII · ניהול</p><h1>ניהול חשיפה</h1>
+      <div><p className={styles.eyebrow}>V · ניהול</p><h1>ניהול חשיפה</h1>
         <p>טיוטות קידום למקומות פעילים. כללי הדירוג הציבוריים עדיין אינם מופעלים.</p></div>
       <button type="button" className={styles.iconButton} onClick={() => void refresh()} disabled={loading || busy}
         title="רענון מצב" aria-label="רענון מצב"><RotateCcw size={19} /></button>

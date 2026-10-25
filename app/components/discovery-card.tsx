@@ -46,8 +46,8 @@ const worldCopy: Record<Exclude<SiteLanguage, "he">, Record<DiscoveryItem["world
 
 const interfaceCopy = {
   en: { details: "View details", from: "From", israel: "Israel", demo: "Demo profile", system: "Curated suggestion", noPrice: "Price not supplied" },
-  ru: { details: "Подробнее", from: "От", israel: "Израиль", demo: "Демо-профиль", system: "Рекомендация VII", noPrice: "Цена не указана" },
-  fr: { details: "Voir les détails", from: "À partir de", israel: "Israël", demo: "Profil de démonstration", system: "Suggestion VII", noPrice: "Prix non fourni" },
+  ru: { details: "Подробнее", from: "От", israel: "Израиль", demo: "Демо-профиль", system: "Рекомендация V", noPrice: "Цена не указана" },
+  fr: { details: "Voir les détails", from: "À partir de", israel: "Israël", demo: "Profil de démonstration", system: "Suggestion V", noPrice: "Prix non fourni" },
 } satisfies Record<Exclude<SiteLanguage, "he">, Record<string, string>>;
 
 function localizedPrice(label: string | undefined, language: Exclude<SiteLanguage, "he">, details: string) {

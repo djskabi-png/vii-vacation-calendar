@@ -55,7 +55,7 @@ const baseMetadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "VII",
+    title: "V",
   },
   alternates: {
     types: { "application/rss+xml": "/feed.xml" },
@@ -64,16 +64,16 @@ const baseMetadata: Metadata = {
 
 const localizedRootTitles = {
   he: "וי פור ויקיישן | מוצאים את החופשה שמתאימה לכם",
-  en: "VII Vacation | Find the vacation that suits you",
-  ru: "VII Vacation | Найдите отдых, который подходит именно вам",
-  fr: "VII Vacation | Trouvez les vacances qui vous conviennent",
+  en: "V Vacation | Find the vacation that suits you",
+  ru: "V Vacation | Найдите отдых, который подходит именно вам",
+  fr: "V Vacation | Trouvez les vacances qui vous conviennent",
 } as const;
 
 const localizedTitleTemplates = {
   he: "%s | וי פור ויקיישן",
-  en: "%s | VII Vacation",
-  ru: "%s | VII Vacation",
-  fr: "%s | VII Vacation",
+  en: "%s | V Vacation",
+  ru: "%s | V Vacation",
+  fr: "%s | V Vacation",
 } as const;
 
 const adminFontCriticalCss = `

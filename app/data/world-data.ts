@@ -113,7 +113,7 @@ export const hourlyPlacesFromCatalog = (places: typeof hourlyCatalog.places): Di
     lng: typeof place.lng === "number" ? place.lng : undefined,
     mapPrecision: "exact",
     sourceUrl: place.sourceUrl,
-    sourceName: "VII",
+    sourceName: "V",
     indexable: Boolean(place.images.length && place.rooms.length),
   };
 });

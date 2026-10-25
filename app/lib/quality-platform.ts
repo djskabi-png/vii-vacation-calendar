@@ -125,7 +125,8 @@ const schema = [
     id TEXT PRIMARY KEY, operation_key TEXT NOT NULL UNIQUE, trigger_kind TEXT NOT NULL, release_id TEXT, status TEXT NOT NULL,
     started_at TEXT NOT NULL, finished_at TEXT, passed_count INTEGER NOT NULL DEFAULT 0,
     failed_count INTEGER NOT NULL DEFAULT 0, degraded_count INTEGER NOT NULL DEFAULT 0,
-    blocked_count INTEGER NOT NULL DEFAULT 0, duration_ms INTEGER, actor TEXT)`,
+    blocked_count INTEGER NOT NULL DEFAULT 0, duration_ms INTEGER, actor TEXT,
+    total_checks INTEGER NOT NULL DEFAULT 0, current_check_id TEXT)`,
   `CREATE INDEX IF NOT EXISTS quality_runs_started ON quality_runs(started_at DESC)`,
   `CREATE TABLE IF NOT EXISTS quality_results (
     id TEXT PRIMARY KEY, run_id TEXT NOT NULL, check_id TEXT NOT NULL, status TEXT NOT NULL,
@@ -144,10 +145,16 @@ const schema = [
     id TEXT PRIMARY KEY, incident_id TEXT NOT NULL, channel TEXT NOT NULL, event_kind TEXT NOT NULL,
     status TEXT NOT NULL, provider_message_id TEXT, reason TEXT, created_at TEXT NOT NULL,
     UNIQUE(incident_id,channel,event_kind))`,
+  `CREATE TABLE IF NOT EXISTS quality_schedule_overrides (
+    check_id TEXT PRIMARY KEY, cadence_minutes INTEGER NOT NULL, updated_at TEXT NOT NULL, updated_by TEXT NOT NULL)`,
 ] as const;
 
 export async function ensureQualitySchema(db: D1Database) {
   await db.batch(schema.map((statement) => db.prepare(statement)));
+  const columns = await db.prepare(`PRAGMA table_info(quality_runs)`).all<{ name: string }>();
+  const names = new Set((columns.results || []).map((column) => column.name));
+  if (!names.has("total_checks")) await db.prepare(`ALTER TABLE quality_runs ADD COLUMN total_checks INTEGER NOT NULL DEFAULT 0`).run();
+  if (!names.has("current_check_id")) await db.prepare(`ALTER TABLE quality_runs ADD COLUMN current_check_id TEXT`).run();
 }
 
 function fingerprint(check: QualityCheck) {
@@ -167,16 +174,20 @@ async function registerChecks(db: D1Database, now: string) {
     timeout_ms=excluded.timeout_ms,expected=excluded.expected,release_blocking=excluded.release_blocking,active=1,updated_at=excluded.updated_at`)
     .bind(check.checkId, check.family, check.world, check.route, check.viewport, check.severity,
       check.cadenceMinutes, check.timeoutMs, check.expected, check.releaseBlocking ? 1 : 0, now)));
+  await db.prepare(`UPDATE quality_checks SET cadence_minutes=(SELECT cadence_minutes FROM quality_schedule_overrides WHERE check_id=quality_checks.check_id)
+    WHERE check_id IN (SELECT check_id FROM quality_schedule_overrides)`).run();
 }
 
-function checksDue(now: Date, trigger: "scheduled" | "manual", level: QualityRunLevel = "full") {
+async function checksDue(db: D1Database, now: Date, trigger: "scheduled" | "manual", level: QualityRunLevel = "full") {
   if (trigger === "manual") {
     if (level === "regular") return qualityRegistry.filter((check) => check.severity === "critical");
     if (level === "medium") return qualityRegistry.filter((check) => check.severity === "critical" || check.severity === "high");
     return [...qualityRegistry];
   }
   const minute = Math.floor(now.getTime() / 60_000);
-  return qualityRegistry.filter((check) => minute % check.cadenceMinutes === 0);
+  const overrides = await db.prepare(`SELECT check_id AS checkId,cadence_minutes AS cadenceMinutes FROM quality_schedule_overrides`).all<{ checkId: string; cadenceMinutes: number }>();
+  const cadenceById = new Map((overrides.results || []).map((row) => [row.checkId, row.cadenceMinutes]));
+  return qualityRegistry.filter((check) => minute % (cadenceById.get(check.checkId) || check.cadenceMinutes) === 0);
 }
 
 async function executeCheck(check: QualityCheck, origin: string, fetcher: typeof fetch) {
@@ -323,16 +334,18 @@ export async function runQualityChecks(db: D1Database, options: {
     blocked_count=CASE WHEN blocked_count<1 THEN 1 ELSE blocked_count END
     WHERE status='running' AND started_at<?`).bind(now, RUN_STALE_AFTER_MS, staleBefore).run();
   await registerChecks(db, now);
-  const due = checksDue(nowDate, options.trigger, level);
+  const due = await checksDue(db, nowDate, options.trigger, level);
   const triggerKind = options.trigger === "manual" ? `manual_${level}` : options.trigger;
-  await db.prepare(`INSERT INTO quality_runs (id,operation_key,trigger_kind,release_id,status,started_at,actor) VALUES (?,?,?,?,'running',?,?)
-    ON CONFLICT(operation_key) DO NOTHING`).bind(runId, operationKey, triggerKind, options.releaseId || null, now, options.actor || null).run();
+  await db.prepare(`INSERT INTO quality_runs (id,operation_key,trigger_kind,release_id,status,started_at,actor,total_checks,current_check_id) VALUES (?,?,?,?,'running',?,?,?,?)
+    ON CONFLICT(operation_key) DO NOTHING`).bind(runId, operationKey, triggerKind, options.releaseId || null, now, options.actor || null, due.length, due[0]?.checkId || null).run();
   const claimed = await db.prepare(`SELECT id,status FROM quality_runs WHERE operation_key=?`).bind(operationKey).first<{ id: string; status: string }>();
   if (!claimed || claimed.id !== runId) return { runId: claimed?.id || null, status: "skipped" as const, counts: null, checkCount: 0, startedAt: now, finishedAt: null };
   const counts = { passed: 0, failed: 0, degraded: 0, blocked: 0 };
   const fetcher = options.fetcher || fetch;
   for (let offset = 0; offset < due.length; offset += CHECK_CONCURRENCY) {
     const batch = due.slice(offset, offset + CHECK_CONCURRENCY);
+    await db.prepare(`UPDATE quality_runs SET current_check_id=? WHERE id=? AND status='running'`)
+      .bind(batch[0]?.checkId || null, runId).run();
     const observations = await Promise.all(batch.map(async (check) => ({ check, observed: await executeCheck(check, options.origin, fetcher) })));
     for (const { check, observed } of observations) {
       const resultId = crypto.randomUUID();
@@ -344,11 +357,17 @@ export async function runQualityChecks(db: D1Database, options: {
         origin: options.origin, notificationEnv: options.notificationEnv || {}, fetcher,
       });
     }
+    // Persist progress after every bounded batch. The administration screen
+    // reads this same run record while the request continues in the worker,
+    // so passed/failed/remaining counters never come from a second client-side
+    // calculation.
+    await db.prepare(`UPDATE quality_runs SET total_checks=?,current_check_id=?,passed_count=?,failed_count=?,degraded_count=?,blocked_count=?,duration_ms=? WHERE id=? AND status='running'`)
+      .bind(due.length, due[offset + CHECK_CONCURRENCY]?.checkId || null, counts.passed, counts.failed, counts.degraded, counts.blocked, Date.now() - started, runId).run();
   }
   const finished = new Date().toISOString();
   const status = counts.failed || counts.blocked ? "failed" : counts.degraded ? "degraded" : "passed";
-  await db.prepare(`UPDATE quality_runs SET status=?,finished_at=?,passed_count=?,failed_count=?,degraded_count=?,blocked_count=?,duration_ms=? WHERE id=?`)
-    .bind(status, finished, counts.passed, counts.failed, counts.degraded, counts.blocked, Date.now() - started, runId).run();
+  await db.prepare(`UPDATE quality_runs SET status=?,finished_at=?,total_checks=?,current_check_id=NULL,passed_count=?,failed_count=?,degraded_count=?,blocked_count=?,duration_ms=? WHERE id=?`)
+    .bind(status, finished, due.length, counts.passed, counts.failed, counts.degraded, counts.blocked, Date.now() - started, runId).run();
   return { runId, status, counts, checkCount: due.length, startedAt: now, finishedAt: finished };
 }
 
@@ -356,7 +375,8 @@ export async function readQualityDashboard(db: D1Database, notificationEnv: Qual
   await ensureQualitySchema(db);
   const [runs, incidents, deliveries, checks] = await Promise.all([
     db.prepare(`SELECT id,operation_key AS operationKey,trigger_kind AS triggerKind,release_id AS releaseId,status,started_at AS startedAt,finished_at AS finishedAt,
-      passed_count AS passedCount,failed_count AS failedCount,degraded_count AS degradedCount,blocked_count AS blockedCount,duration_ms AS durationMs,actor
+      passed_count AS passedCount,failed_count AS failedCount,degraded_count AS degradedCount,blocked_count AS blockedCount,duration_ms AS durationMs,actor,
+      total_checks AS totalChecks,current_check_id AS currentCheckId
       FROM quality_runs ORDER BY started_at DESC LIMIT 30`).all(),
     db.prepare(`SELECT id,check_id AS checkId,family,world,route,viewport,severity,status,first_seen_at AS firstSeenAt,last_seen_at AS lastSeenAt,
       recovered_at AS recoveredAt,acknowledged_at AS acknowledgedAt,acknowledged_by AS acknowledgedBy,resolved_at AS resolvedAt,
@@ -376,4 +396,16 @@ export async function updateQualityIncident(db: D1Database, input: { incidentId:
   if (input.action === "resolve") await db.prepare(`UPDATE quality_incidents SET status='resolved',resolved_at=?,resolved_by=? WHERE id=? AND status!='resolved'`).bind(now, input.actor, input.incidentId).run();
   if (input.action === "reopen") await db.prepare(`UPDATE quality_incidents SET status='open',resolved_at=NULL,resolved_by=NULL,recovered_at=NULL,last_seen_at=? WHERE id=?`).bind(now, input.incidentId).run();
   return db.prepare(`SELECT id,status,acknowledged_at AS acknowledgedAt,resolved_at AS resolvedAt FROM quality_incidents WHERE id=?`).bind(input.incidentId).first();
+}
+
+export async function updateQualitySchedule(db: D1Database, input: { checkId: string; cadenceMinutes: number; actor: string }) {
+  await ensureQualitySchema(db);
+  const allowed = new Set([5, 10, 30, 60, 180, 360, 720, 1440]);
+  if (!qualityRegistry.some((check) => check.checkId === input.checkId) || !allowed.has(input.cadenceMinutes)) throw new Error("invalid_quality_schedule");
+  const now = new Date().toISOString();
+  await db.prepare(`INSERT INTO quality_schedule_overrides (check_id,cadence_minutes,updated_at,updated_by) VALUES (?,?,?,?)
+    ON CONFLICT(check_id) DO UPDATE SET cadence_minutes=excluded.cadence_minutes,updated_at=excluded.updated_at,updated_by=excluded.updated_by`)
+    .bind(input.checkId, input.cadenceMinutes, now, input.actor).run();
+  await db.prepare(`UPDATE quality_checks SET cadence_minutes=?,updated_at=? WHERE check_id=?`).bind(input.cadenceMinutes, now, input.checkId).run();
+  return { checkId: input.checkId, cadenceMinutes: input.cadenceMinutes, updatedAt: now };
 }

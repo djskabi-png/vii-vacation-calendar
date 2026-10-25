@@ -15,12 +15,15 @@ function readGalleryHash() {
   return {
     tab: requestedTab && allowedTabs.has(requestedTab) ? requestedTab : "all" as GalleryTab,
     index: Number.isInteger(requestedPhoto) && requestedPhoto > 0 ? requestedPhoto - 1 : 0,
+    topic: params.get("topic")?.trim().slice(0, 120) || null,
   };
 }
 
-function replaceGalleryHash(tab: GalleryTab, index: number) {
+function replaceGalleryHash(tab: GalleryTab, index: number, topic?: string | null) {
   const url = new URL(window.location.href);
-  url.hash = `gallery=${tab}&photo=${Math.max(0, index) + 1}`;
+  const params = new URLSearchParams({ gallery: tab, photo: String(Math.max(0, index) + 1) });
+  if (topic) params.set("topic", topic);
+  url.hash = params.toString();
   window.history.replaceState(window.history.state, "", url);
 }
 
@@ -40,6 +43,7 @@ export function useGalleryDeepLink() {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryStart, setGalleryStart] = useState(0);
   const [galleryTab, setGalleryTab] = useState<GalleryTab>("all");
+  const [galleryTopic, setGalleryTopic] = useState<string | null>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -51,6 +55,7 @@ export function useGalleryDeepLink() {
       }
       setGalleryTab(state.tab);
       setGalleryStart(state.index);
+      setGalleryTopic(state.topic);
       setGalleryOpen(true);
     };
     syncFromHash();
@@ -58,12 +63,13 @@ export function useGalleryDeepLink() {
     return () => window.removeEventListener("hashchange", syncFromHash);
   }, []);
 
-  const openGallery = useCallback((tab: GalleryTab = "all", index = 0) => {
+  const openGallery = useCallback((tab: GalleryTab = "all", index = 0, topic: string | null = null) => {
     returnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setGalleryTab(tab);
     setGalleryStart(index);
+    setGalleryTopic(topic);
     setGalleryOpen(true);
-    replaceGalleryHash(tab, index);
+    replaceGalleryHash(tab, index, topic);
   }, []);
 
   const closeGallery = useCallback(() => {
@@ -75,9 +81,9 @@ export function useGalleryDeepLink() {
     }, 0);
   }, []);
 
-  const updateGallerySelection = useCallback((tab: GalleryTab, index: number) => {
-    if (galleryOpen) replaceGalleryHash(tab, index);
+  const updateGallerySelection = useCallback((tab: GalleryTab, index: number, topic?: string | null) => {
+    if (galleryOpen) replaceGalleryHash(tab, index, topic);
   }, [galleryOpen]);
 
-  return { galleryOpen, galleryStart, galleryTab, openGallery, closeGallery, updateGallerySelection };
+  return { galleryOpen, galleryStart, galleryTab, galleryTopic, openGallery, closeGallery, updateGallerySelection };
 }

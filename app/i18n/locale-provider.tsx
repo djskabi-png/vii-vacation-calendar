@@ -70,7 +70,7 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "הדיל אינו זמין עוד בתאריכים שנבחרו. אפשר לבדוק תאריך אחר או לפנות למקום.": "This deal is no longer available for the selected dates. Try other dates or contact the property.",
     "לא הצלחנו לאמת את הדיל כרגע. אין להסתמך על המחיר שהופיע קודם.": "We could not verify this deal now. Do not rely on the earlier price.",
     "\u05d3\u05d5\u05d2\u05de\u05d0\u05d5\u05ea \u05dc\u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d5\u05dc\u05de\u05d7\u05d9\u05e8 \u05d1\u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd \u05e9\u05d1\u05d7\u05e8\u05ea\u05dd": "Availability and price examples for your dates",
-    "\u05d4\u05ea\u05d5\u05e6\u05d0\u05d5\u05ea \u05de\u05d3\u05d2\u05d9\u05de\u05d5\u05ea \u05d0\u05ea \u05db\u05dc \u05de\u05e6\u05d1\u05d9 \u05d4\u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d5\u05d4\u05de\u05d7\u05d9\u05e8 \u05dc\u05e4\u05d9 \u05de\u05d1\u05e0\u05d9 \u05d4\u05ea\u05e6\u05d5\u05d2\u05d4 \u05e9\u05dc VII \u05d4\u05d9\u05e9\u05df. \u05d6\u05d4\u05d5 \u05de\u05d9\u05d3\u05e2 \u05dc\u05d4\u05de\u05d7\u05e9\u05d4 \u05d5\u05dc\u05d0 \u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d7\u05d9\u05d4.": "The results demonstrate every availability and price state based on the old VII display patterns. This is illustrative information, not live availability.",
+    "\u05d4\u05ea\u05d5\u05e6\u05d0\u05d5\u05ea \u05de\u05d3\u05d2\u05d9\u05de\u05d5\u05ea \u05d0\u05ea \u05db\u05dc \u05de\u05e6\u05d1\u05d9 \u05d4\u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d5\u05d4\u05de\u05d7\u05d9\u05e8 \u05dc\u05e4\u05d9 \u05de\u05d1\u05e0\u05d9 \u05d4\u05ea\u05e6\u05d5\u05d2\u05d4 \u05e9\u05dc V \u05d4\u05d9\u05e9\u05df. \u05d6\u05d4\u05d5 \u05de\u05d9\u05d3\u05e2 \u05dc\u05d4\u05de\u05d7\u05e9\u05d4 \u05d5\u05dc\u05d0 \u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d7\u05d9\u05d4.": "The results demonstrate every availability and price state based on the old V display patterns. This is illustrative information, not live availability.",
     "בונים את החופשה": "Plan your stay", "בונים את האירוע": "Plan your event", "בונים את חוויית הספא": "Plan your spa experience", "מדייקים את החיפוש": "Refine your search",
     "חיפוש יעד": "Search destinations",
     "הקלידו עיר או אזור": "Enter a city or region",
@@ -142,16 +142,16 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "\u05d9\u05e8\u05d5\u05e9\u05dc\u05d9\u05dd": "Jerusalem",
     "\u05d9\u05dd \u05d4\u05de\u05dc\u05d7": "Dead Sea",
     "\u05d4\u05d7\u05e9\u05d1\u05d5\u05df \u05d4\u05d0\u05d9\u05e9\u05d9 \u05e9\u05dc\u05d9": "My account",
-    "\u05e4\u05e8\u05e1\u05d5\u05dd \u05d5\u05d4\u05e6\u05d8\u05e8\u05e4\u05d5\u05ea \u05dc\u05d0\u05ea\u05e8": "Advertise and join VII",
+    "\u05e4\u05e8\u05e1\u05d5\u05dd \u05d5\u05d4\u05e6\u05d8\u05e8\u05e4\u05d5\u05ea \u05dc\u05d0\u05ea\u05e8": "Advertise and join V",
     "\u05e0\u05d9\u05d4\u05d5\u05dc \u05d4\u05d6\u05de\u05e0\u05d4": "Manage booking",
     "\u05e4\u05ea\u05d9\u05d7\u05ea \u05db\u05dc\u05d9 \u05d4\u05e0\u05d2\u05d9\u05e9\u05d5\u05ea": "Open accessibility tools",
     "\u05db\u05dc\u05d9 \u05e0\u05d2\u05d9\u05e9\u05d5\u05ea": "Accessibility tools",
-    "וי פור ויקיישן": "VII Vacation",
-    "וי פור ויקיישן | מוצאים את החופשה שמתאימה לכם": "VII Vacation | Find your perfect stay",
+    "וי פור ויקיישן": "V Vacation",
+    "וי פור ויקיישן | מוצאים את החופשה שמתאימה לכם": "V Vacation | Find your perfect stay",
     "כל החופשה, במקום אחד": "Your whole getaway, in one place",
     "מוצאים את החופשה שמתאימה לכם": "Find the getaway that fits you",
     "נופש": "Stays", "אירועים": "Events", "ספא": "Spa", "לפי שעה": "Hourly stays", "ספקים": "Services", "מה עושים": "Things to do",
-    "אטרקציות": "Attractions", "גיפט קארד": "Gift card", "עוד": "More", "עוד ב־VII": "More from VII", "כל העולמות והתוכן": "All worlds and guides",
+    "אטרקציות": "Attractions", "גיפט קארד": "Gift card", "עוד": "More", "עוד ב־V": "More from V", "כל העולמות והתוכן": "All worlds and guides",
     "אירועי חברה ורווחה": "Corporate events and wellbeing", "חבילות מלאות לארגונים": "Complete packages for organizations", "שפים, תקליטנים ושירותים": "Chefs, DJs and services",
     "מה עושים בסביבה": "Things to do nearby", "כל הרעיונות במקום אחד": "Every idea in one place", "מסלולי טיול": "Trails", "טיולים עצמאיים לפי אזור": "Independent trails by region",
     "מגזין ומדריכים": "Magazine and guides", "רעיונות, תוכן ומדריכים": "Ideas, stories and guides",
@@ -175,7 +175,7 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "נגישות לנכים": "Accessible for people with disabilities", "הצהרת נגישות": "Accessibility statement",
     "הגלריה של": "Gallery of", "כל הסיפור": "All photos", "המקום והמתקנים": "Property and amenities", "יחידות האירוח": "Accommodation units", "חדרי השינה": "Bedrooms", "סרטונים": "Videos", "סגירת הגלריה": "Close gallery", "לגלריה המלאה": "View full gallery",
     "גלריית אורחים": "Guest gallery", "הוספת תמונות וחוות דעת": "Add photos and a review", "תמונות אורחים מאומתות": "Verified guest photos", "חוות דעת מאומתת": "Verified review", "צירוף אסמכתה לביקור": "Attach proof of visit", "בחירת תמונות": "Choose photos",
-    "עוזר חכם": "Smart assistant", "שאלו אותי": "Ask me", "העוזר של וי": "VII assistant", "המחשה פעילה באתר": "Interactive preview", "מה תרצו למצוא?": "What would you like to find?", "שליחה": "Send", "סגירת העוזר": "Close assistant",
+    "עוזר חכם": "Smart assistant", "שאלו אותי": "Ask me", "העוזר של וי": "V assistant", "המחשה פעילה באתר": "Interactive preview", "מה תרצו למצוא?": "What would you like to find?", "שליחה": "Send", "סגירת העוזר": "Close assistant",
     "כל הכיוונים": "All regions", "דרום ואילת": "South and Eilat", "צפון וכנרת": "North and Galilee", "לקבוצות": "For groups",
     "היום": "Today", "מחר": "Tomorrow", "סוף השבוע הקרוב": "This weekend", "אוגוסט": "August", "ראש השנה": "Rosh Hashanah", "סוכות": "Sukkot",
     "חופשה באוגוסט": "August getaway", "חופשה בראש השנה": "Rosh Hashanah getaway", "חופשה בסוכות": "Sukkot getaway",
@@ -209,7 +209,7 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "שמחת תורה": "Симхат Тора",
     "חג הסיגד": "Сигд",
     "\u05d3\u05d5\u05d2\u05de\u05d0\u05d5\u05ea \u05dc\u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d5\u05dc\u05de\u05d7\u05d9\u05e8 \u05d1\u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd \u05e9\u05d1\u05d7\u05e8\u05ea\u05dd": "\u041f\u0440\u0438\u043c\u0435\u0440\u044b \u043d\u0430\u043b\u0438\u0447\u0438\u044f \u0438 \u0446\u0435\u043d \u043d\u0430 \u0432\u044b\u0431\u0440\u0430\u043d\u043d\u044b\u0435 \u0434\u0430\u0442\u044b",
-    "\u05d4\u05ea\u05d5\u05e6\u05d0\u05d5\u05ea \u05de\u05d3\u05d2\u05d9\u05de\u05d5\u05ea \u05d0\u05ea \u05db\u05dc \u05de\u05e6\u05d1\u05d9 \u05d4\u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d5\u05d4\u05de\u05d7\u05d9\u05e8 \u05dc\u05e4\u05d9 \u05de\u05d1\u05e0\u05d9 \u05d4\u05ea\u05e6\u05d5\u05d2\u05d4 \u05e9\u05dc VII \u05d4\u05d9\u05e9\u05df. \u05d6\u05d4\u05d5 \u05de\u05d9\u05d3\u05e2 \u05dc\u05d4\u05de\u05d7\u05e9\u05d4 \u05d5\u05dc\u05d0 \u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d7\u05d9\u05d4.": "\u0420\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442\u044b \u0434\u0435\u043c\u043e\u043d\u0441\u0442\u0440\u0438\u0440\u0443\u044e\u0442 \u0432\u0441\u0435 \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u044f \u043d\u0430\u043b\u0438\u0447\u0438\u044f \u0438 \u0446\u0435\u043d \u043f\u043e \u043e\u0431\u0440\u0430\u0437\u0446\u0443 \u0441\u0442\u0430\u0440\u043e\u0433\u043e VII. \u042d\u0442\u043e \u0438\u043b\u043b\u044e\u0441\u0442\u0440\u0430\u0446\u0438\u044f, \u0430 \u043d\u0435 \u043d\u0430\u043b\u0438\u0447\u0438\u0435 \u0432 \u0440\u0435\u0430\u043b\u044c\u043d\u043e\u043c \u0432\u0440\u0435\u043c\u0435\u043d\u0438.",
+    "\u05d4\u05ea\u05d5\u05e6\u05d0\u05d5\u05ea \u05de\u05d3\u05d2\u05d9\u05de\u05d5\u05ea \u05d0\u05ea \u05db\u05dc \u05de\u05e6\u05d1\u05d9 \u05d4\u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d5\u05d4\u05de\u05d7\u05d9\u05e8 \u05dc\u05e4\u05d9 \u05de\u05d1\u05e0\u05d9 \u05d4\u05ea\u05e6\u05d5\u05d2\u05d4 \u05e9\u05dc V \u05d4\u05d9\u05e9\u05df. \u05d6\u05d4\u05d5 \u05de\u05d9\u05d3\u05e2 \u05dc\u05d4\u05de\u05d7\u05e9\u05d4 \u05d5\u05dc\u05d0 \u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d7\u05d9\u05d4.": "\u0420\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442\u044b \u0434\u0435\u043c\u043e\u043d\u0441\u0442\u0440\u0438\u0440\u0443\u044e\u0442 \u0432\u0441\u0435 \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u044f \u043d\u0430\u043b\u0438\u0447\u0438\u044f \u0438 \u0446\u0435\u043d \u043f\u043e \u043e\u0431\u0440\u0430\u0437\u0446\u0443 \u0441\u0442\u0430\u0440\u043e\u0433\u043e V. \u042d\u0442\u043e \u0438\u043b\u043b\u044e\u0441\u0442\u0440\u0430\u0446\u0438\u044f, \u0430 \u043d\u0435 \u043d\u0430\u043b\u0438\u0447\u0438\u0435 \u0432 \u0440\u0435\u0430\u043b\u044c\u043d\u043e\u043c \u0432\u0440\u0435\u043c\u0435\u043d\u0438.",
     "בונים את החופשה": "Спланируйте поездку", "בונים את האירוע": "Организуйте мероприятие", "בונים את חוויית הספא": "Спланируйте спа-программу", "מדייקים את החיפוש": "Уточните поиск",
     "חיפוש יעד": "Поиск направления",
     "הקלידו עיר או אזור": "Введите город или регион",
@@ -281,16 +281,16 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "\u05d9\u05e8\u05d5\u05e9\u05dc\u05d9\u05dd": "Иерусалим",
     "\u05d9\u05dd \u05d4\u05de\u05dc\u05d7": "Мёртвое море",
     "\u05d4\u05d7\u05e9\u05d1\u05d5\u05df \u05d4\u05d0\u05d9\u05e9\u05d9 \u05e9\u05dc\u05d9": "Мой аккаунт",
-    "\u05e4\u05e8\u05e1\u05d5\u05dd \u05d5\u05d4\u05e6\u05d8\u05e8\u05e4\u05d5\u05ea \u05dc\u05d0\u05ea\u05e8": "Реклама и подключение к VII",
+    "\u05e4\u05e8\u05e1\u05d5\u05dd \u05d5\u05d4\u05e6\u05d8\u05e8\u05e4\u05d5\u05ea \u05dc\u05d0\u05ea\u05e8": "Реклама и подключение к V",
     "\u05e0\u05d9\u05d4\u05d5\u05dc \u05d4\u05d6\u05de\u05e0\u05d4": "Управление бронированием",
     "\u05e4\u05ea\u05d9\u05d7\u05ea \u05db\u05dc\u05d9 \u05d4\u05e0\u05d2\u05d9\u05e9\u05d5\u05ea": "Открыть инструменты доступности",
     "\u05db\u05dc\u05d9 \u05e0\u05d2\u05d9\u05e9\u05d5\u05ea": "Инструменты доступности",
-    "וי פור ויקיישן": "VII Vacation",
-    "וי פור ויקיישן | מוצאים את החופשה שמתאימה לכם": "VII Vacation | Найдите идеальный отдых",
+    "וי פור ויקיישן": "V Vacation",
+    "וי פור ויקיישן | מוצאים את החופשה שמתאימה לכם": "V Vacation | Найдите идеальный отдых",
     "כל החופשה, במקום אחד": "Весь отдых в одном месте",
     "מוצאים את החופשה שמתאימה לכם": "Найдите отдых, который подходит именно вам",
     "נופש": "Отдых", "אירועים": "Мероприятия", "ספא": "Спа", "לפי שעה": "Почасовой отдых", "ספקים": "Услуги", "מה עושים": "Чем заняться",
-    "אטרקציות": "Развлечения", "גיפט קארד": "Подарочная карта", "עוד": "Ещё", "עוד ב־VII": "Ещё в VII", "כל העולמות והתוכן": "Все разделы и материалы",
+    "אטרקציות": "Развлечения", "גיפט קארד": "Подарочная карта", "עוד": "Ещё", "עוד ב־V": "Ещё в V", "כל העולמות והתוכן": "Все разделы и материалы",
     "אירועי חברה ורווחה": "Корпоративные события", "חבילות מלאות לארגונים": "Готовые пакеты для компаний", "שפים, תקליטנים ושירותים": "Повара, диджеи и услуги",
     "מה עושים בסביבה": "Чем заняться рядом", "כל הרעיונות במקום אחד": "Все идеи в одном месте", "מסלולי טיול": "Маршруты", "טיולים עצמאיים לפי אזור": "Самостоятельные маршруты по регионам",
     "מגזין ומדריכים": "Журнал и гиды", "רעיונות, תוכן ומדריכים": "Идеи, статьи и путеводители",
@@ -314,7 +314,7 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "נגישות לנכים": "Доступно для людей с инвалидностью", "הצהרת נגישות": "Заявление о доступности",
     "הגלריה של": "Галерея", "כל הסיפור": "Все фотографии", "המקום והמתקנים": "Объект и удобства", "יחידות האירוח": "Варианты размещения", "חדרי השינה": "Спальни", "סרטונים": "Видео", "סגירת הגלריה": "Закрыть галерею", "לגלריה המלאה": "Открыть всю галерею",
     "גלריית אורחים": "Галерея гостей", "הוספת תמונות וחוות דעת": "Добавить фото и отзыв", "תמונות אורחים מאומתות": "Проверенные фото гостей", "חוות דעת מאומתת": "Проверенный отзыв", "צירוף אסמכתה לביקור": "Подтвердить посещение", "בחירת תמונות": "Выбрать фотографии",
-    "עוזר חכם": "Умный помощник", "שאלו אותי": "Спросите меня", "העוזר של וי": "Помощник VII", "המחשה פעילה באתר": "Интерактивная версия", "מה תרצו למצוא?": "Что вы хотите найти?", "שליחה": "Отправить", "סגירת העוזר": "Закрыть помощника",
+    "עוזר חכם": "Умный помощник", "שאלו אותי": "Спросите меня", "העוזר של וי": "Помощник V", "המחשה פעילה באתר": "Интерактивная версия", "מה תרצו למצוא?": "Что вы хотите найти?", "שליחה": "Отправить", "סגירת העוזר": "Закрыть помощника",
     "כל הכיוונים": "Все регионы", "דרום ואילת": "Юг и Эйлат", "צפון וכנרת": "Север и Кинерет", "לקבוצות": "Для групп",
     "היום": "Сегодня", "מחר": "Завтра", "סוף השבוע הקרוב": "Ближайшие выходные",
     "חופשה באוגוסט": "Отдых в августе", "חופשה בראש השנה": "Отдых на Рош ха-Шана", "חופשה בסוכות": "Отдых на Суккот",
@@ -352,7 +352,7 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "שמחת תורה": "Sim'hat Torah",
     "חג הסיגד": "Sigd",
     "\u05d3\u05d5\u05d2\u05de\u05d0\u05d5\u05ea \u05dc\u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d5\u05dc\u05de\u05d7\u05d9\u05e8 \u05d1\u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd \u05e9\u05d1\u05d7\u05e8\u05ea\u05dd": "Exemples de disponibilit\u00e9 et de prix pour vos dates",
-    "\u05d4\u05ea\u05d5\u05e6\u05d0\u05d5\u05ea \u05de\u05d3\u05d2\u05d9\u05de\u05d5\u05ea \u05d0\u05ea \u05db\u05dc \u05de\u05e6\u05d1\u05d9 \u05d4\u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d5\u05d4\u05de\u05d7\u05d9\u05e8 \u05dc\u05e4\u05d9 \u05de\u05d1\u05e0\u05d9 \u05d4\u05ea\u05e6\u05d5\u05d2\u05d4 \u05e9\u05dc VII \u05d4\u05d9\u05e9\u05df. \u05d6\u05d4\u05d5 \u05de\u05d9\u05d3\u05e2 \u05dc\u05d4\u05de\u05d7\u05e9\u05d4 \u05d5\u05dc\u05d0 \u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d7\u05d9\u05d4.": "Les r\u00e9sultats pr\u00e9sentent tous les \u00e9tats de disponibilit\u00e9 et de prix inspir\u00e9s de l'ancien VII. Il s'agit d'une illustration, pas de disponibilit\u00e9s en direct.",
+    "\u05d4\u05ea\u05d5\u05e6\u05d0\u05d5\u05ea \u05de\u05d3\u05d2\u05d9\u05de\u05d5\u05ea \u05d0\u05ea \u05db\u05dc \u05de\u05e6\u05d1\u05d9 \u05d4\u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d5\u05d4\u05de\u05d7\u05d9\u05e8 \u05dc\u05e4\u05d9 \u05de\u05d1\u05e0\u05d9 \u05d4\u05ea\u05e6\u05d5\u05d2\u05d4 \u05e9\u05dc V \u05d4\u05d9\u05e9\u05df. \u05d6\u05d4\u05d5 \u05de\u05d9\u05d3\u05e2 \u05dc\u05d4\u05de\u05d7\u05e9\u05d4 \u05d5\u05dc\u05d0 \u05d6\u05de\u05d9\u05e0\u05d5\u05ea \u05d7\u05d9\u05d4.": "Les r\u00e9sultats pr\u00e9sentent tous les \u00e9tats de disponibilit\u00e9 et de prix inspir\u00e9s de l'ancien V. Il s'agit d'une illustration, pas de disponibilit\u00e9s en direct.",
     "בונים את החופשה": "Planifiez votre séjour", "בונים את האירוע": "Organisez votre événement", "בונים את חוויית הספא": "Préparez votre expérience spa", "מדייקים את החיפוש": "Affinez votre recherche",
     "חיפוש יעד": "Rechercher une destination",
     "הקלידו עיר או אזור": "Saisissez une ville ou une région",
@@ -434,15 +434,15 @@ const curatedTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "\u05d9\u05e8\u05d5\u05e9\u05dc\u05d9\u05dd": "Jérusalem",
     "\u05d9\u05dd \u05d4\u05de\u05dc\u05d7": "Mer Morte",
     "\u05d4\u05d7\u05e9\u05d1\u05d5\u05df \u05d4\u05d0\u05d9\u05e9\u05d9 \u05e9\u05dc\u05d9": "Mon compte",
-    "\u05e4\u05e8\u05e1\u05d5\u05dd \u05d5\u05d4\u05e6\u05d8\u05e8\u05e4\u05d5\u05ea \u05dc\u05d0\u05ea\u05e8": "Publier et rejoindre VII",
+    "\u05e4\u05e8\u05e1\u05d5\u05dd \u05d5\u05d4\u05e6\u05d8\u05e8\u05e4\u05d5\u05ea \u05dc\u05d0\u05ea\u05e8": "Publier et rejoindre V",
     "\u05e0\u05d9\u05d4\u05d5\u05dc \u05d4\u05d6\u05de\u05e0\u05d4": "Gérer une réservation",
     "\u05e4\u05ea\u05d9\u05d7\u05ea \u05db\u05dc\u05d9 \u05d4\u05e0\u05d2\u05d9\u05e9\u05d5\u05ea": "Ouvrir les outils d'accessibilité",
     "\u05db\u05dc\u05d9 \u05e0\u05d2\u05d9\u05e9\u05d5\u05ea": "Outils d'accessibilité",
-    "\u05d5\u05d9 \u05e4\u05d5\u05e8 \u05d5\u05d9\u05e7\u05d9\u05d9\u05e9\u05df": "VII Vacation",
+    "\u05d5\u05d9 \u05e4\u05d5\u05e8 \u05d5\u05d9\u05e7\u05d9\u05d9\u05e9\u05df": "V Vacation",
     "\u05db\u05dc \u05d4\u05d7\u05d5\u05e4\u05e9\u05d4, \u05d1\u05de\u05e7\u05d5\u05dd \u05d0\u05d7\u05d3": "Toutes vos vacances, au même endroit",
     "\u05de\u05d5\u05e6\u05d0\u05d9\u05dd \u05d0\u05ea \u05d4\u05d7\u05d5\u05e4\u05e9\u05d4 \u05e9\u05de\u05ea\u05d0\u05d9\u05de\u05d4 \u05dc\u05db\u05dd": "Trouvez le séjour qui vous correspond",
     "\u05e0\u05d5\u05e4\u05e9": "Séjours", "\u05d0\u05d9\u05e8\u05d5\u05e2\u05d9\u05dd": "Événements", "\u05e1\u05e4\u05d0": "Spa", "\u05dc\u05e4\u05d9 \u05e9\u05e2\u05d4": "Chambres à l’heure", "\u05e1\u05e4\u05e7\u05d9\u05dd": "Services", "\u05de\u05d4 \u05e2\u05d5\u05e9\u05d9\u05dd": "À faire",
-    "אטרקציות": "Attractions", "גיפט קארד": "Carte cadeau", "עוד": "Plus", "עוד ב־VII": "Plus sur VII", "כל העולמות והתוכן": "Tous les univers et les guides",
+    "אטרקציות": "Attractions", "גיפט קארד": "Carte cadeau", "עוד": "Plus", "עוד ב־V": "Plus sur V", "כל העולמות והתוכן": "Tous les univers et les guides",
     "אירועי חברה ורווחה": "Événements d’entreprise et bien-être", "חבילות מלאות לארגונים": "Formules complètes pour les organisations", "שפים, תקליטנים ושירותים": "Chefs, DJ et services",
     "מה עושים בסביבה": "À faire à proximité", "כל הרעיונות במקום אחד": "Toutes les idées au même endroit", "מסלולי טיול": "Itinéraires", "טיולים עצמאיים לפי אזור": "Itinéraires autonomes par région",
     "מגזין ומדריכים": "Magazine et guides", "רעיונות, תוכן ומדריכים": "Idées, articles et guides",
@@ -495,7 +495,7 @@ const finalUiTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "אפשר להסיר מאפיין אחד או לבחור אזור רחב יותר.": "Remove one filter or choose a wider area.",
     "הצגת כל מתחמי הספא": "Show all spa venues",
     "הנציג החכם של האתר": "Site concierge",
-    "נציג החופשה של וי": "Your VII vacation concierge",
+    "נציג החופשה של וי": "Your V vacation concierge",
     "זמין עכשיו באתר": "Online on the site",
     "סגירת הנציג": "Close concierge",
     "מתכננים משהו טוב?": "Planning something special?",
@@ -509,9 +509,9 @@ const finalUiTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "נציג החופשה שלכם": "Your vacation concierge",
     "איך אפשר לעזור?": "How can I help?",
     "הודעה חדשה": "New message",
-    "פרטי המקום, אפשרויות השהייה והפנייה מרוכזים כאן כדי שאפשר יהיה לבחור בלי לצאת מהאתר.": "Property details, stay options and enquiries are all here, so you can choose without leaving VII.",
+    "פרטי המקום, אפשרויות השהייה והפנייה מרוכזים כאן כדי שאפשר יהיה לבחור בלי לצאת מהאתר.": "Property details, stay options and enquiries are all here, so you can choose without leaving V.",
     "מגדילים, מקטינים ומזיזים את המפה כאן בעמוד.": "Zoom and move the interactive map right here on the page.",
-    "היי, אני הנציג החכם של וי. ספרו לי בחופשיות מה אתם מתכננים, למי, איפה ומתי. אעזור לכם להתמקד ואמצא את העמוד הנכון באתר.": "Hi, I’m VII’s smart concierge. Tell me what you are planning, for whom, where and when. I’ll help you focus and find the right page on the site.",
+    "היי, אני הנציג החכם של וי. ספרו לי בחופשיות מה אתם מתכננים, למי, איפה ומתי. אעזור לכם להתמקד ואמצא את העמוד הנכון באתר.": "Hi, I’m V’s smart concierge. Tell me what you are planning, for whom, where and when. I’ll help you focus and find the right page on the site.",
     "מחפשים נופש": "Find a vacation",
     "אירוע או חגיגה": "Event or celebration",
     "ספא או יום כיף": "Spa or day pass",
@@ -624,7 +624,7 @@ const finalUiTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "אפשר להסיר מאפיין אחד או לבחור אזור רחב יותר.": "Уберите один фильтр или выберите более широкий регион.",
     "הצגת כל מתחמי הספא": "Показать все спа",
     "הנציג החכם של האתר": "Умный консультант сайта",
-    "נציג החופשה של וי": "Ваш консультант VII",
+    "נציג החופשה של וי": "Ваш консультант V",
     "זמין עכשיו באתר": "Сейчас онлайн",
     "סגירת הנציג": "Закрыть консультанта",
     "מתכננים משהו טוב?": "Планируете что-то особенное?",
@@ -638,9 +638,9 @@ const finalUiTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "נציג החופשה שלכם": "Ваш консультант по отдыху",
     "איך אפשר לעזור?": "Чем помочь?",
     "הודעה חדשה": "Новое сообщение",
-    "פרטי המקום, אפשרויות השהייה והפנייה מרוכזים כאן כדי שאפשר יהיה לבחור בלי לצאת מהאתר.": "Все сведения об объекте, варианты размещения и запрос собраны здесь, чтобы выбрать, не покидая VII.",
+    "פרטי המקום, אפשרויות השהייה והפנייה מרוכזים כאן כדי שאפשר יהיה לבחור בלי לצאת מהאתר.": "Все сведения об объекте, варианты размещения и запрос собраны здесь, чтобы выбрать, не покидая V.",
     "מגדילים, מקטינים ומזיזים את המפה כאן בעמוד.": "Масштабируйте и перемещайте интерактивную карту прямо на этой странице.",
-    "היי, אני הנציג החכם של וי. ספרו לי בחופשיות מה אתם מתכננים, למי, איפה ומתי. אעזור לכם להתמקד ואמצא את העמוד הנכון באתר.": "Здравствуйте, я умный консультант VII. Расскажите, что вы планируете, для кого, где и когда. Я помогу уточнить запрос и найти нужную страницу сайта.",
+    "היי, אני הנציג החכם של וי. ספרו לי בחופשיות מה אתם מתכננים, למי, איפה ומתי. אעזור לכם להתמקד ואמצא את העמוד הנכון באתר.": "Здравствуйте, я умный консультант V. Расскажите, что вы планируете, для кого, где и когда. Я помогу уточнить запрос и найти нужную страницу сайта.",
     "מחפשים נופש": "Найти отдых",
     "אירוע או חגיגה": "Мероприятие",
     "ספא או יום כיף": "Спа или день отдыха",
@@ -753,7 +753,7 @@ const finalUiTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "אפשר להסיר מאפיין אחד או לבחור אזור רחב יותר.": "Retirez un filtre ou choisissez une zone plus large.",
     "הצגת כל מתחמי הספא": "Afficher tous les spas",
     "הנציג החכם של האתר": "Concierge intelligent du site",
-    "נציג החופשה של וי": "Votre concierge VII",
+    "נציג החופשה של וי": "Votre concierge V",
     "זמין עכשיו באתר": "Disponible sur le site",
     "סגירת הנציג": "Fermer le concierge",
     "מתכננים משהו טוב?": "Vous préparez un beau projet ?",
@@ -767,9 +767,9 @@ const finalUiTranslations: Record<Exclude<SiteLanguage, "he">, Record<string, st
     "נציג החופשה שלכם": "Votre concierge vacances",
     "איך אפשר לעזור?": "Comment vous aider ?",
     "הודעה חדשה": "Nouveau message",
-    "פרטי המקום, אפשרויות השהייה והפנייה מרוכזים כאן כדי שאפשר יהיה לבחור בלי לצאת מהאתר.": "Les informations du lieu, les options de séjour et la demande sont réunies ici pour choisir sans quitter VII.",
+    "פרטי המקום, אפשרויות השהייה והפנייה מרוכזים כאן כדי שאפשר יהיה לבחור בלי לצאת מהאתר.": "Les informations du lieu, les options de séjour et la demande sont réunies ici pour choisir sans quitter V.",
     "מגדילים, מקטינים ומזיזים את המפה כאן בעמוד.": "Zoomez et déplacez la carte interactive directement sur cette page.",
-    "היי, אני הנציג החכם של וי. ספרו לי בחופשיות מה אתם מתכננים, למי, איפה ומתי. אעזור לכם להתמקד ואמצא את העמוד הנכון באתר.": "Bonjour, je suis le concierge intelligent de VII. Dites-moi ce que vous préparez, pour qui, où et quand. Je vous aiderai à préciser votre recherche et à trouver la bonne page.",
+    "היי, אני הנציג החכם של וי. ספרו לי בחופשיות מה אתם מתכננים, למי, איפה ומתי. אעזור לכם להתמקד ואמצא את העמוד הנכון באתר.": "Bonjour, je suis le concierge intelligent de V. Dites-moi ce que vous préparez, pour qui, où et quand. Je vous aiderai à préciser votre recherche et à trouver la bonne page.",
     "מחפשים נופש": "Trouver un séjour",
     "אירוע או חגיגה": "Événement ou fête",
     "ספא או יום כיף": "Spa ou journée détente",
@@ -1331,10 +1331,10 @@ function translateValue(value: string, language: SiteLanguage): string {
   const brandSuffix = " | וי פור ויקיישן";
   const headline = core.endsWith(brandSuffix) ? core.slice(0, -brandSuffix.length) : "";
   const reviewedHeadline = (visitorUiTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[headline]?.[language];
-  if (reviewedHeadline) return `${leading}${reviewedHeadline} | VII Vacation${trailing}`;
+  if (reviewedHeadline) return `${leading}${reviewedHeadline} | V Vacation${trailing}`;
   if (headline) {
     const localizedHeadline = translateValue(headline, language);
-    if (!hebrewPattern.test(localizedHeadline)) return `${leading}${localizedHeadline} | VII Vacation${trailing}`;
+    if (!hebrewPattern.test(localizedHeadline)) return `${leading}${localizedHeadline} | V Vacation${trailing}`;
   }
   const bookingHubExact = (bookingHubTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
   const visitorExact = (visitorUiTranslations as Record<string, Partial<Record<SiteLanguage, string>>>)[core]?.[language];
@@ -1355,7 +1355,7 @@ function translateValue(value: string, language: SiteLanguage): string {
       .replace(/\buntil\b/gi, "up to")
       .replace(/\bUpper roll\b/g, "Upper Galilee")
       .replace(/\bSob Kinneret\b/g, "Sea of Galilee area")
-      .replace(/\bVifor Vacation\b/g, "VII Vacation")
+      .replace(/\bVifor Vacation\b/g, "V Vacation")
       .replace(/\btable games\b/gi, "games tables")
       .replace(/\bcomplete accommodation\b/gi, "entire place")
       .replace(/\ba entire place\b/gi, "an entire place");
@@ -1369,7 +1369,7 @@ function translateValue(value: string, language: SiteLanguage): string {
       .replace(/(\d+)\s+единицы/gi, "$1 варианта размещения")
       .replace(/Верхний валок/g, "Верхняя Галилея")
       .replace(/Соб Кинерет/g, "район Кинерета")
-      .replace(/Вифор Отпуск/g, "VII Vacation")
+      .replace(/Вифор Отпуск/g, "V Vacation")
       .replace(/полное (?:проживание|размещение)/gi, "отдельный объект целиком")
       .replace(/настольные игры/gi, "игровые столы");
   }

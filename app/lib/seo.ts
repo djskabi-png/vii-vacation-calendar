@@ -33,7 +33,7 @@ export function organizationSchema() {
     "@type": "Organization",
     "@id": ORGANIZATION_ID,
     name: SITE_NAME,
-    alternateName: "VII",
+    alternateName: "V",
     url: `${SITE_URL}/`,
     logo: {
       "@type": "ImageObject",

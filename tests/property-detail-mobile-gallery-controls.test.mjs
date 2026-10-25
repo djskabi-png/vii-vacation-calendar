@@ -38,7 +38,8 @@ test("full-screen unit galleries expose visible mobile controls and keep grid an
 
 test("supplier cover remains first while repeated unit media keeps one consistent unit count", () => {
   assert.match(business, /const placeGalleryImages = property\.images;/);
-  assert.match(galleryExperience, /const placeItems = groupedPlaceItems\.map\(\(item\) => unitBySource\.get\(item\.src\) \|\| item\)/);
+  assert.match(galleryExperience, /const groupedSources = new Set\(groupedPlaceItems\.map\(\(item\) => item\.src\)\)/);
+  assert.match(galleryExperience, /\.\.\.groupedPlaceItems,[\s\S]*?\.\.\.unitItems\.filter\(\(item\) => !groupedSources\.has\(item\.src\)\)/);
 });
 
 test("desktop gallery remains a five-image composition", () => {

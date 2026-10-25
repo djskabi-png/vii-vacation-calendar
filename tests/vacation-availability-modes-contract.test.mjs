@@ -30,7 +30,7 @@ test("the legacy API returns an honest multi-unit recommendation and inventory s
   assert.doesNotMatch(route, /Math\.min\(\.\.\.availablePrices\)/);
 });
 
-test("unit cards keep only compact facts and place status and price above the action", async () => {
+test("unit cards keep compact facts, a distinct sleeping explanation and place status and price above the action", async () => {
   const page = await readFile(new URL("app/business/client-page.tsx", root), "utf8");
   const css = await readFile(new URL("app/globals.css", root), "utf8");
   const statusPosition = page.indexOf("room-card__availability");
@@ -43,7 +43,7 @@ test("unit cards keep only compact facts and place status and price above the ac
   assert.match(page, /נדרשים לפחות \$\{roomAvailability\.minimumNights\} לילות/);
   assert.doesNotMatch(page, /כל פרטי היחידה \+/);
   assert.doesNotMatch(page, /room-card__features/);
-  assert.doesNotMatch(page, /room-card__sleeping/);
+  assert.match(page, /room-card__sleeping/);
   assert.match(css, /grid-template-areas: "image identity" "image body"/);
   assert.match(css, /\.room-card__image \{[^}]*min-height: 318px/);
   assert.match(css, /\.room-card__actions \{[^}]*margin-top: auto/);

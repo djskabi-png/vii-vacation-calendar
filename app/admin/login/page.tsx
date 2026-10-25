@@ -30,13 +30,13 @@ export default async function AdminLoginPage({ searchParams }: { searchParams: P
   return <main className={styles.page} id="main-content" dir="rtl">
     <section className={styles.card} aria-labelledby="admin-login-title">
       <Image className={styles.logo} src="/vii-logo.png" width={160} height={122} priority unoptimized alt="וי פור ויקיישן" title="וי פור ויקיישן" />
-      <div className={styles.identity}><ShieldCheck size={22} aria-hidden="true" /><span>VII Control</span></div>
+      <div className={styles.identity}><ShieldCheck size={22} aria-hidden="true" /><span>V Control</span></div>
       <h1 id="admin-login-title">כניסה למערכת הניהול</h1>
-      <p>הכניסה מיועדת למנהלי VII ולעובדים שקיבלו הרשאה. חשבון הלקוחות באתר נשאר נפרד.</p>
+      <p>הכניסה מיועדת למנהלי V ולעובדים שקיבלו הרשאה. חשבון הלקוחות באתר נשאר נפרד.</p>
       {loggedOut ? <div className={styles.success} role="status">התנתקתם ממערכת הניהול.</div> : null}
       {error ? <div className={styles.error} role="alert">{attemptedAccount ? <><strong>החשבון שנבחר:</strong><bdi dir="ltr">{attemptedAccount.email}</bdi><span>לחשבון הזה אין הרשאת ניהול. לחצו שוב ובחרו בחשבון Google שעבורו נשמרה ההרשאה.</span></> : error}</div> : null}
       <a className={styles.login} href={loginHref}><LogIn size={19} aria-hidden="true" /><span>{attemptedAccount ? "בחירת חשבון Google אחר" : "כניסה עם חשבון מנהל"}</span></a>
-      <Link className={styles.publicLink} href="/">חזרה לאתר VII</Link>
+      <Link className={styles.publicLink} href="/">חזרה לאתר V</Link>
     </section>
   </main>;
 }

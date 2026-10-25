@@ -45,7 +45,7 @@ export const defaultWorldLandingPresentations: Record<ManagedWorldLandingType, W
   trails: {
     title: "יוצאים מהצימר. נכנסים לישראל היפה.",
     description: "מפלים, מעיינות, חופים, יערות ומדבר. בוחרים לפי אזור, זמן ודרגת קושי ויוצאים עם תוכנית ברורה.",
-    eyebrow: "מסלולים שהופקו במיוחד למטיילי VII",
+    eyebrow: "מסלולים שהופקו במיוחד למטיילי V",
     proof: ["מידע ממקורות רשמיים", "בחירה לפי קושי וזמן", "דגשי בטיחות בכל מסלול"],
     heroImages: [worldTopicMedia.trails]
   }

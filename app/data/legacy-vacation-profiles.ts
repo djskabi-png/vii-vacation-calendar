@@ -27,7 +27,7 @@ export type LegacyVacationProfile = {
 const guest = (he: string, en = "Verified guest", ru = "Проверенный гость", fr = "Client vérifié"): LocalizedLegacyCopy => ({ he, en, ru, fr });
 const copy = (he: string, en: string, ru: string, fr: string): LocalizedLegacyCopy => ({ he, en, ru, fr });
 
-// Every value below was checked against the matching VII legacy property page.
+// Every value below was checked against the matching V legacy property page.
 // Review text is a faithful summary, not a quotation. Availability and prices are
 // used only when a dated public inventory snapshot is stored with source provenance.
 export const legacyVacationProfiles: Record<string, LegacyVacationProfile> = {

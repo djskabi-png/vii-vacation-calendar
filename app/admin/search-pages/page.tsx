@@ -153,7 +153,7 @@ export default function SearchPagesAdmin() {
 
   return <main className={styles.page} dir="rtl">
     <header className={styles.topbar}><div><span className={styles.kicker}>מרכז גילוי ותוכן</span><h1>עמודי חיפוש</h1><p>כל חיפוש אמיתי הופך להזדמנות שאפשר למדוד, לערוך ולפרסם.</p></div><div className={styles.topActions}><div className={styles.period}>{[7, 30, 90].map((days) => <button key={days} type="button" aria-pressed={period === days} onClick={() => setPeriod(days)}>{days} ימים</button>)}</div><button type="button" className={styles.iconButton} onClick={() => void loadDashboard(period)} disabled={loading} aria-label="רענון נתונים" title="רענון"><RefreshCw size={18} className={loading ? styles.spin : ""} /></button></div></header>
-    {forbidden ? <section className={styles.authState}><Target size={34} /><h2>כניסה למרכז הניהול</h2><p>המידע פתוח רק למנהלי VII מורשים.</p><a href="/api/auth/google?returnTo=%2Fadmin%2Fsearch-pages">כניסה עם Google <ArrowLeft size={17} /></a></section> : null}
+    {forbidden ? <section className={styles.authState}><Target size={34} /><h2>כניסה למרכז הניהול</h2><p>המידע פתוח רק למנהלי V מורשים.</p><a href="/api/auth/google?returnTo=%2Fadmin%2Fsearch-pages">כניסה עם Google <ArrowLeft size={17} /></a></section> : null}
     {error ? <div className={styles.alert} role="alert"><AlertCircle size={18} /><span>{error}</span><button type="button" onClick={() => setError("")} aria-label="סגירת הודעה"><X size={16} /></button></div> : null}
     {message ? <div className={styles.success} role="status"><CheckCircle2 size={18} /><span>{message}</span><button type="button" onClick={() => setMessage("")} aria-label="סגירת הודעה"><X size={16} /></button></div> : null}
     {!forbidden && dashboard ? <>

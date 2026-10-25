@@ -16,7 +16,7 @@ const cell = { padding: "10px 8px", borderBottom: "1px solid #e0e6e4", whiteSpac
 const statusText: Record<string, string> = {
   supplier_accepted: "הספק החזיר אישור", lead_service_accepted: "מערכת הלידים קיבלה; מסירה לספק לא אומתה",
   status_unknown: "תוצאת שליחה לא ידועה; לבדוק לפי אסמכתה, בלי לשלוח שוב",
-  pending: "ממתינה לטיפול ב-VII", approved: "אושרה ב-VII", rejected: "נדחתה ב-VII",
+  pending: "ממתינה לטיפול ב-V", approved: "אושרה ב-V", rejected: "נדחתה ב-V",
 };
 function date(value: string) { return new Date(value).toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" }); }
 
@@ -50,7 +50,7 @@ export default function OperationsPage() {
   return <main dir="rtl" style={{ maxWidth: 1240, margin: "0 auto", padding: "32px 20px", minHeight: "80vh" }}>
     <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
       <div><h1 style={{ margin: 0, fontSize: "1.7rem" }}>הזמנות וחוות דעת</h1>
-        <p>יומן בדיקה של פעולות VII. אישור של מערכת לידים אינו הוכחה שהספק קיבל את הבקשה.</p>
+        <p>יומן בדיקה של פעולות V. אישור של מערכת לידים אינו הוכחה שהספק קיבל את הבקשה.</p>
         <a href="/admin/catalog-sync">סנכרון קטלוגים</a></div>
       <button type="button" onClick={() => void refresh(0, query)} disabled={loading} aria-label="רענון הדוח" title="רענון הדוח"><RefreshCw size={18} aria-hidden="true" /></button>
     </header>
@@ -77,10 +77,10 @@ export default function OperationsPage() {
         </tr>)}</tbody></table></div>
         {!report.bookings.length ? <p>לא נמצאו בקשות הזמנה.</p> : null}
       </section>
-      <section aria-labelledby="reviews-title" style={{ marginTop: 32 }}><h2 id="reviews-title">חוות דעת שנשלחו ל-VII</h2>
-        <p>מצב הביקורת כאן הוא מצב השמירה והטיפול ב-VII. אין ביומן הזה אישור מסירה לספק.</p>
+      <section aria-labelledby="reviews-title" style={{ marginTop: 32 }}><h2 id="reviews-title">חוות דעת שנשלחו ל-V</h2>
+        <p>מצב הביקורת כאן הוא מצב השמירה והטיפול ב-V. אין ביומן הזה אישור מסירה לספק.</p>
         <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse", textAlign: "right" }}><thead><tr>
-          {['נוצרה', 'מזהה', 'מקום', 'כותב', 'דירוג', 'מצב ב-VII'].map((label) => <th key={label} scope="col" style={cell}>{label}</th>)}
+          {['נוצרה', 'מזהה', 'מקום', 'כותב', 'דירוג', 'מצב ב-V'].map((label) => <th key={label} scope="col" style={cell}>{label}</th>)}
         </tr></thead><tbody>{report.reviews.map((item) => <tr key={item.id}>
           <td style={cell}>{date(item.createdAt)}</td><td style={cell}><code dir="ltr">{item.id}</code></td>
           <td style={cell}>{item.placeName}</td><td style={cell}>{item.author}</td><td style={cell}>{item.rating}/5</td>

@@ -9,7 +9,7 @@ const raw=()=>({siteID,from,till,rooms:[{roomID:4378,dates:[day('2026-10-23',3),
 const parsed=()=>parseStayCalendar(raw(),siteID,from,till);
 test('arrival-specific minimum blocks min-1 and allows min, not a weekday constant',()=>{
  const c=parsed(); assert.equal(stayCalendarDay(c,from).minimumNights,3);
- assert.deepEqual(assessCalendarStay(c,from,'2026-10-25'),{allowed:false,reason:'min_nights',minimumNights:3,roomIDs:[]});
+ assert.deepEqual(assessCalendarStay(c,from,'2026-10-25'),{allowed:false,reason:'min_nights',minimumNights:3,roomIDs:[],availableUnitCounts:{}});
  assert.equal(assessCalendarStay(c,from,'2026-10-26').allowed,true);
  assert.equal(assessCalendarStay(c,from,'2026-10-27').allowed,true);
 });
@@ -38,6 +38,7 @@ test('different room types preserve their own arrival minimum and inventory',()=
  const c=parseStayCalendar(r,siteID,from,till);
  assert.equal(stayCalendarDay(c,from).minimumNights,2);
  assert.deepEqual(assessCalendarStay(c,from,'2026-10-25').roomIDs,[4379]);
+ assert.deepEqual(assessCalendarStay(c,from,'2026-10-25').availableUnitCounts,{4379:1});
  assert.equal(assessCalendarStay(c,from,'2026-10-25',4378).reason,'min_nights');
 });
 test('strict projection rejects malformed, duplicate and cross-context calendar values',()=>{

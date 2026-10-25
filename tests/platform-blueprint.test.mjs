@@ -83,10 +83,10 @@ test("platform route remains deliberately excluded from indexing", async () => {
   assert.match(page, /canonical: "\/platform"/);
 });
 
-test("Hilat Hanof case study maps verified VII data to a proposed Sergey contract", async () => {
+test("Hilat Hanof case study maps verified V data to a proposed Sergey contract", async () => {
   const source = await readFile(sourceUrl, "utf8");
   for (const required of [
-    "הילת הנוף, ממקור נתונים לעמוד אמיתי ב־VII",
+    "הילת הנוף, ממקור נתונים לעמוד אמיתי ב־V",
     "חוזה סרגיי מוצע",
     "החיבור לסרגיי עדיין אינו פעיל",
     "46 קובצי מדיה",
@@ -97,7 +97,7 @@ test("Hilat Hanof case study maps verified VII data to a proposed Sergey contrac
     "/business?id=hilat-hanof",
     "https://www.vii.co.il/hilat_hanof",
     "Idempotency-Key: vii_booking_<stable-id>",
-    "מקורם בעמוד ובמאגר VII הנוכחיים",
+    "מקורם בעמוד ובמאגר V הנוכחיים",
   ]) assert.match(source, new RegExp(required.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
 
   assert.match(source, /supplierVenueId: '<Sergey ID to confirm>'/);
@@ -127,7 +127,7 @@ test("architecture artwork is a real interactive system simulator", async () => 
   assert.ok((hotspotBlock[0].match(/target: \{ type:/g) ?? []).length >= 28, "the complete architecture should be clickable");
 
   for (const required of [
-    "VII INTERACTIVE SYSTEM",
+    "V INTERACTIVE SYSTEM",
     "הדמיית ארכיטקטורה",
     "עדכון תמונה",
     "בדיקת זמינות",

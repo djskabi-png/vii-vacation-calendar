@@ -128,7 +128,7 @@ export function GiftCardBuilder() {
       if (!response.ok || !result.success) throw new Error("submit failed");
       const orderReference = result.reference || `GIFT-${id.slice(0, 8).toUpperCase()}`;
       setReference(orderReference);
-      saveBooking({ id, reference: orderReference, world: "gift-card", placeName: "גיפט קארד VII", offerName: `${selectedDesign.label}, ${finalAmount} ₪`, date: `${deliveryDate} ${deliveryTime}`, status: "pending", createdAt: new Date().toISOString() });
+      saveBooking({ id, reference: orderReference, world: "gift-card", placeName: "גיפט קארד V", offerName: `${selectedDesign.label}, ${finalAmount} ₪`, date: `${deliveryDate} ${deliveryTime}`, status: "pending", createdAt: new Date().toISOString() });
       setStep("success");
       setState("idle");
     } catch {
@@ -145,10 +145,10 @@ export function GiftCardBuilder() {
 
     {step === "success" ? <section className="gift-thank-you" role="status" aria-live="polite">
       <div className="gift-thank-you__intro"><span>תודה, הבקשה נקלטה</span><h2>אנחנו מאמתים את פרטי המתנה</h2><p>לא בוצע חיוב. נציג יאמת את הסכום, מועד השליחה ופרטי המקבל לפני הפקת השובר והמשך לתשלום.</p>{reference ? <strong dir="ltr">{reference}</strong> : null}</div>
-      <div className={`gift-voucher gift-voucher--${design}`}><small>VII GIFT CARD</small><h3>{selectedDesign.label}</h3><b>{finalAmount.toLocaleString("he-IL")} ₪</b><p>לכבוד {recipient}</p><span>{message || "שתהיה לך חוויה נפלאה"}</span><footer>תצוגה מקדימה. התוקף ותנאי המימוש יופיעו בשובר הסופי.</footer></div>
+      <div className={`gift-voucher gift-voucher--${design}`}><small>V GIFT CARD</small><h3>{selectedDesign.label}</h3><b>{finalAmount.toLocaleString("he-IL")} ₪</b><p>לכבוד {recipient}</p><span>{message || "שתהיה לך חוויה נפלאה"}</span><footer>תצוגה מקדימה. התוקף ותנאי המימוש יופיעו בשובר הסופי.</footer></div>
       <div className="gift-notification-previews">
-        <article><span>הודעת הדואר למקבל או למקבלת</span><h3>{recipient}, מחכה לך מתנה</h3><p>{sender} שלח או שלחה לך גיפט קארד של VII בסך {finalAmount.toLocaleString("he-IL")} ₪. השובר יצורף להודעה ויכלול קישור למימוש.</p><small>{recipientEmail}</small></article>
-        <article><span>המסרון למקבל או למקבלת</span><p>{recipient}, קיבלת גיפט קארד של VII מאת {sender}. השובר יישלח בתאריך {deliveryDate} בשעה {deliveryTime}.</p><small>{recipientPhone}</small></article>
+        <article><span>הודעת הדואר למקבל או למקבלת</span><h3>{recipient}, מחכה לך מתנה</h3><p>{sender} שלח או שלחה לך גיפט קארד של V בסך {finalAmount.toLocaleString("he-IL")} ₪. השובר יצורף להודעה ויכלול קישור למימוש.</p><small>{recipientEmail}</small></article>
+        <article><span>המסרון למקבל או למקבלת</span><p>{recipient}, קיבלת גיפט קארד של V מאת {sender}. השובר יישלח בתאריך {deliveryDate} בשעה {deliveryTime}.</p><small>{recipientPhone}</small></article>
         <article><span>אישור הרכישה לקונה</span><h3>ההזמנה נקלטה</h3><p>סיכום הרכישה, מועד השליחה ומספר ההזמנה יישלחו אליך מיד לאחר התשלום.</p><small>{email}</small></article>
       </div>
       <div className="gift-thank-you__actions"><Link className="button primary" href="/account">לצפייה בהזמנות שלי</Link><Link className="button secondary" href="/gift-card">יצירת מתנה נוספת</Link></div>
@@ -156,7 +156,7 @@ export function GiftCardBuilder() {
       <div className="gift-builder__preview" aria-live="polite">
         <div className="gift-preview-label"><span>התצוגה המקדימה שלכם</span><small>מתעדכנת בזמן אמת</small></div>
         <div className={`gift-card-art gift-card-art--${design}`}>
-          <span>VII GIFT CARD</span>
+          <span>V GIFT CARD</span>
           <div><small>מתנה עבור</small><strong>{recipient || "מישהו או מישהי שאוהבים"}</strong></div>
           <b>{finalAmount.toLocaleString("he-IL")} <i>₪</i></b>
           <p>{message || "שתהיה לך חוויה נפלאה, בדיוק בדרך שלך."}</p>

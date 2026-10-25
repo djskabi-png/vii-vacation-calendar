@@ -1,7 +1,6 @@
 "use client";
 import { nearbyRecommendations } from "../../lib/nearby-recommendations";
 import { eventBreadcrumbsForLocation } from "../../data/world-search-landings";
-import { hasVerifiedAccessibilityFeature } from "../../data/accessibility-data";
 
 import { FormEvent, useMemo, useState } from "react";
 import Link from "next/link";
@@ -99,7 +98,6 @@ export default function EventPlacePage({ initialSlug, initialPlace, relatedPlace
   const sectionLinks = useMemo<DetailSectionLink[]>(() => [
     ...(place.description ? [{ href: "#event-about" as const, label: translate("על המקום") }] : []),
     ...(place.features.length ? [{ href: "#event-features" as const, label: translate("מתקנים") }] : []),
-    ...(hasVerifiedAccessibilityFeature(place.features) ? [{ href: "#accessibility" as const, label: translate("נגישות") }] : []),
     { href: "#event-map", label: translate("מיקום") },
     { href: "#reviews", label: translate("חוות דעת") },
     { href: "#event-booking", label: translate("הזמנה") },

@@ -55,7 +55,7 @@ export function LeadIntakeForm({ purpose, selectedPackage = "", billingCycle = "
       requestedPackage ? `חבילת פרסום: ${requestedPackage}` : "",
       billingCycle ? `מחזור חיוב: ${billingCycle === "annual" ? "שנתי" : "חודשי"}` : "",
       requestedService ? `שירות: ${requestedService}` : "",
-      requestedIntent === "activity-order" ? "אופן פנייה: הזמנת אטרקציה מתוך אתר VII" : "",
+      requestedIntent === "activity-order" ? "אופן פנייה: הזמנת אטרקציה מתוך אתר V" : "",
       eventDate ? `מועד משוער: ${eventDate}` : "",
       participants ? `כמות משתתפים: ${participants}` : "",
       budget ? `תקציב משוער: ${budget}` : "",

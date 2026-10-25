@@ -31,7 +31,7 @@ export default function GiftCardPage() {
     <StructuredData data={breadcrumbSchema([{ name: "ראשי", path: "/" }, { name: "גיפט קארד", path: "/gift-card/" }])} />
     <main id="main-content" className="gift-page">
       <BreadcrumbTrail className="world-breadcrumbs" items={[{ name: "ראשי", path: "/" }, { name: "גיפט קארד" }]} />
-      <section className="gift-hero"><div className="shell"><div><h1>גיפט קארד אחד.<br />עולם שלם של אפשרויות.</h1><p>נותנים סכום, והם בוחרים איך ליהנות ממנו: נופש, ספא, אירוע, אטרקציה או שירות שמגיע עד המקום.</p><a className="button primary" href="#gift-builder">בוחרים מתנה</a></div><div className="gift-hero__card"><span>VII GIFT CARD</span><b>החופש לבחור</b><small>נופש · ספא · אירועים · חוויות</small></div></div></section>
+      <section className="gift-hero"><div className="shell"><div><h1>גיפט קארד אחד.<br />עולם שלם של אפשרויות.</h1><p>נותנים סכום, והם בוחרים איך ליהנות ממנו: נופש, ספא, אירוע, אטרקציה או שירות שמגיע עד המקום.</p><a className="button primary" href="#gift-builder">בוחרים מתנה</a></div><div className="gift-hero__card"><span>V GIFT CARD</span><b>החופש לבחור</b><small>נופש · ספא · אירועים · חוויות</small></div></div></section>
 
       <section className="section section-tint" id="gift-builder"><div className="shell"><div className="section-head"><div><h2>שלושה צעדים וגמרנו</h2><p>בוחרים סכום, מוסיפים שם וברכה, ומשאירים פרטים להשלמת התשלום וההנפקה.</p></div></div><GiftCardBuilder /></div></section>
 

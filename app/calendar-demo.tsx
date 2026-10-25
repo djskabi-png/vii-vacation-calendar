@@ -310,6 +310,7 @@ export function CalendarDemo({
   guests = 2,
   maxGuests = 20,
   onGuestsChange,
+  totalUnits,
   availabilityResolver,
   priceResolver,
   liveCalendar,
@@ -329,6 +330,7 @@ export function CalendarDemo({
   guests?: number;
   maxGuests?: number;
   onGuestsChange?: (guests: number) => void;
+  totalUnits?: number;
   availabilityResolver?: (date: Date) => Availability;
   priceResolver?: (date: Date) => number | undefined;
   liveCalendar?: StayCalendar | null;
@@ -353,6 +355,10 @@ export function CalendarDemo({
   const visibleMonths = Array.from({ length: 12 }, (_, index) => addMonths(START_MONTH, index));
   const nights = checkIn && checkOut ? dateDiff(checkIn, checkOut) : 0;
   const selectedMin = mode === "business" && checkIn ? sourceMinimum(dateFromKey(checkIn), liveCalendar, illustrative) : 1;
+  const selectedStayRules = checkIn && checkOut && liveCalendar ? assessCalendarStay(liveCalendar, checkIn, checkOut) : null;
+  const selectedAvailableUnits = selectedStayRules?.allowed
+    ? Object.values(selectedStayRules.availableUnitCounts).reduce((sum, count) => sum + count, 0)
+    : null;
   // A calendar outage must not dead-end booking. While loading we avoid a
   // premature choice; on error dates remain selectable as unknown and the
   // authoritative stay quote validates them immediately after confirmation.
@@ -592,7 +598,7 @@ export function CalendarDemo({
             <span className={ready ? "status-ready" : ""}>{ready ? "✓" : "i"}</span>
             <div>
               <strong>{flexible ? translate("החיפוש הגמיש מוכן") : checkIn && checkOut ? `${longDate(checkIn, dateLocale)} עד ${longDate(checkOut, dateLocale)}` : checkIn ? `${longDate(checkIn, dateLocale)} · ${notice}` : notice}</strong>
-              <small>{!flexible && checkIn && checkOut ? `${nights === 1 ? "לילה אחד" : `${nights} לילות`} · ` : ""}{mode === "home" ? "הבחירה תחול על כל תוצאות האתר" : businessKind === "single" ? `הבחירה תחול על כל המקום ב${businessName}` : `הבחירה תחול רק על יחידות ${businessName}`}</small>
+              <small>{!flexible && checkIn && checkOut ? `${nights === 1 ? "לילה אחד" : `${nights} לילות`} · ` : ""}{mode === "home" ? "הבחירה תחול על כל תוצאות האתר" : selectedAvailableUnits !== null && totalUnits && totalUnits > 1 ? `${Math.min(totalUnits, selectedAvailableUnits)} מתוך ${totalUnits} יחידות פנויות בטווח שנבחר` : businessKind === "single" ? `הבחירה תחול על כל המקום ב${businessName}` : `הבחירה תחול על יחידות ${businessName}`}</small>
             </div>
           </div>
           <div className="dialog-actions">

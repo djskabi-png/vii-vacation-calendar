@@ -17,7 +17,7 @@ const sectionMeta: Record<string, { label: string; description: string }> = {
 };
 
 const contentLabels: Record<string, string> = {
-  home: "דף הבית", join: "הצטרפות ל־VII", "legal-accessibility": "משפטי ונגישות", "information-services": "מידע ושירותים",
+  home: "דף הבית", join: "הצטרפות ל־V", "legal-accessibility": "משפטי ונגישות", "information-services": "מידע ושירותים",
   "holiday-worlds": "עמודי חגים ומועדים",
   "vacation-search": "חיפוש נופש", "place-pages": "עמודי מקום", "region-type-landings": "דפי נחיתה לפי אזור או סוג",
   "search-region-pages": "חיפוש ודפי אזור", "events-world": "עמוד עולם האירועים", "spa-place-pages": "עמודי בית ספא",
@@ -28,7 +28,7 @@ const contentLabels: Record<string, string> = {
 
 export function SitemapDetails({ report }: { report: SitemapReport }) {
   return <section className={styles.sitemaps} aria-labelledby="sitemap-details-title">
-    <header><div><h2 id="sitemap-details-title">מה יש בכל קובץ מפת אתר</h2><p>הנתונים מחושבים מאותו מקור שמייצר את קובצי ה־XML. אפשר לפתוח כל משפחה ולראות בדיוק מה Google מקבל.</p></div><div className={styles.limitNote}><strong>{report.limits.viiUrlsPerFile.toLocaleString("he-IL")}</strong><span>כתובות לכל קובץ ב־VII</span><small>Google מאפשר עד {report.limits.googleUrlsPerFile.toLocaleString("he-IL")} כתובות או {(report.limits.googleBytesPerFile / 1024 / 1024).toLocaleString("he-IL")}MB</small></div></header>
+    <header><div><h2 id="sitemap-details-title">מה יש בכל קובץ מפת אתר</h2><p>הנתונים מחושבים מאותו מקור שמייצר את קובצי ה־XML. אפשר לפתוח כל משפחה ולראות בדיוק מה Google מקבל.</p></div><div className={styles.limitNote}><strong>{report.limits.viiUrlsPerFile.toLocaleString("he-IL")}</strong><span>כתובות לכל קובץ ב־V</span><small>Google מאפשר עד {report.limits.googleUrlsPerFile.toLocaleString("he-IL")} כתובות או {(report.limits.googleBytesPerFile / 1024 / 1024).toLocaleString("he-IL")}MB</small></div></header>
     <div className={styles.sitemapGrid}>{report.sections.map((section, sectionIndex) => { const meta = sectionMeta[section.section] || { label: section.section, description: "משפחת מפת אתר" }; return <details key={section.section} open={sectionIndex === 1} className={styles.sitemapFamily}>
       <summary><span className={styles.familyIcon}><FileCode2 size={18} /></span><div><strong>{meta.label}</strong><small>{meta.description}</small></div><span className={styles.familyCount}>{section.urls.toLocaleString("he-IL")} כתובות · {section.files.toLocaleString("he-IL")} קבצים</span><ChevronDown size={17} /></summary>
       <div className={styles.sitemapFiles}>{section.fileDetails.map((file) => <article key={file.url}>

@@ -12,6 +12,8 @@ export type VerifiedSleepingRoom = {
   unitName?: string;
   details: string[];
   galleryImage?: string;
+  totalUnits?: number;
+  availableUnits?: number;
 };
 
 export function VerifiedSleepingDetails({ placeName, rooms }: { placeName: string; rooms: VerifiedSleepingRoom[] }) {
@@ -34,8 +36,9 @@ export function VerifiedSleepingDetails({ placeName, rooms }: { placeName: strin
       {rooms.map((room) => <article className="sleeping-card" key={room.key}>
         {room.galleryImage ? <img src={room.galleryImage} alt={`${room.name} ב${placeName}`} title={`${room.name} ב${placeName}`} loading="lazy" /> : null}
         <div className="sleeping-card__body">
-          {room.unitName ? <span>{room.unitName}</span> : null}
+          {room.unitName ? <span>{room.unitName}{room.totalUnits && room.totalUnits > 1 ? ` · ${room.totalUnits} יחידות זהות` : ""}</span> : null}
           <h3>{room.name}</h3>
+          {room.availableUnits !== undefined && room.totalUnits && room.totalUnits > 1 ? <strong className="sleeping-card__availability">{room.availableUnits} מתוך {room.totalUnits} יחידות זהות פנויות בתאריכים שנבחרו</strong> : null}
           <div className="sleeping-card__amenities" aria-label={`פרטי ${room.name}`}>
             {room.details.map((detail) => <small key={detail}><FeatureIcon label={detail} className="sleeping-amenity-icon" />{detail}</small>)}
           </div>

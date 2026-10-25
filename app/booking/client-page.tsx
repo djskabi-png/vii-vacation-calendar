@@ -401,7 +401,7 @@ export default function BookingPageClient(props: Props) {
         <span className="booking-success__mark" aria-hidden="true">✓</span>
         <small>{props.illustrative ? "המחשת הזמנה בלבד" : isManage ? "בקשת שינוי" : supplierBookingStatus === "confirmed" ? "ההזמנה אושרה על ידי המקום" : "הזמנה שממתינה לאישור"}</small>
         <h1>{props.illustrative ? "המחשת ההזמנה הושלמה" : isManage ? "בקשת השינוי התקבלה" : supplierBookingStatus === "confirmed" ? "ההזמנה אושרה" : "בקשת ההזמנה הושלמה"}</h1>
-        <p>{props.illustrative ? "זו המחשת תצוגה בלבד. לא נשלחה הזמנה, לא נשמרו פרטים ולא בוצע חיוב." : isManage ? "הבקשה נשמרה ונציג יבדוק אותה." : usesSpaPayment ? paymentMethod === "pay_now" ? "פרטי ההזמנה נשמרו. לא בוצע חיוב בכרטיס." : "פרטי ההזמנה נשמרו. לא בוצע חיוב ולא נשמר כרטיס לביטחון." : supplierBookingStatus === "confirmed" ? "המקום אישר את ההזמנה. לא בוצע חיוב דרך VII." : supplierSiteID ? "המקום קיבל את הבקשה והיא ממתינה לאישורו. לא בוצע חיוב דרך VII." : "לא בוצע חיוב. המקום יקבל את הבקשה, יאמת זמינות ומחיר ויחזיר אישור סופי."}</p>
+        <p>{props.illustrative ? "זו המחשת תצוגה בלבד. לא נשלחה הזמנה, לא נשמרו פרטים ולא בוצע חיוב." : isManage ? "הבקשה נשמרה ונציג יבדוק אותה." : usesSpaPayment ? paymentMethod === "pay_now" ? "פרטי ההזמנה נשמרו. לא בוצע חיוב בכרטיס." : "פרטי ההזמנה נשמרו. לא בוצע חיוב ולא נשמר כרטיס לביטחון." : supplierBookingStatus === "confirmed" ? "המקום אישר את ההזמנה. לא בוצע חיוב דרך V." : supplierSiteID ? "המקום קיבל את הבקשה והיא ממתינה לאישורו. לא בוצע חיוב דרך V." : "לא בוצע חיוב. המקום יקבל את הבקשה, יאמת זמינות ומחיר ויחזיר אישור סופי."}</p>
         <div className="booking-success__summary">
           <strong>{props.placeName}</strong>
           <span>{arrival}{departure ? " עד " + departure : ""}</span>
@@ -445,7 +445,7 @@ export default function BookingPageClient(props: Props) {
     <div className="booking-page__intro">
       <span className="eyebrow">{isManage ? "ניהול הזמנה" : usesSpaPayment ? "הזמנת ספא אונליין" : "הזמנה אונליין"}</span>
       <h1>{isManage ? "עדכון או ביטול הזמנה" : props.placeName}</h1>
-      <p>{props.illustrative ? "זו המחשה בלבד. לא נשלחת הזמנה ולא מתבצע חיוב." : isManage ? "מוסרים את מספר ההזמנה ואת הבקשה המבוקשת." : usesSpaPayment ? "בוחרים מועד, ממלאים פרטים ובוחרים איך לשלם לפני סיכום ההזמנה." : supplierSiteID ? "שלושה שלבים קצרים לשליחת בקשת הזמנה לצוות VII. אישור סופי יינתן רק לאחר בדיקת המקום." : "שלושה שלבים קצרים. הבקשה נשלחת לאישור המקום ורק לאחר מכן הופכת להזמנה מאושרת."}</p>
+      <p>{props.illustrative ? "זו המחשה בלבד. לא נשלחת הזמנה ולא מתבצע חיוב." : isManage ? "מוסרים את מספר ההזמנה ואת הבקשה המבוקשת." : usesSpaPayment ? "בוחרים מועד, ממלאים פרטים ובוחרים איך לשלם לפני סיכום ההזמנה." : supplierSiteID ? "שלושה שלבים קצרים לשליחת בקשת הזמנה לצוות V. אישור סופי יינתן רק לאחר בדיקת המקום." : "שלושה שלבים קצרים. הבקשה נשלחת לאישור המקום ורק לאחר מכן הופכת להזמנה מאושרת."}</p>
     </div>
 
     <nav className="booking-steps" aria-label="שלבי ההזמנה">
@@ -513,7 +513,7 @@ export default function BookingPageClient(props: Props) {
               <label><input type="radio" name="paymentMethod" value="pay_at_venue" checked={paymentMethod === "pay_at_venue"} onChange={() => setPaymentMethod("pay_at_venue")} required /><span><b>תשלום במקום</b><small>הכרטיס משמש לביטחון ההזמנה בלבד ואינו מחויב עכשיו.</small></span></label>
             </div>
             <small className="booking-payment-choice__notice">המחשה בלבד. לא מתבצע תשלום ואין להזין פרטי כרטיס אמיתי.</small>
-          </fieldset> : <div className="booking-approval-note form-wide"><strong>מה קורה אחרי השליחה?</strong><p>{supplierSiteID ? "לאחר בדיקת המחיר והזמינות, הבקשה תועבר למקום. בסיום יוצג אם ההזמנה אושרה או ממתינה לאישורו. לא יבוצע חיוב דרך VII." : "הבקשה נשמרת ומועברת למקום. לאחר בדיקת הזמינות והמחיר יישלח אישור סופי. עד אז הסטטוס הוא ממתין לאישור."}</p></div>}
+          </fieldset> : <div className="booking-approval-note form-wide"><strong>מה קורה אחרי השליחה?</strong><p>{supplierSiteID ? "לאחר בדיקת המחיר והזמינות, הבקשה תועבר למקום. בסיום יוצג אם ההזמנה אושרה או ממתינה לאישורו. לא יבוצע חיוב דרך V." : "הבקשה נשמרת ומועברת למקום. לאחר בדיקת הזמינות והמחיר יישלח אישור סופי. עד אז הסטטוס הוא ממתין לאישור."}</p></div>}
           <div className="booking-form__actions form-wide">
             <button className="button secondary" type="button" onClick={() => setStep(2)}>עריכת הפרטים</button>
             {usesSpaPayment ? <button ref={paymentTriggerRef} className="button primary" type="button" onClick={openPayment}>המשך לתשלום</button> : <button className="button primary" disabled={state === "submitting"} type="submit">{state === "submitting" ? "שולחים..." : props.illustrative ? "סיום המחשת ההזמנה" : isManage ? "שליחת בקשת שינוי" : "שליחת בקשת הזמנה"}</button>}
@@ -527,7 +527,7 @@ export default function BookingPageClient(props: Props) {
         <header><div><small>תשלום מאובטח</small><h2 id={paymentTitleId}>{paymentMethod === "pay_now" ? "תשלום בכרטיס אשראי" : "כרטיס לביטחון ההזמנה"}</h2></div><button className="dialog-close" type="button" onClick={closePayment} aria-label="סגירת חלון התשלום">×</button></header>
         <p>{paymentMethod === "pay_now" ? "כאן יוזנו פרטי הכרטיס לצורך תשלום מלוא סכום ההזמנה." : "כאן יוזנו פרטי הכרטיס לביטחון בלבד. התשלום יתבצע במקום."}</p>
         <div className="booking-payment-dialog__card" aria-label="המחשת טופס כרטיס אשראי">
-          <span>VII SECURE</span><b dir="ltr">•••• •••• •••• ••••</b><div><small>MM/YY</small><small>CVC</small></div>
+          <span>V SECURE</span><b dir="ltr">•••• •••• •••• ••••</b><div><small>MM/YY</small><small>CVC</small></div>
         </div>
         <div className="booking-payment-dialog__notice" role="note"><strong>המחשה בלבד</strong><span>לא מתבצע תשלום ולא נאספים פרטי כרטיס אמיתי.</span></div>
         <div className="booking-payment-dialog__summary"><span>{paymentMethodLabel}</span><strong>{props.price}</strong><small>{props.placeName}</small></div>

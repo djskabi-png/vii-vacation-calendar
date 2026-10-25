@@ -27,7 +27,7 @@
   "מחירי בסיס לפי חדר ומשך שהייה": { "en": "Base rates by room and duration", "ru": "Базовые цены по номеру и продолжительности", "fr": "Tarifs de base par chambre et durée" },
   "למחירי החדרים ולבירור זמינות, פנו למקום.": { "en": "Contact the venue for room rates and availability.", "ru": "Уточните цены и наличие номеров у объекта.", "fr": "Contactez l’établissement pour les tarifs et les disponibilités des chambres." },
   "בירור ישיר": { "en": "Contact the venue", "ru": "Связаться с объектом", "fr": "Contacter l’établissement" },
-  "באתר VII. רציתי לבדוק שעה פנויה": { "en": "on VII. I would like to check an available time", "ru": "на VII. Я хотел бы узнать о свободном времени", "fr": "sur VII. Je souhaite vérifier un horaire disponible" },
+  "באתר V. רציתי לבדוק שעה פנויה": { "en": "on V. I would like to check an available time", "ru": "на V. Я хотел бы узнать о свободном времени", "fr": "sur V. Je souhaite vérifier un horaire disponible" },
   "עבור": { "en": "for", "ru": "для", "fr": "pour" },
   ", שמחיר הבסיס שלה": { "en": ", with a base rate of", "ru": ", базовая цена которого", "fr": ", dont le tarif de base est de" },
   "מאשרים תאריך, שעה וחדר פנוי": { "en": "Confirm the date, time and available room", "ru": "Уточните дату, время и свободный номер", "fr": "Confirmez la date, l’heure et la chambre disponible" },
